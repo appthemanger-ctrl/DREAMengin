@@ -183,7 +183,11 @@ export class SessionPatternEngine {
 
     // Blend cold-start defaults with learned weights in the warm-up window.
     if (transitionCount <= COLD_START_THRESHOLD) {
-      const learnWeight = Math.max(0, transitionCount - MIN_TRANSITIONS) / (COLD_START_THRESHOLD - MIN_TRANSITIONS);
+      // Guard: if the two thresholds are equal (misconfiguration) treat as pure learned.
+      const blendRange = COLD_START_THRESHOLD - MIN_TRANSITIONS;
+      const learnWeight = blendRange > 0
+        ? Math.max(0, transitionCount - MIN_TRANSITIONS) / blendRange
+        : 1;
       const coldWeight = 1 - learnWeight;
       const coldDefaults = this.coldStartDefaults(currentSubsystemId);
 

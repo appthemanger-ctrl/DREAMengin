@@ -193,7 +193,7 @@ export function useSessionIntelligence(
     if (!currentSubsystemId) return;
     if (currentSubsystemId === prev) return;
 
-    ingestSubsystem(currentSubsystemId, prevBusSubsystemRef);
+    ingestSubsystem(currentSubsystemId, prevPropSubsystemRef);
   }, [currentSubsystemId, ingestSubsystem]);
 
   // Persist session + matrix on page hide / beforeunload.

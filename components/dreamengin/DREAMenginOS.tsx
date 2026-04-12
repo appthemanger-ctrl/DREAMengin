@@ -644,7 +644,7 @@ export default function DREAMenginOS({
                 letterSpacing: '0.1em',
               }}
             >
-              {isLearning ? 'LEARNED' : 'WARM DEFAULT'}
+              {isLearning ? 'LEARNED' : 'WARM DEFAULTS'}
             </span>
           </div>
 
