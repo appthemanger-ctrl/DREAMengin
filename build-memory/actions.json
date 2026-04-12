@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-05T07:51:04.128Z",
+  "generated_at": "2026-04-12T01:49:14.210Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 84,
+  "count": 89,
   "actions": [
     {
       "file": "app/api/account/delete-data/route.ts",
@@ -173,6 +173,14 @@
         "GET",
         "POST",
         "DELETE"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/ci/run/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
       ],
       "exports": []
     },
@@ -362,6 +370,14 @@
       "exports": []
     },
     {
+      "file": "app/api/dreamengin/os-status/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
+      ],
+      "exports": []
+    },
+    {
       "file": "app/api/dreamr/feed/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
@@ -414,6 +430,16 @@
       "exports": []
     },
     {
+      "file": "app/api/forge/build/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": [
+        "fetchWithRetry"
+      ]
+    },
+    {
       "file": "app/api/gal/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
@@ -453,6 +479,14 @@
       "type": "api-route-handler",
       "http_handlers": [
         "POST"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/ledger-media/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
       ],
       "exports": []
     },
@@ -590,6 +624,14 @@
         "POST",
         "PUT",
         "DELETE"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/security/scan/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
       ],
       "exports": []
     },

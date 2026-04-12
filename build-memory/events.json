@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-05T07:51:04.128Z",
+  "generated_at": "2026-04-12T01:49:14.210Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 18,
+  "count": 20,
   "events": [
     {
       "event": "de-ctrl-button",
@@ -17,6 +17,9 @@
         "components/games/EchoArena.tsx",
         "components/games/NeonDrift.tsx",
         "components/games/madmaxi/MadmaxiGame.tsx",
+        "games/echo-arena/EchoArena.tsx",
+        "games/madmaxi/MadmaxiGame.tsx",
+        "games/neon-drift/NeonDrift.tsx",
         "lib/games/useGameInputKeyboardBridge.ts"
       ]
     },
@@ -60,7 +63,8 @@
       "event": "de:game-telemetry",
       "payload_type": null,
       "files": [
-        "components/daydream/AnalyticsEngin.tsx"
+        "components/daydream/AnalyticsEngin.tsx",
+        "engins/analytics/AnalyticsEngin.tsx"
       ]
     },
     {
@@ -82,6 +86,14 @@
       "payload_type": null,
       "files": [
         "lib/agents/agentBus.ts"
+      ]
+    },
+    {
+      "event": "error",
+      "payload_type": null,
+      "files": [
+        "components/daydream/CodeEngin.tsx",
+        "engins/CodeEngin.tsx"
       ]
     },
     {
@@ -124,21 +136,32 @@
         "components/HomeFeed.tsx",
         "components/home/WorkspaceDashboard.tsx",
         "components/messaging/DreamDMBar.tsx",
-        "components/runtime/RuntimeShell.tsx"
+        "components/runtime/RuntimeShell.tsx",
+        "dreamdmbar/DreamDMBar.tsx",
+        "dreamdmbar/homedream/WorkspaceDashboard.tsx"
       ]
     },
     {
       "event": "pointermove",
       "payload_type": null,
       "files": [
+        "components/home/ActiveModuleSurface.tsx",
         "lib/god-tier/useGodTier.ts"
+      ]
+    },
+    {
+      "event": "pointerup",
+      "payload_type": null,
+      "files": [
+        "components/home/ActiveModuleSurface.tsx"
       ]
     },
     {
       "event": "starmaker:load-recording",
       "payload_type": null,
       "files": [
-        "components/daydream/StarMakerEngin.tsx"
+        "components/daydream/StarMakerEngin.tsx",
+        "engins/StarMakerEngin.tsx"
       ]
     }
   ]
