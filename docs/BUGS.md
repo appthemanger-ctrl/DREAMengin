@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 03:59 UTC  
-**Last updated:** 2026-04-12 03:59 UTC  
-**Triggered by commit:** `5250d5a` on `copilot/fix-dream-field-issues` by Copilot  
-**Commit message:** feat: add slog export, OriginalityMeta, calculateOriginality, full Physical Turing Test bot detector
+**Documentation Date:** 2026-04-12 04:06 UTC  
+**Last updated:** 2026-04-12 04:06 UTC  
+**Triggered by commit:** `1444d1d` on `copilot/fix-dream-field-issues` by Copilot  
+**Commit message:** feat: swipe calibration, bridge durable queue, profile-aware verifyHumanity/resolveSwipeRelease
 
 ---
 
