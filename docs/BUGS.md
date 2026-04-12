@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 18:30 UTC  
-**Last updated:** 2026-04-12 18:30 UTC  
-**Triggered by commit:** `429fd3d` on `claude/remove-telemetry-and-analytics` by Claude  
-**Commit message:** refactor: remove mock feature cards from create and music daydreams
+**Documentation Date:** 2026-04-12 18:31 UTC  
+**Last updated:** 2026-04-12 18:31 UTC  
+**Triggered by commit:** `33b0c8c` on `claude/remove-telemetry-and-analytics` by Claude  
+**Commit message:** refactor: standardize auth guards across all daydream pages
 
 ---
 
