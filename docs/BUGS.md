@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 17:01 UTC  
-**Last updated:** 2026-04-12 17:01 UTC  
-**Triggered by commit:** `1557959` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #485 from appthemanger-ctrl/copilot/improve-ui-visualization
+**Documentation Date:** 2026-04-12 17:28 UTC  
+**Last updated:** 2026-04-12 17:28 UTC  
+**Triggered by commit:** `2ba7e12` on `copilot/improve-dreamr-social-media` by Copilot  
+**Commit message:** feat: real UX improvements — fix like toggle, save, follow, inline comments, draft persistence, error feedback
 
 ---
 
