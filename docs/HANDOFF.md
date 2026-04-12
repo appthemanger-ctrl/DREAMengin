@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-12 09:11 UTC | `26d268b` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #483 from appthemanger-ctrl/copilot/update-jump-mechanics-and-enemies — fix: resolve all game bugs — input wiring, listener leaks, perf, and hub registration<br> |
 | **auto** | 2026-04-12 09:10 UTC | `b425869` | copilot/update-jump-mechanics-and-enemies | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/update-jump-mechanics-and-enemies<br> |
 | **auto** | 2026-04-12 08:57 UTC | `1609059` | copilot/update-jump-mechanics-and-enemies | Copilot | ~9 modified<br>fix: resolve all game bugs across input, rendering, and hub registration — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/83f8af5f-a715-4c56-a5e4-e43ee463af8c  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/games/EchoArena.tsx`, `components/games/GameHUD.tsx`, `components/games/GamesHub.tsx`, `components/games/LegacyGameRemote.tsx`, `components/games/MobileGameHUD.tsx`, `components/games/NeonDrift.tsx`, `components/games/SpaceShooter.tsx`, `components/games/TetrisGame.tsx`, `lib/games/useRemoteChannel.ts` |
 | **auto** | 2026-04-12 04:23 UTC | `7b27b7e` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #478 from appthemanger-ctrl/copilot/wire-calibrate-device-sequence — feat: wire calibrateDevice into LandingHero for on-arrival Humanity sampling<br> |
 | **auto** | 2026-04-12 04:19 UTC | `8ec9f5f` | copilot/wire-calibrate-device-sequence | Copilot | +1 added  ~1 modified<br>feat: wire calibrateDevice into LandingHero animation for on-arrival Humanity sampling — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/da1f9436-5da0-445e-8fea-6955eec1d7ce  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `tests/landing-calibration.test.ts`<br>✏️: `components/LandingHero.tsx` |
-| **auto** | 2026-04-12 04:09 UTC | `62cf707` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #477 from appthemanger-ctrl/copilot/fix-dream-field-issues — fix: Shell-First DreamDMBar, DREAMfield UX clarity, bubble pill divider<br> |
 
 ## What changed in this alignment pass
 
