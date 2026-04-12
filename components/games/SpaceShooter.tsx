@@ -180,7 +180,8 @@ export default function SpaceShooter() {
       ctx.fillStyle = '#f87171'; ctx.fillText(`❤ ${livesRef.current}`, CW - 60, 18);
       ctx.fillStyle = '#93c5fd'; ctx.fillText(`Wave ${waveRef.current}`, CW / 2 - 30, 18);
 
-      setScore(scoreRef.current); setLives(livesRef.current);
+      setScore((prev) => prev !== scoreRef.current ? scoreRef.current : prev);
+      setLives((prev) => prev !== livesRef.current ? livesRef.current : prev);
       rafRef.current = requestAnimationFrame(loop);
     };
     rafRef.current = requestAnimationFrame(loop);

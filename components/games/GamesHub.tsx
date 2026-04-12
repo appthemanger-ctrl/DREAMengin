@@ -53,6 +53,14 @@ const DREAMquest  = dynamicImport(() => import('@/components/games/DREAMquest'),
 const NeonDrift   = dynamicImport(() => import('@/components/games/NeonDrift'),   { ssr: false, loading: Loading });
 const EchoArena   = dynamicImport(() => import('@/components/games/EchoArena'),   { ssr: false, loading: Loading });
 const LucidAvenue = dynamicImport(() => import('@/components/games/LucidAvenue'), { ssr: false, loading: Loading });
+const PongGame       = dynamicImport(() => import('@/components/games/PongGame'),       { ssr: false, loading: Loading });
+const SolitaireGame  = dynamicImport(() => import('@/components/games/SolitaireGame'),  { ssr: false, loading: Loading });
+const MinesweeperGame = dynamicImport(() => import('@/components/games/MinesweeperGame'), { ssr: false, loading: Loading });
+const MemoryGrid     = dynamicImport(() => import('@/components/games/MemoryGrid'),     { ssr: false, loading: Loading });
+const WordSprint     = dynamicImport(() => import('@/components/games/WordSprint'),     { ssr: false, loading: Loading });
+const SpeedTap       = dynamicImport(() => import('@/components/games/SpeedTap'),       { ssr: false, loading: Loading });
+const TriviaGame     = dynamicImport(() => import('@/components/games/TriviaGame'),     { ssr: false, loading: Loading });
+const AvatarMaker    = dynamicImport(() => import('@/components/games/AvatarMaker'),    { ssr: false, loading: Loading });
 
 export interface GameDef {
   id: string;
@@ -135,6 +143,23 @@ export const GAMES: GameDef[] = [
     mobileHudMode: 'joystick',
     subtitle: 'WebGPU · DualSense Ready',
     desc: 'WebGPU arena shooter — DualSense gyro aim, top-down combat, high-performance 3D rendering' },
+  // ── Casual / Party ────────────────────────────────────────────────────────
+  { id: 'pong',          emoji: '🏓', label: 'DREAM PONG',          category: 'Sports',      color: '#22d3ee', renderMode: 'canvas', component: PongGame,
+    desc: 'Classic Pong — 2-player local or vs AI; be the first to 7 points' },
+  { id: 'minesweeper',   emoji: '💣', label: 'DREAM SWEEP',         category: 'Puzzle',      color: '#6b7280', renderMode: 'dom',    component: MinesweeperGame,
+    desc: 'Classic minesweeper — 12×16 grid, 28 mines, flag all threats to win' },
+  { id: 'memory-grid',   emoji: '🃏', label: 'MEMORY GRID',         category: 'Puzzle',      color: '#f59e0b', renderMode: 'dom',    component: MemoryGrid,
+    desc: 'Flip cards to match emoji pairs — clear the full 4×4 grid to win' },
+  { id: 'solitaire',     emoji: '🃏', label: 'DREAM SOLITAIRE',     category: 'Board',       color: '#10b981', renderMode: 'dom',    component: SolitaireGame,
+    desc: 'Classic Klondike solitaire — build all four suits from Ace to King' },
+  { id: 'word-sprint',   emoji: '📝', label: 'WORD SPRINT',         category: 'Casual',      color: '#f472b6', renderMode: 'dom',    component: WordSprint,
+    desc: 'Type the falling words before time runs out — chain combos for bonus points' },
+  { id: 'speed-tap',     emoji: '👆', label: 'SPEED TAP',           category: 'Casual',      color: '#fb923c', renderMode: 'dom',    component: SpeedTap,
+    desc: 'Tap as fast as you can in 10 seconds — beat your personal best' },
+  { id: 'trivia',        emoji: '🧠', label: 'DREAM TRIVIA',        category: 'Casual',      color: '#818cf8', renderMode: 'dom',    component: TriviaGame,
+    desc: 'Ten-question trivia sprint — science, history, pop-culture, and code' },
+  { id: 'avatar-maker',  emoji: '🎨', label: 'AVATAR MAKER',        category: 'Creative',    color: '#e879f9', renderMode: 'dom',    component: AvatarMaker,
+    desc: 'Build your DREAMengin avatar — pick skin, hair, outfit and expression' },
 ];
 
 const FEATURED_GAME_IDS = ['platformer', 'neon-drift', 'dreamquest', 'dreamwars'] as const;
