@@ -2,9 +2,10 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import DrEamsBabylonHero from '@/components/landing/DrEamsBabylonHero';
 import ParticleConstellation from '@/components/landing/ParticleConstellation';
+import { calibrateDevice, type CalibrationSample } from '@/lib/dreamr/swipeCalibration';
 
 /**
  * LandingHero — Premium SICK redesign.
@@ -114,9 +115,29 @@ const PLATFORM_STATS = [
 const easeDecel   = { ease: [0, 0, 0.2, 1]    as const, duration: 0.3 };
 const easePrecise = { ease: [0.4, 0, 0.2, 1]  as const, duration: 0.2 };
 
+// ─── Per-gesture state for the on-arrival calibration pass ───────────────────
+interface GestureState {
+  /** Accumulated calibration samples from the current session. */
+  samples: CalibrationSample[];
+  /** True once calibrateDevice has been called with ≥3 samples. */
+  calibrated: boolean;
+  /** Pointer position + timestamp at the start of the current gesture. */
+  gestureStart: { x: number; y: number; t: number } | null;
+  /** Running list of pointer positions captured during the gesture. */
+  positions: { x: number; y: number }[];
+}
+
 export default function LandingHero() {
   const [actionIdx, setActionIdx] = useState(0);
   const [heroSize, setHeroSize] = useState(460);
+
+  /** Mutable ref so the calibration effect never re-runs or causes re-renders. */
+  const calibrationRef = useRef<GestureState>({
+    samples: [],
+    calibrated: false,
+    gestureStart: null,
+    positions: [],
+  });
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -131,6 +152,83 @@ export default function LandingHero() {
     update();
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
+  }, []);
+
+  /**
+   * Humanity calibration pass — starts collecting samples from the very first
+   * pointer interaction the user makes on the landing page.
+   *
+   * Each completed gesture (pointerdown → move sequence → pointerup) yields one
+   * CalibrationSample that measures the device's natural perpendicular jitter.
+   * After three samples calibrateDevice() locks in a device-specific profile that
+   * makes verifyHumanity / resolveSwipeRelease accurate for this visitor's hardware.
+   */
+  useEffect(() => {
+    const state = calibrationRef.current;
+
+    function onPointerDown(e: PointerEvent) {
+      if (state.calibrated) return;
+      state.gestureStart = { x: e.clientX, y: e.clientY, t: Date.now() };
+      state.positions = [{ x: e.clientX, y: e.clientY }];
+    }
+
+    function onPointerMove(e: PointerEvent) {
+      if (state.calibrated || !state.gestureStart) return;
+      state.positions.push({ x: e.clientX, y: e.clientY });
+    }
+
+    function onPointerUp(e: PointerEvent) {
+      if (state.calibrated || !state.gestureStart || state.positions.length < 2) {
+        state.gestureStart = null;
+        state.positions = [];
+        return;
+      }
+
+      const start = state.gestureStart;
+      const durationMs = Math.max(1, Date.now() - start.t);
+      const dx = e.clientX - start.x;
+      const dy = e.clientY - start.y;
+      const travelPx = Math.sqrt(dx * dx + dy * dy);
+
+      // Discard micro-taps — need at least 5 px of travel to be meaningful.
+      if (travelPx < 5) {
+        state.gestureStart = null;
+        state.positions = [];
+        return;
+      }
+
+      // Max perpendicular deviation from the straight start→end line.
+      let maxDevPx = 0;
+      for (const p of state.positions) {
+        const perpDist =
+          Math.abs(dx * (start.y - p.y) - (start.x - p.x) * dy) / travelPx;
+        if (perpDist > maxDevPx) maxDevPx = perpDist;
+      }
+
+      state.samples.push({
+        observedDeviationPx: maxDevPx,
+        travelPx,
+        durationMs,
+      });
+      state.gestureStart = null;
+      state.positions = [];
+
+      // Three samples are sufficient to produce a stable device profile.
+      if (state.samples.length >= 3) {
+        calibrateDevice(state.samples);
+        state.calibrated = true;
+      }
+    }
+
+    window.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+
+    return () => {
+      window.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+    };
   }, []);
 
   return (

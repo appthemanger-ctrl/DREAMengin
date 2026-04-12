@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 04:09 UTC  
-**Last updated:** 2026-04-12 04:09 UTC  
-**Triggered by commit:** `62cf707` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #477 from appthemanger-ctrl/copilot/fix-dream-field-issues
+**Documentation Date:** 2026-04-12 04:19 UTC  
+**Last updated:** 2026-04-12 04:19 UTC  
+**Triggered by commit:** `8ec9f5f` on `copilot/wire-calibrate-device-sequence` by Copilot  
+**Commit message:** feat: wire calibrateDevice into LandingHero animation for on-arrival Humanity sampling
 
 ---
 
