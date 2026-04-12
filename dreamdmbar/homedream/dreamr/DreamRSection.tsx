@@ -33,7 +33,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
-import DreamRFeed from './DreamRFeed';
+import DreamRFeed from './algorithms/dreamrfeed';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
 import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
 import { createClient } from '@/lib/supabase/client';

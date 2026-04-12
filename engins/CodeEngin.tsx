@@ -22,7 +22,7 @@ import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import DiffViewer from '@/components/daydream/DiffViewer';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
-import CrossEnginStatusPanel from '@/components/CrossEnginStatusPanel';
+import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel';
 import {
   parseAiInstruction,
   buildEditPreview,
@@ -540,7 +540,7 @@ export default function CodeEngin({ onBack }: Props) {
   // Load user and projects from Supabase
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(async (res) => {
+    supabase.auth.getUser().then(async (res: { data: { user: import('@supabase/supabase-js').User | null }; error: unknown }) => {
       const u = res.data.user;
       if (!u) { setLoadingProjects(false); return; }
       setUser(u);

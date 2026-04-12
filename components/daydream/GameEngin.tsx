@@ -131,7 +131,8 @@ const TILE_META: Record<TileType, { emoji: string; label: string; bg: string }> 
   empty:  { emoji: '🫯', label: 'Empty',  bg: 'rgba(255,255,255,0.25)' },
   ground: { emoji: '🔲', label: 'Ground', bg: 'rgba(160,100,40,0.35)'  },
   wall:   { emoji: '🟥▪️▫️⬛️', label: 'Wall',   bg: 'rgba(50,55,65,0.55)'    },
-  water:  { emoji: '🌊💨', label: 'Water', bg: 'rgba(spawn:  { emoji: '🗯️💬', label: 'Spawn',  bg: 'rgba(34,197,94,0.35)'   },
+  water:  { emoji: '🌊💨', label: 'Water', bg: 'rgba(30,100,200,0.35)'   },
+  spawn:  { emoji: '🗯️💬', label: 'Spawn',  bg: 'rgba(34,197,94,0.35)'   },
 };
 const GRAVITY_META: Record<GravityPreset, { label: string; value: string; emoji: string }> = {
   moon:    { label: 'Moon',    value: '0.10g', emoji: '🌙' },
