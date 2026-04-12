@@ -22,7 +22,7 @@ import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import DiffViewer from '@/components/daydream/DiffViewer';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
-import CrossEnginStatusPanel from '@/components/CrossEnginStatusPanel';
+import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel';
 import {
   parseAiInstruction,
   buildEditPreview,

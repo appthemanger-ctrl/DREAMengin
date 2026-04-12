@@ -25,7 +25,7 @@ import { WidgetInstance, getWidgetType } from '@/types/widgets';
 import DreamNavControls from '@/components/dreamnav/DreamNavControls';
 import DreamRadialMenu from '@/components/menus/DreamRadialMenu';
 import SystemRadialMenu, { type SystemMenuAction } from '@/components/menus/SystemRadialMenu';
-import DreamWidgetGrid from './DreamWidgetGrid';
+import DreamWidgetGrid from '@/components/home/DreamWidgetGrid';
 import BrandLogo from '@/components/BrandLogo';
 
 import '@/styles/home-dream.css';

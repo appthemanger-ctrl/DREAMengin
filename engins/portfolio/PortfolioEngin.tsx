@@ -14,7 +14,7 @@
 
 import { useState } from 'react';
 import { ArrowLeft, TrendingUp, Activity, ShieldCheck, Cpu } from 'lucide-react';
-import QuantumCircuitCanvas from './QuantumCircuitCanvas';
+import QuantumCircuitCanvas from '@/components/daydream/QuantumCircuitCanvas';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
