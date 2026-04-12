@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 11:06 UTC  
-**Last updated:** 2026-04-12 11:06 UTC  
-**Triggered by commit:** `275abd5` on `copilot/improve-ui-visualization` by Copilot  
-**Commit message:** feat(ui): hyper-polish — starfield+trails+rings in constellation, sparkline+glow in journey, animated glass+barchart in DreamsSpace, color-coded HUD in OS
+**Documentation Date:** 2026-04-12 16:56 UTC  
+**Last updated:** 2026-04-12 16:56 UTC  
+**Triggered by commit:** `3c4b4c7` on `copilot/improve-ui-visualization` by Copilot  
+**Commit message:** fix: DreamDMBar input cut in half — DIVIDER_H 80→108, no safe-area padding in divider mode
 
 ---
 
