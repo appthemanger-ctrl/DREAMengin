@@ -4,11 +4,22 @@ export const TORRIDITY_LEDGER_CONFIG = {
   deltaP: 0.1,
   slopeMin: 0.6,
   slopeMax: 0.85,
+  crossSimThreshold: 0.95,
+  botScoreThreshold: 0.55,
 } as const;
 
 export interface HumanityPath {
   acceleration: number;
   time: number;
+}
+
+export interface OriginalityMeta {
+  /** Unique words / total words in content (0–1). */
+  uniqueWordRatio: number;
+  /** True if the post contains original (non-aggregated) media. */
+  hasOriginalMedia: boolean;
+  /** Maximum cosine similarity to any known/syndicated content (0–1). */
+  maxSimilarity: number;
 }
 
 export interface PostMassMeta {
@@ -40,8 +51,19 @@ export interface TorridityPostLike {
   views_count?: number;
 }
 
+/**
+ * slog — signed logarithmic transform (natural ledger coordinate system).
+ * slog(x) = sign(x) · ln(1 + |x|)
+ *
+ * Preserves sign, compresses large values, and is scale-invariant.
+ * Applied to all deviations, velocities, and engagement metrics.
+ */
+export function slog(x: number): number {
+  return Math.sign(x) * Math.log(1 + Math.abs(x));
+}
+
 export function getInteractionDelta(pixelDelta: number): number {
-  return Math.sign(pixelDelta) * Math.log(1 + Math.abs(pixelDelta));
+  return slog(pixelDelta);
 }
 
 export function getDeceleration(velocity: number): number {
@@ -102,6 +124,22 @@ export function derivePostMassMeta(post: TorridityPostLike): PostMassMeta {
     buildTime: Math.max(0.25, (words / 24) + (hasMedia ? 0.75 : 0) + (toolMention ? 0.5 : 0)),
     uniqueAssets: (hasMedia ? 1 : 0) + (isNative ? 1 : 0) + (toolMention ? 1 : 0),
   };
+}
+
+/**
+ * Originality score — measures genuine creative effort.
+ *
+ * score = 0.4·slog(uniqueWordRatio) + 0.3·hasOriginalMedia + 0.3·slog(1 − maxSimilarity)
+ *
+ * Range is approximately 0–0.79 (not normalized to 1).
+ */
+export function calculateOriginality(meta: OriginalityMeta): number {
+  const { uniqueWordRatio, hasOriginalMedia, maxSimilarity } = meta;
+  return (
+    0.4 * slog(Math.max(0, uniqueWordRatio)) +
+    0.3 * (hasOriginalMedia ? 1 : 0) +
+    0.3 * slog(Math.max(0, 1 - maxSimilarity))
+  );
 }
 
 export function resolveSwipeRelease({
