@@ -6,8 +6,8 @@ import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/Daydre
 import ForgeEngin from '@/engins/ForgeEngin';
 import ForgeMomentumWidget from '@/components/forge/ForgeMomentumWidget';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
-import { isDevBypassActive } from '@/lib/dev-bypass';
 import { CREATIVE_ENGINES } from '@/lib/forge/forgeRegistry';
+import { connection } from 'next/server';
 
 export const metadata = {
   title: 'Forge Daydream – DREAMengin',
@@ -24,9 +24,10 @@ const WIDGETS: DaydreamWidget[] = [
 ];
 
 export default async function ForgeDaydreamPage() {
+  await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user && !isDevBypassActive()) redirect('/login');
+  if (!user) redirect('/login');
 
   return (
     <DaydreamShell

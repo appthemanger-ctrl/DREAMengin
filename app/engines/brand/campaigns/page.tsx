@@ -11,7 +11,6 @@ const ACCENT = '#f472b6';
 const NAV_ITEMS = [
   { href: '/engines/brand',            label: 'Hub',       emoji: '🎨' },
   { href: '/engines/brand/identity',   label: 'Identity',  emoji: '🪪' },
-  { href: '/engines/brand/analytics',  label: 'Analytics', emoji: '📈' },
   { href: '/engines/brand/campaigns',  label: 'Campaigns', emoji: '💰' },
 ];
 

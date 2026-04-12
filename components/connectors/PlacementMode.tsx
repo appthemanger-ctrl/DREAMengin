@@ -11,7 +11,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import type { WidgetTypeDef } from '@/lib/widgets/widgetRegistry';
 import { handlePlacementCancel, handlePlacementDone } from '@/lib/connectors/installFlow';
-import { track } from '@/lib/telemetry';
 
 export interface PlacedWidget {
   widgetId: string;
@@ -52,7 +51,6 @@ export default function PlacementMode({
       setChosen(next.length > 0 ? next[next.length - 1] : null);
       return next;
     });
-    track('placement_undo', { widgetId: widget.id });
   }, [widget.id]);
 
   function handleDone() {
