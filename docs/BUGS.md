@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 18:09 UTC  
-**Last updated:** 2026-04-12 18:09 UTC  
-**Triggered by commit:** `772879c` on `claude/remove-telemetry-and-analytics` by Claude  
-**Commit message:** fix: remove remaining telemetry references and analytics imports
+**Documentation Date:** 2026-04-12 18:28 UTC  
+**Last updated:** 2026-04-12 18:28 UTC  
+**Triggered by commit:** `113f4f5` on `claude/remove-telemetry-and-analytics` by Claude  
+**Commit message:** fix: remove broken analytics links from brand and music daydreams
 
 ---
 
