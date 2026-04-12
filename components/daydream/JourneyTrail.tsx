@@ -22,6 +22,7 @@
  */
 
 import { useEffect, useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { JourneyDot, JourneyTimeGroup } from '@/types/journey';
 import {
   annotateDotsWithInsights,
@@ -63,6 +64,50 @@ function dotRadius(significance: number): number {
   if (significance >= 0.9) return 8;
   if (significance >= 0.6) return 6;
   return 4;
+}
+
+// ── Sparkline helpers ─────────────────────────────────────────────────────────
+
+/** Compute last-7-day activity bucket counts from a dots array (index 0 = oldest, 6 = today). */
+function computeSparkline(dots: JourneyDot[]): number[] {
+  const now = Date.now();
+  const DAY = 86_400_000;
+  const buckets = Array<number>(7).fill(0);
+  for (const dot of dots) {
+    const dayIdx = Math.floor((now - new Date(dot.created_at).getTime()) / DAY);
+    if (dayIdx >= 0 && dayIdx < 7) buckets[6 - dayIdx]++;
+  }
+  return buckets;
+}
+
+/** Mini 7-day sparkline bar chart shown beneath the streak banner. */
+function SparklineBar({ dots }: { dots: JourneyDot[] }) {
+  const data = computeSparkline(dots);
+  const max  = Math.max(...data, 1);
+  return (
+    <div
+      aria-hidden="true"
+      style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 22, marginTop: 8 }}
+    >
+      {data.map((val, i) => (
+        <div
+          key={i}
+          title={`${val} action${val !== 1 ? 's' : ''} · ${6 - i === 0 ? 'today' : `${6 - i}d ago`}`}
+          style={{
+            flex:         1,
+            height:       Math.max(2, (val / max) * 18),
+            borderRadius: 2,
+            background:   val > 0
+              ? i === 6
+                ? 'rgba(200,152,26,0.92)'
+                : `rgba(200,152,26,${0.28 + (val / max) * 0.52})`
+              : 'rgba(200,152,26,0.08)',
+            transition: 'height 0.35s ease',
+          }}
+        />
+      ))}
+    </div>
+  );
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -125,14 +170,14 @@ export default function JourneyTrail({ limit = 50, compact = false }: Props) {
   // ── Trail ──────────────────────────────────────────────────────────────────
   return (
     <div style={{ position: 'relative', paddingLeft }}>
-      {/* Vertical thread connecting all dots */}
+      {/* Vertical thread — gradient from gold at top to dim at bottom */}
       <div style={{
         position: 'absolute',
         left:     threadLeft,
         top:      0,
         bottom:   0,
         width:    1,
-        background: 'rgba(200, 152, 26, 0.2)',
+        background: 'linear-gradient(to bottom, rgba(200,152,26,0.65) 0%, rgba(200,152,26,0.28) 35%, rgba(200,152,26,0.06) 100%)',
         pointerEvents: 'none',
       }} />
 
@@ -140,19 +185,24 @@ export default function JourneyTrail({ limit = 50, compact = false }: Props) {
       {streak >= 2 && (
         <div style={{
           marginBottom: 16,
-          padding:      '8px 12px',
-          borderRadius: 8,
-          background:   'rgba(200, 152, 26, 0.08)',
-          border:       '1px solid rgba(200, 152, 26, 0.2)',
-          display:      'flex',
-          alignItems:   'center',
-          gap:          8,
-          fontSize:     12,
-          color:        '#c8981a',
-          fontWeight:   600,
+          padding:      '10px 12px',
+          borderRadius: 10,
+          background:   'rgba(200, 152, 26, 0.10)',
+          border:       '1px solid rgba(200, 152, 26, 0.28)',
+          boxShadow:    '0 2px 12px rgba(200,152,26,0.08)',
         }}>
-          <span>🔥</span>
-          <span>{streak}-day streak — you've been creating every day.</span>
+          <div style={{
+            display:    'flex',
+            alignItems: 'center',
+            gap:        8,
+            fontSize:   12,
+            color:      '#c8981a',
+            fontWeight: 600,
+          }}>
+            <span>🔥</span>
+            <span>{streak}-day streak — you've been creating every day.</span>
+          </div>
+          <SparklineBar dots={dots} />
         </div>
       )}
 
@@ -197,6 +247,32 @@ export default function JourneyTrail({ limit = 50, compact = false }: Props) {
                 aria-expanded={isExpanded}
                 aria-label={dot.label}
               >
+                {/* Pulsing glow ring for high-significance dots */}
+                {dot.significance >= 0.9 && (
+                  <motion.div
+                    aria-hidden="true"
+                    style={{
+                      position:      'absolute',
+                      left:          dotLeft,
+                      top:           '50%',
+                      width:         r * 2,
+                      height:        r * 2,
+                      borderRadius:  '50%',
+                      pointerEvents: 'none',
+                      y:             '-50%',
+                    }}
+                    animate={{
+                      boxShadow: [
+                        `0 0 4px 1px ${dot.domain_color}40`,
+                        `0 0 18px 7px ${dot.domain_color}85`,
+                        `0 0 4px 1px ${dot.domain_color}40`,
+                      ],
+                      scale: [1, 1.55, 1],
+                    }}
+                    transition={{ duration: 2.1, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                )}
+
                 {/* Dot */}
                 <div style={{
                   position:     'absolute',
@@ -278,23 +354,35 @@ export default function JourneyTrail({ limit = 50, compact = false }: Props) {
                     </div>
                   )}
 
-                  {isExpanded && (
-                    <div style={{
-                      fontSize:  11,
-                      color:     'var(--de-text-dim)',
-                      marginTop: 3,
-                      lineHeight: 1.5,
-                    }}>
-                      {new Date(dot.created_at).toLocaleDateString('en-US', {
-                        month:  'short',
-                        day:    'numeric',
-                        year:   'numeric',
-                        hour:   '2-digit',
-                        minute: '2-digit',
-                      })}
-                      {dot.surface && ` · ${dot.surface}`}
-                    </div>
-                  )}
+                  <AnimatePresence initial={false}>
+                    {isExpanded && (
+                      <motion.div
+                        key="expanded-detail"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.22, ease: 'easeInOut' }}
+                        style={{ overflow: 'hidden' }}
+                      >
+                        <div style={{
+                          fontSize:      11,
+                          color:         'var(--de-text-dim)',
+                          marginTop:     4,
+                          lineHeight:    1.5,
+                          paddingBottom: 2,
+                        }}>
+                          {new Date(dot.created_at).toLocaleDateString('en-US', {
+                            month:  'short',
+                            day:    'numeric',
+                            year:   'numeric',
+                            hour:   '2-digit',
+                            minute: '2-digit',
+                          })}
+                          {dot.surface && ` · ${dot.surface}`}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </button>
             );

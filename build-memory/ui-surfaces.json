@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-12T02:30:30.854Z",
+  "generated_at": "2026-04-12T17:01:46.087Z",
   "generator": "scripts/sync-build-memory.mjs",
   "count": 118,
   "surfaces": [
@@ -150,8 +150,8 @@
       "component": "CodeDaydreamPage",
       "imports": [
         {
-          "name": "CodeDreamIDE",
-          "from": "@/components/daydream/CodeDreamIDE"
+          "name": "OpenDaydreamSideBButton",
+          "from": "@/components/daydream/OpenDaydreamSideBButton"
         },
         {
           "name": "AuthenticatedPageHeader",
@@ -184,6 +184,10 @@
       "file": "app/daydream/create/page.tsx",
       "component": "CreateDaydreamPage",
       "imports": [
+        {
+          "name": "OpenDaydreamSideBButton",
+          "from": "@/components/daydream/OpenDaydreamSideBButton"
+        },
         {
           "name": "AuthenticatedPageHeader",
           "from": "@/components/ui/AuthenticatedPageHeader"
@@ -270,8 +274,8 @@
       "component": "LabDaydreamPage",
       "imports": [
         {
-          "name": "LabDreamIDE",
-          "from": "@/components/daydream/LabDreamIDE"
+          "name": "OpenDaydreamSideBButton",
+          "from": "@/components/daydream/OpenDaydreamSideBButton"
         },
         {
           "name": "AuthenticatedPageHeader",
