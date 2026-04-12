@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-12 19:07 UTC | `94a9667` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #492 from appthemanger-ctrl/copilot/close-all-open-prs — chore: add script to close all open PRs without merging<br> |
 | **auto** | 2026-04-12 19:04 UTC | `bdb70bd` | copilot/close-all-open-prs | Copilot | +1 added<br>chore: add script to close all open PRs without merging — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/03d27638-1c6c-4722-8ea1-3ffb61af0ada  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `scripts/close-all-open-prs.sh` |
 | **auto** | 2026-04-12 18:47 UTC | `764e9e9` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #491 from appthemanger-ctrl/claude/remove-telemetry-and-analytics — refactor: remove analytics/telemetry clutter from UI<br> |
 | **auto** | 2026-04-12 18:47 UTC | `d12280a` | claude/remove-telemetry-and-analytics | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into claude/remove-telemetry-and-analytics<br> |
 | **auto** | 2026-04-12 18:40 UTC | `92ede08` | claude/remove-telemetry-and-analytics | Claude | ~4 modified<br>refactor: remove remaining analytics references from brand engine nav — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/c3c7f084-1670-410d-9f2f-64f5223f50c7  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/engines/brand/campaigns/page.tsx`, `app/engines/brand/identity/page.tsx`, `app/engines/page.tsx`, `components/engines/brand/BrandEnginApp.tsx` |
-| **auto** | 2026-04-12 18:31 UTC | `33b0c8c` | claude/remove-telemetry-and-analytics | Claude | ~3 modified<br>refactor: standardize auth guards across all daydream pages — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/5c42b924-b6f3-4fa4-bfa4-2b2a0d67663c  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/daydream/forge/page.tsx`, `app/daydream/games/page.tsx`, `app/daydream/music/page.tsx` |
 
 ## What changed in this alignment pass
 
