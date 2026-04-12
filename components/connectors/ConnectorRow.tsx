@@ -204,7 +204,6 @@ export default function ConnectorRow({ connector, status, onConnectSuccess }: Co
     } catch {
       setErrorMsg('Network error — please try again.');
       setLocalStatus('error');
-      track('connect_failure', { connectorId: connector.id });
     } finally {
       setSubmitting(false);
     }
