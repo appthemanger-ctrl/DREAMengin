@@ -28,7 +28,16 @@
       "@/*": [
         "./*",
         "./src/*"
-      ]
+      ],
+      "@identity": ["./lib/identity/canonical-names"],
+      "@identity/*": ["./lib/identity/*"],
+      "@dreams/*": ["./components/dreams/*"],
+      "@home/*": ["./components/home/*"],
+      "@daydream/*": ["./components/daydream/*"],
+      "@dreamengin/*": ["./components/dreamengin/*"],
+      "@runtime/*": ["./lib/runtime/*"],
+      "@agents/*": ["./lib/agents/*"],
+      "@structure": ["./lib/structure/index"]
     }
   },
   "include": [
