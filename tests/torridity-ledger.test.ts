@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import {
   TORRIDITY_LEDGER_CONFIG,
+  calculateOriginality,
   calculateRank,
   derivePostMassMeta,
   getInteractionDelta,
   getPostMass,
   resolveSwipeRelease,
+  slog,
   verifyHumanity,
 } from '@/dreamdmbar/homedream/dreamr/algorithms/torridityLedger';
 
@@ -78,5 +80,36 @@ describe('Torridity Ledger', () => {
   it('verifies humanity inside the configured beta-slope window', () => {
     expect(verifyHumanity({ acceleration: 0.7, time: 1 })).toBe(true);
     expect(verifyHumanity({ acceleration: 0.4, time: 1 })).toBe(false);
+  });
+
+  it('slog is the signed logarithmic transform', () => {
+    expect(slog(0)).toBe(0);
+    expect(slog(1)).toBeCloseTo(Math.log(2), 10);
+    expect(slog(-1)).toBeCloseTo(-Math.log(2), 10);
+    // Compression: slog(x) < x for all x > 0
+    expect(slog(100)).toBeLessThan(100);
+    // Backward-compat: getInteractionDelta delegates to slog
+    expect(getInteractionDelta(42)).toBeCloseTo(slog(42), 10);
+    // Config constants are present
+    expect(TORRIDITY_LEDGER_CONFIG.crossSimThreshold).toBe(0.95);
+    expect(TORRIDITY_LEDGER_CONFIG.botScoreThreshold).toBe(0.55);
+  });
+
+  it('calculateOriginality scores fully original content higher', () => {
+    const highOriginality = calculateOriginality({
+      uniqueWordRatio: 0.9,
+      hasOriginalMedia: true,
+      maxSimilarity: 0.05,
+    });
+    const lowOriginality = calculateOriginality({
+      uniqueWordRatio: 0.1,
+      hasOriginalMedia: false,
+      maxSimilarity: 0.9,
+    });
+    expect(highOriginality).toBeGreaterThan(lowOriginality);
+    // Zero media and identical content → near-zero score
+    expect(
+      calculateOriginality({ uniqueWordRatio: 0, hasOriginalMedia: false, maxSimilarity: 1 }),
+    ).toBe(0);
   });
 });

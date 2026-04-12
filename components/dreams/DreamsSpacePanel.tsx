@@ -331,14 +331,14 @@ export default function DreamsSpacePanel({
                 ✦
               </div>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-heading)' }}>DreamSpace</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-heading)' }}>Forge Analytics</div>
                 <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
-                  DREAMfield now powers the live pulse of this layer.
+                  Creative momentum, AI next steps, and Engin usage patterns.
                 </div>
               </div>
               <button
                 type="button"
-                onClick={() => navigate('/daydream/field', 'DREAMfield')}
+                onClick={() => navigate('/daydream/field', 'Forge Analytics')}
                 style={{
                   marginLeft: 'auto',
                   borderRadius: 9999,
@@ -352,7 +352,7 @@ export default function DreamsSpacePanel({
                   whiteSpace: 'nowrap',
                 }}
               >
-                Open DREAMfield
+                Full Dashboard →
               </button>
             </div>
 
@@ -407,7 +407,7 @@ export default function DreamsSpacePanel({
                   {leadSuggestion?.title ?? 'Open a Daydream and start shaping the space'}
                 </div>
                 <div style={{ marginTop: 6, fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.45 }}>
-                  {leadSuggestion?.reason ?? 'DreamSpace now carries your momentum, suggestions, and recent flow in one place.'}
+                  {leadSuggestion?.reason ?? 'Open a Daydream to start building momentum — Forge Analytics tracks your creative patterns and surfaces AI-powered next steps.'}
                 </div>
                 {leadSuggestion?.href && (
                   <button

@@ -4,10 +4,10 @@ import DREAMfield from '@/components/daydream/DREAMfield';
 import { connection } from 'next/server';
 
 export const metadata = {
-  title: 'DREAMfield — DREAMengin',
+  title: 'Forge Analytics — DREAMengin',
   description:
-    'Your Living Creative Cosmos. Every Engin orbits your Dream Star, ' +
-    'powered by Forge Momentum. Click any planet to warp to that Daydream.',
+    'Your Creative Intelligence Dashboard. Full-depth analytics: Forge Momentum score, ' +
+    'AI-powered next steps, workflow patterns, and Engin connection map.',
 };
 
 export default async function DREAMfieldPage() {

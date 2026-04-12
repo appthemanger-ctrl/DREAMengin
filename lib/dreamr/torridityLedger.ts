@@ -1,14 +1,27 @@
+import { getActiveProfile, type CalibrationProfile } from './swipeCalibration';
+
 export const TORRIDITY_LEDGER_CONFIG = {
   n: 2.1,
   a0: 1.2e-10,
   deltaP: 0.1,
   slopeMin: 0.6,
   slopeMax: 0.85,
+  crossSimThreshold: 0.95,
+  botScoreThreshold: 0.55,
 } as const;
 
 export interface HumanityPath {
   acceleration: number;
   time: number;
+}
+
+export interface OriginalityMeta {
+  /** Unique words / total words in content (0–1). */
+  uniqueWordRatio: number;
+  /** True if the post contains original (non-aggregated) media. */
+  hasOriginalMedia: boolean;
+  /** Maximum cosine similarity to any known/syndicated content (0–1). */
+  maxSimilarity: number;
 }
 
 export interface PostMassMeta {
@@ -40,8 +53,19 @@ export interface TorridityPostLike {
   views_count?: number;
 }
 
+/**
+ * slog — signed logarithmic transform (natural ledger coordinate system).
+ * slog(x) = sign(x) · ln(1 + |x|)
+ *
+ * Preserves sign, compresses large values, and is scale-invariant.
+ * Applied to all deviations, velocities, and engagement metrics.
+ */
+export function slog(x: number): number {
+  return Math.sign(x) * Math.log(1 + Math.abs(x));
+}
+
 export function getInteractionDelta(pixelDelta: number): number {
-  return Math.sign(pixelDelta) * Math.log(1 + Math.abs(pixelDelta));
+  return slog(pixelDelta);
 }
 
 export function getDeceleration(velocity: number): number {
@@ -61,10 +85,13 @@ export function calculateSnapForce(distance: number, currentVelocity: number, vi
   return currentVelocity;
 }
 
-export function verifyHumanity(path: HumanityPath): boolean {
+export function verifyHumanity(
+  path: HumanityPath,
+  profile: CalibrationProfile = getActiveProfile(),
+): boolean {
   if (!Number.isFinite(path.acceleration) || !Number.isFinite(path.time) || path.time <= 0) return false;
   const betaSlope = path.acceleration / path.time;
-  return betaSlope >= TORRIDITY_LEDGER_CONFIG.slopeMin && betaSlope <= TORRIDITY_LEDGER_CONFIG.slopeMax;
+  return betaSlope >= profile.slopeMin && betaSlope <= profile.slopeMax;
 }
 
 export function getPostMass(meta: PostMassMeta): number {
@@ -104,28 +131,50 @@ export function derivePostMassMeta(post: TorridityPostLike): PostMassMeta {
   };
 }
 
-export function resolveSwipeRelease({
-  pixelDelta,
-  crossDelta,
-  durationMs,
-  viewportExtent,
-  direction,
-  triggerThresholdPx = 55,
-}: SwipeReleaseSample): SwipeReleaseResult {
+/**
+ * Originality score — measures genuine creative effort.
+ *
+ * score = 0.4·slog(uniqueWordRatio) + 0.3·hasOriginalMedia + 0.3·slog(1 − maxSimilarity)
+ *
+ * Range is approximately 0–0.79 (not normalized to 1).
+ */
+export function calculateOriginality(meta: OriginalityMeta): number {
+  const { uniqueWordRatio, hasOriginalMedia, maxSimilarity } = meta;
+  return (
+    0.4 * slog(Math.max(0, uniqueWordRatio)) +
+    0.3 * (hasOriginalMedia ? 1 : 0) +
+    0.3 * slog(Math.max(0, 1 - maxSimilarity))
+  );
+}
+
+export function resolveSwipeRelease(
+  {
+    pixelDelta,
+    crossDelta,
+    durationMs,
+    viewportExtent,
+    direction,
+    triggerThresholdPx,
+  }: SwipeReleaseSample,
+  profile: CalibrationProfile = getActiveProfile(),
+): SwipeReleaseResult {
+  // Prefer the per-call override; fall back to the device-calibrated threshold.
+  const threshold = triggerThresholdPx ?? profile.triggerThresholdPx;
   const interactionDelta = getInteractionDelta(pixelDelta);
   const releaseVelocity = getDeceleration(pixelDelta / Math.max(durationMs, 1));
-  const transformedThreshold = Math.abs(getInteractionDelta(triggerThresholdPx));
+  const transformedThreshold = Math.abs(getInteractionDelta(threshold));
   const distanceToThreshold = Math.max(0, transformedThreshold - Math.abs(interactionDelta));
   const snapForce = calculateSnapForce(distanceToThreshold, Math.abs(releaseVelocity), Math.max(viewportExtent, 1));
   const isDominantAxis = Math.abs(pixelDelta) > Math.abs(crossDelta) * 1.2;
   const isCorrectDirection = direction === 'negative' ? pixelDelta < 0 : pixelDelta > 0;
-  const clearsDistanceGate = Math.abs(pixelDelta) >= Math.max(28, triggerThresholdPx * 0.6);
+  const clearsDistanceGate = Math.abs(pixelDelta) >= Math.max(28, threshold * 0.6);
   const clearsMotionGate = Math.abs(releaseVelocity) >= 0.1;
-  const shouldTrigger = isDominantAxis &&
+  const shouldTrigger =
+    isDominantAxis &&
     isCorrectDirection &&
     clearsDistanceGate &&
     clearsMotionGate &&
-    (Math.abs(interactionDelta) + Math.abs(snapForce) >= transformedThreshold);
+    Math.abs(interactionDelta) + Math.abs(snapForce) >= transformedThreshold;
 
   return {
     shouldTrigger,

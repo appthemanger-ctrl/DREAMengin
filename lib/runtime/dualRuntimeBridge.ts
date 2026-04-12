@@ -39,6 +39,26 @@ export interface AnyBridgeEmission {
   emittedAt: number;
 }
 
+// ── Durable delivery types ────────────────────────────────────────────────────
+
+/** Lifecycle of a durable emission. */
+export type AckStatus = 'pending' | 'acked' | 'dropped';
+
+/**
+ * An emission that requires delivery acknowledgement.
+ * Stored in the bridge's durable queue until acked or explicitly dropped.
+ */
+export interface QueuedEmission extends AnyBridgeEmission {
+  /** Unique ID for this emission — returned by emitDurable. */
+  id: string;
+  status: AckStatus;
+  enqueuedAt: number;
+  /** Timestamp at which ack() was called, if status is 'acked'. */
+  ackedAt?: number;
+  /** Time-to-live in ms. After this the entry is eligible for cleanup. */
+  ttlMs: number;
+}
+
 // ── The 6-Channel Virtual Bus for the Online Economy ──────────────────────────
 
 class DualRuntimeBridge extends EventEmitter {
@@ -46,6 +66,8 @@ class DualRuntimeBridge extends EventEmitter {
   private readonly peers: Map<string, PeerState> = new Map();
   private readonly peerListeners: Set<(peers: readonly PeerState[]) => void> = new Set();
   private readonly emissionListeners: Set<(emission: AnyBridgeEmission) => void> = new Set();
+  /** Durable queue — keyed by emission id. */
+  private readonly durableQueue: Map<string, QueuedEmission> = new Map();
 
   constructor() {
     super();
@@ -118,7 +140,105 @@ class DualRuntimeBridge extends EventEmitter {
     return () => { this.emissionListeners.delete(callback); };
   }
 
+  // ── Durable delivery ──────────────────────────────────────────────────────
+
+  /**
+   * Emit a cross-Engin event that requires delivery acknowledgement.
+   *
+   * The event is emitted immediately (same as `emit`) **and** stored in the
+   * durable queue with status 'pending'.  Call `ack(id)` once the subscriber
+   * has processed it.  Use `replayPending()` to re-deliver after a subscriber
+   * comes back online.
+   *
+   * @param channel  Target channel (e.g. 'music').
+   * @param event    Event name (e.g. 'stem-ready').
+   * @param payload  Serialisable event payload.
+   * @param ttlMs    Time-to-live in ms before the entry is dropped (default 60 s).
+   * @returns        The unique emission ID — pass this to `ack()`.
+   */
+  emitDurable(
+    channel: string,
+    event: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    payload: Record<string, any>,
+    ttlMs = 60_000,
+  ): string {
+    const id = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const now = Date.now();
+
+    const queued: QueuedEmission = {
+      id,
+      channel,
+      event,
+      payload,
+      emittedAt: now,
+      enqueuedAt: now,
+      status: 'pending',
+      ttlMs,
+    };
+
+    this.durableQueue.set(id, queued);
+    this.emit(channel, event, payload);
+    this._evictExpired();
+    return id;
+  }
+
+  /**
+   * Acknowledge delivery of a durable emission.
+   * The queue entry transitions from 'pending' → 'acked'.
+   */
+  ack(id: string): void {
+    const entry = this.durableQueue.get(id);
+    if (!entry || entry.status !== 'pending') return;
+    this.durableQueue.set(id, { ...entry, status: 'acked', ackedAt: Date.now() });
+  }
+
+  /**
+   * Re-emit all 'pending' durable events, optionally filtered to one channel.
+   * Call this when an Engin comes (back) online to receive events it missed.
+   */
+  replayPending(channel?: string): void {
+    this._evictExpired();
+    for (const entry of this.durableQueue.values()) {
+      if (entry.status !== 'pending') continue;
+      if (channel !== undefined && entry.channel !== channel) continue;
+      this.emit(entry.channel, entry.event, entry.payload);
+    }
+  }
+
+  /** Return a snapshot of the durable queue (all statuses). */
+  getDurableQueue(): readonly QueuedEmission[] {
+    return Array.from(this.durableQueue.values());
+  }
+
+  // ── Test / teardown helpers ────────────────────────────────────────────────
+
+  /**
+   * Remove all listeners, peers, channel state, and durable queue entries.
+   * Intended for test teardown only — do not call in production code.
+   */
+  clearAll(): void {
+    this.removeAllListeners();
+    this.channelState.clear();
+    this.peers.clear();
+    this.peerListeners.clear();
+    this.emissionListeners.clear();
+    this.durableQueue.clear();
+  }
+
   // ── Private helpers ────────────────────────────────────────────────────────
+
+  /** Remove durable queue entries that have exceeded their TTL. */
+  private _evictExpired(): void {
+    const now = Date.now();
+    for (const [id, entry] of this.durableQueue) {
+      if (entry.status === 'pending' && now - entry.enqueuedAt > entry.ttlMs) {
+        this.durableQueue.set(id, { ...entry, status: 'dropped' });
+      }
+    }
+  }
 
   private _touchPeer(channel: string) {
     const existing = this.peers.get(channel);

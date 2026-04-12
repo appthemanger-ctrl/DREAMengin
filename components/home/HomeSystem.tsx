@@ -1,9 +1,22 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+/**
+ * components/home/HomeSystem.tsx
+ *
+ * Canonical reference copy of HomeSystem — kept in sync with
+ * dreamdmbar/homedream/HomeSystem.tsx for test readability.
+ *
+ * Shell-First architecture: DreamDMBar is no longer rendered here.
+ * It lives in app/layout.tsx via PersistentDreamBar so it is never
+ * unmounted during client-side navigation.
+ *
+ * splitRatio and isBarMinimized are shared via DreamSystemContext
+ * so the persistent bar and HomeSystem stay in sync.
+ */
+
+import React, { useCallback, useEffect } from 'react';
 import DualRuntimeContainer, { useDualRuntime } from '@/components/runtime/DualRuntimeContainer';
 import RuntimeView from '@/components/runtime/RuntimeView';
-import DreamDMBar from '@/dreamdmbar/DreamDMBar';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import type { SystemPanelId } from '@/lib/panels/panelTypes';
 import { createClient } from '@/lib/supabase/client';
@@ -37,12 +50,13 @@ function HomeSystemInner({
     unregisterRuntimeCallbacks,
     closeBothMenus,
     closeDrEams,
-    openBothMenus,
     openDrEams,
+    splitRatio,
+    setSplitRatio,
+    isBarMinimized,
+    setIsBarMinimized,
   } = useDreamSystem();
-  const [splitRatio, setSplitRatio] = useState(DEFAULT_WORKFLOW_SPLIT);
-  const [isBarMinimized, setIsBarMinimized] = useState(false);
-  const [viewportHeight, setViewportHeight] = useState(0);
+  const [viewportHeight, setViewportHeight] = React.useState(0);
 
   useEffect(() => {
     const sb = createClient();
@@ -110,9 +124,10 @@ function HomeSystemInner({
     registerRuntimeCallbacks({
       returnHome,
       openInSurface,
+      openHomeDreamSpace,
     });
     return unregisterRuntimeCallbacks;
-  }, [openInSurface, registerRuntimeCallbacks, returnHome, unregisterRuntimeCallbacks]);
+  }, [openHomeDreamSpace, openInSurface, registerRuntimeCallbacks, returnHome, unregisterRuntimeCallbacks]);
 
   useEffect(() => {
     if (splitRatio >= 0.55) {
@@ -228,15 +243,6 @@ function HomeSystemInner({
           dominantRegion={dualRuntime.state.dominantRegion}
         />
       </div>
-
-      <DreamDMBar
-        onHome={returnHome}
-        onBothMenus={openBothMenus}
-        onHomeDreamSpace={openHomeDreamSpace}
-        splitRatio={splitRatio}
-        onSplitChange={setSplitRatio}
-        onMinimizedChange={setIsBarMinimized}
-      />
     </>
   );
 }

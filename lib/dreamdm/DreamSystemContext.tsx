@@ -3,10 +3,11 @@
 /**
  * DreamSystemContext — global state for system overlays and runtime dispatch.
  *
- * DreamDMBar is no longer in the global layout. It lives inside HomeSystem
- * as the seam between Surface Space and DreamSpace. It is not global.
+ * DreamDMBar now lives in app/layout.tsx (Shell-First architecture) so it is
+ * never unmounted during client-side navigation. It reads split/minimized state
+ * from this context, which HomeSystem writes when the dual runtime is active.
  *
- * This context carries only what truly needs to be global:
+ * This context carries:
  *   - DualBottomMenu open/close state
  *   - DrEamsPanel open/close state
  *   - runtimeCallbacks: thin bridge so GlobalDreamBar's menus can call
@@ -14,6 +15,8 @@
  *   - openInSurface: stable accessor used by any component (panels, menus)
  *   - barIntent: active input mode for the DreamDM Bar
  *     (post / search / message / dreams / comment)
+ *   - splitRatio / isBarMinimized: shared bar position state written by
+ *     HomeSystem and read by the persistent DreamDMBar in layout.tsx
  */
 
 import React, {
@@ -22,7 +25,9 @@ import React, {
   useContext,
   useRef,
   useState,
+  type Dispatch,
   type ReactNode,
+  type SetStateAction,
 } from 'react';
 import type { SystemPanelId } from '@/lib/panels/panelTypes';
 
@@ -65,6 +70,8 @@ export interface RuntimeCallbacks {
    * No routing. No overlays. The world dispatch in RuntimeView handles rendering.
    */
   openInSurface?:  OpenInSurfaceFn;
+  /** Open DreamSpace in the bottom runtime region */
+  openHomeDreamSpace?: () => void;
 }
 
 // ── Context shape ─────────────────────────────────────────────────────────────
@@ -98,6 +105,21 @@ interface DreamSystemContextValue {
   barIntent: BarIntent;
   setBarIntent:   (intent: BarIntent) => void;
   clearBarIntent: () => void;
+
+  /**
+   * Split-screen divider ratio shared between HomeSystem and the persistent
+   * DreamDMBar in layout.tsx.
+   *   0.0 = DreamSpace fills the viewport
+   *   0.5 = 50/50 balanced split
+   *   1.0 = Surface Space fills the viewport (bar at bottom)
+   * Defaults to 0.5. HomeSystem writes this; DreamDMBar reads and writes it.
+   */
+  splitRatio: number;
+  setSplitRatio: Dispatch<SetStateAction<number>>;
+
+  /** Whether the DreamDMBar is in minimized/hidden state */
+  isBarMinimized: boolean;
+  setIsBarMinimized: Dispatch<SetStateAction<boolean>>;
 }
 
 // ── Context + provider ────────────────────────────────────────────────────────
@@ -116,6 +138,10 @@ const DreamSystemContext = createContext<DreamSystemContextValue>({
   barIntent:                  DEFAULT_BAR_INTENT,
   setBarIntent:               () => {},
   clearBarIntent:             () => {},
+  splitRatio:                 0.5,
+  setSplitRatio:              () => {},
+  isBarMinimized:             false,
+  setIsBarMinimized:          () => {},
 });
 
 export function DreamSystemProvider({ children }: { children: ReactNode }) {
@@ -123,6 +149,8 @@ export function DreamSystemProvider({ children }: { children: ReactNode }) {
   const [drEamsOpen,    setDrEamsOpen]           = useState(false);
   const [runtimeCallbacks, setRuntimeCallbacks] = useState<RuntimeCallbacks | null>(null);
   const [barIntent,     setBarIntentState]       = useState<BarIntent>(DEFAULT_BAR_INTENT);
+  const [splitRatio,    setSplitRatio]           = useState(0.5);
+  const [isBarMinimized, setIsBarMinimized]      = useState(false);
 
   // Stable ref so openInSurface doesn't re-create when callbacks change
   const callbacksRef = useRef<RuntimeCallbacks | null>(null);
@@ -164,6 +192,10 @@ export function DreamSystemProvider({ children }: { children: ReactNode }) {
       barIntent,
       setBarIntent,
       clearBarIntent,
+      splitRatio,
+      setSplitRatio,
+      isBarMinimized,
+      setIsBarMinimized,
     }}>
       {children}
     </DreamSystemContext.Provider>

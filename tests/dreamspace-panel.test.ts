@@ -16,8 +16,8 @@ describe('DreamSpace panel evolution', () => {
     expect(src).toContain('readForgeActivity');
   });
 
-  it('keeps a direct launch path into DREAMfield from DreamSpace', () => {
+  it('keeps a direct launch path into Forge Analytics from DreamSpace', () => {
     expect(src).toContain('/daydream/field');
-    expect(src).toContain('Open DREAMfield');
+    expect(src).toContain('Full Dashboard');
   });
 });

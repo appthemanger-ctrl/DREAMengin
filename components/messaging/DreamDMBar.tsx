@@ -1490,35 +1490,45 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
         style={{
           position: 'fixed',
           top: barTop,
-          left: 0, right: 0,
+          // Bubble mode: pill floats above the seam with horizontal inset.
+          // Legacy mode: full-width bar anchored to top or bottom edge.
+          ...(isDividerMode
+            ? { left: 12, right: 12 }
+            : { left: 0, right: 0 }),
           height: barH,
           zIndex: 100,
           pointerEvents: 'auto',
           overflow: 'hidden',
           touchAction: 'pan-y',
-          transition: isDragging ? 'none' : `top ${SPRING}, height ${SPRING}, opacity 0.5s ease, background 0.5s ease, transform 0.25s ease`,
+          // Pill/bubble border radius only in divider mode
+          borderRadius: isDividerMode ? 36 : 0,
+          transition: isDragging ? 'none' : `top ${SPRING}, height ${SPRING}, border-radius ${SPRING}, opacity 0.5s ease, background 0.5s ease, transform 0.25s ease`,
           willChange: isDragging ? 'top, height' : undefined,
           transform: keyboardTranslateY !== 0 ? `translateY(${keyboardTranslateY}px)` : undefined,
           display: 'flex',
           // Divider mode: handle always at top; legacy: handle position depends on snap state
           flexDirection: isDividerMode ? 'column' : (isTop ? 'column-reverse' : 'column'),
           background: isDividerMode
-            ? 'linear-gradient(180deg, rgba(245,246,250,0.98) 0%, rgba(240,242,247,0.99) 100%)'
+            ? 'rgba(255,255,255,0.92)'
             : isResting
               ? 'transparent'
               : 'linear-gradient(180deg, rgba(248,249,253,0.97) 0%, rgba(242,244,249,0.99) 100%)',
-          backdropFilter: isResting ? 'none' : 'blur(32px) saturate(160%)',
-          WebkitBackdropFilter: isResting ? 'none' : 'blur(32px) saturate(160%)',
+          backdropFilter: isDividerMode
+            ? 'blur(48px) saturate(200%)'
+            : (isResting ? 'none' : 'blur(32px) saturate(160%)'),
+          WebkitBackdropFilter: isDividerMode
+            ? 'blur(48px) saturate(200%)'
+            : (isResting ? 'none' : 'blur(32px) saturate(160%)'),
           opacity: isResting ? 0 : 1,
-          borderTop: isDividerMode ? 'none' : (isTop ? 'none' : 'none'),
-          borderBottom: isDividerMode ? 'none' : (isTop ? 'none' : 'none'),
+          border: isDividerMode ? '1px solid rgba(0,0,0,0.07)' : 'none',
           boxShadow: isResting
             ? 'none'
             : (isDividerMode
-              ? `0 4px 24px rgba(0,0,0,0.08), 0 -4px 24px rgba(0,0,0,0.06),
-                 0 1px 0 rgba(200,152,26,0.18), 0 -1px 0 rgba(200,152,26,0.12),
-                 inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -1px 0 rgba(255,255,255,0.25),
-                 0 -8px 28px rgba(125,211,252,0.14)`
+              // Floating bubble shadow — elevation above both runtimes
+              ? `0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.07),
+                 0 0 0 1px rgba(255,255,255,0.55),
+                 inset 0 1px 0 rgba(255,255,255,0.80), inset 0 -1px 0 rgba(0,0,0,0.04),
+                 0 -4px 24px rgba(125,211,252,0.12), 0 4px 24px rgba(200,152,26,0.08)`
               : (isTop
                 ? `0 6px 32px rgba(0,0,0,0.12), 0 1px 0 rgba(200,152,26,0.15),
                    inset 0 -1px 0 rgba(255,255,255,0.35),
