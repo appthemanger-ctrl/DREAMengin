@@ -1681,7 +1681,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             <div style={{
               flex: 1, display: 'flex', flexDirection: 'column',
               gap: isCompactViewport ? 3 : 4, paddingTop: 0, paddingRight: isCompactViewport ? 8 : 12, paddingLeft: isCompactViewport ? 10 : 14,
-              paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+              paddingBottom: isDividerMode ? 6 : 'env(safe-area-inset-bottom, 0px)',
               justifyContent: 'flex-end',
             }}>
               {/* ── Top accessory row: Bell + Comment indicator + Mode buttons ── */}

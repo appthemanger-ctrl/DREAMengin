@@ -51,6 +51,9 @@ const EDGES: [NodeId, NodeId][] = [
 // ── Ambient particle layer ────────────────────────────────────────────────────
 interface Mote { x: number; y: number; vx: number; vy: number; r: number; g: number; b: number; a: number; life: number; }
 
+// ── Static star layer ─────────────────────────────────────────────────────────
+interface Star { x: number; y: number; sz: number; a: number; tw: number; }
+
 function makeMote(w: number, h: number): Mote {
   const col = NODES[Math.floor(Math.random() * NODES.length)];
   return {
@@ -65,7 +68,7 @@ function makeMote(w: number, h: number): Mote {
 // ── Component ────────────────────────────────────────────────────────────────
 export default function DreamConstellationMap() {
   const canvasRef  = useRef<HTMLCanvasElement>(null);
-  const stateRef   = useRef<{ raf: number; t: number; last: number; hovered: NodeId | null; motes: Mote[] } | null>(null);
+  const stateRef   = useRef<{ raf: number; t: number; last: number; hovered: NodeId | null; motes: Mote[]; stars: Star[]; ringPhases: number[] } | null>(null);
   const [hovered, setHovered] = useState<NodeId | null>(null);
   const router = useRouter();
 
@@ -101,6 +104,14 @@ export default function DreamConstellationMap() {
     stateRef.current = {
       raf: 0, t: 0, last: performance.now(), hovered: null,
       motes: Array.from({ length: MOTE_COUNT }, () => makeMote(window.innerWidth, window.innerHeight)),
+      stars: Array.from({ length: 120 }, (): Star => ({
+        x:  Math.random() * window.innerWidth,
+        y:  Math.random() * window.innerHeight,
+        sz: Math.random() * 1.2 + 0.15,
+        a:  Math.random() * 0.45 + 0.15,
+        tw: Math.random() * Math.PI * 2,
+      })),
+      ringPhases: Array.from({ length: NODES.length }, (_, i) => i * (5.5 / NODES.length)),
     };
 
     function render(ts: number) {
@@ -124,6 +135,15 @@ export default function DreamConstellationMap() {
       bg.addColorStop(1,   'rgba(2,6,14,1.00)');
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, H);
+
+      // ── Static starfield ─────────────────────────────────────────────────
+      for (const st of s.stars) {
+        const twinkle = 0.65 + 0.35 * Math.sin(s.t * 1.5 + st.tw);
+        ctx.beginPath();
+        ctx.arc(st.x, st.y, st.sz, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(210,230,255,${st.a * twinkle})`;
+        ctx.fill();
+      }
 
       // ── Ambient motes ────────────────────────────────────────────────────
       for (const m of s.motes) {
@@ -165,41 +185,59 @@ export default function DreamConstellationMap() {
         ctx.lineWidth   = isHot ? 2.2 : 1.1;
         ctx.stroke();
 
-        // Traveling spark on each edge
+        // Traveling spark on each edge — with fading ghost trail
         const progress = ((s.t * 0.5 + EDGES.indexOf([aid, bid] as [NodeId, NodeId])) % 1 + 1) % 1;
-        const tParam = progress;
-        const sx = (1 - tParam) * (1 - tParam) * pa.x + 2 * (1 - tParam) * tParam * mx + tParam * tParam * pb.x;
-        const sy = (1 - tParam) * (1 - tParam) * pa.y + 2 * (1 - tParam) * tParam * my + tParam * tParam * pb.y;
-        ctx.beginPath();
-        ctx.arc(sx, sy, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${alpha * 0.9})`;
-        ctx.fill();
+        for (let ti = 3; ti >= 0; ti--) {
+          const tp  = (progress - ti * 0.022 + 1) % 1;
+          const sx  = (1 - tp) * (1 - tp) * pa.x + 2 * (1 - tp) * tp * mx + tp * tp * pb.x;
+          const sy  = (1 - tp) * (1 - tp) * pa.y + 2 * (1 - tp) * tp * my + tp * tp * pb.y;
+          const trailFactor = ti === 0 ? 1.0 : (4 - ti) / 4 * 0.38;
+          const sparkSize   = ti === 0 ? 2.8 : Math.max(0.5, 2.0 - ti * 0.4);
+          ctx.beginPath();
+          ctx.arc(sx, sy, sparkSize, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,255,${alpha * trailFactor})`;
+          ctx.fill();
+        }
       }
 
       // ── Nodes ────────────────────────────────────────────────────────────
-      for (const n of NODES) {
+      for (let ni = 0; ni < NODES.length; ni++) {
+        const n = NODES[ni];
         const { x, y } = getNodePos(n, W, H);
         const isHot    = s.hovered === n.id;
         const breathe  = 1 + 0.15 * Math.sin(s.t * 1.2 + n.cx * 7);
         const size     = (isHot ? 42 : 34) * breathe;
 
-        // Glow halo
-        const halo = ctx.createRadialGradient(x, y, 0, x, y, size * 3.5);
-        halo.addColorStop(0,   `rgba(${n.r},${n.g},${n.b},${isHot ? 0.35 : 0.18})`);
-        halo.addColorStop(0.5, `rgba(${n.r},${n.g},${n.b},${isHot ? 0.12 : 0.05})`);
-        halo.addColorStop(1,   `rgba(${n.r},${n.g},${n.b},0)`);
+        // ── Ring pulse — staggered per node ───────────────────────────────
+        const ringProgress = (s.t * 0.26 + s.ringPhases[ni]) % 1;
+        const ringR        = ringProgress * size * 5.8;
+        const ringAlpha    = (1 - ringProgress) * (isHot ? 0.72 : 0.42);
+        if (ringAlpha > 0.015) {
+          ctx.beginPath();
+          ctx.arc(x, y, ringR, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(${n.r},${n.g},${n.b},${ringAlpha})`;
+          ctx.lineWidth   = 1.4;
+          ctx.stroke();
+        }
+
+        // ── Glow halo — boosted saturation / contrast ─────────────────────
+        const halo = ctx.createRadialGradient(x, y, 0, x, y, size * 4.2);
+        halo.addColorStop(0,    `rgba(${n.r},${n.g},${n.b},${isHot ? 0.72 : 0.42})`);
+        halo.addColorStop(0.35, `rgba(${n.r},${n.g},${n.b},${isHot ? 0.30 : 0.15})`);
+        halo.addColorStop(0.65, `rgba(${n.r},${n.g},${n.b},${isHot ? 0.09 : 0.04})`);
+        halo.addColorStop(1,    `rgba(${n.r},${n.g},${n.b},0)`);
         ctx.beginPath();
-        ctx.arc(x, y, size * 3.5, 0, Math.PI * 2);
+        ctx.arc(x, y, size * 4.2, 0, Math.PI * 2);
         ctx.fillStyle = halo;
         ctx.fill();
 
         // Node disc
         ctx.beginPath();
         ctx.arc(x, y, size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${n.r},${n.g},${n.b},${isHot ? 0.30 : 0.14})`;
+        ctx.fillStyle = `rgba(${n.r},${n.g},${n.b},${isHot ? 0.46 : 0.24})`;
         ctx.fill();
-        ctx.strokeStyle = `rgba(${n.r},${n.g},${n.b},${isHot ? 0.85 : 0.50})`;
-        ctx.lineWidth   = isHot ? 2.5 : 1.5;
+        ctx.strokeStyle = `rgba(${n.r},${n.g},${n.b},${isHot ? 1.0 : 0.74})`;
+        ctx.lineWidth   = isHot ? 3.0 : 2.0;
         ctx.stroke();
 
         // Specular ring
@@ -246,6 +284,33 @@ export default function DreamConstellationMap() {
     canvas.addEventListener('mousemove', onMove);
     canvas.addEventListener('click',     onClick);
 
+    // Touch support
+    const onTouchMove = (e: TouchEvent) => {
+      const st = stateRef.current;
+      if (!st || !e.touches[0]) return;
+      const touch = e.touches[0];
+      const hit = hitTest(touch.clientX, touch.clientY, window.innerWidth, window.innerHeight);
+      st.hovered = hit;
+      setHovered(hit);
+      canvas.style.cursor = hit ? 'pointer' : 'default';
+    };
+    const onTouchEnd = (e: TouchEvent) => {
+      const st = stateRef.current;
+      if (!st) return;
+      const touch = e.changedTouches[0];
+      if (touch) {
+        const hit = hitTest(touch.clientX, touch.clientY, window.innerWidth, window.innerHeight);
+        if (hit) {
+          const node = NODES.find((n) => n.id === hit)!;
+          router.push(node.href);
+        }
+      }
+      st.hovered = null;
+      setHovered(null);
+    };
+    canvas.addEventListener('touchmove', onTouchMove, { passive: true });
+    canvas.addEventListener('touchend',  onTouchEnd);
+
     const onHidden = () => {
       const s = stateRef.current;
       if (!s) return;
@@ -258,6 +323,8 @@ export default function DreamConstellationMap() {
       if (stateRef.current) cancelAnimationFrame(stateRef.current.raf);
       canvas.removeEventListener('mousemove', onMove);
       canvas.removeEventListener('click',     onClick);
+      canvas.removeEventListener('touchmove', onTouchMove);
+      canvas.removeEventListener('touchend',  onTouchEnd);
       window.removeEventListener('resize',    resize);
       document.removeEventListener('visibilitychange', onHidden);
     };
