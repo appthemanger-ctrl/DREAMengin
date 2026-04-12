@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 07:58 UTC  
-**Last updated:** 2026-04-12 07:58 UTC  
-**Triggered by commit:** `1e762cf` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #480 from appthemanger-ctrl/copilot/evolve-dreamengin-ui-ux
+**Documentation Date:** 2026-04-12 08:06 UTC  
+**Last updated:** 2026-04-12 08:06 UTC  
+**Triggered by commit:** `dd2889a` on `copilot/update-engin-workflows-md` by Copilot  
+**Commit message:** feat: add engin_workflows spec and core workflow engine library
 
 ---
 
