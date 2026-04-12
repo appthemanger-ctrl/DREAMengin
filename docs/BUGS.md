@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 19:33 UTC  
-**Last updated:** 2026-04-12 19:33 UTC  
-**Triggered by commit:** `0b0d162` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #493 from appthemanger-ctrl/copilot/create-pattern-intelligence-engine
+**Documentation Date:** 2026-04-12 19:37 UTC  
+**Last updated:** 2026-04-12 19:37 UTC  
+**Triggered by commit:** `f0788d7` on `claude/fix-home-page-content-issue` by Claude  
+**Commit message:** fix: redirect authenticated users from landing page to home feed
 
 ---
 
