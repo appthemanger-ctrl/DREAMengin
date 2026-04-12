@@ -37,7 +37,7 @@ describe('game launch navigation', () => {
   it('keeps compatibility game routes redirected into the standalone GameEngin app', () => {
     const pageSrc = readFileSync(join(REPO_ROOT, 'app/daydream/game/page.tsx'), 'utf8');
     const enginePageSrc = readFileSync(join(REPO_ROOT, 'app/engines/games/page.tsx'), 'utf8');
-    const enginSrc = readFileSync(join(REPO_ROOT, 'components/daydream/GameEngin.tsx'), 'utf8');
+    const enginSrc = readFileSync(join(REPO_ROOT, 'engins/GameEngin.tsx'), 'utf8');
     const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/GameHUD.tsx'), 'utf8');
 
     expect(pageSrc).toContain("redirect(`/engines/games");
@@ -48,7 +48,7 @@ describe('game launch navigation', () => {
   });
 
   it('lets the games daydream launch spotlight titles directly into immersive full-screen engine sessions', () => {
-    const gamesPageSrc = readFileSync(join(REPO_ROOT, 'app/daydream/games/page.tsx'), 'utf8');
+    const gamesPageSrc = readFileSync(join(REPO_ROOT, 'daydreams/games/page.tsx'), 'utf8');
 
     expect(gamesPageSrc).toContain("const immersiveGameHref = (gameId: string) => buildGameLaunchHref(gameId, { openEngin: true, play: true, expand: true });");
     expect(gamesPageSrc).toContain("href: immersiveGameHref('platformer')");

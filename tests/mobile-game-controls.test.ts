@@ -35,10 +35,10 @@ describe('shared mobile game controls', () => {
   });
 
   it('wires the immersive shell to the shared mobile HUD modes for example games', () => {
-    const shellSrc = readFileSync(join(REPO_ROOT, 'components/daydream/GameEngin.tsx'), 'utf8');
+    const shellSrc = readFileSync(join(REPO_ROOT, 'engins/GameEngin.tsx'), 'utf8');
     const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/GameHUD.tsx'), 'utf8');
     const gamesSrc = readFileSync(join(REPO_ROOT, 'components/games/GamesHub.tsx'), 'utf8');
-    const echoSrc = readFileSync(join(REPO_ROOT, 'components/games/EchoArena.tsx'), 'utf8');
+    const echoSrc = readFileSync(join(REPO_ROOT, 'games/echo-arena/EchoArena.tsx'), 'utf8');
 
     expect(shellSrc).toContain('<GameHUD');
     expect(hudSrc).toContain('<MobileGameHUD');
@@ -69,7 +69,7 @@ describe('shared mobile game controls', () => {
   });
 
   it('keeps fullscreen game sessions able to hide the messaging bar behind a tiny reopen pill', () => {
-    const shellSrc = readFileSync(join(REPO_ROOT, 'components/daydream/GameEngin.tsx'), 'utf8');
+    const shellSrc = readFileSync(join(REPO_ROOT, 'engins/GameEngin.tsx'), 'utf8');
 
     expect(shellSrc).toContain('const [sessionUtilityBarRevealed, setSessionUtilityBarRevealed] = useState(false);');
     expect(shellSrc).toContain("const SESSION_BAR_HIDE_COVER_HEIGHT = 122;");

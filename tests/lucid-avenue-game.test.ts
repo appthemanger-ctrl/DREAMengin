@@ -26,7 +26,7 @@ describe('Lucid Avenue game slice', () => {
   });
 
   it('ships an original LA-inspired game flow instead of directly copying pokemon content', () => {
-    const src = readFileSync(join(REPO_ROOT, 'components/games/LucidAvenue.tsx'), 'utf8');
+    const src = readFileSync(join(REPO_ROOT, 'games/lucid-avenue/LucidAvenue.tsx'), 'utf8');
 
     expect(src).toContain('Lucid Avenue');
     expect(src).toContain('original LA-inspired retro city quest');

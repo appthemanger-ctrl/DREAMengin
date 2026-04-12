@@ -32,11 +32,15 @@
       "@identity": ["./lib/identity/canonical-names"],
       "@identity/*": ["./lib/identity/*"],
       "@dreams/*": ["./components/dreams/*"],
-      "@home/*": ["./components/home/*"],
-      "@daydream/*": ["./components/daydream/*"],
+      "@home/*": ["./dreamdmbar/homedream/*"],
+      "@daydream/*": ["./daydreams/*"],
       "@dreamengin/*": ["./components/dreamengin/*"],
       "@runtime/*": ["./lib/runtime/*"],
       "@agents/*": ["./lib/agents/*"],
+      "@engins/*": ["./engins/*"],
+      "@games/*": ["./games/*"],
+      "@dreamdmbar/*": ["./dreamdmbar/*"],
+      "@coresurfaces/*": ["./coresurfaces/*"],
       "@structure": ["./lib/structure/index"]
     }
   },

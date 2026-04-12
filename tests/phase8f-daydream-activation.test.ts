@@ -20,7 +20,7 @@ import { join } from 'path';
 const root = process.cwd();
 
 function readComp(name: string) {
-  return readFileSync(join(root, `components/daydream/${name}`), 'utf-8');
+  return readFileSync(join(root, `engins/${name}`), 'utf-8');
 }
 
 describe('Phase 8 §F — StarMakerEngin (Point 51)', () => {

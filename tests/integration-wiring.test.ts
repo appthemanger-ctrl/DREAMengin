@@ -46,7 +46,7 @@ const daydreamPulseStripSrc = readFileSync(
 );
 
 const workspaceDashboardSrc = readFileSync(
-  resolve(__dirname, '../components/home/WorkspaceDashboard.tsx'),
+  resolve(__dirname, '../dreamdmbar/homedream/WorkspaceDashboard.tsx'),
   'utf8',
 );
 

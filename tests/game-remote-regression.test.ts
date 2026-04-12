@@ -6,7 +6,7 @@ const REPO_ROOT = process.cwd();
 
 describe('existing PS5 remote usage', () => {
   it('keeps GameEngin wired to the universal HUD while the legacy remote stays archived', () => {
-    const src = readFileSync(join(REPO_ROOT, 'components/daydream/GameEngin.tsx'), 'utf8');
+    const src = readFileSync(join(REPO_ROOT, 'engins/GameEngin.tsx'), 'utf8');
 
     expect(src).toContain("import GameHUD from '@/components/games/GameHUD'");
     expect(src).toContain('<GameHUD');
@@ -46,7 +46,7 @@ describe('existing PS5 remote usage', () => {
   });
 
   it('keeps immersive sessions on the universal GameHUD instead of the legacy expandable remote', () => {
-    const shellSrc = readFileSync(join(REPO_ROOT, 'components/daydream/GameEngin.tsx'), 'utf8');
+    const shellSrc = readFileSync(join(REPO_ROOT, 'engins/GameEngin.tsx'), 'utf8');
     const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/GameHUD.tsx'), 'utf8');
 
     expect(shellSrc).toContain('mode={expandedPlayable.mobileHudMode ?? \'buttons\'}');
@@ -72,7 +72,7 @@ describe('existing PS5 remote usage', () => {
   });
 
   it('keeps rhythm game playable through shared remote-compatible inputs', () => {
-    const src = readFileSync(join(REPO_ROOT, 'components/games/RhythmGame.tsx'), 'utf8');
+    const src = readFileSync(join(REPO_ROOT, 'games/rhythm-game/RhythmGame.tsx'), 'utf8');
 
     expect(src).toContain("['a', 'ArrowLeft', 'z']");
     expect(src).toContain("['l', 'ArrowRight', ' ']");

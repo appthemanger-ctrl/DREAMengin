@@ -5,14 +5,14 @@ import { join } from 'path';
 const root = process.cwd();
 
 const upgradedSurfaces = [
-  'app/daydream/music/page.tsx',
-  'app/daydream/games/page.tsx',
-  'app/daydream/code/page.tsx',
-  'app/daydream/lab/page.tsx',
-  'app/daydream/brand/page.tsx',
-  'app/daydream/create/page.tsx',
+  'daydreams/music/page.tsx',
+  'daydreams/games/page.tsx',
+  'daydreams/code/page.tsx',
+  'daydreams/lab/page.tsx',
+  'daydreams/brand/page.tsx',
+  'daydreams/create/page.tsx',
   'app/daydream/analytics/page.tsx',
-  'app/marketplace/page.tsx',
+  'coresurfaces/DreamMarketplace.tsx',
   'app/settings/help/page.tsx',
   'app/settings/security/page.tsx',
   'app/settings/algorithm/page.tsx',
@@ -46,7 +46,7 @@ describe('authenticated UI shell upgrade rollout', () => {
 
   it('upgrades shared post-login shells with premium framing', () => {
     const daydreamShell = readFileSync(join(root, 'components/daydream/DaydreamShell.tsx'), 'utf-8');
-    const dashboard = readFileSync(join(root, 'components/home/WorkspaceDashboard.tsx'), 'utf-8');
+    const dashboard = readFileSync(join(root, 'dreamdmbar/homedream/WorkspaceDashboard.tsx'), 'utf-8');
     const pulseStrip = readFileSync(join(root, 'components/home/DaydreamPulseStrip.tsx'), 'utf-8');
     const dreamsPanel = readFileSync(join(root, 'components/dreams/DreamsSpacePanel.tsx'), 'utf-8');
 

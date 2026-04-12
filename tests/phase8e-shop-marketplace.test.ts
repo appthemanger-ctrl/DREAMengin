@@ -71,7 +71,7 @@ describe('Phase 8 §E Point 39 — DreamShop real listing capability', () => {
 
   it('shop/page.tsx queries the merch table (no static arrays)', () => {
     const shopPage = fs.readFileSync(
-      path.resolve(__dirname, '../app/shop/page.tsx'),
+      path.resolve(__dirname, '../coresurfaces/DreamShop.tsx'),
       'utf-8',
     );
     expect(shopPage).toContain(".from('merch')");
@@ -81,7 +81,7 @@ describe('Phase 8 §E Point 39 — DreamShop real listing capability', () => {
 
   it('shop/page.tsx fetches owner listings scoped to user.id', () => {
     const shopPage = fs.readFileSync(
-      path.resolve(__dirname, '../app/shop/page.tsx'),
+      path.resolve(__dirname, '../coresurfaces/DreamShop.tsx'),
       'utf-8',
     );
     expect(shopPage).toContain('user.id');
@@ -243,7 +243,7 @@ describe('Phase 8 §E Point 42 — DreamMarketplace real listing capability', ()
 
   it('marketplace/page.tsx queries marketplace_items (no mock arrays)', () => {
     const mpPage = fs.readFileSync(
-      path.resolve(__dirname, '../app/marketplace/page.tsx'),
+      path.resolve(__dirname, '../coresurfaces/DreamMarketplace.tsx'),
       'utf-8',
     );
     expect(mpPage).toContain(".from('marketplace_items')");
@@ -384,7 +384,7 @@ describe('Phase 8 §E Point 44 — Public listings auth-gated; private data owne
 
   it('shop/page.tsx does not select seller_notes', () => {
     const shopPage = fs.readFileSync(
-      path.resolve(__dirname, '../app/shop/page.tsx'),
+      path.resolve(__dirname, '../coresurfaces/DreamShop.tsx'),
       'utf-8',
     );
     expect(shopPage).not.toContain('seller_notes');

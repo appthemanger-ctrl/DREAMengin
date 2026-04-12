@@ -12,7 +12,7 @@ describe('profile avatar edit entrypoints', () => {
     'utf8',
   );
   const viewProfile = readFileSync(
-    resolve(__dirname, '../app/view-profile/page.tsx'),
+    resolve(__dirname, '../coresurfaces/ViewProfile.tsx'),
     'utf8',
   );
 

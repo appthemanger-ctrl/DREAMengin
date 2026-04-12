@@ -13,11 +13,15 @@
  *   @identity         → lib/identity/canonical-names.ts
  *   @identity/*       → lib/identity/*
  *   @dreams/*         → components/dreams/*
- *   @home/*           → components/home/*
- *   @daydream/*       → components/daydream/*
+ *   @home/*           → dreamdmbar/homedream/*
+ *   @daydream/*       → daydreams/*
  *   @dreamengin/*     → components/dreamengin/*
  *   @runtime/*        → lib/runtime/*
  *   @agents/*         → lib/agents/*
+ *   @engins/*         → engins/*
+ *   @games/*          → games/*
+ *   @dreamdmbar/*     → dreamdmbar/*
+ *   @coresurfaces/*   → coresurfaces/*
  *   @structure        → lib/structure/index.ts  (this file)
  *
  * Naming authority: lib/identity/canonical-names.ts
@@ -127,17 +131,24 @@ export const COMPONENT_ZONES: readonly ZoneDescriptor[] = [
   },
   {
     name: 'HomeDream Surface Components',
-    path: 'components/home',
+    path: 'dreamdmbar/homedream',
     alias: '@home/*',
-    contains: 'HomeDream operating surface UI: HomeSystem, HomeDream, WorkspaceDashboard, GlobalDreamBar, DreamWindowRail.',
+    contains: 'HomeDream operating surface UI: HomeSystem, HomeDream, WorkspaceDashboard, GlobalDreamBar, DreamWindowRail, DreamR social feed. Canonical — components/home/* shims point here.',
     mustNot: 'Daydream surface components. Profile output.',
   },
   {
-    name: 'Daydream Surface Components',
-    path: 'components/daydream',
+    name: 'Engin Control Surfaces',
+    path: 'engins',
+    alias: '@engins/*',
+    contains: 'Side-B control surfaces: StarMakerEngin, GameEngin, LabEngin, CodeEngin, BrandingEngin, ContentEngin, ForgeEngin. Sub-dirs: analytics/, portfolio/, autoopen/.',
+    mustNot: 'HomeDream components. An Engin not paired with a canonical Daydream.',
+  },
+  {
+    name: 'Daydream Page Surfaces',
+    path: 'daydreams',
     alias: '@daydream/*',
-    contains: 'Engin control surfaces for all six Daydream domains: CodeEngin, LabEngin, StarMakerEngin, GameEngin, BrandingEngin, ContentEngin.',
-    mustNot: 'HomeDream components. A seventh Engin not in the six canonical pairs.',
+    contains: 'Canonical page components for the six Daydream surfaces: music, games, lab, code, brand, create. Each is a full Side-A surface component.',
+    mustNot: 'Engin (Side-B) control layers. HomeDream components. Non-Daydream pages.',
   },
   {
     name: 'DREAMenginOS',
@@ -217,7 +228,9 @@ export const REJECTED_FOLDER_PATTERNS: readonly string[] = [
   'components/cards',     // rejected: use Dream Windows
   'components/layout',    // rejected: layout is in app/layout.tsx and DREAMenginOS
   'components/pages',     // rejected: routes live in app/, never in components/
-  'components/views',     // rejected: use components/home, components/dreamengin, etc.
+  'components/views',     // rejected: use dreamdmbar/homedream/ or components/dreamengin/
+  'components/engins',    // rejected: canonical Engins live in engins/ (top-level)
+  'components/games',     // rejected: canonical games live in games/ (top-level)
   'lib/helpers',          // rejected: too generic — use the named lib sub-modules
   'lib/utils',            // rejected: use lib/utils.ts (existing single file, not a folder)
   'lib/common',           // rejected: too generic

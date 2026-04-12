@@ -50,9 +50,9 @@ function makeSetup(checks: SetupCheck[]) {
 
 describe('admin upgrade readiness', () => {
   const manifests: DaydreamEnginManifest[] = [
-    makeManifest('Music', 'StarMakerEngin', 2, 2, 'components/daydream/StarMakerEngin.tsx'),
-    makeManifest('Games', 'GameEngin', 3, 1, 'components/daydream/GameEngin.tsx'),
-    makeManifest('Lab', 'LabEngin', 1, 3, 'components/daydream/LabEngin.tsx'),
+    makeManifest('Music', 'StarMakerEngin', 2, 2, 'engins/StarMakerEngin.tsx'),
+    makeManifest('Games', 'GameEngin', 3, 1, 'engins/GameEngin.tsx'),
+    makeManifest('Lab', 'LabEngin', 1, 3, 'engins/LabEngin.tsx'),
   ];
 
   it('summarizes aggregate build readiness across manifests', () => {
@@ -72,7 +72,7 @@ describe('admin upgrade readiness', () => {
     expect(target?.manifest.domain).toBe('Games');
     expect(target?.manifest.engin).toBe('GameEngin');
     expect(target?.nextFeature.id).toBe('games-planned-0');
-    expect(target?.file).toBe('components/daydream/GameEngin.tsx');
+    expect(target?.file).toBe('engins/GameEngin.tsx');
     expect(target?.projectedProgressPct).toBe(100);
   });
 
@@ -106,7 +106,7 @@ describe('admin upgrade readiness', () => {
     expect(proposal.boogieman.status).toBe('approved');
     expect(proposal.dreams.status).toBe('approved');
     expect(checklist).toEqual(proposal.checklist);
-    expect(checklist.some((item) => item.includes('components/daydream/GameEngin.tsx'))).toBe(true);
+    expect(checklist.some((item) => item.includes('engins/GameEngin.tsx'))).toBe(true);
     expect(checklist.some((item) => item.includes('lib/feature-build/featureManifest.ts'))).toBe(true);
     expect(checklist.at(-1)).toContain('Verify outcome:');
   });
