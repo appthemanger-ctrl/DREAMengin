@@ -45,6 +45,8 @@ function savePersisted(key: string, value: number) {
 
 interface MobileGameHUDProps {
   gameLabel: string;
+  gameEmoji?: string;
+  playHref?: string;
   mode: MobileHudMode;
   onExit: () => void;
 }
@@ -83,7 +85,7 @@ function isInJoystickZone(touch: TouchPoint, dock: HTMLDivElement | null): boole
 
 const INTERACTIVE_BUTTONS = new Set(['jump', 'dash', 'action']);
 
-export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: MobileGameHUDProps) {
+export default function MobileGameHUD({ gameLabel, gameEmoji, mode, onExit }: MobileGameHUDProps) {
   const leftDockRef = useRef<HTMLDivElement>(null);
   const rightDockRef = useRef<HTMLDivElement>(null);
   const leftCapRef = useRef<HTMLDivElement>(null);
@@ -384,7 +386,7 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
       className={clsx(styles.overlay, isTouching ? styles.overlayActive : styles.overlayIdle)}
       style={remoteVars}
     >
-      <div className={styles.hudBadge}>{gameLabel} · instant touch HUD</div>
+      <div className={styles.hudBadge}>{gameEmoji ? `${gameEmoji} ` : ''}{gameLabel} · instant touch HUD</div>
 
       {/* ── Left joystick (MOVE) ── */}
       <div
@@ -529,8 +531,8 @@ export default function MobileGameHUD({ gameLabel, mode: _mode, onExit }: Mobile
             className={clsx(styles.joystickCap, styles.rightJoyCap, rightJoyTouchIdRef.current === null && styles.joystickCapReset)}
             style={{ transform: getStickTransform(rightVector) }}
           />
-          {/* Ring buttons */}
-          {MOBILE_HUD_BUTTON_RING.map((button) => (
+          {/* Ring buttons — hidden in joystick-only mode */}
+          {mode !== 'joystick' && MOBILE_HUD_BUTTON_RING.map((button) => (
             <div
               key={button.id}
               ref={(node) => { ringButtonRefs.current[button.id] = node; }}

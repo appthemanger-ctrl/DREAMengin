@@ -1395,24 +1395,24 @@ export default function GameEngin({ onBack }: Props) {
           </div>
         </div>
 
-        {/* ────────────────────── 2. Launch Bay */}
+        {/* ────────────────────── 2. Quick Resume */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Gamepad2 className="w-4 h-4" style={{ color: ACCENT }} />
-            <span className="de-widget-title ml-2">Launch Bay</span>
+            <span className="de-widget-title ml-2">Quick Resume</span>
             <span
               className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
               style={{ background: 'rgba(124,58,237,0.12)', color: '#7c3aed', border: '1px solid rgba(124,58,237,0.25)' }}
             >
-              {GAMES.length} Games
+              Session
             </span>
           </div>
           <div className="de-widget-body">
             <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 12 }}>
-              These entries boot a selected game back on the Games Daydream big screen so the library stays the calm overview while GameEngin owns the runtime.
+              Pick up where you left off. Browse the full game library on the Games Daydream (Side A) — jump back in here for your last sessions.
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {QUICK_PLAY_GAME_IDS
+              {QUICK_PLAY_GAME_IDS.slice(0, 3)
                 .map((gameId) => GAMES.find((game) => game.id === gameId))
                 .filter((game): game is (typeof GAMES)[number] => Boolean(game))
                 .map((g) => (
@@ -1431,6 +1431,7 @@ export default function GameEngin({ onBack }: Props) {
                   <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>
                     {g.label}
                   </span>
+                  <span style={{ fontSize: 10, color: 'var(--de-text-dim)', marginRight: 6 }}>Resume</span>
                   <Play className="w-3 h-3 flex-shrink-0" style={{ color: ACCENT, opacity: 0.7 }} />
                 </Link>
               ))}
@@ -1438,7 +1439,7 @@ export default function GameEngin({ onBack }: Props) {
           </div>
           <div className="de-widget-actions">
             <Link href="/daydream/games" className="de-btn de-btn-primary text-xs" style={{ gap: 6 }}>
-              <Gamepad2 className="w-3 h-3" /> View All {GAMES.length} Games
+              <Gamepad2 className="w-3 h-3" /> Browse Full Library ({GAMES.length} Games)
             </Link>
           </div>
         </div>

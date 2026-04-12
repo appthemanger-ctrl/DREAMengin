@@ -49,7 +49,7 @@
 - 🧪 Tests: 134 files, 125 passing
 - 📄 API Routes: 89
 - 🎨 Components: 36 categories
-- 📖 Documentation: 48 files
+- 📖 Documentation: 49 files
 - ⚙️ GitHub Actions: 53 workflows
 
 ## Tech Stack
@@ -119,12 +119,12 @@ vitest@^4.1.0
 | Directory | Total Files | File Types |
 |-----------|-------------|------------|
 | `app/` | 217 | .tsx(126), .ts(89), .css(2) |
-| `components/` | 298 | .tsx(271), .ts(24), .css(2) |
-| `lib/` | 271 | .ts(265), .tsx(4), .md(2) |
-| `tests/` | 137 | .ts(136), .md(1) |
+| `components/` | 299 | .tsx(272), .ts(24), .css(2) |
+| `lib/` | 279 | .ts(273), .tsx(4), .md(2) |
+| `tests/` | 142 | .ts(141), .md(1) |
 | `styles/` | 3 | .css(3) |
 | `public/` | 49 | .png(18), .PNG(11), .jpeg(6) |
-| `docs/` | 44 | .md(44) |
+| `docs/` | 45 | .md(45) |
 | `scripts/` | 23 | .mjs(12), .cjs(4), .sh(3) |
 | `supabase/` | 47 | .sql(46), .toml(1) |
 
@@ -133,9 +133,9 @@ vitest@^4.1.0
 ### File Distribution
 
 - **App Routes (TSX):** 126
-- **Component Files:** 271
-- **Library Files:** 269
-- **Test Files:** 128
+- **Component Files:** 272
+- **Library Files:** 277
+- **Test Files:** 133
 
 ### Code Volume
 
@@ -286,7 +286,7 @@ vitest@^4.1.0
 | `forge/` | 2 |
 | `gameengin/` | 1 |
 | `games/` | 44 |
-| `home/` | 11 |
+| `home/` | 12 |
 | `landing/` | 2 |
 | `marketplace/` | 2 |
 | `menus/` | 5 |
@@ -330,8 +330,8 @@ vitest@^4.1.0
 
 ## Tests
 
-**Test Files:** 134
-**Tests Passing:** 125
+**Test Files:** 139
+**Tests Passing:** 130
 **Tests Failing:** 11
 
 ### Test Files
@@ -356,11 +356,11 @@ vitest@^4.1.0
 - /tests/conform-memory-map.test.ts
 - /tests/connectors.test.ts
 - /tests/content-intelligence-routes.test.ts
-- ... and 114 more test files
+- ... and 119 more test files
 
 ## Documentation
 
-**Total Documentation Files:** 48
+**Total Documentation Files:** 49
 
 ### Documentation Files
 
@@ -394,7 +394,7 @@ vitest@^4.1.0
 - [IDARI_CONTRACT.md](/docs/IDARI_CONTRACT.md)
 - [LAW.md](/docs/LAW.md)
 - [NAMING_AUTHORITY.md](/docs/NAMING_AUTHORITY.md)
-- ... and 18 more docs
+- ... and 19 more docs
 
 ## CI/CD Workflows
 
