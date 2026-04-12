@@ -42,6 +42,11 @@ export type JourneyDotKind =
   | 'first_sale'                 // first successful sale
   | 'ad_slot_first_created'      // first DreamAds slot created
 
+  // ── Workflow ─────────────────────────────────────────────────────────────
+  | 'workflow_first_activation'  // first time a workflow transitions draft → active
+  | 'workflow_first_export'      // first time a workflow transitions review → export
+  | 'workflow_first_handoff'     // first cross-Engin handoff emitted from a workflow
+
   // ── System / runtime ────────────────────────────────────────────────────
   | 'runtime_first_entry'        // first-ever entry into DREAMengin (once, ever)
   | 'dreamspace_first_open';     // first time DreamSpace is opened from DreamDM Bar

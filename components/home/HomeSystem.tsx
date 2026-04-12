@@ -14,7 +14,7 @@
  * so the persistent bar and HomeSystem stay in sync.
  */
 
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import DualRuntimeContainer, { useDualRuntime } from '@/components/runtime/DualRuntimeContainer';
 import RuntimeView from '@/components/runtime/RuntimeView';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
@@ -23,6 +23,8 @@ import { createClient } from '@/lib/supabase/client';
 import { DIVIDER_H } from '@/lib/dreamdm/barInteractions';
 import { EnginDispatcher } from '@/lib/runtime/EnginDispatcher';
 import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
+import { seamClipboard, type SeamClipboardMimeType } from '@/lib/runtime/seamClipboard';
+import { RUNTIME_REGIONS } from '@/lib/identity/canonical-names';
 
 type ProfileLike = {
   id?: string;
@@ -57,6 +59,7 @@ function HomeSystemInner({
     setIsBarMinimized,
   } = useDreamSystem();
   const [viewportHeight, setViewportHeight] = React.useState(0);
+  const [seamDragOver, setSeamDragOver] = useState<boolean>(false);
 
   useEffect(() => {
     const sb = createClient();
@@ -183,6 +186,46 @@ function HomeSystemInner({
       ? Math.round(((viewportHeight - dividerHeight) * splitRatio) + dividerHeight / 2)
       : undefined;
 
+  // ── Seam drop zone handlers ──────────────────────────────────────────────────
+
+  const handleSeamDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setSeamDragOver(true);
+  }, []);
+
+  const handleSeamDragLeave = useCallback(() => {
+    setSeamDragOver(false);
+  }, []);
+
+  const handleSeamDrop = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      // Try application/x-dream-artifact first — richest payload type.
+      const artifactData = e.dataTransfer.getData('application/x-dream-artifact');
+      const textData = e.dataTransfer.getData('text/plain');
+      const content = artifactData || textData;
+      const mimeType: SeamClipboardMimeType = artifactData
+        ? 'application/x-dream-artifact'
+        : 'text/plain';
+      // Determine which region the drag originated from based on Y position
+      // relative to the seam centre. Fall back to a proportional estimate when
+      // viewportHeight hasn't been measured yet.
+      const seamY = seamOffset ?? Math.round(viewportHeight * splitRatio);
+      const sourceRegion =
+        e.clientY < seamY
+          ? RUNTIME_REGIONS.SURFACE_SPACE
+          : RUNTIME_REGIONS.DREAM_SPACE;
+      const targetRegion =
+        sourceRegion === RUNTIME_REGIONS.SURFACE_SPACE
+          ? RUNTIME_REGIONS.DREAM_SPACE
+          : RUNTIME_REGIONS.SURFACE_SPACE;
+      // Route through the workflow registry + broadcast on the bus.
+      seamClipboard.set({ content, mimeType, sourceRegion, targetRegion });
+      setSeamDragOver(false);
+    },
+    [seamOffset, viewportHeight, splitRatio],
+  );
+
   return (
     <>
 
@@ -214,6 +257,25 @@ function HomeSystemInner({
           dominantRegion={dualRuntime.state.dominantRegion}
         />
       </div>
+
+      {/* ── Seam drop zone — transparent, sits exactly over the DreamDM Bar seam.
+           Drag artifacts through here to trigger cross-engin workflow routing.
+           No visual styling: the bus activity IS the feedback.          ── */}
+      <div
+        aria-hidden="true"
+        data-seam-drop-zone={seamDragOver ? 'active' : 'idle'}
+        style={{
+          position: 'fixed',
+          left: 0,
+          right: 0,
+          top: topHeight,
+          height: `${dividerHeight}px`,
+          zIndex: 10,
+        }}
+        onDragOver={handleSeamDragOver}
+        onDrop={handleSeamDrop}
+        onDragLeave={handleSeamDragLeave}
+      />
 
       <div
         style={{
