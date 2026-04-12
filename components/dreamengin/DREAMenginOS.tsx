@@ -17,6 +17,7 @@ import {
   type DreamOSRuntimeContext,
   type DreamOSSharedArtifact,
 } from '@/lib/runtime/dreamOSBus';
+import { useSessionIntelligence } from '@/lib/intelligence/useSessionIntelligence';
 
 export interface DREAMenginOSProps {
   audioSource?: AnalyserNode;
@@ -99,6 +100,9 @@ export default function DREAMenginOS({
   const [importCount, setImportCount] = useState(0);
   const [sharedArtifacts, setSharedArtifacts] = useState<readonly DreamOSSharedArtifact[]>([]);
   const [runtimeContexts, setRuntimeContexts] = useState<readonly DreamOSRuntimeContext[]>([]);
+
+  // Session intelligence — auto-wired to dreamOSBus; no prop needed.
+  const { predictions, isLearning, sessionDiff } = useSessionIntelligence();
 
   const onSelectSubsystemRef = useRef(onSelectSubsystem);
   onSelectSubsystemRef.current = onSelectSubsystem;
@@ -606,6 +610,82 @@ export default function DREAMenginOS({
           ) : null}
         </div>
       </div>
+
+      {/* ── Dr. Eams — session intelligence panel ─────────────────────────── */}
+      {predictions.length > 0 ? (
+        <div
+          style={{
+            position: 'absolute',
+            top: 12,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            minWidth: 220,
+            maxWidth: 320,
+            padding: '10px 14px',
+            borderRadius: 18,
+            background: 'rgba(4, 8, 22, 0.80)',
+            border: '1px solid rgba(139, 92, 246, 0.36)',
+            backdropFilter: 'blur(14px)',
+            color: '#e9d9ff',
+            fontSize: 11,
+            pointerEvents: 'none',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <span style={{ fontSize: 14 }}>🤖</span>
+            <span style={{ textTransform: 'uppercase', letterSpacing: '0.16em', color: '#b294ff', fontWeight: 700 }}>
+              Dr. Eams
+            </span>
+            <span
+              style={{
+                marginLeft: 'auto',
+                fontSize: 9,
+                color: isLearning ? '#a8ffd6' : '#e8c040',
+                letterSpacing: '0.1em',
+              }}
+            >
+              {isLearning ? 'LEARNED' : 'WARM DEFAULT'}
+            </span>
+          </div>
+
+          {sessionDiff?.recommendation ? (
+            <div style={{ marginBottom: 8, color: '#c4b5fd', fontSize: 10, lineHeight: 1.4 }}>
+              {sessionDiff.recommendation}
+            </div>
+          ) : null}
+
+          <div style={{ display: 'grid', gap: 5 }}>
+            {predictions.map((pred, index) => (
+              <div
+                key={pred.subsystemId}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  borderRadius: 10,
+                  border: '1px solid rgba(139, 92, 246, 0.18)',
+                  background: index === 0
+                    ? 'rgba(139, 92, 246, 0.14)'
+                    : 'rgba(10, 8, 28, 0.50)',
+                  padding: '6px 9px',
+                }}
+              >
+                <span style={{ fontWeight: 700, fontSize: 12 }}>{pred.label}</span>
+                <span
+                  style={{
+                    marginLeft: 'auto',
+                    color: '#a78bfa',
+                    fontSize: 10,
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  {Math.round(pred.confidence * 100)}%
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

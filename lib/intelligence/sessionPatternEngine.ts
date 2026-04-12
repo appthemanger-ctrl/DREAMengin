@@ -44,6 +44,33 @@ export interface PatternEngineState {
 // Minimum transitions before predictions are considered reliable.
 const MIN_TRANSITIONS = 3;
 
+// Transition count above which cold-start weights are no longer blended in.
+const COLD_START_THRESHOLD = 10;
+
+// Pre-defined common path weights used as warm defaults until the engine has
+// accumulated enough transitions to rely solely on learned data.
+// Each entry lists [destinationSubsystemId, defaultWeight] pairs (weights sum to 1).
+const COLD_START_WEIGHTS: Record<string, [string, number][]> = {
+  home:           [['CodeEngin', 0.35], ['LabEngin', 0.25], ['GameEngin', 0.20], ['ContentEngin', 0.20]],
+  profile:        [['home', 0.50], ['CodeEngin', 0.30], ['LabEngin', 0.20]],
+  dreamspace:     [['home', 0.40], ['CodeEngin', 0.30], ['LabEngin', 0.30]],
+  CodeEngin:      [['LabEngin', 0.40], ['GameEngin', 0.30], ['ContentEngin', 0.30]],
+  LabEngin:       [['CodeEngin', 0.40], ['GameEngin', 0.35], ['ContentEngin', 0.25]],
+  GameEngin:      [['CodeEngin', 0.35], ['ContentEngin', 0.30], ['BrandingEngin', 0.35]],
+  ContentEngin:   [['BrandingEngin', 0.40], ['CodeEngin', 0.30], ['GameEngin', 0.30]],
+  BrandingEngin:  [['ContentEngin', 0.40], ['GameEngin', 0.30], ['StarMakerEngin', 0.30]],
+  StarMakerEngin: [['BrandingEngin', 0.40], ['ContentEngin', 0.30], ['GameEngin', 0.30]],
+  'Dr. Eams':     [['home', 0.35], ['CodeEngin', 0.35], ['LabEngin', 0.30]],
+};
+
+// Fallback cold-start weights for any subsystem not in COLD_START_WEIGHTS.
+const DEFAULT_COLD_START: [string, number][] = [
+  ['CodeEngin', 0.35],
+  ['LabEngin', 0.30],
+  ['GameEngin', 0.20],
+  ['ContentEngin', 0.15],
+];
+
 // Known subsystem display labels.
 const SUBSYSTEM_LABELS: Record<string, string> = {
   CodeEngin: '💻 CodeEngin',
@@ -124,30 +151,64 @@ export class SessionPatternEngine {
 
   /**
    * Predict the top-N most likely next subsystem activations given the current
-   * active subsystem. Returns an empty array if not enough data yet or if
-   * the engine has not reached the minimum transition threshold.
+   * active subsystem.
+   *
+   * Before the engine has learned transitions from this subsystem, returns
+   * cold-start defaults. Between MIN_TRANSITIONS and COLD_START_THRESHOLD,
+   * blends cold-start defaults with learned weights. Above COLD_START_THRESHOLD,
+   * uses purely learned weights.
    */
   predict(currentSubsystemId: string, topN = 3): PredictedNext[] {
-    if (this.activationSequence.length - 1 < MIN_TRANSITIONS) return [];
+    const transitionCount = Math.max(0, this.activationSequence.length - 1);
     const fromMap = this.transitions.get(currentSubsystemId);
-    if (!fromMap || fromMap.size === 0) return [];
+    const hasLearned = fromMap !== undefined && fromMap.size > 0;
+
+    // No learned data for this subsystem → pure cold-start.
+    if (!hasLearned) {
+      return this.coldStartPredictions(currentSubsystemId, topN);
+    }
 
     const entries = Array.from(fromMap.entries());
     const total = entries.reduce((sum, [, count]) => sum + count, 0);
-    if (total === 0) return [];
 
-    let normalised: { subsystemId: string; confidence: number }[];
-
+    let learnedNorm: { subsystemId: string; confidence: number }[];
     if (this.tfReady) {
-      normalised = this.normaliseWithTF(entries, total);
+      learnedNorm = this.normaliseWithTF(entries, total);
     } else {
-      normalised = entries.map(([subsystemId, count]) => ({
+      learnedNorm = entries.map(([subsystemId, count]) => ({
         subsystemId,
         confidence: count / total,
       }));
     }
 
-    return normalised
+    // Blend cold-start defaults with learned weights in the warm-up window.
+    if (transitionCount <= COLD_START_THRESHOLD) {
+      const learnWeight = Math.max(0, transitionCount - MIN_TRANSITIONS) / (COLD_START_THRESHOLD - MIN_TRANSITIONS);
+      const coldWeight = 1 - learnWeight;
+      const coldDefaults = this.coldStartDefaults(currentSubsystemId);
+
+      const learnedMap = new Map(learnedNorm.map((p) => [p.subsystemId, p.confidence]));
+      const coldMap = new Map(coldDefaults.map(([id, conf]) => [id, conf]));
+
+      const allIds = new Set([...learnedMap.keys(), ...coldMap.keys()]);
+      const blended = Array.from(allIds).map((id) => ({
+        subsystemId: id,
+        confidence: learnWeight * (learnedMap.get(id) ?? 0) + coldWeight * (coldMap.get(id) ?? 0),
+      }));
+
+      return blended
+        .filter((p) => p.confidence > 0)
+        .sort((a, b) => b.confidence - a.confidence)
+        .slice(0, topN)
+        .map(({ subsystemId, confidence }) => ({
+          subsystemId,
+          confidence,
+          label: labelFor(subsystemId),
+        }));
+    }
+
+    // Pure learned (transitionCount > COLD_START_THRESHOLD).
+    return learnedNorm
       .sort((a, b) => b.confidence - a.confidence)
       .slice(0, topN)
       .map(({ subsystemId, confidence }) => ({
@@ -183,6 +244,55 @@ export class SessionPatternEngine {
     this.transitions.clear();
     this.activationSequence.length = 0;
     this.subsystemsSeen.length = 0;
+  }
+
+  // ── Persistence ───────────────────────────────────────────────────────────
+
+  /**
+   * Exports the learned bigram transition matrix as a plain JSON-serialisable
+   * object. Use together with importMatrix() to persist the engine across
+   * browser sessions.
+   */
+  exportMatrix(): Record<string, Record<string, number>> {
+    const result: Record<string, Record<string, number>> = {};
+    for (const [from, toMap] of this.transitions) {
+      result[from] = Object.fromEntries(toMap.entries());
+    }
+    return result;
+  }
+
+  /**
+   * Restores the bigram transition matrix from a previously exported object.
+   * Does not touch the activation sequence or seen-list — those remain
+   * session-local.
+   */
+  importMatrix(data: Record<string, Record<string, number>>): void {
+    this.transitions.clear();
+    for (const [from, toObj] of Object.entries(data)) {
+      if (typeof toObj !== 'object' || toObj === null) continue;
+      const toMap = new Map<string, number>(
+        Object.entries(toObj).filter(([, v]) => typeof v === 'number'),
+      );
+      if (toMap.size > 0) {
+        this.transitions.set(from, toMap);
+      }
+    }
+  }
+
+  // ── Cold-start helpers ────────────────────────────────────────────────────
+
+  private coldStartDefaults(subsystemId: string): [string, number][] {
+    return COLD_START_WEIGHTS[subsystemId] ?? DEFAULT_COLD_START;
+  }
+
+  private coldStartPredictions(subsystemId: string, topN: number): PredictedNext[] {
+    return this.coldStartDefaults(subsystemId)
+      .slice(0, topN)
+      .map(([id, confidence]) => ({
+        subsystemId: id,
+        confidence,
+        label: labelFor(id),
+      }));
   }
 
   // ── TF.js normalisation ───────────────────────────────────────────────────
