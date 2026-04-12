@@ -1,8 +1,16 @@
 {
-  "generated_at": "2026-04-12T02:30:30.854Z",
+  "generated_at": "2026-04-12T17:01:46.087Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 20,
+  "count": 22,
   "events": [
+    {
+      "event": "beforeunload",
+      "payload_type": null,
+      "files": [
+        "lib/games/useRemoteChannel.ts",
+        "lib/intelligence/useSessionIntelligence.ts"
+      ]
+    },
     {
       "event": "de-ctrl-button",
       "payload_type": "ButtonInteractionEvent",
@@ -134,6 +142,7 @@
       "files": [
         "components/AnchorWidget.tsx",
         "components/HomeFeed.tsx",
+        "components/home/NeuralSeamCanvas.tsx",
         "components/home/WorkspaceDashboard.tsx",
         "components/messaging/DreamDMBar.tsx",
         "components/runtime/RuntimeShell.tsx",
@@ -142,9 +151,17 @@
       ]
     },
     {
+      "event": "pointerdown",
+      "payload_type": null,
+      "files": [
+        "components/LandingHero.tsx"
+      ]
+    },
+    {
       "event": "pointermove",
       "payload_type": null,
       "files": [
+        "components/LandingHero.tsx",
         "components/home/ActiveModuleSurface.tsx",
         "lib/god-tier/useGodTier.ts"
       ]
@@ -153,6 +170,7 @@
       "event": "pointerup",
       "payload_type": null,
       "files": [
+        "components/LandingHero.tsx",
         "components/home/ActiveModuleSurface.tsx"
       ]
     },
