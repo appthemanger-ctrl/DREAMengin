@@ -19,9 +19,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
 import WorkspaceDashboard from '@/dreamdmbar/homedream/WorkspaceDashboard';
 import DreamsSpacePanel from '@/components/dreams/DreamsSpacePanel';
-import DREAMenginOS from '@/components/dreamengin/DREAMenginOS';
 import RuntimeShell from '@/components/runtime/RuntimeShell';
-import type { DreamenginOSSubsystemNode } from '@/lib/dreamengin/osSubsystemManifest';
 import type { RuntimeRegion } from '@/lib/identity/canonical-names';
 
 // ── Panel components (loaded in-region, never as overlays) ───────────────────
@@ -148,16 +146,6 @@ export default function RuntimeView({
 
   /* ── DreamSpace runtime ──────────────────────────────────────────────────── */
   if (world === 'DreamSpace') {
-    const handleSelectSubsystem = (node: DreamenginOSSubsystemNode) => {
-      if (node.id === 'ai:dr-eams' || node.id === 'ai:triad-consensus') {
-        onOpenDrEams();
-        return;
-      }
-      if (node.route) {
-        openUrl(node.route, node.label);
-      }
-    };
-
     return (
       <div
         style={{
@@ -166,27 +154,16 @@ export default function RuntimeView({
           overflow: 'hidden',
         }}
       >
-        <div style={{ position: 'absolute', inset: 0 }}>
-          <DREAMenginOS
-            onSelectSubsystem={handleSelectSubsystem}
-            seamOffsetPx={seamOffsetPx}
-            splitRatio={splitRatio}
-            seamVisible={seamVisible}
-            dominantRegion={dominantRegion}
-          />
-        </div>
         <RuntimeShell
           iframeUrl={iframeUrl}
           onCloseIframe={closeIframe}
           iframeTitle={iframeTitle}
         >
-          <div style={{ position: 'relative', zIndex: 1, height: '100%' }}>
-            <DreamsSpacePanel
-              onOpenUrl={openUrl}
-              onOpenInRegion={onOpenInRegion}
-              accountId={profile?.id}
-            />
-          </div>
+          <DreamsSpacePanel
+            onOpenUrl={openUrl}
+            onOpenInRegion={onOpenInRegion}
+            accountId={profile?.id}
+          />
         </RuntimeShell>
       </div>
     );
