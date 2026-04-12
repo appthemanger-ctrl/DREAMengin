@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 18:47 UTC  
-**Last updated:** 2026-04-12 18:47 UTC  
-**Triggered by commit:** `764e9e9` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #491 from appthemanger-ctrl/claude/remove-telemetry-and-analytics
+**Documentation Date:** 2026-04-12 19:04 UTC  
+**Last updated:** 2026-04-12 19:04 UTC  
+**Triggered by commit:** `bdb70bd` on `copilot/close-all-open-prs` by Copilot  
+**Commit message:** chore: add script to close all open PRs without merging
 
 ---
 
