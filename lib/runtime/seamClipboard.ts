@@ -118,7 +118,9 @@ export interface SeamClipboardPayload {
 type SeamClipboardListener = (payload: SeamClipboardPayload) => void;
 type UnsubscribeFn = () => void;
 
-// ── SeamClipboard class ───────────────────────────────────────────────────────
+// ── Improvement 37: payload size guard ───────────────────────────────────────
+/** Maximum allowed payload content size in bytes (512 KB). */
+const MAX_PAYLOAD_BYTES = 512 * 1024;
 
 class SeamClipboard {
   private current: SeamClipboardPayload | null = null;
@@ -137,6 +139,17 @@ class SeamClipboard {
    * Calling set() again overwrites the previous value and fires a new event.
    */
   set(input: Omit<SeamClipboardPayload, 'timestamp'>): void {
+    // ── Improvement 37: reject oversized payloads ─────────────────────────
+    const byteLen = typeof TextEncoder !== 'undefined'
+      ? new TextEncoder().encode(input.content).length
+      : input.content.length;
+    if (byteLen > MAX_PAYLOAD_BYTES) {
+      console.warn(
+        `[SeamClipboard] Payload rejected: ${byteLen} bytes exceeds ${MAX_PAYLOAD_BYTES} byte limit`,
+      );
+      return;
+    }
+
     const payload: SeamClipboardPayload = { ...input, timestamp: Date.now() };
     this.current = payload;
 
@@ -149,7 +162,12 @@ class SeamClipboard {
         if (sourceEngin !== null && targetEngin !== null) {
           const workflows = findWorkflows(sourceEngin, targetEngin);
           for (const workflow of workflows) {
-            workflow.execute({ ...parsed, _seamTimestamp: payload.timestamp });
+            // ── Improvement 38: per-workflow try/catch ───────────────────
+            try {
+              workflow.execute({ ...parsed, _seamTimestamp: payload.timestamp });
+            } catch (workflowErr) {
+              console.error(`[SeamClipboard] Workflow ${workflow.id} failed`, workflowErr);
+            }
           }
         }
       } catch (_err) {
@@ -196,8 +214,13 @@ class SeamClipboard {
     const workflows = findWorkflows(from, to);
     const firedIds: string[] = [];
     for (const workflow of workflows) {
-      workflow.execute({ ...artifact, _seamTimestamp: Date.now() });
-      firedIds.push(workflow.id);
+      // ── Improvement 38: per-workflow try/catch ───────────────────────────
+      try {
+        workflow.execute({ ...artifact, _seamTimestamp: Date.now() });
+        firedIds.push(workflow.id);
+      } catch (err) {
+        console.error(`[SeamClipboard] Workflow ${workflow.id} failed`, err);
+      }
     }
     return firedIds;
   }
@@ -210,6 +233,12 @@ class SeamClipboard {
   subscribe(handler: SeamClipboardListener): UnsubscribeFn {
     this.listeners.add(handler);
     return () => { this.listeners.delete(handler); };
+  }
+
+  // ── Improvement 39: getSubscriberCount ───────────────────────────────────
+  /** Return the number of active subscribers. Useful for debugging. */
+  getSubscriberCount(): number {
+    return this.listeners.size;
   }
 
   private _notify(payload: SeamClipboardPayload): void {

@@ -5,7 +5,7 @@
  * localStorage. Drafts survive page refresh and surface navigation.
  *
  * Key scheme:  de-dm-draft:{conversationId}
- * Value:       JSON { subject: string, body: string }
+ * Value:       JSON { subject: string, body: string, savedAt: number }
  *
  * Draft body is silently truncated to MAX_DRAFT_CHARS (4999) before save to
  * avoid localStorage quota errors.
@@ -27,6 +27,9 @@ const STORAGE_PREFIX = 'de-dm-draft:';
 export interface DraftPayload {
   subject: string;
   body: string;
+  /** ── Improvement 81: savedAt timestamp ──────────────────────────────────
+   * Epoch ms when this draft was last saved. Used by cleanupStaleDrafts(). */
+  savedAt?: number;
 }
 
 interface UseDreamDMDraftReturn {
@@ -38,6 +41,8 @@ interface UseDreamDMDraftReturn {
   clearDraft: (conversationId: string) => void;
   /** Whether a draft was restored for the current conversation */
   draftRestored: boolean;
+  /** ── Improvement 84: age of the current draft in ms (null if none) ───── */
+  draftAgeMs: number | null;
 }
 
 function buildKey(conversationId: string): string {
@@ -61,11 +66,64 @@ function writeDraft(conversationId: string, payload: DraftPayload): void {
     const truncated: DraftPayload = {
       subject: payload.subject,
       body: payload.body.length > MAX_DRAFT_CHARS ? payload.body.slice(0, MAX_DRAFT_CHARS) : payload.body,
+      savedAt: Date.now(),
     };
     localStorage.setItem(buildKey(conversationId), JSON.stringify(truncated));
-  } catch {
-    // Storage quota exceeded or private browsing — fail silently
+  } catch (err) {
+    // ── Improvement 83: log storage quota errors instead of silently swallowing ──
+    console.warn('[DreamDMDraft] Failed to persist draft', { conversationId, err });
   }
+}
+
+// ── Improvement 82: listAllDraftIds ───────────────────────────────────────────
+
+/**
+ * Return the conversation IDs of all drafts currently in localStorage.
+ * Useful for rendering a "You have unsent drafts" indicator or a draft manager UI.
+ */
+export function listAllDraftIds(): string[] {
+  if (typeof window === 'undefined') return [];
+  const ids: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith(STORAGE_PREFIX)) {
+      ids.push(key.slice(STORAGE_PREFIX.length));
+    }
+  }
+  return ids;
+}
+
+// ── Improvement 83: cleanupStaleDrafts ───────────────────────────────────────
+
+/**
+ * Remove draft entries older than `maxAgeDays` days from localStorage.
+ * Drafts without a `savedAt` timestamp are also removed (legacy entries).
+ * Returns the array of conversation IDs that were removed.
+ */
+export function cleanupStaleDrafts(maxAgeDays: number): string[] {
+  if (typeof window === 'undefined') return [];
+  const cutoff = Date.now() - maxAgeDays * 86_400_000;
+  const removed: string[] = [];
+  for (const convId of listAllDraftIds()) {
+    const draft = readDraft(convId);
+    if (!draft || !draft.savedAt || draft.savedAt < cutoff) {
+      localStorage.removeItem(buildKey(convId));
+      removed.push(convId);
+    }
+  }
+  return removed;
+}
+
+// ── Improvement 84: getDraftAge ───────────────────────────────────────────────
+
+/**
+ * Return how old the draft for a conversation is in milliseconds, or null
+ * if no draft exists. Useful for UI indicators like "Draft saved 3h ago".
+ */
+export function getDraftAge(conversationId: string): number | null {
+  const draft = readDraft(conversationId);
+  if (!draft || !draft.savedAt) return null;
+  return Date.now() - draft.savedAt;
 }
 
 export function useDreamDMDraft(conversationId: string | null): UseDreamDMDraftReturn {
@@ -95,7 +153,7 @@ export function useDreamDMDraft(conversationId: string | null): UseDreamDMDraftR
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       writeDraft(conversationId, payload);
-      setDraft(payload);
+      setDraft({ ...payload, savedAt: Date.now() });
     }, 500);
   }, [conversationId]);
 
@@ -116,5 +174,8 @@ export function useDreamDMDraft(conversationId: string | null): UseDreamDMDraftR
     };
   }, []);
 
-  return { draft, saveDraft, clearDraft, draftRestored };
+  // ── Improvement 84: draftAgeMs ────────────────────────────────────────────
+  const draftAgeMs = draft?.savedAt ? Date.now() - draft.savedAt : null;
+
+  return { draft, saveDraft, clearDraft, draftRestored, draftAgeMs };
 }

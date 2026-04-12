@@ -61,6 +61,17 @@ export interface QueuedEmission extends AnyBridgeEmission {
 
 // ── The 6-Channel Virtual Bus for the Online Economy ──────────────────────────
 
+// ── Improvement 31: durable queue max size ────────────────────────────────────
+/** Maximum number of entries kept in the durable queue. Oldest dropped entries
+ *  are purged first when the limit is exceeded to prevent unbounded memory growth. */
+const MAX_DURABLE_QUEUE_SIZE = 200;
+
+// ── Improvement 35: emission counter ─────────────────────────────────────────
+/** Monotonically increasing count of all emissions (emit + emitDurable). */
+let _totalEmissions = 0;
+/** Run eviction every N emissions to avoid the per-emit overhead on busy buses. */
+const EVICT_EVERY_N = 50;
+
 class DualRuntimeBridge extends EventEmitter {
   private readonly channelState: Map<string, unknown> = new Map();
   private readonly peers: Map<string, PeerState> = new Map();
@@ -85,6 +96,9 @@ class DualRuntimeBridge extends EventEmitter {
     super.emit(key, payload);
     this._touchPeer(channel);
     this._notifyEmissionListeners({ channel, event, payload, emittedAt: ts });
+    _totalEmissions++;
+    // ── Improvement 36: throttled eviction ──────────────────────────────────
+    if (_totalEmissions % EVICT_EVERY_N === 0) this._evictExpired();
     return true;
   }
 
@@ -182,6 +196,8 @@ class DualRuntimeBridge extends EventEmitter {
     this.durableQueue.set(id, queued);
     this.emit(channel, event, payload);
     this._evictExpired();
+    // ── Improvement 31: enforce max queue size ──────────────────────────────
+    this._trimQueue();
     return id;
   }
 
@@ -193,6 +209,19 @@ class DualRuntimeBridge extends EventEmitter {
     const entry = this.durableQueue.get(id);
     if (!entry || entry.status !== 'pending') return;
     this.durableQueue.set(id, { ...entry, status: 'acked', ackedAt: Date.now() });
+  }
+
+  // ── Improvement 35: drop(id) ─────────────────────────────────────────────
+
+  /**
+   * Explicitly drop a pending durable emission by ID.
+   * Useful when the caller knows the receiver will never come online.
+   * No-op when the ID is unknown or the entry is already acked/dropped.
+   */
+  drop(id: string): void {
+    const entry = this.durableQueue.get(id);
+    if (!entry || entry.status !== 'pending') return;
+    this.durableQueue.set(id, { ...entry, status: 'dropped' });
   }
 
   /**
@@ -213,6 +242,50 @@ class DualRuntimeBridge extends EventEmitter {
     return Array.from(this.durableQueue.values());
   }
 
+  // ── Improvement 34: getStats ──────────────────────────────────────────────
+
+  /**
+   * Return a point-in-time snapshot of bridge statistics.
+   * Useful for health-check endpoints and performance dashboards.
+   */
+  getStats(): {
+    totalEmissions: number;
+    queueDepth: number;
+    pendingCount: number;
+    ackedCount: number;
+    droppedCount: number;
+    peerCount: number;
+    subscriberCount: number;
+  } {
+    let pending = 0, acked = 0, dropped = 0;
+    for (const e of this.durableQueue.values()) {
+      if (e.status === 'pending') pending++;
+      else if (e.status === 'acked') acked++;
+      else dropped++;
+    }
+    const subscriberCount = Array.from(this.peers.values())
+      .reduce((sum, p) => sum + p.subscriberCount, 0);
+    return {
+      totalEmissions: _totalEmissions,
+      queueDepth: this.durableQueue.size,
+      pendingCount: pending,
+      ackedCount: acked,
+      droppedCount: dropped,
+      peerCount: this.peers.size,
+      subscriberCount,
+    };
+  }
+
+  // ── Improvement 36: hasSubscribers ───────────────────────────────────────
+
+  /**
+   * Returns true when at least one subscriber is active on the given channel.
+   * Avoids firing expensive computations when no one is listening.
+   */
+  hasSubscribers(channel: string): boolean {
+    return (this.peers.get(channel)?.subscriberCount ?? 0) > 0;
+  }
+
   // ── Test / teardown helpers ────────────────────────────────────────────────
 
   /**
@@ -226,6 +299,7 @@ class DualRuntimeBridge extends EventEmitter {
     this.peerListeners.clear();
     this.emissionListeners.clear();
     this.durableQueue.clear();
+    _totalEmissions = 0;
   }
 
   // ── Private helpers ────────────────────────────────────────────────────────
@@ -237,6 +311,26 @@ class DualRuntimeBridge extends EventEmitter {
       if (entry.status === 'pending' && now - entry.enqueuedAt > entry.ttlMs) {
         this.durableQueue.set(id, { ...entry, status: 'dropped' });
       }
+    }
+  }
+
+  /**
+   * Trim the durable queue to MAX_DURABLE_QUEUE_SIZE by removing the oldest
+   * non-pending (dropped/acked) entries first, then oldest pending entries.
+   */
+  private _trimQueue(): void {
+    if (this.durableQueue.size <= MAX_DURABLE_QUEUE_SIZE) return;
+    const entries = Array.from(this.durableQueue.entries())
+      .sort(([, a], [, b]) => a.enqueuedAt - b.enqueuedAt);
+    // Remove non-pending first
+    for (const [id, entry] of entries) {
+      if (this.durableQueue.size <= MAX_DURABLE_QUEUE_SIZE) break;
+      if (entry.status !== 'pending') this.durableQueue.delete(id);
+    }
+    // If still over limit, remove oldest pending
+    for (const [id] of entries) {
+      if (this.durableQueue.size <= MAX_DURABLE_QUEUE_SIZE) break;
+      this.durableQueue.delete(id);
     }
   }
 

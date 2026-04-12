@@ -36,20 +36,120 @@ const FORBIDDEN_KEYS = new Set([
   'api_key', 'apikey', 'authorization', 'client_secret',
 ]);
 
-function sanitize(payload: Record<string, unknown>): Record<string, unknown> {
+// ── Improvement 16: deep forbidden-key sanitization ──────────────────────────
+
+/**
+ * Recursively sanitize a payload object, removing any key at any depth that
+ * matches the FORBIDDEN_KEYS list. Previously only top-level keys were
+ * stripped, allowing secrets nested inside context objects to leak through.
+ */
+export function sanitize(payload: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(payload)) {
     if (FORBIDDEN_KEYS.has(k.toLowerCase())) continue;
-    out[k] = v;
+    if (v !== null && typeof v === 'object' && !Array.isArray(v)) {
+      out[k] = sanitize(v as Record<string, unknown>);
+    } else {
+      out[k] = v;
+    }
   }
   return out;
 }
 
 export function track(event: TelemetryEvent, payload: Record<string, unknown> = {}): void {
+  if (!shouldSample()) return;
   const safe = sanitize(payload);
-  // In production, replace console with your telemetry sink (Segment, PostHog, etc.)
-  // We use console.info so it is visible in dev but filtered by severity in prod.
   if (process.env.NODE_ENV !== 'test') {
     console.info('[telemetry]', event, safe);
   }
+}
+
+// ── Improvement 17: trackTimed ────────────────────────────────────────────────
+
+/**
+ * Wrap an async operation and automatically track its duration.
+ * Emits the given event with `duration_ms` in the payload.
+ * Re-throws any error from `fn` so callers can still handle it.
+ */
+export async function trackTimed<T>(
+  event: TelemetryEvent,
+  fn: () => Promise<T>,
+  extraPayload: Record<string, unknown> = {},
+): Promise<T> {
+  const start = Date.now();
+  try {
+    const result = await fn();
+    track(event, { ...extraPayload, duration_ms: Date.now() - start, success: true });
+    return result;
+  } catch (err) {
+    track(event, {
+      ...extraPayload,
+      duration_ms: Date.now() - start,
+      success: false,
+      error: err instanceof Error ? err.message : String(err),
+    });
+    throw err;
+  }
+}
+
+// ── Improvement 18: trackBatch ────────────────────────────────────────────────
+
+/**
+ * Emit multiple telemetry events in one call.
+ * Useful when several things happen atomically (e.g. page-load bootstrap).
+ */
+export function trackBatch(
+  events: ReadonlyArray<{ event: TelemetryEvent; payload?: Record<string, unknown> }>,
+): void {
+  for (const { event, payload } of events) {
+    track(event, payload ?? {});
+  }
+}
+
+// ── Improvement 19: sampling rate ────────────────────────────────────────────
+
+/**
+ * Returns true when this event should be recorded, based on
+ * `TELEMETRY_SAMPLE_RATE` (0–1). Default is 1 (record all events).
+ * Set to 0.1 to record only 10% of events in high-traffic environments.
+ */
+function shouldSample(): boolean {
+  const raw = typeof process !== 'undefined'
+    ? process.env.TELEMETRY_SAMPLE_RATE
+    : undefined;
+  if (!raw) return true;
+  const rate = parseFloat(raw);
+  if (!isFinite(rate)) return true;
+  return Math.random() < rate;
+}
+
+// ── Improvement 20: createTelemetryContext ────────────────────────────────────
+
+export interface TelemetryContext {
+  /** Track an event scoped to this context's default payload. */
+  track(event: TelemetryEvent, extraPayload?: Record<string, unknown>): void;
+  /** Time an async operation and emit the event with `duration_ms`. */
+  trackTimed<T>(
+    event: TelemetryEvent,
+    fn: () => Promise<T>,
+    extraPayload?: Record<string, unknown>,
+  ): Promise<T>;
+}
+
+/**
+ * Create a scoped telemetry context that merges `defaultPayload` into every
+ * event it emits. Use this in components or services to avoid repeating
+ * common dimensions like `{ subsystem: 'CodeEngin', userId: '...' }`.
+ */
+export function createTelemetryContext(
+  defaultPayload: Record<string, unknown>,
+): TelemetryContext {
+  return {
+    track(event, extraPayload = {}) {
+      track(event, { ...defaultPayload, ...extraPayload });
+    },
+    trackTimed(event, fn, extraPayload = {}) {
+      return trackTimed(event, fn, { ...defaultPayload, ...extraPayload });
+    },
+  };
 }

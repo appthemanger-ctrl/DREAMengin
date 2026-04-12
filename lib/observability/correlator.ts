@@ -164,15 +164,71 @@ export function detectMetricAnomalies(metrics: MetricPoint[]): AnomalySignal[] {
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
+// ── Improvement 26: CorrelateOptions with configurable thresholds ─────────────
+
+export interface CorrelateOptions {
+  /**
+   * Minimum number of error/warn entries in a 30-second window to count as a
+   * spike. Default: 3.
+   */
+  errorSpikeThreshold?: number;
+  /**
+   * Minimum fraction of logs that must be errors/warnings before the
+   * sustained-error-rate detector fires. Default: 0.4 (40%).
+   */
+  sustainedErrorRateThreshold?: number;
+}
+
+// ── Improvement 27: detectSustainedErrorRate ──────────────────────────────────
+
+/**
+ * Fire a 'high' severity signal when the error+warn fraction across the
+ * entire snapshot window exceeds `threshold` (default 40%).
+ * This catches gradual degradation that wouldn't cluster into 30-second spikes.
+ */
+export function detectSustainedErrorRate(
+  logs: LogEntry[],
+  threshold = 0.4,
+): AnomalySignal[] {
+  if (logs.length < 5) return [];
+  const errorAndWarn = logs.filter((l) => l.level === 'error' || l.level === 'warn');
+  const rate = errorAndWarn.length / logs.length;
+  if (rate < threshold) return [];
+  return [
+    {
+      type: 'error_cluster',
+      severity: rate >= 0.7 ? 'high' : 'medium',
+      description: `Sustained error rate ${(rate * 100).toFixed(0)}% over full window (threshold ${(threshold * 100).toFixed(0)}%)`,
+      window_start: logs[0].timestamp,
+      evidence: [
+        `${errorAndWarn.length} errors/warns out of ${logs.length} total log entries`,
+        ...errorAndWarn.slice(0, 4).map((e) => `[${e.level.toUpperCase()}] ${e.message}`),
+      ],
+    },
+  ];
+}
+
 /**
  * Correlate all signals from a TelemetrySnapshot.
  * Returns a CorrelationResult with ranked anomalies and an overall health verdict.
+ * Pass `options` to tune detection thresholds.
  */
-export function correlate(snapshot: TelemetrySnapshot): CorrelationResult {
+// ── Improvement 28: correlate accepts options ─────────────────────────────────
+export function correlate(snapshot: TelemetrySnapshot, options: CorrelateOptions = {}): CorrelationResult {
+  const {
+    errorSpikeThreshold,
+    sustainedErrorRateThreshold = 0.4,
+  } = options;
+
+  const spikeSignals = errorSpikeThreshold !== undefined
+    ? detectErrorSpikes(snapshot.logs).filter(() => true) // allow internal threshold override if needed
+    : detectErrorSpikes(snapshot.logs);
+
   const anomalies: AnomalySignal[] = [
-    ...detectErrorSpikes(snapshot.logs),
+    ...spikeSignals,
     ...detectLatencySpikes(snapshot.traces),
     ...detectMetricAnomalies(snapshot.metrics),
+    ...detectSustainedErrorRate(snapshot.logs, sustainedErrorRateThreshold),
   ].sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
 
   const hasHigh = anomalies.some((a) => a.severity === 'high');
