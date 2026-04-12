@@ -4019,4 +4019,21 @@ function DAWFileIOPanel({
                   title={op.title}
                   style={{
                     padding: '7px 12px', borderRadius: 8, cursor: opPending ? 'not-allowed' : 'pointer',
-                    bo
+                    border: `1px solid ${op.color}35`,
+                    background: `${op.color}12`,
+                    color: opPending ? DAW.dim : op.color,
+                    fontSize: 10, fontWeight: 700,
+                    opacity: opPending ? 0.45 : 1,
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  {op.icon} {op.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

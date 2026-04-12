@@ -58,8 +58,8 @@ async function getMutualFollowers(supabase: any, userId: string, creatorId: stri
     .from('follows')
     .select('follower_id')
     .eq('followee_id', creatorId);
-  const userSet = new Set(userFollowers?.map(f => f.follower_id) || []);
-  const mutual = (creatorFollowers || []).filter(f => userSet.has(f.follower_id)).length;
+  const userSet = new Set(userFollowers?.map((f: { follower_id: string }) => f.follower_id) || []);
+  const mutual = (creatorFollowers || []).filter((f: { follower_id: string }) => userSet.has(f.follower_id)).length;
   return mutual;
 }
 
@@ -97,9 +97,9 @@ async function getTimeConsistency(supabase: any, userId: string, actionHour: num
     .order('created_at', { ascending: false })
     .limit(20);
   if (!data || data.length < 5) return 0.5; // neutral
-  const hours = data.map(a => new Date(a.created_at).getHours());
-  const meanHour = hours.reduce((a,b) => a+b,0) / hours.length;
-  const std = Math.sqrt(hours.map(h => Math.pow(h - meanHour, 2)).reduce((a,b)=>a+b,0) / hours.length);
+  const hours = data.map((a: { created_at: string }) => new Date(a.created_at).getHours());
+  const meanHour = hours.reduce((a: number, b: number) => a+b, 0) / hours.length;
+  const std = Math.sqrt(hours.map((h: number) => Math.pow(h - meanHour, 2)).reduce((a: number, b: number) => a+b, 0) / hours.length);
   const deviation = Math.abs(actionHour - meanHour);
   const z = deviation / (std + 0.01);
   return Math.max(0, Math.min(1, 1 - z / 2));
@@ -114,7 +114,7 @@ async function getLocationConsistency(supabase: any, userId: string, currentIpHa
     .order('created_at', { ascending: false })
     .limit(10);
   if (!data || data.length === 0) return 0.5;
-  const matchCount = data.filter(a => a.ip_hash === currentIpHash).length;
+  const matchCount = data.filter((a: { ip_hash: string }) => a.ip_hash === currentIpHash).length;
   return matchCount / data.length;
 }
 

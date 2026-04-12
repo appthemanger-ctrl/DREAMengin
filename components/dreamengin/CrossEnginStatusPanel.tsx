@@ -36,3 +36,5 @@ export function CrossEnginStatusPanel({ excludeChannel, statusOverrides }: Props
     </div>
   );
 }
+
+export default CrossEnginStatusPanel;

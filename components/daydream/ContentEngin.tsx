@@ -173,7 +173,8 @@ export default function ContentEngin({ onBack }: Props) {
   // Music Daydream → ContentEngin connection path: when a stem is prepared in StarMakerEngin,
   // ContentEngin surfaces a prompt to write a track description draft.
   // Subscription is handled by useContentEnginBridge — read state from the hook.
-  const stemPrompt = contentBridge.lastStem !== null
+  const [dismissedStem, setDismissedStem] = useState<string | null>(null);
+  const stemPrompt = contentBridge.lastStem !== null && contentBridge.lastStem !== dismissedStem
     ? { stemType: contentBridge.lastStem, url: contentBridge.lastStemUrl ?? '' }
     : null;
 
@@ -1656,7 +1657,7 @@ export default function ContentEngin({ onBack }: Props) {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setStemPrompt(null)}
+                  onClick={() => setDismissedStem(contentBridge.lastStem)}
                   style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'var(--de-text-dim)' }}
                   aria-label="Dismiss"
                 >✕</button>
