@@ -192,8 +192,8 @@ export function scoreSwipePath(
   const straightness = Math.max(0, 1 - avgDev / 1.5);
 
   // avgDevSlog: slog-scale the average deviation; near-zero deviation → score 1
-  const slogRef = slog(2.5); // slog value at avgDev = 1.5 (human threshold)
-  const avgDevSlog = Math.max(0, 1 - slog(avgDev + 1) / slogRef);
+  const slogRef = slog(1.5); // slog at the human-threshold boundary (1.5 px)
+  const avgDevSlog = Math.max(0, 1 - slog(avgDev) / slogRef);
 
   // Coarse-graining: human distributions are fractal (small shift); bot > 0.15
   const shift = coarseGrainShift(deviations);
