@@ -19,7 +19,6 @@ import React, { useState } from 'react';
 import type { ConnectorDef } from '@/lib/connectors/connectorRegistry';
 import type { ConnectorStatus } from '@/lib/connectors/connectorRegistry';
 import { CheckCircle, AlertCircle, Clock, RefreshCw, Lock, XCircle, Settings } from 'lucide-react';
-import { track } from '@/lib/telemetry';
 
 // ── Status badge (DREAMengin palette — gold / light-blue / muted) ─────────
 
@@ -199,10 +198,8 @@ export default function ConnectorRow({ connector, status, onConnectSuccess }: Co
       if (data.ok && data.status === 'connected') {
         setShowModal(false);
         onConnectSuccess(connector.id, connector.name);
-        track('connect_success', { connectorId: connector.id });
       } else {
         setErrorMsg(data.message ?? 'Connection failed. Please check your credentials.');
-        track('connect_failure', { connectorId: connector.id });
       }
     } catch {
       setErrorMsg('Network error — please try again.');
@@ -241,7 +238,6 @@ export default function ConnectorRow({ connector, status, onConnectSuccess }: Co
   function handleConnectClick() {
     if (btnDisabled) return;
     if (usesOAuth && connector.oauthStartUrl) {
-      track('connect_oauth_start', { connectorId: connector.id });
       window.location.href = connector.oauthStartUrl;
     } else {
       setShowModal(true);

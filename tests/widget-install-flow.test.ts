@@ -29,7 +29,6 @@ import {
   getConnectorDef,
   CONNECTOR_REGISTRY,
 } from '@/lib/connectors/connectorRegistry';
-import { sanitizeTelemetry } from './helpers/telemetryHelper';
 
 // Reset in-memory state before each test that touches the store
 function resetStore() {
@@ -268,22 +267,6 @@ describe('scheduleAutoLock (req 84-89)', () => {
     vi.advanceTimersByTime(2000);
     expect(onLock).not.toHaveBeenCalled();
     vi.useRealTimers();
-  });
-});
-
-// ── Req 95-96: Telemetry sanitisation ─────────────────────────────────────
-describe('telemetry sanitisation (req 95-96)', () => {
-  it('strips secrets from telemetry payloads (req 96)', () => {
-    const safe = sanitizeTelemetry({
-      connectorId: 'youtube',
-      access_token: 'secret-abc',
-      token: 'bearer-xyz',
-      userId: 'user-123',
-    });
-    expect(safe).not.toHaveProperty('access_token');
-    expect(safe).not.toHaveProperty('token');
-    expect(safe).toHaveProperty('connectorId', 'youtube');
-    expect(safe).toHaveProperty('userId', 'user-123');
   });
 });
 

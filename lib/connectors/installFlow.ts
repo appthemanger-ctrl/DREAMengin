@@ -4,7 +4,6 @@
 // This module is pure (no React, no DOM) so it is fully unit-testable.
 
 import { getWidgetTypesForConnector } from '@/lib/widgets/widgetRegistry';
-import { track } from '@/lib/telemetry';
 
 // ── Slot helpers (req 31-33) ──────────────────────────────────────────────
 
@@ -136,7 +135,6 @@ export function dismissSuggestedWidget(widgetId: string): void {
   dismissed.add(widgetId);
   savePermanentlyDismissed(dismissed);
   SESSION_DISMISSED.add(widgetId);
-  track('suggest_dismissed', { widgetId });
 
   const items = loadSuggested().filter((s) => s.widgetId !== widgetId);
   saveSuggested(items);
@@ -224,7 +222,6 @@ export function scheduleAutoLock(
   _autoLockTimer = setTimeout(() => {
     _autoLockTimer = null;
     onLock();
-    track('auto_lock', {});
   }, AUTO_LOCK_DELAY_MS);
 }
 
@@ -267,7 +264,6 @@ export function handleConnectSuccess(
   connectorName: string,
   opts: ConnectSuccessOptions = {},
 ): ConnectSuccessResult {
-  track('connect_success', { connectorId, connectorName });
 
   const suggestedWidgetTypes = getWidgetTypesForConnector(connectorId);
 
@@ -292,7 +288,6 @@ export function handleConnectSuccess(
  * Adds to Suggested Widgets so nothing is lost; never nags again this session.
  */
 export function handleDismissPrompt(widgetId: string, connectorId: string, connectorName: string): void {
-  track('dismiss_prompt', { widgetId, connectorId, connectorName });
   queueSuggestedWidget(widgetId, connectorId, connectorName);
 }
 
@@ -309,7 +304,6 @@ export function handleAddWidget(
   onAutoLock: () => void,
   opts: Parameters<typeof scheduleAutoLock>[1] = {},
 ): { slot: number; needsPlacementMode: boolean } {
-  track('add_widget', { widgetId, connectorId, connectorName });
   removeSuggestedWidget(widgetId);
 
   const slot = findBestSlot(grid);
@@ -317,7 +311,6 @@ export function handleAddWidget(
 
   if (needsPlacementMode) {
     enqueueForPlacement(widgetId, connectorId, connectorName);
-    track('placement_mode_enter', { widgetId });
   } else {
     scheduleAutoLock(onAutoLock, opts); // req 83
   }
@@ -337,7 +330,6 @@ export function handlePlaceLater(widgetId: string, connectorId: string, connecto
  * scheduleAutoLock to LOCKED (req 40).
  */
 export function handlePlacementDone(onAutoLock: () => void, opts: Parameters<typeof scheduleAutoLock>[1] = {}): void {
-  track('placement_mode_exit', { result: 'done' });
   scheduleAutoLock(onAutoLock, opts);
 }
 
@@ -346,6 +338,5 @@ export function handlePlacementDone(onAutoLock: () => void, opts: Parameters<typ
  * Returns to LOCKED mode (req 40).
  */
 export function handlePlacementCancel(onAutoLock: () => void): void {
-  track('placement_mode_exit', { result: 'cancel' });
   scheduleAutoLock(onAutoLock);
 }
