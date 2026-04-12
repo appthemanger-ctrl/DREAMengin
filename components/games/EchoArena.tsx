@@ -15,7 +15,6 @@ import {
   publishGamePerformanceBaseline,
 } from '@/lib/games/performance-baseline';
 import { useRegisterMobileGameControls } from '@/lib/games/mobileControls';
-import { createClient } from '@/lib/supabase/client';
 import * as BABYLON from '@babylonjs/core';
 import { DualSenseManager } from '@/components/gameengin/input/DualSenseManager';
 
@@ -35,8 +34,8 @@ export default function EchoArena() {
   const lastShotRef = useRef(0);
   const mobileMoveRef = useRef({ x: 0, y: 0 });
   const mobileLookRef = useRef({ x: 0, y: 0 });
+  const remoteMoveRef = useRef({ x: 0, y: 0 }); // tracks GameRemote / keyboard-bridge directional input
   const submitScore = useSubmitScore('echo-arena');
-  const supabase = useRef(createClient()).current;
 
   useEffect(() => {
     if (phase === 'gameover') submitScore(scoreRef.current);
@@ -60,14 +59,32 @@ export default function EchoArena() {
     },
   });
 
-  // Listen for game input events (GameRemote + keyboard)
+  // Listen for game input events (GameRemote + keyboard bridge fallback)
   useEffect(() => {
     if (phase !== 'playing') return;
 
     const handler = (e: Event) => {
-      const { action, active } = (e as CustomEvent).detail;
-      // DualSense gyro + sticks handled directly in render loop
-      // This is for GameRemote/keyboard fallback
+      const { action, active } = (e as CustomEvent<{ action: string; active: boolean }>).detail;
+      switch (action) {
+        case 'move-left':   remoteMoveRef.current.x = active ? -1 : 0; break;
+        case 'move-right':  remoteMoveRef.current.x = active ? 1 : 0; break;
+        case 'move-up':     remoteMoveRef.current.y = active ? -1 : 0; break;
+        case 'move-down':   remoteMoveRef.current.y = active ? 1 : 0; break;
+        case 'move-stop':   remoteMoveRef.current = { x: 0, y: 0 }; break;
+        case 'shoot':
+        case 'jump-shoot':
+        case 'r1': {
+          if (active) {
+            const now = Date.now();
+            if (now - lastShotRef.current > 300) {
+              lastShotRef.current = now;
+              scoreRef.current += 10;
+              setScore(scoreRef.current);
+            }
+          }
+          break;
+        }
+      }
     };
 
     window.addEventListener('de-game-input', handler);
@@ -249,8 +266,8 @@ export default function EchoArena() {
 
           // Movement with left stick
           const moveSpeed = 0.15;
-          const moveX = Math.max(-1, Math.min(1, input.leftStick.x + mobileMoveRef.current.x));
-          const moveY = Math.max(-1, Math.min(1, input.leftStick.y + mobileMoveRef.current.y));
+          const moveX = Math.max(-1, Math.min(1, input.leftStick.x + mobileMoveRef.current.x + remoteMoveRef.current.x));
+          const moveY = Math.max(-1, Math.min(1, input.leftStick.y + mobileMoveRef.current.y + remoteMoveRef.current.y));
           player.position.x += moveX * moveSpeed;
           player.position.z += moveY * moveSpeed;
 

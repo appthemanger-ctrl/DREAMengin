@@ -114,8 +114,8 @@ export default function NeonDrift() {
     const handler = (e: Event) => {
       const { action, active } = (e as CustomEvent).detail as { action: string; active: boolean };
       if (!active) return;
-      if (action === 'left')  carLaneRef.current = Math.max(0, carLaneRef.current - 1);
-      if (action === 'right') carLaneRef.current = Math.min(LANE_COUNT - 1, carLaneRef.current + 1);
+      if (action === 'move-left')  carLaneRef.current = Math.max(0, carLaneRef.current - 1);
+      if (action === 'move-right') carLaneRef.current = Math.min(LANE_COUNT - 1, carLaneRef.current + 1);
     };
 
     const keyHandler = (e: KeyboardEvent) => {

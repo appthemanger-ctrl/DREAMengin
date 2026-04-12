@@ -19,18 +19,36 @@ import { useEffect } from 'react';
 
 const CHANNEL_NAME = 'de-game-remote';
 
+// Module-level singleton so repeated fireAction calls at 60 fps
+// do not open/close a new channel on every invocation.
+let _broadcastChannel: BroadcastChannel | null = null;
+
+function getBroadcastChannel(): BroadcastChannel | null {
+  if (typeof window === 'undefined' || typeof BroadcastChannel === 'undefined') return null;
+  if (!_broadcastChannel) {
+    try {
+      _broadcastChannel = new BroadcastChannel(CHANNEL_NAME);
+      // Close the singleton when the page unloads so the browser can GC it cleanly.
+      window.addEventListener('beforeunload', () => {
+        _broadcastChannel?.close();
+        _broadcastChannel = null;
+      }, { once: true });
+    } catch {
+      return null;
+    }
+  }
+  return _broadcastChannel;
+}
+
 /**
  * Broadcast a game input action to all same-origin tabs/windows.
  * Called alongside the existing local `fireAction` in GameRemote.
  */
 export function broadcastGameInput(action: string, active: boolean) {
-  if (typeof window === 'undefined' || typeof BroadcastChannel === 'undefined') return;
   try {
-    const ch = new BroadcastChannel(CHANNEL_NAME);
-    ch.postMessage({ action, active });
-    ch.close();
+    getBroadcastChannel()?.postMessage({ action, active });
   } catch {
-    // BroadcastChannel not supported — silent fallback
+    // BroadcastChannel not supported or closed — silent fallback
   }
 }
 

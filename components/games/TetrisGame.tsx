@@ -100,9 +100,11 @@ export default function TetrisGame() {
       if (down) keysRef.current.add(e.key); else { keysRef.current.delete(e.key); delete keyRepeatRef.current[e.key]; }
       if (down && (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ' || e.key === 'ArrowUp' || e.key === 'z')) e.preventDefault();
     };
-    window.addEventListener('keydown', e => onKey(e, true));
-    window.addEventListener('keyup', e => onKey(e, false));
-    return () => { window.removeEventListener('keydown', e => onKey(e, true)); window.removeEventListener('keyup', e => onKey(e, false)); };
+    const onKeyDown = (e: KeyboardEvent) => onKey(e, true);
+    const onKeyUp   = (e: KeyboardEvent) => onKey(e, false);
+    window.addEventListener('keydown', onKeyDown);
+    window.addEventListener('keyup', onKeyUp);
+    return () => { window.removeEventListener('keydown', onKeyDown); window.removeEventListener('keyup', onKeyUp); };
   }, [phase]);
 
   useEffect(() => {
