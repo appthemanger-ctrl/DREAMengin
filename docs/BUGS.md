@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 09:11 UTC  
-**Last updated:** 2026-04-12 09:11 UTC  
-**Triggered by commit:** `26d268b` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #483 from appthemanger-ctrl/copilot/update-jump-mechanics-and-enemies
+**Documentation Date:** 2026-04-12 16:35 UTC  
+**Last updated:** 2026-04-12 16:35 UTC  
+**Triggered by commit:** `859edd8` on `copilot/skip-vercel-build-step` by Copilot  
+**Commit message:** feat(intelligence): enforce all five dimensions — cold-start defaults, matrix persistence, bus auto-ingest, Dr. Eams panel
 
 ---
 
