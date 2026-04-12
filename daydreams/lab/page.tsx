@@ -1,24 +1,24 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { FlaskConical } from 'lucide-react';
+import { FlaskConical, Play } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import LabEngin from '@/engins/LabEngin';
-import LabDreamIDE from '@/components/daydream/LabDreamIDE';
+import OpenDaydreamSideBButton from '@/components/daydream/OpenDaydreamSideBButton';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Lab Daydream – Dreamengin', description: 'Experiments, prototypes, simulations, and models.' };
 
 const WIDGETS: DaydreamWidget[] = [
-  { id: 'new-experiment', emoji: '🧪', label: 'New Experiment', desc: 'Start a new lab experiment',     color: '#22c55e', href: '/lab/new'       },
-  { id: 'projects',       emoji: '🔬', label: 'My Projects',    desc: 'Browse your lab projects',       color: '#6366f1', href: '/lab'           },
-  { id: 'prototype',      emoji: '⚗️', label: 'Prototype',       desc: 'Build and test a prototype',    color: '#2a8ab8', href: '/lab/new'       },
-  { id: 'simulation',     emoji: '🌊', label: 'Simulations',     desc: 'Run and view simulations',      color: '#0ea5e9', href: '/lab'           },
-  { id: 'physics',        emoji: '⚛️', label: 'Physics Lab',     desc: '3D physics environment',        color: '#f59e0b', href: '/physics-lab'   },
-  { id: 'codespace',      emoji: '💻', label: 'Codespace',       desc: 'Open the code editor',          color: '#8b5cf6', href: '/codespace'     },
-  { id: 'notes',          emoji: '📝', label: 'Lab Notes',       desc: 'Document your findings',        color: '#ec4899', href: '/notes'         },
-  { id: 'share',          emoji: '🔗', label: 'Share Results',   desc: 'Post an experiment update',     color: '#c8981a', href: '/daydream/create'        },
+  { id: 'new-experiment', emoji: '🧪', label: 'New Experiment', desc: 'Start a new lab experiment',     color: '#22c55e', href: '/engines/lab/experiments' },
+  { id: 'projects',       emoji: '🔬', label: 'My Projects',    desc: 'Browse your lab projects',       color: '#6366f1', href: '/engines/lab'           },
+  { id: 'simulation',     emoji: '🌊', label: 'Simulations',    desc: 'Run and view simulations',       color: '#0ea5e9', href: '/engines/lab/experiments' },
+  { id: 'data',           emoji: '📊', label: 'Data & Charts',  desc: 'Visualize experiment results',   color: '#8b5cf6', href: '/engines/lab/data'      },
+  { id: 'physics',        emoji: '⚛️', label: 'Physics Lab',    desc: '3D physics environment',         color: '#f59e0b', href: '/physics-lab'           },
+  { id: 'quantum',        emoji: '💡', label: 'Quantum Circuit', desc: 'Build quantum circuits',        color: '#0ea5e9', href: '/engines/lab/quantum'   },
+  { id: 'notes',          emoji: '📝', label: 'Lab Notes',      desc: 'Document your findings',         color: '#ec4899', href: '/notes'                 },
+  { id: 'share',          emoji: '🔗', label: 'Share Results',  desc: 'Post an experiment update',      color: '#c8981a', href: '/daydream/create'       },
 ];
 
 export default async function LabDaydreamPage() {
@@ -50,24 +50,62 @@ export default async function LabDaydreamPage() {
           {/* Intro */}
           <div className="de-auth-hero">
             <div style={{ position: 'relative', zIndex: 1 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 6 }}>Lab Dream</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 6 }}>Experiment Vault</h2>
             <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.6 }}>
-              Your scientific IDE. Write Python, JavaScript, or Bash on the left — see results stream on the right. Route code into any simulation engine (Particle, Fluid, Quantum, Neural) and watch three live visualizations update in real time.
-              Flip to LabEngin (Side B) for the full research and engineering control layer.
+              Browse and manage your saved experiments, simulations, and datasets on Side A. Pick one to load, then flip to <strong>LabEngin (Side B)</strong> to run it, visualize data, and iterate with AI hypothesis generation.
             </p>
             </div>
           </div>
 
-          {/* ── Lab Dream Split IDE ── */}
-          <LabDreamIDE />
+          {/* ── Experiment Vault: Saved Experiments Browser ── */}
+          <div className="de-widget" style={{ borderColor: 'rgba(34,197,94,0.25)' }}>
+            <div className="de-widget-header">
+              <FlaskConical className="w-4 h-4" style={{ color: '#22c55e' }} />
+              <span className="de-widget-title ml-2">Saved Experiments</span>
+              <Link href="/engines/lab/experiments" className="de-btn de-btn-ghost text-xs ml-auto">+ New</Link>
+            </div>
+            <div className="de-widget-body" style={{ paddingTop: 12 }}>
+              <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 12 }}>
+                Your lab experiments live here. Click one to load it in LabEngin for simulation, data visualization, and results publishing.
+              </div>
+              {[
+                { emoji: '⚛️', name: 'WebGPU Particle Sim',    type: 'Particle', status: 'Ready',   color: '#22c55e' },
+                { emoji: '🌊', name: 'Fluid Dynamics v3',       type: 'Fluid',    status: 'Paused',  color: '#0ea5e9' },
+                { emoji: '🧠', name: 'Neural Activation Map',   type: 'Neural',   status: 'Running', color: '#ec4899' },
+              ].map(exp => (
+                <Link key={exp.name} href={`/engines/lab/experiments?load=${encodeURIComponent(exp.name)}`} style={{ textDecoration: 'none' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 12, marginBottom: 8, background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(34,197,94,0.12)', cursor: 'pointer' }}>
+                    <span style={{ fontSize: 22 }}>{exp.emoji}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 2 }}>{exp.name}</div>
+                      <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>Type: {exp.type}</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: `${exp.color}18`, color: exp.color }}>{exp.status}</span>
+                      <Play className="w-3 h-3" style={{ color: '#22c55e' }} />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', textAlign: 'center', paddingTop: 4 }}>
+                Open LabEngin to create and run new experiments.
+              </p>
+            </div>
+            <div className="de-widget-actions">
+              <Link href="/engines/lab/experiments" className="de-btn de-btn-ghost text-xs">
+                <FlaskConical className="w-3 h-3 mr-1" /> Browse All Experiments
+              </Link>
+              <OpenDaydreamSideBButton label="Open LabEngin →" />
+            </div>
+          </div>
 
           {/* ── Feature 1: Quick Action Cards ── */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
             {[
-              { emoji: '🧪', label: 'New Experiment', href: '/lab/new',      color: '#22c55e' },
-              { emoji: '⚗️', label: 'My Projects',    href: '/lab',          color: '#6366f1' },
-              { emoji: '⚛️', label: 'Physics Lab',    href: '/physics-lab',  color: '#f59e0b' },
-              { emoji: '💻', label: 'Codespace',      href: '/codespace',    color: '#8b5cf6' },
+              { emoji: '🧪', label: 'New Experiment', href: '/engines/lab/experiments', color: '#22c55e' },
+              { emoji: '⚗️', label: 'My Projects',    href: '/engines/lab',             color: '#6366f1' },
+              { emoji: '⚛️', label: 'Physics Lab',    href: '/physics-lab',             color: '#f59e0b' },
+              { emoji: '💡', label: 'Quantum Circuit', href: '/engines/lab/quantum',    color: '#8b5cf6' },
             ].map(item => (
               <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
                 <div style={{ background: 'rgba(255,255,255,0.82)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: 16, padding: '18px 16px', border: `1px solid ${item.color}20`, display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
@@ -101,7 +139,7 @@ export default async function LabDaydreamPage() {
               </div>
             </div>
             <div className="de-widget-actions">
-              <Link href="/daydream/lab" className="de-btn de-btn-primary text-xs">Open LabEngin</Link>
+              <OpenDaydreamSideBButton label="Open LabEngin" />
             </div>
           </div>
 
@@ -109,7 +147,7 @@ export default async function LabDaydreamPage() {
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">🧪 Active Experiments</span>
-              <Link href="/lab/new" className="de-btn de-btn-ghost text-xs ml-auto">+ New</Link>
+              <Link href="/engines/lab/experiments" className="de-btn de-btn-ghost text-xs ml-auto">+ New</Link>
             </div>
             <div className="de-widget-body">
               <p style={{ fontSize: 12, color: 'var(--de-text-dim)', textAlign: 'center', padding: '12px 0' }}>
@@ -322,7 +360,7 @@ export default async function LabDaydreamPage() {
               <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 10 }}>
                 Invite collaborators to your lab workspace. Share experiments, datasets, and simulation results in real-time.
               </p>
-              <Link href="/daydream/lab" className="de-btn de-btn-primary text-xs w-full" style={{ display: 'block', textAlign: 'center' }}>
+              <Link href="/engines/lab" className="de-btn de-btn-primary text-xs w-full" style={{ display: 'block', textAlign: 'center' }}>
                 Manage Collaborators →
               </Link>
             </div>

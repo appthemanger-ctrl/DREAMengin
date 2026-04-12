@@ -4,18 +4,19 @@ import Link from 'next/link';
 import { Lightbulb, CheckSquare, Calendar, FolderKanban, ImageIcon, PlusCircle, FileText, BarChart2, Video, Brain, RefreshCw, Sparkles } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import ContentEngin from '@/engins/ContentEngin';
+import OpenDaydreamSideBButton from '@/components/daydream/OpenDaydreamSideBButton';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 import { connection } from 'next/server';
 
 const WIDGETS: DaydreamWidget[] = [
-  { id: 'note',      emoji: '📝', label: 'Quick Note',  desc: 'Capture a thought instantly',  color: '#f59e0b', href: '/daydream/create' },
-  { id: 'task',      emoji: '✅', label: 'New Task',    desc: 'Add to your to-do list',       color: '#10b981', href: '/daydream/create' },
-  { id: 'idea',      emoji: '💡', label: 'New Idea',    desc: 'Drop an idea before it fades', color: '#f59e0b', href: '/daydream/create' },
-  { id: 'project',   emoji: '📁', label: 'New Project', desc: 'Start a project board',        color: '#0ea5e9', href: '/daydream/create' },
-  { id: 'post',      emoji: '📢', label: 'Share Post',  desc: 'Post an update to your feed',  color: '#ec4899', href: '/create' },
-  { id: 'calendar',  emoji: '📅', label: 'Calendar',    desc: 'View your schedule',           color: '#6366f1', href: '/daydream/create' },
-  { id: 'media',     emoji: '🖼️', label: 'Media',       desc: 'Attach photos or videos',      color: '#8b5cf6', href: '/daydream/media-vault' },
-  { id: 'connectors',emoji: '🔌', label: 'Connectors',  desc: 'Link your tools',              color: '#c8981a', href: '/connectors' },
+  { id: 'note',      emoji: '📝', label: 'Quick Note',   desc: 'Capture a thought instantly',  color: '#f59e0b', href: '/engines/create/editor' },
+  { id: 'task',      emoji: '✅', label: 'New Task',     desc: 'Add to your to-do list',       color: '#10b981', href: '/engines/create/editor' },
+  { id: 'idea',      emoji: '💡', label: 'New Idea',     desc: 'Drop an idea before it fades', color: '#f59e0b', href: '/engines/create/editor' },
+  { id: 'project',   emoji: '📁', label: 'New Project',  desc: 'Start a project board',        color: '#0ea5e9', href: '/engines/create' },
+  { id: 'post',      emoji: '📢', label: 'Share Post',   desc: 'Post an update to your feed',  color: '#ec4899', href: '/create' },
+  { id: 'calendar',  emoji: '📅', label: 'Calendar',     desc: 'View your schedule',           color: '#6366f1', href: '/engines/create/calendar' },
+  { id: 'media',     emoji: '🖼️', label: 'Media',        desc: 'Attach photos or videos',      color: '#8b5cf6', href: '/daydream/media-vault' },
+  { id: 'connectors',emoji: '🔌', label: 'Connectors',   desc: 'Link your tools',              color: '#c8981a', href: '/connectors' },
 ];
 
 export const metadata = { title: 'Create – Dreamengin', description: 'Ideas, tasks, calendar, projects, and media.' };
@@ -48,7 +49,7 @@ export default async function CreateDaydreamPage() {
       />
 
       <div className="de-auth-content space-y-4">
-        <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Everything you make lives here as widgets—not pages.</p>
+        <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Set up your content here on Side A. Open ContentEngin (Side B) to write, schedule, and publish.</p>
 
         {WIDGETS.map(({ emoji, label, desc, color, href }) => (
           <div key={label} className="de-widget">
@@ -63,11 +64,33 @@ export default async function CreateDaydreamPage() {
             <div className="de-widget-body">
               <p style={{ fontSize: 12, color: 'var(--de-text-dim)', margin: 0 }}>{desc}</p>
               {href && (
-                <a href={href} style={{ marginTop: 8, display: 'inline-block', fontSize: 12, fontWeight: 600, color }}>Open →</a>
+                <Link href={href} style={{ marginTop: 8, display: 'inline-block', fontSize: 12, fontWeight: 600, color }}>Open →</Link>
               )}
             </div>
           </div>
         ))}
+
+        {/* ── Open ContentEngin CTA ── */}
+        <div className="de-widget" style={{ borderColor: 'rgba(245,158,11,0.3)', background: 'linear-gradient(135deg, rgba(245,158,11,0.06), rgba(251,191,36,0.04))' }}>
+          <div className="de-widget-header">
+            <Sparkles className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Ready to Create?</span>
+          </div>
+          <div className="de-widget-body">
+            <p style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 10, lineHeight: 1.6 }}>
+              Open <strong>ContentEngin (Side B)</strong> for the full creation suite — draft composer, content calendar, publishing queue, AI caption generator, SEO scorer, and more.
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+              {['Draft Composer', 'Content Calendar', 'Publish Queue', 'AI Captions', 'SEO Scorer', 'Repurposer'].map(f => (
+                <span key={f} style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 999, background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}25` }}>{f}</span>
+              ))}
+            </div>
+          </div>
+          <div className="de-widget-actions">
+            <Link href="/engines/create" className="de-btn de-btn-ghost text-xs">Open Full ContentEngin</Link>
+            <OpenDaydreamSideBButton label="Open ContentEngin →" />
+          </div>
+        </div>
 
         {/* ── Feature 7: Content Repurposer ── */}
         <div className="de-widget">
@@ -338,7 +361,7 @@ export default async function CreateDaydreamPage() {
             </div>
           </div>
           <div className="de-widget-actions">
-            <Link href="/daydream/create" className="de-btn de-btn-primary text-xs">Open ContentEngin →</Link>
+            <Link href="/engines/create" className="de-btn de-btn-primary text-xs">Open ContentEngin →</Link>
           </div>
         </div>
 
@@ -369,7 +392,7 @@ export default async function CreateDaydreamPage() {
             </div>
           </div>
           <div className="de-widget-actions">
-            <Link href="/daydream/create" className="de-btn de-btn-primary text-xs">Open Workflow Brain →</Link>
+            <Link href="/engines/create" className="de-btn de-btn-primary text-xs">Open Workflow Brain →</Link>
           </div>
         </div>
 
@@ -391,7 +414,7 @@ export default async function CreateDaydreamPage() {
             </div>
           </div>
           <div className="de-widget-actions">
-            <Link href="/daydream/create" className="de-btn de-btn-primary text-xs">Repurpose Content →</Link>
+            <Link href="/engines/create" className="de-btn de-btn-primary text-xs">Repurpose Content →</Link>
           </div>
         </div>
 
@@ -419,7 +442,7 @@ export default async function CreateDaydreamPage() {
             </div>
           </div>
           <div className="de-widget-actions">
-            <Link href="/daydream/create" className="de-btn de-btn-primary text-xs">Run AI Prediction →</Link>
+            <Link href="/engines/create" className="de-btn de-btn-primary text-xs">Run AI Prediction →</Link>
           </div>
         </div>
 
