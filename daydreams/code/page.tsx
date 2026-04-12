@@ -1,19 +1,19 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Code2 } from 'lucide-react';
+import { Code2, FolderOpen, FileCode2, Upload, ExternalLink, Play } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import CodeEngin from '@/engins/CodeEngin';
-import CodeDreamIDE from '@/components/daydream/CodeDreamIDE';
+import OpenDaydreamSideBButton from '@/components/daydream/OpenDaydreamSideBButton';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Code Daydream – Dreamengin', description: 'Code projects, snippets, files, and deployments.' };
 
 const WIDGETS: DaydreamWidget[] = [
-  { id: 'codespace',   emoji: '💻', label: 'Codespace',      desc: 'Open the code editor',          color: '#6366f1', href: '/codespace'   },
-  { id: 'projects',    emoji: '📁', label: 'Projects',        desc: 'Browse your code projects',     color: '#2a8ab8', href: '/lab'         },
-  { id: 'snippets',    emoji: '✂️', label: 'Snippets',        desc: 'Quick code snippets',           color: '#22c55e', href: '/codespace'   },
+  { id: 'ide',         emoji: '💻', label: 'Open CodeEngin',  desc: 'Launch the full IDE + preview', color: '#6366f1', href: '/engines/code'       },
+  { id: 'projects',    emoji: '📁', label: 'Projects',        desc: 'Browse your code projects',     color: '#2a8ab8', href: '/engines/code/projects' },
+  { id: 'notebook',    emoji: '📓', label: 'Notebook',        desc: 'Live multi-cell notebook',      color: '#22c55e', href: '/engines/code/notebook' },
   { id: 'lab',         emoji: '🔬', label: 'Lab',             desc: 'Experiments and prototypes',    color: '#f59e0b', href: '/daydream/lab' },
   { id: 'notes',       emoji: '📝', label: 'Code Notes',      desc: 'Document and annotate',         color: '#ec4899', href: '/notes'       },
   { id: 'physics-lab', emoji: '⚛️', label: 'Physics Lab',     desc: '3D runtime environment',        color: '#0ea5e9', href: '/physics-lab' },
@@ -50,15 +50,110 @@ export default async function CodeDaydreamPage() {
           {/* Intro */}
           <div className="de-auth-hero">
             <div style={{ position: 'relative', zIndex: 1 }}>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 6 }}>Code Dream</h2>
+            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 6 }}>Code Vault</h2>
             <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.6 }}>
-              Your live coding environment. Write code on the left, see the output on the right. Connect to any DREAMengin engine — GameEngin, LabEngin, SimEngin, or AssetEngin — and your code runs inside it. Flip to CodeEngin (Side B) for the full control layer.
+              Browse and manage your saved projects, files, and zip folders here on Side A. Pick what you want to work on, then flip to <strong>CodeEngin (Side B)</strong> to write, run, and preview it as a web app, game, or song.
             </p>
             </div>
           </div>
 
-          {/* ── Live IDE Split ── */}
-          <CodeDreamIDE />
+          {/* ── Code Vault: Project & File Browser ── */}
+          <div className="de-widget" style={{ borderColor: 'rgba(99,102,241,0.25)' }}>
+            <div className="de-widget-header">
+              <FolderOpen className="w-4 h-4" style={{ color: '#6366f1' }} />
+              <span className="de-widget-title ml-2">Project Vault</span>
+              <Link href="/engines/code/projects" className="text-xs font-semibold ml-auto" style={{ color: '#6366f1' }}>+ New Project</Link>
+            </div>
+            <div className="de-widget-body" style={{ paddingTop: 12 }}>
+              <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 12 }}>
+                Your saved code projects live here. Click any project to open it in CodeEngin for editing, running, and previewing.
+              </div>
+              {/* Example saved projects — these load from CodeEngin on Side B */}
+              {[
+                { emoji: '🎮', name: 'game-engine-mod',    lang: 'TypeScript', updated: 'Today',      preview: 'game'   },
+                { emoji: '🌐', name: 'personal-site',      lang: 'JavaScript', updated: 'Yesterday',  preview: 'webapp' },
+                { emoji: '🎵', name: 'beat-generator',     lang: 'Python',     updated: '3 days ago', preview: 'music'  },
+              ].map(p => (
+                <Link key={p.name} href={`/engines/code?project=${p.name}`} style={{ textDecoration: 'none' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 12, marginBottom: 8, background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(99,102,241,0.12)', cursor: 'pointer' }}>
+                    <span style={{ fontSize: 22 }}>{p.emoji}</span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 2 }}>{p.name}</div>
+                      <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{p.lang} · Updated {p.updated}</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: 'rgba(99,102,241,0.1)', color: '#6366f1' }}>Preview as {p.preview}</span>
+                      <Play className="w-3 h-3" style={{ color: '#6366f1' }} />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', textAlign: 'center', paddingTop: 4 }}>
+                Open CodeEngin to create and save more projects.
+              </p>
+            </div>
+            <div className="de-widget-actions">
+              <Link href="/engines/code/projects" className="de-btn de-btn-ghost text-xs">
+                <FolderOpen className="w-3 h-3 mr-1" /> Browse All Projects
+              </Link>
+              <OpenDaydreamSideBButton label="Open CodeEngin →" />
+            </div>
+          </div>
+
+          {/* ── Zip / File Import ── */}
+          <div className="de-widget">
+            <div className="de-widget-header">
+              <Upload className="w-4 h-4" style={{ color: '#6366f1' }} />
+              <span className="de-widget-title ml-2">Import Files & Zips</span>
+            </div>
+            <div className="de-widget-body" style={{ paddingTop: 10 }}>
+              <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 12 }}>
+                Upload zip archives or individual source files here. CodeEngin unpacks them and makes them available for editing in the full IDE on Side B.
+              </div>
+              <div style={{ display: 'flex', gap: 10 }}>
+                {[
+                  { emoji: '🗜️', label: 'Upload .zip',    href: '/engines/code?import=zip' },
+                  { emoji: '📄', label: 'Upload file',    href: '/engines/code?import=file' },
+                  { emoji: '🔗', label: 'Clone from Git', href: '/engines/code?import=git' },
+                ].map(opt => (
+                  <Link key={opt.label} href={opt.href} style={{ flex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6, padding: '10px 8px', borderRadius: 10, background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)', justifyContent: 'center' }}>
+                    <span style={{ fontSize: 16 }}>{opt.emoji}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#6366f1' }}>{opt.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ── Preview Types ── */}
+          <div className="de-widget">
+            <div className="de-widget-header">
+              <FileCode2 className="w-4 h-4" style={{ color: '#6366f1' }} />
+              <span className="de-widget-title ml-2">Preview Your Code As…</span>
+            </div>
+            <div className="de-widget-body">
+              <div style={{ fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.6, marginBottom: 12 }}>
+                CodeEngin can render your code as different output types. Choose a project above and select the preview mode in Side B.
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+                {[
+                  { emoji: '🌐', label: 'Web App',    desc: 'Live iframe preview',       color: '#6366f1', href: '/engines/code?preview=webapp' },
+                  { emoji: '🎮', label: 'Game',       desc: 'Babylon.js / WebGPU output', color: '#c8981a', href: '/engines/code?preview=game'   },
+                  { emoji: '🎵', label: 'Music',      desc: 'Audio + waveform render',   color: '#8b5cf6', href: '/engines/code?preview=music'  },
+                  { emoji: '📊', label: 'Data / Chart', desc: 'D3 / canvas output',      color: '#0ea5e9', href: '/engines/code?preview=data'   },
+                ].map(t => (
+                  <Link key={t.label} href={t.href} style={{ textDecoration: 'none', padding: '12px 14px', borderRadius: 12, background: `${t.color}08`, border: `1px solid ${t.color}25` }}>
+                    <div style={{ fontSize: 22, marginBottom: 4 }}>{t.emoji}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 2 }}>{t.label}</div>
+                    <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{t.desc}</div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+            <div className="de-widget-actions">
+              <OpenDaydreamSideBButton label="Launch CodeEngin to Preview" />
+            </div>
+          </div>
 
           {/* ── Feature 1: Quick Links ── */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
@@ -246,7 +341,7 @@ export default async function CodeDaydreamPage() {
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">📚 Snippet Library</span>
-              <Link href="/daydream/code" className="text-xs font-semibold ml-auto" style={{ color: '#6366f1' }}>+ New Snippet</Link>
+              <Link href="/engines/code/projects" className="text-xs font-semibold ml-auto" style={{ color: '#6366f1' }}>+ New Snippet</Link>
             </div>
             <div className="de-widget-body">
               {[
@@ -356,7 +451,7 @@ export default async function CodeDaydreamPage() {
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">📓 Live Notebook</span>
-              <Link href="/daydream/code" className="text-xs font-semibold ml-auto" style={{ color: '#6366f1' }}>Open CodeEngin →</Link>
+              <Link href="/engines/code/notebook" className="text-xs font-semibold ml-auto" style={{ color: '#6366f1' }}>Open CodeEngin →</Link>
             </div>
             <div className="de-widget-body">
               <p style={{ fontSize: 12, color: 'var(--de-text-dim)' }}>
@@ -391,7 +486,7 @@ export default async function CodeDaydreamPage() {
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">📁 Projects</span>
-              <Link href="/daydream/code" className="text-xs font-semibold ml-auto" style={{ color: '#6366f1' }}>+ New</Link>
+              <Link href="/engines/code/projects" className="text-xs font-semibold ml-auto" style={{ color: '#6366f1' }}>+ New</Link>
             </div>
             <div className="de-widget-body">
               <p style={{ fontSize: 12, color: 'var(--de-text-dim)', textAlign: 'center', padding: '12px 0' }}>
