@@ -173,3 +173,88 @@ export function clearBuffers(): void {
   traceBuffer.length = 0;
   _counter = 0;
 }
+
+// ── Improvement 21: collectBatchLogs ─────────────────────────────────────────
+
+/**
+ * Push multiple log entries in one call — useful when replaying buffered
+ * server-side logs client-side after hydration.
+ */
+export function collectBatchLogs(
+  entries: ReadonlyArray<{ level: LogLevel; message: string; context?: Record<string, unknown>; source?: string }>,
+): void {
+  for (const e of entries) {
+    collectLog(e.level, e.message, e.context, e.source);
+  }
+}
+
+// ── Improvement 22: getErrorRate ──────────────────────────────────────────────
+
+/**
+ * Compute errors-per-minute within the given window.
+ * Returns 0 when the window contains no data.
+ */
+export function getErrorRate(windowMs = 5 * 60 * 1000): number {
+  const cutoff = new Date(Date.now() - windowMs).toISOString();
+  const errorCount = logBuffer.filter(
+    (e) => e.timestamp >= cutoff && e.level === 'error',
+  ).length;
+  const windowMinutes = windowMs / 60_000;
+  return windowMinutes > 0 ? errorCount / windowMinutes : 0;
+}
+
+// ── Improvement 23: getP95Latency ─────────────────────────────────────────────
+
+/**
+ * Return the P95 latency (ms) across all trace spans in the given window.
+ * Returns 0 when no traces are present.
+ */
+export function getP95Latency(windowMs = 5 * 60 * 1000): number {
+  const cutoff = new Date(Date.now() - windowMs).toISOString();
+  const durations = traceBuffer
+    .filter((t) => t.timestamp >= cutoff)
+    .map((t) => t.duration_ms)
+    .sort((a, b) => a - b);
+  if (durations.length === 0) return 0;
+  const idx = Math.floor(durations.length * 0.95);
+  return durations[Math.min(idx, durations.length - 1)];
+}
+
+// ── Improvement 24: groupTracesByTraceId ──────────────────────────────────────
+
+/**
+ * Group trace spans by their `trace_id` for distributed request tracing.
+ * Returns a Map keyed by trace_id, each value being the spans in arrival order.
+ */
+export function groupTracesByTraceId(windowMs = 5 * 60 * 1000): Map<string, TraceSpan[]> {
+  const cutoff = new Date(Date.now() - windowMs).toISOString();
+  const result = new Map<string, TraceSpan[]>();
+  for (const span of traceBuffer) {
+    if (span.timestamp < cutoff) continue;
+    const bucket = result.get(span.trace_id) ?? [];
+    bucket.push(span);
+    result.set(span.trace_id, bucket);
+  }
+  return result;
+}
+
+// ── Improvement 25: getLogCountsBySeverity ────────────────────────────────────
+
+export interface LogSeverityCounts {
+  debug: number;
+  info: number;
+  warn: number;
+  error: number;
+}
+
+/**
+ * Return the count of log entries at each severity level within the window.
+ */
+export function getLogCountsBySeverity(windowMs = 5 * 60 * 1000): LogSeverityCounts {
+  const cutoff = new Date(Date.now() - windowMs).toISOString();
+  const counts: LogSeverityCounts = { debug: 0, info: 0, warn: 0, error: 0 };
+  for (const e of logBuffer) {
+    if (e.timestamp >= cutoff) counts[e.level]++;
+  }
+  return counts;
+}

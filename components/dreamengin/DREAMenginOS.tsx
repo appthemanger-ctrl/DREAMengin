@@ -17,6 +17,7 @@ import {
   type DreamOSRuntimeContext,
   type DreamOSSharedArtifact,
 } from '@/lib/runtime/dreamOSBus';
+import { useSessionIntelligence } from '@/lib/intelligence/useSessionIntelligence';
 
 export interface DREAMenginOSProps {
   audioSource?: AnalyserNode;
@@ -99,6 +100,9 @@ export default function DREAMenginOS({
   const [importCount, setImportCount] = useState(0);
   const [sharedArtifacts, setSharedArtifacts] = useState<readonly DreamOSSharedArtifact[]>([]);
   const [runtimeContexts, setRuntimeContexts] = useState<readonly DreamOSRuntimeContext[]>([]);
+
+  // Session intelligence — auto-wired to dreamOSBus; no prop needed.
+  const { predictions, isLearning, sessionDiff } = useSessionIntelligence();
 
   const onSelectSubsystemRef = useRef(onSelectSubsystem);
   onSelectSubsystemRef.current = onSelectSubsystem;
@@ -362,17 +366,34 @@ export default function DREAMenginOS({
           pointerEvents: 'none',
         }}
       >
-        <span
-          style={{
-            width: 8,
-            height: 8,
-            borderRadius: '50%',
-            background: hudColor,
-            boxShadow: `0 0 ${4 + pulseIntensity * 10}px ${hudColor}`,
-            opacity: 0.6 + pulseIntensity,
-          }}
-        />
-        {systemStatus} · {hudMode}
+        <span style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 18, height: 18 }}>
+          {/* Expanding pulse ring */}
+          <span
+            style={{
+              position:     'absolute',
+              width:        8 + pulseIntensity * 18,
+              height:       8 + pulseIntensity * 18,
+              borderRadius: '50%',
+              border:       `1px solid ${hudColor}`,
+              opacity:      Math.max(0, 0.55 - pulseIntensity * 0.35),
+              pointerEvents: 'none',
+            }}
+          />
+          <span
+            style={{
+              width:        8,
+              height:       8,
+              borderRadius: '50%',
+              background:   hudColor,
+              boxShadow:    `0 0 ${5 + pulseIntensity * 14}px ${2 + pulseIntensity * 6}px ${hudColor}88`,
+              opacity:      0.75 + pulseIntensity * 0.25,
+              flexShrink:   0,
+            }}
+          />
+        </span>
+        <span style={{ letterSpacing: '0.06em' }}>{systemStatus}</span>
+        <span style={{ opacity: 0.4 }}>·</span>
+        <span style={{ opacity: 0.65 }}>{hudMode}</span>
       </div>
       <div
         style={{
@@ -443,27 +464,32 @@ export default function DREAMenginOS({
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8 }}>
-          {manifest.families.slice(0, 8).map((family) => (
-            <button
-              key={family.id}
-              type="button"
-              onClick={() => family.nodes[0] && onSelectSubsystemRef.current?.(family.nodes[0])}
-              style={{
-                borderRadius: 14,
-                border: '1px solid rgba(93, 232, 255, 0.16)',
-                background: 'rgba(10, 18, 38, 0.62)',
-                color: '#dff7ff',
-                padding: '10px 11px',
-                textAlign: 'left',
-                cursor: family.nodes[0] ? 'pointer' : 'default',
-              }}
-            >
-              <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#7dc4ff' }}>
-                {family.label}
-              </div>
-              <div style={{ marginTop: 4, fontSize: 17, fontWeight: 700 }}>{family.count}</div>
-            </button>
-          ))}
+          {manifest.families.slice(0, 8).map((family, fi) => {
+            const fColor = ORB_COLORS[fi % ORB_COLORS.length];
+            return (
+              <button
+                key={family.id}
+                type="button"
+                onClick={() => family.nodes[0] && onSelectSubsystemRef.current?.(family.nodes[0])}
+                style={{
+                  borderRadius: 14,
+                  border:       `1px solid ${fColor}28`,
+                  borderLeft:   `3px solid ${fColor}80`,
+                  background:   `linear-gradient(135deg, rgba(10,18,38,0.82) 0%, ${fColor}0d 100%)`,
+                  color:        '#dff7ff',
+                  padding:      '10px 11px',
+                  textAlign:    'left',
+                  cursor:       family.nodes[0] ? 'pointer' : 'default',
+                  transition:   'border-color 0.15s ease, transform 0.12s ease',
+                }}
+              >
+                <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.14em', color: fColor, opacity: 0.9 }}>
+                  {family.label}
+                </div>
+                <div style={{ marginTop: 4, fontSize: 17, fontWeight: 700, color: fColor }}>{family.count}</div>
+              </button>
+            );
+          })}
         </div>
         {primaryContexts.length > 0 ? (
           <div style={{ marginTop: 10, display: 'grid', gap: 6 }}>
@@ -516,10 +542,13 @@ export default function DREAMenginOS({
             color: '#f5fbff',
           }}
         >
-          <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.16em', color: '#d6af52' }}>
-            Connected runtimes
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+            <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.16em', color: '#d6af52', flexShrink: 0 }}>
+              Connected runtimes
+            </div>
+            <div style={{ flex: 1, height: 1, background: 'linear-gradient(to right, rgba(232,192,64,0.35), transparent)' }} />
           </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {manifest.nodes
               .filter((node) => ['ai', 'engins', 'daydreams'].includes(node.family))
               .slice(0, 12)
@@ -561,10 +590,22 @@ export default function DREAMenginOS({
             Runtime telemetry
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8, marginTop: 10 }}>
-            <div>Workers: {dispatcherStats.workerCount}</div>
-            <div>Live peers: {livePeerCount}</div>
-            <div>Bounds: {dispatcherStats.boundsViolations}</div>
-            <div>Bar: {seamVisible ? 'visible' : 'hidden'}</div>
+            {([
+              { label: 'Workers',    value: dispatcherStats.workerCount,      accent: '#5de8ff' },
+              { label: 'Live Peers', value: livePeerCount,                     accent: '#10b981' },
+              { label: 'Bounds',     value: dispatcherStats.boundsViolations,  accent: dispatcherStats.boundsViolations > 0 ? '#fb923c' : '#5de8ff' },
+              { label: 'Seam',       value: seamVisible ? 'ON' : 'OFF',        accent: seamVisible ? '#10b981' : '#64748b' },
+            ] as { label: string; value: string | number; accent: string }[]).map(({ label, value, accent }) => (
+              <div key={label} style={{
+                borderRadius: 10,
+                border:       `1px solid ${accent}22`,
+                background:   `${accent}0d`,
+                padding:      '6px 8px',
+              }}>
+                <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.12em', color: accent, opacity: 0.72 }}>{label}</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: accent, marginTop: 2 }}>{value}</div>
+              </div>
+            ))}
           </div>
           {lastImportedAsset ? (
             <div style={{ marginTop: 10, color: '#fff6cf' }}>
@@ -606,6 +647,82 @@ export default function DREAMenginOS({
           ) : null}
         </div>
       </div>
+
+      {/* ── Dr. Eams — session intelligence panel ─────────────────────────── */}
+      {predictions.length > 0 ? (
+        <div
+          style={{
+            position: 'absolute',
+            top: 12,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            minWidth: 220,
+            maxWidth: 320,
+            padding: '10px 14px',
+            borderRadius: 18,
+            background: 'rgba(4, 8, 22, 0.80)',
+            border: '1px solid rgba(139, 92, 246, 0.36)',
+            backdropFilter: 'blur(14px)',
+            color: '#e9d9ff',
+            fontSize: 11,
+            pointerEvents: 'none',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
+            <span style={{ fontSize: 14 }}>🤖</span>
+            <span style={{ textTransform: 'uppercase', letterSpacing: '0.16em', color: '#b294ff', fontWeight: 700 }}>
+              Dr. Eams
+            </span>
+            <span
+              style={{
+                marginLeft: 'auto',
+                fontSize: 9,
+                color: isLearning ? '#a8ffd6' : '#e8c040',
+                letterSpacing: '0.1em',
+              }}
+            >
+              {isLearning ? 'LEARNED' : 'WARM DEFAULTS'}
+            </span>
+          </div>
+
+          {sessionDiff?.recommendation ? (
+            <div style={{ marginBottom: 8, color: '#c4b5fd', fontSize: 10, lineHeight: 1.4 }}>
+              {sessionDiff.recommendation}
+            </div>
+          ) : null}
+
+          <div style={{ display: 'grid', gap: 5 }}>
+            {predictions.map((pred, index) => (
+              <div
+                key={pred.subsystemId}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  borderRadius: 10,
+                  border: '1px solid rgba(139, 92, 246, 0.18)',
+                  background: index === 0
+                    ? 'rgba(139, 92, 246, 0.14)'
+                    : 'rgba(10, 8, 28, 0.50)',
+                  padding: '6px 9px',
+                }}
+              >
+                <span style={{ fontWeight: 700, fontSize: 12 }}>{pred.label}</span>
+                <span
+                  style={{
+                    marginLeft: 'auto',
+                    color: '#a78bfa',
+                    fontSize: 10,
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  {Math.round(pred.confidence * 100)}%
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

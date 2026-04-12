@@ -11,7 +11,6 @@ import AutoOpenGameEngin from '@/engins/autoopen/AutoOpenGameEngin';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 import { GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
 import { buildGameLaunchHref } from '@/lib/games/navigation';
-import { isDevBypassActive } from '@/lib/dev-bypass';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Games Daydream – DREAMengin', description: 'Play, challenge, and compete.' };
@@ -85,7 +84,7 @@ export default async function GamesDaydreamPage() {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user && !isDevBypassActive()) redirect('/login');
+  if (!user) redirect('/login');
 
   return (
     <DaydreamShell

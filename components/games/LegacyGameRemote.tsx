@@ -192,7 +192,7 @@ function Stick({
         fireAction(map.action, true);
       } else {
         activeActionRef.current = null;
-        if (side === 'left') fireAction('move-stop', true);
+        if (side === 'left') fireAction('move-stop', false);
       }
       prevDirRef.current = newDir;
     }

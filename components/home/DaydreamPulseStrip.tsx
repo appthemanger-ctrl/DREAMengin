@@ -92,7 +92,7 @@ export default function DaydreamPulseStrip({ onOpenDaydream }: DaydreamPulseStri
               Daydreams
             </div>
             <div style={{ fontSize: 10, color: 'var(--de-text-dim)', fontWeight: 500, marginTop: 1 }}>
-              6 daydreams + analytics + forge
+              6 daydreams + forge
             </div>
           </div>
         </div>

@@ -11,7 +11,6 @@ const upgradedSurfaces = [
   'app/daydream/lab/page.tsx',
   'app/daydream/brand/page.tsx',
   'app/daydream/create/page.tsx',
-  'app/daydream/analytics/page.tsx',
   'app/marketplace/page.tsx',
   'app/settings/help/page.tsx',
   'app/settings/security/page.tsx',
@@ -57,7 +56,7 @@ describe('authenticated UI shell upgrade rollout', () => {
     expect(dashboard).toContain('BrandLogo');
     expect(dashboard).toContain('DaydreamPulseStrip');
     expect(dashboard).toContain('onOpenDaydream');
-    expect(pulseStrip).toContain('6 daydreams + analytics + forge');
+    expect(pulseStrip).toContain('6 daydreams + forge');
     expect(pulseStrip).toContain('onOpenDaydream');
     expect(dreamsPanel).toContain('Pinned apps + feeds across the dual runtime');
   });

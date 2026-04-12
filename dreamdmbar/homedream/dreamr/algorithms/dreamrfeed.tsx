@@ -47,6 +47,7 @@ import type { UnifiedFeedItem } from '@/types/connector';
 import { resolveSwipeRelease } from '@/dreamdmbar/homedream/dreamr/algorithms/torridityLedger';
 import DreamRCreatorPanel from '../DreamRCreatorPanel';
 import DreamRChannelPanel from '../DreamRChannelPanel';
+import CommentSection from '@/components/feed/CommentSection';
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 
@@ -642,6 +643,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   const [activeIdx,     setActiveIdx]   = useState(0);
   const [creatorPost,   setCreatorPost] = useState<FeedPost | null>(null);    // DreamR creator panel
   const [channelPost,   setChannelPost] = useState<FeedPost | null>(null);    // YouTube channel panel
+  const [openComments,  setOpenComments] = useState<string | null>(null);     // post id whose comments are open
   const [newCount,      setNewCount]    = useState(0);
   const [isLive,        setIsLive]      = useState(false);
   const [loadingMore,   setLoadingMore] = useState(false);
@@ -831,14 +833,37 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
 
   const handleLike = useCallback(async (id: string) => {
     const wasLiked = likedPosts.has(id);
+    // Optimistic update first — feels instant
     setLikedPosts(prev => { const n = new Set(prev); wasLiked ? n.delete(id) : n.add(id); return n; });
-    try { await fetch('/api/likes', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ content_type: 'post', content_id: id }) }); }
-    catch { /* non-critical */ }
+    try {
+      if (wasLiked) {
+        // Unlike — DELETE request
+        await fetch(`/api/likes?content_type=post&content_id=${encodeURIComponent(id)}`, { method: 'DELETE' });
+      } else {
+        // Like — POST request
+        await fetch('/api/likes', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ content_type: 'post', content_id: id }) });
+      }
+    } catch {
+      // Roll back optimistic update on failure
+      setLikedPosts(prev => { const n = new Set(prev); wasLiked ? n.add(id) : n.delete(id); return n; });
+    }
   }, [likedPosts]);
 
-  const handleSave = useCallback((id: string) => {
-    setSavedPosts(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
-  }, []);
+  const handleSave = useCallback(async (id: string) => {
+    const wasSaved = savedPosts.has(id);
+    // Optimistic update
+    setSavedPosts(prev => { const n = new Set(prev); wasSaved ? n.delete(id) : n.add(id); return n; });
+    try {
+      if (wasSaved) {
+        await fetch(`/api/posts/${encodeURIComponent(id)}/save`, { method: 'DELETE' });
+      } else {
+        await fetch(`/api/posts/${encodeURIComponent(id)}/save`, { method: 'POST' });
+      }
+    } catch {
+      // Roll back on failure
+      setSavedPosts(prev => { const n = new Set(prev); wasSaved ? n.add(id) : n.delete(id); return n; });
+    }
+  }, [savedPosts]);
 
   const handleShare = useCallback(async (id: string) => {
     const url = `${window.location.origin}/post/${id}`;
@@ -852,14 +877,8 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   }, []);
 
   const handleComment = useCallback((id: string) => {
-    // Scroll to the post's comment section if it exists, or open the post detail
-    const el = document.getElementById(`comments-${id}`);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      // Navigate to post detail where comments are shown
-      window.location.href = `/post/${id}#comments`;
-    }
+    // Toggle inline comment section — no page navigation
+    setOpenComments(prev => prev === id ? null : id);
   }, []);
 
   // ── Swipe-left routing ─────────────────────────────────────────────────
@@ -1058,6 +1077,45 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
             activeTopic={activeTopic.label}
             onClose={() => setChannelPost(null)}
           />
+        </div>
+      )}
+
+      {/* ── Inline comments overlay ────────────────────────────────────── */}
+      {openComments && (
+        <div
+          style={{ position: 'absolute', inset: 0, zIndex: 45, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}
+          onClick={e => { if (e.target === e.currentTarget) setOpenComments(null); }}
+        >
+          {/* Tap backdrop to close */}
+          <div
+            aria-hidden
+            style={{ position: 'absolute', inset: 0, background: 'rgba(15,30,52,0.35)' }}
+            onClick={() => setOpenComments(null)}
+          />
+          <div
+            style={{
+              position: 'relative', zIndex: 1,
+              background: DR.bg,
+              borderRadius: '22px 22px 0 0',
+              boxShadow: '0 -12px 48px rgba(15,30,52,0.18)',
+              maxHeight: '65%', overflowY: 'auto',
+              fontFamily: DR.font,
+            }}
+          >
+            {/* Handle bar */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px 8px' }}>
+              <span style={{ fontWeight: 800, fontSize: 13, color: DR.text }}>Comments</span>
+              <button
+                type="button"
+                onClick={() => setOpenComments(null)}
+                aria-label="Close comments"
+                style={{ width: 28, height: 28, borderRadius: '50%', background: DR.bg, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: DR.textDim, boxShadow: nmR(3) }}
+              >
+                <X size={13} />
+              </button>
+            </div>
+            <CommentSection postId={openComments} />
+          </div>
         </div>
       )}
 

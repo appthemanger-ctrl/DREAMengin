@@ -9,7 +9,6 @@
 
 import React, { useState } from 'react';
 import type { ConnectorDef, SliceTypeDef } from '@/lib/connectors/connectorRegistry';
-import { track } from '@/lib/telemetry';
 
 export interface FeedSlice {
   id: string;
@@ -53,7 +52,6 @@ export default function AddSliceSheet({
       sliceTypeId: selected.id,
       label: selected.label,
     };
-    track('add_slice', { connectorId: connector.id, sliceTypeId: selected.id });
     onAdd(slice);
     onClose();
   }

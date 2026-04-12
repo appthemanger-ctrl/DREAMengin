@@ -49,7 +49,7 @@
 - 🧪 Tests: 134 files, 125 passing
 - 📄 API Routes: 89
 - 🎨 Components: 36 categories
-- 📖 Documentation: 48 files
+- 📖 Documentation: 49 files
 - ⚙️ GitHub Actions: 53 workflows
 
 ## Tech Stack
@@ -118,24 +118,24 @@ vitest@^4.1.0
 
 | Directory | Total Files | File Types |
 |-----------|-------------|------------|
-| `app/` | 217 | .tsx(126), .ts(89), .css(2) |
-| `components/` | 298 | .tsx(271), .ts(24), .css(2) |
-| `lib/` | 271 | .ts(265), .tsx(4), .md(2) |
-| `tests/` | 137 | .ts(136), .md(1) |
+| `app/` | 213 | .tsx(123), .ts(88), .css(2) |
+| `components/` | 296 | .tsx(269), .ts(24), .css(2) |
+| `lib/` | 282 | .ts(276), .tsx(4), .md(2) |
+| `tests/` | 145 | .ts(144), .md(1) |
 | `styles/` | 3 | .css(3) |
 | `public/` | 49 | .png(18), .PNG(11), .jpeg(6) |
-| `docs/` | 44 | .md(44) |
-| `scripts/` | 23 | .mjs(12), .cjs(4), .sh(3) |
+| `docs/` | 45 | .md(45) |
+| `scripts/` | 24 | .mjs(12), .sh(4), .cjs(4) |
 | `supabase/` | 47 | .sql(46), .toml(1) |
 
 ## Code Metrics
 
 ### File Distribution
 
-- **App Routes (TSX):** 126
-- **Component Files:** 271
-- **Library Files:** 269
-- **Test Files:** 128
+- **App Routes (TSX):** 123
+- **Component Files:** 269
+- **Library Files:** 280
+- **Test Files:** 137
 
 ### Code Volume
 
@@ -144,7 +144,7 @@ vitest@^4.1.0
 
 ## API Routes
 
-**Total API Endpoints:** 89
+**Total API Endpoints:** 88
 
 ### All Routes
 
@@ -166,7 +166,6 @@ vitest@^4.1.0
 | `/api/ai/eams` | POST | /app/api/ai/eams/route.ts |
 | `/api/ai/execute` | POST | /app/api/ai/execute/route.ts |
 | `/api/ai/idari` | POST | /app/api/ai/idari/route.ts |
-| `/api/analytics` | GET | /app/api/analytics/route.ts |
 | `/api/appeal` | POST | /app/api/appeal/route.ts |
 | `/api/auth/logout` | GET | /app/api/auth/logout/route.ts |
 | `/api/auth/providers` | GET | /app/api/auth/providers/route.ts |
@@ -200,11 +199,12 @@ vitest@^4.1.0
 | `/api/embed-feed` | GET | /app/api/embed-feed/route.ts |
 | `/api/favorites` | GET, POST, DELETE | /app/api/favorites/route.ts |
 | `/api/feed` | GET | /app/api/feed/route.ts |
-| ... | ... | ... and 39 more routes |
+| `/api/follow` | GET, POST, DELETE | /app/api/follow/route.ts |
+| ... | ... | ... and 38 more routes |
 
 ## Pages & Routes
 
-**Total Pages:** 102
+**Total Pages:** 99
 
 ### All Pages
 
@@ -215,11 +215,9 @@ vitest@^4.1.0
 | `/ads/create` | /app/ads/create/page.tsx |
 | `/ads` | /app/ads/page.tsx |
 | `/ads/slot/[id]` | /app/ads/slot/[id]/page.tsx |
-| `/analytics` | /app/analytics/page.tsx |
 | `/auth/reset-password` | /app/auth/reset-password/page.tsx |
 | `/codespace` | /app/codespace/page.tsx |
 | `/connectors` | /app/connectors/page.tsx |
-| `/daydream/analytics` | /app/daydream/analytics/page.tsx |
 | `/daydream/brand/engin` | /app/daydream/brand/engin/page.tsx |
 | `/daydream/brand` | /app/daydream/brand/page.tsx |
 | `/daydream/code/engin` | /app/daydream/code/engin/page.tsx |
@@ -244,7 +242,6 @@ vitest@^4.1.0
 | `/dreamengin` | /app/dreamengin/page.tsx |
 | `/edit-profile` | /app/edit-profile/page.tsx |
 | `/edit-profiledream` | /app/edit-profiledream/page.tsx |
-| `/engines/brand/analytics` | /app/engines/brand/analytics/page.tsx |
 | `/engines/brand/campaigns` | /app/engines/brand/campaigns/page.tsx |
 | `/engines/brand/identity` | /app/engines/brand/identity/page.tsx |
 | `/engines/brand` | /app/engines/brand/page.tsx |
@@ -260,7 +257,10 @@ vitest@^4.1.0
 | `/engines/games/library` | /app/engines/games/library/page.tsx |
 | `/engines/games` | /app/engines/games/page.tsx |
 | `/engines/games/scores` | /app/engines/games/scores/page.tsx |
-| ... | ... and 52 more pages |
+| `/engines/lab/data` | /app/engines/lab/data/page.tsx |
+| `/engines/lab/experiments` | /app/engines/lab/experiments/page.tsx |
+| `/engines/lab` | /app/engines/lab/page.tsx |
+| ... | ... and 49 more pages |
 
 ## Components
 
@@ -275,18 +275,18 @@ vitest@^4.1.0
 | `controls/` | 1 |
 | `core/` | 1 |
 | `customize/` | 7 |
-| `daydream/` | 25 |
+| `daydream/` | 24 |
 | `dreamengin/` | 21 |
 | `dreamnav/` | 2 |
 | `dreamr/` | 5 |
 | `dreams/` | 7 |
-| `engines/` | 35 |
+| `engines/` | 34 |
 | `feed/` | 5 |
 | `feeds/` | 1 |
 | `forge/` | 2 |
 | `gameengin/` | 1 |
 | `games/` | 44 |
-| `home/` | 11 |
+| `home/` | 12 |
 | `landing/` | 2 |
 | `marketplace/` | 2 |
 | `menus/` | 5 |
@@ -330,8 +330,8 @@ vitest@^4.1.0
 
 ## Tests
 
-**Test Files:** 134
-**Tests Passing:** 125
+**Test Files:** 143
+**Tests Passing:** 134
 **Tests Failing:** 11
 
 ### Test Files
@@ -340,7 +340,6 @@ vitest@^4.1.0
 - /tests/admin-upgrade-readiness.test.ts
 - /tests/agent-bus-consensus.test.ts
 - /tests/ai-edit-engine.test.ts
-- /tests/analytics-scheduled.test.ts
 - /tests/asset-optimizer.test.ts
 - /tests/auth-providers-route.test.ts
 - /tests/authenticated-ui-shells.test.ts
@@ -352,15 +351,16 @@ vitest@^4.1.0
 - /tests/branding-logos.test.ts
 - /tests/child-safety.test.ts
 - /tests/code-dream-preview.test.ts
+- /tests/collector-extended.test.ts
 - /tests/compositeengin-features.test.ts
 - /tests/conform-memory-map.test.ts
 - /tests/connectors.test.ts
 - /tests/content-intelligence-routes.test.ts
-- ... and 114 more test files
+- ... and 123 more test files
 
 ## Documentation
 
-**Total Documentation Files:** 48
+**Total Documentation Files:** 49
 
 ### Documentation Files
 
@@ -394,7 +394,7 @@ vitest@^4.1.0
 - [IDARI_CONTRACT.md](/docs/IDARI_CONTRACT.md)
 - [LAW.md](/docs/LAW.md)
 - [NAMING_AUTHORITY.md](/docs/NAMING_AUTHORITY.md)
-- ... and 18 more docs
+- ... and 19 more docs
 
 ## CI/CD Workflows
 
@@ -478,7 +478,7 @@ vitest@^4.1.0
 
 ### Next.js App Router Architecture
 
-97 Server Components, 29 Client Components
+94 Server Components, 29 Client Components
 
 ### Supabase Backend
 
@@ -500,11 +500,6 @@ Using Supabase for database, auth, and storage
 ## Dependency Health
 
 ## Redundancies & Technical Debt
-
-### Duplicate component name
-
-- /components/AnalyticsPanel.tsx
-- /components/engines/brand/panels/AnalyticsPanel.tsx
 
 ### Duplicate component name
 

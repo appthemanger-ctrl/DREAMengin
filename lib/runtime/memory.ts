@@ -395,3 +395,94 @@ export function f64Telemetry(sab: SharedArrayBuffer): Float64Array {
 /** @internal */ export const ENGIN_OFFSET_DREAMDM_BAR_Y = OFFSET_DREAMDM_BAR_Y;
 /** @internal */ export const ENGIN_OFFSET_TELEMETRY     = OFFSET_TELEMETRY;
 /** @internal */ export const ENGIN_SAB_SIZE             = SAB_BYTES;
+
+// ── Improvement 48: isSABAvailable ───────────────────────────────────────────
+
+/**
+ * Returns true when SharedArrayBuffer is available AND the page is served with
+ * the required COOP/COEP headers (crossOriginIsolated).
+ *
+ * Calling `new SharedArrayBuffer()` without crossOriginIsolated throws a
+ * TypeError in modern browsers. Use this check before calling createEnginSAB()
+ * or getConformMemoryMap() to avoid cryptic crashes.
+ */
+export function isSABAvailable(): boolean {
+  if (typeof SharedArrayBuffer === 'undefined') return false;
+  if (typeof crossOriginIsolated !== 'undefined' && !crossOriginIsolated) return false;
+  try {
+    // Allocate the smallest valid SAB as a final runtime check.
+    new SharedArrayBuffer(4);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ── Improvement 49: getEntityBounds ──────────────────────────────────────────
+
+/**
+ * Return the byte-level extent of a workgroup across all SoA channels.
+ * Useful for allocating sub-views or verifying workgroup memory isolation.
+ */
+export interface EntityBounds {
+  posXStart: number;
+  posXEnd: number;
+  posYStart: number;
+  posYEnd: number;
+  velXStart: number;
+  velXEnd: number;
+  velYStart: number;
+  velYEnd: number;
+}
+
+export function getEntityBounds(wg: Workgroup): EntityBounds {
+  const F32 = 4;
+  return {
+    posXStart: OFFSET_POS_X + wg.startIndex * F32,
+    posXEnd:   OFFSET_POS_X + wg.endIndex   * F32,
+    posYStart: OFFSET_POS_Y + wg.startIndex * F32,
+    posYEnd:   OFFSET_POS_Y + wg.endIndex   * F32,
+    velXStart: OFFSET_VEL_X + wg.startIndex * F32,
+    velXEnd:   OFFSET_VEL_X + wg.endIndex   * F32,
+    velYStart: OFFSET_VEL_Y + wg.startIndex * F32,
+    velYEnd:   OFFSET_VEL_Y + wg.endIndex   * F32,
+  };
+}
+
+// ── Improvement 50: validateWorkgroup ────────────────────────────────────────
+
+/**
+ * Throws a `RangeError` when the workgroup has invalid indices.
+ * Call before spawning a worker to catch configuration errors early.
+ */
+export function validateWorkgroup(wg: Workgroup): void {
+  if (wg.startIndex < 0) {
+    throw new RangeError(`Workgroup ${wg.workerIndex}: startIndex ${wg.startIndex} must be ≥ 0`);
+  }
+  if (wg.endIndex > ENTITY_COUNT) {
+    throw new RangeError(
+      `Workgroup ${wg.workerIndex}: endIndex ${wg.endIndex} exceeds ENTITY_COUNT (${ENTITY_COUNT})`,
+    );
+  }
+  if (wg.startIndex >= wg.endIndex) {
+    throw new RangeError(
+      `Workgroup ${wg.workerIndex}: startIndex ${wg.startIndex} must be < endIndex ${wg.endIndex}`,
+    );
+  }
+}
+
+// ── Improvement 51: getWorkerCount ───────────────────────────────────────────
+
+/**
+ * Return the optimal number of shader workers for the current hardware.
+ * Uses `navigator.hardwareConcurrency − 1` (min 1, max MAX_WORKERS) so at
+ * least one thread is left for the main loop.
+ * Safe to call in Node.js / SSR — falls back to 1.
+ */
+export function getWorkerCount(): number {
+  const concurrency =
+    typeof navigator !== 'undefined' && navigator.hardwareConcurrency
+      ? navigator.hardwareConcurrency
+      : 2;
+  return Math.min(Math.max(concurrency - 1, 1), MAX_WORKERS);
+}

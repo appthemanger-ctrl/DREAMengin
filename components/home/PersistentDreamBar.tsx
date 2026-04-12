@@ -21,6 +21,7 @@
 import { useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import DreamDMBar from '@/dreamdmbar/DreamDMBar';
+import NeuralSeamCanvas from '@/components/home/NeuralSeamCanvas';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 
 /** Routes where the bar must NOT appear (pre-login / public surfaces). */
@@ -60,13 +61,16 @@ export default function PersistentDreamBar() {
   const isHomeSystemActive = runtimeCallbacks !== null;
 
   return (
-    <DreamDMBar
-      onHome={handleHome}
-      onBothMenus={openBothMenus}
-      onHomeDreamSpace={isHomeSystemActive ? handleHomeDreamSpace : undefined}
-      splitRatio={isHomeSystemActive ? splitRatio : undefined}
-      onSplitChange={isHomeSystemActive ? setSplitRatio : undefined}
-      onMinimizedChange={isHomeSystemActive ? setIsBarMinimized : undefined}
-    />
+    <>
+      <NeuralSeamCanvas active={isHomeSystemActive} splitRatio={splitRatio} />
+      <DreamDMBar
+        onHome={handleHome}
+        onBothMenus={openBothMenus}
+        onHomeDreamSpace={isHomeSystemActive ? handleHomeDreamSpace : undefined}
+        splitRatio={isHomeSystemActive ? splitRatio : undefined}
+        onSplitChange={isHomeSystemActive ? setSplitRatio : undefined}
+        onMinimizedChange={isHomeSystemActive ? setIsBarMinimized : undefined}
+      />
+    </>
   );
 }

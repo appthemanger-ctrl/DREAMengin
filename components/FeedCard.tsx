@@ -1,14 +1,13 @@
 'use client';
 
-import { useState, useEffect, useMemo, memo } from 'react';
+import { useState, useEffect, useMemo, useRef, memo } from 'react';
 import { formatRelativeTime } from '@/lib/utils';
 import { UniverseCard, UniverseCardContent } from '@/components/universe';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { inferProviderFromUrl } from '@/lib/widgets/parseConfig';
-import { ExternalLink, FileText, Heart, MessageCircle, Share2, Sparkles, Youtube, MoreHorizontal } from 'lucide-react';
+import { ExternalLink, FileText, Heart, MessageCircle, Share2, Sparkles, Youtube, MoreHorizontal, Bookmark, Flag, Link2 } from 'lucide-react';
 import CommentSection from '@/components/feed/CommentSection';
-import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 
 interface FeedCardProps {
   item: {
@@ -27,6 +26,7 @@ interface FeedCardProps {
       avatar_url: string | null;
     };
     likes_count?: number;
+    comments_count?: number;
   };
   userId?: string;
 }
@@ -36,7 +36,11 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
   const [likes, setLikes] = useState(item.likes_count || 0);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [showComments, setShowComments] = useState(false);
-  const { setBarIntent } = useDreamSystem();
+  const [commentCount, setCommentCount] = useState(item.comments_count || 0);
+  const [isSaved, setIsSaved] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [copyDone, setCopyDone] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   
   const source = item.source || item.type || 'app';
   const isDemo = item.id.startsWith('demo-');
@@ -136,6 +140,59 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
   const authorName = item.profiles?.display_name || item.profiles?.handle || 'Anonymous';
   const authorInitial = authorName[0]?.toUpperCase() ?? 'U';
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    if (!showMenu) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showMenu]);
+
+  const handleShare = async () => {
+    setShowMenu(false);
+    const url = `${window.location.origin}/post/${item.id}`;
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share({ title: displayTitle ?? 'DreamR post', url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        setCopyDone(true);
+        setTimeout(() => setCopyDone(false), 2000);
+      }
+    } catch { /* user cancelled */ }
+  };
+
+  const handleSave = async () => {
+    setShowMenu(false);
+    const wasAlreadySaved = isSaved;
+    setIsSaved(!wasAlreadySaved);
+    try {
+      if (wasAlreadySaved) {
+        await fetch(`/api/posts/${item.id}/save`, { method: 'DELETE' });
+      } else {
+        await fetch(`/api/posts/${item.id}/save`, { method: 'POST' });
+      }
+    } catch {
+      setIsSaved(wasAlreadySaved); // Roll back
+    }
+  };
+
+  const handleReport = async () => {
+    setShowMenu(false);
+    if (isDemo) return;
+    try {
+      await fetch(`/api/posts/${item.id}/report`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: 'user_report' }),
+      });
+    } catch { /* silent */ }
+  };
+
   return (
     <UniverseCard>
       <UniverseCardContent className="p-0">
@@ -199,7 +256,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
               </div>
 
               {/* Source badge + more */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+              <div ref={menuRef} style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, position: 'relative' }}>
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', gap: 4,
                   padding: '3px 8px', borderRadius: 999,
@@ -212,16 +269,60 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
                 </span>
                 <button
                   type="button"
+                  onClick={() => setShowMenu(v => !v)}
                   style={{
                     width: 28, height: 28, borderRadius: 8,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: 'none', border: 'none', cursor: 'pointer',
+                    background: showMenu ? 'rgba(160,195,240,0.20)' : 'none',
+                    border: 'none', cursor: 'pointer',
                     color: 'var(--de-text-dim)',
+                    transition: 'background 150ms',
                   }}
                   aria-label="More options"
+                  aria-expanded={showMenu}
                 >
                   <MoreHorizontal style={{ width: 14, height: 14 }} />
                 </button>
+
+                {/* Context menu */}
+                {showMenu && (
+                  <div
+                    style={{
+                      position: 'absolute', top: '100%', right: 0, zIndex: 50,
+                      marginTop: 4,
+                      background: 'var(--de-surface, #1a1f2e)',
+                      border: '1px solid rgba(160,195,240,0.18)',
+                      borderRadius: 12,
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.30)',
+                      minWidth: 160,
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {[
+                      { icon: <Bookmark size={13} />, label: isSaved ? 'Saved ✓' : 'Save post', action: handleSave },
+                      { icon: copyDone ? <Link2 size={13} /> : <Share2 size={13} />, label: copyDone ? 'Link copied!' : 'Share / Copy link', action: handleShare },
+                      { icon: <Flag size={13} />, label: 'Report post', action: handleReport, danger: true },
+                    ].map(({ icon, label, action, danger }) => (
+                      <button
+                        key={label}
+                        type="button"
+                        onClick={() => void action()}
+                        style={{
+                          width: '100%', textAlign: 'left',
+                          display: 'flex', alignItems: 'center', gap: 9,
+                          padding: '10px 14px', border: 'none', background: 'none',
+                          cursor: 'pointer', fontSize: 12, fontWeight: 500,
+                          color: danger ? '#ef4444' : 'var(--de-text)',
+                          transition: 'background 120ms',
+                        }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(160,195,240,0.10)'; }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = 'none'; }}
+                      >
+                        {icon}{label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -315,30 +416,29 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
                 aria-label={isLiked ? 'Unlike' : 'Like'}
               >
                 <Heart style={{ width: 16, height: 16, fill: isLiked ? '#ef4444' : 'none' }} />
-                <span>{likes || 0}</span>
+                <span>{likes > 0 ? likes : ''}</span>
               </button>
 
               <button
                 type="button"
                 className="feed-action-btn"
-                onClick={() => {
-                  setBarIntent({
-                    mode: 'comment',
-                    targetPostId: item.id,
-                    targetLabel: item.profiles?.display_name || item.profiles?.handle || undefined,
-                  });
-                  setShowComments(v => !v);
-                }}
+                onClick={() => setShowComments(v => !v)}
                 aria-label={showComments ? 'Hide comments' : 'Comment'}
                 aria-expanded={showComments}
                 style={{ color: showComments ? 'var(--de-accent)' : undefined }}
               >
                 <MessageCircle style={{ width: 16, height: 16, fill: showComments ? 'var(--de-accent)' : 'none' }} />
-                <span>0</span>
+                <span>{commentCount > 0 ? commentCount : ''}</span>
               </button>
 
-              <button type="button" className="feed-action-btn" aria-label="Share">
+              <button
+                type="button"
+                className="feed-action-btn"
+                aria-label="Share"
+                onClick={() => void handleShare()}
+              >
                 <Share2 style={{ width: 16, height: 16 }} />
+                {copyDone && <span style={{ fontSize: 9 }}>Copied!</span>}
               </button>
 
               {item.url && (

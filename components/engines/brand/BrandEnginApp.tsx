@@ -6,7 +6,6 @@
  * Routes:
  *   /engines/brand            → full BrandingEngin hub
  *   /engines/brand/identity   → brand identity editor
- *   /engines/brand/analytics  → analytics & A/B tests
  *   /engines/brand/campaigns  → campaign ROI calculator
  */
 
@@ -20,7 +19,6 @@ const BACK_HREF = '/daydream/brand';
 const NAV_ITEMS = [
   { href: '/engines/brand',            label: 'Hub',        emoji: '🎨' },
   { href: '/engines/brand/identity',   label: 'Identity',   emoji: '🪪' },
-  { href: '/engines/brand/analytics',  label: 'Analytics',  emoji: '📈' },
   { href: '/engines/brand/campaigns',  label: 'Campaigns',  emoji: '💰' },
 ];
 

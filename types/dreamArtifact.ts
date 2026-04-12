@@ -69,4 +69,23 @@ export interface DreamArtifactBusEventMap {
     artifact: DreamArtifact;
     accountId: string;
   };
+  /**
+   * Fired when content is dragged through the seam bar and handed off to the
+   * opposite runtime. Payload carries the raw content, its MIME type, and the
+   * source/target region identities.
+   *
+   * Subscribe via: dreamOSBus.on('seam:drop', handler)
+   * Produce via:   seamClipboard.set({ content, mimeType, sourceRegion, targetRegion })
+   */
+  'seam:drop': {
+    content: string;
+    mimeType: 'text/plain' | 'application/json' | 'application/x-dream-artifact';
+    sourceRegion: string;
+    targetRegion: string;
+    timestamp: number;
+  };
+  /** Fired when the seam clipboard is explicitly cleared. */
+  'seam:clear': {
+    timestamp: number;
+  };
 }

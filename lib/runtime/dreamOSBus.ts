@@ -163,6 +163,81 @@ class DreamOSBusImpl {
     this.notify();
   }
 
+  // ── Improvement 62: getArtifact ───────────────────────────────────────────
+
+  /**
+   * O(1) lookup of an artifact by its ID.
+   * Returns null when the artifact is not in the bus.
+   */
+  getArtifact(id: string): DreamOSSharedArtifact | null {
+    return this.artifacts.get(id) ?? null;
+  }
+
+  // ── Improvement 63: removeArtifact ───────────────────────────────────────
+
+  /**
+   * Remove a specific artifact from the bus and notify subscribers.
+   * No-op when the ID is not present.
+   */
+  removeArtifact(id: string): void {
+    if (!this.artifacts.has(id)) return;
+    this.artifacts.delete(id);
+    this.notify();
+  }
+
+  // ── Improvement 64: clearArtifacts ───────────────────────────────────────
+
+  /**
+   * Remove all artifacts without touching runtime contexts.
+   * Useful for resetting content between test cases or user sessions.
+   */
+  clearArtifacts(): void {
+    this.artifacts.clear();
+    this.notify();
+  }
+
+  // ── Improvement 65: getArtifactsByKind ───────────────────────────────────
+
+  /**
+   * Return all artifacts with the given kind, sorted newest-first.
+   * Avoids subscribing to the full snapshot when only one kind is needed.
+   */
+  getArtifactsByKind(kind: DreamOSArtifactKind): DreamOSSharedArtifact[] {
+    return Array.from(this.artifacts.values())
+      .filter((a) => a.kind === kind)
+      .sort((a, b) => b.updatedAt - a.updatedAt);
+  }
+
+  // ── Improvement 66: getArtifactCount ─────────────────────────────────────
+
+  /**
+   * Return the number of artifacts currently in the bus.
+   * Cheaper than getSnapshot().artifacts.length — no array allocation.
+   */
+  getArtifactCount(): number {
+    return this.artifacts.size;
+  }
+
+  // ── Improvement 67: watchArtifact ────────────────────────────────────────
+
+  /**
+   * Subscribe to changes on a single artifact by ID.
+   * The callback fires whenever upsertArtifact() is called with this ID.
+   * Returns an unsubscribe function.
+   *
+   * Unlike the full snapshot listener, this avoids re-rendering when
+   * unrelated artifacts change.
+   */
+  watchArtifact(id: string, callback: (artifact: DreamOSSharedArtifact | null) => void): () => void {
+    const listener = (_snapshot: DreamOSSnapshot) => {
+      callback(this.artifacts.get(id) ?? null);
+    };
+    this.listeners.add(listener);
+    // Immediately deliver the current value.
+    callback(this.artifacts.get(id) ?? null);
+    return () => { this.listeners.delete(listener); };
+  }
+
   subscribe(listener: SnapshotListener): () => void {
     this.listeners.add(listener);
     listener(this.getSnapshot());

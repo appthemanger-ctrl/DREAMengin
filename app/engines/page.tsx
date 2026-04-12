@@ -50,10 +50,10 @@ const ENGINES = [
     id: 'brand',
     name: 'BrandingEngin',
     emoji: '🎨',
-    description: 'Identity · analytics · campaigns',
+    description: 'Identity · campaigns',
     href: '/engines/brand',
     accent: '#f472b6',
-    subroutes: ['Identity', 'Analytics', 'Campaigns'],
+    subroutes: ['Identity', 'Campaigns'],
   },
   {
     id: 'create',

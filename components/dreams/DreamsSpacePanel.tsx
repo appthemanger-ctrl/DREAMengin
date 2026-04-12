@@ -25,6 +25,7 @@
  */
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import UniversalWidget from '@/components/widgets/UniversalWidget';
 import DreamSpace from '@/components/dreamengin/DreamSpace';
@@ -174,6 +175,45 @@ function AppIcon({ icon, label, color, onClick }: {
   );
 }
 
+/** Mini animated horizontal bar chart for Forge Analytics "engines used today". */
+function EngineBarChart({ engines }: { engines: string[] }) {
+  const counts = engines.reduce<Record<string, number>>((acc, e) => {
+    acc[e] = (acc[e] ?? 0) + 1;
+    return acc;
+  }, {});
+  const entries = Object.entries(counts).slice(0, 4);
+  const max = Math.max(...entries.map(([, v]) => v), 1);
+  return (
+    <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 5 }}>
+      {entries.map(([engine, count], i) => (
+        <div key={engine} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{
+            fontSize:     9,
+            color:        'var(--de-text-dim)',
+            width:        50,
+            textAlign:    'right',
+            flexShrink:   0,
+            overflow:     'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace:   'nowrap',
+          }}>
+            {engine}
+          </span>
+          <div style={{ flex: 1, height: 5, borderRadius: 3, background: 'rgba(212,168,67,0.12)', overflow: 'hidden' }}>
+            <motion.div
+              style={{ height: '100%', borderRadius: 3, background: 'linear-gradient(90deg, rgba(212,168,67,0.7), #f59e0b)' }}
+              initial={{ width: '0%' }}
+              animate={{ width: `${(count / max) * 100}%` }}
+              transition={{ duration: 0.75, ease: 'easeOut', delay: i * 0.1 }}
+            />
+          </div>
+          <span style={{ fontSize: 9, color: '#d4a843', fontWeight: 700, minWidth: 10, textAlign: 'right', flexShrink: 0 }}>{count}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function DreamsSpacePanel({
   onOpenUrl,
   onOpenInRegion,
@@ -300,9 +340,17 @@ export default function DreamsSpacePanel({
         })}
       </div>
 
-      {view === 'apps' ? (
+      <AnimatePresence mode="wait" initial={false}>
+        {view === 'apps' ? (
         /* ── Permanent iOS-style app home screen ─────────────────────────────── */
-        <div style={{ flex: 1, overflowY: 'auto', padding: '12px 10px 20px' }}>
+        <motion.div
+          key="apps"
+          style={{ flex: 1, overflowY: 'auto', padding: '12px 10px 20px' }}
+          initial={{ opacity: 0, x: -12 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 12 }}
+          transition={{ duration: 0.18, ease: 'easeOut' }}
+        >
           <DreamSpace initialAccountId={accountId} />
 
           <div style={{
@@ -358,10 +406,13 @@ export default function DreamsSpacePanel({
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10, marginBottom: 10 }}>
               <div style={{
-                borderRadius: 18,
-                background: 'rgba(255,255,255,0.58)',
-                border: '1px solid rgba(255,255,255,0.78)',
-                padding: '12px',
+                borderRadius:        18,
+                background:          'rgba(8,16,38,0.52)',
+                border:              '1px solid rgba(212,168,67,0.18)',
+                padding:             '12px',
+                backdropFilter:      'blur(28px) saturate(180%)',
+                WebkitBackdropFilter:'blur(28px) saturate(180%)',
+                boxShadow:           '0 4px 24px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.10)',
               }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                   Live Pulse
@@ -387,18 +438,23 @@ export default function DreamsSpacePanel({
                 }}>
                   {momentum?.level ?? 'DORMANT'}
                 </div>
-                <div style={{ marginTop: 10, fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.45 }}>
-                  {(momentum?.enginesUsedToday?.length ?? 0) > 0
-                    ? `Active today: ${momentum?.enginesUsedToday.join(' · ')}`
-                    : 'Move through a few Daydreams to wake up the pulse.'}
-                </div>
+                {(momentum?.enginesUsedToday?.length ?? 0) > 0 ? (
+                  <EngineBarChart engines={momentum!.enginesUsedToday} />
+                ) : (
+                  <div style={{ marginTop: 10, fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.45 }}>
+                    Move through a few Daydreams to wake up the pulse.
+                  </div>
+                )}
               </div>
 
               <div style={{
-                borderRadius: 18,
-                background: 'rgba(255,255,255,0.58)',
-                border: '1px solid rgba(255,255,255,0.78)',
-                padding: '12px',
+                borderRadius:         18,
+                background:           'rgba(8,16,38,0.52)',
+                border:               '1px solid rgba(93,168,255,0.16)',
+                padding:              '12px',
+                backdropFilter:       'blur(28px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+                boxShadow:            '0 4px 24px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.10)',
               }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                   Next Move
@@ -433,10 +489,13 @@ export default function DreamsSpacePanel({
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
               <div style={{
-                borderRadius: 18,
-                background: 'rgba(255,255,255,0.5)',
-                border: '1px solid rgba(255,255,255,0.74)',
-                padding: '12px',
+                borderRadius:         18,
+                background:           'rgba(8,16,38,0.52)',
+                border:               '1px solid rgba(255,255,255,0.10)',
+                padding:              '12px',
+                backdropFilter:       'blur(28px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+                boxShadow:            '0 4px 24px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.08)',
               }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>
                   Recent Motion
@@ -451,7 +510,8 @@ export default function DreamsSpacePanel({
                         gap: 8,
                         padding: '7px 8px',
                         borderRadius: 10,
-                        background: 'rgba(255,255,255,0.46)',
+                        background: 'rgba(255,255,255,0.06)',
+                        border: '1px solid rgba(255,255,255,0.08)',
                       }}
                     >
                       <span style={{ flex: 1, minWidth: 0, fontSize: 11, color: 'var(--de-heading)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -470,10 +530,13 @@ export default function DreamsSpacePanel({
               </div>
 
               <div style={{
-                borderRadius: 18,
-                background: 'rgba(255,255,255,0.5)',
-                border: '1px solid rgba(255,255,255,0.74)',
-                padding: '12px',
+                borderRadius:         18,
+                background:           'rgba(8,16,38,0.52)',
+                border:               '1px solid rgba(255,255,255,0.10)',
+                padding:              '12px',
+                backdropFilter:       'blur(28px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+                boxShadow:            '0 4px 24px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.08)',
               }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>
                   Active Channels
@@ -492,7 +555,8 @@ export default function DreamsSpacePanel({
                           gap: 8,
                           padding: '7px 8px',
                           borderRadius: 10,
-                          background: 'rgba(255,255,255,0.46)',
+                          background: 'rgba(212,168,67,0.06)',
+                          border: '1px solid rgba(212,168,67,0.12)',
                         }}
                       >
                         <span style={{ flex: 1, minWidth: 0, fontSize: 11, color: 'var(--de-heading)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -514,14 +578,14 @@ export default function DreamsSpacePanel({
 
           {/* Section: Daydreams */}
           <div style={{
-            marginBottom: 16,
-            background: 'rgba(255,255,255,0.58)',
-            borderRadius: 22,
-            border: '1px solid rgba(255,255,255,0.78)',
-            padding: '12px 8px 10px',
-            boxShadow: '0 10px 28px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.52)',
-            backdropFilter: 'blur(24px) saturate(150%)',
-            WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+            marginBottom:         16,
+            background:           'rgba(8,16,38,0.48)',
+            borderRadius:         22,
+            border:               '1px solid rgba(160,195,240,0.15)',
+            padding:              '12px 8px 10px',
+            boxShadow:            '0 10px 32px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08)',
+            backdropFilter:       'blur(32px) saturate(160%)',
+            WebkitBackdropFilter: 'blur(32px) saturate(160%)',
           }}>
             <div style={{
               fontSize: 10,
@@ -553,13 +617,13 @@ export default function DreamsSpacePanel({
 
           {/* Section: Engin — Shop, Marketplace, Ads, Links */}
           <div style={{
-            background: 'rgba(255,255,255,0.58)',
-            borderRadius: 22,
-            border: '1px solid rgba(255,255,255,0.78)',
-            padding: '12px 8px 10px',
-            boxShadow: '0 10px 28px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.52)',
-            backdropFilter: 'blur(24px) saturate(150%)',
-            WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+            background:           'rgba(8,16,38,0.48)',
+            borderRadius:         22,
+            border:               '1px solid rgba(160,195,240,0.15)',
+            padding:              '12px 8px 10px',
+            boxShadow:            '0 10px 32px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08)',
+            backdropFilter:       'blur(32px) saturate(160%)',
+            WebkitBackdropFilter: 'blur(32px) saturate(160%)',
           }}>
             <div style={{
               fontSize: 10,
@@ -589,10 +653,17 @@ export default function DreamsSpacePanel({
             </div>
           </div>
 
-        </div>
+        </motion.div>
       ) : (
         /* ── Feeds — connector content ── */
-        <>
+        <motion.div
+          key="feeds"
+          style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+          initial={{ opacity: 0, x: 12 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -12 }}
+          transition={{ duration: 0.18, ease: 'easeOut' }}
+        >
           {/* Service tabs */}
           <div style={{
             display: 'flex', gap: 4, padding: '6px 10px 8px',
@@ -657,8 +728,9 @@ export default function DreamsSpacePanel({
               />
             )}
           </div>
-        </>
-      )}
+        </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

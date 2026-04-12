@@ -20,7 +20,6 @@ import {
   consumeDeferredPrompt,
   type SlotGrid,
 } from '@/lib/connectors/installFlow';
-import { track } from '@/lib/telemetry';
 
 // ── Types ──────────────────────────────────────────────────────────────────
 export interface ConnectorInstallFlowOptions {
@@ -166,7 +165,6 @@ export function useConnectorInstallFlow(
         noSlotAvailable: true,
       });
     } else {
-      track('widget_install_complete', { widgetId, slot, connectorId: prompt.connectorId });
       // Widget placed immediately — slot returned to caller via state
       setPlacementRequest({
         widgetId,
@@ -194,11 +192,6 @@ export function useConnectorInstallFlow(
   // ── Placement: Done ───────────────────────────────────────────────────
   const onPlacementDone = useCallback((slot: number) => {
     if (!placementRequest) return;
-    track('widget_install_complete', {
-      widgetId: placementRequest.widgetId,
-      slot,
-      connectorId: placementRequest.connectorId,
-    });
     setPlacementRequest(null);
     onAutoLock(); // req 40, 83
   }, [placementRequest, onAutoLock]);

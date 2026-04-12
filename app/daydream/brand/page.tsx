@@ -14,7 +14,6 @@ const ACCENT = '#ec4899';
 const WIDGETS: DaydreamWidget[] = [
   { id: 'post',      emoji: '📢', label: 'New Post',     desc: 'Create and share content',    color: '#ec4899', href: '/daydream/create' },
   { id: 'profile',   emoji: '👤', label: 'Edit ProfileDream', desc: 'Update your public presence', color: '#2a8ab8', href: '/edit-profiledream' },
-  { id: 'analytics', emoji: '📊', label: 'Analytics',    desc: 'Track your reach and growth', color: '#6366f1', href: '/daydream/analytics' },
   { id: 'appearance',emoji: '🎨', label: 'Appearance',   desc: 'Gradient theme and style',    color: '#f59e0b', href: '/settings/appearance' },
   { id: 'connectors',emoji: '🔌', label: 'Social Links', desc: 'Connect your platforms',      color: '#0ea5e9', href: '/connectors' },
   { id: 'view',      emoji: '🌐', label: 'View Profile', desc: 'See what visitors see',       color: '#22c55e', href: '/view-profile' },

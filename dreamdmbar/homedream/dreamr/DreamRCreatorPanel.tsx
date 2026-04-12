@@ -99,7 +99,9 @@ function SocialBadge({ provider }: { provider: string }) {
 export default function DreamRCreatorPanel({ post, onClose }: Props) {
   const creator  = post.profiles;
   const panelRef = useRef<HTMLDivElement>(null);
+  const [creatorId,    setCreatorId]    = useState<string | null>(null);
   const [following,    setFollowing]    = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
   const [creatorPosts, setCreatorPosts] = useState<CreatorPost[]>([]);
   const [socials,      setSocials]      = useState<ConnectedSocial[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
@@ -111,15 +113,31 @@ export default function DreamRCreatorPanel({ post, onClose }: Props) {
     requestAnimationFrame(() => { el.style.transform = 'translateX(0)'; el.style.opacity = '1'; });
   }, []);
 
-  // Fetch creator's recent posts
+  // Fetch creator's profile to get their ID, current follow status, and their posts
   useEffect(() => {
     if (!creator?.handle) return;
     setLoadingPosts(true);
-    fetch(`/api/posts?handle=${encodeURIComponent(creator.handle)}&limit=6`)
-      .then(r => r.ok ? r.json() : { posts: [] })
-      .then(d => setCreatorPosts((Array.isArray(d.posts) ? d.posts : Array.isArray(d) ? d : []).slice(0, 6)))
-      .catch(() => setCreatorPosts([]))
+    const abortCtrl = new AbortController();
+
+    fetch(`/api/profile?handle=${encodeURIComponent(creator.handle)}`, { signal: abortCtrl.signal })
+      .then(r => r.ok ? r.json() : null)
+      .then(async (profile) => {
+        if (!profile?.id) return;
+        setCreatorId(profile.id);
+        // Set follow status from the profile response (GET /api/profile already checks)
+        setFollowing(!!profile.is_following);
+
+        // Fetch their recent posts using the real profile endpoint
+        const postsRes = await fetch(`/api/posts/profile/${encodeURIComponent(profile.id)}`, { signal: abortCtrl.signal });
+        if (!postsRes.ok) return;
+        const postsData = await postsRes.json();
+        const all = Array.isArray(postsData.posts) ? postsData.posts : [];
+        setCreatorPosts(all.slice(0, 6));
+      })
+      .catch(e => { if (e.name !== 'AbortError') setCreatorPosts([]); })
       .finally(() => setLoadingPosts(false));
+
+    return () => abortCtrl.abort();
   }, [creator?.handle]);
 
   // Fetch connected socials
@@ -143,7 +161,32 @@ export default function DreamRCreatorPanel({ post, onClose }: Props) {
     } else onClose();
   };
 
-  const avatarLetter = (creator?.display_name ?? creator?.handle ?? '?')[0]?.toUpperCase() ?? '?';
+  const handleFollow = async () => {
+    if (!creatorId || followLoading) return;
+    const wasFollowing = following;
+    setFollowing(!wasFollowing);
+    setFollowLoading(true);
+    try {
+      if (wasFollowing) {
+        await fetch('/api/follow', {
+          method: 'DELETE',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ target_id: creatorId }),
+        });
+      } else {
+        await fetch('/api/follow', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ target_id: creatorId }),
+        });
+      }
+    } catch {
+      // Roll back on failure
+      setFollowing(wasFollowing);
+    } finally {
+      setFollowLoading(false);
+    }
+  };
 
   return (
     <>
@@ -215,7 +258,7 @@ export default function DreamRCreatorPanel({ post, onClose }: Props) {
                 fontSize: 22, fontWeight: 800, color: '#fff',
                 boxShadow: nmRaised(4),
               }}>
-                {avatarLetter}
+                {(creator?.display_name ?? creator?.handle ?? '?')[0]?.toUpperCase() ?? '?'}
               </div>
             )}
             <div>
@@ -240,20 +283,23 @@ export default function DreamRCreatorPanel({ post, onClose }: Props) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 16 }}>
             <button
               type="button"
-              onClick={() => setFollowing(f => !f)}
+              onClick={() => void handleFollow()}
+              disabled={followLoading || !creatorId}
               style={{
                 display: 'flex', alignItems: 'center', gap: 7,
                 padding: '10px 22px', borderRadius: 99, border: 'none',
-                cursor: 'pointer', fontFamily: DR.font,
+                cursor: followLoading || !creatorId ? 'default' : 'pointer',
+                fontFamily: DR.font,
                 fontSize: 13, fontWeight: 700, letterSpacing: '-0.01em',
                 background: following ? DR.bg : `linear-gradient(135deg,${DR.skyLight} 0%,${DR.sky} 60%,${DR.gold} 100%)`,
                 color: following ? DR.sky : '#fff',
                 boxShadow: following ? nmInset(3) : `0 6px 20px rgba(91,168,212,0.38)`,
                 transition: 'all 200ms',
+                opacity: followLoading ? 0.75 : 1,
               }}
             >
               {following ? <UserCheck size={15} /> : <UserPlus size={15} />}
-              {following ? 'Following' : 'Follow on DreamR'}
+              {followLoading ? 'Updating…' : following ? 'Following' : 'Follow on DreamR'}
             </button>
 
             <button
