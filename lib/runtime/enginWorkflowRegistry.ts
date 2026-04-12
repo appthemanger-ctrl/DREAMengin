@@ -408,13 +408,20 @@ export function findWorkflowById(id: string): WorkflowDefinition | undefined {
 /**
  * Execute a workflow by ID with the given payload.
  * Fires bridge.emitDurable on the workflow's channel and event.
+ * ── Improvement 47: wrapped in try/catch so one bad workflow never
+ *    prevents the caller from continuing.
  *
  * @returns true if the workflow was found and executed; false if the ID is unknown.
  */
 export function executeWorkflow(id: string, payload: Record<string, unknown>): boolean {
   const workflow = findWorkflowById(id);
   if (!workflow) return false;
-  workflow.execute(payload);
+  try {
+    workflow.execute(payload);
+  } catch (err) {
+    console.error(`[enginWorkflowRegistry] executeWorkflow(${id}) threw`, err);
+    return false;
+  }
   return true;
 }
 
@@ -424,4 +431,55 @@ export function executeWorkflow(id: string, payload: Record<string, unknown>): b
  */
 export function allWorkflows(): readonly WorkflowDefinition[] {
   return WORKFLOWS;
+}
+
+// ── Improvement 44: getWorkflowsByArtifactType ────────────────────────────────
+
+/**
+ * Return all workflows that accept the given artifact type (or 'any').
+ * Useful when the drag payload has a known type but the target Engin is unknown.
+ */
+export function getWorkflowsByArtifactType(type: WorkflowArtifactType): WorkflowDefinition[] {
+  return WORKFLOWS.filter(
+    (w) => w.artifactTypes.includes(type) || w.artifactTypes.includes('any'),
+  );
+}
+
+// ── Improvement 45: getWorkflowStats ─────────────────────────────────────────
+
+export interface WorkflowStats {
+  total: number;
+  bySource: Record<string, number>;
+  byTarget: Record<string, number>;
+  byArtifactType: Record<string, number>;
+}
+
+/**
+ * Return aggregate statistics about the registered workflow set.
+ * Useful for analytics and debugging the seam configuration.
+ */
+export function getWorkflowStats(): WorkflowStats {
+  const bySource: Record<string, number> = {};
+  const byTarget: Record<string, number> = {};
+  const byArtifactType: Record<string, number> = {};
+
+  for (const w of WORKFLOWS) {
+    bySource[w.from] = (bySource[w.from] ?? 0) + 1;
+    byTarget[w.to] = (byTarget[w.to] ?? 0) + 1;
+    for (const type of w.artifactTypes) {
+      byArtifactType[type] = (byArtifactType[type] ?? 0) + 1;
+    }
+  }
+
+  return { total: WORKFLOWS.length, bySource, byTarget, byArtifactType };
+}
+
+// ── Improvement 46: workflowExists ───────────────────────────────────────────
+
+/**
+ * Returns true when a workflow with the given ID is registered.
+ * Slightly faster than findWorkflowById(id) !== undefined for boolean checks.
+ */
+export function workflowExists(id: string): boolean {
+  return WORKFLOWS.some((w) => w.id === id);
 }
