@@ -6,6 +6,9 @@ on:
       - '**'
     paths-ignore:
       - 'README.md'
+      - 'docs/BUGS.md'
+      - 'docs/HANDOFF.md'
+      - 'REPO_STATE.md'
   workflow_dispatch: # This enables the manual "Run workflow" button
 
 jobs:
@@ -61,7 +64,7 @@ jobs:
           fi
 
           SHORT=$(echo "${{ github.sha }}" | cut -c1-7)
-          git commit -m "idari: auto-update README [${SHORT}] [skip ci]"
+          git commit -m "idari: auto-update README [${SHORT}] [skip ci] [skip vercel]"
 
           for attempt in 1 2 3; do
             echo "Push attempt ${attempt}..."
