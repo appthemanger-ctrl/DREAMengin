@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 17:28 UTC  
-**Last updated:** 2026-04-12 17:28 UTC  
-**Triggered by commit:** `2ba7e12` on `copilot/improve-dreamr-social-media` by Copilot  
-**Commit message:** feat: real UX improvements — fix like toggle, save, follow, inline comments, draft persistence, error feedback
+**Documentation Date:** 2026-04-12 17:30 UTC  
+**Last updated:** 2026-04-12 17:30 UTC  
+**Triggered by commit:** `7abf4d9` on `copilot/improve-dreamr-social-media` by Copilot  
+**Commit message:** fix: address code review — fix double json() bug, extract magic numbers, normalize count display
 
 ---
 
