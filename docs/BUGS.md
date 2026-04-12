@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-06 11:04 UTC  
-**Last updated:** 2026-04-06 11:04 UTC  
-**Triggered by commit:** `4a220ef` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #471 from appthemanger-ctrl/copilot/execute-to-perfection
+**Documentation Date:** 2026-04-12 02:26 UTC  
+**Last updated:** 2026-04-12 02:26 UTC  
+**Triggered by commit:** `0990587` on `copilot/build-next-js-app-structure` by Copilot  
+**Commit message:** refactor: file structure reorganization — re-export shims, updated test paths and manifests
 
 ---
 
