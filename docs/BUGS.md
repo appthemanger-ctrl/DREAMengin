@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 17:30 UTC  
-**Last updated:** 2026-04-12 17:30 UTC  
-**Triggered by commit:** `7abf4d9` on `copilot/improve-dreamr-social-media` by Copilot  
-**Commit message:** fix: address code review — fix double json() bug, extract magic numbers, normalize count display
+**Documentation Date:** 2026-04-12 17:41 UTC  
+**Last updated:** 2026-04-12 17:41 UTC  
+**Triggered by commit:** `4490d20` on `copilot/improve-dreamr-social-media` by Copilot  
+**Commit message:** fix: narrow prevPropSubsystemRef type to match ingestSubsystem signature
 
 ---
 
