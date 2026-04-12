@@ -32,7 +32,6 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'record',      emoji: '🎙️', label: 'Record',         desc: 'Open the production studio',   color: '#2a8ab8', href: '/daydream/music' },
   { id: 'upload',      emoji: '📤', label: 'Upload Track',   desc: 'Add a track to your library',  color: '#6366f1', href: '/music/upload' },
   { id: 'releases',    emoji: '🎵', label: 'My Releases',    desc: 'Albums, singles, and EPs',     color: '#c8981a', href: '/music' },
-  { id: 'analytics',   emoji: '📊', label: 'Music Stats',    desc: 'Streams, plays, and reach',    color: '#22c55e', href: '/daydream/analytics' },
   { id: 'distribute',  emoji: '🌍', label: 'Distribute',     desc: 'Send to Spotify, Apple, etc.', color: '#00bcd4', href: '/music' },
   { id: 'monetize',    emoji: '💰', label: 'Monetize',       desc: 'Royalties, splits, sync',      color: '#f59e0b', href: '/music' },
   { id: 'share',       emoji: '🔗', label: 'Share to Feed',  desc: 'Post a track or update',       color: '#ec4899', href: '/daydream/create' },
@@ -248,14 +247,6 @@ export default async function MusicArtistHubPage() {
                 </div>
               ))}
             </div>
-            <Link href="/daydream/analytics" style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              padding: '9px', borderRadius: 8, fontSize: 12, fontWeight: 600,
-              background: 'rgba(168,85,247,0.08)', color: '#a855f7',
-              border: '1px solid rgba(168,85,247,0.22)', textDecoration: 'none',
-            }}>
-              <BarChart3 className="w-3.5 h-3.5" /> Open Full Analytics
-            </Link>
           </Section>
 
           {/* ── Monetization Tracker ── */}
