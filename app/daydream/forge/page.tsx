@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Flame, Zap, Layers, Activity, TrendingUp } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
-import ForgeEngin from '@/components/daydream/ForgeEngin';
+import ForgeEngin from '@/engins/ForgeEngin';
 import ForgeMomentumWidget from '@/components/forge/ForgeMomentumWidget';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 import { isDevBypassActive } from '@/lib/dev-bypass';

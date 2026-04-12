@@ -12,7 +12,7 @@
 
 import { useRouter } from 'next/navigation';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import CodeEngin from '@/components/daydream/CodeEngin';
+import CodeEngin from '@/engins/CodeEngin';
 
 const ACCENT = '#22d3ee';
 const BACK_HREF = '/daydream/code';

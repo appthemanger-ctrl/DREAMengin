@@ -17,7 +17,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
-import WorkspaceDashboard from '@/components/home/WorkspaceDashboard';
+import WorkspaceDashboard from '@/dreamdmbar/homedream/WorkspaceDashboard';
 import DreamsSpacePanel from '@/components/dreams/DreamsSpacePanel';
 import DREAMenginOS from '@/components/dreamengin/DREAMenginOS';
 import RuntimeShell from '@/components/runtime/RuntimeShell';
@@ -162,7 +162,7 @@ export default function RuntimeView({
       <div
         style={{
           ...outerStyle,
-          background: 'linear-gradient(180deg, rgba(2,8,24,0.92) 0%, rgba(8,20,40,0.86) 42%, rgba(10,26,48,0.78) 100%)',
+          background: 'linear-gradient(180deg, #020818 0%, #08142A 42%, #0A1A30 100%)',
           overflow: 'hidden',
         }}
       >

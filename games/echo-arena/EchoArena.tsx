@@ -1,0 +1,403 @@
+'use client';
+/**
+ * EchoArena — WebGPU-powered top-down arena shooter
+ * Category: Shooter / Arcade
+ *
+ * High-performance WebGPU rendering with Babylon.js
+ * DualSense controller support (Bluetooth mobile + USB desktop)
+ * Gyroscope aiming for natural mobile gameplay
+ * Haptic rumble feedback on shooting
+ */
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import {
+  createPerformanceBaselineSampler,
+  publishGamePerformanceBaseline,
+} from '@/lib/games/performance-baseline';
+import { useRegisterMobileGameControls } from '@/lib/games/mobileControls';
+import { createClient } from '@/lib/supabase/client';
+import * as BABYLON from '@babylonjs/core';
+import { DualSenseManager } from '@/components/gameengin/input/DualSenseManager';
+
+type Phase = 'menu' | 'playing' | 'gameover';
+
+const PERFORMANCE_PUBLISH_INTERVAL_MS = 250;
+
+export default function EchoArena() {
+  const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
+  const [score, setScore] = useState(0);
+  const [status, setStatus] = useState('Ready to battle');
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const engineRef = useRef<BABYLON.WebGPUEngine | BABYLON.Engine | null>(null);
+  const sceneRef = useRef<BABYLON.Scene | null>(null);
+  const dualSenseRef = useRef<DualSenseManager | null>(null);
+  const scoreRef = useRef(0);
+  const lastShotRef = useRef(0);
+  const mobileMoveRef = useRef({ x: 0, y: 0 });
+  const mobileLookRef = useRef({ x: 0, y: 0 });
+  const submitScore = useSubmitScore('echo-arena');
+  const supabase = useRef(createClient()).current;
+
+  useEffect(() => {
+    if (phase === 'gameover') submitScore(scoreRef.current);
+  }, [phase, submitScore]);
+
+  const startGame = useCallback(() => {
+    scoreRef.current = 0;
+    lastShotRef.current = 0;
+    setScore(0);
+    setPhase('playing');
+  }, [setPhase]);
+
+  useGameAutoStart(phase === 'menu' ? startGame : null);
+
+  useRegisterMobileGameControls({
+    onMove: (vector) => {
+      mobileMoveRef.current = vector;
+    },
+    onLook: (vector) => {
+      mobileLookRef.current = vector;
+    },
+  });
+
+  // Listen for game input events (GameRemote + keyboard)
+  useEffect(() => {
+    if (phase !== 'playing') return;
+
+    const handler = (e: Event) => {
+      const { action, active } = (e as CustomEvent).detail;
+      // DualSense gyro + sticks handled directly in render loop
+      // This is for GameRemote/keyboard fallback
+    };
+
+    window.addEventListener('de-game-input', handler);
+    return () => window.removeEventListener('de-game-input', handler);
+  }, [phase]);
+
+  // Initialize WebGPU/WebGL engine
+  useEffect(() => {
+    if (!canvasRef.current) return;
+
+    let engine: BABYLON.WebGPUEngine | BABYLON.Engine | null = null;
+    let scene: BABYLON.Scene | null = null;
+    let dualSense: DualSenseManager | null = null;
+    let player: BABYLON.Mesh | null = null;
+    let floor: BABYLON.Mesh | null = null;
+    const frameSampler = createPerformanceBaselineSampler();
+    let lastPerformancePublish = 0;
+
+    const init = async () => {
+      if (!canvasRef.current) return;
+
+      try {
+        // WebGPU-first with WebGL fallback
+        const { WebGPUEngine, Engine } = await import('@babylonjs/core/Engines');
+
+        let webGPUSupported = false;
+        try {
+          webGPUSupported = await WebGPUEngine.IsSupportedAsync;
+        } catch {
+          webGPUSupported = false;
+        }
+
+        if (webGPUSupported) {
+          engine = new WebGPUEngine(canvasRef.current, {
+            powerPreference: 'high-performance',
+            antialias: true,
+          });
+          await (engine as BABYLON.WebGPUEngine).initAsync();
+
+          // Snapshot rendering for optimal performance
+          (engine as BABYLON.WebGPUEngine).snapshotRendering = true;
+          (engine as BABYLON.WebGPUEngine).snapshotRenderingMode = BABYLON.Constants.SNAPSHOTRENDERING_FAST;
+
+          setStatus('WebGPU active — Press PLAY to start');
+        } else {
+          engine = new Engine(canvasRef.current, true, {
+            preserveDrawingBuffer: true,
+            stencil: true,
+          });
+          setStatus('WebGL active — Press PLAY to start');
+        }
+
+        engineRef.current = engine;
+        scene = new BABYLON.Scene(engine);
+        sceneRef.current = scene;
+        scene.clearColor = new BABYLON.Color4(0.05, 0.05, 0.15, 1);
+
+        // Camera (top-down view)
+        const camera = new BABYLON.ArcRotateCamera('cam', 0, 0.5, 40, BABYLON.Vector3.Zero(), scene);
+        camera.attachControl(canvasRef.current, true);
+
+        // ── Lighting — realistic multi-source setup ─────────────────────────
+        const hemiLight = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0), scene);
+        hemiLight.intensity = 0.35;
+        hemiLight.diffuse = new BABYLON.Color3(0.4, 0.5, 0.9);
+        hemiLight.specular = new BABYLON.Color3(0.1, 0.15, 0.3);
+        hemiLight.groundColor = new BABYLON.Color3(0.05, 0.05, 0.12);
+
+        // Directional light for shadows
+        const dirLight = new BABYLON.DirectionalLight('dirLight',
+          new BABYLON.Vector3(0.3, -1, 0.4), scene);
+        dirLight.intensity = 0.8;
+        dirLight.diffuse = new BABYLON.Color3(0.6, 0.7, 1.0);
+        dirLight.specular = new BABYLON.Color3(0.5, 0.6, 0.9);
+
+        // Shadow generator
+        const shadowGen = new BABYLON.ShadowGenerator(2048, dirLight);
+        shadowGen.usePercentageCloserFiltering = true;
+        shadowGen.filteringQuality = BABYLON.ShadowGenerator.QUALITY_HIGH;
+        shadowGen.bias = 0.0006;
+        shadowGen.darkness = 0.35;
+
+        // Point light for arena center accent
+        const centerLight = new BABYLON.PointLight('center',
+          new BABYLON.Vector3(0, 8, 0), scene);
+        centerLight.diffuse = new BABYLON.Color3(0.3, 0.9, 0.7);
+        centerLight.intensity = 1.5;
+        centerLight.range = 35;
+
+        // Environment for PBR reflections
+        try { scene.createDefaultEnvironment({ createGround: false, createSkybox: false }); } catch { /* graceful */ }
+        scene.environmentIntensity = 0.6;
+
+        // ── Arena floor — PBR metallic reflective ───────────────────────────
+        floor = BABYLON.MeshBuilder.CreateGround('arena', { width: 50, height: 50 }, scene);
+        const floorMat = new BABYLON.PBRMaterial('floor', scene);
+        floorMat.albedoColor = new BABYLON.Color3(0.06, 0.06, 0.28);
+        floorMat.metallic = 0.4;
+        floorMat.roughness = 0.35;
+        floorMat.emissiveColor = new BABYLON.Color3(0.01, 0.01, 0.06);
+        floor.material = floorMat;
+        floor.receiveShadows = true;
+
+        // Player — PBR with clear-coat for glass-like surface
+        player = BABYLON.MeshBuilder.CreateSphere('player', { diameter: 2.5 }, scene);
+        player.position.y = 1.5;
+        const playerMat = new BABYLON.PBRMaterial('playerMat', scene);
+        playerMat.albedoColor = new BABYLON.Color3(0.2, 0.85, 0.65);
+        playerMat.metallic = 0.7;
+        playerMat.roughness = 0.15;
+        playerMat.emissiveColor = new BABYLON.Color3(0.15, 0.5, 0.4);
+        playerMat.clearCoat.isEnabled = true;
+        playerMat.clearCoat.intensity = 0.6;
+        playerMat.clearCoat.roughness = 0.08;
+        player.material = playerMat;
+        shadowGen.addShadowCaster(player, true);
+
+        // ── Post-processing pipeline ────────────────────────────────────────
+        try {
+          const pipeline = new BABYLON.DefaultRenderingPipeline('echo-pipeline', true, scene, [camera]);
+          pipeline.samples = 4;
+          pipeline.fxaaEnabled = true;
+          pipeline.imageProcessingEnabled = true;
+          pipeline.imageProcessing.toneMappingEnabled = true;
+          pipeline.imageProcessing.toneMappingType = 1; // ACES
+          pipeline.imageProcessing.contrast = 1.1;
+          pipeline.imageProcessing.exposure = 1.05;
+          pipeline.imageProcessing.vignetteEnabled = true;
+          pipeline.imageProcessing.vignetteWeight = 3;
+          pipeline.bloomEnabled = true;
+          pipeline.bloomThreshold = 0.5;
+          pipeline.bloomWeight = 0.35;
+          pipeline.bloomKernel = 64;
+          pipeline.sharpenEnabled = true;
+          pipeline.sharpen.edgeAmount = 0.2;
+
+          // Glow layer for emissive objects
+          const glow = new BABYLON.GlowLayer('echoGlow', scene, { mainTextureFixedSize: 256, blurKernelSize: 32 });
+          glow.intensity = 0.65;
+        } catch { /* post-fx optional */ }
+
+        // ── SSAO for depth ──────────────────────────────────────────────────
+        try {
+          const ssao = new BABYLON.SSAO2RenderingPipeline('echo-ssao', scene, { ssaoRatio: 0.5, blurRatio: 1.0 });
+          ssao.radius = 1.5;
+          ssao.totalStrength = 0.8;
+          ssao.samples = 12;
+          ssao.maxZ = 60;
+          ssao.expensiveBlur = true;
+          scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline('echo-ssao', camera);
+        } catch { /* SSAO graceful fallback */ }
+
+        // DualSense controller
+        dualSense = new DualSenseManager(scene, engine, setStatus);
+        dualSenseRef.current = dualSense;
+        await dualSense.init();
+
+        // Game loop
+        scene.onBeforeRenderObservable.add(() => {
+          const frameNow = performance.now();
+          const sample = frameSampler.pushFrame(frameNow);
+          // Quarter-second publishing keeps the shared shell overlay current
+          // without spamming React/event updates on every rendered frame.
+          if (sample && frameNow - lastPerformancePublish >= PERFORMANCE_PUBLISH_INTERVAL_MS) {
+            lastPerformancePublish = frameNow;
+            publishGamePerformanceBaseline({
+              gameId: 'echo-arena',
+              renderMode: 'webgpu',
+              rendererBackend: engine instanceof BABYLON.WebGPUEngine ? 'webgpu' : 'webgl2',
+              webgpuSupported: engine instanceof BABYLON.WebGPUEngine,
+              source: 'runtime',
+              ...sample,
+            });
+          }
+
+          if (phaseRef.current !== 'playing' || !player || !dualSense) return;
+
+          const input = dualSense.getState();
+
+          // Movement with left stick
+          const moveSpeed = 0.15;
+          const moveX = Math.max(-1, Math.min(1, input.leftStick.x + mobileMoveRef.current.x));
+          const moveY = Math.max(-1, Math.min(1, input.leftStick.y + mobileMoveRef.current.y));
+          player.position.x += moveX * moveSpeed;
+          player.position.z += moveY * moveSpeed;
+
+          // Keep player in bounds
+          player.position.x = Math.max(-23, Math.min(23, player.position.x));
+          player.position.z = Math.max(-23, Math.min(23, player.position.z));
+
+          // Aim with right stick + gyro + shared mobile look joystick
+          const mobileLook = mobileLookRef.current;
+          const aimX = input.rightStick.x + input.gyro.x + mobileLook.x;
+          const aimY = input.rightStick.y + mobileLook.y;
+          const lookMagnitude = Math.hypot(mobileLook.x, mobileLook.y);
+          if (Math.abs(aimX) > 0.1 || Math.abs(aimY) > 0.1) {
+            player.rotation.y = Math.atan2(aimX, aimY === 0 ? 0.0001 : aimY);
+          }
+
+          // Shoot with R2 trigger or strong mobile aim hold (with cooldown)
+          const shotNow = Date.now();
+          if ((input.triggers.r2 > 0.6 || lookMagnitude > 0.72) && shotNow - lastShotRef.current > 300) {
+            dualSense.rumble(0.5, 40);
+            lastShotRef.current = shotNow;
+            scoreRef.current += 10;
+            setScore(scoreRef.current);
+            if (lookMagnitude > 0.72) {
+              setStatus('Mobile aim burst');
+            }
+            // In full version: spawn projectile
+          }
+
+          // Demo: end after 1000 points
+          if (scoreRef.current >= 1000) {
+            setPhase('gameover');
+          }
+        });
+
+        // Render loop
+        engine.runRenderLoop(() => scene?.render());
+
+        // Responsive resize
+        const parentElement = canvasRef.current.parentElement;
+        if (parentElement) {
+          const resizeObserver = new ResizeObserver(() => engine?.resize());
+          resizeObserver.observe(parentElement);
+          return () => resizeObserver.disconnect();
+        }
+
+      } catch (err: any) {
+        console.error('EchoArena init error:', err);
+        setStatus('Error: ' + err.message);
+      }
+    };
+
+    if (phase === 'playing') {
+      init();
+    }
+
+    return () => {
+      dualSense?.dispose();
+      scene?.dispose();
+      engine?.dispose();
+    };
+  }, [phase, phaseRef, setPhase]);
+
+  return (
+    <div style={{ width: '100%', height: '100%', position: 'relative', background: '#000' }}>
+      {phase === 'menu' && (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          gap: '20px',
+          background: 'linear-gradient(180deg, #0a0a1a 0%, #1a0a2e 100%)'
+        }}>
+          <div style={{ fontSize: '48px' }}>🎯</div>
+          <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#a78bfa' }}>ECHO ARENA</div>
+          <div style={{ fontSize: '16px', color: '#888', maxWidth: '300px', textAlign: 'center' }}>
+            Top-down arena shooter powered by WebGPU
+          </div>
+          <div style={{ fontSize: '14px', color: '#555', maxWidth: '320px', textAlign: 'center' }}>
+            Controls: Left Stick to move, Right Stick/Gyro to aim, R2 to shoot
+          </div>
+          <div style={{ fontSize: '14px', color: '#a78bfa', marginTop: '20px' }}>
+            Press PLAY or tap game to start ▶
+          </div>
+        </div>
+      )}
+
+      {phase === 'playing' && (
+        <>
+          <canvas
+            ref={canvasRef}
+            style={{ width: '100%', height: '100%', display: 'block' }}
+          />
+          <div style={{
+            position: 'absolute',
+            top: '10px',
+            left: '10px',
+            background: 'rgba(0,0,0,0.7)',
+            color: '#a78bfa',
+            padding: '8px 12px',
+            borderRadius: '4px',
+            fontSize: '12px',
+            fontFamily: 'monospace',
+          }}>
+            {status}
+          </div>
+          <div style={{
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
+            background: 'rgba(0,0,0,0.7)',
+            color: '#fff',
+            padding: '12px 16px',
+            borderRadius: '4px',
+            fontSize: '20px',
+            fontWeight: 'bold',
+            fontFamily: 'monospace',
+          }}>
+            Score: {score}
+          </div>
+        </>
+      )}
+
+      {phase === 'gameover' && (
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          gap: '20px',
+          background: 'rgba(0,0,0,0.9)'
+        }}>
+          <div style={{ fontSize: '48px' }}>🏆</div>
+          <div style={{ fontSize: '32px', fontWeight: 'bold', color: '#a78bfa' }}>ARENA CLEARED</div>
+          <div style={{ fontSize: '24px', color: '#fff' }}>
+            Final Score: {scoreRef.current}
+          </div>
+          <div style={{ fontSize: '14px', color: '#a78bfa', marginTop: '20px' }}>
+            Press PLAY to battle again ▶
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
