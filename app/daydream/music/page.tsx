@@ -5,7 +5,6 @@ import SoundRecorder from '@/components/music/SoundRecorder';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
 import StarMakerEngin from '@/engins/StarMakerEngin';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
-import { isDevBypassActive } from '@/lib/dev-bypass';
 import { connection } from 'next/server';
 
 export const metadata = {
@@ -27,7 +26,7 @@ export default async function MusicArtistHubPage() {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user && !isDevBypassActive()) redirect('/login');
+  if (!user) redirect('/login');
 
   return (
     <DaydreamShell
