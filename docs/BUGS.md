@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 02:04 UTC  
-**Last updated:** 2026-04-13 02:04 UTC  
-**Triggered by commit:** `5f98393` on `claude/makeover-engins-and-daydreams-2026` by Claude  
-**Commit message:** feat: complete 2026 makeover for all daydream pages
+**Documentation Date:** 2026-04-13 02:34 UTC  
+**Last updated:** 2026-04-13 02:34 UTC  
+**Triggered by commit:** `91b8029` on `claude/makeover-engins-and-daydreams-2026` by Claude  
+**Commit message:** feat: wire real StarMaker→Lab workflow with live data transfer
 
 ---
 
@@ -105,10 +105,11 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 
 ## 🐛 Known Code Annotations (TODO / FIXME / HACK)
 
-### 📝 TODO (1)
+### 📝 TODO (2)
 
 | Location | Description |
 |----------|-------------|
+| `components/daydream/StarMakerEngin.tsx:430` | Implement actual audio upload to ledger storage |
 | `lib/code/drEamsCodeAssist.ts:355` | implement\n}`; |
 
 ---
