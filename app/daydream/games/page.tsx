@@ -90,7 +90,7 @@ export default async function GamesDaydreamPage() {
     <DaydreamShell
       title="Games"
       enginName="GameEngin"
-      accentColor="#2a8ab8"
+      accentColor="#3b82f6"
       daydreamType="games"
       widgets={WIDGETS}
       sideBComponent={GameEngin}
@@ -102,8 +102,8 @@ export default async function GamesDaydreamPage() {
           title="Games"
           subtitle="The library explains the system. GameEngin owns the runtime."
           icon={<Gamepad2 className="w-4 h-4" />}
-          accentColor="#2a8ab8"
-          badge="Games Daydream + GameEngin"
+          accentColor="#3b82f6"
+          badge="Games Daydream + GameEngin · 2026 Edition"
           containerClassName="max-w-6xl"
         />
 
@@ -112,9 +112,9 @@ export default async function GamesDaydreamPage() {
             <div style={{ position: 'relative', zIndex: 1 }}>
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
                 <div style={{ flex: 1 }}>
-                  <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold" style={{ background: 'rgba(255,255,255,0.56)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.18)' }}>
+                  <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold" style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(139,92,246,0.15) 100%)', color: '#3b82f6', border: '1px solid rgba(59,130,246,0.25)', boxShadow: '0 2px 8px rgba(59,130,246,0.1)' }}>
                     <Sparkles className="w-3.5 h-3.5" />
-                    Official surface contract: library on Side A, runtime on Side B
+                    2026 Edition · Ray-Tracing · Spatial Audio · AI NPCs
                   </div>
                   <h2 style={{ fontSize: 28, fontWeight: 900, color: 'var(--de-heading)', lineHeight: 1.05, marginTop: 12 }}>
                     Browse in Games Daydream.

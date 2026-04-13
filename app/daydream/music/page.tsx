@@ -32,7 +32,7 @@ export default async function MusicArtistHubPage() {
     <DaydreamShell
       title="Artist Hub"
       enginName="StarMakerEngin"
-      accentColor="#2a8ab8"
+      accentColor="#a855f7"
       daydreamType="music"
       widgets={WIDGETS}
       sideBComponent={StarMakerEngin}
@@ -41,10 +41,10 @@ export default async function MusicArtistHubPage() {
         <AuthenticatedPageHeader
           backHref="/homedream"
           title="Artist Hub"
-          subtitle="Record, release, and distribute your music."
+          subtitle="Record, release, and distribute your music. AI stem separation · Spatial audio · Live collab."
           icon={<Music className="w-4 h-4" />}
-          accentColor="#2a8ab8"
-          badge="Daydream"
+          accentColor="#a855f7"
+          badge="Music Daydream · 2026 Edition"
         />
 
         <div className="de-auth-content space-y-4">
@@ -53,10 +53,13 @@ export default async function MusicArtistHubPage() {
           </p>
 
           {/* Quick Sound Recorder */}
-          <div className="de-widget">
+          <div className="de-widget" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.88) 100%)', backdropFilter: 'blur(20px)', boxShadow: '0 8px 32px rgba(168,85,247,0.12)' }}>
             <div className="de-widget-header">
-              <Sparkles className="w-4 h-4" style={{ color: '#2a8ab8' }} />
-              <span className="de-widget-title ml-2">Quick Capture</span>
+              <Sparkles className="w-4 h-4" style={{ color: '#a855f7' }} />
+              <span className="de-widget-title ml-2">Quick Capture · 2026</span>
+              <span className="ml-auto text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.15) 0%, rgba(236,72,153,0.15) 100%)', color: '#a855f7', border: '1px solid rgba(168,85,247,0.25)' }}>
+                DAW 2026
+              </span>
             </div>
             <div className="de-widget-body">
               <SoundRecorder />

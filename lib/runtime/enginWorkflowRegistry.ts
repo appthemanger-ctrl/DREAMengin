@@ -385,6 +385,148 @@ const WORKFLOWS: readonly WorkflowDefinition[] = [
     bridgeChannel: 'games',
     bridgeEvent: 'games:brand-skin-requested',
   }),
+
+  // ── 2026 NEW WORKFLOWS ───────────────────────────────────────────────────────
+
+  // ── CodeEngin → StarMakerEngin ───────────────────────────────────────────────
+  defineWorkflow({
+    id: 'code-to-starmaker:generative-audio',
+    from: 'code',
+    to: 'starmaker',
+    label: 'Generate audio from code',
+    description:
+      'Sends CodeEngin algorithm or ML model to StarMakerEngin to generate ' +
+      'procedural music or sound design via algorithmic composition.',
+    artifactTypes: ['script', 'notebook'],
+    bridgeChannel: 'music',
+    bridgeEvent: 'music:generative-audio-requested',
+  }),
+
+  // ── LabEngin → GameEngin ─────────────────────────────────────────────────────
+  defineWorkflow({
+    id: 'lab-to-game:physics-simulation',
+    from: 'lab',
+    to: 'game',
+    label: 'Import physics simulation',
+    description:
+      'Transfers LabEngin physics simulation results to GameEngin for real-time ' +
+      'gameplay physics, particle effects, or environmental dynamics.',
+    artifactTypes: ['dataset'],
+    bridgeChannel: 'games',
+    bridgeEvent: 'games:physics-sim-imported',
+  }),
+
+  // ── ContentEngin → StarMakerEngin ────────────────────────────────────────────
+  defineWorkflow({
+    id: 'content-to-starmaker:podcast-audio',
+    from: 'content',
+    to: 'starmaker',
+    label: 'Create podcast audio track',
+    description:
+      'Sends a ContentEngin podcast script or article to StarMakerEngin for ' +
+      'text-to-speech, audio mastering, and podcast production.',
+    artifactTypes: ['post'],
+    bridgeChannel: 'music',
+    bridgeEvent: 'music:podcast-production-requested',
+  }),
+
+  // ── ForgeEngin → LabEngin ────────────────────────────────────────────────────
+  defineWorkflow({
+    id: 'forge-to-lab:material-analysis',
+    from: 'forge',
+    to: 'lab',
+    label: 'Analyze 3D material properties',
+    description:
+      'Sends a ForgeEngin 3D asset to LabEngin for material analysis, ' +
+      'stress testing, or quantum-inspired material simulation.',
+    artifactTypes: ['3d-asset'],
+    bridgeChannel: 'lab',
+    bridgeEvent: 'lab:material-analysis-requested',
+  }),
+
+  // ── GameEngin → ForgeEngin ───────────────────────────────────────────────────
+  defineWorkflow({
+    id: 'game-to-forge:export-level',
+    from: 'game',
+    to: 'forge',
+    label: 'Export game level to 3D',
+    description:
+      'Exports the current game level or world from GameEngin to ForgeEngin ' +
+      'as an editable 3D model for remixing and enhancement.',
+    artifactTypes: ['3d-asset'],
+    bridgeChannel: 'code',
+    bridgeEvent: 'code:game-level-exported',
+  }),
+
+  // ── StarMakerEngin → LabEngin ────────────────────────────────────────────────
+  defineWorkflow({
+    id: 'starmaker-to-lab:audio-analysis',
+    from: 'starmaker',
+    to: 'lab',
+    label: 'Audio spectral analysis',
+    description:
+      'Sends a StarMakerEngin track to LabEngin for deep spectral analysis, ' +
+      'frequency visualization, and harmonic structure mapping.',
+    artifactTypes: ['track', 'stem'],
+    bridgeChannel: 'lab',
+    bridgeEvent: 'lab:audio-analysis-requested',
+  }),
+
+  // ── LabEngin → ContentEngin ──────────────────────────────────────────────────
+  defineWorkflow({
+    id: 'lab-to-content:research-paper',
+    from: 'lab',
+    to: 'content',
+    label: 'Generate research paper',
+    description:
+      'Exports a LabEngin experiment with results to ContentEngin as a ' +
+      'formatted research paper or scientific article with embedded visualizations.',
+    artifactTypes: ['dataset'],
+    bridgeChannel: 'create',
+    bridgeEvent: 'create:research-paper-requested',
+  }),
+
+  // ── BrandingEngin → StarMakerEngin ───────────────────────────────────────────
+  defineWorkflow({
+    id: 'brand-to-starmaker:sonic-branding',
+    from: 'brand',
+    to: 'starmaker',
+    label: 'Create sonic brand identity',
+    description:
+      'Sends BrandingEngin brand kit to StarMakerEngin to generate sonic ' +
+      'branding: jingles, audio logos, and brand-consistent music themes.',
+    artifactTypes: ['brand-kit'],
+    bridgeChannel: 'music',
+    bridgeEvent: 'music:sonic-branding-requested',
+  }),
+
+  // ── CodeEngin → BrandingEngin ────────────────────────────────────────────────
+  defineWorkflow({
+    id: 'code-to-brand:analytics-dashboard',
+    from: 'code',
+    to: 'brand',
+    label: 'Build analytics dashboard',
+    description:
+      'Exports a CodeEngin data analysis notebook to BrandingEngin as a live ' +
+      'analytics dashboard for brand performance tracking.',
+    artifactTypes: ['notebook'],
+    bridgeChannel: 'brand',
+    bridgeEvent: 'brand:analytics-dashboard-requested',
+  }),
+
+  // ── ContentEngin → LabEngin ──────────────────────────────────────────────────
+  defineWorkflow({
+    id: 'content-to-lab:ab-testing',
+    from: 'content',
+    to: 'lab',
+    label: 'Run A/B content test',
+    description:
+      'Sends multiple ContentEngin post variants to LabEngin for A/B testing ' +
+      'simulation and performance prediction analysis.',
+    artifactTypes: ['post'],
+    bridgeChannel: 'lab',
+    bridgeEvent: 'lab:ab-test-requested',
+  }),
 ];
 
 // ── Public API ─────────────────────────────────────────────────────────────────

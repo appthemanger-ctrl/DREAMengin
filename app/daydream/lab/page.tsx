@@ -31,7 +31,7 @@ export default async function LabDaydreamPage() {
     <DaydreamShell
       title="Lab"
       enginName="LabEngin"
-      accentColor="#22c55e"
+      accentColor="#10b981"
       daydreamType="lab"
       widgets={WIDGETS}
       sideBComponent={LabEngin}
@@ -40,16 +40,19 @@ export default async function LabDaydreamPage() {
         <AuthenticatedPageHeader
           backHref="/homedream"
           title="Lab"
-          subtitle="Experiments, prototypes, simulations, and model flow with less friction."
+          subtitle="Experiments · quantum circuits 2026 · GPU compute · real-time viz."
           icon={<FlaskConical className="w-4 h-4" />}
-          accentColor="#22c55e"
-          badge="Daydream"
+          accentColor="#10b981"
+          badge="Lab Daydream · 2026 Edition"
         />
 
         <div className="de-auth-content space-y-4">
           {/* Intro */}
-          <div className="de-auth-hero">
+          <div className="de-auth-hero" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(20,184,166,0.08) 100%)', border: '1px solid rgba(16,185,129,0.15)' }}>
             <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 8, padding: '3px 10px', borderRadius: 9999, background: 'linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(20,184,166,0.12) 100%)', border: '1px solid rgba(16,185,129,0.25)' }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981' }}>Lab 2026 · WebGPU · Quantum · TensorFlow</span>
+            </div>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 6 }}>Experiment Vault</h2>
             <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.6 }}>
               Browse and manage your saved experiments, simulations, and datasets on Side A. Pick one to load, then flip to <strong>LabEngin (Side B)</strong> to run it, visualize data, and iterate with AI hypothesis generation.

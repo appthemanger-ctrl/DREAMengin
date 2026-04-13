@@ -139,9 +139,9 @@ jobs:
           git add "${{ env.OUTPUT_FILE }}"
           git commit -m "chore(feeds): bake embed codes — ${{ steps.generate.outputs.item_count }} items [skip ci] [skip vercel]
 
-Reasoning: scheduled embed-feed update; baking avoids live API calls at runtime.
-Architecture justification: render-on-demand rule — docs/ARCHITECTURE.md §10.
-Performance impact: eliminates per-request social API calls from production runtime."
+          Reasoning: scheduled embed-feed update; baking avoids live API calls at runtime.
+          Architecture justification: render-on-demand rule — docs/ARCHITECTURE.md §10.
+          Performance impact: eliminates per-request social API calls from production runtime."
           git push
 
       # ── Upload artifact ──────────────────────────────────────────────────────

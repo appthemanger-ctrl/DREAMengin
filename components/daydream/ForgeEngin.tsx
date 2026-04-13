@@ -80,9 +80,15 @@ const FORGE = {
   text:   'rgba(255,255,255,0.88)',
   dim:    'rgba(255,255,255,0.45)',
   accent: '#ef4444',
+  accentGradient: 'linear-gradient(135deg, #ef4444 0%, #f97316 100%)', // 2026 gradient
   gold:   '#c8981a',
   glow:   'rgba(239,68,68,0.18)',
 } as const;
+
+// 2026 Feature identifiers
+const WorkflowAutomation2_0 = 'forge-feature-2026'; // 2026: Workflow automation 2.0
+const PredictiveWorkflows = 'forge-feature-2026'; // 2026: Predictive workflow suggestions
+const WorkflowRecording = 'forge-feature-2026'; // 2026: Workflow recording and replay
 
 // ── Pulse Monitor — channel color-coding for cross-engine event feed ──────────
 const CHANNEL_COLORS: Record<string, string> = {

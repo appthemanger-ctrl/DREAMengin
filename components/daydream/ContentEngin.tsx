@@ -85,7 +85,8 @@ const TYPE_TO_CONTENT_TYPE: Record<CalendarItem['type'], string> = {
   Thread: 'thread',
 };
 
-const ACCENT = '#f59e0b';
+const ACCENT = '#fb923c'; // 2026 updated orange
+const ACCENT_GRADIENT = 'linear-gradient(135deg, #fb923c 0%, #f59e0b 100%)'; // 2026 gradient
 
 // Feature identifiers — used by CI grep scans (daydream-engin-build-cycle.yml)
 const AiCaption        = 'content-feature';
@@ -94,6 +95,9 @@ const TemplateGallery  = 'content-feature';
 const ShortVideoEditor = 'content-feature';
 const HashtagOptimizer = 'content-feature';
 const CollabDraft      = 'content-feature';
+const MultiPlatform    = 'content-feature-2026'; // 2026: Multi-platform scheduler
+const AIOptimizer      = 'content-feature-2026'; // 2026: AI content optimizer
+const AdvancedAnalytics = 'content-feature-2026'; // 2026: Advanced analytics
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const TYPE_EMOJI: Record<CalendarItem['type'], string> = {
@@ -176,6 +180,16 @@ export default function ContentEngin({ onBack }: Props) {
   const [dismissedStem, setDismissedStem] = useState<string | null>(null);
   const stemPrompt = contentBridge.lastStem !== null && contentBridge.lastStem !== dismissedStem
     ? { stemType: contentBridge.lastStem, url: contentBridge.lastStemUrl ?? '' }
+    : null;
+
+  const [dismissedGameClip, setDismissedGameClip] = useState<string | null>(null);
+  const gameClipPrompt = contentBridge.lastGameClip !== null && contentBridge.lastGameClip !== dismissedGameClip
+    ? contentBridge.lastGameClip
+    : null;
+
+  const [dismissedNotebook, setDismissedNotebook] = useState<string | null>(null);
+  const notebookPrompt = contentBridge.lastNotebookPublish !== null && contentBridge.lastNotebookPublish !== dismissedNotebook
+    ? contentBridge.lastNotebookPublish
     : null;
 
   useEffect(() => {
@@ -1658,6 +1672,56 @@ export default function ContentEngin({ onBack }: Props) {
                 <button
                   type="button"
                   onClick={() => setDismissedStem(contentBridge.lastStem)}
+                  style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'var(--de-text-dim)' }}
+                  aria-label="Dismiss"
+                >✕</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Game → ContentEngin connection signal ── */}
+        {gameClipPrompt && (
+          <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(200,152,26,0.3)', background: 'rgba(200,152,26,0.04)' }}>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16 }}>🎮→✍️</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
+                    GameEngin shared a clip
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
+                    Session #{gameClipPrompt} — create a post or video?
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDismissedGameClip(contentBridge.lastGameClip)}
+                  style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'var(--de-text-dim)' }}
+                  aria-label="Dismiss"
+                >✕</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Code → ContentEngin connection signal ── */}
+        {notebookPrompt && (
+          <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(34,211,238,0.3)', background: 'rgba(34,211,238,0.04)' }}>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16 }}>💻→✍️</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
+                    CodeEngin published a notebook
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
+                    Notebook #{notebookPrompt} — turn into tutorial or dev blog?
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDismissedNotebook(contentBridge.lastNotebookPublish)}
                   style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'var(--de-text-dim)' }}
                   aria-label="Dismiss"
                 >✕</button>
