@@ -31,7 +31,7 @@ export default async function CodeDaydreamPage() {
     <DaydreamShell
       title="Code"
       enginName="CodeEngin"
-      accentColor="#6366f1"
+      accentColor="#22d3ee"
       daydreamType="code"
       widgets={WIDGETS}
       sideBComponent={CodeEngin}
@@ -40,16 +40,19 @@ export default async function CodeDaydreamPage() {
         <AuthenticatedPageHeader
           backHref="/homedream"
           title="Code"
-          subtitle="Project flow, snippets, files, and deployment entry points in one command surface."
+          subtitle="Full IDE · AI copilot 2026 · multi-cursor editing · live preview."
           icon={<Code2 className="w-4 h-4" />}
-          accentColor="#6366f1"
-          badge="Daydream"
+          accentColor="#22d3ee"
+          badge="Code Daydream · 2026 Edition"
         />
 
         <div className="de-auth-content space-y-4">
           {/* Intro */}
-          <div className="de-auth-hero">
+          <div className="de-auth-hero" style={{ background: 'linear-gradient(135deg, rgba(34,211,238,0.08) 0%, rgba(59,130,246,0.08) 100%)', border: '1px solid rgba(34,211,238,0.15)' }}>
             <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 8, padding: '3px 10px', borderRadius: 9999, background: 'linear-gradient(135deg, rgba(34,211,238,0.12) 0%, rgba(59,130,246,0.12) 100%)', border: '1px solid rgba(34,211,238,0.25)' }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#22d3ee' }}>Code 2026 · Monaco IDE · AI Copilot · Multi-Cursor</span>
+            </div>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 6 }}>Code Vault</h2>
             <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.6 }}>
               Browse and manage your saved projects, files, and zip folders here on Side A. Pick what you want to work on, then flip to <strong>CodeEngin (Side B)</strong> to write, run, and preview it as a web app, game, or song.

@@ -113,6 +113,7 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 | `app/api/metrics/platform/route.ts:70` | Implement |
 | `app/api/metrics/platform/route.ts:71` | Implement |
 | `app/api/metrics/platform/route.ts:73` | Implement |
+| `components/daydream/StarMakerEngin.tsx:430` | Implement actual audio upload to ledger storage |
 | `lib/code/drEamsCodeAssist.ts:355` | implement\n}`; |
 | `lib/vm/snapshot.ts:81` | track bind groups |
 | `lib/vm/snapshot.ts:264` | serialize quotas |

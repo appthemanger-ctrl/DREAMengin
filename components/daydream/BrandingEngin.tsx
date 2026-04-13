@@ -57,7 +57,8 @@ interface ABTest {
   paused: boolean;
 }
 
-const ACCENT = '#ec4899';
+const ACCENT = '#f472b6'; // 2026 updated pink
+const ACCENT_GRADIENT = 'linear-gradient(135deg, #f472b6 0%, #fb923c 100%)'; // 2026 gradient
 
 // Feature identifiers — used by CI grep scans (daydream-engin-build-cycle.yml)
 const AudienceSegment     = 'brand-feature';
@@ -65,6 +66,9 @@ const BrandVoiceAi        = 'brand-feature';
 const CompetitorWatch     = 'brand-feature';
 const AssetLibrary        = 'brand-feature';
 const ContentCalendarLink = 'brand-feature';
+const AIBrandKit          = 'brand-feature-2026'; // 2026: AI-powered brand kit generator
+const MotionGraphics      = 'brand-feature-2026'; // 2026: Motion graphics support
+const Analytics2_0        = 'brand-feature-2026'; // 2026: Advanced analytics 2.0
 
 export default function BrandingEngin({ onBack }: Props) {
   const brandBridge = useBrandingEnginBridge();
@@ -93,6 +97,12 @@ export default function BrandingEngin({ onBack }: Props) {
     { id: 'ctr',      label: 'Click-Through',    value: '—', trend: 'flat', icon: <BarChart2 className="w-4 h-4" /> },
     { id: 'growth',   label: 'Follower Growth',  value: '—', trend: 'flat', icon: <Megaphone className="w-4 h-4" /> },
   ]);
+
+  // ── Game Achievement Campaign receiver ────────────────────────────────────────
+  const [dismissedAchievement, setDismissedAchievement] = useState<string | null>(null);
+  const achievementPrompt = brandBridge.lastAchievement !== null && brandBridge.lastAchievement !== dismissedAchievement
+    ? brandBridge.lastAchievement
+    : null;
 
   // ── A/B Test state ─────────────────────────────────────────────────────────
   const [abTests, setAbTests]     = useState<ABTest[]>([]);
@@ -387,6 +397,31 @@ export default function BrandingEngin({ onBack }: Props) {
 
       {/* ── Body ── */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
+
+        {/* ── Game → BrandingEngin Achievement Campaign ── */}
+        {achievementPrompt && (
+          <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(200,152,26,0.3)', background: 'rgba(200,152,26,0.04)' }}>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16 }}>🎮→🎯</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
+                    GameEngin sent an achievement
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
+                    Achievement #{achievementPrompt} — turn into a campaign?
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDismissedAchievement(brandBridge.lastAchievement)}
+                  style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'var(--de-text-dim)' }}
+                  aria-label="Dismiss"
+                >✕</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── Brand Kit (existing) ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>

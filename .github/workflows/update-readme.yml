@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: '25'
 
-      - name: Pre-Flight: Ensure README exists
+      - name: "Pre-Flight: Ensure README exists"
         run: |
           if [ ! -f README.md ]; then
             echo "⚠️ README.md missing! Creating baseline template..."

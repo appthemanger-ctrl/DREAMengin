@@ -102,7 +102,8 @@ interface AchievementDef {
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-const ACCENT = '#2a8ab8';
+const ACCENT = '#3b82f6'; // 2026 updated blue
+const ACCENT_GRADIENT = 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)'; // 2026 gradient
 const SESSION_BAR_HIDE_COVER_HEIGHT = 122;
 const SESSION_BAR_REVEAL_GAP = 24;
 
@@ -112,6 +113,9 @@ const TournamentMode   = 'game-feature';
 const GameAnalytics    = 'game-feature';
 const ReplaySystem     = 'game-feature';
 const SocialChallenge  = 'game-feature';
+const RayTracedLighting = 'game-feature-2026'; // 2026: Ray-traced lighting
+const SpatialAudio      = 'game-feature-2026'; // 2026: 3D spatial audio
+const AICompanions      = 'game-feature-2026'; // 2026: AI-powered NPCs
 
 const GAME_LABELS = Object.fromEntries(GAMES.map((game) => [game.id, game.label])) as Record<string, string>;
 const QUICK_PLAY_GAME_IDS = [
@@ -266,6 +270,12 @@ export default function GameEngin({ onBack }: Props) {
   /** Avatar image data URL — set when the user chose "Play as Yourself" */
   const [avatarDataUrl, setAvatarDataUrl] = useState<string | null>(null);
 
+  // ── Code Script Deploy receiver ───────────────────────────────────────────────
+  const [dismissedScript, setDismissedScript] = useState<string | null>(null);
+  const scriptPrompt = gameBridge.lastScriptDeploy !== null && gameBridge.lastScriptDeploy !== dismissedScript
+    ? gameBridge.lastScriptDeploy
+    : null;
+
   /**
    * Active GPU rendering backend for this session.
    * Probed once on mount via WebGPUEngine.IsSupportedAsync so the header
@@ -343,6 +353,35 @@ export default function GameEngin({ onBack }: Props) {
       recordForgeTransfer('games', 'brand', 'asset', 'Score published to leaderboard');
     }
     setSharing(null);
+  }
+
+  // ── Share Game Clip to Content ───────────────────────────────────────────────
+  function handleShareClip(game: string, score: number) {
+    forgeRecord(`Shared ${game} clip to Content`);
+    recordForgeTransfer('games', 'create', 'clip', `${game} clip → ContentEngin`);
+    // Emit bridge event for ContentEngin to receive
+    bridge.emit('create', 'create:game-clip-embedded', {
+      sessionId: `session-${Date.now()}`,
+      gameTitle: game,
+      score,
+      timestamp: new Date().toISOString(),
+      worldState: savedWorld ? savedWorld.name : null,
+      achievements: unlockedAchievements,
+    });
+  }
+
+  // ── Share Achievement Campaign to Brand ───────────────────────────────────────
+  function handleShareAchievementCampaign(achievementName: string) {
+    forgeRecord(`Shared ${achievementName} achievement to Brand`);
+    recordForgeTransfer('games', 'brand', 'campaign', `${achievementName} → BrandingEngin`);
+    // Emit bridge event for BrandingEngin to receive
+    bridge.emit('brand', 'brand:achievement-campaign-requested', {
+      achievementId: `achievement-${Date.now()}`,
+      achievementName,
+      timestamp: new Date().toISOString(),
+      totalAchievements: unlockedAchievements.length,
+      playerLevel: savedWorld ? savedWorld.name : 'Unknown',
+    });
   }
 
   function handleControlProfileSelect(profileId: string) {
@@ -1059,6 +1098,31 @@ export default function GameEngin({ onBack }: Props) {
 
       {/* ══════════════════════════════════════════ Body */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
+
+        {/* ── Code → GameEngin Script Deploy ── */}
+        {scriptPrompt && (
+          <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(34,211,238,0.3)', background: 'rgba(34,211,238,0.04)' }}>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16 }}>💻→🎮</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
+                    CodeEngin deployed a script
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
+                    Script #{scriptPrompt} — integrate as game logic?
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDismissedScript(gameBridge.lastScriptDeploy)}
+                  style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'var(--de-text-dim)' }}
+                  aria-label="Dismiss"
+                >✕</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(125,211,252,0.24)', background: 'linear-gradient(180deg, rgba(10,18,38,0.98), rgba(2,6,14,0.98))', color: '#f8fbff' }}>
           <div className="de-widget-header" style={{ borderBottomColor: 'rgba(125,211,252,0.18)' }}>
