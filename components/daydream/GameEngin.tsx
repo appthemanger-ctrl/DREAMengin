@@ -102,7 +102,8 @@ interface AchievementDef {
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 
-const ACCENT = '#2a8ab8';
+const ACCENT = '#3b82f6'; // 2026 updated blue
+const ACCENT_GRADIENT = 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)'; // 2026 gradient
 const SESSION_BAR_HIDE_COVER_HEIGHT = 122;
 const SESSION_BAR_REVEAL_GAP = 24;
 
@@ -112,6 +113,9 @@ const TournamentMode   = 'game-feature';
 const GameAnalytics    = 'game-feature';
 const ReplaySystem     = 'game-feature';
 const SocialChallenge  = 'game-feature';
+const RayTracedLighting = 'game-feature-2026'; // 2026: Ray-traced lighting
+const SpatialAudio      = 'game-feature-2026'; // 2026: 3D spatial audio
+const AICompanions      = 'game-feature-2026'; // 2026: AI-powered NPCs
 
 const GAME_LABELS = Object.fromEntries(GAMES.map((game) => [game.id, game.label])) as Record<string, string>;
 const QUICK_PLAY_GAME_IDS = [

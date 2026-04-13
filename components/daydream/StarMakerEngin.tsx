@@ -140,7 +140,8 @@ type StemKey = keyof StemReadyState;
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
-const ACCENT = '#2a8ab8';
+const ACCENT = '#a855f7'; // 2026 updated purple
+const ACCENT_GRADIENT = 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)'; // 2026 gradient
 
 const BEAT_CHANNELS = ['Kick', 'Snare', 'Hi-Hat', 'Synth'] as const;
 const BEAT_STEPS    = 8;

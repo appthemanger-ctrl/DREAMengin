@@ -72,7 +72,8 @@ interface ShellHubDevice {
 // Constants
 // ----------------------------------------------------------------------
 
-const ACCENT = '#3b7dd8';
+const ACCENT = '#22d3ee'; // 2026 updated cyan
+const ACCENT_GRADIENT = 'linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%)'; // 2026 gradient
 const CELL_BG = '#1a1a2e';
 const CODE_FG = '#e2e8f0';
 const OUT_OK = '#4ade80';
