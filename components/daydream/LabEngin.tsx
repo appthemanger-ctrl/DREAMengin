@@ -172,7 +172,7 @@ export default function LabEngin({ onBack }: Props) {
       timestamp: new Date().toISOString(),
       experimentCount: activeExperiments.length,
       format: 'json',
-      summary: activeExperiments.map(e => ({ id: e.id, name: e.name, status: e.status })),
+      summary: activeExperiments.map(e => ({ id: e.id, name: e.title, status: e.status })),
     });
     // Also emit legacy event for backward compatibility
     bridge.emit('lab', 'lab:data-exported', { exportId: `export-${Date.now()}`, format: 'json', url: '' });

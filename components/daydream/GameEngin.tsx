@@ -795,6 +795,7 @@ export default function GameEngin({ onBack }: Props) {
     if (def.id === 'code-runner'   && savedScript) unlocked = true;
     return { ...def, unlocked };
   });
+  const unlockedAchievements = achievements.filter(a => a.unlocked);
 
   if (expandedPlayable?.component) {
     const ExpandedGameComponent = expandedPlayable.component;

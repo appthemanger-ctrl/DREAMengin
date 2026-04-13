@@ -175,8 +175,9 @@ export default function ContentEngin({ onBack }: Props) {
 
   // ── Multi-connection: receive stem-ready from StarMakerEngin (Phase 8 §F Point 57) ──
   // Music Daydream → ContentEngin connection path: when a stem is prepared in StarMakerEngin,
-  // ContentEngin surfaces a prompt to write a track description draft.
-  // Subscription is handled by useContentEnginBridge — read state from the hook.
+  // ContentEngin surfaces a prompt to write a track description draft. The underlying wiring lives
+  // in useContentEnginBridge, which wraps bridge.subscribe('music', 'music:stem-ready', …) so the
+  // hook exposes lastStem + lastStemUrl here without duplicating subscriptions inside the component.
   const [dismissedStem, setDismissedStem] = useState<string | null>(null);
   const stemPrompt = contentBridge.lastStem !== null && contentBridge.lastStem !== dismissedStem
     ? { stemType: contentBridge.lastStem, url: contentBridge.lastStemUrl ?? '' }
