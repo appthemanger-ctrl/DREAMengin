@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 08:55 UTC  
-**Last updated:** 2026-04-13 08:55 UTC  
-**Triggered by commit:** `08695be` on `completedream` by appthemanger-ctrl  
-**Commit message:** Change target from 'ESNEXT' to 'esnext'
+**Documentation Date:** 2026-04-13 09:20 UTC  
+**Last updated:** 2026-04-13 09:20 UTC  
+**Triggered by commit:** `ca40ffe` on `copilot/install-supabase-dependencies` by Copilot  
+**Commit message:** Add Supabase recovery password page
 
 ---
 
