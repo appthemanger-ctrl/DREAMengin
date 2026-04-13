@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-13 03:50 UTC | `6a6388a` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #502 from appthemanger-ctrl/claude/improve-madmaxi-gameplay — feat(madmaxi): boost speed 1.5x, add spiky enemies, fix remote overlay<br> |
 | **auto** | 2026-04-13 03:50 UTC | `d4674c1` | claude/improve-madmaxi-gameplay | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into claude/improve-madmaxi-gameplay<br> |
 | **auto** | 2026-04-13 03:24 UTC | `2711f26` | claude/improve-madmaxi-gameplay | Claude | ~1 modified<br>feat(madmaxi): boost speed 1.5x, add spiky enemies, fix remote overlay — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/c54057b4-2431-4b05-b7d0-d4eebdbdd9a3  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `games/madmaxi/MadmaxiGame.tsx` |
 | **auto** | 2026-04-13 02:42 UTC | `a6c06b8` | claude/improve-madmaxi-gameplay | Claude | ~1 modified<br>feat(madmaxi): integrate particle effects and screen shake into gameplay — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/6c50c575-0b98-42c4-b500-8f39937200b3  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `games/madmaxi/MadmaxiGame.tsx` |
 | **auto** | 2026-04-13 02:37 UTC | `62e60bc` | claude/improve-madmaxi-gameplay | Claude | +1 added<br>feat(madmaxi): add particle effects and screen shake system — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/6c50c575-0b98-42c4-b500-8f39937200b3  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `games/madmaxi/particleEffects.ts` |
-| **auto** | 2026-04-13 01:59 UTC | `baca307` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #499 from appthemanger-ctrl/claude/add-complete-dreamdm-bar — feat: add complete production-ready DreamDMBar component<br> |
 
 ## What changed in this alignment pass
 
