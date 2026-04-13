@@ -44,6 +44,7 @@ import {
 } from '@/lib/forge/forgeIntelligence';
 import {
   readForgeActivity,
+  ENGIN_REGISTRY,
   type ForgeActivityPulse,
 } from '@/lib/forge/forgeRegistry';
 
@@ -99,6 +100,47 @@ function formatRelativeTime(iso: string): string {
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours}h`;
   return `${Math.floor(hours / 24)}d`;
+}
+
+export function getAppRoute(engineId: string): string | undefined {
+  return ENGIN_REGISTRY.find((engine) => engine.id === engineId)?.daydreamHref;
+}
+
+export interface RecentDestination {
+  key: string;
+  label: string;
+  timestamp: string;
+  href: string;
+}
+
+export function buildRecentDestinations(
+  recentHistory: readonly ForgeHistoryEntry[],
+  activity: readonly ForgeActivityPulse[],
+): RecentDestination[] {
+  const uniqueDestinationHrefs = new Set<string>();
+  return [
+    ...recentHistory.map((entry) => ({
+      key: `history-${entry.timestamp}-${entry.enginId}`,
+      label: entry.label,
+      timestamp: entry.timestamp,
+      href: getAppRoute(entry.enginId),
+    })),
+    ...activity
+      .slice()
+      .sort((a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime())
+      .map((entry) => ({
+        key: `activity-${entry.enginId}`,
+        label: entry.label,
+        timestamp: entry.lastActive,
+        href: getAppRoute(entry.enginId),
+      })),
+  ]
+    .filter((item): item is RecentDestination => {
+      if (!item.href || uniqueDestinationHrefs.has(item.href)) return false;
+      uniqueDestinationHrefs.add(item.href);
+      return true;
+    })
+    .slice(0, 3);
 }
 
 /**
@@ -175,7 +217,7 @@ function AppIcon({ icon, label, color, onClick }: {
   );
 }
 
-/** Mini animated horizontal bar chart for Forge Analytics "engines used today". */
+/** Mini animated horizontal bar chart for recent creative energy. */
 function EngineBarChart({ engines }: { engines: string[] }) {
   const counts = engines.reduce<Record<string, number>>((acc, e) => {
     acc[e] = (acc[e] ?? 0) + 1;
@@ -271,6 +313,7 @@ export default function DreamsSpacePanel({
   const levelColor = momentum ? getLevelColor(momentum.level as MomentumLevel) : '#d4a843';
   const leadSuggestion = suggestions[0] ?? null;
   const recentHistory = history.slice().reverse().slice(0, 3);
+  const recentDestinations = buildRecentDestinations(recentHistory, activity);
 
   // Feed view — main dreams space content
   return (
@@ -299,15 +342,15 @@ export default function DreamsSpacePanel({
             DreamSpace
           </span>
           <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
-            Pinned apps + feeds across the dual runtime
+            Pick up where you left off
           </span>
         </div>
-        <span style={{ fontSize: 10, color: 'var(--de-text-dim)', marginLeft: 'auto', fontStyle: 'italic' }}>
-          dual runtime
+        <span style={{ fontSize: 10, color: '#d4a843', marginLeft: 'auto', fontWeight: 700 }}>
+          made for you
         </span>
       </div>
 
-      {/* Primary tab bar — Apps home screen first (priority), Feeds second */}
+      {/* Primary tab bar — Apps home screen first (priority), Explore second */}
       <div style={{
         display: 'flex', gap: 0, padding: '0 10px 6px',
         flexShrink: 0,
@@ -334,7 +377,7 @@ export default function DreamsSpacePanel({
                 textTransform: 'uppercase',
               }}
             >
-              {v === 'apps' ? '⊞ Apps' : '✨ Feeds'}
+              {v === 'apps' ? '⊞ Apps' : '✨ Explore'}
             </button>
           );
         })}
@@ -376,17 +419,17 @@ export default function DreamsSpacePanel({
                 fontSize: 18,
                 flexShrink: 0,
               }}>
-                ✦
+                🚀
               </div>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-heading)' }}>Forge Analytics</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-heading)' }}>Continue</div>
                 <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
-                  Creative momentum, AI next steps, and Engin usage patterns.
+                  Jump back into the next thing worth opening.
                 </div>
               </div>
               <button
                 type="button"
-                onClick={() => navigate('/daydream/field', 'Forge Analytics')}
+                onClick={() => navigate(leadSuggestion?.href ?? '/daydream/create', leadSuggestion?.title ?? 'Continue')}
                 style={{
                   marginLeft: 'auto',
                   borderRadius: 9999,
@@ -400,7 +443,7 @@ export default function DreamsSpacePanel({
                   whiteSpace: 'nowrap',
                 }}
               >
-                Full Dashboard →
+                {leadSuggestion?.title ? 'Open recommendation →' : 'Start creating →'}
               </button>
             </div>
 
@@ -415,7 +458,7 @@ export default function DreamsSpacePanel({
                 boxShadow:           '0 4px 24px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.10)',
               }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                  Live Pulse
+                  Your Creative Energy
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 6 }}>
                   <span style={{ fontSize: 28, fontWeight: 800, color: 'var(--de-heading)', lineHeight: 1 }}>
@@ -442,7 +485,7 @@ export default function DreamsSpacePanel({
                   <EngineBarChart engines={momentum!.enginesUsedToday} />
                 ) : (
                   <div style={{ marginTop: 10, fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.45 }}>
-                    Move through a few Daydreams to wake up the pulse.
+                    Open a few Daydreams and your space will start to feel more alive.
                   </div>
                 )}
               </div>
@@ -457,13 +500,14 @@ export default function DreamsSpacePanel({
                 boxShadow:            '0 4px 24px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.10)',
               }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                  Next Move
+                  Recommended for you
                 </div>
-                <div style={{ marginTop: 8, fontSize: 13, fontWeight: 700, color: leadSuggestion?.accent ?? 'var(--de-heading)' }}>
-                  {leadSuggestion?.title ?? 'Open a Daydream and start shaping the space'}
+                <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 700, color: leadSuggestion?.accent ?? 'var(--de-heading)' }}>
+                  <span>{leadSuggestion?.emoji ?? '✨'}</span>
+                  <span>{leadSuggestion?.title ?? 'Start with a Daydream you’re in the mood for'}</span>
                 </div>
                 <div style={{ marginTop: 6, fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.45 }}>
-                  {leadSuggestion?.reason ?? 'Open a Daydream to start building momentum — Forge Analytics tracks your creative patterns and surfaces AI-powered next steps.'}
+                  {leadSuggestion?.reason ?? 'We’ll keep surfacing the best next place to build, play, or create based on what you use.'}
                 </div>
                 {leadSuggestion?.href && (
                   <button
@@ -498,12 +542,14 @@ export default function DreamsSpacePanel({
                 boxShadow:            '0 4px 24px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.08)',
               }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>
-                  Recent Motion
+                  Quick Return
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {recentHistory.length > 0 ? recentHistory.map((entry, index) => (
-                    <div
-                      key={`${entry.timestamp}-${index}`}
+                  {recentDestinations.length > 0 ? recentDestinations.map((entry) => (
+                    <button
+                      type="button"
+                      key={entry.key}
+                      onClick={() => entry.href && navigate(entry.href, entry.label)}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -512,6 +558,8 @@ export default function DreamsSpacePanel({
                         borderRadius: 10,
                         background: 'rgba(255,255,255,0.06)',
                         border: '1px solid rgba(255,255,255,0.08)',
+                        cursor: 'pointer',
+                        textAlign: 'left',
                       }}
                     >
                       <span style={{ flex: 1, minWidth: 0, fontSize: 11, color: 'var(--de-heading)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -520,10 +568,10 @@ export default function DreamsSpacePanel({
                       <span style={{ fontSize: 10, color: 'var(--de-text-dim)', flexShrink: 0 }}>
                         {formatRelativeTime(entry.timestamp)}
                       </span>
-                    </div>
+                    </button>
                   )) : (
                     <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
-                      Your recent motion shows up here once you move through the system.
+                      Your favorite routes show up here once you start exploring.
                     </div>
                   )}
                 </div>
@@ -539,7 +587,7 @@ export default function DreamsSpacePanel({
                 boxShadow:            '0 4px 24px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.08)',
               }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>
-                  Active Channels
+                  Happening now
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {activity.length > 0 ? activity
@@ -568,7 +616,7 @@ export default function DreamsSpacePanel({
                       </div>
                     )) : (
                     <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
-                      Channels light up as your Daydreams and Engins stay in motion.
+                      As you make things, your latest spaces and actions will show up here.
                     </div>
                   )}
                 </div>
@@ -615,7 +663,7 @@ export default function DreamsSpacePanel({
             </div>
           </div>
 
-          {/* Section: Engin — Shop, Marketplace, Ads, Links */}
+          {/* Section: More apps — Shop, Marketplace, Ads, Links */}
           <div style={{
             background:           'rgba(8,16,38,0.48)',
             borderRadius:         22,
@@ -633,7 +681,7 @@ export default function DreamsSpacePanel({
               textTransform: 'uppercase',
               padding: '0 4px 8px',
             }}>
-              Engin
+              More apps
             </div>
             <div style={{
               display: 'grid',
