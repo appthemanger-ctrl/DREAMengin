@@ -36,6 +36,8 @@ interface Piece { shape: number[][]; color: string; x: number; y: number }
 
 const SCORE_TABLE = [0, 100, 300, 500, 800];
 const BASE_SPEEDS = [800, 700, 600, 500, 400, 350, 300, 250, 200, 150];
+/** Large delay value to prevent held-key repeat for one-shot actions (rotation, hard drop) */
+const DISABLE_REPEAT_DELAY = 9999;
 
 // ── Pure helpers (same as TetrisGame.tsx) ─────────────────────────────────────
 
@@ -256,11 +258,11 @@ export const TetrisCartridge: GameCartridge = {
           if (key === 'ArrowDown' && !collision(board, piece, 0, 1)) { piece.y++; lastDropTime = nowMs; }
           if (key === 'ArrowUp' || key === 'z') {
             const rotated = rotate(piece.shape);
-            if (!collision(board, piece, 0, 0, rotated)) { piece.shape = rotated; keyRepeat[key] = nowMs + 9999; }
+            if (!collision(board, piece, 0, 0, rotated)) { piece.shape = rotated; keyRepeat[key] = nowMs + DISABLE_REPEAT_DELAY; }
           }
           if (key === ' ') {
             while (!collision(board, piece, 0, 1)) piece.y++;
-            keyRepeat[key] = nowMs + 9999;
+            keyRepeat[key] = nowMs + DISABLE_REPEAT_DELAY;
           }
         }
       }

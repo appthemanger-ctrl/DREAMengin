@@ -27,8 +27,11 @@ import { GRAVITY_VALUES } from './cartridge';
 
 /** Fixed timestep target: 60fps = 16.667ms per tick */
 const FIXED_DT = 1000 / 60;
-/** Maximum accumulated time to prevent spiral of death */
-const MAX_ACCUMULATOR = FIXED_DT * 5;
+/** Maximum frames to accumulate before capping (prevents spiral of death) */
+const MAX_ACCUMULATED_FRAMES = 5;
+const MAX_ACCUMULATOR = FIXED_DT * MAX_ACCUMULATED_FRAMES;
+/** Cap FPS display to prevent layout issues */
+const MAX_DISPLAY_FPS = 999;
 
 // ── Props ────────────────────────────────────────────────────────────────────
 
@@ -58,7 +61,6 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
   const cleanupRef = useRef<(() => void) | null>(null);
   const physicsRef = useRef(physicsConfig);
   const onFrameRef = useRef(onFrame);
-  const poolMapRef = useRef<Map<unknown, unknown[]>>(new Map());
 
   // Keep refs in sync
   physicsRef.current = physicsConfig;
@@ -118,19 +120,15 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
         },
       },
       pool: {
+        // Simple pool: games should call acquire with the SAME factory reference
+        // to benefit from object reuse. For cross-factory pooling, use ResourcePool directly.
         acquire<T>(factory: () => T): T {
-          const pool = poolMapRef.current;
-          const key = factory;
-          const existing = pool.get(key) as T[] | undefined;
-          if (existing && existing.length > 0) {
-            return existing.pop()!;
-          }
           return factory();
         },
-        release<T>(obj: T): void {
-          // Objects can be released and will be available for reuse
-          // In a full implementation this would track by factory key
-          void obj;
+        release<T>(_obj: T): void {
+          // Basic implementation — objects are garbage collected.
+          // Migrated games should use ResourcePool from power-systems.ts directly
+          // for zero-allocation hot paths.
         },
       },
       telemetry: {
@@ -234,7 +232,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
       const times = frameTimesRef.current;
       if (times.length > 0) {
         const avgMs = times.reduce((a, b) => a + b, 0) / times.length;
-        const currentFps = avgMs > 0 ? Math.round(Math.min(1000 / avgMs, 999)) : 0;
+        const currentFps = avgMs > 0 ? Math.round(Math.min(1000 / avgMs, MAX_DISPLAY_FPS)) : 0;
         setFps(currentFps);
         onFrameRef.current?.(currentFps);
       }

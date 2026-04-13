@@ -48,8 +48,11 @@ function randomFood(snake: Pt[]): Pt {
  * friction=0.5 (normal) → speed is 100% of base
  * friction=1 (sticky) → speed is 140% of base (slower snake)
  */
+const MIN_FRICTION_MULTIPLIER = 0.6;
+const FRICTION_RANGE = 0.8;
+
 function frictionSpeedMultiplier(friction: number): number {
-  return 0.6 + friction * 0.8;
+  return MIN_FRICTION_MULTIPLIER + friction * FRICTION_RANGE;
 }
 
 // ── Cartridge ────────────────────────────────────────────────────────────────
