@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 06:44 UTC  
-**Last updated:** 2026-04-13 06:44 UTC  
-**Triggered by commit:** `7e65b7d` on `claude/makeover-engins-and-daydreams-2026` by Claude  
-**Commit message:** fix(workflows): patch download-artifact vulnerability (CVE arbitrary file write)
+**Documentation Date:** 2026-04-13 06:56 UTC  
+**Last updated:** 2026-04-13 06:56 UTC  
+**Triggered by commit:** `2fdfef4` on `claude/makeover-engins-and-daydreams-2026` by appthemanger-ctrl  
+**Commit message:** Merge branch 'completedream' into claude/makeover-engins-and-daydreams-2026
 
 ---
 
@@ -105,10 +105,14 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 
 ## 🐛 Known Code Annotations (TODO / FIXME / HACK)
 
-### 📝 TODO (2)
+### 📝 TODO (6)
 
 | Location | Description |
 |----------|-------------|
+| `app/api/metrics/platform/route.ts:65` | Calculate creation_to_consumption_ratio, outside_activity_rate, harmful_content_rate |
+| `app/api/metrics/platform/route.ts:70` | Implement |
+| `app/api/metrics/platform/route.ts:71` | Implement |
+| `app/api/metrics/platform/route.ts:73` | Implement |
 | `components/daydream/StarMakerEngin.tsx:430` | Implement actual audio upload to ledger storage |
 | `lib/code/drEamsCodeAssist.ts:355` | implement\n}`; |
 
