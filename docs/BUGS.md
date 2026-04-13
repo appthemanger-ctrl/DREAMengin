@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 02:37 UTC  
-**Last updated:** 2026-04-13 02:37 UTC  
-**Triggered by commit:** `62e60bc` on `claude/improve-madmaxi-gameplay` by Claude  
-**Commit message:** feat(madmaxi): add particle effects and screen shake system
+**Documentation Date:** 2026-04-13 02:42 UTC  
+**Last updated:** 2026-04-13 02:42 UTC  
+**Triggered by commit:** `a6c06b8` on `claude/improve-madmaxi-gameplay` by Claude  
+**Commit message:** feat(madmaxi): integrate particle effects and screen shake into gameplay
 
 ---
 
