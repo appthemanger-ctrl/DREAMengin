@@ -119,7 +119,8 @@ describe('Activity-First Protocol - AQS Calculation', () => {
   });
 
   it('should format Real Shit Rate correctly', () => {
-    expect(formatRealShitRate(94.5)).toBe('94%');
+    expect(formatRealShitRate(94.5)).toBe('95%'); // Rounds to nearest
+    expect(formatRealShitRate(94.4)).toBe('94%');
     expect(formatRealShitRate(100)).toBe('100%');
     expect(formatRealShitRate(0)).toBe('0%');
   });
