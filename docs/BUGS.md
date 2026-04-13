@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 07:21 UTC  
-**Last updated:** 2026-04-13 07:21 UTC  
-**Triggered by commit:** `40a77f0` on `completedream` by appthemanger-ctrl  
-**Commit message:** Update Node.js setup in GitHub Actions workflow
+**Documentation Date:** 2026-04-13 07:24 UTC  
+**Last updated:** 2026-04-13 07:24 UTC  
+**Triggered by commit:** `4d0bac1` on `completedream` by appthemanger-ctrl  
+**Commit message:** Upgrade GitHub Actions to checkout@v6 and pnpm@v6
 
 ---
 
