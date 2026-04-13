@@ -330,8 +330,8 @@ vitest@^4.1.0
 
 ## Tests
 
-**Test Files:** 143
-**Tests Passing:** 134
+**Test Files:** 144
+**Tests Passing:** 135
 **Tests Failing:** 11
 
 ### Test Files
@@ -356,7 +356,7 @@ vitest@^4.1.0
 - /tests/conform-memory-map.test.ts
 - /tests/connectors.test.ts
 - /tests/content-intelligence-routes.test.ts
-- ... and 123 more test files
+- ... and 124 more test files
 
 ## Documentation
 
