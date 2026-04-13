@@ -85,7 +85,8 @@ const TYPE_TO_CONTENT_TYPE: Record<CalendarItem['type'], string> = {
   Thread: 'thread',
 };
 
-const ACCENT = '#f59e0b';
+const ACCENT = '#fb923c'; // 2026 updated orange
+const ACCENT_GRADIENT = 'linear-gradient(135deg, #fb923c 0%, #f59e0b 100%)'; // 2026 gradient
 
 // Feature identifiers — used by CI grep scans (daydream-engin-build-cycle.yml)
 const AiCaption        = 'content-feature';
@@ -94,6 +95,9 @@ const TemplateGallery  = 'content-feature';
 const ShortVideoEditor = 'content-feature';
 const HashtagOptimizer = 'content-feature';
 const CollabDraft      = 'content-feature';
+const MultiPlatform    = 'content-feature-2026'; // 2026: Multi-platform scheduler
+const AIOptimizer      = 'content-feature-2026'; // 2026: AI content optimizer
+const AdvancedAnalytics = 'content-feature-2026'; // 2026: Advanced analytics
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const TYPE_EMOJI: Record<CalendarItem['type'], string> = {

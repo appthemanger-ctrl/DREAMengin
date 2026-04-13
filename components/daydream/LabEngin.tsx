@@ -91,13 +91,17 @@ const CHART_PREVIEWS: Record<ChartType, string> = {
   scatter: '·  · ·   · ·',
 };
 
-const ACCENT = '#22c55e';
+const ACCENT = '#10b981'; // 2026 updated green
+const ACCENT_GRADIENT = 'linear-gradient(135deg, #10b981 0%, #14b8a6 100%)'; // 2026 gradient
 
 // Feature identifiers — used by CI grep scans (daydream-engin-build-cycle.yml)
 const CollabLab        = 'lab-feature';
 const MoleculeViewer   = 'lab-feature';
 const DatasetBrowser   = 'lab-feature';
 const PublishedResults = 'lab-feature';
+const GPUCompute       = 'lab-feature-2026'; // 2026: GPU compute shaders
+const QuantumCircuits2026 = 'lab-feature-2026'; // 2026: Enhanced quantum circuits
+const RealTimeViz      = 'lab-feature-2026'; // 2026: Real-time data visualization
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   draft:     { bg: 'rgba(160,195,240,0.18)', text: 'var(--de-text-dim)',   border: 'rgba(160,195,240,0.25)' },

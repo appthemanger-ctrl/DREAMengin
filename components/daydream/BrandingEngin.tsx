@@ -57,7 +57,8 @@ interface ABTest {
   paused: boolean;
 }
 
-const ACCENT = '#ec4899';
+const ACCENT = '#f472b6'; // 2026 updated pink
+const ACCENT_GRADIENT = 'linear-gradient(135deg, #f472b6 0%, #fb923c 100%)'; // 2026 gradient
 
 // Feature identifiers — used by CI grep scans (daydream-engin-build-cycle.yml)
 const AudienceSegment     = 'brand-feature';
@@ -65,6 +66,9 @@ const BrandVoiceAi        = 'brand-feature';
 const CompetitorWatch     = 'brand-feature';
 const AssetLibrary        = 'brand-feature';
 const ContentCalendarLink = 'brand-feature';
+const AIBrandKit          = 'brand-feature-2026'; // 2026: AI-powered brand kit generator
+const MotionGraphics      = 'brand-feature-2026'; // 2026: Motion graphics support
+const Analytics2_0        = 'brand-feature-2026'; // 2026: Advanced analytics 2.0
 
 export default function BrandingEngin({ onBack }: Props) {
   const brandBridge = useBrandingEnginBridge();
