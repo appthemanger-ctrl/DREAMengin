@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 06:41 UTC  
-**Last updated:** 2026-04-13 06:41 UTC  
-**Triggered by commit:** `1ed0972` on `claude/makeover-engins-and-daydreams-2026` by Claude  
-**Commit message:** fix(workflows): repair YAML syntax in update-readme and update-embed-feed workflows
+**Documentation Date:** 2026-04-13 06:44 UTC  
+**Last updated:** 2026-04-13 06:44 UTC  
+**Triggered by commit:** `7e65b7d` on `claude/makeover-engins-and-daydreams-2026` by Claude  
+**Commit message:** fix(workflows): patch download-artifact vulnerability (CVE arbitrary file write)
 
 ---
 
