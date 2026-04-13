@@ -77,11 +77,33 @@ function pushCapped<T>(buffer: T[], entry: T): void {
   }
 }
 
+// ── OTel bridge (lazy-loaded, server-only) ────────────────────────────────────
+
+let _otelBridge: typeof import('./otelBridge') | null = null;
+
+/**
+ * Lazily load the OTel bridge module. Returns null in browser or when the
+ * bridge module cannot be loaded (e.g. missing OTel deps in a test env).
+ */
+function getOtelBridge(): typeof import('./otelBridge') | null {
+  if (_otelBridge !== undefined && _otelBridge !== null) return _otelBridge;
+  if (typeof window !== 'undefined') return null; // browser — skip
+  try {
+    // Dynamic require so the browser bundle never includes OTel SDK code
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    _otelBridge = require('./otelBridge') as typeof import('./otelBridge');
+  } catch {
+    _otelBridge = null;
+  }
+  return _otelBridge;
+}
+
 // ── Collection API ────────────────────────────────────────────────────────────
 
 /**
  * Record a log entry in the observability collector.
  * Level 'error' and 'warn' entries are used by the correlator for anomaly detection.
+ * Also forwards log-level counts to OTel (never the message itself — no PII leak).
  */
 export function collectLog(
   level: LogLevel,
@@ -97,11 +119,13 @@ export function collectLog(
     context,
     source,
   });
+  getOtelBridge()?.otelRecordLog(level, source);
 }
 
 /**
  * Record a numeric metric data point.
  * Used by the correlator to detect anomalies (sudden spikes / drops).
+ * Also forwarded to OTel meters for Prometheus export.
  */
 export function collectMetric(
   name: string,
@@ -117,11 +141,13 @@ export function collectMetric(
     labels,
     unit,
   });
+  getOtelBridge()?.otelRecordMetric(name, value, labels);
 }
 
 /**
  * Record a completed trace span.
  * The correlator uses span duration and status to detect latency regressions.
+ * Also forwarded to OTel tracer/histogram for Prometheus + OTLP export.
  */
 export function collectTrace(
   name: string,
@@ -139,6 +165,7 @@ export function collectTrace(
     status,
     tags,
   });
+  getOtelBridge()?.otelRecordTrace(name, duration_ms, status, tags);
 }
 
 // ── Query ─────────────────────────────────────────────────────────────────────
