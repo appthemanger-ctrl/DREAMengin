@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-12T17:36:36.457Z",
+  "generated_at": "2026-04-13T01:44:40.762Z",
   "generator": "scripts/sync-build-memory.mjs",
   "count": 89,
   "actions": [
@@ -129,14 +129,6 @@
       "type": "api-route-handler",
       "http_handlers": [
         "POST"
-      ],
-      "exports": []
-    },
-    {
-      "file": "app/api/analytics/route.ts",
-      "type": "api-route-handler",
-      "http_handlers": [
-        "GET"
       ],
       "exports": []
     },
@@ -531,6 +523,14 @@
       "http_handlers": [
         "GET",
         "POST"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/metrics/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
       ],
       "exports": []
     },

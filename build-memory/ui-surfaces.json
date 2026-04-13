@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-12T17:36:36.457Z",
+  "generated_at": "2026-04-13T01:44:40.762Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 118,
+  "count": 114,
   "surfaces": [
     {
       "type": "page",
@@ -77,13 +77,6 @@
     },
     {
       "type": "page",
-      "path": "/analytics",
-      "file": "app/analytics/page.tsx",
-      "component": "AnalyticsLegacyPage",
-      "imports": []
-    },
-    {
-      "type": "page",
       "path": "/auth/reset-password",
       "file": "app/auth/reset-password/page.tsx",
       "component": "ResetPasswordPage",
@@ -105,18 +98,6 @@
         {
           "name": "ConnectorsClient",
           "from": "./ConnectorsClient"
-        }
-      ]
-    },
-    {
-      "type": "page",
-      "path": "/daydream/analytics",
-      "file": "app/daydream/analytics/page.tsx",
-      "component": "AnalyticsDaydreamPage",
-      "imports": [
-        {
-          "name": "AuthenticatedPageHeader",
-          "from": "@/components/ui/AuthenticatedPageHeader"
         }
       ]
     },
@@ -404,22 +385,6 @@
       "path": "/engines/brand",
       "file": "app/engines/brand/layout.tsx",
       "component": "BrandEnginLayout"
-    },
-    {
-      "type": "page",
-      "path": "/engines/brand/analytics",
-      "file": "app/engines/brand/analytics/page.tsx",
-      "component": "BrandAnalyticsPage",
-      "imports": [
-        {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
-          "name": "AnalyticsPanel",
-          "from": "@/components/engines/brand/panels/AnalyticsPanel"
-        }
-      ]
     },
     {
       "type": "page",
@@ -1236,12 +1201,6 @@
       "name": "DaydreamShell",
       "file": "components/daydream/DaydreamShell.tsx",
       "owner": "Landing/world designer"
-    },
-    {
-      "type": "component",
-      "name": "DreamDMBar",
-      "file": "dreamdmbar/DreamDMBar.tsx",
-      "owner": "DreamDM Bar designer"
     },
     {
       "type": "component",

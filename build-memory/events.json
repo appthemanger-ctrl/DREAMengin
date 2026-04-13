@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-12T17:36:36.457Z",
+  "generated_at": "2026-04-13T01:44:40.762Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 22,
+  "count": 21,
   "events": [
     {
       "event": "beforeunload",
@@ -42,6 +42,8 @@
       "event": "de-game-start",
       "payload_type": null,
       "files": [
+        "games/snake/SnakeCartridge.ts",
+        "games/tetris/TetrisCartridge.ts",
         "lib/games/hooks.ts"
       ]
     },
@@ -65,14 +67,6 @@
       "payload_type": null,
       "files": [
         "components/games/GamesHub.tsx"
-      ]
-    },
-    {
-      "event": "de:game-telemetry",
-      "payload_type": null,
-      "files": [
-        "components/daydream/AnalyticsEngin.tsx",
-        "engins/analytics/AnalyticsEngin.tsx"
       ]
     },
     {
@@ -145,8 +139,8 @@
         "components/HomeFeed.tsx",
         "components/home/NeuralSeamCanvas.tsx",
         "components/home/WorkspaceDashboard.tsx",
-        "dreamdmbar/DreamDMBar.tsx",
         "components/runtime/RuntimeShell.tsx",
+        "dreamdmbar/DreamDMBar.tsx",
         "dreamdmbar/homedream/WorkspaceDashboard.tsx"
       ]
     },
