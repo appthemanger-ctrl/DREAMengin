@@ -3045,6 +3045,8 @@ export type Database = {
     }
     Functions: {
       bootstrap_user_spaces: { Args: { p_user_id: string }; Returns: undefined }
+      calculate_aqs: { Args: { p_user_id: string }; Returns: number }
+      calculate_visibility_score: { Args: { p_post_id: string }; Returns: number }
       check_ai_rate_limit: {
         Args: {
           p_user_id: string
@@ -3058,6 +3060,7 @@ export type Database = {
           retry_after_seconds: number | null
         }
       }
+      get_user_metrics: { Args: { p_user_id: string }; Returns: Json }
       get_user_capabilities: {
         Args: { p_user_id: string }
         Returns: string[]
@@ -3065,6 +3068,28 @@ export type Database = {
       increment_likes: {
         Args: { row_id: string; table_name: string }
         Returns: undefined
+      }
+      match_content_embeddings: {
+        Args: {
+          query_embedding: string
+          match_count?: number
+          max_distance?: number
+          filter_content_type?: string | null
+        }
+        Returns: {
+          content_id: string
+          content_type: string
+          owner_id: string
+          distance: number
+        }[]
+      }
+      verify_ad_view: {
+        Args: {
+          p_ad_id: string
+          p_viewer_id: string
+          p_watched_pct: number
+        }
+        Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
       is_admin_or_owner: { Args: never; Returns: boolean }
@@ -4219,4 +4244,3 @@ export const Constants = {
     },
   },
 } as const
-
