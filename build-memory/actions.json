@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-13T01:59:24.827Z",
+  "generated_at": "2026-04-13T07:33:31.158Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 89,
+  "count": 97,
   "actions": [
     {
       "file": "app/api/account/delete-data/route.ts",
@@ -24,6 +24,14 @@
       "type": "api-route-handler",
       "http_handlers": [
         "GET"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/activity/track/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
       ],
       "exports": []
     },
@@ -70,6 +78,14 @@
     },
     {
       "file": "app/api/ads/orders/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/ads/view/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
         "POST"
@@ -527,7 +543,23 @@
       "exports": []
     },
     {
+      "file": "app/api/metrics/platform/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
+      ],
+      "exports": []
+    },
+    {
       "file": "app/api/metrics/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/metrics/user/[userId]/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
         "GET"
@@ -707,6 +739,30 @@
       "exports": []
     },
     {
+      "file": "app/api/skip-credits/balance/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/skip-credits/earn/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/skip-credits/use/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": []
+    },
+    {
       "file": "app/api/social/rss-feed/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
@@ -716,6 +772,14 @@
     },
     {
       "file": "app/api/upload/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/views/track/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
         "POST"

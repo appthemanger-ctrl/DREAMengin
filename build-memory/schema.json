@@ -1,12 +1,128 @@
 {
-  "generated_at": "2026-04-13T01:59:24.827Z",
+  "generated_at": "2026-04-13T07:33:31.158Z",
   "generator": "scripts/sync-build-memory.mjs",
   "sources": [
     "types/supabase.ts",
     "supabase/migrations/"
   ],
-  "count": 122,
+  "count": 128,
   "tables": [
+    {
+      "table": "activity_points",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid PRIMARY KEY DEFAULT gen_random_uuid()"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid NOT NULL REFERENCES auth"
+        },
+        {
+          "name": "tier",
+          "type": "smallint NOT NULL CHECK (tier"
+        },
+        {
+          "name": "points",
+          "type": "integer NOT NULL CHECK (points"
+        },
+        {
+          "name": "activity_type",
+          "type": "text NOT NULL"
+        },
+        {
+          "name": "description",
+          "type": "text"
+        },
+        {
+          "name": "verification_id",
+          "type": "uuid REFERENCES public"
+        },
+        {
+          "name": "post_id",
+          "type": "uuid REFERENCES public"
+        },
+        {
+          "name": "decay_timestamp",
+          "type": "timestamptz NOT NULL DEFAULT (now()"
+        },
+        {
+          "name": "is_decayed",
+          "type": "boolean NOT NULL DEFAULT false"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz NOT NULL DEFAULT now()"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz NOT NULL DEFAULT now()"
+        }
+      ],
+      "source": "20260413000000_phase9_activity_first_protocol.sql"
+    },
+    {
+      "table": "activity_verification",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid PRIMARY KEY DEFAULT gen_random_uuid()"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid NOT NULL REFERENCES auth"
+        },
+        {
+          "name": "tier",
+          "type": "smallint NOT NULL CHECK (tier"
+        },
+        {
+          "name": "verification_method",
+          "type": "text NOT NULL CHECK (verification_method IN ("
+        },
+        {
+          "name": "verification_strength",
+          "type": "integer NOT NULL CHECK (verification_strength"
+        },
+        {
+          "name": "evidence_url",
+          "type": "text"
+        },
+        {
+          "name": "evidence_metadata",
+          "type": "jsonb DEFAULT"
+        },
+        {
+          "name": "verified",
+          "type": "boolean NOT NULL DEFAULT false"
+        },
+        {
+          "name": "verified_at",
+          "type": "timestamptz"
+        },
+        {
+          "name": "verified_by",
+          "type": "text"
+        },
+        {
+          "name": "flagged_as_fraud",
+          "type": "boolean NOT NULL DEFAULT false"
+        },
+        {
+          "name": "fraud_reason",
+          "type": "text"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz NOT NULL DEFAULT now()"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz NOT NULL DEFAULT now()"
+        }
+      ],
+      "source": "20260413000000_phase9_activity_first_protocol.sql"
+    },
     {
       "table": "ad_campaigns",
       "columns": [
@@ -262,6 +378,76 @@
         }
       ],
       "source": "types/supabase.ts"
+    },
+    {
+      "table": "ad_views",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid PRIMARY KEY DEFAULT gen_random_uuid()"
+        },
+        {
+          "name": "ad_id",
+          "type": "uuid NOT NULL"
+        },
+        {
+          "name": "ad_type",
+          "type": "text NOT NULL CHECK (ad_type IN ("
+        },
+        {
+          "name": "viewer_id",
+          "type": "uuid NOT NULL REFERENCES auth"
+        },
+        {
+          "name": "post_id",
+          "type": "uuid REFERENCES public"
+        },
+        {
+          "name": "view_duration",
+          "type": "integer NOT NULL"
+        },
+        {
+          "name": "watched_pct",
+          "type": "integer NOT NULL CHECK (watched_pct"
+        },
+        {
+          "name": "cpv_tier",
+          "type": "text NOT NULL CHECK (cpv_tier IN ("
+        },
+        {
+          "name": "cpv_amount",
+          "type": "numeric(10"
+        },
+        {
+          "name": "verified",
+          "type": "boolean NOT NULL DEFAULT false"
+        },
+        {
+          "name": "verified_at",
+          "type": "timestamptz"
+        },
+        {
+          "name": "billed",
+          "type": "boolean NOT NULL DEFAULT false"
+        },
+        {
+          "name": "billed_at",
+          "type": "timestamptz"
+        },
+        {
+          "name": "is_bot",
+          "type": "boolean NOT NULL DEFAULT false"
+        },
+        {
+          "name": "is_duplicate",
+          "type": "boolean NOT NULL DEFAULT false"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz NOT NULL DEFAULT now()"
+        }
+      ],
+      "source": "20260413000000_phase9_activity_first_protocol.sql"
     },
     {
       "table": "admin_audit_log",
@@ -3770,6 +3956,40 @@
       "source": "20260324000001_phase8e_shop_marketplace.sql"
     },
     {
+      "table": "skip_credits",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "uuid PRIMARY KEY REFERENCES auth"
+        },
+        {
+          "name": "credits_balance",
+          "type": "integer NOT NULL DEFAULT 0 CHECK (credits_balance"
+        },
+        {
+          "name": "earned_total",
+          "type": "integer NOT NULL DEFAULT 0"
+        },
+        {
+          "name": "spent_total",
+          "type": "integer NOT NULL DEFAULT 0"
+        },
+        {
+          "name": "last_earned_at",
+          "type": "timestamptz"
+        },
+        {
+          "name": "last_spent_at",
+          "type": "timestamptz"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz NOT NULL DEFAULT now()"
+        }
+      ],
+      "source": "20260413000000_phase9_activity_first_protocol.sql"
+    },
+    {
       "table": "space_members",
       "columns": [
         {
@@ -3922,6 +4142,64 @@
       "source": "types/supabase.ts"
     },
     {
+      "table": "user_metrics",
+      "columns": [
+        {
+          "name": "user_id",
+          "type": "uuid PRIMARY KEY REFERENCES auth"
+        },
+        {
+          "name": "aqs",
+          "type": "integer NOT NULL DEFAULT 0"
+        },
+        {
+          "name": "real_shit_rate",
+          "type": "numeric(5"
+        },
+        {
+          "name": "total_views",
+          "type": "bigint NOT NULL DEFAULT 0"
+        },
+        {
+          "name": "views_per_post",
+          "type": "numeric(10"
+        },
+        {
+          "name": "activity_points_30d",
+          "type": "integer NOT NULL DEFAULT 0"
+        },
+        {
+          "name": "days_active_30d",
+          "type": "integer NOT NULL DEFAULT 0"
+        },
+        {
+          "name": "most_viewed_post_id",
+          "type": "uuid REFERENCES public"
+        },
+        {
+          "name": "most_viewed_count",
+          "type": "integer NOT NULL DEFAULT 0"
+        },
+        {
+          "name": "total_posts",
+          "type": "integer NOT NULL DEFAULT 0"
+        },
+        {
+          "name": "verified_posts",
+          "type": "integer NOT NULL DEFAULT 0"
+        },
+        {
+          "name": "calculated_at",
+          "type": "timestamptz NOT NULL DEFAULT now()"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz NOT NULL DEFAULT now()"
+        }
+      ],
+      "source": "20260413000000_phase9_activity_first_protocol.sql"
+    },
+    {
       "table": "user_revenue",
       "columns": [
         {
@@ -3980,6 +4258,60 @@
         }
       ],
       "source": "types/supabase.ts"
+    },
+    {
+      "table": "views",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid PRIMARY KEY DEFAULT gen_random_uuid()"
+        },
+        {
+          "name": "post_id",
+          "type": "uuid NOT NULL REFERENCES public"
+        },
+        {
+          "name": "viewer_id",
+          "type": "uuid REFERENCES auth"
+        },
+        {
+          "name": "viewer_ip",
+          "type": "inet"
+        },
+        {
+          "name": "viewer_agent",
+          "type": "text"
+        },
+        {
+          "name": "view_duration",
+          "type": "integer"
+        },
+        {
+          "name": "scrolled_pct",
+          "type": "integer"
+        },
+        {
+          "name": "verified",
+          "type": "boolean NOT NULL DEFAULT false"
+        },
+        {
+          "name": "verified_at",
+          "type": "timestamptz"
+        },
+        {
+          "name": "is_bot",
+          "type": "boolean NOT NULL DEFAULT false"
+        },
+        {
+          "name": "is_duplicate",
+          "type": "boolean NOT NULL DEFAULT false"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz NOT NULL DEFAULT now()"
+        }
+      ],
+      "source": "20260413000000_phase9_activity_first_protocol.sql"
     },
     {
       "table": "visibility_mappings",

@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-13T01:59:24.827Z",
+  "generated_at": "2026-04-13T07:33:31.158Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 89,
+  "count": 97,
   "routes": [
     {
       "path": "/api/account/delete-data",
@@ -22,6 +22,13 @@
       "file": "app/api/account/export-data/route.ts",
       "methods": [
         "GET"
+      ]
+    },
+    {
+      "path": "/api/activity/track",
+      "file": "app/api/activity/track/route.ts",
+      "methods": [
+        "POST"
       ]
     },
     {
@@ -63,6 +70,13 @@
     {
       "path": "/api/ads/orders",
       "file": "app/api/ads/orders/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/ads/view",
+      "file": "app/api/ads/view/route.ts",
       "methods": [
         "POST"
       ]
@@ -468,6 +482,20 @@
       ]
     },
     {
+      "path": "/api/metrics/platform",
+      "file": "app/api/metrics/platform/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/metrics/user/[userId]",
+      "file": "app/api/metrics/user/[userId]/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
       "path": "/api/music",
       "file": "app/api/music/route.ts",
       "methods": [
@@ -621,6 +649,27 @@
       ]
     },
     {
+      "path": "/api/skip-credits/balance",
+      "file": "app/api/skip-credits/balance/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/skip-credits/earn",
+      "file": "app/api/skip-credits/earn/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/skip-credits/use",
+      "file": "app/api/skip-credits/use/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
       "path": "/api/social/rss-feed",
       "file": "app/api/social/rss-feed/route.ts",
       "methods": [
@@ -630,6 +679,13 @@
     {
       "path": "/api/upload",
       "file": "app/api/upload/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/views/track",
+      "file": "app/api/views/track/route.ts",
       "methods": [
         "POST"
       ]
