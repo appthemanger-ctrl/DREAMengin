@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-13 09:12 UTC | `74efc73` | claude/completedream-build | Claude | ~3 modified<br>fix: correct admin_audit_log field names and CPVTier enum usage — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/8c3ab6c5-adbc-4500-bba2-83beac5967a3  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/api/admin/ai-request/route.ts`, `app/api/ads/view/route.ts`, `lib/ai/audit.ts` |
+| **auto** | 2026-04-13 09:04 UTC | `cfe757b` | claude/completedream-build | Claude | ~9 modified<br>fix: add type assertions for Phase 9 activity tables in Supabase queries — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/8c3ab6c5-adbc-4500-bba2-83beac5967a3  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/api/activity/track/route.ts`, `app/api/ads/view/route.ts`, `app/api/feed/route.ts`, `app/api/skip-credits/balance/route.ts`, `app/api/skip-credits/earn/route.ts`, `app/api/skip-credits/use/route.ts`, `app/api/views/track/route.ts`, `package.json`, `pnpm-lock.yaml` |
 | **auto** | 2026-04-13 08:54 UTC | `c480b04` | completedream | appthemanger-ctrl | ~1 modified<br>Change TypeScript target from ES2025 to ESNEXT<br>✏️: `tsconfig.json` |
 | **auto** | 2026-04-13 08:52 UTC | `8285428` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #504 from appthemanger-ctrl/claude/fix-pnpm-outdated-lockfile-error — fix: regenerate pnpm-lock.yaml to resolve Vercel frozen-lockfile error<br> |
 | **auto** | 2026-04-13 08:06 UTC | `d5d5a7b` | claude/fix-pnpm-outdated-lockfile-error | Claude | ~1 modified<br>fix: regenerate pnpm-lock.yaml to fix frozen-lockfile error — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/25398364-7616-4ed2-908a-4dc0a9c3a4c3  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `pnpm-lock.yaml` |
-| **auto** | 2026-04-13 08:00 UTC | `395a29d` | completedream | appthemanger-ctrl | ~1 modified<br>Update dependencies and devDependencies versions<br>✏️: `package.json` |
-| **auto** | 2026-04-13 07:57 UTC | `940ab87` | completedream | appthemanger-ctrl | ~1 modified<br>Downgrade pnpm version to 10.33.0<br>✏️: `.github/workflows/refreshlock.yml` |
 
 ## What changed in this alignment pass
 

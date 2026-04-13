@@ -140,7 +140,7 @@ export async function GET(req: NextRequest) {
         const profile = p.profiles ?? {};
 
         // Phase 9: Get view count for this post
-        const { count: viewCount } = await supabase
+        const { count: viewCount } = await (supabase as any)
           .from('views')
           .select('*', { count: 'exact', head: true })
           .eq('post_id', p.id)

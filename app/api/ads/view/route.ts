@@ -10,9 +10,8 @@ import { qualifiesForPremiumCPV } from '@/lib/activity/aqs';
 import type {
   TrackAdViewRequest,
   TrackAdViewResponse,
-  CPVTier,
 } from '@/lib/activity/types';
-import { CPV_PRICING } from '@/lib/activity/types';
+import { CPV_PRICING, CPVTier } from '@/lib/activity/types';
 
 export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
@@ -39,29 +38,29 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify ad view using database function
-    const { data: verified } = await supabase.rpc('verify_ad_view', {
+    const { data: verified } = await (supabase as any).rpc('verify_ad_view', {
       p_ad_id: ad_id,
       p_viewer_id: user.id,
       p_watched_pct: watched_pct,
     });
 
     // Determine CPV tier
-    let cpvTier: CPVTier = 'standard';
+    let cpvTier: CPVTier = CPVTier.STANDARD;
     if (verified) {
       const isPremium = await qualifiesForPremiumCPV(user.id);
       const isSuperPremium = watched_pct === 100 && view_duration >= 30;
 
       if (isSuperPremium) {
-        cpvTier = 'super_premium';
+        cpvTier = CPVTier.SUPER_PREMIUM;
       } else if (isPremium) {
-        cpvTier = 'premium';
+        cpvTier = CPVTier.PREMIUM;
       }
     }
 
     const cpvAmount = CPV_PRICING[cpvTier];
 
     // Record ad view
-    const { data: adView, error: adViewError } = await supabase
+    const { data: adView, error: adViewError } = await (supabase as any)
       .from('ad_views')
       .insert({
         ad_id,
