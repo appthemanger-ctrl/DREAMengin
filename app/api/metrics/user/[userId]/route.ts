@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
+import type { Database } from '@/types/supabase';
 import type { GetUserMetricsResponse, UserMetrics } from '@/lib/activity/types';
 
 function toNumber(value: number | string | null | undefined): number {
@@ -22,9 +23,10 @@ export async function GET(
 
   try {
     // Get metrics using database function
-    const { data, error } = await supabase.rpc('get_user_metrics', {
-      p_user_id: userId,
-    });
+    const { data, error } = await supabase.rpc(
+      'get_user_metrics' as unknown as keyof Database['public']['Functions'],
+      { p_user_id: userId } as Database['public']['Functions']['get_user_metrics']['Args'],
+    );
 
     if (error) {
       console.error('[GetUserMetrics] Error:', error);
