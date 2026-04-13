@@ -102,8 +102,8 @@ function formatRelativeTime(iso: string): string {
   return `${Math.floor(hours / 24)}d`;
 }
 
-function getAppRoute(enginId: string): string | undefined {
-  return ENGIN_REGISTRY.find((engine) => engine.id === enginId)?.daydreamHref;
+function getAppRoute(engineId: string): string | undefined {
+  return ENGIN_REGISTRY.find((engine) => engine.id === engineId)?.daydreamHref;
 }
 
 /**
@@ -276,7 +276,7 @@ export default function DreamsSpacePanel({
   const levelColor = momentum ? getLevelColor(momentum.level as MomentumLevel) : '#d4a843';
   const leadSuggestion = suggestions[0] ?? null;
   const recentHistory = history.slice().reverse().slice(0, 3);
-  const seenRecentHrefs = new Set<string>();
+  const uniqueDestinationHrefs = new Set<string>();
   const recentDestinations = [
     ...recentHistory.map((entry) => ({
       key: `history-${entry.timestamp}-${entry.enginId}`,
@@ -295,8 +295,8 @@ export default function DreamsSpacePanel({
       })),
   ]
     .filter((item) => {
-      if (!item.href || seenRecentHrefs.has(item.href)) return false;
-      seenRecentHrefs.add(item.href);
+      if (!item.href || uniqueDestinationHrefs.has(item.href)) return false;
+      uniqueDestinationHrefs.add(item.href);
       return true;
     })
     .slice(0, 3);
@@ -429,7 +429,7 @@ export default function DreamsSpacePanel({
                   whiteSpace: 'nowrap',
                 }}
               >
-                {leadSuggestion?.title ? 'Open pick →' : 'Start creating →'}
+                {leadSuggestion?.title ? 'Open recommendation →' : 'Start creating →'}
               </button>
             </div>
 
@@ -465,7 +465,7 @@ export default function DreamsSpacePanel({
                   fontSize: 11,
                   fontWeight: 700,
                 }}>
-                  {momentum?.level ?? 'READY'}
+                  {momentum?.level ?? 'STARTING'}
                 </div>
                 {(momentum?.enginesUsedToday?.length ?? 0) > 0 ? (
                   <EngineBarChart engines={momentum!.enginesUsedToday} />
