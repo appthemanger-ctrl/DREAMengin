@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 10:36 UTC  
-**Last updated:** 2026-04-13 10:36 UTC  
-**Triggered by commit:** `f6873d1` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #507 from appthemanger-ctrl/copilot/install-supabase-dependencies
+**Documentation Date:** 2026-04-13 14:59 UTC  
+**Last updated:** 2026-04-13 14:59 UTC  
+**Triggered by commit:** `67b4c13` on `copilot/add-github-action-for-vercel-build` by Copilot  
+**Commit message:** normalize user metrics response typing
 
 ---
 
@@ -109,10 +109,10 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 
 | Location | Description |
 |----------|-------------|
-| `app/api/metrics/platform/route.ts:65` | Calculate creation_to_consumption_ratio, outside_activity_rate, harmful_content_rate |
-| `app/api/metrics/platform/route.ts:70` | Implement |
-| `app/api/metrics/platform/route.ts:71` | Implement |
-| `app/api/metrics/platform/route.ts:73` | Implement |
+| `app/api/metrics/platform/route.ts:108` | Calculate creation_to_consumption_ratio, outside_activity_rate, harmful_content_rate |
+| `app/api/metrics/platform/route.ts:113` | Implement |
+| `app/api/metrics/platform/route.ts:114` | Implement |
+| `app/api/metrics/platform/route.ts:116` | Implement |
 | `components/daydream/StarMakerEngin.tsx:430` | Implement actual audio upload to ledger storage |
 | `lib/code/drEamsCodeAssist.ts:355` | implement\n}`; |
 | `lib/vm/snapshot.ts:81` | track bind groups |
