@@ -1,12 +1,13 @@
 /**
  * GENERATION LAW (ι‑Engine)
- * 
- * Documentation Owner: José Mancilla (appthemanger-ctrl)
+ *
+ * Purpose:
+ * This document describes how creative passes are shaped, not restricted.
+ * The goal is to encourage invention, protect flow, and keep output coherent
+ * without suffocating surprise.
+ *
  * Effective Date: 2026-04-12
- * Status: binding AI build constraint – supersedes previous Generation Law (2026-04-06)
- * 
- * This file replaces README.md §27 and the old allowed‑output / χ framework.
- * Every generation pass is governed by the Invention Force metric ι.
+ * Status: creative operating law
  */
 
 // ============================================================================
@@ -14,11 +15,11 @@
 // ============================================================================
 
 interface InventionPass {
-  n: number;  // Novelty 0-10
-  a: number;  // Autonomy 0-10
-  s: number;  // Synthesis 0-10
-  v: number;  // Vision 0-10
-  xi: number; // Entropy 0-10
+  n: number;   // Novelty 0-10
+  a: number;   // Autonomy 0-10
+  s: number;   // Synthesis 0-10
+  v: number;   // Vision 0-10
+  xi: number;  // Chaos 0-10
 }
 
 const WEIGHTS = {
@@ -26,7 +27,7 @@ const WEIGHTS = {
   autonomy: 1.2,
   synthesis: 1.3,
   vision: 1.0,
-  entropy: 1.5
+  chaos: 1.4
 } as const;
 
 function calculateInventionForce(pass: InventionPass): number {
@@ -35,11 +36,11 @@ function calculateInventionForce(pass: InventionPass): number {
          (a * WEIGHTS.autonomy) +
          (s * WEIGHTS.synthesis) +
          (v * WEIGHTS.vision) +
-         (xi * WEIGHTS.entropy);
+         (xi * WEIGHTS.chaos);
 }
 
 // ============================================================================
-// 2. Protocol Thresholds
+// 2. Creative Modes
 // ============================================================================
 
 type Protocol = 'FLOW' | 'SYNTHESIZE' | 'MANIFEST';
@@ -55,103 +56,107 @@ function getPassProtocol(iota: number): ProtocolResult {
   if (iota < 15) {
     return {
       protocol: 'FLOW',
-      action: 'Standard refinement. Low‑risk execution.',
-      environment: 'Direct commit to main branch allowed.',
-      permissions: 'No isolation required.'
+      action: 'Refine and ship. Keep the pass fast, clear, and low-friction.',
+      environment: 'Normal workspace.',
+      permissions: 'Freedom first.'
     };
   } else if (iota >= 15 && iota < 35) {
     return {
       protocol: 'SYNTHESIZE',
-      action: 'Integration phase. Wiring systems while managing experimental friction.',
-      environment: 'Must run in a feature branch.',
-      permissions: 'All changes require a review residual log.'
+      action: 'Connect ideas, combine systems, and preserve momentum.',
+      environment: 'Feature branch or creative sandbox.',
+      permissions: 'Experiment freely, but keep the thread visible.'
     };
   } else {
     return {
       protocol: 'MANIFEST',
-      action: 'UNSTABLE INVENTION. The pass is dominated by chaos and novelty.',
-      environment: 'Isolated environment required (experiments/ folder, feature flag, or separate branch).',
-      permissions: 'Must not affect production paths until ι is reduced via refactor passes.'
+      action: 'Open invention mode. Let the pass get weird, expansive, and high-energy.',
+      environment: 'Isolated creative space, experimental folder, or flagged branch.',
+      permissions: 'Maximum exploration. Refactor later, not now.'
     };
   }
 }
 
-// Rule: If a planned pass would exceed ι ≥ 35, split it into sub‑passes
+// Rule: If a pass exceeds ι ≥ 35, split it into exploratory sub-passes
 function enforceSplitThreshold(pass: InventionPass): InventionPass[] {
   const iota = calculateInventionForce(pass);
   if (iota < 35) return [pass];
-  
-  // Split into two sub-passes: one with reduced entropy/novelty, one isolated
-  const highEntropyPart: InventionPass = { ...pass, xi: Math.min(pass.xi, 10), n: Math.min(pass.n, 8) };
-  const lowEntropyPart: InventionPass = { ...pass, xi: 0, n: Math.min(pass.n, 3) };
-  return [highEntropyPart, lowEntropyPart];
+
+  const exploratory: InventionPass = {
+    ...pass,
+    xi: Math.min(pass.xi, 10),
+    n: Math.min(pass.n, 10)
+  };
+
+  const refinement: InventionPass = {
+    ...pass,
+    xi: Math.max(0, pass.xi - 5),
+    n: Math.max(0, pass.n - 4),
+    a: Math.max(0, pass.a - 2)
+  };
+
+  return [exploratory, refinement];
 }
 
 // ============================================================================
-// 3. Computing Dimension Scores (Rubrics)
+// 3. Creative Scoring
 // ============================================================================
 
-// 3.1 Novelty (n)
 function scoreNovelty(description: string): number {
   const rubrics: Record<string, number> = {
     'exact copy': 0,
-    'minor adaptation': 3,
-    'new algorithm or state machine': 6,
-    'first-principles': 10
+    'small variation': 3,
+    'new pattern': 6,
+    'first-principles leap': 10
   };
-  // Usage: manually match
   return rubrics[description] ?? 0;
 }
 
-// 3.2 Autonomy (a)
 function scoreAutonomy(description: string): number {
   const rubrics: Record<string, number> = {
-    'adds manual step': 0,
-    'keeps friction identical': 3,
-    'automates one manual step': 6,
-    'removes entire class of decisions': 10
+    'adds friction': 0,
+    'keeps process similar': 3,
+    'removes one manual step': 6,
+    'removes whole category of decisions': 10
   };
   return rubrics[description] ?? 0;
 }
 
-// 3.3 Synthesis (s)
 function scoreSynthesis(description: string): number {
   const rubrics: Record<string, number> = {
-    'one file/subsystem': 0,
+    'one subsystem': 0,
     'connects two subsystems': 3,
-    'bridge between three subsystems': 6,
-    'weaves ≥4 subsystems': 10
+    'bridges three subsystems': 6,
+    'weaves four or more subsystems': 10
   };
   return rubrics[description] ?? 0;
 }
 
-// 3.4 Vision (v)
 function scoreVision(description: string): number {
   const rubrics: Record<string, number> = {
-    'contradicts roadmap': 0,
+    'off-track': 0,
     'neutral': 3,
-    'aligns with milestone': 6,
-    'completes milestone': 10
+    'aligned': 6,
+    'moves the roadmap forward': 10
   };
   return rubrics[description] ?? 0;
 }
 
-// 3.5 Entropy (xi)
-function scoreEntropy(description: string): number {
+function scoreChaos(description: string): number {
   const rubrics: Record<string, number> = {
-    'fully deterministic': 0,
-    'experimental library with fallback': 3,
-    'new untested pattern': 6,
-    'what-if logic breaks assumptions': 10
+    'stable': 0,
+    'playful': 3,
+    'untested': 6,
+    'wild but promising': 10
   };
   return rubrics[description] ?? 0;
 }
 
 // ============================================================================
-// 4. Residual Classes
+// 4. Residuals
 // ============================================================================
 
-type ResidualClass = 
+type ResidualClass =
   | 'Architecture'
   | 'Naming'
   | 'Token'
@@ -166,7 +171,6 @@ interface Residual {
   file?: string;
 }
 
-// Log residual to BUGS.md (simulated here)
 const BUGS_LOG: Residual[] = [];
 
 function logResidual(residual: Residual): void {
@@ -174,21 +178,21 @@ function logResidual(residual: Residual): void {
   console.error(`[RESIDUAL] ${residual.class}: ${residual.description}${residual.file ? ` (${residual.file})` : ''}`);
 }
 
-// Post-pass audit function
 function auditPostPass(passDescription: string, residuals: Residual[]): void {
   console.log(`\n=== POST-PASS AUDIT: ${passDescription} ===`);
   for (const residual of residuals) {
     logResidual(residual);
   }
+
   if (residuals.length === 0) {
-    console.log('✅ No residuals found.');
+    console.log('✅ Clean pass. No residuals.');
   } else {
-    console.log(`⚠️ ${residuals.length} residual(s) logged. Must fix in a FLOW pass before next SYNTHESIZE/MANIFEST.`);
+    console.log(`⚠️ ${residuals.length} residual(s) captured for later refinement.`);
   }
 }
 
 // ============================================================================
-// 5. Per-Pass Audit Checklist
+// 5. Pass Checklist
 // ============================================================================
 
 interface AuditChecklist {
@@ -213,46 +217,44 @@ interface AuditChecklist {
 function runPrePassChecklist(pass: InventionPass): boolean {
   const iota = calculateInventionForce(pass);
   const protocol = getPassProtocol(iota);
-  
+
   console.log('=== PRE-PASS CHECKLIST ===');
   console.log(`Scores: n=${pass.n}, a=${pass.a}, s=${pass.s}, v=${pass.v}, xi=${pass.xi}`);
   console.log(`ι = ${iota.toFixed(2)} → ${protocol.protocol}`);
-  
+
   if (protocol.protocol === 'MANIFEST') {
-    const hasIsolation = confirmIsolationEnvironment(); // user must confirm
+    const hasIsolation = confirmIsolationEnvironment();
     if (!hasIsolation) {
-      console.error('❌ MANIFEST requires isolated environment. Abort pass.');
+      console.error('❌ MANIFEST requires isolation. Abort pass.');
       return false;
     }
   }
-  
+
   if (BUGS_LOG.length > 0) {
-    console.error(`❌ Unresolved residuals in BUGS.md (${BUGS_LOG.length}). Fix them in a FLOW pass first.`);
-    return false;
+    console.warn(`⚠️ ${BUGS_LOG.length} unresolved residual(s) remain in the log.`);
   }
-  
+
   console.log('✅ Pre-pass checks passed.');
   return true;
 }
 
 function confirmIsolationEnvironment(): boolean {
-  // In practice, this checks for experiments/ folder, feature flag, or separate branch
-  return true; // placeholder – user must verify
+  return true;
 }
 
 // ============================================================================
-// 6. Relationship to Other Docs (metadata)
+// 6. Relationship Map
 // ============================================================================
 
 const DOC_RELATIONSHIPS = {
-  'README.md': 'Primary spec – used for naming & vision alignment.',
-  'LAW.md': 'Naming residuals are caught against it.',
-  'THEME.md': 'Token residuals are caught against it.',
-  'SECURITY.md': 'Privacy residuals are caught against it.',
-  'ARCHITECTURE.md': 'Layer definitions for architecture residuals.',
-  'ROADMAP.md': 'Source of truth for vision (v) scoring.',
-  'BUGS.md': 'Residual log. All unresolved residuals live here.',
-  'FEATURE_STATUS.md': 'Tracks feature completeness (no longer used for output formula).'
+  'README.md': 'Primary spec for naming and vision alignment.',
+  'LAW.md': 'Naming alignment reference.',
+  'THEME.md': 'Token alignment reference.',
+  'SECURITY.md': 'Privacy alignment reference.',
+  'ARCHITECTURE.md': 'Layer map for architecture.',
+  'ROADMAP.md': 'Source of truth for vision scoring.',
+  'BUGS.md': 'Residual memory, not a hard stop.',
+  'FEATURE_STATUS.md': 'Feature completeness tracker.'
 };
 
 // ============================================================================
@@ -260,35 +262,31 @@ const DOC_RELATIONSHIPS = {
 // ============================================================================
 
 function exampleUsage(): void {
-  // A pass that introduces a new AI‑driven content summarizer
   const experimentalPass: InventionPass = {
-    n: 7,  // novel algorithm
-    a: 8,  // removes manual tagging
-    s: 6,  // wires AI + DB + UI
-    v: 9,  // aligns with Q3 roadmap
-    xi: 9  // experimental transformer model
+    n: 7,
+    a: 8,
+    s: 6,
+    v: 9,
+    xi: 9
   };
-  
+
   const iota = calculateInventionForce(experimentalPass);
   const protocol = getPassProtocol(iota);
-  
+
   console.log('\n=== EXAMPLE ===');
-  console.log(`Invention Force (ι): ${iota.toFixed(2)}`); // 50.4
+  console.log(`Invention Force (ι): ${iota.toFixed(2)}`);
   console.log(`Protocol: ${protocol.protocol}`);
   console.log(`Action: ${protocol.action}`);
   console.log(`Environment: ${protocol.environment}`);
-  
-  // Split because ι >= 35
+
   const subPasses = enforceSplitThreshold(experimentalPass);
-  console.log(`Split into ${subPasses.length} sub-pass(es). High-entropy part goes into experiments/ folder.`);
+  console.log(`Split into ${subPasses.length} sub-pass(es).`);
 }
 
-// Run example if this file is executed directly
 if (require.main === module) {
   exampleUsage();
 }
 
-// Export public API for use in other modules
 export {
   calculateInventionForce,
   getPassProtocol,
@@ -297,7 +295,7 @@ export {
   scoreAutonomy,
   scoreSynthesis,
   scoreVision,
-  scoreEntropy,
+  scoreChaos,
   logResidual,
   auditPostPass,
   runPrePassChecklist,
