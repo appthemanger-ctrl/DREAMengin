@@ -51,6 +51,7 @@ import {
 } from './config';
 import { getMadmaxiLevelDefinition } from './levels';
 import { MadmaxiAudioController } from './audio';
+import { ParticleEffectsManager, ScreenShake } from './particleEffects';
 import type { CoinDef, EnemyDef, HazardDef, MadmaxiEnemyKind, MadmaxiPowerUpKind, PlatDef, PowerUpDef } from './types';
 
 // ─── Game constants ──────────────────────────────────────────────────────────
@@ -697,6 +698,8 @@ class GameCore {
   private bossHitsMax = 0;
   private sessionSeed: number;
   private audio = new MadmaxiAudioController();
+  private particles = new ParticleEffectsManager();
+  private screenShake = new ScreenShake();
 
   // Babylon
   private engine: import('@babylonjs/core').AbstractEngine | null = null;
@@ -936,6 +939,9 @@ class GameCore {
     pipeline.grainEnabled = true;
     pipeline.grain.intensity = 4;
     pipeline.grain.animated = true;
+
+    // Initialize particle effects system
+    await this.particles.init(scene, BJS);
 
     // ── SSAO — screen-space ambient occlusion for realistic depth ────────────
     try {
@@ -1535,6 +1541,19 @@ class GameCore {
       this.coyoteFr = COYOTE_MS;
     }
     if (this.onGround) this.coyoteFr = 0;
+    // Landing impact effect
+    if (!wasOnGround && this.onGround && Math.abs(this.pvy) > 2) {
+      if (this.bjs && this.scene) {
+        const bx = (this.px + PW / 2 - this.camX - GW / 2) / PX_PER_BU;
+        const by = -(this.py + PH - GH / 2) / PX_PER_BU;
+        const pos = new this.bjs.Vector3(bx, by, 0);
+        const zone = ZONES[getZoneIdx(this.level)];
+        const groundColor1 = new this.bjs.Color4(zone.gnd[0], zone.gnd[1], zone.gnd[2], 0.9);
+        const groundColor2 = new this.bjs.Color4(zone.gnd[0] * 0.5, zone.gnd[1] * 0.5, zone.gnd[2] * 0.5, 0.7);
+        this.particles.emit('land-impact', pos, groundColor1, groundColor2);
+        this.screenShake.shake(0.08);
+      }
+    }
     if (this.coyoteFr > 0) this.coyoteFr--;
 
     // Jump: ground jump, coyote jump, or double-jump
@@ -1591,6 +1610,14 @@ class GameCore {
           this.cbs.onScore(this.score);
           this.audio.playCue('goal');
           this.audio.stopBGM();
+          // Goal star burst effect
+          if (this.bjs && this.scene) {
+            const pos = new this.bjs.Vector3((cx - this.camX - GW / 2) / PX_PER_BU, -(cy - GH / 2) / PX_PER_BU, 0);
+            const gold1 = new this.bjs.Color4(1.0, 0.85, 0.0, 1.0);
+            const gold2 = new this.bjs.Color4(1.0, 0.65, 0.0, 1.0);
+            this.particles.emit('coin-burst', pos, gold1, gold2);
+          }
+          this.screenShake.shake(0.5);
           this.cbs.onComplete(this.level + 1);
           return;
         } else {
@@ -1604,6 +1631,13 @@ class GameCore {
           this.cbs.onScore(this.score);
           this.audio.playCue('coin');
           this.cbs.onCoinCount?.(this.collectedRegularCoins, this.totalRegularCoins);
+          // Coin collect particle effect
+          if (this.bjs && this.scene) {
+            const pos = new this.bjs.Vector3((cx - this.camX - GW / 2) / PX_PER_BU, -(cy - GH / 2) / PX_PER_BU, 0);
+            const silver1 = new this.bjs.Color4(0.8, 0.8, 0.9, 1.0);
+            const silver2 = new this.bjs.Color4(0.6, 0.7, 0.85, 1.0);
+            this.particles.emit('coin-collect', pos, silver1, silver2);
+          }
 
           // All 9 silver coins collected → camera zoom toward the Gold Dream Star
           if (this.collectedRegularCoins >= this.totalRegularCoins && this.goalIdx >= 0) {
@@ -1623,6 +1657,17 @@ class GameCore {
         p.collected = true;
         this.powerUpMeshes[i]?.setEnabled(false);
         this.powerUpMeshes[i] = null;
+        // Power-up particle effect
+        if (this.bjs && this.scene) {
+          const pos = new this.bjs.Vector3((p.x - this.camX - GW / 2) / PX_PER_BU, -(p.y - GH / 2) / PX_PER_BU, 0);
+          const color1 = p.type === 'shield' ? new this.bjs.Color4(0.4, 0.7, 1.0, 1.0)
+            : p.type === 'laser' ? new this.bjs.Color4(1.0, 0.2, 0.9, 1.0)
+            : p.type === 'giant' ? new this.bjs.Color4(1.0, 0.6, 0.0, 1.0)
+            : new this.bjs.Color4(0.3, 1.0, 0.5, 1.0);
+          const color2 = new this.bjs.Color4(color1.r * 0.7, color1.g * 0.7, color1.b * 0.7, 1.0);
+          this.particles.emit('powerup-collect', pos, color1, color2);
+        }
+        this.screenShake.shake(0.3);
         this.grantPowerUp(p.type);
       }
     }
@@ -1739,6 +1784,15 @@ class GameCore {
           // Stomp hit!
           en.hitsLeft--;
           this.pvy = -JUMP_VY * 0.7 * PX_PER_BU;
+          // Stomp particle effect
+          if (this.bjs && this.scene) {
+            const pos = new this.bjs.Vector3((en.curX + eSize / 2 - this.camX - GW / 2) / PX_PER_BU, -(en.curY - GH / 2) / PX_PER_BU, 0);
+            const color1 = en.boss
+              ? new this.bjs.Color4(en.bossEmissive?.[0] ?? 0.8, en.bossEmissive?.[1] ?? 0.2, en.bossEmissive?.[2] ?? 0.2, 1.0)
+              : new this.bjs.Color4(1.0, 0.5, 0.1, 1.0);
+            const color2 = new this.bjs.Color4(color1.r * 0.6, color1.g * 0.6, color1.b * 0.6, 1.0);
+            this.particles.emit(en.boss ? 'boss-hit' : 'enemy-stomp', pos, color1, color2);
+          }
           if (en.boss) {
             // Report boss HP update before checking for death
             this.cbs.onBossHp?.(en.hitsLeft);
@@ -1751,12 +1805,14 @@ class GameCore {
               }
               this.score += this.bossHitsMax * 300;
               this.audio.playCue('boss-hit');
+              this.screenShake.shake(0.8);
               this.cbs.onScore(this.score);
               this.cbs.onComplete(this.level + 1);
               return;
             }
             // Boss still alive — bounce player higher for drama
             this.audio.playCue('boss-hit');
+            this.screenShake.shake(0.4);
             this.pvy = -JUMP_VY * 0.9 * PX_PER_BU;
           } else {
             en.alive = false;
@@ -1774,6 +1830,7 @@ class GameCore {
             this.comboTimestamp = now;
             this.score += 200 * this.comboCount;
             this.audio.playCue('enemy-hit');
+            this.screenShake.shake(0.15 + this.comboCount * 0.05);
             this.cbs.onScore(this.score);
             this.cbs.onCombo?.(this.comboCount);
           }
@@ -1906,6 +1963,14 @@ class GameCore {
     const by = -(this.py + 40 - GH / 2) / PX_PER_BU;
     (this.dustPS.emitter as import('@babylonjs/core').Vector3).set(bx, by, 0);
     this.dustPS.manualEmitCount = 12;
+    // Add jump dust particle effect
+    if (this.bjs && this.scene) {
+      const pos = new this.bjs.Vector3(bx, by, 0);
+      const zone = ZONES[getZoneIdx(this.level)];
+      const groundColor1 = new this.bjs.Color4(zone.gnd[0], zone.gnd[1], zone.gnd[2], 0.8);
+      const groundColor2 = new this.bjs.Color4(zone.gnd[0] * 0.7, zone.gnd[1] * 0.7, zone.gnd[2] * 0.7, 0.6);
+      this.particles.emit('jump-dust', pos, groundColor1, groundColor2);
+    }
   }
 
   private syncMeshes() {
@@ -2139,9 +2204,11 @@ class GameCore {
 
     // Camera follows player smoothly in X; zooms up on coin flash
     if (this.camMesh) {
-      this.camMesh.position.x = 0;
+      // Apply screen shake
+      const shake = this.screenShake.update();
+      this.camMesh.position.x = shake.x / PX_PER_BU;
       // Smooth cam Y toward target (normally 6 BU, zoomed out when flash active)
-      const targetCamY = 5.25 + this.camZoomOffset;
+      const targetCamY = 5.25 + this.camZoomOffset + shake.y / PX_PER_BU;
       this.camMesh.position.y += (targetCamY - this.camMesh.position.y) * 0.10;
       this.camMesh.setTarget(new (this.bjs!.Vector3)(0, this.camMesh.position.y - 0.5, 0));
     }
@@ -2154,6 +2221,8 @@ class GameCore {
     // Clean up projectile meshes
     for (const proj of this.projectiles) proj.mesh?.dispose();
     this.projectiles = [];
+    this.particles.dispose();
+    this.screenShake.reset();
     this.scene?.dispose();
     this.engine?.stopRenderLoop();
     this.engine?.dispose();
