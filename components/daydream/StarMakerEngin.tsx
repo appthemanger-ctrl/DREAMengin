@@ -423,11 +423,16 @@ export default function StarMakerEngin({ onBack }: Props) {
 
     for (const { key } of ready) {
       // Emit music:stem-ready on the Dual Runtime Bridge (music channel).
-      // url is intentionally empty here — a real upload flow would populate it.
+      // Pass real audio metadata for cross-engin workflows.
       // docs/ARCHITECTURE.md §1 (Daydream pair system) + bridge.emit contract.
       bridge.emit('music', 'music:stem-ready', {
         stemType: key as 'vocals' | 'drums' | 'bass' | 'other',
-        url: '',
+        url: '', // TODO: Implement actual audio upload to ledger storage
+        bpm,
+        key: `${musicalKey} ${keyMode}`,
+        mixerLevel: mixer[key as keyof typeof mixer] || 0.7,
+        effects: Array.from(activeEffects),
+        beatPattern: beatGrid[STEM_LIST.findIndex(s => s.key === key)] || [],
       });
     }
 
