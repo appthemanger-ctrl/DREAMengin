@@ -102,8 +102,45 @@ function formatRelativeTime(iso: string): string {
   return `${Math.floor(hours / 24)}d`;
 }
 
-function getAppRoute(engineId: string): string | undefined {
+export function getAppRoute(engineId: string): string | undefined {
   return ENGIN_REGISTRY.find((engine) => engine.id === engineId)?.daydreamHref;
+}
+
+export interface RecentDestination {
+  key: string;
+  label: string;
+  timestamp: string;
+  href: string;
+}
+
+export function buildRecentDestinations(
+  recentHistory: readonly ForgeHistoryEntry[],
+  activity: readonly ForgeActivityPulse[],
+): RecentDestination[] {
+  const uniqueDestinationHrefs = new Set<string>();
+  return [
+    ...recentHistory.map((entry) => ({
+      key: `history-${entry.timestamp}-${entry.enginId}`,
+      label: entry.label,
+      timestamp: entry.timestamp,
+      href: getAppRoute(entry.enginId),
+    })),
+    ...activity
+      .slice()
+      .sort((a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime())
+      .map((entry) => ({
+        key: `activity-${entry.enginId}`,
+        label: entry.label,
+        timestamp: entry.lastActive,
+        href: getAppRoute(entry.enginId),
+      })),
+  ]
+    .filter((item): item is RecentDestination => {
+      if (!item.href || uniqueDestinationHrefs.has(item.href)) return false;
+      uniqueDestinationHrefs.add(item.href);
+      return true;
+    })
+    .slice(0, 3);
 }
 
 /**
@@ -276,30 +313,7 @@ export default function DreamsSpacePanel({
   const levelColor = momentum ? getLevelColor(momentum.level as MomentumLevel) : '#d4a843';
   const leadSuggestion = suggestions[0] ?? null;
   const recentHistory = history.slice().reverse().slice(0, 3);
-  const uniqueDestinationHrefs = new Set<string>();
-  const recentDestinations = [
-    ...recentHistory.map((entry) => ({
-      key: `history-${entry.timestamp}-${entry.enginId}`,
-      label: entry.label,
-      timestamp: entry.timestamp,
-      href: getAppRoute(entry.enginId),
-    })),
-    ...activity
-      .slice()
-      .sort((a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime())
-      .map((entry) => ({
-        key: `activity-${entry.enginId}`,
-        label: entry.label,
-        timestamp: entry.lastActive,
-        href: getAppRoute(entry.enginId),
-      })),
-  ]
-    .filter((item) => {
-      if (!item.href || uniqueDestinationHrefs.has(item.href)) return false;
-      uniqueDestinationHrefs.add(item.href);
-      return true;
-    })
-    .slice(0, 3);
+  const recentDestinations = buildRecentDestinations(recentHistory, activity);
 
   // Feed view — main dreams space content
   return (
@@ -465,7 +479,7 @@ export default function DreamsSpacePanel({
                   fontSize: 11,
                   fontWeight: 700,
                 }}>
-                  {momentum?.level ?? 'STARTING'}
+                  {momentum?.level ?? 'DORMANT'}
                 </div>
                 {(momentum?.enginesUsedToday?.length ?? 0) > 0 ? (
                   <EngineBarChart engines={momentum!.enginesUsedToday} />
