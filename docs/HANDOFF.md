@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-13 07:07 UTC | `11ca800` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #503 from appthemanger-ctrl/claude/add-wasm-gpu-vm-specification — feat: implement production-ready WASM+GPU Virtual Machine for dual runtime<br> |
 | **auto** | 2026-04-13 07:06 UTC | `dde47de` | claude/add-wasm-gpu-vm-specification | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into claude/add-wasm-gpu-vm-specification<br> |
 | **auto** | 2026-04-13 06:48 UTC | `c75738e` | claude/add-wasm-gpu-vm-specification | Claude | +1 added<br>docs: add comprehensive WASM+GPU VM implementation summary — Documents complete delivery of 2,927-line production VM system: - All 10 implementation files - Full specification compliance - Integration with dual runtime bridge and dreamOSBus - Usage examples and validation results  NO PLACEHOLDERS. NO MOCKS. FULLY WIRED.  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `docs/WASM_GPU_VM_SUMMARY.md` |
 | **auto** | 2026-04-13 03:50 UTC | `6a6388a` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #502 from appthemanger-ctrl/claude/improve-madmaxi-gameplay — feat(madmaxi): boost speed 1.5x, add spiky enemies, fix remote overlay<br> |
 | **auto** | 2026-04-13 03:50 UTC | `d4674c1` | claude/improve-madmaxi-gameplay | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into claude/improve-madmaxi-gameplay<br> |
-| **auto** | 2026-04-13 03:24 UTC | `2711f26` | claude/improve-madmaxi-gameplay | Claude | ~1 modified<br>feat(madmaxi): boost speed 1.5x, add spiky enemies, fix remote overlay — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/c54057b4-2431-4b05-b7d0-d4eebdbdd9a3  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `games/madmaxi/MadmaxiGame.tsx` |
 
 ## What changed in this alignment pass
 
