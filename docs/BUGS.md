@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 08:00 UTC  
-**Last updated:** 2026-04-13 08:00 UTC  
-**Triggered by commit:** `395a29d` on `completedream` by appthemanger-ctrl  
-**Commit message:** Update dependencies and devDependencies versions
+**Documentation Date:** 2026-04-13 08:06 UTC  
+**Last updated:** 2026-04-13 08:06 UTC  
+**Triggered by commit:** `d5d5a7b` on `claude/fix-pnpm-outdated-lockfile-error` by Claude  
+**Commit message:** fix: regenerate pnpm-lock.yaml to fix frozen-lockfile error
 
 ---
 
