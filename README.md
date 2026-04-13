@@ -46,7 +46,12 @@ Author: José Mancilla · pnpm 10.30.0 · Node 25
 
 ### 🛠 Build & Test Commands
 
+> **Runtime requirement:** Node 25 · pnpm 10.30.0. The repo ships a `.nvmrc` — run `nvm use` to switch automatically. `package.json` enforces `engines.node 25.x`.
+
 ```bash
+nvm use                # Switch to Node 25 (reads .nvmrc automatically)
+corepack enable pnpm   # Enable pnpm via corepack
+pnpm install           # Install dependencies
 pnpm dev          # Start dev server on port 3000
 pnpm build        # Production build (Next.js)
 pnpm typecheck    # TypeScript type-check (no emit)

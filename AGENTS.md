@@ -12,7 +12,7 @@ DREAMengin is a Next.js 16+ / React 19 / Supabase spatial operating environment.
 
 ### Node / Package Manager
 
-- **Node 25** (as specified in `Dockerfile.dev`). Use `nvm use 25`.
+- **Node 25** (pinned in `.nvmrc` and `Dockerfile.dev`). Use `nvm use` (auto-reads `.nvmrc`) or `nvm use 25`.
 - **pnpm 10.30.0** is the package manager (`pnpm-lock.yaml`). Enable via `corepack enable pnpm`.
 - esbuild requires its build script to run. This is configured via `onlyBuiltDependencies: [esbuild]` in `pnpm-workspace.yaml`.
 
