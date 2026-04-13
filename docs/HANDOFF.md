@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-13 08:00 UTC | `395a29d` | completedream | appthemanger-ctrl | ~1 modified<br>Update dependencies and devDependencies versions<br>✏️: `package.json` |
 | **auto** | 2026-04-13 07:57 UTC | `940ab87` | completedream | appthemanger-ctrl | ~1 modified<br>Downgrade pnpm version to 10.33.0<br>✏️: `.github/workflows/refreshlock.yml` |
 | **auto** | 2026-04-13 07:56 UTC | `2319c4e` | completedream | appthemanger-ctrl | ~1 modified<br>Update package manager and dependencies versions<br>✏️: `package.json` |
 | **auto** | 2026-04-13 07:54 UTC | `b7eb4ef` | completedream | appthemanger-ctrl | ~1 modified<br>Update pnpm action version to 11.0.0<br>✏️: `.github/workflows/refreshlock.yml` |
 | **auto** | 2026-04-13 07:53 UTC | `ddeca11` | completedream | appthemanger-ctrl | ~1 modified<br>Update pnpm version in refreshlock workflow<br>✏️: `.github/workflows/refreshlock.yml` |
-| **auto** | 2026-04-13 07:52 UTC | `b6bccf4` | completedream | appthemanger-ctrl | ~1 modified<br>Update package.json format<br>✏️: `package.json` |
 
 ## What changed in this alignment pass
 
