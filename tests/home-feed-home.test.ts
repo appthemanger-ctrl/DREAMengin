@@ -18,8 +18,7 @@ describe('HomeDream home surface', () => {
     resolve(__dirname, '../components/runtime/RuntimeShell.tsx'),
     'utf8',
   );
-  // Authoritative DreamDMBar (dreamdmbar/DreamDMBar.tsx and
-  // components/messaging/DreamDMBar.tsx are kept byte-for-byte identical)
+  // Authoritative DreamDMBar (in dreamdmbar/ directory)
   const dreamDmBar = readFileSync(
     resolve(__dirname, '../dreamdmbar/DreamDMBar.tsx'),
     'utf8',

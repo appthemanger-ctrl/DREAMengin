@@ -16,7 +16,7 @@
 Wire DreamDMessaging and DreamDM Bar so both support the same core messaging and searchable-entry feature set, while preserving their different form factors:
 
 - **DreamDMessaging** (`/messages`) = full / expanded messaging surface
-- **DreamDM Bar** (`components/messaging/DreamDMBar.tsx`) = compact / persistent messaging interaction rail
+- **DreamDM Bar** (`dreamdmbar/DreamDMBar.tsx`) = compact / persistent messaging interaction rail
 
 Both surfaces share the **same source of truth** for messaging, search, drafts, and the Dr. Eams toggle.
 
@@ -103,7 +103,7 @@ export function useMessagingCore(
 
 ## 4. Component Changes
 
-### 4.1 `components/messaging/DreamDMBar.tsx` — Pass 2 upgrade
+### 4.1 `dreamdmbar/DreamDMBar.tsx` — Pass 2 upgrade
 
 **New in Pass 2:**
 - Real inline send via `useMessagingCore` (no longer redirects to `/messages`)

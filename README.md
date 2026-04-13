@@ -612,7 +612,7 @@ If the **DreamDM Bar** is hidden, **DreamSpace** is hidden too.
 **Location**
 
 ```ts
-components/messaging/DreamDMBar.tsx
+dreamdmbar/DreamDMBar.tsx
 ```
 
 **Role**
