@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 07:56 UTC  
-**Last updated:** 2026-04-13 07:56 UTC  
-**Triggered by commit:** `2319c4e` on `completedream` by appthemanger-ctrl  
-**Commit message:** Update package manager and dependencies versions
+**Documentation Date:** 2026-04-13 07:57 UTC  
+**Last updated:** 2026-04-13 07:57 UTC  
+**Triggered by commit:** `940ab87` on `completedream` by appthemanger-ctrl  
+**Commit message:** Downgrade pnpm version to 10.33.0
 
 ---
 
