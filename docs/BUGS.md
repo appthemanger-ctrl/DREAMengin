@@ -105,10 +105,14 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 
 ## 🐛 Known Code Annotations (TODO / FIXME / HACK)
 
-### 📝 TODO (1)
+### 📝 TODO (5)
 
 | Location | Description |
 |----------|-------------|
+| `app/api/metrics/platform/route.ts:65` | Calculate creation_to_consumption_ratio, outside_activity_rate, harmful_content_rate |
+| `app/api/metrics/platform/route.ts:70` | Implement |
+| `app/api/metrics/platform/route.ts:71` | Implement |
+| `app/api/metrics/platform/route.ts:73` | Implement |
 | `lib/code/drEamsCodeAssist.ts:355` | implement\n}`; |
 
 ---
