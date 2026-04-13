@@ -1,113 +1,312 @@
-##Generation Law
+/**
+ * GENERATION LAW (ι‑Engine)
+ * 
+ * Documentation Owner: José Mancilla (appthemanger-ctrl)
+ * Effective Date: 2026-04-12
+ * Status: binding AI build constraint – supersedes previous Generation Law (2026-04-06)
+ * 
+ * This file replaces README.md §27 and the old allowed‑output / χ framework.
+ * Every generation pass is governed by the Invention Force metric ι.
+ */
 
-1. Invention Force (ι)
+// ============================================================================
+// 1. Invention Force (ι)
+// ============================================================================
 
-text
-ι = (n × novelty) + (a × autonomy) + (s × synthesis) + (v × vision) + (xi × entropy)
-Term	Weight	Domain (0–10)	Definition
-n	1.5	Novelty	How much new logic / first‑principles thinking is introduced. 0 = pure copy‑paste, 10 = radical new algorithm or architecture.
-a	1.2	Autonomy	Friction removal & human‑centric focus. 0 = adds user steps, 10 = eliminates entire classes of manual work.
-s	1.3	Synthesis	Subsystem wiring – connects existing parts in novel ways. 0 = isolated change, 10 = weaves together ≥3 independent subsystems.
-v	1.0	Vision	Long‑term architectural alignment. 0 = violates documented future roadmap, 10 = directly advances a milestone in docs/ROADMAP.md.
-xi	1.5	Entropy	Experimental “what‑if” logic. 0 = fully deterministic, 10 = introduces a speculative or untested pattern.
-Weights are fixed (novelty 1.5, autonomy 1.2, synthesis 1.3, vision 1.0, entropy 1.5). No per‑pass tuning except via the dimension scores.
+interface InventionPass {
+  n: number;  // Novelty 0-10
+  a: number;  // Autonomy 0-10
+  s: number;  // Synthesis 0-10
+  v: number;  // Vision 0-10
+  xi: number; // Entropy 0-10
+}
 
-2. Protocol Thresholds
+const WEIGHTS = {
+  novelty: 1.5,
+  autonomy: 1.2,
+  synthesis: 1.3,
+  vision: 1.0,
+  entropy: 1.5
+} as const;
 
-ι range	Protocol	Action	Environment & Permissions
-ι < 15	FLOW	Standard refinement. Low‑risk execution.	Direct commit to main branch allowed. No isolation required.
-15 ≤ ι < 35	SYNTHESIZE	Integration phase. Wiring systems while managing experimental friction.	Must run in a feature branch. All changes require a review residual log (see §4).
-ι ≥ 35	MANIFEST	UNSTABLE INVENTION. The pass is dominated by chaos and novelty.	Isolated environment required (e.g., experiments/ folder, feature flag, or separate branch). Must not affect production paths until ι is reduced via refactor passes.
-Rule: If a planned pass would exceed ι ≥ 35, you must split it into sub‑passes – each with its own ι calculation – and execute the high‑entropy parts inside an isolated environment.
+function calculateInventionForce(pass: InventionPass): number {
+  const { n, a, s, v, xi } = pass;
+  return (n * WEIGHTS.novelty) +
+         (a * WEIGHTS.autonomy) +
+         (s * WEIGHTS.synthesis) +
+         (v * WEIGHTS.vision) +
+         (xi * WEIGHTS.entropy);
+}
 
-3. Computing Dimension Scores (n, a, s, v, xi)
+// ============================================================================
+// 2. Protocol Thresholds
+// ============================================================================
 
-Before writing a line of code, score each dimension from 0 to 10 using the rubrics below.
+type Protocol = 'FLOW' | 'SYNTHESIZE' | 'MANIFEST';
 
-3.1 Novelty (n)
+interface ProtocolResult {
+  protocol: Protocol;
+  action: string;
+  environment: string;
+  permissions: string;
+}
 
-0 – Exact copy of existing code, only renaming.
-3 – Minor adaptation of a known pattern (e.g., new React component similar to existing ones).
-6 – New algorithm or state machine not previously in the codebase, but well‑understood.
-10 – First‑principles solution to a problem; no prior art in the project or standard libraries.
-3.2 Autonomy (a)
+function getPassProtocol(iota: number): ProtocolResult {
+  if (iota < 15) {
+    return {
+      protocol: 'FLOW',
+      action: 'Standard refinement. Low‑risk execution.',
+      environment: 'Direct commit to main branch allowed.',
+      permissions: 'No isolation required.'
+    };
+  } else if (iota >= 15 && iota < 35) {
+    return {
+      protocol: 'SYNTHESIZE',
+      action: 'Integration phase. Wiring systems while managing experimental friction.',
+      environment: 'Must run in a feature branch.',
+      permissions: 'All changes require a review residual log.'
+    };
+  } else {
+    return {
+      protocol: 'MANIFEST',
+      action: 'UNSTABLE INVENTION. The pass is dominated by chaos and novelty.',
+      environment: 'Isolated environment required (experiments/ folder, feature flag, or separate branch).',
+      permissions: 'Must not affect production paths until ι is reduced via refactor passes.'
+    };
+  }
+}
 
-0 – Adds a new manual step for the user (e.g., extra click, confirmation dialog).
-3 – Keeps user friction identical.
-6 – Automates one previously manual step (e.g., default values, smart suggestions).
-10 – Removes an entire class of human decisions (e.g., fully autonomous content curation).
-3.3 Synthesis (s)
+// Rule: If a planned pass would exceed ι ≥ 35, split it into sub‑passes
+function enforceSplitThreshold(pass: InventionPass): InventionPass[] {
+  const iota = calculateInventionForce(pass);
+  if (iota < 35) return [pass];
+  
+  // Split into two sub-passes: one with reduced entropy/novelty, one isolated
+  const highEntropyPart: InventionPass = { ...pass, xi: Math.min(pass.xi, 10), n: Math.min(pass.n, 8) };
+  const lowEntropyPart: InventionPass = { ...pass, xi: 0, n: Math.min(pass.n, 3) };
+  return [highEntropyPart, lowEntropyPart];
+}
 
-0 – Touches only one file / one subsystem.
-3 – Connects two subsystems that previously communicated indirectly.
-6 – Creates a new, clean bridge between three subsystems.
-10 – Weaves together ≥4 subsystems into a seamless flow (e.g., Surface + Logic + Data + External API).
-3.4 Vision (v)
+// ============================================================================
+// 3. Computing Dimension Scores (Rubrics)
+// ============================================================================
 
-0 – Contradicts a documented future milestone in ROADMAP.md.
-3 – Neutral – neither helps nor hurts long‑term vision.
-6 – Clearly aligns with a milestone but does not complete it.
-10 – Directly completes a milestone or unblocks a major roadmap item.
-3.5 Entropy (xi)
+// 3.1 Novelty (n)
+function scoreNovelty(description: string): number {
+  const rubrics: Record<string, number> = {
+    'exact copy': 0,
+    'minor adaptation': 3,
+    'new algorithm or state machine': 6,
+    'first-principles': 10
+  };
+  // Usage: manually match
+  return rubrics[description] ?? 0;
+}
 
-0 – Fully deterministic, well‑tested, no speculative elements.
-3 – Uses an experimental library but with a fallback.
-6 – Introduces a new, untested architectural pattern (e.g., a new state container).
-10 – “What‑if” logic that may break existing assumptions; requires isolated validation.
-4. Residual Classes (unchanged from Generation Law)
+// 3.2 Autonomy (a)
+function scoreAutonomy(description: string): number {
+  const rubrics: Record<string, number> = {
+    'adds manual step': 0,
+    'keeps friction identical': 3,
+    'automates one manual step': 6,
+    'removes entire class of decisions': 10
+  };
+  return rubrics[description] ?? 0;
+}
 
-All seven residual types still apply. They are audited post‑pass regardless of ι.
+// 3.3 Synthesis (s)
+function scoreSynthesis(description: string): number {
+  const rubrics: Record<string, number> = {
+    'one file/subsystem': 0,
+    'connects two subsystems': 3,
+    'bridge between three subsystems': 6,
+    'weaves ≥4 subsystems': 10
+  };
+  return rubrics[description] ?? 0;
+}
 
-Class	Check
-Architecture	Layers respected? (Surface / Component / Logic / Data)
-Naming	Canonical README vocabulary used?
-Token	Design tokens (de‑gold, de‑sky, etc.) and allowed border‑radius?
-Behavior	Every visible action does something real (no empty stubs)?
-Privacy	No private state exposed; RLS intact?
-Performance	Render‑on‑demand, FPS targets, static meshes frozen?
-Projection	ViewProfile shows only saved & shared projections?
-Any residual found after a pass must be logged in BUGS.md with the residual class and resolved in a FLOW‑protocol pass (ι < 15) before any new SYNTHESIZE or MANIFEST pass is allowed.
+// 3.4 Vision (v)
+function scoreVision(description: string): number {
+  const rubrics: Record<string, number> = {
+    'contradicts roadmap': 0,
+    'neutral': 3,
+    'aligns with milestone': 6,
+    'completes milestone': 10
+  };
+  return rubrics[description] ?? 0;
+}
 
-5. Per‑Pass Audit Checklist (modified for ι)
+// 3.5 Entropy (xi)
+function scoreEntropy(description: string): number {
+  const rubrics: Record<string, number> = {
+    'fully deterministic': 0,
+    'experimental library with fallback': 3,
+    'new untested pattern': 6,
+    'what-if logic breaks assumptions': 10
+  };
+  return rubrics[description] ?? 0;
+}
 
-Run this checklist at start and end of every generation pass.
+// ============================================================================
+// 4. Residual Classes
+// ============================================================================
 
-text
-PRE‑PASS
-[ ] Compute n, a, s, v, xi using rubrics in §3.
-[ ] Calculate ι = (n×1.5)+(a×1.2)+(s×1.3)+(v×1.0)+(xi×1.5)
-[ ] Determine protocol: FLOW (ι<15) / SYNTHESIZE (15‑34) / MANIFEST (≥35)
-[ ] If MANIFEST, ensure isolated environment (branch / experiment folder) exists.
-[ ] Check BUGS.md for any unresolved residuals from previous passes – if any exist, abort and fix them first in a FLOW pass.
+type ResidualClass = 
+  | 'Architecture'
+  | 'Naming'
+  | 'Token'
+  | 'Behavior'
+  | 'Privacy'
+  | 'Performance'
+  | 'Projection';
 
-POST‑PASS
-[ ] Architecture residual? 
-[ ] Naming residual?
-[ ] Token residual?
-[ ] Behavior residual?
-[ ] Privacy residual?
-[ ] Performance residual?
-[ ] Projection residual?
-[ ] If any residual found, log in BUGS.md and schedule a FLOW‑protocol fix.
-6. Relationship to Other Docs
+interface Residual {
+  class: ResidualClass;
+  description: string;
+  file?: string;
+}
 
-Document	How it interacts with Invention Law
-README.md	Primary spec – used to measure naming & vision alignment.
-LAW.md	Naming residuals are still caught against it.
-THEME.md	Token residuals are caught against it.
-SECURITY.md	Privacy residuals are caught against it.
-ARCHITECTURE.md	Layer definitions for architecture residuals.
-ROADMAP.md	Source of truth for vision (v) scoring.
-BUGS.md	Residual log. All unresolved residuals live here.
-FEATURE_STATUS.md	No longer used for allowed‑output formula, but still tracks feature completeness.
-7. Example
+// Log residual to BUGS.md (simulated here)
+const BUGS_LOG: Residual[] = [];
 
-A pass that: introduces a new AI‑driven content summarizer (n=7), removes two manual tagging steps (a=8), wires the AI service + database + UI (s=6), aligns with Q3 roadmap milestone (v=9), and uses an experimental transformer model (xi=9).
+function logResidual(residual: Residual): void {
+  BUGS_LOG.push(residual);
+  console.error(`[RESIDUAL] ${residual.class}: ${residual.description}${residual.file ? ` (${residual.file})` : ''}`);
+}
 
-text
-ι = (7×1.5) + (8×1.2) + (6×1.3) + (9×1.0) + (9×1.5)
-  = 10.5 + 9.6 + 7.8 + 9 + 13.5
-  = 50.4  →  MANIFEST (isolated environment required)
-Action: Create an experiment branch, implement behind a feature flag, and after validation, refactor into a lower‑ι pass.
+// Post-pass audit function
+function auditPostPass(passDescription: string, residuals: Residual[]): void {
+  console.log(`\n=== POST-PASS AUDIT: ${passDescription} ===`);
+  for (const residual of residuals) {
+    logResidual(residual);
+  }
+  if (residuals.length === 0) {
+    console.log('✅ No residuals found.');
+  } else {
+    console.log(`⚠️ ${residuals.length} residual(s) logged. Must fix in a FLOW pass before next SYNTHESIZE/MANIFEST.`);
+  }
+}
 
-This Invention Law is effective immediately. All previous build constraints (allowed‑output formula, χ load, mode thresholds) are revoked. The AI must use ι and the three protocols (FLOW, SYNTHESIZE, MANIFEST) to govern every generation pass.
+// ============================================================================
+// 5. Per-Pass Audit Checklist
+// ============================================================================
+
+interface AuditChecklist {
+  prePass: {
+    scores: InventionPass;
+    iota: number;
+    protocol: ProtocolResult;
+    manifestIsolationOk: boolean;
+    noUnresolvedResiduals: boolean;
+  };
+  postPass: {
+    architectureOk: boolean;
+    namingOk: boolean;
+    tokenOk: boolean;
+    behaviorOk: boolean;
+    privacyOk: boolean;
+    performanceOk: boolean;
+    projectionOk: boolean;
+  };
+}
+
+function runPrePassChecklist(pass: InventionPass): boolean {
+  const iota = calculateInventionForce(pass);
+  const protocol = getPassProtocol(iota);
+  
+  console.log('=== PRE-PASS CHECKLIST ===');
+  console.log(`Scores: n=${pass.n}, a=${pass.a}, s=${pass.s}, v=${pass.v}, xi=${pass.xi}`);
+  console.log(`ι = ${iota.toFixed(2)} → ${protocol.protocol}`);
+  
+  if (protocol.protocol === 'MANIFEST') {
+    const hasIsolation = confirmIsolationEnvironment(); // user must confirm
+    if (!hasIsolation) {
+      console.error('❌ MANIFEST requires isolated environment. Abort pass.');
+      return false;
+    }
+  }
+  
+  if (BUGS_LOG.length > 0) {
+    console.error(`❌ Unresolved residuals in BUGS.md (${BUGS_LOG.length}). Fix them in a FLOW pass first.`);
+    return false;
+  }
+  
+  console.log('✅ Pre-pass checks passed.');
+  return true;
+}
+
+function confirmIsolationEnvironment(): boolean {
+  // In practice, this checks for experiments/ folder, feature flag, or separate branch
+  return true; // placeholder – user must verify
+}
+
+// ============================================================================
+// 6. Relationship to Other Docs (metadata)
+// ============================================================================
+
+const DOC_RELATIONSHIPS = {
+  'README.md': 'Primary spec – used for naming & vision alignment.',
+  'LAW.md': 'Naming residuals are caught against it.',
+  'THEME.md': 'Token residuals are caught against it.',
+  'SECURITY.md': 'Privacy residuals are caught against it.',
+  'ARCHITECTURE.md': 'Layer definitions for architecture residuals.',
+  'ROADMAP.md': 'Source of truth for vision (v) scoring.',
+  'BUGS.md': 'Residual log. All unresolved residuals live here.',
+  'FEATURE_STATUS.md': 'Tracks feature completeness (no longer used for output formula).'
+};
+
+// ============================================================================
+// 7. Example
+// ============================================================================
+
+function exampleUsage(): void {
+  // A pass that introduces a new AI‑driven content summarizer
+  const experimentalPass: InventionPass = {
+    n: 7,  // novel algorithm
+    a: 8,  // removes manual tagging
+    s: 6,  // wires AI + DB + UI
+    v: 9,  // aligns with Q3 roadmap
+    xi: 9  // experimental transformer model
+  };
+  
+  const iota = calculateInventionForce(experimentalPass);
+  const protocol = getPassProtocol(iota);
+  
+  console.log('\n=== EXAMPLE ===');
+  console.log(`Invention Force (ι): ${iota.toFixed(2)}`); // 50.4
+  console.log(`Protocol: ${protocol.protocol}`);
+  console.log(`Action: ${protocol.action}`);
+  console.log(`Environment: ${protocol.environment}`);
+  
+  // Split because ι >= 35
+  const subPasses = enforceSplitThreshold(experimentalPass);
+  console.log(`Split into ${subPasses.length} sub-pass(es). High-entropy part goes into experiments/ folder.`);
+}
+
+// Run example if this file is executed directly
+if (require.main === module) {
+  exampleUsage();
+}
+
+// Export public API for use in other modules
+export {
+  calculateInventionForce,
+  getPassProtocol,
+  enforceSplitThreshold,
+  scoreNovelty,
+  scoreAutonomy,
+  scoreSynthesis,
+  scoreVision,
+  scoreEntropy,
+  logResidual,
+  auditPostPass,
+  runPrePassChecklist,
+  BUGS_LOG,
+  DOC_RELATIONSHIPS,
+  type InventionPass,
+  type Protocol,
+  type ProtocolResult,
+  type Residual,
+  type ResidualClass,
+  type AuditChecklist
+};
