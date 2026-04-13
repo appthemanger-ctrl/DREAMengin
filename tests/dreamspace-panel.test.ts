@@ -8,16 +8,21 @@ const src = readFileSync(join(root, 'components/dreams/DreamsSpacePanel.tsx'), '
 describe('DreamSpace panel evolution', () => {
   it('surfaces DreamSpace as the visible panel title', () => {
     expect(src).toContain('DreamSpace');
+    expect(src).toContain('Pick up where you left off');
   });
 
-  it('pulls live pulse data from DREAMfield intelligence sources', () => {
+  it('builds a user-facing continue and recommendation surface from live activity data', () => {
     expect(src).toContain('computeMomentum');
     expect(src).toContain('generateSuggestions');
     expect(src).toContain('readForgeActivity');
+    expect(src).toContain('Continue');
+    expect(src).toContain('Recommended for you');
+    expect(src).toContain('Quick Return');
   });
 
-  it('keeps a direct launch path into Forge Analytics from DreamSpace', () => {
-    expect(src).toContain('/daydream/field');
-    expect(src).toContain('Full Dashboard');
+  it('uses consumer-friendly navigation labels inside DreamSpace', () => {
+    expect(src).toContain('✨ Explore');
+    expect(src).toContain('More apps');
+    expect(src).not.toContain('Forge Analytics');
   });
 });
