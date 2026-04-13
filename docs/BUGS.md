@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 02:42 UTC  
-**Last updated:** 2026-04-13 02:42 UTC  
-**Triggered by commit:** `a6c06b8` on `claude/improve-madmaxi-gameplay` by Claude  
-**Commit message:** feat(madmaxi): integrate particle effects and screen shake into gameplay
+**Documentation Date:** 2026-04-13 03:24 UTC  
+**Last updated:** 2026-04-13 03:24 UTC  
+**Triggered by commit:** `2711f26` on `claude/improve-madmaxi-gameplay` by Claude  
+**Commit message:** feat(madmaxi): boost speed 1.5x, add spiky enemies, fix remote overlay
 
 ---
 
