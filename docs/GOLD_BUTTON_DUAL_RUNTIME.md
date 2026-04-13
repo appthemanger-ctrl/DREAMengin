@@ -48,7 +48,7 @@ The Gold button is attached to the TOP of the DreamDM Bar by default and detache
 
 ### Implementation Details
 
-**File:** `components/messaging/DreamDMBar.tsx`
+**File:** `dreamdmbar/DreamDMBar.tsx`
 
 ```typescript
 // Gold button geometry - CORRECTED PER SPEC
@@ -290,7 +290,7 @@ Test coverage includes:
 ## Files Modified/Created
 
 ### Modified
-- `components/messaging/DreamDMBar.tsx` - Corrected Gold button attachment logic
+- `dreamdmbar/DreamDMBar.tsx` - Corrected Gold button attachment logic
 - `components/home/HomeSystem.tsx` - Integrated dual runtime system
 
 ### Created
