@@ -51,6 +51,7 @@ import {
 } from './config';
 import { getMadmaxiLevelDefinition } from './levels';
 import { MadmaxiAudioController } from './audio';
+import { ParticleEffectsManager, ScreenShake } from './particleEffects';
 import type { CoinDef, EnemyDef, HazardDef, MadmaxiEnemyKind, MadmaxiPowerUpKind, PlatDef, PowerUpDef } from './types';
 
 // ─── Game constants ──────────────────────────────────────────────────────────
@@ -58,8 +59,8 @@ const GW = 800; // logical canvas width
 const GH = 480; // logical canvas height
 const GRAV       = 0.048;   // units / frame²
 const MAX_FALL   = 0.95;    // terminal velocity (positive = down in BJS Y-up is handled)
-const JUMP_VY    = 0.578;   // initial jump Y velocity (reduced ~15% for tighter control)
-const WALK_SPD   = 0.098;   // horizontal speed (reduced ~15% for precise platforming)
+const JUMP_VY    = 0.867;   // initial jump Y velocity (1.5x boost for user request)
+const WALK_SPD   = 0.147;   // horizontal speed (1.5x boost for user request)
 const COYOTE_MS  = 8;       // extra frames to jump after leaving ledge
 const JBUF_MS    = 6;       // frames to buffer a jump before landing
 const DASH_SPD   = 0.357;   // player dash speed (reduced ~15%, still ≈ 3.6× walk)
@@ -611,7 +612,7 @@ export default function BabylonSideScroller() {
         )}
       </div>
 
-      <p style={{ fontSize: 11, color: 'var(--de-text-dim)', textAlign: 'center', maxWidth: 500 }}>
+      <p style={{ fontSize: 11, color: 'var(--de-text-dim)', textAlign: 'center', maxWidth: 500, pointerEvents: 'none' }}>
         Use the shared PS-style GameRemote or keyboard: ← → / A D move &nbsp;·&nbsp; ↑ / W / Space jump (double-jump) &nbsp;·&nbsp;
         <strong>Shift</strong> to dash &nbsp;·&nbsp; <strong>J / X</strong> to fire laser when powered &nbsp;·&nbsp; Dodge boss projectiles!
       </p>
@@ -697,6 +698,8 @@ class GameCore {
   private bossHitsMax = 0;
   private sessionSeed: number;
   private audio = new MadmaxiAudioController();
+  private particles = new ParticleEffectsManager();
+  private screenShake = new ScreenShake();
 
   // Babylon
   private engine: import('@babylonjs/core').AbstractEngine | null = null;
@@ -937,6 +940,9 @@ class GameCore {
     pipeline.grain.intensity = 4;
     pipeline.grain.animated = true;
 
+    // Initialize particle effects system
+    await this.particles.init(scene, BJS);
+
     // ── SSAO — screen-space ambient occlusion for realistic depth ────────────
     try {
       const ssao = new BJS.SSAO2RenderingPipeline('madmaxi-ssao', scene, { ssaoRatio: 0.5, blurRatio: 1.0 });
@@ -1130,35 +1136,81 @@ class GameCore {
       if (isBoss) {
         mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter, segments: 24 }, scene);
       } else {
+        // Create spiky/aggressive enemies based on reference image
         switch (en.kind) {
           case 'runner':
           case 'charger':
-            mesh = BJS.MeshBuilder.CreateBox(`enemy_${ei}`, { width: 0.78, height: 0.62, depth: 0.48 }, scene);
+            // Create main body as icosphere for spiky look
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.39, subdivisions: 2 }, scene);
+            // Add spikes
+            for (let s = 0; s < 6; s++) {
+              const angle = (s / 6) * Math.PI * 2;
+              const spike = BJS.MeshBuilder.CreateCylinder(`spike_${ei}_${s}`, {
+                diameterTop: 0.05,
+                diameterBottom: 0.15,
+                height: 0.35,
+                tessellation: 6
+              }, scene);
+              spike.parent = mesh;
+              spike.position.x = Math.cos(angle) * 0.3;
+              spike.position.z = Math.sin(angle) * 0.3;
+              spike.rotation.z = Math.PI / 2;
+            }
             break;
           case 'hopper':
-            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.78, segments: 16 }, scene);
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.39, subdivisions: 2 }, scene);
             break;
           case 'flyer':
-            mesh = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameterTop: 0.18, diameterBottom: 0.8, height: 0.54, tessellation: 3 }, scene);
+            // Flying spiky enemy
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.35, subdivisions: 2 }, scene);
+            const wingL = BJS.MeshBuilder.CreateCylinder(`wing_L_${ei}`, { diameterTop: 0.02, diameterBottom: 0.12, height: 0.4, tessellation: 3 }, scene);
+            wingL.parent = mesh;
+            wingL.position.x = -0.35;
+            wingL.rotation.z = Math.PI / 4;
+            const wingR = BJS.MeshBuilder.CreateCylinder(`wing_R_${ei}`, { diameterTop: 0.02, diameterBottom: 0.12, height: 0.4, tessellation: 3 }, scene);
+            wingR.parent = mesh;
+            wingR.position.x = 0.35;
+            wingR.rotation.z = -Math.PI / 4;
             break;
           case 'zigzag':
             mesh = BJS.MeshBuilder.CreateTorus(`enemy_${ei}`, { diameter: 0.78, thickness: 0.18, tessellation: 14 }, scene);
             break;
           case 'orbiter':
-            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.58, segments: 10 }, scene);
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.29, subdivisions: 2 }, scene);
             break;
           case 'sniper':
-            mesh = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameter: 0.6, height: 0.8, tessellation: 8 }, scene);
+            // Sniper with prominent spikes pointing forward
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.3, subdivisions: 2 }, scene);
+            const barrel = BJS.MeshBuilder.CreateCylinder(`barrel_${ei}`, { diameterTop: 0.06, diameterBottom: 0.12, height: 0.6, tessellation: 6 }, scene);
+            barrel.parent = mesh;
+            barrel.position.x = 0.4;
+            barrel.rotation.z = Math.PI / 2;
             break;
           case 'burrower':
-            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.72, segments: 12 }, scene);
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.36, subdivisions: 2 }, scene);
             break;
           case 'spiker':
-            mesh = BJS.MeshBuilder.CreatePolyhedron(`enemy_${ei}`, { type: 4, size: 0.46 }, scene);
+            // Extra spiky version
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.36, subdivisions: 2 }, scene);
+            for (let s = 0; s < 8; s++) {
+              const angle = (s / 8) * Math.PI * 2;
+              const spike = BJS.MeshBuilder.CreateCylinder(`spike_${ei}_${s}`, {
+                diameterTop: 0.03,
+                diameterBottom: 0.18,
+                height: 0.45,
+                tessellation: 6
+              }, scene);
+              spike.parent = mesh;
+              spike.position.x = Math.cos(angle) * 0.28;
+              spike.position.z = Math.sin(angle) * 0.28;
+              spike.rotation.z = Math.PI / 2;
+            }
             break;
           case 'shadow':
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.35, subdivisions: 2 }, scene);
+            break;
           default:
-            mesh = BJS.MeshBuilder.CreateCapsule(`enemy_${ei}`, { radius: 0.22, height: 0.95, tessellation: 10 }, scene);
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.39, subdivisions: 2 }, scene);
             break;
         }
       }
@@ -1535,6 +1587,19 @@ class GameCore {
       this.coyoteFr = COYOTE_MS;
     }
     if (this.onGround) this.coyoteFr = 0;
+    // Landing impact effect
+    if (!wasOnGround && this.onGround && Math.abs(this.pvy) > 2) {
+      if (this.bjs && this.scene) {
+        const bx = (this.px + PW / 2 - this.camX - GW / 2) / PX_PER_BU;
+        const by = -(this.py + PH - GH / 2) / PX_PER_BU;
+        const pos = new this.bjs.Vector3(bx, by, 0);
+        const zone = ZONES[getZoneIdx(this.level)];
+        const groundColor1 = new this.bjs.Color4(zone.gnd[0], zone.gnd[1], zone.gnd[2], 0.9);
+        const groundColor2 = new this.bjs.Color4(zone.gnd[0] * 0.5, zone.gnd[1] * 0.5, zone.gnd[2] * 0.5, 0.7);
+        this.particles.emit('land-impact', pos, groundColor1, groundColor2);
+        this.screenShake.shake(0.08);
+      }
+    }
     if (this.coyoteFr > 0) this.coyoteFr--;
 
     // Jump: ground jump, coyote jump, or double-jump
@@ -1591,6 +1656,14 @@ class GameCore {
           this.cbs.onScore(this.score);
           this.audio.playCue('goal');
           this.audio.stopBGM();
+          // Goal star burst effect
+          if (this.bjs && this.scene) {
+            const pos = new this.bjs.Vector3((cx - this.camX - GW / 2) / PX_PER_BU, -(cy - GH / 2) / PX_PER_BU, 0);
+            const gold1 = new this.bjs.Color4(1.0, 0.85, 0.0, 1.0);
+            const gold2 = new this.bjs.Color4(1.0, 0.65, 0.0, 1.0);
+            this.particles.emit('coin-burst', pos, gold1, gold2);
+          }
+          this.screenShake.shake(0.5);
           this.cbs.onComplete(this.level + 1);
           return;
         } else {
@@ -1604,6 +1677,13 @@ class GameCore {
           this.cbs.onScore(this.score);
           this.audio.playCue('coin');
           this.cbs.onCoinCount?.(this.collectedRegularCoins, this.totalRegularCoins);
+          // Coin collect particle effect
+          if (this.bjs && this.scene) {
+            const pos = new this.bjs.Vector3((cx - this.camX - GW / 2) / PX_PER_BU, -(cy - GH / 2) / PX_PER_BU, 0);
+            const silver1 = new this.bjs.Color4(0.8, 0.8, 0.9, 1.0);
+            const silver2 = new this.bjs.Color4(0.6, 0.7, 0.85, 1.0);
+            this.particles.emit('coin-collect', pos, silver1, silver2);
+          }
 
           // All 9 silver coins collected → camera zoom toward the Gold Dream Star
           if (this.collectedRegularCoins >= this.totalRegularCoins && this.goalIdx >= 0) {
@@ -1623,6 +1703,17 @@ class GameCore {
         p.collected = true;
         this.powerUpMeshes[i]?.setEnabled(false);
         this.powerUpMeshes[i] = null;
+        // Power-up particle effect
+        if (this.bjs && this.scene) {
+          const pos = new this.bjs.Vector3((p.x - this.camX - GW / 2) / PX_PER_BU, -(p.y - GH / 2) / PX_PER_BU, 0);
+          const color1 = p.type === 'shield' ? new this.bjs.Color4(0.4, 0.7, 1.0, 1.0)
+            : p.type === 'laser' ? new this.bjs.Color4(1.0, 0.2, 0.9, 1.0)
+            : p.type === 'giant' ? new this.bjs.Color4(1.0, 0.6, 0.0, 1.0)
+            : new this.bjs.Color4(0.3, 1.0, 0.5, 1.0);
+          const color2 = new this.bjs.Color4(color1.r * 0.7, color1.g * 0.7, color1.b * 0.7, 1.0);
+          this.particles.emit('powerup-collect', pos, color1, color2);
+        }
+        this.screenShake.shake(0.3);
         this.grantPowerUp(p.type);
       }
     }
@@ -1739,6 +1830,15 @@ class GameCore {
           // Stomp hit!
           en.hitsLeft--;
           this.pvy = -JUMP_VY * 0.7 * PX_PER_BU;
+          // Stomp particle effect
+          if (this.bjs && this.scene) {
+            const pos = new this.bjs.Vector3((en.curX + eSize / 2 - this.camX - GW / 2) / PX_PER_BU, -(en.curY - GH / 2) / PX_PER_BU, 0);
+            const color1 = en.boss
+              ? new this.bjs.Color4(en.bossEmissive?.[0] ?? 0.8, en.bossEmissive?.[1] ?? 0.2, en.bossEmissive?.[2] ?? 0.2, 1.0)
+              : new this.bjs.Color4(1.0, 0.5, 0.1, 1.0);
+            const color2 = new this.bjs.Color4(color1.r * 0.6, color1.g * 0.6, color1.b * 0.6, 1.0);
+            this.particles.emit(en.boss ? 'boss-hit' : 'enemy-stomp', pos, color1, color2);
+          }
           if (en.boss) {
             // Report boss HP update before checking for death
             this.cbs.onBossHp?.(en.hitsLeft);
@@ -1751,12 +1851,14 @@ class GameCore {
               }
               this.score += this.bossHitsMax * 300;
               this.audio.playCue('boss-hit');
+              this.screenShake.shake(0.8);
               this.cbs.onScore(this.score);
               this.cbs.onComplete(this.level + 1);
               return;
             }
             // Boss still alive — bounce player higher for drama
             this.audio.playCue('boss-hit');
+            this.screenShake.shake(0.4);
             this.pvy = -JUMP_VY * 0.9 * PX_PER_BU;
           } else {
             en.alive = false;
@@ -1774,6 +1876,7 @@ class GameCore {
             this.comboTimestamp = now;
             this.score += 200 * this.comboCount;
             this.audio.playCue('enemy-hit');
+            this.screenShake.shake(0.15 + this.comboCount * 0.05);
             this.cbs.onScore(this.score);
             this.cbs.onCombo?.(this.comboCount);
           }
@@ -1906,6 +2009,14 @@ class GameCore {
     const by = -(this.py + 40 - GH / 2) / PX_PER_BU;
     (this.dustPS.emitter as import('@babylonjs/core').Vector3).set(bx, by, 0);
     this.dustPS.manualEmitCount = 12;
+    // Add jump dust particle effect
+    if (this.bjs && this.scene) {
+      const pos = new this.bjs.Vector3(bx, by, 0);
+      const zone = ZONES[getZoneIdx(this.level)];
+      const groundColor1 = new this.bjs.Color4(zone.gnd[0], zone.gnd[1], zone.gnd[2], 0.8);
+      const groundColor2 = new this.bjs.Color4(zone.gnd[0] * 0.7, zone.gnd[1] * 0.7, zone.gnd[2] * 0.7, 0.6);
+      this.particles.emit('jump-dust', pos, groundColor1, groundColor2);
+    }
   }
 
   private syncMeshes() {
@@ -2139,9 +2250,11 @@ class GameCore {
 
     // Camera follows player smoothly in X; zooms up on coin flash
     if (this.camMesh) {
-      this.camMesh.position.x = 0;
+      // Apply screen shake
+      const shake = this.screenShake.update();
+      this.camMesh.position.x = shake.x / PX_PER_BU;
       // Smooth cam Y toward target (normally 6 BU, zoomed out when flash active)
-      const targetCamY = 5.25 + this.camZoomOffset;
+      const targetCamY = 5.25 + this.camZoomOffset + shake.y / PX_PER_BU;
       this.camMesh.position.y += (targetCamY - this.camMesh.position.y) * 0.10;
       this.camMesh.setTarget(new (this.bjs!.Vector3)(0, this.camMesh.position.y - 0.5, 0));
     }
@@ -2154,6 +2267,8 @@ class GameCore {
     // Clean up projectile meshes
     for (const proj of this.projectiles) proj.mesh?.dispose();
     this.projectiles = [];
+    this.particles.dispose();
+    this.screenShake.reset();
     this.scene?.dispose();
     this.engine?.stopRenderLoop();
     this.engine?.dispose();
