@@ -60,7 +60,7 @@
     "@tailwindcss/postcss": "^4.3.2",
     "@types/node": "^25.2.1",
     "@types/react": "^19.2.15",
-    "@types/react-dnd": "^3.1.1",
+    "@types/react-dnd": "^3.0.2",
     "@types/react-dom": "^19.2.13",
     "@types/three": "^0.186.0",
     "assemblyscript": "^0.28.6",
