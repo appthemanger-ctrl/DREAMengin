@@ -13,16 +13,17 @@
 //     static_configs:
 //       - targets: ['app:3000']
 
-import { NextResponse } from 'next/server';
+import { NextResponse, connection } from 'next/server';
 import { getPrometheusMetrics } from '@/lib/observability/otel';
 import { initOtelBridge } from '@/lib/observability/otelBridge';
 
 // Ensure the OTel bridge is active so all collector events are mirrored.
 initOtelBridge();
 
-export const dynamic = 'force-dynamic';
-
 export async function GET(): Promise<NextResponse> {
+  // Opt into dynamic rendering — metrics must be fresh on every scrape.
+  await connection();
+
   const body = await getPrometheusMetrics();
 
   return new NextResponse(body, {
