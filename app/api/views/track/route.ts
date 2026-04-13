@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     let isDuplicate = false;
     if (user) {
-      const { data: existingView } = await supabase
+      const { data: existingView } = await (supabase as any)
         .from('views')
         .select('id')
         .eq('post_id', post_id)
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
       (view_duration === undefined || view_duration >= 3); // 3+ seconds
 
     // Record view
-    const { data: view, error: viewError } = await supabase
+    const { data: view, error: viewError } = await (supabase as any)
       .from('views')
       .insert({
         post_id,
