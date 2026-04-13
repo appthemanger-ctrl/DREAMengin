@@ -14,7 +14,8 @@ jobs:
 
       - uses: pnpm/action-setup@v6
         with:
-          version: 11
+          version: 11.0.0
+
 
       # Use the official setup-node@v6 – it will respect devEngines.runtime if present
       - name: Setup Node.js (respects devEngines)
