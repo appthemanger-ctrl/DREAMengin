@@ -93,10 +93,17 @@ export async function GET(_req: NextRequest) {
     const totalAdViews = recentAdViews?.length ?? 0;
 
     // Total verified views
-    const { count: totalVerifiedViews } = await supabase
-      .from('views')
-      .select('*', { count: 'exact', head: true })
-      .eq('verified', true);
+    const { count: totalVerifiedViews, error: verifiedViewsError } = await (serviceSupabase
+      .from('views' as never)
+      .select('id', { count: 'exact', head: true })
+      .eq('verified', true) as unknown as Promise<{
+      count: number | null;
+      error: { message: string } | null;
+    }>);
+
+    if (verifiedViewsError) {
+      throw new Error(`Failed to load verified views: ${verifiedViewsError.message}`);
+    }
 
     // TODO: Calculate creation_to_consumption_ratio, outside_activity_rate, harmful_content_rate
     // These require more complex queries and data collection
