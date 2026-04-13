@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 20:38 UTC  
-**Last updated:** 2026-04-13 20:38 UTC  
-**Triggered by commit:** `2e8674b` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #509 from appthemanger-ctrl/codex/add-github-action-for-vercel-build
+**Documentation Date:** 2026-04-13 20:49 UTC  
+**Last updated:** 2026-04-13 20:49 UTC  
+**Triggered by commit:** `138fdd0` on `codex/update-kid-hub-actions-to-25` by Codex  
+**Commit message:** chore: ensure workflows use node 25
 
 ---
 
