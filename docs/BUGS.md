@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 03:27 UTC  
-**Last updated:** 2026-04-13 03:27 UTC  
-**Triggered by commit:** `84d8e63` on `claude/makeover-engins-and-daydreams-2026` by Claude  
-**Commit message:** feat: wire 5 core cross-engin workflows with REAL data transfer
+**Documentation Date:** 2026-04-13 06:41 UTC  
+**Last updated:** 2026-04-13 06:41 UTC  
+**Triggered by commit:** `1ed0972` on `claude/makeover-engins-and-daydreams-2026` by Claude  
+**Commit message:** fix(workflows): repair YAML syntax in update-readme and update-embed-feed workflows
 
 ---
 
