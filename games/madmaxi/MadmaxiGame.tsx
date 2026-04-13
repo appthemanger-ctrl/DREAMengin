@@ -59,8 +59,8 @@ const GW = 800; // logical canvas width
 const GH = 480; // logical canvas height
 const GRAV       = 0.048;   // units / frame²
 const MAX_FALL   = 0.95;    // terminal velocity (positive = down in BJS Y-up is handled)
-const JUMP_VY    = 0.578;   // initial jump Y velocity (reduced ~15% for tighter control)
-const WALK_SPD   = 0.098;   // horizontal speed (reduced ~15% for precise platforming)
+const JUMP_VY    = 0.867;   // initial jump Y velocity (1.5x boost for user request)
+const WALK_SPD   = 0.147;   // horizontal speed (1.5x boost for user request)
 const COYOTE_MS  = 8;       // extra frames to jump after leaving ledge
 const JBUF_MS    = 6;       // frames to buffer a jump before landing
 const DASH_SPD   = 0.357;   // player dash speed (reduced ~15%, still ≈ 3.6× walk)
@@ -612,7 +612,7 @@ export default function BabylonSideScroller() {
         )}
       </div>
 
-      <p style={{ fontSize: 11, color: 'var(--de-text-dim)', textAlign: 'center', maxWidth: 500 }}>
+      <p style={{ fontSize: 11, color: 'var(--de-text-dim)', textAlign: 'center', maxWidth: 500, pointerEvents: 'none' }}>
         Use the shared PS-style GameRemote or keyboard: ← → / A D move &nbsp;·&nbsp; ↑ / W / Space jump (double-jump) &nbsp;·&nbsp;
         <strong>Shift</strong> to dash &nbsp;·&nbsp; <strong>J / X</strong> to fire laser when powered &nbsp;·&nbsp; Dodge boss projectiles!
       </p>
@@ -1136,35 +1136,81 @@ class GameCore {
       if (isBoss) {
         mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter, segments: 24 }, scene);
       } else {
+        // Create spiky/aggressive enemies based on reference image
         switch (en.kind) {
           case 'runner':
           case 'charger':
-            mesh = BJS.MeshBuilder.CreateBox(`enemy_${ei}`, { width: 0.78, height: 0.62, depth: 0.48 }, scene);
+            // Create main body as icosphere for spiky look
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.39, subdivisions: 2 }, scene);
+            // Add spikes
+            for (let s = 0; s < 6; s++) {
+              const angle = (s / 6) * Math.PI * 2;
+              const spike = BJS.MeshBuilder.CreateCylinder(`spike_${ei}_${s}`, {
+                diameterTop: 0.05,
+                diameterBottom: 0.15,
+                height: 0.35,
+                tessellation: 6
+              }, scene);
+              spike.parent = mesh;
+              spike.position.x = Math.cos(angle) * 0.3;
+              spike.position.z = Math.sin(angle) * 0.3;
+              spike.rotation.z = Math.PI / 2;
+            }
             break;
           case 'hopper':
-            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.78, segments: 16 }, scene);
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.39, subdivisions: 2 }, scene);
             break;
           case 'flyer':
-            mesh = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameterTop: 0.18, diameterBottom: 0.8, height: 0.54, tessellation: 3 }, scene);
+            // Flying spiky enemy
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.35, subdivisions: 2 }, scene);
+            const wingL = BJS.MeshBuilder.CreateCylinder(`wing_L_${ei}`, { diameterTop: 0.02, diameterBottom: 0.12, height: 0.4, tessellation: 3 }, scene);
+            wingL.parent = mesh;
+            wingL.position.x = -0.35;
+            wingL.rotation.z = Math.PI / 4;
+            const wingR = BJS.MeshBuilder.CreateCylinder(`wing_R_${ei}`, { diameterTop: 0.02, diameterBottom: 0.12, height: 0.4, tessellation: 3 }, scene);
+            wingR.parent = mesh;
+            wingR.position.x = 0.35;
+            wingR.rotation.z = -Math.PI / 4;
             break;
           case 'zigzag':
             mesh = BJS.MeshBuilder.CreateTorus(`enemy_${ei}`, { diameter: 0.78, thickness: 0.18, tessellation: 14 }, scene);
             break;
           case 'orbiter':
-            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.58, segments: 10 }, scene);
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.29, subdivisions: 2 }, scene);
             break;
           case 'sniper':
-            mesh = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameter: 0.6, height: 0.8, tessellation: 8 }, scene);
+            // Sniper with prominent spikes pointing forward
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.3, subdivisions: 2 }, scene);
+            const barrel = BJS.MeshBuilder.CreateCylinder(`barrel_${ei}`, { diameterTop: 0.06, diameterBottom: 0.12, height: 0.6, tessellation: 6 }, scene);
+            barrel.parent = mesh;
+            barrel.position.x = 0.4;
+            barrel.rotation.z = Math.PI / 2;
             break;
           case 'burrower':
-            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.72, segments: 12 }, scene);
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.36, subdivisions: 2 }, scene);
             break;
           case 'spiker':
-            mesh = BJS.MeshBuilder.CreatePolyhedron(`enemy_${ei}`, { type: 4, size: 0.46 }, scene);
+            // Extra spiky version
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.36, subdivisions: 2 }, scene);
+            for (let s = 0; s < 8; s++) {
+              const angle = (s / 8) * Math.PI * 2;
+              const spike = BJS.MeshBuilder.CreateCylinder(`spike_${ei}_${s}`, {
+                diameterTop: 0.03,
+                diameterBottom: 0.18,
+                height: 0.45,
+                tessellation: 6
+              }, scene);
+              spike.parent = mesh;
+              spike.position.x = Math.cos(angle) * 0.28;
+              spike.position.z = Math.sin(angle) * 0.28;
+              spike.rotation.z = Math.PI / 2;
+            }
             break;
           case 'shadow':
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.35, subdivisions: 2 }, scene);
+            break;
           default:
-            mesh = BJS.MeshBuilder.CreateCapsule(`enemy_${ei}`, { radius: 0.22, height: 0.95, tessellation: 10 }, scene);
+            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.39, subdivisions: 2 }, scene);
             break;
         }
       }
