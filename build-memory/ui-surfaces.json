@@ -1240,7 +1240,7 @@
     {
       "type": "component",
       "name": "DreamDMBar",
-      "file": "components/messaging/DreamDMBar.tsx",
+      "file": "dreamdmbar/DreamDMBar.tsx",
       "owner": "DreamDM Bar designer"
     },
     {
