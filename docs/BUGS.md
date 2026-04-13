@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 01:06 UTC  
-**Last updated:** 2026-04-13 01:06 UTC  
-**Triggered by commit:** `d8cd00f` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #496 from appthemanger-ctrl/copilot/improve-game-engine-integration
+**Documentation Date:** 2026-04-13 01:27 UTC  
+**Last updated:** 2026-04-13 01:27 UTC  
+**Triggered by commit:** `066ce92` on `copilot/integrate-production-grade-telemetry` by Copilot  
+**Commit message:** feat: add OpenTelemetry SDK with Prometheus exporter, /api/metrics endpoint, remove observability UI from IDariPanel
 
 ---
 
