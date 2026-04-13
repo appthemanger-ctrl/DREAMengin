@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     const { ad_id } = body;
 
     // Get current credits
-    const { data: credits } = await supabase
+    const { data: credits } = await (supabase as any)
       .from('skip_credits')
       .select('*')
       .eq('user_id', user.id)
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Spend 1 credit
-    const { data: updatedCredits, error: updateError } = await supabase
+    const { data: updatedCredits, error: updateError } = await (supabase as any)
       .from('skip_credits')
       .update({
         credits_balance: credits.credits_balance - 1,

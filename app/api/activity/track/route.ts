@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     if (verification_method && evidence_url) {
       const verificationStrength = VERIFICATION_STRENGTH[verification_method] ?? 0;
 
-      const { data: verificationData, error: verificationError } = await supabase
+      const verificationResult = await (supabase as any)
         .from('activity_verification')
         .insert({
           user_id: user.id,
@@ -71,16 +71,16 @@ export async function POST(req: NextRequest) {
         .select()
         .single();
 
-      if (verificationError) {
-        console.error('[TrackActivity] Verification error:', verificationError);
+      if (verificationResult.error) {
+        console.error('[TrackActivity] Verification error:', verificationResult.error);
       } else {
-        verificationId = verificationData?.id;
-        verification = verificationData;
+        verificationId = verificationResult.data?.id;
+        verification = verificationResult.data;
       }
     }
 
     // Create activity point record
-    const { data: activityPoint, error: activityError } = await supabase
+    const activityResult = await (supabase as any)
       .from('activity_points')
       .insert({
         user_id: user.id,
@@ -95,8 +95,8 @@ export async function POST(req: NextRequest) {
       .select()
       .single();
 
-    if (activityError) {
-      console.error('[TrackActivity] Activity error:', activityError);
+    if (activityResult.error) {
+      console.error('[TrackActivity] Activity error:', activityResult.error);
       return NextResponse.json(
         { error: 'Failed to track activity' },
         { status: 500 },
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
 
     // Return response
     const response: TrackActivityResponse = {
-      activity_point: activityPoint,
+      activity_point: activityResult.data as any,
       verification,
       points_earned: points,
     };

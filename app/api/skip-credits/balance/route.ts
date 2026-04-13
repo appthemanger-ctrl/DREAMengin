@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 
   try {
     // Get credits
-    const { data: credits } = await supabase
+    const { data: credits } = await (supabase as any)
       .from('skip_credits')
       .select('*')
       .eq('user_id', user.id)
