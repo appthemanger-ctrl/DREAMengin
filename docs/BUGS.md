@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 03:50 UTC  
-**Last updated:** 2026-04-13 03:50 UTC  
-**Triggered by commit:** `6a6388a` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #502 from appthemanger-ctrl/claude/improve-madmaxi-gameplay
+**Documentation Date:** 2026-04-13 06:48 UTC  
+**Last updated:** 2026-04-13 06:48 UTC  
+**Triggered by commit:** `c75738e` on `claude/add-wasm-gpu-vm-specification` by Claude  
+**Commit message:** docs: add comprehensive WASM+GPU VM implementation summary
 
 ---
 
@@ -105,7 +105,7 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 
 ## 🐛 Known Code Annotations (TODO / FIXME / HACK)
 
-### 📝 TODO (5)
+### 📝 TODO (10)
 
 | Location | Description |
 |----------|-------------|
@@ -114,6 +114,11 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 | `app/api/metrics/platform/route.ts:71` | Implement |
 | `app/api/metrics/platform/route.ts:73` | Implement |
 | `lib/code/drEamsCodeAssist.ts:355` | implement\n}`; |
+| `lib/vm/snapshot.ts:81` | track bind groups |
+| `lib/vm/snapshot.ts:264` | serialize quotas |
+| `lib/vm/snapshot.ts:288` | implement actual copy |
+| `lib/vm/wasmGpuVM.ts:307` | Parse bindings and create actual bind group |
+| `lib/vm/wasmGpuVM.ts:365` | Parse dynamic offsets from WASM memory if needed |
 
 ---
 
