@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 14:59 UTC  
-**Last updated:** 2026-04-13 14:59 UTC  
-**Triggered by commit:** `67b4c13` on `copilot/add-github-action-for-vercel-build` by Copilot  
-**Commit message:** normalize user metrics response typing
+**Documentation Date:** 2026-04-13 19:38 UTC  
+**Last updated:** 2026-04-13 19:38 UTC  
+**Triggered by commit:** `2e75f2b` on `codex/add-github-action-for-vercel-build` by Codex  
+**Commit message:** fix: allow get_user_metrics rpc typing
 
 ---
 
