@@ -97,11 +97,11 @@ function ensureInstruments(): void {
     const lag = now - _lastCheck - 1000;
     _lastCheck = now;
     // Store lag for the next observation
-    (globalThis as Record<string, unknown>).__otel_event_loop_lag = Math.max(0, lag);
+    (globalThis as Record<string, unknown>).__dreamengin_otel_event_loop_lag = Math.max(0, lag);
   }, 1000);
   if (_lagInterval.unref) _lagInterval.unref();
   eventLoopLag.addCallback((result) => {
-    const lag = ((globalThis as Record<string, unknown>).__otel_event_loop_lag as number) ?? 0;
+    const lag = ((globalThis as Record<string, unknown>).__dreamengin_otel_event_loop_lag as number) ?? 0;
     result.observe(lag);
   });
 }
