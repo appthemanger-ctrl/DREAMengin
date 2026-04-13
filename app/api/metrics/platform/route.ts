@@ -5,10 +5,33 @@
 // Per ACTIVITY_FIRST_PROTOCOL.md §IV (Platform Health Metrics)
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerClient } from '@/lib/supabase/server';
+import { createServerClient, createServiceClient } from '@/lib/supabase/server';
 import type { GetPlatformMetricsResponse } from '@/lib/activity/types';
 
-export async function GET(req: NextRequest) {
+type UserMetricAggregateRow = {
+  user_id: string | null;
+  aqs: number | string | null;
+  real_shit_rate: number | string | null;
+};
+
+type AdViewAggregateRow = {
+  verified: boolean | null;
+};
+
+function toFiniteNumber(value: number | string | null | undefined): number | null {
+  const parsed = typeof value === 'string' ? Number(value) : value;
+  return typeof parsed === 'number' && Number.isFinite(parsed) ? parsed : null;
+}
+
+function average(values: number[]): number {
+  if (values.length === 0) {
+    return 0;
+  }
+
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
+
+export async function GET(_req: NextRequest) {
   const supabase = await createServerClient();
 
   // Auth required (admin only)
@@ -21,40 +44,53 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // Calculate platform metrics
-    // Real Shit Rate: verified posts / total posts
-    const { data: realShitData } = await supabase.rpc('sql', {
-      query: `
-        SELECT
-          COALESCE(AVG(real_shit_rate), 0) as real_shit_rate
-        FROM user_metrics
-      `,
+    const { data: isAdmin, error: adminErr } = await supabase.rpc('is_admin');
+    if (adminErr || !isAdmin) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const serviceSupabase = await createServiceClient();
+
+    const { data: userMetrics, error: userMetricsError } = await (serviceSupabase
+      .from('user_metrics' as never)
+      .select('user_id, aqs, real_shit_rate') as unknown as Promise<{
+      data: UserMetricAggregateRow[] | null;
+      error: { message: string } | null;
+    }>);
+
+    if (userMetricsError) {
+      throw new Error(`Failed to load user metrics: ${userMetricsError.message}`);
+    }
+
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    const { data: recentAdViews, error: adViewsError } = await (serviceSupabase
+      .from('ad_views' as never)
+      .select('verified')
+      .gte('created_at', thirtyDaysAgo) as unknown as Promise<{
+      data: AdViewAggregateRow[] | null;
+      error: { message: string } | null;
+    }>);
+
+    if (adViewsError) {
+      throw new Error(`Failed to load ad views: ${adViewsError.message}`);
+    }
+
+    const realShitValues = (userMetrics ?? [])
+      .map((row) => toFiniteNumber(row.real_shit_rate))
+      .filter((value): value is number => value !== null);
+
+    const activeUsers = (userMetrics ?? []).filter((row) => {
+      const aqs = toFiniteNumber(row.aqs);
+      return aqs !== null && aqs > 0;
     });
 
-    // Average AQS
-    const { data: aqsData } = await supabase.rpc('sql', {
-      query: `
-        SELECT
-          COALESCE(AVG(aqs), 0) as average_aqs,
-          COUNT(DISTINCT user_id) as total_active_users
-        FROM user_metrics
-        WHERE aqs > 0
-      `,
-    });
+    const activeAqsValues = activeUsers
+      .map((row) => toFiniteNumber(row.aqs))
+      .filter((value): value is number => value !== null);
 
-    // Ad View Rate: verified ad views / total ad impressions
-    const { data: adData } = await supabase.rpc('sql', {
-      query: `
-        SELECT
-          COALESCE(
-            COUNT(*) FILTER (WHERE verified = true)::float /
-            NULLIF(COUNT(*)::float, 0) * 100,
-            0
-          ) as ad_view_rate
-        FROM ad_views
-        WHERE created_at > now() - interval '30 days'
-      `,
-    });
+    const verifiedAdViews = (recentAdViews ?? []).filter((row) => row.verified === true).length;
+    const totalAdViews = recentAdViews?.length ?? 0;
 
     // Total verified views
     const { count: totalVerifiedViews } = await supabase
@@ -66,13 +102,17 @@ export async function GET(req: NextRequest) {
     // These require more complex queries and data collection
 
     const response: GetPlatformMetricsResponse = {
-      real_shit_rate: realShitData?.[0]?.real_shit_rate ?? 0,
+      real_shit_rate: average(realShitValues),
       creation_to_consumption_ratio: 0, // TODO: Implement
       outside_activity_rate: 0, // TODO: Implement
-      ad_view_rate: adData?.[0]?.ad_view_rate ?? 0,
+      ad_view_rate: totalAdViews > 0 ? (verifiedAdViews / totalAdViews) * 100 : 0,
       harmful_content_rate: 0, // TODO: Implement
-      average_aqs: aqsData?.[0]?.average_aqs ?? 0,
-      total_active_users: aqsData?.[0]?.total_active_users ?? 0,
+      average_aqs: average(activeAqsValues),
+      total_active_users: new Set(
+        activeUsers
+          .map((row) => row.user_id)
+          .filter((userId): userId is string => Boolean(userId)),
+      ).size,
       total_verified_views: totalVerifiedViews ?? 0,
       calculated_at: new Date().toISOString(),
     };
