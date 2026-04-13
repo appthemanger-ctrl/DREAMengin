@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-13 14:59 UTC | `67b4c13` | copilot/add-github-action-for-vercel-build | Copilot | ~2 modified<br>normalize user metrics response typing — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/c1c76254-487f-490d-8dae-92b949442aac  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/api/metrics/user/[userId]/route.ts`, `types/supabase.ts` |
 | **auto** | 2026-04-13 14:50 UTC | `cd57078` | copilot/add-github-action-for-vercel-build | Copilot | ~1 modified<br>fix remaining platform metrics typecheck issue — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/c1c76254-487f-490d-8dae-92b949442aac  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/api/metrics/platform/route.ts` |
 | **auto** | 2026-04-13 14:45 UTC | `a8e3307` | copilot/add-github-action-for-vercel-build | Copilot | +1 added  ~1 modified<br>fix platform metrics build and add vercel probe workflow — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/c1c76254-487f-490d-8dae-92b949442aac  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `.github/workflows/vercel-build-probe.yml`<br>✏️: `app/api/metrics/platform/route.ts` |
 | **auto** | 2026-04-13 10:36 UTC | `f6873d1` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #507 from appthemanger-ctrl/copilot/install-supabase-dependencies — Add Supabase recovery password completion page<br> |
 | **auto** | 2026-04-13 10:35 UTC | `6668b43` | copilot/install-supabase-dependencies | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into copilot/install-supabase-dependencies<br> |
-| **auto** | 2026-04-13 09:20 UTC | `ca40ffe` | copilot/install-supabase-dependencies | Copilot | +2 added<br>Add Supabase recovery password page — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/ef2097a4-26b5-4084-8236-27d2e349a893  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `app/auth/update-password/page.tsx`, `tests/auth-update-password-page.test.ts` |
 
 ## What changed in this alignment pass
 
