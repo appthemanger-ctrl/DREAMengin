@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 08:54 UTC  
-**Last updated:** 2026-04-13 08:54 UTC  
-**Triggered by commit:** `c480b04` on `completedream` by appthemanger-ctrl  
-**Commit message:** Change TypeScript target from ES2025 to ESNEXT
+**Documentation Date:** 2026-04-13 08:55 UTC  
+**Last updated:** 2026-04-13 08:55 UTC  
+**Triggered by commit:** `08695be` on `completedream` by appthemanger-ctrl  
+**Commit message:** Change target from 'ESNEXT' to 'esnext'
 
 ---
 
