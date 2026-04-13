@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify ad view using database function
-    const { data: verified } = await supabase.rpc('verify_ad_view', {
+    const { data: verified } = await (supabase as any).rpc('verify_ad_view', {
       p_ad_id: ad_id,
       p_viewer_id: user.id,
       p_watched_pct: watched_pct,
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     const cpvAmount = CPV_PRICING[cpvTier];
 
     // Record ad view
-    const { data: adView, error: adViewError } = await supabase
+    const { data: adView, error: adViewError } = await (supabase as any)
       .from('ad_views')
       .insert({
         ad_id,

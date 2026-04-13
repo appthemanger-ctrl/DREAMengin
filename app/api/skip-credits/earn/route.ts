@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     const { ad_view_id } = body;
 
     // Verify ad view exists and is verified
-    const { data: adView } = await supabase
+    const { data: adView } = await (supabase as any)
       .from('ad_views')
       .select('*')
       .eq('id', ad_view_id)
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     const creditsEarned = adView.ad_type === 'rewarded' ? 3 : 1;
 
     // Get or create skip_credits record
-    const { data: existingCredits } = await supabase
+    const { data: existingCredits } = await (supabase as any)
       .from('skip_credits')
       .select('*')
       .eq('user_id', user.id)
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
     let skipCredit;
     if (existingCredits) {
       // Update existing
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('skip_credits')
         .update({
           credits_balance: existingCredits.credits_balance + creditsEarned,
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
       skipCredit = data;
     } else {
       // Create new
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('skip_credits')
         .insert({
           user_id: user.id,
