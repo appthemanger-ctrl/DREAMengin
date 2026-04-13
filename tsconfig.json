@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2025",
+    "target": "ESNEXT",
     "lib": [
       "dom",
       "dom.iterable",
