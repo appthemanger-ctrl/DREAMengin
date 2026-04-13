@@ -102,7 +102,7 @@ function formatRelativeTime(iso: string): string {
   return `${Math.floor(hours / 24)}d`;
 }
 
-function getRouteForEngin(enginId: string): string | undefined {
+function getAppRoute(enginId: string): string | undefined {
   return ENGIN_REGISTRY.find((engine) => engine.id === enginId)?.daydreamHref;
 }
 
@@ -276,12 +276,13 @@ export default function DreamsSpacePanel({
   const levelColor = momentum ? getLevelColor(momentum.level as MomentumLevel) : '#d4a843';
   const leadSuggestion = suggestions[0] ?? null;
   const recentHistory = history.slice().reverse().slice(0, 3);
+  const seenRecentHrefs = new Set<string>();
   const recentDestinations = [
     ...recentHistory.map((entry) => ({
       key: `history-${entry.timestamp}-${entry.enginId}`,
       label: entry.label,
       timestamp: entry.timestamp,
-      href: getRouteForEngin(entry.enginId),
+      href: getAppRoute(entry.enginId),
     })),
     ...activity
       .slice()
@@ -290,10 +291,14 @@ export default function DreamsSpacePanel({
         key: `activity-${entry.enginId}`,
         label: entry.label,
         timestamp: entry.lastActive,
-        href: getRouteForEngin(entry.enginId),
+        href: getAppRoute(entry.enginId),
       })),
   ]
-    .filter((item, index, items) => item.href && items.findIndex((candidate) => candidate.href === item.href) === index)
+    .filter((item) => {
+      if (!item.href || seenRecentHrefs.has(item.href)) return false;
+      seenRecentHrefs.add(item.href);
+      return true;
+    })
     .slice(0, 3);
 
   // Feed view — main dreams space content
@@ -460,7 +465,7 @@ export default function DreamsSpacePanel({
                   fontSize: 11,
                   fontWeight: 700,
                 }}>
-                  {momentum?.level ?? 'Ready to start'}
+                  {momentum?.level ?? 'READY'}
                 </div>
                 {(momentum?.enginesUsedToday?.length ?? 0) > 0 ? (
                   <EngineBarChart engines={momentum!.enginesUsedToday} />
