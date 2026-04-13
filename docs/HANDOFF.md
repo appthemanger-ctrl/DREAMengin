@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-13 03:15 UTC | `1769654` | completedream | appthemanger-ctrl | ~1 modified<br>Refine GENERATION LAW documentation and terminology — Updated terminology and improved clarity in the GENERATION LAW documentation. Changes include renaming 'entropy' to 'chaos' and refining action descriptions for protocols.<br>✏️: `docs/GENERATION_LAW.md` |
 | **auto** | 2026-04-13 03:01 UTC | `c516887` | completedream | appthemanger-ctrl | ~1 modified<br>Revise Generation Law with Invention Force metrics — Updated the Generation Law documentation to include new metrics and protocols for the Invention Force calculation.<br>✏️: `docs/GENERATION_LAW.md` |
 | **auto** | 2026-04-13 02:55 UTC | `b354ca4` | completedream | appthemanger-ctrl | ~1 modified<br>Update Generation Law documentation — Revise Generation Law document for clarity and updates.<br>✏️: `docs/GENERATION_LAW.md` |
 | **auto** | 2026-04-13 01:59 UTC | `baca307` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #499 from appthemanger-ctrl/claude/add-complete-dreamdm-bar — feat: add complete production-ready DreamDMBar component<br> |
 | **auto** | 2026-04-13 01:48 UTC | `6d3789f` | claude/add-complete-dreamdm-bar | Claude | +1 added  ~2 modified<br>feat: add complete production-ready DreamDMBar component — - Full-bar dragging with glowing light indicator - Context-aware input modes (comment, message, search, Dr. Eams, game) - Keyboard-aware floating behavior - Minimized glowing orb with drag support - Media attachments with previews - Tap/double-tap and long-press particle gestures - Self-contained stores using zustand for state management  Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/be3c79ed-2c37-4097-8a9d-284f6d35f704  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `components/DreamDMBar.tsx`<br>✏️: `package.json`, `pnpm-lock.yaml` |
-| **auto** | 2026-04-13 01:23 UTC | `940d942` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #498 from appthemanger-ctrl/claude/update-dreamdm-bar-component — refactor: consolidate DreamDMBar to canonical dreamdmbar/ location<br> |
 
 ## What changed in this alignment pass
 
