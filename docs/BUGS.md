@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 07:05 UTC  
-**Last updated:** 2026-04-13 07:05 UTC  
-**Triggered by commit:** `58b69db` on `completedream` by appthemanger-ctrl  
-**Commit message:** Bump version and update dependencies in package.json
+**Documentation Date:** 2026-04-13 07:06 UTC  
+**Last updated:** 2026-04-13 07:06 UTC  
+**Triggered by commit:** `dde47de` on `claude/add-wasm-gpu-vm-specification` by appthemanger-ctrl  
+**Commit message:** Merge branch 'completedream' into claude/add-wasm-gpu-vm-specification
 
 ---
 
@@ -105,7 +105,7 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 
 ## 🐛 Known Code Annotations (TODO / FIXME / HACK)
 
-### 📝 TODO (6)
+### 📝 TODO (11)
 
 | Location | Description |
 |----------|-------------|
@@ -115,6 +115,11 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 | `app/api/metrics/platform/route.ts:73` | Implement |
 | `components/daydream/StarMakerEngin.tsx:430` | Implement actual audio upload to ledger storage |
 | `lib/code/drEamsCodeAssist.ts:355` | implement\n}`; |
+| `lib/vm/snapshot.ts:81` | track bind groups |
+| `lib/vm/snapshot.ts:264` | serialize quotas |
+| `lib/vm/snapshot.ts:288` | implement actual copy |
+| `lib/vm/wasmGpuVM.ts:307` | Parse bindings and create actual bind group |
+| `lib/vm/wasmGpuVM.ts:365` | Parse dynamic offsets from WASM memory if needed |
 
 ---
 
