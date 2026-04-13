@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-13 09:20 UTC | `01ec6ae` | copilot/read-docs-for-awesome-ideas | Copilot | ~2 modified<br>test: cover dreamspace recommendation helpers — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/05dddeb4-85aa-4421-95bf-570aee355f23  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/dreams/DreamsSpacePanel.tsx`, `tests/dreamspace-panel.test.ts` |
 | **auto** | 2026-04-13 09:18 UTC | `efa1d25` | copilot/read-docs-for-awesome-ideas | Copilot | ~1 modified<br>refactor: refine dreamspace recommendations copy — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/05dddeb4-85aa-4421-95bf-570aee355f23  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/dreams/DreamsSpacePanel.tsx` |
 | **auto** | 2026-04-13 09:16 UTC | `b949b6c` | copilot/read-docs-for-awesome-ideas | Copilot | ~1 modified<br>refactor: polish dreamspace continue surface — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/05dddeb4-85aa-4421-95bf-570aee355f23  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/dreams/DreamsSpacePanel.tsx` |
 | **auto** | 2026-04-13 09:15 UTC | `edd16c1` | copilot/read-docs-for-awesome-ideas | Copilot | ~2 modified<br>feat: make dreamspace more user friendly — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/05dddeb4-85aa-4421-95bf-570aee355f23  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/dreams/DreamsSpacePanel.tsx`, `tests/dreamspace-panel.test.ts` |
 | **auto** | 2026-04-13 08:54 UTC | `c480b04` | completedream | appthemanger-ctrl | ~1 modified<br>Change TypeScript target from ES2025 to ESNEXT<br>✏️: `tsconfig.json` |
-| **auto** | 2026-04-13 08:52 UTC | `8285428` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #504 from appthemanger-ctrl/claude/fix-pnpm-outdated-lockfile-error — fix: regenerate pnpm-lock.yaml to resolve Vercel frozen-lockfile error<br> |
 
 ## What changed in this alignment pass
 
