@@ -162,10 +162,20 @@ export default function LabEngin({ onBack }: Props) {
 
   // ── Export handler ─────────────────────────────────────────────────────────
   function handleExportData() {
-    bridge.emit('lab', 'lab:data-exported', { exportId: `export-${Date.now()}`, format: 'json', url: '' });
     forgeRecord('Exported data');
     recordForgeTransfer('lab', 'code', 'dataset', 'Lab data export → CodeEngin');
     recordForgeTransfer('lab', 'create', 'dataset', 'Lab data export → CreateEngin');
+    // Emit bridge event for CodeEngin to receive
+    const activeExperiments = experiments.filter(e => e.status === 'running' || e.status === 'completed');
+    bridge.emit('code', 'code:lab-dataset-received', {
+      datasetId: `dataset-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      experimentCount: activeExperiments.length,
+      format: 'json',
+      summary: activeExperiments.map(e => ({ id: e.id, name: e.name, status: e.status })),
+    });
+    // Also emit legacy event for backward compatibility
+    bridge.emit('lab', 'lab:data-exported', { exportId: `export-${Date.now()}`, format: 'json', url: '' });
     setExportFlash(true);
     setTimeout(() => setExportFlash(false), 1800);
   }

@@ -98,6 +98,12 @@ export default function BrandingEngin({ onBack }: Props) {
     { id: 'growth',   label: 'Follower Growth',  value: '—', trend: 'flat', icon: <Megaphone className="w-4 h-4" /> },
   ]);
 
+  // ── Game Achievement Campaign receiver ────────────────────────────────────────
+  const [dismissedAchievement, setDismissedAchievement] = useState<string | null>(null);
+  const achievementPrompt = brandBridge.lastAchievement !== null && brandBridge.lastAchievement !== dismissedAchievement
+    ? brandBridge.lastAchievement
+    : null;
+
   // ── A/B Test state ─────────────────────────────────────────────────────────
   const [abTests, setAbTests]     = useState<ABTest[]>([]);
   const [abName, setAbName]       = useState('');
@@ -391,6 +397,31 @@ export default function BrandingEngin({ onBack }: Props) {
 
       {/* ── Body ── */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
+
+        {/* ── Game → BrandingEngin Achievement Campaign ── */}
+        {achievementPrompt && (
+          <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(200,152,26,0.3)', background: 'rgba(200,152,26,0.04)' }}>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16 }}>🎮→🎯</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
+                    GameEngin sent an achievement
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
+                    Achievement #{achievementPrompt} — turn into a campaign?
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDismissedAchievement(brandBridge.lastAchievement)}
+                  style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'var(--de-text-dim)' }}
+                  aria-label="Dismiss"
+                >✕</button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ── Brand Kit (existing) ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
