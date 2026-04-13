@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 01:27 UTC  
-**Last updated:** 2026-04-13 01:27 UTC  
-**Triggered by commit:** `066ce92` on `copilot/integrate-production-grade-telemetry` by Copilot  
-**Commit message:** feat: add OpenTelemetry SDK with Prometheus exporter, /api/metrics endpoint, remove observability UI from IDariPanel
+**Documentation Date:** 2026-04-13 01:32 UTC  
+**Last updated:** 2026-04-13 01:32 UTC  
+**Triggered by commit:** `30c71d3` on `copilot/integrate-production-grade-telemetry` by Copilot  
+**Commit message:** fix: use connection() instead of dynamic export in /api/metrics, add docs/OBSERVABILITY.md
 
 ---
 
