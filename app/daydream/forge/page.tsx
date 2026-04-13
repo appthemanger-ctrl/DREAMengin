@@ -45,17 +45,17 @@ export default async function ForgeDaydreamPage() {
           subtitle="Orchestrate all engines from one meta-creation surface."
           icon={<Flame className="w-4 h-4" />}
           accentColor="#ef4444"
-          badge="Forge Daydream + ForgeEngin"
+          badge="Forge Daydream · 2026 Edition"
           containerClassName="max-w-5xl"
         />
 
         <div className="de-auth-content space-y-4">
           {/* Hero card */}
-          <div className="de-auth-hero">
+          <div className="de-auth-hero" style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.08) 0%, rgba(249,115,22,0.08) 100%)', border: '1px solid rgba(239,68,68,0.15)' }}>
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold" style={{ background: 'rgba(255,255,255,0.56)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.18)' }}>
+              <div className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold" style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(249,115,22,0.15) 100%)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.25)' }}>
                 <Flame className="w-3.5 h-3.5" />
-                Meta-creation engine — orchestrate, don&apos;t replace
+                Forge 2026 · Orchestration · Automation 2.0
               </div>
               <h2 style={{ fontSize: 28, fontWeight: 900, color: 'var(--de-heading)', lineHeight: 1.05, marginTop: 12 }}>
                 One surface to see
