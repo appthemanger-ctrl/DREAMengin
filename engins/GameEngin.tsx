@@ -22,7 +22,7 @@
  * Performance impact: all new widgets are pure local state — zero extra network calls.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import Link from 'next/link';
@@ -52,6 +52,11 @@ import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import { GAME_CONTROL_PROFILES, GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
 import { buildLedgerMediaUrl } from '@/lib/media/ledger';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
+import GameRuntime from '@/lib/gameengin/GameRuntime';
+import type { GameCartridge } from '@/lib/gameengin/cartridge';
+import { wrapAsCartridge } from '@/lib/gameengin/ReactComponentCartridge';
+import { TetrisCartridge } from '@/games/tetris/TetrisCartridge';
+import { SnakeCartridge } from '@/games/snake/SnakeCartridge';
 
 // ── Interfaces ─────────────────────────────────────────────────────────────────
 
@@ -750,6 +755,34 @@ export default function GameEngin({ onBack }: Props) {
   const ActivePlayableComponent = activePlayable?.component && activePlayable.id === selectedPlayable.id
     ? activePlayable.component
     : null;
+
+  // ── Cartridge map — native cartridges + backward-compat adapters ────────────
+  const cartridgeMap = useMemo(() => {
+    const map: Record<string, GameCartridge> = {
+      tetris: TetrisCartridge,
+      snake: SnakeCartridge,
+    };
+    // Wrap all remaining games that have a component but no native cartridge
+    for (const game of GAMES) {
+      if (!map[game.id] && game.component) {
+        map[game.id] = wrapAsCartridge(game.id, game.component);
+      }
+    }
+    return map;
+  }, []);
+
+  /** Resolve the active cartridge for the current game */
+  const activeCartridge: GameCartridge | null =
+    activePlayable && ActivePlayableComponent && cartridgeMap[activePlayable.id]
+      ? cartridgeMap[activePlayable.id]
+      : null;
+
+  /** Resolve the expanded (fullscreen) cartridge */
+  const expandedCartridge: GameCartridge | null =
+    expandedPlayable?.component && cartridgeMap[expandedPlayable.id]
+      ? cartridgeMap[expandedPlayable.id]
+      : null;
+
   const achievements = ACHIEVEMENT_DEFS.map(def => {
     let unlocked = def.unlockFn(scores);
     if (def.id === 'world-builder' && savedWorld)  unlocked = true;
@@ -758,8 +791,6 @@ export default function GameEngin({ onBack }: Props) {
   });
 
   if (expandedPlayable?.component) {
-    const ExpandedGameComponent = expandedPlayable.component;
-
     return (
       <div
         ref={playOverlayRef}
@@ -780,7 +811,10 @@ export default function GameEngin({ onBack }: Props) {
         )}
 
         <div style={{ position: 'absolute', inset: 0 }}>
-          <ExpandedGameComponent />
+          <GameRuntime
+            cartridge={expandedCartridge}
+            physicsConfig={appliedPhysics}
+          />
         </div>
 
         <div
@@ -1159,9 +1193,12 @@ export default function GameEngin({ onBack }: Props) {
 
             <div style={{ borderRadius: 24, padding: 14, background: 'linear-gradient(180deg, rgba(28,37,58,0.96), rgba(5,8,16,0.98))', border: '1px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 22px 60px rgba(0,0,0,0.3)' }}>
               <div style={{ borderRadius: 18, overflow: 'hidden', border: '1px solid rgba(125,211,252,0.14)', background: 'radial-gradient(circle at top, rgba(42,138,184,0.18), rgba(3,5,10,0.98) 60%)', minHeight: 320 }}>
-                {ActivePlayableComponent ? (
+                {activeCartridge ? (
                   <div style={{ padding: 12 }}>
-                    <ActivePlayableComponent />
+                    <GameRuntime
+                      cartridge={activeCartridge}
+                      physicsConfig={appliedPhysics}
+                    />
                   </div>
                 ) : (
                   <div style={{ minHeight: 320, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, padding: '32px 24px', textAlign: 'center' }}>

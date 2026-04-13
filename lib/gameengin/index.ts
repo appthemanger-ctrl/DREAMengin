@@ -31,6 +31,18 @@ export type { PlayerSignals, DirectorState } from './ai-director';
 
 export { PostFXManager } from './post-fx';
 
+// ── Game Cartridge Runtime ───────────────────────────────────────────────────
+export { default as GameRuntime } from './GameRuntime';
+export type { GameRuntimeProps } from './GameRuntime';
+export { wrapAsCartridge } from './ReactComponentCartridge';
+export { GRAVITY_VALUES } from './cartridge';
+export type {
+  GameCartridge,
+  GameEngineAPI,
+  GravityPreset,
+  CartridgeInputEvent,
+} from './cartridge';
+
 // ── Power Systems (20 state-of-the-art 2026+ engine subsystems) ──────────────
 export {
   RollbackNetcode,
