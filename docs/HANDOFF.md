@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-13 20:49 UTC | `138fdd0` | codex/update-kid-hub-actions-to-25 | Codex | ~2 modified<br>chore: ensure workflows use node 25 — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `.github/workflows/bouncer.yml`, `.github/workflows/github-actions.yml` |
 | **auto** | 2026-04-13 20:38 UTC | `2e8674b` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #509 from appthemanger-ctrl/codex/add-github-action-for-vercel-build — placeholder<br> |
 | **auto** | 2026-04-13 19:38 UTC | `2e75f2b` | codex/add-github-action-for-vercel-build | Codex | ~1 modified<br>fix: allow get_user_metrics rpc typing — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/api/metrics/user/[userId]/route.ts` |
 | **auto** | 2026-04-13 14:59 UTC | `67b4c13` | copilot/add-github-action-for-vercel-build | Copilot | ~2 modified<br>normalize user metrics response typing — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/c1c76254-487f-490d-8dae-92b949442aac  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/api/metrics/user/[userId]/route.ts`, `types/supabase.ts` |
 | **auto** | 2026-04-13 14:50 UTC | `cd57078` | copilot/add-github-action-for-vercel-build | Copilot | ~1 modified<br>fix remaining platform metrics typecheck issue — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/c1c76254-487f-490d-8dae-92b949442aac  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/api/metrics/platform/route.ts` |
-| **auto** | 2026-04-13 14:45 UTC | `a8e3307` | copilot/add-github-action-for-vercel-build | Copilot | +1 added  ~1 modified<br>fix platform metrics build and add vercel probe workflow — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/c1c76254-487f-490d-8dae-92b949442aac  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `.github/workflows/vercel-build-probe.yml`<br>✏️: `app/api/metrics/platform/route.ts` |
 
 ## What changed in this alignment pass
 
