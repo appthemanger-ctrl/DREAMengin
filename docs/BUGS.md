@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-13 02:42 UTC  
-**Last updated:** 2026-04-13 02:42 UTC  
-**Triggered by commit:** `b717634` on `claude/implement-activity-first-protocol` by Claude  
-**Commit message:** feat(phase9): add UI components for activity profiles, tier badges, ads, and platform health
+**Documentation Date:** 2026-04-13 02:44 UTC  
+**Last updated:** 2026-04-13 02:44 UTC  
+**Triggered by commit:** `a33dfd9` on `claude/implement-activity-first-protocol` by Claude  
+**Commit message:** feat(phase9): update feed API with visibility score, add comprehensive tests
 
 ---
 
