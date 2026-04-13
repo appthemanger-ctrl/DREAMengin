@@ -47,9 +47,9 @@
 - 📝 Total Lines of Code: 165,484
 - 📦 Size: 6.24 MB
 - 🧪 Tests: 144 files, 135 passing
-- 📄 API Routes: 88
+- 📄 API Routes: 89
 - 🎨 Components: 36 categories
-- 📖 Documentation: 49 files
+- 📖 Documentation: 50 files
 - ⚙️ GitHub Actions: 53 workflows
 
 ## Tech Stack
@@ -70,6 +70,13 @@
 ```
 @babylonjs/core@^9.1.0
 @babylonjs/havok@^1.3.12
+@opentelemetry/api@^1.9.1
+@opentelemetry/exporter-prometheus@^0.214.0
+@opentelemetry/exporter-trace-otlp-http@^0.214.0
+@opentelemetry/resources@^2.6.1
+@opentelemetry/sdk-metrics@^2.6.1
+@opentelemetry/sdk-trace-node@^2.6.1
+@opentelemetry/semantic-conventions@^1.40.0
 @react-three/drei@^10.7.7
 @react-three/fiber@^9.5.0
 @supabase/ssr@^0.10.0
@@ -124,7 +131,7 @@ vitest@^4.1.0
 | `tests/` | 146 | .ts(145), .md(1) |
 | `styles/` | 3 | .css(3) |
 | `public/` | 49 | .png(18), .PNG(11), .jpeg(6) |
-| `docs/` | 45 | .md(45) |
+| `docs/` | 46 | .md(46) |
 | `scripts/` | 24 | .mjs(12), .sh(4), .cjs(4) |
 | `supabase/` | 47 | .sql(46), .toml(1) |
 
@@ -144,7 +151,7 @@ vitest@^4.1.0
 
 ## API Routes
 
-**Total API Endpoints:** 88
+**Total API Endpoints:** 89
 
 ### All Routes
 
@@ -200,7 +207,7 @@ vitest@^4.1.0
 | `/api/favorites` | GET, POST, DELETE | /app/api/favorites/route.ts |
 | `/api/feed` | GET | /app/api/feed/route.ts |
 | `/api/follow` | GET, POST, DELETE | /app/api/follow/route.ts |
-| ... | ... | ... and 38 more routes |
+| ... | ... | ... and 39 more routes |
 
 ## Pages & Routes
 
@@ -360,7 +367,7 @@ vitest@^4.1.0
 
 ## Documentation
 
-**Total Documentation Files:** 49
+**Total Documentation Files:** 50
 
 ### Documentation Files
 
@@ -394,7 +401,7 @@ vitest@^4.1.0
 - [IDARI_CONTRACT.md](/docs/IDARI_CONTRACT.md)
 - [LAW.md](/docs/LAW.md)
 - [NAMING_AUTHORITY.md](/docs/NAMING_AUTHORITY.md)
-- ... and 19 more docs
+- ... and 20 more docs
 
 ## CI/CD Workflows
 

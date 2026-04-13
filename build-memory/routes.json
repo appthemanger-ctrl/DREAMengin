@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-12T17:36:36.457Z",
+  "generated_at": "2026-04-13T01:44:40.762Z",
   "generator": "scripts/sync-build-memory.mjs",
   "count": 89,
   "routes": [
@@ -114,13 +114,6 @@
       "file": "app/api/ai/idari/route.ts",
       "methods": [
         "POST"
-      ]
-    },
-    {
-      "path": "/api/analytics",
-      "file": "app/api/analytics/route.ts",
-      "methods": [
-        "GET"
       ]
     },
     {
@@ -465,6 +458,13 @@
       "file": "app/api/messages/boards/route.ts",
       "methods": [
         "POST"
+      ]
+    },
+    {
+      "path": "/api/metrics",
+      "file": "app/api/metrics/route.ts",
+      "methods": [
+        "GET"
       ]
     },
     {
