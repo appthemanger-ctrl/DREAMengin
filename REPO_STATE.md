@@ -5,9 +5,9 @@
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)
 **Documentation Date:** 2026-04-13
-**Last Updated:** 4/13/2026, 3:16:06 AM
-**Branch:** completedream
-**Commit:** 17696546 - Refine GENERATION LAW documentation and terminology
+**Last Updated:** 4/13/2026, 2:45:35 AM
+**Branch:** claude/implement-activity-first-protocol
+**Commit:** a33dfd9f - feat(phase9): update feed API with visibility score, add comprehensive tests
 **Total Commits:** 3933
 
 ---
@@ -43,12 +43,12 @@
 
 **Quick Stats:**
 
-- 📁 Total Code Files: 677
-- 📝 Total Lines of Code: 165,546
-- 📦 Size: 6.24 MB
-- 🧪 Tests: 144 files, 135 passing
-- 📄 API Routes: 89
-- 🎨 Components: 36 categories
+- 📁 Total Code Files: 687
+- 📝 Total Lines of Code: 167,428
+- 📦 Size: 6.29 MB
+- 🧪 Tests: 145 files, 135 passing
+- 📄 API Routes: 97
+- 🎨 Components: 39 categories
 - 📖 Documentation: 50 files
 - ⚙️ GitHub Actions: 53 workflows
 
@@ -118,33 +118,33 @@ vitest@^4.1.0
 
 | Directory | Total Files | File Types |
 |-----------|-------------|------------|
-| `app/` | 214 | .tsx(123), .ts(89), .css(2) |
-| `components/` | 296 | .tsx(269), .ts(24), .css(2) |
-| `lib/` | 287 | .ts(280), .tsx(5), .md(2) |
-| `tests/` | 146 | .ts(145), .md(1) |
+| `app/` | 222 | .tsx(123), .ts(97), .css(2) |
+| `components/` | 302 | .tsx(275), .ts(24), .css(2) |
+| `lib/` | 291 | .ts(284), .tsx(5), .md(2) |
+| `tests/` | 147 | .ts(146), .md(1) |
 | `styles/` | 3 | .css(3) |
 | `public/` | 49 | .png(18), .PNG(11), .jpeg(6) |
 | `docs/` | 46 | .md(46) |
 | `scripts/` | 24 | .mjs(12), .sh(4), .cjs(4) |
-| `supabase/` | 47 | .sql(46), .toml(1) |
+| `supabase/` | 48 | .sql(47), .toml(1) |
 
 ## Code Metrics
 
 ### File Distribution
 
 - **App Routes (TSX):** 123
-- **Component Files:** 269
-- **Library Files:** 285
-- **Test Files:** 138
+- **Component Files:** 275
+- **Library Files:** 289
+- **Test Files:** 139
 
 ### Code Volume
 
-- **Total Lines:** 165,546
-- **Total Size:** 6.24 MB
+- **Total Lines:** 167,428
+- **Total Size:** 6.29 MB
 
 ## API Routes
 
-**Total API Endpoints:** 89
+**Total API Endpoints:** 97
 
 ### All Routes
 
@@ -153,12 +153,14 @@ vitest@^4.1.0
 | `/api/account/delete-data` | POST | /app/api/account/delete-data/route.ts |
 | `/api/account/delete-dream` | POST | /app/api/account/delete-dream/route.ts |
 | `/api/account/export-data` | GET | /app/api/account/export-data/route.ts |
+| `/api/activity/track` | POST | /app/api/activity/track/route.ts |
 | `/api/admin/ai-chat` | POST | /app/api/admin/ai-chat/route.ts |
 | `/api/admin/ai-request` | POST | /app/api/admin/ai-request/route.ts |
 | `/api/admin/child-safety` | GET, POST | /app/api/admin/child-safety/route.ts |
 | `/api/admin/code-files` | POST | /app/api/admin/code-files/route.ts |
 | `/api/admin/observability` | GET | /app/api/admin/observability/route.ts |
 | `/api/ads/orders` | POST | /app/api/ads/orders/route.ts |
+| `/api/ads/view` | POST | /app/api/ads/view/route.ts |
 | `/api/ai/boogieman/child-safety` | POST | /app/api/ai/boogieman/child-safety/route.ts |
 | `/api/ai/boogieman/privacy-event` | POST | /app/api/ai/boogieman/privacy-event/route.ts |
 | `/api/ai/boogieman` | POST | /app/api/ai/boogieman/route.ts |
@@ -198,9 +200,7 @@ vitest@^4.1.0
 | `/api/dreamr/suggested` | GET | /app/api/dreamr/suggested/route.ts |
 | `/api/embed-feed` | GET | /app/api/embed-feed/route.ts |
 | `/api/favorites` | GET, POST, DELETE | /app/api/favorites/route.ts |
-| `/api/feed` | GET | /app/api/feed/route.ts |
-| `/api/follow` | GET, POST, DELETE | /app/api/follow/route.ts |
-| ... | ... | ... and 39 more routes |
+| ... | ... | ... and 47 more routes |
 
 ## Pages & Routes
 
@@ -264,12 +264,14 @@ vitest@^4.1.0
 
 ## Components
 
-**Total Component Categories:** 36
+**Total Component Categories:** 39
 
 ### Component Organization
 
 | Category | File Count |
 |----------|-----------|
+| `activity/` | 3 |
+| `ads/` | 2 |
 | `auth/` | 1 |
 | `connectors/` | 6 |
 | `controls/` | 1 |
@@ -287,6 +289,7 @@ vitest@^4.1.0
 | `gameengin/` | 1 |
 | `games/` | 44 |
 | `home/` | 12 |
+| `idari/` | 1 |
 | `landing/` | 2 |
 | `marketplace/` | 2 |
 | `menus/` | 5 |
@@ -309,14 +312,13 @@ vitest@^4.1.0
 
 ## Database Schema
 
-**Total Migrations:** 44
+**Total Migrations:** 45
 **Schema File:** ✓ Present
 
 ### Migration History
 
 | Migration File |
 |----------------|
-| 20260324000001_phase8e_shop_marketplace.sql |
 | 20260325000000_phase8f_daydream_network.sql |
 | 20260325100000_child_safety.sql |
 | 20260401000001_platform_utilities.sql |
@@ -326,16 +328,18 @@ vitest@^4.1.0
 | 20260403000002_pgvector_search_rpc.sql |
 | 20260405000001_dreamr_feed_registry.sql |
 | 20260405042406_auto_scaffold.sql |
-| ... and 34 earlier migrations |
+| 20260413000000_phase9_activity_first_protocol.sql |
+| ... and 35 earlier migrations |
 
 ## Tests
 
-**Test Files:** 144
+**Test Files:** 145
 **Tests Passing:** 135
 **Tests Failing:** 11
 
 ### Test Files
 
+- /tests/activity-first-protocol.test.ts
 - /tests/admin-lockout.test.ts
 - /tests/admin-upgrade-readiness.test.ts
 - /tests/agent-bus-consensus.test.ts
@@ -355,8 +359,7 @@ vitest@^4.1.0
 - /tests/compositeengin-features.test.ts
 - /tests/conform-memory-map.test.ts
 - /tests/connectors.test.ts
-- /tests/content-intelligence-routes.test.ts
-- ... and 124 more test files
+- ... and 125 more test files
 
 ## Documentation
 
@@ -567,4 +570,4 @@ Using Supabase for database, auth, and storage
 ---
 
 *This document is automatically generated by `scripts/analyze-repo-state.mjs`*
-*Last updated: 4/13/2026, 3:16:06 AM*
+*Last updated: 4/13/2026, 2:45:35 AM*

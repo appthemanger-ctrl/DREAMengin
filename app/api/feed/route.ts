@@ -1,5 +1,6 @@
 // app/api/feed/route.ts
 // Phase 8 §A — Unified HomeDream feed resolver.
+// Phase 9 — Updated to use Activity-First Protocol visibility score ranking
 //
 // Merges two source streams:
 //   1. feed_items  — connector-synced items (Mastodon, Bluesky, GitHub,
@@ -19,11 +20,12 @@
 //   limit    — max items to return (default: 30, max: 100)
 //   before   — ISO timestamp cursor for pagination
 //   provider — filter connector items to a specific provider
-//   sort     — "recent" (default) | "trending" (by likes_count on posts)
+//   sort     — "recent" (default) | "activity" (Phase 9: by visibility_score)
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import { createServerClient } from '@/lib/supabase/server';
+import { sortByVisibilityScore } from '@/lib/activity/visibility-score';
 
 
 // Unified feed item shape returned by this route.
@@ -42,6 +44,8 @@ export interface UnifiedFeedEntry {
   created_at: string;
   likes_count?: number;
   comments_count?: number;
+  views_count?: number;        // Phase 9: View count (primary metric)
+  visibility_score?: number;   // Phase 9: For activity-based ranking
   // original payload preserved for connector items
   raw?: Record<string, unknown>;
 }
@@ -131,9 +135,17 @@ export async function GET(req: NextRequest) {
 
     if (posts) {
       for (const post of posts) {
-         
+
         const p = post as any;
         const profile = p.profiles ?? {};
+
+        // Phase 9: Get view count for this post
+        const { count: viewCount } = await supabase
+          .from('views')
+          .select('*', { count: 'exact', head: true })
+          .eq('post_id', p.id)
+          .eq('verified', true);
+
         entries.push({
           id:            p.id,
           source:        'post',
@@ -147,12 +159,26 @@ export async function GET(req: NextRequest) {
           created_at:    p.created_at,
           likes_count:   p.likes_count ?? 0,
           comments_count: p.comments_count ?? 0,
+          views_count:   viewCount ?? 0,  // Phase 9: Views are the primary metric
         });
       }
     }
   }
 
   // ── Merge + sort ──────────────────────────────────────────────────────────
+  // Phase 9: Activity-First Protocol — sort by visibility_score when sort=activity
+  if (sort === 'activity') {
+    // Use visibility score algorithm (AQS-based ranking)
+    const rankedEntries = await sortByVisibilityScore(entries);
+    const page = rankedEntries.slice(0, limit);
+
+    return NextResponse.json(
+      { feed: page, count: page.length },
+      { headers: { 'Cache-Control': 'no-store' } }
+    );
+  }
+
+  // Legacy sorting (for backward compatibility)
   entries.sort((a, b) => {
     if (sort === 'trending') {
       // trending: posts with most likes first, then by date
