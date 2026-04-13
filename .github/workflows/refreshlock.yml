@@ -16,7 +16,14 @@ jobs:
         with:
           version: 10.30.0
 
-      - uses: ./.github/actions/setup-node
+      # Use the official setup-node@v6 – it will respect devEngines.runtime if present
+      - name: Setup Node.js (respects devEngines)
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+          # If you want to force a specific version, use node-version: '25'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Generate pnpm lockfile only
         run: pnpm install --lockfile-only --no-frozen-lockfile
@@ -31,4 +38,4 @@ jobs:
             exit 0
           fi
           git commit -m "chore: add/update pnpm lockfile [skip ci] [skip vercel]"
-          git push || true
+          git push
