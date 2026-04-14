@@ -100,7 +100,7 @@ jobs:
       - name: Commit auto-fixes (if any)
         run: |
           git config user.name  "daydream-games-bot"
-          git config user.email "daydream-games-bot@users.noreply.github.com"
+          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
           if git diff --quiet && git diff --cached --quiet; then
             echo "No fixes to commit."
           else

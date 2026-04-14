@@ -236,7 +236,7 @@ jobs:
         if: steps.phase.outputs.phase == 'BUILD'
         run: |
           git config user.name  "build-cycle-bot[${{ matrix.domain }}]"
-          git config user.email "build-cycle-bot@users.noreply.github.com"
+          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
           if git diff --quiet && git diff --cached --quiet; then
             echo "No fixes to commit."
           else
@@ -298,7 +298,7 @@ jobs:
         if: steps.phase.outputs.phase == 'REFINE'
         run: |
           git config user.name  "refine-cycle-bot[${{ matrix.domain }}]"
-          git config user.email "refine-cycle-bot@users.noreply.github.com"
+          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
           if git diff --quiet && git diff --cached --quiet; then
             echo "No refinements to commit."
           else
