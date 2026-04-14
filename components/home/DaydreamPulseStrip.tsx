@@ -9,7 +9,7 @@
  *
  * Architecture justification:
  *   - docs/ARCHITECTURE.md §8  — Gold / light-blue / white premium palette.
- *   - docs/AXIOMS.md Axiom 4   — "Stylized — premium, intentional, designed."
+ *   - docs/AXIOMS.md Axiom 4   — "Synchronized — premium, intentional, designed."
  *   - docs/LAW.md Product law 3 — Every visible action does something real.
  */
 

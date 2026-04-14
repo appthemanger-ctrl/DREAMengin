@@ -10,7 +10,7 @@ import { calibrateDevice, type CalibrationSample } from '@/lib/dreamr/swipeCalib
 /**
  * LandingHero — Premium SICK redesign.
  *
- * Design philosophy (AXIOMS.md §Stylized + §Intuitive + §Cohesive + §Coherent):
+ * Design philosophy (AXIOMS.md §Synchronized + §Intuitive + §Cohesive + §Coherent):
  *   Deep navy→sky split bg  → platform depth and identity
  *   3D Dr. Eams robot       → interactive brand signature
  *   2D precision interface  → flat, clean, readable
