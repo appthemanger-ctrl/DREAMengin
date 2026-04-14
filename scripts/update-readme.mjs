@@ -427,6 +427,24 @@ doc = doc.replace(
   `Build Status: ${routeCount} routes (${pageCount} pages + ${apiCount} API handlers) · ${testCount} test files`
 );
 
+// ── 10a. Refresh Babylon.js version in Tech Stack from package.json ───────────
+
+try {
+  const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
+  const babylonRaw = (pkg.dependencies || {})['@babylonjs/core'] || '';
+  // Extract major version, e.g. "^9.1.0" → "9"
+  const majorMatch = babylonRaw.match(/(\d+)\./);
+  if (majorMatch) {
+    const babylonMajor = majorMatch[1];
+    doc = doc.replace(
+      /- Babylon\.js \d+\+ \(WebGPU-first 3D rendering\)/g,
+      `- Babylon.js ${babylonMajor}+ (WebGPU-first 3D rendering)`
+    );
+  }
+} catch {
+  // package.json unreadable — skip silently
+}
+
 // ── 11. Update the "## Recent Changes" table ──────────────────────────────────
 
 const TABLE_HEADER   = '| Revision | Date / Time (UTC) | Branch | Author | Files | Summary |';
