@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-14 20:40 UTC  
-**Last updated:** 2026-04-14 20:40 UTC  
-**Triggered by commit:** `af9f293` on `copilot/request-engine-codes` by Copilot  
-**Commit message:** export: add exports/ALL_ENGINES.txt — all 99 engine files in one downloadable txt
+**Documentation Date:** 2026-04-14 23:09 UTC  
+**Last updated:** 2026-04-14 23:09 UTC  
+**Triggered by commit:** `1daac0c` on `copilot/request-engine-codes` by Copilot  
+**Commit message:** fix: resolve TypeScript errors in AudioVisualizer3D and GameEnginRuntime
 
 ---
 
