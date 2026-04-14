@@ -1,12 +1,15 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import {
   Search, Home, Compass, Settings, User, MessageSquare,
   TrendingUp, ShoppingBag, Music, Gamepad2, FlaskConical,
   Code2, Palette, PenLine, Stars, ArrowRight, Zap, Flame,
+  Sun, MoonStar, Sparkles,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTheme } from '@/components/providers/ThemeProvider';
+import { THEME_PRESETS } from '@/lib/ui/theme-engine';
 
 interface CommandItem {
   id: string;
@@ -25,11 +28,43 @@ export default function CommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [recentIds, setRecentIds] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const { setPreset, presetId } = useTheme();
 
-  const commands: CommandItem[] = [
+  // ── Persistent recents (local only) ──────────────────────────────────────
+  const RECENTS_KEY = 'dreamengin-cmd-recents';
+  const MAX_RECENTS = 6;
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(RECENTS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) setRecentIds(parsed.filter((id): id is string => typeof id === 'string'));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const recordRecent = (id: string) => {
+    setRecentIds((prev) => {
+      const next = [id, ...prev.filter((x) => x !== id)].slice(0, MAX_RECENTS);
+      try {
+        localStorage.setItem(RECENTS_KEY, JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
+  // ── Commands ─────────────────────────────────────────────────────────────
+
+  const commands: CommandItem[] = useMemo(() => [
     {
       id: 'home',
       label: 'HomeDream',
@@ -275,7 +310,24 @@ export default function CommandPalette() {
       action: () => router.push('/settings'),
       category: 'System',
     },
-  ];
+    // Themes
+    ...THEME_PRESETS.map((preset) => ({
+      id: `theme-${preset.id}`,
+      label: `${preset.label} Theme`,
+      description: preset.id === presetId ? 'Currently applied' : 'Instantly restyle the OS',
+      icon: preset.id.includes('dark') || preset.id.includes('midnight') ? MoonStar : Sun,
+      iconColor: preset.id === 'dream-sunset' ? '#f97316' : preset.id.includes('dark') ? '#8b9bff' : '#38bdf8',
+      iconBg: preset.id.includes('dark')
+        ? 'rgba(99,102,241,0.14)'
+        : preset.id === 'dream-sunset'
+          ? 'rgba(249,115,22,0.12)'
+          : 'rgba(56,189,248,0.12)',
+      keywords: ['theme', preset.label, 'appearance', 'skin'],
+      action: () => setPreset(preset.id),
+      category: 'Themes',
+      shortcut: preset.id === presetId ? 'Active' : undefined,
+    })),
+  ], [router, setPreset, presetId]);
 
   const filteredCommands = search
     ? commands.filter(cmd =>
@@ -290,6 +342,27 @@ export default function CommandPalette() {
     acc[cmd.category].push(cmd);
     return acc;
   }, {} as Record<string, CommandItem[]>);
+
+  const heroThemes = commands.filter((cmd) => cmd.category === 'Themes').slice(0, 3);
+  const featured = ['home', 'messages', 'create', 'forge']
+    .map((id) => commands.find((c) => c.id === id))
+    .filter((c): c is CommandItem => Boolean(c));
+  const recentCommands = recentIds
+    .map((id) => commands.find((c) => c.id === id))
+    .filter((c): c is CommandItem => Boolean(c));
+
+  const handleExecute = (cmd: CommandItem) => {
+    cmd.action();
+    recordRecent(cmd.id);
+    setIsOpen(false);
+    setSearch('');
+  };
+
+  const handleOpen = () => {
+    setIsOpen(true);
+    setSearch('');
+    setSelectedIndex(0);
+  };
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -312,9 +385,7 @@ export default function CommandPalette() {
         if (e.key === 'Enter') {
           e.preventDefault();
           if (filteredCommands[selectedIndex]) {
-            filteredCommands[selectedIndex].action();
-            setIsOpen(false);
-            setSearch('');
+            handleExecute(filteredCommands[selectedIndex]);
           }
         }
       }
@@ -339,7 +410,7 @@ export default function CommandPalette() {
       <button
         type="button"
         className="de-cmd-fab"
-        onClick={() => { setIsOpen(true); setSearch(''); setSelectedIndex(0); }}
+        onClick={handleOpen}
         aria-label="Open command search"
         title="Search (⌘K)"
       >
@@ -367,6 +438,59 @@ export default function CommandPalette() {
           <span className="cmd-kbd">ESC</span>
         </div>
 
+        {/* ── Hero rail: quick jumps + theme toggles ── */}
+        {search.length === 0 && (
+          <div className="cmd-hero">
+            <div className="cmd-hero-block">
+              <div className="cmd-hero-title">Jump back in</div>
+              <div className="cmd-chips">
+                {(recentCommands.length > 0 ? recentCommands : featured).map((cmd) => {
+                  const Icon = cmd.icon;
+                  return (
+                    <button key={cmd.id} type="button" className="cmd-chip" onClick={() => handleExecute(cmd)}>
+                      <span className="cmd-chip-icon" style={{ background: cmd.iconBg, color: cmd.iconColor }}>
+                        <Icon style={{ width: 15, height: 15 }} />
+                      </span>
+                      <span>{cmd.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="cmd-hero-grid">
+              {heroThemes.map((themeCmd) => {
+                const Icon = themeCmd.icon;
+                const active = themeCmd.shortcut === 'Active';
+                return (
+                  <button
+                    key={themeCmd.id}
+                    type="button"
+                    className={`cmd-hero-card${active ? ' active' : ''}`}
+                    onClick={() => handleExecute(themeCmd)}
+                  >
+                    <div className="cmd-hero-card-top">
+                      <span className="cmd-hero-pill">
+                        <Sparkles style={{ width: 14, height: 14 }} />
+                        Theme
+                      </span>
+                      {active && <span className="cmd-kbd cmd-hero-pill">Live</span>}
+                    </div>
+                    <div className="cmd-hero-card-body">
+                      <span className="cmd-hero-icon" style={{ background: themeCmd.iconBg, color: themeCmd.iconColor }}>
+                        <Icon style={{ width: 16, height: 16 }} />
+                      </span>
+                      <div>
+                        <div className="cmd-hero-label">{themeCmd.label}</div>
+                        <div className="cmd-hero-sub">One-tap restyle</div>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* ── Results ── */}
         <div className="cmd-results" ref={listRef}>
           {filteredCommands.length === 0 ? (
@@ -387,7 +511,7 @@ export default function CommandPalette() {
                       key={cmd.id}
                       type="button"
                       className={`cmd-item${isSelected ? ' selected' : ''}`}
-                      onClick={() => { cmd.action(); setIsOpen(false); setSearch(''); }}
+                      onClick={() => handleExecute(cmd)}
                       onMouseEnter={() => setSelectedIndex(itemIndex)}
                     >
                       <span

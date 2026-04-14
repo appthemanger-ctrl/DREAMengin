@@ -3434,6 +3434,132 @@ main[role="main"] > * {
 }
 .cmd-results::-webkit-scrollbar { display: none; }
 
+.cmd-hero {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 12px;
+  padding: 12px 14px;
+  background: linear-gradient(120deg, rgba(56,189,248,0.10), rgba(168,85,247,0.12) 48%, rgba(200,152,26,0.08));
+  border-bottom: 1px solid rgba(56,189,248,0.10);
+  border-top: 1px solid rgba(56,189,248,0.08);
+}
+
+.cmd-hero-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cmd-hero-title {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(226,240,255,0.72);
+  font-weight: 800;
+}
+
+.cmd-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cmd-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(56,189,248,0.12);
+  background: rgba(10,20,44,0.4);
+  color: rgba(226,240,255,0.9);
+  font-weight: 600;
+  font-size: 13px;
+  transition: transform 0.1s, border-color 0.1s, background 0.1s;
+}
+.cmd-chip:hover {
+  transform: translateY(-1px);
+  border-color: rgba(56,189,248,0.22);
+  background: rgba(56,189,248,0.12);
+}
+.cmd-chip:active { transform: translateY(0); }
+.cmd-chip-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cmd-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.cmd-hero-card {
+  border-radius: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(56,189,248,0.16);
+  background: linear-gradient(160deg, rgba(8,18,48,0.85), rgba(8,18,48,0.7));
+  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.12s, border-color 0.12s, box-shadow 0.12s;
+  text-align: left;
+}
+.cmd-hero-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(168,85,247,0.22);
+  box-shadow: 0 18px 50px rgba(0,0,0,0.32);
+}
+.cmd-hero-card.active {
+  border-color: rgba(200,152,26,0.32);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.38);
+}
+
+.cmd-hero-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cmd-hero-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(226,240,255,0.78);
+}
+
+.cmd-hero-card-body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cmd-hero-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cmd-hero-label {
+  font-weight: 700;
+  color: rgba(226,240,255,0.95);
+}
+
+.cmd-hero-sub {
+  font-size: 12px;
+  color: rgba(148,180,220,0.60);
+}
+
 .cmd-category {
   padding: 8px 12px 4px;
   font-size: 10px;
