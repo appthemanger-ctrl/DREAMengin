@@ -1,11 +1,11 @@
-name: Daydream + Engin SICC UI Refinement
+name: Daydream Lobby + Engin Runtime SICC UI Refinement
 
 # Runs the full Stylized · Intuitive · Cohesive · Coherent quality pass
-# against a specific Daydream+Engin pair surface.
+# against a specific Daydream-lobby + Engin-runtime pair surface.
 #
 # Triggered:
 #   - Automatically by the build-cycle workflow when a pair reaches REFINE phase
-#   - On push to Engin component files (for pairs already in REFINE)
+#   - On push to Engin runtime component files (for pairs already in REFINE)
 #   - Manually via workflow_dispatch for targeted polish sprints
 #
 # Covers:
@@ -40,15 +40,15 @@ on:
   workflow_dispatch:
     inputs:
       daydream:
-        description: 'Daydream domain (Music|Games|Lab|Code|Brand|Create)'
+        description: 'Daydream lobby domain (Music|Games|Lab|Code|Brand|Create)'
         required: true
         default: 'Music'
       engin:
-        description: 'Engin surface name'
+        description: 'Engin runtime surface name'
         required: true
         default: 'StarMakerEngin'
       engin_file:
-        description: 'Path to Engin component file'
+        description: 'Path to Engin runtime component file'
         required: true
         default: 'components/daydream/StarMakerEngin.tsx'
       daydream_path:
@@ -70,7 +70,7 @@ env:
 jobs:
 
   sicc-audit:
-    name: 'SICC Audit — ${{ inputs.daydream || ''All Engins'' }} / ${{ inputs.engin || ''Push'' }}'
+    name: 'SICC Audit — ${{ inputs.daydream || ''All Daydream lobbies'' }} / ${{ inputs.engin || ''All Engin runtimes'' }}'
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -233,7 +233,7 @@ jobs:
       - name: SICC report
         if: always()
         run: |
-          echo "## ✦◈◎◇ SICC Report — ${{ matrix.daydream }} / ${{ matrix.engin }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "## ✦◈◎◇ SICC Report — ${{ matrix.daydream }} Daydream lobby / ${{ matrix.engin }} runtime" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Dimension  | Check                      | Result |" >> "$GITHUB_STEP_SUMMARY"
           echo "|------------|----------------------------|--------|" >> "$GITHUB_STEP_SUMMARY"

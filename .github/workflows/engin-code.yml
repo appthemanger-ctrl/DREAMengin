@@ -1,8 +1,8 @@
 name: CodeEngin — Health & Premium Feature Patrol
 
-# Engin-only workflow for CodeEngin (Code pair Engin).
+# Engin-runtime workflow for CodeEngin (Code pair machine side).
 # Scope: components/daydream/CodeEngin.tsx + projects API routes + codespace components.
-# Does NOT re-run Daydream-side CI — see daydream-code.yml for that.
+# Does NOT re-run Daydream lobby-side CI — see daydream-code.yml for that.
 #
 # Premium feature checks:
 #   ✦ Cell execution handlers
@@ -74,7 +74,7 @@ jobs:
       - name: Security audit
         run: pnpm audit --audit-level=high || true
 
-      # ── Lint (Engin scope only) ───────────────────────────────────────────────
+      # ── Lint (Engin runtime scope only) ───────────────────────────────────────────────
       - name: Lint — CodeEngin scope
         id: lint
         run: |
@@ -89,7 +89,7 @@ jobs:
       - name: Unit tests
         run: pnpm exec vitest run --reporter=verbose || true
 
-      # ── Engin-specific pattern scans ──────────────────────────────────────────
+      # ── Engin runtime pattern scans ──────────────────────────────────────────
       - name: Scan — Cell execution handlers
         id: scan_cell_exec
         run: |
@@ -193,12 +193,12 @@ jobs:
           echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
           echo "| Engin | CodeEngin |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Canonical pair | Code Daydream |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Scope | Engin-only (no Daydream page) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scope | Engin runtime only (machine side; no Daydream lobby page) |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "### 🔎 Premium Engin Feature Checklist" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔎 Premium Engin Runtime Checklist" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Feature | Status |" >> "$GITHUB_STEP_SUMMARY"
           echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
@@ -208,5 +208,5 @@ jobs:
           echo "| Execution cleanup | ${{ steps.scan_exec_cleanup.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Risk' }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Language / syntax support | ${{ steps.scan_lang.outputs.COUNT != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "> Daydream-side checks are handled by \`daydream-code.yml\`." >> "$GITHUB_STEP_SUMMARY"
-          echo "> Combined pair health is handled by \`daydream-code-engin.yml\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "> Daydream lobby-side checks are handled by \`daydream-code.yml\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "> Combined Daydream lobby + Engin runtime health is handled by \`daydream-code-engin.yml\`." >> "$GITHUB_STEP_SUMMARY"

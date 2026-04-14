@@ -1,6 +1,6 @@
-name: Code Daydream + CodeEngin Health
+name: Code Daydream Lobby + CodeEngin Runtime Health
 
-# Builds, updates, checks, and auto-fixes the Code Daydream and CodeEngin.
+# Builds, updates, checks, and auto-fixes the Code Daydream lobby and CodeEngin runtime.
 # Covers: app/daydream/code/, app/codespace/, components/daydream/CodeEngin.tsx,
 #         app/lab/, app/api/projects/
 
@@ -103,14 +103,14 @@ jobs:
             echo "No fixes to commit."
           else
             git add -A
-            git commit -m "fix(code-daydream): ESLint auto-fix in Code Daydream + CodeEngin [skip ci] [skip vercel]"
+            git commit -m "fix(code-daydream): ESLint auto-fix in Code Daydream lobby + CodeEngin runtime [skip ci] [skip vercel]"
             git push || true
           fi
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
           echo "| Daydream | Code |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Engine | CodeEngin |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Engin runtime | CodeEngin |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"

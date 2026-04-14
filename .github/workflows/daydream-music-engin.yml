@@ -1,6 +1,6 @@
-name: Music Daydream + StarMakerEngin Health
+name: Music Daydream Lobby + StarMakerEngin Runtime Health
 
-# Builds, updates, checks, and auto-fixes the Music Daydream and StarMakerEngin.
+# Builds, updates, checks, and auto-fixes the Music Daydream lobby and StarMakerEngin runtime.
 # Covers: app/daydream/music/, app/daydream/play/, app/music/,
 #         components/daydream/StarMakerEngin.tsx, components/music/,
 #         app/api/music/
@@ -105,14 +105,14 @@ jobs:
             echo "No fixes to commit."
           else
             git add -A
-            git commit -m "fix(music-daydream): ESLint auto-fix in Music Daydream + StarMakerEngin [skip ci] [skip vercel]"
+            git commit -m "fix(music-daydream): ESLint auto-fix in Music Daydream lobby + StarMakerEngin runtime [skip ci] [skip vercel]"
             git push || true
           fi
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
           echo "| Daydream | Music |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Engine | StarMakerEngin |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Engin runtime | StarMakerEngin |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"

@@ -1,6 +1,6 @@
-name: Daydream + Engin Build Cycle
+name: Daydream Lobby + Engin Runtime Build Cycle
 
-# Continuously builds all 6 Daydream+Engin pairs toward feature completeness,
+# Continuously builds all 6 Daydream-lobby + Engin-runtime pairs toward feature completeness,
 # then shifts into a SICC UI-refinement cycle once a pair is feature-maxed.
 #
 # Two phases per pair:
@@ -13,7 +13,7 @@ name: Daydream + Engin Build Cycle
 #   Code  / CodeEngin        · Brand / BrandingEngin  · Create / ContentEngin
 #
 # Triggers:
-#   push   — any Daydream surface or Engin component file changes
+#   push   — any Daydream lobby surface or Engin runtime component file changes
 #   weekly — Sunday 06:00 UTC (ensures all pairs are checked regularly)
 #   manual — workflow_dispatch for on-demand cycle runs
 
@@ -94,7 +94,7 @@ jobs:
   # JOB 2 — Per-pair build cycle (matrix)
   # ───────────────────────────────────────────────────────────────────────────
   build-cycle:
-    name: '${{ matrix.daydream }} / ${{ matrix.engin }} — ${{ matrix.phase }} Cycle'
+    name: '${{ matrix.daydream }} Daydream / ${{ matrix.engin }} runtime — ${{ matrix.phase }} Cycle'
     needs: setup
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -217,12 +217,12 @@ jobs:
           echo "Bridge emits  : $BRIDGE_EMITS"
           echo "Supabase reads: $SUPABASE_READS"
 
-      - name: '[BUILD] Lint Engin surface'
+      - name: '[BUILD] Lint Engin runtime surface'
         if: steps.phase.outputs.phase == 'BUILD'
         run: |
           pnpm lint ${{ matrix.engin_file }} || true
 
-      - name: '[BUILD] Typecheck Engin surface'
+      - name: '[BUILD] Typecheck Engin runtime surface'
         if: steps.phase.outputs.phase == 'BUILD'
         run: pnpm typecheck || true
 
@@ -324,7 +324,7 @@ jobs:
           for i in $(seq 1 $(( 20 - FILLED ))); do BAR="${BAR}░"; done
 
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "## ${{ matrix.daydream }} / ${{ matrix.engin }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "## ${{ matrix.daydream }} Daydream lobby / ${{ matrix.engin }} runtime" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Field            | Value |"                         >> "$GITHUB_STEP_SUMMARY"
           echo "|------------------|-------|"                         >> "$GITHUB_STEP_SUMMARY"
@@ -355,9 +355,9 @@ jobs:
     steps:
       - name: Overall summary
         run: |
-          echo "# DREAMengin — Daydream + Engin Build Cycle" >> "$GITHUB_STEP_SUMMARY"
+          echo "# DREAMengin — Daydream Lobby + Engin Runtime Build Cycle" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "All 6 Daydream+Engin pairs processed." >> "$GITHUB_STEP_SUMMARY"
+          echo "All 6 Daydream-lobby + Engin-runtime pairs processed." >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Pair                        | Phase  | Progress |" >> "$GITHUB_STEP_SUMMARY"
           echo "|-----------------------------|--------|----------|" >> "$GITHUB_STEP_SUMMARY"

@@ -1,8 +1,8 @@
 name: BrandingEngin — Health & Premium Feature Patrol
 
-# Engin-only workflow for BrandingEngin (Brand pair Engin).
+# Engin-runtime workflow for BrandingEngin (Brand pair machine side).
 # Scope: components/daydream/BrandingEngin.tsx + analytics routes + branding lib.
-# Does NOT re-run Daydream-side CI — see daydream-brand.yml for that.
+# Does NOT re-run Daydream lobby-side CI — see daydream-brand.yml for that.
 #
 # Premium feature checks:
 #   ✦ Brand analytics query handlers
@@ -75,7 +75,7 @@ jobs:
       - name: Security audit
         run: pnpm audit --audit-level=high || true
 
-      # ── Lint (Engin scope only) ───────────────────────────────────────────────
+      # ── Lint (Engin runtime scope only) ───────────────────────────────────────────────
       - name: Lint — BrandingEngin scope
         id: lint
         run: |
@@ -90,7 +90,7 @@ jobs:
       - name: Unit tests
         run: pnpm exec vitest run --reporter=verbose || true
 
-      # ── Engin-specific pattern scans ──────────────────────────────────────────
+      # ── Engin runtime pattern scans ──────────────────────────────────────────
       - name: Scan — Brand analytics query handlers
         id: scan_analytics
         run: |
@@ -206,12 +206,12 @@ jobs:
           echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
           echo "| Engin | BrandingEngin |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Canonical pair | Brand Daydream |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Scope | Engin-only (no Daydream page) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scope | Engin runtime only (machine side; no Daydream lobby page) |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "### 🔎 Premium Engin Feature Checklist" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔎 Premium Engin Runtime Checklist" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Feature | Status |" >> "$GITHUB_STEP_SUMMARY"
           echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
@@ -222,6 +222,6 @@ jobs:
           echo "| DreamAds naming present | ${{ steps.scan_ads_separation.outputs.DREAMADS != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Platform promo separated | ${{ steps.scan_ads_separation.outputs.PLATFORM != '0' && '✅ Separated' || 'ℹ️ Pending' }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "> Daydream-side checks are handled by \`daydream-brand.yml\`." >> "$GITHUB_STEP_SUMMARY"
-          echo "> Combined pair health is handled by \`daydream-brand-engin.yml\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "> Daydream lobby-side checks are handled by \`daydream-brand.yml\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "> Combined Daydream lobby + Engin runtime health is handled by \`daydream-brand-engin.yml\`." >> "$GITHUB_STEP_SUMMARY"
           echo "> DreamAds separation rule: \`docs/ARCHITECTURE.md §7\`." >> "$GITHUB_STEP_SUMMARY"
