@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-14 07:19 UTC  
-**Last updated:** 2026-04-14 07:19 UTC  
-**Triggered by commit:** `d6e42de` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #519 from appthemanger-ctrl/copilot/code-only-request
+**Documentation Date:** 2026-04-14 08:29 UTC  
+**Last updated:** 2026-04-14 08:29 UTC  
+**Triggered by commit:** `e874f00` on `copilot/fix-wasm-bus-and-build-errors` by Copilot  
+**Commit message:** feat: merge dual VM + quantum compute engine into dualRuntimeBridge
 
 ---
 
