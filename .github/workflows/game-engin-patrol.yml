@@ -5,7 +5,7 @@ name: GameEngin Bug Patrol
 #
 # Covers every file that GameEngin manages at runtime:
 #   - components/games/       — WordSprint, MemoryGrid, SpeedTap, GameRemote, Leaderboard
-#   - components/daydream/GameEngin.tsx — the engine itself
+#   - components/daydream/GameEngin.tsx — the Engin runtime itself
 #   - app/game/               — Dr. Eams Platformer (GamePageClient)
 #   - app/daydream/games/     — Games Daydream (GamesHub)
 #   - app/api/game-scores/    — score submission API
@@ -133,7 +133,7 @@ jobs:
       - name: Commit auto-fixes (if any)
         run: |
           git config user.name  "game-engin-patrol-bot"
-          git config user.email "game-engin-patrol-bot@users.noreply.github.com"
+          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
           if git diff --quiet && git diff --cached --quiet; then
             echo "No fixes to commit — all games code is clean."
           else
@@ -156,7 +156,7 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Engine | GameEngin |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Engin runtime | GameEngin |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Lint OK | ${{ steps.lint_report.outputs.lint_ok }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
@@ -169,7 +169,7 @@ jobs:
           echo "- Speed Tap (\`components/games/SpeedTap.tsx\`)" >> "$GITHUB_STEP_SUMMARY"
           echo "- GameRemote (\`components/games/GameRemote.tsx\`)" >> "$GITHUB_STEP_SUMMARY"
           echo "- Leaderboard (\`components/games/Leaderboard.tsx\`)" >> "$GITHUB_STEP_SUMMARY"
-          echo "- GameEngin control layer (\`components/daydream/GameEngin.tsx\`)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- GameEngin runtime layer (\`components/daydream/GameEngin.tsx\`)" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           if [ -f /tmp/patrol-report.txt ]; then
             echo "### Pattern scan results" >> "$GITHUB_STEP_SUMMARY"
