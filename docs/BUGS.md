@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-14 04:51 UTC  
-**Last updated:** 2026-04-14 04:51 UTC  
-**Triggered by commit:** `c9cd0a0` on `codex/ok-go-nuts` by Codex  
-**Commit message:** feat: upgrade command palette with launchpad and themes
+**Documentation Date:** 2026-04-14 05:06 UTC  
+**Last updated:** 2026-04-14 05:06 UTC  
+**Triggered by commit:** `7884899` on `codex/ok-go-nuts` by Codex  
+**Commit message:** feat: add ambient warp dock overlay
 
 ---
 
