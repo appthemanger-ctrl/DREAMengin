@@ -44,8 +44,8 @@
 **Quick Stats:**
 
 - 📁 Total Code Files: 699
-- 📝 Total Lines of Code: 171,477
-- 📦 Size: 6.43 MB
+- 📝 Total Lines of Code: 171,415
+- 📦 Size: 6.44 MB
 - 🧪 Tests: 149 files, 144 passing
 - 📄 API Routes: 97
 - 🎨 Components: 40 categories
@@ -139,8 +139,8 @@ vitest@^4.1.0
 
 ### Code Volume
 
-- **Total Lines:** 171,477
-- **Total Size:** 6.43 MB
+- **Total Lines:** 171,415
+- **Total Size:** 6.44 MB
 
 ## API Routes
 
