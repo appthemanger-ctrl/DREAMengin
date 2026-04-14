@@ -161,7 +161,6 @@ class DualRuntimeBridge extends EventEmitter {
       return heapBase.value;
     }
     // AssemblyScript sometimes exposes __heap_base as a number instead of a WebAssembly.Global
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const maybeNumber = (heapBase as any) as number | undefined;
     return typeof maybeNumber === 'number' ? maybeNumber : null;
   }
@@ -174,8 +173,9 @@ class DualRuntimeBridge extends EventEmitter {
 
     // Node / Vitest path: read directly from the filesystem to avoid file:// fetch limitations.
     const [{ readFile }, { fileURLToPath }] = await Promise.all([
-      import('fs/promises'),
-      import('url'),
+      // webpackIgnore: true — Node built-ins; bundlers must skip static analysis of these imports.
+      import(/* webpackIgnore: true */ 'fs/promises'),
+      import(/* webpackIgnore: true */ 'url'),
     ]);
     const buf = await readFile(fileURLToPath(BUS_WASM_URL));
     return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
@@ -291,7 +291,7 @@ class DualRuntimeBridge extends EventEmitter {
   subscribe(
     channel: string,
     event: string,
-    handler: (payload: Record<string, unknown>) => void,
+    handler: (payload: Record<string, any>) => void,
   ): UnsubscribeFn {
     const key = `${channel}:${event}`;
     this.on(key, handler as BridgeEventHandler);
