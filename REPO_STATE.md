@@ -4,11 +4,11 @@
 > Generated automatically - DO NOT EDIT MANUALLY
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)
-**Documentation Date:** 2026-04-13
-**Last Updated:** 4/13/2026, 6:51:59 AM
-**Branch:** claude/add-wasm-gpu-vm-specification
-**Commit:** c75738e2 - docs: add comprehensive WASM+GPU VM implementation summary
-**Total Commits:** 3980
+**Documentation Date:** 2026-04-14
+**Last Updated:** 4/14/2026, 3:18:49 AM
+**Branch:** completedream
+**Commit:** aba4d57a - Merge pull request #511 from appthemanger-ctrl/codex/fix-all-code-errors
+**Total Commits:** 4192
 
 ---
 
@@ -38,19 +38,19 @@
 ## Overview
 
 **Project:** dreamengin
-**Version:** 2.0.0
-**Package Manager:** pnpm@10.30.0
+**Version:** 3.0.0
+**Package Manager:** pnpm@10.33.0
 
 **Quick Stats:**
 
-- 📁 Total Code Files: 694
-- 📝 Total Lines of Code: 169,530
-- 📦 Size: 6.35 MB
-- 🧪 Tests: 146 files, 136 passing
+- 📁 Total Code Files: 695
+- 📝 Total Lines of Code: 170,327
+- 📦 Size: 6.39 MB
+- 🧪 Tests: 147 files, 134 passing
 - 📄 API Routes: 97
 - 🎨 Components: 39 categories
 - 📖 Documentation: 53 files
-- ⚙️ GitHub Actions: 53 workflows
+- ⚙️ GitHub Actions: 54 workflows
 
 ## Tech Stack
 
@@ -96,9 +96,9 @@ lucide-react@^0.577.0
 @tailwindcss/postcss@^4.2.2
 @types/node@^25.0.0
 @types/react@^19.2.0
-@types/react-dnd@^3.0.2
 @types/react-dom@^19.2.0
 @types/three@^0.183.1
+@webgpu/types@^0.1.69
 assemblyscript@^0.28.0
 eslint@^9.0.0
 eslint-config-next@^16.2.0
@@ -118,10 +118,10 @@ vitest@^4.1.0
 
 | Directory | Total Files | File Types |
 |-----------|-------------|------------|
-| `app/` | 222 | .tsx(123), .ts(97), .css(2) |
+| `app/` | 223 | .tsx(124), .ts(97), .css(2) |
 | `components/` | 302 | .tsx(275), .ts(24), .css(2) |
 | `lib/` | 299 | .ts(291), .tsx(5), .md(3) |
-| `tests/` | 148 | .ts(147), .md(1) |
+| `tests/` | 149 | .ts(148), .md(1) |
 | `styles/` | 3 | .css(3) |
 | `public/` | 49 | .png(18), .PNG(11), .jpeg(6) |
 | `docs/` | 49 | .md(49) |
@@ -132,15 +132,15 @@ vitest@^4.1.0
 
 ### File Distribution
 
-- **App Routes (TSX):** 123
+- **App Routes (TSX):** 124
 - **Component Files:** 275
 - **Library Files:** 296
-- **Test Files:** 140
+- **Test Files:** 141
 
 ### Code Volume
 
-- **Total Lines:** 169,530
-- **Total Size:** 6.35 MB
+- **Total Lines:** 170,327
+- **Total Size:** 6.39 MB
 
 ## API Routes
 
@@ -204,7 +204,7 @@ vitest@^4.1.0
 
 ## Pages & Routes
 
-**Total Pages:** 99
+**Total Pages:** 100
 
 ### All Pages
 
@@ -216,6 +216,7 @@ vitest@^4.1.0
 | `/ads` | /app/ads/page.tsx |
 | `/ads/slot/[id]` | /app/ads/slot/[id]/page.tsx |
 | `/auth/reset-password` | /app/auth/reset-password/page.tsx |
+| `/auth/update-password` | /app/auth/update-password/page.tsx |
 | `/codespace` | /app/codespace/page.tsx |
 | `/connectors` | /app/connectors/page.tsx |
 | `/daydream/brand/engin` | /app/daydream/brand/engin/page.tsx |
@@ -259,8 +260,7 @@ vitest@^4.1.0
 | `/engines/games/scores` | /app/engines/games/scores/page.tsx |
 | `/engines/lab/data` | /app/engines/lab/data/page.tsx |
 | `/engines/lab/experiments` | /app/engines/lab/experiments/page.tsx |
-| `/engines/lab` | /app/engines/lab/page.tsx |
-| ... | ... and 49 more pages |
+| ... | ... and 50 more pages |
 
 ## Components
 
@@ -333,9 +333,9 @@ vitest@^4.1.0
 
 ## Tests
 
-**Test Files:** 146
-**Tests Passing:** 136
-**Tests Failing:** 11
+**Test Files:** 147
+**Tests Passing:** 134
+**Tests Failing:** 1
 
 ### Test Files
 
@@ -346,6 +346,7 @@ vitest@^4.1.0
 - /tests/ai-edit-engine.test.ts
 - /tests/asset-optimizer.test.ts
 - /tests/auth-providers-route.test.ts
+- /tests/auth-update-password-page.test.ts
 - /tests/authenticated-ui-shells.test.ts
 - /tests/babylon-optimizero.test.ts
 - /tests/babylon-webgpu-engine.test.ts
@@ -358,8 +359,7 @@ vitest@^4.1.0
 - /tests/collector-extended.test.ts
 - /tests/compositeengin-features.test.ts
 - /tests/conform-memory-map.test.ts
-- /tests/connectors.test.ts
-- ... and 126 more test files
+- ... and 127 more test files
 
 ## Documentation
 
@@ -401,7 +401,7 @@ vitest@^4.1.0
 
 ## CI/CD Workflows
 
-**Total Workflows:** 53
+**Total Workflows:** 54
 
 ### Workflow Files
 
@@ -457,6 +457,7 @@ vitest@^4.1.0
 - update-handoff.yml
 - update-readme.yml
 - update-repo-state.yml
+- vercel-build-probe.yml
 - vercel-deploy.yml
 
 ## Configuration Files
@@ -481,7 +482,7 @@ vitest@^4.1.0
 
 ### Next.js App Router Architecture
 
-94 Server Components, 29 Client Components
+94 Server Components, 30 Client Components
 
 ### Supabase Backend
 
@@ -530,9 +531,9 @@ Using Supabase for database, auth, and storage
 - @tailwindcss/postcss
 - @types/node
 - @types/react
-- @types/react-dnd
 - @types/react-dom
 - @types/three
+- @webgpu/types
 - assemblyscript
 - eslint
 - eslint-config-next
@@ -559,7 +560,7 @@ Using Supabase for database, auth, and storage
 ### Medium Priority
 
 - 🟡 Review and remove redundant code
-- 🟡 Fix 11 failing tests
+- 🟡 Fix 1 failing tests
 
 ### Low Priority
 
@@ -570,4 +571,4 @@ Using Supabase for database, auth, and storage
 ---
 
 *This document is automatically generated by `scripts/analyze-repo-state.mjs`*
-*Last updated: 4/13/2026, 6:51:59 AM*
+*Last updated: 4/14/2026, 3:18:49 AM*
