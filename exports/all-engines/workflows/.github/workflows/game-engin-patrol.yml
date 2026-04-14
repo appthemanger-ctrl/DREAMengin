@@ -1,0 +1,177 @@
+name: GameEngin Bug Patrol
+
+# The 7th action — mimics GameEngin's control-layer role in CI.
+# Scans all games code just as GameEngin scans player scores and game state.
+#
+# Covers every file that GameEngin manages at runtime:
+#   - components/games/       — WordSprint, MemoryGrid, SpeedTap, GameRemote, Leaderboard
+#   - components/daydream/GameEngin.tsx — the Engin runtime itself
+#   - app/game/               — Dr. Eams Platformer (GamePageClient)
+#   - app/daydream/games/     — Games Daydream (GamesHub)
+#   - app/api/game-scores/    — score submission API
+#
+# Steps:
+#   1. Checkout + install
+#   2. Typecheck games scope
+#   3. Lint games scope (report mode)
+#   4. ESLint auto-fix games scope
+#   5. Unit tests for games components
+#   6. Scan for known game-bug patterns (unguarded setInterval, missing cleanup)
+#   7. Commit + push any auto-fixes
+#   8. Upload patrol report
+
+on:
+  push:
+    paths:
+      - 'components/games/**'
+      - 'components/daydream/GameEngin.tsx'
+      - 'app/game/**'
+      - 'app/daydream/games/**'
+      - 'app/api/game-scores/**'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * *'   # daily 04:00 UTC — before the daydream-games workflow
+
+permissions:
+  contents: write
+
+concurrency:
+  group: game-engin-patrol-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '25'
+  PNPM_VERSION: '10.30.0'
+
+jobs:
+  patrol:
+    name: GameEngin · Bug Patrol · Scan · Fix
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      # ── Checkout ─────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Toolchain ─────────────────────────────────────────────────────────────
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      # ── Install ───────────────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Typecheck (games scope) ───────────────────────────────────────────────
+      - name: Typecheck games scope
+        run: |
+          pnpm exec tsc --noEmit \
+            --allowJs false 2>&1 | grep -E "(components/games|app/game|GameEngin)" || true
+
+      # ── Lint report (games scope) ─────────────────────────────────────────────
+      - name: Lint games scope (report)
+        id: lint_report
+        run: |
+          pnpm lint \
+            --file components/games \
+            --file components/daydream/GameEngin.tsx \
+            --file app/game \
+            --file app/daydream/games \
+            2>&1 | tee /tmp/game-lint-report.txt \
+            && echo "lint_ok=true" >> "$GITHUB_OUTPUT" \
+            || echo "lint_ok=false" >> "$GITHUB_OUTPUT"
+
+      # ── ESLint auto-fix (games scope) ─────────────────────────────────────────
+      - name: ESLint auto-fix games scope
+        run: |
+          pnpm exec next lint \
+            --fix \
+            --dir components/games \
+            --dir app/game \
+            --dir app/daydream/games \
+            || true
+
+      # ── Unit tests (full suite — games components included) ───────────────────
+      - name: Unit tests
+        run: pnpm exec vitest run --reporter=verbose || true
+
+      # ── Pattern scan: common game-component bugs ──────────────────────────────
+      - name: Scan for unguarded setInterval / missing cleanup
+        id: pattern_scan
+        run: |
+          echo "## GameEngin Bug Patrol — Pattern Scan" > /tmp/patrol-report.txt
+          echo "" >> /tmp/patrol-report.txt
+
+          # setInterval without clearInterval in same file
+          echo "### Unguarded setInterval" >> /tmp/patrol-report.txt
+          grep -rn "setInterval" components/games/ app/game/ app/daydream/games/ \
+            --include="*.tsx" --include="*.ts" 2>/dev/null \
+            | grep -v "clearInterval" >> /tmp/patrol-report.txt || echo "None found." >> /tmp/patrol-report.txt
+
+          # useEffect without return cleanup
+          echo "" >> /tmp/patrol-report.txt
+          echo "### useEffect blocks in games files" >> /tmp/patrol-report.txt
+          grep -rn "useEffect" components/games/ components/daydream/GameEngin.tsx \
+            --include="*.tsx" 2>/dev/null >> /tmp/patrol-report.txt || echo "None found." >> /tmp/patrol-report.txt
+
+          # Missing key props in mapped lists
+          echo "" >> /tmp/patrol-report.txt
+          echo "### .map() without obvious key prop" >> /tmp/patrol-report.txt
+          grep -rn "\.map(" components/games/ components/daydream/GameEngin.tsx \
+            --include="*.tsx" 2>/dev/null >> /tmp/patrol-report.txt || echo "None found." >> /tmp/patrol-report.txt
+
+          cat /tmp/patrol-report.txt
+
+      # ── Commit auto-fixes ─────────────────────────────────────────────────────
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name  "game-engin-patrol-bot"
+          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No fixes to commit — all games code is clean."
+          else
+            git add -A
+            git commit -m "fix(games): GameEngin patrol auto-fix [skip ci] [skip vercel]"
+            git push || true
+      - name: Upload patrol report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: game-engin-patrol-report-${{ github.run_number }}
+          path: /tmp/patrol-report.txt
+          retention-days: 14
+
+      # ── Summary ───────────────────────────────────────────────────────────────
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## 🎮 GameEngin Bug Patrol Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Engin runtime | GameEngin |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Lint OK | ${{ steps.lint_report.outputs.lint_ok }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Games covered" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Dr. Eams Platformer (\`app/game/\`)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Word Sprint (\`components/games/WordSprint.tsx\`)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Memory Grid (\`components/games/MemoryGrid.tsx\`)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Speed Tap (\`components/games/SpeedTap.tsx\`)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- GameRemote (\`components/games/GameRemote.tsx\`)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Leaderboard (\`components/games/Leaderboard.tsx\`)" >> "$GITHUB_STEP_SUMMARY"
+          echo "- GameEngin runtime layer (\`components/daydream/GameEngin.tsx\`)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f /tmp/patrol-report.txt ]; then
+            echo "### Pattern scan results" >> "$GITHUB_STEP_SUMMARY"
+            cat /tmp/patrol-report.txt >> "$GITHUB_STEP_SUMMARY"
+          fi

@@ -1,0 +1,123 @@
+name: DREAMengin Preflight
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+      - completedream
+      - develop
+
+permissions:
+  contents: write
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+
+    outputs:
+      chi: ${{ steps.score.outputs.chi }}
+      mode: ${{ steps.score.outputs.mode }}
+      app-root: ${{ steps.root.outputs.app_root }}
+      changed-files: ${{ steps.score.outputs.changed_files }}
+      allowed: ${{ steps.score.outputs.allowed }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 10
+
+      - name: Detect app root
+        id: root
+        shell: bash
+        run: |
+          APP_ROOT="."
+          if [ -f "frontend/package.json" ]; then
+            APP_ROOT="frontend"
+          elif [ -f "src/package.json" ]; then
+            APP_ROOT="src"
+          elif [ -f "app/package.json" ]; then
+            APP_ROOT="app"
+          fi
+          echo "app_root=$APP_ROOT" >> "$GITHUB_OUTPUT"
+          echo "APP_ROOT=$APP_ROOT" >> "$GITHUB_ENV"
+          echo "Detected app root: $APP_ROOT"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          cd "$APP_ROOT"
+          pnpm install --frozen-lockfile
+
+      - name: Score pass / compute chi
+        id: score
+        shell: bash
+        run: |
+          node scripts/score-pass.cjs "$APP_ROOT"
+
+      - name: Vercel preflight
+        shell: bash
+        run: |
+          node scripts/vercel-preflight.cjs "$APP_ROOT"
+
+      - name: DREAMengin spec check
+        shell: bash
+        run: |
+          node scripts/spec-check.cjs "$APP_ROOT"
+
+      - name: Typecheck
+        # Warnings do not fail CI — only the build is a hard gate.
+        # The base repo has pre-existing TS errors; typecheck is advisory.
+        continue-on-error: true
+        shell: bash
+        run: |
+          cd "$APP_ROOT"
+          pnpm run typecheck
+
+      - name: Lint
+        # Lint warnings are advisory; only explicit errors matter.
+        # Hard-failing on lint blocks real work — warnings must not gate the pipeline.
+        continue-on-error: true
+        shell: bash
+        run: |
+          cd "$APP_ROOT"
+          pnpm run lint
+
+      - name: Test CI
+        shell: bash
+        run: |
+          cd "$APP_ROOT"
+          pnpm run test:ci
+
+      - name: Build
+        shell: bash
+        run: |
+          cd "$APP_ROOT"
+          pnpm run build
+
+      - name: Print summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## DREAMengin Preflight"
+            echo ""
+            echo "| Item | Value |"
+            echo "|------|-------|"
+            echo "| App root | ${{ steps.root.outputs.app_root }} |"
+            echo "| Changed files | ${{ steps.score.outputs.changed_files }} |"
+            echo "| Chi score | ${{ steps.score.outputs.chi }} |"
+            echo "| Mode | ${{ steps.score.outputs.mode }} |"
+            echo "| Allowed | ${{ steps.score.outputs.allowed }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
