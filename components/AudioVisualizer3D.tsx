@@ -216,7 +216,7 @@ export function AudioVisualizer3D({
       return;
     }
 
-    const dest   = filterNode.context.createMediaStreamDestination();
+    const dest   = (filterNode.context as AudioContext).createMediaStreamDestination();
     filterNode.connect(dest);
     const rec    = new MediaRecorder(dest.stream);
     const chunks: BlobPart[] = [];

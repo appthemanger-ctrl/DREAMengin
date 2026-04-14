@@ -40,7 +40,7 @@ export type InputHandler = (event: unknown) => void;
 
 // ─── Events emitted by the runtime ───────────────────────────────────────────
 
-export interface GameEnginEvents {
+export interface GameEnginEvents extends Record<string, unknown> {
   gameLoaded:    { manifest: DreamGameManifest };
   gameStarted:   { id: string };
   gameStopped:   { id: string };
@@ -123,7 +123,8 @@ export async function loadDreamGame(
  */
 export class GameEnginRuntime {
   private canvas: HTMLCanvasElement | null = null;
-  private device: GPUDevice | null        = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private device: any = null;
   private activeGame: DreamGameInstance | null = null;
   readonly bus: EventBus<GameEnginEvents>;
   private inputHandlers = new Map<InputType, Set<InputHandler>>();
@@ -149,7 +150,7 @@ export class GameEnginRuntime {
     }
 
     this.device = await adapter.requestDevice();
-    this.device.lost.then((info) => {
+    this.device.lost.then((info: { reason: string }) => {
       this.bus.emit('error', { message: `WebGPU device lost: ${info.reason}` });
     });
   }
