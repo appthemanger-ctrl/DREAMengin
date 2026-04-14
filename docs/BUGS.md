@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-14 04:25 UTC  
-**Last updated:** 2026-04-14 04:25 UTC  
-**Triggered by commit:** `fd9c1b8` on `codex/create-wasm-shared-memory-bus` by Codex  
-**Commit message:** feat: add wasm shared memory bridge
+**Documentation Date:** 2026-04-14 05:15 UTC  
+**Last updated:** 2026-04-14 05:15 UTC  
+**Triggered by commit:** `229f669` on `codex/create-wasm-shared-memory-bus` by Codex  
+**Commit message:** fix: stabilize wasm bus loading and tests
 
 ---
 
