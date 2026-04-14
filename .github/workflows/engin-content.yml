@@ -1,8 +1,8 @@
 name: ContentEngin — Health & Premium Feature Patrol
 
-# Engin-only workflow for ContentEngin (Create pair Engin).
+# Engin-runtime workflow for ContentEngin (Create pair machine side).
 # Scope: components/daydream/ContentEngin.tsx + create API routes + notes/content components.
-# Does NOT re-run Daydream-side CI — see daydream-create.yml for that.
+# Does NOT re-run Daydream lobby-side CI — see daydream-create.yml for that.
 #
 # Premium feature checks:
 #   ✦ Scheduling handlers
@@ -75,7 +75,7 @@ jobs:
       - name: Security audit
         run: pnpm audit --audit-level=high || true
 
-      # ── Lint (Engin scope only) ───────────────────────────────────────────────
+      # ── Lint (Engin runtime scope only) ───────────────────────────────────────────────
       - name: Lint — ContentEngin scope
         id: lint
         run: |
@@ -90,7 +90,7 @@ jobs:
       - name: Unit tests
         run: pnpm exec vitest run --reporter=verbose || true
 
-      # ── Engin-specific pattern scans ──────────────────────────────────────────
+      # ── Engin runtime pattern scans ──────────────────────────────────────────
       - name: Scan — Scheduling handlers
         id: scan_schedule
         run: |
@@ -191,7 +191,7 @@ jobs:
         if: always()
         run: |
           git config user.name  "engin-content-bot"
-          git config user.email "engin-content-bot@users.noreply.github.com"
+          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
           if git diff --quiet && git diff --cached --quiet; then
             echo "No fixes to commit."
           else
@@ -219,12 +219,12 @@ jobs:
           echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
           echo "| Engin | ContentEngin |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Canonical pair | Create Daydream |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Scope | Engin-only (no Daydream page) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scope | Engin runtime only (machine side; no Daydream lobby page) |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "### 🔎 Premium Engin Feature Checklist" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔎 Premium Engin Runtime Checklist" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Feature | Status |" >> "$GITHUB_STEP_SUMMARY"
           echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
@@ -239,5 +239,5 @@ jobs:
           echo "| Audio content type | ${{ steps.scan_content_types.outputs.AUDIO != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Rich text content type | ${{ steps.scan_content_types.outputs.TEXT != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "> Daydream-side checks are handled by \`daydream-create.yml\`." >> "$GITHUB_STEP_SUMMARY"
-          echo "> Combined pair health is handled by \`daydream-create-engin.yml\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "> Daydream lobby-side checks are handled by \`daydream-create.yml\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "> Combined Daydream lobby + Engin runtime health is handled by \`daydream-create-engin.yml\`." >> "$GITHUB_STEP_SUMMARY"

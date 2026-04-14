@@ -1,8 +1,8 @@
 name: Games Daydream — Health & Feature Scan
 
-# Daydream-only workflow for the Games Daydream (/daydream/games).
+# Daydream-lobby workflow for the Games Daydream (/daydream/games).
 # Scope: app/daydream/games/** + game-adjacent pages/components.
-# Does NOT touch GameEngin — see engin-game.yml for Engin-side CI.
+# Does NOT touch GameEngin — see engin-game.yml for Engin runtime-side CI.
 #
 # Premium feature checks:
 #   ✦ Game hub surface scan
@@ -72,7 +72,7 @@ jobs:
       - name: Security audit
         run: pnpm audit --audit-level=high || true
 
-      # ── Lint (Daydream scope only) ────────────────────────────────────────────
+      # ── Lint (Daydream lobby scope only) ────────────────────────────────────────────
       - name: Lint — Games Daydream scope
         id: lint
         run: |
@@ -158,7 +158,7 @@ jobs:
       - name: Commit auto-fixes (if any)
         run: |
           git config user.name  "daydream-games-standalone-bot"
-          git config user.email "daydream-games-standalone-bot@users.noreply.github.com"
+          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
           if git diff --quiet && git diff --cached --quiet; then
             echo "No fixes to commit."
           else
@@ -169,7 +169,7 @@ jobs:
           echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
           echo "| Daydream | Games |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Scope | Daydream-only (no Engin) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scope | Daydream lobby only (input side; no Engin runtime) |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
@@ -185,4 +185,4 @@ jobs:
           echo "| Keyboard input | ${{ steps.scan_input.outputs.KEYBOARD != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Gamepad/PS5 input | ${{ steps.scan_input.outputs.GAMEPAD != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "> Engin-side checks are handled by \`engin-game.yml\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "> Engin runtime-side checks are handled by \`engin-game.yml\`." >> "$GITHUB_STEP_SUMMARY"
