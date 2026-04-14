@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-14 06:05 UTC | `1b65743` | copilot/improve-agent-md-products-workflows | Copilot | ~27 modified<br>Update engin workflow commit emails — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/510cef18-0942-42e3-9474-a4d8592aacdc  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `.github/workflows/daydream-brand-engin.yml`, `.github/workflows/daydream-brand.yml`, `.github/workflows/daydream-code-engin.yml`, `.github/workflows/daydream-code.yml`, `.github/workflows/daydream-create-engin.yml`, `.github/workflows/daydream-create.yml`, `.github/workflows/daydream-engin-build-cycle.yml`, `.github/workflows/daydream-engin-sicc-refinement.yml`, `.github/workflows/daydream-games-engin.yml`, `.github/workflows/daydream-games.yml`, `.github/workflows/daydream-lab-engin.yml`, `.github/workflows/daydream-lab.yml` … +15 more |
 | **auto** | 2026-04-14 05:30 UTC | `cfe05aa` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #513 from appthemanger-ctrl/codex/improve-code-quality — Regenerate README from live repo via update-readme script<br> |
 | **auto** | 2026-04-14 05:21 UTC | `3fd6d88` | codex/improve-code-quality | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into codex/improve-code-quality<br> |
 | **auto** | 2026-04-14 05:06 UTC | `a9850d8` | codex/improve-code-quality | Codex | ~2 modified<br>Refresh README generator to rebuild file structure — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `README.md`, `scripts/update-readme.mjs` |
 | **auto** | 2026-04-14 05:02 UTC | `6a9acef` | codex/improve-code-quality | Codex | +1 added  ~1 modified<br>Add env example and supabase quickstart notes — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `.env.local.example`<br>✏️: `README.md` |
-| **auto** | 2026-04-14 04:17 UTC | `f14be48` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #510 from appthemanger-ctrl/codex/update-kid-hub-actions-to-25 — Enforce Node 25 in bouncer and security GitHub Actions<br> |
 
 ## What changed in this alignment pass
 
