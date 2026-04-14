@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-14 05:02 UTC | `6a9acef` | codex/improve-code-quality | Codex | +1 added  ~1 modified<br>Add env example and supabase quickstart notes — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `.env.local.example`<br>✏️: `README.md` |
 | **auto** | 2026-04-14 04:17 UTC | `f14be48` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #510 from appthemanger-ctrl/codex/update-kid-hub-actions-to-25 — Enforce Node 25 in bouncer and security GitHub Actions<br> |
 | **auto** | 2026-04-14 04:17 UTC | `40cefe3` | codex/update-kid-hub-actions-to-25 | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into codex/update-kid-hub-actions-to-25<br> |
 | **auto** | 2026-04-13 20:49 UTC | `138fdd0` | codex/update-kid-hub-actions-to-25 | Codex | ~2 modified<br>chore: ensure workflows use node 25 — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `.github/workflows/bouncer.yml`, `.github/workflows/github-actions.yml` |
 | **auto** | 2026-04-13 20:38 UTC | `2e8674b` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #509 from appthemanger-ctrl/codex/add-github-action-for-vercel-build — placeholder<br> |
-| **auto** | 2026-04-13 19:38 UTC | `2e75f2b` | codex/add-github-action-for-vercel-build | Codex | ~1 modified<br>fix: allow get_user_metrics rpc typing — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/api/metrics/user/[userId]/route.ts` |
 
 ## What changed in this alignment pass
 
