@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-14T06:47:45.309Z",
+  "generated_at": "2026-04-14T10:33:43.096Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 116,
+  "count": 117,
   "surfaces": [
     {
       "type": "page",
@@ -46,6 +46,18 @@
         {
           "name": "ChildSafetyPanel",
           "from": "@/components/ChildSafetyPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/admin/platform-health",
+      "file": "app/admin/platform-health/page.tsx",
+      "component": "PlatformHealthPage",
+      "imports": [
+        {
+          "name": "PlatformHealth",
+          "from": "@/components/idari/PlatformHealth"
         }
       ]
     },
@@ -975,6 +987,10 @@
       "component": "ProfilePage",
       "imports": [
         {
+          "name": "ActivityProfile",
+          "from": "@/components/activity/ActivityProfile"
+        },
+        {
           "name": "FollowButton",
           "from": "@/components/feed/FollowButton"
         },
@@ -1186,6 +1202,10 @@
       "file": "app/view-profile/page.tsx",
       "component": "ViewProfilePage",
       "imports": [
+        {
+          "name": "ActivityProfile",
+          "from": "@/components/activity/ActivityProfile"
+        },
         {
           "name": "ProfileShareButton",
           "from": "@/components/ProfileShareButton"
