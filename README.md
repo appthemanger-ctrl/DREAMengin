@@ -73,7 +73,7 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 | `lib/` | Hooks, utilities, Supabase client, game libs |
 | `docs/` | All governance, law, spec, and policy documents |
 | `.github/workflows/` | 54 CI/CD automation workflows |
-| `tests/` | Vitest test suite (142 test files) |
+| `tests/` | Vitest test suite (143 test files) |
 | `scripts/` | Maintenance and automation scripts |
 | `build-memory/` | Auto-generated build intelligence snapshots |
 
@@ -128,6 +128,7 @@ DREAMengin/
 │   ├── 📁 core/
 │   ├── 📁 customize/
 │   ├── 📁 daydream/
+│   ├── 📁 draggable/
 │   ├── 📁 dreamengin/
 │   ├── 📁 dreamnav/
 │   ├── 📁 dreamr/
@@ -137,7 +138,6 @@ DREAMengin/
 │   ├── 📁 feeds/
 │   ├── 📁 forge/
 │   ├── 📁 gameengin/
-│   ├── 📁 games/
 │   └── … and 2 more
 ├── 📁 config/
 ├── 📁 coresurfaces/
@@ -274,6 +274,7 @@ DREAMengin/
 │   ├── 📄 experience.ts
 │   ├── 📄 journey.ts
 │   ├── 📄 marketplace.ts
+│   ├── 📄 module-manifest.ts
 │   ├── 📄 spatial.ts
 │   ├── 📄 supabase.ts
 │   ├── 📄 user-sim.ts

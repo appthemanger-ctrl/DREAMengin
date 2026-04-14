@@ -48,7 +48,7 @@
 - 📦 Size: 6.41 MB
 - 🧪 Tests: 148 files, 143 passing
 - 📄 API Routes: 97
-- 🎨 Components: 39 categories
+- 🎨 Components: 40 categories
 - 📖 Documentation: 53 files
 - ⚙️ GitHub Actions: 54 workflows
 
@@ -264,7 +264,7 @@ vitest@^4.1.0
 
 ## Components
 
-**Total Component Categories:** 39
+**Total Component Categories:** 40
 
 ### Component Organization
 
@@ -278,6 +278,7 @@ vitest@^4.1.0
 | `core/` | 1 |
 | `customize/` | 7 |
 | `daydream/` | 24 |
+| `draggable/` | 1 |
 | `dreamengin/` | 21 |
 | `dreamnav/` | 2 |
 | `dreamr/` | 5 |
@@ -333,8 +334,8 @@ vitest@^4.1.0
 
 ## Tests
 
-**Test Files:** 148
-**Tests Passing:** 143
+**Test Files:** 149
+**Tests Passing:** 144
 **Tests Failing:** 0
 
 ### Test Files
@@ -359,7 +360,7 @@ vitest@^4.1.0
 - /tests/collector-extended.test.ts
 - /tests/compositeengin-features.test.ts
 - /tests/conform-memory-map.test.ts
-- ... and 128 more test files
+- ... and 129 more test files
 
 ## Documentation
 
