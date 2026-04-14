@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-14 06:11 UTC  
-**Last updated:** 2026-04-14 06:11 UTC  
-**Triggered by commit:** `6aaa70d` on `copilot/update-ci-cd-pipeline` by Copilot  
-**Commit message:** chore: upgrade ci workflow structure
+**Documentation Date:** 2026-04-14 06:14 UTC  
+**Last updated:** 2026-04-14 06:14 UTC  
+**Triggered by commit:** `b4c0025` on `copilot/update-ci-cd-pipeline` by Copilot  
+**Commit message:** chore: bump trivy action to patched release
 
 ---
 
