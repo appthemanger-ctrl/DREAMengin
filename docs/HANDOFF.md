@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-14 06:47 UTC | `f40bd32` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #517 from appthemanger-ctrl/copilot/update-ci-cd-pipeline — Upgrade DREAMengin CI pipeline and patch vulnerable Trivy action<br> |
 | **auto** | 2026-04-14 06:14 UTC | `b4c0025` | copilot/update-ci-cd-pipeline | Copilot | ~1 modified<br>chore: bump trivy action to patched release — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/8c81efa5-8c36-4181-a647-2995daafff0c  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `.github/workflows/github-actions.yml` |
 | **auto** | 2026-04-14 06:11 UTC | `6aaa70d` | copilot/update-ci-cd-pipeline | Copilot | ~2 modified<br>chore: upgrade ci workflow structure — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/8c81efa5-8c36-4181-a647-2995daafff0c  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `.github/actions/setup-node/action.yml`, `.github/workflows/github-actions.yml` |
 | **auto** | 2026-04-14 05:30 UTC | `cfe05aa` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #513 from appthemanger-ctrl/codex/improve-code-quality — Regenerate README from live repo via update-readme script<br> |
 | **auto** | 2026-04-14 05:21 UTC | `3fd6d88` | codex/improve-code-quality | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into codex/improve-code-quality<br> |
-| **auto** | 2026-04-14 05:06 UTC | `a9850d8` | codex/improve-code-quality | Codex | ~2 modified<br>Refresh README generator to rebuild file structure — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `README.md`, `scripts/update-readme.mjs` |
 
 ## What changed in this alignment pass
 
