@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-14 10:05 UTC  
-**Last updated:** 2026-04-14 10:05 UTC  
-**Triggered by commit:** `8d03ba6` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #521 from appthemanger-ctrl/copilot/create-implementation-plan-for-upgrade
+**Documentation Date:** 2026-04-14 10:15 UTC  
+**Last updated:** 2026-04-14 10:15 UTC  
+**Triggered by commit:** `2b265b8` on `copilot/fix-wasm-bus-and-build-errors` by Copilot  
+**Commit message:** fix: rename VM regions left/right → top/bottom in dualRuntimeBridge
 
 ---
 

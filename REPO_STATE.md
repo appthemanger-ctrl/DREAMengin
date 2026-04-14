@@ -5,10 +5,10 @@
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)
 **Documentation Date:** 2026-04-14
-**Last Updated:** 4/14/2026, 10:06:02 AM
-**Branch:** completedream
-**Commit:** 8d03ba62 - Merge pull request #521 from appthemanger-ctrl/copilot/create-implementation-plan-for-upgrade
-**Total Commits:** 4347
+**Last Updated:** 4/14/2026, 10:16:35 AM
+**Branch:** copilot/fix-wasm-bus-and-build-errors
+**Commit:** 2b265b84 - fix: rename VM regions left/right → top/bottom in dualRuntimeBridge
+**Total Commits:** 4336
 
 ---
 
@@ -43,10 +43,10 @@
 
 **Quick Stats:**
 
-- 📁 Total Code Files: 699
-- 📝 Total Lines of Code: 171,477
-- 📦 Size: 6.43 MB
-- 🧪 Tests: 149 files, 144 passing
+- 📁 Total Code Files: 695
+- 📝 Total Lines of Code: 170,448
+- 📦 Size: 6.40 MB
+- 🧪 Tests: 148 files, 143 passing
 - 📄 API Routes: 97
 - 🎨 Components: 40 categories
 - 📖 Documentation: 53 files
@@ -139,8 +139,8 @@ vitest@^4.1.0
 
 ### Code Volume
 
-- **Total Lines:** 171,477
-- **Total Size:** 6.43 MB
+- **Total Lines:** 170,448
+- **Total Size:** 6.40 MB
 
 ## API Routes
 
