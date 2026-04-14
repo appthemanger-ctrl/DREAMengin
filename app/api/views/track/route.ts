@@ -3,6 +3,9 @@
 //
 // Records verified views on content. Views are the primary metric.
 // Per ACTIVITY_FIRST_PROTOCOL.md §I.3 (Views Are the Currency)
+//
+// Stream 7.2 — BoogieMan fraud detection (ACTIVITY_FIRST_PROTOCOL.md §V)
+// Enhanced bot detection and per-user/per-post hourly rate-limit.
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
@@ -31,35 +34,48 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
 
-    // Get client info for fraud detection
-    const viewerIp = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip');
-    const viewerAgent = req.headers.get('user-agent');
+    // ── Fraud detection via TheBoogieMan.Ai — ACTIVITY_FIRST_PROTOCOL.md §V ──
+    const fingerprint = {
+      userAgent: req.headers.get('user-agent') ?? '',
+      ip: req.headers.get('x-forwarded-for')?.split(',')[0] ?? req.headers.get('x-real-ip') ?? '',
+      timestamp: Date.now(),
+    };
 
-    // Check for duplicate views (same user/IP, same post, last 24h)
-    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-
-    let isDuplicate = false;
-    if (user) {
-      const { data: existingView } = await (supabase as any)
-        .from('views')
-        .select('id')
-        .eq('post_id', post_id)
-        .eq('viewer_id', user.id)
-        .gte('created_at', twentyFourHoursAgo)
-        .single();
-
-      isDuplicate = !!existingView;
+    // Check for obvious bot patterns (enhanced: includes 'headless' signal)
+    const isBotPattern = /bot|crawler|spider|scraper|headless/i.test(fingerprint.userAgent);
+    if (isBotPattern) {
+      return NextResponse.json(
+        { error: 'View not verified: bot pattern detected' },
+        { status: 400 },
+      );
     }
 
-    // Basic bot detection
-    const isBot = viewerAgent
-      ? /bot|crawler|spider|scraper/i.test(viewerAgent)
-      : false;
+    // Rate-limit: max 1 view per post per user per hour (authenticated users only)
+    if (user) {
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      const { count: recentViewCount } = await (supabase as any)
+        .from('views')
+        .select('id', { count: 'exact', head: true })
+        .eq('viewer_id', user.id)
+        .eq('post_id', post_id)
+        .gte('created_at', oneHourAgo);
 
-    // Verify view (human, not duplicate, minimum duration)
+      if ((recentViewCount ?? 0) > 0) {
+        return NextResponse.json(
+          { error: 'Duplicate view within cooldown window' },
+          { status: 429 },
+        );
+      }
+    }
+    // ── End fraud detection ───────────────────────────────────────────────────
+
+    // Get client info for storage
+    const viewerIp = fingerprint.ip || req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip');
+    const viewerAgent = fingerprint.userAgent || null;
+
+    // Verify view (human, minimum duration)
     const verified =
-      !isBot &&
-      !isDuplicate &&
+      !isBotPattern &&
       (view_duration === undefined || view_duration >= 3); // 3+ seconds
 
     // Record view
@@ -74,8 +90,8 @@ export async function POST(req: NextRequest) {
         scrolled_pct,
         verified,
         verified_at: verified ? new Date().toISOString() : null,
-        is_bot: isBot,
-        is_duplicate: isDuplicate,
+        is_bot: isBotPattern,
+        is_duplicate: false, // duplicates are rejected above
       })
       .select()
       .single();

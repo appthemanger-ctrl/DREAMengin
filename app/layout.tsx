@@ -1,4 +1,8 @@
 import '@/styles/globals.css';
+// Stream 5.1 — View Transitions API for surface switching
+import '@/styles/view-transitions.css';
+// Stream 5.2 — CSS Container Queries for Dream Windows
+import '@/styles/dream-shell.css';
 import type { Metadata, Viewport } from 'next';
 import { Suspense } from 'react';
 import { Space_Grotesk, Cormorant_Garamond, Plus_Jakarta_Sans } from 'next/font/google';
@@ -44,7 +48,8 @@ export const metadata: Metadata = {
     icon: '/logo-icon.png',
     apple: '/logo-icon.png',
   },
-  manifest: '/manifest.json',
+  // Stream 6.1 — Web App Manifest (PWA support)
+  manifest: '/manifest.webmanifest',
 };
 
 export const viewport: Viewport = {

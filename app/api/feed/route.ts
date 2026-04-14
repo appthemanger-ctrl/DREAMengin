@@ -20,7 +20,7 @@
 //   limit    — max items to return (default: 30, max: 100)
 //   before   — ISO timestamp cursor for pagination
 //   provider — filter connector items to a specific provider
-//   sort     — "recent" (default) | "activity" (Phase 9: by visibility_score)
+//   sort     — "activity" (default, Phase 9: by visibility_score) | "recent" | "trending"
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
   const limit    = Math.min(parseInt(searchParams.get('limit') ?? '30', 10), 100);
   const before   = searchParams.get('before');   // ISO date cursor
   const provider = searchParams.get('provider'); // optional provider filter
-  const sort     = searchParams.get('sort') ?? 'recent';
+  const sort     = searchParams.get('sort') ?? 'activity';
 
   const entries: UnifiedFeedEntry[] = [];
 
