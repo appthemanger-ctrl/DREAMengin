@@ -9,10 +9,10 @@ export { BufferManager } from './bufferManager';
 export { PipelineCache } from './pipelineCache';
 export { SnapshotManager } from './snapshot';
 export {
-  DualVMCoordinator,
-  initializeDualVMCoordinator,
   getDualVMCoordinator,
+  initializeDualVMCoordinator,
   destroyDualVMCoordinator,
+  type DualVMCoordinator,
   type VMRegion,
   type DualVMConfig,
   type VMWorkload,

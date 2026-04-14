@@ -96,11 +96,12 @@ const ALL_CHANNEL_EVENTS: Record<DualRuntimeChannel, string[]> = {
   music:   ['music:track-released', 'music:bpm-changed', 'music:stem-ready', 'music:upload-complete'],
   games:   ['games:score-submitted', 'games:session-started', 'games:session-ended', 'games:achievement-unlocked', 'games:asset-exported'],
   game:    [],
-  lab:     ['lab:result-ready', 'lab:simulation-started', 'lab:simulation-complete', 'lab:quantum-measured', 'lab:data-exported'],
+  lab:     ['lab:result-ready', 'lab:simulation-started', 'lab:simulation-complete', 'lab:quantum-measured', 'lab:data-exported', 'lab:quantum:result'],
   code:    ['code:cell-executed', 'code:deploy-to-game', 'code:build-success', 'code:build-failed', 'code:notebook-exported'],
   brand:   ['brand:campaign-launched', 'brand:campaign-paused', 'brand:asset-updated', 'brand:analytics-snapshot', 'brand:segment-created'],
   create:  ['create:draft-saved', 'create:published', 'create:export-asset', 'create:queue-updated', 'create:calendar-event'],
   content: [],
+  compute: ['vm:initialized', 'vm:workload-submitted', 'vm:inter-vm-message', 'vm:error', 'vm:dispatch-workload'],
 };
 
 interface BridgeEvent {

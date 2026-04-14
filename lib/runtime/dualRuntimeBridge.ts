@@ -12,7 +12,145 @@ export type DualRuntimeChannel =
   | 'lab'
   | 'brand'
   | 'content'
-  | 'create';
+  | 'create'
+  | 'compute';
+
+// ── VM region ─────────────────────────────────────────────────────────────────
+export type VMRegion = 'left' | 'right';
+
+// ── Quantum compute result ────────────────────────────────────────────────────
+export interface QuantumComputeResult {
+  algorithm: string;
+  ansatz: string;
+  numQubits: number;
+  probabilities: number[];
+  topBitstring: string;
+  topProbability: number;
+  selectedAssets: boolean[];
+  expectationValue: number;
+  computedAt: number;
+}
+
+// ── VM workload ───────────────────────────────────────────────────────────────
+export interface VMWorkload {
+  id: string;
+  region: VMRegion;
+  wasmBinary: BufferSource;
+  channel: DualRuntimeChannel;
+  priority: number;
+}
+
+// ── Quantum circuit compute engine (inline) ───────────────────────────────────
+// Pure complex-number state vector simulation; no canvas, no components.
+// Dispatched automatically on bridge.emit('lab', 'quantum:run', payload).
+
+type _C = [number, number];
+type _Gate = [_C, _C, _C, _C];
+type _SV = _C[];
+
+const _IS2 = 1 / Math.SQRT2;
+const _GATE_H: _Gate = [[_IS2,0],[_IS2,0],[_IS2,0],[-_IS2,0]];
+
+function _gateRx(t: number): _Gate { const c=Math.cos(t/2),s=Math.sin(t/2); return [[c,0],[0,-s],[0,-s],[c,0]]; }
+function _gateRy(t: number): _Gate { const c=Math.cos(t/2),s=Math.sin(t/2); return [[c,0],[-s,0],[s,0],[c,0]]; }
+function _gateRz(t: number): _Gate { const c=Math.cos(t/2),s=Math.sin(t/2); return [[c,-s],[0,0],[0,0],[c,s]]; }
+function _groundState(n: number): _SV { const sv = Array.from({length: 1 << n}, (): _C => [0, 0]); sv[0] = [1, 0]; return sv as _SV; }
+function _cmul([r1,i1]: _C,[r2,i2]: _C): _C { return [r1*r2-i1*i2, r1*i2+i1*r2]; }
+function _cadd([r1,i1]: _C,[r2,i2]: _C): _C { return [r1+r2, i1+i2]; }
+
+function _applyGate1(sv: _SV, n: number, q: number, u: _Gate): _SV {
+  const next = sv.slice();
+  const bit = 1 << (n - 1 - q);
+  for (let i = 0; i < sv.length; i++) {
+    if (i & bit) continue;
+    const j = i | bit;
+    const a = sv[i]!, b = sv[j]!;
+    next[i] = _cadd(_cmul(u[0], a), _cmul(u[1], b));
+    next[j] = _cadd(_cmul(u[2], a), _cmul(u[3], b));
+  }
+  return next;
+}
+
+function _applyCNOT(sv: _SV, n: number, ctrl: number, tgt: number): _SV {
+  const next = sv.slice();
+  const cBit = 1 << (n - 1 - ctrl), tBit = 1 << (n - 1 - tgt);
+  for (let i = 0; i < sv.length; i++) {
+    if ((i & cBit) !== 0 && (i & tBit) === 0) { const j = i | tBit; next[i] = sv[j]!; next[j] = sv[i]!; }
+  }
+  return next;
+}
+
+const _RETURNS = [0.12, 0.09, 0.15], _SIGMA = [0.20, 0.15, 0.25];
+const _CORR    = [[1, 0.3, 0.1], [0.3, 1, 0.2], [0.1, 0.2, 1]];
+
+function _quboCost(bits: boolean[]): number {
+  let c = 0;
+  bits.forEach((b, i) => { if (b) c -= _RETURNS[i] ?? 0.1; });
+  for (let i = 0; i < bits.length; i++)
+    for (let j = i + 1; j < bits.length; j++)
+      if (bits[i] && bits[j])
+        c += 0.5 * (_SIGMA[i] ?? 0.2) * (_SIGMA[j] ?? 0.2) * ((_CORR[i] ?? [])[j] ?? 0.2);
+  return c;
+}
+
+type _Op = { kind: string; q?: number; ctrl?: number; tgt?: number; theta?: number };
+
+function _buildCircuit(n: number, algo: string, ansatz: string): _Op[] {
+  const ops: _Op[] = [];
+  if (algo === 'qaoa') {
+    const g = Math.PI * 0.4, b = Math.PI * 0.35;
+    for (let q = 0; q < n; q++) ops.push({ kind: 'H', q });
+    for (let q = 0; q < n - 1; q++) ops.push({ kind: 'CX', ctrl: q, tgt: q + 1 });
+    for (let q = 0; q < n; q++) ops.push({ kind: 'Rz', q, theta: g });
+    for (let q = 0; q < n; q++) ops.push({ kind: 'Rx', q, theta: 2 * b });
+    for (let q = 0; q < n - 1; q++) ops.push({ kind: 'CX', ctrl: q, tgt: q + 1 });
+    for (let q = 0; q < n; q++) ops.push({ kind: 'Ry', q, theta: g / 2 });
+  } else if (ansatz === 'efficient_su2') {
+    const p = [0.9, 0.7, 1.1, 0.6, 0.8, 0.5, 1.2, 1.0, 0.7, 0.4, 0.8, 1.0];
+    for (let q = 0; q < n; q++) ops.push({ kind: 'H', q });
+    for (let q = 0; q < n; q++) ops.push({ kind: 'Ry', q, theta: p[q] ?? Math.PI / 4 });
+    for (let q = 0; q < n; q++) ops.push({ kind: 'Rz', q, theta: p[q + n] ?? Math.PI / 4 });
+    for (let q = 0; q < n - 1; q++) ops.push({ kind: 'CX', ctrl: q, tgt: q + 1 });
+    for (let q = 0; q < n; q++) ops.push({ kind: 'Ry', q, theta: p[q + 2 * n] ?? Math.PI / 4 });
+    for (let q = 0; q < n; q++) ops.push({ kind: 'Rz', q, theta: p[q + 3 * n] ?? Math.PI / 4 });
+  } else {
+    const t1 = [Math.PI / 3, Math.PI / 4, Math.PI / 5], t2 = [Math.PI / 6, Math.PI / 4, Math.PI / 3];
+    for (let q = 0; q < n; q++) ops.push({ kind: 'H', q });
+    for (let q = 0; q < n; q++) ops.push({ kind: 'Ry', q, theta: t1[q] ?? Math.PI / 4 });
+    for (let q = 0; q < n - 1; q++) ops.push({ kind: 'CX', ctrl: q, tgt: q + 1 });
+    for (let q = 0; q < n; q++) ops.push({ kind: 'Ry', q, theta: t2[q] ?? Math.PI / 4 });
+  }
+  return ops;
+}
+
+function _runCircuit(numQubits: number, algo: string, ansatz: string): QuantumComputeResult {
+  let sv = _groundState(numQubits);
+  for (const op of _buildCircuit(numQubits, algo, ansatz)) {
+    if      (op.kind === 'H'  && op.q    != null)                    sv = _applyGate1(sv, numQubits, op.q, _GATE_H);
+    else if (op.kind === 'Rx' && op.q    != null && op.theta != null) sv = _applyGate1(sv, numQubits, op.q, _gateRx(op.theta));
+    else if (op.kind === 'Ry' && op.q    != null && op.theta != null) sv = _applyGate1(sv, numQubits, op.q, _gateRy(op.theta));
+    else if (op.kind === 'Rz' && op.q    != null && op.theta != null) sv = _applyGate1(sv, numQubits, op.q, _gateRz(op.theta));
+    else if (op.kind === 'CX' && op.ctrl != null && op.tgt   != null) sv = _applyCNOT(sv, numQubits, op.ctrl, op.tgt);
+  }
+  const ps = sv.map(([r, i]) => r * r + i * i);
+  const topIdx = ps.reduce((best, v, i) => (v > ps[best] ? i : best), 0);
+  const topBits = Array.from({ length: numQubits }, (_, k) => Boolean((topIdx >> (numQubits - 1 - k)) & 1));
+  const ev = ps.reduce((sum, prob, i) => {
+    const bits = Array.from({ length: numQubits }, (_, k) => Boolean((i >> (numQubits - 1 - k)) & 1));
+    return sum + prob * _quboCost(bits);
+  }, 0);
+  return {
+    algorithm: algo, ansatz, numQubits, probabilities: ps,
+    topBitstring: topBits.map(b => b ? '1' : '0').join(''),
+    topProbability: ps[topIdx] ?? 0, selectedAssets: topBits,
+    expectationValue: ev, computedAt: Date.now(),
+  };
+}
+
+// ── Inter-VM ring buffer constants ────────────────────────────────────────────
+const VM_QUEUE_CAPACITY = 256;
+const VM_MESSAGE_SIZE   = 1024;
+const VM_QUEUE_BUF_SIZE = VM_QUEUE_CAPACITY * VM_MESSAGE_SIZE + 8; // +8 for producer/consumer indices
 
 // ── Event schema types (intentionally loose — channels define their own events) ─
 
@@ -103,10 +241,36 @@ class DualRuntimeBridge extends EventEmitter {
   private readonly encoder = new TextEncoder();
   private readonly decoder = new TextDecoder();
 
+  // ── Dual VM upgrade ───────────────────────────────────────────────────────
+  private _vmLeft:  unknown = null;
+  private _vmRight: unknown = null;
+  private _vmInterQueue: {
+    buffer: SharedArrayBuffer;
+    producerIndex: Int32Array;
+    consumerIndex: Int32Array;
+  } | null = null;
+  private readonly _vmEventChannels = new Map<string, { buffer: SharedArrayBuffer; view: Int32Array }>();
+  private readonly _vmActiveWorkloads = new Map<string, VMRegion>();
+
   constructor() {
     super();
     this.setMaxListeners(100);
     void this.initWasm();
+    // ── Quantum compute handler ───────────────────────────────────────────
+    // bridge.emit('lab', 'quantum:run', {algorithm, ansatz, numQubits?})
+    // → runs QAOA/VQE state-vector simulation inline
+    // → emits 'lab:quantum:result' which dreamOSBus auto-ingests as lab-result
+    this.subscribe('lab', 'quantum:run', (payload) => {
+      const algo      = (payload['algorithm']  as string) ?? 'vqe';
+      const ansatz    = (payload['ansatz']     as string) ?? 'real_amplitudes';
+      const numQubits = (payload['numQubits']  as number) ?? 3;
+      const result    = _runCircuit(numQubits, algo, ansatz);
+      this.emit('lab', 'quantum:result', result as unknown as Record<string, unknown>);
+      // Write result to inter-VM ring buffer if available so both VMs see it
+      if (this._vmInterQueue) {
+        this._writeInterVMMessage(new TextEncoder().encode(JSON.stringify(result)));
+      }
+    });
   }
 
   // ── WASM bridge initialisation ─────────────────────────────────────────----
@@ -452,6 +616,96 @@ class DualRuntimeBridge extends EventEmitter {
     return (this.peers.get(channel)?.subscriberCount ?? 0) > 0;
   }
 
+  // ── Dual VM API ───────────────────────────────────────────────────────────
+
+  /**
+   * Initialize the left and right WASM+GPU VMs plus the inter-VM
+   * SharedArrayBuffer ring buffer.  Dynamically imports WasmGpuVM so
+   * this module stays loadable in test/SSR environments without WebGPU.
+   */
+  async initVMs(config: { enableInterVMCommunication?: boolean } = {}): Promise<void> {
+    if (this._vmLeft && this._vmRight) return;
+    try {
+      const { WasmGpuVM } = await import('@/lib/vm/wasmGpuVM');
+      this._vmLeft  = await WasmGpuVM.create({ id: 'vm-left' });
+      this._vmRight = await WasmGpuVM.create({ id: 'vm-right' });
+      if (config.enableInterVMCommunication !== false) {
+        const buffer = new SharedArrayBuffer(VM_QUEUE_BUF_SIZE);
+        const producerIndex = new Int32Array(buffer, 0, 1);
+        const consumerIndex = new Int32Array(buffer, 4, 1);
+        Atomics.store(producerIndex, 0, 0);
+        Atomics.store(consumerIndex, 0, 0);
+        this._vmInterQueue = { buffer, producerIndex, consumerIndex };
+      }
+      // Workload dispatch: compute:vm:dispatch-workload → submitVMWorkload
+      this.subscribe('compute', 'vm:dispatch-workload', (p) => {
+        void this._handleVMWorkload(p);
+      });
+      this.emit('compute', 'vm:initialized', {
+        leftVMId: 'vm-left', rightVMId: 'vm-right',
+        interVMEnabled: config.enableInterVMCommunication !== false,
+        timestamp: Date.now(),
+      });
+    } catch (err) {
+      console.warn('[DualRuntimeBridge] VM init failed (WebGPU unavailable?):', err);
+    }
+  }
+
+  /** Destroy both VMs and release the inter-VM ring buffer. */
+  destroyVMs(): void {
+    (this._vmLeft  as { destroy?(): void } | null)?.destroy?.();
+    (this._vmRight as { destroy?(): void } | null)?.destroy?.();
+    this._vmLeft  = null;
+    this._vmRight = null;
+    this._vmInterQueue = null;
+    this._vmEventChannels.clear();
+    this._vmActiveWorkloads.clear();
+  }
+
+  /**
+   * Send a raw byte message from one VM to the other through the shared
+   * ring buffer.  Returns true when the message was enqueued.
+   */
+  sendInterVMMessage(from: VMRegion, to: VMRegion, message: Uint8Array): boolean {
+    if (!this._vmInterQueue) return false;
+    const written = this._writeInterVMMessage(message);
+    if (written) {
+      this.emit('compute', 'vm:inter-vm-message', { from, to, size: message.byteLength, timestamp: Date.now() });
+    }
+    return written;
+  }
+
+  /**
+   * Submit a WASM workload to the left or right VM.
+   * The workload result is emitted on the given channel.
+   */
+  async submitVMWorkload(workload: VMWorkload): Promise<void> {
+    const vm = workload.region === 'left' ? this._vmLeft : this._vmRight;
+    if (!vm) throw new Error(`VM not initialized: ${workload.region}`);
+    this._vmActiveWorkloads.set(workload.id, workload.region);
+    await (vm as { loadWasm(b: BufferSource): Promise<void> }).loadWasm(workload.wasmBinary);
+    this.emit(workload.channel, 'vm:workload-submitted', {
+      workloadId: workload.id, region: workload.region, timestamp: Date.now(),
+    });
+  }
+
+  /**
+   * Return VM stats (counters, active workloads) or null if VMs are not
+   * yet initialized.
+   */
+  getVMStats(): {
+    left:  Record<string, unknown> | null;
+    right: Record<string, unknown> | null;
+    activeWorkloads: { id: string; region: VMRegion }[];
+  } | null {
+    if (!this._vmLeft && !this._vmRight) return null;
+    return {
+      left:  this._vmLeft  ? (this._vmLeft  as { getStats(): Record<string, unknown> }).getStats() : null,
+      right: this._vmRight ? (this._vmRight as { getStats(): Record<string, unknown> }).getStats() : null,
+      activeWorkloads: Array.from(this._vmActiveWorkloads.entries()).map(([id, region]) => ({ id, region })),
+    };
+  }
+
   // ── Test / teardown helpers ────────────────────────────────────────────────
 
   /**
@@ -559,6 +813,36 @@ class DualRuntimeBridge extends EventEmitter {
     let h = 0;
     for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i);
     return h >>> 0;
+  }
+
+  /** Write a byte message into the inter-VM ring buffer. */
+  private _writeInterVMMessage(message: Uint8Array): boolean {
+    if (!this._vmInterQueue) return false;
+    const { buffer, producerIndex, consumerIndex } = this._vmInterQueue;
+    const prod = Atomics.load(producerIndex, 0);
+    const cons = Atomics.load(consumerIndex, 0);
+    if (prod - cons >= VM_QUEUE_CAPACITY) return false;
+    const slot   = prod % VM_QUEUE_CAPACITY;
+    const offset = slot * VM_MESSAGE_SIZE;
+    const view   = new Uint8Array(buffer, offset, VM_MESSAGE_SIZE);
+    view.fill(0);
+    view.set(message.subarray(0, VM_MESSAGE_SIZE));
+    Atomics.add(producerIndex, 0, 1);
+    Atomics.notify(consumerIndex, 0, 1);
+    return true;
+  }
+
+  /** Internal handler for compute:vm:dispatch-workload bridge events. */
+  private async _handleVMWorkload(payload: Record<string, unknown>): Promise<void> {
+    const { workloadId, region, wasmBinary, channel, priority } = payload as {
+      workloadId: string; region: VMRegion; wasmBinary: ArrayBuffer;
+      channel: DualRuntimeChannel; priority: number;
+    };
+    try {
+      await this.submitVMWorkload({ id: workloadId, region, wasmBinary, channel, priority });
+    } catch (err) {
+      this.emit(channel, 'vm:error', { workloadId, error: String(err) });
+    }
   }
 }
 
