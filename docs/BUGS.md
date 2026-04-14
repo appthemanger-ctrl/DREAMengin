@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-14 22:51 UTC  
-**Last updated:** 2026-04-14 22:51 UTC  
-**Triggered by commit:** `984d0ca` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #528 from appthemanger-ctrl/copilot/enable-memory-for-all-agents
+**Documentation Date:** 2026-04-14 23:30 UTC  
+**Last updated:** 2026-04-14 23:30 UTC  
+**Triggered by commit:** `23d0403` on `completedream` by appthemanger-ctrl  
+**Commit message:** Revise LAW.md with updated product and route laws
 
 ---
 
