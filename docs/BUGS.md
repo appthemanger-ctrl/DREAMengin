@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-14 14:13 UTC  
-**Last updated:** 2026-04-14 14:13 UTC  
-**Triggered by commit:** `d7a0a04` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #525 from appthemanger-ctrl/copilot/replace-stylized-with-synchronized
+**Documentation Date:** 2026-04-14 15:01 UTC  
+**Last updated:** 2026-04-14 15:01 UTC  
+**Triggered by commit:** `8911b62` on `copilot/fix-game-window-and-robot-movement` by Copilot  
+**Commit message:** fix(madmaxi): game canvas above remote, robot ground contact, fast fall, faster enemies
 
 ---
 
