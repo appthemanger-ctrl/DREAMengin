@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-14 10:27 UTC  
-**Last updated:** 2026-04-14 10:27 UTC  
-**Triggered by commit:** `5f2fc47` on `copilot/update-readme-md-another-one` by Copilot  
-**Commit message:** fix(readme): complete spec body — fix Babylon.js version, section numbering, truncated §33, add §34 WASM+GPU VM
+**Documentation Date:** 2026-04-14 10:33 UTC  
+**Last updated:** 2026-04-14 10:33 UTC  
+**Triggered by commit:** `a4a97e9` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #523 from appthemanger-ctrl/copilot/update-readme-md-another-one
 
 ---
 
