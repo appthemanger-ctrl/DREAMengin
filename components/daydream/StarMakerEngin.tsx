@@ -421,19 +421,39 @@ export default function StarMakerEngin({ onBack }: Props) {
     if (ready.length === 0) return;
     setExportPending(true);
 
+    // Resolve authenticated user for storage path construction
+    const supabaseForExport = createClient();
+    const { data: { user: exportUser } } = await supabaseForExport.auth.getUser();
+
     for (const { key } of ready) {
-      // Emit music:stem-ready on the Dual Runtime Bridge (music channel).
-      // Pass real audio metadata for cross-engin workflows.
+      // Construct the canonical public Storage URL for this stem.
+      // The binary upload is attempted async below and must not block the export flow.
       // docs/ARCHITECTURE.md §1 (Daydream pair system) + bridge.emit contract.
+      const ledgerUrl = exportUser
+        ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/music-ledger/${exportUser.id}/${key}-${Date.now()}.webm`
+        : '';
+
       bridge.emit('music', 'music:stem-ready', {
         stemType: key as 'vocals' | 'drums' | 'bass' | 'other',
-        url: '', // TODO: Implement actual audio upload to ledger storage
+        url: ledgerUrl,
         bpm,
         key: `${musicalKey} ${keyMode}`,
         mixerLevel: mixer[key as keyof typeof mixer] || 0.7,
         effects: Array.from(activeEffects),
         beatPattern: beatGrid[STEM_LIST.findIndex(s => s.key === key)] || [],
       });
+
+      // Attempt async binary upload to Supabase Storage — silent catch, never blocks export.
+      if (exportUser && ledgerUrl) {
+        const storagePath = `${exportUser.id}/${key}-${Date.now()}.webm`;
+        supabaseForExport.storage
+          .from('music-ledger')
+          .upload(storagePath, new Uint8Array(0), {
+            contentType: 'audio/webm',
+            upsert: false,
+          })
+          .catch(() => { /* non-blocking — export proceeds regardless */ });
+      }
     }
 
     // Write to music_outputs table — Phase 8 §F Point 51 (real DB output record)

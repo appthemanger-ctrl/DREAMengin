@@ -301,11 +301,56 @@ export class WasmGpuVM {
         bindingsPtr: number,
         bindingsCount: number,
       ): number => {
-        // Simplified implementation - in production, parse bindings from WASM memory
         try {
+          const memory = this.state.wasmMemories.get(0);
+          if (!memory) return 3; // INVALID_ARGUMENT
+
           const handle = this.state.nextBindGroupHandle++;
-          // TODO: Parse bindings and create actual bind group
-          // For now, return a placeholder handle
+
+          // Each binding entry is: [binding: u32, buffer_handle: u32, offset: u64, size: u64] = 20 bytes
+          const ENTRY_SIZE = 20;
+          const view = new DataView(memory.memory.buffer, bindingsPtr, bindingsCount * ENTRY_SIZE);
+          const entries: GPUBindGroupEntry[] = [];
+
+          for (let i = 0; i < bindingsCount; i++) {
+            const base = i * ENTRY_SIZE;
+            const binding = view.getUint32(base, true);
+            const bufHandle = view.getUint32(base + 4, true);
+            const offset = Number(view.getBigUint64(base + 8, true));
+            const size = Number(view.getBigUint64(base + 16, true));
+
+            const bufDesc = this.state.buffers.get(bufHandle);
+            if (!bufDesc) return 2; // INVALID_HANDLE for buffer
+
+            entries.push({
+              binding,
+              resource: { buffer: bufDesc.buffer, offset, size: size > 0 ? size : undefined },
+            });
+          }
+
+          // Use the pipeline layout from the most recently set pipeline, or 'auto'
+          const pipelineDesc = this.state.pipelines.get(this.state.commandState.activePipeline);
+          const layout = pipelineDesc?.pipeline.getBindGroupLayout(0) ?? null;
+
+          if (!layout) {
+            // Store a deferred descriptor; bind group will be created lazily
+            this.state.bindGroups.set(handle, {
+              handle,
+              bindGroup: null as unknown as GPUBindGroup,
+              entries,
+              layoutHandle,
+            } as unknown as import('./types').BindGroupDescriptor);
+            return handle;
+          }
+
+          const bindGroup = this.state.device.createBindGroup({ layout: layout as unknown as GPUBindGroupLayout, entries });
+          this.state.bindGroups.set(handle, {
+            handle,
+            bindGroup,
+            entries,
+            layoutHandle,
+          } as unknown as import('./types').BindGroupDescriptor);
+
           return handle;
         } catch {
           return 4; // GPU_ERROR
@@ -362,8 +407,20 @@ export class WasmGpuVM {
           return 3; // INVALID_ARGUMENT (no active compute pass)
         }
 
-        // TODO: Parse dynamic offsets from WASM memory if needed
-        this.state.commandState.computePass.setBindGroup(groupIndex, descriptor.bindGroup);
+        // Parse dynamic offsets from WASM linear memory
+        let dynamicOffsets: number[] | undefined;
+        if (offsetCount > 0 && dynamicOffsetsPtr !== 0) {
+          const memory = this.state.wasmMemories.get(0);
+          if (memory) {
+            const offsetView = new Uint32Array(memory.memory.buffer, dynamicOffsetsPtr, offsetCount);
+            dynamicOffsets = Array.from(offsetView);
+          }
+        }
+        this.state.commandState.computePass.setBindGroup(
+          groupIndex,
+          descriptor.bindGroup,
+          dynamicOffsets,
+        );
         this.state.commandState.activeBindGroups.set(groupIndex, bindGroupHandle);
         this.state.commandState.activeCommands++;
         return 0; // SUCCESS

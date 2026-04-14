@@ -962,6 +962,11 @@ class GameCore {
     bgMat.emissiveColor = new BJS.Color3(0.06, 0.09, 0.25);
     bgMat.backFaceCulling = false;
     bg.material = bgMat;
+    // Stream 8.1 — background plane is a decorative non-interactive mesh.
+    // freezeWorldMatrix() is intentionally omitted: position.x is updated
+    // every frame for parallax (bgPlane.position.x = camX * 0.2). Setting
+    // isPickable = false is the safe performance win here.
+    bg.isPickable = false;
     this.bgPlane = bg;
 
     // Aurora skyline bands — animated, layered backdrop for MADMAXI visual upgrade.
@@ -980,6 +985,8 @@ class GameCore {
       mat.emissiveColor = new BJS.Color3(zone.sky[0] + sat * 0.6, zone.sky[1] + sat * 0.45, zone.sky[2] + sat);
       band.material = mat;
       band.position.set(0, 10 + idx * 2.4, depth);
+      // Stream 8.1 — skyline bands are decorative parallax elements; not pickable.
+      band.isPickable = false;
       this.skylineBands.push({ mesh: band, baseX: 0, parallax, pulseOffset: idx * 1.8 });
     });
 
@@ -1002,6 +1009,8 @@ class GameCore {
         star.material = mat;
         const baseX = (rng() - 0.5) * 54;
         star.position.set(baseX, rng() * 13 + 0.5, depth);
+        // Stream 8.1 — parallax stars are decorative; not pickable.
+        star.isPickable = false;
         this.bgStars.push({ mesh: star, baseX, parallax });
       }
     }

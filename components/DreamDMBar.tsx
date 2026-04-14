@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useOptimistic } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-motion';
 import { create } from 'zustand';
 import { X, Send, ImageIcon, Loader2, MessageCircle, Search, Bot, Gamepad2, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SkipCreditBalance } from '@/components/ads/SkipCreditBalance';
 
 // ============================================================================
 // CONFIG
@@ -181,6 +182,16 @@ export default function DreamDMBar({ onHome, onBothMenus }: { onHome: () => void
   // Local state
   const [lightPos, setLightPos] = useState<'bottom' | 'middle' | 'top'>('bottom');
   const [particles, setParticles] = useState<{ id: string; x: number; y: number; vx: number; vy: number; size: number; color: string }[]>([]);
+
+  // Stream 3.2 — useOptimistic for DM message sends (React 19)
+  // Optimistic messages appear instantly before API confirmation.
+  // docs/ARCHITECTURE.md §10 — intentional, responsive interactions.
+  type SentMessage = { id: string; text: string; files: number; mode: IntentMode; status: 'sending' | 'sent' | 'error' };
+  const [messages, setMessages] = useState<SentMessage[]>([]);
+  const [optimisticMessages, addOptimisticMessage] = useOptimistic(
+    messages,
+    (state: SentMessage[], newMsg: SentMessage) => [...state, newMsg],
+  );
   const particleCenter = useRef({ x: 0, y: 0 });
   const barTouchTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lightTapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -258,18 +269,32 @@ export default function DreamDMBar({ onHome, onBothMenus }: { onHome: () => void
   }, []);
   const onGoldPointerUp = useCallback(() => { if (longPressTimer.current) clearTimeout(longPressTimer.current); }, []);
 
-  // Send action
+  // Send action — optimistic update fires before API call
   const handleSend = useCallback(async () => {
     const text = draft.draft.trim(); if (!text && draft.files.length === 0) return;
+    const newMsg: SentMessage = {
+      id: `msg-${Date.now()}`,
+      text,
+      files: draft.files.length,
+      mode: intent.intent.mode,
+      status: 'sending',
+    };
+    // Optimistic update: message appears immediately in the list
+    addOptimisticMessage(newMsg);
     draft.setIsSending(true);
     try {
       // Simulate API call based on intent
       await new Promise(r => setTimeout(r, 500));
       console.log(`[DreamDM] Sending ${intent.intent.mode}:`, text, draft.files);
+      // Commit to base state once API confirms
+      setMessages(prev => [...prev, { ...newMsg, status: 'sent' }]);
       draft.reset(); intent.clearIntent();
-    } catch { draft.setError('Failed to send'); }
+    } catch {
+      setMessages(prev => [...prev, { ...newMsg, status: 'error' }]);
+      draft.setError('Failed to send');
+    }
     finally { draft.setIsSending(false); }
-  }, [draft, intent]);
+  }, [draft, intent, addOptimisticMessage]);
 
   // File handling
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -313,8 +338,22 @@ export default function DreamDMBar({ onHome, onBothMenus }: { onHome: () => void
         </div>
 
         {showExpanded ? (
-          // Expanded panel (simplified - just a placeholder for messages/content)
-          <div className="flex-1 p-4"><p className="text-gray-500">Expanded content area</p></div>
+          // Expanded panel — shows optimistic message list (Stream 3.2)
+          <div className="flex-1 p-4 overflow-y-auto">
+            {optimisticMessages.length === 0 ? (
+              <p className="text-gray-500 text-sm">Your messages will appear here.</p>
+            ) : (
+              <div className="space-y-2">
+                {optimisticMessages.map(m => (
+                  <div key={m.id} className={cn('flex items-start gap-2 rounded-lg p-2 bg-white/60', m.status === 'sending' && 'opacity-60')}>
+                    <div className="flex-1 text-sm text-gray-800">{m.text || `[${m.files} file(s)]`}</div>
+                    {m.status === 'sending' && <Loader2 className="w-3 h-3 animate-spin text-gray-400 flex-shrink-0 mt-0.5" />}
+                    {m.status === 'error' && <span className="text-red-500 text-[10px] flex-shrink-0">Failed</span>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         ) : (
           // Compact bar
           <div className="flex flex-col gap-1 px-3 pb-safe justify-end">
@@ -332,6 +371,7 @@ export default function DreamDMBar({ onHome, onBothMenus }: { onHome: () => void
                 </div>
               )}
               <div className="flex-1" />
+              <SkipCreditBalance />
               <button onClick={() => bar.minimize()} className="w-8 h-8 rounded-full bg-gray-200/50 flex items-center justify-center"><X className="w-3.5 h-3.5 text-gray-500" /></button>
             </div>
 

@@ -1,6 +1,8 @@
+import { Suspense } from 'react';
 import { createServerClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { ActivityProfile } from '@/components/activity/ActivityProfile';
 import { Pencil } from 'lucide-react';
 import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/ProfileWidgetGrid';
 import FollowButton from '@/components/feed/FollowButton';
@@ -194,6 +196,13 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             <FollowButton handle={profile.handle} displayName={displayName} />
           )}
         </div>
+      </div>
+
+      {/* ── Activity Profile (Phase 9 Activity-First metrics) ── */}
+      <div style={{ maxWidth: 520, margin: '0 auto', padding: '8px 16px 0', position: 'relative', zIndex: 10 }}>
+        <Suspense fallback={<div className="h-24 animate-pulse bg-white/5 rounded-lg" />}>
+          <ActivityProfile userId={profile.id} />
+        </Suspense>
       </div>
 
       {/* ── Widget grid ── */}

@@ -3,7 +3,15 @@ import { redirect } from 'next/navigation';
 import { Music, Sparkles } from 'lucide-react';
 import SoundRecorder from '@/components/music/SoundRecorder';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
-import StarMakerEngin from '@/engins/StarMakerEngin';
+// Stream 8.3 — Bundle split: StarMakerEngin only loads when Side B mounts.
+import dynamic from 'next/dynamic';
+const StarMakerEngin = dynamic(() => import('@/engins/StarMakerEngin'), {
+  loading: () => (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#c9a227]" />
+    </div>
+  ),
+});
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 import { connection } from 'next/server';
 

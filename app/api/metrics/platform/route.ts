@@ -105,15 +105,64 @@ export async function GET(_req: NextRequest) {
       throw new Error(`Failed to load verified views: ${verifiedViewsError.message}`);
     }
 
-    // TODO: Calculate creation_to_consumption_ratio, outside_activity_rate, harmful_content_rate
-    // These require more complex queries and data collection
+    // creation_to_consumption_ratio: tier >= 3 rows (on-platform creation) vs all rows
+    // outside_activity_rate: tier === 4 rows (real-world action) vs all rows
+    type ActivityTierRow = { tier: number | null };
+    const { data: activityRows, error: activityErr } = await (serviceSupabase
+      .from('activity_points' as never)
+      .select('tier')
+      .gte('created_at', thirtyDaysAgo) as unknown as Promise<{
+      data: ActivityTierRow[] | null;
+      error: { message: string } | null;
+    }>);
+
+    if (activityErr) {
+      throw new Error(`Failed to load activity points: ${activityErr.message}`);
+    }
+
+    const totalActivityRows = activityRows?.length ?? 0;
+    const creatorRows = (activityRows ?? []).filter((r) => (r.tier ?? 0) >= 3).length;
+    const outsideRows = (activityRows ?? []).filter((r) => r.tier === 4).length;
+    const creation_to_consumption_ratio =
+      totalActivityRows > 0 ? creatorRows / totalActivityRows : 0;
+    const outside_activity_rate =
+      totalActivityRows > 0 ? outsideRows / totalActivityRows : 0;
+
+    // harmful_content_rate: HARMFUL_CONTENT BoogieMan events vs total posts in last 30 days
+    const { count: harmfulCount, error: harmfulErr } = await (serviceSupabase
+      .from('boogieman_events' as never)
+      .select('id', { count: 'exact', head: true })
+      .eq('event_type', 'HARMFUL_CONTENT')
+      .gte('created_at', thirtyDaysAgo) as unknown as Promise<{
+      count: number | null;
+      error: { message: string } | null;
+    }>);
+
+    if (harmfulErr) {
+      throw new Error(`Failed to load BoogieMan events: ${harmfulErr.message}`);
+    }
+
+    const { count: totalPostCount, error: postsErr } = await (serviceSupabase
+      .from('app_posts' as never)
+      .select('id', { count: 'exact', head: true })
+      .gte('created_at', thirtyDaysAgo) as unknown as Promise<{
+      count: number | null;
+      error: { message: string } | null;
+    }>);
+
+    if (postsErr) {
+      throw new Error(`Failed to load post count: ${postsErr.message}`);
+    }
+
+    const harmful_content_rate =
+      (totalPostCount ?? 0) > 0 ? (harmfulCount ?? 0) / (totalPostCount ?? 1) : 0;
 
     const response: GetPlatformMetricsResponse = {
       real_shit_rate: average(realShitValues),
-      creation_to_consumption_ratio: 0, // TODO: Implement
-      outside_activity_rate: 0, // TODO: Implement
+      creation_to_consumption_ratio,
+      outside_activity_rate,
       ad_view_rate: totalAdViews > 0 ? (verifiedAdViews / totalAdViews) * 100 : 0,
-      harmful_content_rate: 0, // TODO: Implement
+      harmful_content_rate,
       average_aqs: average(activeAqsValues),
       total_active_users: new Set(
         activeUsers
