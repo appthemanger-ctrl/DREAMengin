@@ -21,7 +21,7 @@ import type { DaydreamEnginManifest, FeatureStatus } from './featureManifest';
 /**
  * BUILD   → core feature integration; usable fraction below refineThreshold.
  * UPGRADE → enough is live for users to act on; concurrent build + SICC refinement.
- * REFINE  → feature-complete; improving Stylized · Intuitive · Cohesive · Coherent UI.
+ * REFINE  → feature-complete; improving Synchronized · Intuitive · Cohesive · Coherent UI.
  */
 export type BuildPhase = 'BUILD' | 'UPGRADE' | 'REFINE';
 
