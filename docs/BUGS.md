@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-14 04:17 UTC  
-**Last updated:** 2026-04-14 04:17 UTC  
-**Triggered by commit:** `f14be48` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #510 from appthemanger-ctrl/codex/update-kid-hub-actions-to-25
+**Documentation Date:** 2026-04-14 05:02 UTC  
+**Last updated:** 2026-04-14 05:02 UTC  
+**Triggered by commit:** `6a9acef` on `codex/improve-code-quality` by Codex  
+**Commit message:** Add env example and supabase quickstart notes
 
 ---
 
