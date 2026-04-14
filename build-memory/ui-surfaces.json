@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-13T07:45:56.435Z",
+  "generated_at": "2026-04-14T06:47:45.309Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 115,
+  "count": 116,
   "surfaces": [
     {
       "type": "page",
@@ -81,6 +81,18 @@
       "file": "app/auth/reset-password/page.tsx",
       "component": "ResetPasswordPage",
       "imports": []
+    },
+    {
+      "type": "page",
+      "path": "/auth/update-password",
+      "file": "app/auth/update-password/page.tsx",
+      "component": "UpdatePasswordPage",
+      "imports": [
+        {
+          "name": "PasswordField",
+          "from": "@/components/auth/PasswordField"
+        }
+      ]
     },
     {
       "type": "page",

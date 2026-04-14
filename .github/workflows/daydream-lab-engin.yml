@@ -1,6 +1,6 @@
-name: Lab Daydream + LabEngin Health
+name: Lab Daydream Lobby + LabEngin Runtime Health
 
-# Builds, updates, checks, and auto-fixes the Lab Daydream and LabEngin.
+# Builds, updates, checks, and auto-fixes the Lab Daydream lobby and LabEngin runtime.
 # Covers: app/daydream/lab/, app/lab/, app/physics-lab/,
 #         components/daydream/LabEngin.tsx, components/PhysicsLab.tsx
 
@@ -100,19 +100,19 @@ jobs:
       - name: Commit auto-fixes (if any)
         run: |
           git config user.name  "daydream-lab-bot"
-          git config user.email "daydream-lab-bot@users.noreply.github.com"
+          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
           if git diff --quiet && git diff --cached --quiet; then
             echo "No fixes to commit."
           else
             git add -A
-            git commit -m "fix(lab-daydream): ESLint auto-fix in Lab Daydream + LabEngin [skip ci] [skip vercel]"
+            git commit -m "fix(lab-daydream): ESLint auto-fix in Lab Daydream lobby + LabEngin runtime [skip ci] [skip vercel]"
             git push || true
           fi
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
           echo "| Daydream | Lab |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Engine | LabEngin |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Engin runtime | LabEngin |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"

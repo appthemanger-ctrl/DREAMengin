@@ -1,8 +1,8 @@
 name: Elite GameEngin Evolution 🚀
 
-# DREAMengin Elite Game Engine — 2026
+# DREAMengin Elite GameEngin Runtime — 2026
 #
-# The most comprehensive game engine CI pipeline in the repo.
+# The most comprehensive GameEngin runtime CI pipeline in the repo.
 # Combines: WebGPU validation, AI-powered analysis, performance
 # regression detection, game quality scoring, and automated
 # improvement proposals.
@@ -84,7 +84,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
       - id: lint
-        name: Lint game engine scope
+        name: Lint GameEngin scope
         run: |
           WARNINGS=$(pnpm exec next lint \
             --dir components/games \
@@ -134,11 +134,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Scan engine context
+      - name: Scan GameEngin context
         run: |
           mkdir -p ${{ env.GENERATED_DIR }}
           python .github/scripts/scan_dreamengin_context.py \
-            > ${{ env.GENERATED_DIR }}/engine-context.md
+            > ${{ env.GENERATED_DIR }}/gameengin-context.md
 
       - name: Catalog game library
         run: |
@@ -236,7 +236,7 @@ jobs:
             f.write(f"| Metric | Value |\n|--------|-------|\n")
             f.write(f"| Total games | {out['totalGames']} |\n")
             f.write(f"| Elite games (score ≥ 60) | {len(out['eliteGames'])} |\n")
-            f.write(f"| Average engine score | {out['avgScore']} |\n")
+            f.write(f"| Average GameEngin score | {out['avgScore']} |\n")
             f.write(f"| Top game | {out['topGame']} |\n\n")
             f.write("### Rankings\n\n| Game | Score | Features |\n|------|-------|----------|\n")
             for item in ranked[:10]:
@@ -295,10 +295,10 @@ jobs:
                 max_tokens: 2000,
                 messages: [{
                   role: "system",
-                  content: "You are the DREAMengin Elite Game Engine Evolution AI. Your job is to propose concrete, implementable upgrades to push DREAMengin toward being the best web browser game engine in 2026. Focus on: WebGPU rendering, post-processing FX, AI-driven gameplay, procedural content, physics depth, and combat systems. Always ground proposals in the existing Babylon.js + React + TypeScript stack."
+                  content: "You are the DREAMengin Elite GameEngin Evolution AI. Your job is to propose concrete, implementable upgrades to push DREAMengin toward being the best web browser GameEngin runtime in 2026. Focus on: WebGPU rendering, post-processing FX, AI-driven gameplay, procedural content, physics depth, and combat systems. Always ground proposals in the existing Babylon.js + React + TypeScript stack."
                 },{
                   role: "user",
-                  content: ("Game quality metrics:\n" + $metrics + "\n\nAdvanced targets:\n" + $targets + "\n\nDirective: " + (if $directive != "" then $directive else "evolve the weakest-scoring game with the most impactful elite engine features" end) + "\n\nGame target: " + (if $game_target != "" then $game_target else "auto-select from advanced targets" end) + "\n\nOutput JSON only:\n{\"target_game\":\"...\",\"upgrade_theme\":\"...\",\"priority_features\":[\"...\"],\"implementation_plan\":[{\"step\":1,\"description\":\"...\",\"files\":[\"...\"],\"estimated_lines\":0}],\"expected_score_improvement\":0,\"rationale\":\"...\"}")
+                  content: ("Game quality metrics:\n" + $metrics + "\n\nAdvanced targets:\n" + $targets + "\n\nDirective: " + (if $directive != "" then $directive else "evolve the weakest-scoring game with the most impactful elite GameEngin features" end) + "\n\nGame target: " + (if $game_target != "" then $game_target else "auto-select from advanced targets" end) + "\n\nOutput JSON only:\n{\"target_game\":\"...\",\"upgrade_theme\":\"...\",\"priority_features\":[\"...\"],\"implementation_plan\":[{\"step\":1,\"description\":\"...\",\"files\":[\"...\"],\"estimated_lines\":0}],\"expected_score_improvement\":0,\"rationale\":\"...\"}")
                 }]
               }')"
           )
@@ -375,7 +375,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: ESLint auto-fix (game engine scope)
+      - name: ESLint auto-fix (GameEngin scope)
         run: |
           pnpm exec next lint \
             --fix \
@@ -387,12 +387,12 @@ jobs:
       - name: Commit auto-fixes (if any)
         run: |
           git config user.name  "elite-gameengin-bot"
-          git config user.email "elite-gameengin-bot@users.noreply.github.com"
+          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
           if git diff --quiet && git diff --cached --quiet; then
             echo "✅ No fixes needed"
           else
             git add -A
-            git commit -m "fix(elite-gameengin): ESLint auto-fix — engine scope [skip ci] [skip vercel]"
+            git commit -m "fix(elite-gameengin): ESLint auto-fix — GameEngin scope [skip ci] [skip vercel]"
             git push || true
           fi
 
@@ -422,4 +422,4 @@ jobs:
           echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Directive | ${{ github.event.inputs.directive || 'auto' }} |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Engine year | **2026** |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| GameEngin era | **2026** |" >> "$GITHUB_STEP_SUMMARY"
