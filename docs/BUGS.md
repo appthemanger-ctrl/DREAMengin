@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-14 14:13 UTC  
-**Last updated:** 2026-04-14 14:13 UTC  
-**Triggered by commit:** `d7a0a04` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #525 from appthemanger-ctrl/copilot/replace-stylized-with-synchronized
+**Documentation Date:** 2026-04-14 14:41 UTC  
+**Last updated:** 2026-04-14 14:41 UTC  
+**Triggered by commit:** `a1dbb3e` on `copilot/request-engine-codes` by Copilot  
+**Commit message:** export: add all 7 engine source files to exports/engines/ as .txt
 
 ---
 
