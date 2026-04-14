@@ -15,6 +15,7 @@
 
 import { BufferManager } from './bufferManager';
 import { PipelineCache } from './pipelineCache';
+import { DEFAULT_VM_CONFIG } from './types';
 import type {
   VMConfig,
   VMState,
@@ -29,7 +30,6 @@ import type {
   BindGroupDescriptor,
   CommandBufferState,
   VMSnapshot,
-  DEFAULT_VM_CONFIG,
 } from './types';
 
 export class WasmGpuVM {
@@ -103,24 +103,24 @@ export class WasmGpuVM {
     const requiredFeatures: GPUFeatureName[] = ['timestamp-query'];
     const device = await adapter.requestDevice({
       requiredFeatures,
-    });
+    }) as unknown as GPUDevice;
 
     // Initialize subsystems
     const bufferManager = new BufferManager(
-      device,
+      device as unknown as GPUDevice,
       fullConfig.quotas,
       {} as VMPerformanceCounters, // Will be replaced below
     );
 
-    const pipelineCache = new PipelineCache(device);
+    const pipelineCache = new PipelineCache(device as unknown as GPUDevice);
     if (fullConfig.enablePipelineCache) {
       await pipelineCache.init();
     }
 
-    const vm = new WasmGpuVM(device, fullConfig, bufferManager, pipelineCache);
+    const vm = new WasmGpuVM(device as unknown as GPUDevice, fullConfig, bufferManager, pipelineCache);
 
     // Wire up counters reference
-    (bufferManager as {counters: VMPerformanceCounters}).counters = vm.state.counters;
+    (bufferManager as unknown as {counters: VMPerformanceCounters}).counters = vm.state.counters;
 
     return vm;
   }

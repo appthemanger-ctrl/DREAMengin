@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // GET - Fetch profile
 export async function GET(req: NextRequest) {
-  const supabase = await createServerClient();
+  const supabase = (await createServerClient()) as any;
   const { data: { user } } = await supabase.auth.getUser();
 
   const { searchParams } = new URL(req.url);
@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
 
 // PUT - Update profile
 export async function PUT(req: NextRequest) {
-  const supabase = await createServerClient();
+  const supabase = (await createServerClient()) as any;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

@@ -49,11 +49,7 @@ const mockGPU = {
 };
 
 // Mock global navigator.gpu
-if (typeof global !== 'undefined') {
-  (global as {navigator?: {gpu?: unknown}}).navigator = {
-    gpu: mockGPU,
-  };
-}
+vi.stubGlobal('navigator', { gpu: mockGPU });
 
 describe('WASM+GPU VM Core', () => {
   describe('VM Types and Interfaces', () => {

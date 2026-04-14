@@ -21,7 +21,7 @@ export type LayoutHandle = number;
 
 // ─── GPU Buffer Usage Flags (LL) ──────────────────────────────────────────────
 
-export const enum GPUBufferUsageFlags {
+export enum GPUBufferUsageFlags {
   STORAGE = 1 << 0,
   UNIFORM = 1 << 1,
   COPY_SRC = 1 << 2,
@@ -35,7 +35,7 @@ export const enum GPUBufferUsageFlags {
 
 // ─── Error Codes (LL) ─────────────────────────────────────────────────────────
 
-export const enum VMErrorCode {
+export enum VMErrorCode {
   SUCCESS = 0,
   OUT_OF_MEMORY = 1,
   INVALID_HANDLE = 2,
@@ -43,6 +43,7 @@ export const enum VMErrorCode {
   GPU_ERROR = 4,
   RESOURCE_LIMIT_EXCEEDED = 5,
 }
+export const ErrorCode = VMErrorCode;
 
 // ─── Memory Model Types (ML) ──────────────────────────────────────────────────
 

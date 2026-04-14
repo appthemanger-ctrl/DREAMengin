@@ -7,7 +7,7 @@ describe('Dual runtime bridge peer activity observers', () => {
   });
 
   it('publishes peer snapshots on subscribe, emit, and unsubscribe', () => {
-    const snapshots: Array<readonly ReturnType<typeof bridge.getPeers>> = [];
+    const snapshots: Array<ReturnType<typeof bridge.getPeers>> = [];
     const unsubscribeObserver = bridge.subscribePeerActivity((peers) => {
       snapshots.push(peers.map((peer) => ({ ...peer })));
     });

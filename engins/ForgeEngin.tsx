@@ -208,7 +208,7 @@ export default function ForgeEngin({ onBack }: Props) {
     const wf = parseGoalToWorkflow(goalInput);
     setGeneratedWorkflow(wf);
     forgeRecord('Generated workflow suggestion');
-  }, [goalInput]);
+  }, [goalInput, forgeRecord]);
 
   // Save generated or custom workflow
   const handleSaveWorkflow = useCallback((wf: ForgeWorkflow) => {
@@ -229,7 +229,7 @@ export default function ForgeEngin({ onBack }: Props) {
     const run = startWorkflowRun(wf.id, wf.steps.length);
     setWorkflowRun(run);
     forgeRecord('Started workflow run');
-  }, []);
+  }, [forgeRecord]);
 
   // Complete a workflow step
   const handleCompleteStep = useCallback((stepIndex: number) => {
@@ -254,7 +254,7 @@ export default function ForgeEngin({ onBack }: Props) {
         }
       }
     }
-  }, [allWorkflows]);
+  }, [allWorkflows, forgeRecord]);
 
   // Fail a workflow step
   const handleFailStep = useCallback((stepIndex: number) => {
