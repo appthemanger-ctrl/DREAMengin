@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-14 14:41 UTC  
-**Last updated:** 2026-04-14 14:41 UTC  
-**Triggered by commit:** `a1dbb3e` on `copilot/request-engine-codes` by Copilot  
-**Commit message:** export: add all 7 engine source files to exports/engines/ as .txt
+**Documentation Date:** 2026-04-14 14:53 UTC  
+**Last updated:** 2026-04-14 14:53 UTC  
+**Triggered by commit:** `2292ef8` on `copilot/request-engine-codes` by Copilot  
+**Commit message:** export: add exports/all-engines/ — 99 engine files in 17 grouped folders
 
 ---
 
