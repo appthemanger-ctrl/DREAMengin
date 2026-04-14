@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
-| **auto** | 2026-04-14 05:27 UTC | `0fc174c` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #514 from appthemanger-ctrl/codex/create-wasm-shared-memory-bus — Implement WASM shared-memory bus bridge and stabilize tests<br> |
-| **auto** | 2026-04-14 05:15 UTC | `229f669` | codex/create-wasm-shared-memory-bus | Codex | ~2 modified<br>fix: stabilize wasm bus loading and tests — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `lib/runtime/dualRuntimeBridge.ts`, `tests/dual-runtime-bridge-peer-activity.test.ts` |
-| **auto** | 2026-04-14 04:25 UTC | `fd9c1b8` | codex/create-wasm-shared-memory-bus | Codex | +2 added  ~1 modified<br>feat: add wasm shared memory bridge — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `assembly/bus.ts`, `lib/bus.wasm`<br>✏️: `lib/runtime/dualRuntimeBridge.ts` |
-| **auto** | 2026-04-14 03:18 UTC | `aba4d57` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #511 from appthemanger-ctrl/codex/fix-all-code-errors — Align pnpm version in GitHub Actions to match packageManager<br> |
-| **auto** | 2026-04-13 20:51 UTC | `52ca36d` | codex/fix-all-code-errors | Codex | ~10 modified<br>chore: align pnpm action versions — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `.github/workflows/autofixvercelbuild.yml`, `.github/workflows/dreamengin-preflight.yml`, `.github/workflows/github-actions.yml`, `.github/workflows/optimize-dreamengin.yml`, `.github/workflows/portfolio-optimization.yml`, `.github/workflows/preflight.yml`, `.github/workflows/sql-migration-guard.yml`, `.github/workflows/update-repo-state.yml`, `.github/workflows/vercel-build-probe.yml`, `.github/workflows/vercel-deploy.yml` |
+| **auto** | 2026-04-14 05:21 UTC | `3fd6d88` | codex/improve-code-quality | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into codex/improve-code-quality<br> |
+| **auto** | 2026-04-14 05:06 UTC | `a9850d8` | codex/improve-code-quality | Codex | ~2 modified<br>Refresh README generator to rebuild file structure — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `README.md`, `scripts/update-readme.mjs` |
+| **auto** | 2026-04-14 05:02 UTC | `6a9acef` | codex/improve-code-quality | Codex | +1 added  ~1 modified<br>Add env example and supabase quickstart notes — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `.env.local.example`<br>✏️: `README.md` |
+| **auto** | 2026-04-14 04:17 UTC | `f14be48` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #510 from appthemanger-ctrl/codex/update-kid-hub-actions-to-25 — Enforce Node 25 in bouncer and security GitHub Actions<br> |
+| **auto** | 2026-04-14 04:17 UTC | `40cefe3` | codex/update-kid-hub-actions-to-25 | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into codex/update-kid-hub-actions-to-25<br> |
 
 ## What changed in this alignment pass
 
