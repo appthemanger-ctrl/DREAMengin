@@ -411,7 +411,7 @@ describe('allPairsMovingForward()', () => {
 
 describe('SICC_GLOBAL_CRITERIA', () => {
   it('contains at least one criterion per SICC dimension', () => {
-    const dims = ['stylized', 'intuitive', 'cohesive', 'coherent'] as const;
+    const dims = ['synchronized', 'intuitive', 'cohesive', 'coherent'] as const;
     for (const dim of dims) {
       const count = SICC_GLOBAL_CRITERIA.filter((c) => c.dimension === dim).length;
       expect(count).toBeGreaterThanOrEqual(1);
@@ -431,7 +431,7 @@ describe('SICC_GLOBAL_CRITERIA', () => {
   });
 
   it('every dimension is one of the four SICC values', () => {
-    const valid = ['stylized', 'intuitive', 'cohesive', 'coherent'];
+    const valid = ['synchronized', 'intuitive', 'cohesive', 'coherent'];
     for (const c of SICC_GLOBAL_CRITERIA) {
       expect(valid).toContain(c.dimension);
     }
@@ -440,14 +440,14 @@ describe('SICC_GLOBAL_CRITERIA', () => {
 
 describe('getCriteriaForDimension()', () => {
   it('returns only criteria matching the requested dimension', () => {
-    for (const dim of ['stylized', 'intuitive', 'cohesive', 'coherent'] as const) {
+    for (const dim of ['synchronized', 'intuitive', 'cohesive', 'coherent'] as const) {
       const results = getCriteriaForDimension(dim);
       expect(results.every((c) => c.dimension === dim)).toBe(true);
     }
   });
 
   it('returns a non-empty array for every dimension', () => {
-    for (const dim of ['stylized', 'intuitive', 'cohesive', 'coherent'] as const) {
+    for (const dim of ['synchronized', 'intuitive', 'cohesive', 'coherent'] as const) {
       expect(getCriteriaForDimension(dim).length).toBeGreaterThan(0);
     }
   });
@@ -456,7 +456,7 @@ describe('getCriteriaForDimension()', () => {
 describe('SICC_DIMENSIONS', () => {
   it('contains all four SICC dimensions', () => {
     const ids = SICC_DIMENSIONS.map((d) => d.id);
-    expect(ids).toContain('stylized');
+    expect(ids).toContain('synchronized');
     expect(ids).toContain('intuitive');
     expect(ids).toContain('cohesive');
     expect(ids).toContain('coherent');
