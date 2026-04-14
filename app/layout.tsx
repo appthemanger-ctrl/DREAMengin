@@ -10,7 +10,7 @@ import GlobalDreamBar from '@/components/home/GlobalDreamBar';
 import PersistentDreamBar from '@/components/home/PersistentDreamBar';
 import { CustomizeModeProvider } from '@/lib/ui/CustomizeModeContext';
 import GlobalCustomizeUI from '@/components/customize/GlobalCustomizeUI';
-import WarpCanvas from '@/components/warp/WarpCanvas';
+import WarpAmbientLayer from '@/components/warp/WarpAmbientLayer';
 import GodTierProvider from '@/components/providers/GodTierProvider';
 import KonamiDream from '@/components/KonamiDream';
 import CommandPalette from '@/components/CommandPalette';
@@ -74,7 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <ThemeApplicator />
           <Suspense><GodTierProvider /></Suspense>
-          <WarpCanvas effect="flow" maxParticles={200} spawnRate={25} opacity={0.35} />
+          <WarpAmbientLayer />
           <CustomizeModeProvider>
             <DreamSystemProvider>
               <main role="main" aria-label="Main content">{children}</main>
