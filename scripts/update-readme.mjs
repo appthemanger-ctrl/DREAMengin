@@ -32,6 +32,8 @@ const DOC_OWNER = 'José Mancilla (appthemanger-ctrl)';
 
 const AI_CTX_START = '<!-- DREAMENGIN-AI-CONTEXT:START -->';
 const AI_CTX_END   = '<!-- DREAMENGIN-AI-CONTEXT:END -->';
+const FS_START     = '<!-- FILE-STRUCTURE:START -->';
+const FS_END       = '<!-- FILE-STRUCTURE:END -->';
 
 // ── Helper: run git / shell commands ──────────────────────────────────────────
 
@@ -331,6 +333,7 @@ function writeSummary(status) {
     '- ✅ **AI Agent Quick Reference** block (top of README)',
     '- ✅ **Recent Changes** table (latest commit prepended)',
     '- ✅ **Current Implementation Status** — "Last updated" line',
+    '- ✅ **File Structure** — live tree (top-level + key dirs)',
     '',
     '### Key docs for AI agents working in this repo',
     '| Priority | File | Why |',
@@ -383,7 +386,25 @@ if (ctxStart !== -1 && ctxEnd !== -1 && ctxEnd > ctxStart) {
   doc = doc.slice(0, insertAt) + contextBlock + '\n\n' + doc.slice(insertAt);
 }
 
-// ── 9. Refresh "Last updated" + "Build Status" inside "## Current Implementation Status" ───────
+// ── 9. Refresh the live File Structure block (between FILE-STRUCTURE markers) ─
+
+const fileStructureBlock = `${FS_START}\n${buildFileStructure()}\n${FS_END}`;
+const fsStartIdx = doc.indexOf(FS_START);
+const fsEndIdx   = doc.indexOf(FS_END);
+
+if (fsStartIdx !== -1 && fsEndIdx !== -1 && fsEndIdx > fsStartIdx) {
+  doc = doc.slice(0, fsStartIdx) + fileStructureBlock + doc.slice(fsEndIdx + FS_END.length);
+} else {
+  const headingIdx = doc.indexOf('### 🗂️ File Structure');
+  if (headingIdx !== -1) {
+    const insertAt = doc.indexOf('\n', headingIdx) + 1;
+    doc = doc.slice(0, insertAt) + fileStructureBlock + '\n' + doc.slice(insertAt);
+  } else {
+    doc = doc + '\n\n### 🗂️ File Structure\n' + fileStructureBlock + '\n';
+  }
+}
+
+// ── 10. Refresh "Last updated" + "Build Status" inside "## Current Implementation Status" ───────
 
 const STATUS_RE = /(## Current Implementation Status\n)((?:Last updated:[^\n]*\n)*)/;
 const statusMatch = STATUS_RE.exec(doc);
@@ -406,7 +427,7 @@ doc = doc.replace(
   `Build Status: ${routeCount} routes (${pageCount} pages + ${apiCount} API handlers) · ${testCount} test files`
 );
 
-// ── 10. Update the "## Recent Changes" table ──────────────────────────────────
+// ── 11. Update the "## Recent Changes" table ──────────────────────────────────
 
 const TABLE_HEADER   = '| Revision | Date / Time (UTC) | Branch | Author | Files | Summary |';
 const TABLE_DIVIDER  = '|---|---|---|---|---|---|';
