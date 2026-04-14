@@ -113,8 +113,8 @@ export default function DreamShell({
   return (
     <div
       data-dream-id={widgetId}
-      className={`de-widget${className ? ` ${className}` : ''}`}
-      style={{ position: 'relative', ...style }}
+      className={`de-widget dream-shell-content${className ? ` ${className}` : ''}`}
+      style={{ position: 'relative', containerType: 'inline-size', ...style }}
     >
       {/* ── Header ── */}
       <div className="de-widget-header">

@@ -73,7 +73,7 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 | `lib/` | Hooks, utilities, Supabase client, game libs |
 | `docs/` | All governance, law, spec, and policy documents |
 | `.github/workflows/` | 54 CI/CD automation workflows |
-| `tests/` | Vitest test suite (142 test files) |
+| `tests/` | Vitest test suite (143 test files) |
 | `scripts/` | Maintenance and automation scripts |
 | `build-memory/` | Auto-generated build intelligence snapshots |
 
@@ -128,6 +128,7 @@ DREAMengin/
 │   ├── 📁 core/
 │   ├── 📁 customize/
 │   ├── 📁 daydream/
+│   ├── 📁 draggable/
 │   ├── 📁 dreamengin/
 │   ├── 📁 dreamnav/
 │   ├── 📁 dreamr/
@@ -137,7 +138,6 @@ DREAMengin/
 │   ├── 📁 feeds/
 │   ├── 📁 forge/
 │   ├── 📁 gameengin/
-│   ├── 📁 games/
 │   └── … and 2 more
 ├── 📁 config/
 ├── 📁 coresurfaces/
@@ -274,6 +274,7 @@ DREAMengin/
 │   ├── 📄 experience.ts
 │   ├── 📄 journey.ts
 │   ├── 📄 marketplace.ts
+│   ├── 📄 module-manifest.ts
 │   ├── 📄 spatial.ts
 │   ├── 📄 supabase.ts
 │   ├── 📄 user-sim.ts
@@ -399,7 +400,7 @@ Last updated: 2026-04-14 10:15 UTC — `2b265b8` by Copilot
 Phase: Phase 8 — Real Runtime Completion (All 100 Points Complete)
 Scope: Full DreamDM Bar runtime activation, real Supabase persistence, Dream Window lifecycle, AI Triad consensus, WebGPU rendering
 
-Build Status: 197 routes (100 pages + 97 API handlers) · 142 test files
+Build Status: 198 routes (101 pages + 97 API handlers) · 143 test files
 
 Tech Stack:
 - Next.js 16+ (App Router)

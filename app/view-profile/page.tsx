@@ -1,6 +1,8 @@
+import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Pencil, Eye } from 'lucide-react';
+import { ActivityProfile } from '@/components/activity/ActivityProfile';
 import { createServerClient } from '@/lib/supabase/server';
 import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/ProfileWidgetGrid';
 import ProfileShareButton from '@/components/ProfileShareButton';
@@ -252,6 +254,13 @@ export default async function ViewProfilePage() {
             <Pencil size={14} />
           </Link>
         </div>
+      </div>
+
+      {/* ── Activity Profile (Phase 9 Activity-First metrics) ── */}
+      <div style={{ maxWidth: 520, margin: '0 auto', padding: '8px 16px 0' }}>
+        <Suspense fallback={<div className="h-24 animate-pulse bg-white/5 rounded-lg" />}>
+          <ActivityProfile userId={user.id} />
+        </Suspense>
       </div>
 
       {/* ── Widget grid (saved output only) ── */}

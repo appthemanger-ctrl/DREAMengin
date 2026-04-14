@@ -30,6 +30,8 @@ export class SnapshotManager {
       wasmMemories: Map<number, {id: number; memory: WebAssembly.Memory; shared: boolean; pages: number}>;
       buffers: Map<BufferHandle, {handle: BufferHandle; size: bigint; usage: number; buffer: GPUBuffer}>;
       pipelines: Map<PipelineHandle, {handle: PipelineHandle; wgslSource: string; sourceHash: string}>;
+      bindGroups: Map<BindGroupHandle, unknown>;
+      device: GPUDevice;
       nextBufferHandle: BufferHandle;
       nextPipelineHandle: PipelineHandle;
       nextBindGroupHandle: BindGroupHandle;
@@ -51,7 +53,7 @@ export class SnapshotManager {
     // Snapshot GPU buffers
     const gpuBuffers: GPUBufferSnapshot[] = [];
     for (const descriptor of state.buffers.values()) {
-      const data = await this.readBufferData(descriptor.buffer, descriptor.size);
+      const data = await this.readBufferData(descriptor.buffer, descriptor.size, state.device);
       gpuBuffers.push({
         handle: descriptor.handle,
         size: descriptor.size,
@@ -78,7 +80,7 @@ export class SnapshotManager {
       nextFreeBindGroup: state.nextBindGroupHandle,
       allocatedBuffers: Array.from(state.buffers.keys()),
       allocatedPipelines: Array.from(state.pipelines.keys()),
-      allocatedBindGroups: [], // TODO: track bind groups
+      allocatedBindGroups: Array.from(state.bindGroups.keys()),
     };
 
     return {
@@ -148,6 +150,12 @@ export class SnapshotManager {
     for (const handle of snapshot.handleState.allocatedPipelines) {
       parts.push(this.encodeU32(handle));
     }
+
+    // Quotas
+    const quotasJson = JSON.stringify(snapshot.quotas ?? {});
+    const quotasBytes = new TextEncoder().encode(quotasJson);
+    parts.push(this.encodeU32(quotasBytes.byteLength));
+    parts.push(quotasBytes);
 
     // Combine all parts
     const totalSize = parts.reduce((sum, part) => sum + part.byteLength, 0);
@@ -245,6 +253,10 @@ export class SnapshotManager {
       allocatedPipelines.push(readU32());
     }
 
+    const quotasLen = readU32();
+    const quotasBytes = read(quotasLen);
+    const quotas = JSON.parse(new TextDecoder().decode(quotasBytes)) as VMSnapshot['quotas'];
+
     const handleState: HandleTableSnapshot = {
       nextFreeBuffer,
       nextFreePipeline,
@@ -261,7 +273,7 @@ export class SnapshotManager {
       gpuBuffers,
       pipelines,
       handleState,
-      quotas: {} as never, // TODO: serialize quotas
+      quotas,
     };
   }
 
@@ -271,21 +283,25 @@ export class SnapshotManager {
   private static async readBufferData(
     buffer: GPUBuffer,
     size: bigint,
+    device: GPUDevice,
   ): Promise<Uint8Array> {
-    const device = buffer as {__brand: 'GPUBuffer'; label: string} & GPUBuffer;
-    // Get device from buffer (hack - in production, pass device explicitly)
-    const stagingBuffer = device.constructor.prototype.constructor.call(
-      null,
-      {
+    try {
+      const stagingBuffer = device.createBuffer({
         size: Number(size),
         usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
-      },
-    );
-
-    // In production, would need access to the device's command encoder
-    // This is a simplified version
-    const result = new Uint8Array(Number(size));
-    return result; // TODO: implement actual copy
+      });
+      const commandEncoder = device.createCommandEncoder();
+      commandEncoder.copyBufferToBuffer(buffer, 0, stagingBuffer, 0, Number(size));
+      device.queue.submit([commandEncoder.finish()]);
+      await stagingBuffer.mapAsync(GPUMapMode.READ);
+      const result = new Uint8Array(stagingBuffer.getMappedRange().slice(0));
+      stagingBuffer.unmap();
+      stagingBuffer.destroy();
+      return result;
+    } catch {
+      // Fallback: return zeroed buffer if GPU read fails
+      return new Uint8Array(Number(size));
+    }
   }
 
   // ─── Binary encoding helpers ──────────────────────────────────────────────

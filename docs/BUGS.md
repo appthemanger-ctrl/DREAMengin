@@ -105,21 +105,11 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 
 ## 🐛 Known Code Annotations (TODO / FIXME / HACK)
 
-### 📝 TODO (11)
+### 📝 TODO (1)
 
 | Location | Description |
 |----------|-------------|
-| `app/api/metrics/platform/route.ts:108` | Calculate creation_to_consumption_ratio, outside_activity_rate, harmful_content_rate |
-| `app/api/metrics/platform/route.ts:113` | Implement |
-| `app/api/metrics/platform/route.ts:114` | Implement |
-| `app/api/metrics/platform/route.ts:116` | Implement |
-| `components/daydream/StarMakerEngin.tsx:430` | Implement actual audio upload to ledger storage |
 | `lib/code/drEamsCodeAssist.ts:355` | implement\n}`; |
-| `lib/vm/snapshot.ts:81` | track bind groups |
-| `lib/vm/snapshot.ts:264` | serialize quotas |
-| `lib/vm/snapshot.ts:288` | implement actual copy |
-| `lib/vm/wasmGpuVM.ts:307` | Parse bindings and create actual bind group |
-| `lib/vm/wasmGpuVM.ts:365` | Parse dynamic offsets from WASM memory if needed |
 
 ---
 

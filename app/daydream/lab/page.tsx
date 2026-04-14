@@ -3,7 +3,16 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { FlaskConical, Play } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
-import LabEngin from '@/engins/LabEngin';
+// Stream 8.3 — Bundle split: LabEngin only loads when Side B mounts.
+// docs/ARCHITECTURE.md §10 — render-on-demand, minimal initial bundle.
+import dynamic from 'next/dynamic';
+const LabEngin = dynamic(() => import('@/engins/LabEngin'), {
+  loading: () => (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#c9a227]" />
+    </div>
+  ),
+});
 import OpenDaydreamSideBButton from '@/components/daydream/OpenDaydreamSideBButton';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 import { connection } from 'next/server';

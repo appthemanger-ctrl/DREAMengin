@@ -59,6 +59,7 @@ import type { CompGraph, NodeType } from '@/lib/composite/compositor';
 import type { RotoProject } from '@/lib/composite/rotoscope';
 import type { CameraTrack } from '@/lib/composite/matchmover';
 import type { FxSimulation, FxCategory } from '@/lib/composite/fxSimulation';
+import { ActivityPostForm, type ActivityPostData } from '@/components/activity/ActivityPostForm';
 
 interface Props {
   onBack: () => void;
@@ -306,6 +307,33 @@ export default function ContentEngin({ onBack }: Props) {
 
     if (publishTimerRef.current) clearTimeout(publishTimerRef.current);
     publishTimerRef.current = setTimeout(() => setPublishMsg(''), 4000);
+  }
+
+  // ── Activity Post Form (Phase 9 Activity-First Protocol) ──
+  const [activityPostMsg, setActivityPostMsg] = useState('');
+  const activityPostTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  async function handleActivityPost(data: ActivityPostData) {
+    const res = await fetch('/api/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content: data.content,
+        visibility: 'public',
+        media_urls: data.media_url ? [data.media_url] : [],
+        activity_tier: data.tier,
+        activity_type: data.activity_type,
+        verification_method: data.verification_method,
+        evidence_url: data.evidence_url,
+      }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({})) as { error?: string };
+      throw new Error(err.error ?? 'Failed to post activity');
+    }
+    setActivityPostMsg('✅ Activity posted!');
+    if (activityPostTimerRef.current) clearTimeout(activityPostTimerRef.current);
+    activityPostTimerRef.current = setTimeout(() => setActivityPostMsg(''), 4000);
   }
 
   // ── Smart Draft Generator ──
@@ -2716,6 +2744,22 @@ export default function ContentEngin({ onBack }: Props) {
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Activity Post Form (Phase 9 Activity-First Protocol §II) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span className="de-widget-title">Post Activity</span>
+            <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--de-text-dim)' }}>Tag tier &amp; earn visibility</span>
+          </div>
+          <div className="de-widget-body">
+            <ActivityPostForm
+              onSubmit={handleActivityPost}
+            />
+            {activityPostMsg && (
+              <p style={{ fontSize: 12, fontWeight: 600, color: '#16a34a', marginTop: 8 }}>{activityPostMsg}</p>
             )}
           </div>
         </div>
