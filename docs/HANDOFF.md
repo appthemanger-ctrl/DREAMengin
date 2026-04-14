@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-14 05:06 UTC | `7884899` | codex/ok-go-nuts | Codex | +1 added  ~2 modified<br>feat: add ambient warp dock overlay — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `components/warp/WarpAmbientLayer.tsx`<br>✏️: `app/layout.tsx`, `styles/globals.css` |
 | **auto** | 2026-04-14 04:51 UTC | `c9cd0a0` | codex/ok-go-nuts | Codex | ~2 modified<br>feat: upgrade command palette with launchpad and themes — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/CommandPalette.tsx`, `styles/globals.css` |
 | **auto** | 2026-04-14 04:17 UTC | `40cefe3` | codex/update-kid-hub-actions-to-25 | appthemanger-ctrl | no file changes<br>Merge branch 'completedream' into codex/update-kid-hub-actions-to-25<br> |
 | **auto** | 2026-04-13 20:49 UTC | `138fdd0` | codex/update-kid-hub-actions-to-25 | Codex | ~2 modified<br>chore: ensure workflows use node 25 — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `.github/workflows/bouncer.yml`, `.github/workflows/github-actions.yml` |
 | **auto** | 2026-04-13 20:38 UTC | `2e8674b` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #509 from appthemanger-ctrl/codex/add-github-action-for-vercel-build — placeholder<br> |
-| **auto** | 2026-04-13 19:38 UTC | `2e75f2b` | codex/add-github-action-for-vercel-build | Codex | ~1 modified<br>fix: allow get_user_metrics rpc typing — Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `app/api/metrics/user/[userId]/route.ts` |
 
 ## What changed in this alignment pass
 
