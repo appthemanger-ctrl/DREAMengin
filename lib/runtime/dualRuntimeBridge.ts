@@ -16,7 +16,7 @@ export type DualRuntimeChannel =
   | 'compute';
 
 // ── VM region ─────────────────────────────────────────────────────────────────
-export type VMRegion = 'left' | 'right';
+export type VMRegion = 'top' | 'bottom';
 
 // ── Quantum compute result ────────────────────────────────────────────────────
 export interface QuantumComputeResult {
@@ -242,8 +242,8 @@ class DualRuntimeBridge extends EventEmitter {
   private readonly decoder = new TextDecoder();
 
   // ── Dual VM upgrade ───────────────────────────────────────────────────────
-  private _vmLeft:  unknown = null;
-  private _vmRight: unknown = null;
+  private _vmTop:    unknown = null;
+  private _vmBottom: unknown = null;
   private _vmInterQueue: {
     buffer: SharedArrayBuffer;
     producerIndex: Int32Array;
@@ -619,16 +619,16 @@ class DualRuntimeBridge extends EventEmitter {
   // ── Dual VM API ───────────────────────────────────────────────────────────
 
   /**
-   * Initialize the left and right WASM+GPU VMs plus the inter-VM
+   * Initialize the top and bottom WASM+GPU VMs plus the inter-VM
    * SharedArrayBuffer ring buffer.  Dynamically imports WasmGpuVM so
    * this module stays loadable in test/SSR environments without WebGPU.
    */
   async initVMs(config: { enableInterVMCommunication?: boolean } = {}): Promise<void> {
-    if (this._vmLeft && this._vmRight) return;
+    if (this._vmTop && this._vmBottom) return;
     try {
       const { WasmGpuVM } = await import('@/lib/vm/wasmGpuVM');
-      this._vmLeft  = await WasmGpuVM.create({ id: 'vm-left' });
-      this._vmRight = await WasmGpuVM.create({ id: 'vm-right' });
+      this._vmTop    = await WasmGpuVM.create({ id: 'vm-top' });
+      this._vmBottom = await WasmGpuVM.create({ id: 'vm-bottom' });
       if (config.enableInterVMCommunication !== false) {
         const buffer = new SharedArrayBuffer(VM_QUEUE_BUF_SIZE);
         const producerIndex = new Int32Array(buffer, 0, 1);
@@ -642,7 +642,7 @@ class DualRuntimeBridge extends EventEmitter {
         void this._handleVMWorkload(p);
       });
       this.emit('compute', 'vm:initialized', {
-        leftVMId: 'vm-left', rightVMId: 'vm-right',
+        topVMId: 'vm-top', bottomVMId: 'vm-bottom',
         interVMEnabled: config.enableInterVMCommunication !== false,
         timestamp: Date.now(),
       });
@@ -653,10 +653,10 @@ class DualRuntimeBridge extends EventEmitter {
 
   /** Destroy both VMs and release the inter-VM ring buffer. */
   destroyVMs(): void {
-    (this._vmLeft  as { destroy?(): void } | null)?.destroy?.();
-    (this._vmRight as { destroy?(): void } | null)?.destroy?.();
-    this._vmLeft  = null;
-    this._vmRight = null;
+    (this._vmTop    as { destroy?(): void } | null)?.destroy?.();
+    (this._vmBottom as { destroy?(): void } | null)?.destroy?.();
+    this._vmTop    = null;
+    this._vmBottom = null;
     this._vmInterQueue = null;
     this._vmEventChannels.clear();
     this._vmActiveWorkloads.clear();
@@ -676,11 +676,11 @@ class DualRuntimeBridge extends EventEmitter {
   }
 
   /**
-   * Submit a WASM workload to the left or right VM.
+   * Submit a WASM workload to the top or bottom VM.
    * The workload result is emitted on the given channel.
    */
   async submitVMWorkload(workload: VMWorkload): Promise<void> {
-    const vm = workload.region === 'left' ? this._vmLeft : this._vmRight;
+    const vm = workload.region === 'top' ? this._vmTop : this._vmBottom;
     if (!vm) throw new Error(`VM not initialized: ${workload.region}`);
     this._vmActiveWorkloads.set(workload.id, workload.region);
     await (vm as { loadWasm(b: BufferSource): Promise<void> }).loadWasm(workload.wasmBinary);
@@ -694,14 +694,14 @@ class DualRuntimeBridge extends EventEmitter {
    * yet initialized.
    */
   getVMStats(): {
-    left:  Record<string, unknown> | null;
-    right: Record<string, unknown> | null;
+    top:    Record<string, unknown> | null;
+    bottom: Record<string, unknown> | null;
     activeWorkloads: { id: string; region: VMRegion }[];
   } | null {
-    if (!this._vmLeft && !this._vmRight) return null;
+    if (!this._vmTop && !this._vmBottom) return null;
     return {
-      left:  this._vmLeft  ? (this._vmLeft  as { getStats(): Record<string, unknown> }).getStats() : null,
-      right: this._vmRight ? (this._vmRight as { getStats(): Record<string, unknown> }).getStats() : null,
+      top:    this._vmTop    ? (this._vmTop    as { getStats(): Record<string, unknown> }).getStats() : null,
+      bottom: this._vmBottom ? (this._vmBottom as { getStats(): Record<string, unknown> }).getStats() : null,
       activeWorkloads: Array.from(this._vmActiveWorkloads.entries()).map(([id, region]) => ({ id, region })),
     };
   }
