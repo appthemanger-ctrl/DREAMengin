@@ -1,6 +1,7 @@
 name: DREAMengin CI/CD Pipeline
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, develop, completedream]
   pull_request:
@@ -9,73 +10,71 @@ on:
 # Prevent parallel pipeline runs on the same ref.
 # Vercel deployments are handled by the Vercel GitHub integration — no deploy job needed here.
 concurrency:
-  group: ci-pipeline-${{ github.ref }}
+  group: ci-pipeline-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 env:
-  NODE_VERSION: '25.x'
+  NODE_VERSION: '25'
+  PNPM_VERSION: '10.33.0'
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  CI: 'true'
+  NEXT_TELEMETRY_DISABLED: '1'
 
 jobs:
   # ==========================================
   # Code Quality & Linting
   # ==========================================
   quality:
-    name: Code Quality
+    name: Advisory Quality Checks
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.33.0
-      
       - name: Setup Node.js
         uses: ./.github/actions/setup-node
-      
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      
+
       - name: Type check
-        # Advisory only — pre-existing TS errors must not gate the pipeline.
-        run: pnpm run typecheck || echo "Type check warnings noted (non-fatal)"
-      
+        continue-on-error: true
+        run: pnpm run typecheck
+
       - name: Lint
-        # Advisory only — lint warnings must not gate the pipeline.
-        run: pnpm run lint || echo "Lint warnings noted (non-fatal)"
+        continue-on-error: true
+        run: pnpm run lint
 
   # ==========================================
   # Build & Test
   # ==========================================
-  build:
-    name: Build Application
+  verify:
+    name: Test & Build
     runs-on: ubuntu-latest
-    needs: quality
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.33.0
-      
       - name: Setup Node.js
         uses: ./.github/actions/setup-node
-      
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
-      
+
+      - name: Run tests
+        run: pnpm run test
+
       - name: Build Next.js
         run: pnpm run build
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-      
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -89,14 +88,24 @@ jobs:
   database:
     name: Database Migrations
     runs-on: ubuntu-latest
-    needs: quality
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Check migration files
+        shell: bash
         run: |
           echo "Checking SQL migration files..."
-          find supabase/migrations -name "*.sql" -type f
+          if [ ! -d supabase/migrations ]; then
+            echo "supabase/migrations is missing"
+            exit 1
+          fi
+          mapfile -t migrations < <(find supabase/migrations -name "*.sql" -type f | sort)
+          if [ "${#migrations[@]}" -eq 0 ]; then
+            echo "No SQL migration files found."
+            exit 1
+          fi
+          printf '%s\n' "${migrations[@]}"
           echo "Migration files validated!"
 
   # ==========================================
@@ -105,25 +114,36 @@ jobs:
   security:
     name: Security Scan
     runs-on: ubuntu-latest
-    needs: quality
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: ./.github/actions/setup-node
-      
-      - name: Run npm audit
-        run: npm audit --audit-level=high || echo "Vulnerabilities found, review required"
-      
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run pnpm audit
+        continue-on-error: true
+        run: pnpm audit --audit-level=high
+
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@0.32.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
           format: 'sarif'
           output: 'trivy-results.sarif'
-      
+          severity: 'HIGH,CRITICAL'
+          exit-code: '0'
+
       - name: Upload Trivy results
+        if: always() && hashFiles('trivy-results.sarif') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
@@ -134,24 +154,24 @@ jobs:
   docker:
     name: Build Docker Image
     runs-on: ubuntu-latest
-    needs: [build, security]
+    needs: [verify]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     permissions:
-      contents: write
+      contents: read
       packages: write
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-      
+
       - name: Log in to Container Registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -164,9 +184,9 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
-      
+
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -195,15 +215,15 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && false  # Disabled by default
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
-      
+
       - name: Configure kubeconfig
         run: |
           mkdir -p ~/.kube
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
-      
+
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f kubernetes/deployment.yaml
@@ -215,22 +235,20 @@ jobs:
   smoke-tests:
     name: Smoke Tests
     runs-on: ubuntu-latest
-    needs: [build, database, security]
+    needs: [verify]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/completedream')
     steps:
-      - uses: actions/checkout@v4
-      
       - name: Wait for deployment
-        run: sleep 30
-      
-      - name: Health check
+        run: sleep 45
+
+      - name: Check public API
         run: |
-          curl -f https://dreamengin.com/api/health || exit 1
-          echo "Health check passed!"
-      
+          curl -fsS https://dreamengin.com/api/dreamengin/os-status
+          echo "Public API check passed!"
+
       - name: Check homepage
         run: |
-          curl -f https://dreamengin.com || exit 1
+          curl -fsS https://dreamengin.com > /dev/null
           echo "Homepage accessible!"
 
   # ==========================================
@@ -239,7 +257,7 @@ jobs:
   notify:
     name: Notification
     runs-on: ubuntu-latest
-    needs: [build, smoke-tests]
+    needs: [verify, smoke-tests, docker]
     if: failure()
     steps:
       - name: Send notification
