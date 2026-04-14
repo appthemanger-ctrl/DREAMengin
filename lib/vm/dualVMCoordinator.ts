@@ -239,23 +239,24 @@ export class DualVMCoordinator {
 
   private wireToBridge(): void {
     // Subscribe to bridge events and route to appropriate VM
-    bridge.subscribe('compute', 'vm:dispatch-workload', (payload: {
-      workloadId: string;
-      region: VMRegion;
-      wasmBinary: ArrayBuffer;
-      channel: DualRuntimeChannel;
-      priority: number;
-    }) => {
+    bridge.subscribe('compute', 'vm:dispatch-workload', (payload: any) => {
+      const { workloadId, region, wasmBinary, channel, priority } = payload as {
+        workloadId: string;
+        region: VMRegion;
+        wasmBinary: ArrayBuffer;
+        channel: DualRuntimeChannel;
+        priority: number;
+      };
       this.submitWorkload({
-        id: payload.workloadId,
-        region: payload.region,
-        wasmBinary: payload.wasmBinary,
-        channel: payload.channel,
-        priority: payload.priority,
+        id: workloadId,
+        region,
+        wasmBinary,
+        channel,
+        priority,
       }).catch((error) => {
         console.error('[DualVMCoordinator] Workload submission failed:', error);
-        bridge.emit(payload.channel, 'vm:error', {
-          workloadId: payload.workloadId,
+        bridge.emit(channel, 'vm:error', {
+          workloadId,
           error: String(error),
         });
       });

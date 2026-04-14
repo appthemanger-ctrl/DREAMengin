@@ -38,7 +38,7 @@
 ## Overview
 
 **Project:** dreamengin
-**Version:** 3.0.0
+**Version:** 2.0.0
 **Package Manager:** pnpm@10.33.0
 
 **Quick Stats:**
@@ -560,7 +560,6 @@ Using Supabase for database, auth, and storage
 ### Medium Priority
 
 - 🟡 Review and remove redundant code
-- 🟡 Fix 1 failing tests
 
 ### Low Priority
 

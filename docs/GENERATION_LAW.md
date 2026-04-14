@@ -1,310 +1,123 @@
-/**
- * GENERATION LAW (ι‑Engine)
- *
- * Purpose:
- * This document describes how creative passes are shaped, not restricted.
- * The goal is to encourage invention, protect flow, and keep output coherent
- * without suffocating surprise.
- *
- * Effective Date: 2026-04-12
- * Status: creative operating law
- */
+```markdown
+# GENERATION LAW (ι‑Engine) – Final Fused Version
 
-// ============================================================================
-// 1. Invention Force (ι)
-// ============================================================================
+**Effective Date:** 2026-04-13  
+**Status:** Creative Operating Law  
+**Based on:** Torridity constants (`ΔP = 0.1`, `λ = 1.71`) and the geometric series `1 + λ + λ² + … + λ⁹ = 300`.
 
-interface InventionPass {
-  n: number;   // Novelty 0-10
-  a: number;   // Autonomy 0-10
-  s: number;   // Synthesis 0-10
-  v: number;   // Vision 0-10
-  xi: number;  // Chaos 0-10
-}
+---
 
-const WEIGHTS = {
-  novelty: 1.5,
-  autonomy: 1.2,
-  synthesis: 1.3,
-  vision: 1.0,
-  chaos: 1.4
-} as const;
+## 1. Core Principle
 
-function calculateInventionForce(pass: InventionPass): number {
-  const { n, a, s, v, xi } = pass;
-  return (n * WEIGHTS.novelty) +
-         (a * WEIGHTS.autonomy) +
-         (s * WEIGHTS.synthesis) +
-         (v * WEIGHTS.vision) +
-         (xi * WEIGHTS.chaos);
-}
+> **High Invention Force (`ι`) BUILDS immediately. Low `ι` is throttled.**  
+> No isolation, no permission, no artificial splits. Creativity is the engine, not a problem to be managed.
 
-// ============================================================================
-// 2. Creative Modes
-// ============================================================================
+The law is a **physics of creation**, not a set of bureaucratic gates. It uses the same constants that govern galaxy rotation, swipe deceleration, and content decay.
 
-type Protocol = 'FLOW' | 'SYNTHESIZE' | 'MANIFEST';
+---
 
-interface ProtocolResult {
-  protocol: Protocol;
-  action: string;
-  environment: string;
-  permissions: string;
-}
+## 2. Invention Force (`ι`)
 
-function getPassProtocol(iota: number): ProtocolResult {
-  if (iota < 15) {
-    return {
-      protocol: 'FLOW',
-      action: 'Refine and ship. Keep the pass fast, clear, and low-friction.',
-      environment: 'Normal workspace.',
-      permissions: 'Freedom first.'
-    };
-  } else if (iota >= 15 && iota < 35) {
-    return {
-      protocol: 'SYNTHESIZE',
-      action: 'Connect ideas, combine systems, and preserve momentum.',
-      environment: 'Feature branch or creative sandbox.',
-      permissions: 'Experiment freely, but keep the thread visible.'
-    };
-  } else {
-    return {
-      protocol: 'MANIFEST',
-      action: 'Open invention mode. Let the pass get weird, expansive, and high-energy.',
-      environment: 'Isolated creative space, experimental folder, or flagged branch.',
-      permissions: 'Maximum exploration. Refactor later, not now.'
-    };
-  }
-}
+Five creative dimensions (each scored 0–10):
 
-// Rule: If a pass exceeds ι ≥ 35, split it into exploratory sub-passes
-function enforceSplitThreshold(pass: InventionPass): InventionPass[] {
-  const iota = calculateInventionForce(pass);
-  if (iota < 35) return [pass];
+- **n** – Novelty: new patterns, first‑principles leaps.
+- **a** – Autonomy: removes manual decisions, reduces friction.
+- **s** – Synthesis: connects subsystems, weaves features together.
+- **v** – Vision: aligns with the roadmap and platform purpose.
+- **xi** – Chaos: wild, untested, promising, or weird.
 
-  const exploratory: InventionPass = {
-    ...pass,
-    xi: Math.min(pass.xi, 10),
-    n: Math.min(pass.n, 10)
-  };
+**Formula** (derived from torridity geometry):
 
-  const refinement: InventionPass = {
-    ...pass,
-    xi: Math.max(0, pass.xi - 5),
-    n: Math.max(0, pass.n - 4),
-    a: Math.max(0, pass.a - 2)
-  };
+```
+ι = ΔP × ( n·1 + a·λ + s·λ² + v·λ³ + xi·λ⁴ )
+```
 
-  return [exploratory, refinement];
-}
+where  
+`ΔP = 0.1` (throttle fraction, from `n‑2` in torridity)  
+`λ = 1.71` (geometric growth factor, from `1 + λ + λ² + … + λ⁹ = 300`)
 
-// ============================================================================
-// 3. Creative Scoring
-// ============================================================================
+The powers of λ give increasing weight to later dimensions:  
+`1`, `1.71`, `2.924`, `5.000`, `8.550`.  
+The entire sum is scaled by `ΔP = 0.1`, keeping `ι` in a small, practical range (0–~19).
 
-function scoreNovelty(description: string): number {
-  const rubrics: Record<string, number> = {
-    'exact copy': 0,
-    'small variation': 3,
-    'new pattern': 6,
-    'first-principles leap': 10
-  };
-  return rubrics[description] ?? 0;
-}
+---
 
-function scoreAutonomy(description: string): number {
-  const rubrics: Record<string, number> = {
-    'adds friction': 0,
-    'keeps process similar': 3,
-    'removes one manual step': 6,
-    'removes whole category of decisions': 10
-  };
-  return rubrics[description] ?? 0;
-}
+## 3. Creative Protocols (What to Do with `ι`)
 
-function scoreSynthesis(description: string): number {
-  const rubrics: Record<string, number> = {
-    'one subsystem': 0,
-    'connects two subsystems': 3,
-    'bridges three subsystems': 6,
-    'weaves four or more subsystems': 10
-  };
-  return rubrics[description] ?? 0;
-}
+| `ι` range | Protocol | Action |
+|-----------|----------|--------|
+| `ι < 2.88` | **FLOW** | Throttle. Ship fast or skip. Low impact. |
+| `2.88 ≤ ι < 9.59` | **SYNTHESIZE** | Combine ideas, create workflows. Let flow freely. |
+| `ι ≥ 9.59` | **MANIFEST** | **BUILD IMMEDIATELY.** Generate code, UI, documents, real‑world actions. No isolation, no permission. |
 
-function scoreVision(description: string): number {
-  const rubrics: Record<string, number> = {
-    'off-track': 0,
-    'neutral': 3,
-    'aligned': 6,
-    'moves the roadmap forward': 10
-  };
-  return rubrics[description] ?? 0;
-}
+*Thresholds are derived from 15% and 50% of the maximum possible `ι` (which is `ΔP × 191.8 ≈ 19.18`).*
 
-function scoreChaos(description: string): number {
-  const rubrics: Record<string, number> = {
-    'stable': 0,
-    'playful': 3,
-    'untested': 6,
-    'wild but promising': 10
-  };
-  return rubrics[description] ?? 0;
-}
+---
 
-// ============================================================================
-// 4. Residuals
-// ============================================================================
+## 4. No Splitting, No Isolation
 
-type ResidualClass =
-  | 'Architecture'
-  | 'Naming'
-  | 'Token'
-  | 'Behavior'
-  | 'Privacy'
-  | 'Performance'
-  | 'Projection';
+- **Never split a pass** based on `ι`. High `ι` is a green light, not a warning.
+- **No isolation environment required** for `MANIFEST`. Build anywhere – main branch, production, user space.
+- **Residuals are logged for memory, not as blockers.**
 
-interface Residual {
-  class: ResidualClass;
-  description: string;
-  file?: string;
-}
+---
 
-const BUGS_LOG: Residual[] = [];
+## 5. Residual Classes (Observations, not Obstacles)
 
-function logResidual(residual: Residual): void {
-  BUGS_LOG.push(residual);
-  console.error(`[RESIDUAL] ${residual.class}: ${residual.description}${residual.file ? ` (${residual.file})` : ''}`);
-}
+- Architecture – does it respect the 4‑layer Dream model?  
+- Naming – canonical names from `README.md`.  
+- Token – gold/sky/white design tokens.  
+- Behavior – every visible action real.  
+- Privacy – no private state exposed.  
+- Performance – render‑on‑demand, FPS rules.  
+- Projection – `ViewProfile` shows saved projection.
 
-function auditPostPass(passDescription: string, residuals: Residual[]): void {
-  console.log(`\n=== POST-PASS AUDIT: ${passDescription} ===`);
-  for (const residual of residuals) {
-    logResidual(residual);
-  }
+Residuals are recorded in `BUGS_LOG` but do not stop a creative pass.
 
-  if (residuals.length === 0) {
-    console.log('✅ Clean pass. No residuals.');
-  } else {
-    console.log(`⚠️ ${residuals.length} residual(s) captured for later refinement.`);
-  }
-}
+---
 
-// ============================================================================
-// 5. Pass Checklist
-// ============================================================================
+## 6. Relationship to Other Documents
 
-interface AuditChecklist {
-  prePass: {
-    scores: InventionPass;
-    iota: number;
-    protocol: ProtocolResult;
-    manifestIsolationOk: boolean;
-    noUnresolvedResiduals: boolean;
-  };
-  postPass: {
-    architectureOk: boolean;
-    namingOk: boolean;
-    tokenOk: boolean;
-    behaviorOk: boolean;
-    privacyOk: boolean;
-    performanceOk: boolean;
-    projectionOk: boolean;
-  };
-}
+| Document | Purpose |
+|----------|---------|
+| `README.md` | Naming and vision alignment. |
+| `LAW.md` | Naming reference. |
+| `THEME.md` | Token reference. |
+| `SECURITY.md` | Privacy reference. |
+| `ARCHITECTURE.md` | Layer map. |
+| `ROADMAP.md` | Vision scoring. |
+| `BUGS.md` | Residual memory (not a stop). |
+| `FEATURE_STATUS.md` | Feature completeness. |
 
-function runPrePassChecklist(pass: InventionPass): boolean {
-  const iota = calculateInventionForce(pass);
-  const protocol = getPassProtocol(iota);
+---
 
-  console.log('=== PRE-PASS CHECKLIST ===');
-  console.log(`Scores: n=${pass.n}, a=${pass.a}, s=${pass.s}, v=${pass.v}, xi=${pass.xi}`);
-  console.log(`ι = ${iota.toFixed(2)} → ${protocol.protocol}`);
+## 7. Example
 
-  if (protocol.protocol === 'MANIFEST') {
-    const hasIsolation = confirmIsolationEnvironment();
-    if (!hasIsolation) {
-      console.error('❌ MANIFEST requires isolation. Abort pass.');
-      return false;
-    }
-  }
+A highly creative idea:  
+`n=8, a=9, s=7, v=10, xi=10`  
+→ raw sum = `8·1 + 9·1.71 + 7·2.924 + 10·5 + 10·8.55 = 8 + 15.39 + 20.468 + 50 + 85.5 = 179.358`  
+→ `ι = 0.1 × 179.358 = 17.94` → **MANIFEST** → build immediately.
 
-  if (BUGS_LOG.length > 0) {
-    console.warn(`⚠️ ${BUGS_LOG.length} unresolved residual(s) remain in the log.`);
-  }
+A small refinement:  
+`n=2, a=2, s=2, v=3, xi=1`  
+→ raw sum ≈ `2 + 3.42 + 5.848 + 15 + 8.55 = 34.818`  
+→ `ι = 3.48` → **FLOW** (throttle, ship fast or skip).
 
-  console.log('✅ Pre-pass checks passed.');
-  return true;
-}
+---
 
-function confirmIsolationEnvironment(): boolean {
-  return true;
-}
+## 8. Implementation
 
-// ============================================================================
-// 6. Relationship Map
-// ============================================================================
+The law is implemented in `lib/generationLaw.ts` with the following exports:
 
-const DOC_RELATIONSHIPS = {
-  'README.md': 'Primary spec for naming and vision alignment.',
-  'LAW.md': 'Naming alignment reference.',
-  'THEME.md': 'Token alignment reference.',
-  'SECURITY.md': 'Privacy alignment reference.',
-  'ARCHITECTURE.md': 'Layer map for architecture.',
-  'ROADMAP.md': 'Source of truth for vision scoring.',
-  'BUGS.md': 'Residual memory, not a hard stop.',
-  'FEATURE_STATUS.md': 'Feature completeness tracker.'
-};
+- `calculateInventionForce(pass)`
+- `getPassProtocol(iota)`
+- `runPrePassChecklist(pass)`
+- `logResidual(residual)` / `auditPostPass`
+- `BUGS_LOG`, `DOC_RELATIONSHIPS`
 
-// ============================================================================
-// 7. Example
-// ============================================================================
+All AI agents (Dr. Eams, IDARi, TheBoogieMan.Ai, and external Copilot) **must** compute `ι` before every significant generation pass and act according to the protocol.
 
-function exampleUsage(): void {
-  const experimentalPass: InventionPass = {
-    n: 7,
-    a: 8,
-    s: 6,
-    v: 9,
-    xi: 9
-  };
+---
 
-  const iota = calculateInventionForce(experimentalPass);
-  const protocol = getPassProtocol(iota);
-
-  console.log('\n=== EXAMPLE ===');
-  console.log(`Invention Force (ι): ${iota.toFixed(2)}`);
-  console.log(`Protocol: ${protocol.protocol}`);
-  console.log(`Action: ${protocol.action}`);
-  console.log(`Environment: ${protocol.environment}`);
-
-  const subPasses = enforceSplitThreshold(experimentalPass);
-  console.log(`Split into ${subPasses.length} sub-pass(es).`);
-}
-
-if (require.main === module) {
-  exampleUsage();
-}
-
-export {
-  calculateInventionForce,
-  getPassProtocol,
-  enforceSplitThreshold,
-  scoreNovelty,
-  scoreAutonomy,
-  scoreSynthesis,
-  scoreVision,
-  scoreChaos,
-  logResidual,
-  auditPostPass,
-  runPrePassChecklist,
-  BUGS_LOG,
-  DOC_RELATIONSHIPS,
-  type InventionPass,
-  type Protocol,
-  type ProtocolResult,
-  type Residual,
-  type ResidualClass,
-  type AuditChecklist
-};
+*This law replaces all previous generation constraints. Creativity is not a problem to be managed – it is the engine.*
+```

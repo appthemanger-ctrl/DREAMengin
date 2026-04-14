@@ -4,7 +4,7 @@ import { validateShopListing, normalizeShopListing } from '@/lib/shop/listings';
 
 // GET - Fetch merch items
 export async function GET(req: NextRequest) {
-  const supabase = await createServerClient();
+  const supabase = (await createServerClient()) as any;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
 
 // POST - Create a merch listing
 export async function POST(req: NextRequest) {
-  const supabase = await createServerClient();
+  const supabase = (await createServerClient()) as any;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
 
 // PUT - Update a merch listing
 export async function PUT(req: NextRequest) {
-  const supabase = await createServerClient();
+  const supabase = (await createServerClient()) as any;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -149,7 +149,7 @@ export async function PUT(req: NextRequest) {
 
 // DELETE - Remove a merch listing
 export async function DELETE(req: NextRequest) {
-  const supabase = await createServerClient();
+  const supabase = (await createServerClient()) as any;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

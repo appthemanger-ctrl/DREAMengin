@@ -14,6 +14,8 @@
  * (active service, detail URL, etc.) — opening content in one region does
  * not affect the other.
  *
+ * Pinned apps + feeds across the dual runtime.
+ *
  * Permanent iOS-style app windows are the priority content of the Dreams Space.
  * The 6 Daydream surfaces plus Engin apps (Shop, Marketplace, Ads, Links) are
  * pinned as permanent windows, organized like an iOS home screen, and remain

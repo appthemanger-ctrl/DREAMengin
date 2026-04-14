@@ -33,6 +33,9 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Setup Node 25
+        uses: ./.github/actions/setup-node
+
       - name: Run spec-check (auto-fix mode)
         run: node scripts/spec-check.cjs .
 

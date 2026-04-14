@@ -186,11 +186,11 @@ export class ComputeShaderPipeline {
   async compileKernel(kernel: ComputeKernel): Promise<boolean> {
     const dev = this.device as GPUDevice | null;
     if (!dev) return false;
-    const module = dev.createShaderModule({ label: kernel.label, code: kernel.wgsl });
+    const shaderModule = dev.createShaderModule({ label: kernel.label, code: kernel.wgsl });
     const pipeline = dev.createComputePipeline({
       label: kernel.label,
       layout: 'auto',
-      compute: { module, entryPoint: 'main' },
+      compute: { module: shaderModule, entryPoint: 'main' },
     });
     this.kernels.set(kernel.label, { pipeline, workgroupSize: kernel.workgroupSize });
     return true;

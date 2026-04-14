@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
 import { enginBridge } from '@/lib/runtime/dualRuntimeBridge';
+export { DREAMR_TOPICS } from './algorithms/dreamrfeed';
 
 export default function DreamRFeed({ videoId, sharerId, viewerId }: { videoId: string, sharerId: string, viewerId: string }) {
   const [hasTallied, setHasTallied] = useState(false);

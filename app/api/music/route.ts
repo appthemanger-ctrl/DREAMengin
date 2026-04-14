@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // GET - Fetch music releases
 export async function GET(req: NextRequest) {
-  const supabase = await createServerClient();
+  const supabase = (await createServerClient()) as any;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
 
 // POST - Upload/create a music release
 export async function POST(req: NextRequest) {
-  const supabase = await createServerClient();
+  const supabase = (await createServerClient()) as any;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
 
 // DELETE - Remove a music release
 export async function DELETE(req: NextRequest) {
-  const supabase = await createServerClient();
+  const supabase = (await createServerClient()) as any;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

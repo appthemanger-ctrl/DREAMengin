@@ -108,6 +108,9 @@ jobs:
     needs: quality
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: ./.github/actions/setup-node
       
       - name: Run npm audit
         run: npm audit --audit-level=high || echo "Vulnerabilities found, review required"
@@ -243,4 +246,3 @@ jobs:
         run: |
           echo "Deployment failed! Check logs."
           # Add Slack/Discord webhook here
-
