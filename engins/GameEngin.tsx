@@ -810,7 +810,8 @@ export default function GameEngin({ onBack }: Props) {
           />
         )}
 
-        <div style={{ position: 'absolute', inset: 0 }}>
+        {/* Game stage — stops above the HUD remote so the canvas never renders behind it */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 'max(var(--de-hud-bottom, 175px), clamp(80px, 22dvh, 38dvh))' }}>
           <GameRuntime
             cartridge={expandedCartridge}
             physicsConfig={appliedPhysics}
