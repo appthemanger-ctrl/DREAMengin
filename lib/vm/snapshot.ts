@@ -26,7 +26,7 @@ export class SnapshotManager {
    */
   static async createSnapshot(vm: WasmGpuVM): Promise<VMSnapshot> {
     const stats = vm.getStats();
-    const state = (vm as {state: {
+    const state = (vm as unknown as {state: {
       wasmMemories: Map<number, {id: number; memory: WebAssembly.Memory; shared: boolean; pages: number}>;
       buffers: Map<BufferHandle, {handle: BufferHandle; size: bigint; usage: number; buffer: GPUBuffer}>;
       pipelines: Map<PipelineHandle, {handle: PipelineHandle; wgslSource: string; sourceHash: string}>;

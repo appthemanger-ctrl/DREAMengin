@@ -112,7 +112,7 @@ async function loadPyodide() {
     script.onerror = reject;
     document.head.appendChild(script);
   });
-  // @ts-ignore
+  // @ts-expect-error - pyodide loader injected at runtime
   pyodidePromise = globalThis.loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.1/full/' });
   pyodideInstance = await pyodidePromise;
   return pyodideInstance;
@@ -350,9 +350,9 @@ async function callSecurityScan(apiKey: string): Promise<any> {
 // ----------------------------------------------------------------------
 
 async function callGroq(prompt: string, codeContext?: string): Promise<string> {
-  const apiKey = process.env.NEXT_PUBLIC_GROQ_API_KEY || process.env.GROQ_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) return 'Groq API key not configured. Add GROQ_API_KEY to environment.';
-  const model = process.env.NEXT_PUBLIC_GROQ_MODEL_EAMS_FAST || 'llama3-70b-8192';
+  const model = process.env.GROQ_MODEL_EAMS_FAST || 'llama3-70b-8192';
   const fullPrompt = codeContext
     ? `You are Dr. Eams, a coding assistant. The user has this code:\n\`\`\`\n${codeContext}\n\`\`\`\n\nUser request: ${prompt}`
     : `You are Dr. Eams, a coding assistant. User request: ${prompt}`;
@@ -554,7 +554,7 @@ export default function CodeEngin({ onBack }: Props) {
     setCiError(null);
     setCiResults(null);
     try {
-      const apiKey = process.env.NEXT_PUBLIC_CI_API_KEY || '';
+      const apiKey = process.env.CI_API_KEY || '';
       if (!apiKey) throw new Error('CI_API_KEY not set in environment');
       const data = await callCI(apiKey);
       setCiResults(data);
@@ -571,7 +571,7 @@ export default function CodeEngin({ onBack }: Props) {
     setSecError(null);
     setSecResults(null);
     try {
-      const apiKey = process.env.NEXT_PUBLIC_CI_API_KEY || '';
+      const apiKey = process.env.CI_API_KEY || '';
       if (!apiKey) throw new Error('CI_API_KEY not set in environment');
       const data = await callSecurityScan(apiKey);
       setSecResults(data);

@@ -21,7 +21,7 @@ function normalizePostMedia<T extends Record<string, any>>(post: T): T & { media
 //   limit  — number of posts to return (default 20, max 500 for following, max 50 otherwise)
 //   offset — pagination offset
 export async function GET(req: NextRequest) {
-  const supabase = await createServerClient();
+  const supabase = (await createServerClient()) as any;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -118,7 +118,7 @@ export async function GET(req: NextRequest) {
 
 // POST - Create a new post
 export async function POST(req: NextRequest) {
-  const supabase = await createServerClient();
+  const supabase = (await createServerClient()) as any;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

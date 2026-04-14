@@ -81,7 +81,7 @@ function HomeSystemInner({
       }
       return current;
     });
-  }, []);
+  }, [setIsBarMinimized, setSplitRatio]);
 
   const returnHome = useCallback(() => {
     dualRuntime.goToHome();

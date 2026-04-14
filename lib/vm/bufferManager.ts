@@ -5,14 +5,8 @@
  * Enforces resource quotas and tracks memory usage.
  */
 
-import type {
-  BufferHandle,
-  GPUBufferDescriptor,
-  GPUBufferUsageFlags,
-  VMErrorCode,
-  VMResourceQuotas,
-  VMPerformanceCounters,
-} from './types';
+import { GPUBufferUsageFlags, VMErrorCode } from './types';
+import type { BufferHandle, GPUBufferDescriptor, VMResourceQuotas, VMPerformanceCounters } from './types';
 
 export class BufferManager {
   private readonly buffers = new Map<BufferHandle, GPUBufferDescriptor>();
@@ -33,18 +27,18 @@ export class BufferManager {
   create(usage: number, size: bigint): BufferHandle | VMErrorCode {
     // Quota checks
     if (this.buffers.size >= this.quotas.maxGPUBufferCount) {
-      return 5; // RESOURCE_LIMIT_EXCEEDED
+      return VMErrorCode.RESOURCE_LIMIT_EXCEEDED;
     }
     if (size > this.quotas.maxGPUBufferSize) {
-      return 5;
+      return VMErrorCode.RESOURCE_LIMIT_EXCEEDED;
     }
     if (this.totalMemoryUsed + size > this.quotas.maxTotalGPUMemory) {
-      return 1; // OUT_OF_MEMORY
+      return VMErrorCode.OUT_OF_MEMORY;
     }
 
     // Validate usage flags
     if (!this.validateUsage(usage)) {
-      return 3; // INVALID_ARGUMENT
+      return VMErrorCode.INVALID_ARGUMENT;
     }
 
     try {
@@ -67,7 +61,7 @@ export class BufferManager {
       return handle;
     } catch (error) {
       console.error('[BufferManager] Failed to create buffer:', error);
-      return 4; // GPU_ERROR
+      return VMErrorCode.GPU_ERROR;
     }
   }
 
@@ -77,13 +71,13 @@ export class BufferManager {
   destroy(handle: BufferHandle): VMErrorCode {
     const descriptor = this.buffers.get(handle);
     if (!descriptor) {
-      return 2; // INVALID_HANDLE
+      return VMErrorCode.INVALID_HANDLE;
     }
 
     descriptor.buffer.destroy();
     this.totalMemoryUsed -= descriptor.size;
     this.buffers.delete(handle);
-    return 0; // SUCCESS
+    return VMErrorCode.SUCCESS;
   }
 
   /**
@@ -299,16 +293,17 @@ export class BufferManager {
    * Convert usage flags bitmask to GPUBufferUsageFlags.
    */
   private usageFlagsToGPU(usage: number): GPUBufferUsageFlags {
+    const usageMap = typeof GPUBufferUsage === 'undefined' ? GPUBufferUsageFlags : GPUBufferUsage;
     let gpuUsage = 0;
-    if (usage & (1 << 0)) gpuUsage |= GPUBufferUsage.STORAGE;
-    if (usage & (1 << 1)) gpuUsage |= GPUBufferUsage.UNIFORM;
-    if (usage & (1 << 2)) gpuUsage |= GPUBufferUsage.COPY_SRC;
-    if (usage & (1 << 3)) gpuUsage |= GPUBufferUsage.COPY_DST;
-    if (usage & (1 << 4)) gpuUsage |= GPUBufferUsage.MAP_READ;
-    if (usage & (1 << 5)) gpuUsage |= GPUBufferUsage.MAP_WRITE;
-    if (usage & (1 << 6)) gpuUsage |= GPUBufferUsage.INDIRECT;
-    if (usage & (1 << 7)) gpuUsage |= GPUBufferUsage.VERTEX;
-    if (usage & (1 << 8)) gpuUsage |= GPUBufferUsage.INDEX;
+    if (usage & (1 << 0)) gpuUsage |= usageMap.STORAGE;
+    if (usage & (1 << 1)) gpuUsage |= usageMap.UNIFORM;
+    if (usage & (1 << 2)) gpuUsage |= usageMap.COPY_SRC;
+    if (usage & (1 << 3)) gpuUsage |= usageMap.COPY_DST;
+    if (usage & (1 << 4)) gpuUsage |= usageMap.MAP_READ;
+    if (usage & (1 << 5)) gpuUsage |= usageMap.MAP_WRITE;
+    if (usage & (1 << 6)) gpuUsage |= usageMap.INDIRECT;
+    if (usage & (1 << 7)) gpuUsage |= usageMap.VERTEX;
+    if (usage & (1 << 8)) gpuUsage |= usageMap.INDEX;
     return gpuUsage;
   }
 
