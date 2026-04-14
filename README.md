@@ -56,6 +56,8 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 ```
 
 > **Dev auth bypass (local only):** set `DEV_BYPASS_AUTH=true` and `DEV_ADMIN=true` in `.env.local`
+> **Quickstart env:** copy `.env.local.example` to `.env.local` to enable the bypass flags and fill Supabase placeholders.
+> **Supabase fallback:** the app will degrade gracefully without Supabase; run `supabase start` for full functionality or set `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` to a hosted project.
 
 ---
 
