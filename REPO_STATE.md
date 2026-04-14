@@ -44,7 +44,7 @@
 **Quick Stats:**
 
 - 📁 Total Code Files: 695
-- 📝 Total Lines of Code: 170,328
+- 📝 Total Lines of Code: 170,510
 - 📦 Size: 6.39 MB
 - 🧪 Tests: 147 files, 142 passing
 - 📄 API Routes: 97
@@ -120,7 +120,7 @@ vitest@^4.1.0
 |-----------|-------------|------------|
 | `app/` | 223 | .tsx(124), .ts(97), .css(2) |
 | `components/` | 302 | .tsx(275), .ts(24), .css(2) |
-| `lib/` | 299 | .ts(291), .tsx(5), .md(3) |
+| `lib/` | 300 | .ts(291), .tsx(5), .md(3) |
 | `tests/` | 149 | .ts(148), .md(1) |
 | `styles/` | 3 | .css(3) |
 | `public/` | 49 | .png(18), .PNG(11), .jpeg(6) |
@@ -139,7 +139,7 @@ vitest@^4.1.0
 
 ### Code Volume
 
-- **Total Lines:** 170,328
+- **Total Lines:** 170,510
 - **Total Size:** 6.39 MB
 
 ## API Routes
