@@ -120,9 +120,16 @@ class DualRuntimeBridge extends EventEmitter {
         shared: true,
       });
 
-      const wasmBinary = await fetch(BUS_WASM_URL).then((r) => r.arrayBuffer());
+      const wasmBinary = await this.loadWasmBinary();
+      const imports = {
+        env: {
+          memory,
+          // AssemblyScript expects abort to exist; no-op for our use-case.
+          abort: () => {},
+        },
+      };
 
-      const { instance } = (await WebAssembly.instantiate(wasmBinary, { env: { memory } })) as WebAssembly.WebAssemblyInstantiatedSource;
+      const { instance } = (await WebAssembly.instantiate(wasmBinary, imports)) as WebAssembly.WebAssemblyInstantiatedSource;
 
       this.memory = memory;
       this.wasm = instance.exports as unknown as WasmExports;
@@ -157,6 +164,21 @@ class DualRuntimeBridge extends EventEmitter {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const maybeNumber = (heapBase as any) as number | undefined;
     return typeof maybeNumber === 'number' ? maybeNumber : null;
+  }
+
+  private async loadWasmBinary(): Promise<ArrayBuffer> {
+    // Browser / worker path: fetch the emitted asset URL.
+    if (typeof window !== 'undefined' && typeof fetch === 'function') {
+      return fetch(BUS_WASM_URL).then((r) => r.arrayBuffer());
+    }
+
+    // Node / Vitest path: read directly from the filesystem to avoid file:// fetch limitations.
+    const [{ readFile }, { fileURLToPath }] = await Promise.all([
+      import('fs/promises'),
+      import('url'),
+    ]);
+    const buf = await readFile(fileURLToPath(BUS_WASM_URL));
+    return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
   }
 
   private startPolling() {
@@ -283,14 +305,14 @@ class DualRuntimeBridge extends EventEmitter {
   // ── Peer activity ──────────────────────────────────────────────────────────
 
   /** Subscribe to peer-activity changes. Returns an unsubscribe function. */
-  subscribePeerActivity(callback: (peers: readonly PeerState[]) => void): UnsubscribeFn {
+  subscribePeerActivity(callback: (peers: ReadonlyArray<PeerState>) => void): UnsubscribeFn {
     this.peerListeners.add(callback);
     callback(this.getPeers());
     return () => { this.peerListeners.delete(callback); };
   }
 
   /** Return a snapshot of all peer states. */
-  getPeers(): PeerState[] {
+  getPeers(): ReadonlyArray<PeerState> {
     return Array.from(this.peers.values());
   }
 
