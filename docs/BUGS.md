@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-14 07:19 UTC  
-**Last updated:** 2026-04-14 07:19 UTC  
-**Triggered by commit:** `d6e42de` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #519 from appthemanger-ctrl/copilot/code-only-request
+**Documentation Date:** 2026-04-14 08:25 UTC  
+**Last updated:** 2026-04-14 08:25 UTC  
+**Triggered by commit:** `85f1442` on `copilot/create-implementation-plan-for-upgrade` by Copilot  
+**Commit message:** feat: 2026 full system upgrade — all 9 streams implemented
 
 ---
 
@@ -105,21 +105,11 @@ These features are spec'd but not yet built. They are mandatory obligations per 
 
 ## 🐛 Known Code Annotations (TODO / FIXME / HACK)
 
-### 📝 TODO (11)
+### 📝 TODO (1)
 
 | Location | Description |
 |----------|-------------|
-| `app/api/metrics/platform/route.ts:108` | Calculate creation_to_consumption_ratio, outside_activity_rate, harmful_content_rate |
-| `app/api/metrics/platform/route.ts:113` | Implement |
-| `app/api/metrics/platform/route.ts:114` | Implement |
-| `app/api/metrics/platform/route.ts:116` | Implement |
-| `components/daydream/StarMakerEngin.tsx:430` | Implement actual audio upload to ledger storage |
 | `lib/code/drEamsCodeAssist.ts:355` | implement\n}`; |
-| `lib/vm/snapshot.ts:81` | track bind groups |
-| `lib/vm/snapshot.ts:264` | serialize quotas |
-| `lib/vm/snapshot.ts:288` | implement actual copy |
-| `lib/vm/wasmGpuVM.ts:307` | Parse bindings and create actual bind group |
-| `lib/vm/wasmGpuVM.ts:365` | Parse dynamic offsets from WASM memory if needed |
 
 ---
 
