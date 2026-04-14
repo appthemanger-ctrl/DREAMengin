@@ -3,7 +3,7 @@
  * ConnectorWidgetPicker
  * ---------------------
  * Shown in edit-widget mode inside ProfileWidgetGrid.
- * S.I.C.C. — Stylized, Intuitive, Coherent, Cohesive.
+ * S.I.C.C. — Synchronized, Intuitive, Coherent, Cohesive.
  *
  * HARD RULE: connectors whose widget type is already in the grid
  * are permanently disabled and cannot be tapped.

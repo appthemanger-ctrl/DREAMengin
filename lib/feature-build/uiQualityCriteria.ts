@@ -2,10 +2,10 @@
  * lib/feature-build/uiQualityCriteria.ts
  *
  * SICC — the four UI quality dimensions pursued in the REFINE phase:
- *   Stylized  — consistent design language, tokens, and visual identity
- *   Intuitive — discoverable interactions, clear affordances, accessible
- *   Cohesive  — surfaces feel unified; shared color, spacing, and motion
- *   Coherent  — naming, copy, and structure match platform vocabulary
+ *   Synchronized — real-time coordination across runtimes, shared state, and immediate feedback
+ *   Intuitive    — discoverable interactions, clear affordances, accessible
+ *   Cohesive     — surfaces feel unified; shared color, spacing, and motion
+ *   Coherent     — naming, copy, and structure match platform vocabulary
  *
  * Each criterion has a grep detectPattern so the build-cycle workflow can
  * scan the codebase and report pass/fail per check.
@@ -13,7 +13,7 @@
 
 // ─── Dimensions ───────────────────────────────────────────────────────────────
 
-export type SICCDimension = 'stylized' | 'intuitive' | 'cohesive' | 'coherent';
+export type SICCDimension = 'synchronized' | 'intuitive' | 'cohesive' | 'coherent';
 
 export interface UIQualityCheck {
   id: string;
@@ -31,10 +31,10 @@ export interface UIQualityCheck {
 // ─── Global SICC checks (apply to every surface) ─────────────────────────────
 
 export const SICC_GLOBAL_CRITERIA: readonly UIQualityCheck[] = [
-  // ── Stylized ──────────────────────────────────────────────────────────────
+  // ── Synchronized ──────────────────────────────────────────────────────────
   {
     id: 'design-tokens',
-    dimension: 'stylized',
+    dimension: 'synchronized',
     label: 'Design Token Usage',
     description: 'CSS custom properties (--de-*) used instead of raw colour literals',
     detectPattern: 'var\\(--de-',
@@ -42,7 +42,7 @@ export const SICC_GLOBAL_CRITERIA: readonly UIQualityCheck[] = [
   },
   {
     id: 'dream-word-treatment',
-    dimension: 'stylized',
+    dimension: 'synchronized',
     label: 'DreamWord Treatment',
     description: 'de-dream-word class or DreamWord component applied to brand copy',
     detectPattern: 'de-dream-word|DreamWord',
@@ -50,7 +50,7 @@ export const SICC_GLOBAL_CRITERIA: readonly UIQualityCheck[] = [
   },
   {
     id: 'premium-gradient',
-    dimension: 'stylized',
+    dimension: 'synchronized',
     label: 'Premium Neutral Gradient',
     description: 'Background gradient uses the premium neutral token range (#e9ecf1 → #f7f3ec)',
     detectPattern: '#e9ecf1|#f0f2f6|#f7f3ec',
@@ -145,7 +145,7 @@ export function getCriteriaForDimension(dim: SICCDimension): UIQualityCheck[] {
 
 /** All four SICC dimension labels in display order. */
 export const SICC_DIMENSIONS: readonly { id: SICCDimension; label: string; emoji: string }[] = [
-  { id: 'stylized',  label: 'Stylized',  emoji: '✦' },
+  { id: 'synchronized', label: 'Synchronized', emoji: '✦' },
   { id: 'intuitive', label: 'Intuitive', emoji: '◈' },
   { id: 'cohesive',  label: 'Cohesive',  emoji: '◎' },
   { id: 'coherent',  label: 'Coherent',  emoji: '◇' },
