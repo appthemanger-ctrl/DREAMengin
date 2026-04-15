@@ -1,4 +1,4 @@
-```markdown
+
 # DREAMengin — Full System Specification
 
 > **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
@@ -2148,4 +2148,6 @@ The "Dual Runtime Hub" piece can be included to enable cross‑side communicatio
 ---
 
 *This specification supersedes all previous product definitions. All AI agents (Dr. Eams, IDARi, TheBoogieMan.Ai, and external Copilot) must obey these rules and capabilities.*
-```
+
+   }:
+}
