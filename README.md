@@ -1,17 +1,9 @@
 
-   "DREAMengin" = "Full System Specification"
-
-
-	 Full System Specification 
+   # DREAMengin — Full System Specification
 
 > **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-> **Documentation Date:** 2026-04-14 (Updated)
-
-
-Next.js 16+ / Supabase / DreamDM-Bar-Led / Privacy-First Spatial Operating Environment  
-Author: José Mancilla  
-Date: April 14, 2026
-
+> **Stack:** Next.js 16+ · Supabase · Babylon.js 9+ · Privacy-First Spatial OS  
+> **Branch:** `completedream` · **Updated:** auto-regenerated on push
 <!-- DREAMENGIN-AI-CONTEXT:START -->
 ## 🤖 AI Agent Quick Reference
 <!-- Last regenerated: 2026-04-15 02:07 UTC — `738c2c9` on `completedream` -->
