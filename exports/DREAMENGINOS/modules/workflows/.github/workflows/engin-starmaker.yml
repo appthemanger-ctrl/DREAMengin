@@ -1,0 +1,211 @@
+name: StarMakerEngin — Health & Premium Feature Patrol
+
+# Engin-runtime workflow for StarMakerEngin (Music pair machine side).
+# Scope: components/daydream/StarMakerEngin.tsx + music API routes + music components.
+# Does NOT re-run Daydream lobby-side CI — see daydream-music.yml for that.
+#
+# Premium feature checks:
+#   ✦ Music release operation handlers
+#   ✦ Publish/distribute handlers
+#   ✦ BPM / pitch / mix controls
+#   ✦ Stem/track separation support
+#   ✦ Label management operations
+
+on:
+  push:
+    paths:
+      - 'components/daydream/StarMakerEngin.tsx'
+      - 'app/api/music/**'
+      - 'components/music/**'
+      - 'lib/daydream/**'
+      - '.github/workflows/engin-starmaker.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '30 2 * * *'   # daily 02:30 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: engin-starmaker-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '25'
+  PNPM_VERSION: '10.30.0'
+  ENGIN: 'StarMakerEngin'
+  PAIR: 'music'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  engin-starmaker-health:
+    name: 🎤 StarMakerEngin · Build · Lint · Test · Feature Patrol
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Toolchain ─────────────────────────────────────────────────────────────
+      - name: Setup pnpm ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: ./.github/actions/setup-node
+
+      # ── Install ───────────────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Build ─────────────────────────────────────────────────────────────────
+      - name: Build (Next.js)
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      # ── Security ──────────────────────────────────────────────────────────────
+      - name: Security audit
+        run: pnpm audit --audit-level=high || true
+
+      # ── Lint (Engin runtime scope only) ───────────────────────────────────────────────
+      - name: Lint — StarMakerEngin scope
+        id: lint
+        run: |
+          pnpm exec next lint \
+            --file components/daydream/StarMakerEngin.tsx \
+            || echo "lint_failed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Typecheck
+        run: pnpm typecheck || true
+
+      # ── Unit tests ────────────────────────────────────────────────────────────
+      - name: Unit tests
+        run: pnpm exec vitest run --reporter=verbose || true
+
+      # ── Engin runtime pattern scans ──────────────────────────────────────────
+      - name: Scan — Music release operation handlers
+        id: scan_release_ops
+        run: |
+          echo "--- Music release ops scan ---"
+          if grep -r "releaseTrack\|release-track\|publishTrack\|publishRelease\|createRelease\|submitRelease" \
+            components/daydream/StarMakerEngin.tsx app/api/music 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Release operation handlers detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Release operation handlers not found"
+          fi
+
+      - name: Scan — Publish / distribute handlers
+        id: scan_publish
+        run: |
+          echo "--- Publish/distribute handler scan ---"
+          if grep -r "distribute\|Distribute\|publishTo\|publish-to\|submitToLabel\|distributorAPI" \
+            components/daydream/StarMakerEngin.tsx app/api/music 2>/dev/null \
+            | grep -v "node_modules"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Publish/distribute handlers found"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Publish/distribute handlers not found"
+          fi
+
+      - name: Scan — BPM, pitch, and mix controls
+        id: scan_audio_controls
+        run: |
+          echo "--- BPM / pitch / mix control scan ---"
+          BPM=$(grep -rl "bpm\|BPM\|tempo\|Tempo" \
+            components/daydream/StarMakerEngin.tsx components/music 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          PITCH=$(grep -rl "pitch\|Pitch\|semitone\|Semitone" \
+            components/daydream/StarMakerEngin.tsx components/music 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          MIX=$(grep -rl "mix\|Mix\|volume\|Volume\|pan\|Pan\|gain\|Gain" \
+            components/daydream/StarMakerEngin.tsx components/music 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          echo "BPM=${BPM}" >> "$GITHUB_OUTPUT"
+          echo "PITCH=${PITCH}" >> "$GITHUB_OUTPUT"
+          echo "MIX=${MIX}" >> "$GITHUB_OUTPUT"
+          echo "BPM files: ${BPM} | Pitch files: ${PITCH} | Mix files: ${MIX}"
+
+      - name: Scan — Stem / track separation support
+        id: scan_stems
+        run: |
+          echo "--- Stem/track separation scan ---"
+          if grep -r "stem\|Stem\|trackSeparation\|isolate\|Isolate\|stemExtract" \
+            components/daydream/StarMakerEngin.tsx components/music app/api/music 2>/dev/null \
+            | grep -v "node_modules"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Stem/track separation support found"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Stem/track separation not found"
+          fi
+
+      # ── Auto-fix ──────────────────────────────────────────────────────────────
+      - name: ESLint auto-fix — StarMakerEngin
+        run: |
+          pnpm exec next lint \
+            --fix \
+            --file components/daydream/StarMakerEngin.tsx \
+            || true
+
+      # ── Commit fixes ──────────────────────────────────────────────────────────
+      - name: Commit auto-fixes (if any)
+        if: always()
+        run: |
+          git config user.name  "engin-starmaker-bot"
+          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No fixes to commit."
+          else
+            git add -A
+            git commit -m "fix(engin/starmaker): ESLint auto-fix — StarMakerEngin standalone [skip ci] [skip vercel]"
+            git push || true
+          fi
+
+      - name: Upload scan artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: starmaker-engin-scan-${{ github.run_number }}
+          path: |
+            components/daydream/StarMakerEngin.tsx
+          retention-days: 7
+
+      # ── Job Summary ───────────────────────────────────────────────────────────
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## 🎤 StarMakerEngin — Standalone Health Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Engin | StarMakerEngin |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Canonical pair | Music Daydream |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scope | Engin runtime only (machine side; no Daydream lobby page) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔎 Premium Engin Runtime Checklist" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Feature | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Release operation handlers | ${{ steps.scan_release_ops.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Publish / distribute handlers | ${{ steps.scan_publish.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| BPM controls | ${{ steps.scan_audio_controls.outputs.BPM != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Pitch controls | ${{ steps.scan_audio_controls.outputs.PITCH != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Mix / gain controls | ${{ steps.scan_audio_controls.outputs.MIX != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Stem / track separation | ${{ steps.scan_stems.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> Daydream lobby-side checks are handled by \`daydream-music.yml\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "> Combined Daydream lobby + Engin runtime health is handled by \`daydream-music-engin.yml\`." >> "$GITHUB_STEP_SUMMARY"

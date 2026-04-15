@@ -14,7 +14,9 @@ These axioms are the repo-level interpretation of the current product direction.
 1. **Coherent** — the system should read as one runtime, not a pile of unrelated surfaces.
 2. **Cohesive** — naming, routing, docs, and UI language should reinforce the same runtime structure.
 3. **Intuitive** — interactions should feel obvious and direct. Navigation should feel like depth, not surface switching.
-4. **Stylized** — the system should feel premium, intentional, and designed.
+4. **Synchronized** — real-time coordination across runtimes, shared state, collaborative
+   actions, and immediate feedback. (Formerly "Stylized" — see `docs/PRINCIPLES_UPDATE.md`.)
+   Visual quality continues to be enforced through Coherent + Cohesive principles.
 
 ## Product integrity rules
 
