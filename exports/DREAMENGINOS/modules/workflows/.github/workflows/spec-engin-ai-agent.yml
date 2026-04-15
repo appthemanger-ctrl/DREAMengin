@@ -1,0 +1,239 @@
+name: Spec-Engin AI Agent
+
+# ──────────────────────────────────────────────────────────────────────────────
+# DREAMengin AI big-move loop
+#
+# Three-job pipeline:
+#   1. scan    — snapshot docs + code into a large-context file
+#   2. propose — GPT-4.1 designs ONE creative, SICC-aligned platform change
+#   3. implement — GPT-4.1 writes the first slice as a git patch,
+#                  applies it, then builds + tests to gate the commit
+#
+# SICC has TWO canon meanings (both enforced in prompts):
+#   Super Immersive Creative Controls  (immersion)
+#   Stylized · Intuitive · Cohesive · Coherent  (clarity)
+#
+# Required repository secret:  OPENAI_API_KEY
+# ──────────────────────────────────────────────────────────────────────────────
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, develop, completedream]
+    paths:
+      - 'app/**'
+      - 'components/**'
+      - 'lib/**'
+      - 'styles/**'
+      - 'docs/**'
+      - 'spec/**'
+      - 'README.md'
+      - '.github/workflows/spec-engin-ai-agent.yml'
+      - '.github/scripts/**.py'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: spec-engin-ai-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '25'
+  PNPM_VERSION: '10.30.0'
+  GENERATED_DIR: .github/generated
+
+# ──────────────────────────────────────────────────────────────────────────────
+# JOB 1 — Scan: build the large-context snapshot
+# ──────────────────────────────────────────────────────────────────────────────
+jobs:
+
+  scan:
+    name: Scan DREAMengin context
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      context-path: ${{ env.GENERATED_DIR }}/dreamengin-context.md
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan docs and code (large context)
+        run: |
+          mkdir -p ${{ env.GENERATED_DIR }}
+          python .github/scripts/scan_dreamengin_context.py \
+            > ${{ env.GENERATED_DIR }}/dreamengin-context.md
+
+      - name: Upload context snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamengin-context
+          path: ${{ env.GENERATED_DIR }}/dreamengin-context.md
+          retention-days: 1
+
+# ──────────────────────────────────────────────────────────────────────────────
+# JOB 2 — Propose: GPT-4.1 designs the big move
+# ──────────────────────────────────────────────────────────────────────────────
+
+  propose:
+    name: AI propose big move
+    needs: scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      spec-path: ${{ env.GENERATED_DIR }}/dreamengin-spec.json
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download context snapshot
+        uses: actions/download-artifact@v4.1.3
+        with:
+          name: dreamengin-context
+          path: ${{ env.GENERATED_DIR }}
+
+      - name: AI propose DREAMengin big move
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python .github/scripts/ai_propose.py \
+            --context ${{ env.GENERATED_DIR }}/dreamengin-context.md \
+            --out     ${{ env.GENERATED_DIR }}/dreamengin-spec.json \
+            --model   gpt-4.1
+
+      - name: Upload spec proposal
+        uses: actions/upload-artifact@v4
+        with:
+          name: dreamengin-spec
+          path: ${{ env.GENERATED_DIR }}/dreamengin-spec.json
+          retention-days: 1
+
+      - name: Show proposal summary
+        run: |
+          echo "## Spec-Engin Proposal" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          TITLE=$(python -c "import json,sys; d=json.load(open('${{ env.GENERATED_DIR }}/dreamengin-spec.json')); print(d.get('title','(no title)'))" 2>/dev/null || echo "(parse error)")
+          IDEA=$(python -c  "import json,sys; d=json.load(open('${{ env.GENERATED_DIR }}/dreamengin-spec.json')); print(d.get('big_idea','')[:400])" 2>/dev/null || echo "")
+          echo "**Title:** $TITLE" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Idea:** $IDEA" >> "$GITHUB_STEP_SUMMARY"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# JOB 3 — Implement: GPT-4.1 writes the v1 slice, apply it, build + test, commit
+# ──────────────────────────────────────────────────────────────────────────────
+
+  implement:
+    name: AI implement big move v1 — build + test — commit
+    needs: propose
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download context snapshot
+        uses: actions/download-artifact@v4.1.3
+        with:
+          name: dreamengin-context
+          path: ${{ env.GENERATED_DIR }}
+
+      - name: Download spec proposal
+        uses: actions/download-artifact@v4.1.3
+        with:
+          name: dreamengin-spec
+          path: ${{ env.GENERATED_DIR }}
+
+      # ── AI implementation ──────────────────────────────────────────────────
+      - name: AI implement DREAMengin big move v1
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python .github/scripts/ai_implement.py \
+            --context ${{ env.GENERATED_DIR }}/dreamengin-context.md \
+            --spec    ${{ env.GENERATED_DIR }}/dreamengin-spec.json \
+            --out     ${{ env.GENERATED_DIR }}/dreamengin-patch.diff \
+            --model   gpt-4.1
+
+      # ── Apply patch (non-fatal: a bad patch should not break the pipeline) ─
+      - name: Apply AI patch
+        id: apply-patch
+        continue-on-error: true
+        run: |
+          if [ -s "${{ env.GENERATED_DIR }}/dreamengin-patch.diff" ]; then
+            git apply --check ${{ env.GENERATED_DIR }}/dreamengin-patch.diff 2>&1 && \
+              git apply ${{ env.GENERATED_DIR }}/dreamengin-patch.diff && \
+              echo "applied=true" >> "$GITHUB_OUTPUT" || \
+              echo "applied=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "No patch content — skipping apply."
+            echo "applied=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # ── Install + build + test (hard gate) ────────────────────────────────
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build DREAMengin (Next.js)
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Run Vitest tests
+        run: pnpm run test
+
+      # ── Commit if build + tests passed ────────────────────────────────────
+      - name: Commit DREAMengin big-move v1
+        if: success() && steps.apply-patch.outputs.applied == 'true'
+        run: |
+          git config user.name  "Spec-Engin AI Agent"
+          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
+          if ! git diff --quiet || ! git diff --cached --quiet; then
+            git add -A
+            git commit -m "AI: big-move v1 for DREAMengin [skip ci] [skip vercel]"
+          else
+            echo "Nothing to commit after patch."
+          fi
+
+      - name: Push DREAMengin changes
+        if: success() && steps.apply-patch.outputs.applied == 'true'
+        run: |
+          if git log origin/${{ github.ref_name }}..HEAD --oneline | grep -q .; then
+            git push origin HEAD:${{ github.ref_name }}
+          else
+            echo "Nothing new to push."
+          fi
+
+      # ── Step summary ───────────────────────────────────────────────────────
+      - name: Pipeline summary
+        if: always()
+        run: |
+          echo "## Spec-Engin AI Agent — Pipeline Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Step | Result |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Context scan      | ✅ |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Spec proposal     | ✅ |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Patch applied     | ${{ steps.apply-patch.outputs.applied == 'true' && '✅' || '⚠ skipped/failed' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Build + tests     | ${{ job.status == 'success' && '✅' || '❌' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Branch: \`${{ github.ref_name }}\` · Triggered by: ${{ github.event_name }}" >> "$GITHUB_STEP_SUMMARY"

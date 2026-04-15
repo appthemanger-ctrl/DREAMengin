@@ -3,7 +3,7 @@ name: Idari — Update README
 on:
   push:
     branches:
-      - '**'
+      - completedream
     paths-ignore:
       - 'README.md'
       - 'docs/BUGS.md'
