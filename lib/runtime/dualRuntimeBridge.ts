@@ -341,7 +341,7 @@ class DualRuntimeBridge extends EventEmitter {
       import(/* webpackIgnore: true */ 'fs/promises'),
       import(/* webpackIgnore: true */ 'url'),
     ]);
-    const buf = await readFile(fileURLToPath(BUS_WASM_URL));
+    const buf = await readFile(fileURLToPath(BUS_WASM_URL.toString()));
     return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
   }
 
