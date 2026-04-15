@@ -12,8 +12,6 @@ import ProfileCustomizeButton from '@/components/profile/ProfileCustomizeButton'
 import InfinityIcon from '@/components/ui/InfinityIcon';
 import { connection } from 'next/server';
 
-export const dynamic = 'force-dynamic';
-
 // Extended profile type
 type Profile = {
   id: string;
@@ -34,6 +32,7 @@ interface ProfilePageProps {
 
 
 export async function generateMetadata({ params }: ProfilePageProps) {
+  await connection();
   const { handle } = await params;
   return {
     title: `@${handle} – Dreamengin`,
