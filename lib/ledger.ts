@@ -3,12 +3,13 @@
  *
  * In-memory ledger with optional Supabase persistence.
  * Stores: audio peak maps, reference fingerprints, extracted sample
- * metadata, and torridity rank data.
+ * metadata, torridity rank data, and shared assets (audio, image, 3D, code).
  *
  * Usage:
  *   const ledger = createLedger();
  *   storePeakMap(ledger, 'song-1', peakMap);
  *   const entry = getLedgerEntry(ledger, 'song-1');
+ *   storeAsset(ledger, { type: 'audio', url: '...', owner: 'user-1' });
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -58,12 +59,49 @@ export interface TorridityEntry {
   createdAt: string;
 }
 
+// ─── Asset Entry ─────────────────────────────────────────────────────────────
+
+/** Supported asset types in the shared asset ledger. */
+export type AssetType = 'audio' | 'image' | '3d' | 'code';
+
+/** Optional manifest describing an asset's capabilities and metadata. */
+export interface AssetManifest {
+  title?: string;
+  description?: string;
+  tags?: string[];
+  duration?: number;       // audio/video seconds
+  dimensions?: { w: number; h: number }; // image/3d
+  language?: string;       // code
+  [key: string]: unknown;
+}
+
+/**
+ * AssetEntry — a shared asset stored in the visualised file system.
+ *
+ * Each asset has:
+ *  - id       — unique stable identifier
+ *  - type     — 'audio' | 'image' | '3d' | 'code'
+ *  - url      — public or signed URL to the asset
+ *  - manifest — optional rich metadata
+ *  - owner    — user/account that uploaded the asset
+ */
+export interface AssetEntry {
+  kind: 'asset';
+  id: string;
+  type: AssetType;
+  url: string;
+  manifest: AssetManifest;
+  owner: string;
+  createdAt: string;
+}
+
 /** Union of all ledger entry types. */
 export type LedgerEntry =
   | PeakMapEntry
   | FingerprintEntry
   | SampleMetadataEntry
-  | TorridityEntry;
+  | TorridityEntry
+  | AssetEntry;
 
 // ─── Ledger Structure ────────────────────────────────────────────────────────
 
@@ -219,4 +257,57 @@ export function storeTorridityRank(
   ledger.entries.set(id, entry);
   void persist(ledger, entry);
   return id;
+}
+
+// ─── storeAsset ───────────────────────────────────────────────────────────────
+
+/**
+ * storeAsset(ledger, fields)
+ *
+ * Stores a shared asset (audio, image, 3D, or code) in the ledger.
+ * Returns the generated entry id.
+ */
+export function storeAsset(
+  ledger: Ledger,
+  fields: {
+    type: AssetType;
+    url: string;
+    owner: string;
+    manifest?: AssetManifest;
+    /** Optional stable id; auto-generated if not provided. */
+    id?: string;
+  }
+): string {
+  const id = fields.id ?? `asset_${fields.type}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+  const entry: AssetEntry = {
+    kind: 'asset',
+    id,
+    type: fields.type,
+    url: fields.url,
+    owner: fields.owner,
+    manifest: fields.manifest ?? {},
+    createdAt: now(),
+  };
+  ledger.entries.set(id, entry);
+  void persist(ledger, entry);
+  return id;
+}
+
+// ─── recordView ────────────────────────────────────────────────────────────────
+
+/**
+ * recordView(ledger, contentId)
+ *
+ * Increments the view count for a torridity entry.
+ * Creates the entry with default values if it does not yet exist.
+ */
+export function recordView(ledger: Ledger, contentId: string): void {
+  const id = `tr_${contentId}`;
+  const existing = ledger.entries.get(id);
+  if (existing?.kind === 'torridity') {
+    existing.views += 1;
+    void persist(ledger, existing);
+  } else {
+    storeTorridityRank(ledger, contentId, 1, 1, 1);
+  }
 }

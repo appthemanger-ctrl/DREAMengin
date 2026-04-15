@@ -72,6 +72,8 @@ export {
   storeFingerprint,
   storeSampleMetadata,
   storeTorridityRank,
+  storeAsset,
+  recordView,
 } from '../ledger';
 export type {
   Ledger,
@@ -80,6 +82,9 @@ export type {
   FingerprintEntry,
   SampleMetadataEntry,
   TorridityEntry,
+  AssetEntry,
+  AssetType,
+  AssetManifest,
   SampleMetadata,
 } from '../ledger';
 

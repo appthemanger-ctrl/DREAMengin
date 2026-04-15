@@ -1,28 +1,28 @@
 'use client';
 
 /**
- * DreamDMBar — Pass 3 (Window Model) — CORRECTED GOLD BUTTON SPEC
+ * DreamDMBar — Pass 3 (Window Model) — CORRECTED GOLD PARTICLE SPEC
  *
  * DreamDMBar is a draggable window, not a thin rail.
  *
- * GOLD BUTTON ATTACHMENT RULE (CORRECTED):
- *   1. The Gold button is attached to the TOP of the DreamDM Bar by default
+ * GOLD PARTICLE ATTACHMENT RULE (CORRECTED):
+ *   1. The Gold Particle is attached to the TOP of the DreamDM Bar by default
  *   2. It stays attached while the bar is visible and on screen
- *   3. It detaches ONLY when dragging the bar upward causes the button's
+ *   3. It detaches ONLY when dragging the bar upward causes the particle's
  *      normal attached position to go off the top of the screen
- *   4. When detached, the Gold button locks to the SCREEN/viewport (not the bar)
+ *   4. When detached, the Gold Particle locks to the SCREEN/viewport (not the bar)
  *   5. It does NOT move with page scroll when screen-locked
  *   6. It does NOT detach for typing, keyboard, or compose state
  *   7. When the bar is dragged back down and the top-of-box position is back
- *      on screen, the Gold button unlocks and reattaches to the TOP of the bar
+ *      on screen, the Gold Particle unlocks and reattaches to the TOP of the bar
  *
  * Behaviour:
- *   - Rests at the bottom as a thick bar (BAR_H = 80 px)
- *   - Gold button attached to the top edge of the bar
+ *   - Rests at the bottom as a pill-shaped handle (BAR_H = 80 px)
+ *   - Gold Particle attached to the top edge of the bar
  *   - Drag UP → bar expands from bottom; HomeDream content revealed above
  *   - Past threshold (bar top < 40% from screen top) → snaps to top as panel
- *   - If button's attached position goes off-screen → button screen-locks at top
- *   - Swipe DOWN on bar or gold → bar returns to bottom, gold re-attaches
+ *   - If particle's attached position goes off-screen → particle screen-locks at top
+ *   - Swipe DOWN on bar or particle → bar returns to bottom, particle re-attaches
  *   - All Phase-2 messaging / search / Dr. Eams capability preserved
  *
  * Architecture: drag state lives here; messaging logic in lib/dreamdm/ hooks.
@@ -117,7 +117,7 @@ export const BAR_H = 80;
 const TOP_H        = 340;
 /** Compact nav-bar height when locked at the top (collapsed/nav-bar mode) */
 export const NAV_H = 52;
-/** Gold button diameter (full / revealed) */
+/** Gold Particle diameter (full / revealed) */
 const GOLD_SZ      = 60;
 const GOLD_R       = GOLD_SZ / 2;
 /** Gold capsule size when in minimized / idle state */
@@ -378,11 +378,11 @@ function ParticleFountain({ particles, centerX, centerY }: { particles: Particle
 // ── Props
 // ─────────────────────────────────────────────────────────────────────────────
 interface DreamDMBarProps {
-  /** Single-tap the gold button → open radial menus */
+  /** Single-tap the Gold Particle → open radial menus */
   onBothMenus: () => void;
-  /** Double-tap the gold button (bar at bottom) → go home in Surface Space */
+  /** Double-tap the Gold Particle (bar at bottom) → go home in Surface Space */
   onHome: () => void;
-  /** Double-tap the gold button (bar at top) → open HomeDream in DreamSpace (dual-home) */
+  /** Double-tap the Gold Particle (bar at top) → open HomeDream in DreamSpace (dual-home) */
   onHomeDreamSpace?: () => void;
   /** Bridge bar state to the dual-runtime host */
   onRuntimeModeChange?: (mode: 'home' | 'blend' | 'dreamspace') => void;
@@ -419,7 +419,7 @@ interface DreamDMBarProps {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange, onMinimizedChange }: DreamDMBarProps) {
   const isGameImmersive = useImmersiveGameLayout();
-  /** Gold button diameter — shrinks when a game overlay is active so it stays out of the way */
+  /** Gold Particle diameter — shrinks when a game overlay is active so it stays out of the way */
   const goldSz = isGameImmersive ? 36 : GOLD_SZ;
   const goldR  = goldSz / 2;
   // ── Screen geometry + keyboard tracking ───────────────────────────────────
@@ -576,7 +576,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   }, []);
   const streakTier = getStreakTier(streakData.count);
 
-  // ── ✨ Gold Button Long-Press Particle Fountain ───────────────────────────
+  // ── ✨ Gold Particle Long-Press Particle Fountain ─────────────────────────
   const [particles, setParticles] = useState<Particle[]>([]);
 
   // ── Minimized orb drag callbacks (must be after revealBar) ──────────────
@@ -1311,10 +1311,10 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   // showFull: whether to render the expanded tab panel instead of the compact bar
   const showFull: boolean = !isDividerMode && (isTopExpanded || dragH > 180);
 
-  // Gold button geometry:
-  // - Divider mode: gold sits centered on the divider bar (vertically centered)
-  // - Bottom mode: gold sits on the BAR's top edge  (center = barTop)
-  // - Top modes:   gold hangs from the BAR's bottom edge (center = barTop + barH)
+  // Gold Particle geometry:
+  // - Divider mode: particle sits centered on the divider bar (vertically centered)
+  // - Bottom mode: particle sits on the BAR's top edge  (center = barTop)
+  // - Top modes:   particle hangs from the BAR's bottom edge (center = barTop + barH)
   const attachedGoldTop: number = isDividerMode
     ? (barTop + DIVIDER_H / 2 - goldR)  // centered on the divider
     : (isTop
@@ -1429,18 +1429,21 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
         style={{
           position: 'fixed',
           top: barTop,
-          // Bubble mode: pill floats above the seam with horizontal inset.
-          // Legacy mode: full-width bar anchored to top or bottom edge.
+          // Pill mode: horizontal insets in divider mode and bottom collapsed mode.
+          // Top modes use full-width (left: 0, right: 0) for nav/panel layouts.
           ...(isDividerMode
             ? { left: 12, right: 12 }
-            : { left: 0, right: 0 }),
+            : isTop
+              ? { left: 0, right: 0 }
+              : { left: 12, right: 12 }),
           height: barH,
           zIndex: 100,
           pointerEvents: 'auto',
           overflow: 'hidden',
           touchAction: 'pan-y',
-          // Pill/bubble border radius only in divider mode
-          borderRadius: isDividerMode ? 36 : 0,
+          // Pill shape: 999px radius gives a true pill in both divider and bottom modes.
+          // Top modes use no radius (flat nav/panel).
+          borderRadius: isDividerMode ? 999 : (isTop ? 0 : (showFull ? 24 : 999)),
           transition: isDragging ? 'none' : `top ${SPRING}, height ${SPRING}, border-radius ${SPRING}, opacity 0.5s ease, background 0.5s ease, transform 0.25s ease`,
           willChange: isDragging ? 'top, height' : undefined,
           transform: keyboardTranslateY !== 0 ? `translateY(${keyboardTranslateY}px)` : undefined,
@@ -1458,6 +1461,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           WebkitBackdropFilter: isDividerMode
             ? 'blur(48px) saturate(200%)'
             : (isResting ? 'none' : 'blur(32px) saturate(160%)'),
+          // Hiding: when resting (not interacted with), the bar fades to opacity 0
+          // but stays fully in the DOM so HomeDream and DreamSpace remain visible
+          // and scrollable beneath it. No display:none / unmounting.
           opacity: isResting ? 0 : 1,
           border: isDividerMode ? '1px solid rgba(0,0,0,0.07)' : 'none',
           boxShadow: isResting
