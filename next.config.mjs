@@ -10,12 +10,7 @@ const nextConfig = {
   // `connection()` from 'next/server', which is PPR-compatible.
   cacheComponents: true,
 
-  // Stream 3.1 — React Compiler (Next.js 16 / React 19)
-  // Enables automatic memoization and reduced re-render overhead.
-  // docs/ARCHITECTURE.md §10 — performance-first runtime.
-  experimental: {
-    reactCompiler: true,
-  },
+  experimental: {},
 
   images: {
     // Stream 8.2 — AVIF/WebP next-gen formats
