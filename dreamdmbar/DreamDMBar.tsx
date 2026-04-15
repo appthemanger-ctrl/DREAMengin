@@ -95,16 +95,13 @@ import {
   GOLD_LONG_PRESS_MS,
   generateParticles,
   DRAG_TAP_THRESHOLD_PX,
-  DOUBLE_TAP_WINDOW_MS,
-  LIGHT_POSITION_CYCLE,
-  cycleLightPosition,
+  LIGHT_POSITION_CYCLE as _LIGHT_POSITION_CYCLE,
   type SlashCommand,
   type Particle,
   type MoodPeriod,
   type SurfaceAccent,
   type StreakData,
   type StreakTier,
-  type LightPosition,
 } from '@/lib/dreamdm/barInteractions';
 import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
 import { useDreamBarContext, type DreamBarContext } from '@/lib/dreamdm/useDreamBarContext';
@@ -177,7 +174,7 @@ function GlowingLight({
     <span
       role="button"
       tabIndex={0}
-      aria-label={ariaLabel ?? 'DreamDM light — tap to cycle position, double-tap to go home'}
+      aria-label={ariaLabel ?? 'DreamDM light — tap to open menus'}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
       style={{
@@ -468,10 +465,6 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   const [slideDown, setSlideDown] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
-  // ── Glowing light position cycle ─────────────────────────────────────────
-  const [lightPos, setLightPos] = useState<LightPosition>('bottom');
-  const lightCycleRef = useRef<{ stepsSinceBottom: number }>({ stepsSinceBottom: 0 });
-
   // ── Light tap state machine ───────────────────────────────────────────────
   // Whole-bar touch drag: startY, startTarget, didDrag, tapCount, tapTimer
   const barTouchRef = useRef<{
@@ -640,8 +633,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     setIsTopExpanded(false);
     setDragH(BAR_H);
     setSlideDown(0);
-    onSplitChange?.(DEFAULT_SPLIT_RATIO);
-  }, [onSplitChange]);
+    // NOTE: intentionally do NOT reset splitRatio — runtimes preserve their layout
+  }, []);
 
   // ── Drag handlers ─────────────────────────────────────────────────────────
   const handleDragStart = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
@@ -807,18 +800,6 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     };
   }, []);
 
-  const showExpandedLightTooltip = useCallback(() => {
-    try {
-      const key = 'de-expanded-light-tip';
-      if (!localStorage.getItem(key)) {
-        setLightTooltip('drag to resize, tap to switch runtime');
-        localStorage.setItem(key, '1');
-        if (lightTooltipTimerRef.current) clearTimeout(lightTooltipTimerRef.current);
-        lightTooltipTimerRef.current = setTimeout(() => setLightTooltip(null), 1000);
-      }
-    } catch { /* ignore */ }
-  }, []);
-
   // ── Whole-bar touch drag system ──────────────────────────────────────────
   // The entire bar surface is draggable.
   // Exception: when textarea is focused AND touch started inside the textarea.
@@ -879,40 +860,15 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     // It was a tap — the light's touch handlers manage tap/double-tap separately
   }, []);
 
-  // ── Glowing light tap / double-tap actions ────────────────────────────────
-  const lightTapRef = useRef<{ lastTapAt: number; timer: ReturnType<typeof setTimeout> | null }>({
-    lastTapAt: 0, timer: null,
-  });
-
+  // ── Glowing light tap actions ─────────────────────────────────────────────
   const handleLightSingleTap = useCallback(() => {
-    // Cycle position: bottom→middle→top→middle→bottom
-    setLightPos((prev) => {
-      const next = cycleLightPosition(prev);
-      // Map position to bar state
-      if (next === 'bottom') {
-        setIsTop(false); setIsTopExpanded(false); setDragH(BAR_H); setSlideDown(0);
-      } else if (next === 'middle') {
-        setIsTop(false); setIsTopExpanded(false); setDragH(Math.round(screenH * 0.5)); setSlideDown(0);
-      } else {
-        // top
-        setIsTop(true); setIsTopExpanded(false); setDragH(NAV_H); setSlideDown(0);
-      }
-      return next;
-    });
+    // Single tap → open dual menus immediately (no double-tap delay)
     if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(4);
-    showExpandedLightTooltip();
-  }, [screenH, showExpandedLightTooltip]);
-
-  const handleLightDoubleTap = useCallback(() => {
-    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([6, 40, 6]);
-    onHome();
-    // Collapse to bottom
-    setLightPos('bottom');
-    setIsTop(false); setIsTopExpanded(false); setDragH(BAR_H); setSlideDown(0);
-  }, [onHome]);
+    onBothMenus();
+  }, [onBothMenus]);
 
   const handleLightTouchStart = useCallback((_e: React.TouchEvent<HTMLSpanElement>) => {
-    // Will be resolved on touchend
+    // resolved on touchend
   }, []);
 
   const handleLightTouchEnd = useCallback((e: React.TouchEvent<HTMLSpanElement>) => {
@@ -920,25 +876,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     const ref = barTouchRef.current;
     // If bar drag was active, don't fire tap
     if (ref.didDrag) return;
-
-    const now = Date.now();
-    const tapRef = lightTapRef.current;
-
-    if (tapRef.timer !== null) {
-      // Second tap within window → double-tap
-      clearTimeout(tapRef.timer);
-      tapRef.timer = null;
-      tapRef.lastTapAt = 0;
-      handleLightDoubleTap();
-    } else {
-      // First tap — wait to see if double-tap follows
-      tapRef.lastTapAt = now;
-      tapRef.timer = setTimeout(() => {
-        tapRef.timer = null;
-        handleLightSingleTap();
-      }, DOUBLE_TAP_WINDOW_MS);
-    }
-  }, [handleLightDoubleTap, handleLightSingleTap]);
+    handleLightSingleTap();
+  }, [handleLightSingleTap]);
   const [userId,         setUserId]         = useState('');
   const [selectedConv,   setSelectedConv]   = useState<DMConversation | null>(null);
   const [quickDraft,     setQuickDraft]     = useState('');
@@ -1460,8 +1399,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           const wasDragged = drag.moved;
           minOrbDragRef.current = null;
           if (!wasDragged) {
+            // Restore bar without resetting positions — runtimes stay exactly as they were
             setIsMinimized(false);
-            setIsTop(false); setIsTopExpanded(false); setDragH(BAR_H); setSlideDown(0);
             revealBar();
           }
         }}
