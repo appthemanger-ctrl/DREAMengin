@@ -1,17 +1,17 @@
+CONSTITUTION markdown
 # DREAMengin — Product Constitution
 
 > **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-> **Documentation Date:** 2026-04-06
+> **Documentation Date:** 2026-04-14 (Updated)
 
-
-**Status: LOCKED — Phase 7 Final Authority + OS-Layer Naming Model**
-Last updated: 2026-03-16
+**Status: LOCKED — Phase 10 Final Authority + OS-Layer Naming Model**
+Last updated: 2026-04-14
 
 This document is the binding product constitution for DREAMengin.
 
 These are **rules**, not suggestions. Every surface, module, system, and AI agent operating inside DREAMengin must comply with every rule in this document. There are no exceptions, no waivers, and no exemptions for convenience, commerce, AI features, or future systems.
 
-Reviewers must use this document as an acceptance checklist against any new feature, phase, or implementation. If a proposed change violates one constitutional rule, the change must be rejected or revised until it conforms.
+Reviewers must use this document as an acceptance checklist against any new feature or implementation. If a proposed change violates one constitutional rule, the change must be rejected or revised until it conforms.
 
 ---
 
@@ -266,4 +266,5 @@ If any item in this checklist fails, the feature or implementation is non-compli
 
 ---
 
-*This document is complete. Rules may not be weakened, waived, or made conditional. Additions to the constitution require Phase 7 authority review.*
+*This document is complete. Rules may not be weakened, waived, or made conditional. Additions to the constitution require Phase 10 authority review.*
+```
