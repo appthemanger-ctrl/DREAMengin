@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-15 02:00 UTC  
-**Last updated:** 2026-04-15 02:00 UTC  
-**Triggered by commit:** `4606c62` on `completedream` by appthemanger-ctrl  
-**Commit message:** Revise documentation date and phase authority in constitution
+**Documentation Date:** 2026-04-15 02:07 UTC  
+**Last updated:** 2026-04-15 02:07 UTC  
+**Triggered by commit:** `738c2c9` on `completedream` by appthemanger-ctrl  
+**Commit message:** Revise GENERATION_LAW.md with new effective date
 
 ---
 
