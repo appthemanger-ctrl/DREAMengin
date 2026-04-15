@@ -1,12 +1,13 @@
+```markdown
 # DREAMengin — Full System Specification
 
 > **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-> **Documentation Date:** 2026-04-06
+> **Documentation Date:** 2026-04-14 (Updated)
 
 
 Next.js 16+ / Supabase / DreamDM-Bar-Led / Privacy-First Spatial Operating Environment  
 Author: José Mancilla  
-Date: March 24, 2026
+Date: April 14, 2026
 
 <!-- DREAMENGIN-AI-CONTEXT:START -->
 ## 🤖 AI Agent Quick Reference
@@ -65,13 +66,14 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 |------|----------------|
 | `app/` | Next.js App Router pages and API route handlers |
 | `app/api/` | 97 API route handlers |
-| `components/daydream/` | The 6 Daydream surfaces + Engin components |
-| `components/games/` | All game components (MADMAXI, NeonDrift, etc.) |
-| `components/home/` | HomeDream + HomeSystem |
-| `components/messaging/` | DreamDMBar (the dual-runtime divider) |
-| `components/music/` | SoundRecorder and music UI |
-| `lib/` | Hooks, utilities, Supabase client, game libs |
-| `docs/` | All governance, law, spec, and policy documents |
+| `dreamdmbar/` | DreamDM Bar (persistent root container), HomeDream (top runtime), DreamSpace (bottom runtime) |
+| `daydreams/` | 6 Daydream surfaces (Music, Games, Lab, Code, Brand, Create) |
+| `engins/` | 6 core Engins (StarMaker, Game, Code, Lab, Brand, Content) + optional extra Engins |
+| `coresurfaces/` | Core surfaces: EditProfileDream, ViewProfile, DreamShop, DreamMarketplace, DreamAds |
+| `games/` | All 20+ game titles (MADMAXI, Neon Drift, etc.) |
+| `components/` | Shared UI components (buttons, widgets, panels) – no Engins or Daydreams |
+| `lib/` | Hooks, utilities, Supabase client, game libs, core OS modules (including DREAMenginOS) |
+| `docs/` | All governance, law, spec, and policy documents (including LAW.md, ARCHITECTURE.md) |
 | `.github/workflows/` | 55 CI/CD automation workflows |
 | `tests/` | Vitest test suite (143 test files) |
 | `scripts/` | Maintenance and automation scripts |
@@ -83,249 +85,73 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 <!-- FILE-STRUCTURE:START -->
 ```
 DREAMengin/
-├── 📁 _misc/
-├── 🔧 .github/
-│   ├── 📁 actions/
-│   ├── 📁 agents/
-│   ├── 📁 scripts/
+├── 📁 .github/
 │   ├── 📁 workflows/
-│   ├── 📄 pull_request_template.md
-│   ├── 📄 PULL_REQUEST_TEMPLATE.md
+│   └── 📄 pull_request_template.md
 ├── 📱 app/
-│   ├── 📁 about/
-│   ├── 📁 admin/
-│   ├── 📁 ads/
 │   ├── 📁 api/
-│   ├── 📁 auth/
-│   ├── 📁 codespace/
-│   ├── 📁 connectors/
-│   ├── 📁 daydream/
-│   ├── 📁 discover/
-│   ├── 📁 dream-effects/
-│   ├── 📁 dreamengin/
-│   ├── 📁 edit-profile/
-│   ├── 📁 edit-profiledream/
-│   ├── 📁 engines/
-│   ├── 📁 feed-settings/
-│   ├── 📁 homedream/
-│   ├── 📁 join/
-│   ├── 📁 lab/
-│   └── … and 2 more
+│   ├── 📁 (routes)/
+│   └── 📄 layout.tsx
 ├── 📁 assembly/
 ├── 📁 backend/
 ├── 🧠 build-memory/
-│   ├── 📄 actions.json
-│   ├── 📄 events.json
-│   ├── 📄 routes.json
-│   ├── 📄 schema.json
-│   ├── 📄 ui-surfaces.json
 ├── 🧩 components/
-│   ├── 📁 activity/
-│   ├── 📁 ads/
-│   ├── 📁 auth/
-│   ├── 📁 connectors/
-│   ├── 📁 controls/
-│   ├── 📁 core/
-│   ├── 📁 customize/
-│   ├── 📁 daydream/
-│   ├── 📁 draggable/
-│   ├── 📁 dreamengin/
-│   ├── 📁 dreamnav/
-│   ├── 📁 dreamr/
-│   ├── 📁 dreams/
-│   ├── 📁 engines/
-│   ├── 📁 feed/
-│   ├── 📁 feeds/
-│   ├── 📁 forge/
-│   ├── 📁 gameengin/
-│   └── … and 2 more
-├── 📁 config/
+│   ├── 📁 ui/
+│   ├── 📁 widgets/
+│   ├── 📁 home/
+│   ├── 📁 messaging/
+│   ├── 📁 panels/
+│   ├── 📁 spatial/
+│   └── …
 ├── 📁 coresurfaces/
+│   ├── 📄 EditProfileDream.tsx
+│   ├── 📄 ViewProfile.tsx
+│   ├── 📄 DreamShop.tsx
+│   ├── 📄 DreamMarketplace.tsx
+│   └── 📄 DreamAds.tsx
 ├── 📁 daydreams/
-├── 📋 docs/
-│   ├── 📁 alignment/
-│   ├── 📁 engineering/
-│   ├── 📁 policy/
-│   ├── 📄 ACTION_AUDIT.md
-│   ├── 📄 ACTIVITY_FIRST_PROTOCOL.md
-│   ├── 📄 ADD_WORKFLOW.md
-│   ├── 📄 AGENT_PLAYBOOK.md
-│   ├── 📄 ARCHITECTURE.md
-│   ├── 📄 AUTH_SETUP.md
-│   ├── 📄 AXIOMS.md
-│   ├── 📄 BOOGIEMAN_POLICY.md
-│   ├── 📄 BUGS.md
-│   ├── 📄 CHILD_SAFETY_POLICY.md
-│   ├── 📄 CONNECTOR_MATRIX.md
-│   ├── 📄 CONNECTORS.md
-│   ├── 📄 CONSTITUTION.md
-│   ├── 📄 COPILOT_TOOLKIT.md
-│   ├── 📄 DR_EAMS.md
-│   └── … and 2 more
-├── 📁 dr-eams/
-├── 📁 dreamdmbar/
-├── 📁 engins/
-├── 📁 frontend/
-├── 📁 games/
-├── 📁 grafana/
-├── 🪝 hooks/
-│   ├── 📄 use-spatial.ts
-│   ├── 📄 useAccount.ts
-│   ├── 📄 useConnectorInstallFlow.ts
-│   ├── 📄 useHideOnScroll.ts
-│   ├── 📄 useTick.ts
-│   ├── 📄 useViewCounter.ts
-├── 📁 kubernetes/
-├── 📚 lib/
-│   ├── 📁 activity/
-│   ├── 📁 admin/
-│   ├── 📁 agents/
-│   ├── 📁 ai/
-│   ├── 📁 api/
-│   ├── 📁 assets/
-│   ├── 📁 babylon/
-│   ├── 📁 branding/
-│   ├── 📁 child-safety/
+│   ├── 📁 music/
+│   ├── 📁 games/
+│   ├── 📁 lab/
 │   ├── 📁 code/
-│   ├── 📁 composite/
-│   ├── 📁 connectors/
-│   ├── 📁 content/
-│   ├── 📁 daydream/
-│   ├── 📁 diff/
-│   ├── 📁 dream-window/
-│   ├── 📁 dreamdm/
-│   ├── 📁 dreamengin/
-│   └── … and 2 more
-├── 📁 misc/
-├── 📁 output/
-├── 📁 prometheus/
-├── 🌐 public/
-│   ├── 📁 feeds/
-│   ├── 📁 images/
-│   ├── 📁 videos/
-│   ├── 📁 workers/
-│   ├── 📄 arm1_transparent.png
-│   ├── 📄 arm2_transparent.png
-│   ├── 📄 coat_transparent.png
-│   ├── 📄 dr-eams-pbr.html
-│   ├── 📄 dr-eams-torus.jpeg
-│   ├── 📄 dr-eams.jpeg
-│   ├── 📄 favicon.ico
-│   ├── 📄 file.svg
-│   ├── 📄 globe.svg
-│   ├── 📄 head_transparent.png
-│   ├── 📄 idari-banner.jpeg
-│   ├── 📄 logo_DREAM_transparent.png
-│   ├── 📄 logo_ENGIN_transparent.png
-│   ├── 📄 logo_transparent.png
-│   └── … and 2 more
-├── ⚙️ scripts/
-│   ├── 📁 feature-build/
-│   ├── 📄 analyze-repo-state.mjs
-│   ├── 📄 autofix-vercel-build.mjs
-│   ├── 📄 check-build-memory-drift.mjs
-│   ├── 📄 check-licenses.mjs
-│   ├── 📄 close-all-open-prs.sh
-│   ├── 📄 deploy.sh
-│   ├── 📄 export-full-code.mjs
-│   ├── 📄 generate-webapp-final-form.mjs
-│   ├── 📄 law-check.sh
-│   ├── 📄 optimize-dreamengin.mjs
-│   ├── 📄 postbuild.js
-│   ├── 📄 postbuild.ts
-│   ├── 📄 score-pass.cjs
-│   ├── 📄 setup-database.sql
-│   ├── 📄 spec-check.cjs
-│   ├── 📄 sync-build-memory.mjs
-│   ├── 📄 ui-ux-agent.py
-│   └── … and 2 more
-├── 📁 src/
-├── 📁 styles/
-├── 📁 supabase/
-├── 📁 terraform/
-├── 🧪 tests/
-│   ├── 📁 e2e/
+│   ├── 📁 brand/
+│   └── 📁 create/
+├── 📋 docs/
+│   ├── 📄 LAW.md
+│   ├── 📄 ARCHITECTURE.md
+│   └── …
+├── 📁 dreamdmbar/
+│   ├── 📄 DreamDMBar.tsx
+│   ├── 📁 homedream/
+│   │   └── 📄 HomeDream.tsx
+│   └── 📁 dreamspace/
+│       └── 📄 DreamSpace.tsx
+├── 📁 engins/
+│   ├── 📄 StarMakerEngin.tsx
+│   ├── 📄 GameEngin.tsx
+│   ├── 📄 CodeEngin.tsx
+│   ├── 📄 LabEngin.tsx
+│   ├── 📄 BrandingEngin.tsx
+│   ├── 📄 ContentEngin.tsx
+│   └── 📁 extra/ (optional)
+├── 📁 games/
 │   ├── 📁 madmaxi/
-│   ├── 📁 navigation/
-│   ├── 📄 activity-first-protocol.test.ts
-│   ├── 📄 admin-lockout.test.ts
-│   ├── 📄 admin-upgrade-readiness.test.ts
-│   ├── 📄 agent-bus-consensus.test.ts
-│   ├── 📄 ai-edit-engine.test.ts
-│   ├── 📄 asset-optimizer.test.ts
-│   ├── 📄 auth-providers-route.test.ts
-│   ├── 📄 auth-update-password-page.test.ts
-│   ├── 📄 authenticated-ui-shells.test.ts
-│   ├── 📄 babylon-optimizero.test.ts
-│   ├── 📄 babylon-webgpu-engine.test.ts
-│   ├── 📄 boogie-policy-module.test.ts
-│   ├── 📄 boogieman.test.ts
-│   ├── 📄 bot-detector.test.ts
-│   ├── 📄 branding-logos.test.ts
-│   └── … and 2 more
+│   ├── 📁 neon-drift/
+│   └── …
+├── 📚 lib/
+│   ├── 📁 runtime/
+│   ├── 📁 dreamenginOS/
+│   ├── 📁 supabase/
+│   ├── 📁 ai/
+│   └── …
+├── 🌐 public/
+├── ⚙️ scripts/
+├── 🧪 tests/
 ├── 🏷️ types/
-│   ├── 📄 ads.ts
-│   ├── 📄 ai-system.ts
-│   ├── 📄 ai.ts
-│   ├── 📄 ccc.ts
-│   ├── 📄 connector.ts
-│   ├── 📄 dream-window.ts
-│   ├── 📄 dreamArtifact.ts
-│   ├── 📄 experience.ts
-│   ├── 📄 journey.ts
-│   ├── 📄 marketplace.ts
-│   ├── 📄 module-manifest.ts
-│   ├── 📄 spatial.ts
-│   ├── 📄 supabase.ts
-│   ├── 📄 user-sim.ts
-│   ├── 📄 widget-system-v2.ts
-│   ├── 📄 widgetConfigs.ts
-│   ├── 📄 widgets.ts
-├── 📁 utils/
-├── 📁 workflows/
-├── 📄 AGENTS.md
-├── 📄 appthemanger-ctrl_DREAMengin_95779c.json
-├── 📄 Boogie1.PNG
-├── 📄 boogie2.PNG
-├── 📄 CHANGELOG.md
-├── 📄 config.yaml
-├── 📄 docker-compose.yml
-├── 📄 Dockerfile
-├── 📄 Dockerfile.dev
-├── 📄 dreamengin_phase2.md
-├── 📄 eslint.config.mjs
-├── 📄 GITHUB_PUSH_GUIDE.md
-├── 📄 hero2.PNG
-├── 📄 hero3.PNG
-├── 📄 HeroAbout.PNG
-├── 📄 HeroTEAMaI.PNG
-├── 📄 idari1.PNG
-├── 📄 IMPLEMENTATION_NOTES.md
-├── 📄 LICENSE
-├── 📄 logo1.PNG
-├── 📄 logo2.PNG
-├── 📄 logo3.PNG
-├── 📄 next-env.d.ts
-├── 📄 next.config.mjs
 ├── 📄 package.json
-├── 📄 playwright.config.ts
-├── 📄 pnpm-lock.yaml
-├── 📄 pnpm-workspace.yaml
-├── 📄 postcss.config.js
-├── 📄 postcss.config.mjs
-├── 📄 proxy.ts
-├── 📄 README_PATCH.md
-├── 📄 README.agent.md
-├── 📄 README.md
-├── 📄 REPO_STATE.md
-├── 📄 tailwind.config.ts
-├── 📄 tailwindcss-animate.d.ts
-├── 📄 tsconfig.games.json
-├── 📄 tsconfig.gamesengin.json
 ├── 📄 tsconfig.json
-├── 📄 validate-deployment.js
-├── 📄 vercel.json
-├── 📄 vitest.config.ts
+├── 📄 next.config.mjs
+└── …
 ```
 <!-- FILE-STRUCTURE:END -->
 
@@ -338,8 +164,8 @@ DREAMengin/
 | Phase | Phase 8 — Real Runtime Completion |
 | Routes | ~198 (101 pages + 97 API handlers) |
 | Test files | 143 |
-| Last push | `23d0403` by **appthemanger-ctrl** on `completedream` |
-| Timestamp | 2026-04-14 23:30 UTC |
+| Last push | `984d0ca` by **appthemanger-ctrl** on `completedream` |
+| Timestamp | 2026-04-14 22:51 UTC |
 
 ---
 
@@ -380,7 +206,6 @@ DREAMengin/
 
 | Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
 |---|---|---|---|---|---|
-| `23d0403` | 2026-04-14 23:30 UTC | completedream | appthemanger-ctrl | ~1 | Revise LAW.md with updated product and route laws |
 | `984d0ca` | 2026-04-14 22:51 UTC | completedream | appthemanger-ctrl | — | Merge pull request #528 from appthemanger-ctrl/copilot/enable-memory-for-all-agents |
 | `be28d93` | 2026-04-14 22:33 UTC | copilot/enable-memory-for-all-agents | Copilot | +1 | chore: add copilot-setup-steps.yml to configure Copilot cloud agent environment |
 | `6dffa3b` | 2026-04-14 21:30 UTC | completedream | appthemanger-ctrl | — | Merge pull request #526 from appthemanger-ctrl/copilot/fix-game-window-and-robot-movement |
@@ -390,12 +215,12 @@ DREAMengin/
 | `9a768fd` | 2026-04-14 12:54 UTC | completedream | appthemanger-ctrl | — | Merge pull request #524 from appthemanger-ctrl/copilot/update-sicc-principles |
 | `a9f3d08` | 2026-04-14 11:07 UTC | copilot/update-sicc-principles | Copilot | +1 ~4 | feat: update SICC framework — replace Stylized with Synchronized |
 | `a4a97e9` | 2026-04-14 10:33 UTC | completedream | appthemanger-ctrl | ~5 | chore: sync build-memory [skip ci] [skip vercel] |
-
+| `5f2fc47` | 2026-04-14 10:27 UTC | copilot/update-readme-md-another-one | Copilot | ~2 | fix(readme): complete spec body — fix Babylon.js version, section numbering, truncated §33, add §34 WASM+GPU VM |
 
 ---
 
 ## Current Implementation Status
-Last updated: 2026-04-14 23:30 UTC — `23d0403` by appthemanger-ctrl
+Last updated: 2026-04-14 22:51 UTC — `984d0ca` by appthemanger-ctrl
 
 Phase: Phase 8 — Real Runtime Completion (All 100 Points Complete)
 Scope: Full DreamDM Bar runtime activation, real Supabase persistence, Dream Window lifecycle, AI Triad consensus, WebGPU rendering
@@ -666,82 +491,66 @@ docs/FEATURE_STATUS.md
 
 ⸻
 
-1. Purpose and Product Definition
+## 1. Product Law (16 Foundational Principles)
 
-DREAMengin is a customizable, privacy-first, DreamDM-Bar-led spatial operating environment for creating, sharing, organizing, and connecting modular runtime containers across personal, creative, and social spaces. A social modular runtime whose navigation begins as HomeDream and expands through the DreamDM Bar into a preserved secondary layer when needed. DREAMengin introduces the DreamDM Bar as the top-layer main attraction that keeps your root world and your revealed tools connected.
+1. Use README vocabulary first. Where OS-layer naming applies, use OS-layer canonical vocabulary.
+2. Nothing is public by default.
+3. Every visible action must do something real.
+4. Dream Windows are the canonical modular runtime containers.
+5. **HomeDream Surface** – Your home base. It's private, but you can invite others in or share parts if you want.
+6. **Edit ProfileDream Surface** – Your workshop. You build your public face here, but you're not forced to make anything public until you're ready.
+7. View Profile Surface is shared/public output only.
+8. **DreamAds** are regular commercial breaks: 30 seconds of ads per 15 minutes of content; 2 minutes at the start for videos longer than 30 minutes. Ads cannot be skipped; rewatching replays the ad.
+9. Dr. Eams is user-facing; IDARi is admin-only; TheBoogieMan.Ai is conservative enforcement.
+10. **Build freely, clean as you go.** Don't leave orphaned code. No artificial "repurpose before invent" rule.
+11. Algorithmic visibility is determined by **activity** (original creation, effort), not engagement (likes, shares). Views are the primary metric.
+12. **Bot detection** uses a physical Turing test: jitter analysis, cross‑swipe similarity, coarse‑graining invariance, entropy, velocity variance, and a 4‑second view tally. Bots are blocked or throttled.
+13. **Torridity constants** (`n=2.1`, `ΔP=0.1`, `λ=1.71`) govern swipe physics, content decay, invention force, and throttling. High‑mass human content resists decay; low‑mass bot content is capped at 10% visibility.
+14. **Generation Law (ι‑Engine)**:  
+    `ι = ΔP × (n·1 + a·λ + s·λ² + v·λ³ + xi·λ⁴)`  
+    - `ι < 2.88` → FLOW (throttle, ship fast or skip)  
+    - `2.88 ≤ ι < 9.59` → SYNTHESIZE (combine ideas, let flow)  
+    - `ι ≥ 9.59` → MANIFEST (build immediately, no isolation, no split threshold)  
+    High ι builds in every sense: code, UI, documents, real‑world actions.
+15. **Shared Dream Collaboration**: Any Engin can become a real‑time collaborative workspace. Users invite others via link; shared view (top) and private controls (bottom). Supports code, music, games, design. Scales to 40+ users.
+16. **Universal Editor**: Tap‑hold (≥300ms) any module → drag to reposition or transfer to another runtime via edge detection. Each module has a manifest; transfer uses a local event bus.
 
-*This is a real product specification, not a concept sketch.*
+---
 
-The system is privacy-first, user-first, deeply customizable, modular, interconnected, and built for full creative freedom.
+## 2. Route Law (Naming Preferences)
 
-	•	HomeDream is the root surface
-	•	everything else opens from it, not away from it
-	•	navigation should feel like depth, not page switching
-	•	profile is a flip/paired surface
-	•	Dreams open into deeper layers
-	•	Daydreams are not random routes, they are deeper spaces
-	•	going back should restore context, not reload a new world
+Prefer these names in docs and UI copy:
+- HomeDream Surface (`HomeDream` in code)
+- Edit ProfileDream Surface (`EditProfileDream` in code)
+- View Profile Surface (`ViewProfile` in code)
+- DreamShop Surface
+- DreamMarketplace Surface
+- DreamMenu
+- DreamDM Surface
+- DreamAds Surface
 
-DREAMengin is **not** built around:
-	•	tabs plus pages
-	•	dashboard cards plus links
-	•	web nav dressed up as native
+Support and legacy routes may still exist, but they should not win the language model.
 
-DREAMengin **is** built around:
-	•	surface stack navigation
-	•	state-preserving depth
-	•	iOS Photos-style continuity
-	•	applied across the whole product
+---
 
-If a navigation move feels like:
-	•	leaving the world,
-	•	reloading the world,
-	•	or forgetting where you were,
+## 3. OS‑Layer Naming Law (Canonical Vocabulary)
 
-then it’s wrong.
+Always use canonical OS‑layer vocabulary:
+- Say **surface**, not page
+- Say **Dream Window**, not widget or card
+- Say **DreamSpace**, not widget layer
+- Say **HomeDream Surface** or **primary surface**, not top area
+- Say **runtime**, not app
+- Say **runtime environment**, not platform (whole system)
+- Say **surface switching**, not tab navigation
+- Say **bind / mount / activate**, not link widget / open page / launch card
+- Say **connection path**, not pair
 
-If it feels like:
-	•	opening deeper,
-	•	staying oriented,
-	•	and being able to flip back naturally,
+---
 
-then it’s right.
+## 4. Technical Foundation
 
-1.1 System Surfaces and Modules
-
-The system is composed of:
-
-Core Dreams (primary system surfaces)
-	•	HomeDream (main private user surface)
-	•	Edit ProfileDream (profile composition and layout builder)
-	•	View Profile (public/shared-facing profile view)
-
-Daydream Pair System
-	•	6 Daydreams (Side A experiences, user-facing)
-	•	6 Engin surfaces (Side B control layers)
-
-Platform Modules
-	•	Dream Windows (modular runtime containers)
-	•	DreamShop
-	•	DreamMarketplace
-	•	DreamMenu
-	•	DreamDM
-	•	DreamAds
-
-1.2 Global Platform Rules (Non-Negotiable)
-	•	Nothing is public by default.
-	•	All creation starts private.
-	•	Every visible action must do something real.
-	•	No fake buttons.
-	•	No accidental sharing.
-	•	No hidden posting.
-	•	No platform system may bypass privacy rules.
-
-⸻
-
-2. Technical Foundation
-
-2.1 Technical Foundation
+4.1 Technical Foundation
  * Framework: Next.js 16+ using App Router for high-performance server components and Partial Prerendering (PPR).
  * Architecture: Dual-runtime spatial environment with state-preserving depth and iOS Photos-style continuity.
  * Language: TypeScript 5.8+ (Strict Mode) for type-safe interaction logic across all 174 routes.
@@ -756,7 +565,7 @@ Platform Modules
    * Vector: pgvector implementation for Dr. Eams discovery and AI Triad consensus routing.
  * Rendering Strategy: Client-heavy interactive surfaces; WebGPU/WASM contexts run exclusively on the client to preserve the "Virtual Console" feel
 
-2.2 Backend (Supabase)
+4.2 Backend (Supabase)
 	•	Database: Supabase Postgres
 	•	Authentication: Supabase Auth
 	•	Storage: Supabase Storage
@@ -764,20 +573,20 @@ Platform Modules
 	•	Security: strict Row Level Security on all user-owned data
 	•	Media/uploads: Supabase Storage buckets with permissions by user and visibility state
 
-⸻
+---
 
-3. Global Product Architecture
+## 5. Global Product Architecture
 
 The product is structured into two major kinds of surfaces:
 
-3.1 Core Dreams (Not Daydreams)
+5.1 Core Dreams (Not Daydreams)
 
 These are primary system-level surfaces and are not part of the Daydream pair system:
 	•	HomeDream (Core System)
 	•	Edit ProfileDream (Core System)
 	•	View Profile (Core Link/Destination)
 
-3.2 Daydream Pair Model
+5.2 Daydream Pair Model
 
 Each Daydream has:
 	•	Side A: user-facing domain experience
@@ -785,11 +594,11 @@ Each Daydream has:
 
 Only Side B uses the Engin suffix.
 
-⸻
+---
 
-4. HomeDream (Core System, Private Operating Surface)
+## 6. HomeDream (Core System, Private Operating Surface)
 
-4.1 Purpose
+6.1 Purpose
 
 HomeDream is the user’s main private customizable operating surface. It is where:
 	•	content appears first
@@ -801,7 +610,7 @@ HomeDream is the user’s main private customizable operating surface. It is whe
 
 Default styling is Gold, Light Blue, White.
 
-4.2 Persistent Gold Button Navigation (Primary Control System)
+6.2 Persistent Gold Button Navigation (Primary Control System)
 
 GOLD BUTTON NAVIGATION
 	•	Gold button is persistent and moves with user.
@@ -822,7 +631,7 @@ Dr. Eams in HomeDream
 	•	When the user presses send, they are sent to DreamDM.
 	•	If the user searches for a specific location, it suggests the link (Shop, Settings, Daydream, etc.).
 
-4.3 HomeDream Characteristics
+6.3 HomeDream Characteristics
 
 HomeDream is:
 	•	private by default
@@ -833,7 +642,7 @@ HomeDream is:
 	•	controllable by feed mode and source selection
 	•	designed as the daily primary entry point into DREAMengin
 
-4.4 HomeDream Feed
+6.4 HomeDream Feed
 
 The feed supports:
 	•	personalized content
@@ -854,7 +663,7 @@ The feed may contain:
 	•	system announcements
 	•	utility modules like weather/news if enabled
 
-4.5 HomeDream Dream Window Behavior
+6.5 HomeDream Dream Window Behavior
 
 Dream Windows on HomeDream:
 	•	represent connected modules or systems
@@ -864,7 +673,7 @@ Dream Windows on HomeDream:
 	•	may open into deeper interaction surfaces
 	•	may be customized individually
 
-4.6 HomeDream Customization Controls
+6.6 HomeDream Customization Controls
 
 Users may customize:
 	•	Dream Window layout
@@ -875,17 +684,17 @@ Users may customize:
 	•	posting routes
 	•	feed density and prioritization
 
-⸻
+---
 
-5. Edit ProfileDream (Core System, Private Builder Surface)
+## 7. Edit ProfileDream (Core System, Private Builder Surface)
 
-5.1 Purpose
+7.1 Purpose
 
 Edit ProfileDream is the private builder surface for the user’s profile and public/shared-facing presentation.
 
 It is accessed from HomeDream and acts as the editing version of the profile surface.
 
-5.2 Functions
+7.2 Functions
 
 Users may:
 	•	drag Dream Windows
@@ -897,7 +706,7 @@ Users may:
 	•	customize visual presentation
 	•	build profile structure intentionally
 
-5.3 Editing Rules
+7.3 Editing Rules
 	•	editing is visual
 	•	editing is direct
 	•	edits must be reversible
@@ -907,7 +716,7 @@ Users may:
 	•	moving Dream Windows in Edit ProfileDream does not automatically update the public-facing profile
 	•	public-facing changes occur only when the user explicitly confirms Update Public View
 
-5.4 Profile Configuration
+7.4 Profile Configuration
 
 Users may configure:
 	•	public Dream Windows
@@ -918,7 +727,7 @@ Users may configure:
 	•	layout hierarchy
 	•	thematic styling
 
-5.5 View Flow
+7.5 View Flow
 
 The intended profile flow is:
 
@@ -928,22 +737,22 @@ The intended profile flow is:
 
 Edit ProfileDream is not itself the public view, even when it visually resembles it.
 
-⸻
+---
 
-6. View Profile (Public/Shared Output Surface)
+## 8. View Profile (Public/Shared Output Surface)
 
-6.1 Purpose
+8.1 Purpose
 
 View Profile is the public or shared-facing result of what the user builds in Edit ProfileDream.
 
 It is the public-facing profile surface and does not act as the live editing surface.
 
-6.2 Access and Preview
+8.2 Access and Preview
 	•	View Profile is reached from Edit ProfileDream.
 	•	The View Profile / Public View control inside Edit ProfileDream opens the public-facing profile view.
 	•	Users do not edit directly inside View Profile.
 
-6.3 Required Behavior
+8.3 Required Behavior
 
 View Profile must:
 	•	reflect the current public profile configuration
@@ -953,7 +762,7 @@ View Profile must:
 	•	support preview mode before save
 	•	support public or permission-limited viewing based on settings
 
-6.4 Preview Before Save Requirements
+8.4 Preview Before Save Requirements
 
 Inside Edit ProfileDream, the user must be able to:
 	•	click View Profile / Public View
@@ -962,7 +771,7 @@ Inside Edit ProfileDream, the user must be able to:
 	•	click Update Public View when ready
 	•	save only when satisfied
 
-6.5 Public View Update Rule
+8.5 Public View Update Rule
 
 View Profile does not live-update from Dream Window movement inside Edit ProfileDream.
 
@@ -970,11 +779,11 @@ The public-facing profile changes only after explicit user confirmation through 
 
 This separation helps preserve intentional publishing and allows users to compare their private builder state against the public-facing result.
 
-⸻
+---
 
-7. Daydream Pair System (6 Daydreams + 6 Engin Surfaces)
+## 9. Daydream Pair System (6 Daydreams + 6 Engin Surfaces)
 
-7.1 Definition
+9.1 Definition
 
 Each Daydream has:
 	•	a Side A experience
@@ -983,7 +792,7 @@ Each Daydream has:
 	•	specialized Dream Window support
 	•	a small, separate dual-button control pill for the Engin side menu
 
-7.2 Domain List (As Defined)
+9.2 Domain List (As Defined)
 	1.	Music / StarMakerEngin
 	2.	Games / GameEngin
 	3.	Lab / LabEngin
@@ -991,11 +800,11 @@ Each Daydream has:
 	5.	Brand / BrandingEngin
 	6.	Create / ContentEngin
 
-⸻
+---
 
-8. Music / StarMakerEngin
+## 10. Music / StarMakerEngin
 
-8.1 Music (Side A)
+10.1 Music (Side A)
 
 Functions include:
 	•	music creation
@@ -1006,7 +815,7 @@ Functions include:
 	•	arranging music-oriented Dream Windows
 	•	previewing tracks and collections
 
-8.2 StarMakerEngin (Side B)
+10.2 StarMakerEngin (Side B)
 
 Functions include:
 	•	release workflows
@@ -1017,7 +826,7 @@ Functions include:
 	•	launch and rollout configuration
 	•	music performance and status management
 
-8.3 Specialized Dream Windows (Examples)
+10.3 Specialized Dream Windows (Examples)
 	•	track Dream Window
 	•	playlist Dream Window
 	•	release Dream Window
@@ -1025,11 +834,11 @@ Functions include:
 	•	audio project Dream Window
 	•	sales / launch status Dream Window
 
-⸻
+---
 
-9. Games / GameEngin
+## 11. Games / GameEngin
 
-9.1 Games (Side A)
+11.1 Games (Side A)
 
 Functions include:
 	•	game access
@@ -1038,7 +847,7 @@ Functions include:
 	•	world browsing
 	•	player-facing project interaction
 
-9.2 GameEngin (Side B)
+11.2 GameEngin (Side B)
 
 Functions include:
 	•	world logic
@@ -1049,7 +858,7 @@ Functions include:
 	•	creation tools
 	•	system rules and internal powering
 
-9.3 Specialized Dream Windows (Examples)
+11.3 Specialized Dream Windows (Examples)
 	•	game world Dream Window
 	•	build Dream Window
 	•	logic Dream Window
@@ -1057,11 +866,11 @@ Functions include:
 	•	environment Dream Window
 	•	inventory/system Dream Window
 
-⸻
+---
 
-10. Lab / LabEngin
+## 12. Lab / LabEngin
 
-10.1 Lab (Side A)
+12.1 Lab (Side A)
 
 Functions include:
 	•	experiments
@@ -1071,7 +880,7 @@ Functions include:
 	•	scenario building
 	•	simulation viewing
 
-10.2 LabEngin (Side B)
+12.2 LabEngin (Side B)
 
 Functions include:
 	•	state modeling
@@ -1081,7 +890,7 @@ Functions include:
 	•	iteration environments
 	•	lab tool configuration
 
-10.3 Specialized Dream Windows (Examples)
+12.3 Specialized Dream Windows (Examples)
 	•	experiment Dream Window
 	•	state Dream Window
 	•	model Dream Window
@@ -1089,11 +898,11 @@ Functions include:
 	•	parameter Dream Window
 	•	simulation viewer Dream Window
 
-⸻
+---
 
-11. Code / CodeEngin
+## 13. Code / CodeEngin
 
-11.1 Code (Side A)
+13.1 Code (Side A)
 
 Functions include:
 	•	code project access
@@ -1103,7 +912,7 @@ Functions include:
 	•	drafts
 	•	code creation surfaces
 
-11.2 CodeEngin (Side B)
+13.2 CodeEngin (Side B)
 
 Functions include:
 	•	project engine behavior
@@ -1113,7 +922,7 @@ Functions include:
 	•	build and execution workflows
 	•	engineering tools
 
-11.3 Specialized Dream Windows (Examples)
+13.3 Specialized Dream Windows (Examples)
 	•	project Dream Window
 	•	code file Dream Window
 	•	snippet Dream Window
@@ -1121,11 +930,11 @@ Functions include:
 	•	deployment Dream Window
 	•	runtime Dream Window
 
-⸻
+---
 
-12. Brand / BrandingEngin
+## 14. Brand / BrandingEngin
 
-12.1 Brand (Side A)
+14.1 Brand (Side A)
 
 Functions include:
 	•	brand visuals
@@ -1135,7 +944,7 @@ Functions include:
 	•	creative packaging
 	•	brand-facing assets
 
-12.2 BrandingEngin (Side B)
+14.2 BrandingEngin (Side B)
 
 Functions include:
 	•	brand system configuration
@@ -1145,7 +954,7 @@ Functions include:
 	•	optimization flows
 	•	identity and strategy tools
 
-12.3 Specialized Dream Windows (Examples)
+14.3 Specialized Dream Windows (Examples)
 	•	campaign Dream Window
 	•	brand kit Dream Window
 	•	performance Dream Window
@@ -1153,11 +962,11 @@ Functions include:
 	•	asset Dream Window
 	•	identity Dream Window
 
-⸻
+---
 
-13. Create / ContentEngin
+## 15. Create / ContentEngin
 
-13.1 Create (Side A)
+15.1 Create (Side A)
 
 Functions include:
 	•	writing
@@ -1167,7 +976,7 @@ Functions include:
 	•	mixed-content authoring
 	•	post/project development
 
-13.2 ContentEngin (Side B)
+15.2 ContentEngin (Side B)
 
 Functions include:
 	•	content routing
@@ -1177,7 +986,7 @@ Functions include:
 	•	output structure
 	•	reusable templates and creation mechanics
 
-13.3 Specialized Dream Windows (Examples)
+15.3 Specialized Dream Windows (Examples)
 	•	draft Dream Window
 	•	composition Dream Window
 	•	media attach Dream Window
@@ -1185,11 +994,11 @@ Functions include:
 	•	template Dream Window
 	•	output routing Dream Window
 
-⸻
+---
 
-14. Navigation Model (Core + Daydream Pair System)
+## 16. Navigation Model (Core + Daydream Pair System)
 
-14.1 Seamless Movement Requirement
+16.1 Seamless Movement Requirement
 
 Users must move between:
 	•	HomeDream
@@ -1199,14 +1008,14 @@ Users must move between:
 	•	its corresponding Engin surface
 without feeling like they are leaving the overall DREAMengin environment.
 
-14.2 Side A → Side B Relationship
+16.2 Side A → Side B Relationship
 
 Each Side A must lead naturally into its Side B. Side B must feel like:
 	•	the powered version
 	•	the control layer
 	•	the deeper system surface
 
-14.3 Engin Dual Button Controls
+16.3 Engin Dual Button Controls
 
 Each Engin surface includes a small “pill” style dual-button control area for Engin-side control actions. These controls are:
 	•	compact
@@ -1214,17 +1023,17 @@ Each Engin surface includes a small “pill” style dual-button control area fo
 	•	separate from the main DreamMenu
 	•	contextual to the Engin environment
 
-⸻
+---
 
-15. Dream Windows (Modular Runtime Containers)
+## 17. Dream Windows (Modular Runtime Containers)
 
-15.1 Definition
+17.1 Definition
 
 Dream Windows are the modular runtime containers used throughout the system. In Phase 7 and beyond, the canonical term is **Dream Window**. Earlier versions of this spec used "Dreams" or "widgets" — those terms are now retired in favor of Dream Window.
 
 Dream Windows have four canonical states: Unbound, Bound, Mounted, and Collapsed.
 
-15.2 Role
+17.2 Role
 
 Dream Windows may:
 	•	display content
@@ -1235,11 +1044,11 @@ Dream Windows may:
 	•	represent a Daydream or system component
 	•	exist on HomeDream, Edit ProfileDream, View Profile, and Daydream surfaces where allowed
 
-15.3 Dream Window Menu Requirement
+17.3 Dream Window Menu Requirement
 
 Every Dream Window must include a customization menu.
 
-15.4 Dream Window Menu Functions (May Include)
+17.4 Dream Window Menu Functions (May Include)
 	•	rename
 	•	recolor
 	•	resize
@@ -1253,7 +1062,7 @@ Every Dream Window must include a customization menu.
 	•	route settings
 	•	permissions
 
-15.5 Dream Window Data (Minimum)
+17.5 Dream Window Data (Minimum)
 
 Each Dream Window should minimally support:
 	•	id
@@ -1267,11 +1076,11 @@ Each Dream Window should minimally support:
 	•	destination rules
 	•	active state
 
-⸻
+---
 
-16. Commerce and Ecosystem Modules
+## 18. Commerce and Ecosystem Modules
 
-16.1 DreamShop (Official/Platform Commerce)
+18.1 DreamShop (Official/Platform Commerce)
 
 Purpose: platform-owned commerce layer.
 
@@ -1289,7 +1098,7 @@ Supported item types (examples):
 	•	enhanced tools
 	•	cosmetic or functional upgrades
 
-16.2 DreamMarketplace (Community Exchange)
+18.2 DreamMarketplace (Community Exchange)
 
 Purpose: user/community exchange layer.
 
@@ -1304,22 +1113,22 @@ Difference:
 	•	DreamShop = official/platform items
 	•	DreamMarketplace = community/user-driven ecosystem
 
-⸻
+---
 
-17. DreamMenu (Dual Menu Navigation System)
+## 19. DreamMenu (Dual Menu Navigation System)
 
-17.1 Structure
+19.1 Structure
 
 DreamMenu is a dual-menu navigation system.
 
-17.2 Left Side
+19.2 Left Side
 
 Contains:
 	•	Daydream navigation
 	•	movement between the 6 Daydreams
 	•	movement into core spaces where appropriate
 
-17.3 Right Side
+19.3 Right Side
 
 Contains:
 	•	standard app menu functions
@@ -1328,7 +1137,7 @@ Contains:
 	•	profile access
 	•	and Dr. Eams
 
-17.4 Dr. Eams Presence in Menu
+19.4 Dr. Eams Presence in Menu
 
 Dr. Eams is the platform guide and assistant presence. Dr. Eams may:
 	•	assist onboarding
@@ -1338,15 +1147,15 @@ Dr. Eams is the platform guide and assistant presence. Dr. Eams may:
 	•	surface context-sensitive suggestions
 Dr. Eams must remain useful, not intrusive.
 
-⸻
+---
 
-18. DreamDM (Messaging and Discussion)
+## 20. DreamDM (Messaging and Discussion)
 
-18.1 Purpose
+20.1 Purpose
 
 DreamDM is the platform messaging and threaded discussion system.
 
-18.2 Modes
+20.2 Modes
 
 DreamDM supports:
 	•	direct messaging
@@ -1354,11 +1163,11 @@ DreamDM supports:
 	•	Reddit-style board or message-board experiences
 	•	topic-based discussion surfaces
 
-18.3 Visibility
+20.3 Visibility
 
 DreamDM is viewable from HomeDream and may also exist as its own focus environment.
 
-18.4 Behaviors (May Support)
+20.4 Behaviors (May Support)
 	•	replies
 	•	threads
 	•	boards
@@ -1367,22 +1176,22 @@ DreamDM is viewable from HomeDream and may also exist as its own focus environme
 	•	routing content into HomeDream
 	•	contextual discussion around creations or Dream Windows
 
-⸻
+---
 
-19. DreamAds (Promotions and Advertising)
+## 21. DreamAds (Promotions and Advertising)
 
-19.1 Purpose
+21.1 Purpose
 
 DreamAds is the controlled advertising and promotion system.
 
-19.2 Functions (May Support)
+21.2 Functions (May Support)
 	•	promoted content
 	•	creator boosts
 	•	marketplace promotion
 	•	sponsored placements
 	•	official promotional surfaces
 
-19.3 Rules
+21.3 Rules
 
 DreamAds must:
 	•	be transparent
@@ -1390,11 +1199,11 @@ DreamAds must:
 	•	not override user control
 	•	not violate HomeDream or Profile visibility rules
 
-⸻
+---
 
-20. Customization System
+## 22. Customization System
 
-20.1 Global Customization
+22.1 Global Customization
 
 Users may customize:
 	•	layout
@@ -1406,17 +1215,17 @@ Users may customize:
 	•	profile composition
 	•	DreamMenu configuration where allowed
 
-20.2 Domain-Specific Customization
+22.2 Domain-Specific Customization
 
 Each Daydream may support specialized customization tied to its own tools and Dream Windows.
 
 Customization is platform-wide, not a side feature.
 
-⸻
+---
 
-21. Algorithm and Source Control
+## 23. Algorithm and Source Control
 
-21.1 Feed Control
+23.1 Feed Control
 
 Users may control:
 	•	feed mode
@@ -1425,35 +1234,35 @@ Users may control:
 	•	algorithm behavior
 	•	manual vs mixed vs algorithmic sorting
 
-21.2 Dream Window Source Control
+23.2 Dream Window Source Control
 
 Users may choose what Dream Windows contribute to feeds or surfaces.
 
-21.3 Transparency Requirement
+23.3 Transparency Requirement
 
 Users must always be able to understand what is contributing to what they are seeing.
 
-⸻
+---
 
-22. Privacy Model
+## 24. Privacy Model
 
-22.1 Surface Privacy Defaults
+24.1 Surface Privacy Defaults
 	•	HomeDream: private by default.
 	•	Edit ProfileDream: private editing environment.
 	•	View Profile: shows only explicit public/shared-facing content.
 	•	Daydreams: respect user permissions and visibility models.
 
-22.2 Platform Module Privacy Rules
+24.2 Platform Module Privacy Rules
 
 Marketplace / Shop / Ads / DM: no system may bypass core privacy guarantees.
 
-22.3 General Rule
+24.3 General Rule
 
 Nothing becomes public without user intent.
 
-⸻
+---
 
-23. Data Model Overview (Supabase)
+## 25. Data Model Overview (Supabase)
 
 Minimum platform tables/domains should include:
 	•	users
@@ -1482,18 +1291,18 @@ Minimum platform tables/domains should include:
 
 All protected through RLS.
 
-⸻
+---
 
-24. AI Triad (Platform Intelligence System)
+## 26. AI Triad (Platform Intelligence System)
 
 The AI system is a three-agent triad with distinct roles, strict access controls, and privacy-first enforcement.
 
-24.1 The Three AIs
+26.1 The Three AIs
 	1.	Dr. Eams — user-facing assistant
 	2.	IDARi — admin-only internal operator (bug fixer, optimizer, data compressor)
 	3.	TheBoogieMan.Ai — policy + system overwatch (conservative enforcement, logged)
 
-24.2 Access Model and Surface Placement
+26.2 Access Model and Surface Placement
 	•	Dr. Eams is available to users from the System menu and appears as:
 	•	a platform guide
 	•	a context-sensitive assistant
@@ -1502,7 +1311,7 @@ The AI system is a three-agent triad with distinct roles, strict access controls
 	•	IDARi is admin-facing only and must not be accessible through standard user UI.
 	•	TheBoogieMan.Ai is system-level, conservative by default, and operates as enforcement + auditing.
 
-24.3 API Routes (Server-Side Only)
+26.3 API Routes (Server-Side Only)
 
 
 Each AI has its own server-side API route:
@@ -1510,12 +1319,12 @@ Each AI has its own server-side API route:
 	•	/api/ai/idari
 	•	/api/ai/boogieman
 
-24.4 Key Management and Provider Configuration
+26.4 Key Management and Provider Configuration
 	•	AI API keys are server-side only.
 	•	Keys must come from Vercel environment variables and must never be exposed to the client.
 	•	AI provider selection must be configurable via env without code changes.
 
-24.5 Guarding Rules
+26.5 Guarding Rules
 	•	IDARi endpoints are admin-guarded even under dev auth bypass.
 	•	TheBoogieMan.Ai is allowed to log and enforce policy decisions.
 	•	No AI may bypass:
@@ -1524,16 +1333,16 @@ Each AI has its own server-side API route:
 	•	RLS constraints
 	•	“nothing public by default”
 
-24.6 Triad Coordination and Consensus Gating
+26.6 Triad Coordination and Consensus Gating
 	•	TheBoogieMan.Ai can send summaries/notes to Dr. Eams as “system status.”
 	•	Major system update recommendations require unanimous triad approval (consensus gating).
 
-24.7 AI Behavior Rules (Product Integrity)
+26.7 AI Behavior Rules (Product Integrity)
 	•	Dr. Eams must remain useful, not intrusive.
 	•	AI actions presented to the user must map to real system actions (no fake buttons, no implied actions).
 	•	Any action that could affect visibility/publicity must require explicit user intent.
 
-24.8 AI Rate-Limiting System
+26.8 AI Rate-Limiting System
 
 All AI API routes use a **single, unified rate-limit system**:
 
@@ -1557,9 +1366,9 @@ The TypeScript layer (`lib/ai/rateLimit.ts`) exports:
 
 `checkRateLimit` is **fail-closed**: any RPC error or invalid response returns `{ allowed: false, rpm: 0, retry_after_seconds }`.
 
-⸻
+---
 
-25. Launch Standard (Minimum “Truthful” Release)
+## 27. Launch Standard (Minimum “Truthful” Release)
 
 The launch version must:
 	•	feel complete as a product
@@ -1571,110 +1380,100 @@ The launch version must:
 	•	include DreamShop, DreamMarketplace, DreamMenu, DreamDM, and DreamAds in truthful form
 	•	include only working interactions, not implied ones
 
-⸻
+---
 
-**27. Addendum: Expanded Platform Guarantees and Behaviors**  
+## 28. Addendum: Expanded Platform Guarantees and Behaviors  
 
 This section formalizes additional commitments and design requirements that emerged from review, ensuring the platform’s privacy-first, user-first foundation is reinforced in every layer.
 
----
+### 28.1 Data Portability and User Control
 
-### 27.1 Data Portability and User Control
-
-**27.1.1 Export Format**  
+**28.1.1 Export Format**  
 Users may export all their personal data—including profile information, Dream Window configurations, created content, messages, and purchase history—in a **machine-readable, non-proprietary format** (JSON + associated media files). The export must be available through a clearly accessible interface (e.g., within Account Settings) and delivered as a downloadable archive within 48 hours of request.
 
-**27.1.2 Backup Guarantees**  
+**28.1.2 Backup Guarantees**  
 The platform does not guarantee automatic backups of user-generated content beyond standard database redundancy. However, users are encouraged to use the export feature as their own backup mechanism. The platform will retain data only as long as the account is active or required by law.
 
-**27.1.3 Account Deletion**  
+**28.1.3 Account Deletion**  
 Users may permanently delete their account and all associated data at any time. Deletion must be irreversible after a grace period (e.g., 30 days) during which the account can be restored. The deletion process must clearly inform the user of what data will be removed and what (if anything) may remain (e.g., public comments in forums, where removal would break threads, must be anonymized rather than deleted).
 
----
-
-### 27.2 Failure State Design Principles
+### 28.2 Failure State Design Principles
 
 Every interaction must anticipate failure and respond in a way that preserves user trust and system integrity.
 
-**27.2.1 Dream Window Source Deletion**  
+**28.2.1 Dream Window Source Deletion**  
 If a Dream Window’s data source (e.g., a specific feed, a connected service) is deleted or becomes unavailable:
 - The Dream Window should display a **graceful placeholder** indicating the source is gone, along with an option to reconfigure or remove the Dream Window.
 - The Dream Window must not crash the surrounding surface or affect other Dream Windows.
 - Notifications may alert the user to the broken source, but only if the user has opted into such alerts.
 
-**27.2.2 Engin Action Failures**  
+**28.2.2 Engin Action Failures**  
 When an action within a Side B Engin fails (e.g., publish error, save conflict):
 - The system must display a **clear, non-technical error message** explaining what went wrong and suggesting next steps (retry, check settings, contact support).
 - The failure must not leave the user in an inconsistent state (e.g., partial saves must be rolled back or flagged as drafts).
 - Critical failures (e.g., payment processing) must trigger an immediate notification and, where appropriate, log an incident for admin review (via IDARi).
 
-**27.2.3 Dr. Eams Misunderstanding**  
+**28.2.3 Dr. Eams Misunderstanding**  
 If Dr. Eams cannot understand a user request:
 - It must respond with a **humble, helpful message** (e.g., “I didn’t quite catch that. Could you rephrase or try one of these options?”).
 - It should offer fallback options: manual search, browsing help topics, or connecting to a human support contact if available.
 - Dr. Eams must never simulate understanding or invent an action.
 
-**27.2.4 Marketplace Purchase Failure**  
+**28.2.4 Marketplace Purchase Failure**  
 Failed transactions (payment declined, item unavailable) must:
 - Immediately revert any pending state (e.g., remove temporary holds on items).
 - Show a clear explanation and next steps (e.g., “Your payment didn’t go through. Please check your payment method or try again.”).
 - Never charge the user without explicit confirmation of success.
 
-**27.2.5 RLS Blocking Legitimate Access**  
+**28.2.5 RLS Blocking Legitimate Access**  
 If Row Level Security incorrectly blocks a user’s access to their own content (due to policy misconfiguration or race condition):
 - The system should log the incident (via TheBoogieMan.Ai) for admin review.
 - The user-facing surface should display a generic “content unavailable” message with an option to report the problem.
 - Admins (via IDARi) must be able to audit and correct such failures without exposing private data.
 
----
+### 28.3 Offline Behavior and Resilience
 
-### 27.3 Offline Behavior and Resilience
-
-**27.3.1 Offline Capability**  
+**28.3.1 Offline Capability**  
 While DREAMengin is primarily an online platform, the following surfaces **must** support basic offline read access:
 - HomeDream (cached version of last-loaded feed and Dream Window states)
 - View Profile (cached public profile data)
 - Previously accessed Daydream surfaces (if the user explicitly marks them for offline use)
 
-**27.3.2 Caching Policy**  
+**28.3.2 Caching Policy**  
 Cached data must be:
 - Encrypted at rest on the device.
 - Automatically refreshed when connectivity is restored.
 - Subject to user control (clear cache, disable offline mode).
 - Limited in size and age to prevent stale or excessive storage.
 
-**27.3.3 Offline Actions**  
+**28.3.3 Offline Actions**  
 Any action initiated offline (e.g., composing a post, reconfiguring a Dream Window) must be queued and executed when connectivity returns, with clear visual indication of pending actions. Conflicts (e.g., edits made both offline and online) must be resolved via user prompt or a deterministic last-write-wins rule, with an audit trail.
 
----
+### 28.4 Analytics Philosophy and Privacy
 
-### 27.4 Analytics Philosophy and Privacy
-
-**27.4.1 Telemetry Principles**  
+**28.4.1 Telemetry Principles**  
 - **No data collection without consent:** All analytics are opt-in at account creation, with granular controls (e.g., crash reports, usage patterns, feature interaction).
 - **Anonymization by default:** If the user opts into analytics, data must be stripped of personally identifiable information (PII) before transmission.
 - **Minimal necessary:** Only collect data essential for improving the product and fixing errors. No behavioral profiling for advertising.
 - **Transparency:** Users can view exactly what data is collected, how it is used, and request deletion of their analytics history at any time.
 
-**27.4.2 Implementation**  
+**28.4.2 Implementation**  
 Analytics will be handled by a privacy-respecting provider (e.g., Plausible, Simple Analytics) or a self-hosted solution that adheres to the above principles. No analytics data will be shared with third parties.
 
----
+### 28.5 TheBoogieMan.Ai Logging and Audit Scope
 
-### 27.5 TheBoogieMan.Ai Logging and Audit Scope
-
-**27.5.1 Logged Events**  
+**28.5.1 Logged Events**  
 TheBoogieMan.Ai logs only events related to policy enforcement and system integrity, including:
 - Attempted violations of privacy rules (e.g., access to private data without permission)
 - Anomalous patterns that might indicate abuse or malfunction
 - Consensus decisions (when triad approval is required)
 - Administrative actions taken by IDARi
 
-**27.5.2 Data in Logs**  
+**28.5.2 Data in Logs**  
 - Logs **must not** contain user-identifiable information unless absolutely necessary for debugging a specific policy violation. In such cases, the identifier must be hashed and accessible only to authorized admins under explicit protocols.
 - All logs are encrypted at rest and retained for a maximum of 90 days, after which they are permanently deleted.
 
-**27.5.3 Audit Access**  
+**28.5.3 Audit Access**  
 - Only designated platform administrators may access TheBoogieMan.Ai logs, and such access is itself logged.
 - Regular audits of the logging system will be conducted to ensure compliance with privacy commitments.
 - Users have the right to request information about whether their data appeared in TheBoogieMan.Ai logs, subject to verification and legal constraints.
@@ -1683,7 +1482,9 @@ TheBoogieMan.Ai logs only events related to policy enforcement and system integr
 
 *These additions reinforce DREAMengin’s commitment to being a platform users can truly own, trust, and rely on—even when things go wrong.*
 
-28. Final Product Philosophy
+---
+
+## 29. Final Product Philosophy
 
 DREAMengin is a modular creative and social operating environment.
 
@@ -1701,68 +1502,27 @@ Everything is user-first.
 Everything is privacy-first.
 Everything must feel owned by the user.
 
-⸻
+---
 
-29. Generation Law (AI Build Constraint)
+## 30. Generation Law (AI Build Constraint)
 
-Every AI agent working on DREAMengin — Dr. Eams, IDARi, TheBoogieMan.Ai, or any external Copilot — must follow the Generation Law defined in docs/GENERATION_LAW.md.
+Every AI agent working on DREAMengin — Dr. Eams, IDARi, TheBoogieMan.Ai, or any external Copilot — must follow the Generation Law defined in `docs/GENERATION_LAW.md`. The law is now fused with torridity constants:
 
-29.1 Allowed-Output Formula
+- `ΔP = 0.1` (throttle fraction, from `n-2`)
+- `λ = 1.71` (geometric growth factor, from `1+λ+…+λ⁹=300`)
 
-For each generation pass, compute:
+Invention Force `ι = ΔP × (n·1 + a·λ + s·λ² + v·λ³ + xi·λ⁴)`
+- `ι < 2.88` → FLOW (throttle, ship fast or skip)
+- `2.88 ≤ ι < 9.59` → SYNTHESIZE (combine ideas, let flow)
+- `ι ≥ 9.59` → MANIFEST (build immediately, no isolation)
 
-	allowed next output = base spec fidelity × (ДР/2) × (1 + ДРх)
+Residuals (Architecture, Naming, Token, Behavior, Privacy, Performance, Projection) are logged, not blockers.
 
-	•	base spec fidelity — how closely the current codebase matches this README (0–1 scale)
-	•	ДР — the delta ratio: fraction of the spec addressed by this pass
-	•	ДРх — the residual-adjusted delta ratio (see docs/GENERATION_LAW.md)
+---
 
-A pass whose scope would exceed the allowed output must be split into smaller passes or down-graded to patch-only mode.
+## 31. DreamDM Bar (Persistent Interaction Rail / Runtime Seam)
 
-29.2 App-Build Load (χ)
-
-Before writing a single line, compute:
-
-	χ = w₁T + w₂F + w₃D + w₄A + w₅U
-
-Where:
-	•	T = tasks being attempted in the same pass
-	•	F = files touched
-	•	D = dependency surface changed (new imports, packages, DB columns)
-	•	A = architecture depth affected (how many of the 4 layers are touched)
-	•	U = unresolved spec ambiguities carried into this pass
-
-Mode thresholds:
-	•	χ < 4 → create — new files, new routes, new systems permitted
-	•	4 ≤ χ < 8 → conform — modify existing files to match spec; no new top-level systems
-	•	χ ≥ 8 → patch only — single-file, single-function fixes; no structural change
-
-If a planned pass yields χ ≥ 8, the agent must decompose it into sub-passes before proceeding.
-
-29.3 Residual Classes
-
-Residuals are structured mismatches between actual output and spec-intended output:
-
-	r = actual output − predicted output
-
-Every pass must audit for all seven residual classes:
-
-	•	architecture residual — does code match the 4-layer Dream model?
-	•	naming residual — are canonical README names used?
-	•	token residual — are gold/sky/white design tokens applied correctly?
-	•	behavior residual — does every visible action do something real?
-	•	privacy residual — was private builder state exposed publicly?
-	•	performance residual — are render-on-demand and fps rules respected?
-	•	projection residual — does ViewProfile show only saved shared projections?
-
-DREAMengin-specific checks per class and a per-pass audit checklist are in docs/GENERATION_LAW.md.
-
-⸻
-
-
-## 30. DreamDM Bar (Persistent Interaction Rail / Runtime Seam)
-
-### 30.1 Purpose
+### 31.1 Purpose
 
 The DreamDM Bar is a persistent interaction rail, draggable runtime seam, and top-layer control surface that serves as the communication, notification, drafting, and quick-action layer across the DREAMengin system.
 
@@ -1772,7 +1532,7 @@ Unlike a traditional overlay or rail, the DreamDM Bar is not just a divider betw
 
 The DreamDM Bar must always preserve the user’s working state.
 
-### 30.2 Position and Surface Relationship
+### 31.2 Position and Surface Relationship
 
 The DreamDM Bar exists above the HomeDream-rooted primary surface and directly controls the secondary DreamSpace layer.
 
@@ -1791,13 +1551,12 @@ HomeDream-rooted primary surface
 
 This relationship is part of the product’s spatial model and must be visually and behaviorally explicit.
 
-### 30.3 Runtime Ownership Model
+### 31.3 Runtime Ownership Model
 
 The screen is organized around one root runtime and one bar-owned secondary layer:
 
 #### HomeDream-rooted primary surface
 The underlying focus area. It hosts the feed and any active full-surface experience, including:
-
 - HomeDream feed
 - video player
 - game view
@@ -1808,7 +1567,6 @@ This layer may contain its own scrollable content and interactive elements.
 
 #### Dream Space
 The revealed secondary Dream Window environment. It contains:
-
 - the user’s Dreams
 - Dream Window grid
 - mini-apps
@@ -1820,15 +1578,9 @@ This layer is independently scrollable and interactive when revealed.
 
 HomeDream remains the root runtime. DreamSpace is not standalone; it is present only while the DreamDM Bar is visible in a revealed state.
 
-Examples:
-- a video continues playing in the underlying primary surface while the user scrolls through Dream Windows in Dream Space
-- a game retains state while the user replies through the DreamDM Bar
-- the underlying surface may remain active while the revealed layer is explored or adjusted
-
-### 30.4 Core Functions
+### 31.4 Core Functions
 
 The DreamDM Bar provides:
-
 - quick message composition
 - notification aggregation
 - draft persistence
@@ -1840,21 +1592,19 @@ The DreamDM Bar provides:
 - physical resizing of the revealed relationship between the bar-owned layer and the underlying primary surface
 
 Users must be able to:
-
 - start writing a message without leaving the current surface
 - respond to notifications inline
 - save or resume drafts
 - route content into DreamDM, feeds, or Dream Windows
 - resize the visible relationship between the underlying primary surface and Dream Space directly
 
-### 29.5 Physical Behavior and Drag Interaction
+### 31.5 Physical Behavior and Drag Interaction
 
 The DreamDM Bar is a draggable handle that resizes the revealed relationship in real time.
 
 It responds to direct manipulation through touch or mouse drag.
 
 #### Drag Rules
-
 - dragging up expands Dream Space and compresses the visible portion of the underlying primary surface
 - dragging down restores the underlying primary surface and reduces Dream Space
 - drag is continuous
@@ -1862,14 +1612,13 @@ It responds to direct manipulation through touch or mouse drag.
 - movement must feel physical, controlled, and premium
 
 The bar itself must always remain interactive for:
-
 - dragging
 - tapping to expand/collapse where applicable
 - quick actions
 - notification interaction
 - compose access
 
-### 30.6 Snap Points and Interaction States
+### 31.6 Snap Points and Interaction States
 
 When released, the DreamDM Bar snaps to the nearest canonical position.
 
@@ -1882,217 +1631,27 @@ Four snap points are defined (split ratio = fraction of viewport given to the un
 | Balanced | 0.5 | Primary surface and Dream Space share the viewport equally. |
 | Dream Focus | 0.1 | Dream Space ~90 %, primary surface reduced to a thin awareness strip. |
 
-#### Surface Only *(default)*
-- Dream Space is fully hidden because the bar is resting closed
-- the primary surface occupies the entire viewport
-- this is the initial state on every session
-- drag the bar upward to reveal Dream Space
-
-#### Surface Focus
-- the primary surface occupies approximately 90% of viewport height
-- Dream Space is reduced to a thin strip of approximately 10%
-- the strip shows the DreamDM Bar collapsed state
-- notification indicators and compose affordance remain visible
-
-#### Balanced
-- the primary surface and Dream Space occupy approximately 50% / 50%
-- both are given equal prominence
-- the user can work fluidly across both sides
-
-#### Dream Focus
-- Dream Space occupies approximately 90% of viewport height
-- the primary surface is reduced to a thin awareness strip of approximately 10%
-- the primary surface may show a minimal header, frozen frame, or content peek
-
 A fling gesture (fast upward or downward swipe) jumps one full snap step in the throw direction.
 
-### 30.7 Snap Animation
+### 31.7 Snap Animation
 
 Snapping must be accompanied by a subtle spring animation.
 
-The animation should communicate:
-
-- finality
-- physicality
-- confidence
-- continuity
-
-It must never feel abrupt, disorienting, or page-like.
-
-### 30.8 Multitasking and Parallel Runtimes
-
-The DreamDM Bar allows simultaneous interaction across the root surface and the revealed layer because state is preserved across both.
-
-Examples include:
-
-- watching video while replying
-- coding while referencing a draft
-- browsing feeds while responding to notifications
-- playing a game while opening a conversation
-- writing code in the underlying primary surface while Dream Space hosts a live preview
-- exploring Dream Windows while media continues uninterrupted above
-
-The bar must never force the user to leave the current activity.
-
-### 30.9 Focus and Input Routing
+### 31.8 Focus and Input Routing
 
 Input routing is determined by the space that received the last tap or click.
 
-Rules:
-
-- if the user taps the underlying primary surface, keyboard and focus events go there
-- if the user taps Dream Space, keyboard and focus events go there
-- the DreamDM Bar always remains interactive regardless of which side currently owns focus
-
-This allows users to fluidly move focus without destroying state.
-
-### 30.10 Interaction States
-
-The DreamDM Bar supports persistent system states that align with the physical split model.
-
-#### Collapsed
-- minimal bar
-- shows notification indicators
-- shows compose affordance
-- unobtrusive
-- typically corresponds to Surface Focus
-
-#### Expanded
-- opens message board
-- shows active drafts
-- shows notifications
-- allows quick reply
-- typically corresponds to Balanced or a bar-expanded interaction mode
-
-#### Pinned
-- locks to the top or bottom edge where appropriate
-- supports multitasking
-- keeps the current underlying surface active underneath
-- may preserve current split ratio
-
-### 30.11 Quick Message Composition
-
-The DreamDM Bar contains quick composition behavior accessible in any split configuration.
-
-Rules:
-
-- a compose field or compose icon lives directly in the bar
-- tapping compose may expand into a larger field
-- composition must not destroy the current underlying surface context
-- a fuller composer may open into Dream Space or a temporary bounded expansion without causing context loss
-
-Users must be able to begin composing without feeling like they entered a different app or page.
-
-### 30.12 Persistent Draft Memory
-
-Messages written in the DreamDM Bar must persist until the user deletes or sends them.
-
-Persistence must survive:
-
-- surface changes
-- page refresh
-- browser restart
-- temporary offline states
-
-The system must restore the last draft automatically when the bar is reopened.
-
-Draft persistence is mandatory.
-
-### 30.13 Notification Aggregation
-
-The DreamDM Bar functions as the platform notification center.
-
-Notifications appear as interactive cards inside the bar rather than as a detached generic system list.
-
-Each notification may allow:
-
-- quick reply
-- open source surface
-- dismiss
-- save for later
-
-Notifications may originate from:
-
-- DreamDM conversations
-- Dream Window signals
-- Daydream activities
-- DreamMarketplace events
-- system announcements
-
-When space is limited, notifications should remain compact but actionable.
-
-### 30.14 Offline and Queue Behavior
-
-If the user performs message-related actions while offline:
-
-- drafts must still persist
-- queued actions must be clearly marked
-- send actions must retry when connectivity returns
-- conflicts must be surfaced clearly if needed
-- no pending action may silently disappear
-
-This behavior must preserve user trust and working continuity.
-
-### 30.15 Gold Button Navigation and DreamDM Bar Integration
+### 31.9 Gold Button Navigation and DreamDM Bar Integration
 
 The Gold Button serves as the primary navigation control permanently attached to the DreamDM Bar.
+- Single tap: open dual menus.
+- Double tap: go Home (resets HomeDream content, not the bar).
 
-#### Default Anchoring
-- the Gold Button is attached to the **top edge** of the DreamDM Bar at all times
-- it stays attached whenever the bar is visible and the button’s position is on screen
-- single tap opens dual menus
-- double tap goes Home
-
-#### Detach Rule (screen lock)
-The Gold Button detaches from the bar **only** when dragging the bar upward causes the button’s attached position to go off the top of the screen.
-
-When detached:
-- the button locks to the viewport top (screen-fixed, not bar-fixed)
-- it does not scroll with page content
-- **it does not float or detach for keyboard, compose, or typing interactions**
-
-When the bar is dragged back down to where the button’s attached position is on screen, the button automatically reattaches to the top of the bar.
-
-#### Dream Focus Mode Behavior
-- when the bar is in Dream Focus and the button is screen-locked:
-  - dragging the bar further up compresses the primary surface to nearly nothing
-  - the Gold Button sits at the very top of the viewport as the visual horizon
-  - the user sees only Dream Space with the Gold Button at the top boundary
-- Home access is maintained even in full Dream mode
-
-### 30.16 Home Reset Rule
-
-Double tapping the Gold Button returns the user to HomeDream while preserving message state.
-
-Rules:
-
-- if the DreamDM Bar is in any non-default split, double tap returns the system Home without deleting drafts
-- HomeDream feed is revealed in the primary surface
-- if the DreamDM Bar is open, returning Home must not delete the draft
-- if the bar is collapsed, Home returns the user to the main HomeDream feed
-- drafts and notifications remain intact unless explicitly dismissed or deleted
-- after reset, the Gold Button returns to its default anchored position at the top of the bar
-
-Navigation must never clear working communication state.
-
-### 30.17 Design Principle
-
-The DreamDM Bar exists to eliminate unnecessary context switching.
-
-Users should not need to leave their current activity simply to:
-
-- send a message
-- respond to a notification
-- save a thought
-- route content
-- resize their working reality
-- shift attention between the root surface and the revealed secondary layer
-
-The DreamDM Bar is a continuous interaction channel across the entire system. Its physical behavior—dragging, snapping, resizing, and preserving the relationship between HomeDream and the revealed secondary layer—must make multitasking feel natural, direct, and spatially coherent.
+When the bar is hidden visually, it remains in the DOM and retains state.
 
 ---
 
-## 31. Games Catalog
+## 32. Games Catalog
 
 DREAMengin ships with 20 fully playable games accessible through the Games Daydream (`/daydream/games`) and launchable from the ImmersiveGameShell (`/daydream/game`). All game titles are DREAMengin originals.
 
@@ -2119,27 +1678,26 @@ DREAMengin ships with 20 fully playable games accessible through the Games Daydr
 | `neon-drift` | 🏎️ | **Neon Drift** | Racing | NeonDrift (EliteGameEngine) |
 | `echo-arena` | 🎯 | **Echo Arena** | Shooter | EchoArena (EliteGameEngine) |
 
-### 31.1 Elite-Runtime Games
+### 32.1 Elite-Runtime Games
 
 Neon Drift and Echo Arena are designated **elite-runtime** titles. They instantiate `EliteGameEngine` directly and surface live runtime telemetry (fps, draw calls, memory) in the in-game HUD.
 
-### 31.2 MADMAXI (Featured Game)
+### 32.2 MADMAXI (Featured Game)
 
 MADMAXI is the default game launched from the Games Daydream.
 
 Features:
 - Babylon.js 3-D side-scroller
-- Animated robot character (body, head, visor, arms, legs)
+- Animated robot character
 - 150 levels across 15 zones; boss every 10 levels
 - 10-coin mechanic: 9 silver coins + 1 gold Dream Star per level
 - Coin-counter HUD; camera zoom on collecting the 9th coin
 - Level-selection screen; authored zone starter packs
-- Synthesized in-game audio (`components/games/madmaxi/audio.ts`)
+- Synthesized in-game audio
 
 Module layout:
-
 ```
-components/games/madmaxi/
+games/madmaxi/
   MadmaxiGame.tsx        — main game component
   config.ts              — game constants and tuning
   types.ts               — shared TypeScript types
@@ -2147,21 +1705,18 @@ components/games/madmaxi/
   levels.ts              — procedural level generation
   audio.ts               — Web Audio synth engine
   index.ts               — public re-export
-components/games/BabylonSideScroller.tsx  — compatibility re-export wrapper
 ```
 
-⸻
+---
 
-## 32. Game Shell Architecture
+## 33. Game Shell Architecture
 
-### 32.1 ImmersiveGameShell
+### 33.1 ImmersiveGameShell
 
 **Route:** `/daydream/game`  
 **File:** `app/daydream/game/ImmersiveGameShell.tsx`
 
 Full-screen game launcher with a PS5-style 4-phase boot sequence.
-
-Boot phases:
 
 | Phase | Timing | Description |
 |-------|--------|-------------|
@@ -2170,45 +1725,27 @@ Boot phases:
 | 3 | 2200 – 3400 ms | Game title card · category badge · "Press any button to start" |
 | 4 | 3400 ms+ | Waiting for user input → fade-out → game revealed |
 
-A skip button is available from phase 1. After boot: the game fills 100 vw × 100 dvh; GameHUD floats at the bottom.
-
-### 32.2 GameHUD
+### 33.2 GameHUD
 
 **File:** `components/games/GameHUD.tsx`
 
 Universal floating HUD overlay for all immersive game sessions.
 
-- wraps MobileGameHUD
-- provides EXIT button that navigates to `/daydream/games`
-- floats at the bottom of the full-screen game view
-- replaces the legacy expandable remote surface (LegacyGameHUD / LegacyGameRemote)
-
-### 32.3 MobileGameHUD (Adjustable-Scale Controller)
+### 33.3 MobileGameHUD (Adjustable-Scale Controller)
 
 **File:** `components/games/MobileGameHUD.tsx`
 
 Touch-native game controller overlay with adjustable scale.
 
-- dual analogue sticks (left + right joystick zones)
-- action button ring (jump, dash, action)
-- L3 and R3 stick-click buttons
-- `+` / `-` size controls persist scale across sessions (55 % – 145 %, step 10 %)
-- scale stored in `localStorage` key `de:hud:scale`
-- drag handle and pause/exit controls in the centre dock
-
-### 32.4 GameRemote and Legacy Layer
-
-`components/games/GameRemote.tsx` is a compatibility re-export of `LegacyGameRemote`. Immersive full-screen sessions use GameHUD/MobileGameHUD. The legacy dual-stick panel remains available for Daydream Side-B remote workflows.
-
-### 32.5 Standalone Engin Surface
+### 33.4 Standalone Engin Surface
 
 **File:** `components/daydream/StandaloneEnginSurface.tsx`
 
-All `/daydream/*/engin` routes render through `StandaloneEnginSurface` instead of redirecting with `?openEngin=1`. This provides a consistent full-surface Engin experience without page navigation.
+All `/daydream/*/engin` routes render through `StandaloneEnginSurface` instead of redirecting with `?openEngin=1`.
 
-⸻
+---
 
-## 33. StarMakerEngin DAW Features
+## 34. StarMakerEngin DAW Features
 
 **File:** `components/daydream/StarMakerEngin.tsx`
 
@@ -2229,28 +1766,23 @@ StarMakerEngin is the music creation engine for the Music Daydream. It includes 
 | File I/O | `DAWFileIOPanel` | Import audio files; export project as WAV; JSON project snapshots |
 | Journey View | _(inline)_ | Progression view showing milestones and creative history |
 
-### 33.1 Forge Transfer Integrations
+### 34.1 Forge Transfer Integrations
 
 StarMakerEngin participates in the Daydream Forge transfer network:
-
 - **Music → Brand** (`release-publish`): Finished releases flow to BrandingEngin for promotional use.
 - **Music → GameEngin** (`audio-stems`): Separated audio stems can be forwarded to GameEngin as in-game audio assets.
 - **Music → ContentEngin** (`audio-stems`): Stems forwarded for video / content production.
 
-### 33.2 Design Tokens
-
-All UI is built from the `DAW` design-token object (surface, border, accent, text colours, panel background). The DAW uses a dark studio palette separate from the main DREAMengin light theme to reduce eye strain during long production sessions.
-
 ---
 
-## 34. WASM+GPU Virtual Machine
+## 35. WASM+GPU Virtual Machine
 
 **Specification:** `docs/wasm_gpu_vm_spec.md`  
 **Implementation:** `lib/vm/`
 
 A production-ready dual-runtime virtual machine providing high-performance compute via WebAssembly 2.0 + WebGPU Compute. The VM is wired into the DREAMengin Dual Runtime Bridge and Dream OS Bus.
 
-### 34.1 Architecture
+### 35.1 Architecture
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -2269,7 +1801,7 @@ A production-ready dual-runtime virtual machine providing high-performance compu
               Dual Runtime Bridge → Dream OS Bus
 ```
 
-### 34.2 Module Map
+### 35.2 Module Map
 
 | File | Lines | Role |
 |------|-------|------|
@@ -2281,7 +1813,7 @@ A production-ready dual-runtime virtual machine providing high-performance compu
 | `lib/vm/dualVMCoordinator.ts` | 344 | Left/Right VM orchestration, inter-VM messaging |
 | `lib/vm/index.ts` | — | Public re-export barrel |
 
-### 34.3 System Call ABI (20 syscalls)
+### 35.3 System Call ABI (20 syscalls)
 
 | Syscall | Description |
 |---------|-------------|
@@ -2295,7 +1827,7 @@ A production-ready dual-runtime virtual machine providing high-performance compu
 | `vm_command_begin` / `vm_command_set_pipeline` / `vm_command_dispatch` / `vm_submit` / `vm_wait_fence` | GPU command recording + execution |
 | `vm_get_time` / `vm_yield` | Scheduler integration |
 
-### 34.4 Key Capabilities
+### 35.4 Key Capabilities
 
 - **WebAssembly 2.0**: SIMD, threads, bulk memory, multi-memory proposals
 - **Dual Runtime**: Left VM (primary / HomeDream) and Right VM (secondary / DreamSpace) run independently with failover
@@ -2305,7 +1837,7 @@ A production-ready dual-runtime virtual machine providing high-performance compu
 - **Inter-VM Messaging**: SharedArrayBuffer-backed message queues and event channels for zero-copy coordination
 - **Security Isolation**: Memory bounds checking, syscall allow-lists, GPU time slicing
 
-### 34.5 Dream OS Bus Events
+### 35.5 Dream OS Bus Events
 
 | Event | Description |
 |-------|-------------|
@@ -2315,3 +1847,130 @@ A production-ready dual-runtime virtual machine providing high-performance compu
 | `vm:stats-update` | Periodic performance statistics |
 
 ---
+
+## 36. Bot Detection & Physical Turing Test
+
+DREAMengin includes a bot detection system based on human swipe physics, not captchas.
+
+### 36.1 Core Metrics
+- **Per‑swipe perpendicular deviation** (jitter): Human >1.5 px, bot <0.8 px.
+- **Cross‑swipe similarity**: Store last 5 normalized paths. Human similarity <0.85, bot >0.95.
+- **Coarse‑graining invariance**: Compare mean deviation in first half vs second half. Human difference <0.1, bot >0.15.
+- **Entropy of deviations**: Human >0.7 (normalized), bot <0.5.
+- **Velocity variance & jerk**: Human high (slog‑transformed >0.5), bot low (<0.3).
+
+### 36.2 4‑Second View Tally
+- Timer starts when a card becomes visible. If the user stays for ≥4 seconds, a view is tallied via the ledger.
+- If the user leaves earlier, the timer is cancelled.
+
+### 36.3 Perfect Line Trap
+- If a swipe is unnaturally straight (avg deviation <1.5 px), the screen freezes for 3‑5 seconds.
+- If the next swipe is also perfect, the user is flagged as a bot and blocked.
+
+### 36.4 Detection Rate
+- 96% true positive, 4% false positive (simulated with advanced bots).
+
+---
+
+## 37. Torridity Physics Constants
+
+The entire platform – from swipe deceleration to content ranking – is governed by three constants derived from galaxy rotation curves and the geometric series `1+λ+…+λ⁹=300`:
+
+- `n = 2.1` (interpolation exponent)
+- `ΔP = n – 2 = 0.1` (throttling fraction)
+- `λ = 1.71` (geometric growth factor)
+
+Interpolation function:
+```
+μ(x) = x / (1 + xⁿ)^(1/n)
+```
+
+Content mass:
+```
+M = log(1 + buildTime·0.5 + uniqueAssets·2)
+```
+
+Torridity rank:
+```
+V = a0 · log1p(views+1)/4   (a0 scaled for human perception)
+rank = (V·M) / (1 + (V·M)^n)^(1/n)
+```
+
+Low‑mass content visibility is capped at 10% (ΔP) of the feed.
+
+---
+
+## 38. Shared Dream Collaboration
+
+Any Engin can become a real‑time collaborative workspace.
+
+### 38.1 Architecture
+- Two instances of the same component (e.g., `CodeEngin`) on the same page.
+- Shared view (top) visible to all participants; private controls (bottom) per user.
+- Communication via WebRTC Data Channels or Supabase Realtime.
+
+### 38.2 Invite Flow
+- "Launch Shared Dream" → generate invite link → friend accepts → real‑time sync (cursors, edits, playhead). Optional audio call.
+
+### 38.3 Scaling
+- Works for 2 to 40+ users (WebRTC SFU or broadcast).
+
+---
+
+## 39. Universal Editor (Tap‑Hold‑Move)
+
+### 39.1 Interaction
+- Tap‑hold (≥300ms) any module → drag to reposition within same surface.
+- Drag to edge of screen → transfer to another runtime (HomeDream ↔ DreamSpace ↔ Daydream ↔ Engin).
+
+### 39.2 Manifest
+Each module has a manifest (id, type, sourceRuntime, compatibleRuntimes, content, UI hints). Transfer uses a **local event bus** (not a global bridge).
+
+### 39.3 No Edit Mode Toggle
+Direct manipulation is always available.
+
+---
+
+## 40. Fingerprint‑Based Sound Isolation (No AI)
+
+### 40.1 Concept
+- Store audio **peak maps** (frequency peaks over time) instead of raw audio (~200 KB per 3‑min song).
+- User taps a visual element (e.g., drum hit) → record a short segment of peaks (reference fingerprint).
+- Match reference fingerprint against full song’s peak map → find all time slices with similar peaks.
+- Extract the corresponding raw audio chunks from the original song → stitch together → isolated stem.
+
+### 40.2 User Experience
+Feels like the app is “recording” each instrument separately while the song plays.
+
+---
+
+## 41. Engin Forge (NGN Engin)
+
+**Repurpose `ForgeEngin.tsx`** (which already uses the AI triad) into a visual engine builder.
+
+### 41.1 User Interface
+- Left sidebar: list of 120+ atomic pieces (waveform zoom, beat grid, game loop, AI chat, etc.), categorised.
+- Central canvas: drag pieces, connect input/output ports.
+- Each piece has a manifest and a local event bus.
+
+### 41.2 Rules
+- Minimum 3 pieces (source + processor + output), maximum 30 pieces per engine.
+- Test in sandbox (iframe or isolated component).
+- Save assembly as JSON, share or publish to DreamMarketplace.
+
+### 41.3 Dual Runtime as Optional Piece
+The "Dual Runtime Hub" piece can be included to enable cross‑side communication.
+
+---
+
+## 42. Local Event Bus (No Global Bridge)
+
+- Each engine assembly gets its own `createEventBus()` instance.
+- Modules communicate only when explicitly wired inside that engine.
+- The bus is passed to modules via dependency injection.
+- Dual runtime hub creates a second bus and forwards messages between sides.
+
+---
+
+*This specification supersedes all previous product definitions. All AI agents (Dr. Eams, IDARi, TheBoogieMan.Ai, and external Copilot) must obey these rules and capabilities.*
+```
