@@ -1,0 +1,227 @@
+name: BrandingEngin — Health & Premium Feature Patrol
+
+# Engin-runtime workflow for BrandingEngin (Brand pair machine side).
+# Scope: components/daydream/BrandingEngin.tsx + analytics routes + branding lib.
+# Does NOT re-run Daydream lobby-side CI — see daydream-brand.yml for that.
+#
+# Premium feature checks:
+#   ✦ Brand analytics query handlers
+#   ✦ Follower / audience queries
+#   ✦ Campaign create/manage handlers
+#   ✦ Brand asset management
+#   ✦ Privacy boundary enforcement (DreamAds vs platform promotions)
+
+on:
+  push:
+    paths:
+      - 'components/daydream/BrandingEngin.tsx'
+      - 'app/analytics/**'
+      - 'app/ads/**'
+      - 'lib/branding/**'
+      - 'lib/daydream/**'
+      - '.github/workflows/engin-branding.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '50 2 * * *'   # daily 02:50 UTC
+
+permissions:
+  contents: write
+
+concurrency:
+  group: engin-branding-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '25'
+  PNPM_VERSION: '10.30.0'
+  ENGIN: 'BrandingEngin'
+  PAIR: 'brand'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  engin-branding-health:
+    name: 📊 BrandingEngin · Build · Lint · Test · Feature Patrol
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ── Toolchain ─────────────────────────────────────────────────────────────
+      - name: Setup pnpm ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: ./.github/actions/setup-node
+
+      # ── Install ───────────────────────────────────────────────────────────────
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Build ─────────────────────────────────────────────────────────────────
+      - name: Build (Next.js)
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      # ── Security ──────────────────────────────────────────────────────────────
+      - name: Security audit
+        run: pnpm audit --audit-level=high || true
+
+      # ── Lint (Engin runtime scope only) ───────────────────────────────────────────────
+      - name: Lint — BrandingEngin scope
+        id: lint
+        run: |
+          pnpm exec next lint \
+            --file components/daydream/BrandingEngin.tsx \
+            || echo "lint_failed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Typecheck
+        run: pnpm typecheck || true
+
+      # ── Unit tests ────────────────────────────────────────────────────────────
+      - name: Unit tests
+        run: pnpm exec vitest run --reporter=verbose || true
+
+      # ── Engin runtime pattern scans ──────────────────────────────────────────
+      - name: Scan — Brand analytics query handlers
+        id: scan_analytics
+        run: |
+          echo "--- Brand analytics scan ---"
+          if grep -r "fetchAnalytics\|getBrandAnalytics\|analyticsQuery\|analytics-query\|impressions\|engagement\|reach" \
+            components/daydream/BrandingEngin.tsx app/analytics 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next" | head -10; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Brand analytics query handlers detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Brand analytics query handlers not found"
+          fi
+
+      - name: Scan — Follower and audience queries
+        id: scan_followers
+        run: |
+          echo "--- Follower/audience query scan ---"
+          if grep -r "follower\|Follower\|audience\|Audience\|subscriber\|Subscriber\|fetchFollowers\|getAudience" \
+            components/daydream/BrandingEngin.tsx app/analytics 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next" | head -10; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Follower/audience query handlers detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Follower/audience queries not found"
+          fi
+
+      - name: Scan — Campaign handlers
+        id: scan_campaigns
+        run: |
+          echo "--- Campaign handler scan ---"
+          if grep -r "createCampaign\|updateCampaign\|launchCampaign\|pauseCampaign\|deleteCampaign\|CampaignManager" \
+            components/daydream/BrandingEngin.tsx app/analytics app/ads 2>/dev/null \
+            | grep -v "node_modules" | grep -v ".next"; then
+            echo "FOUND=true" >> "$GITHUB_OUTPUT"
+            echo "✅ Campaign management handlers detected"
+          else
+            echo "FOUND=false" >> "$GITHUB_OUTPUT"
+            echo "⚠️  Campaign handlers not found"
+          fi
+
+      - name: Scan — Brand asset management
+        id: scan_assets
+        run: |
+          echo "--- Brand asset management scan ---"
+          ASSET_COUNT=$(grep -rl "brandAsset\|brand-asset\|BrandAsset\|uploadLogo\|colorPalette\|brandFont\|brandColor" \
+            components/daydream/BrandingEngin.tsx lib/branding 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          echo "COUNT=${ASSET_COUNT}" >> "$GITHUB_OUTPUT"
+          echo "Brand asset management files: ${ASSET_COUNT}"
+
+      - name: Scan — DreamAds vs platform promotions separation
+        id: scan_ads_separation
+        run: |
+          echo "--- DreamAds / platform separation scan ---"
+          # Verify DreamAds language is used correctly and not conflated with platform promotions
+          DREAMADS=$(grep -rl "DreamAds\|dreamAds\|dream-ads" \
+            components/daydream/BrandingEngin.tsx app/ads 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          PLATFORM=$(grep -rl "platformPromotion\|platform-promotion\|platformAd\|platform-ad" \
+            components/daydream/BrandingEngin.tsx app/ads 2>/dev/null \
+            | grep -v "node_modules" | wc -l || echo 0)
+          echo "DREAMADS=${DREAMADS}" >> "$GITHUB_OUTPUT"
+          echo "PLATFORM=${PLATFORM}" >> "$GITHUB_OUTPUT"
+          echo "DreamAds references: ${DREAMADS} | Platform promotions: ${PLATFORM}"
+          if [ "$DREAMADS" -gt "0" ] && [ "$PLATFORM" -gt "0" ]; then
+            echo "✅ Both DreamAds and platform promotions are named separately"
+          elif [ "$DREAMADS" -gt "0" ]; then
+            echo "ℹ️  Only DreamAds naming found (platform promotions may not be implemented yet)"
+          else
+            echo "⚠️  No DreamAds language detected — verify ads separation per ARCHITECTURE.md §7"
+          fi
+
+      # ── Auto-fix ──────────────────────────────────────────────────────────────
+      - name: ESLint auto-fix — BrandingEngin
+        run: |
+          pnpm exec next lint \
+            --fix \
+            --file components/daydream/BrandingEngin.tsx \
+            || true
+
+      # ── Commit fixes ──────────────────────────────────────────────────────────
+      - name: Commit auto-fixes (if any)
+        if: always()
+        run: |
+          git config user.name  "engin-branding-bot"
+          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No fixes to commit."
+          else
+            git add -A
+            git commit -m "fix(engin/branding): ESLint auto-fix — BrandingEngin standalone [skip ci] [skip vercel]"
+            git push || true
+          fi
+
+      - name: Upload scan artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: branding-engin-scan-${{ github.run_number }}
+          path: |
+            components/daydream/BrandingEngin.tsx
+          retention-days: 7
+
+      # ── Job Summary ───────────────────────────────────────────────────────────
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## 📊 BrandingEngin — Standalone Health Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Engin | BrandingEngin |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Canonical pair | Brand Daydream |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scope | Engin runtime only (machine side; no Daydream lobby page) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 🔎 Premium Engin Runtime Checklist" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Feature | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Brand analytics queries | ${{ steps.scan_analytics.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Follower / audience queries | ${{ steps.scan_followers.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Campaign management | ${{ steps.scan_campaigns.outputs.FOUND == 'true' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Brand asset management | ${{ steps.scan_assets.outputs.COUNT != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| DreamAds naming present | ${{ steps.scan_ads_separation.outputs.DREAMADS != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Platform promo separated | ${{ steps.scan_ads_separation.outputs.PLATFORM != '0' && '✅ Separated' || 'ℹ️ Pending' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> Daydream lobby-side checks are handled by \`daydream-brand.yml\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "> Combined Daydream lobby + Engin runtime health is handled by \`daydream-brand-engin.yml\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "> DreamAds separation rule: \`docs/ARCHITECTURE.md §7\`." >> "$GITHUB_STEP_SUMMARY"

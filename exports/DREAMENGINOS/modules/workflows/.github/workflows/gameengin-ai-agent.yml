@@ -1,0 +1,249 @@
+name: GameEngin AI Agent
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, develop, completedream ]
+    paths:
+      - 'components/games/**'
+      - 'components/daydream/GameEngin.tsx'
+      - 'app/daydream/games/**'
+      - 'app/daydream/game/**'
+      - '.github/workflows/gameengin-ai-agent.yml'
+
+jobs:
+  gameengin-ai-loop:
+    name: Design + Generate + Validate Game for GameEngin
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      NODE_VERSION: '25'
+      PNPM_VERSION: '10.30.0'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 1. Scan current GameEngin + Games context (DREAMengin-aware)
+      - name: Scan GameEngin + Games context
+        run: |
+          mkdir -p .github/generated
+          python .github/scripts/scan_gameengin_context.py > .github/generated/gameengin-context.md || true
+
+      # 2. AI: propose ONE new SICC, genre-mix game that mounts on GameEngin
+      - name: AI propose SICC genre-mix game
+        id: ai_propose
+        env:
+          CONTEXT_MD: .github/generated/gameengin-context.md
+        run: |
+          CONTEXT=$(cat "$CONTEXT_MD" 2>/dev/null || echo "")
+          RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
+            -H "Authorization: Bearer $OPENAI_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg context "$CONTEXT" \
+              '{
+                model: "gpt-4.1",
+                response_format: { type: "json_object" },
+                messages: [{
+                  role: "user",
+                  content: ("You are the GameEngin design+runtime AI agent inside DREAMengin.\n\nPlatform:\n- Dual-runtime: SurfaceSpace (upper) + DreamSpace (lower).\n- Daydream lobby: Games (/daydream/games).\n- Engin: GameEngin (Side B control/runtime).\n- Rendering: Babylon.js 8+ with WebGPU-first pipeline.\n- Frontend: Next.js 16 App Router, React 19, TypeScript, Tailwind.\n- Data: Supabase (Postgres, RLS, Storage).\n\nRules:\n- Game must run on existing GameEngin runtime and Babylon WebGPU scene model.\n- Game must mount as a Dream Window on the Games Daydream lobby and be reachable from that lobby surface.\n- Game code must ONLY be invoked through GameEngin (like inserting a disc into a console). No standalone Next.js routes may run the game directly.\n- It must be a unique genre combination relative to existing games.\n- It must be SICC: Stylized (strong visual identity), Intuitive (controls obvious from moment 1), Cohesive (mechanics + UI reinforce same idea), Coherent (no random systems).\n- It must be fun: tight core loop, clear reward structure, readable fail states.\n\nCurrent GameEngin runtime + games context:\n" + $context + "\n\nTask:\n1. Invent exactly ONE new game.\n2. Output JSON only matching this schema:\n{\"title\":\"...\",\"slug\":\"unique_slug\",\"entrypoint\":\"games/unique_slug\",\"route\":\"/daydream/games/unique_slug\",\"summary\":\"...\",\"core_loop\":\"...\",\"camera\":\"...\",\"controls\":{\"keyboard\":\"...\",\"gamepad\":\"...\"},\"win_state\":\"...\",\"lose_state\":\"...\",\"progression\":\"...\",\"genres\":[\"...\"],\"sicc\":{\"stylized\":\"...\",\"intuitive\":\"...\",\"cohesive\":\"...\",\"coherent\":\"...\"},\"dream_windows\":[\"...\"],\"privacy_notes\":\"...\"}")
+                }]
+              }')"
+          )
+          echo "completion=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty')" >> "$GITHUB_OUTPUT"
+
+      - name: Save game design spec
+        run: |
+          mkdir -p .github/generated
+          echo '${{ steps.ai_propose.outputs.completion }}' > .github/generated/game-design.json
+
+      # 3. Character generation (original characters, context-aware)
+      - name: AI generate original game characters
+        id: ai_characters
+        env:
+          DESIGN_JSON: .github/generated/game-design.json
+        run: |
+          DESIGN=$(cat "$DESIGN_JSON" 2>/dev/null || echo "{}")
+          RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
+            -H "Authorization: Bearer $OPENAI_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg design "$DESIGN" \
+              '{
+                model: "gpt-4.1",
+                response_format: { type: "json_object" },
+                messages: [{
+                  role: "user",
+                  content: ("You are the character design AI inside DREAMengin / GameEngin.\n\nDesign JSON:\n" + $design + "\n\nRules:\n- Generate original characters only; no references or clones of existing IP.\n- Characters must fit the genres, SICC notes, core loop, and DREAMengin privacy-first ethos.\n- At least: 1 main playable character, 1-3 key secondary characters, 2-5 enemy/obstacle archetypes.\n- Include visual style hooks for Babylon materials, lighting, and animation.\n- Include personality, goals, and Dream Window interactions.\n\nOutput JSON only:\n{\"main\":{\"name\":\"...\",\"role\":\"...\",\"visual_style\":\"...\",\"abilities\":[\"...\"],\"personality\":\"...\",\"dream_window_signals\":[\"...\"]},\"secondary\":[{\"name\":\"...\",\"role\":\"...\",\"visual_style\":\"...\",\"personality\":\"...\"}],\"enemies\":[{\"name\":\"...\",\"archetype\":\"...\",\"visual_style\":\"...\",\"behavior\":\"...\"}]}")
+                }]
+              }')"
+          )
+          echo "completion=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty')" >> "$GITHUB_OUTPUT"
+
+      - name: Save character spec
+        run: |
+          echo '${{ steps.ai_characters.outputs.completion }}' > .github/generated/game-characters.json
+
+      # 4. Game logic design (systems & state, not code yet)
+      - name: AI design game logic from context
+        id: ai_logic
+        env:
+          DESIGN_JSON: .github/generated/game-design.json
+          CHARS_JSON: .github/generated/game-characters.json
+        run: |
+          DESIGN=$(cat "$DESIGN_JSON" 2>/dev/null || echo "{}")
+          CHARS=$(cat "$CHARS_JSON" 2>/dev/null || echo "{}")
+          RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
+            -H "Authorization: Bearer $OPENAI_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg design "$DESIGN" \
+              --arg chars "$CHARS" \
+              '{
+                model: "gpt-4.1",
+                response_format: { type: "json_object" },
+                messages: [{
+                  role: "user",
+                  content: ("You are the systems designer AI for GameEngin.\n\nGame design:\n" + $design + "\n\nCharacters:\n" + $chars + "\n\nTask: Define the core game logic for GameEngin runtime (entities, systems, events), Dream Windows (state exposure), and Babylon.js WebGPU scenes. Focus on state variables, events, progression rules, win/lose checks, and system interactions. Keep it SICC and coherent with narrative.\n\nOutput JSON only:\n{\"state\":{\"player\":{\"fields\":[\"...\"]},\"world\":{\"fields\":[\"...\"]},\"enemies\":{\"fields\":[\"...\"]}},\"events\":[{\"name\":\"...\",\"triggers\":[\"...\"],\"effects\":[\"...\"]}],\"systems\":[{\"name\":\"...\",\"description\":\"...\",\"update_rate\":\"frame|tick|event\"}],\"win_conditions\":[\"...\"],\"lose_conditions\":[\"...\"],\"progression_rules\":[\"...\"]}")
+                }]
+              }')"
+          )
+          echo "completion=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty')" >> "$GITHUB_OUTPUT"
+
+      - name: Save game logic spec
+        run: |
+          echo '${{ steps.ai_logic.outputs.completion }}' > .github/generated/game-logic.json
+
+      # 5. Full story / mythology / plot
+      - name: AI write full game story and world
+        id: ai_story
+        env:
+          DESIGN_JSON: .github/generated/game-design.json
+          CHARS_JSON: .github/generated/game-characters.json
+          LOGIC_JSON: .github/generated/game-logic.json
+        run: |
+          DESIGN=$(cat "$DESIGN_JSON" 2>/dev/null || echo "{}")
+          CHARS=$(cat "$CHARS_JSON" 2>/dev/null || echo "{}")
+          LOGIC=$(cat "$LOGIC_JSON" 2>/dev/null || echo "{}")
+          RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
+            -H "Authorization: Bearer $OPENAI_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg design "$DESIGN" \
+              --arg chars "$CHARS" \
+              --arg logic "$LOGIC" \
+              '{
+                model: "gpt-4.1",
+                response_format: { type: "json_object" },
+                messages: [{
+                  role: "user",
+                  content: ("You are the narrative design AI for the DREAMengin Games Daydream lobby.\n\nGame design:\n" + $design + "\n\nCharacters:\n" + $chars + "\n\nLogic:\n" + $logic + "\n\nRules:\n- Write an original, non-derivative story.\n- Cover world background, mythology, current conflict, main character arc, secondary arcs, and how gameplay reflects story beats.\n- Match SICC tone and be coherent with mechanics and Dream Window states.\n- Be implementable as in-game text, VO, or environmental storytelling.\n- DO NOT output code, only structured narrative.\n\nOutput JSON only:\n{\"world_background\":\"...\",\"mythology\":\"...\",\"setup\":\"...\",\"chapters\":[{\"id\":1,\"title\":\"...\",\"summary\":\"...\",\"key_gameplay_beats\":[\"...\"]}],\"character_arcs\":{\"main\":\"...\",\"secondary\":[{\"name\":\"...\",\"arc\":\"...\"}]},\"ending_variants\":[{\"id\":\"good\",\"conditions\":[\"...\"],\"summary\":\"...\"},{\"id\":\"bad\",\"conditions\":[\"...\"],\"summary\":\"...\"}]}")
+                }]
+              }')"
+          )
+          echo "completion=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty')" >> "$GITHUB_OUTPUT"
+
+      - name: Save game narrative
+        run: |
+          echo '${{ steps.ai_story.outputs.completion }}' > .github/generated/game-story.json
+
+      # 6. AI generate GameEngin-compatible game code
+      - name: AI generate GameEngin-compatible game code
+        id: ai_generate
+        env:
+          DESIGN_JSON: .github/generated/game-design.json
+          CHARS_JSON: .github/generated/game-characters.json
+          LOGIC_JSON: .github/generated/game-logic.json
+          STORY_JSON: .github/generated/game-story.json
+        run: |
+          DESIGN=$(cat "$DESIGN_JSON" 2>/dev/null || echo "{}")
+          CHARS=$(cat "$CHARS_JSON" 2>/dev/null || echo "{}")
+          LOGIC=$(cat "$LOGIC_JSON" 2>/dev/null || echo "{}")
+          STORY=$(cat "$STORY_JSON" 2>/dev/null || echo "{}")
+          RESPONSE=$(curl -s https://api.openai.com/v1/chat/completions \
+            -H "Authorization: Bearer $OPENAI_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg design "$DESIGN" \
+              --arg chars "$CHARS" \
+              --arg logic "$LOGIC" \
+              --arg story "$STORY" \
+              '{
+                model: "gpt-4.1",
+                messages: [{
+                  role: "user",
+                  content: ("You are the GameEngin implementation AI for DREAMengin.\n\nTech: Next.js 16 App Router, React 19, TypeScript, Babylon.js 8+ WebGPU-first, GameEngin runtime APIs and Dream Windows, Supabase with RLS.\n\nDesign: " + $design + "\nCharacters: " + $chars + "\nLogic: " + $logic + "\nStory: " + $story + "\n\nRules:\n- Implement or extend the game at 'entrypoint' under games/**.\n- Only touch games/** and engine/gameengin/**.\n- Use TS/TSX with strict types.\n- Bind logic state to Babylon scenes and Dream Windows.\n- Reflect story beats via HUD, events, or environmental cues.\n- Uphold SICC; if a mechanic conflicts with coherence, favor coherence.\n\nOutput: Unified diff (git patch) only.")
+                }]
+              }')"
+          )
+          echo "completion=$(echo "$RESPONSE" | jq -r '.choices[0].message.content // empty')" >> "$GITHUB_OUTPUT"
+
+      - name: Apply AI patch
+        continue-on-error: true
+        run: |
+          mkdir -p .github/generated
+          echo '${{ steps.ai_generate.outputs.completion }}' > .github/generated/game-patch.diff
+          git apply .github/generated/game-patch.diff || true
+
+      # 7. Disc-only sandbox rule: games must only run via GameEngin
+      - name: Validate game sandbox rules (disc-only via GameEngin)
+        run: |
+          python .github/scripts/validate_game_sandbox.py
+
+      # 8. Game-only build gate: do not commit if games break the GameEngin/games build
+      - name: Setup pnpm ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: ./.github/actions/setup-node
+
+      - name: Install deps (game gate)
+        run: pnpm install --frozen-lockfile
+
+      - name: Build GameEngin + games (gate)
+        run: pnpm run build:gamesengin
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Test games (gate)
+        run: pnpm run test:games
+
+      - name: Commit AI changes (if any)
+        if: success()
+        continue-on-error: true
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "GameEngin AI Agent"
+            git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
+            git commit -am "AI: add/update SICC game for GameEngin"
+          fi
+
+      - name: Push AI changes (same branch)
+        if: success()
+        continue-on-error: true
+        run: |
+          if [ -n "$(git log origin/${GITHUB_REF_NAME}..HEAD 2>/dev/null)" ]; then
+            git push origin HEAD:${GITHUB_REF_NAME}
+          fi
+
+      # 9. Optional: global build + tests, non-blocking
+      - name: Build DREAMengin (full app)
+        continue-on-error: true
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: pnpm build
+
+      - name: Run full test suite
+        continue-on-error: true
+        run: pnpm test

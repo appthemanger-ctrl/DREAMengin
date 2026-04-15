@@ -1,0 +1,138 @@
+name: DREAMengin Optimization
+
+on:
+  workflow_dispatch:
+    inputs:
+      optimization_target:
+        description: 'Optimization target (feed, search, widgets, layout, assets, render, cache, notifications, offline, routing, all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - feed
+          - search
+          - widgets
+          - layout
+          - assets
+          - render
+          - cache
+          - notifications
+          - offline
+          - routing
+  schedule:
+    # Run daily at 3 AM UTC
+    - cron: '0 3 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run DREAMengin optimizer
+        id: optimizer
+        run: |
+          node scripts/optimize-dreamengin.mjs \
+            --target="${{ github.event.inputs.optimization_target || 'all' }}" \
+            --config=config/optimizer.yaml \
+            --output=.optimization-results.json
+
+      - name: Read optimization results
+        id: results
+        run: |
+          if [ -f .optimization-results.json ]; then
+            echo "Results file found"
+            cat .optimization-results.json
+
+            # Extract key metrics using Node.js
+            node -e "
+              const fs = require('fs');
+              const results = JSON.parse(fs.readFileSync('.optimization-results.json', 'utf8'));
+              console.log('algorithm=' + results.algorithm);
+              console.log('target=' + results.target);
+              console.log('objective_value=' + results.objective_value);
+              console.log('constraints_satisfied=' + results.constraints_satisfied);
+              console.log('optimization_score=' + results.optimization_score);
+            " >> $GITHUB_OUTPUT
+          else
+            echo "algorithm=constraint-solver" >> $GITHUB_OUTPUT
+            echo "target=${{ github.event.inputs.optimization_target || 'all' }}" >> $GITHUB_OUTPUT
+            echo "objective_value=0" >> $GITHUB_OUTPUT
+            echo "constraints_satisfied=0" >> $GITHUB_OUTPUT
+            echo "optimization_score=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Print optimization summary
+        run: |
+          echo "## DREAMengin Optimization Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **Algorithm**: ${{ steps.results.outputs.algorithm }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Target**: ${{ steps.results.outputs.target }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Objective value**: ${{ steps.results.outputs.objective_value }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Constraints satisfied**: ${{ steps.results.outputs.constraints_satisfied }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Optimization score**: ${{ steps.results.outputs.optimization_score }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "Algorithm: ${{ steps.results.outputs.algorithm }}"
+          echo "Target: ${{ steps.results.outputs.target }}"
+          echo "Objective value: ${{ steps.results.outputs.objective_value }}"
+          echo "Constraints satisfied: ${{ steps.results.outputs.constraints_satisfied }}"
+          echo "Optimization score: ${{ steps.results.outputs.optimization_score }}"
+
+      - name: Upload optimization results
+        if: always() && hashFiles('.optimization-results.json') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: optimization-results-${{ github.run_number }}
+          path: .optimization-results.json
+          retention-days: 30
+
+      - name: Comment on PR if triggered from PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let results = {};
+
+            if (fs.existsSync('.optimization-results.json')) {
+              results = JSON.parse(fs.readFileSync('.optimization-results.json', 'utf8'));
+            }
+
+            const comment = `## 🎯 DREAMengin Optimization Results
+
+            | Metric | Value |
+            |--------|-------|
+            | Algorithm | ${results.algorithm || 'N/A'} |
+            | Target | ${results.target || 'N/A'} |
+            | Objective Value | ${results.objective_value || 'N/A'} |
+            | Constraints Satisfied | ${results.constraints_satisfied || 'N/A'} |
+            | Optimization Score | ${results.optimization_score || 'N/A'} |
+
+            **Optimizations Applied:**
+            ${results.optimizations ? results.optimizations.map(opt => `- ${opt.name}: ${opt.description}`).join('\n') : 'None'}
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
