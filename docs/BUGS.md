@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-15 05:07 UTC  
-**Last updated:** 2026-04-15 05:07 UTC  
-**Triggered by commit:** `68511e7` on `copilot/request-engine-codes` by Copilot  
-**Commit message:** fix(next.config): remove reactCompiler flag — babel-plugin-react-compiler not installed
+**Documentation Date:** 2026-04-15 05:15 UTC  
+**Last updated:** 2026-04-15 05:15 UTC  
+**Triggered by commit:** `a1a1e8c` on `copilot/request-engine-codes` by Copilot  
+**Commit message:** fix(exports): sync missing dreamengin components to exports directory
 
 ---
 
