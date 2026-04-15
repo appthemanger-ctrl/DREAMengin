@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-15 01:03 UTC  
-**Last updated:** 2026-04-15 01:03 UTC  
-**Triggered by commit:** `d0982bf` on `copilot/request-engine-codes` by Copilot  
-**Commit message:** refactor: rename all-engines→DREAMENGINOS, move engines into modules/, delete ALL_ENGINES.txt
+**Documentation Date:** 2026-04-15 02:41 UTC  
+**Last updated:** 2026-04-15 02:41 UTC  
+**Triggered by commit:** `9c46f68` on `copilot/request-engine-codes` by Copilot  
+**Commit message:** feat(dreamdmbar): single-tap menus, fix minimize preserve split ratio
 
 ---
 
