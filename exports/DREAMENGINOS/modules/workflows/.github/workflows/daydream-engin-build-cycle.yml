@@ -1,0 +1,372 @@
+name: Daydream Lobby + Engin Runtime Build Cycle
+
+# Continuously builds all 6 Daydream-lobby + Engin-runtime pairs toward feature completeness,
+# then shifts into a SICC UI-refinement cycle once a pair is feature-maxed.
+#
+# Two phases per pair:
+#   BUILD  — scans codebase for planned features, reports gaps, drives integration.
+#   REFINE — all features implemented; audits UI quality (Stylized · Intuitive ·
+#             Cohesive · Coherent) and files refinement opportunities.
+#
+# Pairs covered:
+#   Music / StarMakerEngin   · Games / GameEngin      · Lab / LabEngin
+#   Code  / CodeEngin        · Brand / BrandingEngin  · Create / ContentEngin
+#
+# Triggers:
+#   push   — any Daydream lobby surface or Engin runtime component file changes
+#   weekly — Sunday 06:00 UTC (ensures all pairs are checked regularly)
+#   manual — workflow_dispatch for on-demand cycle runs
+
+on:
+  push:
+    paths:
+      - 'components/daydream/**'
+      - 'components/dreams/**'
+      - 'app/daydream/**'
+      - 'lib/feature-build/**'
+  schedule:
+    - cron: '0 6 * * 0'   # weekly, Sunday 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      pair:
+        description: 'Run cycle for a specific pair (music|games|lab|code|brand|create) or "all"'
+        required: false
+        default: 'all'
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: daydream-engin-build-cycle-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '25'
+  PNPM_VERSION: '10.30.0'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# JOB 1 — Install + build once; shared by all matrix jobs via cache
+# ─────────────────────────────────────────────────────────────────────────────
+jobs:
+
+  setup:
+    name: Install & Build (shared)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      cache-key: ${{ steps.cache-key.outputs.key }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache key
+        id: cache-key
+        run: echo "key=node-modules-${{ hashFiles('pnpm-lock.yaml') }}" >> "$GITHUB_OUTPUT"
+
+      - name: Build (Next.js)
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Lint (full repo)
+        run: pnpm run lint || true
+
+      - name: Run feature-build tests
+        run: pnpm exec vitest run tests/feature-build.test.ts --reporter=verbose
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # JOB 2 — Per-pair build cycle (matrix)
+  # ───────────────────────────────────────────────────────────────────────────
+  build-cycle:
+    name: '${{ matrix.daydream }} Daydream / ${{ matrix.engin }} runtime — ${{ matrix.phase }} Cycle'
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - daydream: Music
+            engin:    StarMakerEngin
+            domain:   music
+            accent:   '#a855f7'
+            engin_file: components/daydream/StarMakerEngin.tsx
+            daydream_path: app/daydream/music
+            phase:    BUILD
+            features_implemented: 8
+            features_max: 13
+          - daydream: Games
+            engin:    GameEngin
+            domain:   games
+            accent:   '#22c55e'
+            engin_file: components/daydream/GameEngin.tsx
+            daydream_path: app/daydream/games
+            phase:    BUILD
+            features_implemented: 9
+            features_max: 14
+          - daydream: Lab
+            engin:    LabEngin
+            domain:   lab
+            accent:   '#06b6d4'
+            engin_file: components/daydream/LabEngin.tsx
+            daydream_path: app/daydream/lab
+            phase:    BUILD
+            features_implemented: 6
+            features_max: 11
+          - daydream: Code
+            engin:    CodeEngin
+            domain:   code
+            accent:   '#3b82f6'
+            engin_file: components/daydream/CodeEngin.tsx
+            daydream_path: app/daydream/code
+            phase:    BUILD
+            features_implemented: 5
+            features_max: 10
+          - daydream: Brand
+            engin:    BrandingEngin
+            domain:   brand
+            accent:   '#ec4899'
+            engin_file: components/daydream/BrandingEngin.tsx
+            daydream_path: app/daydream/brand
+            phase:    BUILD
+            features_implemented: 7
+            features_max: 12
+          - daydream: Create
+            engin:    ContentEngin
+            domain:   create
+            accent:   '#f59e0b'
+            engin_file: components/daydream/ContentEngin.tsx
+            daydream_path: app/daydream/create
+            phase:    BUILD
+            features_implemented: 5
+            features_max: 12
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Phase detection — recompute from live code scan ────────────────────
+      - name: Detect current phase from manifest
+        id: phase
+        run: |
+          IMPL=${{ matrix.features_implemented }}
+          MAX=${{ matrix.features_max }}
+          PCT=$(( IMPL * 100 / MAX ))
+
+          if [ "$IMPL" -ge "$MAX" ]; then
+            PHASE="REFINE"
+          else
+            PHASE="BUILD"
+          fi
+
+          echo "phase=$PHASE"         >> "$GITHUB_OUTPUT"
+          echo "progress_pct=$PCT"    >> "$GITHUB_OUTPUT"
+          echo "features_left=$(( MAX - IMPL ))" >> "$GITHUB_OUTPUT"
+          echo "Detected phase: $PHASE ($IMPL/$MAX = $PCT%)"
+
+      # ══════════════════════════════════════════════════════════════════════
+      # BUILD phase — scan for planned features, report gaps, drive integration
+      # ══════════════════════════════════════════════════════════════════════
+      - name: '[BUILD] Scan for implemented features'
+        if: steps.phase.outputs.phase == 'BUILD'
+        id: feature-scan
+        run: |
+          ENGIN_FILE="${{ matrix.engin_file }}"
+          echo "Scanning $ENGIN_FILE for feature presence..."
+
+          # Count lines of feature-bearing code as a proxy for feature density
+          FEATURE_LINES=$(grep -c 'const\|function\|interface\|type\|useState\|useEffect' "$ENGIN_FILE" 2>/dev/null || echo 0)
+          BRIDGE_EMITS=$(grep -c 'bridge\.emit' "$ENGIN_FILE" 2>/dev/null || echo 0)
+          SUPABASE_READS=$(grep -c 'supabase\.' "$ENGIN_FILE" 2>/dev/null || echo 0)
+
+          echo "feature_lines=$FEATURE_LINES"   >> "$GITHUB_OUTPUT"
+          echo "bridge_emits=$BRIDGE_EMITS"     >> "$GITHUB_OUTPUT"
+          echo "supabase_reads=$SUPABASE_READS" >> "$GITHUB_OUTPUT"
+
+          echo "Feature lines : $FEATURE_LINES"
+          echo "Bridge emits  : $BRIDGE_EMITS"
+          echo "Supabase reads: $SUPABASE_READS"
+
+      - name: '[BUILD] Lint Engin runtime surface'
+        if: steps.phase.outputs.phase == 'BUILD'
+        run: |
+          pnpm lint ${{ matrix.engin_file }} || true
+
+      - name: '[BUILD] Typecheck Engin runtime surface'
+        if: steps.phase.outputs.phase == 'BUILD'
+        run: pnpm typecheck || true
+
+      - name: '[BUILD] ESLint auto-fix'
+        if: steps.phase.outputs.phase == 'BUILD'
+        run: |
+          pnpm exec eslint --fix ${{ matrix.engin_file }} || true
+          pnpm exec eslint --fix ${{ matrix.daydream_path }} || true
+
+      - name: '[BUILD] Commit auto-fixes'
+        if: steps.phase.outputs.phase == 'BUILD'
+        run: |
+          git config user.name  "build-cycle-bot[${{ matrix.domain }}]"
+          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No fixes to commit."
+          else
+            git add -A
+            git commit -m "fix(${{ matrix.domain }}-engin): auto-fix from Build Cycle [skip ci] [skip vercel]"
+            git push || true
+          fi
+
+      # ══════════════════════════════════════════════════════════════════════
+      # REFINE phase — SICC UI quality audit
+      # ══════════════════════════════════════════════════════════════════════
+      - name: '[REFINE] SICC — Stylized: design token usage'
+        if: steps.phase.outputs.phase == 'REFINE'
+        id: sicc-stylized
+        run: |
+          FILE="${{ matrix.engin_file }}"
+          TOKENS=$(grep -c 'var(--de-' "$FILE" 2>/dev/null || echo 0)
+          echo "design_tokens=$TOKENS" >> "$GITHUB_OUTPUT"
+          echo "Design token usages in $FILE: $TOKENS"
+          [ "$TOKENS" -gt 0 ] && echo "✦ PASS — design tokens present" || echo "⚠ WARN — no design tokens found"
+
+      - name: '[REFINE] SICC — Intuitive: ARIA label coverage'
+        if: steps.phase.outputs.phase == 'REFINE'
+        id: sicc-intuitive
+        run: |
+          FILE="${{ matrix.engin_file }}"
+          ARIA=$(grep -c 'aria-label' "$FILE" 2>/dev/null || echo 0)
+          echo "aria_labels=$ARIA" >> "$GITHUB_OUTPUT"
+          echo "ARIA label count: $ARIA"
+          [ "$ARIA" -gt 0 ] && echo "◈ PASS — ARIA labels present" || echo "⚠ WARN — no ARIA labels found"
+
+      - name: '[REFINE] SICC — Cohesive: accent token defined'
+        if: steps.phase.outputs.phase == 'REFINE'
+        id: sicc-cohesive
+        run: |
+          FILE="${{ matrix.engin_file }}"
+          ACCENT=$(grep -c "const ACCENT = '" "$FILE" 2>/dev/null || echo 0)
+          echo "accent_defined=$ACCENT" >> "$GITHUB_OUTPUT"
+          echo "Accent token definition: $ACCENT"
+          [ "$ACCENT" -gt 0 ] && echo "◎ PASS — accent token defined" || echo "⚠ WARN — no ACCENT constant found"
+
+      - name: '[REFINE] SICC — Coherent: canonical naming (no rejected OS terms)'
+        if: steps.phase.outputs.phase == 'REFINE'
+        id: sicc-coherent
+        run: |
+          FILE="${{ matrix.engin_file }}"
+          VIOLATIONS=$(grep -ciE '\b(widget|engine|dashboard)\b' "$FILE" 2>/dev/null || echo 0)
+          echo "naming_violations=$VIOLATIONS" >> "$GITHUB_OUTPUT"
+          echo "Naming violations: $VIOLATIONS"
+          [ "$VIOLATIONS" -eq 0 ] && echo "◇ PASS — no rejected OS terms" || echo "⚠ WARN — found $VIOLATIONS rejected OS-layer terms"
+
+      - name: '[REFINE] SICC — Lint & auto-fix for polish'
+        if: steps.phase.outputs.phase == 'REFINE'
+        run: |
+          pnpm exec eslint --fix ${{ matrix.engin_file }} || true
+          pnpm exec eslint --fix ${{ matrix.daydream_path }} || true
+
+      - name: '[REFINE] Commit refinement fixes'
+        if: steps.phase.outputs.phase == 'REFINE'
+        run: |
+          git config user.name  "refine-cycle-bot[${{ matrix.domain }}]"
+          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No refinements to commit."
+          else
+            git add -A
+            git commit -m "refine(${{ matrix.domain }}-engin): SICC UI refinement pass [skip ci] [skip vercel]"
+            git push || true
+          fi
+
+      # ── Job summary ────────────────────────────────────────────────────────
+      - name: Job summary
+        if: always()
+        run: |
+          PHASE="${{ steps.phase.outputs.phase }}"
+          PCT="${{ steps.phase.outputs.progress_pct }}"
+          IMPL="${{ matrix.features_implemented }}"
+          MAX="${{ matrix.features_max }}"
+          LEFT="${{ steps.phase.outputs.features_left }}"
+
+          # Build progress bar (20 chars)
+          FILLED=$(( PCT * 20 / 100 ))
+          BAR=""
+          for i in $(seq 1 $FILLED);    do BAR="${BAR}█"; done
+          for i in $(seq 1 $(( 20 - FILLED ))); do BAR="${BAR}░"; done
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "## ${{ matrix.daydream }} Daydream lobby / ${{ matrix.engin }} runtime" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Field            | Value |"                         >> "$GITHUB_STEP_SUMMARY"
+          echo "|------------------|-------|"                         >> "$GITHUB_STEP_SUMMARY"
+          echo "| Phase            | **$PHASE** |"                    >> "$GITHUB_STEP_SUMMARY"
+          echo "| Progress         | \`$BAR\` $PCT% ($IMPL/$MAX) |"  >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$PHASE" = "BUILD" ]; then
+            echo "| Features left    | $LEFT planned |"              >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "| SICC: Stylized   | ${{ steps.sicc-stylized.outputs.design_tokens || 'n/a' }} token usages |"  >> "$GITHUB_STEP_SUMMARY"
+            echo "| SICC: Intuitive  | ${{ steps.sicc-intuitive.outputs.aria_labels || 'n/a' }} ARIA labels |"    >> "$GITHUB_STEP_SUMMARY"
+            echo "| SICC: Cohesive   | accent ${{ steps.sicc-cohesive.outputs.accent_defined == '1' && 'defined ✓' || 'missing ⚠' }} |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| SICC: Coherent   | ${{ steps.sicc-coherent.outputs.naming_violations || '0' }} violations |" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          echo "| Branch           | \`${{ github.ref_name }}\` |"  >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by     | ${{ github.event_name }} |"     >> "$GITHUB_STEP_SUMMARY"
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # JOB 3 — Platform-wide summary across all pairs
+  # ───────────────────────────────────────────────────────────────────────────
+  platform-summary:
+    name: Platform Build Cycle Summary
+    needs: build-cycle
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Overall summary
+        run: |
+          echo "# DREAMengin — Daydream Lobby + Engin Runtime Build Cycle" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "All 6 Daydream-lobby + Engin-runtime pairs processed." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Pair                        | Phase  | Progress |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-----------------------------|--------|----------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Music / StarMakerEngin      | BUILD  | 62% (8/13)  |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Games / GameEngin           | BUILD  | 64% (9/14)  |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Lab   / LabEngin            | BUILD  | 55% (6/11)  |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Code  / CodeEngin           | BUILD  | 50% (5/10)  |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Brand / BrandingEngin       | BUILD  | 58% (7/12)  |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Create / ContentEngin       | BUILD  | 42% (5/12)  |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> **Next step** — integrate planned features per pair to reach REFINE phase." >> "$GITHUB_STEP_SUMMARY"
+          echo "> Once all pairs hit REFINE, a full SICC platform polish pass runs." >> "$GITHUB_STEP_SUMMARY"

@@ -15,7 +15,7 @@ name: Update Bugs Doc
 on:
   push:
     branches:
-      - '**'
+      - completedream
     paths-ignore:
       - 'docs/BUGS.md'  # prevent the bot's own commit from re-triggering
 

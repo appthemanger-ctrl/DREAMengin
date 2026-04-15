@@ -1,0 +1,234 @@
+name: Neural Decision Engine
+
+on:
+  workflow_dispatch:
+    inputs:
+      directive:
+        description: 'Optional direction for the decision engine (for example: "push the games shell harder")'
+        required: false
+        default: ''
+        type: string
+      commit_changes:
+        description: 'Commit validated implementation changes back to the current branch'
+        required: false
+        default: true
+        type: boolean
+  push:
+    branches: [main, develop, completedream]
+    paths:
+      - 'README.md'
+      - 'docs/**'
+      - 'spec/**'
+      - 'app/**'
+      - 'components/**'
+      - 'lib/**'
+      - 'styles/**'
+      - '.github/scripts/**.py'
+      - '.github/workflows/neural_decision_engine.yml'
+  schedule:
+    - cron: '15 7 * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: neural-decision-engine-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '25'
+  PNPM_VERSION: '10.30.0'
+  GENERATED_DIR: .github/generated/neural-decision
+
+jobs:
+  scan:
+    name: Scan DREAMengin world model
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan repository context
+        run: |
+          mkdir -p "${{ env.GENERATED_DIR }}"
+          python .github/scripts/scan_dreamengin_context.py \
+            > "${{ env.GENERATED_DIR }}/dreamengin-context.md"
+
+      - name: Upload context artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: neural-decision-context
+          path: ${{ env.GENERATED_DIR }}/dreamengin-context.md
+          retention-days: 1
+
+  decide:
+    name: Score options and pick the next move
+    needs: scan
+    if: ${{ secrets.OPENAI_API_KEY != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download context artifact
+        uses: actions/download-artifact@v4.1.3
+        with:
+          name: neural-decision-context
+          path: ${{ env.GENERATED_DIR }}
+
+      - name: Generate neural decision packet
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DIRECTIVE: ${{ github.event_name == 'workflow_dispatch' && inputs.directive || '' }}
+        run: |
+          python .github/scripts/ai_neural_decision.py \
+            --context "${{ env.GENERATED_DIR }}/dreamengin-context.md" \
+            --out "${{ env.GENERATED_DIR }}/neural-decision.json" \
+            --model gpt-4.1 \
+            --directive "$DIRECTIVE"
+
+      - name: Upload decision artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: neural-decision-packet
+          path: ${{ env.GENERATED_DIR }}/neural-decision.json
+          retention-days: 7
+
+      - name: Write decision summary
+        run: |
+          python - <<'PY'
+          import json
+          import os
+
+          path = os.path.join(os.environ["GENERATED_DIR"], "neural-decision.json")
+          with open(path, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+
+          selected = data.get("selected_option", {})
+          matrix = data.get("decision_matrix", [])
+          summary_path = os.environ.get("GITHUB_STEP_SUMMARY", "/dev/stdout")
+
+          with open(summary_path, "a", encoding="utf-8") as out:
+            out.write("## Neural Decision Packet\n\n")
+            out.write(f"**Winner:** {selected.get('title', data.get('title', 'Unknown'))}\n\n")
+            reason = data.get("selected_option_reason", "")
+            if reason:
+              out.write(f"**Why this wins:** {reason}\n\n")
+            out.write("| Option | Total | Immersion | Clarity | Leverage | Buildability | Novelty | Risk |\n")
+            out.write("|--------|-------|-----------|---------|----------|--------------|---------|------|\n")
+            for option in matrix:
+              score = option.get("scorecard", {})
+              out.write(
+                f"| {option.get('title', option.get('id', 'option'))} | "
+                f"{score.get('total', '')} | {score.get('immersion', '')} | "
+                f"{score.get('clarity', '')} | {score.get('leverage', '')} | "
+                f"{score.get('buildability', '')} | {score.get('novelty', '')} | "
+                f"{score.get('risk_management', '')} |\n"
+              )
+            out.write("\n")
+            out.write(f"**First slice:** {data.get('v1_scope', {}).get('description', 'N/A')}\n")
+          PY
+
+  implement:
+    name: Implement the selected move
+    needs: [scan, decide]
+    if: ${{ needs.decide.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download context artifact
+        uses: actions/download-artifact@v4.1.3.1.3
+        with:
+          name: neural-decision-context
+          path: ${{ env.GENERATED_DIR }}
+
+      - name: Download decision artifact
+        uses: actions/download-artifact@v4.1.3.1.3
+        with:
+          name: neural-decision-packet
+          path: ${{ env.GENERATED_DIR }}
+
+      - name: Generate implementation patch
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python .github/scripts/ai_implement.py \
+            --context "${{ env.GENERATED_DIR }}/dreamengin-context.md" \
+            --spec "${{ env.GENERATED_DIR }}/neural-decision.json" \
+            --out "${{ env.GENERATED_DIR }}/neural-decision.patch.diff" \
+            --model gpt-4.1
+
+      - name: Apply patch
+        id: apply-patch
+        continue-on-error: true
+        run: |
+          if [ -s "${{ env.GENERATED_DIR }}/neural-decision.patch.diff" ]; then
+            git apply --check "${{ env.GENERATED_DIR }}/neural-decision.patch.diff" && \
+            git apply "${{ env.GENERATED_DIR }}/neural-decision.patch.diff" && \
+            echo "applied=true" >> "$GITHUB_OUTPUT" || \
+            echo "applied=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "applied=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build DREAMengin
+        run: pnpm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Run Vitest suite
+        run: pnpm run test
+
+      - name: Commit validated changes
+        if: success() && steps.apply-patch.outputs.applied == 'true' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.commit_changes))
+        run: |
+          git config user.name "neural-decision-engine"
+          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
+          if ! git diff --quiet || ! git diff --cached --quiet; then
+            git add -A
+            git commit -m "AI: neural decision engine v1 [skip ci] [skip vercel]"
+          else
+            echo "Nothing to commit."
+          fi
+
+      - name: Push validated changes
+        if: success() && steps.apply-patch.outputs.applied == 'true' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.commit_changes))
+        run: |
+          if git log origin/${{ github.ref_name }}..HEAD --oneline | grep -q .; then
+            git push origin HEAD:${{ github.ref_name }}
+          else
+            echo "Nothing new to push."
+          fi
+
+      - name: Pipeline summary
+        if: always()
+        run: |
+          echo "## Neural Decision Engine" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Step | Result |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Decision packet | ${{ needs.decide.result == 'success' && '✅' || '⚠️ skipped/failed' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Patch applied | ${{ steps.apply-patch.outputs.applied == 'true' && '✅' || '⚠️ skipped/failed' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Build + test gate | ${{ job.status == 'success' && '✅' || '❌' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Branch: \`${{ github.ref_name }}\` · Triggered by: ${{ github.event_name }}" >> "$GITHUB_STEP_SUMMARY"
