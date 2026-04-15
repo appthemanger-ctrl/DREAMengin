@@ -1,5 +1,8 @@
 
-# DREAMengin — Full System Specification
+   "DREAMengin" = "Full System Specification"
+
+
+	 Full System Specification 
 
 > **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
 > **Documentation Date:** 2026-04-14 (Updated)
@@ -2045,35 +2048,42 @@ DREAMengin includes a bot detection system based on human swipe physics, not cap
 ### 36.4 Detection Rate
 - 96% true positive, 4% false positive (simulated with advanced bots).
 
----
 
-## 37. Torridity Physics Constants
 
-The entire platform – from swipe deceleration to content ranking – is governed by three constants derived from galaxy rotation curves and the geometric series `1+λ+…+λ⁹=300`:
+## 37. ...
+Torridity Physics Constants
 
-- `n = 2.1` (interpolation exponent)
+The entire platform – from swipe deceleration to content ranking – is governed by three constants derived from galaxy rotation curves and the geometric series `1 + λ + λ² + … + λ⁹ = 300`:
+
+- `n = 2.1` (interpolation exponent, from hierarchical shell model)
 - `ΔP = n – 2 = 0.1` (throttling fraction)
 - `λ = 1.71` (geometric growth factor)
 
-Interpolation function:
-```
+**Interpolation function** (used for swipe deceleration, content decay, and invention force):
 μ(x) = x / (1 + xⁿ)^(1/n)
-```
 
-Content mass:
-```
+
+**Content mass** (effort and originality):
+
 M = log(1 + buildTime·0.5 + uniqueAssets·2)
-```
 
-Torridity rank:
-```
-V = a0 · log1p(views+1)/4   (a0 scaled for human perception)
+where `buildTime` is approximated by word count and media presence, and `uniqueAssets` counts original media, native creation, and tool mentions.
+
+**Torridity rank** (visibility score in the feed):
+V = a0 · log1p(views+1)/4
 rank = (V·M) / (1 + (V·M)^n)^(1/n)
-```
 
-Low‑mass content visibility is capped at 10% (ΔP) of the feed.
+Here `a0` is scaled for human perception (≈100 px/s for swipe physics, but kept symbolic for content ranking).
 
----
+**Throttling gate**: Low‑mass content (bots, reposts, memes) is capped at **ΔP = 10%** of the feed. High‑mass human content resists decay and stays visible longer.
+
+**Content decay** over time follows the same interpolation function:
+
+decay_factor = μ(age_hours / 24)
+
+so that content sinks out of the feed according to the same physics as swipe deceleration.
+
+...
 
 ## 38. Shared Dream Collaboration
 
@@ -2147,7 +2157,5 @@ The "Dual Runtime Hub" piece can be included to enable cross‑side communicatio
 
 ---
 
-*This specification supersedes all previous product definitions. All AI agents (Dr. Eams, IDARi, TheBoogieMan.Ai, and external Copilot) must obey these rules and capabilities.*
-
-   }:
-}
+*This specification supersedes all previous product definitions. All AI agents (Dr. Eams, IDARi, TheBoogieMan.Ai, and external Copilot) must obey these rules and.
+;
