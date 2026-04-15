@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-15 02:41 UTC  
-**Last updated:** 2026-04-15 02:41 UTC  
-**Triggered by commit:** `9c46f68` on `copilot/request-engine-codes` by Copilot  
-**Commit message:** feat(dreamdmbar): single-tap menus, fix minimize preserve split ratio
+**Documentation Date:** 2026-04-15 05:07 UTC  
+**Last updated:** 2026-04-15 05:07 UTC  
+**Triggered by commit:** `68511e7` on `copilot/request-engine-codes` by Copilot  
+**Commit message:** fix(next.config): remove reactCompiler flag — babel-plugin-react-compiler not installed
 
 ---
 
