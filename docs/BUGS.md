@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-15 00:20 UTC  
-**Last updated:** 2026-04-15 00:20 UTC  
-**Triggered by commit:** `c7a2453` on `completedream` by appthemanger-ctrl  
-**Commit message:** Update print statement from 'Hello' to 'Goodbye'
+**Documentation Date:** 2026-04-15 01:28 UTC  
+**Last updated:** 2026-04-15 01:28 UTC  
+**Triggered by commit:** `23c05d9` on `copilot/create-new-version-of-readme` by Copilot  
+**Commit message:** docs: rewrite README.md — badges, clean structure, no redundancy, §1–§35 spec preserved
 
 ---
 
