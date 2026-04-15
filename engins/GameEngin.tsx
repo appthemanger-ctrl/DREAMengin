@@ -25,6 +25,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
+import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
+import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -234,6 +236,29 @@ export default function GameEngin({ onBack }: Props) {
   const playOverlayRef = useRef<HTMLDivElement>(null);
   const initializedPlaySurfaceRef = useRef(false);
   const autoStartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ── OS Shell: upgradeEngine wiring ──
+  const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
+  useEffect(() => {
+    upgradeEngine({ id: 'game', name: 'GameEngin' }, ['bridge', 'telemetry'])
+      .then(upgraded => { osRef.current = upgraded; });
+  }, []);
+
+  // ── OS Shell: local event bus ──
+  const busRef = useRef(createEventBus());
+
+  // ── .dreamgame file picker state ──
+  const [dreamGameFile, setDreamGameFile] = useState<{ name: string; size: number } | null>(null);
+  const dreamGameInputRef = useRef<HTMLInputElement>(null);
+
+  function handleDreamGamePick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setDreamGameFile({ name: file.name, size: file.size });
+    osRef.current?.telemetry?.log(`Loaded .dreamgame: ${file.name}`);
+    busRef.current.publish('game:dreamgame-loaded', { name: file.name, size: file.size });
+    forgeRecord(`Loaded .dreamgame: ${file.name}`);
+  }
 
   useRemoteChannel();
   useGameInputKeyboardBridge();
@@ -2598,6 +2623,60 @@ export default function GameEngin({ onBack }: Props) {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* ── .dreamgame File Picker ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <FileCode className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">.dreamgame Loader</span>
+            {engineType && (
+              <span style={{
+                marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 5,
+                background: engineType === 'WebGPU' ? 'rgba(139,92,246,0.14)' : 'rgba(56,189,248,0.12)',
+                color:      engineType === 'WebGPU' ? '#a78bfa' : '#38bdf8',
+                border:     engineType === 'WebGPU' ? '1px solid rgba(139,92,246,0.30)' : '1px solid rgba(56,189,248,0.24)',
+              }}>
+                {engineType === 'WebGPU' ? '⚡ WebGPU' : '🔷 WebGL2'}
+              </span>
+            )}
+          </div>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>
+              Load a <code style={{ fontSize: 10 }}>.dreamgame</code> bundle exported from Engin Forge or another DREAMengin instance.
+            </p>
+            <input
+              ref={dreamGameInputRef}
+              type="file"
+              accept=".dreamgame,.json"
+              style={{ display: 'none' }}
+              onChange={handleDreamGamePick}
+            />
+            <button
+              type="button"
+              onClick={() => dreamGameInputRef.current?.click()}
+              style={{
+                padding: '9px 16px', borderRadius: 9, border: `1px solid ${ACCENT}40`,
+                background: `${ACCENT}12`, color: ACCENT,
+                fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 8,
+              }}
+            >
+              <FileCode className="w-4 h-4" />
+              {dreamGameFile ? `✓ ${dreamGameFile.name}` : 'Pick .dreamgame file…'}
+            </button>
+            {dreamGameFile && (
+              <div style={{
+                padding: '8px 12px', borderRadius: 8,
+                background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.2)',
+                fontSize: 11, color: '#22c55e',
+              }}>
+                ✓ Loaded: <strong>{dreamGameFile.name}</strong> ({(dreamGameFile.size / 1024).toFixed(1)} KB)
+                <br />
+                <span style={{ fontSize: 9, opacity: 0.7 }}>Ready to run via GameEngin Runtime</span>
+              </div>
+            )}
           </div>
         </div>
 

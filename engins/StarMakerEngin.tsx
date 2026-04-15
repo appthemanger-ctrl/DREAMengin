@@ -29,6 +29,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
+import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
+import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
+import { useSharedDream } from '@/hooks/useSharedDream';
 import {
   buildReleaseStrategy,
   createMelodySuggestions,
@@ -256,6 +259,23 @@ const bpmBtnStyle: React.CSSProperties = {
 export default function StarMakerEngin({ onBack }: Props) {
   const starBridge = useStarMakerEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'music' });
+
+  // ── OS Shell: upgradeEngine wiring ──
+  const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
+  useEffect(() => {
+    upgradeEngine({ id: 'starmaker', name: 'StarMakerEngin' }, ['bridge', 'telemetry'])
+      .then(upgraded => { osRef.current = upgraded; });
+  }, []);
+
+  // ── OS Shell: local event bus for module-to-module messaging ──
+  const busRef = useRef(createEventBus());
+
+  // ── Part 2 additions: 3D Visualizer, Fingerprint Isolate, Shared Dream ──
+  const [show3DVisualizer, setShow3DVisualizer] = useState(false);
+  const [isolateActive, setIsolateActive]       = useState(false);
+  const [sharedDreamId]                         = useState(() => `music-${Date.now()}`);
+  const [showSharedDream, setShowSharedDream]   = useState(false);
+  const sharedDream = useSharedDream(showSharedDream ? sharedDreamId : '');
 
   // ── Daydream state persistence (Phase 8 §F Point 51) ──
   const { persistState } = useDaydreamState({ daydreamType: 'music', side: 'B' });
@@ -985,6 +1005,100 @@ export default function StarMakerEngin({ onBack }: Props) {
           onExternalLoadConsumed={() => setExternalLoadRequest(null)}
           onLedgerAudioChange={setPersistedLedgerAudio}
         />
+
+        {/* ── OS Tools: 3D Visualizer · Fingerprint Isolate · Shared Dream ── */}
+        <div style={{ background: DAW.surface, borderBottom: `1px solid ${DAW.border}` }}>
+          <div style={{ ...DAW_STYLES.sectionHeader }}>
+            <Sparkles className="w-3 h-3" style={{ color: DAW.accent }} />
+            <span style={DAW_STYLES.sectionTitle}>OS Tools</span>
+          </div>
+          <div style={{ padding: '10px 16px', display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {/* 3D Audio Visualizer */}
+            <button
+              type="button"
+              onClick={() => {
+                setShow3DVisualizer(v => !v);
+                osRef.current?.telemetry?.log('3D visualizer toggled');
+                busRef.current.publish('starmaker:3d-visualizer', { open: !show3DVisualizer });
+              }}
+              style={{
+                padding: '7px 14px', borderRadius: 8, border: `1px solid ${DAW.accent}40`,
+                background: show3DVisualizer ? `${DAW.accent}22` : `${DAW.accent}10`,
+                color: DAW.accent, fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 6,
+              }}
+            >
+              🌐 3D Visualizer
+            </button>
+            {/* Fingerprint Isolate */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsolateActive(v => !v);
+                osRef.current?.telemetry?.log('fingerprint isolator toggled');
+                busRef.current.publish('starmaker:fingerprint-isolate', { active: !isolateActive });
+              }}
+              style={{
+                padding: '7px 14px', borderRadius: 8, border: `1px solid #8b5cf640`,
+                background: isolateActive ? 'rgba(139,92,246,0.18)' : 'rgba(139,92,246,0.08)',
+                color: isolateActive ? '#a78bfa' : '#8b5cf6',
+                fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 6,
+              }}
+            >
+              🧬 {isolateActive ? 'Isolating…' : 'Isolate Sound'}
+            </button>
+            {/* Shared Dream Invite */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowSharedDream(v => !v);
+                osRef.current?.telemetry?.log('shared dream toggled');
+                busRef.current.publish('starmaker:shared-dream', { channelId: sharedDreamId });
+              }}
+              style={{
+                padding: '7px 14px', borderRadius: 8, border: `1px solid #22c55e40`,
+                background: showSharedDream ? 'rgba(34,197,94,0.15)' : 'rgba(34,197,94,0.07)',
+                color: '#22c55e', fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 6,
+              }}
+            >
+              🤝 {showSharedDream ? `Shared (${Object.keys(sharedDream.peers).length + 1})` : 'Launch Shared Dream'}
+            </button>
+          </div>
+
+          {/* 3D Visualizer panel — shown when no AnalyserNode available yet */}
+          {show3DVisualizer && (
+            <div style={{ padding: '8px 16px 14px', borderTop: `1px solid ${DAW.border}` }}>
+              <div style={{
+                padding: '20px', borderRadius: 10, textAlign: 'center',
+                background: 'rgba(9,11,18,0.85)', border: `1px solid ${DAW.accent}25`,
+                color: DAW.dim, fontSize: 11,
+              }}>
+                🎵 Connect an audio source (import file or record a take) to activate the 3D Visualizer.
+                <br />
+                <span style={{ fontSize: 9, opacity: 0.7 }}>
+                  Uses Web Audio AnalyserNode + Babylon.js frequency bars.
+                </span>
+              </div>
+            </div>
+          )}
+
+          {/* Shared Dream status */}
+          {showSharedDream && (
+            <div style={{ padding: '8px 16px 14px', borderTop: `1px solid ${DAW.border}` }}>
+              <div style={{
+                padding: '10px 14px', borderRadius: 10,
+                background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.2)',
+                fontSize: 11, color: '#22c55e',
+              }}>
+                {sharedDream.isConnected
+                  ? `✓ Shared Dream active · ${Object.keys(sharedDream.peers).length} peers · ID: ${sharedDreamId.slice(-8)}`
+                  : '⟳ Connecting to Shared Dream…'}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* ── Journey Trail ── */}
         <div style={{ background: DAW.surface, borderBottom: `1px solid ${DAW.border}` }}>
