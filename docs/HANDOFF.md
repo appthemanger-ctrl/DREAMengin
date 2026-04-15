@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-15 07:10 UTC | `ee8cfe2` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #534 from appthemanger-ctrl/copilot/approve-all-dependent-bots — feat: Bot PR auto-approve, conflict-resolve & auto-merge workflow<br> |
 | **auto** | 2026-04-15 07:01 UTC | `995ce40` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #531 from appthemanger-ctrl/dependabot/npm_and_yarn/backend/multi-75e6bc5210 — build(deps): bump js-yaml in /backend<br> |
 | **auto** | 2026-04-15 06:53 UTC | `dc03b1d` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #533 from appthemanger-ctrl/copilot/ensure-auto-docs-post-merge — ci: auto-doc workflows fire only after merge to `completedream`, not on every branch push<br> |
 | **auto** | 2026-04-15 06:14 UTC | `b7bd8c2` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #527 from appthemanger-ctrl/copilot/request-engine-codes — fix(build): resolve Vercel type-check failure — sync exports/dreamengin components and merge completedream<br> |
 | **auto** | 2026-04-15 05:54 UTC | `65e4885` | copilot/request-engine-codes | Copilot | no file changes<br>Merge remote-tracking branch 'origin/completedream' into copilot/request-engine-codes — # Conflicts: #	README.md #	REPO_STATE.md #	docs/BUGS.md #	docs/HANDOFF.md  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br> |
-| **auto** | 2026-04-15 04:56 UTC | `5a7d93c` | completedream | appthemanger-ctrl | ~1 modified<br>Revise README structure and content — Updated README format and removed outdated information.<br>✏️: `README.md` |
 
 ## What changed in this alignment pass
 
