@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-14 23:09 UTC  
-**Last updated:** 2026-04-14 23:09 UTC  
-**Triggered by commit:** `1daac0c` on `copilot/request-engine-codes` by Copilot  
-**Commit message:** fix: resolve TypeScript errors in AudioVisualizer3D and GameEnginRuntime
+**Documentation Date:** 2026-04-15 01:03 UTC  
+**Last updated:** 2026-04-15 01:03 UTC  
+**Triggered by commit:** `d0982bf` on `copilot/request-engine-codes` by Copilot  
+**Commit message:** refactor: rename all-engines→DREAMENGINOS, move engines into modules/, delete ALL_ENGINES.txt
 
 ---
 
