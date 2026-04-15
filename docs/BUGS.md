@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-15 05:15 UTC  
-**Last updated:** 2026-04-15 05:15 UTC  
-**Triggered by commit:** `a1a1e8c` on `copilot/request-engine-codes` by Copilot  
-**Commit message:** fix(exports): sync missing dreamengin components to exports directory
+**Documentation Date:** 2026-04-15 04:56 UTC  
+**Last updated:** 2026-04-15 04:56 UTC  
+**Triggered by commit:** `5a7d93c` on `completedream` by appthemanger-ctrl  
+**Commit message:** Revise README structure and content
 
 ---
 

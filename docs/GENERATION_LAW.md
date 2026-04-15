@@ -1,8 +1,8 @@
-```markdown
+
 # GENERATION LAW (ι‑Engine) – Final Fused Version
 
-**Effective Date:** 2026-04-13  
-**Status:** Creative Operating Law  
+**Effective Date:** 2026-04-14  
+**Status:** Creative Operating Law (Phase 10)  
 **Based on:** Torridity constants (`ΔP = 0.1`, `λ = 1.71`) and the geometric series `1 + λ + λ² + … + λ⁹ = 300`.
 
 ---
@@ -38,11 +38,13 @@ where
 
 The powers of λ give increasing weight to later dimensions:  
 `1`, `1.71`, `2.924`, `5.000`, `8.550`.  
-The entire sum is scaled by `ΔP = 0.1`, keeping `ι` in a small, practical range (0–~19).
+The entire sum is scaled by `ΔP = 0.1`, keeping `ι` in a small, practical range (0–~19.18).
 
 ---
 
 ## 3. Creative Protocols (What to Do with `ι`)
+
+Maximum possible ι = `ΔP × 191.8 ≈ 19.18`. Thresholds are derived as 15% and 50% of this maximum.
 
 | `ι` range | Protocol | Action |
 |-----------|----------|--------|
