@@ -45,6 +45,7 @@
     "node_modules",
     "tests/**",
     "playwright.config.ts",
-    "assembly/**"
+    "assembly/**",
+    "exports/**"
   ]
 }
