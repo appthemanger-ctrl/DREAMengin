@@ -83,11 +83,11 @@ const RUNTIME_PATHS = [
   { name: 'Launch Echo Arena', emoji: '🚀', desc: 'Arena shooter session', href: immersiveGameHref('echo-arena') },
 ] as const;
 
-const OFFICIAL_SPEC_NOTES = [
-  'README.md defines Games Daydream as the surface and GameEngin as the runtime.',
-  'The library explains the system before launch so users do not need a tutorial.',
-  'Fullscreen play, saved sessions, and the universal HUD belong to GameEngin.',
-] as const;
+const SECTION_11_SPEC = {
+  sideA: ['game access', 'game creation entry', 'play surfaces', 'world browsing', 'player-facing project interaction'],
+  sideB: ['world logic', 'game mechanics', 'runtime states', 'entity behavior', 'game structure', 'creation tools', 'system rules and internal powering'],
+  windows: ['game world Dream Window', 'build Dream Window', 'logic Dream Window', 'player state Dream Window', 'environment Dream Window', 'inventory/system Dream Window'],
+} as const;
 
 export default async function GamesDaydreamPage() {
   await connection();
@@ -334,12 +334,28 @@ export default async function GamesDaydreamPage() {
               <div className="de-widget">
                 <div className="de-widget-header">
                   <Sparkles className="w-4 h-4" style={{ color: '#c8981a' }} />
-                  <span className="de-widget-title ml-2">Official Surface Contract</span>
+                  <span className="de-widget-title ml-2">README Section 11 Contract</span>
                 </div>
                 <div className="de-widget-body" style={{ display: 'grid', gap: 8 }}>
-                  {OFFICIAL_SPEC_NOTES.map((note) => (
-                    <div key={note} style={{ borderRadius: 12, padding: '10px 12px', background: 'rgba(255,255,255,0.44)', border: '1px solid rgba(200,152,26,0.18)', fontSize: 12, lineHeight: 1.6, color: 'var(--de-text-dim)' }}>
-                      {note}
+                  <div style={{ borderRadius: 12, padding: '10px 12px', background: 'rgba(255,255,255,0.44)', border: '1px solid rgba(200,152,26,0.18)', fontSize: 12, lineHeight: 1.6, color: 'var(--de-text-dim)' }}>
+                    README.md §11 keeps Games Daydream on Side A and GameEngin on Side B. The sections below mirror the source contract.
+                  </div>
+                  {[
+                    { title: '11.1 Games (Side A)', items: SECTION_11_SPEC.sideA, tone: '#7c3aed' },
+                    { title: '11.2 GameEngin (Side B)', items: SECTION_11_SPEC.sideB, tone: '#38bdf8' },
+                    { title: '11.3 Specialized Dream Windows', items: SECTION_11_SPEC.windows, tone: '#c8981a' },
+                  ].map((section) => (
+                    <div key={section.title} style={{ borderRadius: 12, padding: '10px 12px', background: 'rgba(255,255,255,0.44)', border: `1px solid ${section.tone}33` }}>
+                      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: section.tone, marginBottom: 8 }}>
+                        {section.title}
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                        {section.items.map((item) => (
+                          <span key={item} style={{ fontSize: 10, fontWeight: 700, padding: '4px 8px', borderRadius: 999, background: `${section.tone}14`, color: section.tone, border: `1px solid ${section.tone}33` }}>
+                            {item}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>

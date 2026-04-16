@@ -57,6 +57,18 @@ describe('game launch navigation', () => {
     expect(gamesPageSrc).toContain("href: immersiveGameHref('neon-drift')");
     expect(gamesPageSrc).toContain("href: immersiveGameHref('echo-arena')");
   });
+
+  it('mirrors README section 11 roles and specialized windows in the Games daydream contract panel', () => {
+    const gamesPageSrc = readFileSync(join(REPO_ROOT, 'app/daydream/games/page.tsx'), 'utf8');
+
+    expect(gamesPageSrc).toContain('README Section 11 Contract');
+    expect(gamesPageSrc).toContain('11.1 Games (Side A)');
+    expect(gamesPageSrc).toContain('11.2 GameEngin (Side B)');
+    expect(gamesPageSrc).toContain('11.3 Specialized Dream Windows');
+    expect(gamesPageSrc).toContain("'game creation entry'");
+    expect(gamesPageSrc).toContain("'world logic'");
+    expect(gamesPageSrc).toContain("'inventory/system Dream Window'");
+  });
 });
 
 describe('shared remote keyboard bridge', () => {
