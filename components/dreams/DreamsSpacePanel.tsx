@@ -57,7 +57,7 @@ type ServiceType = 'youtube' | 'github' | 'spotify' | null;
 /** Top-level view for the Dreams Space panel: Apps home screen (priority) or connector Feeds. */
 type DreamsSpaceView = 'apps' | 'feeds';
 
-/** The 6 canonical Daydream surfaces + Analytics — permanent windows from DreamSpace. */
+/** The 6 canonical Daydream surfaces — permanent windows from DreamSpace. */
 const DAYDREAMS = [
   { id: 'music',     label: 'Music',     icon: '🎵', route: '/daydream/music',      color: 'linear-gradient(135deg,#7c3aed,#a855f7)' },
   { id: 'games',     label: 'Games',     icon: '🎮', route: '/daydream/games',      color: 'linear-gradient(135deg,#059669,#10b981)' },
@@ -65,7 +65,6 @@ const DAYDREAMS = [
   { id: 'code',      label: 'Code',      icon: '💻', route: '/daydream/code',       color: 'linear-gradient(135deg,#1d4ed8,#3b82f6)' },
   { id: 'brand',     label: 'Brand',     icon: '🎨', route: '/daydream/brand',      color: 'linear-gradient(135deg,#b45309,#f59e0b)' },
   { id: 'create',    label: 'Create',    icon: '✏️', route: '/daydream/create',     color: 'linear-gradient(135deg,#be185d,#ec4899)' },
-  { id: 'analytics', label: 'Analytics', icon: '📊', route: '/daydream/analytics',  color: 'linear-gradient(135deg,#4338ca,#6366f1)' },
 ] as const;
 
 /**
