@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-16 22:52 UTC | `9def477` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #587 from appthemanger-ctrl/copilot/implement-technical-foundation — Align README §4 Technical Foundation checks with current spec floors<br> |
 | **auto** | 2026-04-16 22:51 UTC | `5ce376b` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #585 from appthemanger-ctrl/copilot/implement-route-law-naming-preferences — Codify README Route Law naming preferences in canonical naming authority<br> |
 | **auto** | 2026-04-16 22:46 UTC | `a51a360` | completedream | appthemanger-ctrl | ~1 modified<br>Update AI implementation script for Gemini API<br>✏️: `.github/scripts/ai_implement.py` |
 | **auto** | 2026-04-16 22:33 UTC | `1593073` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #616 from appthemanger-ctrl/copilot/look-deeeer — fix: complete README spec — section 37 heading and trailing sentence<br> |
 | **auto** | 2026-04-16 22:32 UTC | `2a1724c` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #615 from appthemanger-ctrl/copilot/automate-root-cause-fixes — feat: autonomous root-cause analysis and fixing for report-driven coding agent<br> |
-| **auto** | 2026-04-16 22:29 UTC | `1fa21e0` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #591 from appthemanger-ctrl/copilot/implement-view-profile-section — Align EditProfileDream “Public View”/“Update Public View” controls with README §8 View Profile spec (with merge conflicts resolved)<br> |
 
 ## What changed in this alignment pass
 
