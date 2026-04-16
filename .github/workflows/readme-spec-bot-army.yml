@@ -1,0 +1,309 @@
+name: README Spec Bot Army
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_spawn:
+        description: 'Create/update one bot issue per README section'
+        required: false
+        default: true
+        type: boolean
+      run_resume:
+        description: 'Continue blocked section bots that are stale for 20 minutes'
+        required: false
+        default: true
+        type: boolean
+  push:
+    branches: [main, develop, completedream]
+    paths:
+      - 'README.md'
+      - '.github/workflows/readme-spec-bot-army.yml'
+  schedule:
+    - cron: '*/10 * * * *'
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: readme-spec-bot-army-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  BLOCK_MINUTES: '20'
+  MAX_SECTIONS: '24'
+
+jobs:
+  spawn-section-bots:
+    name: Spawn README section bot army
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.run_spawn)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create/update one issue per README section
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+            const maxSections = Number(process.env.MAX_SECTIONS || 24)
+            const owner = context.repo.owner
+            const repo = context.repo.repo
+
+            const ensureLabel = async (name, color, description) => {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name })
+              } catch (error) {
+                if (error.status === 404) {
+                  await github.rest.issues.createLabel({ owner, repo, name, color, description })
+                } else {
+                  throw error
+                }
+              }
+            }
+
+            await ensureLabel('readme-section-bot', '5319e7', 'Bot issue generated from a README section')
+            await ensureLabel('spec-section', '0e8a16', 'Tracks one section of README spec execution')
+            await ensureLabel('blocked', 'd73a4a', 'Work is blocked and needs continuation')
+            await ensureLabel('continuation', '1d76db', 'Continuation issue auto-created by workflow')
+            await ensureLabel('continued', 'fbca04', 'Original blocked issue already continued')
+
+            const readmePath = `${process.env.GITHUB_WORKSPACE}/README.md`
+            const readme = fs.readFileSync(readmePath, 'utf8')
+
+            const seen = new Set()
+            const sections = []
+            for (const raw of readme.split('\n')) {
+              const match = raw.match(/^##\s+(.+?)\s*$/)
+              if (!match) continue
+              const title = match[1].trim()
+              if (!title || seen.has(title)) continue
+              seen.add(title)
+              sections.push(title)
+            }
+
+            const selected = sections.slice(0, maxSections)
+            if (!selected.length) {
+              core.setFailed('No README ## sections found to spawn bots for.')
+              return
+            }
+
+            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              labels: 'readme-section-bot',
+              per_page: 100,
+            })
+
+            let created = 0
+            let updated = 0
+            let skipped = 0
+
+            for (const section of selected) {
+              const title = `🤖 README Section Bot: ${section}`
+              const body = [
+                '<!-- readme-section-bot -->',
+                `<!-- readme-section:${section} -->`,
+                '',
+                `## Mission`,
+                `Implement and maintain the \\`## ${section}\\` specification from \\`README.md\\` with coherent changes aligned to the rest of the system.`,
+                '',
+                '## Source',
+                '- Spec file: `README.md` (root)',
+                `- Section: \`## ${section}\``,
+                '',
+                '## Rules',
+                '- Keep changes coherent with existing architecture and naming.',
+                '- Prefer small validated increments.',
+                '- If blocked, add the `blocked` label; the continuation bot will resume with context after 20 minutes.',
+                '',
+                '## Checklist',
+                '- [ ] Review section requirements',
+                '- [ ] Identify impacted files',
+                '- [ ] Implement smallest coherent slice',
+                '- [ ] Validate with existing checks',
+                '- [ ] Update issue with progress/context',
+              ].join('\n')
+
+              const existing = openIssues.find((issue) => issue.title === title)
+
+              if (!existing) {
+                await github.rest.issues.create({
+                  owner,
+                  repo,
+                  title,
+                  body,
+                  labels: ['readme-section-bot', 'spec-section'],
+                })
+                created += 1
+                continue
+              }
+
+              if ((existing.body || '').includes(`<!-- readme-section:${section} -->`)) {
+                skipped += 1
+                continue
+              }
+
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number: existing.number,
+                body,
+              })
+              updated += 1
+            }
+
+            core.summary
+              .addHeading('README Spec Bot Army')
+              .addRaw(`Sections discovered: ${sections.length}\\n`) 
+              .addRaw(`Sections managed (cap ${maxSections}): ${selected.length}\\n`) 
+              .addRaw(`Created issues: ${created}\\n`) 
+              .addRaw(`Updated issues: ${updated}\\n`) 
+              .addRaw(`Skipped existing: ${skipped}\\n`) 
+              .write()
+
+  continue-blocked-work:
+    name: Continue blocked section bots with context
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_resume)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Continue blocked issues stale for 20+ minutes
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner
+            const repo = context.repo.repo
+            const blockMinutes = Number(process.env.BLOCK_MINUTES || 20)
+            const staleMs = blockMinutes * 60 * 1000
+            const now = Date.now()
+
+            const ensureLabel = async (name, color, description) => {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name })
+              } catch (error) {
+                if (error.status === 404) {
+                  await github.rest.issues.createLabel({ owner, repo, name, color, description })
+                } else {
+                  throw error
+                }
+              }
+            }
+
+            await ensureLabel('readme-section-bot', '5319e7', 'Bot issue generated from a README section')
+            await ensureLabel('spec-section', '0e8a16', 'Tracks one section of README spec execution')
+            await ensureLabel('continuation', '1d76db', 'Continuation issue auto-created by workflow')
+            await ensureLabel('continued', 'fbca04', 'Original blocked issue already continued')
+
+            const blockedIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              labels: 'readme-section-bot,blocked',
+              per_page: 100,
+            })
+
+            let continued = 0
+            let staleBlocked = 0
+
+            for (const issue of blockedIssues) {
+              const updatedAt = new Date(issue.updated_at).getTime()
+              if (Number.isNaN(updatedAt)) continue
+              if (now - updatedAt < staleMs) continue
+              staleBlocked += 1
+
+              const existingContinuations = await github.paginate(github.rest.issues.listForRepo, {
+                owner,
+                repo,
+                state: 'open',
+                labels: 'readme-section-bot,continuation',
+                per_page: 100,
+              })
+
+              const alreadyOpen = existingContinuations.find((candidate) =>
+                (candidate.body || '').includes(`<!-- continuation-of:${issue.number} -->`)
+              )
+
+              if (alreadyOpen) continue
+
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner,
+                repo,
+                issue_number: issue.number,
+                per_page: 100,
+              })
+
+              const recentComments = comments
+                .slice(-5)
+                .map((comment) =>
+                  `### ${comment.user?.login || 'unknown'} @ ${comment.updated_at}\\n${(comment.body || '').slice(0, 2000)}`
+                )
+                .join('\\n\\n')
+
+              const sourceBody = (issue.body || '').slice(0, 4000)
+              const continuationBody = [
+                '<!-- readme-section-bot -->',
+                '<!-- continuation -->',
+                `<!-- continuation-of:${issue.number} -->`,
+                '',
+                `This issue continues blocked work from #${issue.number} after ${blockMinutes}+ minutes with no updates.`,
+                '',
+                '## Carried Context',
+                '',
+                '### Source Issue Body',
+                sourceBody || '_No body found._',
+                '',
+                '### Recent Comments',
+                recentComments || '_No comments found._',
+                '',
+                '## Next Step',
+                '- Resume implementation from the carried context.',
+                '- Post progress updates in this continuation thread.',
+              ].join('\\n')
+
+              const newIssue = await github.rest.issues.create({
+                owner,
+                repo,
+                title: `↪️ Continue: ${issue.title}`,
+                body: continuationBody,
+                labels: ['readme-section-bot', 'spec-section', 'continuation'],
+              })
+
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: issue.number,
+                body: `Blocked for ${blockMinutes}+ minutes without updates. Continuing in #${newIssue.data.number}.`,
+              })
+
+              await github.rest.issues.addLabels({
+                owner,
+                repo,
+                issue_number: issue.number,
+                labels: ['continued'],
+              })
+
+              try {
+                await github.rest.issues.removeLabel({
+                  owner,
+                  repo,
+                  issue_number: issue.number,
+                  name: 'blocked',
+                })
+              } catch (_) {
+                // label may already be missing
+              }
+
+              continued += 1
+            }
+
+            core.summary
+              .addHeading('Blocked Work Continuation')
+              .addRaw(`Blocked issues beyond ${blockMinutes} minutes: ${staleBlocked}\\n`) 
+              .addRaw(`Continuation issues created: ${continued}\\n`) 
+              .write()
