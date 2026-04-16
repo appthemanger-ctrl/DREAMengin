@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-16 18:55 UTC | `6bf0f42` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #594 from appthemanger-ctrl/copilot/implement-music-starmakerengin-section — Align Music Daydream widgets with README §10 StarMakerEngin specialized windows<br> |
 | **auto** | 2026-04-16 18:47 UTC | `4b9b4bf` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #584 from appthemanger-ctrl/copilot/implement-product-law-principles — Align Product Law §1 Principle 10 guidance across docs and legacy comments<br> |
 | **auto** | 2026-04-16 18:05 UTC | `dda72e0` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #579 from appthemanger-ctrl/copilot/update-readme-core-surfaces — Align Core Surfaces spec by adding legacy `/home` → `/homedream` redirect<br> |
 | **auto** | 2026-04-16 17:55 UTC | `ec43de9` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #577 from appthemanger-ctrl/copilot/update-readme-recent-changes — Make README Recent Changes updater idempotent by deduplicating revision rows<br> |
 | **auto** | 2026-04-16 17:41 UTC | `8247938` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #551 from appthemanger-ctrl/copilot/add-github-action-bot — Add README section bot-army workflow with 20-minute blocked-context continuation<br> |
-| **auto** | 2026-04-16 11:09 UTC | `d69fe4b` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #550 from appthemanger-ctrl/copilot/integrate-agent-os-into-codeengin — feat: Agent-OS AI Co-pilot + CodeEngin radar architecture<br> |
 
 ## What changed in this alignment pass
 
