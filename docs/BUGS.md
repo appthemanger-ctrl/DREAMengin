@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-16 17:55 UTC  
-**Last updated:** 2026-04-16 17:55 UTC  
-**Triggered by commit:** `ec43de9` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #577 from appthemanger-ctrl/copilot/update-readme-recent-changes
+**Documentation Date:** 2026-04-16 18:05 UTC  
+**Last updated:** 2026-04-16 18:05 UTC  
+**Triggered by commit:** `dda72e0` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #579 from appthemanger-ctrl/copilot/update-readme-core-surfaces
 
 ---
 
