@@ -22,6 +22,19 @@
 
 ---
 
+## CANONICAL ROOT LAYOUT
+Canonical root entries are enforced to:
+- `app/`, `components/`, `lib/` (temporary), `engins/`, `games/`
+- `core/`, `system/`, `agents/`
+- `docs/`, `assets/`, `.github/`, `public/`, `styles/`, `tests/`, `scripts/`
+- root config/runtime files only (`package.json`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`, `next.config.mjs`, `tsconfig.json`, `eslint.config.mjs`, `postcss.config.js`, `tailwind.config.ts`, `README.md`, `LICENSE`, `vercel.json`, optional `instrumentation.ts`, optional `middleware.ts`, env/gitignore files)
+
+Enforcement:
+- `/.github/scripts/check-root-hygiene.sh`
+- `/.github/workflows/root-hygiene.yml`
+
+---
+
 ## WHERE TO LOOK
 ### Product logic
 `/app`, `/components`, `/lib`
