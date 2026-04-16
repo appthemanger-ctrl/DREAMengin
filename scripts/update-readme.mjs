@@ -493,7 +493,22 @@ while (pos < doc.length) {
   pos = end + 1;
 }
 
-const updatedRows = [newRow, ...existingRows].slice(0, MAX_ROWS);
+const rowRevision = (row) => {
+  const match = row.match(/^\|\s*`([^`]+)`\s*\|/);
+  return match ? match[1] : '';
+};
+
+const seenRevisions = new Set();
+const dedupedRows = [];
+for (const row of existingRows) {
+  const revision = rowRevision(row);
+  if (revision === sha) continue;
+  if (revision && seenRevisions.has(revision)) continue;
+  if (revision) seenRevisions.add(revision);
+  dedupedRows.push(row);
+}
+
+const updatedRows = [newRow, ...dedupedRows].slice(0, MAX_ROWS);
 const headerLine  = doc.slice(headerIdx, headerLineEnd).trimEnd();
 const dividerLine = doc.slice(headerLineEnd, dividerEnd).trimEnd();
 const newTable    = headerLine + '\n' + dividerLine + '\n' + updatedRows.join('\n') + '\n';
