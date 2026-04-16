@@ -1,8 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const redirectMock = vi.hoisted(() => vi.fn((path: string) => {
-  throw new Error(`redirect:${path}`);
-}));
+const redirectMock = vi.hoisted(() =>
+  vi.fn((path: string) => {
+    throw new Error(`redirect:${path}`);
+  }),
+);
 const connectionMock = vi.hoisted(() => vi.fn(async () => undefined));
 const createServerClientMock = vi.hoisted(() => vi.fn());
 const safeGetUserMock = vi.hoisted(() => vi.fn());
