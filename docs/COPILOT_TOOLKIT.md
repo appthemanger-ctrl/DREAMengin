@@ -12,7 +12,7 @@ This file summarizes how automation or coding agents should work in this repo.
 
 - Treat `README.md` as the master product spec.
 - Preserve working code whenever possible.
-- Rename and repurpose before rebuilding.
+- Reuse or repurpose when it clearly fits, but do not enforce a blanket "repurpose before invent" rule.
 - Prefer canonical product language over legacy repo nicknames.
 - Keep Node 25, pnpm, Next.js App Router, and Supabase assumptions stable unless there is a real need to change them.
 
@@ -34,4 +34,4 @@ Use these names first:
 
 ## Alignment rule
 
-When the repo contains unnamed or mixed-named systems, map them into the README spec before adding new top-level systems.
+When the repo contains unnamed or mixed-named systems, map them into the README spec before adding new top-level systems when that fit is coherent.
