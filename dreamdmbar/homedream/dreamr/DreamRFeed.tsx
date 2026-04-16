@@ -15,11 +15,10 @@ export default function DreamRFeed({ videoId, sharerId, viewerId }: { videoId: s
   const viewStartTime = useRef<number | null>(null);
   const freezeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // 4-SECOND VIEW TALLY: start timer when card mounts / becomes visible
+  // 4-SECOND VIEW TALLY: start timer when card mounts
   useEffect(() => {
     viewStartTime.current = Date.now();
     return () => {
-      // On unmount, check if the card was viewed for ≥4s
       if (viewStartTime.current !== null) {
         const duration = Date.now() - viewStartTime.current;
         const tally = tallyView(duration);
@@ -46,7 +45,6 @@ export default function DreamRFeed({ videoId, sharerId, viewerId }: { videoId: s
     }
   }, [videoId, sharerId, viewerId, hasTallied]);
 
-  // Unfreeze after freeze duration
   useEffect(() => {
     return () => {
       if (freezeTimer.current) clearTimeout(freezeTimer.current);
@@ -82,11 +80,10 @@ export default function DreamRFeed({ videoId, sharerId, viewerId }: { videoId: s
       if (diff < 0) setDragX(diff);
     }
     if (phase === 'end') {
-      // Analyze swipe for bot-like behavior
+      // Analyze swipe for bot-like behavior; freeze 3-5s if detected
       if (swipePoints.current.length >= 3) {
         const analysis = analyzeSwipe(swipePoints.current);
         if (analysis.likelyBot) {
-          // Freeze feed for 3–5 seconds
           freezeFeed(3000 + Math.random() * 2000);
           setDragX(0);
           touchStart.current = null;

@@ -3,13 +3,12 @@
  *
  * In-memory ledger with optional Supabase persistence.
  * Stores: audio peak maps, reference fingerprints, extracted sample
- * metadata, torridity rank data, and shared assets (audio, image, 3D, code).
+ * metadata, and torridity rank data.
  *
  * Usage:
  *   const ledger = createLedger();
  *   storePeakMap(ledger, 'song-1', peakMap);
  *   const entry = getLedgerEntry(ledger, 'song-1');
- *   storeAsset(ledger, { type: 'audio', url: '...', owner: 'user-1' });
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
@@ -59,9 +58,9 @@ export interface TorridityEntry {
   createdAt: string;
 }
 
-// ─── Asset Entry ─────────────────────────────────────────────────────────────
+// ─── Shared Asset Entry ───────────────────────────────────────────────────────
 
-/** Supported asset types in the shared asset ledger. */
+/** Supported asset types in the shared asset ledger (visualised file system). */
 export type AssetType = 'audio' | 'image' | '3d' | 'code';
 
 /** Optional manifest describing an asset's capabilities and metadata. */
@@ -69,21 +68,15 @@ export interface AssetManifest {
   title?: string;
   description?: string;
   tags?: string[];
-  duration?: number;       // audio/video seconds
-  dimensions?: { w: number; h: number }; // image/3d
-  language?: string;       // code
+  duration?: number;
+  dimensions?: { w: number; h: number };
+  language?: string;
   [key: string]: unknown;
 }
 
 /**
- * AssetEntry — a shared asset stored in the visualised file system.
- *
- * Each asset has:
- *  - id       — unique stable identifier
- *  - type     — 'audio' | 'image' | '3d' | 'code'
- *  - url      — public or signed URL to the asset
- *  - manifest — optional rich metadata
- *  - owner    — user/account that uploaded the asset
+ * AssetEntry — a shared asset in the visualised file system.
+ * Fields: id, type, url, manifest, owner.
  */
 export interface AssetEntry {
   kind: 'asset';
@@ -274,11 +267,12 @@ export function storeAsset(
     url: string;
     owner: string;
     manifest?: AssetManifest;
-    /** Optional stable id; auto-generated if not provided. */
     id?: string;
   }
 ): string {
-  const id = fields.id ?? `asset_${fields.type}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+  const id =
+    fields.id ??
+    `asset_${fields.type}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
   const entry: AssetEntry = {
     kind: 'asset',
     id,
@@ -298,8 +292,8 @@ export function storeAsset(
 /**
  * recordView(ledger, contentId)
  *
- * Increments the view count for a torridity entry.
- * Creates the entry with default values if it does not yet exist.
+ * Increments the view count for a torridity entry, or creates one with
+ * default values if it does not yet exist.
  */
 export function recordView(ledger: Ledger, contentId: string): void {
   const id = `tr_${contentId}`;

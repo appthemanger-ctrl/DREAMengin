@@ -3,16 +3,16 @@
  * OSContext — DREAMenginOS React Context
  *
  * Provides a single, app-wide OS instance (bus, ledger, upgradeEngine)
- * to all components via React Context.
+ * to all surfaces via React Context.
  *
  * Usage:
- *   // In app/layout.tsx (or any root layout):
+ *   // Root layout:
  *   <OSProvider>{children}</OSProvider>
  *
- *   // In any component:
+ *   // Any surface or Engin:
  *   const os = useOS();
- *   os.ledger.entries …
- *   os.bus.publish('some:event', payload);
+ *   os.ledger  // shared asset ledger
+ *   os.bus     // cross-surface event bus
  */
 
 import React, { createContext, useContext, useMemo } from 'react';
@@ -31,7 +31,7 @@ export interface OSInstance {
   bus: EventBus;
   /**
    * upgradeEngine — promotes any engine descriptor with OS capabilities.
-   * Re-exported here for convenience so callers don't need a second import.
+   * Re-exported here so callers don't need a second import.
    */
   upgradeEngine: typeof upgradeEngine;
 }
@@ -45,14 +45,14 @@ const OSContext = createContext<OSInstance | null>(null);
 /**
  * OSProvider
  *
- * Mount once at the application root (e.g. app/layout.tsx).
+ * Mount once at the application root (app/layout.tsx).
  * Creates stable ledger + bus instances for the lifetime of the app.
  */
 export function OSProvider({ children }: { children: React.ReactNode }) {
   const os = useMemo<OSInstance>(
     () => ({
-      ledger:        createLedger(),
-      bus:           createEventBus(),
+      ledger: createLedger(),
+      bus: createEventBus(),
       upgradeEngine,
     }),
     []

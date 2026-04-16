@@ -61,12 +61,17 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 |------|----------------|
 | `app/` | Next.js App Router pages and API route handlers |
 | `app/api/` | 97 API route handlers |
-| `components/daydream/` | The 6 Daydream surfaces + Engin components |
-| `components/games/` | All game components (MADMAXI, NeonDrift, etc.) |
-| `components/home/` | HomeDream + HomeSystem |
-| `components/messaging/` | DreamDMBar (the dual-runtime divider) |
-| `components/music/` | SoundRecorder and music UI |
-| `lib/` | Hooks, utilities, Supabase client, game libs |
+| `dreamdmbar/` | DreamDM Bar (persistent root container) + HomeDream sub-surfaces |
+| `daydreams/` | Six Daydream surface modules (brand, code, create, games, lab, music) |
+| `engins/` | Six Engin shells (StarMaker, Game, Code, Lab, Branding, Content, Forge) |
+| `coresurfaces/` | Core surfaces (Marketplace, Shop, Ads, Profile, EditProfile) |
+| `games/` | All game components (MadMaxi, NeonDrift, Chess, RTS, etc.) |
+| `components/` | Shared UI components and provider wrappers |
+| `components/dreamengin/` | DreamSpace, DreamenginOS dashboard, Engin shells |
+| `lib/dreamenginOS/` | OS core: event bus, ledger, bot detection, universal editor, OSContext |
+| `lib/` | Hooks, utilities, Supabase client, game libs, runtime bridge |
+| `lib/vm/` | WASM+GPU dual-VM coordinator (production-ready, 2,927 lines) |
+| `lib/runtime/` | Dual-runtime bridge, DreamOS bus, surface routing |
 | `docs/` | All governance, law, spec, and policy documents |
 | `.github/workflows/` | 56 CI/CD automation workflows |
 | `tests/` | Vitest test suite (143 test files) |

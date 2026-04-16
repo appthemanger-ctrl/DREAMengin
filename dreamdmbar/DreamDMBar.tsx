@@ -8,7 +8,7 @@
  * GOLD PARTICLE ATTACHMENT RULE (CORRECTED):
  *   1. The Gold Particle is attached to the TOP of the DreamDM Bar by default
  *   2. It stays attached while the bar is visible and on screen
- *   3. It detaches ONLY when dragging the bar upward causes the particle's
+ *   3. It detaches ONLY when dragging the bar upward causes the button's
  *      normal attached position to go off the top of the screen
  *   4. When detached, the Gold Particle locks to the SCREEN/viewport (not the bar)
  *   5. It does NOT move with page scroll when screen-locked
@@ -17,12 +17,12 @@
  *      on screen, the Gold Particle unlocks and reattaches to the TOP of the bar
  *
  * Behaviour:
- *   - Rests at the bottom as a pill-shaped handle (BAR_H = 80 px)
+ *   - Rests at the bottom as a thick bar (BAR_H = 80 px)
  *   - Gold Particle attached to the top edge of the bar
  *   - Drag UP → bar expands from bottom; HomeDream content revealed above
  *   - Past threshold (bar top < 40% from screen top) → snaps to top as panel
- *   - If particle's attached position goes off-screen → particle screen-locks at top
- *   - Swipe DOWN on bar or particle → bar returns to bottom, particle re-attaches
+ *   - If button's attached position goes off-screen → button screen-locks at top
+ *   - Swipe DOWN on bar or gold → bar returns to bottom, gold re-attaches
  *   - All Phase-2 messaging / search / Dr. Eams capability preserved
  *
  * Architecture: drag state lives here; messaging logic in lib/dreamdm/ hooks.
@@ -133,7 +133,7 @@ const SPRING       = '0.46s cubic-bezier(0.34,1.22,0.64,1)';
 const ORB_DRAG_SLOP = 6;
 
 /**
- * GlowingLight — the ambient indicator that replaces the geometric gold button.
+ * GlowingLight — the ambient indicator that replaces the geometric Gold Particle.
  *
  * Appearance: a tiny soft glow with NO hard edges, NO circle border-radius.
  * Implemented exclusively with CSS radial-gradient and box-shadow + blur.
@@ -349,7 +349,7 @@ function StreakFlame({ count, tier }: { count: number; tier: StreakTier }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ParticleFountain — renders animated particles from gold button long-press
+// ParticleFountain — renders animated particles from Gold Particle long-press
 // ─────────────────────────────────────────────────────────────────────────────
 function ParticleFountain({ particles, centerX, centerY }: { particles: Particle[]; centerX: number; centerY: number }) {
   return (
@@ -576,7 +576,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   }, []);
   const streakTier = getStreakTier(streakData.count);
 
-  // ── ✨ Gold Particle Long-Press Particle Fountain ─────────────────────────
+  // ── ✨ Gold Particle Long-Press Fountain ───────────────────────────
   const [particles, setParticles] = useState<Particle[]>([]);
 
   // ── Minimized orb drag callbacks (must be after revealBar) ──────────────
@@ -1312,9 +1312,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   const showFull: boolean = !isDividerMode && (isTopExpanded || dragH > 180);
 
   // Gold Particle geometry:
-  // - Divider mode: particle sits centered on the divider bar (vertically centered)
-  // - Bottom mode: particle sits on the BAR's top edge  (center = barTop)
-  // - Top modes:   particle hangs from the BAR's bottom edge (center = barTop + barH)
+  // - Divider mode: gold sits centered on the divider bar (vertically centered)
+  // - Bottom mode: gold sits on the BAR's top edge  (center = barTop)
+  // - Top modes:   gold hangs from the BAR's bottom edge (center = barTop + barH)
   const attachedGoldTop: number = isDividerMode
     ? (barTop + DIVIDER_H / 2 - goldR)  // centered on the divider
     : (isTop
@@ -1429,8 +1429,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
         style={{
           position: 'fixed',
           top: barTop,
-          // Pill mode: horizontal insets in divider mode and bottom collapsed mode.
-          // Top modes use full-width (left: 0, right: 0) for nav/panel layouts.
+          // Pill mode: insets in divider and bottom-resting modes.
+          // Top nav/panel uses full-width (left:0, right:0).
           ...(isDividerMode
             ? { left: 12, right: 12 }
             : isTop
@@ -1441,9 +1441,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           pointerEvents: 'auto',
           overflow: 'hidden',
           touchAction: 'pan-y',
-          // Pill shape: 999px radius gives a true pill in both divider and bottom modes.
-          // Top modes use no radius (flat nav/panel).
-          borderRadius: isDividerMode ? 999 : (isTop ? 0 : (showFull ? 24 : 999)),
+          // Pill shape (border-radius: 999px) in divider mode and compact bottom mode.
+          // Expanded panel at top uses 0 radius (full-width sheet).
+          borderRadius: isDividerMode ? 999 : (isTop ? (showFull ? 24 : 0) : (showFull ? 24 : 999)),
           transition: isDragging ? 'none' : `top ${SPRING}, height ${SPRING}, border-radius ${SPRING}, opacity 0.5s ease, background 0.5s ease, transform 0.25s ease`,
           willChange: isDragging ? 'top, height' : undefined,
           transform: keyboardTranslateY !== 0 ? `translateY(${keyboardTranslateY}px)` : undefined,
@@ -1461,9 +1461,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           WebkitBackdropFilter: isDividerMode
             ? 'blur(48px) saturate(200%)'
             : (isResting ? 'none' : 'blur(32px) saturate(160%)'),
-          // Hiding: when resting (not interacted with), the bar fades to opacity 0
-          // but stays fully in the DOM so HomeDream and DreamSpace remain visible
-          // and scrollable beneath it. No display:none / unmounting.
+          // Hiding: opacity:0 when resting — bar stays in DOM so HomeDream and
+          // DreamSpace remain fully visible and scrollable beneath it.
           opacity: isResting ? 0 : 1,
           border: isDividerMode ? '1px solid rgba(0,0,0,0.07)' : 'none',
           boxShadow: isResting
