@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-16 00:06 UTC | `0c2851c` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #536 from appthemanger-ctrl/copilot/fix-invoked-url-type-error — Mitigate dualRuntimeBridge WASM URL load error and /profile/[handle] prerender random failure<br> |
 | **auto** | 2026-04-15 08:23 UTC | `4f51125` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #535 from appthemanger-ctrl/copilot/fix-type-error-director-module — fix: exclude exports/** from TypeScript and Vitest compilation<br> |
 | **auto** | 2026-04-15 07:11 UTC | `c1bec50` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #530 from appthemanger-ctrl/dependabot/npm_and_yarn/backend/axios-1.15.0 — build(deps): bump axios from 1.9.0 to 1.15.0 in /backend<br> |
 | **auto** | 2026-04-15 07:10 UTC | `ee8cfe2` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #534 from appthemanger-ctrl/copilot/approve-all-dependent-bots — feat: Bot PR auto-approve, conflict-resolve & auto-merge workflow<br> |
 | **auto** | 2026-04-15 07:01 UTC | `995ce40` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #531 from appthemanger-ctrl/dependabot/npm_and_yarn/backend/multi-75e6bc5210 — build(deps): bump js-yaml in /backend<br> |
-| **auto** | 2026-04-15 06:53 UTC | `dc03b1d` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #533 from appthemanger-ctrl/copilot/ensure-auto-docs-post-merge — ci: auto-doc workflows fire only after merge to `completedream`, not on every branch push<br> |
 
 ## What changed in this alignment pass
 
