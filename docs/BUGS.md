@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-16 19:03 UTC  
-**Last updated:** 2026-04-16 19:03 UTC  
-**Triggered by commit:** `d74de72` on `copilot/research-game-engine-architecture` by Copilot  
-**Commit message:** fix: patch Next.js DoS CVE — bump next + eslint-config-next to >=16.2.3
+**Documentation Date:** 2026-04-16 19:10 UTC  
+**Last updated:** 2026-04-16 19:10 UTC  
+**Triggered by commit:** `9ce959c` on `copilot/research-game-engine-architecture` by Copilot  
+**Commit message:** fix: patch axios CVE in backend and frontend sub-packages (1.9.0 → 1.15.0)
 
 ---
 
