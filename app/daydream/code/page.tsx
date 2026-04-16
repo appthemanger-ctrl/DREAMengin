@@ -13,6 +13,7 @@ export const metadata = { title: 'Code Daydream – Dreamengin', description: 'C
 const WIDGETS: DaydreamWidget[] = [
   { id: 'ide',         emoji: '💻', label: 'Open CodeEngin',  desc: 'Launch the full IDE + preview', color: '#6366f1', href: '/engines/code'       },
   { id: 'projects',    emoji: '📁', label: 'Projects',        desc: 'Browse your code projects',     color: '#2a8ab8', href: '/engines/code/projects' },
+  { id: 'drafts',      emoji: '✍️', label: 'Drafts',          desc: 'Continue unfinished code ideas', color: '#a855f7', href: '/engines/code?view=drafts' },
   { id: 'notebook',    emoji: '📓', label: 'Notebook',        desc: 'Live multi-cell notebook',      color: '#22c55e', href: '/engines/code/notebook' },
   { id: 'lab',         emoji: '🔬', label: 'Lab',             desc: 'Experiments and prototypes',    color: '#f59e0b', href: '/daydream/lab' },
   { id: 'notes',       emoji: '📝', label: 'Code Notes',      desc: 'Document and annotate',         color: '#ec4899', href: '/notes'       },
@@ -360,6 +361,26 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
+          {/* ── Feature 10B: Draft Workspace ── */}
+          <div className="de-widget">
+            <div className="de-widget-header">
+              <span className="de-widget-title">✍️ Draft Workspace</span>
+              <Link href="/engines/code?view=drafts" className="text-xs font-semibold ml-auto" style={{ color: '#6366f1' }}>Open Drafts</Link>
+            </div>
+            <div className="de-widget-body">
+              {[
+                { title: 'webgl runtime sandbox', updated: '2h ago' },
+                { title: 'deploy-gate script', updated: 'Yesterday' },
+                { title: 'snippet: auth middleware', updated: '3d ago' },
+              ].map(d => (
+                <div key={d.title} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 10px', marginBottom: 4, borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(168,85,247,0.16)' }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-heading)' }}>{d.title}</span>
+                  <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{d.updated}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* ── Feature 11: API Inspector ── */}
           <div className="de-widget">
             <div className="de-widget-header">
@@ -527,6 +548,29 @@ export default async function CodeDaydreamPage() {
                 <span style={{ color: '#c084fc' }}>const</span> entity = world.<span style={{ color: '#fbbf24' }}>createEntity</span>();
               </div>
               <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 8 }}>Import ECS APIs, post-FX managers, and AI Director directly into your code notebooks.</p>
+            </div>
+          </div>
+
+          {/* ── Feature 21: Specialized Dream Windows ── */}
+          <div className="de-widget">
+            <div className="de-widget-header">
+              <span className="de-widget-title">🪟 Specialized Dream Windows</span>
+            </div>
+            <div className="de-widget-body">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+                {[
+                  { label: 'Project Dream Window', href: '/engines/code/projects' },
+                  { label: 'Code File Dream Window', href: '/engines/code?view=files' },
+                  { label: 'Snippet Dream Window', href: '/engines/code?view=snippets' },
+                  { label: 'Terminal Dream Window', href: '/engines/code?panel=terminal' },
+                  { label: 'Deployment Dream Window', href: '/engines/code?panel=deploy' },
+                  { label: 'Runtime Dream Window', href: '/engines/code?panel=runtime' },
+                ].map(item => (
+                  <Link key={item.label} href={item.href} style={{ textDecoration: 'none', padding: '8px 10px', borderRadius: 8, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.15)', fontSize: 11, fontWeight: 600, color: '#6366f1' }}>
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
 
