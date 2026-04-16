@@ -19,7 +19,7 @@ on:
       - 'README.md'
       - '.github/workflows/readme-spec-bot-army.yml'
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '*/20 * * * *'
 
 permissions:
   contents: read
@@ -110,7 +110,7 @@ jobs:
                 `<!-- readme-section:${section} -->`,
                 '',
                 `## Mission`,
-                `Implement and maintain the \\`## ${section}\\` specification from \\`README.md\\` with coherent changes aligned to the rest of the system.`,
+                `Implement and maintain the \`## ${section}\` specification from \`README.md\` with coherent changes aligned to the rest of the system.`,
                 '',
                 '## Source',
                 '- Spec file: `README.md` (root)',
@@ -159,11 +159,11 @@ jobs:
 
             core.summary
               .addHeading('README Spec Bot Army')
-              .addRaw(`Sections discovered: ${sections.length}\\n`)
-              .addRaw(`Sections managed (cap ${maxSections}): ${selected.length}\\n`)
-              .addRaw(`Created issues: ${created}\\n`)
-              .addRaw(`Updated issues: ${updated}\\n`)
-              .addRaw(`Skipped existing: ${skipped}\\n`)
+              .addRaw(`Sections discovered: ${sections.length}\n`)
+              .addRaw(`Sections managed (cap ${maxSections}): ${selected.length}\n`)
+              .addRaw(`Created issues: ${created}\n`)
+              .addRaw(`Updated issues: ${updated}\n`)
+              .addRaw(`Skipped existing: ${skipped}\n`)
               .write()
 
   continue-blocked-work:
@@ -243,18 +243,18 @@ jobs:
               const recentComments = comments
                 .slice(-5)
                 .map((comment) =>
-                  `### ${comment.user?.login || 'unknown'} @ ${comment.updated_at}\\n${(() => {
+                  `### ${comment.user?.login || 'unknown'} @ ${comment.updated_at}\n${(() => {
                     const body = comment.body || ''
                     if (body.length <= MAX_COMMENT_LENGTH) return body
-                    return `${body.slice(0, MAX_COMMENT_LENGTH)}\\n[truncated]`
+                    return `${body.slice(0, MAX_COMMENT_LENGTH)}\n[truncated]`
                   })()}`
                 )
-                .join('\\n\\n')
+                .join('\n\n')
 
               const sourceRawBody = issue.body || ''
               const sourceBody = sourceRawBody.length <= MAX_ISSUE_BODY_LENGTH
                 ? sourceRawBody
-                : `${sourceRawBody.slice(0, MAX_ISSUE_BODY_LENGTH)}\\n[truncated]`
+                : `${sourceRawBody.slice(0, MAX_ISSUE_BODY_LENGTH)}\n[truncated]`
               const continuationBody = [
                 '<!-- readme-section-bot -->',
                 '<!-- continuation -->',
@@ -273,7 +273,7 @@ jobs:
                 '## Next Step',
                 '- Resume implementation from the carried context.',
                 '- Post progress updates in this continuation thread.',
-              ].join('\\n')
+              ].join('\n')
 
               const newIssue = await github.rest.issues.create({
                 owner,
@@ -313,6 +313,6 @@ jobs:
 
             core.summary
               .addHeading('Blocked Work Continuation')
-              .addRaw(`Blocked issues beyond ${blockMinutes} minutes: ${staleBlocked}\\n`)
-              .addRaw(`Continuation issues created: ${continued}\\n`)
+              .addRaw(`Blocked issues beyond ${blockMinutes} minutes: ${staleBlocked}\n`)
+              .addRaw(`Continuation issues created: ${continued}\n`)
               .write()
