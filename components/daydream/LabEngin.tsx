@@ -24,6 +24,7 @@ import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
+import { ForgeDreamCanvas } from '@/components/ForgeDreamCanvas';
 import Link from 'next/link';
 import {
   ArrowLeft, FlaskConical, Activity, Play, BarChart2,
@@ -359,7 +360,7 @@ export default function LabEngin({ onBack }: Props) {
   }
 
   // ── Lab mode (tabs) ──────────────────────────────────────────────────────────
-  type LabMode = 'overview' | 'split' | 'viz';
+  type LabMode = 'overview' | 'split' | 'viz' | 'forge';
   const [labMode, setLabMode]         = useState<LabMode>('overview');
   const [splitCode, setSplitCode]     = useState(`# Lab Dream — Split IDE\n# Select a simulation, then Run ▶\n\nimport numpy as np\ndata = np.array([1, 4, 9, 16, 25, 36, 49])\nprint("Mean:", data.mean())\nprint("Std: ", data.std().round(2))\nprint("\\n✅ Experiment complete")`);
   const [splitLang, setSplitLang]     = useState<'python' | 'javascript' | 'bash'>('python');
@@ -483,6 +484,7 @@ export default function LabEngin({ onBack }: Props) {
             { id: 'overview' as LabMode, label: '🔬 Overview'      },
             { id: 'split'    as LabMode, label: '⚗️ Split Lab IDE'  },
             { id: 'viz'      as LabMode, label: '📊 Visualizations' },
+            { id: 'forge'    as LabMode, label: '⚙️ Engin Forge'    },
           ] satisfies { id: LabMode; label: string }[]).map(tab => (
             <button
               key={tab.id}
@@ -732,6 +734,15 @@ export default function LabEngin({ onBack }: Props) {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ════════════════════════════════════════
+            MODE: Engin Forge
+            ════════════════════════════════════════ */}
+        {labMode === 'forge' && (
+          <div style={{ height: 'calc(100vh - 140px)', marginBottom: 14 }}>
+            <ForgeDreamCanvas />
           </div>
         )}
 
