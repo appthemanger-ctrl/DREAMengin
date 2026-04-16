@@ -3,9 +3,11 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import DrEamsBabylonHero from '@/components/landing/DrEamsBabylonHero';
 import ParticleConstellation from '@/components/landing/ParticleConstellation';
 import { calibrateDevice, type CalibrationSample } from '@/lib/dreamr/swipeCalibration';
+import { createClient } from '@/lib/supabase/client';
 
 /**
  * LandingHero — Premium SICK redesign.
@@ -128,8 +130,20 @@ interface GestureState {
 }
 
 export default function LandingHero() {
+  const router = useRouter();
   const [actionIdx, setActionIdx] = useState(0);
   const [heroSize, setHeroSize] = useState(460);
+
+  // Redirect authenticated users to the home feed (client-side check so the
+  // landing page renders immediately instead of waiting behind a loading spinner).
+  useEffect(() => {
+    const supabase = createClient();
+    void supabase.auth.getUser().then((result: { data?: { user?: unknown } | null }) => {
+      if (result.data?.user) {
+        router.replace('/homedream');
+      }
+    }).catch(() => {});
+  }, [router]);
 
   /** Mutable ref so the calibration effect never re-runs or causes re-renders. */
   const calibrationRef = useRef<GestureState>({
