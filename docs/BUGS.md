@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-16 10:47 UTC  
-**Last updated:** 2026-04-16 10:47 UTC  
-**Triggered by commit:** `283564b` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #548 from appthemanger-ctrl/copilot/add-webcodecs-h265-encoder
+**Documentation Date:** 2026-04-16 10:48 UTC  
+**Last updated:** 2026-04-16 10:48 UTC  
+**Triggered by commit:** `e510f89` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #549 from appthemanger-ctrl/copilot/ensure-correct-env-vars
 
 ---
 
