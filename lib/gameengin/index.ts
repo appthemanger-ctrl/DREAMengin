@@ -15,6 +15,16 @@ export { mapJoystickToAsset } from './control-mappings';
 export type { ControlMapping } from './control-mappings';
 export { DreamEngine } from './dream-engine';
 export type { GameAsset, GlobalRegistryEntry, WasmOutput } from './dream-engine';
+
+// ── Unified game loop ─────────────────────────────────────────────────────────
+export {
+  registerGame,
+  unregisterGame,
+  activeGameCount,
+  isLoopRunning,
+} from './unifiedLoop';
+export type { LoopPriority } from './unifiedLoop';
+export { useUnifiedLoop } from './useUnifiedLoop';
 export type {
   EntityId,
   Component,

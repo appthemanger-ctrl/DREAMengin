@@ -11,6 +11,7 @@ import {
   getImmersiveStageStyle,
   useImmersiveGameLayout,
 } from '@/lib/games/useImmersiveGameLayout';
+import { useUnifiedLoop } from '@/lib/gameengin/useUnifiedLoop';
 
 const CW = 400; const CH = 560;
 type Phase = 'menu' | 'playing' | 'gameover';
@@ -40,7 +41,6 @@ export default function SpaceShooter() {
   const enemySpawnRef = useRef(0);
   const waveRef = useRef(1);
   const keysRef = useKeySet(phase === 'playing');
-  const rafRef = useRef(0);
   const submitScore = useSubmitScore('space-shooter');
   useEffect(() => { if (phase === 'gameover') submitScore(scoreRef.current); }, [phase, submitScore]);
   const explode = (x: number, y: number, color: string) => {
@@ -61,134 +61,130 @@ export default function SpaceShooter() {
   }, [setPhase]);
   useGameAutoStart(phase === 'menu' ? startGame : null);
 
-  useEffect(() => {
-    if (phase !== 'playing') return;
+  // ── Unified game loop — replaces manual requestAnimationFrame ──────────────
+  // dt is provided by the unified loop in milliseconds; SpaceShooter uses
+  // fixed per-frame increments so dt is not consumed but the hook still
+  // ensures the game runs in sync with all other registered games.
+  useUnifiedLoop('space-shooter', (_dt: number) => {
+    if (phaseRef.current !== 'playing') return;
     const canvas = canvasRef.current; if (!canvas) return;
     const ctx = canvas.getContext('2d'); if (!ctx) return;
 
-    const loop = () => {
-      if (phaseRef.current !== 'playing') return;
-      ctx.fillStyle = '#050815'; ctx.fillRect(0, 0, CW, CH);
+    ctx.fillStyle = '#050815'; ctx.fillRect(0, 0, CW, CH);
 
-      // Stars
-      for (const s of starsRef.current) {
-        s.y += s.vy;
-        if (s.y > CH) s.y = 0;
-        ctx.fillStyle = `rgba(255,255,255,${0.4 + s.r * 0.3})`;
-        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+    // Stars
+    for (const s of starsRef.current) {
+      s.y += s.vy;
+      if (s.y > CH) s.y = 0;
+      ctx.fillStyle = `rgba(255,255,255,${0.4 + s.r * 0.3})`;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+    }
+
+    const ship = shipRef.current;
+    // Move
+    const speed = 4;
+    if (keysRef.current.has('ArrowLeft') || keysRef.current.has('a')) ship.x = Math.max(16, ship.x - speed);
+    if (keysRef.current.has('ArrowRight') || keysRef.current.has('d')) ship.x = Math.min(CW - 16, ship.x + speed);
+    // Auto shoot
+    shootTimerRef.current++;
+    if (shootTimerRef.current >= 12) {
+      shootTimerRef.current = 0;
+      bulletsRef.current.push({ id: gId++, x: ship.x, y: ship.y - 20, vy: -10, isEnemy: false, damage: 20 });
+    }
+
+    // Spawn enemies
+    enemySpawnRef.current++;
+    const spawnInterval = Math.max(40, 90 - waveRef.current * 5);
+    if (enemySpawnRef.current >= spawnInterval) {
+      enemySpawnRef.current = 0;
+      const type = Math.min(3, Math.floor(Math.random() * waveRef.current));
+      enemiesRef.current.push({ id: gId++, x: 20 + Math.random() * (CW - 40), y: -20, hp: 20 + type * 30, maxHp: 20 + type * 30, vx: (Math.random() - 0.5) * 2, vy: 1 + Math.random() * 1.5, type, shootTimer: type > 0 ? 60 : 999 });
+    }
+
+    // Move enemies
+    for (const e of enemiesRef.current) {
+      e.x += e.vx; e.y += e.vy;
+      if (e.x < 10 || e.x > CW - 10) e.vx *= -1;
+      e.shootTimer--;
+      if (e.shootTimer <= 0) {
+        e.shootTimer = 80 + Math.random() * 40;
+        bulletsRef.current.push({ id: gId++, x: e.x, y: e.y + 12, vy: 4 + e.type, isEnemy: true, damage: 1 });
       }
+    }
+    enemiesRef.current = enemiesRef.current.filter(e => e.y < CH + 30);
 
-      const ship = shipRef.current;
-      // Move
-      const speed = 4;
-      if (keysRef.current.has('ArrowLeft') || keysRef.current.has('a')) ship.x = Math.max(16, ship.x - speed);
-      if (keysRef.current.has('ArrowRight') || keysRef.current.has('d')) ship.x = Math.min(CW - 16, ship.x + speed);
-      // Auto shoot
-      shootTimerRef.current++;
-      if (shootTimerRef.current >= 12) {
-        shootTimerRef.current = 0;
-        bulletsRef.current.push({ id: gId++, x: ship.x, y: ship.y - 20, vy: -10, isEnemy: false, damage: 20 });
-      }
+    // Move bullets
+    for (const b of bulletsRef.current) { b.y += b.vy; }
 
-      // Spawn enemies
-      enemySpawnRef.current++;
-      const spawnInterval = Math.max(40, 90 - waveRef.current * 5);
-      if (enemySpawnRef.current >= spawnInterval) {
-        enemySpawnRef.current = 0;
-        const type = Math.min(3, Math.floor(Math.random() * waveRef.current));
-        enemiesRef.current.push({ id: gId++, x: 20 + Math.random() * (CW - 40), y: -20, hp: 20 + type * 30, maxHp: 20 + type * 30, vx: (Math.random() - 0.5) * 2, vy: 1 + Math.random() * 1.5, type, shootTimer: type > 0 ? 60 : 999 });
-      }
-
-      // Move enemies
+    // Collisions: player bullets vs enemies
+    for (const b of bulletsRef.current) {
+      if (b.isEnemy) continue;
       for (const e of enemiesRef.current) {
-        e.x += e.vx; e.y += e.vy;
-        if (e.x < 10 || e.x > CW - 10) e.vx *= -1;
-        e.shootTimer--;
-        if (e.shootTimer <= 0) {
-          e.shootTimer = 80 + Math.random() * 40;
-          bulletsRef.current.push({ id: gId++, x: e.x, y: e.y + 12, vy: 4 + e.type, isEnemy: true, damage: 1 });
+        if (Math.hypot(b.x - e.x, b.y - e.y) < 18) {
+          e.hp -= b.damage; b.damage = 0;
+          if (e.hp <= 0) { explode(e.x, e.y, '#f59e0b'); scoreRef.current += 10 + e.type * 10; }
         }
       }
-      enemiesRef.current = enemiesRef.current.filter(e => e.y < CH + 30);
+    }
+    enemiesRef.current = enemiesRef.current.filter(e => e.hp > 0);
+    bulletsRef.current = bulletsRef.current.filter(b => b.damage > 0 && b.y > -20 && b.y < CH + 20);
 
-      // Move bullets
-      for (const b of bulletsRef.current) { b.y += b.vy; }
-
-      // Collisions: player bullets vs enemies
-      for (const b of bulletsRef.current) {
-        if (b.isEnemy) continue;
-        for (const e of enemiesRef.current) {
-          if (Math.hypot(b.x - e.x, b.y - e.y) < 18) {
-            e.hp -= b.damage; b.damage = 0;
-            if (e.hp <= 0) { explode(e.x, e.y, '#f59e0b'); scoreRef.current += 10 + e.type * 10; }
-          }
-        }
+    // Collisions: enemy bullets vs player
+    for (const b of [...bulletsRef.current]) {
+      if (!b.isEnemy) continue;
+      if (Math.hypot(b.x - ship.x, b.y - ship.y) < 16) {
+        b.damage = 0;
+        explode(ship.x, ship.y, '#3b82f6');
+        livesRef.current--;
+        if (livesRef.current <= 0) { setPhase('gameover'); return; }
       }
-      enemiesRef.current = enemiesRef.current.filter(e => e.hp > 0);
-      bulletsRef.current = bulletsRef.current.filter(b => b.damage > 0 && b.y > -20 && b.y < CH + 20);
+    }
+    bulletsRef.current = bulletsRef.current.filter(b => b.damage > 0);
 
-      // Collisions: enemy bullets vs player
-      for (const b of [...bulletsRef.current]) {
-        if (!b.isEnemy) continue;
-        if (Math.hypot(b.x - ship.x, b.y - ship.y) < 16) {
-          b.damage = 0;
-          explode(ship.x, ship.y, '#3b82f6');
-          livesRef.current--;
-          if (livesRef.current <= 0) { setPhase('gameover'); return; }
-        }
-      }
-      bulletsRef.current = bulletsRef.current.filter(b => b.damage > 0);
+    // Particles
+    for (const p of particlesRef.current) { p.x += p.vx; p.y += p.vy; p.alpha -= 0.03; }
+    particlesRef.current = particlesRef.current.filter(p => p.alpha > 0);
 
-      // Particles
-      for (const p of particlesRef.current) { p.x += p.vx; p.y += p.vy; p.alpha -= 0.03; }
-      particlesRef.current = particlesRef.current.filter(p => p.alpha > 0);
+    // Wave progression
+    if (scoreRef.current > waveRef.current * 200) waveRef.current++;
 
-      // Wave progression
-      if (scoreRef.current > waveRef.current * 200) waveRef.current++;
+    // Draw bullets
+    for (const b of bulletsRef.current) {
+      ctx.fillStyle = b.isEnemy ? '#f87171' : '#86efac';
+      ctx.fillRect(b.x - 2, b.y - 5, 4, 10);
+    }
 
-      // Draw bullets
-      for (const b of bulletsRef.current) {
-        ctx.fillStyle = b.isEnemy ? '#f87171' : '#86efac';
-        ctx.fillRect(b.x - 2, b.y - 5, 4, 10);
-      }
+    // Draw enemies
+    for (const e of enemiesRef.current) {
+      const colors = ['#6366f1','#ef4444','#f59e0b','#a855f7'];
+      ctx.fillStyle = colors[e.type % colors.length];
+      ctx.beginPath(); ctx.moveTo(e.x, e.y - 14); ctx.lineTo(e.x + 14, e.y + 12); ctx.lineTo(e.x, e.y + 6); ctx.lineTo(e.x - 14, e.y + 12); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#000'; ctx.fillRect(e.x - 10, e.y - 20, 20, 3);
+      ctx.fillStyle = '#22c55e'; ctx.fillRect(e.x - 10, e.y - 20, 20 * e.hp / e.maxHp, 3);
+    }
 
-      // Draw enemies
-      for (const e of enemiesRef.current) {
-        const colors = ['#6366f1','#ef4444','#f59e0b','#a855f7'];
-        ctx.fillStyle = colors[e.type % colors.length];
-        ctx.beginPath(); ctx.moveTo(e.x, e.y - 14); ctx.lineTo(e.x + 14, e.y + 12); ctx.lineTo(e.x, e.y + 6); ctx.lineTo(e.x - 14, e.y + 12); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = '#000'; ctx.fillRect(e.x - 10, e.y - 20, 20, 3);
-        ctx.fillStyle = '#22c55e'; ctx.fillRect(e.x - 10, e.y - 20, 20 * e.hp / e.maxHp, 3);
-      }
+    // Draw ship
+    ctx.fillStyle = '#60a5fa';
+    ctx.beginPath(); ctx.moveTo(ship.x, ship.y - 18); ctx.lineTo(ship.x + 12, ship.y + 14); ctx.lineTo(ship.x, ship.y + 8); ctx.lineTo(ship.x - 12, ship.y + 14); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#93c5fd'; ctx.beginPath(); ctx.ellipse(ship.x, ship.y + 2, 6, 4, 0, 0, Math.PI * 2); ctx.fill();
 
-      // Draw ship
-      ctx.fillStyle = '#60a5fa';
-      ctx.beginPath(); ctx.moveTo(ship.x, ship.y - 18); ctx.lineTo(ship.x + 12, ship.y + 14); ctx.lineTo(ship.x, ship.y + 8); ctx.lineTo(ship.x - 12, ship.y + 14); ctx.closePath(); ctx.fill();
-      ctx.fillStyle = '#93c5fd'; ctx.beginPath(); ctx.ellipse(ship.x, ship.y + 2, 6, 4, 0, 0, Math.PI * 2); ctx.fill();
+    // Particles
+    for (const p of particlesRef.current) {
+      ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha;
+      ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
 
-      // Particles
-      for (const p of particlesRef.current) {
-        ctx.fillStyle = p.color; ctx.globalAlpha = p.alpha;
-        ctx.beginPath(); ctx.arc(p.x, p.y, 2, 0, Math.PI * 2); ctx.fill();
-      }
-      ctx.globalAlpha = 1;
+    // HUD
+    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, 0, CW, 28);
+    ctx.fillStyle = '#facc15'; ctx.font = 'bold 12px monospace';
+    ctx.fillText(`Score: ${scoreRef.current}`, 8, 18);
+    ctx.fillStyle = '#f87171'; ctx.fillText(`❤ ${livesRef.current}`, CW - 60, 18);
+    ctx.fillStyle = '#93c5fd'; ctx.fillText(`Wave ${waveRef.current}`, CW / 2 - 30, 18);
 
-      // HUD
-      ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, 0, CW, 28);
-      ctx.fillStyle = '#facc15'; ctx.font = 'bold 12px monospace';
-      ctx.fillText(`Score: ${scoreRef.current}`, 8, 18);
-      ctx.fillStyle = '#f87171'; ctx.fillText(`❤ ${livesRef.current}`, CW - 60, 18);
-      ctx.fillStyle = '#93c5fd'; ctx.fillText(`Wave ${waveRef.current}`, CW / 2 - 30, 18);
-
-      setScore((prev) => prev !== scoreRef.current ? scoreRef.current : prev);
-      setLives((prev) => prev !== livesRef.current ? livesRef.current : prev);
-      rafRef.current = requestAnimationFrame(loop);
-    };
-    rafRef.current = requestAnimationFrame(loop);
-    return () => {
-      cancelAnimationFrame(rafRef.current);
-    };
-  }, [phase, phaseRef]);
+    setScore((prev) => prev !== scoreRef.current ? scoreRef.current : prev);
+    setLives((prev) => prev !== livesRef.current ? livesRef.current : prev);
+  }, 'NORMAL', phase === 'playing');
 
   if (phase === 'menu') return (
     <div style={{ background: '#050815', borderRadius: 12, padding: 32, textAlign: 'center', color: '#fff', display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
