@@ -12,10 +12,11 @@ import ProfileCustomizeButton from '@/components/profile/ProfileCustomizeButton'
 import InfinityIcon from '@/components/ui/InfinityIcon';
 import { connection } from 'next/server';
 
-// Force dynamic rendering — this route uses cookies() via createServerClient()
-// and connection(); PPR (cacheComponents) must not attempt a static shell here
-// because the profile body depends on auth state and Supabase data.
-export const dynamic = 'force-dynamic';
+// This route uses connection() (next/server) to opt into dynamic rendering in
+// a PPR-compatible way.  The legacy `export const dynamic = 'force-dynamic'`
+// is intentionally absent: it conflicts with `cacheComponents: true` in
+// next.config.mjs (Turbopack PPR mode).  `connection()` is the correct
+// PPR-compatible opt-in — it is already called at the top of this component.
 
 // Extended profile type
 type Profile = {
