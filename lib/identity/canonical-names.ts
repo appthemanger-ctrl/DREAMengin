@@ -251,6 +251,23 @@ export const SURFACE_NAMES = {
 
 export type SurfaceName = (typeof SURFACE_NAMES)[keyof typeof SURFACE_NAMES];
 
+/**
+ * README.md Section 2: Route Law (Naming Preferences)
+ * Preferred names for docs and user-facing UI copy.
+ */
+export const ROUTE_LAW_NAMING_PREFERENCES = [
+  SURFACE_NAMES.HOME_DREAM_SURFACE,
+  SURFACE_NAMES.EDIT_PROFILE_DREAM_SURFACE,
+  SURFACE_NAMES.VIEW_PROFILE_SURFACE,
+  SURFACE_NAMES.DREAM_SHOP_SURFACE,
+  SURFACE_NAMES.DREAM_MARKETPLACE_SURFACE,
+  PLATFORM_MODULES.DREAM_MENU,
+  SURFACE_NAMES.DREAM_DM_SURFACE,
+  SURFACE_NAMES.DREAM_ADS_SURFACE,
+] as const;
+
+export type RouteLawPreferredName = (typeof ROUTE_LAW_NAMING_PREFERENCES)[number];
+
 // ---------------------------------------------------------------------------
 // Dream Window — modular runtime containers
 // ---------------------------------------------------------------------------
@@ -455,6 +472,13 @@ export function isValidSurfaceName(name: string): name is SurfaceName {
 }
 
 /**
+ * Returns true if the given string is a preferred Route Law naming label.
+ */
+export function isRouteLawPreferredName(name: string): name is RouteLawPreferredName {
+  return (ROUTE_LAW_NAMING_PREFERENCES as readonly string[]).includes(name);
+}
+
+/**
  * Returns the canonical Engin surface name for a given Daydream domain.
  * Returns undefined if the domain is not canonical.
  */
@@ -516,6 +540,7 @@ export const ALL_CANONICAL_NAMES = {
   productDescription: PRODUCT_DESCRIPTION,
   coreSurfaces: Object.values(CORE_SURFACES),
   surfaceNames: Object.values(SURFACE_NAMES),
+  routeLawNamingPreferences: [...ROUTE_LAW_NAMING_PREFERENCES],
   daydreamDomains: Object.values(DAYDREAM_DOMAINS),
   enginSurfaces: Object.values(ENGIN_SURFACES),
   platformModules: Object.values(PLATFORM_MODULES),
