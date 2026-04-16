@@ -12,6 +12,11 @@ import ProfileCustomizeButton from '@/components/profile/ProfileCustomizeButton'
 import InfinityIcon from '@/components/ui/InfinityIcon';
 import { connection } from 'next/server';
 
+// Force dynamic rendering — this route uses cookies() via createServerClient()
+// and connection(); PPR (cacheComponents) must not attempt a static shell here
+// because the profile body depends on auth state and Supabase data.
+export const dynamic = 'force-dynamic';
+
 // Extended profile type
 type Profile = {
   id: string;
