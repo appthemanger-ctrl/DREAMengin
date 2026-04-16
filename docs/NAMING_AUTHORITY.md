@@ -303,7 +303,7 @@ The following terms are rejected when a canonical OS-layer equivalent exists:
 | `pair` | connection path |
 | `dashboard` | operating surface |
 | `tab navigation` | surface switching |
-| `card` | Dream Window |
+| `card` | window / surface block |
 | `login-like connection` | bind / mount / activate |
 | `open page` | open into / route into |
 | `go to tab` | surface switching |

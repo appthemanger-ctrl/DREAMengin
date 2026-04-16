@@ -641,6 +641,11 @@ describe('Rejected OS-layer UI terms', () => {
     expect(violations.length).toBeGreaterThan(0);
   });
 
+  it('validateName reports a violation for "top area"', () => {
+    const violations = validateName('top area');
+    expect(violations.length).toBeGreaterThan(0);
+  });
+
   it('canonical names are not rejected OS terms', () => {
     expect(isRejectedOsTerm('Dream Window')).toBe(false);
     expect(isRejectedOsTerm('DreamSpace')).toBe(false);
