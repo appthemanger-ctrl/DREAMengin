@@ -37,7 +37,7 @@ env:
 
 jobs:
   report-agent:
-    name: Scan report + advanced game targets → propose → implement → validate
+    name: Scan report + root-cause analysis → implement fixes → validate
     if: github.event_name != 'issues' || contains(github.event.issue.labels.*.name, 'ai-report-agent')
     runs-on: ubuntu-latest
     timeout-minutes: 35
@@ -70,6 +70,9 @@ jobs:
             --report-path "${REPORT_PATH}" \
             --game-catalog-path "${{ env.GENERATED_DIR }}/game-catalog.md" \
             --advanced-targets-path "config/advanced-game-targets.json" \
+            --law-path "docs/LAW.md" \
+            --axioms-path "docs/AXIOMS.md" \
+            --architecture-path "docs/ARCHITECTURE.md" \
             --report-source "${REPORT_SOURCE}" \
             --out "${{ env.GENERATED_DIR }}/report-agent-context.md"
 
