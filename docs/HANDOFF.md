@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-16 10:47 UTC | `283564b` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #548 from appthemanger-ctrl/copilot/add-webcodecs-h265-encoder — feat(media): WebCodecs H.265 encoder + MediaRecorder game-clip recording<br> |
 | **auto** | 2026-04-16 08:42 UTC | `f2aef23` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #546 from appthemanger-ctrl/v0/appthemanger-ctrl-b5424223 — fix: show landing page immediately, move auth redirect to client-side<br> |
 | **auto** | 2026-04-16 08:38 UTC | `717b399` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #544 from appthemanger-ctrl/copilot/rebuild-robot-landing-page-hero — feat: rebuild Dr. Eams landing hero robot — full 111-line spec, Babylon 9, spec-accurate PBR<br> |
 | **auto** | 2026-04-16 03:38 UTC | `8876828` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #542 from appthemanger-ctrl/copilot/fix-loading-screen-issue — Fail open stalled Supabase auth so Dream Engine stops hanging on the root loading screen<br> |
 | **auto** | 2026-04-16 03:37 UTC | `83a505a` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #543 from appthemanger-ctrl/copilot/update-dreamengin-build-cycle — ci: modernize workflows — fix action versions and add build coverage<br> |
-| **auto** | 2026-04-16 02:49 UTC | `8e59245` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #541 from appthemanger-ctrl/copilot/fix-invalid-url-bus-wasm — fix(dualRuntimeBridge): resolve ERR_INVALID_URL when WASM bus loads in Next.js SSR<br> |
 
 ## What changed in this alignment pass
 
