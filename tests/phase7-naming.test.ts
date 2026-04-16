@@ -31,6 +31,7 @@ import {
   REJECTED_CONNECTION_VERBS,
   REJECTED_OS_TERMS,
   NETWORK_COUNTS,
+  ROUTE_LAW_NAMING_PREFERENCES,
   NETWORK_WORK_TYPES,
   isCanonicalPlatformName,
   isRejectedPlatformVariant,
@@ -50,6 +51,7 @@ import {
   isRejectedConnectionVerb,
   isValidRuntimeRegion,
   isValidSurfaceName,
+  isRouteLawPreferredName,
 } from '@/lib/identity/canonical-names';
 
 // ---------------------------------------------------------------------------
@@ -115,6 +117,38 @@ describe('Core surface names', () => {
     expect(CORE_SURFACE_ROUTES.HOME_DREAM).toBe('/homedream');
     expect(CORE_SURFACE_ROUTES.EDIT_PROFILE_DREAM).toBe('/edit-profiledream');
     expect(CORE_SURFACE_ROUTES.VIEW_PROFILE).toBe('/view-profile');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Route law naming preferences (README Section 2)
+// ---------------------------------------------------------------------------
+
+describe('Route law naming preferences', () => {
+  it('contains the exact eight preferred names from the route law', () => {
+    expect(ROUTE_LAW_NAMING_PREFERENCES).toEqual([
+      'HomeDream Surface',
+      'Edit ProfileDream Surface',
+      'View Profile Surface',
+      'DreamShop Surface',
+      'DreamMarketplace Surface',
+      'DreamMenu',
+      'DreamDM Surface',
+      'DreamAds Surface',
+    ]);
+  });
+
+  it('isRouteLawPreferredName returns true for each preferred name', () => {
+    for (const preferredName of ROUTE_LAW_NAMING_PREFERENCES) {
+      expect(isRouteLawPreferredName(preferredName)).toBe(true);
+    }
+  });
+
+  it('isRouteLawPreferredName returns false for non-preferred alternatives', () => {
+    expect(isRouteLawPreferredName('HomeDream')).toBe(false);
+    expect(isRouteLawPreferredName('EditProfileDream')).toBe(false);
+    expect(isRouteLawPreferredName('DreamAds')).toBe(false);
+    expect(isRouteLawPreferredName('messages')).toBe(false);
   });
 });
 
