@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-16 19:03 UTC | `d74de72` | copilot/research-game-engine-architecture | Copilot | ~2 modified<br>fix: patch Next.js DoS CVE — bump next + eslint-config-next to >=16.2.3 — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/2e3f9b63-5314-4220-b3ae-a6ac79ddef5e  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `package.json`, `pnpm-lock.yaml` |
 | **auto** | 2026-04-12 19:33 UTC | `0b0d162` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #493 from appthemanger-ctrl/copilot/create-pattern-intelligence-engine — Evaluating structural load for Pattern Intelligence Engine implementation<br> |
 | **auto** | 2026-04-12 19:30 UTC | `84defb2` | copilot/create-pattern-intelligence-engine | Copilot | ~1 modified<br>fix: remove DREAMenginOS from DreamSpace world render — system-level only, not user-facing — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/a572251b-ae8f-4b77-87ca-11bc35253a43  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/runtime/RuntimeView.tsx` |
 | **auto** | 2026-04-12 04:23 UTC | `7b27b7e` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #478 from appthemanger-ctrl/copilot/wire-calibrate-device-sequence — feat: wire calibrateDevice into LandingHero for on-arrival Humanity sampling<br> |
 | **auto** | 2026-04-12 04:19 UTC | `8ec9f5f` | copilot/wire-calibrate-device-sequence | Copilot | +1 added  ~1 modified<br>feat: wire calibrateDevice into LandingHero animation for on-arrival Humanity sampling — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/da1f9436-5da0-445e-8fea-6955eec1d7ce  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>➕: `tests/landing-calibration.test.ts`<br>✏️: `components/LandingHero.tsx` |
-| **auto** | 2026-04-12 04:09 UTC | `62cf707` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #477 from appthemanger-ctrl/copilot/fix-dream-field-issues — fix: Shell-First DreamDMBar, DREAMfield UX clarity, bubble pill divider<br> |
 
 ## What changed in this alignment pass
 
