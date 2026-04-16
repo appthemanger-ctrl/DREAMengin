@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-12 19:33 UTC  
-**Last updated:** 2026-04-12 19:33 UTC  
-**Triggered by commit:** `0b0d162` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #493 from appthemanger-ctrl/copilot/create-pattern-intelligence-engine
+**Documentation Date:** 2026-04-16 19:03 UTC  
+**Last updated:** 2026-04-16 19:03 UTC  
+**Triggered by commit:** `d74de72` on `copilot/research-game-engine-architecture` by Copilot  
+**Commit message:** fix: patch Next.js DoS CVE — bump next + eslint-config-next to >=16.2.3
 
 ---
 
