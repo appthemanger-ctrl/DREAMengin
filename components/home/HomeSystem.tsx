@@ -176,7 +176,7 @@ function HomeSystemInner({
     updateSeam();
     window.addEventListener('resize', updateSeam);
     return () => window.removeEventListener('resize', updateSeam);
-  }, [isBarMinimized, splitRatio]);
+  }, [isBarMinimized, runtimeSplitRatio]);
 
   const dividerHeight = isBarMinimized ? 0 : DIVIDER_H;
   const topHeight = `calc((100% - ${dividerHeight}px) * ${runtimeSplitRatio})`;
