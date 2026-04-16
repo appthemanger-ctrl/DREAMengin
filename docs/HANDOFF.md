@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-16 18:05 UTC | `dda72e0` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #579 from appthemanger-ctrl/copilot/update-readme-core-surfaces — Align Core Surfaces spec by adding legacy `/home` → `/homedream` redirect<br> |
 | **auto** | 2026-04-16 17:55 UTC | `ec43de9` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #577 from appthemanger-ctrl/copilot/update-readme-recent-changes — Make README Recent Changes updater idempotent by deduplicating revision rows<br> |
 | **auto** | 2026-04-16 17:41 UTC | `8247938` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #551 from appthemanger-ctrl/copilot/add-github-action-bot — Add README section bot-army workflow with 20-minute blocked-context continuation<br> |
 | **auto** | 2026-04-16 11:09 UTC | `d69fe4b` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #550 from appthemanger-ctrl/copilot/integrate-agent-os-into-codeengin — feat: Agent-OS AI Co-pilot + CodeEngin radar architecture<br> |
 | **auto** | 2026-04-16 10:48 UTC | `e510f89` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #549 from appthemanger-ctrl/copilot/ensure-correct-env-vars — Ensuring correct usage of environment variables<br> |
-| **auto** | 2026-04-16 10:47 UTC | `283564b` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #548 from appthemanger-ctrl/copilot/add-webcodecs-h265-encoder — feat(media): WebCodecs H.265 encoder + MediaRecorder game-clip recording<br> |
 
 ## What changed in this alignment pass
 
