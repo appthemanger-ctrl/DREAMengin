@@ -21,13 +21,12 @@ export const metadata = {
 };
 
 const WIDGETS: DaydreamWidget[] = [
-  { id: 'record',      emoji: '🎙️', label: 'Record',         desc: 'Open the production studio',   color: '#2a8ab8', href: '/daydream/music' },
-  { id: 'upload',      emoji: '📤', label: 'Upload Track',   desc: 'Add a track to your library',  color: '#6366f1', href: '/music/upload' },
-  { id: 'releases',    emoji: '🎵', label: 'My Releases',    desc: 'Albums, singles, and EPs',     color: '#c8981a', href: '/music' },
-  { id: 'distribute',  emoji: '🌍', label: 'Distribute',     desc: 'Send to Spotify, Apple, etc.', color: '#00bcd4', href: '/music' },
-  { id: 'monetize',    emoji: '💰', label: 'Monetize',       desc: 'Royalties, splits, sync',      color: '#f59e0b', href: '/music' },
-  { id: 'share',       emoji: '🔗', label: 'Share to Feed',  desc: 'Post a track or update',       color: '#ec4899', href: '/daydream/create' },
-  { id: 'brand',       emoji: '🎨', label: 'Brand Hub',      desc: 'Your artist identity',         color: '#0ea5e9', href: '/daydream/brand' },
+  { id: 'track-window',        emoji: '🎙️', label: 'Track Window',                 desc: 'Create, upload, and preview tracks',        color: '#2a8ab8', href: '/engines/music/studio' },
+  { id: 'playlist-window',     emoji: '🎚️', label: 'Playlist Window',              desc: 'Organize sets and listening flows',         color: '#6366f1', href: '/engines/music/library' },
+  { id: 'release-window',      emoji: '🎵', label: 'Release Window',               desc: 'Configure publishing and sharing pathways', color: '#c8981a', href: '/music' },
+  { id: 'lyrics-window',       emoji: '📝', label: 'Lyrics Window',                desc: 'Draft and refine song lyrics',              color: '#00bcd4', href: '/engines/music' },
+  { id: 'audio-project-window',emoji: '🎛️', label: 'Audio Project Window',         desc: 'Arrange drafts, sessions, and assets',      color: '#f59e0b', href: '/engines/music/arrange' },
+  { id: 'launch-status-window',emoji: '🚀', label: 'Sales / Launch Status Window', desc: 'Track rollout, sales, and performance',     color: '#ec4899', href: '/music' },
 ];
 
 export default async function MusicArtistHubPage() {
