@@ -318,6 +318,20 @@ export const NETWORK_COUNTS = {
   CONNECTION_PATHS: 11,
 } as const;
 
+/**
+ * Canonical work types supported by the Daydream–Engin network model.
+ * Mirrors README.md § "Daydream–Engin Network Model".
+ */
+export const NETWORK_WORK_TYPES = [
+  'creation',
+  'experimentation',
+  'execution',
+  'deployment',
+  'publishing',
+] as const;
+
+export type NetworkWorkType = (typeof NETWORK_WORK_TYPES)[number];
+
 // ---------------------------------------------------------------------------
 // OS-layer rejected UI terms (soft / web-app-coded language)
 // ---------------------------------------------------------------------------
@@ -518,6 +532,7 @@ export const ALL_CANONICAL_NAMES = {
   surfaceNames: Object.values(SURFACE_NAMES),
   daydreamDomains: Object.values(DAYDREAM_DOMAINS),
   enginSurfaces: Object.values(ENGIN_SURFACES),
+  networkWorkTypes: NETWORK_WORK_TYPES,
   platformModules: Object.values(PLATFORM_MODULES),
   aiAgents: Object.values(AI_AGENTS),
   runtimeRegions: Object.values(RUNTIME_REGIONS),
