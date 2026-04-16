@@ -18,13 +18,14 @@ The workflow:
 
 1. scans the repo with `.github/scripts/scan_dreamengin_context.py`
 2. merges that scan with a **report** (`docs/BUGS.md`, issue body, or workflow input text)
-3. adds the advanced game target manifest + current game catalog to the prompt
-4. asks the model for a **smallest coherent implementation plan** that still upgrades at least one advanced game
-5. validates that the proposal names a known advanced game target
-6. asks the model for a **git patch**
-7. applies the patch
-8. runs `pnpm run lint`, `pnpm run build:gamesengin`, `pnpm run build`, and `pnpm run test:games`
-9. optionally commits and pushes the validated changes on `workflow_dispatch`
+3. injects the project governing docs (**LAW.md**, **AXIOMS.md**, **ARCHITECTURE.md**) into the context as authoritative decision guides
+4. adds the advanced game target manifest + current game catalog to the prompt
+5. asks the model to **trace each issue to its root cause** and plan a complete, aligned fix — no hedging, no deferral to human review
+6. validates that the proposal names a known advanced game target
+7. asks the model for a **git patch** that implements all root-cause fixes
+8. applies the patch
+9. runs `pnpm run lint`, `pnpm run build:gamesengin`, `pnpm run build`, and `pnpm run test:games`
+10. optionally commits and pushes the validated changes on `workflow_dispatch`
 
 ## Trigger modes
 

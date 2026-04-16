@@ -54,7 +54,7 @@ These five axioms and guardrails apply to every change:
 
 - `README.md` is the product authority — never override it with this file
 - Favor spec names over legacy repo wording
-- Repurpose existing systems before adding new ones
+- Reuse or repurpose when it clearly fits, but do not enforce a blanket "repurpose before invent" rule
 - Keep HomeDream source logic separate from ViewProfile output logic
 - Keep Node 25, pnpm, Next.js 16+, and Supabase stable unless a real need exists
 

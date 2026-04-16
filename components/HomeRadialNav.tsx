@@ -11,9 +11,9 @@
  * DreamNavControls.tsx (in components/dreamnav/) is the Gold Button tap handler.
  * Import DreamRadialMenu, SystemRadialMenu, or DualBottomMenu directly.
  *
- * Per docs/LAW.md §10: repurpose legacy pieces before inventing new top-level
- * systems. This file exists only as a redirect notice. It is not imported by
- * any active surface.
+ * Per docs/LAW.md §10 (build freely, clean as you go), this legacy file exists
+ * only as a redirect notice so we avoid orphaned/duplicate menu implementations.
+ * It is not imported by any active surface.
  *
  * Architecture justification:
  *   docs/ARCHITECTURE.md §3 — HomeDream Surface primary menu code:

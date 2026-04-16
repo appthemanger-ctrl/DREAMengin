@@ -66,6 +66,11 @@ describe('HomeDream home surface', () => {
     expect(persistentBar).toContain('onMinimizedChange={isHomeSystemActive ? setIsBarMinimized : undefined}');
   });
 
+  it('hides DreamSpace whenever the DreamDMBar is minimized', () => {
+    expect(homeSystem).toContain('const runtimeSplitRatio = isBarMinimized ? 1 : splitRatio;');
+    expect(homeSystem).toContain('splitRatio={runtimeSplitRatio}');
+  });
+
   it('keeps feed scrolling native while limiting divider drag capture to the centered seam handle', () => {
     expect(runtimeShell).toContain("touchAction: 'pan-y'");
     expect(dreamDmBar).toContain("pointerEvents: 'none'");

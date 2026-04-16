@@ -32,6 +32,7 @@ import {
   REJECTED_OS_TERMS,
   NETWORK_COUNTS,
   ROUTE_LAW_NAMING_PREFERENCES,
+  NETWORK_WORK_TYPES,
   isCanonicalPlatformName,
   isRejectedPlatformVariant,
   isValidEnginName,
@@ -702,5 +703,15 @@ describe('Multi-surface connection network', () => {
 
   it('Engin runtime count matches number of ENGIN_SURFACES', () => {
     expect(Object.keys(ENGIN_SURFACES)).toHaveLength(NETWORK_COUNTS.ENGIN_RUNTIMES);
+  });
+
+  it('supported Daydream–Engin network work types match README spec', () => {
+    expect(NETWORK_WORK_TYPES).toEqual([
+      'creation',
+      'experimentation',
+      'execution',
+      'deployment',
+      'publishing',
+    ]);
   });
 });

@@ -317,10 +317,12 @@ export default function EditProfileDreamPage() {
               Arrange Dreams and choose what View Profile exposes
             </p>
           </div>
-          {/* View Profile preview button — spec §6.4 */}
+          {/* View Profile preview button — private builder previews public output */}
           {profile.handle && (
             <Link
               href="/view-profile"
+              aria-label="View Profile"
+              title="View Profile / Public View"
               style={{
                 padding: '7px 14px', borderRadius: 10,
                 background: 'rgba(255,255,255,0.08)',
@@ -331,7 +333,7 @@ export default function EditProfileDreamPage() {
               }}
             >
               <Eye size={13} />
-              Preview
+              View Profile
             </Link>
           )}
 
@@ -354,11 +356,11 @@ export default function EditProfileDreamPage() {
             {isDirty ? 'Save Draft' : 'Saved'}
           </button>
 
-          {/* Publish to Profile — explicit share action, updates visibility_mappings (Phase 6 §15,17) */}
+          {/* Update Public View — explicit share action, updates visibility_mappings */}
           <button
             onClick={handlePublish}
             disabled={isSaving || isPublishing}
-            title="Publish your profile — makes public Dream Windows visible on your View Profile surface"
+            title="Update Public View: apply explicitly shared changes to your View Profile surface"
             style={{
               padding: '9px 16px', borderRadius: 12,
               background: 'linear-gradient(135deg, #c8981a, #e0b830)',
@@ -372,7 +374,7 @@ export default function EditProfileDreamPage() {
             {isPublishing
               ? <Loader2 size={13} className="animate-spin" />
               : <Share2 size={13} />}
-            {isPublishing ? 'Publishing…' : 'Publish'}
+            {isPublishing ? 'Updating…' : 'Update Public View'}
           </button>
         </div>
 
@@ -533,4 +535,3 @@ export default function EditProfileDreamPage() {
     </div>
   );
 }
-
