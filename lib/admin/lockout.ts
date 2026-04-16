@@ -80,7 +80,7 @@ export async function triggerAdminLockout(): Promise<void> {
 }
 
 // ── Owner gate ───────────────────────────────────────────────────────────────
-export const OWNER_EMAIL = 'Appthemanger@gmail.com';
+export const OWNER_EMAIL = process.env.OWNER_EMAIL || 'Appthemanger@gmail.com';
 
 /** Returns true only for the owner's email (case-insensitive). */
 export function isOwner(email?: string | null): boolean {

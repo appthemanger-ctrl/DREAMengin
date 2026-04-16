@@ -11,17 +11,17 @@ import { v4 as uuidv4 } from 'uuid';
 const OWNER_EMAIL_DEFAULT = 'appthemanger@gmail.com';
 
 export const AI_MODELS = {
-  // User-facing agent
-  EAMS_PRIMARY: 'meta-llama/llama-4-scout-17b-16e-instruct',
-  EAMS_FALLBACK: 'llama-3.3-70b-versatile',
+  // User-facing agent — override via GROQ_MODEL_EAMS_FAST / GROQ_MODEL_EAMS_HEAVY
+  EAMS_PRIMARY: process.env.GROQ_MODEL_EAMS_FAST || 'meta-llama/llama-4-scout-17b-16e-instruct',
+  EAMS_FALLBACK: process.env.GROQ_MODEL_EAMS_HEAVY || 'llama-3.3-70b-versatile',
 
-  // Builder / maintainer
-  IDARI_PRIMARY: 'moonshotai/kimi-k2-instruct-0905',
-  IDARI_FALLBACK: 'openai/gpt-oss-120b',
+  // Builder / maintainer — override via GROQ_MODEL_IDARI_FAST / GROQ_MODEL_IDARI_HEAVY
+  IDARI_PRIMARY: process.env.GROQ_MODEL_IDARI_FAST || 'moonshotai/kimi-k2-instruct-0905',
+  IDARI_FALLBACK: process.env.GROQ_MODEL_IDARI_HEAVY || 'openai/gpt-oss-120b',
 
-  // Policy / safety
-  BOOGIE: 'openai/gpt-oss-safeguard-20b',
-} as const;
+  // Policy / safety — override via GROQ_MODEL_BOOGIE
+  BOOGIE: process.env.GROQ_MODEL_BOOGIE || 'openai/gpt-oss-safeguard-20b',
+};
 
 export function getOwnerEmail(): string {
   return process.env.OWNER_EMAIL || OWNER_EMAIL_DEFAULT;
