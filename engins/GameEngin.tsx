@@ -256,7 +256,7 @@ export default function GameEngin({ onBack }: Props) {
     if (!file) return;
     setDreamGameFile({ name: file.name, size: file.size });
     osRef.current?.telemetry?.log(`Loaded .dreamgame: ${file.name}`);
-    busRef.current.publish('game:dreamgame-loaded', { name: file.name, size: file.size });
+    busRef.current.emit('game:dreamgame-loaded', { name: file.name, size: file.size });
     forgeRecord(`Loaded .dreamgame: ${file.name}`);
   }
 

@@ -20,6 +20,9 @@ import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
+import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
+import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
+import { useSharedDream } from '@/hooks/useSharedDream';
 import Link from 'next/link';
 import { ArrowLeft, Palette, BarChart2, Megaphone, Users, TrendingUp, TrendingDown, Minus, FlaskConical, DollarSign, Eye, BookOpen, Layers } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
@@ -69,6 +72,20 @@ const ContentCalendarLink = 'brand-feature';
 export default function BrandingEngin({ onBack }: Props) {
   const brandBridge = useBrandingEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'brand' });
+
+  // ── OS Shell ──
+  const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
+  useEffect(() => {
+    upgradeEngine({ id: 'brand', name: 'BrandingEngin' }, ['bridge', 'telemetry'])
+      .then(u => { osRef.current = u; });
+  }, []);
+  const busRef = useRef(createEventBus());
+
+  // ── Shared Dream Analytics state ──
+  const [sharedAnalyticsId] = useState(() => `brand-analytics-${Date.now()}`);
+  const [sharedAnalyticsActive, setSharedAnalyticsActive] = useState(false);
+  const sharedAnalytics = useSharedDream(sharedAnalyticsActive ? sharedAnalyticsId : '');
+
   // ── Daydream state persistence (Phase 8 §F Point 55) ──
   const { persistState } = useDaydreamState({ daydreamType: 'brand', side: 'B' });
 
@@ -1123,6 +1140,60 @@ export default function BrandingEngin({ onBack }: Props) {
                 );
               })}
             </div>
+          </div>
+        </div>
+
+        {/* ── Shared Dream Analytics Dashboard ── */}
+        <div className="de-widget" style={{ marginTop: 14 }}>
+          <div className="de-widget-header">
+            <Users className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
+            <span className="de-widget-title">Shared Dream Analytics</span>
+            {sharedAnalyticsActive && (
+              <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: '#22c55e' }}>
+                ● {sharedAnalytics.isConnected ? `Live · ${Object.keys(sharedAnalytics.peers).length} peer(s)` : 'Connecting…'}
+              </span>
+            )}
+          </div>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>
+              Share your brand analytics dashboard in a live collaborative session. Peers see the same metrics in real time.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setSharedAnalyticsActive(v => !v);
+                osRef.current?.telemetry?.log('shared analytics toggled');
+                busRef.current.emit('brand:shared-analytics', { active: !sharedAnalyticsActive, sessionId: sharedAnalyticsId });
+                forgeRecord('Shared analytics session toggled');
+              }}
+              style={{
+                padding: '9px 16px', borderRadius: 9, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                border: `1px solid ${ACCENT}40`,
+                background: sharedAnalyticsActive ? `${ACCENT}22` : `${ACCENT}0d`,
+                color: ACCENT,
+              }}
+            >
+              {sharedAnalyticsActive ? '⏹ End Shared Session' : '🤝 Launch Shared Analytics'}
+            </button>
+            {sharedAnalyticsActive && (
+              <div style={{
+                padding: '10px 14px', borderRadius: 10,
+                background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.2)',
+                fontSize: 11,
+              }}>
+                <div style={{ fontWeight: 700, color: '#22c55e', marginBottom: 6 }}>
+                  {sharedAnalytics.isConnected ? '✓ Session active' : '⟳ Connecting…'}
+                </div>
+                <div style={{ fontSize: 10, color: 'var(--de-text-dim)', wordBreak: 'break-all' }}>
+                  ID: <code style={{ color: ACCENT }}>{sharedAnalyticsId.slice(-12)}</code>
+                </div>
+                {Object.keys(sharedAnalytics.peers).length > 0 && (
+                  <div style={{ marginTop: 6, fontSize: 10, color: 'var(--de-text-dim)' }}>
+                    Peers: {Object.keys(sharedAnalytics.peers).map(id => id.slice(0, 8)).join(', ')}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

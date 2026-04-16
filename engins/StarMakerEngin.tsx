@@ -1019,7 +1019,7 @@ export default function StarMakerEngin({ onBack }: Props) {
               onClick={() => {
                 setShow3DVisualizer(v => !v);
                 osRef.current?.telemetry?.log('3D visualizer toggled');
-                busRef.current.publish('starmaker:3d-visualizer', { open: !show3DVisualizer });
+                busRef.current.emit('starmaker:3d-visualizer', { open: !show3DVisualizer });
               }}
               style={{
                 padding: '7px 14px', borderRadius: 8, border: `1px solid ${DAW.accent}40`,
@@ -1036,7 +1036,7 @@ export default function StarMakerEngin({ onBack }: Props) {
               onClick={() => {
                 setIsolateActive(v => !v);
                 osRef.current?.telemetry?.log('fingerprint isolator toggled');
-                busRef.current.publish('starmaker:fingerprint-isolate', { active: !isolateActive });
+                busRef.current.emit('starmaker:fingerprint-isolate', { active: !isolateActive });
               }}
               style={{
                 padding: '7px 14px', borderRadius: 8, border: `1px solid #8b5cf640`,
@@ -1054,7 +1054,7 @@ export default function StarMakerEngin({ onBack }: Props) {
               onClick={() => {
                 setShowSharedDream(v => !v);
                 osRef.current?.telemetry?.log('shared dream toggled');
-                busRef.current.publish('starmaker:shared-dream', { channelId: sharedDreamId });
+                busRef.current.emit('starmaker:shared-dream', { channelId: sharedDreamId });
               }}
               style={{
                 padding: '7px 14px', borderRadius: 8, border: `1px solid #22c55e40`,

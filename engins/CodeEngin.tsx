@@ -953,7 +953,7 @@ export default function CodeEngin({ onBack }: Props) {
               onClick={() => {
                 setPairActive(v => !v);
                 osRef.current?.telemetry?.log('pair programming toggled');
-                busRef.current.publish('code:pair-session', { active: !pairActive, sessionId: pairSessionId });
+                busRef.current.emit('code:pair-session', { active: !pairActive, sessionId: pairSessionId });
               }}
               style={{
                 padding: '9px 16px', borderRadius: 9, border: `1px solid ${ACCENT}40`,
