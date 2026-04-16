@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-15 08:23 UTC  
-**Last updated:** 2026-04-15 08:23 UTC  
-**Triggered by commit:** `4f51125` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #535 from appthemanger-ctrl/copilot/fix-type-error-director-module
+**Documentation Date:** 2026-04-16 00:06 UTC  
+**Last updated:** 2026-04-16 00:06 UTC  
+**Triggered by commit:** `0c2851c` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #536 from appthemanger-ctrl/copilot/fix-invoked-url-type-error
 
 ---
 
