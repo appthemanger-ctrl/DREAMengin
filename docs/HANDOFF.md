@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-16 22:33 UTC | `1593073` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #616 from appthemanger-ctrl/copilot/look-deeeer — fix: complete README spec — section 37 heading and trailing sentence<br> |
 | **auto** | 2026-04-16 22:32 UTC | `2a1724c` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #615 from appthemanger-ctrl/copilot/automate-root-cause-fixes — feat: autonomous root-cause analysis and fixing for report-driven coding agent<br> |
 | **auto** | 2026-04-16 22:29 UTC | `1fa21e0` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #591 from appthemanger-ctrl/copilot/implement-view-profile-section — Align EditProfileDream “Public View”/“Update Public View” controls with README §8 View Profile spec (with merge conflicts resolved)<br> |
 | **auto** | 2026-04-16 22:28 UTC | `f256555` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #614 from appthemanger-ctrl/copilot/combine-30-issues-fixes — feat: issue-bot — auto-triage up to 30 open issues and merge fixes into one PR<br> |
 | **auto** | 2026-04-16 19:36 UTC | `7ed71fe` | completedream | appthemanger-ctrl | ~1 modified<br>Update README.md<br>✏️: `README.md` |
-| **auto** | 2026-04-16 19:32 UTC | `dde7b26` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #598 from appthemanger-ctrl/copilot/edit-profiledream-section — Section 7: Clarify Edit ProfileDream public-preview and publish semantics<br> |
 
 ## What changed in this alignment pass
 
