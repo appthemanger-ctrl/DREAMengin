@@ -121,21 +121,23 @@ export const DAYDREAM_TO_ENGIN: Record<DaydreamDomain, EnginSurface> = {
 };
 
 export interface DaydreamPairDefinition {
-  sideA: DaydreamDomain;
-  sideB: EnginSurface;
-  specializedTools: true;
-  specializedDreamWindowSupport: true;
-  enginSideMenuControl: 'dual-button-pill';
+  daydreamDomain: DaydreamDomain;
+  enginSurface: EnginSurface;
+  specializedTools: boolean;
+  specializedDreamWindowSupport: boolean;
 }
+
+/** README §9 Side B control contract for Daydream pairs. */
+export const DAYDREAM_ENGIN_SIDE_MENU_CONTROL = 'dual-button-pill' as const;
 
 /** README §9 Daydream Pair System — canonical 6 Side A ↔ Side B domain pair definitions. */
 export const DAYDREAM_PAIR_SYSTEM: readonly DaydreamPairDefinition[] = [
-  { sideA: 'Music',  sideB: 'StarMakerEngin', specializedTools: true, specializedDreamWindowSupport: true, enginSideMenuControl: 'dual-button-pill' },
-  { sideA: 'Games',  sideB: 'GameEngin',      specializedTools: true, specializedDreamWindowSupport: true, enginSideMenuControl: 'dual-button-pill' },
-  { sideA: 'Lab',    sideB: 'LabEngin',       specializedTools: true, specializedDreamWindowSupport: true, enginSideMenuControl: 'dual-button-pill' },
-  { sideA: 'Code',   sideB: 'CodeEngin',      specializedTools: true, specializedDreamWindowSupport: true, enginSideMenuControl: 'dual-button-pill' },
-  { sideA: 'Brand',  sideB: 'BrandingEngin',  specializedTools: true, specializedDreamWindowSupport: true, enginSideMenuControl: 'dual-button-pill' },
-  { sideA: 'Create', sideB: 'ContentEngin',   specializedTools: true, specializedDreamWindowSupport: true, enginSideMenuControl: 'dual-button-pill' },
+  { daydreamDomain: 'Music',  enginSurface: 'StarMakerEngin', specializedTools: true, specializedDreamWindowSupport: true },
+  { daydreamDomain: 'Games',  enginSurface: 'GameEngin',      specializedTools: true, specializedDreamWindowSupport: true },
+  { daydreamDomain: 'Lab',    enginSurface: 'LabEngin',       specializedTools: true, specializedDreamWindowSupport: true },
+  { daydreamDomain: 'Code',   enginSurface: 'CodeEngin',      specializedTools: true, specializedDreamWindowSupport: true },
+  { daydreamDomain: 'Brand',  enginSurface: 'BrandingEngin',  specializedTools: true, specializedDreamWindowSupport: true },
+  { daydreamDomain: 'Create', enginSurface: 'ContentEngin',   specializedTools: true, specializedDreamWindowSupport: true },
 ] as const;
 
 export const ALL_ENGIN_NAMES: readonly EnginSurface[] = Object.values(ENGIN_SURFACES);
