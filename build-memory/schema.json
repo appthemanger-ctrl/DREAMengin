@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-04-16T01:47:14.772Z",
+  "generated_at": "2026-04-16T11:09:56.052Z",
   "generator": "scripts/sync-build-memory.mjs",
   "sources": [
     "types/supabase.ts",
     "supabase/migrations/"
   ],
-  "count": 128,
+  "count": 129,
   "tables": [
     {
       "table": "activity_points",
@@ -2342,6 +2342,12 @@
         }
       ],
       "source": "types/supabase.ts"
+    },
+    {
+      "table": "forge_assemblies",
+      "columns": [],
+      "source": "code-only",
+      "note": "Referenced in code but not found in types/supabase.ts or migrations — may indicate missing migration"
     },
     {
       "table": "function_invocations",

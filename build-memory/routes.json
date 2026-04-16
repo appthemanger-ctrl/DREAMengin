@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-16T01:47:14.772Z",
+  "generated_at": "2026-04-16T11:09:56.052Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 97,
+  "count": 98,
   "routes": [
     {
       "path": "/api/account/delete-data",
@@ -77,6 +77,13 @@
     {
       "path": "/api/ads/view",
       "file": "app/api/ads/view/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/agent/session",
+      "file": "app/api/agent/session/route.ts",
       "methods": [
         "POST"
       ]
