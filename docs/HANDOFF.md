@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-16 19:36 UTC | `7ed71fe` | completedream | appthemanger-ctrl | ~1 modified<br>Update README.md<br>✏️: `README.md` |
 | **auto** | 2026-04-16 19:32 UTC | `dde7b26` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #598 from appthemanger-ctrl/copilot/edit-profiledream-section — Section 7: Clarify Edit ProfileDream public-preview and publish semantics<br> |
 | **auto** | 2026-04-16 19:28 UTC | `6e4d1d1` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #592 from appthemanger-ctrl/copilot/implement-home-dream-section — Align README §6 HomeDream naming and add focused spec-alignment test<br> |
 | **auto** | 2026-04-16 19:25 UTC | `956a509` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #581 from appthemanger-ctrl/copilot/implement-daydream-engin-network-model — Codify Daydream–Engin network work types in canonical naming authority<br> |
 | **auto** | 2026-04-16 19:23 UTC | `bec53a8` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #595 from appthemanger-ctrl/copilot/update-code-codeengin-section — Align Code Daydream with README §13 (Code / CodeEngin) via explicit Side‑A coverage + spec lock test<br> |
-| **auto** | 2026-04-16 19:05 UTC | `66b5dc9` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #596 from appthemanger-ctrl/copilot/update-readme-lab-engin-section — [WIP] Implement and maintain README section for Lab / LabEngin<br> |
 
 ## What changed in this alignment pass
 
