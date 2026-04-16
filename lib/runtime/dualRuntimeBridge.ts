@@ -336,12 +336,21 @@ class DualRuntimeBridge extends EventEmitter {
     }
 
     // Node / Vitest path: read directly from the filesystem to avoid file:// fetch limitations.
-    const [{ readFile }, { fileURLToPath }] = await Promise.all([
+    const [{ readFile }, { fileURLToPath }, { resolve }] = await Promise.all([
       // webpackIgnore: true — Node built-ins; bundlers must skip static analysis of these imports.
       import(/* webpackIgnore: true */ 'fs/promises'),
       import(/* webpackIgnore: true */ 'url'),
+      import(/* webpackIgnore: true */ 'path'),
     ]);
-    const buf = await readFile(fileURLToPath(BUS_WASM_URL.toString()));
+    // BUS_WASM_URL is a file:// URL in dev/Vitest, but Next.js server bundles replace
+    // import.meta.url with a webpack asset path (/_next/static/…). fileURLToPath only
+    // accepts file:// URLs and throws ERR_INVALID_URL for asset paths, so we fall back
+    // to resolving relative to process.cwd() (the project root in all deployment targets).
+    const wasmUrlStr = BUS_WASM_URL.toString();
+    const wasmPath = wasmUrlStr.startsWith('file://')
+      ? fileURLToPath(wasmUrlStr)
+      : resolve(process.cwd(), 'lib/bus.wasm');
+    const buf = await readFile(wasmPath);
     return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
   }
 
