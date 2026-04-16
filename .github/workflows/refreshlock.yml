@@ -3,31 +3,39 @@ name: Create/Update pnpm lockfile (push)
 on:
   workflow_dispatch:
 
+concurrency:
+  group: refreshlock-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
 jobs:
   lockfile:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v6
+      - uses: pnpm/action-setup@v4
         with:
           version: 10.33.0
 
-
-      # Use the official setup-node@v6 – it will respect devEngines.runtime if present
-      - name: Setup Node.js (respects devEngines)
-        uses: actions/setup-node@v6
+      - name: Setup Node.js 25
+        uses: actions/setup-node@v4
         with:
-          node-version-file: package.json
-          # If you want to force a specific version, use node-version: '25'
+          node-version: '25'
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
 
       - name: Generate pnpm lockfile only
         run: pnpm install --lockfile-only --no-frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
       - name: Commit & push pnpm-lock.yaml (only if changed)
         run: |
