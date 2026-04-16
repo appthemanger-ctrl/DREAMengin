@@ -43,6 +43,7 @@ import {
   type UndoSnapshot,
   type EditableCell,
 } from '@/lib/diff/aiEditEngine';
+import { AgentPanel } from './CodeEngin/modules/ai-co-pilot';
 
 // ----------------------------------------------------------------------
 // Types
@@ -924,6 +925,11 @@ export default function CodeEngin({ onBack }: Props) {
             <div style={{ display: 'flex', gap: 8 }}><input type="text" placeholder="Ask Dr. Eams..." value={assistPrompt} onChange={e => setAssistPrompt(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAiAssist()} style={{ flex: 1, padding: '8px 12px', borderRadius: 8, border: `1px solid ${ACCENT}30` }} /><button onClick={handleAiAssist} disabled={assistLoading || !assistPrompt.trim()} style={{ padding: '8px 14px', borderRadius: 8, background: ACCENT, color: '#fff', border: 'none', cursor: 'pointer' }}>{assistLoading ? <Loader2 className="animate-spin" /> : 'Ask'}</button></div>
             {assistResponse && <div style={{ marginTop: 8, padding: '10px 12px', borderRadius: 8, background: `${ACCENT}08`, border: `1px solid ${ACCENT}20`, fontSize: 12, whiteSpace: 'pre-wrap' }}>{assistResponse}</div>}
           </div>
+        </div>
+
+        {/* AI Co‑pilot (agent-os powered) */}
+        <div style={{ marginTop: 14 }}>
+          <AgentPanel />
         </div>
 
         {/* Crash Recovery */}
