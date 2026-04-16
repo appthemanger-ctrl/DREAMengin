@@ -8,7 +8,7 @@ const researchSources = [
   { area: 'rendering', title: 'WebGPU Fundamentals', url: 'https://webgpufundamentals.org/' },
   { area: 'platform', title: 'Can I use: WebGPU', url: 'https://caniuse.com/webgpu' },
   { area: 'performance', title: 'web.dev: Optimize JavaScript execution', url: 'https://web.dev/articles/optimize-javascript-execution' },
-  { area: 'performance', title: 'web.dev: Render blocking resources', url: 'https://web.dev/articles/render-blocking-resources' },
+  { area: 'performance', title: 'web.dev: Render blocking resources', url: 'https://web.dev/articles/rendering-performance' },
   { area: 'input', title: 'MDN: Gamepad API', url: 'https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API' },
   { area: 'input', title: 'MDN: Pointer Events', url: 'https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events' },
   { area: 'audio', title: 'MDN: Web Audio API', url: 'https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API' },
@@ -118,7 +118,7 @@ async function fetchSource(source) {
   try {
     const response = await fetch(source.url, {
       headers: {
-        'user-agent': 'DREAMengin-Mobile-PS5-Spec-Bot/1.0 (+https://github.com/appthemanger-ctrl/DREAMengin)',
+        'user-agent': 'DREAMengin-Mobile-PS5-Spec-Bot/1.0 (+https://github.com/appthemanager-ctrl/DREAMengin)',
       },
       signal: AbortSignal.timeout(20000),
     });

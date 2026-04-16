@@ -105,8 +105,8 @@ The spec is considered complete when **every capability pillar** below has:
 
 ## Source Research Snapshot
 
-- Successful fetches: **14**
-- Failed fetches: **1**
+- Successful fetches: **15**
+- Failed fetches: **0**
 
 | Area | Source | Status | URL |
 |---|---|---|---|
@@ -114,7 +114,7 @@ The spec is considered complete when **every capability pillar** below has:
 | rendering | WebGPU Fundamentals | ok | https://webgpufundamentals.org/ |
 | platform | Can I use: WebGPU | ok | https://caniuse.com/webgpu |
 | performance | web.dev: Optimize JavaScript execution | ok | https://web.dev/articles/optimize-javascript-execution |
-| performance | web.dev: Render blocking resources | HTTP 404 | https://web.dev/articles/render-blocking-resources |
+| performance | web.dev: Render blocking resources | ok | https://web.dev/articles/rendering-performance |
 | input | MDN: Gamepad API | ok | https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API |
 | input | MDN: Pointer Events | ok | https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events |
 | audio | MDN: Web Audio API | ok | https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API |
@@ -125,10 +125,6 @@ The spec is considered complete when **every capability pillar** below has:
 | resilience | MDN: OffscreenCanvas | ok | https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas |
 | mobile | web.dev: Baseline | ok | https://web.dev/baseline |
 | quality | MDN: Performance API | ok | https://developer.mozilla.org/en-US/docs/Web/API/Performance_API |
-
-## Recovery Tasks (auto-maintained)
-
-- Re-check source availability and alternate references for **web.dev: Render blocking resources** (https://web.dev/articles/render-blocking-resources).
 
 ## AI Dev Application Checklist for DREAMengin
 
