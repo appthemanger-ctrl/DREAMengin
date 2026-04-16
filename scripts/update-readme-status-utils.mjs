@@ -1,5 +1,6 @@
 export function extractPnpmVersion(packageManager) {
   if (typeof packageManager !== 'string') return undefined;
+  // Accept pnpm@MAJOR, pnpm@MAJOR.MINOR, or pnpm@MAJOR.MINOR.PATCH.
   const match = packageManager.match(/^pnpm@([0-9]+(?:\.[0-9]+){0,2})$/);
   return match?.[1];
 }
