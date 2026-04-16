@@ -88,9 +88,16 @@ const statLine = statParts.length ? statParts.join(' ') : '—';
 
 // ── 3. Collect live repo stats ────────────────────────────────────────────────
 
-const testCount     = existsSync(resolve(ROOT, 'tests'))
-  ? readdirSync(resolve(ROOT, 'tests')).filter(f => f.endsWith('.test.ts')).length
-  : 0;
+const testCount     = countShell(
+  `find ${ROOT} -type f -name "*.test.ts" ` +
+  '-not -path "*/node_modules/*" ' +
+  '-not -path "*/dist/*" ' +
+  '-not -path "*/e2e/*" ' +
+  '-not -path "*/tests/navigation/*" ' +
+  '-not -path "*/exports/*" ' +
+  '-not -path "*/tests/example.spec.ts" ' +
+  '2>/dev/null | wc -l'
+);
 const pageCount     = countShell(`find ${ROOT}/app -name "page.tsx" 2>/dev/null | wc -l`);
 const apiCount      = countShell(`find ${ROOT}/app/api -name "route.ts" 2>/dev/null | wc -l`);
 const routeCount    = pageCount + apiCount;

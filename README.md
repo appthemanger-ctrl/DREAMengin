@@ -69,7 +69,7 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 | `lib/` | Hooks, utilities, Supabase client, game libs |
 | `docs/` | All governance, law, spec, and policy documents |
 | `.github/workflows/` | 57 CI/CD automation workflows |
-| `tests/` | Vitest test suite (145 test files) |
+| `tests/` | Vitest test suite (146 test files) |
 | `scripts/` | Maintenance and automation scripts |
 | `build-memory/` | Auto-generated build intelligence snapshots |
 
@@ -337,7 +337,7 @@ DREAMengin/
 |--------|-------|
 | Phase | Phase 8 — Real Runtime Completion |
 | Routes | ~199 (101 pages + 98 API handlers) |
-| Test files | 145 |
+| Test files | 146 |
 | Last push | `8247938` by **appthemanger-ctrl** on `completedream` |
 | Timestamp | 2026-04-16 17:41 UTC |
 
@@ -399,7 +399,7 @@ Last updated: 2026-04-16 17:41 UTC — `8247938` by appthemanger-ctrl
 Phase: Phase 8 — Real Runtime Completion (All 100 Points Complete)
 Scope: Full DreamDM Bar runtime activation, real Supabase persistence, Dream Window lifecycle, AI Triad consensus, WebGPU rendering
 
-Build Status: 199 routes (101 pages + 98 API handlers) · 145 test files
+Build Status: 199 routes (101 pages + 98 API handlers) · 146 test files
 
 Tech Stack:
 - Next.js 16+ (App Router)
