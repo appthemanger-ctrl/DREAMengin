@@ -217,6 +217,35 @@ export function ForgeDreamCanvas() {
     URL.revokeObjectURL(url);
   }, [placed, wires]);
 
+  // ── Save to Supabase ──
+  const saveToSupabase = useCallback(async (publish = false) => {
+    const pieces = placed.map((p) => p.piece);
+    const json   = serializeAssembly({ id: `forge_${Date.now()}`, pieces, wires });
+
+    try {
+      const { createClient } = await import('../lib/supabase/client');
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setValidationMsg('⚠ Sign in to save to your workspace'); return; }
+
+      const { error } = await supabase.from('forge_assemblies').upsert({
+        user_id:    user.id,
+        assembly:   JSON.parse(json) as Record<string, unknown>,
+        visibility: publish ? 'public' : 'private',
+        title:      `Assembly ${new Date().toLocaleDateString()}`,
+        updated_at: new Date().toISOString(),
+      });
+
+      if (error) {
+        setValidationMsg(`⚠ Save failed: ${error.message}`);
+      } else {
+        setValidationMsg(publish ? '✅ Published to Marketplace' : '✅ Saved to workspace');
+      }
+    } catch (err) {
+      setValidationMsg(`⚠ ${String(err)}`);
+    }
+  }, [placed, wires]);
+
   // ── Clear ──
   const clear = useCallback(() => {
     setPlaced([]);
@@ -271,6 +300,8 @@ export function ForgeDreamCanvas() {
           <button onClick={validate} className="w-full py-1.5 rounded text-xs bg-sky-600 hover:bg-sky-500 transition-colors">Validate</button>
           <button onClick={run}      className="w-full py-1.5 rounded text-xs bg-green-700 hover:bg-green-600 transition-colors">▶ Run</button>
           <button onClick={save}     className="w-full py-1.5 rounded text-xs bg-white/10 hover:bg-white/20 transition-colors">💾 Save JSON</button>
+          <button onClick={() => void saveToSupabase(false)} className="w-full py-1.5 rounded text-xs bg-amber-900/40 hover:bg-amber-900/60 transition-colors">☁ Save to Workspace</button>
+          <button onClick={() => void saveToSupabase(true)}  className="w-full py-1.5 rounded text-xs bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 transition-colors">🏪 Publish to Marketplace</button>
           <button onClick={clear}    className="w-full py-1.5 rounded text-xs bg-red-900/40 hover:bg-red-900/60 transition-colors">✕ Clear</button>
         </div>
       </aside>

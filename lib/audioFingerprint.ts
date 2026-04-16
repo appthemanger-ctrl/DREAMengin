@@ -217,6 +217,61 @@ export function matchFingerprint(
   return results;
 }
 
+// ─── createFingerprintIsolator ───────────────────────────────────────────────
+
+/**
+ * createFingerprintIsolator()
+ *
+ * Returns a stateful isolator object that lets the user:
+ *   1. Record a reference fingerprint from a visual tap (recordReference).
+ *   2. Match that fingerprint against the full song peak map and extract
+ *      isolated audio chunks (isolate).
+ *
+ * Uses constellation peak-map technique described in docs/LAW.md §17.
+ * No AI model required — pure signal fingerprinting.
+ */
+export function createFingerprintIsolator() {
+  let _reference: Fingerprint | null = null;
+
+  return {
+    /** True once a reference fingerprint has been recorded. */
+    get hasReference() {
+      return _reference !== null;
+    },
+
+    /**
+     * Record a reference fingerprint from a time window in the peak map.
+     * Typically called when the user taps a frequency hotspot in the 3D
+     * visualizer.
+     */
+    recordReference(peakMap: PeakMap, startTime: number, endTime: number): Fingerprint {
+      _reference = recordReferenceFingerprint(peakMap, startTime, endTime);
+      return _reference;
+    },
+
+    /**
+     * Match the reference fingerprint against candidatePeakMap and extract
+     * matching audio chunks from sourceBuffer as an isolated stem AudioBuffer.
+     *
+     * Returns null if no reference fingerprint has been recorded.
+     */
+    isolate(
+      candidatePeakMap: PeakMap,
+      sourceBuffer: AudioBuffer,
+      threshold = 0.75,
+    ): AudioBuffer | null {
+      if (!_reference) return null;
+      const matches = matchFingerprint(_reference, candidatePeakMap, threshold);
+      return extractAudioChunks(sourceBuffer, matches);
+    },
+
+    /** Clear the stored reference fingerprint. */
+    clear() {
+      _reference = null;
+    },
+  };
+}
+
 // ─── extractAudioChunks ──────────────────────────────────────────────────────
 
 /**

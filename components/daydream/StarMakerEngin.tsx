@@ -73,6 +73,8 @@ import MultitrackArrangementPanel from '@/components/daydream/starmaker/Multitra
 import PianoRollPanel from '@/components/daydream/starmaker/PianoRollPanel';
 import CompingPanel from '@/components/daydream/starmaker/CompingPanel';
 import SessionViewPanel from '@/components/daydream/starmaker/SessionViewPanel';
+import { AudioVisualizer3D } from '@/components/AudioVisualizer3D';
+import { buildPeakMap, createFingerprintIsolator, type PeakMap } from '@/lib/audioFingerprint';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -2782,6 +2784,15 @@ function DAWFileIOPanel({
   const arrangementPlayheadRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const restoringLedgerAudioRef = useRef(false);
 
+  // ── 3D Visualizer + Fingerprint isolation refs ──
+  const analyserRef     = useRef<AnalyserNode | null>(null);
+  const mediaSourceRef  = useRef<MediaElementAudioSourceNode | null>(null);
+  const peakMapRef      = useRef<PeakMap | null>(null);
+  const isolatorRef     = useRef(createFingerprintIsolator());
+
+  // ── 3D Visualizer state ──
+  const [show3DVisualizer, setShow3DVisualizer] = useState(false);
+
   // ── Helper: get/create OfflineAudioContext for processing ──
   function getOfflineCtx(length: number, sr: number, ch: number) {
     return new OfflineAudioContext(ch, length, sr);
@@ -2799,6 +2810,47 @@ function DAWFileIOPanel({
     const a = document.createElement('a');
     a.href = url; a.download = name; a.click();
     URL.revokeObjectURL(url);
+  }
+
+  // ── Helper: wire analyser node to audio element ──
+  function ensureAnalyser(): AnalyserNode | null {
+    const audio = audioRef.current;
+    if (!audio) return null;
+    if (!audioCtxRef.current) {
+      const W = window as Window & typeof globalThis & { webkitAudioContext?: typeof AudioContext };
+      const Ctor = window.AudioContext ?? W.webkitAudioContext;
+      if (!Ctor) return null;
+      audioCtxRef.current = new Ctor();
+    }
+    const ctx = audioCtxRef.current;
+    if (!analyserRef.current) {
+      analyserRef.current = ctx.createAnalyser();
+      analyserRef.current.fftSize = 2048;
+    }
+    if (!mediaSourceRef.current) {
+      try {
+        mediaSourceRef.current = ctx.createMediaElementSource(audio);
+        mediaSourceRef.current.connect(analyserRef.current);
+        analyserRef.current.connect(ctx.destination);
+      } catch {
+        // Already connected — ignore
+      }
+    }
+    return analyserRef.current;
+  }
+
+  // ── Handler: Isolate Sound ──
+  function handleIsolateSound() {
+    const buf = audioBufRef.current;
+    const pm  = peakMapRef.current;
+    if (!buf || !pm) { showOpMsg('⚠ Load audio first'); return; }
+
+    // Ensure visualizer is open (user taps a hotspot to record reference)
+    const analyser = ensureAnalyser();
+    if (!analyser) { showOpMsg('⚠ AudioContext unavailable'); return; }
+
+    setShow3DVisualizer(true);
+    showOpMsg('Tap a frequency peak in the 3D visualizer to record a reference fingerprint');
   }
 
   function clampZoom(next: number) {
@@ -2988,6 +3040,9 @@ function DAWFileIOPanel({
         setNumChannels(audioBuf.numberOfChannels);
         setWaveform(buildWaveform(audioBuf, FIO_BARS));
         setAudioStats(computeAudioStats(audioBuf));
+        // Build peak map for 3D visualizer hotspots + fingerprint isolation
+        peakMapRef.current = buildPeakMap(audioBuf);
+        isolatorRef.current.clear();
       } else {
         // Fallback: use HTML Audio for duration only, fake waveform
         audioBufRef.current = null;
@@ -3636,6 +3691,25 @@ function DAWFileIOPanel({
             }}>
             <Upload className="w-4 h-4" />
           </button>
+
+          <button type="button"
+            onClick={() => {
+              const analyser = ensureAnalyser();
+              if (!analyser) { showOpMsg('⚠ Load audio first'); return; }
+              setShow3DVisualizer(v => !v);
+            }}
+            disabled={!hasAudio}
+            title={show3DVisualizer ? 'Close 3D Visualizer' : 'Open 3D Visualizer'}
+            style={{
+              padding: '10px 12px', borderRadius: 8, cursor: hasAudio ? 'pointer' : 'not-allowed',
+              border: `1px solid ${show3DVisualizer ? 'rgba(251,191,36,0.4)' : DAW.border}`,
+              background: show3DVisualizer ? 'rgba(251,191,36,0.10)' : DAW.surfaceHi,
+              color: show3DVisualizer ? '#fbbf24' : DAW.dim,
+              fontSize: 13, fontWeight: 700, transition: 'all 0.15s', opacity: hasAudio ? 1 : 0.4,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+            }}>
+            {'⬡'}
+          </button>
         </div>
 
         {/* Hidden file input */}
@@ -4056,6 +4130,60 @@ function DAWFileIOPanel({
                   {op.icon} {op.label}
                 </button>
               ))}
+              {/* Isolate Sound — fingerprint-based isolation */}
+              <button type="button" onClick={handleIsolateSound}
+                disabled={opPending || !audioBufRef.current}
+                title="Open 3D Visualizer, tap a frequency peak to record a reference fingerprint, then extract matching audio chunks as an isolated stem."
+                style={{
+                  padding: '7px 12px', borderRadius: 8,
+                  cursor: (opPending || !audioBufRef.current) ? 'not-allowed' : 'pointer',
+                  border: `1px solid rgba(251,191,36,0.35)`,
+                  background: 'rgba(251,191,36,0.08)',
+                  color: (opPending || !audioBufRef.current) ? DAW.dim : '#fbbf24',
+                  fontSize: 10, fontWeight: 700,
+                  opacity: (opPending || !audioBufRef.current) ? 0.4 : 1,
+                  transition: 'all 0.15s',
+                }}
+              >
+                🔍 Isolate Sound
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* ── 3D Audio Visualizer ── */}
+        {show3DVisualizer && analyserRef.current && (
+          <div style={{
+            borderRadius: 10, overflow: 'hidden',
+            border: `1px solid rgba(251,191,36,0.20)`,
+            background: DAW.surface,
+          }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '8px 12px', borderBottom: `1px solid ${DAW.border}`,
+              fontSize: 11, fontWeight: 700, color: '#fbbf24',
+            }}>
+              <span>⬡ 3D Audio Visualizer</span>
+              <button type="button"
+                onClick={() => setShow3DVisualizer(false)}
+                style={{ background: 'none', border: 'none', color: DAW.dim, cursor: 'pointer', fontSize: 14, padding: 0, lineHeight: 1 }}
+              >✕</button>
+            </div>
+            <div style={{ height: 320 }}>
+              <AudioVisualizer3D
+                analyser={analyserRef.current}
+                peakMap={peakMapRef.current ?? undefined}
+                sourceBuffer={audioBufRef.current ?? undefined}
+                onStemExtracted={async (stemBuf) => {
+                  // Encode the extracted stem and load it into the editor
+                  const wav = encodeWav(stemBuf);
+                  const current = getCurrentHistoryEntry();
+                  if (current) pushHistory(undoStackRef, current);
+                  clearRedoStack();
+                  await loadBlob(wav, `isolated-stem-${Date.now()}.wav`);
+                  showOpMsg('✓ Isolated stem loaded into editor');
+                }}
+              />
             </div>
           </div>
         )}
