@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import LandingHero from '@/components/LandingHero';
-import { createServerClient } from '@/lib/supabase/server';
 import { isDevBypassActive } from '@/lib/dev-bypass';
-import { safeGetUser } from '@/lib/supabase/safeGetUser';
 
 // Resolve the site origin from env so OG image URLs are absolute.
 // Falls back to the production domain when the env var is absent (CI / prod).
@@ -52,16 +50,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function Root() {
-  // Redirect authenticated users to the home feed
-  const supabase = await createServerClient();
-  const user = await safeGetUser(supabase);
-
-  // If user is authenticated (or dev bypass is active), redirect to home feed
-  if (user || isDevBypassActive()) {
+export default function Root() {
+  // Dev-bypass redirect is sync — no loading spinner triggered
+  if (isDevBypassActive()) {
     redirect('/homedream');
   }
 
-  // Otherwise, show the public landing page
+  // Render landing page immediately; authenticated users are redirected
+  // client-side by LandingHero to avoid blocking on Supabase auth.
   return <LandingHero />;
 }
