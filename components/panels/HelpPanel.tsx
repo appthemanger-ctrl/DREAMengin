@@ -10,7 +10,7 @@ import { ArrowLeft, HelpCircle, BookOpen, Wand2, MessageCircle } from 'lucide-re
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 
 const GUIDES = [
-  { icon: '🔒', title: 'How to use the Home Buttons',     desc: 'Drag the blue + gold buttons together to lock, then tap to open menus.' },
+  { icon: '🔒', title: 'How to use the Home Buttons',     desc: 'Drag the blue + gold particles together to lock, then tap to open menus.' },
   { icon: '🏠', title: 'Setting up your Home Dream',      desc: 'Add, reorder, and pin widgets from Edit Mode.' },
   { icon: '🔌', title: 'Connecting services',             desc: 'Link Instagram, YouTube, Spotify and more in Connectors.' },
   { icon: '👤', title: 'Setting up your Public Profile',  desc: 'Publish widgets and content to your public @handle page.' },

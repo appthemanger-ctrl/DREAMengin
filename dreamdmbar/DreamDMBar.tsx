@@ -1,24 +1,24 @@
 'use client';
 
 /**
- * DreamDMBar — Pass 3 (Window Model) — CORRECTED GOLD BUTTON SPEC
+ * DreamDMBar — Pass 3 (Window Model) — CORRECTED GOLD PARTICLE SPEC
  *
  * DreamDMBar is a draggable window, not a thin rail.
  *
- * GOLD BUTTON ATTACHMENT RULE (CORRECTED):
- *   1. The Gold button is attached to the TOP of the DreamDM Bar by default
+ * GOLD PARTICLE ATTACHMENT RULE (CORRECTED):
+ *   1. The Gold Particle is attached to the TOP of the DreamDM Bar by default
  *   2. It stays attached while the bar is visible and on screen
  *   3. It detaches ONLY when dragging the bar upward causes the button's
  *      normal attached position to go off the top of the screen
- *   4. When detached, the Gold button locks to the SCREEN/viewport (not the bar)
+ *   4. When detached, the Gold Particle locks to the SCREEN/viewport (not the bar)
  *   5. It does NOT move with page scroll when screen-locked
  *   6. It does NOT detach for typing, keyboard, or compose state
  *   7. When the bar is dragged back down and the top-of-box position is back
- *      on screen, the Gold button unlocks and reattaches to the TOP of the bar
+ *      on screen, the Gold Particle unlocks and reattaches to the TOP of the bar
  *
  * Behaviour:
  *   - Rests at the bottom as a thick bar (BAR_H = 80 px)
- *   - Gold button attached to the top edge of the bar
+ *   - Gold Particle attached to the top edge of the bar
  *   - Drag UP → bar expands from bottom; HomeDream content revealed above
  *   - Past threshold (bar top < 40% from screen top) → snaps to top as panel
  *   - If button's attached position goes off-screen → button screen-locks at top
@@ -117,7 +117,7 @@ export const BAR_H = 80;
 const TOP_H        = 340;
 /** Compact nav-bar height when locked at the top (collapsed/nav-bar mode) */
 export const NAV_H = 52;
-/** Gold button diameter (full / revealed) */
+/** Gold Particle diameter (full / revealed) */
 const GOLD_SZ      = 60;
 const GOLD_R       = GOLD_SZ / 2;
 /** Gold capsule size when in minimized / idle state */
@@ -133,7 +133,7 @@ const SPRING       = '0.46s cubic-bezier(0.34,1.22,0.64,1)';
 const ORB_DRAG_SLOP = 6;
 
 /**
- * GlowingLight — the ambient indicator that replaces the geometric gold button.
+ * GlowingLight — the ambient indicator that replaces the geometric Gold Particle.
  *
  * Appearance: a tiny soft glow with NO hard edges, NO circle border-radius.
  * Implemented exclusively with CSS radial-gradient and box-shadow + blur.
@@ -349,7 +349,7 @@ function StreakFlame({ count, tier }: { count: number; tier: StreakTier }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ParticleFountain — renders animated particles from gold button long-press
+// ParticleFountain — renders animated particles from Gold Particle long-press
 // ─────────────────────────────────────────────────────────────────────────────
 function ParticleFountain({ particles, centerX, centerY }: { particles: Particle[]; centerX: number; centerY: number }) {
   return (
@@ -378,11 +378,11 @@ function ParticleFountain({ particles, centerX, centerY }: { particles: Particle
 // ── Props
 // ─────────────────────────────────────────────────────────────────────────────
 interface DreamDMBarProps {
-  /** Single-tap the gold button → open radial menus */
+  /** Single-tap the Gold Particle → open radial menus */
   onBothMenus: () => void;
-  /** Double-tap the gold button (bar at bottom) → go home in Surface Space */
+  /** Double-tap the Gold Particle (bar at bottom) → go home in Surface Space */
   onHome: () => void;
-  /** Double-tap the gold button (bar at top) → open HomeDream in DreamSpace (dual-home) */
+  /** Double-tap the Gold Particle (bar at top) → open HomeDream in DreamSpace (dual-home) */
   onHomeDreamSpace?: () => void;
   /** Bridge bar state to the dual-runtime host */
   onRuntimeModeChange?: (mode: 'home' | 'blend' | 'dreamspace') => void;
@@ -419,7 +419,7 @@ interface DreamDMBarProps {
 // ─────────────────────────────────────────────────────────────────────────────
 export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange, onMinimizedChange }: DreamDMBarProps) {
   const isGameImmersive = useImmersiveGameLayout();
-  /** Gold button diameter — shrinks when a game overlay is active so it stays out of the way */
+  /** Gold Particle diameter — shrinks when a game overlay is active so it stays out of the way */
   const goldSz = isGameImmersive ? 36 : GOLD_SZ;
   const goldR  = goldSz / 2;
   // ── Screen geometry + keyboard tracking ───────────────────────────────────
@@ -576,7 +576,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   }, []);
   const streakTier = getStreakTier(streakData.count);
 
-  // ── ✨ Gold Button Long-Press Particle Fountain ───────────────────────────
+  // ── ✨ Gold Particle Long-Press Particle Fountain ───────────────────────────
   const [particles, setParticles] = useState<Particle[]>([]);
 
   // ── Minimized orb drag callbacks (must be after revealBar) ──────────────
@@ -1311,7 +1311,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   // showFull: whether to render the expanded tab panel instead of the compact bar
   const showFull: boolean = !isDividerMode && (isTopExpanded || dragH > 180);
 
-  // Gold button geometry:
+  // Gold Particle geometry:
   // - Divider mode: gold sits centered on the divider bar (vertically centered)
   // - Bottom mode: gold sits on the BAR's top edge  (center = barTop)
   // - Top modes:   gold hangs from the BAR's bottom edge (center = barTop + barH)
@@ -1356,71 +1356,71 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
 
   // ── Render ────────────────────────────────────────────────────────────────
 
-  // ── Minimized state: draggable glowing light ─────────────────────────────
-  if (isMinimized) {
-    const posStyle: React.CSSProperties = minOrbPos !== null
-      ? { left: minOrbPos.x, top: minOrbPos.y, right: undefined, bottom: undefined }
-      : { right: 20, bottom: 20 + keyboardOffsetPx };
-    return (
-      <div
-        aria-label="DreamDM — tap to expand, drag to reposition"
-        style={{
-          position: 'fixed',
-          ...posStyle,
-          width: 44,
-          height: 44,
-          zIndex: 200,
-          touchAction: 'none',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-        onPointerDown={(e) => {
-          e.preventDefault();
-          (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-          const rect = e.currentTarget.getBoundingClientRect();
-          minOrbDragRef.current = { active: true, startX: e.clientX, startY: e.clientY, startPosX: rect.left, startPosY: rect.top, moved: false };
-        }}
-        onPointerMove={(e) => {
-          const drag = minOrbDragRef.current;
-          if (!drag?.active) return;
-          const dx = e.clientX - drag.startX;
-          const dy = e.clientY - drag.startY;
-          if (Math.abs(dx) > ORB_DRAG_SLOP || Math.abs(dy) > ORB_DRAG_SLOP) drag.moved = true;
-          if (drag.moved) {
-            const nx = Math.max(0, Math.min(window.innerWidth - 48, drag.startPosX + dx));
-            const ny = Math.max(0, Math.min(window.innerHeight - 48, drag.startPosY + dy));
-            setMinOrbPos({ x: nx, y: ny });
-          }
-        }}
-        onPointerUp={() => {
-          const drag = minOrbDragRef.current;
-          if (!drag?.active) return;
-          const wasDragged = drag.moved;
-          minOrbDragRef.current = null;
-          if (!wasDragged) {
-            // Restore bar without resetting positions — runtimes stay exactly as they were
-            setIsMinimized(false);
-            revealBar();
-          }
-        }}
-        onPointerCancel={() => { minOrbDragRef.current = null; }}
-      >
-        <GlowingLight
-          isCollapsed
-          firstTime={firstTimeLight}
-          tooltip={lightTooltip}
-          aria-label="DreamDM — tap to expand"
-        />
-      </div>
-    );
-  }
+  // ── Minimized orb — floats alongside the hidden bar (bar stays in DOM) ──
+  const minOrbStyle: React.CSSProperties = minOrbPos !== null
+    ? { left: minOrbPos.x, top: minOrbPos.y, right: undefined, bottom: undefined }
+    : { right: 20, bottom: 20 + keyboardOffsetPx };
 
   return (
     <>
-      {/* ── DreamDM window ───────────────────────────────────────────────────── */}
+      {/* Minimized: draggable glowing light. Bar below stays in DOM (visibility:hidden). */}
+      {isMinimized && (
+        <div
+          aria-label="DreamDM — tap to expand, drag to reposition"
+          style={{
+            position: 'fixed',
+            ...minOrbStyle,
+            width: 44,
+            height: 44,
+            zIndex: 200,
+            touchAction: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onPointerDown={(e) => {
+            e.preventDefault();
+            (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+            const rect = e.currentTarget.getBoundingClientRect();
+            minOrbDragRef.current = { active: true, startX: e.clientX, startY: e.clientY, startPosX: rect.left, startPosY: rect.top, moved: false };
+          }}
+          onPointerMove={(e) => {
+            const drag = minOrbDragRef.current;
+            if (!drag?.active) return;
+            const dx = e.clientX - drag.startX;
+            const dy = e.clientY - drag.startY;
+            if (Math.abs(dx) > ORB_DRAG_SLOP || Math.abs(dy) > ORB_DRAG_SLOP) drag.moved = true;
+            if (drag.moved) {
+              const nx = Math.max(0, Math.min(window.innerWidth - 48, drag.startPosX + dx));
+              const ny = Math.max(0, Math.min(window.innerHeight - 48, drag.startPosY + dy));
+              setMinOrbPos({ x: nx, y: ny });
+            }
+          }}
+          onPointerUp={() => {
+            const drag = minOrbDragRef.current;
+            if (!drag?.active) return;
+            const wasDragged = drag.moved;
+            minOrbDragRef.current = null;
+            if (!wasDragged) {
+              // Restore bar without resetting positions — runtimes stay exactly as they were
+              setIsMinimized(false);
+              revealBar();
+            }
+          }}
+          onPointerCancel={() => { minOrbDragRef.current = null; }}
+        >
+          <GlowingLight
+            isCollapsed
+            firstTime={firstTimeLight}
+            tooltip={lightTooltip}
+            aria-label="DreamDM — tap to expand"
+          />
+        </div>
+      )}
+      {/* ── DreamDM window — stays in DOM even when minimized (spec: visibility:hidden) ── */}
       <div
         aria-label="DreamDM Bar"
+        aria-hidden={isMinimized}
         className="sicc-bar-edge"
         onPointerDown={revealBar}
         onTouchStart={handleBarTouchStart}
@@ -1436,12 +1436,15 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             : { left: 0, right: 0 }),
           height: barH,
           zIndex: 100,
-          pointerEvents: 'auto',
+          // When minimized: keep in DOM (HomeDream/DreamSpace stay visible+scrollable) but
+          // make invisible and non-interactive so the floating orb takes over.
+          visibility: isMinimized ? 'hidden' : 'visible',
+          pointerEvents: isMinimized ? 'none' : 'auto',
           overflow: 'hidden',
           touchAction: 'pan-y',
-          // Pill/bubble border radius only in divider mode
-          borderRadius: isDividerMode ? 36 : 0,
-          transition: isDragging ? 'none' : `top ${SPRING}, height ${SPRING}, border-radius ${SPRING}, opacity 0.5s ease, background 0.5s ease, transform 0.25s ease`,
+          // Pill-shaped draggable handle — always 999px radius (spec: border-radius: 999px)
+          borderRadius: 999,
+          transition: isDragging ? 'none' : `top ${SPRING}, height ${SPRING}, border-radius ${SPRING}, opacity 0.5s ease, background 0.5s ease, transform 0.25s ease, visibility 0s`,
           willChange: isDragging ? 'top, height' : undefined,
           transform: keyboardTranslateY !== 0 ? `translateY(${keyboardTranslateY}px)` : undefined,
           display: 'flex',

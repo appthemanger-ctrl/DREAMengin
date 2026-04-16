@@ -10,6 +10,7 @@ import ThemeProvider from '@/components/providers/ThemeProvider';
 import ThemeApplicator from '@/components/ThemeApplicator';
 import Link from 'next/link';
 import { DreamSystemProvider } from '@/lib/dreamdm/DreamSystemContext';
+import { OSProvider } from '@/lib/dreamenginOS/OSContext';
 import GlobalDreamBar from '@/components/home/GlobalDreamBar';
 import PersistentDreamBar from '@/components/home/PersistentDreamBar';
 import { CustomizeModeProvider } from '@/lib/ui/CustomizeModeContext';
@@ -82,12 +83,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <WarpCanvas effect="flow" maxParticles={200} spawnRate={25} opacity={0.35} />
           <CustomizeModeProvider>
             <DreamSystemProvider>
+              <OSProvider>
               <main role="main" aria-label="Main content">{children}</main>
               <Suspense><GlobalDreamBar /></Suspense>
               <Suspense><PersistentDreamBar /></Suspense>
               <GlobalCustomizeUI />
               <KonamiDream />
               <Suspense><CommandPalette /></Suspense>
+              </OSProvider>
             </DreamSystemProvider>
           </CustomizeModeProvider>
 

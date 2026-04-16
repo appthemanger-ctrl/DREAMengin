@@ -61,11 +61,20 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 |------|----------------|
 | `app/` | Next.js App Router pages and API route handlers |
 | `app/api/` | 97 API route handlers |
-| `components/daydream/` | The 6 Daydream surfaces + Engin components |
+| `dreamdmbar/` | DreamDM Bar (draggable divider), HomeDream, DreamR feed |
+| `daydreams/` | Top-level Daydream surface pages |
+| `engins/` | Six Engin components (StarMaker, Game, Code, Lab, Brand, Content) |
+| `coresurfaces/` | Core surface layouts and wrappers |
+| `components/daydream/` | Legacy Engin components (transitioning to `engins/`) |
 | `components/games/` | All game components (MADMAXI, NeonDrift, etc.) |
-| `components/home/` | HomeDream + HomeSystem |
-| `components/messaging/` | DreamDMBar (the dual-runtime divider) |
-| `components/music/` | SoundRecorder and music UI |
+| `components/home/` | HomeDream + HomeSystem + GlobalDreamBar |
+| `components/dreamengin/` | DreamSpace artifact tray + OS subsystem widgets |
+| `games/` | Full game implementations (madmaxi, rts, etc.) |
+| `lib/dreamenginOS/` | OS core: event bus, ledger, upgradeEngine, OSContext |
+| `lib/dreamdm/` | DreamDM Bar hooks, interactions, messaging |
+| `lib/vm/` | WASM+GPU Virtual Machine (dual runtime, 20-syscall ABI) |
+| `lib/runtime/` | Dual-runtime bridge, event bus, OS bus |
+| `components/messaging/` | Legacy DreamDMBar (migrating to `dreamdmbar/`) |
 | `lib/` | Hooks, utilities, Supabase client, game libs |
 | `docs/` | All governance, law, spec, and policy documents |
 | `.github/workflows/` | 56 CI/CD automation workflows |

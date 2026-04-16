@@ -1,5 +1,5 @@
 // components/dreamengin/HomeControls.tsx
-// ONE gold button. Always has been. Always will be.
+// ONE Gold Particle. Always has been. Always will be.
 //   • Single tap → open both menus (Outdream on left, Nexus on right)
 //   • Double tap → go home
 

@@ -1,12 +1,49 @@
 'use client';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { enginBridge } from '@/lib/runtime/dualRuntimeBridge';
+import { scoreSwipePath, type TouchPoint } from './algorithms/botDetector';
+import { recordView } from '@/lib/ledger';
+import { createLedger } from '@/lib/ledger';
 export { DREAMR_TOPICS } from './algorithms/dreamrfeed';
+
+/** Module-level ledger instance for view tallying (lightweight, in-memory only). */
+const _feedLedger = createLedger();
+
+/** Freeze the feed UI for `ms` milliseconds (bot penalty). */
+const BOT_FREEZE_MS_MIN = 3000;
+const BOT_FREEZE_MS_MAX = 5000;
 
 export default function DreamRFeed({ videoId, sharerId, viewerId }: { videoId: string, sharerId: string, viewerId: string }) {
   const [hasTallied, setHasTallied] = useState(false);
   const [dragX, setDragX] = useState(0);
+  /** When > Date.now(), the feed is frozen as a bot-penalty. */
+  const [frozenUntil, setFrozenUntil] = useState(0);
   const touchStart = useRef<number | null>(null);
+  /** Accumulated touch points for the current swipe (for bot analysis). */
+  const touchPointsRef = useRef<TouchPoint[]>([]);
+  /** Recent deviation arrays for cross-swipe similarity analysis (last 5). */
+  const recentPathsRef = useRef<number[][]>([]);
+  /** Timer ID for the 4-second view tally. */
+  const viewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const isFrozen = useCallback(() => Date.now() < frozenUntil, [frozenUntil]);
+
+  // ── 4-second view tally ──────────────────────────────────────────────────
+  // Start the 4-second timer when this feed card mounts/changes.
+  // If the user is still on the card after 4 s, record the view.
+  useEffect(() => {
+    if (viewTimerRef.current) clearTimeout(viewTimerRef.current);
+    viewTimerRef.current = setTimeout(() => {
+      // Record view in the local feed ledger for torridity tracking
+      recordView(_feedLedger, videoId);
+      // Also broadcast to the dual-runtime bridge for cross-surface tallying
+      enginBridge.emitToChannel('LEDGER_TALLY', { videoId, sharerId });
+    }, 4000);
+
+    return () => {
+      if (viewTimerRef.current) clearTimeout(viewTimerRef.current);
+    };
+  }, [videoId, sharerId]);
 
   // SILENT VIEW TALLY: Only counts unique discovery paths
   useEffect(() => {
@@ -22,21 +59,66 @@ export default function DreamRFeed({ videoId, sharerId, viewerId }: { videoId: s
         }
       });
     }
-  }, [videoId, sharerId, viewerId]);
+  }, [videoId, sharerId, viewerId, hasTallied]);
 
-  // STICKY PHYSICS: Swipe left to Share
+  // STICKY PHYSICS: Swipe left to Share — with bot detection on swipe end
   const handleTouch = (e: React.TouchEvent, phase: 'start' | 'move' | 'end') => {
-    if (phase === 'start') touchStart.current = e.targetTouches[0].clientX;
-    if (phase === 'move' && touchStart.current !== null) {
-      const diff = e.targetTouches[0].clientX - touchStart.current;
-      if (diff < 0) setDragX(diff); 
+    if (isFrozen()) return; // block input while frozen
+
+    if (phase === 'start') {
+      touchStart.current = e.targetTouches[0].clientX;
+      touchPointsRef.current = [{
+        x: e.targetTouches[0].clientX,
+        y: e.targetTouches[0].clientY,
+        t: e.timeStamp,
+      }];
     }
+
+    if (phase === 'move' && touchStart.current !== null) {
+      const t = e.targetTouches[0];
+      touchPointsRef.current.push({ x: t.clientX, y: t.clientY, t: e.timeStamp });
+      const diff = t.clientX - touchStart.current;
+      if (diff < 0) setDragX(diff);
+    }
+
     if (phase === 'end') {
+      // ── Bot detection ────────────────────────────────────────────────────
+      const points = touchPointsRef.current;
+      if (points.length >= 3) {
+        const result = scoreSwipePath(points, recentPathsRef.current);
+
+        // Maintain rolling window of last 5 deviation arrays for cross-swipe sim
+        const deviations = points.slice(1, -1).map((p, i) => {
+          const p0 = points[0];
+          const pn = points[points.length - 1];
+          const dx = pn.x - p0.x;
+          const dy = pn.y - p0.y;
+          const len = Math.sqrt(dx * dx + dy * dy);
+          if (len < 1e-9) return 0;
+          return Math.abs(dx * (p.y - p0.y) - dy * (p.x - p0.x)) / len;
+        });
+        recentPathsRef.current = [...recentPathsRef.current, deviations].slice(-5);
+
+        if (result.isBot) {
+          // Freeze feed for 3–5 seconds (random within range)
+          const freezeMs = BOT_FREEZE_MS_MIN +
+            Math.random() * (BOT_FREEZE_MS_MAX - BOT_FREEZE_MS_MIN);
+          setFrozenUntil(Date.now() + freezeMs);
+          setDragX(0);
+          touchStart.current = null;
+          touchPointsRef.current = [];
+          return;
+        }
+      }
+
       if (dragX < -100) enginBridge.emitToChannel('SHARE', { videoId, viewerId });
       setDragX(0);
       touchStart.current = null;
+      touchPointsRef.current = [];
     }
   };
+
+  const frozen = isFrozen();
 
   return (
     <div className="w-full max-w-md mx-auto p-4 select-none">
@@ -49,6 +131,29 @@ export default function DreamRFeed({ videoId, sharerId, viewerId }: { videoId: s
             <h2 className="text-[#FFD700] font-black text-xl italic uppercase tracking-tighter">DreamR</h2>
             <div className="h-1.5 w-1.5 rounded-full bg-[#FFD700] shadow-[0_0_8px_#FFD700]" />
           </div>
+
+          {/* Bot-freeze overlay */}
+          {frozen && (
+            <div
+              aria-live="assertive"
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'rgba(2,5,10,0.82)',
+                borderRadius: 'inherit',
+                zIndex: 10,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 11,
+                fontWeight: 700,
+                color: 'rgba(255,215,0,0.5)',
+                letterSpacing: '0.08em',
+              }}
+            >
+              ⚡ verifying…
+            </div>
+          )}
 
           {/* VIEWPORT: The Content Area */}
           <div 

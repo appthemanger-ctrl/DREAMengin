@@ -8,7 +8,7 @@
  *   components/menus/SystemRadialMenu.tsx  ← System navigation (right menu)
  *   components/menus/DualBottomMenu.tsx    ← Unified bottom menu wrapper (both)
  *
- * DreamNavControls.tsx (in components/dreamnav/) is the Gold Button tap handler.
+ * DreamNavControls.tsx (in components/dreamnav/) is the Gold Particle tap handler.
  * Import DreamRadialMenu, SystemRadialMenu, or DualBottomMenu directly.
  *
  * Per docs/LAW.md §10: repurpose legacy pieces before inventing new top-level

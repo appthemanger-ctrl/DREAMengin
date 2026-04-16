@@ -1138,7 +1138,7 @@ export default function ProfileWidgetGrid({
         ))}
       </div>
 
-      {/* ── ∞ gold button ── */}
+      {/* ── ∞ Gold Particle ── */}
       <div style={{ textAlign: 'center', marginTop: 28 }}>
         <div style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',

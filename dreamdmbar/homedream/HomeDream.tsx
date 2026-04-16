@@ -176,7 +176,7 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
       {bannerVisible && (
         <div className="feed-banner flex items-center justify-between gap-3 text-sm">
           <span className="text-de-gold/90 leading-snug">
-            You&apos;re viewing the default feed. Tap the gold button, then{' '}
+            You&apos;re viewing the default feed. Tap the Gold Particle, then{' '}
             <strong className="text-de-gold font-medium">Settings</strong> to switch to your
             hand-picked sources.
           </span>
@@ -326,7 +326,7 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
 
       </div>
 
-      {/* ── Persistent Gold Button ─────────────────────────────────────────── */}
+      {/* ── Persistent Gold Particle ─────────────────────────────────────────── */}
       <div className={`relative ${bothMenusOpen ? '' : 'gold-button-pulse'}`}>
         <DreamNavControls
           onHome={handleGoHome}

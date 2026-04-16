@@ -1,6 +1,6 @@
 'use client';
 
-// ONE gold button. Always has been. Always will be.
+// ONE Gold Particle. Always has been. Always will be.
 //   • Single tap → open both menus (Dreams on left, System on right)
 //   • Double tap → go home
 

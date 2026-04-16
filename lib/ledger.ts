@@ -58,12 +58,46 @@ export interface TorridityEntry {
   createdAt: string;
 }
 
+// ─── Asset Entry (audio, image, 3D, code) ────────────────────────────────────
+
+export type AssetKind = 'audio' | 'image' | '3d' | 'code';
+
+/**
+ * AssetManifest: arbitrary key/value metadata attached to any asset.
+ * Examples: { duration: 120, mimeType: 'audio/wav' } for audio;
+ *           { width: 1920, height: 1080 } for images.
+ */
+export type AssetManifest = Record<string, unknown>;
+
+/**
+ * AssetEntry — a universal file-system entry for any asset type.
+ *
+ * Fields:
+ *   id       — unique ledger key (auto-generated: `asset_<kind>_<uid>`)
+ *   assetKind — 'audio' | 'image' | '3d' | 'code'
+ *   url      — public URL or data-URL of the asset
+ *   manifest — arbitrary metadata (codec, dimensions, language, etc.)
+ *   owner    — Supabase user ID of the owner (empty string if anonymous)
+ *   name     — human-readable display name
+ */
+export interface AssetEntry {
+  kind: 'asset';
+  id: string;
+  assetKind: AssetKind;
+  url: string;
+  manifest: AssetManifest;
+  owner: string;
+  name: string;
+  createdAt: string;
+}
+
 /** Union of all ledger entry types. */
 export type LedgerEntry =
   | PeakMapEntry
   | FingerprintEntry
   | SampleMetadataEntry
-  | TorridityEntry;
+  | TorridityEntry
+  | AssetEntry;
 
 // ─── Ledger Structure ────────────────────────────────────────────────────────
 
@@ -219,4 +253,73 @@ export function storeTorridityRank(
   ledger.entries.set(id, entry);
   void persist(ledger, entry);
   return id;
+}
+
+// ─── storeAsset ──────────────────────────────────────────────────────────────
+
+/**
+ * storeAsset(ledger, assetKind, url, manifest, owner, name?)
+ *
+ * Stores an asset (audio, image, 3D model, or code snippet) in the ledger.
+ * Returns the generated entry id (`asset_<kind>_<uid>`).
+ */
+export function storeAsset(
+  ledger: Ledger,
+  assetKind: AssetKind,
+  url: string,
+  manifest: AssetManifest,
+  owner: string,
+  name = ''
+): string {
+  const uid = typeof crypto !== 'undefined' && crypto.randomUUID
+    ? crypto.randomUUID()
+    : Math.random().toString(36).slice(2) + Date.now().toString(36);
+  const id = `asset_${assetKind}_${uid}`;
+  const entry: AssetEntry = { kind: 'asset', id, assetKind, url, manifest, owner, name, createdAt: now() };
+  ledger.entries.set(id, entry);
+  void persist(ledger, entry);
+  return id;
+}
+
+// ─── getAllAssets ─────────────────────────────────────────────────────────────
+
+/**
+ * getAllAssets(ledger, assetKind?)
+ *
+ * Returns all asset entries, optionally filtered by assetKind.
+ */
+export function getAllAssets(ledger: Ledger, assetKind?: AssetKind): AssetEntry[] {
+  const results: AssetEntry[] = [];
+  for (const entry of ledger.entries.values()) {
+    if (entry.kind === 'asset') {
+      if (!assetKind || (entry as AssetEntry).assetKind === assetKind) {
+        results.push(entry as AssetEntry);
+      }
+    }
+  }
+  return results;
+}
+
+// ─── recordView ───────────────────────────────────────────────────────────────
+
+/**
+ * recordView(ledger, contentId)
+ *
+ * Increments the view counter on an existing TorridityEntry, or creates one
+ * with a baseline mass/rank if not yet present.  Meant to be called by the
+ * 4-second view tally in DreamRFeed once the user has watched long enough.
+ */
+export function recordView(ledger: Ledger, contentId: string): void {
+  const id = `tr_${contentId}`;
+  const existing = ledger.entries.get(id);
+  if (existing && existing.kind === 'torridity') {
+    const updated: TorridityEntry = {
+      ...existing,
+      views: existing.views + 1,
+    };
+    ledger.entries.set(id, updated);
+    void persist(ledger, updated);
+  } else {
+    storeTorridityRank(ledger, contentId, 1, 1, 1);
+  }
 }

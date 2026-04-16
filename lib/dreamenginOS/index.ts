@@ -72,6 +72,9 @@ export {
   storeFingerprint,
   storeSampleMetadata,
   storeTorridityRank,
+  storeAsset,
+  getAllAssets,
+  recordView,
 } from '../ledger';
 export type {
   Ledger,
@@ -81,6 +84,9 @@ export type {
   SampleMetadataEntry,
   TorridityEntry,
   SampleMetadata,
+  AssetEntry,
+  AssetKind,
+  AssetManifest,
 } from '../ledger';
 
 // Universal Editor

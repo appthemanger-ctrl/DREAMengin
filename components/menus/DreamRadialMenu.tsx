@@ -20,7 +20,7 @@ type Props = {
   side?: 'left' | 'right' | 'center';
 };
 
-// Six fixed Daydream apps (spec §7.2) + Analytics + Marketplace + Shop (accessible from Gold Button nav §4.2)
+// Six fixed Daydream apps (spec §7.2) + Analytics + Marketplace + Shop (accessible from Gold Particle nav §4.2)
 const DREAM_ITEMS = [
   { id: 'music',       label: 'Music',       icon: '🎵', route: '/daydream/music'       },
   { id: 'games',       label: 'Games',       icon: '🎮', route: '/daydream/games'       },
