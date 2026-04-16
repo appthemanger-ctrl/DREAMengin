@@ -117,6 +117,34 @@ describe('Core surface names', () => {
   });
 });
 
+describe('README §5 Global Product Architecture', () => {
+  const coreDreams = [
+    CORE_SURFACES.HOME_DREAM,
+    CORE_SURFACES.EDIT_PROFILE_DREAM_UI,
+    CORE_SURFACES.VIEW_PROFILE_UI,
+  ] as const;
+
+  it('Core Dreams are distinct from Daydream Side A domains', () => {
+    for (const coreDream of coreDreams) {
+      expect(isValidDaydreamDomain(coreDream)).toBe(false);
+    }
+  });
+
+  it('only Daydream Side B surfaces use the Engin suffix', () => {
+    for (const domain of Object.values(DAYDREAM_DOMAINS)) {
+      expect(hasEnginSuffix(domain)).toBe(false);
+    }
+
+    for (const engin of ALL_ENGIN_NAMES) {
+      expect(hasEnginSuffix(engin)).toBe(true);
+    }
+
+    for (const coreDream of coreDreams) {
+      expect(hasEnginSuffix(coreDream)).toBe(false);
+    }
+  });
+});
+
 // ---------------------------------------------------------------------------
 // Daydream domain names (Side A)
 // ---------------------------------------------------------------------------
