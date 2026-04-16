@@ -623,6 +623,10 @@ describe('Rejected OS-layer UI terms', () => {
     expect(isRejectedOsTerm('card')).toBe(true);
   });
 
+  it('"top area" is a rejected OS term', () => {
+    expect(isRejectedOsTerm('top area')).toBe(true);
+  });
+
   it('"tab navigation" is a rejected OS term', () => {
     expect(isRejectedOsTerm('tab navigation')).toBe(true);
   });
@@ -639,8 +643,8 @@ describe('Rejected OS-layer UI terms', () => {
 
   it('canonical names are not rejected OS terms', () => {
     expect(isRejectedOsTerm('Dream Window')).toBe(false);
-    expect(isRejectedOsTerm('Surface Space')).toBe(false);
     expect(isRejectedOsTerm('DreamSpace')).toBe(false);
+    expect(isRejectedOsTerm('primary surface')).toBe(false);
     expect(isRejectedOsTerm('HomeDream Surface')).toBe(false);
   });
 });

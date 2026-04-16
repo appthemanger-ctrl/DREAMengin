@@ -332,6 +332,7 @@ export const REJECTED_OS_TERMS = [
   'page',          // use: surface
   'widget',        // use: Dream Window (for modular runtime containers)
   'widget layer',  // use: DreamSpace
+  'top area',      // use: HomeDream Surface / primary surface
   'tool',          // use: engin capability
   'engine',        // use: Engin
   'pair',          // use: connection path

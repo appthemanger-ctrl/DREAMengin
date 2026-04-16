@@ -297,12 +297,13 @@ The following terms are rejected when a canonical OS-layer equivalent exists:
 | `page` | surface |
 | `widget` | Dream Window (for modular runtime containers) |
 | `widget layer` | DreamSpace |
+| `top area` | HomeDream Surface / primary surface |
 | `tool` | engin capability |
 | `engine` | Engin |
 | `pair` | connection path |
 | `dashboard` | operating surface |
 | `tab navigation` | surface switching |
-| `card` | window / surface block |
+| `card` | Dream Window |
 | `login-like connection` | bind / mount / activate |
 | `open page` | open into / route into |
 | `go to tab` | surface switching |
