@@ -21,13 +21,15 @@ export const metadata = { title: 'Lab Daydream – Dreamengin', description: 'Ex
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'new-experiment', emoji: '🧪', label: 'New Experiment', desc: 'Start a new lab experiment',     color: '#22c55e', href: '/engines/lab/experiments' },
-  { id: 'projects',       emoji: '🔬', label: 'My Projects',    desc: 'Browse your lab projects',       color: '#6366f1', href: '/engines/lab'           },
+  { id: 'prototypes',     emoji: '🔬', label: 'Prototypes',     desc: 'Build and iterate prototypes',   color: '#6366f1', href: '/engines/lab'           },
+  { id: 'tests',          emoji: '✅', label: 'Test Runs',      desc: 'Orchestrate experiment tests',    color: '#14b8a6', href: '/engines/lab/experiments' },
+  { id: 'models',         emoji: '🧩', label: 'Models',         desc: 'State and model exploration',     color: '#0ea5e9', href: '/engines/lab/data'      },
+  { id: 'scenarios',      emoji: '🗺️', label: 'Scenarios',      desc: 'Build and compare scenarios',     color: '#84cc16', href: '/engines/lab'           },
   { id: 'simulation',     emoji: '🌊', label: 'Simulations',    desc: 'Run and view simulations',       color: '#0ea5e9', href: '/engines/lab/experiments' },
-  { id: 'data',           emoji: '📊', label: 'Data & Charts',  desc: 'Visualize experiment results',   color: '#8b5cf6', href: '/engines/lab/data'      },
+  { id: 'viewer',         emoji: '📊', label: 'Simulation Viewer', desc: 'Visualize model states and results', color: '#8b5cf6', href: '/engines/lab/data'   },
   { id: 'physics',        emoji: '⚛️', label: 'Physics Lab',    desc: '3D physics environment',         color: '#f59e0b', href: '/physics-lab'           },
   { id: 'quantum',        emoji: '💡', label: 'Quantum Circuit', desc: 'Build quantum circuits',        color: '#0ea5e9', href: '/engines/lab/quantum'   },
-  { id: 'notes',          emoji: '📝', label: 'Lab Notes',      desc: 'Document your findings',         color: '#ec4899', href: '/notes'                 },
-  { id: 'share',          emoji: '🔗', label: 'Share Results',  desc: 'Post an experiment update',      color: '#c8981a', href: '/daydream/create'       },
+  { id: 'results',        emoji: '🔗', label: 'Share Results',  desc: 'Publish experiment outcomes',     color: '#c8981a', href: '/daydream/create'       },
 ];
 
 export default async function LabDaydreamPage() {

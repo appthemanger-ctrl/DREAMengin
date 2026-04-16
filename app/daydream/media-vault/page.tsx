@@ -5,8 +5,8 @@ import { connection } from 'next/server';
  * Legacy media-vault daydream route — repurposed to the Create Daydream.
  *
  * Media management is a capability of ContentEngin (Create Daydream Side B).
- * Per docs/ARCHITECTURE.md §9 and COPILOT_TOOLKIT.md: "Rename and repurpose
- * before rebuilding." This route now forwards traffic to /daydream/create.
+ * Per docs/ARCHITECTURE.md §9, this legacy route is kept as a redirect and
+ * forwards traffic to /daydream/create.
  */
 export const metadata = { title: 'Media Vault – Dreamengin', description: 'Your private media library.' };
 

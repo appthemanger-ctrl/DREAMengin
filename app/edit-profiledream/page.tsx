@@ -321,6 +321,8 @@ export default function EditProfileDreamPage() {
           {profile.handle && (
             <Link
               href="/view-profile"
+              aria-label="View Profile"
+              title="View Profile / Public View"
               style={{
                 padding: '7px 14px', borderRadius: 10,
                 background: 'rgba(255,255,255,0.08)',
