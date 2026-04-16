@@ -2045,8 +2045,7 @@ DREAMengin includes a bot detection system based on human swipe physics, not cap
 
 
 
-## 37. ...
-Torridity Physics Constants
+## 37. Torridity Physics Constants
 
 The entire platform – from swipe deceleration to content ranking – is governed by three constants derived from galaxy rotation curves and the geometric series `1 + λ + λ² + … + λ⁹ = 300`:
 
@@ -2152,5 +2151,4 @@ The "Dual Runtime Hub" piece can be included to enable cross‑side communicatio
 
 ---
 
-*This specification supersedes all previous product definitions. All AI agents (Dr. Eams, IDARi, TheBoogieMan.Ai, and external Copilot) must obey these rules and.
-;
+*This specification supersedes all previous product definitions. All AI agents (Dr. Eams, IDARi, TheBoogieMan.Ai, and external Copilot) must obey these rules and enforce them in every session.*
