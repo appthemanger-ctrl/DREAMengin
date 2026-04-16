@@ -4,7 +4,9 @@ import { describe, expect, it } from 'vitest';
 
 describe('README HomeDream System spec', () => {
   const readme = readFileSync(resolve(__dirname, '../README.md'), 'utf8');
-  const homeSystemSection = readme.split('## HomeDream System')[1]?.split('# AI Triad')[0] ?? '';
+  const homeSystemSection = readme.match(
+    /## HomeDream System([\s\S]*?)(?:\n## |\n# |\n---\n\n# )/,
+  )?.[1] ?? '';
 
   it('documents the canonical HomeDream route and implementation paths', () => {
     expect(homeSystemSection).toContain('app/homedream/page.tsx');
