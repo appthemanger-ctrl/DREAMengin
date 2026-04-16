@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-16 19:39 UTC  
-**Last updated:** 2026-04-16 19:39 UTC  
-**Triggered by commit:** `edadf75` on `copilot/research-game-engine-architecture` by Copilot  
-**Commit message:** feat: engine overhaul — power-systems split, renderer abstraction, unified loop, SpaceShooter wired
+**Documentation Date:** 2026-04-16 22:39 UTC  
+**Last updated:** 2026-04-16 22:39 UTC  
+**Triggered by commit:** `5f93b52` on `copilot/research-game-engine-architecture` by Copilot  
+**Commit message:** feat: RTSGame wired to ECSWorld + OctreeBVH + ResourcePool + useUnifiedLoop
 
 ---
 
