@@ -23,7 +23,9 @@ export async function safeGetUser<TUser>(
     timeoutId = setTimeout(() => {
       reject(new Error(`Supabase auth timed out after ${effectiveTimeoutMs}ms`));
     }, effectiveTimeoutMs);
-    timeoutId.unref?.();
+    if (typeof timeoutId === 'object' && timeoutId && 'unref' in timeoutId) {
+      timeoutId.unref();
+    }
   });
 
   try {

@@ -48,6 +48,8 @@ describe('app/homedream/page auth gating', () => {
     vi.resetModules();
     vi.clearAllMocks();
     createServerClientMock.mockResolvedValue({
+      // These auth-gating tests exercise the no-user path only, so any data
+      // query would be an unexpected regression.
       from: vi.fn(() => {
         throw new Error('should not fetch profile/feed data in this test');
       }),

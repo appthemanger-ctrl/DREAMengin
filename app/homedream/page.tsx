@@ -22,7 +22,8 @@ export default async function Home() {
   const activeUserId = user?.id ?? (devBypass ? DEV_BYPASS_USER_ID : null);
 
   // Guard is outside try/catch so the NEXT_REDIRECT throw propagates correctly.
-  if (!activeUserId) redirect('/login');
+  if (!user && !devBypass) redirect('/login');
+  const userId = activeUserId ?? DEV_BYPASS_USER_ID;
 
   // ── Step 2: Data fetching — all failures are non-fatal ───────────────────
   let profile = null;
@@ -127,6 +128,6 @@ export default async function Home() {
   }
 
   return (
-    <HomeSystem userId={activeUserId} profile={profile} initialPosts={posts} isAdmin={isAdmin} />
+    <HomeSystem userId={userId} profile={profile} initialPosts={posts} isAdmin={isAdmin} />
   );
 }
