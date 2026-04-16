@@ -621,17 +621,39 @@ This interaction model is designed to make DREAMengin feel like a **spatial oper
 
 ## HomeDream System
 
-Canonical entry point
+Canonical route and entry point
 
 ```ts
 app/homedream/page.tsx
 ```
 
-Core implementation
+Runtime implementation used by the route
+
+```ts
+dreamdmbar/homedream/HomeSystem.tsx
+```
+
+Reference copy kept in sync for surface readability/tests
 
 ```ts
 components/home/HomeSystem.tsx
 ```
+
+### Canonical definitions
+
+- **Surface**: a route-mounted runtime region exposed through the App Router (example: HomeDream Surface at `/homedream`).
+- **Daydream**: a specialized environment mounted inside HomeDream or DreamSpace, not a replacement for the HomeDream route.
+- **Engin**: a capability system mounted inside a runtime region (for example through RuntimeView panel routing).
+- **Dream Window**: a modular runtime container inside DreamSpace that can be blank, connected, or route-mounted.
+- **Canonical Route**: the preferred route used by runtime callbacks and navigation contracts.
+
+### Enforceable system rules
+
+1. `app/homedream/page.tsx` is the canonical HomeDream route entry and must render the HomeSystem runtime.
+2. HomeDream Surface is the primary runtime region; DreamSpace is the secondary region revealed and controlled by DreamDMBar.
+3. DreamDMBar persistence is shell-owned (`app/layout.tsx` via `components/home/PersistentDreamBar.tsx`) and must not be remounted per-surface.
+4. Split-state authority (`splitRatio`, `setSplitRatio`, `setIsBarMinimized`) is shared through `DreamSystemContext` between HomeSystem and PersistentDreamBar.
+5. If DreamDMBar is hidden/minimized, the DreamSpace seam is not interactable as an independent surface; HomeSystem remains authoritative for region composition.
 
 ---
 
