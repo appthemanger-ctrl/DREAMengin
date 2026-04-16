@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-16 17:41 UTC | `8247938` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #551 from appthemanger-ctrl/copilot/add-github-action-bot — Add README section bot-army workflow with 20-minute blocked-context continuation<br> |
 | **auto** | 2026-04-16 11:09 UTC | `d69fe4b` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #550 from appthemanger-ctrl/copilot/integrate-agent-os-into-codeengin — feat: Agent-OS AI Co-pilot + CodeEngin radar architecture<br> |
 | **auto** | 2026-04-16 10:48 UTC | `e510f89` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #549 from appthemanger-ctrl/copilot/ensure-correct-env-vars — Ensuring correct usage of environment variables<br> |
 | **auto** | 2026-04-16 10:47 UTC | `283564b` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #548 from appthemanger-ctrl/copilot/add-webcodecs-h265-encoder — feat(media): WebCodecs H.265 encoder + MediaRecorder game-clip recording<br> |
 | **auto** | 2026-04-16 08:42 UTC | `f2aef23` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #546 from appthemanger-ctrl/v0/appthemanger-ctrl-b5424223 — fix: show landing page immediately, move auth redirect to client-side<br> |
-| **auto** | 2026-04-16 08:38 UTC | `717b399` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #544 from appthemanger-ctrl/copilot/rebuild-robot-landing-page-hero — feat: rebuild Dr. Eams landing hero robot — full 111-line spec, Babylon 9, spec-accurate PBR<br> |
 
 ## What changed in this alignment pass
 
