@@ -1113,11 +1113,18 @@ function drawGS(ctx: CanvasRenderingContext2D, gs: GS, selected: number[]) {
 //  React component
 // ─────────────────────────────────────────────────────────────────────────────
 export default function RTSGame() {
-  const canvasRef  = useRef<HTMLCanvasElement>(null);
-  const gsRef      = useRef<GS>(createGS());
-  const rafRef     = useRef<number>(0);
-  const lastRef    = useRef<number>(0);
-  const selRef     = useRef<number[]>([]);
+  const canvasRef       = useRef<HTMLCanvasElement>(null);
+  const gsRef           = useRef<GS>(createGS());
+  const selRef          = useRef<number[]>([]);
+
+  // ── Engine system refs (reset on each new game) ───────────────────────────
+  const ecsRef          = useRef<ECSWorld>(new ECSWorld());
+  const ecsMapRef       = useRef<Map<number, EntityId>>(new Map());
+  const bvhRef          = useRef<OctreeBVH>(new OctreeBVH());
+  const bvhIdsRef       = useRef<Set<string>>(new Set());
+  const particlePoolRef = useRef<ResourcePool<PooledParticle>>(
+    new ResourcePool<PooledParticle>(() => new PooledParticle(), 256),
+  );
 
   const [phase,      setPhase]      = useState<Phase>('briefing');
   const [credits,    setCredits]    = useState(1500);
@@ -1135,6 +1142,12 @@ export default function RTSGame() {
     _uid = 1;
     gsRef.current = createGS();
     selRef.current = [];
+    // Reset engine systems for the fresh game
+    ecsRef.current    = new ECSWorld();
+    ecsMapRef.current = new Map();
+    bvhRef.current    = new OctreeBVH();
+    bvhIdsRef.current = new Set();
+    particlePoolRef.current = new ResourcePool<PooledParticle>(() => new PooledParticle(), 256);
     setPhase('playing');
     setCredits(1500);
     setBuildQueue(null);
@@ -1144,42 +1157,42 @@ export default function RTSGame() {
   // auto-start support
   useGameAutoStart(phase === 'briefing' ? startGame : null);
 
-  // main game loop
-  useEffect(() => {
-    if (phase !== 'playing') return;
+  // ── Unified-loop tick — replaces the per-game requestAnimationFrame ───────
+  const tick = useCallback((dtMs: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let running = true;
-    lastRef.current = performance.now();
-
-    const loop = (now: number) => {
-      if (!running) return;
-      const dt = Math.min((now - lastRef.current) / 1000, 0.05);
-      lastRef.current = now;
-      const gs = gsRef.current;
-      stepGS(gs, dt);
-      drawGS(ctx, gs, selRef.current);
-
-      if (gs.tick % 30 === 0) {
-        setCredits(gs.credits.resistance);
-        setUnitCounts({
-          player: gs.units.filter(u=>u.faction==='resistance').length,
-          enemy:  gs.units.filter(u=>u.faction==='nexus').length,
-        });
-        setBuildQueue({ ...gs.buildQueue.resistance } as GS['buildQueue']['resistance']);
-        const resBase  = gs.buildings.find(b=>b.faction==='resistance'&&b.type==='base');
-        const nexBase  = gs.buildings.find(b=>b.faction==='nexus'&&b.type==='base');
-        if (!nexBase)  { running=false; setPhase('victory'); }
-        else if (!resBase) { running=false; setPhase('defeat'); }
-      }
-      rafRef.current = requestAnimationFrame(loop);
+    // Cap dt to 50 ms (20 fps floor) so physics don't tunnel on tab-blur.
+    const dt = Math.min(dtMs / 1000, 0.05);
+    const gs = gsRef.current;
+    const stepCtx: StepCtx = {
+      bvh:    bvhRef.current,
+      bvhIds: bvhIdsRef.current,
+      pool:   particlePoolRef.current,
     };
-    rafRef.current = requestAnimationFrame(loop);
-    return () => { running=false; cancelAnimationFrame(rafRef.current); };
-  }, [phase]);
+
+    stepGS(gs, dt, stepCtx);
+    // Mirror ECS state after stepGS so positions/hp are up-to-date.
+    syncECS(ecsRef.current, gs, ecsMapRef.current);
+    drawGS(ctx, gs, selRef.current);
+
+    if (gs.tick % 30 === 0) {
+      setCredits(gs.credits.resistance);
+      setUnitCounts({
+        player: gs.units.filter(u => u.faction === 'resistance').length,
+        enemy:  gs.units.filter(u => u.faction === 'nexus').length,
+      });
+      setBuildQueue({ ...gs.buildQueue.resistance } as GS['buildQueue']['resistance']);
+      const resBase = gs.buildings.find(b => b.faction === 'resistance' && b.type === 'base');
+      const nexBase = gs.buildings.find(b => b.faction === 'nexus'      && b.type === 'base');
+      if (!nexBase)   setPhase('victory');
+      else if (!resBase) setPhase('defeat');
+    }
+  }, []);
+
+  useUnifiedLoop('rts-game', tick, 'NORMAL', phase === 'playing');
 
   const handleCanvasClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const gs   = gsRef.current;
