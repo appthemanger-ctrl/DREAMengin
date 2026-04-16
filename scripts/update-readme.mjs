@@ -24,9 +24,10 @@ import { readFileSync, writeFileSync,
 import { resolve, dirname, join }            from 'path';
 import { fileURLToPath }                     from 'url';
 import {
-  extractRepositoryStateSnapshot,
-  buildRepositoryStateAnalysisSection,
-} from './repository-state-analysis-section.mjs';
+  extractNodeMajorFromDockerfile,
+  extractPnpmVersion,
+  refreshCurrentImplementationStatusSection,
+} from './update-readme-status-utils.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT      = resolve(__dirname, '..');
@@ -410,71 +411,41 @@ if (fsStartIdx !== -1 && fsEndIdx !== -1 && fsEndIdx > fsStartIdx) {
   }
 }
 
-// ── 10. Refresh "Last updated" + "Build Status" inside "## Current Implementation Status" ───────
+// ── 10. Refresh "## Current Implementation Status" with live metadata ───────────
 
-const STATUS_RE = /(## Current Implementation Status\n)((?:Last updated:[^\n]*\n)*)/;
-const statusMatch = STATUS_RE.exec(doc);
-
-if (statusMatch) {
-  const newLine = `Last updated: ${utcDate} — \`${sha}\` by ${actor}\n`;
-  doc = doc.slice(0, statusMatch.index) +
-        statusMatch[1] + newLine +
-        doc.slice(statusMatch.index + statusMatch[0].length);
-} else {
-  const h1end = doc.indexOf('\n') + 1;
-  doc = doc.slice(0, h1end) +
-        `\n_Last updated: ${utcDate} — \`${sha}\` by ${actor}_\n` +
-        doc.slice(h1end);
-}
-
-// Also refresh the "Build Status:" line inside that section with live counts
-doc = doc.replace(
-  /^Build Status:.*$/m,
-  `Build Status: ${routeCount} routes (${pageCount} pages + ${apiCount} API handlers) · ${testCount} test files`
-);
-
-// ── 10b. Refresh "## Repository State Analysis" section from REPO_STATE.md ─────
-
-let repoStateSnapshot = {};
-if (existsSync(REPO_STATE)) {
-  try {
-    repoStateSnapshot = extractRepositoryStateSnapshot(readFileSync(REPO_STATE, 'utf8'));
-  } catch {
-    repoStateSnapshot = {};
-  }
-}
-
-const repositoryStateAnalysisSection = buildRepositoryStateAnalysisSection(repoStateSnapshot);
-const repoSectionHeader = '## Repository State Analysis';
-const repoSectionStart = doc.indexOf(repoSectionHeader);
-
-if (repoSectionStart !== -1) {
-  const dividerStart = doc.indexOf('\n---\n', repoSectionStart);
-  if (dividerStart !== -1) {
-    doc = doc.slice(0, repoSectionStart)
-      + repositoryStateAnalysisSection
-      + '\n\n---\n'
-      + doc.slice(dividerStart + '\n---\n'.length);
-  }
-}
-
-// ── 10a. Refresh Babylon.js version in Tech Stack from package.json ───────────
+let babylonMajor;
+let pnpmVersion;
+let nodeMajor;
 
 try {
   const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
   const babylonRaw = (pkg.dependencies || {})['@babylonjs/core'] || '';
-  // Extract major version, e.g. "^9.1.0" → "9"
   const majorMatch = babylonRaw.match(/(\d+)\./);
-  if (majorMatch) {
-    const babylonMajor = majorMatch[1];
-    doc = doc.replace(
-      /- Babylon\.js \d+\+ \(WebGPU-first 3D rendering\)/g,
-      `- Babylon.js ${babylonMajor}+ (WebGPU-first 3D rendering)`
-    );
-  }
+  babylonMajor = majorMatch?.[1];
+  pnpmVersion = extractPnpmVersion(pkg.packageManager);
 } catch {
   // package.json unreadable — skip silently
 }
+
+try {
+  const dockerfileDev = readFileSync(resolve(ROOT, 'Dockerfile.dev'), 'utf8');
+  nodeMajor = extractNodeMajorFromDockerfile(dockerfileDev);
+} catch {
+  // Dockerfile.dev unreadable — skip silently
+}
+
+doc = refreshCurrentImplementationStatusSection(doc, {
+  utcDate,
+  sha,
+  actor,
+  routeCount,
+  pageCount,
+  apiCount,
+  testCount,
+  babylonMajor,
+  pnpmVersion,
+  nodeMajor,
+});
 
 // ── 11. Update the "## Recent Changes" table ──────────────────────────────────
 
