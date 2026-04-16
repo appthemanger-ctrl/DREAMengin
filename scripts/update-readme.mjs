@@ -23,10 +23,15 @@ import { readFileSync, writeFileSync,
          existsSync, statSync }              from 'fs';
 import { resolve, dirname, join }            from 'path';
 import { fileURLToPath }                     from 'url';
+import {
+  extractRepositoryStateSnapshot,
+  buildRepositoryStateAnalysisSection,
+} from './repository-state-analysis-section.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT      = resolve(__dirname, '..');
 const README    = resolve(ROOT, 'README.md');
+const REPO_STATE = resolve(ROOT, 'REPO_STATE.md');
 const MAX_ROWS  = 10;
 const DOC_OWNER = 'José Mancilla (appthemanger-ctrl)';
 
@@ -333,6 +338,7 @@ function writeSummary(status) {
     '- ✅ **AI Agent Quick Reference** block (top of README)',
     '- ✅ **Recent Changes** table (latest commit prepended)',
     '- ✅ **Current Implementation Status** — "Last updated" line',
+    '- ✅ **Repository State Analysis** — synced from `REPO_STATE.md`',
     '- ✅ **File Structure** — live tree (top-level + key dirs)',
     '',
     '### Key docs for AI agents working in this repo',
@@ -426,6 +432,31 @@ doc = doc.replace(
   /^Build Status:.*$/m,
   `Build Status: ${routeCount} routes (${pageCount} pages + ${apiCount} API handlers) · ${testCount} test files`
 );
+
+// ── 10b. Refresh "## Repository State Analysis" section from REPO_STATE.md ─────
+
+let repoStateSnapshot = {};
+if (existsSync(REPO_STATE)) {
+  try {
+    repoStateSnapshot = extractRepositoryStateSnapshot(readFileSync(REPO_STATE, 'utf8'));
+  } catch {
+    repoStateSnapshot = {};
+  }
+}
+
+const repositoryStateAnalysisSection = buildRepositoryStateAnalysisSection(repoStateSnapshot);
+const repoSectionHeader = '## Repository State Analysis';
+const repoSectionStart = doc.indexOf(repoSectionHeader);
+
+if (repoSectionStart !== -1) {
+  const dividerStart = doc.indexOf('\n---\n', repoSectionStart);
+  if (dividerStart !== -1) {
+    doc = doc.slice(0, repoSectionStart)
+      + repositoryStateAnalysisSection
+      + '\n\n---\n'
+      + doc.slice(dividerStart + '\n---\n'.length);
+  }
+}
 
 // ── 10a. Refresh Babylon.js version in Tech Stack from package.json ───────────
 

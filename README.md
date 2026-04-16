@@ -417,17 +417,19 @@ Tech Stack:
 For a comprehensive, real-time analysis of the entire codebase, see **[REPO_STATE.md](./REPO_STATE.md)**
 
 This auto-generated document provides:
-- 📊 Complete code metrics (646+ files, 162K+ lines)
-- 🔍 All API routes, pages, and components
+- 📊 Complete code metrics (722 files, 176,623 lines)
+- 🔍 98 API routes, all pages, and components
 - 📦 Dependency health and 2026 standards compliance
-- 🧪 Test coverage and status
+- 🧪 Tests overview (151 files, 146 passing)
 - ⚠️ Technical debt and redundancies
 - ✅ Actionable items prioritized by severity
 
 **Update the analysis:** `pnpm run repo-state`
 **Documentation:** [docs/REPO_STATE_ANALYZER.md](./docs/REPO_STATE_ANALYZER.md)
 
-The state is automatically updated on push to main, PR merge, and daily at 2 AM UTC.
+The state is automatically updated on pushes to `completedream`, merged PR closures targeting `completedream`/`main`/`develop`, and daily at 2 AM UTC.
+
+Latest analyzer snapshot: 4/16/2026, 5:41:52 PM on `completedream`.
 
 ---
 
