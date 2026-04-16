@@ -360,7 +360,7 @@ export default function EditProfileDreamPage() {
           <button
             onClick={handlePublish}
             disabled={isSaving || isPublishing}
-            title="Update Public View — apply explicitly shared changes to your View Profile surface"
+            title="Update Public View: apply explicitly shared changes to your View Profile surface"
             style={{
               padding: '9px 16px', borderRadius: 12,
               background: 'linear-gradient(135deg, #c8981a, #e0b830)',
