@@ -1,16 +1,16 @@
 # .github/scripts/ai_implement.py
 #
 # Reads the DREAMengin context snapshot + spec proposal and asks the
-# OpenAI API to implement the first coherent slice as a unified diff.
+# Gemini API to implement the first coherent slice as a unified diff.
 #
-# Usage (called by spec-engin-ai-agent.yml):
+# Usage:
 #   python .github/scripts/ai_implement.py \
 #       --context .github/generated/dreamengin-context.md \
 #       --spec    .github/generated/dreamengin-spec.json \
 #       --out     .github/generated/dreamengin-patch.diff \
-#       --model   gpt-4.1
+#       --model   gemini-1.5-pro
 #
-# Requires:  OPENAI_API_KEY env var
+# Requires:  GOOGLE_API_KEY env var
 # Stdlib only — no extra dependencies.
 
 import argparse
@@ -20,9 +20,8 @@ import sys
 import urllib.error
 import urllib.request
 
-DEFAULT_MAX_TOKENS = 16_384
+DEFAULT_MAX_TOKENS = 8192  # Default max output limit for many standard calls
 DEFAULT_MAX_ROUND_TRIPS = 8
-
 
 # ── Prompt ────────────────────────────────────────────────────────────────────
 
@@ -39,7 +38,8 @@ You DO implement the full fix for each root cause, aligned with the governing do
 
 Tech constraints (non-negotiable):
 - Next.js 16 App Router, React 19, TypeScript, Tailwind.
-- Babylon.js 8+ WebGPU-first where relevant.
+- Babylon.js 9.0 WebGPU-first where relevant.
+- UI Aesthetic: "Neumorphic Dark" or "Midnight Glass" (light blue, white, gold accents).
 - Supabase with RLS, privacy-first (nothing public by default).
 - Vitest for tests.
 - NO new npm dependencies.
@@ -52,22 +52,11 @@ SICC requirements — BOTH layers must be satisfied:
   SICC (clarity):   Stylized · Intuitive · Cohesive · Coherent
     Strong visual identity, obvious affordances, no random systems.
 
-Allowed paths for changes:
-  Docs:   README.md, docs/**/*.md, spec/**/*.md
-  Code:   app/**/*.{ts,tsx,js,mjs}, components/**/*.{ts,tsx},
-          lib/**/*.{ts,tsx,js,mjs}
-  Styles: styles/**/*.css, **/*.css
-  Config: *.json (excluding lock files)
-  Scripts: scripts/**/*.{mjs,js,ts}, .github/scripts/**/*.py, .github/workflows/**/*.yml
-
 Rules:
 - Align changes with v1_scope.files_to_create / files_to_modify in the spec.
 - Implement ALL root_cause_analysis fixes from the spec, not just one slice.
-- The spec may include an advanced_game_upgrade object. When present, the patch
-  must actually implement that game-facing slice and touch the named game file
-  or another GameEngin/game file listed in v1_scope.
+- Maintain atomic development: all-in-one code passes bridging logic, evaluation, and execution.
 - Keep TypeScript strict, components clean and composable.
-- Add or modify Vitest tests when behaviour changes.
 - Preserve the dual-runtime (SurfaceSpace / DreamSpace) and privacy model.
 - Make UX and naming feel SICC on both axes.
 - Output a unified diff (git patch format) ONLY.
@@ -89,52 +78,60 @@ Implement ALL root-cause fixes described in the spec above.
 Every fix must be:
   - aligned with LAW.md, AXIOMS.md, and ARCHITECTURE.md,
   - complete — eliminating the root cause, not just masking symptoms,
-  - inclusive of the advanced game upgrade promised by the spec,
   - within existing architecture and constraints,
   - buildable: still passes `pnpm run build` and `pnpm run test`.
 
 Output a unified diff (git patch) ONLY. Start with the first "diff --git" line.
 """
 
+# ── Gemini call ───────────────────────────────────────────────────────────────
 
-# ── OpenAI call ───────────────────────────────────────────────────────────────
-
-def call_openai(api_key: str, model: str, messages, max_tokens: int = DEFAULT_MAX_TOKENS):
+def call_gemini(api_key: str, model: str, contents: list, max_tokens: int = DEFAULT_MAX_TOKENS):
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+    
     payload = {
-        "model":      model,
-        "max_tokens": max_tokens,
-        "messages": messages,
-    }
-    data = json.dumps(payload).encode("utf-8")
-    req  = urllib.request.Request(
-        "https://api.openai.com/v1/chat/completions",
-        data    = data,
-        headers = {
-            "Content-Type":  "application/json",
-            "Authorization": f"Bearer {api_key}",
+        "systemInstruction": {
+            "parts": [{"text": SYSTEM}]
         },
+        "contents": contents,
+        "generationConfig": {
+            "maxOutputTokens": max_tokens,
+            "temperature": 0.2
+        }
+    }
+    
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=data,
+        headers={"Content-Type": "application/json"},
     )
+    
     try:
         with urllib.request.urlopen(req, timeout=180) as resp:
             result = json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")
-        print(f"OpenAI API error {exc.code}: {body}", file=sys.stderr)
+        print(f"Gemini API error {exc.code}: {body}", file=sys.stderr)
         sys.exit(1)
 
-    choice = result["choices"][0]
-    return choice["message"]["content"], choice.get("finish_reason")
-
+    try:
+        candidate = result["candidates"][0]
+        text_content = candidate["content"]["parts"][0]["text"]
+        finish_reason = candidate.get("finishReason", "STOP")
+        return text_content, finish_reason
+    except KeyError as e:
+        print(f"Unexpected response structure from Gemini: {result}", file=sys.stderr)
+        sys.exit(1)
 
 def strip_markdown_fences(text: str) -> str:
     cleaned = text.strip()
     if cleaned.startswith("```"):
         lines = cleaned.splitlines()
         start = 1
-        end   = len(lines) - 1 if lines[-1].startswith("```") else len(lines)
+        end = len(lines) - 1 if lines[-1].startswith("```") else len(lines)
         return "\n".join(lines[start:end])
     return text
-
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
@@ -143,7 +140,7 @@ def main():
     parser.add_argument("--context", required=True,  help="Path to dreamengin-context.md")
     parser.add_argument("--spec",    required=True,  help="Path to dreamengin-spec.json")
     parser.add_argument("--out",     required=True,  help="Path to write dreamengin-patch.diff")
-    parser.add_argument("--model",   default="gpt-4.1", help="OpenAI model name")
+    parser.add_argument("--model",   default="gemini-1.5-pro", help="Gemini model name")
     parser.add_argument(
         "--max-tokens",
         type=int,
@@ -158,9 +155,9 @@ def main():
     )
     args = parser.parse_args()
 
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = os.environ.get("GOOGLE_API_KEY", "").strip()
     if not api_key:
-        print("Error: OPENAI_API_KEY env var is not set.", file=sys.stderr)
+        print("Error: GOOGLE_API_KEY env var is not set.", file=sys.stderr)
         sys.exit(1)
 
     with open(args.context, "r", encoding="utf-8") as fh:
@@ -170,9 +167,10 @@ def main():
         spec_text = fh.read()
 
     user_prompt = TASK_TEMPLATE.format(spec=spec_text, context=context_text)
-    messages = [
-        {"role": "system", "content": SYSTEM},
-        {"role": "user", "content": user_prompt},
+    
+    # Gemini uses a specific role structure: "user" and "model"
+    contents = [
+        {"role": "user", "parts": [{"text": user_prompt}]}
     ]
 
     print(f"Calling {args.model} for implementation patch…", file=sys.stderr)
@@ -180,32 +178,34 @@ def main():
     finish_reason = None
 
     for attempt in range(args.max_round_trips):
-        raw, finish_reason = call_openai(api_key, args.model, messages, max_tokens=args.max_tokens)
+        raw, finish_reason = call_gemini(api_key, args.model, contents, max_tokens=args.max_tokens)
         cleaned = strip_markdown_fences(raw)
         chunks.append(cleaned)
 
-        if finish_reason != "length":
+        if finish_reason != "MAX_TOKENS":
             break
 
         print(
             f"Model hit max_tokens; requesting continuation {attempt + 2}/{args.max_round_trips}…",
             file=sys.stderr,
         )
-        messages.extend([
-            {"role": "assistant", "content": raw},
+        
+        # Append the assistant's partial response and the continuation prompt
+        contents.extend([
+            {"role": "model", "parts": [{"text": raw}]},
             {
                 "role": "user",
-                "content": (
+                "parts": [{"text": (
                     "Continue the SAME unified diff exactly where you left off. "
                     "Output ONLY the remaining diff lines. Do not repeat earlier lines, "
                     "do not restart from the beginning, and do not add prose or fences."
-                ),
+                )}]
             },
         ])
     else:
-        finish_reason = "length"
+        finish_reason = "MAX_TOKENS"
 
-    if finish_reason == "length":
+    if finish_reason == "MAX_TOKENS":
         print(
             f"Error: implementation patch exceeded {args.max_round_trips} completion rounds. "
             "Increase --max-round-trips or --max-tokens.",
@@ -222,7 +222,6 @@ def main():
             fh.write("\n")
 
     print(f"Patch written to {args.out}", file=sys.stderr)
-
 
 if __name__ == "__main__":
     main()
