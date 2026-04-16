@@ -317,7 +317,7 @@ export default function EditProfileDreamPage() {
               Arrange Dreams and choose what View Profile exposes
             </p>
           </div>
-          {/* View Profile preview button — private builder previews public output */}
+          {/* View Profile preview button — spec §8.4 */}
           {profile.handle && (
             <Link
               href="/view-profile"
@@ -333,7 +333,7 @@ export default function EditProfileDreamPage() {
               }}
             >
               <Eye size={13} />
-              View Profile
+              Public View
             </Link>
           )}
 
@@ -356,11 +356,11 @@ export default function EditProfileDreamPage() {
             {isDirty ? 'Save Draft' : 'Saved'}
           </button>
 
-          {/* Update Public View — explicit share action, updates visibility_mappings */}
+          {/* Update Public View — explicit share action, updates visibility_mappings (Phase 6 §15,17) */}
           <button
             onClick={handlePublish}
             disabled={isSaving || isPublishing}
-            title="Update Public View: apply explicitly shared changes to your View Profile surface"
+            title="Update Public View — applies your explicit share settings to View Profile"
             style={{
               padding: '9px 16px', borderRadius: 12,
               background: 'linear-gradient(135deg, #c8981a, #e0b830)',
@@ -374,7 +374,7 @@ export default function EditProfileDreamPage() {
             {isPublishing
               ? <Loader2 size={13} className="animate-spin" />
               : <Share2 size={13} />}
-            {isPublishing ? 'Updating…' : 'Update Public View'}
+            {isPublishing ? 'Updating Public View…' : 'Update Public View'}
           </button>
         </div>
 
@@ -408,14 +408,14 @@ export default function EditProfileDreamPage() {
         </div>
       )}
 
-      {/* Publish success banner — shown briefly after explicit publish */}
+      {/* Public View update success banner — shown briefly after explicit publish */}
       {publishSuccess && (
         <div style={{ margin: '12px 16px 0', padding: '10px 14px', borderRadius: 12,
           background: 'rgba(200,152,26,0.10)', border: '1px solid rgba(200,152,26,0.30)',
           color: '#a07828', fontSize: 13, fontWeight: 600,
           display: 'flex', alignItems: 'center', gap: 8 }}>
           <Share2 size={14} />
-          Published! Your public Dream Windows are now visible on ViewProfile.
+          Public View updated! Your shared Dream Windows are now visible on ViewProfile.
         </div>
       )}
 
