@@ -46,6 +46,7 @@
     "tests/**",
     "playwright.config.ts",
     "assembly/**",
-    "exports/**"
+    "exports/**",
+    "scripts/archive/**"
   ]
 }
