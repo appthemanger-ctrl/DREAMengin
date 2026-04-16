@@ -18,6 +18,7 @@ import WarpCanvas from '@/components/warp/WarpCanvas';
 import GodTierProvider from '@/components/providers/GodTierProvider';
 import KonamiDream from '@/components/KonamiDream';
 import CommandPalette from '@/components/CommandPalette';
+import { OSProvider } from '@/lib/dreamenginOS/OSContext';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -80,17 +81,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ThemeApplicator />
           <Suspense><GodTierProvider /></Suspense>
           <WarpCanvas effect="flow" maxParticles={200} spawnRate={25} opacity={0.35} />
-          <CustomizeModeProvider>
-            <DreamSystemProvider>
-              <main role="main" aria-label="Main content">{children}</main>
-              <Suspense><GlobalDreamBar /></Suspense>
-              <Suspense><PersistentDreamBar /></Suspense>
-              <GlobalCustomizeUI />
-              <KonamiDream />
-              <Suspense><CommandPalette /></Suspense>
-            </DreamSystemProvider>
-          </CustomizeModeProvider>
-
+          <OSProvider>
+            <CustomizeModeProvider>
+              <DreamSystemProvider>
+                <main role="main" aria-label="Main content">{children}</main>
+                <Suspense><GlobalDreamBar /></Suspense>
+                <Suspense><PersistentDreamBar /></Suspense>
+                <GlobalCustomizeUI />
+                <KonamiDream />
+                <Suspense><CommandPalette /></Suspense>
+              </DreamSystemProvider>
+            </CustomizeModeProvider>
+          </OSProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,12 +1,33 @@
 'use client';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { enginBridge } from '@/lib/runtime/dualRuntimeBridge';
+import { analyzeSwipe, tallyView } from '@/lib/botDetection';
+import type { Point } from '@/lib/botDetection';
 export { DREAMR_TOPICS } from './algorithms/dreamrfeed';
 
 export default function DreamRFeed({ videoId, sharerId, viewerId }: { videoId: string, sharerId: string, viewerId: string }) {
   const [hasTallied, setHasTallied] = useState(false);
   const [dragX, setDragX] = useState(0);
+  const [frozen, setFrozen] = useState(false);
   const touchStart = useRef<number | null>(null);
+  const swipePoints = useRef<Point[]>([]);
+  const swipeStartTime = useRef<number>(0);
+  const viewStartTime = useRef<number | null>(null);
+  const freezeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // 4-SECOND VIEW TALLY: start timer when card mounts
+  useEffect(() => {
+    viewStartTime.current = Date.now();
+    return () => {
+      if (viewStartTime.current !== null) {
+        const duration = Date.now() - viewStartTime.current;
+        const tally = tallyView(duration);
+        if (tally.counted) {
+          enginBridge.emitToChannel('LEDGER_TALLY', { videoId, sharerId, kind: 'view' });
+        }
+      }
+    };
+  }, [videoId, sharerId]);
 
   // SILENT VIEW TALLY: Only counts unique discovery paths
   useEffect(() => {
@@ -22,19 +43,58 @@ export default function DreamRFeed({ videoId, sharerId, viewerId }: { videoId: s
         }
       });
     }
-  }, [videoId, sharerId, viewerId]);
+  }, [videoId, sharerId, viewerId, hasTallied]);
 
-  // STICKY PHYSICS: Swipe left to Share
+  useEffect(() => {
+    return () => {
+      if (freezeTimer.current) clearTimeout(freezeTimer.current);
+    };
+  }, []);
+
+  const freezeFeed = useCallback((durationMs: number) => {
+    setFrozen(true);
+    if (freezeTimer.current) clearTimeout(freezeTimer.current);
+    freezeTimer.current = setTimeout(() => setFrozen(false), durationMs);
+  }, []);
+
+  // STICKY PHYSICS: Swipe left to Share — with bot detection
   const handleTouch = (e: React.TouchEvent, phase: 'start' | 'move' | 'end') => {
-    if (phase === 'start') touchStart.current = e.targetTouches[0].clientX;
+    if (frozen) return;
+
+    if (phase === 'start') {
+      touchStart.current = e.targetTouches[0].clientX;
+      swipeStartTime.current = Date.now();
+      swipePoints.current = [{
+        x: e.targetTouches[0].clientX,
+        y: e.targetTouches[0].clientY,
+        t: 0,
+      }];
+    }
     if (phase === 'move' && touchStart.current !== null) {
       const diff = e.targetTouches[0].clientX - touchStart.current;
-      if (diff < 0) setDragX(diff); 
+      swipePoints.current.push({
+        x: e.targetTouches[0].clientX,
+        y: e.targetTouches[0].clientY,
+        t: Date.now() - swipeStartTime.current,
+      });
+      if (diff < 0) setDragX(diff);
     }
     if (phase === 'end') {
+      // Analyze swipe for bot-like behavior; freeze 3-5s if detected
+      if (swipePoints.current.length >= 3) {
+        const analysis = analyzeSwipe(swipePoints.current);
+        if (analysis.likelyBot) {
+          freezeFeed(3000 + Math.random() * 2000);
+          setDragX(0);
+          touchStart.current = null;
+          swipePoints.current = [];
+          return;
+        }
+      }
       if (dragX < -100) enginBridge.emitToChannel('SHARE', { videoId, viewerId });
       setDragX(0);
       touchStart.current = null;
+      swipePoints.current = [];
     }
   };
 
@@ -42,7 +102,10 @@ export default function DreamRFeed({ videoId, sharerId, viewerId }: { videoId: s
     <div className="w-full max-w-md mx-auto p-4 select-none">
       {/* THE GLASS FRAME */}
       <div className="relative p-[1px] rounded-[40px] bg-gradient-to-b from-white/10 to-[#FFD700]/10 shadow-2xl">
-        <div className="relative bg-[#02050A] rounded-[39px] p-8 border border-white/5 overflow-hidden">
+        <div
+          className="relative bg-[#02050A] rounded-[39px] p-8 border border-white/5 overflow-hidden"
+          style={{ opacity: frozen ? 0.4 : 1, transition: 'opacity 0.3s ease', pointerEvents: frozen ? 'none' : 'auto' }}
+        >
           
           {/* HEADER: Gold Branding Only */}
           <div className="flex justify-between items-center mb-6">

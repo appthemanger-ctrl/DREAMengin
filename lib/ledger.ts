@@ -58,12 +58,43 @@ export interface TorridityEntry {
   createdAt: string;
 }
 
+// ─── Shared Asset Entry ───────────────────────────────────────────────────────
+
+/** Supported asset types in the shared asset ledger (visualised file system). */
+export type AssetType = 'audio' | 'image' | '3d' | 'code';
+
+/** Optional manifest describing an asset's capabilities and metadata. */
+export interface AssetManifest {
+  title?: string;
+  description?: string;
+  tags?: string[];
+  duration?: number;
+  dimensions?: { w: number; h: number };
+  language?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * AssetEntry — a shared asset in the visualised file system.
+ * Fields: id, type, url, manifest, owner.
+ */
+export interface AssetEntry {
+  kind: 'asset';
+  id: string;
+  type: AssetType;
+  url: string;
+  manifest: AssetManifest;
+  owner: string;
+  createdAt: string;
+}
+
 /** Union of all ledger entry types. */
 export type LedgerEntry =
   | PeakMapEntry
   | FingerprintEntry
   | SampleMetadataEntry
-  | TorridityEntry;
+  | TorridityEntry
+  | AssetEntry;
 
 // ─── Ledger Structure ────────────────────────────────────────────────────────
 
@@ -219,4 +250,58 @@ export function storeTorridityRank(
   ledger.entries.set(id, entry);
   void persist(ledger, entry);
   return id;
+}
+
+// ─── storeAsset ───────────────────────────────────────────────────────────────
+
+/**
+ * storeAsset(ledger, fields)
+ *
+ * Stores a shared asset (audio, image, 3D, or code) in the ledger.
+ * Returns the generated entry id.
+ */
+export function storeAsset(
+  ledger: Ledger,
+  fields: {
+    type: AssetType;
+    url: string;
+    owner: string;
+    manifest?: AssetManifest;
+    id?: string;
+  }
+): string {
+  const id =
+    fields.id ??
+    `asset_${fields.type}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+  const entry: AssetEntry = {
+    kind: 'asset',
+    id,
+    type: fields.type,
+    url: fields.url,
+    owner: fields.owner,
+    manifest: fields.manifest ?? {},
+    createdAt: now(),
+  };
+  ledger.entries.set(id, entry);
+  void persist(ledger, entry);
+  return id;
+}
+
+// ─── recordView ────────────────────────────────────────────────────────────────
+
+/**
+ * recordView(ledger, contentId)
+ *
+ * Increments the view count for a torridity entry, or creates one with
+ * default values if it does not yet exist.
+ */
+export function recordView(ledger: Ledger, contentId: string): void {
+  const id = `tr_${contentId}`;
+  const existing = ledger.entries.get(id);
+  if (existing?.kind === 'torridity') {
+    existing.views += 1;
+    void persist(ledger, existing);
+  } else {
+    storeTorridityRank(ledger, contentId, 1, 1, 1);
+  }
 }

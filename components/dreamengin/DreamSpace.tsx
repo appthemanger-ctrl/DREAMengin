@@ -10,6 +10,21 @@ import {
 } from '@/lib/artifactStore';
 import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
 import type { DreamArtifact } from '@/types/dreamArtifact';
+import { useOS } from '@/lib/dreamenginOS/OSContext';
+import { getAllByKind } from '@/lib/ledger';
+import type { AssetEntry, AssetType } from '@/lib/ledger';
+
+// ─── Asset icon helpers ───────────────────────────────────────────────────────
+
+function assetIcon(type: AssetType): string {
+  switch (type) {
+    case 'audio': return '🎵';
+    case 'image': return '🖼️';
+    case '3d':    return '🧊';
+    case 'code':  return '💻';
+    default:      return '📄';
+  }
+}
 
 interface DreamSpaceProps {
   initialAccountId?: string | null;
@@ -19,6 +34,21 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
   const { accountId } = useAccount(initialAccountId);
   const [artifacts, setArtifacts] = useState<DreamArtifact[]>([]);
   const [showSystemModules, setShowSystemModules] = useState(false);
+  const [previewAsset, setPreviewAsset] = useState<AssetEntry | null>(null);
+
+  // ── Ledger asset grid ─────────────────────────────────────────────────────
+  const os = useOS();
+  const [assetTick, setAssetTick] = useState(0);
+  useEffect(() => {
+    // Re-read ledger whenever a new asset is stored
+    const unsub = os.bus.on('ledger:asset:new', () => setAssetTick((n) => n + 1));
+    return () => os.bus.off('ledger:asset:new', () => setAssetTick((n) => n + 1));
+  }, [os.bus]);
+  const ledgerAssets = useMemo(
+    () => getAllByKind(os.ledger, 'asset'),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [os.ledger, assetTick]
+  );
 
   const refreshArtifacts = useCallback(() => {
     setArtifacts(listVisibleArtifacts(accountId));
@@ -80,6 +110,158 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
         boxShadow: '0 18px 40px rgba(0,0,0,0.18)',
       }}
     >
+      {/* ── Shared Asset Ledger Grid ───────────────────────────────────────── */}
+      {ledgerAssets.length > 0 && (
+        <div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 8 }}>
+            Shared Assets
+          </div>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
+              gap: 8,
+            }}
+          >
+            {ledgerAssets.map((asset) => (
+              <button
+                key={asset.id}
+                type="button"
+                aria-label={`Open ${asset.manifest.title ?? asset.type} asset`}
+                onClick={() => setPreviewAsset(asset)}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(160,195,240,0.18)',
+                  borderRadius: 14,
+                  padding: '10px 6px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 4,
+                  transition: 'background 0.15s',
+                }}
+              >
+                <span style={{ fontSize: 22 }}>{assetIcon(asset.type)}</span>
+                <span
+                  style={{
+                    fontSize: 10,
+                    color: 'var(--de-heading)',
+                    fontWeight: 600,
+                    textAlign: 'center',
+                    maxWidth: 72,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {asset.manifest.title ?? asset.type}
+                </span>
+                <span style={{ fontSize: 9, color: '#f4d37b', fontWeight: 700, textTransform: 'uppercase' }}>
+                  {asset.type}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Asset Preview Modal ────────────────────────────────────────────── */}
+      {previewAsset && (
+        <div
+          role="dialog"
+          aria-label={`Preview: ${previewAsset.manifest.title ?? previewAsset.type}`}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 300,
+            background: 'rgba(2,5,14,0.85)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 24,
+          }}
+          onClick={() => setPreviewAsset(null)}
+        >
+          <div
+            style={{
+              background: 'rgba(18,33,60,0.97)',
+              border: '1px solid rgba(160,195,240,0.22)',
+              borderRadius: 24,
+              padding: 24,
+              maxWidth: 480,
+              width: '100%',
+              boxShadow: '0 24px 60px rgba(0,0,0,0.40)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <span style={{ fontSize: 28 }}>{assetIcon(previewAsset.type)}</span>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--de-heading)' }}>
+                  {previewAsset.manifest.title ?? previewAsset.type}
+                </div>
+                <div style={{ fontSize: 11, color: '#f4d37b', fontWeight: 700, textTransform: 'uppercase' }}>
+                  {previewAsset.type}
+                </div>
+              </div>
+              <button
+                type="button"
+                aria-label="Close preview"
+                onClick={() => setPreviewAsset(null)}
+                style={{
+                  marginLeft: 'auto',
+                  background: 'rgba(180,185,200,0.12)',
+                  border: 'none',
+                  borderRadius: 8,
+                  width: 28,
+                  height: 28,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  color: 'var(--de-text-dim)',
+                  fontSize: 16,
+                }}
+              >
+                ×
+              </button>
+            </div>
+            {previewAsset.type === 'audio' && (
+              // eslint-disable-next-line jsx-a11y/media-has-caption
+              <audio controls src={previewAsset.url} style={{ width: '100%', borderRadius: 8 }} />
+            )}
+            {previewAsset.type === 'image' && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={previewAsset.url}
+                alt={previewAsset.manifest.title ?? 'Asset'}
+                style={{ width: '100%', borderRadius: 12, maxHeight: 300, objectFit: 'contain' }}
+              />
+            )}
+            {(previewAsset.type === 'code' || previewAsset.type === '3d') && (
+              <div
+                style={{
+                  background: 'rgba(0,0,0,0.5)',
+                  borderRadius: 12,
+                  padding: 12,
+                  fontSize: 11,
+                  color: 'var(--de-text-dim)',
+                  wordBreak: 'break-all',
+                }}
+              >
+                {previewAsset.url}
+              </div>
+            )}
+            {previewAsset.manifest.description && (
+              <div style={{ marginTop: 12, fontSize: 12, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
+                {previewAsset.manifest.description}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div>
           <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-heading)' }}>
