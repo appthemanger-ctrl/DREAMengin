@@ -8,11 +8,11 @@ describe('README §10 Music / StarMakerEngin alignment', () => {
   it('Music Daydream exposes the six specialized StarMakerEngin Dream Windows', () => {
     const src = readFileSync(join(root, 'app/daydream/music/page.tsx'), 'utf-8');
 
-    expect(src).toContain('Track Window');
-    expect(src).toContain('Playlist Window');
-    expect(src).toContain('Release Window');
-    expect(src).toContain('Lyrics Window');
-    expect(src).toContain('Audio Project Window');
-    expect(src).toContain('Sales / Launch Status Window');
+    expect(src).toContain("id: 'track-window'");
+    expect(src).toContain("id: 'playlist-window'");
+    expect(src).toContain("id: 'release-window'");
+    expect(src).toContain("id: 'lyrics-window'");
+    expect(src).toContain("id: 'audio-project-window'");
+    expect(src).toContain("id: 'launch-status-window'");
   });
 });

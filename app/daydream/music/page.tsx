@@ -26,7 +26,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'release-window',      emoji: '🎵', label: 'Release Window',               desc: 'Configure publishing and sharing pathways', color: '#c8981a', href: '/music' },
   { id: 'lyrics-window',       emoji: '📝', label: 'Lyrics Window',                desc: 'Draft and refine song lyrics',              color: '#00bcd4', href: '/engines/music' },
   { id: 'audio-project-window',emoji: '🎛️', label: 'Audio Project Window',         desc: 'Arrange drafts, sessions, and assets',      color: '#f59e0b', href: '/engines/music/arrange' },
-  { id: 'launch-status-window',emoji: '🚀', label: 'Sales / Launch Status Window', desc: 'Track rollout, sales, and performance',     color: '#ec4899', href: '/music' },
+  { id: 'launch-status-window', emoji: '🚀', label: 'Sales / Launch Status Window', desc: 'Track rollout, sales, and performance',     color: '#ec4899', href: '/music' },
 ];
 
 export default async function MusicArtistHubPage() {
