@@ -243,11 +243,18 @@ jobs:
               const recentComments = comments
                 .slice(-5)
                 .map((comment) =>
-                  `### ${comment.user?.login || 'unknown'} @ ${comment.updated_at}\\n${(comment.body || '').slice(0, MAX_COMMENT_LENGTH)}`
+                  `### ${comment.user?.login || 'unknown'} @ ${comment.updated_at}\\n${(() => {
+                    const body = comment.body || ''
+                    if (body.length <= MAX_COMMENT_LENGTH) return body
+                    return `${body.slice(0, MAX_COMMENT_LENGTH)}\\n[truncated]`
+                  })()}`
                 )
                 .join('\\n\\n')
 
-              const sourceBody = (issue.body || '').slice(0, MAX_ISSUE_BODY_LENGTH)
+              const sourceRawBody = issue.body || ''
+              const sourceBody = sourceRawBody.length <= MAX_ISSUE_BODY_LENGTH
+                ? sourceRawBody
+                : `${sourceRawBody.slice(0, MAX_ISSUE_BODY_LENGTH)}\\n[truncated]`
               const continuationBody = [
                 '<!-- readme-section-bot -->',
                 '<!-- continuation -->',
