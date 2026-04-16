@@ -60,10 +60,16 @@ describe('HomeDream home surface', () => {
     expect(homeSystem).toContain('splitRatio');
     expect(homeSystem).toContain('setSplitRatio');
     expect(homeSystem).toContain('setIsBarMinimized');
+    expect(homeSystem).toContain('const runtimeSplitRatio = isBarMinimized ? 1 : splitRatio;');
     // PersistentDreamBar passes split props to DreamDMBar from context
     expect(persistentBar).toContain('splitRatio={isHomeSystemActive ? splitRatio : undefined}');
     expect(persistentBar).toContain('onSplitChange={isHomeSystemActive ? setSplitRatio : undefined}');
     expect(persistentBar).toContain('onMinimizedChange={isHomeSystemActive ? setIsBarMinimized : undefined}');
+  });
+
+  it('hides DreamSpace whenever the DreamDMBar is minimized', () => {
+    expect(homeSystem).toContain('const runtimeSplitRatio = isBarMinimized ? 1 : splitRatio;');
+    expect(homeSystem).toContain('splitRatio={runtimeSplitRatio}');
   });
 
   it('keeps feed scrolling native while limiting divider drag capture to the centered seam handle', () => {
