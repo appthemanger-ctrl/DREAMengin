@@ -796,7 +796,7 @@ Gestures
 	•	Double tap: Go Home.
 
 Dual Menus (Locked/Primary Menu Behavior)
-	•	Left menu: 6 DayDream navigation and Dr. Eams Chat.
+	•	Left menu: 6 Daydream navigation and Dr. Eams Chat.
 	•	Right menu: regular menu and Dr. Eams Chat.
 
 Dr. Eams in HomeDream
