@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-16 03:37 UTC | `83a505a` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #543 from appthemanger-ctrl/copilot/update-dreamengin-build-cycle — ci: modernize workflows — fix action versions and add build coverage<br> |
 | **auto** | 2026-04-16 02:49 UTC | `8e59245` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #541 from appthemanger-ctrl/copilot/fix-invalid-url-bus-wasm — fix(dualRuntimeBridge): resolve ERR_INVALID_URL when WASM bus loads in Next.js SSR<br> |
 | **auto** | 2026-04-16 02:22 UTC | `4d20192` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #540 from appthemanger-ctrl/copilot/add-shared-dream-collaboration — feat: Part 3 — Shared Dream Collaboration, 3D Audio Visualizer, Engin Forge, Fingerprint Sound Isolation<br> |
 | **auto** | 2026-04-16 01:50 UTC | `faba7e3` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #538 from appthemanger-ctrl/copilot/completedream-part-two — feat(part2): Engin OS shells, DreamWindowShell, universal editor tap-hold, all 6 missing Engin features<br> |
 | **auto** | 2026-04-16 01:46 UTC | `2ef8dcd` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #537 from appthemanger-ctrl/copilot/dreamengin-core-os-integration — Integrating core OS functionalities for DREAMengin<br> |
-| **auto** | 2026-04-16 00:06 UTC | `0c2851c` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #536 from appthemanger-ctrl/copilot/fix-invoked-url-type-error — Mitigate dualRuntimeBridge WASM URL load error and /profile/[handle] prerender random failure<br> |
 
 ## What changed in this alignment pass
 
