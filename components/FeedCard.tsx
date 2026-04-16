@@ -4,9 +4,8 @@ import { useState, useEffect, useMemo, useRef, memo } from 'react';
 import { formatRelativeTime } from '@/lib/utils';
 import { UniverseCard, UniverseCardContent } from '@/components/universe';
 import Image from 'next/image';
-import { cn } from '@/lib/utils';
 import { inferProviderFromUrl } from '@/lib/widgets/parseConfig';
-import { ExternalLink, FileText, Heart, MessageCircle, Share2, Sparkles, Youtube, MoreHorizontal, Bookmark, Flag, Link2 } from 'lucide-react';
+import { ExternalLink, FileText, Eye, MessageCircle, Share2, Sparkles, Youtube, MoreHorizontal, Bookmark, Flag, Link2 } from 'lucide-react';
 import CommentSection from '@/components/feed/CommentSection';
 
 interface FeedCardProps {
@@ -27,14 +26,15 @@ interface FeedCardProps {
     };
     likes_count?: number;
     comments_count?: number;
+    /** Verified view count — shown prominently instead of likes */
+    view_count?: number;
+    /** Marks this card as an ad placement — shows AD badge */
+    is_ad?: boolean;
   };
   userId?: string;
 }
 
 export default memo(function FeedCard({ item, userId }: FeedCardProps) {
-  const [isLiked, setIsLiked] = useState(false);
-  const [likes, setLikes] = useState(item.likes_count || 0);
-  const [isLikeLoading, setIsLikeLoading] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(item.comments_count || 0);
   const [isSaved, setIsSaved] = useState(false);
@@ -59,19 +59,6 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
   const mediaUrl = typeof item.url === 'string' ? item.url : undefined;
   const mediaProvider = inferProviderFromUrl(mediaUrl);
   
-  // Fetch initial like status
-  useEffect(() => {
-    if (isDemo || !userId) return;
-    
-    fetch(`/api/likes?content_type=post&content_id=${item.id}`)
-      .then(res => res.json())
-      .then(data => {
-        setIsLiked(data.has_liked || false);
-        setLikes(data.like_count || 0);
-      })
-      .catch(() => {});
-  }, [item.id, userId, isDemo]);
-  
   const getSourceIcon = () => {
     switch (source) {
       case 'youtube':
@@ -93,45 +80,6 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
       case 'post':    return 'linear-gradient(180deg, #38bdf8, #818cf8)';
       case 'demo':    return 'linear-gradient(180deg, #c084fc, #f472b6)';
       default:        return 'rgba(160,195,240,0.40)';
-    }
-  };
-
-  const handleLike = async () => {
-    if (isLikeLoading) return;
-    
-    if (isDemo) {
-      setIsLiked(!isLiked);
-      setLikes(prev => isLiked ? prev - 1 : prev + 1);
-      return;
-    }
-    
-    setIsLikeLoading(true);
-    const wasLiked = isLiked;
-    
-    setIsLiked(!wasLiked);
-    setLikes(prev => wasLiked ? prev - 1 : prev + 1);
-    
-    try {
-      if (wasLiked) {
-        const res = await fetch(`/api/likes?content_type=post&content_id=${item.id}`, { method: 'DELETE' });
-        const data = await res.json();
-        if (res.ok) setLikes(data.like_count);
-        else { setIsLiked(wasLiked); setLikes(prev => prev + 1); }
-      } else {
-        const res = await fetch('/api/likes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ content_type: 'post', content_id: item.id }),
-        });
-        const data = await res.json();
-        if (res.ok) setLikes(data.like_count);
-        else { setIsLiked(wasLiked); setLikes(prev => prev - 1); }
-      }
-    } catch {
-      setIsLiked(wasLiked);
-      setLikes(prev => wasLiked ? prev + 1 : prev - 1);
-    } finally {
-      setIsLikeLoading(false);
     }
   };
 
@@ -255,8 +203,19 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
                 </div>
               </div>
 
-              {/* Source badge + more */}
+              {/* Source badge + AD badge + more */}
               <div ref={menuRef} style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0, position: 'relative' }}>
+                {/* AD badge — shown when this card is an ad placement */}
+                {item.is_ad && (
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center',
+                    padding: '2px 6px', borderRadius: 4,
+                    background: '#f59e0b', color: '#000',
+                    fontSize: 9, fontWeight: 800, letterSpacing: '0.06em',
+                  }}>
+                    AD
+                  </span>
+                )}
                 <span style={{
                   display: 'inline-flex', alignItems: 'center', gap: 4,
                   padding: '3px 8px', borderRadius: 999,
@@ -409,15 +368,21 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
               paddingTop: 10, borderTop: '1px solid rgba(160,195,240,0.15)',
               marginTop: 2,
             }}>
-              <button
-                type="button"
-                onClick={handleLike}
-                className={cn('feed-action-btn', isLiked && 'liked')}
-                aria-label={isLiked ? 'Unlike' : 'Like'}
+              {/* View count — Activity-First Protocol: views are the currency, no likes */}
+              <div
+                className="feed-action-btn"
+                style={{ cursor: 'default', pointerEvents: 'none' }}
+                aria-label="View count"
               >
-                <Heart style={{ width: 16, height: 16, fill: isLiked ? '#ef4444' : 'none' }} />
-                <span>{likes > 0 ? likes : ''}</span>
-              </button>
+                <Eye style={{ width: 16, height: 16, opacity: 0.7 }} />
+                <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
+                  {(item.view_count ?? 0) > 0
+                    ? (item.view_count ?? 0) >= 1000
+                      ? `${((item.view_count ?? 0) / 1000).toFixed(1)}k`
+                      : String(item.view_count)
+                    : ''}
+                </span>
+              </div>
 
               <button
                 type="button"
