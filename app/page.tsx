@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import LandingHero from '@/components/LandingHero';
 import { createServerClient } from '@/lib/supabase/server';
 import { isDevBypassActive } from '@/lib/dev-bypass';
+import { safeGetUser } from '@/lib/supabase/safeGetUser';
 
 // Resolve the site origin from env so OG image URLs are absolute.
 // Falls back to the production domain when the env var is absent (CI / prod).
@@ -54,14 +55,7 @@ export const metadata: Metadata = {
 export default async function Root() {
   // Redirect authenticated users to the home feed
   const supabase = await createServerClient();
-
-  let user = null;
-  try {
-    const { data: { user: authUser } } = await supabase.auth.getUser();
-    user = authUser;
-  } catch {
-    // Supabase unavailable or session error — treat as unauthenticated
-  }
+  const user = await safeGetUser(supabase);
 
   // If user is authenticated (or dev bypass is active), redirect to home feed
   if (user || isDevBypassActive()) {

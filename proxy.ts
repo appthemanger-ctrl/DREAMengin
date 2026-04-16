@@ -16,6 +16,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './lib/supabase/env';
+import { safeGetUser } from './lib/supabase/safeGetUser';
 
 // ── Blocked hosts ─────────────────────────────────────────────────────────────
 const BLOCKED_HOST = 'theboogieman.ai';
@@ -67,7 +68,7 @@ export async function proxy(request: NextRequest) {
 
   // IMPORTANT: Do not add any logic between createServerClient and
   // getUser() — a proxy bug here can cause random auth failures.
-  await supabase.auth.getUser();
+  await safeGetUser(supabase);
 
   return supabaseResponse;
 }
