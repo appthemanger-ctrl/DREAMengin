@@ -52,6 +52,7 @@ import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import { GAME_CONTROL_PROFILES, GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
 import { buildLedgerMediaUrl } from '@/lib/media/ledger';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
+import RecordingControls from '@/components/games/RecordingControls';
 
 // ── Interfaces ─────────────────────────────────────────────────────────────────
 
@@ -895,6 +896,7 @@ export default function GameEngin({ onBack }: Props) {
           >
             {gpConnected ? (isDualSense ? '🎮' : '🕹') : '🎮'}
           </span>
+          <RecordingControls containerRef={playOverlayRef} />
         </div>
 
         <GameHUD
