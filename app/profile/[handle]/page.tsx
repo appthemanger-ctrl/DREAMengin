@@ -32,6 +32,7 @@ interface ProfilePageProps {
 
 
 export async function generateMetadata({ params }: ProfilePageProps) {
+  await connection();
   const { handle } = await params;
   return {
     title: `@${handle} – Dreamengin`,
