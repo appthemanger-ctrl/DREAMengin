@@ -24,6 +24,9 @@ import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
+import { ForgeDreamCanvas } from '@/components/ForgeDreamCanvas';
+import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
+import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
 import Link from 'next/link';
 import {
   ArrowLeft, FlaskConical, Activity, Play, BarChart2,
@@ -109,6 +112,18 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }
 export default function LabEngin({ onBack }: Props) {
   const labBridge = useLabEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'lab' });
+
+  // ── OS Shell: upgradeEngine wiring ──
+  const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
+  useEffect(() => {
+    upgradeEngine({ id: 'lab', name: 'LabEngin' }, ['bridge', 'telemetry'])
+      .then(u => { osRef.current = u; });
+  }, []);
+  const busRef = useRef(createEventBus());
+
+  // ── Engin Forge panel state ──
+  const [showForge, setShowForge] = useState(false);
+
   // ── Existing state ─────────────────────────────────────────────────────────
   const [experiments, setExperiments] = useState<Experiment[]>([]);
   const [loading, setLoading]         = useState(true);
@@ -1676,6 +1691,43 @@ export default function LabEngin({ onBack }: Props) {
               {quantumMeasured ? '✓ Measured — Collapse recorded' : '▶ Measure Circuit'}
             </button>
           </div>
+        </div>
+
+        {/* ── Engin Forge (Visual Engine Builder) ── */}
+        <div className="de-widget" style={{ margin: '14px 0' }}>
+          <div className="de-widget-header">
+            <Box className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
+            <span className="de-widget-title">Engin Forge</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--de-text-dim)' }}>Visual Engine Builder</span>
+            <button
+              type="button"
+              onClick={() => {
+                setShowForge(v => !v);
+                osRef.current?.telemetry?.log('Engin Forge toggled');
+                busRef.current.emit('lab:forge-toggle', { open: !showForge });
+                forgeRecord('Opened Engin Forge');
+              }}
+              style={{
+                marginLeft: 8, padding: '3px 10px', borderRadius: 6, fontSize: 10, fontWeight: 700,
+                border: `1px solid ${ACCENT}40`, background: showForge ? `${ACCENT}22` : `${ACCENT}0d`,
+                color: ACCENT, cursor: 'pointer',
+              }}
+            >
+              {showForge ? 'Close' : 'Open'}
+            </button>
+          </div>
+          {showForge && (
+            <div className="de-widget-body" style={{ padding: 0, overflow: 'hidden', borderRadius: '0 0 12px 12px' }}>
+              <ForgeDreamCanvas />
+            </div>
+          )}
+          {!showForge && (
+            <div className="de-widget-body">
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>
+                Visually assemble OS atomic pieces, wire ports, test in sandbox, and save assemblies to your workspace.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* ── Journey Trail ── */}

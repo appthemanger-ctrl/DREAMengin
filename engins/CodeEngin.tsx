@@ -9,6 +9,9 @@ import { type CSSProperties, useCallback, useEffect, useRef, useState } from 're
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
+import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
+import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
+import { useSharedDream } from '@/hooks/useSharedDream';
 import Link from 'next/link';
 import {
   ArrowLeft, ArrowLeftRight, Zap, Bug, ListChecks,
@@ -376,6 +379,19 @@ export default function CodeEngin({ onBack }: Props) {
   type CodeSavedState = { cells?: Array<{ id: string; language: string; source: string }> };
   const { savedState: savedCodeState, isRestoring: codeRestoring, persistState: persistCodeState } = useDaydreamPersistence<CodeSavedState>({ daydreamType: 'code' });
   const codeRestoredRef = useRef(false);
+
+  // ── OS Shell ──
+  const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
+  useEffect(() => {
+    upgradeEngine({ id: 'code', name: 'CodeEngin' }, ['bridge', 'telemetry'])
+      .then(u => { osRef.current = u; });
+  }, []);
+  const busRef = useRef(createEventBus());
+
+  // ── Pair programming state ──
+  const [pairSessionId] = useState(() => `code-${Date.now()}`);
+  const [pairActive, setPairActive] = useState(false);
+  const pairDream = useSharedDream(pairActive ? pairSessionId : '');
 
   // Notebook state
   const [cells, setCells] = useState<NotebookCell[]>(() => {
@@ -915,6 +931,44 @@ export default function CodeEngin({ onBack }: Props) {
         <div className="de-widget" style={{ margin: '14px 0' }}>
           <div className="de-widget-header"><ListChecks className="w-4 h-4" style={{ color: '#22c55e' }} /><span className="de-widget-title ml-2">App Editing Job List</span></div>
           <div className="de-widget-body"><TaskJobManager /></div>
+        </div>
+
+        {/* Pair Programming */}
+        <div className="de-widget" style={{ margin: '14px 0' }}>
+          <div className="de-widget-header">
+            <ArrowLeftRight className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Pair Programming</span>
+            {pairActive && (
+              <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: '#22c55e' }}>
+                ● {pairDream.isConnected ? `Live · ${Object.keys(pairDream.peers).length} peer(s)` : 'Connecting…'}
+              </span>
+            )}
+          </div>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>
+              Share this session for real-time cursor and edit synchronisation.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setPairActive(v => !v);
+                osRef.current?.telemetry?.log('pair programming toggled');
+                busRef.current.emit('code:pair-session', { active: !pairActive, sessionId: pairSessionId });
+              }}
+              style={{
+                padding: '9px 16px', borderRadius: 9, border: `1px solid ${ACCENT}40`,
+                background: pairActive ? `${ACCENT}22` : `${ACCENT}10`,
+                color: ACCENT, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+              }}
+            >
+              {pairActive ? '⏹ Stop Pair Session' : '▶ Start Pair Session'}
+            </button>
+            {pairActive && (
+              <div style={{ fontSize: 10, color: 'var(--de-text-dim)', wordBreak: 'break-all' }}>
+                Session ID: <code style={{ color: ACCENT }}>{pairSessionId}</code>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Journey Trail */}
