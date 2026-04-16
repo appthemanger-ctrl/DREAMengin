@@ -19,7 +19,8 @@ describe('README §13 Code / CodeEngin alignment', () => {
     expect(codeDaydreamPage).toContain('Project Vault');
     expect(codeDaydreamPage).toContain('Snippet Library');
     expect(codeDaydreamPage).toContain('Import Files & Zips');
-    expect(codeDaydreamPage).toContain('Draft Workspace');
+    expect(codeDaydreamPage).toContain("label: 'Drafts'");
+    expect(codeDaydreamPage).toContain('Drafts Workspace');
     expect(codeDaydreamPage).toContain('Open CodeEngin');
   });
 

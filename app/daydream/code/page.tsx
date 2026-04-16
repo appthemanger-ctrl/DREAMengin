@@ -364,7 +364,7 @@ export default async function CodeDaydreamPage() {
           {/* ── Feature 10B: Draft Workspace ── */}
           <div className="de-widget">
             <div className="de-widget-header">
-              <span className="de-widget-title">✍️ Draft Workspace</span>
+              <span className="de-widget-title">✍️ Drafts Workspace</span>
               <Link href="/engines/code?view=drafts" className="text-xs font-semibold ml-auto" style={{ color: '#6366f1' }}>Open Drafts</Link>
             </div>
             <div className="de-widget-body">
