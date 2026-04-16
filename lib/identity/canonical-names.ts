@@ -120,6 +120,24 @@ export const DAYDREAM_TO_ENGIN: Record<DaydreamDomain, EnginSurface> = {
   Create: 'ContentEngin',
 };
 
+export interface DaydreamPairDefinition {
+  sideA: DaydreamDomain;
+  sideB: EnginSurface;
+  specializedTools: true;
+  specializedDreamWindowSupport: true;
+  enginSideMenuControl: 'dual-button-pill';
+}
+
+/** README §9 Daydream Pair System — canonical 6 Side A ↔ Side B domain pair definitions. */
+export const DAYDREAM_PAIR_SYSTEM: readonly DaydreamPairDefinition[] = [
+  { sideA: 'Music',  sideB: 'StarMakerEngin', specializedTools: true, specializedDreamWindowSupport: true, enginSideMenuControl: 'dual-button-pill' },
+  { sideA: 'Games',  sideB: 'GameEngin',      specializedTools: true, specializedDreamWindowSupport: true, enginSideMenuControl: 'dual-button-pill' },
+  { sideA: 'Lab',    sideB: 'LabEngin',       specializedTools: true, specializedDreamWindowSupport: true, enginSideMenuControl: 'dual-button-pill' },
+  { sideA: 'Code',   sideB: 'CodeEngin',      specializedTools: true, specializedDreamWindowSupport: true, enginSideMenuControl: 'dual-button-pill' },
+  { sideA: 'Brand',  sideB: 'BrandingEngin',  specializedTools: true, specializedDreamWindowSupport: true, enginSideMenuControl: 'dual-button-pill' },
+  { sideA: 'Create', sideB: 'ContentEngin',   specializedTools: true, specializedDreamWindowSupport: true, enginSideMenuControl: 'dual-button-pill' },
+] as const;
+
 export const ALL_ENGIN_NAMES: readonly EnginSurface[] = Object.values(ENGIN_SURFACES);
 
 export const REJECTED_ENGIN_NAMES = [
@@ -517,6 +535,7 @@ export const ALL_CANONICAL_NAMES = {
   coreSurfaces: Object.values(CORE_SURFACES),
   surfaceNames: Object.values(SURFACE_NAMES),
   daydreamDomains: Object.values(DAYDREAM_DOMAINS),
+  daydreamPairSystem: DAYDREAM_PAIR_SYSTEM,
   enginSurfaces: Object.values(ENGIN_SURFACES),
   platformModules: Object.values(PLATFORM_MODULES),
   aiAgents: Object.values(AI_AGENTS),
