@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-16 19:02 UTC | `31e85e3` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #582 from appthemanger-ctrl/copilot/implement-dreamdmbar-specification — Align DreamDMBar runtime ownership: hide DreamSpace when bar is minimized<br> |
 | **auto** | 2026-04-16 19:00 UTC | `ff6b627` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #580 from appthemanger-ctrl/copilot/update-daydream-surfaces-section — Align DreamsSpacePanel with README Daydream Surfaces (6 canonical routes)<br> |
 | **auto** | 2026-04-16 18:58 UTC | `273439e` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #590 from appthemanger-ctrl/copilot/update-current-implementation-status — Harden README “Current Implementation Status” updater with section-scoped refresh + focused tests<br> |
 | **auto** | 2026-04-16 18:55 UTC | `6bf0f42` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #594 from appthemanger-ctrl/copilot/implement-music-starmakerengin-section — Align Music Daydream widgets with README §10 StarMakerEngin specialized windows<br> |
 | **auto** | 2026-04-16 18:47 UTC | `4b9b4bf` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #584 from appthemanger-ctrl/copilot/implement-product-law-principles — Align Product Law §1 Principle 10 guidance across docs and legacy comments<br> |
-| **auto** | 2026-04-16 18:05 UTC | `dda72e0` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #579 from appthemanger-ctrl/copilot/update-readme-core-surfaces — Align Core Surfaces spec by adding legacy `/home` → `/homedream` redirect<br> |
 
 ## What changed in this alignment pass
 
