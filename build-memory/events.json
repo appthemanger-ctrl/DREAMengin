@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-14T10:33:43.096Z",
+  "generated_at": "2026-04-16T01:47:14.772Z",
   "generator": "scripts/sync-build-memory.mjs",
   "count": 21,
   "events": [
@@ -95,7 +95,9 @@
       "payload_type": null,
       "files": [
         "components/daydream/CodeEngin.tsx",
-        "engins/CodeEngin.tsx"
+        "engins/CodeEngin.tsx",
+        "exports/DREAMENGINOS/modules/CodeEngin/components/daydream/CodeEngin.tsx",
+        "exports/DREAMENGINOS/modules/CodeEngin/engins/CodeEngin.tsx"
       ]
     },
     {
@@ -173,7 +175,9 @@
       "payload_type": null,
       "files": [
         "components/daydream/StarMakerEngin.tsx",
-        "engins/StarMakerEngin.tsx"
+        "engins/StarMakerEngin.tsx",
+        "exports/DREAMENGINOS/modules/StarMakerEngin/components/daydream/StarMakerEngin.tsx",
+        "exports/DREAMENGINOS/modules/StarMakerEngin/engins/StarMakerEngin.tsx"
       ]
     }
   ]
