@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-17 05:01 UTC | `673e564` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #626 from appthemanger-ctrl/copilot/fix-application-errors — fix: all tests passing — rewrite ai_implement.py to OpenAI API, add missing README sections<br> |
 | **auto** | 2026-04-17 04:43 UTC | `c27d468` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #618 from appthemanger-ctrl/copilot/fix-circular-dependencies-and-api-keys — fix: remove force-dynamic from profile page — resolves infinite landing load<br> |
 | **auto** | 2026-04-17 04:35 UTC | `f4d23af` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #619 from appthemanger-ctrl/copilot/rebuild-folder-structure — Restructuring repository for better file management<br> |
 | **auto** | 2026-04-16 22:52 UTC | `9def477` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #587 from appthemanger-ctrl/copilot/implement-technical-foundation — Align README §4 Technical Foundation checks with current spec floors<br> |
 | **auto** | 2026-04-16 22:51 UTC | `5ce376b` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #585 from appthemanger-ctrl/copilot/implement-route-law-naming-preferences — Codify README Route Law naming preferences in canonical naming authority<br> |
-| **auto** | 2026-04-16 22:46 UTC | `a51a360` | completedream | appthemanger-ctrl | ~1 modified<br>Update AI implementation script for Gemini API<br>✏️: `.github/scripts/ai_implement.py` |
 
 ## What changed in this alignment pass
 
