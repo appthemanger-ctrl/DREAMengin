@@ -82,6 +82,10 @@ interface GameState {
   // AI state
   aiTimers:       Record<FactionId, number>;
   aiAttackTimers: Record<FactionId, number>;
+  // Escalation — late-game pressure clock that ramps AI cadence + subsidies
+  escalationTime: number; // seconds since match start
+  // Player situational awareness — flashes red when an AI commits an assault
+  warningFlash:   number; // seconds remaining of "Incoming!" banner
   // Effects
   explosions: Explosion[];
   // Meta
@@ -151,6 +155,22 @@ const RESEARCH_COST     = 200; const RESEARCH_COOLDOWN = 25;
 const ANALYZE_COST      = 100; const ANALYZE_COOLDOWN  = 20; const ANALYZE_DURATION  = 4;
 const GROOVE_COST       = 160; const GROOVE_COOLDOWN   = 35; const GROOVE_DURATION   = 10;
 const GROOVE_BUFF       = 1.6;
+
+// ─── Escalation system ────────────────────────────────────────────────────────
+// Late-game pressure clock — AI training cadence shortens, costs are subsidised,
+// and assault cadence accelerates as the match drags on. Tier 0 = early game,
+// tier 5 = total war. Player sees the current tier in the HUD so they can read
+// the rising threat instead of being surprised.
+const ESCALATION_BREAKPOINTS_S = [0, 45, 90, 150, 225, 315] as const;
+function getEscalationLevel(timeS: number): number {
+  let lvl = 0;
+  for (let i = 1; i < ESCALATION_BREAKPOINTS_S.length; i++) {
+    if (timeS >= ESCALATION_BREAKPOINTS_S[i]) lvl = i;
+  }
+  return lvl; // 0..5
+}
+const ESCALATION_LABELS = ['Calm', 'Probing', 'Pressure', 'Pressed', 'Escalating', 'Total War'] as const;
+const INCOMING_FLASH_S = 2.5;
 
 // ─── Starting positions (HQ top-left corner in grid coords) ──────────────────
 const BASE_POS: Record<FactionId, Vec2> = {
@@ -268,6 +288,8 @@ function createInitialState(playerFaction: FactionId): GameState {
     grooveCooldown: 0,  grooveActive: 0,
     aiTimers:       { eams: 5,  idari: 5.5, boogie: 4   },
     aiAttackTimers: { eams: 10, idari: 12,  boogie: 8   },
+    escalationTime: 0,
+    warningFlash:   0,
     explosions: [],
     tick: 0, playerFaction,
   };
@@ -294,8 +316,17 @@ function getSpawnPos(state: GameState, faction: FactionId): Vec2 {
 
 // ─── stepGatherer ─────────────────────────────────────────────────────────────
 function stepGatherer(unit: Unit, state: GameState, dt: number): void {
-  if (unit.carryFrags >= CARRY_CAP) {
-    // Return to HQ to deposit
+  // Self-preservation: if a hostile unit is within 3 tiles, drop work and
+  // bee-line back to HQ to deposit/survive. Adds strategic readability — the
+  // player sees their economy reroute under pressure instead of dying mid-mine.
+  let threat = false;
+  for (const u of state.units) {
+    if (u.faction === unit.faction || u.role === 'gatherer') continue;
+    if (dist(u.pos, unit.pos) < 3.0) { threat = true; break; }
+  }
+
+  if (threat || unit.carryFrags >= CARRY_CAP) {
+    // Return to HQ to deposit / take cover
     const hq = state.buildings.find(b => b.faction === unit.faction && b.type === 'hq');
     if (!hq) return;
     const depot: Vec2 = {
@@ -303,10 +334,13 @@ function stepGatherer(unit: Unit, state: GameState, dt: number): void {
       y: hq.pos.y + BLDG_STATS.hq.size / 2,
     };
     if (dist(unit.pos, depot) < 1.5) {
-      state.credits[unit.faction] += unit.carryFrags;
-      unit.carryFrags = 0;
+      if (unit.carryFrags > 0) {
+        state.credits[unit.faction] += unit.carryFrags;
+        unit.carryFrags = 0;
+      }
     } else {
-      const newPos = toward(unit.pos, depot, UNIT_STATS.gatherer.speed * dt * 2);
+      const fleeBoost = threat ? 1.35 : 2;
+      const newPos = toward(unit.pos, depot, UNIT_STATS.gatherer.speed * dt * fleeBoost);
       unit.pos.x = clamp(newPos.x, 0.5, COLS - 0.5);
       unit.pos.y = clamp(newPos.y, 0.5, ROWS - 0.5);
     }
@@ -392,15 +426,22 @@ function stepCombatUnit(unit: Unit, state: GameState, dt: number): void {
       unit.pos.y = clamp(newPos.y, 0.5, ROWS - 0.5);
     }
   } else {
-    // Idle — auto-detect nearby enemies
-    let closest: Unit | null = null;
-    let closestD = 4.5;
+    // Idle — auto-detect nearby enemies. Smarter target priority: among
+    // enemies within scan range, prefer the **weakest** (lowest hp) so a pack
+    // of basics can finish off a dying heavy instead of all chasing the
+    // healthiest target. Falls back to nearest when ties exist.
+    const SCAN_RANGE = 4.5;
+    let best: Unit | null = null;
+    let bestScore = Infinity;
     for (const u of state.units) {
       if (u.faction === unit.faction) continue;
       const d = dist(u.pos, unit.pos);
-      if (d < closestD) { closestD = d; closest = u; }
+      if (d > SCAN_RANGE) continue;
+      // score = hp + small distance tiebreaker (closer wins on equal hp)
+      const score = u.hp + d * 2;
+      if (score < bestScore) { bestScore = score; best = u; }
     }
-    if (closest) unit.attackTargetId = closest.id;
+    if (best) unit.attackTargetId = best.id;
   }
 }
 
@@ -428,13 +469,21 @@ function stepAI(state: GameState, dt: number): void {
   const all: FactionId[] = ['eams', 'idari', 'boogie'];
   const pf = state.playerFaction;
 
+  // Escalation tier influences AI cadence + cost subsidy. Tier 0 = baseline,
+  // tier 5 = total war (training every ~half as often, 30% cost subsidy,
+  // assault every ~5s instead of every ~12s).
+  const eLvl = getEscalationLevel(state.escalationTime);
+  const cadenceMul = Math.max(0.45, 1 - eLvl * 0.11); // 1.0 → 0.45
+  const costMul    = Math.max(0.7,  1 - eLvl * 0.06); // 1.0 → 0.70
+  const assaultMul = Math.max(0.4,  1 - eLvl * 0.12); // 1.0 → 0.40
+
   for (const faction of all) {
     if (faction === pf) continue; // player faction — skip
 
     // ── Training / ability timer ──
     state.aiTimers[faction] -= dt;
     if (state.aiTimers[faction] <= 0) {
-      state.aiTimers[faction] = 4 + Math.random() * 5;
+      state.aiTimers[faction] = (4 + Math.random() * 5) * cadenceMul;
 
       // Trigger special ability opportunistically
       if (faction === 'eams' && state.researchCooldown <= 0 && state.researchLevel < 3
@@ -463,22 +512,28 @@ function stepAI(state: GameState, dt: number): void {
         const combatCnt = myUnits.filter(u => u.role !== 'gatherer').length;
         let role: UnitRole | null = null;
 
-        if (gathCnt === 0 && state.credits[faction] >= UNIT_STATS.gatherer.cost) {
+        // Late-game escalation lifts the combat-unit cap so AI can field a
+        // larger army the longer the match goes.
+        const combatCap = 8 + eLvl * 2;
+
+        if (gathCnt === 0 && state.credits[faction] >= UNIT_STATS.gatherer.cost * costMul) {
           role = 'gatherer';
-        } else if (combatCnt < 8) {
-          if (state.credits[faction] >= UNIT_STATS.heavy.cost && Math.random() < 0.35) {
+        } else if (combatCnt < combatCap) {
+          // Heavies become more likely as escalation rises (smarter army comp).
+          const heavyChance = Math.min(0.6, 0.35 + eLvl * 0.05);
+          if (state.credits[faction] >= UNIT_STATS.heavy.cost * costMul && Math.random() < heavyChance) {
             role = 'heavy';
-          } else if (state.credits[faction] >= UNIT_STATS.basic.cost) {
+          } else if (state.credits[faction] >= UNIT_STATS.basic.cost * costMul) {
             role = 'basic';
           }
         }
 
         if (role) {
-          state.credits[faction]   -= UNIT_STATS[role].cost;
+          state.credits[faction]   -= UNIT_STATS[role].cost * costMul;
           state.trainQueue[faction] = {
             role,
-            timer:    UNIT_STATS[role].trainTime,
-            maxTimer: UNIT_STATS[role].trainTime,
+            timer:    UNIT_STATS[role].trainTime * cadenceMul,
+            maxTimer: UNIT_STATS[role].trainTime * cadenceMul,
           };
         }
       }
@@ -487,17 +542,33 @@ function stepAI(state: GameState, dt: number): void {
     // ── Attack timer — periodically order all combat units to assault a target ──
     state.aiAttackTimers[faction] -= dt;
     if (state.aiAttackTimers[faction] <= 0) {
-      state.aiAttackTimers[faction] = 8 + Math.random() * 9;
+      state.aiAttackTimers[faction] = (8 + Math.random() * 9) * assaultMul;
 
-      // 65 % chance to target the player; 35 % chance to hit the other AI
+      // 65 % chance to target the player; 35 % chance to hit the other AI.
+      // As escalation rises, hostility toward the player ramps up.
       const otherAI = all.find(f => f !== faction && f !== pf) ?? pf;
-      const targetF: FactionId = Math.random() < 0.65 ? pf : otherAI;
+      const playerHostility = Math.min(0.92, 0.65 + eLvl * 0.05);
+      const targetF: FactionId = Math.random() < playerHostility ? pf : otherAI;
       const targetHQ = state.buildings.find(b => b.faction === targetF && b.type === 'hq');
       if (targetHQ) {
         const myFighters = state.units.filter(u => u.faction === faction && u.role !== 'gatherer');
+        // Combined-arms: heavies push the HQ; basics screen for the weakest
+        // enemy unit defending it (focus-fire). Falls back to HQ if no defenders.
+        const defenders = state.units.filter(u => u.faction === targetF && u.role !== 'gatherer');
+        let weakest: Unit | null = null;
+        let weakestHp = Infinity;
+        for (const d of defenders) { if (d.hp < weakestHp) { weakestHp = d.hp; weakest = d; } }
         for (const u of myFighters) {
-          u.attackTargetId = targetHQ.id;
-          u.moveTarget     = null;
+          if (u.role === 'heavy' || !weakest) {
+            u.attackTargetId = targetHQ.id;
+          } else {
+            u.attackTargetId = weakest.id;
+          }
+          u.moveTarget = null;
+        }
+        // Player situational awareness — flash an "Incoming!" warning.
+        if (targetF === pf && myFighters.length > 0) {
+          state.warningFlash = INCOMING_FLASH_S;
         }
       }
     }
@@ -507,6 +578,10 @@ function stepAI(state: GameState, dt: number): void {
 // ─── stepGame ─────────────────────────────────────────────────────────────────
 function stepGame(state: GameState, dt: number): void {
   state.tick++;
+
+  // Escalation clock + warning decay
+  state.escalationTime += dt;
+  if (state.warningFlash > 0) state.warningFlash = Math.max(0, state.warningFlash - dt);
 
   // Ability timer countdown
   if (state.analyzeActive > 0)    state.analyzeActive    = Math.max(0, state.analyzeActive   - dt);
@@ -770,6 +845,26 @@ function drawGame(ctx: CanvasRenderingContext2D, state: GameState): void {
     ctx.fillStyle = eg;
     ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2); ctx.fill();
   }
+
+  // ── "INCOMING ASSAULT!" banner — strategy readability for AI assaults ──
+  if (state.warningFlash > 0) {
+    const pulse = 0.55 + 0.45 * Math.sin(state.tick * 0.6);
+    const alpha = Math.min(1, state.warningFlash / INCOMING_FLASH_S) * pulse;
+    // Red border flash
+    ctx.strokeStyle = `rgba(239,68,68,${alpha})`;
+    ctx.lineWidth   = 6;
+    ctx.strokeRect(3, 3, CANVAS_W - 6, CANVAS_H - 6);
+    // Top banner
+    ctx.fillStyle = `rgba(239,68,68,${0.18 * alpha})`;
+    ctx.fillRect(0, 0, CANVAS_W, 28);
+    ctx.fillStyle    = `rgba(255,235,235,${alpha})`;
+    ctx.font         = 'bold 14px system-ui, sans-serif';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('🚨  INCOMING ASSAULT  🚨', CANVAS_W / 2, 14);
+    ctx.textAlign    = 'left';
+    ctx.textBaseline = 'alphabetic';
+  }
 }
 
 // ─── HUD data type ─────────────────────────────────────────────────────────────
@@ -783,6 +878,9 @@ interface HudData {
   grooveCooldown:   number;
   grooveActive:     number;
   factionStatus:    Record<FactionId, { units: number; hq: boolean }>;
+  escalationLevel:  number;
+  escalationLabel:  string;
+  incomingFlash:    number;
 }
 
 const INITIAL_HUD: HudData = {
@@ -795,6 +893,9 @@ const INITIAL_HUD: HudData = {
     idari: { units: 3, hq: true },
     boogie:{ units: 3, hq: true },
   },
+  escalationLevel: 0,
+  escalationLabel: ESCALATION_LABELS[0],
+  incomingFlash:   0,
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -849,6 +950,7 @@ export default function ENGINBattle() {
       // Refresh HUD state every 20 ticks (~3 Hz)
       if (state.tick % 20 === 0) {
         const pf = state.playerFaction;
+        const eLvl = getEscalationLevel(state.escalationTime);
         setHudData({
           credits:          state.credits[pf],
           trainQueue:       state.trainQueue[pf],
@@ -863,6 +965,9 @@ export default function ENGINBattle() {
             idari: { units: state.units.filter(u => u.faction === 'idari').length,  hq: !!state.buildings.find(b => b.faction === 'idari'  && b.type === 'hq') },
             boogie:{ units: state.units.filter(u => u.faction === 'boogie').length, hq: !!state.buildings.find(b => b.faction === 'boogie' && b.type === 'hq') },
           },
+          escalationLevel: eLvl,
+          escalationLabel: ESCALATION_LABELS[eLvl],
+          incomingFlash:   state.warningFlash,
         });
 
         // Win / lose check
@@ -1242,6 +1347,34 @@ export default function ENGINBattle() {
             </span>
           );
         })}
+
+        {/* Escalation tier — strategy readability for late-game pressure */}
+        {(() => {
+          const escColors = ['#64748b', '#7dd3fc', '#fbbf24', '#fb923c', '#f87171', '#dc2626'];
+          const ec = escColors[Math.min(hudData.escalationLevel, escColors.length - 1)];
+          return (
+            <span title="Escalation: AI cadence, army cap, and assault frequency rise over time"
+              style={{
+                fontSize: 10, padding: '2px 8px', borderRadius: 999,
+                background: ec + '1e', border: `1px solid ${ec}55`, color: ec,
+                fontWeight: hudData.escalationLevel >= 3 ? 700 : 500,
+              }}>
+              ⚡ {hudData.escalationLabel} · L{hudData.escalationLevel}
+            </span>
+          );
+        })()}
+
+        {/* Incoming-assault warning pill (mirrors on-canvas banner) */}
+        {hudData.incomingFlash > 0 && (
+          <span style={{
+            fontSize: 10, padding: '2px 10px', borderRadius: 999,
+            background: 'rgba(239,68,68,0.22)',
+            border: '1px solid #ef4444',
+            color: '#fecaca', fontWeight: 800, letterSpacing: '0.04em',
+          }}>
+            🚨 INCOMING
+          </span>
+        )}
 
         {/* Active effect indicator */}
         {playerFaction === 'eams' && (

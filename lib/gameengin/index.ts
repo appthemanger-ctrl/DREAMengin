@@ -41,6 +41,14 @@ export type { PlayerSignals, DirectorState } from './ai-director';
 
 export { PostFXManager } from './post-fx';
 
+// ── Console-class platform facade ────────────────────────────────────────────
+export { GameEnginPlatform, detectCapabilities } from './platform';
+export type {
+  PlatformCapabilities,
+  PlatformBootOptions,
+  QuickResumeEntry,
+} from './platform';
+
 // ── Game Cartridge Runtime ───────────────────────────────────────────────────
 export { default as GameRuntime } from './GameRuntime';
 export type { GameRuntimeProps } from './GameRuntime';
@@ -52,6 +60,17 @@ export type {
   GravityPreset,
   CartridgeInputEvent,
 } from './cartridge';
+
+// ── Cartridge bay — every repo game packaged as a GameCartridge ──────────────
+export {
+  CARTRIDGE_MANIFEST,
+  getCartridgeManifest,
+  getCartridgeCategories,
+} from './cartridges/manifest';
+export type {
+  CartridgeManifestEntry,
+  CartridgeRenderMode,
+} from './cartridges/manifest';
 
 // ── Power Systems (20 state-of-the-art 2026+ engine subsystems) ──────────────
 export {
