@@ -4,6 +4,58 @@
  * Barrel export for the WASM+GPU Virtual Machine implementation.
  */
 
+// ── §35 Feature detection ─────────────────────────────────────────────────────
+export {
+  detectWasmFeatures,
+  resetWasmFeatureCache,
+  type WasmFeatureSet,
+} from './wasm-features';
+
+// ── §35 Resource quotas ───────────────────────────────────────────────────────
+export {
+  enforceQuota,
+  withinQuota,
+  QuotaExceededError,
+  DEFAULT_RESOURCE_QUOTA,
+  type ResourceQuota,
+  type ResourceUsage,
+  type QuotaViolation,
+} from './resource-quota';
+
+// ── §35 Inter-VM messaging ────────────────────────────────────────────────────
+export { InterVMChannel, type VMEvent } from './inter-vm-messaging';
+
+// ── §35 Security ──────────────────────────────────────────────────────────────
+export {
+  checkBounds,
+  isSyscallAllowed,
+  MemoryBoundsError,
+  SYSCALL_ALLOWLIST,
+  GPUTimeSlicer,
+  type AllowedSyscall,
+  type TimeBudget,
+} from './security';
+
+// ── §35.5 Bus events ──────────────────────────────────────────────────────────
+export type {
+  VMBusEventMap,
+  VMBusEventName,
+  VMWorkloadSubmittedPayload,
+  VMComputeCompletePayload,
+  VMErrorPayload,
+  VMStatsUpdatePayload,
+  VMStatsPayload,
+} from './bus-events';
+
+// ── §35 DualRuntime orchestrator ──────────────────────────────────────────────
+export {
+  DualRuntime,
+  dualRuntime,
+  type VMId,
+  type VMWorkloadSpec,
+  type VMRuntimeStats,
+} from './dual-runtime';
+
 export { WasmGpuVM } from './wasmGpuVM';
 export { BufferManager } from './bufferManager';
 export { PipelineCache } from './pipelineCache';
