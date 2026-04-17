@@ -110,6 +110,15 @@ describe('DREAMengin v2.0.0 — canonical routes', () => {
   it('legacy /home route is registered as a support route in canonical-names', () => {
     expect(LEGACY_ROUTES.HOME).toBe('/home');
   });
+
+  it('legacy /home route redirects to canonical /homedream', () => {
+    const homePage = readFileSync(
+      resolve(__dirname, '../app/home/page.tsx'),
+      'utf8',
+    );
+    expect(homePage).toContain('/homedream');
+    expect(homePage).toContain('redirect');
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -160,7 +169,7 @@ describe('DREAMengin v2.0.0 — legacy route subordination', () => {
 
 describe('DREAMengin v2.0.0 — DreamDMBar routing clean', () => {
   const bar = readFileSync(
-    resolve(__dirname, '../components/messaging/DreamDMBar.tsx'),
+    resolve(__dirname, '../dreamdmbar/DreamDMBar.tsx'),
     'utf8',
   );
 

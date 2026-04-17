@@ -19,8 +19,10 @@ import {
   Terminal, ExternalLink, BarChart2, Shield,
 } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
+import { useCodeEnginBridge } from '@/lib/runtime/useEnginBridge';
 import DiffViewer from '@/components/daydream/DiffViewer';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
 import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel';
 import {
@@ -72,7 +74,8 @@ interface ShellHubDevice {
 // Constants
 // ----------------------------------------------------------------------
 
-const ACCENT = '#3b7dd8';
+const ACCENT = '#22d3ee'; // 2026 updated cyan
+const ACCENT_GRADIENT = 'linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%)'; // 2026 gradient
 const CELL_BG = '#1a1a2e';
 const CODE_FG = '#e2e8f0';
 const OUT_OK = '#4ade80';
@@ -109,7 +112,7 @@ async function loadPyodide() {
     script.onerror = reject;
     document.head.appendChild(script);
   });
-  // @ts-ignore
+  // @ts-expect-error - pyodide loader injected at runtime
   pyodidePromise = globalThis.loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.1/full/' });
   pyodideInstance = await pyodidePromise;
   return pyodideInstance;
@@ -343,26 +346,31 @@ async function callSecurityScan(apiKey: string): Promise<any> {
 }
 
 // ----------------------------------------------------------------------
-// GROQ AI (REAL)
+// AI ASSIST — routes through /api/ai/eams (server-side; GROQ_API_KEY never touches the client)
 // ----------------------------------------------------------------------
 
-async function callGroq(prompt: string, codeContext?: string): Promise<string> {
-  const apiKey = process.env.NEXT_PUBLIC_GROQ_API_KEY || process.env.GROQ_API_KEY;
-  if (!apiKey) return 'Groq API key not configured. Add GROQ_API_KEY to environment.';
-  const model = process.env.NEXT_PUBLIC_GROQ_MODEL_EAMS_FAST || 'llama3-70b-8192';
-  const fullPrompt = codeContext
-    ? `You are Dr. Eams, a coding assistant. The user has this code:\n\`\`\`\n${codeContext}\n\`\`\`\n\nUser request: ${prompt}`
-    : `You are Dr. Eams, a coding assistant. User request: ${prompt}`;
+async function callEamsAssist(prompt: string, codeContext?: string, language?: CellLanguage): Promise<string> {
+  const body: Record<string, unknown> = {
+    message: prompt,
+    ui: { route: '/daydream/code' },
+  };
+  if (codeContext && language) {
+    body.code_context = { language, selected_code: codeContext.slice(0, 2000) };
+  }
   try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const res = await fetch('/api/ai/eams', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages: [{ role: 'user', content: fullPrompt }], temperature: 0.7 }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
     });
-    const data = await res.json();
-    return data.choices?.[0]?.message?.content || 'No response from Groq.';
-  } catch (err: any) {
-    return `Groq API error: ${err.message}`;
+    if (!res.ok) {
+      if (res.status === 401) return 'Sign in to use AI code assist.';
+      return `AI assistant error (${res.status}).`;
+    }
+    const data = await res.json() as { response_text?: string };
+    return data.response_text || 'No response from AI.';
+  } catch (err: unknown) {
+    return `AI assistant error: ${err instanceof Error ? err.message : String(err)}`;
   }
 }
 
@@ -371,6 +379,7 @@ async function callGroq(prompt: string, codeContext?: string): Promise<string> {
 // ----------------------------------------------------------------------
 
 export default function CodeEngin({ onBack }: Props) {
+  const codeBridge = useCodeEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'code' });
   const { persistState } = useDaydreamState({ daydreamType: 'code', side: 'B' });
   type CodeSavedState = { cells?: Array<{ id: string; language: string; source: string }> };
@@ -413,6 +422,12 @@ export default function CodeEngin({ onBack }: Props) {
   const [assistResponse, setAssistResponse] = useState('');
   const [assistLoading, setAssistLoading] = useState(false);
   const lastFocusedRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // ── Lab Dataset receiver ──────────────────────────────────────────────────────
+  const [dismissedDataset, setDismissedDataset] = useState<string | null>(null);
+  const datasetPrompt = codeBridge.lastLabDataset !== null && codeBridge.lastLabDataset !== dismissedDataset
+    ? codeBridge.lastLabDataset
+    : null;
 
   // CI state
   const [ciRunning, setCiRunning] = useState(false);
@@ -475,6 +490,41 @@ export default function CodeEngin({ onBack }: Props) {
     setCells(prev => prev.map(c => c.id === cellId ? { ...c, language, output: null, status: 'idle' } : c));
   };
 
+  // ── Publish Notebook to ContentEngin ──────────────────────────────────────────
+  const publishNotebook = () => {
+    forgeRecord('Published notebook to Content');
+    recordForgeTransfer('code', 'create', 'notebook', 'CodeEngin notebook → ContentEngin');
+    // Emit bridge event for ContentEngin to receive
+    const cellSummary = cells.map(c => ({
+      language: c.language,
+      codeSnippet: c.code.slice(0, 100),
+      hasOutput: c.output !== null,
+    }));
+    bridge.emit('create', 'create:notebook-publish-requested', {
+      notebookId: `notebook-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      cellCount: cells.length,
+      languages: Array.from(new Set(cells.map(c => c.language))),
+      cells: cellSummary,
+    });
+  };
+
+  // ── Deploy Script to GameEngin ────────────────────────────────────────────────
+  const deployScriptToGame = (cellId: string) => {
+    const cell = cells.find(c => c.id === cellId);
+    if (!cell) return;
+    forgeRecord('Deployed script to Game');
+    recordForgeTransfer('code', 'games', 'script', 'CodeEngin script → GameEngin');
+    // Emit bridge event for GameEngin to receive
+    bridge.emit('games', 'games:script-deploy-requested', {
+      scriptId: `script-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      language: cell.language,
+      code: cell.code,
+      hasOutput: cell.output !== null,
+    });
+  };
+
   // Live mode effect
   useEffect(() => {
     if (!liveModeActive) return;
@@ -497,7 +547,7 @@ export default function CodeEngin({ onBack }: Props) {
     const activeCellId = lastFocusedRef.current?.getAttribute('data-cell-id');
     const activeCell = cells.find(c => c.id === activeCellId) || cells[0];
     const codeContext = activeCell?.code || '';
-    const response = await callGroq(assistPrompt, codeContext);
+    const response = await callEamsAssist(assistPrompt, codeContext, activeCell?.language);
     setAssistResponse(response);
     setAssistLoading(false);
     bridge.emit('code', 'code:cell-executed', { cellId: 'ai-assist', language: 'typescript', outputType: 'text' });
@@ -509,7 +559,7 @@ export default function CodeEngin({ onBack }: Props) {
     setCiError(null);
     setCiResults(null);
     try {
-      const apiKey = process.env.NEXT_PUBLIC_CI_API_KEY || '';
+      const apiKey = process.env.CI_API_KEY || '';
       if (!apiKey) throw new Error('CI_API_KEY not set in environment');
       const data = await callCI(apiKey);
       setCiResults(data);
@@ -526,7 +576,7 @@ export default function CodeEngin({ onBack }: Props) {
     setSecError(null);
     setSecResults(null);
     try {
-      const apiKey = process.env.NEXT_PUBLIC_CI_API_KEY || '';
+      const apiKey = process.env.CI_API_KEY || '';
       if (!apiKey) throw new Error('CI_API_KEY not set in environment');
       const data = await callSecurityScan(apiKey);
       setSecResults(data);
@@ -698,6 +748,32 @@ export default function CodeEngin({ onBack }: Props) {
       </header>
 
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
+
+        {/* ── Lab → CodeEngin Dataset Export ── */}
+        {datasetPrompt && (
+          <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.04)' }}>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16 }}>🔬→💻</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
+                    LabEngin exported a dataset
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
+                    Dataset #{datasetPrompt} — load into notebook for analysis?
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDismissedDataset(codeBridge.lastLabDataset)}
+                  style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'var(--de-text-dim)' }}
+                  aria-label="Dismiss"
+                >✕</button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Tab bar */}
         <div style={{ display: 'flex', gap: 6, marginBottom: 18, flexWrap: 'wrap' }}>
           {[

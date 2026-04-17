@@ -24,6 +24,9 @@ import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
+import { ForgeDreamCanvas } from '@/components/ForgeDreamCanvas';
+import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
+import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
 import Link from 'next/link';
 import {
   ArrowLeft, FlaskConical, Activity, Play, BarChart2,
@@ -106,9 +109,39 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }
   archived:  { bg: 'rgba(100,116,139,0.12)', text: 'var(--de-text-dim)',    border: 'rgba(100,116,139,0.2)' },
 };
 
+const LAB_SIDE_B_FUNCTIONS = [
+  'State modeling',
+  'System rules',
+  'Simulation control',
+  'Test orchestration',
+  'Iteration environments',
+  'Lab tool configuration',
+] as const;
+
+const LAB_DREAM_WINDOWS = [
+  { label: 'Experiment Dream Window', href: '/engines/lab/experiments' },
+  { label: 'State Dream Window', href: '/engines/lab' },
+  { label: 'Model Dream Window', href: '/engines/lab/data' },
+  { label: 'Results Dream Window', href: '/engines/lab/data' },
+  { label: 'Parameter Dream Window', href: '/engines/lab' },
+  { label: 'Simulation Viewer Dream Window', href: '/engines/lab/quantum' },
+] as const;
+
 export default function LabEngin({ onBack }: Props) {
   const labBridge = useLabEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'lab' });
+
+  // ── OS Shell: upgradeEngine wiring ──
+  const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
+  useEffect(() => {
+    upgradeEngine({ id: 'lab', name: 'LabEngin' }, ['bridge', 'telemetry'])
+      .then(u => { osRef.current = u; });
+  }, []);
+  const busRef = useRef(createEventBus());
+
+  // ── Engin Forge panel state ──
+  const [showForge, setShowForge] = useState(false);
+
   // ── Existing state ─────────────────────────────────────────────────────────
   const [experiments, setExperiments] = useState<Experiment[]>([]);
   const [loading, setLoading]         = useState(true);
@@ -485,6 +518,31 @@ export default function LabEngin({ onBack }: Props) {
               {tab.label}
             </button>
           ))}
+        </div>
+
+        <div className="de-widget" style={{ borderColor: 'rgba(34,197,94,0.25)', marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <FlaskConical className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">LabEngin Spec Coverage (README §12)</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 8 }}>Side B functions:</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+              {LAB_SIDE_B_FUNCTIONS.map((item) => (
+                <span key={item} style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 9999, background: 'rgba(34,197,94,0.1)', color: ACCENT, border: '1px solid rgba(34,197,94,0.2)' }}>
+                  {item}
+                </span>
+              ))}
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 8 }}>Specialized Dream Windows:</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 6 }}>
+              {LAB_DREAM_WINDOWS.map((item) => (
+                <Link key={item.label} href={item.href} style={{ fontSize: 10, fontWeight: 700, color: ACCENT, textDecoration: 'none', padding: '6px 8px', borderRadius: 8, border: '1px solid rgba(34,197,94,0.2)', background: 'rgba(34,197,94,0.08)' }}>
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* ════════════════════════════════════════
@@ -1676,6 +1734,43 @@ export default function LabEngin({ onBack }: Props) {
               {quantumMeasured ? '✓ Measured — Collapse recorded' : '▶ Measure Circuit'}
             </button>
           </div>
+        </div>
+
+        {/* ── Engin Forge (Visual Engine Builder) ── */}
+        <div className="de-widget" style={{ margin: '14px 0' }}>
+          <div className="de-widget-header">
+            <Box className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
+            <span className="de-widget-title">Engin Forge</span>
+            <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--de-text-dim)' }}>Visual Engine Builder</span>
+            <button
+              type="button"
+              onClick={() => {
+                setShowForge(v => !v);
+                osRef.current?.telemetry?.log('Engin Forge toggled');
+                busRef.current.emit('lab:forge-toggle', { open: !showForge });
+                forgeRecord('Opened Engin Forge');
+              }}
+              style={{
+                marginLeft: 8, padding: '3px 10px', borderRadius: 6, fontSize: 10, fontWeight: 700,
+                border: `1px solid ${ACCENT}40`, background: showForge ? `${ACCENT}22` : `${ACCENT}0d`,
+                color: ACCENT, cursor: 'pointer',
+              }}
+            >
+              {showForge ? 'Close' : 'Open'}
+            </button>
+          </div>
+          {showForge && (
+            <div className="de-widget-body" style={{ padding: 0, overflow: 'hidden', borderRadius: '0 0 12px 12px' }}>
+              <ForgeDreamCanvas />
+            </div>
+          )}
+          {!showForge && (
+            <div className="de-widget-body">
+              <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>
+                Visually assemble OS atomic pieces, wire ports, test in sandbox, and save assemblies to your workspace.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* ── Journey Trail ── */}

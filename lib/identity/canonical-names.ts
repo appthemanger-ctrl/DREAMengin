@@ -251,6 +251,23 @@ export const SURFACE_NAMES = {
 
 export type SurfaceName = (typeof SURFACE_NAMES)[keyof typeof SURFACE_NAMES];
 
+/**
+ * README.md Section 2: Route Law (Naming Preferences)
+ * Preferred names for docs and user-facing UI copy.
+ */
+export const ROUTE_LAW_NAMING_PREFERENCES = [
+  SURFACE_NAMES.HOME_DREAM_SURFACE,
+  SURFACE_NAMES.EDIT_PROFILE_DREAM_SURFACE,
+  SURFACE_NAMES.VIEW_PROFILE_SURFACE,
+  SURFACE_NAMES.DREAM_SHOP_SURFACE,
+  SURFACE_NAMES.DREAM_MARKETPLACE_SURFACE,
+  PLATFORM_MODULES.DREAM_MENU,
+  SURFACE_NAMES.DREAM_DM_SURFACE,
+  SURFACE_NAMES.DREAM_ADS_SURFACE,
+] as const;
+
+export type RouteLawPreferredName = (typeof ROUTE_LAW_NAMING_PREFERENCES)[number];
+
 // ---------------------------------------------------------------------------
 // Dream Window — modular runtime containers
 // ---------------------------------------------------------------------------
@@ -317,6 +334,20 @@ export const NETWORK_COUNTS = {
   ENGIN_RUNTIMES: 6,
   CONNECTION_PATHS: 11,
 } as const;
+
+/**
+ * Canonical work types supported by the Daydream–Engin network model.
+ * Mirrors README.md § "Daydream–Engin Network Model".
+ */
+export const NETWORK_WORK_TYPES = [
+  'creation',
+  'experimentation',
+  'execution',
+  'deployment',
+  'publishing',
+] as const;
+
+export type NetworkWorkType = (typeof NETWORK_WORK_TYPES)[number];
 
 // ---------------------------------------------------------------------------
 // OS-layer rejected UI terms (soft / web-app-coded language)
@@ -455,6 +486,13 @@ export function isValidSurfaceName(name: string): name is SurfaceName {
 }
 
 /**
+ * Returns true if the given string is a preferred Route Law naming label.
+ */
+export function isRouteLawPreferredName(name: string): name is RouteLawPreferredName {
+  return (ROUTE_LAW_NAMING_PREFERENCES as readonly string[]).includes(name);
+}
+
+/**
  * Returns the canonical Engin surface name for a given Daydream domain.
  * Returns undefined if the domain is not canonical.
  */
@@ -516,8 +554,10 @@ export const ALL_CANONICAL_NAMES = {
   productDescription: PRODUCT_DESCRIPTION,
   coreSurfaces: Object.values(CORE_SURFACES),
   surfaceNames: Object.values(SURFACE_NAMES),
+  routeLawNamingPreferences: [...ROUTE_LAW_NAMING_PREFERENCES],
   daydreamDomains: Object.values(DAYDREAM_DOMAINS),
   enginSurfaces: Object.values(ENGIN_SURFACES),
+  networkWorkTypes: NETWORK_WORK_TYPES,
   platformModules: Object.values(PLATFORM_MODULES),
   aiAgents: Object.values(AI_AGENTS),
   runtimeRegions: Object.values(RUNTIME_REGIONS),

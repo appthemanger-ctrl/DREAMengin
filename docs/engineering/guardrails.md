@@ -10,7 +10,7 @@ Last updated: 2026-03-14
 
 - `README.md` is the product authority.
 - Favor spec names over legacy repo wording.
-- Repurpose existing systems before adding new ones.
+- Build freely, clean as you go; do not enforce a blanket "repurpose before invent" rule.
 - Keep privacy-first behavior intact.
 - Keep HomeDream private-source logic separate from ViewProfile output logic.
 - Keep DreamAds separate from platform promotion systems.
@@ -43,4 +43,3 @@ Only wrap truly dangerous cases with hard blocks.
 - **Typecheck warnings** → advisory. `continue-on-error: true` in workflow.
 
 See `docs/ACTION_AUDIT.md` for a full label of every user-facing action.
-

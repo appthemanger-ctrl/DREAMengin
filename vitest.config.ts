@@ -13,6 +13,7 @@ export default defineConfig({
       '**/*.spec.ts', // Exclude playwright specs
       '**/tests/example.spec.ts',
       '**/tests/navigation/**',
+      'exports/**',
     ],
     include: ['**/*.test.ts'],
   },

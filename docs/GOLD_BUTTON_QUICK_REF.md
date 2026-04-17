@@ -141,7 +141,7 @@ npm run test:watch # Watch mode
 
 | Component | Path |
 |-----------|------|
-| DreamDMBar | `components/messaging/DreamDMBar.tsx` |
+| DreamDMBar | `dreamdmbar/DreamDMBar.tsx` |
 | HomeSystem | `components/home/HomeSystem.tsx` |
 | Dual Runtime State | `lib/runtime/dualRuntime.ts` |
 | Runtime Container | `components/runtime/DualRuntimeContainer.tsx` |

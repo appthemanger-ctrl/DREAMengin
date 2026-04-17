@@ -9,6 +9,9 @@ import { type CSSProperties, useCallback, useEffect, useRef, useState } from 're
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
+import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
+import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
+import { useSharedDream } from '@/hooks/useSharedDream';
 import Link from 'next/link';
 import {
   ArrowLeft, ArrowLeftRight, Zap, Bug, ListChecks,
@@ -40,6 +43,7 @@ import {
   type UndoSnapshot,
   type EditableCell,
 } from '@/lib/diff/aiEditEngine';
+import { AgentPanel } from './CodeEngin/modules/ai-co-pilot';
 
 // ----------------------------------------------------------------------
 // Types
@@ -109,7 +113,7 @@ async function loadPyodide() {
     script.onerror = reject;
     document.head.appendChild(script);
   });
-  // @ts-ignore
+  // @ts-expect-error - pyodide loader injected at runtime
   pyodidePromise = globalThis.loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.26.1/full/' });
   pyodideInstance = await pyodidePromise;
   return pyodideInstance;
@@ -343,26 +347,31 @@ async function callSecurityScan(apiKey: string): Promise<any> {
 }
 
 // ----------------------------------------------------------------------
-// GROQ AI (REAL)
+// AI ASSIST — routes through /api/ai/eams (server-side; GROQ_API_KEY never touches the client)
 // ----------------------------------------------------------------------
 
-async function callGroq(prompt: string, codeContext?: string): Promise<string> {
-  const apiKey = process.env.NEXT_PUBLIC_GROQ_API_KEY || process.env.GROQ_API_KEY;
-  if (!apiKey) return 'Groq API key not configured. Add GROQ_API_KEY to environment.';
-  const model = process.env.NEXT_PUBLIC_GROQ_MODEL_EAMS_FAST || 'llama3-70b-8192';
-  const fullPrompt = codeContext
-    ? `You are Dr. Eams, a coding assistant. The user has this code:\n\`\`\`\n${codeContext}\n\`\`\`\n\nUser request: ${prompt}`
-    : `You are Dr. Eams, a coding assistant. User request: ${prompt}`;
+async function callEamsAssist(prompt: string, codeContext?: string, language?: CellLanguage): Promise<string> {
+  const body: Record<string, unknown> = {
+    message: prompt,
+    ui: { route: '/daydream/code' },
+  };
+  if (codeContext && language) {
+    body.code_context = { language, selected_code: codeContext.slice(0, 2000) };
+  }
   try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const res = await fetch('/api/ai/eams', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages: [{ role: 'user', content: fullPrompt }], temperature: 0.7 }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
     });
-    const data = await res.json();
-    return data.choices?.[0]?.message?.content || 'No response from Groq.';
-  } catch (err: any) {
-    return `Groq API error: ${err.message}`;
+    if (!res.ok) {
+      if (res.status === 401) return 'Sign in to use AI code assist.';
+      return `AI assistant error (${res.status}).`;
+    }
+    const data = await res.json() as { response_text?: string };
+    return data.response_text || 'No response from AI.';
+  } catch (err: unknown) {
+    return `AI assistant error: ${err instanceof Error ? err.message : String(err)}`;
   }
 }
 
@@ -376,6 +385,19 @@ export default function CodeEngin({ onBack }: Props) {
   type CodeSavedState = { cells?: Array<{ id: string; language: string; source: string }> };
   const { savedState: savedCodeState, isRestoring: codeRestoring, persistState: persistCodeState } = useDaydreamPersistence<CodeSavedState>({ daydreamType: 'code' });
   const codeRestoredRef = useRef(false);
+
+  // ── OS Shell ──
+  const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
+  useEffect(() => {
+    upgradeEngine({ id: 'code', name: 'CodeEngin' }, ['bridge', 'telemetry'])
+      .then(u => { osRef.current = u; });
+  }, []);
+  const busRef = useRef(createEventBus());
+
+  // ── Pair programming state ──
+  const [pairSessionId] = useState(() => `code-${Date.now()}`);
+  const [pairActive, setPairActive] = useState(false);
+  const pairDream = useSharedDream(pairActive ? pairSessionId : '');
 
   // Notebook state
   const [cells, setCells] = useState<NotebookCell[]>(() => {
@@ -497,7 +519,7 @@ export default function CodeEngin({ onBack }: Props) {
     const activeCellId = lastFocusedRef.current?.getAttribute('data-cell-id');
     const activeCell = cells.find(c => c.id === activeCellId) || cells[0];
     const codeContext = activeCell?.code || '';
-    const response = await callGroq(assistPrompt, codeContext);
+    const response = await callEamsAssist(assistPrompt, codeContext, activeCell?.language);
     setAssistResponse(response);
     setAssistLoading(false);
     bridge.emit('code', 'code:cell-executed', { cellId: 'ai-assist', language: 'typescript', outputType: 'text' });
@@ -509,7 +531,7 @@ export default function CodeEngin({ onBack }: Props) {
     setCiError(null);
     setCiResults(null);
     try {
-      const apiKey = process.env.NEXT_PUBLIC_CI_API_KEY || '';
+      const apiKey = process.env.CI_API_KEY || '';
       if (!apiKey) throw new Error('CI_API_KEY not set in environment');
       const data = await callCI(apiKey);
       setCiResults(data);
@@ -526,7 +548,7 @@ export default function CodeEngin({ onBack }: Props) {
     setSecError(null);
     setSecResults(null);
     try {
-      const apiKey = process.env.NEXT_PUBLIC_CI_API_KEY || '';
+      const apiKey = process.env.CI_API_KEY || '';
       if (!apiKey) throw new Error('CI_API_KEY not set in environment');
       const data = await callSecurityScan(apiKey);
       setSecResults(data);
@@ -905,6 +927,11 @@ export default function CodeEngin({ onBack }: Props) {
           </div>
         </div>
 
+        {/* AI Co‑pilot (agent-os powered) */}
+        <div style={{ marginTop: 14 }}>
+          <AgentPanel />
+        </div>
+
         {/* Crash Recovery */}
         <div className="de-widget" style={{ margin: '14px 0' }}>
           <div className="de-widget-header"><Bug className="w-4 h-4" style={{ color: '#f87171' }} /><span className="de-widget-title ml-2">Crash Recovery</span><span style={{ marginLeft: 'auto', fontSize: 10, color: '#f87171' }}>appthemanger@gmail.com</span></div>
@@ -915,6 +942,44 @@ export default function CodeEngin({ onBack }: Props) {
         <div className="de-widget" style={{ margin: '14px 0' }}>
           <div className="de-widget-header"><ListChecks className="w-4 h-4" style={{ color: '#22c55e' }} /><span className="de-widget-title ml-2">App Editing Job List</span></div>
           <div className="de-widget-body"><TaskJobManager /></div>
+        </div>
+
+        {/* Pair Programming */}
+        <div className="de-widget" style={{ margin: '14px 0' }}>
+          <div className="de-widget-header">
+            <ArrowLeftRight className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">Pair Programming</span>
+            {pairActive && (
+              <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, color: '#22c55e' }}>
+                ● {pairDream.isConnected ? `Live · ${Object.keys(pairDream.peers).length} peer(s)` : 'Connecting…'}
+              </span>
+            )}
+          </div>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>
+              Share this session for real-time cursor and edit synchronisation.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setPairActive(v => !v);
+                osRef.current?.telemetry?.log('pair programming toggled');
+                busRef.current.emit('code:pair-session', { active: !pairActive, sessionId: pairSessionId });
+              }}
+              style={{
+                padding: '9px 16px', borderRadius: 9, border: `1px solid ${ACCENT}40`,
+                background: pairActive ? `${ACCENT}22` : `${ACCENT}10`,
+                color: ACCENT, fontSize: 12, fontWeight: 700, cursor: 'pointer',
+              }}
+            >
+              {pairActive ? '⏹ Stop Pair Session' : '▶ Start Pair Session'}
+            </button>
+            {pairActive && (
+              <div style={{ fontSize: 10, color: 'var(--de-text-dim)', wordBreak: 'break-all' }}>
+                Session ID: <code style={{ color: ACCENT }}>{pairSessionId}</code>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Journey Trail */}

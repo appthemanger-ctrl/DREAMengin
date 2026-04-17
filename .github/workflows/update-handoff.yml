@@ -13,7 +13,7 @@ name: Update Handoff Doc
 on:
   push:
     branches:
-      - '**'
+      - completedream
     paths-ignore:
       - 'docs/HANDOFF.md'   # prevent the bot's own commit from re-triggering
 

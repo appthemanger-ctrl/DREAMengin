@@ -9,7 +9,7 @@ import { connection } from 'next/server';
 
 export const metadata = { title: 'Brand Daydream – Dreamengin', description: 'Build and manage your personal brand identity.' };
 
-const ACCENT = '#ec4899';
+const ACCENT = '#f472b6';
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'post',      emoji: '📢', label: 'New Post',     desc: 'Create and share content',    color: '#ec4899', href: '/daydream/create' },
@@ -40,10 +40,10 @@ export default async function BrandDaydreamPage() {
       <AuthenticatedPageHeader
         backHref="/homedream"
         title="Brand"
-        subtitle="Identity, profile projection, scheduling, and visual polish in one premium brand surface."
+        subtitle="Identity · AI brand kit · motion graphics · analytics 2.0."
         icon={<Palette className="w-4 h-4" />}
-        accentColor="#ec4899"
-        badge="Daydream"
+        accentColor="#f472b6"
+        badge="Brand Daydream · 2026 Edition"
       />
 
       <BrandDaydreamDashboard />

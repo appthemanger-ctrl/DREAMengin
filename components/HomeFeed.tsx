@@ -14,7 +14,7 @@
  *   - Like/comment counts sync via UPDATE events (no re-fetch)
  */
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -27,6 +27,8 @@ import {
 import { useLiveFeed, type FeedPost } from '@/lib/feed/useLiveFeed';
 import { useYouTubeLiveFeed } from '@/lib/feed/useYouTubeLiveFeed';
 import FeedVideoCard from '@/components/feed/FeedVideoCard';
+import { AdUnit } from '@/components/ads/AdUnit';
+import { AdType } from '@/lib/activity/types';
 import SocialShareSheet from '@/components/ui/SocialShareSheet';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
@@ -536,8 +538,8 @@ export default function HomeFeed({
             </div>
           ) : (
             displayPosts.map((post, postIdx) => (
+              <Fragment key={post.id}>
               <article
-                key={post.id}
                 className="bg-card hover:border-primary/20 transition-colors"
                 onTouchStart={(event) => handlePostTouchStart(post.id, event)}
                 onTouchEnd={(event) => handlePostTouchEnd(post, event)}
@@ -703,6 +705,21 @@ export default function HomeFeed({
                   </div>
                 )}
               </article>
+              {/* Phase 9 — AdUnit after every 5th post (Activity-First Protocol §V) */}
+              {(postIdx + 1) % 5 === 0 && (
+                <div style={{ margin: '8px 0' }}>
+                  <AdUnit
+                    adId={`feed-ad-${Math.floor(postIdx / 5)}`}
+                    adType={AdType.REWARDED}
+                    adContent={{
+                      title: 'Support DREAMengin',
+                      description: 'Watch a short ad and earn skip credits',
+                      targetUrl: '/ads',
+                    }}
+                  />
+                </div>
+              )}
+              </Fragment>
             ))
           )}
           </div>

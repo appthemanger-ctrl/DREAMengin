@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   await supabase
     .from('admin_audit_log')
     .insert({
-      admin_id: user.id,
+      actor_id: user.id,
       action: 'ai_update_request',
       details: { prompt, status: 'pending' }
     });

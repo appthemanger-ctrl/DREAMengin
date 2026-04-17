@@ -347,6 +347,7 @@ export class EliteGameEngine {
 
   get babylonEngine(): AbstractEngine | null { return this.engine; }
   get babylonScene(): Scene | null { return this.scene; }
+  get babylonCanvas(): HTMLCanvasElement { return this.canvas; }
   get isUsingWebGPU(): boolean { return this.isWebGPU; }
   get budget(): PerformanceBudget { return this.currentBudget; }
 

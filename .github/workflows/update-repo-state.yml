@@ -1,10 +1,10 @@
 name: Update Repository State
 
 on:
-  # Run on pushes to any branch
+  # Run only on pushes to the default branch (i.e. after a PR is merged)
   push:
     branches:
-      - '**'
+      - completedream
     # Skip if only REPO_STATE.md changed (avoid infinite loops)
     paths-ignore:
       - 'REPO_STATE.md'
@@ -53,7 +53,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 10.30.0
+          version: 10.33.0
 
       - name: Cache pnpm dependencies
         uses: actions/cache@v4

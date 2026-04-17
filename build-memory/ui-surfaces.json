@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-12T17:36:36.457Z",
+  "generated_at": "2026-04-16T18:48:12.837Z",
   "generator": "scripts/sync-build-memory.mjs",
   "count": 118,
   "surfaces": [
@@ -51,6 +51,18 @@
     },
     {
       "type": "page",
+      "path": "/admin/platform-health",
+      "file": "app/admin/platform-health/page.tsx",
+      "component": "PlatformHealthPage",
+      "imports": [
+        {
+          "name": "PlatformHealth",
+          "from": "@/components/idari/PlatformHealth"
+        }
+      ]
+    },
+    {
+      "type": "page",
       "path": "/ads",
       "file": "app/ads/page.tsx",
       "component": "AdsPage",
@@ -77,17 +89,22 @@
     },
     {
       "type": "page",
-      "path": "/analytics",
-      "file": "app/analytics/page.tsx",
-      "component": "AnalyticsLegacyPage",
-      "imports": []
-    },
-    {
-      "type": "page",
       "path": "/auth/reset-password",
       "file": "app/auth/reset-password/page.tsx",
       "component": "ResetPasswordPage",
       "imports": []
+    },
+    {
+      "type": "page",
+      "path": "/auth/update-password",
+      "file": "app/auth/update-password/page.tsx",
+      "component": "UpdatePasswordPage",
+      "imports": [
+        {
+          "name": "PasswordField",
+          "from": "@/components/auth/PasswordField"
+        }
+      ]
     },
     {
       "type": "page",
@@ -105,18 +122,6 @@
         {
           "name": "ConnectorsClient",
           "from": "./ConnectorsClient"
-        }
-      ]
-    },
-    {
-      "type": "page",
-      "path": "/daydream/analytics",
-      "file": "app/daydream/analytics/page.tsx",
-      "component": "AnalyticsDaydreamPage",
-      "imports": [
-        {
-          "name": "AuthenticatedPageHeader",
-          "from": "@/components/ui/AuthenticatedPageHeader"
         }
       ]
     },
@@ -404,22 +409,6 @@
       "path": "/engines/brand",
       "file": "app/engines/brand/layout.tsx",
       "component": "BrandEnginLayout"
-    },
-    {
-      "type": "page",
-      "path": "/engines/brand/analytics",
-      "file": "app/engines/brand/analytics/page.tsx",
-      "component": "BrandAnalyticsPage",
-      "imports": [
-        {
-          "name": "EnginAppShell, EnginNavBar",
-          "from": "@/components/engines/shared"
-        },
-        {
-          "name": "AnalyticsPanel",
-          "from": "@/components/engines/brand/panels/AnalyticsPanel"
-        }
-      ]
     },
     {
       "type": "page",
@@ -797,6 +786,13 @@
     },
     {
       "type": "page",
+      "path": "/home",
+      "file": "app/home/page.tsx",
+      "component": "HomeLegacyRoutePage",
+      "imports": []
+    },
+    {
+      "type": "page",
       "path": "/homedream",
       "file": "app/homedream/page.tsx",
       "component": "Home",
@@ -997,6 +993,10 @@
       "file": "app/profile/[handle]/page.tsx",
       "component": "ProfilePage",
       "imports": [
+        {
+          "name": "ActivityProfile",
+          "from": "@/components/activity/ActivityProfile"
+        },
         {
           "name": "FollowButton",
           "from": "@/components/feed/FollowButton"
@@ -1210,6 +1210,10 @@
       "component": "ViewProfilePage",
       "imports": [
         {
+          "name": "ActivityProfile",
+          "from": "@/components/activity/ActivityProfile"
+        },
+        {
           "name": "ProfileShareButton",
           "from": "@/components/ProfileShareButton"
         },
@@ -1240,7 +1244,7 @@
     {
       "type": "component",
       "name": "DreamDMBar",
-      "file": "components/messaging/DreamDMBar.tsx",
+      "file": "components/DreamDMBar.tsx",
       "owner": "DreamDM Bar designer"
     },
     {

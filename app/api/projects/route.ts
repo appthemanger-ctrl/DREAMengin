@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // GET - Fetch projects
 export async function GET(req: NextRequest) {
-  const supabase = await createServerClient();
+  const supabase = (await createServerClient()) as any;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
 
 // POST - Create a new project
 export async function POST(req: NextRequest) {
-  const supabase = await createServerClient();
+  const supabase = (await createServerClient()) as any;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
 
 // PUT - Update a project
 export async function PUT(req: NextRequest) {
-  const supabase = await createServerClient();
+  const supabase = (await createServerClient()) as any;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -161,7 +161,7 @@ export async function PUT(req: NextRequest) {
 
 // DELETE - Remove a project
 export async function DELETE(req: NextRequest) {
-  const supabase = await createServerClient();
+  const supabase = (await createServerClient()) as any;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

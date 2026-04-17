@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "esnext",
     "lib": [
       "dom",
       "dom.iterable",
@@ -16,9 +16,11 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "incremental": false,
+    "incremental": true,
+    "tsBuildInfoFile": ".next/tsbuildinfo",
     "ignoreDeprecations": "5.0",
     "baseUrl": ".",
+    "types": ["@webgpu/types"],
     "plugins": [
       {
         "name": "next"
@@ -43,6 +45,8 @@
     "node_modules",
     "tests/**",
     "playwright.config.ts",
-    "assembly/**"
+    "assembly/**",
+    "exports/**",
+    "scripts/archive/**"
   ]
 }

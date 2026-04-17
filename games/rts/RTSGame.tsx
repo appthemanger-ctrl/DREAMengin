@@ -1013,7 +1013,7 @@ export default function RTSGame() {
       <div style={{ background:'linear-gradient(135deg,#050d18,#0d1a2e)', minHeight:420, borderRadius:12, padding:32, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:20, border:'1px solid rgba(34,211,238,0.2)', position:'relative', overflow:'hidden' }}>
         {/* scan lines */}
         <div style={{ position:'absolute', inset:0, backgroundImage:'repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.15) 2px,rgba(0,0,0,0.15) 4px)', pointerEvents:'none' }} />
-        <div style={{ fontSize:11, letterSpacing:'0.3em', color:'rgba(34,211,238,0.6)', textTransform:'uppercase' }}>// CLASSIFIED INTEL PACKAGE //</div>
+        <div style={{ fontSize:11, letterSpacing:'0.3em', color:'rgba(34,211,238,0.6)', textTransform:'uppercase' }}>CLASSIFIED INTEL PACKAGE</div>
         <div style={{ fontSize:28, fontWeight:900, color:pg.color, textShadow:`0 0 30px ${pg.color}88`, letterSpacing:'0.06em', textAlign:'center' }}>{pg.title}</div>
         <div style={{ fontSize:13, color:'rgba(255,255,255,0.5)', letterSpacing:'0.15em' }}>{pg.sub.toUpperCase()}</div>
         <div style={{ background:'rgba(0,0,0,0.4)', border:`1px solid ${pg.color}33`, borderRadius:8, padding:'16px 24px', maxWidth:480, width:'100%' }}>

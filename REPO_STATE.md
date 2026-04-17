@@ -39,7 +39,7 @@
 
 **Project:** dreamengin
 **Version:** 2.0.0
-**Package Manager:** pnpm@10.30.0
+**Package Manager:** pnpm@10.33.0
 
 **Quick Stats:**
 
@@ -66,10 +66,17 @@
 
 ### All Dependencies
 
-**Production Dependencies:** 23
+**Production Dependencies:** 31
 ```
 @babylonjs/core@^9.1.0
 @babylonjs/havok@^1.3.12
+@opentelemetry/api@^1.9.1
+@opentelemetry/exporter-prometheus@^0.214.0
+@opentelemetry/exporter-trace-otlp-http@^0.214.0
+@opentelemetry/resources@^2.6.1
+@opentelemetry/sdk-metrics@^2.6.1
+@opentelemetry/sdk-trace-node@^2.6.1
+@opentelemetry/semantic-conventions@^1.40.0
 @react-three/drei@^10.7.7
 @react-three/fiber@^9.5.0
 @supabase/ssr@^0.10.0
@@ -96,9 +103,9 @@ three@^0.183.0
 @tailwindcss/postcss@^4.2.2
 @types/node@^25.0.0
 @types/react@^19.2.0
-@types/react-dnd@^3.0.2
 @types/react-dom@^19.2.0
 @types/three@^0.183.1
+@webgpu/types@^0.1.69
 assemblyscript@^0.28.0
 eslint@^9.0.0
 eslint-config-next@^16.2.3
@@ -144,7 +151,7 @@ vitest@^4.1.0
 
 ## API Routes
 
-**Total API Endpoints:** 88
+**Total API Endpoints:** 98
 
 ### All Routes
 
@@ -153,12 +160,15 @@ vitest@^4.1.0
 | `/api/account/delete-data` | POST | /app/api/account/delete-data/route.ts |
 | `/api/account/delete-dream` | POST | /app/api/account/delete-dream/route.ts |
 | `/api/account/export-data` | GET | /app/api/account/export-data/route.ts |
+| `/api/activity/track` | POST | /app/api/activity/track/route.ts |
 | `/api/admin/ai-chat` | POST | /app/api/admin/ai-chat/route.ts |
 | `/api/admin/ai-request` | POST | /app/api/admin/ai-request/route.ts |
 | `/api/admin/child-safety` | GET, POST | /app/api/admin/child-safety/route.ts |
 | `/api/admin/code-files` | POST | /app/api/admin/code-files/route.ts |
 | `/api/admin/observability` | GET | /app/api/admin/observability/route.ts |
 | `/api/ads/orders` | POST | /app/api/ads/orders/route.ts |
+| `/api/ads/view` | POST | /app/api/ads/view/route.ts |
+| `/api/agent/session` | POST | /app/api/agent/session/route.ts |
 | `/api/ai/boogieman/child-safety` | POST | /app/api/ai/boogieman/child-safety/route.ts |
 | `/api/ai/boogieman/privacy-event` | POST | /app/api/ai/boogieman/privacy-event/route.ts |
 | `/api/ai/boogieman` | POST | /app/api/ai/boogieman/route.ts |
@@ -197,14 +207,11 @@ vitest@^4.1.0
 | `/api/dreamr/feed` | GET | /app/api/dreamr/feed/route.ts |
 | `/api/dreamr/suggested` | GET | /app/api/dreamr/suggested/route.ts |
 | `/api/embed-feed` | GET | /app/api/embed-feed/route.ts |
-| `/api/favorites` | GET, POST, DELETE | /app/api/favorites/route.ts |
-| `/api/feed` | GET | /app/api/feed/route.ts |
-| `/api/follow` | GET, POST, DELETE | /app/api/follow/route.ts |
-| ... | ... | ... and 38 more routes |
+| ... | ... | ... and 48 more routes |
 
 ## Pages & Routes
 
-**Total Pages:** 99
+**Total Pages:** 102
 
 ### All Pages
 
@@ -212,10 +219,12 @@ vitest@^4.1.0
 |-------|------|
 | `/about` | /app/about/page.tsx |
 | `/admin` | /app/admin/page.tsx |
+| `/admin/platform-health` | /app/admin/platform-health/page.tsx |
 | `/ads/create` | /app/ads/create/page.tsx |
 | `/ads` | /app/ads/page.tsx |
 | `/ads/slot/[id]` | /app/ads/slot/[id]/page.tsx |
 | `/auth/reset-password` | /app/auth/reset-password/page.tsx |
+| `/auth/update-password` | /app/auth/update-password/page.tsx |
 | `/codespace` | /app/codespace/page.tsx |
 | `/connectors` | /app/connectors/page.tsx |
 | `/daydream/brand/engin` | /app/daydream/brand/engin/page.tsx |
@@ -258,39 +267,41 @@ vitest@^4.1.0
 | `/engines/games` | /app/engines/games/page.tsx |
 | `/engines/games/scores` | /app/engines/games/scores/page.tsx |
 | `/engines/lab/data` | /app/engines/lab/data/page.tsx |
-| `/engines/lab/experiments` | /app/engines/lab/experiments/page.tsx |
-| `/engines/lab` | /app/engines/lab/page.tsx |
-| ... | ... and 49 more pages |
+| ... | ... and 52 more pages |
 
 ## Components
 
-**Total Component Categories:** 36
+**Total Component Categories:** 40
 
 ### Component Organization
 
 | Category | File Count |
 |----------|-----------|
+| `activity/` | 3 |
+| `ads/` | 2 |
 | `auth/` | 1 |
 | `connectors/` | 6 |
 | `controls/` | 1 |
 | `core/` | 1 |
 | `customize/` | 7 |
 | `daydream/` | 24 |
+| `draggable/` | 1 |
 | `dreamengin/` | 21 |
 | `dreamnav/` | 2 |
 | `dreamr/` | 5 |
-| `dreams/` | 7 |
+| `dreams/` | 9 |
 | `engines/` | 34 |
 | `feed/` | 5 |
 | `feeds/` | 1 |
 | `forge/` | 2 |
 | `gameengin/` | 1 |
-| `games/` | 44 |
+| `games/` | 45 |
 | `home/` | 12 |
+| `idari/` | 1 |
 | `landing/` | 2 |
 | `marketplace/` | 2 |
 | `menus/` | 5 |
-| `messaging/` | 2 |
+| `messaging/` | 1 |
 | `music/` | 1 |
 | `onboarding/` | 1 |
 | `optimizer/` | 1 |
@@ -309,14 +320,13 @@ vitest@^4.1.0
 
 ## Database Schema
 
-**Total Migrations:** 44
+**Total Migrations:** 45
 **Schema File:** ✓ Present
 
 ### Migration History
 
 | Migration File |
 |----------------|
-| 20260324000001_phase8e_shop_marketplace.sql |
 | 20260325000000_phase8f_daydream_network.sql |
 | 20260325100000_child_safety.sql |
 | 20260401000001_platform_utilities.sql |
@@ -326,22 +336,25 @@ vitest@^4.1.0
 | 20260403000002_pgvector_search_rpc.sql |
 | 20260405000001_dreamr_feed_registry.sql |
 | 20260405042406_auto_scaffold.sql |
-| ... and 34 earlier migrations |
+| 20260413000000_phase9_activity_first_protocol.sql |
+| ... and 35 earlier migrations |
 
 ## Tests
 
-**Test Files:** 143
-**Tests Passing:** 134
-**Tests Failing:** 11
+**Test Files:** 161
+**Tests Passing:** 156
+**Tests Failing:** 0
 
 ### Test Files
 
+- /tests/activity-first-protocol.test.ts
 - /tests/admin-lockout.test.ts
 - /tests/admin-upgrade-readiness.test.ts
 - /tests/agent-bus-consensus.test.ts
 - /tests/ai-edit-engine.test.ts
 - /tests/asset-optimizer.test.ts
 - /tests/auth-providers-route.test.ts
+- /tests/auth-update-password-page.test.ts
 - /tests/authenticated-ui-shells.test.ts
 - /tests/babylon-optimizero.test.ts
 - /tests/babylon-webgpu-engine.test.ts
@@ -354,24 +367,22 @@ vitest@^4.1.0
 - /tests/collector-extended.test.ts
 - /tests/compositeengin-features.test.ts
 - /tests/conform-memory-map.test.ts
-- /tests/connectors.test.ts
-- /tests/content-intelligence-routes.test.ts
-- ... and 123 more test files
+- ... and 141 more test files
 
 ## Documentation
 
-**Total Documentation Files:** 49
+**Total Documentation Files:** 62
 
 ### Documentation Files
 
 - [README.md](/README.md)
 - [CHANGELOG.md](/CHANGELOG.md)
 - [LICENSE](/LICENSE)
-- [IMPLEMENTATION_NOTES.md](/IMPLEMENTATION_NOTES.md)
 - [ACTION_AUDIT.md](/docs/ACTION_AUDIT.md)
 - [ACTIVITY_FIRST_PROTOCOL.md](/docs/ACTIVITY_FIRST_PROTOCOL.md)
 - [ADD_WORKFLOW.md](/docs/ADD_WORKFLOW.md)
 - [AGENT_PLAYBOOK.md](/docs/AGENT_PLAYBOOK.md)
+- [AI_MAP.md](/docs/AI_MAP.md)
 - [ARCHITECTURE.md](/docs/ARCHITECTURE.md)
 - [AUTH_SETUP.md](/docs/AUTH_SETUP.md)
 - [AXIOMS.md](/docs/AXIOMS.md)
@@ -382,6 +393,7 @@ vitest@^4.1.0
 - [CONNECTOR_MATRIX.md](/docs/CONNECTOR_MATRIX.md)
 - [CONSTITUTION.md](/docs/CONSTITUTION.md)
 - [COPILOT_TOOLKIT.md](/docs/COPILOT_TOOLKIT.md)
+- [DREAMGAME_FORMAT.md](/docs/DREAMGAME_FORMAT.md)
 - [DR_EAMS.md](/docs/DR_EAMS.md)
 - [DUALSENSE_EXAMPLE.md](/docs/DUALSENSE_EXAMPLE.md)
 - [DUALSENSE_INTEGRATION.md](/docs/DUALSENSE_INTEGRATION.md)
@@ -393,18 +405,19 @@ vitest@^4.1.0
 - [HANDOFF.md](/docs/HANDOFF.md)
 - [IDARI_CONTRACT.md](/docs/IDARI_CONTRACT.md)
 - [LAW.md](/docs/LAW.md)
-- [NAMING_AUTHORITY.md](/docs/NAMING_AUTHORITY.md)
-- ... and 19 more docs
+- ... and 32 more docs
 
 ## CI/CD Workflows
 
-**Total Workflows:** 53
+**Total Workflows:** 60
 
 ### Workflow Files
 
 - autofixvercelbuild.yml
+- bot-pr-automerge.yml
 - bouncer.yml
 - check-build-memory-drift.yml
+- copilot-setup-steps.yml
 - daydream-brand-engin.yml
 - daydream-brand.yml
 - daydream-code-engin.yml
@@ -439,13 +452,17 @@ vitest@^4.1.0
 - generatesupabasetypes.yml
 - github-actions.yml
 - idari-daily.yml
+- issue-bot.yml
+- mobile-ps5-spec-evolution.yml
 - neural_decision_engine.yml
 - optimize-dreamengin.yml
 - portfolio-optimization.yml
 - preflight.yml
+- readme-spec-bot-army.yml
 - refreshlock.yml
 - repo-snapshot.yml
 - report-driven-coding-agent.yml
+- root-hygiene.yml
 - spec-engin-ai-agent.yml
 - sql-migration-guard.yml
 - sync-build-memory.yml
@@ -454,11 +471,12 @@ vitest@^4.1.0
 - update-handoff.yml
 - update-readme.yml
 - update-repo-state.yml
+- vercel-build-probe.yml
 - vercel-deploy.yml
 
 ## Configuration Files
 
-**Total Configuration Files:** 11
+**Total Configuration Files:** 9
 
 ### Config Files
 
@@ -468,8 +486,6 @@ vitest@^4.1.0
 - [tailwind.config.ts](/tailwind.config.ts)
 - [eslint.config.mjs](/eslint.config.mjs)
 - [vercel.json](/vercel.json)
-- [docker-compose.yml](/docker-compose.yml)
-- [Dockerfile](/Dockerfile)
 - [.env.example](/.env.example)
 - [vitest.config.ts](/vitest.config.ts)
 - [playwright.config.ts](/playwright.config.ts)
@@ -478,7 +494,7 @@ vitest@^4.1.0
 
 ### Next.js App Router Architecture
 
-94 Server Components, 29 Client Components
+96 Server Components, 30 Client Components
 
 ### Supabase Backend
 
@@ -486,7 +502,7 @@ Using Supabase for database, auth, and storage
 
 ### React Context for State Management
 
-4 context providers found
+5 context providers found
 
 ## Code Quality
 
@@ -527,9 +543,9 @@ Using Supabase for database, auth, and storage
 - @tailwindcss/postcss
 - @types/node
 - @types/react
-- @types/react-dnd
 - @types/react-dom
 - @types/three
+- @webgpu/types
 - assemblyscript
 - eslint
 - eslint-config-next
@@ -556,7 +572,6 @@ Using Supabase for database, auth, and storage
 ### Medium Priority
 
 - 🟡 Review and remove redundant code
-- 🟡 Fix 11 failing tests
 
 ### Low Priority
 

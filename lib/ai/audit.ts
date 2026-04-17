@@ -29,9 +29,9 @@ export async function writeAuditLog(input: WriteAuditLogInput): Promise<void> {
     const { error } = await supabase
       .from('admin_audit_log')
       .insert({
-        actor_user_id: input.user_id,
+        actor_id: input.user_id,
         action: `${input.agent}:${input.ok ? 'success' : 'error'}`,
-        payload: {
+        details: {
           request_id: input.request_id,
           agent: input.agent,
           error_code: input.error_code,

@@ -60,6 +60,7 @@ function HomeSystemInner({
   } = useDreamSystem();
   const [viewportHeight, setViewportHeight] = React.useState(0);
   const [seamDragOver, setSeamDragOver] = useState<boolean>(false);
+  const runtimeSplitRatio = isBarMinimized ? 1 : splitRatio;
 
   useEffect(() => {
     const sb = createClient();
@@ -81,7 +82,7 @@ function HomeSystemInner({
       }
       return current;
     });
-  }, []);
+  }, [setIsBarMinimized, setSplitRatio]);
 
   const returnHome = useCallback(() => {
     dualRuntime.goToHome();
@@ -133,33 +134,33 @@ function HomeSystemInner({
   }, [openHomeDreamSpace, openInSurface, registerRuntimeCallbacks, returnHome, unregisterRuntimeCallbacks]);
 
   useEffect(() => {
-    if (splitRatio >= 0.55) {
+    if (runtimeSplitRatio >= 0.55) {
       dualRuntime.setDominantRuntime('Surface Space');
       return;
     }
-    if (splitRatio <= 0.45) {
+    if (runtimeSplitRatio <= 0.45) {
       dualRuntime.setDominantRuntime('DreamSpace');
     }
-  }, [dualRuntime, splitRatio]);
+  }, [dualRuntime, runtimeSplitRatio]);
 
   useEffect(() => {
     dreamOSBus.publishRuntimeContext({
       region: 'Surface Space',
       world: dualRuntime.state.surfaceSpaceWorld,
-      splitRatio,
+      splitRatio: runtimeSplitRatio,
       dominant: dualRuntime.state.dominantRegion === 'Surface Space',
     });
     dreamOSBus.publishRuntimeContext({
       region: 'DreamSpace',
       world: dualRuntime.state.dreamSpaceWorld,
-      splitRatio: 1 - splitRatio,
+      splitRatio: 1 - runtimeSplitRatio,
       dominant: dualRuntime.state.dominantRegion === 'DreamSpace',
     });
   }, [
     dualRuntime.state.dominantRegion,
     dualRuntime.state.dreamSpaceWorld,
     dualRuntime.state.surfaceSpaceWorld,
-    splitRatio,
+    runtimeSplitRatio,
   ]);
 
   useEffect(() => {
@@ -168,22 +169,22 @@ function HomeSystemInner({
       const viewportHeight = window.innerHeight;
       setViewportHeight(viewportHeight);
       const dividerHeight = isBarMinimized ? 0 : DIVIDER_H;
-      const seamY = Math.round(((viewportHeight - dividerHeight) * splitRatio) + dividerHeight / 2);
+      const seamY = Math.round(((viewportHeight - dividerHeight) * runtimeSplitRatio) + dividerHeight / 2);
       dispatcher.setDreamDMBarY(seamY);
     };
 
     updateSeam();
     window.addEventListener('resize', updateSeam);
     return () => window.removeEventListener('resize', updateSeam);
-  }, [isBarMinimized, splitRatio]);
+  }, [isBarMinimized, runtimeSplitRatio]);
 
   const dividerHeight = isBarMinimized ? 0 : DIVIDER_H;
-  const topHeight = `calc((100% - ${dividerHeight}px) * ${splitRatio})`;
+  const topHeight = `calc((100% - ${dividerHeight}px) * ${runtimeSplitRatio})`;
   const bottomRegionTop = `calc(${topHeight} + ${dividerHeight}px)`;
   const bottomHeight = `calc(100% - ${bottomRegionTop})`;
   const seamOffset =
     viewportHeight > 0
-      ? Math.round(((viewportHeight - dividerHeight) * splitRatio) + dividerHeight / 2)
+      ? Math.round(((viewportHeight - dividerHeight) * runtimeSplitRatio) + dividerHeight / 2)
       : undefined;
 
   // ── Seam drop zone handlers ──────────────────────────────────────────────────
@@ -210,7 +211,7 @@ function HomeSystemInner({
       // Determine which region the drag originated from based on Y position
       // relative to the seam centre. Fall back to a proportional estimate when
       // viewportHeight hasn't been measured yet.
-      const seamY = seamOffset ?? Math.round(viewportHeight * splitRatio);
+      const seamY = seamOffset ?? Math.round(viewportHeight * runtimeSplitRatio);
       const sourceRegion =
         e.clientY < seamY
           ? RUNTIME_REGIONS.SURFACE_SPACE
@@ -223,7 +224,7 @@ function HomeSystemInner({
       seamClipboard.set({ content, mimeType, sourceRegion, targetRegion });
       setSeamDragOver(false);
     },
-    [seamOffset, viewportHeight, splitRatio],
+    [seamOffset, viewportHeight, runtimeSplitRatio],
   );
 
   return (
@@ -252,7 +253,7 @@ function HomeSystemInner({
           onOpenInRegion={openInSurfaceRegion}
           onBackFromRegion={backFromSurfaceRegion}
           seamOffsetPx={seamOffset}
-          splitRatio={splitRatio}
+          splitRatio={runtimeSplitRatio}
           seamVisible={!isBarMinimized}
           dominantRegion={dualRuntime.state.dominantRegion}
         />
@@ -300,7 +301,7 @@ function HomeSystemInner({
           onOpenInRegion={openInDreamRegion}
           onBackFromRegion={backFromDreamRegion}
           seamOffsetPx={seamOffset}
-          splitRatio={splitRatio}
+          splitRatio={runtimeSplitRatio}
           seamVisible={!isBarMinimized}
           dominantRegion={dualRuntime.state.dominantRegion}
         />

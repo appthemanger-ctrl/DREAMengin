@@ -75,8 +75,8 @@ describe('enginWorkflowRegistry', () => {
       expect(workflows.length).toBeGreaterThan(0);
     });
 
-    it('contains exactly 21 registered workflows', () => {
-      expect(allWorkflows()).toHaveLength(21);
+    it('contains exactly 31 registered workflows (21 original + 10 new 2026 workflows)', () => {
+      expect(allWorkflows()).toHaveLength(31);
     });
 
     it('every workflow has a non-empty id, from, to, bridgeChannel, and bridgeEvent', () => {
@@ -112,10 +112,11 @@ describe('enginWorkflowRegistry', () => {
   // ── findWorkflows ────────────────────────────────────────────────────────────
 
   describe('findWorkflows(from, to)', () => {
-    it('returns starmaker→lab workflows', () => {
+    it('returns starmaker→lab workflows (2 in 2026: stem-analyze + audio-analysis)', () => {
       const results = findWorkflows('starmaker', 'lab');
-      expect(results).toHaveLength(1);
-      expect(results[0].id).toBe('starmaker-to-lab:stem-analyze');
+      expect(results).toHaveLength(2);
+      expect(results.map(r => r.id)).toContain('starmaker-to-lab:stem-analyze');
+      expect(results.map(r => r.id)).toContain('starmaker-to-lab:audio-analysis');
     });
 
     it('returns starmaker→content workflows', () => {
@@ -632,8 +633,9 @@ describe('seamClipboard', () => {
         bpm: 130,
         trackTitle: 'Drums Only',
       });
-      expect(ids).toEqual(['starmaker-to-lab:stem-analyze']);
-      expect(spy).toHaveBeenCalledOnce();
+      // 2026: Now 2 workflows fire for starmaker→lab (stem-analyze + audio-analysis for 'stem' artifacts)
+      expect(ids).toEqual(['starmaker-to-lab:stem-analyze', 'starmaker-to-lab:audio-analysis']);
+      expect(spy).toHaveBeenCalledTimes(2);
       spy.mockRestore();
     });
 

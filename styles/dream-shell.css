@@ -1,0 +1,22 @@
+/* Container queries for Dream Windows — docs/ARCHITECTURE.md §4 */
+/* Stream 5.2 — CSS Container Queries for DreamShell */
+
+.dream-shell-content {
+  container-type: inline-size;
+}
+
+@container (max-width: 300px) {
+  .dream-shell-content .dream-feature-layer {
+    display: none;
+  }
+  .dream-shell-content .dream-shell-compact {
+    display: block;
+  }
+}
+
+@container (min-width: 400px) {
+  .dream-shell-content .dream-output-layer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}

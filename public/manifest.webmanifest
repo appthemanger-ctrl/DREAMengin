@@ -1,0 +1,27 @@
+{
+  "name": "DREAMengin",
+  "short_name": "DREAMengin",
+  "description": "A privacy-first, DreamDM-Bar-led spatial operating environment",
+  "start_url": "/homedream",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#000000",
+  "theme_color": "#c9a227",
+  "icons": [
+    {
+      "src": "/logo1.PNG",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo2.PNG",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["social", "entertainment", "productivity"],
+  "screenshots": [],
+  "prefer_related_applications": false
+}

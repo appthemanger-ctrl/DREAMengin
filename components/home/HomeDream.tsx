@@ -4,6 +4,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { SharedDreamShell } from '@/components/dreams/SharedDreamShell';
 import {
   Music,
   Gamepad2,
@@ -123,6 +124,10 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
   const [feedStarted, setFeedStarted] = useState(true); // feed is active by default — no gate
   const [bannerVisible, setBannerVisible] = useState(false);
   const [bothMenusOpen, setBothMenusOpen] = useState(false);
+  const [sharedDreamOpen, setSharedDreamOpen] = useState(false);
+  const [sharedDreamChannel] = useState(
+    () => `homedream-${typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)}`,
+  );
 
   const centerRef = useRef<HTMLElement>(null);
   const hasWidgets = userWidgets.length > 0;
@@ -209,6 +214,25 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
         >
           Profile
         </Link>
+        <button
+          type="button"
+          onClick={() => setSharedDreamOpen(true)}
+          className="text-sm font-semibold transition-colors"
+          style={{
+            color: '#fbbf24',
+            padding: '6px 12px',
+            borderRadius: 99,
+            background: 'rgba(251,191,36,0.08)',
+            border: '1px solid rgba(251,191,36,0.22)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 5,
+          }}
+          title="Start a shared Dream session"
+        >
+          🔗 Shared Dream
+        </button>
       </header>
 
       {/* ── Main layout: left rail · center · right rail ────────────────────── */}
@@ -346,6 +370,45 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
         side="right"
         onAction={handleSystemAction}
       />
+
+      {/* ── Shared Dream overlay ────────────────────────────────────────────── */}
+      {sharedDreamOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 200,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <SharedDreamShell
+            channelId={sharedDreamChannel}
+            title="HomeDream · Shared Session"
+            onExit={() => setSharedDreamOpen(false)}
+          >
+            {/* Shared content placeholder — the HomeDream feed */}
+            <div
+              style={{
+                padding: '24px 20px',
+                color: 'rgba(255,255,255,0.5)',
+                fontSize: 14,
+                textAlign: 'center',
+              }}
+            >
+              <div style={{ fontSize: 28, marginBottom: 10 }}>🔗</div>
+              <div style={{ fontWeight: 700, color: '#fbbf24', marginBottom: 6 }}>
+                HomeDream · Live Session
+              </div>
+              <div style={{ fontSize: 12, opacity: 0.6 }}>
+                Channel: {sharedDreamChannel}
+                <br />
+                Share the invite link so collaborators can join.
+              </div>
+            </div>
+          </SharedDreamShell>
+        </div>
+      )}
 
     </div>
   );

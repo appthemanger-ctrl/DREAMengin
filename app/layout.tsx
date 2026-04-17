@@ -1,4 +1,8 @@
 import '@/styles/globals.css';
+// Stream 5.1 — View Transitions API for surface switching
+import '@/styles/view-transitions.css';
+// Stream 5.2 — CSS Container Queries for Dream Windows
+import '@/styles/dream-shell.css';
 import type { Metadata, Viewport } from 'next';
 import { Suspense } from 'react';
 import { Space_Grotesk, Cormorant_Garamond, Plus_Jakarta_Sans } from 'next/font/google';
@@ -14,6 +18,7 @@ import WarpCanvas from '@/components/warp/WarpCanvas';
 import GodTierProvider from '@/components/providers/GodTierProvider';
 import KonamiDream from '@/components/KonamiDream';
 import CommandPalette from '@/components/CommandPalette';
+import { OSProvider } from '@/lib/dreamenginOS/OSContext';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -44,7 +49,8 @@ export const metadata: Metadata = {
     icon: '/logo-icon.png',
     apple: '/logo-icon.png',
   },
-  manifest: '/manifest.json',
+  // Stream 6.1 — Web App Manifest (PWA support)
+  manifest: '/manifest.webmanifest',
 };
 
 export const viewport: Viewport = {
@@ -75,17 +81,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ThemeApplicator />
           <Suspense><GodTierProvider /></Suspense>
           <WarpCanvas effect="flow" maxParticles={200} spawnRate={25} opacity={0.35} />
-          <CustomizeModeProvider>
-            <DreamSystemProvider>
-              <main role="main" aria-label="Main content">{children}</main>
-              <Suspense><GlobalDreamBar /></Suspense>
-              <Suspense><PersistentDreamBar /></Suspense>
-              <GlobalCustomizeUI />
-              <KonamiDream />
-              <Suspense><CommandPalette /></Suspense>
-            </DreamSystemProvider>
-          </CustomizeModeProvider>
-
+          <OSProvider>
+            <CustomizeModeProvider>
+              <DreamSystemProvider>
+                <main role="main" aria-label="Main content">{children}</main>
+                <Suspense><GlobalDreamBar /></Suspense>
+                <Suspense><PersistentDreamBar /></Suspense>
+                <GlobalCustomizeUI />
+                <KonamiDream />
+                <Suspense><CommandPalette /></Suspense>
+              </DreamSystemProvider>
+            </CustomizeModeProvider>
+          </OSProvider>
         </ThemeProvider>
       </body>
     </html>

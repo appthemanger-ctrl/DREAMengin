@@ -1,0 +1,47 @@
+/* View Transitions API — surface switching animations */
+/* docs/ARCHITECTURE.md §10 — render-on-demand, intentional motion */
+
+@view-transition {
+  navigation: auto;
+}
+
+/* DreamDM Bar seam */
+.dream-dm-bar {
+  view-transition-name: dream-dm-bar;
+}
+
+/* Gold Button */
+.gold-button {
+  view-transition-name: gold-button;
+}
+
+/* Primary surface content */
+.primary-surface {
+  view-transition-name: primary-surface;
+}
+
+/* Smooth cross-fade for surface transitions */
+::view-transition-old(primary-surface) {
+  animation: 200ms ease-out both fade-out;
+}
+
+::view-transition-new(primary-surface) {
+  animation: 200ms ease-in both fade-in;
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Gold button stays fixed during transition */
+::view-transition-old(gold-button),
+::view-transition-new(gold-button) {
+  animation: none;
+  mix-blend-mode: normal;
+}

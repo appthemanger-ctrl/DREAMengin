@@ -574,6 +574,11 @@ describe('Point 58 — All 6 Daydream tiles in DreamsSpacePanel have live routes
       expect(src).toContain(`id: '${id}'`);
     }
   });
+
+  it('DreamsSpacePanel Daydream tiles only use the six canonical routes', () => {
+    const src = readSource(panelFile);
+    expect(src).not.toContain('/daydream/analytics');
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

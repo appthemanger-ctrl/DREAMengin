@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { WidgetInstance, getWidgetType, getWidgetConfig } from '@/types/widgets';
 import DreamWidget from './DreamWidget';
+import DraggableModule from '@/components/draggable/DraggableModule';
+import { manifestFromWidget } from '@/lib/runtime/moduleRegistry';
 
 interface DreamWidgetGridProps {
   widgets: WidgetInstance[];
@@ -67,19 +69,23 @@ export default function DreamWidgetGrid({
         const isSelected = selectedWidgetId === widget.id;
 
         return (
-          <DreamWidget
+          <DraggableModule
             key={widget.id}
-            type={type}
-            title={widget.title ?? (type ?? 'Widget')}
-            subtitle={typeof config.subtitle === 'string' ? config.subtitle : undefined}
-            icon={getIconForType(type)}
-            isEmpty={false}
-            onOpen={onWidgetOpen ? () => onWidgetOpen(widget) : undefined}
-            onLongPress={onWidgetLongPress ? () => onWidgetLongPress(widget) : undefined}
-            className={isSelected ? 'ring-2 ring-de-gold/60' : ''}
+            manifest={manifestFromWidget(widget, 'homedream')}
           >
-            {typeof config.preview === 'string' ? config.preview : undefined}
-          </DreamWidget>
+            <DreamWidget
+              type={type}
+              title={widget.title ?? (type ?? 'Widget')}
+              subtitle={typeof config.subtitle === 'string' ? config.subtitle : undefined}
+              icon={getIconForType(type)}
+              isEmpty={false}
+              onOpen={onWidgetOpen ? () => onWidgetOpen(widget) : undefined}
+              onLongPress={onWidgetLongPress ? () => onWidgetLongPress(widget) : undefined}
+              className={isSelected ? 'ring-2 ring-de-gold/60' : ''}
+            >
+              {typeof config.preview === 'string' ? config.preview : undefined}
+            </DreamWidget>
+          </DraggableModule>
         );
       })}
     </div>

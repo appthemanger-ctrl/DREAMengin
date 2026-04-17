@@ -3,7 +3,16 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { FlaskConical, Play } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
-import LabEngin from '@/engins/LabEngin';
+// Stream 8.3 — Bundle split: LabEngin only loads when Side B mounts.
+// docs/ARCHITECTURE.md §10 — render-on-demand, minimal initial bundle.
+import dynamic from 'next/dynamic';
+const LabEngin = dynamic(() => import('@/engins/LabEngin'), {
+  loading: () => (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#c9a227]" />
+    </div>
+  ),
+});
 import OpenDaydreamSideBButton from '@/components/daydream/OpenDaydreamSideBButton';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 import { connection } from 'next/server';
@@ -12,13 +21,15 @@ export const metadata = { title: 'Lab Daydream – Dreamengin', description: 'Ex
 
 const WIDGETS: DaydreamWidget[] = [
   { id: 'new-experiment', emoji: '🧪', label: 'New Experiment', desc: 'Start a new lab experiment',     color: '#22c55e', href: '/engines/lab/experiments' },
-  { id: 'projects',       emoji: '🔬', label: 'My Projects',    desc: 'Browse your lab projects',       color: '#6366f1', href: '/engines/lab'           },
+  { id: 'prototypes',     emoji: '🔬', label: 'Prototypes',     desc: 'Build and iterate prototypes',   color: '#6366f1', href: '/engines/lab'           },
+  { id: 'tests',          emoji: '✅', label: 'Test Runs',      desc: 'Orchestrate experiment tests',    color: '#14b8a6', href: '/engines/lab/experiments' },
+  { id: 'models',         emoji: '🧩', label: 'Models',         desc: 'State and model exploration',     color: '#0ea5e9', href: '/engines/lab/data'      },
+  { id: 'scenarios',      emoji: '🗺️', label: 'Scenarios',      desc: 'Build and compare scenarios',     color: '#84cc16', href: '/engines/lab'           },
   { id: 'simulation',     emoji: '🌊', label: 'Simulations',    desc: 'Run and view simulations',       color: '#0ea5e9', href: '/engines/lab/experiments' },
-  { id: 'data',           emoji: '📊', label: 'Data & Charts',  desc: 'Visualize experiment results',   color: '#8b5cf6', href: '/engines/lab/data'      },
+  { id: 'viewer',         emoji: '📊', label: 'Simulation Viewer', desc: 'Visualize model states and results', color: '#8b5cf6', href: '/engines/lab/data'   },
   { id: 'physics',        emoji: '⚛️', label: 'Physics Lab',    desc: '3D physics environment',         color: '#f59e0b', href: '/physics-lab'           },
   { id: 'quantum',        emoji: '💡', label: 'Quantum Circuit', desc: 'Build quantum circuits',        color: '#0ea5e9', href: '/engines/lab/quantum'   },
-  { id: 'notes',          emoji: '📝', label: 'Lab Notes',      desc: 'Document your findings',         color: '#ec4899', href: '/notes'                 },
-  { id: 'share',          emoji: '🔗', label: 'Share Results',  desc: 'Post an experiment update',      color: '#c8981a', href: '/daydream/create'       },
+  { id: 'results',        emoji: '🔗', label: 'Share Results',  desc: 'Publish experiment outcomes',     color: '#c8981a', href: '/daydream/create'       },
 ];
 
 export default async function LabDaydreamPage() {
@@ -31,7 +42,7 @@ export default async function LabDaydreamPage() {
     <DaydreamShell
       title="Lab"
       enginName="LabEngin"
-      accentColor="#22c55e"
+      accentColor="#10b981"
       daydreamType="lab"
       widgets={WIDGETS}
       sideBComponent={LabEngin}
@@ -40,16 +51,19 @@ export default async function LabDaydreamPage() {
         <AuthenticatedPageHeader
           backHref="/homedream"
           title="Lab"
-          subtitle="Experiments, prototypes, simulations, and model flow with less friction."
+          subtitle="Experiments · quantum circuits 2026 · GPU compute · real-time viz."
           icon={<FlaskConical className="w-4 h-4" />}
-          accentColor="#22c55e"
-          badge="Daydream"
+          accentColor="#10b981"
+          badge="Lab Daydream · 2026 Edition"
         />
 
         <div className="de-auth-content space-y-4">
           {/* Intro */}
-          <div className="de-auth-hero">
+          <div className="de-auth-hero" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.08) 0%, rgba(20,184,166,0.08) 100%)', border: '1px solid rgba(16,185,129,0.15)' }}>
             <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 8, padding: '3px 10px', borderRadius: 9999, background: 'linear-gradient(135deg, rgba(16,185,129,0.12) 0%, rgba(20,184,166,0.12) 100%)', border: '1px solid rgba(16,185,129,0.25)' }}>
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#10b981' }}>Lab 2026 · WebGPU · Quantum · TensorFlow</span>
+            </div>
             <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 6 }}>Experiment Vault</h2>
             <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.6 }}>
               Browse and manage your saved experiments, simulations, and datasets on Side A. Pick one to load, then flip to <strong>LabEngin (Side B)</strong> to run it, visualize data, and iterate with AI hypothesis generation.

@@ -1,8 +1,8 @@
 name: Brand Daydream — Health & Feature Scan
 
-# Daydream-only workflow for the Brand Daydream (/daydream/brand).
+# Daydream-lobby workflow for the Brand Daydream (/daydream/brand).
 # Scope: app/daydream/brand/** + brand-adjacent pages/components.
-# Does NOT touch BrandingEngin — see engin-branding.yml for Engin-side CI.
+# Does NOT touch BrandingEngin — see engin-branding.yml for Engin runtime-side CI.
 #
 # Premium feature checks:
 #   ✦ Brand kit surface scan
@@ -72,7 +72,7 @@ jobs:
       - name: Security audit
         run: pnpm audit --audit-level=high || true
 
-      # ── Lint (Daydream scope only) ────────────────────────────────────────────
+      # ── Lint (Daydream lobby scope only) ────────────────────────────────────────────
       - name: Lint — Brand Daydream scope
         id: lint
         run: |
@@ -150,7 +150,7 @@ jobs:
       - name: Commit auto-fixes (if any)
         run: |
           git config user.name  "daydream-brand-standalone-bot"
-          git config user.email "daydream-brand-standalone-bot@users.noreply.github.com"
+          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
           if git diff --quiet && git diff --cached --quiet; then
             echo "No fixes to commit."
           else
@@ -162,7 +162,7 @@ jobs:
           echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
           echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
           echo "| Daydream | Brand |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Scope | Daydream-only (no Engin) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Scope | Daydream lobby only (input side; no Engin runtime) |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
@@ -176,4 +176,4 @@ jobs:
           echo "| Audience analytics | ${{ steps.scan_analytics.outputs.COUNT != '0' && '✅ Present' || '⚠️ Missing' }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| EditProfileDream link | ${{ steps.scan_edit_profile.outputs.FOUND == 'true' && '✅ Present' || 'ℹ️ Separate' }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "> Engin-side checks are handled by \`engin-branding.yml\`." >> "$GITHUB_STEP_SUMMARY"
+          echo "> Engin runtime-side checks are handled by \`engin-branding.yml\`." >> "$GITHUB_STEP_SUMMARY"

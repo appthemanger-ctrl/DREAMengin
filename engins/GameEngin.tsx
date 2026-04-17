@@ -22,9 +22,11 @@
  * Performance impact: all new widgets are pure local state — zero extra network calls.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
+import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
+import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -52,6 +54,11 @@ import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import { GAME_CONTROL_PROFILES, GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
 import { buildLedgerMediaUrl } from '@/lib/media/ledger';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
+import GameRuntime from '@/lib/gameengin/GameRuntime';
+import type { GameCartridge } from '@/lib/gameengin/cartridge';
+import { wrapAsCartridge } from '@/lib/gameengin/ReactComponentCartridge';
+import { TetrisCartridge } from '@/games/tetris/TetrisCartridge';
+import { SnakeCartridge } from '@/games/snake/SnakeCartridge';
 
 // ── Interfaces ─────────────────────────────────────────────────────────────────
 
@@ -229,6 +236,29 @@ export default function GameEngin({ onBack }: Props) {
   const playOverlayRef = useRef<HTMLDivElement>(null);
   const initializedPlaySurfaceRef = useRef(false);
   const autoStartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ── OS Shell: upgradeEngine wiring ──
+  const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
+  useEffect(() => {
+    upgradeEngine({ id: 'game', name: 'GameEngin' }, ['bridge', 'telemetry'])
+      .then(upgraded => { osRef.current = upgraded; });
+  }, []);
+
+  // ── OS Shell: local event bus ──
+  const busRef = useRef(createEventBus());
+
+  // ── .dreamgame file picker state ──
+  const [dreamGameFile, setDreamGameFile] = useState<{ name: string; size: number } | null>(null);
+  const dreamGameInputRef = useRef<HTMLInputElement>(null);
+
+  function handleDreamGamePick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setDreamGameFile({ name: file.name, size: file.size });
+    osRef.current?.telemetry?.log(`Loaded .dreamgame: ${file.name}`);
+    busRef.current.emit('game:dreamgame-loaded', { name: file.name, size: file.size });
+    forgeRecord(`Loaded .dreamgame: ${file.name}`);
+  }
 
   useRemoteChannel();
   useGameInputKeyboardBridge();
@@ -750,6 +780,34 @@ export default function GameEngin({ onBack }: Props) {
   const ActivePlayableComponent = activePlayable?.component && activePlayable.id === selectedPlayable.id
     ? activePlayable.component
     : null;
+
+  // ── Cartridge map — native cartridges + backward-compat adapters ────────────
+  const cartridgeMap = useMemo(() => {
+    const map: Record<string, GameCartridge> = {
+      tetris: TetrisCartridge,
+      snake: SnakeCartridge,
+    };
+    // Wrap all remaining games that have a component but no native cartridge
+    for (const game of GAMES) {
+      if (!map[game.id] && game.component) {
+        map[game.id] = wrapAsCartridge(game.id, game.component);
+      }
+    }
+    return map;
+  }, []);
+
+  /** Resolve the active cartridge for the current game */
+  const activeCartridge: GameCartridge | null =
+    activePlayable && ActivePlayableComponent && cartridgeMap[activePlayable.id]
+      ? cartridgeMap[activePlayable.id]
+      : null;
+
+  /** Resolve the expanded (fullscreen) cartridge */
+  const expandedCartridge: GameCartridge | null =
+    expandedPlayable?.component && cartridgeMap[expandedPlayable.id]
+      ? cartridgeMap[expandedPlayable.id]
+      : null;
+
   const achievements = ACHIEVEMENT_DEFS.map(def => {
     let unlocked = def.unlockFn(scores);
     if (def.id === 'world-builder' && savedWorld)  unlocked = true;
@@ -758,8 +816,6 @@ export default function GameEngin({ onBack }: Props) {
   });
 
   if (expandedPlayable?.component) {
-    const ExpandedGameComponent = expandedPlayable.component;
-
     return (
       <div
         ref={playOverlayRef}
@@ -779,8 +835,12 @@ export default function GameEngin({ onBack }: Props) {
           />
         )}
 
-        <div style={{ position: 'absolute', inset: 0 }}>
-          <ExpandedGameComponent />
+        {/* Game stage — stops above the HUD remote so the canvas never renders behind it */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 'max(var(--de-hud-bottom, 175px), clamp(80px, 22dvh, 38dvh))' }}>
+          <GameRuntime
+            cartridge={expandedCartridge}
+            physicsConfig={appliedPhysics}
+          />
         </div>
 
         <div
@@ -1159,9 +1219,12 @@ export default function GameEngin({ onBack }: Props) {
 
             <div style={{ borderRadius: 24, padding: 14, background: 'linear-gradient(180deg, rgba(28,37,58,0.96), rgba(5,8,16,0.98))', border: '1px solid rgba(255,255,255,0.08)', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06), 0 22px 60px rgba(0,0,0,0.3)' }}>
               <div style={{ borderRadius: 18, overflow: 'hidden', border: '1px solid rgba(125,211,252,0.14)', background: 'radial-gradient(circle at top, rgba(42,138,184,0.18), rgba(3,5,10,0.98) 60%)', minHeight: 320 }}>
-                {ActivePlayableComponent ? (
+                {activeCartridge ? (
                   <div style={{ padding: 12 }}>
-                    <ActivePlayableComponent />
+                    <GameRuntime
+                      cartridge={activeCartridge}
+                      physicsConfig={appliedPhysics}
+                    />
                   </div>
                 ) : (
                   <div style={{ minHeight: 320, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, padding: '32px 24px', textAlign: 'center' }}>
@@ -2560,6 +2623,60 @@ export default function GameEngin({ onBack }: Props) {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* ── .dreamgame File Picker ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <FileCode className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">.dreamgame Loader</span>
+            {engineType && (
+              <span style={{
+                marginLeft: 'auto', fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 5,
+                background: engineType === 'WebGPU' ? 'rgba(139,92,246,0.14)' : 'rgba(56,189,248,0.12)',
+                color:      engineType === 'WebGPU' ? '#a78bfa' : '#38bdf8',
+                border:     engineType === 'WebGPU' ? '1px solid rgba(139,92,246,0.30)' : '1px solid rgba(56,189,248,0.24)',
+              }}>
+                {engineType === 'WebGPU' ? '⚡ WebGPU' : '🔷 WebGL2'}
+              </span>
+            )}
+          </div>
+          <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>
+              Load a <code style={{ fontSize: 10 }}>.dreamgame</code> bundle exported from Engin Forge or another DREAMengin instance.
+            </p>
+            <input
+              ref={dreamGameInputRef}
+              type="file"
+              accept=".dreamgame,.json"
+              style={{ display: 'none' }}
+              onChange={handleDreamGamePick}
+            />
+            <button
+              type="button"
+              onClick={() => dreamGameInputRef.current?.click()}
+              style={{
+                padding: '9px 16px', borderRadius: 9, border: `1px solid ${ACCENT}40`,
+                background: `${ACCENT}12`, color: ACCENT,
+                fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 8,
+              }}
+            >
+              <FileCode className="w-4 h-4" />
+              {dreamGameFile ? `✓ ${dreamGameFile.name}` : 'Pick .dreamgame file…'}
+            </button>
+            {dreamGameFile && (
+              <div style={{
+                padding: '8px 12px', borderRadius: 8,
+                background: 'rgba(34,197,94,0.07)', border: '1px solid rgba(34,197,94,0.2)',
+                fontSize: 11, color: '#22c55e',
+              }}>
+                ✓ Loaded: <strong>{dreamGameFile.name}</strong> ({(dreamGameFile.size / 1024).toFixed(1)} KB)
+                <br />
+                <span style={{ fontSize: 9, opacity: 0.7 }}>Ready to run via GameEngin Runtime</span>
+              </div>
+            )}
           </div>
         </div>
 

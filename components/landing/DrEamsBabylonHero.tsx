@@ -150,113 +150,118 @@ export default function DrEamsBabylonHero({
       scene.environmentIntensity = 1.55;
 
       // ══════════════════════════════════════════════════════════════════════════
-      // ── MATERIALS — Premium PBR matching reference screenshot ──────────────
+      // ── MATERIALS — Spec-accurate PBR for Dr. Eams 111-line robot ────────────
+      // Scale reference: 1cm ≈ 0.022 Babylon units; apex = 121cm = 2.66u from sole
       // ══════════════════════════════════════════════════════════════════════════
 
-      // Dark glossy helmet — near-black with high metallic sheen
+      // [105-111] HELMET: Charcoal-grey metallic sphere — matte with metallic flake
       const helmetMat = new PBRMaterial('helmet', scene);
-      helmetMat.albedoColor = new Color3(0.08, 0.10, 0.14);
-      helmetMat.metallic = 0.86;
-      helmetMat.roughness = 0.18;
-      helmetMat.environmentIntensity = 2.35;
+      helmetMat.albedoColor = new Color3(0.22, 0.23, 0.27);
+      helmetMat.metallic = 0.70;
+      helmetMat.roughness = 0.30;
+      helmetMat.environmentIntensity = 2.05;
       helmetMat.clearCoat.isEnabled = true;
-      helmetMat.clearCoat.intensity = 1.0;
-      helmetMat.clearCoat.roughness = 0.03;
-      helmetMat.emissiveColor = new Color3(0.02, 0.03, 0.05);
+      helmetMat.clearCoat.intensity = 0.88;
+      helmetMat.clearCoat.roughness = 0.04;
+      helmetMat.emissiveColor = new Color3(0.010, 0.010, 0.014);
 
-      // Dark mechanical body metal — glossy near-black for arms, legs, body
+      // Dark glossy mechanical metal — arms, legs, mechanical body
       const darkMetalMat = new PBRMaterial('darkMetal', scene);
-      darkMetalMat.albedoColor = new Color3(0.13, 0.15, 0.19);
-      darkMetalMat.metallic = 0.72;
-      darkMetalMat.roughness = 0.22;
-      darkMetalMat.environmentIntensity = 1.95;
+      darkMetalMat.albedoColor = new Color3(0.10, 0.12, 0.16);
+      darkMetalMat.metallic = 0.80;
+      darkMetalMat.roughness = 0.20;
+      darkMetalMat.environmentIntensity = 2.10;
       darkMetalMat.clearCoat.isEnabled = true;
-      darkMetalMat.clearCoat.intensity = 0.55;
-      darkMetalMat.clearCoat.roughness = 0.12;
+      darkMetalMat.clearCoat.intensity = 0.62;
+      darkMetalMat.clearCoat.roughness = 0.10;
 
-      // Joint/segment accent — slightly lighter dark metal for visible seams
+      // Joint / segment accent — slightly lighter for seams and rings
       const jointMat = new PBRMaterial('joint', scene);
-      jointMat.albedoColor = new Color3(0.20, 0.22, 0.28);
-      jointMat.metallic = 0.78;
-      jointMat.roughness = 0.34;
-      jointMat.environmentIntensity = 1.5;
+      jointMat.albedoColor = new Color3(0.19, 0.21, 0.27);
+      jointMat.metallic = 0.82;
+      jointMat.roughness = 0.30;
+      jointMat.environmentIntensity = 1.60;
 
-      // White lab coat — clean medical white with fabric feel
+      // [023-074] COAT: Clean medical white with soft fabric PBR
       const coatMat = new PBRMaterial('coat', scene);
-      coatMat.albedoColor = new Color3(0.94, 0.97, 1.0);
-      coatMat.metallic = 0.05;
-      coatMat.roughness = 0.26;
-      coatMat.environmentIntensity = 1.1;
+      coatMat.albedoColor = new Color3(0.95, 0.97, 1.00);
+      coatMat.metallic = 0.04;
+      coatMat.roughness = 0.24;
+      coatMat.environmentIntensity = 1.18;
       coatMat.clearCoat.isEnabled = true;
-      coatMat.clearCoat.intensity = 0.62;
-      coatMat.clearCoat.roughness = 0.14;
-      coatMat.emissiveColor = new Color3(0.01, 0.02, 0.03);
+      coatMat.clearCoat.intensity = 0.52;
+      coatMat.clearCoat.roughness = 0.18;
+      coatMat.emissiveColor = new Color3(0.007, 0.011, 0.017);
 
-      // Blue undershirt (V-neck visible beneath coat)
+      // Blue undershirt visible at collar V-neck
       const shirtMat = new PBRMaterial('shirt', scene);
-      shirtMat.albedoColor = new Color3(0.16, 0.33, 0.60);
+      shirtMat.albedoColor = new Color3(0.13, 0.28, 0.58);
       shirtMat.metallic = 0.0;
-      shirtMat.roughness = 0.38;
-      shirtMat.environmentIntensity = 0.65;
+      shirtMat.roughness = 0.42;
+      shirtMat.environmentIntensity = 0.58;
 
-      // Visor / face screen — dark glass with deep internal glow
+      // [084-104] VISOR: Dark purple/black tinted curved glass
       const visorMat = new PBRMaterial('visor', scene);
-      visorMat.albedoColor = new Color3(0.03, 0.06, 0.10);
-      visorMat.alpha = 0.82;
+      visorMat.albedoColor = new Color3(0.03, 0.04, 0.09);
+      visorMat.alpha = 0.84;
       visorMat.metallic = 0.0;
-      visorMat.roughness = 0.02;
-      visorMat.environmentIntensity = 2.6;
-      visorMat.emissiveColor = new Color3(0.10, 0.34, 0.48);
+      visorMat.roughness = 0.01;
+      visorMat.environmentIntensity = 2.85;
+      visorMat.emissiveColor = new Color3(0.10, 0.28, 0.44);
       visorMat.clearCoat.isEnabled = true;
       visorMat.clearCoat.intensity = 1.0;
       visorMat.clearCoat.roughness = 0.01;
       visorMat.backFaceCulling = false;
 
-      // Screen inner glow
+      // [092-093] VISOR: Internal OLED/LED active display plane
       const screenMat = new PBRMaterial('screen', scene);
-      screenMat.albedoColor = new Color3(0.03, 0.18, 0.28);
-      screenMat.emissiveColor = new Color3(0.12, 0.64, 0.82);
+      screenMat.albedoColor = new Color3(0.02, 0.12, 0.24);
+      screenMat.emissiveColor = new Color3(0.08, 0.52, 0.74);
       screenMat.metallic = 0;
       screenMat.roughness = 1;
 
-      // Gold eye (left) — warm amber/gold ring glow
+      // [095] LEFT eye — orange lemniscate loop (per spec)
       const eyeGoldMat = new PBRMaterial('eyeGold', scene);
-      eyeGoldMat.albedoColor = new Color3(1.0, 0.75, 0.10);
-      eyeGoldMat.emissiveColor = new Color3(1.0, 0.72, 0.0);
+      eyeGoldMat.albedoColor = new Color3(1.0, 0.48, 0.0);
+      eyeGoldMat.emissiveColor = new Color3(1.0, 0.48, 0.0);
       eyeGoldMat.metallic = 0;
       eyeGoldMat.roughness = 1;
 
-      // Cyan eye (right) — cool blue ring glow
+      // [095] RIGHT eye — blue lemniscate loop (per spec)
       const eyeCyanMat = new PBRMaterial('eyeCyan', scene);
-      eyeCyanMat.albedoColor = new Color3(0.10, 0.78, 1.0);
-      eyeCyanMat.emissiveColor = new Color3(0.0, 0.80, 1.0);
+      eyeCyanMat.albedoColor = new Color3(0.05, 0.44, 1.0);
+      eyeCyanMat.emissiveColor = new Color3(0.0, 0.44, 1.0);
       eyeCyanMat.metallic = 0;
       eyeCyanMat.roughness = 1;
 
-      // Boot material — chunky dark glossy
+      // [004-010] BOOT: Matte charcoal-grey composite — per spec "matte finish"
       const bootMat = new PBRMaterial('boot', scene);
-      bootMat.albedoColor = new Color3(0.08, 0.10, 0.13);
-      bootMat.metallic = 0.74;
-      bootMat.roughness = 0.24;
-      bootMat.environmentIntensity = 1.85;
-      bootMat.clearCoat.isEnabled = true;
-      bootMat.clearCoat.intensity = 0.8;
-      bootMat.clearCoat.roughness = 0.08;
+      bootMat.albedoColor = new Color3(0.20, 0.21, 0.24);
+      bootMat.metallic = 0.06;
+      bootMat.roughness = 0.76;
+      bootMat.environmentIntensity = 0.85;
 
-      // Badge plate — silver metallic
+      // [001-003] SOLE: Matte black high-friction rubber polymer
+      const soleMat = new PBRMaterial('sole', scene);
+      soleMat.albedoColor = new Color3(0.04, 0.04, 0.05);
+      soleMat.metallic = 0.0;
+      soleMat.roughness = 0.94;
+      soleMat.environmentIntensity = 0.38;
+
+      // [067-069] BADGE: Silver metallic name-tag plate
       const badgeMat = new PBRMaterial('badge', scene);
-      badgeMat.albedoColor = new Color3(0.84, 0.86, 0.92);
-      badgeMat.metallic = 0.92;
-      badgeMat.roughness = 0.14;
-      badgeMat.environmentIntensity = 1.45;
+      badgeMat.albedoColor = new Color3(0.82, 0.84, 0.90);
+      badgeMat.metallic = 0.94;
+      badgeMat.roughness = 0.12;
+      badgeMat.environmentIntensity = 1.52;
 
-      // Chest emblem — subtle dark circle
+      // Chest halo / arc reactor emblem
       const emblemMat = new PBRMaterial('emblem', scene);
-      emblemMat.albedoColor = new Color3(0.18, 0.40, 0.58);
-      emblemMat.metallic = 0.42;
-      emblemMat.roughness = 0.24;
+      emblemMat.albedoColor = new Color3(0.15, 0.38, 0.56);
+      emblemMat.metallic = 0.44;
+      emblemMat.roughness = 0.22;
 
-      // Gold orbit material
+      // Gold orbit rings
       const goldMat = new PBRMaterial('gold', scene);
       goldMat.albedoColor = new Color3(0.88, 0.72, 0.24);
       goldMat.metallic = 1.0;
@@ -264,7 +269,17 @@ export default function DrEamsBabylonHero({
       goldMat.environmentIntensity = 1.85;
       goldMat.emissiveColor = new Color3(0.22, 0.16, 0.03);
 
-      // Fresnel ghost rim
+      // [078-079] NECK: Dark blue high-density polymer strut
+      const neckMat = new PBRMaterial('neck', scene);
+      neckMat.albedoColor = new Color3(0.04, 0.08, 0.34);
+      neckMat.metallic = 0.44;
+      neckMat.roughness = 0.28;
+      neckMat.environmentIntensity = 1.24;
+      neckMat.clearCoat.isEnabled = true;
+      neckMat.clearCoat.intensity = 0.72;
+      neckMat.clearCoat.roughness = 0.09;
+
+      // Fresnel ghost rim overlay
       const ghostRimMat = new StandardMaterial('ghostRim', scene);
       ghostRimMat.emissiveColor = new Color3(0.83, 0.68, 0.21);
       ghostRimMat.alpha = 0.22;
@@ -278,1016 +293,956 @@ export default function DrEamsBabylonHero({
       ghostRimMat.backFaceCulling = false;
 
       // ══════════════════════════════════════════════════════════════════════════
-      // ── ROBOT HIERARCHY — C+++ grade Dr. Eams matching reference ───────────
+      // ── ROBOT HIERARCHY — Dr. Eams 111-line spec reconstruction ──────────────
       // ══════════════════════════════════════════════════════════════════════════
 
       const root = new TransformNode('root', scene);
       root.position = new Vector3(0, 0, 0);
 
-      // ─── TORSO (dark mechanical core under lab coat) ───────────────────────
+      // ── Pivot nodes (kept at established positions to preserve all animation) ─
 
-      // Inner dark body core
-      const bodyCore = MeshBuilder.CreateCylinder(
-        'bodyCore',
-        { height: 1.05, diameterTop: 0.72, diameterBottom: 0.58, tessellation: 32 },
-        scene,
-      );
-      bodyCore.material = darkMetalMat;
-      bodyCore.position.y = 1.15;
-      bodyCore.parent = root;
+      const hipNodeL = new TransformNode('hipL', scene);
+      hipNodeL.position = new Vector3(-0.148, 0.660, 0);
+      hipNodeL.parent = root;
 
-      // Lab coat shell — slightly larger, wrapping the body
-      const coatMain = MeshBuilder.CreateCylinder(
-        'coatMain',
-        { height: 1.10, diameterTop: 0.82, diameterBottom: 0.64, tessellation: 32 },
-        scene,
-      );
-      coatMain.material = coatMat;
-      coatMain.position.y = 1.12;
-      coatMain.parent = root;
+      const hipNodeR = new TransformNode('hipR', scene);
+      hipNodeR.position = new Vector3(0.148, 0.660, 0);
+      hipNodeR.parent = root;
 
-      // Coat front panel — adds 3D depth to the front
-      const coatFront = MeshBuilder.CreateCylinder(
-        'coatFront',
-        { height: 1.0, diameterTop: 0.74, diameterBottom: 0.58, tessellation: 32 },
-        scene,
-      );
-      coatFront.material = coatMat;
-      coatFront.position = new Vector3(0, 1.14, 0.12);
-      coatFront.scaling.z = 0.5;
-      coatFront.parent = root;
+      const kneeNodeL = new TransformNode('kneeL', scene);
+      kneeNodeL.position = new Vector3(0, -0.400, 0);
+      kneeNodeL.parent = hipNodeL;
 
-      // Blue V-neck undershirt visible at collar
-      const vNeck = MeshBuilder.CreateCylinder(
-        'vNeck',
-        { height: 0.22, diameterTop: 0.30, diameterBottom: 0.18, tessellation: 16 },
-        scene,
-      );
-      vNeck.material = shirtMat;
-      vNeck.position = new Vector3(0, 1.60, 0.18);
-      vNeck.scaling.z = 0.4;
-      vNeck.parent = root;
-
-      // V-neck triangle cutout shape
-      const vNeckTriL = MeshBuilder.CreateBox(
-        'vNeckTriL',
-        { width: 0.12, height: 0.20, depth: 0.02 },
-        scene,
-      );
-      vNeckTriL.material = shirtMat;
-      vNeckTriL.rotation.z = 0.22;
-      vNeckTriL.position = new Vector3(-0.08, 1.52, 0.30);
-      vNeckTriL.parent = root;
-
-      const vNeckTriR = MeshBuilder.CreateBox(
-        'vNeckTriR',
-        { width: 0.12, height: 0.20, depth: 0.02 },
-        scene,
-      );
-      vNeckTriR.material = shirtMat;
-      vNeckTriR.rotation.z = -0.22;
-      vNeckTriR.position = new Vector3(0.08, 1.52, 0.30);
-      vNeckTriR.parent = root;
-
-      // Coat collar — raised lapels
-      const collarL = MeshBuilder.CreateBox(
-        'collarL',
-        { width: 0.22, height: 0.16, depth: 0.06 },
-        scene,
-      );
-      collarL.material = coatMat;
-      collarL.rotation.z = 0.18;
-      collarL.position = new Vector3(-0.18, 1.66, 0.26);
-      collarL.parent = root;
-
-      const collarR = MeshBuilder.CreateBox(
-        'collarR',
-        { width: 0.22, height: 0.16, depth: 0.06 },
-        scene,
-      );
-      collarR.material = coatMat;
-      collarR.rotation.z = -0.18;
-      collarR.position = new Vector3(0.18, 1.66, 0.26);
-      collarR.parent = root;
-
-      // Chest emblem — small circle on upper chest
-      const chestEmblem = MeshBuilder.CreateCylinder(
-        'chestEmblem',
-        { height: 0.02, diameter: 0.10, tessellation: 20 },
-        scene,
-      );
-      chestEmblem.material = emblemMat;
-      chestEmblem.rotation.x = Math.PI / 2;
-      chestEmblem.position = new Vector3(0, 1.48, 0.36);
-      chestEmblem.parent = root;
-
-      const chestHalo = MeshBuilder.CreateTorus(
-        'chestHalo',
-        { diameter: 0.22, thickness: 0.018, tessellation: 28 },
-        scene,
-      );
-      chestHalo.material = eyeCyanMat;
-      chestHalo.rotation.x = Math.PI / 2;
-      chestHalo.position = new Vector3(0, 1.48, 0.39);
-      chestHalo.parent = root;
-      glow.addIncludedOnlyMesh(chestHalo as Mesh);
-
-      const chestCore = MeshBuilder.CreateSphere(
-        'chestCore',
-        { diameter: 0.06, segments: 18 },
-        scene,
-      );
-      chestCore.material = eyeGoldMat;
-      chestCore.position = new Vector3(0, 1.48, 0.395);
-      chestCore.parent = root;
-      glow.addIncludedOnlyMesh(chestCore as Mesh);
-
-      const torsoTrimL = MeshBuilder.CreateBox(
-        'torsoTrimL',
-        { width: 0.08, height: 0.62, depth: 0.035 },
-        scene,
-      );
-      torsoTrimL.material = badgeMat;
-      torsoTrimL.position = new Vector3(-0.26, 1.18, 0.30);
-      torsoTrimL.rotation.z = 0.16;
-      torsoTrimL.parent = root;
-
-      const torsoTrimR = MeshBuilder.CreateBox(
-        'torsoTrimR',
-        { width: 0.08, height: 0.62, depth: 0.035 },
-        scene,
-      );
-      torsoTrimR.material = badgeMat;
-      torsoTrimR.position = new Vector3(0.26, 1.18, 0.30);
-      torsoTrimR.rotation.z = -0.16;
-      torsoTrimR.parent = root;
-
-      // Center button line
-      const buttonLine = MeshBuilder.CreateCylinder(
-        'buttonLine',
-        { height: 0.75, diameter: 0.02, tessellation: 8 },
-        scene,
-      );
-      buttonLine.material = badgeMat;
-      buttonLine.position = new Vector3(0, 1.12, 0.34);
-      buttonLine.parent = root;
-
-      // Individual buttons (3)
-      for (let bi = 0; bi < 3; bi++) {
-        const btn = MeshBuilder.CreateCylinder(
-          `button${bi}`,
-          { height: 0.015, diameter: 0.045, tessellation: 12 },
-          scene,
-        );
-        btn.material = badgeMat;
-        btn.rotation.x = Math.PI / 2;
-        btn.position = new Vector3(0, 1.35 - bi * 0.18, 0.35);
-        btn.parent = root;
-      }
-
-      // "Dr. Eams" name badge — rectangular plate on left breast
-      const badgePlate = MeshBuilder.CreateBox(
-        'badgePlate',
-        { width: 0.22, height: 0.10, depth: 0.015 },
-        scene,
-      );
-      badgePlate.material = badgeMat;
-      badgePlate.position = new Vector3(0.22, 1.42, 0.33);
-      badgePlate.parent = root;
-
-      // Badge clip
-      const badgeClip = MeshBuilder.CreateBox(
-        'badgeClip',
-        { width: 0.04, height: 0.06, depth: 0.02 },
-        scene,
-      );
-      badgeClip.material = darkMetalMat;
-      badgeClip.position = new Vector3(0.30, 1.47, 0.33);
-      badgeClip.parent = root;
-
-      // Coat pockets (2)
-      const pocketL = MeshBuilder.CreateBox(
-        'pocketL',
-        { width: 0.18, height: 0.14, depth: 0.02 },
-        scene,
-      );
-      pocketL.material = coatMat;
-      pocketL.position = new Vector3(-0.16, 0.88, 0.32);
-      pocketL.parent = root;
-
-      // Pocket L flap
-      const pocketFlapL = MeshBuilder.CreateBox(
-        'pocketFlapL',
-        { width: 0.19, height: 0.02, depth: 0.025 },
-        scene,
-      );
-      pocketFlapL.material = coatMat;
-      pocketFlapL.position = new Vector3(-0.16, 0.96, 0.33);
-      pocketFlapL.parent = root;
-
-      const pocketR = MeshBuilder.CreateBox(
-        'pocketR',
-        { width: 0.18, height: 0.14, depth: 0.02 },
-        scene,
-      );
-      pocketR.material = coatMat;
-      pocketR.position = new Vector3(0.16, 0.88, 0.32);
-      pocketR.parent = root;
-
-      const pocketFlapR = MeshBuilder.CreateBox(
-        'pocketFlapR',
-        { width: 0.19, height: 0.02, depth: 0.025 },
-        scene,
-      );
-      pocketFlapR.material = coatMat;
-      pocketFlapR.position = new Vector3(0.16, 0.96, 0.33);
-      pocketFlapR.parent = root;
-
-      // ─── NECK ─────────────────────────────────────────────────────────────
-
-      const neckJoint = MeshBuilder.CreateCylinder(
-        'neckJoint',
-        { height: 0.14, diameterTop: 0.20, diameterBottom: 0.24, tessellation: 20 },
-        scene,
-      );
-      neckJoint.material = darkMetalMat;
-      neckJoint.position = new Vector3(0, 1.76, 0);
-      neckJoint.parent = root;
-
-      // Neck ring accent
-      const neckRing = MeshBuilder.CreateTorus(
-        'neckRing',
-        { diameter: 0.24, thickness: 0.025, tessellation: 24 },
-        scene,
-      );
-      neckRing.material = jointMat;
-      neckRing.position = new Vector3(0, 1.72, 0);
-      neckRing.parent = root;
-
-      // ─── HEAD ─────────────────────────────────────────────────────────────
-
-      const headNode = new TransformNode('headNode', scene);
-      headNode.position = new Vector3(0, 2.02, 0);
-      headNode.parent = root;
-
-      // Main head — large ovoid dome (proportionally bigger than body)
-      const head = MeshBuilder.CreateSphere(
-        'head',
-        { diameterX: 0.98, diameterY: 0.88, diameterZ: 0.90, segments: 48 },
-        scene,
-      );
-      head.material = helmetMat;
-      head.position.y = 0.08;
-      head.parent = headNode;
-      glow.addIncludedOnlyMesh(head as Mesh);
-
-      // Helmet lower extension — chin area curves down
-      const helmetChin = MeshBuilder.CreateSphere(
-        'helmetChin',
-        { diameterX: 0.76, diameterY: 0.40, diameterZ: 0.72, segments: 32 },
-        scene,
-      );
-      helmetChin.material = helmetMat;
-      helmetChin.position = new Vector3(0, -0.22, 0.02);
-      helmetChin.parent = headNode;
-
-      const visorBrow = MeshBuilder.CreateBox(
-        'visorBrow',
-        { width: 0.62, height: 0.08, depth: 0.14 },
-        scene,
-      );
-      visorBrow.material = jointMat;
-      visorBrow.position = new Vector3(0, 0.26, 0.20);
-      visorBrow.rotation.x = -0.08;
-      visorBrow.parent = headNode;
-
-      const jawPanel = MeshBuilder.CreateBox(
-        'jawPanel',
-        { width: 0.44, height: 0.12, depth: 0.12 },
-        scene,
-      );
-      jawPanel.material = jointMat;
-      jawPanel.position = new Vector3(0, -0.18, 0.24);
-      jawPanel.rotation.x = 0.12;
-      jawPanel.parent = headNode;
-
-      const headCrest = MeshBuilder.CreateBox(
-        'headCrest',
-        { width: 0.12, height: 0.18, depth: 0.40 },
-        scene,
-      );
-      headCrest.material = badgeMat;
-      headCrest.position = new Vector3(0, 0.46, -0.02);
-      headCrest.rotation.x = -0.12;
-      headCrest.parent = headNode;
-
-      // ─── EAR PADS (headphone-style) ───────────────────────────────────────
-
-      // Left ear pad — cylindrical disc
-      const earPadL = MeshBuilder.CreateCylinder(
-        'earPadL',
-        { height: 0.12, diameter: 0.24, tessellation: 24 },
-        scene,
-      );
-      earPadL.material = darkMetalMat;
-      earPadL.rotation.z = Math.PI / 2;
-      earPadL.position = new Vector3(-0.50, 0.04, 0);
-      earPadL.parent = headNode;
-
-      // Left ear pad inner ring
-      const earRingL = MeshBuilder.CreateTorus(
-        'earRingL',
-        { diameter: 0.20, thickness: 0.02, tessellation: 20 },
-        scene,
-      );
-      earRingL.material = jointMat;
-      earRingL.rotation.z = Math.PI / 2;
-      earRingL.position = new Vector3(-0.56, 0.04, 0);
-      earRingL.parent = headNode;
-
-      // Right ear pad
-      const earPadR = MeshBuilder.CreateCylinder(
-        'earPadR',
-        { height: 0.12, diameter: 0.24, tessellation: 24 },
-        scene,
-      );
-      earPadR.material = darkMetalMat;
-      earPadR.rotation.z = Math.PI / 2;
-      earPadR.position = new Vector3(0.50, 0.04, 0);
-      earPadR.parent = headNode;
-
-      const earRingR = MeshBuilder.CreateTorus(
-        'earRingR',
-        { diameter: 0.20, thickness: 0.02, tessellation: 20 },
-        scene,
-      );
-      earRingR.material = jointMat;
-      earRingR.rotation.z = Math.PI / 2;
-      earRingR.position = new Vector3(0.56, 0.04, 0);
-      earRingR.parent = headNode;
-
-      // ─── VISOR / FACE ─────────────────────────────────────────────────────
-
-      // Large curved visor covering front of head
-      const visor = MeshBuilder.CreateSphere(
-        'visor',
-        { diameterX: 0.82, diameterY: 0.62, diameterZ: 0.30, segments: 32 },
-        scene,
-      );
-      visor.material = visorMat;
-      visor.position = new Vector3(0, 0.06, 0.32);
-      visor.parent = headNode;
-      glow.addIncludedOnlyMesh(visor as Mesh);
-
-      // Screen inner glow surface
-      const screenPlane = MeshBuilder.CreateSphere(
-        'screen',
-        { diameterX: 0.72, diameterY: 0.50, diameterZ: 0.10, segments: 24 },
-        scene,
-      );
-      screenPlane.material = screenMat;
-      screenPlane.position = new Vector3(0, 0.06, 0.34);
-      screenPlane.parent = headNode;
-      glow.addIncludedOnlyMesh(screenPlane as Mesh);
-
-      // ─── EYES — Large glowing rings (infinity symbol) ─────────────────────
-
-      // Gold left eye ring — LARGE and prominent
-      const infL = MeshBuilder.CreateTorus(
-        'infL',
-        { diameter: 0.22, thickness: 0.038, tessellation: 48 },
-        scene,
-      );
-      infL.material = eyeGoldMat;
-      infL.rotation.x = Math.PI / 2;
-      infL.position = new Vector3(-0.12, 0.08, 0.42);
-      infL.parent = headNode;
-      glow.addIncludedOnlyMesh(infL as Mesh);
-
-      // Gold eye inner glow disc
-      const eyeDiscL = MeshBuilder.CreateDisc(
-        'eyeDiscL',
-        { radius: 0.075, tessellation: 24 },
-        scene,
-      );
-      eyeDiscL.material = eyeGoldMat;
-      eyeDiscL.position = new Vector3(-0.12, 0.08, 0.43);
-      eyeDiscL.parent = headNode;
-      glow.addIncludedOnlyMesh(eyeDiscL as Mesh);
-
-      // Cyan right eye ring — LARGE and prominent
-      const infR = MeshBuilder.CreateTorus(
-        'infR',
-        { diameter: 0.22, thickness: 0.038, tessellation: 48 },
-        scene,
-      );
-      infR.material = eyeCyanMat;
-      infR.rotation.x = Math.PI / 2;
-      infR.position = new Vector3(0.12, 0.08, 0.42);
-      infR.parent = headNode;
-      glow.addIncludedOnlyMesh(infR as Mesh);
-
-      // Cyan eye inner glow disc
-      const eyeDiscR = MeshBuilder.CreateDisc(
-        'eyeDiscR',
-        { radius: 0.075, tessellation: 24 },
-        scene,
-      );
-      eyeDiscR.material = eyeCyanMat;
-      eyeDiscR.position = new Vector3(0.12, 0.08, 0.43);
-      eyeDiscR.parent = headNode;
-      glow.addIncludedOnlyMesh(eyeDiscR as Mesh);
-
-      // ─── SHOULDERS ────────────────────────────────────────────────────────
+      const kneeNodeR = new TransformNode('kneeR', scene);
+      kneeNodeR.position = new Vector3(0, -0.400, 0);
+      kneeNodeR.parent = hipNodeR;
 
       const shoulderNodeL = new TransformNode('shoulderL', scene);
-      shoulderNodeL.position = new Vector3(-0.50, 1.55, 0);
+      shoulderNodeL.position = new Vector3(-0.480, 1.520, 0);
       shoulderNodeL.parent = root;
 
       const shoulderNodeR = new TransformNode('shoulderR', scene);
-      shoulderNodeR.position = new Vector3(0.50, 1.55, 0);
+      shoulderNodeR.position = new Vector3(0.480, 1.520, 0);
       shoulderNodeR.parent = root;
 
-      // Shoulder ball joints — large dark spheres
-      const shBallL = MeshBuilder.CreateSphere(
-        'shBallL',
-        { diameter: 0.22, segments: 20 },
-        scene,
-      );
-      shBallL.material = darkMetalMat;
-      shBallL.position.copyFrom(Vector3.Zero());
-      shBallL.parent = shoulderNodeL;
-
-      const shBallR = MeshBuilder.CreateSphere(
-        'shBallR',
-        { diameter: 0.22, segments: 20 },
-        scene,
-      );
-      shBallR.material = darkMetalMat;
-      shBallR.position.copyFrom(Vector3.Zero());
-      shBallR.parent = shoulderNodeR;
-
-      // Shoulder plate covers (wider, armor-like)
-      const shPlateL = MeshBuilder.CreateSphere(
-        'shPlateL',
-        { diameterX: 0.30, diameterY: 0.18, diameterZ: 0.26, segments: 16 },
-        scene,
-      );
-      shPlateL.material = darkMetalMat;
-      shPlateL.position = new Vector3(-0.02, 0.04, 0);
-      shPlateL.parent = shoulderNodeL;
-
-      const shPlateR = MeshBuilder.CreateSphere(
-        'shPlateR',
-        { diameterX: 0.30, diameterY: 0.18, diameterZ: 0.26, segments: 16 },
-        scene,
-      );
-      shPlateR.material = darkMetalMat;
-      shPlateR.position = new Vector3(0.02, 0.04, 0);
-      shPlateR.parent = shoulderNodeR;
-
-      // ─── UPPER ARMS ──────────────────────────────────────────────────────
-
-      const upperArmL = MeshBuilder.CreateCylinder(
-        'upperArmL',
-        { height: 0.38, diameterTop: 0.16, diameterBottom: 0.13, tessellation: 20 },
-        scene,
-      );
-      upperArmL.material = darkMetalMat;
-      upperArmL.position.y = -0.24;
-      upperArmL.parent = shoulderNodeL;
-
-      const upperArmR = MeshBuilder.CreateCylinder(
-        'upperArmR',
-        { height: 0.38, diameterTop: 0.16, diameterBottom: 0.13, tessellation: 20 },
-        scene,
-      );
-      upperArmR.material = darkMetalMat;
-      upperArmR.position.y = -0.24;
-      upperArmR.parent = shoulderNodeR;
-
-      // Arm segment rings
-      const armRingL = MeshBuilder.CreateTorus(
-        'armRingL',
-        { diameter: 0.16, thickness: 0.015, tessellation: 16 },
-        scene,
-      );
-      armRingL.material = jointMat;
-      armRingL.position.y = -0.16;
-      armRingL.parent = shoulderNodeL;
-
-      const armRingR = MeshBuilder.CreateTorus(
-        'armRingR',
-        { diameter: 0.16, thickness: 0.015, tessellation: 16 },
-        scene,
-      );
-      armRingR.material = jointMat;
-      armRingR.position.y = -0.16;
-      armRingR.parent = shoulderNodeR;
-
-      // ─── ELBOWS ───────────────────────────────────────────────────────────
-
       const elbowNodeL = new TransformNode('elbowL', scene);
-      elbowNodeL.position = new Vector3(0, -0.44, 0);
+      elbowNodeL.position = new Vector3(0, -0.440, 0);
       elbowNodeL.parent = shoulderNodeL;
 
       const elbowNodeR = new TransformNode('elbowR', scene);
-      elbowNodeR.position = new Vector3(0, -0.44, 0);
+      elbowNodeR.position = new Vector3(0, -0.440, 0);
       elbowNodeR.parent = shoulderNodeR;
 
-      // Elbow joint spheres
-      const elbowJL = MeshBuilder.CreateSphere(
-        'elbowJL',
-        { diameter: 0.12, segments: 12 },
-        scene,
-      );
-      elbowJL.material = jointMat;
-      elbowJL.parent = elbowNodeL;
+      const headNode = new TransformNode('headNode', scene);
+      headNode.position = new Vector3(0, 2.020, 0);
+      headNode.parent = root;
 
-      const elbowJR = MeshBuilder.CreateSphere(
-        'elbowJR',
-        { diameter: 0.12, segments: 12 },
-        scene,
-      );
-      elbowJR.material = jointMat;
-      elbowJR.parent = elbowNodeR;
+      // ══════════════════════════════════════════════════════════════════════════
+      // ── [001-022] BOOTS · CUFFS · SHIN · KNEE · THIGH ────────────────────────
+      // ══════════════════════════════════════════════════════════════════════════
 
-      // ─── FOREARMS ─────────────────────────────────────────────────────────
+      function buildLeg(side: 'L' | 'R', kneeNode: TransformNode) {
+        // [001] BASE: Dual rectangular rubber contact footprints
+        const basePad = MeshBuilder.CreateBox(`basePad${side}`, {
+          width: 0.388, height: 0.018, depth: 0.530,
+        }, scene);
+        basePad.material = soleMat;
+        basePad.position = new Vector3(0, -0.562, 0.050);
+        basePad.parent = kneeNode;
 
-      const forearmL = MeshBuilder.CreateCylinder(
-        'forearmL',
-        { height: 0.36, diameterTop: 0.12, diameterBottom: 0.10, tessellation: 20 },
-        scene,
-      );
-      forearmL.material = darkMetalMat;
-      forearmL.position.y = -0.22;
-      forearmL.parent = elbowNodeL;
+        // [002] SOLE: Horizontal tread plate — matte black polymer (16.2cm wide)
+        const sole = MeshBuilder.CreateBox(`sole${side}`, {
+          width: 0.374, height: 0.022, depth: 0.514,
+        }, scene);
+        sole.material = soleMat;
+        sole.position = new Vector3(0, -0.542, 0.050);
+        sole.parent = kneeNode;
 
-      const forearmGuardL = MeshBuilder.CreateBox(
-        'forearmGuardL',
-        { width: 0.18, height: 0.12, depth: 0.10 },
-        scene,
-      );
-      forearmGuardL.material = jointMat;
-      forearmGuardL.position = new Vector3(0, -0.22, 0.04);
-      forearmGuardL.rotation.x = 0.12;
-      forearmGuardL.parent = elbowNodeL;
+        // Tread ridge detail — 5 raised ribs along the sole
+        for (let tr = 0; tr < 5; tr++) {
+          const tread = MeshBuilder.CreateBox(`tread${side}_${tr}`, {
+            width: 0.374, height: 0.007, depth: 0.014,
+          }, scene);
+          tread.material = soleMat;
+          tread.position = new Vector3(0, -0.532, -0.175 + tr * 0.095);
+          tread.parent = kneeNode;
+        }
 
-      const forearmR = MeshBuilder.CreateCylinder(
-        'forearmR',
-        { height: 0.36, diameterTop: 0.12, diameterBottom: 0.10, tessellation: 20 },
-        scene,
-      );
-      forearmR.material = darkMetalMat;
-      forearmR.position.y = -0.22;
-      forearmR.parent = elbowNodeR;
+        // [003] SOLE: Beveled edge — rising transition strip
+        const soleBevel = MeshBuilder.CreateCylinder(`soleBevel${side}`, {
+          height: 0.028, diameterTop: 0.370, diameterBottom: 0.390,
+          tessellation: 22,
+        }, scene);
+        soleBevel.material = soleMat;
+        soleBevel.position = new Vector3(0, -0.524, 0.050);
+        soleBevel.parent = kneeNode;
 
-      const forearmGuardR = MeshBuilder.CreateBox(
-        'forearmGuardR',
-        { width: 0.18, height: 0.12, depth: 0.10 },
-        scene,
-      );
-      forearmGuardR.material = jointMat;
-      forearmGuardR.position = new Vector3(0, -0.22, 0.04);
-      forearmGuardR.rotation.x = 0.12;
-      forearmGuardR.parent = elbowNodeR;
+        // [004-008] BOOT: Main chassis block — matte charcoal composite
+        const bootMain = MeshBuilder.CreateBox(`bootMain${side}`, {
+          width: 0.372, height: 0.182, depth: 0.434,
+        }, scene);
+        bootMain.material = bootMat;
+        bootMain.position = new Vector3(0, -0.416, 0.032);
+        bootMain.parent = kneeNode;
 
-      // Forearm segment rings
-      const foreRingL = MeshBuilder.CreateTorus(
-        'foreRingL',
-        { diameter: 0.12, thickness: 0.012, tessellation: 16 },
-        scene,
-      );
-      foreRingL.material = jointMat;
-      foreRingL.position.y = -0.28;
-      foreRingL.parent = elbowNodeL;
+        // [004] BOOT: Front toe-cap curvature — hemispherical arc (r≈8.1cm = 0.178u)
+        const bootToe = MeshBuilder.CreateSphere(`bootToe${side}`, {
+          diameterX: 0.380, diameterY: 0.210, diameterZ: 0.236,
+          segments: 22,
+        }, scene);
+        bootToe.material = bootMat;
+        bootToe.position = new Vector3(0, -0.445, 0.255);
+        bootToe.parent = kneeNode;
 
-      const foreRingR = MeshBuilder.CreateTorus(
-        'foreRingR',
-        { diameter: 0.12, thickness: 0.012, tessellation: 16 },
-        scene,
-      );
-      foreRingR.material = jointMat;
-      foreRingR.position.y = -0.28;
-      foreRingR.parent = elbowNodeR;
+        // [005] BOOT: Toe-box expansion — additional width volume
+        const bootToeBox = MeshBuilder.CreateBox(`bootToeBox${side}`, {
+          width: 0.360, height: 0.148, depth: 0.100,
+        }, scene);
+        bootToeBox.material = bootMat;
+        bootToeBox.position = new Vector3(0, -0.454, 0.210);
+        bootToeBox.parent = kneeNode;
 
-      // Wrist joints
-      const wristL = MeshBuilder.CreateSphere(
-        'wristL',
-        { diameter: 0.09, segments: 10 },
-        scene,
-      );
-      wristL.material = jointMat;
-      wristL.position.y = -0.42;
-      wristL.parent = elbowNodeL;
+        // [007] BOOT: Mid-foot arch — slight lateral taper
+        const bootArch = MeshBuilder.CreateBox(`bootArch${side}`, {
+          width: 0.330, height: 0.132, depth: 0.118,
+        }, scene);
+        bootArch.material = bootMat;
+        bootArch.position = new Vector3(0, -0.452, 0.012);
+        bootArch.parent = kneeNode;
 
-      const wristR = MeshBuilder.CreateSphere(
-        'wristR',
-        { diameter: 0.09, segments: 10 },
-        scene,
-      );
-      wristR.material = jointMat;
-      wristR.position.y = -0.42;
-      wristR.parent = elbowNodeR;
+        // [008] BOOT: Lower shell top face
+        const bootTopFace = MeshBuilder.CreateBox(`bootTopFace${side}`, {
+          width: 0.364, height: 0.022, depth: 0.412,
+        }, scene);
+        bootTopFace.material = bootMat;
+        bootTopFace.position = new Vector3(0, -0.326, 0.032);
+        bootTopFace.parent = kneeNode;
 
-      // ─── HANDS (detailed mechanical with segmented fingers) ───────────────
+        // [009] BOOT: Flex-conduit entry / ankle-joint shielding
+        const ankleShield = MeshBuilder.CreateCylinder(`ankleShield${side}`, {
+          height: 0.060, diameterTop: 0.192, diameterBottom: 0.222,
+          tessellation: 20,
+        }, scene);
+        ankleShield.material = bootMat;
+        ankleShield.position = new Vector3(0, -0.308, 0);
+        ankleShield.parent = kneeNode;
 
-      // Helper: build a mechanical hand with palm + 4 fingers (3 segments each) + thumb
-      // Build a detailed mechanical hand — symmetric in local space, mirrored by parent node
-      function buildHand(side: 'L' | 'R', parentNode: TransformNode) {
+        // [010] BOOT: Heel counter — vertical stabilizer fins (internal geometry)
+        for (const hx of [-0.152, 0.152]) {
+          const heelFin = MeshBuilder.CreateBox(`heelFin${side}_${hx > 0 ? 'R' : 'L'}`, {
+            width: 0.011, height: 0.115, depth: 0.078,
+          }, scene);
+          heelFin.material = darkMetalMat;
+          heelFin.position = new Vector3(hx, -0.392, -0.200);
+          heelFin.parent = kneeNode;
+        }
 
-        // Palm — rounded box
-        const palm = MeshBuilder.CreateBox(
-          `palm${side}`,
-          { width: 0.14, height: 0.07, depth: 0.10 },
-          scene,
-        );
+        // [011-013] CUFF: Three concentric ribbing rings (d=11.2cm = 0.246u)
+        for (let ci = 0; ci < 3; ci++) {
+          const cuffRing = MeshBuilder.CreateTorus(`cuff${side}_${ci}`, {
+            diameter: 0.246 + ci * 0.014,
+            thickness: 0.024,
+            tessellation: 30,
+          }, scene);
+          cuffRing.material = ci === 1 ? jointMat : darkMetalMat;
+          cuffRing.position = new Vector3(0, -0.268 + ci * 0.038, 0);
+          cuffRing.parent = kneeNode;
+        }
+
+        // [014-016] LEG: Primary shin strut — accordion-style conduit (d=9.4cm = 0.207u)
+        const shinConduit = MeshBuilder.CreateCylinder(`shinConduit${side}`, {
+          height: 0.275, diameter: 0.192, tessellation: 22,
+        }, scene);
+        shinConduit.material = darkMetalMat;
+        shinConduit.position = new Vector3(0, -0.147, 0);
+        shinConduit.parent = kneeNode;
+
+        // Accordion ridges — 8 torus ribs for conduit texture
+        for (let ri = 0; ri < 8; ri++) {
+          const rib = MeshBuilder.CreateTorus(`shinRib${side}_${ri}`, {
+            diameter: 0.218, thickness: 0.016, tessellation: 24,
+          }, scene);
+          rib.material = jointMat;
+          rib.position = new Vector3(0, -0.042 - ri * 0.036, 0);
+          rib.parent = kneeNode;
+        }
+
+        // [015] LEG: Shin front panel — high-tensile mesh look
+        const shinPanel = MeshBuilder.CreateBox(`shinPanel${side}`, {
+          width: 0.122, height: 0.188, depth: 0.030,
+        }, scene);
+        shinPanel.material = badgeMat;
+        shinPanel.position = new Vector3(0, -0.148, 0.098);
+        shinPanel.rotation.x = 0.08;
+        shinPanel.parent = kneeNode;
+
+        // [017] KNEE: Internal hinge housing — armored spherical joint
+        const kneeJoint = MeshBuilder.CreateSphere(`kneeJ${side}`, {
+          diameter: 0.172, segments: 16,
+        }, scene);
+        kneeJoint.material = jointMat;
+        kneeJoint.parent = kneeNode;
+
+        // Knee side armor caps
+        for (const kx of [-0.088, 0.088]) {
+          const kCap = MeshBuilder.CreateSphere(`kCap${side}_${kx > 0 ? 'R' : 'L'}`, {
+            diameterX: 0.078, diameterY: 0.068, diameterZ: 0.076,
+            segments: 10,
+          }, scene);
+          kCap.material = darkMetalMat;
+          kCap.position = new Vector3(kx, 0, 0.020);
+          kCap.parent = kneeNode;
+        }
+      }
+
+      buildLeg('L', kneeNodeL);
+      buildLeg('R', kneeNodeR);
+
+      // ── [018-020] THIGH ──────────────────────────────────────────────────────
+
+      function buildThigh(side: 'L' | 'R', hipNode: TransformNode) {
+        const thigh = MeshBuilder.CreateCylinder(`thigh${side}`, {
+          height: 0.338, diameterTop: 0.158, diameterBottom: 0.136,
+          tessellation: 22,
+        }, scene);
+        thigh.material = darkMetalMat;
+        thigh.position.y = -0.169;
+        thigh.parent = hipNode;
+
+        for (let ti = 0; ti < 2; ti++) {
+          const thighRing = MeshBuilder.CreateTorus(`thighRing${side}_${ti}`, {
+            diameter: 0.162, thickness: 0.013, tessellation: 20,
+          }, scene);
+          thighRing.material = jointMat;
+          thighRing.position.y = -0.076 - ti * 0.118;
+          thighRing.parent = hipNode;
+        }
+
+        const hipBall = MeshBuilder.CreateSphere(`hipBall${side}`, {
+          diameter: 0.128, segments: 12,
+        }, scene);
+        hipBall.material = jointMat;
+        hipBall.parent = hipNode;
+      }
+
+      buildThigh('L', hipNodeL);
+      buildThigh('R', hipNodeR);
+
+      // ── Hip band & pelvis ────────────────────────────────────────────────────
+
+      const hipBand = MeshBuilder.CreateCylinder('hipBand', {
+        height: 0.122, diameterTop: 0.598, diameterBottom: 0.562,
+        tessellation: 28,
+      }, scene);
+      hipBand.material = darkMetalMat;
+      hipBand.position.y = 0.660;
+      hipBand.parent = root;
+
+      // ══════════════════════════════════════════════════════════════════════════
+      // ── [023-074] COAT: Lab coat — hem · skirt · body · chest · lapels ────────
+      // ══════════════════════════════════════════════════════════════════════════
+
+      // [023-025] COAT: Lower hem — conical frustum (d=44.2cm = 0.972u at base)
+      const coatHem = MeshBuilder.CreateCylinder('coatHem', {
+        height: 0.082, diameterTop: 0.800, diameterBottom: 0.960,
+        tessellation: 40,
+      }, scene);
+      coatHem.material = coatMat;
+      coatHem.position.y = 0.748;
+      coatHem.parent = root;
+
+      // [024] COAT: Hem stitching torus — reinforced seam
+      const hemBand = MeshBuilder.CreateTorus('hemBand', {
+        diameter: 0.882, thickness: 0.020, tessellation: 52,
+      }, scene);
+      hemBand.material = coatMat;
+      hemBand.position.y = 0.784;
+      hemBand.parent = root;
+
+      // [025-029] COAT: Skirt — conical frustum body
+      const coatSkirt = MeshBuilder.CreateCylinder('coatSkirt', {
+        height: 0.340, diameterTop: 0.650, diameterBottom: 0.800,
+        tessellation: 40,
+      }, scene);
+      coatSkirt.material = coatMat;
+      coatSkirt.position.y = 0.960;
+      coatSkirt.parent = root;
+
+      // Body core under skirt
+      const bodySkirtCore = MeshBuilder.CreateCylinder('bodySkirtCore', {
+        height: 0.340, diameterTop: 0.548, diameterBottom: 0.634,
+        tessellation: 30,
+      }, scene);
+      bodySkirtCore.material = darkMetalMat;
+      bodySkirtCore.position.y = 0.960;
+      bodySkirtCore.parent = root;
+
+      // [029] Front center opening seam line
+      const frontSeam = MeshBuilder.CreateBox('frontSeam', {
+        width: 0.010, height: 0.730, depth: 0.006,
+      }, scene);
+      frontSeam.material = coatMat;
+      frontSeam.position = new Vector3(0, 1.108, 0.328);
+      frontSeam.parent = root;
+
+      // [030-036] POCKETS: Twin rectangular pockets (w=10.2cm=0.224u, h=12.1cm=0.266u)
+      function buildPocket(side: 'L' | 'R') {
+        const xs = side === 'L' ? -1 : 1;
+        const px = xs * 0.180;
+
+        const pocketFace = MeshBuilder.CreateBox(`pocket${side}`, {
+          width: 0.224, height: 0.266, depth: 0.018,
+        }, scene);
+        pocketFace.material = coatMat;
+        pocketFace.position = new Vector3(px, 0.908, 0.315);
+        pocketFace.parent = root;
+
+        const pocketSideSeam = MeshBuilder.CreateBox(`pocketSeam${side}`, {
+          width: 0.005, height: 0.266, depth: 0.018,
+        }, scene);
+        pocketSideSeam.material = badgeMat;
+        pocketSideSeam.position = new Vector3(px + xs * 0.115, 0.908, 0.316);
+        pocketSideSeam.parent = root;
+
+        // [036] Top opening flap
+        const flap = MeshBuilder.CreateBox(`pocketFlap${side}`, {
+          width: 0.228, height: 0.024, depth: 0.022,
+        }, scene);
+        flap.material = coatMat;
+        flap.position = new Vector3(px, 1.046, 0.322);
+        flap.parent = root;
+
+        const flapSeam = MeshBuilder.CreateBox(`flapSeam${side}`, {
+          width: 0.222, height: 0.006, depth: 0.005,
+        }, scene);
+        flapSeam.material = badgeMat;
+        flapSeam.position = new Vector3(px, 1.036, 0.329);
+        flapSeam.parent = root;
+      }
+
+      buildPocket('L');
+      buildPocket('R');
+
+      // [037-039] COAT: Waist taper
+      const coatWaist = MeshBuilder.CreateCylinder('coatWaist', {
+        height: 0.118, diameterTop: 0.745, diameterBottom: 0.650,
+        tessellation: 36,
+      }, scene);
+      coatWaist.material = coatMat;
+      coatWaist.position.y = 1.189;
+      coatWaist.parent = root;
+
+      // [039-056] COAT: Main body panels — torso
+      const coatBody = MeshBuilder.CreateCylinder('coatBody', {
+        height: 0.360, diameterTop: 0.810, diameterBottom: 0.745,
+        tessellation: 36,
+      }, scene);
+      coatBody.material = coatMat;
+      coatBody.position.y = 1.408;
+      coatBody.parent = root;
+
+      const bodyUpper = MeshBuilder.CreateCylinder('bodyUpper', {
+        height: 0.360, diameterTop: 0.668, diameterBottom: 0.610,
+        tessellation: 30,
+      }, scene);
+      bodyUpper.material = darkMetalMat;
+      bodyUpper.position.y = 1.408;
+      bodyUpper.parent = root;
+
+      // [044-046] BUTTON 1: Circular white plastic (d=2.5cm=0.055u)
+      const button1 = MeshBuilder.CreateCylinder('button1', {
+        height: 0.012, diameter: 0.056, tessellation: 14,
+      }, scene);
+      button1.material = badgeMat;
+      button1.rotation.x = Math.PI / 2;
+      button1.position = new Vector3(0, 1.058, 0.334);
+      button1.parent = root;
+
+      // [064-066] BUTTON 2: 22cm gap above Button 1 (22cm=0.484u)
+      const button2 = MeshBuilder.CreateCylinder('button2', {
+        height: 0.012, diameter: 0.056, tessellation: 14,
+      }, scene);
+      button2.material = badgeMat;
+      button2.rotation.x = Math.PI / 2;
+      button2.position = new Vector3(0, 1.298, 0.334);
+      button2.parent = root;
+
+      // [054-056] COAT: Chest panel — widening to shoulder frame
+      const coatChest = MeshBuilder.CreateCylinder('coatChest', {
+        height: 0.215, diameterTop: 0.860, diameterBottom: 0.810,
+        tessellation: 36,
+      }, scene);
+      coatChest.material = coatMat;
+      coatChest.position.y = 1.545;
+      coatChest.parent = root;
+
+      const chestCore2 = MeshBuilder.CreateCylinder('chestCore2', {
+        height: 0.215, diameterTop: 0.710, diameterBottom: 0.668,
+        tessellation: 30,
+      }, scene);
+      chestCore2.material = darkMetalMat;
+      chestCore2.position.y = 1.545;
+      chestCore2.parent = root;
+
+      // [070-072] LAPELS: Diagonal fold shapes
+      function buildLapel(side: 'L' | 'R') {
+        const xs = side === 'L' ? -1 : 1;
+        const lapel = MeshBuilder.CreateBox(`lapel${side}`, {
+          width: 0.190, height: 0.265, depth: 0.038,
+        }, scene);
+        lapel.material = coatMat;
+        lapel.rotation.z = xs * 0.220;
+        lapel.position = new Vector3(xs * 0.162, 1.598, 0.280);
+        lapel.parent = root;
+
+        const lapelFront = MeshBuilder.CreateBox(`lapelFront${side}`, {
+          width: 0.175, height: 0.238, depth: 0.016,
+        }, scene);
+        lapelFront.material = coatMat;
+        lapelFront.rotation.z = xs * 0.220;
+        lapelFront.position = new Vector3(xs * 0.166, 1.606, 0.298);
+        lapelFront.parent = root;
+      }
+
+      buildLapel('L');
+      buildLapel('R');
+
+      // V-neck undershirt collar
+      const vNeck = MeshBuilder.CreateCylinder('vNeck', {
+        height: 0.188, diameterTop: 0.274, diameterBottom: 0.186,
+        tessellation: 18,
+      }, scene);
+      vNeck.material = shirtMat;
+      vNeck.position = new Vector3(0, 1.618, 0.168);
+      vNeck.scaling.z = 0.34;
+      vNeck.parent = root;
+
+      // [067-069] NAME TAG: "Dr. Eams" on left breast (8cm×3.2cm = 0.176u×0.070u)
+      const badgeBacking = MeshBuilder.CreateBox('badgeBacking', {
+        width: 0.214, height: 0.094, depth: 0.010,
+      }, scene);
+      badgeBacking.material = darkMetalMat;
+      badgeBacking.position = new Vector3(0.196, 1.454, 0.336);
+      badgeBacking.parent = root;
+
+      const badgePlate = MeshBuilder.CreateBox('badgePlate', {
+        width: 0.198, height: 0.078, depth: 0.012,
+      }, scene);
+      badgePlate.material = badgeMat;
+      badgePlate.position = new Vector3(0.196, 1.454, 0.342);
+      badgePlate.parent = root;
+
+      const badgePin = MeshBuilder.CreateBox('badgePin', {
+        width: 0.036, height: 0.048, depth: 0.016,
+      }, scene);
+      badgePin.material = darkMetalMat;
+      badgePin.position = new Vector3(0.288, 1.492, 0.338);
+      badgePin.parent = root;
+
+      // Chest arc-reactor halo (referenced in animation)
+      const chestHalo = MeshBuilder.CreateTorus('chestHalo', {
+        diameter: 0.196, thickness: 0.015, tessellation: 28,
+      }, scene);
+      chestHalo.material = eyeCyanMat;
+      chestHalo.rotation.x = Math.PI / 2;
+      chestHalo.position = new Vector3(0, 1.454, 0.352);
+      chestHalo.parent = root;
+      glow.addIncludedOnlyMesh(chestHalo as Mesh);
+
+      const chestCore = MeshBuilder.CreateSphere('chestCore', {
+        diameter: 0.050, segments: 16,
+      }, scene);
+      chestCore.material = eyeGoldMat;
+      chestCore.position = new Vector3(0, 1.454, 0.358);
+      chestCore.parent = root;
+      glow.addIncludedOnlyMesh(chestCore as Mesh);
+
+      // ── [073-074] SHOULDERS ──────────────────────────────────────────────────
+
+      function buildShoulder(side: 'L' | 'R', shNode: TransformNode) {
+        const xs = side === 'L' ? -1 : 1;
+
+        const shBall = MeshBuilder.CreateSphere(`shBall${side}`, {
+          diameter: 0.190, segments: 18,
+        }, scene);
+        shBall.material = darkMetalMat;
+        shBall.parent = shNode;
+
+        const shPlate = MeshBuilder.CreateSphere(`shPlate${side}`, {
+          diameterX: 0.272, diameterY: 0.158, diameterZ: 0.244,
+          segments: 14,
+        }, scene);
+        shPlate.material = darkMetalMat;
+        shPlate.position = new Vector3(xs * 0.016, 0.034, 0);
+        shPlate.parent = shNode;
+
+        // Coat drape over shoulder
+        const shCoat = MeshBuilder.CreateSphere(`shCoat${side}`, {
+          diameterX: 0.254, diameterY: 0.136, diameterZ: 0.216,
+          segments: 12,
+        }, scene);
+        shCoat.material = coatMat;
+        shCoat.position = new Vector3(xs * 0.008, 0.022, 0.018);
+        shCoat.parent = shNode;
+      }
+
+      buildShoulder('L', shoulderNodeL);
+      buildShoulder('R', shoulderNodeR);
+
+      // ── [058-059] UPPER ARM / BICEP ──────────────────────────────────────────
+
+      function buildUpperArm(side: 'L' | 'R', shNode: TransformNode) {
+        const upperArm = MeshBuilder.CreateCylinder(`upperArm${side}`, {
+          height: 0.355, diameterTop: 0.145, diameterBottom: 0.118,
+          tessellation: 20,
+        }, scene);
+        upperArm.material = darkMetalMat;
+        upperArm.position.y = -0.226;
+        upperArm.parent = shNode;
+
+        const armRing = MeshBuilder.CreateTorus(`armRing${side}`, {
+          diameter: 0.148, thickness: 0.013, tessellation: 18,
+        }, scene);
+        armRing.material = jointMat;
+        armRing.position.y = -0.150;
+        armRing.parent = shNode;
+      }
+
+      buildUpperArm('L', shoulderNodeL);
+      buildUpperArm('R', shoulderNodeR);
+
+      // ── [060-063] SLEEVE: White lab coat sleeve ──────────────────────────────
+
+      function buildSleeve(side: 'L' | 'R', shNode: TransformNode) {
+        const sleeve = MeshBuilder.CreateCylinder(`sleeve${side}`, {
+          height: 0.332, diameterTop: 0.195, diameterBottom: 0.220,
+          tessellation: 22,
+        }, scene);
+        sleeve.material = coatMat;
+        sleeve.position.y = -0.218;
+        sleeve.parent = shNode;
+
+        // [060] Sleeve cuff fold (1.2cm = 0.026u)
+        const cuff = MeshBuilder.CreateTorus(`sleeveCuff${side}`, {
+          diameter: 0.204, thickness: 0.028, tessellation: 22,
+        }, scene);
+        cuff.material = coatMat;
+        cuff.position.y = -0.412;
+        cuff.parent = shNode;
+      }
+
+      buildSleeve('L', shoulderNodeL);
+      buildSleeve('R', shoulderNodeR);
+
+      // ── [057] ELBOW: Armored spherical hinge ────────────────────────────────
+
+      function buildElbow(side: 'L' | 'R', elbowNode: TransformNode) {
+        const cap = MeshBuilder.CreateSphere(`elbowCap${side}`, {
+          diameter: 0.126, segments: 14,
+        }, scene);
+        cap.material = jointMat;
+        cap.parent = elbowNode;
+
+        const armor = MeshBuilder.CreateSphere(`elbowArmor${side}`, {
+          diameterX: 0.148, diameterY: 0.100, diameterZ: 0.126,
+          segments: 10,
+        }, scene);
+        armor.material = darkMetalMat;
+        armor.position = new Vector3(0, 0, 0.036);
+        armor.parent = elbowNode;
+      }
+
+      buildElbow('L', elbowNodeL);
+      buildElbow('R', elbowNodeR);
+
+      // ── [051-053] FOREARM: Ribbed black conduit armor ────────────────────────
+
+      function buildForearm(side: 'L' | 'R', elbowNode: TransformNode) {
+        // [053] Upper forearm max width 10.4cm = 0.229u
+        const forearm = MeshBuilder.CreateCylinder(`forearm${side}`, {
+          height: 0.340, diameterTop: 0.126, diameterBottom: 0.104,
+          tessellation: 20,
+        }, scene);
+        forearm.material = darkMetalMat;
+        forearm.position.y = -0.212;
+        forearm.parent = elbowNode;
+
+        // [051] Ribbed conduit armor — 4 rings
+        for (let fi = 0; fi < 4; fi++) {
+          const foreRib = MeshBuilder.CreateTorus(`foreRib${side}_${fi}`, {
+            diameter: 0.128, thickness: 0.013, tessellation: 18,
+          }, scene);
+          foreRib.material = jointMat;
+          foreRib.position.y = -0.100 - fi * 0.070;
+          foreRib.parent = elbowNode;
+        }
+
+        // [050] WRIST: Flexible gasket (d=8.2cm = 0.180u)
+        const wristGasket = MeshBuilder.CreateTorus(`wristGasket${side}`, {
+          diameter: 0.182, thickness: 0.026, tessellation: 22,
+        }, scene);
+        wristGasket.material = jointMat;
+        wristGasket.position.y = -0.412;
+        wristGasket.parent = elbowNode;
+
+        const wristBall = MeshBuilder.CreateSphere(`wristBall${side}`, {
+          diameter: 0.082, segments: 10,
+        }, scene);
+        wristBall.material = jointMat;
+        wristBall.position.y = -0.426;
+        wristBall.parent = elbowNode;
+      }
+
+      buildForearm('L', elbowNodeL);
+      buildForearm('R', elbowNodeR);
+
+      // ── [047-049] HANDS: Palm + segmented fingers + thumb ────────────────────
+
+      function buildHand(side: 'L' | 'R', elbowNode: TransformNode) {
+        // [047] HANDS: Palm base (width=9.1cm = 0.200u)
+        const palm = MeshBuilder.CreateBox(`palm${side}`, {
+          width: 0.200, height: 0.064, depth: 0.104,
+        }, scene);
         palm.material = darkMetalMat;
-        palm.position = new Vector3(0, -0.48, 0);
-        palm.parent = parentNode;
+        palm.position = new Vector3(0, -0.472, 0);
+        palm.parent = elbowNode;
 
-        // Palm back plate
-        const palmBack = MeshBuilder.CreateBox(
-          `palmBack${side}`,
-          { width: 0.13, height: 0.03, depth: 0.09 },
-          scene,
-        );
+        const palmBack = MeshBuilder.CreateBox(`palmBack${side}`, {
+          width: 0.188, height: 0.026, depth: 0.096,
+        }, scene);
         palmBack.material = darkMetalMat;
-        palmBack.position = new Vector3(0, -0.455, -0.02);
-        palmBack.parent = parentNode;
+        palmBack.position = new Vector3(0, -0.450, -0.020);
+        palmBack.parent = elbowNode;
 
-        // Knuckle ridge
-        const knuckleRidge = MeshBuilder.CreateBox(
-          `knuckleRidge${side}`,
-          { width: 0.14, height: 0.025, depth: 0.04 },
-          scene,
-        );
-        knuckleRidge.material = jointMat;
-        knuckleRidge.position = new Vector3(0, -0.515, 0.02);
-        knuckleRidge.parent = parentNode;
+        const knuckle = MeshBuilder.CreateBox(`knuckle${side}`, {
+          width: 0.200, height: 0.020, depth: 0.040,
+        }, scene);
+        knuckle.material = jointMat;
+        knuckle.position = new Vector3(0, -0.506, 0.020);
+        knuckle.parent = elbowNode;
 
-        // 4 fingers — each with 3 segments + joints
-        const fingerXPositions = [-0.048, -0.016, 0.016, 0.048];
-        const fingerSegLengths = [
-          [0.036, 0.032, 0.028], // index
-          [0.040, 0.036, 0.030], // middle (longest)
-          [0.038, 0.034, 0.028], // ring
-          [0.030, 0.026, 0.022], // pinky (shortest)
+        // [041-043] FINGERS: 4 fingers — 3-segment cylindrical joints
+        const fxPos = [-0.070, -0.023, 0.024, 0.070];
+        const fLens = [
+          [0.037, 0.032, 0.027],
+          [0.040, 0.035, 0.029],
+          [0.038, 0.033, 0.027],
+          [0.030, 0.025, 0.021],
         ];
 
-        fingerXPositions.forEach((xOff, fi) => {
-          const segs = fingerSegLengths[fi];
-          let yPos = -0.535;
+        fxPos.forEach((xOff, fi) => {
+          let yOff = -0.520;
+          fLens[fi].forEach((sLen, si) => {
+            const jt = MeshBuilder.CreateSphere(`fJt${side}${fi}_${si}`, {
+              diameter: 0.023, segments: 6,
+            }, scene);
+            jt.material = jointMat;
+            jt.position = new Vector3(xOff, yOff, 0.020);
+            jt.parent = elbowNode;
 
-          segs.forEach((segLen, si) => {
-            // Joint ball between segments
-            const joint = MeshBuilder.CreateSphere(
-              `fJoint${side}${fi}_${si}`,
-              { diameter: 0.022, segments: 6 },
-              scene,
-            );
-            joint.material = jointMat;
-            joint.position = new Vector3(xOff, yPos, 0.02);
-            joint.parent = parentNode;
-
-            // Finger segment
-            const seg = MeshBuilder.CreateCylinder(
-              `fSeg${side}${fi}_${si}`,
-              { height: segLen, diameter: 0.020, tessellation: 8 },
-              scene,
-            );
+            const seg = MeshBuilder.CreateCylinder(`fSeg${side}${fi}_${si}`, {
+              height: sLen, diameter: 0.021, tessellation: 8,
+            }, scene);
             seg.material = darkMetalMat;
-            seg.position = new Vector3(xOff, yPos - segLen * 0.5, 0.02);
-            seg.parent = parentNode;
-
-            yPos -= segLen;
+            seg.position = new Vector3(xOff, yOff - sLen * 0.5, 0.020);
+            seg.parent = elbowNode;
+            yOff -= sLen;
           });
 
-          // Fingertip — rounded cap
-          const tip = MeshBuilder.CreateSphere(
-            `fTip${side}${fi}`,
-            { diameter: 0.022, segments: 6 },
-            scene,
-          );
+          const tip = MeshBuilder.CreateSphere(`fTip${side}${fi}`, {
+            diameter: 0.023, segments: 6,
+          }, scene);
           tip.material = darkMetalMat;
-          tip.position = new Vector3(xOff, yPos, 0.02);
-          tip.parent = parentNode;
+          tip.position = new Vector3(xOff, yOff, 0.020);
+          tip.parent = elbowNode;
         });
 
-        // Thumb — 2 segments, angled outward
-        const thumbBase = MeshBuilder.CreateSphere(
-          `thumbBase${side}`,
-          { diameter: 0.024, segments: 6 },
-          scene,
-        );
+        // [048] HANDS: Thumb — angled outward, 2-segment
+        const ts = side === 'L' ? -1 : 1;
+
+        const thumbBase = MeshBuilder.CreateSphere(`thumbBase${side}`, {
+          diameter: 0.025, segments: 6,
+        }, scene);
         thumbBase.material = jointMat;
-        thumbBase.position = new Vector3(
-          side === 'L' ? -0.075 : 0.075,
-          -0.49, 0.03,
-        );
-        thumbBase.parent = parentNode;
+        thumbBase.position = new Vector3(ts * 0.104, -0.482, 0.028);
+        thumbBase.parent = elbowNode;
 
-        const thumbSeg1 = MeshBuilder.CreateCylinder(
-          `thumbSeg1${side}`,
-          { height: 0.04, diameter: 0.022, tessellation: 8 },
-          scene,
-        );
-        thumbSeg1.material = darkMetalMat;
-        thumbSeg1.rotation.z = side === 'L' ? -0.6 : 0.6;
-        thumbSeg1.position = new Vector3(
-          side === 'L' ? -0.090 : 0.090,
-          -0.505, 0.03,
-        );
-        thumbSeg1.parent = parentNode;
+        const thumbS1 = MeshBuilder.CreateCylinder(`thumbSeg1${side}`, {
+          height: 0.040, diameter: 0.023, tessellation: 8,
+        }, scene);
+        thumbS1.material = darkMetalMat;
+        thumbS1.rotation.z = ts * -0.52;
+        thumbS1.position = new Vector3(ts * 0.120, -0.499, 0.028);
+        thumbS1.parent = elbowNode;
 
-        const thumbJoint = MeshBuilder.CreateSphere(
-          `thumbJoint${side}`,
-          { diameter: 0.020, segments: 6 },
-          scene,
-        );
-        thumbJoint.material = jointMat;
-        thumbJoint.position = new Vector3(
-          side === 'L' ? -0.105 : 0.105,
-          -0.52, 0.03,
-        );
-        thumbJoint.parent = parentNode;
+        const thumbJt = MeshBuilder.CreateSphere(`thumbJt${side}`, {
+          diameter: 0.021, segments: 6,
+        }, scene);
+        thumbJt.material = jointMat;
+        thumbJt.position = new Vector3(ts * 0.136, -0.516, 0.028);
+        thumbJt.parent = elbowNode;
 
-        const thumbSeg2 = MeshBuilder.CreateCylinder(
-          `thumbSeg2${side}`,
-          { height: 0.035, diameter: 0.020, tessellation: 8 },
-          scene,
-        );
-        thumbSeg2.material = darkMetalMat;
-        thumbSeg2.rotation.z = side === 'L' ? -0.4 : 0.4;
-        thumbSeg2.position = new Vector3(
-          side === 'L' ? -0.115 : 0.115,
-          -0.535, 0.03,
-        );
-        thumbSeg2.parent = parentNode;
+        const thumbS2 = MeshBuilder.CreateCylinder(`thumbSeg2${side}`, {
+          height: 0.034, diameter: 0.021, tessellation: 8,
+        }, scene);
+        thumbS2.material = darkMetalMat;
+        thumbS2.rotation.z = ts * -0.34;
+        thumbS2.position = new Vector3(ts * 0.146, -0.530, 0.028);
+        thumbS2.parent = elbowNode;
 
-        const thumbTip = MeshBuilder.CreateSphere(
-          `thumbTip${side}`,
-          { diameter: 0.020, segments: 6 },
-          scene,
-        );
+        const thumbTip = MeshBuilder.CreateSphere(`thumbTip${side}`, {
+          diameter: 0.019, segments: 6,
+        }, scene);
         thumbTip.material = darkMetalMat;
-        thumbTip.position = new Vector3(
-          side === 'L' ? -0.122 : 0.122,
-          -0.548, 0.03,
-        );
-        thumbTip.parent = parentNode;
+        thumbTip.position = new Vector3(ts * 0.153, -0.543, 0.028);
+        thumbTip.parent = elbowNode;
       }
 
       buildHand('L', elbowNodeL);
       buildHand('R', elbowNodeR);
 
-      // ─── HIP / WAIST ─────────────────────────────────────────────────────
+      // ══════════════════════════════════════════════════════════════════════════
+      // ── [075-079] COLLAR + NECK ───────────────────────────────────────────────
+      // ══════════════════════════════════════════════════════════════════════════
 
-      const hipBand = MeshBuilder.CreateCylinder(
-        'hipBand',
-        { height: 0.12, diameterTop: 0.62, diameterBottom: 0.58, tessellation: 24 },
-        scene,
-      );
-      hipBand.material = darkMetalMat;
-      hipBand.position.y = 0.68;
-      hipBand.parent = root;
+      // [075] COLLAR: Circular neck-band base
+      const collarBase = MeshBuilder.CreateCylinder('collarBase', {
+        height: 0.022, diameterTop: 0.352, diameterBottom: 0.388,
+        tessellation: 30,
+      }, scene);
+      collarBase.material = coatMat;
+      collarBase.position.y = 1.686;
+      collarBase.parent = root;
 
-      // Coat hem — extends below waist
-      const coatHem = MeshBuilder.CreateCylinder(
-        'coatHem',
-        { height: 0.10, diameterTop: 0.66, diameterBottom: 0.72, tessellation: 24 },
-        scene,
-      );
-      coatHem.material = coatMat;
-      coatHem.position.y = 0.72;
-      coatHem.parent = root;
+      // [076] COLLAR: Vertical stiffened wall (h=4.1cm = 0.090u)
+      const collarWall = MeshBuilder.CreateCylinder('collarWall', {
+        height: 0.090, diameterTop: 0.330, diameterBottom: 0.350,
+        tessellation: 30,
+      }, scene);
+      collarWall.material = coatMat;
+      collarWall.position.y = 1.742;
+      collarWall.parent = root;
 
-      // ─── HIP PIVOT NODES ──────────────────────────────────────────────────
+      // [077] COLLAR: Upper rim framing neck joint
+      const collarRim = MeshBuilder.CreateTorus('collarRim', {
+        diameter: 0.340, thickness: 0.020, tessellation: 30,
+      }, scene);
+      collarRim.material = coatMat;
+      collarRim.position.y = 1.790;
+      collarRim.parent = root;
 
-      const hipNodeL = new TransformNode('hipL', scene);
-      hipNodeL.position = new Vector3(-0.16, 0.66, 0);
-      hipNodeL.parent = root;
+      // [078-079] NECK: Dark blue high-density polymer strut (d=15cm = 0.330u)
+      const neckStrut = MeshBuilder.CreateCylinder('neckStrut', {
+        height: 0.145, diameterTop: 0.282, diameterBottom: 0.326,
+        tessellation: 28,
+      }, scene);
+      neckStrut.material = neckMat;
+      neckStrut.position.y = 1.890;
+      neckStrut.parent = root;
 
-      const hipNodeR = new TransformNode('hipR', scene);
-      hipNodeR.position = new Vector3(0.16, 0.66, 0);
-      hipNodeR.parent = root;
+      const neckRing = MeshBuilder.CreateTorus('neckRing', {
+        diameter: 0.305, thickness: 0.023, tessellation: 26,
+      }, scene);
+      neckRing.material = jointMat;
+      neckRing.position.y = 1.835;
+      neckRing.parent = root;
 
-      // Hip joint spheres
-      const hipJointL = MeshBuilder.CreateSphere(
-        'hipJointL',
-        { diameter: 0.14, segments: 12 },
-        scene,
-      );
-      hipJointL.material = jointMat;
-      hipJointL.parent = hipNodeL;
+      // ══════════════════════════════════════════════════════════════════════════
+      // ── [080-111] HEAD: Charcoal metallic helmet + visor + eyes ──────────────
+      // ══════════════════════════════════════════════════════════════════════════
 
-      const hipJointR = MeshBuilder.CreateSphere(
-        'hipJointR',
-        { diameter: 0.14, segments: 12 },
-        scene,
-      );
-      hipJointR.material = jointMat;
-      hipJointR.parent = hipNodeR;
+      // [080-082] HELMET: Lower chin curvature — large charcoal-grey metallic sphere
+      // [106] Forehead d=41.8cm = 0.920u
+      const head = MeshBuilder.CreateSphere('head', {
+        diameterX: 0.976, diameterY: 0.884, diameterZ: 0.936,
+        segments: 56,
+      }, scene);
+      head.material = helmetMat;
+      head.position.y = 0.076;
+      head.parent = headNode;
+      glow.addIncludedOnlyMesh(head as Mesh);
 
-      // ─── UPPER LEGS ───────────────────────────────────────────────────────
+      // Chin extension
+      const helmetChin = MeshBuilder.CreateSphere('helmetChin', {
+        diameterX: 0.755, diameterY: 0.388, diameterZ: 0.714,
+        segments: 32,
+      }, scene);
+      helmetChin.material = helmetMat;
+      helmetChin.position = new Vector3(0, -0.208, 0.020);
+      helmetChin.parent = headNode;
 
-      const upperLegL = MeshBuilder.CreateCylinder(
-        'upperLegL',
-        { height: 0.34, diameterTop: 0.14, diameterBottom: 0.12, tessellation: 20 },
-        scene,
-      );
-      upperLegL.material = darkMetalMat;
-      upperLegL.position.y = -0.22;
-      upperLegL.parent = hipNodeL;
+      // [105] Brow ridge
+      const visorBrow = MeshBuilder.CreateBox('visorBrow', {
+        width: 0.636, height: 0.072, depth: 0.125,
+      }, scene);
+      visorBrow.material = helmetMat;
+      visorBrow.position = new Vector3(0, 0.275, 0.208);
+      visorBrow.rotation.x = -0.068;
+      visorBrow.parent = headNode;
 
-      const upperLegR = MeshBuilder.CreateCylinder(
-        'upperLegR',
-        { height: 0.34, diameterTop: 0.14, diameterBottom: 0.12, tessellation: 20 },
-        scene,
-      );
-      upperLegR.material = darkMetalMat;
-      upperLegR.position.y = -0.22;
-      upperLegR.parent = hipNodeR;
+      // Jaw panel
+      const jawPanel = MeshBuilder.CreateBox('jawPanel', {
+        width: 0.456, height: 0.112, depth: 0.112,
+      }, scene);
+      jawPanel.material = helmetMat;
+      jawPanel.position = new Vector3(0, -0.176, 0.246);
+      jawPanel.rotation.x = 0.108;
+      jawPanel.parent = headNode;
 
-      // ─── KNEE PIVOT NODES ─────────────────────────────────────────────────
+      // [107-111] Head crest / crown piece
+      const headCrest = MeshBuilder.CreateBox('headCrest', {
+        width: 0.110, height: 0.158, depth: 0.378,
+      }, scene);
+      headCrest.material = helmetMat;
+      headCrest.position = new Vector3(0, 0.442, -0.022);
+      headCrest.rotation.x = -0.098;
+      headCrest.parent = headNode;
 
-      const kneeNodeL = new TransformNode('kneeL', scene);
-      kneeNodeL.position = new Vector3(0, -0.40, 0);
-      kneeNodeL.parent = hipNodeL;
+      // [088-091] EAR-PODS: Horizontal cylinder side-mounts (d=7cm=0.154u, protrusion=4.2cm=0.092u)
+      function buildEarPod(side: 'L' | 'R') {
+        const xs = side === 'L' ? -1 : 1;
+        const xPos = xs * 0.494;
 
-      const kneeNodeR = new TransformNode('kneeR', scene);
-      kneeNodeR.position = new Vector3(0, -0.40, 0);
-      kneeNodeR.parent = hipNodeR;
+        // Main ear-pod cylinder
+        const earPod = MeshBuilder.CreateCylinder(`earPod${side}`, {
+          height: 0.094, diameter: 0.154, tessellation: 28,
+        }, scene);
+        earPod.material = helmetMat;
+        earPod.rotation.z = Math.PI / 2;
+        earPod.position = new Vector3(xPos, 0.036, 0.010);
+        earPod.parent = headNode;
 
-      // Knee joint spheres
-      const kneeJL = MeshBuilder.CreateSphere(
-        'kneeJL',
-        { diameter: 0.12, segments: 12 },
-        scene,
-      );
-      kneeJL.material = jointMat;
-      kneeJL.parent = kneeNodeL;
+        // [089] 3 Concentric ring grooves on ear-pod outer face
+        for (let ei = 0; ei < 3; ei++) {
+          const groove = MeshBuilder.CreateTorus(`earGroove${side}_${ei}`, {
+            diameter: 0.114 - ei * 0.034, thickness: 0.007, tessellation: 24,
+          }, scene);
+          groove.material = jointMat;
+          groove.rotation.z = Math.PI / 2;
+          groove.position = new Vector3(xPos + xs * 0.050, 0.036, 0.010);
+          groove.parent = headNode;
+        }
 
-      const kneeJR = MeshBuilder.CreateSphere(
-        'kneeJR',
-        { diameter: 0.12, segments: 12 },
-        scene,
-      );
-      kneeJR.material = jointMat;
-      kneeJR.parent = kneeNodeR;
+        // Ear-pod base mounting ring
+        const earBase = MeshBuilder.CreateTorus(`earBase${side}`, {
+          diameter: 0.163, thickness: 0.016, tessellation: 24,
+        }, scene);
+        earBase.material = jointMat;
+        earBase.rotation.z = Math.PI / 2;
+        earBase.position = new Vector3(xs * 0.452, 0.036, 0.010);
+        earBase.parent = headNode;
+      }
 
-      // ─── LOWER LEGS ───────────────────────────────────────────────────────
+      buildEarPod('L');
+      buildEarPod('R');
 
-      const lowerLegL = MeshBuilder.CreateCylinder(
-        'lowerLegL',
-        { height: 0.30, diameterTop: 0.11, diameterBottom: 0.10, tessellation: 20 },
-        scene,
-      );
-      lowerLegL.material = darkMetalMat;
-      lowerLegL.position.y = -0.18;
-      lowerLegL.parent = kneeNodeL;
+      // [084-087] VISOR: Dark purple/black curved glass ellipse
+      // [085] Convex radius ≈ 24.1cm = 0.530u — large prominent window
+      const visor = MeshBuilder.CreateSphere('visor', {
+        diameterX: 0.840, diameterY: 0.634, diameterZ: 0.275,
+        segments: 40,
+      }, scene);
+      visor.material = visorMat;
+      visor.position = new Vector3(0, 0.054, 0.330);
+      visor.parent = headNode;
+      glow.addIncludedOnlyMesh(visor as Mesh);
 
-      const shinPanelL = MeshBuilder.CreateBox(
-        'shinPanelL',
-        { width: 0.12, height: 0.18, depth: 0.05 },
-        scene,
-      );
-      shinPanelL.material = badgeMat;
-      shinPanelL.position = new Vector3(0, -0.20, 0.08);
-      shinPanelL.rotation.x = 0.1;
-      shinPanelL.parent = kneeNodeL;
+      // Visor rubber gasket seals — top and bottom black rubberized interface
+      for (const [vy, ry] of [[-0.268, 0.10], [0.295, -0.10]] as [number, number][]) {
+        const gasket = MeshBuilder.CreateTorus(`visorGasket${vy > 0 ? 'T' : 'B'}`, {
+          diameter: 0.770 - Math.abs(vy) * 0.18,
+          thickness: 0.016,
+          tessellation: 38,
+        }, scene);
+        gasket.material = jointMat;
+        gasket.position = new Vector3(0, 0.054 + vy * 0.58, 0.296);
+        gasket.rotation.x = ry * 0.14;
+        gasket.parent = headNode;
+      }
 
-      const lowerLegR = MeshBuilder.CreateCylinder(
-        'lowerLegR',
-        { height: 0.30, diameterTop: 0.11, diameterBottom: 0.10, tessellation: 20 },
-        scene,
-      );
-      lowerLegR.material = darkMetalMat;
-      lowerLegR.position.y = -0.18;
-      lowerLegR.parent = kneeNodeR;
+      // [092-093] VISOR: Internal OLED active display screen
+      const screenPlane = MeshBuilder.CreateSphere('screen', {
+        diameterX: 0.732, diameterY: 0.524, diameterZ: 0.090,
+        segments: 30,
+      }, scene);
+      screenPlane.material = screenMat;
+      screenPlane.position = new Vector3(0, 0.054, 0.336);
+      screenPlane.parent = headNode;
+      glow.addIncludedOnlyMesh(screenPlane as Mesh);
 
-      const shinPanelR = MeshBuilder.CreateBox(
-        'shinPanelR',
-        { width: 0.12, height: 0.18, depth: 0.05 },
-        scene,
-      );
-      shinPanelR.material = badgeMat;
-      shinPanelR.position = new Vector3(0, -0.20, 0.08);
-      shinPanelR.rotation.x = 0.1;
-      shinPanelR.parent = kneeNodeR;
+      // [094-101] EYES: Glowing Lemniscate / Infinity Symbol (∞)
+      // [095] Left loop = ORANGE · Right loop = BLUE
+      // [097] Combined span 18.4cm = 0.405u → each center at ±0.108u
+      // Loops use scale.y < 1 to create authentic ∞ elliptical shape
 
-      // Leg segment ring accents
-      const legRingL = MeshBuilder.CreateTorus(
-        'legRingL',
-        { diameter: 0.12, thickness: 0.012, tessellation: 16 },
-        scene,
-      );
-      legRingL.material = jointMat;
-      legRingL.position.y = -0.10;
-      legRingL.parent = kneeNodeL;
+      // Left eye — orange loop
+      const infL = MeshBuilder.CreateTorus('infL', {
+        diameter: 0.232, thickness: 0.040, tessellation: 56,
+      }, scene);
+      infL.material = eyeGoldMat;
+      infL.rotation.x = Math.PI / 2;
+      infL.scaling.y = 0.74;
+      infL.position = new Vector3(-0.108, 0.066, 0.422);
+      infL.parent = headNode;
+      glow.addIncludedOnlyMesh(infL as Mesh);
 
-      const legRingR = MeshBuilder.CreateTorus(
-        'legRingR',
-        { diameter: 0.12, thickness: 0.012, tessellation: 16 },
-        scene,
-      );
-      legRingR.material = jointMat;
-      legRingR.position.y = -0.10;
-      legRingR.parent = kneeNodeR;
+      const eyeDiscL = MeshBuilder.CreateDisc('eyeDiscL', {
+        radius: 0.073, tessellation: 28,
+      }, scene);
+      eyeDiscL.material = eyeGoldMat;
+      eyeDiscL.scaling.y = 0.74;
+      eyeDiscL.position = new Vector3(-0.108, 0.066, 0.428);
+      eyeDiscL.parent = headNode;
+      glow.addIncludedOnlyMesh(eyeDiscL as Mesh);
 
-      // ─── BOOTS (chunky, rounded, dark glossy) ─────────────────────────────
+      // Right eye — blue loop
+      const infR = MeshBuilder.CreateTorus('infR', {
+        diameter: 0.232, thickness: 0.040, tessellation: 56,
+      }, scene);
+      infR.material = eyeCyanMat;
+      infR.rotation.x = Math.PI / 2;
+      infR.scaling.y = 0.74;
+      infR.position = new Vector3(0.108, 0.066, 0.422);
+      infR.parent = headNode;
+      glow.addIncludedOnlyMesh(infR as Mesh);
 
-      // Ankle joint
-      const ankleL = MeshBuilder.CreateSphere(
-        'ankleL',
-        { diameter: 0.10, segments: 10 },
-        scene,
-      );
-      ankleL.material = jointMat;
-      ankleL.position = new Vector3(0, -0.36, 0);
-      ankleL.parent = kneeNodeL;
+      const eyeDiscR = MeshBuilder.CreateDisc('eyeDiscR', {
+        radius: 0.073, tessellation: 28,
+      }, scene);
+      eyeDiscR.material = eyeCyanMat;
+      eyeDiscR.scaling.y = 0.74;
+      eyeDiscR.position = new Vector3(0.108, 0.066, 0.428);
+      eyeDiscR.parent = headNode;
+      glow.addIncludedOnlyMesh(eyeDiscR as Mesh);
 
-      const ankleR = MeshBuilder.CreateSphere(
-        'ankleR',
-        { diameter: 0.10, segments: 10 },
-        scene,
-      );
-      ankleR.material = jointMat;
-      ankleR.position = new Vector3(0, -0.36, 0);
-      ankleR.parent = kneeNodeR;
+      // [098] EYES: Crossover point of ∞ — warm white convergence glow
+      const eyeCenterMat = new PBRMaterial('eyeCenter', scene);
+      eyeCenterMat.albedoColor = new Color3(1.0, 0.95, 0.84);
+      eyeCenterMat.emissiveColor = new Color3(1.0, 0.88, 0.65);
+      eyeCenterMat.metallic = 0;
+      eyeCenterMat.roughness = 1;
 
-      // Boot body — chunky rounded form
-      const bootBodyL = MeshBuilder.CreateSphere(
-        'bootBodyL',
-        { diameterX: 0.26, diameterY: 0.22, diameterZ: 0.34, segments: 20 },
-        scene,
-      );
-      bootBodyL.material = bootMat;
-      bootBodyL.position = new Vector3(0, -0.42, 0.04);
-      bootBodyL.parent = kneeNodeL;
-
-      const bootBodyR = MeshBuilder.CreateSphere(
-        'bootBodyR',
-        { diameterX: 0.26, diameterY: 0.22, diameterZ: 0.34, segments: 20 },
-        scene,
-      );
-      bootBodyR.material = bootMat;
-      bootBodyR.position = new Vector3(0, -0.42, 0.04);
-      bootBodyR.parent = kneeNodeR;
-
-      // Boot sole — flat bottom
-      const bootSoleL = MeshBuilder.CreateCylinder(
-        'bootSoleL',
-        { height: 0.04, diameterTop: 0.24, diameterBottom: 0.26, tessellation: 20 },
-        scene,
-      );
-      bootSoleL.material = bootMat;
-      bootSoleL.position = new Vector3(0, -0.52, 0.04);
-      bootSoleL.parent = kneeNodeL;
-
-      const bootSoleR = MeshBuilder.CreateCylinder(
-        'bootSoleR',
-        { height: 0.04, diameterTop: 0.24, diameterBottom: 0.26, tessellation: 20 },
-        scene,
-      );
-      bootSoleR.material = bootMat;
-      bootSoleR.position = new Vector3(0, -0.52, 0.04);
-      bootSoleR.parent = kneeNodeR;
-
-      // Boot toe cap — rounded front
-      const bootToeL = MeshBuilder.CreateSphere(
-        'bootToeL',
-        { diameterX: 0.22, diameterY: 0.18, diameterZ: 0.14, segments: 14 },
-        scene,
-      );
-      bootToeL.material = bootMat;
-      bootToeL.position = new Vector3(0, -0.44, 0.18);
-      bootToeL.parent = kneeNodeL;
-
-      const bootToeR = MeshBuilder.CreateSphere(
-        'bootToeR',
-        { diameterX: 0.22, diameterY: 0.18, diameterZ: 0.14, segments: 14 },
-        scene,
-      );
-      bootToeR.material = bootMat;
-      bootToeR.position = new Vector3(0, -0.44, 0.18);
-      bootToeR.parent = kneeNodeR;
+      const infCenter = MeshBuilder.CreateSphere('infCenter', {
+        diameter: 0.038, segments: 10,
+      }, scene);
+      infCenter.material = eyeCenterMat;
+      infCenter.position = new Vector3(0, 0.066, 0.426);
+      infCenter.parent = headNode;
+      glow.addIncludedOnlyMesh(infCenter as Mesh);
 
       // ─── GROUND SHADOW ────────────────────────────────────────────────────
 
-      const shadowDisc = MeshBuilder.CreateDisc(
-        'shadow',
-        { radius: 0.6, tessellation: 32 },
-        scene,
-      );
+      const shadowDisc = MeshBuilder.CreateDisc('shadow', {
+        radius: 0.640, tessellation: 36,
+      }, scene);
       const shadowMat = new PBRMaterial('shadowMat', scene);
       shadowMat.albedoColor = new Color3(0, 0, 0);
-      shadowMat.alpha = 0.22;
+      shadowMat.alpha = 0.20;
       shadowMat.metallic = 0;
       shadowMat.roughness = 1;
       shadowDisc.material = shadowMat;
       shadowDisc.rotation.x = Math.PI / 2;
-      shadowDisc.position = new Vector3(0, -0.05, 0);
+      shadowDisc.position = new Vector3(0, -0.285, 0);
       shadowDisc.parent = root;
 
       // ─── GILDED GHOST ORBIT ───────────────────────────────────────────────
@@ -1555,14 +1510,15 @@ export default function DrEamsBabylonHero({
           (0.02 + emissiveBoost * 0.06) * emissiveGate,
           (0.03 + emissiveBoost * 0.05) * emissiveGate,
         );
+        // [095] Left eye = orange, Right eye = blue (per spec)
         eyeGoldMat.emissiveColor = new Color3(
-          (1.0 + emissiveBoost * 0.2) * (0.6 + emissiveGate * 0.4),
-          (0.72 + emissiveBoost * 0.08) * (0.6 + emissiveGate * 0.4),
+          (1.0 + emissiveBoost * 0.15) * (0.6 + emissiveGate * 0.4),
+          (0.48 + emissiveBoost * 0.05) * (0.6 + emissiveGate * 0.4),
           0,
         );
         eyeCyanMat.emissiveColor = new Color3(
-          0,
-          (0.80 + emissiveBoost * 0.08) * (0.6 + emissiveGate * 0.4),
+          0.05 * (0.6 + emissiveGate * 0.4),
+          (0.44 + emissiveBoost * 0.05) * (0.6 + emissiveGate * 0.4),
           (1.0 + emissiveBoost * 0.05) * (0.6 + emissiveGate * 0.4),
         );
 

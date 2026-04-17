@@ -8,6 +8,18 @@ All notable changes to DREAMengin are documented in this file.
 
 ---
 
+## [Unreleased]
+
+### Changed
+
+- **SICC principle update** — "Stylized" replaced with "Synchronized" in the SICC framework.
+  The new SICC stands for: **Synchronized**, Intuitive, Coherent, Cohesive.
+  *Synchronized* emphasizes real-time coordination across runtimes, shared state, collaborative
+  actions, and immediate feedback — replacing the prior focus on visual decoration.
+  See `docs/PRINCIPLES_UPDATE.md` for full rationale.
+
+---
+
 ## [2.0.0] — 2026-03-25
 
 **"One Product"** — DREAMengin v2.0.0 closes all multi-generation structural partials and ships as a single coherent runtime environment.
@@ -37,7 +49,7 @@ All notable changes to DREAMengin are documented in this file.
 - `app/codespace/page.tsx` — was CodeSpace IDE; now `redirect('/daydream/code')`
 - `app/physics-lab/page.tsx` — was PhysicsLab; now `redirect('/daydream/lab')`
 - `app/join/page.tsx` — email signup redirects to `/onboarding`; OAuth sets `?next=/onboarding` on callback
-- `components/messaging/DreamDMBar.tsx` — `dreams` surface routes to `toggleDrEams()` (not `/dreamengin`); `code` → `/daydream/code`; `music` → `/daydream/music`
+- `dreamdmbar/DreamDMBar.tsx` — `dreams` surface routes to `toggleDrEams()` (not `/dreamengin`); `code` → `/daydream/code`; `music` → `/daydream/music`
 - `components/home/WorkspaceDashboard.tsx` — quick-action pills: "DreamProfile" → "Edit ProfileDream", "Feed" → "Discover", "Your Dreams" → "View Profile"
 - `lib/adari.ts` — REQUIRED_PATHS updated to v2 canonical files; version check added
 - `scripts/postbuild.js` — same

@@ -378,3 +378,40 @@ export function generateCodeFromCommand(cmd: NLCommand, language: CellLanguage):
   const template = TEMPLATES[cmd.type];
   return template ? template(cmd, language) : `# TODO: implement "${cmd.subject ?? 'task'}"`;
 }
+
+// ─── Helper: extract fenced code blocks as plain strings ──────────────────────
+
+function parseCodeBlocks(raw: string): string[] {
+  return parseCodeResponse(raw).codeBlocks.map((b) => b.code);
+}
+
+/**
+ * Call Dr. Eams /api/ai/eams with a CODE_ASSIST intent for inline completions.
+ * Returns the completion string or null on failure.
+ * Privacy: only sends the active cell content (max 2000 chars), never the full codebase.
+ */
+export async function getCodeAssistCompletion(
+  prompt: string,
+  language: CellLanguage,
+  cellContext: string,
+): Promise<string | null> {
+  try {
+    const res = await fetch('/api/ai/eams', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        intent: 'CODE_ASSIST',
+        prompt,
+        language,
+        context: cellContext.slice(0, 2000),
+      }),
+    });
+    if (!res.ok) return null;
+    const data = await res.json() as { reply?: string; text?: string };
+    const raw = data.reply ?? data.text ?? '';
+    const blocks = parseCodeBlocks(raw);
+    return blocks.length > 0 ? blocks[0] : raw.trim() || null;
+  } catch {
+    return null;
+  }
+}

@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-12T17:36:36.457Z",
+  "generated_at": "2026-04-16T18:48:12.837Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 89,
+  "count": 98,
   "actions": [
     {
       "file": "app/api/account/delete-data/route.ts",
@@ -24,6 +24,14 @@
       "type": "api-route-handler",
       "http_handlers": [
         "GET"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/activity/track/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
       ],
       "exports": []
     },
@@ -70,6 +78,22 @@
     },
     {
       "file": "app/api/ads/orders/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/ads/view/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/agent/session/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
         "POST"
@@ -129,14 +153,6 @@
       "type": "api-route-handler",
       "http_handlers": [
         "POST"
-      ],
-      "exports": []
-    },
-    {
-      "file": "app/api/analytics/route.ts",
-      "type": "api-route-handler",
-      "http_handlers": [
-        "GET"
       ],
       "exports": []
     },
@@ -535,6 +551,30 @@
       "exports": []
     },
     {
+      "file": "app/api/metrics/platform/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/metrics/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/metrics/user/[userId]/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
+      ],
+      "exports": []
+    },
+    {
       "file": "app/api/music/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
@@ -707,6 +747,30 @@
       "exports": []
     },
     {
+      "file": "app/api/skip-credits/balance/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/skip-credits/earn/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/skip-credits/use/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": []
+    },
+    {
       "file": "app/api/social/rss-feed/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
@@ -716,6 +780,14 @@
     },
     {
       "file": "app/api/upload/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/views/track/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
         "POST"

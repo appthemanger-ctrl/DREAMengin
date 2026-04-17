@@ -40,6 +40,7 @@ node_modules/
 
 # AI agent generated artefacts (context snapshots, spec proposals, patches)
 .github/generated/
+DREAMengin-full-code.txt
 
 # Python bytecode
 __pycache__/

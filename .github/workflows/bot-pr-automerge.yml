@@ -1,0 +1,268 @@
+name: Bot PR — Approve, Resolve Conflicts & Auto-Merge
+
+# Approves every PR opened by a known dependency/automation bot,
+# resolves any merge conflicts by accepting the current base-branch
+# version (--ours strategy), then enables auto-merge so the PR lands
+# as soon as required status checks pass.
+#
+# Supported bots:
+#   dependabot[bot], renovate[bot], github-actions[bot],
+#   snyk-bot, whitesource-bolt-for-github[bot], deepsource-autofix[bot]
+#
+# Manual sweep: workflow_dispatch → leave pr_number blank to process
+# every currently-open bot PR, or fill it in to target one PR.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: >
+          PR number to process (leave blank to sweep all open bot PRs)
+        required: false
+        default: ''
+
+concurrency:
+  group: bot-automerge-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Helpers used across steps
+# ─────────────────────────────────────────────────────────────────────────────
+env:
+  BOT_LOGINS: >-
+    dependabot[bot]
+    renovate[bot]
+    github-actions[bot]
+    snyk-bot
+    whitesource-bolt-for-github[bot]
+    deepsource-autofix[bot]
+  GIT_USER_NAME: "github-actions[bot]"
+  GIT_USER_EMAIL: "github-actions[bot]@users.noreply.github.com"
+
+jobs:
+  # ───────────────────────────────────────────────────────────────────────────
+  # 1.  Decide whether this run is for a single PR or a batch sweep.
+  #     Outputs a JSON array of PR numbers to process.
+  # ───────────────────────────────────────────────────────────────────────────
+  gather:
+    name: Gather bot PRs
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.build.outputs.matrix }}
+
+    steps:
+      - name: Build PR matrix
+        id: build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_PR_NUMBER: ${{ github.event.pull_request.number }}
+          EVENT_PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          INPUT_PR_NUMBER: ${{ github.event.inputs.pr_number }}
+        run: |
+          set -euo pipefail
+
+          is_bot() {
+            local login="$1"
+            for bot in $BOT_LOGINS; do
+              if [[ "$login" == "$bot" ]]; then return 0; fi
+            done
+            return 1
+          }
+
+          numbers=()
+
+          if [[ "$EVENT_NAME" == "pull_request" ]]; then
+            # Triggered by a PR event — only proceed if author is a known bot.
+            if is_bot "$EVENT_PR_AUTHOR"; then
+              numbers=("$EVENT_PR_NUMBER")
+            fi
+
+          elif [[ -n "$INPUT_PR_NUMBER" ]]; then
+            # Manual dispatch with a specific PR number.
+            numbers=("$INPUT_PR_NUMBER")
+
+          else
+            # Manual dispatch sweep — fetch all open PRs by known bots.
+            while IFS= read -r row; do
+              pr_num=$(echo "$row" | jq -r '.number')
+              pr_author=$(echo "$row" | jq -r '.author.login')
+              if is_bot "$pr_author"; then
+                numbers+=("$pr_num")
+              fi
+            done < <(
+              gh pr list \
+                --repo "$REPO" \
+                --state open \
+                --json number,author \
+                --limit 100
+            )
+          fi
+
+          if [[ ${#numbers[@]} -eq 0 ]]; then
+            echo "No bot PRs found — nothing to do."
+            echo 'matrix={"pr":[]}' >> "$GITHUB_OUTPUT"
+          else
+            json_array=$(printf '%s\n' "${numbers[@]}" | jq -R '.' | jq -sc '.')
+            echo "matrix={\"pr\":$json_array}" >> "$GITHUB_OUTPUT"
+            echo "Will process PRs: ${numbers[*]}"
+          fi
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # 2.  For each PR: resolve conflicts (if any), approve, enable auto-merge.
+  # ───────────────────────────────────────────────────────────────────────────
+  process:
+    name: Process PR #${{ matrix.pr }}
+    needs: gather
+    if: ${{ fromJson(needs.gather.outputs.matrix).pr[0] != null }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.gather.outputs.matrix) }}
+      max-parallel: 4
+      fail-fast: false
+
+    steps:
+      - name: Fetch PR metadata
+        id: meta
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ matrix.pr }}
+        run: |
+          set -euo pipefail
+          data=$(gh pr view "$PR" --repo "$REPO" \
+            --json headRefName,baseRefName,mergeable,state,headRepositoryOwner,headRepository)
+
+          head_ref=$(echo "$data" | jq -r '.headRefName')
+          base_ref=$(echo "$data" | jq -r '.baseRefName')
+          mergeable=$(echo "$data" | jq -r '.mergeable')
+          state=$(echo "$data" | jq -r '.state')
+          head_owner=$(echo "$data" | jq -r '.headRepositoryOwner.login')
+          head_repo=$(echo "$data" | jq -r '.headRepository.name')
+
+          echo "head_ref=$head_ref"   >> "$GITHUB_OUTPUT"
+          echo "base_ref=$base_ref"   >> "$GITHUB_OUTPUT"
+          echo "mergeable=$mergeable" >> "$GITHUB_OUTPUT"
+          echo "state=$state"         >> "$GITHUB_OUTPUT"
+          echo "head_owner=$head_owner" >> "$GITHUB_OUTPUT"
+          echo "head_repo=$head_repo"   >> "$GITHUB_OUTPUT"
+
+          echo "PR #$PR: head=$head_ref base=$base_ref mergeable=$mergeable state=$state"
+
+      - name: Skip closed / already-merged PRs
+        if: steps.meta.outputs.state != 'OPEN'
+        run: |
+          echo "PR #${{ matrix.pr }} is ${{ steps.meta.outputs.state }} — skipping."
+          exit 0
+
+      - name: Checkout PR branch (full history for rebase/merge)
+        uses: actions/checkout@v4
+        with:
+          # Check out the PR head branch directly.
+          ref: ${{ steps.meta.outputs.head_ref }}
+          # Full history so we can rebase / merge without shallow-clone issues.
+          fetch-depth: 0
+          # Use the workflow token so we can push back.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name  "$GIT_USER_NAME"
+          git config user.email "$GIT_USER_EMAIL"
+
+      - name: Fetch base branch
+        run: |
+          git fetch origin ${{ steps.meta.outputs.base_ref }}:refs/remotes/origin/${{ steps.meta.outputs.base_ref }}
+
+      - name: Resolve merge conflicts (if any)
+        id: resolve
+        env:
+          BASE: ${{ steps.meta.outputs.base_ref }}
+          PR: ${{ matrix.pr }}
+        run: |
+          set -euo pipefail
+
+          BASE_REMOTE="origin/$BASE"
+
+          # Check whether the branches have diverged.
+          if git merge-base --is-ancestor HEAD "$BASE_REMOTE"; then
+            echo "PR branch is behind base — fast-forward possible, no conflict resolution needed."
+            echo "resolved=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Attempt a dry-run merge to see if conflicts exist.
+          if git merge --no-commit --no-ff "$BASE_REMOTE" 2>/dev/null; then
+            echo "No conflicts detected. Aborting dry-run merge."
+            git merge --abort 2>/dev/null || git reset --hard HEAD
+            echo "resolved=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Conflicts detected — resolving by accepting current repo (base) version."
+
+          # Accept the base (current repo) version for every conflicted file.
+          conflicted=$(git diff --name-only --diff-filter=U)
+          echo "Conflicted files:"
+          echo "$conflicted"
+
+          # --ours during a merge-in-progress means the branch we merged INTO,
+          # which is our PR branch. We want the BASE version, so use --theirs.
+          # (We are ON the PR branch; "theirs" = base we merged in.)
+          echo "$conflicted" | xargs -r git checkout --theirs --
+
+          git add -A
+
+          git commit \
+            -m "chore(bot-merge): resolve conflicts with base ($BASE) [skip ci] [skip vercel]" \
+            --no-verify
+
+          echo "resolved=true" >> "$GITHUB_OUTPUT"
+
+      - name: Push resolved branch (if conflicts were fixed)
+        if: steps.resolve.outputs.resolved == 'true'
+        run: |
+          git push origin HEAD:${{ steps.meta.outputs.head_ref }}
+
+      - name: Approve PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ matrix.pr }}
+        run: |
+          set -euo pipefail
+          # gh pr review errors if you try to approve your own PR — catch that.
+          gh pr review "$PR" \
+            --repo "$REPO" \
+            --approve \
+            --body "✅ Auto-approved by **bot-pr-automerge** workflow. Conflicts (if any) resolved by accepting base-branch version." \
+            || echo "::warning::Could not approve PR #$PR (may be a self-review or already approved — continuing)."
+
+      - name: Enable auto-merge (squash)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR: ${{ matrix.pr }}
+        run: |
+          set -euo pipefail
+          # Enable auto-merge so the PR merges as soon as required checks pass.
+          # Falls back gracefully if auto-merge is disabled on the repo.
+          gh pr merge "$PR" \
+            --repo "$REPO" \
+            --auto \
+            --squash \
+            || echo "::warning::Auto-merge not available for PR #$PR — attempting immediate merge."
+
+          # If auto-merge isn't allowed, try a direct merge.
+          gh pr merge "$PR" \
+            --repo "$REPO" \
+            --squash \
+            2>/dev/null \
+            || echo "::notice::PR #$PR queued for auto-merge or already merged."

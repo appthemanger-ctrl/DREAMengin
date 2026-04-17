@@ -1,11 +1,7 @@
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 import LandingHero from '@/components/LandingHero';
-
-// ── No `force-dynamic` — this page has zero server-side data dependencies.
-// Next.js will statically generate it at build time, allowing CDN caching and
-// eliminating a full SSR round-trip on every visitor request.
-// Architecture justification: ARCHITECTURE.md §10 (build/runtime assumptions —
-// prefer static where possible); THEME.md (performance is a design value).
+import { isDevBypassActive } from '@/lib/dev-bypass';
 
 // Resolve the site origin from env so OG image URLs are absolute.
 // Falls back to the production domain when the env var is absent (CI / prod).
@@ -55,5 +51,12 @@ export const metadata: Metadata = {
 };
 
 export default function Root() {
+  // Dev-bypass redirect is sync — no loading spinner triggered
+  if (isDevBypassActive()) {
+    redirect('/homedream');
+  }
+
+  // Render landing page immediately; authenticated users are redirected
+  // client-side by LandingHero to avoid blocking on Supabase auth.
   return <LandingHero />;
 }

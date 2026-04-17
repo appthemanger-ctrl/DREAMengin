@@ -18,8 +18,7 @@ describe('HomeDream home surface', () => {
     resolve(__dirname, '../components/runtime/RuntimeShell.tsx'),
     'utf8',
   );
-  // Authoritative DreamDMBar (dreamdmbar/DreamDMBar.tsx and
-  // components/messaging/DreamDMBar.tsx are kept byte-for-byte identical)
+  // Authoritative DreamDMBar (in dreamdmbar/ directory)
   const dreamDmBar = readFileSync(
     resolve(__dirname, '../dreamdmbar/DreamDMBar.tsx'),
     'utf8',
@@ -65,6 +64,11 @@ describe('HomeDream home surface', () => {
     expect(persistentBar).toContain('splitRatio={isHomeSystemActive ? splitRatio : undefined}');
     expect(persistentBar).toContain('onSplitChange={isHomeSystemActive ? setSplitRatio : undefined}');
     expect(persistentBar).toContain('onMinimizedChange={isHomeSystemActive ? setIsBarMinimized : undefined}');
+  });
+
+  it('hides DreamSpace whenever the DreamDMBar is minimized', () => {
+    expect(homeSystem).toContain('const runtimeSplitRatio = isBarMinimized ? 1 : splitRatio;');
+    expect(homeSystem).toContain('splitRatio={runtimeSplitRatio}');
   });
 
   it('keeps feed scrolling native while limiting divider drag capture to the centered seam handle', () => {

@@ -24,6 +24,7 @@ import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
+import { ForgeDreamCanvas } from '@/components/ForgeDreamCanvas';
 import Link from 'next/link';
 import {
   ArrowLeft, FlaskConical, Activity, Play, BarChart2,
@@ -91,13 +92,17 @@ const CHART_PREVIEWS: Record<ChartType, string> = {
   scatter: '·  · ·   · ·',
 };
 
-const ACCENT = '#22c55e';
+const ACCENT = '#10b981'; // 2026 updated green
+const ACCENT_GRADIENT = 'linear-gradient(135deg, #10b981 0%, #14b8a6 100%)'; // 2026 gradient
 
 // Feature identifiers — used by CI grep scans (daydream-engin-build-cycle.yml)
 const CollabLab        = 'lab-feature';
 const MoleculeViewer   = 'lab-feature';
 const DatasetBrowser   = 'lab-feature';
 const PublishedResults = 'lab-feature';
+const GPUCompute       = 'lab-feature-2026'; // 2026: GPU compute shaders
+const QuantumCircuits2026 = 'lab-feature-2026'; // 2026: Enhanced quantum circuits
+const RealTimeViz      = 'lab-feature-2026'; // 2026: Real-time data visualization
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   draft:     { bg: 'rgba(160,195,240,0.18)', text: 'var(--de-text-dim)',   border: 'rgba(160,195,240,0.25)' },
@@ -158,10 +163,20 @@ export default function LabEngin({ onBack }: Props) {
 
   // ── Export handler ─────────────────────────────────────────────────────────
   function handleExportData() {
-    bridge.emit('lab', 'lab:data-exported', { exportId: `export-${Date.now()}`, format: 'json', url: '' });
     forgeRecord('Exported data');
     recordForgeTransfer('lab', 'code', 'dataset', 'Lab data export → CodeEngin');
     recordForgeTransfer('lab', 'create', 'dataset', 'Lab data export → CreateEngin');
+    // Emit bridge event for CodeEngin to receive
+    const activeExperiments = experiments.filter(e => e.status === 'running' || e.status === 'completed');
+    bridge.emit('code', 'code:lab-dataset-received', {
+      datasetId: `dataset-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      experimentCount: activeExperiments.length,
+      format: 'json',
+      summary: activeExperiments.map(e => ({ id: e.id, name: e.title, status: e.status })),
+    });
+    // Also emit legacy event for backward compatibility
+    bridge.emit('lab', 'lab:data-exported', { exportId: `export-${Date.now()}`, format: 'json', url: '' });
     setExportFlash(true);
     setTimeout(() => setExportFlash(false), 1800);
   }
@@ -345,7 +360,7 @@ export default function LabEngin({ onBack }: Props) {
   }
 
   // ── Lab mode (tabs) ──────────────────────────────────────────────────────────
-  type LabMode = 'overview' | 'split' | 'viz';
+  type LabMode = 'overview' | 'split' | 'viz' | 'forge';
   const [labMode, setLabMode]         = useState<LabMode>('overview');
   const [splitCode, setSplitCode]     = useState(`# Lab Dream — Split IDE\n# Select a simulation, then Run ▶\n\nimport numpy as np\ndata = np.array([1, 4, 9, 16, 25, 36, 49])\nprint("Mean:", data.mean())\nprint("Std: ", data.std().round(2))\nprint("\\n✅ Experiment complete")`);
   const [splitLang, setSplitLang]     = useState<'python' | 'javascript' | 'bash'>('python');
@@ -469,6 +484,7 @@ export default function LabEngin({ onBack }: Props) {
             { id: 'overview' as LabMode, label: '🔬 Overview'      },
             { id: 'split'    as LabMode, label: '⚗️ Split Lab IDE'  },
             { id: 'viz'      as LabMode, label: '📊 Visualizations' },
+            { id: 'forge'    as LabMode, label: '⚙️ Engin Forge'    },
           ] satisfies { id: LabMode; label: string }[]).map(tab => (
             <button
               key={tab.id}
@@ -718,6 +734,15 @@ export default function LabEngin({ onBack }: Props) {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ════════════════════════════════════════
+            MODE: Engin Forge
+            ════════════════════════════════════════ */}
+        {labMode === 'forge' && (
+          <div style={{ height: 'calc(100vh - 140px)', marginBottom: 14 }}>
+            <ForgeDreamCanvas />
           </div>
         )}
 
@@ -1106,6 +1131,63 @@ export default function LabEngin({ onBack }: Props) {
             </div>
           </div>
         </div>
+
+        {/* ── NEW: Stem Analysis (receives from StarMakerEngin) ── */}
+        {labBridge.lastStem && (
+          <div className="de-widget" style={{ marginTop: 14 }}>
+            <div className="de-widget-header">
+              <Music className="w-4 h-4" style={{ color: '#a855f7' }} />
+              <span className="de-widget-title ml-2">Stem Analysis</span>
+              <span
+                className="ml-auto text-xs font-semibold px-2 py-1 rounded-full"
+                style={{ background: 'rgba(168,85,247,0.12)', color: '#a855f7', border: '1px solid rgba(168,85,247,0.25)' }}
+              >
+                Live Data
+              </span>
+            </div>
+            <div className="de-widget-body">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.18)' }}>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Received from StarMakerEngin
+                  </div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#a855f7', marginBottom: 8 }}>
+                    {labBridge.lastStem} stem
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
+                    Ready for frequency analysis, waveform visualization, and cross-engin workflows.
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+                  <div style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(168,85,247,0.12)' }}>
+                    <div style={{ fontSize: 9, fontWeight: 600, color: 'var(--de-text-dim)', marginBottom: 3 }}>STATUS</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT }}>✓ Received</div>
+                  </div>
+                  <div style={{ padding: '8px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(168,85,247,0.12)' }}>
+                    <div style={{ fontSize: 9, fontWeight: 600, color: 'var(--de-text-dim)', marginBottom: 3 }}>TYPE</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT }}>{labBridge.lastStem}</div>
+                  </div>
+                </div>
+
+                <div style={{ padding: '10px 12px', borderRadius: 8, background: 'rgba(0,0,0,0.04)', fontSize: 10, color: 'var(--de-text-dim)', fontFamily: 'monospace' }}>
+                  Bridge event: music:stem-ready<br />
+                  Status: {labBridge.connectionStatus.music}
+                </div>
+              </div>
+            </div>
+            <div className="de-widget-actions">
+              <button
+                type="button"
+                className="de-btn de-btn-primary text-xs"
+                onClick={() => forgeRecord('Analyzed stem')}
+              >
+                <Activity className="w-3 h-3 mr-1" />
+                Run Frequency Analysis
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* ── Collab Lab ── */}
         <div className="de-widget" style={{ marginTop: 14 }}>

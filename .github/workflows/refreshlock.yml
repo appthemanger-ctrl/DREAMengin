@@ -3,23 +3,39 @@ name: Create/Update pnpm lockfile (push)
 on:
   workflow_dispatch:
 
+concurrency:
+  group: refreshlock-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
 jobs:
   lockfile:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 10.30.0
+          version: 10.33.0
 
-      - uses: ./.github/actions/setup-node
+      - name: Setup Node.js 25
+        uses: actions/setup-node@v4
+        with:
+          node-version: '25'
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Generate pnpm lockfile only
         run: pnpm install --lockfile-only --no-frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
       - name: Commit & push pnpm-lock.yaml (only if changed)
         run: |
@@ -31,4 +47,4 @@ jobs:
             exit 0
           fi
           git commit -m "chore: add/update pnpm lockfile [skip ci] [skip vercel]"
-          git push || true
+          git push

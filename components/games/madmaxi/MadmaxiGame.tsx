@@ -56,10 +56,15 @@ import type { CoinDef, EnemyDef, HazardDef, MadmaxiEnemyKind, MadmaxiPowerUpKind
 // ─── Game constants ──────────────────────────────────────────────────────────
 const GW = 800; // logical canvas width
 const GH = 480; // logical canvas height
-const GRAV       = 0.048;   // units / frame²
-const MAX_FALL   = 0.95;    // terminal velocity (positive = down in BJS Y-up is handled)
-const JUMP_VY    = 0.578;   // initial jump Y velocity (reduced ~15% for tighter control)
-const WALK_SPD   = 0.098;   // horizontal speed (reduced ~15% for precise platforming)
+const GRAV          = 0.048;   // units / frame² (upward phase)
+const FALL_GRAV_MUL = 3.0;    // max gravity multiplier at terminal velocity (fall phase)
+const MAX_FALL      = 0.95;    // terminal velocity (positive = down in BJS Y-up is handled)
+const JUMP_VY       = 0.68;    // initial jump Y velocity — jet-like upward burst
+const WALK_SPD      = 0.145;   // horizontal speed — brisk robot run
+// Visual offset to raise the player rig so boots sit on the platform surface
+// (the detailed rig geometry extends further below the hitbox centre than the
+//  32-px hitbox half-height, causing an apparent 2 BU sink without the lift).
+const PLAYER_RIG_Y_OFFSET = 2.0; // Babylon units upward from hitbox centre
 const COYOTE_MS  = 8;       // extra frames to jump after leaving ledge
 const JBUF_MS    = 6;       // frames to buffer a jump before landing
 const DASH_SPD   = 0.357;   // player dash speed (reduced ~15%, still ≈ 3.6× walk)
@@ -1833,8 +1838,18 @@ class GameCore {
     if (isRight) this.facingR = true;
     if (isLeft)  this.facingR = false;
 
-    // Gravity — lighter during super mode / hover
-    const gravityMul = this.superFrames > 0 && isJump && this.pvy > 0 ? 0.18 : 1;
+    // Gravity — jet upward, fast fall toward terminal velocity
+    // On the way UP (pvy < 0) or in super-hover: light gravity.
+    // On the way DOWN (pvy > 0): gravity scales up progressively toward FALL_GRAV_MUL
+    // the closer pvy gets to MAX_FALL, giving a satisfying "weight" to the descent.
+    let gravityMul = 1.0;
+    if (this.superFrames > 0 && isJump && this.pvy > 0) {
+      gravityMul = 0.18; // super hover — nearly float
+    } else if (this.pvy > 0) {
+      // Falling phase: ramp gravity from 1× at lift-off to FALL_GRAV_MUL near terminal
+      const fallProgress = Math.min(1, this.pvy / (MAX_FALL * PX_PER_BU));
+      gravityMul = 1.0 + fallProgress * (FALL_GRAV_MUL - 1.0);
+    }
     this.pvy += GRAV * gravityMul * PX_PER_BU;
     if (this.pvy > MAX_FALL * PX_PER_BU) this.pvy = MAX_FALL * PX_PER_BU;
 
@@ -2039,21 +2054,21 @@ class GameCore {
             if (Math.abs(this.px - en.curX) < 220) {
               en.vx = this.px > en.curX ? Math.abs(en.vx) + 0.16 : -Math.abs(en.vx) - 0.16;
             }
-            en.curX += en.vx * 1.22;
+            en.curX += en.vx * 1.8;
             break;
           case 'hopper':
             en.state += 0.18;
-            en.curX += en.vx * 0.85;
+            en.curX += en.vx * 1.25;
             en.curY = anchorY - Math.abs(Math.sin(en.state) * 42);
             break;
           case 'flyer':
             en.state += 0.08;
-            en.curX += en.vx * 0.75;
+            en.curX += en.vx * 1.1;
             en.curY = anchorY + Math.sin(en.state * 2.2) * 26;
             break;
           case 'zigzag':
             en.state += 0.12;
-            en.curX += en.vx * 0.92;
+            en.curX += en.vx * 1.35;
             en.curY = anchorY + Math.sin(en.state * 3.4) * 40;
             break;
           case 'orbiter':
@@ -2071,20 +2086,20 @@ class GameCore {
             break;
           case 'burrower':
             en.state += 0.15;
-            en.curX += en.vx * 0.65;
+            en.curX += en.vx * 1.0;
             en.curY = anchorY + Math.sin(en.state) * 12;
             break;
           case 'spiker':
-            en.curX += en.vx * 0.55;
+            en.curX += en.vx * 1.0;
             en.curY = 360;
             break;
           case 'shadow':
-            en.curX += (this.px > en.curX ? 1.8 : -1.8) + en.vx * 0.2;
+            en.curX += (this.px > en.curX ? 2.4 : -2.4) + en.vx * 0.2;
             en.curY = anchorY + Math.sin(this.animTick * 0.08 + i) * 22;
             break;
           case 'runner':
           default:
-            en.curX += en.vx;
+            en.curX += en.vx * 1.5;
             en.curY = anchorY;
             break;
         }
@@ -2426,7 +2441,7 @@ class GameCore {
         : 1;
       const rootScale = giantMul * superPulse;
 
-      this.playerRig.root.position.set(pbx, pby, 0);
+      this.playerRig.root.position.set(pbx, pby + PLAYER_RIG_Y_OFFSET, 0);
       this.playerRig.root.rotation.y = this.facingR ? 0 : Math.PI;
       this.playerRig.root.scaling.set(rootScale, rootScale, rootScale);
       this.playerRig.root.setEnabled(isVisible);

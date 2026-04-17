@@ -1,6 +1,15 @@
 'use client';
 
-import React from 'react';
+// Stream 5.4 — Popover API type augmentation
+// Extends React's HTMLAttributes to include the 'popover' attribute.
+// The DOM lib already declares 'hint' as a valid value; we match that here.
+declare module 'react' {
+  interface HTMLAttributes<T> {
+    popover?: 'auto' | 'hint' | 'manual' | '';
+  }
+}
+
+import React, { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import MenuPanel, { type MenuItem } from './MenuPanel';
 
@@ -27,6 +36,25 @@ const DREAM_ITEMS = [
 export default function DreamRadialMenu({ open, onClose, onSelectNode, side }: Props) {
   const router = useRouter();
 
+  // Stream 5.4 — Popover API support
+  // Uses native top-layer rendering when available; z-index fallback otherwise.
+  const menuContainerRef = useRef<HTMLDivElement>(null);
+  const supportsPopover = typeof window !== 'undefined' && 'popover' in HTMLElement.prototype;
+
+  useEffect(() => {
+    const el = menuContainerRef.current;
+    if (!el || !supportsPopover) return;
+    try {
+      if (open) {
+        (el as HTMLDivElement & { showPopover?: () => void }).showPopover?.();
+      } else {
+        (el as HTMLDivElement & { hidePopover?: () => void }).hidePopover?.();
+      }
+    } catch {
+      // Ignore — some browsers throw if popover state already matches
+    }
+  }, [open, supportsPopover]);
+
   const items: MenuItem[] = DREAM_ITEMS.map((item) => ({
     id: item.id,
     label: item.label,
@@ -37,6 +65,39 @@ export default function DreamRadialMenu({ open, onClose, onSelectNode, side }: P
       router.push(item.route);
     },
   }));
+
+  // When Popover API is available, wrap in a popover container for top-layer rendering.
+  // The inner MenuPanel still manages its own open/close visual state (fallback).
+  if (supportsPopover) {
+    return (
+      <div
+        ref={menuContainerRef}
+        popover="manual"
+        style={{
+          position: 'fixed',
+          inset: 0,
+          border: 'none',
+          padding: 0,
+          margin: 0,
+          background: 'transparent',
+          maxWidth: '100%',
+          maxHeight: '100%',
+          width: '100vw',
+          height: '100vh',
+          overflow: 'visible',
+        }}
+      >
+        <MenuPanel
+          open={open}
+          title="Daydreams"
+          accent="blue"
+          items={items}
+          onClose={onClose}
+          side={side}
+        />
+      </div>
+    );
+  }
 
   return (
     <MenuPanel

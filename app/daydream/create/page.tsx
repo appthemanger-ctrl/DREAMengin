@@ -21,7 +21,7 @@ const WIDGETS: DaydreamWidget[] = [
 
 export const metadata = { title: 'Create – Dreamengin', description: 'Ideas, tasks, calendar, projects, and media.' };
 
-const ACCENT = '#f59e0b';
+const ACCENT = '#fb923c';
 
 export default async function CreateDaydreamPage() {
   await connection();
@@ -42,14 +42,19 @@ export default async function CreateDaydreamPage() {
       <AuthenticatedPageHeader
         backHref="/homedream"
         title="Create"
-        subtitle="Capture ideas, tasks, media, and launch-ready content without breaking flow."
+        subtitle="Editor · multi-platform scheduler · AI optimizer · analytics."
         icon={<PlusCircle className="w-4 h-4" />}
-        accentColor="#6366f1"
-        badge="Daydream"
+        accentColor="#fb923c"
+        badge="Create Daydream · 2026 Edition"
       />
 
       <div className="de-auth-content space-y-4">
-        <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Set up your content here on Side A. Open ContentEngin (Side B) to write, schedule, and publish.</p>
+        <div style={{ padding: '12px 16px', borderRadius: 14, background: 'linear-gradient(135deg, rgba(251,146,60,0.08) 0%, rgba(245,158,11,0.08) 100%)', border: '1px solid rgba(251,146,60,0.18)' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 6, padding: '2px 8px', borderRadius: 9999, background: 'linear-gradient(135deg, rgba(251,146,60,0.15) 0%, rgba(245,158,11,0.15) 100%)', border: '1px solid rgba(251,146,60,0.25)' }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#fb923c' }}>Content 2026 · Rich Text · Multi-Platform · AI Optimizer</span>
+          </div>
+          <p className="text-sm" style={{ color: 'var(--de-text-dim)', margin: 0 }}>Set up your content here on Side A. Open ContentEngin (Side B) to write, schedule, and publish.</p>
+        </div>
 
         {WIDGETS.map(({ emoji, label, desc, color, href }) => (
           <div key={label} className="de-widget">

@@ -36,6 +36,9 @@ def main() -> None:
     parser.add_argument("--game-catalog-path", help="Path to generated game catalog markdown/json")
     parser.add_argument("--advanced-targets-path", help="Path to advanced game target manifest JSON")
     parser.add_argument("--report-source", default="", help="Human-readable label for the report source")
+    parser.add_argument("--law-path", help="Path to docs/LAW.md (binding project rules)")
+    parser.add_argument("--axioms-path", help="Path to docs/AXIOMS.md (non-negotiable product principles)")
+    parser.add_argument("--architecture-path", help="Path to docs/ARCHITECTURE.md (platform architecture)")
     parser.add_argument("--out", required=True, help="Path to write the combined context markdown")
     args = parser.parse_args()
 
@@ -49,6 +52,9 @@ def main() -> None:
     report_text = env_report_text or file_report_text
     game_catalog_text = read_text(args.game_catalog_path).strip() if args.game_catalog_path else ""
     advanced_targets_text = read_text(args.advanced_targets_path).strip() if args.advanced_targets_path else ""
+    law_text = read_text(args.law_path).strip() if args.law_path else ""
+    axioms_text = read_text(args.axioms_path).strip() if args.axioms_path else ""
+    architecture_text = read_text(args.architecture_path).strip() if args.architecture_path else ""
 
     if not report_text:
         print(
@@ -77,6 +83,27 @@ def main() -> None:
         if not report_text.endswith("\n"):
             fh.write("\n")
         fh.write("</report>\n\n")
+        if law_text:
+            fh.write("## Governance: LAW.md (Binding Project Rules)\n\n")
+            fh.write("<law>\n")
+            fh.write(law_text)
+            if not law_text.endswith("\n"):
+                fh.write("\n")
+            fh.write("</law>\n\n")
+        if axioms_text:
+            fh.write("## Governance: AXIOMS.md (Non-Negotiable Product Principles)\n\n")
+            fh.write("<axioms>\n")
+            fh.write(axioms_text)
+            if not axioms_text.endswith("\n"):
+                fh.write("\n")
+            fh.write("</axioms>\n\n")
+        if architecture_text:
+            fh.write("## Governance: ARCHITECTURE.md (Platform Architecture)\n\n")
+            fh.write("<architecture>\n")
+            fh.write(architecture_text)
+            if not architecture_text.endswith("\n"):
+                fh.write("\n")
+            fh.write("</architecture>\n\n")
         if advanced_targets_text:
             fh.write("## Advanced Game Targets\n\n")
             fh.write("<advanced_game_targets>\n")
