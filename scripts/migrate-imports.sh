@@ -27,7 +27,17 @@ replacements=(
     "s|@/lib/ai/rateLimit|@/agents/rate-limit|g"
 )
 
-files=$(find app components lib engins games -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \))
+SEARCH_DIRS=()
+for dir in app components lib engins games; do
+    [[ -d "$dir" ]] && SEARCH_DIRS+=("$dir")
+done
+
+if [[ ${#SEARCH_DIRS[@]} -eq 0 ]]; then
+    echo "No target directories found; nothing to rewrite."
+    exit 0
+fi
+
+files=$(find "${SEARCH_DIRS[@]}" -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \))
 
 for file in $files; do
     for replacement in "${replacements[@]}"; do

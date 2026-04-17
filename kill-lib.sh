@@ -73,19 +73,28 @@ fi
 rmdir lib 2>/dev/null || echo "lib not empty – review leftovers manually"
 
 # Rewrite imports
-find app components engins games -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \) -exec sed -i.bak \
-  -e "s|@/lib/gameengin|@/engins/gameengin|g" \
-  -e "s|@/lib/runtime|@/system/runtime|g" \
-  -e "s|@/lib/dreamenginOS|@/system/os|g" \
-  -e "s|@/lib/supabase|@/app/api/supabase|g" \
-  -e "s|@/lib/agents|@/app/api/ai/agents|g" \
-  -e "s|@/lib/ai|@/app/api/ai|g" \
-  -e "s|@/lib/hooks|@/components/hooks|g" \
-  -e "s|@/lib/widgets|@/components/widgets|g" \
-  -e "s|@/lib/activity|@/app/api/activity|g" \
-  -e "s|@/lib/admin|@/app/api/admin|g" \
-  {} \;
+SEARCH_DIRS=()
+for dir in app components engins games; do
+  [[ -d "$dir" ]] && SEARCH_DIRS+=("$dir")
+done
 
-find app components engins games -type f -name "*.bak" -delete
+if [[ ${#SEARCH_DIRS[@]} -gt 0 ]]; then
+  find "${SEARCH_DIRS[@]}" -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \) -exec sed -i.bak \
+    -e "s|@/lib/gameengin|@/engins/gameengin|g" \
+    -e "s|@/lib/runtime|@/system/runtime|g" \
+    -e "s|@/lib/dreamenginOS|@/system/os|g" \
+    -e "s|@/lib/supabase|@/app/api/supabase|g" \
+    -e "s|@/lib/agents|@/app/api/ai/agents|g" \
+    -e "s|@/lib/ai|@/app/api/ai|g" \
+    -e "s|@/lib/hooks|@/components/hooks|g" \
+    -e "s|@/lib/widgets|@/components/widgets|g" \
+    -e "s|@/lib/activity|@/app/api/activity|g" \
+    -e "s|@/lib/admin|@/app/api/admin|g" \
+    {} \;
+
+  find "${SEARCH_DIRS[@]}" -type f -name "*.bak" -delete
+else
+  echo "No target directories found for import rewrite."
+fi
 
 echo "✅ /lib migration script completed. Backup: $BACKUP | Archive: lib_archive"
