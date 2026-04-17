@@ -1120,7 +1120,7 @@ export default function RTSGame() {
   // ── Engine system refs (reset on each new game) ───────────────────────────
   const ecsRef          = useRef<ECSWorld>(new ECSWorld());
   const ecsMapRef       = useRef<Map<number, EntityId>>(new Map());
-  const bvhRef          = useRef<OctreeBVH>(new OctreeBVH());
+  const bvhRef          = useRef<OctreeBVH>(new OctreeBVH({ min: [-2048, -512, -2048], max: [2048, 512, 2048] }));
   const bvhIdsRef       = useRef<Set<string>>(new Set());
   const particlePoolRef = useRef<ResourcePool<PooledParticle>>(
     new ResourcePool<PooledParticle>(() => new PooledParticle(), 256),
@@ -1145,7 +1145,7 @@ export default function RTSGame() {
     // Reset engine systems for the fresh game
     ecsRef.current    = new ECSWorld();
     ecsMapRef.current = new Map();
-    bvhRef.current    = new OctreeBVH();
+    bvhRef.current    = new OctreeBVH({ min: [-2048, -512, -2048], max: [2048, 512, 2048] });
     bvhIdsRef.current = new Set();
     particlePoolRef.current = new ResourcePool<PooledParticle>(() => new PooledParticle(), 256);
     setPhase('playing');
