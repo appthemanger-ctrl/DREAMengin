@@ -10,12 +10,17 @@ import DreamWord from '@/components/ui/DreamWord';
 import ProfileShareButton from '@/components/ProfileShareButton';
 import ProfileCustomizeButton from '@/components/profile/ProfileCustomizeButton';
 import InfinityIcon from '@/components/ui/InfinityIcon';
-import { connection } from 'next/server';
-
-// Force dynamic rendering — this route uses cookies() via createServerClient()
-// and connection(); PPR (cacheComponents) must not attempt a static shell here
-// because the profile body depends on auth state and Supabase data.
-export const dynamic = 'force-dynamic';
+// This route is dynamically rendered in a PPR-compatible way without
+// `export const dynamic = 'force-dynamic'` (which conflicts with
+// `cacheComponents: true` in next.config.mjs / Turbopack PPR mode).
+//
+// Dynamic rendering is achieved by two natural signals:
+//   • generateMetadata  — reads `await params` (per-request URL data)
+//   • ProfilePage       — reads cookies via createServerClient()
+//
+// Using `connection()` from 'next/server' is intentionally avoided because
+// in Next.js 16.2.3 it triggers the Math.random prerender check before
+// the dynamic context is established (see: next-prerender-random).
 
 // Extended profile type
 type Profile = {
@@ -37,7 +42,6 @@ interface ProfilePageProps {
 
 
 export async function generateMetadata({ params }: ProfilePageProps) {
-  await connection();
   const { handle } = await params;
   return {
     title: `@${handle} – Dreamengin`,
@@ -46,7 +50,6 @@ export async function generateMetadata({ params }: ProfilePageProps) {
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
-  await connection();
   const { handle } = await params;
   const supabase = await createServerClient();
 
