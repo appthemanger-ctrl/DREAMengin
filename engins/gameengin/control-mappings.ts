@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * lib/gameengin/control-mappings.ts
+ * engins/gameengin/control-mappings.ts
  *
  * Joystick → asset command binding API.
  *

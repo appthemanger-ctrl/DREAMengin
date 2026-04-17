@@ -544,7 +544,7 @@ export default async function CodeDaydreamPage() {
             </div>
             <div className="de-widget-body">
               <div style={{ padding: '10px 12px', borderRadius: 10, background: '#1a1a2e', fontFamily: 'monospace', fontSize: 11, color: '#c084fc', lineHeight: 1.8 }}>
-                <span style={{ color: '#60a5fa' }}>import</span> {'{ EliteGameEngine }'} <span style={{ color: '#60a5fa' }}>from</span> <span style={{ color: '#86efac' }}>&apos;@/lib/gameengin&apos;</span>;<br />
+                <span style={{ color: '#60a5fa' }}>import</span> {'{ EliteGameEngine }'} <span style={{ color: '#60a5fa' }}>from</span> <span style={{ color: '#86efac' }}>&apos;@/engins/gameengin&apos;</span>;<br />
                 <span style={{ color: '#c084fc' }}>const</span> entity = world.<span style={{ color: '#fbbf24' }}>createEntity</span>();
               </div>
               <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 8 }}>Import ECS APIs, post-FX managers, and AI Director directly into your code notebooks.</p>

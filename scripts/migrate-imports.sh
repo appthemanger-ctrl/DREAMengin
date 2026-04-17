@@ -10,9 +10,9 @@ fi
 
 # Replacements (order matters – longest first)
 replacements=(
-    "s|@/lib/gameengin/core|@/core/ecs/EliteGameEngine|g"
-    "s|@/lib/gameengin/power-systems|@/core/ecs/power-systems|g"
-    "s|@/lib/gameengin/ai-director|@/core/ai/director|g"
+    "s|@/engins/gameengin/core|@/core/ecs/EliteGameEngine|g"
+    "s|@/engins/gameengin/power-systems|@/core/ecs/power-systems|g"
+    "s|@/engins/gameengin/ai-director|@/core/ai/director|g"
     "s|@/lib/webgpu|@/core/rendering/webgpu|g"
     "s|@/lib/babylon|@/core/rendering/babylon|g"
     "s|@/lib/scene|@/core/spatial/scene|g"

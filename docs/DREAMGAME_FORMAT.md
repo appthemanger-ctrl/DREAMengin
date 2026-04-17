@@ -1,7 +1,7 @@
 # .dreamgame ZIP Format Specification
 
 **Version:** 1.0  
-**Status:** Active — used by `lib/gameengin/gameEnginRuntime.ts`
+**Status:** Active — used by `engins/gameengin/gameEnginRuntime.ts`
 
 ---
 
@@ -167,4 +167,4 @@ The `.dreamgame` extension is registered in the DREAMengin platform as MIME type
 ---
 
 *This document is the normative specification for the `.dreamgame` format.*  
-*Implementation: `lib/gameengin/gameEnginRuntime.ts` → `loadDreamGame()`*
+*Implementation: `engins/gameengin/gameEnginRuntime.ts` → `loadDreamGame()`*

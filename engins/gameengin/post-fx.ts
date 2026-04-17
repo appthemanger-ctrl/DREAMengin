@@ -1,5 +1,5 @@
 /**
- * lib/gameengin/post-fx.ts
+ * engins/gameengin/post-fx.ts
  *
  * POST-PROCESSING PIPELINE — 2026 REALISTIC GRAPHICS UPGRADE
  *

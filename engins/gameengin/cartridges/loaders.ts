@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * lib/gameengin/cartridges/loaders.ts
+ * engins/gameengin/cartridges/loaders.ts
  *
  * Client-side loader registry — one async loader per game in the repository.
  * Each loader dynamically imports the underlying React component and wraps it

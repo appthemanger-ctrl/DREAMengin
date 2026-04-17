@@ -5,7 +5,7 @@
  *   - GameCartridge / GameEngineAPI contract (cartridge.ts)
  *   - TetrisCartridge (games/tetris/TetrisCartridge.ts)
  *   - SnakeCartridge (games/snake/SnakeCartridge.ts)
- *   - ReactComponentCartridge adapter (lib/gameengin/ReactComponentCartridge.ts)
+ *   - ReactComponentCartridge adapter (engins/gameengin/ReactComponentCartridge.ts)
  *   - GRAVITY_VALUES mapping
  *
  * Note: Cartridge mount() tests that require a DOM (document.createElement)
@@ -19,7 +19,7 @@ import {
   type GameCartridge,
   type GameEngineAPI,
   type GravityPreset,
-} from '@/lib/gameengin/cartridge';
+} from '@/engins/gameengin/cartridge';
 import { TetrisCartridge } from '@/games/tetris/TetrisCartridge';
 import { SnakeCartridge } from '@/games/snake/SnakeCartridge';
 
@@ -192,9 +192,9 @@ describe('Cartridge implementations', () => {
 
 // ── Exports from index ──────────────────────────────────────────────────────
 
-describe('lib/gameengin/index exports', () => {
+describe('engins/gameengin/index exports', () => {
   it('exports cartridge types and runtime', async () => {
-    const mod = await import('@/lib/gameengin/index');
+    const mod = await import('@/engins/gameengin/index');
     expect(mod.GRAVITY_VALUES).toBeDefined();
     expect(mod.wrapAsCartridge).toBeDefined();
     expect(mod.GameRuntime).toBeDefined();

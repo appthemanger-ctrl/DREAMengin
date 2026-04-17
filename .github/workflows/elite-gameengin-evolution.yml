@@ -8,7 +8,7 @@ name: Elite GameEngin Evolution 🚀
 # improvement proposals.
 #
 # Triggers:
-#   - Push to components/games/, lib/gameengin/, components/gameengin/
+#   - Push to components/games/, engins/gameengin/, components/gameengin/
 #   - Manual workflow dispatch (with optional AI directive)
 #   - Daily at 06:00 UTC
 
@@ -17,7 +17,7 @@ on:
     paths:
       - 'components/games/**'
       - 'components/gameengin/**'
-      - 'lib/gameengin/**'
+      - 'engins/gameengin/**'
       - '.github/workflows/elite-gameengin-evolution.yml'
   workflow_dispatch:
     inputs:
@@ -89,13 +89,13 @@ jobs:
           WARNINGS=$(pnpm exec next lint \
             --dir components/games \
             --dir components/gameengin \
-            --dir lib/gameengin \
+            --dir engins/gameengin \
             2>&1 | grep -c "Warning:" || true)
           echo "warnings=$WARNINGS" >> "$GITHUB_OUTPUT"
           pnpm exec next lint \
             --dir components/games \
             --dir components/gameengin \
-            --dir lib/gameengin || true
+            --dir engins/gameengin || true
 
       - name: Typecheck
         run: pnpm typecheck || true
@@ -381,7 +381,7 @@ jobs:
             --fix \
             --dir components/games \
             --dir components/gameengin \
-            --dir lib/gameengin \
+            --dir engins/gameengin \
             || true
 
       - name: Commit auto-fixes (if any)

@@ -1,5 +1,5 @@
 /**
- * lib/gameengin/cartridges/manifest.ts
+ * engins/gameengin/cartridges/manifest.ts
  *
  * Server-safe catalog of every game in the repository, packaged as a
  * GameEngin cartridge entry. Pure data — no React, no client-only imports —

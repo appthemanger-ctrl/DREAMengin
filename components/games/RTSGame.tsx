@@ -16,10 +16,10 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
-import { ECSWorld, OctreeBVH, ResourcePool, LODSystem } from '@/lib/gameengin';
-import type { EntityId, Component } from '@/lib/gameengin';
+import { ECSWorld, OctreeBVH, ResourcePool, LODSystem } from '@/engins/gameengin/index';
+import type { EntityId, Component } from '@/engins/gameengin/index';
 import { Canvas2DRenderer } from '@/lib/renderer';
-import { useUnifiedLoop } from '@/lib/gameengin/useUnifiedLoop';
+import { useUnifiedLoop } from '@/engins/gameengin/useUnifiedLoop';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Canvas / grid constants

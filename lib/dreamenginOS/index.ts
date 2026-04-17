@@ -155,14 +155,14 @@ export type {
 export {
   loadDreamGame,
   GameEnginRuntime,
-} from '../gameengin/gameEnginRuntime';
+} from '@/engins/gameengin/gameEnginRuntime';
 export type {
   DreamGameManifest,
   DreamGameInstance,
   InputType,
   InputHandler,
   GameEnginEvents,
-} from '../gameengin/gameEnginRuntime';
+} from '@/engins/gameengin/gameEnginRuntime';
 
 // ─── OS Feature Upgrade ───────────────────────────────────────────────────────
 

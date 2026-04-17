@@ -7,7 +7,7 @@ GameEngin is **not a game**. It is **the platform** — DREAMengin's proprietary
 console-class runtime that browser games are *built to run on*. We are moving
 away from standalone games as first-class citizens. From this slice forward,
 every game in the repo is a **cartridge** that runs on the single, coherent
-**GameEngin Platform** (`lib/gameengin/`).
+**GameEngin Platform** (`engins/gameengin/`).
 
 The platform's bar is simple and uncompromising: deliver a **next-gen home-
 console-level full-capability experience inside a browser tab** — zero install,
@@ -20,7 +20,7 @@ There is now exactly one entry point. New cartridges should target it; legacy
 games already work through it without any code changes.
 
 ```ts
-import { GameEnginPlatform } from '@/lib/gameengin';
+import { GameEnginPlatform } from '@/engins/gameengin/index';
 
 const platform = await GameEnginPlatform.boot(canvas);
 await platform.loadCartridge(MyCartridge);
@@ -49,7 +49,7 @@ themselves up to PS5-class behaviour where supported and gracefully down on
 mid-tier mobiles.
 
 ```ts
-import { detectCapabilities } from '@/lib/gameengin';
+import { detectCapabilities } from '@/engins/gameengin/index';
 
 const caps = detectCapabilities();
 // { webgpu, webgl2, gamepad, webhid, webBluetooth,
@@ -97,7 +97,7 @@ Any new game ships as a `GameCartridge` and runs on the platform unchanged on
 desktop, mobile, console-tier hardware, and remote-play sessions.
 
 ```ts
-import type { GameCartridge } from '@/lib/gameengin';
+import type { GameCartridge } from '@/engins/gameengin/index';
 
 export const MyCartridge: GameCartridge = {
   id: 'my-game',
@@ -142,7 +142,7 @@ touch all flow through the same channel.
 ## Architecture map
 
 ```
-lib/gameengin/                     ← The Platform (one coherent surface)
+engins/gameengin/                     ← The Platform (one coherent surface)
   platform.ts        ← GameEnginPlatform (boot, cartridges, quick resume)
   index.ts           ← Single import barrel
   core.ts            ← EliteGameEngine + ECSWorld + budget

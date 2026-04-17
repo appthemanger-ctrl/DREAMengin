@@ -1,33 +1,33 @@
 /**
- * lib/gameengin/systems/rendering.ts
+ * engins/gameengin/systems/ai.ts
  *
- * RENDERING SYSTEMS
+ * AI SYSTEMS
  *
- * Focused module: WebGPU compute shader pipeline (physics / particles / cloth
- * simulation on GPU); WGSL hot-reload shader cache + variant compilation;
- * CPU+GPU profiler with flame-graph ring buffer.
+ * Focused module: behavior tree engine for NPC AI (sequence / selector /
+ * decorator / parallel nodes + GOAP planner); parallel priority job scheduler
+ * for offloading pathfinding and heavy computation off the main thread.
  *
  * Re-exports from power-systems so existing imports continue to work.
- * `GPUComputeSystem` is an alias for `ComputeShaderPipeline`.
+ * `BehaviorTreeSystem` is an alias for the canonical `BehaviorTreeEngine`.
  */
 
 // ─── Classes ─────────────────────────────────────────────────────────────────
 
 export {
-  ComputeShaderPipeline,
-  WGSLShaderManager,
-  GPUProfiler,
+  BehaviorTreeEngine,
+  WorkerJobSystem,
 } from '../power-systems';
 
-/** Alias: GPUComputeSystem → ComputeShaderPipeline. */
-export { ComputeShaderPipeline as GPUComputeSystem } from '../power-systems';
+/** Alias: BehaviorTreeSystem → BehaviorTreeEngine. */
+export { BehaviorTreeEngine as BehaviorTreeSystem } from '../power-systems';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type {
-  ComputeKernel,
-  ComputeDispatch,
-  ShaderVariant,
-  ProfileSpan,
-  ProfileFrame,
+  BTStatus,
+  BTContext,
+  BTNode,
+  JobPriority,
+  Job,
+  JobResult,
 } from '../power-systems';

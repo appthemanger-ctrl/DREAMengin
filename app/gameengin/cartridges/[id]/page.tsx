@@ -4,7 +4,7 @@ import CartridgeLauncher from '@/components/gameengin/CartridgeLauncher';
 import {
   CARTRIDGE_MANIFEST,
   getCartridgeManifest,
-} from '@/lib/gameengin/cartridges/manifest';
+} from '@/engins/gameengin/cartridges/manifest';
 
 interface PageProps {
   params: Promise<{ id: string }>;

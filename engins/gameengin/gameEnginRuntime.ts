@@ -7,7 +7,7 @@
  * .dreamgame format is documented in docs/DREAMGAME_FORMAT.md
  */
 
-import { createEventBus, type EventBus } from '../eventBus';
+import { createEventBus, type EventBus } from '@/lib/eventBus';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

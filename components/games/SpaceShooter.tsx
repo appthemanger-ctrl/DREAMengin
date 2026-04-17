@@ -11,7 +11,7 @@ import {
   getImmersiveStageStyle,
   useImmersiveGameLayout,
 } from '@/lib/games/useImmersiveGameLayout';
-import { useUnifiedLoop } from '@/lib/gameengin/useUnifiedLoop';
+import { useUnifiedLoop } from '@/engins/gameengin/useUnifiedLoop';
 
 const CW = 400; const CH = 560;
 type Phase = 'menu' | 'playing' | 'gameover';

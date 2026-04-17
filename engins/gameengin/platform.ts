@@ -1,5 +1,5 @@
 /**
- * lib/gameengin/platform.ts
+ * engins/gameengin/platform.ts
  *
  * GameEngin Platform — the single, canonical, console-class facade.
  *

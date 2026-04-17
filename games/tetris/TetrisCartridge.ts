@@ -12,7 +12,7 @@
  *   - Reports frame time via api.telemetry.reportFrame
  */
 
-import type { GameCartridge, GameEngineAPI } from '@/lib/gameengin/cartridge';
+import type { GameCartridge, GameEngineAPI } from '@/engins/gameengin/cartridge';
 
 // ── Game constants (same as TetrisGame.tsx) ──────────────────────────────────
 

@@ -1,13 +1,13 @@
 /**
- * lib/gameengin/index.ts
+ * engins/gameengin/index.ts
  *
  * DREAMengin Elite Game Engine — Public API
  *
  * Single import surface for all elite engine capabilities:
- *   import { EliteGameEngine, AIDirector, PostFXManager } from '@/lib/gameengin';
+ *   import { EliteGameEngine, AIDirector, PostFXManager } from '@/engins/gameengin/index';
  *
  * Power Systems (20 advanced subsystems):
- *   import { RollbackNetcode, ComputeShaderPipeline, AdvancedPhysicsWorld, ... } from '@/lib/gameengin';
+ *   import { RollbackNetcode, ComputeShaderPipeline, AdvancedPhysicsWorld, ... } from '@/engins/gameengin/index';
  */
 
 export { EliteGameEngine, ECSWorld } from './core';

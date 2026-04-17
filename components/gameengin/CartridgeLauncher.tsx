@@ -10,10 +10,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import GameRuntime from '@/lib/gameengin/GameRuntime';
-import { loadCartridge } from '@/lib/gameengin/cartridges/loaders';
-import type { GameCartridge, GravityPreset } from '@/lib/gameengin/cartridge';
-import type { CartridgeManifestEntry } from '@/lib/gameengin/cartridges/manifest';
+import GameRuntime from '@/engins/gameengin/GameRuntime';
+import { loadCartridge } from '@/engins/gameengin/cartridges/loaders';
+import type { GameCartridge, GravityPreset } from '@/engins/gameengin/cartridge';
+import type { CartridgeManifestEntry } from '@/engins/gameengin/cartridges/manifest';
 
 export interface CartridgeLauncherProps {
   manifest: CartridgeManifestEntry;

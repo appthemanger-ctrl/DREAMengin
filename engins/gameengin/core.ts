@@ -1,5 +1,5 @@
 /**
- * lib/gameengin/core.ts
+ * engins/gameengin/core.ts
  *
  * ELITE GAME ENGINE CORE — 2026+
  *

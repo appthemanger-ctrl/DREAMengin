@@ -1,5 +1,5 @@
 /**
- * lib/gameengin/cartridges/index.ts
+ * engins/gameengin/cartridges/index.ts
  *
  * Public surface for the GameEngin cartridge bay. Server-safe metadata
  * (`manifest`) is re-exported directly; the client-only loader registry is

@@ -1,5 +1,5 @@
 /**
- * lib/gameengin/cartridge.ts
+ * engins/gameengin/cartridge.ts
  *
  * Game Cartridge Contract — the standard interface every game must implement
  * to run inside GameEngin's runtime host.

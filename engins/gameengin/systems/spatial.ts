@@ -1,23 +1,26 @@
 /**
- * lib/gameengin/systems/assets.ts
+ * engins/gameengin/systems/spatial.ts
  *
- * ASSET STREAMING SYSTEM
+ * SPATIAL SYSTEMS
  *
- * Focused module: priority-queue progressive LOD asset streaming manager.
- * Sorts pending fetches by priority + LOD level; enforces max-concurrent
- * budget; supports cancellation + LRU eviction.
+ * Focused module: Octree/BVH spatial partitioning for O(log n) broad-phase
+ * queries; HRTF spatial audio DSP with convolution reverb + Doppler.
  *
  * Re-exports from power-systems so existing imports continue to work.
  */
 
 // ─── Classes ─────────────────────────────────────────────────────────────────
 
-export { AssetStreamManager } from '../power-systems';
+export {
+  OctreeBVH,
+  SpatialAudioDSP,
+} from '../power-systems';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type {
-  AssetHandle,
-  AssetType,
-  AssetState,
+  AABB,
+  SpatialEntry,
+  AudioSourceDef,
+  ListenerState,
 } from '../power-systems';

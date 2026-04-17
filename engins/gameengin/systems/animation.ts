@@ -1,5 +1,5 @@
 /**
- * lib/gameengin/systems/animation.ts
+ * engins/gameengin/systems/animation.ts
  *
  * ANIMATION + EVENT SYSTEMS
  *

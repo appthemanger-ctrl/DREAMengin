@@ -19,8 +19,8 @@ import {
   CARTRIDGE_MANIFEST,
   getCartridgeManifest,
   getCartridgeCategories,
-} from '@/lib/gameengin/cartridges/manifest';
-import { CARTRIDGE_LOADERS, getCartridgeIds } from '@/lib/gameengin/cartridges/loaders';
+} from '@/engins/gameengin/cartridges/manifest';
+import { CARTRIDGE_LOADERS, getCartridgeIds } from '@/engins/gameengin/cartridges/loaders';
 import { GAMES } from '@/components/games/GamesHub';
 
 describe('GameEngin cartridge bay', () => {

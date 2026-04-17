@@ -20,9 +20,9 @@ import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hook
 import { publishGamePerformanceBaseline } from '@/lib/games/performance-baseline';
 import * as BABYLON from '@babylonjs/core';
 import { DualSenseManager } from '@/components/gameengin/input/DualSenseManager';
-import { EliteGameEngine } from '@/lib/gameengin';
-import { AIDirector } from '@/lib/gameengin/ai-director';
-import { PostFXManager } from '@/lib/gameengin/post-fx';
+import { EliteGameEngine } from '@/engins/gameengin/index';
+import { AIDirector } from '@/engins/gameengin/ai-director';
+import { PostFXManager } from '@/engins/gameengin/post-fx';
 
 type Phase = 'menu' | 'playing' | 'gameover';
 

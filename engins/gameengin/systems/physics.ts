@@ -1,26 +1,31 @@
 /**
- * lib/gameengin/systems/spatial.ts
+ * engins/gameengin/systems/physics.ts
  *
- * SPATIAL SYSTEMS
+ * PHYSICS SYSTEMS
  *
- * Focused module: Octree/BVH spatial partitioning for O(log n) broad-phase
- * queries; HRTF spatial audio DSP with convolution reverb + Doppler.
+ * Focused module: rigid-body dynamics, continuous collision detection,
+ * surface material table, raycast/AABB queries.
  *
  * Re-exports from power-systems so existing imports continue to work.
+ * Import from this path for tree-shaken physics-only bundles.
  */
 
 // ─── Classes ─────────────────────────────────────────────────────────────────
 
 export {
-  OctreeBVH,
-  SpatialAudioDSP,
+  AdvancedPhysicsWorld,
+  PhysicsMaterialSystem,
 } from '../power-systems';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type {
-  AABB,
-  SpatialEntry,
-  AudioSourceDef,
-  ListenerState,
+  PhysicsBodyDef,
+  PhysicsBody,
+  PhysicsConstraint,
+  PhysicsBodyType,
+  ShapeType,
+  RaycastResult,
+  PhysicsMaterial,
+  MaterialPair,
 } from '../power-systems';

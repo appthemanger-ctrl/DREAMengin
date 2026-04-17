@@ -5,7 +5,7 @@
  * React hook wrapping the `AIDirector` class so any game component can plug
  * in adaptive difficulty with a single import.
  *
- * The `AIDirector` (lib/gameengin/ai-director.ts) is an in-browser TensorFlow.js
+ * The `AIDirector` (engins/gameengin/ai-director.ts) is an in-browser TensorFlow.js
  * powered system that maps player signals → a normalized challenge level (0–1).
  * Previously it was only wired manually in NeonDrift and EchoArena — this hook
  * makes it trivially composable in any game.
@@ -24,7 +24,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AIDirector, type PlayerSignals, type DirectorState } from '@/lib/gameengin/ai-director';
+import { AIDirector, type PlayerSignals, type DirectorState } from '@/engins/gameengin/ai-director';
 
 const DEFAULT_STATE: DirectorState = {
   challengeLevel: 0.35,

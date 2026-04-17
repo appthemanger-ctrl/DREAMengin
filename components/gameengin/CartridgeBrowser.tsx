@@ -14,7 +14,7 @@ import {
   CARTRIDGE_MANIFEST,
   getCartridgeCategories,
   type CartridgeManifestEntry,
-} from '@/lib/gameengin/cartridges/manifest';
+} from '@/engins/gameengin/cartridges/manifest';
 
 const ALL = 'All';
 const TIER_ORDER = ['flagship', 'advanced', 'classic', 'casual'] as const;

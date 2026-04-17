@@ -1,26 +1,23 @@
 /**
- * lib/gameengin/systems/network.ts
+ * engins/gameengin/systems/assets.ts
  *
- * NETWORK SYSTEMS
+ * ASSET STREAMING SYSTEM
  *
- * Focused module: deterministic rollback netcode for lag-free multiplayer;
- * client-side prediction with server reconciliation.
+ * Focused module: priority-queue progressive LOD asset streaming manager.
+ * Sorts pending fetches by priority + LOD level; enforces max-concurrent
+ * budget; supports cancellation + LRU eviction.
  *
  * Re-exports from power-systems so existing imports continue to work.
  */
 
 // ─── Classes ─────────────────────────────────────────────────────────────────
 
-export {
-  RollbackNetcode,
-  ClientSidePrediction,
-} from '../power-systems';
+export { AssetStreamManager } from '../power-systems';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type {
-  NetInput,
-  RollbackConfig,
-  PredictionState,
-  ServerSnapshot,
+  AssetHandle,
+  AssetType,
+  AssetState,
 } from '../power-systems';

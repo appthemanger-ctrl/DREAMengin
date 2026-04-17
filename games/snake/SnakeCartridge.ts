@@ -16,7 +16,7 @@
  * It can be added in a follow-up once the cartridge contract is stable.
  */
 
-import type { GameCartridge, GameEngineAPI } from '@/lib/gameengin/cartridge';
+import type { GameCartridge, GameEngineAPI } from '@/engins/gameengin/cartridge';
 
 // ── Game constants ───────────────────────────────────────────────────────────
 

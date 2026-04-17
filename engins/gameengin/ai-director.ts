@@ -1,5 +1,5 @@
 /**
- * lib/gameengin/ai-director.ts
+ * engins/gameengin/ai-director.ts
  *
  * AI GAME DIRECTOR — 2026
  *

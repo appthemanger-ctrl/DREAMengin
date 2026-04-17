@@ -1,11 +1,11 @@
 /**
- * lib/gameengin/systems/index.ts
+ * engins/gameengin/systems/index.ts
  *
  * Barrel export for all focused power-system sub-modules.
  * Import individual modules for tree-shaking, or import everything here.
  *
  * @example
- * import { OctreeBVH, ResourcePool } from '@/lib/gameengin/systems';
+ * import { OctreeBVH, ResourcePool } from '@/engins/gameengin/systems';
  */
 
 export * from './physics';

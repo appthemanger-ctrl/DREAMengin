@@ -43,10 +43,10 @@ const capabilityChecklist = [
       'Material, lighting, shadows, post-processing and LOD policy with hard caps.',
     ],
     completionChecks: [
-      { file: 'lib/gameengin/core.ts', symbol: 'QualityTier', desc: 'Adaptive quality tiers (ultra/high/medium/low)' },
-      { file: 'lib/gameengin/core.ts', symbol: 'QUALITY_PRESETS', desc: 'Quality preset budgets with targetFps' },
-      { file: 'lib/gameengin/post-fx.ts', symbol: 'PostFXManager', desc: 'Post-processing pipeline (bloom, SSAO, DoF, motion blur)' },
-      { file: 'lib/gameengin/power-systems.ts', symbol: 'LODSystem', desc: 'Level-of-detail system' },
+      { file: 'engins/gameengin/core.ts', symbol: 'QualityTier', desc: 'Adaptive quality tiers (ultra/high/medium/low)' },
+      { file: 'engins/gameengin/core.ts', symbol: 'QUALITY_PRESETS', desc: 'Quality preset budgets with targetFps' },
+      { file: 'engins/gameengin/post-fx.ts', symbol: 'PostFXManager', desc: 'Post-processing pipeline (bloom, SSAO, DoF, motion blur)' },
+      { file: 'engins/gameengin/power-systems.ts', symbol: 'LODSystem', desc: 'Level-of-detail system' },
     ],
   },
   {
@@ -58,10 +58,10 @@ const capabilityChecklist = [
       'Determinism tests for input playback and netcode desync detection.',
     ],
     completionChecks: [
-      { file: 'lib/gameengin/power-systems.ts', symbol: 'RollbackNetcode', desc: 'Deterministic rollback netcode (lockstep)' },
-      { file: 'lib/gameengin/power-systems.ts', symbol: 'ReplayBuffer', desc: 'Input recording and deterministic replay' },
-      { file: 'lib/gameengin/power-systems.ts', symbol: 'AdvancedPhysicsWorld', desc: 'Havok-compatible physics world' },
-      { file: 'lib/gameengin/power-systems.ts', symbol: 'BehaviorTreeEngine', desc: 'AI behaviour trees + GOAP planner' },
+      { file: 'engins/gameengin/power-systems.ts', symbol: 'RollbackNetcode', desc: 'Deterministic rollback netcode (lockstep)' },
+      { file: 'engins/gameengin/power-systems.ts', symbol: 'ReplayBuffer', desc: 'Input recording and deterministic replay' },
+      { file: 'engins/gameengin/power-systems.ts', symbol: 'AdvancedPhysicsWorld', desc: 'Havok-compatible physics world' },
+      { file: 'engins/gameengin/power-systems.ts', symbol: 'BehaviorTreeEngine', desc: 'AI behaviour trees + GOAP planner' },
     ],
   },
   {
@@ -75,8 +75,8 @@ const capabilityChecklist = [
     completionChecks: [
       { file: 'lib/gestures/touchGestures.ts', symbol: '', desc: 'Touch gesture abstraction layer' },
       { file: 'lib/games/DualSenseManager.ts', symbol: 'DualSenseManager', desc: 'PS5 DualSense haptics + gamepad integration' },
-      { file: 'lib/gameengin/gameEnginRuntime.ts', symbol: 'dualsense', desc: 'Runtime gamepad detection (DualSense vs generic)' },
-      { file: 'lib/gameengin/control-mappings.ts', symbol: 'ControlMapping', desc: 'Persistent control mapping API' },
+      { file: 'engins/gameengin/gameEnginRuntime.ts', symbol: 'dualsense', desc: 'Runtime gamepad detection (DualSense vs generic)' },
+      { file: 'engins/gameengin/control-mappings.ts', symbol: 'ControlMapping', desc: 'Persistent control mapping API' },
     ],
   },
   {
@@ -88,7 +88,7 @@ const capabilityChecklist = [
       'Audio quality fallback plan for constrained devices and power-save modes.',
     ],
     completionChecks: [
-      { file: 'lib/gameengin/power-systems.ts', symbol: 'SpatialAudioDSP', desc: 'HRTF + convolution reverb + Doppler spatial audio' },
+      { file: 'engins/gameengin/power-systems.ts', symbol: 'SpatialAudioDSP', desc: 'HRTF + convolution reverb + Doppler spatial audio' },
     ],
   },
   {
@@ -100,9 +100,9 @@ const capabilityChecklist = [
       'Cheat-resistance model and secure state validation boundaries.',
     ],
     completionChecks: [
-      { file: 'lib/gameengin/power-systems.ts', symbol: 'RollbackNetcode', desc: 'Rollback netcode with authority model' },
-      { file: 'lib/gameengin/power-systems.ts', symbol: 'ClientSidePrediction', desc: 'Client-side prediction + server reconciliation' },
-      { file: 'lib/gameengin/power-systems.ts', symbol: 'ReplayBuffer', desc: 'Anti-cheat hash in replay buffer' },
+      { file: 'engins/gameengin/power-systems.ts', symbol: 'RollbackNetcode', desc: 'Rollback netcode with authority model' },
+      { file: 'engins/gameengin/power-systems.ts', symbol: 'ClientSidePrediction', desc: 'Client-side prediction + server reconciliation' },
+      { file: 'engins/gameengin/power-systems.ts', symbol: 'ReplayBuffer', desc: 'Anti-cheat hash in replay buffer' },
     ],
   },
   {
@@ -114,9 +114,9 @@ const capabilityChecklist = [
       'Warm-start / cold-start targets and cache invalidation strategy.',
     ],
     completionChecks: [
-      { file: 'lib/gameengin/power-systems.ts', symbol: 'AssetStreamManager', desc: 'Priority-queue progressive LOD asset streaming' },
-      { file: 'lib/gameengin/power-systems.ts', symbol: 'ResourcePool', desc: 'Zero-allocation fixed-capacity object pools' },
-      { file: 'lib/gameengin/power-systems.ts', symbol: 'TerrainEngine', desc: 'Heightmap clipmap LOD with virtual textures' },
+      { file: 'engins/gameengin/power-systems.ts', symbol: 'AssetStreamManager', desc: 'Priority-queue progressive LOD asset streaming' },
+      { file: 'engins/gameengin/power-systems.ts', symbol: 'ResourcePool', desc: 'Zero-allocation fixed-capacity object pools' },
+      { file: 'engins/gameengin/power-systems.ts', symbol: 'TerrainEngine', desc: 'Heightmap clipmap LOD with virtual textures' },
     ],
   },
   {
@@ -154,8 +154,8 @@ const capabilityChecklist = [
       'Auto-rollback and release confidence criteria tied to live telemetry.',
     ],
     completionChecks: [
-      { file: 'lib/gameengin/power-systems.ts', symbol: 'GPUProfiler', desc: 'WebGPU timestamp queries + CPU flame-graph' },
-      { file: 'lib/gameengin/core.ts', symbol: 'FrameTelemetry', desc: 'Runtime telemetry type (FPS, frame time, draw calls)' },
+      { file: 'engins/gameengin/power-systems.ts', symbol: 'GPUProfiler', desc: 'WebGPU timestamp queries + CPU flame-graph' },
+      { file: 'engins/gameengin/core.ts', symbol: 'FrameTelemetry', desc: 'Runtime telemetry type (FPS, frame time, draw calls)' },
     ],
   },
 ];

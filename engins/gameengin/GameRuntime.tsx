@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * lib/gameengin/GameRuntime.tsx
+ * engins/gameengin/GameRuntime.tsx
  *
  * The Shared Engine Runtime Host — the console's heartbeat.
  *

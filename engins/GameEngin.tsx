@@ -54,9 +54,9 @@ import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import { GAME_CONTROL_PROFILES, GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
 import { buildLedgerMediaUrl } from '@/lib/media/ledger';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
-import GameRuntime from '@/lib/gameengin/GameRuntime';
-import type { GameCartridge } from '@/lib/gameengin/cartridge';
-import { wrapAsCartridge } from '@/lib/gameengin/ReactComponentCartridge';
+import GameRuntime from '@/engins/gameengin/GameRuntime';
+import type { GameCartridge } from '@/engins/gameengin/cartridge';
+import { wrapAsCartridge } from '@/engins/gameengin/ReactComponentCartridge';
 import { TetrisCartridge } from '@/games/tetris/TetrisCartridge';
 import { SnakeCartridge } from '@/games/snake/SnakeCartridge';
 

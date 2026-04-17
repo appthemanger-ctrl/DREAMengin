@@ -1,5 +1,5 @@
 /**
- * lib/gameengin/power-systems.ts
+ * engins/gameengin/power-systems.ts
  *
  * ELITE GAME ENGINE — 20 POWER SYSTEMS (2026+)
  *

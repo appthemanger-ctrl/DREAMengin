@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * lib/gameengin/dream-engine.ts
+ * engins/gameengin/dream-engine.ts
  *
  * DREAMengin Core Bridge — connects the controller layer to Asset DNA.
  *

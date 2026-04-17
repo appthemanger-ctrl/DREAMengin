@@ -1,5 +1,5 @@
 /**
- * lib/gameengin/systems/world.ts
+ * engins/gameengin/systems/world.ts
  *
  * WORLD GENERATION SYSTEMS
  *

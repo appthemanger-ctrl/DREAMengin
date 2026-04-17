@@ -1,5 +1,5 @@
 /**
- * lib/gameengin/ReactComponentCartridge.ts
+ * engins/gameengin/ReactComponentCartridge.ts
  *
  * Backward Compatibility Adapter — wraps any existing React game component
  * as a GameCartridge so ALL games immediately run through GameRuntime,

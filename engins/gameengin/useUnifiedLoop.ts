@@ -1,6 +1,6 @@
 'use client';
 /**
- * lib/gameengin/useUnifiedLoop.ts
+ * engins/gameengin/useUnifiedLoop.ts
  *
  * REACT HOOK FOR THE UNIFIED GAME LOOP
  *

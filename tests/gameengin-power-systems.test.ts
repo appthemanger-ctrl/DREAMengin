@@ -1,7 +1,7 @@
 /**
  * tests/gameengin-power-systems.test.ts
  *
- * Unit tests for lib/gameengin/power-systems.ts
+ * Unit tests for engins/gameengin/power-systems.ts
  *
  * 20 systems, each with a focused test suite covering:
  *  • Core API behaviour
@@ -30,14 +30,14 @@ import {
   GlobalIllumProbes,
   AssetStreamManager,
   PhysicsMaterialSystem,
-} from '../lib/gameengin/power-systems';
+} from '../engins/gameengin/power-systems';
 import type {
   BTContext,
   BTNode,
   AnimationClip,
   LODObject,
   LODLevel,
-} from '../lib/gameengin/power-systems';
+} from '../engins/gameengin/power-systems';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  1. ROLLBACK NETCODE
