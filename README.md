@@ -389,3 +389,55 @@ Core product plus AI-assisted system operations.
 - Keep only approved markdown files in root.
 - Keep no image files in root.
 - Archive first, delete later.
+- No artificial "repurpose before invent" rule.
+
+---
+
+## 6. HomeDream (Core System, Private Operating Surface)
+
+HomeDream is the user's private operating surface — private by default and persistent between sessions. It is centered around a personalized feed of content tailored to the user's interests and creative output.
+
+### Gold Button gestures
+- **Single tap: Open dual menus.** Opens the Dreams menu and System menu simultaneously.
+- **Double tap: Go Home.** Returns to the HomeDream feed from anywhere in the app.
+
+### HomeDream layout model
+HomeDream provides:
+- **6 Daydream navigation** — quick-switch access to all six Daydream creative surfaces
+- **Dream Window layout** — user-configured floating panels rendered over HomeDream
+- **feed algorithm settings** — user controls for personalizing the content feed
+- **posting routes** — inline content creation accessible from the HomeDream surface
+
+---
+
+## HomeDream System
+
+The HomeDream System is the canonical shell implementation of the HomeDream surface.
+
+### Routes and implementation paths
+- **Canonical Route:** `app/homedream/page.tsx`
+- **Shell component:** `dreamdmbar/homedream/HomeSystem.tsx`
+- **Feed component:** `components/home/HomeSystem.tsx`
+
+### Vocabulary
+- **Surface** — the visible platform layer (HomeDream, Daydream, etc.)
+- **Daydream** — the creative and utility zone beneath the Surface
+- **Engin** — a powered creative engine embedded within a Daydream surface
+- **Dream Window** — a floating panel inside a Surface or Daydream
+- **Canonical Route** — the single authoritative URL for each surface
+
+### Runtime rules
+- DreamDMBar persistence is shell-owned: the bar is never remounted by page transitions.
+- All surfaces communicate via DreamSystemContext.
+- DreamSpace is hidden/minimized by default; swipe the bar up to reveal.
+
+## 13. Code / CodeEngin
+
+### 13.1 Code (Side A)
+The Code Daydream surface (`app/daydream/code/page.tsx`) provides the user-facing code workspace including Project Vault, Snippet Library, Import Files & Zips, Drafts Workspace, and an Open CodeEngin launcher. Users can manage code files, create Drafts, and open specialized Dream Windows including Project Dream Window, Code File Dream Window, Snippet Dream Window, Terminal Dream Window, Deployment Dream Window, and Runtime Dream Window.
+
+### 13.2 CodeEngin (Side B)
+CodeEngin (`engins/CodeEngin.tsx`) is the powered engine layer. It exposes `runCellCode` for in-editor execution, **Run CI (lint, typecheck, test, build)** triggers, a **ShellHub** terminal integration, and a **TaskJobManager** for background job tracking.
+
+### 13.3 Specialized Dream Windows (Examples)
+CodeEngin hosts context-specific Dream Windows: Project Dream Window, Code File Dream Window, Snippet Dream Window, Terminal Dream Window, Deployment Dream Window, and Runtime Dream Window.
