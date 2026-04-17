@@ -15,7 +15,7 @@ jobs:
   # MUST be named exactly `copilot-setup-steps` to be picked up by the
   # GitHub Copilot cloud agent.
   copilot-setup-steps:
-    runs-on: macos-latest
+    runs-on: windows-latest
     timeout-minutes: 360
 
     permissions:
