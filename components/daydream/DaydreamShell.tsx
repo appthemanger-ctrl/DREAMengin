@@ -1,17 +1,17 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
 import GameRemote from '@/components/games/GameRemote';
 import BrandLogo from '@/components/BrandLogo';
 import { logJourneyDot, hasJourneyDot } from '@/lib/journey/journeyDots';
 import { JOURNEY_DOMAIN_COLORS } from '@/types/journey';
 import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
-import { useGsapFlip } from '@/lib/gsap/useGsapFlip';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { useSearchParams } from 'next/navigation';
+import { findEnginByName, findEnginById } from '@/engins/manifest';
+import type { DaydreamEnginTab } from '@/lib/engins/types';
 
 export type DaydreamWidget = {
   id: string;
@@ -52,60 +52,67 @@ type Props = {
   sideBVariant?: 'widgets' | 'game-remote';
 };
 
-export default function DaydreamShell({ title, enginName, accentColor, widgets, children, daydreamType, sideBComponent, sideBVariant = 'widgets' }: Props) {
-  const [side, setSide] = useState<'A' | 'B'>('A');
+export default function DaydreamShell({
+  title,
+  enginName,
+  accentColor,
+  widgets,
+  children,
+  daydreamType,
+  sideBComponent,
+  sideBVariant = 'widgets',
+}: Props) {
+  const [tab, setTab] = useState<DaydreamEnginTab>('dream');
   const searchParams = useSearchParams();
 
-  // GSAP-powered A↔B flip transition (replaces CSS keyframe approach)
-  const { containerRef, flip: gsapFlip, busy } = useGsapFlip();
-
-  // Persist visit state to Supabase (Phase 6 pt 42 — no creative work silently discarded)
-  useDaydreamState({
-    daydreamType: daydreamType ?? title.split(' ')[0].toLowerCase(),
-    side,
-  });
-
-  // Record Forge activity pulse when entering this Daydream surface
+  // Resolve manifest identity — enriches display name and emoji
   const resolvedEnginId = daydreamType ?? title.split(' ')[0].toLowerCase();
+  const manifest = findEnginById(resolvedEnginId) ?? findEnginByName(enginName);
+  const displayEnginName = manifest?.tagName ?? enginName;
+  const enginEmoji = manifest?.emoji ?? '⚡';
+
+  // Persist visit state to Supabase
+  useDaydreamState({ daydreamType: resolvedEnginId, side: tab === 'dream' ? 'A' : 'B' });
+
+  // Record Forge activity pulse when entering this DaydreamEngin surface
   const { record: recordForge } = useForgeActivity({ enginId: resolvedEnginId });
 
-  const flip = useCallback(() => {
-    gsapFlip(() => setSide(s => {
-      const next = s === 'A' ? 'B' : 'A';
-      // Record forge pulse on Side B (Engin) activation
-      if (next === 'B') recordForge(`Activated ${enginName}`);
-      return next;
-    }));
-  }, [gsapFlip, recordForge, enginName]);
+  const switchTab = useCallback(
+    (next: DaydreamEnginTab) => {
+      if (next === 'engin') recordForge(`Activated ${enginName}`);
+      setTab(next);
+    },
+    [recordForge, enginName],
+  );
 
-  // Alt + F = flip (keyboard shortcut)
+  // Alt+E = open engin tab; Alt+D = open dream tab; Alt+F = toggle (legacy compat)
   useEffect(() => {
-    const h = (e: KeyboardEvent) => { if (e.altKey && e.key === 'f') { e.preventDefault(); flip(); } };
+    const h = (e: KeyboardEvent) => {
+      if (e.altKey && e.key === 'e') { e.preventDefault(); switchTab('engin'); }
+      if (e.altKey && e.key === 'd') { e.preventDefault(); switchTab('dream'); }
+      if (e.altKey && e.key === 'f') { e.preventDefault(); setTab(t => t === 'dream' ? 'engin' : 'dream'); }
+    };
     window.addEventListener('keydown', h);
     return () => window.removeEventListener('keydown', h);
-  }, [flip]);
+  }, [switchTab]);
 
+  // Legacy event: de:open-side-b → open engin tab
   useEffect(() => {
-    const openSideB = () => {
-      if (side === 'A') flip();
-    };
-    window.addEventListener('de:open-side-b', openSideB);
-    return () => window.removeEventListener('de:open-side-b', openSideB);
-  }, [flip, side]);
+    const handler = () => switchTab('engin');
+    window.addEventListener('de:open-side-b', handler);
+    return () => window.removeEventListener('de:open-side-b', handler);
+  }, [switchTab]);
 
-  // Auto-open Side B (Engin) when ?openEngin=1 is present.
-  // This remains as a legacy deep-link path for explicit Side B entry points.
+  // Legacy deep-link: ?openEngin=1 → open engin tab on mount
   useEffect(() => {
-    if (searchParams.get('openEngin') === '1' && side === 'A') {
-      const timer = window.setTimeout(() => flip(), 80);
+    if (searchParams.get('openEngin') === '1') {
+      const timer = window.setTimeout(() => switchTab('engin'), 80);
       return () => window.clearTimeout(timer);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Journey Trail — surface_first_entry instrumentation ──────────────────
-  // Fires once the first time this surface is ever visited by the user.
-  // Deduplicated by kind + surface together so each surface produces exactly one dot.
+  // Journey Trail — surface_first_entry instrumentation
   useEffect(() => {
     const surface = `${title} Daydream Surface`;
     void (async () => {
@@ -119,119 +126,129 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
         metadata:     { engin: enginName },
       });
     })();
-   
   }, [title, enginName, accentColor]);
 
-  const contentStyle: React.CSSProperties = {};
-
   return (
-    <>
-      {/* Animated content — swaps between Side A (daydream) and Side B (engin) */}
-      <div ref={containerRef} style={contentStyle}>
-        {side === 'A'
-          ? children
-          : (() => {
-              if (sideBComponent) {
-                const EnginComponent = sideBComponent;
-                return <EnginComponent onBack={flip} />;
-              }
-              if (sideBVariant === 'game-remote') return <GameRemote onBack={flip} />;
-              return <EnginSurface enginName={enginName} title={title} accentColor={accentColor} widgets={widgets} onBack={flip} />;
-            })()
-        }
-      </div>
-
-      {/* ── Side A only: corner fold tab → opens Side B (Engin) ── */}
-      {side === 'A' && (
-        <>
-          <motion.button
-            type="button"
-            onClick={flip}
-            aria-label={`Open ${enginName}`}
-            title={`${enginName} (Alt+F)`}
-            whileHover={{ width: 80, height: 80 }}
-            whileTap={{ scale: 0.92 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-            className="de-daydream-engin-fold de-desktop-only"
-            style={{
-              position: 'fixed',
-              bottom: 0,
-              right: 0,
-              width: 72,
-              height: 72,
-              zIndex: 48,
-              clipPath: 'polygon(100% 0, 100% 100%, 0 100%)',
-              cursor: 'pointer',
-              border: 'none',
-              background: `linear-gradient(135deg, ${accentColor}cc, rgba(200,152,26,0.85))`,
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              boxShadow: `-6px -6px 28px rgba(0,0,0,0.22), -1px -1px 0 rgba(255,255,255,0.18) inset, 0 0 24px ${accentColor}40`,
-              padding: 0,
-            }}
-          />
-          <div
-            className="de-desktop-only"
-            style={{
-              position: 'fixed',
-              bottom: 20,
-              right: 84,
-              zIndex: 48,
-              fontSize: 10,
-              fontWeight: 800,
-              letterSpacing: '0.12em',
-              color: 'rgba(255,255,255,0.92)',
-              textShadow: '0 1px 8px rgba(0,0,0,0.45)',
-              pointerEvents: 'none',
-              padding: '8px 12px',
-              borderRadius: 999,
-              background: 'rgba(8,16,36,0.42)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255,255,255,0.12)',
-            }}>
-            ENGIN →
-          </div>
-
-          {/* ── Mobile: prominent bottom-center ENGIN pill button ── */}
-          <motion.button
-            type="button"
-            onClick={flip}
-            aria-label={`Open ${enginName}`}
-            whileTap={{ scale: 0.93 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-            className="de-mobile-engin-pill"
-            style={{
-              position: 'fixed',
-              bottom: `max(100px, calc(92px + env(safe-area-inset-bottom, 0px)))`,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 48,
-              alignItems: 'center',
-              gap: 8,
-              padding: '11px 22px',
-              borderRadius: 9999,
-              cursor: 'pointer',
-              border: `1.5px solid ${accentColor}55`,
-              background: `linear-gradient(135deg, rgba(8,16,36,0.88), rgba(8,16,36,0.72))`,
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              boxShadow: `0 6px 28px rgba(0,0,0,0.30), 0 0 20px ${accentColor}28`,
-              fontSize: 12,
-              fontWeight: 800,
-              letterSpacing: '0.12em',
-              color: 'rgba(255,255,255,0.92)',
-              WebkitTapHighlightColor: 'transparent',
-              touchAction: 'manipulation',
-            }}
+    <div style={{ minHeight: '100vh', position: 'relative' }}>
+      {/* ── Active tab content ─────────────────────────────────────────────── */}
+      <AnimatePresence mode="wait">
+        {tab === 'dream' ? (
+          <motion.div
+            key="dream"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
           >
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: accentColor, flexShrink: 0, boxShadow: `0 0 8px ${accentColor}` }} />
-            {enginName.toUpperCase()}
-            <span style={{ opacity: 0.55, fontSize: 11 }}>→</span>
-          </motion.button>
-        </>
-      )}
-    </>
+            {children}
+          </motion.div>
+        ) : (
+          <motion.div
+            key="engin"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
+          >
+            {sideBComponent
+              ? (() => { const EC = sideBComponent; return <EC onBack={() => switchTab('dream')} />; })()
+              : sideBVariant === 'game-remote'
+                ? <GameRemote onBack={() => switchTab('dream')} />
+                : <EnginSurface enginName={enginName} title={title} accentColor={accentColor} widgets={widgets} onBack={() => switchTab('dream')} />
+            }
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Persistent DaydreamEngin tab bar ──────────────────────────────── */}
+      <div
+        aria-label="DaydreamEngin navigation"
+        style={{
+          position: 'fixed',
+          bottom: `max(72px, calc(64px + env(safe-area-inset-bottom, 0px)))`,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 50,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0,
+          background: 'rgba(6,10,22,0.82)',
+          backdropFilter: 'blur(28px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(28px) saturate(180%)',
+          borderRadius: 9999,
+          padding: 4,
+          border: `1.5px solid ${accentColor}30`,
+          boxShadow: `0 8px 32px rgba(0,0,0,0.45), 0 0 0 0.5px rgba(255,255,255,0.07) inset, 0 0 24px ${accentColor}18`,
+        }}
+      >
+        {/* DREAM tab */}
+        <motion.button
+          type="button"
+          onClick={() => switchTab('dream')}
+          whileTap={{ scale: 0.94 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+          aria-label={`${title} Daydream`}
+          aria-pressed={tab === 'dream'}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 7,
+            padding: '9px 20px',
+            borderRadius: 9999,
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: 11,
+            fontWeight: 800,
+            letterSpacing: '0.10em',
+            textTransform: 'uppercase',
+            WebkitTapHighlightColor: 'transparent',
+            touchAction: 'manipulation',
+            transition: 'background 0.15s, color 0.15s',
+            background: tab === 'dream' ? `${accentColor}22` : 'transparent',
+            color:      tab === 'dream' ? accentColor : 'rgba(180,200,240,0.45)',
+            boxShadow:  tab === 'dream' ? `0 0 0 1px ${accentColor}45 inset` : 'none',
+          }}
+        >
+          <span style={{ fontSize: 14 }}>🌟</span>
+          <span>DREAM</span>
+        </motion.button>
+
+        {/* Divider */}
+        <div style={{ width: 1, height: 22, background: `${accentColor}25`, flexShrink: 0 }} />
+
+        {/* ENGIN tab */}
+        <motion.button
+          type="button"
+          onClick={() => switchTab('engin')}
+          whileTap={{ scale: 0.94 }}
+          transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+          aria-label={`${displayEnginName}`}
+          aria-pressed={tab === 'engin'}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 7,
+            padding: '9px 20px',
+            borderRadius: 9999,
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: 11,
+            fontWeight: 800,
+            letterSpacing: '0.10em',
+            textTransform: 'uppercase',
+            WebkitTapHighlightColor: 'transparent',
+            touchAction: 'manipulation',
+            transition: 'background 0.15s, color 0.15s',
+            background: tab === 'engin' ? `${accentColor}22` : 'transparent',
+            color:      tab === 'engin' ? accentColor : 'rgba(180,200,240,0.45)',
+            boxShadow:  tab === 'engin' ? `0 0 0 1px ${accentColor}45 inset` : 'none',
+          }}
+        >
+          <span style={{ fontSize: 14 }}>{enginEmoji}</span>
+          <span>{displayEnginName}</span>
+        </motion.button>
+      </div>
+    </div>
   );
 }
 
