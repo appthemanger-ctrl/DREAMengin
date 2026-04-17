@@ -23,6 +23,7 @@ const BACK_HREF = '/daydream/games';
 const NAV_ITEMS = [
   { href: '/engines/games',         label: 'Hub',     emoji: '🎮' },
   { href: '/engines/games/library', label: 'Library', emoji: '📚' },
+  { href: '/gameengin/cartridges',  label: 'Cartridges', emoji: '💾' },
   { href: '/engines/games/scores',  label: 'Scores',  emoji: '🏆' },
   { href: '/engines/games/builder', label: 'Builder', emoji: '🗺️' },
 ];

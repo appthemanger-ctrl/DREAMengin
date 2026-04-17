@@ -61,6 +61,17 @@ export type {
   CartridgeInputEvent,
 } from './cartridge';
 
+// ── Cartridge bay — every repo game packaged as a GameCartridge ──────────────
+export {
+  CARTRIDGE_MANIFEST,
+  getCartridgeManifest,
+  getCartridgeCategories,
+} from './cartridges/manifest';
+export type {
+  CartridgeManifestEntry,
+  CartridgeRenderMode,
+} from './cartridges/manifest';
+
 // ── Power Systems (20 state-of-the-art 2026+ engine subsystems) ──────────────
 export {
   RollbackNetcode,
