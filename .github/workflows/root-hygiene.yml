@@ -1,0 +1,17 @@
+name: Root Hygiene
+
+on:
+  push:
+    branches: [completedream, main, develop]
+  pull_request:
+    branches: [completedream, main]
+
+jobs:
+  check-root:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check root directory hygiene
+        run: .github/scripts/check-root-hygiene.sh

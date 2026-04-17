@@ -23,6 +23,15 @@ DREAMengin is a **privacy-first, DreamDM-Bar-led spatial operating environment**
 - **Edit ProfileDream Surface** — the private builder for profile output (`/edit-profiledream`)
 - **View Profile Surface** — the shared/public output surface (`/view-profile`)
 
+### README §5 — Global Product Architecture
+
+The product has two major surface groups:
+
+- **Core Dreams (not Daydreams):** HomeDream, Edit ProfileDream, View Profile.
+- **Daydream Pair model:** each Daydream has Side A (domain experience) and Side B (its Engin control layer).
+
+Naming rule: only Side B uses the `Engin` suffix.
+
 ### Daydream Surface Network (multi-connection, not 1-to-1)
 - Music Daydream Surface / StarMakerEngin
 - Games Daydream Surface / GameEngin

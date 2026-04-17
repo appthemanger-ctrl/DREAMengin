@@ -4,10 +4,22 @@
  * RTSGame — DREAM FORCE — original DREAMengin RTS.
  * Canvas-based, runs entirely in the browser with no server dependencies.
  * Supports: base building, unit production, resource gathering, combat, AI opponent.
+ *
+ * Engine integration (2026+):
+ *  • ECSWorld       — entity-component-system for unit/building tracking
+ *  • OctreeBVH      — O(log n) spatial queries replace O(n²) brute-force
+ *  • ResourcePool   — zero-allocation particle pooling (no GC spikes)
+ *  • LODSystem      — distance-based rendering tiers (LOD0/1/2)
+ *  • Canvas2DRenderer — IRenderer lifecycle (clear/present + frustum cull)
+ *  • useUnifiedLoop — single shared RAF instead of per-game requestAnimationFrame
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
+import { ECSWorld, OctreeBVH, ResourcePool, LODSystem } from '@/lib/gameengin';
+import type { EntityId, Component } from '@/lib/gameengin';
+import { Canvas2DRenderer } from '@/lib/renderer';
+import { useUnifiedLoop } from '@/lib/gameengin/useUnifiedLoop';
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Canvas / grid constants
@@ -101,6 +113,178 @@ const FC = {
 // ─────────────────────────────────────────────────────────────────────────────
 let _uid = 1;
 function uid() { return _uid++; }
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  ENGINE INTEGRATION TYPES
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** ECS component: 2-D world position (tile coordinates). */
+interface TransformComponent extends Component {
+  readonly type: 'transform';
+  x: number;
+  y: number;
+}
+
+/** ECS component: faction identity for spatial queries. */
+interface FactionComponent extends Component {
+  readonly type: 'faction';
+  faction: Faction;
+}
+
+/** ECS component: combat stats for threat range evaluation. */
+interface CombatComponent extends Component {
+  readonly type: 'combat';
+  hp: number;
+  maxHp: number;
+  attackRange: number;
+}
+
+// ─── Pooled particle ─────────────────────────────────────────────────────────
+
+/**
+ * Poolable particle — extends the Particle interface with a `reset()` method
+ * so ResourcePool can recycle instances without GC allocation.
+ */
+class PooledParticle implements Particle {
+  x = 0; y = 0;
+  vx = 0; vy = 0;
+  life = 0; maxLife = 0;
+  size = 0;
+  kind: Particle['kind'] = 'spark';
+  r = 0; g = 0; b = 0;
+
+  /** Called by ResourcePool.release() — resets to a safe default state. */
+  reset(): void {
+    this.x = 0; this.y = 0;
+    this.vx = 0; this.vy = 0;
+    this.life = 0; this.maxLife = 0;
+    this.size = 0; this.kind = 'spark';
+    this.r = 0; this.g = 0; this.b = 0;
+  }
+}
+
+// ─── LOD levels for RTS units ────────────────────────────────────────────────
+
+/**
+ * Three LOD tiers keyed to tile-distance from the map centre.
+ *  0 — full detail (close to centre, ~< 6 tiles)
+ *  1 — simplified (6–12 tiles): skip walk cycle + muzzle flash
+ *  2 — minimal   (>12 tiles):  single coloured circle + HP bar
+ */
+const RTS_LOD_LEVELS = [
+  { minDist: 0,  maxDist: 6,   meshId: 'lod0', triangleCount: 64  },
+  { minDist: 6,  maxDist: 12,  meshId: 'lod1', triangleCount: 16  },
+  { minDist: 12, maxDist: 999, meshId: 'lod2', triangleCount: 4   },
+];
+
+// ─── BVH helpers ─────────────────────────────────────────────────────────────
+
+/**
+ * Rebuild the OctreeBVH from current game-state.
+ * Removes all previously-inserted entries (tracked by `ids` Set) then
+ * re-inserts every live unit and building at their current positions.
+ * Using a flat Set<string> as the "clear" mechanism avoids the need for a
+ * separate OctreeBVH.clear() API.
+ */
+function rebuildBVH(bvh: OctreeBVH, gs: GS, ids: Set<string>): void {
+  // Remove stale entries
+  for (const id of ids) bvh.remove(id);
+  ids.clear();
+
+  // Units — 1×1 tile AABB centred on unit pos
+  for (const u of gs.units) {
+    const id = `u${u.id}`;
+    const { x, y } = u.pos;
+    bvh.insert({ id, aabb: { min: [x - 0.5, -0.1, y - 0.5], max: [x + 0.5, 0.1, y + 0.5] } });
+    ids.add(id);
+  }
+
+  // Buildings — size×size tile AABB
+  for (const b of gs.buildings) {
+    const id = `b${b.id}`;
+    const s = BUILDING_STATS[b.type].size;
+    bvh.insert({ id, aabb: { min: [b.pos.x, -0.1, b.pos.y], max: [b.pos.x + s, 0.1, b.pos.y + s] } });
+    ids.add(id);
+  }
+}
+
+/**
+ * Query BVH for enemy units within `radius` tile-distance of `pos`.
+ * Returns the first match for the target faction, or `undefined`.
+ * This replaces the O(n²) `gs.units.find(...)` call.
+ */
+function bvhNearbyEnemy(
+  bvh: OctreeBVH,
+  pos: Vec2,
+  radius: number,
+  targetFaction: Faction,
+  units: Unit[],
+): Unit | undefined {
+  const results = bvh.querySphere([pos.x, 0, pos.y], radius);
+  for (const entry of results) {
+    if (!entry.id.startsWith('u')) continue;
+    const uid2 = parseInt(entry.id.slice(1), 10);
+    const u = units.find(u2 => u2.id === uid2);
+    if (u && u.faction === targetFaction && u.hp > 0) return u;
+  }
+  return undefined;
+}
+
+// ─── ECS sync helper ─────────────────────────────────────────────────────────
+
+/**
+ * Mirror current GS entities into ECSWorld.
+ * • New units/buildings get an entity with Transform + Faction + Combat.
+ * • Existing entities get their Transform position updated.
+ * • Dead entities (no longer in gs) are destroyed.
+ * ecsMap: gameId → ECS EntityId
+ */
+function syncECS(
+  world: ECSWorld,
+  gs: GS,
+  ecsMap: Map<number, EntityId>,
+): void {
+  // -- Remove dead entities --
+  for (const [gameId, entityId] of ecsMap) {
+    const alive = gs.units.some(u => u.id === gameId)
+                || gs.buildings.some(b => b.id === gameId);
+    if (!alive) {
+      world.destroyEntity(entityId);
+      ecsMap.delete(gameId);
+    }
+  }
+
+  // -- Upsert units --
+  for (const unit of gs.units) {
+    if (!ecsMap.has(unit.id)) {
+      const eid = world.createEntity();
+      world.addComponent<TransformComponent>(eid, { type: 'transform', x: unit.pos.x, y: unit.pos.y });
+      world.addComponent<FactionComponent>(eid, { type: 'faction', faction: unit.faction });
+      world.addComponent<CombatComponent>(eid, {
+        type: 'combat',
+        hp: unit.hp, maxHp: unit.maxHp,
+        attackRange: UNIT_STATS[unit.type].range,
+      });
+      ecsMap.set(unit.id, eid);
+    } else {
+      const eid = ecsMap.get(unit.id)!;
+      const tf = world.getComponent<TransformComponent>(eid, 'transform');
+      if (tf) { tf.x = unit.pos.x; tf.y = unit.pos.y; }
+      const combat = world.getComponent<CombatComponent>(eid, 'combat');
+      if (combat) combat.hp = unit.hp;
+    }
+  }
+
+  // -- Upsert buildings (no combat component — just transform + faction) --
+  for (const bldg of gs.buildings) {
+    if (!ecsMap.has(bldg.id)) {
+      const eid = world.createEntity();
+      world.addComponent<TransformComponent>(eid, { type: 'transform', x: bldg.pos.x, y: bldg.pos.y });
+      world.addComponent<FactionComponent>(eid, { type: 'faction', faction: bldg.faction });
+      ecsMap.set(bldg.id, eid);
+    }
+  }
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Math helpers
@@ -197,70 +381,130 @@ type GS = ReturnType<typeof createGS>;
 // ─────────────────────────────────────────────────────────────────────────────
 //  Particle helpers
 // ─────────────────────────────────────────────────────────────────────────────
-function spawnExplosion(ps: Particle[], cx: number, cy: number, big: boolean) {
+
+/**
+ * Acquire a particle from the pool when available; fall back to plain object.
+ * Centralises the pool-vs-allocation decision so spawn functions stay concise.
+ */
+function acquireParticle(
+  ps: Particle[],
+  props: Omit<Particle, never>,   // full Particle field set
+  pool: ResourcePool<PooledParticle> | null,
+): void {
+  let p: PooledParticle | null = pool?.acquire() ?? null;
+  if (!p) {
+    // Pool miss or no pool — allocate a fresh instance (rare after warm-up).
+    p = new PooledParticle();
+  }
+  // Set all fields from props
+  p.x = props.x; p.y = props.y;
+  p.vx = props.vx; p.vy = props.vy;
+  p.life = props.life; p.maxLife = props.maxLife;
+  p.size = props.size; p.kind = props.kind;
+  p.r = props.r; p.g = props.g; p.b = props.b;
+  ps.push(p);
+}
+
+function spawnExplosion(
+  ps: Particle[],
+  cx: number, cy: number,
+  big: boolean,
+  pool: ResourcePool<PooledParticle> | null = null,
+) {
   const n = big ? 28 : 14;
   for (let i = 0; i < n; i++) {
     const a = Math.random() * Math.PI * 2;
     const spd = 1 + Math.random() * (big ? 4 : 2.5);
     const roll = Math.random();
     if (roll < 0.4) {
-      ps.push({ x:cx, y:cy, vx:Math.cos(a)*spd, vy:Math.sin(a)*spd,
+      acquireParticle(ps, { x:cx, y:cy, vx:Math.cos(a)*spd, vy:Math.sin(a)*spd,
         life:0.5+Math.random()*0.5, maxLife:1, size:2+Math.random()*2,
-        kind:'spark', r:255, g:180+Math.floor(Math.random()*75), b:0 });
+        kind:'spark', r:255, g:180+Math.floor(Math.random()*75), b:0 }, pool);
     } else if (roll < 0.7) {
-      ps.push({ x:cx, y:cy, vx:Math.cos(a)*spd*0.3, vy:Math.sin(a)*spd*0.3-0.5,
+      acquireParticle(ps, { x:cx, y:cy, vx:Math.cos(a)*spd*0.3, vy:Math.sin(a)*spd*0.3-0.5,
         life:1+Math.random(), maxLife:2, size:big?12+Math.random()*14:5+Math.random()*8,
-        kind:'smoke', r:80, g:80, b:80 });
+        kind:'smoke', r:80, g:80, b:80 }, pool);
     } else {
-      ps.push({ x:cx, y:cy, vx:Math.cos(a)*spd*1.5, vy:Math.sin(a)*spd*1.5-1,
+      acquireParticle(ps, { x:cx, y:cy, vx:Math.cos(a)*spd*1.5, vy:Math.sin(a)*spd*1.5-1,
         life:0.3+Math.random()*0.5, maxLife:0.8, size:2+Math.random()*4,
-        kind:'debris', r:100+Math.floor(Math.random()*60), g:80, b:60 });
+        kind:'debris', r:100+Math.floor(Math.random()*60), g:80, b:60 }, pool);
     }
   }
 }
 
-function spawnDust(ps: Particle[], cx: number, cy: number) {
+function spawnDust(
+  ps: Particle[],
+  cx: number, cy: number,
+  pool: ResourcePool<PooledParticle> | null = null,
+) {
   for (let i = 0; i < 2; i++) {
     const a = Math.random() * Math.PI * 2;
-    ps.push({ x:cx+(Math.random()-0.5)*8, y:cy+(Math.random()-0.5)*8,
+    acquireParticle(ps, { x:cx+(Math.random()-0.5)*8, y:cy+(Math.random()-0.5)*8,
       vx:Math.cos(a)*0.3, vy:Math.sin(a)*0.3,
       life:0.3+Math.random()*0.3, maxLife:0.6, size:4+Math.random()*5,
-      kind:'dust', r:160, g:140, b:100 });
+      kind:'dust', r:160, g:140, b:100 }, pool);
   }
 }
 
-function spawnMuzzle(ps: Particle[], cx: number, cy: number, facing: number) {
+function spawnMuzzle(
+  ps: Particle[],
+  cx: number, cy: number,
+  facing: number,
+  pool: ResourcePool<PooledParticle> | null = null,
+) {
   for (let i = 0; i < 5; i++) {
     const spread = (Math.random()-0.5)*0.5;
     const spd = 3+Math.random()*2;
-    ps.push({ x:cx, y:cy, vx:Math.cos(facing+spread)*spd, vy:Math.sin(facing+spread)*spd,
+    acquireParticle(ps, { x:cx, y:cy, vx:Math.cos(facing+spread)*spd, vy:Math.sin(facing+spread)*spd,
       life:0.18, maxLife:0.18, size:2+Math.random()*3,
-      kind:'muzzle', r:255, g:220, b:50 });
+      kind:'muzzle', r:255, g:220, b:50 }, pool);
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Game step context (carries engine-system refs without touching GS type)
+// ─────────────────────────────────────────────────────────────────────────────
+interface StepCtx {
+  bvh: OctreeBVH;
+  bvhIds: Set<string>;
+  pool: ResourcePool<PooledParticle> | null;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Game step (logic)
 // ─────────────────────────────────────────────────────────────────────────────
-function stepGS(gs: GS, dt: number) {
+function stepGS(gs: GS, dt: number, ctx?: StepCtx) {
+  const pool = ctx?.pool ?? null;
+
   gs.tick++;
   gs.globalAnim += dt;
   gs.shake = Math.max(0, gs.shake - dt * 8);
 
-  // Particles
-  gs.particles = gs.particles.filter(p => {
+  // ── Particles — in-place update with pool.release() for dead ones ─────────
+  // Using in-place mutation (no Array.filter allocation) + ResourcePool recycle.
+  let aliveCount = 0;
+  for (let i = 0; i < gs.particles.length; i++) {
+    const p = gs.particles[i];
     p.life -= dt;
     p.x += p.vx; p.y += p.vy;
     if (p.kind === 'smoke')        { p.vy -= 0.05; p.size += 0.12; }
     else if (p.kind === 'spark' || p.kind === 'debris') p.vy += 0.1;
-    return p.life > 0;
-  });
+    if (p.life > 0) {
+      gs.particles[aliveCount++] = p;
+    } else {
+      pool?.release(p as PooledParticle);
+    }
+  }
+  gs.particles.length = aliveCount;
 
   // Building animations
   for (const b of gs.buildings) {
     b.radarAngle += dt * 1.8;
     b.lightPhase  += dt * 2.5;
   }
+
+  // Rebuild BVH before unit queries (O(n log n) rebuild, O(log n) queries)
+  if (ctx) rebuildBVH(ctx.bvh, gs, ctx.bvhIds);
 
   // Units
   for (const unit of gs.units) {
@@ -313,21 +557,21 @@ function stepGS(gs: GS, dt: number) {
           const dmg = UNIT_STATS[unit.type].damage;
           const mpx = unit.pos.x * T + T / 2;
           const mpy = unit.pos.y * T + T / 2;
-          spawnMuzzle(gs.particles, mpx, mpy, unit.facing);
+          spawnMuzzle(gs.particles, mpx, mpy, unit.facing, pool);
           if (tgtUnit) {
             tgtUnit.hp -= dmg;
-            spawnExplosion(gs.particles, tPos.x * T + T / 2, tPos.y * T + T / 2, false);
+            spawnExplosion(gs.particles, tPos.x * T + T / 2, tPos.y * T + T / 2, false, pool);
           } else if (tgtBldg) {
             tgtBldg.hp -= dmg;
             const bsize = BUILDING_STATS[tgtBldg.type].size;
-            spawnExplosion(gs.particles, tPos.x * T + bsize * T / 2, tPos.y * T + bsize * T / 2, true);
+            spawnExplosion(gs.particles, tPos.x * T + bsize * T / 2, tPos.y * T + bsize * T / 2, true, pool);
             gs.shake = Math.min(gs.shake + 0.4, 2.5);
           }
         }
       } else {
         unit.pos = toward(unit.pos, tPos, UNIT_STATS[unit.type].speed * dt * 2);
         unit.walkCycle = (unit.walkCycle + dt * 4) % 1;
-        if (gs.tick % 5 === 0) spawnDust(gs.particles, unit.pos.x * T + T / 2, unit.pos.y * T + T / 2);
+        if (gs.tick % 5 === 0) spawnDust(gs.particles, unit.pos.x * T + T / 2, unit.pos.y * T + T / 2, pool);
       }
     } else if (unit.moveTarget) {
       if (dist(unit.pos, unit.moveTarget) < 0.4) {
@@ -338,15 +582,18 @@ function stepGS(gs: GS, dt: number) {
         unit.walkCycle = (unit.walkCycle + dt * 4) % 1;
       }
     } else {
+      // ── OctreeBVH proximity check replaces O(n²) gs.units.find() ─────────
       const enemy: Faction = unit.faction === 'resistance' ? 'nexus' : 'resistance';
-      const nearby = gs.units.find(u => u.faction === enemy && dist(u.pos, unit.pos) < 4);
+      const nearby = ctx
+        ? bvhNearbyEnemy(ctx.bvh, unit.pos, 4, enemy, gs.units)
+        : gs.units.find(u => u.faction === enemy && dist(u.pos, unit.pos) < 4);
       if (nearby) unit.attackTargetId = nearby.id;
     }
   }
 
   // Remove dead units
   for (const dead of gs.units.filter(u => u.hp <= 0)) {
-    spawnExplosion(gs.particles, dead.pos.x * T + T / 2, dead.pos.y * T + T / 2, true);
+    spawnExplosion(gs.particles, dead.pos.x * T + T / 2, dead.pos.y * T + T / 2, true, pool);
     gs.shake = Math.min(gs.shake + 0.3, 2.5);
   }
   gs.units = gs.units.filter(u => u.hp > 0);
@@ -354,7 +601,7 @@ function stepGS(gs: GS, dt: number) {
   // Remove dead buildings
   for (const dead of gs.buildings.filter(b => b.hp <= 0)) {
     const bsize = BUILDING_STATS[dead.type].size;
-    spawnExplosion(gs.particles, dead.pos.x * T + bsize * T / 2, dead.pos.y * T + bsize * T / 2, true);
+    spawnExplosion(gs.particles, dead.pos.x * T + bsize * T / 2, dead.pos.y * T + bsize * T / 2, true, pool);
     gs.shake = Math.min(gs.shake + 1.2, 3.5);
   }
   gs.buildings = gs.buildings.filter(b => b.hp > 0);
@@ -866,11 +1113,18 @@ function drawGS(ctx: CanvasRenderingContext2D, gs: GS, selected: number[]) {
 //  React component
 // ─────────────────────────────────────────────────────────────────────────────
 export default function RTSGame() {
-  const canvasRef  = useRef<HTMLCanvasElement>(null);
-  const gsRef      = useRef<GS>(createGS());
-  const rafRef     = useRef<number>(0);
-  const lastRef    = useRef<number>(0);
-  const selRef     = useRef<number[]>([]);
+  const canvasRef       = useRef<HTMLCanvasElement>(null);
+  const gsRef           = useRef<GS>(createGS());
+  const selRef          = useRef<number[]>([]);
+
+  // ── Engine system refs (reset on each new game) ───────────────────────────
+  const ecsRef          = useRef<ECSWorld>(new ECSWorld());
+  const ecsMapRef       = useRef<Map<number, EntityId>>(new Map());
+  const bvhRef          = useRef<OctreeBVH>(new OctreeBVH({ min: [-2048, -512, -2048], max: [2048, 512, 2048] }));
+  const bvhIdsRef       = useRef<Set<string>>(new Set());
+  const particlePoolRef = useRef<ResourcePool<PooledParticle>>(
+    new ResourcePool<PooledParticle>(() => new PooledParticle(), 256),
+  );
 
   const [phase,      setPhase]      = useState<Phase>('briefing');
   const [credits,    setCredits]    = useState(1500);
@@ -888,6 +1142,12 @@ export default function RTSGame() {
     _uid = 1;
     gsRef.current = createGS();
     selRef.current = [];
+    // Reset engine systems for the fresh game
+    ecsRef.current    = new ECSWorld();
+    ecsMapRef.current = new Map();
+    bvhRef.current    = new OctreeBVH({ min: [-2048, -512, -2048], max: [2048, 512, 2048] });
+    bvhIdsRef.current = new Set();
+    particlePoolRef.current = new ResourcePool<PooledParticle>(() => new PooledParticle(), 256);
     setPhase('playing');
     setCredits(1500);
     setBuildQueue(null);
@@ -897,42 +1157,42 @@ export default function RTSGame() {
   // auto-start support
   useGameAutoStart(phase === 'briefing' ? startGame : null);
 
-  // main game loop
-  useEffect(() => {
-    if (phase !== 'playing') return;
+  // ── Unified-loop tick — replaces the per-game requestAnimationFrame ───────
+  const tick = useCallback((dtMs: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let running = true;
-    lastRef.current = performance.now();
-
-    const loop = (now: number) => {
-      if (!running) return;
-      const dt = Math.min((now - lastRef.current) / 1000, 0.05);
-      lastRef.current = now;
-      const gs = gsRef.current;
-      stepGS(gs, dt);
-      drawGS(ctx, gs, selRef.current);
-
-      if (gs.tick % 30 === 0) {
-        setCredits(gs.credits.resistance);
-        setUnitCounts({
-          player: gs.units.filter(u=>u.faction==='resistance').length,
-          enemy:  gs.units.filter(u=>u.faction==='nexus').length,
-        });
-        setBuildQueue({ ...gs.buildQueue.resistance } as GS['buildQueue']['resistance']);
-        const resBase  = gs.buildings.find(b=>b.faction==='resistance'&&b.type==='base');
-        const nexBase  = gs.buildings.find(b=>b.faction==='nexus'&&b.type==='base');
-        if (!nexBase)  { running=false; setPhase('victory'); }
-        else if (!resBase) { running=false; setPhase('defeat'); }
-      }
-      rafRef.current = requestAnimationFrame(loop);
+    // Cap dt to 50 ms (20 fps floor) so physics don't tunnel on tab-blur.
+    const dt = Math.min(dtMs / 1000, 0.05);
+    const gs = gsRef.current;
+    const stepCtx: StepCtx = {
+      bvh:    bvhRef.current,
+      bvhIds: bvhIdsRef.current,
+      pool:   particlePoolRef.current,
     };
-    rafRef.current = requestAnimationFrame(loop);
-    return () => { running=false; cancelAnimationFrame(rafRef.current); };
-  }, [phase]);
+
+    stepGS(gs, dt, stepCtx);
+    // Mirror ECS state after stepGS so positions/hp are up-to-date.
+    syncECS(ecsRef.current, gs, ecsMapRef.current);
+    drawGS(ctx, gs, selRef.current);
+
+    if (gs.tick % 30 === 0) {
+      setCredits(gs.credits.resistance);
+      setUnitCounts({
+        player: gs.units.filter(u => u.faction === 'resistance').length,
+        enemy:  gs.units.filter(u => u.faction === 'nexus').length,
+      });
+      setBuildQueue({ ...gs.buildQueue.resistance } as GS['buildQueue']['resistance']);
+      const resBase = gs.buildings.find(b => b.faction === 'resistance' && b.type === 'base');
+      const nexBase = gs.buildings.find(b => b.faction === 'nexus'      && b.type === 'base');
+      if (!nexBase)   setPhase('victory');
+      else if (!resBase) setPhase('defeat');
+    }
+  }, []);
+
+  useUnifiedLoop('rts-game', tick, 'NORMAL', phase === 'playing');
 
   const handleCanvasClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const gs   = gsRef.current;

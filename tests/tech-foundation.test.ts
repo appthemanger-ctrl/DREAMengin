@@ -90,10 +90,10 @@ describe('TypeScript strict mode', () => {
     expect(tsconfig.compilerOptions.strict).toBe(true);
   });
 
-  it('uses TypeScript 5.5+ in devDependencies', () => {
+  it('uses TypeScript 5.8+ in devDependencies', () => {
     const pkg = JSON.parse(readFile('package.json'));
     const tsVersion = pkg.devDependencies?.typescript ?? '';
-    expect(tsVersion).toMatch(/5\.[5-9]|5\.\d{2}/);
+    expect(tsVersion).toMatch(/5\.(8|9|\d{2,})/);
   });
 });
 
@@ -102,6 +102,12 @@ describe('TypeScript strict mode', () => {
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe('Tailwind tokenized design system (Neumorphic Dark)', () => {
+  it('uses Tailwind CSS 4.x', () => {
+    const pkg = JSON.parse(readFile('package.json'));
+    const tailwindVersion = pkg.devDependencies?.tailwindcss ?? '';
+    expect(tailwindVersion).toMatch(/4\./);
+  });
+
   it('has tailwind.config.ts with neumorphic shadow tokens', () => {
     const config = readFile('tailwind.config.ts');
     expect(config).toContain('neu-raise');

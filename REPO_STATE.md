@@ -5,10 +5,10 @@
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)
 **Documentation Date:** 2026-04-16
-**Last Updated:** 4/16/2026, 5:41:52 PM
-**Branch:** completedream
-**Commit:** 82479380 - Merge pull request #551 from appthemanger-ctrl/copilot/add-github-action-bot
-**Total Commits:** 4642
+**Last Updated:** 4/16/2026, 10:40:33 PM
+**Branch:** copilot/research-game-engine-architecture
+**Commit:** 5f93b529 - feat: RTSGame wired to ECSWorld + OctreeBVH + ResourcePool + useUnifiedLoop
+**Total Commits:** 3877
 
 ---
 
@@ -43,14 +43,14 @@
 
 **Quick Stats:**
 
-- 📁 Total Code Files: 722
-- 📝 Total Lines of Code: 176,623
-- 📦 Size: 6.62 MB
-- 🧪 Tests: 151 files, 146 passing
-- 📄 API Routes: 98
-- 🎨 Components: 40 categories
-- 📖 Documentation: 55 files
-- ⚙️ GitHub Actions: 57 workflows
+- 📁 Total Code Files: 689
+- 📝 Total Lines of Code: 168,410
+- 📦 Size: 6.36 MB
+- 🧪 Tests: 143 files, 134 passing
+- 📄 API Routes: 88
+- 🎨 Components: 36 categories
+- 📖 Documentation: 49 files
+- ⚙️ GitHub Actions: 53 workflows
 
 ## Tech Stack
 
@@ -58,7 +58,7 @@
 
 | Package | Version |
 |---------|---------|
-| next | ^16.2.0 |
+| next | ^16.2.3 |
 | react | ^19.2.0 |
 | react-dom | ^19.2.0 |
 | typescript | ^5.9.0 |
@@ -88,7 +88,14 @@ clsx@^2.1.1
 framer-motion@^12.35.0
 gsap@^3.14.2
 lucide-react@^0.577.0
-... and 11 more
+next@^16.2.3
+react@^19.2.0
+react-dom@^19.2.0
+rss-parser@^3.13.0
+swr@^2.4.1
+tailwind-merge@^3.5.0
+three@^0.183.0
+... and 3 more
 ```
 
 **Dev Dependencies:** 17
@@ -101,7 +108,7 @@ lucide-react@^0.577.0
 @webgpu/types@^0.1.69
 assemblyscript@^0.28.0
 eslint@^9.0.0
-eslint-config-next@^16.2.0
+eslint-config-next@^16.2.3
 pixi-viewport@^6.0.3
 pixi.js@^8.17.0
 react-dnd@^16.0.1
@@ -118,29 +125,29 @@ vitest@^4.1.0
 
 | Directory | Total Files | File Types |
 |-----------|-------------|------------|
-| `app/` | 225 | .tsx(125), .ts(98), .css(2) |
-| `components/` | 308 | .tsx(281), .ts(24), .css(2) |
-| `lib/` | 320 | .ts(310), .tsx(6), .md(3) |
-| `tests/` | 153 | .ts(152), .md(1) |
-| `styles/` | 5 | .css(5) |
-| `public/` | 50 | .png(18), .PNG(11), .jpeg(6) |
-| `docs/` | 51 | .md(51) |
-| `scripts/` | 25 | .mjs(13), .sh(4), .cjs(4) |
-| `supabase/` | 48 | .sql(47), .toml(1) |
+| `app/` | 213 | .tsx(123), .ts(88), .css(2) |
+| `components/` | 296 | .tsx(269), .ts(24), .css(2) |
+| `lib/` | 299 | .ts(293), .tsx(4), .md(2) |
+| `tests/` | 145 | .ts(144), .md(1) |
+| `styles/` | 3 | .css(3) |
+| `public/` | 49 | .png(18), .PNG(11), .jpeg(6) |
+| `docs/` | 45 | .md(45) |
+| `scripts/` | 24 | .mjs(12), .sh(4), .cjs(4) |
+| `supabase/` | 47 | .sql(46), .toml(1) |
 
 ## Code Metrics
 
 ### File Distribution
 
-- **App Routes (TSX):** 125
-- **Component Files:** 281
-- **Library Files:** 316
-- **Test Files:** 145
+- **App Routes (TSX):** 123
+- **Component Files:** 269
+- **Library Files:** 297
+- **Test Files:** 137
 
 ### Code Volume
 
-- **Total Lines:** 176,623
-- **Total Size:** 6.62 MB
+- **Total Lines:** 168,410
+- **Total Size:** 6.36 MB
 
 ## API Routes
 
@@ -204,7 +211,7 @@ vitest@^4.1.0
 
 ## Pages & Routes
 
-**Total Pages:** 101
+**Total Pages:** 102
 
 ### All Pages
 
@@ -260,7 +267,7 @@ vitest@^4.1.0
 | `/engines/games` | /app/engines/games/page.tsx |
 | `/engines/games/scores` | /app/engines/games/scores/page.tsx |
 | `/engines/lab/data` | /app/engines/lab/data/page.tsx |
-| ... | ... and 51 more pages |
+| ... | ... and 52 more pages |
 
 ## Components
 
@@ -334,8 +341,8 @@ vitest@^4.1.0
 
 ## Tests
 
-**Test Files:** 151
-**Tests Passing:** 146
+**Test Files:** 161
+**Tests Passing:** 156
 **Tests Failing:** 0
 
 ### Test Files
@@ -360,22 +367,22 @@ vitest@^4.1.0
 - /tests/collector-extended.test.ts
 - /tests/compositeengin-features.test.ts
 - /tests/conform-memory-map.test.ts
-- ... and 131 more test files
+- ... and 141 more test files
 
 ## Documentation
 
-**Total Documentation Files:** 55
+**Total Documentation Files:** 62
 
 ### Documentation Files
 
 - [README.md](/README.md)
 - [CHANGELOG.md](/CHANGELOG.md)
 - [LICENSE](/LICENSE)
-- [IMPLEMENTATION_NOTES.md](/IMPLEMENTATION_NOTES.md)
 - [ACTION_AUDIT.md](/docs/ACTION_AUDIT.md)
 - [ACTIVITY_FIRST_PROTOCOL.md](/docs/ACTIVITY_FIRST_PROTOCOL.md)
 - [ADD_WORKFLOW.md](/docs/ADD_WORKFLOW.md)
 - [AGENT_PLAYBOOK.md](/docs/AGENT_PLAYBOOK.md)
+- [AI_MAP.md](/docs/AI_MAP.md)
 - [ARCHITECTURE.md](/docs/ARCHITECTURE.md)
 - [AUTH_SETUP.md](/docs/AUTH_SETUP.md)
 - [AXIOMS.md](/docs/AXIOMS.md)
@@ -398,11 +405,11 @@ vitest@^4.1.0
 - [HANDOFF.md](/docs/HANDOFF.md)
 - [IDARI_CONTRACT.md](/docs/IDARI_CONTRACT.md)
 - [LAW.md](/docs/LAW.md)
-- ... and 25 more docs
+- ... and 32 more docs
 
 ## CI/CD Workflows
 
-**Total Workflows:** 57
+**Total Workflows:** 60
 
 ### Workflow Files
 
@@ -445,6 +452,8 @@ vitest@^4.1.0
 - generatesupabasetypes.yml
 - github-actions.yml
 - idari-daily.yml
+- issue-bot.yml
+- mobile-ps5-spec-evolution.yml
 - neural_decision_engine.yml
 - optimize-dreamengin.yml
 - portfolio-optimization.yml
@@ -453,6 +462,7 @@ vitest@^4.1.0
 - refreshlock.yml
 - repo-snapshot.yml
 - report-driven-coding-agent.yml
+- root-hygiene.yml
 - spec-engin-ai-agent.yml
 - sql-migration-guard.yml
 - sync-build-memory.yml
@@ -466,7 +476,7 @@ vitest@^4.1.0
 
 ## Configuration Files
 
-**Total Configuration Files:** 11
+**Total Configuration Files:** 9
 
 ### Config Files
 
@@ -476,8 +486,6 @@ vitest@^4.1.0
 - [tailwind.config.ts](/tailwind.config.ts)
 - [eslint.config.mjs](/eslint.config.mjs)
 - [vercel.json](/vercel.json)
-- [docker-compose.yml](/docker-compose.yml)
-- [Dockerfile](/Dockerfile)
 - [.env.example](/.env.example)
 - [vitest.config.ts](/vitest.config.ts)
 - [playwright.config.ts](/playwright.config.ts)
@@ -486,7 +494,7 @@ vitest@^4.1.0
 
 ### Next.js App Router Architecture
 
-95 Server Components, 30 Client Components
+96 Server Components, 30 Client Components
 
 ### Supabase Backend
 
@@ -574,4 +582,4 @@ Using Supabase for database, auth, and storage
 ---
 
 *This document is automatically generated by `scripts/analyze-repo-state.mjs`*
-*Last updated: 4/16/2026, 5:41:52 PM*
+*Last updated: 4/16/2026, 10:40:33 PM*

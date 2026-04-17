@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { connection } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -10,12 +11,11 @@ import DreamWord from '@/components/ui/DreamWord';
 import ProfileShareButton from '@/components/ProfileShareButton';
 import ProfileCustomizeButton from '@/components/profile/ProfileCustomizeButton';
 import InfinityIcon from '@/components/ui/InfinityIcon';
-import { connection } from 'next/server';
-
-// Force dynamic rendering — this route uses cookies() via createServerClient()
-// and connection(); PPR (cacheComponents) must not attempt a static shell here
-// because the profile body depends on auth state and Supabase data.
-export const dynamic = 'force-dynamic';
+// This route is dynamically rendered in a PPR-compatible way.
+//
+// Dynamic rendering is achieved via `connection()` from 'next/server' in
+// generateMetadata, which establishes the dynamic context before
+// Next.js MetadataOutlet executes (required in Next.js 16.2.4+).
 
 // Extended profile type
 type Profile = {
@@ -46,7 +46,6 @@ export async function generateMetadata({ params }: ProfilePageProps) {
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
-  await connection();
   const { handle } = await params;
   const supabase = await createServerClient();
 

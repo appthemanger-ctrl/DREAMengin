@@ -23,10 +23,16 @@ import { readFileSync, writeFileSync,
          existsSync, statSync }              from 'fs';
 import { resolve, dirname, join }            from 'path';
 import { fileURLToPath }                     from 'url';
+import {
+  extractNodeMajorFromDockerfile,
+  extractPnpmVersion,
+  refreshCurrentImplementationStatusSection,
+} from './update-readme-status-utils.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT      = resolve(__dirname, '..');
 const README    = resolve(ROOT, 'README.md');
+const REPO_STATE = resolve(ROOT, 'REPO_STATE.md');
 const MAX_ROWS  = 10;
 const DOC_OWNER = 'José Mancilla (appthemanger-ctrl)';
 
@@ -333,6 +339,7 @@ function writeSummary(status) {
     '- ✅ **AI Agent Quick Reference** block (top of README)',
     '- ✅ **Recent Changes** table (latest commit prepended)',
     '- ✅ **Current Implementation Status** — "Last updated" line',
+    '- ✅ **Repository State Analysis** — synced from `REPO_STATE.md`',
     '- ✅ **File Structure** — live tree (top-level + key dirs)',
     '',
     '### Key docs for AI agents working in this repo',
@@ -404,46 +411,41 @@ if (fsStartIdx !== -1 && fsEndIdx !== -1 && fsEndIdx > fsStartIdx) {
   }
 }
 
-// ── 10. Refresh "Last updated" + "Build Status" inside "## Current Implementation Status" ───────
+// ── 10. Refresh "## Current Implementation Status" with live metadata ───────────
 
-const STATUS_RE = /(## Current Implementation Status\n)((?:Last updated:[^\n]*\n)*)/;
-const statusMatch = STATUS_RE.exec(doc);
-
-if (statusMatch) {
-  const newLine = `Last updated: ${utcDate} — \`${sha}\` by ${actor}\n`;
-  doc = doc.slice(0, statusMatch.index) +
-        statusMatch[1] + newLine +
-        doc.slice(statusMatch.index + statusMatch[0].length);
-} else {
-  const h1end = doc.indexOf('\n') + 1;
-  doc = doc.slice(0, h1end) +
-        `\n_Last updated: ${utcDate} — \`${sha}\` by ${actor}_\n` +
-        doc.slice(h1end);
-}
-
-// Also refresh the "Build Status:" line inside that section with live counts
-doc = doc.replace(
-  /^Build Status:.*$/m,
-  `Build Status: ${routeCount} routes (${pageCount} pages + ${apiCount} API handlers) · ${testCount} test files`
-);
-
-// ── 10a. Refresh Babylon.js version in Tech Stack from package.json ───────────
+let babylonMajor;
+let pnpmVersion;
+let nodeMajor;
 
 try {
   const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
   const babylonRaw = (pkg.dependencies || {})['@babylonjs/core'] || '';
-  // Extract major version, e.g. "^9.1.0" → "9"
   const majorMatch = babylonRaw.match(/(\d+)\./);
-  if (majorMatch) {
-    const babylonMajor = majorMatch[1];
-    doc = doc.replace(
-      /- Babylon\.js \d+\+ \(WebGPU-first 3D rendering\)/g,
-      `- Babylon.js ${babylonMajor}+ (WebGPU-first 3D rendering)`
-    );
-  }
+  babylonMajor = majorMatch?.[1];
+  pnpmVersion = extractPnpmVersion(pkg.packageManager);
 } catch {
   // package.json unreadable — skip silently
 }
+
+try {
+  const dockerfileDev = readFileSync(resolve(ROOT, 'Dockerfile.dev'), 'utf8');
+  nodeMajor = extractNodeMajorFromDockerfile(dockerfileDev);
+} catch {
+  // Dockerfile.dev unreadable — skip silently
+}
+
+doc = refreshCurrentImplementationStatusSection(doc, {
+  utcDate,
+  sha,
+  actor,
+  routeCount,
+  pageCount,
+  apiCount,
+  testCount,
+  babylonMajor,
+  pnpmVersion,
+  nodeMajor,
+});
 
 // ── 11. Update the "## Recent Changes" table ──────────────────────────────────
 
@@ -493,7 +495,22 @@ while (pos < doc.length) {
   pos = end + 1;
 }
 
-const updatedRows = [newRow, ...existingRows].slice(0, MAX_ROWS);
+const rowRevision = (row) => {
+  const match = row.match(/^\|\s*`([^`]+)`\s*\|/);
+  return match ? match[1] : '';
+};
+
+const seenRevisions = new Set();
+const dedupedRows = [];
+for (const row of existingRows) {
+  const revision = rowRevision(row);
+  if (revision === sha) continue;
+  if (revision && seenRevisions.has(revision)) continue;
+  if (revision) seenRevisions.add(revision);
+  dedupedRows.push(row);
+}
+
+const updatedRows = [newRow, ...dedupedRows].slice(0, MAX_ROWS);
 const headerLine  = doc.slice(headerIdx, headerLineEnd).trimEnd();
 const dividerLine = doc.slice(headerLineEnd, dividerEnd).trimEnd();
 const newTable    = headerLine + '\n' + dividerLine + '\n' + updatedRows.join('\n') + '\n';

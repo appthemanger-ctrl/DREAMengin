@@ -109,6 +109,24 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; border: string }
   archived:  { bg: 'rgba(100,116,139,0.12)', text: 'var(--de-text-dim)',    border: 'rgba(100,116,139,0.2)' },
 };
 
+const LAB_SIDE_B_FUNCTIONS = [
+  'State modeling',
+  'System rules',
+  'Simulation control',
+  'Test orchestration',
+  'Iteration environments',
+  'Lab tool configuration',
+] as const;
+
+const LAB_DREAM_WINDOWS = [
+  { label: 'Experiment Dream Window', href: '/engines/lab/experiments' },
+  { label: 'State Dream Window', href: '/engines/lab' },
+  { label: 'Model Dream Window', href: '/engines/lab/data' },
+  { label: 'Results Dream Window', href: '/engines/lab/data' },
+  { label: 'Parameter Dream Window', href: '/engines/lab' },
+  { label: 'Simulation Viewer Dream Window', href: '/engines/lab/quantum' },
+] as const;
+
 export default function LabEngin({ onBack }: Props) {
   const labBridge = useLabEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'lab' });
@@ -500,6 +518,31 @@ export default function LabEngin({ onBack }: Props) {
               {tab.label}
             </button>
           ))}
+        </div>
+
+        <div className="de-widget" style={{ borderColor: 'rgba(34,197,94,0.25)', marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <FlaskConical className="w-4 h-4" style={{ color: ACCENT }} />
+            <span className="de-widget-title ml-2">LabEngin Spec Coverage (README §12)</span>
+          </div>
+          <div className="de-widget-body">
+            <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 8 }}>Side B functions:</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+              {LAB_SIDE_B_FUNCTIONS.map((item) => (
+                <span key={item} style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 9999, background: 'rgba(34,197,94,0.1)', color: ACCENT, border: '1px solid rgba(34,197,94,0.2)' }}>
+                  {item}
+                </span>
+              ))}
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 8 }}>Specialized Dream Windows:</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 6 }}>
+              {LAB_DREAM_WINDOWS.map((item) => (
+                <Link key={item.label} href={item.href} style={{ fontSize: 10, fontWeight: 700, color: ACCENT, textDecoration: 'none', padding: '6px 8px', borderRadius: 8, border: '1px solid rgba(34,197,94,0.2)', background: 'rgba(34,197,94,0.08)' }}>
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* ════════════════════════════════════════

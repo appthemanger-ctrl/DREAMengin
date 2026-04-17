@@ -31,6 +31,8 @@ import {
   REJECTED_CONNECTION_VERBS,
   REJECTED_OS_TERMS,
   NETWORK_COUNTS,
+  ROUTE_LAW_NAMING_PREFERENCES,
+  NETWORK_WORK_TYPES,
   isCanonicalPlatformName,
   isRejectedPlatformVariant,
   isValidEnginName,
@@ -49,6 +51,7 @@ import {
   isRejectedConnectionVerb,
   isValidRuntimeRegion,
   isValidSurfaceName,
+  isRouteLawPreferredName,
 } from '@/lib/identity/canonical-names';
 
 // ---------------------------------------------------------------------------
@@ -114,6 +117,66 @@ describe('Core surface names', () => {
     expect(CORE_SURFACE_ROUTES.HOME_DREAM).toBe('/homedream');
     expect(CORE_SURFACE_ROUTES.EDIT_PROFILE_DREAM).toBe('/edit-profiledream');
     expect(CORE_SURFACE_ROUTES.VIEW_PROFILE).toBe('/view-profile');
+  });
+});
+
+describe('README §5 Global Product Architecture', () => {
+  const coreDreams = [
+    CORE_SURFACES.HOME_DREAM,
+    CORE_SURFACES.EDIT_PROFILE_DREAM_UI,
+    CORE_SURFACES.VIEW_PROFILE_UI,
+  ] as const;
+
+  it('Core Dreams are distinct from Daydream Side A domains', () => {
+    for (const coreDream of coreDreams) {
+      expect(isValidDaydreamDomain(coreDream)).toBe(false);
+    }
+  });
+
+  it('only Daydream Side B surfaces use the Engin suffix', () => {
+    for (const domain of Object.values(DAYDREAM_DOMAINS)) {
+      expect(hasEnginSuffix(domain)).toBe(false);
+    }
+
+    for (const engin of ALL_ENGIN_NAMES) {
+      expect(hasEnginSuffix(engin)).toBe(true);
+    }
+
+    for (const coreDream of coreDreams) {
+      expect(hasEnginSuffix(coreDream)).toBe(false);
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Route law naming preferences (README Section 2)
+// ---------------------------------------------------------------------------
+
+describe('Route law naming preferences', () => {
+  it('contains the exact eight preferred names from the route law', () => {
+    expect(ROUTE_LAW_NAMING_PREFERENCES).toEqual([
+      'HomeDream Surface',
+      'Edit ProfileDream Surface',
+      'View Profile Surface',
+      'DreamShop Surface',
+      'DreamMarketplace Surface',
+      'DreamMenu',
+      'DreamDM Surface',
+      'DreamAds Surface',
+    ]);
+  });
+
+  it('isRouteLawPreferredName returns true for each preferred name', () => {
+    for (const preferredName of ROUTE_LAW_NAMING_PREFERENCES) {
+      expect(isRouteLawPreferredName(preferredName)).toBe(true);
+    }
+  });
+
+  it('isRouteLawPreferredName returns false for non-preferred alternatives', () => {
+    expect(isRouteLawPreferredName('HomeDream')).toBe(false);
+    expect(isRouteLawPreferredName('EditProfileDream')).toBe(false);
+    expect(isRouteLawPreferredName('DreamAds')).toBe(false);
+    expect(isRouteLawPreferredName('messages')).toBe(false);
   });
 });
 
@@ -668,5 +731,15 @@ describe('Multi-surface connection network', () => {
 
   it('Engin runtime count matches number of ENGIN_SURFACES', () => {
     expect(Object.keys(ENGIN_SURFACES)).toHaveLength(NETWORK_COUNTS.ENGIN_RUNTIMES);
+  });
+
+  it('supported Daydream–Engin network work types match README spec', () => {
+    expect(NETWORK_WORK_TYPES).toEqual([
+      'creation',
+      'experimentation',
+      'execution',
+      'deployment',
+      'publishing',
+    ]);
   });
 });

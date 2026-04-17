@@ -290,7 +290,7 @@ async function analyzeTests() {
 
 async function analyzeDocumentation() {
   const docsDir = path.join(ROOT_DIR, 'docs');
-  const rootDocs = ['README.md', 'CHANGELOG.md', 'LICENSE', 'IMPLEMENTATION_NOTES.md'];
+  const rootDocs = ['README.md', 'CHANGELOG.md', 'LICENSE'];
 
   const docs = [];
 
