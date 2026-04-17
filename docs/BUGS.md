@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-17 04:35 UTC  
-**Last updated:** 2026-04-17 04:35 UTC  
-**Triggered by commit:** `f4d23af` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #619 from appthemanger-ctrl/copilot/rebuild-folder-structure
+**Documentation Date:** 2026-04-17 04:43 UTC  
+**Last updated:** 2026-04-17 04:43 UTC  
+**Triggered by commit:** `c27d468` on `completedream` by appthemanger-ctrl  
+**Commit message:** Merge pull request #618 from appthemanger-ctrl/copilot/fix-circular-dependencies-and-api-keys
 
 ---
 
