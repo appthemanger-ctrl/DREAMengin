@@ -9,6 +9,110 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      dream_doc_sections: {
+        Row: {
+          id: number
+          page_id: number
+          content: string | null
+          token_count: number | null
+          embedding: string | null
+          slug: string | null
+          heading: string | null
+          chunk_index: number
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          page_id: number
+          content?: string | null
+          token_count?: number | null
+          embedding?: string | null
+          slug?: string | null
+          heading?: string | null
+          chunk_index?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          page_id?: number
+          content?: string | null
+          token_count?: number | null
+          embedding?: string | null
+          slug?: string | null
+          heading?: string | null
+          chunk_index?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dream_doc_sections_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "dream_docs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dream_docs: {
+        Row: {
+          id: number
+          parent_page_id: number | null
+          path: string
+          checksum: string | null
+          meta: Json | null
+          type: string | null
+          source: string | null
+          slug: string | null
+          category: 'help' | 'tutorial' | 'policy' | 'release_notes' | 'api_reference' | 'general'
+          published: boolean
+          author_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          parent_page_id?: number | null
+          path: string
+          checksum?: string | null
+          meta?: Json | null
+          type?: string | null
+          source?: string | null
+          slug?: string | null
+          category?: 'help' | 'tutorial' | 'policy' | 'release_notes' | 'api_reference' | 'general'
+          published?: boolean
+          author_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          parent_page_id?: number | null
+          path?: string
+          checksum?: string | null
+          meta?: Json | null
+          type?: string | null
+          source?: string | null
+          slug?: string | null
+          category?: 'help' | 'tutorial' | 'policy' | 'release_notes' | 'api_reference' | 'general'
+          published?: boolean
+          author_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dream_docs_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dream_docs_parent_page_id_fkey"
+            columns: ["parent_page_id"]
+            isOneToOne: false
+            referencedRelation: "dream_docs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_lock: {
         Row: {
           id: boolean
@@ -3068,6 +3172,23 @@ export type Database = {
       increment_likes: {
         Args: { row_id: string; table_name: string }
         Returns: undefined
+      }
+      search_dream_docs: {
+        Args: {
+          query_embedding: string
+          match_threshold?: number
+          match_count?: number
+          filter_category?: string | null
+        }
+        Returns: {
+          section_id: number
+          doc_id: number
+          doc_slug: string | null
+          doc_title: string
+          section_heading: string | null
+          section_content: string | null
+          similarity: number
+        }[]
       }
       match_content_embeddings: {
         Args: {
