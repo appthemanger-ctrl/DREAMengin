@@ -41,6 +41,14 @@ export type { PlayerSignals, DirectorState } from './ai-director';
 
 export { PostFXManager } from './post-fx';
 
+// ── Console-class platform facade ────────────────────────────────────────────
+export { GameEnginPlatform, detectCapabilities } from './platform';
+export type {
+  PlatformCapabilities,
+  PlatformBootOptions,
+  QuickResumeEntry,
+} from './platform';
+
 // ── Game Cartridge Runtime ───────────────────────────────────────────────────
 export { default as GameRuntime } from './GameRuntime';
 export type { GameRuntimeProps } from './GameRuntime';

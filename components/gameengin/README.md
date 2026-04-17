@@ -1,163 +1,174 @@
-# DREAMengin Elite Game Engine — 2026
+# GameEngin — Next-Gen Home-Console-Class Browser Platform
 
-> **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-> **Documentation Date:** 2026-04-06
+> **Documentation Owner:** José Mancilla (appthemanger-ctrl)
+> **Last Reframed:** 2026-04-17 — Spec-Engin HyperSICC consolidation
 
+GameEngin is **not a game**. It is **the platform** — DREAMengin's proprietary,
+console-class runtime that browser games are *built to run on*. We are moving
+away from standalone games as first-class citizens. From this slice forward,
+every game in the repo is a **cartridge** that runs on the single, coherent
+**GameEngin Platform** (`lib/gameengin/`).
 
-The **Elite Game Engine** is DREAMengin's WebGPU-first, AI-powered, ECS-driven
-web browser game runtime. It combines the best features of modern game engines
-into a ridiculously capable piece of browser machinery.
+The platform's bar is simple and uncompromising: deliver a **next-gen home-
+console-level full-capability experience inside a browser tab** — zero install,
+quick-resume, controller-first, console-grade FX, AI-driven difficulty,
+remote-play friendly.
 
-## Architecture
+## The single canonical surface
 
+There is now exactly one entry point. New cartridges should target it; legacy
+games already work through it without any code changes.
+
+```ts
+import { GameEnginPlatform } from '@/lib/gameengin';
+
+const platform = await GameEnginPlatform.boot(canvas);
+await platform.loadCartridge(MyCartridge);
 ```
-lib/gameengin/
-  core.ts        ← EliteGameEngine (ECS world, adaptive quality, telemetry)
-  ai-director.ts ← AIDirector (TF.js in-browser adaptive difficulty)
-  post-fx.ts     ← PostFXManager (bloom, glow, chromatic aberration, motion blur)
-  index.ts       ← Public API barrel export
 
-components/gameengin/
-  README.md      ← This file
-  input/
-    DualSenseManager.ts  ← PS5 DualSense Bluetooth + USB controller
+That single import gives you the full console:
+
+| Layer            | Provided by                                          |
+|------------------|------------------------------------------------------|
+| Renderer         | `EliteGameEngine` — WebGPU-first Babylon.js 9, ECS   |
+| Adaptive budget  | `PerformanceBudget` — ultra/high/medium/low tiers    |
+| Post-FX          | `PostFXManager` — bloom, glow, CA, vignette, grain   |
+| AI Director      | `AIDirector` — TF.js on-device, zero server calls    |
+| Power systems    | 20 subsystems (rollback netcode, GPU compute, BVH,   |
+|                  | worker jobs, terrain, GI probes, asset streaming…)   |
+| Cartridge bay    | `GameCartridge` + `loadCartridge` / `unloadCartridge`|
+| Input            | Keyboard + Gamepad + DualSense (BT/USB/HID)          |
+| Quick resume     | `saveQuickResume` / `loadQuickResume` / `clear…`     |
+| Capabilities     | `detectCapabilities()` snapshot for adaptive UX      |
+| Telemetry        | `platform.telemetry()` per-frame budget/FPS report   |
+
+## Console-class capability surface
+
+The platform reports what the host browser can actually do, so cartridges scale
+themselves up to PS5-class behaviour where supported and gracefully down on
+mid-tier mobiles.
+
+```ts
+import { detectCapabilities } from '@/lib/gameengin';
+
+const caps = detectCapabilities();
+// { webgpu, webgl2, gamepad, webhid, webBluetooth,
+//   touch, coarsePointer, pointerLock, foreground,
+//   deviceTier: 'ultra'|'high'|'medium'|'low',
+//   cpuCores, deviceMemoryGb }
 ```
 
-## Elite Engine Features
+Capability tiers picked by the platform (`PerformanceBudget`):
 
-### WebGPU-First Rendering
-- Babylon.js 8+ WebGPU backend with automatic WebGL2 fallback
-- Adaptive resolution scaling (ultra/high/medium/low tiers)
-- Hardware scaling level dynamically tuned by frame telemetry
-- Post-processing: bloom, glow layer, chromatic aberration, vignette, grain
+| Tier   | FPS | Resolution | Shadows | PostFX | Particles |
+|--------|-----|------------|---------|--------|-----------|
+| ultra  | 60  | 100%       | ✅      | ✅     | 5000      |
+| high   | 60  | 100%       | ✅      | ✅     | 2000      |
+| medium | 60  | 85%        | ❌      | ✅     | 800       |
+| low    | 30  | 70%        | ❌      | ❌     | 200       |
 
-### ECS Architecture (`EliteGameEngine`)
-```typescript
-import { EliteGameEngine } from '@/lib/gameengin';
+## Backwards compatibility — every existing game keeps working
 
-const elite = new EliteGameEngine(canvas);
-await elite.init();
+This consolidation is **purely additive**. The platform is a facade over the
+same primitives every existing game already imports:
 
-// Add entities and components
-const entity = elite.world.createEntity();
-elite.world.addComponent(entity, { type: 'transform', x: 0, y: 0 });
+* `EliteGameEngine`, `AIDirector`, `PostFXManager` — unchanged exports.
+* Power-system classes (`RollbackNetcode`, `AdvancedPhysicsWorld`, …) — unchanged.
+* `GameCartridge`, `GameEngineAPI`, `GRAVITY_VALUES`, `wrapAsCartridge`,
+  `GameRuntime` — unchanged contracts.
+* The legacy `components/daydream/GameEngin.tsx` and `engins/GameEngin.tsx`
+  shells continue to host the daydream UI, score table, world builder, etc.
 
-// Frame loop
-elite.onFrame((dt, telemetry) => {
-  console.log(telemetry.fps, telemetry.qualityTier);
+So all of these continue to work without modification:
+
+* `components/games/BabylonSideScroller.tsx` (MADMAXI flagship platformer)
+* `components/games/ENGINBattle.tsx` (RTS / strategy)
+* `components/games/DREAMquest.tsx` (RPG / quest chains)
+* `components/games/NeonDrift.tsx` (racing, elite-tier)
+* `components/games/EchoArena.tsx` (top-down WebGPU shooter)
+* `components/games/{TetrisGame, ChessGame, RTSGame, RPGGame, …}.tsx`
+* `games/tetris/TetrisCartridge.ts` and any other repo-local cartridges
+
+The platform's job is to **host them better**, not to break them.
+
+## Shipping a cartridge (the canonical path)
+
+Any new game ships as a `GameCartridge` and runs on the platform unchanged on
+desktop, mobile, console-tier hardware, and remote-play sessions.
+
+```ts
+import type { GameCartridge } from '@/lib/gameengin';
+
+export const MyCartridge: GameCartridge = {
+  id: 'my-game',
+  mount(container, api) {
+    const off = api.loop.onTick((dt, elapsed) => { /* fixed-step update */ });
+    api.input.on('keydown', (e) => { if (e.key === 'Escape') api.score.submit('my-game', 0); });
+    return () => { off(); };
+  },
+};
+```
+
+Then anywhere a console session is being run:
+
+```ts
+const platform = await GameEnginPlatform.boot(canvas, {
+  enableAIDirector: true,
+  enablePostFX: true,
+  gravity: 'earth',
 });
+await platform.loadCartridge(MyCartridge);
 ```
 
-### AI Director (`AIDirector`)
-```typescript
-import { AIDirector } from '@/lib/gameengin';
+Existing React-component games can still be wrapped with `wrapAsCartridge`
+without any change — the platform accepts the same `GameCartridge` shape.
 
-const director = new AIDirector();
-await director.init(); // loads TF.js + WebGPU backend
+## Quick-resume (console feel, in a tab)
 
-// Every frame:
-const state = director.update({ deaths, score, combo, avgSpeed, elapsed });
-console.log(state.challengeLevel); // 0 (easy) → 1 (extreme)
-console.log(state.label);          // "🟠 Heating up"
+```ts
+platform.saveQuickResume({ level: 12, hp: 87, seed: 0xCAFE });
+// later, even after a tab refresh:
+const snapshot = platform.loadQuickResume<{ level: number; hp: number; seed: number }>('my-game');
 ```
 
-- TensorFlow.js 4.22.0 with WebGPU backend (privacy-first: zero server calls)
-- 2-layer dense network mapping 5 player signals → challenge scalar
-- Graceful heuristic fallback if TF.js unavailable
-- Smooth lerp (5%/sample) prevents jarring difficulty jumps
+## DualSense controller
 
-### Post-FX Pipeline (`PostFXManager`)
-```typescript
-import { PostFXManager } from '@/lib/gameengin';
+`input/DualSenseManager.ts` continues to provide PS5 DualSense support
+(Bluetooth pairing on Android 12+/iOS 14.5+, USB on desktop Chrome/Edge,
+gyroscope steering/aiming, haptic rumble, full button mapping). Cartridges
+read input through the `GameEngineAPI.input` bus so DualSense, keyboard, and
+touch all flow through the same channel.
 
-const fx = new PostFXManager(scene, camera);
-await fx.init();       // DefaultRenderingPipeline + bloom + vignette
-await fx.enableGlow(); // GlowLayer (stacks with pipeline bloom)
+## Architecture map
 
-// Quality tier integration:
-fx.applyBudget(eliteEngine.budget);
+```
+lib/gameengin/                     ← The Platform (one coherent surface)
+  platform.ts        ← GameEnginPlatform (boot, cartridges, quick resume)
+  index.ts           ← Single import barrel
+  core.ts            ← EliteGameEngine + ECSWorld + budget
+  ai-director.ts     ← AIDirector (TF.js on-device adaptive difficulty)
+  post-fx.ts         ← PostFXManager (bloom, glow, CA, vignette, grain)
+  power-systems.ts   ← 20 console-class subsystems
+  cartridge.ts       ← GameCartridge / GameEngineAPI contracts
+  ReactComponentCartridge.ts  ← legacy React-game adapter (backwards compat)
+  GameRuntime.tsx    ← React host that mounts a cartridge
+  unifiedLoop.ts     ← Cross-cartridge shared RAF loop
+
+components/gameengin/              ← Platform-side UI / hardware
+  README.md          ← This file
+  input/
+    DualSenseManager.ts
 ```
 
-### Adaptive Performance Budget
-The engine automatically detects frame pressure and downgrades quality:
+## CI gate
 
-| Tier | FPS target | Resolution | Shadows | PostFX | Particles |
-|------|------------|------------|---------|--------|-----------|
-| ultra | 60 | 100% | ✅ | ✅ | 5000 |
-| high | 60 | 100% | ✅ | ✅ | 2000 |
-| medium | 60 | 85% | ❌ | ✅ | 800 |
-| low | 30 | 70% | ❌ | ❌ | 200 |
+The mandatory gate is unchanged and lives at the project root: `pnpm run build`
+and `pnpm run test` (with `pnpm run preflight` for local checks). The
+`.github/workflows/elite-gameengin-evolution.yml` workflow continues to score
+each cartridge on the platform's feature dimensions and commit auto-fixes.
 
-## Games Using This Infrastructure
-
-### Neon Drift (`components/games/NeonDrift.tsx`) ⭐ Elite
-- **WebGPU rendering** with Babylon.js + post-processing bloom + glow
-- **AI Director** adapts obstacle frequency and base speed to player skill
-- **5-lane procedural track** with ring-buffer tile recycling
-- **Boss projectile obstacles** (boost gates for combo scoring)
-- **Particle trail system** tied to speed and drifting
-- **DualSense gyro steering** + R2 throttle + lane haptics
-- **Score multiplier chains** from boost gate combos
-- **Launch**: GamesHub → Neon Drift
-
-### MADMAXI — Babylon Side Scroller (`components/games/BabylonSideScroller.tsx`) ⭐ Flagship
-- **150 levels** · 15 zones · boss every 10 levels
-- **🆕 Dash system**: Shift to dash (i-frames, DASH_COOL cooldown, combo setup)
-- **🆕 Boss projectiles**: Bosses fire aimed projectiles at the player
-- **🆕 Combo kills**: Chain stomps in 1.5s window for ×N score bonus
-- **Coyote time** + jump buffering + double-jump
-- **15 unique bosses** with enrage threshold + visual deformation
-- **Procedural zones** with seeded generation (unique per session)
-- **Launch**: GamesHub → MADMAXI
-
-### Echo Arena (`components/games/EchoArena.tsx`)
-- Top-down arena shooter with DualSense gyro aiming
-- WebGPU rendering with Babylon.js
-- **Launch**: GamesHub → Echo Arena
-
-## DualSense Controller
-
-`input/DualSenseManager.ts` - Full PS5 DualSense support:
-
-- **Bluetooth pairing** on mobile (Android 12+, iOS 14.5+)
-- **USB support** on desktop Chrome/Edge
-- **Gyroscope steering/aiming** for natural mobile gameplay
-- **Haptic rumble feedback** (Android Chrome best support)
-- **Full button mapping** (Cross, Circle, Square, Triangle, L1/R1, L2/R2, D-pad)
-- **Analog stick support** with deadzone management
-
-### Pairing
-**Mobile (Bluetooth):** Hold PS + Create until light flashes blue → pair in Bluetooth settings → open game in Chrome
-
-**Desktop (USB):** Connect via USB-C → auto-detected
-
-## GitHub Actions
-
-### Elite GameEngin Evolution (`.github/workflows/elite-gameengin-evolution.yml`)
-The most comprehensive game CI pipeline in DREAMengin:
-
-1. **Build + Lint Gate** — Full Next.js build + ESLint + TypeScript checks
-2. **Quality Analysis** — Scores each game on 13 engine feature dimensions
-3. **AI Evolution Proposals** — GPT-4.1 proposes targeted upgrades based on quality scores
-4. **Auto-Fix + Commit** — ESLint fixes auto-committed
-
-Triggers on: push to `components/games/`, `lib/gameengin/`, `components/gameengin/`, daily at 06:00 UTC, manual dispatch with optional AI directive.
-
-### Manual dispatch with directive:
-```
-# via GitHub UI: Actions → Elite GameEngin Evolution → Run workflow
-# Directive: "add physics-based car destruction to NeonDrift"
-# Game target: "neon-drift"
-```
-
-## Adding More Elite Games
-
-1. Create `components/games/YourGame.tsx`
-2. Import `EliteGameEngine` for rendering, `AIDirector` for difficulty, `PostFXManager` for FX
-3. Use `useGameAutoStart`, `useGamePhase`, `useSubmitScore` hooks
-4. Import `DualSenseManager` for controller support
-5. Register in `GamesHub.tsx` GAMES array
-6. Run `elite-gameengin-evolution.yml` to get AI-powered improvement suggestions
-
-See `NeonDrift.tsx` as the canonical elite game reference implementation.
-
+Per the Spec-Engin agent contract, every report-driven run must include at
+least one **advanced** game / GameEngin upgrade — meaningful gameplay depth
+(combat, AI, progression, simulation, narrative, procedural variety, boss
+behaviour, late-game escalation) on a flagship cartridge, never a tap-only
+loop. See `.github/agents/gameengin.md` for the full contract.
