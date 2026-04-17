@@ -27,7 +27,7 @@ replacements=(
     "s|@/lib/ai/rateLimit|@/agents/rate-limit|g"
 )
 
-files=$(find app components lib engins games \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \))
+files=$(find app components lib engins games -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \))
 
 for file in $files; do
     for replacement in "${replacements[@]}"; do

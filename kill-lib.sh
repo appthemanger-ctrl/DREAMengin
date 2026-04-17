@@ -73,7 +73,7 @@ fi
 rmdir lib 2>/dev/null || echo "lib not empty – review leftovers manually"
 
 # Rewrite imports
-find app components engins games hooks dreamdmbar tests -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \) -exec sed -i.bak \
+find app components engins games -type f \( -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" \) -exec sed -i.bak \
   -e "s|@/lib/gameengin|@/engins/gameengin|g" \
   -e "s|@/lib/runtime|@/system/runtime|g" \
   -e "s|@/lib/dreamenginOS|@/system/os|g" \
@@ -86,6 +86,6 @@ find app components engins games hooks dreamdmbar tests -type f \( -name "*.ts" 
   -e "s|@/lib/admin|@/app/api/admin|g" \
   {} \;
 
-find app components engins games hooks dreamdmbar tests -type f -name "*.bak" -delete
+find app components engins games -type f -name "*.bak" -delete
 
 echo "✅ /lib migration script completed. Backup: $BACKUP | Archive: lib_archive"
