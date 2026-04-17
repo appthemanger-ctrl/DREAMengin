@@ -50,7 +50,7 @@ const nextConfig = {
         headers: [
           {
             key: "Cross-Origin-Embedder-Policy",
-            value: "require-corp",
+            value: "credentialless",
           },
           {
             key: "Cross-Origin-Opener-Policy",
@@ -60,12 +60,12 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              // unsafe-inline needed for Next.js inline scripts; strict-dynamic overrides in modern browsers
-              "script-src 'self' 'strict-dynamic' 'unsafe-inline'",
+              // unsafe-inline needed for Next.js inline scripts (RSC streaming, hydration data)
+              "script-src 'self' 'unsafe-inline'",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://i.ytimg.com https://*.scdn.co",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.spotify.com https://api.github.com",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.spotify.com https://api.github.com https://assets.babylonjs.com",
               "media-src 'self' blob: https://*.supabase.co",
               "worker-src 'self' blob:",
               "frame-ancestors 'none'",
