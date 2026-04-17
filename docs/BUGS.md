@@ -5,10 +5,10 @@
 > To change what appears here, update `docs/FEATURE_STATUS.md` or the source code.
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-17 05:01 UTC  
-**Last updated:** 2026-04-17 05:01 UTC  
-**Triggered by commit:** `673e564` on `completedream` by appthemanger-ctrl  
-**Commit message:** Merge pull request #626 from appthemanger-ctrl/copilot/fix-application-errors
+**Documentation Date:** 2026-04-16 22:39 UTC  
+**Last updated:** 2026-04-16 22:39 UTC  
+**Triggered by commit:** `5f93b52` on `copilot/research-game-engine-architecture` by Copilot  
+**Commit message:** feat: RTSGame wired to ECSWorld + OctreeBVH + ResourcePool + useUnifiedLoop
 
 ---
 
