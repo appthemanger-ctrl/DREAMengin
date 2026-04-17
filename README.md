@@ -435,13 +435,3 @@ The HomeDream System is the canonical shell implementation of the HomeDream surf
 - All surfaces communicate via DreamSystemContext.
 - DreamSpace is hidden/minimized by default; swipe the bar up to reveal.
 
-## 13. Code / CodeEngin
-
-### 13.1 Code (Side A)
-The Code Daydream surface (`app/daydream/code/page.tsx`) provides the user-facing code workspace including Project Vault, Snippet Library, Import Files & Zips, Drafts Workspace, and an Open CodeEngin launcher. Users can manage code files, create Drafts, and open specialized Dream Windows including Project Dream Window, Code File Dream Window, Snippet Dream Window, Terminal Dream Window, Deployment Dream Window, and Runtime Dream Window.
-
-### 13.2 CodeEngin (Side B)
-CodeEngin (`engins/CodeEngin.tsx`) is the powered engine layer. It exposes `runCellCode` for in-editor execution, **Run CI (lint, typecheck, test, build)** triggers, a **ShellHub** terminal integration, and a **TaskJobManager** for background job tracking.
-
-### 13.3 Specialized Dream Windows (Examples)
-CodeEngin hosts context-specific Dream Windows: Project Dream Window, Code File Dream Window, Snippet Dream Window, Terminal Dream Window, Deployment Dream Window, and Runtime Dream Window.
