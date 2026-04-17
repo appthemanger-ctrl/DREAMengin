@@ -450,7 +450,7 @@ class Agent:
 
     def files(self, n: Dict[str, Any], report: Dict[str, Any]) -> Dict[str, str]:
         return {
-            "README.agent.md":       self._readme(n, report),
+            "docs/guides/README.agent.md":       self._readme(n, report),
             "output/result.json":    json.dumps(report, indent=2),
             "output/patch-plan.json": json.dumps({
                 "routes":   self.routes,
