@@ -1,16 +1,16 @@
 # .github/scripts/ai_implement.py
 #
 # Reads the DREAMengin context snapshot + spec proposal and asks the
-# Gemini API to implement the first coherent slice as a unified diff.
+# OpenAI API to implement the first coherent slice as a unified diff.
 #
 # Usage:
 #   python .github/scripts/ai_implement.py \
 #       --context .github/generated/dreamengin-context.md \
 #       --spec    .github/generated/dreamengin-spec.json \
 #       --out     .github/generated/dreamengin-patch.diff \
-#       --model   gemini-1.5-pro
+#       --model   gpt-4.1
 #
-# Requires:  GOOGLE_API_KEY env var
+# Requires:  OPENAI_API_KEY env var
 # Stdlib only — no extra dependencies.
 
 import argparse
@@ -20,7 +20,7 @@ import sys
 import urllib.error
 import urllib.request
 
-DEFAULT_MAX_TOKENS = 8192  # Default max output limit for many standard calls
+DEFAULT_MAX_TOKENS = 16_384
 DEFAULT_MAX_ROUND_TRIPS = 8
 
 # ── Prompt ────────────────────────────────────────────────────────────────────
@@ -84,45 +84,34 @@ Every fix must be:
 Output a unified diff (git patch) ONLY. Start with the first "diff --git" line.
 """
 
-# ── Gemini call ───────────────────────────────────────────────────────────────
+# ── OpenAI call ───────────────────────────────────────────────────────────────
 
-def call_gemini(api_key: str, model: str, contents: list, max_tokens: int = DEFAULT_MAX_TOKENS):
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
-    
+def call_openai(api_key: str, model: str, messages: list, max_tokens: int = DEFAULT_MAX_TOKENS):
     payload = {
-        "systemInstruction": {
-            "parts": [{"text": SYSTEM}]
-        },
-        "contents": contents,
-        "generationConfig": {
-            "maxOutputTokens": max_tokens,
-            "temperature": 0.2
-        }
+        "model": model,
+        "max_tokens": max_tokens,
+        "messages": messages,
     }
-    
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
-        url,
+        "https://api.openai.com/v1/chat/completions",
         data=data,
-        headers={"Content-Type": "application/json"},
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+        },
     )
-    
     try:
         with urllib.request.urlopen(req, timeout=180) as resp:
             result = json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")
-        print(f"Gemini API error {exc.code}: {body}", file=sys.stderr)
+        print(f"OpenAI API error {exc.code}: {body}", file=sys.stderr)
         sys.exit(1)
 
-    try:
-        candidate = result["candidates"][0]
-        text_content = candidate["content"]["parts"][0]["text"]
-        finish_reason = candidate.get("finishReason", "STOP")
-        return text_content, finish_reason
-    except KeyError as e:
-        print(f"Unexpected response structure from Gemini: {result}", file=sys.stderr)
-        sys.exit(1)
+    content = result["choices"][0]["message"]["content"]
+    finish_reason = result["choices"][0].get("finish_reason", "stop")
+    return content, finish_reason
 
 def strip_markdown_fences(text: str) -> str:
     cleaned = text.strip()
@@ -140,7 +129,7 @@ def main():
     parser.add_argument("--context", required=True,  help="Path to dreamengin-context.md")
     parser.add_argument("--spec",    required=True,  help="Path to dreamengin-spec.json")
     parser.add_argument("--out",     required=True,  help="Path to write dreamengin-patch.diff")
-    parser.add_argument("--model",   default="gemini-1.5-pro", help="Gemini model name")
+    parser.add_argument("--model",   default="gpt-4.1", help="OpenAI model name")
     parser.add_argument(
         "--max-tokens",
         type=int,
@@ -155,9 +144,9 @@ def main():
     )
     args = parser.parse_args()
 
-    api_key = os.environ.get("GOOGLE_API_KEY", "").strip()
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
     if not api_key:
-        print("Error: GOOGLE_API_KEY env var is not set.", file=sys.stderr)
+        print("Error: OPENAI_API_KEY env var is not set.", file=sys.stderr)
         sys.exit(1)
 
     with open(args.context, "r", encoding="utf-8") as fh:
@@ -167,10 +156,10 @@ def main():
         spec_text = fh.read()
 
     user_prompt = TASK_TEMPLATE.format(spec=spec_text, context=context_text)
-    
-    # Gemini uses a specific role structure: "user" and "model"
-    contents = [
-        {"role": "user", "parts": [{"text": user_prompt}]}
+
+    messages = [
+        {"role": "system", "content": SYSTEM},
+        {"role": "user", "content": user_prompt},
     ]
 
     print(f"Calling {args.model} for implementation patch…", file=sys.stderr)
@@ -178,34 +167,31 @@ def main():
     finish_reason = None
 
     for attempt in range(args.max_round_trips):
-        raw, finish_reason = call_gemini(api_key, args.model, contents, max_tokens=args.max_tokens)
+        raw, finish_reason = call_openai(api_key, args.model, messages, max_tokens=args.max_tokens)
         cleaned = strip_markdown_fences(raw)
         chunks.append(cleaned)
 
-        if finish_reason != "MAX_TOKENS":
+        if finish_reason != "length":
             break
 
         print(
             f"Model hit max_tokens; requesting continuation {attempt + 2}/{args.max_round_trips}…",
             file=sys.stderr,
         )
-        
-        # Append the assistant's partial response and the continuation prompt
-        contents.extend([
-            {"role": "model", "parts": [{"text": raw}]},
-            {
-                "role": "user",
-                "parts": [{"text": (
-                    "Continue the SAME unified diff exactly where you left off. "
-                    "Output ONLY the remaining diff lines. Do not repeat earlier lines, "
-                    "do not restart from the beginning, and do not add prose or fences."
-                )}]
-            },
-        ])
-    else:
-        finish_reason = "MAX_TOKENS"
 
-    if finish_reason == "MAX_TOKENS":
+        messages.append({"role": "assistant", "content": raw})
+        messages.append({
+            "role": "user",
+            "content": (
+                "Continue the SAME unified diff exactly where you left off. "
+                "Output ONLY the remaining diff lines. Do not repeat earlier lines, "
+                "do not restart from the beginning, and do not add prose or fences."
+            ),
+        })
+    else:
+        finish_reason = "length"
+
+    if finish_reason == "length":
         print(
             f"Error: implementation patch exceeded {args.max_round_trips} completion rounds. "
             "Increase --max-round-trips or --max-tokens.",
@@ -215,7 +201,9 @@ def main():
 
     cleaned = "".join(chunks)
 
-    os.makedirs(os.path.dirname(args.out), exist_ok=True)
+    out_dir = os.path.dirname(args.out)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as fh:
         fh.write(cleaned)
         if not cleaned.endswith("\n"):
