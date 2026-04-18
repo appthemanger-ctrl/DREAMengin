@@ -8,6 +8,7 @@ import NotificationCenter from '@/components/NotificationCenter';
 import HomeFeed from '@/components/HomeFeed';
 import BrandLogo from '@/components/BrandLogo';
 import DaydreamPulseStrip from '@/components/home/DaydreamPulseStrip';
+import FlagshipEnginesStrip from '@/components/home/FlagshipEnginesStrip';
 import ActiveModuleSurface from '@/components/home/ActiveModuleSurface';
 import DreamRSection from '@/dreamdmbar/homedream/dreamr/DreamRSection';
 import { useNotifications } from '@/lib/notifications/useNotifications';
@@ -307,6 +308,12 @@ export default function WorkspaceDashboard({
 
       {/* ── Main content ───────────────────────────────────────────────────── */}
       <div style={{ padding: isCompactViewport ? '16px 12px 0' : '20px 16px 0' }}>
+
+        {/* ── Flagship engines + DREAMfield-mini momentum widget ─────────── */}
+        <FlagshipEnginesStrip
+          onOpenUrl={onOpenUrl}
+          isCompactViewport={isCompactViewport}
+        />
 
         {/* ── Hero card ─────────────────────────────────────────────────────── */}
         <div className="de-auth-hero de-surface" style={{ marginBottom: 16, padding: isCompactViewport ? 16 : 20 }}>
