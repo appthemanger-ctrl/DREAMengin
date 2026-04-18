@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-18T12:51:57.881Z",
+  "generated_at": "2026-04-18T13:43:49.040Z",
   "generator": "scripts/sync-build-memory.mjs",
   "count": 22,
   "events": [
@@ -26,7 +26,6 @@
         "components/games/NeonDrift.tsx",
         "components/games/madmaxi/MadmaxiGame.tsx",
         "games/echo-arena/EchoArena.tsx",
-        "games/madmaxi/MadmaxiGame.tsx",
         "games/neon-drift/NeonDrift.tsx",
         "lib/games/useGameInputKeyboardBridge.ts"
       ]
@@ -96,9 +95,7 @@
       "files": [
         "components/daydream/CodeEngin.tsx",
         "components/gameengin/CartridgeErrorBoundary.tsx",
-        "engins/CodeEngin.tsx",
-        "exports/DREAMENGINOS/modules/CodeEngin/components/daydream/CodeEngin.tsx",
-        "exports/DREAMENGINOS/modules/CodeEngin/engins/CodeEngin.tsx"
+        "engins/CodeEngin.tsx"
       ]
     },
     {
@@ -176,9 +173,7 @@
       "payload_type": null,
       "files": [
         "components/daydream/StarMakerEngin.tsx",
-        "engins/StarMakerEngin.tsx",
-        "exports/DREAMENGINOS/modules/StarMakerEngin/components/daydream/StarMakerEngin.tsx",
-        "exports/DREAMENGINOS/modules/StarMakerEngin/engins/StarMakerEngin.tsx"
+        "engins/StarMakerEngin.tsx"
       ]
     },
     {
