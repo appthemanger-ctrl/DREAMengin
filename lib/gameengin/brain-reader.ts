@@ -423,3 +423,119 @@ export function recordUpgrade(entry: Omit<UpgradeHistoryEntry, 'generated_at'>):
   fs.writeFileSync(filePath, JSON.stringify({ ...entry, generated_at: iso }, null, 2));
   return filePath;
 }
+
+// --- Two-Project Rule (active-projects ledger) ----------------------------
+
+export type ProjectFocus = 'primary' | 'parallel';
+
+export interface ActiveProjectSlot {
+  cartridge_id: string;
+  added_at: string;
+  focus: ProjectFocus;
+  notes?: string;
+}
+
+export interface ActiveProjects {
+  /** Hard cap on concurrent projects (Two-Project Rule from the directive). */
+  max_slots: number;
+  slots: ActiveProjectSlot[];
+}
+
+const ACTIVE_PROJECTS_PATH = path.join(BRAIN_ROOT, 'active-projects.json');
+
+export function readActiveProjects(): ActiveProjects {
+  if (!fs.existsSync(ACTIVE_PROJECTS_PATH)) {
+    return { max_slots: 2, slots: [] };
+  }
+  const raw = JSON.parse(fs.readFileSync(ACTIVE_PROJECTS_PATH, 'utf-8')) as ActiveProjects;
+  return {
+    max_slots: typeof raw.max_slots === 'number' ? raw.max_slots : 2,
+    slots: Array.isArray(raw.slots) ? raw.slots : [],
+  };
+}
+
+/**
+ * Replace the active-projects list. Enforces:
+ *   - at most `max_slots` (2) entries,
+ *   - no duplicate cartridge_ids,
+ *   - cartridge_id is a non-empty slug-safe string.
+ * Throws on violation; the caller (Maestro / operator UI) decides how to
+ * surface the error.
+ */
+export function setActiveProjects(next: ActiveProjects): void {
+  const cap = next.max_slots ?? 2;
+  if (next.slots.length > cap) {
+    throw new Error(`active-projects: ${next.slots.length} slots exceeds Two-Project cap of ${cap}`);
+  }
+  const ids = new Set<string>();
+  for (const s of next.slots) {
+    if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(s.cartridge_id)) {
+      throw new Error(`active-projects: invalid cartridge_id "${s.cartridge_id}"`);
+    }
+    if (ids.has(s.cartridge_id)) {
+      throw new Error(`active-projects: duplicate cartridge_id "${s.cartridge_id}"`);
+    }
+    ids.add(s.cartridge_id);
+  }
+  fs.writeFileSync(ACTIVE_PROJECTS_PATH, JSON.stringify(next, null, 2));
+}
+
+export function isActiveCartridge(cartridgeId: string): boolean {
+  return readActiveProjects().slots.some((s) => s.cartridge_id === cartridgeId);
+}
+
+// --- Crash Reports (player → Maestro feedback loop) -----------------------
+
+export interface CrashReportInput {
+  cartridge_id: string;
+  player_statement: string;
+  version?: string;
+  error?: { name?: string; message?: string; stack?: string };
+  context?: Record<string, unknown>;
+}
+
+export interface CrashReportEntry extends CrashReportInput {
+  received_at: string;
+}
+
+/**
+ * Maximum size of a single stored crash report (16 KB serialised). Mirrors
+ * the API limit so the on-disk file can never exceed it even if a future
+ * caller bypasses the route handler.
+ */
+export const CRASH_REPORT_MAX_BYTES = 16 * 1024;
+
+export function recordCrashReport(input: CrashReportInput): string {
+  if (!input || typeof input !== 'object') {
+    throw new Error('crash-report: invalid payload');
+  }
+  if (!/^[a-z0-9][a-z0-9-]{0,63}$/.test(input.cartridge_id ?? '')) {
+    throw new Error('crash-report: invalid cartridge_id');
+  }
+  const statement = (input.player_statement ?? '').trim();
+  if (statement.length === 0) throw new Error('crash-report: player_statement is required');
+  if (!isActiveCartridge(input.cartridge_id)) {
+    throw new Error(`crash-report: cartridge "${input.cartridge_id}" is not an active project`);
+  }
+
+  const { date, stamp, iso } = nowStamp();
+  const dir = path.join(BRAIN_ROOT, 'crash-reports', input.cartridge_id);
+  ensureDir(dir);
+  const filePath = path.join(dir, `${date}-${stamp}.json`);
+  const entry: CrashReportEntry = { ...input, player_statement: statement, received_at: iso };
+  const serialised = JSON.stringify(entry, null, 2);
+  if (Buffer.byteLength(serialised, 'utf8') > CRASH_REPORT_MAX_BYTES) {
+    throw new Error(`crash-report: payload exceeds ${CRASH_REPORT_MAX_BYTES} bytes`);
+  }
+  fs.writeFileSync(filePath, serialised);
+  return filePath;
+}
+
+export function listCrashReports(cartridgeId: string): CrashReportEntry[] {
+  const dir = path.join(BRAIN_ROOT, 'crash-reports', cartridgeId);
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir)
+    .filter((f) => f.endsWith('.json'))
+    .sort()
+    .map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf-8')) as CrashReportEntry);
+}
