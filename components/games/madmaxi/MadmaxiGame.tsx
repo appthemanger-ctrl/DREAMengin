@@ -800,6 +800,362 @@ class GameCore {
     this.initBabylon(canvas);
   }
 
+  /**
+   * Build a composite "monster" rig for one enemy.
+   *
+   * The returned mesh is the SAME primitive shape & size as the legacy
+   * single-mesh enemy (so AABB collision, scaling pulses, and rotation tweens
+   * in the render loop continue to work without modification). Decoration
+   * meshes — eyes, fangs, horns, wings, spikes, mandibles, thrusters, etc. —
+   * are parented to it and inherit transform writes for free.
+   */
+  private buildEnemyRig(
+    BJS: typeof import('@babylonjs/core'),
+    scene: import('@babylonjs/core').Scene,
+    glow: import('@babylonjs/core').GlowLayer,
+    ei: number,
+    en: EnemyDef,
+  ): import('@babylonjs/core').Mesh {
+    const isBoss = !!en.boss;
+    const W = WORLD_SCALE;
+
+    // ── Helper: build an emissive PBR material with optional clearCoat ──────
+    const emissiveMat = (
+      name: string,
+      rgb: [number, number, number],
+      emissiveBoost = 1.0,
+      metallic = 0.85,
+      roughness = 0.18,
+      clearCoat = 0.85,
+    ): import('@babylonjs/core').PBRMaterial => {
+      const m = new BJS.PBRMaterial(name, scene);
+      m.albedoColor   = new BJS.Color3(rgb[0] * 0.45, rgb[1] * 0.45, rgb[2] * 0.45);
+      m.emissiveColor = new BJS.Color3(rgb[0] * emissiveBoost, rgb[1] * emissiveBoost, rgb[2] * emissiveBoost);
+      m.metallic      = metallic;
+      m.roughness     = roughness;
+      m.environmentIntensity = 1.85;
+      m.clearCoat.isEnabled = true;
+      m.clearCoat.intensity = clearCoat;
+      m.clearCoat.roughness = 0.06;
+      return m;
+    };
+
+    // ── Build the parent primitive (matches legacy collision/visual size) ──
+    const buildParent = (): import('@babylonjs/core').Mesh => {
+      if (isBoss) {
+        const diameter = 0.85 * W * (en.size ?? 1.8);
+        return BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter, segments: 32 }, scene);
+      }
+      switch (en.kind) {
+        case 'runner':
+        case 'charger':
+          return BJS.MeshBuilder.CreateBox(`enemy_${ei}`, { width: 0.78 * W, height: 0.62 * W, depth: 0.48 * W }, scene);
+        case 'hopper':
+          return BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.78 * W, segments: 20 }, scene);
+        case 'flyer':
+          return BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameterTop: 0.18 * W, diameterBottom: 0.8 * W, height: 0.54 * W, tessellation: 6 }, scene);
+        case 'zigzag':
+          return BJS.MeshBuilder.CreateTorus(`enemy_${ei}`, { diameter: 0.78 * W, thickness: 0.18 * W, tessellation: 20 }, scene);
+        case 'orbiter':
+          return BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.58 * W, segments: 16 }, scene);
+        case 'sniper':
+          return BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameter: 0.6 * W, height: 0.8 * W, tessellation: 12 }, scene);
+        case 'burrower':
+          return BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.72 * W, segments: 16 }, scene);
+        case 'spiker':
+          return BJS.MeshBuilder.CreatePolyhedron(`enemy_${ei}`, { type: 4, size: 0.46 * W }, scene);
+        case 'shadow':
+        default:
+          return BJS.MeshBuilder.CreateCapsule(`enemy_${ei}`, { radius: 0.22 * W, height: 0.95 * W, tessellation: 14 }, scene);
+      }
+    };
+
+    const parent = buildParent();
+
+    // ── Parent body material ────────────────────────────────────────────────
+    const parentMat = new BJS.PBRMaterial(`emat_${ei}`, scene);
+    if (isBoss && en.bossColor) {
+      const [r, g, b]    = en.bossColor;
+      const [er, eg, eb] = en.bossEmissive ?? [r * 0.4, g * 0.4, b * 0.4];
+      parentMat.albedoColor   = new BJS.Color3(r, g, b);
+      parentMat.emissiveColor = new BJS.Color3(er, eg, eb);
+      parentMat.metallic      = 0.92;
+      parentMat.roughness     = 0.10;
+      parentMat.environmentIntensity = 1.8;
+      parentMat.clearCoat.isEnabled  = true;
+      parentMat.clearCoat.intensity  = 0.90;
+      parentMat.clearCoat.roughness  = 0.05;
+    } else {
+      const colorMap: Record<MadmaxiEnemyKind, [number, number, number]> = {
+        runner:   [0.90, 0.28, 0.18],
+        charger:  [0.88, 0.42, 0.08],
+        hopper:   [0.60, 0.90, 0.18],
+        flyer:    [0.15, 0.90, 0.85],
+        zigzag:   [0.82, 0.22, 0.88],
+        orbiter:  [0.35, 0.55, 1.0],
+        sniper:   [0.96, 0.82, 0.22],
+        burrower: [0.58, 0.28, 0.08],
+        spiker:   [0.86, 0.10, 0.28],
+        shadow:   [0.44, 0.44, 0.56],
+      };
+      const kind = en.kind ?? 'runner';
+      const [r, g, b] = colorMap[kind];
+      parentMat.albedoColor   = new BJS.Color3(r, g, b);
+      parentMat.emissiveColor = new BJS.Color3(r * 0.32, g * 0.22, b * 0.32);
+      parentMat.metallic      = 0.70;
+      parentMat.roughness     = 0.22;
+      parentMat.environmentIntensity = 1.55;
+      parentMat.clearCoat.isEnabled  = true;
+      parentMat.clearCoat.intensity  = 0.60;
+      parentMat.clearCoat.roughness  = 0.14;
+    }
+    parent.material = parentMat;
+
+    // ── Decoration helper: attach a child mesh, set material, parent it ─────
+    const attach = (child: import('@babylonjs/core').Mesh, mat: import('@babylonjs/core').Material, addToGlow = true) => {
+      child.material = mat;
+      child.parent = parent;
+      child.isPickable = false;
+      if (addToGlow) glow.addIncludedOnlyMesh(child);
+    };
+
+    // Eye material (shared template) — bright white-yellow LED
+    const eyeMat = (rgb: [number, number, number]) =>
+      emissiveMat(`eye_${ei}_${rgb.join('_')}`, rgb, 1.4, 0.0, 0.25, 0.0);
+
+    if (isBoss) {
+      // ── BOSS RIG ─ horns, glowing eyes, arm cannons, crown spikes ────────
+      const bossSize = (en.size ?? 1.8) * 0.85 * W;
+      const bossTint: [number, number, number] = en.bossEmissive
+        ? [en.bossEmissive[0] * 1.3, en.bossEmissive[1] * 1.3, en.bossEmissive[2] * 1.3]
+        : [1.0, 0.25, 0.25];
+
+      // Glowing eyes (two)
+      const eyeR = bossSize * 0.10;
+      for (const sx of [-1, 1] as const) {
+        const eye = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_eye_${sx}`, { diameter: eyeR * 2, segments: 12 }, scene);
+        eye.position.set(sx * bossSize * 0.22, bossSize * 0.10, -bossSize * 0.45);
+        attach(eye, eyeMat([1.0, 0.95, 0.45]));
+      }
+
+      // Twin horns
+      for (const sx of [-1, 1] as const) {
+        const horn = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}_horn_${sx}`, {
+          diameterTop: 0.0, diameterBottom: bossSize * 0.16, height: bossSize * 0.55, tessellation: 10,
+        }, scene);
+        horn.position.set(sx * bossSize * 0.30, bossSize * 0.55, -bossSize * 0.20);
+        horn.rotation.z = sx * -0.35;
+        attach(horn, emissiveMat(`horn_${ei}_${sx}`, bossTint, 0.45, 0.92, 0.12, 0.85), false);
+      }
+
+      // Crown spikes (3 across the top)
+      for (const ox of [-0.18, 0, 0.18] as const) {
+        const spike = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}_crown_${ox}`, {
+          diameterTop: 0.0, diameterBottom: bossSize * 0.10, height: bossSize * 0.35, tessellation: 8,
+        }, scene);
+        spike.position.set(ox * bossSize, bossSize * 0.50, 0);
+        attach(spike, emissiveMat(`crown_${ei}_${ox}`, bossTint, 0.6, 0.90, 0.10, 0.85));
+      }
+
+      // Twin arm cannons
+      for (const sx of [-1, 1] as const) {
+        const cannon = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}_cannon_${sx}`, {
+          diameter: bossSize * 0.18, height: bossSize * 0.55, tessellation: 12,
+        }, scene);
+        cannon.position.set(sx * bossSize * 0.55, -bossSize * 0.10, -bossSize * 0.30);
+        cannon.rotation.x = Math.PI / 2;
+        attach(cannon, emissiveMat(`cannon_${ei}_${sx}`, bossTint, 0.35, 0.95, 0.08, 0.90), false);
+        // Cannon muzzle glow
+        const muzzle = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_muzzle_${sx}`, { diameter: bossSize * 0.16, segments: 12 }, scene);
+        muzzle.position.set(sx * bossSize * 0.55, -bossSize * 0.10, -bossSize * 0.58);
+        attach(muzzle, eyeMat([1.0, 0.4, 0.3]));
+      }
+      return parent;
+    }
+
+    // ── Per-kind decorations for non-boss enemies ──────────────────────────
+    const kind = en.kind ?? 'runner';
+    switch (kind) {
+      case 'runner': {
+        // Glowing yellow eyes + 2 fangs + 2 shoulder spikes
+        for (const sx of [-1, 1] as const) {
+          const eye = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_eye_${sx}`, { diameter: 0.14 * W, segments: 10 }, scene);
+          eye.position.set(sx * 0.18 * W, 0.10 * W, -0.26 * W);
+          attach(eye, eyeMat([1.0, 0.92, 0.30]));
+        }
+        for (const sx of [-1, 1] as const) {
+          const fang = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}_fang_${sx}`, {
+            diameterTop: 0.0, diameterBottom: 0.06 * W, height: 0.18 * W, tessellation: 6,
+          }, scene);
+          fang.position.set(sx * 0.10 * W, -0.10 * W, -0.26 * W);
+          attach(fang, emissiveMat(`fang_${ei}_${sx}`, [0.95, 0.95, 0.95], 0.25, 0.30, 0.20, 0.70), false);
+        }
+        for (const sx of [-1, 1] as const) {
+          const spike = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}_shoulder_${sx}`, {
+            diameterTop: 0.0, diameterBottom: 0.10 * W, height: 0.30 * W, tessellation: 6,
+          }, scene);
+          spike.position.set(sx * 0.34 * W, 0.20 * W, 0);
+          spike.rotation.z = sx * -0.6;
+          attach(spike, emissiveMat(`shoulder_${ei}_${sx}`, [1.0, 0.30, 0.20], 0.55, 0.92, 0.12, 0.85));
+        }
+        break;
+      }
+      case 'charger': {
+        // Bull horns + visor band + chest plate
+        for (const sx of [-1, 1] as const) {
+          const horn = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}_bullhorn_${sx}`, {
+            diameterTop: 0.0, diameterBottom: 0.10 * W, height: 0.32 * W, tessellation: 8,
+          }, scene);
+          horn.position.set(sx * 0.30 * W, 0.30 * W, -0.10 * W);
+          horn.rotation.z = sx * -0.85;
+          attach(horn, emissiveMat(`bullhorn_${ei}_${sx}`, [0.95, 0.55, 0.10], 0.5, 0.90, 0.12, 0.80));
+        }
+        const visor = BJS.MeshBuilder.CreateBox(`enemy_${ei}_visor`, { width: 0.46 * W, height: 0.08 * W, depth: 0.04 * W }, scene);
+        visor.position.set(0, 0.06 * W, -0.26 * W);
+        attach(visor, eyeMat([1.0, 0.55, 0.10]));
+        const plate = BJS.MeshBuilder.CreateBox(`enemy_${ei}_plate`, { width: 0.62 * W, height: 0.36 * W, depth: 0.04 * W }, scene);
+        plate.position.set(0, -0.05 * W, -0.26 * W);
+        attach(plate, emissiveMat(`plate_${ei}`, [0.55, 0.30, 0.05], 0.18, 0.95, 0.12, 0.90), false);
+        break;
+      }
+      case 'hopper': {
+        // Slime body: 2 eyes + antenna + drippy bottom bulge
+        for (const sx of [-1, 1] as const) {
+          const eye = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_eye_${sx}`, { diameter: 0.16 * W, segments: 12 }, scene);
+          eye.position.set(sx * 0.16 * W, 0.10 * W, -0.32 * W);
+          attach(eye, eyeMat([1.0, 1.0, 0.85]));
+          const pupil = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_pup_${sx}`, { diameter: 0.07 * W, segments: 8 }, scene);
+          pupil.position.set(sx * 0.16 * W, 0.10 * W, -0.40 * W);
+          attach(pupil, emissiveMat(`pup_${ei}_${sx}`, [0.05, 0.10, 0.05], 0.1, 0, 0.6, 0), false);
+        }
+        const antenna = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}_antenna`, {
+          diameterTop: 0.04 * W, diameterBottom: 0.02 * W, height: 0.30 * W, tessellation: 6,
+        }, scene);
+        antenna.position.set(0, 0.45 * W, 0);
+        attach(antenna, emissiveMat(`antenna_${ei}`, [0.60, 0.90, 0.18], 0.5, 0.30, 0.30, 0.50), false);
+        const tip = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_antenna_tip`, { diameter: 0.10 * W, segments: 10 }, scene);
+        tip.position.set(0, 0.62 * W, 0);
+        attach(tip, eyeMat([0.70, 1.0, 0.30]));
+        break;
+      }
+      case 'flyer': {
+        // Saucer: central glowing eye + 2 wings + 2 rear thrusters
+        const eye = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_centraleye`, { diameter: 0.22 * W, segments: 14 }, scene);
+        eye.position.set(0, -0.05 * W, -0.30 * W);
+        attach(eye, eyeMat([0.30, 1.0, 0.95]));
+        for (const sx of [-1, 1] as const) {
+          const wing = BJS.MeshBuilder.CreateBox(`enemy_${ei}_wing_${sx}`, { width: 0.50 * W, height: 0.04 * W, depth: 0.18 * W }, scene);
+          wing.position.set(sx * 0.50 * W, 0, 0);
+          wing.rotation.z = sx * -0.10;
+          attach(wing, emissiveMat(`wing_${ei}_${sx}`, [0.20, 0.85, 0.85], 0.45, 0.92, 0.10, 0.85));
+        }
+        for (const sx of [-1, 1] as const) {
+          const thr = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_thr_${sx}`, { diameter: 0.12 * W, segments: 8 }, scene);
+          thr.position.set(sx * 0.18 * W, -0.08 * W, 0.30 * W);
+          attach(thr, eyeMat([0.40, 1.0, 1.0]));
+        }
+        break;
+      }
+      case 'zigzag': {
+        // Torus + 4 emissive prongs + electrified core
+        const core = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_core`, { diameter: 0.28 * W, segments: 14 }, scene);
+        attach(core, eyeMat([1.0, 0.55, 1.0]));
+        const prongAngles = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
+        prongAngles.forEach((ang, k) => {
+          const prong = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}_prong_${k}`, {
+            diameterTop: 0.0, diameterBottom: 0.08 * W, height: 0.24 * W, tessellation: 6,
+          }, scene);
+          prong.position.set(Math.cos(ang) * 0.42 * W, Math.sin(ang) * 0.42 * W, 0);
+          prong.rotation.z = ang - Math.PI / 2;
+          attach(prong, emissiveMat(`prong_${ei}_${k}`, [0.95, 0.40, 1.0], 0.7, 0.85, 0.10, 0.80));
+        });
+        break;
+      }
+      case 'orbiter': {
+        // 3 satellite micro-spheres orbiting via offset positions (rotation
+        // animates parent → satellites swing around for free)
+        const eye = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_eye`, { diameter: 0.14 * W, segments: 10 }, scene);
+        eye.position.set(0, 0, -0.28 * W);
+        attach(eye, eyeMat([0.55, 0.80, 1.0]));
+        for (let s = 0; s < 3; s++) {
+          const ang = (s / 3) * Math.PI * 2;
+          const sat = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_sat_${s}`, { diameter: 0.12 * W, segments: 10 }, scene);
+          sat.position.set(Math.cos(ang) * 0.42 * W, Math.sin(ang) * 0.42 * W, 0);
+          attach(sat, eyeMat([0.55, 0.80, 1.0]));
+        }
+        break;
+      }
+      case 'sniper': {
+        // Turret body + barrel + scope + red eye
+        const barrel = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}_barrel`, {
+          diameter: 0.16 * W, height: 0.55 * W, tessellation: 12,
+        }, scene);
+        barrel.position.set(0, 0, -0.40 * W);
+        barrel.rotation.x = Math.PI / 2;
+        attach(barrel, emissiveMat(`barrel_${ei}`, [0.95, 0.85, 0.30], 0.30, 0.95, 0.10, 0.90), false);
+        const muzzle = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_muzzle`, { diameter: 0.14 * W, segments: 12 }, scene);
+        muzzle.position.set(0, 0, -0.66 * W);
+        attach(muzzle, eyeMat([1.0, 0.85, 0.20]));
+        const scope = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_scope`, { diameter: 0.18 * W, segments: 12 }, scene);
+        scope.position.set(0, 0.30 * W, -0.20 * W);
+        attach(scope, eyeMat([1.0, 0.20, 0.20]));
+        break;
+      }
+      case 'burrower': {
+        // Body + 2 mandibles + 2 small eyes
+        for (const sx of [-1, 1] as const) {
+          const eye = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_eye_${sx}`, { diameter: 0.10 * W, segments: 10 }, scene);
+          eye.position.set(sx * 0.14 * W, 0.10 * W, -0.32 * W);
+          attach(eye, eyeMat([1.0, 0.65, 0.20]));
+        }
+        for (const sx of [-1, 1] as const) {
+          const mand = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}_mand_${sx}`, {
+            diameterTop: 0.0, diameterBottom: 0.10 * W, height: 0.30 * W, tessellation: 6,
+          }, scene);
+          mand.position.set(sx * 0.18 * W, -0.18 * W, -0.34 * W);
+          mand.rotation.z = sx * -0.6;
+          attach(mand, emissiveMat(`mand_${ei}_${sx}`, [0.40, 0.20, 0.06], 0.20, 0.50, 0.30, 0.60), false);
+        }
+        break;
+      }
+      case 'spiker': {
+        // Glowing emissive spike-tip caps at each polyhedron vertex direction
+        const tipDirs: [number, number, number][] = [
+          [ 0.30,  0.30,  0.30], [-0.30,  0.30,  0.30], [ 0.30, -0.30,  0.30], [-0.30, -0.30,  0.30],
+          [ 0.30,  0.30, -0.30], [-0.30,  0.30, -0.30],
+        ];
+        tipDirs.forEach(([x, y, z], k) => {
+          const tip = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_tip_${k}`, { diameter: 0.10 * W, segments: 8 }, scene);
+          tip.position.set(x * W, y * W, z * W);
+          attach(tip, eyeMat([1.0, 0.30, 0.40]));
+        });
+        const core = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_core`, { diameter: 0.20 * W, segments: 12 }, scene);
+        attach(core, eyeMat([1.0, 0.45, 0.55]));
+        break;
+      }
+      case 'shadow':
+      default: {
+        // Slit glowing eyes + faint wispy ring
+        for (const sx of [-1, 1] as const) {
+          const eye = BJS.MeshBuilder.CreateBox(`enemy_${ei}_slit_${sx}`, { width: 0.10 * W, height: 0.03 * W, depth: 0.02 * W }, scene);
+          eye.position.set(sx * 0.10 * W, 0.20 * W, -0.24 * W);
+          attach(eye, eyeMat([0.80, 0.85, 1.0]));
+        }
+        const ring = BJS.MeshBuilder.CreateTorus(`enemy_${ei}_wisp`, {
+          diameter: 0.65 * W, thickness: 0.04 * W, tessellation: 24,
+        }, scene);
+        ring.position.set(0, -0.42 * W, 0);
+        ring.rotation.x = Math.PI / 2;
+        const wispMat = emissiveMat(`wisp_${ei}`, [0.55, 0.55, 0.85], 0.55, 0.10, 0.50, 0.20);
+        wispMat.alpha = 0.55;
+        attach(ring, wispMat);
+        break;
+      }
+    }
+
+    return parent;
+  }
+
   private buildLandingGradePlayerRig(
     BJS: typeof import('@babylonjs/core'),
     scene: import('@babylonjs/core').Scene,
@@ -1448,6 +1804,32 @@ class GameCore {
       mesh.receiveShadows = true;
       shadowGen.addShadowCaster(mesh, false);
       this.platMeshes.push(mesh);
+
+      // ── Top-edge emissive trim (non-ground only) ───────────────────────
+      // Thin glowing strip along the top face — adds architectural definition
+      // and makes platforms read like floating tech panels instead of slabs.
+      if (p.type !== 'goal' && p.y !== 400) {
+        const trim = BJS.MeshBuilder.CreateBox(`plat_trim_${p.x}`, {
+          width: bw * 0.96, height: 0.06 * WORLD_SCALE, depth: 1.42 * WORLD_SCALE,
+        }, scene);
+        trim.parent = mesh;
+        trim.position.y = bh / 2 + 0.02 * WORLD_SCALE;
+        trim.isPickable = false;
+        const trimMat = new BJS.PBRMaterial(`plat_trim_mat_${p.x}`, scene);
+        const baseAccent: [number, number, number] = p.type === 'moving'
+          ? [0.30, 0.85, 1.0]
+          : [zone.accent[0], zone.accent[1], zone.accent[2]];
+        trimMat.albedoColor   = new BJS.Color3(baseAccent[0] * 0.30, baseAccent[1] * 0.30, baseAccent[2] * 0.30);
+        trimMat.emissiveColor = new BJS.Color3(baseAccent[0], baseAccent[1], baseAccent[2]);
+        trimMat.metallic      = 0.65;
+        trimMat.roughness     = 0.18;
+        trimMat.environmentIntensity = 1.6;
+        trimMat.clearCoat.isEnabled = true;
+        trimMat.clearCoat.intensity = 0.8;
+        trimMat.clearCoat.roughness = 0.05;
+        trim.material = trimMat;
+        glow.addIncludedOnlyMesh(trim);
+      }
     }
 
     // ── Coin meshes — landing-hero grade PBR gem/metal ────────────────────────
@@ -1564,86 +1946,19 @@ class GameCore {
     }
 
     // ── Enemy meshes ──────────────────────────────────────────────────────────
+    // Composite "monster" rigs: the original primitive (sized to match the
+    // hitbox) is the PARENT mesh. Decoration meshes (eyes, fangs, horns, wings,
+    // spikes, mandibles, thrusters, …) are parented to it so they inherit
+    // position/scaling/rotation writes from the render loop with zero changes
+    // to physics, AI, or collision math.
     for (let ei = 0; ei < this.enemies.length; ei++) {
       const en = this.enemies[ei];
-      const isBoss  = !!en.boss;
-      const diameter = isBoss ? 0.85 * WORLD_SCALE * (en.size ?? 1.8) : 0.85 * WORLD_SCALE;
-      let mesh: import('@babylonjs/core').Mesh;
-      if (isBoss) {
-        mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter, segments: 32 }, scene);
-      } else {
-        switch (en.kind) {
-          case 'runner':
-          case 'charger':
-            mesh = BJS.MeshBuilder.CreateBox(`enemy_${ei}`, { width: 0.78 * WORLD_SCALE, height: 0.62 * WORLD_SCALE, depth: 0.48 * WORLD_SCALE }, scene);
-            break;
-          case 'hopper':
-            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.78 * WORLD_SCALE, segments: 20 }, scene);
-            break;
-          case 'flyer':
-            mesh = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameterTop: 0.18 * WORLD_SCALE, diameterBottom: 0.8 * WORLD_SCALE, height: 0.54 * WORLD_SCALE, tessellation: 6 }, scene);
-            break;
-          case 'zigzag':
-            mesh = BJS.MeshBuilder.CreateTorus(`enemy_${ei}`, { diameter: 0.78 * WORLD_SCALE, thickness: 0.18 * WORLD_SCALE, tessellation: 20 }, scene);
-            break;
-          case 'orbiter':
-            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.58 * WORLD_SCALE, segments: 16 }, scene);
-            break;
-          case 'sniper':
-            mesh = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameter: 0.6 * WORLD_SCALE, height: 0.8 * WORLD_SCALE, tessellation: 12 }, scene);
-            break;
-          case 'burrower':
-            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.72 * WORLD_SCALE, segments: 16 }, scene);
-            break;
-          case 'spiker':
-            mesh = BJS.MeshBuilder.CreatePolyhedron(`enemy_${ei}`, { type: 4, size: 0.46 * WORLD_SCALE }, scene);
-            break;
-          case 'shadow':
-          default:
-            mesh = BJS.MeshBuilder.CreateCapsule(`enemy_${ei}`, { radius: 0.22 * WORLD_SCALE, height: 0.95 * WORLD_SCALE, tessellation: 14 }, scene);
-            break;
-        }
-      }
-      const mat  = new BJS.PBRMaterial(`emat_${ei}`, scene);
-      if (isBoss && en.bossColor) {
-        const [r,g,b] = en.bossColor;
-        const [er,eg,eb] = en.bossEmissive ?? [r*0.4,g*0.4,b*0.4];
-        mat.albedoColor   = new BJS.Color3(r, g, b);
-        mat.emissiveColor = new BJS.Color3(er, eg, eb);
-        mat.metallic      = 0.92;
-        mat.roughness     = 0.10;
-        mat.environmentIntensity = 1.8;
-        mat.clearCoat.isEnabled  = true;
-        mat.clearCoat.intensity  = 0.90;
-        mat.clearCoat.roughness  = 0.05;
-      } else {
-        const colorMap: Record<MadmaxiEnemyKind, [number, number, number]> = {
-          runner:   [0.90, 0.28, 0.18],
-          charger:  [0.88, 0.42, 0.08],
-          hopper:   [0.60, 0.90, 0.18],
-          flyer:    [0.15, 0.90, 0.85],
-          zigzag:   [0.82, 0.22, 0.88],
-          orbiter:  [0.35, 0.55, 1.0],
-          sniper:   [0.96, 0.82, 0.22],
-          burrower: [0.58, 0.28, 0.08],
-          spiker:   [0.86, 0.10, 0.28],
-          shadow:   [0.44, 0.44, 0.56],
-        };
-        const kind = en.kind ?? 'runner';
-        const [r, g, b] = colorMap[kind];
-        mat.albedoColor   = new BJS.Color3(r, g, b);
-        mat.emissiveColor = new BJS.Color3(r * 0.32, g * 0.22, b * 0.32);
-        mat.metallic      = 0.70;
-        mat.roughness     = 0.22;
-        mat.environmentIntensity = 1.55;
-        mat.clearCoat.isEnabled  = true;
-        mat.clearCoat.intensity  = 0.60;
-        mat.clearCoat.roughness  = 0.14;
-      }
-      mesh.material = mat;
-      shadowGen.addShadowCaster(mesh, false);
-      glow.addIncludedOnlyMesh(mesh);
-      this.enemyMeshes.push(mesh);
+      const isBoss = !!en.boss;
+      const parent = this.buildEnemyRig(BJS, scene, glow, ei, en);
+      shadowGen.addShadowCaster(parent, true); // includeChildren so decoration casts shadows too
+      glow.addIncludedOnlyMesh(parent);
+      this.enemyMeshes.push(parent);
+      void isBoss; // (kept for future per-boss tweaks; visual handled inside builder)
     }
 
     // ── MADMAXI Robot player ─────────────────────────────────────────────────
@@ -2181,13 +2496,35 @@ class GameCore {
         const projMesh = (this.scene && this.bjs) ? ((): import('@babylonjs/core').Mesh | null => {
           try {
             const BJS = this.bjs!;
+            // Core energy bolt — small bright PBR sphere
             const m = BJS.MeshBuilder.CreateSphere('proj_' + Date.now(),
-              { diameter: 0.35 * WORLD_SCALE, segments: 8 }, this.scene!);
-            const mat = new BJS.StandardMaterial('projMat', this.scene!);
-            mat.emissiveColor = en.boss
-              ? new BJS.Color3(1, 0.2, 0.2)
-              : new BJS.Color3(1.0, 0.85, 0.18);
+              { diameter: 0.32 * WORLD_SCALE, segments: 12 }, this.scene!);
+            const coreRGB: [number, number, number] = en.boss
+              ? [1.0, 0.25, 0.25]
+              : [1.0, 0.85, 0.20];
+            const mat = new BJS.PBRMaterial('projMat', this.scene!);
+            mat.albedoColor   = new BJS.Color3(coreRGB[0] * 0.5, coreRGB[1] * 0.5, coreRGB[2] * 0.5);
+            mat.emissiveColor = new BJS.Color3(coreRGB[0] * 1.4, coreRGB[1] * 1.4, coreRGB[2] * 1.4);
+            mat.metallic      = 0.1;
+            mat.roughness     = 0.30;
+            mat.environmentIntensity = 1.6;
+            mat.clearCoat.isEnabled  = true;
+            mat.clearCoat.intensity  = 0.85;
+            mat.clearCoat.roughness  = 0.05;
             m.material = mat;
+            // Halo shell — translucent emissive sphere parented to core
+            const halo = BJS.MeshBuilder.CreateSphere('proj_halo_' + Date.now(),
+              { diameter: 0.62 * WORLD_SCALE, segments: 12 }, this.scene!);
+            const haloMat = new BJS.PBRMaterial('projHaloMat', this.scene!);
+            haloMat.albedoColor   = new BJS.Color3(coreRGB[0] * 0.30, coreRGB[1] * 0.30, coreRGB[2] * 0.30);
+            haloMat.emissiveColor = new BJS.Color3(coreRGB[0] * 0.95, coreRGB[1] * 0.95, coreRGB[2] * 0.95);
+            haloMat.metallic      = 0.0;
+            haloMat.roughness     = 1.0;
+            haloMat.alpha         = 0.35;
+            haloMat.environmentIntensity = 1.2;
+            halo.material = haloMat;
+            halo.parent = m;
+            halo.isPickable = false;
             m.position.set(
               (bCX - this.camX - GW / 2) / PX_PER_BU,
               -(bCY - GH / 2) / PX_PER_BU,
