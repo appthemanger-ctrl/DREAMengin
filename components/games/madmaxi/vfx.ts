@@ -177,7 +177,7 @@ export function createMadmaxiVfx(BJS: BJS, scene: Scene, glow: GlowLayer | null)
       coinBurst.manualEmitCount = burstCount(14);
     },
     setEmbers(at, color) {
-      if (!at || tier === 'low') {
+      if (at === null || tier === 'low') {
         embers.stop();
         embers.emitRate = 0;
         return;

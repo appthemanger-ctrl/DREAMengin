@@ -3361,11 +3361,9 @@ class GameCore {
 
     // ── Speed-scaled chromatic aberration ─────────────────────────────────
     if (this.pipeline?.chromaticAberrationEnabled) {
-      const maxSpd = (this.giantFrames > 0 ? WALK_SPD * 1.45 : WALK_SPD) * PX_PER_BU;
       const t = Math.min(1, Math.abs(this.pvx) / Math.max(0.01, DASH_SPD * PX_PER_BU));
       this.speedT += (t - this.speedT) * 0.15;
       this.pipeline.chromaticAberration.aberrationAmount = 6 + this.speedT * 14;
-      void maxSpd;
     }
 
     // ── VFX tick (drives landing-ring fade, dash-trail decay) ─────────────
