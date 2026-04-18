@@ -1,8 +1,17 @@
 {
-  "generated_at": "2026-04-17T05:21:32.873Z",
+  "generated_at": "2026-04-18T10:16:31.962Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 98,
+  "count": 100,
   "actions": [
+    {
+      "file": "app/actions/dream-docs.ts",
+      "type": "server-action",
+      "exports": [
+        "createDreamDoc",
+        "publishDreamDoc",
+        "upsertDocSection"
+      ]
+    },
     {
       "file": "app/api/account/delete-data/route.ts",
       "type": "api-route-handler",
@@ -468,6 +477,14 @@
       "type": "api-route-handler",
       "http_handlers": [
         "GET",
+        "POST"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/gameengin/crash-report/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
         "POST"
       ],
       "exports": []

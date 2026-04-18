@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-04-17T05:21:32.873Z",
+  "generated_at": "2026-04-18T10:16:31.962Z",
   "generator": "scripts/sync-build-memory.mjs",
   "sources": [
     "types/supabase.ts",
     "supabase/migrations/"
   ],
-  "count": 129,
+  "count": 134,
   "tables": [
     {
       "table": "activity_points",
@@ -1090,6 +1090,56 @@
       "source": "20260325000000_phase8f_daydream_network.sql"
     },
     {
+      "table": "cartridge_design_rules",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid primary key default gen_random_uuid()"
+        },
+        {
+          "name": "cartridge_id",
+          "type": "text not null"
+        },
+        {
+          "name": "genre",
+          "type": "text not null"
+        },
+        {
+          "name": "emotional_core",
+          "type": "text"
+        },
+        {
+          "name": "signature_hash",
+          "type": "text not null"
+        },
+        {
+          "name": "novel",
+          "type": "boolean not null default true"
+        },
+        {
+          "name": "rules",
+          "type": "jsonb not null default"
+        },
+        {
+          "name": "rationale",
+          "type": "text"
+        },
+        {
+          "name": "rationale_source",
+          "type": "text"
+        },
+        {
+          "name": "created_by",
+          "type": "text not null default"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz not null default now()"
+        }
+      ],
+      "source": "20260418000000_gameengin_core.sql"
+    },
+    {
       "table": "child_safety_hash_registry",
       "columns": [
         {
@@ -1938,6 +1988,102 @@
       "source": "20260310000010_dreamdm_bar_pass2.sql"
     },
     {
+      "table": "dream_doc_sections",
+      "columns": [
+        {
+          "name": "id",
+          "type": "number"
+        },
+        {
+          "name": "page_id",
+          "type": "number"
+        },
+        {
+          "name": "content",
+          "type": "string | null"
+        },
+        {
+          "name": "token_count",
+          "type": "number | null"
+        },
+        {
+          "name": "embedding",
+          "type": "string | null"
+        },
+        {
+          "name": "slug",
+          "type": "string | null"
+        },
+        {
+          "name": "heading",
+          "type": "string | null"
+        },
+        {
+          "name": "chunk_index",
+          "type": "number"
+        },
+        {
+          "name": "updated_at",
+          "type": "string"
+        }
+      ],
+      "source": "types/supabase.ts"
+    },
+    {
+      "table": "dream_docs",
+      "columns": [
+        {
+          "name": "id",
+          "type": "number"
+        },
+        {
+          "name": "parent_page_id",
+          "type": "number | null"
+        },
+        {
+          "name": "path",
+          "type": "string"
+        },
+        {
+          "name": "checksum",
+          "type": "string | null"
+        },
+        {
+          "name": "meta",
+          "type": "Json | null"
+        },
+        {
+          "name": "type",
+          "type": "string | null"
+        },
+        {
+          "name": "source",
+          "type": "string | null"
+        },
+        {
+          "name": "slug",
+          "type": "string | null"
+        },
+        {
+          "name": "category",
+          "type": "'help' | 'tutorial' | 'policy' | 'release_notes' | 'api_reference' | 'general'"
+        },
+        {
+          "name": "published",
+          "type": "boolean"
+        },
+        {
+          "name": "author_id",
+          "type": "string | null"
+        },
+        {
+          "name": "updated_at",
+          "type": "string"
+        }
+      ],
+      "source": "types/supabase.ts"
+    },
+    {
       "table": "dream_window_projections",
       "columns": [
         {
@@ -2458,6 +2604,74 @@
         }
       ],
       "source": "types/supabase.ts"
+    },
+    {
+      "table": "gameengin_snapshots",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid primary key default gen_random_uuid()"
+        },
+        {
+          "name": "player_id",
+          "type": "uuid not null"
+        },
+        {
+          "name": "cartridge_id",
+          "type": "text not null"
+        },
+        {
+          "name": "snapshot_data",
+          "type": "text not null"
+        },
+        {
+          "name": "save_schema_version",
+          "type": "int  not null default 1"
+        },
+        {
+          "name": "client_timestamp",
+          "type": "double precision not null"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz not null default now()"
+        }
+      ],
+      "source": "20260418000000_gameengin_core.sql"
+    },
+    {
+      "table": "gameengin_telemetry",
+      "columns": [
+        {
+          "name": "id",
+          "type": "bigserial primary key"
+        },
+        {
+          "name": "player_id",
+          "type": "uuid"
+        },
+        {
+          "name": "cartridge_id",
+          "type": "text not null"
+        },
+        {
+          "name": "event_type",
+          "type": "text not null"
+        },
+        {
+          "name": "payload",
+          "type": "jsonb not null default"
+        },
+        {
+          "name": "client_timestamp",
+          "type": "timestamptz not null default now()"
+        },
+        {
+          "name": "server_timestamp",
+          "type": "timestamptz not null default now()"
+        }
+      ],
+      "source": "20260418000000_gameengin_core.sql"
     },
     {
       "table": "global_registry",

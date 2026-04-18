@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-17T05:21:32.873Z",
+  "generated_at": "2026-04-18T10:16:31.962Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 98,
+  "count": 99,
   "routes": [
     {
       "path": "/api/account/delete-data",
@@ -409,6 +409,13 @@
       "file": "app/api/game-scores/route.ts",
       "methods": [
         "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/gameengin/crash-report",
+      "file": "app/api/gameengin/crash-report/route.ts",
+      "methods": [
         "POST"
       ]
     },

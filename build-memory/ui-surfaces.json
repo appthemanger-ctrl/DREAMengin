@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-17T05:21:32.873Z",
+  "generated_at": "2026-04-18T10:16:31.962Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 118,
+  "count": 121,
   "surfaces": [
     {
       "type": "page",
@@ -781,6 +781,37 @@
         {
           "name": "FeedSettingsClient",
           "from": "./FeedSettingsClient"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/gameengin",
+      "file": "app/gameengin/page.tsx",
+      "component": "GameEnginIndexPage",
+      "imports": []
+    },
+    {
+      "type": "page",
+      "path": "/gameengin/cartridges",
+      "file": "app/gameengin/cartridges/page.tsx",
+      "component": "GameEnginCartridgesPage",
+      "imports": [
+        {
+          "name": "CartridgeBrowser",
+          "from": "@/components/gameengin/CartridgeBrowser"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/gameengin/cartridges/[id]",
+      "file": "app/gameengin/cartridges/[id]/page.tsx",
+      "component": "GameEnginCartridgePage",
+      "imports": [
+        {
+          "name": "CartridgeLauncher",
+          "from": "@/components/gameengin/CartridgeLauncher"
         }
       ]
     },

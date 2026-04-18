@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-17T05:21:32.873Z",
+  "generated_at": "2026-04-18T10:16:31.962Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 21,
+  "count": 22,
   "events": [
     {
       "event": "beforeunload",
@@ -95,6 +95,7 @@
       "payload_type": null,
       "files": [
         "components/daydream/CodeEngin.tsx",
+        "components/gameengin/CartridgeErrorBoundary.tsx",
         "engins/CodeEngin.tsx",
         "exports/DREAMENGINOS/modules/CodeEngin/components/daydream/CodeEngin.tsx",
         "exports/DREAMENGINOS/modules/CodeEngin/engins/CodeEngin.tsx"
@@ -178,6 +179,13 @@
         "engins/StarMakerEngin.tsx",
         "exports/DREAMENGINOS/modules/StarMakerEngin/components/daydream/StarMakerEngin.tsx",
         "exports/DREAMENGINOS/modules/StarMakerEngin/engins/StarMakerEngin.tsx"
+      ]
+    },
+    {
+      "event": "unhandledrejection",
+      "payload_type": null,
+      "files": [
+        "components/gameengin/CartridgeErrorBoundary.tsx"
       ]
     }
   ]
