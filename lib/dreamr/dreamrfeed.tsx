@@ -108,6 +108,20 @@ function fmtViews(n: number): string {
 function isImage(u?: string | null) { return !!u && /\.(jpe?g|png|gif|webp|avif|svg)(\?|$)/i.test(u); }
 function isYouTube(post: FeedPost) { return post.provider === 'youtube' || !!(post.permalink?.includes('youtu')); }
 
+// ── Platform shell configs ────────────────────────────────────────────────────
+
+const EXTERNAL_PROVIDERS = new Set(['facebook', 'instagram', 'twitter', 'x', 'rss', 'tiktok', 'linkedin']);
+
+const PLATFORM_CONFIGS: Record<string, { color: string; name: string; badge: string; bg: string; gradient?: string }> = {
+  facebook:  { color: '#1877F2', name: 'Facebook',  badge: 'f',  bg: '#0d1f3c' },
+  instagram: { color: '#E1306C', name: 'Instagram', badge: '◈',  bg: '#1a0a24', gradient: 'linear-gradient(135deg,#833AB4,#FD1D1D 50%,#FCAF45)' },
+  twitter:   { color: '#1DA1F2', name: 'X',         badge: 'X',  bg: '#000' },
+  x:         { color: '#1DA1F2', name: 'X',         badge: 'X',  bg: '#000' },
+  tiktok:    { color: '#FE2C55', name: 'TikTok',    badge: '♪',  bg: '#010101' },
+  linkedin:  { color: '#0077B5', name: 'LinkedIn',  badge: 'in', bg: '#052e44' },
+  rss:       { color: '#FF6600', name: 'RSS',       badge: '◉',  bg: '#1e1508' },
+};
+
 // ── Topic channels ─────────────────────────────────────────────────────────────
 // Featured top-10 topics for the DreamR channel strip (plus "All").
 // Each maps to a YouTube search query.
@@ -195,7 +209,7 @@ interface VideoCardProps {
 }
 
 function VideoPostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave, onShare }: VideoCardProps) {
-  const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
+  const chipTouchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const embedSrc = ytEmbedUrl(post);
@@ -203,28 +217,16 @@ function VideoPostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSa
   const channelName = post.profiles?.display_name ?? post.profiles?.handle ?? 'YouTube';
 
   return (
-    <div
-      style={{ position: 'relative', width: '100%', height: '100%', scrollSnapAlign: 'start', overflow: 'hidden', flexShrink: 0, background: '#0d1526', fontFamily: DR.font }}
-      onTouchStart={e => { const t = e.touches[0]; if (t) touchStart.current = { x: t.clientX, y: t.clientY, at: Date.now() }; }}
-      onTouchEnd={e => {
-        const s = touchStart.current; touchStart.current = null; if (!s) return;
-        const t = e.changedTouches[0]; if (!t) return;
-        const dx = t.clientX - s.x, dy = t.clientY - s.y;
-        const release = resolveSwipeRelease({
-          pixelDelta: dx,
-          crossDelta: dy,
-          durationMs: Date.now() - s.at,
-          viewportExtent: window.innerWidth,
-          direction: 'negative',
-        });
-        if (release.shouldTrigger) onSwipeLeft();
-      }}
-    >
+    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', background: '#040d1a', fontFamily: DR.font }}>
+
+      {/* Deep-space radial glow */}
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 80% 60% at 50% 40%,rgba(0,40,120,0.38) 0%,transparent 70%)', zIndex: 0, pointerEvents: 'none' }} />
+
       {/* Active stripe */}
       {isActive && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, zIndex: 20, background: 'linear-gradient(90deg,#ef4444,#ff7043 50%,#ef4444)' }} />}
 
       {/* Video player / thumbnail */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+      <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
         {isPlaying && embedSrc ? (
           <iframe
             src={embedSrc}
@@ -237,12 +239,12 @@ function VideoPostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSa
           <>
             {thumbnail && (
               /* eslint-disable-next-line @next/next/no-img-element */
-              <img src={thumbnail} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.78 }} />
+              <img src={thumbnail} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 }} />
             )}
-            {/* Dark gradient overlays */}
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,rgba(0,0,0,0.22) 0%,rgba(0,0,0,0.05) 45%,rgba(0,0,0,0.70) 100%)' }} />
+            {/* 60% black vignette at bottom */}
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,rgba(0,0,0,0.18) 0%,rgba(0,0,0,0.05) 35%,rgba(0,0,0,0.60) 75%,rgba(0,0,0,0.82) 100%)' }} />
 
-            {/* Center play button */}
+            {/* Premium 80px play button — frosted outer ring + glowing red core */}
             {embedSrc && (
               <button
                 type="button"
@@ -250,8 +252,10 @@ function VideoPostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSa
                 aria-label={`Play: ${post.content}`}
                 style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', background: 'none', border: 'none', cursor: 'pointer', zIndex: 5 }}
               >
-                <div style={{ width: 68, height: 68, borderRadius: '50%', background: 'rgba(239,68,68,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 24px rgba(0,0,0,0.55)', transition: 'transform 120ms' }}>
-                  <Play size={28} fill="#fff" color="#fff" />
+                <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.10)', backdropFilter: 'blur(16px)', border: '1.5px solid rgba(255,255,255,0.22)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 40px rgba(239,68,68,0.30),0 8px 32px rgba(0,0,0,0.60)' }}>
+                  <div style={{ width: 54, height: 54, borderRadius: '50%', background: 'radial-gradient(circle,#ff5252 0%,#ef4444 55%,#c62828 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 24px rgba(239,68,68,0.70),inset 0 2px 4px rgba(255,255,255,0.20)' }}>
+                    <Play size={24} fill="#fff" color="#fff" style={{ marginLeft: 3 }} />
+                  </div>
                 </div>
               </button>
             )}
@@ -259,25 +263,26 @@ function VideoPostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSa
         )}
       </div>
 
-      {/* Top bar: YT badge + fullscreen/expand */}
-      <div style={{ position: 'absolute', top: 14, left: 14, right: 14, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        {/* YouTube badge */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.62)', backdropFilter: 'blur(10px)', borderRadius: 8, padding: '5px 10px' }}>
-          <Youtube size={13} color="#ef4444" />
-          <span style={{ fontSize: 10, fontWeight: 800, color: '#fff', letterSpacing: '0.05em' }}>YouTube</span>
+      {/* Top bar: sleek frosted glass — YT logo | divider | expand */}
+      <div style={{ position: 'absolute', top: 54, left: 12, right: 12, zIndex: 10, display: 'flex', alignItems: 'center', background: 'rgba(4,13,26,0.72)', backdropFilter: 'blur(20px)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.09)', overflow: 'hidden' }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 7, padding: '9px 12px' }}>
+          <div style={{ width: 20, height: 20, borderRadius: 5, background: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Play size={10} fill="#fff" color="#fff" style={{ marginLeft: 1 }} />
+          </div>
+          <span style={{ fontSize: 11, fontWeight: 800, color: '#fff', letterSpacing: '0.04em' }}>YouTube</span>
         </div>
-        {/* Expand to fullscreen */}
+        <div style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.15)', flexShrink: 0 }} />
         {embedSrc && (
           <button type="button" onClick={() => setIsExpanded(true)} aria-label="Expand video"
-            style={{ width: 34, height: 34, borderRadius: 10, background: 'rgba(0,0,0,0.62)', backdropFilter: 'blur(10px)', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
-            <Maximize2 size={15} />
+            style={{ width: 44, height: 38, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.70)', flexShrink: 0 }}>
+            <Maximize2 size={14} />
           </button>
         )}
       </div>
 
       {/* Right action buttons */}
       {!isPlaying && (
-        <div style={{ position: 'absolute', right: 12, bottom: 138, zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+        <div style={{ position: 'absolute', right: 12, bottom: 178, zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
           <ActionBtn dark active={liked} ariaLabel={liked ? 'Unlike' : 'Like'}
             icon={<Heart size={21} fill={liked ? '#ef4444' : 'none'} color={liked ? '#ef4444' : 'rgba(255,255,255,0.88)'} strokeWidth={liked ? 0 : 1.8} />}
             onClick={() => onLike(post.id)} />
@@ -289,26 +294,42 @@ function VideoPostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSa
         </div>
       )}
 
-      {/* Bottom info (hidden while playing to not block video controls) */}
+      {/* Bottom frosted glass overlay */}
       {!isPlaying && (
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 54, zIndex: 10, padding: '0 14px 18px' }}>
-          {/* Channel chip */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 8, background: 'rgba(255,255,255,0.10)', backdropFilter: 'blur(14px)', borderRadius: 99, padding: '6px 12px 6px 6px' }}>
-            <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg,#ef4444,#ff7043)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: '#fff', flexShrink: 0 }}>
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 10, background: 'rgba(4,13,26,0.68)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.30)', padding: '14px 58px 22px 14px' }}>
+
+          {/* Channel chip — swipe LEFT on this to open channel panel */}
+          <div
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 10, background: 'rgba(255,255,255,0.08)', borderRadius: 99, padding: '7px 14px 7px 7px', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer' }}
+            onTouchStart={e => {
+              const t = e.touches[0]; if (t) chipTouchStart.current = { x: t.clientX, y: t.clientY, at: Date.now() };
+              e.stopPropagation();
+            }}
+            onTouchEnd={e => {
+              e.stopPropagation();
+              const s = chipTouchStart.current; chipTouchStart.current = null; if (!s) return;
+              const t = e.changedTouches[0]; if (!t) return;
+              const dx = t.clientX - s.x, dy = t.clientY - s.y;
+              const release = resolveSwipeRelease({ pixelDelta: dx, crossDelta: dy, durationMs: Date.now() - s.at, viewportExtent: window.innerWidth, direction: 'negative' });
+              if (release.shouldTrigger) onSwipeLeft();
+            }}
+          >
+            <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'radial-gradient(circle,#ff5252,#c62828)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: '#fff', flexShrink: 0, boxShadow: '0 0 12px rgba(239,68,68,0.45)' }}>
               {channelName[0]?.toUpperCase() ?? 'Y'}
             </div>
             <div>
               <div style={{ fontWeight: 700, fontSize: 13, color: '#fff', lineHeight: 1 }}>{channelName}</div>
-              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>YouTube · {relTime(post.created_at)}</div>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.50)', marginTop: 2 }}>YouTube · {relTime(post.created_at)}</div>
             </div>
           </div>
-          {/* Title */}
-          <p style={{ margin: '0 0 8px', fontSize: 13, color: 'rgba(255,255,255,0.92)', lineHeight: 1.45, fontWeight: 500, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+
+          {/* Video title — 2 lines max */}
+          <p style={{ margin: '0 0 9px', fontSize: 14, color: 'rgba(255,255,255,0.93)', lineHeight: 1.45, fontWeight: 600, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
             {post.content}
           </p>
           {/* Swipe hint */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 9, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)' }}>
-            ← swipe for more from this channel
+            ← swipe chip for channel
           </div>
         </div>
       )}
@@ -346,6 +367,25 @@ function VideoPostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSa
   );
 }
 
+// ── Platform shell (external connector posts) ────────────────────────────────
+
+function PlatformShell({ provider }: { provider: string }) {
+  const cfg = PLATFORM_CONFIGS[provider] ?? { color: '#1e2a3a', name: provider, badge: '●', bg: '#1e2a3a' };
+  return (
+    <>
+      {/* 3px accent stripe at top */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: cfg.color, zIndex: 20, pointerEvents: 'none' }} />
+      {/* Platform badge top-left */}
+      <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 20, display: 'flex', alignItems: 'center', gap: 5, background: 'rgba(0,0,0,0.46)', backdropFilter: 'blur(12px)', borderRadius: 8, padding: '5px 10px', border: `1px solid ${cfg.color}55` }}>
+        <span style={{ fontSize: 11, fontWeight: 900, color: cfg.color }}>{cfg.badge}</span>
+        <span style={{ fontSize: 9, fontWeight: 700, color: '#fff', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{cfg.name}</span>
+      </div>
+      {/* Tinted bottom brand wash */}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 90, background: `linear-gradient(0deg,${cfg.color}28 0%,transparent 100%)`, zIndex: 9, pointerEvents: 'none' }} />
+    </>
+  );
+}
+
 // ── Regular post card ─────────────────────────────────────────────────────────
 
 interface CardProps {
@@ -361,8 +401,9 @@ interface CardProps {
 }
 
 function PostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave, onShare, onComment }: CardProps) {
-  const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
+  const chipTouchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const hasDark = isImage(post.media_url);
+  const isExternalPlatform = EXTERNAL_PROVIDERS.has(post.provider ?? '');
   const [captionExpanded, setCaptionExpanded] = useState(false);
 
   const caption = useMemo(() => {
@@ -381,23 +422,9 @@ function PostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave, o
     <div
       style={{
         position: 'relative', width: '100%', height: '100%',
-        scrollSnapAlign: 'start', overflow: 'hidden', flexShrink: 0,
+        overflow: 'hidden',
         background: hasDark ? 'linear-gradient(180deg,#0d1526,#111d35)' : DR.bg,
         fontFamily: DR.font,
-      }}
-      onTouchStart={e => { const t = e.touches[0]; if (t) touchStart.current = { x: t.clientX, y: t.clientY, at: Date.now() }; }}
-      onTouchEnd={e => {
-        const s = touchStart.current; touchStart.current = null; if (!s) return;
-        const t = e.changedTouches[0]; if (!t) return;
-        const dx = t.clientX - s.x, dy = t.clientY - s.y;
-        const release = resolveSwipeRelease({
-          pixelDelta: dx,
-          crossDelta: dy,
-          durationMs: Date.now() - s.at,
-          viewportExtent: window.innerWidth,
-          direction: 'negative',
-        });
-        if (release.shouldTrigger) onSwipeLeft();
       }}
     >
       {/* Background */}
@@ -410,8 +437,10 @@ function PostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave, o
       {/* Active bar */}
       {isActive && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, zIndex: 20, background: `linear-gradient(90deg,${DR.skyLight},${DR.sky} 50%,${DR.gold})` }} />}
 
-      {/* Source badge */}
-      {(post.provider || post.source) && post.provider !== 'dreamengin' && (
+      {/* Platform shell (external) or generic source badge */}
+      {isExternalPlatform ? (
+        <PlatformShell provider={post.provider!} />
+      ) : (post.provider || post.source) && post.provider !== 'dreamengin' && (
         <div style={{ position: 'absolute', top: 14, left: 14, zIndex: 10, background: hasDark ? 'rgba(255,255,255,0.13)' : DR.bg, boxShadow: hasDark ? 'none' : nmR(2), backdropFilter: hasDark ? 'blur(12px)' : 'none', borderRadius: 99, padding: '4px 11px', fontSize: 9, fontWeight: 800, letterSpacing: '0.10em', textTransform: 'uppercase', color: hasDark ? 'rgba(255,255,255,0.70)' : DR.sky }}>
           {post.provider ?? post.source}
         </div>
@@ -458,8 +487,22 @@ function PostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave, o
 
       {/* Bottom overlay */}
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 54, zIndex: 10, padding: '0 14px 18px', background: hasDark ? 'linear-gradient(0deg,rgba(0,0,0,0.68) 0%,transparent 100%)' : 'none' }}>
-        {/* Creator chip */}
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 9, marginBottom: 8, background: hasDark ? 'rgba(255,255,255,0.10)' : DR.bg, boxShadow: hasDark ? 'none' : nmR(3), backdropFilter: hasDark ? 'blur(14px)' : 'none', borderRadius: 99, padding: '6px 12px 6px 6px' }}>
+        {/* Creator chip — swipe LEFT here to open creator profile panel */}
+        <div
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 9, marginBottom: 8, background: hasDark ? 'rgba(255,255,255,0.10)' : DR.bg, boxShadow: hasDark ? 'none' : nmR(3), backdropFilter: hasDark ? 'blur(14px)' : 'none', borderRadius: 99, padding: '6px 12px 6px 6px', cursor: 'pointer' }}
+          onTouchStart={e => {
+            const t = e.touches[0]; if (t) chipTouchStart.current = { x: t.clientX, y: t.clientY, at: Date.now() };
+            e.stopPropagation();
+          }}
+          onTouchEnd={e => {
+            e.stopPropagation();
+            const s = chipTouchStart.current; chipTouchStart.current = null; if (!s) return;
+            const t = e.changedTouches[0]; if (!t) return;
+            const dx = t.clientX - s.x, dy = t.clientY - s.y;
+            const release = resolveSwipeRelease({ pixelDelta: dx, crossDelta: dy, durationMs: Date.now() - s.at, viewportExtent: window.innerWidth, direction: 'negative' });
+            if (release.shouldTrigger) onSwipeLeft();
+          }}
+        >
           {post.profiles?.avatar_url ? (
             <Image src={post.profiles.avatar_url} alt="" width={26} height={26} style={{ width: 26, height: 26, borderRadius: '50%', objectFit: 'cover' }} />
           ) : (
@@ -500,7 +543,7 @@ function PostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave, o
             </span>
           </div>
           <div style={{ fontSize: 14, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: hasDark ? 'rgba(255,255,255,0.28)' : DR.textDim }}>
-            ← swipe for more
+            ← swipe chip
           </div>
         </div>
       </div>
@@ -511,26 +554,12 @@ function PostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave, o
 // ── Suggested CONTENT card ────────────────────────────────────────────────────
 
 function SuggestedContentCard({ post, onSwipeLeft }: { post: FeedPost; onSwipeLeft: () => void }) {
-  const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
+  const chipTouchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const caption = post.content?.slice(0, 120) ?? '';
 
   return (
     <div
-      style={{ position: 'relative', width: '100%', height: '100%', scrollSnapAlign: 'start', overflow: 'hidden', flexShrink: 0, background: DR.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '28px 24px', fontFamily: DR.font }}
-      onTouchStart={e => { const t = e.touches[0]; if (t) touchStart.current = { x: t.clientX, y: t.clientY, at: Date.now() }; }}
-      onTouchEnd={e => {
-        const s = touchStart.current; touchStart.current = null; if (!s) return;
-        const t = e.changedTouches[0]; if (!t) return;
-        const dx = t.clientX - s.x, dy = t.clientY - s.y;
-        const release = resolveSwipeRelease({
-          pixelDelta: dx,
-          crossDelta: dy,
-          durationMs: Date.now() - s.at,
-          viewportExtent: window.innerWidth,
-          direction: 'negative',
-        });
-        if (release.shouldTrigger) onSwipeLeft();
-      }}
+      style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', flexShrink: 0, background: DR.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '28px 24px', fontFamily: DR.font }}
     >
       {/* Label */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 24 }}>
@@ -542,8 +571,22 @@ function SuggestedContentCard({ post, onSwipeLeft }: { post: FeedPost; onSwipeLe
 
       {/* Card */}
       <div style={{ width: '100%', background: DR.bg, borderRadius: 22, boxShadow: nmR(8), padding: 20 }}>
-        {/* Creator row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+        {/* Creator row — swipe LEFT here to open creator profile panel */}
+        <div
+          style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, cursor: 'pointer' }}
+          onTouchStart={e => {
+            const t = e.touches[0]; if (t) chipTouchStart.current = { x: t.clientX, y: t.clientY, at: Date.now() };
+            e.stopPropagation();
+          }}
+          onTouchEnd={e => {
+            e.stopPropagation();
+            const s = chipTouchStart.current; chipTouchStart.current = null; if (!s) return;
+            const t = e.changedTouches[0]; if (!t) return;
+            const dx = t.clientX - s.x, dy = t.clientY - s.y;
+            const release = resolveSwipeRelease({ pixelDelta: dx, crossDelta: dy, durationMs: Date.now() - s.at, viewportExtent: window.innerWidth, direction: 'negative' });
+            if (release.shouldTrigger) onSwipeLeft();
+          }}
+        >
           {post.profiles?.avatar_url ? (
             <Image src={post.profiles.avatar_url} alt="" width={40} height={40} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', boxShadow: nmR(3) }} />
           ) : (
@@ -587,7 +630,7 @@ function SuggestedCreatorCard({ creator }: { creator: SuggestedCreator }) {
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', scrollSnapAlign: 'start', overflow: 'hidden', flexShrink: 0, background: DR.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '28px 24px', fontFamily: DR.font }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', background: DR.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '28px 24px', fontFamily: DR.font }}>
 
       {/* Label */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 24 }}>
@@ -634,26 +677,31 @@ function SuggestedCreatorCard({ creator }: { creator: SuggestedCreator }) {
 
 export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   // ── State ─────────────────────────────────────────────────────────────────
-  const [posts,         setPosts]       = useState<FeedPost[]>(initialPosts);
-  const [sugContent,    setSugContent]  = useState<FeedPost[]>([]);
-  const [sugCreators,   setSugCreators] = useState<SuggestedCreator[]>([]);
-  const [likedPosts,    setLikedPosts]  = useState<Set<string>>(new Set());
-  const [savedPosts,    setSavedPosts]  = useState<Set<string>>(new Set());
-  const [activeIdx,     setActiveIdx]   = useState(0);
-  const [creatorPost,   setCreatorPost] = useState<FeedPost | null>(null);    // DreamR creator panel
-  const [channelPost,   setChannelPost] = useState<FeedPost | null>(null);    // YouTube channel panel
-  const [newCount,      setNewCount]    = useState(0);
-  const [isLive,        setIsLive]      = useState(false);
-  const [loadingMore,   setLoadingMore] = useState(false);
-  const [hasMore,       setHasMore]     = useState(true);
+  const [posts,           setPosts]         = useState<FeedPost[]>(initialPosts);
+  const [sugContent,      setSugContent]    = useState<FeedPost[]>([]);
+  const [sugCreators,     setSugCreators]   = useState<SuggestedCreator[]>([]);
+  const [likedPosts,      setLikedPosts]    = useState<Set<string>>(new Set());
+  const [savedPosts,      setSavedPosts]    = useState<Set<string>>(new Set());
+  const [activeIdx,       setActiveIdx]     = useState(0);
+  const [creatorPost,     setCreatorPost]   = useState<FeedPost | null>(null);
+  const [channelPost,     setChannelPost]   = useState<FeedPost | null>(null);
+  const [newCount,        setNewCount]      = useState(0);
+  const [isLive,          setIsLive]        = useState(false);
+  const [loadingMore,     setLoadingMore]   = useState(false);
+  const [hasMore,         setHasMore]       = useState(true);
+  // ── Horizontal page-swipe state ───────────────────────────────────────────
+  const [feedDragX,       setFeedDragX]       = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   // ── Topic channels ────────────────────────────────────────────────────────
   const [activeTopic,   setActiveTopic] = useState<(typeof DREAMR_TOPICS)[number]>(DREAMR_TOPICS[0]!);
   const [ytTopicPosts,  setYtTopicPosts] = useState<FeedPost[]>([]);
   const [ytLoading,     setYtLoading]   = useState(false);
   const [ytRefreshing,  setYtRefreshing] = useState(false);
 
-  const scrollRef  = useRef<HTMLDivElement>(null);
-  const pendingRef = useRef<FeedPost[]>([]);
+  const scrollRef      = useRef<HTMLDivElement>(null);
+  const feedTouchStart = useRef<{ x: number; y: number; at: number } | null>(null);
+  const topicStripRef  = useRef<HTMLDivElement>(null);
+  const pendingRef     = useRef<FeedPost[]>([]);
   const offsetRef  = useRef(0);
   const mountedRef = useRef(true);
 
@@ -739,7 +787,8 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
       setPosts(prev => [...pendingRef.current, ...prev]);
       pendingRef.current = [];
       setNewCount(0);
-      scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+      setIsTransitioning(true);
+      setActiveIdx(0);
     }
   }, []);
 
@@ -803,31 +852,28 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
     return items;
   }, [posts, ytTopicPosts, sugContent, sugCreators]);
 
-  const handleScroll = useCallback(() => {
-    const el = scrollRef.current; if (!el) return;
-    const idx = Math.round(el.scrollTop / el.clientHeight);
-    setActiveIdx(idx);
-    if (idx >= feedItems.length - 3) loadMore();
-  }, [feedItems.length, loadMore]);
+  // ── Load more when near end of feed ──────────────────────────────────
+  useEffect(() => {
+    if (activeIdx >= feedItems.length - 3) loadMore();
+  }, [activeIdx, feedItems.length, loadMore]);
 
   // ── Keyboard navigation (↑/↓ / j/k for desktop) ──────────────────────
   useEffect(() => {
-    const el = scrollRef.current; if (!el) return;
     const onKey = (e: KeyboardEvent) => {
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
       if (e.key === 'ArrowDown' || e.key === 'j') {
         e.preventDefault();
-        const next = Math.min(activeIdx + 1, feedItems.length - 1);
-        el.scrollTo({ top: next * el.clientHeight, behavior: 'smooth' });
+        setIsTransitioning(true);
+        setActiveIdx(prev => Math.min(prev + 1, feedItems.length - 1));
       } else if (e.key === 'ArrowUp' || e.key === 'k') {
         e.preventDefault();
-        const prev = Math.max(activeIdx - 1, 0);
-        el.scrollTo({ top: prev * el.clientHeight, behavior: 'smooth' });
+        setIsTransitioning(true);
+        setActiveIdx(prev => Math.max(prev - 1, 0));
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [activeIdx, feedItems.length]);
+  }, [feedItems.length]);
 
   const handleLike = useCallback(async (id: string) => {
     const wasLiked = likedPosts.has(id);
@@ -913,6 +959,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
 
       {/* ── Topic channel strip ──────────────────────────────────────────── */}
       <div
+        ref={topicStripRef}
         style={{
           position: 'absolute', top: 0, left: 0, right: 0, zIndex: 25,
           paddingTop: 5, paddingBottom: 5,
@@ -935,8 +982,8 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
                 type="button"
                 onClick={() => {
                   setActiveTopic(topic);
+                  setIsTransitioning(true);
                   setActiveIdx(0);
-                  scrollRef.current?.scrollTo({ top: 0, behavior: 'instant' });
                 }}
                 style={{
                   flexShrink: 0, display: 'flex', alignItems: 'center', gap: 5,
@@ -986,18 +1033,43 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
         </div>
       )}
 
-      {/* ── Scroll-snap container ────────────────────────────────────────── */}
+      {/* ── Horizontal page-swipe feed ────────────────────────────────────── */}
       <div
-        ref={scrollRef} onScroll={handleScroll}
-        style={{ width: '100%', height: '100%', overflowY: 'scroll', overflowX: 'hidden', scrollSnapType: 'y mandatory', scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}
+        ref={scrollRef}
+        style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
+        onTouchStart={e => {
+          const topicEl = topicStripRef.current;
+          if (topicEl && topicEl.contains(e.target as Node)) return;
+          const t = e.touches[0];
+          if (t) feedTouchStart.current = { x: t.clientX, y: t.clientY, at: Date.now() };
+          setIsTransitioning(false);
+        }}
+        onTouchMove={e => {
+          const s = feedTouchStart.current; if (!s) return;
+          const t = e.touches[0]; if (!t) return;
+          const dx = t.clientX - s.x;
+          const dy = t.clientY - s.y;
+          if (Math.abs(dx) > Math.abs(dy) + 8) setFeedDragX(dx);
+        }}
+        onTouchEnd={e => {
+          const s = feedTouchStart.current; feedTouchStart.current = null; if (!s) return;
+          const t = e.changedTouches[0]; if (!t) return;
+          const dx = t.clientX - s.x;
+          setIsTransitioning(true);
+          setFeedDragX(0);
+          if (dx < -80 && activeIdx < feedItems.length - 1) setActiveIdx(prev => prev + 1);
+          else if (dx > 80 && activeIdx > 0) setActiveIdx(prev => prev - 1);
+        }}
       >
-        {/* Spacer for topic strip */}
-        <div style={{ height: 54, flexShrink: 0, scrollSnapAlign: 'none' }} />
-
         {feedItems.map((item, i) => (
           <div
             key={item.kind === 'creator' ? `creator-${item.creator.id}` : item.post.id}
-            style={{ width: '100%', height: '100%', flexShrink: 0, scrollSnapAlign: 'start' }}
+            style={{
+              position: 'absolute', inset: 0,
+              transform: `translateX(calc(${(i - activeIdx) * 100}% + ${feedDragX}px))`,
+              transition: isTransitioning && feedDragX === 0 ? 'transform 0.38s cubic-bezier(0.25,1,0.5,1)' : 'none',
+              willChange: 'transform',
+            }}
           >
             {item.kind === 'post' && isYouTube(item.post) ? (
               <VideoPostCard post={item.post} isActive={i === activeIdx}
@@ -1019,9 +1091,14 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
           </div>
         ))}
 
-        {/* Load-more sentinel */}
+        {/* Load-more sentinel — appears as one slide past the last item */}
         {hasMore && (
-          <div style={{ width: '100%', height: '75%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: DR.bg, flexShrink: 0, scrollSnapAlign: 'start' }}>
+          <div style={{
+            position: 'absolute', inset: 0,
+            transform: `translateX(calc(${(feedItems.length - activeIdx) * 100}% + ${feedDragX}px))`,
+            transition: isTransitioning && feedDragX === 0 ? 'transform 0.38s cubic-bezier(0.25,1,0.5,1)' : 'none',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', background: DR.bg,
+          }}>
             {loadingMore ? (
               <Loader2 size={20} style={{ color: DR.sky, animation: 'dr-spin 0.8s linear infinite' }} />
             ) : (
@@ -1033,13 +1110,13 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
         )}
       </div>
 
-      {/* ── Scroll nudge ─────────────────────────────────────────────────── */}
+      {/* ── Swipe nudge ──────────────────────────────────────────────────── */}
       {activeIdx === 0 && feedItems.length > 1 && (
-        <div style={{ position: 'absolute', bottom: 72, left: '50%', transform: 'translateX(-50%)', zIndex: 15, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, animation: 'dr-nudge 2s ease-in-out infinite' }}>
+        <div style={{ position: 'absolute', bottom: 72, right: 18, zIndex: 15, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, animation: 'dr-nudge 2s ease-in-out infinite' }}>
           <div style={{ background: DR.bg, boxShadow: nmR(3), borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <ChevronDown size={16} style={{ color: DR.sky }} />
+            <ChevronDown size={16} style={{ color: DR.sky, transform: 'rotate(-90deg)' }} />
           </div>
-          <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.10em', color: DR.textDim, fontFamily: DR.font }}>SCROLL</span>
+          <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.10em', color: DR.textDim, fontFamily: DR.font }}>SWIPE</span>
         </div>
       )}
 
@@ -1063,10 +1140,14 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
 
       <style>{`
         @keyframes dr-nudge {
-          0%,100% { opacity:.55; transform:translateX(-50%) translateY(0); }
-          50%      { opacity:1;   transform:translateX(-50%) translateY(6px); }
+          0%,100% { opacity:.55; transform:translateY(0); }
+          50%      { opacity:1;   transform:translateY(-5px); }
         }
         @keyframes dr-spin { to { transform: rotate(360deg); } }
+        @keyframes dr-swipe-in {
+          from { opacity:0; transform:translateX(18px); }
+          to   { opacity:1; transform:translateX(0); }
+        }
       `}</style>
     </div>
   );
