@@ -1,0 +1,22 @@
+{
+  "name": "Procedural Generation",
+  "category": "structural",
+  "description": "Levels, encounters, or biomes are assembled from hand-authored chunks at run-time using deterministic rules.",
+  "structural_role": "content-generator",
+  "applies_to_structures": ["run-based", "open-world", "sandbox"],
+  "implementation": {
+    "data_model": "weighted graph of chunks + adjacency rules + seed",
+    "parameters": {
+      "seed_source": "run-id",
+      "min_chunks_per_run": 8,
+      "dead_end_ratio_max": 0.15,
+      "biome_variety_min": 3
+    }
+  },
+  "anti_patterns": [
+    "First-N minutes identical every run",
+    "Dead-end rooms with no traversal payoff",
+    "Layouts that softlock without diagnostic"
+  ],
+  "fun_heuristics": { "replayability": 0.95, "surprise": 0.7 }
+}

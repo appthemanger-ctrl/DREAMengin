@@ -29,12 +29,66 @@ export interface GenreDNA {
   player_motivation: string;
   essential_feel: Record<string, unknown>;
   pacing_profile: { early: string; mid: string; late: string };
+  /**
+   * Modern game-structure descriptor. Optional only because legacy genre
+   * files predate the field; new genres MUST include it.
+   */
+  progression_model?: ProgressionModel;
   canonical_examples: unknown[];
   anti_patterns: string[];
 }
 
+/**
+ * Modern game-structure types the studio understands. These are how the
+ * game is actually shaped, not its art-style label.
+ */
+export type StructureType =
+  | 'linear'
+  | 'open-world'
+  | 'run-based'
+  | 'metroidvania'
+  | 'live-service'
+  | 'sandbox'
+  | 'episodic';
+
+export const STRUCTURE_TYPES: readonly StructureType[] = [
+  'linear',
+  'open-world',
+  'run-based',
+  'metroidvania',
+  'live-service',
+  'sandbox',
+  'episodic',
+] as const;
+
+export interface ProgressionModel {
+  structure_type: StructureType;
+  /** What stops the player from accessing everything immediately. */
+  progression_gates: string[];
+  /** What "finished" means for this structure. */
+  completion_definition: string;
+  /** How often new content appears (per run, per ability, per season, …). */
+  content_cadence: string;
+}
+
 export function readGenreDNA(genre: string): GenreDNA {
   return readJSON<GenreDNA>(path.join(BRAIN_ROOT, 'genre-dna', `${genre}.json`));
+}
+
+/** Returns every genre slug present in the brain (excluding `template`). */
+export function listGenres(): string[] {
+  const dir = path.join(BRAIN_ROOT, 'genre-dna');
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir)
+    .filter((f) => f.endsWith('.json'))
+    .map((f) => f.slice(0, -'.json'.length))
+    .filter((slug) => slug !== 'template')
+    .sort();
+}
+
+export function readProgressionModel(genre: string): ProgressionModel | null {
+  const dna = readGenreDNA(genre);
+  return dna.progression_model ?? null;
 }
 
 export interface MechanicEntry {
@@ -68,6 +122,20 @@ export function listMechanics(category?: string): MechanicEntry[] {
     }
   }
   return out;
+}
+
+/**
+ * Structural mechanics define the *shape* of the game (gating,
+ * persistence, generation, streaming). Distinct from movement/combat
+ * mechanics which define moment-to-moment feel.
+ */
+export interface StructuralMechanic extends MechanicEntry {
+  structural_role: string;
+  applies_to_structures: StructureType[];
+}
+
+export function listStructuralMechanics(): StructuralMechanic[] {
+  return listMechanics('structural') as StructuralMechanic[];
 }
 
 export function readInspiration(slug: string): Record<string, unknown> {
@@ -706,4 +774,119 @@ export function setCartridgeStatus(cartridgeId: string, status: CartridgeStatus)
 
 export function listCartridgesByStatus(status: CartridgeStatus): string[] {
   return listCartridges().filter((id) => readCartridgeStatus(id) === status);
+}
+
+// --- Progression State (modern game-structure aware ledger) ---------------
+
+export interface ProgressionStateInput {
+  cartridge_id: string;
+  structure_type: StructureType;
+  /** 0..1 — open-world / metroidvania map coverage. */
+  world_map_completion_pct?: number;
+  /** Ability ids the player has unlocked. */
+  ability_unlocks?: string[];
+  /** Sequence-break tags the player has triggered (metroidvania flavour). */
+  sequence_breaks?: string[];
+  /** Run count for run-based games. */
+  run_count?: number;
+  /** Meta-currency wallet. */
+  meta_currency?: Record<string, number>;
+  /** Live-service season identifier ("season-3-mid"). */
+  season_phase?: string;
+  /** Live-service active limited-time event ids. */
+  active_events?: string[];
+}
+
+export interface ProgressionState extends ProgressionStateInput {
+  last_updated_at: string;
+}
+
+const PROGRESSION_STATE_DIR = path.join(BRAIN_ROOT, 'progression-state');
+
+function clamp01(n: number): number {
+  if (!Number.isFinite(n)) return 0;
+  if (n < 0) return 0;
+  if (n > 1) return 1;
+  return n;
+}
+
+function sanitizeStringArray(input: unknown): string[] | undefined {
+  if (!Array.isArray(input)) return undefined;
+  const out: string[] = [];
+  for (const v of input) {
+    if (typeof v === 'string' && v.trim().length > 0) out.push(v.trim());
+  }
+  return out;
+}
+
+export function recordProgressionState(input: ProgressionStateInput): string {
+  if (!input || typeof input !== 'object') {
+    throw new Error('progression-state: invalid payload');
+  }
+  if (!SLUG_RE.test(input.cartridge_id ?? '')) {
+    throw new Error(`progression-state: invalid cartridge_id "${input.cartridge_id}"`);
+  }
+  if (!STRUCTURE_TYPES.includes(input.structure_type)) {
+    throw new Error(`progression-state: invalid structure_type "${input.structure_type}"`);
+  }
+
+  const entry: ProgressionState = {
+    cartridge_id: input.cartridge_id,
+    structure_type: input.structure_type,
+    last_updated_at: new Date().toISOString(),
+  };
+
+  if (input.world_map_completion_pct !== undefined) {
+    entry.world_map_completion_pct = clamp01(Number(input.world_map_completion_pct));
+  }
+  const abilities = sanitizeStringArray(input.ability_unlocks);
+  if (abilities) entry.ability_unlocks = abilities;
+  const breaks = sanitizeStringArray(input.sequence_breaks);
+  if (breaks) entry.sequence_breaks = breaks;
+
+  if (input.run_count !== undefined) {
+    const n = Number(input.run_count);
+    if (!Number.isFinite(n) || n < 0) {
+      throw new Error('progression-state: run_count must be a non-negative number');
+    }
+    entry.run_count = Math.floor(n);
+  }
+
+  if (input.meta_currency !== undefined) {
+    if (typeof input.meta_currency !== 'object' || input.meta_currency === null) {
+      throw new Error('progression-state: meta_currency must be an object');
+    }
+    const cur: Record<string, number> = {};
+    for (const [k, v] of Object.entries(input.meta_currency)) {
+      const n = Number(v);
+      if (typeof k !== 'string' || k.length === 0) continue;
+      if (!Number.isFinite(n) || n < 0) {
+        throw new Error(`progression-state: meta_currency.${k} must be a non-negative number`);
+      }
+      cur[k] = n;
+    }
+    entry.meta_currency = cur;
+  }
+
+  if (input.season_phase !== undefined) {
+    if (typeof input.season_phase !== 'string' || input.season_phase.trim().length === 0) {
+      throw new Error('progression-state: season_phase must be a non-empty string');
+    }
+    entry.season_phase = input.season_phase.trim();
+  }
+
+  const events = sanitizeStringArray(input.active_events);
+  if (events) entry.active_events = events;
+
+  ensureDir(PROGRESSION_STATE_DIR);
+  const filePath = path.join(PROGRESSION_STATE_DIR, `${input.cartridge_id}.json`);
+  fs.writeFileSync(filePath, JSON.stringify(entry, null, 2));
+  return filePath;
+}
+
+export function readProgressionState(cartridgeId: string): ProgressionState | null {
+  if (!SLUG_RE.test(cartridgeId)) return null;
+  const filePath = path.join(PROGRESSION_STATE_DIR, `${cartridgeId}.json`);
+  if (!fs.existsSync(filePath)) return null;
+  return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as ProgressionState;
 }

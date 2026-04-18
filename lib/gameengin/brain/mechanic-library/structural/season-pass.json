@@ -1,0 +1,21 @@
+{
+  "name": "Season Pass",
+  "category": "structural",
+  "description": "A time-bounded reward track unlocked through play; tiers gate cosmetics and (optionally) gameplay content.",
+  "structural_role": "live-service-spine",
+  "applies_to_structures": ["live-service"],
+  "implementation": {
+    "data_model": "tiered reward table + per-player XP wallet + season window timestamps",
+    "parameters": {
+      "tiers": 100,
+      "season_length_days": 70,
+      "catch_up_xp_curve": "logarithmic",
+      "rewards_power_relevant": false
+    }
+  },
+  "anti_patterns": [
+    "Tiers requiring more hours than the season has",
+    "Power-relevant rewards behind paid tiers"
+  ],
+  "fun_heuristics": { "retention_lift": 0.85, "fomo_pressure": 0.6 }
+}

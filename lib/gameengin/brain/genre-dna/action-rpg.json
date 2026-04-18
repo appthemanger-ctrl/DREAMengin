@@ -14,7 +14,13 @@
     "mid": "Build identity emerges; first ability tree node choices.",
     "late": "Optional bosses, NG+, prestige loops."
   },
-  "canonical_examples": [
+  "progression_model": {
+    "structure_type": "open-world",
+    "progression_gates": ["ability-unlock", "level-requirement", "key-item", "story-trigger"],
+    "completion_definition": "Main story credits; true ending behind optional bosses; NG+ and prestige loops extend skill ceiling.",
+    "content_cadence": "Per zone / per ability tree node; gear and abilities drip every 30-60 minutes of play."
+  },
+  "canonical_examples":[
     {
       "title": "Hades",
       "year": 2020,

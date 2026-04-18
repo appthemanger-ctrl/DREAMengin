@@ -14,7 +14,13 @@
     "mid": "Meta-currency unlocks expand build space.",
     "late": "Heat / ascension layers extend skill ceiling indefinitely."
   },
-  "canonical_examples": [
+  "progression_model": {
+    "structure_type": "run-based",
+    "progression_gates": ["meta-currency", "procedural-difficulty", "ability-unlock"],
+    "completion_definition": "Infinite replay; soft-credits on first clear, true ending after N successful runs, ascension/heat layers carry indefinitely.",
+    "content_cadence": "Every run; new biome/build/perk unlocks gated by meta-currency tiers."
+  },
+  "canonical_examples":[
     {
       "title": "Dead Cells",
       "year": 2018,

@@ -1,0 +1,17 @@
+{
+  "name": "Ability Gating",
+  "category": "structural",
+  "description": "World areas, encounters, or interactions are locked behind specific player abilities; unlocking the ability instantly opens previously-visible content.",
+  "structural_role": "progression-gate",
+  "applies_to_structures": ["metroidvania", "open-world"],
+  "implementation": {
+    "data_model": "rooms/zones reference required_ability ids; ability grants are events on the world graph",
+    "parameters": {
+      "min_visible_locks_before_first_unlock": 3,
+      "shortcut_to_hub_after_unlock": true,
+      "allow_sequence_breaks": true
+    }
+  },
+  "supports_sequence_breaks": true,
+  "fun_heuristics": { "exploration_payoff": 0.9, "memorability": 0.85 }
+}

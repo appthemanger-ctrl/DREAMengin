@@ -1,0 +1,17 @@
+{
+  "name": "Meta Progression",
+  "category": "structural",
+  "description": "Currencies and unlocks earned in one run persist across deaths, expanding the build space and softening difficulty over time.",
+  "structural_role": "between-run-persistence",
+  "applies_to_structures": ["run-based", "live-service"],
+  "implementation": {
+    "data_model": "global save bank keyed by currency id; per-run wallet collapses into bank on death/win",
+    "parameters": {
+      "currencies": ["soft", "hard", "cosmetic"],
+      "pity_timer_runs": 5,
+      "retire_currencies_at_max_unlocks": true
+    }
+  },
+  "balance_notes": "Curve so 80% of unlocks land in first 10 hours; long-tail prestige unlocks for the dedicated 5%.",
+  "fun_heuristics": { "retention_lift": 0.8, "comeback_value": 0.75 }
+}

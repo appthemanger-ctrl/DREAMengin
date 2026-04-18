@@ -14,7 +14,13 @@
     "mid": "Combine mechanics, increase precision demands",
     "late": "Mastery challenges, optional hard content"
   },
-  "canonical_examples": [
+  "progression_model": {
+    "structure_type": "linear",
+    "progression_gates": ["story-trigger", "ability-unlock"],
+    "completion_definition": "Credits roll after the final mastery sequence; optional B-sides and speedrun routes extend skill ceiling.",
+    "content_cadence": "Per level / per chapter; new mechanic introduced every 1-2 levels."
+  },
+  "canonical_examples":[
     {
       "title": "Celeste",
       "year": 2018,

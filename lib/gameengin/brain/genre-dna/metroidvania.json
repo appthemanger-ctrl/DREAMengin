@@ -15,7 +15,13 @@
     "mid": "2-3 abilities online; backtracking yields visible upgrades.",
     "late": "Sequence-break opportunities; optional bosses; speedrun routes."
   },
-  "canonical_examples": [
+  "progression_model": {
+    "structure_type": "metroidvania",
+    "progression_gates": ["ability-unlock", "key-item", "story-trigger"],
+    "completion_definition": "Multiple endings tied to map completion percentage; true ending requires sequence-break or hidden ability.",
+    "content_cadence": "Per ability unlock; each new traversal verb opens 2-3 previously-visible locked rooms."
+  },
+  "canonical_examples":[
     {
       "title": "Hollow Knight",
       "year": 2017,

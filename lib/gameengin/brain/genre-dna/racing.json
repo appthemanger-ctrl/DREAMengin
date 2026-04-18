@@ -14,7 +14,13 @@
     "mid": "Tight technical sections introduce shortcut tradeoffs.",
     "late": "Boss tracks combine all hazards; time-trial leaderboards."
   },
-  "canonical_examples": [
+  "progression_model": {
+    "structure_type": "linear",
+    "progression_gates": ["championship-tier", "vehicle-unlock"],
+    "completion_definition": "All championships podium-finished; ghost-replay leaderboards extend skill ceiling indefinitely.",
+    "content_cadence": "Per championship tier; new track + vehicle class on each tier clear."
+  },
+  "canonical_examples":[
     {
       "title": "Hotshot Racing",
       "year": 2020,

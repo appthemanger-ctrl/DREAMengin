@@ -1,0 +1,37 @@
+{
+  "genre": "Open World",
+  "subgenres": ["sandbox-adventure", "survival", "exploration"],
+  "core_mechanic": "A single seamless world streams around the player; progression is spatial discovery, not linear gating.",
+  "emotional_core": "wonder",
+  "player_motivation": "Make the unknown known on your own route.",
+  "essential_feel": {
+    "traversal": "multiple movement verbs (walk, climb, glide, mount) chosen per terrain",
+    "discovery": "horizon landmarks promise content; payoff is visible from afar",
+    "world_persistence": "player edits, kills, and weather persist across the session"
+  },
+  "pacing_profile": {
+    "early": "Tutorial valley funnels the player toward the first vista, then opens.",
+    "mid": "Multiple parallel quest threads; player picks the route.",
+    "late": "End-game zones gated by gear, ability, or knowledge."
+  },
+  "progression_model": {
+    "structure_type": "open-world",
+    "progression_gates": ["ability-unlock", "gear-tier", "knowledge", "story-trigger"],
+    "completion_definition": "Main quest credits; map completion percentage and challenge zones extend play indefinitely.",
+    "content_cadence": "Per discovered region / landmark; player-driven, not designer-paced."
+  },
+  "canonical_examples": [
+    {
+      "title": "Breath of the Wild",
+      "year": 2017,
+      "what_makes_it_special": "Every landmark is reachable from the start; gear and abilities just change the cost.",
+      "mechanical_innovations": ["climb-anywhere stamina", "physics-driven puzzle solutions"],
+      "emotional_impact": "Wonder earned by self-directed routing."
+    }
+  ],
+  "anti_patterns": [
+    "Map markers that replace genuine exploration",
+    "Invisible walls breaking the climb-anywhere promise",
+    "Loading screens between regions in a 'seamless' world"
+  ]
+}
