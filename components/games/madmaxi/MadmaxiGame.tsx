@@ -2242,7 +2242,7 @@ class GameCore {
 
     // Move
     this.px += this.pvx;
-    const prevPy = this.py - this.pvy; // py before this frame's vertical motion
+    const prevPy = this.py; // capture py BEFORE this frame's vertical motion
     this.py += this.pvy;
 
     // World bounds (clamp left, don't scroll past right until goal)
@@ -2273,11 +2273,10 @@ class GameCore {
       // the player UP through the platform instead of landing them on top.
       // Detect "player bottom crossed platform top this frame" and snap to
       // the surface before the AABB resolution runs.
-      const px2s = this.px + PW;
       if (
         this.pvy > 0 &&
-        px2s > p.curX && this.px < p.curX + p.w &&
-        prevPy + PH <= p.y &&        // was above the platform top last frame
+        this.px + PW > p.curX && this.px < p.curX + p.w &&
+        prevPy + PH <= p.y &&        // was at/above the platform top last frame
         this.py + PH > p.y           // is below the top this frame
       ) {
         this.py = p.y - PH;
