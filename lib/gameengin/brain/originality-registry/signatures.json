@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "updated_at": "2026-04-18T00:00:00Z",
+  "signatures": [
+    {
+      "hash": "sha256:platformer+coyote-time+double-jump+dash+parry",
+      "cartridge_ids": ["mad-maxi"],
+      "closest_known_game": "Hollow Knight (similar movement suite)",
+      "differentiation_factors": ["neon wasteland aesthetic", "father-son narrative", "procedural level pulse"],
+      "novelty_score": 0.72
+    }
+  ]
+}

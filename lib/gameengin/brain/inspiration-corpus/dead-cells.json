@@ -1,0 +1,19 @@
+{
+  "game_title": "Dead Cells",
+  "release_year": 2018,
+  "developer": "Motion Twin",
+  "genre": ["roguelite", "metroidvania"],
+  "what_makes_it_special": "Tight 2D combat married to deep weapon-perk synergy and meta unlocks.",
+  "mechanical_innovations": [
+    { "name": "Roll-cancel moveset", "description": "Every action interruptible into a dodge roll.", "impact": "Skill ceiling driven by cancel timing." },
+    { "name": "Cell-blueprint loop", "description": "Failed runs feed a permanent unlock pool.", "impact": "Loss always advances meta progression." }
+  ],
+  "emotional_impact": "Tension: every room is potential disaster.",
+  "design_lessons_applicable": [
+    "Frame data clarity beats animation flourish for combat satisfaction.",
+    "Curse rooms create voluntary high-stakes moments."
+  ],
+  "review_sentiment_score": 0.93,
+  "scraped_reviews_count": 18000,
+  "analyzed_at": "2026-04-17T00:00:00Z"
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Look-Ahead Camera",
+  "category": "camera",
+  "description": "Camera offsets in the direction of player velocity to reveal upcoming hazards.",
+  "implementation": {
+    "parameters": {
+      "max_offset_units": 3.5,
+      "velocity_scale": 0.4,
+      "smoothing_ms": 250
+    }
+  },
+  "fun_heuristics": { "reaction_time_gain": 0.7, "fairness": 0.85 }
+}

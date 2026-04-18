@@ -1,0 +1,39 @@
+{
+  "genre": "Platformer",
+  "subgenres": ["precision", "puzzle", "action", "endless-runner", "metroidvania"],
+  "core_mechanic": "Player-controlled avatar navigates 2D/3D space using jumping and movement abilities.",
+  "emotional_core": "mastery",
+  "player_motivation": "Overcome precise challenges through skill improvement.",
+  "essential_feel": {
+    "movement": "tight, predictable, with optional momentum",
+    "jump": "variable height, coyote time, input buffering",
+    "camera": "predictive, smooth follow with look-ahead"
+  },
+  "pacing_profile": {
+    "early": "Introduce core movement, safe zones",
+    "mid": "Combine mechanics, increase precision demands",
+    "late": "Mastery challenges, optional hard content"
+  },
+  "canonical_examples": [
+    {
+      "title": "Celeste",
+      "year": 2018,
+      "what_makes_it_special": "Perfect difficulty curve, assist mode accessibility, screen-by-screen respawn.",
+      "mechanical_innovations": ["dash with direction lock", "stamina-limited climbing", "screen-wrapping rooms"],
+      "emotional_impact": "Empowerment through overcoming personal struggle (narrative+gameplay synergy)."
+    },
+    {
+      "title": "Super Meat Boy",
+      "year": 2010,
+      "what_makes_it_special": "Instant respawn, bite-size levels, replay overlay.",
+      "mechanical_innovations": ["wall-cling slide", "death replay overlay"],
+      "emotional_impact": "Tight cycle of failure-and-retry without friction."
+    }
+  ],
+  "anti_patterns": [
+    "Slippery/ice physics without player intent",
+    "Inconsistent collision (getting stuck on corners)",
+    "Off-screen hazards with no warning",
+    "Long runbacks after death"
+  ]
+}

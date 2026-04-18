@@ -1,0 +1,32 @@
+{
+  "genre": "Metroidvania",
+  "subgenres": ["action-adventure", "exploration"],
+  "core_mechanic": "Interconnected world unlocked through ability-gated traversal.",
+  "emotional_core": "wonder",
+  "player_motivation": "Map the world; convert mystery into mastery.",
+  "essential_feel": {
+    "movement": "responsive, with telegraphed unlock progression",
+    "combat": "predictable knockback, pattern-based bosses",
+    "camera": "follow with subtle look-ahead, smooth biome transitions",
+    "map": "fog-of-war revealed by exploration, marker-friendly"
+  },
+  "pacing_profile": {
+    "early": "Core moveset establishes rhythm; first lock teases gating.",
+    "mid": "2-3 abilities online; backtracking yields visible upgrades.",
+    "late": "Sequence-break opportunities; optional bosses; speedrun routes."
+  },
+  "canonical_examples": [
+    {
+      "title": "Hollow Knight",
+      "year": 2017,
+      "what_makes_it_special": "Atmospheric world, hand-crafted rooms, deep optional content.",
+      "mechanical_innovations": ["charm system", "dream nail interactions"],
+      "emotional_impact": "Lonely majesty earned through persistence."
+    }
+  ],
+  "anti_patterns": [
+    "Dead-end corridors with no traversal payoff",
+    "Required backtracking with no shortcut",
+    "Map without enough landmarks to plan a route"
+  ]
+}

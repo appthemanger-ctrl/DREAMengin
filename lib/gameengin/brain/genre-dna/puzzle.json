@@ -1,0 +1,29 @@
+{
+  "genre": "Puzzle",
+  "subgenres": ["physics", "logic", "narrative"],
+  "core_mechanic": "Discrete or continuous problem-solving against a fixed ruleset.",
+  "emotional_core": "wonder",
+  "player_motivation": "Reach the 'aha' insight moment.",
+  "essential_feel": {
+    "rule_legibility": "All rules visible or rapidly inferable",
+    "undo": "Cheap retries; never lose a session to misclick",
+    "difficulty_curve": "Each puzzle introduces exactly one new wrinkle"
+  },
+  "pacing_profile": {
+    "early": "Single-rule puzzles teach the ruleset.",
+    "mid": "Combine rules; introduce constraints.",
+    "late": "Multi-step recursive puzzles; optional bonus puzzles."
+  },
+  "canonical_examples": [
+    {
+      "title": "Baba Is You",
+      "year": 2019,
+      "what_makes_it_special": "Rules are themselves puzzle pieces."
+    }
+  ],
+  "anti_patterns": [
+    "Trial-and-error with no diagnostic feedback",
+    "Solutions requiring outside knowledge",
+    "Long undo penalties"
+  ]
+}

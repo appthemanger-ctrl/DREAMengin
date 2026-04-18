@@ -23,7 +23,14 @@
     "build:games": "tsc --project tsconfig.games.json --noEmit",
     "test:games": "vitest run tests/game-navigation.test.ts tests/game-remote-regression.test.ts tests/game-quality-plan.test.ts tests/report-driven-game-agent.test.ts",
     "asbuild:debug": "asc assembly/index.ts --target debug --exportRuntime --enable simd --outFile public/workers/engin-shader.wasm",
-    "asbuild:release": "asc assembly/index.ts --target release --optimize --enable simd --outFile public/workers/engin-shader.wasm"
+    "asbuild:release": "asc assembly/index.ts --target release --optimize --enable simd --outFile public/workers/engin-shader.wasm",
+    "asbuild:mad-maxi": "asc assembly/mad-maxi-player.ts -o public/cartridges/mad-maxi/logic/main.wasm --optimizeLevel 3 --shrinkLevel 2 --enable simd --enable bulk-memory",
+    "gameengin:maestro": "tsx scripts/gameengin/maestro-analyze.ts",
+    "gameengin:prophet": "tsx scripts/gameengin/prophet-run.ts",
+    "gameengin:mechanic": "tsx scripts/gameengin/mechanic-run.ts",
+    "gameengin:artisan": "tsx scripts/gameengin/artisan-run.ts",
+    "gameengin:writer": "tsx scripts/gameengin/writer-run.ts",
+    "gameengin:package": "tsx scripts/gameengin/package-cartridge.ts"
   },
   "dependencies": {
     "@babylonjs/core": "^9.1.0",
@@ -74,6 +81,7 @@
     "react-dnd-html5-backend": "^16.0.1",
     "tailwindcss": "^4.2.2",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.19.0",
     "typescript": "^5.9.0",
     "vitest": "^4.1.0"
   }

@@ -1,0 +1,29 @@
+{
+  "genre": "Roguelike",
+  "subgenres": ["roguelite", "deck-builder", "action-roguelike"],
+  "core_mechanic": "Procedural runs with permadeath and meta-progression carry-over.",
+  "emotional_core": "tension",
+  "player_motivation": "Translate accumulated knowledge into longer runs.",
+  "essential_feel": {
+    "run_length": "20–40 min ideal; punchy enough to retry willingly",
+    "synergy_density": "Build defining choices every 2–3 minutes",
+    "death": "Educational; reveals systems rather than punishing"
+  },
+  "pacing_profile": {
+    "early": "Onboarding run with guaranteed wins to teach systems.",
+    "mid": "Meta-currency unlocks expand build space.",
+    "late": "Heat / ascension layers extend skill ceiling indefinitely."
+  },
+  "canonical_examples": [
+    {
+      "title": "Dead Cells",
+      "year": 2018,
+      "what_makes_it_special": "Tight 2D combat with deep weapon-perk synergies."
+    }
+  ],
+  "anti_patterns": [
+    "Identical first 5 minutes every run",
+    "Power gap that makes early runs feel unwinnable",
+    "Reward unlocks gated behind RNG with no pity timer"
+  ]
+}

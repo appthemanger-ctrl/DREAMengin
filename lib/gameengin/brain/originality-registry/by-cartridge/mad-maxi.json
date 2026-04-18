@@ -1,0 +1,8 @@
+{
+  "cartridge_id": "mad-maxi",
+  "genre": "platformer",
+  "mechanics": ["coyote-time", "double-jump", "dash", "parry"],
+  "signature_hash": "sha256:platformer+coyote-time+double-jump+dash+parry",
+  "novelty_score": 0.72,
+  "registered_at": "2026-04-18T00:00:00Z"
+}

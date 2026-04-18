@@ -1,0 +1,11 @@
+{
+  "name": "Session Loop",
+  "definition": "How well a 20–60 minute session sustains engagement and produces a satisfying stopping point.",
+  "signals": [
+    { "signal": "session_length_minutes_median", "target_range": [25, 45] },
+    { "signal": "level_complete_rate_per_minute", "target_range": [0.05, 0.3] },
+    { "signal": "voluntary_quit_after_progression_pct", "target_min": 60 },
+    { "signal": "story_skip_rate_pct", "target_max": 15 }
+  ],
+  "telemetry_sources": ["session_start", "session_end", "level_complete", "story_skip"]
+}

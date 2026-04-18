@@ -1,0 +1,16 @@
+{
+  "name": "Skill Tree",
+  "category": "progression",
+  "description": "Branching graph of unlockable abilities purchased with earned currency.",
+  "emotional_impact": ["expression", "anticipation"],
+  "implementation": {
+    "parameters": {
+      "branches": 3,
+      "depth_per_branch": 6,
+      "respec_cost_pct": 25,
+      "exclusive_capstones": true
+    }
+  },
+  "games_using": ["Diablo", "Path of Exile", "Hades (Mirror)"],
+  "fun_heuristics": { "build_diversity": 0.85, "decision_weight": 0.8 }
+}

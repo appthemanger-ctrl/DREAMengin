@@ -1,0 +1,28 @@
+{
+  "game_title": "Celeste",
+  "release_year": 2018,
+  "developer": "Maddy Makes Games",
+  "genre": ["platformer", "precision"],
+  "what_makes_it_special": "Flawless integration of narrative theme (overcoming anxiety) with gameplay difficulty. Accessibility options without compromising core experience.",
+  "mechanical_innovations": [
+    {
+      "name": "Dash",
+      "description": "Eight-directional dash that recharges on ground touch.",
+      "impact": "Adds depth to movement, allows sequence breaking, feels incredibly responsive."
+    },
+    {
+      "name": "Assist Mode",
+      "description": "Adjustable game speed, infinite stamina, invincibility.",
+      "impact": "Allows players of all skill levels to experience the story and game."
+    }
+  ],
+  "emotional_impact": "Players report feeling a sense of accomplishment and catharsis, mirroring the protagonist's journey.",
+  "design_lessons_applicable": [
+    "Tight, forgiving controls (coyote time, input buffering) are non-negotiable for precision platformers.",
+    "Narrative and gameplay difficulty can reinforce each other.",
+    "Accessibility options expand audience without diluting core experience."
+  ],
+  "review_sentiment_score": 0.96,
+  "scraped_reviews_count": 12450,
+  "analyzed_at": "2026-04-17T00:00:00Z"
+}
