@@ -228,7 +228,23 @@ function makeEmptyGrid(): TileType[][] {
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
-export default function GameEngin({ onBack }: Props) {
+import { ArtifactSlot } from '@/lib/enginpipe';
+
+/**
+ * Default export wraps the inner component in a generic Engin Pipe
+ * `<ArtifactSlot>` so future cross-Engin features (telemetry tagging,
+ * snapshot lifecycle) attach at a single, consistent point. The inner
+ * component is otherwise unchanged.
+ */
+export default function GameEngin(props: Props) {
+  return (
+    <ArtifactSlot artifactId="engin:game">
+      <GameEnginInner {...props} />
+    </ArtifactSlot>
+  );
+}
+
+function GameEnginInner({ onBack }: Props) {
   const gameBridge = useGameEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'games' });
   const searchParams = useSearchParams();

@@ -1,6 +1,7 @@
 'use client';
 
 import { AgentPanel } from '../modules/ai-co-pilot/AgentPanel';
+import { ArtifactSlot } from '@/lib/enginpipe';
 
 /**
  * CodeEnginOrchestrator – thin composition layer for CodeEngin modules.
@@ -14,13 +15,15 @@ import { AgentPanel } from '../modules/ai-co-pilot/AgentPanel';
  */
 export default function CodeEnginOrchestrator() {
   return (
-    <div className="space-y-4">
-      <AgentPanel />
-      {/*
-       * Future modules go here, e.g.:
-       * <CIModule />
-       * <PairProgrammingModule />
-       */}
-    </div>
+    <ArtifactSlot artifactId="engin:code">
+      <div className="space-y-4">
+        <AgentPanel />
+        {/*
+         * Future modules go here, e.g.:
+         * <CIModule />
+         * <PairProgrammingModule />
+         */}
+      </div>
+    </ArtifactSlot>
   );
 }
