@@ -37,7 +37,7 @@ function makeProceduralLevel(level: number, sessionSeed: number): LevelDef {
   const movSpd = 1.0 + t * 1.8;
   const platCount = Math.round(12 + t * 17);
   const enemyCnt = getMadmaxiEnemyCount(level);
-  const enemySpd = 1.6 + t * 2.2;
+  const enemySpd = 1.2 + t * 1.6;
 
   const platforms: PlatDef[] = [{ x: 0, y: 400, w: worldW, h: 80, type: 'solid' }];
   const coins: LevelDef['coins'] = [];
@@ -60,7 +60,7 @@ function makeProceduralLevel(level: number, sessionSeed: number): LevelDef {
     cw = Math.round(minPlatW + rng() * (maxPlatW - minPlatW));
 
     const isMoving = rng() < movRatio;
-    const platform: PlatDef = { x: cx, y: cy, w: cw, h: 20, type: isMoving ? 'moving' : 'solid' };
+    const platform: PlatDef = { x: cx, y: cy, w: cw, h: 28, type: isMoving ? 'moving' : 'solid' };
     if (isMoving) {
       platform.moveRange = Math.round(40 + rng() * 60);
       platform.moveSpd = parseFloat((movSpd * (0.7 + rng() * 0.6)).toFixed(2));
@@ -174,10 +174,10 @@ function makeBossLevel(level: number): LevelDef {
   const worldW = 1100;
   const platforms: PlatDef[] = [
     { x: 0, y: 400, w: worldW, h: 80, type: 'solid' },
-    { x: 160, y: 300, w: 130, h: 20, type: 'solid' },
-    { x: 380, y: 235, w: 140, h: 20, type: 'solid' },
-    { x: 620, y: 280, w: 130, h: 20, type: 'solid' },
-    { x: 860, y: 215, w: 110, h: 20, type: 'solid' },
+    { x: 160, y: 300, w: 130, h: 28, type: 'solid' },
+    { x: 380, y: 235, w: 140, h: 28, type: 'solid' },
+    { x: 620, y: 280, w: 130, h: 28, type: 'solid' },
+    { x: 860, y: 215, w: 110, h: 28, type: 'solid' },
   ];
 
   return {

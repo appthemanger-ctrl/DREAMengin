@@ -715,6 +715,8 @@ class GameCore {
   private playerArmR:  import('@babylonjs/core').Mesh | null = null; // right arm
   private playerLegL:  import('@babylonjs/core').Mesh | null = null; // left leg
   private playerLegR:  import('@babylonjs/core').Mesh | null = null; // right leg
+  private robotAntenna: import('@babylonjs/core').Mesh | null = null;
+  private robotAntennaBall: import('@babylonjs/core').Mesh | null = null;
   private platMeshes:  import('@babylonjs/core').Mesh[] = [];
   private coinMeshes:  (import('@babylonjs/core').Mesh | null)[] = [];
   private enemyMeshes: (import('@babylonjs/core').Mesh | null)[] = [];
@@ -858,8 +860,9 @@ class GameCore {
     scene.clearColor = new BJS.Color4(zone.sky[0], zone.sky[1], zone.sky[2], 1);
 
     // ── Camera (FreeCamera, side-view looking in +Z direction) ──────────────
-    const cam = new BJS.FreeCamera('cam', new BJS.Vector3(0, 5.25, -22), scene);
+    const cam = new BJS.FreeCamera('cam', new BJS.Vector3(0, 5.25, -28), scene);
     cam.setTarget(new BJS.Vector3(0, 4.8, 0));
+    cam.fov = 0.85; // slightly wider field of view for Mario-like feel
     this.camMesh = cam;
 
     // ── Lighting — realistic multi-source setup ─────────────────────────────
@@ -990,6 +993,31 @@ class GameCore {
       this.skylineBands.push({ mesh: band, baseX: 0, parallax, pulseOffset: idx * 1.8 });
     });
 
+    // ── 3D background scenery props (mountains, pillars) ────────────────
+    const buildingRng = seededRng(this.level * 1237 + 9991);
+    // Add 8 distant building/mountain silhouettes at varying z depths
+    for (let b = 0; b < 8; b++) {
+      const bHeight = 3 + buildingRng() * 6;
+      const bWidth = 0.8 + buildingRng() * 1.4;
+      const building = BJS.MeshBuilder.CreateBox(`bg_build_${b}`, {
+        width: bWidth, height: bHeight, depth: 0.3
+      }, scene);
+      const bMat = new BJS.StandardMaterial(`bg_bmat_${b}`, scene);
+      bMat.disableLighting = true;
+      const shade = zone.plt[0] * 0.3;
+      bMat.diffuseColor = new BJS.Color3(zone.plt[0] * 0.35 + shade, zone.plt[1] * 0.35 + shade, zone.plt[2] * 0.35 + shade);
+      bMat.emissiveColor = new BJS.Color3(zone.plt[0] * 0.15, zone.plt[1] * 0.15, zone.plt[2] * 0.15);
+      bMat.alpha = 0.6 + buildingRng() * 0.25;
+      bMat.backFaceCulling = false;
+      building.material = bMat;
+      const bDepth = 6 + buildingRng() * 6;
+      const bParallax = 0.06 + buildingRng() * 0.10;
+      const bBaseX = (buildingRng() - 0.5) * 60;
+      building.position.set(bBaseX, -bHeight / 2 + 6, bDepth);
+      building.isPickable = false;
+      this.bgStars.push({ mesh: building, baseX: bBaseX, parallax: bParallax });
+    }
+
     // ── Parallax star layers (3 depths, scrolling at different rates) ────────
     const rng = seededRng(this.level * STAR_SEED_PRIME + STAR_SEED_OFFSET);
     // layer config: [parallaxFactor, z-depth, count, size-range]
@@ -1019,7 +1047,7 @@ class GameCore {
     for (const p of this.platforms) {
       const bw = p.w / PX_PER_BU;
       const bh = p.h / PX_PER_BU;
-      const mesh = BJS.MeshBuilder.CreateBox(`plat_${p.x}`, { width: bw, height: bh, depth: 1.2 }, scene);
+      const mesh = BJS.MeshBuilder.CreateBox(`plat_${p.x}`, { width: bw, height: bh, depth: p.y === 400 ? 1.2 : 1.8 }, scene);
       const mat  = new BJS.PBRMaterial(`pmat_${p.x}`, scene);
 
       if (p.type === 'goal') {
@@ -1148,39 +1176,44 @@ class GameCore {
         // Create spiky/aggressive enemies based on reference image
         switch (en.kind) {
           case 'runner':
-          case 'charger':
-            // Create main body as icosphere for spiky look
-            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.39, subdivisions: 2 }, scene);
-            // Add spikes
-            for (let s = 0; s < 6; s++) {
-              const angle = (s / 6) * Math.PI * 2;
-              const spike = BJS.MeshBuilder.CreateCylinder(`spike_${ei}_${s}`, {
-                diameterTop: 0.05,
-                diameterBottom: 0.15,
-                height: 0.35,
-                tessellation: 6
-              }, scene);
-              spike.parent = mesh;
-              spike.position.x = Math.cos(angle) * 0.3;
-              spike.position.z = Math.sin(angle) * 0.3;
-              spike.rotation.z = Math.PI / 2;
-            }
+          case 'charger': {
+            // Squat tank-like blocker with two front spikes
+            mesh = BJS.MeshBuilder.CreateBox(`enemy_${ei}`, { width: 0.58, height: 0.44, depth: 0.42 }, scene);
+            const s1 = BJS.MeshBuilder.CreateCylinder(`spk1_${ei}`, { diameterTop: 0.03, diameterBottom: 0.14, height: 0.30, tessellation: 4 }, scene);
+            s1.parent = mesh; s1.position.set(0.25, 0.08, 0); s1.rotation.z = -Math.PI / 2;
+            const s2 = BJS.MeshBuilder.CreateCylinder(`spk2_${ei}`, { diameterTop: 0.03, diameterBottom: 0.14, height: 0.30, tessellation: 4 }, scene);
+            s2.parent = mesh; s2.position.set(0.25, -0.08, 0); s2.rotation.z = -Math.PI / 2;
             break;
-          case 'hopper':
-            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.39, subdivisions: 2 }, scene);
+          }
+          case 'hopper': {
+            // Cute bouncy toad shape — flattened sphere with eye bumps
+            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.66, segments: 10 }, scene);
+            mesh.scaling.y = 0.72;
+            const eyeMatL = new BJS.PBRMaterial(`eyeL_mat_${ei}`, scene);
+            eyeMatL.emissiveColor = new BJS.Color3(1, 1, 0);
+            eyeMatL.albedoColor   = new BJS.Color3(1, 1, 0);
+            const eyeL = BJS.MeshBuilder.CreateSphere(`eye_L_${ei}`, { diameter: 0.18, segments: 6 }, scene);
+            eyeL.parent = mesh; eyeL.position.set(-0.18, 0.22, -0.28);
+            eyeL.material = eyeMatL;
+            const eyeR = BJS.MeshBuilder.CreateSphere(`eye_R_${ei}`, { diameter: 0.18, segments: 6 }, scene);
+            eyeR.parent = mesh; eyeR.position.set(0.18, 0.22, -0.28);
+            eyeR.material = eyeMatL;
             break;
-          case 'flyer':
-            // Flying spiky enemy
-            mesh = BJS.MeshBuilder.CreateIcoSphere(`enemy_${ei}`, { radius: 0.35, subdivisions: 2 }, scene);
-            const wingL = BJS.MeshBuilder.CreateCylinder(`wing_L_${ei}`, { diameterTop: 0.02, diameterBottom: 0.12, height: 0.4, tessellation: 3 }, scene);
-            wingL.parent = mesh;
-            wingL.position.x = -0.35;
-            wingL.rotation.z = Math.PI / 4;
-            const wingR = BJS.MeshBuilder.CreateCylinder(`wing_R_${ei}`, { diameterTop: 0.02, diameterBottom: 0.12, height: 0.4, tessellation: 3 }, scene);
-            wingR.parent = mesh;
-            wingR.position.x = 0.35;
-            wingR.rotation.z = -Math.PI / 4;
+          }
+          case 'flyer': {
+            // Winged orb — glowing sphere with translucent wing planes
+            mesh = BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.46, segments: 10 }, scene);
+            const wingMat = new BJS.PBRMaterial(`wmat_${ei}`, scene);
+            wingMat.albedoColor = new BJS.Color3(0.15, 0.90, 0.85);
+            wingMat.alpha = 0.7;
+            const wingL = BJS.MeshBuilder.CreateBox(`wL_${ei}`, { width: 0.46, height: 0.08, depth: 0.22 }, scene);
+            wingL.parent = mesh; wingL.position.x = -0.38; wingL.rotation.z = 0.4;
+            wingL.material = wingMat;
+            const wingR = BJS.MeshBuilder.CreateBox(`wR_${ei}`, { width: 0.46, height: 0.08, depth: 0.22 }, scene);
+            wingR.parent = mesh; wingR.position.x = 0.38; wingR.rotation.z = -0.4;
+            wingR.material = wingMat;
             break;
+          }
           case 'zigzag':
             mesh = BJS.MeshBuilder.CreateTorus(`enemy_${ei}`, { diameter: 0.78, thickness: 0.18, tessellation: 14 }, scene);
             break;
@@ -1270,6 +1303,8 @@ class GameCore {
     robotBodyMat.metallic = 0.95;
     robotBodyMat.roughness = 0.12;
     robotBodyMat.emissiveColor = new BJS.Color3(0.15, 0.10, 0.02);
+    robotBodyMat.subSurface.isTranslucencyEnabled = true;
+    robotBodyMat.subSurface.translucencyIntensity = 0.08;
 
     const robotDarkMat = new BJS.PBRMaterial('robotDarkMat', scene);
     robotDarkMat.albedoColor  = new BJS.Color3(0.22, 0.20, 0.24); // dark silver joints
@@ -1289,7 +1324,7 @@ class GameCore {
 
     // Body (torso)
     const robotBody = BJS.MeshBuilder.CreateBox('robot_body',
-      { width: 0.55, height: 0.62, depth: 0.38 }, scene);
+      { width: 0.62, height: 0.68, depth: 0.42 }, scene);
     robotBody.material = robotBodyMat;
     shadowGen.addShadowCaster(robotBody, true);
     glow.addIncludedOnlyMesh(robotBody);
@@ -1297,45 +1332,58 @@ class GameCore {
 
     // Head (box, sits on top of body)
     const robotHead = BJS.MeshBuilder.CreateBox('robot_head',
-      { width: 0.44, height: 0.36, depth: 0.36 }, scene);
+      { width: 0.50, height: 0.42, depth: 0.42 }, scene);
     robotHead.material = robotBodyMat;
     shadowGen.addShadowCaster(robotHead, true);
     this.playerHead = robotHead;
 
     // Visor (thin flat box on front of head, glowing cyan)
     const robotVisor = BJS.MeshBuilder.CreateBox('robot_visor',
-      { width: 0.30, height: 0.09, depth: 0.05 }, scene);
+      { width: 0.36, height: 0.11, depth: 0.06 }, scene);
     robotVisor.material = robotVisorMat;
     glow.addIncludedOnlyMesh(robotVisor);
     this.playerVisor = robotVisor;
 
     // Left arm
     const robotArmL = BJS.MeshBuilder.CreateBox('robot_arm_l',
-      { width: 0.16, height: 0.42, depth: 0.18 }, scene);
+      { width: 0.18, height: 0.46, depth: 0.20 }, scene);
     robotArmL.material = robotDarkMat;
     shadowGen.addShadowCaster(robotArmL, false);
     this.playerArmL = robotArmL;
 
     // Right arm
     const robotArmR = BJS.MeshBuilder.CreateBox('robot_arm_r',
-      { width: 0.16, height: 0.42, depth: 0.18 }, scene);
+      { width: 0.18, height: 0.46, depth: 0.20 }, scene);
     robotArmR.material = robotDarkMat;
     shadowGen.addShadowCaster(robotArmR, false);
     this.playerArmR = robotArmR;
 
     // Left leg
     const robotLegL = BJS.MeshBuilder.CreateBox('robot_leg_l',
-      { width: 0.20, height: 0.44, depth: 0.22 }, scene);
+      { width: 0.22, height: 0.48, depth: 0.24 }, scene);
     robotLegL.material = robotBodyMat;
     shadowGen.addShadowCaster(robotLegL, false);
     this.playerLegL = robotLegL;
 
     // Right leg
     const robotLegR = BJS.MeshBuilder.CreateBox('robot_leg_r',
-      { width: 0.20, height: 0.44, depth: 0.22 }, scene);
+      { width: 0.22, height: 0.48, depth: 0.24 }, scene);
     robotLegR.material = robotBodyMat;
     shadowGen.addShadowCaster(robotLegR, false);
     this.playerLegR = robotLegR;
+
+    // Antenna — adds extra character (small cone + glowing ball tip)
+    const robotAntenna = BJS.MeshBuilder.CreateCylinder('robot_antenna',
+      { diameterTop: 0, diameterBottom: 0.07, height: 0.28, tessellation: 6 }, scene);
+    robotAntenna.material = robotVisorMat;
+    glow.addIncludedOnlyMesh(robotAntenna);
+    this.robotAntenna = robotAntenna;
+
+    const robotAntennaBall = BJS.MeshBuilder.CreateSphere('robot_antenna_ball',
+      { diameter: 0.10, segments: 6 }, scene);
+    robotAntennaBall.material = robotVisorMat;
+    glow.addIncludedOnlyMesh(robotAntennaBall);
+    this.robotAntennaBall = robotAntennaBall;
 
     // ── Particle system (landing/jump dust) ────────────────────────────────
     const dust = new BJS.ParticleSystem('dust', 60, scene);
@@ -1545,6 +1593,25 @@ class GameCore {
     const playerScale = this.giantFrames > 0 ? 1.45 : this.superFrames > 0 ? 1.18 : 1;
     const PW = 28 * playerScale;
     const PH = 40 * playerScale;
+
+    // ── Swept vertical collision (prevents tunneling at high fall speeds) ───
+    // Check if player crossed through a platform top this frame
+    if (this.pvy > 0) {
+      const prevBottom = (this.py - this.pvy) + PH; // player bottom last frame
+      for (const p of this.platforms) {
+        const tx = p.curX, tx2 = p.curX + p.w, ty = p.y;
+        // Player was above platform top last frame, is below it now
+        if (this.px + PW > tx && this.px < tx2 &&
+            prevBottom <= ty && this.py + PH >= ty) {
+          this.py = ty - PH;
+          this.pvy = 0;
+          this.onGround = true;
+          this.jumpCount = 0;
+          if (p.type === 'moving') this.px += (p.moveSpd ?? 0) * p.moveDir;
+          break;
+        }
+      }
+    }
 
     for (let i = 0; i < this.platforms.length; i++) {
       const p = this.platforms[i];
@@ -1833,7 +1900,7 @@ class GameCore {
       const px2e = this.px + PW, py2e = this.py + PH;
 
       if (px2e > en.curX && this.px < ex2 && py2e > en.curY && this.py < ey2) {
-        const stompThreshold = en.boss ? (en.size ?? 1.8) * 22 : (this.giantFrames > 0 || this.superFrames > 0 ? 34 : 22);
+        const stompThreshold = en.boss ? (en.size ?? 1.8) * 22 : (this.giantFrames > 0 || this.superFrames > 0 ? 40 : 30);
         const stompOv = py2e - en.curY;
         if (stompOv < stompThreshold && this.pvy > 0) {
           // Stomp hit!
@@ -2227,6 +2294,14 @@ class GameCore {
       this.playerLegR.rotation.x = -legSwing;
       this.playerLegR.setEnabled(isVisible);
     }
+    if (this.robotAntenna) {
+      this.robotAntenna.position.set(pbx + 0.08, pby + 0.88, 0);
+      this.robotAntenna.setEnabled(isVisible);
+    }
+    if (this.robotAntennaBall) {
+      this.robotAntennaBall.position.set(pbx + 0.08, pby + 1.04, 0);
+      this.robotAntennaBall.setEnabled(isVisible);
+    }
 
     // ── Camera Y zoom when all silver coins collected ──────────────────────
     if (this.coinFlashFrames > 0) {
@@ -2293,5 +2368,7 @@ class GameCore {
     this.playerArmR = null;
     this.playerLegL = null;
     this.playerLegR = null;
+    this.robotAntenna = null;
+    this.robotAntennaBall = null;
   }
 }
