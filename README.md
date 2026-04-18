@@ -335,18 +335,13 @@ DREAMengin/
 
 | Metric | Value |
 |--------|-------|
-| Phase | Phase 8 — Real Runtime Completion |
+| Phase | Phase 9— Real not Completion |
 | Routes | ~204 (105 pages + 99 API handlers) |
 | Test files | 167 |
 | Last push | `0b088c9` by **appthemanger-ctrl** on `completedream` |
 | Timestamp | 2026-04-18 10:16 UTC |
 
----
 
-### ⚠️ Pre-existing Issues (do not fix unless explicitly asked)
-
-- **4 failing tests** in `tests/dreamdm-bar-interactions.test.ts` (`snapSplitRatioOnRelease` suite) — known mismatch, pre-existing
-- **~29 ESLint warnings** (prefer-const, no-img-element, alt-text) — intentional per `eslint.config.mjs`
 
 ---
 
