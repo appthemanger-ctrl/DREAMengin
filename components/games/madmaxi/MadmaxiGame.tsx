@@ -51,6 +51,8 @@ import {
 } from './config';
 import { getMadmaxiLevelDefinition } from './levels';
 import { MadmaxiAudioController } from './audio';
+import { createScanLineTexture, makeDetailMat, type ScanLineTexture } from './materials';
+import { createMadmaxiVfx, type VfxKit, type VfxTier } from './vfx';
 import type { CoinDef, EnemyDef, HazardDef, MadmaxiEnemyKind, MadmaxiPowerUpKind, PlatDef, PowerUpDef } from './types';
 
 // ─── Game constants ──────────────────────────────────────────────────────────
@@ -775,6 +777,22 @@ class GameCore {
 
   // particles
   private dustPS: import('@babylonjs/core').ParticleSystem | null = null;
+  private vfx: VfxKit | null = null;
+  private visorScanLine: ScanLineTexture | null = null;
+  private screenScanLine: ScanLineTexture | null = null;
+  private pipeline: import('@babylonjs/core').DefaultRenderingPipeline | null = null;
+  private ssaoPipeline: import('@babylonjs/core').SSAO2RenderingPipeline | null = null;
+  private skyDome: import('@babylonjs/core').Mesh | null = null;
+  private mountainBands: { mesh: import('@babylonjs/core').Mesh; baseX: number; parallax: number }[] = [];
+  private neonBillboards: { mesh: import('@babylonjs/core').Mesh; baseX: number; parallax: number; phase: number; mat: import('@babylonjs/core').PBRMaterial }[] = [];
+  private debrisMotes: { mesh: import('@babylonjs/core').AbstractMesh; baseX: number; baseY: number; parallax: number; phase: number; speed: number }[] = [];
+  private bossPanelLines: { mesh: import('@babylonjs/core').Mesh; mat: import('@babylonjs/core').PBRMaterial }[] = [];
+  private fogBaseDensity = 0;
+  private nextEyeBlinkTick = 180;
+  private eyeBlinkFrames = 0;
+  private justLanded = false;
+  // Cached normalized speed for per-frame chromatic aberration scaling.
+  private speedT = 0;
 
   // anim
   private animTick = 0;
@@ -853,20 +871,20 @@ class GameCore {
         case 'hopper':
           return BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.78 * W, segments: 20 }, scene);
         case 'flyer':
-          return BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameterTop: 0.18 * W, diameterBottom: 0.8 * W, height: 0.54 * W, tessellation: 6 }, scene);
+          return BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameterTop: 0.18 * W, diameterBottom: 0.8 * W, height: 0.54 * W, tessellation: 20 }, scene);
         case 'zigzag':
-          return BJS.MeshBuilder.CreateTorus(`enemy_${ei}`, { diameter: 0.78 * W, thickness: 0.18 * W, tessellation: 20 }, scene);
+          return BJS.MeshBuilder.CreateTorus(`enemy_${ei}`, { diameter: 0.78 * W, thickness: 0.18 * W, tessellation: 28 }, scene);
         case 'orbiter':
-          return BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.58 * W, segments: 16 }, scene);
+          return BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.58 * W, segments: 24 }, scene);
         case 'sniper':
-          return BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameter: 0.6 * W, height: 0.8 * W, tessellation: 12 }, scene);
+          return BJS.MeshBuilder.CreateCylinder(`enemy_${ei}`, { diameter: 0.6 * W, height: 0.8 * W, tessellation: 24 }, scene);
         case 'burrower':
-          return BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.72 * W, segments: 16 }, scene);
+          return BJS.MeshBuilder.CreateSphere(`enemy_${ei}`, { diameter: 0.72 * W, segments: 24 }, scene);
         case 'spiker':
           return BJS.MeshBuilder.CreatePolyhedron(`enemy_${ei}`, { type: 4, size: 0.46 * W }, scene);
         case 'shadow':
         default:
-          return BJS.MeshBuilder.CreateCapsule(`enemy_${ei}`, { radius: 0.22 * W, height: 0.95 * W, tessellation: 14 }, scene);
+          return BJS.MeshBuilder.CreateCapsule(`enemy_${ei}`, { radius: 0.22 * W, height: 0.95 * W, tessellation: 20 }, scene);
       }
     };
 
@@ -910,6 +928,58 @@ class GameCore {
       parentMat.clearCoat.roughness  = 0.14;
     }
     parent.material = parentMat;
+    // Brushed-metal micro-variation on the enemy parent body — matches the
+    // 2020 console-platformer look across all enemy archetypes.
+    {
+      const noiseTex = (parentMat as unknown as { _madmaxiBumpAdded?: boolean })._madmaxiBumpAdded;
+      if (!noiseTex) {
+        const detail = makeDetailMat(BJS, scene, `${parentMat.name}_detail`, {
+          baseColor: [parentMat.albedoColor.r, parentMat.albedoColor.g, parentMat.albedoColor.b],
+          metallic: parentMat.metallic ?? 0.7,
+          roughness: parentMat.roughness ?? 0.22,
+          emissive: [parentMat.emissiveColor.r, parentMat.emissiveColor.g, parentMat.emissiveColor.b],
+          envIntensity: parentMat.environmentIntensity,
+          clearCoat: parentMat.clearCoat.isEnabled
+            ? { intensity: parentMat.clearCoat.intensity, roughness: parentMat.clearCoat.roughness }
+            : undefined,
+          noiseTile: 4,
+          noiseStrength: 0.28,
+        });
+        parentMat.bumpTexture = detail.bumpTexture;
+        // Detail material no longer needed once we steal its bump map.
+        detail.dispose();
+        (parentMat as unknown as { _madmaxiBumpAdded?: boolean })._madmaxiBumpAdded = true;
+      }
+    }
+
+    // Boss panel-line decals — thin emissive strips parented to the body that
+    // read as armor seams under bloom + IBL.
+    if (isBoss) {
+      const accent: [number, number, number] = en.bossEmissive
+        ? [en.bossEmissive[0], en.bossEmissive[1], en.bossEmissive[2]]
+        : [1.0, 0.5, 0.1];
+      const radius = 0.85 * W * (en.size ?? 1.8) * 0.5;
+      const PANEL_COUNT = 5;
+      for (let pi = 0; pi < PANEL_COUNT; pi++) {
+        const ang = (pi / PANEL_COUNT) * Math.PI * 2;
+        const panel = BJS.MeshBuilder.CreateBox(`enemy_${ei}_panel_${pi}`, {
+          width: radius * 1.7, height: 0.04 * W, depth: 0.06 * W,
+        }, scene);
+        const pMat = new BJS.PBRMaterial(`enemy_${ei}_panel_mat_${pi}`, scene);
+        pMat.albedoColor = new BJS.Color3(0.02, 0.02, 0.04);
+        pMat.emissiveColor = new BJS.Color3(accent[0], accent[1], accent[2]);
+        pMat.metallic = 0.6;
+        pMat.roughness = 0.2;
+        pMat.environmentIntensity = 1.4;
+        panel.material = pMat;
+        panel.parent = parent;
+        panel.isPickable = false;
+        panel.position.y = (pi - (PANEL_COUNT - 1) / 2) * radius * 0.35;
+        panel.rotation.z = ang * 0.05;
+        glow.addIncludedOnlyMesh(panel);
+        this.bossPanelLines.push({ mesh: panel, mat: pMat });
+      }
+    }
 
     // ── Decoration helper: attach a child mesh, set material, parent it ─────
     const attach = (child: import('@babylonjs/core').Mesh, mat: import('@babylonjs/core').Material, addToGlow = true) => {
@@ -1168,23 +1238,29 @@ class GameCore {
       return mesh;
     };
 
-    const helmetMat = new BJS.PBRMaterial('player_helmet_mat', scene);
-    helmetMat.albedoColor = new BJS.Color3(0.08, 0.10, 0.14);
-    helmetMat.metallic = 0.9;
-    helmetMat.roughness = 0.16;
-    helmetMat.environmentIntensity = 2.2;
-    helmetMat.clearCoat.isEnabled = true;
-    helmetMat.clearCoat.intensity = 1.0;
-    helmetMat.clearCoat.roughness = 0.03;
+    // Brushed-metal helmet via the shared detail-mat helper — adds noise-driven
+    // roughness micro-variation + clearCoat for the 2020 console-platformer look.
+    const helmetMat = makeDetailMat(BJS, scene, 'player_helmet_mat', {
+      baseColor: [0.08, 0.10, 0.14],
+      metallic: 0.9,
+      roughness: 0.16,
+      envIntensity: 2.2,
+      clearCoat: { intensity: 1.0, roughness: 0.03 },
+      noiseTile: 5,
+      noiseStrength: 0.35,
+      rimColor: [0.12, 0.55, 0.85],
+      rimPower: 2.6,
+    });
 
-    const darkMetalMat = new BJS.PBRMaterial('player_dark_mat', scene);
-    darkMetalMat.albedoColor = new BJS.Color3(0.14, 0.16, 0.20);
-    darkMetalMat.metallic = 0.78;
-    darkMetalMat.roughness = 0.24;
-    darkMetalMat.environmentIntensity = 1.9;
-    darkMetalMat.clearCoat.isEnabled = true;
-    darkMetalMat.clearCoat.intensity = 0.5;
-    darkMetalMat.clearCoat.roughness = 0.12;
+    const darkMetalMat = makeDetailMat(BJS, scene, 'player_dark_mat', {
+      baseColor: [0.14, 0.16, 0.20],
+      metallic: 0.78,
+      roughness: 0.24,
+      envIntensity: 1.9,
+      clearCoat: { intensity: 0.5, roughness: 0.12 },
+      noiseTile: 6,
+      noiseStrength: 0.30,
+    });
 
     const jointMat = new BJS.PBRMaterial('player_joint_mat', scene);
     jointMat.albedoColor = new BJS.Color3(0.20, 0.22, 0.28);
@@ -1192,14 +1268,15 @@ class GameCore {
     jointMat.roughness = 0.34;
     jointMat.environmentIntensity = 1.45;
 
-    const coatMat = new BJS.PBRMaterial('player_coat_mat', scene);
-    coatMat.albedoColor = new BJS.Color3(0.94, 0.97, 1.0);
-    coatMat.metallic = 0.04;
-    coatMat.roughness = 0.24;
-    coatMat.environmentIntensity = 1.05;
-    coatMat.clearCoat.isEnabled = true;
-    coatMat.clearCoat.intensity = 0.62;
-    coatMat.clearCoat.roughness = 0.14;
+    const coatMat = makeDetailMat(BJS, scene, 'player_coat_mat', {
+      baseColor: [0.94, 0.97, 1.0],
+      metallic: 0.04,
+      roughness: 0.24,
+      envIntensity: 1.05,
+      clearCoat: { intensity: 0.62, roughness: 0.14 },
+      noiseTile: 8,
+      noiseStrength: 0.20,
+    });
 
     const shirtMat = new BJS.PBRMaterial('player_shirt_mat', scene);
     shirtMat.albedoColor = new BJS.Color3(0.18, 0.34, 0.60);
@@ -1217,12 +1294,19 @@ class GameCore {
     visorMat.clearCoat.intensity = 1.0;
     visorMat.clearCoat.roughness = 0.01;
     visorMat.backFaceCulling = false;
+    // Animated scan-line emissive — sells the visor as a live HUD panel.
+    const visorScan = createScanLineTexture(BJS, scene, 'player_visor_scan', [0.20, 0.85, 1.0]);
+    visorMat.emissiveTexture = visorScan.texture;
+    this.visorScanLine = visorScan;
 
     const screenMat = new BJS.PBRMaterial('player_screen_mat', scene);
     screenMat.albedoColor = new BJS.Color3(0.03, 0.18, 0.28);
     screenMat.emissiveColor = new BJS.Color3(0.12, 0.64, 0.82);
     screenMat.metallic = 0.0;
     screenMat.roughness = 1.0;
+    const screenScan = createScanLineTexture(BJS, scene, 'player_screen_scan', [0.30, 0.92, 1.0]);
+    screenMat.emissiveTexture = screenScan.texture;
+    this.screenScanLine = screenScan;
 
     const eyeGoldMat = new BJS.PBRMaterial('player_eye_gold_mat', scene);
     eyeGoldMat.albedoColor = new BJS.Color3(1.0, 0.75, 0.10);
@@ -1236,14 +1320,17 @@ class GameCore {
     eyeCyanMat.metallic = 0.0;
     eyeCyanMat.roughness = 1.0;
 
-    const bootMat = new BJS.PBRMaterial('player_boot_mat', scene);
-    bootMat.albedoColor = new BJS.Color3(0.08, 0.10, 0.13);
-    bootMat.metallic = 0.74;
-    bootMat.roughness = 0.24;
-    bootMat.environmentIntensity = 1.85;
-    bootMat.clearCoat.isEnabled = true;
-    bootMat.clearCoat.intensity = 0.82;
-    bootMat.clearCoat.roughness = 0.08;
+    const bootMat = makeDetailMat(BJS, scene, 'player_boot_mat', {
+      baseColor: [0.08, 0.10, 0.13],
+      metallic: 0.74,
+      roughness: 0.24,
+      envIntensity: 1.85,
+      clearCoat: { intensity: 0.82, roughness: 0.08 },
+      noiseTile: 5,
+      noiseStrength: 0.32,
+      rimColor: [0.0, 0.6, 0.9],
+      rimPower: 2.8,
+    });
 
     const badgeMat = new BJS.PBRMaterial('player_badge_mat', scene);
     badgeMat.albedoColor = new BJS.Color3(0.84, 0.86, 0.92);
@@ -1500,6 +1587,262 @@ class GameCore {
     };
   }
 
+  // ─── 2020-fidelity scene helpers ──────────────────────────────────────────
+
+  /**
+   * Build a CSP-safe fallback environment texture by drawing a vertical
+   * gradient into a DynamicTexture and binding it as an EquirectangularReflection
+   * source. Used only when the prefiltered Studio.env CDN fails to load.
+   */
+  private buildFallbackEnvironmentTexture(
+    BJS: typeof import('@babylonjs/core'),
+    scene: import('@babylonjs/core').Scene,
+    zone: { sky: number[]; accent: number[]; gnd: number[] },
+  ): import('@babylonjs/core').BaseTexture {
+    const W = 512, H = 256;
+    const tex = new BJS.DynamicTexture('madmaxi_env_fallback', { width: W, height: H }, scene, false);
+    const ctx = tex.getContext() as CanvasRenderingContext2D;
+    const sky = `rgb(${Math.round(zone.sky[0] * 255)},${Math.round(zone.sky[1] * 255)},${Math.round(zone.sky[2] * 255)})`;
+    const accent = `rgb(${Math.round(zone.accent[0] * 255)},${Math.round(zone.accent[1] * 255)},${Math.round(zone.accent[2] * 255)})`;
+    const gnd = `rgb(${Math.round(zone.gnd[0] * 255)},${Math.round(zone.gnd[1] * 255)},${Math.round(zone.gnd[2] * 255)})`;
+    const grad = ctx.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0.00, sky);
+    grad.addColorStop(0.45, accent);
+    grad.addColorStop(0.55, accent);
+    grad.addColorStop(1.00, gnd);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+    tex.update(false);
+    tex.coordinatesMode = BJS.Texture.EQUIRECTANGULAR_MODE;
+    return tex;
+  }
+
+  /** Inverted sphere skydome with a vertical zone-tinted gradient. */
+  private buildSkydome(
+    BJS: typeof import('@babylonjs/core'),
+    scene: import('@babylonjs/core').Scene,
+    zone: { sky: number[]; accent: number[]; gnd: number[] },
+  ): import('@babylonjs/core').Mesh {
+    const dome = BJS.MeshBuilder.CreateSphere('madmaxi_skydome', {
+      diameter: 220 * WORLD_SCALE, segments: 24,
+    }, scene);
+    dome.infiniteDistance = true;
+    dome.applyFog = false;
+    dome.isPickable = false;
+    const tex = new BJS.DynamicTexture('madmaxi_sky_grad', { width: 256, height: 512 }, scene, false);
+    const ctx = tex.getContext() as CanvasRenderingContext2D;
+    const grad = ctx.createLinearGradient(0, 0, 0, 512);
+    const top = `rgb(${Math.round(Math.min(1, zone.sky[0] * 1.05) * 255)},${Math.round(Math.min(1, zone.sky[1] * 1.05) * 255)},${Math.round(Math.min(1, zone.sky[2] * 1.10) * 255)})`;
+    const mid = `rgb(${Math.round(Math.min(1, (zone.sky[0] + zone.accent[0]) * 0.45) * 255)},${Math.round(Math.min(1, (zone.sky[1] + zone.accent[1]) * 0.45) * 255)},${Math.round(Math.min(1, (zone.sky[2] + zone.accent[2]) * 0.55) * 255)})`;
+    const bot = `rgb(${Math.round(zone.gnd[0] * 0.6 * 255)},${Math.round(zone.gnd[1] * 0.6 * 255)},${Math.round(zone.gnd[2] * 0.7 * 255)})`;
+    grad.addColorStop(0, top);
+    grad.addColorStop(0.55, mid);
+    grad.addColorStop(1, bot);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 256, 512);
+    tex.update(false);
+
+    const mat = new BJS.PBRMaterial('madmaxi_sky_mat', scene);
+    mat.backFaceCulling = false;
+    mat.disableLighting = true;
+    mat.unlit = true;
+    mat.albedoTexture = tex;
+    mat.emissiveTexture = tex;
+    mat.emissiveColor = new BJS.Color3(1, 1, 1);
+    dome.material = mat;
+    return dome;
+  }
+
+  /**
+   * Distant mountain silhouettes via low-poly extruded ribbons. Two layers
+   * with different parallax for atmospheric perspective. Tinted toward the
+   * sky so they read as silhouettes haloed by the dome gradient.
+   */
+  private buildMountainBands(
+    BJS: typeof import('@babylonjs/core'),
+    scene: import('@babylonjs/core').Scene,
+    zone: { sky: number[]; accent: number[]; gnd: number[] },
+  ) {
+    const layers: { parallax: number; depth: number; tint: number; jagged: number; baseY: number }[] = [
+      { parallax: 0.05, depth: 13, tint: 0.55, jagged: 0.6, baseY: 6.5 },
+      { parallax: 0.08, depth: 11, tint: 0.42, jagged: 1.0, baseY: 5.4 },
+    ];
+    const seed = this.level * 7919 + 13;
+    let s = seed >>> 0;
+    const rand = () => {
+      s = (s * 1664525 + 1013904223) >>> 0;
+      return s / 0xffffffff;
+    };
+
+    for (let li = 0; li < layers.length; li++) {
+      const L = layers[li];
+      const SPAN = 180 * WORLD_SCALE;
+      const STEPS = 28;
+      const path: import('@babylonjs/core').Vector3[] = [];
+      for (let i = 0; i <= STEPS; i++) {
+        const x = -SPAN / 2 + (SPAN / STEPS) * i;
+        const peak = (Math.sin(i * 0.6 + li * 1.2) * 0.5 + 0.5) * L.jagged + rand() * L.jagged * 0.4;
+        path.push(new BJS.Vector3(x, L.baseY * WORLD_SCALE + peak * WORLD_SCALE * 1.2, 0));
+      }
+      const path2 = path.map((p) => new BJS.Vector3(p.x, -1 * WORLD_SCALE, 0));
+      const ribbon = BJS.MeshBuilder.CreateRibbon(`mountain_${li}`, {
+        pathArray: [path, path2], closeArray: false, closePath: false, sideOrientation: BJS.Mesh.DOUBLESIDE,
+      }, scene);
+      ribbon.position.z = L.depth * WORLD_SCALE;
+      ribbon.applyFog = true;
+      ribbon.isPickable = false;
+      const mat = new BJS.PBRMaterial(`mountain_mat_${li}`, scene);
+      mat.metallic = 0;
+      mat.roughness = 1;
+      mat.unlit = true;
+      mat.albedoColor = new BJS.Color3(
+        zone.sky[0] * L.tint + zone.accent[0] * 0.05,
+        zone.sky[1] * L.tint + zone.accent[1] * 0.05,
+        zone.sky[2] * L.tint + zone.accent[2] * 0.08,
+      );
+      mat.emissiveColor = mat.albedoColor;
+      ribbon.material = mat;
+      this.mountainBands.push({ mesh: ribbon, baseX: 0, parallax: L.parallax });
+    }
+  }
+
+  /**
+   * Mid-ground neon billboards/towers. Boxes with animated emissive UV scrolling
+   * — they read as distant city signage / arcade-marquee lighting.
+   */
+  private buildNeonBillboards(
+    BJS: typeof import('@babylonjs/core'),
+    scene: import('@babylonjs/core').Scene,
+    glow: import('@babylonjs/core').GlowLayer,
+    zone: { accent: number[] },
+  ) {
+    const COUNT = 9;
+    const SPAN = 160 * WORLD_SCALE;
+    const seed = this.level * 1009 + 41;
+    let s = seed >>> 0;
+    const rand = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 0xffffffff; };
+
+    // One shared emissive scrolling texture re-used across all billboards
+    // (Babylon allows the same DynamicTexture in multiple materials).
+    const TX = 32, TY = 96;
+    const tex = new BJS.DynamicTexture('madmaxi_neon_tex', { width: TX, height: TY }, scene, false);
+    const ctx = tex.getContext() as CanvasRenderingContext2D;
+    const r = Math.round(Math.min(1, zone.accent[0] * 1.4) * 255);
+    const g = Math.round(Math.min(1, zone.accent[1] * 1.4) * 255);
+    const b = Math.round(Math.min(1, zone.accent[2] * 1.4) * 255);
+    ctx.fillStyle = '#02030a';
+    ctx.fillRect(0, 0, TX, TY);
+    for (let y = 4; y < TY; y += 8) {
+      ctx.fillStyle = `rgba(${r},${g},${b},${(0.5 + Math.sin(y * 0.3) * 0.5).toFixed(3)})`;
+      ctx.fillRect(2, y, TX - 4, 4);
+    }
+    tex.update(false);
+    tex.wrapU = BJS.Texture.WRAP_ADDRESSMODE;
+    tex.wrapV = BJS.Texture.WRAP_ADDRESSMODE;
+
+    for (let i = 0; i < COUNT; i++) {
+      const w = (0.6 + rand() * 0.6) * WORLD_SCALE;
+      const h = (3.0 + rand() * 4.5) * WORLD_SCALE;
+      const tower = BJS.MeshBuilder.CreateBox(`neon_${i}`, { width: w, height: h, depth: 0.4 * WORLD_SCALE }, scene);
+      const x = -SPAN / 2 + SPAN * (i / COUNT) + (rand() - 0.5) * 6 * WORLD_SCALE;
+      const depth = 8 + rand() * 2;
+      tower.position.set(x, 5 * WORLD_SCALE + h / 2 - 2 * WORLD_SCALE, depth * WORLD_SCALE);
+      tower.isPickable = false;
+      tower.applyFog = true;
+      const mat = new BJS.PBRMaterial(`neon_mat_${i}`, scene);
+      mat.albedoColor = new BJS.Color3(0.04, 0.05, 0.08);
+      mat.emissiveTexture = tex;
+      mat.emissiveColor = new BJS.Color3(
+        Math.min(1, zone.accent[0] * 1.2),
+        Math.min(1, zone.accent[1] * 1.2),
+        Math.min(1, zone.accent[2] * 1.2),
+      );
+      mat.metallic = 0.6;
+      mat.roughness = 0.35;
+      mat.environmentIntensity = 1.2;
+      tower.material = mat;
+      glow.addIncludedOnlyMesh(tower);
+      this.neonBillboards.push({
+        mesh: tower, baseX: x, parallax: 0.13 + rand() * 0.04, phase: rand() * 6.28, mat,
+      });
+    }
+  }
+
+  /** Foreground floating debris — small instanced motes drifting across the camera. */
+  private buildDebrisMotes(
+    BJS: typeof import('@babylonjs/core'),
+    scene: import('@babylonjs/core').Scene,
+    glow: import('@babylonjs/core').GlowLayer,
+    zone: { accent: number[] },
+  ) {
+    const COUNT = 18;
+    const seed = this.level * 281 + 7;
+    let s = seed >>> 0;
+    const rand = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 0xffffffff; };
+
+    // Single source mesh + N instances → cheap on low-end GPUs.
+    const src = BJS.MeshBuilder.CreateBox('madmaxi_debris_src',
+      { width: 0.10 * WORLD_SCALE, height: 0.10 * WORLD_SCALE, depth: 0.10 * WORLD_SCALE }, scene);
+    const mat = new BJS.PBRMaterial('madmaxi_debris_mat', scene);
+    mat.albedoColor = new BJS.Color3(zone.accent[0] * 0.6, zone.accent[1] * 0.6, zone.accent[2] * 0.7);
+    mat.emissiveColor = new BJS.Color3(zone.accent[0], zone.accent[1], zone.accent[2]);
+    mat.metallic = 0.4;
+    mat.roughness = 0.6;
+    src.material = mat;
+    src.isVisible = false; // master not rendered — only instances
+    glow.addIncludedOnlyMesh(src);
+
+    for (let i = 0; i < COUNT; i++) {
+      const inst = src.createInstance(`madmaxi_debris_${i}`);
+      const baseX = (rand() - 0.5) * 90 * WORLD_SCALE;
+      const baseY = (rand() * 8 - 1) * WORLD_SCALE;
+      const depth = 2 + rand() * 4;
+      inst.position.set(baseX, baseY, depth * WORLD_SCALE);
+      inst.isPickable = false;
+      this.debrisMotes.push({
+        mesh: inst, baseX, baseY, parallax: 0.20 + rand() * 0.10,
+        phase: rand() * 6.28, speed: 0.4 + rand() * 0.7,
+      });
+    }
+  }
+
+  /**
+   * Apply per-tier guardrails: disable expensive post FX on low tier so the
+   * game stays smooth on lower-end mobile devices. Called from the same
+   * 3-second poll that drives `applyGodTierToBabylon`.
+   */
+  private applyQualityTier(gt: { renderPlan: { allowSSAO: boolean; allowChromaticAberration: boolean; allowFilmGrain: boolean; allowBloom: boolean }; algorithmLevel: number }) {
+    const allowSSAO = gt.renderPlan.allowSSAO && gt.algorithmLevel >= 4;
+    if (this.ssaoPipeline && this.scene) {
+      try {
+        if (allowSSAO) {
+          this.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline(
+            'madmaxi-ssao', this.camMesh!,
+          );
+        } else {
+          this.scene.postProcessRenderPipelineManager.detachCamerasFromRenderPipeline(
+            'madmaxi-ssao', this.camMesh!,
+          );
+        }
+      } catch { /* tolerate already-detached state */ }
+    }
+    if (this.pipeline) {
+      this.pipeline.chromaticAberrationEnabled = gt.renderPlan.allowChromaticAberration && gt.algorithmLevel >= 3;
+      this.pipeline.grainEnabled = gt.renderPlan.allowFilmGrain && gt.algorithmLevel >= 3;
+      this.pipeline.bloomEnabled = gt.renderPlan.allowBloom;
+    }
+    const tier: VfxTier = gt.algorithmLevel >= 4 ? 'high' : gt.algorithmLevel >= 2 ? 'mid' : 'low';
+    this.vfx?.setTier(tier);
+    // Hide the heaviest parallax decoration tier on low devices.
+    if (gt.algorithmLevel <= 1) {
+      for (const d of this.debrisMotes) d.mesh.setEnabled(false);
+      for (const n of this.neonBillboards) n.mesh.setEnabled(false);
+    } else {
+      for (const d of this.debrisMotes) d.mesh.setEnabled(true);
+      for (const n of this.neonBillboards) n.mesh.setEnabled(true);
+    }
+  }
+
   private initLevel(n: number) {
     const def = getMadmaxiLevelDefinition(n, this.sessionSeed);
     this.worldW      = def.worldW;
@@ -1633,11 +1976,37 @@ class GameCore {
     // ── Environment (IBL) — identical to landing hero ─────────────────────────
     // Studio.env is the same prefiltered HDR used by DrEamsBabylonHero; this is
     // the single largest quality delta between the landing page and the game.
-    scene.environmentTexture = BJS.CubeTexture.CreateFromPrefilteredData(
+    // If the CDN is blocked (CSP / offline), fall back to a synthesized
+    // equirectangular gradient so PBR materials still receive IBL reflections.
+    const envTex = BJS.CubeTexture.CreateFromPrefilteredData(
       'https://assets.babylonjs.com/environments/Studio.env',
       scene,
     );
+    scene.environmentTexture = envTex;
     scene.environmentIntensity = 1.55;
+    const fallbackEnv = this.buildFallbackEnvironmentTexture(BJS, scene, zone);
+    // Babylon raises an onLoadObservable error when the prefiltered data fails.
+    if (envTex.onLoadObservable) {
+      envTex.onLoadObservable.addOnce(() => { /* loaded OK */ });
+    }
+    // Use a CSP-safe replacement after a short wait if the original never resolves.
+    setTimeout(() => {
+      if (this.disposed || !this.scene) return;
+      if (!envTex.isReady()) {
+        envTex.dispose();
+        this.scene.environmentTexture = fallbackEnv;
+      } else {
+        fallbackEnv.dispose();
+      }
+    }, 4500);
+
+    // ── Volumetric-style fog tinted to the zone palette ───────────────────────
+    // Exponential-squared falloff gives a soft, painterly haze that flatters
+    // the skyline bands and adds depth cueing without a custom shader.
+    scene.fogMode = BJS.Scene.FOGMODE_EXP2;
+    scene.fogColor = new BJS.Color3(zone.sky[0] * 0.7, zone.sky[1] * 0.7, zone.sky[2] * 0.85);
+    this.fogBaseDensity = 0.012;
+    scene.fogDensity = this.fogBaseDensity;
 
     // ── Glow layer — landing-hero kernel & intensity ───────────────────────────
     const glow = new BJS.GlowLayer('glow', scene, { mainTextureFixedSize: 512, blurKernelSize: 24 });
@@ -1645,6 +2014,7 @@ class GameCore {
 
     // ── Post-processing pipeline — landing-hero grade ────────────────────────
     const pipeline = new BJS.DefaultRenderingPipeline('madmaxi-pipeline', true, scene, [cam]);
+    this.pipeline = pipeline;
     pipeline.samples = 4;
     pipeline.fxaaEnabled = true;
     pipeline.imageProcessingEnabled = true;
@@ -1653,7 +2023,9 @@ class GameCore {
     pipeline.imageProcessing.toneMappingEnabled = true;
     pipeline.imageProcessing.toneMappingType = 1; // ACES
     pipeline.imageProcessing.contrast = 1.18;
-    pipeline.imageProcessing.exposure = 1.12;
+    // Per-zone exposure: brighten cooler zones, dim hot/desert zones for filmic balance.
+    const zoneSkyLuma = zone.sky[0] * 0.299 + zone.sky[1] * 0.587 + zone.sky[2] * 0.114;
+    pipeline.imageProcessing.exposure = 1.12 + (0.5 - zoneSkyLuma) * 0.18;
 
     // Vignette — gentle, cinematic
     pipeline.imageProcessing.vignetteEnabled = true;
@@ -1690,6 +2062,7 @@ class GameCore {
       ssao.maxZ = 80 * WORLD_SCALE;
       ssao.expensiveBlur = true;
       scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline('madmaxi-ssao', cam);
+      this.ssaoPipeline = ssao;
     } catch { /* SSAO graceful fallback */ }
 
     // ── Sky backdrop — premium multi-layer with zone colour ──────────────────
@@ -1729,6 +2102,21 @@ class GameCore {
       band.position.set(0, (11 + idx * 2.6) * WORLD_SCALE, depth * WORLD_SCALE);
       this.skylineBands.push({ mesh: band, baseX: 0, parallax, pulseOffset: idx * 1.8 });
     });
+
+    // ── Skydome — large inverted sphere with a vertical zone-tinted gradient.
+    // Uses a DynamicTexture rather than a custom shader so it remains
+    // CSP/asset-free and identical across every Babylon backend.
+    this.skyDome = this.buildSkydome(BJS, scene, zone);
+
+    // ── New parallax depth layers ────────────────────────────────────────────
+    // Distant mountain silhouettes — low-poly extruded ribbons. Behind the
+    // bands, in front of the dome. Tinted toward the sky so they read as
+    // "atmospheric perspective" silhouettes rather than solid geometry.
+    this.buildMountainBands(BJS, scene, zone);
+    // Mid-ground neon billboards/towers — boxes with animated emissive UVs.
+    this.buildNeonBillboards(BJS, scene, glow, zone);
+    // Foreground floating debris — tiny instanced motes drifting horizontally.
+    this.buildDebrisMotes(BJS, scene, glow, zone);
 
     // Parallax star layers — higher brightness and more stars; positions scale with world
     const rng = seededRng(this.level * STAR_SEED_PRIME + STAR_SEED_OFFSET);
@@ -1988,6 +2376,9 @@ class GameCore {
     dust.start();
     this.dustPS = dust;
 
+    // ── 2020-fidelity VFX kit (sparks, dash trail, landing ring, coin starburst, embers)
+    this.vfx = createMadmaxiVfx(BJS, scene, glow);
+
     // ── Render loop + God Tier ─────────────────────────────────────────────
     let lastGtMs = 0;
     engine.runRenderLoop(() => {
@@ -2018,6 +2409,7 @@ class GameCore {
           ui: [],
         });
         applyGodTierToBabylon(engine, scene as unknown as BabylonSceneLike, gt, window.devicePixelRatio ?? 1);
+        this.applyQualityTier(gt);
       }
     });
 
@@ -2144,6 +2536,13 @@ class GameCore {
     if (this.dashFrames > 0) {
       this.pvx = this.dashDir * DASH_SPD * PX_PER_BU;
       this.dashFrames--;
+      // Emissive dash trail at the player's centre — drops off the moment dashFrames hits 0.
+      const dashColor: [number, number, number] = this.superFrames > 0
+        ? [1.0, 0.85, 0.18]
+        : [0.0, 0.85, 1.0];
+      const bx = (this.px + 14 - this.camX - GW / 2) / PX_PER_BU;
+      const by = -(this.py + 20 - GH / 2) / PX_PER_BU;
+      this.vfx?.dashTrail(new (this.bjs!.Vector3)(bx, by, 0), dashColor);
     } else {
       const baseWalk = this.superFrames > 0 ? WALK_SPD * 1.45 : WALK_SPD;
       this.pvx = isRight ? baseWalk * PX_PER_BU
@@ -2235,6 +2634,14 @@ class GameCore {
     if (this.onGround) this.coyoteFr = 0;
     if (this.coyoteFr > 0) this.coyoteFr--;
 
+    // Landing ring VFX — fired once on the rising edge of `onGround` after a fall.
+    this.justLanded = !wasOnGround && this.onGround;
+    if (this.justLanded && this.vfx) {
+      const bx = (this.px + 14 - this.camX - GW / 2) / PX_PER_BU;
+      const by = -(this.py + PH - GH / 2) / PX_PER_BU;
+      this.vfx.landingRing(new (this.bjs!.Vector3)(bx, by + 0.05, 0.1 * WORLD_SCALE));
+    }
+
     // Jump: ground jump, coyote jump, or double-jump
     const canJump = this.onGround || this.coyoteFr > 0;
     if (this.jBufFr > 0) {
@@ -2289,6 +2696,11 @@ class GameCore {
           this.cbs.onScore(this.score);
           this.audio.playCue('goal');
           this.audio.stopBGM();
+          if (this.vfx && this.bjs) {
+            const bx = (c.x + 9 - this.camX - GW / 2) / PX_PER_BU;
+            const by = -(c.y + 9 - GH / 2) / PX_PER_BU;
+            this.vfx.coinStarburst(new this.bjs.Vector3(bx, by, 0.2 * WORLD_SCALE), [1.0, 0.85, 0.18]);
+          }
           this.cbs.onComplete(this.level + 1);
           return;
         } else {
@@ -2302,6 +2714,13 @@ class GameCore {
           this.cbs.onScore(this.score);
           this.audio.playCue('coin');
           this.cbs.onCoinCount?.(this.collectedRegularCoins, this.totalRegularCoins);
+
+          // Star-burst VFX at the coin's old screen position.
+          if (this.vfx && this.bjs) {
+            const bx = (c.x + 9 - this.camX - GW / 2) / PX_PER_BU;
+            const by = -(c.y + 9 - GH / 2) / PX_PER_BU;
+            this.vfx.coinStarburst(new this.bjs.Vector3(bx, by, 0.2 * WORLD_SCALE), [0.92, 0.95, 1.0]);
+          }
 
           // All 9 silver coins collected → camera zoom toward the Gold Dream Star
           if (this.collectedRegularCoins >= this.totalRegularCoins && this.goalIdx >= 0) {
@@ -2437,6 +2856,13 @@ class GameCore {
           // Stomp hit!
           en.hitsLeft--;
           this.pvy = -JUMP_VY * 0.7 * PX_PER_BU;
+          // Spark burst at the impact point — orange for boss, cyan for grunts.
+          if (this.vfx && this.bjs) {
+            const sparkColor: [number, number, number] = en.boss ? [1.0, 0.5, 0.1] : [0.4, 0.85, 1.0];
+            const bx = (en.curX + (en.boss ? (en.size ?? 1.8) * 16 : 16) - this.camX - GW / 2) / PX_PER_BU;
+            const by = -(en.curY - GH / 2) / PX_PER_BU;
+            this.vfx.spark(new this.bjs.Vector3(bx, by, 0), sparkColor);
+          }
           if (en.boss) {
             // Report boss HP update before checking for death
             this.cbs.onBossHp?.(en.hitsLeft);
@@ -2447,6 +2873,7 @@ class GameCore {
                 this.enemyMeshes[i]!.setEnabled(false);
                 this.enemyMeshes[i] = null;
               }
+              this.vfx?.setEmbers(null, [1, 1, 1]);
               this.score += this.bossHitsMax * 300;
               this.audio.playCue('boss-hit');
               this.cbs.onScore(this.score);
@@ -2726,6 +3153,17 @@ class GameCore {
         const pulse       = 1 + Math.sin(this.animTick * pulseSpeed) * 0.07;
         const healthScale = 0.70 + hpRatio * 0.30; // 1.0 full HP → 0.70 at last hit
         m.scaling.setAll(healthScale * pulse);
+        // Rising-ember stream when enraged; stops the moment HP recovers (won't happen
+        // in normal play, but keeps the API symmetric).
+        if (this.vfx && this.bjs) {
+          if (enraged && en.alive) {
+            const eb = new this.bjs.Vector3(bx, by - 0.6, 0);
+            this.vfx.setEmbers(eb, [1.0, 0.45, 0.1]);
+          } else if (i === this.enemies.findIndex((x) => x.boss)) {
+            // Only the canonical boss controls the embers stream.
+            this.vfx.setEmbers(null, [1, 1, 1]);
+          }
+        }
       } else {
         const pulse = 1 + Math.sin(this.animTick * 0.1 + i) * 0.06;
         m.scaling.setAll(pulse);
@@ -2870,6 +3308,69 @@ class GameCore {
       skyline.mesh.position.y = 10 * WORLD_SCALE + Math.sin(this.animTick * 0.01 + skyline.pulseOffset) * 0.9 * WORLD_SCALE;
     }
 
+    // ── 2020 parallax extras ───────────────────────────────────────────────
+    for (const mb of this.mountainBands) {
+      mb.mesh.position.x = mb.baseX - camBX * mb.parallax;
+    }
+    for (const nb of this.neonBillboards) {
+      nb.mesh.position.x = nb.baseX - camBX * nb.parallax;
+      // Animated emissive scroll on the shared neon texture is global per-tex,
+      // but per-billboard phase modulation comes from a sin on the emissive intensity.
+      const flicker = 1 + Math.sin(this.animTick * 0.07 + nb.phase) * 0.18;
+      nb.mat.emissiveIntensity = flicker;
+    }
+    for (const dm of this.debrisMotes) {
+      // Debris drifts horizontally and bobs vertically — modulo SPAN to wrap.
+      const SPAN = 90 * WORLD_SCALE;
+      const drift = (this.animTick * 0.0035 * dm.speed) * WORLD_SCALE;
+      const x = dm.baseX - camBX * dm.parallax + drift;
+      // wrap to keep on-screen
+      const wrapped = ((x + SPAN / 2) % SPAN + SPAN) % SPAN - SPAN / 2;
+      dm.mesh.position.x = wrapped;
+      dm.mesh.position.y = dm.baseY + Math.sin(this.animTick * 0.04 + dm.phase) * 0.25 * WORLD_SCALE;
+    }
+    if (this.skyDome && this.camMesh) {
+      // Lock dome to the camera so it appears infinitely far.
+      this.skyDome.position.x = this.camMesh.position.x;
+      this.skyDome.position.y = this.camMesh.position.y;
+      this.skyDome.position.z = this.camMesh.position.z;
+    }
+
+    // ── Visor / screen scan-line UV scroll, eye blink, chest-core emissive pulse ─
+    this.visorScanLine?.advance(this.animTick);
+    this.screenScanLine?.advance(this.animTick);
+    if (this.playerRig) {
+      // Eye blink — every ~3s squash the eye discs vertically for ~6 frames.
+      if (this.animTick >= this.nextEyeBlinkTick && this.eyeBlinkFrames === 0) {
+        this.eyeBlinkFrames = 6;
+        this.nextEyeBlinkTick = this.animTick + 180 + Math.floor(Math.random() * 90);
+      }
+      if (this.eyeBlinkFrames > 0) {
+        this.eyeBlinkFrames--;
+        const blink = 0.08 + (1 - this.eyeBlinkFrames / 6) * 0.92;
+        this.playerRig.eyeGoldCore.scaling.y *= blink;
+        this.playerRig.eyeCyanCore.scaling.y *= blink;
+      }
+      // Chest-core emissive intensity sin-pulse for a "living tech" feel.
+      const chestCoreMat2 = this.playerRig.chestCore.material as import('@babylonjs/core').PBRMaterial | null;
+      if (chestCoreMat2) {
+        chestCoreMat2.emissiveIntensity = 1.0 + Math.sin(this.animTick * 0.12) * 0.35
+          + (this.superFrames > 0 ? 0.4 : 0);
+      }
+    }
+
+    // ── Speed-scaled chromatic aberration ─────────────────────────────────
+    if (this.pipeline?.chromaticAberrationEnabled) {
+      const maxSpd = (this.giantFrames > 0 ? WALK_SPD * 1.45 : WALK_SPD) * PX_PER_BU;
+      const t = Math.min(1, Math.abs(this.pvx) / Math.max(0.01, DASH_SPD * PX_PER_BU));
+      this.speedT += (t - this.speedT) * 0.15;
+      this.pipeline.chromaticAberration.aberrationAmount = 6 + this.speedT * 14;
+      void maxSpd;
+    }
+
+    // ── VFX tick (drives landing-ring fade, dash-trail decay) ─────────────
+    this.vfx?.tick();
+
     // Camera follows player smoothly in X; zooms up on coin flash
     if (this.camMesh) {
       this.camMesh.position.x = 0;
@@ -2884,6 +3385,8 @@ class GameCore {
     this.disposed = true;
     window.removeEventListener('resize', this.onResize);
     this.dustPS?.stop();
+    this.vfx?.dispose();
+    this.vfx = null;
     // Clean up projectile meshes
     for (const proj of this.projectiles) proj.mesh?.dispose();
     this.projectiles = [];
