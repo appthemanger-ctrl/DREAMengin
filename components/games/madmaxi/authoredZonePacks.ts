@@ -1010,7 +1010,7 @@ function buildPlatforms(template: StarterTemplate): { platforms: PlatDef[]; rout
       x: cursor,
       y: step.y,
       w: step.w,
-      h: 20,
+      h: 28,
       type: step.moving ? 'moving' : 'solid',
       moveRange: step.moving?.range,
       moveSpd: step.moving?.spd,
@@ -1022,7 +1022,7 @@ function buildPlatforms(template: StarterTemplate): { platforms: PlatDef[]; rout
     x: Math.min(template.worldW - 150, cursor + template.goalGap),
     y: template.goalY,
     w: 120,
-    h: 20,
+    h: 28,
     type: 'goal',
   };
 

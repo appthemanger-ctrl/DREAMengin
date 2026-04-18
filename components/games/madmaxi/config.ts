@@ -6,7 +6,7 @@ export const STAR_SEED_PRIME = 7919;
 export const STAR_SEED_OFFSET = 13;
 export const EXTRA_POWERUP_EVERY_N_LEVELS = 3;
 export const BOSS_ENRAGE_THRESHOLD = 0.5;
-export const BOSS_ENRAGE_MULTIPLIER = 1.5;
+export const BOSS_ENRAGE_MULTIPLIER = 1.2;
 
 export const MADMAXI_ENEMY_KINDS = [
   'runner',
