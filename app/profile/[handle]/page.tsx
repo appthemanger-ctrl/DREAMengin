@@ -36,16 +36,20 @@ interface ProfilePageProps {
 }
 
 
-export async function generateMetadata({ params }: ProfilePageProps) {
-  await connection();
-  const { handle } = await params;
-  return {
-    title: `@${handle} – Dreamengin`,
-    description: `${handle}'s public profile on Dreamengin`,
-  };
-}
+// Static metadata is provided by the parent /profile route layout.
+// We deliberately omit `generateMetadata` here, because exporting one
+// forces Next.js 16 Cache Components to prerender a metadata shell for
+// the dynamic [handle] segment, which re-triggers the
+// next-prerender-random violation surfaced from `Next.MetadataOutlet`
+// when client components below are dragged into SSR.
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
+  // Mark this render as request-only so the strict Cache-Components
+  // prerender check is bypassed for the (Math.random-using) client
+  // subtree below. generateMetadata above already awaits connection()
+  // for its own MetadataOutlet, but Next.js 16.2.4 also requires the
+  // page render itself to establish the dynamic context.
+  await connection();
   const { handle } = await params;
   const supabase = await createServerClient();
 
