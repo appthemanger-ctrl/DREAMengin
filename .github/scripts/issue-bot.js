@@ -764,7 +764,7 @@ function fixCiCd(issue) {
 3. Common DREAMengin CI fixes:
    - Ensure \`NEXT_PUBLIC_SUPABASE_URL\` and \`NEXT_PUBLIC_SUPABASE_ANON_KEY\` secrets are set.
    - Check \`pnpm-lock.yaml\` is committed and up to date (\`pnpm install --frozen-lockfile\`).
-   - Verify Node.js version matches \`25\` and pnpm version matches \`10.33.0\`.
+   - Verify Node.js version matches \`25\` and pnpm version matches \`10.30.0\`.
    - Add \`[skip ci]\` to automated commit messages to avoid infinite loops.
 4. Test changes locally with \`act\` (GitHub Actions local runner).`;
 

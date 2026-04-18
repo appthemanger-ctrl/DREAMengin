@@ -39,7 +39,7 @@
 
 **Project:** dreamengin
 **Version:** 2.0.0
-**Package Manager:** pnpm@10.33.0
+**Package Manager:** pnpm@10.30.0
 
 **Quick Stats:**
 
