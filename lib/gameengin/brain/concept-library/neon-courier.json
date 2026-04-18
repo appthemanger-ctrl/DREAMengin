@@ -1,0 +1,34 @@
+{
+  "vision_id": "neon-courier",
+  "title": "Neon Courier",
+  "elevator_pitch": "A momentum-running platformer about a debt-bound delivery runner who outpaces the city by stringing together perfect dashes through neon rain.",
+  "setting": {
+    "world": "A vertical megacity stacked into permanent twilight, lit only by holographic signage and rain-slick neon.",
+    "vibe": "lonely, electric, bittersweet",
+    "visual_tone": "saturated cyans and magentas against deep navy; emissive materials carry the lighting; rain is a character"
+  },
+  "protagonist": {
+    "role": "A delivery runner working off a debt they didn't sign up for.",
+    "motivation": "Every successful run shaves time off the contract - but the routes keep getting harder."
+  },
+  "genre": "platformer",
+  "subgenre": "momentum-runner",
+  "core_mechanics": ["dash", "wall-slide", "coyote-time"],
+  "scope": {
+    "mode": "single-player",
+    "estimated_player_minutes": 35,
+    "studio_build_budget_hours": 8
+  },
+  "patterns_used": {
+    "setting": "neon-rain-megacity",
+    "protagonist": "reluctant-courier",
+    "scope_formula": "one-day-runner"
+  },
+  "originality": {
+    "signature_hash": "sha256:platformer+coyote-time+dash+wall-slide:placeholder"
+  },
+  "status": "drafted",
+  "drafted_at": "2026-04-18T00:00:00.000Z",
+  "drafted_by": "game-architect",
+  "notes": "Seed vision statement. Stays in the Concept Library until Maestro promotes it into active-projects.json."
+}

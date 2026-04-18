@@ -30,8 +30,10 @@ import {
   listCartridges,
   getLastTouched,
   recordAssignments,
+  readCartridgeStatus,
   type AgentName,
   type AssignmentLogEntry,
+  type CartridgeStatus,
 } from '../../lib/gameengin/brain-reader.js';
 
 interface Thresholds {
@@ -161,6 +163,21 @@ async function main() {
     cartridges = restrictTo ? [restrictTo] : ['mad-maxi'];
   }
 
+  // Cartridge Status System (directive): `stable` cartridges are off-limits
+  // to Maestro entirely — Upgrader may still polish them. `active` and
+  // `improving` both stay in the survey.
+  const statuses: Record<string, CartridgeStatus> = {};
+  const skipped: string[] = [];
+  cartridges = cartridges.filter((id) => {
+    const s = readCartridgeStatus(id);
+    statuses[id] = s;
+    if (s === 'stable') {
+      skipped.push(id);
+      return false;
+    }
+    return true;
+  });
+
   const allAssignments: AssignmentLogEntry[] = [];
   const perCartridgeMetrics: Record<string, Record<string, number> | null> = {};
 
@@ -183,6 +200,8 @@ async function main() {
   const insights = {
     generated_at: new Date().toISOString(),
     cartridges_surveyed: cartridges,
+    cartridges_skipped_stable: skipped,
+    cartridge_statuses: statuses,
     telemetry_available_per_cartridge: Object.fromEntries(
       Object.entries(perCartridgeMetrics).map(([k, v]) => [k, v !== null]),
     ),

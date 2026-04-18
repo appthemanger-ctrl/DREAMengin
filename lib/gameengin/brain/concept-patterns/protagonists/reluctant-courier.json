@@ -1,0 +1,9 @@
+{
+  "pattern_id": "reluctant-courier",
+  "category": "protagonist",
+  "role": "A delivery runner working off a debt they didn't sign up for.",
+  "motivation": "Every successful run shaves time off the contract — but the routes keep getting harder.",
+  "core_drive": "freedom-through-skill",
+  "compatible_emotional_tones": ["determined", "weary", "hopeful"],
+  "notes": "Works for any movement-heavy genre. Cargo can be reflavoured (data, organs, music) to fit the setting."
+}

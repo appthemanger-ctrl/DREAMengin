@@ -539,3 +539,171 @@ export function listCrashReports(cartridgeId: string): CrashReportEntry[] {
     .sort()
     .map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf-8')) as CrashReportEntry);
 }
+
+// --- Game Architect (Concept Library + Concept Patterns) ------------------
+
+const SLUG_RE = /^[a-z0-9][a-z0-9-]{0,63}$/;
+
+export type ConceptPatternCategory = 'setting' | 'protagonist' | 'scope-formula';
+
+export interface ConceptPattern {
+  pattern_id: string;
+  category: ConceptPatternCategory;
+  [key: string]: unknown;
+}
+
+const CONCEPT_PATTERN_DIRS: Record<ConceptPatternCategory, string> = {
+  setting: 'settings',
+  protagonist: 'protagonists',
+  'scope-formula': 'scope-formulas',
+};
+
+export function listConceptPatterns(category?: ConceptPatternCategory): ConceptPattern[] {
+  const root = path.join(BRAIN_ROOT, 'concept-patterns');
+  if (!fs.existsSync(root)) return [];
+  const cats: ConceptPatternCategory[] = category
+    ? [category]
+    : (Object.keys(CONCEPT_PATTERN_DIRS) as ConceptPatternCategory[]);
+  const out: ConceptPattern[] = [];
+  for (const cat of cats) {
+    const dir = path.join(root, CONCEPT_PATTERN_DIRS[cat]);
+    if (!fs.existsSync(dir)) continue;
+    for (const f of fs.readdirSync(dir)) {
+      if (!f.endsWith('.json')) continue;
+      out.push(readJSON<ConceptPattern>(path.join(dir, f)));
+    }
+  }
+  return out;
+}
+
+export type VisionStatementMode = 'single-player' | 'multiplayer-coop' | 'multiplayer-versus';
+export type VisionStatementStatus = 'drafted' | 'promoted' | 'archived';
+
+export interface VisionStatement {
+  vision_id: string;
+  title: string;
+  elevator_pitch: string;
+  setting: { world: string; vibe: string; visual_tone: string };
+  protagonist: { role: string; motivation: string };
+  genre: string;
+  subgenre?: string;
+  /** 2–4 mechanic ids that define gameplay. */
+  core_mechanics: string[];
+  scope: {
+    mode: VisionStatementMode;
+    /** Player-facing length, in minutes. */
+    estimated_player_minutes: number;
+    /** How long the autonomous studio needs to build it. Capped at 24h (one studio-day). */
+    studio_build_budget_hours: number;
+  };
+  patterns_used?: { setting?: string; protagonist?: string; scope_formula?: string };
+  originality?: { signature_hash?: string };
+  status: VisionStatementStatus;
+  drafted_at: string;
+  drafted_by?: string;
+  notes?: string;
+}
+
+/** Maximum on-disk size of a single vision statement (8 KB serialised). */
+export const VISION_STATEMENT_MAX_BYTES = 8 * 1024;
+/** One studio-day cap from the directive. */
+export const VISION_BUDGET_MAX_HOURS = 24;
+
+export function recordVisionStatement(v: VisionStatement): string {
+  if (!v || typeof v !== 'object') throw new Error('vision: invalid payload');
+  if (!SLUG_RE.test(v.vision_id ?? '')) throw new Error(`vision: invalid vision_id "${v.vision_id}"`);
+  if (!v.title?.trim()) throw new Error('vision: title required');
+  if (!v.elevator_pitch?.trim()) throw new Error('vision: elevator_pitch required');
+  if (!v.setting?.world?.trim() || !v.setting?.vibe?.trim() || !v.setting?.visual_tone?.trim()) {
+    throw new Error('vision: setting.{world,vibe,visual_tone} required');
+  }
+  if (!v.protagonist?.role?.trim() || !v.protagonist?.motivation?.trim()) {
+    throw new Error('vision: protagonist.{role,motivation} required');
+  }
+  if (!Array.isArray(v.core_mechanics) || v.core_mechanics.length < 2 || v.core_mechanics.length > 4) {
+    throw new Error('vision: core_mechanics must contain 2–4 entries');
+  }
+  const validModes: VisionStatementMode[] = ['single-player', 'multiplayer-coop', 'multiplayer-versus'];
+  if (!validModes.includes(v.scope?.mode)) throw new Error('vision: scope.mode invalid');
+  if (!(v.scope.estimated_player_minutes > 0)) {
+    throw new Error('vision: scope.estimated_player_minutes must be > 0');
+  }
+  if (!(v.scope.studio_build_budget_hours > 0) || v.scope.studio_build_budget_hours > VISION_BUDGET_MAX_HOURS) {
+    throw new Error(`vision: scope.studio_build_budget_hours must be in (0, ${VISION_BUDGET_MAX_HOURS}]`);
+  }
+  const validStatus: VisionStatementStatus[] = ['drafted', 'promoted', 'archived'];
+  if (!validStatus.includes(v.status)) throw new Error('vision: status invalid');
+
+  const dir = path.join(BRAIN_ROOT, 'concept-library');
+  ensureDir(dir);
+  const filePath = path.join(dir, `${v.vision_id}.json`);
+  const serialised = JSON.stringify(v, null, 2);
+  if (Buffer.byteLength(serialised, 'utf8') > VISION_STATEMENT_MAX_BYTES) {
+    throw new Error(`vision: payload exceeds ${VISION_STATEMENT_MAX_BYTES} bytes`);
+  }
+  fs.writeFileSync(filePath, serialised);
+  return filePath;
+}
+
+export function listVisionStatements(): VisionStatement[] {
+  const dir = path.join(BRAIN_ROOT, 'concept-library');
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir)
+    .filter((f) => f.endsWith('.json'))
+    .sort()
+    .map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf-8')) as VisionStatement);
+}
+
+export function readVisionStatement(visionId: string): VisionStatement | null {
+  if (!SLUG_RE.test(visionId)) return null;
+  const filePath = path.join(BRAIN_ROOT, 'concept-library', `${visionId}.json`);
+  if (!fs.existsSync(filePath)) return null;
+  return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as VisionStatement;
+}
+
+// --- Cartridge Status (active / improving / stable) -----------------------
+
+export type CartridgeStatus = 'active' | 'improving' | 'stable';
+
+const VALID_CARTRIDGE_STATUS: readonly CartridgeStatus[] = ['active', 'improving', 'stable'] as const;
+
+interface CartridgeManifestRaw {
+  status?: CartridgeStatus;
+  [key: string]: unknown;
+}
+
+function manifestPath(cartridgeId: string): string {
+  return path.join(CARTRIDGES_ROOT, cartridgeId, 'MANIFEST.json');
+}
+
+function readManifestRaw(cartridgeId: string): CartridgeManifestRaw | null {
+  const p = manifestPath(cartridgeId);
+  if (!fs.existsSync(p)) return null;
+  return JSON.parse(fs.readFileSync(p, 'utf-8')) as CartridgeManifestRaw;
+}
+
+/**
+ * Returns the cartridge's declared status. Defaults to `improving` for any
+ * cartridge whose MANIFEST omits the field — every cartridge counts as
+ * backlog by default per the directive.
+ */
+export function readCartridgeStatus(cartridgeId: string): CartridgeStatus {
+  const m = readManifestRaw(cartridgeId);
+  const s = m?.status;
+  return s && VALID_CARTRIDGE_STATUS.includes(s) ? s : 'improving';
+}
+
+export function setCartridgeStatus(cartridgeId: string, status: CartridgeStatus): void {
+  if (!SLUG_RE.test(cartridgeId)) throw new Error(`cartridge-status: invalid cartridge_id "${cartridgeId}"`);
+  if (!VALID_CARTRIDGE_STATUS.includes(status)) {
+    throw new Error(`cartridge-status: invalid status "${status}"`);
+  }
+  const m = readManifestRaw(cartridgeId);
+  if (!m) throw new Error(`cartridge-status: no MANIFEST for "${cartridgeId}"`);
+  m.status = status;
+  fs.writeFileSync(manifestPath(cartridgeId), JSON.stringify(m, null, 2) + '\n');
+}
+
+export function listCartridgesByStatus(status: CartridgeStatus): string[] {
+  return listCartridges().filter((id) => readCartridgeStatus(id) === status);
+}
