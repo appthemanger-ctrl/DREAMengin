@@ -8,12 +8,14 @@
  * cartridge automatically.
  */
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import GameRuntime from '@/lib/gameengin/GameRuntime';
 import { loadCartridge } from '@/lib/gameengin/cartridges/loaders';
 import type { GameCartridge, GravityPreset } from '@/lib/gameengin/cartridge';
 import type { CartridgeManifestEntry } from '@/lib/gameengin/cartridges/manifest';
+import CrashReportModal, { type CrashContext } from './CrashReportModal';
+import { CartridgeErrorBoundary, useGlobalCrashListener, type CartridgeCrashEvent } from './CartridgeErrorBoundary';
 
 export interface CartridgeLauncherProps {
   manifest: CartridgeManifestEntry;
@@ -30,6 +32,17 @@ export default function CartridgeLauncher({
 }: CartridgeLauncherProps) {
   const [cartridge, setCartridge] = useState<GameCartridge | null>(null);
   const [error,     setError]     = useState<string | null>(null);
+  const [crash, setCrash] = useState<CrashContext | null>(null);
+
+  const handleCrash = useCallback((e: CartridgeCrashEvent) => {
+    setCrash((prev) => prev ?? {
+      cartridgeId: manifest.id,
+      cartridgeLabel: manifest.label,
+      error: e,
+    });
+  }, [manifest.id, manifest.label]);
+
+  useGlobalCrashListener(cartridge !== null && crash === null, handleCrash);
 
   useEffect(() => {
     let cancelled = false;
@@ -104,12 +117,20 @@ export default function CartridgeLauncher({
               Loading cartridge…
             </div>
           ) : (
-            <GameRuntime
-              cartridge={cartridge}
-              physicsConfig={{ gravity, friction }}
-            />
+            <CartridgeErrorBoundary cartridgeId={manifest.id} onCrash={handleCrash}>
+              <GameRuntime
+                cartridge={cartridge}
+                physicsConfig={{ gravity, friction }}
+              />
+            </CartridgeErrorBoundary>
           )}
         </div>
+
+        <CrashReportModal
+          open={crash !== null}
+          context={crash}
+          onClose={() => setCrash(null)}
+        />
 
         <div style={{
           marginTop: 14, fontSize: 10, color: '#475569',
