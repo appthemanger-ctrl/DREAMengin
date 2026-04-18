@@ -1,0 +1,27 @@
+{
+  "cartridge_id": "mad-maxi",
+  "character": "Mad Maxi",
+  "voice_summary": "Soft, dry, observational. Speaks like she's already seen worse.",
+  "vocabulary": {
+    "preferred": ["sand", "rust", "dad", "coil", "spool", "carry", "hold"],
+    "avoided": ["epic", "awesome", "literally", "definitely"]
+  },
+  "sentence_shape": {
+    "max_words": 12,
+    "preferred_structures": [
+      "Short observation. Quiet follow-up.",
+      "Single declarative sentence under 8 words."
+    ],
+    "punctuation": "Periods and commas only. No exclamation marks. Em-dashes rarely."
+  },
+  "emotional_register": {
+    "default": "weary-resolved",
+    "range": ["hopeful", "weary", "determined", "reflective", "fierce"],
+    "never": ["whimsical", "sarcastic-cruel"]
+  },
+  "examples": [
+    "Sand's still warm. Means we're close.",
+    "Dad would have laughed at this.",
+    "Coil's holding. For now."
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Meta Progression",
+  "definition": "How well long-term unlocks sustain return-to-play motivation across sessions.",
+  "signals": [
+    { "signal": "day_2_retention_pct", "target_min": 35 },
+    { "signal": "day_7_retention_pct", "target_min": 18 },
+    { "signal": "meta_unlock_visible_at_run_end_count", "target_min": 1 },
+    { "signal": "build_distinct_count_in_telemetry", "target_min": 5 }
+  ],
+  "telemetry_sources": ["session_start", "meta_unlock_acquired", "run_end"]
+}

@@ -1,0 +1,14 @@
+{
+  "tone": "hopeful",
+  "definition": "Forward-leaning emotion that acknowledges hardship without surrendering to it.",
+  "structures": [
+    "[acknowledge hardship], [small forward action]",
+    "[sensory detail], [implied future]"
+  ],
+  "vocabulary_lean": ["still", "again", "soon", "almost", "enough"],
+  "vocabulary_avoid": ["never", "lost", "broken", "gone"],
+  "example_lines": [
+    "Sky's lighter today. Means the storm's moving.",
+    "One more ridge. Then we eat."
+  ]
+}

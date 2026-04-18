@@ -1,0 +1,35 @@
+{
+  "genre": "Episodic",
+  "subgenres": ["narrative-adventure", "visual-novel", "interactive-drama"],
+  "core_mechanic": "Story unfolds across discrete chapters released over time; the choice is the verb.",
+  "emotional_core": "investment",
+  "player_motivation": "See how the story responds to me, then come back for the next beat.",
+  "essential_feel": {
+    "choice_weight": "decisions are remembered and visibly echo across chapters",
+    "chapter_length": "1-3 hours; designed for one sitting",
+    "cliffhanger_cadence": "every chapter ends on a hook"
+  },
+  "pacing_profile": {
+    "early": "Set the cast and the central tension in chapter 1.",
+    "mid": "Chapters 2-N branch on prior choices; stakes escalate.",
+    "late": "Convergent finale; multiple endings tied to choice ledger."
+  },
+  "progression_model": {
+    "structure_type": "episodic",
+    "progression_gates": ["story-trigger", "chapter-release"],
+    "completion_definition": "All chapters played; true endings unlocked through specific choice combinations.",
+    "content_cadence": "Per chapter drop (weeks to months apart); recap and 'previously on' bridge gaps."
+  },
+  "canonical_examples": [
+    {
+      "title": "Life is Strange",
+      "year": 2015,
+      "what_makes_it_special": "Time-rewind verb makes choice itself the core mechanic."
+    }
+  ],
+  "anti_patterns": [
+    "Choices that feel illusory by chapter 3",
+    "Long gaps between chapters with no narrative recap",
+    "Cliffhangers paid off without acknowledging player's last choice"
+  ]
+}

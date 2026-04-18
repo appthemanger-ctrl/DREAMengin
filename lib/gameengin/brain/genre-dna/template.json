@@ -1,0 +1,17 @@
+{
+  "genre": "TEMPLATE — duplicate and edit when creating a new genre",
+  "subgenres": [],
+  "core_mechanic": "",
+  "emotional_core": "",
+  "player_motivation": "",
+  "essential_feel": {},
+  "pacing_profile": { "early": "", "mid": "", "late": "" },
+  "progression_model": {
+    "structure_type": "linear",
+    "progression_gates": [],
+    "completion_definition": "",
+    "content_cadence": ""
+  },
+  "canonical_examples": [],
+  "anti_patterns": []
+}

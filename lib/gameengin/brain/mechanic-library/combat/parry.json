@@ -1,0 +1,19 @@
+{
+  "name": "Parry",
+  "category": "combat",
+  "description": "Tight-window defensive input that negates incoming damage and opens a counter window.",
+  "emotional_impact": ["mastery", "expression", "tension-release"],
+  "implementation": {
+    "parameters": {
+      "window_ms": 140,
+      "punish_window_ms": 600,
+      "stamina_cost": 0,
+      "perfect_parry_window_ms": 50,
+      "perfect_bonus_damage_mult": 1.5
+    },
+    "visual_feedback": { "flash_color": "#ffffff", "hit_stop_ms": 90, "sound": "sfx_parry" },
+    "haptic_feedback": { "pattern": [80], "strong_magnitude": 0.6, "weak_magnitude": 0.4 }
+  },
+  "games_using": ["Sekiro", "Hollow Knight (Nail Arts)", "For Honor"],
+  "fun_heuristics": { "skill_ceiling_increase": 0.95, "tension_release": 0.9 }
+}

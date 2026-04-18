@@ -1,0 +1,16 @@
+{
+  "name": "Roguelike Perks",
+  "category": "progression",
+  "description": "In-run buffs offered at decision points that compose into emergent builds.",
+  "emotional_impact": ["surprise", "expression"],
+  "implementation": {
+    "parameters": {
+      "offers_per_choice": 3,
+      "rerolls_per_run": 2,
+      "rarity_distribution": {"common": 0.6, "rare": 0.3, "legendary": 0.1},
+      "synergy_bonus_threshold": 3
+    }
+  },
+  "games_using": ["Hades", "Slay the Spire", "Risk of Rain 2"],
+  "fun_heuristics": { "moment_decision": 0.9, "build_emergence": 0.95 }
+}

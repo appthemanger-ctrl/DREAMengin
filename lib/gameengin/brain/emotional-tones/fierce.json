@@ -1,0 +1,14 @@
+{
+  "tone": "fierce",
+  "definition": "Compressed anger. Never a shout — always teeth behind the words.",
+  "structures": [
+    "[short imperative]. [short imperative].",
+    "[single declarative]."
+  ],
+  "vocabulary_lean": ["move", "down", "now", "enough", "never"],
+  "vocabulary_avoid": ["please", "maybe", "soft"],
+  "example_lines": [
+    "Move. Down.",
+    "Enough."
+  ]
+}

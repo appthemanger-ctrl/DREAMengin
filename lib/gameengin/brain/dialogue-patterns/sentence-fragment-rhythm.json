@@ -1,0 +1,11 @@
+{
+  "name": "Sentence-Fragment Rhythm",
+  "description": "Two short fragments separated by a period create implied weight without explanation.",
+  "structure": "[noun phrase]. [verb phrase].",
+  "when_to_use": "Quiet reflective beats; aftermath of combat; moments of acceptance.",
+  "examples": [
+    "Sand's warm. Good.",
+    "Coil's tight. Hold."
+  ],
+  "do_not_overuse": "More than two consecutive fragment-rhythm beats sounds robotic."
+}

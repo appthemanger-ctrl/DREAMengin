@@ -1,0 +1,17 @@
+{
+  "name": "Texture Atlasing for Draw-Call Reduction",
+  "category": "optimization",
+  "description": "Pack many small unique textures into a single atlas so multiple meshes can share one material and be drawn in one batch.",
+  "when_to_use": "Environments with many small props (foliage, debris, rubble) that share an art style.",
+  "conceptual_steps": [
+    "Group props by material family (e.g. all rusted metal, all sandstone).",
+    "Pack into 2048×2048 atlases with 4-pixel padding to prevent mip bleed.",
+    "Adjust UVs of source meshes to point into the atlas region.",
+    "Verify draw call count drops in the renderer profiler."
+  ],
+  "tradeoffs": "Higher per-texture memory; harder to update a single prop without re-baking the atlas.",
+  "references": [
+    "Real-Time Rendering 4th ed. ch. 19",
+    "Unity Manual: Sprite Atlas / Mesh Combine"
+  ]
+}

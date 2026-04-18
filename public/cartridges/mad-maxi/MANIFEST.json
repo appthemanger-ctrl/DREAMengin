@@ -1,0 +1,26 @@
+{
+  "$schema": "https://dreamengin.com/schemas/cartridge-manifest-v1.json",
+  "dreamr_version": 1,
+  "cartridge_id": "mad-maxi",
+  "title": "Mad Maxi",
+  "author": "DreamR Studio (AI Orchestrated)",
+  "version": "1.0.0",
+  "entry": "logic/main.wasm",
+  "render_mode": "webgpu",
+  "permissions": ["storage", "haptics", "gamepad"],
+  "cover_art": "assets/cover.basis",
+  "min_quality_tier": "medium",
+  "target_frame_rate": 60,
+  "memory_budget_mb": 256,
+  "save_schema_version": 2,
+  "status": "active",
+  "dependencies": {
+    "gameengin_runtime": ">=1.0.0"
+  },
+  "metadata": {
+    "genre": ["platformer", "action"],
+    "estimated_playtime_minutes": 240,
+    "player_count": [1],
+    "tags": ["neon", "emotional", "procedural", "side-scroller", "empowerment"]
+  }
+}

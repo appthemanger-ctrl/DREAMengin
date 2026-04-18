@@ -1,0 +1,14 @@
+{
+  "tone": "reflective",
+  "definition": "Looking back without sentimentality. Anchors a beat in past meaning.",
+  "structures": [
+    "[memory fragment]. [present-tense connection]",
+    "[past tense observation]. [present implication]"
+  ],
+  "vocabulary_lean": ["used to", "remember", "still", "back when"],
+  "vocabulary_avoid": ["always", "never", "forever"],
+  "example_lines": [
+    "Dad used to count the dunes. I still do.",
+    "Back when the wires hummed. Quiet now."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Rusted Iron",
+  "surface_type": "metal",
+  "pbr": {
+    "base_color_hex": "#7a2e1a",
+    "metallic": 0.55,
+    "roughness": 0.78,
+    "ao_intensity": 0.85
+  },
+  "texture_inputs": [
+    "albedo: weathered iron with orange-brown rust streaks",
+    "roughness: high in pitted areas, lower on polished flats",
+    "normal: heavy macro pitting + subtle micro grain"
+  ],
+  "tinting_guidance": "Push rust toward magenta-red in neon-wasteland palettes; toward cool grey-brown in industrial palettes.",
+  "use_cases": ["Mad Maxi armour plating", "wasteland scaffolding", "wrecked vehicles"]
+}

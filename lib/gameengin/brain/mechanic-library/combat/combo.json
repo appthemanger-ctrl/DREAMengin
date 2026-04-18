@@ -1,0 +1,17 @@
+{
+  "name": "Combo",
+  "category": "combat",
+  "description": "Chained attacks with branching follow-ups within a timing window.",
+  "emotional_impact": ["expression", "flow"],
+  "implementation": {
+    "parameters": {
+      "buffer_ms": 250,
+      "max_chain_length": 4,
+      "branch_inputs": ["light", "heavy", "directional"],
+      "cancel_into_dash_ms": 120
+    },
+    "visual_feedback": { "screen_shake_per_hit": 1.5, "hit_stop_ms": 60 }
+  },
+  "games_using": ["Devil May Cry", "Bayonetta", "Dead Cells"],
+  "fun_heuristics": { "skill_ceiling_increase": 0.9, "expression": 0.85 }
+}

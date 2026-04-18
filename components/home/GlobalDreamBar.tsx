@@ -34,6 +34,7 @@ export default function GlobalDreamBar() {
     closeDrEams,
     runtimeCallbacks,
     openInSurface,
+    splitRatio,
   } = useDreamSystem();
 
   // ── Go home (from "go-home" menu action) ─────────────────────────────────
@@ -41,13 +42,21 @@ export default function GlobalDreamBar() {
   const handleHome = useCallback(() => {
     closeBothMenus();
     closeDrEams();
+    // Smart Home: when the DreamDM Bar is dragged toward the top
+    // (DreamSpace dominant, splitRatio < 0.5), the user expects Home to land
+    // in DreamSpace, not on the HomeDream Surface. Bar position decides what
+    // "home" is — see docs/ARCHITECTURE.md §1.
+    if (splitRatio < 0.5 && runtimeCallbacks?.returnDreamSpace) {
+      runtimeCallbacks.returnDreamSpace();
+      return;
+    }
     // If HomeSystem is mounted use its returnHome; otherwise navigate to /homedream
     if (runtimeCallbacks?.returnHome) {
       runtimeCallbacks.returnHome();
     } else {
       router.push('/homedream');
     }
-  }, [closeBothMenus, closeDrEams, runtimeCallbacks, router]);
+  }, [closeBothMenus, closeDrEams, runtimeCallbacks, router, splitRatio]);
 
   // ── System menu actions — prefer SPA panel when HomeSystem is active,
   //    fall back to route navigation otherwise so links always work.   ──────

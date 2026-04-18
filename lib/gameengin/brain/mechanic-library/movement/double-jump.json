@@ -1,0 +1,31 @@
+{
+  "name": "Double Jump",
+  "category": "movement",
+  "description": "Player can perform a second jump while airborne.",
+  "emotional_impact": ["freedom", "forgiveness", "skill expression"],
+  "implementation": {
+    "state_machine": "GROUND -> JUMP -> AIR -> DOUBLE_JUMP -> FALL",
+    "parameters": {
+      "first_jump_force": 8.0,
+      "double_jump_force": 7.0,
+      "can_double_jump_after_wall_slide": true,
+      "resets_on_ground": true
+    },
+    "visual_feedback": {
+      "particle_burst": "double_jump_particles",
+      "sound": "sfx_jump_double",
+      "animation_trigger": "double_jump"
+    },
+    "haptic_feedback": {
+      "pattern": [50],
+      "weak_magnitude": 0.3,
+      "strong_magnitude": 0.1
+    }
+  },
+  "games_using": ["Celeste", "Hollow Knight", "Ori and the Blind Forest"],
+  "fun_heuristics": {
+    "increases_exploration_possibility": 0.8,
+    "reduces_frustration_from_mistimed_jumps": 0.7,
+    "skill_ceiling_increase": 0.6
+  }
+}

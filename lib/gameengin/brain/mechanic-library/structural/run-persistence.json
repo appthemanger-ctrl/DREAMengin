@@ -1,0 +1,17 @@
+{
+  "name": "Run Persistence",
+  "category": "structural",
+  "description": "A run can be paused and resumed across sessions; partial state is durable until the run ends.",
+  "structural_role": "save-resume",
+  "applies_to_structures": ["run-based", "metroidvania", "open-world"],
+  "implementation": {
+    "data_model": "per-run snapshot (seed, position, inventory, RNG state) committed every milestone",
+    "parameters": {
+      "snapshot_every_seconds": 30,
+      "snapshot_on_milestone": true,
+      "discard_snapshot_on_death": true
+    }
+  },
+  "balance_notes": "Snapshotting must never block the input thread; serialise lazily on idle frames.",
+  "fun_heuristics": { "session_friendliness": 0.9 }
+}

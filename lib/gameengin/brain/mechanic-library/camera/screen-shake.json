@@ -1,0 +1,15 @@
+{
+  "name": "Screen Shake",
+  "category": "camera",
+  "description": "Short procedural noise applied to camera position on impact events.",
+  "implementation": {
+    "parameters": {
+      "amplitude_units_max": 0.4,
+      "duration_ms": 150,
+      "noise_freq_hz": 28,
+      "decay": "exponential"
+    },
+    "guidance": "Always offer an accessibility toggle to disable."
+  },
+  "fun_heuristics": { "perceived_impact": 0.9 }
+}

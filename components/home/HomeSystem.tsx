@@ -101,6 +101,21 @@ function HomeSystemInner({
     revealSplitRuntime(DEFAULT_WORKFLOW_SPLIT);
   }, [dualRuntime, revealSplitRuntime]);
 
+  /**
+   * Smart-Home counterpart: make DreamSpace the dominant runtime.
+   * Bound to the Home action when the DreamDM Bar is dragged toward the top
+   * (DreamSpace dominant). See dreamdmbar/homedream/HomeSystem.tsx for the
+   * canonical implementation; this reference copy mirrors that behaviour.
+   */
+  const returnDreamSpace = useCallback(() => {
+    dualRuntime.setBottomRuntime('DreamSpace');
+    dualRuntime.setDominantRuntime('DreamSpace');
+    setIsBarMinimized(false);
+    setSplitRatio((current) => (current >= 0.5 ? 0.25 : current));
+    closeBothMenus();
+    closeDrEams();
+  }, [closeBothMenus, closeDrEams, dualRuntime, setIsBarMinimized, setSplitRatio]);
+
   const openInSurfaceRegion = useCallback((path: string) => {
     dualRuntime.setTopRuntime({ type: 'custom', path });
     revealSplitRuntime(Math.max(splitRatio, 0.5));
@@ -129,9 +144,10 @@ function HomeSystemInner({
       returnHome,
       openInSurface,
       openHomeDreamSpace,
+      returnDreamSpace,
     });
     return unregisterRuntimeCallbacks;
-  }, [openHomeDreamSpace, openInSurface, registerRuntimeCallbacks, returnHome, unregisterRuntimeCallbacks]);
+  }, [openHomeDreamSpace, openInSurface, registerRuntimeCallbacks, returnDreamSpace, returnHome, unregisterRuntimeCallbacks]);
 
   useEffect(() => {
     if (runtimeSplitRatio >= 0.55) {

@@ -1,0 +1,20 @@
+{
+  "game_title": "Hades",
+  "release_year": 2020,
+  "developer": "Supergiant Games",
+  "genre": ["roguelike", "action-rpg"],
+  "what_makes_it_special": "Run-based action welded to evergreen narrative progression; death is a story beat.",
+  "mechanical_innovations": [
+    { "name": "Boon stacking", "description": "Per-run god boons combine into emergent builds with named synergies.", "impact": "Every run is mechanically distinct." },
+    { "name": "Heat system", "description": "Player-selected difficulty modifiers extend the skill ceiling indefinitely.", "impact": "Endgame for completionists without gating story." }
+  ],
+  "emotional_impact": "Empowerment + ongoing surprise; loss is reframed as progress.",
+  "design_lessons_applicable": [
+    "Telemetry-driven encounter pacing keeps run length tight.",
+    "Voiced one-liners on small actions make the world feel alive cheaply.",
+    "Build emergence beats build planning for replay."
+  ],
+  "review_sentiment_score": 0.97,
+  "scraped_reviews_count": 35000,
+  "analyzed_at": "2026-04-17T00:00:00Z"
+}

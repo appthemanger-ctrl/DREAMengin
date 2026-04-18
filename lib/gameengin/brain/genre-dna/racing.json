@@ -1,0 +1,35 @@
+{
+  "genre": "Racing",
+  "subgenres": ["arcade", "simulation", "kart"],
+  "core_mechanic": "Continuous high-speed traversal of a circuit with traffic / opponents.",
+  "emotional_core": "empowerment",
+  "player_motivation": "Find the perfect line; compress lap times.",
+  "essential_feel": {
+    "controls": "Predictable steering input → angular velocity curve",
+    "boost": "Risk/reward (drift charge, slipstream)",
+    "camera": "Forward look-ahead scaled to speed"
+  },
+  "pacing_profile": {
+    "early": "Wide tracks teach driving model.",
+    "mid": "Tight technical sections introduce shortcut tradeoffs.",
+    "late": "Boss tracks combine all hazards; time-trial leaderboards."
+  },
+  "progression_model": {
+    "structure_type": "linear",
+    "progression_gates": ["championship-tier", "vehicle-unlock"],
+    "completion_definition": "All championships podium-finished; ghost-replay leaderboards extend skill ceiling indefinitely.",
+    "content_cadence": "Per championship tier; new track + vehicle class on each tier clear."
+  },
+  "canonical_examples":[
+    {
+      "title": "Hotshot Racing",
+      "year": 2020,
+      "what_makes_it_special": "Drift-and-boost loop tuned for legibility."
+    }
+  ],
+  "anti_patterns": [
+    "Rubber-band AI that nullifies skill",
+    "Catastrophic crashes without recovery window",
+    "Camera that lags so much in turns the apex is invisible"
+  ]
+}

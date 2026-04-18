@@ -72,6 +72,12 @@ export interface RuntimeCallbacks {
   openInSurface?:  OpenInSurfaceFn;
   /** Open DreamSpace in the bottom runtime region */
   openHomeDreamSpace?: () => void;
+  /**
+   * Return to DreamSpace as the dominant runtime region.
+   * Used by the smart Home button when the DreamDM Bar is dragged toward the
+   * top — at that point "home" contextually means DreamSpace, not Surface.
+   */
+  returnDreamSpace?: () => void;
 }
 
 // ── Context shape ─────────────────────────────────────────────────────────────

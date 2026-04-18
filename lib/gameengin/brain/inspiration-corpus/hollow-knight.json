@@ -1,0 +1,20 @@
+{
+  "game_title": "Hollow Knight",
+  "release_year": 2017,
+  "developer": "Team Cherry",
+  "genre": ["metroidvania", "action"],
+  "what_makes_it_special": "Hand-crafted interconnected world; minimal hand-holding rewards exploration and persistence.",
+  "mechanical_innovations": [
+    { "name": "Charm system", "description": "Equippable modifiers with notch budget enabling player-defined builds.", "impact": "Build identity without classes." },
+    { "name": "Soul economy", "description": "Combat generates resource for healing AND magic; spending requires a safe window.", "impact": "Risk-reward in every encounter." }
+  ],
+  "emotional_impact": "Lonely majesty; persistence converted into earned mastery.",
+  "design_lessons_applicable": [
+    "Map purchase model (Cornifer) trains player observation.",
+    "Boss telegraphs paired with iframes create predictable danger.",
+    "Optional content (Path of Pain) extends ceiling without gating completion."
+  ],
+  "review_sentiment_score": 0.95,
+  "scraped_reviews_count": 26000,
+  "analyzed_at": "2026-04-17T00:00:00Z"
+}

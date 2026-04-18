@@ -1,0 +1,14 @@
+{
+  "name": "Foreground / Mid / Background Parallax Layers",
+  "principle": "Compose every gameplay screen with three distinct depth layers so motion produces parallax even in 2D / 2.5D cartridges.",
+  "rules_of_thumb": [
+    "Foreground: high-contrast, low-saturation silhouettes; reads as 'frame'.",
+    "Mid: full-saturation gameplay surfaces; reads as 'stage'.",
+    "Background: desaturated, atmospheric; reads as 'world'.",
+    "Parallax speed ratio recommendation: 1.4 / 1.0 / 0.4 (FG / MID / BG)."
+  ],
+  "anti_patterns": [
+    "Background detail bright enough to be mistaken for gameplay surface.",
+    "All three layers at the same saturation — flattens depth perception."
+  ]
+}

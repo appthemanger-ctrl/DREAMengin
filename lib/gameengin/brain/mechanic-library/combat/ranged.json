@@ -1,0 +1,17 @@
+{
+  "name": "Ranged Attack",
+  "category": "combat",
+  "description": "Projectile-based attack with limited resource (ammo / mana / cooldown).",
+  "emotional_impact": ["control", "anticipation"],
+  "implementation": {
+    "parameters": {
+      "projectile_speed": 14.0,
+      "projectile_lifetime_ms": 1200,
+      "fire_rate_ms": 220,
+      "resource_cost": 1,
+      "homing_strength": 0.0
+    }
+  },
+  "games_using": ["Hollow Knight (Vengeful Spirit)", "Hades"],
+  "fun_heuristics": { "kiting_potential": 0.8, "tactical_depth": 0.7 }
+}

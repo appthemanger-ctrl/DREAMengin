@@ -1,0 +1,11 @@
+{
+  "name": "Implied Subject",
+  "description": "Drop the subject pronoun on lines where the protagonist is the obvious actor. Tightens voice.",
+  "structure": "[verb] [object].",
+  "when_to_use": "Internal observations, single-character beats.",
+  "examples": [
+    "Could go around. Won't.",
+    "Heard that before."
+  ],
+  "do_not_overuse": "On every line — leads to artificial terseness."
+}

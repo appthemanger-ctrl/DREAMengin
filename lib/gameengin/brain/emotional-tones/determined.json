@@ -1,0 +1,14 @@
+{
+  "tone": "determined",
+  "definition": "Quiet, focused intent. Less volume, more weight.",
+  "structures": [
+    "[short noun]. [short verb].",
+    "[single clear declaration]."
+  ],
+  "vocabulary_lean": ["go", "now", "hold", "carry", "finish"],
+  "vocabulary_avoid": ["maybe", "try", "soft"],
+  "example_lines": [
+    "Now. Go.",
+    "Carry it home."
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "comment": "Weights used by Upgrader to score each upgrade dimension. Higher = higher priority. Spec: §6 Upgrader.",
+  "weights": {
+    "days_since_last_touch": 0.30,
+    "mechanic_library_drift": 0.25,
+    "visual_technique_drift": 0.20,
+    "narrative_beat_gap":     0.15,
+    "tuning_drift_from_prophet": 0.10
+  },
+  "tier_multipliers": {
+    "flagship":    1.5,
+    "active":      1.0,
+    "maintenance": 0.5,
+    "archived":    0.1
+  },
+  "min_dispatch_score": 0.4,
+  "cooldown_days_per_dimension": {
+    "mechanics":  3,
+    "visuals":    7,
+    "narrative":  2,
+    "tuning":     1
+  }
+}

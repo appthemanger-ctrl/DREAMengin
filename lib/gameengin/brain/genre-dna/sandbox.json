@@ -1,0 +1,35 @@
+{
+  "genre": "Sandbox",
+  "subgenres": ["simulation", "creative", "survival-sandbox"],
+  "core_mechanic": "Systems-driven world where the player invents their own goals from the toolset.",
+  "emotional_core": "agency",
+  "player_motivation": "Express intent through the system; make the world your story.",
+  "essential_feel": {
+    "system_legibility": "every verb has a predictable, composable effect",
+    "tool_density": "primary verbs combine into emergent strategies",
+    "persistence": "edits last; the world remembers"
+  },
+  "pacing_profile": {
+    "early": "Exposed verbs and tutorial scenarios introduce systems.",
+    "mid": "Player adopts self-set goals; designer steps back.",
+    "late": "End-game sandboxes (creative mode, modding, seed sharing)."
+  },
+  "progression_model": {
+    "structure_type": "sandbox",
+    "progression_gates": ["tool-unlock", "resource-tier", "self-set-goal"],
+    "completion_definition": "Player-defined; the studio ships systems, not a finish line.",
+    "content_cadence": "Per tool / per system update; player-driven goals refresh continuously."
+  },
+  "canonical_examples": [
+    {
+      "title": "Minecraft",
+      "year": 2011,
+      "what_makes_it_special": "Block-grid + crafting tree creates infinite player goals from a handful of verbs."
+    }
+  ],
+  "anti_patterns": [
+    "Systems with hidden rules the player cannot infer",
+    "Tutorial that prescribes the 'correct' goal",
+    "Persistence that breaks under player creativity (save corruption)"
+  ]
+}

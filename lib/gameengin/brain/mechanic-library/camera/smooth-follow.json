@@ -1,0 +1,14 @@
+{
+  "name": "Smooth Follow Camera",
+  "category": "camera",
+  "description": "Camera target lerps toward player position with critically-damped spring response.",
+  "implementation": {
+    "parameters": {
+      "spring_freq_hz": 4.0,
+      "damping_ratio": 1.0,
+      "max_speed_units_per_sec": 30,
+      "deadzone_units": 0.5
+    }
+  },
+  "fun_heuristics": { "perceived_responsiveness": 0.8 }
+}

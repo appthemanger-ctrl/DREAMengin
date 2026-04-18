@@ -1,0 +1,36 @@
+{
+  "genre": "Action RPG",
+  "subgenres": ["isometric", "soulslike", "loot-driven"],
+  "core_mechanic": "Real-time combat plus persistent stat / equipment growth.",
+  "emotional_core": "empowerment",
+  "player_motivation": "Convert practice into measurable power.",
+  "essential_feel": {
+    "movement": "weight-aware, dodge-rolling responsive",
+    "combat": "telegraphed enemy windups, parries reward timing",
+    "progression": "visible stat gains, gear with build identity"
+  },
+  "pacing_profile": {
+    "early": "Core combo + dodge online; loot rarely.",
+    "mid": "Build identity emerges; first ability tree node choices.",
+    "late": "Optional bosses, NG+, prestige loops."
+  },
+  "progression_model": {
+    "structure_type": "open-world",
+    "progression_gates": ["ability-unlock", "level-requirement", "key-item", "story-trigger"],
+    "completion_definition": "Main story credits; true ending behind optional bosses; NG+ and prestige loops extend skill ceiling.",
+    "content_cadence": "Per zone / per ability tree node; gear and abilities drip every 30-60 minutes of play."
+  },
+  "canonical_examples":[
+    {
+      "title": "Hades",
+      "year": 2020,
+      "what_makes_it_special": "Run-based pacing welded to persistent narrative progression.",
+      "mechanical_innovations": ["god boon stacking", "narrative-on-death system"]
+    }
+  ],
+  "anti_patterns": [
+    "Damage sponge enemies without behaviour variety",
+    "Loot inflation that obsoletes builds within minutes",
+    "Bosses that punish learning without checkpointing"
+  ]
+}

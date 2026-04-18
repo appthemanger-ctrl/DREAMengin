@@ -1,0 +1,19 @@
+{
+  "pattern_id": "one-day-runner",
+  "category": "scope-formula",
+  "studio_build_budget_hours": 8,
+  "estimated_player_minutes": 35,
+  "scope_recipe": [
+    "1 procedural level generator (parametric, 4 biome variants)",
+    "2-3 core movement mechanics (dash + jump + one signature)",
+    "1 antagonist behaviour (chase / pressure timer)",
+    "1 narrative beat per biome (<= 40 words each)",
+    "1 difficulty curve from the AIDirector"
+  ],
+  "ship_constraints": {
+    "single_player": true,
+    "no_persistent_backend": true,
+    "asset_budget_mb": 18
+  },
+  "notes": "Maestro has shipped variants of this template before. Pair with neon-rain-megacity + reluctant-courier for a known-good combination, or recombine for novelty."
+}

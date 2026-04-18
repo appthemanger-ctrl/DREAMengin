@@ -1,0 +1,17 @@
+{
+  "name": "Grapple",
+  "category": "movement",
+  "description": "Aim-fired tether that pulls the player toward an anchor.",
+  "emotional_impact": ["freedom", "power", "expression"],
+  "implementation": {
+    "parameters": {
+      "max_range_units": 18,
+      "pull_speed": 22.0,
+      "min_anchor_dot": 0.2,
+      "post_grapple_momentum_retain": 0.6
+    },
+    "visual_feedback": { "line_renderer": "grapple_chain", "sound": "sfx_grapple_fire" }
+  },
+  "games_using": ["Hollow Knight (Mantis Claw variant)", "Just Cause series"],
+  "fun_heuristics": { "exploration_unlock": 0.85, "skill_ceiling_increase": 0.75 }
+}

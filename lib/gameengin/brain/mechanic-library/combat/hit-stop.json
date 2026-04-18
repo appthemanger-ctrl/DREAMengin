@@ -1,0 +1,17 @@
+{
+  "name": "Hit-Stop",
+  "category": "combat",
+  "description": "Brief world-time freeze on impact to amplify weight of a strike.",
+  "emotional_impact": ["impact", "satisfaction"],
+  "implementation": {
+    "parameters": {
+      "min_ms": 50,
+      "max_ms": 120,
+      "scale_by_damage": true,
+      "applies_to_attacker": true,
+      "applies_to_target": true
+    }
+  },
+  "games_using": ["Smash Bros.", "Hollow Knight", "Sekiro"],
+  "fun_heuristics": { "perceived_impact": 0.95 }
+}

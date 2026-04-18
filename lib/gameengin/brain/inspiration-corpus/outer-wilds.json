@@ -1,0 +1,18 @@
+{
+  "game_title": "Outer Wilds",
+  "release_year": 2019,
+  "developer": "Mobius Digital",
+  "genre": ["puzzle", "exploration"],
+  "what_makes_it_special": "Knowledge IS the progression; the only thing the player gains is understanding.",
+  "mechanical_innovations": [
+    { "name": "Time-loop ship log", "description": "Solar-system-scale state resets every 22 minutes; clues persist as a shipboard knowledge graph.", "impact": "Discovery feels like detective work, not item collection." }
+  ],
+  "emotional_impact": "Wonder leading to bittersweet acceptance.",
+  "design_lessons_applicable": [
+    "A diegetic map of clues outperforms a quest log.",
+    "Resetting world state is acceptable when player knowledge persists."
+  ],
+  "review_sentiment_score": 0.94,
+  "scraped_reviews_count": 14000,
+  "analyzed_at": "2026-04-17T00:00:00Z"
+}

@@ -1,0 +1,12 @@
+{
+  "_doc": "Two-Project Rule (Brain directive). Maestro works on at most two cartridges concurrently. Slot order is meaningful: slot 1 is the primary focus; slot 2 is the parallel build. Updated by the studio operator (you) — Maestro, Upgrader, and the crash-report API all read this file to decide what they may touch.",
+  "max_slots": 2,
+  "slots": [
+    {
+      "cartridge_id": "mad-maxi",
+      "added_at": "2026-04-18T00:00:00.000Z",
+      "focus": "primary",
+      "notes": "Reference cartridge — the GameEngin standard remote and combo system are being authored here first, then standardised across the library."
+    }
+  ]
+}

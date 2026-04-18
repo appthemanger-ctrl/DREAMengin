@@ -1,0 +1,10 @@
+{
+  "name": "Callback Anchor",
+  "description": "Reference a phrase or object from an earlier beat to create narrative cohesion across long sessions.",
+  "structure": "Quote earlier short phrase verbatim, then add one new word of context.",
+  "when_to_use": "Late-game beats; emotional payoff moments.",
+  "examples": [
+    "'Carry it home.' Carrying.",
+    "'Sand's warm.' Wasn't yesterday."
+  ]
+}

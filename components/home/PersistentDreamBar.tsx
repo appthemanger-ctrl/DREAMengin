@@ -40,12 +40,20 @@ export default function PersistentDreamBar() {
   } = useDreamSystem();
 
   const handleHome = useCallback(() => {
+    // Smart Home: when the DreamDM Bar is dragged toward the top
+    // (DreamSpace dominant, splitRatio < 0.5), Home contextually means
+    // "DreamSpace" instead of HomeDream Surface. Bar position decides
+    // what "home" is — see docs/ARCHITECTURE.md §1.
+    if (splitRatio < 0.5 && runtimeCallbacks?.returnDreamSpace) {
+      runtimeCallbacks.returnDreamSpace();
+      return;
+    }
     if (runtimeCallbacks?.returnHome) {
       runtimeCallbacks.returnHome();
     } else {
       router.push('/homedream');
     }
-  }, [runtimeCallbacks, router]);
+  }, [runtimeCallbacks, router, splitRatio]);
 
   const handleHomeDreamSpace = useCallback(() => {
     runtimeCallbacks?.openHomeDreamSpace?.();

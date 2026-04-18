@@ -28,6 +28,7 @@ import DreamRadialMenu from '@/components/menus/DreamRadialMenu';
 import SystemRadialMenu, { type SystemMenuAction } from '@/components/menus/SystemRadialMenu';
 import DreamWidgetGrid from './DreamWidgetGrid';
 import BrandLogo from '@/components/BrandLogo';
+import FeaturedCartridges from '@/components/gameengin/FeaturedCartridges';
 
 import '@/styles/home-dream.css';
 
@@ -291,12 +292,18 @@ export default function HomeDream({ userId: _userId, userWidgets, followingWidge
             </div>
           ) : hasWidgets ? (
             /* ── Populated widget grid ─────────────────────────────────────── */
-            <DreamWidgetGrid
-              widgets={userWidgets}
-              onWidgetOpen={setSelectedWidget}
-              onWidgetLongPress={setSelectedWidget}
-              selectedWidgetId={selectedWidget ? (selectedWidget as WidgetInstance).id : null}
-            />
+            <>
+              {/* §7.4 — Featured cartridges always surfaced above the grid */}
+              <div className="px-4 pt-4">
+                <FeaturedCartridges featured={['platformer']} limit={3} />
+              </div>
+              <DreamWidgetGrid
+                widgets={userWidgets}
+                onWidgetOpen={setSelectedWidget}
+                onWidgetLongPress={setSelectedWidget}
+                selectedWidgetId={selectedWidget ? (selectedWidget as WidgetInstance).id : null}
+              />
+            </>
           ) : (
             /* ── First-login empty state ───────────────────────────────────── */
             <div className="flex flex-col items-center justify-center min-h-full py-20 px-8 text-center">

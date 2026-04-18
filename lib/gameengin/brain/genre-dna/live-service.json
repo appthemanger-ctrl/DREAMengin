@@ -1,0 +1,36 @@
+{
+  "genre": "Live Service",
+  "subgenres": ["seasonal", "battle-pass", "limited-time-event"],
+  "core_mechanic": "Content arrives on a calendar; the game itself is a platform for evolving rotations.",
+  "emotional_core": "anticipation",
+  "player_motivation": "Be present for the moment; ride the season.",
+  "essential_feel": {
+    "season_rhythm": "every season has a clear theme, story arc, and reward track",
+    "event_density": "limited-time events 1-3 per season, each ~1 week",
+    "fomo_management": "missed cosmetics return on rotation; missed gameplay feels survivable"
+  },
+  "pacing_profile": {
+    "early": "Onboarding to the current season; catch-up XP for late joiners.",
+    "mid": "Mid-season event expands the meta with new mode or map.",
+    "late": "Finale event resolves the season's story arc; rewards finalize."
+  },
+  "progression_model": {
+    "structure_type": "live-service",
+    "progression_gates": ["season-tier", "time-gated-event", "battle-pass-tier"],
+    "completion_definition": "Per-season completion (battle-pass tier 100, season story finale); the live game itself is never 'finished'.",
+    "content_cadence": "Per season (6-12 weeks) plus mid-season event drops; daily/weekly challenges refresh the loop."
+  },
+  "canonical_examples": [
+    {
+      "title": "Fortnite (chapter system)",
+      "year": 2017,
+      "what_makes_it_special": "Map-altering live events anchor each chapter in a shared moment.",
+      "mechanical_innovations": ["map-evolution events", "cross-mode reward economy"]
+    }
+  ],
+  "anti_patterns": [
+    "Battle pass length that requires more than the season's hours to finish",
+    "Power-relevant rewards behind FOMO",
+    "Seasons that recycle the previous season's mechanics with no net-new verb"
+  ]
+}

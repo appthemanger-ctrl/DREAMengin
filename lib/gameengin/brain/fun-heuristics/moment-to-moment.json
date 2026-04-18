@@ -1,0 +1,11 @@
+{
+  "name": "Moment-to-Moment Fun",
+  "definition": "How satisfying every individual second of play feels in isolation.",
+  "signals": [
+    { "signal": "input_to_visual_response_ms", "weight": 0.3, "target_max": 50 },
+    { "signal": "feedback_modalities_per_action", "weight": 0.2, "target_min": 2 },
+    { "signal": "perceived_control_score", "weight": 0.25, "target_min": 0.8 },
+    { "signal": "deaths_attributed_to_unfairness_pct", "weight": 0.25, "target_max": 10 }
+  ],
+  "telemetry_sources": ["fps_sample", "input_event", "death"]
+}

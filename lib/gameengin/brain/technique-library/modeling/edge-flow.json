@@ -1,0 +1,17 @@
+{
+  "name": "Edge Flow for Deformable Meshes",
+  "category": "modeling",
+  "description": "Arrange polygon edges along the natural deformation lines of a character so that joints (elbows, knees, knuckles) bend cleanly and avoid pinching.",
+  "when_to_use": "Any character or creature mesh that will be skinned and animated.",
+  "conceptual_steps": [
+    "Identify primary deformation zones from the rig plan.",
+    "Lay loops perpendicular to the bend axis at each joint (3 loops minimum: one above, one at, one below).",
+    "Keep quad topology along stretching surfaces; tris are acceptable on rigid plates.",
+    "Mirror across symmetry plane only after edge flow validation."
+  ],
+  "tradeoffs": "More loops = better deformation but heavier mesh. Aim for joint loop budget ≤ 5 % of total polycount.",
+  "references": [
+    "Polycount wiki: Limb Topology",
+    "Blender Foundation Open-Movie character breakdowns"
+  ]
+}

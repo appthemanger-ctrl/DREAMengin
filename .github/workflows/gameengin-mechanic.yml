@@ -1,0 +1,35 @@
+name: gameengin-mechanic
+
+# Mechanic logic/WASM agent. Spec: GameENGINspec.md §3.4 / §5.3.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_cartridge: { description: 'Cartridge id', required: false, default: 'mad-maxi' }
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  build-wasm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TARGET_CARTRIDGE: ${{ github.event.inputs.target_cartridge }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+        with: { version: 10.30.0 }
+      - uses: actions/setup-node@v5
+        with: { node-version: '24', cache: 'pnpm' }
+      - run: pnpm install --frozen-lockfile
+      - name: Run Mechanic
+        run: pnpm tsx scripts/gameengin/mechanic-run.ts
+      - name: Upload wasm + report
+        uses: actions/upload-artifact@v4
+        with:
+          name: mechanic-${{ github.event.inputs.target_cartridge }}
+          path: |
+            .gameengin-mechanic-output.json
+            public/cartridges/${{ github.event.inputs.target_cartridge }}/logic/main.wasm

@@ -1,0 +1,9 @@
+{
+  "pattern_id": "neon-rain-megacity",
+  "category": "setting",
+  "world": "A vertical megacity stacked into permanent twilight, lit only by holographic signage and rain-slick neon.",
+  "vibe": "lonely, electric, bittersweet",
+  "visual_tone": "saturated cyans and magentas against deep navy; emissive materials carry the lighting; rain is a character",
+  "compatible_genres": ["platformer", "racing", "metroidvania", "action-rpg"],
+  "notes": "Reads instantly on tiny mobile screens because of the high-contrast palette. Pair with hopeful/determined emotional tones, not weary."
+}

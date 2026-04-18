@@ -1,0 +1,32 @@
+{
+  "comment": "Initial tuning values for Mad Maxi. Updated by Mechanic agent during Pulse iterations (spec §5.6).",
+  "version": 1,
+  "updated_at": "2026-04-18T00:00:00Z",
+  "physics": {
+    "gravity_units_per_sec_sq": 15.0,
+    "max_horizontal_speed": 7.5,
+    "ground_acceleration": 60.0,
+    "ground_friction": 18.0,
+    "air_acceleration": 28.0
+  },
+  "jump": {
+    "first_jump_force": 8.0,
+    "double_jump_force": 7.0,
+    "variable_jump_release_gravity_mult": 2.4,
+    "coyote_time_frames": 6,
+    "input_buffer_frames": 8
+  },
+  "dash": {
+    "speed_multiplier": 3.5,
+    "duration_frames": 11,
+    "cooldown_frames": 15,
+    "iframes_frames": 7,
+    "directions": 8
+  },
+  "combat": {
+    "parry_window_frames": 8,
+    "perfect_parry_window_frames": 3,
+    "hit_stop_ms": 80
+  },
+  "fixed_step_hz": 60
+}

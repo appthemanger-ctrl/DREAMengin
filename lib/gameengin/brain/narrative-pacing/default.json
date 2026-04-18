@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "comment": "Default narrative pacing curve. Updated by Writer based on Maestro telemetry.",
+  "beats_per_hour_target": 6,
+  "beat_interval_levels": 10,
+  "tone_rotation": ["hopeful", "weary", "determined", "reflective", "fierce"],
+  "rules": [
+    "First beat must establish character voice (no plot reveal).",
+    "Every 5th beat may carry a plot reveal.",
+    "Final beat of any chapter must echo the chapter's opening beat (callback)."
+  ]
+}

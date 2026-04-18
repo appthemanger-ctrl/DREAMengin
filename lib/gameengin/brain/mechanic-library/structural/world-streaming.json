@@ -1,0 +1,22 @@
+{
+  "name": "World Streaming",
+  "category": "structural",
+  "description": "The open world loads and unloads tiles around the player so the entire space appears seamless.",
+  "structural_role": "open-world-runtime",
+  "applies_to_structures": ["open-world", "sandbox"],
+  "implementation": {
+    "data_model": "tile grid + LOD rings + async loader",
+    "parameters": {
+      "tile_size_m": 256,
+      "load_radius_tiles": 3,
+      "lod_rings": 4,
+      "max_loader_threads": 2
+    }
+  },
+  "anti_patterns": [
+    "Visible pop-in inside the player's foreground",
+    "Stutter spikes when crossing tile boundaries",
+    "Loading screens disguised as elevators"
+  ],
+  "fun_heuristics": { "immersion": 0.9 }
+}
