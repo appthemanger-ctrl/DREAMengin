@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-18T10:16:31.962Z",
+  "generated_at": "2026-04-18T12:48:03.364Z",
   "generator": "scripts/sync-build-memory.mjs",
   "sources": [
     "types/supabase.ts",
