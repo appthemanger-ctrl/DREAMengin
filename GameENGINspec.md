@@ -1,4 +1,4 @@
-<start ai directives> EXECUTE to working implementation no place holders nothing left for later. # GAMEENGIN PLATFORM: ABSOLUTE FINAL TECHNICAL SPECIFICATION
+# DREAMengin — Repository Mirror & Technical Reference
 
 **Document ID:** GAMEENGIN-SPEC-2026-04-17-FINAL  
 **Project:** DREAMengin Subsystem – Autonomous Console-Class Browser Gaming  
