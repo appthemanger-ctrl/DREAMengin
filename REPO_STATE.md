@@ -4,11 +4,11 @@
 > Generated automatically - DO NOT EDIT MANUALLY
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)
-**Documentation Date:** 2026-04-16
-**Last Updated:** 4/16/2026, 10:40:33 PM
-**Branch:** copilot/research-game-engine-architecture
-**Commit:** 5f93b529 - feat: RTSGame wired to ECSWorld + OctreeBVH + ResourcePool + useUnifiedLoop
-**Total Commits:** 3877
+**Documentation Date:** 2026-04-18
+**Last Updated:** 4/18/2026, 10:17:14 AM
+**Branch:** completedream
+**Commit:** 9ee3fa16 - chore: sync build-memory [skip ci] [skip vercel]
+**Total Commits:** 4889
 
 ---
 
@@ -43,14 +43,14 @@
 
 **Quick Stats:**
 
-- 📁 Total Code Files: 689
-- 📝 Total Lines of Code: 168,410
-- 📦 Size: 6.36 MB
-- 🧪 Tests: 143 files, 134 passing
-- 📄 API Routes: 88
-- 🎨 Components: 36 categories
-- 📖 Documentation: 49 files
-- ⚙️ GitHub Actions: 53 workflows
+- 📁 Total Code Files: 792
+- 📝 Total Lines of Code: 186,502
+- 📦 Size: 6.98 MB
+- 🧪 Tests: 173 files, 165 passing
+- 📄 API Routes: 99
+- 🎨 Components: 42 categories
+- 📖 Documentation: 62 files
+- ⚙️ GitHub Actions: 51 workflows
 
 ## Tech Stack
 
@@ -88,17 +88,10 @@ clsx@^2.1.1
 framer-motion@^12.35.0
 gsap@^3.14.2
 lucide-react@^0.577.0
-next@^16.2.3
-react@^19.2.0
-react-dom@^19.2.0
-rss-parser@^3.13.0
-swr@^2.4.1
-tailwind-merge@^3.5.0
-three@^0.183.0
-... and 3 more
+... and 11 more
 ```
 
-**Dev Dependencies:** 17
+**Dev Dependencies:** 18
 ```
 @tailwindcss/postcss@^4.2.2
 @types/node@^25.0.0
@@ -115,6 +108,7 @@ react-dnd@^16.0.1
 react-dnd-html5-backend@^16.0.1
 tailwindcss@^4.2.2
 tailwindcss-animate@^1.0.7
+tsx@^4.19.0
 typescript@^5.9.0
 vitest@^4.1.0
 ```
@@ -125,33 +119,33 @@ vitest@^4.1.0
 
 | Directory | Total Files | File Types |
 |-----------|-------------|------------|
-| `app/` | 213 | .tsx(123), .ts(88), .css(2) |
-| `components/` | 296 | .tsx(269), .ts(24), .css(2) |
-| `lib/` | 299 | .ts(293), .tsx(4), .md(2) |
-| `tests/` | 145 | .ts(144), .md(1) |
-| `styles/` | 3 | .css(3) |
-| `public/` | 49 | .png(18), .PNG(11), .jpeg(6) |
-| `docs/` | 45 | .md(45) |
-| `scripts/` | 24 | .mjs(12), .sh(4), .cjs(4) |
-| `supabase/` | 47 | .sql(46), .toml(1) |
+| `app/` | 231 | .tsx(129), .ts(100), .css(2) |
+| `components/` | 323 | .tsx(293), .ts(27), .css(2) |
+| `lib/` | 459 | .ts(364), .json(67), .md(21) |
+| `tests/` | 175 | .ts(174), .md(1) |
+| `styles/` | 5 | .css(5) |
+| `public/` | 53 | .png(18), .PNG(11), .jpeg(6) |
+| `docs/` | 60 | .md(59), no-extension(1) |
+| `scripts/` | 41 | .mjs(17), .ts(11), .sh(5) |
+| `supabase/` | 51 | .sql(50), .toml(1) |
 
 ## Code Metrics
 
 ### File Distribution
 
-- **App Routes (TSX):** 123
-- **Component Files:** 269
-- **Library Files:** 297
-- **Test Files:** 137
+- **App Routes (TSX):** 129
+- **Component Files:** 293
+- **Library Files:** 370
+- **Test Files:** 167
 
 ### Code Volume
 
-- **Total Lines:** 168,410
-- **Total Size:** 6.36 MB
+- **Total Lines:** 186,502
+- **Total Size:** 6.98 MB
 
 ## API Routes
 
-**Total API Endpoints:** 98
+**Total API Endpoints:** 99
 
 ### All Routes
 
@@ -207,11 +201,11 @@ vitest@^4.1.0
 | `/api/dreamr/feed` | GET | /app/api/dreamr/feed/route.ts |
 | `/api/dreamr/suggested` | GET | /app/api/dreamr/suggested/route.ts |
 | `/api/embed-feed` | GET | /app/api/embed-feed/route.ts |
-| ... | ... | ... and 48 more routes |
+| ... | ... | ... and 49 more routes |
 
 ## Pages & Routes
 
-**Total Pages:** 102
+**Total Pages:** 105
 
 ### All Pages
 
@@ -267,11 +261,11 @@ vitest@^4.1.0
 | `/engines/games` | /app/engines/games/page.tsx |
 | `/engines/games/scores` | /app/engines/games/scores/page.tsx |
 | `/engines/lab/data` | /app/engines/lab/data/page.tsx |
-| ... | ... and 52 more pages |
+| ... | ... and 55 more pages |
 
 ## Components
 
-**Total Component Categories:** 40
+**Total Component Categories:** 42
 
 ### Component Organization
 
@@ -284,7 +278,7 @@ vitest@^4.1.0
 | `controls/` | 1 |
 | `core/` | 1 |
 | `customize/` | 7 |
-| `daydream/` | 24 |
+| `daydream/` | 25 |
 | `draggable/` | 1 |
 | `dreamengin/` | 21 |
 | `dreamnav/` | 2 |
@@ -293,10 +287,10 @@ vitest@^4.1.0
 | `engines/` | 34 |
 | `feed/` | 5 |
 | `feeds/` | 1 |
-| `forge/` | 2 |
-| `gameengin/` | 1 |
+| `forge/` | 3 |
+| `gameengin/` | 6 |
 | `games/` | 45 |
-| `home/` | 12 |
+| `home/` | 13 |
 | `idari/` | 1 |
 | `landing/` | 2 |
 | `marketplace/` | 2 |
@@ -310,9 +304,11 @@ vitest@^4.1.0
 | `providers/` | 2 |
 | `runtime/` | 3 |
 | `shaders/` | 4 |
+| `shared-dream/` | 4 |
 | `spatial/` | 5 |
 | `three/` | 2 |
 | `ui/` | 7 |
+| `universal-editor/` | 3 |
 | `universe/` | 6 |
 | `warp/` | 1 |
 | `webgpu/` | 4 |
@@ -320,16 +316,13 @@ vitest@^4.1.0
 
 ## Database Schema
 
-**Total Migrations:** 45
+**Total Migrations:** 48
 **Schema File:** ✓ Present
 
 ### Migration History
 
 | Migration File |
 |----------------|
-| 20260325000000_phase8f_daydream_network.sql |
-| 20260325100000_child_safety.sql |
-| 20260401000001_platform_utilities.sql |
 | 20260402000001_control_mappings.sql |
 | 20260402000002_game_assets.sql |
 | 20260403000001_pgvector_embeddings.sql |
@@ -337,13 +330,16 @@ vitest@^4.1.0
 | 20260405000001_dreamr_feed_registry.sql |
 | 20260405042406_auto_scaffold.sql |
 | 20260413000000_phase9_activity_first_protocol.sql |
-| ... and 35 earlier migrations |
+| 20260417000000_repurpose_nods_as_dream_docs.sql |
+| 20260417000001_dream_docs_search_rpc.sql |
+| 20260418000000_gameengin_core.sql |
+| ... and 38 earlier migrations |
 
 ## Tests
 
-**Test Files:** 161
-**Tests Passing:** 156
-**Tests Failing:** 0
+**Test Files:** 173
+**Tests Passing:** 165
+**Tests Failing:** 12
 
 ### Test Files
 
@@ -367,7 +363,7 @@ vitest@^4.1.0
 - /tests/collector-extended.test.ts
 - /tests/compositeengin-features.test.ts
 - /tests/conform-memory-map.test.ts
-- ... and 141 more test files
+- ... and 153 more test files
 
 ## Documentation
 
@@ -409,44 +405,40 @@ vitest@^4.1.0
 
 ## CI/CD Workflows
 
-**Total Workflows:** 60
+**Total Workflows:** 51
 
 ### Workflow Files
 
 - autofixvercelbuild.yml
 - bot-pr-automerge.yml
 - bouncer.yml
-- check-build-memory-drift.yml
 - copilot-setup-steps.yml
+- daydream-all.yml
 - daydream-brand-engin.yml
-- daydream-brand.yml
 - daydream-code-engin.yml
-- daydream-code.yml
 - daydream-create-engin.yml
-- daydream-create.yml
 - daydream-engin-build-cycle.yml
 - daydream-engin-sicc-refinement.yml
 - daydream-games-engin.yml
-- daydream-games.yml
 - daydream-lab-engin.yml
-- daydream-lab.yml
 - daydream-music-engin.yml
-- daydream-music.yml
 - db-extension-audit.yml
 - db-extension-check.yml
 - deploy-artifact.yml
+- docs-auto-update.yml
 - dreamengin-preflight.yml
 - elite-gameengin-evolution.yml
-- engin-branding.yml
-- engin-code.yml
-- engin-content.yml
-- engin-game.yml
-- engin-lab.yml
-- engin-starmaker.yml
+- engin-all.yml
 - exportrepo.yml
 - game-engin-patrol.yml
 - game-library-research.yml
 - gameengin-ai-agent.yml
+- gameengin-artisan.yml
+- gameengin-maestro.yml
+- gameengin-mechanic.yml
+- gameengin-prophet.yml
+- gameengin-upgrader.yml
+- gameengin-writer.yml
 - games-library-ai-agent.yml
 - garbageman.yml
 - generatesupabasetypes.yml
@@ -466,12 +458,7 @@ vitest@^4.1.0
 - spec-engin-ai-agent.yml
 - sql-migration-guard.yml
 - sync-build-memory.yml
-- update-bugs.yml
 - update-embed-feed.yml
-- update-handoff.yml
-- update-readme.yml
-- update-repo-state.yml
-- vercel-build-probe.yml
 - vercel-deploy.yml
 
 ## Configuration Files
@@ -494,7 +481,7 @@ vitest@^4.1.0
 
 ### Next.js App Router Architecture
 
-96 Server Components, 30 Client Components
+99 Server Components, 30 Client Components
 
 ### Supabase Backend
 
@@ -552,6 +539,7 @@ Using Supabase for database, auth, and storage
 - react-dnd-html5-backend
 - tailwindcss
 - tailwindcss-animate
+- tsx
 
 ## 2026 Standards Compliance
 
@@ -572,6 +560,7 @@ Using Supabase for database, auth, and storage
 ### Medium Priority
 
 - 🟡 Review and remove redundant code
+- 🟡 Fix 12 failing tests
 
 ### Low Priority
 
@@ -582,4 +571,4 @@ Using Supabase for database, auth, and storage
 ---
 
 *This document is automatically generated by `scripts/analyze-repo-state.mjs`*
-*Last updated: 4/16/2026, 10:40:33 PM*
+*Last updated: 4/18/2026, 10:17:14 AM*
