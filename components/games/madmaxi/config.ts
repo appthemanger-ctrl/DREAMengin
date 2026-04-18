@@ -6,7 +6,7 @@ export const STAR_SEED_PRIME = 7919;
 export const STAR_SEED_OFFSET = 13;
 export const EXTRA_POWERUP_EVERY_N_LEVELS = 3;
 export const BOSS_ENRAGE_THRESHOLD = 0.5;
-export const BOSS_ENRAGE_MULTIPLIER = 1.5;
+export const BOSS_ENRAGE_MULTIPLIER = 1.2;
 
 export const MADMAXI_ENEMY_KINDS = [
   'runner',
@@ -50,7 +50,7 @@ export function isBossLevel(level: number): boolean {
 export function getMadmaxiEnemyCount(level: number): number {
   if (isBossLevel(level)) return 1;
   const bandSlot = ((Math.max(1, level) - 1) % 10) + 1;
-  return Math.min(10, bandSlot + 1);
+  return Math.min(8, Math.max(2, bandSlot));
 }
 
 export function getEnemyKindForIndex(index: number, level: number): MadmaxiEnemyKind {

@@ -61,7 +61,8 @@ const nextConfig = {
             value: [
               "default-src 'self'",
               // unsafe-inline needed for Next.js inline scripts (RSC streaming, hydration data)
-              "script-src 'self' 'unsafe-inline'",
+              // wasm-unsafe-eval allows WebAssembly.instantiate without enabling general eval()
+              "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://i.ytimg.com https://*.scdn.co",
