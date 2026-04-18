@@ -1,0 +1,17 @@
+{
+  "name": "Low-Poly Silhouette First",
+  "category": "modeling",
+  "description": "Block out the readable outline of an asset using as few polygons as possible before adding any surface detail.",
+  "when_to_use": "Any character, prop, or environment piece that must be recognisable at gameplay distance.",
+  "conceptual_steps": [
+    "Establish silhouette in 50-300 polys against a solid background.",
+    "Verify recognisability at 64 px height (gameplay scale).",
+    "Only after the silhouette reads correctly, add bevels, panels, and surface-level detail.",
+    "Bake high-poly detail into normal maps where polycount budgets are tight."
+  ],
+  "tradeoffs": "Iteration speed vs visual fidelity. Block-out cost is low; refactoring a fully-detailed mesh is expensive.",
+  "references": [
+    "Brackeys silhouette readability tutorials",
+    "Riot Games champion silhouette breakdowns"
+  ]
+}

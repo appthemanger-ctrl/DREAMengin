@@ -30,6 +30,7 @@
     "gameengin:mechanic": "tsx scripts/gameengin/mechanic-run.ts",
     "gameengin:artisan": "tsx scripts/gameengin/artisan-run.ts",
     "gameengin:writer": "tsx scripts/gameengin/writer-run.ts",
+    "gameengin:upgrader": "tsx scripts/gameengin/upgrader-run.ts",
     "gameengin:package": "tsx scripts/gameengin/package-cartridge.ts"
   },
   "dependencies": {

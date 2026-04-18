@@ -115,3 +115,135 @@ describe('GameEngin spec — TAR + magic bytes (§1.1, §5.5)', () => {
     expect(hasCartridgeMagic(new Uint8Array([0, 0, 0, 0]))).toBe(false);
   });
 });
+
+// ---------------------------------------------------------------------------
+// v2 — Expanded agent profiles
+// ---------------------------------------------------------------------------
+
+import {
+  listCartridges,
+  listTechniques,
+  listMaterialRecipes,
+  listCompositionPrinciples,
+  readCharacterVoice,
+  readEmotionalTone,
+  listEmotionalTones,
+  listDialoguePatterns,
+  readNarrativePacing,
+  readUpgradeRules,
+  recordBuild,
+  recordAssetGeneration,
+  recordAssignments,
+  recordUpgrade,
+  getLastTouched,
+} from '@/lib/gameengin/brain-reader';
+
+describe('GameEngin spec v2 — Artisan brain layers', () => {
+  it('seeds at least one technique per category (modeling/lighting/optimization)', () => {
+    const techs = listTechniques();
+    const cats = new Set(techs.map((t) => t.category));
+    expect(cats.has('modeling')).toBe(true);
+    expect(cats.has('lighting')).toBe(true);
+    expect(cats.has('optimization')).toBe(true);
+  });
+
+  it('seeds at least 3 material recipes', () => {
+    expect(listMaterialRecipes().length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('seeds at least 2 composition principles', () => {
+    expect(listCompositionPrinciples().length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe('GameEngin spec v2 — Writer brain layers', () => {
+  it('reads the Mad Maxi character voice', () => {
+    const voice = readCharacterVoice('mad-maxi');
+    expect(voice).not.toBeNull();
+    expect(voice!.character).toBe('Mad Maxi');
+    expect(voice!.vocabulary.preferred.length).toBeGreaterThan(0);
+  });
+
+  it('seeds the 5 canonical emotional tones', () => {
+    const tones = listEmotionalTones();
+    const names = tones.map((t) => t.tone);
+    for (const t of ['hopeful', 'weary', 'determined', 'reflective', 'fierce']) {
+      expect(names).toContain(t);
+    }
+    expect(readEmotionalTone('hopeful')).not.toBeNull();
+  });
+
+  it('seeds at least 3 dialogue patterns', () => {
+    expect(listDialoguePatterns().length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('exposes a default narrative pacing curve', () => {
+    const p = readNarrativePacing();
+    expect(p.tone_rotation.length).toBeGreaterThanOrEqual(5);
+    expect(p.beat_interval_levels).toBeGreaterThan(0);
+  });
+});
+
+describe('GameEngin spec v2 — Maestro / Mechanic / Upgrader operational memory', () => {
+  it('listCartridges discovers Mad Maxi via MANIFEST.json', () => {
+    const ids = listCartridges();
+    expect(ids).toContain('mad-maxi');
+  });
+
+  it('upgrade prioritization rules are well-formed', () => {
+    const rules = readUpgradeRules();
+    expect(rules.weights.days_since_last_touch).toBeGreaterThan(0);
+    expect(rules.tier_multipliers.flagship).toBeGreaterThan(rules.tier_multipliers.archived);
+    expect(rules.min_dispatch_score).toBeGreaterThan(0);
+  });
+
+  it('recordBuild / recordAssetGeneration / recordAssignments / recordUpgrade write valid JSON files', () => {
+    const buildPath = recordBuild({
+      cartridge_id: '__test__',
+      source: 'assembly/__test__-player.ts',
+      bytes: 1234,
+      success: true,
+      mechanics_referenced: ['coyote-time'],
+      optimisation_flags: ['--shrinkLevel', '2'],
+    });
+    expect(fs.existsSync(buildPath)).toBe(true);
+    const buildEntry = JSON.parse(fs.readFileSync(buildPath, 'utf-8'));
+    expect(buildEntry.cartridge_id).toBe('__test__');
+    expect(buildEntry.built_at).toMatch(/^\d{4}-/);
+
+    const assetPath = recordAssetGeneration({
+      cartridge_id: '__test__',
+      asset: 'cover_art',
+      prompt_manifest_hash: 'deadbeef',
+      techniques_applied: ['technique:Edge Flow for Deformable Meshes'],
+      submitted_to: 'none',
+      output_url: null,
+    });
+    expect(fs.existsSync(assetPath)).toBe(true);
+
+    const wqPath = recordAssignments(
+      [{ cartridge_id: '__test__', agent: 'prophet', reason: 'unit-test', last_touched_at: null, dispatched: false }],
+      ['__test__'],
+    );
+    expect(fs.existsSync(wqPath)).toBe(true);
+
+    const upPath = recordUpgrade({
+      cartridge_id: '__test__',
+      upgrade_targets: ['mechanics'],
+      priority_scores: { mechanics: 0.9 },
+      dispatched_agents: ['mechanic'],
+      backward_compatibility_checks: ['manifest_present:true'],
+    });
+    expect(fs.existsSync(upPath)).toBe(true);
+
+    // Cleanup test artefacts to keep the brain tidy across runs.
+    fs.rmSync(buildPath, { force: true });
+    fs.rmSync(assetPath, { force: true });
+    fs.rmSync(wqPath, { force: true });
+    fs.rmSync(path.dirname(upPath), { recursive: true, force: true });
+  });
+
+  it('getLastTouched returns null for an agent that has not touched a cartridge', () => {
+    expect(getLastTouched('__never-existed__', 'prophet')).toBeNull();
+  });
+});

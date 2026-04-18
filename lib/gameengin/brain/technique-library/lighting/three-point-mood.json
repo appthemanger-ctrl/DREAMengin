@@ -1,0 +1,17 @@
+{
+  "name": "Three-Point Lighting with Mood Tint",
+  "category": "lighting",
+  "description": "Classic key + fill + rim lighting setup, with the fill light tinted toward the cartridge's emotional palette to set mood without crushing readability.",
+  "when_to_use": "Any cinematic, intro, or close-up scene; also works for portrait-style menus.",
+  "conceptual_steps": [
+    "Place key light 30-45° off camera axis, intensity 1.0.",
+    "Place fill light opposite the key, intensity 0.3-0.5, tinted toward the emotional palette (e.g. magenta for tension, soft amber for calm).",
+    "Place rim light behind the subject, intensity 0.8, slightly cooler than key for separation.",
+    "Adjust shadow softness so the key cast shadow is crisp and the fill cast shadow is barely visible."
+  ],
+  "tradeoffs": "Three real-time lights is fine on desktop; bake to lightmaps for mobile-tier hardware.",
+  "references": [
+    "ASC Manual ch. 4 (cinematography)",
+    "Unreal Engine lighting documentation"
+  ]
+}

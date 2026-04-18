@@ -1,0 +1,17 @@
+{
+  "name": "Sun-Bleached Sandstone",
+  "surface_type": "stone",
+  "pbr": {
+    "base_color_hex": "#c8981a",
+    "metallic": 0.0,
+    "roughness": 0.92,
+    "ao_intensity": 0.9
+  },
+  "texture_inputs": [
+    "albedo: warm ochre with pale wind-erosion streaks",
+    "roughness: uniform high; slight variation along erosion grain",
+    "normal: gentle wind-carved curves, no sharp edges"
+  ],
+  "tinting_guidance": "Lift highlights toward bone-white at noon; deepen shadows toward burnt-sienna at dusk.",
+  "use_cases": ["wasteland cliffs", "ruined columns", "dune surfaces"]
+}

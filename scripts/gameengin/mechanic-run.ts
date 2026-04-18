@@ -14,7 +14,7 @@ import { execFileSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import { logRDSession, listMechanics } from '../../lib/gameengin/brain-reader.js';
+import { logRDSession, listMechanics, recordBuild } from '../../lib/gameengin/brain-reader.js';
 
 const MAX_WASM_BYTES = 500 * 1024;
 
@@ -50,6 +50,16 @@ async function main() {
   const compile = compileAS(cartridgeId);
   const oversize = compile.bytes !== undefined && compile.bytes > MAX_WASM_BYTES;
 
+  const buildPath = recordBuild({
+    cartridge_id: cartridgeId,
+    source: `assembly/${cartridgeId}-player.ts`,
+    bytes: compile.bytes ?? null,
+    success: compile.compiled && !oversize,
+    mechanics_referenced: mechanics.map((m) => m.name),
+    optimisation_flags: ['--optimizeLevel', '3', '--shrinkLevel', '2', '--enable', 'simd', '--enable', 'bulk-memory'],
+    reason: compile.reason,
+  });
+
   const result = {
     cartridge_id: cartridgeId,
     tuning_present: tuning !== null,
@@ -57,6 +67,7 @@ async function main() {
     compile,
     wasm_within_budget: !oversize,
     max_wasm_bytes: MAX_WASM_BYTES,
+    build_history_entry: path.relative(process.cwd(), buildPath),
     generated_at: new Date().toISOString(),
   };
 

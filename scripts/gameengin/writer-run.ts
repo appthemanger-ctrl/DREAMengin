@@ -16,7 +16,13 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import { logRDSession } from '../../lib/gameengin/brain-reader.js';
+import {
+  logRDSession,
+  readCharacterVoice,
+  readEmotionalTone,
+  readNarrativePacing,
+  listDialoguePatterns,
+} from '../../lib/gameengin/brain-reader.js';
 
 interface StoryBeat {
   id: string;
@@ -60,23 +66,47 @@ async function main() {
     ? JSON.parse(fs.readFileSync(beatsPath, 'utf-8'))
     : { cartridge_id: cartridgeId, beats: [] };
 
+  const pacing = readNarrativePacing();
+  const voice = readCharacterVoice(cartridgeId);
   const nextIdx = beats.beats.length;
-  const emotion = DEFAULT_EMOTIONS[nextIdx % DEFAULT_EMOTIONS.length];
-  const prompt = `Write a 2-sentence voiceover for the protagonist of "${cartridgeId}", ` +
-                 `emotion: ${emotion}, max 22 words total, no exclamation marks.`;
+  const emotion = pacing.tone_rotation[nextIdx % pacing.tone_rotation.length] ?? DEFAULT_EMOTIONS[nextIdx % DEFAULT_EMOTIONS.length];
+  const tone = readEmotionalTone(emotion);
+  const patterns = listDialoguePatterns();
+  const triggerLevel = (nextIdx + 1) * pacing.beat_interval_levels;
+
+  // Build a voice/tone-aware prompt the LLM (or human) can act on.
+  const voiceLines = voice
+    ? `Voice: ${voice.voice_summary}. Prefer: ${voice.vocabulary.preferred.join(', ')}. Avoid: ${voice.vocabulary.avoided.join(', ')}.`
+    : `Voice: protagonist of "${cartridgeId}".`;
+  const toneLines = tone
+    ? `Tone "${tone.tone}": ${tone.definition} Lean: ${tone.vocabulary_lean.join(', ')}. Avoid: ${tone.vocabulary_avoid.join(', ')}.`
+    : `Tone: ${emotion}.`;
+  const prompt = `${voiceLines}\n${toneLines}\nWrite a 2-sentence voiceover beat. Max 22 words. No exclamation marks.`;
+
   const text = await maybeText(prompt);
+  // Local fallback: synthesise a beat from the tone's example_lines, applied to character voice.
+  const fallback = tone?.example_lines?.[nextIdx % (tone.example_lines.length || 1)] ?? null;
+
   const beat: StoryBeat = {
     id: `${cartridgeId}-beat-${nextIdx + 1}`,
-    trigger: `level_complete_${(nextIdx + 1) * 10}`,
+    trigger: `level_complete_${triggerLevel}`,
     emotion,
-    text: text ?? `[pending: no LLM key configured for "${cartridgeId}"]`,
+    text: text ?? fallback ?? `[pending: no LLM key configured for "${cartridgeId}"]`,
     voice_pending: !process.env.ELEVENLABS_API_KEY,
     generated_at: new Date().toISOString(),
   };
   beats.beats.push(beat);
   fs.writeFileSync(beatsPath, JSON.stringify(beats, null, 2));
 
-  const out = { cartridge_id: cartridgeId, added_beat: beat, total_beats: beats.beats.length };
+  const out = {
+    cartridge_id: cartridgeId,
+    added_beat: beat,
+    total_beats: beats.beats.length,
+    voice_loaded: voice !== null,
+    tone_loaded: tone !== null,
+    dialogue_patterns_available: patterns.length,
+    pacing_version: pacing.version,
+  };
   fs.writeFileSync(
     path.join(process.cwd(), '.gameengin-writer-output.json'),
     JSON.stringify(out, null, 2),

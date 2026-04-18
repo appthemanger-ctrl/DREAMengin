@@ -1,0 +1,18 @@
+{
+  "name": "Neon Glass Tube",
+  "surface_type": "emissive",
+  "pbr": {
+    "base_color_hex": "#0ff",
+    "metallic": 0.0,
+    "roughness": 0.15,
+    "emissive_color_hex": "#0ff",
+    "emissive_intensity": 2.5,
+    "alpha": 0.75
+  },
+  "texture_inputs": [
+    "albedo: near-white with subtle hue shift toward emissive colour at edges",
+    "emissive: pulse mask at 0.5-1.0 Hz for living-neon feel"
+  ],
+  "tinting_guidance": "Cyan and magenta pair well in the same scene; avoid yellow-green which reads as toxic.",
+  "use_cases": ["Mad Maxi visor glow", "wasteland graffiti strips", "interactable triggers"]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Leading Lines + Landmark",
+  "principle": "Use natural lines (paths, lighting strips, broken architecture) to guide the player's eye to a memorable landmark that anchors the level.",
+  "when_to_use": "Any new biome introduction or critical decision point.",
+  "rules_of_thumb": [
+    "One landmark per screen at gameplay distance.",
+    "Landmark silhouette must read in a single glance under one second.",
+    "Leading lines should converge on the landmark from at least two directions.",
+    "Negative space around the landmark = at least 25 % of its bounding box."
+  ],
+  "anti_patterns": [
+    "Multiple competing landmarks confuse navigation.",
+    "Leading lines that point off-screen with no payoff."
+  ]
+}
