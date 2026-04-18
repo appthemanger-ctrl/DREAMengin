@@ -77,7 +77,7 @@ At that point the spec file no longer changes and the 15-minute job becomes a no
 ### ✅ Audio Pipeline
 - **Target level:** Low-latency, spatially coherent audio with stable mixing under load.
 - **Repo status:** ✅ IMPLEMENTED (1/1 checks pass)
-- **Web research coverage:** Research coverage partial (50%)
+- **Web research coverage:** Research coverage strong (100%)
 - **Must be specified:**
   - Voice/music/SFX channel budget and ducking strategy.
   - Spatial audio and occlusion policy tied to gameplay state.
@@ -149,8 +149,8 @@ At that point the spec file no longer changes and the 15-minute job becomes a no
 
 ## Source Research Snapshot
 
-- Successful fetches: **14**
-- Failed fetches: **1**
+- Successful fetches: **15**
+- Failed fetches: **0**
 
 | Area | Source | Status | URL |
 |---|---|---|---|
@@ -161,7 +161,7 @@ At that point the spec file no longer changes and the 15-minute job becomes a no
 | performance | web.dev: Rendering performance | ok | https://web.dev/articles/rendering-performance |
 | input | MDN: Gamepad API | ok | https://developer.mozilla.org/en-US/docs/Web/API/Gamepad_API |
 | input | MDN: Pointer Events | ok | https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events |
-| audio | MDN: Web Audio API | fetch failed | https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API |
+| audio | MDN: Web Audio API | ok | https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API |
 | networking | MDN: WebRTC API | ok | https://developer.mozilla.org/en-US/docs/Web/API/WebRTC_API |
 | networking | MDN: WebTransport API | ok | https://developer.mozilla.org/en-US/docs/Web/API/WebTransport_API |
 | storage | MDN: IndexedDB API | ok | https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API |
@@ -169,10 +169,6 @@ At that point the spec file no longer changes and the 15-minute job becomes a no
 | resilience | MDN: OffscreenCanvas | ok | https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas |
 | mobile | web.dev: Baseline | ok | https://web.dev/baseline |
 | quality | MDN: Performance API | ok | https://developer.mozilla.org/en-US/docs/Web/API/Performance_API |
-
-## Recovery Tasks (auto-maintained)
-
-- Re-check source availability and alternate references for **MDN: Web Audio API** (https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API).
 
 ## AI Dev Application Checklist for DREAMengin
 
