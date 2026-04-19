@@ -23,8 +23,6 @@ import {
   isActiveCartridge,
 } from '@/lib/gameengin/brain-reader';
 
-export const runtime = 'nodejs';
-
 const ALLOWED_KEYS = new Set([
   'cartridge_id',
   'player_statement',
