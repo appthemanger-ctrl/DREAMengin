@@ -74,9 +74,9 @@ Canonical spec: `docs/ACTIVITY_FIRST_PROTOCOL.md` — Active Platform Law (2026-
 | Module | Status | Repo truth |
 |---|---|---|
 | DreamShell layer | ✅ | `components/dreams/dreamsurface.shell.tsx` exists. |
-| Connector/Identity layer | ✅ | `components/dreams/dreams.connectorlayer.tsx` exists. |
-| Feature layer | ✅ | `components/dreams/dreams.featurelayer.tsx` exists. |
-| Output/Projection layer | ✅ | `components/dreams/dreams.outputlayer.tsx` exists. |
+| Connector/Identity layer | ✅ | `components/dreams/dream.connectorlayer.tsx` exists. |
+| Feature layer | ✅ | `components/dreams/dream.featurelayer.tsx` exists. |
+| Output/Projection layer | ✅ | `components/dreams/dream.outputlayer.tsx` exists. |
 | Legacy widget absorption into Dreams naming | ✅ | `components/widgets/*` repurposed; v1-ui layer archived. `types/dream-window.ts` is the single type authority. |
 | Automatic Super Widget composition | ✅ | `components/dreams/SuperDreamWidget.tsx` has real cluster composition rules (StarMaker, GameSphere, BrandDream, LabCode, ContentStream). |
 

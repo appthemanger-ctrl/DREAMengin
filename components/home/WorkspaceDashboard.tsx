@@ -9,7 +9,7 @@ import HomeFeed from '@/components/HomeFeed';
 import BrandLogo from '@/components/BrandLogo';
 import DaydreamPulseStrip from '@/components/home/DaydreamPulseStrip';
 import ActiveModuleSurface from '@/components/home/ActiveModuleSurface';
-import DreamRSection from '@/dreamdmbar/homedream/dreamr/DreamRSection';
+import DreamRSection from '@/dreamdmbar/homedream/dreamr/dreamsurface.dreamr';
 import { useNotifications } from '@/lib/notifications/useNotifications';
 import { isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
 

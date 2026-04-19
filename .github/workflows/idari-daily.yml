@@ -141,9 +141,9 @@ jobs:
           echo "-- Dream layers --"
           for f in \
             "components/dreams/dreamsurface.shell.tsx" \
-            "components/dreams/dreams.connectorlayer.tsx" \
-            "components/dreams/dreams.featurelayer.tsx" \
-            "components/dreams/dreams.outputlayer.tsx"; do
+            "components/dreams/dream.connectorlayer.tsx" \
+            "components/dreams/dream.featurelayer.tsx" \
+            "components/dreams/dream.outputlayer.tsx"; do
             if [ ! -f "$f" ]; then
               echo "MISSING: $f"
               GAPS="$GAPS\n- MISSING Dream layer: $f"

@@ -12,7 +12,7 @@ import { getRendererBackend } from '@/lib/webgpu';
    when the user actually visits this page. SSR is disabled because
    Three.js / WebGL need the browser's <canvas>. */
 const DreamScene = dynamic(
-  () => import('@/components/three/dreams.scene').then((m) => m.DreamScene),
+  () => import('@/components/three/dream.scene').then((m) => m.DreamScene),
   { ssr: false },
 );
 

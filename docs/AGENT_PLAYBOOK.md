@@ -273,9 +273,9 @@ This section maps the most important files and what they do. Read this before se
 | `components/menus/*` | DreamMenu system (left: Daydreams, right: settings) |
 | `components/dreamnav/*` | Dream navigation components |
 | `components/dreams/dreamsurface.shell.tsx` | Layer 1 — visual shell, naming, size, placement |
-| `components/dreams/dreams.connectorlayer.tsx` | Layer 2 — auth state, provider identity |
-| `components/dreams/dreams.featurelayer.tsx` | Layer 3 — active modules per connector |
-| `components/dreams/dreams.outputlayer.tsx` | Layer 4 — saved profile‑safe output |
+| `components/dreams/dream.connectorlayer.tsx` | Layer 2 — auth state, provider identity |
+| `components/dreams/dream.featurelayer.tsx` | Layer 3 — active modules per connector |
+| `components/dreams/dream.outputlayer.tsx` | Layer 4 — saved profile‑safe output |
 | `components/dreams/SuperDreamWidget.tsx` | Automated full‑stack Dream composition |
 | `components/home/*` | HomeDream‑specific components |
 | `components/profile/*` | Profile components (EditProfileDream / ViewProfile) |

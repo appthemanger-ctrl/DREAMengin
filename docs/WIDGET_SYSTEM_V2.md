@@ -99,9 +99,9 @@ They are distinct from platform-run promotions and should stay distinct in namin
 
 ### Canonical Dream-layer files
 - `components/dreams/dreamsurface.shell.tsx`
-- `components/dreams/dreams.connectorlayer.tsx`
-- `components/dreams/dreams.featurelayer.tsx`
-- `components/dreams/dreams.outputlayer.tsx`
+- `components/dreams/dream.connectorlayer.tsx`
+- `components/dreams/dream.featurelayer.tsx`
+- `components/dreams/dream.outputlayer.tsx`
 - `components/dreams/SuperDreamWidget.tsx`
 
 ### Legacy implementation material still being absorbed
