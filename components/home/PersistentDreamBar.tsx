@@ -20,7 +20,7 @@
 
 import { useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import DreamDMBar from '@/dreamdmbar/DreamDMBar';
+import DreamDMBar from '@/dreamdmbar/dreamsurface.dreamdmbar';
 import NeuralSeamCanvas from '@/components/home/NeuralSeamCanvas';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import { runHomeAction } from '@/lib/home-buttons/contextual-home';

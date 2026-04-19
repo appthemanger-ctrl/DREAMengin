@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-19T05:10:07.157Z",
+  "generated_at": "2026-04-19T16:50:46.432Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 121,
+  "count": 119,
   "surfaces": [
     {
       "type": "page",
@@ -1271,18 +1271,6 @@
       "name": "DaydreamShell",
       "file": "components/daydream/DaydreamShell.tsx",
       "owner": "Landing/world designer"
-    },
-    {
-      "type": "component",
-      "name": "DreamDMBar",
-      "file": "components/DreamDMBar.tsx",
-      "owner": "DreamDM Bar designer"
-    },
-    {
-      "type": "component",
-      "name": "DreamsSpacePanel",
-      "file": "components/dreams/DreamsSpacePanel.tsx",
-      "owner": "DreamDM Bar designer"
     },
     {
       "type": "component",

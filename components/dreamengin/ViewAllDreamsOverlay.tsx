@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useDreamNav } from '@/components/dreamnav/DreamNavSurface6';
+import { useDreamNav } from '@/components/dreamnav/dreamsurface.dreamnav';
 import type { Node } from '@/lib/dreamnav/delta';
 import { dispatchTauPath, findTauPath } from '@/lib/dreamnav/path';
 

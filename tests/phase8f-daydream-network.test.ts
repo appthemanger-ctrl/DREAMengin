@@ -531,7 +531,7 @@ describe('Point 57 — Multi-connection: BrandingEngin connects to ContentEngin'
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('Point 58 — All 6 Daydream tiles in DreamsSpacePanel have live routes', () => {
-  const panelFile = 'components/dreams/DreamsSpacePanel.tsx';
+  const panelFile = 'components/dreams/dreamsurface.dreamspace.tsx';
 
   const EXPECTED_ROUTES = [
     '/daydream/music',

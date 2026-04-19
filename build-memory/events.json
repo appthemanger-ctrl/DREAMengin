@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-19T05:10:07.157Z",
+  "generated_at": "2026-04-19T16:50:46.432Z",
   "generator": "scripts/sync-build-memory.mjs",
   "count": 22,
   "events": [
@@ -140,7 +140,7 @@
         "components/home/NeuralSeamCanvas.tsx",
         "components/home/WorkspaceDashboard.tsx",
         "components/runtime/RuntimeShell.tsx",
-        "dreamdmbar/DreamDMBar.tsx",
+        "dreamdmbar/dreamsurface.dreamdmbar.tsx",
         "dreamdmbar/homedream/WorkspaceDashboard.tsx"
       ]
     },

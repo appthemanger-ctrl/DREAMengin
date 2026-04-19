@@ -23,10 +23,6 @@ import {
   isActiveCartridge,
 } from '@/lib/gameengin/brain-reader';
 
-// Note: `export const runtime = 'nodejs'` was removed because it is incompatible
-// with `nextConfig.cacheComponents: true` in Next.js 16. Route handlers default
-// to the Node runtime, so behavior is unchanged.
-
 const ALLOWED_KEYS = new Set([
   'cartridge_id',
   'player_statement',
