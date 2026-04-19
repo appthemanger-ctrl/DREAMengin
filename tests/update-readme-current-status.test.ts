@@ -48,4 +48,55 @@ Build Status: keep-this
     expect(output).toContain('- Node 25');
     expect(output).toContain('## Another Section\nBuild Status: keep-this');
   });
+
+  it('replaces an existing italic last-updated line under the H1 instead of stacking new ones', () => {
+    const input = `# DreamENGIN
+
+_Last updated: 2026-04-18 13:43 UTC — \`a7cdd3a\` by appthemanger-ctrl_
+
+<!-- DREAMENGIN-AI-CONTEXT:START -->
+## 🤖 AI Agent Quick Reference
+some content
+<!-- DREAMENGIN-AI-CONTEXT:END -->
+`;
+
+    const output = refreshCurrentImplementationStatusSection(input, {
+      utcDate: '2026-04-19 04:13 UTC',
+      sha: '50e72fe',
+      actor: 'appthemanger-ctrl',
+    });
+
+    const matches = output.match(/^_Last updated:[^\n]*_$/gm) || [];
+    expect(matches).toHaveLength(1);
+    expect(output).toContain('_Last updated: 2026-04-19 04:13 UTC — `50e72fe` by appthemanger-ctrl_');
+    expect(output).not.toContain('a7cdd3a');
+  });
+
+  it('collapses multiple stacked last-updated lines into a single fresh one', () => {
+    const input = `# DreamENGIN
+
+_Last updated: 2026-04-19 04:13 UTC — \`50e72fe\` by appthemanger-ctrl_
+
+_Last updated: 2026-04-18 13:43 UTC — \`a7cdd3a\` by appthemanger-ctrl_
+
+_Last updated: 2026-04-18 10:16 UTC — \`0b088c9\` by appthemanger-ctrl_
+
+<!-- DREAMENGIN-AI-CONTEXT:START -->
+content
+<!-- DREAMENGIN-AI-CONTEXT:END -->
+`;
+
+    const output = refreshCurrentImplementationStatusSection(input, {
+      utcDate: '2026-04-20 09:00 UTC',
+      sha: 'deadbee',
+      actor: 'idari',
+    });
+
+    const matches = output.match(/^_Last updated:[^\n]*_$/gm) || [];
+    expect(matches).toHaveLength(1);
+    expect(matches[0]).toBe('_Last updated: 2026-04-20 09:00 UTC — `deadbee` by idari_');
+    expect(output).not.toContain('a7cdd3a');
+    expect(output).not.toContain('0b088c9');
+    expect(output).not.toContain('50e72fe');
+  });
 });
