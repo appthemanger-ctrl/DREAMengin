@@ -4,10 +4,10 @@ import { join } from 'path';
 import {
   buildRecentDestinations,
   getAppRoute,
-} from '@/components/dreams/DreamsSpacePanel';
+} from '@/components/dreams/dreamsurface.dreamspace';
 
 const root = process.cwd();
-const src = readFileSync(join(root, 'components/dreams/DreamsSpacePanel.tsx'), 'utf-8');
+const src = readFileSync(join(root, 'components/dreams/dreamsurface.dreamspace.tsx'), 'utf-8');
 
 describe('DreamSpace panel evolution', () => {
   it('surfaces DreamSpace as the visible panel title', () => {

@@ -241,7 +241,7 @@ describe('Phase 8 §B Point 17 — SuperDreamWidget real composition', () => {
 describe('Phase 8 §B Point 18 — widget shims forward to Dream Window equivalents', () => {
   it('WidgetShell re-exports from DreamShell', async () => {
     const widgetShell = await import('@/components/widgets/WidgetShell');
-    const dreamShell = await import('@/components/dreams/DreamShell');
+    const dreamShell = await import('@/components/dreams/dreamsurface.shell');
     // Both should export a default function
     expect(typeof widgetShell.default).toBe('function');
     expect(typeof dreamShell.default).toBe('function');

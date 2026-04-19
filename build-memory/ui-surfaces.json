@@ -1275,13 +1275,13 @@
     {
       "type": "component",
       "name": "DreamDMBar",
-      "file": "components/DreamDMBar.tsx",
+      "file": "components/dreamsurface.dreamdmbar-shim.tsx",
       "owner": "DreamDM Bar designer"
     },
     {
       "type": "component",
       "name": "DreamsSpacePanel",
-      "file": "components/dreams/DreamsSpacePanel.tsx",
+      "file": "components/dreams/dreamsurface.dreamspace.tsx",
       "owner": "DreamDM Bar designer"
     },
     {

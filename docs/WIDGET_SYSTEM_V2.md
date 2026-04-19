@@ -98,10 +98,10 @@ They are distinct from platform-run promotions and should stay distinct in namin
 ## 7. Current repo mapping
 
 ### Canonical Dream-layer files
-- `components/dreams/DreamShell.tsx`
-- `components/dreams/DreamConnectorLayer.tsx`
-- `components/dreams/DreamFeatureLayer.tsx`
-- `components/dreams/DreamOutputLayer.tsx`
+- `components/dreams/dreamsurface.shell.tsx`
+- `components/dreams/dream.connectorlayer.tsx`
+- `components/dreams/dream.featurelayer.tsx`
+- `components/dreams/dream.outputlayer.tsx`
 - `components/dreams/SuperDreamWidget.tsx`
 
 ### Legacy implementation material still being absorbed

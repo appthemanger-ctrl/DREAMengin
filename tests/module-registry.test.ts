@@ -131,7 +131,7 @@ describe('DraggableModule component', () => {
 
 describe('DreamWidgetGrid integration', () => {
   const gridSrc = readFileSync(
-    resolve(__dirname, '../components/home/DreamWidgetGrid.tsx'),
+    resolve(__dirname, '../components/home/dreamsurface.homedream-grid.tsx'),
     'utf-8',
   );
 

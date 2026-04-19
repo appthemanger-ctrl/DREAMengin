@@ -140,7 +140,7 @@
         "components/home/NeuralSeamCanvas.tsx",
         "components/home/WorkspaceDashboard.tsx",
         "components/runtime/RuntimeShell.tsx",
-        "dreamdmbar/DreamDMBar.tsx",
+        "dreamdmbar/dreamsurface.dreamdmbar.tsx",
         "dreamdmbar/homedream/WorkspaceDashboard.tsx"
       ]
     },

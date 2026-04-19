@@ -20,7 +20,7 @@ describe('HomeDream home surface', () => {
   );
   // Authoritative DreamDMBar (in dreamdmbar/ directory)
   const dreamDmBar = readFileSync(
-    resolve(__dirname, '../dreamdmbar/DreamDMBar.tsx'),
+    resolve(__dirname, '../dreamdmbar/dreamsurface.dreamdmbar.tsx'),
     'utf8',
   );
   // Shell-First: the persistent bar wrapper that lives in app/layout.tsx

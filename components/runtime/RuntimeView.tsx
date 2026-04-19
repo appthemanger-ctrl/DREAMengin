@@ -18,7 +18,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
 import WorkspaceDashboard from '@/dreamdmbar/homedream/WorkspaceDashboard';
-import DreamsSpacePanel from '@/components/dreams/DreamsSpacePanel';
+import DreamsSpacePanel from '@/components/dreams/dreamsurface.dreamspace';
 import RuntimeShell from '@/components/runtime/RuntimeShell';
 import type { RuntimeRegion } from '@/lib/identity/canonical-names';
 

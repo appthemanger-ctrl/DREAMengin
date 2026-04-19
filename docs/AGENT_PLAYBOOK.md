@@ -266,16 +266,16 @@ This section maps the most important files and what they do. Read this before se
 
 | File | Purpose |
 |------|---------|
-| `dreamdmbar/DreamDMBar.tsx` | Persistent pill‑shaped root container (the bar) |
+| `dreamdmbar/dreamsurface.dreamdmbar.tsx` | Persistent pill‑shaped root container (the bar) |
 | `dreamdmbar/homedream/HomeDream.tsx` | Top runtime (HomeDream) |
 | `dreamdmbar/dreamspace/DreamSpace.tsx` | Bottom runtime (DreamSpace) |
 | `components/HomeRadialNav.tsx` | Gold Particle radial nav (primary travel system) – particle, not button |
 | `components/menus/*` | DreamMenu system (left: Daydreams, right: settings) |
 | `components/dreamnav/*` | Dream navigation components |
-| `components/dreams/DreamShell.tsx` | Layer 1 — visual shell, naming, size, placement |
-| `components/dreams/DreamConnectorLayer.tsx` | Layer 2 — auth state, provider identity |
-| `components/dreams/DreamFeatureLayer.tsx` | Layer 3 — active modules per connector |
-| `components/dreams/DreamOutputLayer.tsx` | Layer 4 — saved profile‑safe output |
+| `components/dreams/dreamsurface.shell.tsx` | Layer 1 — visual shell, naming, size, placement |
+| `components/dreams/dream.connectorlayer.tsx` | Layer 2 — auth state, provider identity |
+| `components/dreams/dream.featurelayer.tsx` | Layer 3 — active modules per connector |
+| `components/dreams/dream.outputlayer.tsx` | Layer 4 — saved profile‑safe output |
 | `components/dreams/SuperDreamWidget.tsx` | Automated full‑stack Dream composition |
 | `components/home/*` | HomeDream‑specific components |
 | `components/profile/*` | Profile components (EditProfileDream / ViewProfile) |
@@ -377,7 +377,7 @@ lib/supabase/env.ts  ←  reads process.env NEXT_PUBLIC_* vars
   └─ used by lib/supabase/browser.ts and lib/supabase/server.ts
        └─ used by all app/api/* routes and auth‑gated pages
 
-dreamdmbar/DreamDMBar.tsx
+dreamdmbar/dreamsurface.dreamdmbar.tsx
   └─ persistent root container, pill‑shaped handle
   └─ contains homedream/HomeDream.tsx (top) and dreamspace/DreamSpace.tsx (bottom)
 

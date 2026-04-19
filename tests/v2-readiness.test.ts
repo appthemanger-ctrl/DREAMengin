@@ -169,7 +169,7 @@ describe('DREAMengin v2.0.0 — legacy route subordination', () => {
 
 describe('DREAMengin v2.0.0 — DreamDMBar routing clean', () => {
   const bar = readFileSync(
-    resolve(__dirname, '../dreamdmbar/DreamDMBar.tsx'),
+    resolve(__dirname, '../dreamdmbar/dreamsurface.dreamdmbar.tsx'),
     'utf8',
   );
 

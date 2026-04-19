@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * components/dreams/DreamsSpacePanel.tsx
+ * components/dreams/dreamsurface.dreamspace.tsx
  *
  * Dreams Space — the DreamSpace world panel.
  *
@@ -30,7 +30,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import UniversalWidget from '@/components/widgets/UniversalWidget';
-import DreamSpace from '@/components/dreamengin/DreamSpace';
+import DreamSpace from '@/components/dreamengin/dreamsurface.dreamspace-runtime';
 import { useDreamsRuntime } from '@/lib/dreams/useDreamsRuntime';
 import {
   computeMomentum,
