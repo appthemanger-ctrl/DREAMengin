@@ -8,7 +8,6 @@ import {
   Color4,
   CubeTexture,
   DirectionalLight,
-  FresnelParameters,
   GlowLayer,
   HemisphericLight,
   Mesh,
@@ -16,7 +15,6 @@ import {
   PBRMaterial,
   PointerEventTypes,
   Scene,
-  StandardMaterial,
   TransformNode,
   Vector3,
 } from '@babylonjs/core';
@@ -49,12 +47,7 @@ function smoothstep(edge0: number, edge1: number, x: number): number {
   return t * t * (3 - 2 * t);
 }
 
-function makeIdleCursorTarget(t: number) {
-  return {
-    x: Math.sin(t * 0.55) * 0.22 + Math.sin(t * 1.3) * 0.05,
-    y: Math.cos(t * 0.38) * 0.10 + Math.sin(t * 0.8) * 0.03,
-  };
-}
+// Idle cursor-target helper removed — Dr. Eams now only animates on touch.
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 type Props = {
@@ -139,8 +132,10 @@ export default function DrEamsBabylonHero({
       rim.diffuse = new Color3(0.28, 0.70, 1.0);
 
       // ── Glow ────────────────────────────────────────────────────────────────
-      const glow = new GlowLayer('glow', scene, { blurKernelSize: 24 });
-      glow.intensity = 0.72;
+      // Reduced base intensity + tighter blur kernel to trim the visual halo
+      // around Dr. Eams (per landing-page simplification request).
+      const glow = new GlowLayer('glow', scene, { blurKernelSize: 16 });
+      glow.intensity = 0.40;
 
       // ── Environment (IBL) ───────────────────────────────────────────────────
       scene.environmentTexture = CubeTexture.CreateFromPrefilteredData(
@@ -261,13 +256,7 @@ export default function DrEamsBabylonHero({
       emblemMat.metallic = 0.44;
       emblemMat.roughness = 0.22;
 
-      // Gold orbit rings
-      const goldMat = new PBRMaterial('gold', scene);
-      goldMat.albedoColor = new Color3(0.88, 0.72, 0.24);
-      goldMat.metallic = 1.0;
-      goldMat.roughness = 0.18;
-      goldMat.environmentIntensity = 1.85;
-      goldMat.emissiveColor = new Color3(0.22, 0.16, 0.03);
+      // Gold orbit-ring material removed alongside the orbit toruses.
 
       // [078-079] NECK: Dark blue high-density polymer strut
       const neckMat = new PBRMaterial('neck', scene);
@@ -279,18 +268,7 @@ export default function DrEamsBabylonHero({
       neckMat.clearCoat.intensity = 0.72;
       neckMat.clearCoat.roughness = 0.09;
 
-      // Fresnel ghost rim overlay
-      const ghostRimMat = new StandardMaterial('ghostRim', scene);
-      ghostRimMat.emissiveColor = new Color3(0.83, 0.68, 0.21);
-      ghostRimMat.alpha = 0.22;
-      const fresnelParams = new FresnelParameters();
-      fresnelParams.leftColor = new Color3(0.83, 0.68, 0.21);
-      fresnelParams.rightColor = Color3.Black();
-      fresnelParams.power = 2.5;
-      fresnelParams.bias = 0.08;
-      ghostRimMat.emissiveFresnelParameters = fresnelParams;
-      ghostRimMat.wireframe = false;
-      ghostRimMat.backFaceCulling = false;
+      // Fresnel ghost-rim overlay material removed alongside the rim sphere.
 
       // ══════════════════════════════════════════════════════════════════════════
       // ── ROBOT HIERARCHY — Dr. Eams 111-line spec reconstruction ──────────────
@@ -1245,36 +1223,10 @@ export default function DrEamsBabylonHero({
       shadowDisc.position = new Vector3(0, -0.285, 0);
       shadowDisc.parent = root;
 
-      // ─── GILDED GHOST ORBIT ───────────────────────────────────────────────
-
-      const orbitTorus = MeshBuilder.CreateTorus(
-        'orbitTorus',
-        { diameter: 3.8, thickness: 0.028, tessellation: 64 },
-        scene,
-      );
-      orbitTorus.material = goldMat;
-      orbitTorus.position = new Vector3(0, 1.2, 0);
-      orbitTorus.rotation.x = Math.PI / 3.5;
-
-      const orbitTorus2 = MeshBuilder.CreateTorus(
-        'orbitTorus2',
-        { diameter: 3.2, thickness: 0.020, tessellation: 52 },
-        scene,
-      );
-      orbitTorus2.material = goldMat;
-      orbitTorus2.position = new Vector3(0, 1.2, 0);
-      orbitTorus2.rotation.x = -Math.PI / 4;
-      orbitTorus2.rotation.z = Math.PI / 5;
-
-      // Ghost rim overlay
-      const ghostRimSphere = MeshBuilder.CreateSphere(
-        'ghostRim',
-        { diameter: 1.8, segments: 20 },
-        scene,
-      );
-      ghostRimSphere.material = ghostRimMat;
-      ghostRimSphere.position = new Vector3(0, 1.30, 0);
-      ghostRimSphere.parent = root;
+      // ─── GILDED GHOST ORBIT (removed) ─────────────────────────────────────
+      // The two gold orbit toruses and the ghost-rim sphere were trimmed to
+      // simplify the silhouette around Dr. Eams. The previous code created
+      // `orbitTorus`, `orbitTorus2`, and `ghostRimSphere` here.
 
       // ══════════════════════════════════════════════════════════════════════════
       // ── INTERACTION + ANIMATION ────────────────────────────────────────────
@@ -1348,22 +1300,17 @@ export default function DrEamsBabylonHero({
       // ── Per-frame render loop logic ─────────────────────────────────────────
       scene.onBeforeRenderObservable.add(() => {
         const now = performance.now();
-        const t = now * 0.001;
         const active = now < interactUntil;
-        const idle = makeIdleCursorTarget(t);
-
-        // Orbit torus rotation
-        orbitTorus.rotation.y  = t * 0.38;
-        orbitTorus.position.y = 1.2 + Math.sin(t * 0.52) * 0.05;
-        orbitTorus2.rotation.y = -t * 0.26;
-        orbitTorus2.rotation.x = -Math.PI / 4 + Math.sin(t * 0.18) * 0.12;
-        orbitTorus2.position.y = 1.2 - Math.sin(t * 0.44) * 0.04;
+        // Idle motion is intentionally suppressed — Dr. Eams only moves while
+        // the user is actively touching/dragging him. The `idle` value is kept
+        // (zeroed) so downstream blends still work when `active` is false.
+        const idle = { x: 0, y: 0 };
 
         const desiredY = active ? targetRotY : idle.x;
         const desiredX = active ? targetRotX : idle.y;
 
-        // Root body bob + rotation
-        const idleBodyBob = Math.sin(t * 1.1) * 0.045;
+        // Root body bob + rotation — only while the user is interacting.
+        const idleBodyBob = 0;
         const reactionBob =
           reactionZone !== 'none'
             ? Math.abs(Math.sin(((now - reactionStart) / REACT_MS) * Math.PI * 3)) *
@@ -1371,24 +1318,23 @@ export default function DrEamsBabylonHero({
               Math.max(0, 1 - (now - reactionStart) / REACT_MS)
             : 0;
         root.position.y = idleBodyBob + reactionBob;
-        root.position.z = Math.sin(t * 0.72) * 0.035;
+        root.position.z = 0;
 
-        const blend = active ? 0.13 : 0.048;
-        const idleBodyY = Math.sin(t * 0.55) * 0.065;
-        const idleBodyX = Math.cos(t * 0.8) * 0.015;
-        const idleBodyZ = Math.sin(t * 0.64) * 0.05;
-        root.rotation.y += (desiredY + idleBodyY - root.rotation.y) * blend;
-        root.rotation.x += (desiredX * 0.32 + idleBodyX - root.rotation.x) * blend;
-        root.rotation.z += (idleBodyZ - root.rotation.z) * (active ? 0.11 : 0.04);
+        const blend = active ? 0.13 : 0.06;
+        // No additive idle sway — robot settles to neutral pose when untouched.
+        root.rotation.y += (desiredY - root.rotation.y) * blend;
+        root.rotation.x += (desiredX * 0.32 - root.rotation.x) * blend;
+        root.rotation.z += (0 - root.rotation.z) * (active ? 0.11 : 0.06);
 
-        // Head tracking
-        const headAimY = desiredY * 0.62 + Math.sin(t * 0.42) * 0.045;
-        const headAimX = desiredX * 0.42 + Math.cos(t * 0.31) * 0.018;
-        headNode.rotation.y += (headAimY - headNode.rotation.y) * (active ? 0.17 : 0.062);
-        headNode.rotation.x += (headAimX - headNode.rotation.x) * (active ? 0.14 : 0.055);
+        // Head tracking — only mirrors the cursor while interacting.
+        const headAimY = desiredY * 0.62;
+        const headAimX = desiredX * 0.42;
+        headNode.rotation.y += (headAimY - headNode.rotation.y) * (active ? 0.17 : 0.08);
+        headNode.rotation.x += (headAimX - headNode.rotation.x) * (active ? 0.14 : 0.07);
 
-        const reactorPulse = 1 + Math.sin(t * 2.2 + touchPulse * 2.8) * 0.08;
-        chestHalo.rotation.z = t * 0.95;
+        // Reactor pulse — quiet baseline, brightens on touch.
+        const reactorPulse = 1 + touchPulse * 0.10;
+        chestHalo.rotation.z += (active ? 0.04 : 0.005);
         chestCore.scaling.setAll(reactorPulse + touchPulse * 0.12);
         chestHalo.scaling.setAll(reactorPulse * 0.98 + 0.02);
 
@@ -1430,23 +1376,19 @@ export default function DrEamsBabylonHero({
           reactionZone = 'none';
         }
 
-        // Idle swing
+        // Idle settle — when not reacting and not actively interacting, all
+        // limbs ease back to their neutral pose. No procedural sway.
         if (reactionZone === 'none') {
-          const idleArmSwing = Math.sin(t * 1.1) * 0.09;
-          const idleForearmSwing = Math.sin(t * 1.1 + 0.4) * 0.035;
-          shoulderNodeL.rotation.z = lerp(shoulderNodeL.rotation.z, idleArmSwing, 0.04);
-          shoulderNodeR.rotation.z = lerp(shoulderNodeR.rotation.z, -idleArmSwing, 0.04);
-          elbowNodeL.rotation.z = lerp(elbowNodeL.rotation.z, idleForearmSwing, 0.03);
-          elbowNodeR.rotation.z = lerp(elbowNodeR.rotation.z, -idleForearmSwing, 0.03);
-          hipNodeL.rotation.x = lerp(
-            hipNodeL.rotation.x,
-            Math.sin(t * 1.1 + Math.PI) * 0.045,
-            0.05,
-          );
-          hipNodeR.rotation.x = lerp(hipNodeR.rotation.x, Math.sin(t * 1.1) * 0.045, 0.05);
-          kneeNodeL.rotation.x = lerp(kneeNodeL.rotation.x, 0, 0.05);
-          kneeNodeR.rotation.x = lerp(kneeNodeR.rotation.x, 0, 0.05);
-          headNode.rotation.z = lerp(headNode.rotation.z, 0, 0.05);
+          const settle = active ? 0.04 : 0.06;
+          shoulderNodeL.rotation.z = lerp(shoulderNodeL.rotation.z, 0, settle);
+          shoulderNodeR.rotation.z = lerp(shoulderNodeR.rotation.z, 0, settle);
+          elbowNodeL.rotation.z = lerp(elbowNodeL.rotation.z, 0, settle);
+          elbowNodeR.rotation.z = lerp(elbowNodeR.rotation.z, 0, settle);
+          hipNodeL.rotation.x = lerp(hipNodeL.rotation.x, 0, settle);
+          hipNodeR.rotation.x = lerp(hipNodeR.rotation.x, 0, settle);
+          kneeNodeL.rotation.x = lerp(kneeNodeL.rotation.x, 0, settle);
+          kneeNodeR.rotation.x = lerp(kneeNodeR.rotation.x, 0, settle);
+          headNode.rotation.z = lerp(headNode.rotation.z, 0, settle);
         }
 
         // ── Blink scheduling ──
