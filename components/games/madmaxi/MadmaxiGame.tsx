@@ -770,6 +770,9 @@ class GameCore {
   // Parallax background stars
   private bgStars: { mesh: import('@babylonjs/core').Mesh; baseX: number; parallax: number }[] = [];
   private skylineBands: { mesh: import('@babylonjs/core').Mesh; baseX: number; parallax: number; pulseOffset: number }[] = [];
+  // Zone-themed building/mountain silhouettes — 3D meshes with per-layer parallax.
+  // Different baseY (fixed) and parallax rates create a strong sense of depth.
+  private silhouettes: { mesh: import('@babylonjs/core').Mesh; baseX: number; parallax: number }[] = [];
   private shadowGen: import('@babylonjs/core').ShadowGenerator | null = null;
 
   // camera ref
@@ -1477,6 +1480,23 @@ class GameCore {
     eyeCyanCore.position = new BJS.Vector3(0.10 * WORLD_SCALE, 0.05 * WORLD_SCALE, 0.37 * WORLD_SCALE);
     eyeCyanCore.parent = headNode;
 
+    // Glowing cyan antenna on top of the head — cylinder shaft + sphere tip.
+    // Inherits headNode transform so it bobs/rotates with the head.
+    const antennaShaft = addShadowCaster(BJS.MeshBuilder.CreateCylinder('player_antenna_shaft', {
+      diameterTop: 0.04 * WORLD_SCALE, diameterBottom: 0.05 * WORLD_SCALE,
+      height: 0.32 * WORLD_SCALE, tessellation: 12,
+    }, scene), true);
+    antennaShaft.material = eyeCyanMat;
+    antennaShaft.position = new BJS.Vector3(0, 0.50 * WORLD_SCALE, -0.04 * WORLD_SCALE);
+    antennaShaft.parent = headNode;
+
+    const antennaTip = addShadowCaster(BJS.MeshBuilder.CreateSphere('player_antenna_tip', {
+      diameter: 0.12 * WORLD_SCALE, segments: 16,
+    }, scene), true);
+    antennaTip.material = eyeCyanMat;
+    antennaTip.position = new BJS.Vector3(0, 0.70 * WORLD_SCALE, -0.04 * WORLD_SCALE);
+    antennaTip.parent = headNode;
+
     const shoulderL = new BJS.TransformNode('player_shoulder_l', scene);
     shoulderL.position = new BJS.Vector3(-0.34 * WORLD_SCALE, 0.20 * WORLD_SCALE, 0);
     shoulderL.parent = root;
@@ -1927,8 +1947,9 @@ class GameCore {
     // ── Camera (FreeCamera, side-view looking in +Z direction) ──────────────
     // Pulled back WORLD_SCALE× so the on-screen appearance is unchanged despite
     // the world being 2.5× physically larger in Babylon units.
-    const cam = new BJS.FreeCamera('cam', new BJS.Vector3(0, 5.25 * WORLD_SCALE, -22 * WORLD_SCALE), scene);
+    const cam = new BJS.FreeCamera('cam', new BJS.Vector3(0, 5.25 * WORLD_SCALE, -28 * WORLD_SCALE), scene);
     cam.setTarget(new BJS.Vector3(0, 4.8 * WORLD_SCALE, 0));
+    cam.fov = 0.85; // Mario 64-like wider FOV for more visible 3D depth
     this.camMesh = cam;
 
     // ── Lighting — full landing-hero 4-source setup ──────────────────────────
@@ -2152,7 +2173,7 @@ class GameCore {
     for (const p of this.platforms) {
       const bw = p.w / PX_PER_BU;
       const bh = p.h / PX_PER_BU;
-      const mesh = BJS.MeshBuilder.CreateBox(`plat_${p.x}`, { width: bw, height: bh, depth: 1.4 * WORLD_SCALE }, scene);
+      const mesh = BJS.MeshBuilder.CreateBox(`plat_${p.x}`, { width: bw, height: bh, depth: 1.8 * WORLD_SCALE }, scene);
       const mat  = new BJS.PBRMaterial(`pmat_${p.x}`, scene);
 
       if (p.type === 'goal') {
@@ -2198,7 +2219,7 @@ class GameCore {
       // and makes platforms read like floating tech panels instead of slabs.
       if (p.type !== 'goal' && p.y !== 400) {
         const trim = BJS.MeshBuilder.CreateBox(`plat_trim_${p.x}`, {
-          width: bw * 0.96, height: 0.06 * WORLD_SCALE, depth: 1.42 * WORLD_SCALE,
+          width: bw * 0.96, height: 0.06 * WORLD_SCALE, depth: 1.82 * WORLD_SCALE,
         }, scene);
         trim.parent = mesh;
         trim.position.y = bh / 2 + 0.02 * WORLD_SCALE;
@@ -2569,6 +2590,7 @@ class GameCore {
 
     // Move
     this.px += this.pvx;
+    const prevPy = this.py; // capture py BEFORE this frame's vertical motion
     this.py += this.pvy;
 
     // World bounds (clamp left, don't scroll past right until goal)
@@ -2591,6 +2613,26 @@ class GameCore {
           p.moveDir *= -1;
       } else {
         p.curX = p.x;
+      }
+
+      // Swept-Y pre-check (anti-tunneling): when the player's per-frame fall
+      // distance exceeds the platform thickness (e.g. 38px/frame vs h=20),
+      // the AABB picks `overlapB` (ceiling) as the smallest axis and pushes
+      // the player UP through the platform instead of landing them on top.
+      // Detect "player bottom crossed platform top this frame" and snap to
+      // the surface before the AABB resolution runs.
+      if (
+        this.pvy > 0 &&
+        this.px + PW > p.curX && this.px < p.curX + p.w &&
+        prevPy + PH <= p.y &&        // was at/above the platform top last frame
+        this.py + PH > p.y           // is below the top this frame
+      ) {
+        this.py = p.y - PH;
+        this.pvy = 0;
+        this.onGround = true;
+        this.jumpCount = 0;
+        if (p.type === 'moving') this.px += (p.moveSpd ?? 0) * p.moveDir;
+        continue;
       }
 
       // AABB collision (player bottom vs platform top)
@@ -2850,7 +2892,7 @@ class GameCore {
       const px2e = this.px + PW, py2e = this.py + PH;
 
       if (px2e > en.curX && this.px < ex2 && py2e > en.curY && this.py < ey2) {
-        const stompThreshold = en.boss ? (en.size ?? 1.8) * 22 : (this.giantFrames > 0 || this.superFrames > 0 ? 34 : 22);
+        const stompThreshold = en.boss ? (en.size ?? 1.8) * 30 : (this.giantFrames > 0 || this.superFrames > 0 ? 40 : 30);
         const stompOv = py2e - en.curY;
         if (stompOv < stompThreshold && this.pvy > 0) {
           // Stomp hit!
@@ -3306,6 +3348,10 @@ class GameCore {
     for (const skyline of this.skylineBands) {
       skyline.mesh.position.x = skyline.baseX - camBX * skyline.parallax;
       skyline.mesh.position.y = 10 * WORLD_SCALE + Math.sin(this.animTick * 0.01 + skyline.pulseOffset) * 0.9 * WORLD_SCALE;
+    }
+    // Zone silhouette parallax — X only; Y stays anchored to the horizon.
+    for (const sil of this.silhouettes) {
+      sil.mesh.position.x = sil.baseX - camBX * sil.parallax;
     }
 
     // ── 2020 parallax extras ───────────────────────────────────────────────
