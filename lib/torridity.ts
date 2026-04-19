@@ -72,6 +72,52 @@ export function torridityRank(views: number, mass: number): number {
   return slog(mondFactor * views);
 }
 
+// ─── Torridity Rank (spec-exact, §37) ────────────────────────────────────────
+
+/**
+ * torridityRankSpec(views, mass)
+ *
+ * §37 spec-exact form:
+ *   V    = a0 · log1p(views + 1) / 4
+ *   rank = μ(V · mass)
+ *
+ * Returns 0 when mass <= 0.  Output lies in [0, 1).
+ */
+export function torridityRankSpec(views: number, mass: number): number {
+  if (mass <= 0) return 0;
+  const v = Math.max(0, views);
+  const V = (TORRIDITY_A0_PERCEPTION * Math.log1p(v + 1)) / 4;
+  return mu(V * mass);
+}
+
+// ─── Content Decay (§37) ─────────────────────────────────────────────────────
+
+/**
+ * contentDecayFactor(ageHours)
+ *
+ * §37 spec-exact form: decay_factor = μ(age_hours / 24)
+ *
+ * Fresh content (ageHours = 0) → 0.
+ * Approaches 1 asymptotically for very old content.
+ */
+export function contentDecayFactor(ageHours: number): number {
+  const age = Math.max(0, ageHours);
+  return mu(age / 24);
+}
+
+/**
+ * decayedRank(views, mass, ageHours)
+ *
+ * Combines spec-exact torridity rank with content decay:
+ *   decayedRank = torridityRankSpec(views, mass) · (1 − contentDecayFactor(ageHours))
+ *
+ * Returns 0 when mass <= 0.
+ */
+export function decayedRank(views: number, mass: number, ageHours: number): number {
+  if (mass <= 0) return 0;
+  return torridityRankSpec(views, mass) * (1 - contentDecayFactor(ageHours));
+}
+
 // ─── Throttling Gate ──────────────────────────────────────────────────────────
 
 /**
@@ -101,12 +147,16 @@ export interface ContentItem {
   views: number;
   buildTime: number;
   uniqueAssets: number;
+  /** Content age in hours (optional; used for decay-aware ranking). */
+  ageHours?: number;
 }
 
 export interface RankedItem extends ContentItem {
   mass: number;
   rank: number;
   visibilityCap: number;
+  /** μ(ageHours / 24) — 0 when no ageHours is provided. */
+  decayFactor: number;
 }
 
 /**
@@ -121,7 +171,8 @@ export function rankFeed(items: ContentItem[], feedSlots = 20): RankedItem[] {
       const mass = contentMass(item.buildTime, item.uniqueAssets);
       const rank = torridityRank(item.views, mass);
       const visibilityCap = throttledVisibility(mass, feedSlots);
-      return { ...item, mass, rank, visibilityCap };
+      const decayFactor = contentDecayFactor(item.ageHours ?? 0);
+      return { ...item, mass, rank, visibilityCap, decayFactor };
     })
     .sort((a, b) => b.rank - a.rank);
 }

@@ -439,3 +439,21 @@ The HomeDream System is the canonical shell implementation of the HomeDream surf
 - All surfaces communicate via DreamSystemContext.
 - DreamSpace is hidden/minimized by default; swipe the bar up to reveal.
 
+
+---
+
+## 13. Code / CodeEngin
+
+The Code surface is one of the six Daydream creative zones. It pairs an authoring/library surface (Side A) with a powered runtime engine (Side B).
+
+### 13.1 Code (Side A)
+
+The Code daydream surface (`app/daydream/code/page.tsx`) provides authoring, project, and library tooling. Side A includes the Project Vault, the Snippet Library, the Drafts Workspace, file/zip import, and the entry point that opens the CodeEngin runtime.
+
+### 13.2 CodeEngin (Side B)
+
+CodeEngin (`engins/CodeEngin.tsx`) is the powered engine behind the Code surface. It executes user code via `runCellCode`, runs CI workflows (lint, typecheck, test, build), and exposes the ShellHub and TaskJobManager subsystems.
+
+### 13.3 Specialized Dream Windows (Examples)
+
+Side A exposes specialized dream windows for code work, including the Project Dream Window, the Code File Dream Window, the Snippet Dream Window, the Terminal Dream Window, the Deployment Dream Window, and the Runtime Dream Window.
