@@ -115,11 +115,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-19 04:13 UTC | `50e72fe` | completedream | appthemanger-ctrl | ~5 modified<br>chore: sync build-memory [skip ci] [skip vercel]<br>✏️: `build-memory/actions.json`, `build-memory/events.json`, `build-memory/routes.json`, `build-memory/schema.json`, `build-memory/ui-surfaces.json` |
 | **auto** | 2026-04-18 20:03 UTC | `3202dae` | completedream | appthemanger-ctrl | ~5 modified<br>chore: sync build-memory [skip ci] [skip vercel]<br>✏️: `build-memory/actions.json`, `build-memory/events.json`, `build-memory/routes.json`, `build-memory/schema.json`, `build-memory/ui-surfaces.json` |
 | **auto** | 2026-04-18 13:43 UTC | `a7cdd3a` | completedream | appthemanger-ctrl | ~5 modified<br>chore: sync build-memory [skip ci] [skip vercel]<br>✏️: `build-memory/actions.json`, `build-memory/events.json`, `build-memory/routes.json`, `build-memory/schema.json`, `build-memory/ui-surfaces.json` |
 | **auto** | 2026-04-18 10:16 UTC | `0b088c9` | completedream | appthemanger-ctrl | ~5 modified<br>chore: sync build-memory [skip ci] [skip vercel]<br>✏️: `build-memory/actions.json`, `build-memory/events.json`, `build-memory/routes.json`, `build-memory/schema.json`, `build-memory/ui-surfaces.json` |
 | **auto** | 2026-04-17 05:10 UTC | `577d368` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #625 from appthemanger-ctrl/copilot/research-game-engine-architecture — Engine overhaul: unified loop, ECS/BVH/pool wired into RTSGame, renderer abstraction, power-systems split<br> |
-| **auto** | 2026-04-16 22:39 UTC | `5f93b52` | copilot/research-game-engine-architecture | Copilot | ~1 modified<br>feat: RTSGame wired to ECSWorld + OctreeBVH + ResourcePool + useUnifiedLoop — Agent-Logs-Url: https://github.com/appthemanger-ctrl/DREAMengin/sessions/c82a2651-d4fa-4bb3-8f87-5c0e0bf01035  Co-authored-by: appthemanger-ctrl <253588904+appthemanger-ctrl@users.noreply.github.com><br>✏️: `components/games/RTSGame.tsx` |
 
 ## What changed in this alignment pass
 
