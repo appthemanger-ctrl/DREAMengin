@@ -8,7 +8,7 @@ import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/Daydre
 // Stream 8.3 — Bundle split: GameEngin (Babylon.js) only loads when Side B mounts.
 // docs/ARCHITECTURE.md §10 — render-on-demand, minimal initial bundle.
 import dynamic from 'next/dynamic';
-const GameEngin = dynamic(() => import('@/engins/GameEngin'), {
+const GameEngin = dynamic(() => import('@/engins/engin.GameEngin'), {
   loading: () => (
     <div className="flex items-center justify-center h-64">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#c9a227]" />

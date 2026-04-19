@@ -452,7 +452,7 @@ The Code daydream surface (`app/daydream/code/page.tsx`) provides authoring, pro
 
 ### 13.2 CodeEngin (Side B)
 
-CodeEngin (`engins/CodeEngin.tsx`) is the powered engine behind the Code surface. It executes user code via `runCellCode`, runs CI workflows (lint, typecheck, test, build), and exposes the ShellHub and TaskJobManager subsystems.
+CodeEngin (`engins/engin.CodeEngin.tsx`) is the powered engine behind the Code surface. It executes user code via `runCellCode`, runs CI workflows (lint, typecheck, test, build), and exposes the ShellHub and TaskJobManager subsystems.
 
 ### 13.3 Specialized Dream Windows (Examples)
 

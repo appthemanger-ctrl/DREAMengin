@@ -406,4 +406,73 @@ AI agents:
 
 ---
 
+## 14. Filename Grammar (Engin / Dream / Surface Prefixes)
+
+Locked: 2026-04-19.
+
+Every `.tsx` file that participates in the Engin / Dream / Surface model must be named with one of three lowercase, dot-separated prefixes. The prefix tells a reader (human or AI) what kind of thing the file is, just from looking at the filename — independent of which folder it lives in.
+
+### 14.1 The Three Prefixes
+
+| Prefix | Meaning | Allowed count |
+|---|---|---|
+| **`engin.<Name>.tsx`** | A canonical Engin runtime. One file per Engin. The file *is* the Engin. | Exactly **6** — see §3.2 |
+| **`dream.<Name>.tsx`** | Anything user-facing that composes an Engin: components, functions, cartridges, HUDs, remotes, controls, panels, widgets, scenes, Dream Windows. | Many |
+| **`dreamsurface.<Name>.tsx`** | A Surface that an Engin or Dream lives on: Core Surfaces (HomeDream, EditProfileDream, ViewProfile), the 6 Daydream Surfaces, and the platform-module Surfaces (DreamDM, DreamMarketplace, DreamShop, DreamAds). | One per Surface |
+
+**`<Name>` must already be a canonical name from §2, §3, or another section of this document.** The prefix does not authorize new names — it only labels existing ones.
+
+### 14.2 The 6 Canonical `engin.*.tsx` Filenames
+
+These are the only valid `engin.*.tsx` filenames. Any other `engin.*.tsx` is a violation.
+
+| Canonical filename |
+|---|
+| `engin.StarMakerEngin.tsx` |
+| `engin.GameEngin.tsx` |
+| `engin.LabEngin.tsx` |
+| `engin.CodeEngin.tsx` |
+| `engin.BrandingEngin.tsx` |
+| `engin.ContentEngin.tsx` |
+
+Non-canonical "Engin"-suffixed files (e.g. `ForgeEngin.tsx`, `PortfolioEngin.tsx`, `NGNEngin.tsx`, `AutoOpenGameEngin.tsx`) **must not** use the `engin.` prefix. They are Dreams or auxiliary modules and follow §14.3 / §14.4.
+
+### 14.3 What Counts as a `dream.*.tsx`
+
+If the file holds *any* user-facing asset that composes an Engin — a panel, a HUD, a remote, a cartridge, a scene, a control, a widget, a Dream Window — it is a Dream and uses `dream.<Name>.tsx`. Cartridges that have not yet been compiled to `.dreamr` WASM (per `GameENGINspec.md`) live as `dream.<CartridgeName>.tsx` until they are.
+
+### 14.4 What Counts as a `dreamsurface.*.tsx`
+
+Surfaces are the lived spaces that Engins and Dreams render into. The Surface component file uses `dreamsurface.<Name>.tsx`. Next.js route files (`app/<route>/page.tsx`) stay where the framework requires; the canonical Surface component they render gets the `dreamsurface.` prefix.
+
+### 14.5 Rejected Filename Patterns
+
+| Rejected | Why |
+|---|---|
+| `Engin.<Name>.tsx` (capitalised prefix) | Prefix is lowercase. Only `<Name>` keeps its canonical casing. |
+| `Dream.<Name>.tsx` | Same — lowercase prefix. |
+| `DreamSurface.<Name>.tsx` / `dreamSurface.<Name>.tsx` | Prefix is `dreamsurface.` — one word, all lowercase. |
+| `engin-<Name>.tsx` / `engin_<Name>.tsx` | Separator is a single dot. |
+| `engin.MusicEngin.tsx` / `engin.GamesEngin.tsx` / `engin.CreateEngin.tsx` | Wrong base name — see §3.5. |
+| `dream.<Name>.tsx` for a non-user-facing utility | Dreams are user-facing. Pure utilities/helpers stay un-prefixed. |
+
+### 14.6 Migration Status
+
+The rule applies to all new files immediately. For existing files, the migration is staged:
+
+- **Done in PR landing this section:** the 6 canonical Engin files in `engins/` are renamed to `engin.<Name>.tsx`; the 2 Core Surface files in `coresurfaces/` (`EditProfileDream`, `ViewProfile`) are renamed to `dreamsurface.<Name>.tsx`; all import sites are updated; `scripts/check-engin-filenames.mjs` enforces the rule going forward.
+- **Pending follow-up PRs:** duplicate `components/daydream/*Engin.tsx` shells consolidate into the canonical `engin.*.tsx`; `components/engines/*/EnginApp.tsx` thin shells become `dream.*.tsx`; the 12 hand-written cartridges in `components/games/` become `dream.<CartridgeName>.tsx` (or are recompiled to `.dreamr`); HUDs / remotes / leaderboards become `dream.*.tsx`; the remaining Daydream and platform-module Surfaces become `dreamsurface.*.tsx`.
+
+### 14.7 Enforcement
+
+`scripts/check-engin-filenames.mjs` runs as part of `pnpm preflight`. It fails CI if:
+
+1. A file matching `engin.*.tsx` exists with a name not in §14.2.
+2. A file in `engins/` (any depth, top-level) is a canonical Engin name without the `engin.` prefix.
+3. Any file uses a rejected filename pattern from §14.5 (capitalised prefix, hyphen/underscore separator, etc.).
+
+The check is an additive guard — it does not retroactively block files covered by the §14.6 migration backlog, but every new file is held to the rule.
+
+---
+
 *This document is the canonical naming authority. Names may only be added; existing canonical names may not be altered. Additions require Phase 7 authority review.*

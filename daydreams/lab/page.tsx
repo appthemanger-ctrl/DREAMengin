@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { FlaskConical, Play } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
-import LabEngin from '@/engins/LabEngin';
+import LabEngin from '@/engins/engin.LabEngin';
 import OpenDaydreamSideBButton from '@/components/daydream/OpenDaydreamSideBButton';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
 import { connection } from 'next/server';

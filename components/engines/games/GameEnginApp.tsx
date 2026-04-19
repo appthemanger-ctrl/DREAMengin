@@ -15,7 +15,7 @@
 
 import { useRouter } from 'next/navigation';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import GameEngin from '@/engins/GameEngin';
+import GameEngin from '@/engins/engin.GameEngin';
 
 const ACCENT = '#c8981a';
 const BACK_HREF = '/daydream/games';

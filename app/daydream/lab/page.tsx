@@ -6,7 +6,7 @@ import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/Daydre
 // Stream 8.3 — Bundle split: LabEngin only loads when Side B mounts.
 // docs/ARCHITECTURE.md §10 — render-on-demand, minimal initial bundle.
 import dynamic from 'next/dynamic';
-const LabEngin = dynamic(() => import('@/engins/LabEngin'), {
+const LabEngin = dynamic(() => import('@/engins/engin.LabEngin'), {
   loading: () => (
     <div className="flex items-center justify-center h-64">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#c9a227]" />
