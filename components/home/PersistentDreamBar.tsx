@@ -23,6 +23,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import DreamDMBar from '@/dreamdmbar/dreamsurface.dreamdmbar';
 import NeuralSeamCanvas from '@/components/home/NeuralSeamCanvas';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
+import { runHomeAction } from '@/lib/home-buttons/contextual-home';
 
 /** Routes where the bar must NOT appear (pre-login / public surfaces). */
 const PUBLIC_ROUTES = ['/', '/login', '/join', '/policy', '/about'];
@@ -40,17 +41,14 @@ export default function PersistentDreamBar() {
   } = useDreamSystem();
 
   const handleHome = useCallback(() => {
-    // Smart Home: when the DreamDM Bar is dragged toward the top
-    // (DreamSpace dominant, splitRatio < 0.5), Home contextually means
-    // "DreamSpace" instead of HomeDream Surface. Bar position decides
-    // what "home" is — see docs/ARCHITECTURE.md §1.
-    if (splitRatio < 0.5 && runtimeCallbacks?.returnDreamSpace) {
-      runtimeCallbacks.returnDreamSpace();
-      return;
-    }
-    if (runtimeCallbacks?.returnHome) {
-      runtimeCallbacks.returnHome();
-    } else {
+    // Smart Home — the DreamDM Bar IS home. Bar position decides scope:
+    //   bar at bottom  → reset Surface (top runtime) only
+    //   bar at top     → reset DreamSpace (bottom runtime) only
+    //   bar in middle  → reset both runtimes
+    // See lib/home-buttons/contextual-home.ts and docs/ARCHITECTURE.md §1.
+    const fired = runHomeAction(splitRatio, runtimeCallbacks);
+    if (!fired) {
+      // No dual runtime mounted (we're outside /homedream) — navigate there.
       router.push('/homedream');
     }
   }, [runtimeCallbacks, router, splitRatio]);

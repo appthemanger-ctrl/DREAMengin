@@ -152,6 +152,7 @@ interface GlowingLightProps {
   tooltip?: string | null;
   onTouchStart?: (e: React.TouchEvent<HTMLSpanElement>) => void;
   onTouchEnd?: (e: React.TouchEvent<HTMLSpanElement>) => void;
+  onClick?: (e: React.MouseEvent<HTMLSpanElement>) => void;
   style?: React.CSSProperties;
   'aria-label'?: string;
 }
@@ -163,6 +164,7 @@ function GlowingLight({
   tooltip,
   onTouchStart,
   onTouchEnd,
+  onClick,
   style,
   'aria-label': ariaLabel,
 }: GlowingLightProps) {
@@ -177,6 +179,7 @@ function GlowingLight({
       aria-label={ariaLabel ?? 'DreamDM light — tap to open menus'}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
+      onClick={onClick}
       style={{
         // 44×44 invisible touch target
         display: 'inline-flex',
@@ -378,11 +381,24 @@ function ParticleFountain({ particles, centerX, centerY }: { particles: Particle
 // ── Props
 // ─────────────────────────────────────────────────────────────────────────────
 interface DreamDMBarProps {
-  /** Single-tap the Gold Particle → open radial menus */
+  /**
+   * Single-tap the Gold Particle (after a short delay so a double-tap can win)
+   * → open both radial menus (Daydreams + System).
+   */
   onBothMenus: () => void;
-  /** Double-tap the Gold Particle (bar at bottom) → go home in Surface Space */
+  /**
+   * Double-tap the Gold Particle → contextual Home.
+   * The parent decides what "home" means based on splitRatio:
+   *   bar at bottom → return to Surface (top runtime)
+   *   bar at top    → return to DreamSpace (bottom runtime)
+   *   bar in middle → return both runtimes
+   * See lib/home-buttons/contextual-home.ts.
+   */
   onHome: () => void;
-  /** Double-tap the Gold Particle (bar at top) → open HomeDream in DreamSpace (dual-home) */
+  /**
+   * @deprecated Contextual home is resolved by the parent via `onHome`.
+   * Kept for backwards compatibility; no longer invoked from here.
+   */
   onHomeDreamSpace?: () => void;
   /** Bridge bar state to the dual-runtime host */
   onRuntimeModeChange?: (mode: 'home' | 'blend' | 'dreamspace') => void;
@@ -809,6 +825,10 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     const touch = e.touches[0];
     if (!touch) return;
     const target = e.target as HTMLElement;
+    // Ignore touches that originated inside an overlay (DualBottomMenu,
+    // DrEams panel, slash palette, lightbox, etc.). The bar's drag detector
+    // would otherwise swallow taps on overlay buttons.
+    if (target.closest('[data-de-overlay]')) return;
     const isInTextarea = target.tagName === 'TEXTAREA' || target.closest('textarea') !== null;
     const ref = barTouchRef.current;
     ref.active = true;
@@ -860,12 +880,51 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     // It was a tap — the light's touch handlers manage tap/double-tap separately
   }, []);
 
-  // ── Glowing light tap actions ─────────────────────────────────────────────
-  const handleLightSingleTap = useCallback(() => {
-    // Single tap → open dual menus immediately (no double-tap delay)
+  // ── Glowing light tap state machine ───────────────────────────────────────
+  // Per ARCHITECTURE.md §6.1 / lib/home-buttons/home-buttons-state.ts:
+  //   single tap → open both menus
+  //   double tap → contextual Home (parent decides target via splitRatio)
+  // We delay the single-tap action by DOUBLE_TAP_WINDOW_MS so a second tap
+  // can override it.
+  const DOUBLE_TAP_WINDOW_MS = 260;
+  const lightTapStateRef = useRef<{
+    timer: ReturnType<typeof setTimeout> | null;
+    pendingTap: boolean;
+  }>({ timer: null, pendingTap: false });
+
+  useEffect(() => () => {
+    // Clean up any pending tap timer on unmount
+    if (lightTapStateRef.current.timer) clearTimeout(lightTapStateRef.current.timer);
+  }, []);
+
+  const fireLightSingleTap = useCallback(() => {
     if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(4);
     onBothMenus();
   }, [onBothMenus]);
+
+  const fireLightDoubleTap = useCallback(() => {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([6, 30, 6]);
+    onHome();
+  }, [onHome]);
+
+  const handleLightTap = useCallback(() => {
+    const ref = lightTapStateRef.current;
+    if (ref.pendingTap && ref.timer) {
+      // Second tap within window → fire double-tap action
+      clearTimeout(ref.timer);
+      ref.timer = null;
+      ref.pendingTap = false;
+      fireLightDoubleTap();
+      return;
+    }
+    // First tap — wait to see if a second one arrives
+    ref.pendingTap = true;
+    ref.timer = setTimeout(() => {
+      ref.pendingTap = false;
+      ref.timer = null;
+      fireLightSingleTap();
+    }, DOUBLE_TAP_WINDOW_MS);
+  }, [fireLightSingleTap, fireLightDoubleTap]);
 
   const handleLightTouchStart = useCallback((_e: React.TouchEvent<HTMLSpanElement>) => {
     // resolved on touchend
@@ -873,11 +932,20 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
 
   const handleLightTouchEnd = useCallback((e: React.TouchEvent<HTMLSpanElement>) => {
     e.stopPropagation();
+    // Suppress the synthetic mouse/click that follows touchend so we don't
+    // double-count the tap on iOS / Android.
+    e.preventDefault();
     const ref = barTouchRef.current;
-    // If bar drag was active, don't fire tap
     if (ref.didDrag) return;
-    handleLightSingleTap();
-  }, [handleLightSingleTap]);
+    handleLightTap();
+  }, [handleLightTap]);
+
+  const handleLightClick = useCallback((e: React.MouseEvent<HTMLSpanElement>) => {
+    e.stopPropagation();
+    // touchend already handled the tap on touch devices (it called preventDefault),
+    // so this only fires for real mouse clicks.
+    handleLightTap();
+  }, [handleLightTap]);
   const [userId,         setUserId]         = useState('');
   const [selectedConv,   setSelectedConv]   = useState<DMConversation | null>(null);
   const [quickDraft,     setQuickDraft]     = useState('');
@@ -1550,6 +1618,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 tooltip={lightTooltip}
                 onTouchStart={handleLightTouchStart}
                 onTouchEnd={handleLightTouchEnd}
+                onClick={handleLightClick}
               />
             </div>
           </div>

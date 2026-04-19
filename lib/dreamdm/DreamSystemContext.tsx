@@ -30,6 +30,7 @@ import React, {
   type SetStateAction,
 } from 'react';
 import type { SystemPanelId } from '@/lib/panels/panelTypes';
+import { DEFAULT_SPLIT_RATIO } from '@/lib/dreamdm/barInteractions';
 
 // ── Bar intent types ──────────────────────────────────────────────────────────
 
@@ -118,7 +119,8 @@ interface DreamSystemContextValue {
    *   0.0 = DreamSpace fills the viewport
    *   0.5 = 50/50 balanced split
    *   1.0 = Surface Space fills the viewport (bar at bottom)
-   * Defaults to 0.5. HomeSystem writes this; DreamDMBar reads and writes it.
+   * Defaults to DEFAULT_SPLIT_RATIO (1.0 — bar rests at the bottom).
+   * HomeSystem writes this; DreamDMBar reads and writes it.
    */
   splitRatio: number;
   setSplitRatio: Dispatch<SetStateAction<number>>;
@@ -144,7 +146,7 @@ const DreamSystemContext = createContext<DreamSystemContextValue>({
   barIntent:                  DEFAULT_BAR_INTENT,
   setBarIntent:               () => {},
   clearBarIntent:             () => {},
-  splitRatio:                 0.5,
+  splitRatio:                 DEFAULT_SPLIT_RATIO,
   setSplitRatio:              () => {},
   isBarMinimized:             false,
   setIsBarMinimized:          () => {},
@@ -155,7 +157,7 @@ export function DreamSystemProvider({ children }: { children: ReactNode }) {
   const [drEamsOpen,    setDrEamsOpen]           = useState(false);
   const [runtimeCallbacks, setRuntimeCallbacks] = useState<RuntimeCallbacks | null>(null);
   const [barIntent,     setBarIntentState]       = useState<BarIntent>(DEFAULT_BAR_INTENT);
-  const [splitRatio,    setSplitRatio]           = useState(0.5);
+  const [splitRatio,    setSplitRatio]           = useState(DEFAULT_SPLIT_RATIO);
   const [isBarMinimized, setIsBarMinimized]      = useState(false);
 
   // Stable ref so openInSurface doesn't re-create when callbacks change
