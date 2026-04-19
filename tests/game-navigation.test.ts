@@ -52,8 +52,8 @@ describe('game launch navigation', () => {
 
     expect(gamesPageSrc).toContain("const immersiveGameHref = (gameId: string) => buildGameLaunchHref(gameId, { openEngin: true, play: true, expand: true });");
     expect(gamesPageSrc).toContain("href: immersiveGameHref('platformer')");
-    expect(gamesPageSrc).toContain("href: immersiveGameHref('dreamquest')");
-    expect(gamesPageSrc).toContain("href: immersiveGameHref('dreamwars')");
+    expect(gamesPageSrc).toContain("href: immersiveGameHref('null-cathedral')");
+    expect(gamesPageSrc).toContain("href: immersiveGameHref('engin-fracture')");
     expect(gamesPageSrc).toContain("href: immersiveGameHref('neon-drift')");
     expect(gamesPageSrc).toContain("href: immersiveGameHref('echo-arena')");
   });

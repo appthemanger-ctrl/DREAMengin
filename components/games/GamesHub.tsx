@@ -30,37 +30,19 @@ const Loading = () => (
 );
 
 // ── Dynamically imported games (ssr:false — all use canvas / browser APIs) ──
-const RTSGame         = dynamicImport(() => import('@/components/games/RTSGame'),         { ssr: false, loading: Loading });
-const TowerDefense    = dynamicImport(() => import('@/components/games/TowerDefense'),    { ssr: false, loading: Loading });
-const SpaceShooter    = dynamicImport(() => import('@/components/games/SpaceShooter'),    { ssr: false, loading: Loading });
-const Match3Game      = dynamicImport(() => import('@/components/games/Match3Game'),      { ssr: false, loading: Loading });
-const SnakeGame       = dynamicImport(() => import('@/components/games/SnakeGame'),       { ssr: false, loading: Loading });
-const BreakoutGame    = dynamicImport(() => import('@/components/games/BreakoutGame'),    { ssr: false, loading: Loading });
-const TetrisGame      = dynamicImport(() => import('@/components/games/TetrisGame'),      { ssr: false, loading: Loading });
-const FlappyGame      = dynamicImport(() => import('@/components/games/FlappyGame'),      { ssr: false, loading: Loading });
-const ChessGame       = dynamicImport(() => import('@/components/games/ChessGame'),       { ssr: false, loading: Loading });
-const RacingGame      = dynamicImport(() => import('@/components/games/RacingGame'),      { ssr: false, loading: Loading });
-const RPGGame         = dynamicImport(() => import('@/components/games/RPGGame'),         { ssr: false, loading: Loading });
-const RhythmGame      = dynamicImport(() => import('@/components/games/RhythmGame'),      { ssr: false, loading: Loading });
-const MazeGame        = dynamicImport(() => import('@/components/games/MazeGame'),        { ssr: false, loading: Loading });
-// Babylon.js side-scroller — replaces old Dr. Eams Canvas 2D platformer
 const BabylonSideScroller = dynamicImport(() => import('@/components/games/BabylonSideScroller'), { ssr: false, loading: Loading });
-// New Dream-universe games
-const DREAMwars   = dynamicImport(() => import('@/components/games/DREAMwars'),   { ssr: false, loading: Loading });
-const ENGINBattle = dynamicImport(() => import('@/components/games/ENGINBattle'), { ssr: false, loading: Loading });
-const DREAMquest  = dynamicImport(() => import('@/components/games/DREAMquest'),  { ssr: false, loading: Loading });
-// WebGPU-powered games with DualSense controller support
-const NeonDrift   = dynamicImport(() => import('@/components/games/NeonDrift'),   { ssr: false, loading: Loading });
-const EchoArena   = dynamicImport(() => import('@/components/games/EchoArena'),   { ssr: false, loading: Loading });
-const LucidAvenue = dynamicImport(() => import('@/components/games/LucidAvenue'), { ssr: false, loading: Loading });
-const PongGame       = dynamicImport(() => import('@/components/games/PongGame'),       { ssr: false, loading: Loading });
-const SolitaireGame  = dynamicImport(() => import('@/components/games/SolitaireGame'),  { ssr: false, loading: Loading });
-const MinesweeperGame = dynamicImport(() => import('@/components/games/MinesweeperGame'), { ssr: false, loading: Loading });
-const MemoryGrid     = dynamicImport(() => import('@/components/games/MemoryGrid'),     { ssr: false, loading: Loading });
-const WordSprint     = dynamicImport(() => import('@/components/games/WordSprint'),     { ssr: false, loading: Loading });
-const SpeedTap       = dynamicImport(() => import('@/components/games/SpeedTap'),       { ssr: false, loading: Loading });
-const TriviaGame     = dynamicImport(() => import('@/components/games/TriviaGame'),     { ssr: false, loading: Loading });
-const AvatarMaker    = dynamicImport(() => import('@/components/games/AvatarMaker'),    { ssr: false, loading: Loading });
+const NeonDrift           = dynamicImport(() => import('@/components/games/NeonDrift'),           { ssr: false, loading: Loading });
+const EchoArena           = dynamicImport(() => import('@/components/games/EchoArena'),           { ssr: false, loading: Loading });
+// ── Fusion cartridges — replace 25 source games ─────────────────────────────
+const NullCathedral       = dynamicImport(() => import('@/components/games/NullCathedral'),       { ssr: false, loading: Loading });
+const VoidlineGP          = dynamicImport(() => import('@/components/games/VoidlineGP'),          { ssr: false, loading: Loading });
+const SerpentSiege        = dynamicImport(() => import('@/components/games/SerpentSiege'),        { ssr: false, loading: Loading });
+const AvenueOfMirrors     = dynamicImport(() => import('@/components/games/AvenueOfMirrors'),     { ssr: false, loading: Loading });
+const EnginFracture       = dynamicImport(() => import('@/components/games/EnginFracture'),       { ssr: false, loading: Loading });
+const Glassfall           = dynamicImport(() => import('@/components/games/Glassfall'),           { ssr: false, loading: Loading });
+const NiteFlyerSolarHymn  = dynamicImport(() => import('@/components/games/NiteFlyerSolarHymn'),  { ssr: false, loading: Loading });
+const LexiconSolitaire    = dynamicImport(() => import('@/components/games/LexiconSolitaire'),    { ssr: false, loading: Loading });
+const DefuseRitual        = dynamicImport(() => import('@/components/games/DefuseRitual'),        { ssr: false, loading: Loading });
 
 export interface GameDef {
   id: string;
@@ -78,91 +60,57 @@ export interface GameDef {
   href?: string;
 }
 
-// ── Playable games across the major DREAMengin categories ───────────────────
-// Each entry is wired immediately after the game was finished.
+// ── Playable games — fusion cartridges + 3 legacy flagships ─────────────────
+// Order mirrors `lib/gameengin/cartridges/manifest.ts` (test-enforced parity).
 export const GAMES: GameDef[] = [
-  // ── MADMAXI — Babylon.js 3-D side-scroller (default game) ─────────────────
-  { id: 'platformer',    emoji: '🏎',  label: 'MADMAXI',          category: 'Platformer',  color: '#c8981a', renderMode: 'babylon', component: BabylonSideScroller,
+  // ── Legacy flagships kept ─────────────────────────────────────────────────
+  { id: 'platformer',    emoji: '🏎',  label: 'MADMAXI',          category: 'Platformer', color: '#c8981a', renderMode: 'babylon', component: BabylonSideScroller,
     mobileHudMode: 'buttons',
     subtitle: 'MADMAXI · Landing-grade robot hero',
     desc: '150 levels · 15 zones · boss every 10 levels · unique each run — Babylon.js side-scroller rebuilt around the DREAMengin landing robot' },
-  // ── Strategy ──────────────────────────────────────────────────────────────
-  { id: 'rts',           emoji: '⚔️', label: 'DREAM FORCE',       category: 'Strategy',    color: '#ef4444', renderMode: 'canvas', component: RTSGame,
-    subtitle: 'Command the Vanguard · Crush the Nightmare',
-    desc: 'Build your Dream base, harvest Dream Energy, command Vanguard units — crush the Nightmare HQ' },
-  { id: 'tower-defense', emoji: '🏰', label: 'Tower Defense',     category: 'Strategy',    color: '#22c55e', renderMode: 'canvas', component: TowerDefense,
-    desc: 'Place arrow, cannon & freeze towers to stop 10 waves of enemies' },
-  // ── Arcade ────────────────────────────────────────────────────────────────
-  { id: 'space-shooter', emoji: '🚀', label: 'VOID STRIKE',       category: 'Arcade',      color: '#60a5fa', renderMode: 'canvas', component: SpaceShooter,
-    subtitle: 'Defend the Dream Realm',
-    desc: 'Defend the Dream Realm from Void-spawn invaders — auto-fire, dodge plasma bolts, survive endless waves' },
-  { id: 'snake',         emoji: '🐍', label: 'SHADOW SERPENT',    category: 'Arcade',      color: '#4ade80', renderMode: 'canvas', component: SnakeGame,
-    desc: 'Guide the Shadow Serpent through the Dream Grid — consume Dream Sparks, grow longer, never cross your own tail' },
-  { id: 'breakout',      emoji: '💎', label: 'DREAM BREAKER',     category: 'Arcade',      color: '#3b82f6', renderMode: 'canvas', component: BreakoutGame,
-    desc: 'Launch the Orb of Light — shatter the Nightmare Wall, recover the Dream Fragments' },
-  { id: 'flappy',        emoji: '✨', label: 'NITE FLYER',        category: 'Casual',      color: '#a78bfa', renderMode: 'canvas', component: FlappyGame,
-    desc: 'Dr. Eams soars through the neon Dream-scape — tap to flap, dodge the Nightmare gates' },
-  // ── Puzzle ────────────────────────────────────────────────────────────────
-  { id: 'match3',        emoji: '💎', label: 'DREAM GEMS',        category: 'Puzzle',      color: '#a78bfa', renderMode: 'dom', component: Match3Game,
-    desc: 'Swap Dream shards to match 3 or more — chain combos, collect Dream Energy, 30 moves to master it' },
-  { id: 'tetris',        emoji: '🟦', label: 'BLOCK STACK',       category: 'Puzzle',      color: '#06b6d4', renderMode: 'canvas', component: TetrisGame,
-    desc: 'Dream shards rain from the sky — stack them perfectly, clear layers, defy the collapse' },
-  // ── Sports ────────────────────────────────────────────────────────────────
-  { id: 'racing',        emoji: '🏎️', label: 'DREAM CIRCUIT',    category: 'Sports',      color: '#3b82f6', renderMode: 'canvas', component: RacingGame,
-    desc: '3-lap Dream Circuit sprint — race 2 rival Engin AIs around neon canyon tracks, WASD/arrows' },
-  // ── Board ─────────────────────────────────────────────────────────────────
-  { id: 'chess',         emoji: '♛',  label: 'ENGIN CHESS',       category: 'Board',       color: '#f5f5f4', renderMode: 'dom', component: ChessGame,
-    desc: '2-player local chess — full piece movement rules, click to select & move' },
-  // ── RPG ───────────────────────────────────────────────────────────────────
-  { id: 'rpg',           emoji: '🗡️', label: 'DREAM REALM QUEST', category: 'RPG',         color: '#c084fc', renderMode: 'dom', component: RPGGame,
-    subtitle: '5 Dream Realms · Turn-Based Combat',
-    desc: 'Turn-based adventure through 5 Dream Realms — battle Nightmare creatures, level up abilities, defeat the Dream Destroyer' },
-  // ── Music ─────────────────────────────────────────────────────────────────
-  { id: 'rhythm',        emoji: '🎵', label: 'BEAT ENGINE',       category: 'Music',       color: '#a78bfa', renderMode: 'canvas', component: RhythmGame,
-    desc: 'Hit the Dream beats as they fall — ASDK keys or on-screen pads, chain combos to awaken the Dream' },
-  // ── Adventure / Platformer ────────────────────────────────────────────────
-  { id: 'maze',          emoji: '🌀', label: 'LABYRINTH ZERO',    category: 'Adventure',   color: '#38bdf8', renderMode: 'canvas', component: MazeGame,
-    desc: 'Navigate the procedural Dream Labyrinth — escape before the Nightmare closes in' },
-  { id: 'lucid-avenue',  emoji: '🌴', label: 'Lucid Avenue',      category: 'Adventure',   color: '#f59e0b', renderMode: 'dom', component: LucidAvenue,
-    desc: 'Original LA-inspired retro city quest — expanded 8-district GameEngin-linked city run with free-roam sandbox jumps, vehicle systems, persistent route contracts, west-side missions, and an observatory skyline finale' },
-  // ── Dream Universe games ──────────────────────────────────────────────────
-  { id: 'dreamwars',     emoji: '🌙', label: 'DREAMwars',          category: 'Strategy',    color: '#7c3aed', renderMode: 'canvas', component: DREAMwars,
-    subtitle: 'Nightmares vs Dreamers',
-    desc: 'Nightmares vs Dreamers RTS — build base, harvest Dream Energy, crush the enemy HQ' },
-  { id: 'engin-battle',  emoji: '⚙️', label: 'ENGIN Battle',       category: 'Strategy',    color: '#38bdf8', renderMode: 'canvas', component: ENGINBattle,
-    subtitle: 'Dr. Eams · IDARi · Boogie',
-    desc: 'Age of Empires style — pick Dr. Eams, IDARi or Boogie; tech tree upgrades, 3-faction war' },
-  { id: 'dreamquest',    emoji: '✨', label: 'DREAMquest',          category: 'RPG',         color: '#a78bfa', renderMode: 'canvas', component: DREAMquest,
-    subtitle: 'FF-style · 5 Dream Layers',
-    desc: 'FF7 + Chrono Trigger RPG — traverse 5 dream layers, unlock dream abilities, defeat the Dream Destroyer' },
-  // ── WebGPU-Powered Games ──────────────────────────────────────────────
-  { id: 'neon-drift',    emoji: '🏎️', label: 'Neon Drift',         category: 'Racing',      color: '#0ff',    renderMode: 'webgpu', component: NeonDrift,
+  { id: 'neon-drift',    emoji: '🏎️', label: 'Neon Drift',        category: 'Racing',     color: '#0ff',    renderMode: 'webgpu',  component: NeonDrift,
     subtitle: 'WebGPU · DualSense Ready',
     desc: 'WebGPU cyberpunk racer — DualSense gyro steering, haptic feedback, high-performance 3D rendering' },
-  { id: 'echo-arena',    emoji: '🎯', label: 'Echo Arena',          category: 'Shooter',     color: '#a78bfa', renderMode: 'webgpu', component: EchoArena,
+  { id: 'echo-arena',    emoji: '🎯', label: 'Echo Arena',        category: 'Shooter',    color: '#a78bfa', renderMode: 'webgpu',  component: EchoArena,
     mobileHudMode: 'joystick',
     subtitle: 'WebGPU · DualSense Ready',
     desc: 'WebGPU arena shooter — DualSense gyro aim, top-down combat, high-performance 3D rendering' },
-  // ── Casual / Party ────────────────────────────────────────────────────────
-  { id: 'pong',          emoji: '🏓', label: 'DREAM PONG',          category: 'Sports',      color: '#22d3ee', renderMode: 'canvas', component: PongGame,
-    desc: 'Classic Pong — 2-player local or vs AI; be the first to 7 points' },
-  { id: 'minesweeper',   emoji: '💣', label: 'DREAM SWEEP',         category: 'Puzzle',      color: '#6b7280', renderMode: 'dom',    component: MinesweeperGame,
-    desc: 'Classic minesweeper — 12×16 grid, 28 mines, flag all threats to win' },
-  { id: 'memory-grid',   emoji: '🃏', label: 'MEMORY GRID',         category: 'Puzzle',      color: '#f59e0b', renderMode: 'dom',    component: MemoryGrid,
-    desc: 'Flip cards to match emoji pairs — clear the full 4×4 grid to win' },
-  { id: 'solitaire',     emoji: '🃏', label: 'DREAM SOLITAIRE',     category: 'Board',       color: '#10b981', renderMode: 'dom',    component: SolitaireGame,
-    desc: 'Classic Klondike solitaire — build all four suits from Ace to King' },
-  { id: 'word-sprint',   emoji: '📝', label: 'WORD SPRINT',         category: 'Casual',      color: '#f472b6', renderMode: 'dom',    component: WordSprint,
-    desc: 'Type the falling words before time runs out — chain combos for bonus points' },
-  { id: 'speed-tap',     emoji: '👆', label: 'SPEED TAP',           category: 'Casual',      color: '#fb923c', renderMode: 'dom',    component: SpeedTap,
-    desc: 'Tap as fast as you can in 10 seconds — beat your personal best' },
-  { id: 'trivia',        emoji: '🧠', label: 'DREAM TRIVIA',        category: 'Casual',      color: '#818cf8', renderMode: 'dom',    component: TriviaGame,
-    desc: 'Ten-question trivia sprint — science, history, pop-culture, and code' },
-  { id: 'avatar-maker',  emoji: '🎨', label: 'AVATAR MAKER',        category: 'Creative',    color: '#e879f9', renderMode: 'dom',    component: AvatarMaker,
-    desc: 'Build your DREAMengin avatar — pick skin, hair, outfit and expression' },
+
+  // ── Fusion flagships ──────────────────────────────────────────────────────
+  { id: 'null-cathedral',    emoji: '♟',  label: 'NULL CATHEDRAL',     category: 'Tactics RPG', color: '#d4af37', renderMode: 'canvas', component: NullCathedral,
+    subtitle: 'Chess + RPG + Minesweeper · Deductive sacrifice',
+    desc: 'A grim tactical RPG where every battle is a chess match played over a buried minefield of repressed memories — Iren Vespa descends the Cathedral of Null to find her sister before CASTLE overwrites her' },
+  { id: 'voidline-gp',       emoji: '🛸', label: 'VOIDLINE GP',        category: 'Racing',      color: '#ff6a3d', renderMode: 'canvas', component: VoidlineGP,
+    subtitle: 'Racing + Shoot + Rhythm · On-the-beat overtake',
+    desc: 'F-Zero by way of rhythm bullet-hell — every shot, drift and boost must land on the soundtrack downbeat or it fizzles. Yuna Orr races to free her mentor on the illegal Voidline circuit' },
+  { id: 'serpent-siege',     emoji: '🐍', label: 'SERPENT SIEGE',      category: 'Strategy',    color: '#5fbf4d', renderMode: 'canvas', component: SerpentSiege,
+    subtitle: 'Snake + TD + RTS · Body-as-build-order',
+    desc: 'A tower-defense RTS where your army is one sentient serpent — every body segment is a tower whose type is set by the terrain beneath it. Defend the Mother Egg from the Vermillion Choir' },
+  { id: 'avenue-of-mirrors', emoji: '🪞', label: 'AVENUE OF MIRRORS',  category: 'Adventure',   color: '#7fb6b1', renderMode: 'canvas', component: AvenueOfMirrors,
+    subtitle: 'Lucid Avenue + Maze + Memory · Navigational amnesia',
+    desc: 'A first-person dream-walk where the maze rebuilds itself the moment you stop looking, and you only navigate by glyph-grids you must memorize. The Compositor wants you forgotten' },
+  { id: 'engin-fracture',    emoji: '⚙️', label: 'ENGIN: FRACTURE',    category: 'Fighting',    color: '#8aa9ff', renderMode: 'canvas', component: EnginFracture,
+    subtitle: 'ENGIN Battle + DREAMwars + Avatar Maker · Built-is-fought',
+    desc: '1v1 mech fighter where every avatar-maker silhouette choice is a frame-data decision, wrapped in a season-long Lattice/Choir/Kindling faction war. Pilot Vesh defects mid-season' },
+
+  // ── Advanced fusions ──────────────────────────────────────────────────────
+  { id: 'glassfall',             emoji: '🔻', label: 'GLASSFALL',              category: 'Puzzle',    color: '#ff7da8', renderMode: 'canvas', component: Glassfall,
+    subtitle: 'Breakout + Tetris + Match-3 · Carve the falling tower',
+    desc: 'A vertical action-puzzler — bounce shards up into falling tetrominos to chip free gems, settle them into 3-matches, push back the rising garbage. Climb the Architect\'s tower' },
+  { id: 'nite-flyer-solar-hymn', emoji: '🌙', label: 'NITE FLYER: SOLAR HYMN', category: 'Adventure', color: '#c47bd6', renderMode: 'canvas', component: NiteFlyerSolarHymn,
+    subtitle: 'Flappy + Pong + DREAMquest · Out-rally a god',
+    desc: 'Side-scrolling dream-courier adventure — flap through painted chapters, deliver one last letter to The Long Pause, then face moon-king bosses in cosmic Pong duels' },
+  { id: 'lexicon-solitaire',     emoji: '📜', label: 'LEXICON SOLITAIRE',      category: 'Card',      color: '#d6b27a', renderMode: 'dom',    component: LexiconSolitaire,
+    subtitle: 'Solitaire + Word Sprint + Trivia · Spell to fight',
+    desc: 'Narrative deckbuilder — lay Klondike cascades, spell words across legal chains to cast spells, answer library trivia for relic-cards. Lin Argo chases the Redactor through five dying libraries' },
+
+  // ── Classic fusion ────────────────────────────────────────────────────────
+  { id: 'defuse-ritual',         emoji: '🕯', label: 'DEFUSE RITUAL',          category: 'Arcade',    color: '#f0c674', renderMode: 'dom',    component: DefuseRitual,
+    subtitle: 'Speed-Tap + Minesweeper · Deduction under panic',
+    desc: 'Nine seconds. A minesweeper grid overlays a candle-lit temple floor. Tap only the safe tiles in the glyph-order shown on the wall — mistakes shorten the timer and brand your hand' },
 ];
 
-const FEATURED_GAME_IDS = ['platformer', 'neon-drift', 'dreamquest', 'dreamwars'] as const;
+const FEATURED_GAME_IDS = ['platformer', 'null-cathedral', 'engin-fracture', 'voidline-gp'] as const;
 const QUICK_RESUME_FALLBACK_COUNT = 3;
 const ENGINE_CAPABILITY_CHIPS = [
   'Fullscreen boot',

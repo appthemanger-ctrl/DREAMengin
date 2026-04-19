@@ -57,8 +57,6 @@ import JourneyTrail from '@/components/daydream/JourneyTrail';
 import GameRuntime from '@/lib/gameengin/GameRuntime';
 import type { GameCartridge } from '@/lib/gameengin/cartridge';
 import { wrapAsCartridge } from '@/lib/gameengin/ReactComponentCartridge';
-import { TetrisCartridge } from '@/games/tetris/TetrisCartridge';
-import { SnakeCartridge } from '@/games/snake/SnakeCartridge';
 
 // ── Interfaces ─────────────────────────────────────────────────────────────────
 
@@ -797,15 +795,11 @@ function GameEnginInner({ onBack }: Props) {
     ? activePlayable.component
     : null;
 
-  // ── Cartridge map — native cartridges + backward-compat adapters ────────────
+  // ── Cartridge map — wrap every GAMES entry as a React-component cartridge ──
   const cartridgeMap = useMemo(() => {
-    const map: Record<string, GameCartridge> = {
-      tetris: TetrisCartridge,
-      snake: SnakeCartridge,
-    };
-    // Wrap all remaining games that have a component but no native cartridge
+    const map: Record<string, GameCartridge> = {};
     for (const game of GAMES) {
-      if (!map[game.id] && game.component) {
+      if (game.component) {
         map[game.id] = wrapAsCartridge(game.id, game.component);
       }
     }

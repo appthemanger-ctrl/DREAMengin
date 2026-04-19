@@ -48,8 +48,8 @@ describe('ADVANCED_GAME_TARGETS', () => {
   it('tracks a flagship/advanced set of complex games for mandatory agent upgrades', () => {
     expect(ADVANCED_GAME_TARGETS.map((target) => target.id)).toEqual([
       'babylon-side-scroller',
-      'engin-battle',
-      'dreamquest',
+      'engin-fracture',
+      'null-cathedral',
     ]);
     expect(ADVANCED_GAME_TARGETS.some((target) => target.tier === 'flagship')).toBe(true);
   });

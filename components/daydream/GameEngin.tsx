@@ -121,15 +121,15 @@ const AICompanions      = 'game-feature-2026'; // 2026: AI-powered NPCs
 const GAME_LABELS = Object.fromEntries(GAMES.map((game) => [game.id, game.label])) as Record<string, string>;
 const QUICK_PLAY_GAME_IDS = [
   'platformer',
-  'rts',
-  'tower-defense',
-  'space-shooter',
-  'tetris',
-  'chess',
-  'rpg',
-  'dreamquest',
+  'null-cathedral',
+  'engin-fracture',
+  'voidline-gp',
+  'serpent-siege',
+  'glassfall',
+  'avenue-of-mirrors',
   'neon-drift',
   'echo-arena',
+  'defuse-ritual',
 ] as const;
 
 const TILE_META: Record<TileType, { emoji: string; label: string; bg: string }> = {
