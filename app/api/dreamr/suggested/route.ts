@@ -47,12 +47,13 @@ export async function GET(req: NextRequest) {
 
   // ── Suggested CONTENT ─────────────────────────────────────────────────────
   if (type === 'content') {
+    // NOTE: DB column is `view_count` (singular); algorithm field is `views_count`.
     const { data: rows } = await db
       .from('app_posts')
-      .select('id, content, media_url, media_urls, media_json, created_at, likes_count, comments_count, user_id, profiles!inner(handle, display_name, avatar_url)')
+      .select('id, content, media_url, media_urls, media_json, created_at, view_count, likes_count, comments_count, user_id, profiles!inner(handle, display_name, avatar_url)')
       .eq('visibility', 'public')
       .not('user_id', 'in', `(${excludeIds.join(',')})`)
-      .order('views_count', { ascending: false, nullsFirst: false })
+      .order('view_count', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false })
       .limit(60);
 
@@ -61,7 +62,7 @@ export async function GET(req: NextRequest) {
       content:        r.content ?? '',
       media_url:      getPrimaryPostMediaUrl(r),
       created_at:     r.created_at,
-      views_count:    r.views_count    ?? 0,
+      views_count:    r.view_count     ?? 0,
       likes_count:    r.likes_count    ?? 0,
       comments_count: r.comments_count ?? 0,
       source:         'post',

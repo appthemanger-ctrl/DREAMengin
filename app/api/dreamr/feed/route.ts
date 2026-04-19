@@ -34,11 +34,14 @@ export async function GET(req: NextRequest) {
   // We fetch 3× the requested limit so scoring/ranking has real choices.
   const fetchLimit = Math.min(limit * 3, 120);
 
+  // NOTE: the DB column on app_posts is `view_count` (singular), maintained by
+  // /api/posts/[id]/view on every verified view. The algorithm interface field
+  // is `views_count` (plural). We map DB → algorithm below.
   const { data: rows, error } = await db
     .from('app_posts')
-    .select('id, content, visibility, media_url, media_urls, media_json, created_at, likes_count, comments_count, profiles!inner(handle, display_name, avatar_url)')
+    .select('id, content, visibility, media_url, media_urls, media_json, created_at, view_count, likes_count, comments_count, profiles!inner(handle, display_name, avatar_url)')
     .eq('visibility', 'public')
-    .order('views_count', { ascending: false, nullsFirst: false })
+    .order('view_count', { ascending: false, nullsFirst: false })
     .order('created_at', { ascending: false })
     .range(offset, offset + fetchLimit - 1);
 
@@ -51,7 +54,7 @@ export async function GET(req: NextRequest) {
     content:       r.content ?? '',
     media_url:     getPrimaryPostMediaUrl(r),
     created_at:    r.created_at,
-    views_count:   r.views_count   ?? 0,
+    views_count:   r.view_count    ?? 0,
     likes_count:   r.likes_count   ?? 0,
     comments_count: r.comments_count ?? 0,
     source:        'post',
