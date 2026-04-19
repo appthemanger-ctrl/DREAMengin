@@ -1,0 +1,42 @@
+name: Mobile Next-Gen Spec Evolution
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mobile-nextgen-spec-evolution
+  cancel-in-progress: true
+
+jobs:
+  evolve-spec:
+    name: Research web + evolve next-gen mobile spec
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Generate evolving next-gen mobile spec
+        run: node scripts/generate-mobile-nextgen-spec.mjs
+
+      - name: Commit spec updates
+        run: |
+          if [ -n "$(git status --porcelain docs/mobile-nextgen-web-gaming-engine-spec.md)" ]; then
+            git config user.name "Mobile Next-Gen Spec Bot"
+            git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
+            git add docs/mobile-nextgen-web-gaming-engine-spec.md
+            git commit -m "docs(spec): evolve next-gen mobile web gaming engine spec [skip ci] [skip vercel]"
+            git push origin HEAD:${GITHUB_REF_NAME}
+          else
+            echo "No spec changes to commit."
+          fi
