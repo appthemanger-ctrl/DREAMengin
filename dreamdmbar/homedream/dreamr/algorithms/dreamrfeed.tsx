@@ -492,14 +492,44 @@ function PostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave, o
           </div>
         )}
 
-        {/* Views — the public metric */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: hasDark ? 'rgba(255,255,255,0.10)' : DR.bg, boxShadow: hasDark ? 'none' : nmR(2), backdropFilter: hasDark ? 'blur(12px)' : 'none', borderRadius: 99, padding: '5px 11px' }}>
+        {/* Views — the public metric, plus DreamR "why?" chip when known */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <div
+            aria-label={
+              post.dreamr_reason
+                ? `Views ${views > 0 ? fmtViews(views) : 'none'}; ranked by DreamR for ${post.dreamr_reason}`
+                : `Views ${views > 0 ? fmtViews(views) : 'none'}`
+            }
+            style={{ display: 'flex', alignItems: 'center', gap: 5, background: hasDark ? 'rgba(255,255,255,0.10)' : DR.bg, boxShadow: hasDark ? 'none' : nmR(2), backdropFilter: hasDark ? 'blur(12px)' : 'none', borderRadius: 99, padding: '5px 11px' }}
+          >
             <Eye size={12} color={hasDark ? 'rgba(255,255,255,0.70)' : DR.sky} />
             <span style={{ fontSize: 11, fontWeight: 700, color: hasDark ? 'rgba(255,255,255,0.80)' : DR.sky }}>
               {views > 0 ? fmtViews(views) : '—'} views
             </span>
           </div>
+
+          {post.dreamr_reason && (
+            <div
+              title={`DreamR ranked this for ${post.dreamr_reason}${typeof post.dreamr_score === 'number' ? ` (score ${post.dreamr_score})` : ''}`}
+              aria-label={`DreamR rank reason: ${post.dreamr_reason}`}
+              data-dreamr-signal={post.dominant_signal ?? ''}
+              data-dreamr-score={post.dreamr_score ?? ''}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 5,
+                background: hasDark ? 'rgba(255,255,255,0.08)' : DR.bg,
+                boxShadow: hasDark ? 'none' : nmR(2),
+                backdropFilter: hasDark ? 'blur(12px)' : 'none',
+                borderRadius: 99, padding: '5px 11px',
+                fontSize: 10, fontWeight: 700, letterSpacing: '0.05em',
+                color: hasDark ? 'rgba(255,255,255,0.70)' : DR.gold,
+                textTransform: 'lowercase',
+              }}
+            >
+              <Sparkles size={11} />
+              <span>{post.dreamr_reason}</span>
+            </div>
+          )}
+
           <div style={{ fontSize: 14, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: hasDark ? 'rgba(255,255,255,0.28)' : DR.textDim }}>
             ← swipe for more
           </div>
@@ -657,6 +687,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   const scrollRef  = useRef<HTMLDivElement>(null);
   const pendingRef = useRef<FeedPost[]>([]);
   const offsetRef  = useRef(0);
+  const cursorRef  = useRef<string | null>(null);
   const mountedRef = useRef(true);
 
   useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; }; }, []);
@@ -667,7 +698,12 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
     fetch('/api/dreamr/feed?limit=20')
       .then(r => r.ok ? r.json() : null)
       .then(d => {
-        if (d?.posts?.length) { setPosts(d.posts); offsetRef.current = d.posts.length; }
+        if (d?.posts?.length) {
+          setPosts(d.posts);
+          offsetRef.current = d.posts.length;
+          // Server-issued stable cursor for the next page (when supported).
+          if (typeof d.nextCursor === 'string') cursorRef.current = d.nextCursor;
+        }
       })
       .catch(() => {});
   }, [userId]);
@@ -746,10 +782,20 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   }, []);
 
   // ── Load more posts when near the end ────────────────────────────────
+  // Stable pagination: prefer the server-issued cursor (created_at < cursor)
+  // and pass the ids we've already rendered as `seen` so the ranker doesn't
+  // re-rank a post we're displaying. Falls back to legacy offset paging if
+  // the server hasn't issued a cursor yet.
   const loadMore = useCallback(() => {
     if (loadingMore || !hasMore || !userId) return;
     setLoadingMore(true);
-    fetch(`/api/dreamr/feed?limit=20&offset=${offsetRef.current}`)
+
+    const seenIds = posts.map(p => p.id).slice(-200).join(',');
+    const url = cursorRef.current
+      ? `/api/dreamr/feed?limit=20&before=${encodeURIComponent(cursorRef.current)}&seen=${encodeURIComponent(seenIds)}`
+      : `/api/dreamr/feed?limit=20&offset=${offsetRef.current}&seen=${encodeURIComponent(seenIds)}`;
+
+    fetch(url)
       .then(r => r.ok ? r.json() : null)
       .then(d => {
         if (d?.posts?.length) {
@@ -759,14 +805,16 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
             offsetRef.current += fresh.length;
             return [...prev, ...fresh];
           });
-          if (d.posts.length < 20) setHasMore(false);
+          if (typeof d.nextCursor === 'string') cursorRef.current = d.nextCursor;
+          else if (d.nextCursor === null)       cursorRef.current = null;
+          if (d.posts.length < 20 && d.nextCursor === null) setHasMore(false);
         } else {
           setHasMore(false);
         }
       })
       .catch(() => {})
       .finally(() => setLoadingMore(false));
-  }, [loadingMore, hasMore, userId]);
+  }, [loadingMore, hasMore, userId, posts]);
 
   // ── Interleave: native posts + YouTube topic videos + suggested ──────
   // Pattern: 3 native posts → 1 YouTube video, then periodically a suggested card

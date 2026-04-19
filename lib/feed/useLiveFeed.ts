@@ -63,6 +63,28 @@ export interface FeedPost {
   provider?: string;
   /** Original post URL for connector items (mastodon, youtube, …) */
   permalink?: string;
+
+  // ── DreamR transparency payload ────────────────────────────────────────────
+  // Populated by the DreamR feed routes (rankFeed → ScoredPost). All optional
+  // because connector items, realtime-arrival posts, and pre-DreamR feeds may
+  // not carry them.
+  /** Composite humanistic score 0-100. */
+  dreamr_score?: number;
+  /** Per-signal 0-1 breakdown — see DreamR algorithm. */
+  dreamr_signals?: {
+    contentDepth:   number;
+    originalMedia:  number;
+    dreamenginMade: number;
+    textRichness:   number;
+    freshness:      number;
+    trendImpact:    number;
+  };
+  /** Which signal dominated the rank — used by the "why am I seeing this?" chip. */
+  dominant_signal?: string;
+  /** Human phrasing of dominant_signal (e.g. "crafted writing"). */
+  dreamr_reason?: string;
+  /** Public views per hour since posted. */
+  view_velocity?: number;
 }
 
 export interface UseLiveFeedReturn {

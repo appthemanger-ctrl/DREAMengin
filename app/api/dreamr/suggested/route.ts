@@ -4,23 +4,36 @@
  * Returns two kinds of suggestions, both powered by the DreamR algorithm:
  *
  *  ?type=content  — posts from creators the caller does NOT yet follow,
- *                   scored and ranked by the humanistic algorithm.
- *                   These appear woven into the feed as "you might love this".
+ *                   scored and ranked by the humanistic algorithm. The full
+ *                   transparency payload (dreamr_signals, dominant_signal,
+ *                   dreamr_reason, view_velocity) is included on every post.
  *
  *  ?type=creators — profiles of creators the caller does NOT yet follow,
- *                   ranked by how actively they create on dreamengin
- *                   (post count + recency of last post, never follower count).
- *                   These appear as "connect with" cards in the feed.
+ *                   ranked by the *quality* of their recent work — i.e. the
+ *                   average DreamR score of their last few public posts —
+ *                   tempered by recency. We never use follower count.
  *
  * Query params:
  *   type   — 'content' | 'creators'  (default 'content')
  *   limit  — results to return       (default 5, max 10)
+ *
+ * Visibility:
+ *   close_friends posts are filtered out using the same helper as the main
+ *   feed route, so suggested-content can never leak past the poster's CF wall.
  */
 
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
-import { rankFeed, type ScoredPost } from '@/dreamdmbar/homedream/dreamr/algorithms/dreamrAlgorithm';
+import {
+  rankFeed,
+  scoreDreamRPost,
+  type ScoredPost,
+} from '@/dreamdmbar/homedream/dreamr/algorithms/dreamrAlgorithm';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
+import {
+  filterByCloseFriends,
+  loadVisibilityCircle,
+} from '@/lib/dreamr/closeFriendsVisibility';
 
 export async function GET(req: NextRequest) {
   const supabase = await createServerClient();
@@ -44,20 +57,22 @@ export async function GET(req: NextRequest) {
   );
   // Always exclude self
   const excludeIds = [...followedIds, user.id];
+  const circle = await loadVisibilityCircle(user.id);
 
   // ── Suggested CONTENT ─────────────────────────────────────────────────────
   if (type === 'content') {
     // NOTE: DB column is `view_count` (singular); algorithm field is `views_count`.
     const { data: rows } = await db
       .from('app_posts')
-      .select('id, content, media_url, media_urls, media_json, created_at, view_count, likes_count, comments_count, user_id, profiles!inner(handle, display_name, avatar_url)')
+      .select('id, user_id, content, post_visibility, media_url, media_urls, media_json, created_at, view_count, likes_count, comments_count, profiles!inner(handle, display_name, avatar_url)')
       .eq('visibility', 'public')
       .not('user_id', 'in', `(${excludeIds.join(',')})`)
-      .order('view_count', { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false })
       .limit(60);
 
-    const posts: ScoredPost[] = (rows ?? []).map((r: any) => ({
+    const visible = filterByCloseFriends((rows ?? []) as any[], user.id, circle);
+
+    const posts: ScoredPost[] = visible.map((r: any) => ({
       id:             r.id,
       content:        r.content ?? '',
       media_url:      getPrimaryPostMediaUrl(r),
@@ -80,22 +95,24 @@ export async function GET(req: NextRequest) {
 
   // ── Suggested CREATORS ────────────────────────────────────────────────────
   if (type === 'creators') {
-    // Find active creators not yet followed: those with recent public posts
+    // Pull a wider pool of recent public posts so we can score the body of
+    // each creator's recent work, not just count them. We need content +
+    // media so the DreamR algorithm has the same inputs it uses on the feed.
     const { data: rows } = await db
       .from('app_posts')
-      .select('user_id, created_at, profiles!inner(id, handle, display_name, avatar_url, bio)')
+      .select('id, user_id, content, post_visibility, media_url, media_urls, media_json, created_at, view_count, likes_count, comments_count, profiles!inner(id, handle, display_name, avatar_url, bio)')
       .eq('visibility', 'public')
       .not('user_id', 'in', `(${excludeIds.join(',')})`)
       .order('created_at', { ascending: false })
-      .limit(100);
+      .limit(200);
 
-    if (!rows || rows.length === 0) {
+    const visible = filterByCloseFriends((rows ?? []) as any[], user.id, circle);
+
+    if (visible.length === 0) {
       return NextResponse.json({ suggestions: [] });
     }
 
-    // Deduplicate by user_id, keep the most recent post per creator.
-    // Rank creators by: recency of latest post + post count (activity score).
-    const creatorMap = new Map<string, {
+    interface CreatorAgg {
       id: string;
       handle: string;
       display_name: string | null;
@@ -103,43 +120,94 @@ export async function GET(req: NextRequest) {
       bio: string | null;
       post_count: number;
       latest_post_at: string;
-    }>();
+      score_sum: number;
+      score_n: number;
+      best_reason: string;
+    }
 
-    for (const row of rows as any[]) {
+    const creatorMap = new Map<string, CreatorAgg>();
+
+    // Cap per-creator scoring work at 5 most-recent posts so the algorithm
+    // measures *current* output, not a long tail. Posts arrive newest-first
+    // already, so we just count.
+    const SCORE_PER_CREATOR_CAP = 5;
+    const scoredCount = new Map<string, number>();
+
+    for (const row of visible as any[]) {
       const uid = row.user_id;
       const p   = row.profiles ?? {};
-      if (!creatorMap.has(uid)) {
-        creatorMap.set(uid, {
+
+      let entry = creatorMap.get(uid);
+      if (!entry) {
+        entry = {
           id:             p.id ?? uid,
           handle:         p.handle ?? '',
           display_name:   p.display_name ?? null,
           avatar_url:     p.avatar_url   ?? null,
           bio:            p.bio          ?? null,
-          post_count:     1,
+          post_count:     0,
           latest_post_at: row.created_at,
+          score_sum:      0,
+          score_n:        0,
+          best_reason:    '',
+        };
+        creatorMap.set(uid, entry);
+      }
+      entry.post_count++;
+      if (row.created_at > entry.latest_post_at) entry.latest_post_at = row.created_at;
+
+      const used = scoredCount.get(uid) ?? 0;
+      if (used < SCORE_PER_CREATOR_CAP) {
+        const scored = scoreDreamRPost({
+          id:             row.id,
+          content:        row.content ?? '',
+          media_url:      getPrimaryPostMediaUrl(row),
+          created_at:     row.created_at,
+          views_count:    row.view_count     ?? 0,
+          likes_count:    row.likes_count    ?? 0,
+          comments_count: row.comments_count ?? 0,
+          source:         'post',
+          provider:       'dreamengin',
+          profiles:       { handle: entry.handle, display_name: entry.display_name, avatar_url: entry.avatar_url },
         });
-      } else {
-        const entry = creatorMap.get(uid)!;
-        entry.post_count++;
-        if (row.created_at > entry.latest_post_at) {
-          entry.latest_post_at = row.created_at;
-        }
+        entry.score_sum += scored.score;
+        entry.score_n   += 1;
+        if (used === 0) entry.best_reason = scored.reason; // newest-post reason
+        scoredCount.set(uid, used + 1);
       }
     }
 
-    // Sort by activity: recent activity + post count
-    const creators = [...creatorMap.values()]
-      .sort((a, b) => {
-        const recencyA = (Date.now() - new Date(a.latest_post_at).getTime()) / 3_600_000;
-        const recencyB = (Date.now() - new Date(b.latest_post_at).getTime()) / 3_600_000;
-        // Activity score: post_count / sqrt(age_hours) — rewards consistent creators, not spammers
-        const scoreA = a.post_count / Math.sqrt(recencyA + 1);
-        const scoreB = b.post_count / Math.sqrt(recencyB + 1);
-        return scoreB - scoreA;
+    // Activity-tempered quality ranking:
+    //   creator_score = avgDreamR * recencyBoost * activityBoost
+    //   recencyBoost  = 1 / (1 + age_hours/72)   — half-life ≈ 3 days
+    //   activityBoost = sqrt(min(post_count, 10)) / sqrt(10)  — modest
+    // Quality dominates; recency and activity are tie-breakers.
+    const ranked = [...creatorMap.values()]
+      .map(c => {
+        const ageHours = (Date.now() - new Date(c.latest_post_at).getTime()) / 3_600_000;
+        const recencyBoost  = 1 / (1 + ageHours / 72);
+        const activityBoost = Math.sqrt(Math.min(c.post_count, 10)) / Math.sqrt(10);
+        const avgQuality    = c.score_n > 0 ? c.score_sum / c.score_n : 0;
+        const creatorScore  = avgQuality * recencyBoost * (0.5 + 0.5 * activityBoost);
+        return {
+          id:             c.id,
+          handle:         c.handle,
+          display_name:   c.display_name,
+          avatar_url:     c.avatar_url,
+          bio:            c.bio,
+          post_count:     c.post_count,
+          /** Average DreamR score over the creator's last few posts (0-100). */
+          avg_dreamr_score: Math.round(avgQuality * 10) / 10,
+          /** Composite suggested-creator rank (not surfaced to UI by default). */
+          creator_score:    Math.round(creatorScore * 10) / 10,
+          /** Dominant signal of their newest post — small UX hint. */
+          dreamr_reason:    c.best_reason,
+        };
       })
+      .sort((a, b) => b.creator_score - a.creator_score)
       .slice(0, limit);
 
-    return NextResponse.json({ suggestions: creators }, { headers: { 'Cache-Control': 'no-store' } });
+    return NextResponse.json({ suggestions: ranked }, { headers: { 'Cache-Control': 'no-store' } });
   }
 
   return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
