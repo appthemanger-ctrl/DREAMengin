@@ -53,6 +53,11 @@ const STAR_COUNT = 140;
 const V0 = 70;
 /** Inner cutoff so stars don't pile at the singularity (in px). */
 const R_MIN = 18;
+/** Quasar burst cooldown range (seconds) — both the initial and recurring waits. */
+const QUASAR_COOLDOWN_MIN = 7;
+const QUASAR_COOLDOWN_MAX = 13;
+/** Duration of a single quasar burst (seconds). */
+const QUASAR_BURST_DURATION = 1.6;
 
 function rand(min: number, max: number) {
   return min + Math.random() * (max - min);
@@ -107,9 +112,9 @@ export default function GalaxyStarfield() {
     const stars: Star[] = [];
     const quasar: Quasar = {
       life: 0,
-      duration: 1.6,
+      duration: QUASAR_BURST_DURATION,
       angle: rand(0, Math.PI),
-      cooldown: rand(6, 11),
+      cooldown: rand(QUASAR_COOLDOWN_MIN, QUASAR_COOLDOWN_MAX),
     };
 
     function seed() {
@@ -220,7 +225,7 @@ export default function GalaxyStarfield() {
         quasar.life -= dt;
         if (quasar.life <= 0) {
           quasar.life = 0;
-          quasar.cooldown = rand(7, 13);
+          quasar.cooldown = rand(QUASAR_COOLDOWN_MIN, QUASAR_COOLDOWN_MAX);
         }
       } else {
         quasar.cooldown -= dt;
