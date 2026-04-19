@@ -11,6 +11,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { ParticlePool, ScreenShake, prefersReducedMotion } from './_fx/canvasFx';
 
 const COLS = 22;
 const ROWS = 16;
@@ -21,10 +22,11 @@ const H = ROWS * CELL;
 type Phase = 'menu' | 'playing' | 'victory' | 'defeat';
 type Terrain = 'plain' | 'forest' | 'ruins' | 'water';
 type SegmentKind = 'arrow' | 'mortar' | 'slow';
+type EnemyKind = 'grunt' | 'shielded' | 'scout' | 'boss';
 interface Pt { x: number; y: number; }
 interface Segment extends Pt { kind: SegmentKind | null; cooldown: number; }
-interface Enemy extends Pt { hp: number; maxHp: number; speed: number; slow: number; }
-interface Projectile extends Pt { tx: number; ty: number; kind: SegmentKind; ttl: number; }
+interface Enemy extends Pt { hp: number; maxHp: number; speed: number; slow: number; kind: EnemyKind; phase: number; }
+interface Projectile extends Pt { vx: number; vy: number; tx: number; ty: number; kind: SegmentKind; ttl: number; }
 
 const COL = {
   bg: '#1a2516',
@@ -63,6 +65,8 @@ export default function SerpentSiege() {
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const terrainRef = useRef<Terrain[][]>(genTerrain());
   const headRef = useRef<Pt>({ x: 5, y: ROWS - 2 });
+  const headAngleRef = useRef<number>(0);          // radians, target angle
+  const headAngVelRef = useRef<number>(0);         // angular velocity for accel
   const dirRef = useRef<Pt>({ x: 1, y: 0 });
   const nextDirRef = useRef<Pt>({ x: 1, y: 0 });
   const segmentsRef = useRef<Segment[]>([]);
@@ -70,6 +74,9 @@ export default function SerpentSiege() {
   const eggHpRef = useRef(10);
   const enemiesRef = useRef<Enemy[]>([]);
   const projsRef = useRef<Projectile[]>([]);
+  const particlesRef = useRef(new ParticlePool(280));
+  const shakeRef = useRef(new ScreenShake(7));
+  const reducedMotionRef = useRef(false);
   const waveRef = useRef(0);
   const waveStartRef = useRef(0);
   const moveAccumRef = useRef(0);
@@ -81,15 +88,18 @@ export default function SerpentSiege() {
   const start = useCallback(() => {
     terrainRef.current = genTerrain();
     headRef.current = { x: 5, y: ROWS - 2 };
+    headAngleRef.current = 0; headAngVelRef.current = 0;
     dirRef.current = { x: 1, y: 0 }; nextDirRef.current = { x: 1, y: 0 };
     segmentsRef.current = [];
     eggHpRef.current = 10;
     enemiesRef.current = []; projsRef.current = [];
+    particlesRef.current.clear();
     waveRef.current = 0; waveStartRef.current = performance.now();
     energyRef.current = 0; scoreRef.current = 0;
     setPhase('playing');
   }, [setPhase]);
   useGameAutoStart(phase === 'menu' ? start : null);
+  useEffect(() => { reducedMotionRef.current = prefersReducedMotion(); }, []);
   useEffect(() => { if (phase === 'victory' || phase === 'defeat') submit(scoreRef.current); }, [phase, submit]);
 
   // Input
@@ -148,36 +158,74 @@ export default function SerpentSiege() {
           }
         }
 
-        // Wave management
+        // Wave management — wave 5 is the BOSS wave (large multi-phase HP unit)
         const waveElapsed = (t - waveStartRef.current) / 1000;
         if (enemiesRef.current.length === 0 && waveElapsed > 4 && waveRef.current > 0) {
           waveRef.current += 1; waveStartRef.current = t;
           if (waveRef.current > 5) { setPhase('victory'); }
+          else if (waveRef.current === 5) {
+            // Spawn the boss
+            const bossHp = 220;
+            enemiesRef.current.push({
+              x: COLS / 2, y: 0, hp: bossHp, maxHp: bossHp,
+              speed: 0.55, slow: 0, kind: 'boss', phase: 0,
+            });
+          }
         } else if (waveRef.current === 0 && waveElapsed > 3) {
           waveRef.current = 1; waveStartRef.current = t;
         }
-        // Spawn enemies
+        // Spawn enemies (skip on boss wave — boss spawned once above)
         const spawnRate = 0.6 + waveRef.current * 0.25;
-        if (waveRef.current > 0 && Math.random() < dt * spawnRate) {
+        if (waveRef.current > 0 && waveRef.current < 5 && Math.random() < dt * spawnRate) {
           const lane = Math.floor(Math.random() * COLS);
-          const hp = 6 + waveRef.current * 4;
-          enemiesRef.current.push({ x: lane, y: 0, hp, maxHp: hp, speed: 0.8 + waveRef.current * 0.15, slow: 0 });
+          const roll = Math.random();
+          let kind: EnemyKind = 'grunt';
+          // Wave 2+ unlocks shielded; wave 3+ unlocks scout
+          if (waveRef.current >= 3 && roll < 0.18) kind = 'scout';
+          else if (waveRef.current >= 2 && roll < 0.36) kind = 'shielded';
+          const baseHp = 6 + waveRef.current * 4;
+          const hp = kind === 'shielded' ? baseHp * 2 : kind === 'scout' ? Math.floor(baseHp * 0.6) : baseHp;
+          const speed = kind === 'shielded' ? 0.55 + waveRef.current * 0.08 : kind === 'scout' ? 1.4 + waveRef.current * 0.18 : 0.8 + waveRef.current * 0.15;
+          enemiesRef.current.push({ x: lane, y: 0, hp, maxHp: hp, speed, slow: 0, kind, phase: 0 });
         }
-        // Move enemies toward egg (greedy)
-        for (const e of enemiesRef.current) {
-          const sp = e.speed * (1 - e.slow * 0.6);
+        // Move enemies with separation steering (scouts ignore slow fields)
+        for (let i = 0; i < enemiesRef.current.length; i++) {
+          const e = enemiesRef.current[i];
+          const slowFactor = e.kind === 'scout' ? 1 : (1 - e.slow * 0.6);
+          const sp = e.speed * slowFactor;
           e.slow = Math.max(0, e.slow - dt);
-          const dx = Math.sign(eggRef.current.x - e.x);
-          const dy = Math.sign(eggRef.current.y - e.y);
-          if (Math.random() < 0.6) e.y += sp * dt; else e.x += dx * sp * dt;
+          // Separation: nudge away from any neighbor closer than 0.9 cells
+          let sepX = 0, sepY = 0;
+          for (let j = 0; j < enemiesRef.current.length; j++) {
+            if (i === j) continue;
+            const o = enemiesRef.current[j];
+            const dx = e.x - o.x, dy = e.y - o.y;
+            const d = Math.hypot(dx, dy);
+            if (d > 0 && d < 0.9) { sepX += dx / d / d * 0.6; sepY += dy / d / d * 0.6; }
+          }
+          // Greedy descent toward egg with separation modulation
+          const tdx = Math.sign(eggRef.current.x - e.x);
+          const advance = (Math.random() < 0.6 ? { vx: 0, vy: sp } : { vx: tdx * sp, vy: 0 });
+          e.x += (advance.vx + sepX) * dt;
+          e.y += (advance.vy + sepY) * dt;
           e.y = Math.min(e.y, ROWS - 0.5);
+          // Boss multi-phase: at 50% HP it speeds up + summons reinforcement
+          if (e.kind === 'boss' && e.phase === 0 && e.hp < e.maxHp / 2) {
+            e.phase = 1; e.speed *= 1.5;
+            for (let s = 0; s < 4; s++) {
+              const baseHp = 14;
+              enemiesRef.current.push({ x: e.x + (Math.random() - 0.5) * 2, y: e.y, hp: baseHp, maxHp: baseHp, speed: 1.1, slow: 0, kind: 'grunt', phase: 0 });
+            }
+          }
           // Damage egg when reaching
           if (Math.abs(e.x - eggRef.current.x) < 1 && Math.abs(e.y - eggRef.current.y) < 1) {
-            eggHpRef.current -= 1; e.hp = 0;
+            eggHpRef.current -= e.kind === 'boss' ? 5 : 1;
+            shakeRef.current.kick(e.kind === 'boss' ? 12 : 4);
+            e.hp = 0;
           }
         }
 
-        // Towers fire
+        // Towers fire — projectiles use ballistic trajectories
         for (const s of segmentsRef.current) {
           if (!s.kind) continue;
           s.cooldown -= dt;
@@ -185,42 +233,94 @@ export default function SerpentSiege() {
           const range = s.kind === 'mortar' ? 6 : 4;
           let target: Enemy | null = null; let bestD = Infinity;
           for (const e of enemiesRef.current) {
+            // shielded enemies take less damage at range — towers may seek easier prey
             const d = Math.hypot(e.x - s.x, e.y - s.y);
             if (d < range && d < bestD) { bestD = d; target = e; }
           }
           if (target) {
-            projsRef.current.push({ x: s.x, y: s.y, tx: target.x, ty: target.y, kind: s.kind, ttl: 0.5 });
+            const dx = target.x - s.x, dy = target.y - s.y;
+            const dist = Math.hypot(dx, dy);
+            // Mortar: arcs (lobs); arrow/slow: straight
+            const flightSpeed = s.kind === 'mortar' ? 6 : 12;
+            const ttl = dist / flightSpeed;
+            const vx = dx / ttl, vy = dy / ttl - (s.kind === 'mortar' ? 6 : 0);  // initial upward for arc
+            projsRef.current.push({ x: s.x, y: s.y, vx, vy, tx: target.x, ty: target.y, kind: s.kind, ttl });
             s.cooldown = s.kind === 'arrow' ? 0.6 : s.kind === 'mortar' ? 1.4 : 1.0;
           }
         }
-        for (const p of projsRef.current) p.ttl -= dt;
-        // Resolve projectiles on impact (instant — used as visuals)
+        // Update projectiles with gravity for mortar; resolve on impact
+        for (const p of projsRef.current) {
+          p.x += p.vx * dt;
+          if (p.kind === 'mortar') p.vy += 12 * dt;     // gravity in cells/s²
+          p.y += p.vy * dt;
+          p.ttl -= dt;
+        }
         for (const p of projsRef.current) {
           if (p.ttl <= 0) {
             for (const e of enemiesRef.current) {
               if (Math.abs(e.x - p.tx) < 1 && Math.abs(e.y - p.ty) < 1) {
-                if (p.kind === 'arrow') e.hp -= 4;
-                if (p.kind === 'mortar') e.hp -= 8;
-                if (p.kind === 'slow') { e.hp -= 2; e.slow = 1; }
+                let dmg = p.kind === 'arrow' ? 4 : p.kind === 'mortar' ? 8 : 2;
+                if (e.kind === 'shielded') dmg = Math.max(1, Math.floor(dmg * 0.5));
+                e.hp -= dmg;
+                if (p.kind === 'slow' && e.kind !== 'scout') e.slow = 1;
+                particlesRef.current.burst(e.x * CELL + CELL / 2, e.y * CELL + CELL / 2, 6, { color: COL[p.kind], speed: 80, size: 1.4, maxLife: 0.3, drag: 0.9 });
               }
             }
           }
         }
         projsRef.current = projsRef.current.filter((p) => p.ttl > 0);
+
+        // Tower terrain particles (occasional ambient flecks tinted by terrain)
+        if (Math.random() < dt * 6) {
+          const seg = segmentsRef.current[Math.floor(Math.random() * segmentsRef.current.length)];
+          if (seg && seg.kind) {
+            const tint = seg.kind === 'arrow' ? COL.forest : seg.kind === 'mortar' ? COL.ruins : COL.water;
+            particlesRef.current.emit({ x: seg.x * CELL + CELL / 2, y: seg.y * CELL + CELL / 2, vx: (Math.random() - 0.5) * 30, vy: -20 - Math.random() * 30, color: tint, size: 1.5, maxLife: 0.7, drag: 0.96 });
+          }
+        }
+
+        particlesRef.current.step(dt);
+        shakeRef.current.step(dt);
+
         // Award energy + score on kills
-        for (const e of enemiesRef.current) if (e.hp <= 0) { energyRef.current += 1; scoreRef.current += 25; }
+        for (const e of enemiesRef.current) if (e.hp <= 0) {
+          energyRef.current += e.kind === 'boss' ? 8 : e.kind === 'shielded' ? 3 : 1;
+          scoreRef.current += e.kind === 'boss' ? 600 : e.kind === 'shielded' ? 60 : 25;
+          particlesRef.current.burst(e.x * CELL + CELL / 2, e.y * CELL + CELL / 2, 14, { color: COL.enemy, speed: 130, size: 2, maxLife: 0.6, drag: 0.88 });
+        }
         enemiesRef.current = enemiesRef.current.filter((e) => e.hp > 0);
 
         if (eggHpRef.current <= 0) setPhase('defeat');
       }
 
+      // Update head angular velocity toward intended direction (no instant 90° snap)
+      const targetAngle = Math.atan2(nextDirRef.current.y, nextDirRef.current.x);
+      let dAng = targetAngle - headAngleRef.current;
+      while (dAng > Math.PI) dAng -= Math.PI * 2;
+      while (dAng < -Math.PI) dAng += Math.PI * 2;
+      headAngVelRef.current += dAng * 18 * dt;
+      headAngVelRef.current *= Math.exp(-6 * dt);
+      headAngleRef.current += headAngVelRef.current * dt;
+
       // ── Render ───────────────────────────────────────────────────────────
+      ctx.save();
+      shakeRef.current.apply(ctx, reducedMotionRef.current ? 0.2 : 1);
+
       ctx.fillStyle = COL.bg; ctx.fillRect(0, 0, W, H);
-      // Terrain
+      // Terrain — with hex-style bevel + drop-shadow per tile
       for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
         const ter = terrainRef.current[r][c];
-        ctx.fillStyle = ter === 'forest' ? COL.forest : ter === 'ruins' ? COL.ruins : ter === 'water' ? COL.water : COL.plain;
+        const base = ter === 'forest' ? COL.forest : ter === 'ruins' ? COL.ruins : ter === 'water' ? COL.water : COL.plain;
+        ctx.fillStyle = base;
         ctx.fillRect(c * CELL, r * CELL, CELL - 1, CELL - 1);
+        // top bevel highlight
+        ctx.fillStyle = 'rgba(255,255,255,0.06)';
+        ctx.fillRect(c * CELL, r * CELL, CELL - 1, 1);
+        ctx.fillRect(c * CELL, r * CELL, 1, CELL - 1);
+        // bottom shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.22)';
+        ctx.fillRect(c * CELL, r * CELL + CELL - 2, CELL - 1, 1);
+        ctx.fillRect(c * CELL + CELL - 2, r * CELL, 1, CELL - 1);
       }
       // Egg
       ctx.fillStyle = COL.egg; ctx.shadowColor = COL.egg; ctx.shadowBlur = 14;
@@ -230,23 +330,56 @@ export default function SerpentSiege() {
       ctx.fillStyle = '#000'; ctx.fillRect(eggRef.current.x * CELL - 8, eggRef.current.y * CELL - 12, 44, 5);
       ctx.fillStyle = COL.egg; ctx.fillRect(eggRef.current.x * CELL - 8, eggRef.current.y * CELL - 12, 44 * (eggHpRef.current / 10), 5);
 
-      // Serpent body segments
+      // Serpent body segments (chained sprites with rim-light)
       for (const s of segmentsRef.current) {
-        ctx.fillStyle = s.kind === 'arrow' ? COL.arrow : s.kind === 'mortar' ? COL.mortar : s.kind === 'slow' ? COL.slow : COL.serpentTail;
+        const base = s.kind === 'arrow' ? COL.arrow : s.kind === 'mortar' ? COL.mortar : s.kind === 'slow' ? COL.slow : COL.serpentTail;
+        ctx.fillStyle = base;
         ctx.fillRect(s.x * CELL + 3, s.y * CELL + 3, CELL - 6, CELL - 6);
+        ctx.fillStyle = 'rgba(255,255,255,0.18)';
+        ctx.fillRect(s.x * CELL + 3, s.y * CELL + 3, CELL - 6, 2);
       }
-      // Head
-      ctx.fillStyle = COL.serpent; ctx.shadowColor = COL.serpent; ctx.shadowBlur = 10;
-      ctx.fillRect(headRef.current.x * CELL + 2, headRef.current.y * CELL + 2, CELL - 4, CELL - 4);
+      // Head — rotated by angular velocity, with heat-haze shimmer behind
+      const hx = headRef.current.x * CELL + CELL / 2, hy = headRef.current.y * CELL + CELL / 2;
+      // Shimmer: dithered glow trailing the head
+      ctx.save();
+      ctx.translate(hx, hy);
+      ctx.rotate(headAngleRef.current);
+      ctx.fillStyle = COL.serpent; ctx.shadowColor = COL.serpent; ctx.shadowBlur = 14;
+      ctx.fillRect(-CELL / 2 + 2, -CELL / 2 + 2, CELL - 4, CELL - 4);
       ctx.shadowBlur = 0;
+      // Eye
+      ctx.fillStyle = '#0a0a0a';
+      ctx.fillRect(CELL / 4, -3, 4, 4);
+      ctx.restore();
 
       // Enemies
       for (const e of enemiesRef.current) {
-        ctx.fillStyle = COL.enemy;
-        ctx.beginPath(); ctx.arc(e.x * CELL + CELL / 2, e.y * CELL + CELL / 2, CELL * 0.35, 0, Math.PI * 2); ctx.fill();
-        // hp
-        ctx.fillStyle = '#000'; ctx.fillRect(e.x * CELL, e.y * CELL - 5, CELL, 3);
-        ctx.fillStyle = COL.enemy; ctx.fillRect(e.x * CELL, e.y * CELL - 5, CELL * (e.hp / e.maxHp), 3);
+        const ecx = e.x * CELL + CELL / 2, ecy = e.y * CELL + CELL / 2;
+        if (e.kind === 'boss') {
+          ctx.fillStyle = e.phase === 1 ? '#ff5577' : '#922a44';
+          ctx.shadowColor = '#ff5577'; ctx.shadowBlur = 22;
+          ctx.beginPath(); ctx.arc(ecx, ecy, CELL * 0.95, 0, Math.PI * 2); ctx.fill();
+          ctx.shadowBlur = 0;
+        } else if (e.kind === 'shielded') {
+          ctx.strokeStyle = '#a4cfff'; ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.arc(ecx, ecy, CELL * 0.45, 0, Math.PI * 2); ctx.stroke();
+          ctx.fillStyle = COL.enemy;
+          ctx.beginPath(); ctx.arc(ecx, ecy, CELL * 0.32, 0, Math.PI * 2); ctx.fill();
+        } else if (e.kind === 'scout') {
+          ctx.fillStyle = '#ffd76d';
+          ctx.beginPath();
+          ctx.moveTo(ecx, ecy - CELL * 0.4);
+          ctx.lineTo(ecx + CELL * 0.3, ecy + CELL * 0.3);
+          ctx.lineTo(ecx - CELL * 0.3, ecy + CELL * 0.3);
+          ctx.closePath(); ctx.fill();
+        } else {
+          ctx.fillStyle = COL.enemy;
+          ctx.beginPath(); ctx.arc(ecx, ecy, CELL * 0.35, 0, Math.PI * 2); ctx.fill();
+        }
+        // hp bar
+        const w = e.kind === 'boss' ? CELL * 2 : CELL;
+        ctx.fillStyle = '#000'; ctx.fillRect(ecx - w / 2, ecy - (e.kind === 'boss' ? CELL : 18), w, 3);
+        ctx.fillStyle = COL.enemy; ctx.fillRect(ecx - w / 2, ecy - (e.kind === 'boss' ? CELL : 18), w * (e.hp / e.maxHp), 3);
       }
 
       // Projectiles
@@ -254,10 +387,12 @@ export default function SerpentSiege() {
         ctx.strokeStyle = p.kind === 'arrow' ? COL.arrow : p.kind === 'mortar' ? COL.mortar : COL.slow;
         ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(p.x * CELL + CELL / 2, p.y * CELL + CELL / 2);
-        ctx.lineTo(p.tx * CELL + CELL / 2, p.ty * CELL + CELL / 2);
+        ctx.arc(p.x * CELL + CELL / 2, p.y * CELL + CELL / 2, 2, 0, Math.PI * 2);
         ctx.stroke();
       }
+
+      particlesRef.current.draw(ctx);
+      ctx.restore();
 
       raf = requestAnimationFrame(loop);
     };
@@ -293,12 +428,9 @@ export default function SerpentSiege() {
         {phase === 'victory' && (<Overlay><h1 style={{ color: COL.serpent }}>The Choir falls silent.</h1><p>Score: {scoreRef.current}</p><button onClick={start} style={btn}>Re-merge the Broods</button></Overlay>)}
         {phase === 'defeat' && (<Overlay><h1 style={{ color: COL.enemy }}>The Egg cracks.</h1><p>Score: {scoreRef.current}</p><button onClick={start} style={btn}>Re-hatch</button></Overlay>)}
       </div>
-      <div style={{ display: 'flex', gap: 12, fontSize: 12 }}>
+      <div style={{ display: 'flex', gap: 14, fontSize: 11, letterSpacing: 2, color: '#7d9c70' }}>
         <span>WAVE {hud.wave}/5</span>
-        <span style={{ color: COL.serpent }}>LEN {hud.length}</span>
-        <span style={{ color: COL.egg }}>EGG {hud.eggHp}/10</span>
-        <span style={{ color: COL.arrow }}>ENERGY {hud.energy}</span>
-        <span>SCORE {hud.score}</span>
+        <span style={{ color: COL.arrow }}>⚡ {hud.energy}</span>
       </div>
     </div>
   );

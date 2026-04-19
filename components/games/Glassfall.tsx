@@ -13,6 +13,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useGameAutoStart, useGamePhase, useSubmitScore } from '@/lib/games/hooks';
+import { ParticlePool, ScreenShake, prefersReducedMotion } from './_fx/canvasFx';
 
 const COLS = 12;
 const ROWS = 18;
@@ -46,12 +47,37 @@ export default function Glassfall() {
   const pieceRef = useRef<FallingPiece | null>(null);
   const shardRef = useRef<ShardState | null>(null);
   const paddleXRef = useRef(W / 2);
+  const PADDLE_W = 80;
+  const PADDLE_CURVATURE = 0.35;   // 0 = flat, 1 = strong dome
+  const particlesRef = useRef(new ParticlePool(220));
+  const shakeRef = useRef(new ScreenShake(6));
+  const reducedMotionRef = useRef(false);
   const lastFallRef = useRef(0);
   const lastGarbageRef = useRef(0);
   const scoreRef = useRef(0);
   const floorRef = useRef(1);
+  const garbageMeterRef = useRef(0);            // 0..1, time since last garbage rise
   const keysRef = useRef<Set<string>>(new Set());
   const submit = useSubmitScore('glassfall');
+
+  /** Rotate a tetromino 90° clockwise around its bounding box. */
+  const rotateCells = useCallback((cells: Array<[number, number]>): Array<[number, number]> => {
+    let maxC = 0;
+    for (const [, c] of cells) if (c > maxC) maxC = c;
+    return cells.map(([r, c]) => [c, maxC - r] as [number, number]);
+  }, []);
+
+  const tryRotate = useCallback(() => {
+    const p = pieceRef.current; if (!p) return;
+    const next = rotateCells(p.cells);
+    // Validate against grid + bounds
+    for (const [dr, dc] of next) {
+      const r = p.cy + dr, c = p.cx + dc;
+      if (c < 0 || c >= COLS || r >= ROWS) return;
+      if (r >= 0 && gridRef.current[r][c] !== 0) return;
+    }
+    p.cells = next;
+  }, [rotateCells]);
 
   const spawnPiece = useCallback(() => {
     const t = TETROMINOES[Math.floor(Math.random() * TETROMINOES.length)];
@@ -79,14 +105,16 @@ export default function Glassfall() {
     const down = (e: KeyboardEvent) => {
       keysRef.current.add(e.key);
       if (e.key === ' ') { e.preventDefault(); launchShard(); }
+      if (e.key === 'z' || e.key === 'Z') { e.preventDefault(); tryRotate(); }
       if (e.key.startsWith('Arrow')) e.preventDefault();
     };
     const up = (e: KeyboardEvent) => keysRef.current.delete(e.key);
     window.addEventListener('keydown', down); window.addEventListener('keyup', up);
     return () => { window.removeEventListener('keydown', down); window.removeEventListener('keyup', up); };
-  }, [launchShard]);
+  }, [launchShard, tryRotate]);
+  useEffect(() => { reducedMotionRef.current = prefersReducedMotion(); }, []);
 
-  // Settle gems via gravity + match-3 sweep
+  // Settle gems via gravity + cluster sweep (any orthogonal cluster ≥3 same color)
   const settleAndMatch = useCallback(() => {
     const g = gridRef.current;
     // gravity pass — drop free cells
@@ -96,32 +124,40 @@ export default function Glassfall() {
         if (g[r][c] !== 0) { const v = g[r][c]; g[r][c] = 0; g[writeR][c] = v; writeR--; }
       }
     }
-    // detect 3+ runs (rows + cols)
+    // detect orthogonal clusters via flood-fill — clusters of size ≥3 are removed
     const remove: boolean[][] = Array.from({ length: ROWS }, () => Array<boolean>(COLS).fill(false));
-    for (let r = 0; r < ROWS; r++) {
-      let run = 1;
-      for (let c = 1; c <= COLS; c++) {
-        if (c < COLS && g[r][c] !== 0 && g[r][c] === g[r][c - 1]) run++;
-        else { if (run >= 3) for (let k = 1; k <= run; k++) remove[r][c - k] = true; run = 1; }
+    const seen: boolean[][] = Array.from({ length: ROWS }, () => Array<boolean>(COLS).fill(false));
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      if (seen[r][c] || g[r][c] === 0) continue;
+      const color = g[r][c];
+      const stack: Array<[number, number]> = [[r, c]];
+      const cluster: Array<[number, number]> = [];
+      while (stack.length) {
+        const [cr, cc] = stack.pop()!;
+        if (cr < 0 || cr >= ROWS || cc < 0 || cc >= COLS) continue;
+        if (seen[cr][cc] || g[cr][cc] !== color) continue;
+        seen[cr][cc] = true;
+        cluster.push([cr, cc]);
+        stack.push([cr + 1, cc], [cr - 1, cc], [cr, cc + 1], [cr, cc - 1]);
       }
-    }
-    for (let c = 0; c < COLS; c++) {
-      let run = 1;
-      for (let r = 1; r <= ROWS; r++) {
-        if (r < ROWS && g[r][c] !== 0 && g[r][c] === g[r - 1][c]) run++;
-        else { if (run >= 3) for (let k = 1; k <= run; k++) remove[r - k][c] = true; run = 1; }
-      }
+      if (cluster.length >= 3) for (const [cr, cc] of cluster) remove[cr][cc] = true;
     }
     let cleared = 0;
-    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (remove[r][c]) { g[r][c] = 0; cleared++; }
+    const burstSpots: Array<[number, number, Exclude<CellColor, 0>]> = [];
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (remove[r][c]) {
+      burstSpots.push([r, c, g[r][c] as Exclude<CellColor, 0>]);
+      g[r][c] = 0; cleared++;
+    }
     if (cleared > 0) {
       scoreRef.current += cleared * 25;
-      // Cascade
+      shakeRef.current.kick(cleared >= 6 ? 6 : 3);
+      // Rainbow shatter burst per cleared cell
+      for (const [r, c, col] of burstSpots) {
+        particlesRef.current.burst(c * CELL + CELL / 2, r * CELL + CELL / 2, 6, { color: COL[col], speed: 130, size: 1.6, maxLife: 0.5, drag: 0.9, gravity: 240 });
+      }
       setTimeout(settleAndMatch, 120);
     }
-    // Crush check (top row populated)
     for (let c = 0; c < COLS; c++) if (g[0][c] !== 0) { setPhase('crushed'); return; }
-    // Floor clear: top half mostly empty
     if (g.slice(0, ROWS / 2).every((row) => row.every((v) => v === 0)) && scoreRef.current > floorRef.current * 200) {
       floorRef.current += 1;
       if (floorRef.current > 5) setPhase('cleared');
@@ -171,7 +207,8 @@ export default function Glassfall() {
           }
         }
 
-        // Garbage rises every 8s
+        // Garbage rises every 8s (and fill the meter that ticks toward it)
+        garbageMeterRef.current = Math.min(1, ((t - lastGarbageRef.current) % 8000) / 8000);
         if (t - lastGarbageRef.current > 8_000 && lastGarbageRef.current > 0) {
           lastGarbageRef.current = t;
           // shift up
@@ -179,15 +216,35 @@ export default function Glassfall() {
           gridRef.current[ROWS - 1] = Array.from({ length: COLS }, () => (Math.random() < 0.6 ? (1 + Math.floor(Math.random() * 4)) : 0) as CellColor);
         } else if (lastGarbageRef.current === 0) lastGarbageRef.current = t;
 
-        // Shard
+        // Shard with curved-paddle reflection (real angle of incidence)
         const s = shardRef.current;
         if (s) {
+          // Apply gravity for free travel
+          s.vy += 80 * dt;
           s.x += s.vx * dt; s.y += s.vy * dt;
-          if (s.x < 8 || s.x > W - 8) s.vx *= -1;
-          // Bounce off paddle
-          if (s.y > H - 100 && s.y < H - 80 && Math.abs(s.x - paddleXRef.current) < 40) {
-            s.vy = -Math.abs(s.vy) - 12;
-            s.vx = (s.x - paddleXRef.current) * 6;
+          if (s.x < 8) { s.x = 8; s.vx = -s.vx * 0.95; }
+          if (s.x > W - 8) { s.x = W - 8; s.vx = -s.vx * 0.95; }
+          // Curved paddle: surface y is offset by curvature based on horizontal distance from center.
+          // Treat the paddle as a circular arc whose center is below the visible bar.
+          const px = paddleXRef.current;
+          if (s.y > H - 100 && s.y < H - 78 && Math.abs(s.x - px) < PADDLE_W / 2 + 6) {
+            // Local x position relative to paddle center, in [-1..1]
+            const u = (s.x - px) / (PADDLE_W / 2);
+            // Surface tangent slope at u (curve depth proportional to PADDLE_CURVATURE)
+            // Approximate normal with angle = u * tilt
+            const tilt = PADDLE_CURVATURE * 1.1;
+            const normAng = u * tilt;            // radians, normal tilts away from center
+            // Reflect velocity around the surface normal
+            const nx = Math.sin(normAng), ny = -Math.cos(normAng);
+            const dot = s.vx * nx + s.vy * ny;
+            s.vx = s.vx - 2 * dot * nx;
+            s.vy = s.vy - 2 * dot * ny;
+            // Slight speed-up
+            s.vx *= 1.04; s.vy *= 1.04;
+            // Push out of paddle
+            s.y = H - 100;
+            // Sparkle dimming trail
+            particlesRef.current.burst(s.x, s.y, 6, { color: '#ffe8c0', speed: 80, size: 1.4, maxLife: 0.4, drag: 0.9 });
           }
           // Hit grid cell — chip & free as gem
           const gr = Math.floor(s.y / CELL);
@@ -197,6 +254,7 @@ export default function Glassfall() {
             gridRef.current[gr][gc] = 0;
             s.vy = Math.abs(s.vy);
             scoreRef.current += 8;
+            particlesRef.current.burst(gc * CELL + CELL / 2, gr * CELL + CELL / 2, 8, { color: COL[s.color], speed: 110, size: 1.5, maxLife: 0.4, drag: 0.9, gravity: 200 });
             settleAndMatch();
           }
           // Hit falling piece — chip
@@ -206,7 +264,6 @@ export default function Glassfall() {
               const cellX = (pp.cx + dc) * CELL + CELL / 2;
               const cellY = (pp.cy + dr) * CELL + CELL / 2;
               if (Math.hypot(s.x - cellX, s.y - cellY) < 14) {
-                // chip this cell — drop a gem at its location
                 gridRef.current[Math.min(ROWS - 1, pp.cy + dr + 1)][pp.cx + dc] = pp.color;
                 pp.cells = pp.cells.filter(([r, c]) => !(r === dr && c === dc));
                 if (pp.cells.length === 0) { pieceRef.current = null; spawnPiece(); }
@@ -217,17 +274,37 @@ export default function Glassfall() {
               }
             }
           }
+          // Sparkle dimming trail every frame
+          if (Math.random() < 0.5) particlesRef.current.emit({ x: s.x, y: s.y, vx: 0, vy: 20, color: COL[s.color], size: 1.2, maxLife: 0.25, drag: 0.92 });
           if (s.y > H - 50) shardRef.current = null;
         }
+
+        // Step shared FX
+        particlesRef.current.step(dt);
+        shakeRef.current.step(dt);
       }
 
       // ── Render ───────────────────────────────────────────────────────────
-      // Sunset gradient
+      // Sunset gradient (with sun-disc + cloud silhouettes parallax)
       const grad = ctx.createLinearGradient(0, 0, 0, H);
       grad.addColorStop(0, '#411541'); grad.addColorStop(0.6, '#a3346e'); grad.addColorStop(1, '#1a0c1a');
       ctx.fillStyle = grad; ctx.fillRect(0, 0, W, H);
+      // Sun disc
+      ctx.fillStyle = 'rgba(255,206,94,0.45)'; ctx.shadowColor = '#ffce5e'; ctx.shadowBlur = 30;
+      ctx.beginPath(); ctx.arc(W * 0.5, H * 0.32, 50, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+      // Cloud silhouettes
+      ctx.fillStyle = 'rgba(20,8,26,0.55)';
+      const drift = reducedMotionRef.current ? 0 : (t / 80) % (W + 200);
+      for (let i = 0; i < 4; i++) {
+        const cx = ((i * 180 - drift) + W * 2) % (W + 200) - 100;
+        const cy = 80 + i * 30;
+        ctx.beginPath(); ctx.ellipse(cx, cy, 70, 14, 0, 0, Math.PI * 2); ctx.fill();
+      }
       // Dither bands
       for (let y = 0; y < H; y += 4) { ctx.fillStyle = `rgba(0,0,0,${(y % 8 === 0) ? 0.06 : 0})`; ctx.fillRect(0, y, W, 2); }
+
+      ctx.save();
+      shakeRef.current.apply(ctx, reducedMotionRef.current ? 0.2 : 1);
       // Grid backdrop
       ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.fillRect(0, 0, W, ROWS * CELL);
 
@@ -239,16 +316,39 @@ export default function Glassfall() {
         ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 1;
         ctx.strokeRect(c * CELL + 1, r * CELL + 1, CELL - 2, CELL - 2);
       }
-      // Falling piece
+      // Falling piece (with chromatic-aberration tint)
       const p = pieceRef.current;
       if (p) {
-        ctx.fillStyle = COL[p.color]; ctx.shadowColor = COL[p.color]; ctx.shadowBlur = 8;
+        // Subtle CA shadow offset behind
+        ctx.fillStyle = 'rgba(127,209,240,0.25)';
+        for (const [dr, dc] of p.cells) ctx.fillRect((p.cx + dc) * CELL + 4, (p.cy + dr) * CELL + 2, CELL - 4, CELL - 4);
+        ctx.fillStyle = 'rgba(255,125,168,0.25)';
+        for (const [dr, dc] of p.cells) ctx.fillRect((p.cx + dc) * CELL, (p.cy + dr) * CELL + 2, CELL - 4, CELL - 4);
+        ctx.fillStyle = COL[p.color]; ctx.shadowColor = COL[p.color]; ctx.shadowBlur = 10;
         for (const [dr, dc] of p.cells) ctx.fillRect((p.cx + dc) * CELL + 2, (p.cy + dr) * CELL + 2, CELL - 4, CELL - 4);
         ctx.shadowBlur = 0;
       }
-      // Paddle
+      // Curved paddle (anisotropic specular streak)
+      const px = paddleXRef.current;
       ctx.fillStyle = '#ffe8c0';
-      ctx.fillRect(paddleXRef.current - 40, H - 90, 80, 10);
+      ctx.beginPath();
+      ctx.moveTo(px - PADDLE_W / 2, H - 90);
+      // top arc — curved upward
+      const segs = 12;
+      for (let i = 0; i <= segs; i++) {
+        const u = (i / segs) * 2 - 1;
+        const x = px + u * PADDLE_W / 2;
+        const y = H - 90 - Math.cos(u * Math.PI / 2) * PADDLE_CURVATURE * 14;
+        ctx.lineTo(x, y);
+      }
+      ctx.lineTo(px + PADDLE_W / 2, H - 80);
+      ctx.lineTo(px - PADDLE_W / 2, H - 80);
+      ctx.closePath();
+      ctx.fill();
+      // Spec streak
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(px - PADDLE_W / 2 + 6, H - 88); ctx.lineTo(px + PADDLE_W / 2 - 6, H - 88); ctx.stroke();
+
       // Shard
       const s = shardRef.current;
       if (s) {
@@ -256,12 +356,26 @@ export default function Glassfall() {
         ctx.beginPath(); ctx.arc(s.x, s.y, 7, 0, Math.PI * 2); ctx.fill();
         ctx.shadowBlur = 0;
       }
-      // HUD
-      ctx.fillStyle = '#fff'; ctx.font = 'bold 13px monospace'; ctx.textAlign = 'left';
-      ctx.fillText(`SCORE ${scoreRef.current}`, 10, H - 30);
-      ctx.fillText(`FLOOR ${floorRef.current}/5`, 10, H - 14);
-      ctx.textAlign = 'right';
-      ctx.fillText('SPACE = launch shard', W - 10, H - 14);
+
+      // Particles
+      particlesRef.current.draw(ctx);
+      ctx.restore();
+
+      // ── Minimal HUD ── score chip top-right + thin garbage-rise meter on side
+      // Score chip
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(W - 88, 6, 82, 18);
+      ctx.fillStyle = '#ffe8c0'; ctx.font = 'bold 12px monospace'; ctx.textAlign = 'right';
+      ctx.fillText(String(scoreRef.current), W - 12, 19);
+      // Garbage-rise meter on left edge
+      const meterH = ROWS * CELL;
+      ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fillRect(0, 0, 4, meterH);
+      ctx.fillStyle = '#ff7da8'; ctx.fillRect(0, meterH * (1 - garbageMeterRef.current), 4, meterH * garbageMeterRef.current);
+      // Tiny floor pip top-left
+      for (let i = 0; i < 5; i++) {
+        ctx.fillStyle = i < floorRef.current ? '#ffce5e' : 'rgba(255,206,94,0.2)';
+        ctx.fillRect(10 + i * 8, 10, 5, 5);
+      }
 
       raf = requestAnimationFrame(loop);
     };
