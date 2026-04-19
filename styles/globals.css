@@ -73,7 +73,7 @@
   --skin-widget-opacity: 0.72;
   --skin-widget-radius:  18px;
   --skin-widget-shadow:  0 4px 16px rgba(0,0,0,0.07);
-  --skin-font:           var(--font-space-grotesk, "Space Grotesk", system-ui, sans-serif);
+  --skin-font:           var(--font-space-grotesk, "Permanent Marker", "Marker Felt", system-ui, sans-serif);
   --skin-accent-color:   #c8981a;
 
   /* ── Tailwind HSL tokens (required by shadcn) ── */
@@ -125,7 +125,7 @@ html, body {
   );
   background-attachment: fixed;
   color: var(--de-text);
-  font-family: var(--font-space-grotesk, 'Space Grotesk', system-ui, sans-serif);
+  font-family: var(--font-space-grotesk, 'Permanent Marker', 'Marker Felt', system-ui, sans-serif);
   overscroll-behavior: none;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
@@ -141,6 +141,22 @@ body {
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
+}
+
+/* ── Graffiti header scheme ──────────────────────────────────────────────────
+   Headers use the Bungee (--font-dreamr) graffiti display face with the
+   existing --de-heading color token, keeping each font's color scheme
+   individualized:
+     • body  (Permanent Marker, --font-space-grotesk) → --de-text
+     • headers (Bungee, --font-dreamr)                → --de-heading
+     • wordmark / "Dream" word (Bungee Shade,
+       --font-cormorant)                              → metallic gold
+── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-dreamr, 'Bungee', Impact, 'Arial Black', sans-serif);
+  color: var(--de-heading);
+  letter-spacing: 0.01em;
+  font-weight: 400;
 }
 
 body::before,
@@ -262,7 +278,7 @@ a:active {
 }
 /* ── dreamengin wordmark utility ── */
 .de-wordmark {
-  font-family: var(--font-cormorant, Georgia, 'Times New Roman', serif);
+  font-family: var(--font-cormorant, 'Bungee Shade', Impact, 'Arial Black', sans-serif);
   font-style: italic;
   font-weight: 400;
   color: #7a5c28;
@@ -277,7 +293,7 @@ a:active {
    creates the metallic sheen. Prefix/suffix text keeps its own font.
 ── */
 .de-dream-word {
-  font-family: var(--font-cormorant, Georgia, 'Times New Roman', serif);
+  font-family: var(--font-cormorant, 'Bungee Shade', Impact, 'Arial Black', sans-serif);
   font-style: italic;
   font-weight: 700;
   /* Fallback for high-contrast / no-CSS-gradient environments */
@@ -1736,7 +1752,7 @@ body, .dreamnav-surface, .controls {
 
 /* Gradient wordmark */
 .de-wordmark-dark {
-  font-family: var(--font-cormorant, Georgia, serif);
+  font-family: var(--font-cormorant, 'Bungee Shade', Impact, 'Arial Black', sans-serif);
   font-style: italic;
   font-weight: 500;
   font-size: 28px;

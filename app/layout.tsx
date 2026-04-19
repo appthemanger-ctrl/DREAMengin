@@ -5,7 +5,7 @@ import '@/styles/view-transitions.css';
 import '@/styles/dream-shell.css';
 import type { Metadata, Viewport } from 'next';
 import { Suspense } from 'react';
-import { Space_Grotesk, Cormorant_Garamond, Plus_Jakarta_Sans } from 'next/font/google';
+import { Permanent_Marker, Bungee_Shade, Bungee } from 'next/font/google';
 import ThemeProvider from '@/components/providers/ThemeProvider';
 import ThemeApplicator from '@/components/ThemeApplicator';
 import Link from 'next/link';
@@ -20,24 +20,25 @@ import KonamiDream from '@/components/KonamiDream';
 import CommandPalette from '@/components/CommandPalette';
 import { OSProvider } from '@/lib/dreamenginOS/OSContext';
 
-const spaceGrotesk = Space_Grotesk({
+// Graffiti font scheme — variable names preserved for backwards compatibility
+// with existing usages of --font-space-grotesk / --font-cormorant / --font-dreamr.
+const spaceGrotesk = Permanent_Marker({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400'],
   variable: '--font-space-grotesk',
   display: 'swap',
 });
 
-const cormorant = Cormorant_Garamond({
+const cormorant = Bungee_Shade({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  style: ['normal', 'italic'],
+  weight: ['400'],
   variable: '--font-cormorant',
   display: 'swap',
 });
 
-const plusJakarta = Plus_Jakarta_Sans({
+const plusJakarta = Bungee({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
+  weight: ['400'],
   variable: '--font-dreamr',
   display: 'swap',
 });
@@ -75,7 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body
         className="antialiased dream-bg"
-        style={{ fontFamily: 'var(--font-space-grotesk, "Space Grotesk", system-ui, sans-serif)' }}
+        style={{ fontFamily: 'var(--font-space-grotesk, "Permanent Marker", "Marker Felt", system-ui, sans-serif)' }}
       >
         <ThemeProvider>
           <ThemeApplicator />

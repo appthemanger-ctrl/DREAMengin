@@ -23,7 +23,7 @@ const config = {
         'de-text-dim':    'rgba(255,255,255,0.45)',
       },
       fontFamily: {
-        sans: ['var(--font-space-grotesk)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-space-grotesk)', '"Permanent Marker"', '"Marker Felt"', 'system-ui', 'sans-serif'],
         mono: ['var(--font-mono)', 'monospace'],
       },
       // Premium radii: docs/ARCHITECTURE.md §8 — radius family
