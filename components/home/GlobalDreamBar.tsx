@@ -18,6 +18,7 @@ import { usePathname, useRouter }                   from 'next/navigation';
 import DualBottomMenu, { type SystemMenuAction }    from '@/components/menus/DualBottomMenu';
 import DrEamsPanel                                  from '@/components/dreamengin/DrEamsPanel';
 import { useDreamSystem }                           from '@/lib/dreamdm/DreamSystemContext';
+import { runHomeAction }                            from '@/lib/home-buttons/contextual-home';
 
 /** Routes where system menus must NOT appear (pre-login / public surfaces). */
 const PUBLIC_ROUTES = ['/login', '/join', '/policy', '/about'];
@@ -42,18 +43,14 @@ export default function GlobalDreamBar() {
   const handleHome = useCallback(() => {
     closeBothMenus();
     closeDrEams();
-    // Smart Home: when the DreamDM Bar is dragged toward the top
-    // (DreamSpace dominant, splitRatio < 0.5), the user expects Home to land
-    // in DreamSpace, not on the HomeDream Surface. Bar position decides what
-    // "home" is — see docs/ARCHITECTURE.md §1.
-    if (splitRatio < 0.5 && runtimeCallbacks?.returnDreamSpace) {
-      runtimeCallbacks.returnDreamSpace();
-      return;
-    }
-    // If HomeSystem is mounted use its returnHome; otherwise navigate to /homedream
-    if (runtimeCallbacks?.returnHome) {
-      runtimeCallbacks.returnHome();
-    } else {
+    // Smart Home — the DreamDM Bar IS home. Bar position decides scope:
+    //   bar at bottom  → reset Surface (top runtime) only
+    //   bar at top     → reset DreamSpace (bottom runtime) only
+    //   bar in middle  → reset both runtimes
+    // See lib/home-buttons/contextual-home.ts and docs/ARCHITECTURE.md §1.
+    const fired = runHomeAction(splitRatio, runtimeCallbacks);
+    if (!fired) {
+      // No dual runtime mounted (we're outside /homedream) — navigate there.
       router.push('/homedream');
     }
   }, [closeBothMenus, closeDrEams, runtimeCallbacks, router, splitRatio]);
@@ -62,7 +59,10 @@ export default function GlobalDreamBar() {
   //    fall back to route navigation otherwise so links always work.   ──────
 
   const handleSystemAction = useCallback((action: SystemMenuAction) => {
-    closeBothMenus();
+    // NOTE: don't close the menu synchronously here. The PanelItem's onClick
+    // already defers `onClose` to the next animation frame so the click that
+    // dispatched this action can't be swallowed by the unmount. Closing again
+    // here would re-introduce that race on iOS / Android.
     if (action === 'dr-eams')       { openDrEams(); return; }
     if (action === 'go-home')       { handleHome(); return; }
 
@@ -77,7 +77,7 @@ export default function GlobalDreamBar() {
     if (action === 'connectors')    { hasSpaCallbacks ? openInSurface('connectors')          : router.push('/connectors');            return; }
     if (action === 'marketplace')   { hasSpaCallbacks ? openInSurface('marketplace')         : router.push('/marketplace');           return; }
     if (action === 'appearance')    { hasSpaCallbacks ? openInSurface('settings/appearance') : router.push('/settings/appearance');   return; }
-  }, [closeBothMenus, openDrEams, handleHome, openInSurface, runtimeCallbacks, router]);
+  }, [openDrEams, handleHome, openInSurface, runtimeCallbacks, router]);
 
   // ── Hide on public / pre-login routes ────────────────────────────────────
   if (PUBLIC_ROUTES.includes(pathname)) return null;

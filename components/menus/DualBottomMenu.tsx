@@ -74,7 +74,19 @@ function PanelItem({
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={(e) => {
+        // Make sure pointerdown on the backdrop doesn't preempt this click,
+        // and don't let the bar's whole-surface drag detector see it.
+        e.stopPropagation();
+        onClick();
+      }}
+      onPointerDown={(e) => {
+        // Stop the backdrop's pointerdown handler from closing the menu
+        // before our click fires (iOS/Android pointer→click race).
+        e.stopPropagation();
+        (e.currentTarget as HTMLButtonElement).style.background = dotColor ? `${dotColor}14` : 'rgba(42,138,184,0.10)';
+        (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.975)';
+      }}
       style={{
         display: 'flex',
         alignItems: 'center',
@@ -92,7 +104,6 @@ function PanelItem({
         minHeight: 52,
         touchAction: 'manipulation',
       }}
-      onPointerDown={(e) => { (e.currentTarget as HTMLButtonElement).style.background = dotColor ? `${dotColor}14` : 'rgba(42,138,184,0.10)'; (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.975)'; }}
       onPointerUp={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.32)'; (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
       onPointerLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.32)'; (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'; }}
     >
@@ -185,6 +196,7 @@ export default function DualBottomMenu({ open, onClose, onSystemAction }: Props)
       role="dialog"
       aria-modal="true"
       aria-label="Main menu"
+      data-de-overlay="dual-bottom-menu"
       style={{
         position: 'fixed',
         inset: 0,
@@ -198,7 +210,19 @@ export default function DualBottomMenu({ open, onClose, onSystemAction }: Props)
         padding: '0 12px 96px',          /* 96px leaves room for the gold ball */
         animation: 'de-menu-overlay-in 0.18s ease-out',
       }}
-      onPointerDown={onClose}
+      // Close on pointer-up of the backdrop only when both down and up landed on the
+      // backdrop itself (not on a panel). Closing on pointer-down would race with
+      // child clicks on iOS / Android and swallow them.
+      onPointerDown={(e) => {
+        if (e.target === e.currentTarget) {
+          (e.currentTarget as HTMLDivElement).dataset.deDownOnBackdrop = '1';
+        }
+      }}
+      onPointerUp={(e) => {
+        const wasDown = (e.currentTarget as HTMLDivElement).dataset.deDownOnBackdrop === '1';
+        delete (e.currentTarget as HTMLDivElement).dataset.deDownOnBackdrop;
+        if (wasDown && e.target === e.currentTarget) onClose();
+      }}
     >
       {/* Two-panel row */}
       <div
@@ -222,7 +246,12 @@ export default function DualBottomMenu({ open, onClose, onSystemAction }: Props)
               icon={item.icon}
               label={item.label}
               dotColor={item.color}
-              onClick={() => { onClose(); router.push(item.route); }}
+              onClick={() => {
+                // Navigate first; defer the menu close to the next frame so the
+                // unmount can't race the click that triggered it.
+                router.push(item.route);
+                requestAnimationFrame(onClose);
+              }}
             />
           ))}
         </Panel>
@@ -239,7 +268,11 @@ export default function DualBottomMenu({ open, onClose, onSystemAction }: Props)
               icon={item.icon}
               label={item.label}
               accent={item.id === 'dr-eams' ? 'var(--de-gold)' : undefined}
-              onClick={() => { onClose(); onSystemAction(item.id); }}
+              onClick={() => {
+                // Fire the action first; defer close so it can't race the click.
+                onSystemAction(item.id);
+                requestAnimationFrame(onClose);
+              }}
             />
           ))}
         </Panel>

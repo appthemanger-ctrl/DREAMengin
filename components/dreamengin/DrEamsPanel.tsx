@@ -136,6 +136,7 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
         className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
         style={{ background: 'rgba(8,20,50,0.32)', backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}
         onPointerDown={onClose}
+        data-de-overlay="dr-eams-panel"
       >
         {/* Panel */}
         <div
