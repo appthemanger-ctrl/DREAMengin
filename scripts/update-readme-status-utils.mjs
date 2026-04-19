@@ -14,11 +14,30 @@ export function extractNodeMajorFromDockerfile(dockerfileText) {
 export function refreshCurrentImplementationStatusSection(doc, options) {
   const heading = '## Current Implementation Status';
   const sectionStart = doc.indexOf(heading);
+  const lastUpdatedItalicLine =
+    `_Last updated: ${options.utcDate} — \`${options.sha}\` by ${options.actor}_`;
+  // Matches a single `_Last updated: ..._` line (italic form used under the H1
+  // when no `## Current Implementation Status` section exists).  Used to avoid
+  // stacking a new line on every run when the heading is absent.
+  const italicLastUpdatedRe = /^_Last updated:[^\n]*_\n?/gm;
+
   if (sectionStart === -1) {
     const h1end = doc.indexOf('\n') + 1;
-    return doc.slice(0, h1end) +
-      `\n_Last updated: ${options.utcDate} — \`${options.sha}\` by ${options.actor}_\n` +
-      doc.slice(h1end);
+    const head = doc.slice(0, h1end);
+    let rest = doc.slice(h1end);
+
+    // Strip ALL existing `_Last updated: ..._` lines plus any blank lines
+    // immediately following them, so repeated runs don't accumulate.
+    rest = rest.replace(/(?:^_Last updated:[^\n]*_\n(?:\n)?)+/m, '');
+
+    // Also strip any stray italic last-updated lines elsewhere near the top.
+    const headerEnd = rest.search(/\n#{1,6} |\n<!--/);
+    if (headerEnd !== -1) {
+      const top = rest.slice(0, headerEnd).replace(italicLastUpdatedRe, '');
+      rest = top + rest.slice(headerEnd);
+    }
+
+    return head + `\n${lastUpdatedItalicLine}\n` + rest;
   }
 
   const nextH2 = doc.indexOf('\n## ', sectionStart + heading.length);

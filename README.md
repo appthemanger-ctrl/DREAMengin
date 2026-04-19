@@ -2,20 +2,6 @@
 
 _Last updated: 2026-04-19 04:13 UTC — `50e72fe` by appthemanger-ctrl_
 
-_Last updated: 2026-04-18 13:43 UTC — `a7cdd3a` by appthemanger-ctrl_
-
-_Last updated: 2026-04-18 10:16 UTC — `0b088c9` by appthemanger-ctrl_
-
-_Last updated: 2026-04-17 05:10 UTC — `577d368` by appthemanger-ctrl_
-
-_Last updated: 2026-04-17 05:01 UTC — `673e564` by appthemanger-ctrl_
-
-_Last updated: 2026-04-17 04:43 UTC — `c27d468` by appthemanger-ctrl_
-
-_Last updated: 2026-04-17 04:39 UTC — `4fedb71` by appthemanger-ctrl_
-
-_Last updated: 2026-04-17 04:35 UTC — `f4d23af` by appthemanger-ctrl_
-
 <!-- DREAMENGIN-AI-CONTEXT:START -->
 ## 🤖 AI Agent Quick Reference
 <!-- Last regenerated: 2026-04-19 04:13 UTC — `50e72fe` on `completedream` -->
@@ -32,13 +18,6 @@ DREAMengin is a **spatial, privacy-first creative OS** built with **Next.js 16+*
 **TypeScript**, **Supabase**, **Tailwind CSS**, and **Babylon.js 9+**.
 It is not a traditional social app — it is a modular, dual-runtime spatial operating environment.
 Author: José Mancilla · pnpm 10.30.0 · Node 25
-
-## Recent Changes
-
-| Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
-|---|---|---|---|---|---|
-| `50e72fe` | 2026-04-19 04:13 UTC | completedream | appthemanger-ctrl | ~5 | chore: sync build-memory [skip ci] [skip vercel] |
-
 
 ---
 
@@ -376,6 +355,12 @@ DREAMengin/
 ---
 
 <!-- DREAMENGIN-AI-CONTEXT:END -->
+
+## Recent Changes
+
+| Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
+|---|---|---|---|---|---|
+| `50e72fe` | 2026-04-19 04:13 UTC | completedream | appthemanger-ctrl | ~5 | chore: sync build-memory [skip ci] [skip vercel] |
 
 ## What this is
 Core product plus AI-assisted system operations.

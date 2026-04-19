@@ -456,8 +456,18 @@ const SECTION_ANCHOR = '## Recent Changes';
 const sectionIdx = doc.indexOf(SECTION_ANCHOR);
 
 if (sectionIdx === -1) {
-  const hrIdx    = doc.indexOf('\n---\n');
-  const insertAt = hrIdx === -1 ? doc.length : hrIdx;
+  // Prefer placement AFTER the AI Context END marker so the table doesn't
+  // land inside the regenerated AI block (which would wipe it on every run).
+  const ctxEndIdx = doc.indexOf(AI_CTX_END);
+  let insertAt;
+  if (ctxEndIdx !== -1) {
+    insertAt = ctxEndIdx + AI_CTX_END.length;
+    // skip trailing newline after the marker if present
+    if (doc[insertAt] === '\n') insertAt += 1;
+  } else {
+    const hrIdx = doc.indexOf('\n---\n');
+    insertAt = hrIdx === -1 ? doc.length : hrIdx;
+  }
   const freshSection =
     `\n${SECTION_ANCHOR}\n\n${TABLE_HEADER}\n${TABLE_DIVIDER}\n${newRow}\n\n`;
   doc = doc.slice(0, insertAt) + freshSection + doc.slice(insertAt);
