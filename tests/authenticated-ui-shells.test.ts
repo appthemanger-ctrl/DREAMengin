@@ -47,7 +47,7 @@ describe('authenticated UI shell upgrade rollout', () => {
     const daydreamShell = readFileSync(join(root, 'components/daydream/DaydreamShell.tsx'), 'utf-8');
     const dashboard = readFileSync(join(root, 'components/home/WorkspaceDashboard.tsx'), 'utf-8');
     const pulseStrip = readFileSync(join(root, 'components/home/DaydreamPulseStrip.tsx'), 'utf-8');
-    const dreamsPanel = readFileSync(join(root, 'components/dreams/DreamsSpacePanel.tsx'), 'utf-8');
+    const dreamsPanel = readFileSync(join(root, 'components/dreams/dreamsurface.dreamspace.tsx'), 'utf-8');
 
     expect(daydreamShell).toContain('BrandLogo');
     expect(daydreamShell).toContain('accentColor');

@@ -1,2 +1,2 @@
-export { DreamScene } from './DreamScene';
-export type { DreamSceneProps } from './DreamScene';
+export { DreamScene } from './dreams.scene';
+export type { DreamSceneProps } from './dreams.scene';

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import DreamConstellationMap from '@/components/daydream/DreamConstellationMap';
+import DreamConstellationMap from '@/components/daydream/dreams.constellationmap';
 
 export default function ConstellationClient() {
   return (

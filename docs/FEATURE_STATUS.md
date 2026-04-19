@@ -73,10 +73,10 @@ Canonical spec: `docs/ACTIVITY_FIRST_PROTOCOL.md` — Active Platform Law (2026-
 
 | Module | Status | Repo truth |
 |---|---|---|
-| DreamShell layer | ✅ | `components/dreams/DreamShell.tsx` exists. |
-| Connector/Identity layer | ✅ | `components/dreams/DreamConnectorLayer.tsx` exists. |
-| Feature layer | ✅ | `components/dreams/DreamFeatureLayer.tsx` exists. |
-| Output/Projection layer | ✅ | `components/dreams/DreamOutputLayer.tsx` exists. |
+| DreamShell layer | ✅ | `components/dreams/dreamsurface.shell.tsx` exists. |
+| Connector/Identity layer | ✅ | `components/dreams/dreams.connectorlayer.tsx` exists. |
+| Feature layer | ✅ | `components/dreams/dreams.featurelayer.tsx` exists. |
+| Output/Projection layer | ✅ | `components/dreams/dreams.outputlayer.tsx` exists. |
 | Legacy widget absorption into Dreams naming | ✅ | `components/widgets/*` repurposed; v1-ui layer archived. `types/dream-window.ts` is the single type authority. |
 | Automatic Super Widget composition | ✅ | `components/dreams/SuperDreamWidget.tsx` has real cluster composition rules (StarMaker, GameSphere, BrandDream, LabCode, ContentStream). |
 
@@ -84,7 +84,7 @@ Canonical spec: `docs/ACTIVITY_FIRST_PROTOCOL.md` — Active Platform Law (2026-
 
 | Feature | Status | Repo truth |
 |---|---|---|
-| DreamsSpacePanel — separate runtime panel | ✅ | `components/dreams/DreamsSpacePanel.tsx`; revealed by dragging DreamDMBar upward. |
+| DreamsSpacePanel — separate runtime panel | ✅ | `components/dreams/dreamsurface.dreamspace.tsx`; revealed by dragging DreamDMBar upward. |
 | useDreamsRuntime hook | ✅ | `lib/dreams/useDreamsRuntime.ts`; independent navigation state separate from home runtime. |
 | Daydreams as priority in Dreams Space | ✅ | DreamsSpacePanel surfaces all 6 Daydreams as the first/default tab (`✦ Daydreams`), per README runtime model. |
 | Live routes to all 6 Daydreams from Dreams Space | ✅ | Each tile in the Daydreams tab links directly to `/daydream/music`, `/daydream/games`, `/daydream/lab`, `/daydream/code`, `/daydream/brand`, `/daydream/create`. |

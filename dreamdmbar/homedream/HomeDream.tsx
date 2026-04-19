@@ -26,7 +26,7 @@ import { WidgetInstance, getWidgetType } from '@/types/widgets';
 import DreamNavControls from '@/components/dreamnav/DreamNavControls';
 import DreamRadialMenu from '@/components/menus/DreamRadialMenu';
 import SystemRadialMenu, { type SystemMenuAction } from '@/components/menus/SystemRadialMenu';
-import DreamWidgetGrid from './DreamWidgetGrid';
+import DreamWidgetGrid from './dreamsurface.dreamdmbar-grid';
 import BrandLogo from '@/components/BrandLogo';
 import FeaturedCartridges from '@/components/gameengin/FeaturedCartridges';
 

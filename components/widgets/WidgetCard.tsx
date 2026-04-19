@@ -3,7 +3,7 @@
  * components/widgets/WidgetCard.tsx
  *
  * @deprecated Forwarding shim — canonical implementation is DreamShell at
- *   components/dreams/DreamShell.tsx (Phase 8 §B Point 18).
+ *   components/dreams/dreamsurface.shell.tsx (Phase 8 §B Point 18).
  *
  * Preserved for backward-compatibility with existing callers.
  * Wraps content in DreamShell while maintaining WidgetCard's prop interface.
@@ -14,9 +14,9 @@
  */
 
 import React from 'react';
-import DreamShell from '@/components/dreams/DreamShell';
+import DreamShell from '@/components/dreams/dreamsurface.shell';
 
-/** @deprecated Use DreamShell from components/dreams/DreamShell.tsx */
+/** @deprecated Use DreamShell from components/dreams/dreamsurface.shell.tsx */
 export interface WidgetCardProps {
   title: string;
   children: React.ReactNode;

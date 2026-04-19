@@ -1,4 +1,4 @@
-// components/dreamengin/DreamenginApp.tsx
+// components/dreamengin/dreamsurface.dreamengin.tsx
 // Top-level Dreamengin orchestration: kernel scene, home controls, and overlay menus.
 
 'use client';
@@ -11,7 +11,7 @@ import OutdreamMenu from './OutdreamMenu';
 import DrEamsPanel from './DrEamsPanel';
 import CanvasDropZone, { type AssetImportPayload } from './CanvasDropZone';
 import DREAMenginOS from './DREAMenginOS';
-import { DreamNavProvider } from '@/components/dreamnav/DreamNavSurface6';
+import { DreamNavProvider } from '@/components/dreamnav/dreamsurface.dreamnav';
 
 export default function DreamenginApp() {
   const pathname = usePathname();

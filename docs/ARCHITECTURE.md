@@ -91,10 +91,10 @@ Primary code lives in:
 
 ### Dream Windows
 Canonical Dream Window layer files already exist in:
-- `components/dreams/DreamShell.tsx`
-- `components/dreams/DreamConnectorLayer.tsx`
-- `components/dreams/DreamFeatureLayer.tsx`
-- `components/dreams/DreamOutputLayer.tsx`
+- `components/dreams/dreamsurface.shell.tsx`
+- `components/dreams/dreams.connectorlayer.tsx`
+- `components/dreams/dreams.featurelayer.tsx`
+- `components/dreams/dreams.outputlayer.tsx`
 - `components/dreams/SuperDreamWidget.tsx`
 
 Legacy widget implementation material still exists in:

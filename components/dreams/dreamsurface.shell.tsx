@@ -1,5 +1,5 @@
 'use client';
-// components/dreams/DreamShell.tsx
+// components/dreams/dreamsurface.shell.tsx
 // Canonical Layer 1 shell — the real implementation per docs/ARCHITECTURE.md §4.
 // DreamShell is the source of truth; WidgetShell is the backward-compat shim.
 
