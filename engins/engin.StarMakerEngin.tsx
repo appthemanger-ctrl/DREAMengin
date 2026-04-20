@@ -583,7 +583,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
       if (evt.mixer && typeof evt.mixer === 'object') setMixer(evt.mixer as MixerState);
     }
     if (evt.type === 'starmaker:beat') {
-      const { chIdx, stepIdx, active: on } = evt as { chIdx: number; stepIdx: number; active: boolean };
+      const { chIdx, stepIdx, active: on } = evt as unknown as { chIdx: number; stepIdx: number; active: boolean };
       setBeatGrid(prev => {
         const next = prev.map(row => [...row]);
         if (next[chIdx]) next[chIdx][stepIdx] = on;
