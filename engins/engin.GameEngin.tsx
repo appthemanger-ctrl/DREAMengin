@@ -23,6 +23,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
@@ -63,6 +64,7 @@ import RecordingControls from '@/components/games/dream.RecordingControls';
 
 interface Props {
   onBack: () => void;
+  instanceId?: string;
 }
 
 interface GameScore {
@@ -256,7 +258,7 @@ export default function GameEngin(props: Props) {
   );
 }
 
-function GameEnginInner({ onBack }: Props) {
+function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   const gameBridge = useGameEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'games' });
   const searchParams = useSearchParams();
@@ -323,6 +325,25 @@ function GameEnginInner({ onBack }: Props) {
   const [showEnginSplash, setShowEnginSplash] = useState(false);
   /** Avatar image data URL — set when the user chose "Play as Yourself" */
   const [avatarDataUrl, setAvatarDataUrl] = useState<string | null>(null);
+
+  // ── Co-op channel (multiplayer lobby sync) ────────────────────────────────
+  const [instanceId] = useState(
+    () => instanceIdProp ?? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)),
+  );
+  const [coopActive, setCoopActive] = useState(false);
+  useEnginCoopSync({
+    enginName: 'GameEngin',
+    instanceId,
+    region: 'engin:game',
+    active: coopActive,
+    stateSnapshot: () => ({ type: 'game:state', selectedPlayableGame, controlProfile }),
+    onPeerState: (evt) => {
+      if (evt.type === 'game:state') {
+        if (typeof evt.selectedPlayableGame === 'string') setSelectedPlayableGame(evt.selectedPlayableGame);
+        if (typeof evt.controlProfile === 'string') setControlProfile(evt.controlProfile);
+      }
+    },
+  });
 
   /**
    * Active GPU rendering backend for this session.

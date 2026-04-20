@@ -17,6 +17,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
+import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
@@ -34,6 +35,7 @@ import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
 
 interface Props {
   onBack: () => void;
+  instanceId?: string;
 }
 
 interface ProfileData {
@@ -74,7 +76,7 @@ const AIBrandKit          = 'brand-feature-2026'; // 2026: AI-powered brand kit 
 const MotionGraphics      = 'brand-feature-2026'; // 2026: Motion graphics support
 const Analytics2_0        = 'brand-feature-2026'; // 2026: Advanced analytics 2.0
 
-export default function BrandingEngin({ onBack }: Props) {
+export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Props) {
   const brandBridge = useBrandingEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'brand' });
 
@@ -90,6 +92,19 @@ export default function BrandingEngin({ onBack }: Props) {
   const [sharedAnalyticsId] = useState(() => `brand-analytics-${Date.now()}`);
   const [sharedAnalyticsActive, setSharedAnalyticsActive] = useState(false);
   const sharedAnalytics = useSharedDream(sharedAnalyticsActive ? sharedAnalyticsId : '');
+
+  // ── Co-op channel ─────────────────────────────────────────────────────────
+  const [instanceId] = useState(
+    () => instanceIdProp ?? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)),
+  );
+  useEnginCoopSync({
+    enginName: 'BrandingEngin',
+    instanceId,
+    region: 'engin:brand',
+    active: sharedAnalyticsActive,
+    stateSnapshot: () => ({ type: 'brand:state', sharedAnalyticsId }),
+    onPeerState: (_evt) => { /* brand analytics are read-only; peer sync is view-only */ },
+  });
 
   // ── Daydream state persistence (Phase 8 §F Point 55) ──
   const { persistState } = useDaydreamState({ daydreamType: 'brand', side: 'B' });

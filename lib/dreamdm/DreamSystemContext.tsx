@@ -36,13 +36,24 @@ import { DEFAULT_SPLIT_RATIO } from '@/lib/dreamdm/barInteractions';
 
 /**
  * The DreamDM Bar operates in one of these intent modes.
- *   default  — surface-detected default (post on feed, send on messages, etc.)
- *   search   — universal search (friends, content, surfaces)
- *   message  — compose / reply to a DM
- *   dreams   — ask Dr. Eams
- *   comment  — comment on a specific post (targetPostId required)
+ *   default        — surface-detected default (post on feed, send on messages, etc.)
+ *   search         — universal search (friends, content, surfaces)
+ *   message        — compose / reply to a DM
+ *   dreams         — ask Dr. Eams
+ *   comment        — comment on a specific post (targetPostId required)
+ *   module-actions — contextual actions from the focused module (replaces inline bubbles)
  */
-export type BarIntentMode = 'default' | 'search' | 'message' | 'dreams' | 'comment';
+export type BarIntentMode = 'default' | 'search' | 'message' | 'dreams' | 'comment' | 'module-actions';
+
+/** A single contextual action injected by a module into the DreamDM Bar. */
+export interface ModuleBarAction {
+  id: string;
+  label: string;
+  icon?: string;
+  onAction: () => void;
+  active?: boolean;
+  disabled?: boolean;
+}
 
 export interface BarIntent {
   mode: BarIntentMode;
@@ -50,6 +61,10 @@ export interface BarIntent {
   targetPostId?: string;
   /** Human-readable label shown in the bar (e.g. "Replying to @handle") */
   targetLabel?: string;
+  /** For module-actions mode: which module's actions are shown */
+  moduleId?: string;
+  /** For module-actions mode: the actions array to display in the bar */
+  moduleActions?: ModuleBarAction[];
 }
 
 export const DEFAULT_BAR_INTENT: BarIntent = { mode: 'default' };
