@@ -3,7 +3,7 @@
 /**
  * ForgeEngin — The Meta-Creation Engine
  *
- * A unified launch deck and status matrix for all 6 creative engines.
+ * A unified launch deck and status matrix for all 8 creative engines.
  * Shows activity pulses, last-opened timestamps, cross-engine linkages,
  * and provides one-tap launch into any engine's Side B.
  *
