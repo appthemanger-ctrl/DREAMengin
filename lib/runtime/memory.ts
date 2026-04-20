@@ -19,13 +19,15 @@
  *
  * Memory layout (all SoA arrays are 64-byte cache-line aligned):
  *
- *   [0 – 63]         Control region (Int32, 16 slots)
- *                      slot 0 = BAR_SEAM_ATOMICS_INDEX (bar split ratio × 1000)
- *   [64 – 40,063]    PosX[10,000] Float32
- *   [40,064 – 80,063] PosY[10,000] Float32
- *   [80,064 – 120,063] VelX[10,000] Float32
- *   [120,064 – 160,063] VelY[10,000] Float32
- *   [160,064 – 16,777,215] HomeDream private region
+ *   [0 – 63]           Control region (Int32, 16 slots)
+ *                         slot 0 = BAR_SEAM_ATOMICS_INDEX (bar split ratio × 1000)
+ *   [64 – 40,063]      PosX[10,000] Float32
+ *   [40,064 – 80,063]  PosY[10,000] Float32
+ *   [80,064 – 120,063] PosZ[10,000] Float32
+ *   [120,064 – 160,063] VelX[10,000] Float32
+ *   [160,064 – 200,063] VelY[10,000] Float32
+ *   [200,064 – 240,063] VelZ[10,000] Float32
+ *   [240,064 – 16,777,215] HomeDream private region
  *
  * Architecture: docs/ARCHITECTURE.md §1 (Runtime regions), §5 (Privacy boundaries)
  * Policy: docs/BOOGIEMAN_POLICY.md C29_PRIVACY
@@ -72,14 +74,20 @@ export const SOA_POSX_OFFSET = CACHE_LINE; // 64
 /** Byte offset of the PosY array (entity position Y) */
 export const SOA_POSY_OFFSET = SOA_POSX_OFFSET + ENTITY_COUNT * FLOAT32_BYTES; // 40,064
 
+/** Byte offset of the PosZ array (entity position Z) */
+export const SOA_POSZ_OFFSET = SOA_POSY_OFFSET + ENTITY_COUNT * FLOAT32_BYTES; // 80,064
+
 /** Byte offset of the VelX array (entity velocity X) */
-export const SOA_VELX_OFFSET = SOA_POSY_OFFSET + ENTITY_COUNT * FLOAT32_BYTES; // 80,064
+export const SOA_VELX_OFFSET = SOA_POSZ_OFFSET + ENTITY_COUNT * FLOAT32_BYTES; // 120,064
 
 /** Byte offset of the VelY array (entity velocity Y) */
-export const SOA_VELY_OFFSET = SOA_VELX_OFFSET + ENTITY_COUNT * FLOAT32_BYTES; // 120,064
+export const SOA_VELY_OFFSET = SOA_VELX_OFFSET + ENTITY_COUNT * FLOAT32_BYTES; // 160,064
+
+/** Byte offset of the VelZ array (entity velocity Z) */
+export const SOA_VELZ_OFFSET = SOA_VELY_OFFSET + ENTITY_COUNT * FLOAT32_BYTES; // 200,064
 
 /** Byte offset one past the last entity byte */
-const SOA_END_OFFSET = SOA_VELY_OFFSET + ENTITY_COUNT * FLOAT32_BYTES; // 160,064
+const SOA_END_OFFSET = SOA_VELZ_OFFSET + ENTITY_COUNT * FLOAT32_BYTES; // 240,064
 
 // ── Privacy boundary ──────────────────────────────────────────────────────────
 
@@ -112,11 +120,13 @@ export interface ConformMemoryMap {
   readonly buffer: SharedArrayBuffer;
   /** Int32 view over the control region — use with Atomics */
   readonly control: Int32Array;
-  /** Float32 views for each SoA entity array */
+  /** Float32 views for each SoA entity array (3-axis) */
   readonly posX: Float32Array;
   readonly posY: Float32Array;
+  readonly posZ: Float32Array;
   readonly velX: Float32Array;
   readonly velY: Float32Array;
+  readonly velZ: Float32Array;
 }
 
 /** Singleton instance — allocated once per runtime context */
@@ -139,8 +149,10 @@ export function getConformMemoryMap(): ConformMemoryMap {
     control: new Int32Array(buffer, 0, CACHE_LINE / 4),
     posX: new Float32Array(buffer, SOA_POSX_OFFSET, ENTITY_COUNT),
     posY: new Float32Array(buffer, SOA_POSY_OFFSET, ENTITY_COUNT),
+    posZ: new Float32Array(buffer, SOA_POSZ_OFFSET, ENTITY_COUNT),
     velX: new Float32Array(buffer, SOA_VELX_OFFSET, ENTITY_COUNT),
     velY: new Float32Array(buffer, SOA_VELY_OFFSET, ENTITY_COUNT),
+    velZ: new Float32Array(buffer, SOA_VELZ_OFFSET, ENTITY_COUNT),
   };
 
   return _memoryMap;
@@ -164,10 +176,16 @@ export function _resetConformMemoryMap(): void {
  *
  * @param splitRatio - Bar split ratio in [0.0, 1.0].
  *   0.1 = Dream-focus | 0.5 = balanced | 0.9 = Surface-focus | 1.0 = Surface-only.
+ *
+ * @deprecated This writes to the isolated ConformMemoryMap buffer which shader
+ *   workers cannot see (they operate on the EnginSAB via postMessage). For
+ *   worker-facing seam writes use `EnginDispatcher.setDreamDMBarY()` instead.
  */
 export function writeBarSeam(splitRatio: number): void {
+  if (!Number.isFinite(splitRatio)) return;
+  const clamped = Math.max(0, Math.min(1, splitRatio));
   const map = getConformMemoryMap();
-  const encoded = Math.round(splitRatio * BAR_SEAM_SCALE);
+  const encoded = Math.round(clamped * BAR_SEAM_SCALE);
   Atomics.store(map.control, BAR_SEAM_ATOMICS_INDEX, encoded);
 }
 
@@ -177,6 +195,9 @@ export function writeBarSeam(splitRatio: number): void {
  * Uses Atomics.load() for a sequentially consistent read visible to all runtimes.
  *
  * @returns Current split ratio (0.0–1.0).
+ *
+ * @deprecated See `writeBarSeam`. Use `EnginDispatcher.getDreamDMBarY()` for
+ *   the worker-facing seam value.
  */
 export function readBarSeam(): number {
   const map = getConformMemoryMap();
@@ -371,9 +392,31 @@ export function u8DaydreamType(sab: SharedArrayBuffer): Uint8Array {
 
 /**
  * Return a Float32Array (1 element) positioned at the DreamDM Bar Y slot.
+ *
+ * @deprecated Float32 writes to a SharedArrayBuffer are not guaranteed to be
+ *   atomic by the JS memory model. Use `int32DreamDMBarY` with
+ *   `Atomics.store` / `Atomics.load` instead.
  */
 export function f32DreamDMBarY(sab: SharedArrayBuffer): Float32Array {
   return new Float32Array(sab, OFFSET_DREAMDM_BAR_Y, 1);
+}
+
+/**
+ * Fixed-point scale factor for the DreamDM Bar y-offset stored in the SAB.
+ * Encodes pixel offsets as integers: `Math.round(px * BAR_Y_SCALE)`.
+ * Provides 0.01 px precision — sufficient for sub-pixel animation.
+ */
+export const BAR_Y_SCALE = 100;
+
+/**
+ * Return an Int32Array (1 element) at the DreamDM Bar Y slot.
+ *
+ * Use with `Atomics.store` / `Atomics.load` so cross-thread reads and writes
+ * are sequentially consistent. The value is encoded as
+ * `Math.round(px * BAR_Y_SCALE)` and decoded as `raw / BAR_Y_SCALE`.
+ */
+export function int32DreamDMBarY(sab: SharedArrayBuffer): Int32Array {
+  return new Int32Array(sab, OFFSET_DREAMDM_BAR_Y, 1);
 }
 
 /**
@@ -423,16 +466,23 @@ export function isSABAvailable(): boolean {
 /**
  * Return the byte-level extent of a workgroup across all SoA channels.
  * Useful for allocating sub-views or verifying workgroup memory isolation.
+ *
+ * All six 3-axis channels (posX/Y/Z, velX/Y/Z) are included so that callers
+ * get a structurally complete picture of the EnginSAB layout for the workgroup.
  */
 export interface EntityBounds {
   posXStart: number;
   posXEnd: number;
   posYStart: number;
   posYEnd: number;
+  posZStart: number;
+  posZEnd: number;
   velXStart: number;
   velXEnd: number;
   velYStart: number;
   velYEnd: number;
+  velZStart: number;
+  velZEnd: number;
 }
 
 export function getEntityBounds(wg: Workgroup): EntityBounds {
@@ -442,10 +492,14 @@ export function getEntityBounds(wg: Workgroup): EntityBounds {
     posXEnd:   OFFSET_POS_X + wg.endIndex   * F32,
     posYStart: OFFSET_POS_Y + wg.startIndex * F32,
     posYEnd:   OFFSET_POS_Y + wg.endIndex   * F32,
+    posZStart: OFFSET_POS_Z + wg.startIndex * F32,
+    posZEnd:   OFFSET_POS_Z + wg.endIndex   * F32,
     velXStart: OFFSET_VEL_X + wg.startIndex * F32,
     velXEnd:   OFFSET_VEL_X + wg.endIndex   * F32,
     velYStart: OFFSET_VEL_Y + wg.startIndex * F32,
     velYEnd:   OFFSET_VEL_Y + wg.endIndex   * F32,
+    velZStart: OFFSET_VEL_Z + wg.startIndex * F32,
+    velZEnd:   OFFSET_VEL_Z + wg.endIndex   * F32,
   };
 }
 

@@ -60,7 +60,7 @@ pnpm preflight    # typecheck + lint + tests (full pre-push gate)
 | `app/` | Next.js App Router — 129 page routes + 99 API route handlers |
 | `app/api/` | 99 API route handlers |
 | `dreamdmbar/` | DreamDM Bar (`dreamsurface.dreamdmbar.tsx`) + HomeDream shell (`dream.homedream.*`) + DreamR feed |
-| `engins/` | The 6 raw Engin runtimes: `engin.StarMakerEngin.tsx`, `engin.GameEngin.tsx`, `engin.LabEngin.tsx`, `engin.CodeEngin.tsx`, `engin.BrandingEngin.tsx`, `engin.ContentEngin.tsx` + `dream.ForgeEngin.tsx` |
+| `engins/` | The 8 raw Engin runtimes: `engin.StarMakerEngin.tsx`, `engin.GameEngin.tsx`, `engin.LabEngin.tsx`, `engin.CodeEngin.tsx`, `engin.BrandingEngin.tsx`, `engin.ContentEngin.tsx`, `engin.ForgeEngin.tsx`, `engin.PortfolioEngin.tsx` (in `portfolio/`) |
 | `components/daydream/` | Daydream shell (`dream.shell.DaydreamShell.tsx`), IDE surfaces, DiffViewer, JourneyTrail, StarMaker panels (Piano Roll, Session View, Multitrack, Comping) |
 | `components/engines/` | Full Engin app shells + panels: `dream.MusicEnginApp.tsx`, `dream.GameEnginApp.tsx`, `dream.LabEnginApp.tsx`, `dream.CodeEnginApp.tsx`, `dream.BrandEnginApp.tsx`, `dream.CreateEnginApp.tsx` + shared `EnginAppShell` + `EnginNavBar` |
 | `components/dreams/` | Dream Window layer system: `dream.connectorlayer.tsx`, `dream.featurelayer.tsx`, `dream.outputlayer.tsx`, `dream.widget.SuperDreamWidget.tsx`, `dream.window.JourneyDreamWindow.tsx` |
@@ -561,7 +561,7 @@ HUD: `dream.hud.GameHUD.tsx` · `dream.hud.MobileGameHUD.tsx` · Controller: `dr
 
 ### LabEngin (Lab)
 
-`engins/engin.LabEngin.tsx` + `engins/dream.engin.QuantumCircuitCanvas.tsx`.
+`engins/engin.LabEngin.tsx` + `engins/dream.QuantumCircuitCanvas.tsx`.
 
 **Lab Engin app** (`components/engines/lab/`): `dream.LabEnginApp.tsx` + DataViz · Experiments · Quantum panels — routed at `/engines/lab/`.
 
@@ -585,7 +585,7 @@ HUD: `dream.hud.GameHUD.tsx` · `dream.hud.MobileGameHUD.tsx` · Controller: `dr
 
 ### ForgeEngin
 
-`engins/dream.ForgeEngin.tsx` + `components/forge/`: `dream.EngineBuilderCanvas.tsx` · `dream.panel.AIBuilderPanel.tsx` · `dream.widget.ForgeMomentumWidget.tsx`
+`engins/engin.ForgeEngin.tsx` + `components/forge/`: `dream.EngineBuilderCanvas.tsx` · `dream.panel.AIBuilderPanel.tsx` · `dream.widget.ForgeMomentumWidget.tsx`
 
 Routed at `/daydream/forge`. Build actions via `/api/forge/build`.
 
@@ -603,7 +603,7 @@ Routed at `/daydream/forge`. Build actions via `/api/forge/build`.
 | **Connectors** | `/connectors` | Instagram OAuth + YouTube OAuth; generic provider connect/disconnect/sync/verify at `/api/connectors/[provider]/` |
 | **Discover** | `/discover` | Feed discovery surface |
 | **DreamR** | `/api/dreamr/` | Feed + suggested routes; `dream.DreamRCore.tsx` + `dream.DreamRFeed.tsx` (in `dreamdmbar/homedream/dreamr/`); channel + creator panels in `components/dreamr/` |
-| **Forge** | `/daydream/forge` | `engins/dream.ForgeEngin.tsx`; `dream.ForgeDreamCanvas.tsx`; build actions via `/api/forge/build` |
+| **Forge** | `/daydream/forge` | `engins/engin.ForgeEngin.tsx`; `dream.ForgeDreamCanvas.tsx`; build actions via `/api/forge/build` |
 | **WebGPU** | `/webgpu` | `components/webgpu/dream.WebGPUShowcase.tsx` |
 | **Universe** | (component) | `components/universe/` — universe shell, node cluster, torus core, universe card |
 | **Shared Dreams** | (component) | `components/shared-dream/` — `dream.SharedDreamCanvas.tsx` + `dream.SharedDreamProvider.tsx` + `dream.InviteFlow.tsx` |

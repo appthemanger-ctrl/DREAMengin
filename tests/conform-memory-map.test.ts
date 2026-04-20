@@ -20,8 +20,10 @@ import {
   BAR_SEAM_SCALE,
   SOA_POSX_OFFSET,
   SOA_POSY_OFFSET,
+  SOA_POSZ_OFFSET,
   SOA_VELX_OFFSET,
   SOA_VELY_OFFSET,
+  SOA_VELZ_OFFSET,
   HOMEDREAM_PRIVATE_OFFSET,
   PUBLIC_VIEW_LIMIT,
   getConformMemoryMap,
@@ -78,12 +80,20 @@ describe('SoA array offsets — 64-byte cache-line alignment', () => {
     expect(SOA_POSY_OFFSET % CACHE_LINE).toBe(0);
   });
 
+  it('PosZ offset is 64-byte aligned', () => {
+    expect(SOA_POSZ_OFFSET % CACHE_LINE).toBe(0);
+  });
+
   it('VelX offset is 64-byte aligned', () => {
     expect(SOA_VELX_OFFSET % CACHE_LINE).toBe(0);
   });
 
   it('VelY offset is 64-byte aligned', () => {
     expect(SOA_VELY_OFFSET % CACHE_LINE).toBe(0);
+  });
+
+  it('VelZ offset is 64-byte aligned', () => {
+    expect(SOA_VELZ_OFFSET % CACHE_LINE).toBe(0);
   });
 
   it('HOMEDREAM_PRIVATE_OFFSET is 64-byte aligned', () => {
@@ -102,36 +112,46 @@ describe('Conform Mode — SoA entity layout', () => {
     const map = getConformMemoryMap();
     expect(map.posX.length).toBe(ENTITY_COUNT);
     expect(map.posY.length).toBe(ENTITY_COUNT);
+    expect(map.posZ.length).toBe(ENTITY_COUNT);
     expect(map.velX.length).toBe(ENTITY_COUNT);
     expect(map.velY.length).toBe(ENTITY_COUNT);
+    expect(map.velZ.length).toBe(ENTITY_COUNT);
   });
 
   it('SoA arrays are Float32Array views', () => {
     const map = getConformMemoryMap();
     expect(map.posX).toBeInstanceOf(Float32Array);
     expect(map.posY).toBeInstanceOf(Float32Array);
+    expect(map.posZ).toBeInstanceOf(Float32Array);
     expect(map.velX).toBeInstanceOf(Float32Array);
     expect(map.velY).toBeInstanceOf(Float32Array);
+    expect(map.velZ).toBeInstanceOf(Float32Array);
   });
 
   it('SoA arrays point to non-overlapping regions', () => {
     // Each array occupies ENTITY_COUNT * 4 bytes; verify their byte offsets are sequential
     expect(SOA_POSY_OFFSET).toBe(SOA_POSX_OFFSET + ENTITY_COUNT * 4);
-    expect(SOA_VELX_OFFSET).toBe(SOA_POSY_OFFSET + ENTITY_COUNT * 4);
+    expect(SOA_POSZ_OFFSET).toBe(SOA_POSY_OFFSET + ENTITY_COUNT * 4);
+    expect(SOA_VELX_OFFSET).toBe(SOA_POSZ_OFFSET + ENTITY_COUNT * 4);
     expect(SOA_VELY_OFFSET).toBe(SOA_VELX_OFFSET + ENTITY_COUNT * 4);
+    expect(SOA_VELZ_OFFSET).toBe(SOA_VELY_OFFSET + ENTITY_COUNT * 4);
   });
 
   it('writes and reads entity data correctly', () => {
     const map = getConformMemoryMap();
     map.posX[0] = 1.5;
     map.posY[0] = 2.5;
+    map.posZ[0] = 3.5;
     map.velX[0] = -0.5;
     map.velY[0] = 0.25;
+    map.velZ[0] = 0.75;
 
     expect(map.posX[0]).toBeCloseTo(1.5);
     expect(map.posY[0]).toBeCloseTo(2.5);
+    expect(map.posZ[0]).toBeCloseTo(3.5);
     expect(map.velX[0]).toBeCloseTo(-0.5);
     expect(map.velY[0]).toBeCloseTo(0.25);
+    expect(map.velZ[0]).toBeCloseTo(0.75);
   });
 
   it('writes to the last entity slot without overflow', () => {
@@ -225,7 +245,7 @@ describe('boogieMemoryGuard — HomeDream private region protection', () => {
   });
 
   it('HOMEDREAM_PRIVATE_OFFSET is beyond all SoA data', () => {
-    const soaEndOffset = SOA_VELY_OFFSET + ENTITY_COUNT * 4; // 160,064
+    const soaEndOffset = SOA_VELZ_OFFSET + ENTITY_COUNT * 4; // 240,064
     expect(HOMEDREAM_PRIVATE_OFFSET).toBeGreaterThanOrEqual(soaEndOffset);
   });
 

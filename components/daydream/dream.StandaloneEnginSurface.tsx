@@ -7,7 +7,7 @@ import LabEngin from '@/engins/engin.LabEngin';
 import CodeEngin from '@/engins/engin.CodeEngin';
 import BrandingEngin from '@/engins/engin.BrandingEngin';
 import ContentEngin from '@/engins/engin.ContentEngin';
-import ForgeEngin from '@/engins/dream.ForgeEngin';
+import ForgeEngin from '@/engins/engin.ForgeEngin';
 
 const ENGIN_COMPONENTS = {
   StarMakerEngin,

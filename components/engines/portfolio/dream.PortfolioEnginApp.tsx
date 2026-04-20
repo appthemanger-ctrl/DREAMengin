@@ -12,7 +12,7 @@
 
 import { useRouter } from 'next/navigation';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import PortfolioEngin from '@/engins/portfolio/dream.PortfolioEngin';
+import PortfolioEngin from '@/engins/portfolio/engin.PortfolioEngin';
 
 const ACCENT = '#2a8ab8';
 const BACK_HREF = '/engines';

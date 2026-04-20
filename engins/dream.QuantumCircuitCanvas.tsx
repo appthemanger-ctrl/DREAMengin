@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * dream.engin.QuantumCircuitCanvas — shared engin component.
+ * dream.QuantumCircuitCanvas — shared engin component.
  *
  * Real quantum circuit simulator with QAOA / VQE algorithms, complex-number
  * gate math (Hadamard, Rx/Ry/Rz, CNOT), state-vector evolution, and
@@ -14,7 +14,7 @@
  *
  *   import QuantumCircuitCanvas, {
  *     type QuantumMeasurementResult,
- *   } from '@/engins/dream.engin.QuantumCircuitCanvas';
+ *   } from '@/engins/dream.QuantumCircuitCanvas';
  *
  *   <QuantumCircuitCanvas
  *     active={running}

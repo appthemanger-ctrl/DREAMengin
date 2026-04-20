@@ -11,7 +11,7 @@ import { useState } from 'react';
 import { TrendingUp, Activity, ShieldCheck, Cpu, Loader2 } from 'lucide-react';
 import QuantumCircuitCanvas, {
   type QuantumMeasurementResult,
-} from '@/engins/dream.engin.QuantumCircuitCanvas';
+} from '@/engins/dream.QuantumCircuitCanvas';
 
 type Algorithm = 'vqe' | 'qaoa';
 type Backend   = 'local_simulator' | 'ibm_quantum';

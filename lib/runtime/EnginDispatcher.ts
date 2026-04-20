@@ -29,9 +29,11 @@
 import {
   createEnginSAB,
   buildWorkgroups,
-  f32DreamDMBarY,
+  int32DreamDMBarY,
+  BAR_Y_SCALE,
   f64Telemetry,
   MAX_WORKERS,
+  SAB_BYTES,
   type Workgroup,
 } from './memory';
 
@@ -42,6 +44,13 @@ export interface WorkerInitMessage {
   type: 'init';
   sab: SharedArrayBuffer;
   workgroup: Workgroup;
+  /**
+   * The shared WebAssembly.Memory instance backing the EnginSAB.
+   * When provided, the worker must use this memory object (not create a new one)
+   * so that Wasm linear memory and JS typed-array views share the same bytes.
+   * Undefined when SharedArrayBuffer is unavailable or Wasm Memory creation failed.
+   */
+  wasmMemory?: WebAssembly.Memory;
 }
 
 /** Sent from dispatcher → worker to request a graceful stop. */
@@ -64,8 +73,31 @@ export interface WorkerBoundsViolationMessage {
   workgroup: Workgroup;
 }
 
-export type WorkerOutboundMessage = WorkerInitMessage | WorkerStopMessage;
-export type WorkerInboundMessage  = WorkerTickMessage | WorkerBoundsViolationMessage;
+/**
+ * Sent from worker → dispatcher when a physics tick exceeds the IDARi
+ * 1 ms budget threshold, regardless of whether Wasm or the JS stub is active.
+ */
+export interface WorkerWasmBudgetExceededMessage {
+  type: 'wasm_budget_exceeded';
+  workerIndex: number;
+  microsecondsPerTick: number;
+  usingWasm: boolean;
+}
+
+/** Messages sent from the dispatcher → each worker. */
+export type DispatcherToWorkerMessage = WorkerInitMessage | WorkerStopMessage;
+
+/** Messages sent from each worker → the dispatcher. */
+export type WorkerToDispatcherMessage =
+  | WorkerTickMessage
+  | WorkerBoundsViolationMessage
+  | WorkerWasmBudgetExceededMessage;
+
+// Backward-compat aliases — prefer the directional names above.
+/** @deprecated Use DispatcherToWorkerMessage */
+export type WorkerOutboundMessage = DispatcherToWorkerMessage;
+/** @deprecated Use WorkerToDispatcherMessage */
+export type WorkerInboundMessage  = WorkerToDispatcherMessage;
 
 // ─── Wasm engine ──────────────────────────────────────────────────────────────
 
@@ -96,28 +128,38 @@ export interface WasmEngineExports {
 /**
  * Fetch, instantiate, and return the AssemblyScript Wasm physics engine.
  *
- * The Wasm module is given access to the same SharedArrayBuffer as the shader
- * workers via a shared WebAssembly.Memory — all reads/writes are zero-copy.
+ * The Wasm module is given the **same** `WebAssembly.Memory` instance that
+ * backs the EnginSAB, achieving true zero-copy SIMD: Wasm reads and writes go
+ * directly to the bytes already viewed by `posX`, `velX`, etc., with no
+ * copying or double-buffering.
+ *
+ * Contrast with the previous (broken) approach of creating a fresh
+ * `new WebAssembly.Memory(...)` here — that produced isolated Wasm memory
+ * invisible to the dispatcher's typed-array views.
  *
  * Falls back gracefully (returns null) when:
  *  - Wasm or SharedArrayBuffer is unavailable (SSR, old browsers).
+ *  - `wasmMemory` is null (Wasm Memory creation failed at init time).
  *  - The binary cannot be fetched (network error, file not yet compiled).
  *
  * IDARi budget enforcement is delegated to the caller: measure execution time
  * around `exports.tickPhysicsSIMD` and post a 'wasm_budget_exceeded' message
  * if the tick takes longer than the IDARi-defined threshold.
  *
- * @param sharedBuffer - The EnginSAB shared between the dispatcher and workers.
- * @param wasmUrl      - URL of the compiled binary (default: '/workers/engin-shader.wasm').
+ * @param wasmMemory - The shared WebAssembly.Memory whose `.buffer` IS the EnginSAB.
+ *                     Pass `null` to short-circuit and use the JS physics stub.
+ * @param wasmUrl    - URL of the compiled binary (default: '/workers/engin-shader.wasm').
  */
 export async function initWasmEngine(
-  sharedBuffer: SharedArrayBuffer,
+  wasmMemory: WebAssembly.Memory | null,
   wasmUrl = '/workers/engin-shader.wasm',
 ): Promise<WasmEngineExports | null> {
   // SSR guard — WebAssembly and SharedArrayBuffer are browser-only.
   if (typeof WebAssembly === 'undefined' || typeof SharedArrayBuffer === 'undefined') {
     return null;
   }
+  // No shared memory available — fall back to JS physics stub.
+  if (!wasmMemory) return null;
 
   try {
     const response = await fetch(wasmUrl);
@@ -131,17 +173,11 @@ export async function initWasmEngine(
 
     const arrayBuffer = await response.arrayBuffer();
 
-    // Expose the SharedArrayBuffer as Wasm linear memory so the module can
-    // operate on entity data with zero-copy SIMD instructions.
-    const sharedMemory = new WebAssembly.Memory({
-      initial: 256,
-      maximum: 512,
-      shared: true,
-    } as WebAssembly.MemoryDescriptor & { shared: boolean });
-
+    // Pass the caller-provided shared memory so the Wasm module operates
+    // on the same bytes as the JS typed-array views — true zero-copy SIMD.
     const { instance } = await WebAssembly.instantiate(arrayBuffer, {
       env: {
-        memory: sharedMemory,
+        memory: wasmMemory,
         abort: (msg: number, file: number, line: number, col: number) => {
           console.error(`[WasmEngine] abort: msg=${msg} file=${file} line=${line} col=${col}`);
         },
@@ -182,6 +218,14 @@ let _instance: EnginDispatcher | null = null;
  */
 export class EnginDispatcher {
   private _sab: SharedArrayBuffer | null = null;
+  /**
+   * The shared WebAssembly.Memory whose `.buffer` IS the EnginSAB.
+   * Allocated before the SAB so the same backing buffer is used by both
+   * JS typed-array views and the Wasm physics engine — true zero-copy SIMD.
+   * Null when WebAssembly.Memory is unavailable or its creation fails
+   * (SSR, missing COOP/COEP headers, old browsers) — the JS stub is used instead.
+   */
+  private _wasmMemory: WebAssembly.Memory | null = null;
   private _workers: Worker[] = [];
   private _workgroups: Workgroup[] = [];
   private _boundsViolations = 0;
@@ -228,7 +272,33 @@ export class EnginDispatcher {
       return;
     }
 
-    this._sab = createEnginSAB();
+    // Allocate the shared Wasm memory whose backing buffer becomes the EnginSAB.
+    // This is the architectural fix for zero-copy SIMD: Wasm and JS views operate
+    // on the same bytes.  Falls back to a plain SharedArrayBuffer when
+    // WebAssembly.Memory creation fails (missing COOP/COEP headers, SSR, etc.).
+    //
+    // Page count is calculated from SAB_BYTES so we allocate only as much linear
+    // memory as the layout actually requires (Bug E — right-size Wasm memory).
+    if (typeof WebAssembly !== 'undefined') {
+      try {
+        const WASM_PAGE_BYTES = 65_536;
+        const wasmInitPages = Math.ceil(SAB_BYTES / WASM_PAGE_BYTES);
+        const wasmMaxPages  = Math.ceil(wasmInitPages * 1.5);
+        this._wasmMemory = new WebAssembly.Memory({
+          initial: wasmInitPages,
+          maximum: wasmMaxPages,
+          shared: true,
+        } as WebAssembly.MemoryDescriptor & { shared: boolean });
+        this._sab = this._wasmMemory.buffer as unknown as SharedArrayBuffer;
+      } catch {
+        // Shared Wasm Memory unavailable — fall back to a plain SAB.
+        // The Wasm physics engine will be inactive; the JS stub stays active.
+        this._wasmMemory = null;
+        this._sab = createEnginSAB();
+      }
+    } else {
+      this._sab = createEnginSAB();
+    }
 
     const concurrency =
       typeof navigator !== 'undefined' && navigator.hardwareConcurrency > 0
@@ -240,7 +310,7 @@ export class EnginDispatcher {
 
     for (const wg of this._workgroups) {
       const worker = new Worker(workerScriptUrl);
-      worker.onmessage = (evt: MessageEvent<WorkerInboundMessage>) =>
+      worker.onmessage = (evt: MessageEvent<WorkerToDispatcherMessage>) =>
         this._handleWorkerMessage(evt.data);
       worker.onerror = (err) => {
         console.error(`[EnginDispatcher] Worker ${wg.workerIndex} error:`, err);
@@ -250,6 +320,9 @@ export class EnginDispatcher {
         type: 'init',
         sab: this._sab,
         workgroup: wg,
+        // Pass the Wasm Memory so the worker can use the same backing buffer
+        // when it loads the Wasm binary — zero-copy SIMD in worker context.
+        ...(this._wasmMemory ? { wasmMemory: this._wasmMemory } : {}),
       };
       // SharedArrayBuffer is transferable — pass by reference, zero-copy
       worker.postMessage(msg, []);
@@ -272,6 +345,7 @@ export class EnginDispatcher {
     this._workers = [];
     this._workgroups = [];
     this._sab = null;
+    this._wasmMemory = null;
     this._boundsViolations = 0;
     this._initialized = false;
     this._wasmExports = null;
@@ -299,13 +373,21 @@ export class EnginDispatcher {
       return false;
     }
 
-    this._wasmExports = await initWasmEngine(this._sab, wasmUrl);
+    // Pass the shared Wasm Memory so the engine operates on the same bytes as
+    // JS typed-array views (zero-copy).  If _wasmMemory is null the function
+    // returns null immediately and the JS stub remains active.
+    this._wasmExports = await initWasmEngine(this._wasmMemory, wasmUrl);
 
     if (this._wasmExports) {
       console.info('[EnginDispatcher] Wasm physics engine loaded — SIMD acceleration active.');
       // Notify each worker so they can load the Wasm binary in their context.
+      // Also forward the shared memory so workers achieve zero-copy too.
       for (const worker of this._workers) {
-        worker.postMessage({ type: 'wasm_init', wasmUrl });
+        worker.postMessage({
+          type: 'wasm_init',
+          wasmUrl,
+          ...(this._wasmMemory ? { wasmMemory: this._wasmMemory } : {}),
+        });
       }
     }
 
@@ -315,24 +397,37 @@ export class EnginDispatcher {
   // ─── Dual-Runtime Seam ──────────────────────────────────────────────────────
 
   /**
-   * Write the DreamDM Bar y-offset (CSS pixels) into the SAB.
+   * Write the DreamDM Bar y-offset (CSS pixels) into the SAB atomically.
    *
    * Called by the Surface Space layout code whenever the bar is dragged.
    * Workers read this slot each tick to reposition Dream Windows in the
    * Dream Space without a main-thread round-trip.
+   *
+   * The value is encoded as a fixed-point Int32 (× BAR_Y_SCALE) and written
+   * via `Atomics.store` so concurrent worker reads are sequentially consistent
+   * (Bug C — replaces the previous non-atomic Float32 write).
+   *
+   * @param yOffsetPx - Y pixel offset. NaN/Infinity are silently rejected.
+   *   Clamped to [0, 4000] to guard against runaway values.
    */
   setDreamDMBarY(yOffsetPx: number): void {
     if (!this._sab) return;
-    const view = f32DreamDMBarY(this._sab);
-    view[0] = yOffsetPx;
+    if (!Number.isFinite(yOffsetPx)) {
+      console.warn(`[EnginDispatcher] Invalid Y offset rejected: ${yOffsetPx}`);
+      return;
+    }
+    const clamped = Math.max(0, Math.min(4_000, yOffsetPx));
+    Atomics.store(int32DreamDMBarY(this._sab), 0, Math.round(clamped * BAR_Y_SCALE));
   }
 
   /**
    * Read the current DreamDM Bar y-offset from the SAB.
+   *
+   * Uses `Atomics.load` on the Int32 slot for a sequentially consistent read.
    */
   getDreamDMBarY(): number {
     if (!this._sab) return 0;
-    return f32DreamDMBarY(this._sab)[0];
+    return Atomics.load(int32DreamDMBarY(this._sab), 0) / BAR_Y_SCALE;
   }
 
   // ─── Telemetry ──────────────────────────────────────────────────────────────
@@ -383,7 +478,7 @@ export class EnginDispatcher {
 
   // ─── Private ────────────────────────────────────────────────────────────────
 
-  private _handleWorkerMessage(msg: WorkerInboundMessage): void {
+  private _handleWorkerMessage(msg: WorkerToDispatcherMessage): void {
     switch (msg.type) {
       case 'tick':
         // Telemetry is already written into the SAB by the worker.
@@ -404,6 +499,16 @@ export class EnginDispatcher {
           `out-of-bounds write at index ${msg.attemptedIndex}. ` +
           `Assigned range: [${msg.workgroup.startIndex}, ${msg.workgroup.endIndex}). ` +
           `Total violations: ${this._boundsViolations}`,
+        );
+        break;
+
+      case 'wasm_budget_exceeded':
+        // IDARi performance monitoring: a worker exceeded the 1 ms tick budget.
+        // Route to the telemetry system so performance regressions are visible.
+        console.warn(
+          `[EnginDispatcher][IDARi] Worker ${msg.workerIndex} exceeded tick budget: ` +
+          `${(msg.microsecondsPerTick / 1000).toFixed(2)} ms ` +
+          `(Wasm SIMD: ${msg.usingWasm})`,
         );
         break;
 

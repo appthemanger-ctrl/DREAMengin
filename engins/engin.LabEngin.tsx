@@ -33,7 +33,7 @@ import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
 // engin from this single canonical path.
 import QuantumCircuitCanvas, {
   type QuantumMeasurementResult,
-} from '@/engins/dream.engin.QuantumCircuitCanvas';
+} from '@/engins/dream.QuantumCircuitCanvas';
 import Link from 'next/link';
 import {
   ArrowLeft, FlaskConical, Activity, Play, BarChart2,

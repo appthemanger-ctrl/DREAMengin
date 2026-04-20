@@ -207,9 +207,39 @@ uses `check_ai_rate_limit` + `ai_rate_limits` and is not a replacement for
 The Engine uses a **zero-copy shared memory model** powered by `SharedArrayBuffer` to
 keep the HomeDream-rooted primary experience and the DreamDM-Bar-owned DreamSpace layer in sync without main-thread round-trips.
 
-### Memory map (`lib/runtime/memory.ts`)
+`lib/runtime/memory.ts` defines **two distinct SharedArrayBuffer layouts** that serve different roles:
 
-A single 16 MB `SharedArrayBuffer` is allocated once and partitioned into:
+---
+
+### EnginSAB — shader worker buffer (`createEnginSAB()`)
+
+Used by `EnginDispatcher` and the shader workers. Allocated at runtime via
+`createEnginSAB()` and partitioned across all shader workers as non-overlapping
+`Workgroup` slices. Total size: **`SAB_BYTES = 250,520` bytes (~245 KB)**.
+
+| Region | Offset | Size | Purpose |
+|--------|--------|------|---------|
+| PosX SoA | 0 – 39,999 | 40 KB | Float32 x-positions for 10,000 entities |
+| PosY SoA | 40,000 – 79,999 | 40 KB | Float32 y-positions for 10,000 entities |
+| PosZ SoA | 80,000 – 119,999 | 40 KB | Float32 z-positions for 10,000 entities |
+| VelX SoA | 120,000 – 159,999 | 40 KB | Float32 x-velocities for 10,000 entities |
+| VelY SoA | 160,000 – 199,999 | 40 KB | Float32 y-velocities for 10,000 entities |
+| VelZ SoA | 200,000 – 239,999 | 40 KB | Float32 z-velocities for 10,000 entities |
+| DaydreamType | 240,000 – 249,999 | 10 KB | Uint8 daydream-class identifier per entity |
+| DreamDM Bar Y | 250,000 – 250,003 | 4 B | Float32 bar y-offset (Dual-Runtime Seam) |
+| Telemetry | 250,008 – 250,519 | 512 B | Float64 µs/tick per worker (64 slots, 8-byte aligned) |
+
+Key layout constants: `OFFSET_POS_X`, `OFFSET_POS_Y`, `OFFSET_POS_Z`, `OFFSET_VEL_X`,
+`OFFSET_VEL_Y`, `OFFSET_VEL_Z`, `OFFSET_DAYDREAM_TYPE`, `OFFSET_DREAMDM_BAR_Y`,
+`OFFSET_TELEMETRY`, `SAB_BYTES`.
+
+---
+
+### ConformMemoryMap — surface-sync buffer (`getConformMemoryMap()`)
+
+Used to keep the HomeDream-rooted Surface Space and the DreamDM-Bar-owned DreamSpace in
+sync via Atomics without main-thread round-trips. Allocated once as a singleton via
+`getConformMemoryMap()`. Total size: **16 MB (`MEMORY_SIZE = 16,777,216` bytes)**.
 
 | Region | Offset | Size | Purpose |
 |--------|--------|------|---------|
@@ -224,11 +254,16 @@ A single 16 MB `SharedArrayBuffer` is allocated once and partitioned into:
 ever reaching the HomeDream private region. `boogieMemoryGuard()` enforces rule
 `C29_PRIVACY` (see `docs/BOOGIEMAN_POLICY.md`).
 
+Use `writeBarSeam(splitRatio)` / `readBarSeam()` to write and read the DreamDM Bar split
+ratio atomically via `Atomics.store()` / `Atomics.load()`.
+
+---
+
 ### EnginDispatcher (`lib/runtime/EnginDispatcher.ts`)
 
 `EnginDispatcher` is the process-wide singleton that orchestrates the shader worker pool:
 
-1. Allocates the `SharedArrayBuffer` via `createEnginSAB()`.
+1. Allocates the EnginSAB via `createEnginSAB()`.
 2. Spawns `navigator.hardwareConcurrency − 1` shader workers (min 1, max `MAX_WORKERS`).
 3. Partitions 10,000 entities into non-overlapping `Workgroup` slices and posts each
    worker its SAB + range via `postMessage` (zero-copy transfer).
@@ -237,6 +272,8 @@ ever reaching the HomeDream private region. `boogieMemoryGuard()` enforces rule
 5. Exposes per-worker µs/tick telemetry read directly from the SAB Telemetry Zone.
 6. Enforces the IDARi/TheBoogieMan audit: any `bounds_violation` message from a worker
    is logged with full context and increments the violation counter.
+7. Optionally loads and initialises the AssemblyScript Wasm physics engine
+   (`engin-shader.wasm`) for near-native SIMD performance via `initWasm()`.
 
 **SSR safety:** all browser-only APIs (`Worker`, `navigator`, `SharedArrayBuffer`) are
 guarded behind `typeof` checks so this module is safe to import server-side.
@@ -244,22 +281,23 @@ guarded behind `typeof` checks so this module is safe to import server-side.
 **Usage:**
 ```ts
 const dispatcher = EnginDispatcher.getInstance();
-dispatcher.init();                       // allocate SAB, spawn workers
-dispatcher.setDreamDMBarY(barYpx);       // relay bar seam position to workers
-const stats = dispatcher.stats;          // { workerCount, microsecondsPerTick, boundsViolations }
-dispatcher.dispose();                    // terminate workers, release SAB
+dispatcher.init();                        // allocate EnginSAB, spawn workers
+await dispatcher.initWasm();              // optional: load Wasm SIMD physics engine
+dispatcher.setDreamDMBarY(barYpx);        // relay bar seam position to workers
+const stats = dispatcher.stats;           // { workerCount, microsecondsPerTick[], boundsViolations }
+dispatcher.dispose();                     // terminate workers, release SAB
 ```
 
 **Shader worker:** `public/workers/engin-shader.worker.ts` — each worker receives its
-`Workgroup` slice and runs its own `Atomics.wait` / `requestAnimationFrame` loop so the
-main thread is never blocked by physics ticks.
+`Workgroup` slice and runs a `requestAnimationFrame` loop (with a `setTimeout` fallback
+for non-browser contexts) so the main thread is never blocked by physics ticks.
 
 ### Key files
 
 | File | Purpose |
 |------|---------|
-| `lib/runtime/memory.ts` | SAB layout constants, `createEnginSAB()`, `buildWorkgroups()`, typed view helpers |
-| `lib/runtime/EnginDispatcher.ts` | Singleton dispatcher — lifecycle, SAB writes, telemetry, bounds audit |
-| `public/workers/engin-shader.worker.ts` | Per-worker tick loop — reads SAB, enforces workgroup bounds |
+| `lib/runtime/memory.ts` | Both SAB layouts — `createEnginSAB()`, `getConformMemoryMap()`, `buildWorkgroups()`, `boogieMemoryGuard()`, typed view helpers |
+| `lib/runtime/EnginDispatcher.ts` | Singleton dispatcher — lifecycle, Wasm init, SAB writes, telemetry, bounds audit |
+| `public/workers/engin-shader.worker.ts` | Per-worker tick loop — reads EnginSAB, applies 3-axis SoA physics, enforces workgroup bounds |
 | `tests/engin-dispatcher.test.ts` | Unit tests for dispatcher lifecycle and bounds enforcement |
-| `tests/conform-memory-map.test.ts` | Conformance tests for the 16 MB memory map layout |
+| `tests/conform-memory-map.test.ts` | Conformance tests for the ConformMemoryMap (16 MB) layout |
