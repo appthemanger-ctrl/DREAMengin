@@ -31,7 +31,7 @@ DREAMengin is a **spatial, privacy‑first creative OS** — not a traditional w
 
 - Three AI agents: **Dr. Eams** (user assistant), **IDARi** (admin fixer), **TheBoogieMan.Ai** (policy enforcer)
 - Navigation is **surface‑stack** with **DreamDM Bar** as the persistent root container — the bar is a pill‑shaped draggable handle (the **whole bar** is the drag handle); it never unmounts.
-- The **Gold Particle** (attached to the bar) opens dual menus (left = Daydreams, right = settings) on single tap, and resets both runtimes to Home on double tap. The Gold Particle is the **only** sanctioned double-tap surface in the entire system — every other UI control responds to a *single* tap (`lib/hooks/useTap.ts`).
+- The **Gold Particle** (attached to the bar) opens dual menus (left = Daydreams, right = settings) on single tap, and resets both runtimes to Home on double tap. The Gold Particle is the **only** sanctioned double-tap surface in the entire system — every other UI control responds to a *single* tap (`lib/hooks/useTap.ts`). An ESLint `no-restricted-syntax` rule in `eslint.config.mjs` warns on any new `onDoubleClick` outside the cartridge directories (`components/games/**`, `lib/games/**`, `lib/dualsense/**`).
 - **Dual runtime**: HomeDream (top pane) and DreamSpace (bottom pane) are resized by dragging the bar. Hiding the bar is visual only; both runtimes remain visible and scrollable.
 - The single source of truth for what the product is: **README.md** (always authoritative).
 - The binding AI build constraint: **`docs/GENERATION_LAW.md`** – compute **ι** (Invention Force) using torridity constants (`ΔP=0.1`, `λ=1.71`) and select a protocol (**FLOW**, **SYNTHESIZE**, **MANIFEST**) before every generation pass.

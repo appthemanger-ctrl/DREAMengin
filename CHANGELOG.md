@@ -26,7 +26,10 @@ All notable changes to DREAMengin are documented in this file.
   sanctioned double-tap site, gold particle only). `ForgeDreamCanvas`
   add-piece converted from `onDoubleClick` to `onClick`. Game-controller and
   sprint-detector double-taps are gameplay primitives inside cartridges and
-  intentionally kept.
+  intentionally kept. New ESLint guardrail in `eslint.config.mjs`
+  (`no-restricted-syntax`) warns on any `onDoubleClick` / `onDblClick` JSX
+  attribute outside `lib/hooks/useTap.ts` and the cartridge directories
+  (`components/games/**`, `lib/games/**`, `lib/dualsense/**`).
 - **Solo-parity runtime channel.** `lib/runtime/runtimeChannel.ts` adds
   `LocalChannel` (in-mem pub/sub, faulty-listener-isolated), `RealtimeChannel`
   (lazy Supabase import with graceful local fallback), and a
