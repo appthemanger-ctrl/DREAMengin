@@ -29,9 +29,11 @@
 import {
   createEnginSAB,
   buildWorkgroups,
-  f32DreamDMBarY,
+  int32DreamDMBarY,
+  BAR_Y_SCALE,
   f64Telemetry,
   MAX_WORKERS,
+  SAB_BYTES,
   type Workgroup,
 } from './memory';
 
@@ -274,11 +276,17 @@ export class EnginDispatcher {
     // This is the architectural fix for zero-copy SIMD: Wasm and JS views operate
     // on the same bytes.  Falls back to a plain SharedArrayBuffer when
     // WebAssembly.Memory creation fails (missing COOP/COEP headers, SSR, etc.).
+    //
+    // Page count is calculated from SAB_BYTES so we allocate only as much linear
+    // memory as the layout actually requires (Bug E — right-size Wasm memory).
     if (typeof WebAssembly !== 'undefined') {
       try {
+        const WASM_PAGE_BYTES = 65_536;
+        const wasmInitPages = Math.ceil(SAB_BYTES / WASM_PAGE_BYTES);
+        const wasmMaxPages  = Math.ceil(wasmInitPages * 1.5);
         this._wasmMemory = new WebAssembly.Memory({
-          initial: 256,
-          maximum: 512,
+          initial: wasmInitPages,
+          maximum: wasmMaxPages,
           shared: true,
         } as WebAssembly.MemoryDescriptor & { shared: boolean });
         this._sab = this._wasmMemory.buffer as unknown as SharedArrayBuffer;
@@ -389,24 +397,37 @@ export class EnginDispatcher {
   // ─── Dual-Runtime Seam ──────────────────────────────────────────────────────
 
   /**
-   * Write the DreamDM Bar y-offset (CSS pixels) into the SAB.
+   * Write the DreamDM Bar y-offset (CSS pixels) into the SAB atomically.
    *
    * Called by the Surface Space layout code whenever the bar is dragged.
    * Workers read this slot each tick to reposition Dream Windows in the
    * Dream Space without a main-thread round-trip.
+   *
+   * The value is encoded as a fixed-point Int32 (× BAR_Y_SCALE) and written
+   * via `Atomics.store` so concurrent worker reads are sequentially consistent
+   * (Bug C — replaces the previous non-atomic Float32 write).
+   *
+   * @param yOffsetPx - Y pixel offset. NaN/Infinity are silently rejected.
+   *   Clamped to [0, 4000] to guard against runaway values.
    */
   setDreamDMBarY(yOffsetPx: number): void {
     if (!this._sab) return;
-    const view = f32DreamDMBarY(this._sab);
-    view[0] = yOffsetPx;
+    if (!Number.isFinite(yOffsetPx)) {
+      console.warn(`[EnginDispatcher] Invalid Y offset rejected: ${yOffsetPx}`);
+      return;
+    }
+    const clamped = Math.max(0, Math.min(4_000, yOffsetPx));
+    Atomics.store(int32DreamDMBarY(this._sab), 0, Math.round(clamped * BAR_Y_SCALE));
   }
 
   /**
    * Read the current DreamDM Bar y-offset from the SAB.
+   *
+   * Uses `Atomics.load` on the Int32 slot for a sequentially consistent read.
    */
   getDreamDMBarY(): number {
     if (!this._sab) return 0;
-    return f32DreamDMBarY(this._sab)[0];
+    return Atomics.load(int32DreamDMBarY(this._sab), 0) / BAR_Y_SCALE;
   }
 
   // ─── Telemetry ──────────────────────────────────────────────────────────────

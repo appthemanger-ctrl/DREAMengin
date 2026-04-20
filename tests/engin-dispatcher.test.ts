@@ -28,10 +28,12 @@ import {
   OFFSET_DAYDREAM_TYPE,
   OFFSET_DREAMDM_BAR_Y,
   OFFSET_TELEMETRY,
+  BAR_Y_SCALE,
   buildWorkgroups,
   isIndexInBounds,
   f32Channel,
   f32DreamDMBarY,
+  int32DreamDMBarY,
   f64Telemetry,
   u8DaydreamType,
   createEnginSAB,
@@ -130,12 +132,25 @@ describe('SAB view helpers', () => {
     expect(ch.length).toBe(ENTITY_COUNT);
   });
 
-  it('f32DreamDMBarY returns Float32Array of length 1', () => {
+  it('f32DreamDMBarY returns Float32Array of length 1 (deprecated helper)', () => {
     if (typeof SharedArrayBuffer === 'undefined') return;
     const sab = createEnginSAB();
     const v = f32DreamDMBarY(sab);
     expect(v).toBeInstanceOf(Float32Array);
     expect(v.length).toBe(1);
+  });
+
+  it('int32DreamDMBarY returns Int32Array of length 1 at a 4-byte-aligned offset', () => {
+    if (typeof SharedArrayBuffer === 'undefined') return;
+    const sab = createEnginSAB();
+    const v = int32DreamDMBarY(sab);
+    expect(v).toBeInstanceOf(Int32Array);
+    expect(v.length).toBe(1);
+    expect(OFFSET_DREAMDM_BAR_Y % 4).toBe(0);
+  });
+
+  it('BAR_Y_SCALE is 100', () => {
+    expect(BAR_Y_SCALE).toBe(100);
   });
 
   it('f64Telemetry returns Float64Array of length MAX_WORKERS', () => {
@@ -346,6 +361,49 @@ describe('EnginDispatcher — Dual-Runtime Seam (DreamDM Bar y-offset)', () => {
     const d = EnginDispatcher.getInstance();
     expect(d.getDreamDMBarY()).toBe(0);
   });
+
+  it('setDreamDMBarY rejects NaN silently', () => {
+    if (typeof SharedArrayBuffer === 'undefined') return;
+
+    const d = EnginDispatcher.getInstance();
+    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+
+    d.setDreamDMBarY(200);
+    d.setDreamDMBarY(NaN);
+    // NaN is rejected; stored value remains 200
+    expect(d.getDreamDMBarY()).toBeCloseTo(200, 2);
+  });
+
+  it('setDreamDMBarY rejects Infinity silently', () => {
+    if (typeof SharedArrayBuffer === 'undefined') return;
+
+    const d = EnginDispatcher.getInstance();
+    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+
+    d.setDreamDMBarY(300);
+    d.setDreamDMBarY(Infinity);
+    expect(d.getDreamDMBarY()).toBeCloseTo(300, 2);
+  });
+
+  it('setDreamDMBarY clamps values above 4000', () => {
+    if (typeof SharedArrayBuffer === 'undefined') return;
+
+    const d = EnginDispatcher.getInstance();
+    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+
+    d.setDreamDMBarY(9_999);
+    expect(d.getDreamDMBarY()).toBeCloseTo(4_000, 2);
+  });
+
+  it('setDreamDMBarY clamps values below 0', () => {
+    if (typeof SharedArrayBuffer === 'undefined') return;
+
+    const d = EnginDispatcher.getInstance();
+    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+
+    d.setDreamDMBarY(-50);
+    expect(d.getDreamDMBarY()).toBeCloseTo(0, 2);
+  });
 });
 
 // ─── Elite-Runtime Telemetry ──────────────────────────────────────────────────
@@ -396,9 +454,11 @@ describe('engin-shader.worker.ts — source contract', () => {
     expect(workerSrc).toContain("case 'stop'");
   });
 
-  it('reads DreamDM Bar y-offset (Dual-Runtime Seam)', () => {
+  it('reads DreamDM Bar y-offset atomically (Dual-Runtime Seam)', () => {
     expect(workerSrc).toContain('OFFSET_DREAMDM_BAR_Y');
-    expect(workerSrc).toContain('barY[0]');
+    // Bug C: non-atomic Float32 read replaced with Atomics.load on Int32
+    expect(workerSrc).toContain('Atomics.load(barY, 0)');
+    expect(workerSrc).toContain('BAR_Y_SCALE');
   });
 
   it('applies Wasm SIMD f32x4.add velocity integration', () => {

@@ -43,6 +43,9 @@ const OFFSET_VEL_Z        = OFFSET_VEL_Y + F32_CHANNEL_BYTES;
 const OFFSET_DREAMDM_BAR_Y = 250_000;
 const OFFSET_TELEMETRY    = 250_008;
 
+/** Fixed-point scale for the bar Y slot — mirrors BAR_Y_SCALE in memory.ts. */
+const BAR_Y_SCALE = 100;
+
 // ─── Worker state ─────────────────────────────────────────────────────────────
 
 interface Workgroup {
@@ -64,7 +67,7 @@ let posZ: Float32Array;
 let velX: Float32Array;
 let velY: Float32Array;
 let velZ: Float32Array;
-let barY: Float32Array;
+let barY: Int32Array;      // Int32 for Atomics.load (Bug C — was Float32Array)
 let telemetry: Float64Array;
 
 // ─── Wasm SIMD stub ───────────────────────────────────────────────────────────
@@ -180,8 +183,9 @@ function tick(): void {
   const { startIndex, endIndex, workerIndex } = workgroup;
 
   // Dual-Runtime Seam: read DreamDM Bar y-offset written by Surface Space.
-  // Workers consume this to enforce Dream Window spatial constraints.
-  const dreamDMBarYOffset = barY[0];
+  // Use Atomics.load on the Int32 view for a sequentially consistent read
+  // (Bug C — replaces non-atomic barY[0] Float32 read).
+  const dreamDMBarYOffset = Atomics.load(barY, 0) / BAR_Y_SCALE;
 
   // Bounds guard at range boundaries (audit sampling — checks start/end only
   // to avoid per-entity overhead in hot path; full guard is in wasmSIMDAddF32x4).
@@ -293,7 +297,7 @@ self.onmessage = (evt: MessageEvent) => {
       velX      = new Float32Array(sab, OFFSET_VEL_X,         ENTITY_COUNT);
       velY      = new Float32Array(sab, OFFSET_VEL_Y,         ENTITY_COUNT);
       velZ      = new Float32Array(sab, OFFSET_VEL_Z,         ENTITY_COUNT);
-      barY      = new Float32Array(sab, OFFSET_DREAMDM_BAR_Y, 1);
+      barY      = new Int32Array(sab, OFFSET_DREAMDM_BAR_Y,  1);
       telemetry = new Float64Array(sab, OFFSET_TELEMETRY,     64);
 
       running   = true;
