@@ -4,542 +4,76 @@
 > **Documentation Date:** 2026-04-06
 
 
-**Status: LOCKED — Phase 7 Final Authority + OS-Layer Naming Model**
+**Status: LOCKED —  + OS-Layer Naming Model**
 Last updated: 2026-03-16
 
 This document is the single locked reference for all product names, surface names, module names, runtime regions, Dream Window states, connection language, and system labels used in DREAMengin.
 
 AI agents, contributors, and reviewers must use this document as the validation source before generating files, routes, component names, UI labels, or documentation references.
 
----
-
-## 1. Platform Name
-
-### 1.1 Canonical Platform Name
-
-| Canonical | Status |
-|-----------|--------|
-| **DREAMengin** | ONLY valid platform name |
-
-**DREAMengin** is the only valid form of the platform name in all formal product references, documentation, code identifiers, UI strings, route names, component names, and API identifiers.
-
-### 1.2 Canonical Product-Type Description
-
-DREAMengin is not described as a conventional page-based app.
-
-| Canonical | Status |
-|-----------|--------|
-| **DreamDM-Bar-led spatial operating environment** | ONLY valid type description |
-| **stacked-runtime spatial operating environment** | Acceptable structural short form |
-| **DREAMengin Runtime** | Acceptable short form for the whole live system |
-| **DREAMengin Runtime Environment** | Acceptable expanded form for system-wide behavior |
-| **Spatial Operating Environment** | Acceptable category form |
-
-### 1.3 Rejected Platform Name Variants
-
-The following are **explicitly rejected** and must not appear in any new file, route, label, component name, or documentation:
-
-| Rejected form | Reason |
-|---------------|--------|
-| `DreamEngin` | Wrong capitalization — Dream is not a standalone word in the platform name |
-| `Dreamengin` | Wrong capitalization |
-| `dreamengin` | All-lowercase — never valid |
-| `DREAMENGIN` | All-caps — never valid (reserved for display contexts only when intentional) |
-| `Dream Engin` | Spaced variant — not valid |
-| `DreamEngine` | Wrong suffix — the platform uses Engin, not Engine |
-| `Dreamengin.` / `DREAMengin.` | Trailing period — only valid in prose sentences |
-
-When uncertain, the rule is: **D-R-E-A-M** in all caps, followed by lowercase **engin** with no space. Nothing else.
-
----
-
-## 2. Core Surface Names
-
-These are the three primary system-level surfaces. They are not Daydreams.
-
-### 2.1 Canonical Core Surface Names
-
-| Canonical Name | Route | Label type |
-|----------------|-------|------------|
-| **HomeDream** | `/homedream` | User-facing and internal |
-| **HomeDream Surface** | `/homedream` | Full canonical surface label |
-| **Edit ProfileDream** | `/edit-profiledream` | User-facing label |
-| **EditProfileDream** | `/edit-profiledream` | Internal/code identifier |
-| **Edit ProfileDream Surface** | `/edit-profiledream` | Full canonical surface label |
-| **View Profile** | `/view-profile` | User-facing label |
-| **ViewProfile** | `/view-profile` | Internal/code identifier |
-| **View Profile Surface** | `/view-profile` | Full canonical surface label |
-
-> **Note on Edit ProfileDream vs EditProfileDream:** The user-facing label includes a space ("Edit ProfileDream") to read naturally as an action. The code identifier has no space ("EditProfileDream") to be a valid identifier. Both refer to the same surface. Use the spaced form in UI strings and documentation prose; use the spaceless form in code identifiers, component names, and route path segments.
-
-### 2.2 Rejected Core Surface Name Variants
-
-| Rejected form | Surface it misnames | Reason |
-|---------------|--------------------|---------| 
-| `home` | HomeDream | Generic; does not identify the DREAMengin surface |
-| `dashboard` | HomeDream | Wrong concept entirely — use "operating surface" |
-| `feed` | HomeDream | Refers to a component of HomeDream, not the surface |
-| `edit-profile` | Edit ProfileDream | Legacy route — valid as a redirect, not as a canonical name |
-| `profile-editor` | Edit ProfileDream | Non-canonical descriptive label |
-| `builder` | Edit ProfileDream | Non-canonical generic label |
-| `public-profile` | View Profile | Non-canonical descriptive label |
-| `profile-page` | View Profile | Non-canonical generic label |
-
----
-
-## 3. Domain Surface Names (Daydream Network)
-
-The DREAMengin creative system is a **multi-surface, multi-engin connection network** — not a one-to-one pair system.
-
-There are:
-- **6 Daydream Surfaces** — user-facing lived creative spaces
-- **6 Engin runtimes** — powered execution/emulator layers
-- **11 named connection paths** across scope, resolution, and task depth
-
-Any Daydream Surface may connect to multiple Engins. Any Engin may power multiple Surface contexts.
-
-### 3.1 Canonical Daydream Surface Names
-
-| Canonical Name | Route | Full Surface Label |
-|----------------|-------|------------|
-| **Music** (Daydream) | `/daydream/music` | **Music Daydream Surface** |
-| **Games** (Daydream) | `/daydream/games` | **Games Daydream Surface** |
-| **Lab** (Daydream) | `/daydream/lab` | **Lab Daydream Surface** |
-| **Code** (Daydream) | `/daydream/code` | **Code Daydream Surface** |
-| **Brand** (Daydream) | `/daydream/brand` | **Brand Daydream Surface** |
-| **Create** (Daydream) | `/daydream/create` | **Create Daydream Surface** |
-
-When referring to these in prose or documentation, use the full surface label form (e.g., **Music Daydream Surface**).
-
-### 3.2 Canonical Engin Runtime Names
-
-| Canonical Name | Route | Label type |
-|----------------|-------|------------|
-| **StarMakerEngin** | `/daydream/music` | Internal and user-facing system label |
-| **GameEngin** | `/daydream/games` | Internal and user-facing system label |
-| **LabEngin** | `/daydream/lab` | Internal and user-facing system label |
-| **CodeEngin** | `/daydream/code` | Internal and user-facing system label |
-| **BrandingEngin** | `/daydream/brand` | Internal and user-facing system label |
-| **ContentEngin** | `/daydream/create` | Internal and user-facing system label |
-
-### 3.3 Multi-Connection Runtime Network
-
-The connection between Daydream Surfaces and Engin runtimes is **not** one-to-one. Examples:
-
-| Daydream Surface | Connected Engin runtimes |
-|---|---|
-| Music Daydream Surface | StarMakerEngin, LabEngin, CodeEngin |
-| Games Daydream Surface | GameEngin, LabEngin, CodeEngin |
-| Brand Daydream Surface | BrandingEngin, ContentEngin, LabEngin |
-
-### 3.4 The Engin Suffix Rule
-
-**Engin** is the only accepted suffix pattern for powered runtime layers in DREAMengin.
-
-- Every Engin runtime name ends in **Engin** — not Engine, not Eng, not Engi, not any other variation.
-- The Engin suffix signals that the surface is a powered execution / emulator / control layer.
-
-### 3.5 Rejected Engin Suffix Variants
-
-The following are **explicitly rejected** as Engin runtime names:
-
-| Rejected form | Reason |
-|---------------|--------|
-| `StarMakerEngine` | Wrong suffix — Engine is not the DREAMengin suffix |
-| `GameEngine` | Wrong suffix |
-| `LabEngine` | Wrong suffix |
-| `Dreamengin` | Platform name used as a surface name — not valid |
-| `Daydreamengin` | Combination form — not a valid control-surface name |
-| `DayDreamengin` | Mixed-case combination — not a valid surface name |
-| `MusicEngin` | Wrong base name — Music domain uses StarMakerEngin |
-| `GamesEngin` | Wrong base name — Games domain uses GameEngin (no "s") |
-| `CreateEngin` | Wrong base name — Create domain uses ContentEngin |
-
----
-
-## 4. Platform Module Names
-
-### 4.1 Canonical Platform Module Names
-
-| Canonical Name | Route | Full Surface Label |
-|----------------|-------|------------|
-| **DreamDM** | `/messages` | **DreamDM Surface** |
-| **DreamDM Bar** | (component, no standalone route) | — |
-| **DreamMenu** | (component, no standalone route) | — |
-| **DreamMarketplace** | `/marketplace` | **DreamMarketplace Surface** |
-| **DreamShop** | `/shop` | **DreamShop Surface** |
-| **DreamAds** | `/ads` | **DreamAds Surface** |
-
-### 4.2 Rejected Module Name Variants
-
-| Rejected form | Module it misnames | Reason |
-|---------------|-------------------|---------| 
-| `messages` / `chat` / `inbox` | DreamDM | Generic labels; DreamDM is the canonical name |
-| `nav` / `sidebar` / `hamburger` | DreamMenu | Generic UI patterns; DreamMenu is the canonical name |
-| `marketplace` | DreamMarketplace | Bare domain word; DreamMarketplace is canonical |
-| `shop` / `store` | DreamShop | Bare domain words; DreamShop is canonical |
-| `promotions` / `ads` | DreamAds | Generic labels; DreamAds is canonical |
-
----
-
-## 5. AI Agent Names
-
-| Canonical Name | API Route | Label type |
-|----------------|-----------|------------|
-| **Dr. Eams** | `/api/ai/eams` | User-facing label |
-| **IDARi** | `/api/ai/idari` | Internal/admin label — not user-facing |
-| **TheBoogieMan.Ai** | `/api/ai/boogieman` | System-level label |
-
----
-
-## 6. Runtime Regions
-
-DREAMengin operates as a **stacked runtime system** rooted in HomeDream and controlled by the DreamDM Bar.
-
-### 6.1 Canonical Runtime Region Names
-
-| Canonical Name | Description |
-|----------------|-------------|
-| **HomeDream Surface** | The first runtime and root operating surface — sits underneath the bar and contains the feed |
-| **DreamSpace** | The second runtime layer revealed by the DreamDM Bar — not standalone and hidden with the bar |
-
-### 6.2 Canonical Runtime Seam Names
-
-The DreamDM Bar is the boundary object and owner of the secondary runtime layer. All four of the following names are canonical for this object in different contexts:
-
-| Canonical Name | Context |
-|----------------|---------|
-| **DreamDM Bar** | Primary product label |
-| **Persistent Interaction Rail** | Architecture description |
-| **Persistent Spatial Divider** | Spatial model description |
-| **Runtime Seam** | Short-form system label |
-
-### 6.3 Rejected Region Terms
-
-| Rejected term | Use instead |
-|---------------|-------------|
-| `widget layer` | DreamSpace |
-| `bottom panel` | DreamSpace |
-| `Surface Space` | HomeDream Surface or the active primary surface, depending on context |
-| `top area` | DreamDM Bar or HomeDream Surface, depending on context |
-
----
-
-## 7. Dream Windows
-
-Dream Windows are the canonical term for modular runtime containers inside DREAMengin.
-
-**Dream Windows are not:**
-- static widgets
-- dashboard cards
-- web-app cards
-- UI panels
-
-**Dream Windows are:**
-- modular runtime containers
-- structurally capable of displaying content, accepting content, routing content, and surfacing signals
-
-### 7.1 Dream Window State Names
-
-| State Name | Description |
-|------------|-------------|
-| **Unbound Dream Window** | Not yet connected to a source or destination |
-| **Bound Dream Window** | Connected to a source binding |
-| **Mounted Dream Window** | Active and rendering in a surface |
-| **Collapsed Dream Window** | Present but minimized |
-
-### 7.2 Dream Window Required Data
-
-Every Dream Window must carry:
-
-```
-id, type, owner, config, size, position, visibility,
-sourceBindings, destinationRules, activeState
-```
-
----
-
-## 8. Connection Language
-
-When describing how surfaces, Dream Windows, and Engin runtimes relate to each other, use canonical connection verbs.
-
-### 8.1 Canonical Connection Verbs
-
-| Canonical Verb | Use for |
-|----------------|---------|
-| **bind** | Connecting a Dream Window to a source |
-| **mount** | Activating a Dream Window in a surface context |
-| **activate** | Bringing a runtime layer or Dream Window into active state |
-| **attach** | Associating a module or container with a surface |
-| **route into** | Directing a user or signal to a deeper surface |
-| **open into** | Opening a deeper runtime layer from within a surface |
-| **connect across** | Establishing a cross-surface or cross-Engin path |
-
-### 8.2 Rejected Connection Verbs
-
-| Rejected | Use instead |
-|----------|-------------|
-| `link widget` | bind / mount / activate |
-| `open page` | open into / route into |
-| `go to tab` | surface switching |
-| `launch card` | activate / mount |
-
----
-
-## 9. OS-Layer Rejected Terms
-
-The following terms are rejected when a canonical OS-layer equivalent exists:
-
-| Rejected term | Canonical replacement |
-|---------------|----------------------|
-| `app` | runtime |
-| `platform` | runtime environment |
-| `page` | surface |
-| `widget` | Dream Window (for modular runtime containers) |
-| `widget layer` | DreamSpace |
-| `tool` | engin capability |
-| `engine` | Engin |
-| `pair` | connection path |
-| `dashboard` | operating surface |
-| `tab navigation` | surface switching |
-| `card` | window / surface block |
-| `login-like connection` | bind / mount / activate |
-| `open page` | open into / route into |
-| `go to tab` | surface switching |
-| `launch card` | activate / mount |
-
----
-
-## 10. Generic and Category Labels
-
-Some terms are used as category labels or generic references in documentation. These are acceptable in documentation prose but must not be used as individual surface names in code.
-
-| Generic label | Acceptable use | Not acceptable use |
-|--------------|---------------|-------------------|
-| **Daydream** | Category reference: "the Daydream surfaces" | As a standalone product name for a specific surface |
-| **Engin** | Category reference: "the Engin runtimes" | As a standalone product name for a specific runtime |
-| **Daydream / Engin Network** | Documentation label for the multi-surface network | Route names, component names, UI labels |
-| **Dreams** | Category reference for Dream Windows | Should not be confused with "Daydreams" (domain surfaces) |
-
----
-
-## 11. Label Categories
-
-For each name, the label category determines where it may appear:
-
-| Category | Description | Examples |
-|----------|-------------|---------|
-| **User-facing label** | Shown in the product UI to users | HomeDream Surface, Edit ProfileDream, Music Daydream Surface |
-| **Internal / code identifier** | Used in component names, route files, type names, variable names | EditProfileDream, ViewProfile, StarMakerEngin |
-| **Documentation-only** | Used in specs and docs to describe system categories | Daydream / Engin Network, DayDreamengin (category only) |
-| **Admin-only label** | Not shown in standard user UI | IDARi |
-
----
-
-## 12. Validation Rules for AI Agents and Code Generators
-
-Before generating any file, route, component name, UI label, or documentation reference, validate against these rules:
-
-1. **Platform name check:** Does the output use `DREAMengin` exactly? Reject any variant.
-2. **Product description check:** Is the system described as a "DreamDM-Bar-led spatial operating environment" or "stacked-runtime spatial operating environment"? Reject "app" or "platform" when the full system is the subject.
-3. **Core surface name check:** Does the output use `HomeDream`, `EditProfileDream`/`Edit ProfileDream`, `ViewProfile`/`View Profile`? Reject legacy or descriptive variants.
-4. **Engin suffix check:** Does any powered runtime name end in `Engin` (not `Engine`)? Reject Engine, Eng, or variant suffixes.
-5. **Domain name check:** Are the 6 Daydream names Music, Games, Lab, Code, Brand, Create? Are the 6 Engin names exactly StarMakerEngin, GameEngin, LabEngin, CodeEngin, BrandingEngin, ContentEngin?
-6. **Module name check:** Are platform modules named DreamDM, DreamMenu, DreamMarketplace, DreamShop, DreamAds?
-7. **No generic substitution:** Are generic labels (dashboard, sidebar, store, chat, widget, card, page) being used instead of canonical names?
-8. **Suffix drift check:** Does any new name accidentally use `Dreamengin`, `Daydreamengin`, or `DayDreamengin` as a surface name?
-9. **Runtime region check:** Are the runtime layers referred to as HomeDream Surface (root layer) and DreamSpace (bar-owned revealed layer)?
-10. **Dream Window check:** Are modular runtime containers called Dream Windows? Are states Unbound / Bound / Mounted / Collapsed?
-11. **Connection verb check:** Are connection actions using bind / mount / activate / attach / route into / open into / connect across?
-12. **Network model check:** Is the system described as a multi-surface, multi-engin connection network (not strict 1-to-1 pairs)?
-
-If any check fails, the generated output is invalid. Correct the name before proceeding.
-
----
-
-## 13. Canonical Name Quick Reference
-
-```
-Platform:       DREAMengin
-Type:           DreamDM-Bar-led spatial operating environment
-
-Runtime regions:
-  HomeDream Surface      (root operating surface / underlying feed layer)
-  DreamSpace             (revealed secondary layer owned by the bar)
-  DreamDM Bar            (Runtime Seam / Persistent Interaction Rail / top-layer main attraction)
-
-Core surfaces:
-  HomeDream Surface                /homedream
-  Edit ProfileDream Surface        /edit-profiledream
-  View Profile Surface             /view-profile
-
-Daydream Surface Network (6 surfaces + 6 Engin runtimes + 11 connection paths):
-  Music Daydream Surface / StarMakerEngin     /daydream/music
-  Games Daydream Surface / GameEngin          /daydream/games
-  Lab Daydream Surface / LabEngin             /daydream/lab
-  Code Daydream Surface / CodeEngin           /daydream/code
-  Brand Daydream Surface / BrandingEngin      /daydream/brand
-  Create Daydream Surface / ContentEngin      /daydream/create
-
-Platform modules:
-  DreamDM Surface           /messages
-  DreamDM Bar               (Runtime Seam component)
-  DreamMenu                 (component)
-  DreamMarketplace Surface  /marketplace
-  DreamShop Surface         /shop
-  DreamAds Surface          /ads
-
-Dream Windows:
-  Unbound Dream Window
-  Bound Dream Window
-  Mounted Dream Window
-  Collapsed Dream Window
-
-Connection verbs:
-  bind, mount, activate, attach, route into, open into, connect across
-
-AI agents:
-  Dr. Eams         /api/ai/eams
-  IDARi            /api/ai/idari       (admin-only)
-  TheBoogieMan.Ai  /api/ai/boogieman
-```
-
----
-
-## 14. Filename Grammar (Engin / Dream / Surface Prefixes)
-
-Locked: 2026-04-19.
-
-Every `.tsx` file that participates in the Engin / Dream / Surface model must be named with one of three lowercase, dot-separated prefixes. The prefix tells a reader (human or AI) what kind of thing the file is, just from looking at the filename — independent of which folder it lives in.
-
-### 14.1 The Three Prefixes
-
-| Prefix | Meaning | Allowed count |
-|---|---|---|
-| **`engin.<Name>.tsx`** | A canonical Engin runtime. One file per Engin. The file *is* the Engin. | Exactly **6** — see §3.2 |
-| **`dream.<Name>.tsx`** | Anything user-facing that composes an Engin: components, functions, cartridges, HUDs, remotes, controls, panels, widgets, scenes, Dream Windows. | Many |
-| **`dreamsurface.<Name>.tsx`** | A Surface that an Engin or Dream lives on: Core Surfaces (HomeDream, EditProfileDream, ViewProfile), the 6 Daydream Surfaces, and the platform-module Surfaces (DreamDM, DreamMarketplace, DreamShop, DreamAds). | One per Surface |
-
-**`<Name>` must already be a canonical name from §2, §3, or another section of this document.** The prefix does not authorize new names — it only labels existing ones.
-
-### 14.2 The 6 Canonical `engin.*.tsx` Filenames
-
-These are the only valid `engin.*.tsx` filenames. Any other `engin.*.tsx` is a violation.
-
-| Canonical filename |
-|---|
-| `engin.StarMakerEngin.tsx` |
-| `engin.GameEngin.tsx` |
-| `engin.LabEngin.tsx` |
-| `engin.CodeEngin.tsx` |
-| `engin.BrandingEngin.tsx` |
-| `engin.ContentEngin.tsx` |
-
-Non-canonical "Engin"-suffixed files (e.g. `ForgeEngin.tsx`, `PortfolioEngin.tsx`, `NGNEngin.tsx`, `AutoOpenGameEngin.tsx`) **must not** use the `engin.` prefix. They are Dreams or auxiliary modules and follow §14.3 / §14.4.
-
-### 14.3 What Counts as a `dream.*.tsx`
-
-If the file holds *any* user-facing asset that composes an Engin — a panel, a HUD, a remote, a cartridge, a scene, a control, a widget, a Dream Window — it is a Dream and uses `dream.<Name>.tsx`. Cartridges that have not yet been compiled to `.dreamr` WASM (per `GameENGINspec.md`) live as `dream.<CartridgeName>.tsx` until they are.
-
-### 14.4 What Counts as a `dreamsurface.*.tsx`
-
-Surfaces are the lived spaces that Engins and Dreams render into. The Surface component file uses `dreamsurface.<Name>.tsx`. Next.js route files (`app/<route>/page.tsx`) stay where the framework requires; the canonical Surface component they render gets the `dreamsurface.` prefix.
-
-### 14.5 Rejected Filename Patterns
-
-| Rejected | Why |
-|---|---|
-| `Engin.<Name>.tsx` (capitalised prefix) | Prefix is lowercase. Only `<Name>` keeps its canonical casing. |
-| `Dream.<Name>.tsx` | Same — lowercase prefix. |
-| `DreamSurface.<Name>.tsx` / `dreamSurface.<Name>.tsx` | Prefix is `dreamsurface.` — one word, all lowercase. |
-| `engin-<Name>.tsx` / `engin_<Name>.tsx` | Separator is a single dot. |
-| `engin.MusicEngin.tsx` / `engin.GamesEngin.tsx` / `engin.CreateEngin.tsx` | Wrong base name — see §3.5. |
-| `dream.<Name>.tsx` for a non-user-facing utility | Dreams are user-facing. Pure utilities/helpers stay un-prefixed. |
-
-### 14.6 Migration Status
-
-The rule applies to all new files immediately. For existing files, the migration is staged:
-
-- **Done in PR landing this section:** the 6 canonical Engin files in `engins/` are renamed to `engin.<Name>.tsx`; the 2 Core Surface files in `coresurfaces/` (`EditProfileDream`, `ViewProfile`) are renamed to `dreamsurface.<Name>.tsx`; all import sites are updated; `scripts/check-engin-filenames.mjs` enforces the rule going forward.
-- **Pending follow-up PRs:** duplicate `components/daydream/*Engin.tsx` shells consolidate into the canonical `engin.*.tsx`; `components/engines/*/EnginApp.tsx` thin shells become `dream.*.tsx`; the 12 hand-written cartridges in `components/games/` become `dream.<CartridgeName>.tsx` (or are recompiled to `.dreamr`); HUDs / remotes / leaderboards become `dream.*.tsx`; the remaining Daydream and platform-module Surfaces become `dreamsurface.*.tsx`.
-
-### 14.7 Enforcement
-
-`scripts/check-engin-filenames.mjs` runs as part of `pnpm preflight`. It fails CI if:
-
-1. A file matching `engin.*.tsx` exists with a name not in §14.2.
-2. A file in `engins/` (any depth, top-level) is a canonical Engin name without the `engin.` prefix.
-3. Any file uses a rejected filename pattern from §14.5 (capitalised prefix, hyphen/underscore separator, etc.).
-4. A file matching `dream.<sub>.<Name>.tsx` or `dreamsurface.<sub>.<Name>.tsx` uses a `<sub>` segment that is not in the approved sub-prefix list of §14.8.
-
-The check is an additive guard — it does not retroactively block files covered by the §14.6 migration backlog, but every new file is held to the rule.
-
-### 14.8 Approved Sub-Prefixes
-
-Locked: 2026-04-19.
-
-When a `dream.` or `dreamsurface.` file needs more specificity than its parent prefix conveys, it uses a **second dotted segment** drawn from the closed lists below. Freeform sub-prefixes are rejected. The three parent prefixes (`engin.` / `dream.` / `dreamsurface.`) themselves stay locked per §14.1.
-
-**Rule:** one sub-prefix per file, exactly from the approved list. If none of the listed sub-prefixes fits, the file falls back to the bare parent form `dream.<Name>.tsx` / `dreamsurface.<Name>.tsx`.
-
-#### 14.8.1 No sub-prefixes under `engin.`
-
-The 6 canonical Engin filenames in §14.2 are flat. Nothing nests under `engin.`. A file that sits *next to* an Engin but is not the Engin itself is a `dream.*`, not an `engin.*.something`.
-
-#### 14.8.2 Approved `dream.<sub>.<Name>.tsx` sub-prefixes
-
-| Sub-prefix | What it is | Current examples in repo that would adopt it |
-|---|---|---|
-| **`dream.cartridge.<Name>.tsx`** | A game or app cartridge that runs on an Engin (usually GameEngin). Hand-written `.tsx` cartridges live here until/if they compile to `.dreamr` WASM. | `components/games/SerpentSiege.tsx`, `Glassfall.tsx`, `NullCathedral.tsx`, `AvenueOfMirrors.tsx`, `LexiconSolitaire.tsx`, `NiteFlyerSolarHymn.tsx`, `DefuseRitual.tsx`, `VoidlineGP.tsx`, `NeonDrift.tsx`, `EchoArena.tsx`, `BabylonSideScroller.tsx`, `madmaxi/MadmaxiGame.tsx` |
-| **`dream.panel.<Name>.tsx`** | A tab/panel that renders *inside* an Engin's chrome. | `components/engines/*/panels/*Panel.tsx` (IdentityPanel, CampaignsPanel, ProjectsPanel, NotebookPanel, AIPanel, StudioPanel, ArrangePanel, CalendarPanel, QueuePanel, EditorPanel, ExperimentsPanel, QuantumPanel, DataVizPanel, ScoresPanel, LibraryPanel, BuilderPanel, etc.) |
-| **`dream.hud.<Name>.tsx`** | A heads-up display overlaid on a scene or cartridge. | `components/games/LegacyGameHUD.tsx` |
-| **`dream.remote.<Name>.tsx`** | A controller / remote-input component. | `components/games/GameRemote.tsx`, `LegacyGameRemote.tsx`, `RecordingControls.tsx` |
-| **`dream.scene.<Name>.tsx`** | A Babylon/3D scene component. | `components/dreamengin/BabylonGameScene.tsx`, `DrEamsScene.tsx`, `StarfieldCanvas.tsx`, `PortfolioOptimizationScene.tsx`, `CanvasDropZone.tsx` |
-| **`dream.window.<Name>.tsx`** | A bound/mounted/unbound Dream Window (the content unit that snaps into surfaces). | future; ProfileDream tile contents as they migrate |
-| **`dream.widget.<Name>.tsx`** | A small composable widget mounted inside a Dream Window or profile grid. | `components/dreamengin/AppearanceWidget.tsx`, `components/profile/ProfileWidgetGrid.tsx` |
-| **`dream.menu.<Name>.tsx`** | A menu surface (not a full Surface — a menu overlay). | `components/dreamengin/NexusMenu.tsx`, `OutdreamMenu.tsx` |
-| **`dream.bar.<Name>.tsx`** | A bar component (DreamDM Bar, search bar, etc.). | `components/dreamengin/DrEamsSearchBar.tsx`, `dreamdmbar/dreamsurface.dreamdmbar.tsx` (that file is misnamed — it's a bar not a surface) |
-| **`dream.shell.<Name>.tsx`** | The chrome/wrapper that hosts an Engin or Daydream inside a Surface. | `components/dreamengin/EnginShell.tsx`, `components/daydream/DaydreamShell.tsx`, `components/engines/shared/EnginAppShell.tsx`, `components/engines/*/EnginApp.tsx` (thin shells) |
-| **`dream.overlay.<Name>.tsx`** | A full-viewport overlay that floats above a Surface (not a Surface itself). | `components/dreamengin/ViewAllDreamsOverlay.tsx` |
-
-A composite user-facing Dream that fits none of the above stays **`dream.<Name>.tsx`** (one dot, no sub-prefix). That is the explicit fallback.
-
-#### 14.8.3 Approved `dreamsurface.<sub>.<Name>.tsx` sub-prefixes
-
-Surfaces split into three kinds per §2 and the platform-modules list in §3. The sub-prefix encodes which kind.
-
-| Sub-prefix | What it is | Files that would adopt it |
-|---|---|---|
-| **`dreamsurface.core.<Name>.tsx`** | A Core Surface — system-level, not a Daydream. | `HomeDream`, `EditProfileDream`, `ViewProfile` (already renamed in a prior PR — would become `dreamsurface.core.*.tsx`) |
-| **`dreamsurface.daydream.<Domain>.tsx`** | One of the 6 Daydream Surfaces. `<Domain>` ∈ {Music, Games, Lab, Code, Brand, Create}. | the 6 `daydreams/<domain>/page.tsx` contents + their component entry points |
-| **`dreamsurface.module.<Name>.tsx`** | A platform-module Surface (DreamDM, DreamMarketplace, DreamShop, DreamAds). | `dreamdmbar/dreamsurface.dreamdmbar.tsx` → `dreamsurface.module.DreamDM.tsx`; marketplace/shop/ads entry components |
-
-A Surface that fits none of the above stays **`dreamsurface.<Name>.tsx`** as the fallback.
-
-#### 14.8.4 Rejected sub-prefixes
-
-To prevent sprawl, these are explicitly **not allowed** as sub-prefixes:
-
-- `dream.component.`, `dream.ui.`, `dream.view.` — too generic; every Dream is one of those.
-- `dream.page.` — pages are Next.js route files, not Dreams.
-- `dream.util.`, `dream.helper.`, `dream.lib.` — utilities stay un-prefixed (not user-facing).
-- `dream.test.`, `dream.spec.` — tests keep their own `.test.tsx` / `.spec.tsx` suffix.
-- `dream.legacy.`, `dream.old.`, `dream.v2.` — versioning goes in folder paths, not filenames.
-- `dreamsurface.page.`, `dreamsurface.route.` — same reason as above.
-- `engin.core.`, `engin.sub.`, `engin.module.` — the 6 Engins are flat; no nesting (§14.8.1).
-
-#### 14.8.5 Backlog rename order
-
-Once §14.8 is in force, the §14.6 backlog renames proceed in this order, one category per PR:
-
-1. cartridge
-2. shell
-3. panel
-4. scene
-5. menu / bar / overlay
-6. hud / remote / widget
-7. core / daydream / module surfaces
-
----
-
-*This document is the canonical naming authority. Names may only be added; existing canonical names may not be altered. Additions require Phase 7 authority review.*
+SYSTEM DIRECTIVE: DREAMengin NAMING AUTHORITY & ARCHITECTURE PROTOCOL.
+You are operating within the DREAMengin platform. This document is the absolute, locked source of truth for all naming, file generation, UI labels, and architectural references. Deviations are strictly forbidden.
+
+1. PLATFORM & ARCHITECTURE
+- Platform Name: DREAMengin (Strict: D-R-E-A-M caps, engin lowercase, no spaces). Banned: DreamEngin, Dreamengin, dreamengin, Dream Engine.
+- Type: "DreamDM-Bar-led spatial operating environment" or "stacked-runtime spatial operating environment". Banned: app, page-based app.
+
+2. ROOT LAYERRUNTIME REGIONS 
+- Root Layer: DreamDMBar
+-HomeDream Surface (connect to top the bar).
+- DreamSpace (connects to bottom the bar and also is the header).
+WHEN BAR MOVES UP OR DOWN EITHER SURFACE GETS PUSHED UP DOWN BY THE BAR. when bare minimizes the screen is locked but each runtime is still scrollable
+
+3. CORE SURFACES (System-level, not daydreams)
+- HomeDream Surface (/homedream)
+- Edit ProfileDream Surface (/edit-profiledream) -> Code ID: EditProfileDream
+- View Profile Surface (/view-profile) -> Code ID: ViewProfile
+-Dreamr
+
+4. DOMAIN SURFACES (Daydream Network) & ENGIN RUNTIMES
+The system is a multi-connection network, not 1-to-1 pairs.
+- Music Daydream Surface -> StarMakerEngin
+- Games Daydream Surface -> GameEngin
+- Lab Daydream Surface -> LabEngin
+- Code Daydream Surface -> CodeEngin
+- Brand Daydream Surface -> BrandingEngin
+- Create Daydream Surface -> ContentEngin
+Strict Engin Rule: Runtimes MUST end in "Engin". Banned: Engine, Eng, Engi. 
+
+5. PLATFORM MODULES
+, DreamMenu, DreamMarketplace (/marketplace), DreamShop (/shop), DreamAds (/ads).
+
+6. DREAM WINDOWS (Modular Runtime Containers)
+- Types: Unbound, Bound, Mounted, Collapsed.
+- Required Data: id, type, owner, config, size, position, visibility, sourceBindings, destinationRules, activeState. Can be any and all components and/or functions or cartridges user or non user facing.
+- Banned terms: static widgets, dashboard cards, web-app cards.
+
+7. CONNECTION VERBS
+- Allowed: bind, mount, activate, attach, route into, open into, connect across.
+- Banned: link widget, open page, go to tab, launch card.
+
+8. AI AGENTS
+- Dr. Eams (User-facing), IDARi (Admin-only), TheBoogieMan.Ai (System-level).
+
+9. FILE NAMING LAW (Strict lowercase dot-notation)
+ALL .tsx files participating in the system MUST use one of three prefixes: engin., dream., or dreamsurface. Maximum nesting is one sub-prefix.
+
+PREFIX 1: engin.<Name>.tsx
+- Allowed (ONLY 6, strictly flat): engin.StarMakerEngin.tsx, engin.GameEngin.tsx, engin.LabEngin.tsx, engin.CodeEngin.tsx, engin.BrandingEngin.tsx, engin.ContentEngin.tsx. 
+
+PREFIX 2: dream.<Name>.tsx OR dream.<sub>.<Name>.tsx
+- Use for user-facing assets composing an Engin.
+- Allowed sub-prefixes: cartridge, panel, hud, remote, scene, window, widget, menu, bar, shell, overlay.
+
+PREFIX 3: dreamsurface.<Name>.tsx OR dreamsurface.<sub>.<Name>.tsx
+- Use for the lived spaces Engins/Dreams render into.
+- Allowed sub-prefixes: core, daydream, module.
+
+BANNED SUB-PREFIXES: component, ui, view, page, util, helper, lib, test, spec, legacy, old, v2, route, engin.core, engin.sub, engin.module. 
+
+VALIDATION GATES BEFORE EXECUTING ANY TASK:
+1. Did I use DREAMengin exactly?
+2. Did I use Engin (not Engine) for runtimes?
+3. Did I use canonical Core/Daydream names instead of generic terms (dashboard, feed, store)?
+4. Does every new .tsx file match the exact allowed dot-notation prefixes and sub-prefixes?
+If NO to any, correct silently before outputting.
