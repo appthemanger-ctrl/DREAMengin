@@ -7,6 +7,11 @@
  *   - `dream.<Name>.tsx`        — anything user-facing that composes an Engin
  *   - `dreamsurface.<Name>.tsx` — Surfaces that Engins / Dreams live on
  *
+ * Per §14.8, when a `dream.` or `dreamsurface.` file uses a second dotted
+ * segment (`dream.<sub>.<Name>.tsx` / `dreamsurface.<sub>.<Name>.tsx`), that
+ * `<sub>` must come from the closed approved list. Bare two-segment forms
+ * (`dream.<Name>.tsx`) remain the fallback and are unaffected.
+ *
  * Per §14.6 ("Migration Status") this is an additive guard: it blocks new
  * violations and currently-renamed files, but does not retroactively block
  * the migration backlog (duplicate Engin shells, hand-written cartridges,
@@ -86,6 +91,32 @@ const MIGRATION_BACKLOG_ALLOWED = new Set([
 ]);
 
 // ─────────────────────────────────────────────────────────────────────────────
+// §14.8 — approved sub-prefixes for `dream.<sub>.<Name>.tsx` and
+// `dreamsurface.<sub>.<Name>.tsx`. Any other `<sub>` segment is a violation.
+// Bare two-segment forms (`dream.<Name>.tsx`) are the fallback and are NOT
+// validated against these sets.
+// ─────────────────────────────────────────────────────────────────────────────
+const APPROVED_DREAM_SUBPREFIXES = new Set([
+  'cartridge',
+  'panel',
+  'hud',
+  'remote',
+  'scene',
+  'window',
+  'widget',
+  'menu',
+  'bar',
+  'shell',
+  'overlay',
+]);
+
+const APPROVED_DREAMSURFACE_SUBPREFIXES = new Set([
+  'core',
+  'daydream',
+  'module',
+]);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Walk
 // ─────────────────────────────────────────────────────────────────────────────
 async function* walk(dir) {
@@ -151,6 +182,28 @@ for (const rel of SCAN_DIRS) {
       violations.push(
         `${relFromRoot} — separator must be a single dot, not \`-\` or \`_\` (NAMING_AUTHORITY.md §14.5).`,
       );
+    }
+
+    // §14.8 — sub-prefix vocabulary. A file shaped like
+    // `dream.<sub>.<Name>.tsx` (3+ dot-segments before `.tsx`) must use a
+    // `<sub>` from the approved list; same for `dreamsurface.<sub>.<Name>.tsx`.
+    // Two-segment forms (`dream.<Name>.tsx`) are the fallback and skipped.
+    const segments = base.slice(0, -'.tsx'.length).split('.');
+    if (segments[0] === 'dream' && segments.length >= 3) {
+      const sub = segments[1];
+      if (!APPROVED_DREAM_SUBPREFIXES.has(sub)) {
+        violations.push(
+          `${relFromRoot} — \`dream.${sub}.\` is not an approved sub-prefix. Allowed: ${[...APPROVED_DREAM_SUBPREFIXES].sort().join(', ')} (NAMING_AUTHORITY.md §14.8.2).`,
+        );
+      }
+    }
+    if (segments[0] === 'dreamsurface' && segments.length >= 3) {
+      const sub = segments[1];
+      if (!APPROVED_DREAMSURFACE_SUBPREFIXES.has(sub)) {
+        violations.push(
+          `${relFromRoot} — \`dreamsurface.${sub}.\` is not an approved sub-prefix. Allowed: ${[...APPROVED_DREAMSURFACE_SUBPREFIXES].sort().join(', ')} (NAMING_AUTHORITY.md §14.8.3).`,
+        );
+      }
     }
 
     // §14.2 / §14.6 — canonical Engin name in an Engin home dir without the

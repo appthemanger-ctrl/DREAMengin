@@ -470,8 +470,75 @@ The rule applies to all new files immediately. For existing files, the migration
 1. A file matching `engin.*.tsx` exists with a name not in §14.2.
 2. A file in `engins/` (any depth, top-level) is a canonical Engin name without the `engin.` prefix.
 3. Any file uses a rejected filename pattern from §14.5 (capitalised prefix, hyphen/underscore separator, etc.).
+4. A file matching `dream.<sub>.<Name>.tsx` or `dreamsurface.<sub>.<Name>.tsx` uses a `<sub>` segment that is not in the approved sub-prefix list of §14.8.
 
 The check is an additive guard — it does not retroactively block files covered by the §14.6 migration backlog, but every new file is held to the rule.
+
+### 14.8 Approved Sub-Prefixes
+
+Locked: 2026-04-19.
+
+When a `dream.` or `dreamsurface.` file needs more specificity than its parent prefix conveys, it uses a **second dotted segment** drawn from the closed lists below. Freeform sub-prefixes are rejected. The three parent prefixes (`engin.` / `dream.` / `dreamsurface.`) themselves stay locked per §14.1.
+
+**Rule:** one sub-prefix per file, exactly from the approved list. If none of the listed sub-prefixes fits, the file falls back to the bare parent form `dream.<Name>.tsx` / `dreamsurface.<Name>.tsx`.
+
+#### 14.8.1 No sub-prefixes under `engin.`
+
+The 6 canonical Engin filenames in §14.2 are flat. Nothing nests under `engin.`. A file that sits *next to* an Engin but is not the Engin itself is a `dream.*`, not an `engin.*.something`.
+
+#### 14.8.2 Approved `dream.<sub>.<Name>.tsx` sub-prefixes
+
+| Sub-prefix | What it is | Current examples in repo that would adopt it |
+|---|---|---|
+| **`dream.cartridge.<Name>.tsx`** | A game or app cartridge that runs on an Engin (usually GameEngin). Hand-written `.tsx` cartridges live here until/if they compile to `.dreamr` WASM. | `components/games/SerpentSiege.tsx`, `Glassfall.tsx`, `NullCathedral.tsx`, `AvenueOfMirrors.tsx`, `LexiconSolitaire.tsx`, `NiteFlyerSolarHymn.tsx`, `DefuseRitual.tsx`, `VoidlineGP.tsx`, `NeonDrift.tsx`, `EchoArena.tsx`, `BabylonSideScroller.tsx`, `madmaxi/MadmaxiGame.tsx` |
+| **`dream.panel.<Name>.tsx`** | A tab/panel that renders *inside* an Engin's chrome. | `components/engines/*/panels/*Panel.tsx` (IdentityPanel, CampaignsPanel, ProjectsPanel, NotebookPanel, AIPanel, StudioPanel, ArrangePanel, CalendarPanel, QueuePanel, EditorPanel, ExperimentsPanel, QuantumPanel, DataVizPanel, ScoresPanel, LibraryPanel, BuilderPanel, etc.) |
+| **`dream.hud.<Name>.tsx`** | A heads-up display overlaid on a scene or cartridge. | `components/games/LegacyGameHUD.tsx` |
+| **`dream.remote.<Name>.tsx`** | A controller / remote-input component. | `components/games/GameRemote.tsx`, `LegacyGameRemote.tsx`, `RecordingControls.tsx` |
+| **`dream.scene.<Name>.tsx`** | A Babylon/3D scene component. | `components/dreamengin/BabylonGameScene.tsx`, `DrEamsScene.tsx`, `StarfieldCanvas.tsx`, `PortfolioOptimizationScene.tsx`, `CanvasDropZone.tsx` |
+| **`dream.window.<Name>.tsx`** | A bound/mounted/unbound Dream Window (the content unit that snaps into surfaces). | future; ProfileDream tile contents as they migrate |
+| **`dream.widget.<Name>.tsx`** | A small composable widget mounted inside a Dream Window or profile grid. | `components/dreamengin/AppearanceWidget.tsx`, `components/profile/ProfileWidgetGrid.tsx` |
+| **`dream.menu.<Name>.tsx`** | A menu surface (not a full Surface — a menu overlay). | `components/dreamengin/NexusMenu.tsx`, `OutdreamMenu.tsx` |
+| **`dream.bar.<Name>.tsx`** | A bar component (DreamDM Bar, search bar, etc.). | `components/dreamengin/DrEamsSearchBar.tsx`, `dreamdmbar/dreamsurface.dreamdmbar.tsx` (that file is misnamed — it's a bar not a surface) |
+| **`dream.shell.<Name>.tsx`** | The chrome/wrapper that hosts an Engin or Daydream inside a Surface. | `components/dreamengin/EnginShell.tsx`, `components/daydream/DaydreamShell.tsx`, `components/engines/shared/EnginAppShell.tsx`, `components/engines/*/EnginApp.tsx` (thin shells) |
+| **`dream.overlay.<Name>.tsx`** | A full-viewport overlay that floats above a Surface (not a Surface itself). | `components/dreamengin/ViewAllDreamsOverlay.tsx` |
+
+A composite user-facing Dream that fits none of the above stays **`dream.<Name>.tsx`** (one dot, no sub-prefix). That is the explicit fallback.
+
+#### 14.8.3 Approved `dreamsurface.<sub>.<Name>.tsx` sub-prefixes
+
+Surfaces split into three kinds per §2 and the platform-modules list in §3. The sub-prefix encodes which kind.
+
+| Sub-prefix | What it is | Files that would adopt it |
+|---|---|---|
+| **`dreamsurface.core.<Name>.tsx`** | A Core Surface — system-level, not a Daydream. | `HomeDream`, `EditProfileDream`, `ViewProfile` (already renamed in a prior PR — would become `dreamsurface.core.*.tsx`) |
+| **`dreamsurface.daydream.<Domain>.tsx`** | One of the 6 Daydream Surfaces. `<Domain>` ∈ {Music, Games, Lab, Code, Brand, Create}. | the 6 `daydreams/<domain>/page.tsx` contents + their component entry points |
+| **`dreamsurface.module.<Name>.tsx`** | A platform-module Surface (DreamDM, DreamMarketplace, DreamShop, DreamAds). | `dreamdmbar/dreamsurface.dreamdmbar.tsx` → `dreamsurface.module.DreamDM.tsx`; marketplace/shop/ads entry components |
+
+A Surface that fits none of the above stays **`dreamsurface.<Name>.tsx`** as the fallback.
+
+#### 14.8.4 Rejected sub-prefixes
+
+To prevent sprawl, these are explicitly **not allowed** as sub-prefixes:
+
+- `dream.component.`, `dream.ui.`, `dream.view.` — too generic; every Dream is one of those.
+- `dream.page.` — pages are Next.js route files, not Dreams.
+- `dream.util.`, `dream.helper.`, `dream.lib.` — utilities stay un-prefixed (not user-facing).
+- `dream.test.`, `dream.spec.` — tests keep their own `.test.tsx` / `.spec.tsx` suffix.
+- `dream.legacy.`, `dream.old.`, `dream.v2.` — versioning goes in folder paths, not filenames.
+- `dreamsurface.page.`, `dreamsurface.route.` — same reason as above.
+- `engin.core.`, `engin.sub.`, `engin.module.` — the 6 Engins are flat; no nesting (§14.8.1).
+
+#### 14.8.5 Backlog rename order
+
+Once §14.8 is in force, the §14.6 backlog renames proceed in this order, one category per PR:
+
+1. cartridge
+2. shell
+3. panel
+4. scene
+5. menu / bar / overlay
+6. hud / remote / widget
+7. core / daydream / module surfaces
 
 ---
 
