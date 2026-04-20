@@ -7,7 +7,7 @@ import { connection } from 'next/server';
 
 export const metadata = {
   title: 'Engines – DREAMengin',
-  description: 'All six DREAMengin creative engine apps.',
+  description: 'All eight DREAMengin creative engine apps.',
 };
 
 const ENGINES = [
@@ -74,6 +74,15 @@ const ENGINES = [
     accent: '#ef4444',
     subroutes: ['Status Matrix', 'Cross-Engine', 'Activity'],
   },
+  {
+    id: 'portfolio',
+    name: 'PortfolioEngin',
+    emoji: '📈',
+    description: 'Quantum portfolio optimization · QAOA / VQE',
+    href: '/engines/portfolio',
+    accent: '#2a8ab8',
+    subroutes: ['Optimize', 'Assets', 'Quantum'],
+  },
 ] as const;
 
 export default async function EnginesHubPage() {
@@ -99,7 +108,7 @@ export default async function EnginesHubPage() {
             <span className="text-white">engines</span>
           </h1>
           <p className="text-white/50 mt-2 text-lg">
-            Six creative engines — each its own app, all connected.
+            Eight creative engines — each its own app, all connected.
           </p>
         </div>
 

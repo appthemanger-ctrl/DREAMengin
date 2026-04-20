@@ -61,8 +61,8 @@ export default function PortfolioEngin({ onBack }: Props) {
   const [error,         setError]         = useState<string | null>(null);
   const [quantumResult, setQuantumResult] = useState<QuantumMeasurementResult | null>(null);
 
-  // Portfolio lives under Lab Daydream — pulse to Forge under that enginId
-  const forge = useForgeActivity({ enginId: 'lab' });
+  // Portfolio is its own 7th engine — pulse Forge under its own enginId
+  const forge = useForgeActivity({ enginId: 'portfolio' });
 
   async function handleRun() {
     setRunning(true);
@@ -95,15 +95,15 @@ export default function PortfolioEngin({ onBack }: Props) {
       };
       setResult(runResult);
 
-      // Record the completed optimization as a Forge transfer (lab → lab)
+      // Record the completed optimization as a Forge transfer (portfolio → portfolio)
       forge.record('Optimization run completed');
-      recordForgeTransfer('lab', 'lab', 'optimization', 'Portfolio optimization complete', {
+      recordForgeTransfer('portfolio', 'portfolio', 'optimization', 'Portfolio optimization complete', {
         algorithm: runResult.algorithm,
         backend: runResult.backend,
       });
 
-      // Emit lab:result-ready so other Engins know results are available
-      bridge.emit('lab', 'lab:result-ready', {
+      // Emit portfolio:result-ready so other Engins know results are available
+      bridge.emit('portfolio', 'portfolio:result-ready', {
         experimentId:   `portfolio-${Date.now()}`,
         resultType:     'portfolio-optimization',
         algorithm:      runResult.algorithm,
