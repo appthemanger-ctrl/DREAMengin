@@ -107,7 +107,7 @@ export async function POST(request: Request) {
     return deny('Incorrect password.', 401);
   }
 
-  const root = process.cwd();
+  const root = /* turbopackIgnore: true */ process.cwd();
 
   // 6. Action: tree
   if (body.action === 'tree') {
