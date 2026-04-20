@@ -51,8 +51,9 @@ interface Workgroup {
   endIndex:    number;
 }
 
-let sab:       SharedArrayBuffer | null = null;
-let workgroup: Workgroup | null         = null;
+let sab:             SharedArrayBuffer | null = null;
+let workgroup:       Workgroup | null         = null;
+let workerWasmMemory: WebAssembly.Memory | null = null; // shared memory for zero-copy Wasm SIMD
 let running    = false;
 let rafHandle  = 0;
 
@@ -113,13 +114,18 @@ let wasmExports: WasmExports | null = null;
 /**
  * Attempt to load and instantiate the compiled AssemblyScript Wasm binary.
  *
+ * Uses the caller-provided `WebAssembly.Memory` so the Wasm module operates
+ * on the same bytes as the JS typed-array views (posX, velX, etc.) — true
+ * zero-copy SIMD.  When `memory` is null, the JS stub stays active.
+ *
  * On success `wasmExports` is populated and subsequent ticks will use the SIMD
  * engine instead of the JS stub.  Failure is silent — the JS stub stays active.
  *
  * @param wasmUrl - URL of the compiled binary (default: '/workers/engin-shader.wasm').
+ * @param memory  - The shared WebAssembly.Memory whose `.buffer` IS the EnginSAB.
  */
-async function tryLoadWasm(wasmUrl: string): Promise<void> {
-  if (typeof WebAssembly === 'undefined') return;
+async function tryLoadWasm(wasmUrl: string, memory: WebAssembly.Memory | null): Promise<void> {
+  if (typeof WebAssembly === 'undefined' || !memory) return;
 
   try {
     const response = await fetch(wasmUrl);
@@ -127,16 +133,11 @@ async function tryLoadWasm(wasmUrl: string): Promise<void> {
 
     const arrayBuffer = await response.arrayBuffer();
 
-    // Shared memory so the Wasm module addresses the same bytes as the SAB views.
-    const sharedMemory = new WebAssembly.Memory({
-      initial: 256,
-      maximum: 512,
-      shared: true,
-    } as WebAssembly.MemoryDescriptor & { shared: boolean });
-
+    // Pass the caller-provided shared memory so Wasm operates directly on
+    // the SAB bytes already mapped by the typed-array views — zero-copy.
     const { instance } = await WebAssembly.instantiate(arrayBuffer, {
       env: {
-        memory: sharedMemory,
+        memory,
         abort: (msg: number, file: number, line: number, col: number) => {
           console.error(`[EnginShaderWorker][Wasm] abort: msg=${msg} file=${file} line=${line} col=${col}`);
         },
@@ -179,10 +180,8 @@ function tick(): void {
   const { startIndex, endIndex, workerIndex } = workgroup;
 
   // Dual-Runtime Seam: read DreamDM Bar y-offset written by Surface Space.
-  // Workers consume this to position Dream Windows in the Dream Space.
-  // Read DreamDM Bar y-offset — consumed by Dream Window repositioning logic.
-  // Prefixed with _ to signal intentional non-use in the JS integration step.
-  const _dreamDMBarYOffset = barY[0];
+  // Workers consume this to enforce Dream Window spatial constraints.
+  const dreamDMBarYOffset = barY[0];
 
   // Bounds guard at range boundaries (audit sampling — checks start/end only
   // to avoid per-entity overhead in hot path; full guard is in wasmSIMDAddF32x4).
@@ -221,6 +220,19 @@ function tick(): void {
     wasmSIMDAddF32x4(posZ, velZ, startIndex, endIndex);
   }
 
+  // DreamDM Bar seam constraint: clamp posY so Dream Window entities remain
+  // within the DreamSpace region (below the bar).  When the bar is at y=0
+  // (default) the constraint is skipped for performance.
+  if (dreamDMBarYOffset !== 0) {
+    for (let i = startIndex; i < endIndex; i++) {
+      if (posY[i] < dreamDMBarYOffset) {
+        posY[i] = dreamDMBarYOffset;
+        // Absorb downward velocity at the boundary to prevent re-penetration.
+        if (velY[i] < 0) velY[i] = 0;
+      }
+    }
+  }
+
   // Elite-Runtime Telemetry: write µs/tick into SAB Telemetry Zone.
   const microsecondsPerTick = (performance.now() - t0) * 1_000;
   telemetry[workerIndex] = microsecondsPerTick;
@@ -254,7 +266,13 @@ function rafLoop(): void {
 // ─── Message handler ──────────────────────────────────────────────────────────
 
 self.onmessage = (evt: MessageEvent) => {
-  const msg = evt.data as { type: string; sab?: SharedArrayBuffer; workgroup?: Workgroup; wasmUrl?: string };
+  const msg = evt.data as {
+    type: string;
+    sab?: SharedArrayBuffer;
+    workgroup?: Workgroup;
+    wasmUrl?: string;
+    wasmMemory?: WebAssembly.Memory;
+  };
 
   switch (msg.type) {
     case 'init': {
@@ -263,8 +281,10 @@ self.onmessage = (evt: MessageEvent) => {
         return;
       }
 
-      sab       = msg.sab;
-      workgroup = msg.workgroup;
+      sab              = msg.sab;
+      workgroup        = msg.workgroup;
+      // Store the shared Wasm Memory for use when the binary is loaded later.
+      workerWasmMemory = msg.wasmMemory ?? null;
 
       // Establish SAB views
       posX      = new Float32Array(sab, OFFSET_POS_X,         ENTITY_COUNT);
@@ -296,8 +316,11 @@ self.onmessage = (evt: MessageEvent) => {
 
     case 'wasm_init': {
       // Dispatcher signals that a Wasm binary is available — attempt to load it.
-      const url = msg.wasmUrl ?? '/workers/engin-shader.wasm';
-      tryLoadWasm(url).catch(() => {
+      // Use the wasmMemory forwarded in this message (or the one stored at init)
+      // so zero-copy SIMD is achieved in this worker context.
+      const url    = msg.wasmUrl ?? '/workers/engin-shader.wasm';
+      const memory = msg.wasmMemory ?? workerWasmMemory;
+      tryLoadWasm(url, memory).catch(() => {
         // Failure is safe — JS stub remains active.
       });
       break;

@@ -423,16 +423,23 @@ export function isSABAvailable(): boolean {
 /**
  * Return the byte-level extent of a workgroup across all SoA channels.
  * Useful for allocating sub-views or verifying workgroup memory isolation.
+ *
+ * All six 3-axis channels (posX/Y/Z, velX/Y/Z) are included so that callers
+ * get a structurally complete picture of the EnginSAB layout for the workgroup.
  */
 export interface EntityBounds {
   posXStart: number;
   posXEnd: number;
   posYStart: number;
   posYEnd: number;
+  posZStart: number;
+  posZEnd: number;
   velXStart: number;
   velXEnd: number;
   velYStart: number;
   velYEnd: number;
+  velZStart: number;
+  velZEnd: number;
 }
 
 export function getEntityBounds(wg: Workgroup): EntityBounds {
@@ -442,10 +449,14 @@ export function getEntityBounds(wg: Workgroup): EntityBounds {
     posXEnd:   OFFSET_POS_X + wg.endIndex   * F32,
     posYStart: OFFSET_POS_Y + wg.startIndex * F32,
     posYEnd:   OFFSET_POS_Y + wg.endIndex   * F32,
+    posZStart: OFFSET_POS_Z + wg.startIndex * F32,
+    posZEnd:   OFFSET_POS_Z + wg.endIndex   * F32,
     velXStart: OFFSET_VEL_X + wg.startIndex * F32,
     velXEnd:   OFFSET_VEL_X + wg.endIndex   * F32,
     velYStart: OFFSET_VEL_Y + wg.startIndex * F32,
     velYEnd:   OFFSET_VEL_Y + wg.endIndex   * F32,
+    velZStart: OFFSET_VEL_Z + wg.startIndex * F32,
+    velZEnd:   OFFSET_VEL_Z + wg.endIndex   * F32,
   };
 }
 
