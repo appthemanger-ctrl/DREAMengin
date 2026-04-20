@@ -14,11 +14,6 @@ name: SQL Migration Guard
 # ──────────────────────────────────────────────────────────────────────────────
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
-  push:
-    branches:
-      - completedream
   workflow_dispatch:
     inputs:
       force_apply:

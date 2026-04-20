@@ -8,10 +8,6 @@ name: Bouncer — Hard-Fix Guard
 # Lint warnings and typecheck issues are NOT bounced — they are advisory.
 
 on:
-  push:
-    branches: [main, develop, completedream]
-  pull_request:
-    branches: [main, develop]
   workflow_dispatch:
 
 concurrency:

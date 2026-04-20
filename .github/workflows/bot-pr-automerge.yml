@@ -13,8 +13,6 @@ name: Bot PR — Approve, Resolve Conflicts & Auto-Merge
 # every currently-open bot PR, or fill it in to target one PR.
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
   workflow_dispatch:
     inputs:
       pr_number:

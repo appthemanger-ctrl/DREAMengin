@@ -2,10 +2,6 @@ name: DREAMengin CI/CD Pipeline
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main, develop, completedream]
-  pull_request:
-    branches: [main, develop, completedream]
 
 # Prevent parallel pipeline runs on the same ref.
 # Vercel deployments are handled by the Vercel GitHub integration — no deploy job needed here.

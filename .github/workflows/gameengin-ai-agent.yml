@@ -2,14 +2,6 @@ name: GameEngin AI Agent
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main, develop, completedream ]
-    paths:
-      - 'components/games/**'
-      - 'components/daydream/GameEngin.tsx'
-      - 'app/daydream/games/**'
-      - 'app/daydream/game/**'
-      - '.github/workflows/gameengin-ai-agent.yml'
 
 jobs:
   gameengin-ai-loop:

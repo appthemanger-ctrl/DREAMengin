@@ -4,8 +4,6 @@ name: gameengin-maestro
 # Twice daily + manual dispatch. Dispatches sub-agents based on telemetry.
 
 on:
-  schedule:
-    - cron: '0 2,14 * * *'
   workflow_dispatch:
     inputs:
       target_cartridge:

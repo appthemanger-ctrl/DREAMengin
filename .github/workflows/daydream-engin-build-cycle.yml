@@ -18,12 +18,6 @@ name: Daydream Lobby + Engin Runtime Build Cycle
 #   manual — workflow_dispatch for on-demand cycle runs
 
 on:
-  push:
-    paths:
-      - 'components/daydream/**'
-      - 'components/dreams/**'
-      - 'app/daydream/**'
-      - 'lib/feature-build/**'
   schedule:
     - cron: '0 6 * * 0'   # weekly, Sunday 06:00 UTC
   workflow_dispatch:

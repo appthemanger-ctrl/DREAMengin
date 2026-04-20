@@ -1,8 +1,7 @@
 name: Cleanup Repo
 
 on:
-  push:
-    branches: [main, completedream]
+  workflow_dispatch:
 
 permissions:
   contents: write

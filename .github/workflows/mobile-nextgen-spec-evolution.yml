@@ -3,7 +3,7 @@ name: Mobile Next-Gen Spec Evolution
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '0 8 * * 2'   # weekly Tuesday 08:00 UTC
 
 permissions:
   contents: write

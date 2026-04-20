@@ -13,20 +13,8 @@ on:
         required: false
         default: true
         type: boolean
-  push:
-    branches: [main, develop, completedream]
-    paths:
-      - 'README.md'
-      - 'docs/**'
-      - 'spec/**'
-      - 'app/**'
-      - 'components/**'
-      - 'lib/**'
-      - 'styles/**'
-      - '.github/scripts/**.py'
-      - '.github/workflows/neural_decision_engine.yml'
   schedule:
-    - cron: '15 7 * * *'
+    - cron: '15 7 * * 1'   # weekly Monday 07:15 UTC
 
 permissions:
   contents: write

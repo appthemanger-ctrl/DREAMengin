@@ -5,16 +5,9 @@ name: Games Daydream Lobby + GameEngin Runtime Health
 #         components/games/, app/api/game-scores/
 
 on:
-  push:
-    paths:
-      - 'app/daydream/games/**'
-      - 'app/game/**'
-      - 'components/daydream/GameEngin.tsx'
-      - 'components/games/**'
-      - 'app/api/game-scores/**'
   workflow_dispatch:
   schedule:
-    - cron: '0 5 * * *'   # daily 05:00 UTC
+    - cron: '0 5 * * 4'   # weekly Thursday 05:00 UTC
 
 permissions:
   contents: write
