@@ -1,0 +1,8 @@
+{
+  "namespaces": {
+    "engin": ["orchestrator", "agent", "brain", "pipeline", "telemetry", "builder", "upgrader"],
+    "dreamsurface": ["core", "daydream", "renderer", "context"],
+    "dream": ["cartridge", "module", "panel", "hud", "remote", "scene", "window", "widget", "menu", "bar", "shell", "overlay", "controller"]
+  },
+  "fallback": "root"
+}

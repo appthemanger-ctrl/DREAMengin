@@ -11,6 +11,8 @@ This document is the single locked reference for all product names, surface name
 
 AI agents, contributors, and reviewers must use this document as the validation source before generating files, routes, component names, UI labels, or documentation references.
 
+> **See also:** [`NAMING_FILE_CONVENTIONS.md`](./NAMING_FILE_CONVENTIONS.md) for the file / export / import naming spec for the `engin`, `dreamsurface`, and `dream` runtime layers (source of truth: [`config/namespaces.json`](../config/namespaces.json)).
+
 ---
 
 ## 1. Platform Name
