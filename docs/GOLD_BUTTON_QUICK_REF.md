@@ -15,12 +15,18 @@ The top and bottom runtimes must allow the same world to appear in both places a
 ## Key Constants
 
 ```typescript
-// DreamDMBar.tsx
-const BAR_H = 80;        // Bar height at bottom
+// dreamdmbar/dreamsurface.dreamdmbar.tsx
+const BAR_H = 80;        // Bar height at bottom (rest)
+const NAV_H = 56;        // Top-compact nav-bar height
 const TOP_H = 340;       // Panel height at top
 const GOLD_SZ = 64;      // Gold button diameter
-const SNAP_UP_PCT = 0.40; // Snap to top when bar > 40% from screen top
-const SNAP_DOWN_PX = 88;  // Snap to bottom when dragged down 88px
+const SNAP_DOWN_PX = 88; // Snap to bottom when dragged down 88px
+
+// lib/dreamdm/barInteractions.ts
+const BAR_FLING_LINE_RATIO = 0.4;                          // The "invisible 2/5 line"
+const BAR_FLING_TO_TOP_VELOCITY_THRESHOLD_PX_PER_MS = -0.9; // Upward fling
+const BAR_FLING_TO_BOTTOM_VELOCITY_THRESHOLD_PX_PER_MS = 0.9; // Downward fling
+const BAR_SNAP_TO_TOP_HEIGHT_RATIO = 0.96;                 // Already-pinned guard
 ```
 
 ## Gold Button Logic
@@ -84,13 +90,33 @@ type RuntimeWorld =
 ✅ Dream / Dream (same or different)
 ✅ Any combination
 
-## Gold Button Interactions
+## Gold Particle Interactions
 
 | Action | Behavior |
 |--------|----------|
-| Single tap | Go home + collapse bar if at top |
-| Double tap | Open dual menus |
+| Single tap | Open dual menus (Dreams + System) |
+| Double tap | Go Home — reset both runtimes (the **only** sanctioned double-tap in the system) |
 | Swipe down (>30px) | Collapse bar from top to bottom |
+
+> **System-wide tap discipline (2026-04):** every other interactive control in
+> DREAMengin responds to a *single* tap. Double-tap is structurally walled off
+> behind `useHomeParticleTap` in `lib/hooks/useTap.ts`; new code uses `useTap`.
+
+## Bar Drag Behavior (2026-04)
+
+The **whole bar** is the drag handle (touch and pointer). Release semantics
+live in `decideBarRelease` (`lib/dreamdm/barInteractions.ts`):
+
+| Release | Outcome |
+|--------|---------|
+| Slow drag, any height | Bar **parks where you let go** (free placement) |
+| Upward fling past the invisible 2/5 line | Snaps to top |
+| Downward fling at/below the invisible line | Snaps to bottom |
+| Bar already pinned at the screen top | Snaps to top |
+
+Constants: `BAR_FLING_LINE_RATIO = 0.4`,
+`BAR_FLING_TO_TOP_VELOCITY_THRESHOLD_PX_PER_MS = -0.9`,
+`BAR_FLING_TO_BOTTOM_VELOCITY_THRESHOLD_PX_PER_MS = 0.9`.
 
 ## Bar States
 

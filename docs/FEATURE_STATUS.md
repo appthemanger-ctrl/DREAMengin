@@ -89,6 +89,11 @@ Canonical spec: `docs/ACTIVITY_FIRST_PROTOCOL.md` — Active Platform Law (2026-
 | Daydreams as priority in Dreams Space | ✅ | DreamsSpacePanel surfaces all 6 Daydreams as the first/default tab (`✦ Daydreams`), per README runtime model. |
 | Live routes to all 6 Daydreams from Dreams Space | ✅ | Each tile in the Daydreams tab links directly to `/daydream/music`, `/daydream/games`, `/daydream/lab`, `/daydream/code`, `/daydream/brand`, `/daydream/create`. |
 | Connector feeds (YouTube / GitHub / Spotify) | ✅ | Available in the secondary `✨ Feeds` tab; service sub-tabs preserved. |
+| Whole-bar drag handle | ✅ | `dreamdmbar/dreamsurface.dreamdmbar.tsx` — pointer drag fires from anywhere on the bar (not just the gold particle). Touch already had this. |
+| Momentum fling release | ✅ | `lib/dreamdm/barInteractions.ts::decideBarRelease` — slow drag parks where you let go; upward fling past the invisible 2/5 line snaps to top; downward fling at/below the line snaps to bottom. Test: `tests/decide-bar-release.test.ts`. |
+| Single-tap discipline | ✅ | `lib/hooks/useTap.ts` — `useTap` (canonical single-tap) + `useHomeParticleTap` (the only sanctioned double-tap site, gold particle only). |
+| Solo-parity runtime channel | ✅ | `lib/runtime/runtimeChannel.ts` — `LocalChannel` (in-mem pub/sub) + `RealtimeChannel` (lazy Supabase, graceful local fallback) + `createRuntimeChannel(id, mode)` factory. Solo == co-op with one peer. Tests: `tests/runtime-channel.test.ts`. |
+| Manifest `solo` / `coop` flags | ✅ | `lib/feature-build/featureManifest.ts::DaydreamEnginManifest` gained optional `solo: boolean` and `coop: boolean \| { affordances: string[] }` (backwards-compatible). |
 
 ## 3. Daydream pairs
 

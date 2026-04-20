@@ -394,7 +394,19 @@ HomeDream is the user's private operating surface — private by default and per
 
 ### Gold Button gestures
 - **Single tap: Open dual menus.** Opens the Dreams menu and System menu simultaneously.
-- **Double tap: Go Home.** Returns to the HomeDream feed from anywhere in the app.
+- **Double tap: Go Home.** Returns to the HomeDream feed and resets both runtimes. The gold particle is the **only** UI surface in DREAMengin that responds to a double-tap — every other control is single-tap (`lib/hooks/useTap.ts`).
+
+### DreamDM Bar drag
+- The **whole bar** is the drag handle on both touch and pointer devices.
+- **Slow drag** — the bar parks wherever you let go (free placement, no forced snap).
+- **Upward fling past the invisible 2/5 line** — the bar shoots to the top.
+- **Downward fling at or below the line** — the bar shoots back to the bottom.
+- Release math lives in `decideBarRelease` (`lib/dreamdm/barInteractions.ts`); thresholds: `BAR_FLING_LINE_RATIO = 0.4`, fling velocity ±0.9 px/ms.
+
+### Solo-parity runtime channel
+- `lib/runtime/runtimeChannel.ts` — `LocalChannel` (in-mem pub/sub) + `RealtimeChannel` (lazy Supabase, graceful local fallback) + `createRuntimeChannel(id, mode)` factory. Solo and co-op share one component tree; only the channel adapter differs.
+- Manifest schema gained optional `solo: boolean` and `coop: boolean | { affordances: string[] }` on `DaydreamEnginManifest` (backwards-compatible).
+- Roadmap for the remaining solo/co-op passes: `COOP_AND_SOLO_ROADMAP.md` at the repo root.
 
 ### HomeDream layout model
 HomeDream provides:
