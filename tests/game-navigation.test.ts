@@ -37,7 +37,7 @@ describe('game launch navigation', () => {
   it('keeps compatibility game routes redirected into the standalone GameEngin app', () => {
     const pageSrc = readFileSync(join(REPO_ROOT, 'app/daydream/game/page.tsx'), 'utf8');
     const enginePageSrc = readFileSync(join(REPO_ROOT, 'app/engines/games/page.tsx'), 'utf8');
-    const enginSrc = readFileSync(join(REPO_ROOT, 'components/daydream/GameEngin.tsx'), 'utf8');
+    const enginSrc = readFileSync(join(REPO_ROOT, 'engins/engin.GameEngin.tsx'), 'utf8');
     const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/GameHUD.tsx'), 'utf8');
 
     expect(pageSrc).toContain("redirect(`/engines/games");

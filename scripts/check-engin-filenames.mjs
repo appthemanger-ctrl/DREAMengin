@@ -82,12 +82,12 @@ const SKIP_DIRECTORY_NAMES = new Set([
 const MIGRATION_BACKLOG_ALLOWED = new Set([
   // §14.6 — duplicate Engin shells in components/daydream/ that get
   // consolidated into the canonical engin.*.tsx in a follow-up PR.
-  'components/daydream/StarMakerEngin.tsx',
-  'components/daydream/GameEngin.tsx',
-  'components/daydream/LabEngin.tsx',
-  'components/daydream/CodeEngin.tsx',
-  'components/daydream/BrandingEngin.tsx',
-  'components/daydream/ContentEngin.tsx',
+  'engins/engin.StarMakerEngin.tsx',
+  'engins/engin.GameEngin.tsx',
+  'engins/engin.LabEngin.tsx',
+  'engins/engin.CodeEngin.tsx',
+  'engins/engin.BrandingEngin.tsx',
+  'engins/engin.ContentEngin.tsx',
 ]);
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -435,7 +435,7 @@ describe('inferRootCause', () => {
   it('matches syntax/type compiler pattern', () => {
     const snapshot: TelemetrySnapshot = {
       ...emptySnapshot(),
-      logs: [{ id: '1', timestamp: new Date().toISOString(), level: 'error', message: "components/daydream/ContentEngin.tsx:1184:10 Type error: Cannot find name 'repurposeInput'." }],
+      logs: [{ id: '1', timestamp: new Date().toISOString(), level: 'error', message: "engins/engin.ContentEngin.tsx:1184:10 Type error: Cannot find name 'repurposeInput'." }],
     };
     const result = inferRootCause([], snapshot);
     expect(result.affected_area).toBe('Build system');
@@ -580,10 +580,10 @@ describe('buildFallbackPatchPlan', () => {
     rootCause.recommended_action = 'Restore the missing import.';
     const action = buildImmediateRemediationAction({
       ...rootCause,
-      evidence_summary: ["components/daydream/ContentEngin.tsx:1184:10 Type error: Cannot find name 'repurposeInput'."],
+      evidence_summary: ["engins/engin.ContentEngin.tsx:1184:10 Type error: Cannot find name 'repurposeInput'."],
     });
     const plan = buildFallbackPatchPlan(rootCause, 'iter-6', action);
-    expect(plan!.steps[0].file).toContain('components/daydream/ContentEngin.tsx');
+    expect(plan!.steps[0].file).toContain('engins/engin.ContentEngin.tsx');
   });
 });
 
@@ -597,10 +597,10 @@ describe('buildImmediateRemediationAction', () => {
       ...makeRootCause('Build system'),
       likely_cause: 'Syntax / type failure — compiler rejected the current file shape',
       recommended_action: 'Restore the missing import, state, or symbol and re-run the compiler.',
-      evidence_summary: ["components/daydream/ContentEngin.tsx:1184:10 Type error: Cannot find name 'repurposeInput'."],
+      evidence_summary: ["engins/engin.ContentEngin.tsx:1184:10 Type error: Cannot find name 'repurposeInput'."],
     });
     expect(action?.kind).toBe('syntax');
-    expect(action?.file_hints).toContain('components/daydream/ContentEngin.tsx');
+    expect(action?.file_hints).toContain('engins/engin.ContentEngin.tsx');
     expect(action?.can_auto_apply).toBe(true);
   });
 
