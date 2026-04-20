@@ -1887,6 +1887,24 @@ body, .dreamnav-surface, .controls {
   100% { transform: translate(var(--particle-dx, 0), var(--particle-dy, 80px)) scale(0.3); opacity: 0; }
 }
 
+/* ── DreamDMBar particle mode (MANIPULATE state) breathing glow ── */
+/*    The bar element collapses to a 12px circle; this animation pulses its     */
+/*    outer glow so it reads as an active, energised node on screen.           */
+@keyframes sicc-bar-particle-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 12px 6px  rgba(255,215,64,0.70),
+      0 0 26px 12px rgba(200,152,26,0.45),
+      0 0 2px        rgba(255,248,180,0.90);
+  }
+  50% {
+    box-shadow:
+      0 0 20px 10px rgba(255,215,64,0.95),
+      0 0 44px 18px rgba(200,152,26,0.65),
+      0 0 4px        rgba(255,255,220,1.00);
+  }
+}
+
 /* ── Typing rhythm handle pulse ── */
 @keyframes sicc-rhythm-pulse {
   0%, 100% { transform: scaleX(1); opacity: 0.55; }
@@ -2047,6 +2065,20 @@ body, .dreamnav-surface, .controls {
   );
   background-size: 200% 100%;
   animation: sicc-edge-shimmer 8s linear infinite reverse;
+}
+/* In particle mode the element is a 12px circle — suppress the horizontal
+   shimmer lines so they don't render across/beyond the circle's edges.      */
+.sicc-bar-edge[data-bar-state="particle"]::before,
+.sicc-bar-edge[data-bar-state="particle"]::after {
+  display: none;
+}
+/* In seam mode the ::before top-edge line IS the visible seam — stretch it
+   to fill the full 2px element height so the glow is the bar itself.        */
+.sicc-bar-edge[data-bar-state="seam"]::before {
+  height: 100%;
+}
+.sicc-bar-edge[data-bar-state="seam"]::after {
+  display: none;
 }
 
 /* =============================================================================
