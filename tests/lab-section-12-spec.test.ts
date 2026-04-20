@@ -17,7 +17,7 @@ describe('README §12 Lab / LabEngin alignment', () => {
   });
 
   it('keeps Side B LabEngin capabilities and specialized dream windows visible', () => {
-    const source = readFileSync(join(root, 'engins/LabEngin.tsx'), 'utf-8');
+    const source = readFileSync(join(root, 'engins/engin.LabEngin.tsx'), 'utf-8');
 
     expect(source).toContain('State modeling');
     expect(source).toContain('System rules');

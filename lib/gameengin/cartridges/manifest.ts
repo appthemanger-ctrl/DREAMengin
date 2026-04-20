@@ -2,40 +2,30 @@
  * lib/gameengin/cartridges/manifest.ts
  *
  * Server-safe catalog of every game in the repository, packaged as a
- * GameEngin cartridge entry. Pure data — no React, no client-only imports —
- * so it can be consumed by server components, tests, and the agent.
+ * GameEngin cartridge entry. Pure data — no React, no client-only imports.
  *
  * Every game in `components/games/GamesHub#GAMES` MUST have a matching entry
  * here. The synchronisation is enforced by `tests/gameengin-cartridges.test.ts`.
- *
- * The actual runtime mounter lives in `./loaders.ts` (a `'use client'` module)
- * which dynamically imports each game component and wraps it as a
- * `GameCartridge` via `wrapAsCartridge`.
  */
 
 export type CartridgeRenderMode = 'canvas' | 'webgpu' | 'babylon' | 'dom';
 
 export interface CartridgeManifestEntry {
-  /** Stable id — matches `GAMES[i].id` and the URL slug at /gameengin/cartridges/[id] */
   id: string;
-  /** Display label — matches `GAMES[i].label` */
   label: string;
-  /** Single-emoji icon */
   emoji: string;
-  /** Genre / category bucket */
   category: string;
-  /** Accent colour (hex) */
   color: string;
-  /** Renderer the cartridge expects */
   renderMode: CartridgeRenderMode;
-  /** Short tagline */
   subtitle?: string;
-  /** Long-form description */
   description: string;
-  /** Tier of system depth this cartridge represents on the platform */
   tier: 'flagship' | 'advanced' | 'classic' | 'casual';
 }
 
+/**
+ * Cartridge bay — three legacy flagships kept (MADMAXI, Neon Drift, Echo Arena)
+ * plus the nine fusion cartridges that replaced 25 source games.
+ */
 export const CARTRIDGE_MANIFEST: readonly CartridgeManifestEntry[] = [
   // ── Flagship — Babylon.js / WebGPU / deep-systems ────────────────────────
   { id: 'platformer', label: 'MADMAXI', emoji: '🏎', category: 'Platformer', color: '#c8981a', renderMode: 'babylon', tier: 'flagship',
@@ -48,67 +38,38 @@ export const CARTRIDGE_MANIFEST: readonly CartridgeManifestEntry[] = [
     subtitle: 'WebGPU · DualSense Ready',
     description: 'WebGPU arena shooter — DualSense gyro aim, top-down combat, high-performance 3D rendering' },
 
-  // ── Advanced — systems-heavy strategy / RPG ──────────────────────────────
-  { id: 'engin-battle', label: 'ENGIN Battle', emoji: '⚙️', category: 'Strategy', color: '#38bdf8', renderMode: 'canvas', tier: 'advanced',
-    subtitle: 'Dr. Eams · IDARi · Boogie',
-    description: 'Age of Empires style — pick Dr. Eams, IDARi or Boogie; tech tree upgrades, 3-faction war' },
-  { id: 'dreamquest', label: 'DREAMquest', emoji: '✨', category: 'RPG', color: '#a78bfa', renderMode: 'canvas', tier: 'advanced',
-    subtitle: 'FF-style · 5 Dream Layers',
-    description: 'FF7 + Chrono Trigger RPG — traverse 5 dream layers, unlock dream abilities, defeat the Dream Destroyer' },
-  { id: 'dreamwars', label: 'DREAMwars', emoji: '🌙', category: 'Strategy', color: '#7c3aed', renderMode: 'canvas', tier: 'advanced',
-    subtitle: 'Nightmares vs Dreamers',
-    description: 'Nightmares vs Dreamers RTS — build base, harvest Dream Energy, crush the enemy HQ' },
-  { id: 'rts', label: 'DREAM FORCE', emoji: '⚔️', category: 'Strategy', color: '#ef4444', renderMode: 'canvas', tier: 'advanced',
-    subtitle: 'Command the Vanguard · Crush the Nightmare',
-    description: 'Build your Dream base, harvest Dream Energy, command Vanguard units — crush the Nightmare HQ' },
-  { id: 'tower-defense', label: 'Tower Defense', emoji: '🏰', category: 'Strategy', color: '#22c55e', renderMode: 'canvas', tier: 'advanced',
-    description: 'Place arrow, cannon & freeze towers to stop 10 waves of enemies' },
-  { id: 'rpg', label: 'DREAM REALM QUEST', emoji: '🗡️', category: 'RPG', color: '#c084fc', renderMode: 'dom', tier: 'advanced',
-    subtitle: '5 Dream Realms · Turn-Based Combat',
-    description: 'Turn-based adventure through 5 Dream Realms — battle Nightmare creatures, level up abilities, defeat the Dream Destroyer' },
-  { id: 'lucid-avenue', label: 'Lucid Avenue', emoji: '🌴', category: 'Adventure', color: '#f59e0b', renderMode: 'dom', tier: 'advanced',
-    description: 'Original LA-inspired retro city quest — expanded 8-district GameEngin-linked city run with free-roam sandbox jumps, vehicle systems, persistent route contracts, west-side missions, and an observatory skyline finale' },
+  // ── Fusion flagships — replace 25 source cartridges ──────────────────────
+  { id: 'null-cathedral', label: 'NULL CATHEDRAL', emoji: '♟', category: 'Tactics RPG', color: '#d4af37', renderMode: 'canvas', tier: 'flagship',
+    subtitle: 'Chess + RPG + Minesweeper · Deductive sacrifice',
+    description: 'A grim tactical RPG where every battle is a chess match played over a buried minefield of repressed memories — Iren Vespa descends the Cathedral of Null to find her sister before CASTLE overwrites her' },
+  { id: 'voidline-gp', label: 'VOIDLINE GP', emoji: '🛸', category: 'Racing', color: '#ff6a3d', renderMode: 'canvas', tier: 'flagship',
+    subtitle: 'Racing + Shoot + Rhythm · On-the-beat overtake',
+    description: 'F-Zero by way of rhythm bullet-hell — every shot, drift and boost must land on the soundtrack downbeat or it fizzles. Yuna Orr races to free her mentor on the illegal Voidline circuit' },
+  { id: 'serpent-siege', label: 'SERPENT SIEGE', emoji: '🐍', category: 'Strategy', color: '#5fbf4d', renderMode: 'canvas', tier: 'flagship',
+    subtitle: 'Snake + TD + RTS · Body-as-build-order',
+    description: 'A tower-defense RTS where your army is one sentient serpent — every body segment is a tower whose type is set by the terrain beneath it. Defend the Mother Egg from the Vermillion Choir' },
+  { id: 'avenue-of-mirrors', label: 'AVENUE OF MIRRORS', emoji: '🪞', category: 'Adventure', color: '#7fb6b1', renderMode: 'canvas', tier: 'flagship',
+    subtitle: 'Lucid Avenue + Maze + Memory · Navigational amnesia',
+    description: 'A first-person dream-walk where the maze rebuilds itself the moment you stop looking, and you only navigate by glyph-grids you must memorize. The Compositor wants you forgotten' },
+  { id: 'engin-fracture', label: 'ENGIN: FRACTURE', emoji: '⚙️', category: 'Fighting', color: '#8aa9ff', renderMode: 'canvas', tier: 'flagship',
+    subtitle: 'ENGIN Battle + DREAMwars + Avatar Maker · Built-is-fought',
+    description: '1v1 mech fighter where every avatar-maker silhouette choice is a frame-data decision, wrapped in a season-long Lattice/Choir/Kindling faction war. Pilot Vesh defects mid-season' },
 
-  // ── Classic — arcade and puzzle staples ──────────────────────────────────
-  { id: 'space-shooter', label: 'VOID STRIKE', emoji: '🚀', category: 'Arcade', color: '#60a5fa', renderMode: 'canvas', tier: 'classic',
-    subtitle: 'Defend the Dream Realm',
-    description: 'Defend the Dream Realm from Void-spawn invaders — auto-fire, dodge plasma bolts, survive endless waves' },
-  { id: 'snake', label: 'SHADOW SERPENT', emoji: '🐍', category: 'Arcade', color: '#4ade80', renderMode: 'canvas', tier: 'classic',
-    description: 'Guide the Shadow Serpent through the Dream Grid — consume Dream Sparks, grow longer, never cross your own tail' },
-  { id: 'breakout', label: 'DREAM BREAKER', emoji: '💎', category: 'Arcade', color: '#3b82f6', renderMode: 'canvas', tier: 'classic',
-    description: 'Launch the Orb of Light — shatter the Nightmare Wall, recover the Dream Fragments' },
-  { id: 'tetris', label: 'BLOCK STACK', emoji: '🟦', category: 'Puzzle', color: '#06b6d4', renderMode: 'canvas', tier: 'classic',
-    description: 'Dream shards rain from the sky — stack them perfectly, clear layers, defy the collapse' },
-  { id: 'match3', label: 'DREAM GEMS', emoji: '💎', category: 'Puzzle', color: '#a78bfa', renderMode: 'dom', tier: 'classic',
-    description: 'Swap Dream shards to match 3 or more — chain combos, collect Dream Energy, 30 moves to master it' },
-  { id: 'racing', label: 'DREAM CIRCUIT', emoji: '🏎️', category: 'Sports', color: '#3b82f6', renderMode: 'canvas', tier: 'classic',
-    description: '3-lap Dream Circuit sprint — race 2 rival Engin AIs around neon canyon tracks, WASD/arrows' },
-  { id: 'chess', label: 'ENGIN CHESS', emoji: '♛', category: 'Board', color: '#f5f5f4', renderMode: 'dom', tier: 'classic',
-    description: '2-player local chess — full piece movement rules, click to select & move' },
-  { id: 'rhythm', label: 'BEAT ENGINE', emoji: '🎵', category: 'Music', color: '#a78bfa', renderMode: 'canvas', tier: 'classic',
-    description: 'Hit the Dream beats as they fall — ASDK keys or on-screen pads, chain combos to awaken the Dream' },
-  { id: 'maze', label: 'LABYRINTH ZERO', emoji: '🌀', category: 'Adventure', color: '#38bdf8', renderMode: 'canvas', tier: 'classic',
-    description: 'Navigate the procedural Dream Labyrinth — escape before the Nightmare closes in' },
-  { id: 'pong', label: 'DREAM PONG', emoji: '🏓', category: 'Sports', color: '#22d3ee', renderMode: 'canvas', tier: 'classic',
-    description: 'Classic Pong — 2-player local or vs AI; be the first to 7 points' },
-  { id: 'minesweeper', label: 'DREAM SWEEP', emoji: '💣', category: 'Puzzle', color: '#6b7280', renderMode: 'dom', tier: 'classic',
-    description: 'Classic minesweeper — 12×16 grid, 28 mines, flag all threats to win' },
-  { id: 'solitaire', label: 'DREAM SOLITAIRE', emoji: '🃏', category: 'Board', color: '#10b981', renderMode: 'dom', tier: 'classic',
-    description: 'Classic Klondike solitaire — build all four suits from Ace to King' },
+  // ── Advanced fusion cartridges ───────────────────────────────────────────
+  { id: 'glassfall', label: 'GLASSFALL', emoji: '🔻', category: 'Puzzle', color: '#ff7da8', renderMode: 'canvas', tier: 'advanced',
+    subtitle: 'Breakout + Tetris + Match-3 · Carve the falling tower',
+    description: 'A vertical action-puzzler — bounce shards up into falling tetrominos to chip free gems, settle them into 3-matches, push back the rising garbage. Climb the Architect\'s tower' },
+  { id: 'nite-flyer-solar-hymn', label: 'NITE FLYER: SOLAR HYMN', emoji: '🌙', category: 'Adventure', color: '#c47bd6', renderMode: 'canvas', tier: 'advanced',
+    subtitle: 'Flappy + Pong + DREAMquest · Out-rally a god',
+    description: 'Side-scrolling dream-courier adventure — flap through painted chapters, deliver one last letter to The Long Pause, then face moon-king bosses in cosmic Pong duels' },
+  { id: 'lexicon-solitaire', label: 'LEXICON SOLITAIRE', emoji: '📜', category: 'Card', color: '#d6b27a', renderMode: 'dom', tier: 'advanced',
+    subtitle: 'Solitaire + Word Sprint + Trivia · Spell to fight',
+    description: 'Narrative deckbuilder — lay Klondike cascades, spell words across legal chains to cast spells, answer library trivia for relic-cards. Lin Argo chases the Redactor through five dying libraries' },
 
-  // ── Casual — quick-play / party ──────────────────────────────────────────
-  { id: 'flappy', label: 'NITE FLYER', emoji: '✨', category: 'Casual', color: '#a78bfa', renderMode: 'canvas', tier: 'casual',
-    description: 'Dr. Eams soars through the neon Dream-scape — tap to flap, dodge the Nightmare gates' },
-  { id: 'memory-grid', label: 'MEMORY GRID', emoji: '🃏', category: 'Puzzle', color: '#f59e0b', renderMode: 'dom', tier: 'casual',
-    description: 'Flip cards to match emoji pairs — clear the full 4×4 grid to win' },
-  { id: 'word-sprint', label: 'WORD SPRINT', emoji: '📝', category: 'Casual', color: '#f472b6', renderMode: 'dom', tier: 'casual',
-    description: 'Type the falling words before time runs out — chain combos for bonus points' },
-  { id: 'speed-tap', label: 'SPEED TAP', emoji: '👆', category: 'Casual', color: '#fb923c', renderMode: 'dom', tier: 'casual',
-    description: 'Tap as fast as you can in 10 seconds — beat your personal best' },
-  { id: 'trivia', label: 'DREAM TRIVIA', emoji: '🧠', category: 'Casual', color: '#818cf8', renderMode: 'dom', tier: 'casual',
-    description: 'Ten-question trivia sprint — science, history, pop-culture, and code' },
-  { id: 'avatar-maker', label: 'AVATAR MAKER', emoji: '🎨', category: 'Creative', color: '#e879f9', renderMode: 'dom', tier: 'casual',
-    description: 'Build your DREAMengin avatar — pick skin, hair, outfit and expression' },
+  // ── Classic fusion cartridge ─────────────────────────────────────────────
+  { id: 'defuse-ritual', label: 'DEFUSE RITUAL', emoji: '🕯', category: 'Arcade', color: '#f0c674', renderMode: 'dom', tier: 'classic',
+    subtitle: 'Speed-Tap + Minesweeper · Deduction under panic',
+    description: 'Nine seconds. A minesweeper grid overlays a candle-lit temple floor. Tap only the safe tiles in the glyph-order shown on the wall — mistakes shorten the timer and brand your hand' },
 ];
 
 /** Quick lookup by id. Returns undefined if no cartridge with that id exists. */

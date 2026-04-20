@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 const root = process.cwd();
 const readme = readFileSync(join(root, 'README.md'), 'utf8');
 const codeDaydreamPage = readFileSync(join(root, 'app/daydream/code/page.tsx'), 'utf8');
-const codeEngin = readFileSync(join(root, 'engins/CodeEngin.tsx'), 'utf8');
+const codeEngin = readFileSync(join(root, 'engins/engin.CodeEngin.tsx'), 'utf8');
 
 describe('README §13 Code / CodeEngin alignment', () => {
   it('keeps the Section 13 spec in README', () => {

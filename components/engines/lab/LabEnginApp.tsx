@@ -12,7 +12,7 @@
 
 import { useRouter } from 'next/navigation';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import LabEngin from '@/engins/LabEngin';
+import LabEngin from '@/engins/engin.LabEngin';
 
 const ACCENT = '#10b981';
 const BACK_HREF = '/daydream/lab';

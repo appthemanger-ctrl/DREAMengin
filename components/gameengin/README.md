@@ -76,7 +76,7 @@ same primitives every existing game already imports:
 * Power-system classes (`RollbackNetcode`, `AdvancedPhysicsWorld`, …) — unchanged.
 * `GameCartridge`, `GameEngineAPI`, `GRAVITY_VALUES`, `wrapAsCartridge`,
   `GameRuntime` — unchanged contracts.
-* The legacy `components/daydream/GameEngin.tsx` and `engins/GameEngin.tsx`
+* The legacy `components/daydream/GameEngin.tsx` and `engins/engin.GameEngin.tsx`
   shells continue to host the daydream UI, score table, world builder, etc.
 
 So all of these continue to work without modification:

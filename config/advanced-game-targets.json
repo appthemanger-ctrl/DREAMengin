@@ -22,24 +22,24 @@
       ]
     },
     {
-      "id": "engin-battle",
-      "label": "ENGINBattle",
-      "componentPath": "components/games/ENGINBattle.tsx",
-      "tier": "advanced",
-      "why": "Systems-heavy strategy game suited for stronger faction logic, AI, economy, or battlefield readability improvements.",
+      "id": "engin-fracture",
+      "label": "ENGIN: FRACTURE",
+      "componentPath": "components/games/EnginFracture.tsx",
+      "tier": "flagship",
+      "why": "Avatar-maker + 1v1 mech fighter + faction-war meta \u2014 the deepest fusion cartridge for AI, frame-data, and meta-system polish.",
       "requiredUpgradeThemes": [
         "system depth",
         "enemy AI",
-        "strategy readability",
-        "late-game escalation"
+        "frame-data readability",
+        "season-long progression"
       ]
     },
     {
-      "id": "dreamquest",
-      "label": "DREAMquest",
-      "componentPath": "components/games/DREAMquest.tsx",
-      "tier": "advanced",
-      "why": "RPG structure supports richer quest chains, encounter depth, world-state progression, and more premium feedback loops.",
+      "id": "null-cathedral",
+      "label": "NULL CATHEDRAL",
+      "componentPath": "components/games/NullCathedral.tsx",
+      "tier": "flagship",
+      "why": "Tactical chess + RPG progression + minesweeper deduction \u2014 a fertile target for AI opponents, narrative state, and richer board polish.",
       "requiredUpgradeThemes": [
         "quest depth",
         "progression loops",

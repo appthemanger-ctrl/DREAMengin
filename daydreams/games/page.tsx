@@ -3,9 +3,9 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Gamepad2, Play, Sparkles, Zap } from 'lucide-react';
 import GamesHub from '@/components/games/GamesHub';
-import AvatarMaker from '@/components/games/AvatarMaker';
+
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
-import GameEngin from '@/engins/GameEngin';
+import GameEngin from '@/engins/engin.GameEngin';
 import OpenDaydreamSideBButton from '@/components/daydream/OpenDaydreamSideBButton';
 import AutoOpenGameEngin from '@/engins/autoopen/AutoOpenGameEngin';
 import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
@@ -21,16 +21,16 @@ const immersiveGameHref = (gameId: string) => buildGameLaunchHref(gameId, { open
 const WIDGETS: DaydreamWidget[] = [
   { id: 'platformer', emoji: '🤖', label: 'MADMAXI', desc: 'Babylon.js 3-D side-scroller', color: '#c8981a', href: immersiveGameHref('platformer') },
   { id: 'all-games', emoji: '🎮', label: 'Game Library', desc: 'Browse the live catalog', color: '#7c3aed', href: '/daydream/games' },
-  { id: 'dreamquest', emoji: '✨', label: 'DREAMquest', desc: 'FF-style RPG · 5 dream layers', color: '#a78bfa', href: immersiveGameHref('dreamquest') },
-  { id: 'dreamwars', emoji: '🌙', label: 'DREAMwars', desc: 'Nightmares vs Dreamers RTS', color: '#7c3aed', href: immersiveGameHref('dreamwars') },
+  { id: 'null-cathedral', emoji: '✨', label: 'NULL CATHEDRAL', desc: 'Chess + RPG + Minesweeper fusion', color: '#a78bfa', href: immersiveGameHref('null-cathedral') },
+  { id: 'engin-fracture', emoji: '🌙', label: 'ENGIN: FRACTURE', desc: '1v1 mech fighter · Faction war', color: '#7c3aed', href: immersiveGameHref('engin-fracture') },
   { id: 'neon-drift', emoji: '🏎️', label: 'Neon Drift', desc: 'WebGPU cyberpunk racer', color: '#0ff', href: immersiveGameHref('neon-drift') },
   { id: 'echo-arena', emoji: '🚀', label: 'Echo Arena', desc: 'WebGPU arena shooter', color: '#38bdf8', href: immersiveGameHref('echo-arena') },
 ];
 
 const LIBRARY_SPOTLIGHT = [
   { label: 'MADMAXI', meta: 'Babylon.js 3-D · 150 levels', emoji: '🤖', href: immersiveGameHref('platformer') },
-  { label: 'DREAMquest', meta: 'FF-style · 5 Dream Layers', emoji: '✨', href: immersiveGameHref('dreamquest') },
-  { label: 'DREAMwars', meta: 'Nightmares vs Dreamers RTS', emoji: '🌙', href: immersiveGameHref('dreamwars') },
+  { label: 'NULL CATHEDRAL', meta: 'Tactics RPG · Deductive sacrifice', emoji: '✨', href: immersiveGameHref('null-cathedral') },
+  { label: 'ENGIN: FRACTURE', meta: '1v1 mech fighter · Faction war', emoji: '🌙', href: immersiveGameHref('engin-fracture') },
   { label: 'Neon Drift', meta: 'WebGPU · DualSense Ready', emoji: '🏎️', href: immersiveGameHref('neon-drift') },
   { label: 'Echo Arena', meta: 'WebGPU · Touch + controller ready', emoji: '🚀', href: immersiveGameHref('echo-arena') },
 ];
@@ -69,8 +69,8 @@ const INPUT_CAPABILITIES = [
 
 const RUNTIME_PATHS = [
   { name: 'Launch MADMAXI', emoji: '🤖', desc: 'Default immersive session', href: immersiveGameHref('platformer') },
-  { name: 'Launch DREAMquest', emoji: '✨', desc: 'RPG route into GameEngin', href: immersiveGameHref('dreamquest') },
-  { name: 'Launch DREAMwars', emoji: '🌙', desc: 'RTS route into GameEngin', href: immersiveGameHref('dreamwars') },
+  { name: 'Launch NULL CATHEDRAL', emoji: '✨', desc: 'Tactics-RPG fusion route', href: immersiveGameHref('null-cathedral') },
+  { name: 'Launch ENGIN: FRACTURE', emoji: '🌙', desc: 'Mech fighter route', href: immersiveGameHref('engin-fracture') },
   { name: 'Launch Neon Drift', emoji: '🏎️', desc: 'WebGPU racing session', href: immersiveGameHref('neon-drift') },
   { name: 'Launch Echo Arena', emoji: '🚀', desc: 'Arena shooter session', href: immersiveGameHref('echo-arena') },
 ] as const;
@@ -179,7 +179,7 @@ export default async function GamesDaydreamPage() {
                   </span>
                 </div>
                 <div className="de-widget-body" style={{ paddingTop: 12 }}>
-                  <AvatarMaker />
+                  <div className='text-xs opacity-70'>Avatar studio retired — visit /daydream/profile to edit your avatar.</div>
                 </div>
               </div>
 

@@ -71,10 +71,16 @@ describe('Phase 8 §G — dualRuntimeBridge cross-Engin bus (Point 66)', () => {
 
   it('ContentEngin subscribes to music channel (one Engin pair shares state)', () => {
     const src = readFileSync(
-      join(root, 'components/daydream/ContentEngin.tsx'),
+      join(root, 'engins/engin.ContentEngin.tsx'),
       'utf-8',
     );
-    // ContentEngin subscribes to StarMakerEngin's music:stem-ready event
-    expect(src).toContain("bridge.subscribe('music'");
+    // ContentEngin subscribes to StarMakerEngin's music:stem-ready event either:
+    // a) directly via bridge.subscribe('music', ...) in the component, OR
+    // b) via the useContentEnginBridge() hook which internally calls bridge.subscribe('music', ...)
+    // Check the canonical component file + the bridge hook file
+    const hookSrc = readFileSync(join(root, 'lib/runtime/useEnginBridge.ts'), 'utf-8');
+    const hasDirectSubscription = src.includes("bridge.subscribe('music'");
+    const hasHookSubscription = src.includes('useContentEnginBridge') && hookSrc.includes("bridge.subscribe('music'");
+    expect(hasDirectSubscription || hasHookSubscription).toBe(true);
   });
 });

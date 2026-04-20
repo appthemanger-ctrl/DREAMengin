@@ -37,7 +37,7 @@ describe('game launch navigation', () => {
   it('keeps compatibility game routes redirected into the standalone GameEngin app', () => {
     const pageSrc = readFileSync(join(REPO_ROOT, 'app/daydream/game/page.tsx'), 'utf8');
     const enginePageSrc = readFileSync(join(REPO_ROOT, 'app/engines/games/page.tsx'), 'utf8');
-    const enginSrc = readFileSync(join(REPO_ROOT, 'components/daydream/GameEngin.tsx'), 'utf8');
+    const enginSrc = readFileSync(join(REPO_ROOT, 'engins/engin.GameEngin.tsx'), 'utf8');
     const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/GameHUD.tsx'), 'utf8');
 
     expect(pageSrc).toContain("redirect(`/engines/games");
@@ -52,8 +52,8 @@ describe('game launch navigation', () => {
 
     expect(gamesPageSrc).toContain("const immersiveGameHref = (gameId: string) => buildGameLaunchHref(gameId, { openEngin: true, play: true, expand: true });");
     expect(gamesPageSrc).toContain("href: immersiveGameHref('platformer')");
-    expect(gamesPageSrc).toContain("href: immersiveGameHref('dreamquest')");
-    expect(gamesPageSrc).toContain("href: immersiveGameHref('dreamwars')");
+    expect(gamesPageSrc).toContain("href: immersiveGameHref('null-cathedral')");
+    expect(gamesPageSrc).toContain("href: immersiveGameHref('engin-fracture')");
     expect(gamesPageSrc).toContain("href: immersiveGameHref('neon-drift')");
     expect(gamesPageSrc).toContain("href: immersiveGameHref('echo-arena')");
   });

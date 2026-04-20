@@ -11,7 +11,7 @@
 
 import { useRouter } from 'next/navigation';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import BrandingEngin from '@/engins/BrandingEngin';
+import BrandingEngin from '@/engins/engin.BrandingEngin';
 
 const ACCENT = '#f472b6';
 const BACK_HREF = '/daydream/brand';

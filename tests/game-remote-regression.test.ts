@@ -6,7 +6,7 @@ const REPO_ROOT = process.cwd();
 
 describe('existing PS5 remote usage', () => {
   it('keeps GameEngin wired to the universal HUD while the legacy remote stays archived', () => {
-    const src = readFileSync(join(REPO_ROOT, 'components/daydream/GameEngin.tsx'), 'utf8');
+    const src = readFileSync(join(REPO_ROOT, 'engins/engin.GameEngin.tsx'), 'utf8');
 
     expect(src).toContain("import GameHUD from '@/components/games/GameHUD'");
     expect(src).toContain('<GameHUD');
@@ -46,7 +46,7 @@ describe('existing PS5 remote usage', () => {
   });
 
   it('keeps immersive sessions on the universal GameHUD instead of the legacy expandable remote', () => {
-    const shellSrc = readFileSync(join(REPO_ROOT, 'components/daydream/GameEngin.tsx'), 'utf8');
+    const shellSrc = readFileSync(join(REPO_ROOT, 'engins/engin.GameEngin.tsx'), 'utf8');
     const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/GameHUD.tsx'), 'utf8');
 
     expect(shellSrc).toContain('mode={expandedPlayable.mobileHudMode ?? \'buttons\'}');
@@ -55,27 +55,19 @@ describe('existing PS5 remote usage', () => {
   });
 
   it('removes per-game on-screen remote pads in favor of the shared GameRemote', () => {
+    // Source-game files that previously hosted their own touch pads have been
+    // removed in the fusion-cartridge migration. The only legacy file left to
+    // assert against is BabylonSideScroller (kept as MADMAXI flagship).
     const babylon = readFileSync(join(REPO_ROOT, 'components/games/BabylonSideScroller.tsx'), 'utf8');
-    const maze = readFileSync(join(REPO_ROOT, 'components/games/MazeGame.tsx'), 'utf8');
-    const snake = readFileSync(join(REPO_ROOT, 'components/games/SnakeGame.tsx'), 'utf8');
-    const racing = readFileSync(join(REPO_ROOT, 'components/games/RacingGame.tsx'), 'utf8');
-    const rhythm = readFileSync(join(REPO_ROOT, 'components/games/RhythmGame.tsx'), 'utf8');
-    const shooter = readFileSync(join(REPO_ROOT, 'components/games/SpaceShooter.tsx'), 'utf8');
 
     expect(babylon).not.toContain('Virtual D-Pad');
     expect(babylon).not.toContain("handleVpad('jump', true)");
-    expect(maze).not.toContain("keysRef.current.add('ArrowUp')");
-    expect(snake).not.toContain("(['up','left','down','right'] as Dir[])");
-    expect(racing).not.toContain("[['↑','ArrowUp'],['↓','ArrowDown'],['←','ArrowLeft'],['→','ArrowRight']]");
-    expect(rhythm).not.toContain('onPointerDown={() => hitLane(i)}');
-    expect(shooter).not.toContain('onTouchMove={');
   });
 
-  it('keeps rhythm game playable through shared remote-compatible inputs', () => {
-    const src = readFileSync(join(REPO_ROOT, 'components/games/RhythmGame.tsx'), 'utf8');
-
-    expect(src).toContain("['a', 'ArrowLeft', 'z']");
-    expect(src).toContain("['l', 'ArrowRight', ' ']");
-    expect(src).toContain('shared GameRemote directions');
+  it('keeps the new Voidline GP rhythm-fusion playable through shared remote-compatible inputs', () => {
+    const src = readFileSync(join(REPO_ROOT, 'components/games/VoidlineGP.tsx'), 'utf8');
+    // Voidline GP listens for both keyboard and remote-compatible Arrow keys.
+    expect(src).toContain('ArrowLeft');
+    expect(src).toContain('ArrowRight');
   });
 });

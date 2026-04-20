@@ -52,6 +52,15 @@ export interface ScoredPost {
   originality_mass?: number;
   /** Per-signal breakdown — for transparency / debugging */
   dreamr_signals?: DreamRSignals;
+  /** Views per hour since posted — public engagement-velocity transparency. */
+  view_velocity?: number;
+  /**
+   * The single signal whose weighted contribution dominated this post's score.
+   * Used by the UI ("why am I seeing this?") and by debugging tools.
+   */
+  dominant_signal?: keyof DreamRSignals;
+  /** Short human-readable reason ("crafted writing", "fresh original media", etc.) */
+  dreamr_reason?: string;
 }
 
 export interface DreamRSignals {
@@ -179,6 +188,62 @@ export function scoreTrendImpact(
   return Math.min(0.25, Math.sqrt(fallbackEngagement) / Math.sqrt(500));
 }
 
+/**
+ * computeViewVelocity — public views per hour since post creation.
+ * Floors age at 0.25 h so brand-new posts don't divide by zero
+ * and a single early view doesn't explode into "thousands per hour".
+ *
+ * Pure: depends only on the inputs. Returned as raw v/h (not normalised).
+ */
+export function computeViewVelocity(
+  viewsCount: number | undefined,
+  createdAt: string,
+): number {
+  const v = Math.max(0, viewsCount ?? 0);
+  if (v === 0) return 0;
+  const ageHours = (Date.now() - new Date(createdAt).getTime()) / 3_600_000;
+  const safeAge = Math.max(0.25, ageHours); // never divide by < 15 min
+  return v / safeAge;
+}
+
+/**
+ * scoreViewVelocity — gentle 0-1 curve over views/hour.
+ * Reference: 50 v/h ≈ 1.0 (sqrt cap). Modest by design — viral velocity
+ * is allowed to nudge the ranking, not own it.
+ */
+export function scoreViewVelocity(velocity: number): number {
+  if (!Number.isFinite(velocity) || velocity <= 0) return 0;
+  return Math.min(1, Math.sqrt(velocity) / Math.sqrt(50));
+}
+
+/**
+ * dominantSignal — which weighted signal contributed most to this post's score.
+ * Returns the key in DREAMR_WEIGHTS whose `signals[k] * weights[k]` is max.
+ * Ties are broken by the canonical key order in DREAMR_WEIGHTS.
+ */
+export function dominantSignal(signals: DreamRSignals): keyof DreamRSignals {
+  let bestKey: keyof DreamRSignals = 'contentDepth';
+  let bestVal = -Infinity;
+  for (const k of Object.keys(DREAMR_WEIGHTS) as Array<keyof DreamRSignals>) {
+    const c = (signals[k] ?? 0) * DREAMR_WEIGHTS[k];
+    if (c > bestVal) {
+      bestVal = c;
+      bestKey = k;
+    }
+  }
+  return bestKey;
+}
+
+/** Short human-friendly phrasing for each signal — used in UI "why?" chips. */
+export const DREAMR_REASONS: Record<keyof DreamRSignals, string> = {
+  contentDepth:   'crafted writing',
+  originalMedia:  'original media',
+  dreamenginMade: 'made on DREAMengin',
+  textRichness:   'genuine language',
+  freshness:      'fresh post',
+  trendImpact:    'gaining traction',
+};
+
 // ── Composite scorer ─────────────────────────────────────────────────────────
 
 export function scoreDreamRPost(post: ScoredPost): {
@@ -186,6 +251,9 @@ export function scoreDreamRPost(post: ScoredPost): {
   signals: DreamRSignals;
   torridityRank: number;
   originalityMass: number;
+  viewVelocity: number;
+  dominantSignal: keyof DreamRSignals;
+  reason: string;
 } {
   const massMeta = derivePostMassMeta(post);
   const torridityRank = calculateRank({
@@ -207,12 +275,29 @@ export function scoreDreamRPost(post: ScoredPost): {
     0,
   ) * 100;
 
-  const score = (baseScore * 0.8) + (torridityRank * 20);
+  // ── View-velocity bonus ───────────────────────────────────────────────────
+  // Additive, capped at +2.5 (out of 100) so a runaway-velocity post can edge
+  // past a similarly-scored slow burner without ever overpowering creativity
+  // signals. Deliberately kept modest — DreamR's promise is "creativity, not
+  // virality" — but with the actually-flowing view_count signal we now expose
+  // *some* honest measurement of momentum.
+  const viewVelocity   = computeViewVelocity(post.views_count, post.created_at);
+  const velocityScore  = scoreViewVelocity(viewVelocity);
+  const velocityBonus  = velocityScore * 2.5;
+
+  const score = (baseScore * 0.8) + (torridityRank * 20) + velocityBonus;
+
+  const dom    = dominantSignal(signals);
+  const reason = DREAMR_REASONS[dom];
+
   return {
     score: Math.round(score * 10) / 10,
     signals,
     torridityRank,
     originalityMass: Math.round(originalityMass * 1000) / 1000,
+    viewVelocity:    Math.round(viewVelocity * 100) / 100,
+    dominantSignal:  dom,
+    reason,
   };
 }
 
@@ -230,13 +315,19 @@ export function rankFeed(posts: ScoredPost[]): ScoredPost[] {
       signals,
       torridityRank,
       originalityMass,
+      viewVelocity,
+      dominantSignal: dom,
+      reason,
     } = scoreDreamRPost(p);
     return {
       ...p,
-      dreamr_score: score,
-      dreamr_signals: signals,
-      torridity_rank: torridityRank,
+      dreamr_score:    score,
+      dreamr_signals:  signals,
+      torridity_rank:  torridityRank,
       originality_mass: originalityMass,
+      view_velocity:   viewVelocity,
+      dominant_signal: dom,
+      dreamr_reason:   reason,
     };
   });
 

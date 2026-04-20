@@ -120,7 +120,7 @@ export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps
         [0.92, 0.85, 0.26], // Gold — RPG
       ];
 
-      const GAME_IDS = ['rts', 'tower-defense', 'space-shooter', 'match3', 'tetris', 'rhythm', 'racing', 'rpg'];
+      const GAME_IDS = ['null-cathedral', 'voidline-gp', 'serpent-siege', 'glassfall', 'avenue-of-mirrors', 'engin-fracture', 'nite-flyer-solar-hymn', 'lexicon-solitaire'];
 
       for (let i = 0; i < 8; i++) {
         const angle = (i / 8) * Math.PI * 2;
