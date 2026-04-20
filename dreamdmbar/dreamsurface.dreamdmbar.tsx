@@ -893,50 +893,27 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   }, []);
 
   // ── Glowing light tap state machine ───────────────────────────────────────
-  // Per ARCHITECTURE.md §6.1 / lib/home-buttons/home-buttons-state.ts:
-  //   single tap → open both menus
-  //   double tap → contextual Home (parent decides target via splitRatio)
-  // We delay the single-tap action by DOUBLE_TAP_WINDOW_MS so a second tap
-  // can override it.
+  // Single tap → go home immediately (no delay).
+  // Double tap → open dual menus.
   const DOUBLE_TAP_WINDOW_MS = 260;
-  const lightTapStateRef = useRef<{
-    timer: ReturnType<typeof setTimeout> | null;
-    pendingTap: boolean;
-  }>({ timer: null, pendingTap: false });
-
-  useEffect(() => () => {
-    // Clean up any pending tap timer on unmount
-    if (lightTapStateRef.current.timer) clearTimeout(lightTapStateRef.current.timer);
-  }, []);
-
-  const fireLightSingleTap = useCallback(() => {
-    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(4);
-    onBothMenus();
-  }, [onBothMenus]);
-
-  const fireLightDoubleTap = useCallback(() => {
-    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([6, 30, 6]);
-    onHome();
-  }, [onHome]);
+  const lightLastTapRef = useRef(0);
 
   const handleLightTap = useCallback(() => {
-    const ref = lightTapStateRef.current;
-    if (ref.pendingTap && ref.timer) {
-      // Second tap within window → fire double-tap action
-      clearTimeout(ref.timer);
-      ref.timer = null;
-      ref.pendingTap = false;
-      fireLightDoubleTap();
+    const now = performance.now();
+    const last = lightLastTapRef.current;
+    lightLastTapRef.current = now;
+
+    if (now - last <= DOUBLE_TAP_WINDOW_MS) {
+      // Double tap → open dual menus
+      if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([6, 30, 6]);
+      onBothMenus();
       return;
     }
-    // First tap — wait to see if a second one arrives
-    ref.pendingTap = true;
-    ref.timer = setTimeout(() => {
-      ref.pendingTap = false;
-      ref.timer = null;
-      fireLightSingleTap();
-    }, DOUBLE_TAP_WINDOW_MS);
-  }, [fireLightSingleTap, fireLightDoubleTap]);
+
+    // Single tap → go home (immediate, no delay)
+    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(4);
+    onHome();
+  }, [onBothMenus, onHome]);
 
   const handleLightTouchStart = useCallback((_e: React.TouchEvent<HTMLSpanElement>) => {
     // resolved on touchend
