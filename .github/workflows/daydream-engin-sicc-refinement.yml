@@ -29,14 +29,6 @@ on:
       daydream_path:
         required: true
         type: string
-  push:
-    paths:
-      - 'components/daydream/StarMakerEngin.tsx'
-      - 'components/daydream/GameEngin.tsx'
-      - 'components/daydream/LabEngin.tsx'
-      - 'components/daydream/CodeEngin.tsx'
-      - 'components/daydream/BrandingEngin.tsx'
-      - 'components/daydream/ContentEngin.tsx'
   workflow_dispatch:
     inputs:
       daydream:

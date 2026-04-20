@@ -1,9 +1,6 @@
 name: Repo Snapshot (artifact)
 
 on:
-  push:
-    branches:
-      - completedream
   workflow_dispatch:
 
 permissions:

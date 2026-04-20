@@ -5,16 +5,9 @@ name: Lab Daydream Lobby + LabEngin Runtime Health
 #         components/daydream/LabEngin.tsx, components/PhysicsLab.tsx
 
 on:
-  push:
-    paths:
-      - 'app/daydream/lab/**'
-      - 'app/lab/**'
-      - 'app/physics-lab/**'
-      - 'components/daydream/LabEngin.tsx'
-      - 'components/PhysicsLab.tsx'
   workflow_dispatch:
   schedule:
-    - cron: '0 5 * * *'   # daily 05:00 UTC
+    - cron: '0 5 * * 5'   # weekly Friday 05:00 UTC
 
 permissions:
   contents: write

@@ -1,7 +1,7 @@
 name: Idari Daily Improvement Cycle
 
 # ──────────────────────────────────────────────────────────────────────────────
-# Idari runs once per day at midnight UTC.
+# Idari runs twice per week — Monday and Thursday at midnight UTC.
 # Contract: docs/IDARI_CONTRACT.md
 #
 # Sequence (mirrors portfolio-optimizer two-job pattern):
@@ -32,7 +32,7 @@ name: Idari Daily Improvement Cycle
 
 on:
   schedule:
-    - cron: '0 0 * * *'   # midnight UTC every day
+    - cron: '0 0 * * 1,4'   # twice weekly — Monday and Thursday 00:00 UTC
 
   workflow_dispatch:
     inputs:

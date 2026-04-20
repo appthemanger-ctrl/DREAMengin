@@ -6,11 +6,6 @@ name: Sync Build Memory
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - completedream
-      - develop
 
 jobs:
   sync:

@@ -18,18 +18,6 @@ name: Spec-Engin AI Agent
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main, develop, completedream]
-    paths:
-      - 'app/**'
-      - 'components/**'
-      - 'lib/**'
-      - 'styles/**'
-      - 'docs/**'
-      - 'spec/**'
-      - 'README.md'
-      - '.github/workflows/spec-engin-ai-agent.yml'
-      - '.github/scripts/**.py'
 
 permissions:
   contents: write

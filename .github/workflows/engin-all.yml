@@ -8,42 +8,9 @@ name: Engin Runtimes — All Health & Feature Patrols
 # One workflow entry in the Actions tab instead of six.
 
 on:
-  push:
-    paths:
-      # StarMakerEngin (music)
-      - 'components/daydream/StarMakerEngin.tsx'
-      - 'app/api/music/**'
-      - 'components/music/**'
-      # GameEngin (games)
-      - 'components/daydream/GameEngin.tsx'
-      - 'app/api/game-scores/**'
-      - 'components/games/**'
-      - 'lib/game/**'
-      # LabEngin (lab)
-      - 'components/daydream/LabEngin.tsx'
-      - 'components/PhysicsLab.tsx'
-      - 'components/QuantumCircuitCanvas.tsx'
-      - 'app/lab/**'
-      - 'app/physics-lab/**'
-      # CodeEngin (code)
-      - 'components/daydream/CodeEngin.tsx'
-      - 'app/api/projects/**'
-      - 'app/codespace/**'
-      # ContentEngin (create)
-      - 'components/daydream/ContentEngin.tsx'
-      - 'app/create/**'
-      - 'app/notes/**'
-      - 'app/api/content/**'
-      # BrandingEngin (brand)
-      - 'components/daydream/BrandingEngin.tsx'
-      - 'app/analytics/**'
-      - 'app/ads/**'
-      - 'lib/branding/**'
-      # Shared
-      - 'lib/daydream/**'
   workflow_dispatch:
   schedule:
-    - cron: '30 2 * * *'   # daily 02:30 UTC
+    - cron: '30 2 * * 1'   # weekly Monday 02:30 UTC
 
 permissions:
   contents: write

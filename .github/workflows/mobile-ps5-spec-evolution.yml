@@ -3,7 +3,7 @@ name: Mobile PS5 Spec Evolution
 on:
   workflow_dispatch:
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '0 8 * * 3'   # weekly Wednesday 08:00 UTC
 
 permissions:
   contents: write

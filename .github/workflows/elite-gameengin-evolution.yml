@@ -10,15 +10,9 @@ name: Elite GameEngin Evolution 🚀
 # Triggers:
 #   - Push to components/games/, lib/gameengin/, components/gameengin/
 #   - Manual workflow dispatch (with optional AI directive)
-#   - Daily at 06:00 UTC
+#   - Weekly on Monday at 06:00 UTC
 
 on:
-  push:
-    paths:
-      - 'components/games/**'
-      - 'components/gameengin/**'
-      - 'lib/gameengin/**'
-      - '.github/workflows/elite-gameengin-evolution.yml'
   workflow_dispatch:
     inputs:
       directive:
@@ -32,7 +26,7 @@ on:
         default: ''
         type: string
   schedule:
-    - cron: '0 6 * * *'   # daily 06:00 UTC
+    - cron: '0 6 * * 1'   # weekly Monday 06:00 UTC
 
 permissions:
   contents: write

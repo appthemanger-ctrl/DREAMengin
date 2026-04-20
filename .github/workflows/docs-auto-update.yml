@@ -7,24 +7,9 @@ name: Docs Auto Update
 # One workflow entry in the Actions tab instead of four.
 
 on:
-  push:
-    branches:
-      - completedream
-    paths-ignore:
-      # Skip the files this workflow itself writes to prevent infinite loops
-      - 'README.md'
-      - 'docs/BUGS.md'
-      - 'docs/HANDOFF.md'
-      - 'REPO_STATE.md'
-  pull_request:
-    types: [closed]
-    branches:
-      - completedream
-      - main
-      - develop
   workflow_dispatch:
   schedule:
-    - cron: '0 2 * * *'   # daily 02:00 UTC
+    - cron: '15 2 * * 1'   # weekly Monday 02:15 UTC
 
 permissions:
   contents: write
@@ -40,9 +25,7 @@ jobs:
 
     if: |
       github.event_name == 'workflow_dispatch' ||
-      github.event_name == 'schedule' ||
-      github.event_name == 'push' ||
-      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+      github.event_name == 'schedule'
 
     steps:
       - name: Checkout (full history)

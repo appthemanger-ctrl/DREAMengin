@@ -8,38 +8,9 @@ name: Daydream Lobbies — All Health & Feature Scans
 # One workflow entry in the Actions tab instead of six.
 
 on:
-  push:
-    paths:
-      # Music Daydream
-      - 'app/daydream/music/**'
-      - 'app/music/**'
-      - 'app/daydream/play/**'
-      - 'components/music/**'
-      # Games Daydream
-      - 'app/daydream/games/**'
-      - 'app/game/**'
-      - 'components/games/**'
-      # Lab Daydream
-      - 'app/daydream/lab/**'
-      - 'app/lab/**'
-      - 'app/physics-lab/**'
-      # Code Daydream
-      - 'app/daydream/code/**'
-      - 'app/codespace/**'
-      # Brand Daydream
-      - 'app/daydream/brand/**'
-      - 'app/analytics/**'
-      - 'app/ads/**'
-      - 'lib/branding/**'
-      # Create Daydream
-      - 'app/daydream/create/**'
-      - 'app/create/**'
-      - 'app/notes/**'
-      # Shared lib
-      - 'lib/daydream/**'
   workflow_dispatch:
   schedule:
-    - cron: '0 2 * * *'   # daily 02:00 UTC
+    - cron: '0 2 * * 1'   # weekly Monday 02:00 UTC
 
 permissions:
   contents: write

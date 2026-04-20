@@ -5,16 +5,9 @@ name: Create Daydream Lobby + ContentEngin Runtime Health
 #         components/daydream/ContentEngin.tsx, app/notes/
 
 on:
-  push:
-    paths:
-      - 'app/daydream/create/**'
-      - 'app/daydream/media-vault/**'
-      - 'app/create/**'
-      - 'components/daydream/ContentEngin.tsx'
-      - 'app/notes/**'
   workflow_dispatch:
   schedule:
-    - cron: '0 5 * * *'   # daily 05:00 UTC
+    - cron: '0 5 * * 3'   # weekly Wednesday 05:00 UTC
 
 permissions:
   contents: write

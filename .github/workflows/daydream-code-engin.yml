@@ -5,16 +5,9 @@ name: Code Daydream Lobby + CodeEngin Runtime Health
 #         app/lab/, app/api/projects/
 
 on:
-  push:
-    paths:
-      - 'app/daydream/code/**'
-      - 'app/codespace/**'
-      - 'components/daydream/CodeEngin.tsx'
-      - 'app/lab/**'
-      - 'app/api/projects/**'
   workflow_dispatch:
   schedule:
-    - cron: '0 5 * * *'   # daily 05:00 UTC
+    - cron: '0 5 * * 2'   # weekly Tuesday 05:00 UTC
 
 permissions:
   contents: write

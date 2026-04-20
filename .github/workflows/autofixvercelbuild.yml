@@ -2,8 +2,6 @@ name: Autofix Vercel Build
 
 on:
   workflow_dispatch:
-  push:
-    branches: ["completedream"]
 
 permissions:
   contents: write

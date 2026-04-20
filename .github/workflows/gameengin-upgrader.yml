@@ -6,9 +6,6 @@ on:
   workflow_dispatch:
     inputs:
       target_cartridge: { description: 'Cartridge id (omit to survey all)', required: false, default: '' }
-  schedule:
-    # Daily at 04:00 UTC — between Maestro's 02:00 and 14:00 sweeps.
-    - cron: '0 4 * * *'
 
 permissions:
   contents: write

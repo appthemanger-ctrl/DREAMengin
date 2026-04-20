@@ -5,16 +5,9 @@ name: Brand Daydream Lobby + BrandingEngin Runtime Health
 #         components/daydream/BrandingEngin.tsx, app/analytics/
 
 on:
-  push:
-    paths:
-      - 'app/daydream/brand/**'
-      - 'app/daydream/analytics/**'
-      - 'app/edit-profiledream/**'
-      - 'components/daydream/BrandingEngin.tsx'
-      - 'app/analytics/**'
   workflow_dispatch:
   schedule:
-    - cron: '0 5 * * *'   # daily 05:00 UTC
+    - cron: '0 5 * * 1'   # weekly Monday 05:00 UTC
 
 permissions:
   contents: write

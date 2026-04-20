@@ -1,10 +1,7 @@
 name: Root Hygiene
 
 on:
-  push:
-    branches: [completedream, main, develop]
-  pull_request:
-    branches: [completedream, main]
+  workflow_dispatch:
 
 jobs:
   check-root:
