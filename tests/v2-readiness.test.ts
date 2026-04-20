@@ -249,7 +249,7 @@ describe('DREAMengin v2.0.0 — build enforcement updated', () => {
 
 describe('DREAMengin v2.0.0 — WorkspaceDashboard surface labels', () => {
   const dashboard = readFileSync(
-    resolve(__dirname, '../components/home/dream.WorkspaceDashboard.tsx'),
+    resolve(__dirname, '../dreamdmbar/homedream/dream.homedream.WorkspaceDashboard.tsx'),
     'utf8',
   );
 

@@ -6,7 +6,7 @@ import { DIVIDER_H } from '@/lib/dreamdm/barInteractions';
 
 describe('HomeDream home surface', () => {
   const dashboard = readFileSync(
-    resolve(__dirname, '../components/home/dream.WorkspaceDashboard.tsx'),
+    resolve(__dirname, '../dreamdmbar/homedream/dream.homedream.WorkspaceDashboard.tsx'),
     'utf8',
   );
   // Canonical HomeSystem — kept in sync with dreamdmbar/homedream/dream.homedream.HomeSystem.tsx

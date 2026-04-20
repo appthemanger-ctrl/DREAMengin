@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
-import GalaxyStarfield from '@/components/landing/dream.GalaxyStarfield';
+import UniverseField from '@/components/landing/dream.landing.UniverseField';
 import LandingNav from '@/components/landing/dream.LandingNav';
 import LandingProductStatement from '@/components/landing/dream.LandingProductStatement';
 import LandingHeroRobot from '@/components/landing/dream.LandingHeroRobot';
@@ -15,7 +15,7 @@ import { createClient } from '@/lib/supabase/client';
  * LandingHero — slim composition root for the public landing page.
  *
  * Layout order is deliberate so the persistent black background and the
- * MOND-2.1 GalaxyStarfield mount *first*, before the heavy Babylon.js hero
+ * MOND-2.1 UniverseField mount *first*, before the heavy Babylon.js hero
  * (which is dynamically imported in LandingHeroRobot). Each visual concern
  * lives in its own component under components/landing/.
  *
@@ -115,7 +115,7 @@ export default function LandingHero() {
     >
       {/* Persistent simple black background + galaxy starfield */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-        <GalaxyStarfield />
+        <UniverseField />
       </div>
 
       <LandingNav />

@@ -1,31 +1,28 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { StarField } from './dream.star-field';
 import { cn } from '@/lib/utils';
 
 interface UniverseShellProps {
   children: ReactNode;
-  showStars?: boolean;
   className?: string;
 }
 
-export function UniverseShell({ 
-  children, 
-  showStars = true,
-  className 
+/**
+ * UniverseShell — neutral surface wrapper for universe-mode pages.
+ *
+ * The starfield background was deliberately removed: only the public landing
+ * page renders the universe field (see components/landing/dream.landing.UniverseField.tsx).
+ * Inner surfaces stay quiet so user content reads cleanly.
+ */
+export function UniverseShell({
+  children,
+  className,
 }: UniverseShellProps) {
   return (
     <div className={cn('relative min-h-screen', className)}>
-      {/* Star field background - only in dark mode */}
-      {showStars && (
-        <div className="hidden dark:block">
-          <StarField density="sparse" speed="slow" />
-        </div>
-      )}
-
       {/* Subtle grid pattern */}
-      <div 
+      <div
         className="fixed inset-0 pointer-events-none opacity-[0.02] dark:opacity-[0.03]"
         style={{
           backgroundImage: `
