@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-19T17:44:39.669Z",
+  "generated_at": "2026-04-20T10:07:54.662Z",
   "generator": "scripts/sync-build-memory.mjs",
   "count": 22,
   "events": [
@@ -41,8 +41,6 @@
       "event": "de-game-start",
       "payload_type": null,
       "files": [
-        "games/snake/SnakeCartridge.ts",
-        "games/tetris/TetrisCartridge.ts",
         "lib/games/hooks.ts"
       ]
     },
@@ -93,9 +91,8 @@
       "event": "error",
       "payload_type": null,
       "files": [
-        "components/daydream/CodeEngin.tsx",
         "components/gameengin/CartridgeErrorBoundary.tsx",
-        "engins/CodeEngin.tsx"
+        "engins/engin.CodeEngin.tsx"
       ]
     },
     {
@@ -172,8 +169,7 @@
       "event": "starmaker:load-recording",
       "payload_type": null,
       "files": [
-        "components/daydream/StarMakerEngin.tsx",
-        "engins/StarMakerEngin.tsx"
+        "engins/engin.StarMakerEngin.tsx"
       ]
     },
     {

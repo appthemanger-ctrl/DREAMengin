@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-19T17:44:39.669Z",
+  "generated_at": "2026-04-20T10:07:54.662Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 119,
+  "count": 118,
   "surfaces": [
     {
       "type": "page",
@@ -250,10 +250,6 @@
         {
           "name": "GamesHub",
           "from": "@/components/games/GamesHub"
-        },
-        {
-          "name": "AvatarMaker",
-          "from": "@/components/games/AvatarMaker"
         },
         {
           "name": "OpenDaydreamSideBButton",
@@ -1270,12 +1266,6 @@
       "type": "component",
       "name": "DaydreamShell",
       "file": "components/daydream/DaydreamShell.tsx",
-      "owner": "Landing/world designer"
-    },
-    {
-      "type": "component",
-      "name": "GameEngin",
-      "file": "components/daydream/GameEngin.tsx",
       "owner": "Landing/world designer"
     },
     {
