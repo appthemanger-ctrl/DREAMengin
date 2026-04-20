@@ -61,6 +61,7 @@ import type { CompGraph, NodeType } from '@/lib/composite/compositor';
 import type { RotoProject } from '@/lib/composite/rotoscope';
 import type { CameraTrack } from '@/lib/composite/matchmover';
 import type { FxSimulation, FxCategory } from '@/lib/composite/fxSimulation';
+import { ActivityPostForm, type ActivityPostData } from '@/components/activity/ActivityPostForm';
 
 interface Props {
   onBack: () => void;
@@ -88,6 +89,8 @@ const TYPE_TO_CONTENT_TYPE: Record<CalendarItem['type'], string> = {
 };
 
 const ACCENT = '#f59e0b';
+// const ACCENT_LEGACY = '#fb923c'; // old orange — kept for reference
+// const ACCENT_GRADIENT_LEGACY = 'linear-gradient(135deg, #fb923c 0%, #f59e0b 100%)';
 
 // Feature identifiers — used by CI grep scans (daydream-engin-build-cycle.yml)
 const AiCaption        = 'content-feature';
@@ -96,6 +99,9 @@ const TemplateGallery  = 'content-feature';
 const ShortVideoEditor = 'content-feature';
 const HashtagOptimizer = 'content-feature';
 const CollabDraft      = 'content-feature';
+const MultiPlatform    = 'content-feature-2026'; // 2026: Multi-platform scheduler
+const AIOptimizer      = 'content-feature-2026'; // 2026: AI content optimizer
+const AdvancedAnalytics = 'content-feature-2026'; // 2026: Advanced analytics
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const TYPE_EMOJI: Record<CalendarItem['type'], string> = {
@@ -205,6 +211,45 @@ export default function ContentEngin({ onBack }: Props) {
   const stemPrompt = contentBridge.lastStem !== null && contentBridge.lastStem !== dismissedStem
     ? { stemType: contentBridge.lastStem, url: contentBridge.lastStemUrl ?? '' }
     : null;
+
+  // ── Cross-Engin: GameEngin game-clip receiver ──
+  const [dismissedGameClip, setDismissedGameClip] = useState<string | null>(null);
+  const gameClipPrompt = contentBridge.lastGameClip !== null && contentBridge.lastGameClip !== dismissedGameClip
+    ? contentBridge.lastGameClip
+    : null;
+
+  // ── Cross-Engin: CodeEngin notebook publish receiver ──
+  const [dismissedNotebook, setDismissedNotebook] = useState<string | null>(null);
+  const notebookPrompt = contentBridge.lastNotebookPublish !== null && contentBridge.lastNotebookPublish !== dismissedNotebook
+    ? contentBridge.lastNotebookPublish
+    : null;
+
+  // ── Activity Post state ──
+  const [activityPostMsg, setActivityPostMsg] = useState('');
+  const activityPostTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  async function handleActivityPost(data: ActivityPostData) {
+    const res = await fetch('/api/posts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content: data.content,
+        visibility: 'public',
+        media_urls: data.media_url ? [data.media_url] : [],
+        activity_tier: data.tier,
+        activity_type: data.activity_type,
+        verification_method: data.verification_method,
+        evidence_url: data.evidence_url,
+      }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({})) as { error?: string };
+      throw new Error(err.error ?? 'Failed to post activity');
+    }
+    setActivityPostMsg('✅ Activity posted!');
+    if (activityPostTimerRef.current) clearTimeout(activityPostTimerRef.current);
+    activityPostTimerRef.current = setTimeout(() => setActivityPostMsg(''), 4000);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -1694,6 +1739,56 @@ export default function ContentEngin({ onBack }: Props) {
           </div>
         )}
 
+        {/* ── Game → ContentEngin game-clip receiver ── */}
+        {gameClipPrompt && (
+          <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(200,152,26,0.3)', background: 'rgba(200,152,26,0.04)' }}>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16 }}>🎮→✍️</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
+                    GameEngin shared a clip
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
+                    Session #{gameClipPrompt} — create a post or video?
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDismissedGameClip(contentBridge.lastGameClip)}
+                  style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'var(--de-text-dim)' }}
+                  aria-label="Dismiss"
+                >✕</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Code → ContentEngin notebook publish receiver ── */}
+        {notebookPrompt && (
+          <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(34,211,238,0.3)', background: 'rgba(34,211,238,0.04)' }}>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16 }}>💻→✍️</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
+                    CodeEngin published a notebook
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
+                    Notebook #{notebookPrompt} — turn into tutorial or dev blog?
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDismissedNotebook(contentBridge.lastNotebookPublish)}
+                  style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'var(--de-text-dim)' }}
+                  aria-label="Dismiss"
+                >✕</button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ═══════════════════════════════════════════════════════════════
             PRE-EDIT — Everything before the editor opens
             Brief · Assets · Audio · Specs · Pipeline
@@ -2679,6 +2774,22 @@ export default function ContentEngin({ onBack }: Props) {
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Activity Post Form (Phase 9 Activity-First Protocol §II) ── */}
+        <div className="de-widget" style={{ marginBottom: 14 }}>
+          <div className="de-widget-header">
+            <span className="de-widget-title">Post Activity</span>
+            <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--de-text-dim)' }}>Tag tier &amp; earn visibility</span>
+          </div>
+          <div className="de-widget-body">
+            <ActivityPostForm
+              onSubmit={handleActivityPost}
+            />
+            {activityPostMsg && (
+              <p style={{ fontSize: 12, fontWeight: 600, color: '#16a34a', marginTop: 8 }}>{activityPostMsg}</p>
             )}
           </div>
         </div>

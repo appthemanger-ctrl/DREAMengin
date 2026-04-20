@@ -24,6 +24,8 @@ import {
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import DiffViewer from '@/components/daydream/DiffViewer';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
+import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
+import { useCodeEnginBridge } from '@/lib/runtime/useEnginBridge';
 import JourneyTrail from '@/components/daydream/JourneyTrail';
 import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel';
 import {
@@ -77,6 +79,8 @@ interface ShellHubDevice {
 // ----------------------------------------------------------------------
 
 const ACCENT = '#3b7dd8';
+// const ACCENT_LEGACY = '#22d3ee'; // old cyan — kept for reference
+// const ACCENT_GRADIENT_LEGACY = 'linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%)';
 const CELL_BG = '#1a1a2e';
 const CODE_FG = '#e2e8f0';
 const OUT_OK = '#4ade80';
@@ -381,6 +385,7 @@ async function callEamsAssist(prompt: string, codeContext?: string, language?: C
 
 export default function CodeEngin({ onBack }: Props) {
   const { record: forgeRecord } = useForgeActivity({ enginId: 'code' });
+  const codeBridge = useCodeEnginBridge();
   const { persistState } = useDaydreamState({ daydreamType: 'code', side: 'B' });
   type CodeSavedState = { cells?: Array<{ id: string; language: string; source: string }> };
   const { savedState: savedCodeState, isRestoring: codeRestoring, persistState: persistCodeState } = useDaydreamPersistence<CodeSavedState>({ daydreamType: 'code' });
@@ -398,6 +403,12 @@ export default function CodeEngin({ onBack }: Props) {
   const [pairSessionId] = useState(() => `code-${Date.now()}`);
   const [pairActive, setPairActive] = useState(false);
   const pairDream = useSharedDream(pairActive ? pairSessionId : '');
+
+  // ── Cross-Engin: LabEngin dataset export receiver ──
+  const [dismissedDataset, setDismissedDataset] = useState<string | null>(null);
+  const datasetPrompt = codeBridge.lastLabDataset !== null && codeBridge.lastLabDataset !== dismissedDataset
+    ? codeBridge.lastLabDataset
+    : null;
 
   // Notebook state
   const [cells, setCells] = useState<NotebookCell[]>(() => {
@@ -523,6 +534,39 @@ export default function CodeEngin({ onBack }: Props) {
     setAssistResponse(response);
     setAssistLoading(false);
     bridge.emit('code', 'code:cell-executed', { cellId: 'ai-assist', language: 'typescript', outputType: 'text' });
+  };
+
+  // ── Publish Notebook to ContentEngin ──────────────────────────────────────────
+  const publishNotebook = () => {
+    forgeRecord('Published notebook to Content');
+    recordForgeTransfer('code', 'create', 'notebook', 'CodeEngin notebook → ContentEngin');
+    const cellSummary = cells.map(c => ({
+      language: c.language,
+      codeSnippet: c.code.slice(0, 100),
+      hasOutput: c.output !== null,
+    }));
+    bridge.emit('create', 'create:notebook-publish-requested', {
+      notebookId: `notebook-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      cellCount: cells.length,
+      languages: Array.from(new Set(cells.map(c => c.language))),
+      cells: cellSummary,
+    });
+  };
+
+  // ── Deploy Script to GameEngin ────────────────────────────────────────────────
+  const deployScriptToGame = (cellId: string) => {
+    const cell = cells.find(c => c.id === cellId);
+    if (!cell) return;
+    forgeRecord('Deployed script to Game');
+    recordForgeTransfer('code', 'games', 'script', 'CodeEngin script → GameEngin');
+    bridge.emit('games', 'games:script-deploy-requested', {
+      scriptId: `script-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      language: cell.language,
+      code: cell.code,
+      hasOutput: cell.output !== null,
+    });
   };
 
   // CI Runner
@@ -720,6 +764,32 @@ export default function CodeEngin({ onBack }: Props) {
       </header>
 
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
+
+        {/* ── Lab → CodeEngin Dataset Export receiver ── */}
+        {datasetPrompt && (
+          <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.04)' }}>
+            <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 16 }}>🔬→💻</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>
+                    LabEngin exported a dataset
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5 }}>
+                    Dataset #{datasetPrompt} — load into notebook for analysis?
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDismissedDataset(codeBridge.lastLabDataset)}
+                  style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'var(--de-text-dim)' }}
+                  aria-label="Dismiss"
+                >✕</button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Tab bar */}
         <div style={{ display: 'flex', gap: 6, marginBottom: 18, flexWrap: 'wrap' }}>
           {[
@@ -817,7 +887,11 @@ export default function CodeEngin({ onBack }: Props) {
                 </div>
               ))}
             </div>
-            <div className="de-widget-actions"><button onClick={addCell} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: `${ACCENT}12`, color: ACCENT, border: `1px dashed ${ACCENT}45` }}><Plus className="w-3.5 h-3.5" /> Add Cell</button></div>
+            <div className="de-widget-actions">
+              <button onClick={addCell} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: `${ACCENT}12`, color: ACCENT, border: `1px dashed ${ACCENT}45` }}><Plus className="w-3.5 h-3.5" /> Add Cell</button>
+              <button onClick={publishNotebook} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: 'rgba(251,146,60,0.1)', color: '#fb923c', border: '1px dashed rgba(251,146,60,0.4)' }} title="Publish notebook summary to ContentEngin">📤 Publish Notebook</button>
+              {cells[0] && <button onClick={() => deployScriptToGame(cells[0].id)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: 'rgba(59,130,246,0.1)', color: '#3b82f6', border: '1px dashed rgba(59,130,246,0.4)' }} title="Deploy active cell script to GameEngin">🎮 Deploy to Game</button>}
+            </div>
           </div>
         )}
 
