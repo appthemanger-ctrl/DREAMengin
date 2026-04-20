@@ -27,13 +27,24 @@ import {
   OFFSET_VEL_Z,
   OFFSET_DAYDREAM_TYPE,
   OFFSET_DREAMDM_BAR_Y,
+  OFFSET_DREAMDM_BAR_X,
   OFFSET_TELEMETRY,
+  OFFSET_LOCKED_STATE,
+  OFFSET_AXIS_STATE,
+  SNAP_THRESHOLD_RATIO,
+  SEAM_CTRL_IDX_BAR_Y,
+  SEAM_CTRL_IDX_BAR_X,
+  SEAM_CTRL_IDX_LOCKED,
+  SEAM_CTRL_IDX_AXIS,
   BAR_Y_SCALE,
   buildWorkgroups,
   isIndexInBounds,
   f32Channel,
   f32DreamDMBarY,
   int32DreamDMBarY,
+  int32DreamDMBarX,
+  int32LockedState,
+  int32AxisState,
   f64Telemetry,
   u8DaydreamType,
   createEnginSAB,
@@ -73,17 +84,38 @@ describe('EnginMemory — SAB layout constants', () => {
     expect(OFFSET_DREAMDM_BAR_Y % 4).toBe(0);
   });
 
+  it('DREAMDM_BAR_X is 4-byte aligned and immediately follows BAR_Y', () => {
+    expect(OFFSET_DREAMDM_BAR_X).toBe(250_004);
+    expect(OFFSET_DREAMDM_BAR_X % 4).toBe(0);
+    expect(OFFSET_DREAMDM_BAR_X).toBe(OFFSET_DREAMDM_BAR_Y + 4);
+  });
+
   it('TELEMETRY zone is 8-byte aligned', () => {
     expect(OFFSET_TELEMETRY % 8).toBe(0);
     expect(OFFSET_TELEMETRY).toBe(250_008);
   });
 
+  it('LOCKED_STATE is 4-byte aligned and follows the telemetry zone', () => {
+    const telemetryEnd = OFFSET_TELEMETRY + MAX_WORKERS * 8; // 250,520
+    expect(OFFSET_LOCKED_STATE).toBe(250_520);
+    expect(OFFSET_LOCKED_STATE).toBe(telemetryEnd);
+    expect(OFFSET_LOCKED_STATE % 4).toBe(0);
+  });
+
+  it('AXIS_STATE is 4-byte aligned and immediately follows LOCKED_STATE', () => {
+    expect(OFFSET_AXIS_STATE).toBe(250_524);
+    expect(OFFSET_AXIS_STATE).toBe(OFFSET_LOCKED_STATE + 4);
+    expect(OFFSET_AXIS_STATE % 4).toBe(0);
+  });
+
   it('SAB_BYTES covers all zones without overlap', () => {
-    const telemetryEnd = OFFSET_TELEMETRY + MAX_WORKERS * 8;
-    expect(SAB_BYTES).toBe(telemetryEnd);
+    expect(SAB_BYTES).toBe(OFFSET_AXIS_STATE + 4); // 250,528
     // Verify no overlap between zones
     expect(OFFSET_DREAMDM_BAR_Y).toBeGreaterThan(OFFSET_DAYDREAM_TYPE);
-    expect(OFFSET_TELEMETRY).toBeGreaterThan(OFFSET_DREAMDM_BAR_Y);
+    expect(OFFSET_DREAMDM_BAR_X).toBeGreaterThan(OFFSET_DREAMDM_BAR_Y);
+    expect(OFFSET_TELEMETRY).toBeGreaterThan(OFFSET_DREAMDM_BAR_X);
+    expect(OFFSET_LOCKED_STATE).toBeGreaterThanOrEqual(OFFSET_TELEMETRY + MAX_WORKERS * 8 - 1);
+    expect(OFFSET_AXIS_STATE).toBeGreaterThan(OFFSET_LOCKED_STATE);
   });
 
   it('SAB_BYTES is divisible by 8 (guarantees Atomics alignment)', () => {
@@ -149,8 +181,49 @@ describe('SAB view helpers', () => {
     expect(OFFSET_DREAMDM_BAR_Y % 4).toBe(0);
   });
 
+  it('int32DreamDMBarX returns Int32Array of length 1 at OFFSET_DREAMDM_BAR_X', () => {
+    if (typeof SharedArrayBuffer === 'undefined') return;
+    const sab = createEnginSAB();
+    const v = int32DreamDMBarX(sab);
+    expect(v).toBeInstanceOf(Int32Array);
+    expect(v.length).toBe(1);
+    expect(OFFSET_DREAMDM_BAR_X % 4).toBe(0);
+    // Writes to barX should not affect barY
+    Atomics.store(v, 0, 77);
+    expect(Atomics.load(int32DreamDMBarY(sab), 0)).toBe(0);
+  });
+
+  it('int32LockedState returns Int32Array of length 1 at OFFSET_LOCKED_STATE', () => {
+    if (typeof SharedArrayBuffer === 'undefined') return;
+    const sab = createEnginSAB();
+    const v = int32LockedState(sab);
+    expect(v).toBeInstanceOf(Int32Array);
+    expect(v.length).toBe(1);
+    expect(OFFSET_LOCKED_STATE % 4).toBe(0);
+  });
+
+  it('int32AxisState returns Int32Array of length 1 at OFFSET_AXIS_STATE', () => {
+    if (typeof SharedArrayBuffer === 'undefined') return;
+    const sab = createEnginSAB();
+    const v = int32AxisState(sab);
+    expect(v).toBeInstanceOf(Int32Array);
+    expect(v.length).toBe(1);
+    expect(OFFSET_AXIS_STATE % 4).toBe(0);
+  });
+
   it('BAR_Y_SCALE is 100', () => {
     expect(BAR_Y_SCALE).toBe(100);
+  });
+
+  it('SNAP_THRESHOLD_RATIO is 0.05', () => {
+    expect(SNAP_THRESHOLD_RATIO).toBe(0.05);
+  });
+
+  it('seam ctrl logical indices are 0, 1, 2, 3', () => {
+    expect(SEAM_CTRL_IDX_BAR_Y).toBe(0);
+    expect(SEAM_CTRL_IDX_BAR_X).toBe(1);
+    expect(SEAM_CTRL_IDX_LOCKED).toBe(2);
+    expect(SEAM_CTRL_IDX_AXIS).toBe(3);
   });
 
   it('f64Telemetry returns Float64Array of length MAX_WORKERS', () => {
@@ -406,6 +479,144 @@ describe('EnginDispatcher — Dual-Runtime Seam (DreamDM Bar y-offset)', () => {
   });
 });
 
+// ─── Seam control — updateSeamOffset / locked / axis ─────────────────────────
+
+describe('EnginDispatcher — Seam Control (updateSeamOffset / locked / axis)', () => {
+  afterEach(() => {
+    EnginDispatcher._resetForTesting();
+  });
+
+  it('updateSeamOffset Y stores ratio × BAR_Y_SCALE atomically', () => {
+    if (typeof SharedArrayBuffer === 'undefined') return;
+
+    const d = EnginDispatcher.getInstance();
+    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+
+    d.updateSeamOffset(0.75, 'Y');
+    expect(d.getSeamOffset('Y')).toBeCloseTo(0.75, 2);
+    // X slot should remain 0
+    expect(d.getSeamOffset('X')).toBe(0);
+  });
+
+  it('updateSeamOffset X stores ratio × BAR_Y_SCALE atomically', () => {
+    if (typeof SharedArrayBuffer === 'undefined') return;
+
+    const d = EnginDispatcher.getInstance();
+    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+
+    d.updateSeamOffset(0.3, 'X');
+    expect(d.getSeamOffset('X')).toBeCloseTo(0.3, 2);
+    // Y slot should remain 0
+    expect(d.getSeamOffset('Y')).toBe(0);
+  });
+
+  it('updateSeamOffset clamps values above 1.0 to 1.0', () => {
+    if (typeof SharedArrayBuffer === 'undefined') return;
+
+    const d = EnginDispatcher.getInstance();
+    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+
+    d.updateSeamOffset(2.5, 'Y');
+    expect(d.getSeamOffset('Y')).toBeCloseTo(1.0, 2);
+  });
+
+  it('updateSeamOffset clamps values below 0.0 to 0.0', () => {
+    if (typeof SharedArrayBuffer === 'undefined') return;
+
+    const d = EnginDispatcher.getInstance();
+    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+
+    d.updateSeamOffset(-0.5, 'X');
+    expect(d.getSeamOffset('X')).toBe(0);
+  });
+
+  it('updateSeamOffset rejects NaN silently', () => {
+    if (typeof SharedArrayBuffer === 'undefined') return;
+
+    const d = EnginDispatcher.getInstance();
+    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+
+    d.updateSeamOffset(0.5, 'Y');
+    d.updateSeamOffset(NaN, 'Y');
+    expect(d.getSeamOffset('Y')).toBeCloseTo(0.5, 2);
+  });
+
+  it('updateSeamOffset is a no-op when sab is null', () => {
+    const d = EnginDispatcher.getInstance();
+    expect(() => d.updateSeamOffset(0.5, 'Y')).not.toThrow();
+    expect(d.getSeamOffset('Y')).toBe(0);
+  });
+
+  it('setLockedState / getLockedState round-trip', () => {
+    if (typeof SharedArrayBuffer === 'undefined') return;
+
+    const d = EnginDispatcher.getInstance();
+    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+
+    expect(d.getLockedState()).toBe(false);
+    d.setLockedState(true);
+    expect(d.getLockedState()).toBe(true);
+    d.setLockedState(false);
+    expect(d.getLockedState()).toBe(false);
+  });
+
+  it('getLockedState returns false when sab is null', () => {
+    const d = EnginDispatcher.getInstance();
+    expect(d.getLockedState()).toBe(false);
+  });
+
+  it('setLockedState is a no-op when sab is null', () => {
+    const d = EnginDispatcher.getInstance();
+    expect(() => d.setLockedState(true)).not.toThrow();
+  });
+
+  it('setAxisState / getAxisState round-trip', () => {
+    if (typeof SharedArrayBuffer === 'undefined') return;
+
+    const d = EnginDispatcher.getInstance();
+    (d as unknown as { _sab: SharedArrayBuffer })._sab = createEnginSAB();
+
+    expect(d.getAxisState()).toBe('Y');
+    d.setAxisState('X');
+    expect(d.getAxisState()).toBe('X');
+    d.setAxisState('Y');
+    expect(d.getAxisState()).toBe('Y');
+  });
+
+  it('getAxisState returns "Y" when sab is null', () => {
+    const d = EnginDispatcher.getInstance();
+    expect(d.getAxisState()).toBe('Y');
+  });
+
+  it('setAxisState is a no-op when sab is null', () => {
+    const d = EnginDispatcher.getInstance();
+    expect(() => d.setAxisState('X')).not.toThrow();
+  });
+
+  it('SNAP_THRESHOLD_RATIO static property equals 0.05', () => {
+    expect(EnginDispatcher.SNAP_THRESHOLD_RATIO).toBe(0.05);
+  });
+
+  it('locked and axis slots do not overlap with barY or barX', () => {
+    if (typeof SharedArrayBuffer === 'undefined') return;
+
+    const d = EnginDispatcher.getInstance();
+    const sab = createEnginSAB();
+    (d as unknown as { _sab: SharedArrayBuffer })._sab = sab;
+
+    d.updateSeamOffset(0.4, 'Y');
+    d.updateSeamOffset(0.6, 'X');
+    d.setLockedState(true);
+    d.setAxisState('X');
+
+    // Each slot must retain its own value
+    expect(d.getSeamOffset('Y')).toBeCloseTo(0.4, 2);
+    expect(d.getSeamOffset('X')).toBeCloseTo(0.6, 2);
+    expect(d.getLockedState()).toBe(true);
+    expect(d.getAxisState()).toBe('X');
+  });
+});
+
 // ─── Elite-Runtime Telemetry ──────────────────────────────────────────────────
 
 describe('EnginDispatcher — Elite-Runtime Telemetry', () => {
@@ -454,11 +665,20 @@ describe('engin-shader.worker.ts — source contract', () => {
     expect(workerSrc).toContain("case 'stop'");
   });
 
-  it('reads DreamDM Bar y-offset atomically (Dual-Runtime Seam)', () => {
+  it('reads DreamDM Bar seam offset atomically (Dual-Runtime Seam)', () => {
     expect(workerSrc).toContain('OFFSET_DREAMDM_BAR_Y');
-    // Bug C: non-atomic Float32 read replaced with Atomics.load on Int32
-    expect(workerSrc).toContain('Atomics.load(barY, 0)');
+    expect(workerSrc).toContain('OFFSET_DREAMDM_BAR_X');
+    // Bug C: non-atomic Float32 read replaced with Atomics.load on Int32;
+    // axis is selected at runtime via axisState flag.
+    expect(workerSrc).toContain('Atomics.load(activeBar, 0)');
+    expect(workerSrc).toContain('Atomics.load(axisState, 0)');
     expect(workerSrc).toContain('BAR_Y_SCALE');
+  });
+
+  it('reads locked state and axis state atomically', () => {
+    expect(workerSrc).toContain('OFFSET_LOCKED_STATE');
+    expect(workerSrc).toContain('OFFSET_AXIS_STATE');
+    expect(workerSrc).toContain('Atomics.load(lockedState, 0)');
   });
 
   it('applies Wasm SIMD f32x4.add velocity integration', () => {
@@ -499,7 +719,10 @@ describe('engin-shader.worker.ts — source contract', () => {
     // Verify the worker's local constants are in sync with memory.ts
     expect(workerSrc).toContain('const ENTITY_COUNT      = 10_000');
     expect(workerSrc).toContain('const OFFSET_DREAMDM_BAR_Y = 250_000');
+    expect(workerSrc).toContain('const OFFSET_DREAMDM_BAR_X = 250_004');
     expect(workerSrc).toContain('const OFFSET_TELEMETRY    = 250_008');
+    expect(workerSrc).toContain('const OFFSET_LOCKED_STATE = 250_520');
+    expect(workerSrc).toContain('const OFFSET_AXIS_STATE   = 250_524');
   });
 });
 

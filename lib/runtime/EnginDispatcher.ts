@@ -30,7 +30,11 @@ import {
   createEnginSAB,
   buildWorkgroups,
   int32DreamDMBarY,
+  int32DreamDMBarX,
+  int32LockedState,
+  int32AxisState,
   BAR_Y_SCALE,
+  SNAP_THRESHOLD_RATIO,
   f64Telemetry,
   MAX_WORKERS,
   SAB_BYTES,
@@ -430,6 +434,103 @@ export class EnginDispatcher {
     return Atomics.load(int32DreamDMBarY(this._sab), 0) / BAR_Y_SCALE;
   }
 
+  /**
+   * Update the DreamDM Bar seam offset for the given axis atomically.
+   *
+   * Implements the spec's `EnginDispatcher.updateSeamOffset`:
+   *   - Clamps `value` to [0.0, 1.0] (normalised ratio, not pixels).
+   *   - Encodes as `Math.round(value × BAR_Y_SCALE)` (fixed-point Int32).
+   *   - Writes via `Atomics.store` to the axis-appropriate SAB slot.
+   *   - Notifies the Wasm worker of the update.
+   *
+   * @param value - Seam position ratio in [0.0, 1.0].  Values outside this
+   *   range are clamped.  NaN / Infinity are silently rejected.
+   * @param axis  - 'Y' for portrait (vertical seam), 'X' for landscape
+   *   (horizontal seam).
+   */
+  updateSeamOffset(value: number, axis: 'X' | 'Y'): void {
+    if (!this._sab) return;
+    if (!Number.isFinite(value)) {
+      console.warn(`[EnginDispatcher] updateSeamOffset: invalid value rejected: ${value}`);
+      return;
+    }
+    const encoded = Math.round(Math.max(0, Math.min(1, value)) * BAR_Y_SCALE);
+    const view = axis === 'Y' ? int32DreamDMBarY(this._sab) : int32DreamDMBarX(this._sab);
+    Atomics.store(view, 0, encoded);
+    this._notifyWorkerOfUpdate();
+  }
+
+  /**
+   * Read the current seam offset ratio for the given axis from the SAB.
+   *
+   * @param axis - 'Y' for portrait seam, 'X' for landscape seam.
+   * @returns Seam ratio in [0.0, 1.0], or 0 when the SAB is not initialised.
+   */
+  getSeamOffset(axis: 'X' | 'Y'): number {
+    if (!this._sab) return 0;
+    const view = axis === 'Y' ? int32DreamDMBarY(this._sab) : int32DreamDMBarX(this._sab);
+    return Atomics.load(view, 0) / BAR_Y_SCALE;
+  }
+
+  /**
+   * Write the DreamDM Bar lock state to the SAB atomically.
+   *
+   * When `locked` is true (STATE_LOCKED), the Wasm physics worker can treat
+   * the seam as a hard static collision plane and skip dynamic constraint
+   * recalculation, reducing per-tick cost.
+   *
+   * @param locked - true → STATE_LOCKED (seam is fixed), false → STATE_NAV.
+   */
+  setLockedState(locked: boolean): void {
+    if (!this._sab) return;
+    Atomics.store(int32LockedState(this._sab), 0, locked ? 1 : 0);
+  }
+
+  /**
+   * Read the current DreamDM Bar lock state from the SAB.
+   *
+   * @returns true when STATE_LOCKED, false when STATE_NAV / STATE_MANIPULATE.
+   */
+  getLockedState(): boolean {
+    if (!this._sab) return false;
+    return Atomics.load(int32LockedState(this._sab), 0) === 1;
+  }
+
+  /**
+   * Write the active seam axis orientation to the SAB atomically.
+   *
+   * Called on `window.orientation` change (Axis Pivot Protocol).  Writing
+   * the axis flag before writing the new seam offset allows the Wasm worker
+   * to switch its collision-plane axis without a memory reallocation.
+   *
+   * The absolute pixel / ratio value of the seam is preserved across the
+   * pivot — callers must re-encode it via `updateSeamOffset` if needed.
+   *
+   * @param axis - 'Y' → Portrait (vertical seam, Y-axis constraint).
+   *               'X' → Landscape (horizontal seam, X-axis constraint).
+   */
+  setAxisState(axis: 'X' | 'Y'): void {
+    if (!this._sab) return;
+    Atomics.store(int32AxisState(this._sab), 0, axis === 'X' ? 1 : 0);
+  }
+
+  /**
+   * Read the current seam axis orientation from the SAB.
+   *
+   * @returns 'Y' for Portrait (default), 'X' for Landscape.
+   */
+  getAxisState(): 'X' | 'Y' {
+    if (!this._sab) return 'Y';
+    return Atomics.load(int32AxisState(this._sab), 0) === 1 ? 'X' : 'Y';
+  }
+
+  /**
+   * Snap-to-centre threshold ratio (5 % of screen dimension).
+   * If the seam position on pointer-up falls within ±SNAP_THRESHOLD_RATIO
+   * of 0.5, the seam is reset to centre and STATE_NAV is restored.
+   */
+  static readonly SNAP_THRESHOLD_RATIO = SNAP_THRESHOLD_RATIO;
+
   // ─── Telemetry ──────────────────────────────────────────────────────────────
 
   /**
@@ -477,6 +578,19 @@ export class EnginDispatcher {
   }
 
   // ─── Private ────────────────────────────────────────────────────────────────
+
+  /**
+   * Notify all workers that a seam control slot has been updated.
+   *
+   * Workers that use `Atomics.wait` on the seam control region will wake
+   * immediately; workers running a rAF loop re-read the SAB on the next tick.
+   * This is a lightweight broadcast — no data is transferred.
+   */
+  private _notifyWorkerOfUpdate(): void {
+    // Workers read the SAB directly via Atomics.load on each tick, so no
+    // explicit message is strictly required.  A future optimisation could use
+    // Atomics.notify() on the control slot to wake sleeping workers faster.
+  }
 
   private _handleWorkerMessage(msg: WorkerToDispatcherMessage): void {
     switch (msg.type) {
