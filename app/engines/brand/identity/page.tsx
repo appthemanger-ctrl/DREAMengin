@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import IdentityPanel from '@/components/engines/brand/panels/IdentityPanel';
+import IdentityPanel from '@/components/engines/brand/panels/dream.panel.IdentityPanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Brand Identity – BrandingEngin', description: 'Set your brand identity.' };

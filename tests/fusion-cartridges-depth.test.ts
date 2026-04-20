@@ -22,7 +22,7 @@ describe('fusion cartridge depth upgrades', () => {
   });
 
   it('NullCathedral wires mine archetypes, check detection, and particle FX', () => {
-    const src = READ('components/games/NullCathedral.tsx');
+    const src = READ('components/games/dream.NullCathedral.tsx');
     // 3 mine kinds (standard, spread, time) + a fuse list + check rejection helper
     expect(src).toMatch(/MineKind/);
     expect(src).toMatch(/spread/);
@@ -36,7 +36,7 @@ describe('fusion cartridge depth upgrades', () => {
   });
 
   it('VoidlineGP integrates real velocity/accel/drag, beat-window arc, chain meter, particles', () => {
-    const src = READ('components/games/VoidlineGP.tsx');
+    const src = READ('components/games/dream.VoidlineGP.tsx');
     expect(src).toMatch(/chainRef/);
     expect(src).toMatch(/starsRef/);                 // 3-layer parallax stars
     expect(src).toMatch(/Math\.exp\(-2\.4 \* dt\)/); // proper drag integration
@@ -48,7 +48,7 @@ describe('fusion cartridge depth upgrades', () => {
   });
 
   it('SerpentSiege adds shielded + scout enemies, a wave-5 boss, and ballistic projectiles', () => {
-    const src = READ('components/games/SerpentSiege.tsx');
+    const src = READ('components/games/dream.SerpentSiege.tsx');
     expect(src).toMatch(/EnemyKind/);
     expect(src).toMatch(/'shielded'/);
     expect(src).toMatch(/'scout'/);
@@ -62,7 +62,7 @@ describe('fusion cartridge depth upgrades', () => {
   });
 
   it('Glassfall supports Z-rotation, curved-paddle reflection, cluster matching, particle bursts', () => {
-    const src = READ('components/games/Glassfall.tsx');
+    const src = READ('components/games/dream.Glassfall.tsx');
     expect(src).toMatch(/tryRotate/);
     expect(src).toMatch(/e\.key === 'z' \|\| e\.key === 'Z'/);
     expect(src).toMatch(/PADDLE_CURVATURE/);

@@ -18,7 +18,7 @@ const registrySrc = readFileSync(
 );
 
 const draggableSrc = readFileSync(
-  resolve(__dirname, '../components/draggable/DraggableModule.tsx'),
+  resolve(__dirname, '../components/draggable/dream.DraggableModule.tsx'),
   'utf-8',
 );
 

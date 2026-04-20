@@ -1,7 +1,7 @@
 /**
  * tests/phase9-drag-drop.test.ts
  *
- * Tests for components/dreamengin/CanvasDropZone.tsx — drag-and-drop
+ * Tests for components/dreamengin/dream.CanvasDropZone.tsx — drag-and-drop
  * asset import with file classification.
  */
 
@@ -11,7 +11,7 @@ import {
   isAcceptedFile,
   ASSET_IMPORT_EVENT,
   type AssetCategory,
-} from '@/components/dreamengin/CanvasDropZone';
+} from '@/components/dreamengin/dream.CanvasDropZone';
 
 // ─── classifyFile ─────────────────────────────────────────────────────────────
 

@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
-import GameEnginApp from '@/components/engines/games/GameEnginApp';
+import GameEnginApp from '@/components/engines/games/dream.GameEnginApp';
 import { connection } from 'next/server';
 
 

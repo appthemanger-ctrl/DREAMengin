@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import ProjectsPanel from '@/components/engines/code/panels/ProjectsPanel';
+import ProjectsPanel from '@/components/engines/code/panels/dream.panel.ProjectsPanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Projects – CodeEngin', description: 'Your code projects.' };

@@ -411,8 +411,8 @@ The HomeDream System is the canonical shell implementation of the HomeDream surf
 
 ### Routes and implementation paths
 - **Canonical Route:** `app/homedream/page.tsx`
-- **Shell component:** `dreamdmbar/homedream/HomeSystem.tsx`
-- **Feed component:** `components/home/HomeSystem.tsx`
+- **Shell component:** `dreamdmbar/homedream/dream.HomeSystem.tsx`
+- **Feed component:** `components/home/dream.HomeSystem.tsx`
 
 ### Vocabulary
 - **Surface** — the visible platform layer (HomeDream, Daydream, etc.)

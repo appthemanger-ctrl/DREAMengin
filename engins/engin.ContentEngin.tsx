@@ -39,10 +39,10 @@ import {
 } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useContentEnginBridge } from '@/lib/runtime/useEnginBridge';
-import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel';
+import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
-import JourneyTrail from '@/components/daydream/JourneyTrail';
+import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
 import {
   parseSRT, parseVTT, computeCuts, applyEditsToSegments,
   exportSRT, searchTranscript, annotateSearchMatches,
@@ -61,7 +61,7 @@ import type { CompGraph, NodeType } from '@/lib/composite/compositor';
 import type { RotoProject } from '@/lib/composite/rotoscope';
 import type { CameraTrack } from '@/lib/composite/matchmover';
 import type { FxSimulation, FxCategory } from '@/lib/composite/fxSimulation';
-import { ActivityPostForm, type ActivityPostData } from '@/components/activity/ActivityPostForm';
+import { ActivityPostForm, type ActivityPostData } from '@/components/activity/dream.ActivityPostForm';
 
 interface Props {
   onBack: () => void;

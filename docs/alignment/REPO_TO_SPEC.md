@@ -20,9 +20,9 @@ Last updated: 2026-03-06
 ## Current implementation mapping
 
 - `app/homedream/page.tsx` and `app/home/page.tsx` point into the private HomeDream system.
-- `components/home/*`, `components/dreamnav/*`, `components/menus/*`, and `components/HomeRadialNav.tsx` are the strongest HomeDream and DreamMenu implementation zones.
+- `components/home/*`, `components/dreamnav/*`, `components/menus/*`, and `components/dream.HomeRadialNav.tsx` are the strongest HomeDream and DreamMenu implementation zones.
 - `app/edit-profiledream/page.tsx` and `app/edit-profile/page.tsx` are the current EditProfileDream routes.
-- `components/profile/ProfileCanvas.tsx`, `components/profile/ProfileWidgetGrid.tsx`, and `components/ProfileEditor.tsx` are the strongest current EditProfileDream builder pieces.
+- `components/profile/dream.ProfileCanvas.tsx`, `components/profile/dream.widget.ProfileWidgetGrid.tsx`, and `components/dream.ProfileEditor.tsx` are the strongest current EditProfileDream builder pieces.
 - `app/view-profile/page.tsx` is the canonical preview/share output entry.
 - `app/profile/[handle]/page.tsx` is the current public profile destination.
 - `app/profile/page.tsx` is an owner-facing profile workspace and should not be confused with canonical public ViewProfile.
@@ -39,11 +39,11 @@ Last updated: 2026-03-06
 
 ### Engin-side implementation material in the repo
 The repo contains Engin-side behavior in components, overlays, controls, and runtime surfaces rather than in a clean one-folder-per-Engin structure. The current best candidates are:
-- `components/daydream/DaydreamShell.tsx`
+- `components/daydream/dream.shell.DaydreamShell.tsx`
 - `components/dreamnav/*`
 - `components/games/*`
 - `components/music/*`
-- `components/PhysicsLab.tsx`
+- `components/dream.PhysicsLab.tsx`
 - `components/ContentScheduler.tsx`
 
 ### Legacy extras to repurpose, not treat as canonical product surfaces
@@ -58,8 +58,8 @@ The repo contains Engin-side behavior in components, overlays, controls, and run
 | Dreams | `components/dreams/*`, `components/widgets/*`, `types/widget-system-v2.ts` |
 | DreamShop | `app/shop/page.tsx`, `app/api/shop/route.ts` |
 | DreamMarketplace | `app/marketplace/page.tsx`, `types/marketplace.ts` |
-| DreamMenu | `components/menus/*`, `components/dreamnav/*`, `components/HomeRadialNav.tsx` |
-| DreamDM | `app/messages/page.tsx`, `app/api/messages/route.ts`, `components/MessagesClient.tsx` |
+| DreamMenu | `components/menus/*`, `components/dreamnav/*`, `components/dream.HomeRadialNav.tsx` |
+| DreamDM | `app/messages/page.tsx`, `app/api/messages/route.ts`, `components/dream.MessagesClient.tsx` |
 | DreamAds | `app/ads/page.tsx`, `types/ads.ts` |
 
 ## Universal Dreams model

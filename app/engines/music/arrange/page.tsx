@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import ArrangePanel from '@/components/engines/music/panels/ArrangePanel';
+import ArrangePanel from '@/components/engines/music/panels/dream.panel.ArrangePanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Arrangement – StarMakerEngin', description: 'Visual arrangement view.' };

@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import LibraryPanel from '@/components/engines/games/panels/LibraryPanel';
+import LibraryPanel from '@/components/engines/games/panels/dream.panel.LibraryPanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Game Library – GameEngin', description: 'Browse all available games.' };

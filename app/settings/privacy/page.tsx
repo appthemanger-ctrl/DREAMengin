@@ -1,6 +1,6 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import PrivacyClient from './PrivacyClient';
+import PrivacyClient from './dream.PrivacyClient';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Privacy – Dreamengin Settings' };

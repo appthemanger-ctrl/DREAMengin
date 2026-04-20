@@ -13,8 +13,8 @@
 
 import { describe, it, expect } from 'vitest';
 import { CRASH_REPORT_MAX_BYTES as SERVER_CAP } from '@/lib/gameengin/brain-reader';
-import { CRASH_REPORT_MAX_BYTES as CLIENT_CAP } from '@/components/gameengin/CrashReportModal';
-import { CartridgeErrorBoundary } from '@/components/gameengin/CartridgeErrorBoundary';
+import { CRASH_REPORT_MAX_BYTES as CLIENT_CAP } from '@/components/gameengin/dream.CrashReportModal';
+import { CartridgeErrorBoundary } from '@/components/gameengin/dream.cartridge.CartridgeErrorBoundary';
 
 describe('Crash modal — client/server payload cap parity', () => {
   it('client cap matches server cap (16 KB)', () => {
@@ -33,7 +33,7 @@ describe('CartridgeLauncher integration', () => {
   it('imports CrashReportModal + CartridgeErrorBoundary at module load', async () => {
     // Module-load smoke test: ensures the launcher TSX compiles & wires the
     // crash window without runtime errors during import resolution.
-    const launcher = await import('@/components/gameengin/CartridgeLauncher');
+    const launcher = await import('@/components/gameengin/dream.cartridge.CartridgeLauncher');
     expect(typeof launcher.default).toBe('function');
   });
 });

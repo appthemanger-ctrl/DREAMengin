@@ -267,16 +267,16 @@ This section maps the most important files and what they do. Read this before se
 | File | Purpose |
 |------|---------|
 | `dreamdmbar/dreamsurface.dreamdmbar.tsx` | Persistent pill‑shaped root container (the bar) |
-| `dreamdmbar/homedream/HomeDream.tsx` | Top runtime (HomeDream) |
+| `dreamdmbar/homedream/dream.HomeDream.tsx` | Top runtime (HomeDream) |
 | `dreamdmbar/dreamspace/DreamSpace.tsx` | Bottom runtime (DreamSpace) |
-| `components/HomeRadialNav.tsx` | Gold Particle radial nav (primary travel system) – particle, not button |
+| `components/dream.HomeRadialNav.tsx` | Gold Particle radial nav (primary travel system) – particle, not button |
 | `components/menus/*` | DreamMenu system (left: Daydreams, right: settings) |
 | `components/dreamnav/*` | Dream navigation components |
 | `components/dreams/dreamsurface.shell.tsx` | Layer 1 — visual shell, naming, size, placement |
 | `components/dreams/dream.connectorlayer.tsx` | Layer 2 — auth state, provider identity |
 | `components/dreams/dream.featurelayer.tsx` | Layer 3 — active modules per connector |
 | `components/dreams/dream.outputlayer.tsx` | Layer 4 — saved profile‑safe output |
-| `components/dreams/SuperDreamWidget.tsx` | Automated full‑stack Dream composition |
+| `components/dreams/dream.widget.SuperDreamWidget.tsx` | Automated full‑stack Dream composition |
 | `components/home/*` | HomeDream‑specific components |
 | `components/profile/*` | Profile components (EditProfileDream / ViewProfile) |
 
@@ -381,7 +381,7 @@ dreamdmbar/dreamsurface.dreamdmbar.tsx
   └─ persistent root container, pill‑shaped handle
   └─ contains homedream/HomeDream.tsx (top) and dreamspace/DreamSpace.tsx (bottom)
 
-components/HomeRadialNav.tsx (Gold Particle)
+components/dream.HomeRadialNav.tsx (Gold Particle)
   └─ attached to DreamDMBar, opens dual menus
   └─ imports from lib/navigation/ (τ‑state machine)
 
@@ -391,7 +391,7 @@ components/dreams/* (DreamShell → ConnectorLayer → FeatureLayer → OutputLa
   └─ ConnectorLayer uses lib/supabase/browser.ts (auth state)
 
 app/homedream/page.tsx
-  └─ renders dreamdmbar/homedream/HomeDream.tsx (via DreamDMBar)
+  └─ renders dreamdmbar/homedream/dream.HomeDream.tsx (via DreamDMBar)
   └─ uses hooks/ for Dream state, feed wiring
 
 app/edit-profiledream/page.tsx
@@ -401,7 +401,7 @@ app/edit-profiledream/page.tsx
 
 app/api/ai/eams/route.ts
   └─ server‑side; requires OPENAI_API_KEY or GROQ_API_KEY (never NEXT_PUBLIC_)
-  └─ called by components/AIAssistant.tsx and components/DrEamsVoiceAssistant.tsx
+  └─ called by components/dream.AIAssistant.tsx and components/dream.DrEamsVoiceAssistant.tsx
 
 types/widget-system-v2.ts
   └─ core type definitions used throughout components/dreams/* and components/widgets/*

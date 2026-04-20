@@ -84,11 +84,11 @@ describe('validate_report_agent_spec.py', () => {
       title: 'Upgrade GameEngin depth',
       advanced_game_upgrade: {
         target_game_id: 'babylon-side-scroller',
-        target_file: 'components/games/BabylonSideScroller.tsx',
+        target_file: 'components/games/dream.BabylonSideScroller.tsx',
       },
       v1_scope: {
         files_to_create: [],
-        files_to_modify: ['components/games/BabylonSideScroller.tsx'],
+        files_to_modify: ['components/games/dream.BabylonSideScroller.tsx'],
       },
     });
 
@@ -122,11 +122,11 @@ describe('report-driven AI scripts', () => {
           title: 'ok',
           advanced_game_upgrade: {
             target_game_id: 'babylon-side-scroller',
-            target_file: 'components/games/BabylonSideScroller.tsx',
+            target_file: 'components/games/dream.BabylonSideScroller.tsx',
           },
           v1_scope: {
             files_to_create: [],
-            files_to_modify: ['components/games/BabylonSideScroller.tsx'],
+            files_to_modify: ['components/games/dream.BabylonSideScroller.tsx'],
             files_to_delete: [],
             test_plan: [],
           },

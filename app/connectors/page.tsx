@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Plug } from 'lucide-react';
-import ConnectorsClient from './ConnectorsClient';
+import ConnectorsClient from './dream.ConnectorsClient';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'System Integrations – Dreamengin', description: 'Connect and configure your system integrations.' };

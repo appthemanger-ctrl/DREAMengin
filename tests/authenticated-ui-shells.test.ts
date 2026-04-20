@@ -22,7 +22,7 @@ const upgradedSurfaces = [
 
 describe('authenticated UI shell upgrade rollout', () => {
   it('adds the shared authenticated page header component', () => {
-    const src = readFileSync(join(root, 'components/ui/AuthenticatedPageHeader.tsx'), 'utf-8');
+    const src = readFileSync(join(root, 'components/ui/dream.AuthenticatedPageHeader.tsx'), 'utf-8');
     expect(src).toContain('BrandLogo');
     expect(src).toContain('de-auth-header');
     expect(src).toContain('de-auth-badge');
@@ -38,15 +38,15 @@ describe('authenticated UI shell upgrade rollout', () => {
   it('rolls the shared authenticated header across upgraded post-login surfaces', () => {
     for (const rel of upgradedSurfaces) {
       const src = readFileSync(join(root, rel), 'utf-8');
-      expect(src, rel).toContain("import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader'");
+      expect(src, rel).toContain("import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader'");
       expect(src, rel).toContain('<AuthenticatedPageHeader');
     }
   });
 
   it('upgrades shared post-login shells with premium framing', () => {
-    const daydreamShell = readFileSync(join(root, 'components/daydream/DaydreamShell.tsx'), 'utf-8');
-    const dashboard = readFileSync(join(root, 'components/home/WorkspaceDashboard.tsx'), 'utf-8');
-    const pulseStrip = readFileSync(join(root, 'components/home/DaydreamPulseStrip.tsx'), 'utf-8');
+    const daydreamShell = readFileSync(join(root, 'components/daydream/dream.shell.DaydreamShell.tsx'), 'utf-8');
+    const dashboard = readFileSync(join(root, 'components/home/dream.WorkspaceDashboard.tsx'), 'utf-8');
+    const pulseStrip = readFileSync(join(root, 'components/home/dream.DaydreamPulseStrip.tsx'), 'utf-8');
     const dreamsPanel = readFileSync(join(root, 'components/dreams/dreamsurface.dreamspace.tsx'), 'utf-8');
 
     expect(daydreamShell).toContain('BrandLogo');

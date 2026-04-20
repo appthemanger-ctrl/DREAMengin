@@ -1,8 +1,8 @@
-export { NeonGlow } from './NeonGlow';
-export type { NeonGlowProps } from './NeonGlow';
+export { NeonGlow } from './dream.NeonGlow';
+export type { NeonGlowProps } from './dream.NeonGlow';
 
-export { LightningWing } from './LightningWing';
-export type { LightningWingProps } from './LightningWing';
+export { LightningWing } from './dream.LightningWing';
+export type { LightningWingProps } from './dream.LightningWing';
 
-export { Refractor } from './Refractor';
-export type { RefractorProps } from './Refractor';
+export { Refractor } from './dream.Refractor';
+export type { RefractorProps } from './dream.Refractor';

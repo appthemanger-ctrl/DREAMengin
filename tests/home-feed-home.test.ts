@@ -6,16 +6,16 @@ import { DIVIDER_H } from '@/lib/dreamdm/barInteractions';
 
 describe('HomeDream home surface', () => {
   const dashboard = readFileSync(
-    resolve(__dirname, '../components/home/WorkspaceDashboard.tsx'),
+    resolve(__dirname, '../components/home/dream.WorkspaceDashboard.tsx'),
     'utf8',
   );
-  // Canonical HomeSystem — kept in sync with dreamdmbar/homedream/HomeSystem.tsx
+  // Canonical HomeSystem — kept in sync with dreamdmbar/homedream/dream.HomeSystem.tsx
   const homeSystem = readFileSync(
-    resolve(__dirname, '../components/home/HomeSystem.tsx'),
+    resolve(__dirname, '../components/home/dream.HomeSystem.tsx'),
     'utf8',
   );
   const runtimeShell = readFileSync(
-    resolve(__dirname, '../components/runtime/RuntimeShell.tsx'),
+    resolve(__dirname, '../components/runtime/dream.shell.RuntimeShell.tsx'),
     'utf8',
   );
   // Authoritative DreamDMBar (in dreamdmbar/ directory)
@@ -25,7 +25,7 @@ describe('HomeDream home surface', () => {
   );
   // Shell-First: the persistent bar wrapper that lives in app/layout.tsx
   const persistentBar = readFileSync(
-    resolve(__dirname, '../components/home/PersistentDreamBar.tsx'),
+    resolve(__dirname, '../components/home/dream.bar.PersistentDreamBar.tsx'),
     'utf8',
   );
 

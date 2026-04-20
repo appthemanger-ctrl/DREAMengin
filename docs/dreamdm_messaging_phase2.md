@@ -123,7 +123,7 @@ export function useMessagingCore(
 - Quick compose field in the bar rail
 - localStorage draft for quick compose (`dreamengin:dreamdm-draft`)
 
-### 4.2 `components/MessagesClient.tsx` (DreamDMessaging surface)
+### 4.2 `components/dream.MessagesClient.tsx` (DreamDMessaging surface)
 
 **New in Phase 2:**
 - `useDreamSearch` hook wired to the search input

@@ -34,7 +34,7 @@ import {
   MessageCircle,
   Compass,
 } from 'lucide-react';
-import DreamWord from '@/components/ui/DreamWord';
+import DreamWord from '@/components/ui/dream.DreamWord';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 

@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import CampaignsPanel from '@/components/engines/brand/panels/CampaignsPanel';
+import CampaignsPanel from '@/components/engines/brand/panels/dream.panel.CampaignsPanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Campaigns – BrandingEngin', description: 'Campaign ROI calculator and manager.' };

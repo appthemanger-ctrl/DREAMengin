@@ -105,7 +105,7 @@ describe('Phase 8 §F — ContentEngin (Point 56 + 57)', () => {
 
 describe('Phase 8 §F — DaydreamShell (Points 47-50)', () => {
   it('wires useDaydreamState for visit tracking', () => {
-    const src = readFileSync(join(root, 'components/daydream/DaydreamShell.tsx'), 'utf-8');
+    const src = readFileSync(join(root, 'components/daydream/dream.shell.DaydreamShell.tsx'), 'utf-8');
     expect(src).toContain('useDaydreamState');
   });
 });

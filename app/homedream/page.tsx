@@ -1,6 +1,6 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import HomeSystem from '@/dreamdmbar/homedream/HomeSystem';
+import HomeSystem from '@/dreamdmbar/homedream/dream.HomeSystem';
 import { isOwnerEmail } from '@/lib/ai/triad';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';

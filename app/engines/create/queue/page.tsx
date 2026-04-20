@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import QueuePanel from '@/components/engines/create/panels/QueuePanel';
+import QueuePanel from '@/components/engines/create/panels/dream.panel.QueuePanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Publishing Queue – ContentEngin', description: 'Manage your publishing queue.' };

@@ -34,7 +34,7 @@ describe('createPatchPlan', () => {
     impact: 'Re-renders on every keystroke; battery drain + jank',
     fix: 'Add [posts] to useEffect dependency array',
     verification: 'React DevTools Profiler shows render count stabilises',
-    steps: [{ file: 'components/HomeFeed.tsx', diff: '- useEffect(() => {\n+ useEffect(() => {, [posts])' }],
+    steps: [{ file: 'components/dream.HomeFeed.tsx', diff: '- useEffect(() => {\n+ useEffect(() => {, [posts])' }],
     risk: 'low',
   };
 

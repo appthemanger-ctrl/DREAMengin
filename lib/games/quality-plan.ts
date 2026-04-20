@@ -97,7 +97,7 @@ export const ADVANCED_GAME_TARGETS: readonly AdvancedGameTarget[] = [
   {
     id: 'babylon-side-scroller',
     label: 'Babylon Side Scroller',
-    componentPath: 'components/games/BabylonSideScroller.tsx',
+    componentPath: 'components/games/dream.BabylonSideScroller.tsx',
     tier: 'flagship',
     why: 'Babylon-powered platformer with procedural zones and boss encounters that can absorb deeper engine polish.',
     requiredUpgradeThemes: ['combat depth', 'boss behaviors', 'procedural variety', 'render polish'],
@@ -105,7 +105,7 @@ export const ADVANCED_GAME_TARGETS: readonly AdvancedGameTarget[] = [
   {
     id: 'engin-fracture',
     label: 'ENGIN: FRACTURE',
-    componentPath: 'components/games/EnginFracture.tsx',
+    componentPath: 'components/games/dream.EnginFracture.tsx',
     tier: 'flagship',
     why: 'Avatar-maker + 1v1 mech fighter + faction war — the deepest fusion cartridge for AI, frame-data, and meta-system polish.',
     requiredUpgradeThemes: ['system depth', 'enemy AI', 'frame-data readability', 'season-long progression'],
@@ -113,7 +113,7 @@ export const ADVANCED_GAME_TARGETS: readonly AdvancedGameTarget[] = [
   {
     id: 'null-cathedral',
     label: 'NULL CATHEDRAL',
-    componentPath: 'components/games/NullCathedral.tsx',
+    componentPath: 'components/games/dream.NullCathedral.tsx',
     tier: 'flagship',
     why: 'Tactical chess + RPG progression + minesweeper deduction — a fertile target for AI opponents, narrative state, and richer board polish.',
     requiredUpgradeThemes: ['quest depth', 'progression loops', 'world-state reactivity', 'encounter variety'],

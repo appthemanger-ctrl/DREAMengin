@@ -17,24 +17,24 @@ const load = (id: string, importer: () => Promise<{ default: React.ComponentType
 
 export const CARTRIDGE_LOADERS: Readonly<Record<string, CartridgeLoader>> = {
   // ── Legacy flagships kept ─────────────────────────────────────────────────
-  'platformer':            load('platformer',            () => import('@/components/games/BabylonSideScroller')),
-  'neon-drift':            load('neon-drift',            () => import('@/components/games/NeonDrift')),
-  'echo-arena':            load('echo-arena',            () => import('@/components/games/EchoArena')),
+  'platformer':            load('platformer',            () => import('@/components/games/dream.BabylonSideScroller')),
+  'neon-drift':            load('neon-drift',            () => import('@/components/games/dream.NeonDrift')),
+  'echo-arena':            load('echo-arena',            () => import('@/components/games/dream.EchoArena')),
 
   // ── Fusion flagships ──────────────────────────────────────────────────────
-  'null-cathedral':        load('null-cathedral',        () => import('@/components/games/NullCathedral')),
-  'voidline-gp':           load('voidline-gp',           () => import('@/components/games/VoidlineGP')),
-  'serpent-siege':         load('serpent-siege',         () => import('@/components/games/SerpentSiege')),
-  'avenue-of-mirrors':     load('avenue-of-mirrors',     () => import('@/components/games/AvenueOfMirrors')),
-  'engin-fracture':        load('engin-fracture',        () => import('@/components/games/EnginFracture')),
+  'null-cathedral':        load('null-cathedral',        () => import('@/components/games/dream.NullCathedral')),
+  'voidline-gp':           load('voidline-gp',           () => import('@/components/games/dream.VoidlineGP')),
+  'serpent-siege':         load('serpent-siege',         () => import('@/components/games/dream.SerpentSiege')),
+  'avenue-of-mirrors':     load('avenue-of-mirrors',     () => import('@/components/games/dream.AvenueOfMirrors')),
+  'engin-fracture':        load('engin-fracture',        () => import('@/components/games/dream.EnginFracture')),
 
   // ── Advanced fusions ──────────────────────────────────────────────────────
-  'glassfall':             load('glassfall',             () => import('@/components/games/Glassfall')),
-  'nite-flyer-solar-hymn': load('nite-flyer-solar-hymn', () => import('@/components/games/NiteFlyerSolarHymn')),
-  'lexicon-solitaire':     load('lexicon-solitaire',     () => import('@/components/games/LexiconSolitaire')),
+  'glassfall':             load('glassfall',             () => import('@/components/games/dream.Glassfall')),
+  'nite-flyer-solar-hymn': load('nite-flyer-solar-hymn', () => import('@/components/games/dream.NiteFlyerSolarHymn')),
+  'lexicon-solitaire':     load('lexicon-solitaire',     () => import('@/components/games/dream.LexiconSolitaire')),
 
   // ── Classic fusion ────────────────────────────────────────────────────────
-  'defuse-ritual':         load('defuse-ritual',         () => import('@/components/games/DefuseRitual')),
+  'defuse-ritual':         load('defuse-ritual',         () => import('@/components/games/dream.DefuseRitual')),
 };
 
 export async function loadCartridge(id: string): Promise<GameCartridge | null> {

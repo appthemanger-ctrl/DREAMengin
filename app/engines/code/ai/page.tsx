@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import AIPanel from '@/components/engines/code/panels/AIPanel';
+import AIPanel from '@/components/engines/code/panels/dream.panel.AIPanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'AI Assistant – CodeEngin', description: 'AI-powered code assistant.' };

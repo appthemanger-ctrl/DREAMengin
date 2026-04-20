@@ -2,8 +2,8 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { LayoutGrid, Pin, Eye, EyeOff, Plus } from 'lucide-react';
-import DreamWord from '@/components/ui/DreamWord';
-import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import DreamWord from '@/components/ui/dream.DreamWord';
+import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Dreams – DREAMengin Settings' };

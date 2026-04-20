@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import ScoresPanel from '@/components/engines/games/panels/ScoresPanel';
+import ScoresPanel from '@/components/engines/games/panels/dream.panel.ScoresPanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Scores – GameEngin', description: 'Your personal best scores.' };

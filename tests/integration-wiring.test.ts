@@ -31,7 +31,7 @@ import {
 // ── Source file reads for structural assertions ─────────────────────────────
 
 const commandPaletteSrc = readFileSync(
-  resolve(__dirname, '../components/CommandPalette.tsx'),
+  resolve(__dirname, '../components/dream.CommandPalette.tsx'),
   'utf8',
 );
 
@@ -41,12 +41,12 @@ const rootLayoutSrc = readFileSync(
 );
 
 const daydreamPulseStripSrc = readFileSync(
-  resolve(__dirname, '../components/home/DaydreamPulseStrip.tsx'),
+  resolve(__dirname, '../components/home/dream.DaydreamPulseStrip.tsx'),
   'utf8',
 );
 
 const workspaceDashboardSrc = readFileSync(
-  resolve(__dirname, '../components/home/WorkspaceDashboard.tsx'),
+  resolve(__dirname, '../components/home/dream.WorkspaceDashboard.tsx'),
   'utf8',
 );
 
@@ -54,7 +54,7 @@ const workspaceDashboardSrc = readFileSync(
 
 describe('Global Integration — CommandPalette', () => {
   it('root layout imports and mounts CommandPalette', () => {
-    expect(rootLayoutSrc).toContain("import CommandPalette from '@/components/CommandPalette'");
+    expect(rootLayoutSrc).toContain("import CommandPalette from '@/components/dream.CommandPalette'");
     expect(rootLayoutSrc).toContain('<CommandPalette />');
   });
 

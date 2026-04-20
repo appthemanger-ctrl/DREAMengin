@@ -7,12 +7,12 @@
 ## Completed Tasks
 
 ### 1. ✅ Removed Links from Platform Icons
-- Modified `components/LandingHero.tsx` to remove `<Link>` wrappers from platform icons
+- Modified `components/dream.LandingHero.tsx` to remove `<Link>` wrappers from platform icons
 - Icons are now displayed without clickable links
 - Updated STRIP_ICONS array to remove `href` field
 
 ### 2. ✅ Replaced Icons with New SVG Files
-- Updated `components/ui/PlatformBadge.tsx` to use SVG files directly
+- Updated `components/ui/dream.PlatformBadge.tsx` to use SVG files directly
 - Removed old sprite sheet processing logic
 - Now using three SVG icons:
   - `/file.svg` - Documents (sky blue #2A8AB8)
@@ -20,7 +20,7 @@
   - `/window.svg` - Apps (purple #a78bfa)
 
 ### 3. ✅ Created IconSelector Component
-- New component: `components/IconSelector.tsx`
+- New component: `components/dream.IconSelector.tsx`
 - Implements a selector/switch interface with SVG icons
 - Features:
   - Visual selection state with color and scale changes
@@ -69,7 +69,7 @@ Please clarify which image should be used to replace the animation body:
 
 ### IconSelector Example
 ```tsx
-import IconSelector from '@/components/IconSelector';
+import IconSelector from '@/components/dream.IconSelector';
 
 function MyComponent() {
   const [selectedIcon, setSelectedIcon] = useState('file');
@@ -86,7 +86,7 @@ function MyComponent() {
 
 ### PlatformBadge with New SVG Icons
 ```tsx
-import PlatformBadge from '@/components/ui/PlatformBadge';
+import PlatformBadge from '@/components/ui/dream.PlatformBadge';
 
 function MyComponent() {
   return (
@@ -100,10 +100,10 @@ function MyComponent() {
 ```
 
 ## Files Modified
-1. `components/LandingHero.tsx` - Updated icon strip to use new SVGs without links
-2. `components/ui/PlatformBadge.tsx` - Simplified to use SVG files directly
+1. `components/dream.LandingHero.tsx` - Updated icon strip to use new SVGs without links
+2. `components/ui/dream.PlatformBadge.tsx` - Simplified to use SVG files directly
 3. `app/lab/page.tsx` - Removed demo projects
-4. `components/IconSelector.tsx` - New selector component
+4. `components/dream.IconSelector.tsx` - New selector component
 
 ## Breaking Changes
 - Old sprite sheet icons are no longer supported in PlatformBadge

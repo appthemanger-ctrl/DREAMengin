@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { HelpCircle, BookOpen, Wand2, MessageCircle } from 'lucide-react';
-import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Help – Dreamengin Settings' };

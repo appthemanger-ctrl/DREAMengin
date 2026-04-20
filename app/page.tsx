@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import LandingHero from '@/components/LandingHero';
+import LandingHero from '@/components/dream.LandingHero';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 
 // Resolve the site origin from env so OG image URLs are absolute.

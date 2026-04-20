@@ -27,10 +27,10 @@ import Link from 'next/link';
 import { ArrowLeft, Palette, BarChart2, Megaphone, Users, TrendingUp, TrendingDown, Minus, FlaskConical, DollarSign, Eye, BookOpen, Layers } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useBrandingEnginBridge } from '@/lib/runtime/useEnginBridge';
-import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel';
+import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
-import JourneyTrail from '@/components/daydream/JourneyTrail';
+import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
 
 interface Props {
   onBack: () => void;

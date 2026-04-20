@@ -16,7 +16,7 @@ import {
   Twitter,
   Sparkles
 } from 'lucide-react';
-import PlatformBadge from '@/components/ui/PlatformBadge';
+import PlatformBadge from '@/components/ui/dream.PlatformBadge';
 
 export default function AboutPage() {
 

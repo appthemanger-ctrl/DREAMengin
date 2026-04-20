@@ -13,15 +13,15 @@ import { CARTRIDGE_LOADERS } from '@/lib/gameengin/cartridges/loaders';
 const REPO_ROOT = process.cwd();
 
 const FUSION = [
-  { id: 'null-cathedral',        file: 'NullCathedral.tsx',       title: 'NULL CATHEDRAL',     loreToken: 'CASTLE' },
-  { id: 'voidline-gp',           file: 'VoidlineGP.tsx',          title: 'VOIDLINE GP',        loreToken: 'Yuna' },
-  { id: 'serpent-siege',         file: 'SerpentSiege.tsx',        title: 'SERPENT SIEGE',      loreToken: 'Mother Egg' },
-  { id: 'avenue-of-mirrors',     file: 'AvenueOfMirrors.tsx',     title: 'AVENUE OF MIRRORS',  loreToken: 'glyph' },
-  { id: 'engin-fracture',        file: 'EnginFracture.tsx',       title: 'ENGIN: FRACTURE',    loreToken: 'Vesh' },
-  { id: 'glassfall',             file: 'Glassfall.tsx',           title: 'GLASSFALL',          loreToken: 'Architect' },
-  { id: 'nite-flyer-solar-hymn', file: 'NiteFlyerSolarHymn.tsx',  title: 'NITE FLYER',         loreToken: 'Long Pause' },
-  { id: 'lexicon-solitaire',     file: 'LexiconSolitaire.tsx',    title: 'LEXICON SOLITAIRE',  loreToken: 'Lin Argo' },
-  { id: 'defuse-ritual',         file: 'DefuseRitual.tsx',        title: 'DEFUSE RITUAL',      loreToken: 'Candle' },
+  { id: 'null-cathedral',        file: 'dream.NullCathedral.tsx',       title: 'NULL CATHEDRAL',     loreToken: 'CASTLE' },
+  { id: 'voidline-gp',           file: 'dream.VoidlineGP.tsx',          title: 'VOIDLINE GP',        loreToken: 'Yuna' },
+  { id: 'serpent-siege',         file: 'dream.SerpentSiege.tsx',        title: 'SERPENT SIEGE',      loreToken: 'Mother Egg' },
+  { id: 'avenue-of-mirrors',     file: 'dream.AvenueOfMirrors.tsx',     title: 'AVENUE OF MIRRORS',  loreToken: 'glyph' },
+  { id: 'engin-fracture',        file: 'dream.EnginFracture.tsx',       title: 'ENGIN: FRACTURE',    loreToken: 'Vesh' },
+  { id: 'glassfall',             file: 'dream.Glassfall.tsx',           title: 'GLASSFALL',          loreToken: 'Architect' },
+  { id: 'nite-flyer-solar-hymn', file: 'dream.NiteFlyerSolarHymn.tsx',  title: 'NITE FLYER',         loreToken: 'Long Pause' },
+  { id: 'lexicon-solitaire',     file: 'dream.LexiconSolitaire.tsx',    title: 'LEXICON SOLITAIRE',  loreToken: 'Lin Argo' },
+  { id: 'defuse-ritual',         file: 'dream.DefuseRitual.tsx',        title: 'DEFUSE RITUAL',      loreToken: 'Candle' },
 ];
 
 describe('fusion cartridges — file presence + content', () => {

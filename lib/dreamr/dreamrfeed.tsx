@@ -45,8 +45,8 @@ import {
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import type { UnifiedFeedItem } from '@/types/connector';
 import { resolveSwipeRelease } from '@/dreamdmbar/homedream/dreamr/algorithms/torridityLedger';
-import DreamRCreatorPanel from '@/components/dreamr/DreamRCreatorPanel';
-import DreamRChannelPanel from '@/components/dreamr/DreamRChannelPanel';
+import DreamRCreatorPanel from '@/components/dreamr/dream.panel.DreamRCreatorPanel';
+import DreamRChannelPanel from '@/components/dreamr/dream.panel.DreamRChannelPanel';
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 

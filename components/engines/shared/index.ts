@@ -1,6 +1,6 @@
-export { default as EnginAppShell } from './EnginAppShell';
-export type { EnginAppShellProps } from './EnginAppShell';
-export { default as EnginNavBar } from './EnginNavBar';
-export type { NavItem } from './EnginNavBar';
-export { EnginProvider, useEngin } from './EnginProvider';
-export type { EngineId } from './EnginProvider';
+export { default as EnginAppShell } from './dream.shell.EnginAppShell';
+export type { EnginAppShellProps } from './dream.shell.EnginAppShell';
+export { default as EnginNavBar } from './dream.bar.EnginNavBar';
+export type { NavItem } from './dream.bar.EnginNavBar';
+export { EnginProvider, useEngin } from './dream.EnginProvider';
+export type { EngineId } from './dream.EnginProvider';

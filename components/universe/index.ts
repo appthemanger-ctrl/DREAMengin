@@ -1,11 +1,11 @@
-export { TorusCore } from './torus-core';
-export { NodeCluster } from './node-cluster';
-export type { NodeItem } from './node-cluster';
-export { StarField } from './star-field';
+export { TorusCore } from './dream.torus-core';
+export { NodeCluster } from './dream.node-cluster';
+export type { NodeItem } from './dream.node-cluster';
+export { StarField } from './dream.star-field';
 export { 
   UniverseCard, 
   UniverseCardHeader, 
   UniverseCardContent, 
   UniverseCardFooter 
-} from './universe-card';
-export { UniverseShell } from './universe-shell';
+} from './dream.universe-card';
+export { UniverseShell } from './dream.shell.universe-shell';

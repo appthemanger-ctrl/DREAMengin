@@ -106,7 +106,7 @@ import {
 import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
 import { useDreamBarContext, type DreamBarContext } from '@/lib/dreamdm/useDreamBarContext';
 import { useDreamSystem, type BarIntentMode } from '@/lib/dreamdm/DreamSystemContext';
-import DreamWord from '@/components/ui/DreamWord';
+import DreamWord from '@/components/ui/dream.DreamWord';
 import { getPreferredViewportHeight, isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
 import { useImmersiveGameLayout } from '@/lib/games/useImmersiveGameLayout';
 

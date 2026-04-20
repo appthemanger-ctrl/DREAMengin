@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import IDariPanel from '@/components/IDariPanel';
-import ChildSafetyPanel from '@/components/ChildSafetyPanel';
+import IDariPanel from '@/components/dream.panel.IDariPanel';
+import ChildSafetyPanel from '@/components/dream.panel.ChildSafetyPanel';
 import Link from 'next/link';
 import {
   ArrowLeft, Bot, Shield, Activity, Users, Database,

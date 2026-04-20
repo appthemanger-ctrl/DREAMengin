@@ -22,12 +22,12 @@ import {
   Terminal, ExternalLink, BarChart2, Shield,
 } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
-import DiffViewer from '@/components/daydream/DiffViewer';
+import DiffViewer from '@/components/daydream/dream.DiffViewer';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import { useCodeEnginBridge } from '@/lib/runtime/useEnginBridge';
-import JourneyTrail from '@/components/daydream/JourneyTrail';
-import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel';
+import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
 import {
   parseAiInstruction,
   buildEditPreview,

@@ -525,44 +525,44 @@ describe('ForgeLogEvent discriminated union exhaustiveness', () => {
 
 describe('AIBuilderPanel', () => {
   it('default export exists at expected path', async () => {
-    const panelPath = path.resolve(__dirname, '../components/forge/AIBuilderPanel.tsx');
+    const panelPath = path.resolve(__dirname, '../components/forge/dream.panel.AIBuilderPanel.tsx');
     expect(fs.existsSync(panelPath)).toBe(true);
   });
 
   it('file contains "use client" directive', () => {
-    const panelPath = path.resolve(__dirname, '../components/forge/AIBuilderPanel.tsx');
+    const panelPath = path.resolve(__dirname, '../components/forge/dream.panel.AIBuilderPanel.tsx');
     const content = fs.readFileSync(panelPath, 'utf-8');
     expect(content).toContain("'use client'");
   });
 
   it('exports a default function component', () => {
-    const panelPath = path.resolve(__dirname, '../components/forge/AIBuilderPanel.tsx');
+    const panelPath = path.resolve(__dirname, '../components/forge/dream.panel.AIBuilderPanel.tsx');
     const content = fs.readFileSync(panelPath, 'utf-8');
     expect(content).toContain('export default function AIBuilderPanel');
   });
 
   it('contains phase progress bar', () => {
-    const panelPath = path.resolve(__dirname, '../components/forge/AIBuilderPanel.tsx');
+    const panelPath = path.resolve(__dirname, '../components/forge/dream.panel.AIBuilderPanel.tsx');
     const content = fs.readFileSync(panelPath, 'utf-8');
     expect(content).toContain('PhaseBar');
     expect(content).toContain('PHASES');
   });
 
   it('contains code block renderer', () => {
-    const panelPath = path.resolve(__dirname, '../components/forge/AIBuilderPanel.tsx');
+    const panelPath = path.resolve(__dirname, '../components/forge/dream.panel.AIBuilderPanel.tsx');
     const content = fs.readFileSync(panelPath, 'utf-8');
     expect(content).toContain('CodeBlock');
     expect(content).toContain('CodeLogEvent');
   });
 
   it('contains example chips', () => {
-    const panelPath = path.resolve(__dirname, '../components/forge/AIBuilderPanel.tsx');
+    const panelPath = path.resolve(__dirname, '../components/forge/dream.panel.AIBuilderPanel.tsx');
     const content = fs.readFileSync(panelPath, 'utf-8');
     expect(content).toContain('EXAMPLE_CHIPS');
   });
 
   it('contains character counter', () => {
-    const panelPath = path.resolve(__dirname, '../components/forge/AIBuilderPanel.tsx');
+    const panelPath = path.resolve(__dirname, '../components/forge/dream.panel.AIBuilderPanel.tsx');
     const content = fs.readFileSync(panelPath, 'utf-8');
     expect(content).toContain('charCount');
   });

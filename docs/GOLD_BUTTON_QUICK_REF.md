@@ -39,7 +39,7 @@ const goldTopPx = isGoldOffScreen ? 10 : attachedGoldTop;
 ## Using Dual Runtime
 
 ```tsx
-import { useDualRuntime } from '@/components/runtime/DualRuntimeContainer';
+import { useDualRuntime } from '@/components/runtime/dream.DualRuntimeContainer';
 
 function MyComponent() {
   const runtime = useDualRuntime();
@@ -142,10 +142,10 @@ npm run test:watch # Watch mode
 | Component | Path |
 |-----------|------|
 | DreamDMBar | `dreamdmbar/dreamsurface.dreamdmbar.tsx` |
-| HomeSystem | `components/home/HomeSystem.tsx` |
+| HomeSystem | `components/home/dream.HomeSystem.tsx` |
 | Dual Runtime State | `lib/runtime/dualRuntime.ts` |
-| Runtime Container | `components/runtime/DualRuntimeContainer.tsx` |
-| Runtime View | `components/runtime/RuntimeView.tsx` |
+| Runtime Container | `components/runtime/dream.DualRuntimeContainer.tsx` |
+| Runtime View | `components/runtime/dream.RuntimeView.tsx` |
 
 ## Common Patterns
 

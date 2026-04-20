@@ -43,14 +43,14 @@ All notable changes to DREAMengin are documented in this file.
 - `package.json` — version `1.0.0` → `2.0.0`
 - `lib/identity/canonical-names.ts` — added `PRODUCT_VERSION = '2.0.0'` constant
 - `app/layout.tsx` — removed global `@/components/v1-ui/widget-feed-screen.css` import
-- `components/home/HomeDream.tsx` — removed v1-ui CSS import; renamed `widget-rail` → `dream-rail`, `widget-icon` → `dream-rail-icon`, `feed-area-transition` → `dream-feed-transition`; aria-labels updated
+- `components/home/dream.HomeDream.tsx` — removed v1-ui CSS import; renamed `widget-rail` → `dream-rail`, `widget-icon` → `dream-rail-icon`, `feed-area-transition` → `dream-feed-transition`; aria-labels updated
 - `styles/home-dream.css` — added v2 Dream Rail CSS classes
 - `app/dreamengin/page.tsx` — was Babylon orbit shell; now `redirect('/homedream')`
 - `app/codespace/page.tsx` — was CodeSpace IDE; now `redirect('/daydream/code')`
 - `app/physics-lab/page.tsx` — was PhysicsLab; now `redirect('/daydream/lab')`
 - `app/join/page.tsx` — email signup redirects to `/onboarding`; OAuth sets `?next=/onboarding` on callback
 - `dreamdmbar/dreamsurface.dreamdmbar.tsx` — `dreams` surface routes to `toggleDrEams()` (not `/dreamengin`); `code` → `/daydream/code`; `music` → `/daydream/music`
-- `components/home/WorkspaceDashboard.tsx` — quick-action pills: "DreamProfile" → "Edit ProfileDream", "Feed" → "Discover", "Your Dreams" → "View Profile"
+- `components/home/dream.WorkspaceDashboard.tsx` — quick-action pills: "DreamProfile" → "Edit ProfileDream", "Feed" → "Discover", "Your Dreams" → "View Profile"
 - `lib/adari.ts` — REQUIRED_PATHS updated to v2 canonical files; version check added
 - `scripts/postbuild.js` — same
 - `docs/FEATURE_STATUS.md` — all partial items closed; v2.0.0 checklist added
@@ -62,8 +62,8 @@ All notable changes to DREAMengin are documented in this file.
 - `components/NavBar.tsx`, `NavBar-enhanced.tsx`
 - `components/HomeDashboard.tsx`
 - `components/MobileFeedCard.tsx`, `MobileNavBarEnhanced.tsx`
-- `components/FeedCard-enhanced.tsx`
-- `components/AIAssistant-voice-enhanced.tsx`, `AIAssistantEnhanced.tsx`
+- `components/dream.FeedCard-enhanced.tsx`
+- `components/dream.AIAssistant-voice-enhanced.tsx`, `AIAssistantEnhanced.tsx`
 - `components/CollaborativeCanvas.tsx`, `ContentScheduler.tsx`
 - `components/v1-ui/` — CSS no longer globally imported
 

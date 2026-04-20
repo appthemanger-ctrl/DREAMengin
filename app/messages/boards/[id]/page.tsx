@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Pin } from 'lucide-react';
-import BoardComposer from '@/components/messaging/BoardComposer';
+import BoardComposer from '@/components/messaging/dream.BoardComposer';
 import { connection } from 'next/server';
 
 

@@ -61,8 +61,8 @@ These are the primary metrics — follower count must not be prominent.
 
 ```tsx
 // app/profile/[handle]/page.tsx
-import ActivityProfile from '@/components/activity/ActivityProfile';
-import TierBadge from '@/components/activity/TierBadge';
+import ActivityProfile from '@/components/activity/dream.ActivityProfile';
+import TierBadge from '@/components/activity/dream.TierBadge';
 
 // Inside the page render, above ProfileWidgetGrid:
 <div className="flex items-center gap-3 mb-4">
@@ -87,8 +87,8 @@ the owner. Owners cannot see their own AQS or tier while editing.
 
 ```tsx
 // app/edit-profiledream/page.tsx — add above the widget editor section
-import ActivityProfile from '@/components/activity/ActivityProfile';
-import TierBadge from '@/components/activity/TierBadge';
+import ActivityProfile from '@/components/activity/dream.ActivityProfile';
+import TierBadge from '@/components/activity/dream.TierBadge';
 
 // Inside the render, in the right sidebar or above the editor:
 {user && (
@@ -120,11 +120,11 @@ is available from the server session. Components fetch their own data.
 
 The skip credit system is live on the backend. Users have no visibility into their
 balance in the navigation shell. The `SkipCreditBalance` component exists at
-`components/ads/SkipCreditBalance.tsx` and is not imported anywhere.
+`components/ads/dream.SkipCreditBalance.tsx` and is not imported anywhere.
 
 ---
 
-### P2-A · `components/menus/DualBottomMenu.tsx` — Add SkipCreditBalance to right panel header
+### P2-A · `components/menus/dream.menu.DualBottomMenu.tsx` — Add SkipCreditBalance to right panel header
 
 **Current state:**
 
@@ -138,8 +138,8 @@ cannot see their balance, the incentive loop is invisible.
 **Change required:**
 
 ```tsx
-// components/menus/DualBottomMenu.tsx — in the right panel header
-import SkipCreditBalance from '@/components/ads/SkipCreditBalance';
+// components/menus/dream.menu.DualBottomMenu.tsx — in the right panel header
+import SkipCreditBalance from '@/components/ads/dream.SkipCreditBalance';
 
 // Next to the "DreamMenu" panel title:
 <div className="flex items-center justify-between px-3 py-2">
@@ -150,7 +150,7 @@ import SkipCreditBalance from '@/components/ads/SkipCreditBalance';
 
 ---
 
-### P2-B · `components/dreamengin/NexusMenu.tsx` — Add SkipCreditBalance to header row
+### P2-B · `components/dreamengin/dream.menu.NexusMenu.tsx` — Add SkipCreditBalance to header row
 
 **Current state:**
 
@@ -160,8 +160,8 @@ no balance. Users in the 3D environment have no access to their credit balance.
 **Change required:**
 
 ```tsx
-// components/dreamengin/NexusMenu.tsx
-import SkipCreditBalance from '@/components/ads/SkipCreditBalance';
+// components/dreamengin/dream.menu.NexusMenu.tsx
+import SkipCreditBalance from '@/components/ads/dream.SkipCreditBalance';
 
 // Next to the DreamMenu heading:
 <div className="flex items-center justify-between px-2 py-1">
@@ -246,7 +246,7 @@ default to their internal feed calls for consistency with the core protocol.
 
 ## Priority 4 — Connect ActivityPostForm to the Post Creation Flow
 
-`components/activity/ActivityPostForm.tsx` exists and renders a tier-aware post
+`components/activity/dream.ActivityPostForm.tsx` exists and renders a tier-aware post
 form. It is not connected to the active post creation flow.
 
 ---
@@ -271,7 +271,7 @@ tier-selection subcomponent into the existing form:
 
 ```tsx
 // Wherever the active post composer renders
-import ActivityPostForm from '@/components/activity/ActivityPostForm';
+import ActivityPostForm from '@/components/activity/dream.ActivityPostForm';
 
 // Replace the existing compose UI or embed as a controlled component
 <ActivityPostForm
@@ -309,7 +309,7 @@ Then in the POST handler, include `activity_tier` in the insert payload.
 
 ## Priority 5 — Wire AdUnit into the Content Rendering Path
 
-`components/ads/AdUnit.tsx` exists. It implements Pre-Roll, Post-Roll, and
+`components/ads/dream.AdUnit.tsx` exists. It implements Pre-Roll, Post-Roll, and
 Rewarded ad units with the skip credit earn system. It is not rendered anywhere
 in the active content path.
 
@@ -377,7 +377,7 @@ verified view.
 
 ## Priority 6 — Activate the IDARi PlatformHealth Admin Dashboard
 
-`components/idari/PlatformHealth.tsx` exists. It displays Real Shit Rate,
+`components/idari/dream.PlatformHealth.tsx` exists. It displays Real Shit Rate,
 Creation-to-Consumption Ratio, Outside Activity Rate, Average AQS, Ad View Rate,
 and Harmful Content Rate. It is not wired into any admin route.
 
@@ -399,7 +399,7 @@ exists but IDARi cannot access it.
 // app/admin/platform-health/page.tsx
 import { redirect } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase/server';
-import PlatformHealth from '@/components/idari/PlatformHealth';
+import PlatformHealth from '@/components/idari/dream.PlatformHealth';
 
 export default async function PlatformHealthPage() {
   const supabase = await createServerClient();
@@ -440,8 +440,8 @@ then feed algorithm, then creation flow, then ads, then admin.
 | 1 | P1-A | `app/profile/[handle]/page.tsx` | Low | None — components self-fetch |
 | 2 | P1-B | `app/edit-profiledream/page.tsx` | Low | None |
 | 3 | P1-C | `app/view-profile/page.tsx` | Low | None |
-| 4 | P2-A | `components/menus/DualBottomMenu.tsx` | Low | None |
-| 5 | P2-B | `components/dreamengin/NexusMenu.tsx` | Low | SkipCreditBalance `compact` prop |
+| 4 | P2-A | `components/menus/dream.menu.DualBottomMenu.tsx` | Low | None |
+| 5 | P2-B | `components/dreamengin/dream.menu.NexusMenu.tsx` | Low | SkipCreditBalance `compact` prop |
 | 6 | P3-A | `app/homedream/page.tsx` (feed sort) | Low | None — endpoint ready |
 | 7 | P3-B | Feed card components | Low | None |
 | 8 | P3-C | `app/daydream/*/page.tsx` (6 pages) | Low | P3-A pattern established |

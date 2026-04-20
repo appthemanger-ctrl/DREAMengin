@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, DollarSign, ShoppingCart, BarChart3, Plus, LayoutGrid, Sparkles } from 'lucide-react';
 import type { AdSlot, AdListing, AdOrder } from '@/types/ads';
-import DreamWord from '@/components/ui/DreamWord';
+import DreamWord from '@/components/ui/dream.DreamWord';
 import { connection } from 'next/server';
 
 

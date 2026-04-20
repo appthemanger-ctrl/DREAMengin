@@ -16,7 +16,7 @@ const ENGIN_ROUTES = [
 describe('standalone /daydream/*/engin routes', () => {
   it('StandaloneEnginSurface still references all six engine components', () => {
     const wrapperSource = readFileSync(
-      join(root, 'components/daydream/StandaloneEnginSurface.tsx'),
+      join(root, 'components/daydream/dream.StandaloneEnginSurface.tsx'),
       'utf-8'
     );
 

@@ -94,7 +94,7 @@ Phase 6 must be implementable without altering the README, the product constitut
 
 ### Platform Module Consolidation (Points 25–36)
 
-25. DreamMenu must have a single canonical implementation. The existing menu components across `components/menus/*`, `components/dreamnav/*`, and `components/HomeRadialNav.tsx` must be unified under the DreamMenu name and must not independently duplicate navigation logic.
+25. DreamMenu must have a single canonical implementation. The existing menu components across `components/menus/*`, `components/dreamnav/*`, and `components/dream.HomeRadialNav.tsx` must be unified under the DreamMenu name and must not independently duplicate navigation logic.
 
 26. The Gold Button navigation system must be the sole entry point for the dual-menu system: left menu for six Daydream navigation and Dr. Eams chat; right menu for regular menu and Dr. Eams chat.
 
@@ -173,4 +173,4 @@ Phase 6 must be implementable without altering the README, the product constitut
 - `app/api/ai/` — all three AI routes (eams, idari, boogieman)
 - `app/view-profile/`, `app/profile/[handle]/` — projection-only rendering
 - `app/edit-profiledream/` — private/share distinction in save flow
-- `components/menus/`, `components/dreamnav/`, `components/HomeRadialNav.tsx` — DreamMenu unification
+- `components/menus/`, `components/dreamnav/`, `components/dream.HomeRadialNav.tsx` — DreamMenu unification

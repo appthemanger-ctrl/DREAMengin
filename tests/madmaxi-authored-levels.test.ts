@@ -5,7 +5,7 @@ import {
   getMadmaxiLevelDefinition,
   isMadmaxiAuthoredLevel,
 } from '@/components/games/madmaxi';
-import { isMadmaxiAuthoredLevel as isMadmaxiAuthoredLevelFromWrapper } from '@/components/games/BabylonSideScroller';
+import { isMadmaxiAuthoredLevel as isMadmaxiAuthoredLevelFromWrapper } from '@/components/games/dream.BabylonSideScroller';
 
 describe('MADMAXI authored zone starter levels', () => {
   it('marks the first two levels of each 10-level zone band as authored', () => {

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase/server';
-import ConstellationClient from './ConstellationClient';
+import ConstellationClient from './dream.ConstellationClient';
 import { connection } from 'next/server';
 
 export const metadata = {

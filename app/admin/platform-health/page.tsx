@@ -7,7 +7,7 @@
 
 import { redirect } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase/server';
-import { PlatformHealth } from '@/components/idari/PlatformHealth';
+import { PlatformHealth } from '@/components/idari/dream.PlatformHealth';
 import { connection } from 'next/server';
 
 export const metadata = {

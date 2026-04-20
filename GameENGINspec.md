@@ -1045,11 +1045,11 @@ Adds:
 ### 7.4 UI Navigation & Cartridge Browser
 
 - **Route:** `/gameengin/cartridges` → `app/gameengin/cartridges/page.tsx` (exists)
-- **Nav Item:** Already present in `components/engines/games/GameEnginApp.tsx` (💾 Cartridges)
-- **HomeDream Widget:** Add to `components/home/HomeSystem.tsx`:
+- **Nav Item:** Already present in `components/engines/games/dream.GameEnginApp.tsx` (💾 Cartridges)
+- **HomeDream Widget:** Add to `components/home/dream.HomeSystem.tsx`:
 
 ```tsx
-import { CartridgeBrowser } from '@/components/gameengin/CartridgeBrowser';
+import { CartridgeBrowser } from '@/components/gameengin/dream.cartridge.CartridgeBrowser';
 
 // Inside component return
 <section>

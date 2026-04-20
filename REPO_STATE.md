@@ -506,18 +506,18 @@ Using Supabase for database, auth, and storage
 
 ### Duplicate component name
 
-- /components/HomeSpace.tsx
-- /components/spatial/HomeSpace.tsx
+- /components/dream.HomeSpace.tsx
+- /components/spatial/dream.HomeSpace.tsx
 
 ### Duplicate component name
 
-- /components/ProfileSpace.tsx
-- /components/spatial/ProfileSpace.tsx
+- /components/dream.ProfileSpace.tsx
+- /components/spatial/dream.ProfileSpace.tsx
 
 ### Duplicate component name
 
-- /components/controls/HomeControls.tsx
-- /components/dreamengin/HomeControls.tsx
+- /components/controls/dream.HomeControls.tsx
+- /components/dreamengin/dream.HomeControls.tsx
 
 ### Potentially unused dependencies
 

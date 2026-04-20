@@ -16,10 +16,10 @@ import {
   CheckCircle,
   Zap,
 } from 'lucide-react';
-import SoundRecorder from '@/components/music/SoundRecorder';
-import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
+import SoundRecorder from '@/components/music/dream.SoundRecorder';
+import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
 import StarMakerEngin from '@/engins/engin.StarMakerEngin';
-import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { connection } from 'next/server';
 

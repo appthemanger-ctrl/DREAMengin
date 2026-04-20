@@ -231,7 +231,7 @@ describe('Phase 8 §B Point 16 — useDreamWindowActions hook contract', () => {
 
 describe('Phase 8 §B Point 17 — SuperDreamWidget real composition', () => {
   it('SuperDreamWidget module exports a default component', async () => {
-    const mod = await import('@/components/dreams/SuperDreamWidget');
+    const mod = await import('@/components/dreams/dream.widget.SuperDreamWidget');
     expect(typeof mod.default).toBe('function');
   });
 });
@@ -240,7 +240,7 @@ describe('Phase 8 §B Point 17 — SuperDreamWidget real composition', () => {
 
 describe('Phase 8 §B Point 18 — widget shims forward to Dream Window equivalents', () => {
   it('WidgetShell re-exports from DreamShell', async () => {
-    const widgetShell = await import('@/components/widgets/WidgetShell');
+    const widgetShell = await import('@/components/widgets/dream.widget.WidgetShell');
     const dreamShell = await import('@/components/dreams/dreamsurface.shell');
     // Both should export a default function
     expect(typeof widgetShell.default).toBe('function');
@@ -248,24 +248,24 @@ describe('Phase 8 §B Point 18 — widget shims forward to Dream Window equivale
   });
 
   it('WidgetCard module exports a default function', async () => {
-    const mod = await import('@/components/widgets/WidgetCard');
+    const mod = await import('@/components/widgets/dream.widget.WidgetCard');
     expect(typeof mod.default).toBe('function');
   });
 
   it('UniversalWidget module exports a default function', async () => {
-    const mod = await import('@/components/widgets/UniversalWidget');
+    const mod = await import('@/components/widgets/dream.widget.UniversalWidget');
     expect(typeof mod.default).toBe('function');
   });
 
   it('WidgetLibrary re-exports from SuperDreamWidget', async () => {
-    const widgetLib = await import('@/components/widgets/WidgetLibrary');
-    const superDream = await import('@/components/dreams/SuperDreamWidget');
+    const widgetLib = await import('@/components/widgets/dream.widget.WidgetLibrary');
+    const superDream = await import('@/components/dreams/dream.widget.SuperDreamWidget');
     expect(widgetLib.default).toBe(superDream.default);
   });
 
   it('WidgetSurface re-exports from SuperDreamWidget', async () => {
-    const widgetSurface = await import('@/components/widgets/WidgetSurface');
-    const superDream = await import('@/components/dreams/SuperDreamWidget');
+    const widgetSurface = await import('@/components/widgets/dream.widget.WidgetSurface');
+    const superDream = await import('@/components/dreams/dream.widget.SuperDreamWidget');
     expect(widgetSurface.default).toBe(superDream.default);
   });
 });

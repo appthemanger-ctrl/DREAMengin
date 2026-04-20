@@ -78,7 +78,7 @@ Primary code lives in:
 - `components/home/*`
 - `components/dreamnav/*`
 - `components/menus/*`
-- `components/HomeRadialNav.tsx`
+- `components/dream.HomeRadialNav.tsx`
 
 ### Edit ProfileDream Surface and View Profile Surface
 Primary code lives in:
@@ -87,7 +87,7 @@ Primary code lives in:
 - `app/view-profile/page.tsx`
 - `app/profile/[handle]/page.tsx`
 - `components/profile/*`
-- `components/ProfileEditor.tsx`
+- `components/dream.ProfileEditor.tsx`
 
 ### Dream Windows
 Canonical Dream Window layer files already exist in:
@@ -95,7 +95,7 @@ Canonical Dream Window layer files already exist in:
 - `components/dreams/dream.connectorlayer.tsx`
 - `components/dreams/dream.featurelayer.tsx`
 - `components/dreams/dream.outputlayer.tsx`
-- `components/dreams/SuperDreamWidget.tsx`
+- `components/dreams/dream.widget.SuperDreamWidget.tsx`
 
 Legacy widget implementation material still exists in:
 - `components/widgets/*`

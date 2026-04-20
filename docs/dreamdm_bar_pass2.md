@@ -150,7 +150,7 @@ components/dreamdm/
 |-------|---------------|
 | `lib/dreamdm/` | All data-fetching, state management, side effects |
 | `components/dreamdm/` | Presentational components; receive data via props or hooks |
-| `components/MessagesClient.tsx` | Full-surface view; composes hooks + presentational components |
+| `components/dream.MessagesClient.tsx` | Full-surface view; composes hooks + presentational components |
 | `app/messages/page.tsx` | Server component; auth gate, initial data fetch, passes to client |
 
 ---

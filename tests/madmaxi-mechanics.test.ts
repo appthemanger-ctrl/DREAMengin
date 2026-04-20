@@ -10,7 +10,7 @@ import {
   getMadmaxiEnemyCount,
   getPowerUpForIndex,
 } from '@/components/games/madmaxi';
-import { getMadmaxiEnemyCount as getMadmaxiEnemyCountFromWrapper } from '@/components/games/BabylonSideScroller';
+import { getMadmaxiEnemyCount as getMadmaxiEnemyCountFromWrapper } from '@/components/games/dream.BabylonSideScroller';
 
 describe('MADMAXI mechanics config', () => {
   it('tracks ten distinct enemy archetypes and four power-ups', () => {

@@ -1,7 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
-import CodeEnginApp from '@/components/engines/code/CodeEnginApp';
+import CodeEnginApp from '@/components/engines/code/dream.CodeEnginApp';
 import { connection } from 'next/server';
 export default async function CodeEnginAppPage() {
   await connection();

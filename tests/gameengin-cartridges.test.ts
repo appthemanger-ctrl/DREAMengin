@@ -6,7 +6,7 @@
  *   1. Every entry in `CARTRIDGE_MANIFEST` has a matching dynamic loader.
  *   2. Every loader has a matching manifest entry (no orphans).
  *   3. Every manifest id mirrors the legacy `GAMES` array in
- *      `components/games/GamesHub` so users can launch every game from
+ *      `components/games/dream.GamesHub` so users can launch every game from
  *      `/gameengin/cartridges/[id]`.
  *   4. Manifest ids are unique and URL-safe.
  *   5. The new `/gameengin/cartridges` route file exists and exports default.
@@ -21,7 +21,7 @@ import {
   getCartridgeCategories,
 } from '@/lib/gameengin/cartridges/manifest';
 import { CARTRIDGE_LOADERS, getCartridgeIds } from '@/lib/gameengin/cartridges/loaders';
-import { GAMES } from '@/components/games/GamesHub';
+import { GAMES } from '@/components/games/dream.GamesHub';
 
 describe('GameEngin cartridge bay', () => {
   it('manifest is non-empty and ids are unique URL-safe slugs', () => {

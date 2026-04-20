@@ -28,6 +28,6 @@ The current sprite includes social, media, commerce, browser, platform, and util
 
 ## Implementation pointers
 
-- `components/ui/SheetIcon.tsx`
-- `components/ui/IconList.tsx`
+- `components/ui/dream.SheetIcon.tsx`
+- `components/ui/dream.IconList.tsx`
 - `lib/icons/*` when present in the repo

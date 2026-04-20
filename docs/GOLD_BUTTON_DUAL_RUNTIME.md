@@ -113,7 +113,7 @@ export interface DualRuntimeState {
 }
 ```
 
-**Container Component:** `components/runtime/DualRuntimeContainer.tsx`
+**Container Component:** `components/runtime/dream.DualRuntimeContainer.tsx`
 
 Provides context and state management:
 ```typescript
@@ -127,13 +127,13 @@ dualRuntime.goToHome();
 dualRuntime.isHomeActive();
 ```
 
-**View Component:** `components/runtime/RuntimeView.tsx`
+**View Component:** `components/runtime/dream.RuntimeView.tsx`
 
 Renders content for each runtime based on the `RuntimeWorld` type.
 
 ### Integration with HomeSystem
 
-**File:** `components/home/HomeSystem.tsx`
+**File:** `components/home/dream.HomeSystem.tsx`
 
 The HomeSystem component now wraps everything in `DualRuntimeContainer`:
 
@@ -291,12 +291,12 @@ Test coverage includes:
 
 ### Modified
 - `dreamdmbar/dreamsurface.dreamdmbar.tsx` - Corrected Gold button attachment logic
-- `components/home/HomeSystem.tsx` - Integrated dual runtime system
+- `components/home/dream.HomeSystem.tsx` - Integrated dual runtime system
 
 ### Created
 - `lib/runtime/dualRuntime.ts` - Dual runtime state and utilities
-- `components/runtime/DualRuntimeContainer.tsx` - Runtime context provider
-- `components/runtime/RuntimeView.tsx` - Runtime content renderer
+- `components/runtime/dream.DualRuntimeContainer.tsx` - Runtime context provider
+- `components/runtime/dream.RuntimeView.tsx` - Runtime content renderer
 - `docs/GOLD_BUTTON_DUAL_RUNTIME.md` - This documentation
 
 ---

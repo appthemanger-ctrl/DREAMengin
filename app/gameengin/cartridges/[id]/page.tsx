@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { connection } from 'next/server';
-import CartridgeLauncher from '@/components/gameengin/CartridgeLauncher';
+import CartridgeLauncher from '@/components/gameengin/dream.cartridge.CartridgeLauncher';
 import { getCartridgeManifest } from '@/lib/gameengin/cartridges/manifest';
 
 interface PageProps {

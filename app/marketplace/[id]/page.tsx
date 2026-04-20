@@ -16,8 +16,8 @@ import { createServerClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, ShoppingBag, Tag, User, Calendar } from 'lucide-react';
-import DreamWord from '@/components/ui/DreamWord';
-import MarketplaceRequestButton from '@/components/marketplace/MarketplaceRequestButton';
+import DreamWord from '@/components/ui/dream.DreamWord';
+import MarketplaceRequestButton from '@/components/marketplace/dream.MarketplaceRequestButton';
 import { connection } from 'next/server';
 
 

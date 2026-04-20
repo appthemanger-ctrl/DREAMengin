@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Store, PlusCircle, Package } from 'lucide-react';
-import DreamWord from '@/components/ui/DreamWord';
+import DreamWord from '@/components/ui/dream.DreamWord';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'DreamShop – Dreamengin', description: 'Sell and discover digital products.' };
