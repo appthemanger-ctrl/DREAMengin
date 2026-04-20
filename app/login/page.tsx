@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import PasswordField from "@/components/auth/dream.PasswordField";
 import { createClient } from "@/lib/supabase/client";
+import UniverseField from "@/components/landing/dream.landing.UniverseField";
 
 // Shared input style — matches the rest of the de-widget design system
 const INPUT_STYLE: React.CSSProperties = {
@@ -33,6 +34,8 @@ function LoginPageInner() {
   const [rememberMe, setRememberMe]   = useState(false);
   const [error, setError]         = useState<string | null>(null);
   const [oauthProviders, setOauthProviders] = useState<{ google: boolean | null; github: boolean | null } | null>(null);
+  // Controls the galaxy field physics: false = gentle Newtonian, true = scaled MOND collapse
+  const [physicsActivated, setPhysicsActivated] = useState(false);
 
   // Show errors from OAuth callback (e.g. Google auth redirect mismatch)
   // Preflight: check which OAuth providers are configured in Supabase
@@ -93,8 +96,14 @@ function LoginPageInner() {
       } else {
         window.localStorage.removeItem("rememberedEmail");
       }
-      router.replace("/homedream");
-      router.refresh();
+      // Activate the MOND collapse physics immediately so the galaxy field
+      // dramatically pulls toward the centre while the user watches.
+      setPhysicsActivated(true);
+      // Let the physics effect play for 2 seconds before navigating.
+      setTimeout(() => {
+        router.replace("/homedream");
+        router.refresh();
+      }, 2000);
     } catch (err: unknown) {
       const msg = (err as { message?: string })?.message ?? "Login failed";
       setError(
@@ -140,6 +149,11 @@ function LoginPageInner() {
         background: 'linear-gradient(155deg, #070e1c 0%, #0c1829 45%, #0f2244 75%, #0a1628 100%)',
       }}
     >
+      {/* Galaxy field — base Newtonian physics until login activates the MOND collapse */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
+        <UniverseField scaled={physicsActivated} />
+      </div>
+
       {/* Ambient glow — SICC enhanced */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
         <div style={{

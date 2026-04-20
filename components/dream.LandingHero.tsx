@@ -113,9 +113,9 @@ export default function LandingHero() {
       className="relative flex flex-col overflow-hidden"
       style={{ minHeight: '100dvh', background: '#000' }}
     >
-      {/* Persistent simple black background + galaxy starfield */}
+      {/* Persistent simple black background + galaxy starfield — base Newtonian physics */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-        <UniverseField />
+        <UniverseField scaled={false} />
       </div>
 
       <LandingNav />

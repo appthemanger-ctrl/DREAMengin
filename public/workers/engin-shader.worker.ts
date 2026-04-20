@@ -242,10 +242,10 @@ function tick(): void {
   // DreamDM Bar seam constraint: clamp posY so Dream Window entities remain
   // within the DreamSpace region (below the bar).  When the bar is at y=0
   // (default) the constraint is skipped for performance.
-  if (dreamDMBarYOffset !== 0) {
+  if (dreamDMBarOffset !== 0) {
     for (let i = startIndex; i < endIndex; i++) {
-      if (posY[i] < dreamDMBarYOffset) {
-        posY[i] = dreamDMBarYOffset;
+      if (posY[i] < dreamDMBarOffset) {
+        posY[i] = dreamDMBarOffset;
         // Absorb downward velocity at the boundary to prevent re-penetration.
         if (velY[i] < 0) velY[i] = 0;
       }

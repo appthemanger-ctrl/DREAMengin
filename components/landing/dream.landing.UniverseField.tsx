@@ -116,6 +116,12 @@ const ACCEL_MAX_BASE = 60;
 const SPEED_MAX_BASE = 22;
 /** Standard-deviation for initial peculiar velocity (px/s) at REF_VIEWPORT. */
 const INITIAL_VELOCITY_SIGMA_BASE = 1.4;
+/**
+ * Blend units per second for the Newtonian → MOND physics transition.
+ * At 1.2 the full switch completes in ~0.85 s — fast enough to feel
+ * immediate, smooth enough to avoid a jarring snap.
+ */
+const PHASE_BLEND_RATE = 1.2;
 
 interface SimParams {
   G: number;
@@ -383,8 +389,26 @@ function bakeArchetype(shape: GalaxyShape): Archetype {
 
 // ── Component ────────────────────────────────────────────────────────────────
 
-export default function UniverseField() {
+export interface UniverseFieldProps {
+  /**
+   * When false (default) the field runs pure Newtonian base physics (k=1,
+   * no MOND boost) — galaxies drift gently across the screen.
+   *
+   * When true the field switches to the current viewport-scaled MOND physics
+   * (the "phone-scaled" mode) which creates a dramatic gravitational collapse
+   * toward natural cluster centres — trigger this on login.
+   */
+  scaled?: boolean;
+}
+
+export default function UniverseField({ scaled = false }: UniverseFieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Stable ref keeps the animation loop in sync without restarting the effect.
+  const scaledRef = useRef(scaled);
+  useEffect(() => {
+    scaledRef.current = scaled;
+  }, [scaled]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -398,7 +422,34 @@ export default function UniverseField() {
     let width = window.innerWidth;
     let height = window.innerHeight;
 
-    let simParams = tuneSimParams(width, height);
+    // Start in pure Newtonian base mode (k=1). The frame loop ramps phaseBlend
+    // toward 1 when scaledRef.current flips true, blending in MOND + viewport
+    // scaling to produce the dramatic collapse effect.
+    let simParams: SimParams = {
+      G: G_BASE,
+      softening: SOFTENING_BASE,
+      a0: A0_BASE,
+      accelMax: ACCEL_MAX_BASE,
+      speedMax: SPEED_MAX_BASE,
+      initialVelocitySigma: INITIAL_VELOCITY_SIGMA_BASE,
+    };
+
+    /** 0 = pure Newtonian base (k=1), 1 = full viewport-scaled MOND. */
+    let phaseBlend = 0;
+
+    /** Interpolate simParams from base to viewport-scaled based on phaseBlend. */
+    function computeCurrentSimParams(): SimParams {
+      const scaledK = Math.max(0.5, Math.min(width, height) / REF_VIEWPORT);
+      const k = 1 + (scaledK - 1) * phaseBlend;
+      return {
+        G: G_BASE * k,
+        softening: SOFTENING_BASE * k,
+        a0: A0_BASE * k,
+        accelMax: ACCEL_MAX_BASE * k,
+        speedMax: SPEED_MAX_BASE * k,
+        initialVelocitySigma: INITIAL_VELOCITY_SIGMA_BASE * k,
+      };
+    }
 
     let archetypes: Archetype[] = [];
     let spiralIdx: number[] = [];
@@ -578,16 +629,19 @@ export default function UniverseField() {
           const r = Math.sqrt(r2);
           // Newtonian acceleration magnitude on i from j (m_j only).
           const aN_i = (G * gj.mass) / r2;
-          // MOND boost: a_eff = a_N / mu(a_N / a0). At low a_N, mu → x = a_N/a0
-          // so a_eff → sqrt(G·m·a0)/r — the canonical deep-MOND form.
+          // Blend between pure Newtonian (phaseBlend=0, boost=1) and full MOND
+          // (phaseBlend=1, boost=1/mu(x)) so the dramatic collapse activates
+          // smoothly when the user presses login.
           const x = aN_i / a0;
           const muX = Math.max(mu(x), 1e-4);
-          const aMag_i = Math.min(aN_i / muX, aMax);
-          // Same MOND magnitude scaling on j (it sees i's mass instead).
+          const mondBoost_i = 1 + (1 / muX - 1) * phaseBlend;
+          const aMag_i = Math.min(aN_i * mondBoost_i, aMax);
+          // Same blended MOND scaling on j (it sees i's mass instead).
           const aN_j = (G * gi.mass) / r2;
           const xj = aN_j / a0;
           const muXj = Math.max(mu(xj), 1e-4);
-          const aMag_j = Math.min(aN_j / muXj, aMax);
+          const mondBoost_j = 1 + (1 / muXj - 1) * phaseBlend;
+          const aMag_j = Math.min(aN_j * mondBoost_j, aMax);
           // Direction unit vector (from i toward j, then negate for j toward i).
           const invR = 1 / r;
           const ux = dx * invR;
@@ -606,6 +660,12 @@ export default function UniverseField() {
       // sim. Below this cap leapfrog stays stable.
       if (dt > 0.05) dt = 0.05;
       last = now;
+
+      // ── Physics phase transition (Newtonian → MOND) ─────────────────────
+      const target = scaledRef.current ? 1 : 0;
+      if (phaseBlend < target) phaseBlend = Math.min(target, phaseBlend + dt * PHASE_BLEND_RATE);
+      else if (phaseBlend > target) phaseBlend = Math.max(target, phaseBlend - dt * PHASE_BLEND_RATE);
+      simParams = computeCurrentSimParams();
 
       // ── Physics step (leapfrog, symplectic) ────────────────────────────
       computeAccelerations();
@@ -700,9 +760,9 @@ export default function UniverseField() {
 
     function onResize() {
       resize();
-      // Re-tune motion-rate constants so dynamics stay phone-friendly across
-      // device sizes and orientation changes.
-      simParams = tuneSimParams(width, height);
+      // Re-derive params from the current blend so dynamics stay correct after
+      // orientation changes and window resizes.
+      simParams = computeCurrentSimParams();
       // Sprite sizes don't depend on viewport — only re-seed the layout.
       seed();
     }
