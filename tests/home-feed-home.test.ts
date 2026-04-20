@@ -9,7 +9,7 @@ describe('HomeDream home surface', () => {
     resolve(__dirname, '../components/home/dream.WorkspaceDashboard.tsx'),
     'utf8',
   );
-  // Canonical HomeSystem — kept in sync with dreamdmbar/homedream/dream.HomeSystem.tsx
+  // Canonical HomeSystem — kept in sync with dreamdmbar/homedream/dream.homedream.HomeSystem.tsx
   const homeSystem = readFileSync(
     resolve(__dirname, '../components/home/dream.HomeSystem.tsx'),
     'utf8',

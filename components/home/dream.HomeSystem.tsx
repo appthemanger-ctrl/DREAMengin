@@ -4,7 +4,7 @@
  * components/home/dream.HomeSystem.tsx
  *
  * Canonical reference copy of HomeSystem — kept in sync with
- * dreamdmbar/homedream/dream.HomeSystem.tsx for test readability.
+ * dreamdmbar/homedream/dream.homedream.HomeSystem.tsx for test readability.
  *
  * Shell-First architecture: DreamDMBar is no longer rendered here.
  * It lives in app/layout.tsx via PersistentDreamBar so it is never
@@ -104,7 +104,7 @@ function HomeSystemInner({
   /**
    * Smart-Home counterpart: make DreamSpace the dominant runtime.
    * Bound to the Home action when the DreamDM Bar is dragged toward the top
-   * (DreamSpace dominant). See dreamdmbar/homedream/dream.HomeSystem.tsx for the
+   * (DreamSpace dominant). See dreamdmbar/homedream/dream.homedream.HomeSystem.tsx for the
    * canonical implementation; this reference copy mirrors that behaviour.
    */
   const returnDreamSpace = useCallback(() => {

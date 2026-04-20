@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import WorkspaceDashboard from '@/dreamdmbar/homedream/dream.WorkspaceDashboard';
+import WorkspaceDashboard from '@/dreamdmbar/homedream/dream.homedream.WorkspaceDashboard';
 
 type CoreFace = 'home' | 'profile';
 

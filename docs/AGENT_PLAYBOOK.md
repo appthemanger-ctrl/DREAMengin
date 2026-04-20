@@ -267,7 +267,7 @@ This section maps the most important files and what they do. Read this before se
 | File | Purpose |
 |------|---------|
 | `dreamdmbar/dreamsurface.dreamdmbar.tsx` | Persistent pill‑shaped root container (the bar) |
-| `dreamdmbar/homedream/dream.HomeDream.tsx` | Top runtime (HomeDream) |
+| `dreamdmbar/homedream/dream.homedream.HomeDream.tsx` | Top runtime (HomeDream) |
 | `dreamdmbar/dreamspace/DreamSpace.tsx` | Bottom runtime (DreamSpace) |
 | `components/dream.HomeRadialNav.tsx` | Gold Particle radial nav (primary travel system) – particle, not button |
 | `components/menus/*` | DreamMenu system (left: Daydreams, right: settings) |
@@ -391,7 +391,7 @@ components/dreams/* (DreamShell → ConnectorLayer → FeatureLayer → OutputLa
   └─ ConnectorLayer uses lib/supabase/browser.ts (auth state)
 
 app/homedream/page.tsx
-  └─ renders dreamdmbar/homedream/dream.HomeDream.tsx (via DreamDMBar)
+  └─ renders dreamdmbar/homedream/dream.homedream.HomeDream.tsx (via DreamDMBar)
   └─ uses hooks/ for Dream state, feed wiring
 
 app/edit-profiledream/page.tsx
