@@ -9,6 +9,10 @@ import {
   isDomainBlocked,
 } from '@/lib/admin/lockout';
 
+// Explicitly pin to the Node.js runtime so Turbopack narrows its NFT trace
+// and does not speculatively pull in files at the project root (next.config.mjs).
+export const runtime = 'nodejs';
+
 // fs/path require Node.js runtime (the default in Next.js 16+).
 
 // ── File-tree builder ────────────────────────────────────────────────────────
@@ -107,7 +111,7 @@ export async function POST(request: Request) {
     return deny('Incorrect password.', 401);
   }
 
-  const root = path.join(/* turbopackIgnore: true */ process.cwd());
+  const root = /*turbopackIgnore: true*/ process.cwd();
 
   // 6. Action: tree
   if (body.action === 'tree') {
