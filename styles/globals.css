@@ -2023,7 +2023,7 @@ body, .dreamnav-surface, .controls {
     transparent 0%,
     rgba(200,152,26,0.15) 15%,
     rgba(200,152,26,0.50) 35%,
-    rgba(232,184,48,0.65) 50%,
+    var(--de-mood-edge, rgba(232,184,48,0.65)) 50%,
     rgba(200,152,26,0.50) 65%,
     rgba(200,152,26,0.15) 85%,
     transparent 100%
@@ -2481,7 +2481,7 @@ main[role="main"] > * {
       transparent 0%,
       rgba(200,152,26,0.18) 12%,
       rgba(200,152,26,0.65) 32%,
-      rgba(232,184,48,0.85) 50%,
+      var(--de-mood-edge, rgba(232,184,48,0.85)) 50%,
       rgba(200,152,26,0.65) 68%,
       rgba(200,152,26,0.18) 88%,
       transparent 100%

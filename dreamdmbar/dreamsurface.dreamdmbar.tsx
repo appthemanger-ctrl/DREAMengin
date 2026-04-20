@@ -1569,7 +1569,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 : `0 -6px 32px rgba(0,0,0,0.10), 0 -1px 0 rgba(200,152,26,0.15),
                    inset 0 1px 0 rgba(255,255,255,0.45),
                    0 -8px 32px rgba(125,211,252,0.18), 0 -1px 0 rgba(125,211,252,0.25)`)),
-        }}
+          // Mood-responsive edge glow — picked up by sicc-bar-edge::before gradient
+          '--de-mood-edge': moodEdgeColor,
+        } as React.CSSProperties}
       >
         {/* ── 🌈 Mood Aura overlay — ambient glow shifts with time-of-day + surface ── */}
         {!isResting && (
@@ -1646,6 +1648,24 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
               />
             </div>
           </div>
+          {/* Typing-rhythm handle: pulses wider as the user types faster */}
+          {typingRhythm > 0 && (
+            <div
+              aria-hidden
+              className="sicc-rhythm-handle"
+              style={{
+                position: 'absolute',
+                bottom: 3,
+                left: 'calc(50% - 12px)',
+                width: 24,
+                height: 3,
+                borderRadius: 99,
+                background: 'var(--de-gold)',
+                pointerEvents: 'none',
+                '--rhythm-scale': handleScale,
+              } as React.CSSProperties}
+            />
+          )}
         </div>
 
         {/* ── Bar body ─────────────────────────────────────────────────────── */}
