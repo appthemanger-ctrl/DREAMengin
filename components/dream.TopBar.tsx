@@ -54,7 +54,7 @@ export default function TopBar({
       {/* Brand logo — always present, left-anchored */}
       {!hasBack && (
         <Link href="/homedream" style={{ display: "flex", alignItems: "center", flexShrink: 0, textDecoration: "none" }}>
-          <BrandLogo width={28} height={28} alt="DREAMengin" />
+          <BrandLogo width={20} height={20} alt="DREAMengin" />
         </Link>
       )}
 
@@ -63,12 +63,12 @@ export default function TopBar({
         {eyebrow && (
           <div style={{
             fontSize: 9,
-            fontWeight: 800,
+            fontWeight: 900,
             letterSpacing: "0.14em",
             textTransform: "uppercase",
             color: accentColor,
             lineHeight: 1,
-            marginBottom: 2,
+            marginBottom: 1,
           }}>
             {eyebrow}
           </div>
