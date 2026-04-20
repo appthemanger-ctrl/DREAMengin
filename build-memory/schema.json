@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-04-20T16:57:09.350Z",
+  "generated_at": "2026-04-20T17:38:48.248Z",
   "generator": "scripts/sync-build-memory.mjs",
   "sources": [
     "types/supabase.ts",
     "supabase/migrations/"
   ],
-  "count": 134,
+  "count": 137,
   "tables": [
     {
       "table": "activity_points",
@@ -1988,6 +1988,74 @@
       "source": "20260310000010_dreamdm_bar_pass2.sql"
     },
     {
+      "table": "dream_audit_log",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid PRIMARY KEY DEFAULT gen_random_uuid()"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid REFERENCES auth"
+        },
+        {
+          "name": "event_type",
+          "type": "text NOT NULL CHECK (event_type IN ("
+        },
+        {
+          "name": "domain",
+          "type": "text"
+        },
+        {
+          "name": "previous_value",
+          "type": "text"
+        },
+        {
+          "name": "new_value",
+          "type": "text"
+        },
+        {
+          "name": "session_id",
+          "type": "text"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz NOT NULL DEFAULT now()"
+        }
+      ],
+      "source": "20260420000001_consent_settings_audit.sql"
+    },
+    {
+      "table": "dream_consent",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid PRIMARY KEY DEFAULT gen_random_uuid()"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid NOT NULL REFERENCES auth"
+        },
+        {
+          "name": "domain",
+          "type": "text NOT NULL"
+        },
+        {
+          "name": "decision",
+          "type": "text NOT NULL CHECK (decision IN ("
+        },
+        {
+          "name": "decided_at",
+          "type": "timestamptz NOT NULL DEFAULT now()"
+        },
+        {
+          "name": "session_id",
+          "type": "text"
+        }
+      ],
+      "source": "20260420000001_consent_settings_audit.sql"
+    },
+    {
       "table": "dream_doc_sections",
       "columns": [
         {
@@ -2082,6 +2150,32 @@
         }
       ],
       "source": "types/supabase.ts"
+    },
+    {
+      "table": "dream_settings",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid PRIMARY KEY DEFAULT gen_random_uuid()"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid NOT NULL REFERENCES auth"
+        },
+        {
+          "name": "key",
+          "type": "text NOT NULL"
+        },
+        {
+          "name": "value",
+          "type": "text NOT NULL"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz NOT NULL DEFAULT now()"
+        }
+      ],
+      "source": "20260420000001_consent_settings_audit.sql"
     },
     {
       "table": "dream_window_projections",

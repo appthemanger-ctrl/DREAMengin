@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-20T16:57:09.350Z",
+  "generated_at": "2026-04-20T17:38:48.248Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 113,
+  "count": 118,
   "surfaces": [
     {
       "type": "page",
@@ -765,6 +765,72 @@
         {
           "name": "StudioPanel",
           "from": "@/components/engines/music/panels/dream.panel.StudioPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/portfolio",
+      "file": "app/engines/portfolio/page.tsx",
+      "component": "PortfolioEnginAppPage",
+      "imports": [
+        {
+          "name": "PortfolioEnginApp",
+          "from": "@/components/engines/portfolio/dream.PortfolioEnginApp"
+        }
+      ]
+    },
+    {
+      "type": "layout",
+      "path": "/engines/portfolio",
+      "file": "app/engines/portfolio/layout.tsx",
+      "component": "PortfolioEnginLayout"
+    },
+    {
+      "type": "page",
+      "path": "/engines/portfolio/assets",
+      "file": "app/engines/portfolio/assets/page.tsx",
+      "component": "PortfolioAssetsPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "AssetsPanel",
+          "from": "@/components/engines/portfolio/panels/dream.panel.AssetsPanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/portfolio/optimize",
+      "file": "app/engines/portfolio/optimize/page.tsx",
+      "component": "PortfolioOptimizePage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "OptimizePanel",
+          "from": "@/components/engines/portfolio/panels/dream.panel.OptimizePanel"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/engines/portfolio/quantum",
+      "file": "app/engines/portfolio/quantum/page.tsx",
+      "component": "PortfolioQuantumPage",
+      "imports": [
+        {
+          "name": "EnginAppShell, EnginNavBar",
+          "from": "@/components/engines/shared"
+        },
+        {
+          "name": "PortfolioQuantumPanel",
+          "from": "@/components/engines/portfolio/panels/dream.panel.PortfolioQuantumPanel"
         }
       ]
     },
