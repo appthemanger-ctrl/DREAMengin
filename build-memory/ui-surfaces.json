@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-20T10:43:21.979Z",
+  "generated_at": "2026-04-20T16:57:09.350Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 118,
+  "count": 113,
   "surfaces": [
     {
       "type": "page",
@@ -11,7 +11,7 @@
       "imports": [
         {
           "name": "LandingHero",
-          "from": "@/components/LandingHero"
+          "from": "@/components/dream.LandingHero"
         }
       ]
     },
@@ -29,7 +29,7 @@
       "imports": [
         {
           "name": "PlatformBadge",
-          "from": "@/components/ui/PlatformBadge"
+          "from": "@/components/ui/dream.PlatformBadge"
         }
       ]
     },
@@ -41,11 +41,11 @@
       "imports": [
         {
           "name": "IDariPanel",
-          "from": "@/components/IDariPanel"
+          "from": "@/components/dream.panel.IDariPanel"
         },
         {
           "name": "ChildSafetyPanel",
-          "from": "@/components/ChildSafetyPanel"
+          "from": "@/components/dream.panel.ChildSafetyPanel"
         }
       ]
     },
@@ -57,7 +57,7 @@
       "imports": [
         {
           "name": "PlatformHealth",
-          "from": "@/components/idari/PlatformHealth"
+          "from": "@/components/idari/dream.PlatformHealth"
         }
       ]
     },
@@ -69,7 +69,7 @@
       "imports": [
         {
           "name": "DreamWord",
-          "from": "@/components/ui/DreamWord"
+          "from": "@/components/ui/dream.DreamWord"
         }
       ]
     },
@@ -102,7 +102,7 @@
       "imports": [
         {
           "name": "PasswordField",
-          "from": "@/components/auth/PasswordField"
+          "from": "@/components/auth/dream.PasswordField"
         }
       ]
     },
@@ -121,7 +121,7 @@
       "imports": [
         {
           "name": "ConnectorsClient",
-          "from": "./ConnectorsClient"
+          "from": "./dream.ConnectorsClient"
         }
       ]
     },
@@ -133,11 +133,11 @@
       "imports": [
         {
           "name": "BrandDaydreamDashboard",
-          "from": "@/components/daydream/BrandDaydreamDashboard"
+          "from": "@/components/daydream/dream.BrandDaydreamDashboard"
         },
         {
           "name": "AuthenticatedPageHeader",
-          "from": "@/components/ui/AuthenticatedPageHeader"
+          "from": "@/components/ui/dream.AuthenticatedPageHeader"
         }
       ]
     },
@@ -156,11 +156,11 @@
       "imports": [
         {
           "name": "OpenDaydreamSideBButton",
-          "from": "@/components/daydream/OpenDaydreamSideBButton"
+          "from": "@/components/daydream/dream.OpenDaydreamSideBButton"
         },
         {
           "name": "AuthenticatedPageHeader",
-          "from": "@/components/ui/AuthenticatedPageHeader"
+          "from": "@/components/ui/dream.AuthenticatedPageHeader"
         }
       ]
     },
@@ -179,7 +179,7 @@
       "imports": [
         {
           "name": "ConstellationClient",
-          "from": "./ConstellationClient"
+          "from": "./dream.ConstellationClient"
         }
       ]
     },
@@ -191,11 +191,11 @@
       "imports": [
         {
           "name": "OpenDaydreamSideBButton",
-          "from": "@/components/daydream/OpenDaydreamSideBButton"
+          "from": "@/components/daydream/dream.OpenDaydreamSideBButton"
         },
         {
           "name": "AuthenticatedPageHeader",
-          "from": "@/components/ui/AuthenticatedPageHeader"
+          "from": "@/components/ui/dream.AuthenticatedPageHeader"
         }
       ]
     },
@@ -214,7 +214,7 @@
       "imports": [
         {
           "name": "DREAMfield",
-          "from": "@/components/daydream/DREAMfield"
+          "from": "@/components/daydream/dream.DREAMfield"
         }
       ]
     },
@@ -226,11 +226,11 @@
       "imports": [
         {
           "name": "ForgeMomentumWidget",
-          "from": "@/components/forge/ForgeMomentumWidget"
+          "from": "@/components/forge/dream.widget.ForgeMomentumWidget"
         },
         {
           "name": "AuthenticatedPageHeader",
-          "from": "@/components/ui/AuthenticatedPageHeader"
+          "from": "@/components/ui/dream.AuthenticatedPageHeader"
         }
       ]
     },
@@ -249,15 +249,15 @@
       "imports": [
         {
           "name": "GamesHub",
-          "from": "@/components/games/GamesHub"
+          "from": "@/components/games/dream.GamesHub"
         },
         {
           "name": "OpenDaydreamSideBButton",
-          "from": "@/components/daydream/OpenDaydreamSideBButton"
+          "from": "@/components/daydream/dream.OpenDaydreamSideBButton"
         },
         {
           "name": "AuthenticatedPageHeader",
-          "from": "@/components/ui/AuthenticatedPageHeader"
+          "from": "@/components/ui/dream.AuthenticatedPageHeader"
         }
       ]
     },
@@ -276,11 +276,11 @@
       "imports": [
         {
           "name": "OpenDaydreamSideBButton",
-          "from": "@/components/daydream/OpenDaydreamSideBButton"
+          "from": "@/components/daydream/dream.OpenDaydreamSideBButton"
         },
         {
           "name": "AuthenticatedPageHeader",
-          "from": "@/components/ui/AuthenticatedPageHeader"
+          "from": "@/components/ui/dream.AuthenticatedPageHeader"
         }
       ]
     },
@@ -313,11 +313,11 @@
       "imports": [
         {
           "name": "SoundRecorder",
-          "from": "@/components/music/SoundRecorder"
+          "from": "@/components/music/dream.SoundRecorder"
         },
         {
           "name": "AuthenticatedPageHeader",
-          "from": "@/components/ui/AuthenticatedPageHeader"
+          "from": "@/components/ui/dream.AuthenticatedPageHeader"
         }
       ]
     },
@@ -371,7 +371,7 @@
       "imports": [
         {
           "name": "DreamWord",
-          "from": "@/components/ui/DreamWord"
+          "from": "@/components/ui/dream.DreamWord"
         }
       ]
     },
@@ -396,7 +396,7 @@
       "imports": [
         {
           "name": "BrandEnginApp",
-          "from": "@/components/engines/brand/BrandEnginApp"
+          "from": "@/components/engines/brand/dream.BrandEnginApp"
         }
       ]
     },
@@ -418,7 +418,7 @@
         },
         {
           "name": "CampaignsPanel",
-          "from": "@/components/engines/brand/panels/CampaignsPanel"
+          "from": "@/components/engines/brand/panels/dream.panel.CampaignsPanel"
         }
       ]
     },
@@ -434,7 +434,7 @@
         },
         {
           "name": "IdentityPanel",
-          "from": "@/components/engines/brand/panels/IdentityPanel"
+          "from": "@/components/engines/brand/panels/dream.panel.IdentityPanel"
         }
       ]
     },
@@ -446,7 +446,7 @@
       "imports": [
         {
           "name": "CodeEnginApp",
-          "from": "@/components/engines/code/CodeEnginApp"
+          "from": "@/components/engines/code/dream.CodeEnginApp"
         }
       ]
     },
@@ -468,7 +468,7 @@
         },
         {
           "name": "AIPanel",
-          "from": "@/components/engines/code/panels/AIPanel"
+          "from": "@/components/engines/code/panels/dream.panel.AIPanel"
         }
       ]
     },
@@ -484,7 +484,7 @@
         },
         {
           "name": "NotebookPanel",
-          "from": "@/components/engines/code/panels/NotebookPanel"
+          "from": "@/components/engines/code/panels/dream.panel.NotebookPanel"
         }
       ]
     },
@@ -500,7 +500,7 @@
         },
         {
           "name": "ProjectsPanel",
-          "from": "@/components/engines/code/panels/ProjectsPanel"
+          "from": "@/components/engines/code/panels/dream.panel.ProjectsPanel"
         }
       ]
     },
@@ -512,7 +512,7 @@
       "imports": [
         {
           "name": "CreateEnginApp",
-          "from": "@/components/engines/create/CreateEnginApp"
+          "from": "@/components/engines/create/dream.CreateEnginApp"
         }
       ]
     },
@@ -534,7 +534,7 @@
         },
         {
           "name": "CalendarPanel",
-          "from": "@/components/engines/create/panels/CalendarPanel"
+          "from": "@/components/engines/create/panels/dream.panel.CalendarPanel"
         }
       ]
     },
@@ -550,7 +550,7 @@
         },
         {
           "name": "EditorPanel",
-          "from": "@/components/engines/create/panels/EditorPanel"
+          "from": "@/components/engines/create/panels/dream.panel.EditorPanel"
         }
       ]
     },
@@ -566,7 +566,7 @@
         },
         {
           "name": "QueuePanel",
-          "from": "@/components/engines/create/panels/QueuePanel"
+          "from": "@/components/engines/create/panels/dream.panel.QueuePanel"
         }
       ]
     },
@@ -578,7 +578,7 @@
       "imports": [
         {
           "name": "GameEnginApp",
-          "from": "@/components/engines/games/GameEnginApp"
+          "from": "@/components/engines/games/dream.GameEnginApp"
         }
       ]
     },
@@ -600,7 +600,7 @@
         },
         {
           "name": "BuilderPanel",
-          "from": "@/components/engines/games/panels/BuilderPanel"
+          "from": "@/components/engines/games/panels/dream.panel.BuilderPanel"
         }
       ]
     },
@@ -616,7 +616,7 @@
         },
         {
           "name": "LibraryPanel",
-          "from": "@/components/engines/games/panels/LibraryPanel"
+          "from": "@/components/engines/games/panels/dream.panel.LibraryPanel"
         }
       ]
     },
@@ -632,7 +632,7 @@
         },
         {
           "name": "ScoresPanel",
-          "from": "@/components/engines/games/panels/ScoresPanel"
+          "from": "@/components/engines/games/panels/dream.panel.ScoresPanel"
         }
       ]
     },
@@ -644,7 +644,7 @@
       "imports": [
         {
           "name": "LabEnginApp",
-          "from": "@/components/engines/lab/LabEnginApp"
+          "from": "@/components/engines/lab/dream.LabEnginApp"
         }
       ]
     },
@@ -666,7 +666,7 @@
         },
         {
           "name": "DataVizPanel",
-          "from": "@/components/engines/lab/panels/DataVizPanel"
+          "from": "@/components/engines/lab/panels/dream.panel.DataVizPanel"
         }
       ]
     },
@@ -682,7 +682,7 @@
         },
         {
           "name": "ExperimentsPanel",
-          "from": "@/components/engines/lab/panels/ExperimentsPanel"
+          "from": "@/components/engines/lab/panels/dream.panel.ExperimentsPanel"
         }
       ]
     },
@@ -698,7 +698,7 @@
         },
         {
           "name": "QuantumPanel",
-          "from": "@/components/engines/lab/panels/QuantumPanel"
+          "from": "@/components/engines/lab/panels/dream.panel.QuantumPanel"
         }
       ]
     },
@@ -710,7 +710,7 @@
       "imports": [
         {
           "name": "MusicEnginApp",
-          "from": "@/components/engines/music/MusicEnginApp"
+          "from": "@/components/engines/music/dream.MusicEnginApp"
         }
       ]
     },
@@ -732,7 +732,7 @@
         },
         {
           "name": "ArrangePanel",
-          "from": "@/components/engines/music/panels/ArrangePanel"
+          "from": "@/components/engines/music/panels/dream.panel.ArrangePanel"
         }
       ]
     },
@@ -748,7 +748,7 @@
         },
         {
           "name": "MusicLibraryPanel",
-          "from": "@/components/engines/music/panels/MusicLibraryPanel"
+          "from": "@/components/engines/music/panels/dream.panel.MusicLibraryPanel"
         }
       ]
     },
@@ -764,7 +764,7 @@
         },
         {
           "name": "StudioPanel",
-          "from": "@/components/engines/music/panels/StudioPanel"
+          "from": "@/components/engines/music/panels/dream.panel.StudioPanel"
         }
       ]
     },
@@ -776,7 +776,7 @@
       "imports": [
         {
           "name": "FeedSettingsClient",
-          "from": "./FeedSettingsClient"
+          "from": "./dream.FeedSettingsClient"
         }
       ]
     },
@@ -795,7 +795,7 @@
       "imports": [
         {
           "name": "CartridgeBrowser",
-          "from": "@/components/gameengin/CartridgeBrowser"
+          "from": "@/components/gameengin/dream.cartridge.CartridgeBrowser"
         }
       ]
     },
@@ -807,7 +807,7 @@
       "imports": [
         {
           "name": "CartridgeLauncher",
-          "from": "@/components/gameengin/CartridgeLauncher"
+          "from": "@/components/gameengin/dream.cartridge.CartridgeLauncher"
         }
       ]
     },
@@ -833,7 +833,7 @@
       "imports": [
         {
           "name": "PasswordField",
-          "from": "@/components/auth/PasswordField"
+          "from": "@/components/auth/dream.PasswordField"
         }
       ]
     },
@@ -873,7 +873,7 @@
       "imports": [
         {
           "name": "PasswordField",
-          "from": "@/components/auth/PasswordField"
+          "from": "@/components/auth/dream.PasswordField"
         }
       ]
     },
@@ -885,15 +885,15 @@
       "imports": [
         {
           "name": "MarketplaceListingCard",
-          "from": "@/components/marketplace/MarketplaceListingCard"
+          "from": "@/components/marketplace/dream.MarketplaceListingCard"
         },
         {
           "name": "DreamWord",
-          "from": "@/components/ui/DreamWord"
+          "from": "@/components/ui/dream.DreamWord"
         },
         {
           "name": "AuthenticatedPageHeader",
-          "from": "@/components/ui/AuthenticatedPageHeader"
+          "from": "@/components/ui/dream.AuthenticatedPageHeader"
         }
       ]
     },
@@ -905,11 +905,11 @@
       "imports": [
         {
           "name": "DreamWord",
-          "from": "@/components/ui/DreamWord"
+          "from": "@/components/ui/dream.DreamWord"
         },
         {
           "name": "MarketplaceRequestButton",
-          "from": "@/components/marketplace/MarketplaceRequestButton"
+          "from": "@/components/marketplace/dream.MarketplaceRequestButton"
         }
       ]
     },
@@ -928,7 +928,7 @@
       "imports": [
         {
           "name": "MessagesClient",
-          "from": "@/components/MessagesClient"
+          "from": "@/components/dream.MessagesClient"
         }
       ]
     },
@@ -947,7 +947,7 @@
       "imports": [
         {
           "name": "BoardComposer",
-          "from": "@/components/messaging/BoardComposer"
+          "from": "@/components/messaging/dream.BoardComposer"
         }
       ]
     },
@@ -1022,27 +1022,27 @@
       "imports": [
         {
           "name": "ActivityProfile",
-          "from": "@/components/activity/ActivityProfile"
+          "from": "@/components/activity/dream.ActivityProfile"
         },
         {
           "name": "FollowButton",
-          "from": "@/components/feed/FollowButton"
+          "from": "@/components/feed/dream.FollowButton"
         },
         {
           "name": "DreamWord",
-          "from": "@/components/ui/DreamWord"
+          "from": "@/components/ui/dream.DreamWord"
         },
         {
           "name": "ProfileShareButton",
-          "from": "@/components/ProfileShareButton"
+          "from": "@/components/dream.ProfileShareButton"
         },
         {
           "name": "ProfileCustomizeButton",
-          "from": "@/components/profile/ProfileCustomizeButton"
+          "from": "@/components/profile/dream.ProfileCustomizeButton"
         },
         {
           "name": "InfinityIcon",
-          "from": "@/components/ui/InfinityIcon"
+          "from": "@/components/ui/dream.InfinityIcon"
         }
       ]
     },
@@ -1061,7 +1061,7 @@
       "imports": [
         {
           "name": "DangerZoneActions",
-          "from": "./DangerZoneActions"
+          "from": "./dream.DangerZoneActions"
         }
       ]
     },
@@ -1073,11 +1073,11 @@
       "imports": [
         {
           "name": "AlgorithmEngine",
-          "from": "@/components/feed/AlgorithmEngine"
+          "from": "@/components/feed/dream.AlgorithmEngine"
         },
         {
           "name": "AuthenticatedPageHeader",
-          "from": "@/components/ui/AuthenticatedPageHeader"
+          "from": "@/components/ui/dream.AuthenticatedPageHeader"
         }
       ]
     },
@@ -1089,11 +1089,11 @@
       "imports": [
         {
           "name": "useTheme",
-          "from": "@/components/providers/ThemeProvider"
+          "from": "@/components/providers/dream.ThemeProvider"
         },
         {
           "name": "THEME_PRESETS as GRADIENT_PRESETS, applyTheme, applyVoidTheme, isVoidThemeActive, type DeTheme",
-          "from": "@/components/ThemeApplicator"
+          "from": "@/components/dream.ThemeApplicator"
         }
       ]
     },
@@ -1105,7 +1105,7 @@
       "imports": [
         {
           "name": "ControlsClient",
-          "from": "./ControlsClient"
+          "from": "./dream.ControlsClient"
         }
       ]
     },
@@ -1117,7 +1117,7 @@
       "imports": [
         {
           "name": "DataClient",
-          "from": "./DataClient"
+          "from": "./dream.DataClient"
         }
       ]
     },
@@ -1136,7 +1136,7 @@
       "imports": [
         {
           "name": "AuthenticatedPageHeader",
-          "from": "@/components/ui/AuthenticatedPageHeader"
+          "from": "@/components/ui/dream.AuthenticatedPageHeader"
         }
       ]
     },
@@ -1148,7 +1148,7 @@
       "imports": [
         {
           "name": "AuthenticatedPageHeader",
-          "from": "@/components/ui/AuthenticatedPageHeader"
+          "from": "@/components/ui/dream.AuthenticatedPageHeader"
         }
       ]
     },
@@ -1160,7 +1160,7 @@
       "imports": [
         {
           "name": "PrivacyClient",
-          "from": "./PrivacyClient"
+          "from": "./dream.PrivacyClient"
         }
       ]
     },
@@ -1172,7 +1172,7 @@
       "imports": [
         {
           "name": "AuthenticatedPageHeader",
-          "from": "@/components/ui/AuthenticatedPageHeader"
+          "from": "@/components/ui/dream.AuthenticatedPageHeader"
         }
       ]
     },
@@ -1184,7 +1184,7 @@
       "imports": [
         {
           "name": "AuthenticatedPageHeader",
-          "from": "@/components/ui/AuthenticatedPageHeader"
+          "from": "@/components/ui/dream.AuthenticatedPageHeader"
         }
       ]
     },
@@ -1196,11 +1196,11 @@
       "imports": [
         {
           "name": "DreamWord",
-          "from": "@/components/ui/DreamWord"
+          "from": "@/components/ui/dream.DreamWord"
         },
         {
           "name": "AuthenticatedPageHeader",
-          "from": "@/components/ui/AuthenticatedPageHeader"
+          "from": "@/components/ui/dream.AuthenticatedPageHeader"
         }
       ]
     },
@@ -1212,7 +1212,7 @@
       "imports": [
         {
           "name": "DreamWord",
-          "from": "@/components/ui/DreamWord"
+          "from": "@/components/ui/dream.DreamWord"
         }
       ]
     },
@@ -1238,15 +1238,15 @@
       "imports": [
         {
           "name": "ActivityProfile",
-          "from": "@/components/activity/ActivityProfile"
+          "from": "@/components/activity/dream.ActivityProfile"
         },
         {
           "name": "ProfileShareButton",
-          "from": "@/components/ProfileShareButton"
+          "from": "@/components/dream.ProfileShareButton"
         },
         {
           "name": "DreamWord",
-          "from": "@/components/ui/DreamWord"
+          "from": "@/components/ui/dream.DreamWord"
         }
       ]
     },
@@ -1258,39 +1258,9 @@
       "imports": [
         {
           "name": "WebGPUShowcase",
-          "from": "@/components/webgpu/WebGPUShowcase"
+          "from": "@/components/webgpu/dream.WebGPUShowcase"
         }
       ]
-    },
-    {
-      "type": "component",
-      "name": "DaydreamShell",
-      "file": "components/daydream/DaydreamShell.tsx",
-      "owner": "Landing/world designer"
-    },
-    {
-      "type": "component",
-      "name": "HomeDream",
-      "file": "components/home/HomeDream.tsx",
-      "owner": "HomeDream designer"
-    },
-    {
-      "type": "component",
-      "name": "HomeFeed",
-      "file": "components/HomeFeed.tsx",
-      "owner": "HomeDream designer"
-    },
-    {
-      "type": "component",
-      "name": "HomeSpace",
-      "file": "components/HomeSpace.tsx",
-      "owner": "HomeDream designer"
-    },
-    {
-      "type": "component",
-      "name": "HomeSpace",
-      "file": "components/spatial/HomeSpace.tsx",
-      "owner": "HomeDream designer"
     }
   ]
 }

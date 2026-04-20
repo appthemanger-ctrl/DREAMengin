@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-20T10:43:21.979Z",
+  "generated_at": "2026-04-20T16:57:09.350Z",
   "generator": "scripts/sync-build-memory.mjs",
   "count": 22,
   "events": [
@@ -22,11 +22,9 @@
       "event": "de-game-input",
       "payload_type": null,
       "files": [
-        "components/games/EchoArena.tsx",
-        "components/games/NeonDrift.tsx",
-        "components/games/madmaxi/MadmaxiGame.tsx",
-        "games/echo-arena/EchoArena.tsx",
-        "games/neon-drift/NeonDrift.tsx",
+        "components/games/dream.EchoArena.tsx",
+        "components/games/dream.NeonDrift.tsx",
+        "components/games/madmaxi/dream.MadmaxiGame.tsx",
         "lib/games/useGameInputKeyboardBridge.ts"
       ]
     },
@@ -48,7 +46,7 @@
       "event": "de-theme-changed",
       "payload_type": null,
       "files": [
-        "components/ThemeApplicator.tsx"
+        "components/dream.ThemeApplicator.tsx"
       ]
     },
     {
@@ -56,21 +54,21 @@
       "payload_type": null,
       "files": [
         "app/settings/appearance/page.tsx",
-        "components/VoidThemeToggle.tsx"
+        "components/dream.VoidThemeToggle.tsx"
       ]
     },
     {
       "event": "de:avatar:updated",
       "payload_type": null,
       "files": [
-        "components/games/GamesHub.tsx"
+        "components/games/dream.GamesHub.tsx"
       ]
     },
     {
       "event": "de:open-side-b",
       "payload_type": null,
       "files": [
-        "components/daydream/DaydreamShell.tsx"
+        "components/daydream/dream.shell.DaydreamShell.tsx"
       ]
     },
     {
@@ -91,7 +89,7 @@
       "event": "error",
       "payload_type": null,
       "files": [
-        "components/gameengin/CartridgeErrorBoundary.tsx",
+        "components/gameengin/dream.cartridge.CartridgeErrorBoundary.tsx",
         "engins/engin.CodeEngin.tsx"
       ]
     },
@@ -132,28 +130,27 @@
       "event": "orientationchange",
       "payload_type": null,
       "files": [
-        "components/AnchorWidget.tsx",
-        "components/HomeFeed.tsx",
-        "components/home/NeuralSeamCanvas.tsx",
-        "components/home/WorkspaceDashboard.tsx",
-        "components/runtime/RuntimeShell.tsx",
+        "components/dream.HomeFeed.tsx",
+        "components/dream.widget.AnchorWidget.tsx",
+        "components/home/dream.NeuralSeamCanvas.tsx",
+        "components/runtime/dream.shell.RuntimeShell.tsx",
         "dreamdmbar/dreamsurface.dreamdmbar.tsx",
-        "dreamdmbar/homedream/WorkspaceDashboard.tsx"
+        "dreamdmbar/homedream/dream.homedream.WorkspaceDashboard.tsx"
       ]
     },
     {
       "event": "pointerdown",
       "payload_type": null,
       "files": [
-        "components/LandingHero.tsx"
+        "components/dream.LandingHero.tsx"
       ]
     },
     {
       "event": "pointermove",
       "payload_type": null,
       "files": [
-        "components/LandingHero.tsx",
-        "components/home/ActiveModuleSurface.tsx",
+        "components/dream.LandingHero.tsx",
+        "components/home/dream.ActiveModuleSurface.tsx",
         "lib/god-tier/useGodTier.ts"
       ]
     },
@@ -161,8 +158,8 @@
       "event": "pointerup",
       "payload_type": null,
       "files": [
-        "components/LandingHero.tsx",
-        "components/home/ActiveModuleSurface.tsx"
+        "components/dream.LandingHero.tsx",
+        "components/home/dream.ActiveModuleSurface.tsx"
       ]
     },
     {
@@ -176,7 +173,7 @@
       "event": "unhandledrejection",
       "payload_type": null,
       "files": [
-        "components/gameengin/CartridgeErrorBoundary.tsx"
+        "components/gameengin/dream.cartridge.CartridgeErrorBoundary.tsx"
       ]
     }
   ]
