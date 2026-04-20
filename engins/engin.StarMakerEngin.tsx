@@ -26,6 +26,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
@@ -110,6 +111,8 @@ type PersistedLedgerAudio = {
 
 interface Props {
   onBack: () => void;
+  /** Stable instance ID for co-op channel keying. Auto-generated if omitted. */
+  instanceId?: string;
 }
 
 // ─── Domain interfaces ─────────────────────────────────────────────────────────
@@ -260,9 +263,18 @@ const bpmBtnStyle: React.CSSProperties = {
 
 // ─── Root component ────────────────────────────────────────────────────────────
 
-export default function StarMakerEngin({ onBack }: Props) {
+export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: Props) {
   const starBridge = useStarMakerEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'music' });
+
+  // ── Stable instance ID for the runtime channel (solo or co-op) ──
+  const [instanceId] = useState(
+    () => instanceIdProp ?? (
+      typeof crypto !== 'undefined' && crypto.randomUUID
+        ? crypto.randomUUID()
+        : Math.random().toString(36).slice(2)
+    ),
+  );
 
   // ── OS Shell: upgradeEngine wiring ──
   const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
@@ -556,6 +568,39 @@ export default function StarMakerEngin({ onBack }: Props) {
 
   const effectList = useMemo(() => Array.from(activeEffects), [activeEffects]);
 
+  // ── Co-op channel — broadcasts session state; solo by default ──────────────
+  const coopStateSnapshot = useCallback(() => ({
+    type: 'starmaker:state' as const,
+    bpm, musicalKey, keyMode, pitch, beatGrid, mixer, effectList,
+  }), [bpm, musicalKey, keyMode, pitch, beatGrid, mixer, effectList]);
+
+  const handlePeerState = useCallback((evt: { type: string; [k: string]: unknown }) => {
+    if (evt.type === 'starmaker:state') {
+      if (typeof evt.bpm === 'number') setBpm(evt.bpm);
+      if (typeof evt.pitch === 'number') setPitch(evt.pitch);
+      if (evt.musicalKey) setMusicalKey(evt.musicalKey as MusicalKey);
+      if (evt.keyMode === 'major' || evt.keyMode === 'minor') setKeyMode(evt.keyMode);
+      if (evt.mixer && typeof evt.mixer === 'object') setMixer(evt.mixer as MixerState);
+    }
+    if (evt.type === 'starmaker:beat') {
+      const { chIdx, stepIdx, active: on } = evt as { chIdx: number; stepIdx: number; active: boolean };
+      setBeatGrid(prev => {
+        const next = prev.map(row => [...row]);
+        if (next[chIdx]) next[chIdx][stepIdx] = on;
+        return next;
+      });
+    }
+  }, []);
+
+  const { publish: coopPublish } = useEnginCoopSync({
+    enginName: 'StarMakerEngin',
+    instanceId,
+    region: 'engin:starmaker',
+    active: collabActive,
+    stateSnapshot: coopStateSnapshot,
+    onPeerState: handlePeerState,
+  });
+
   const playbackProfile = useMemo(() => summarizePlaybackProfile({
     beatGrid,
     bpm,
@@ -800,6 +845,8 @@ export default function StarMakerEngin({ onBack }: Props) {
       (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
         'music', 'music:collab-start', { code },
       );
+      // Publish initial state snapshot to the channel so joining peers sync immediately.
+      void coopPublish({ type: 'starmaker:state', bpm, musicalKey, keyMode, pitch, beatGrid, mixer, effectList });
     }
     setCollabActive(prev => !prev);
   }

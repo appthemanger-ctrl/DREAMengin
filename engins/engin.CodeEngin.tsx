@@ -6,6 +6,7 @@
  */
 
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
+import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
@@ -51,7 +52,7 @@ import { AgentPanel } from './CodeEngin/modules/ai-co-pilot';
 // Types
 // ----------------------------------------------------------------------
 
-interface Props { onBack: () => void; }
+interface Props { onBack: () => void; instanceId?: string; }
 type CellLanguage = 'python' | 'javascript' | 'typescript' | 'bash';
 type CellStatus = 'idle' | 'running' | 'done' | 'error';
 
@@ -383,7 +384,7 @@ async function callEamsAssist(prompt: string, codeContext?: string, language?: C
 // MAIN COMPONENT
 // ----------------------------------------------------------------------
 
-export default function CodeEngin({ onBack }: Props) {
+export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props) {
   const { record: forgeRecord } = useForgeActivity({ enginId: 'code' });
   const codeBridge = useCodeEnginBridge();
   const { persistState } = useDaydreamState({ daydreamType: 'code', side: 'B' });
@@ -403,6 +404,26 @@ export default function CodeEngin({ onBack }: Props) {
   const [pairSessionId] = useState(() => `code-${Date.now()}`);
   const [pairActive, setPairActive] = useState(false);
   const pairDream = useSharedDream(pairActive ? pairSessionId : '');
+
+  // ── Co-op channel ─────────────────────────────────────────────────────────
+  const [instanceId] = useState(
+    () => instanceIdProp ?? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)),
+  );
+  useEnginCoopSync({
+    enginName: 'CodeEngin',
+    instanceId,
+    region: 'engin:code',
+    active: pairActive,
+    stateSnapshot: () => ({ type: 'code:state', cells: cells.map(c => ({ id: c.id, language: c.language, code: c.code })) }),
+    onPeerState: (evt) => {
+      if (evt.type === 'code:state' && Array.isArray(evt.cells)) {
+        setCells(prev => prev.map(c => {
+          const peer = (evt.cells as Array<{ id: string; code: string; language: string }>).find(p => p.id === c.id);
+          return peer ? { ...c, code: peer.code, language: peer.language as typeof c.language } : c;
+        }));
+      }
+    },
+  });
 
   // ── Cross-Engin: LabEngin dataset export receiver ──
   const [dismissedDataset, setDismissedDataset] = useState<string | null>(null);

@@ -27,6 +27,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
@@ -65,6 +66,7 @@ import { ActivityPostForm, type ActivityPostData } from '@/components/activity/d
 
 interface Props {
   onBack: () => void;
+  instanceId?: string;
 }
 
 interface Note {
@@ -170,7 +172,7 @@ const PLATFORM_SPECS = [
 interface CollectedAsset { id: string; name: string; category: AssetCategory; status: AssetStatus; }
 interface PipelineItem   { id: string; title: string; type: string; platform: string; stage: PipelineStage; }
 
-export default function ContentEngin({ onBack }: Props) {
+export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Props) {
   const contentBridge = useContentEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'create' });
 
@@ -461,6 +463,23 @@ export default function ContentEngin({ onBack }: Props) {
   const [collabDraftActive, setCollabDraftActive]   = useState(false);
   const [collabDraftCode, setCollabDraftCode]       = useState('');
   const [collabDraftUsers] = useState<string[]>(['You', 'Co-Author']);
+
+  // ── Co-op channel ─────────────────────────────────────────────────────────
+  const [instanceId] = useState(
+    () => instanceIdProp ?? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)),
+  );
+  useEnginCoopSync({
+    enginName: 'ContentEngin',
+    instanceId,
+    region: 'engin:content',
+    active: collabDraftActive,
+    stateSnapshot: () => ({ type: 'content:state', captionTopic }),
+    onPeerState: (evt) => {
+      if (evt.type === 'content:state' && typeof evt.captionTopic === 'string') {
+        setCaptionTopic(evt.captionTopic);
+      }
+    },
+  });
 
   // ── Content Analytics state ──────────────────────────────────────────────────
   const [analyticsMetrics] = useState<Array<{ label: string; value: string; icon: string }>>([

@@ -16,6 +16,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
+import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
@@ -41,6 +42,7 @@ import {
 
 interface Props {
   onBack: () => void;
+  instanceId?: string;
 }
 
 interface Experiment {
@@ -138,7 +140,7 @@ const LAB_DREAM_WINDOWS = [
   { label: 'Simulation Viewer Dream Window', href: '/engines/lab/quantum' },
 ] as const;
 
-export default function LabEngin({ onBack }: Props) {
+export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) {
   const labBridge = useLabEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'lab' });
 
@@ -225,6 +227,23 @@ export default function LabEngin({ onBack }: Props) {
   // ── Collab Lab state ────────────────────────────────────────────────────────
   const [collabLabActive, setCollabLabActive] = useState(false);
   const [collabLabCode, setCollabLabCode] = useState('');
+
+  // ── Co-op channel ─────────────────────────────────────────────────────────
+  const [instanceId] = useState(
+    () => instanceIdProp ?? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)),
+  );
+  useEnginCoopSync({
+    enginName: 'LabEngin',
+    instanceId,
+    region: 'engin:lab',
+    active: collabLabActive,
+    stateSnapshot: () => ({ type: 'lab:state', chartType, selectedMolecule }),
+    onPeerState: (evt) => {
+      if (evt.type === 'lab:state') {
+        if (evt.chartType) setChartType(evt.chartType as ChartType);
+      }
+    },
+  });
 
   // ── AI Hypothesis state ──────────────────────────────────────────────────────
   const [hypothesisLoading, setHypothesisLoading] = useState(false);

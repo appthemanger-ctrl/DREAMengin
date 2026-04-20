@@ -121,6 +121,12 @@ const MUSIC_MANIFEST: DaydreamEnginManifest = {
     'Accessible: ARIA labels on all interactive controls',
     'Dark/light mode token parity',
   ],
+  // Pass 3 (COOP_AND_SOLO_ROADMAP.md decision #3): same identity in both modes.
+  // Pass 8 (Co-op pack): StarMakerEngin is the first Engin in the co-op pack.
+  solo: true,
+  coop: {
+    affordances: ['presence', 'broadcast', 'hand-off'],
+  },
 };
 
 // ─── Games / GameEngin ────────────────────────────────────────────────────────
