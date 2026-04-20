@@ -561,7 +561,7 @@ HUD: `dream.hud.GameHUD.tsx` · `dream.hud.MobileGameHUD.tsx` · Controller: `dr
 
 ### LabEngin (Lab)
 
-`engins/engin.LabEngin.tsx` + `engins/dream.engin.QuantumCircuitCanvas.tsx`.
+`engins/engin.LabEngin.tsx` + `engins/dream.QuantumCircuitCanvas.tsx`.
 
 **Lab Engin app** (`components/engines/lab/`): `dream.LabEnginApp.tsx` + DataViz · Experiments · Quantum panels — routed at `/engines/lab/`.
 
