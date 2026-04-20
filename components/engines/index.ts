@@ -1,7 +1,7 @@
 /**
  * components/engines/index.ts
  *
- * Top-level barrel export for all six DREAMengin engine apps.
+ * Top-level barrel export for all eight DREAMengin engine apps.
  *
  * Each engine lives in its own folder with:
  *   - <Name>EnginApp — full-screen app shell (wraps the existing Engin component)
@@ -24,3 +24,4 @@ export * from './code';
 export * from './lab';
 export * from './brand';
 export * from './create';
+export * from './portfolio';
