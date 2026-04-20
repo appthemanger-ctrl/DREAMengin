@@ -149,13 +149,13 @@ At that point the spec file no longer changes and the 15-minute job becomes a no
 
 ## Source Research Snapshot
 
-- Successful fetches: **14**
-- Failed fetches: **1**
+- Successful fetches: **15**
+- Failed fetches: **0**
 
 | Area | Source | Status | URL |
 |---|---|---|---|
 | rendering | WebGPU API (MDN) | ok | https://developer.mozilla.org/en-US/docs/Web/API/WebGPU_API |
-| rendering | WebGPU Fundamentals | The operation was aborted due to timeout | https://webgpufundamentals.org/ |
+| rendering | WebGPU Fundamentals | ok | https://webgpufundamentals.org/ |
 | platform | Can I use: WebGPU | ok | https://caniuse.com/webgpu |
 | performance | web.dev: Optimize JavaScript execution | ok | https://web.dev/articles/optimize-javascript-execution |
 | performance | web.dev: Rendering performance | ok | https://web.dev/articles/rendering-performance |
@@ -169,10 +169,6 @@ At that point the spec file no longer changes and the 15-minute job becomes a no
 | resilience | MDN: OffscreenCanvas | ok | https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas |
 | mobile | web.dev: Baseline | ok | https://web.dev/baseline |
 | quality | MDN: Performance API | ok | https://developer.mozilla.org/en-US/docs/Web/API/Performance_API |
-
-## Recovery Tasks (auto-maintained)
-
-- Re-check source availability and alternate references for **WebGPU Fundamentals** (https://webgpufundamentals.org/).
 
 ## AI Dev Application Checklist for DREAMengin
 
