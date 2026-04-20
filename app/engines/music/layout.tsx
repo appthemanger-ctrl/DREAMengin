@@ -1,3 +1,4 @@
+// SURFACE: dream.shell.EnginesMusicLayout  (framework-mandated basename: layout.tsx)
 /**
  * app/engines/music/layout.tsx
  *

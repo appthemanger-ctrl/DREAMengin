@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.SettingsAlgorithm  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { Cpu } from 'lucide-react';

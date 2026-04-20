@@ -1,4 +1,5 @@
 'use client';
+// SURFACE: dreamsurface.EditProfiledream  (framework-mandated basename: page.tsx)
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';

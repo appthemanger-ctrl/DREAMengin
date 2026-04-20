@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.Policy  (framework-mandated basename: page.tsx)
 // app/policy/page.tsx
 // TheBoogieMan.Ai — public policy page (req 6–15, K99).
 // Readable, versioned, accessible without login, linked from footer + Settings.

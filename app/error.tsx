@@ -1,4 +1,5 @@
 'use client'
+// SURFACE: dream.overlay.RootError  (framework-mandated basename: error.tsx)
 
 import { useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'

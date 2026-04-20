@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.FeedSettings  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import FeedSettingsClient from './dream.FeedSettingsClient';

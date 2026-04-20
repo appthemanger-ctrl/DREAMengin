@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.Root  (framework-mandated basename: page.tsx)
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import LandingHero from '@/components/dream.LandingHero';

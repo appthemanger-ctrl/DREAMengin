@@ -1,4 +1,5 @@
 'use client';
+// SURFACE: dreamsurface.LabIdCodespace  (framework-mandated basename: page.tsx)
 
 import { useState, useRef, use, useCallback } from 'react';
 import Link from 'next/link';

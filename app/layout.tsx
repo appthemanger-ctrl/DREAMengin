@@ -1,3 +1,4 @@
+// SURFACE: dream.shell.RootLayout  (framework-mandated basename: layout.tsx)
 import '@/styles/globals.css';
 // Stream 5.1 — View Transitions API for surface switching
 import '@/styles/view-transitions.css';

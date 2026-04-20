@@ -1,4 +1,5 @@
 'use client';
+// SURFACE: dreamsurface.MessagesBoardsNew  (framework-mandated basename: page.tsx)
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';

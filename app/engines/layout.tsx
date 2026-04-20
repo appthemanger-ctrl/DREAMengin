@@ -1,3 +1,4 @@
+// SURFACE: dream.shell.EnginesLayout  (framework-mandated basename: layout.tsx)
 /**
  * app/engines/layout.tsx
  *

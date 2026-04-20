@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.Admin  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import IDariPanel from '@/components/dream.panel.IDariPanel';

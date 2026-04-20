@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.SettingsSafety  (framework-mandated basename: page.tsx)
 // app/settings/safety/page.tsx
 // "Policy & Safety" settings page (req 11, 14, 90–91).
 // Shows the user's safety log, appeal options, and a link to the policy.

@@ -1,4 +1,5 @@
 "use client";
+// SURFACE: dreamsurface.AuthResetPassword  (framework-mandated basename: page.tsx)
 
 import { useMemo, useState } from "react";
 import Link from "next/link";

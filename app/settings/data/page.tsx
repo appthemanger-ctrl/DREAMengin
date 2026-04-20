@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.SettingsData  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import DataClient from './dream.DataClient';

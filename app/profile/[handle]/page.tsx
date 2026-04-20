@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.ProfileHandle  (framework-mandated basename: page.tsx)
 import { Suspense } from 'react';
 import { connection } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';

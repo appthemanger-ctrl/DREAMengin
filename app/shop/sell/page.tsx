@@ -1,4 +1,5 @@
 'use client';
+// SURFACE: dreamsurface.ShopSell  (framework-mandated basename: page.tsx)
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';

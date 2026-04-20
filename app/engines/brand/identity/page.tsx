@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.EnginesBrandIdentity  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';

@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.Homedream  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import HomeSystem from '@/dreamdmbar/homedream/dream.HomeSystem';

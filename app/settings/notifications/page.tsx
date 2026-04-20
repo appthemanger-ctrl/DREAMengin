@@ -1,4 +1,5 @@
 'use client';
+// SURFACE: dreamsurface.SettingsNotifications  (framework-mandated basename: page.tsx)
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';

@@ -1,4 +1,5 @@
 'use client';
+// SURFACE: dreamsurface.SettingsSecurity  (framework-mandated basename: page.tsx)
 
 /**
  * Security Settings page.

@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.MessagesBoardsId  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';

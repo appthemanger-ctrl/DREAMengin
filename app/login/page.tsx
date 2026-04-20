@@ -1,4 +1,5 @@
 "use client";
+// SURFACE: dreamsurface.Login  (framework-mandated basename: page.tsx)
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";

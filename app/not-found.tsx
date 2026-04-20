@@ -1,3 +1,4 @@
+// SURFACE: dream.overlay.RootNotFound  (framework-mandated basename: not-found.tsx)
 import Link from 'next/link'
 
 export default function NotFound() {

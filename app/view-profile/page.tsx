@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.ViewProfile  (framework-mandated basename: page.tsx)
 import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';

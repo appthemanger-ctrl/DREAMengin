@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.MarketplaceId  (framework-mandated basename: page.tsx)
 /**
  * DreamMarketplace slot detail surface — /marketplace/[id]
  *

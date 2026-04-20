@@ -1,4 +1,5 @@
 'use client';
+// SURFACE: dreamsurface.SettingsAppearance  (framework-mandated basename: page.tsx)
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';

@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.DaydreamConstellation  (framework-mandated basename: page.tsx)
 import { redirect } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase/server';
 import ConstellationClient from './dream.ConstellationClient';

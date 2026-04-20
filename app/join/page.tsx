@@ -1,4 +1,5 @@
 "use client";
+// SURFACE: dreamsurface.Join  (framework-mandated basename: page.tsx)
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
