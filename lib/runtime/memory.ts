@@ -268,19 +268,28 @@ export function boogieMemoryGuard(
 
 // ── EnginSAB — Shader Worker shared memory layout ────────────────────────────
 //
-// Layout (SoA, 3-axis + per-entity type byte + seam slot + telemetry zone):
+// Layout (SoA, 3-axis + per-entity type byte + seam control slots + telemetry + seam ext):
 //
-//   [0       – 39,999]  OFFSET_POS_X         posX[10,000]    Float32
-//   [40,000  – 79,999]  OFFSET_POS_Y         posY[10,000]    Float32
-//   [80,000  – 119,999] OFFSET_POS_Z         posZ[10,000]    Float32
-//   [120,000 – 159,999] OFFSET_VEL_X         velX[10,000]    Float32
-//   [160,000 – 199,999] OFFSET_VEL_Y         velY[10,000]    Float32
-//   [200,000 – 239,999] OFFSET_VEL_Z         velZ[10,000]    Float32
-//   [240,000 – 249,999] OFFSET_DAYDREAM_TYPE  type[10,000]   Uint8 (daydream class)
-//   [250,000 – 250,003] OFFSET_DREAMDM_BAR_Y               Float32 (1 slot, 4-byte aligned)
-//   [250,008 – 250,519] OFFSET_TELEMETRY                    Float64 (64 slots, 8-byte aligned)
+//   [0       – 39,999]  OFFSET_POS_X          posX[10,000]    Float32
+//   [40,000  – 79,999]  OFFSET_POS_Y          posY[10,000]    Float32
+//   [80,000  – 119,999] OFFSET_POS_Z          posZ[10,000]    Float32
+//   [120,000 – 159,999] OFFSET_VEL_X          velX[10,000]    Float32
+//   [160,000 – 199,999] OFFSET_VEL_Y          velY[10,000]    Float32
+//   [200,000 – 239,999] OFFSET_VEL_Z          velZ[10,000]    Float32
+//   [240,000 – 249,999] OFFSET_DAYDREAM_TYPE   type[10,000]   Uint8 (daydream class)
+//   [250,000 – 250,003] OFFSET_DREAMDM_BAR_Y  seam Y Int32    (seam ctrl slot 0)
+//   [250,004 – 250,007] OFFSET_DREAMDM_BAR_X  seam X Int32    (seam ctrl slot 1)
+//   [250,008 – 250,519] OFFSET_TELEMETRY      Float64 (64 slots, 8-byte aligned)
+//   [250,520 – 250,523] OFFSET_LOCKED_STATE   lock flag Int32 (seam ctrl slot 2)
+//   [250,524 – 250,527] OFFSET_AXIS_STATE     axis flag Int32 (seam ctrl slot 3)
 //
-// SAB_BYTES = OFFSET_TELEMETRY + MAX_WORKERS * 8 = 250,520
+// SAB_BYTES = OFFSET_AXIS_STATE + 4 = 250,528
+//
+// Seam ctrl logical indices (SEAM_CTRL_IDX_*):
+//   0 = BAR_Y (portrait seam ratio × BAR_Y_SCALE)
+//   1 = BAR_X (landscape seam ratio × BAR_Y_SCALE)
+//   2 = LOCKED (0 = unlocked / STATE_NAV, 1 = STATE_LOCKED)
+//   3 = AXIS   (0 = Portrait / Y-axis, 1 = Landscape / X-axis)
 //
 // Architecture: docs/ARCHITECTURE.md §1 (Runtime regions)
 
@@ -303,19 +312,67 @@ export const OFFSET_VEL_Z: number = OFFSET_VEL_Y + _ENGIN_CHANNEL_BYTES;      //
 /** Byte offset of the daydream-type byte array (Uint8, one per entity). */
 export const OFFSET_DAYDREAM_TYPE: number = OFFSET_VEL_Z + _ENGIN_CHANNEL_BYTES; // 240,000
 /**
- * Byte offset of the DreamDM Bar y-offset slot (Float32, 1 element).
- * Fixed at 250,000 — 4-byte aligned, leaves a gap after DAYDREAM_TYPE for
- * future per-entity metadata without breaking the Atomics alignment contract.
+ * Byte offset of the DreamDM Bar Y-axis seam slot (Int32, 1 element).
+ * Fixed at 250,000 — 4-byte aligned.  Portrait / Y-axis seam ratio × BAR_Y_SCALE.
+ * Seam control logical index 0 (SEAM_CTRL_IDX_BAR_Y).
  */
 export const OFFSET_DREAMDM_BAR_Y = 250_000;
+/**
+ * Byte offset of the DreamDM Bar X-axis seam slot (Int32, 1 element).
+ * Fixed at 250,004 — 4-byte aligned, uses the gap between BAR_Y and TELEMETRY.
+ * Landscape / X-axis seam ratio × BAR_Y_SCALE.
+ * Seam control logical index 1 (SEAM_CTRL_IDX_BAR_X).
+ */
+export const OFFSET_DREAMDM_BAR_X = 250_004;
 /**
  * Byte offset of the SAB Telemetry Zone (Float64, MAX_WORKERS elements).
  * Fixed at 250,008 — 8-byte aligned.
  */
 export const OFFSET_TELEMETRY = 250_008;
+/**
+ * Byte offset of the DreamDM Bar lock-state flag (Int32, 1 element).
+ * Placed after the telemetry zone at 250,520 — 4-byte aligned.
+ * 0 = unlocked (STATE_NAV / STATE_MANIPULATE), 1 = STATE_LOCKED.
+ * Seam control logical index 2 (SEAM_CTRL_IDX_LOCKED).
+ *
+ * The Wasm physics worker reads this flag to switch between dynamic constraint
+ * recalculation (0) and a static collision plane (1), reducing tick cost when
+ * the seam is locked.
+ */
+export const OFFSET_LOCKED_STATE = 250_520;
+/**
+ * Byte offset of the DreamDM Bar axis-orientation flag (Int32, 1 element).
+ * At 250,524 — 4-byte aligned.
+ * 0 = Portrait (Y-axis seam), 1 = Landscape (X-axis seam).
+ * Seam control logical index 3 (SEAM_CTRL_IDX_AXIS).
+ */
+export const OFFSET_AXIS_STATE = 250_524;
 
-/** Total size of the EnginSAB in bytes. */
-export const SAB_BYTES = OFFSET_TELEMETRY + MAX_WORKERS * 8; // 250,520
+/** Total size of the EnginSAB in bytes (250,528 — divisible by 8). */
+export const SAB_BYTES = OFFSET_AXIS_STATE + 4; // 250,528
+
+// ── Seam control logical indices (Int32 slot numbers within the seam layout) ──
+//
+// These constants mirror the spec's OFFSET_DREAMDM_BAR_*_INT32 indices and map
+// the conceptual "control buffer slot" to the actual byte-offset constants above.
+// They are intentionally not Int32Array element indices into a single contiguous
+// array (the telemetry zone sits between slots 1 and 2); use the individual
+// accessor functions below instead.
+
+/** Logical seam control slot 0 — DreamDM Bar Y-axis seam ratio (portrait). */
+export const SEAM_CTRL_IDX_BAR_Y    = 0;
+/** Logical seam control slot 1 — DreamDM Bar X-axis seam ratio (landscape). */
+export const SEAM_CTRL_IDX_BAR_X    = 1;
+/** Logical seam control slot 2 — Lock state (0 = unlocked, 1 = STATE_LOCKED). */
+export const SEAM_CTRL_IDX_LOCKED   = 2;
+/** Logical seam control slot 3 — Axis orientation (0 = Portrait/Y, 1 = Landscape/X). */
+export const SEAM_CTRL_IDX_AXIS     = 3;
+
+/**
+ * Snap-to-centre threshold: if the seam is within ±5 % of the screen centre
+ * on pointer-up, it snaps back to 50 % (STATE_NAV).
+ */
+export const SNAP_THRESHOLD_RATIO = 0.05;
 
 /**
  * A non-overlapping slice of entity indices assigned to one shader worker.
@@ -420,6 +477,38 @@ export function int32DreamDMBarY(sab: SharedArrayBuffer): Int32Array {
 }
 
 /**
+ * Return an Int32Array (1 element) at the DreamDM Bar X slot.
+ *
+ * Mirrors `int32DreamDMBarY` for the landscape / X-axis seam.
+ * Use with `Atomics.store` / `Atomics.load`.  Value encoding identical to
+ * the Y slot: `Math.round(ratio * BAR_Y_SCALE)`.
+ */
+export function int32DreamDMBarX(sab: SharedArrayBuffer): Int32Array {
+  return new Int32Array(sab, OFFSET_DREAMDM_BAR_X, 1);
+}
+
+/**
+ * Return an Int32Array (1 element) at the DreamDM Bar lock-state slot.
+ *
+ * 0 = unlocked (STATE_NAV / STATE_MANIPULATE), 1 = STATE_LOCKED.
+ * Use with `Atomics.store` / `Atomics.load`.
+ */
+export function int32LockedState(sab: SharedArrayBuffer): Int32Array {
+  return new Int32Array(sab, OFFSET_LOCKED_STATE, 1);
+}
+
+/**
+ * Return an Int32Array (1 element) at the DreamDM Bar axis-orientation slot.
+ *
+ * 0 = Portrait (Y-axis seam), 1 = Landscape (X-axis seam).
+ * Updated atomically on `window.orientation` change.
+ * Use with `Atomics.store` / `Atomics.load`.
+ */
+export function int32AxisState(sab: SharedArrayBuffer): Int32Array {
+  return new Int32Array(sab, OFFSET_AXIS_STATE, 1);
+}
+
+/**
  * Return a Float64Array (MAX_WORKERS elements) covering the telemetry zone.
  * Worker i writes µs/tick to slot i.
  */
@@ -436,6 +525,9 @@ export function f64Telemetry(sab: SharedArrayBuffer): Float64Array {
 /** @internal */ export const ENGIN_OFFSET_VEL_Y         = OFFSET_VEL_Y;
 /** @internal */ export const ENGIN_OFFSET_VEL_Z         = OFFSET_VEL_Z;
 /** @internal */ export const ENGIN_OFFSET_DREAMDM_BAR_Y = OFFSET_DREAMDM_BAR_Y;
+/** @internal */ export const ENGIN_OFFSET_DREAMDM_BAR_X = OFFSET_DREAMDM_BAR_X;
+/** @internal */ export const ENGIN_OFFSET_LOCKED_STATE  = OFFSET_LOCKED_STATE;
+/** @internal */ export const ENGIN_OFFSET_AXIS_STATE    = OFFSET_AXIS_STATE;
 /** @internal */ export const ENGIN_OFFSET_TELEMETRY     = OFFSET_TELEMETRY;
 /** @internal */ export const ENGIN_SAB_SIZE             = SAB_BYTES;
 

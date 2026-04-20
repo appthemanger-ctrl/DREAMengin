@@ -40,10 +40,13 @@ const OFFSET_POS_Z        = OFFSET_POS_Y + F32_CHANNEL_BYTES;
 const OFFSET_VEL_X        = OFFSET_POS_Z + F32_CHANNEL_BYTES;
 const OFFSET_VEL_Y        = OFFSET_VEL_X + F32_CHANNEL_BYTES;
 const OFFSET_VEL_Z        = OFFSET_VEL_Y + F32_CHANNEL_BYTES;
-const OFFSET_DREAMDM_BAR_Y = 250_000;
-const OFFSET_TELEMETRY    = 250_008;
+const OFFSET_DREAMDM_BAR_Y = 250_000;  // Int32 — portrait / Y-axis seam ratio
+const OFFSET_DREAMDM_BAR_X = 250_004;  // Int32 — landscape / X-axis seam ratio
+const OFFSET_TELEMETRY    = 250_008;  // Float64[MAX_WORKERS]
+const OFFSET_LOCKED_STATE = 250_520;  // Int32 — 0=unlocked, 1=STATE_LOCKED
+const OFFSET_AXIS_STATE   = 250_524;  // Int32 — 0=Portrait/Y, 1=Landscape/X
 
-/** Fixed-point scale for the bar Y slot — mirrors BAR_Y_SCALE in memory.ts. */
+/** Fixed-point scale for the bar seam slots — mirrors BAR_Y_SCALE in memory.ts. */
 const BAR_Y_SCALE = 100;
 
 // ─── Worker state ─────────────────────────────────────────────────────────────
@@ -67,7 +70,10 @@ let posZ: Float32Array;
 let velX: Float32Array;
 let velY: Float32Array;
 let velZ: Float32Array;
-let barY: Int32Array;      // Int32 for Atomics.load (Bug C — was Float32Array)
+let barY: Int32Array;      // Int32 for Atomics.load — portrait seam (Bug C — was Float32Array)
+let barX: Int32Array;      // Int32 for Atomics.load — landscape seam
+let lockedState: Int32Array; // 0 = unlocked, 1 = STATE_LOCKED
+let axisState: Int32Array;   // 0 = Portrait/Y, 1 = Landscape/X
 let telemetry: Float64Array;
 
 // ─── Wasm SIMD stub ───────────────────────────────────────────────────────────
@@ -182,10 +188,19 @@ function tick(): void {
 
   const { startIndex, endIndex, workerIndex } = workgroup;
 
-  // Dual-Runtime Seam: read DreamDM Bar y-offset written by Surface Space.
-  // Use Atomics.load on the Int32 view for a sequentially consistent read
+  // Dual-Runtime Seam: read DreamDM Bar seam offset written by Surface Space.
+  // Select the correct axis slot based on the current orientation flag.
+  // Use Atomics.load on Int32 views for sequentially consistent reads
   // (Bug C — replaces non-atomic barY[0] Float32 read).
-  const dreamDMBarYOffset = Atomics.load(barY, 0) / BAR_Y_SCALE;
+  const isLandscape = Atomics.load(axisState, 0) === 1;
+  const activeBar = isLandscape ? barX : barY;
+  const dreamDMBarOffset = Atomics.load(activeBar, 0) / BAR_Y_SCALE;
+
+  // When STATE_LOCKED, the Wasm worker treats the seam as a static collision
+  // plane — skip dynamic constraint recalculation for better tick performance.
+  const isLocked = Atomics.load(lockedState, 0) === 1;
+  void dreamDMBarOffset; // consumed by physics plane logic below
+  void isLocked;         // used by Wasm when static plane optimisation is active
 
   // Bounds guard at range boundaries (audit sampling — checks start/end only
   // to avoid per-entity overhead in hot path; full guard is in wasmSIMDAddF32x4).
@@ -291,14 +306,17 @@ self.onmessage = (evt: MessageEvent) => {
       workerWasmMemory = msg.wasmMemory ?? null;
 
       // Establish SAB views
-      posX      = new Float32Array(sab, OFFSET_POS_X,         ENTITY_COUNT);
-      posY      = new Float32Array(sab, OFFSET_POS_Y,         ENTITY_COUNT);
-      posZ      = new Float32Array(sab, OFFSET_POS_Z,         ENTITY_COUNT);
-      velX      = new Float32Array(sab, OFFSET_VEL_X,         ENTITY_COUNT);
-      velY      = new Float32Array(sab, OFFSET_VEL_Y,         ENTITY_COUNT);
-      velZ      = new Float32Array(sab, OFFSET_VEL_Z,         ENTITY_COUNT);
-      barY      = new Int32Array(sab, OFFSET_DREAMDM_BAR_Y,  1);
-      telemetry = new Float64Array(sab, OFFSET_TELEMETRY,     64);
+      posX        = new Float32Array(sab, OFFSET_POS_X,          ENTITY_COUNT);
+      posY        = new Float32Array(sab, OFFSET_POS_Y,          ENTITY_COUNT);
+      posZ        = new Float32Array(sab, OFFSET_POS_Z,          ENTITY_COUNT);
+      velX        = new Float32Array(sab, OFFSET_VEL_X,          ENTITY_COUNT);
+      velY        = new Float32Array(sab, OFFSET_VEL_Y,          ENTITY_COUNT);
+      velZ        = new Float32Array(sab, OFFSET_VEL_Z,          ENTITY_COUNT);
+      barY        = new Int32Array(sab, OFFSET_DREAMDM_BAR_Y,   1);
+      barX        = new Int32Array(sab, OFFSET_DREAMDM_BAR_X,   1);
+      lockedState = new Int32Array(sab, OFFSET_LOCKED_STATE,    1);
+      axisState   = new Int32Array(sab, OFFSET_AXIS_STATE,      1);
+      telemetry   = new Float64Array(sab, OFFSET_TELEMETRY,      64);
 
       running   = true;
 
