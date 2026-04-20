@@ -177,12 +177,16 @@ function HomeSystemInner({
   }, [isBarMinimized, splitRatio]);
 
   const dividerHeight = isBarMinimized ? 0 : DIVIDER_H;
-  const topHeight = `calc((100% - ${dividerHeight}px) * ${splitRatio})`;
+  // When the DreamDM Bar is minimized, force splitRatio to 1 so the
+  // Surface region fills the viewport and DreamSpace is hidden until the
+  // user reveals the bar again.
+  const runtimeSplitRatio = isBarMinimized ? 1 : splitRatio;
+  const topHeight = `calc((100% - ${dividerHeight}px) * ${runtimeSplitRatio})`;
   const bottomRegionTop = `calc(${topHeight} + ${dividerHeight}px)`;
   const bottomHeight = `calc(100% - ${bottomRegionTop})`;
   const seamOffset =
     viewportHeight > 0
-      ? Math.round(((viewportHeight - dividerHeight) * splitRatio) + dividerHeight / 2)
+      ? Math.round(((viewportHeight - dividerHeight) * runtimeSplitRatio) + dividerHeight / 2)
       : undefined;
 
   return (
@@ -210,7 +214,7 @@ function HomeSystemInner({
           onOpenInRegion={openInSurfaceRegion}
           onBackFromRegion={backFromSurfaceRegion}
           seamOffsetPx={seamOffset}
-          splitRatio={splitRatio}
+          splitRatio={runtimeSplitRatio}
           seamVisible={!isBarMinimized}
           dominantRegion={dualRuntime.state.dominantRegion}
         />
@@ -239,7 +243,7 @@ function HomeSystemInner({
           onOpenInRegion={openInDreamRegion}
           onBackFromRegion={backFromDreamRegion}
           seamOffsetPx={seamOffset}
-          splitRatio={splitRatio}
+          splitRatio={runtimeSplitRatio}
           seamVisible={!isBarMinimized}
           dominantRegion={dualRuntime.state.dominantRegion}
         />

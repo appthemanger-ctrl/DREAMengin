@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { enginBridge } from '@/lib/runtime/dualRuntimeBridge';
 import { analyzeSwipe, tallyView } from '@/lib/botDetection';
 import type { Point } from '@/lib/botDetection';
-export { DREAMR_TOPICS } from './algorithms/dream.dreamrfeed';
+export { DREAMR_TOPICS } from '@/lib/dreamr/dreamrfeed';
 
 export default function DreamRFeed({ videoId, sharerId, viewerId }: { videoId: string, sharerId: string, viewerId: string }) {
   const [hasTallied, setHasTallied] = useState(false);

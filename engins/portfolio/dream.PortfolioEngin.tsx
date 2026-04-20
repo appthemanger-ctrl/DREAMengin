@@ -14,7 +14,7 @@
 
 import { useState } from 'react';
 import { ArrowLeft, TrendingUp, Activity, ShieldCheck, Cpu } from 'lucide-react';
-import QuantumCircuitCanvas, { type QuantumMeasurementResult } from './dream.QuantumCircuitCanvas';
+import QuantumCircuitCanvas, { type QuantumMeasurementResult } from '@/engins/dream.engin.QuantumCircuitCanvas';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
@@ -501,3 +501,4 @@ export default function PortfolioEngin({ onBack }: Props) {
     </div>
   );
 }
+

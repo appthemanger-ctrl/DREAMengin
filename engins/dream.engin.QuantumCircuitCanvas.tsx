@@ -1,7 +1,34 @@
 'use client';
+
+/**
+ * dream.engin.QuantumCircuitCanvas — shared engin component.
+ *
+ * Real quantum circuit simulator with QAOA / VQE algorithms, complex-number
+ * gate math (Hadamard, Rx/Ry/Rz, CNOT), state-vector evolution, and
+ * measurement-distribution rendering on a 2D canvas. Originally lived under
+ * engins/portfolio/ as the only consumer, but it is general enough for any
+ * engin that wants a quantum visualisation surface (Lab, Game, Forge…), so
+ * it has been promoted to a shared engin component.
+ *
+ * Usage:
+ *
+ *   import QuantumCircuitCanvas, {
+ *     type QuantumMeasurementResult,
+ *   } from '@/engins/dream.engin.QuantumCircuitCanvas';
+ *
+ *   <QuantumCircuitCanvas
+ *     active={running}
+ *     accentColor="#7dd3fc"
+ *     secondaryColor="#a78bfa"
+ *     height={220}
+ *   />
+ *
+ * Architecture: docs/ARCHITECTURE.md §1 (Engin pair system)
+ * Performance:  RAF runs only while `active`; freezes on idle to save battery.
+ */
+
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-// ── Complex arithmetic ─────────────────────────────────────────────────────────
 // A complex number is a pair [real, imaginary].
 type C = [number, number];
 
