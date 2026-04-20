@@ -31,7 +31,12 @@
     "gameengin:artisan": "tsx scripts/gameengin/artisan-run.ts",
     "gameengin:writer": "tsx scripts/gameengin/writer-run.ts",
     "gameengin:upgrader": "tsx scripts/gameengin/upgrader-run.ts",
-    "gameengin:package": "tsx scripts/gameengin/package-cartridge.ts"
+    "gameengin:package": "tsx scripts/gameengin/package-cartridge.ts",
+    "naming:check": "node scripts/dream-naming-check.mjs",
+    "naming:check:strict": "node scripts/dream-naming-check.mjs --strict",
+    "naming:generate-map": "node scripts/dream-rename.mjs --generate-map scripts/rename-map.json",
+    "naming:rename:dry": "node scripts/dream-rename.mjs --dry-run --map scripts/rename-map.json",
+    "naming:rename:apply": "node scripts/dream-rename.mjs --apply --map scripts/rename-map.json"
   },
   "dependencies": {
     "@babylonjs/core": "^9.1.0",
