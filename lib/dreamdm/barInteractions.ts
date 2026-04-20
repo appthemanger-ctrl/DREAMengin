@@ -56,6 +56,13 @@ export const BAR_SNAP_TO_TOP_HEIGHT_RATIO = 0.96;
 export const BAR_FLING_TO_TOP_VELOCITY_THRESHOLD_PX_PER_MS = -0.9;
 export const BAR_FLING_TO_TOP_MIN_DRAG_PX = 44;
 export const BAR_FLING_TO_BOTTOM_VELOCITY_THRESHOLD_PX_PER_MS = 0.9;
+/**
+ * "Invisible line" past which an upward fling snaps the bar all the way to
+ * the top (and below which a downward fling snaps it to the bottom). The
+ * user described this as "about 2/5 of the way" — see `decideBarRelease`.
+ * Below the line, slow drags park wherever the user lets go (free placement).
+ */
+export const BAR_FLING_LINE_RATIO = 0.4;
 export const MIN_POINTER_SAMPLE_DELTA_MS = 1;
 
 export type GoldTapAction = 'menu' | 'home' | 'home-dreamspace';
@@ -145,6 +152,61 @@ export function shouldCollapseTopExpandedDrag({
     slideDown > snapDownPx ||
     velocityPxPerMs >= BAR_FLING_TO_BOTTOM_VELOCITY_THRESHOLD_PX_PER_MS
   );
+}
+
+/**
+ * Release decision for a bottom-origin bar drag.
+ *
+ * Behaviour the user explicitly asked for:
+ *   • Slow drag — the bar parks WHEREVER the user let go. No forced snap.
+ *   • Upward fling crossing the invisible 2/5 line — slams to the top.
+ *   • Downward fling below the invisible line — slams to the bottom.
+ *
+ * Returns the action the caller should take. Callers that want to keep the
+ * current free-park position should treat `'park'` as a no-op.
+ */
+export type BarReleaseAction = 'snap-top' | 'snap-bottom' | 'park';
+
+export function decideBarRelease({
+  screenH,
+  dragH,
+  barH: _barH,
+  velocityPxPerMs,
+}: {
+  screenH: number;
+  dragH: number;
+  barH: number;
+  velocityPxPerMs: number;
+}): BarReleaseAction {
+  // Hard top — already pinned at the screen top, take it the rest of the way.
+  const barTopFromScreenTop = screenH - dragH;
+  if (
+    barTopFromScreenTop <= BAR_SNAP_TO_TOP_THRESHOLD_PX ||
+    dragH >= screenH * BAR_SNAP_TO_TOP_HEIGHT_RATIO
+  ) {
+    return 'snap-top';
+  }
+
+  const lineH = screenH * BAR_FLING_LINE_RATIO;
+
+  // Upward fling above the invisible line → top.
+  if (
+    velocityPxPerMs <= BAR_FLING_TO_TOP_VELOCITY_THRESHOLD_PX_PER_MS &&
+    dragH >= lineH
+  ) {
+    return 'snap-top';
+  }
+
+  // Downward fling, near or below the line → bottom.
+  if (
+    velocityPxPerMs >= BAR_FLING_TO_BOTTOM_VELOCITY_THRESHOLD_PX_PER_MS &&
+    dragH <= lineH
+  ) {
+    return 'snap-bottom';
+  }
+
+  // Anything else — let the bar rest exactly where the user let go.
+  return 'park';
 }
 
 // ── Minimized orb position helpers ───────────────────────────────────────────

@@ -286,8 +286,8 @@ export function ForgeDreamCanvas() {
           {categoryPieces.map((comp) => (
             <button
               key={comp.id}
-              onDoubleClick={() => addPiece(comp)}
-              title={`Double-click to add: ${comp.description}`}
+              onClick={() => addPiece(comp)}
+              title={`Click to add: ${comp.description}`}
               className="w-full text-left px-2 py-1.5 rounded text-xs text-white/70 hover:text-white hover:bg-white/10 transition-colors"
             >
               {comp.name}

@@ -71,6 +71,24 @@ export interface DaydreamEnginManifest {
   refineThreshold: number;
   /** UI refinements to pursue in UPGRADE and REFINE phases */
   uiRefinements: string[];
+  /**
+   * Solo-parity flag (Pass 5 — Shared Runtime).
+   * When `true` (default for new Engins), the Engin is fully usable by a
+   * single user with no co-op peers and no network channel. Solo and co-op
+   * share the exact same React tree — only the runtimeChannel adapter
+   * differs (`LocalChannel` vs `RealtimeChannel`).
+   */
+  solo?: boolean;
+  /**
+   * Co-op declaration (Pass 8 — Co-op Pack).
+   * `false` (or omitted) → Engin is solo-only, cannot be mounted on the
+   * shared top runtime.
+   * `true`              → Engin opts into the default co-op affordances
+   * (presence, broadcast, hand-off).
+   * `{ affordances }`   → Engin opts into a specific list of co-op
+   * affordances. Unknown affordances must be ignored by the host.
+   */
+  coop?: boolean | { affordances: string[] };
 }
 
 // ─── Music / StarMakerEngin ───────────────────────────────────────────────────
