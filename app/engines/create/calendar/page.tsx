@@ -1,8 +1,9 @@
+// SURFACE: dreamsurface.EnginesCreateCalendar  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import CalendarPanel from '@/components/engines/create/panels/CalendarPanel';
+import CalendarPanel from '@/components/engines/create/panels/dream.panel.CalendarPanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Content Calendar – ContentEngin', description: 'Plan your content week.' };

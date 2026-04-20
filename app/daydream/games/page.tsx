@@ -1,10 +1,11 @@
+// SURFACE: dreamsurface.DaydreamGames  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Gamepad2, Play, Sparkles, Zap } from 'lucide-react';
-import GamesHub from '@/components/games/GamesHub';
+import GamesHub from '@/components/games/dream.GamesHub';
 
-import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
+import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
 // Stream 8.3 — Bundle split: GameEngin (Babylon.js) only loads when Side B mounts.
 // docs/ARCHITECTURE.md §10 — render-on-demand, minimal initial bundle.
 import dynamic from 'next/dynamic';
@@ -15,9 +16,9 @@ const GameEngin = dynamic(() => import('@/engins/engin.GameEngin'), {
     </div>
   ),
 });
-import OpenDaydreamSideBButton from '@/components/daydream/OpenDaydreamSideBButton';
-import AutoOpenGameEngin from '@/engins/autoopen/AutoOpenGameEngin';
-import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import OpenDaydreamSideBButton from '@/components/daydream/dream.OpenDaydreamSideBButton';
+import AutoOpenGameEngin from '@/engins/autoopen/dream.AutoOpenGameEngin';
+import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import { GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
 import { buildGameLaunchHref } from '@/lib/games/navigation';
 import { connection } from 'next/server';

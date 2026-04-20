@@ -9,11 +9,11 @@ export {
   useSharedDream,
   type SharedDreamContextValue,
   type SharedDreamProviderProps,
-} from './SharedDreamProvider';
+} from './dream.SharedDreamProvider';
 
 export {
   SharedDreamCanvas,
   type SharedDreamCanvasProps,
-} from './SharedDreamCanvas';
+} from './dream.SharedDreamCanvas';
 
-export { InviteFlow, type InviteFlowProps } from './InviteFlow';
+export { InviteFlow, type InviteFlowProps } from './dream.InviteFlow';

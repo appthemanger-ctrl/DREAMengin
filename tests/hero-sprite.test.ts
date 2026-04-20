@@ -4,7 +4,7 @@
 // without a browser / canvas environment.
 
 import { describe, it, expect } from 'vitest';
-import { hitZone, ZONE_QUOTES, pickZoneQuote } from '@/components/HeroSprite';
+import { hitZone, ZONE_QUOTES, pickZoneQuote } from '@/components/dream.HeroSprite';
 
 describe('HeroSprite hitZone', () => {
   const H = 288; // representative canvas height

@@ -6,7 +6,7 @@ const root = process.cwd();
 
 describe('landing mission statement experience', () => {
   it('replaces the landing stats strip with a mission statement link', () => {
-    const src = readFileSync(join(root, 'components/LandingHero.tsx'), 'utf-8');
+    const src = readFileSync(join(root, 'components/dream.LandingHero.tsx'), 'utf-8');
 
     expect(src).toContain('href="/mission"');
     expect(src).toContain('A social platform where your individuality is the algorithm.');

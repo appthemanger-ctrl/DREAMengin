@@ -27,7 +27,7 @@ const starmakerSource = fs.readFileSync(
   'utf8',
 );
 const arrangementPanelSource = fs.readFileSync(
-  path.join(process.cwd(), 'components/daydream/starmaker/MultitrackArrangementPanel.tsx'),
+  path.join(process.cwd(), 'components/daydream/starmaker/dream.panel.MultitrackArrangementPanel.tsx'),
   'utf8',
 );
 const arrangementModelSource = fs.readFileSync(
@@ -35,15 +35,15 @@ const arrangementModelSource = fs.readFileSync(
   'utf8',
 );
 const pianoRollSource = fs.readFileSync(
-  path.join(process.cwd(), 'components/daydream/starmaker/PianoRollPanel.tsx'),
+  path.join(process.cwd(), 'components/daydream/starmaker/dream.panel.PianoRollPanel.tsx'),
   'utf8',
 );
 const compingSource = fs.readFileSync(
-  path.join(process.cwd(), 'components/daydream/starmaker/CompingPanel.tsx'),
+  path.join(process.cwd(), 'components/daydream/starmaker/dream.panel.CompingPanel.tsx'),
   'utf8',
 );
 const sessionViewSource = fs.readFileSync(
-  path.join(process.cwd(), 'components/daydream/starmaker/SessionViewPanel.tsx'),
+  path.join(process.cwd(), 'components/daydream/starmaker/dream.panel.SessionViewPanel.tsx'),
   'utf8',
 );
 const dawModelSource = fs.readFileSync(
@@ -210,7 +210,7 @@ describe('StarMaker sample editor advanced workflow', () => {
   });
 
   it('gives arrangement its own dedicated file structure and shared model module', () => {
-    expect(starmakerSource).toContain("@/components/daydream/starmaker/MultitrackArrangementPanel");
+    expect(starmakerSource).toContain("@/components/daydream/starmaker/dream.panel.MultitrackArrangementPanel");
     expect(starmakerSource).toContain("@/lib/music/starmakerArrangement");
     expect(arrangementModelSource).toContain('export const ARRANGEMENT_BARS = 16');
     expect(arrangementModelSource).toContain('export interface ArrangementClip');

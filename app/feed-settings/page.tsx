@@ -1,6 +1,7 @@
+// SURFACE: dreamsurface.FeedSettings  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import FeedSettingsClient from './FeedSettingsClient';
+import FeedSettingsClient from './dream.FeedSettingsClient';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Feed Settings – Dreamengin' };

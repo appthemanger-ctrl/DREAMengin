@@ -1,6 +1,7 @@
+// SURFACE: dreamsurface.DaydreamField  (framework-mandated basename: page.tsx)
 import { redirect } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase/server';
-import DREAMfield from '@/components/daydream/DREAMfield';
+import DREAMfield from '@/components/daydream/dream.DREAMfield';
 import { connection } from 'next/server';
 
 export const metadata = {

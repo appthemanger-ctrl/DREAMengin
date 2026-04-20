@@ -60,6 +60,40 @@ const eslintConfig = [
       "jsx-a11y/alt-text": "warn",
     },
   },
+  {
+    // Tap discipline (2026-04): single-tap is the system-wide affordance.
+    // The only sanctioned double-tap site is the home particle / light, via
+    // `useHomeParticleTap` from `lib/hooks/useTap.ts`. New code must use
+    // `useTap` (single-tap) instead of `onDoubleClick` / `onDblClick`.
+    //
+    // Gameplay primitives inside cartridges (e.g. controller mapping,
+    // sprint detectors) are exempt: those files live under
+    // `components/games/**`, `lib/games/**`, and `lib/dualsense/**` and are
+    // ignored below.
+    files: ["**/*.{ts,tsx,js,jsx}"],
+    ignores: [
+      "lib/hooks/useTap.ts",
+      "components/games/**",
+      "lib/games/**",
+      "lib/dualsense/**",
+      "tests/**",
+    ],
+    rules: {
+      "no-restricted-syntax": [
+        "warn",
+        {
+          selector: "JSXAttribute[name.name='onDoubleClick']",
+          message:
+            "Double-click is reserved for the home particle. Use the `useTap` hook from lib/hooks/useTap.ts (single-tap) instead. The only sanctioned double-tap site uses `useHomeParticleTap` and lives in the DreamDM bar.",
+        },
+        {
+          selector: "JSXAttribute[name.name='onDblClick']",
+          message:
+            "Double-click is reserved for the home particle. Use the `useTap` hook from lib/hooks/useTap.ts (single-tap) instead.",
+        },
+      ],
+    },
+  },
 ]
 
 export default eslintConfig

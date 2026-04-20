@@ -17,7 +17,7 @@
  * Called by: DreamRCore before writing to torridityLedger
  */
 
-import { slog, TORRIDITY_LEDGER_CONFIG } from './torridityLedger';
+import { slog, TORRIDITY_LEDGER_CONFIG } from '@/lib/dreamr/torridityLedger';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 

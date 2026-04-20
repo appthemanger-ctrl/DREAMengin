@@ -1,8 +1,9 @@
+// SURFACE: dreamsurface.EnginesLabData  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import DataVizPanel from '@/components/engines/lab/panels/DataVizPanel';
+import DataVizPanel from '@/components/engines/lab/panels/dream.panel.DataVizPanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Data Viz – LabEngin', description: 'Visualize experiment data.' };

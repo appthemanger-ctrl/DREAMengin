@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.AdminPlatformHealth  (framework-mandated basename: page.tsx)
 // app/admin/platform-health/page.tsx
 // Phase 9 — IDARi Platform Health admin surface.
 //
@@ -7,7 +8,7 @@
 
 import { redirect } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase/server';
-import { PlatformHealth } from '@/components/idari/PlatformHealth';
+import { PlatformHealth } from '@/components/idari/dream.PlatformHealth';
 import { connection } from 'next/server';
 
 export const metadata = {

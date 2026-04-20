@@ -1,5 +1,6 @@
+// SURFACE: dreamsurface.GameenginCartridges  (framework-mandated basename: page.tsx)
 import type { Metadata } from 'next';
-import CartridgeBrowser from '@/components/gameengin/CartridgeBrowser';
+import CartridgeBrowser from '@/components/gameengin/dream.cartridge.CartridgeBrowser';
 
 export const metadata: Metadata = {
   title: 'GameEngin · Cartridges',

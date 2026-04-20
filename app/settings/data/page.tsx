@@ -1,6 +1,7 @@
+// SURFACE: dreamsurface.SettingsData  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import DataClient from './DataClient';
+import DataClient from './dream.DataClient';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Data – Dreamengin Settings' };

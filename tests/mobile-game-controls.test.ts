@@ -36,9 +36,9 @@ describe('shared mobile game controls', () => {
 
   it('wires the immersive shell to the shared mobile HUD modes for example games', () => {
     const shellSrc = readFileSync(join(REPO_ROOT, 'engins/engin.GameEngin.tsx'), 'utf8');
-    const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/GameHUD.tsx'), 'utf8');
-    const gamesSrc = readFileSync(join(REPO_ROOT, 'components/games/GamesHub.tsx'), 'utf8');
-    const echoSrc = readFileSync(join(REPO_ROOT, 'components/games/EchoArena.tsx'), 'utf8');
+    const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/dream.hud.GameHUD.tsx'), 'utf8');
+    const gamesSrc = readFileSync(join(REPO_ROOT, 'components/games/dream.GamesHub.tsx'), 'utf8');
+    const echoSrc = readFileSync(join(REPO_ROOT, 'components/games/dream.EchoArena.tsx'), 'utf8');
 
     expect(shellSrc).toContain('<GameHUD');
     expect(hudSrc).toContain('<MobileGameHUD');
@@ -48,9 +48,9 @@ describe('shared mobile game controls', () => {
   });
 
   it('keeps the immersive mobile HUD with right dock combining button ring and embedded joystick', () => {
-    const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/MobileGameHUD.tsx'), 'utf8');
-    const hudCss = readFileSync(join(REPO_ROOT, 'components/games/MobileGameHUD.module.css'), 'utf8');
-    const immersiveShellSrc = readFileSync(join(REPO_ROOT, 'app/daydream/game/ImmersiveGameShell.tsx'), 'utf8');
+    const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/dream.hud.MobileGameHUD.tsx'), 'utf8');
+    const hudCss = readFileSync(join(REPO_ROOT, 'components/games/dream.hud.MobileGameHUD.module.css'), 'utf8');
+    const immersiveShellSrc = readFileSync(join(REPO_ROOT, 'app/daydream/game/dream.shell.ImmersiveGameShell.tsx'), 'utf8');
 
     expect(hudSrc).toContain('leftCapRef.current');
     expect(hudSrc).toContain('rightCapRef.current');

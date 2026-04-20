@@ -33,8 +33,8 @@ import {
   ArrowLeft, Gamepad2, Trophy, Play, Share2,
   Map, Award, Sliders, FileCode, Radio, Lock, Unlock,
 } from 'lucide-react';
-import GameHUD from '@/components/games/GameHUD';
-import { GAMES } from '@/components/games/GamesHub';
+import GameHUD from '@/components/games/dream.hud.GameHUD';
+import { GAMES } from '@/components/games/dream.GamesHub';
 import {
   GAME_LIBRARY_SELECTION_STORAGE_KEY,
   GAME_LIBRARY_SESSION_STORAGE_KEY,
@@ -48,16 +48,16 @@ import { useGameInputKeyboardBridge } from '@/lib/games/useGameInputKeyboardBrid
 import { useRemoteChannel } from '@/lib/games/useRemoteChannel';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useGameEnginBridge } from '@/lib/runtime/useEnginBridge';
-import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel';
+import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import { GAME_CONTROL_PROFILES, GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
 import { buildLedgerMediaUrl } from '@/lib/media/ledger';
-import JourneyTrail from '@/components/daydream/JourneyTrail';
+import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
 import GameRuntime from '@/lib/gameengin/GameRuntime';
 import type { GameCartridge } from '@/lib/gameengin/cartridge';
 import { wrapAsCartridge } from '@/lib/gameengin/ReactComponentCartridge';
-import RecordingControls from '@/components/games/RecordingControls';
+import RecordingControls from '@/components/games/dream.RecordingControls';
 
 // ── Interfaces ─────────────────────────────────────────────────────────────────
 

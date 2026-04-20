@@ -1,11 +1,12 @@
+// SURFACE: dreamsurface.DaydreamCode  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Code2, FolderOpen, FileCode2, Upload, ExternalLink, Play } from 'lucide-react';
-import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
+import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
 import CodeEngin from '@/engins/engin.CodeEngin';
-import OpenDaydreamSideBButton from '@/components/daydream/OpenDaydreamSideBButton';
-import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import OpenDaydreamSideBButton from '@/components/daydream/dream.OpenDaydreamSideBButton';
+import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Code Daydream – Dreamengin', description: 'Code projects, snippets, files, and deployments.' };

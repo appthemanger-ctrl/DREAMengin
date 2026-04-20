@@ -5,12 +5,12 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import HomeControls from './HomeControls';
-import NexusMenu from './NexusMenu';
-import OutdreamMenu from './OutdreamMenu';
-import DrEamsPanel from './DrEamsPanel';
-import CanvasDropZone, { type AssetImportPayload } from './CanvasDropZone';
-import DREAMenginOS from './DREAMenginOS';
+import HomeControls from './dream.HomeControls';
+import NexusMenu from './dream.menu.NexusMenu';
+import OutdreamMenu from './dream.menu.OutdreamMenu';
+import DrEamsPanel from './dream.panel.DrEamsPanel';
+import CanvasDropZone, { type AssetImportPayload } from './dream.CanvasDropZone';
+import DREAMenginOS from './dream.DREAMenginOS';
 import { DreamNavProvider } from '@/components/dreamnav/dreamsurface.dreamnav';
 
 export default function DreamenginApp() {

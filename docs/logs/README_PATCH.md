@@ -34,13 +34,13 @@ This exposes synced, normalised provider items so widgets can actually render th
 
 ### 4. Widget rendering
 Patched:
-- `components/widgets/UniversalWidget.tsx`
+- `components/widgets/dream.widget.UniversalWidget.tsx`
 
 For `service="youtube"` and `service="github"`, it now pulls live synced items from the new items route instead of showing only placeholder text.
 
 ### 5. Connector UI
 Patched:
-- `components/connectors/ConnectorRow.tsx`
+- `components/connectors/dream.ConnectorRow.tsx`
 
 Adds YouTube credential input.
 

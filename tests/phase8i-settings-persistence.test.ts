@@ -78,7 +78,7 @@ describe('Phase 8 §I — Privacy settings DB persistence (Point 84)', () => {
 
   it('privacy settings page fetches from DB on mount', () => {
     const src = readFileSync(
-      join(root, 'app/settings/privacy/PrivacyClient.tsx'),
+      join(root, 'app/settings/privacy/dream.PrivacyClient.tsx'),
       'utf-8',
     );
     expect(src).toContain('/api/settings/privacy');
@@ -87,7 +87,7 @@ describe('Phase 8 §I — Privacy settings DB persistence (Point 84)', () => {
 
   it('every toggle calls fetch to /api/settings/privacy', () => {
     const src = readFileSync(
-      join(root, 'app/settings/privacy/PrivacyClient.tsx'),
+      join(root, 'app/settings/privacy/dream.PrivacyClient.tsx'),
       'utf-8',
     );
     // The toggle function should POST to the settings endpoint

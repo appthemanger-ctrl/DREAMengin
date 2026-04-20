@@ -1,5 +1,5 @@
 /**
- * Tests for components/dreamengin/DREAMenginOS.tsx
+ * Tests for components/dreamengin/dream.DREAMenginOS.tsx
  *
  * Runs in Node (no WebGPU/canvas) so we verify:
  *   - Module exports the component as default
@@ -64,14 +64,14 @@ describe('DREAMenginOS', () => {
   });
 
   it('exports DREAMenginOS as the default export', async () => {
-    const mod = await import('@/components/dreamengin/DREAMenginOS');
+    const mod = await import('@/components/dreamengin/dream.DREAMenginOS');
     expect(mod.default).toBeDefined();
     expect(typeof mod.default).toBe('function');
   });
 
   it('exports DREAMenginOSProps type (module shape check)', async () => {
     // TypeScript-only check — if this compiles, the type exists
-    const mod = await import('@/components/dreamengin/DREAMenginOS');
+    const mod = await import('@/components/dreamengin/dream.DREAMenginOS');
     expect(mod.default.name).toBe('DREAMenginOS');
   });
 

@@ -29,7 +29,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import UniversalWidget from '@/components/widgets/UniversalWidget';
+import UniversalWidget from '@/components/widgets/dream.widget.UniversalWidget';
 import DreamSpace from '@/components/dreamengin/dreamsurface.dreamspace-runtime';
 import { useDreamsRuntime } from '@/lib/dreams/useDreamsRuntime';
 import {

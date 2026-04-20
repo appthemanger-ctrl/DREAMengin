@@ -102,13 +102,13 @@ They are distinct from platform-run promotions and should stay distinct in namin
 - `components/dreams/dream.connectorlayer.tsx`
 - `components/dreams/dream.featurelayer.tsx`
 - `components/dreams/dream.outputlayer.tsx`
-- `components/dreams/SuperDreamWidget.tsx`
+- `components/dreams/dream.widget.SuperDreamWidget.tsx`
 
 ### Legacy implementation material still being absorbed
-- `components/widgets/WidgetShell.tsx`
-- `components/widgets/WidgetCard.tsx`
-- `components/widgets/WidgetSurface.tsx`
-- `components/widgets/WidgetLibrary.tsx`
+- `components/widgets/dream.widget.WidgetShell.tsx`
+- `components/widgets/dream.widget.WidgetCard.tsx`
+- `components/widgets/dream.widget.WidgetSurface.tsx`
+- `components/widgets/dream.widget.WidgetLibrary.tsx`
 - `types/widget-system-v2.ts`
 
 ## 8. Honest status

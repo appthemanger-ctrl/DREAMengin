@@ -11,7 +11,7 @@ import { join } from 'path';
 import { describe, expect, it } from 'vitest';
 
 const root = process.cwd();
-const src = readFileSync(join(root, 'components/LandingHero.tsx'), 'utf-8');
+const src = readFileSync(join(root, 'components/dream.LandingHero.tsx'), 'utf-8');
 
 describe('landing page calibrateDevice wiring', () => {
   it('imports calibrateDevice from the swipeCalibration module', () => {

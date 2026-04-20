@@ -1,11 +1,12 @@
 'use client';
+// SURFACE: dreamsurface.SettingsAppearance  (framework-mandated basename: page.tsx)
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, RotateCcw, Check } from 'lucide-react';
-import { useTheme } from '@/components/providers/ThemeProvider';
+import { useTheme } from '@/components/providers/dream.ThemeProvider';
 import { THEME_PRESETS } from '@/lib/ui/theme-engine';
-import { THEME_PRESETS as GRADIENT_PRESETS, applyTheme, applyVoidTheme, isVoidThemeActive, type DeTheme } from '@/components/ThemeApplicator';
+import { THEME_PRESETS as GRADIENT_PRESETS, applyTheme, applyVoidTheme, isVoidThemeActive, type DeTheme } from '@/components/dream.ThemeApplicator';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 
 /* ── VOID / OLED Dark Theme Toggle ── */

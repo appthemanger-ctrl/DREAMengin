@@ -231,7 +231,7 @@ describe('Point 49/50 — Engins restore workspace state on mount', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('Point 50 — DaydreamShell preserves Side A/B context on back-navigation', () => {
-  const shellFile = 'components/daydream/DaydreamShell.tsx';
+  const shellFile = 'components/daydream/dream.shell.DaydreamShell.tsx';
 
   it('DaydreamShell uses useDaydreamState for visit tracking', () => {
     const src = readSource(shellFile);
@@ -296,7 +296,7 @@ describe('Point 52 — Games Daydream has real game loop and persistent state', 
   });
 
   it('GamesHub exposes an upgraded engine shelf with search and featured launch deck', () => {
-    const src = readSource('components/games/GamesHub.tsx');
+    const src = readSource('components/games/dream.GamesHub.tsx');
     expect(src).toContain('Engine Shelf');
     expect(src).toContain('Featured Launch Deck');
     expect(src).toContain('Search the GameEngin shelf');
@@ -305,8 +305,8 @@ describe('Point 52 — Games Daydream has real game loop and persistent state', 
   });
 
   it('Immersive game launch shell exists for the playable route', () => {
-    expect(sourceExists('app/daydream/game/ImmersiveGameShell.tsx')).toBe(true);
-    const src = readSource('app/daydream/game/ImmersiveGameShell.tsx');
+    expect(sourceExists('app/daydream/game/dream.shell.ImmersiveGameShell.tsx')).toBe(true);
+    const src = readSource('app/daydream/game/dream.shell.ImmersiveGameShell.tsx');
     expect(src).toContain('requestFullscreen');
     expect(src).toContain('DREAMENGIN');
     expect(src).toContain('boot sequence');
@@ -320,7 +320,7 @@ describe('Point 52 — Games Daydream has real game loop and persistent state', 
   });
 
   it('Neon Drift realizes the elite engine directly in the web app play surface', () => {
-    const src = readSource('components/games/NeonDrift.tsx');
+    const src = readSource('components/games/dream.NeonDrift.tsx');
     expect(src).toContain('EliteGameEngine');
     expect(src).toContain('elite.onFrame');
     expect(src).toContain('qualityTier');

@@ -113,7 +113,7 @@ export interface DualRuntimeState {
 }
 ```
 
-**Container Component:** `components/runtime/DualRuntimeContainer.tsx`
+**Container Component:** `components/runtime/dream.DualRuntimeContainer.tsx`
 
 Provides context and state management:
 ```typescript
@@ -127,13 +127,13 @@ dualRuntime.goToHome();
 dualRuntime.isHomeActive();
 ```
 
-**View Component:** `components/runtime/RuntimeView.tsx`
+**View Component:** `components/runtime/dream.RuntimeView.tsx`
 
 Renders content for each runtime based on the `RuntimeWorld` type.
 
 ### Integration with HomeSystem
 
-**File:** `components/home/HomeSystem.tsx`
+**File:** `components/home/dream.HomeSystem.tsx`
 
 The HomeSystem component now wraps everything in `DualRuntimeContainer`:
 
@@ -172,24 +172,27 @@ The DreamDM Bar position controls which runtime is dominant:
 
 ### Double-Tap Gold Behavior
 
-Per the spec, double-tapping the Gold button:
-1. If Home is already the active top runtime → Refresh Home
-2. Otherwise → Make Home the active top runtime
-3. Does NOT reset the bar position
-4. Does NOT collapse the system automatically
+Per the shipped contract (2026-04), double-tapping the Gold particle:
+1. Resets both runtimes via `goHome()` — the canonical "go home" gesture.
+2. The Gold particle is the **only** sanctioned double-tap site in the
+   system. Every other UI control responds to a single tap.
 
-Implementation in `HomeSystem.tsx`:
+Implementation in `dreamdmbar/dreamsurface.dreamdmbar.tsx` (and the
+`HomeControls` / `DreamNavControls` mirrors): a single tap is delayed by
+`DOUBLE_TAP_WINDOW_MS = 260` so a follow-up tap can promote the gesture to
+double-tap. The shared hook is `useHomeParticleTap` in
+`lib/hooks/useTap.ts`.
 
 ```typescript
-const returnHome = useCallback(() => {
-  const wasHomeActive = dualRuntime.isHomeActive();
-  dualRuntime.goToHome();
+const fireLightSingleTap = useCallback(() => {
+  navigator.vibrate?.(4);
+  onBothMenus();
+}, [onBothMenus]);
 
-  if (wasHomeActive) {
-    // This is a "refresh" action
-    console.log('[HomeSystem] Refreshing Home (already active)');
-  }
-}, [dualRuntime]);
+const fireLightDoubleTap = useCallback(() => {
+  navigator.vibrate?.([6, 30, 6]);
+  onHome();
+}, [onHome]);
 ```
 
 ---
@@ -245,7 +248,27 @@ Per the spec, the default Home state includes:
 - Feed scroll never moves the bar
 - Feed scroll never moves the Gold button (when screen-locked)
 - Single tap Gold → Opens dual menus
-- Double tap Gold → Refreshes Home (if already active) or makes Home active
+- Double tap Gold → Resets both runtimes to Home (the only sanctioned double-tap)
+
+---
+
+## Bar Drag (2026-04 — momentum fling restored)
+
+The **whole bar** is the drag handle on both touch and pointer devices.
+Release semantics are owned by `decideBarRelease` in
+`lib/dreamdm/barInteractions.ts`:
+
+| Release | Outcome |
+|---------|---------|
+| Slow drag | Bar **parks where the user lets go** — no forced snap |
+| Upward fling past `BAR_FLING_LINE_RATIO` (0.4 of screen) | Snaps to top |
+| Downward fling at/below the line | Snaps to bottom |
+| Already at the screen top | Snaps to top |
+
+The "invisible 2/5 line" gives the bar emotional inertia: a deliberate slow
+drag stops where you stop; a flick keeps going. Fling thresholds:
+`BAR_FLING_TO_TOP_VELOCITY_THRESHOLD_PX_PER_MS = -0.9`,
+`BAR_FLING_TO_BOTTOM_VELOCITY_THRESHOLD_PX_PER_MS = 0.9`.
 
 ---
 
@@ -291,12 +314,12 @@ Test coverage includes:
 
 ### Modified
 - `dreamdmbar/dreamsurface.dreamdmbar.tsx` - Corrected Gold button attachment logic
-- `components/home/HomeSystem.tsx` - Integrated dual runtime system
+- `components/home/dream.HomeSystem.tsx` - Integrated dual runtime system
 
 ### Created
 - `lib/runtime/dualRuntime.ts` - Dual runtime state and utilities
-- `components/runtime/DualRuntimeContainer.tsx` - Runtime context provider
-- `components/runtime/RuntimeView.tsx` - Runtime content renderer
+- `components/runtime/dream.DualRuntimeContainer.tsx` - Runtime context provider
+- `components/runtime/dream.RuntimeView.tsx` - Runtime content renderer
 - `docs/GOLD_BUTTON_DUAL_RUNTIME.md` - This documentation
 
 ---

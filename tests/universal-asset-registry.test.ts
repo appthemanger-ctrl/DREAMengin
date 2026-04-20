@@ -62,7 +62,7 @@ import type {
   ControlMapping,
   EnrichedEntry,
   UniversalAssetRegistryProps,
-} from '@/components/universal_asset_registry';
+} from '@/components/dream.universal_asset_registry';
 
 // ── Type validation tests ──────────────────────────────────────────────────────
 
@@ -528,7 +528,7 @@ describe('stats computation', () => {
 
 describe('module exports', () => {
   it('exports the default component', async () => {
-    const mod = await import('@/components/universal_asset_registry');
+    const mod = await import('@/components/dream.universal_asset_registry');
     expect(mod.default).toBeDefined();
     expect(typeof mod.default).toBe('function');
   });

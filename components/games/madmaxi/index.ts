@@ -1,6 +1,6 @@
 export {
   default,
-} from './MadmaxiGame';
+} from './dream.MadmaxiGame';
 
 export {
   MADMAXI_ENEMY_KINDS,

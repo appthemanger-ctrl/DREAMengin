@@ -1,10 +1,11 @@
 "use client";
+// SURFACE: dreamsurface.AuthUpdatePassword  (framework-mandated basename: page.tsx)
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import PasswordField from "@/components/auth/PasswordField";
+import PasswordField from "@/components/auth/dream.PasswordField";
 
 export default function UpdatePasswordPage() {
   const router = useRouter();

@@ -71,6 +71,24 @@ export interface DaydreamEnginManifest {
   refineThreshold: number;
   /** UI refinements to pursue in UPGRADE and REFINE phases */
   uiRefinements: string[];
+  /**
+   * Solo-parity flag (Pass 5 — Shared Runtime).
+   * When `true` (default for new Engins), the Engin is fully usable by a
+   * single user with no co-op peers and no network channel. Solo and co-op
+   * share the exact same React tree — only the runtimeChannel adapter
+   * differs (`LocalChannel` vs `RealtimeChannel`).
+   */
+  solo?: boolean;
+  /**
+   * Co-op declaration (Pass 8 — Co-op Pack).
+   * `false` (or omitted) → Engin is solo-only, cannot be mounted on the
+   * shared top runtime.
+   * `true`              → Engin opts into the default co-op affordances
+   * (presence, broadcast, hand-off).
+   * `{ affordances }`   → Engin opts into a specific list of co-op
+   * affordances. Unknown affordances must be ignored by the host.
+   */
+  coop?: boolean | { affordances: string[] };
 }
 
 // ─── Music / StarMakerEngin ───────────────────────────────────────────────────
@@ -152,7 +170,7 @@ const LAB_MANIFEST: DaydreamEnginManifest = {
     { id: 'simulation-runner',   label: 'Simulation Runner',    description: '4 simulation types with mock result display', status: 'implemented', detectPattern: 'SimType',               detectPaths: ['engins/engin.LabEngin.tsx'] },
     { id: 'data-visualization',  label: 'Data Visualization',   description: 'Chart type selector + ASCII preview',        status: 'implemented', detectPattern: 'ChartType',             detectPaths: ['engins/engin.LabEngin.tsx'] },
     { id: 'cross-engin-sync',    label: 'Cross-Engin Sync',     description: 'Live status for Code, Game, Music channels', status: 'implemented', detectPattern: 'Code2.*Gamepad2.*Music', detectPaths: ['engins/engin.LabEngin.tsx'] },
-    { id: 'quantum-circuit',     label: 'Quantum Circuit Canvas', description: 'Visual qubit circuit builder',            status: 'implemented', detectPattern: 'QuantumCircuitCanvas',  detectPaths: ['components/daydream'] },
+    { id: 'quantum-circuit',     label: 'Quantum Circuit Canvas', description: 'Real QAOA / VQE quantum circuit simulator (shared engin component)', status: 'implemented', detectPattern: 'QuantumCircuitCanvas',  detectPaths: ['engins/dream.engin.QuantumCircuitCanvas.tsx', 'engins/engin.LabEngin.tsx', 'engins/portfolio/dream.PortfolioEngin.tsx'] },
     { id: 'collab-lab',          label: 'Collaborative Lab',      description: 'Real-time shared experiment workspace',   status: 'implemented',     detectPattern: 'CollabLab',             detectPaths: ['engins/engin.LabEngin.tsx'] },
     { id: 'ai-hypothesis',       label: 'AI Hypothesis Generator', description: 'Dr. Eams hypothesis suggestion engine',  status: 'implemented',     detectPattern: 'ai.*hypothesis',        detectPaths: ['engins/engin.LabEngin.tsx'] },
     { id: 'molecule-viewer',     label: '3D Molecule Viewer',   description: 'WebGPU-accelerated molecular display',       status: 'implemented',     detectPattern: 'MoleculeViewer',        detectPaths: ['engins/engin.LabEngin.tsx'] },

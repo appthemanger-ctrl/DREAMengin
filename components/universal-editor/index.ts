@@ -14,4 +14,4 @@ export {
 export {
   UniversalEditorWrapper,
   type UniversalEditorWrapperProps,
-} from './UniversalEditorWrapper';
+} from './dream.UniversalEditorWrapper';

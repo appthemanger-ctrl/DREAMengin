@@ -316,9 +316,9 @@ async function generateComponentInventory({ componentsScan }) {
 
 | Component | Purpose | Status |
 |-----------|---------|--------|
-| \`components/AIAssistant.tsx\` | Base chat assistant | ${await has('components/AIAssistant.tsx')} |
-| \`components/AIAssistantEnhanced.tsx\` | Enhanced features | ${await has('components/AIAssistantEnhanced.tsx')} |
-| \`components/DrEamsVoiceAssistant.tsx\` | Voice-enabled | ${await has('components/DrEamsVoiceAssistant.tsx')} |
+| \`components/dream.AIAssistant.tsx\` | Base chat assistant | ${await has('components/dream.AIAssistant.tsx')} |
+| \`components/dream.AIAssistantEnhanced.tsx\` | Enhanced features | ${await has('components/dream.AIAssistantEnhanced.tsx')} |
+| \`components/dream.DrEamsVoiceAssistant.tsx\` | Voice-enabled | ${await has('components/dream.DrEamsVoiceAssistant.tsx')} |
 | \`components/InnerDreams.tsx\` | Admin AI | ${await has('components/InnerDreams.tsx')} |
 
 **AI Variants Detected:** ${componentsScan.aiDuplicates}
@@ -354,7 +354,7 @@ async function generateAISystemsMap() {
 - Post creation guidance
 
 **Implementation (expected):**
-- \`components/AIAssistant*.tsx\`
+- \`components/dream.AIAssistant*.tsx\`
 - \`lib/agents/*\`
 
 ### InnerDreams / Adari (Admin AI)

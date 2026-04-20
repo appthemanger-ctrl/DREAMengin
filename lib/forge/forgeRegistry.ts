@@ -6,7 +6,7 @@
  * the unified status matrix.
  *
  * Architecture: Extends the StandaloneEnginSurface pattern from
- * components/daydream/StandaloneEnginSurface.tsx
+ * components/daydream/dream.StandaloneEnginSurface.tsx
  */
 
 // ── Engin Catalog ─────────────────────────────────────────────────────────────

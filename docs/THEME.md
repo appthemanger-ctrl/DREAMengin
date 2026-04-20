@@ -54,8 +54,8 @@ Theme implementation material currently lives across:
 - `app/globals.css`
 - `app/globals-enhanced.css`
 - `styles/theme.css`
-- `components/ThemeApplicator.tsx`
-- `components/providers/ThemeProvider.tsx`
+- `components/dream.ThemeApplicator.tsx`
+- `components/providers/dream.ThemeProvider.tsx`
 
 ## Alignment rule
 

@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.About  (framework-mandated basename: page.tsx)
 import Link from 'next/link';
 import { 
   ArrowLeft, 
@@ -16,7 +17,7 @@ import {
   Twitter,
   Sparkles
 } from 'lucide-react';
-import PlatformBadge from '@/components/ui/PlatformBadge';
+import PlatformBadge from '@/components/ui/dream.PlatformBadge';
 
 export default function AboutPage() {
 

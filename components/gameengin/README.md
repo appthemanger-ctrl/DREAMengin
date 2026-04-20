@@ -81,11 +81,11 @@ same primitives every existing game already imports:
 
 So all of these continue to work without modification:
 
-* `components/games/BabylonSideScroller.tsx` (MADMAXI flagship platformer)
+* `components/games/dream.BabylonSideScroller.tsx` (MADMAXI flagship platformer)
 * `components/games/ENGINBattle.tsx` (RTS / strategy)
 * `components/games/DREAMquest.tsx` (RPG / quest chains)
-* `components/games/NeonDrift.tsx` (racing, elite-tier)
-* `components/games/EchoArena.tsx` (top-down WebGPU shooter)
+* `components/games/dream.NeonDrift.tsx` (racing, elite-tier)
+* `components/games/dream.EchoArena.tsx` (top-down WebGPU shooter)
 * `components/games/{TetrisGame, ChessGame, RTSGame, RPGGame, …}.tsx`
 * `games/tetris/TetrisCartridge.ts` and any other repo-local cartridges
 

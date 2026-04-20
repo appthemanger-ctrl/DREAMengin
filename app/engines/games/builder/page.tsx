@@ -1,8 +1,9 @@
+// SURFACE: dreamsurface.EnginesGamesBuilder  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import BuilderPanel from '@/components/engines/games/panels/BuilderPanel';
+import BuilderPanel from '@/components/engines/games/panels/dream.panel.BuilderPanel';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'World Builder – GameEngin', description: 'Paint your game world.' };

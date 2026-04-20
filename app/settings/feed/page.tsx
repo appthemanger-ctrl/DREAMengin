@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.SettingsFeed  (framework-mandated basename: page.tsx)
 import { permanentRedirect } from 'next/navigation';
 import { connection } from 'next/server';
 

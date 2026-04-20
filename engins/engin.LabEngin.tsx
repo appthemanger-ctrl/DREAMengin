@@ -20,13 +20,19 @@ import { createClient } from '@/lib/supabase/client';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useLabEnginBridge } from '@/lib/runtime/useEnginBridge';
-import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel';
+import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
-import JourneyTrail from '@/components/daydream/JourneyTrail';
-import { ForgeDreamCanvas } from '@/components/ForgeDreamCanvas';
+import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import { ForgeDreamCanvas } from '@/components/dream.ForgeDreamCanvas';
 import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
 import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
+// Shared engin component — real quantum circuit simulator (QAOA / VQE,
+// complex-number gate math, state-vector evolution). Available to every
+// engin from this single canonical path.
+import QuantumCircuitCanvas, {
+  type QuantumMeasurementResult,
+} from '@/engins/dream.engin.QuantumCircuitCanvas';
 import Link from 'next/link';
 import {
   ArrowLeft, FlaskConical, Activity, Play, BarChart2,
@@ -376,10 +382,22 @@ export default function LabEngin({ onBack }: Props) {
   }
 
   // ── Quantum measure handler ─────────────────────────────────────────────────
-  function handleQuantumMeasure() {
+  const [quantumRunning, setQuantumRunning] = useState(false);
+  const [quantumResult, setQuantumResult]   = useState<QuantumMeasurementResult | null>(null);
+  function handleQuantumMeasure(result?: QuantumMeasurementResult) {
     setQuantumMeasured(true);
+    setQuantumRunning(false);
+    if (result) setQuantumResult(result);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
-      'lab', 'lab:quantum-measured', { qubits: 8, fidelity: 0.94 },
+      'lab', 'lab:quantum-measured',
+      result
+        ? {
+            qubits:           3,
+            topBitstring:     result.topBitstring,
+            topProbability:   result.topProbability,
+            expectationValue: result.expectationValue,
+          }
+        : { qubits: 8, fidelity: 0.94 },
     );
     recordForgeTransfer('lab', 'code', 'quantum-result', 'Quantum circuit measurement → CodeEngin');
   }
@@ -1774,20 +1792,26 @@ export default function LabEngin({ onBack }: Props) {
           </div>
           <div className="de-widget-body">
             <p style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 10 }}>
-              Visual gate editor for quantum circuits on a simulated 8-qubit register.
+              Real quantum circuit on a 3-qubit register — VQE RealAmplitudes ansatz with Hadamard, Ry, and CNOT gates. Press Measure to run the circuit; the bar chart at the bottom is the live measurement probability distribution.
             </p>
-            <div style={{ fontFamily: 'monospace', fontSize: 11, background: 'rgba(0,0,0,0.04)', borderRadius: 10, padding: '10px 14px', lineHeight: 2 }}>
-              <span style={{ color: '#8b5cf6' }}>q[0]</span>: ─H──●──────────── |+⟩<br />
-              <span style={{ color: '#6366f1' }}>q[1]</span>: ────X──●────────── |00⟩<br />
-              <span style={{ color: '#0ea5e9' }}>q[2]</span>: ───────X──●──────── |000⟩<br />
-              <span style={{ color: '#22c55e' }}>q[3]</span>: ──────────X──H──M── |?⟩
+            <div style={{ background: 'rgba(0,0,0,0.04)', borderRadius: 10, overflow: 'hidden', border: '1px solid rgba(139,92,246,0.18)' }}>
+              <QuantumCircuitCanvas
+                active={quantumRunning}
+                accentColor="#8b5cf6"
+                secondaryColor="#6366f1"
+                height={180}
+                numQubits={3}
+                algorithm="vqe"
+                ansatz="real_amplitudes"
+                onMeasure={handleQuantumMeasure}
+              />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 10 }}>
               {[
-                { label: 'Fidelity', val: '0.94' },
-                { label: 'Depth', val: '12' },
-                { label: 'Qubits', val: '8' },
-                { label: 'Gates', val: '6' },
+                { label: 'Top bitstring',  val: quantumResult ? `|${quantumResult.topBitstring}⟩`                                : '—' },
+                { label: 'Probability',    val: quantumResult ? `${(quantumResult.topProbability * 100).toFixed(1)}%`            : '—' },
+                { label: 'Qubits',         val: '3'                                                                              },
+                { label: '⟨ψ|C|ψ⟩',        val: quantumResult ? quantumResult.expectationValue.toFixed(3)                        : '—' },
               ].map(m => (
                 <div key={m.label} style={{ padding: '7px 10px', borderRadius: 8, background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.18)', textAlign: 'center' }}>
                   <div style={{ fontSize: 14, fontWeight: 800, color: '#8b5cf6' }}>{m.val}</div>
@@ -1797,7 +1821,11 @@ export default function LabEngin({ onBack }: Props) {
             </div>
             <button
               type="button"
-              onClick={handleQuantumMeasure}
+              onClick={() => {
+                setQuantumMeasured(false);
+                setQuantumResult(null);
+                setQuantumRunning(true);
+              }}
               style={{
                 width: '100%', marginTop: 10, padding: '8px 0', borderRadius: 9,
                 fontSize: 12, fontWeight: 700, cursor: 'pointer', border: 'none',
@@ -1808,7 +1836,9 @@ export default function LabEngin({ onBack }: Props) {
                 transition: 'all 0.2s',
               }}
             >
-              {quantumMeasured ? '✓ Measured — Collapse recorded' : '▶ Measure Circuit'}
+              {quantumRunning  ? '… Running circuit'
+              : quantumMeasured ? '✓ Measured — Run again'
+              :                   '▶ Measure Circuit'}
             </button>
           </div>
         </div>

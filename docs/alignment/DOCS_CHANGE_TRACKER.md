@@ -126,7 +126,7 @@ This file is the working list for the README-first documentation pass. It exists
 #### Phase 4 carry-over items resolved
 - `components/daydream/GameEngin.tsx` — created; Games Daydream Side B Engin component with real Supabase score reads (Phase 6 point 33).
 - `lib/daydream/useDaydreamState.ts` — created; shared Daydream/Engin state hook with localStorage persistence (Phase 6 point 34).
-- `components/daydream/DaydreamShell.tsx` — added `sideBComponent?: React.ComponentType<{onBack: () => void}>` prop; renders custom Engin component when provided (Phase 6 point 35).
+- `components/daydream/dream.shell.DaydreamShell.tsx` — added `sideBComponent?: React.ComponentType<{onBack: () => void}>` prop; renders custom Engin component when provided (Phase 6 point 35).
 - `app/daydream/games/page.tsx` — replaced `sideBVariant="game-remote"` with `sideBComponent={GameEngin}` to wire GameEngin as the Games Daydream Side B.
 
 | Gap | Doc location |

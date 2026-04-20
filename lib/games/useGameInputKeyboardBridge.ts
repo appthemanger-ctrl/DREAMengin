@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import type { GameInputAction } from '@/components/games/GameRemote';
+import type { GameInputAction } from '@/components/games/dream.remote.GameRemote';
 
 type KeyboardInput = {
   key: string;

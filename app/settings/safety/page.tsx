@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.SettingsSafety  (framework-mandated basename: page.tsx)
 // app/settings/safety/page.tsx
 // "Policy & Safety" settings page (req 11, 14, 90–91).
 // Shows the user's safety log, appeal options, and a link to the policy.
@@ -7,7 +8,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Shield, AlertTriangle, Download, FileText, ChevronRight } from 'lucide-react';
 import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogie-policy';
-import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Policy & Safety – Dreamengin Settings' };

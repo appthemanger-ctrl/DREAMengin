@@ -70,8 +70,8 @@ import {
   resolveGoldTapAction,
   shouldCollapseGoldSwipe,
   shouldCollapseTopExpandedDrag,
-  shouldSnapBottomDragToTop,
   shouldTreatGoldReleaseAsTap,
+  decideBarRelease,
   DEFAULT_SPLIT_RATIO,
   snapSplitRatioOnRelease,
   DIVIDER_H,
@@ -106,7 +106,7 @@ import {
 import type { DMMessage } from '@/lib/dreamdm/useDreamDMMessages';
 import { useDreamBarContext, type DreamBarContext } from '@/lib/dreamdm/useDreamBarContext';
 import { useDreamSystem, type BarIntentMode } from '@/lib/dreamdm/DreamSystemContext';
-import DreamWord from '@/components/ui/DreamWord';
+import DreamWord from '@/components/ui/dream.DreamWord';
 import { getPreferredViewportHeight, isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
 import { useImmersiveGameLayout } from '@/lib/games/useImmersiveGameLayout';
 
@@ -705,14 +705,26 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     setIsDragging(false);
 
     if (!dragRef.current.fromTop) {
-      // Expanding from bottom: snap to top if reached near top OR flung up fast.
-      // Otherwise snap back to the default bottom height (no arbitrary in-between).
-      if (shouldSnapBottomDragToTop({ screenH, dragH, barH: BAR_H, velocityPxPerMs: velocity })) {
+      // Bottom-origin release. Three outcomes (see decideBarRelease):
+      //   • snap-top    — already pinned at top, or upward fling past the
+      //                   invisible 2/5 line.
+      //   • snap-bottom — downward fling near/below the line.
+      //   • park        — slow drag — leave the bar exactly where the user
+      //                   let go. No forced snap to BAR_H. This is the
+      //                   "drag with intention" behaviour the user asked
+      //                   to bring back.
+      const action = decideBarRelease({
+        screenH,
+        dragH,
+        barH: BAR_H,
+        velocityPxPerMs: velocity,
+      });
+      if (action === 'snap-top') {
         setIsTop(true); setIsTopExpanded(false); setDragH(NAV_H); setSlideDown(0);
-      } else {
-        // Snap back to bottom — no in-between positions allowed
+      } else if (action === 'snap-bottom') {
         setDragH(BAR_H);
       }
+      // 'park' → intentionally do nothing; current dragH is preserved.
     } else if (!dragRef.current.fromTopExpanded) {
       // Top-compact: decide whether to expand to full panel or snap back to compact
       const dy = e.clientY - dragRef.current.startY;
@@ -1490,7 +1502,16 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
       <div
         aria-label="DreamDM Bar"
         className="sicc-bar-edge"
-        onPointerDown={revealBar}
+        // Whole-bar drag: pointer drag fires from anywhere on the bar surface
+        // (not just the light handle). Child controls call stopPropagation on
+        // their own onPointerDown so the bar drag does not steal their input.
+        // In divider mode the light is the canonical divider handle, so we
+        // fall back to the previous reveal-on-touch behaviour to avoid
+        // double-handling pointer events alongside the divider drag wiring.
+        onPointerDown={isDividerMode ? revealBar : handleDragStart}
+        onPointerMove={isDividerMode ? undefined : handleDragMove}
+        onPointerUp={isDividerMode ? undefined : handleDragEnd}
+        onPointerCancel={isDividerMode ? undefined : handleDragEnd}
         onTouchStart={handleBarTouchStart}
         onTouchMove={handleBarTouchMove}
         onTouchEnd={handleBarTouchEnd}
@@ -1601,10 +1622,13 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             touchAction: 'none',
           }}>
             <div
-              onPointerDown={isDividerMode ? handleDividerDragStart : handleDragStart}
-              onPointerMove={isDividerMode ? handleDividerDragMove : handleDragMove}
-              onPointerUp={isDividerMode ? handleDividerDragEnd : handleDragEnd}
-              onPointerCancel={isDividerMode ? handleDividerDragEnd : handleDragEnd}
+              // In non-divider mode the wrapper owns the pointer drag so the
+              // *whole* bar is the drag handle. We leave the light's inner box
+              // free of pointer-drag wiring there to avoid double-firing.
+              onPointerDown={isDividerMode ? handleDividerDragStart : undefined}
+              onPointerMove={isDividerMode ? handleDividerDragMove : undefined}
+              onPointerUp={isDividerMode ? handleDividerDragEnd : undefined}
+              onPointerCancel={isDividerMode ? handleDividerDragEnd : undefined}
               style={{
                 display: 'flex',
                 alignItems: 'center',

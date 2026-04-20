@@ -247,10 +247,10 @@ describe('ButtonInteractionManager – button definitions', () => {
 
 describe('GameController integration', () => {
   it('GameHUD routes the controller mode to GameController', () => {
-    const src = readFileSync(join(REPO_ROOT, 'components/games/GameHUD.tsx'), 'utf8');
+    const src = readFileSync(join(REPO_ROOT, 'components/games/dream.hud.GameHUD.tsx'), 'utf8');
     expect(src).toContain("mode === 'controller'");
     expect(src).toContain('<GameController');
-    expect(src).toContain("import GameController from '@/components/games/GameController'");
+    expect(src).toContain("import GameController from '@/components/games/dream.GameController'");
   });
 
   it('MobileHudMode includes the controller value', () => {
@@ -267,7 +267,7 @@ describe('GameController integration', () => {
   });
 
   it('GameController implements left stick, right stick, and button ring', () => {
-    const src = readFileSync(join(REPO_ROOT, 'components/games/GameController.tsx'), 'utf8');
+    const src = readFileSync(join(REPO_ROOT, 'components/games/dream.GameController.tsx'), 'utf8');
     expect(src).toContain('handleLeftStart');
     expect(src).toContain('handleRightZoneStart');
     expect(src).toContain('ButtonInteractionManager');
@@ -280,20 +280,20 @@ describe('GameController integration', () => {
   });
 
   it('left stick emits jump on thumb-lift', () => {
-    const src = readFileSync(join(REPO_ROOT, 'components/games/GameController.tsx'), 'utf8');
+    const src = readFileSync(join(REPO_ROOT, 'components/games/dream.GameController.tsx'), 'utf8');
     expect(src).toContain('emitMobileJump');
     // Jump must be inside the handleLeftEnd callback
     expect(src).toContain('handleLeftEnd');
   });
 
   it('right stick has 200ms reset timeout before firing shot', () => {
-    const src = readFileSync(join(REPO_ROOT, 'components/games/GameController.tsx'), 'utf8');
+    const src = readFileSync(join(REPO_ROOT, 'components/games/dream.GameController.tsx'), 'utf8');
     expect(src).toContain('RIGHT_RESET_TIMEOUT_MS');
     expect(src).toContain('rightResetTimerRef');
   });
 
   it('GameController module CSS exists', () => {
-    const css = readFileSync(join(REPO_ROOT, 'components/games/GameController.module.css'), 'utf8');
+    const css = readFileSync(join(REPO_ROOT, 'components/games/dream.GameController.module.css'), 'utf8');
     expect(css).toContain('.overlay');
     expect(css).toContain('.leftZone');
     expect(css).toContain('.rightZone');

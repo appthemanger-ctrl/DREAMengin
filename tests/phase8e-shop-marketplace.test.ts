@@ -344,7 +344,7 @@ describe('Phase 8 §E Point 43 — DreamMarketplace slot detail surface', () => 
 
   it('MarketplaceListingCard already links to /marketplace/[id]', () => {
     const card = fs.readFileSync(
-      path.resolve(__dirname, '../components/marketplace/MarketplaceListingCard.tsx'),
+      path.resolve(__dirname, '../components/marketplace/dream.MarketplaceListingCard.tsx'),
       'utf-8',
     );
     expect(card).toContain('/marketplace/${item.id}');
@@ -556,7 +556,7 @@ describe('Phase 8 §E Point 46 — DreamMarketplace Request/contact flow', () =>
       fs.existsSync(
         path.resolve(
           __dirname,
-          '../components/marketplace/MarketplaceRequestButton.tsx',
+          '../components/marketplace/dream.MarketplaceRequestButton.tsx',
         ),
       ),
     ).toBe(true);
@@ -566,7 +566,7 @@ describe('Phase 8 §E Point 46 — DreamMarketplace Request/contact flow', () =>
     const btn = fs.readFileSync(
       path.resolve(
         __dirname,
-        '../components/marketplace/MarketplaceRequestButton.tsx',
+        '../components/marketplace/dream.MarketplaceRequestButton.tsx',
       ),
       'utf-8',
     );

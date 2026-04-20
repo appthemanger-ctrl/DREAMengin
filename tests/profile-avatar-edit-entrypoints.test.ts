@@ -4,11 +4,11 @@ import { describe, expect, it } from 'vitest';
 
 describe('profile avatar edit entrypoints', () => {
   const editableAvatar = readFileSync(
-    resolve(__dirname, '../components/profile/EditableAvatar.tsx'),
+    resolve(__dirname, '../components/profile/dream.EditableAvatar.tsx'),
     'utf8',
   );
   const homeFeed = readFileSync(
-    resolve(__dirname, '../components/HomeFeed.tsx'),
+    resolve(__dirname, '../components/dream.HomeFeed.tsx'),
     'utf8',
   );
   const viewProfile = readFileSync(
@@ -22,7 +22,7 @@ describe('profile avatar edit entrypoints', () => {
   });
 
   it('wires HomeFeed current-user avatars to the edit profile route', () => {
-    expect(homeFeed).toContain("import EditableAvatar from '@/components/profile/EditableAvatar'");
+    expect(homeFeed).toContain("import EditableAvatar from '@/components/profile/dream.EditableAvatar'");
     expect(homeFeed).toContain("const editProfileHref = '/edit-profiledream';");
     expect(homeFeed).toContain('post.profiles?.handle === userHandle ? (');
     expect(homeFeed).toContain('href={c.profile?.handle === userHandle ? editProfileHref : undefined}');

@@ -1,3 +1,4 @@
+// SURFACE: dream.overlay.RootLoading  (framework-mandated basename: loading.tsx)
 export default function RootLoading() {
   return (
     <div

@@ -4,7 +4,7 @@
  * Server-safe catalog of every game in the repository, packaged as a
  * GameEngin cartridge entry. Pure data — no React, no client-only imports.
  *
- * Every game in `components/games/GamesHub#GAMES` MUST have a matching entry
+ * Every game in `components/games/dream.GamesHub#GAMES` MUST have a matching entry
  * here. The synchronisation is enforced by `tests/gameengin-cartridges.test.ts`.
  */
 

@@ -1,3 +1,4 @@
+// SURFACE: dream.shell.RootLayout  (framework-mandated basename: layout.tsx)
 import '@/styles/globals.css';
 // Stream 5.1 — View Transitions API for surface switching
 import '@/styles/view-transitions.css';
@@ -6,18 +7,18 @@ import '@/styles/dream-shell.css';
 import type { Metadata, Viewport } from 'next';
 import { Suspense } from 'react';
 import { Space_Grotesk, Cormorant_Garamond, Plus_Jakarta_Sans } from 'next/font/google';
-import ThemeProvider from '@/components/providers/ThemeProvider';
-import ThemeApplicator from '@/components/ThemeApplicator';
+import ThemeProvider from '@/components/providers/dream.ThemeProvider';
+import ThemeApplicator from '@/components/dream.ThemeApplicator';
 import Link from 'next/link';
 import { DreamSystemProvider } from '@/lib/dreamdm/DreamSystemContext';
-import GlobalDreamBar from '@/components/home/GlobalDreamBar';
-import PersistentDreamBar from '@/components/home/PersistentDreamBar';
+import GlobalDreamBar from '@/components/home/dream.bar.GlobalDreamBar';
+import PersistentDreamBar from '@/components/home/dream.bar.PersistentDreamBar';
 import { CustomizeModeProvider } from '@/lib/ui/CustomizeModeContext';
-import GlobalCustomizeUI from '@/components/customize/GlobalCustomizeUI';
-import WarpCanvas from '@/components/warp/WarpCanvas';
-import GodTierProvider from '@/components/providers/GodTierProvider';
-import KonamiDream from '@/components/KonamiDream';
-import CommandPalette from '@/components/CommandPalette';
+import GlobalCustomizeUI from '@/components/customize/dream.GlobalCustomizeUI';
+import WarpCanvas from '@/components/warp/dream.WarpCanvas';
+import GodTierProvider from '@/components/providers/dream.GodTierProvider';
+import KonamiDream from '@/components/dream.KonamiDream';
+import CommandPalette from '@/components/dream.CommandPalette';
 import { OSProvider } from '@/lib/dreamenginOS/OSContext';
 
 const spaceGrotesk = Space_Grotesk({

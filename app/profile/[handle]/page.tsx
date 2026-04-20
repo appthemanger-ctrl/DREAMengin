@@ -1,16 +1,17 @@
+// SURFACE: dreamsurface.ProfileHandle  (framework-mandated basename: page.tsx)
 import { Suspense } from 'react';
 import { connection } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ActivityProfile } from '@/components/activity/ActivityProfile';
+import { ActivityProfile } from '@/components/activity/dream.ActivityProfile';
 import { Pencil } from 'lucide-react';
-import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/ProfileWidgetGrid';
-import FollowButton from '@/components/feed/FollowButton';
-import DreamWord from '@/components/ui/DreamWord';
-import ProfileShareButton from '@/components/ProfileShareButton';
-import ProfileCustomizeButton from '@/components/profile/ProfileCustomizeButton';
-import InfinityIcon from '@/components/ui/InfinityIcon';
+import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/dream.widget.ProfileWidgetGrid';
+import FollowButton from '@/components/feed/dream.FollowButton';
+import DreamWord from '@/components/ui/dream.DreamWord';
+import ProfileShareButton from '@/components/dream.ProfileShareButton';
+import ProfileCustomizeButton from '@/components/profile/dream.ProfileCustomizeButton';
+import InfinityIcon from '@/components/ui/dream.InfinityIcon';
 // This route is dynamically rendered in a PPR-compatible way.
 //
 // Dynamic rendering is achieved via `connection()` from 'next/server' in

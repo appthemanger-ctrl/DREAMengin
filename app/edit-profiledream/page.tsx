@@ -1,12 +1,13 @@
 'use client';
+// SURFACE: dreamsurface.EditProfiledream  (framework-mandated basename: page.tsx)
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Eye, Loader2, Share2 } from 'lucide-react';
 import Link from 'next/link';
-import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/ProfileWidgetGrid';
-import DreamWord from '@/components/ui/DreamWord';
+import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/dream.widget.ProfileWidgetGrid';
+import DreamWord from '@/components/ui/dream.DreamWord';
 
 
 type Profile = {

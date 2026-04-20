@@ -187,12 +187,12 @@ app/api/skip-credits/use/route.ts
 app/api/skip-credits/balance/route.ts
 app/api/metrics/user/[userId]/route.ts
 app/api/metrics/platform/route.ts
-components/activity/ActivityProfile.tsx
-components/activity/ActivityPostForm.tsx
-components/activity/TierBadge.tsx
-components/ads/AdUnit.tsx
-components/ads/SkipCreditBalance.tsx
-components/idari/PlatformHealth.tsx
+components/activity/dream.ActivityProfile.tsx
+components/activity/dream.ActivityPostForm.tsx
+components/activity/dream.TierBadge.tsx
+components/ads/dream.AdUnit.tsx
+components/ads/dream.SkipCreditBalance.tsx
+components/idari/dream.PlatformHealth.tsx
 tests/activity-first-protocol.test.ts
 ```
 

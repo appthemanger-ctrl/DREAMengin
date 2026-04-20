@@ -4,9 +4,9 @@ import { Suspense, useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Float, OrbitControls, Sparkles, Stars, Trail } from '@react-three/drei';
 import * as THREE from 'three';
-import { NeonGlow } from '@/components/shaders/NeonGlow';
-import { LightningWing } from '@/components/shaders/LightningWing';
-import { Refractor } from '@/components/shaders/Refractor';
+import { NeonGlow } from '@/components/shaders/dream.NeonGlow';
+import { LightningWing } from '@/components/shaders/dream.LightningWing';
+import { Refractor } from '@/components/shaders/dream.Refractor';
 
 /* ------------------------------------------------------------------ */
 /*  Slowly rotating group used as a scene container                    */

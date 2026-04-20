@@ -1,4 +1,5 @@
 'use client';
+// SURFACE: dreamsurface.DreamEffects  (framework-mandated basename: page.tsx)
 
 import dynamic from 'next/dynamic';
 import { useState, useEffect, useRef } from 'react';

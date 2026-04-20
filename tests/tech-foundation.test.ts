@@ -384,7 +384,7 @@ describe('Client-heavy rendering strategy', () => {
   });
 
   it('has WebGPU showcase component', () => {
-    expect(fileExists('components/webgpu/WebGPUShowcase.tsx')).toBe(true);
+    expect(fileExists('components/webgpu/dream.WebGPUShowcase.tsx')).toBe(true);
   });
 });
 

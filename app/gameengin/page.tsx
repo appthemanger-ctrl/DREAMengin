@@ -1,3 +1,4 @@
+// SURFACE: dreamsurface.Gameengin  (framework-mandated basename: page.tsx)
 import { redirect } from 'next/navigation';
 
 /**

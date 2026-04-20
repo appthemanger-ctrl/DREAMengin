@@ -1,8 +1,9 @@
+// SURFACE: dreamsurface.DaydreamLab  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { FlaskConical, Play } from 'lucide-react';
-import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
+import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
 // Stream 8.3 — Bundle split: LabEngin only loads when Side B mounts.
 // docs/ARCHITECTURE.md §10 — render-on-demand, minimal initial bundle.
 import dynamic from 'next/dynamic';
@@ -13,8 +14,8 @@ const LabEngin = dynamic(() => import('@/engins/engin.LabEngin'), {
     </div>
   ),
 });
-import OpenDaydreamSideBButton from '@/components/daydream/OpenDaydreamSideBButton';
-import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import OpenDaydreamSideBButton from '@/components/daydream/dream.OpenDaydreamSideBButton';
+import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import { connection } from 'next/server';
 
 export const metadata = { title: 'Lab Daydream – Dreamengin', description: 'Experiments, prototypes, simulations, and models.' };

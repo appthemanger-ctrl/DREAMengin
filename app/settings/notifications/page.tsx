@@ -1,9 +1,10 @@
 'use client';
+// SURFACE: dreamsurface.SettingsNotifications  (framework-mandated basename: page.tsx)
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Bell, MessageSquare, Heart, Users, DollarSign, Sparkles, Check, Loader2 } from 'lucide-react';
-import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 
 
 const STORAGE_KEY = 'de-notification-settings';

@@ -59,7 +59,7 @@ import {
 } from '@/lib/music/presets';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useStarMakerEnginBridge } from '@/lib/runtime/useEnginBridge';
-import CrossEnginStatusPanel from '@/components/dreamengin/CrossEnginStatusPanel';
+import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import { buildLedgerMediaUrl, uploadBlobToLedgerStorage } from '@/lib/media/ledger';
@@ -71,12 +71,12 @@ import {
   createInitialCompingState,
   createInitialSessionView,
 } from '@/lib/music/starmakerDaw';
-import JourneyTrail from '@/components/daydream/JourneyTrail';
-import MultitrackArrangementPanel from '@/components/daydream/starmaker/MultitrackArrangementPanel';
-import PianoRollPanel from '@/components/daydream/starmaker/PianoRollPanel';
-import CompingPanel from '@/components/daydream/starmaker/CompingPanel';
-import SessionViewPanel from '@/components/daydream/starmaker/SessionViewPanel';
-import { AudioVisualizer3D } from '@/components/AudioVisualizer3D';
+import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import MultitrackArrangementPanel from '@/components/daydream/starmaker/dream.panel.MultitrackArrangementPanel';
+import PianoRollPanel from '@/components/daydream/starmaker/dream.panel.PianoRollPanel';
+import CompingPanel from '@/components/daydream/starmaker/dream.panel.CompingPanel';
+import SessionViewPanel from '@/components/daydream/starmaker/dream.panel.SessionViewPanel';
+import { AudioVisualizer3D } from '@/components/dream.AudioVisualizer3D';
 import { buildPeakMap, createFingerprintIsolator, type PeakMap } from '@/lib/audioFingerprint';
 import Link from 'next/link';
 import {

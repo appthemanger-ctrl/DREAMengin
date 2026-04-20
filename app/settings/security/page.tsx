@@ -1,4 +1,5 @@
 'use client';
+// SURFACE: dreamsurface.SettingsSecurity  (framework-mandated basename: page.tsx)
 
 /**
  * Security Settings page.
@@ -16,7 +17,7 @@ import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { Lock, Smartphone, Key, Shield, AlertTriangle, Check, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
-import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 
 
 export default function SecuritySettingsPage() {

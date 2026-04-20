@@ -1,7 +1,8 @@
+// SURFACE: dreamsurface.SettingsAccount  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import DangerZoneActions from './DangerZoneActions';
+import DangerZoneActions from './dream.DangerZoneActions';
 import { ArrowLeft, User, Mail, Calendar, Shield, Trash2 } from 'lucide-react';
 import { connection } from 'next/server';
 

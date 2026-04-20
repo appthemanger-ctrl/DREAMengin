@@ -9,7 +9,7 @@
  *     reads / writes a single `WarpParticle` each call.
  *   - The engine runs all active kernels over every particle on each `step()`.
  *   - No external dependencies are needed; rendering happens in the caller
- *     (see `components/warp/WarpCanvas.tsx`).
+ *     (see `components/warp/dream.WarpCanvas.tsx`).
  *
  * Kernel naming mirrors Warp's `@wp.kernel` decorator intent: a named,
  * composable compute primitive.

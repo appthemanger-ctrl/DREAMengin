@@ -52,7 +52,7 @@ Canonical spec: `docs/ACTIVITY_FIRST_PROTOCOL.md` — Active Platform Law (2026-
 | Parallel old/new UI layers stop competing | ✅ | `components/v1-ui/` archived. `/dreamengin`, `/codespace`, `/physics-lab` all redirect to canonical Daydream routes. Archive headers on 12 dead root-level components. |
 | Dreams / Daydreams / Engins legible to outsiders | ✅ | `/codespace` → `/daydream/code`. `/physics-lab` → `/daydream/lab`. `/music` → `/daydream/music`. DreamDMBar routes aligned. Quick-action labels use canonical surface names. |
 | Auth + onboarding + entry reliable | ✅ | `/join` (email) → `/onboarding` → HomeDream. `/join` (OAuth) → `/auth/callback?next=/onboarding` → `/onboarding`. Returning users → `/homedream`. |
-| SuperDreamWidget composition aligned | ✅ | `components/dreams/SuperDreamWidget.tsx` with real cluster composition rules. |
+| SuperDreamWidget composition aligned | ✅ | `components/dreams/dream.widget.SuperDreamWidget.tsx` with real cluster composition rules. |
 | AI triad coordination bus active | ✅ | `lib/agents/agentBus.ts` — client event bridge live. `runTriadConsensus` gate active server-side. DreamDMBar `dreams` surface uses `toggleDrEams()` (not legacy route). |
 | Clutter pass complete | ✅ | v1-ui CSS removed from global layout. Archive headers on 12 dead components. Dead routes redirected. |
 | Motion restraint pass complete | ✅ | GodTier blur (0.15/0.10). GlowLayer kernel 16. All transitions intentional. |
@@ -78,7 +78,7 @@ Canonical spec: `docs/ACTIVITY_FIRST_PROTOCOL.md` — Active Platform Law (2026-
 | Feature layer | ✅ | `components/dreams/dream.featurelayer.tsx` exists. |
 | Output/Projection layer | ✅ | `components/dreams/dream.outputlayer.tsx` exists. |
 | Legacy widget absorption into Dreams naming | ✅ | `components/widgets/*` repurposed; v1-ui layer archived. `types/dream-window.ts` is the single type authority. |
-| Automatic Super Widget composition | ✅ | `components/dreams/SuperDreamWidget.tsx` has real cluster composition rules (StarMaker, GameSphere, BrandDream, LabCode, ContentStream). |
+| Automatic Super Widget composition | ✅ | `components/dreams/dream.widget.SuperDreamWidget.tsx` has real cluster composition rules (StarMaker, GameSphere, BrandDream, LabCode, ContentStream). |
 
 ## 2a. Dreams Space (second runtime)
 
@@ -89,6 +89,11 @@ Canonical spec: `docs/ACTIVITY_FIRST_PROTOCOL.md` — Active Platform Law (2026-
 | Daydreams as priority in Dreams Space | ✅ | DreamsSpacePanel surfaces all 6 Daydreams as the first/default tab (`✦ Daydreams`), per README runtime model. |
 | Live routes to all 6 Daydreams from Dreams Space | ✅ | Each tile in the Daydreams tab links directly to `/daydream/music`, `/daydream/games`, `/daydream/lab`, `/daydream/code`, `/daydream/brand`, `/daydream/create`. |
 | Connector feeds (YouTube / GitHub / Spotify) | ✅ | Available in the secondary `✨ Feeds` tab; service sub-tabs preserved. |
+| Whole-bar drag handle | ✅ | `dreamdmbar/dreamsurface.dreamdmbar.tsx` — pointer drag fires from anywhere on the bar (not just the gold particle). Touch already had this. |
+| Momentum fling release | ✅ | `lib/dreamdm/barInteractions.ts::decideBarRelease` — slow drag parks where you let go; upward fling past the invisible 2/5 line snaps to top; downward fling at/below the line snaps to bottom. Test: `tests/decide-bar-release.test.ts`. |
+| Single-tap discipline | ✅ | `lib/hooks/useTap.ts` — `useTap` (canonical single-tap) + `useHomeParticleTap` (the only sanctioned double-tap site, gold particle only). |
+| Solo-parity runtime channel | ✅ | `lib/runtime/runtimeChannel.ts` — `LocalChannel` (in-mem pub/sub) + `RealtimeChannel` (lazy Supabase, graceful local fallback) + `createRuntimeChannel(id, mode)` factory. Solo == co-op with one peer. Tests: `tests/runtime-channel.test.ts`. |
+| Manifest `solo` / `coop` flags | ✅ | `lib/feature-build/featureManifest.ts::DaydreamEnginManifest` gained optional `solo: boolean` and `coop: boolean \| { affordances: string[] }` (backwards-compatible). |
 
 ## 3. Daydream pairs
 
@@ -100,7 +105,7 @@ Canonical spec: `docs/ACTIVITY_FIRST_PROTOCOL.md` — Active Platform Law (2026-
 | Code / CodeEngin | ✅ | `app/daydream/code/page.tsx` exists; `components/daydream/CodeEngin.tsx` exists. |
 | Brand / BrandingEngin | ✅ | `app/daydream/brand/page.tsx` exists; `components/daydream/BrandingEngin.tsx` exists. |
 | Create / ContentEngin | ✅ | `app/daydream/create/page.tsx` exists; `components/daydream/ContentEngin.tsx` exists. |
-| DaydreamShell sideBComponent prop | ✅ | `components/daydream/DaydreamShell.tsx` now accepts `sideBComponent` prop (Phase 6). |
+| DaydreamShell sideBComponent prop | ✅ | `components/daydream/dream.shell.DaydreamShell.tsx` now accepts `sideBComponent` prop (Phase 6). |
 | useDaydreamState hook | ✅ | `lib/daydream/useDaydreamState.ts` created (Phase 6). |
 | Legacy extra daydream routes | 🟡 | `analytics`, `media-vault`, and `play` still exist and must be repurposed (Phase 6). |
 
@@ -108,7 +113,7 @@ Canonical spec: `docs/ACTIVITY_FIRST_PROTOCOL.md` — Active Platform Law (2026-
 
 | Module | Status | Repo truth |
 |---|---|---|
-| DreamMenu | ✅ | Canonical: `components/menus/DreamRadialMenu.tsx`. `HomeRadialNav.tsx` (legacy, was unused) replaced with redirect stub re-exporting from canonical. `DualBottomMenu.tsx` wraps DreamRadialMenu + SystemRadialMenu for the seam. Phase 6 item 10 complete. |
+| DreamMenu | ✅ | Canonical: `components/menus/dream.menu.DreamRadialMenu.tsx`. `HomeRadialNav.tsx` (legacy, was unused) replaced with redirect stub re-exporting from canonical. `DualBottomMenu.tsx` wraps DreamRadialMenu + SystemRadialMenu for the seam. Phase 6 item 10 complete. |
 | DreamDM | ✅ | `app/messages/page.tsx` and `app/api/messages/route.ts` exist. |
 | DreamShop | ✅ | `app/shop/page.tsx` and `app/api/shop/route.ts` exist. |
 | DreamMarketplace | ✅ | `app/marketplace/page.tsx` exists. |
@@ -153,7 +158,7 @@ The following items are the Phase 6 focus. See `docs/dreamengin_phase6.md` for t
 7. ✅ Wire TheBoogieMan privacy-event logging for visibility changes — done. `handleSave` in `EditProfileDream` now detects per-widget visibility changes and POSTs `VISIBILITY_CHANGE` events to `/api/ai/boogieman/privacy-event`. `handlePublish` already logged `EXPLICIT_SHARE` events.
 8. ✅ Consult `visibility_mappings` before rendering any content on ViewProfile — done. `view-profile/page.tsx` now queries `visibility_mappings` table and uses it as authoritative source (falls back to widget visibility field). Migration `20260316000000_visibility_mappings.sql` already existed.
 9. ✅ Separate private-save and explicit-share flows in EditProfileDream — done. `handleSave` (draft) and `handlePublish` (explicit share) are separate callbacks with separate buttons ("Save Draft" vs "Publish").
-10. ✅ Unify DreamMenu under a single canonical implementation — done. `components/menus/DreamRadialMenu.tsx` is canonical. `HomeRadialNav.tsx` (unused) replaced with redirect stub re-exporting from canonical. `DualBottomMenu.tsx` wraps `DreamRadialMenu` + `SystemRadialMenu` for the seam.
+10. ✅ Unify DreamMenu under a single canonical implementation — done. `components/menus/dream.menu.DreamRadialMenu.tsx` is canonical. `HomeRadialNav.tsx` (unused) replaced with redirect stub re-exporting from canonical. `DualBottomMenu.tsx` wraps `DreamRadialMenu` + `SystemRadialMenu` for the seam.
 11. ✅ Separate user DreamAds from platform promotions in code and UI language — done. Migration `20260321000000_ads_platform_promotions.sql` adds `is_platform_promotion` to `ad_listings`. Ads surface now renders "My DreamAds — Available" and "Platform Promotions" as distinct sections.
 12. ✅ Repurpose legacy Daydream routes (`analytics`, `media-vault`, `play`) — done. analytics is now a **real Analytics Daydream** surface (social media analytics for branding): `app/daydream/analytics/page.tsx` + `components/daydream/AnalyticsEngin.tsx`. media-vault → /daydream/create, play → /daydream/games.
 13. ✅ Complete real-capability audit: replace all fake actions with real ones — done. `onOpenDrEams={() => {}}` in `HomeSystem.tsx` (both RuntimeView instances) replaced with real `openDrEams` from `DreamSystemContext`. Marketplace "Request" button replaced with a real navigation link to the slot detail surface. No remaining empty handlers in `components/home/`, `components/dreams/`, or `components/daydream/`.
@@ -206,7 +211,7 @@ All 100 points tracked. §A–§D completed on prior passes. §E–§J completed
 | 14. Visibility RLS enforced | ✅ | RLS on `dream_windows` table; visibility = private/shared/public. |
 | 15. Owner-only mutations | ✅ | `owner_id` checked at API layer; non-owner writes rejected. |
 | 16. Actions produce real DB writes | ✅ | Add, remove, bind, collapse, expand all write to DB. |
-| 17. SuperDreamWidget composition | ✅ | `components/dreams/SuperDreamWidget.tsx` with real composition rules. |
+| 17. SuperDreamWidget composition | ✅ | `components/dreams/dream.widget.SuperDreamWidget.tsx` with real composition rules. |
 | 18. Legacy widget components absorbed | ✅ | `components/widgets/*` migrated to Dream Window model. |
 | 19. widget-system-v2.ts removed | ✅ | `types/dream-window.ts` is single type authority. |
 | 20. Layer model enforced | ✅ | Shell → Connector → Feature → Output enforced; no bypass. |

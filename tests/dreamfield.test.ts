@@ -1,5 +1,5 @@
 /**
- * Tests for components/daydream/DREAMfield.tsx
+ * Tests for components/daydream/dream.DREAMfield.tsx
  *
  * Runs in Node (no canvas/Babylon/AudioContext) -- verifies:
  *   - Module exports the component as default, named DREAMfield
@@ -94,30 +94,30 @@ describe('DREAMfield', () => {
 
   // Default export
   it('exports DREAMfield as the default export', async () => {
-    const mod = await import('@/components/daydream/DREAMfield');
+    const mod = await import('@/components/daydream/dream.DREAMfield');
     expect(mod.default).toBeDefined();
     expect(typeof mod.default).toBe('function');
   });
 
   it('default export is named DREAMfield', async () => {
-    const mod = await import('@/components/daydream/DREAMfield');
+    const mod = await import('@/components/daydream/dream.DREAMfield');
     expect(mod.default.name).toBe('DREAMfield');
   });
 
   // ENGIN_LAUNCHPAD
   it('exports ENGIN_LAUNCHPAD as a named export', async () => {
-    const mod = await import('@/components/daydream/DREAMfield');
+    const mod = await import('@/components/daydream/dream.DREAMfield');
     expect(mod.ENGIN_LAUNCHPAD).toBeDefined();
     expect(Array.isArray(mod.ENGIN_LAUNCHPAD)).toBe(true);
   });
 
   it('ENGIN_LAUNCHPAD has one entry per creative engine', async () => {
-    const mod = await import('@/components/daydream/DREAMfield');
+    const mod = await import('@/components/daydream/dream.DREAMfield');
     expect(mod.ENGIN_LAUNCHPAD).toHaveLength(6);
   });
 
   it('every launch entry has required string fields', async () => {
-    const { ENGIN_LAUNCHPAD } = await import('@/components/daydream/DREAMfield');
+    const { ENGIN_LAUNCHPAD } = await import('@/components/daydream/dream.DREAMfield');
     for (const e of ENGIN_LAUNCHPAD) {
       expect(typeof e.id).toBe('string');
       expect(e.id.length).toBeGreaterThan(0);
@@ -130,7 +130,7 @@ describe('DREAMfield', () => {
   });
 
   it('all launch entry hrefs route to canonical /daydream/* routes', async () => {
-    const { ENGIN_LAUNCHPAD } = await import('@/components/daydream/DREAMfield');
+    const { ENGIN_LAUNCHPAD } = await import('@/components/daydream/dream.DREAMfield');
     const valid = new Set([
       '/daydream/games',
       '/daydream/music',
@@ -145,7 +145,7 @@ describe('DREAMfield', () => {
   });
 
   it('ENGIN_LAUNCHPAD ids are unique', async () => {
-    const { ENGIN_LAUNCHPAD } = await import('@/components/daydream/DREAMfield');
+    const { ENGIN_LAUNCHPAD } = await import('@/components/daydream/dream.DREAMfield');
     const ids = ENGIN_LAUNCHPAD.map(e => e.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
@@ -154,7 +154,7 @@ describe('DREAMfield', () => {
   it('does not import babylon or create engines (no 3D gimmick)', async () => {
     // If the module resolves without touching @babylonjs/core, the import succeeds.
     // The mock for forgeRegistry above provides CREATIVE_ENGINES without Babylon.
-    const mod = await import('@/components/daydream/DREAMfield');
+    const mod = await import('@/components/daydream/dream.DREAMfield');
     // The module shape should have the intelligence exports, not planet configs
     expect((mod as Record<string, unknown>).PLANET_CONFIGS).toBeUndefined();
     expect((mod as Record<string, unknown>).createAmbientAudio).toBeUndefined();
@@ -162,36 +162,36 @@ describe('DREAMfield', () => {
 
   // formatTimestampRelative
   it('exports formatTimestampRelative', async () => {
-    const mod = await import('@/components/daydream/DREAMfield');
+    const mod = await import('@/components/daydream/dream.DREAMfield');
     expect(typeof mod.formatTimestampRelative).toBe('function');
   });
 
   it('formatTimestampRelative returns "just now" for recent timestamps', async () => {
-    const { formatTimestampRelative } = await import('@/components/daydream/DREAMfield');
+    const { formatTimestampRelative } = await import('@/components/daydream/dream.DREAMfield');
     const iso = new Date(Date.now() - 5_000).toISOString();
     expect(formatTimestampRelative(iso)).toBe('just now');
   });
 
   it('formatTimestampRelative returns minutes-ago for timestamps < 1h', async () => {
-    const { formatTimestampRelative } = await import('@/components/daydream/DREAMfield');
+    const { formatTimestampRelative } = await import('@/components/daydream/dream.DREAMfield');
     const iso = new Date(Date.now() - 12 * 60 * 1000).toISOString();
     expect(formatTimestampRelative(iso)).toBe('12m ago');
   });
 
   it('formatTimestampRelative returns hours-ago for timestamps < 1d', async () => {
-    const { formatTimestampRelative } = await import('@/components/daydream/DREAMfield');
+    const { formatTimestampRelative } = await import('@/components/daydream/dream.DREAMfield');
     const iso = new Date(Date.now() - 5 * 3600 * 1000).toISOString();
     expect(formatTimestampRelative(iso)).toBe('5h ago');
   });
 
   it('formatTimestampRelative returns days-ago for timestamps < 1 week', async () => {
-    const { formatTimestampRelative } = await import('@/components/daydream/DREAMfield');
+    const { formatTimestampRelative } = await import('@/components/daydream/dream.DREAMfield');
     const iso = new Date(Date.now() - 3 * 86400 * 1000).toISOString();
     expect(formatTimestampRelative(iso)).toBe('3d ago');
   });
 
   it('formatTimestampRelative returns a locale date string for old timestamps', async () => {
-    const { formatTimestampRelative } = await import('@/components/daydream/DREAMfield');
+    const { formatTimestampRelative } = await import('@/components/daydream/dream.DREAMfield');
     const iso = new Date(Date.now() - 14 * 86400 * 1000).toISOString();
     const result = formatTimestampRelative(iso);
     // Should not be a relative descriptor -- should be a date string

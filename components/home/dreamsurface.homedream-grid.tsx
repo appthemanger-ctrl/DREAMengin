@@ -16,8 +16,8 @@ import {
   Link2,
 } from 'lucide-react';
 import { WidgetInstance, getWidgetType, getWidgetConfig } from '@/types/widgets';
-import DreamWidget from './DreamWidget';
-import DraggableModule from '@/components/draggable/DraggableModule';
+import DreamWidget from './dream.widget.DreamWidget';
+import DraggableModule from '@/components/draggable/dream.DraggableModule';
 import { manifestFromWidget } from '@/lib/runtime/moduleRegistry';
 
 interface DreamWidgetGridProps {

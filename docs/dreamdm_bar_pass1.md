@@ -186,7 +186,7 @@ app/api/
 | Layer | What goes here |
 |-------|----------------|
 | `app/messages/page.tsx` | Server component; auth gate, initial data fetch, passes to client |
-| `components/MessagesClient.tsx` | Monolithic client component; data fetching + UI in Pass 1 |
+| `components/dream.MessagesClient.tsx` | Monolithic client component; data fetching + UI in Pass 1 |
 | `app/api/messages/route.ts` | REST handlers; server-only Supabase client |
 | `app/api/notifications/route.ts` | REST handlers; server-only Supabase client |
 

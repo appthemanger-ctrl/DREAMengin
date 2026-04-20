@@ -1,4 +1,4 @@
-export { default as LabEnginApp } from './LabEnginApp';
-export { default as ExperimentsPanel } from './panels/ExperimentsPanel';
-export { default as DataVizPanel } from './panels/DataVizPanel';
-export { default as QuantumPanel } from './panels/QuantumPanel';
+export { default as LabEnginApp } from './dream.LabEnginApp';
+export { default as ExperimentsPanel } from './panels/dream.panel.ExperimentsPanel';
+export { default as DataVizPanel } from './panels/dream.panel.DataVizPanel';
+export { default as QuantumPanel } from './panels/dream.panel.QuantumPanel';

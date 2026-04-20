@@ -5,7 +5,7 @@ import { motion, useMotionValue, useTransform, AnimatePresence } from 'framer-mo
 import { create } from 'zustand';
 import { X, Send, ImageIcon, Loader2, MessageCircle, Search, Bot, Gamepad2, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { SkipCreditBalance } from '@/components/ads/SkipCreditBalance';
+import { SkipCreditBalance } from '@/components/ads/dream.SkipCreditBalance';
 
 // ============================================================================
 // CONFIG

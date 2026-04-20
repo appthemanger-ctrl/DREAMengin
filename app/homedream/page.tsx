@@ -1,6 +1,7 @@
+// SURFACE: dreamsurface.Homedream  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import HomeSystem from '@/dreamdmbar/homedream/HomeSystem';
+import HomeSystem from '@/dreamdmbar/homedream/dream.homedream.HomeSystem';
 import { isOwnerEmail } from '@/lib/ai/triad';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';

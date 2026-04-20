@@ -1,11 +1,12 @@
+// SURFACE: dreamsurface.DaydreamForge  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Flame, Zap, Layers, Activity, TrendingUp } from 'lucide-react';
-import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/DaydreamShell';
-import ForgeEngin from '@/engins/ForgeEngin';
-import ForgeMomentumWidget from '@/components/forge/ForgeMomentumWidget';
-import AuthenticatedPageHeader from '@/components/ui/AuthenticatedPageHeader';
+import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
+import ForgeEngin from '@/engins/dream.ForgeEngin';
+import ForgeMomentumWidget from '@/components/forge/dream.widget.ForgeMomentumWidget';
+import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import { CREATIVE_ENGINES } from '@/lib/forge/forgeRegistry';
 import { connection } from 'next/server';
 

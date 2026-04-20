@@ -1,4 +1,5 @@
 'use client'
+// SURFACE: dream.overlay.GlobalError  (framework-mandated basename: global-error.tsx)
 
 import { useEffect } from 'react'
 
