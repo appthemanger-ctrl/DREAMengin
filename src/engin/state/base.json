@@ -1,0 +1,23 @@
+{
+  "version": "1.0.0",
+  "namespace": "engin.state.base",
+  "genesis": true,
+  "worlds": {
+    "HomeDream Surface": {
+      "active": true,
+      "ruleset": "homedream"
+    },
+    "DreamSpace": {
+      "active": false,
+      "ruleset": null
+    }
+  },
+  "session": {
+    "frameIndex": 0,
+    "deltaStack": []
+  },
+  "ledger": {
+    "events": [],
+    "syncClock": 0
+  }
+}
