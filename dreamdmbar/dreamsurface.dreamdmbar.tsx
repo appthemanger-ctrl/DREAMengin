@@ -2679,7 +2679,6 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             </div>
           )}
         </div>
-        )}
       </div>
 
       {/* ── ⌨️ Slash Command Palette ─────────────────────────────────────── */}
