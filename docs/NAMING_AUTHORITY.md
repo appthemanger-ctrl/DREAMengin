@@ -18,11 +18,15 @@ You are operating within the DREAMengin platform. This document is the absolute,
 - Platform Name: DREAMengin (Strict: D-R-E-A-M caps, engin lowercase, no spaces). Banned: DreamEngin, Dreamengin, dreamengin, Dream Engine.
 - Type: "DreamDM-Bar-led spatial operating environment" or "stacked-runtime spatial operating environment". Banned: app, page-based app.
 
-2. ROOT LAYERRUNTIME REGIONS 
-- Root Layer: DreamDMBar
--HomeDream Surface (connect to top the bar).
-- DreamSpace (connects to bottom the bar and also is the header).
-WHEN BAR MOVES UP OR DOWN EITHER SURFACE GETS PUSHED UP DOWN BY THE BAR. when bare minimizes the screen is locked but each runtime is still scrollable
+2. ROOT CONTAINER & DEPENDENT RUNTIMES (Bar Ownership Model)
+
+- **DreamDMBar** — the root container. It is **not a component, not a divider, not a seam, not part of either runtime.** The bar **owns** the two runtimes below as dependents.
+  - **HomeDream Surface** — dependent runtime that lives above the bar. Pushed up when the bar moves up. Frozen in place when the bar is hidden. Always rendered, always scrollable in its own region.
+  - **DreamSpace** — dependent runtime that lives below the bar. Pushed down when the bar moves down. Frozen in place when the bar is hidden. Always rendered, always scrollable in its own region.
+
+- **Bar movement model:** the bar's own y-position determines the size of each runtime's region. When the bar's position changes, each runtime is pushed/pulled with it. The bar carries the runtimes; it does not split them.
+- **Bar hide model:** hiding the bar removes only the bar's own UI. Both runtimes remain on screen at the split they held the moment the bar was hidden, and each continues to scroll independently within its frozen region.
+- **Banned terms for the bar:** "seam," "divider," "splitter," "split-screen handle," "the line between." These all describe a sibling-of-runtimes model. The bar is not a sibling. The bar is the parent.
 
 3. CORE SURFACES (System-level, not daydreams)
 - HomeDream Surface (/homedream)

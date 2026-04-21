@@ -3,9 +3,10 @@
 > **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
 > **Documentation Date:** 2026-04-06
 
+> Authoritative bar/runtime model lives in `docs/LAW.md` §0 Bar Ownership Law.
 
 Status: active companion document  
-Last updated: 2026-03-16
+Last updated: 2026-04-21
 
 `README.md` is the canonical full system specification.
 
@@ -33,8 +34,8 @@ Do not use this file to override the README.
 
 ### Runtime regions
 - HomeDream Surface (root operating surface / underlying feed layer)
-- DreamSpace (revealed secondary layer owned by the DreamDM Bar)
-- DreamDM Bar / Runtime Seam (boundary owner and reveal control for the secondary layer)
+- DreamSpace (dependent runtime owned by the DreamDM Bar; always rendered)
+- DreamDM Bar (root container — owns both runtimes; not a seam or divider)
 
 ### Daydream Surface Network
 - Music Daydream Surface
