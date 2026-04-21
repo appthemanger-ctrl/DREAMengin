@@ -19,17 +19,17 @@ type ProfileLike = {
 const DEFAULT_WORKFLOW_SPLIT = 0.5;
 
 /**
- * HomeSystem — pure data/callback provider.
+ * DreamBarDataBridge — pure data/callback provider for the DreamDM Bar.
  *
  * Runs on the /homedream route. Pushes server-fetched homeData into
  * DreamSystemContext so PersistentDreamBar (the true home container in
  * layout.tsx) can render the Surface Space / DreamSpace region divs.
  * Returns null — no layout output of its own.
  *
- * Per Bar Ownership Law §0 (docs/LAW.md): the DreamDM Bar IS the home
- * container. It holds both runtimes. HomeSystem is the data bridge.
+ * Per Bar Ownership Law §0 (docs/LAW.md): the DreamDM Bar IS home.
+ * This component is purely a data bridge — it has no UI of its own.
  */
-export default function HomeSystem({
+export default function DreamBarDataBridge({
   userId,
   profile,
   initialPosts,

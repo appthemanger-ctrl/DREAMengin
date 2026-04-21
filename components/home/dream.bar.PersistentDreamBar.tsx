@@ -10,9 +10,9 @@
  *
  * Behaviour:
  *   - Hidden on public / pre-login routes (landing, login, policy, about).
- *   - When HomeSystem is mounted (/homedream), the bar operates in divider mode:
+ *   - When DreamBarDataBridge is mounted (/homedream), the bar operates in divider mode:
  *     splitRatio and isBarMinimized come from DreamSystemContext, which
- *     HomeSystem writes. The bar owns the Surface Space / DreamSpace regions.
+ *     DreamBarDataBridge writes. The bar owns the Surface Space / DreamSpace regions.
  *   - On all other authenticated pages, only the DreamDMBar is rendered:
  *     no splitRatio is passed so the bar anchors to the bottom and acts as a
  *     persistent navigation and messaging rail.
@@ -114,9 +114,9 @@ export default function PersistentDreamBar() {
     return null;
   }
 
-  // Only wire split-mode props and region rendering when the dual runtime (HomeSystem) is active.
+  // Only wire split-mode props and region rendering when DreamBarDataBridge (on /homedream) is active.
   // On other pages the bar anchors to the bottom and acts as a nav rail.
-  const isHomeSystemActive = runtimeCallbacks !== null;
+  const isBarDMHomeMounted = runtimeCallbacks !== null;
 
   // ── Region layout — non-hook calculations, safe after the early return ──────
   // Per Bar Ownership Law §0 (docs/LAW.md): hiding the bar must NOT change
