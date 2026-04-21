@@ -378,6 +378,20 @@ DREAMengin is a **customizable, privacy-first, DreamDM-Bar-led spatial operating
 
 **Build law:** No artificial "repurpose before invent" rule. Build freely; clean as you go. Don't leave orphaned code.
 
+> ⚠️ **DREAMR-FIRST ARCHITECTURE LAW** — Start with **DreamR**. It is the first
+> reference pattern for how everything in DREAMengin should be built: keep a
+> stable core responsible for runtime state, event flow, visibility, safety, and
+> durable execution contracts; move domain variation into swappable rule-sets,
+> scoring logic, transforms, presets, and surface-specific policy. New behavior
+> should be added by composing or replacing rule-sets before touching the core.
+> If a feature request forces a one-off core rewrite, the split is wrong and the
+> architecture must be re-cut.
+>
+> DreamR reference split:
+> - core: `dreamdmbar/homedream/dreamr/dream.DreamRCore.tsx`
+> - feed surface: `dreamdmbar/homedream/dreamr/dream.DreamRFeed.tsx`
+> - rule-set logic: `dreamdmbar/homedream/dreamr/algorithms/dreamrAlgorithm.ts`
+
 > ⚠️ **UNIVERSAL MODULARITY LAW** — Every visual element in DREAMengin (Dream Windows,
 > panels, rails, DreamR units, DreamMenu, overlays, strips, widgets, etc.) must be
 > draggable, re-positionable, and functionally re-mountable in any valid runtime region.
@@ -600,7 +614,7 @@ Routed at `/daydream/forge`. Build actions via `/api/forge/build`.
 | **DreamMenu** | (component) | `components/menus/dream.menu.DreamRadialMenu.tsx` (canonical); `DualBottomMenu` wraps `DreamRadialMenu` + `SystemRadialMenu` |
 | **Connectors** | `/connectors` | Instagram OAuth + YouTube OAuth; generic provider connect/disconnect/sync/verify at `/api/connectors/[provider]/` |
 | **Discover** | `/discover` | Feed discovery surface |
-| **DreamR** | `/api/dreamr/` | Feed + suggested routes; `dream.DreamRCore.tsx` + `dream.DreamRFeed.tsx` (in `dreamdmbar/homedream/dreamr/`); channel + creator panels in `components/dreamr/` |
+| **DreamR** | `/api/dreamr/` | Feed + suggested routes; `dream.DreamRCore.tsx` + `dream.DreamRFeed.tsx` (in `dreamdmbar/homedream/dreamr/`); channel + creator panels in `components/dreamr/`; **first commandment model** for stable core + swappable rule-set architecture |
 | **Forge** | `/daydream/forge` | `engins/engin.ForgeEngin.tsx`; `dream.ForgeDreamCanvas.tsx`; build actions via `/api/forge/build` |
 | **WebGPU** | `/webgpu` | `components/webgpu/dream.WebGPUShowcase.tsx` |
 | **Universe** | (component) | `components/universe/` — universe shell, node cluster, torus core, universe card |

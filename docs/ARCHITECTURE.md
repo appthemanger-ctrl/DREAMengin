@@ -9,6 +9,24 @@ Last updated: 2026-03-16
 
 `README.md` is the authoritative full product specification. This file explains how the current repo maps to that spec and where the implementation is already strong versus where it is still being aligned.
 
+## 0. DreamR-first architectural commandment
+
+Start with **DreamR**.
+
+DreamR is the first repo-level reference for the global build pattern:
+- a **stable core** owns runtime state, event flow, visibility boundaries, safety rules, and durable execution contracts
+- a **surface layer** renders the active user experience around that core
+- a **rule-set layer** owns scoring, transforms, presets, thresholds, and domain variation
+
+Reference split in the repo:
+- `dreamdmbar/homedream/dreamr/dream.DreamRCore.tsx` — logic reactor / durable core seam
+- `dreamdmbar/homedream/dreamr/dream.DreamRFeed.tsx` — active feed surface
+- `dreamdmbar/homedream/dreamr/algorithms/dreamrAlgorithm.ts` — swappable ranking rule-set
+
+This commandment is global. New systems should add behavior by composing or replacing
+rule-sets before rewriting the core layer. If a feature needs a one-off core branch,
+the boundary is wrong and should be redesigned.
+
 ## 1. Product model
 
 DREAMengin is a **privacy-first, DreamDM-Bar-led spatial operating environment** built around three core surfaces, a six-surface Daydream network connected to six Engin runtimes via 11 named connection paths, Dream Windows, and the AI triad.
@@ -79,6 +97,7 @@ Primary code lives in:
 - `components/dreamnav/*`
 - `components/menus/*`
 - `components/dream.HomeRadialNav.tsx`
+- `dreamdmbar/homedream/dreamr/*` for the DreamR-first feed/core split that future surfaces should emulate
 
 ### Edit ProfileDream Surface and View Profile Surface
 Primary code lives in:
