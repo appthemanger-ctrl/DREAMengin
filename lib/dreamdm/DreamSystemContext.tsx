@@ -32,7 +32,7 @@ import React, {
 import type { SystemPanelId } from '@/lib/panels/panelTypes';
 import { DEFAULT_SPLIT_RATIO } from '@/lib/dreamdm/barInteractions';
 
-// ── Home data shared by HomeSystem into PersistentDreamBar ───────────────────
+// ── Home data shared by HomeSystem into PersistentDreamBar ────────────────────
 
 type ProfileLike = {
   id?: string;
@@ -198,6 +198,9 @@ export function DreamSystemProvider({ children }: { children: ReactNode }) {
   const [drEamsOpen,    setDrEamsOpen]           = useState(false);
   const [runtimeCallbacks, setRuntimeCallbacks] = useState<RuntimeCallbacks | null>(null);
   const [barIntent,     setBarIntentState]       = useState<BarIntent>(DEFAULT_BAR_INTENT);
+  // Start at 0.9 so the bar rests near the bottom with a visible DreamSpace sliver.
+  // DEFAULT_SPLIT_RATIO (1.0) is kept as the snap-point constant used by
+  // barInteractions and its tests; this initial value is intentionally different.
   const [splitRatio,    setSplitRatio]           = useState(0.9);
   const [isBarMinimized, setIsBarMinimized]      = useState(false);
   const [homeData,      setHomeData]             = useState<HomeData | null>(null);

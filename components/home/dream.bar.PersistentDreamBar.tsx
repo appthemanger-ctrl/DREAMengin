@@ -57,6 +57,8 @@ export default function PersistentDreamBar() {
     return () => window.removeEventListener('resize', update);
   }, []);
 
+  // ── All callbacks must be declared before any early return (Rules of Hooks) ─
+
   const handleHome = useCallback(() => {
     // Smart Home — the DreamDM Bar IS home. Bar position decides scope:
     //   bar at bottom  → reset Surface (top runtime) only
@@ -74,33 +76,6 @@ export default function PersistentDreamBar() {
     runtimeCallbacks?.openHomeDreamSpace?.();
   }, [runtimeCallbacks]);
 
-  // Hide on public / pre-login surfaces
-  if (PUBLIC_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))) {
-    return null;
-  }
-
-  // Only wire split-mode props and region rendering when the dual runtime (HomeSystem) is active.
-  // On other pages the bar anchors to the bottom and acts as a nav rail.
-  const isHomeSystemActive = runtimeCallbacks !== null;
-
-  // ── Region layout helpers — only computed when HomeSystem is active ─────────
-  // Per Bar Ownership Law §0 (docs/LAW.md): hiding the bar must NOT change
-  // the split ratio and must NOT hide either runtime. Both HomeDream and
-  // DreamSpace remain rendered at whatever split they held the moment the
-  // bar was hidden, and each continues to scroll independently inside its
-  // own frozen region. The bar is the root container that owns both
-  // runtimes; hiding it removes only the bar's own UI.
-  const dividerHeight = isBarMinimized ? 0 : DIVIDER_H;
-  const runtimeSplitRatio = splitRatio;
-  const topHeight = `calc((100% - ${dividerHeight}px) * ${runtimeSplitRatio})`;
-  const bottomRegionTop = `calc(${topHeight} + ${dividerHeight}px)`;
-  const bottomHeight = `calc(100% - ${bottomRegionTop})`;
-  const seamOffset =
-    viewportHeight > 0
-      ? Math.round(((viewportHeight - dividerHeight) * runtimeSplitRatio) + dividerHeight / 2)
-      : undefined;
-
-  // ── Region callbacks — wired to the dual runtime ───────────────────────────
   const revealSplitRuntime = useCallback((nextRatio = DEFAULT_WORKFLOW_SPLIT) => {
     setIsBarMinimized(false);
     setSplitRatio((current) => {
@@ -133,6 +108,32 @@ export default function PersistentDreamBar() {
   const backFromDreamRegion = useCallback(() => {
     dualRuntime.setBottomRuntime('DreamSpace');
   }, [dualRuntime]);
+
+  // Hide on public / pre-login surfaces
+  if (PUBLIC_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))) {
+    return null;
+  }
+
+  // Only wire split-mode props and region rendering when the dual runtime (HomeSystem) is active.
+  // On other pages the bar anchors to the bottom and acts as a nav rail.
+  const isHomeSystemActive = runtimeCallbacks !== null;
+
+  // ── Region layout — non-hook calculations, safe after the early return ──────
+  // Per Bar Ownership Law §0 (docs/LAW.md): hiding the bar must NOT change
+  // the split ratio and must NOT hide either runtime. Both HomeDream and
+  // DreamSpace remain rendered at whatever split they held the moment the
+  // bar was hidden, and each continues to scroll independently inside its
+  // own frozen region. The bar is the root container that owns both
+  // runtimes; hiding it removes only the bar's own UI.
+  const dividerHeight = isBarMinimized ? 0 : DIVIDER_H;
+  const runtimeSplitRatio = splitRatio;
+  const topHeight = `calc((100% - ${dividerHeight}px) * ${runtimeSplitRatio})`;
+  const bottomRegionTop = `calc(${topHeight} + ${dividerHeight}px)`;
+  const bottomHeight = `calc(100% - ${bottomRegionTop})`;
+  const seamOffset =
+    viewportHeight > 0
+      ? Math.round(((viewportHeight - dividerHeight) * runtimeSplitRatio) + dividerHeight / 2)
+      : undefined;
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
