@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import HomeDreamSurface from '@/dreamdmbar/homedream/dream.homedream.HomeDreamSurface';
+import HomeDreamSurface from '@/dreamdmbar/homedream/dreamsurface.homedream';
 
 type CoreFace = 'home' | 'profile';
 
