@@ -244,26 +244,26 @@ describe('DREAMengin v2.0.0 — build enforcement updated', () => {
 });
 
 // ---------------------------------------------------------------------------
-// WorkspaceDashboard — canonical surface names in UI
+// HomeDreamSurface — canonical surface names in UI
 // ---------------------------------------------------------------------------
 
-describe('DREAMengin v2.0.0 — WorkspaceDashboard surface labels', () => {
+describe('DREAMengin v2.0.0 — HomeDreamSurface surface labels', () => {
   const dashboard = readFileSync(
-    resolve(__dirname, '../dreamdmbar/homedream/dream.homedream.WorkspaceDashboard.tsx'),
+    resolve(__dirname, '../dreamdmbar/homedream/dream.homedream.HomeDreamSurface.tsx'),
     'utf8',
   );
 
-  it('WorkspaceDashboard does not use confusing "Your Dreams" label for view-profile', () => {
+  it('HomeDreamSurface does not use confusing "Your Dreams" label for view-profile', () => {
     // "Your Dreams" was misleading — should be "View Profile" per LAW.md
     expect(dashboard).not.toContain("label: 'Your Dreams'");
     expect(dashboard).not.toContain('label: "Your Dreams"');
   });
 
-  it('WorkspaceDashboard uses canonical "View Profile" label', () => {
+  it('HomeDreamSurface uses canonical "View Profile" label', () => {
     expect(dashboard).toContain('View Profile');
   });
 
-  it('WorkspaceDashboard uses canonical "Edit ProfileDream" label', () => {
+  it('HomeDreamSurface uses canonical "Edit ProfileDream" label', () => {
     expect(dashboard).toContain('Edit ProfileDream');
   });
 });

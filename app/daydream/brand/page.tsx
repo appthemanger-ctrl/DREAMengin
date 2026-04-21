@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { Palette } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
 import BrandingEngin from '@/engins/engin.BrandingEngin';
-import BrandDaydreamDashboard from '@/components/daydream/dream.BrandDaydreamDashboard';
+import BrandDaydream from '@/components/daydream/dreamsurface.daydream.BrandDaydream';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import { connection } from 'next/server';
 
@@ -47,7 +47,7 @@ export default async function BrandDaydreamPage() {
         badge="Brand Daydream · 2026 Edition"
       />
 
-      <BrandDaydreamDashboard />
+      <BrandDaydream />
 
     </div>
     </DaydreamShell>

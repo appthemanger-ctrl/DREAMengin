@@ -45,7 +45,7 @@ describe('authenticated UI shell upgrade rollout', () => {
 
   it('upgrades shared post-login shells with premium framing', () => {
     const daydreamShell = readFileSync(join(root, 'components/daydream/dream.shell.DaydreamShell.tsx'), 'utf-8');
-    const dashboard = readFileSync(join(root, 'dreamdmbar/homedream/dream.homedream.WorkspaceDashboard.tsx'), 'utf-8');
+    const dashboard = readFileSync(join(root, 'dreamdmbar/homedream/dream.homedream.HomeDreamSurface.tsx'), 'utf-8');
     const pulseStrip = readFileSync(join(root, 'components/home/dream.DaydreamPulseStrip.tsx'), 'utf-8');
     const dreamsPanel = readFileSync(join(root, 'components/dreams/dreamsurface.dreamspace.tsx'), 'utf-8');
 

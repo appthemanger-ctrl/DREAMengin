@@ -5,7 +5,7 @@
  *
  * Architecture justification:
  *   - docs/AXIOMS.md: every visible action must do something real. The
- *     notification bell in WorkspaceDashboard currently shows a fake static
+ *     notification bell in HomeDreamSurface currently shows a fake static
  *     dot. These helpers are the pure logic layer that drives the real wiring.
  *   - docs/ARCHITECTURE.md §8: Gold = save/confirm/action; Light Blue = live
  *     state/connected state/signal state. A live notification count is exactly
