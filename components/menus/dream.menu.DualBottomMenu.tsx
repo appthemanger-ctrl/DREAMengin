@@ -6,7 +6,8 @@
  * Left panel:  6 Daydream navigation (per spec §17.2 / §4.2)
  * Right panel: System menu + Dr. Eams Chat (per spec §17.3 / §4.2)
  *
- * Double-tap the gold ball → this opens.
+ * Double-tap the gold button → this opens.
+ * Single tap → go home.
  * Tap the dim backdrop or any item → closes.
  */
 

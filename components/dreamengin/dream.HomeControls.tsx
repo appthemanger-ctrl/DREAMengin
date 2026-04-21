@@ -1,7 +1,7 @@
 // components/dreamengin/dream.HomeControls.tsx
 // ONE gold button. Always has been. Always will be.
-//   • Single tap → open both menus (Outdream on left, Nexus on right)
-//   • Double tap → go home
+//   • Single tap → go home (immediate)
+//   • Double tap → open dual menus (Outdream on left, Nexus on right)
 
 'use client';
 
@@ -18,29 +18,20 @@ const DOUBLE_TAP_MS = 260;
 
 export default function HomeControls({ onBothMenus, onHome }: HomeControlsProps) {
   const lastTapRef = useRef(0);
-  const singleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleTap = () => {
     const now = performance.now();
     const last = lastTapRef.current;
     lastTapRef.current = now;
 
-    // Double tap → go home
+    // Double tap → open dual menus (immediate)
     if (now - last <= DOUBLE_TAP_MS) {
-      if (singleTapTimerRef.current) {
-        clearTimeout(singleTapTimerRef.current);
-        singleTapTimerRef.current = null;
-      }
-      onHome();
+      onBothMenus();
       return;
     }
 
-    // Single tap → open both menus
-    if (singleTapTimerRef.current) clearTimeout(singleTapTimerRef.current);
-    singleTapTimerRef.current = setTimeout(() => {
-      singleTapTimerRef.current = null;
-      onBothMenus();
-    }, DOUBLE_TAP_MS + 10);
+    // Single tap → go home (immediate, no delay)
+    onHome();
   };
 
   return (
