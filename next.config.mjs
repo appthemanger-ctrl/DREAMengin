@@ -69,12 +69,12 @@ const nextConfig = {
               "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.spotify.com https://api.github.com https://assets.babylonjs.com",
               "media-src 'self' blob: https://*.supabase.co",
               "worker-src 'self' blob:",
-              "frame-ancestors 'none'",
+              "frame-ancestors 'self'",
             ].join("; "),
           },
           {
             key: "X-Frame-Options",
-            value: "DENY",
+            value: "SAMEORIGIN",
           },
           {
             key: "X-Content-Type-Options",

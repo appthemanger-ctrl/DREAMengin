@@ -811,7 +811,10 @@ body, .dreamnav-surface, .controls {
 
 .de-shell {
   position: relative;
-  overflow: hidden;
+  /* overflow: clip preserves visual clipping for absolute-positioned children
+     without creating a scroll container, so position: sticky descendants
+     (e.g. the HomeDream sticky header) continue to work correctly. */
+  overflow: clip;
   isolation: isolate;
 }
 

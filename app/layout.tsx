@@ -4,6 +4,8 @@ import '@/styles/globals.css';
 import '@/styles/view-transitions.css';
 // Stream 5.2 — CSS Container Queries for Dream Windows
 import '@/styles/dream-shell.css';
+// HomeDream surface styles: gold-button, dream-widget-card, dream-widget-empty
+import '@/styles/home-dream.css';
 import type { Metadata, Viewport } from 'next';
 import { Suspense } from 'react';
 import { Space_Grotesk, Cormorant_Garamond, Plus_Jakarta_Sans } from 'next/font/google';
