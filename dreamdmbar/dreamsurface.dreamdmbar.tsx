@@ -2061,7 +2061,6 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           />
         )}
         {!isResting && !isSeamMode && !isParticleMode && (
-        {!isResting && !isDividerMode && (
           <div
             aria-hidden
             style={{
