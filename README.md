@@ -683,6 +683,119 @@ pnpm preflight   # typecheck + lint + tests
 
 ---
 
+## 6. HomeDream (Core System, Private Operating Surface)
+
+HomeDream Surface is the user's **private root operating surface** — connected to the top of the DreamDM Bar. It is **private by default** at the data layer (RLS), not just the UI.
+
+### Control model
+
+- **Single tap: Open dual menus.** (Daydream radial left + System radial right)
+- **Double tap: Go Home.** (Gold Particle only — the single double-tap target in the system)
+
+### Feed model
+
+The HomeDream feed is **centered around a personalized feed** of real content:
+
+- `feed_items` — connector-synced external content (Mastodon, GitHub, Bluesky, YouTube, etc.)
+- `app_posts` — followed users' posts + own posts; **private by default**, owner-controlled
+
+Feed state is **persistent between sessions** (per-user algorithm settings stored via `/api/settings/feed`).
+
+### What HomeDream renders
+
+1. **Dr. Eams search bar** — wired inline, calls real `openDrEams` from `DreamSystemContext`
+2. **Real merged feed** — `feed_items` + `app_posts`, sorted by `created_at`
+3. **DreamR section** — close friends / channel / creator panels (`dreamdmbar/homedream/dreamr/`)
+4. **6 Daydream navigation** — `DaydreamPulseStrip` linking to Music, Games, Lab, Code, Brand, Create
+5. **Dream Window layout** — user's configured and persisted Dream Windows (Music, Games, Lab, Code, Brand, Create, Profile, Gallery, Link Tree, Social Feed, etc.)
+6. **Compact Dream Window rail** — swipeable strip just above the DreamDM Bar, plus a DreamSpace opener tile
+7. **feed algorithm settings** — persisted per user via `/api/settings/feed`
+8. **posting routes** — `/create`, `/post`, and inline compose; private by default
+
+**What HomeDream is NOT**: a dashboard, a home screen, or a web-app tile grid.
+
+---
+
+## HomeDream System
+
+HomeDream is implemented as a shell-owned dual-runtime surface. The key implementation paths are:
+
+- **Route**: `app/homedream/page.tsx` — server-rendered, Supabase auth check, dev bypass via `DEV_BYPASS_AUTH=true`
+- **System shell**: `dreamdmbar/homedream/dream.homedream.HomeSystem.tsx` — mounts the dual-runtime container
+- **Surface composition**: `dreamdmbar/homedream/dream.homedream.HomeDreamSurface.tsx` — the HomeDream content region
+
+### Vocabulary
+
+| Term | Meaning |
+|---|---|
+| **Surface** | A top-level platform layer (HomeDream, Daydream, etc.) |
+| **Daydream** | A creative / utility zone — Side A of a Daydream pair |
+| **Engin** | The powered execution runtime — Side B of a Daydream pair |
+| **Dream Window** | A modular runtime container; the primary building block |
+| **DreamDM Bar** | The persistent split-screen seam and interaction rail |
+| **DreamSpace** | The second runtime layer revealed by the DreamDM Bar |
+| **Gold Particle** | The only double-tap target; returns home and resets runtimes |
+| **Canonical Route** | The single authoritative URL for each surface |
+
+### Runtime rules
+
+- **DreamDMBar persistence is shell-owned**: the bar lives in `app/layout.tsx` and is never remounted
+- **DreamSystemContext** provides `splitRatio`, `isBarMinimized`, `barIntent`, and runtime callbacks to all surfaces
+- The bar can be **hidden/minimized** (`isBarMinimized`); when minimized, screen is locked but each runtime is still scrollable
+- Feed scroll is independent from the bar; Gold Button and bar do not scroll with content
+- HomeDream state persists between sessions — navigating away and back preserves runtime state
+
+---
+
+## 13. Code / CodeEngin
+
+### 13.1 Code (Side A)
+
+The Code Daydream Surface (`app/daydream/code/page.tsx`) is the user's coding home inside DREAMengin. It surfaces:
+
+- **Project Vault** — user's code projects, browsable and openable into CodeEngin
+- **Snippet Library** — reusable code snippets, taggable and searchable
+- **Import Files & Zips** — drag-and-drop file and zip import into projects
+- **Drafts Workspace** — work-in-progress code that has not been published; accessible via `label: 'Drafts'`
+- **Open CodeEngin** — direct launcher button into the full CodeEngin runtime
+
+### 13.2 CodeEngin (Side B)
+
+`engins/engin.CodeEngin.tsx` — real IDE, no mock data.
+
+- Cell-based code editor with `runCellCode` execution
+- **Run CI (lint, typecheck, test, build)** via `/api/ci/run`
+- **ShellHub** — persistent terminal session; wired to real shell commands
+- **TaskJobManager** — manages long-running build/test/deploy jobs
+- AI co-pilot: `engins/CodeEngin/modules/ai-co-pilot/` (`dream.panel.AgentPanel.tsx` + `useAgentSession`)
+- Core parser: `engins/CodeEngin/core/parser.ts` · Orchestrator: `engins/CodeEngin/orchestrator/dream.index.tsx`
+- Bridge: `useCodeEnginBridge` (`lib/runtime/useEnginBridge`)
+
+### 13.3 Specialized Dream Windows (Examples)
+
+The Code surface can open any of these Dream Windows inline:
+
+- **Project Dream Window** — full project tree + file editor
+- **Code File Dream Window** — single-file focused editor
+- **Snippet Dream Window** — inline snippet viewer/editor
+- **Terminal Dream Window** — embedded terminal session
+- **Deployment Dream Window** — deploy pipeline status and controls
+- **Runtime Dream Window** — live runtime output and logs
+
+---
+
+## Product Laws
+
+**Law 10 — Build freely, clean as you go.** Don't leave orphaned code. No artificial "repurpose before invent" rule. If a new component does the job better, build it and delete the old one.
+
+---
+
+## Settings Routes
+
+`/settings/` — account · algorithm · appearance · controls · data · feed · help · notifications · privacy · safety · security · widgets
+
+---
+
 ## Vocabulary
 
 | Term | Meaning |

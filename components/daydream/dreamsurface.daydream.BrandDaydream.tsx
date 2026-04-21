@@ -134,7 +134,7 @@ function TrendIcon({ trend }: { trend: Trend }) {
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
-export default function BrandDaydreamDashboard() {
+export default function BrandDaydream() {
   const { record: forgeRecord } = useForgeActivity({ enginId: 'brand' });
 
   // ── Profile ────────────────────────────────────────────────────────────────

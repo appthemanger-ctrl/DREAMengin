@@ -227,7 +227,7 @@ export default async function CodeDaydreamPage() {
             </div>
             <div className="de-widget-body">
               {[
-                { fn: 'renderWorkspaceDashboard()', avg: '2.1ms', hot: true },
+                { fn: 'renderHomeDreamSurface()', avg: '2.1ms', hot: true },
                 { fn: 'parseFeedItems()',            avg: '18ms',  hot: true },
                 { fn: 'syncSupabaseState()',         avg: '44ms',  hot: false },
               ].map(f => (

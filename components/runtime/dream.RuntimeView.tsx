@@ -17,7 +17,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
-import WorkspaceDashboard from '@/dreamdmbar/homedream/dream.homedream.WorkspaceDashboard';
+import HomeDreamSurface from '@/dreamdmbar/homedream/dream.homedream.HomeDreamSurface';
 import DreamsSpacePanel from '@/components/dreams/dreamsurface.dreamspace';
 import RuntimeShell from '@/components/runtime/dream.shell.RuntimeShell';
 import type { RuntimeRegion } from '@/lib/identity/canonical-names';
@@ -129,7 +129,7 @@ export default function RuntimeView({
           onCloseIframe={closeIframe}
           iframeTitle={iframeTitle}
         >
-          <WorkspaceDashboard
+          <HomeDreamSurface
             profile={profile}
             posts={posts ?? []}
             onOpenDrEams={onOpenDrEams}
@@ -178,7 +178,7 @@ export default function RuntimeView({
           onCloseIframe={closeIframe}
           iframeTitle={iframeTitle}
         >
-          <WorkspaceDashboard
+          <HomeDreamSurface
             profile={profile}
             posts={posts ?? []}
             onOpenDrEams={onOpenDrEams}
