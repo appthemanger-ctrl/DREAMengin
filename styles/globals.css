@@ -176,19 +176,21 @@ body > * {
 }
 
 /* ── iOS smooth scroll containers ── */
+/* NOTE: -webkit-overflow-scrolling: touch is intentionally omitted.
+   That deprecated property creates a native iOS scroll layer where buttons
+   inside require two taps (first focuses the layer, second fires the click).
+   Modern iOS 13+ provides momentum scrolling on overflow:auto without it. */
 [data-scroll], .scroll-ios {
-  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   scroll-behavior: smooth;
 }
 
-/* ── All overflow scroll containers get momentum scrolling + smooth scroll ── */
+/* ── All overflow scroll containers get smooth scroll ── */
 [data-scroll],
 .scroll-ios,
 [style*="overflow-y: auto"],
 [style*="overflow-y:auto"],
 [style*="overflowY"] {
-  -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
 }
 
@@ -2480,12 +2482,11 @@ textarea:focus {
   box-shadow: 0 0 0 3.5px rgba(42,138,184,0.12) !important;
 }
 
-/* ── Scroll containers: momentum scroll on iOS ── */
+/* ── Scroll containers: contain overscroll on iOS ── */
 .overflow-y-auto,
 .overflow-y-scroll,
 [style*="overflow-y: auto"],
 [style*="overflow-y: scroll"] {
-  -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
 }
 

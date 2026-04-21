@@ -270,7 +270,6 @@ export default function RuntimeShell({
             transformOrigin: 'top left',
              overflowY: 'auto',
              overflowX: 'hidden',
-             WebkitOverflowScrolling: 'touch',
              overscrollBehavior: 'contain',
              touchAction: 'pan-y',
              display: 'flex',

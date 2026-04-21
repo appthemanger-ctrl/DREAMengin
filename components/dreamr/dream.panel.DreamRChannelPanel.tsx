@@ -237,7 +237,6 @@ export default function DreamRChannelPanel({ post, activeTopic, onClose }: Props
         fontFamily: DR.font,
         display: 'flex', flexDirection: 'column',
         overflowY: 'auto', overflowX: 'hidden',
-        WebkitOverflowScrolling: 'touch',
       }}
     >
       {/* Header */}
