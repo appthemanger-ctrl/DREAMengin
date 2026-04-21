@@ -14,17 +14,17 @@ PRs fill in the remaining components.
 | # | Component | Generic Pattern | `lib/enginpipe/` Path | Status |
 |---|-----------|-----------------|----------------------|--------|
 | 1 | Artifact Container Format | TAR + Zstd + Manifest + WASM + Assets | `artifact/manifest.ts` | ✅ shipped |
-| 2 | File-Based Knowledge Brain | `principles/`, `patterns/`, `inspiration-corpus/`, `registry/`, `sessions/`, `predictions/` | `brain/` | ⏳ PR #2 |
+| 2 | File-Based Knowledge Brain | `principles/`, `patterns/`, `inspiration-corpus/`, `registry/`, `sessions/`, `predictions/` | `brain/` | ✅ shipped |
 | 3 | AI Agent Team | Orchestrator, Researcher, Builder, Artisan, Refiner, Scribe, Gatekeeper | `agents/` | ⏳ PR #3 |
 | 4 | Telemetry & Feedback Loop | TimescaleDB hypertable + `event_type`/`payload` JSON | `telemetry/{events,client}.ts` | ✅ shipped |
-| 5 | State Snapshot System | WASM exports `getSnapshotSize()`, `writeSnapshot()`, `loadSnapshot()` | `snapshot/` | ⏳ PR #4 |
-| 6 | Workflow Orchestration Pattern | Scheduled workflow → analyze telemetry → dispatch via `gh workflow run` | `orchestration/` | ⏳ PR #4 |
-| 7 | Autonomous Iteration Cycle (The Pulse) | Analyze → Research → Generate → Validate → Package → Deploy → Log | `pulse/` | ⏳ PR #5 |
+| 5 | State Snapshot System | WASM exports `getSnapshotSize()`, `writeSnapshot()`, `loadSnapshot()` | `snapshot/` | ✅ shipped |
+| 6 | Workflow Orchestration Pattern | Scheduled workflow → analyze telemetry → dispatch via `gh workflow run` | `orchestration/` | ✅ shipped |
+| 7 | Autonomous Iteration Cycle (The Pulse) | Analyze → Research → Generate → Validate → Package → Deploy → Log | `pulse/` | ✅ shipped |
 | 8 | Performance Budget & Quality Tier System | Capability detection → tier assignment → settings map | `quality/tiers.ts` | ✅ shipped |
-| 9 | Asset Compression Standards | WebP/AVIF for images, Opus for audio, Draco for 3D, Zstd for data | `compression/` | ⏳ PR #6 |
-| 10 | Local-First Development Principle | File system as primary DB; cached fallback when external APIs unset | `localfirst/` | ⏳ PR #6 |
+| 9 | Asset Compression Standards | WebP/AVIF for images, Opus for audio, Draco for 3D, Zstd for data | `compression/` | ✅ shipped |
+| 10 | Local-First Development Principle | File system as primary DB; cached fallback when external APIs unset | `localfirst/` | ✅ shipped |
 | 11 | Hot-Swap Runtime Shell | Root layout holds GPU/auth; dynamic route swaps artifact runtime | `shell/ArtifactSlot.tsx` | ✅ shipped |
-| 12 | Unified Input & Haptics Manager | All input sources → single `DomainInputState` struct | `input/` | ⏳ PR #7 |
+| 12 | Unified Input & Haptics Manager | All input sources → single `DomainInputState` struct | `input/` | ✅ shipped |
 
 ## How to use it
 
