@@ -1,125 +1,258 @@
+# Generation Law
 
-# GENERATION LAW (ι‑Engine) – Final Fused Version
+Status: binding AI build constraint  
+Last updated: 2026-03-16
 
-**Effective Date:** 2026-04-14  
-**Status:** Creative Operating Law (Phase 10)  
-**Based on:** Torridity constants (`ΔP = 0.1`, `λ = 1.71`) and the geometric series `1 + λ + λ² + … + λ⁹ = 300`.
-
----
-
-## 1. Core Principle
-
-> **High Invention Force (`ι`) BUILDS immediately. Low `ι` is throttled.**  
-> No isolation, no permission, no artificial splits. Creativity is the engine, not a problem to be managed.
-
-The law is a **physics of creation**, not a set of bureaucratic gates. It uses the same constants that govern galaxy rotation, swipe deceleration, and content decay.
+This document is the authoritative expansion of README.md §27.  
+Every AI agent (Dr. Eams, IDARi, TheBoogieMan.Ai, or any external Copilot) must read and apply it before each generation pass.
 
 ---
 
-## 2. Invention Force (`ι`)
-
-Five creative dimensions (each scored 0–10):
-
-- **n** – Novelty: new patterns, first‑principles leaps.
-- **a** – Autonomy: removes manual decisions, reduces friction.
-- **s** – Synthesis: connects subsystems, weaves features together.
-- **v** – Vision: aligns with the roadmap and platform purpose.
-- **xi** – Chaos: wild, untested, promising, or weird.
-
-**Formula** (derived from torridity geometry):
+## 1. Allowed-Output Formula
 
 ```
-ι = ΔP × ( n·1 + a·λ + s·λ² + v·λ³ + xi·λ⁴ )
+allowed next output = base spec fidelity × (ДР / 2) × (1 + ДРх)
 ```
 
-where  
-`ΔP = 0.1` (throttle fraction, from `n‑2` in torridity)  
-`λ = 1.71` (geometric growth factor, from `1 + λ + λ² + … + λ⁹ = 300`)
+| Term | Definition |
+|------|-----------|
+| **base spec fidelity** | How closely the current codebase matches README.md. Expressed as a value from 0 (nothing matches) to 1 (full conformance). Estimate by auditing open items in FEATURE_STATUS.md. |
+| **ДР** | Delta ratio — the fraction of the total spec addressed by this pass (e.g., adding one route = small ДР; rewriting the full widget system = large ДР). |
+| **ДРх** | Residual-adjusted ДР. Subtract the residual penalty before computing: ДРх = ДР − (open residuals / total spec sections). |
 
-The powers of λ give increasing weight to later dimensions:  
-`1`, `1.71`, `2.924`, `5.000`, `8.550`.  
-The entire sum is scaled by `ΔP = 0.1`, keeping `ι` in a small, practical range (0–~19.18).
-
----
-
-## 3. Creative Protocols (What to Do with `ι`)
-
-Maximum possible ι = `ΔP × 191.8 ≈ 19.18`. Thresholds are derived as 15% and 50% of this maximum.
-
-| `ι` range | Protocol | Action |
-|-----------|----------|--------|
-| `ι < 2.88` | **FLOW** | Throttle. Ship fast or skip. Low impact. |
-| `2.88 ≤ ι < 9.59` | **SYNTHESIZE** | Combine ideas, create workflows. Let flow freely. |
-| `ι ≥ 9.59` | **MANIFEST** | **BUILD IMMEDIATELY.** Generate code, UI, documents, real‑world actions. No isolation, no permission. |
-
-*Thresholds are derived from 15% and 50% of the maximum possible `ι` (which is `ΔP × 191.8 ≈ 19.18`).*
+**Rule:** if the scope of a planned pass would exceed `allowed next output`, the pass must be split into smaller sub-passes or down-graded to **patch only** mode before any file is opened.
 
 ---
 
-## 4. No Splitting, No Isolation
+## 2. App-Build Load (χ)
 
-- **Never split a pass** based on `ι`. High `ι` is a green light, not a warning.
-- **No isolation environment required** for `MANIFEST`. Build anywhere – main branch, production, user space.
-- **Residuals are logged for memory, not as blockers.**
+Compute χ before writing a single line of code:
 
----
-
-## 5. Residual Classes (Observations, not Obstacles)
-
-- Architecture – does it respect the 4‑layer Dream model?  
-- Naming – canonical names from `README.md`.  
-- Token – gold/sky/white design tokens.  
-- Behavior – every visible action real.  
-- Privacy – no private state exposed.  
-- Performance – render‑on‑demand, FPS rules.  
-- Projection – `ViewProfile` shows saved projection.
-
-Residuals are recorded in `BUGS_LOG` but do not stop a creative pass.
-
----
-
-## 6. Relationship to Other Documents
-
-| Document | Purpose |
-|----------|---------|
-| `README.md` | Naming and vision alignment. |
-| `LAW.md` | Naming reference. |
-| `THEME.md` | Token reference. |
-| `SECURITY.md` | Privacy reference. |
-| `ARCHITECTURE.md` | Layer map. |
-| `ROADMAP.md` | Vision scoring. |
-| `BUGS.md` | Residual memory (not a stop). |
-| `FEATURE_STATUS.md` | Feature completeness. |
-
----
-
-## 7. Example
-
-A highly creative idea:  
-`n=8, a=9, s=7, v=10, xi=10`  
-→ raw sum = `8·1 + 9·1.71 + 7·2.924 + 10·5 + 10·8.55 = 8 + 15.39 + 20.468 + 50 + 85.5 = 179.358`  
-→ `ι = 0.1 × 179.358 = 17.94` → **MANIFEST** → build immediately.
-
-A small refinement:  
-`n=2, a=2, s=2, v=3, xi=1`  
-→ raw sum ≈ `2 + 3.42 + 5.848 + 15 + 8.55 = 34.818`  
-→ `ι = 3.48` → **FLOW** (throttle, ship fast or skip).
-
----
-
-## 8. Implementation
-
-The law is implemented in `lib/generationLaw.ts` with the following exports:
-
-- `calculateInventionForce(pass)`
-- `getPassProtocol(iota)`
-- `runPrePassChecklist(pass)`
-- `logResidual(residual)` / `auditPostPass`
-- `BUGS_LOG`, `DOC_RELATIONSHIPS`
-
-All AI agents (Dr. Eams, IDARi, TheBoogieMan.Ai, and external Copilot) **must** compute `ι` before every significant generation pass and act according to the protocol.
-
----
-
-*This law replaces all previous generation constraints. Creativity is not a problem to be managed – it is the engine.*
 ```
+χ = w₁T + w₂F + w₃D + w₄A + w₅U
+```
+
+### 2.1 Variables
+
+| Symbol | Meaning | Default weight |
+|--------|---------|----------------|
+| T | Number of distinct tasks attempted in this pass | w₁ = 1.0 |
+| F | Number of files touched | w₂ = 0.5 |
+| D | Dependency surface changed — new npm packages, new Supabase columns, new env vars, new imports from outside the touched file tree | w₃ = 1.5 |
+| A | Architecture depth affected — count of the 4 layers (Surface / Component / Logic / Data) that are modified | w₄ = 2.0 |
+| U | Unresolved spec ambiguities carried into this pass from a previous session | w₅ = 1.0 |
+
+Weights are platform-wide defaults. IDARi may tune them per domain via the admin panel.
+
+### 2.2 Mode Thresholds
+
+| χ range | Mode | What is permitted |
+|---------|------|-------------------|
+| χ < 4 | **create** | New files, new routes, new components, new DB tables, new top-level systems |
+| 4 ≤ χ < 8 | **conform** | Modify existing files to align with spec; no new top-level systems |
+| χ ≥ 8 | **patch only** | Single-file, single-function fixes; no structural change; no new imports |
+
+If a planned pass yields χ ≥ 8, decompose it into sub-passes (each with its own χ check) before proceeding.
+
+### 2.3 Example
+
+A pass that: fixes one bug (T=1), touches 3 files (F=3), adds no new deps (D=0), stays in the Component layer only (A=1), with 0 ambiguities (U=0):
+
+```
+χ = 1.0×1 + 0.5×3 + 1.5×0 + 2.0×1 + 1.0×0 = 1 + 1.5 + 0 + 2 + 0 = 4.5  →  conform
+```
+
+---
+
+## 3. Residual Classes
+
+A residual is a typed mismatch between actual AI output and spec-intended output:
+
+```
+r = actual output − predicted output
+```
+
+Residuals are not numbers first — they are structured mismatches. Seven classes exist. Every pass must audit for all of them.
+Here's a rewritten version based on the current naming grammar, the 4-layer model, and the Generation Law / SICC principles you've established.
+
+---
+
+### 3.1 Architecture Residual
+
+**Question:** Does the code match the 4‑layer DREAMengin model?
+
+| Layer | Location | Responsibility |
+|-------|----------|----------------|
+| **Surface** | `app/` routes, `page.tsx` files | Entry points only — no logic, no data access. Thin shims that import and render a `dreamsurface.*` component. |
+| **Component** | `components/`, `engins/` | UI atoms, shells, menus, widgets, and the six canonical Engins (`engin.*Engin.tsx`). |
+| **Logic** | `lib/`, `hooks/`, `utils/` | Business logic, data transforms, state management, API clients, the Generation Law engine. |
+| **Data** | `supabase/`, RLS policies, `types/`, `schema/` | Database schemas, queries, type definitions, migrations. |
+
+**Residual is present when:**
+- Logic or data access appears directly in a Surface file (`app/*/page.tsx`).
+- A Component file contains database queries instead of calling a `lib/` or `hooks/` function.
+- A new system is placed at the wrong layer (e.g., a payment processor lives in `components/checkout/` instead of `lib/commerce/`).
+- A pass touches all four layers in a single change (A=4 → χ spikes). Decompose the pass into focused steps unless ι ≥ 9.59 (MANIFEST) demands otherwise.
+
+---
+
+### 3.2 Naming Residual
+
+**Question:** Does the code use the canonical naming grammar defined in `docs/NAMING_AUTHORITY.md` (especially §14)?
+
+**Immutable parent prefixes:**
+
+| Prefix | Meaning | Example |
+|--------|---------|---------|
+| `engin.` | One of the six canonical runtimes (StarMaker, Game, Lab, Code, Branding, Content) | `engin.GameEngin.tsx` |
+| `dream.` | Any user‑facing component, cartridge, HUD, remote, or control that belongs to an Engin | `dream.cartridge.NullCathedral.tsx` |
+| `dreamsurface.` | A runtime Surface (HomeDream, EditProfileDream, ViewProfile, Daydream surfaces, etc.) | `dreamsurface.HomeDream.tsx` |
+
+**Approved sub‑prefixes (exactly one per file, after the parent prefix):**
+
+| For `dream.*` | For `dreamsurface.*` |
+|---------------|----------------------|
+| `cartridge`, `panel`, `hud`, `remote`, `scene`, `window`, `widget`, `menu`, `bar`, `shell`, `overlay` | `core`, `daydream`, `module` |
+
+**Do not use:**  
+`component`, `ui`, `view`, `page`, `util`, `helper`, `lib`, `test`, `spec`, `legacy`, `old`, `v2`, `route` as sub‑prefixes or file name segments.
+
+**Residual is present when:**
+- An `engin.` file has a sub‑prefix (e.g., `engin.game.Runtime.tsx`).
+- A `dream.` or `dreamsurface.` file uses a disallowed sub‑prefix or more than one sub‑prefix.
+- A file containing an Engin, Dream, or Surface concept does not use the required parent prefix.
+- The vocabulary from §13 of `NAMING_AUTHORITY.md` is violated (e.g., calling a Surface a “page”, calling an Engin an “engine”).
+
+---
+
+This version removes outdated references (like the old table of canonical names) and aligns with the current `engin.` / `dream.` / `dreamsurface.` grammar, the sub‑prefix whitelist, and the 4‑layer architecture rules.
+
+**Residual is present when:**
+- Legacy names appear in new route files, component names, or variable names without a redirect or explicit alias comment
+- A UI string shown to the user uses a non-canonical name
+- OS-layer rejected terms (widget, page, dashboard, card, app, tab) appear in user-facing copy
+
+---
+
+### 3.3 Token Residual
+
+**Question:** Does the code use design-system tokens rather than arbitrary values?
+
+**Required colour tokens (from THEME.md):**
+
+| Intent | Token class | Hex |
+|--------|------------|-----|
+| Action / save / premium | `de-gold` | `#F5C842` |
+| Connected / live | `de-sky` | `#64B5F6` |
+| Surfaces | `de-surface` / white | `#FFFFFF` |
+
+**Allowed border-radius values (px):** 6, 10, 14, 18, 24, 32, 9999
+
+**Residual is present when:**
+- Raw hex or RGB values appear in component styles for the above intents
+- Arbitrary Tailwind colour classes are used where a token applies (e.g., `text-yellow-400` instead of `text-de-gold`)
+- A border-radius value outside the allowed token set appears (e.g., `rounded-lg` = 8px is not in the set)
+- A new colour is introduced without a corresponding token entry in THEME.md
+
+---
+
+### 3.4 Behavior Residual
+
+**Question:** Do all visible actions map to real system actions?
+
+**Residual is present when:**
+- A button or link has an empty or stub handler (`onClick={() => {}}`, `href="#"`)
+- A toggle or switch has no persisted outcome (state changes in memory but is never saved)
+- A navigation element routes to a 404 or placeholder page
+- A form submits but the data is discarded
+- An action is presented in the UI but marked "coming soon" without a gating mechanism
+
+---
+
+### 3.5 Privacy Residual
+
+**Question:** Did the AI expose private builder state publicly?
+
+**Residual is present when:**
+- A query or API response returns data belonging to a user other than the authenticated requester without an explicit visibility permission record
+- EditProfileDream draft state appears on ViewProfile before the user has explicitly saved and shared it
+- RLS is missing or bypassed (`service_role` used where `anon` / `authenticated` should govern)
+- A `NEXT_PUBLIC_` env variable carries a secret or non-public credential
+- An API route returns user data without checking the authenticated session
+- The `visibility_mappings` table is not consulted before rendering shared content on ViewProfile
+
+---
+
+### 3.6 Performance Residual
+
+**Question:** Does the code violate DREAMengin performance rules?
+
+**Rules:**
+
+| Rule | Requirement |
+|------|-------------|
+| Render on demand | Components must not render heavy content on mount when idle; trigger on interaction or intersection |
+| Interactive animations | ≥ 60 fps |
+| Passive animations | ≥ 30 fps |
+| Static Three.js meshes | Must be frozen — call `geometry.dispose()` / set static flag; never re-create per frame |
+| Post-processing | Bloom, depth-of-field, and other passes must be conditionally gated (device capability check); never on by default |
+
+**Residual is present when:**
+- A component eager-loads a heavy resource (3D scene, large image set) on mount without an idle or intersection trigger
+- An animation drops below the fps threshold (measure with React DevTools Profiler or Three.js stats)
+- A Three.js geometry or material is re-instantiated on every render cycle
+- A post-processing pass is unconditionally applied to all devices
+
+---
+
+### 3.7 Projection Residual
+
+**Question:** Does ViewProfile render only saved, explicitly shared projections?
+
+A **projection** is a domain-specific output record (music project, game profile, brand kit, etc.) that a user has saved in one of the 6 Daydream / Engin pairs and chosen to share publicly.
+
+**Residual is present when:**
+- ViewProfile reads live EditProfileDream state directly instead of reading from a saved projection record
+- A projection appears on ViewProfile that the user has not saved and set `visibility = shared`
+- The rendering pipeline bypasses the `visibility_mappings` table
+- A draft or in-progress Daydream object is visible to other users before explicit publish
+
+---
+
+## 4. Per-Pass Audit Checklist
+
+Run this checklist at the **start** and **end** of every generation pass. File any failing item in BUGS.md before opening a new create-mode pass.
+
+```
+PRE-PASS
+[ ] χ computed — mode confirmed (create / conform / patch only)
+[ ] allowed next output computed — scope fits within limit
+[ ] No unresolved residuals from the previous pass (check BUGS.md)
+
+POST-PASS
+[ ] Architecture residual — layers respected? No logic in Surface, no DB in Component?
+[ ] Naming residual — canonical README names used throughout?
+[ ] Token residual — de-gold / de-sky / de-surface tokens; correct border-radius values?
+[ ] Behavior residual — every visible action does something real?
+[ ] Privacy residual — no private state exposed publicly; RLS intact?
+[ ] Performance residual — render-on-demand; fps targets met; frozen static meshes?
+[ ] Projection residual — ViewProfile shows only saved shared projections?
+```
+
+Any residual discovered during the post-pass audit must be:
+1. Logged in BUGS.md with the residual class and affected file(s)
+2. Resolved in a dedicated conform-mode pass before the next create-mode pass is permitted
+
+---
+
+## 5. Relationship to Other Docs
+
+| Document | Relationship to this file |
+|----------|--------------------------|
+| `README.md` | Primary spec. Base spec fidelity is measured against it. §27 is the canonical summary of this document. |
+| `docs/LAW.md` | Product and route law. Naming residuals are caught against it. |
+| `docs/THEME.md` | Token source of truth. Token residuals are caught against it. |
+| `docs/SECURITY.md` | Privacy model. Privacy residuals are caught against it. |
+| `docs/ARCHITECTURE.md` | Layer definitions. Architecture residuals are caught against it. |
+| `docs/BUGS.md` | Residual log. All unresolved residuals are filed here. |
+| `docs/FEATURE_STATUS.md` | Used to estimate base spec fidelity for the allowed-output formula. |
