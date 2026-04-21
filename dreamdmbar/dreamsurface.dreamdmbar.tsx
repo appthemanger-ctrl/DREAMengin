@@ -131,6 +131,12 @@ const EXPAND_THRESHOLD = 80;
 const SPRING       = '0.46s cubic-bezier(0.34,1.22,0.64,1)';
 /** Minimum pointer movement (px) to switch from tap to drag on minimized orb */
 const ORB_DRAG_SLOP = 6;
+/** Thickness of the divider bar in its resting "seam" state (px) */
+const SEAM_H = 2;
+/** Diameter of the divider bar in particle / MANIPULATE state (px) */
+const PARTICLE_D = 12;
+/** Movement slop (px) before a seam touch is treated as a drag vs a tap */
+const SEAM_DRAG_SLOP = 4;
 
 /**
  * GlowingLight — the ambient indicator that replaces the geometric Gold Particle.
@@ -529,6 +535,17 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
    */
   const [barTouched, setBarTouched] = useState(false);
   const barTouchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /**
+   * Pointer position during an active divider drag that started from seam mode.
+   * Drives the particle (12px circle) position on screen.
+   * null = not in particle mode.
+   */
+  const [particlePos, setParticlePos] = useState<{ x: number; y: number } | null>(null);
+  /**
+   * Ref mirror of isSeamMode (computed in render) so event callbacks can read it
+   * without being stale — avoids adding isSeamMode to every useCallback dep array.
+   */
+  const isSeamModeRef = useRef(false);
   const revealBar = useCallback(() => {
     setBarTouched(true);
     if (barTouchTimerRef.current) clearTimeout(barTouchTimerRef.current);
@@ -756,15 +773,38 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   // When onSplitChange is provided, the bar operates as a true spatial divider.
   // Dragging the handle resizes both regions in real time; releasing snaps to
   // the closest of the three canonical split points (0.1 / 0.5 / 0.9).
-  const dividerDragRef = useRef({ active: false, lastY: 0, lastAt: 0, velocity: 0 });
+  //
+  // Structural transformation:
+  //   Resting (seam)  → 2px horizontal line spanning full width
+  //   Dragging (particle) → 12px circle following the pointer, detached from flow
+  const dividerDragRef = useRef({
+    active: false,
+    lastY: 0, lastAt: 0, velocity: 0,
+    startX: 0, startY: 0,
+    /** true once pointer has moved past SEAM_DRAG_SLOP — lets us distinguish tap vs drag */
+    hasMovedPastSlop: false,
+    /** true when the drag originated from seam mode (triggers particle transformation) */
+    startedFromSeam: false,
+  });
 
   const handleDividerDragStart = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (!onSplitChange) return;
     e.preventDefault(); e.stopPropagation();
     e.currentTarget.setPointerCapture(e.pointerId);
     const now = performance.now();
-    dividerDragRef.current = { active: true, lastY: e.clientY, lastAt: now, velocity: 0 };
-    setIsDragging(true);
+    const startedFromSeam = isSeamModeRef.current;
+    dividerDragRef.current = {
+      active: true,
+      lastY: e.clientY, lastAt: now, velocity: 0,
+      startX: e.clientX, startY: e.clientY,
+      hasMovedPastSlop: false,
+      startedFromSeam,
+    };
+    // In expanded divider mode (bar already revealed), enter dragging state immediately.
+    // In seam mode, defer until the pointer moves past SEAM_DRAG_SLOP so a tap stays a tap.
+    if (!startedFromSeam) {
+      setIsDragging(true);
+    }
   }, [onSplitChange]);
 
   const handleDividerDragMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
@@ -775,6 +815,26 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     );
     dividerDragRef.current.lastY = e.clientY;
     dividerDragRef.current.lastAt = now;
+
+    // Resolve drag intent — seam drags check slop before entering particle mode.
+    if (!dividerDragRef.current.hasMovedPastSlop) {
+      if (dividerDragRef.current.startedFromSeam) {
+        const dx = e.clientX - dividerDragRef.current.startX;
+        const dy = e.clientY - dividerDragRef.current.startY;
+        if (Math.hypot(dx, dy) < SEAM_DRAG_SLOP) return; // below slop → ignore movement
+        dividerDragRef.current.hasMovedPastSlop = true;
+        setIsDragging(true); // NOW enter dragging/particle state
+      } else {
+        // Expanded-mode drag: no slop needed, mark immediately
+        dividerDragRef.current.hasMovedPastSlop = true;
+      }
+    }
+
+    // Track pointer for the particle element position (seam-started drags only)
+    if (dividerDragRef.current.startedFromSeam) {
+      setParticlePos({ x: e.clientX, y: e.clientY });
+    }
+
     // Bar top = clientY - DIVIDER_H/2 so the grab point stays under the pointer.
     const availH = screenH - DIVIDER_H;
     const newRatio = availH > 0
@@ -785,6 +845,17 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
 
   const handleDividerDragEnd = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (!dividerDragRef.current.active || !onSplitChange) return;
+
+    // Tap (pointer released before moving past slop) → expand bar into compose view
+    if (dividerDragRef.current.startedFromSeam && !dividerDragRef.current.hasMovedPastSlop) {
+      dividerDragRef.current.active = false;
+      revealBar(); // barTouched = true → isSeamMode = false → bar expands
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId);
+      }
+      return;
+    }
+
     const now = performance.now();
     const vel = calculatePointerVelocity(
       dividerDragRef.current.lastY, e.clientY, dividerDragRef.current.lastAt, now,
@@ -792,6 +863,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     const velocity = Number.isFinite(vel) ? vel : dividerDragRef.current.velocity;
     dividerDragRef.current.active = false;
     setIsDragging(false);
+    setParticlePos(null); // exit particle mode
     const availH = screenH - DIVIDER_H;
     const rawRatio = availH > 0
       ? Math.max(SPLIT_RATIO_MIN, Math.min(SPLIT_RATIO_MAX, (e.clientY - DIVIDER_H / 2) / availH))
@@ -800,7 +872,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     if (e.currentTarget.hasPointerCapture(e.pointerId)) {
       e.currentTarget.releasePointerCapture(e.pointerId);
     }
-  }, [onSplitChange, screenH, splitRatio]);
+  }, [onSplitChange, screenH, splitRatio, revealBar]);
 
   // ── Dream bar context (route-aware + intent-aware) ──────────────────────────
   const { barIntent, setBarIntent, clearBarIntent } = useDreamSystem();
@@ -836,6 +908,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   // Exception: when textarea is focused AND touch started inside the textarea.
 
   const handleBarTouchStart = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    // In seam mode the bar uses pointer events for drag/tap — skip touch handling
+    // here to avoid double-firing revealBar on the same gesture.
+    if (isSeamModeRef.current) return;
     revealBar();
     const touch = e.touches[0];
     if (!touch) return;
@@ -1561,6 +1636,28 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   const surfaceAccent = SURFACE_ACCENT_COLORS[(barCtx.surface as SurfaceAccent)] ?? SURFACE_ACCENT_COLORS.general;
   const handleScale = rhythmToHandleScale(typingRhythm);
 
+  // ── Divider structural-transformation states ──────────────────────────────
+  //
+  // The DreamDMBar IS the divider line — not a separate object on top of it.
+  // The element transforms its DOM geometry based on two states:
+  //
+  //   SEAM (NAV)        → 2px horizontal line spanning full viewport width.
+  //                        Tapping it expands to the compose view; dragging
+  //                        immediately enters PARTICLE mode.
+  //
+  //   PARTICLE (MANIPULATE) → 12px circle at the pointer, detached from flow.
+  //                            The bar collapses to a single node that can
+  //                            slide freely to reposition the split point.
+  //
+  // isSeamMode:   bar is at rest as a thin line
+  // isParticleMode: bar has been grabbed and is a 12px node following the pointer
+  //
+  const isSeamMode = isDividerMode && !isDragging && !barTouched
+    && !composeFocused && composeExtraH === 0;
+  const isParticleMode = isDividerMode && isDragging && particlePos !== null;
+  // Keep isSeamModeRef in sync so event callbacks can read it without staleness.
+  isSeamModeRef.current = isSeamMode;
+
   // ── Render ────────────────────────────────────────────────────────────────
 
   // ── Minimized state: draggable glowing light ─────────────────────────────
@@ -1823,62 +1920,134 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
       <div
         aria-label="DreamDM Bar"
         className="sicc-bar-edge"
-        // In divider / seam mode the touch drag moves the seam position.
-        // In legacy bottom-bar mode the whole-bar drag expands the bar height.
-        onPointerDown={isDividerMode ? revealBar : handleDragStart}
-        onPointerMove={isDividerMode ? undefined : handleDragMove}
-        onPointerUp={isDividerMode ? undefined : handleDragEnd}
-        onPointerCancel={isDividerMode ? undefined : handleDragEnd}
+        data-bar-state={isParticleMode ? 'particle' : isSeamMode ? 'seam' : 'normal'}
+        // ── Pointer routing ──────────────────────────────────────────────────
+        // seam mode:    whole 2px line is the drag/tap target → divider handlers
+        // particle mode: bar IS the 12px circle, keep divider move/up wired
+        // expanded divider: inner GlowingLight wrapper owns drag → bar just reveals
+        // legacy window: whole-bar drag handled by handleDragStart/Move/End
+        onPointerDown={
+          isSeamMode
+            ? handleDividerDragStart
+            : isDividerMode ? revealBar : handleDragStart
+        }
+        onPointerMove={
+          isSeamMode || isParticleMode
+            ? handleDividerDragMove
+            : isDividerMode ? undefined : handleDragMove
+        }
+        onPointerUp={
+          isSeamMode || isParticleMode
+            ? handleDividerDragEnd
+            : isDividerMode ? undefined : handleDragEnd
+        }
+        onPointerCancel={
+          isSeamMode || isParticleMode
+            ? handleDividerDragEnd
+            : isDividerMode ? undefined : handleDragEnd
+        }
         onTouchStart={handleBarTouchStart}
         onTouchMove={handleBarTouchMove}
         onTouchEnd={handleBarTouchEnd}
-        style={{
-          position: 'fixed',
-          top: barTop,
-          ...(isDividerMode
-            ? { left: 0, right: 0 }
-            : isTop
-              ? { left: 0, right: 0 }
-              : { left: 12, right: 12 }),
-          height: barH,
-          zIndex: 100,
-          pointerEvents: 'auto',
-          // In divider mode: overflow visible so the absolute-positioned particle
-          // (44px touch target) can extend beyond the thin seam container.
-          overflow: isDividerMode ? 'visible' : 'hidden',
-          touchAction: 'pan-y',
-          borderRadius: isDividerMode ? 0 : (isTop ? (showFull ? 24 : 0) : (showFull ? 24 : 999)),
-          transition: isDragging ? 'none' : `top ${SPRING}, height ${SPRING}, border-radius ${SPRING}, opacity 0.5s ease, background 0.5s ease, transform 0.25s ease`,
-          willChange: isDragging ? 'top, height' : undefined,
-          transform: keyboardTranslateY !== 0 ? `translateY(${keyboardTranslateY}px)` : undefined,
-          display: 'flex',
-          flexDirection: isDividerMode ? 'column' : (isTop ? 'column-reverse' : 'column'),
-          // Divider / seam mode idle: completely transparent — only seam line + particle visible.
-          // Divider bloomed: glass background matches the bloom overlay.
-          background: isDividerMode
-            ? 'transparent'
-            : isResting
-              ? 'transparent'
-              : 'linear-gradient(180deg, rgba(248,249,253,0.97) 0%, rgba(242,244,249,0.99) 100%)',
-          backdropFilter: isDividerMode ? 'none' : (isResting ? 'none' : 'blur(32px) saturate(160%)'),
-          WebkitBackdropFilter: isDividerMode ? 'none' : (isResting ? 'none' : 'blur(32px) saturate(160%)'),
-          opacity: isResting ? 0 : 1,
-          border: 'none',
-          boxShadow: isResting
-            ? 'none'
-            : (isDividerMode
+        style={(() => {
+          // ── Structural geometry ─────────────────────────────────────────────
+          // Particle mode: 12px circle at pointer position, detached from layout flow
+          // Seam mode:     2px full-width horizontal line (portrait)
+          // Normal modes:  existing pill/panel geometry
+          let geo: React.CSSProperties;
+          if (isParticleMode && particlePos) {
+            geo = {
+              top: particlePos.y - PARTICLE_D / 2,
+              left: particlePos.x - PARTICLE_D / 2,
+              width: PARTICLE_D,
+              height: PARTICLE_D,
+            };
+          } else if (isSeamMode) {
+            geo = {
+              top: dividerBarTop,
+              left: 0,
+              right: 0,
+              height: SEAM_H,
+            };
+          } else {
+            geo = {
+              top: barTop,
+              ...(isDividerMode
+                ? { left: 12, right: 12 }
+                : isTop
+                  ? { left: 0, right: 0 }
+                  : { left: 12, right: 12 }),
+              height: barH,
+            };
+          }
+
+          return {
+            position: 'fixed',
+            ...geo,
+            zIndex: 100,
+            pointerEvents: 'auto',
+            // particle: visible; seam/normal: clip inner content to bounds
+            overflow: isParticleMode ? 'visible' : 'hidden',
+            touchAction: isSeamMode || isParticleMode ? 'none' : 'pan-y',
+            borderRadius: isParticleMode
+              ? '50%'
+              : (isSeamMode ? 0 : (isDividerMode ? 999 : (isTop ? (showFull ? 24 : 0) : (showFull ? 24 : 999)))),
+            transition: isDragging
               ? 'none'
-              : (isTop
-                ? `0 6px 32px rgba(0,0,0,0.12), 0 1px 0 rgba(200,152,26,0.15),
-                   inset 0 -1px 0 rgba(255,255,255,0.35),
-                   0 -6px 32px rgba(125,211,252,0.18), 0 -1px 0 rgba(125,211,252,0.22)`
-                : `0 -6px 32px rgba(0,0,0,0.10), 0 -1px 0 rgba(200,152,26,0.15),
-                   inset 0 1px 0 rgba(255,255,255,0.45),
-                   0 -8px 32px rgba(125,211,252,0.18), 0 -1px 0 rgba(125,211,252,0.25)`)),
-        }}
+              : `top ${SPRING}, left ${SPRING}, width ${SPRING}, height ${SPRING}, border-radius ${SPRING}, opacity 0.5s ease, background 0.5s ease, transform 0.25s ease, box-shadow 0.35s ease`,
+            willChange: isDragging ? 'top, left, width, height' : undefined,
+            transform: keyboardTranslateY !== 0 ? `translateY(${keyboardTranslateY}px)` : undefined,
+            display: 'flex',
+            flexDirection: isDividerMode ? 'column' : (isTop ? 'column-reverse' : 'column'),
+            // ── Background ───────────────────────────────────────────────────
+            background: isParticleMode
+              // Particle: gold radial glow — no hard border, just light
+              ? 'radial-gradient(circle at center, rgba(255,223,64,0.98) 0%, rgba(232,184,48,0.85) 45%, rgba(200,152,26,0.55) 75%, transparent 100%)'
+              : (isSeamMode
+                // Seam: transparent — the ::before pseudo-element provides the glow line
+                ? 'transparent'
+                : (isDividerMode
+                  ? 'rgba(255,255,255,0.92)'
+                  : (isResting ? 'transparent' : 'linear-gradient(180deg, rgba(248,249,253,0.97) 0%, rgba(242,244,249,0.99) 100%)'))),
+            backdropFilter: isParticleMode || isSeamMode
+              ? 'none'
+              : (isDividerMode ? 'blur(48px) saturate(200%)' : (isResting ? 'none' : 'blur(32px) saturate(160%)')),
+            WebkitBackdropFilter: isParticleMode || isSeamMode
+              ? 'none'
+              : (isDividerMode ? 'blur(48px) saturate(200%)' : (isResting ? 'none' : 'blur(32px) saturate(160%)')),
+            opacity: isResting ? 0 : 1,
+            border: isParticleMode || isSeamMode ? 'none' : (isDividerMode ? '1px solid rgba(0,0,0,0.07)' : 'none'),
+            // ── Shadow / glow ─────────────────────────────────────────────────
+            boxShadow: isParticleMode
+              ? `0 0 16px 8px rgba(255,215,64,0.72), 0 0 32px 14px rgba(200,152,26,0.48), 0 0 2px rgba(255,248,180,0.95)`
+              : (isSeamMode
+                ? 'none'
+                : (isResting
+                  ? 'none'
+                  : (isDividerMode
+                    ? `0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.07),
+                       0 0 0 1px rgba(255,255,255,0.55),
+                       inset 0 1px 0 rgba(255,255,255,0.80), inset 0 -1px 0 rgba(0,0,0,0.04),
+                       0 -4px 24px rgba(125,211,252,0.12), 0 4px 24px rgba(200,152,26,0.08)`
+                    : (isTop
+                      ? `0 6px 32px rgba(0,0,0,0.12), 0 1px 0 rgba(200,152,26,0.15),
+                         inset 0 -1px 0 rgba(255,255,255,0.35),
+                         0 -6px 32px rgba(125,211,252,0.18), 0 -1px 0 rgba(125,211,252,0.22)`
+                      : `0 -6px 32px rgba(0,0,0,0.10), 0 -1px 0 rgba(200,152,26,0.15),
+                         inset 0 1px 0 rgba(255,255,255,0.45),
+                         0 -8px 32px rgba(125,211,252,0.18), 0 -1px 0 rgba(125,211,252,0.25)`)))),
+            // Particle breathing animation via inline style (refs CSS @keyframes)
+            animation: isParticleMode
+              ? 'sicc-bar-particle-glow 1.0s ease-in-out infinite'
+              : 'none',
+            cursor: isParticleMode ? 'grabbing' : (isSeamMode ? 'ns-resize' : 'default'),
+            // Mood-responsive edge glow — picked up by sicc-bar-edge::before gradient
+            '--de-mood-edge': moodEdgeColor,
+          } as React.CSSProperties;
+        })()}
       >
-        {/* ── 🌈 Mood Aura overlay — only in legacy bar mode ───────────────── */}
-        {!isResting && !isDividerMode && (
+        {/* ── 🌈 Mood Aura overlay — ambient glow shifts with time-of-day + surface ── */}
+        {!isResting && !isSeamMode && !isParticleMode && (
           <div
             className="sicc-mood-aura"
             aria-hidden
@@ -1891,7 +2060,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             }}
           />
         )}
-        {!isResting && !isDividerMode && (
+        {!isResting && !isSeamMode && !isParticleMode && (
           <div
             aria-hidden
             style={{
@@ -1903,15 +2072,43 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           />
         )}
 
-        {/* ── Divider / seam mode: canvas-animated line + centered particle ── */}
-        {isDividerMode && (
+        {/* ── Drag handle / Glowing Light ──────────────────────────────────── */}
+        {/* Hidden in seam and particle modes: the bar element itself IS the handle */}
+        <div
+          role="separator" aria-label="Drag to resize DreamDM"
+          style={{
+            height: 28, display: isSeamMode || isParticleMode ? 'none' : 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, cursor: 'default',
+            pointerEvents: 'none',
+            userSelect: 'none',
+            position: 'relative',
+          }}
+        >
+          {isDividerMode && (
           <>
-            {/* Canvas seam — animated gold line + glowing particle (visual only) */}
-            <canvas
-              ref={seamCanvasRef}
-              aria-hidden
-              width={screenW}
-              height={DIVIDER_H}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 2,
+            width: isDividerMode ? 112 : '100%',
+            maxWidth: isDividerMode ? 112 : 164,
+            height: '100%',
+            pointerEvents: 'auto',
+            cursor: isDragging ? 'grabbing' : 'grab',
+            touchAction: 'none',
+          }}>
+            <div
+              // In non-divider mode the wrapper owns the pointer drag so the
+              // *whole* bar is the drag handle. We leave the light's inner box
+              // free of pointer-drag wiring there to avoid double-firing.
+              // In divider mode (expanded, not seam/particle), inner div handles divider drag.
+              onPointerDown={isDividerMode ? handleDividerDragStart : undefined}
+              onPointerMove={isDividerMode ? handleDividerDragMove : undefined}
+              onPointerUp={isDividerMode ? handleDividerDragEnd : undefined}
+              onPointerCancel={isDividerMode ? handleDividerDragEnd : undefined}
               style={{
                 position: 'absolute',
                 top: 0,
@@ -1947,11 +2144,13 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 aria-label="DreamDM seam — tap for input, drag to resize, double-tap for menus"
               />
             </div>
+          </div>
           </>
         )}
 
         {/* ── Legacy drag handle / Glowing Light — non-divider mode only ─── */}
         {!isDividerMode && (
+          <>
           <div
             role="separator" aria-label="Drag to resize DreamDM"
             style={{
@@ -1997,11 +2196,31 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
               </div>
             </div>
           </div>
+          {/* Typing-rhythm handle: pulses wider as the user types faster */}
+          {typingRhythm > 0 && (
+            <div
+              aria-hidden
+              className="sicc-rhythm-handle"
+              style={{
+                position: 'absolute',
+                bottom: 3,
+                left: 'calc(50% - 12px)',
+                width: 24,
+                height: 3,
+                borderRadius: 99,
+                background: 'var(--de-gold)',
+                pointerEvents: 'none',
+                '--rhythm-scale': handleScale,
+              } as React.CSSProperties}
+            />
+          )}
+          </>
         )}
+        </div>
 
-        {/* ── Bar body — non-divider mode only (in divider mode, bloom overlay handles input) ── */}
-        {!isDividerMode && (
-        <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {/* ── Bar body ─────────────────────────────────────────────────────── */}
+        {/* Hidden in seam and particle modes — the bar is purely structural in those states */}
+        <div style={{ flex: 1, minHeight: 0, display: isSeamMode || isParticleMode ? 'none' : 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {showFull ? (
             /* Expanded panel — Messages */
             <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -2460,7 +2679,6 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             </div>
           )}
         </div>
-        )}
       </div>
 
       {/* ── ⌨️ Slash Command Palette ─────────────────────────────────────── */}
