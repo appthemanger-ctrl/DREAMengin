@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import WorkspaceDashboard from '@/dreamdmbar/homedream/dream.homedream.WorkspaceDashboard';
+import HomeDreamSurface from '@/dreamdmbar/homedream/dream.homedream.HomeDreamSurface';
 
 type CoreFace = 'home' | 'profile';
 
@@ -248,7 +248,7 @@ function MetricsRow() {
   );
 }
 
-/* ── Home face — delegates to WorkspaceDashboard ── */
+/* ── Home face — delegates to HomeDreamSurface ── */
 function HomeFace({ onOpenDrEams, onOpenDreamSpace, profile, posts, isAdmin }: {
   onOpenDrEams: () => void;
   onOpenDreamSpace?: () => void;
@@ -258,7 +258,7 @@ function HomeFace({ onOpenDrEams, onOpenDreamSpace, profile, posts, isAdmin }: {
   posts?: any[];
 }) {
   return (
-    <WorkspaceDashboard
+    <HomeDreamSurface
       profile={profile}
       posts={posts ?? []}
       onOpenDrEams={onOpenDrEams}
@@ -470,7 +470,7 @@ export default function CoreDream({ face, isOpen, onToggleFace, onClose: _onClos
     );
   }
 
-  // Home face — WorkspaceDashboard is full-screen, owns its own header + layout
+  // Home face — HomeDreamSurface is full-screen, owns its own header + layout
   return (
     <div style={{ width: '100%', minHeight: '100svh' }}>
       <HomeFace onOpenDrEams={onOpenDrEams} onOpenDreamSpace={onOpenDreamSpace} profile={profile} posts={posts} isAdmin={isAdmin} />

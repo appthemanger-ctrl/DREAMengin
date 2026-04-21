@@ -177,10 +177,13 @@ function HomeSystemInner({
   }, [isBarMinimized, splitRatio]);
 
   const dividerHeight = isBarMinimized ? 0 : DIVIDER_H;
-  // When the DreamDM Bar is minimized, force splitRatio to 1 so the
-  // Surface region fills the viewport and DreamSpace is hidden until the
-  // user reveals the bar again.
-  const runtimeSplitRatio = isBarMinimized ? 1 : splitRatio;
+  // Per Bar Ownership Law §0 (docs/LAW.md): hiding the bar must NOT change
+  // the split ratio and must NOT hide either runtime. Both HomeDream and
+  // DreamSpace remain rendered at whatever split they held the moment the
+  // bar was hidden, and each continues to scroll independently inside its
+  // own frozen region. The bar is the root container that owns both
+  // runtimes; hiding it removes only the bar's own UI.
+  const runtimeSplitRatio = splitRatio;
   const topHeight = `calc((100% - ${dividerHeight}px) * ${runtimeSplitRatio})`;
   const bottomRegionTop = `calc(${topHeight} + ${dividerHeight}px)`;
   const bottomHeight = `calc(100% - ${bottomRegionTop})`;

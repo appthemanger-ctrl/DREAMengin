@@ -1,5 +1,15 @@
 # LAW.md – DREAMengin Product & System Law
 
+## §0 Bar Ownership Law (highest priority — supersedes any conflicting older text in this repo)
+
+1. The DreamDM Bar is the **root container**. It is not a component, not a divider, not a seam, not a "handle between" the runtimes. It **owns** HomeDream Surface and DreamSpace, which are its **dependent runtimes**.
+2. **Bar moves → runtimes are pushed.** When the bar slides up, HomeDream is pushed up with it; DreamSpace expands into the space the bar vacated below. When the bar slides down, DreamSpace is pushed down with it; HomeDream expands into the space the bar vacated above.
+3. **Bar hidden → runtimes freeze in place; both stay on screen.** Hiding the bar removes only the bar's own UI. Both HomeDream and DreamSpace remain rendered at whatever split they held at the moment the bar disappeared. They cannot be resized (no mover present), but they MUST NOT be hidden, collapsed to zero height, or removed from screen.
+4. **Each runtime always scrolls independently inside its own region — including when the bar is hidden.** Independent scroll is a property of being a runtime, not a privilege granted by the bar. The bar controls only the *size* of each region, never whether the region can scroll.
+5. **The bar never displaces a runtime.** No bar position, hidden or otherwise, may cause either HomeDream or DreamSpace to be set to zero height, hidden, or to surrender its scroll.
+
+---
+
 ## 1. Product Law (16 Foundational Principles)
 
 1. Use README vocabulary first. Where OS-layer naming applies, use OS-layer canonical vocabulary.

@@ -13,7 +13,7 @@
  *
  * Can be used standalone (renders its own trigger bell) or in controlled
  * mode when `isOpen` + `onClose` are provided by a parent (e.g.
- * WorkspaceDashboard, which controls its own Bell button and badge).
+ * HomeDreamSurface, which controls its own Bell button and badge).
  *
  * Performance: render-on-demand; no render loops. The hook polls every 30 s.
  */

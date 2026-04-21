@@ -406,26 +406,33 @@ DREAMengin is a **customizable, privacy-first, DreamDM-Bar-led spatial operating
 DREAMengin runs as a **stacked dual-runtime system**:
 
 ```
-┌──────────────────────────────────────────┐
-│           DreamSpace (second runtime)    │  ← revealed by dragging bar up
-├──────────────────────────────────────────┤
-│      DreamDM Bar (the seam — always on)  │  ← split-screen divider + messaging rail
-├──────────────────────────────────────────┤
-│     HomeDream Surface (first runtime)    │  ← root private operating surface
-└──────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│  DreamDM Bar — root container (owns both runtimes)      │
+│                                                         │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │ HomeDream Surface (dependent runtime, above bar) │   │
+│  └──────────────────────────────────────────────────┘   │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━    │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │ DreamSpace        (dependent runtime, below bar) │   │
+│  └──────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ### DreamDM Bar (`dreamdmbar/dreamsurface.dreamdmbar.tsx`)
 
-The bar is a draggable split-screen divider. It lives in `app/layout.tsx` so it is **never remounted** across page transitions.
+The DreamDM Bar is the root container of the DREAMengin runtime environment. It is not a component of either runtime; it owns both. HomeDream Surface and DreamSpace are dependent runtimes that the bar carries — they move when the bar moves, and they remain on screen when the bar is hidden.
+
+The bar lives in `app/layout.tsx` so it is **never remounted** across page transitions.
 
 - **Snap points**: `[0.1, 0.5, 0.9, 1.0]` — defined in `lib/dreamdm/barInteractions.ts` (`SPLIT_SNAP_POINTS`)
-- **Default**: `1.0` (DreamSpace fully hidden; Surface dominant)
+- **Default**: `1.0` (bar at bottom; HomeDream Surface dominant)
 - **Fling threshold**: `SPLIT_FLING_VELOCITY_PX_PER_MS = 0.55` — a fast-enough swipe jumps one full snap step
 - **Whole bar** is the drag handle (pointer + touch); not just the grip widget
 - **Gold Particle**: attaches to the top edge of the bar. Detaches to screen-lock only when the bar is dragged so far up that the particle's natural position would go off-screen. Reattaches when the bar is dragged back down
 - **Double-tap**: the Gold Particle is the **only** element in DREAMengin that responds to a double-tap (returns home, resets both runtimes). Everything else is single-tap (`lib/hooks/useTap.ts`)
 - **Context**: `lib/dreamdm/DreamSystemContext.tsx` — shared `splitRatio`, `isBarMinimized`, `barIntent`, and runtime callbacks across all surfaces
+- **Hide behavior:** Hiding the bar removes only the bar's UI. Both HomeDream and DreamSpace remain rendered at the split they held the moment the bar disappeared. Each runtime continues to scroll independently inside its frozen region. The bar never displaces a runtime.
 
 ### App Layout providers (`app/layout.tsx`)
 
@@ -706,7 +713,48 @@ pnpm preflight   # typecheck + lint + tests
 
 ---
 
-## Vocabulary
+## 6. HomeDream (Core System, Private Operating Surface)
+
+HomeDream Surface is the user's **private root operating surface** — connected to the top of the DreamDM Bar. It is **private by default** at the data layer (RLS), not just the UI.
+
+### Control model
+
+- **Single tap: Open dual menus.** (Daydream radial left + System radial right)
+- **Double tap: Go Home.** (Gold Particle only — the single double-tap target in the system)
+
+### Feed model
+
+The HomeDream feed is **centered around a personalized feed** of real content:
+
+- `feed_items` — connector-synced external content (Mastodon, GitHub, Bluesky, YouTube, etc.)
+- `app_posts` — followed users' posts + own posts; **private by default**, owner-controlled
+
+Feed state is **persistent between sessions** (per-user algorithm settings stored via `/api/settings/feed`).
+
+### What HomeDream renders
+
+1. **Dr. Eams search bar** — wired inline, calls real `openDrEams` from `DreamSystemContext`
+2. **Real merged feed** — `feed_items` + `app_posts`, sorted by `created_at`
+3. **DreamR section** — close friends / channel / creator panels (`dreamdmbar/homedream/dreamr/`)
+4. **6 Daydream navigation** — `DaydreamPulseStrip` linking to Music, Games, Lab, Code, Brand, Create
+5. **Dream Window layout** — user's configured and persisted Dream Windows (Music, Games, Lab, Code, Brand, Create, Profile, Gallery, Link Tree, Social Feed, etc.)
+6. **Compact Dream Window rail** — swipeable strip just above the DreamDM Bar, plus a DreamSpace opener tile
+7. **feed algorithm settings** — persisted per user via `/api/settings/feed`
+8. **posting routes** — `/create`, `/post`, and inline compose; private by default
+
+**What HomeDream is NOT**: a dashboard, a home screen, or a web-app tile grid.
+
+---
+
+## HomeDream System
+
+HomeDream is implemented as a shell-owned dual-runtime surface. The key implementation paths are:
+
+- **Route**: `app/homedream/page.tsx` — server-rendered, Supabase auth check, dev bypass via `DEV_BYPASS_AUTH=true`
+- **System shell**: `dreamdmbar/homedream/dream.homedream.HomeSystem.tsx` — mounts the dual-runtime container
+- **Surface composition**: `dreamdmbar/homedream/dream.homedream.HomeDreamSurface.tsx` — the HomeDream content region
+
+### Vocabulary
 
 | Term | Meaning |
 |---|---|

@@ -13,6 +13,18 @@ This is the single document an AI agent or developer reads before touching code 
 
 ## 1. What This Codebase Is
 
+### §0 User Override Law (read this first, every session)
+
+The user (José Mancilla / @appthemanger-ctrl) is the source of truth for DREAMengin. When the user contradicts any document in this repository — including this constitution, the naming authority, the law, the architecture, the playbook, the README, or any other authored or auto-generated artifact — **the user wins, immediately and without debate, and the documents are updated to match the user's word.** The reverse is forbidden.
+
+**Rule 0.1** — No AI agent, contributor, or automated process may proceed against a user instruction by citing a document. Citing a document to override a user instruction is itself a violation of this constitution.
+
+**Rule 0.2** — When a user instruction is given that contradicts existing documentation, the agent receiving the instruction must: (1) acknowledge the user's instruction as the new truth; (2) update every document in this repository that contradicts the new truth, in the same change set or the immediate next one; (3) never re-cite the old document text against the new user instruction.
+
+**Rule 0.3** — Documents are notes that follow the user's word. They are not authority over the user.
+
+---
+
 DREAMengin is a **spatial, privacy‑first creative OS** — not a traditional website or social app.
 
 - Built with **Next.js 16+** (App Router) + **TypeScript** + **Supabase** + **Tailwind CSS**
@@ -30,9 +42,9 @@ DREAMengin is a **spatial, privacy‑first creative OS** — not a traditional w
 | Create Daydream | ContentEngin | content creation and publishing |
 
 - Three AI agents: **Dr. Eams** (user assistant), **IDARi** (admin fixer), **TheBoogieMan.Ai** (policy enforcer)
-- Navigation is **surface‑stack** with **DreamDM Bar** as the persistent root container — the bar is a pill‑shaped draggable handle (the **whole bar** is the drag handle); it never unmounts.
+- Navigation is **surface‑stack** with **DreamDM Bar** as the persistent root container — it is not a component, not a divider, not a seam; it owns HomeDream Surface and DreamSpace as dependent runtimes and never unmounts.
 - The **Gold Particle** (attached to the bar) opens dual menus (left = Daydreams, right = settings) on single tap, and resets both runtimes to Home on double tap. The Gold Particle is the **only** sanctioned double-tap surface in the entire system — every other UI control responds to a *single* tap (`lib/hooks/useTap.ts`). An ESLint `no-restricted-syntax` rule in `eslint.config.mjs` warns on any new `onDoubleClick` outside the cartridge directories (`components/games/**`, `lib/games/**`, `lib/dualsense/**`).
-- **Dual runtime**: HomeDream (top pane) and DreamSpace (bottom pane) are resized by dragging the bar. Hiding the bar is visual only; both runtimes remain visible and scrollable.
+- **The DreamDM Bar is the root container that owns HomeDream Surface and DreamSpace as dependent runtimes. When the bar moves, the runtimes are pushed with it. When the bar is hidden, both runtimes remain on screen at the split they held.** Hiding the bar is visual only for the bar itself. Both runtimes remain rendered at the split they held; each continues to scroll independently inside its own frozen region.
 - The single source of truth for what the product is: **README.md** (always authoritative).
 - The binding AI build constraint: **`docs/GENERATION_LAW.md`** – compute **ι** (Invention Force) using torridity constants (`ΔP=0.1`, `λ=1.71`) and select a protocol (**FLOW**, **SYNTHESIZE**, **MANIFEST**) before every generation pass.
 
@@ -159,7 +171,7 @@ Versions use `^` (caret) = minimum compatible version as declared in `package.js
 | Container | Docker + Docker Compose | — |
 | Deployment | Vercel (primary) | — |
 
-**Runtime memory model:** The Engine uses a 16 MB SharedArrayBuffer partitioned into control, entity SoA, and HomeDream private regions. `EnginDispatcher` (singleton, `lib/runtime/EnginDispatcher.ts`) allocates the SAB, spawns hardwareConcurrency − 1 shader workers, and relays DreamDM Bar seam writes into the SAB so Dream Windows reposition without a main‑thread round‑trip. See `docs/ARCHITECTURE.md §12` for the full memory map and worker protocol.
+**Runtime memory model:** The Engine uses a 16 MB SharedArrayBuffer partitioned into control, entity SoA, and HomeDream private regions. `EnginDispatcher` (singleton, `lib/runtime/EnginDispatcher.ts`) allocates the SAB, spawns hardwareConcurrency − 1 shader workers, and relays DreamDM Bar y-position writes into the SAB so Dream Windows reposition without a main‑thread round‑trip. See `docs/ARCHITECTURE.md §12` for the full memory map and worker protocol.
 
 ---
 
@@ -290,8 +302,8 @@ This section maps the most important files and what they do. Read this before se
 | `lib/agents/` | AI agent helpers (Dr. Eams, IDARi, TheBoogieMan) |
 | `lib/navigation/` | τ‑navigation system (deterministic state machine) |
 | `lib/navigation/StructureLedger.ts` | Precomputed O(1) navigation state/transition ledger (13 nodes × 78 transitions) |
-| `lib/runtime/memory.ts` | 16 MB SharedArrayBuffer layout — entity SoA arrays, DreamDM Bar seam slot, HomeDream privacy boundary |
-| `lib/runtime/EnginDispatcher.ts` | Singleton shader‑worker dispatcher — allocates SAB, spawns workers, relays bar seam writes, exposes µs/tick telemetry |
+| `lib/runtime/memory.ts` | 16 MB SharedArrayBuffer layout — entity SoA arrays, DreamDM Bar root-container y-position slot, HomeDream privacy boundary |
+| `lib/runtime/EnginDispatcher.ts` | Singleton shader‑worker dispatcher — allocates SAB, spawns workers, relays bar y-position writes, exposes µs/tick telemetry |
 | `lib/runtime/dualRuntimeBridge.ts` | Light‑speed bridge (renamed from `dualRuntimeBridge`), zero‑copy, local event buses |
 | `lib/runtime/runtimeChannel.ts` | Solo-parity channel adapter: `LocalChannel` (in-mem), `RealtimeChannel` (lazy Supabase, graceful local fallback), `createRuntimeChannel(id, mode)` factory. Solo == co-op with one peer. |
 | `lib/hooks/useTap.ts` | Canonical `useTap` (single-tap) + `useHomeParticleTap` (sole sanctioned double-tap site, gold particle only). |

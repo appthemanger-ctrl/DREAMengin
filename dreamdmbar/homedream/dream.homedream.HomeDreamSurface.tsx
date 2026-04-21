@@ -30,7 +30,7 @@ const DREAMR_MANIFESTO = {
     'Seen, not judged: the HomeDream feed stays grounded while human media moves through it.',
 };
 
-interface WorkspaceDashboardProps {
+interface HomeDreamSurfaceProps {
   profile: ProfileLike | null;
   posts: Post[];
   onOpenDrEams: () => void;
@@ -80,14 +80,14 @@ function QuickLink({
   );
 }
 
-export default function WorkspaceDashboard({
+export default function HomeDreamSurface({
   profile,
   posts,
   onOpenDrEams,
   onOpenDreamSpace,
   onOpenUrl,
   userId,
-}: WorkspaceDashboardProps) {
+}: HomeDreamSurfaceProps) {
   const router = useRouter();
   const [notifOpen,    setNotifOpen]    = useState(false);
   const [viewportWidth, setViewportWidth] = useState(1280);

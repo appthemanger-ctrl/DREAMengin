@@ -46,7 +46,7 @@ const daydreamPulseStripSrc = readFileSync(
 );
 
 const workspaceDashboardSrc = readFileSync(
-  resolve(__dirname, '../dreamdmbar/homedream/dream.homedream.WorkspaceDashboard.tsx'),
+  resolve(__dirname, '../dreamdmbar/homedream/dream.homedream.HomeDreamSurface.tsx'),
   'utf8',
 );
 
@@ -111,19 +111,19 @@ describe('Global Integration — DaydreamPulseStrip', () => {
 });
 
 describe('Global Integration — HomeDream surface', () => {
-  it('WorkspaceDashboard does NOT import or render ForgeActivityWidget', () => {
+  it('HomeDreamSurface does NOT import or render ForgeActivityWidget', () => {
     expect(workspaceDashboardSrc).not.toContain('ForgeActivityWidget');
   });
 
-  it('WorkspaceDashboard does NOT use localStorage', () => {
+  it('HomeDreamSurface does NOT use localStorage', () => {
     expect(workspaceDashboardSrc).not.toContain('localStorage');
   });
 
-  it('WorkspaceDashboard does NOT have filler RUNTIME_SIGNALS cards', () => {
+  it('HomeDreamSurface does NOT have filler RUNTIME_SIGNALS cards', () => {
     expect(workspaceDashboardSrc).not.toContain('RUNTIME_SIGNALS');
   });
 
-  it('WorkspaceDashboard renders HomeFeed before DaydreamPulseStrip', () => {
+  it('HomeDreamSurface renders HomeFeed before DaydreamPulseStrip', () => {
     const feedIdx = workspaceDashboardSrc.indexOf('<HomeFeed');
     const stripIdx = workspaceDashboardSrc.indexOf('<DaydreamPulseStrip');
     expect(feedIdx).toBeGreaterThan(-1);

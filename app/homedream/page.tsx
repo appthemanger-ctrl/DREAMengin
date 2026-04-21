@@ -93,7 +93,7 @@ export default async function Home() {
       }));
 
       // Attach connector feed items to the posts array under a normalised shape
-      // so WorkspaceDashboard / HomeFeed can render them uniformly.
+      // so HomeDreamSurface / HomeFeed can render them uniformly.
       // Connector items arrive as `{ source: 'connector', ... }` alongside posts.
       const connectorEntries = (feedItems ?? []).map((item: any) => {
         const p = (item.payload ?? {}) as Record<string, any>;

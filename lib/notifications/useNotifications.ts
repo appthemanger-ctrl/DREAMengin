@@ -8,7 +8,7 @@
  *
  * Architecture justification:
  *   - docs/AXIOMS.md: every visible action must do something real.
- *     The notification bell in WorkspaceDashboard showed a fake static dot.
+ *     The notification bell in HomeDreamSurface showed a fake static dot.
  *     This hook replaces that with live data from the real DB table.
  *   - docs/ARCHITECTURE.md §10: render-on-demand — this hook polls only
  *     when the panel is open and on a fixed POLL_INTERVAL (not a tight loop).
