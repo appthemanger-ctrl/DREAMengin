@@ -11,6 +11,7 @@ import ThemeProvider from '@/components/providers/dream.ThemeProvider';
 import ThemeApplicator from '@/components/dream.ThemeApplicator';
 import Link from 'next/link';
 import { DreamSystemProvider } from '@/lib/dreamdm/DreamSystemContext';
+import DualRuntimeContainer from '@/components/runtime/dream.DualRuntimeContainer';
 import GlobalDreamBar from '@/components/home/dream.bar.GlobalDreamBar';
 import PersistentDreamBar from '@/components/home/dream.bar.PersistentDreamBar';
 import { CustomizeModeProvider } from '@/lib/ui/CustomizeModeContext';
@@ -85,12 +86,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <OSProvider>
             <CustomizeModeProvider>
               <DreamSystemProvider>
-                <main role="main" aria-label="Main content">{children}</main>
-                <Suspense><GlobalDreamBar /></Suspense>
-                <Suspense><PersistentDreamBar /></Suspense>
-                <GlobalCustomizeUI />
-                <KonamiDream />
-                <Suspense><CommandPalette /></Suspense>
+                <DualRuntimeContainer>
+                  <main role="main" aria-label="Main content">{children}</main>
+                  <Suspense><GlobalDreamBar /></Suspense>
+                  <Suspense><PersistentDreamBar /></Suspense>
+                  <GlobalCustomizeUI />
+                  <KonamiDream />
+                  <Suspense><CommandPalette /></Suspense>
+                </DualRuntimeContainer>
               </DreamSystemProvider>
             </CustomizeModeProvider>
           </OSProvider>

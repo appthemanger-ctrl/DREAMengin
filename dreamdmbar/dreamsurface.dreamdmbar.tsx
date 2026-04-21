@@ -1986,8 +1986,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             ...geo,
             zIndex: 100,
             pointerEvents: 'auto',
-            // particle: visible; seam/normal: clip inner content to bounds
-            overflow: isParticleMode ? 'visible' : 'hidden',
+            // particle: visible; seam: visible so GlowingLight overflows the 2px line; normal: clip
+            overflow: (isParticleMode || isSeamMode) ? 'visible' : 'hidden',
             touchAction: isSeamMode || isParticleMode ? 'none' : 'pan-y',
             borderRadius: isParticleMode
               ? '50%'
@@ -2073,11 +2073,13 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
         )}
 
         {/* ── Drag handle / Glowing Light ──────────────────────────────────── */}
-        {/* Hidden in seam and particle modes: the bar element itself IS the handle */}
+        {/* In particle mode the bar IS the 12px circle — hide the handle. */}
+        {/* In seam mode the handle overflows the 2px line so the gold particle */}
+        {/* remains visible and tappable (the only affordance in seam state).   */}
         <div
           role="separator" aria-label="Drag to resize DreamDM"
           style={{
-            height: 28, display: isSeamMode || isParticleMode ? 'none' : 'flex',
+            height: 28, display: isParticleMode ? 'none' : 'flex',
             alignItems: 'center', justifyContent: 'center',
             flexShrink: 0, cursor: 'default',
             pointerEvents: 'none',

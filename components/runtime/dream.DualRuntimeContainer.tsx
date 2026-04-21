@@ -68,11 +68,7 @@ export function useDualRuntime(): DualRuntimeContextValue {
 }
 
 interface DualRuntimeContainerProps {
-  children: (props: {
-    surfaceSpaceWorld: RuntimeWorld;
-    dreamSpaceWorld: RuntimeWorld;
-    dominantRegion: 'Surface Space' | 'DreamSpace';
-  }) => React.ReactNode;
+  children: React.ReactNode;
 }
 
 export default function DualRuntimeContainer({ children }: DualRuntimeContainerProps) {
@@ -124,11 +120,7 @@ export default function DualRuntimeContainer({ children }: DualRuntimeContainerP
 
   return (
     <DualRuntimeContext.Provider value={value}>
-      {children({
-        surfaceSpaceWorld: state.surfaceSpaceWorld,
-        dreamSpaceWorld:   state.dreamSpaceWorld,
-        dominantRegion:    state.dominantRegion,
-      })}
+      {children}
     </DualRuntimeContext.Provider>
   );
 }
