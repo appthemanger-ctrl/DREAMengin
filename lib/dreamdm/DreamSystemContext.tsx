@@ -32,6 +32,22 @@ import React, {
 import type { SystemPanelId } from '@/lib/panels/panelTypes';
 import { DEFAULT_SPLIT_RATIO } from '@/lib/dreamdm/barInteractions';
 
+// ── Home data shared by HomeSystem into PersistentDreamBar ────────────────────
+
+type ProfileLike = {
+  id?: string;
+  handle?: string | null;
+  display_name?: string | null;
+  avatar_url?: string | null;
+};
+
+export interface HomeData {
+  userId: string;
+  profile: ProfileLike | null;
+  initialPosts: any[];
+  isAdmin: boolean;
+}
+
 // ── Bar intent types ──────────────────────────────────────────────────────────
 
 /**
@@ -143,6 +159,14 @@ interface DreamSystemContextValue {
   /** Whether the DreamDMBar is in minimized/hidden state */
   isBarMinimized: boolean;
   setIsBarMinimized: Dispatch<SetStateAction<boolean>>;
+
+  /**
+   * Home page data pushed into context by HomeSystem on mount so that
+   * PersistentDreamBar can render the runtime regions without HomeSystem
+   * owning the layout.
+   */
+  homeData: HomeData | null;
+  setHomeData: Dispatch<SetStateAction<HomeData | null>>;
 }
 
 // ── Context + provider ────────────────────────────────────────────────────────
@@ -165,6 +189,8 @@ const DreamSystemContext = createContext<DreamSystemContextValue>({
   setSplitRatio:              () => {},
   isBarMinimized:             false,
   setIsBarMinimized:          () => {},
+  homeData:                   null,
+  setHomeData:                () => {},
 });
 
 export function DreamSystemProvider({ children }: { children: ReactNode }) {
@@ -172,8 +198,12 @@ export function DreamSystemProvider({ children }: { children: ReactNode }) {
   const [drEamsOpen,    setDrEamsOpen]           = useState(false);
   const [runtimeCallbacks, setRuntimeCallbacks] = useState<RuntimeCallbacks | null>(null);
   const [barIntent,     setBarIntentState]       = useState<BarIntent>(DEFAULT_BAR_INTENT);
-  const [splitRatio,    setSplitRatio]           = useState(DEFAULT_SPLIT_RATIO);
+  // Start at 0.9 so the bar rests near the bottom with a visible DreamSpace sliver.
+  // DEFAULT_SPLIT_RATIO (1.0) is kept as the snap-point constant used by
+  // barInteractions and its tests; this initial value is intentionally different.
+  const [splitRatio,    setSplitRatio]           = useState(0.9);
   const [isBarMinimized, setIsBarMinimized]      = useState(false);
+  const [homeData,      setHomeData]             = useState<HomeData | null>(null);
 
   // Stable ref so openInSurface doesn't re-create when callbacks change
   const callbacksRef = useRef<RuntimeCallbacks | null>(null);
@@ -219,6 +249,8 @@ export function DreamSystemProvider({ children }: { children: ReactNode }) {
       setSplitRatio,
       isBarMinimized,
       setIsBarMinimized,
+      homeData,
+      setHomeData,
     }}>
       {children}
     </DreamSystemContext.Provider>

@@ -51,12 +51,11 @@ describe('HomeDream home surface', () => {
   it('uses persistent dual-runtime layout with the DreamDM seam as the live divider', () => {
     // DreamDMBar still declares onMinimizedChange as an optional prop (prop contract unchanged)
     expect(dreamDmBar).toContain('onMinimizedChange?:');
-    // HomeSystem renders two fixed runtime regions on one screen
-    expect(homeSystem).toContain("position: 'fixed'");
-    expect(homeSystem).toContain('height: topHeight');
-    expect(homeSystem).toContain('height: bottomHeight');
-    // Shell-First: divider mode is now wired from PersistentDreamBar (in layout.tsx),
-    // not from HomeSystem directly — HomeSystem writes splitRatio to context instead.
+    // PersistentDreamBar is the true home container — it renders the two fixed runtime regions
+    expect(persistentBar).toContain("position: 'fixed'");
+    expect(persistentBar).toContain('height: topHeight');
+    expect(persistentBar).toContain('height: bottomHeight');
+    // HomeSystem still reads splitRatio/isBarMinimized from context (used by callbacks + effects)
     expect(homeSystem).toContain('splitRatio');
     expect(homeSystem).toContain('setSplitRatio');
     expect(homeSystem).toContain('setIsBarMinimized');
@@ -66,9 +65,11 @@ describe('HomeDream home surface', () => {
     expect(persistentBar).toContain('onMinimizedChange={isHomeSystemActive ? setIsBarMinimized : undefined}');
   });
 
-  it('hides DreamSpace whenever the DreamDMBar is minimized', () => {
-    expect(homeSystem).toContain('const runtimeSplitRatio = isBarMinimized ? 1 : splitRatio;');
-    expect(homeSystem).toContain('splitRatio={runtimeSplitRatio}');
+  it('preserves runtimes when bar is minimized (Bar Ownership Law §0)', () => {
+    // Per Bar Ownership Law §0: hiding the bar must NOT force splitRatio to 1.
+    // Both runtimes remain visible at their last split position.
+    expect(persistentBar).toContain('const runtimeSplitRatio = splitRatio');
+    expect(persistentBar).toContain('splitRatio={runtimeSplitRatio}');
   });
 
   it('keeps feed scrolling native while limiting divider drag capture to the centered seam handle', () => {

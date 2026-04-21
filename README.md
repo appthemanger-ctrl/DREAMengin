@@ -767,6 +767,12 @@ HomeDream is implemented as a shell-owned dual-runtime surface. The key implemen
 | **Gold Particle** | The only double-tap target; returns home and resets runtimes |
 | **Canonical Route** | The single authoritative URL for each surface |
 
+**Enforceable runtime rules:**
+
+- `DreamDMBar persistence is shell-owned` — the bar mounts in `app/layout.tsx`, never inside HomeDream.
+- `DreamSystemContext` exposes `splitRatio`, `isBarMinimized`, `barIntent`, and runtime callbacks to all surfaces.
+- When the bar is `hidden/minimized`, HomeDream remains fully visible and independently scrollable; the split ratio is frozen at its last value, not reset to 0 or 1.
+
 ---
 
 ## 6. HomeDream (Core System, Private Operating Surface)
