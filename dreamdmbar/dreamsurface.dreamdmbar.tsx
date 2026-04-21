@@ -1112,7 +1112,10 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     rafId = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(rafId);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_inDividerMode]);  // Any component in the app can dispatch:
+  }, [_inDividerMode]);
+
+  // ── Universal input intent ────────────────────────────────────────────────
+  // Any component in the app can dispatch:
   //   window.dispatchEvent(new CustomEvent('de:input-intent', {
   //     detail: { mode: 'comment'|'message'|'search', targetPostId?, targetLabel? }
   //   }))
@@ -1965,6 +1968,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
               alignItems: 'center',
               justifyContent: 'center',
               gap: 2,
+              // NOTE: Expression kept as-is for home-feed-home.test.ts contract
+              // (the string "width: isDividerMode ? 112 : '100%'" is asserted by
+              // a live test to verify the drag-capture guard remains in the file).
               width: isDividerMode ? 112 : '100%',
               maxWidth: isDividerMode ? 112 : 164,
               height: '100%',
