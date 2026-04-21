@@ -77,7 +77,7 @@ function evalCssCalc(expr: string, viewportHeight: number): number {
     return viewportHeight - evalCssCalc(subMatch[1], viewportHeight);
   }
 
-  throw new Error(`evalCssCalc: unrecognised expression: "${expr}"`);
+  throw new Error(`evalCssCalc: unrecognized expression: "${expr}"`);
 }
 
 // ---------------------------------------------------------------------------
