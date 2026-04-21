@@ -520,7 +520,6 @@ export default function HomeFeed({
             style={{
               overflowY: 'auto',
               overscrollBehavior: 'contain',
-              WebkitOverflowScrolling: 'touch',
               touchAction: 'pan-y',
               scrollbarWidth: 'thin',
               scrollSnapType: isCompactEmbedded ? 'y proximity' : undefined,

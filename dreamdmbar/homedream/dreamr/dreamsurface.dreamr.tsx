@@ -862,7 +862,6 @@ export default function DreamRSection({ profile, initialPosts, onOpenUrl }: Drea
 
         {/* Create, Platform, Signal, Journey — scrollable */}
         {tab !== 'feed' && (
-          <div style={{ height: '100%', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
             {tab === 'create'   && <CreateTab   userId={userId} profile={profile} />}
             {tab === 'platform' && <PlatformTab profile={profile} onOpenUrl={onOpenUrl} />}
             {tab === 'signal'   && <SignalTab />}

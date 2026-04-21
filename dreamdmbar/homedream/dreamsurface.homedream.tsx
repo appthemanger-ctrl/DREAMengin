@@ -97,11 +97,10 @@ export default function HomeDreamSurface({
   const name = profile?.display_name || profile?.handle || 'Dreamer';
   const isCompactViewport = isCompactRuntimeViewport(viewportWidth);
 
-  const openPage = (url: string, title?: string) => {
-    if (onOpenUrl) {
-      onOpenUrl(url, title);
-      return;
-    }
+  // Always navigate via Next.js router — the DreamDMBar persists across routes
+  // in layout.tsx so router.push IS the depth-navigation model the docs specify.
+  // Never use onOpenUrl (iframe approach) — iframes cause blank pages.
+  const openPage = (url: string) => {
     router.push(url);
   };
 
@@ -301,7 +300,6 @@ export default function HomeDreamSurface({
           <DreamRSection
             profile={profile}
             initialPosts={posts as Parameters<typeof DreamRSection>[0]['initialPosts']}
-            onOpenUrl={onOpenUrl}
           />
         </div>
       )}
@@ -311,7 +309,6 @@ export default function HomeDreamSurface({
 
         {/* ── Flagship engines + DREAMfield-mini momentum widget ─────────── */}
         <FlagshipEnginesStrip
-          onOpenUrl={onOpenUrl}
           isCompactViewport={isCompactViewport}
         />
 

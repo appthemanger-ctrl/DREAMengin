@@ -994,8 +994,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   }, [onSplitChange, screenH, splitRatio]);
 
   // ── Glowing light tap state machine ───────────────────────────────────────
-  // Single tap → go home immediately (no delay).
-  // Double tap → open dual menus.
+  // Single tap → open dual menus immediately.
+  // Double tap → go home / reset runtimes (the ONLY sanctioned double-tap in the system).
+  // Per docs/GOLD_BUTTON_DUAL_RUNTIME.md — all other UI elements respond to single tap only.
   const DOUBLE_TAP_WINDOW_MS = 260;
   const lightLastTapRef = useRef(0);
 
@@ -1005,22 +1006,16 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     lightLastTapRef.current = now;
 
     if (now - last <= DOUBLE_TAP_WINDOW_MS) {
-      // Double tap → open both menus (always, in any mode)
+      // Double tap → go home / reset runtimes (the only sanctioned double-tap)
       if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([6, 30, 6]);
-      onBothMenus();
+      onHome();
       return;
     }
 
+    // Single tap → open both menus (always, in any mode)
     if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(4);
-
-    if (onSplitChange) {
-      // Seam / divider mode: single tap toggles the bloom input overlay
-      setIsBloom(prev => !prev);
-    } else {
-      // Nav-rail mode (authenticated routes outside /homedream): single tap goes home
-      onHome();
-    }
-  }, [onBothMenus, onHome, onSplitChange]);
+    onBothMenus();
+  }, [onBothMenus, onHome]);
 
   const handleLightTouchStart = useCallback((_e: React.TouchEvent<HTMLSpanElement>) => {
     // resolved on touchend

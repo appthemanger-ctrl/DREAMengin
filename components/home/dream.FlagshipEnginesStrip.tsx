@@ -24,6 +24,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Flame, Gamepad2, Activity, ChevronRight } from 'lucide-react';
 import {
   computeMomentum,
@@ -33,8 +34,6 @@ import {
 } from '@/lib/forge/forgeMomentum';
 
 interface FlagshipEnginesStripProps {
-  /** Open a path inside the active runtime region (preferred over routing). */
-  onOpenUrl?: (url: string, title?: string) => void;
   /** Compact viewport flag (mobile / narrow). */
   isCompactViewport?: boolean;
 }
@@ -63,9 +62,9 @@ const FLAGSHIPS = [
 ] as const;
 
 export default function FlagshipEnginesStrip({
-  onOpenUrl,
   isCompactViewport = false,
 }: FlagshipEnginesStripProps) {
+  const router = useRouter();
   const [snap, setSnap] = useState<MomentumSnapshot | null>(null);
 
   useEffect(() => {
@@ -75,14 +74,8 @@ export default function FlagshipEnginesStrip({
     return () => clearInterval(timer);
   }, []);
 
-  const open = (href: string, label: string) => {
-    if (onOpenUrl) {
-      onOpenUrl(href, label);
-      return;
-    }
-    if (typeof window !== 'undefined') {
-      window.location.href = href;
-    }
+  const open = (href: string) => {
+    router.push(href);
   };
 
   const composite = snap?.composite ?? 0;
@@ -158,7 +151,7 @@ export default function FlagshipEnginesStrip({
         </div>
         <button
           type="button"
-          onClick={() => open('/daydream/field', 'DREAMfield')}
+          onClick={() => open('/daydream/field')}
           aria-label="Open DREAMfield analytics"
           style={{
             border: '1px solid rgba(200,152,26,0.32)',
@@ -193,7 +186,7 @@ export default function FlagshipEnginesStrip({
           <button
             key={id}
             type="button"
-            onClick={() => open(href, label)}
+            onClick={() => open(href)}
             aria-label={`Open ${label}`}
             className="de-pressable"
             style={{
@@ -395,7 +388,7 @@ export default function FlagshipEnginesStrip({
         </div>
         <button
           type="button"
-          onClick={() => open('/daydream/field', 'DREAMfield')}
+          onClick={() => open('/daydream/field')}
           aria-label="Open DREAMfield analytics"
           style={{
             border: 'none',
