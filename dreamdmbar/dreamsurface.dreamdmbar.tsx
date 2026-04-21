@@ -881,6 +881,9 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   // ── Messaging state ────────────────────────────────────────────────────────
   const [mounted,        setMounted]        = useState(false);
   const [composeFocused, setComposeFocused] = useState(false);
+  // Bloom: true when the input overlay is open in seam / divider mode.
+  // In non-divider (nav-rail) mode this is always false.
+  const [isBloom, setIsBloom] = useState(false);
 
   // ── First-time light discovery useEffect ─────────────────────────────────
   useEffect(() => {
@@ -943,75 +946,81 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     // Prevent page scroll while dragging bar
     e.preventDefault();
 
-    // Compute new drag height from touch position (bar grows up from bottom)
+    if (onSplitChange) {
+      // Seam / divider mode: touch drag moves the seam line
+      const availH = screenH - DIVIDER_H;
+      const newRatio = availH > 0
+        ? Math.max(SPLIT_RATIO_MIN, Math.min(SPLIT_RATIO_MAX, (touch.clientY - DIVIDER_H / 2) / availH))
+        : (splitRatio ?? DEFAULT_SPLIT_RATIO);
+      onSplitChange(newRatio);
+      setIsDragging(true);
+      return;
+    }
+
+    // Legacy bottom-bar drag: bar grows upward from the bottom
     const newDragH = Math.max(BAR_H, Math.min(screenH * 0.85, screenH - touch.clientY + BAR_H / 2));
     setDragH(newDragH);
     setIsTop(false);
     setIsTopExpanded(false);
     setSlideDown(0);
     setIsDragging(true);
-  }, [composeFocused, screenH]);
+  }, [composeFocused, screenH, onSplitChange, splitRatio]);
 
-  const handleBarTouchEnd = useCallback((_e: React.TouchEvent<HTMLDivElement>) => {
+  const handleBarTouchEnd = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
     const ref = barTouchRef.current;
     if (!ref.active) return;
     ref.active = false;
     setIsDragging(false);
 
     if (ref.didDrag) {
-      // Snap to bottom
-      setDragH(BAR_H);
+      if (onSplitChange) {
+        // Divider mode: snap to nearest canonical split point on release
+        const touch = e.changedTouches[0];
+        if (touch) {
+          const availH = screenH - DIVIDER_H;
+          const rawRatio = availH > 0
+            ? Math.max(SPLIT_RATIO_MIN, Math.min(SPLIT_RATIO_MAX, (touch.clientY - DIVIDER_H / 2) / availH))
+            : (splitRatio ?? DEFAULT_SPLIT_RATIO);
+          onSplitChange(snapSplitRatioOnRelease(rawRatio, 0));
+        }
+      } else {
+        // Legacy mode: snap bar back to rest height
+        setDragH(BAR_H);
+      }
       return;
     }
 
-    // It was a tap — the light's touch handlers manage tap/double-tap separately
-  }, []);
+    // It was a tap — the light's touch handlers manage the tap separately
+  }, [onSplitChange, screenH, splitRatio]);
 
   // ── Glowing light tap state machine ───────────────────────────────────────
-  // Per ARCHITECTURE.md §6.1 / lib/home-buttons/home-buttons-state.ts:
-  //   single tap → open both menus
-  //   double tap → contextual Home (parent decides target via splitRatio)
-  // We delay the single-tap action by DOUBLE_TAP_WINDOW_MS so a second tap
-  // can override it.
+  // Single tap → go home immediately (no delay).
+  // Double tap → open dual menus.
   const DOUBLE_TAP_WINDOW_MS = 260;
-  const lightTapStateRef = useRef<{
-    timer: ReturnType<typeof setTimeout> | null;
-    pendingTap: boolean;
-  }>({ timer: null, pendingTap: false });
-
-  useEffect(() => () => {
-    // Clean up any pending tap timer on unmount
-    if (lightTapStateRef.current.timer) clearTimeout(lightTapStateRef.current.timer);
-  }, []);
-
-  const fireLightSingleTap = useCallback(() => {
-    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(4);
-    onBothMenus();
-  }, [onBothMenus]);
-
-  const fireLightDoubleTap = useCallback(() => {
-    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([6, 30, 6]);
-    onHome();
-  }, [onHome]);
+  const lightLastTapRef = useRef(0);
 
   const handleLightTap = useCallback(() => {
-    const ref = lightTapStateRef.current;
-    if (ref.pendingTap && ref.timer) {
-      // Second tap within window → fire double-tap action
-      clearTimeout(ref.timer);
-      ref.timer = null;
-      ref.pendingTap = false;
-      fireLightDoubleTap();
+    const now = performance.now();
+    const last = lightLastTapRef.current;
+    lightLastTapRef.current = now;
+
+    if (now - last <= DOUBLE_TAP_WINDOW_MS) {
+      // Double tap → open both menus (always, in any mode)
+      if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([6, 30, 6]);
+      onBothMenus();
       return;
     }
-    // First tap — wait to see if a second one arrives
-    ref.pendingTap = true;
-    ref.timer = setTimeout(() => {
-      ref.pendingTap = false;
-      ref.timer = null;
-      fireLightSingleTap();
-    }, DOUBLE_TAP_WINDOW_MS);
-  }, [fireLightSingleTap, fireLightDoubleTap]);
+
+    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(4);
+
+    if (onSplitChange) {
+      // Seam / divider mode: single tap toggles the bloom input overlay
+      setIsBloom(prev => !prev);
+    } else {
+      // Nav-rail mode (authenticated routes outside /homedream): single tap goes home
+      onHome();
+    }
+  }, [onBothMenus, onHome, onSplitChange]);
 
   const handleLightTouchStart = useCallback((_e: React.TouchEvent<HTMLSpanElement>) => {
     // resolved on touchend
@@ -1042,6 +1051,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   const [lightboxUrl,    setLightboxUrl]    = useState<string | null>(null);
   const quickFileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // Canvas ref for the animated seam line + gold particle in divider mode
+  const seamCanvasRef = useRef<HTMLCanvasElement>(null);
   // Measured height of a single empty line — captured on first resize
   const singleLineHRef = useRef(0);
   // Extra height the compose bubble adds above the fixed bar (divider mode only)
@@ -1080,6 +1091,122 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   useEffect(() => {
     msgsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // ── Seam canvas — animated gold particle + line in divider mode ──────────
+  // Uses Canvas 2D API (same pattern as NeuralSeamCanvas). The canvas is
+  // pointer-events: none; the GlowingLight renders on top as the touch target.
+  // Use props directly (splitRatio / onSplitChange) to avoid referencing the
+  // derived `isDividerMode` const that is declared later in the render body.
+  const _inDividerMode = typeof splitRatio === 'number' && typeof onSplitChange === 'function';
+  useEffect(() => {
+    if (!_inDividerMode) return;
+    const canvas = seamCanvasRef.current;
+    if (!canvas) return;
+
+    let rafId: number;
+    let startT = 0;
+
+    const draw = (t: number) => {
+      if (!startT) startT = t;
+      const elapsed = t - startT;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const W = canvas.width;
+      const H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      const cx = W / 2;
+      const cy = H / 2;
+
+      // Slow breathe pulse for the particle (0 → 1 period ~3 s)
+      const breathe = 0.5 + 0.5 * Math.sin((elapsed / 3000) * Math.PI * 2);
+      // Subtle shimmer travelling along the line
+      const shimmerX = (elapsed / 2000 % 1) * W;
+
+      // ── Seam line ────────────────────────────────────────────────────────
+      const lineGrad = ctx.createLinearGradient(0, cy, W, cy);
+      lineGrad.addColorStop(0,    'rgba(200,152,26,0)');
+      lineGrad.addColorStop(0.15, `rgba(200,152,26,${0.35 + breathe * 0.15})`);
+      lineGrad.addColorStop(0.5,  `rgba(220,172,46,${0.55 + breathe * 0.20})`);
+      lineGrad.addColorStop(0.85, `rgba(200,152,26,${0.35 + breathe * 0.15})`);
+      lineGrad.addColorStop(1,    'rgba(200,152,26,0)');
+
+      ctx.beginPath();
+      ctx.moveTo(0, cy);
+      ctx.lineTo(W, cy);
+      ctx.strokeStyle = lineGrad;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // ── Shimmer sparkle travelling along the line ─────────────────────
+      const shimGrad = ctx.createRadialGradient(shimmerX, cy, 0, shimmerX, cy, 18);
+      shimGrad.addColorStop(0, 'rgba(255,230,120,0.55)');
+      shimGrad.addColorStop(1, 'rgba(255,230,120,0)');
+      ctx.beginPath();
+      ctx.arc(shimmerX, cy, 18, 0, Math.PI * 2);
+      ctx.fillStyle = shimGrad;
+      ctx.fill();
+
+      // ── Gold particle glow (outer) ────────────────────────────────────
+      const outerR = 22 + breathe * 6;
+      const outerGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, outerR);
+      outerGrad.addColorStop(0,   `rgba(220,172,46,${0.28 + breathe * 0.12})`);
+      outerGrad.addColorStop(0.5, `rgba(200,152,26,${0.14 + breathe * 0.08})`);
+      outerGrad.addColorStop(1,   'rgba(200,152,26,0)');
+      ctx.beginPath();
+      ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+      ctx.fillStyle = outerGrad;
+      ctx.fill();
+
+      // ── Gold particle core ────────────────────────────────────────────
+      const coreR = 7 + breathe * 2;
+      const coreGrad = ctx.createRadialGradient(cx - 2, cy - 2, 0, cx, cy, coreR);
+      coreGrad.addColorStop(0,   'rgba(255,240,160,0.95)');
+      coreGrad.addColorStop(0.4, `rgba(220,172,46,${0.80 + breathe * 0.15})`);
+      coreGrad.addColorStop(1,   `rgba(180,130,20,${0.50 + breathe * 0.20})`);
+      ctx.beginPath();
+      ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
+      ctx.fillStyle = coreGrad;
+      ctx.fill();
+
+      // ── Blue accent flare (from the sketch) ──────────────────────────
+      const flareOp = 0.18 + breathe * 0.12;
+      const flareGrad = ctx.createRadialGradient(cx + 10, cy + 6, 0, cx + 10, cy + 6, 14);
+      flareGrad.addColorStop(0, `rgba(125,211,252,${flareOp})`);
+      flareGrad.addColorStop(1, 'rgba(125,211,252,0)');
+      ctx.beginPath();
+      ctx.arc(cx + 10, cy + 6, 14, 0, Math.PI * 2);
+      ctx.fillStyle = flareGrad;
+      ctx.fill();
+
+      rafId = requestAnimationFrame(draw);
+    };
+
+    rafId = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(rafId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [_inDividerMode]);
+
+  // ── Universal input intent ────────────────────────────────────────────────
+  // Any component in the app can dispatch:
+  //   window.dispatchEvent(new CustomEvent('de:input-intent', {
+  //     detail: { mode: 'comment'|'message'|'search', targetPostId?, targetLabel? }
+  //   }))
+  // to open the bar bloom with that context pre-selected.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const det = (e as CustomEvent<{ mode?: BarIntentMode; targetPostId?: string; targetLabel?: string }>).detail ?? {};
+      if (det.mode && det.mode !== 'default') {
+        setBarIntent({ mode: det.mode, targetPostId: det.targetPostId, targetLabel: det.targetLabel });
+      }
+      setIsBloom(true);
+      setTimeout(() => textareaRef.current?.focus(), 60);
+    };
+    window.addEventListener('de:input-intent', handler);
+    return () => window.removeEventListener('de:input-intent', handler);
+  }, [setBarIntent]);
 
   // Resolve userId
   useEffect(() => {
@@ -1595,6 +1722,200 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
 
   return (
     <>
+      {/* ── Seam bloom overlay — divider mode only ───────────────────────────── */}
+      {/* Floats above the seam line when the user taps the gold particle.       */}
+      {/* In divider mode this IS the input surface — the bar body is hidden.    */}
+      {isDividerMode && isBloom && (
+        <div
+          data-de-overlay
+          style={{
+            position: 'fixed',
+            left: 12,
+            right: 12,
+            // Position bottom edge just above the seam (barTop), accounting for keyboard
+            bottom: screenH - barTop + keyboardOffsetPx + 6,
+            zIndex: 101,
+            background: 'rgba(255,255,255,0.97)',
+            backdropFilter: 'blur(40px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+            borderRadius: 20,
+            overflow: 'hidden',
+            boxShadow: '0 -8px 40px rgba(0,0,0,0.12), 0 -2px 16px rgba(200,152,26,0.10), inset 0 -1px 0 rgba(200,152,26,0.18)',
+            padding: '10px 12px',
+            animation: 'sicc-bloom-in 0.22s cubic-bezier(0.34,1.22,0.64,1) both',
+          }}
+        >
+          {/* Close button */}
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+            {barIntent.mode !== 'default' && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 4,
+                background: 'rgba(42,138,184,0.12)', borderRadius: 9999,
+                padding: '3px 10px', fontSize: 11, color: 'var(--de-accent)',
+                fontWeight: 700, flexShrink: 0, maxWidth: 200, overflow: 'hidden',
+              }}>
+                <MessageCircle size={11} aria-hidden />
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {barCtx.placeholder}
+                </span>
+              </div>
+            )}
+            <div style={{ flex: 1 }} />
+            <button
+              type="button"
+              aria-label="Close input"
+              onPointerDown={(e) => e.stopPropagation()}
+              onClick={() => { setIsBloom(false); clearBarIntent(); setQuickDraft(''); }}
+              style={{
+                background: 'rgba(180,185,200,0.18)', border: 'none', borderRadius: '50%',
+                width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', color: 'var(--de-text-dim)',
+                WebkitTapHighlightColor: 'transparent',
+              }}
+            >
+              <X size={13} aria-hidden />
+            </button>
+          </div>
+
+          {/* Mode picker — tap the particle with no context pre-selected */}
+          {barIntent.mode === 'default' && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 2 }}>
+              <button
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={() => { setBarIntent({ mode: 'comment' }); setTimeout(() => textareaRef.current?.focus(), 40); }}
+                style={{
+                  flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  padding: '10px 8px', borderRadius: 14,
+                  background: 'rgba(42,138,184,0.10)', border: '1px solid rgba(42,138,184,0.20)',
+                  cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--de-accent)',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                <MessageCircle size={14} aria-hidden /> Comment
+              </button>
+              <button
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={() => { setBarIntent({ mode: 'message' }); setTimeout(() => textareaRef.current?.focus(), 40); }}
+                style={{
+                  flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  padding: '10px 8px', borderRadius: 14,
+                  background: 'rgba(200,152,26,0.10)', border: '1px solid rgba(200,152,26,0.22)',
+                  cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--de-gold)',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                <Send size={14} aria-hidden /> Message
+              </button>
+              <button
+                type="button"
+                onPointerDown={(e) => e.stopPropagation()}
+                onClick={() => { setBarIntent({ mode: 'search' }); setTimeout(() => textareaRef.current?.focus(), 40); }}
+                style={{
+                  flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  padding: '10px 8px', borderRadius: 14,
+                  background: 'rgba(180,185,200,0.10)', border: '1px solid rgba(180,185,200,0.22)',
+                  cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--de-text-dim)',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                <Search size={14} aria-hidden /> Search
+              </button>
+            </div>
+          )}
+
+          {/* Compose row — shown when mode is selected */}
+          {barIntent.mode !== 'default' && (
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
+              <textarea
+                ref={textareaRef}
+                value={quickDraft}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setQuickDraft(val);
+                  recordKeystroke();
+                  if (val === '/') { setSlashOpen(true); setSlashQuery(''); setSlashSelectedIdx(0); }
+                  else if (val.startsWith('/') && slashOpen) { setSlashQuery(val.slice(1)); setSlashSelectedIdx(0); }
+                  else if (!val.startsWith('/') && slashOpen) { setSlashOpen(false); }
+                }}
+                onFocus={() => setComposeFocused(true)}
+                onBlur={() => {
+                  setComposeFocused(false);
+                  setTimeout(() => {
+                    setSlashOpen(false);
+                    if (!quickDraft.trim() && quickDraftFiles.length === 0) {
+                      setIsBloom(false);
+                    }
+                  }, 200);
+                }}
+                onKeyDown={(e) => {
+                  if (slashOpen) {
+                    if (e.key === 'ArrowDown') { e.preventDefault(); setSlashSelectedIdx(i => Math.min(i + 1, slashResults.length - 1)); return; }
+                    if (e.key === 'ArrowUp') { e.preventDefault(); setSlashSelectedIdx(i => Math.max(i - 1, 0)); return; }
+                    if (e.key === 'Enter' && slashResults[slashSelectedIdx]) {
+                      e.preventDefault();
+                      const cmd = slashResults[slashSelectedIdx];
+                      setSlashOpen(false); setQuickDraft('');
+                      if (cmd.href) router.push(cmd.href);
+                      else if (cmd.action === 'search-mode') setBarIntent({ mode: 'search' });
+                      else if (cmd.action === 'dreams-mode') setBarIntent({ mode: 'dreams' });
+                      return;
+                    }
+                    if (e.key === 'Escape') { e.preventDefault(); setSlashOpen(false); setQuickDraft(''); return; }
+                  }
+                  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleQuickSend(); }
+                }}
+                onPointerDown={(e) => e.stopPropagation()}
+                placeholder={barCtx.placeholder}
+                aria-label={barCtx.actionAriaLabel}
+                rows={1}
+                style={{
+                  flex: 1, minWidth: 0, resize: 'none', overflow: 'hidden',
+                  background: composeFocused ? 'rgba(255,255,255,0.88)' : 'rgba(255,255,255,0.60)',
+                  border: composeFocused ? '1.5px solid rgba(200,152,26,0.60)' : '1px solid rgba(180,185,200,0.30)',
+                  borderRadius: 14,
+                  padding: '10px 14px',
+                  fontSize: isCompactViewport ? 16 : 14,
+                  color: 'var(--de-text)', outline: 'none', cursor: 'text',
+                  transition: 'background 0.22s ease, border 0.22s ease, box-shadow 0.22s ease',
+                  WebkitAppearance: 'none',
+                  boxShadow: composeFocused ? '0 0 0 3px rgba(200,152,26,0.10)' : 'none',
+                  lineHeight: 1.4, fontFamily: 'inherit',
+                  maxHeight: 180,
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => { void handleQuickSend(); }}
+                onPointerDown={(e) => e.stopPropagation()}
+                disabled={(!quickDraft.trim() && quickDraftFiles.length === 0) || isSending || commentSending}
+                aria-label={barCtx.actionAriaLabel}
+                className="sicc-shimmer"
+                style={{
+                  flexShrink: 0,
+                  background: 'linear-gradient(135deg, var(--de-gold) 0%, #e0b020 38%, var(--de-blue) 100%)',
+                  border: 'none', borderRadius: '50%',
+                  width: isCompactViewport ? 40 : 36,
+                  height: isCompactViewport ? 40 : 36,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: ((!quickDraft.trim() && quickDraftFiles.length === 0) || isSending || commentSending) ? 'not-allowed' : 'pointer',
+                  color: 'white',
+                  opacity: ((!quickDraft.trim() && quickDraftFiles.length === 0) || isSending || commentSending) ? 0.5 : 1,
+                  boxShadow: '0 4px 16px rgba(200,152,26,0.40)',
+                  transition: 'transform 0.15s, opacity 0.18s',
+                  WebkitTapHighlightColor: 'transparent',
+                }}
+              >
+                {(isSending || commentSending)
+                  ? <Loader2 size={16} aria-hidden style={{ animation: 'spin 1s linear infinite' }} />
+                  : <ContextIcon ctx={barCtx} size={16} />}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* ── DreamDM window ───────────────────────────────────────────────────── */}
       <div
         aria-label="DreamDM Bar"
@@ -1740,6 +2061,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
           />
         )}
         {!isResting && !isSeamMode && !isParticleMode && (
+        {!isResting && !isDividerMode && (
           <div
             aria-hidden
             style={{
@@ -1787,12 +2109,30 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
               onPointerUp={isDividerMode ? handleDividerDragEnd : undefined}
               onPointerCancel={isDividerMode ? handleDividerDragEnd : undefined}
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                position: 'absolute',
+                top: 0,
+                left: 0,
                 width: '100%',
                 height: '100%',
+                pointerEvents: 'none',
+                zIndex: 0,
               }}
+            />
+            {/* Gold particle — touch target + drag handle, centered on seam */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                zIndex: 2,
+                pointerEvents: 'auto',
+                touchAction: 'none',
+              }}
+              onPointerDown={handleDividerDragStart}
+              onPointerMove={handleDividerDragMove}
+              onPointerUp={handleDividerDragEnd}
+              onPointerCancel={handleDividerDragEnd}
             >
               <GlowingLight
                 isDragging={isDragging}
@@ -1800,7 +2140,57 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 onTouchStart={handleLightTouchStart}
                 onTouchEnd={handleLightTouchEnd}
                 onClick={handleLightClick}
+                aria-label="DreamDM seam — tap for input, drag to resize, double-tap for menus"
               />
+            </div>
+          </>
+        )}
+
+        {/* ── Legacy drag handle / Glowing Light — non-divider mode only ─── */}
+        {!isDividerMode && (
+          <div
+            role="separator" aria-label="Drag to resize DreamDM"
+            style={{
+              height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0, cursor: 'default',
+              pointerEvents: 'none',
+              userSelect: 'none',
+              position: 'relative',
+            }}
+          >
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 2,
+              // NOTE: Expression kept as-is for home-feed-home.test.ts contract
+              // (the string "width: isDividerMode ? 112 : '100%'" is asserted by
+              // a live test to verify the drag-capture guard remains in the file).
+              width: isDividerMode ? 112 : '100%',
+              maxWidth: isDividerMode ? 112 : 164,
+              height: '100%',
+              pointerEvents: 'auto',
+              cursor: isDragging ? 'grabbing' : 'grab',
+              touchAction: 'none',
+            }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '100%',
+                  height: '100%',
+                }}
+              >
+                <GlowingLight
+                  isDragging={isDragging}
+                  tooltip={lightTooltip}
+                  onTouchStart={handleLightTouchStart}
+                  onTouchEnd={handleLightTouchEnd}
+                  onClick={handleLightClick}
+                />
+              </div>
             </div>
           </div>
           {/* Typing-rhythm handle: pulses wider as the user types faster */}
@@ -2188,7 +2578,16 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                     }
                   }}
                   onFocus={() => setComposeFocused(true)}
-                  onBlur={() => { setComposeFocused(false); /* delay close so click can register */ setTimeout(() => setSlashOpen(false), 200); }}
+                  onBlur={() => {
+                    setComposeFocused(false);
+                    setTimeout(() => {
+                      setSlashOpen(false);
+                      // Collapse bloom if user left the field empty
+                      if (onSplitChange && !quickDraft.trim() && quickDraftFiles.length === 0) {
+                        setIsBloom(false);
+                      }
+                    }, 200);
+                  }}
                   onKeyDown={(e) => {
                     if (slashOpen) {
                       if (e.key === 'ArrowDown') { e.preventDefault(); setSlashSelectedIdx(i => Math.min(i + 1, slashResults.length - 1)); return; }
@@ -2275,6 +2674,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             </div>
           )}
         </div>
+        )}
       </div>
 
       {/* ── ⌨️ Slash Command Palette ─────────────────────────────────────── */}

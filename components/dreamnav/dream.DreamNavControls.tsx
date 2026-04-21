@@ -11,28 +11,20 @@ const DOUBLE_TAP_MS = 260;
 
 export default function DreamNavControls({ onHome, onBothMenus }: DreamNavControlsProps) {
   const lastTapRef = useRef(0);
-  const singleTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleTap = () => {
     const now = performance.now();
     const last = lastTapRef.current;
     lastTapRef.current = now;
 
-    // Single tap → open both menus. Double tap → go home.
+    // Double tap → open dual menus (immediate).
     if (now - last <= DOUBLE_TAP_MS) {
-      if (singleTapTimerRef.current) {
-        clearTimeout(singleTapTimerRef.current);
-        singleTapTimerRef.current = null;
-      }
-      onHome();
+      onBothMenus();
       return;
     }
 
-    if (singleTapTimerRef.current) clearTimeout(singleTapTimerRef.current);
-    singleTapTimerRef.current = setTimeout(() => {
-      singleTapTimerRef.current = null;
-      onBothMenus();
-    }, DOUBLE_TAP_MS + 10);
+    // Single tap → go home (immediate, no delay).
+    onHome();
   };
 
   return (
