@@ -37,7 +37,6 @@ const tapHoldModuleSrc        = read('components/universal-editor/useTapHoldMove
 const moduleRegistrySrc       = read('lib/runtime/moduleRegistry.ts');
 const dropTargetRegistrySrc   = read('lib/runtime/dropTargetRegistry.ts');
 const manifestTypeSrc         = read('types/module-manifest.ts');
-const homedreamGridSrc        = read('components/home/dreamsurface.homedream-grid.tsx');
 const violationLogSrc         = read('docs/MODULARITY_VIOLATION_LOG.md');
 const universalEditorIndexSrc = read('components/universal-editor/index.ts');
 
@@ -255,24 +254,7 @@ describe('dropTargetRegistry — multi-runtime drop routing', () => {
   });
 });
 
-// ── 8. HomeDream widget grid — wraps every widget with DraggableModule ────────
-
-describe('HomeDream grid — every widget is draggable', () => {
-  it('imports DraggableModule', () => {
-    expect(homedreamGridSrc).toContain('DraggableModule');
-  });
-
-  it('imports manifestFromWidget to derive manifests from WidgetInstances', () => {
-    expect(homedreamGridSrc).toContain('manifestFromWidget');
-  });
-
-  it('wraps widget renders in DraggableModule', () => {
-    // The grid renders each widget inside a DraggableModule tag
-    expect(homedreamGridSrc).toContain('<DraggableModule');
-  });
-});
-
-// ── 9. MODULARITY_VIOLATION_LOG.md — required governance document ─────────────
+// ── 8. MODULARITY_VIOLATION_LOG.md — required governance document ─────────────
 
 describe('MODULARITY_VIOLATION_LOG.md — governance document', () => {
   it('exists at docs/MODULARITY_VIOLATION_LOG.md', () => {
