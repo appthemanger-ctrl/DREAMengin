@@ -3,9 +3,10 @@
 > **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
 > **Documentation Date:** 2026-04-06
 
+> Authoritative bar/runtime model lives in `docs/LAW.md` §0 Bar Ownership Law.
 
 Status: active alignment axioms  
-Last updated: 2026-03-16
+Last updated: 2026-04-21
 
 These axioms are the repo-level interpretation of the current product direction.
 

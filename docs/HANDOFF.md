@@ -4,9 +4,21 @@
 > **Documentation Date:** 2026-04-06
 
 
-Last updated: 2026-04-01
+Last updated: 2026-04-21
 
-## What changed in this alignment pass
+## 2026-04-21 — Bar Ownership Law + User Override Law + HomeDream collapse-on-hide bug fix
+
+### What changed
+
+- **Bar Ownership Law (§0) added to `docs/LAW.md`** — 5-point law establishing the DreamDM Bar as the root container that owns HomeDream Surface and DreamSpace as dependent runtimes; "seam/divider" language purged from all docs.
+- **User Override Law (Article 0) added to `docs/CONSTITUTION.md`** — establishes the user (José Mancilla / @appthemanger-ctrl) as the absolute source of truth; any AI agent citing a document to override a user instruction is in violation.
+- **Bar described as root container throughout all docs** — `docs/NAMING_AUTHORITY.md` section 2 rewritten; `docs/ARCHITECTURE.md` runtime structure updated to parent/child diagram; `docs/AGENT_PLAYBOOK.md` section 1 updated; `README.md` Runtime Architecture diagram and DreamDM Bar sub-section rewritten; `docs/REPO_COMPANION.md` and `docs/AXIOMS.md` stripped of "seam/divider" language.
+- **Bar-hide bug fixed in `dreamdmbar/homedream/dream.homedream.HomeSystem.tsx`** — the line `const runtimeSplitRatio = isBarMinimized ? 1 : splitRatio;` replaced with `const runtimeSplitRatio = splitRatio;`. Both HomeDream Surface and DreamSpace now remain visible and independently scrollable when the bar is hidden; neither runtime is collapsed or zeroed out.
+- **New test added: `tests/bar-hide-preserves-both-runtimes.test.ts`** — Vitest assertions that hiding the bar does not change splitRatio, does not collapse either region to zero height, and that both regions remain present before, during, and after a bar-hide cycle.
+
+---
+
+
 
 This handoff reflects the **Deployment & Memory Audit** — ensuring all GitHub Actions
 that handle document updates, memory syncing, and handoffs trigger on every push to

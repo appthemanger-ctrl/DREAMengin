@@ -5,13 +5,31 @@ CONSTITUTION markdown
 > **Documentation Date:** 2026-04-14 (Updated)
 
 **Status: LOCKED — Phase 10 Final Authority + OS-Layer Naming Model**
-Last updated: 2026-04-14
+Last updated: 2026-04-21
 
 This document is the binding product constitution for DREAMengin.
 
 These are **rules**, not suggestions. Every surface, module, system, and AI agent operating inside DREAMengin must comply with every rule in this document. There are no exceptions, no waivers, and no exemptions for convenience, commerce, AI features, or future systems.
 
 Reviewers must use this document as an acceptance checklist against any new feature or implementation. If a proposed change violates one constitutional rule, the change must be rejected or revised until it conforms.
+
+---
+
+## Article 0 — User Override Law (highest authority in this repository)
+
+The user (José Mancilla / @appthemanger-ctrl) is the source of truth for DREAMengin. When the user contradicts any document in this repository — including this constitution, the naming authority, the law, the architecture, the playbook, the README, or any other authored or auto-generated artifact — **the user wins, immediately and without debate, and the documents are updated to match the user's word.** The reverse is forbidden.
+
+### Rule 0.1
+No AI agent, contributor, or automated process may proceed against a user instruction by citing a document. Citing a document to override a user instruction is itself a violation of this constitution.
+
+### Rule 0.2
+When a user instruction is given that contradicts existing documentation, the agent receiving the instruction must:
+1. Acknowledge the user's instruction as the new truth.
+2. Update every document in this repository that contradicts the new truth, in the same change set or the immediate next one.
+3. Never re-cite the old document text against the new user instruction.
+
+### Rule 0.3
+Documents are notes that follow the user's word. They are not authority over the user.
 
 ---
 

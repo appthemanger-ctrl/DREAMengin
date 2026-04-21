@@ -383,26 +383,33 @@ DREAMengin is a **customizable, privacy-first, DreamDM-Bar-led spatial operating
 DREAMengin runs as a **stacked dual-runtime system**:
 
 ```
-┌──────────────────────────────────────────┐
-│           DreamSpace (second runtime)    │  ← revealed by dragging bar up
-├──────────────────────────────────────────┤
-│      DreamDM Bar (the seam — always on)  │  ← split-screen divider + messaging rail
-├──────────────────────────────────────────┤
-│     HomeDream Surface (first runtime)    │  ← root private operating surface
-└──────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│  DreamDM Bar — root container (owns both runtimes)      │
+│                                                         │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │ HomeDream Surface (dependent runtime, above bar) │   │
+│  └──────────────────────────────────────────────────┘   │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━    │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │ DreamSpace        (dependent runtime, below bar) │   │
+│  └──────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ### DreamDM Bar (`dreamdmbar/dreamsurface.dreamdmbar.tsx`)
 
-The bar is a draggable split-screen divider. It lives in `app/layout.tsx` so it is **never remounted** across page transitions.
+The DreamDM Bar is the root container of the DREAMengin runtime environment. It is not a component of either runtime; it owns both. HomeDream Surface and DreamSpace are dependent runtimes that the bar carries — they move when the bar moves, and they remain on screen when the bar is hidden.
+
+The bar lives in `app/layout.tsx` so it is **never remounted** across page transitions.
 
 - **Snap points**: `[0.1, 0.5, 0.9, 1.0]` — defined in `lib/dreamdm/barInteractions.ts` (`SPLIT_SNAP_POINTS`)
-- **Default**: `1.0` (DreamSpace fully hidden; Surface dominant)
+- **Default**: `1.0` (bar at bottom; HomeDream Surface dominant)
 - **Fling threshold**: `SPLIT_FLING_VELOCITY_PX_PER_MS = 0.55` — a fast-enough swipe jumps one full snap step
 - **Whole bar** is the drag handle (pointer + touch); not just the grip widget
 - **Gold Particle**: attaches to the top edge of the bar. Detaches to screen-lock only when the bar is dragged so far up that the particle's natural position would go off-screen. Reattaches when the bar is dragged back down
 - **Double-tap**: the Gold Particle is the **only** element in DREAMengin that responds to a double-tap (returns home, resets both runtimes). Everything else is single-tap (`lib/hooks/useTap.ts`)
 - **Context**: `lib/dreamdm/DreamSystemContext.tsx` — shared `splitRatio`, `isBarMinimized`, `barIntent`, and runtime callbacks across all surfaces
+- **Hide behavior:** Hiding the bar removes only the bar's UI. Both HomeDream and DreamSpace remain rendered at the split they held the moment the bar disappeared. Each runtime continues to scroll independently inside its frozen region. The bar never displaces a runtime.
 
 ### App Layout providers (`app/layout.tsx`)
 
@@ -691,7 +698,7 @@ pnpm preflight   # typecheck + lint + tests
 | **Daydream** | A creative / utility zone — Side A of a Daydream pair |
 | **Engin** | The powered execution runtime — Side B of a Daydream pair |
 | **Dream Window** | A modular runtime container; the primary building block |
-| **DreamDM Bar** | The persistent split-screen seam and interaction rail |
-| **DreamSpace** | The second runtime layer revealed by the DreamDM Bar |
+| **DreamDM Bar** | The root container that owns HomeDream Surface and DreamSpace as dependent runtimes |
+| **DreamSpace** | The dependent runtime below the bar; always rendered; pushed down when the bar moves down |
 | **Gold Particle** | The only double-tap target; returns home and resets runtimes |
 | **Canonical Route** | The single authoritative URL for each surface |

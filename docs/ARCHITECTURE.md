@@ -14,9 +14,16 @@ Last updated: 2026-03-16
 DREAMengin is a **privacy-first, DreamDM-Bar-led spatial operating environment** built around three core surfaces, a six-surface Daydream network connected to six Engin runtimes via 11 named connection paths, Dream Windows, and the AI triad.
 
 ### Runtime structure
-- **HomeDream Surface** — first runtime / root private operating surface with the feed underneath the bar
-- **DreamDM Bar** — top-layer Runtime Seam / Persistent Interaction Rail and the main reveal/control surface
-- **DreamSpace** — second runtime layer owned by the DreamDM Bar; not standalone and hidden when the bar is hidden
+
+```
+DreamDM Bar  ── root container (owns both runtimes)
+├── HomeDream Surface  ── dependent runtime, lives above the bar
+└── DreamSpace          ── dependent runtime, lives below the bar
+```
+
+- **DreamDM Bar** — root container. Not a component of either runtime; it owns both. When the bar moves, both runtimes are pushed with it. When the bar is hidden, both runtimes remain rendered at the split they held.
+- **HomeDream Surface** — first dependent runtime / root private operating surface with the feed
+- **DreamSpace** — second dependent runtime owned by the DreamDM Bar; always rendered, frozen at the last split when the bar is hidden
 
 ### Core surfaces
 - **HomeDream Surface** — the main private operating surface (`/homedream`)
@@ -226,7 +233,7 @@ Used by `EnginDispatcher` and the shader workers. Allocated at runtime via
 | VelY SoA | 160,000 – 199,999 | 40 KB | Float32 y-velocities for 10,000 entities |
 | VelZ SoA | 200,000 – 239,999 | 40 KB | Float32 z-velocities for 10,000 entities |
 | DaydreamType | 240,000 – 249,999 | 10 KB | Uint8 daydream-class identifier per entity |
-| DreamDM Bar Y | 250,000 – 250,003 | 4 B | Float32 bar y-offset (Dual-Runtime Seam) |
+| DreamDM Bar Y | 250,000 – 250,003 | 4 B | Float32 bar y-offset (root container y-position) |
 | Telemetry | 250,008 – 250,519 | 512 B | Float64 µs/tick per worker (64 slots, 8-byte aligned) |
 
 Key layout constants: `OFFSET_POS_X`, `OFFSET_POS_Y`, `OFFSET_POS_Z`, `OFFSET_VEL_X`,
@@ -243,7 +250,7 @@ sync via Atomics without main-thread round-trips. Allocated once as a singleton 
 
 | Region | Offset | Size | Purpose |
 |--------|--------|------|---------|
-| Control | 0 – 63 | 64 B | Atomics flags; `BAR_SEAM_ATOMICS_INDEX` (slot 0) — DreamDM Bar split ratio × 1000 |
+| Control | 0 – 63 | 64 B | Atomics flags; `BAR_SEAM_ATOMICS_INDEX` (slot 0) — DreamDM Bar root container split ratio × 1000 |
 | PosX SoA | 64 – 40,063 | ~39 KB | Float32 x-positions for 10,000 entities |
 | PosY SoA | 40,064 – 80,063 | ~39 KB | Float32 y-positions for 10,000 entities |
 | VelX SoA | 80,064 – 120,063 | ~39 KB | Float32 x-velocities for 10,000 entities |
