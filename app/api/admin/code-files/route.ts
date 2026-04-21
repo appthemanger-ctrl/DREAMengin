@@ -9,10 +9,6 @@ import {
   isDomainBlocked,
 } from '@/lib/admin/lockout';
 
-// Explicitly pin to the Node.js runtime so Turbopack narrows its NFT trace
-// and does not speculatively pull in files at the project root (next.config.mjs).
-export const runtime = 'nodejs';
-
 // fs/path require Node.js runtime (the default in Next.js 16+).
 
 // ── File-tree builder ────────────────────────────────────────────────────────

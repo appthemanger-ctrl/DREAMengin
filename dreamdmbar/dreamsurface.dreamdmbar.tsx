@@ -2085,6 +2085,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             position: 'relative',
           }}
         >
+          {isDividerMode && (
+          <>
           <div style={{
             display: 'flex',
             flexDirection: 'column',
@@ -2142,11 +2144,13 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 aria-label="DreamDM seam — tap for input, drag to resize, double-tap for menus"
               />
             </div>
+          </div>
           </>
         )}
 
         {/* ── Legacy drag handle / Glowing Light — non-divider mode only ─── */}
         {!isDividerMode && (
+          <>
           <div
             role="separator" aria-label="Drag to resize DreamDM"
             style={{
@@ -2210,6 +2214,8 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
               } as React.CSSProperties}
             />
           )}
+          </>
+        )}
         </div>
 
         {/* ── Bar body ─────────────────────────────────────────────────────── */}
