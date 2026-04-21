@@ -29,7 +29,11 @@ export interface DreamOSSharedArtifact {
   updatedAt: number;
 }
 
-export interface DreamOSRuntimeContext {
+/**
+ * RuntimeContext — generic term for the fixed engine/runtime infrastructure
+ * currently active in a region.
+ */
+export interface RuntimeContext {
   region: RuntimeRegion;
   world: RuntimeWorld;
   splitRatio: number;
@@ -46,9 +50,11 @@ export interface DreamOSRuntimeContext {
   updatedAt: number;
 }
 
+export type DreamOSRuntimeContext = RuntimeContext;
+
 export interface DreamOSSnapshot {
   artifacts: readonly DreamOSSharedArtifact[];
-  runtimeContexts: readonly DreamOSRuntimeContext[];
+  runtimeContexts: readonly RuntimeContext[];
 }
 
 type SnapshotListener = (snapshot: DreamOSSnapshot) => void;
@@ -119,7 +125,7 @@ function worldToSubsystemId(world: RuntimeWorld): string {
   return 'unknown';
 }
 
-export function deriveAIRuntimeContext(world: RuntimeWorld): DreamOSRuntimeContext['aiContext'] {
+export function deriveAIRuntimeContext(world: RuntimeWorld): RuntimeContext['aiContext'] {
   const subsystemId = worldToSubsystemId(world).toLowerCase();
   if (subsystemId.includes('code')) return 'code';
   if (subsystemId.includes('lab')) return 'lab';
@@ -132,7 +138,7 @@ export function deriveAIRuntimeContext(world: RuntimeWorld): DreamOSRuntimeConte
 
 class DreamOSBusImpl {
   private readonly artifacts = new Map<string, DreamOSSharedArtifact>();
-  private readonly runtimeContexts = new Map<RuntimeRegion, DreamOSRuntimeContext>();
+  private readonly runtimeContexts = new Map<RuntimeRegion, RuntimeContext>();
   private readonly listeners = new Set<SnapshotListener>();
   private readonly customEventListeners = new Map<
     DreamOSCustomEventName,
@@ -153,7 +159,7 @@ class DreamOSBusImpl {
     this.notify();
   }
 
-  publishRuntimeContext(input: Omit<DreamOSRuntimeContext, 'updatedAt' | 'aiContext' | 'subsystemId'>): void {
+  publishRuntimeContext(input: Omit<RuntimeContext, 'updatedAt' | 'aiContext' | 'subsystemId'>): void {
     this.runtimeContexts.set(input.region, {
       ...input,
       aiContext: deriveAIRuntimeContext(input.world),

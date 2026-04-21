@@ -14,7 +14,7 @@ import { onIdariEvent, type IdariEventDetail } from '@/lib/agents/agentBus';
 import type { RuntimeRegion } from '@/lib/identity/canonical-names';
 import {
   dreamOSBus,
-  type DreamOSRuntimeContext,
+  type RuntimeContext,
   type DreamOSSharedArtifact,
 } from '@/lib/runtime/dreamOSBus';
 import { useSessionIntelligence } from '@/lib/intelligence/useSessionIntelligence';
@@ -99,7 +99,7 @@ export default function DREAMenginOS({
   const [lastImportedAsset, setLastImportedAsset] = useState<AssetImportPayload | null>(null);
   const [importCount, setImportCount] = useState(0);
   const [sharedArtifacts, setSharedArtifacts] = useState<readonly DreamOSSharedArtifact[]>([]);
-  const [runtimeContexts, setRuntimeContexts] = useState<readonly DreamOSRuntimeContext[]>([]);
+  const [runtimeContexts, setRuntimeContexts] = useState<readonly RuntimeContext[]>([]);
 
   // Session intelligence — auto-wired to dreamOSBus; no prop needed.
   const { predictions, isLearning, sessionDiff } = useSessionIntelligence();
