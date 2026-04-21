@@ -8,9 +8,11 @@ export interface StateDelta<T> {
 }
 
 export function computeDelta<T extends object>(prev: T, next: T): StateDelta<T> {
-  const changedKeys = (Object.keys(next) as (keyof T)[]).filter(
-    (key) => prev[key] !== next[key]
-  );
+  const allKeys = new Set([
+    ...(Object.keys(prev) as (keyof T)[]),
+    ...(Object.keys(next) as (keyof T)[]),
+  ]);
+  const changedKeys = [...allKeys].filter((key) => prev[key] !== next[key]);
   return { previous: prev, next, changedKeys };
 }
 

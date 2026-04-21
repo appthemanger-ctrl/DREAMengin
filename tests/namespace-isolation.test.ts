@@ -5,13 +5,13 @@ import { join, resolve } from 'path';
 // Walk all .ts/.tsx files under a directory
 function walkFiles(dir: string, ext = ['.ts', '.tsx']): string[] {
   const results: string[] = [];
-  let entries: ReturnType<typeof readdirSync>;
+  let dirEntries: ReturnType<typeof readdirSync>;
   try {
-    entries = readdirSync(dir);
+    dirEntries = readdirSync(dir);
   } catch {
     return results;
   }
-  for (const entry of entries) {
+  for (const entry of dirEntries) {
     const full = join(dir, entry);
     const stat = statSync(full);
     if (stat.isDirectory()) {

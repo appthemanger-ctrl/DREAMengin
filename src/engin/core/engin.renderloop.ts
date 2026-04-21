@@ -19,7 +19,7 @@ export function createRenderLoop(): RenderLoop {
   let running = false;
   let frameIndex = 0;
   let lastTimestamp = 0;
-  let rafId = 0;
+  let rafId: number | null = null;
   const callbacks = new Set<FrameCallback>();
 
   function tick(timestamp: number): void {
@@ -42,7 +42,10 @@ export function createRenderLoop(): RenderLoop {
 
   function stop(): void {
     running = false;
-    cancelAnimationFrame(rafId);
+    if (rafId !== null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
   }
 
   function onFrame(cb: FrameCallback): () => void {
