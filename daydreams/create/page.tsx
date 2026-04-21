@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Lightbulb, CheckSquare, Calendar, FolderKanban, ImageIcon, PlusCircle, FileText, BarChart2, Video, Brain, RefreshCw, Sparkles } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
-import ContentEngin from '@/engins/engin.ContentEngin';
+import ContentEngin from '@/engins/ContentEngin';
 import OpenDaydreamSideBButton from '@/components/daydream/dream.OpenDaydreamSideBButton';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import { connection } from 'next/server';

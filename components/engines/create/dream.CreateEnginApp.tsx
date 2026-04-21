@@ -12,7 +12,7 @@
 
 import { useRouter } from 'next/navigation';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
-import ContentEngin from '@/engins/engin.ContentEngin';
+import ContentEngin from '@/engins/ContentEngin';
 
 const ACCENT = '#fb923c';
 const BACK_HREF = '/daydream/create';

@@ -23,7 +23,7 @@ import {
 } from '@/lib/music/starmakerDaw';
 
 const starmakerSource = fs.readFileSync(
-  path.join(process.cwd(), 'engins/engin.StarMakerEngin.tsx'),
+  path.join(process.cwd(), 'engins/StarMakerEngin/index.tsx'),
   'utf8',
 );
 const arrangementPanelSource = fs.readFileSync(

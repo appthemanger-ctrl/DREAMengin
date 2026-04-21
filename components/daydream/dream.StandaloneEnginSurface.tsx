@@ -1,13 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import GameEngin from '@/engins/engin.GameEngin';
-import StarMakerEngin from '@/engins/engin.StarMakerEngin';
-import LabEngin from '@/engins/engin.LabEngin';
-import CodeEngin from '@/engins/engin.CodeEngin';
-import BrandingEngin from '@/engins/engin.BrandingEngin';
-import ContentEngin from '@/engins/engin.ContentEngin';
-import ForgeEngin from '@/engins/engin.ForgeEngin';
+import GameEngin from '@/engins/GameEngin';
+import StarMakerEngin from '@/engins/StarMakerEngin';
+import LabEngin from '@/engins/LabEngin';
+import CodeEngin from '@/engins/CodeEngin';
+import BrandingEngin from '@/engins/BrandingEngin';
+import ContentEngin from '@/engins/ContentEngin';
+import ForgeEngin from '@/engins/ForgeEngin';
 
 const ENGIN_COMPONENTS = {
   StarMakerEngin,

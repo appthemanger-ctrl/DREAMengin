@@ -6,7 +6,7 @@ import SoundRecorder from '@/components/music/dream.SoundRecorder';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
 // Stream 8.3 — Bundle split: StarMakerEngin only loads when Side B mounts.
 import dynamic from 'next/dynamic';
-const StarMakerEngin = dynamic(() => import('@/engins/engin.StarMakerEngin'), {
+const StarMakerEngin = dynamic(() => import('@/engins/StarMakerEngin'), {
   loading: () => (
     <div className="flex items-center justify-center h-64">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#c9a227]" />

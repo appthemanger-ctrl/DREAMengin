@@ -20,14 +20,14 @@ import { join } from 'path';
 const root = process.cwd();
 
 function readComp(name: string) {
-  // Map old components/daydream/ names to new canonical engins/engin.*.tsx locations
+  // Map engine names to their canonical engins/[EnginName]/index.tsx locations
   const canonical: Record<string, string> = {
-    'StarMakerEngin.tsx': 'engins/engin.StarMakerEngin.tsx',
-    'CodeEngin.tsx':      'engins/engin.CodeEngin.tsx',
-    'BrandingEngin.tsx':  'engins/engin.BrandingEngin.tsx',
-    'ContentEngin.tsx':   'engins/engin.ContentEngin.tsx',
-    'GameEngin.tsx':      'engins/engin.GameEngin.tsx',
-    'LabEngin.tsx':       'engins/engin.LabEngin.tsx',
+    'StarMakerEngin.tsx': 'engins/StarMakerEngin/index.tsx',
+    'CodeEngin.tsx':      'engins/CodeEngin/index.tsx',
+    'BrandingEngin.tsx':  'engins/BrandingEngin/index.tsx',
+    'ContentEngin.tsx':   'engins/ContentEngin/index.tsx',
+    'GameEngin.tsx':      'engins/GameEngin/index.tsx',
+    'LabEngin.tsx':       'engins/LabEngin/index.tsx',
   };
   const resolved = canonical[name] ?? `components/daydream/${name}`;
   return readFileSync(join(root, resolved), 'utf-8');

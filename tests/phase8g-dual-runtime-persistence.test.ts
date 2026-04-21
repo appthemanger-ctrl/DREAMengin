@@ -71,7 +71,7 @@ describe('Phase 8 §G — dualRuntimeBridge cross-Engin bus (Point 66)', () => {
 
   it('ContentEngin subscribes to music channel (one Engin pair shares state)', () => {
     const src = readFileSync(
-      join(root, 'engins/engin.ContentEngin.tsx'),
+      join(root, 'engins/ContentEngin/index.tsx'),
       'utf-8',
     );
     // ContentEngin subscribes to StarMakerEngin's music:stem-ready event either:

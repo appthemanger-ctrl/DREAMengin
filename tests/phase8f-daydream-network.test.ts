@@ -122,12 +122,12 @@ describe('Point 47 — All 6 Daydream Surfaces render real content', () => {
 
 describe('Point 48 — All 6 Engins accept real input and write to Supabase', () => {
   const ENGINS = [
-    { file: 'engins/engin.StarMakerEngin.tsx', table: 'music_outputs' },
-    { file: 'engins/engin.GameEngin.tsx',      table: 'game_scores' },
-    { file: 'engins/engin.LabEngin.tsx',       table: 'physics_experiments' },
-    { file: 'engins/engin.CodeEngin.tsx',      table: 'projects' },
-    { file: 'engins/engin.BrandingEngin.tsx',  table: 'brand_kit_items' },
-    { file: 'engins/engin.ContentEngin.tsx',   table: 'content_drafts' },
+    { file: 'engins/StarMakerEngin/index.tsx', table: 'music_outputs' },
+    { file: 'engins/GameEngin/index.tsx',      table: 'game_scores' },
+    { file: 'engins/LabEngin/index.tsx',       table: 'physics_experiments' },
+    { file: 'engins/CodeEngin/index.tsx',      table: 'projects' },
+    { file: 'engins/BrandingEngin/index.tsx',  table: 'brand_kit_items' },
+    { file: 'engins/ContentEngin/index.tsx',   table: 'content_drafts' },
   ] as const;
 
   for (const { file, table } of ENGINS) {
@@ -201,12 +201,12 @@ describe('Point 49 — useDaydreamPersistence hook saves and restores state', ()
 
 describe('Point 49/50 — Engins restore workspace state on mount', () => {
   const RESTORE_CHECKS: Array<{ file: string; restoreVar: string }> = [
-    { file: 'engins/engin.StarMakerEngin.tsx', restoreVar: 'musicRestoredRef' },
-    { file: 'engins/engin.GameEngin.tsx',      restoreVar: 'gameRestoredRef'  },
-    { file: 'engins/engin.LabEngin.tsx',       restoreVar: 'labRestoredRef'   },
-    { file: 'engins/engin.CodeEngin.tsx',      restoreVar: 'codeRestoredRef'  },
-    { file: 'engins/engin.BrandingEngin.tsx',  restoreVar: 'brandRestoredRef' },
-    { file: 'engins/engin.ContentEngin.tsx',   restoreVar: 'contentRestoredRef' },
+    { file: 'engins/StarMakerEngin/index.tsx', restoreVar: 'musicRestoredRef' },
+    { file: 'engins/GameEngin/index.tsx',      restoreVar: 'gameRestoredRef'  },
+    { file: 'engins/LabEngin/index.tsx',       restoreVar: 'labRestoredRef'   },
+    { file: 'engins/CodeEngin/index.tsx',      restoreVar: 'codeRestoredRef'  },
+    { file: 'engins/BrandingEngin/index.tsx',  restoreVar: 'brandRestoredRef' },
+    { file: 'engins/ContentEngin/index.tsx',   restoreVar: 'contentRestoredRef' },
   ];
 
   for (const { file, restoreVar } of RESTORE_CHECKS) {
@@ -254,7 +254,7 @@ describe('Point 50 — DaydreamShell preserves Side A/B context on back-navigati
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('Point 51 — StarMakerEngin produces real playable/shareable output', () => {
-  const file = 'engins/engin.StarMakerEngin.tsx';
+  const file = 'engins/StarMakerEngin/index.tsx';
 
   it('StarMakerEngin writes to music_outputs table on stem export', () => {
     const src = readSource(file);
@@ -314,7 +314,7 @@ describe('Point 52 — Games Daydream has real game loop and persistent state', 
   });
 
   it('GameEngin reads personal bests from game_scores', () => {
-    const src = readSource('engins/engin.GameEngin.tsx');
+    const src = readSource('engins/GameEngin/index.tsx');
     expect(src).toContain('game_scores');
     expect(src).toContain('score');
   });
@@ -328,14 +328,14 @@ describe('Point 52 — Games Daydream has real game loop and persistent state', 
   });
 
   it('GameEngin persists world builder and physics config', () => {
-    const src = readSource('engins/engin.GameEngin.tsx');
+    const src = readSource('engins/GameEngin/index.tsx');
     expect(src).toContain('worldGrid');
     expect(src).toContain('physicsConfig');
     expect(src).toContain('persistGameState');
   });
 
   it('GameEngin renders engine deck metadata beyond simple fullscreen launch', () => {
-    const src = readSource('engins/engin.GameEngin.tsx');
+    const src = readSource('engins/GameEngin/index.tsx');
     expect(src).toContain('Now Playing Deck');
     expect(src).toContain('Engine Status');
     expect(src).toContain('Launch Modes');
@@ -353,7 +353,7 @@ describe('Point 52 — Games Daydream has real game loop and persistent state', 
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('Point 53 — LabEngin accepts real input and stores experiment records', () => {
-  const file = 'engins/engin.LabEngin.tsx';
+  const file = 'engins/LabEngin/index.tsx';
 
   it('LabEngin writes to physics_experiments on publish', () => {
     const src = readSource(file);
@@ -384,7 +384,7 @@ describe('Point 53 — LabEngin accepts real input and stores experiment records
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('Point 54 — CodeEngin editor state persists to database', () => {
-  const file = 'engins/engin.CodeEngin.tsx';
+  const file = 'engins/CodeEngin/index.tsx';
 
   it('CodeEngin persists notebook cells to DB', () => {
     const src = readSource(file);
@@ -416,7 +416,7 @@ describe('Point 54 — CodeEngin editor state persists to database', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('Point 55 — BrandingEngin stores brand kit items as real DB records', () => {
-  const file = 'engins/engin.BrandingEngin.tsx';
+  const file = 'engins/BrandingEngin/index.tsx';
 
   it('brand_kit_items migration exists with RLS', () => {
     const migration = readSource('supabase/migrations/20260325000000_phase8f_daydream_network.sql');
@@ -457,7 +457,7 @@ describe('Point 55 — BrandingEngin stores brand kit items as real DB records',
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('Point 56 — ContentEngin content drafts save to database', () => {
-  const file = 'engins/engin.ContentEngin.tsx';
+  const file = 'engins/ContentEngin/index.tsx';
 
   it('ContentEngin saves drafts via POST /api/drafts', () => {
     const src = readSource(file);
@@ -495,7 +495,7 @@ describe('Point 56 — ContentEngin content drafts save to database', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('Point 57 — Multi-connection: BrandingEngin connects to ContentEngin', () => {
-  const file = 'engins/engin.BrandingEngin.tsx';
+  const file = 'engins/BrandingEngin/index.tsx';
 
   it('BrandingEngin has handleSendToContentEngin function', () => {
     const src = readSource(file);
@@ -677,19 +677,19 @@ describe('Architecture compliance', () => {
   });
 
   it('BrandingEngin multi-connection writes go through /api/drafts route (not direct DB from client for drafts)', () => {
-    const src = readSource('engins/engin.BrandingEngin.tsx');
+    const src = readSource('engins/BrandingEngin/index.tsx');
     // Should use /api/drafts fetch, not direct supabase.from('content_drafts')
     expect(src).toContain('/api/drafts');
   });
 
   it('all Engins use createBrowserClient pattern (createClient from lib/supabase/client)', () => {
     const engins = [
-      'engins/engin.StarMakerEngin.tsx',
-      'engins/engin.GameEngin.tsx',
-      'engins/engin.LabEngin.tsx',
-      'engins/engin.CodeEngin.tsx',
-      'engins/engin.BrandingEngin.tsx',
-      'engins/engin.ContentEngin.tsx',
+      'engins/StarMakerEngin/index.tsx',
+      'engins/GameEngin/index.tsx',
+      'engins/LabEngin/index.tsx',
+      'engins/CodeEngin/index.tsx',
+      'engins/BrandingEngin/index.tsx',
+      'engins/ContentEngin/index.tsx',
     ];
     for (const f of engins) {
       const src = readSource(f);
@@ -699,12 +699,12 @@ describe('Architecture compliance', () => {
 
   it('no Engin component exposes secrets to client', () => {
     const engins = [
-      'engins/engin.StarMakerEngin.tsx',
-      'engins/engin.GameEngin.tsx',
-      'engins/engin.LabEngin.tsx',
-      'engins/engin.CodeEngin.tsx',
-      'engins/engin.BrandingEngin.tsx',
-      'engins/engin.ContentEngin.tsx',
+      'engins/StarMakerEngin/index.tsx',
+      'engins/GameEngin/index.tsx',
+      'engins/LabEngin/index.tsx',
+      'engins/CodeEngin/index.tsx',
+      'engins/BrandingEngin/index.tsx',
+      'engins/ContentEngin/index.tsx',
     ];
     const secretPatterns = [/SUPABASE_SERVICE_ROLE/i, /SERVICE_KEY/i, /secret_key/i];
     for (const f of engins) {

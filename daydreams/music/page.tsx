@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import SoundRecorder from '@/components/music/dream.SoundRecorder';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
-import StarMakerEngin from '@/engins/engin.StarMakerEngin';
+import StarMakerEngin from '@/engins/StarMakerEngin';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { connection } from 'next/server';

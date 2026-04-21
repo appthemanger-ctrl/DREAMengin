@@ -5,7 +5,7 @@ import { Gamepad2, Play, Sparkles, Zap } from 'lucide-react';
 import GamesHub from '@/components/games/dream.GamesHub';
 
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
-import GameEngin from '@/engins/engin.GameEngin';
+import GameEngin from '@/engins/GameEngin';
 import OpenDaydreamSideBButton from '@/components/daydream/dream.OpenDaydreamSideBButton';
 import AutoOpenGameEngin from '@/engins/autoopen/dream.AutoOpenGameEngin';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';

@@ -3,7 +3,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { Palette } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
-import BrandingEngin from '@/engins/engin.BrandingEngin';
+import BrandingEngin from '@/engins/BrandingEngin';
 import BrandDaydream from '@/components/daydream/dreamsurface.daydream.BrandDaydream';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import { connection } from 'next/server';

@@ -80,14 +80,8 @@ const SKIP_DIRECTORY_NAMES = new Set([
 // to keep the check additive instead of retroactive. Entries should be
 // REMOVED — never added — as follow-up PRs rename them.
 const MIGRATION_BACKLOG_ALLOWED = new Set([
-  // §14.6 — duplicate Engin shells in components/daydream/ that get
-  // consolidated into the canonical engin.*.tsx in a follow-up PR.
-  'engins/engin.StarMakerEngin.tsx',
-  'engins/engin.GameEngin.tsx',
-  'engins/engin.LabEngin.tsx',
-  'engins/engin.CodeEngin.tsx',
-  'engins/engin.BrandingEngin.tsx',
-  'engins/engin.ContentEngin.tsx',
+  // §14.6 — all canonical engin.*.tsx flat files have been restructured into
+  // engins/[EnginName]/index.tsx subdirectory layout. Backlog is now empty.
 ]);
 
 // ─────────────────────────────────────────────────────────────────────────────
