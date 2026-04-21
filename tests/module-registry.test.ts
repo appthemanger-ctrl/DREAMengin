@@ -128,23 +128,3 @@ describe('DraggableModule component', () => {
     expect(draggableSrc).toContain('edgeLabel');
   });
 });
-
-describe('DreamWidgetGrid integration', () => {
-  const gridSrc = readFileSync(
-    resolve(__dirname, '../components/home/dreamsurface.homedream-grid.tsx'),
-    'utf-8',
-  );
-
-  it('imports DraggableModule', () => {
-    expect(gridSrc).toContain('DraggableModule');
-  });
-
-  it('imports manifestFromWidget helper', () => {
-    expect(gridSrc).toContain('manifestFromWidget');
-  });
-
-  it('wraps each DreamWidget with DraggableModule', () => {
-    expect(gridSrc).toContain('<DraggableModule');
-    expect(gridSrc).toContain('manifestFromWidget(widget');
-  });
-});

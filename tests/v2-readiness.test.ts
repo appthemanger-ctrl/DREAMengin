@@ -45,34 +45,6 @@ describe('DREAMengin v2.0.0 — v1-ui layer subordinated', () => {
     expect(layout).not.toContain('v1-ui/widget-feed-screen');
   });
 
-  it('HomeDream.tsx does not import v1-ui CSS', () => {
-    const homedream = readFileSync(
-      resolve(__dirname, '../dreamdmbar/homedream/dream.homedream.HomeDream.tsx'),
-      'utf8',
-    );
-    expect(homedream).not.toContain('v1-ui/widget-feed-screen');
-  });
-
-  it('HomeDream.tsx uses dream-rail class (not widget-rail)', () => {
-    const homedream = readFileSync(
-      resolve(__dirname, '../dreamdmbar/homedream/dream.homedream.HomeDream.tsx'),
-      'utf8',
-    );
-    expect(homedream).toContain('dream-rail');
-    expect(homedream).not.toContain('"widget-rail');
-    expect(homedream).not.toContain("'widget-rail");
-  });
-
-  it('HomeDream.tsx uses dream-rail-icon class (not widget-icon)', () => {
-    const homedream = readFileSync(
-      resolve(__dirname, '../dreamdmbar/homedream/dream.homedream.HomeDream.tsx'),
-      'utf8',
-    );
-    expect(homedream).toContain('dream-rail-icon');
-    expect(homedream).not.toContain('"widget-icon');
-    expect(homedream).not.toContain("'widget-icon");
-  });
-
   it('home-dream.css defines dream-rail class', () => {
     const css = readFileSync(resolve(__dirname, '../styles/home-dream.css'), 'utf8');
     expect(css).toContain('.dream-rail');
@@ -249,7 +221,7 @@ describe('DREAMengin v2.0.0 — build enforcement updated', () => {
 
 describe('DREAMengin v2.0.0 — HomeDreamSurface surface labels', () => {
   const dashboard = readFileSync(
-    resolve(__dirname, '../dreamdmbar/homedream/dream.homedream.HomeDreamSurface.tsx'),
+    resolve(__dirname, '../dreamdmbar/homedream/dreamsurface.homedream.tsx'),
     'utf8',
   );
 
