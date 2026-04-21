@@ -5,6 +5,7 @@ import {
   type AnyBridgeEmission,
   type DualRuntimeChannel,
 } from '@/lib/runtime/dualRuntimeBridge';
+import { RuntimeContainer } from '@/lib/runtime/runtimeContainer';
 import type { DreamArtifactBusEventMap } from '@/types/dreamArtifact';
 
 export type DreamOSArtifactKind =
@@ -56,6 +57,9 @@ export interface DreamOSSnapshot {
   artifacts: readonly DreamOSSharedArtifact[];
   runtimeContexts: readonly RuntimeContext[];
 }
+
+type PublishRuntimeContextInput = Omit<RuntimeContext, 'updatedAt' | 'aiContext' | 'subsystemId'>;
+type RuntimeContextStore = ReadonlyMap<RuntimeRegion, RuntimeContext>;
 
 type SnapshotListener = (snapshot: DreamOSSnapshot) => void;
 type DreamOSCustomEventName = keyof DreamArtifactBusEventMap;
@@ -136,9 +140,34 @@ export function deriveAIRuntimeContext(world: RuntimeWorld): RuntimeContext['aiC
   return 'general';
 }
 
+function buildRuntimeContext(input: PublishRuntimeContextInput): RuntimeContext {
+  return {
+    ...input,
+    aiContext: deriveAIRuntimeContext(input.world),
+    subsystemId: worldToSubsystemId(input.world),
+    updatedAt: Date.now(),
+  };
+}
+
+function publishRuntimeContextStrategy(
+  state: RuntimeContextStore,
+  input: PublishRuntimeContextInput,
+): RuntimeContextStore {
+  const next = new Map(state);
+  next.set(input.region, buildRuntimeContext(input));
+  return next;
+}
+
+function createRuntimeContextContainer(): RuntimeContainer<RuntimeContextStore, PublishRuntimeContextInput> {
+  return new RuntimeContainer<RuntimeContextStore, PublishRuntimeContextInput>(
+    new Map<RuntimeRegion, RuntimeContext>(),
+    publishRuntimeContextStrategy,
+  );
+}
+
 class DreamOSBusImpl {
   private readonly artifacts = new Map<string, DreamOSSharedArtifact>();
-  private readonly runtimeContexts = new Map<RuntimeRegion, RuntimeContext>();
+  private runtimeContexts = createRuntimeContextContainer();
   private readonly listeners = new Set<SnapshotListener>();
   private readonly customEventListeners = new Map<
     DreamOSCustomEventName,
@@ -159,13 +188,8 @@ class DreamOSBusImpl {
     this.notify();
   }
 
-  publishRuntimeContext(input: Omit<RuntimeContext, 'updatedAt' | 'aiContext' | 'subsystemId'>): void {
-    this.runtimeContexts.set(input.region, {
-      ...input,
-      aiContext: deriveAIRuntimeContext(input.world),
-      subsystemId: worldToSubsystemId(input.world),
-      updatedAt: Date.now(),
-    });
+  publishRuntimeContext(input: PublishRuntimeContextInput): void {
+    this.runtimeContexts.run(input);
     this.notify();
   }
 
@@ -284,13 +308,14 @@ class DreamOSBusImpl {
   getSnapshot(): DreamOSSnapshot {
     return {
       artifacts: Array.from(this.artifacts.values()).sort((a, b) => b.updatedAt - a.updatedAt),
-      runtimeContexts: Array.from(this.runtimeContexts.values()).sort((a, b) => a.region.localeCompare(b.region)),
+      runtimeContexts: Array.from(this.runtimeContexts.getState().values())
+        .sort((a, b) => a.region.localeCompare(b.region)),
     };
   }
 
   clearAll(): void {
     this.artifacts.clear();
-    this.runtimeContexts.clear();
+    this.runtimeContexts = createRuntimeContextContainer();
     this.notify();
   }
 
