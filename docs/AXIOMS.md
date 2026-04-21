@@ -18,6 +18,17 @@ These axioms are the repo-level interpretation of the current product direction.
 4. **Synchronized** — real-time coordination across runtimes, shared state, collaborative
    actions, and immediate feedback. (Formerly "Stylized" — see `docs/PRINCIPLES_UPDATE.md`.)
    Visual quality continues to be enforced through Coherent + Cohesive principles.
+5. **DreamR-first** — start with a stable core and move feature variance into swappable
+   rule-sets. DreamR is the first reference split: durable runtime core,
+   separate feed surface, separate algorithm/rule-set layer.
+
+## Architectural commandment
+
+Build new systems the way DreamR is structured:
+- the **core** owns runtime state, events, visibility boundaries, and durable contracts
+- the **rule-set** owns ranking, transforms, presets, thresholds, and feature-specific variation
+- new product behavior should enter through rule-set composition before any core rewrite
+- if a request needs a feature-specific fork in the core, the architecture boundary is wrong
 
 ## Product integrity rules
 

@@ -67,7 +67,29 @@ Always use canonical OS‑layer vocabulary:
 
 ---
 
-## 4. Additional Capabilities (Product Extensions)
+## 4. Architectural Commandments
+
+1. **Start with DreamR.** DreamR is the first global reference for how features
+   should be built in DREAMengin.
+2. **Keep the core stable.** Core layers own runtime state, event flow,
+   visibility enforcement, safety boundaries, and reusable contracts.
+3. **Move variation into rule-sets.** Ranking, transforms, presets, thresholds,
+   and domain-specific behavior belong in swappable rule-sets, not in ad hoc
+   core forks.
+4. **Compose before rewriting.** New behavior should be added by composing,
+   replacing, or stacking rule-sets before changing core execution paths.
+5. **Reject feature-specific cores.** If a new feature can only ship by making
+   the core special-case that feature, the design is non-compliant and must be
+   re-split.
+
+DreamR reference:
+- core reactor: `dreamdmbar/homedream/dreamr/dream.DreamRCore.tsx`
+- feed surface: `dreamdmbar/homedream/dreamr/dream.DreamRFeed.tsx`
+- rule-set logic: `dreamdmbar/homedream/dreamr/algorithms/dreamrAlgorithm.ts`
+
+---
+
+## 5. Additional Capabilities (Product Extensions)
 
 17. **Fingerprint‑Based Sound Isolation** – Store audio peak maps (not raw audio). User taps a visual element (e.g., drum hit) → reference fingerprint → match against song's peak map → extract isolated sound from original audio. No AI model needed.
 18. **3D Audio Visualizer** – Real‑time FFT bars/spheres in Babylon.js. Tap a bar → band‑pass filter → solo that frequency. Option to record filtered output as new sample.
