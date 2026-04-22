@@ -55,14 +55,14 @@ describe('HomeDream home surface', () => {
     expect(persistentBar).toContain("position: 'fixed'");
     expect(persistentBar).toContain('height: topHeight');
     expect(persistentBar).toContain('height: bottomHeight');
-    // HomeSystem still reads splitRatio/isBarMinimized from context (used by callbacks + effects)
+    // DreamBarDataBridge still reads splitRatio/isBarMinimized from context (used by callbacks + effects)
     expect(homeSystem).toContain('splitRatio');
     expect(homeSystem).toContain('setSplitRatio');
     expect(homeSystem).toContain('setIsBarMinimized');
-    // PersistentDreamBar passes split props to DreamDMBar from context
-    expect(persistentBar).toContain('splitRatio={isHomeSystemActive ? splitRatio : undefined}');
-    expect(persistentBar).toContain('onSplitChange={isHomeSystemActive ? setSplitRatio : undefined}');
-    expect(persistentBar).toContain('onMinimizedChange={isHomeSystemActive ? setIsBarMinimized : undefined}');
+    // PersistentDreamBar passes split props to DreamDMBar only when isHomeActive (bar IS home on /homedream)
+    expect(persistentBar).toContain('splitRatio={isHomeActive ? splitRatio : undefined}');
+    expect(persistentBar).toContain('onSplitChange={isHomeActive ? setSplitRatio : undefined}');
+    expect(persistentBar).toContain('onMinimizedChange={isHomeActive ? setIsBarMinimized : undefined}');
   });
 
   it('preserves runtimes when bar is minimized (Bar Ownership Law §0)', () => {

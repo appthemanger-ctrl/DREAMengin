@@ -3,26 +3,30 @@
 /**
  * DreamSystemContext — global state for system overlays and runtime dispatch.
  *
- * DreamDMBar now lives in app/layout.tsx (Shell-First architecture) so it is
- * never unmounted during client-side navigation. It reads split/minimized state
- * from this context, which HomeSystem writes when the dual runtime is active.
+ * The DreamDM Bar IS home and is always persistent. Both runtime regions
+ * (HomeDream Surface / DreamSpace) are always mounted to the bar regardless
+ * of the current route. This context bootstraps the homeData needed to
+ * render those regions from any page via a client-side Supabase call.
+ *
+ * DreamBarDataBridge (mounted only on /homedream) enriches homeData with
+ * server-fetched posts and registers advanced runtime callbacks.
  *
  * This context carries:
  *   - DualBottomMenu open/close state
  *   - DrEamsPanel open/close state
  *   - runtimeCallbacks: thin bridge so GlobalDreamBar's menus can call
- *     returnHome and openInSurface on the active HomeSystem
+ *     returnHome and openInSurface on the active DreamBarDataBridge
  *   - openInSurface: stable accessor used by any component (panels, menus)
  *   - barIntent: active input mode for the DreamDM Bar
- *     (post / search / message / dreams / comment)
- *   - splitRatio / isBarMinimized: shared bar position state written by
- *     HomeSystem and read by the persistent DreamDMBar in layout.tsx
+ *   - splitRatio / isBarMinimized: shared bar position state
+ *   - homeData: user profile + posts, always populated after auth
  */
 
 import React, {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useRef,
   useState,
   type Dispatch,
@@ -31,8 +35,9 @@ import React, {
 } from 'react';
 import type { SystemPanelId } from '@/lib/panels/panelTypes';
 import { DEFAULT_SPLIT_RATIO } from '@/lib/dreamdm/barInteractions';
+import { createClient } from '@/lib/supabase/client';
 
-// ── Home data shared by HomeSystem into PersistentDreamBar ────────────────────
+// ── Home data shared by DreamBarDataBridge into PersistentDreamBar ───────────
 
 type ProfileLike = {
   id?: string;
@@ -91,7 +96,7 @@ type ReturnHomeFn     = () => void;
 type OpenInSurfaceFn  = (id: SystemPanelId) => void;
 
 /**
- * Callbacks registered by HomeSystem.
+ * Callbacks registered by DreamBarDataBridge.
  * Only what GlobalDreamBar's overlay menus actually need.
  */
 export interface RuntimeCallbacks {
@@ -126,8 +131,9 @@ interface DreamSystemContextValue {
   closeDrEams: () => void;
 
   /**
-   * Thin bridge to HomeSystem. Null when HomeSystem is not mounted
-   * (i.e. on public/non-home surfaces).
+   * Thin bridge to DreamBarDataBridge. Null when DreamBarDataBridge is not
+   * mounted (i.e. on non-homedream surfaces). The bar still renders both
+   * runtimes regardless — this only controls advanced callback behaviour.
    */
   runtimeCallbacks: RuntimeCallbacks | null;
   registerRuntimeCallbacks:   (cbs: RuntimeCallbacks) => void;
@@ -135,7 +141,7 @@ interface DreamSystemContextValue {
 
   /**
    * Stable function — load a system feature into Surface Space.
-   * Delegates to runtimeCallbacks.openInSurface when HomeSystem is active.
+   * Delegates to runtimeCallbacks.openInSurface when DreamBarDataBridge is active.
    */
   openInSurface: (id: SystemPanelId) => void;
 
@@ -145,13 +151,12 @@ interface DreamSystemContextValue {
   clearBarIntent: () => void;
 
   /**
-   * Split-screen divider ratio shared between HomeSystem and the persistent
-   * DreamDMBar in layout.tsx.
-   *   0.0 = DreamSpace fills the viewport
+   * Split-screen divider ratio — always active because the bar IS home.
+   *   0.0 = DreamSpace fills the viewport (bar at top)
    *   0.5 = 50/50 balanced split
-   *   1.0 = Surface Space fills the viewport (bar at bottom)
-   * Defaults to DEFAULT_SPLIT_RATIO (1.0 — bar rests at the bottom).
-   * HomeSystem writes this; DreamDMBar reads and writes it.
+   *   1.0 = HomeDream Surface fills the viewport (bar at bottom)
+   * Defaults to 0.9 so the bar rests near the bottom with a DreamSpace sliver.
+   * DreamBarDataBridge and DreamDMBar both read and write this.
    */
   splitRatio: number;
   setSplitRatio: Dispatch<SetStateAction<number>>;
@@ -161,9 +166,9 @@ interface DreamSystemContextValue {
   setIsBarMinimized: Dispatch<SetStateAction<boolean>>;
 
   /**
-   * Home page data pushed into context by HomeSystem on mount so that
-   * PersistentDreamBar can render the runtime regions without HomeSystem
-   * owning the layout.
+   * Home data for the always-mounted runtime regions.
+   * Bootstrapped client-side from Supabase on any authenticated page.
+   * DreamBarDataBridge enriches this with server-fetched posts when on /homedream.
    */
   homeData: HomeData | null;
   setHomeData: Dispatch<SetStateAction<HomeData | null>>;
@@ -204,6 +209,32 @@ export function DreamSystemProvider({ children }: { children: ReactNode }) {
   const [splitRatio,    setSplitRatio]           = useState(0.9);
   const [isBarMinimized, setIsBarMinimized]      = useState(false);
   const [homeData,      setHomeData]             = useState<HomeData | null>(null);
+
+  // Bootstrap homeData from Supabase on any authenticated page so both
+  // runtime regions are always available regardless of current route.
+  // DreamBarDataBridge enriches this with server-fetched posts on /homedream.
+  useEffect(() => {
+    const boot = async () => {
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id, handle, display_name, avatar_url')
+          .eq('id', user.id)
+          .single();
+        // Only set if DreamBarDataBridge hasn't already pushed richer data
+        setHomeData((prev) => prev ?? {
+          userId: user.id,
+          profile: profile ?? null,
+          initialPosts: [],
+          isAdmin: false,
+        });
+      } catch { /* graceful — regions render skeleton if auth unavailable */ }
+    };
+    void boot();
+  }, []);
 
   // Stable ref so openInSurface doesn't re-create when callbacks change
   const callbacksRef = useRef<RuntimeCallbacks | null>(null);
