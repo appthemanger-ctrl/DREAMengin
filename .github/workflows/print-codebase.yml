@@ -1,0 +1,88 @@
+name: Print Codebase (code only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      extensions:
+        description: >
+          Comma-separated list of file extensions to include
+          (default: ts,tsx,js,jsx,mjs,cjs,css,scss,json,md,yml,yaml,sh,py,sql,toml)
+        required: false
+        default: "ts,tsx,js,jsx,mjs,cjs,css,scss,json,md,yml,yaml,sh,py,sql,toml"
+
+permissions:
+  contents: read
+
+jobs:
+  print-codebase:
+    name: Dump all source files to log
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Print every source file
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # ── build the -name predicate from the comma-separated input ──────────
+          RAW_EXTS="${{ github.event.inputs.extensions }}"
+          IFS=',' read -ra EXT_LIST <<< "$RAW_EXTS"
+
+          NAME_ARGS=()
+          for ext in "${EXT_LIST[@]}"; do
+            ext="${ext// /}"   # trim spaces
+            if [ ${#NAME_ARGS[@]} -gt 0 ]; then
+              NAME_ARGS+=(-o)
+            fi
+            NAME_ARGS+=(-name "*.${ext}")
+          done
+
+          # ── directories to skip entirely ──────────────────────────────────────
+          PRUNE_DIRS=(
+            .git
+            node_modules
+            .next
+            .vercel
+            .turbo
+            dist
+            build
+            out
+            .cache
+            coverage
+            _export
+          )
+
+          PRUNE_ARGS=()
+          for d in "${PRUNE_DIRS[@]}"; do
+            PRUNE_ARGS+=(-path "*/${d}" -prune -o)
+          done
+
+          total=0
+
+          # ── walk & print ──────────────────────────────────────────────────────
+          while IFS= read -r -d '' file; do
+            echo ""
+            echo "================================================================="
+            echo "=== FILE: ${file#./} ==="
+            echo "================================================================="
+            cat "$file"
+            echo ""
+            (( total++ )) || true
+          done < <(
+            find . \
+              "${PRUNE_ARGS[@]}" \
+              \( "${NAME_ARGS[@]}" \) \
+              -type f \
+              -print0 \
+            | sort -z
+          )
+
+          echo ""
+          echo "================================================================="
+          echo "=== DONE — ${total} file(s) printed ==="
+          echo "================================================================="
