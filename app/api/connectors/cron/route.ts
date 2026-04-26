@@ -33,7 +33,6 @@ interface CronSummary {
   failed: number;
   results: Array<{
     provider: string;
-    userId: string;
     ok: boolean;
     fetched: number;
     stored: number;
@@ -112,9 +111,6 @@ export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | 
     // Never include userId or token data in the output; only safe summary fields.
     results: results.map((r) => ({
       provider: r.provider,
-      // Truncate userId to first 8 chars — enough to correlate logs, not enough
-      // to identify the user from the response alone.
-      userId: r.userId.slice(0, 8) + '…',
       ok: r.ok,
       fetched: r.fetched,
       stored: r.stored,

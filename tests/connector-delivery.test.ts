@@ -249,10 +249,7 @@ describe('extractMetaWebhookChallenge', () => {
       'hub.verify_token': '',
       'hub.challenge': 'challenge',
     });
-    // An empty string matches an empty string — this is intentionally handled
-    // at the route level (503 if WEBHOOK_VERIFY_TOKEN not set), but we confirm
-    // the pure function behaviour here.
-    expect(extractMetaWebhookChallenge(params, '')).toBe('challenge');
+    expect(extractMetaWebhookChallenge(params, '')).toBeNull();
   });
 
   it('returns null for empty params', () => {

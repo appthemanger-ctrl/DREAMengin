@@ -10,9 +10,8 @@
  * No network calls, no DB calls, no server-only import.
  * Safe to import and test in vitest.
  *
- * AXIOM 4 — Security by Default: verify-token comparison is constant-time
- *   aware (string equality is fine here — these are not cryptographic secrets
- *   in the same threat model as password hashes, but we keep it simple).
+ * AXIOM 4 — Security by Default: empty verify tokens are rejected and
+ * configured tokens are compared directly against provider challenge input.
  */
 
 // ── YouTube WebSub ────────────────────────────────────────────────────────────
@@ -62,6 +61,10 @@ export function extractMetaWebhookChallenge(
   params: URLSearchParams,
   expectedToken: string,
 ): string | null {
+  if (!expectedToken) {
+    return null;
+  }
+
   const mode = params.get('hub.mode');
   const token = params.get('hub.verify_token');
   const challenge = params.get('hub.challenge');
