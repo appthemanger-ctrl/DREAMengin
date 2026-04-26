@@ -1,45 +1,15 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 
 interface DreamNavControlsProps {
   onHome: () => void;
   onBothMenus: () => void;
 }
 
-const DOUBLE_TAP_MS = 260;
-
-export default function DreamNavControls({ onHome, onBothMenus }: DreamNavControlsProps) {
-  const lastTapRef = useRef(0);
-  const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
-    };
-  }, []);
-
+export default function DreamNavControls({ onBothMenus }: DreamNavControlsProps) {
   const handleTap = () => {
-    const now = performance.now();
-    const last = lastTapRef.current;
-    lastTapRef.current = now;
-
-    // Double tap → open dual menus (the only sanctioned double-tap).
-    if (last > 0 && now - last <= DOUBLE_TAP_MS) {
-      if (tapTimerRef.current) {
-        clearTimeout(tapTimerRef.current);
-        tapTimerRef.current = null;
-      }
-      onBothMenus();
-      return;
-    }
-
-    // Single tap → go home, delayed so double-tap can own menu opening.
-    if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
-    tapTimerRef.current = setTimeout(() => {
-      tapTimerRef.current = null;
-      onHome();
-    }, DOUBLE_TAP_MS);
+    onBothMenus();
   };
 
   return (

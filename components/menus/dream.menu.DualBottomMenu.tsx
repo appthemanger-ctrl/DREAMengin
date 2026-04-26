@@ -6,8 +6,7 @@
  * Left panel:  6 Daydream navigation (per spec §17.2 / §4.2)
  * Right panel: System menu + Dr. Eams Chat (per spec §17.3 / §4.2)
  *
- * Single-tap the gold button → contextual Home.
- * Double-tap the gold button → open both radial menus (the only sanctioned double-tap).
+ * Single-tap the gold button → open both radial menus.
  * Tap the dim backdrop or any item → closes.
  */
 

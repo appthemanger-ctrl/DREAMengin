@@ -391,8 +391,8 @@ interface DreamDMBarProps {
    */
   onBothMenus: () => void;
   /**
-   * Single-tap the Gold Particle (after a short delay so double-tap can win)
-   * → contextual Home.
+   * Contextual Home callback retained for callers that still own home routing.
+   * The Gold Particle no longer invokes it directly; single tap opens menus.
    * The parent decides what "home" means based on splitRatio:
    *   bar at bottom → return to Surface (top runtime)
    *   bar at top    → return to DreamSpace (bottom runtime)
@@ -440,7 +440,7 @@ interface DreamDMBarProps {
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
-export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange, onMinimizedChange, onSwapRuntimes }: DreamDMBarProps) {
+export default function DreamDMBar({ onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange, onMinimizedChange, onSwapRuntimes }: DreamDMBarProps) {
   const isGameImmersive = useImmersiveGameLayout();
   /** Gold Particle diameter — shrinks when a game overlay is active so it stays out of the way */
   const goldSz = isGameImmersive ? 36 : GOLD_SZ;
@@ -896,7 +896,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     try {
       if (!localStorage.getItem('de-light-discovered')) {
         setFirstTimeLight(true);
-        setLightTooltip('tap home, double-tap menu');
+        setLightTooltip('tap menu');
         localStorage.setItem('de-light-discovered', '1');
         lightTooltipTimerRef.current = setTimeout(() => {
           setLightTooltip(null);
@@ -1012,44 +1012,13 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     // It was a tap — the light's touch handlers manage the tap separately
   }, [onSplitChange, screenH, splitRatio]);
 
-  // ── Glowing light tap state machine ───────────────────────────────────────
-  // Single tap → go home / reset runtimes after the double-tap window.
-  // Double tap → open dual menus (the ONLY sanctioned double-tap in the system).
-  // Per docs/GOLD_BUTTON_DUAL_RUNTIME.md — all other UI elements respond to single tap only.
-  const DOUBLE_TAP_WINDOW_MS = 260;
-  const lightLastTapRef = useRef(0);
-  const lightTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (lightTapTimerRef.current) clearTimeout(lightTapTimerRef.current);
-    };
-  }, []);
+  // ── Glowing light tap ─────────────────────────────────────────────────────
+  // Single tap opens the dual menus immediately. No double-tap affordance.
 
   const handleLightTap = useCallback(() => {
-    const now = performance.now();
-    const last = lightLastTapRef.current;
-    lightLastTapRef.current = now;
-
-    if (last > 0 && now - last <= DOUBLE_TAP_WINDOW_MS) {
-      if (lightTapTimerRef.current) {
-        clearTimeout(lightTapTimerRef.current);
-        lightTapTimerRef.current = null;
-      }
-      // Double tap → open both menus (the only sanctioned double-tap)
-      if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([6, 30, 6]);
-      onBothMenus();
-      return;
-    }
-
-    // Single tap → contextual home, delayed so double-tap can own menu opening.
     if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(4);
-    if (lightTapTimerRef.current) clearTimeout(lightTapTimerRef.current);
-    lightTapTimerRef.current = setTimeout(() => {
-      lightTapTimerRef.current = null;
-      onHome();
-    }, DOUBLE_TAP_WINDOW_MS);
-  }, [onBothMenus, onHome]);
+    onBothMenus();
+  }, [onBothMenus]);
 
   const handleLightTouchStart = useCallback((_e: React.TouchEvent<HTMLSpanElement>) => {
     // resolved on touchend
@@ -2172,7 +2141,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 onTouchStart={handleLightTouchStart}
                 onTouchEnd={handleLightTouchEnd}
                 onClick={handleLightClick}
-                aria-label="DreamDM seam — tap for input, drag to resize, double-tap for menus"
+                aria-label="DreamDM seam — tap for menus, drag to resize"
               />
             </div>
           </div>
