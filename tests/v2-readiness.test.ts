@@ -13,7 +13,7 @@ import {
   CORE_SURFACE_ROUTES,
   LEGACY_ROUTES,
 } from '@/lib/identity/canonical-names';
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
 
 // ---------------------------------------------------------------------------
@@ -58,6 +58,8 @@ describe('DREAMengin v2.0.0 — v1-ui layer subordinated', () => {
 // ---------------------------------------------------------------------------
 
 describe('DREAMengin v2.0.0 — canonical routes', () => {
+  const nextConfig = readFileSync(resolve(__dirname, '../next.config.mjs'), 'utf8');
+
   it('HomeDream canonical route is /homedream', () => {
     expect(CORE_SURFACE_ROUTES.HOME_DREAM).toBe('/homedream');
   });
@@ -70,27 +72,20 @@ describe('DREAMengin v2.0.0 — canonical routes', () => {
     expect(CORE_SURFACE_ROUTES.VIEW_PROFILE).toBe('/view-profile');
   });
 
-  it('legacy /edit-profile route redirects to canonical (support route exists as stub)', () => {
-    const editProfilePage = readFileSync(
-      resolve(__dirname, '../app/edit-profile/page.tsx'),
-      'utf8',
-    );
-    expect(editProfilePage).toContain('/edit-profiledream');
-    expect(editProfilePage).toContain('redirect');
+  it('legacy /edit-profile route redirects to canonical from Next config', () => {
+    expect(nextConfig).toContain('source: "/edit-profile"');
+    expect(nextConfig).toContain('destination: "/edit-profiledream"');
+    expect(existsSync(resolve(__dirname, '../app/edit-profile'))).toBe(false);
   });
 
   it('legacy /home route is registered as a support route in canonical-names', () => {
     expect(LEGACY_ROUTES.HOME).toBe('/home');
   });
 
-  it('/home route renders DreamBarDataBridge with DreamDMBar, HomeDream, and DreamSpace', () => {
-    const homePage = readFileSync(
-      resolve(__dirname, '../app/home/page.tsx'),
-      'utf8',
-    );
-    // /home now re-exports the homedream page so it is a full-featured entry
-    // point (DreamDMBar › HomeDream › DreamSpace) instead of a redirect.
-    expect(homePage).toContain('homedream/page');
+  it('/home support route redirects to HomeDream from Next config', () => {
+    expect(nextConfig).toContain('source: "/home"');
+    expect(nextConfig).toContain('destination: "/homedream"');
+    expect(existsSync(resolve(__dirname, '../app/home'))).toBe(false);
   });
 });
 
@@ -111,28 +106,24 @@ describe('DREAMengin v2.0.0 — release documentation', () => {
 // ---------------------------------------------------------------------------
 
 describe('DREAMengin v2.0.0 — legacy route subordination', () => {
-  it('/dreamengin page redirects to /homedream (orbit shell removed as active route)', () => {
-    const page = readFileSync(resolve(__dirname, '../app/dreamengin/page.tsx'), 'utf8');
-    expect(page).toContain("redirect('/homedream')");
-    // Must not import or render the old Babylon orbit shell
-    expect(page).not.toContain("import DreamenginClient");
-    expect(page).not.toContain("import DreamenginApp");
-    expect(page).not.toContain('<DreamenginClient');
-    expect(page).not.toContain('<DreamenginApp');
+  const nextConfig = readFileSync(resolve(__dirname, '../next.config.mjs'), 'utf8');
+
+  it('/dreamengin redirects to /homedream from Next config with no app route folder', () => {
+    expect(nextConfig).toContain('source: "/dreamengin"');
+    expect(nextConfig).toContain('destination: "/homedream"');
+    expect(existsSync(resolve(__dirname, '../app/dreamengin'))).toBe(false);
   });
 
-  it('/codespace page redirects to /daydream/code (canonical Code Daydream)', () => {
-    const page = readFileSync(resolve(__dirname, '../app/codespace/page.tsx'), 'utf8');
-    expect(page).toContain("redirect('/daydream/code')");
-    expect(page).not.toContain('import CodeSpaceClient');
-    expect(page).not.toContain('<CodeSpaceClient');
+  it('/codespace redirects to CodeEngin from Next config with no app route folder', () => {
+    expect(nextConfig).toContain('source: "/codespace"');
+    expect(nextConfig).toContain('destination: "/engines/code"');
+    expect(existsSync(resolve(__dirname, '../app/codespace'))).toBe(false);
   });
 
-  it('/physics-lab page redirects to /daydream/lab (canonical Lab Daydream)', () => {
-    const page = readFileSync(resolve(__dirname, '../app/physics-lab/page.tsx'), 'utf8');
-    expect(page).toContain("redirect('/daydream/lab')");
-    expect(page).not.toContain('import PhysicsLab');
-    expect(page).not.toContain('<PhysicsLab');
+  it('/physics-lab redirects to LabEngin from Next config with no app route folder', () => {
+    expect(nextConfig).toContain('source: "/physics-lab"');
+    expect(nextConfig).toContain('destination: "/engines/lab"');
+    expect(existsSync(resolve(__dirname, '../app/physics-lab'))).toBe(false);
   });
 });
 

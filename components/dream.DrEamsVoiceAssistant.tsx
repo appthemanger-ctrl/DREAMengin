@@ -269,7 +269,7 @@ export default function DrEamsVoiceAssistant() {
       const res = await fetch('/api/ai/idari', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, ui: { route: '/admin' } }),
+        body: JSON.stringify({ message, ui: { route: '/idari-console' } }),
       });
 
       if (res.status === 401) {
@@ -337,7 +337,7 @@ export default function DrEamsVoiceAssistant() {
       return 'Opening your merch shop.';
     }
     if (lower.includes('go to music') || lower.includes('open music') || lower.includes('my music')) {
-      router.push('/music');
+      router.push('/daydream/music');
       return 'Taking you to your music page.';
     }
     if (lower.includes('go to lab') || lower.includes('open lab') || lower.includes('lab projects')) {

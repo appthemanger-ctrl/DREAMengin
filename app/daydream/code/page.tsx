@@ -18,7 +18,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'notebook',    emoji: '📓', label: 'Notebook',        desc: 'Live multi-cell notebook',      color: '#22c55e', href: '/engines/code/notebook' },
   { id: 'lab',         emoji: '🔬', label: 'Lab',             desc: 'Experiments and prototypes',    color: '#f59e0b', href: '/daydream/lab' },
   { id: 'notes',       emoji: '📝', label: 'Code Notes',      desc: 'Document and annotate',         color: '#ec4899', href: '/notes'       },
-  { id: 'physics-lab', emoji: '⚛️', label: 'Physics Lab',     desc: '3D runtime environment',        color: '#0ea5e9', href: '/physics-lab' },
+  { id: 'physics-lab', emoji: '⚛️', label: 'Physics Lab',     desc: '3D runtime environment',        color: '#0ea5e9', href: '/daydream/lab' },
   { id: 'share',       emoji: '🔗', label: 'Share Project',   desc: 'Post a project update',         color: '#c8981a', href: '/daydream/create'      },
   { id: 'connectors',  emoji: '🔌', label: 'Connectors',      desc: 'Link GitHub, GitLab, and more', color: '#8b5cf6', href: '/connectors'  },
 ];
@@ -163,9 +163,9 @@ export default async function CodeDaydreamPage() {
           {/* ── Feature 1: Quick Links ── */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
             {[
-              { emoji: '💻', label: 'Open Codespace',  href: '/codespace',   color: '#6366f1' },
+              { emoji: '💻', label: 'Open Codespace',  href: '/engines/code',   color: '#6366f1' },
               { emoji: '📁', label: 'Projects',         href: '/lab',         color: '#2a8ab8' },
-              { emoji: '⚛️', label: 'Physics Lab',      href: '/physics-lab', color: '#f59e0b' },
+              { emoji: '⚛️', label: 'Physics Lab',      href: '/daydream/lab', color: '#f59e0b' },
               { emoji: '📝', label: 'Notes',            href: '/notes',       color: '#ec4899' },
             ].map(item => (
               <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>

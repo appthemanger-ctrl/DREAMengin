@@ -33,6 +33,51 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: "/admin",
+        destination: "/idari-console",
+        permanent: false,
+      },
+      {
+        source: "/admin/:path*",
+        destination: "/idari-console/:path*",
+        permanent: false,
+      },
+      {
+        source: "/home",
+        destination: "/homedream",
+        permanent: false,
+      },
+      {
+        source: "/edit-profile",
+        destination: "/edit-profiledream",
+        permanent: false,
+      },
+      {
+        source: "/codespace",
+        destination: "/engines/code",
+        permanent: false,
+      },
+      {
+        source: "/dreamengin",
+        destination: "/homedream",
+        permanent: false,
+      },
+      {
+        source: "/physics-lab",
+        destination: "/engines/lab",
+        permanent: false,
+      },
+      {
+        source: "/music",
+        destination: "/daydream/music",
+        permanent: false,
+      },
+      {
+        source: "/music/:path*",
+        destination: "/daydream/music/:path*",
+        permanent: false,
+      },
+      {
         source: "/edit",
         destination: "/settings",
         permanent: false,

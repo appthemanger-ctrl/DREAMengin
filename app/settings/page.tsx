@@ -82,7 +82,7 @@ export default async function SettingsPage() {
               <span className="de-widget-title" style={{ color: '#8b5cf6' }}>Admin Access</span>
             </div>
             <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-              <Link href="/admin" className="de-row" style={{ borderRadius: 14 }}>
+              <Link href="/idari-console" className="de-row" style={{ borderRadius: 14 }}>
                 <div style={{ width: 42, height: 42, borderRadius: 12, background: 'linear-gradient(135deg,#8b5cf6,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 3px 10px rgba(139,92,246,0.32)' }}>
                   <Bot className="w-4 h-4 text-white" />
                 </div>

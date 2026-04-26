@@ -89,7 +89,7 @@ export default function SettingsPanel() {
           <div className="de-widget-body" style={{ padding: '4px 6px' }}>
             <button
               type="button"
-              onClick={() => { window.location.href = '/admin'; }}
+              onClick={() => { window.location.href = '/idari-console'; }}
               className="de-row"
               style={{ borderRadius: 12, width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}
             >

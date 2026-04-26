@@ -24,10 +24,10 @@ export const metadata = {
 const WIDGETS: DaydreamWidget[] = [
   { id: 'track-window',        emoji: '🎙️', label: 'Track Window',                 desc: 'Create, upload, and preview tracks',        color: '#2a8ab8', href: '/engines/music/studio' },
   { id: 'playlist-window',     emoji: '🎚️', label: 'Playlist Window',              desc: 'Organize sets and listening flows',         color: '#6366f1', href: '/engines/music/library' },
-  { id: 'release-window',      emoji: '🎵', label: 'Release Window',               desc: 'Configure publishing and sharing pathways', color: '#c8981a', href: '/music' },
+  { id: 'release-window',      emoji: '🎵', label: 'Release Window',               desc: 'Configure publishing and sharing pathways', color: '#c8981a', href: '/daydream/music/upload' },
   { id: 'lyrics-window',       emoji: '📝', label: 'Lyrics Window',                desc: 'Draft and refine song lyrics',              color: '#00bcd4', href: '/engines/music' },
   { id: 'audio-project-window',emoji: '🎛️', label: 'Audio Project Window',         desc: 'Arrange drafts, sessions, and assets',      color: '#f59e0b', href: '/engines/music/arrange' },
-  { id: 'launch-status-window', emoji: '🚀', label: 'Sales / Launch Status Window', desc: 'Track rollout, sales, and performance',     color: '#ec4899', href: '/music' },
+  { id: 'launch-status-window', emoji: '🚀', label: 'Sales / Launch Status Window', desc: 'Track rollout, sales, and performance',     color: '#ec4899', href: '/daydream/music/upload' },
 ];
 
 export default async function MusicArtistHubPage() {

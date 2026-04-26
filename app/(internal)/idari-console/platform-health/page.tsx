@@ -1,5 +1,5 @@
 // SURFACE: dreamsurface.AdminPlatformHealth  (framework-mandated basename: page.tsx)
-// app/admin/platform-health/page.tsx
+// app/(internal)/idari-console/platform-health/page.tsx
 // Phase 9 — IDARi Platform Health admin surface.
 //
 // Auth-gated: only authenticated admins (is_admin RPC) may access.

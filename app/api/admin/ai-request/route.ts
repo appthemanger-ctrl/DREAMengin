@@ -21,5 +21,5 @@ export async function POST(request: Request) {
       details: { prompt, status: 'pending' }
     });
 
-  return redirect('/admin');
+  return redirect('/idari-console');
 }
