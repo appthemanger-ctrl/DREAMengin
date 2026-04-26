@@ -67,7 +67,6 @@ import { useDreamDMConversations,
 } from '@/lib/dreamdm/useDreamDMConversations';
 import {
   calculatePointerVelocity,
-  resolveGoldTapAction,
   shouldCollapseGoldSwipe,
   shouldCollapseTopExpandedDrag,
   shouldTreatGoldReleaseAsTap,
@@ -388,12 +387,12 @@ function ParticleFountain({ particles, centerX, centerY }: { particles: Particle
 // ─────────────────────────────────────────────────────────────────────────────
 interface DreamDMBarProps {
   /**
-   * Single-tap the Gold Particle (after a short delay so a double-tap can win)
-   * → open both radial menus (Daydreams + System).
+   * Double-tap the Gold Particle → open both radial menus (Daydreams + System).
    */
   onBothMenus: () => void;
   /**
-   * Double-tap the Gold Particle → contextual Home.
+   * Single-tap the Gold Particle (after a short delay so double-tap can win)
+   * → contextual Home.
    * The parent decides what "home" means based on splitRatio:
    *   bar at bottom → return to Surface (top runtime)
    *   bar at top    → return to DreamSpace (bottom runtime)
@@ -897,7 +896,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     try {
       if (!localStorage.getItem('de-light-discovered')) {
         setFirstTimeLight(true);
-        setLightTooltip('drag to move, tap to open');
+        setLightTooltip('tap home, double-tap menu');
         localStorage.setItem('de-light-discovered', '1');
         lightTooltipTimerRef.current = setTimeout(() => {
           setLightTooltip(null);
@@ -1014,27 +1013,42 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   }, [onSplitChange, screenH, splitRatio]);
 
   // ── Glowing light tap state machine ───────────────────────────────────────
-  // Single tap → open dual menus immediately.
-  // Double tap → go home / reset runtimes (the ONLY sanctioned double-tap in the system).
+  // Single tap → go home / reset runtimes after the double-tap window.
+  // Double tap → open dual menus (the ONLY sanctioned double-tap in the system).
   // Per docs/GOLD_BUTTON_DUAL_RUNTIME.md — all other UI elements respond to single tap only.
   const DOUBLE_TAP_WINDOW_MS = 260;
   const lightLastTapRef = useRef(0);
+  const lightTapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (lightTapTimerRef.current) clearTimeout(lightTapTimerRef.current);
+    };
+  }, []);
 
   const handleLightTap = useCallback(() => {
     const now = performance.now();
     const last = lightLastTapRef.current;
     lightLastTapRef.current = now;
 
-    if (now - last <= DOUBLE_TAP_WINDOW_MS) {
-      // Double tap → go home / reset runtimes (the only sanctioned double-tap)
+    if (last > 0 && now - last <= DOUBLE_TAP_WINDOW_MS) {
+      if (lightTapTimerRef.current) {
+        clearTimeout(lightTapTimerRef.current);
+        lightTapTimerRef.current = null;
+      }
+      // Double tap → open both menus (the only sanctioned double-tap)
       if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([6, 30, 6]);
-      onHome();
+      onBothMenus();
       return;
     }
 
-    // Single tap → open both menus (always, in any mode)
+    // Single tap → contextual home, delayed so double-tap can own menu opening.
     if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(4);
-    onBothMenus();
+    if (lightTapTimerRef.current) clearTimeout(lightTapTimerRef.current);
+    lightTapTimerRef.current = setTimeout(() => {
+      lightTapTimerRef.current = null;
+      onHome();
+    }, DOUBLE_TAP_WINDOW_MS);
   }, [onBothMenus, onHome]);
 
   const handleLightTouchStart = useCallback((_e: React.TouchEvent<HTMLSpanElement>) => {

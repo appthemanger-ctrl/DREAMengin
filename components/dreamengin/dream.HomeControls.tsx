@@ -1,11 +1,11 @@
 // components/dreamengin/dream.HomeControls.tsx
 // ONE gold button. Always has been. Always will be.
-//   • Single tap → open dual menus (Outdream on left, Nexus on right)
-//   • Double tap → go home (the only sanctioned double-tap in the system)
+//   • Single tap → go home
+//   • Double tap → open dual menus (the only sanctioned double-tap in the system)
 
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import InfinityIcon from '@/components/ui/dream.InfinityIcon';
 
 interface HomeControlsProps {
@@ -18,20 +18,35 @@ const DOUBLE_TAP_MS = 260;
 
 export default function HomeControls({ onBothMenus, onHome }: HomeControlsProps) {
   const lastTapRef = useRef(0);
+  const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
+    };
+  }, []);
 
   const handleTap = () => {
     const now = performance.now();
     const last = lastTapRef.current;
     lastTapRef.current = now;
 
-    // Double tap → go home (the only sanctioned double-tap)
-    if (now - last <= DOUBLE_TAP_MS) {
-      onHome();
+    // Double tap → open dual menus (the only sanctioned double-tap)
+    if (last > 0 && now - last <= DOUBLE_TAP_MS) {
+      if (tapTimerRef.current) {
+        clearTimeout(tapTimerRef.current);
+        tapTimerRef.current = null;
+      }
+      onBothMenus();
       return;
     }
 
-    // Single tap → open dual menus (immediate)
-    onBothMenus();
+    // Single tap → go home, delayed so double-tap can own menu opening
+    if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
+    tapTimerRef.current = setTimeout(() => {
+      tapTimerRef.current = null;
+      onHome();
+    }, DOUBLE_TAP_MS);
   };
 
   return (

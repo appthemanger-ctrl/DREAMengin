@@ -23,23 +23,30 @@ import {
 } from '@/lib/dreamdm/barInteractions';
 
 describe('resolveGoldTapAction', () => {
-  it('opens menus immediately on the first tap', () => {
+  it('resolves the first tap to contextual home from the bottom state', () => {
     expect(resolveGoldTapAction({ now: 1_000, lastTapAt: 0, isTop: false })).toEqual({
-      action: 'menu',
+      action: 'home',
       nextLastTapAt: 1_000,
     });
   });
 
-  it('uses the second tap within the window to go home from the bottom state', () => {
+  it('resolves the first tap to HomeDream in DreamSpace when pinned at the top', () => {
+    expect(resolveGoldTapAction({ now: 1_000, lastTapAt: 0, isTop: true })).toEqual({
+      action: 'home-dreamspace',
+      nextLastTapAt: 1_000,
+    });
+  });
+
+  it('uses the second tap within the window to open the menu from the bottom state', () => {
     expect(resolveGoldTapAction({ now: 1_000 + GOLD_SECOND_TAP_WINDOW_MS - 1, lastTapAt: 1_000, isTop: false })).toEqual({
-      action: 'home',
+      action: 'menu',
       nextLastTapAt: 0,
     });
   });
 
-  it('uses the second tap within the window to open HomeDream in DreamSpace when pinned at the top', () => {
+  it('uses the second tap within the window to open the menu when pinned at the top', () => {
     expect(resolveGoldTapAction({ now: 1_000 + GOLD_SECOND_TAP_WINDOW_MS - 1, lastTapAt: 1_000, isTop: true })).toEqual({
-      action: 'home-dreamspace',
+      action: 'menu',
       nextLastTapAt: 0,
     });
   });
