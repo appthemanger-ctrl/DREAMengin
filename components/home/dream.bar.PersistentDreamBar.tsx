@@ -202,6 +202,7 @@ export default function PersistentDreamBar() {
           height: topHeight,
           zIndex: 1,
           overflow: 'hidden',
+          background: 'var(--de-surface-space-bg, #f0f4fb)',
           borderBottom: isBarMinimized ? '1px solid rgba(93,232,255,0.12)' : 'none',
         }}
         onDragOver={(event) => event.preventDefault()}
