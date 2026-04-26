@@ -398,7 +398,13 @@ function scanUISurfaces() {
     // Find major imported components
     const imports  = [...src.matchAll(/import\s+(?:\{[^}]+\}|(\w+))\s+from\s+['"`]([^'"`]+)['"`]/g)]
       .map(m => ({ name: m[1] || m[0].match(/import\s+(?:\{([^}]+)\})/)?.[1]?.trim(), from: m[2] }))
-      .filter(i => i.from.startsWith('@/components') || i.from.startsWith('../') || i.from.startsWith('./'));
+      .filter(i =>
+        i.from.startsWith('@/components') ||
+        i.from.startsWith('@/dreamdmbar') ||
+        i.from.startsWith('@/engins') ||
+        i.from.startsWith('../') ||
+        i.from.startsWith('./')
+      );
 
     surfaces.push({
       type: 'page',
