@@ -21,6 +21,7 @@
 import 'server-only';
 
 import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/types/supabase';
 import { dispatchSync } from './syncDispatch';
 import { deduplicateFeedItems } from './normalise';
 
@@ -69,7 +70,7 @@ function isConnectorAuthError(message: string): boolean {
  */
 export async function reconcileConnector(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  db: SupabaseClient<any>,
+  db: SupabaseClient<Database>,
   userId: string,
   provider: string,
   tokenBlob: Record<string, unknown>,

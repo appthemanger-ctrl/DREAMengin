@@ -124,8 +124,12 @@ export async function POST(
   // (YouTube sends Atom XML) and malformed JSON.
   try {
     await req.text();
-  } catch {
-    // Silently ignore body read failures — acknowledge regardless.
+  } catch (err) {
+    console.warn('[connectors:webhook] failed to read payload', {
+      provider,
+      error: err instanceof Error ? err.message : String(err),
+    });
+    // Log body read failures without dumping provider payloads; acknowledge regardless.
   }
 
   // Acknowledge receipt. The provider will retry if we return non-2xx.

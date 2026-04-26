@@ -253,6 +253,7 @@ is declared in `lib/connectors/deliveryStrategy.ts`.
 - Runs every 6 hours at 00:00, 06:00, 12:00, and 18:00 UTC (see `vercel.json`)
 - Requires `Authorization: Bearer <CRON_SECRET>` in production
 - Uses the Supabase service-role client to iterate all connected accounts
+- Processes up to `CONNECTOR_CRON_BATCH_SIZE` accounts per run (default 50, max 100), oldest/never-synced first
 - Calls the shared `reconcileConnector` pipeline for each
 - Returns `{ processed, succeeded, failed, results[] }` — never includes token_blob
 - `CRON_SECRET` env var must be set in Vercel for production use

@@ -28,6 +28,7 @@ import type { ReconcileResult } from '@/lib/connectors/reconcile';
 
 interface CronSummary {
   ok: boolean;
+  batchSize: number;
   processed: number;
   succeeded: number;
   failed: number;
@@ -38,6 +39,12 @@ interface CronSummary {
     stored: number;
     error?: string;
   }>;
+}
+
+function getCronBatchSize(): number {
+  const parsed = Number.parseInt(process.env.CONNECTOR_CRON_BATCH_SIZE ?? '50', 10);
+  if (!Number.isFinite(parsed)) return 50;
+  return Math.min(Math.max(parsed, 1), 100);
 }
 
 export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | { error: string }>> {
@@ -65,11 +72,14 @@ export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | 
   const anyDb = db as any;
 
   // ── Fetch all connected accounts for supported providers ─────────────────
+  const batchSize = getCronBatchSize();
   const { data: accounts, error: fetchError } = await anyDb
     .from('connector_accounts')
     .select('user_id, provider, token_blob')
     .eq('status', 'connected')
-    .in('provider', [...DISPATCH_SUPPORTED_PROVIDERS]);
+    .in('provider', [...DISPATCH_SUPPORTED_PROVIDERS])
+    .order('last_synced_at', { ascending: true, nullsFirst: true })
+    .limit(batchSize);
 
   if (fetchError) {
     return NextResponse.json(
@@ -81,6 +91,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | 
   if (!accounts || accounts.length === 0) {
     return NextResponse.json({
       ok: true,
+      batchSize,
       processed: 0,
       succeeded: 0,
       failed: 0,
@@ -105,6 +116,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | 
 
   return NextResponse.json({
     ok: true,
+    batchSize,
     processed: results.length,
     succeeded,
     failed: results.length - succeeded,
