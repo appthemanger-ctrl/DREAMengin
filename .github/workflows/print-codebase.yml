@@ -9,13 +9,19 @@ on:
           (default: ts,tsx,js,jsx,mjs,cjs,css,scss,json,md,yml,yaml,sh,py,sql,toml)
         required: false
         default: "ts,tsx,js,jsx,mjs,cjs,css,scss,json,md,yml,yaml,sh,py,sql,toml"
+      roots:
+        description: >
+          Comma-separated roots to scan
+          (default: README.md,docs,spec,app,components,lib,styles,scripts,engine,engins)
+        required: false
+        default: "README.md,docs,spec,app,components,lib,styles,scripts,engine,engins"
 
 permissions:
   contents: read
 
 jobs:
   print-codebase:
-    name: Dump all source files to log
+    name: Dump all source files
     runs-on: ubuntu-latest
 
     steps:
@@ -24,27 +30,60 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Print every source file
+      - name: Print and Archive Codebase
         shell: bash
         run: |
           set -euo pipefail
 
           # ── build the -name predicate from the comma-separated input ──────────
-          RAW_EXTS="${{ github.event.inputs.extensions }}"
+          RAW_EXTS="${{ github.event.inputs.extensions || 'ts,tsx,js,jsx,mjs,cjs,css,scss,json,md,yml,yaml,sh,py,sql,toml' }}"
           IFS=',' read -ra EXT_LIST <<< "$RAW_EXTS"
 
           NAME_ARGS=()
           for ext in "${EXT_LIST[@]}"; do
             ext="${ext// /}"   # trim spaces
+            if [ -z "$ext" ]; then
+              continue
+            fi
             if [ ${#NAME_ARGS[@]} -gt 0 ]; then
               NAME_ARGS+=(-o)
             fi
             NAME_ARGS+=(-name "*.${ext}")
           done
 
+          if [ ${#NAME_ARGS[@]} -eq 0 ]; then
+            echo "No valid extensions were provided."
+            exit 1
+          fi
+
+          # ── scan only useful repo-context roots by default ─────────────────────
+          RAW_ROOTS="${{ github.event.inputs.roots || 'README.md,docs,spec,app,components,lib,styles,scripts,engine,engins' }}"
+          IFS=',' read -ra ROOT_LIST <<< "$RAW_ROOTS"
+
+          SEARCH_ROOTS=()
+          for root in "${ROOT_LIST[@]}"; do
+            root="${root// /}"   # trim spaces
+            if [ -z "$root" ]; then
+              continue
+            fi
+            if [ -e "$root" ]; then
+              SEARCH_ROOTS+=("$root")
+            else
+              echo "Skipping missing root: $root"
+            fi
+          done
+
+          if [ ${#SEARCH_ROOTS[@]} -eq 0 ]; then
+            echo "No valid roots were provided."
+            exit 1
+          fi
+
           # ── directories to skip entirely ──────────────────────────────────────
           PRUNE_DIRS=(
             .git
+            .github/agents
+            .github/generated
+            .github/issue-triage
             node_modules
             .next
             .vercel
@@ -55,6 +94,7 @@ jobs:
             .cache
             coverage
             _export
+            workflow/archive
           )
 
           PRUNE_ARGS=()
@@ -74,7 +114,7 @@ jobs:
             echo ""
             (( total++ )) || true
           done < <(
-            find . \
+            find "${SEARCH_ROOTS[@]}" \
               "${PRUNE_ARGS[@]}" \
               \( "${NAME_ARGS[@]}" \) \
               -type f \
@@ -86,3 +126,11 @@ jobs:
           echo "================================================================="
           echo "=== DONE — ${total} file(s) printed ==="
           echo "================================================================="
+
+      - name: Create Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dream-engin-source
+          path: .
+          include-hidden-files: false
+          if-no-files-found: error
