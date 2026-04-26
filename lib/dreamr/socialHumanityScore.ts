@@ -77,13 +77,12 @@ async function getLikeDiversity(supabase: any, userId: string): Promise<number> 
   for (const like of data) {
     const rawSourceId =
       typeof like.post_id === 'string' && like.post_id.trim()
-        ? like.post_id
+        ? like.post_id.trim()
         : typeof like.content_id === 'string'
-          ? like.content_id
+          ? like.content_id.trim()
           : '';
-    const sourceId = rawSourceId.trim();
-    if (!sourceId) continue;
-    const cat = sourceId.slice(0, 2); // dummy category
+    if (!rawSourceId) continue;
+    const cat = rawSourceId.slice(0, 2); // dummy category
     freq.set(cat, (freq.get(cat) || 0) + 1);
     total++;
   }
