@@ -151,7 +151,7 @@ jobs:
     name: Build Docker Image
     runs-on: ubuntu-latest
     needs: [verify]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/completedream'
     permissions:
       contents: read
       packages: write
@@ -208,7 +208,7 @@ jobs:
     name: Deploy to Kubernetes
     runs-on: ubuntu-latest
     needs: docker
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && false  # Disabled by default
+    if: github.event_name == 'push' && github.ref == 'refs/heads/completedream' && false  # Disabled by default
     steps:
       - uses: actions/checkout@v4
 
@@ -232,7 +232,7 @@ jobs:
     name: Smoke Tests
     runs-on: ubuntu-latest
     needs: [verify]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/completedream')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/completedream'
     steps:
       - name: Wait for deployment
         run: sleep 45
