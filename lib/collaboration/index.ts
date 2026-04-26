@@ -23,7 +23,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 // ── §38.1 Transport type ──────────────────────────────────────────────────────
 
-export type CollabTransport = 'supabase' | 'webrtc';
+export type CollabTransport = 'supabase' | 'webrtc' | 'local';
 
 // ── Shared event types ────────────────────────────────────────────────────────
 
@@ -78,6 +78,85 @@ function generatePeerId(): string {
     return crypto.randomUUID();
   }
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+// ─── §38 local fallback transport ─────────────────────────────────────────────
+
+interface LocalCollabBus {
+  peers: Map<string, PeerInfo>;
+  handlers: Map<string, Set<CollabEventHandler>>;
+}
+
+const localBuses = new Map<string, LocalCollabBus>();
+
+function getLocalBus(channelId: string): LocalCollabBus {
+  const existing = localBuses.get(channelId);
+  if (existing) return existing;
+  const bus: LocalCollabBus = {
+    peers: new Map(),
+    handlers: new Map(),
+  };
+  localBuses.set(channelId, bus);
+  return bus;
+}
+
+class LocalCollabSession implements CollabSession {
+  readonly transport: CollabTransport = 'local';
+  private readonly _bus: LocalCollabBus;
+  private readonly _handlers = new Set<CollabEventHandler>();
+
+  constructor(
+    readonly channelId: string,
+    readonly peerId: string,
+  ) {
+    this._bus = getLocalBus(channelId);
+    this._bus.handlers.set(peerId, this._handlers);
+    this._bus.peers.set(peerId, { peerId, joinedAt: Date.now(), transport: 'local' });
+    void this.send({ type: 'peer_join', peerId, data: { joinedAt: Date.now(), transport: 'local' } });
+  }
+
+  get peers(): readonly PeerInfo[] {
+    return Array.from(this._bus.peers.values());
+  }
+
+  async send(payload: CollabPayload): Promise<void> {
+    if (payload.type === 'peer_join') {
+      this._bus.peers.set(payload.peerId, {
+        peerId: payload.peerId,
+        joinedAt: (payload.data as { joinedAt?: number }).joinedAt ?? Date.now(),
+        transport: 'local',
+      });
+    } else if (payload.type === 'peer_leave') {
+      this._bus.peers.delete(payload.peerId);
+    }
+
+    for (const [peerId, handlers] of this._bus.handlers.entries()) {
+      if (peerId === this.peerId && payload.type !== 'peer_join' && payload.type !== 'peer_leave') {
+        continue;
+      }
+      for (const h of Array.from(handlers)) {
+        try { h(payload); } catch {}
+      }
+    }
+  }
+
+  onMessage(handler: CollabEventHandler): () => void {
+    this._handlers.add(handler);
+    return () => { this._handlers.delete(handler); };
+  }
+
+  async leave(): Promise<void> {
+    await this.send({ type: 'peer_leave', peerId: this.peerId, data: { leftAt: Date.now() } });
+    this._handlers.clear();
+    this._bus.handlers.delete(this.peerId);
+    if (this._bus.handlers.size === 0) {
+      localBuses.delete(this.channelId);
+    }
+  }
+}
+
+export function createLocalCollabSession(channelId: string): CollabSession {
+  return new LocalCollabSession(channelId, generatePeerId());
 }
 
 // ─── §38 Supabase transport ───────────────────────────────────────────────────
@@ -350,23 +429,36 @@ export async function createCollabSession(
   options: CollabSessionOptions = {},
 ): Promise<CollabSession> {
   const { transport, supabaseClient, iceServers, expectedPeerCount = 2 } = options;
+  const hasSupabaseClient =
+    supabaseClient &&
+    typeof (supabaseClient as unknown as { channel?: unknown }).channel === 'function';
+
+  if (transport === 'local') {
+    return createLocalCollabSession(channelId);
+  }
+
+  if (transport === 'supabase') {
+    if (hasSupabaseClient) {
+      return createSupabaseCollabSession(channelId, supabaseClient);
+    }
+    return createLocalCollabSession(channelId);
+  }
+
+  if (!transport && hasSupabaseClient) {
+    return createSupabaseCollabSession(channelId, supabaseClient);
+  }
 
   const useWebRTC =
-    transport === 'webrtc' ||
-    (transport !== 'supabase' &&
-      typeof RTCPeerConnection !== 'undefined' &&
-      expectedPeerCount <= 8);
+    transport === 'webrtc' &&
+    typeof RTCPeerConnection !== 'undefined' &&
+    expectedPeerCount <= 8;
 
   if (useWebRTC) {
     const peerId = generatePeerId();
     return new WebRTCCollabSession(channelId, peerId, iceServers);
   }
 
-  if (!supabaseClient) {
-    throw new Error('createCollabSession: supabaseClient required for Supabase transport');
-  }
-
-  return createSupabaseCollabSession(channelId, supabaseClient);
+  return createLocalCollabSession(channelId);
 }
 
 // ─── §38.2 Invite link helpers ────────────────────────────────────────────────
