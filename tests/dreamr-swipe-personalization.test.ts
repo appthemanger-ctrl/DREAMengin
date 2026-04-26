@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   contentTypePreferenceKey,
+  canRecordDreamRView,
   emptyDreamRSwipePreferences,
   nextSwipePreferences,
   personalizeFeedOrder,
@@ -58,5 +59,13 @@ describe('DreamR swipe personalization', () => {
     expect(shouldRecordDreamRView('left')).toBe(true);
     expect(shouldRecordDreamRView('up')).toBe(true);
     expect(shouldRecordDreamRView('right')).toBe(false);
+  });
+
+  it('dedupes native view recording and excludes YouTube cards', () => {
+    expect(canRecordDreamRView(post({ id: 'native' }), 'up', new Set())).toBe(true);
+    expect(canRecordDreamRView(post({ id: 'native' }), 'up', new Set(['native']))).toBe(false);
+    expect(canRecordDreamRView(post({ id: 'yt', provider: 'youtube' }), 'left', new Set())).toBe(false);
+    expect(canRecordDreamRView(post({ id: 'link', permalink: 'https://youtu.be/abc' }), 'left', new Set())).toBe(false);
+    expect(canRecordDreamRView(post({ id: 'native' }), 'right', new Set())).toBe(false);
   });
 });

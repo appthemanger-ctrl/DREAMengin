@@ -17,7 +17,9 @@ const DrEamsBabylonHero = dynamic(
   { ssr: false, loading: () => null },
 );
 
+// Slightly inset glow keeps the aura behind Dr. Eams instead of washing out the frame.
 const GLOW_SIZE_RATIO = 0.94;
+// Slow enough to feel ambient, not like a loading spinner.
 const ORBIT_DURATION_SECONDS = 7;
 
 export default function LandingHeroRobot() {

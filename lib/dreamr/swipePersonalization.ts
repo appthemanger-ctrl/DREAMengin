@@ -4,6 +4,7 @@ export interface DreamRSwipePost {
   media_url?: string | null;
   provider?: string | null;
   source?: string | null;
+  permalink?: string | null;
   profiles?: {
     handle?: string | null;
     display_name?: string | null;
@@ -21,8 +22,8 @@ export interface DreamRSwipePreferenceSets {
 export type DreamRSwipeIntent = 'more' | 'less';
 export type DreamRViewIntent = 'left' | 'up' | 'right';
 
-// Characters. A roughly two-sentence post stays "text"; beyond this, DreamR
-// treats it as longform so swipes can tune essays separately from quick notes.
+// JavaScript string characters, including spaces. A roughly two-sentence post
+// stays "text"; beyond this, swipes tune essays separately from quick notes.
 export const LONGFORM_CONTENT_THRESHOLD = 180;
 // Creator intent is weighted twice as strongly as broad content-type intent:
 // "more from this person" should outrank "more text/image/video" in the next stack.
@@ -40,7 +41,7 @@ export function emptyDreamRSwipePreferences(): DreamRSwipePreferenceSets {
 }
 
 export function creatorPreferenceKey(post: DreamRSwipePost): string {
-  return (post.profiles?.handle ?? post.profiles?.display_name ?? 'unknown-creator').trim().toLowerCase();
+  return (post.profiles?.handle ?? post.profiles?.display_name ?? 'anonymous').trim().toLowerCase();
 }
 
 export function contentTypePreferenceKey(post: DreamRSwipePost): string {
@@ -89,6 +90,16 @@ export function nextSwipePreferences(
 
 export function shouldRecordDreamRView(intent: DreamRViewIntent): boolean {
   return intent === 'left' || intent === 'up';
+}
+
+export function canRecordDreamRView(
+  post: DreamRSwipePost,
+  intent: DreamRViewIntent,
+  countedPostIds: ReadonlySet<string>,
+): boolean {
+  const provider = post.provider?.toLowerCase();
+  const isYouTube = provider === 'youtube' || !!post.permalink?.includes('youtu');
+  return shouldRecordDreamRView(intent) && !isYouTube && !countedPostIds.has(post.id);
 }
 
 export function personalizeFeedOrder<T>(

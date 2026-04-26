@@ -49,10 +49,10 @@ import type { UnifiedFeedItem } from '@/types/connector';
 import { resolveSwipeRelease } from '@/lib/dreamr/torridityLedger';
 import {
   contentTypePreferenceKey,
+  canRecordDreamRView,
   emptyDreamRSwipePreferences,
   nextSwipePreferences,
   personalizeFeedOrder,
-  shouldRecordDreamRView,
 } from '@/lib/dreamr/swipePersonalization';
 import DreamRCreatorPanel from '@/components/dreamr/dream.panel.DreamRCreatorPanel';
 import DreamRChannelPanel from '@/components/dreamr/dream.panel.DreamRChannelPanel';
@@ -876,7 +876,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   const recordDreamRView = useCallback((post: FeedPost, intent: 'left' | 'up') => {
     // Native DreamR posts use /api/posts/[id]/view; YouTube maintains its own
     // analytics inside the embedded provider/channel flow and does not hit it.
-    if (!shouldRecordDreamRView(intent) || isYouTube(post) || countedViewIdsRef.current.has(post.id)) return;
+    if (!canRecordDreamRView(post, intent, countedViewIdsRef.current)) return;
     countedViewIdsRef.current.add(post.id);
     fetch(`/api/posts/${post.id}/view`, { method: 'POST' }).catch(() => {});
   }, []);
