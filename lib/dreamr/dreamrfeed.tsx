@@ -71,8 +71,11 @@ const DR = {
   shadowDark:  'rgba(163,189,218,0.45)',
 } as const;
 
+// Match the shared view-counter contract: a post needs 3s of dwell to earn a view.
 const DWELL_VIEW_DELAY_MS = 3000;
+// Long enough to read once on mobile, short enough not to cover the next card.
 const REDISTRIBUTION_NOTICE_DURATION_MS = 4200;
+const RIGHT_SWIPE_SCROLL_BUFFER_CARDS = 2;
 
 function nmR(s = 5) { return `${-s}px ${-s}px ${s*2.4}px ${DR.shadowLight}, ${s}px ${s}px ${s*2.8}px ${DR.shadowDark}`; }
 function nmI(s = 4) { return `inset ${-s}px ${-s}px ${s*2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s*2.4}px ${DR.shadowDark}`; }
@@ -119,6 +122,10 @@ function fmtViews(n: number): string {
 
 function isImage(u?: string | null) { return !!u && /\.(jpe?g|png|gif|webp|avif|svg)(\?|$)/i.test(u); }
 function isYouTube(post: FeedPost) { return post.provider === 'youtube' || !!(post.permalink?.includes('youtu')); }
+
+function redistributionMessage(creator: string, type: string): string {
+  return `Showing you less ${type} from ${creator}; this card is recycled to someone more likely to swipe up or left before it earns a real view.`;
+}
 
 // ── Topic channels ─────────────────────────────────────────────────────────────
 // Featured top-10 topics for the DreamR channel strip (plus "All").
@@ -950,12 +957,12 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
     setSwipePrefs(prev => nextSwipePreferences(prev, post, 'less'));
     const creator = post.profiles?.display_name ?? post.profiles?.handle ?? 'that creator';
     const type = contentTypePreferenceKey(post);
-    setRedistributionNotice(`Showing you less ${type} from ${creator}; this card is recycled to someone more likely to swipe up or left before it earns a real view.`);
+    setRedistributionNotice(redistributionMessage(creator, type));
     window.setTimeout(() => setRedistributionNotice(null), REDISTRIBUTION_NOTICE_DURATION_MS);
     requestAnimationFrame(() => {
       const el = scrollRef.current;
       if (!el) return;
-      const next = Math.min(activeIdx, Math.max(0, personalizedFeedItems.length - 2));
+      const next = Math.min(activeIdx, Math.max(0, personalizedFeedItems.length - RIGHT_SWIPE_SCROLL_BUFFER_CARDS));
       el.scrollTo({ top: next * el.clientHeight, behavior: 'smooth' });
     });
   }, [activeIdx, personalizedFeedItems.length]);
