@@ -58,6 +58,8 @@ The following canonical elements are **fully modular** and pass the Universal Mo
 
 | Element | Drag wrapper | Transfer path |
 |---------|-------------|---------------|
+| `components/engines/shared/dream.EnginRuleSet.ts` | — (type only) | `EnginRuleSet` config interface — data-only, no visual element |
+| `components/engines/shared/dream.makeEnginApp.tsx` | Inherits from `EnginAppShell` (child) | Config-driven factory; wraps `EnginAppShell` which owns the shell structure. All 7 engine app files are now data-only rulesets — zero boilerplate duplication. |
 | `components/draggable/dream.DraggableModule.tsx` | Self (the wrapper) | `dualRuntimeBridge.emit('module','transfer',…)` |
 | `components/dreams/dreamsurface.window.tsx` (DreamWindowShell) | `useTapHoldMove` | `canTransfer` + `onTransfer` callback |
 | `components/universal-editor/dream.UniversalEditorWrapper.tsx` | `useTapHoldMove` | `onTransfer` callback → `moduleRegistry.transferModule` |
