@@ -2,9 +2,9 @@ name: DREAMengin CI/CD Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [completedream, develop]
   pull_request:
-    branches: [main, develop]
+    branches: [completedream, develop]
 
 env:
   NODE_VERSION: '24.x'
