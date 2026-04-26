@@ -48,7 +48,7 @@ import {
   parseSRT, parseVTT, computeCuts, applyEditsToSegments,
   exportSRT, searchTranscript, annotateSearchMatches,
 } from '@/lib/content/transcriptEditor';
-import { resolvePublishIntent } from '@/lib/content/publishIntent';
+import { publishToDreamR, resolvePublishIntent } from '@/lib/content/publishIntent';
 import { scoreContent } from '@/lib/content/seoScorer';
 import { parseBVH, clipSummary, retargetClip, exportBVH } from '@/lib/composite/motionCapture';
 import {
@@ -436,6 +436,12 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const [isBroadcasting, setIsBroadcasting] = useState(false);
   const broadcastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  useEffect(() => {
+    return () => {
+      if (broadcastTimerRef.current) clearTimeout(broadcastTimerRef.current);
+    };
+  }, []);
+
   function togglePlatform(p: string) {
     setSelectedPlatforms(prev => {
       const next = new Set(prev);
@@ -468,27 +474,12 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     const platforms = [...selectedPlatforms];
 
     try {
-      const res = await fetch('/api/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: publishText,
-          visibility: 'public',
-          post_visibility: 'public',
-        }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({})) as { error?: string };
-        throw new Error(err.error ?? 'Failed to publish to DreamR');
-      }
-
-      const payload = await res.json().catch(() => ({})) as { post?: { id?: string } };
-      const contentId = payload.post?.id ?? `post-${Date.now()}`;
-
-      bridge.emit('create', 'create:published', {
-        contentId,
-        platform: platforms.join(','),
+      await publishToDreamR({
+        content: publishText,
+        platforms,
+        onPublished: (payload) => {
+          bridge.emit('create', 'create:published', payload);
+        },
       });
       forgeRecord('Published to DreamR');
       recordForgeTransfer('create', 'brand', 'published-content', `Content published → ${platforms.join(', ')}`);

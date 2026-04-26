@@ -841,22 +841,21 @@ export default function DreamRSection({ profile, initialPosts, onOpenUrl }: Drea
         </div>
       </div>
 
+      {userId && <DreamRCore sharerId={userId} />}
+
       {/* ── Tab content ─────────────────────────────────────────────────── */}
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
 
         {/* Feed — full-height snap scroll */}
         <div style={{ position: 'absolute', inset: 0, display: tab === 'feed' ? 'block' : 'none' }}>
           {userId ? (
-            <>
-              <DreamRCore sharerId={userId} />
-              <DreamRFeed
-                userId={userId}
-                userHandle={profile?.handle ?? ''}
-                userAvatar={profile?.avatar_url ?? null}
-                userDisplayName={profile?.display_name ?? profile?.handle ?? ''}
-                initialPosts={initialPosts}
-              />
-            </>
+            <DreamRFeed
+              userId={userId}
+              userHandle={profile?.handle ?? ''}
+              userAvatar={profile?.avatar_url ?? null}
+              userDisplayName={profile?.display_name ?? profile?.handle ?? ''}
+              initialPosts={initialPosts}
+            />
           ) : (
             <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: DR.textDim, fontSize: 13 }}>
               Sign in to see your DreamR feed
