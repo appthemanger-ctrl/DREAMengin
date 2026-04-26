@@ -2,7 +2,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Search, Users } from 'lucide-react';
+import { ArrowLeft, Radio, Search, Users } from 'lucide-react';
 import { connection } from 'next/server';
 
 export const metadata = {
@@ -206,6 +206,56 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
               ))}
             </div>
           </div>
+        )}
+
+        {/* ── DreamR direct surface ───────────────────────────────────────── */}
+        {(!q || q.trim().length === 0) && (
+          <Link
+            href="/dreamr"
+            className="de-widget block"
+            aria-label="Open DreamR human media platform"
+            style={{
+              textDecoration: 'none',
+              overflow: 'hidden',
+              border: '1px solid rgba(91,168,212,0.32)',
+              background:
+                'radial-gradient(circle at 12% 20%, rgba(91,168,212,0.22), transparent 32%), rgba(255,255,255,0.72)',
+            }}
+          >
+            <div className="de-widget-body" style={{ padding: 16, display: 'flex', gap: 14, alignItems: 'center' }}>
+              <div
+                aria-hidden="true"
+                style={{
+                  width: 52,
+                  height: 52,
+                  borderRadius: 18,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: 'linear-gradient(135deg,#5ba8d4,#c8981a)',
+                  boxShadow: '0 10px 30px rgba(91,168,212,0.28)',
+                  color: 'white',
+                  flexShrink: 0,
+                }}
+              >
+                <Radio className="w-6 h-6" />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="text-xs font-bold tracking-[0.18em] uppercase" style={{ color: 'rgba(91,168,212,0.95)' }}>
+                  DreamR is live
+                </div>
+                <div className="text-lg font-black" style={{ color: 'var(--de-heading)', lineHeight: 1.1 }}>
+                  Open the human media feed
+                </div>
+                <div className="text-xs" style={{ color: 'var(--de-text-dim)', marginTop: 4, lineHeight: 1.45 }}>
+                  Ranked feed, creator panels, publishing, platform signal, and journey — now reachable as a real page.
+                </div>
+              </div>
+              <span className="text-xs font-bold" style={{ color: 'var(--de-gold)', flexShrink: 0 }}>
+                Enter →
+              </span>
+            </div>
+          </Link>
         )}
 
         {/* ── Search form ──────────────────────────────────────────────────── */}
