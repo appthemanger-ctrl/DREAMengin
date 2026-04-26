@@ -27,7 +27,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createLocalChannel, type RuntimeChannel, type RuntimeChannelEvent } from '@/lib/runtime/runtimeChannel';
-import { useInstanceManager } from '@/lib/runtime/instanceManager';
+import { buildInstanceKey, promoteInstanceToRealtime, useInstanceManager } from '@/lib/runtime/instanceManager';
 import type { EnginName } from '@/lib/runtime/instanceManager';
 import type { RuntimeId } from '@/types/module-manifest';
 
@@ -99,6 +99,14 @@ export function useSharedEnginChannel<T extends RuntimeChannelEvent = RuntimeCha
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enginName, instanceId, region]);
+
+  useEffect(() => {
+    if (mode !== 'coop') return;
+    const key = buildInstanceKey(enginName, instanceId);
+    const instance = useInstanceManager.getState().instances[key];
+    if (instance?.channel.kind === 'realtime') return;
+    void promoteInstanceToRealtime(key);
+  }, [enginName, instanceId, mode]);
 
   // ── Re-sync channelRef when manager promotes an instance to co-op ─────────
 

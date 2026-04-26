@@ -9,14 +9,6 @@
  * Works with native HTML5 drag-and-drop AND custom module transfer payloads
  * from DraggableModule/useTapHoldMove.
  *
- * Usage:
- *   const { dragProps, isOver, lastDrop } = useDragSurface({
- *     region: 'homedream',
- *     accepts: ['image', 'video', 'url'],
- *     onDrop: (drop) => { ... },
- *   });
- *   return <div {...dragProps} className={isOver ? 'ring-2 ring-violet-500' : ''} />;
- *
  * Architecture: docs/ARCHITECTURE.md §6 (Pass 6 — Universal drag/drop).
  */
 
@@ -25,8 +17,6 @@ import { coerceDataTransfer } from '@/lib/runtime/coercionTable';
 import { dropTargetRegistry } from '@/lib/runtime/dropTargetRegistry';
 import type { DreamDrop, DreamDropType } from '@/lib/runtime/coercionTable';
 import type { RuntimeId } from '@/types/module-manifest';
-
-// ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface UseDragSurfaceOptions {
   /** The runtime region this surface belongs to. */
@@ -39,6 +29,8 @@ export interface UseDragSurfaceOptions {
   id?: string;
   /** Called when a coerced drop is routed here. */
   onDrop?: (drop: DreamDrop) => void;
+  /** Called when a native drop is valid but no registered target consumes it. */
+  onUnhandledDrop?: (drop: DreamDrop) => void;
 }
 
 export interface UseDragSurfaceResult {
@@ -55,19 +47,18 @@ export interface UseDragSurfaceResult {
   lastDrop: DreamDrop | null;
 }
 
-// ── Hook ──────────────────────────────────────────────────────────────────────
-
 export function useDragSurface({
   region,
   accepts = [],
   priority = 0,
   id,
   onDrop,
+  onUnhandledDrop,
 }: UseDragSurfaceOptions): UseDragSurfaceResult {
-  const [isOver,    setIsOver]    = useState(false);
-  const [lastDrop,  setLastDrop]  = useState<DreamDrop | null>(null);
+  const [isOver, setIsOver] = useState(false);
+  const [lastDrop, setLastDrop] = useState<DreamDrop | null>(null);
   const targetId = useRef(id ?? `drag-surface:${region}:${Math.random().toString(36).slice(2)}`);
-  const enterCount = useRef(0); // track nested dragenter/dragleave pairs
+  const enterCount = useRef(0);
 
   const handleDrop = useCallback(
     (drop: DreamDrop) => {
@@ -79,21 +70,16 @@ export function useDragSurface({
     [onDrop],
   );
 
-  // ── Register / unregister with the global registry ────────────────────────
-
   useEffect(() => {
     dropTargetRegistry.register({
-      id:       targetId.current,
+      id: targetId.current,
       region,
       accepts,
       priority,
-      onDrop:   handleDrop,
+      onDrop: handleDrop,
     });
     return () => dropTargetRegistry.unregister(targetId.current);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [region, priority, handleDrop]);
-
-  // ── Native HTML5 drag event handlers ──────────────────────────────────────
 
   const onDragOver: React.DragEventHandler = useCallback((e) => {
     e.preventDefault();
@@ -106,7 +92,7 @@ export function useDragSurface({
     setIsOver(true);
   }, []);
 
-  const onDragLeave: React.DragEventHandler = useCallback((_e) => {
+  const onDragLeave: React.DragEventHandler = useCallback(() => {
     enterCount.current--;
     if (enterCount.current <= 0) {
       enterCount.current = 0;
@@ -118,13 +104,24 @@ export function useDragSurface({
     (e) => {
       e.preventDefault();
       const drop = coerceDataTransfer(e.dataTransfer);
+      const accepted = accepts.length === 0 || accepts.includes(drop.type);
+      if (!accepted) {
+        setIsOver(false);
+        return;
+      }
 
-      // Check accepts filter before calling handler.
-      if (accepts.length === 0 || accepts.includes(drop.type)) {
-        handleDrop(drop);
+      const routed = dropTargetRegistry.route(drop, region);
+      setIsOver(false);
+      enterCount.current = 0;
+      if (!routed) {
+        if (onUnhandledDrop) {
+          onUnhandledDrop(drop);
+        } else {
+          handleDrop(drop);
+        }
       }
     },
-    [accepts, handleDrop],
+    [accepts, handleDrop, onUnhandledDrop, region],
   );
 
   return {
