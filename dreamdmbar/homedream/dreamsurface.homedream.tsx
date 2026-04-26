@@ -100,7 +100,7 @@ export default function HomeDreamSurface({
   // Always navigate via Next.js router — the DreamDMBar persists across routes
   // in layout.tsx so router.push IS the depth-navigation model the docs specify.
   // Never use onOpenUrl (iframe approach) — iframes cause blank pages.
-  const openPage = (url: string) => {
+  const openPage = (url: string, _label?: string) => {
     router.push(url);
   };
 
