@@ -48,6 +48,7 @@ import {
   parseSRT, parseVTT, computeCuts, applyEditsToSegments,
   exportSRT, searchTranscript, annotateSearchMatches,
 } from '@/lib/content/transcriptEditor';
+import { resolvePublishIntent } from '@/lib/content/publishIntent';
 import { scoreContent } from '@/lib/content/seoScorer';
 import { parseBVH, clipSummary, retargetClip, exportBVH } from '@/lib/composite/motionCapture';
 import {
@@ -432,6 +433,8 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   // ── Cross-Platform Targets ──
   const [selectedPlatforms, setSelectedPlatforms] = useState<Set<string>>(new Set());
   const [broadcastMsg, setBroadcastMsg] = useState('');
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const broadcastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   function togglePlatform(p: string) {
     setSelectedPlatforms(prev => {
@@ -441,15 +444,62 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     });
   }
 
-  function broadcast() {
+  async function broadcast() {
     if (selectedPlatforms.size === 0) return;
-    bridge.emit('create', 'create:published', {
-      contentId: 'draft-' + Date.now(),
-      platform: [...selectedPlatforms].join(','),
+
+    const publishText = resolvePublishIntent({
+      draft,
+      captionResult,
+      videoTitle,
+      draftTopic,
+      captionTopic,
+      hookTopic,
+      seoInput,
     });
-    recordForgeTransfer('create', 'brand', 'published-content', `Content published → ${[...selectedPlatforms].join(', ')}`);
-    setBroadcastMsg(`Broadcast sent to ${selectedPlatforms.size} platform${selectedPlatforms.size > 1 ? 's' : ''}`);
-    setTimeout(() => setBroadcastMsg(''), 3000);
+
+    if (!publishText) {
+      setBroadcastMsg('⚠️ Add draft text, a caption, or a title before broadcasting.');
+      if (broadcastTimerRef.current) clearTimeout(broadcastTimerRef.current);
+      broadcastTimerRef.current = setTimeout(() => setBroadcastMsg(''), 4000);
+      return;
+    }
+
+    setIsBroadcasting(true);
+    const platforms = [...selectedPlatforms];
+
+    try {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          content: publishText,
+          visibility: 'public',
+          post_visibility: 'public',
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(err.error ?? 'Failed to publish to DreamR');
+      }
+
+      const payload = await res.json().catch(() => ({})) as { post?: { id?: string } };
+      const contentId = payload.post?.id ?? `post-${Date.now()}`;
+
+      bridge.emit('create', 'create:published', {
+        contentId,
+        platform: platforms.join(','),
+      });
+      forgeRecord('Published to DreamR');
+      recordForgeTransfer('create', 'brand', 'published-content', `Content published → ${platforms.join(', ')}`);
+      setBroadcastMsg(`Published to DreamR and broadcast to ${platforms.length} target${platforms.length === 1 ? '' : 's'}.`);
+    } catch (err) {
+      setBroadcastMsg(`⚠️ ${err instanceof Error ? err.message : 'Broadcast failed'}`);
+    } finally {
+      setIsBroadcasting(false);
+      if (broadcastTimerRef.current) clearTimeout(broadcastTimerRef.current);
+      broadcastTimerRef.current = setTimeout(() => setBroadcastMsg(''), 4000);
+    }
   }
 
   // ── Media Vault Link — no state needed ─────────────────────────────────────
@@ -2923,18 +2973,18 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               <button
                 type="button"
                 onClick={broadcast}
-                disabled={selectedPlatforms.size === 0}
+                disabled={selectedPlatforms.size === 0 || isBroadcasting}
                 style={{
                   ...btnBase,
-                  background: selectedPlatforms.size > 0 ? ACCENT : 'rgba(160,195,240,0.2)',
-                  color: selectedPlatforms.size > 0 ? 'white' : 'var(--de-text-dim)',
+                  background: selectedPlatforms.size > 0 && !isBroadcasting ? ACCENT : 'rgba(160,195,240,0.2)',
+                  color: selectedPlatforms.size > 0 && !isBroadcasting ? 'white' : 'var(--de-text-dim)',
                   padding: '7px 20px', fontSize: 13,
-                  opacity: selectedPlatforms.size === 0 ? 0.5 : 1,
-                  cursor: selectedPlatforms.size === 0 ? 'not-allowed' : 'pointer',
+                  opacity: selectedPlatforms.size === 0 || isBroadcasting ? 0.5 : 1,
+                  cursor: selectedPlatforms.size === 0 || isBroadcasting ? 'not-allowed' : 'pointer',
                 }}
-              >Broadcast</button>
+              >{isBroadcasting ? 'Publishing…' : 'Broadcast'}</button>
               {broadcastMsg && (
-                <span style={{ fontSize: 12, fontWeight: 600, color: '#16a34a' }}>{broadcastMsg}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: broadcastMsg.startsWith('⚠️') ? '#ef4444' : '#16a34a' }}>{broadcastMsg}</span>
               )}
             </div>
           </div>

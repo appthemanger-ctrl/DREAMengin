@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import DreamRFeed from '@/lib/dreamr/dreamrfeed';
+import DreamRCore from '@/dreamdmbar/homedream/dreamr/dream.DreamRCore';
 import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
 import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
 import { createClient } from '@/lib/supabase/client';
@@ -846,13 +847,16 @@ export default function DreamRSection({ profile, initialPosts, onOpenUrl }: Drea
         {/* Feed — full-height snap scroll */}
         <div style={{ position: 'absolute', inset: 0, display: tab === 'feed' ? 'block' : 'none' }}>
           {userId ? (
-            <DreamRFeed
-              userId={userId}
-              userHandle={profile?.handle ?? ''}
-              userAvatar={profile?.avatar_url ?? null}
-              userDisplayName={profile?.display_name ?? profile?.handle ?? ''}
-              initialPosts={initialPosts}
-            />
+            <>
+              <DreamRCore sharerId={userId} />
+              <DreamRFeed
+                userId={userId}
+                userHandle={profile?.handle ?? ''}
+                userAvatar={profile?.avatar_url ?? null}
+                userDisplayName={profile?.display_name ?? profile?.handle ?? ''}
+                initialPosts={initialPosts}
+              />
+            </>
           ) : (
             <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: DR.textDim, fontSize: 13 }}>
               Sign in to see your DreamR feed
