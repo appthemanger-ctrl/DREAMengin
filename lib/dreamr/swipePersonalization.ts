@@ -27,7 +27,7 @@ export const LONGFORM_CONTENT_THRESHOLD = 180;
 // Creator intent is weighted twice as strongly as broad content-type intent:
 // "more from this person" should outrank "more text/image/video" in the next stack.
 export const CREATOR_PREFERENCE_WEIGHT = 8;
-export const TYPE_PREFERENCE_WEIGHT = CREATOR_PREFERENCE_WEIGHT / 2;
+export const TYPE_PREFERENCE_WEIGHT = 4;
 
 export function emptyDreamRSwipePreferences(): DreamRSwipePreferenceSets {
   return {
@@ -40,7 +40,7 @@ export function emptyDreamRSwipePreferences(): DreamRSwipePreferenceSets {
 }
 
 export function creatorPreferenceKey(post: DreamRSwipePost): string {
-  return (post.profiles?.handle ?? post.profiles?.display_name ?? 'unknown').trim().toLowerCase();
+  return (post.profiles?.handle ?? post.profiles?.display_name ?? `post:${post.id}`).trim().toLowerCase();
 }
 
 export function contentTypePreferenceKey(post: DreamRSwipePost): string {

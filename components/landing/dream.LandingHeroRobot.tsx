@@ -66,7 +66,7 @@ export default function LandingHeroRobot() {
           background: 'linear-gradient(90deg, rgba(6,12,24,0.84), rgba(20,38,68,0.72))',
         }}
       >
-        <span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_14px_rgba(103,232,249,0.9)]" />
+        <span aria-hidden="true" className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_14px_rgba(103,232,249,0.9)]" />
         Dr. Eams online
       </div>
       <p
