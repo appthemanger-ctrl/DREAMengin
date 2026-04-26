@@ -17,6 +17,7 @@ import {
   hasCartridgeMagic,
   validateManifest,
 } from '@/lib/gameengin/cartridge-manifest';
+import { parseDreamrArchive } from '@/lib/gameengin/cartridgeLoader';
 import {
   BRAIN_ROOT,
   listMechanics,
@@ -113,6 +114,40 @@ describe('GameEngin spec — TAR + magic bytes (§1.1, §5.5)', () => {
     const buf = new Uint8Array([...CARTRIDGE_MAGIC, 0x00, 0x01]);
     expect(hasCartridgeMagic(buf)).toBe(true);
     expect(hasCartridgeMagic(new Uint8Array([0, 0, 0, 0]))).toBe(false);
+  });
+
+  it('parses a DRMR-prefixed cartridge through the canonical loader', () => {
+    const manifest = {
+      dreamr_version: 1,
+      cartridge_id: 'unit-test-cart',
+      title: 'Unit Test Cart',
+      author: 'DREAMengin',
+      version: '1.0.0',
+      entry: 'logic/main.wasm',
+      render_mode: 'webgpu',
+      permissions: ['gamepad'],
+      min_quality_tier: 'low',
+      target_frame_rate: 60,
+      memory_budget_mb: 64,
+      save_schema_version: 1,
+      dependencies: { gameengin_runtime: '^1.0.0' },
+      metadata: {
+        genre: ['test'],
+        estimated_playtime_minutes: 1,
+        player_count: [1],
+        tags: ['unit'],
+      },
+    };
+    const tar = packTar([
+      {
+        name: 'MANIFEST.json',
+        data: new TextEncoder().encode(JSON.stringify(manifest)),
+      },
+      { name: 'logic/main.wasm', data: new Uint8Array([0, 97, 115, 109]) },
+    ]);
+    const archive = parseDreamrArchive(new Uint8Array([...CARTRIDGE_MAGIC, ...tar]));
+    expect(archive.manifest.cartridge_id).toBe('unit-test-cart');
+    expect(archive.getFile('logic/main.wasm')).toEqual(new Uint8Array([0, 97, 115, 109]));
   });
 });
 

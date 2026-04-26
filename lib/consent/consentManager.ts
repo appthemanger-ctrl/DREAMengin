@@ -71,6 +71,26 @@ export function resolveAcceptPolicy(
 const LS_KEY = 'dream:consent';
 const SETTINGS_LS_KEY = 'dream:settings';
 
+type ConsentRow = {
+  domain: ConsentDomain;
+  decision: ConsentDecision;
+  decided_at: string;
+  session_id: string | null;
+};
+
+type ConsentSupabaseClient = {
+  from: (table: 'dream_consent' | 'dream_settings' | 'dream_audit_log') => {
+    select: (columns?: string) => {
+      eq: (column: string, value: unknown) => Promise<{ data: ConsentRow[] | null }>;
+    };
+    upsert: (
+      values: Array<Record<string, unknown>>,
+      options: { onConflict: string },
+    ) => Promise<unknown>;
+    insert: (values: Array<Record<string, unknown>>) => Promise<unknown>;
+  };
+};
+
 export class ConsentManager {
   private readonly _cache = new Map<ConsentDomain, ConsentEntry>();
   private readonly _auditLog: AuditEntry[] = [];
@@ -188,7 +208,8 @@ export class ConsentManager {
     try {
       const { createClient } = await import('@/lib/supabase/client');
       const supabase = createClient();
-      const { data } = await (supabase as any)
+      const db = supabase as unknown as ConsentSupabaseClient;
+      const { data } = await db
         .from('dream_consent')
         .select('domain, decision, decided_at, session_id')
         .eq('user_id', userId);
@@ -211,6 +232,7 @@ export class ConsentManager {
     try {
       const { createClient } = await import('@/lib/supabase/client');
       const supabase = createClient();
+      const db = supabase as unknown as ConsentSupabaseClient;
       const entries = this.getAllEntries().map((entry) => ({
         user_id: userId,
         domain: entry.domain,
@@ -219,7 +241,7 @@ export class ConsentManager {
         session_id: entry.sessionId ?? null,
       }));
       if (entries.length > 0) {
-        await (supabase as any)
+        await db
           .from('dream_consent')
           .upsert(entries, { onConflict: 'user_id,domain' });
       }
@@ -231,7 +253,7 @@ export class ConsentManager {
         updated_at: new Date().toISOString(),
       }));
       if (settings.length > 0) {
-        await (supabase as any)
+        await db
           .from('dream_settings')
           .upsert(settings, { onConflict: 'user_id,key' });
       }
@@ -246,7 +268,7 @@ export class ConsentManager {
         created_at: entry.timestamp,
       }));
       if (auditRows.length > 0) {
-        await (supabase as any).from('dream_audit_log').insert(auditRows);
+        await db.from('dream_audit_log').insert(auditRows);
       }
     } catch {
       this._persistToLocalStorage();

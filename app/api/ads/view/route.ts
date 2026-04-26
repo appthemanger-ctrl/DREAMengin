@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { qualifiesForPremiumCPV } from '@/lib/activity/aqs';
 import type {
+  AdView,
   TrackAdViewRequest,
   TrackAdViewResponse,
 } from '@/lib/activity/types';
@@ -15,8 +16,34 @@ import { CPV_PRICING, CPVTier } from '@/lib/activity/types';
 import { calculateActivityRevenueSplit } from '@/lib/activity/revenueSplit';
 import { calculateSkipCreditsEarned } from '@/lib/activity/skipCredits';
 
+type ActivitySupabaseClient = {
+  rpc: (
+    name: 'verify_ad_view',
+    args: { p_ad_id: string; p_viewer_id: string; p_watched_pct: number },
+  ) => Promise<{ data: boolean | null }>;
+  from: (table: string) => {
+    select: (columns?: string) => {
+      eq: (column: string, value: unknown) => {
+        single: () => Promise<{ data: Record<string, unknown> | null }>;
+      };
+    };
+    insert: (values: Record<string, unknown>) => {
+      select: () => {
+        single: () => Promise<{
+          data: Record<string, unknown> | null;
+          error: { message?: string } | null;
+        }>;
+      };
+    };
+    update: (values: Record<string, unknown>) => {
+      eq: (column: string, value: unknown) => Promise<{ error?: { message?: string } | null }>;
+    };
+  };
+};
+
 export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
+  const db = supabase as unknown as ActivitySupabaseClient;
 
   // Auth required
   const {
@@ -40,7 +67,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify ad view using database function
-    const { data: verified } = await (supabase as any).rpc('verify_ad_view', {
+    const { data: verified } = await db.rpc('verify_ad_view', {
       p_ad_id: ad_id,
       p_viewer_id: user.id,
       p_watched_pct: watched_pct,
@@ -63,18 +90,18 @@ export async function POST(req: NextRequest) {
 
     let creatorId: string | null = null;
     if (post_id) {
-      const { data: post } = await (supabase as any)
+      const { data: post } = await db
         .from('app_posts')
         .select('user_id')
         .eq('id', post_id)
         .single();
-      creatorId = post?.user_id ?? null;
+      creatorId = typeof post?.user_id === 'string' ? post.user_id : null;
     }
 
     const split = calculateActivityRevenueSplit(cpvAmount);
 
     // Record ad view
-    const { data: adView, error: adViewError } = await (supabase as any)
+    const { data: adView, error: adViewError } = await db
       .from('ad_views')
       .insert({
         ad_id,
@@ -95,7 +122,7 @@ export async function POST(req: NextRequest) {
       .select()
       .single();
 
-    if (adViewError) {
+    if (adViewError || !adView) {
       console.error('[TrackAdView] Error:', adViewError);
       return NextResponse.json(
         { error: 'Failed to track ad view' },
@@ -111,24 +138,25 @@ export async function POST(req: NextRequest) {
 
     if (creditsEarned > 0) {
       const now = new Date().toISOString();
-      const { data: currentCredits } = await (supabase as any)
+      const { data: currentCredits } = await db
         .from('skip_credits')
         .select('credits_balance, earned_total')
         .eq('user_id', user.id)
         .single();
 
       if (currentCredits) {
-        await (supabase as any)
+        await db
           .from('skip_credits')
           .update({
-            credits_balance: (currentCredits.credits_balance ?? 0) + creditsEarned,
-            earned_total: (currentCredits.earned_total ?? 0) + creditsEarned,
+            credits_balance:
+              Number(currentCredits.credits_balance ?? 0) + creditsEarned,
+            earned_total: Number(currentCredits.earned_total ?? 0) + creditsEarned,
             last_earned_at: now,
             updated_at: now,
           })
           .eq('user_id', user.id);
       } else {
-        await (supabase as any)
+        await db
           .from('skip_credits')
           .insert({
             user_id: user.id,
@@ -139,14 +167,15 @@ export async function POST(req: NextRequest) {
           });
       }
 
-      await (supabase as any)
+      await db
         .from('ad_views')
         .update({ skip_credits_awarded: true })
         .eq('id', adView.id);
     }
 
+    const trackedAdView = adView as unknown as AdView;
     const response: TrackAdViewResponse = {
-      ad_view: adView,
+      ad_view: trackedAdView,
       verified: verified ?? false,
       credits_earned: creditsEarned,
       revenue_split: {

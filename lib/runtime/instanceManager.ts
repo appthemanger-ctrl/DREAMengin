@@ -223,7 +223,15 @@ export async function persistInstanceList(userId: string): Promise<void> {
   try {
     const { createClient } = await import('@/lib/supabase/client');
     const supabase = createClient();
-    await (supabase as any).from('engin_instances').upsert(
+    const db = supabase as unknown as {
+      from: (table: 'engin_instances') => {
+        upsert: (
+          values: Array<Record<string, unknown>>,
+          options: { onConflict: string },
+        ) => Promise<unknown>;
+      };
+    };
+    await db.from('engin_instances').upsert(
       rows.map((row) => ({
         owner_id: userId,
         instance_key: row.key,
