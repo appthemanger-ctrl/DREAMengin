@@ -50,7 +50,7 @@ export const CORE_SURFACE_ROUTES = {
 
 /** Legacy and support routes — valid as redirects and support targets only, never as canonical product surface names */
 export const LEGACY_ROUTES = {
-  /** Support route for HomeDream — redirects to canonical /homedream */
+  /** /home renders the HomeDream surface (DreamBarDataBridge) — aliases the canonical /homedream route */
   HOME: '/home',
   /** Support route for EditProfileDream — redirects to canonical /edit-profiledream */
   EDIT_PROFILE: '/edit-profile',

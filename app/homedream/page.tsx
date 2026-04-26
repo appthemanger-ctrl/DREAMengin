@@ -10,7 +10,7 @@ import { connection } from 'next/server';
 
 const DEV_BYPASS_USER_ID = 'dev-bypass-user';
 
-export default async function Home() {
+export default async function HomeDream() {
   await connection();
 
   // ── Step 1: Auth check ────────────────────────────────────────────────────

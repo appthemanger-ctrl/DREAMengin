@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-26T20:23:16.529Z",
+  "generated_at": "2026-04-26T21:05:45.681Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 120,
+  "count": 121,
   "surfaces": [
     {
       "type": "page",
@@ -139,6 +139,10 @@
       "component": "BrandDaydreamPage",
       "imports": [
         {
+          "name": "BrandingEngin",
+          "from": "@/engins/engin.BrandingEngin"
+        },
+        {
           "name": "BrandDaydream",
           "from": "@/components/daydream/dreamsurface.daydream.BrandDaydream"
         },
@@ -161,6 +165,10 @@
       "file": "app/daydream/code/page.tsx",
       "component": "CodeDaydreamPage",
       "imports": [
+        {
+          "name": "CodeEngin",
+          "from": "@/engins/engin.CodeEngin"
+        },
         {
           "name": "OpenDaydreamSideBButton",
           "from": "@/components/daydream/dream.OpenDaydreamSideBButton"
@@ -197,6 +205,10 @@
       "component": "CreateDaydreamPage",
       "imports": [
         {
+          "name": "ContentEngin",
+          "from": "@/engins/engin.ContentEngin"
+        },
+        {
           "name": "OpenDaydreamSideBButton",
           "from": "@/components/daydream/dream.OpenDaydreamSideBButton"
         },
@@ -232,6 +244,10 @@
       "component": "ForgeDaydreamPage",
       "imports": [
         {
+          "name": "ForgeEngin",
+          "from": "@/engins/engin.ForgeEngin"
+        },
+        {
           "name": "ForgeMomentumWidget",
           "from": "@/components/forge/dream.widget.ForgeMomentumWidget"
         },
@@ -261,6 +277,10 @@
         {
           "name": "OpenDaydreamSideBButton",
           "from": "@/components/daydream/dream.OpenDaydreamSideBButton"
+        },
+        {
+          "name": "AutoOpenGameEngin",
+          "from": "@/engins/autoopen/dream.AutoOpenGameEngin"
         },
         {
           "name": "AuthenticatedPageHeader",
@@ -303,7 +323,12 @@
       "path": "/daydream/lab/portfolio",
       "file": "app/daydream/lab/portfolio/page.tsx",
       "component": "OptimizeroPage",
-      "imports": []
+      "imports": [
+        {
+          "name": "PortfolioEngin",
+          "from": "@/engins/portfolio/engin.PortfolioEngin"
+        }
+      ]
     },
     {
       "type": "page",
@@ -362,6 +387,22 @@
       "file": "app/dreamengin/page.tsx",
       "component": "DreamenginLegacyPage",
       "imports": []
+    },
+    {
+      "type": "page",
+      "path": "/dreamr",
+      "file": "app/dreamr/page.tsx",
+      "component": "DreamRPage",
+      "imports": [
+        {
+          "name": "AuthenticatedPageHeader",
+          "from": "@/components/ui/dream.AuthenticatedPageHeader"
+        },
+        {
+          "name": "DreamRSection",
+          "from": "@/dreamdmbar/homedream/dreamr/dreamsurface.dreamr"
+        }
+      ]
     },
     {
       "type": "page",
@@ -895,8 +936,13 @@
       "type": "page",
       "path": "/homedream",
       "file": "app/homedream/page.tsx",
-      "component": "Home",
-      "imports": []
+      "component": "HomeDream",
+      "imports": [
+        {
+          "name": "DreamBarDataBridge",
+          "from": "@/dreamdmbar/homedream/dream.homedream.HomeSystem"
+        }
+      ]
     },
     {
       "type": "page",
