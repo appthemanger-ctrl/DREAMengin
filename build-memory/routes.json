@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-26T12:08:51.451Z",
+  "generated_at": "2026-04-26T13:06:00.696Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 105,
+  "count": 107,
   "routes": [
     {
       "path": "/api/account/delete-data",
@@ -228,6 +228,13 @@
       ]
     },
     {
+      "path": "/api/connectors/cron",
+      "file": "app/api/connectors/cron/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
       "path": "/api/connectors/instagram/oauth/callback",
       "file": "app/api/connectors/instagram/oauth/callback/route.ts",
       "methods": [
@@ -246,6 +253,14 @@
       "file": "app/api/connectors/status/route.ts",
       "methods": [
         "GET"
+      ]
+    },
+    {
+      "path": "/api/connectors/webhooks/[provider]",
+      "file": "app/api/connectors/webhooks/[provider]/route.ts",
+      "methods": [
+        "GET",
+        "POST"
       ]
     },
     {

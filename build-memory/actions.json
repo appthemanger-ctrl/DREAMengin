@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-26T12:08:51.451Z",
+  "generated_at": "2026-04-26T13:06:00.696Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 106,
+  "count": 108,
   "actions": [
     {
       "file": "app/actions/dream-docs.ts",
@@ -270,6 +270,14 @@
       "exports": []
     },
     {
+      "file": "app/api/connectors/cron/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
+      ],
+      "exports": []
+    },
+    {
       "file": "app/api/connectors/instagram/oauth/callback/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
@@ -290,6 +298,15 @@
       "type": "api-route-handler",
       "http_handlers": [
         "GET"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/connectors/webhooks/[provider]/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET",
+        "POST"
       ],
       "exports": []
     },
