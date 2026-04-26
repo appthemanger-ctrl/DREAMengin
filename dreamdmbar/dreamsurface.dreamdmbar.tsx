@@ -1959,7 +1959,6 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
         onTouchStart={handleBarTouchStart}
         onTouchMove={handleBarTouchMove}
         onTouchEnd={handleBarTouchEnd}
-        onDoubleClick={onSwapRuntimes}
         style={(() => {
           // ── Structural geometry ─────────────────────────────────────────────
           // Particle mode: 12px circle at pointer position, detached from layout flow
