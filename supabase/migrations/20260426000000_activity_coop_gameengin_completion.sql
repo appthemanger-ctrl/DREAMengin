@@ -16,11 +16,15 @@ returns table (platform_share numeric, creator_share numeric, reward_pool_share 
 language sql
 immutable
 as $$
-  with split as (
+  with normalized as (
+    select round(greatest(coalesce(p_gross, 0), 0), 2) as gross
+  ),
+  split as (
     select
-      round(greatest(coalesce(p_gross, 0), 0), 2) as gross,
-      round(greatest(coalesce(p_gross, 0), 0) * 0.30, 2) as platform,
-      round(greatest(coalesce(p_gross, 0), 0) * 0.50, 2) as creator
+      gross,
+      round(gross * 0.30, 2) as platform,
+      round(gross * 0.50, 2) as creator
+    from normalized
   )
   select
     platform,

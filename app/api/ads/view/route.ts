@@ -141,7 +141,7 @@ export async function POST(req: NextRequest) {
       if (!adViewId) {
         return NextResponse.json(
           {
-            error: 'Tracked ad view is missing an id',
+            error: 'Failed to retrieve ad view ID after insert',
             revenue_split: {
               platformShare: split.platformShare,
               creatorShare: split.creatorShare,

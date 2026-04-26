@@ -22,7 +22,7 @@ export function calculateActivityRevenueSplit(
   grossRevenue: number,
 ): ActivityRevenueSplit {
   const safeGross = Number.isFinite(grossRevenue) && grossRevenue > 0
-    ? grossRevenue
+    ? roundCurrency(grossRevenue)
     : 0;
 
   const platformShare = roundCurrency(safeGross * ACTIVITY_REVENUE_SPLIT.platform);
@@ -32,7 +32,7 @@ export function calculateActivityRevenueSplit(
   );
 
   return {
-    grossRevenue: roundCurrency(safeGross),
+    grossRevenue: safeGross,
     platformShare,
     creatorShare,
     rewardPoolShare,
