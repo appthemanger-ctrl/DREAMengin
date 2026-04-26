@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import Image from "next/image";
 import {
   ChevronLeft,
   ChevronRight,
@@ -165,9 +166,9 @@ export default function ProfileSpace({
         </div>
 
         <div className="px-4 pb-3 flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex-shrink-0">
+          <div className="relative w-12 h-12 rounded-full overflow-hidden bg-muted flex-shrink-0">
             {avatarUrl ? (
-              <img src={avatarUrl} alt={displayName || handle} className="w-full h-full object-cover" />
+              <Image src={avatarUrl} alt={displayName || handle} fill unoptimized className="object-cover" />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-primary/10">
                 <User className="w-6 h-6 text-primary" />
@@ -419,9 +420,9 @@ function GalleryWidget({ content, config }: { content: ContentObject[]; config: 
       style={layout === "grid" ? { gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` } : undefined}
     >
       {content.map((item) => (
-        <div key={item.id} className="aspect-square rounded-lg overflow-hidden bg-muted">
+        <div key={item.id} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
           {item.type === "image" && item.storage_url ? (
-            <img src={item.storage_url} alt={item.title || ""} className="w-full h-full object-cover" />
+            <Image src={item.storage_url} alt={item.title || ""} fill unoptimized className="object-cover" />
           ) : item.type === "video" && item.storage_url ? (
             <video src={item.storage_url} className="w-full h-full object-cover" />
           ) : item.type === "audio" && item.storage_url ? (
@@ -455,9 +456,9 @@ function MediaWidget({ content }: { content?: ContentObject }) {
   if (!content) return <div className="p-8 text-center text-muted-foreground">No media selected</div>;
 
   return (
-    <div className="aspect-video">
+    <div className="relative aspect-video">
       {content.type === "image" && content.storage_url ? (
-        <img src={content.storage_url} alt={content.title || ""} className="w-full h-full object-contain" />
+        <Image src={content.storage_url} alt={content.title || ""} fill unoptimized className="object-contain" />
       ) : content.type === "video" && content.storage_url ? (
         <video src={content.storage_url} controls className="w-full h-full object-contain" />
       ) : content.type === "audio" && content.storage_url ? (
@@ -569,7 +570,7 @@ function AlbumWidget({ content }: { content: ContentObject[] }) {
     <div>
       <div className="aspect-video relative">
         {currentItem.type === "image" && currentItem.storage_url ? (
-          <img src={currentItem.storage_url} alt={currentItem.title || ""} className="w-full h-full object-contain" />
+          <Image src={currentItem.storage_url} alt={currentItem.title || ""} fill unoptimized className="object-contain" />
         ) : currentItem.type === "video" && currentItem.storage_url ? (
           <video src={currentItem.storage_url} controls className="w-full h-full object-contain" />
         ) : currentItem.type === "audio" && currentItem.storage_url ? (
@@ -607,12 +608,12 @@ function AlbumWidget({ content }: { content: ContentObject[] }) {
               key={item.id}
               onClick={() => setCurrentIndex(index)}
               className={cn(
-                "w-12 h-12 rounded overflow-hidden flex-shrink-0 border-2 transition-colors",
+                "relative w-12 h-12 rounded overflow-hidden flex-shrink-0 border-2 transition-colors",
                 index === currentIndex ? "border-primary" : "border-transparent"
               )}
             >
               {item.type === "image" && item.storage_url ? (
-                <img src={item.storage_url} alt="" className="w-full h-full object-cover" />
+                <Image src={item.storage_url} alt="" fill unoptimized className="object-cover" />
               ) : (
                 <div className="w-full h-full bg-muted" />
               )}

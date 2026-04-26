@@ -27,13 +27,14 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import NextImage from 'next/image';
 import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
 import { createClient } from '@/lib/supabase/client';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
 import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
 import {
-  ArrowLeft, FileText, Image, Zap, BarChart2, Hash, Video, Calendar,
+  ArrowLeft, FileText, Image as ImageIcon, Zap, BarChart2, Hash, Video, Calendar,
   Wand2, Mic, RotateCcw, Shield, Flag, Dice5, Rocket,
   Brain, ChevronDown, ChevronUp, CheckCircle, Search, Download, Trash2, Wrench,
   Camera, Layers, Move, Film, Link2, Crosshair,
@@ -2984,7 +2985,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
         {/* ── Media Vault Link ── */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
-            <Image className="w-4 h-4" style={{ color: ACCENT }} />
+            <ImageIcon className="w-4 h-4" style={{ color: ACCENT }} />
             <span className="de-widget-title ml-2">Media Vault</span>
           </div>
           <div className="de-widget-body">
@@ -3469,7 +3470,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
         {/* ── Feature 16: Newsletter Template Generator ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
-            <Image className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
+            <ImageIcon className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
             <span className="de-widget-title ml-1">Newsletter Template</span>
           </div>
           <div className="de-widget-body">
@@ -3842,7 +3843,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 9,
               border: `1.5px dashed ${ACCENT}40`, background: `${ACCENT}04`, cursor: 'pointer', marginBottom: 10,
             }}>
-              <Image className="w-4 h-4" style={{ color: ACCENT, flexShrink: 0 }} />
+              <ImageIcon className="w-4 h-4" style={{ color: ACCENT, flexShrink: 0 }} />
               <span style={{ fontSize: 12, color: ACCENT, fontWeight: 600 }}>
                 {fillImageBase64 ? '✅ Image loaded — change?' : 'Upload image / video frame'}
               </span>
@@ -3877,11 +3878,15 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               </div>
             )}
             {fillResultBase64 && (
-              <img
-                src={`data:image/jpeg;base64,${fillResultBase64}`}
-                alt="Generative fill result"
-                style={{ width: '100%', borderRadius: 10, border: `1px solid ${ACCENT}20` }}
-              />
+              <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9' }}>
+                <NextImage
+                  src={`data:image/jpeg;base64,${fillResultBase64}`}
+                  alt="Generative fill result"
+                  fill
+                  unoptimized
+                  style={{ objectFit: 'contain', borderRadius: 10, border: `1px solid ${ACCENT}20` }}
+                />
+              </div>
             )}
           </div>
         </div>

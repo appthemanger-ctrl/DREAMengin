@@ -29,7 +29,7 @@ export { ResourcePool } from '../power-systems';
  */
 export class ObjectPoolingSystem {
   // Use a mapped record keyed by name, value typed as generic pool.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- intentional: registry stores heterogeneous pool types
+   
   private pools = new Map<string, ResourcePool<any>>();
 
   /**
@@ -67,7 +67,7 @@ export class ObjectPoolingSystem {
   get stats(): Record<string, ReturnType<ResourcePool<object>['stats']['valueOf']>> {
     const out: Record<string, unknown> = {};
     for (const [name, pool] of this.pools) out[name] = pool.stats;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- return type is heterogeneous record
+     
     return out as any;
   }
 }

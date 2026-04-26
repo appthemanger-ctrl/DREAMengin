@@ -113,7 +113,7 @@ export function getPassProtocol(iota: number): Protocol {
 export function runPrePassChecklist(pass: CreativePass): PrePassChecklist {
   const { iota, protocol } = calculateInventionForce(pass);
 
-  let approved = true;
+  const approved = true;
   let reason   = 'Pass approved.';
 
   if (protocol === 'FLOW') {

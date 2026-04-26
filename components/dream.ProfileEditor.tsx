@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import Image from 'next/image';
 import { Camera, Upload, X, Check, User, Image as ImageIcon, Link as LinkIcon, Palette, Save } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
@@ -213,10 +214,12 @@ export default function ProfileEditor({ profile }: { profile: ProfileData }) {
         {/* Cover Image Section */}
         <div className="relative h-48 md:h-64 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 overflow-hidden">
           {formData.cover_image_url ? (
-            <img
+            <Image
               src={formData.cover_image_url}
               alt="Cover"
-              className="w-full h-full object-cover"
+              fill
+              unoptimized
+              className="object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
@@ -251,11 +254,15 @@ export default function ProfileEditor({ profile }: { profile: ProfileData }) {
           <div className="flex items-end gap-4">
             <div className="relative">
               {formData.avatar_url ? (
-                <img
-                  src={formData.avatar_url}
-                  alt="Avatar"
-                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white dark:border-slate-900 shadow-xl object-cover"
-                />
+                <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white dark:border-slate-900 shadow-xl overflow-hidden">
+                  <Image
+                    src={formData.avatar_url}
+                    alt="Avatar"
+                    fill
+                    unoptimized
+                    className="object-cover"
+                  />
+                </div>
               ) : (
                 <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white dark:border-slate-900 shadow-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-3xl font-bold">
                   {getInitials(formData.display_name || profile.handle)}

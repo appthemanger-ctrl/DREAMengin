@@ -1274,7 +1274,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
 
     rafId = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(rafId);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [_inDividerMode]);
 
   // ── Universal input intent ────────────────────────────────────────────────
@@ -2935,9 +2935,12 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
             <X size={20} />
           </button>
           {lightboxUrl.startsWith('blob:') || /\.(jpg|jpeg|png|gif|webp|avif)/i.test(lightboxUrl) || !lightboxUrl.includes('.mp4') ? (
-            <img
+            <Image
               src={lightboxUrl}
               alt="Full size preview"
+              width={1600}
+              height={1200}
+              unoptimized
               style={{ maxWidth: '92vw', maxHeight: '84vh', objectFit: 'contain', borderRadius: 12, boxShadow: '0 8px 48px rgba(0,0,0,0.6)' }}
               onClick={(e) => e.stopPropagation()}
             />

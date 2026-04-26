@@ -14,7 +14,8 @@ import {
 // with nextConfig.cacheComponents (Turbopack build error in Next.js 16+).
 
 // ── File-tree builder ────────────────────────────────────────────────────────
-const ALLOWED_TOP_DIRS = ['app', 'components', 'lib', 'hooks', 'types', 'styles'];
+const ALLOWED_TOP_DIRS = ['app', 'components', 'lib', 'hooks', 'types', 'styles'] as const;
+type AllowedTopDir = (typeof ALLOWED_TOP_DIRS)[number];
 const ALLOWED_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.css', '.json', '.md', '.mjs', '.cjs']);
 const BLOCKED_SEGMENTS = new Set(['node_modules', '.git', '.next', 'dist', 'out', '__pycache__']);
 
@@ -36,7 +37,7 @@ async function buildTree(absDir: string, root: string, depth = 0): Promise<FileN
   const nodes: FileNode[] = [];
   for (const e of entries) {
     if (e.name.startsWith('.') || BLOCKED_SEGMENTS.has(e.name)) continue;
-    const abs = path.join(absDir, e.name);
+    const abs = path.join(/*turbopackIgnore: true*/ absDir, e.name);
     const rel = path.relative(root, abs);
     if (e.isDirectory()) {
       nodes.push({ name: e.name, type: 'dir', path: rel, children: await buildTree(abs, root, depth + 1) });
@@ -50,13 +51,39 @@ async function buildTree(absDir: string, root: string, depth = 0): Promise<FileN
   });
 }
 
+function allowedRoot(topDir: AllowedTopDir): string {
+  switch (topDir) {
+    case 'app':
+      return path.join(/*turbopackIgnore: true*/ process.cwd(), 'app');
+    case 'components':
+      return path.join(/*turbopackIgnore: true*/ process.cwd(), 'components');
+    case 'lib':
+      return path.join(/*turbopackIgnore: true*/ process.cwd(), 'lib');
+    case 'hooks':
+      return path.join(/*turbopackIgnore: true*/ process.cwd(), 'hooks');
+    case 'types':
+      return path.join(/*turbopackIgnore: true*/ process.cwd(), 'types');
+    case 'styles':
+      return path.join(/*turbopackIgnore: true*/ process.cwd(), 'styles');
+  }
+}
+
 // ── Path-safety guard ────────────────────────────────────────────────────────
-function isSafe(relPath: string, root: string): boolean {
-  const abs = path.resolve(root, relPath);
-  if (!abs.startsWith(root + path.sep) && abs !== root) return false;
-  const segments = relPath.split(path.sep);
-  if (segments.some((s) => BLOCKED_SEGMENTS.has(s))) return false;
-  return true;
+function resolveAllowedFile(relPath: string): { abs: string; rel: string } | null {
+  if (path.isAbsolute(relPath)) return null;
+  const normalized = path.normalize(relPath).replaceAll(path.sep, '/');
+  if (normalized === '.' || normalized.startsWith('../') || normalized.includes('/../')) return null;
+
+  const segments = normalized.split('/').filter(Boolean);
+  const topDir = segments[0] as AllowedTopDir | undefined;
+  if (!topDir || !ALLOWED_TOP_DIRS.includes(topDir)) return null;
+  if (segments.some((s) => s === '..' || BLOCKED_SEGMENTS.has(s))) return null;
+  if (!ALLOWED_EXTENSIONS.has(path.extname(normalized))) return null;
+
+  return {
+    abs: path.join(allowedRoot(topDir), ...segments.slice(1)),
+    rel: segments.join('/'),
+  };
 }
 
 // ── Deny helper ──────────────────────────────────────────────────────────────
@@ -109,13 +136,13 @@ export async function POST(request: Request) {
     return deny('Incorrect password.', 401);
   }
 
-  const root = /*turbopackIgnore: true*/ process.cwd();
+  const root = process.cwd();
 
   // 6. Action: tree
   if (body.action === 'tree') {
     const tree: FileNode[] = [];
     for (const dir of ALLOWED_TOP_DIRS) {
-      const abs = path.join(root, dir);
+      const abs = allowedRoot(dir);
       try {
         await fs.access(abs);
         tree.push({ name: dir, type: 'dir', path: dir, children: await buildTree(abs, root) });
@@ -128,17 +155,16 @@ export async function POST(request: Request) {
 
   // 7. Action: read
   if (body.action === 'read' && body.filePath) {
-    const rel = body.filePath;
-    if (!isSafe(rel, root)) {
+    const safeFile = resolveAllowedFile(body.filePath);
+    if (!safeFile) {
       return deny('Access denied.', 403);
     }
-    const abs = path.resolve(root, rel);
     try {
-      const raw = await fs.readFile(abs, 'utf-8');
+      const raw = await fs.readFile(safeFile.abs, 'utf-8');
       if (raw.length > 200_000) {
         return deny('File too large to display (> 200 KB).', 413);
       }
-      return NextResponse.json({ content: raw, path: rel });
+      return NextResponse.json({ content: raw, path: safeFile.rel });
     } catch {
       return deny('Could not read file.', 404);
     }
@@ -146,4 +172,3 @@ export async function POST(request: Request) {
 
   return deny('Unknown action.', 400);
 }
-

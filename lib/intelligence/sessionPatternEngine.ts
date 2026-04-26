@@ -314,7 +314,7 @@ export class SessionPatternEngine {
       // Lazy require — tf is already loaded at this point.
       // Dynamic require is intentional: avoids top-level TF.js import
       // which would cause SSR issues in Next.js.
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
+       
       const tf = require('@tensorflow/tfjs') as typeof import('@tensorflow/tfjs');
 
       const rawProbs = entries.map(([, count]) => count / total);

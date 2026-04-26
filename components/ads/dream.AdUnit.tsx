@@ -7,6 +7,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { AdType } from '@/lib/activity/types';
 
 interface AdUnitProps {
@@ -155,11 +156,15 @@ export function AdUnit({
 
       {/* Ad Content */}
       {adContent.imageUrl && (
-        <img
-          src={adContent.imageUrl}
-          alt={adContent.title}
-          className="w-full h-48 object-cover rounded"
-        />
+        <div className="relative h-48 w-full overflow-hidden rounded">
+          <Image
+            src={adContent.imageUrl}
+            alt={adContent.title}
+            fill
+            unoptimized
+            className="object-cover"
+          />
+        </div>
       )}
 
       <div className="space-y-2">

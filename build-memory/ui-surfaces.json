@@ -238,7 +238,7 @@
       "imports": [
         {
           "name": "ForgeEngin",
-          "from": "@/engins/engin.ForgeEngin"
+          "from": "@/engins/dream.ForgeEngin"
         },
         {
           "name": "ForgeMomentumWidget",
@@ -319,7 +319,7 @@
       "imports": [
         {
           "name": "PortfolioEngin",
-          "from": "@/engins/portfolio/engin.PortfolioEngin"
+          "from": "@/engins/portfolio/dream.PortfolioEngin"
         }
       ]
     },
@@ -919,7 +919,7 @@
       "imports": [
         {
           "name": "DreamBarDataBridge",
-          "from": "@/dreamdmbar/homedream/dream.homedream.HomeSystem"
+          "from": "@/dreamdmbar/homedream/dream.shell.HomeSystem"
         }
       ]
     },
@@ -975,7 +975,7 @@
         },
         {
           "name": "UniverseField",
-          "from": "@/components/landing/dream.landing.UniverseField"
+          "from": "@/components/landing/dream.scene.UniverseField"
         }
       ]
     },

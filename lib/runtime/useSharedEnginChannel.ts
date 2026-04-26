@@ -97,7 +97,7 @@ export function useSharedEnginChannel<T extends RuntimeChannelEvent = RuntimeCha
       // We do NOT destroy the instance on unmount — instances outlive component
       // renders so state is preserved when the Engin remounts in another region.
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [enginName, instanceId, region]);
 
   useEffect(() => {

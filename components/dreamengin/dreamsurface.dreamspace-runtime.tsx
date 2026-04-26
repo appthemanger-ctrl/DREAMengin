@@ -54,7 +54,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
   }, [os.bus]);
   const ledgerAssets = useMemo(
     () => getAllByKind(os.ledger, 'asset'),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     [os.ledger, assetTick]
   );
 
@@ -236,7 +236,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
               </button>
             </div>
             {previewAsset.type === 'audio' && (
-              // eslint-disable-next-line jsx-a11y/media-has-caption
+               
               <audio controls src={previewAsset.url} style={{ width: '100%', borderRadius: 8 }} />
             )}
             {previewAsset.type === 'image' && (

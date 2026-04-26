@@ -173,7 +173,7 @@ For each entry: read the description, look at the file, then decide:
 | Field | Value |
 |---|---|
 | **Consumer** | Unknown |
-| **Description** | Forge canvas. Should live in `components/forge/` or be part of `engins/engin.ForgeEngin.tsx`. |
+| **Description** | Forge canvas. Should live in `components/forge/` or be part of `engins/dream.ForgeEngin.tsx`. |
 | **Recommendation** | **W** — move to `components/forge/` and rename canonically. |
 
 ---

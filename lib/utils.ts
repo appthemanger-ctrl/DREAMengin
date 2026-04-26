@@ -42,7 +42,7 @@ export function generateDedupeHash(userId: string, source: string, externalId: s
 
 // ── Improvement 6: debounce ───────────────────────────────────────────────────
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+ 
 type AnyFn = (...args: any[]) => void;
 
 /**
@@ -55,7 +55,7 @@ export function debounce<T extends AnyFn>(
   delayMs: number,
 ): T & { cancel: () => void; flush: (...args: Parameters<T>) => void } {
   let timer: ReturnType<typeof setTimeout> | null = null
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   let pendingArgs: any[] | null = null
 
   function debounced(...args: Parameters<T>) {

@@ -63,6 +63,6 @@ export function useUnifiedLoop(
     return (): void => {
       unregisterGame(id);
     };
-  }, [id, priority, active]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [id, priority, active]);  
   // ↑ tickFn intentionally excluded — changes are handled via ref above.
 }

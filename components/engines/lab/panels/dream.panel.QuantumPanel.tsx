@@ -48,8 +48,8 @@ function simulateMeasurements(gates: Gate[]): string {
   const results: string[] = [];
   for (let q = 0; q < QUBITS; q++) {
     const qubitGates = gates.filter((g) => g.qubit === q).sort((a, b) => a.col - b.col);
-    let hasH = qubitGates.some((g) => g.type === 'H');
-    let hasMeasure = qubitGates.some((g) => g.type === 'M');
+    const hasH = qubitGates.some((g) => g.type === 'H');
+    const hasMeasure = qubitGates.some((g) => g.type === 'M');
     if (!hasMeasure) { results.push(`|q${q}⟩ = |0⟩ (not measured)`); continue; }
     if (hasH) {
       results.push(`|q${q}⟩ → ${Math.random() > 0.5 ? '|0⟩' : '|1⟩'} (50/50 superposition collapsed)`);

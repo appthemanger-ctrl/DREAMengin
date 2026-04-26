@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
 import { X, Image as ImageIcon, Video, Music, Send, Loader2, Check, Trash2 } from 'lucide-react';
@@ -185,7 +186,7 @@ export default function CreatePostModal({ onClose, userId }: CreatePostModalProp
               {uploadedMedia.map((media, index) => (
                 <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800">
                   {media.type === 'image' && (
-                    <img src={media.url} alt="Upload preview" className="w-full h-full object-cover" />
+                    <Image src={media.url} alt="Upload preview" fill unoptimized className="object-cover" />
                   )}
                   {media.type === 'video' && (
                     <video src={media.url} className="w-full h-full object-cover" />

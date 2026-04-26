@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import PasswordField from "@/components/auth/dream.PasswordField";
 import { createClient } from "@/lib/supabase/client";
-import UniverseField from "@/components/landing/dream.landing.UniverseField";
+import UniverseField from "@/components/landing/dream.scene.UniverseField";
 
 // Shared input style — matches the rest of the de-widget design system
 const INPUT_STYLE: React.CSSProperties = {

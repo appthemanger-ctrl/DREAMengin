@@ -14,7 +14,7 @@ declare module '@rivet-dev/agent-os' {
   }
 
   export interface HostTools {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     [key: string]: (...args: any[]) => Promise<unknown>;
   }
 

@@ -2,6 +2,7 @@
 // SURFACE: dreamsurface.ShopSell  (framework-mandated basename: page.tsx)
 
 import { useState } from 'react';
+import NextImage from 'next/image';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -148,11 +149,12 @@ export default function SellItemPage() {
 
               {/* Image Preview */}
               {imageUrl && (
-                <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid var(--de-border)' }}>
-                  <img
+                <div style={{ position: 'relative', height: 192, borderRadius: 10, overflow: 'hidden', border: '1px solid var(--de-border)' }}>
+                  <NextImage
                     src={imageUrl} alt="Preview"
-                    style={{ width: '100%', height: 192, objectFit: 'cover', display: 'block' }}
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    fill
+                    unoptimized
+                    style={{ objectFit: 'cover' }}
                   />
                 </div>
               )}

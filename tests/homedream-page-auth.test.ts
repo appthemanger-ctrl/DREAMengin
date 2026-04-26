@@ -31,7 +31,7 @@ vi.mock('@/lib/dev-bypass', () => ({
   isDevBypassActive: isDevBypassActiveMock,
 }));
 
-vi.mock('@/dreamdmbar/homedream/dream.homedream.HomeSystem', () => ({
+vi.mock('@/dreamdmbar/homedream/dream.shell.HomeSystem', () => ({
   default: homeSystemMock,
 }));
 

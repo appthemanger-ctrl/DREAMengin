@@ -88,7 +88,7 @@ export function useEnginCoopSync({
     const snapshot = stateSnapshot();
     void publish(snapshot);
   // stateSnapshot intentionally excluded — fire once on activation only.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [active, publish]);
 
   // ── Subscribe to peer events for the lifetime of an active session ────────

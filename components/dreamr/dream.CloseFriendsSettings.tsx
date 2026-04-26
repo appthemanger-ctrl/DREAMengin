@@ -11,6 +11,7 @@
  */
 
 import { useCallback, useEffect, useState } from 'react';
+import Image from 'next/image';
 import { Users, UserPlus, UserMinus, Search, Loader2, X } from 'lucide-react';
 
 interface Friend {
@@ -168,9 +169,9 @@ export default function CloseFriendsSettings() {
               const alreadyAdded = friendIds.has(result.id);
               return (
                 <div key={result.id} className="flex items-center gap-3 px-3 py-2.5 hover:bg-zinc-800 transition-colors">
-                  <div className="w-8 h-8 rounded-full bg-zinc-700 overflow-hidden shrink-0">
+                  <div className="relative w-8 h-8 rounded-full bg-zinc-700 overflow-hidden shrink-0">
                     {result.avatar_url && (
-                      <img src={result.avatar_url} alt="" className="w-full h-full object-cover" />
+                      <Image src={result.avatar_url} alt="" fill unoptimized className="object-cover" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -216,11 +217,11 @@ export default function CloseFriendsSettings() {
         <ul className="flex flex-col gap-2">
           {friends.map(f => (
             <li key={f.friend_id} className="flex items-center gap-3 rounded-lg px-3 py-2.5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <div className="w-9 h-9 rounded-full bg-zinc-700 overflow-hidden shrink-0">
-                {f.profiles?.avatar_url && (
-                  <img src={f.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
-                )}
-              </div>
+               <div className="relative w-9 h-9 rounded-full bg-zinc-700 overflow-hidden shrink-0">
+                 {f.profiles?.avatar_url && (
+                   <Image src={f.profiles.avatar_url} alt="" fill unoptimized className="object-cover" />
+                 )}
+               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-white font-medium truncate">
                   {f.profiles?.display_name || (f.profiles?.handle ? `@${f.profiles.handle}` : f.friend_id)}

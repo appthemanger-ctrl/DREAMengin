@@ -30,7 +30,7 @@ interface RegionLayout {
  * splitRatio and isBarMinimized values.
  *
  * This mirrors the exact calculation in
- * dreamdmbar/homedream/dream.homedream.HomeSystem.tsx — intentionally kept
+ * dreamdmbar/homedream/dream.shell.HomeSystem.tsx — intentionally kept
  * in sync so a future change to the component must also update this test.
  */
 function computeRegionLayout(splitRatio: number, isBarMinimized: boolean): RegionLayout {
