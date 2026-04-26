@@ -196,6 +196,7 @@ These are explicitly unsupported. The UI explains why and suggests alternatives.
 ### Instagram
 
 The Instagram Graph API does not expose a home feed or follower list for third-party apps. Only follower/following counts are accessible.
+The DREAMengin Instagram connector can sync the authenticated user's own media through Basic Display API credentials, but it must never be described as a follower feed or home timeline.
 
 **Alternative:** Use Mastodon or Bluesky for full follow/feed access.
 
@@ -211,8 +212,73 @@ Snapchat does not have a public API for Stories or friend content.
 - **RLS is enabled** — users can only read their own connector accounts
 - **token_blob is never returned to the browser** — API routes only return status fields
 - **Feed items** are stored per-user in `feed_items` — private by default, never shared
-- **Syncing is user-triggered** — no background cron jobs
+- **Syncing is user-triggered or cron-fallback** — see Delivery Strategy below
 - **Disconnect** wipes the token_blob and resets status to `not_connected`
+
+---
+
+## Delivery strategy: webhooks + cron fallback
+
+DREAMengin uses a **hybrid delivery model** per connector. The strategy for each provider
+is declared in `lib/connectors/deliveryStrategy.ts`.
+
+| Delivery method | Meaning |
+|----------------|---------|
+| `poll` | DREAMengin cron polls the provider API every 6 hours |
+| `webhook` | Provider pushes events to DREAMengin in real-time |
+| `webhook+poll` | Both: webhooks for real-time delivery + cron as catch-up fallback |
+| `unsupported` | No programmatic delivery available |
+
+### Per-provider summary
+
+| Provider | Delivery | Webhook verifiable | Notes |
+|----------|----------|--------------------|-------|
+| YouTube | `webhook+poll` | ✅ | WebSub for new uploads; cron for playlists |
+| Instagram | `webhook+poll` | ✅ | Meta Webhooks + cron; own-media only |
+| GitHub | `webhook+poll` | ❌ | Per-repo webhooks; user-events API for cron |
+| Mastodon | `poll` | ❌ | Streaming WebSocket requires persistent conn |
+| Bluesky | `poll` | ❌ | AT Firehose requires persistent conn |
+| Reddit | `poll` | ❌ | No push delivery in Reddit API |
+| Nostr | `poll` | ❌ | Relay queries on cron schedule |
+
+> **Instagram truthfulness note:** `instagramSync` accesses the authenticated user's
+> **own media** (photos, videos, reels) via the Instagram Basic Display API.
+> It does NOT access a follower feed or home timeline — no such API exists for
+> third-party apps via any official Instagram/Meta endpoint.
+
+### Cron fallback endpoint
+
+`GET /api/connectors/cron`
+
+- Runs every 6 hours at 00:00, 06:00, 12:00, and 18:00 UTC (see `vercel.json`)
+- Requires `Authorization: Bearer <CRON_SECRET>` in production
+- Uses the Supabase service-role client to iterate all connected accounts
+- Processes up to `CONNECTOR_CRON_BATCH_SIZE` accounts per run (default 50, max 100), oldest/never-synced first
+- Calls the shared `reconcileConnector` pipeline for each
+- Returns `{ processed, succeeded, failed, results[] }` — never includes token_blob
+- `CRON_SECRET` env var must be set in Vercel for production use
+
+### Webhook foundation
+
+`GET /api/connectors/webhooks/{provider}` — Verification challenge response:
+- `youtube` → echoes `hub.challenge` (YouTube WebSub / PubSubHubbub)
+- `instagram` → verifies `hub.verify_token` against `WEBHOOK_VERIFY_TOKEN` env var, echoes `hub.challenge`
+
+`POST /api/connectors/webhooks/{provider}` — Payload receipt:
+- Returns `200 OK` for any provider with `supportsWebhook(provider) === true`
+- Full provider-specific ingestion is a future slice; this keeps subscriptions alive
+
+### Shared reconcile pipeline
+
+Both the user-triggered sync route and the cron fallback call the same function:
+
+```
+lib/connectors/reconcile.ts → reconcileConnector(db, userId, provider, tokenBlob)
+  1. dispatchSync  (lib/connectors/syncDispatch.ts) → UnifiedFeedItem[]
+  2. deduplicateFeedItems
+  3. upsert feed_items  (ON CONFLICT user_id, provider, external_id DO NOTHING)
+  4. update connector_accounts.last_synced_at / last_sync_count / last_error
+```
 
 ---
 
@@ -222,9 +288,12 @@ Snapchat does not have a public API for Stories or friend content.
 |--------|------|---------|
 | `POST` | `/api/connectors/{provider}/connect` | Store credentials and verify with provider |
 | `GET` | `/api/connectors/{provider}/verify` | Re-verify stored credentials (cached 5 min) |
-| `POST` | `/api/connectors/{provider}/sync` | Fetch feed items and store in feed_items |
+| `POST` | `/api/connectors/{provider}/sync` | User-triggered: fetch feed items via shared reconcile pipeline |
+| `GET` | `/api/connectors/cron` | Cron fallback: reconcile all connected accounts (CRON_SECRET required in production) |
+| `GET` | `/api/connectors/webhooks/{provider}` | Webhook subscription verification (YouTube, Instagram) |
+| `POST` | `/api/connectors/webhooks/{provider}` | Webhook payload receipt (safe 200 acknowledgement) |
 
-All routes require authentication (`auth.getUser()`). All routes return JSON.
+User-facing routes require authentication (`auth.getUser()`). Cron and webhook routes use separate security mechanisms.
 
 ---
 
@@ -233,7 +302,7 @@ All routes require authentication (`auth.getUser()`). All routes return JSON.
 1. User taps "Sync {Provider}" button (appears after connecting)
 2. Browser sends `POST /api/connectors/{provider}/sync`
 3. Server fetches credentials from `connector_accounts.token_blob`
-4. Server calls provider API and normalises results into `UnifiedFeedItem[]`
+4. Server calls `reconcileConnector` (shared with cron fallback)
 5. Deduplication: `(user_id, provider, external_id)` — no duplicate rows
 6. Items stored in `feed_items` via upsert (ON CONFLICT DO NOTHING)
 7. `connector_accounts.last_synced_at` and `last_sync_count` updated
@@ -253,3 +322,5 @@ See `types/connector.ts` for the full type definitions:
 See `lib/connectors/normalise.ts` for normalisation functions per provider.
 
 See `lib/connectors/providers/` for per-provider verify + sync implementations.
+
+See `lib/connectors/deliveryStrategy.ts` for the delivery strategy matrix.

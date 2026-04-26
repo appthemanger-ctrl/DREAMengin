@@ -7,7 +7,8 @@
     "silent": true
   },
   "crons": [
-    { "path": "/api/health", "schedule": "0 * * * *" }
+    { "path": "/api/health", "schedule": "0 * * * *" },
+    { "path": "/api/connectors/cron", "schedule": "0 */6 * * *" }
   ],
   "functions": {
     "app/api/account/delete-dream/route.ts": { "maxDuration": 30 },
@@ -17,6 +18,7 @@
     "app/api/admin/ai-chat/route.ts": { "maxDuration": 60 },
     "app/api/ai/**": { "maxDuration": 60 },
     "app/api/dr-eams/**": { "maxDuration": 60 },
-    "app/api/innerdreams/**": { "maxDuration": 60 }
+    "app/api/innerdreams/**": { "maxDuration": 60 },
+    "app/api/connectors/cron/route.ts": { "maxDuration": 300 }
   }
 }
