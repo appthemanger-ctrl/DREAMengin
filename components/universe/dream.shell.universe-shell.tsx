@@ -12,7 +12,7 @@ interface UniverseShellProps {
  * UniverseShell — neutral surface wrapper for universe-mode pages.
  *
  * The starfield background was deliberately removed: only the public landing
- * page renders the universe field (see components/landing/dream.landing.UniverseField.tsx).
+ * page renders the universe field (see components/landing/dream.scene.UniverseField.tsx).
  * Inner surfaces stay quiet so user content reads cleanly.
  */
 export function UniverseShell({

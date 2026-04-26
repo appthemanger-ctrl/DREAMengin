@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 
-import UniverseField from '@/components/landing/dream.landing.UniverseField';
+import UniverseField from '@/components/landing/dream.scene.UniverseField';
 import LandingNav from '@/components/landing/dream.LandingNav';
 import LandingProductStatement from '@/components/landing/dream.LandingProductStatement';
 import LandingHeroRobot from '@/components/landing/dream.LandingHeroRobot';

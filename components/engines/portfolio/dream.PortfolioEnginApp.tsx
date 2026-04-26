@@ -11,7 +11,7 @@
  */
 
 import { makeEnginApp } from '@/components/engines/shared';
-import PortfolioEngin from '@/engins/portfolio/engin.PortfolioEngin';
+import PortfolioEngin from '@/engins/portfolio/dream.PortfolioEngin';
 
 export default makeEnginApp({
   id: 'portfolio',

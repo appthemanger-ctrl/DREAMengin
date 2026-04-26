@@ -451,7 +451,7 @@ The bar lives in `app/layout.tsx` so it is **never remounted** across page trans
 
 | Surface | Canonical Route | Shell |
 |---|---|---|
-| **HomeDream** | `/homedream` | `dreamdmbar/homedream/dream.homedream.HomeSystem.tsx` |
+| **HomeDream** | `/homedream` | `dreamdmbar/homedream/dream.shell.HomeSystem.tsx` |
 | **EditProfileDream** | `/edit-profiledream` | `app/edit-profiledream/page.tsx` |
 | **ViewProfile** | `/view-profile` | `app/view-profile/page.tsx` |
 
@@ -606,7 +606,7 @@ HUD: `dream.hud.GameHUD.tsx` · `dream.hud.MobileGameHUD.tsx` · Controller: `dr
 
 ### ForgeEngin
 
-`engins/engin.ForgeEngin.tsx` + `components/forge/`: `dream.EngineBuilderCanvas.tsx` · `dream.panel.AIBuilderPanel.tsx` · `dream.widget.ForgeMomentumWidget.tsx`
+`engins/dream.ForgeEngin.tsx` + `components/forge/`: `dream.EngineBuilderCanvas.tsx` · `dream.panel.AIBuilderPanel.tsx` · `dream.widget.ForgeMomentumWidget.tsx`
 
 Routed at `/daydream/forge`. Build actions via `/api/forge/build`.
 
@@ -624,7 +624,7 @@ Routed at `/daydream/forge`. Build actions via `/api/forge/build`.
 | **Connectors** | `/connectors` | Instagram OAuth + YouTube OAuth; generic provider connect/disconnect/sync/verify at `/api/connectors/[provider]/` |
 | **Discover** | `/discover` | Feed discovery surface |
 | **DreamR** | `/api/dreamr/` | Feed + suggested routes; `dream.DreamRCore.tsx` + `dream.DreamRFeed.tsx` (in `dreamdmbar/homedream/dreamr/`); channel + creator panels in `components/dreamr/`; **first commandment model** for stable core + swappable rule-set architecture |
-| **Forge** | `/daydream/forge` | `engins/engin.ForgeEngin.tsx`; `dream.ForgeDreamCanvas.tsx`; build actions via `/api/forge/build` |
+| **Forge** | `/daydream/forge` | `engins/dream.ForgeEngin.tsx`; `dream.ForgeDreamCanvas.tsx`; build actions via `/api/forge/build` |
 | **WebGPU** | `/webgpu` | `components/webgpu/dream.WebGPUShowcase.tsx` |
 | **Universe** | (component) | `components/universe/` — universe shell, node cluster, torus core, universe card |
 | **Shared Dreams** | (component) | `components/shared-dream/` — `dream.SharedDreamCanvas.tsx` + `dream.SharedDreamProvider.tsx` + `dream.InviteFlow.tsx` |
@@ -753,7 +753,7 @@ Feed state is **persistent between sessions** (per-user algorithm settings store
 HomeDream is implemented as a shell-owned dual-runtime surface. The key implementation paths are:
 
 - **Route**: `app/homedream/page.tsx` — server-rendered, Supabase auth check, dev bypass via `DEV_BYPASS_AUTH=true`
-- **System shell**: `dreamdmbar/homedream/dream.homedream.HomeSystem.tsx` — mounts the dual-runtime container
+- **System shell**: `dreamdmbar/homedream/dream.shell.HomeSystem.tsx` — mounts the dual-runtime container
 - **Surface composition**: `dreamdmbar/homedream/dream.homedream.HomeDreamSurface.tsx` — the HomeDream content region
 
 ### Vocabulary
@@ -799,7 +799,7 @@ The surface is **centered around a personalized feed** powered by the DreamR alg
 Key implementation files:
 
 - `app/homedream/page.tsx` — server-rendered route with Supabase auth check; dev bypass via `DEV_BYPASS_AUTH=true`.
-- `dreamdmbar/homedream/dream.homedream.HomeSystem.tsx` — canonical HomeDream shell component; mounted as a dependent of the DreamDM Bar.
+- `dreamdmbar/homedream/dream.shell.HomeSystem.tsx` — canonical HomeDream shell component; mounted as a dependent of the DreamDM Bar.
 
 **Vocabulary used by this system:**
 
