@@ -21,7 +21,7 @@ async function resolveFeedForInstance(
   const supabase = await createServerClient();
   
   // Fetch dream instance and definition
-  const { data: instance, error: instanceError } = await supabase
+  const { data: instance, error: instanceError } = await (supabase as any)
     .from('dream_instances')
     .select(`
       *,
