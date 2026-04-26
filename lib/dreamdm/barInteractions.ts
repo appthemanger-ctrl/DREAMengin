@@ -66,10 +66,18 @@ export const BAR_FLING_LINE_RATIO = 0.4;
 export const MIN_POINTER_SAMPLE_DELTA_MS = 1;
 
 /**
- * Resolves a gold-button release into the immediate single-tap menu action.
+ * Resolves a gold-button release into a double-tap menu action.
+ *
+ * First tap waits. A second tap inside GOLD_SECOND_TAP_WINDOW_MS opens menus.
  */
-export function resolveGoldTapAction(): { action: 'menu'; nextLastTapAt: 0 } {
-  return { action: 'menu', nextLastTapAt: 0 };
+export function resolveGoldTapAction(
+  lastTapAt: number = 0,
+  now: number = 0,
+): { action: 'wait'; nextLastTapAt: number } | { action: 'menu'; nextLastTapAt: 0 } {
+  if (lastTapAt > 0 && now - lastTapAt <= GOLD_SECOND_TAP_WINDOW_MS) {
+    return { action: 'menu', nextLastTapAt: 0 };
+  }
+  return { action: 'wait', nextLastTapAt: now };
 }
 
 /** Treats small pointer movement as a tap instead of a swipe or throw. */

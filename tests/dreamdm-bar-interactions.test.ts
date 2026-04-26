@@ -22,10 +22,24 @@ import {
 } from '@/lib/dreamdm/barInteractions';
 
 describe('resolveGoldTapAction', () => {
-  it('resolves a gold button release to the single-tap menu action', () => {
-    expect(resolveGoldTapAction()).toEqual({
+  it('waits on the first gold particle tap', () => {
+    expect(resolveGoldTapAction(0, 1000)).toEqual({
+      action: 'wait',
+      nextLastTapAt: 1000,
+    });
+  });
+
+  it('resolves the second gold particle tap to the menu action', () => {
+    expect(resolveGoldTapAction(1000, 1120)).toEqual({
       action: 'menu',
       nextLastTapAt: 0,
+    });
+  });
+
+  it('restarts waiting when the second tap is too late', () => {
+    expect(resolveGoldTapAction(1000, 1400)).toEqual({
+      action: 'wait',
+      nextLastTapAt: 1400,
     });
   });
 });
