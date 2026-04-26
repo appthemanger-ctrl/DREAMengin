@@ -31,15 +31,57 @@ export default function LandingHeroRobot() {
   return (
     <div
       className="relative flex flex-col items-center justify-center lg:flex-1 lg:max-w-[48%]"
-      style={{ minHeight: size + 60 }}
+      style={{ minHeight: size + 104 }}
     >
-      <DrEamsBabylonHero width={size} height={size} />
+      <div
+        className="pointer-events-none absolute rounded-full blur-3xl"
+        style={{
+          width: size * 0.94,
+          height: size * 0.94,
+          background: 'radial-gradient(circle, rgba(56,189,248,0.24) 0%, rgba(200,152,26,0.15) 42%, transparent 72%)',
+        }}
+        aria-hidden="true"
+      />
+      <div
+        className="relative rounded-[2rem] border p-3 shadow-2xl backdrop-blur-md md:p-4"
+        style={{
+          borderColor: 'rgba(140,170,220,0.18)',
+          background: 'linear-gradient(145deg, rgba(6,12,24,0.48), rgba(12,22,42,0.22))',
+          boxShadow: '0 0 60px rgba(56,189,248,0.14), inset 0 1px 0 rgba(255,255,255,0.08)',
+        }}
+      >
+        <div className="pointer-events-none absolute inset-3 rounded-[1.6rem] border border-cyan-200/10" aria-hidden="true" />
+        <div
+          className="pointer-events-none absolute -inset-5 rounded-full border border-[#c8981a]/20"
+          style={{ animation: 'landing-robot-orbit 7s linear infinite' }}
+          aria-hidden="true"
+        />
+        <DrEamsBabylonHero width={size} height={size} />
+      </div>
+      <div
+        className="relative -mt-5 flex items-center gap-2 rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] shadow-lg backdrop-blur-md"
+        style={{
+          color: '#e8d090',
+          borderColor: 'rgba(200,152,26,0.28)',
+          background: 'linear-gradient(90deg, rgba(6,12,24,0.84), rgba(20,38,68,0.72))',
+        }}
+      >
+        <span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_14px_rgba(103,232,249,0.9)]" />
+        Dr. Eams online
+      </div>
       <p
         className="mt-2 text-xs font-semibold select-none tracking-widest uppercase"
         style={{ color: 'rgba(200,152,26,0.70)', letterSpacing: '0.14em' }}
       >
         tap to wake ✦
       </p>
+      <style jsx>{`
+        @keyframes landing-robot-orbit {
+          from { transform: rotate(0deg) scale(1); }
+          50% { transform: rotate(180deg) scale(1.025); }
+          to { transform: rotate(360deg) scale(1); }
+        }
+      `}</style>
     </div>
   );
 }

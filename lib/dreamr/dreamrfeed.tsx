@@ -9,6 +9,8 @@
  *   SWIPE LEFT       → you choose to go deeper into one creator's world
  *                      • DreamR post   → DreamRCreatorPanel (creator's posts + socials)
  *                      • YouTube card  → DreamRChannelPanel (more from channel + similar)
+ *   SWIPE RIGHT      → see less from that creator/content type; the card is
+ *                      recycled locally without earning a real view here
  *
  * Topic channels:
  *   A horizontal scrollable strip lets users switch between topics.
@@ -45,6 +47,13 @@ import {
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import type { UnifiedFeedItem } from '@/types/connector';
 import { resolveSwipeRelease } from '@/lib/dreamr/torridityLedger';
+import {
+  contentTypePreferenceKey,
+  emptyDreamRSwipePreferences,
+  nextSwipePreferences,
+  personalizeFeedOrder,
+  shouldRecordDreamRView,
+} from '@/lib/dreamr/swipePersonalization';
 import DreamRCreatorPanel from '@/components/dreamr/dream.panel.DreamRCreatorPanel';
 import DreamRChannelPanel from '@/components/dreamr/dream.panel.DreamRChannelPanel';
 
@@ -187,6 +196,7 @@ interface VideoCardProps {
   post: FeedPost;
   isActive: boolean;
   onSwipeLeft: () => void;
+  onSwipeRight: () => void;
   onLike: (id: string) => void;
   liked: boolean;
   saved: boolean;
@@ -194,7 +204,7 @@ interface VideoCardProps {
   onShare: (id: string) => void;
 }
 
-function VideoPostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave, onShare }: VideoCardProps) {
+function VideoPostCard({ post, isActive, onSwipeLeft, onSwipeRight, onLike, liked, saved, onSave, onShare }: VideoCardProps) {
   const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -217,7 +227,18 @@ function VideoPostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSa
           viewportExtent: window.innerWidth,
           direction: 'negative',
         });
-        if (release.shouldTrigger) onSwipeLeft();
+        if (release.shouldTrigger) {
+          onSwipeLeft();
+          return;
+        }
+        const rightRelease = resolveSwipeRelease({
+          pixelDelta: dx,
+          crossDelta: dy,
+          durationMs: Date.now() - s.at,
+          viewportExtent: window.innerWidth,
+          direction: 'positive',
+        });
+        if (rightRelease.shouldTrigger) onSwipeRight();
       }}
     >
       {/* Active stripe */}
@@ -308,7 +329,7 @@ function VideoPostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSa
           </p>
           {/* Swipe hint */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 9, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.38)' }}>
-            ← swipe for more from this channel
+            ← more channel · less like this →
           </div>
         </div>
       )}
@@ -352,6 +373,7 @@ interface CardProps {
   post: FeedPost;
   isActive: boolean;
   onSwipeLeft: () => void;
+  onSwipeRight: () => void;
   onLike: (id: string) => void;
   liked: boolean;
   saved: boolean;
@@ -360,7 +382,7 @@ interface CardProps {
   onComment: (id: string) => void;
 }
 
-function PostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave, onShare, onComment }: CardProps) {
+function PostCard({ post, isActive, onSwipeLeft, onSwipeRight, onLike, liked, saved, onSave, onShare, onComment }: CardProps) {
   const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const hasDark = isImage(post.media_url);
   const [captionExpanded, setCaptionExpanded] = useState(false);
@@ -397,7 +419,18 @@ function PostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave, o
           viewportExtent: window.innerWidth,
           direction: 'negative',
         });
-        if (release.shouldTrigger) onSwipeLeft();
+        if (release.shouldTrigger) {
+          onSwipeLeft();
+          return;
+        }
+        const rightRelease = resolveSwipeRelease({
+          pixelDelta: dx,
+          crossDelta: dy,
+          durationMs: Date.now() - s.at,
+          viewportExtent: window.innerWidth,
+          direction: 'positive',
+        });
+        if (rightRelease.shouldTrigger) onSwipeRight();
       }}
     >
       {/* Background */}
@@ -500,7 +533,7 @@ function PostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave, o
             </span>
           </div>
           <div style={{ fontSize: 14, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: hasDark ? 'rgba(255,255,255,0.28)' : DR.textDim }}>
-            ← swipe for more
+            ← more like this · less →
           </div>
         </div>
       </div>
@@ -510,7 +543,7 @@ function PostCard({ post, isActive, onSwipeLeft, onLike, liked, saved, onSave, o
 
 // ── Suggested CONTENT card ────────────────────────────────────────────────────
 
-function SuggestedContentCard({ post, onSwipeLeft }: { post: FeedPost; onSwipeLeft: () => void }) {
+function SuggestedContentCard({ post, onSwipeLeft, onSwipeRight }: { post: FeedPost; onSwipeLeft: () => void; onSwipeRight: () => void }) {
   const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const caption = post.content?.slice(0, 120) ?? '';
 
@@ -529,7 +562,18 @@ function SuggestedContentCard({ post, onSwipeLeft }: { post: FeedPost; onSwipeLe
           viewportExtent: window.innerWidth,
           direction: 'negative',
         });
-        if (release.shouldTrigger) onSwipeLeft();
+        if (release.shouldTrigger) {
+          onSwipeLeft();
+          return;
+        }
+        const rightRelease = resolveSwipeRelease({
+          pixelDelta: dx,
+          crossDelta: dy,
+          durationMs: Date.now() - s.at,
+          viewportExtent: window.innerWidth,
+          direction: 'positive',
+        });
+        if (rightRelease.shouldTrigger) onSwipeRight();
       }}
     >
       {/* Label */}
@@ -567,7 +611,7 @@ function SuggestedContentCard({ post, onSwipeLeft }: { post: FeedPost; onSwipeLe
 
         <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontSize: 10, color: DR.textDim }}>{relTime(post.created_at)}</span>
-          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: DR.textDim }}>← swipe for more from them</div>
+          <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: DR.textDim }}>← more from them · less →</div>
         </div>
       </div>
     </div>
@@ -646,6 +690,8 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   const [isLive,        setIsLive]      = useState(false);
   const [loadingMore,   setLoadingMore] = useState(false);
   const [hasMore,       setHasMore]     = useState(true);
+  const [swipePrefs,    setSwipePrefs]  = useState(emptyDreamRSwipePreferences);
+  const [redistributionNotice, setRedistributionNotice] = useState<string | null>(null);
   // ── Topic channels ────────────────────────────────────────────────────────
   const [activeTopic,   setActiveTopic] = useState<(typeof DREAMR_TOPICS)[number]>(DREAMR_TOPICS[0]!);
   const [ytTopicPosts,  setYtTopicPosts] = useState<FeedPost[]>([]);
@@ -656,6 +702,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   const pendingRef = useRef<FeedPost[]>([]);
   const offsetRef  = useRef(0);
   const mountedRef = useRef(true);
+  const countedViewIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; }; }, []);
 
@@ -803,12 +850,34 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
     return items;
   }, [posts, ytTopicPosts, sugContent, sugCreators]);
 
+  const personalizedFeedItems = useMemo((): FeedItem[] => (
+    personalizeFeedOrder(feedItems, swipePrefs, item => item.kind === 'creator' ? null : item.post)
+  ), [feedItems, swipePrefs]);
+
   const handleScroll = useCallback(() => {
     const el = scrollRef.current; if (!el) return;
     const idx = Math.round(el.scrollTop / el.clientHeight);
     setActiveIdx(idx);
-    if (idx >= feedItems.length - 3) loadMore();
-  }, [feedItems.length, loadMore]);
+    if (idx >= personalizedFeedItems.length - 3) loadMore();
+  }, [personalizedFeedItems.length, loadMore]);
+
+  const recordDreamRView = useCallback((post: FeedPost, intent: 'left' | 'up') => {
+    if (!shouldRecordDreamRView(intent) || isYouTube(post) || countedViewIdsRef.current.has(post.id)) return;
+    countedViewIdsRef.current.add(post.id);
+    fetch(`/api/posts/${post.id}/view`, { method: 'POST' }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const item = personalizedFeedItems[activeIdx];
+    if (!item || item.kind === 'creator') return;
+    const timer = setTimeout(() => recordDreamRView(item.post, 'up'), 3000);
+    return () => clearTimeout(timer);
+  }, [activeIdx, personalizedFeedItems, recordDreamRView]);
+
+  useEffect(() => {
+    if (activeIdx <= personalizedFeedItems.length - 1) return;
+    setActiveIdx(Math.max(0, personalizedFeedItems.length - 1));
+  }, [activeIdx, personalizedFeedItems.length]);
 
   // ── Keyboard navigation (↑/↓ / j/k for desktop) ──────────────────────
   useEffect(() => {
@@ -817,7 +886,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
       if (e.key === 'ArrowDown' || e.key === 'j') {
         e.preventDefault();
-        const next = Math.min(activeIdx + 1, feedItems.length - 1);
+        const next = Math.min(activeIdx + 1, personalizedFeedItems.length - 1);
         el.scrollTo({ top: next * el.clientHeight, behavior: 'smooth' });
       } else if (e.key === 'ArrowUp' || e.key === 'k') {
         e.preventDefault();
@@ -827,7 +896,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [activeIdx, feedItems.length]);
+  }, [activeIdx, personalizedFeedItems.length]);
 
   const handleLike = useCallback(async (id: string) => {
     const wasLiked = likedPosts.has(id);
@@ -864,15 +933,32 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
 
   // ── Swipe-left routing ─────────────────────────────────────────────────
   const handleSwipeLeft = useCallback((post: FeedPost) => {
+    setSwipePrefs(prev => nextSwipePreferences(prev, post, 'more'));
+    setRedistributionNotice(null);
+    recordDreamRView(post, 'left');
     if (isYouTube(post)) {
       setChannelPost(post);
     } else {
       setCreatorPost(post);
     }
-  }, []);
+  }, [recordDreamRView]);
+
+  const handleSwipeRight = useCallback((post: FeedPost) => {
+    setSwipePrefs(prev => nextSwipePreferences(prev, post, 'less'));
+    const creator = post.profiles?.display_name ?? post.profiles?.handle ?? 'that creator';
+    const type = contentTypePreferenceKey(post);
+    setRedistributionNotice(`Showing you less ${type} from ${creator}; this card is recycled to someone more likely to swipe up or left before it earns a real view.`);
+    window.setTimeout(() => setRedistributionNotice(null), 4200);
+    requestAnimationFrame(() => {
+      const el = scrollRef.current;
+      if (!el) return;
+      const next = Math.min(activeIdx, Math.max(0, personalizedFeedItems.length - 2));
+      el.scrollTo({ top: next * el.clientHeight, behavior: 'smooth' });
+    });
+  }, [activeIdx, personalizedFeedItems.length]);
 
   // ── Empty state ────────────────────────────────────────────────────────
-  if (feedItems.length === 0 && !ytLoading) {
+  if (personalizedFeedItems.length === 0 && !ytLoading) {
     return (
       <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, background: DR.bg, fontFamily: DR.font }}>
         <div style={{ width: 60, height: 50, borderRadius: 22, background: DR.bg, boxShadow: nmR(8), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 25 }}>◈</div>
@@ -972,6 +1058,22 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
         </button>
       )}
 
+      {redistributionNotice && (
+        <div
+          role="status"
+          style={{
+            position: 'absolute', top: 58, left: 14, right: 14, zIndex: 32,
+            padding: '10px 14px', borderRadius: 18,
+            background: 'rgba(232,239,246,0.94)',
+            boxShadow: nmR(4), color: DR.text,
+            fontFamily: DR.font, fontSize: 11, fontWeight: 700, lineHeight: 1.35,
+            border: '1px solid rgba(91,168,212,0.20)',
+          }}
+        >
+          {redistributionNotice}
+        </div>
+      )}
+
       {/* ── Live dot (top-right) ─────────────────────────────────────────── */}
       {isLive && (
         <div style={{ position: 'absolute', top: 14, right: 14, zIndex: 30, display: 'flex', alignItems: 'center', gap: 5, background: DR.bg, boxShadow: nmR(2), borderRadius: 99, padding: '4px 10px', fontSize: 9, fontWeight: 800, color: DR.sky, letterSpacing: '0.10em', textTransform: 'uppercase', fontFamily: DR.font }}>
@@ -980,7 +1082,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
       )}
 
       {/* ── Loading spinner for YouTube topic ───────────────────────────── */}
-      {ytLoading && feedItems.length === 0 && (
+      {ytLoading && personalizedFeedItems.length === 0 && (
         <div style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: DR.bg }}>
           <Loader2 size={28} style={{ color: DR.sky, animation: 'dr-spin 0.8s linear infinite' }} />
         </div>
@@ -994,7 +1096,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
         {/* Spacer for topic strip */}
         <div style={{ height: 54, flexShrink: 0, scrollSnapAlign: 'none' }} />
 
-        {feedItems.map((item, i) => (
+        {personalizedFeedItems.map((item, i) => (
           <div
             key={item.kind === 'creator' ? `creator-${item.creator.id}` : item.post.id}
             style={{ width: '100%', height: '100%', flexShrink: 0, scrollSnapAlign: 'start' }}
@@ -1002,17 +1104,19 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
             {item.kind === 'post' && isYouTube(item.post) ? (
               <VideoPostCard post={item.post} isActive={i === activeIdx}
                 onSwipeLeft={() => handleSwipeLeft(item.post)}
+                onSwipeRight={() => handleSwipeRight(item.post)}
                 onLike={handleLike} liked={likedPosts.has(item.post.id)}
                 saved={savedPosts.has(item.post.id)} onSave={handleSave}
                 onShare={handleShare} />
             ) : item.kind === 'post' ? (
               <PostCard post={item.post} isActive={i === activeIdx}
                 onSwipeLeft={() => handleSwipeLeft(item.post)}
+                onSwipeRight={() => handleSwipeRight(item.post)}
                 onLike={handleLike} liked={likedPosts.has(item.post.id)}
                 saved={savedPosts.has(item.post.id)} onSave={handleSave}
                 onShare={handleShare} onComment={handleComment} />
             ) : item.kind === 'content' ? (
-              <SuggestedContentCard post={item.post} onSwipeLeft={() => handleSwipeLeft(item.post)} />
+              <SuggestedContentCard post={item.post} onSwipeLeft={() => handleSwipeLeft(item.post)} onSwipeRight={() => handleSwipeRight(item.post)} />
             ) : (
               <SuggestedCreatorCard creator={item.creator} />
             )}
@@ -1034,7 +1138,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
       </div>
 
       {/* ── Scroll nudge ─────────────────────────────────────────────────── */}
-      {activeIdx === 0 && feedItems.length > 1 && (
+      {activeIdx === 0 && personalizedFeedItems.length > 1 && (
         <div style={{ position: 'absolute', bottom: 72, left: '50%', transform: 'translateX(-50%)', zIndex: 15, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, animation: 'dr-nudge 2s ease-in-out infinite' }}>
           <div style={{ background: DR.bg, boxShadow: nmR(3), borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <ChevronDown size={16} style={{ color: DR.sky }} />
