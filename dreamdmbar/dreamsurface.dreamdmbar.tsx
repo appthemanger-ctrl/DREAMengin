@@ -53,6 +53,7 @@ import {
   User,
   X,
   ImageIcon,
+  Maximize2,
 } from 'lucide-react';
 
 import { formatRelativeTime }                    from '@/lib/utils';
@@ -94,7 +95,9 @@ import {
   GOLD_LONG_PRESS_MS,
   generateParticles,
   DRAG_TAP_THRESHOLD_PX,
+  DOUBLE_TAP_WINDOW_MS,
   LIGHT_POSITION_CYCLE as _LIGHT_POSITION_CYCLE,
+  resolveGoldTapAction,
   type SlashCommand,
   type Particle,
   type MoodPeriod,
@@ -156,6 +159,7 @@ interface GlowingLightProps {
   firstTime?: boolean;
   tooltip?: string | null;
   onTouchStart?: (e: React.TouchEvent<HTMLSpanElement>) => void;
+  onTouchMove?: (e: React.TouchEvent<HTMLSpanElement>) => void;
   onTouchEnd?: (e: React.TouchEvent<HTMLSpanElement>) => void;
   onClick?: (e: React.MouseEvent<HTMLSpanElement>) => void;
   style?: React.CSSProperties;
@@ -168,6 +172,7 @@ function GlowingLight({
   firstTime,
   tooltip,
   onTouchStart,
+  onTouchMove,
   onTouchEnd,
   onClick,
   style,
@@ -183,6 +188,7 @@ function GlowingLight({
       tabIndex={0}
       aria-label={ariaLabel ?? 'DreamDM light — tap to open menus'}
       onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
       onTouchEnd={onTouchEnd}
       onClick={onClick}
       style={{
@@ -498,6 +504,17 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
   const [firstTimeLight, setFirstTimeLight] = useState(false);
   const [lightTooltip, setLightTooltip] = useState<string | null>(null);
   const lightTooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lightPressRef = useRef<{
+    lastTapAt: number;
+    tapTimer: ReturnType<typeof setTimeout> | null;
+    holdTimer: ReturnType<typeof setTimeout> | null;
+    holdFired: boolean;
+  }>({
+    lastTapAt: 0,
+    tapTimer: null,
+    holdTimer: null,
+    holdFired: false,
+  });
 
   // ── Minimized / collapsed state ───────────────────────────────────────────
   /**
@@ -866,8 +883,10 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
   }, [onSplitChange, screenH, splitRatio, revealBar]);
 
   // ── Dream bar context (route-aware + intent-aware) ──────────────────────────
-  const { barIntent, setBarIntent, clearBarIntent } = useDreamSystem();
+  const { barIntent, setBarIntent, clearBarIntent, openDrEams } = useDreamSystem();
   const barCtx = useDreamBarContext(barIntent.mode, barIntent.targetLabel);
+  const dividerModeActive = typeof splitRatio === 'number' && typeof onSplitChange === 'function';
+  const [expandTapCount, setExpandTapCount] = useState(0);
 
   // ── Messaging state ────────────────────────────────────────────────────────
   const [mounted,        setMounted]        = useState(false);
@@ -891,6 +910,14 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
     } catch { /* ignore */ }
     return () => {
       if (lightTooltipTimerRef.current) clearTimeout(lightTooltipTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      const ref = lightPressRef.current;
+      if (ref.tapTimer) clearTimeout(ref.tapTimer);
+      if (ref.holdTimer) clearTimeout(ref.holdTimer);
     };
   }, []);
 
@@ -997,16 +1024,59 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
     // It was a tap — the light's touch handlers manage the tap separately
   }, [onSplitChange, screenH, splitRatio]);
 
-  // ── Glowing light tap ─────────────────────────────────────────────────────
-  // Single tap opens the dual menus immediately. No double-tap affordance.
+  function openDreamDMInput() {
+    setIsMinimized(false);
+    revealBar();
+    setIsBloom(true);
+    setBarIntent({ mode: 'message' });
+    setTimeout(() => textareaRef.current?.focus(), 60);
+  }
+
+  // ── Glowing light tap/hold ────────────────────────────────────────────────
+  // Double tap opens menus. Tap-and-hold opens the DreamDM text input.
 
   const handleLightTap = useCallback(() => {
-    if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(4);
-    onBothMenus();
+    const ref = lightPressRef.current;
+    if (ref.holdFired) {
+      ref.holdFired = false;
+      return;
+    }
+    const now = Date.now();
+    const result = resolveGoldTapAction(ref.lastTapAt, now);
+    ref.lastTapAt = result.nextLastTapAt;
+    if (ref.tapTimer) clearTimeout(ref.tapTimer);
+    if (result.action === 'menu') {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(4);
+      onBothMenus();
+      return;
+    }
+    ref.tapTimer = setTimeout(() => {
+      ref.lastTapAt = 0;
+      ref.tapTimer = null;
+    }, DOUBLE_TAP_WINDOW_MS);
   }, [onBothMenus]);
 
   const handleLightTouchStart = useCallback((_e: React.TouchEvent<HTMLSpanElement>) => {
-    // resolved on touchend
+    const ref = lightPressRef.current;
+    ref.holdFired = false;
+    if (ref.holdTimer) clearTimeout(ref.holdTimer);
+    ref.holdTimer = setTimeout(() => {
+      ref.holdFired = true;
+      ref.lastTapAt = 0;
+      if (ref.tapTimer) {
+        clearTimeout(ref.tapTimer);
+        ref.tapTimer = null;
+      }
+      openDreamDMInput();
+    }, GOLD_LONG_PRESS_MS);
+  }, []);
+
+  const handleLightTouchMove = useCallback(() => {
+    const ref = lightPressRef.current;
+    if (ref.holdTimer) {
+      clearTimeout(ref.holdTimer);
+      ref.holdTimer = null;
+    }
   }, []);
 
   const handleLightTouchEnd = useCallback((e: React.TouchEvent<HTMLSpanElement>) => {
@@ -1014,6 +1084,11 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
     // Suppress the synthetic mouse/click that follows touchend so we don't
     // double-count the tap on iOS / Android.
     e.preventDefault();
+    const pressRef = lightPressRef.current;
+    if (pressRef.holdTimer) {
+      clearTimeout(pressRef.holdTimer);
+      pressRef.holdTimer = null;
+    }
     const ref = barTouchRef.current;
     if (ref.didDrag) return;
     handleLightTap();
@@ -1040,6 +1115,36 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
   const singleLineHRef = useRef(0);
   // Extra height the compose bubble adds above the fixed bar (divider mode only)
   const [composeExtraH, setComposeExtraH] = useState(0);
+
+  const closeToParticleLine = useCallback(() => {
+    setIsBloom(false);
+    setExpandTapCount(0);
+    clearBarIntent();
+    setQuickDraft('');
+    setQuickDraftFiles([]);
+    quickDraftPreviews.forEach(url => URL.revokeObjectURL(url));
+    setQuickDraftPreviews([]);
+    setBarTouched(false);
+    setComposeFocused(false);
+  }, [clearBarIntent, quickDraftPreviews]);
+
+  const handleExpandButtonClick = useCallback(() => {
+    if (expandTapCount === 0) {
+      setExpandTapCount(1);
+      if (dividerModeActive) {
+        openDreamDMInput();
+      } else {
+        revealBar();
+        setDragH((h) => Math.max(h, 280));
+        setIsTop(false);
+        setIsTopExpanded(false);
+        setSlideDown(0);
+      }
+      return;
+    }
+    openDrEams();
+    setExpandTapCount(0);
+  }, [dividerModeActive, expandTapCount, openDrEams, revealBar]);
 
   const { conversations, reload: reloadConvs } = useDreamDMConversations(userId);
   const { unreadCount, markAllRead }            = useNotifications();
@@ -1554,7 +1659,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
   const transition = isDragging ? 'none' : SPRING;
 
   // ── Divider mode: bar is a fixed-height spatial seam driven by splitRatio ──
-  const isDividerMode = typeof splitRatio === 'number' && typeof onSplitChange === 'function';
+  const isDividerMode = dividerModeActive;
   const dividerBarTop: number = isDividerMode
     ? Math.round((splitRatio as number) * (screenH - DIVIDER_H))
     : 0;
@@ -1570,7 +1675,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
     ? DIVIDER_H + composeExtraH
     : (isTop ? (isTopExpanded ? TOP_H : dragH) : dragH);
   const barTop: number  = isDividerMode
-    ? dividerBarTop - composeExtraH
+    ? Math.max(8, dividerBarTop - composeExtraH)
     : (isTop ? (isTopExpanded ? slideDown : 0) : (screenH - dragH));
 
   // showFull: whether to render the expanded tab panel instead of the compact bar
@@ -1609,7 +1714,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
   // ── Keyboard-aware bottom offset ─────────────────────────────────────────
   // When the user is composing and the keyboard is visible, translate the bar
   // upward so it floats just above the keyboard instead of being hidden behind it.
-  const keyboardTranslateY = composeFocused && keyboardOffsetPx > 0
+  const keyboardTranslateY = !isDividerMode && composeFocused && keyboardOffsetPx > 0
     ? -keyboardOffsetPx
     : 0;
 
@@ -1638,6 +1743,14 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
   const isSeamMode = isDividerMode && !isDragging && !barTouched
     && !composeFocused && composeExtraH === 0;
   const isParticleMode = isDividerMode && isDragging && particlePos !== null;
+  const bloomBottomPx = Math.max(
+    8,
+    Math.min(Math.max(8, screenH - 116), screenH - barTop + keyboardOffsetPx + 6),
+  );
+  const overlayBottomPx = Math.max(
+    8,
+    Math.min(Math.max(8, screenH - 96), screenH - barTop + keyboardOffsetPx + 8),
+  );
   // Keep isSeamModeRef in sync so event callbacks can read it without staleness.
   isSeamModeRef.current = isSeamMode;
 
@@ -1716,7 +1829,9 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
             left: 12,
             right: 12,
             // Position bottom edge just above the seam (barTop), accounting for keyboard
-            bottom: screenH - barTop + keyboardOffsetPx + 6,
+            bottom: bloomBottomPx,
+            maxHeight: `calc(100dvh - ${bloomBottomPx + 12}px)`,
+            overflowY: 'auto',
             zIndex: 101,
             background: 'rgba(255,255,255,0.97)',
             backdropFilter: 'blur(40px) saturate(180%)',
@@ -1748,7 +1863,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
               type="button"
               aria-label="Close input"
               onPointerDown={(e) => e.stopPropagation()}
-              onClick={() => { setIsBloom(false); clearBarIntent(); setQuickDraft(''); }}
+              onClick={closeToParticleLine}
               style={{
                 background: 'rgba(180,185,200,0.18)', border: 'none', borderRadius: '50%',
                 width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -2124,9 +2239,10 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
                 isDragging={isDragging}
                 tooltip={lightTooltip}
                 onTouchStart={handleLightTouchStart}
+                onTouchMove={handleLightTouchMove}
                 onTouchEnd={handleLightTouchEnd}
                 onClick={handleLightClick}
-                aria-label="DreamDM seam — tap for menus, drag to resize"
+                aria-label="DreamDM seam — double tap for menus, hold for input, drag to resize"
               />
             </div>
           </div>
@@ -2175,6 +2291,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
                   isDragging={isDragging}
                   tooltip={lightTooltip}
                   onTouchStart={handleLightTouchStart}
+                  onTouchMove={handleLightTouchMove}
                   onTouchEnd={handleLightTouchEnd}
                   onClick={handleLightClick}
                 />
@@ -2237,9 +2354,24 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
                   </button>
                   <button
                     type="button"
+                    aria-label={expandTapCount === 0 ? 'Expand DreamDM bar' : 'Open Dr. Eams window'}
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={handleExpandButtonClick}
+                    style={{
+                      background: expandTapCount === 0 ? 'rgba(200,152,26,0.15)' : 'rgba(42,138,184,0.18)',
+                      border: 'none', borderRadius: 8,
+                      width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer', color: expandTapCount === 0 ? 'var(--de-gold)' : 'var(--de-blue)',
+                      transition: 'background 0.18s',
+                    }}
+                  >
+                    <Maximize2 size={13} aria-hidden />
+                  </button>
+                  <button
+                    type="button"
                     aria-label="Close DreamDM Bar"
                     onPointerDown={(e) => e.stopPropagation()}
-                    onClick={minimizeDreamDMBar}
+                    onClick={isDividerMode ? closeToParticleLine : minimizeDreamDMBar}
                     style={{
                       background: 'rgba(180,185,200,0.15)', border: 'none', borderRadius: 8,
                       width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -2342,6 +2474,30 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
                 {/* Spacer pushes mode buttons to the right */}
                 <div style={{ flex: 1 }} />
 
+                {/* Expand button: first press grows the bar/input, second opens Dr. Eams */}
+                <button
+                  type="button"
+                  aria-label={expandTapCount === 0 ? 'Expand DreamDM bar' : 'Open Dr. Eams window'}
+                  title={expandTapCount === 0 ? 'Expand' : 'Dr. Eams'}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={handleExpandButtonClick}
+                  style={{
+                    flexShrink: 0,
+                    background: expandTapCount === 0 ? 'rgba(200,152,26,0.14)' : 'rgba(42,138,184,0.18)',
+                    border: expandTapCount === 0 ? '1px solid rgba(200,152,26,0.24)' : '1px solid rgba(42,138,184,0.26)',
+                    borderRadius: '50%',
+                    width: isCompactViewport ? 36 : 32,
+                    height: isCompactViewport ? 36 : 32,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer',
+                    color: expandTapCount === 0 ? 'var(--de-gold)' : 'var(--de-blue)',
+                    transition: 'all 0.18s',
+                    WebkitTapHighlightColor: 'transparent',
+                  }}
+                >
+                  <Maximize2 size={13} aria-hidden />
+                </button>
+
                 {/* Mode buttons: Search · Message · Dr. Eams */}
                 <ModeButton
                   mode="search"
@@ -2368,12 +2524,12 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
                   compact={isCompactViewport}
                 />
 
-                {/* Close (X) button — collapses bar into a gold orb */}
+                {/* Close (X) button — divider mode returns to particle + line */}
                 <button
                   type="button"
                   aria-label="Close DreamDM Bar"
                   onPointerDown={(e) => e.stopPropagation()}
-                  onClick={minimizeDreamDMBar}
+                  onClick={isDividerMode ? closeToParticleLine : minimizeDreamDMBar}
                   style={{
                     flexShrink: 0,
                     background: 'rgba(180,185,200,0.15)',
@@ -2674,7 +2830,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
           className="sicc-slash-palette"
           style={{
             position: 'fixed',
-            bottom: isDividerMode ? (screenH - barTop + 8) : (screenH - barTop + 8),
+            bottom: isDividerMode ? overlayBottomPx : (screenH - barTop + 8),
             left: isCompactViewport ? 12 : 24,
             right: isCompactViewport ? 12 : 24,
             maxHeight: 320,
