@@ -388,7 +388,7 @@ export default function NullCathedral() {
   }, [moves, selected, turn, phaseRef]);
 
   // Move a piece, handle mine + capture, then trigger CASTLE turn.
-  const movePiece = useCallback((fr: number, fc: number, tr: number, tc: number, side: Side) => {
+  const movePiece = (fr: number, fc: number, tr: number, tc: number, side: Side) => {
     const b = boardRef.current.map((row) => row.slice());
     const moved = b[fr][fc]!; const captured = b[tr][tc];
     b[fr][fc] = null; b[tr][tc] = moved;
@@ -487,7 +487,7 @@ export default function NullCathedral() {
     setScore((s) => s + pts);
     setLog((l) => [logEntry, ...l].slice(0, 8));
     setTurn(side === 'iren' ? 'castle' : 'iren');
-  }, [setPhase]);
+  };
 
   // CASTLE AI: pick a random legal move (prefers captures)
   useEffect(() => {
