@@ -13,6 +13,7 @@ import ActiveModuleSurface from '@/components/home/dream.ActiveModuleSurface';
 import DreamRSection from '@/dreamdmbar/homedream/dreamr/dreamsurface.dreamr';
 import { useNotifications } from '@/lib/notifications/useNotifications';
 import { isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
+import DraggableDream from '@/components/dreams/dream.DraggableDream';
 
 type ProfileLike = {
   id?: string;
@@ -102,6 +103,11 @@ export default function HomeDreamSurface({
   // Never use onOpenUrl (iframe approach) — iframes cause blank pages.
   const openPage = (url: string, _label?: string) => {
     router.push(url);
+  };
+
+  const prefetchDream = (url: string) => {
+    router.prefetch?.(url);
+    void fetch(url, { method: 'HEAD' }).catch(() => undefined);
   };
 
   useEffect(() => {
@@ -308,11 +314,14 @@ export default function HomeDreamSurface({
       <div style={{ padding: isCompactViewport ? '16px 12px 0' : '20px 16px 0' }}>
 
         {/* ── Flagship engines + DREAMfield-mini momentum widget ─────────── */}
-        <FlagshipEnginesStrip
-          isCompactViewport={isCompactViewport}
-        />
+        <DraggableDream dream={{ dream_id: 'home-flagship-engins', type: 'flagship-engins', surface: 'home', runtime: 'HOME', title: 'Flagship Engins' }}>
+          <FlagshipEnginesStrip
+            isCompactViewport={isCompactViewport}
+          />
+        </DraggableDream>
 
         {/* ── Hero card ─────────────────────────────────────────────────────── */}
+        <DraggableDream dream={{ dream_id: 'home-hero', type: 'homedream-hero', surface: 'home', runtime: 'HOME', title: `${name}'s feed` }}>
         <div className="de-auth-hero de-surface" style={{ marginBottom: 16, padding: isCompactViewport ? 16 : 20 }}>
           <div style={{ position: 'relative', zIndex: 1 }}>
             <div className="de-kicker" style={{ marginBottom: 10 }}>HomeDream</div>
@@ -361,9 +370,13 @@ export default function HomeDreamSurface({
             </div>
           </div>
         </div>
+        </DraggableDream>
 
         {/* ── Feed — the hero of the page ───────────────────────────────────── */}
+        <DraggableDream dream={{ dream_id: 'home-feed', type: 'feed', surface: 'home', runtime: 'HOME', title: 'HomeDream Feed' }}>
         <div
+          onMouseEnter={() => prefetchDream('/api/dreamr/feed')}
+          onTouchStart={() => prefetchDream('/api/dreamr/feed')}
           className="sicc-glass-in"
           style={{
             background: 'rgba(255,255,255,0.82)',
@@ -425,9 +438,12 @@ export default function HomeDreamSurface({
             embedded
           />
         </div>
+        </DraggableDream>
 
         {/* ── Daydream navigation ──────────────────────────────────────────── */}
-        <DaydreamPulseStrip onOpenDaydream={(href, label) => openPage(href, `${label} Daydream`)} />
+        <DraggableDream dream={{ dream_id: 'home-daydream-pulse', type: 'daydream-pulse', surface: 'home', runtime: 'HOME', title: 'Daydream Pulse' }}>
+          <DaydreamPulseStrip onOpenDaydream={(href, label) => openPage(href, `${label} Daydream`)} />
+        </DraggableDream>
       </div>
     </div>
   );

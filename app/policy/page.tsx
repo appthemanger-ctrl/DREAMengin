@@ -96,7 +96,7 @@ export default function PolicyPage() {
               <li>Every action is <strong>logged</strong>, explained in plain language, and linked to a specific rule on this page.</li>
               <li>You can always <Link href="/policy#appeals" style={{ color: 'var(--de-accent)' }}>appeal any action</Link>. No permanent bans without human review.</li>
               <li><strong>Dr. Eams</strong> explains what happened and what you can do next. <strong>IDARi</strong> handles system-level tuning.</li>
-              <li><strong>Dreams</strong> = widget containers. <strong>DayDreams</strong> = full-powered mini-apps. Content inside both is moderated.</li>
+              <li><strong>Dreams</strong> = movable OS cards. <strong>DayDreams</strong> = full-powered mini-apps. Content inside both is moderated.</li>
             </ul>
             <div className="mt-3" style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.6 }}>
               Version <span className="font-mono">{BOOGIE_POLICY_VERSION}</span> · Last updated 2026-02-27 ·{' '}

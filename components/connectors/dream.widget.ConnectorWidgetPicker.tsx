@@ -213,7 +213,7 @@ export default function ConnectorWidgetPicker({
                 Connect a Service
               </div>
               <div style={{ fontSize: 11, color: '#888', marginTop: 1 }}>
-                Tap to add as a widget
+                Tap to add as a Dream
               </div>
             </div>
           </div>
@@ -313,7 +313,7 @@ export default function ConnectorWidgetPicker({
                   {pending.name}
                 </div>
                 <div style={{ fontSize: 13, color: '#888', lineHeight: 1.4 }}>
-                  {pending.description} — added as a widget to your profile grid.
+                  {pending.description} — added as a Dream to your profile grid.
                 </div>
               </div>
 
@@ -509,7 +509,7 @@ function ConnectorCard({
         letterSpacing: '0.04em',
         textTransform: 'uppercase',
       }}>
-        {isAdded ? <><Check size={9} /> Added</> : '+ Add widget'}
+        {isAdded ? <><Check size={9} /> Added</> : '+ Add Dream'}
       </div>
     </button>
   );

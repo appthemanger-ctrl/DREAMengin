@@ -174,7 +174,7 @@ export type HostConfig = FeedHostConfig | CompositeHostConfig | Record<string, u
 // 11. WIDGET DEFINITION (immutable identity + bindable behavior)
 // =====================================================
 
-export interface WidgetDefinition {
+export interface DreamDefinition {
   widget_id: string;
   owner_id: string;
   name: string;
@@ -190,7 +190,7 @@ export interface WidgetDefinition {
 // 12. WIDGET INSTANCE (placement + transform + presentation)
 // =====================================================
 
-export interface WidgetInstance {
+export interface DreamInstance {
   instance_id: string;
   widget_id: string;
   owner_id: string;
@@ -220,7 +220,10 @@ export interface WidgetInstance {
 }
 
 // Helper to get transform from instance
-export function getInstanceTransform(instance: WidgetInstance): WidgetTransform {
+export type WidgetDefinition = DreamDefinition;
+export type WidgetInstance = DreamInstance;
+
+export function getInstanceTransform(instance: DreamInstance): WidgetTransform {
   return {
     x: instance.transform_x,
     y: instance.transform_y,
@@ -234,7 +237,7 @@ export function getInstanceTransform(instance: WidgetInstance): WidgetTransform 
 export function setInstanceTransform(
   instance: WidgetInstance,
   transform: WidgetTransform
-): WidgetInstance {
+): DreamInstance {
   return {
     ...instance,
     transform_x: transform.x,

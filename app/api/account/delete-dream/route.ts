@@ -82,12 +82,12 @@ export async function POST(req: NextRequest) {
   const supabaseAny = supabase as any;
   const tableResults = await Promise.all([
     supabase.from('feed_rules').delete().eq('user_id', user.id),
-    supabase.from('widget_instances').delete().eq('user_id', user.id),
+    supabase.from('dream_instances').delete().eq('user_id', user.id),
     supabaseAny.from('connector_configs').delete().eq('user_id', user.id),
     supabaseAny.from('page_configs').delete().eq('user_id', user.id),
   ]);
 
-  const tableNames = ['feed_rules', 'widget_instances', 'connector_configs', 'page_configs'] as const;
+  const tableNames = ['feed_rules', 'dream_instances', 'connector_configs', 'page_configs'] as const;
   for (let i = 0; i < tableNames.length; i++) {
     const { error } = tableResults[i];
     if (error) {

@@ -1,6 +1,6 @@
 // app/api/account/delete-data/route.ts
 // "Delete My Data" endpoint.
-// Removes feed_rules, widget_instances, connector_configs, page configs.
+// Removes feed_rules, dream_instances, connector_configs, page configs.
 // Preserves auth identity and profile handle.
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
   const supabaseAny = supabase as any;
   const [feedResult, widgetResult, connectorResult, pageResult] = await Promise.all([
     supabase.from('feed_rules').delete().eq('user_id', user.id),
-    supabase.from('widget_instances').delete().eq('user_id', user.id),
+    supabase.from('dream_instances').delete().eq('user_id', user.id),
     supabaseAny.from('connector_configs').delete().eq('user_id', user.id),
     supabaseAny.from('page_configs').delete().eq('user_id', user.id),
   ]);
@@ -58,9 +58,9 @@ export async function POST(req: NextRequest) {
   }
 
   if (widgetResult.error) {
-    errors.push(`widget_instances: ${widgetResult.error.message}`);
+    errors.push(`dream_instances: ${widgetResult.error.message}`);
   } else {
-    deleted.push('widget_instances');
+    deleted.push('dream_instances');
   }
 
   if (connectorResult.error) {

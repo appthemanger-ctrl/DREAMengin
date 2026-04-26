@@ -1,6 +1,6 @@
 -- 20260319065444_new-migration.sql
 -- Adds missing tables referenced by API routes:
---   likes, widget_content, widget_events, connector_configs, page_configs
+--   likes, dream_content, widget_events, connector_configs, page_configs
 -- Also adds the increment_likes RPC helper used by the likes API.
 --
 -- AXIOM 4 — Security by Default:
@@ -73,11 +73,11 @@ EXCEPTION
 END;
 $$;
 
--- ── widget_content ─────────────────────────────────────────────────────────
+-- ── dream_content ─────────────────────────────────────────────────────────
 -- Stores compressed widget payload blobs. content_hash provides deduplication
 -- so identical payloads are stored only once (upload API checks hash first).
 
-CREATE TABLE IF NOT EXISTS widget_content (
+CREATE TABLE IF NOT EXISTS dream_content (
   id               uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   owner_id         uuid        REFERENCES auth.users(id) ON DELETE CASCADE,
   content_hash     text        UNIQUE,
@@ -90,13 +90,13 @@ CREATE TABLE IF NOT EXISTS widget_content (
   updated_at       timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX IF NOT EXISTS widget_content_owner_id_idx
-  ON widget_content (owner_id);
+CREATE INDEX IF NOT EXISTS dream_content_owner_id_idx
+  ON dream_content (owner_id);
 
-CREATE INDEX IF NOT EXISTS widget_content_hash_idx
-  ON widget_content (content_hash);
+CREATE INDEX IF NOT EXISTS dream_content_hash_idx
+  ON dream_content (content_hash);
 
-CREATE OR REPLACE FUNCTION public.set_widget_content_updated_at()
+CREATE OR REPLACE FUNCTION public.set_dream_content_updated_at()
 RETURNS TRIGGER LANGUAGE plpgsql AS $$
 BEGIN
   NEW.updated_at = now();
@@ -104,32 +104,32 @@ BEGIN
 END;
 $$;
 
-DROP TRIGGER IF EXISTS widget_content_updated_at ON widget_content;
-CREATE TRIGGER widget_content_updated_at
-  BEFORE UPDATE ON widget_content
-  FOR EACH ROW EXECUTE FUNCTION public.set_widget_content_updated_at();
+DROP TRIGGER IF EXISTS dream_content_updated_at ON dream_content;
+CREATE TRIGGER dream_content_updated_at
+  BEFORE UPDATE ON dream_content
+  FOR EACH ROW EXECUTE FUNCTION public.set_dream_content_updated_at();
 
-ALTER TABLE widget_content ENABLE ROW LEVEL SECURITY;
+ALTER TABLE dream_content ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "widget_content_select_own" ON widget_content;
-CREATE POLICY "widget_content_select_own"
-  ON widget_content FOR SELECT
+DROP POLICY IF EXISTS "dream_content_select_own" ON dream_content;
+CREATE POLICY "dream_content_select_own"
+  ON dream_content FOR SELECT
   USING (auth.uid() = owner_id);
 
-DROP POLICY IF EXISTS "widget_content_insert_own" ON widget_content;
-CREATE POLICY "widget_content_insert_own"
-  ON widget_content FOR INSERT
+DROP POLICY IF EXISTS "dream_content_insert_own" ON dream_content;
+CREATE POLICY "dream_content_insert_own"
+  ON dream_content FOR INSERT
   WITH CHECK (auth.uid() = owner_id);
 
-DROP POLICY IF EXISTS "widget_content_update_own" ON widget_content;
-CREATE POLICY "widget_content_update_own"
-  ON widget_content FOR UPDATE
+DROP POLICY IF EXISTS "dream_content_update_own" ON dream_content;
+CREATE POLICY "dream_content_update_own"
+  ON dream_content FOR UPDATE
   USING (auth.uid() = owner_id)
   WITH CHECK (auth.uid() = owner_id);
 
-DROP POLICY IF EXISTS "widget_content_delete_own" ON widget_content;
-CREATE POLICY "widget_content_delete_own"
-  ON widget_content FOR DELETE
+DROP POLICY IF EXISTS "dream_content_delete_own" ON dream_content;
+CREATE POLICY "dream_content_delete_own"
+  ON dream_content FOR DELETE
   USING (auth.uid() = owner_id);
 
 -- ── widget_events ──────────────────────────────────────────────────────────
@@ -138,7 +138,7 @@ CREATE POLICY "widget_content_delete_own"
 CREATE TABLE IF NOT EXISTS widget_events (
   id                 uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   actor_id           uuid        REFERENCES auth.users(id) ON DELETE CASCADE,
-  widget_instance_id uuid,       -- references widget_instances.instance_id; nullable
+  widget_instance_id uuid,       -- references dream_instances.instance_id; nullable
   event_type         text,
   payload            jsonb,
   type               text,

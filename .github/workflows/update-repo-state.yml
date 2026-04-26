@@ -1,0 +1,33 @@
+name: Update Repo State
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [completedream]
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.0
+      - uses: ./.github/actions/setup-node
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      - name: Deploy to Vercel production
+        if: github.ref_name == 'completedream'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          test -n "$VERCEL_TOKEN"
+          pnpm dlx vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+          pnpm dlx vercel@latest build --prod --token="$VERCEL_TOKEN"
+          pnpm dlx vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+      - name: Health check
+        if: github.ref_name == 'completedream'
+        run: curl --fail --retry 5 --retry-delay 10 https://dreamengin.com/api/health

@@ -4,7 +4,7 @@ ALTER TABLE follows ENABLE ROW LEVEL SECURITY;
 ALTER TABLE app_posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE feed_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE feed_rules ENABLE ROW LEVEL SECURITY;
-ALTER TABLE widget_instances ENABLE ROW LEVEL SECURITY;
+ALTER TABLE dream_instances ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ad_slots ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ad_listings ENABLE ROW LEVEL SECURITY;
@@ -41,8 +41,8 @@ CREATE POLICY "Own feed_items" ON feed_items USING (auth.uid() = user_id) WITH C
 -- feed_rules: own only
 CREATE POLICY "Own feed_rules" ON feed_rules USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
--- widget_instances: own only
-CREATE POLICY "Own widgets" ON widget_instances USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+-- dream_instances: own only
+CREATE POLICY "Own widgets" ON dream_instances USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
 -- notifications: own only
 CREATE POLICY "Own notifications" ON notifications USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);

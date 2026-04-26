@@ -18,7 +18,7 @@ import { ArrowLeft, ShoppingBag, Loader2, DollarSign, Tag } from 'lucide-react';
 
 
 const CATEGORIES = [
-  { value: 'widget',    label: '🧩 Widget',    desc: 'Add-on module for HomeDream' },
+  { value: 'widget',    label: '🧩 Dream',    desc: 'Dream module for HomeDream' },
   { value: 'theme',     label: '🎨 Theme',     desc: 'Color scheme / glass preset' },
   { value: 'connector', label: '🔌 Connector', desc: 'Third-party integration' },
   { value: 'music',     label: '🎵 Music',     desc: 'Sample pack or sound kit' },

@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
   const compressed = gzipSync(Buffer.from(json, 'utf8')).toString('base64');
 
   const { data: existing, error: existingError } = await supabase
-    .from('widget_content')
+    .from('dream_content')
     .select('id, content_hash')
     .eq('content_hash', contentHash)
     .maybeSingle();
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
 
   if (!contentId) {
     const { data: insertedContent, error: insertError } = await supabase
-      .from('widget_content')
+      .from('dream_content')
       .insert({
         owner_id: user.id,
         content_hash: contentHash,

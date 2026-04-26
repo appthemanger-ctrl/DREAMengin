@@ -2275,7 +2275,7 @@ export type Database = {
           location: string | null
           updated_at: string
           website: string | null
-          widget_config: Json
+          dream_config: Json
         }
         Insert: {
           avatar_url?: string | null
@@ -2289,7 +2289,7 @@ export type Database = {
           location?: string | null
           updated_at?: string
           website?: string | null
-          widget_config?: Json
+          dream_config?: Json
         }
         Update: {
           avatar_url?: string | null
@@ -2303,7 +2303,7 @@ export type Database = {
           location?: string | null
           updated_at?: string
           website?: string | null
-          widget_config?: Json
+          dream_config?: Json
         }
         Relationships: []
       }
@@ -2674,7 +2674,7 @@ export type Database = {
           },
         ]
       }
-      widget_content: {
+      dream_content: {
         Row: {
           content: Json
           content_body: string | null
@@ -2713,7 +2713,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "widget_content_widget_id_fkey"
+            foreignKeyName: "dream_content_widget_id_fkey"
             columns: ["widget_id"]
             isOneToOne: true
             referencedRelation: "widgets"
@@ -2721,7 +2721,7 @@ export type Database = {
           },
         ]
       }
-      widget_definitions: {
+      dream_definitions: {
         Row: {
           component: string | null
           created_at: string
@@ -2821,7 +2821,7 @@ export type Database = {
           },
         ]
       }
-      widget_instances: {
+      dream_instances: {
         Row: {
           config: Json
           created_at: string
@@ -2848,17 +2848,17 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "widget_instances_user_id_fkey"
+            foreignKeyName: "dream_instances_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "widget_instances_widget_type_fkey"
+            foreignKeyName: "dream_instances_widget_type_fkey"
             columns: ["widget_type"]
             isOneToOne: false
-            referencedRelation: "widget_definitions"
+            referencedRelation: "dream_definitions"
             referencedColumns: ["key"]
           },
         ]

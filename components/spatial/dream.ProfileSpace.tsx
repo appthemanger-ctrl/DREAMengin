@@ -311,7 +311,7 @@ function EmptyProfileState({ isOwner, onAddWidget }: { isOwner: boolean; onAddWi
       <h3 className="text-xl font-semibold text-foreground mb-2">{isOwner ? "No widgets yet" : "Nothing to see here"}</h3>
       <p className="text-muted-foreground text-sm max-w-sm mb-6">
         {isOwner
-          ? "Add widgets to your profile to share content with the world. Everything starts private in HOME."
+          ? "Add Dreams to your profile to share content with the world. Everything starts private in HOME."
           : "This user hasn't shared any content yet."}
       </p>
       {isOwner && (
@@ -777,7 +777,7 @@ function AddWidgetModal({
       <div className="w-full max-w-md bg-card rounded-2xl border border-border shadow-xl">
         <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Add Widget</h2>
+            <h2 className="text-lg font-semibold">Add Dream</h2>
             <button onClick={onClose} className="p-1 hover:bg-muted rounded">
               <X className="w-5 h-5" />
             </button>

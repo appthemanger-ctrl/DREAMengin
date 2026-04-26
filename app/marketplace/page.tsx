@@ -8,7 +8,7 @@ import DreamWord from '@/components/ui/dream.DreamWord';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import { connection } from 'next/server';
 
-export const metadata = { title: 'DreamMarketplace – Dreamengin', description: 'Discover themes, widgets, and tools from the community.' };
+export const metadata = { title: 'DreamMarketplace – Dreamengin', description: 'Discover themes, Dreams, and tools from the community.' };
 
 type MarketplaceListing = {
   id: string;
@@ -22,7 +22,7 @@ type MarketplaceListing = {
 
 const FALLBACK_CATEGORIES = [
   { icon: '🎨', label: 'Themes',     href: '/shop',           desc: 'Gradient packs and glass presets' },
-  { icon: '🧩', label: 'Widgets',    href: '/shop',           desc: 'Add-on widgets for your spaces' },
+  { icon: '🧩', label: 'Dreams',     href: '/shop',           desc: 'Add-on Dreams for your spaces' },
   { icon: '🔌', label: 'Connectors', href: '/connectors',     desc: 'Third-party service integrations' },
   { icon: '🎵', label: 'Music',      href: '/daydream/music', desc: 'Sample packs and sound kits' },
 ];
@@ -47,7 +47,7 @@ export default async function MarketplacePage() {
       <AuthenticatedPageHeader
         backHref="/homedream"
         title="DreamMarketplace"
-        subtitle="Themes, widgets, sounds, and creator tools curated into a premium storefront."
+        subtitle="Themes, Dreams, sounds, and creator tools curated into a premium storefront."
         icon={<ShoppingBag className="w-4 h-4" />}
         accentColor="var(--de-gold)"
         badge="Storefront"
@@ -66,7 +66,7 @@ export default async function MarketplacePage() {
             <div style={{ fontSize: 38, marginBottom: 8 }}>∞</div>
             <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 4 }}><DreamWord />Marketplace</div>
             <p style={{ fontSize: 13, color: 'var(--de-text-dim)', lineHeight: 1.5, maxWidth: 320, margin: '0 auto 16px' }}>
-              Sell your themes, widgets, sounds, and tools. The first creator is you.
+              Sell your themes, Dreams, sounds, and tools. The first creator is you.
             </p>
             <Link href="/shop/sell" className="de-btn de-btn-gold" style={{ fontSize: 13, padding: '10px 24px', gap: 6 }}>
               <PlusCircle className="w-4 h-4" /> List Your First Item

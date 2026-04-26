@@ -1,10 +1,10 @@
--- 20260310000000_widget_instances_visibility.sql
--- IDARi Batch 4: Add per-instance visibility column to widget_instances.
+-- 20260310000000_dream_instances_visibility.sql
+-- IDARi Batch 4: Add per-instance visibility column to dream_instances.
 --
 -- AXIOM 4 — Security by Default:
 --   Default is 'private' — nothing public unless the user explicitly sets it
 --   (LAW.md §2: nothing is public by default).
---   Existing UPDATE RLS policy "widget_instances_update" already uses
+--   Existing UPDATE RLS policy "dream_instances_update" already uses
 --   USING (auth.uid() = owner_id) WITH CHECK (auth.uid() = owner_id),
 --   so the new column is automatically covered — no extra policy needed.
 --
@@ -14,18 +14,18 @@
 --
 -- Idempotent: ADD COLUMN IF NOT EXISTS is safe to re-run.
 
-ALTER TABLE public.widget_instances
+ALTER TABLE public.dream_instances
   ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'private'
-    CONSTRAINT widget_instances_visibility_check
+    CONSTRAINT dream_instances_visibility_check
       CHECK (visibility IN ('private', 'public', 'followers'));
 
 -- Back-fill any existing rows (covers rows added before this migration).
-UPDATE public.widget_instances
+UPDATE public.dream_instances
   SET visibility = 'private'
   WHERE visibility IS NULL;
 
-COMMENT ON COLUMN public.widget_instances.visibility IS
-  'Audience tier for this widget instance on the profile output surface.
+COMMENT ON COLUMN public.dream_instances.visibility IS
+  'Audience tier for this dream instance on the profile output surface.
    private   → hidden from public ViewProfile (default)
    public    → visible to everyone ("everyone" in the shell UI)
    followers → visible only to confirmed followers ("followers-only" in the shell UI)

@@ -3,7 +3,7 @@
 // Empty slot placeholder (req 64-70)
 //
 // • Big plus icon + "Add" label (req 65)
-// • Opens Widget Library on tap (req 66)
+// • Opens Dream Library on tap (req 66)
 // • Premium look — not a blank rectangle (req 64)
 // • Does not appear in public profile unless user publishes it (req 68)
 //   (parent must pass isPublicView and not render this component if true)
@@ -13,7 +13,7 @@
 import React from 'react';
 
 export interface WidgetPlaceholderProps {
-  /** Called when user taps the placeholder — should open Widget Library (req 66) */
+  /** Called when user taps the placeholder — should open Dream Library (req 66) */
   onOpenLibrary: () => void;
   /** Called when user removes placeholder in Edit Layout (req 67) */
   onRemove?: () => void;

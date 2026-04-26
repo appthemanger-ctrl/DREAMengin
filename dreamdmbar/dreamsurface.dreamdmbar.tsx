@@ -434,12 +434,14 @@ interface DreamDMBarProps {
   onSplitChange?: (ratio: number) => void;
   /** Reports whether the DreamDM Bar is hidden so the host can hide DreamSpace with it. */
   onMinimizedChange?: (isMinimized: boolean) => void;
+  /** Double-tap/hold gesture: swap HomeDream and DreamSpace Dream surfaces. */
+  onSwapRuntimes?: () => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
-export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange, onMinimizedChange }: DreamDMBarProps) {
+export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange, onMinimizedChange, onSwapRuntimes }: DreamDMBarProps) {
   const isGameImmersive = useImmersiveGameLayout();
   /** Gold Particle diameter — shrinks when a game overlay is active so it stays out of the way */
   const goldSz = isGameImmersive ? 36 : GOLD_SZ;
@@ -501,6 +503,11 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
   }>({
     active: false, startY: 0, startTarget: null, didDrag: false,
     lastTapAt: 0, tapTimer: null, textareaFocused: false, touchStartedInTextarea: false,
+  });
+  const swapGestureRef = useRef<{ lastTapAt: number; timer: ReturnType<typeof setTimeout> | null; queued: boolean }>({
+    lastTapAt: 0,
+    timer: null,
+    queued: false,
   });
 
   // ── First-time discovery ─────────────────────────────────────────────────
@@ -921,13 +928,26 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     if (target.closest('[data-de-overlay]')) return;
     const isInTextarea = target.tagName === 'TEXTAREA' || target.closest('textarea') !== null;
     const ref = barTouchRef.current;
+    const now = Date.now();
+    if (onSwapRuntimes && now - swapGestureRef.current.lastTapAt < 320 && !swapGestureRef.current.queued) {
+      swapGestureRef.current.queued = true;
+      if (swapGestureRef.current.timer) clearTimeout(swapGestureRef.current.timer);
+      swapGestureRef.current.timer = setTimeout(() => {
+        onSwapRuntimes();
+        swapGestureRef.current.timer = null;
+        window.setTimeout(() => {
+          swapGestureRef.current.queued = false;
+        }, 500);
+      }, 420);
+    }
+    swapGestureRef.current.lastTapAt = now;
     ref.active = true;
     ref.startY = touch.clientY;
     ref.startTarget = e.target;
     ref.didDrag = false;
     ref.textareaFocused = composeFocused;
     ref.touchStartedInTextarea = isInTextarea;
-  }, [revealBar, composeFocused]);
+  }, [revealBar, composeFocused, onSwapRuntimes]);
 
   const handleBarTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
     const ref = barTouchRef.current;

@@ -211,9 +211,9 @@ export default function UniversalWidget({ service = null, title, sliceName }: Un
 
           {showAddWidgets && (
             <div style={{ padding: '10px 12px', borderRadius: 12, background: 'rgba(42,138,184,0.08)', border: '1px solid rgba(42,138,184,0.2)' }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 4 }}>Add Widgets for {config?.label}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 4 }}>Add Dreams for {config?.label}</div>
               <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 8 }}>
-                Would you like to add relevant widgets for {config?.label}?
+                Would you like to add relevant Dreams for {config?.label}?
               </div>
               <div style={{ display: 'flex', gap: 6 }}>
                 <button type="button" className="de-btn de-btn-primary" style={{ fontSize: 10, padding: '5px 10px' }}>Add Suggested</button>

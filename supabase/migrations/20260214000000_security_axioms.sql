@@ -69,5 +69,5 @@ using (
 -- - profiles_* (already correct)
 -- - feed_items_owner (owned via widgets.owner_id) ✅
 -- - feed_rules_crud_own ✅
--- - widget_instances_* (includes is_admin()) ✅
+-- - dream_instances_* (includes is_admin()) ✅
 -- Because the generic template does not match your schema.
