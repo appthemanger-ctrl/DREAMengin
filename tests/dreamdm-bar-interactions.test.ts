@@ -23,28 +23,28 @@ import {
 
 describe('resolveGoldTapAction', () => {
   it('resolves the first tap to the menu from the bottom state', () => {
-    expect(resolveGoldTapAction({ now: 1_000, lastTapAt: 0, isTop: false })).toEqual({
+    expect(resolveGoldTapAction()).toEqual({
       action: 'menu',
       nextLastTapAt: 0,
     });
   });
 
   it('resolves the first tap to the menu when pinned at the top', () => {
-    expect(resolveGoldTapAction({ now: 1_000, lastTapAt: 0, isTop: true })).toEqual({
+    expect(resolveGoldTapAction()).toEqual({
       action: 'menu',
       nextLastTapAt: 0,
     });
   });
 
   it('keeps a follow-up tap as a single-tap menu action from the bottom state', () => {
-    expect(resolveGoldTapAction({ now: 1_100, lastTapAt: 1_000, isTop: false })).toEqual({
+    expect(resolveGoldTapAction()).toEqual({
       action: 'menu',
       nextLastTapAt: 0,
     });
   });
 
   it('keeps a follow-up tap as a single-tap menu action when pinned at the top', () => {
-    expect(resolveGoldTapAction({ now: 1_100, lastTapAt: 1_000, isTop: true })).toEqual({
+    expect(resolveGoldTapAction()).toEqual({
       action: 'menu',
       nextLastTapAt: 0,
     });

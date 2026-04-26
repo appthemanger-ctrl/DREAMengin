@@ -391,17 +391,7 @@ interface DreamDMBarProps {
    */
   onBothMenus: () => void;
   /**
-   * Contextual Home callback retained for callers that still own home routing.
-   * The Gold Particle no longer invokes it directly; single tap opens menus.
-   * The parent decides what "home" means based on splitRatio:
-   *   bar at bottom → return to Surface (top runtime)
-   *   bar at top    → return to DreamSpace (bottom runtime)
-   *   bar in middle → return both runtimes
-   * See lib/home-buttons/contextual-home.ts.
-   */
-  onHome: () => void;
-  /**
-   * @deprecated Contextual home is resolved by the parent via `onHome`.
+   * @deprecated The Gold Particle opens menus on single tap.
    * Kept for backwards compatibility; no longer invoked from here.
    */
   onHomeDreamSpace?: () => void;
@@ -440,7 +430,7 @@ interface DreamDMBarProps {
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
-export default function DreamDMBar({ onHome: _onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange, onMinimizedChange, onSwapRuntimes }: DreamDMBarProps) {
+export default function DreamDMBar({ onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange, onMinimizedChange, onSwapRuntimes }: DreamDMBarProps) {
   const isGameImmersive = useImmersiveGameLayout();
   /** Gold Particle diameter — shrinks when a game overlay is active so it stays out of the way */
   const goldSz = isGameImmersive ? 36 : GOLD_SZ;

@@ -9,7 +9,6 @@ import InfinityIcon from '@/components/ui/dream.InfinityIcon';
 
 interface HomeControlsProps {
   onBothMenus: () => void;
-  onHome: () => void;
 }
 
 const BTN = 48;

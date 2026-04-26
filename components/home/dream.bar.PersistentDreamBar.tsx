@@ -23,13 +23,12 @@
  */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import DreamDMBar from '@/dreamdmbar/dreamsurface.dreamdmbar';
 import NeuralSeamCanvas from '@/components/home/dream.NeuralSeamCanvas';
 import RuntimeView from '@/components/runtime/dream.RuntimeView';
 import { useDualRuntime } from '@/components/runtime/dream.DualRuntimeContainer';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
-import { runHomeAction } from '@/lib/home-buttons/contextual-home';
 import { DIVIDER_H } from '@/lib/dreamdm/barInteractions';
 import { parseDreamDragData, surfaceForRuntime, transferDream, type DreamRuntime } from '@/lib/dreams/drag';
 import { useDreamLayout } from '@/hooks/useDreamLayout';
@@ -42,7 +41,6 @@ const DEFAULT_WORKFLOW_SPLIT = 0.5;
 
 export default function PersistentDreamBar() {
   const pathname    = usePathname();
-  const router      = useRouter();
   const dualRuntime = useDualRuntime();
   const {
     openBothMenus,
@@ -75,19 +73,6 @@ export default function PersistentDreamBar() {
       return current;
     });
   }, [setIsBarMinimized, setSplitRatio]);
-
-  /**
-   * Home — bar IS home.
-   * When DreamBarDataBridge is active (on /homedream): reset runtime in-place.
-   * When on any other page: navigate to /homedream so DreamBarDataBridge
-   * mounts and makes both regions visible.
-   */
-  const handleHome = useCallback(() => {
-    const fired = runHomeAction(splitRatio, runtimeCallbacks);
-    if (!fired) {
-      router.push('/homedream');
-    }
-  }, [runtimeCallbacks, splitRatio, router]);
 
   const handleHomeDreamSpace = useCallback(() => {
     if (runtimeCallbacks?.openHomeDreamSpace) {
@@ -240,7 +225,6 @@ export default function PersistentDreamBar() {
           Split props only wired when isHomeActive so the bar stays as a
           simple nav-rail on other pages (no seam, no divider mode touch capture). */}
       <DreamDMBar
-        onHome={handleHome}
         onBothMenus={openBothMenus}
         onHomeDreamSpace={isHomeActive ? handleHomeDreamSpace : undefined}
         splitRatio={isHomeActive ? splitRatio : undefined}

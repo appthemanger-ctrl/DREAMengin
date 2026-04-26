@@ -65,22 +65,10 @@ export const BAR_FLING_TO_BOTTOM_VELOCITY_THRESHOLD_PX_PER_MS = 0.9;
 export const BAR_FLING_LINE_RATIO = 0.4;
 export const MIN_POINTER_SAMPLE_DELTA_MS = 1;
 
-export type GoldTapAction = 'menu';
-
 /**
  * Resolves a gold-button release into the immediate single-tap menu action.
- * The legacy timing inputs are retained so older callers/tests can migrate
- * without reintroducing a double-tap requirement.
  */
-export function resolveGoldTapAction({
-  now,
-  lastTapAt,
-  isTop,
-}: {
-  now: number;
-  lastTapAt: number;
-  isTop: boolean;
-}): { action: GoldTapAction; nextLastTapAt: number } {
+export function resolveGoldTapAction(): { action: 'menu'; nextLastTapAt: 0 } {
   return { action: 'menu', nextLastTapAt: 0 };
 }
 

@@ -3,7 +3,6 @@
 import React from 'react';
 
 interface DreamNavControlsProps {
-  onHome: () => void;
   onBothMenus: () => void;
 }
 
