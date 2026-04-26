@@ -83,13 +83,14 @@ describe('DREAMengin v2.0.0 — canonical routes', () => {
     expect(LEGACY_ROUTES.HOME).toBe('/home');
   });
 
-  it('/home route renders the HomeDream surface (DreamBarDataBridge)', () => {
+  it('/home route renders DreamBarDataBridge with DreamDMBar, HomeDream, and DreamSpace', () => {
     const homePage = readFileSync(
       resolve(__dirname, '../app/home/page.tsx'),
       'utf8',
     );
-    expect(homePage).toContain('DreamBarDataBridge');
-    expect(homePage).toContain('DreamBarDataBridge');
+    // /home now re-exports the homedream page so it is a full-featured entry
+    // point (DreamDMBar › HomeDream › DreamSpace) instead of a redirect.
+    expect(homePage).toContain('homedream/page');
   });
 });
 

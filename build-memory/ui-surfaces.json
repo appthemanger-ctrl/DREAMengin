@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-26T21:00:04.072Z",
+  "generated_at": "2026-04-26T21:05:45.681Z",
   "generator": "scripts/sync-build-memory.mjs",
   "count": 121,
   "surfaces": [
@@ -929,13 +929,8 @@
       "type": "page",
       "path": "/home",
       "file": "app/home/page.tsx",
-      "component": "Home",
-      "imports": [
-        {
-          "name": "DreamBarDataBridge",
-          "from": "@/dreamdmbar/homedream/dream.homedream.HomeSystem"
-        }
-      ]
+      "component": null,
+      "imports": []
     },
     {
       "type": "page",
