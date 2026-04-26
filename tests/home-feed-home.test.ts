@@ -80,7 +80,7 @@ describe('HomeDream home surface', () => {
 });
 
 describe('DreamDM divider layout', () => {
-  it('keeps enough divider height for the compact DreamDM bar content', () => {
-    expect(DIVIDER_H).toBeGreaterThanOrEqual(80);
+  it('reserves only the visible seam height between runtimes', () => {
+    expect(DIVIDER_H).toBe(2);
   });
 });

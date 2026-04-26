@@ -227,10 +227,8 @@ export default function PersistentDreamBar() {
       </div>
 
       {/* ── Divider zone fill ────────────────────────────────────────────────
-          The DIVIDER_H-wide gap between Surface Space bottom and DreamSpace top
-          has no background element. When the DreamDMBar is in seam mode (2px line)
-          the body's background-attachment:fixed amber gradient bleeds through the
-          remaining ~106px. This zero-interaction fill div closes that gap. */}
+          The DreamDM seam owns only its visible 2px divider reservation so the
+          two runtimes stay tight without a dead band between them. */}
       {isHomeActive && !isBarMinimized && (
         <div
           aria-hidden="true"
