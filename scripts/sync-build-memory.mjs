@@ -50,11 +50,11 @@ function readFile(p) {
   catch { return ''; }
 }
 
-function write(name, data) {
+function write(name, data, force = false) {
   const file = path.join(OUT, name);
   const nextBody = JSON.stringify(stripGeneratedAt(data));
 
-  if (fs.existsSync(file)) {
+  if (!force && fs.existsSync(file)) {
     try {
       const existing = JSON.parse(fs.readFileSync(file, 'utf8'));
       if (JSON.stringify(stripGeneratedAt(existing)) === nextBody) {
@@ -68,6 +68,36 @@ function write(name, data) {
 
   fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n');
   console.log(`  ✓ build-memory/${name}`);
+}
+
+function changedIgnoringGeneratedAt(name, data) {
+  const file = path.join(OUT, name);
+  if (!fs.existsSync(file)) return true;
+
+  try {
+    const existing = JSON.parse(fs.readFileSync(file, 'utf8'));
+    return JSON.stringify(stripGeneratedAt(existing)) !== JSON.stringify(stripGeneratedAt(data));
+  } catch {
+    return true;
+  }
+}
+
+function hasMixedGeneratedAt(names) {
+  const timestamps = new Set();
+
+  for (const name of names) {
+    const file = path.join(OUT, name);
+    if (!fs.existsSync(file)) continue;
+
+    try {
+      const existing = JSON.parse(fs.readFileSync(file, 'utf8'));
+      if (existing.generated_at) timestamps.add(existing.generated_at);
+    } catch {
+      return true;
+    }
+  }
+
+  return timestamps.size > 1;
 }
 
 function stripGeneratedAt(value) {
@@ -430,9 +460,17 @@ function scanUISurfaces() {
 // ─── main ─────────────────────────────────────────────────────────────────────
 
 console.log('🔍  Scanning repo...');
-write('actions.json',    scanActions());
-write('routes.json',     scanRoutes());
-write('schema.json',     scanSchema());
-write('events.json',     scanEvents());
-write('ui-surfaces.json',scanUISurfaces());
+const outputs = [
+  ['actions.json',     scanActions()],
+  ['routes.json',      scanRoutes()],
+  ['schema.json',      scanSchema()],
+  ['events.json',      scanEvents()],
+  ['ui-surfaces.json', scanUISurfaces()],
+];
+const outputNames = outputs.map(([name]) => name);
+const refreshAll = hasMixedGeneratedAt(outputNames) || outputs.some(([name, data]) => changedIgnoringGeneratedAt(name, data));
+
+for (const [name, data] of outputs) {
+  write(name, data, refreshAll);
+}
 console.log(`✅  build-memory updated (${new Date().toISOString()})`);
