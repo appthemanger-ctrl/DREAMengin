@@ -202,7 +202,6 @@ export default function PersistentDreamBar() {
           height: topHeight,
           zIndex: 1,
           overflow: 'hidden',
-          background: 'var(--de-surface-space-bg, #f0f4fb)',
           borderBottom: isBarMinimized ? '1px solid rgba(93,232,255,0.12)' : 'none',
         }}
         onDragOver={(event) => event.preventDefault()}
@@ -226,6 +225,27 @@ export default function PersistentDreamBar() {
           />
         )}
       </div>
+
+      {/* ── Divider zone fill ────────────────────────────────────────────────
+          The DIVIDER_H-wide gap between Surface Space bottom and DreamSpace top
+          has no background element. When the DreamDMBar is in seam mode (2px line)
+          the body's background-attachment:fixed amber gradient bleeds through the
+          remaining ~106px. This zero-interaction fill div closes that gap. */}
+      {isHomeActive && !isBarMinimized && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'fixed',
+            left: 0,
+            right: 0,
+            top: topHeight,
+            height: dividerHeight,
+            zIndex: 1,
+            pointerEvents: 'none',
+            background: 'var(--de-surface-space-bg, #f0f4fb)',
+          }}
+        />
+      )}
 
       {/* ── DreamDM Bar (the seam) ────────────────────────────────────────────
           Split props only wired when isHomeActive so the bar stays as a
