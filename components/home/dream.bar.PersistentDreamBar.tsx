@@ -226,7 +226,6 @@ export default function PersistentDreamBar() {
           simple nav-rail on other pages (no seam, no divider mode touch capture). */}
       <DreamDMBar
         onBothMenus={openBothMenus}
-        onHomeDreamSpace={isHomeActive ? handleHomeDreamSpace : undefined}
         splitRatio={isHomeActive ? splitRatio : undefined}
         onSplitChange={isHomeActive ? setSplitRatio : undefined}
         onMinimizedChange={isHomeActive ? setIsBarMinimized : undefined}

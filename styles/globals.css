@@ -4277,8 +4277,4 @@ main[role="main"] > * {
     transform: none;
   }
 
-  .de-tooltip:hover::after {
-    opacity: 0;
-    transform: translateX(-50%) translateY(4px);
-  }
 }

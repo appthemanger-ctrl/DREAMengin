@@ -22,28 +22,7 @@ import {
 } from '@/lib/dreamdm/barInteractions';
 
 describe('resolveGoldTapAction', () => {
-  it('resolves the first tap to the menu from the bottom state', () => {
-    expect(resolveGoldTapAction()).toEqual({
-      action: 'menu',
-      nextLastTapAt: 0,
-    });
-  });
-
-  it('resolves the first tap to the menu when pinned at the top', () => {
-    expect(resolveGoldTapAction()).toEqual({
-      action: 'menu',
-      nextLastTapAt: 0,
-    });
-  });
-
-  it('keeps a follow-up tap as a single-tap menu action from the bottom state', () => {
-    expect(resolveGoldTapAction()).toEqual({
-      action: 'menu',
-      nextLastTapAt: 0,
-    });
-  });
-
-  it('keeps a follow-up tap as a single-tap menu action when pinned at the top', () => {
+  it('resolves a gold button release to the single-tap menu action', () => {
     expect(resolveGoldTapAction()).toEqual({
       action: 'menu',
       nextLastTapAt: 0,
