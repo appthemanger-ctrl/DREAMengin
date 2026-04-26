@@ -22,6 +22,14 @@ const BLOCKED_FOR_MINORS = new Set<string>([
   PolicyCategory.MINORS,
 ]);
 
+// Check-ins more than a city-scale hop away from trusted context are treated as
+// impossible until Boogie receives stronger evidence.
+const IMPOSSIBLE_CHECK_IN_METERS = 5000;
+
+// A 25% bot-view share is high enough to indicate coordinated view fraud while
+// leaving room for noisy anonymous traffic before enforcement.
+const BOT_VIEW_SPIKE_RATE = 0.25;
+
 export function resolveActivityFeedTreatment(signals: BoogieActivitySignals): ActivityFeedTreatment {
   const category = signals.category ?? PolicyCategory.NONE;
   if (signals.viewerIsMinor && BLOCKED_FOR_MINORS.has(category)) return 'blocked';
@@ -43,8 +51,10 @@ export function detectActivityFraudSignals(params: {
 }): string[] {
   const out: string[] = [];
   if (params.duplicateContent) out.push('duplicate_content');
-  if ((params.fakeCheckInDistanceMeters ?? 0) > 5000) out.push('impossible_check_in');
-  if ((params.botViewRate ?? 0) > 0.25) out.push('bot_view_spike');
+  if ((params.fakeCheckInDistanceMeters ?? 0) > IMPOSSIBLE_CHECK_IN_METERS) {
+    out.push('impossible_check_in');
+  }
+  if ((params.botViewRate ?? 0) > BOT_VIEW_SPIKE_RATE) out.push('bot_view_spike');
   if (params.repeatedEvidenceHash) out.push('reused_evidence');
   return out;
 }

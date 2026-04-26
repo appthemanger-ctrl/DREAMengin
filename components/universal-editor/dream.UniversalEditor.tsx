@@ -13,9 +13,21 @@ function titleFor(target: DreamDrop): string {
   return `${label} draft${target.filename ? ` · ${target.filename}` : ''}`;
 }
 
+function safeMediaSource(value: string): string | null {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' || url.protocol === 'http:' || url.protocol === 'blob:'
+      ? url.toString()
+      : null;
+  } catch {
+    return null;
+  }
+}
+
 export function UniversalEditor({ target, onSaved }: UniversalEditorProps) {
   const [content, setContent] = useState(target.content);
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const mediaSrc = useMemo(() => safeMediaSource(content), [content]);
   const preview = useMemo(() => {
     if (target.type !== 'engin-state') return content;
     try {
@@ -57,12 +69,30 @@ export function UniversalEditor({ target, onSaved }: UniversalEditorProps) {
       </div>
 
       {target.type === 'image' ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={content} alt={target.filename ?? 'Dropped image'} className="mb-3 max-h-64 w-full rounded-[18px] object-contain" />
+        mediaSrc ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={mediaSrc} alt={target.filename ?? 'Dropped image'} className="mb-3 max-h-64 w-full rounded-[18px] object-contain" />
+        ) : (
+          <p className="mb-3 rounded-[18px] border border-red-300/30 bg-red-950/30 p-3 text-sm text-red-200">
+            Unsafe image URL blocked. Use http, https, or local blob media.
+          </p>
+        )
       ) : target.type === 'video' ? (
-        <video src={content} controls className="mb-3 max-h-64 w-full rounded-[18px]" />
+        mediaSrc ? (
+          <video src={mediaSrc} controls className="mb-3 max-h-64 w-full rounded-[18px]" />
+        ) : (
+          <p className="mb-3 rounded-[18px] border border-red-300/30 bg-red-950/30 p-3 text-sm text-red-200">
+            Unsafe video URL blocked. Use http, https, or local blob media.
+          </p>
+        )
       ) : target.type === 'audio' ? (
-        <audio src={content} controls className="mb-3 w-full" />
+        mediaSrc ? (
+          <audio src={mediaSrc} controls className="mb-3 w-full" />
+        ) : (
+          <p className="mb-3 rounded-[18px] border border-red-300/30 bg-red-950/30 p-3 text-sm text-red-200">
+            Unsafe audio URL blocked. Use http, https, or local blob media.
+          </p>
+        )
       ) : (
         <textarea
           value={preview}

@@ -98,7 +98,12 @@ const LS_KEY = 'dreamengin:engin-instances';
 type PersistedInstance = Omit<EnginInstance, 'channel'>;
 
 function serializeInstances(instances: Record<string, EnginInstance>): PersistedInstance[] {
-  return Object.values(instances).map(({ channel: _channel, ...rest }) => rest);
+  return Object.values(instances).map((instance) => {
+    const persisted = Object.fromEntries(
+      Object.entries(instance).filter(([key]) => key !== 'channel'),
+    );
+    return persisted as PersistedInstance;
+  });
 }
 
 // ── Zustand store ─────────────────────────────────────────────────────────────

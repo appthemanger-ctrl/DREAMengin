@@ -17,10 +17,16 @@ import { calculateActivityRevenueSplit } from '@/lib/activity/revenueSplit';
 import { calculateSkipCreditsEarned } from '@/lib/activity/skipCredits';
 
 type ActivitySupabaseClient = {
-  rpc: (
-    name: 'verify_ad_view',
-    args: { p_ad_id: string; p_viewer_id: string; p_watched_pct: number },
-  ) => Promise<{ data: boolean | null }>;
+  rpc: {
+    (
+      name: 'verify_ad_view',
+      args: { p_ad_id: string; p_viewer_id: string; p_watched_pct: number },
+    ): Promise<{ data: boolean | null }>;
+    (
+      name: 'award_skip_credits',
+      args: { p_user_id: string; p_ad_view_id: string; p_credits: number },
+    ): Promise<{ data: boolean | null }>;
+  };
   from: (table: string) => {
     select: (columns?: string) => {
       eq: (column: string, value: unknown) => {
@@ -137,40 +143,11 @@ export async function POST(req: NextRequest) {
     });
 
     if (creditsEarned > 0) {
-      const now = new Date().toISOString();
-      const { data: currentCredits } = await db
-        .from('skip_credits')
-        .select('credits_balance, earned_total')
-        .eq('user_id', user.id)
-        .single();
-
-      if (currentCredits) {
-        await db
-          .from('skip_credits')
-          .update({
-            credits_balance:
-              Number(currentCredits.credits_balance ?? 0) + creditsEarned,
-            earned_total: Number(currentCredits.earned_total ?? 0) + creditsEarned,
-            last_earned_at: now,
-            updated_at: now,
-          })
-          .eq('user_id', user.id);
-      } else {
-        await db
-          .from('skip_credits')
-          .insert({
-            user_id: user.id,
-            credits_balance: creditsEarned,
-            earned_total: creditsEarned,
-            last_earned_at: now,
-            updated_at: now,
-          });
-      }
-
-      await db
-        .from('ad_views')
-        .update({ skip_credits_awarded: true })
-        .eq('id', adView.id);
+      await db.rpc('award_skip_credits', {
+        p_user_id: user.id,
+        p_ad_view_id: String(adView.id),
+        p_credits: creditsEarned,
+      });
     }
 
     const trackedAdView = adView as unknown as AdView;

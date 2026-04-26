@@ -200,9 +200,71 @@ create table if not exists public.gameengin_cartridges (
   updated_at timestamptz not null default now()
 );
 
+create or replace function public.set_gameengin_cartridges_updated_at()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at := now();
+  return new;
+end;
+$$;
+
+drop trigger if exists set_gameengin_cartridges_updated_at on public.gameengin_cartridges;
+create trigger set_gameengin_cartridges_updated_at
+  before update on public.gameengin_cartridges
+  for each row execute function public.set_gameengin_cartridges_updated_at();
+
 alter table public.gameengin_cartridges enable row level security;
 drop policy if exists "gameengin_cartridges_public_read" on public.gameengin_cartridges;
 create policy "gameengin_cartridges_public_read" on public.gameengin_cartridges for select using (true);
 drop policy if exists "service role full access gameengin_cartridges" on public.gameengin_cartridges;
 create policy "service role full access gameengin_cartridges" on public.gameengin_cartridges
   for all to service_role using (true) with check (true);
+
+create or replace function public.award_skip_credits(
+  p_user_id uuid,
+  p_ad_view_id uuid,
+  p_credits integer
+)
+returns boolean
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_rows integer := 0;
+begin
+  if p_credits <= 0 then
+    return false;
+  end if;
+
+  update public.ad_views
+  set skip_credits_awarded = true
+  where id = p_ad_view_id
+    and viewer_id = p_user_id
+    and verified = true
+    and skip_credits_awarded = false;
+
+  get diagnostics v_rows = row_count;
+  if v_rows = 0 then
+    return false;
+  end if;
+
+  insert into public.skip_credits (
+    user_id,
+    credits_balance,
+    earned_total,
+    last_earned_at,
+    updated_at
+  )
+  values (p_user_id, p_credits, p_credits, now(), now())
+  on conflict (user_id) do update set
+    credits_balance = public.skip_credits.credits_balance + excluded.credits_balance,
+    earned_total = public.skip_credits.earned_total + excluded.earned_total,
+    last_earned_at = now(),
+    updated_at = now();
+
+  return true;
+end;
+$$;
