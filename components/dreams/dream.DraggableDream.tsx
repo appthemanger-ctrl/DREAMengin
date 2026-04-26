@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   DREAM_DRAG_MIME,
   serializeDreamDragData,
@@ -16,6 +16,17 @@ interface DraggableDreamProps {
 
 export default function DraggableDream({ dream, children, className, style }: DraggableDreamProps) {
   const [dragging, setDragging] = useState(false);
+  const frameRef = useRef<number | null>(null);
+  const pointerRef = useRef<{ x: number; y: number } | null>(null);
+
+  const dispatchDragMove = () => {
+    frameRef.current = null;
+    const pointer = pointerRef.current;
+    if (!pointer) return;
+    window.dispatchEvent(new CustomEvent('dream:drag-move', {
+      detail: { dream, clientX: pointer.x, clientY: pointer.y },
+    }));
+  };
 
   return (
     <div
@@ -34,11 +45,15 @@ export default function DraggableDream({ dream, children, className, style }: Dr
         }));
       }}
       onDrag={(event) => {
-        window.dispatchEvent(new CustomEvent('dream:drag-move', {
-          detail: { dream, clientX: event.clientX, clientY: event.clientY },
-        }));
+        pointerRef.current = { x: event.clientX, y: event.clientY };
+        if (frameRef.current === null) {
+          frameRef.current = window.requestAnimationFrame(dispatchDragMove);
+        }
       }}
       onDragEnd={(event) => {
+        if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
+        frameRef.current = null;
+        pointerRef.current = null;
         setDragging(false);
         window.dispatchEvent(new CustomEvent('dream:drag-end', {
           detail: { dream, clientX: event.clientX, clientY: event.clientY },

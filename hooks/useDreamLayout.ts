@@ -5,11 +5,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 export interface UserDreamLayout {
   home: { dreams: string[] };
   dreamspace: { dreams: string[] };
+  hidden?: string[];
 }
 
 const DEFAULT_LAYOUT: UserDreamLayout = {
   home: { dreams: [] },
   dreamspace: { dreams: [] },
+  hidden: [],
 };
 
 function normalizeLayout(value: unknown): UserDreamLayout {
@@ -17,6 +19,7 @@ function normalizeLayout(value: unknown): UserDreamLayout {
   return {
     home: { dreams: Array.isArray(obj.home?.dreams) ? obj.home.dreams.filter((id: unknown) => typeof id === 'string') : [] },
     dreamspace: { dreams: Array.isArray(obj.dreamspace?.dreams) ? obj.dreamspace.dreams.filter((id: unknown) => typeof id === 'string') : [] },
+    hidden: Array.isArray(obj.hidden) ? obj.hidden.filter((id: unknown) => typeof id === 'string') : [],
   };
 }
 

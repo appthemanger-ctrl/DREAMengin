@@ -148,25 +148,27 @@ export default function PersistentDreamBar() {
     const nextLayout = {
       home: { dreams: layout.dreamspace.dreams },
       dreamspace: { dreams: layout.home.dreams },
+      hidden: layout.hidden ?? [],
     };
-    updateDreamLayout(nextLayout, 0);
-    os.bus.emit('dream:transfer', {
-      gesture: 'swap-runtimes',
-      home: nextLayout.home.dreams,
-      dreamspace: nextLayout.dreamspace.dreams,
-    });
     void fetch('/api/dreams/transfer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ dreamData: { dream_id: '__swap__', type: 'runtime-swap' }, fromRuntime: 'HOME', toRuntime: 'FACE', swap: true }),
     })
-      .then(() => {
+      .then((response) => {
+        if (!response.ok) throw new Error('Runtime swap failed');
+        updateDreamLayout(nextLayout, 0);
+        os.bus.emit('dream:transfer', {
+          gesture: 'swap-runtimes',
+          home: nextLayout.home.dreams,
+          dreamspace: nextLayout.dreamspace.dreams,
+        });
         window.dispatchEvent(new CustomEvent('dream:transfer', {
           detail: { gesture: 'swap-runtimes', home: nextLayout.home.dreams, dreamspace: nextLayout.dreamspace.dreams },
         }));
       })
-      .catch(() => undefined);
-  }, [layout.dreamspace.dreams, layout.home.dreams, os.bus, updateDreamLayout]);
+      .catch((error) => console.error('[Dream runtime swap]', error));
+  }, [layout.dreamspace.dreams, layout.hidden, layout.home.dreams, os.bus, updateDreamLayout]);
 
   // Hide on public / pre-login surfaces only
   if (PUBLIC_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))) {

@@ -20,7 +20,7 @@ function buildLayoutFromDreams(dreams: Array<{ id: string; surface: 'home' | 'dr
 
 export default function DreamsLayoutEditor() {
   const { layout, updateDreamLayout, resetDreamLayout } = useDreamLayout();
-  const hidden = new Set<string>();
+  const hidden = new Set(layout.hidden ?? []);
   const ordered = [
     ...layout.home.dreams.map((id) => ({ id, surface: 'home' as const })),
     ...layout.dreamspace.dreams.map((id) => ({ id, surface: 'dreamspace' as const })),
@@ -44,7 +44,20 @@ export default function DreamsLayoutEditor() {
                   <div className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>{dream.name}</div>
                   <div className="text-xs" style={{ color: 'var(--de-text-dim)', textTransform: 'uppercase' }}>{dream.surface}</div>
                 </div>
-                <button type="button" className="de-icon-btn" aria-label={`Toggle ${dream.name}`} disabled>
+                <button
+                  type="button"
+                  className="de-icon-btn"
+                  aria-label={`Toggle ${dream.name}`}
+                  onClick={() => {
+                    const nextHidden = new Set(layout.hidden ?? []);
+                    if (nextHidden.has(dream.id)) {
+                      nextHidden.delete(dream.id);
+                    } else {
+                      nextHidden.add(dream.id);
+                    }
+                    updateDreamLayout({ ...layout, hidden: Array.from(nextHidden) }, 0);
+                  }}
+                >
                   {hidden.has(dream.id) ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                 </button>
               </div>
@@ -59,7 +72,7 @@ export default function DreamsLayoutEditor() {
         <button
           type="button"
           className="de-btn de-btn-primary text-xs"
-          onClick={() => updateDreamLayout(buildLayoutFromDreams(dreams), 0)}
+          onClick={() => updateDreamLayout({ ...buildLayoutFromDreams(dreams), hidden: layout.hidden ?? [] }, 0)}
         >
           Save now
         </button>

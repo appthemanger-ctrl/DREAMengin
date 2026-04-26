@@ -26,29 +26,10 @@ export async function POST(req: NextRequest) {
   if (body?.swap === true) {
     const { data: swappedCount, error: rpcError } = await (supabase as any)
       .rpc('swap_user_dream_runtimes', { p_user_id: user.id });
-    if (!rpcError) {
-      return NextResponse.json({ ok: true, swapped: swappedCount ?? 0 });
+    if (rpcError) {
+      return NextResponse.json({ ok: false, error: rpcError.message }, { status: 500 });
     }
-
-    const { data: rows, error: readError } = await (supabase as any)
-      .from('dream_instances')
-      .select('instance_id,surface')
-      .eq('owner_id', user.id)
-      .in('surface', [SURFACE.HOME, SURFACE.FACE]);
-    if (readError) {
-      return NextResponse.json({ ok: false, error: readError.message }, { status: 500 });
-    }
-    const updates = (rows ?? []).map((row: any) => (supabase as any)
-      .from('dream_instances')
-      .update({ surface: row.surface === SURFACE.HOME ? SURFACE.FACE : SURFACE.HOME, updated_at: new Date().toISOString() })
-      .eq('instance_id', row.instance_id)
-      .eq('owner_id', user.id));
-    const results = await Promise.all(updates);
-    const failed = results.find((result: any) => result.error);
-    if (failed?.error) {
-      return NextResponse.json({ ok: false, error: failed.error.message }, { status: 500 });
-    }
-    return NextResponse.json({ ok: true, swapped: rows?.length ?? 0 });
+    return NextResponse.json({ ok: true, swapped: swappedCount ?? 0 });
   }
   if (typeof dreamId !== 'string') {
     return NextResponse.json({ ok: false, error: 'dream_id is required' }, { status: 400 });

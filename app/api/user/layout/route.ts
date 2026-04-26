@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 
-const DEFAULT_LAYOUT = { home: { dreams: [] }, dreamspace: { dreams: [] } };
+const DEFAULT_LAYOUT = { home: { dreams: [] }, dreamspace: { dreams: [] }, hidden: [] };
 
 function normalizeLayout(input: unknown) {
   const obj = input && typeof input === 'object' ? input as Record<string, any> : {};
   return {
     home: { dreams: Array.isArray(obj.home?.dreams) ? obj.home.dreams.filter((id: unknown) => typeof id === 'string') : [] },
     dreamspace: { dreams: Array.isArray(obj.dreamspace?.dreams) ? obj.dreamspace.dreams.filter((id: unknown) => typeof id === 'string') : [] },
+    hidden: Array.isArray(obj.hidden) ? obj.hidden.filter((id: unknown) => typeof id === 'string') : [],
   };
 }
 
@@ -45,7 +46,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const layout = normalizeLayout((body as Record<string, unknown>)?.layout ?? body);
+  const bodyObject = body && typeof body === 'object' ? body as Record<string, unknown> : null;
+  if (!bodyObject || !('layout' in bodyObject)) {
+    return NextResponse.json({ ok: false, error: 'layout is required' }, { status: 400 });
+  }
+
+  const layout = normalizeLayout(bodyObject.layout);
   const { error } = await (supabase as any)
     .from('profiles')
     .update({ user_layout: layout })

@@ -61,7 +61,7 @@ $$;
 
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS user_layout JSONB NOT NULL DEFAULT
-    '{"home":{"dreams":[]},"dreamspace":{"dreams":[]}}'::jsonb;
+    '{"home":{"dreams":[]},"dreamspace":{"dreams":[]},"hidden":[]}'::jsonb;
 
 CREATE TABLE IF NOT EXISTS public.user_dream_layout (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -100,3 +100,10 @@ BEGIN
     EXECUTE 'CREATE VIEW public.widget_content WITH (security_invoker=true) AS SELECT * FROM public.dream_content';
   END IF;
 END $$;
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.dream_instances TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.dream_definitions TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.dream_content TO authenticated;
+GRANT SELECT ON public.widget_instances TO authenticated;
+GRANT SELECT ON public.widget_definitions TO authenticated;
+GRANT SELECT ON public.widget_content TO authenticated;
