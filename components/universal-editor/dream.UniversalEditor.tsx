@@ -16,11 +16,12 @@ function titleFor(target: DreamDrop): string {
 function safeMediaSource(value: string): string | null {
   try {
     const url = new URL(value);
-    // blob: is allowed for object URLs created by the browser from local drops;
-    // persisted remote media must stay HTTPS-only.
-    return url.protocol === 'https:' || url.protocol === 'blob:'
-      ? url.toString()
-      : null;
+    if (url.protocol === 'https:') return url.toString();
+    if (url.protocol === 'blob:' && typeof window !== 'undefined') {
+      const blobOrigin = new URL(url.pathname).origin;
+      return blobOrigin === window.location.origin ? url.toString() : null;
+    }
+    return null;
   } catch {
     return null;
   }

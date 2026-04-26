@@ -41,7 +41,11 @@ type ActivitySupabaseClient = {
   };
 };
 
-function getInsertedAdViewId(adView: Record<string, unknown>): string | null {
+type InsertedAdViewRow = {
+  id?: string | null;
+};
+
+function getInsertedAdViewId(adView: InsertedAdViewRow): string | null {
   const id = adView.id;
   return typeof id === 'string' && id.length > 0 ? id : null;
 }
@@ -142,7 +146,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (creditsEarned > 0) {
-      const adViewId = getInsertedAdViewId(adView);
+      const adViewId = getInsertedAdViewId(adView as InsertedAdViewRow);
       if (!adViewId) {
         return NextResponse.json(
           {

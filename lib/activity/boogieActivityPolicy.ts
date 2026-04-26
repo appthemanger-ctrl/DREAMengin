@@ -22,8 +22,8 @@ const BLOCKED_FOR_MINORS = new Set<string>([
   PolicyCategory.MINORS,
 ]);
 
-// Check-ins more than a city-scale hop away from trusted context are treated as
-// impossible until Boogie receives stronger evidence.
+// Check-ins more than a 5km neighborhood-to-neighborhood jump from trusted
+// context are treated as impossible until Boogie receives stronger evidence.
 const IMPOSSIBLE_CHECK_IN_METERS = 5000;
 
 // A 25% bot-view share is high enough to indicate coordinated view fraud while

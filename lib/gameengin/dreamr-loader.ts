@@ -12,6 +12,10 @@ export interface DreamrCartridgeArchive {
 }
 
 const TAR_BLOCK = 512;
+const USTAR_NAME_START = 0;
+const USTAR_NAME_END_EXCLUSIVE = 100;
+const USTAR_PREFIX_START = 345;
+const USTAR_PREFIX_END_EXCLUSIVE = 500;
 
 function decodeAscii(bytes: Uint8Array): string {
   return new TextDecoder('utf-8').decode(bytes).replace(/\0+$/g, '');
@@ -29,8 +33,10 @@ function unpackUstar(bytes: Uint8Array): DreamrFileEntry[] {
   while (offset + TAR_BLOCK <= bytes.length) {
     const header = bytes.subarray(offset, offset + TAR_BLOCK);
     if (header.every((b) => b === 0)) break;
-    const name = decodeAscii(header.subarray(0, 100)); // ustar name field: bytes 0-99
-    const prefix = decodeAscii(header.subarray(345, 500)); // ustar prefix field: bytes 345-499 (155 bytes)
+    const name = decodeAscii(header.subarray(USTAR_NAME_START, USTAR_NAME_END_EXCLUSIVE));
+    const prefix = decodeAscii(
+      header.subarray(USTAR_PREFIX_START, USTAR_PREFIX_END_EXCLUSIVE),
+    );
     const size = parseOctal(header.subarray(124, 136));
     const fullName = prefix ? `${prefix}/${name}` : name;
     offset += TAR_BLOCK;
