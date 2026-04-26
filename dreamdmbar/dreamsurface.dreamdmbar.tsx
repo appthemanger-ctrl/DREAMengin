@@ -387,7 +387,7 @@ function ParticleFountain({ particles, centerX, centerY }: { particles: Particle
 // ─────────────────────────────────────────────────────────────────────────────
 interface DreamDMBarProps {
   /**
-   * Double-tap the Gold Particle → open both radial menus (Daydreams + System).
+   * Single-tap the Gold Particle → open both radial menus (Daydreams + System).
    */
   onBothMenus: () => void;
   /**
@@ -440,7 +440,7 @@ interface DreamDMBarProps {
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
-export default function DreamDMBar({ onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange, onMinimizedChange, onSwapRuntimes }: DreamDMBarProps) {
+export default function DreamDMBar({ onHome: _onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange, onMinimizedChange, onSwapRuntimes }: DreamDMBarProps) {
   const isGameImmersive = useImmersiveGameLayout();
   /** Gold Particle diameter — shrinks when a game overlay is active so it stays out of the way */
   const goldSz = isGameImmersive ? 36 : GOLD_SZ;

@@ -65,12 +65,12 @@ export const BAR_FLING_TO_BOTTOM_VELOCITY_THRESHOLD_PX_PER_MS = 0.9;
 export const BAR_FLING_LINE_RATIO = 0.4;
 export const MIN_POINTER_SAMPLE_DELTA_MS = 1;
 
-export type GoldTapAction = 'home' | 'home-dreamspace' | 'menu';
+export type GoldTapAction = 'menu';
 
 /**
- * Resolves a gold-button release into the delayed single-tap home action or
- * the second-tap menu action. Single-tap is intentionally delayed by the caller
- * so double-tap is reserved for opening the menu only.
+ * Resolves a gold-button release into the immediate single-tap menu action.
+ * The legacy timing inputs are retained so older callers/tests can migrate
+ * without reintroducing a double-tap requirement.
  */
 export function resolveGoldTapAction({
   now,
@@ -81,14 +81,7 @@ export function resolveGoldTapAction({
   lastTapAt: number;
   isTop: boolean;
 }): { action: GoldTapAction; nextLastTapAt: number } {
-  if (lastTapAt > 0 && now - lastTapAt < GOLD_SECOND_TAP_WINDOW_MS) {
-    return { action: 'menu', nextLastTapAt: 0 };
-  }
-
-  return {
-    action: isTop ? 'home-dreamspace' : 'home',
-    nextLastTapAt: now,
-  };
+  return { action: 'menu', nextLastTapAt: 0 };
 }
 
 /** Treats small pointer movement as a tap instead of a swipe or throw. */

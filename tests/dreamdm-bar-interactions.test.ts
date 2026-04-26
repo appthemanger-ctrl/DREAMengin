@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import {
   BAR_FLING_TO_TOP_MIN_DRAG_PX,
   BAR_FLING_TO_TOP_VELOCITY_THRESHOLD_PX_PER_MS,
-  GOLD_SECOND_TAP_WINDOW_MS,
   GOLD_TAP_SLOP_PX,
   resolveGoldTapAction,
   shouldCollapseGoldSwipe,
@@ -23,29 +22,29 @@ import {
 } from '@/lib/dreamdm/barInteractions';
 
 describe('resolveGoldTapAction', () => {
-  it('resolves the first tap to contextual home from the bottom state', () => {
+  it('resolves the first tap to the menu from the bottom state', () => {
     expect(resolveGoldTapAction({ now: 1_000, lastTapAt: 0, isTop: false })).toEqual({
-      action: 'home',
-      nextLastTapAt: 1_000,
-    });
-  });
-
-  it('resolves the first tap to HomeDream in DreamSpace when pinned at the top', () => {
-    expect(resolveGoldTapAction({ now: 1_000, lastTapAt: 0, isTop: true })).toEqual({
-      action: 'home-dreamspace',
-      nextLastTapAt: 1_000,
-    });
-  });
-
-  it('uses the second tap within the window to open the menu from the bottom state', () => {
-    expect(resolveGoldTapAction({ now: 1_000 + GOLD_SECOND_TAP_WINDOW_MS - 1, lastTapAt: 1_000, isTop: false })).toEqual({
       action: 'menu',
       nextLastTapAt: 0,
     });
   });
 
-  it('uses the second tap within the window to open the menu when pinned at the top', () => {
-    expect(resolveGoldTapAction({ now: 1_000 + GOLD_SECOND_TAP_WINDOW_MS - 1, lastTapAt: 1_000, isTop: true })).toEqual({
+  it('resolves the first tap to the menu when pinned at the top', () => {
+    expect(resolveGoldTapAction({ now: 1_000, lastTapAt: 0, isTop: true })).toEqual({
+      action: 'menu',
+      nextLastTapAt: 0,
+    });
+  });
+
+  it('keeps a follow-up tap as a single-tap menu action from the bottom state', () => {
+    expect(resolveGoldTapAction({ now: 1_100, lastTapAt: 1_000, isTop: false })).toEqual({
+      action: 'menu',
+      nextLastTapAt: 0,
+    });
+  });
+
+  it('keeps a follow-up tap as a single-tap menu action when pinned at the top', () => {
+    expect(resolveGoldTapAction({ now: 1_100, lastTapAt: 1_000, isTop: true })).toEqual({
       action: 'menu',
       nextLastTapAt: 0,
     });
