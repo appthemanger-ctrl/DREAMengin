@@ -28,7 +28,7 @@ export async function POST(
 ): Promise<NextResponse<ConnectorConnectResponse>> {
   const { provider } = await params;
   const supabase = await createServerClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const db = supabase as any;
 
   // Auth check — only authenticated users may connect

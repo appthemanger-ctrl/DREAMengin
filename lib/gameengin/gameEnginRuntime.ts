@@ -123,7 +123,7 @@ export async function loadDreamGame(
  */
 export class GameEnginRuntime {
   private canvas: HTMLCanvasElement | null = null;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   private device: any = null;
   private activeGame: DreamGameInstance | null = null;
   readonly bus: EventBus<GameEnginEvents>;

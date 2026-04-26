@@ -94,7 +94,7 @@ function _tick(now: number): void {
     } catch (err) {
       // One game crashing must not stop others — log and continue.
       if (typeof console !== 'undefined') {
-        // eslint-disable-next-line no-console
+         
         console.error(`[UnifiedLoop] uncaught error in game '${entry.id}':`, err);
       }
     }

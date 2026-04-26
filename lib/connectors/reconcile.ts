@@ -75,7 +75,7 @@ export async function reconcileConnector(
   tokenBlob: Record<string, unknown>,
 ): Promise<ReconcileResult> {
   const now = new Date().toISOString();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const anyDb = db as any;
 
   // ── 1. Dispatch ────────────────────────────────────────────────────────────

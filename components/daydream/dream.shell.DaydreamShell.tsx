@@ -100,7 +100,7 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
       const timer = window.setTimeout(() => flip(), 80);
       return () => window.clearTimeout(timer);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []);
 
   // ── Journey Trail — surface_first_entry instrumentation ──────────────────

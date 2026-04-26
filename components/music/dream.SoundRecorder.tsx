@@ -279,7 +279,7 @@ export default function SoundRecorder() {
       if (timerRef.current) clearInterval(timerRef.current);
       urlsToRevoke.forEach(url => URL.revokeObjectURL(url));
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [recordings]);
 
   return (

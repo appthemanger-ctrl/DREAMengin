@@ -72,6 +72,6 @@ export function useGsapEntrance(
         clearProps: 'willChange',
       });
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, deps);
 }

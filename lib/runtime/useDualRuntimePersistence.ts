@@ -134,7 +134,7 @@ export function useDualRuntimePersistence(): UseDualRuntimePersistenceReturn {
         setState(deserializeState(raw));
       }
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, []); // intentionally runs once on mount only
 
   // Persist any state change to OPFS (fire-and-forget, non-blocking)

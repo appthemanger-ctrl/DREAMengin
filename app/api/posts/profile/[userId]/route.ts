@@ -63,7 +63,7 @@ export async function GET(
 
   // ── Fill remaining slots with ephemeral posts ─────────────────────────────
   const ephemeralSlots = Math.max(0, 50 - savedPosts.length);
-  let ephemeralPosts: unknown[] = [];
+  const ephemeralPosts: unknown[] = [];
 
   if (ephemeralSlots > 0) {
     const { data: ephemeralRows } = await (supabase as any)

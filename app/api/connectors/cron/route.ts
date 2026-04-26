@@ -71,7 +71,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | 
     return NextResponse.json({ error: `Service client unavailable: ${msg}` }, { status: 503 });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const anyDb = db as any;
 
   // ── Fetch all connected accounts for supported providers ─────────────────

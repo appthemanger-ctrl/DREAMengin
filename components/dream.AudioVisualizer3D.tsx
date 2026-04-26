@@ -148,7 +148,7 @@ export function AudioVisualizer3D({
       cancelAnimationFrame(animFrameRef.current);
       babylonRef.current.engine?.dispose();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [barCount]);
 
   // ── Real-time FFT update loop ──

@@ -1274,7 +1274,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
 
     rafId = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(rafId);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [_inDividerMode]);
 
   // ── Universal input intent ────────────────────────────────────────────────
