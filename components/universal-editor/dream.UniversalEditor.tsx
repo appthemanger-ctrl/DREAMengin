@@ -18,8 +18,7 @@ function safeMediaSource(value: string): string | null {
     const url = new URL(value);
     if (url.protocol === 'https:') return url.toString();
     if (url.protocol === 'blob:' && typeof window !== 'undefined') {
-      const blobOrigin = new URL(url.pathname).origin;
-      return blobOrigin === window.location.origin ? url.toString() : null;
+      return url.origin === window.location.origin ? url.toString() : null;
     }
     return null;
   } catch {

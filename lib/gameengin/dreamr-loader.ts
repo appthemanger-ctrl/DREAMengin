@@ -77,7 +77,7 @@ export function parseDreamrArchive(input: Uint8Array | ArrayBuffer): DreamrCartr
 
 export async function loadDreamrCartridgeFromResponse(response: Response): Promise<DreamrCartridgeArchive> {
   if (!response.ok) {
-    throw new Error(`Unable to load .dreamr cartridge: ${response.status}`);
+    throw new Error(`Unable to load .dreamr cartridge: ${response.status} ${response.statusText}`);
   }
   return parseDreamrArchive(await response.arrayBuffer());
 }

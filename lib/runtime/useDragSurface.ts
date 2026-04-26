@@ -79,7 +79,6 @@ export function useDragSurface({
       onDrop: handleDrop,
     });
     return () => dropTargetRegistry.unregister(targetId.current);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [region, priority, handleDrop]);
 
   const onDragOver: React.DragEventHandler = useCallback((e) => {
@@ -112,10 +111,10 @@ export function useDragSurface({
       }
 
       const routed = dropTargetRegistry.route(drop, region);
+      setIsOver(false);
+      enterCount.current = 0;
       if (!routed) {
         if (onUnhandledDrop) {
-          setIsOver(false);
-          enterCount.current = 0;
           onUnhandledDrop(drop);
         } else {
           handleDrop(drop);

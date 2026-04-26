@@ -148,6 +148,7 @@ export async function POST(req: NextRequest) {
     if (creditsEarned > 0) {
       const adViewId = getInsertedAdViewId(adView as InsertedAdViewRow);
       if (!adViewId) {
+        console.error('[TrackAdView] Missing ad view ID:', adView);
         return NextResponse.json(
           {
             error: 'Failed to retrieve ad view ID after insert',

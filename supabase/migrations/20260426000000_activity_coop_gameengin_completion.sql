@@ -233,6 +233,7 @@ drop policy if exists "service role full access gameengin_cartridges" on public.
 create policy "service role full access gameengin_cartridges" on public.gameengin_cartridges
   for all to service_role using (true) with check (true);
 
+-- Caller must pass the authenticated session user id as p_user_id.
 create or replace function public.award_skip_credits(
   p_user_id uuid,
   p_ad_view_id uuid,

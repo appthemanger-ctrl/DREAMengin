@@ -221,7 +221,11 @@ export class ConsentManager {
       const supabase = createClient();
       const db = supabase as unknown as ConsentSupabaseClient;
       const { data: authData, error: authError } = await db.auth.getUser();
-      if (authError || authData.user?.id !== userId) return;
+      if (authError) return;
+      if (authData.user?.id !== userId) {
+        console.warn('[ConsentManager] hydrate user mismatch blocked');
+        return;
+      }
       const { data } = await db
         .from('dream_consent')
         .select('domain, decision, decided_at, session_id')
@@ -247,7 +251,11 @@ export class ConsentManager {
       const supabase = createClient();
       const db = supabase as unknown as ConsentSupabaseClient;
       const { data: authData, error: authError } = await db.auth.getUser();
-      if (authError || authData.user?.id !== userId) return;
+      if (authError) return;
+      if (authData.user?.id !== userId) {
+        console.warn('[ConsentManager] flush user mismatch blocked');
+        return;
+      }
       const entries = this.getAllEntries().map((entry) => ({
         user_id: userId,
         domain: entry.domain,
