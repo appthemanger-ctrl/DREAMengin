@@ -19,18 +19,22 @@ export default function GlobalDreamDragLayer() {
     };
     const move = (event: Event) => {
       const detail = (event as CustomEvent).detail as { dream: DreamDragData; clientX: number; clientY: number };
+      if (!detail?.dream) return;
       setDrag({ dream: detail.dream, x: detail.clientX, y: detail.clientY });
+    };
+    const dragOver = (event: DragEvent) => {
+      setDrag((current) => current ? { ...current, x: event.clientX, y: event.clientY } : current);
     };
     const end = () => setDrag(null);
     window.addEventListener('dream:drag-start', start);
     window.addEventListener('dream:drag-move', move);
-    window.addEventListener('dragover', move as EventListener);
+    window.addEventListener('dragover', dragOver);
     window.addEventListener('dream:drag-end', end);
     window.addEventListener('drop', end);
     return () => {
       window.removeEventListener('dream:drag-start', start);
       window.removeEventListener('dream:drag-move', move);
-      window.removeEventListener('dragover', move as EventListener);
+      window.removeEventListener('dragover', dragOver);
       window.removeEventListener('dream:drag-end', end);
       window.removeEventListener('drop', end);
     };

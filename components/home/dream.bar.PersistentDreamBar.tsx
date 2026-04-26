@@ -159,7 +159,13 @@ export default function PersistentDreamBar() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ dreamData: { dream_id: '__swap__', type: 'runtime-swap' }, fromRuntime: 'HOME', toRuntime: 'FACE', swap: true }),
-    }).catch(() => undefined);
+    })
+      .then(() => {
+        window.dispatchEvent(new CustomEvent('dream:transfer', {
+          detail: { gesture: 'swap-runtimes', home: nextLayout.home.dreams, dreamspace: nextLayout.dreamspace.dreams },
+        }));
+      })
+      .catch(() => undefined);
   }, [layout.dreamspace.dreams, layout.home.dreams, os.bus, updateDreamLayout]);
 
   // Hide on public / pre-login surfaces only
