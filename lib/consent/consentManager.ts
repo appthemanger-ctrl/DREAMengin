@@ -84,6 +84,12 @@ type ConsentDbResponse<T> = Promise<{
 }>;
 
 type ConsentSupabaseClient = {
+  auth: {
+    getUser: () => Promise<{
+      data: { user: { id: string } | null };
+      error: { message?: string } | null;
+    }>;
+  };
   from: (table: 'dream_consent' | 'dream_settings' | 'dream_audit_log') => {
     select: (columns?: string) => {
       eq: (column: string, value: unknown) => ConsentDbResponse<ConsentRow[]>;
@@ -214,6 +220,8 @@ export class ConsentManager {
       const { createClient } = await import('@/lib/supabase/client');
       const supabase = createClient();
       const db = supabase as unknown as ConsentSupabaseClient;
+      const { data: authData, error: authError } = await db.auth.getUser();
+      if (authError || authData.user?.id !== userId) return;
       const { data } = await db
         .from('dream_consent')
         .select('domain, decision, decided_at, session_id')
@@ -238,6 +246,8 @@ export class ConsentManager {
       const { createClient } = await import('@/lib/supabase/client');
       const supabase = createClient();
       const db = supabase as unknown as ConsentSupabaseClient;
+      const { data: authData, error: authError } = await db.auth.getUser();
+      if (authError || authData.user?.id !== userId) return;
       const entries = this.getAllEntries().map((entry) => ({
         user_id: userId,
         domain: entry.domain,

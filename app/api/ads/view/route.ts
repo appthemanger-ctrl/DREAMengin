@@ -137,9 +137,16 @@ export async function POST(req: NextRequest) {
     });
 
     if (creditsEarned > 0) {
+      const adViewId = typeof adView.id === 'string' ? adView.id : null;
+      if (!adViewId) {
+        return NextResponse.json(
+          { error: 'Tracked ad view is missing an id' },
+          { status: 500 },
+        );
+      }
       await db.rpc<boolean>('award_skip_credits', {
         p_user_id: user.id,
-        p_ad_view_id: String(adView.id),
+        p_ad_view_id: adViewId,
         p_credits: creditsEarned,
       });
     }
