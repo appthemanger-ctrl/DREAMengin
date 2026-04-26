@@ -40,7 +40,7 @@ export function emptyDreamRSwipePreferences(): DreamRSwipePreferenceSets {
 }
 
 export function creatorPreferenceKey(post: DreamRSwipePost): string {
-  return (post.profiles?.handle ?? post.profiles?.display_name ?? `post:${post.id}`).trim().toLowerCase();
+  return (post.profiles?.handle ?? post.profiles?.display_name ?? 'unknown-creator').trim().toLowerCase();
 }
 
 export function contentTypePreferenceKey(post: DreamRSwipePost): string {

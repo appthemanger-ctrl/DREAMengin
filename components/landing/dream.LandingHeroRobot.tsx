@@ -17,6 +17,9 @@ const DrEamsBabylonHero = dynamic(
   { ssr: false, loading: () => null },
 );
 
+const GLOW_SIZE_RATIO = 0.94;
+const ORBIT_DURATION_SECONDS = 7;
+
 export default function LandingHeroRobot() {
   const [size, setSize] = useState(300);
 
@@ -36,8 +39,8 @@ export default function LandingHeroRobot() {
       <div
         className="pointer-events-none absolute rounded-full blur-3xl"
         style={{
-          width: size * 0.94,
-          height: size * 0.94,
+          width: size * GLOW_SIZE_RATIO,
+          height: size * GLOW_SIZE_RATIO,
           background: 'radial-gradient(circle, rgba(56,189,248,0.24) 0%, rgba(200,152,26,0.15) 42%, transparent 72%)',
         }}
         aria-hidden="true"
@@ -53,7 +56,7 @@ export default function LandingHeroRobot() {
         <div className="pointer-events-none absolute inset-3 rounded-[1.6rem] border border-cyan-200/10" aria-hidden="true" />
         <div
           className="pointer-events-none absolute -inset-5 rounded-full border border-[#c8981a]/20"
-          style={{ animation: 'landing-robot-orbit 7s linear infinite' }}
+          style={{ animation: `landing-robot-orbit ${ORBIT_DURATION_SECONDS}s linear infinite` }}
           aria-hidden="true"
         />
         <DrEamsBabylonHero width={size} height={size} />

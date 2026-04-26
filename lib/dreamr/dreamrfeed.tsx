@@ -874,8 +874,8 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   }, [personalizedFeedItems.length, loadMore]);
 
   const recordDreamRView = useCallback((post: FeedPost, intent: 'left' | 'up') => {
-    // Native DreamR posts use /api/posts/[id]/view; YouTube cards keep their
-    // analytics inside the embedded provider/channel flow and should not hit it.
+    // Native DreamR posts use /api/posts/[id]/view; YouTube maintains its own
+    // analytics inside the embedded provider/channel flow and does not hit it.
     if (!shouldRecordDreamRView(intent) || isYouTube(post) || countedViewIdsRef.current.has(post.id)) return;
     countedViewIdsRef.current.add(post.id);
     fetch(`/api/posts/${post.id}/view`, { method: 'POST' }).catch(() => {});
@@ -966,8 +966,8 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
     requestAnimationFrame(() => {
       const el = scrollRef.current;
       if (!el) return;
-      // The swiped card is about to be removed, so the new max index is the
-      // previous length minus the removed card and zero-based index offset.
+      // The swiped card will be gone on the next render, so this pre-render
+      // length minus removed-card + zero-based offsets lands on a safe index.
       const next = Math.min(activeIdx, Math.max(0, personalizedFeedItems.length - RIGHT_SWIPE_SCROLL_BUFFER_CARDS));
       el.scrollTo({ top: next * el.clientHeight, behavior: 'smooth' });
     });
