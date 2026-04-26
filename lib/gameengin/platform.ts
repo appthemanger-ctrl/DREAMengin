@@ -390,16 +390,16 @@ export class GameEnginPlatform {
       physics,
       input: {
         on: (event, cb) => {
-          let bucket = platform._inputSubs.get(event);
+          let bucket = this._inputSubs.get(event);
           if (!bucket) {
             bucket = new Set();
-            platform._inputSubs.set(event, bucket);
+            this._inputSubs.set(event, bucket);
           }
           const wrapper = cb as unknown as (payload: unknown) => void;
           bucket.add(wrapper);
           return () => bucket?.delete(wrapper);
         },
-        isKeyDown: (key) => platform._heldKeys.has(key),
+        isKeyDown: (key) => this._heldKeys.has(key),
       },
       score: {
         submit: async (gameId, value, level) => {
