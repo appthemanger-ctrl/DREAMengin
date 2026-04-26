@@ -359,14 +359,19 @@ export default function DreamsSpacePanel({
         </span>
       </div>
 
-      {/* Primary tab bar — Apps home screen first (priority), Explore second */}
+      {/* Primary tab bar — Apps home screen first (priority), Explore second, Profile third */}
       <div style={{
         display: 'flex', gap: 0, padding: '0 10px 6px',
         flexShrink: 0,
         borderBottom: '1px solid rgba(200,152,26,0.12)',
       }}>
-        {(['apps', 'feeds'] as DreamsSpaceView[]).map((v) => {
+        {(['apps', 'feeds', 'profile'] as DreamsSpaceView[]).map((v) => {
           const isActive = view === v;
+          const TAB_LABELS: Record<DreamsSpaceView, string> = {
+            apps: '⊞ Apps',
+            feeds: '✨ Explore',
+            profile: '👤 Profile',
+          };
           return (
             <button
               key={v}
@@ -386,7 +391,7 @@ export default function DreamsSpacePanel({
                 textTransform: 'uppercase',
               }}
             >
-              {v === 'apps' ? '⊞ Apps' : v === 'feeds' ? '✨ Explore' : '👤 Profile'}
+              {TAB_LABELS[v]}
             </button>
           );
         })}
