@@ -16,10 +16,17 @@ returns table (platform_share numeric, creator_share numeric, reward_pool_share 
 language sql
 immutable
 as $$
+  with split as (
+    select
+      round(greatest(coalesce(p_gross, 0), 0), 2) as gross,
+      round(greatest(coalesce(p_gross, 0), 0) * 0.30, 2) as platform,
+      round(greatest(coalesce(p_gross, 0), 0) * 0.50, 2) as creator
+  )
   select
-    round(greatest(coalesce(p_gross, 0), 0) * 0.30, 4),
-    round(greatest(coalesce(p_gross, 0), 0) * 0.50, 4),
-    round(greatest(coalesce(p_gross, 0), 0) * 0.20, 4)
+    platform,
+    creator,
+    round(gross - platform - creator, 2)
+  from split
 $$;
 
 create or replace function public.recalculate_user_metrics(p_user_id uuid)

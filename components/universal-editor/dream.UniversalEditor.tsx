@@ -16,6 +16,8 @@ function titleFor(target: DreamDrop): string {
 function safeMediaSource(value: string): string | null {
   try {
     const url = new URL(value);
+    // blob: is allowed for object URLs created by the browser from local drops;
+    // persisted remote media must stay HTTPS-only.
     return url.protocol === 'https:' || url.protocol === 'blob:'
       ? url.toString()
       : null;

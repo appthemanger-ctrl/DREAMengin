@@ -140,7 +140,14 @@ export async function POST(req: NextRequest) {
       const adViewId = typeof adView.id === 'string' ? adView.id : null;
       if (!adViewId) {
         return NextResponse.json(
-          { error: 'Tracked ad view is missing an id' },
+          {
+            error: 'Tracked ad view is missing an id',
+            revenue_split: {
+              platformShare: split.platformShare,
+              creatorShare: split.creatorShare,
+              rewardPoolShare: split.rewardPoolShare,
+            },
+          },
           { status: 500 },
         );
       }

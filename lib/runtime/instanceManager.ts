@@ -230,12 +230,13 @@ export async function persistInstanceList(userId: string): Promise<void> {
   try {
     const { createClient } = await import('@/lib/supabase/client');
     const supabase = createClient();
+    type DbResponse<T> = Promise<{ data: T | null; error: { message?: string } | null }>;
     const db = supabase as unknown as {
       from: (table: 'engin_instances') => {
         upsert: (
           values: Array<Record<string, unknown>>,
           options: { onConflict: string },
-        ) => Promise<unknown>;
+        ) => DbResponse<unknown>;
       };
     };
     await db.from('engin_instances').upsert(
