@@ -113,7 +113,8 @@ export function useDragSurface({
 
       const routed = dropTargetRegistry.route(drop, region);
       if (!routed) {
-        handleDrop(drop);
+        setIsOver(false);
+        enterCount.current = 0;
         onUnhandledDrop?.(drop);
       }
     },
