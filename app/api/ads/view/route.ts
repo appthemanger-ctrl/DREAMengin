@@ -41,6 +41,11 @@ type ActivitySupabaseClient = {
   };
 };
 
+function getInsertedAdViewId(adView: Record<string, unknown>): string | null {
+  const id = adView.id;
+  return typeof id === 'string' && id.length > 0 ? id : null;
+}
+
 export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
   const db = supabase as unknown as ActivitySupabaseClient;
@@ -137,7 +142,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (creditsEarned > 0) {
-      const adViewId = typeof adView.id === 'string' ? adView.id : null;
+      const adViewId = getInsertedAdViewId(adView);
       if (!adViewId) {
         return NextResponse.json(
           {

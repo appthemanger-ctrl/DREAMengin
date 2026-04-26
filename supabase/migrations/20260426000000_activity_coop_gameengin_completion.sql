@@ -255,6 +255,7 @@ begin
   where id = p_ad_view_id
     and viewer_id = p_user_id
     and verified = true
+    and fraud_reason is null
     and skip_credits_awarded = false;
 
   get diagnostics v_rows = row_count;
