@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import DreamRFeed from '@/lib/dreamr/dreamrfeed';
+import DreamRCore from '@/dreamdmbar/homedream/dreamr/dream.DreamRCore';
 import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
 import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
 import { createClient } from '@/lib/supabase/client';
@@ -839,6 +840,8 @@ export default function DreamRSection({ profile, initialPosts, onOpenUrl }: Drea
           })}
         </div>
       </div>
+
+      {userId && <DreamRCore sharerId={userId} />}
 
       {/* ── Tab content ─────────────────────────────────────────────────── */}
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
