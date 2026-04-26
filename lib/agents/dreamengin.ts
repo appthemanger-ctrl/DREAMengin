@@ -126,7 +126,7 @@ export const NAVIGATION_RULES = [
   'Users must never feel they have left the DREAMengin environment.',
   'Side A leads naturally into Side B (Engin). Side B is the powered control layer.',
   'The Gold Button is the primary travel control.',
-  'Single tap: open dual menus. Double tap: go Home.',
+  'Single tap: open dual menus.',
 ] as const;
 
 // ---------------------------------------------------------------------------

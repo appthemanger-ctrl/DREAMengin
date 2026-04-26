@@ -65,29 +65,11 @@ export const BAR_FLING_TO_BOTTOM_VELOCITY_THRESHOLD_PX_PER_MS = 0.9;
 export const BAR_FLING_LINE_RATIO = 0.4;
 export const MIN_POINTER_SAMPLE_DELTA_MS = 1;
 
-export type GoldTapAction = 'menu' | 'home' | 'home-dreamspace';
-
 /**
- * Resolves a gold-button release into the immediate menu action or the second-tap home action.
- * A second tap inside the second-tap window escalates based on whether the bar is at the top.
+ * Resolves a gold-button release into the immediate single-tap menu action.
  */
-export function resolveGoldTapAction({
-  now,
-  lastTapAt,
-  isTop,
-}: {
-  now: number;
-  lastTapAt: number;
-  isTop: boolean;
-}): { action: GoldTapAction; nextLastTapAt: number } {
-  if (now - lastTapAt < GOLD_SECOND_TAP_WINDOW_MS) {
-    return {
-      action: isTop ? 'home-dreamspace' : 'home',
-      nextLastTapAt: 0,
-    };
-  }
-
-  return { action: 'menu', nextLastTapAt: now };
+export function resolveGoldTapAction(): { action: 'menu'; nextLastTapAt: 0 } {
+  return { action: 'menu', nextLastTapAt: 0 };
 }
 
 /** Treats small pointer movement as a tap instead of a swipe or throw. */

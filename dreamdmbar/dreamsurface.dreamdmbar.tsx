@@ -67,7 +67,6 @@ import { useDreamDMConversations,
 } from '@/lib/dreamdm/useDreamDMConversations';
 import {
   calculatePointerVelocity,
-  resolveGoldTapAction,
   shouldCollapseGoldSwipe,
   shouldCollapseTopExpandedDrag,
   shouldTreatGoldReleaseAsTap,
@@ -388,24 +387,9 @@ function ParticleFountain({ particles, centerX, centerY }: { particles: Particle
 // ─────────────────────────────────────────────────────────────────────────────
 interface DreamDMBarProps {
   /**
-   * Single-tap the Gold Particle (after a short delay so a double-tap can win)
-   * → open both radial menus (Daydreams + System).
+   * Single-tap the Gold Particle → open both radial menus (Daydreams + System).
    */
   onBothMenus: () => void;
-  /**
-   * Double-tap the Gold Particle → contextual Home.
-   * The parent decides what "home" means based on splitRatio:
-   *   bar at bottom → return to Surface (top runtime)
-   *   bar at top    → return to DreamSpace (bottom runtime)
-   *   bar in middle → return both runtimes
-   * See lib/home-buttons/contextual-home.ts.
-   */
-  onHome: () => void;
-  /**
-   * @deprecated Contextual home is resolved by the parent via `onHome`.
-   * Kept for backwards compatibility; no longer invoked from here.
-   */
-  onHomeDreamSpace?: () => void;
   /** Bridge bar state to the dual-runtime host */
   onRuntimeModeChange?: (mode: 'home' | 'blend' | 'dreamspace') => void;
   /** 0..1 blend for dragging second runtime from off-screen */
@@ -441,7 +425,7 @@ interface DreamDMBarProps {
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
-export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange, onMinimizedChange, onSwapRuntimes }: DreamDMBarProps) {
+export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange, onMinimizedChange, onSwapRuntimes }: DreamDMBarProps) {
   const isGameImmersive = useImmersiveGameLayout();
   /** Gold Particle diameter — shrinks when a game overlay is active so it stays out of the way */
   const goldSz = isGameImmersive ? 36 : GOLD_SZ;
@@ -897,7 +881,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     try {
       if (!localStorage.getItem('de-light-discovered')) {
         setFirstTimeLight(true);
-        setLightTooltip('drag to move, tap to open');
+        setLightTooltip('tap menu');
         localStorage.setItem('de-light-discovered', '1');
         lightTooltipTimerRef.current = setTimeout(() => {
           setLightTooltip(null);
@@ -1013,29 +997,13 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     // It was a tap — the light's touch handlers manage the tap separately
   }, [onSplitChange, screenH, splitRatio]);
 
-  // ── Glowing light tap state machine ───────────────────────────────────────
-  // Single tap → open dual menus immediately.
-  // Double tap → go home / reset runtimes (the ONLY sanctioned double-tap in the system).
-  // Per docs/GOLD_BUTTON_DUAL_RUNTIME.md — all other UI elements respond to single tap only.
-  const DOUBLE_TAP_WINDOW_MS = 260;
-  const lightLastTapRef = useRef(0);
+  // ── Glowing light tap ─────────────────────────────────────────────────────
+  // Single tap opens the dual menus immediately. No double-tap affordance.
 
   const handleLightTap = useCallback(() => {
-    const now = performance.now();
-    const last = lightLastTapRef.current;
-    lightLastTapRef.current = now;
-
-    if (now - last <= DOUBLE_TAP_WINDOW_MS) {
-      // Double tap → go home / reset runtimes (the only sanctioned double-tap)
-      if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate([6, 30, 6]);
-      onHome();
-      return;
-    }
-
-    // Single tap → open both menus (always, in any mode)
     if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(4);
     onBothMenus();
-  }, [onBothMenus, onHome]);
+  }, [onBothMenus]);
 
   const handleLightTouchStart = useCallback((_e: React.TouchEvent<HTMLSpanElement>) => {
     // resolved on touchend
@@ -2158,7 +2126,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
                 onTouchStart={handleLightTouchStart}
                 onTouchEnd={handleLightTouchEnd}
                 onClick={handleLightClick}
-                aria-label="DreamDM seam — tap for input, drag to resize, double-tap for menus"
+                aria-label="DreamDM seam — tap for menus, drag to resize"
               />
             </div>
           </div>

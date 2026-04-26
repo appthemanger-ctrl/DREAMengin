@@ -1,29 +1,13 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React from 'react';
 
 interface DreamNavControlsProps {
-  onHome: () => void;
   onBothMenus: () => void;
 }
 
-const DOUBLE_TAP_MS = 260;
-
-export default function DreamNavControls({ onHome, onBothMenus }: DreamNavControlsProps) {
-  const lastTapRef = useRef(0);
-
+export default function DreamNavControls({ onBothMenus }: DreamNavControlsProps) {
   const handleTap = () => {
-    const now = performance.now();
-    const last = lastTapRef.current;
-    lastTapRef.current = now;
-
-    // Double tap → go home (the only sanctioned double-tap).
-    if (now - last <= DOUBLE_TAP_MS) {
-      onHome();
-      return;
-    }
-
-    // Single tap → open dual menus (immediate).
     onBothMenus();
   };
 

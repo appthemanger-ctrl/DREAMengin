@@ -4243,3 +4243,38 @@ main[role="main"] > * {
               box-shadow 0.18s ease,
               background 0.18s ease;
 }
+
+/* ── Coarse-pointer tap discipline ──────────────────────────────────────────
+   Touch devices must activate controls on the first tap. Keep hover-only
+   presentation from becoming the first-tap state on mobile/tablet browsers. */
+@media (hover: none), (pointer: coarse) {
+  button,
+  [role="button"],
+  a,
+  summary,
+  .de-pressable,
+  .de-pressable-primary,
+  .de-pressable-sm,
+  .de-card-pressable,
+  .de-icon-btn,
+  .de-btn-primary,
+  .de-btn-ghost,
+  .de-row,
+  .feed-action-btn,
+  .topbar-back-btn {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .de-tile:hover,
+  .de-widget-tile:hover,
+  .premium-btn-primary:hover,
+  .premium-btn-gold:hover,
+  .depth-motion-on [data-depth-card]:hover,
+  .depth-card:hover,
+  .de-daydream-tile:hover,
+  .feed-card-premium:hover {
+    transform: none;
+  }
+
+}

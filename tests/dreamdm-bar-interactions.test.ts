@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import {
   BAR_FLING_TO_TOP_MIN_DRAG_PX,
   BAR_FLING_TO_TOP_VELOCITY_THRESHOLD_PX_PER_MS,
-  GOLD_SECOND_TAP_WINDOW_MS,
   GOLD_TAP_SLOP_PX,
   resolveGoldTapAction,
   shouldCollapseGoldSwipe,
@@ -23,23 +22,9 @@ import {
 } from '@/lib/dreamdm/barInteractions';
 
 describe('resolveGoldTapAction', () => {
-  it('opens menus immediately on the first tap', () => {
-    expect(resolveGoldTapAction({ now: 1_000, lastTapAt: 0, isTop: false })).toEqual({
+  it('resolves a gold button release to the single-tap menu action', () => {
+    expect(resolveGoldTapAction()).toEqual({
       action: 'menu',
-      nextLastTapAt: 1_000,
-    });
-  });
-
-  it('uses the second tap within the window to go home from the bottom state', () => {
-    expect(resolveGoldTapAction({ now: 1_000 + GOLD_SECOND_TAP_WINDOW_MS - 1, lastTapAt: 1_000, isTop: false })).toEqual({
-      action: 'home',
-      nextLastTapAt: 0,
-    });
-  });
-
-  it('uses the second tap within the window to open HomeDream in DreamSpace when pinned at the top', () => {
-    expect(resolveGoldTapAction({ now: 1_000 + GOLD_SECOND_TAP_WINDOW_MS - 1, lastTapAt: 1_000, isTop: true })).toEqual({
-      action: 'home-dreamspace',
       nextLastTapAt: 0,
     });
   });

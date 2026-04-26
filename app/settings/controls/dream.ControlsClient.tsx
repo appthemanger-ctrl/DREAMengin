@@ -100,7 +100,7 @@ export default function ControlsClient() {
           <div className="de-widget-header"><span className="de-widget-title">Home Button Behavior</span></div>
           <div className="de-widget-body">
             <p className="text-sm mb-4" style={{ color: 'var(--de-text-dim)' }}>
-              The gold button is your system control. Single-tap to open menus, double-tap to go home, drag to adjust position.
+              The gold button is your system control. Single-tap to open menus, drag to adjust position.
             </p>
             {rows.map(({ key, label, desc }) => (
               <div key={key} className="de-row">

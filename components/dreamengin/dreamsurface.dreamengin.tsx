@@ -60,12 +60,6 @@ export default function DreamenginApp() {
     };
   }, []);
 
-  const closeAllOverlays = useCallback(() => {
-    setShowNexus(false);
-    setShowOutdream(false);
-    setShowDrEams(false);
-  }, []);
-
   const toggleNexus = useCallback(() => {
     setShowOutdream(false);
     setShowDrEams(false);
@@ -93,11 +87,6 @@ export default function DreamenginApp() {
     setShowNexus(true);
     setShowOutdream(true);
   }, []);
-
-  const goHome = useCallback(() => {
-    closeAllOverlays();
-    setLastImportCategory(null);
-  }, [closeAllOverlays]);
 
   const handleImport = useCallback((payload: AssetImportPayload) => {
     if (!mountedRef.current) return;
@@ -149,7 +138,7 @@ export default function DreamenginApp() {
             </div>
           </div>
 
-          <HomeControls onBothMenus={openBothMenus} onHome={goHome} />
+          <HomeControls onBothMenus={openBothMenus} />
 
           {showNexus && (
             <NexusMenu

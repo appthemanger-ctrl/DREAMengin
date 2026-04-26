@@ -1,36 +1,20 @@
 // components/dreamengin/dream.HomeControls.tsx
 // ONE gold button. Always has been. Always will be.
-//   • Single tap → open dual menus (Outdream on left, Nexus on right)
-//   • Double tap → go home (the only sanctioned double-tap in the system)
+//   • Single tap → open dual menus
 
 'use client';
 
-import React, { useRef } from 'react';
+import React from 'react';
 import InfinityIcon from '@/components/ui/dream.InfinityIcon';
 
 interface HomeControlsProps {
   onBothMenus: () => void;
-  onHome: () => void;
 }
 
 const BTN = 48;
-const DOUBLE_TAP_MS = 260;
 
-export default function HomeControls({ onBothMenus, onHome }: HomeControlsProps) {
-  const lastTapRef = useRef(0);
-
+export default function HomeControls({ onBothMenus }: HomeControlsProps) {
   const handleTap = () => {
-    const now = performance.now();
-    const last = lastTapRef.current;
-    lastTapRef.current = now;
-
-    // Double tap → go home (the only sanctioned double-tap)
-    if (now - last <= DOUBLE_TAP_MS) {
-      onHome();
-      return;
-    }
-
-    // Single tap → open dual menus (immediate)
     onBothMenus();
   };
 
@@ -58,7 +42,7 @@ export default function HomeControls({ onBothMenus, onHome }: HomeControlsProps)
             boxShadow: '0 10px 30px rgba(0,0,0,0.35)',
             border: '2px solid rgba(255,255,255,0.16)',
             WebkitTapHighlightColor: 'transparent',
-            touchAction: 'none',
+            touchAction: 'manipulation',
           }}
           onPointerDown={(e) => {
             e.preventDefault();
