@@ -10,7 +10,7 @@
  *   D. webhookVerification — isCronAuthorised security rules
  *
  * No network calls, no DB calls, no server-only imports — pure unit tests.
- * AGENT_PLAYBOOK.md §5 — pnpm exec vitest run
+ * AGENTS.md §5 — pnpm exec vitest run
  */
 
 import { describe, it, expect } from 'vitest';
