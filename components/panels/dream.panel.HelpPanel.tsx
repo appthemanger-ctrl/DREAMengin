@@ -13,7 +13,7 @@ const GUIDES = [
   { icon: '🔒', title: 'How to use the Home Buttons',     desc: 'Drag the blue + gold buttons together to lock, then tap to open menus.' },
   { icon: '🏠', title: 'Setting up your Home Dream',      desc: 'Add, reorder, and pin widgets from Edit Mode.' },
   { icon: '🔌', title: 'Connecting services',             desc: 'Link Instagram, YouTube, Spotify and more in Connectors.' },
-  { icon: '👤', title: 'Setting up your Public Profile',  desc: 'Publish widgets and content to your public @handle page.' },
+  { icon: '👤', title: 'Setting up your Public Profile',  desc: 'Publish Dreams and content to your public @handle page.' },
   { icon: '∞',  title: 'Understanding Daydreams',         desc: 'Each Daydream is a dedicated space: Music, Brand, Analytics, Games, and more.' },
 ];
 

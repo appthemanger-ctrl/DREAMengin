@@ -13,6 +13,7 @@ import type { DreamArtifact } from '@/types/dreamArtifact';
 import { useOS } from '@/lib/dreamenginOS/OSContext';
 import { getAllByKind } from '@/lib/ledger';
 import type { AssetEntry, AssetType } from '@/lib/ledger';
+import DraggableDream from '@/components/dreams/dream.DraggableDream';
 
 // ─── Asset icon helpers ───────────────────────────────────────────────────────
 
@@ -29,6 +30,12 @@ function assetIcon(type: AssetType): string {
 interface DreamSpaceProps {
   initialAccountId?: string | null;
 }
+
+const SUGGESTED_DREAMS = [
+  { id: 'dreamspace-quick-note', icon: '📝', name: 'Quick Note', description: 'Capture a thought before it fades.', capabilities: ['note', 'capture'] },
+  { id: 'dreamspace-todays-stats', icon: '📊', name: "Today’s Stats", description: 'A live pulse of your creative activity.', capabilities: ['stats', 'momentum'] },
+  { id: 'dreamspace-game-quick-launch', icon: '🎮', name: 'Game Quick Launch', description: 'Jump straight into your latest GameEngin cartridge.', capabilities: ['game', 'launch'] },
+];
 
 export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
   const { accountId } = useAccount(initialAccountId);
@@ -268,7 +275,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
             DreamSpace Artifact Tray
           </div>
           <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
-            Drag a module across the seam and drop it into HomeDream.
+            Drag a Dream across the seam and drop it into HomeDream.
           </div>
         </div>
         <button
@@ -301,9 +308,52 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
           gap: 10,
         }}
       >
+        {artifacts.length === 0 && SUGGESTED_DREAMS.map((dream) => (
+          <DraggableDream
+            key={dream.id}
+            dream={{ dream_id: dream.id, type: dream.id, surface: 'dreamspace', runtime: 'FACE', title: dream.name }}
+          >
+            <div
+              className="artifact-card"
+              style={{
+                borderRadius: 18,
+                padding: '12px 12px 10px',
+                background: 'linear-gradient(180deg, rgba(244,211,123,0.14), rgba(255,255,255,0.05))',
+                border: '1px solid rgba(244,211,123,0.28)',
+                cursor: 'grab',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+                minHeight: 96,
+                userSelect: 'none',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 20 }}>{dream.icon}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>
+                  {dream.name}
+                </span>
+              </div>
+              <span style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.35 }}>
+                {dream.description}
+              </span>
+              <button
+                type="button"
+                aria-label={`Remove ${dream.name} suggestion`}
+                onClick={(event) => event.currentTarget.closest('.artifact-card')?.remove()}
+                style={{ marginTop: 'auto', alignSelf: 'flex-start', border: 'none', background: 'rgba(255,255,255,0.08)', color: '#f4d37b', borderRadius: 999, padding: '4px 8px', fontSize: 10, fontWeight: 700, cursor: 'pointer' }}
+              >
+                Remove
+              </button>
+            </div>
+          </DraggableDream>
+        ))}
         {artifacts.map((artifact) => (
-          <div
+          <DraggableDream
             key={artifact.id}
+            dream={{ dream_id: artifact.id, type: artifact.type ?? 'artifact', surface: 'dreamspace', runtime: 'FACE', title: artifact.name }}
+          >
+          <div
             draggable
             onDragStart={(event) => onDragStart(event, artifact)}
             onDragEnd={() => onDragEnd(artifact.id)}
@@ -334,6 +384,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
               {artifact.capabilities.join(' • ')}
             </span>
           </div>
+          </DraggableDream>
         ))}
       </div>
 
@@ -347,12 +398,12 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
           }}
         >
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 10 }}>
-            System Modules
+            System Dreams
           </div>
           <div style={{ display: 'grid', gap: 8 }}>
             {systemArtifacts.length === 0 ? (
               <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
-                All system modules are already visible in DreamSpace.
+                All system Dreams are already visible in DreamSpace.
               </div>
             ) : (
               systemArtifacts.map((artifact) => (

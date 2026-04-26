@@ -93,7 +93,7 @@ export default function ProfilePanel() {
         const d = await res.json().catch(() => ({}));
         setSaveError((d as { error?: string }).error || 'Failed to save.'); return;
       }
-      await fetch('/api/profile', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ widget_config: widgets }) });
+      await fetch('/api/profile', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dream_config: widgets }) });
       localStorage.setItem('de-profile-widget-order', JSON.stringify(widgets));
       setInitialProfile(profile); setInitialWidgets(widgets);
     } catch { setSaveError('Network error. Please try again.'); }
@@ -109,7 +109,7 @@ export default function ProfilePanel() {
           display_name: profile.display_name, handle: profile.handle,
           bio: profile.bio, avatar_url: profile.avatar_url,
           banner_url: profile.banner_url, website: profile.website,
-          location: profile.location, widget_order: widgets, widget_config: widgets,
+          location: profile.location, widget_order: widgets, dream_config: widgets,
         }),
       });
       if (!saveRes.ok) {

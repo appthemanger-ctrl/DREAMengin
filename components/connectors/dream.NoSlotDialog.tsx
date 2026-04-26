@@ -58,7 +58,7 @@ export default function NoSlotDialog({ widget, onPlaceNow, onLater }: NoSlotDial
         </div>
 
         <p style={{ fontSize: 10, color: 'var(--de-text-dim)', textAlign: 'center', marginTop: 12 }}>
-          Saved widgets appear in Add Widgets → Suggested.
+          Saved widgets appear in Add Dreams → Suggested.
         </p>
       </div>
     </div>

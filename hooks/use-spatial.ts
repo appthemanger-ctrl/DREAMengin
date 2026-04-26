@@ -66,7 +66,7 @@ const fetcher = async (key: string) => {
 
     case "widget-content": {
       const { data, error } = await supabase
-        .from("widget_content")
+        .from("dream_content")
         .select("*, content_objects(*)")
         .eq("widget_id", userId) // userId is actually widget_id here
         .order("order");
@@ -506,7 +506,7 @@ export function useShareToProfile(userId: string) {
           }));
 
           const { error: refError } = await supabase
-            .from("widget_content")
+            .from("dream_content")
             .insert(contentRefs);
 
           if (refError) throw refError;
@@ -543,9 +543,9 @@ export function useShareToProfile(userId: string) {
 
       if (error) throw error;
 
-      // Remove from widget_content
+      // Remove from dream_content
       const { error: refError } = await supabase
-        .from("widget_content")
+        .from("dream_content")
         .delete()
         .in("content_id", contentIds);
 

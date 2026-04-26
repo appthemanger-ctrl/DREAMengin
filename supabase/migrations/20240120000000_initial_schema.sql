@@ -64,8 +64,8 @@ CREATE TABLE feed_rules (
 );
 CREATE INDEX idx_feed_rules_user ON feed_rules(user_id);
 
--- Create widget_instances table
-CREATE TABLE widget_instances (
+-- Create dream_instances table
+CREATE TABLE dream_instances (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
   type TEXT NOT NULL, -- notifications/promo/next_stream/watch/messages/lab/machine
@@ -73,7 +73,7 @@ CREATE TABLE widget_instances (
   "order" INTEGER,
   enabled BOOLEAN DEFAULT TRUE
 );
-CREATE INDEX idx_widget_instances_user ON widget_instances(user_id);
+CREATE INDEX idx_dream_instances_user ON dream_instances(user_id);
 
 -- Create notifications table
 CREATE TABLE notifications (

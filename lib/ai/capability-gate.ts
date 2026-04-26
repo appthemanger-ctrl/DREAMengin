@@ -123,7 +123,7 @@ const INTENT_REQUIREMENTS: Partial<Record<IntentType, IntentRequirement>> = {
 
       const supabase = await createServerClient();
       const { data } = await supabase
-        .from('widget_instances')
+        .from('dream_instances')
         .select('user_id')
         .eq('id', dreamId)
         .single();
@@ -149,7 +149,7 @@ const INTENT_REQUIREMENTS: Partial<Record<IntentType, IntentRequirement>> = {
 
       const supabase = await createServerClient();
       const { data } = await supabase
-        .from('widget_instances')
+        .from('dream_instances')
         .select('user_id')
         .eq('id', dreamId)
         .single();

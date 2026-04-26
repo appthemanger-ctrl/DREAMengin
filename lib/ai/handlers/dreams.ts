@@ -20,7 +20,7 @@ export const handleDreamPreview: ToolHandler = async (ctx) => {
 
   // Fetch dream metadata
   const { data: dream, error } = await ctx.supabase
-    .from('widget_instances')
+    .from('dream_instances')
     .select('*')
     .eq('id', payload.dream_id)
     .single();
@@ -79,7 +79,7 @@ export const handleDreamConfigPatch: ToolHandler = async (ctx) => {
 
   // Get existing dream
   const { data: existing, error: fetchError } = await ctx.supabase
-    .from('widget_instances')
+    .from('dream_instances')
     .select('config_json, user_id')
     .eq('id', payload.dream_id)
     .single();
@@ -113,7 +113,7 @@ export const handleDreamConfigPatch: ToolHandler = async (ctx) => {
 
   // Update dream
   const { data: updated, error: updateError } = await ctx.supabase
-    .from('widget_instances')
+    .from('dream_instances')
     .update({ config_json: newConfig })
     .eq('id', payload.dream_id)
     .select()
@@ -152,7 +152,7 @@ export const handleDreamReorder: ToolHandler = async (ctx) => {
   // Update order for each dream
   for (let i = 0; i < payload.dream_ids.length; i++) {
     await ctx.supabase
-      .from('widget_instances')
+      .from('dream_instances')
       .update({ order: i })
       .eq('id', payload.dream_ids[i])
       .eq('user_id', ctx.actor.user_id); // Ensure ownership
@@ -179,7 +179,7 @@ export const handleDreamAddFromPreset: ToolHandler = async (ctx) => {
 
   // Get max order
   const { data: maxOrderRow } = await ctx.supabase
-    .from('widget_instances')
+    .from('dream_instances')
     .select('order')
     .eq('user_id', ctx.actor.user_id)
     .order('order', { ascending: false })
@@ -190,7 +190,7 @@ export const handleDreamAddFromPreset: ToolHandler = async (ctx) => {
 
   // Create new dream from preset
   const { data: newDream, error } = await ctx.supabase
-    .from('widget_instances')
+    .from('dream_instances')
     .insert({
       user_id: ctx.actor.user_id,
       type: payload.preset_type,
@@ -233,7 +233,7 @@ export const handleDreamRemove: ToolHandler = async (ctx) => {
 
   // Double-check ownership
   const { data: dream, error: fetchError } = await ctx.supabase
-    .from('widget_instances')
+    .from('dream_instances')
     .select('user_id')
     .eq('id', payload.dream_id)
     .single();
@@ -260,7 +260,7 @@ export const handleDreamRemove: ToolHandler = async (ctx) => {
 
   // Delete dream
   const { error: deleteError } = await ctx.supabase
-    .from('widget_instances')
+    .from('dream_instances')
     .delete()
     .eq('id', payload.dream_id);
 

@@ -82,9 +82,9 @@ async function dispatchIntent(
       const dream_id = typeof payload.dream_id === 'string' ? payload.dream_id : null;
       if (!dream_id) return { executed: false, error: 'dream_id required for DREAM_CONFIG_PATCH' };
       const patch = payload.patch && typeof payload.patch === 'object' ? payload.patch : {};
-      // Store the patch in the config JSONB field (widget_instances schema)
+      // Store the patch in the config JSONB field (dream_instances schema)
       const { error } = await supabase
-        .from('widget_instances')
+        .from('dream_instances')
         .update({ config: patch as Json })
         .eq('id', dream_id)
         .eq('user_id', userId);
@@ -99,7 +99,7 @@ async function dispatchIntent(
       await Promise.all(
         order.map((id, idx) =>
           supabase
-            .from('widget_instances')
+            .from('dream_instances')
             .update({ config: { position: idx } as Json })
             .eq('id', id)
             .eq('user_id', userId),
@@ -127,7 +127,7 @@ async function dispatchIntent(
       }
       // Return the list of known public tables from the type-safe schema
       const knownTables = [
-        'profiles', 'boards', 'widget_instances', 'app_posts', 'conversations',
+        'profiles', 'boards', 'dream_instances', 'app_posts', 'conversations',
         'messages', 'merch', 'ad_listings', 'follows', 'journey_dots',
         'daydream_states', 'user_blocks', 'user_roles', 'admin_audit_log',
       ];

@@ -12,7 +12,7 @@ INSERT INTO feed_items (user_id, source, title, summary, url, ts, dedupe_hash, v
 ('00000000-0000-0000-0000-000000000001', 'demo', 'Connect Your YouTube Account', 'Link your YouTube channel to automatically import new videos to your feed', 'https://example.com/connect-youtube', NOW(), 'demo-connect-1', 'private');
 
 -- Demo widgets
-INSERT INTO widget_instances (user_id, type, config_json, "order", enabled) VALUES
+INSERT INTO dream_instances (user_id, type, config_json, "order", enabled) VALUES
 ('00000000-0000-0000-0000-000000000001', 'notifications', '{"position": "top-right"}', 0, true),
 ('00000000-0000-0000-0000-000000000001', 'promo', '{"text": "Check out the Lab!"}', 1, true),
 ('00000000-0000-0000-0000-000000000001', 'next_stream', '{"channel": "jose"}', 2, true),

@@ -23,6 +23,8 @@ import GodTierProvider from '@/components/providers/dream.GodTierProvider';
 import KonamiDream from '@/components/dream.KonamiDream';
 import CommandPalette from '@/components/dream.CommandPalette';
 import { OSProvider } from '@/lib/dreamenginOS/OSContext';
+import GlobalDreamDragLayer from '@/components/dreams/dream.GlobalDragLayer';
+import PlatformErrorReporter from '@/components/dreams/dream.PlatformErrorReporter';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -93,6 +95,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <Suspense><GlobalDreamBar /></Suspense>
                   <Suspense><PersistentDreamBar /></Suspense>
                   <GlobalCustomizeUI />
+                  <GlobalDreamDragLayer />
+                  <PlatformErrorReporter />
                   <KonamiDream />
                   <Suspense><CommandPalette /></Suspense>
                 </DualRuntimeContainer>

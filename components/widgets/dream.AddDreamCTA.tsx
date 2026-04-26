@@ -56,7 +56,7 @@ export default function AddDreamCTA({ hasWidgets, onOpenLibrary }: AddDreamCTAPr
           boxShadow: '0 4px 20px rgba(42,138,184,0.3)',
         }}
       >
-        + Add Widget
+        + Add Dream
       </button>
     </div>
   );

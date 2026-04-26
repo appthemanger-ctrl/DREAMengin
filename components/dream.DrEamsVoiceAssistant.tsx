@@ -439,7 +439,7 @@ export default function DrEamsVoiceAssistant() {
     } else if (lowerQuery.includes('lab') || lowerQuery.includes('science')) {
       return 'The Lab is where science meets collaboration! You can create projects with markdown notebooks, attach research files, embed interactive physics simulations, and invite other researchers to collaborate. It\'s like having your own research journal that\'s also a social platform. Perfect for documenting experiments and sharing discoveries!';
     } else if (lowerQuery.includes('feed') || lowerQuery.includes('dashboard')) {
-      return 'Your dashboard is fully customizable to fit your workflow! You can drag and drop widgets to rearrange them however you like. Add widgets for notifications, promotions, quick stats, analytics, and more. Try clicking and dragging one of your widgets now to see how easy it is to personalize your experience!';
+      return 'Your dashboard is fully customizable to fit your workflow! You can drag and drop widgets to rearrange them however you like. Add Dreams for notifications, promotions, quick stats, analytics, and more. Try clicking and dragging one of your widgets now to see how easy it is to personalize your experience!';
     } else if (lowerQuery.includes('music')) {
       return 'Music is a first-class citizen on Dreamengin! Head to the Music page to upload your tracks, create playlists, and embed them directly on your profile. We support Spotify integration, SoundCloud embeds, and direct uploads. Your music becomes part of your creative identity here!';
     } else if (lowerQuery.includes('shop') || lowerQuery.includes('merch')) {

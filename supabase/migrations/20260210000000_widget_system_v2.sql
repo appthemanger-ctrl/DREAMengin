@@ -8,7 +8,7 @@
 -- 1. WIDGET DEFINITIONS (immutable identity + bindable behavior)
 -- =====================================================
 
-CREATE TABLE IF NOT EXISTS widget_definitions (
+CREATE TABLE IF NOT EXISTS dream_definitions (
   widget_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   owner_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
@@ -20,19 +20,19 @@ CREATE TABLE IF NOT EXISTS widget_definitions (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX idx_widget_definitions_owner ON widget_definitions(owner_id, updated_at DESC);
-CREATE INDEX idx_widget_definitions_host_kind ON widget_definitions(host_kind);
+CREATE INDEX idx_dream_definitions_owner ON dream_definitions(owner_id, updated_at DESC);
+CREATE INDEX idx_dream_definitions_host_kind ON dream_definitions(host_kind);
 
 -- =====================================================
 -- 2. WIDGET INSTANCES (placement + transform + presentation)
 -- =====================================================
 
--- Drop old widget_instances if it exists and recreate with new schema
-DROP TABLE IF EXISTS widget_instances CASCADE;
+-- Drop old dream_instances if it exists and recreate with new schema
+DROP TABLE IF EXISTS dream_instances CASCADE;
 
-CREATE TABLE widget_instances (
+CREATE TABLE dream_instances (
   instance_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  widget_id UUID NOT NULL REFERENCES widget_definitions(widget_id) ON DELETE CASCADE,
+  widget_id UUID NOT NULL REFERENCES dream_definitions(widget_id) ON DELETE CASCADE,
   owner_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   
   -- Surface placement
@@ -68,9 +68,9 @@ CREATE TABLE widget_instances (
   CONSTRAINT valid_transform_scale CHECK (transform_scale > 0 AND transform_scale <= 10)
 );
 
-CREATE INDEX idx_widget_instances_owner ON widget_instances(owner_id, surface, z_index DESC);
-CREATE INDEX idx_widget_instances_widget ON widget_instances(widget_id);
-CREATE INDEX idx_widget_instances_surface ON widget_instances(surface, surface_key);
+CREATE INDEX idx_dream_instances_owner ON dream_instances(owner_id, surface, z_index DESC);
+CREATE INDEX idx_dream_instances_widget ON dream_instances(widget_id);
+CREATE INDEX idx_dream_instances_surface ON dream_instances(surface, surface_key);
 
 -- =====================================================
 -- 3. HOST KIND CONSTANTS (documented in code)
@@ -173,17 +173,17 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER normalize_config_on_insert
-  BEFORE INSERT ON widget_definitions
+  BEFORE INSERT ON dream_definitions
   FOR EACH ROW
   EXECUTE FUNCTION normalize_widget_definition_config();
 
 CREATE TRIGGER normalize_config_on_update
-  BEFORE UPDATE ON widget_definitions
+  BEFORE UPDATE ON dream_definitions
   FOR EACH ROW
   EXECUTE FUNCTION normalize_widget_definition_config();
 
 -- =====================================================
--- 7. TRIGGER TO UPDATE widget_instances timestamp
+-- 7. TRIGGER TO UPDATE dream_instances timestamp
 -- =====================================================
 
 CREATE OR REPLACE FUNCTION update_widget_instance_timestamp()
@@ -195,7 +195,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER update_instance_timestamp
-  BEFORE UPDATE ON widget_instances
+  BEFORE UPDATE ON dream_instances
   FOR EACH ROW
   EXECUTE FUNCTION update_widget_instance_timestamp();
 
@@ -203,49 +203,49 @@ CREATE TRIGGER update_instance_timestamp
 -- 8. ROW LEVEL SECURITY POLICIES
 -- =====================================================
 
-ALTER TABLE widget_definitions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE widget_instances ENABLE ROW LEVEL SECURITY;
+ALTER TABLE dream_definitions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE dream_instances ENABLE ROW LEVEL SECURITY;
 
--- Widget Definitions: Users can view their own
-CREATE POLICY "Users can view own widget definitions"
-  ON widget_definitions FOR SELECT
+-- Dream Definitions: Users can view their own
+CREATE POLICY "Users can view own dream definitions"
+  ON dream_definitions FOR SELECT
   USING (auth.uid() = owner_id);
 
--- Widget Definitions: Users can create their own
-CREATE POLICY "Users can create own widget definitions"
-  ON widget_definitions FOR INSERT
+-- Dream Definitions: Users can create their own
+CREATE POLICY "Users can create own dream definitions"
+  ON dream_definitions FOR INSERT
   WITH CHECK (auth.uid() = owner_id);
 
--- Widget Definitions: Users can update their own
-CREATE POLICY "Users can update own widget definitions"
-  ON widget_definitions FOR UPDATE
+-- Dream Definitions: Users can update their own
+CREATE POLICY "Users can update own dream definitions"
+  ON dream_definitions FOR UPDATE
   USING (auth.uid() = owner_id)
   WITH CHECK (auth.uid() = owner_id);
 
--- Widget Definitions: Users can delete their own
-CREATE POLICY "Users can delete own widget definitions"
-  ON widget_definitions FOR DELETE
+-- Dream Definitions: Users can delete their own
+CREATE POLICY "Users can delete own dream definitions"
+  ON dream_definitions FOR DELETE
   USING (auth.uid() = owner_id);
 
--- Widget Instances: Users can view their own
-CREATE POLICY "Users can view own widget instances"
-  ON widget_instances FOR SELECT
+-- Dream Instances: Users can view their own
+CREATE POLICY "Users can view own dream instances"
+  ON dream_instances FOR SELECT
   USING (auth.uid() = owner_id);
 
--- Widget Instances: Users can create their own
-CREATE POLICY "Users can create own widget instances"
-  ON widget_instances FOR INSERT
+-- Dream Instances: Users can create their own
+CREATE POLICY "Users can create own dream instances"
+  ON dream_instances FOR INSERT
   WITH CHECK (auth.uid() = owner_id);
 
--- Widget Instances: Users can update their own
-CREATE POLICY "Users can update own widget instances"
-  ON widget_instances FOR UPDATE
+-- Dream Instances: Users can update their own
+CREATE POLICY "Users can update own dream instances"
+  ON dream_instances FOR UPDATE
   USING (auth.uid() = owner_id)
   WITH CHECK (auth.uid() = owner_id);
 
--- Widget Instances: Users can delete their own
-CREATE POLICY "Users can delete own widget instances"
-  ON widget_instances FOR DELETE
+-- Dream Instances: Users can delete their own
+CREATE POLICY "Users can delete own dream instances"
+  ON dream_instances FOR DELETE
   USING (auth.uid() = owner_id);
 
 -- =====================================================
@@ -258,8 +258,8 @@ RETURNS TRIGGER AS $$
 DECLARE
   v_widget_id UUID;
 BEGIN
-  -- Create default feed widget definition
-  INSERT INTO widget_definitions (
+  -- Create default feed dream definition
+  INSERT INTO dream_definitions (
     owner_id,
     name,
     host_kind,
@@ -282,8 +282,8 @@ BEGIN
     0 -- Default policy
   ) RETURNING widget_id INTO v_widget_id;
   
-  -- Create default widget instance on HOME surface
-  INSERT INTO widget_instances (
+  -- Create default dream instance on HOME surface
+  INSERT INTO dream_instances (
     widget_id,
     owner_id,
     surface,
@@ -343,8 +343,8 @@ SELECT
   fi.tags_json,
   fi.visibility,
   fi.importance_score
-FROM widget_instances wi
-JOIN widget_definitions wd ON wi.widget_id = wd.widget_id
+FROM dream_instances wi
+JOIN dream_definitions wd ON wi.widget_id = wd.widget_id
 JOIN feed_items fi ON (
   -- SELF scope: owner's own feed items
   (wd.host_config->>'scope')::SMALLINT = 0 AND fi.user_id = wi.owner_id

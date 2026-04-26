@@ -19,7 +19,7 @@ import { createServerClient } from '@/lib/supabase/server';
 // Tables to export, each with the column name that identifies the owner.
 const EXPORT_TARGETS: Array<{ table: string; ownerCol: string }> = [
   { table: 'profiles',           ownerCol: 'id' },
-  { table: 'widget_instances',   ownerCol: 'user_id' },
+  { table: 'dream_instances',   ownerCol: 'user_id' },
   { table: 'feed_items',         ownerCol: 'user_id' },
   { table: 'merch',              ownerCol: 'user_id' },
   { table: 'favorites',          ownerCol: 'user_id' },

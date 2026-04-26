@@ -6,6 +6,9 @@
   "github": {
     "silent": true
   },
+  "crons": [
+    { "path": "/api/health", "schedule": "*/30 * * * *" }
+  ],
   "functions": {
     "app/api/account/delete-dream/route.ts": { "maxDuration": 30 },
     "app/api/account/delete-data/route.ts": { "maxDuration": 30 },

@@ -31,6 +31,9 @@ import { useDualRuntime } from '@/components/runtime/dream.DualRuntimeContainer'
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import { runHomeAction } from '@/lib/home-buttons/contextual-home';
 import { DIVIDER_H } from '@/lib/dreamdm/barInteractions';
+import { parseDreamDragData, surfaceForRuntime, transferDream, type DreamRuntime } from '@/lib/dreams/drag';
+import { useDreamLayout } from '@/hooks/useDreamLayout';
+import { useOS } from '@/lib/dreamenginOS/OSContext';
 
 /** Routes where the bar must NOT appear (pre-login / public surfaces). */
 const PUBLIC_ROUTES = ['/', '/login', '/join', '/policy', '/about'];
@@ -53,6 +56,8 @@ export default function PersistentDreamBar() {
   } = useDreamSystem();
 
   const [viewportHeight, setViewportHeight] = useState(0);
+  const os = useOS();
+  const { layout, updateDreamLayout } = useDreamLayout();
 
   useEffect(() => {
     const update = () => setViewportHeight(window.innerHeight);
@@ -116,6 +121,47 @@ export default function PersistentDreamBar() {
     dualRuntime.setBottomRuntime('DreamSpace');
   }, [dualRuntime]);
 
+  const handleDreamDrop = useCallback((event: React.DragEvent<HTMLDivElement>, toRuntime: DreamRuntime) => {
+    const raw = event.dataTransfer.getData('application/x-dreamengin-dream')
+      || event.dataTransfer.getData('text/plain');
+    const dreamData = parseDreamDragData(raw);
+    if (!dreamData) return;
+    event.preventDefault();
+    const rect = event.currentTarget.getBoundingClientRect();
+    const position = { x: Math.round(event.clientX - rect.left), y: Math.round(event.clientY - rect.top) };
+    const toSurface = surfaceForRuntime(toRuntime);
+    const fromRuntime = dreamData.runtime;
+    void transferDream({ ...dreamData, runtime: toRuntime, surface: toSurface, position }, fromRuntime, toRuntime, position);
+    os.bus.emit('dream:transfer' as keyof Record<string, unknown>, { dreamData, fromRuntime, toRuntime, position });
+    const fromSurface = dreamData.surface;
+    const nextLayout = {
+      home: { dreams: layout.home.dreams.filter((id) => id !== dreamData.dream_id) },
+      dreamspace: { dreams: layout.dreamspace.dreams.filter((id) => id !== dreamData.dream_id) },
+    };
+    nextLayout[toSurface].dreams = [...nextLayout[toSurface].dreams, dreamData.dream_id];
+    if (fromSurface !== toSurface) {
+      updateDreamLayout(nextLayout);
+    }
+  }, [layout, os.bus, updateDreamLayout]);
+
+  const swapDreamRuntimes = useCallback(() => {
+    const nextLayout = {
+      home: { dreams: layout.dreamspace.dreams },
+      dreamspace: { dreams: layout.home.dreams },
+    };
+    updateDreamLayout(nextLayout, 0);
+    os.bus.emit('dream:transfer' as keyof Record<string, unknown>, {
+      gesture: 'swap-runtimes',
+      home: nextLayout.home.dreams,
+      dreamspace: nextLayout.dreamspace.dreams,
+    });
+    void fetch('/api/dreams/transfer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dreamData: { dream_id: '__swap__', type: 'runtime-swap' }, fromRuntime: 'HOME', toRuntime: 'FACE', swap: true }),
+    }).catch(() => undefined);
+  }, [layout.dreamspace.dreams, layout.home.dreams, os.bus, updateDreamLayout]);
+
   // Hide on public / pre-login surfaces only
   if (PUBLIC_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))) {
     return null;
@@ -160,6 +206,8 @@ export default function PersistentDreamBar() {
           overflow: 'hidden',
           borderBottom: isBarMinimized ? '1px solid rgba(93,232,255,0.12)' : 'none',
         }}
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={(event) => handleDreamDrop(event, 'HOME')}
       >
         {homeData && (
           <RuntimeView
@@ -190,6 +238,7 @@ export default function PersistentDreamBar() {
         splitRatio={isHomeActive ? splitRatio : undefined}
         onSplitChange={isHomeActive ? setSplitRatio : undefined}
         onMinimizedChange={isHomeActive ? setIsBarMinimized : undefined}
+        onSwapRuntimes={isHomeActive ? swapDreamRuntimes : undefined}
       />
 
       {/* ── DreamSpace (bottom runtime) ──────────────────────────────────────
@@ -206,6 +255,8 @@ export default function PersistentDreamBar() {
           overflow: 'hidden',
           borderTop: isBarMinimized ? '1px solid rgba(232,192,64,0.1)' : 'none',
         }}
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={(event) => handleDreamDrop(event, 'FACE')}
       >
         {homeData && (
           <RuntimeView

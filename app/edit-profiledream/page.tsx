@@ -113,11 +113,11 @@ export default function EditProfileDreamPage() {
         setSaveError((data as { error?: string }).error || 'Failed to save.');
         return;
       }
-      // Persist widget config to profile (widget_config column) and localStorage as backup
+      // Persist Dream config to profile (dream_config column) and localStorage as backup
       await fetch('/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ widget_config: widgets }),
+        body: JSON.stringify({ dream_config: widgets }),
       });
       localStorage.setItem('de-profile-widget-order', JSON.stringify(widgets));
 
@@ -186,7 +186,7 @@ export default function EditProfileDreamPage() {
           website: profile.website,
           location: profile.location,
           widget_order: widgets,
-          widget_config: widgets,
+          dream_config: widgets,
         }),
       });
       if (!saveRes.ok) {

@@ -1,6 +1,6 @@
 'use client';
 // components/connectors/dream.widget.ConnectWidgetPrompt.tsx
-// Compact "Add {Service} as a widget?" prompt (req 11-20)
+// Compact "Add {Service} as a Dream?" prompt (req 11-20)
 //
 // • Appears near bottom, above OS controls (req 19)
 // • Fade + slide-up animation 150-200ms (req 20)
@@ -101,7 +101,7 @@ export default function ConnectWidgetPrompt({
       {/* Card — pointer-events auto only on the card itself (req 13) */}
       <div
         role="dialog"
-        aria-label={`Add ${connectorName} as a widget`}
+        aria-label={`Add ${connectorName} as a Dream`}
         style={{
           pointerEvents: 'auto',
           background: 'rgba(245,250,255,0.96)',
@@ -134,7 +134,7 @@ export default function ConnectWidgetPrompt({
           {/* Text */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)', lineHeight: 1.3 }}>
-              Add {connectorName} as a widget?
+              Add {connectorName} as a Dream?
             </div>
             <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 2 }}>
               {primary.description}

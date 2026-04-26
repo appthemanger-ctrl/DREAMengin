@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: write
+  deployments: write
 
 jobs:
   preflight:
@@ -99,6 +100,23 @@ jobs:
           cd "$APP_ROOT"
           pnpm run build
 
+      - name: Deploy to Vercel production
+        if: github.ref_name == 'completedream'
+        shell: bash
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          test -n "$VERCEL_TOKEN"
+          pnpm dlx vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+          pnpm dlx vercel@latest build --prod --token="$VERCEL_TOKEN"
+          pnpm dlx vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+
+      - name: Production health check
+        if: github.ref_name == 'completedream'
+        shell: bash
+        run: |
+          curl --fail --retry 5 --retry-delay 10 https://dreamengin.com/api/health
+
       - name: Print summary
         if: always()
         shell: bash
@@ -114,4 +132,3 @@ jobs:
             echo "| Mode | ${{ steps.score.outputs.mode }} |"
             echo "| Allowed | ${{ steps.score.outputs.allowed }} |"
           } >> "$GITHUB_STEP_SUMMARY"
-
