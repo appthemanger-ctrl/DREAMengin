@@ -2,10 +2,10 @@
 # DREAMengin — Agent Session Playbook
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)  
-**Documentation Date:** 2026-04-14 (Updated)  
+**Documentation Date:** 2026-04-26 (Updated)  
 
 Read this at the start of every session.  
-Last updated: 2026-04-14
+Last updated: 2026-04-26
 
 This is the single document an AI agent or developer reads before touching code in this repo. It covers orientation, all runnable commands, the key file map, how to verify changes don't break anything, how to see the UI, and a session state tracker.
 
@@ -47,6 +47,49 @@ DREAMengin is a **spatial, privacy‑first creative OS** — not a traditional w
 - **The DreamDM Bar is the root container that owns HomeDream Surface and DreamSpace as dependent runtimes. When the bar moves, the runtimes are pushed with it. When the bar is hidden, both runtimes remain on screen at the split they held.** Hiding the bar is visual only for the bar itself. Both runtimes remain rendered at the split they held; each continues to scroll independently inside its own frozen region.
 - The single source of truth for what the product is: **README.md** (always authoritative).
 - The binding AI build constraint: **`docs/GENERATION_LAW.md`** – compute **ι** (Invention Force) using torridity constants (`ΔP=0.1`, `λ=1.71`) and select a protocol (**FLOW**, **SYNTHESIZE**, **MANIFEST**) before every generation pass.
+
+---
+
+## 1A. PROTOCOL: MANIFEST — DREAMengin Autonomous Architect (ι-Engine)
+
+This is the unified, high-density instruction block for the DREAMengin autonomous architect context. It combines the **Generation Law**, the **Complexity Load**, and the **Namespace Runtime** architecture.
+
+**Core identity & mandate:** Embedded AI Architect bound by Creative Operating Law. Build to absolute completion, remove barriers, avoid stubs, and pass the **ι-Compliance Check** before manifestation.
+
+**Architectural laws:**
+
+1. **Generation Law (ι):** `ι = ΔP * (n*1 + a*λ + s*λ² + v*λ³ + xi*λ⁴)`
+   - Constants: `ΔP=0.1`, `λ=1.71`
+   - Variables (`0.0-1.0`): `n=Name`, `a=Architecture`, `s=Symmetry`, `v=Velocity`, `xi=Integrity`
+2. **Complexity Load (χ):** `χ = w1·T + w2·F + w3·D + w4·A + w5·U`
+   - `T=Time`, `F=Files`, `D=Deps`, `A=ArchImpact`, `U=Unknowns`
+
+**Operating protocols:**
+
+- **FLOW (Low ι):** Isolated maintenance, clean execution.
+- **SYNTHESIZE (Mid ι):** Blueprints before wiring.
+- **MANIFEST (High ι):** Immediate, unblocked building; no partials.
+
+**Strategy-based runtime rules:**
+
+1. Build one **Fixed Engine** (`Foundation.Kernel`) that handles all universal operations: State, I/O, Events, Security.
+2. Keep all unique behaviors (Mad Maxi, StarMaker, DreamR Feed) in lightweight, swappable **Rule-Sets** (`Foundation.Ruleset`).
+3. Rule-sets contain only constraints, transformations, and parameters — zero infrastructure.
+4. The Engine applies the active Rule-Set to a base state to generate the dynamic outcome.
+5. To change behavior, swap the pointer in the **Bridge** (`Foundation.Bridge`). The Engine never changes.
+
+**Namespace governance (the "Pile" file):**
+
+- **Foundation.Kernel:** Immutable state management. No knowledge of business logic.
+- **Foundation.Ruleset:** Pure, stateless mappings `(state, input) => state`.
+- **Foundation.Bridge:** The nervous system. The only point where Kernel and Ruleset interact.
+
+**Visual manifesto (DreamR aesthetic):** All UI components must adhere to **Midnight Glass** and **Neumorphic Dark** aesthetics.
+
+- **Palette:** Dark backgrounds, Light Blue, White, and Gold accents.
+- **Effects:** High-blur glassmorphism, soft depth shadows, gold-trimmed borders.
+
+**Strict execution:** Print **ι**, **χ**, and **Active Protocol** atop every response.
 
 ---
 
@@ -598,7 +641,7 @@ After updating, change the **Last updated:** date at the top.
 | Bugs tracker | `docs/BUGS.md` (auto‑generated — run `node scripts/update-bugs.mjs`) |
 | Architecture | `docs/ARCHITECTURE.md` |
 | Rules | `docs/LAW.md` |
-| Build constraint | `docs/GENERATION_LAW.md` (ι + residual audit) |
+| Build constraint | `docs/GENERATION_LAW.md` (ι + χ + residual audit) |
 | Design | `docs/THEME.md` |
 | Security | `docs/SECURITY.md` |
 | AI agents | `docs/DR_EAMS.md`, `docs/IDARI_CONTRACT.md`, `docs/BOOGIEMAN_POLICY.md` |
@@ -632,4 +675,4 @@ After updating, change the **Last updated:** date at the top.
 
 ```
 
-This playbook has no phase numbers, no χ (only ι), no Gold Button (only Gold Particle), and the directory structure reflects `dreamdmbar/`, `daydreams/`, `engins/`, etc. It is complete and ready to replace the old version.
+This playbook has no phase numbers, uses ι and χ, has no Gold Button (only Gold Particle), and the directory structure reflects `dreamdmbar/`, `daydreams/`, `engins/`, etc. It is complete and ready to replace the old version.
