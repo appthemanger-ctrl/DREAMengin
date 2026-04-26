@@ -21,6 +21,10 @@ export interface DreamRSwipePreferenceSets {
 export type DreamRSwipeIntent = 'more' | 'less';
 export type DreamRViewIntent = 'left' | 'up' | 'right';
 
+export const LONGFORM_CONTENT_THRESHOLD = 180;
+export const CREATOR_PREFERENCE_WEIGHT = 8;
+export const TYPE_PREFERENCE_WEIGHT = 4;
+
 export function emptyDreamRSwipePreferences(): DreamRSwipePreferenceSets {
   return {
     moreCreators: new Set(),
@@ -44,7 +48,7 @@ export function contentTypePreferenceKey(post: DreamRSwipePost): string {
   if (/\.(mp3|wav|ogg|m4a|flac)(\?|$)/.test(media)) return 'audio';
   if (/\.(jpe?g|png|gif|webp|avif|svg)(\?|$)/.test(media)) return 'image';
 
-  return (post.content?.length ?? 0) > 180 ? 'longform' : 'text';
+  return (post.content?.length ?? 0) > LONGFORM_CONTENT_THRESHOLD ? 'longform' : 'text';
 }
 
 export function nextSwipePreferences(
@@ -105,10 +109,10 @@ export function personalizeFeedOrder<T>(
       const creator = creatorPreferenceKey(post);
       const type = contentTypePreferenceKey(post);
       const score =
-        (preferences.moreCreators.has(creator) ? 8 : 0) +
-        (preferences.moreTypes.has(type) ? 4 : 0) -
-        (preferences.lessCreators.has(creator) ? 8 : 0) -
-        (preferences.lessTypes.has(type) ? 4 : 0);
+        (preferences.moreCreators.has(creator) ? CREATOR_PREFERENCE_WEIGHT : 0) +
+        (preferences.moreTypes.has(type) ? TYPE_PREFERENCE_WEIGHT : 0) -
+        (preferences.lessCreators.has(creator) ? CREATOR_PREFERENCE_WEIGHT : 0) -
+        (preferences.lessTypes.has(type) ? TYPE_PREFERENCE_WEIGHT : 0);
 
       return {
         item,

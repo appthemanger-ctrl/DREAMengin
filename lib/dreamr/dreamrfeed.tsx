@@ -71,6 +71,9 @@ const DR = {
   shadowDark:  'rgba(163,189,218,0.45)',
 } as const;
 
+const DWELL_VIEW_DELAY_MS = 3000;
+const REDISTRIBUTION_NOTICE_DURATION_MS = 4200;
+
 function nmR(s = 5) { return `${-s}px ${-s}px ${s*2.4}px ${DR.shadowLight}, ${s}px ${s}px ${s*2.8}px ${DR.shadowDark}`; }
 function nmI(s = 4) { return `inset ${-s}px ${-s}px ${s*2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s*2.4}px ${DR.shadowDark}`; }
 
@@ -870,7 +873,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   useEffect(() => {
     const item = personalizedFeedItems[activeIdx];
     if (!item || item.kind === 'creator') return;
-    const timer = setTimeout(() => recordDreamRView(item.post, 'up'), 3000);
+    const timer = setTimeout(() => recordDreamRView(item.post, 'up'), DWELL_VIEW_DELAY_MS);
     return () => clearTimeout(timer);
   }, [activeIdx, personalizedFeedItems, recordDreamRView]);
 
@@ -948,7 +951,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
     const creator = post.profiles?.display_name ?? post.profiles?.handle ?? 'that creator';
     const type = contentTypePreferenceKey(post);
     setRedistributionNotice(`Showing you less ${type} from ${creator}; this card is recycled to someone more likely to swipe up or left before it earns a real view.`);
-    window.setTimeout(() => setRedistributionNotice(null), 4200);
+    window.setTimeout(() => setRedistributionNotice(null), REDISTRIBUTION_NOTICE_DURATION_MS);
     requestAnimationFrame(() => {
       const el = scrollRef.current;
       if (!el) return;
