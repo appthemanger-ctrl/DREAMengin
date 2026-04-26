@@ -73,7 +73,7 @@ describe('HomeDream home surface', () => {
   });
 
   it('keeps feed scrolling native while limiting divider drag capture to the centered seam handle', () => {
-    expect(runtimeShell).toContain("touchAction: 'pan-y'");
+    expect(runtimeShell).toContain("touchAction: 'manipulation'");
     expect(dreamDmBar).toContain("pointerEvents: 'none'");
     expect(dreamDmBar).toContain("width: isDividerMode ? 112 : '100%'");
   });

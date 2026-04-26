@@ -1983,7 +1983,7 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
             pointerEvents: 'auto',
             // particle: visible; seam: visible so GlowingLight overflows the 2px line; normal: clip
             overflow: (isParticleMode || isSeamMode) ? 'visible' : 'hidden',
-            touchAction: isSeamMode || isParticleMode ? 'none' : 'pan-y',
+            touchAction: isSeamMode || isParticleMode ? 'none' : 'manipulation',
             borderRadius: isParticleMode
               ? '50%'
               : (isSeamMode ? 0 : (isDividerMode ? 999 : (isTop ? (showFull ? 24 : 0) : (showFull ? 24 : 999)))),

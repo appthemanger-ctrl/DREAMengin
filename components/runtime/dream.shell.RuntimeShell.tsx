@@ -271,7 +271,7 @@ export default function RuntimeShell({
              overflowY: 'auto',
              overflowX: 'hidden',
              overscrollBehavior: 'contain',
-             touchAction: 'pan-y',
+             touchAction: 'manipulation',
              display: 'flex',
              flexDirection: 'column',
            }}
