@@ -6,6 +6,7 @@ import { WidgetInstanceRecord, WidgetPresentation, WidgetVisibility, WidgetBindi
 import { LAYER_HOME, LAYER_PROFILE } from '@/lib/navigation/NavStateBuffer';
 import { Home } from 'lucide-react';
 import PixiPhysicsLayer from '@/components/spatial/dream.PixiPhysicsLayer';
+import { ProfileSpace } from '@/components/dream.ProfileSpace';
 
 interface EnhancedSpatialShellProps {
   userId: string;
@@ -134,7 +135,12 @@ export default function EnhancedSpatialShell({
           }}
         >
           <div className="relative w-full h-full">
-            {activeWidgets.length > 0 ? (
+            {navState.layer === LAYER_PROFILE ? (
+              /* ── Profile layer: delegate to ProfileSpace widget canvas ── */
+              <ProfileSpace
+                widgets={activeWidgets.filter((w) => w.context === 'PROFILE')}
+              />
+            ) : activeWidgets.length > 0 ? (
               activeWidgets.map((widget) => (
                 <div
                   key={widget.instanceId}
