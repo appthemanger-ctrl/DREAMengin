@@ -31,6 +31,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import UniversalWidget from '@/components/widgets/dream.widget.UniversalWidget';
 import DreamSpace from '@/components/dreamengin/dreamsurface.dreamspace-runtime';
+import SpatialProfileSpace from '@/components/spatial/dream.ProfileSpace';
 import { useDreamsRuntime } from '@/lib/dreams/useDreamsRuntime';
 import {
   computeMomentum,
@@ -54,8 +55,8 @@ import {
 type OpenUrlFn = (url: string, title?: string) => void;
 
 type ServiceType = 'youtube' | 'github' | 'spotify' | null;
-/** Top-level view for the Dreams Space panel: Apps home screen (priority) or connector Feeds. */
-type DreamsSpaceView = 'apps' | 'feeds';
+/** Top-level view for the Dreams Space panel: Apps home screen (priority), connector Feeds, or Profile. */
+type DreamsSpaceView = 'apps' | 'feeds' | 'profile';
 
 /** The 6 canonical Daydream surfaces — permanent windows from DreamSpace. */
 const DAYDREAMS = [
@@ -261,10 +262,17 @@ export default function DreamsSpacePanel({
   onOpenUrl,
   onOpenInRegion,
   accountId,
+  profile,
 }: {
   onOpenUrl?: OpenUrlFn;
   onOpenInRegion?: (path: string) => void;
   accountId?: string | null;
+  profile?: {
+    id?: string;
+    handle?: string | null;
+    display_name?: string | null;
+    avatar_url?: string | null;
+  } | null;
 }) {
   const runtime = useDreamsRuntime();
   const { state, setService } = runtime;
@@ -378,7 +386,7 @@ export default function DreamsSpacePanel({
                 textTransform: 'uppercase',
               }}
             >
-              {v === 'apps' ? '⊞ Apps' : '✨ Explore'}
+              {v === 'apps' ? '⊞ Apps' : v === 'feeds' ? '✨ Explore' : '👤 Profile'}
             </button>
           );
         })}
@@ -703,7 +711,7 @@ export default function DreamsSpacePanel({
           </div>
 
         </motion.div>
-      ) : (
+      ) : view === 'feeds' ? (
         /* ── Feeds — connector content ── */
         <motion.div
           key="feeds"
@@ -777,6 +785,36 @@ export default function DreamsSpacePanel({
               />
             )}
           </div>
+        </motion.div>
+      ) : (
+        /* ── Profile — DreamSpace spatial profile surface ── */
+        <motion.div
+          key="profile"
+          style={{ flex: 1, overflow: 'hidden' }}
+          initial={{ opacity: 0, x: 12 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -12 }}
+          transition={{ duration: 0.18, ease: 'easeOut' }}
+        >
+          {accountId && profile?.handle ? (
+            <SpatialProfileSpace
+              userId={accountId}
+              handle={profile.handle}
+              displayName={profile.display_name ?? undefined}
+              avatarUrl={profile.avatar_url ?? undefined}
+              isOwner={true}
+              onSwitchToHome={() => setView('apps')}
+            />
+          ) : (
+            <div style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              justifyContent: 'center', height: '100%', gap: 12,
+              color: 'var(--de-text-dim)', fontSize: 13,
+            }}>
+              <span style={{ fontSize: 32 }}>👤</span>
+              <span>Sign in to view your profile space</span>
+            </div>
+          )}
         </motion.div>
         )}
       </AnimatePresence>

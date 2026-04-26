@@ -20,6 +20,7 @@ import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
 import HomeDreamSurface from '@/dreamdmbar/homedream/dreamsurface.homedream';
 import DreamsSpacePanel from '@/components/dreams/dreamsurface.dreamspace';
 import RuntimeShell from '@/components/runtime/dream.shell.RuntimeShell';
+import EnhancedSpatialShell from '@/components/spatial/dream.shell.EnhancedSpatialShell';
 import type { RuntimeRegion } from '@/lib/identity/canonical-names';
 
 // ── Panel components (loaded in-region, never as overlays) ───────────────────
@@ -163,6 +164,7 @@ export default function RuntimeView({
             onOpenUrl={openUrl}
             onOpenInRegion={onOpenInRegion}
             accountId={profile?.id}
+            profile={profile}
           />
         </RuntimeShell>
       </div>
@@ -171,6 +173,25 @@ export default function RuntimeView({
 
   /* ── View Profile Surface runtime ───────────────────────────────────────── */
   if (world === 'View Profile Surface') {
+    if (profile?.id && profile?.handle) {
+      return (
+        <div style={outerStyle}>
+          <RuntimeShell
+            iframeUrl={iframeUrl}
+            onCloseIframe={closeIframe}
+            iframeTitle={iframeTitle}
+          >
+            <EnhancedSpatialShell
+              userId={profile.id}
+              handle={profile.handle}
+              displayName={profile.display_name ?? undefined}
+              avatarUrl={profile.avatar_url ?? undefined}
+            />
+          </RuntimeShell>
+        </div>
+      );
+    }
+    // Fallback when profile data is not yet available
     return (
       <div style={outerStyle}>
         <RuntimeShell
