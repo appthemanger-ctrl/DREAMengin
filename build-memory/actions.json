@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-26T11:46:24.075Z",
+  "generated_at": "2026-04-26T12:08:51.451Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 100,
+  "count": 106,
   "actions": [
     {
       "file": "app/actions/dream-docs.ts",
@@ -419,6 +419,31 @@
       "exports": []
     },
     {
+      "file": "app/api/dreams/feed/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST",
+        "GET"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/dreams/instances/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/dreams/transfer/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": []
+    },
+    {
       "file": "app/api/embed-feed/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
@@ -486,6 +511,14 @@
       "type": "api-route-handler",
       "http_handlers": [
         "POST"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/health/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
       ],
       "exports": []
     },
@@ -608,6 +641,15 @@
         "GET",
         "PUT",
         "DELETE"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/platform/errors/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET",
+        "POST"
       ],
       "exports": []
     },
@@ -804,6 +846,15 @@
       "exports": []
     },
     {
+      "file": "app/api/user/layout/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET",
+        "POST"
+      ],
+      "exports": []
+    },
+    {
       "file": "app/api/views/track/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
@@ -815,8 +866,8 @@
       "file": "app/api/widgets/feed/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
-        "POST",
-        "GET"
+        "GET",
+        "POST"
       ],
       "exports": []
     },

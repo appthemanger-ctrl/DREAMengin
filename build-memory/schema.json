@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-04-26T11:46:24.075Z",
+  "generated_at": "2026-04-26T12:08:51.451Z",
   "generator": "scripts/sync-build-memory.mjs",
   "sources": [
     "types/supabase.ts",
     "supabase/migrations/"
   ],
-  "count": 139,
+  "count": 141,
   "tables": [
     {
       "table": "activity_points",
@@ -2056,6 +2056,86 @@
       "source": "20260420000001_consent_settings_audit.sql"
     },
     {
+      "table": "dream_content",
+      "columns": [
+        {
+          "name": "content",
+          "type": "Json"
+        },
+        {
+          "name": "content_body",
+          "type": "string | null"
+        },
+        {
+          "name": "content_encoding",
+          "type": "string | null"
+        },
+        {
+          "name": "content_hash",
+          "type": "string | null"
+        },
+        {
+          "name": "created_at",
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "metadata",
+          "type": "Json | null"
+        },
+        {
+          "name": "owner_id",
+          "type": "string | null"
+        },
+        {
+          "name": "updated_at",
+          "type": "string"
+        },
+        {
+          "name": "widget_id",
+          "type": "string | null"
+        }
+      ],
+      "source": "types/supabase.ts"
+    },
+    {
+      "table": "dream_definitions",
+      "columns": [
+        {
+          "name": "component",
+          "type": "string | null"
+        },
+        {
+          "name": "created_at",
+          "type": "string"
+        },
+        {
+          "name": "default_config",
+          "type": "Json"
+        },
+        {
+          "name": "description",
+          "type": "string | null"
+        },
+        {
+          "name": "key",
+          "type": "string"
+        },
+        {
+          "name": "title",
+          "type": "string | null"
+        },
+        {
+          "name": "updated_at",
+          "type": "string"
+        }
+      ],
+      "source": "types/supabase.ts"
+    },
+    {
       "table": "dream_doc_sections",
       "columns": [
         {
@@ -2146,6 +2226,36 @@
         },
         {
           "name": "updated_at",
+          "type": "string"
+        }
+      ],
+      "source": "types/supabase.ts"
+    },
+    {
+      "table": "dream_instances",
+      "columns": [
+        {
+          "name": "config",
+          "type": "Json"
+        },
+        {
+          "name": "created_at",
+          "type": "string"
+        },
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "updated_at",
+          "type": "string"
+        },
+        {
+          "name": "user_id",
+          "type": "string"
+        },
+        {
+          "name": "widget_type",
           "type": "string"
         }
       ],
@@ -3872,6 +3982,40 @@
       "source": "20260129000000_upgrade_schema.sql"
     },
     {
+      "table": "platform_errors",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID PRIMARY KEY DEFAULT gen_random_uuid()"
+        },
+        {
+          "name": "user_id",
+          "type": "UUID REFERENCES public"
+        },
+        {
+          "name": "source",
+          "type": "TEXT NOT NULL DEFAULT"
+        },
+        {
+          "name": "message",
+          "type": "TEXT NOT NULL"
+        },
+        {
+          "name": "stack",
+          "type": "TEXT"
+        },
+        {
+          "name": "metadata",
+          "type": "JSONB NOT NULL DEFAULT"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+        }
+      ],
+      "source": "20260426000100_rename_widgets_to_dreams.sql"
+    },
+    {
       "table": "policy_events",
       "columns": [
         {
@@ -4001,7 +4145,7 @@
           "type": "string | null"
         },
         {
-          "name": "widget_config",
+          "name": "dream_config",
           "type": "Json"
         }
       ],
@@ -4530,6 +4674,40 @@
       "source": "types/supabase.ts"
     },
     {
+      "table": "user_dream_layout",
+      "columns": [
+        {
+          "name": "id",
+          "type": "UUID PRIMARY KEY DEFAULT gen_random_uuid()"
+        },
+        {
+          "name": "user_id",
+          "type": "UUID NOT NULL REFERENCES public"
+        },
+        {
+          "name": "surface",
+          "type": "TEXT NOT NULL CHECK (surface IN ("
+        },
+        {
+          "name": "surface_key",
+          "type": "INTEGER NOT NULL DEFAULT 0"
+        },
+        {
+          "name": "layout",
+          "type": "JSONB NOT NULL DEFAULT"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+        },
+        {
+          "name": "updated_at",
+          "type": "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+        }
+      ],
+      "source": "20260426000100_rename_widgets_to_dreams.sql"
+    },
+    {
       "table": "user_follows",
       "columns": [
         {
@@ -4760,86 +4938,6 @@
       "note": "Referenced in code but not found in types/supabase.ts or migrations — may indicate missing migration"
     },
     {
-      "table": "widget_content",
-      "columns": [
-        {
-          "name": "content",
-          "type": "Json"
-        },
-        {
-          "name": "content_body",
-          "type": "string | null"
-        },
-        {
-          "name": "content_encoding",
-          "type": "string | null"
-        },
-        {
-          "name": "content_hash",
-          "type": "string | null"
-        },
-        {
-          "name": "created_at",
-          "type": "string"
-        },
-        {
-          "name": "id",
-          "type": "string"
-        },
-        {
-          "name": "metadata",
-          "type": "Json | null"
-        },
-        {
-          "name": "owner_id",
-          "type": "string | null"
-        },
-        {
-          "name": "updated_at",
-          "type": "string"
-        },
-        {
-          "name": "widget_id",
-          "type": "string | null"
-        }
-      ],
-      "source": "types/supabase.ts"
-    },
-    {
-      "table": "widget_definitions",
-      "columns": [
-        {
-          "name": "component",
-          "type": "string | null"
-        },
-        {
-          "name": "created_at",
-          "type": "string"
-        },
-        {
-          "name": "default_config",
-          "type": "Json"
-        },
-        {
-          "name": "description",
-          "type": "string | null"
-        },
-        {
-          "name": "key",
-          "type": "string"
-        },
-        {
-          "name": "title",
-          "type": "string | null"
-        },
-        {
-          "name": "updated_at",
-          "type": "string"
-        }
-      ],
-      "source": "types/supabase.ts"
-    },
-    {
       "table": "widget_events",
       "columns": [
         {
@@ -4894,36 +4992,6 @@
         },
         {
           "name": "widget_id",
-          "type": "string"
-        }
-      ],
-      "source": "types/supabase.ts"
-    },
-    {
-      "table": "widget_instances",
-      "columns": [
-        {
-          "name": "config",
-          "type": "Json"
-        },
-        {
-          "name": "created_at",
-          "type": "string"
-        },
-        {
-          "name": "id",
-          "type": "string"
-        },
-        {
-          "name": "updated_at",
-          "type": "string"
-        },
-        {
-          "name": "user_id",
-          "type": "string"
-        },
-        {
-          "name": "widget_type",
           "type": "string"
         }
       ],

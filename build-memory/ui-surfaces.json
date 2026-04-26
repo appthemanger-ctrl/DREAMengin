@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-26T11:46:24.075Z",
+  "generated_at": "2026-04-26T12:08:51.451Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 118,
+  "count": 120,
   "surfaces": [
     {
       "type": "page",
@@ -48,6 +48,13 @@
           "from": "@/components/dream.panel.ChildSafetyPanel"
         }
       ]
+    },
+    {
+      "type": "page",
+      "path": "/admin/platform-errors",
+      "file": "app/admin/platform-errors/page.tsx",
+      "component": "PlatformErrorsPage",
+      "imports": []
     },
     {
       "type": "page",
@@ -1193,6 +1200,22 @@
     },
     {
       "type": "page",
+      "path": "/settings/dreams",
+      "file": "app/settings/dreams/page.tsx",
+      "component": "DreamsSettingsPage",
+      "imports": [
+        {
+          "name": "AuthenticatedPageHeader",
+          "from": "@/components/ui/dream.AuthenticatedPageHeader"
+        },
+        {
+          "name": "DreamsLayoutEditor",
+          "from": "./dreams-layout-editor"
+        }
+      ]
+    },
+    {
+      "type": "page",
       "path": "/settings/feed",
       "file": "app/settings/feed/page.tsx",
       "component": "FeedSettingsRedirect",
@@ -1262,12 +1285,8 @@
       "type": "page",
       "path": "/settings/widgets",
       "file": "app/settings/widgets/page.tsx",
-      "component": "WidgetsSettingsPage",
+      "component": "LegacyWidgetsSettingsPage",
       "imports": [
-        {
-          "name": "DreamWord",
-          "from": "@/components/ui/dream.DreamWord"
-        },
         {
           "name": "AuthenticatedPageHeader",
           "from": "@/components/ui/dream.AuthenticatedPageHeader"

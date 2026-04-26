@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-26T11:46:24.075Z",
+  "generated_at": "2026-04-26T12:08:51.451Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 23,
+  "count": 28,
   "events": [
     {
       "event": "beforeunload",
@@ -79,6 +79,34 @@
       ]
     },
     {
+      "event": "dragover",
+      "payload_type": null,
+      "files": [
+        "components/dreams/dream.GlobalDragLayer.tsx"
+      ]
+    },
+    {
+      "event": "dream:drag-end",
+      "payload_type": null,
+      "files": [
+        "components/dreams/dream.GlobalDragLayer.tsx"
+      ]
+    },
+    {
+      "event": "dream:drag-move",
+      "payload_type": null,
+      "files": [
+        "components/dreams/dream.GlobalDragLayer.tsx"
+      ]
+    },
+    {
+      "event": "dream:drag-start",
+      "payload_type": null,
+      "files": [
+        "components/dreams/dream.GlobalDragLayer.tsx"
+      ]
+    },
+    {
       "event": "dreamengin:boogieman",
       "payload_type": "PolicyResult",
       "files": [
@@ -93,9 +121,17 @@
       ]
     },
     {
+      "event": "drop",
+      "payload_type": null,
+      "files": [
+        "components/dreams/dream.GlobalDragLayer.tsx"
+      ]
+    },
+    {
       "event": "error",
       "payload_type": null,
       "files": [
+        "components/dreams/dream.PlatformErrorReporter.tsx",
         "components/gameengin/dream.cartridge.CartridgeErrorBoundary.tsx",
         "engins/engin.CodeEngin.tsx"
       ]
@@ -180,6 +216,7 @@
       "event": "unhandledrejection",
       "payload_type": null,
       "files": [
+        "components/dreams/dream.PlatformErrorReporter.tsx",
         "components/gameengin/dream.cartridge.CartridgeErrorBoundary.tsx"
       ]
     }

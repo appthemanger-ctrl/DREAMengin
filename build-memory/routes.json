@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-26T11:46:24.075Z",
+  "generated_at": "2026-04-26T12:08:51.451Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 99,
+  "count": 105,
   "routes": [
     {
       "path": "/api/account/delete-data",
@@ -359,6 +359,28 @@
       ]
     },
     {
+      "path": "/api/dreams/feed",
+      "file": "app/api/dreams/feed/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/dreams/instances",
+      "file": "app/api/dreams/instances/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/dreams/transfer",
+      "file": "app/api/dreams/transfer/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
       "path": "/api/embed-feed",
       "file": "app/api/embed-feed/route.ts",
       "methods": [
@@ -417,6 +439,13 @@
       "file": "app/api/gameengin/crash-report/route.ts",
       "methods": [
         "POST"
+      ]
+    },
+    {
+      "path": "/api/health",
+      "file": "app/api/health/route.ts",
+      "methods": [
+        "GET"
       ]
     },
     {
@@ -525,6 +554,14 @@
         "GET",
         "PUT",
         "DELETE"
+      ]
+    },
+    {
+      "path": "/api/platform/errors",
+      "file": "app/api/platform/errors/route.ts",
+      "methods": [
+        "GET",
+        "POST"
       ]
     },
     {
@@ -694,6 +731,14 @@
       "path": "/api/upload",
       "file": "app/api/upload/route.ts",
       "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/user/layout",
+      "file": "app/api/user/layout/route.ts",
+      "methods": [
+        "GET",
         "POST"
       ]
     },
