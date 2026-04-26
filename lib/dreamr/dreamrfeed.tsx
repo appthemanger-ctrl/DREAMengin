@@ -72,10 +72,12 @@ const DR = {
 } as const;
 
 // Match the shared view-counter contract: a post needs 3s of dwell to earn a view.
-const DWELL_VIEW_DELAY_MS = 3000;
+const DWELL_VIEW_THRESHOLD_MS = 3000;
 // Long enough to read once on mobile, short enough not to cover the next card.
 const REDISTRIBUTION_NOTICE_DURATION_MS = 4200;
 const RIGHT_SWIPE_SCROLL_BUFFER_CARDS = 2;
+const REDISTRIBUTION_EXPLANATION =
+  'this card is recycled to someone more likely to swipe up or left before it earns a real view.';
 
 function nmR(s = 5) { return `${-s}px ${-s}px ${s*2.4}px ${DR.shadowLight}, ${s}px ${s}px ${s*2.8}px ${DR.shadowDark}`; }
 function nmI(s = 4) { return `inset ${-s}px ${-s}px ${s*2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s*2.4}px ${DR.shadowDark}`; }
@@ -124,7 +126,7 @@ function isImage(u?: string | null) { return !!u && /\.(jpe?g|png|gif|webp|avif|
 function isYouTube(post: FeedPost) { return post.provider === 'youtube' || !!(post.permalink?.includes('youtu')); }
 
 function redistributionMessage(creator: string, type: string): string {
-  return `Showing you less ${type} from ${creator}; this card is recycled to someone more likely to swipe up or left before it earns a real view.`;
+  return `Showing you less ${type} from ${creator}; ${REDISTRIBUTION_EXPLANATION}`;
 }
 
 // ── Topic channels ─────────────────────────────────────────────────────────────
@@ -880,7 +882,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   useEffect(() => {
     const item = personalizedFeedItems[activeIdx];
     if (!item || item.kind === 'creator') return;
-    const timer = setTimeout(() => recordDreamRView(item.post, 'up'), DWELL_VIEW_DELAY_MS);
+    const timer = setTimeout(() => recordDreamRView(item.post, 'up'), DWELL_VIEW_THRESHOLD_MS);
     return () => clearTimeout(timer);
   }, [activeIdx, personalizedFeedItems, recordDreamRView]);
 
@@ -955,7 +957,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
 
   const handleSwipeRight = useCallback((post: FeedPost) => {
     setSwipePrefs(prev => nextSwipePreferences(prev, post, 'less'));
-    const creator = post.profiles?.display_name ?? post.profiles?.handle ?? 'that creator';
+    const creator = post.profiles?.display_name ?? post.profiles?.handle ?? 'this creator';
     const type = contentTypePreferenceKey(post);
     setRedistributionNotice(redistributionMessage(creator, type));
     window.setTimeout(() => setRedistributionNotice(null), REDISTRIBUTION_NOTICE_DURATION_MS);

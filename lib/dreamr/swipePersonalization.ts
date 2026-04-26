@@ -21,8 +21,8 @@ export interface DreamRSwipePreferenceSets {
 export type DreamRSwipeIntent = 'more' | 'less';
 export type DreamRViewIntent = 'left' | 'up' | 'right';
 
-// A roughly two-sentence post stays "text"; beyond this, DreamR treats it as
-// longform so right/left swipes can tune dense essays separately from quick notes.
+// Characters. A roughly two-sentence post stays "text"; beyond this, DreamR
+// treats it as longform so swipes can tune essays separately from quick notes.
 export const LONGFORM_CONTENT_THRESHOLD = 180;
 // Creator intent is weighted twice as strongly as broad content-type intent:
 // "more from this person" should outrank "more text/image/video" in the next stack.
