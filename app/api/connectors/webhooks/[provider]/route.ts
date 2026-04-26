@@ -78,7 +78,7 @@ export async function GET(
       // WEBHOOK_VERIFY_TOKEN not configured — cannot verify.
       return NextResponse.json(
         { error: 'WEBHOOK_VERIFY_TOKEN is not configured. Set it in environment variables.' },
-        { status: 503 },
+        { status: 500 },
       );
     }
     const challenge = extractMetaWebhookChallenge(searchParams, expectedToken);

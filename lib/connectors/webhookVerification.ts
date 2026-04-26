@@ -61,14 +61,15 @@ export function extractMetaWebhookChallenge(
   params: URLSearchParams,
   expectedToken: string,
 ): string | null {
-  if (!expectedToken) {
+  const configuredToken = expectedToken.trim();
+  if (!configuredToken) {
     return null;
   }
 
   const mode = params.get('hub.mode');
   const token = params.get('hub.verify_token');
   const challenge = params.get('hub.challenge');
-  if (mode === 'subscribe' && token === expectedToken && challenge) {
+  if (mode === 'subscribe' && token === configuredToken && challenge) {
     return challenge;
   }
   return null;

@@ -27,11 +27,27 @@ import { deduplicateFeedItems } from './normalise';
 export interface ReconcileResult {
   ok: boolean;
   provider: string;
+  /** Internal-only owner id used for DB metadata updates. Do not expose in public API responses. */
   userId: string;
   fetched: number;
   stored: number;
   last_synced_at: string;
   error?: string;
+}
+
+function isConnectorAuthError(message: string): boolean {
+  const lower = message.toLowerCase();
+  return (
+    lower.includes('401') ||
+    lower.includes('403') ||
+    lower.includes('unauthorized') ||
+    lower.includes('unauthorised') ||
+    lower.includes('invalid token') ||
+    lower.includes('expired token') ||
+    lower.includes('access token') ||
+    lower.includes('oauth') ||
+    lower.includes('reauth')
+  );
 }
 
 /**
@@ -69,10 +85,7 @@ export async function reconcileConnector(
     items = await dispatchSync(provider, tokenBlob);
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    const isAuthError =
-      msg.includes('401') ||
-      msg.toLowerCase().includes('unauthori') ||
-      msg.toLowerCase().includes('token');
+    const isAuthError = isConnectorAuthError(msg);
 
     if (isAuthError) {
       await anyDb

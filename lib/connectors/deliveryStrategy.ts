@@ -84,8 +84,8 @@ export const DELIVERY_STRATEGY_MATRIX: ReadonlyArray<ConnectorDeliveryStrategy> 
     delivery: 'poll',
     webhookVerifiable: false,
     note:
-       'AT Protocol Firehose requires a persistent connection. Cron polling the ' +
-       "user's timeline via app.bsky.feed.getTimeline is the recommended approach.",
+      'AT Protocol Firehose requires a persistent connection. Cron polling the ' +
+      "user's timeline via app.bsky.feed.getTimeline is the recommended approach.",
   },
   {
     provider: 'github',

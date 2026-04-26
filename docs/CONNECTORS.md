@@ -196,6 +196,7 @@ These are explicitly unsupported. The UI explains why and suggests alternatives.
 ### Instagram
 
 The Instagram Graph API does not expose a home feed or follower list for third-party apps. Only follower/following counts are accessible.
+The DREAMengin Instagram connector can sync the authenticated user's own media through Basic Display API credentials, but it must never be described as a follower feed or home timeline.
 
 **Alternative:** Use Mastodon or Bluesky for full follow/feed access.
 
@@ -249,7 +250,7 @@ is declared in `lib/connectors/deliveryStrategy.ts`.
 
 `GET /api/connectors/cron`
 
-- Runs every 6 hours (see `vercel.json`)
+- Runs every 6 hours at 00:00, 06:00, 12:00, and 18:00 UTC (see `vercel.json`)
 - Requires `Authorization: Bearer <CRON_SECRET>` in production
 - Uses the Supabase service-role client to iterate all connected accounts
 - Calls the shared `reconcileConnector` pipeline for each
@@ -322,4 +323,3 @@ See `lib/connectors/normalise.ts` for normalisation functions per provider.
 See `lib/connectors/providers/` for per-provider verify + sync implementations.
 
 See `lib/connectors/deliveryStrategy.ts` for the delivery strategy matrix.
-

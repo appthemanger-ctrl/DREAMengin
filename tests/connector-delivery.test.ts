@@ -252,6 +252,15 @@ describe('extractMetaWebhookChallenge', () => {
     expect(extractMetaWebhookChallenge(params, '')).toBeNull();
   });
 
+  it('returns null when expectedToken is whitespace only', () => {
+    const params = new URLSearchParams({
+      'hub.mode': 'subscribe',
+      'hub.verify_token': '',
+      'hub.challenge': 'challenge',
+    });
+    expect(extractMetaWebhookChallenge(params, '   ')).toBeNull();
+  });
+
   it('returns null for empty params', () => {
     expect(extractMetaWebhookChallenge(new URLSearchParams(), EXPECTED)).toBeNull();
   });

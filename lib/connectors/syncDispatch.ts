@@ -89,7 +89,7 @@ export async function dispatchSync(
     case 'nostr': {
       const relayRaw = creds.relays;
       const relays = Array.isArray(relayRaw)
-        ? relayRaw.map(String)
+        ? relayRaw.flatMap((relay) => String(relay).split(',')).map((r) => r.trim()).filter(Boolean)
         : String(relayRaw ?? '').split(',').map((r) => r.trim()).filter(Boolean);
       return nostrSync({ pubkey: String(creds.pubkey ?? ''), relays });
     }
