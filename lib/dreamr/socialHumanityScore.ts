@@ -74,8 +74,8 @@ async function getLikeDiversity(supabase: any, userId: string): Promise<number> 
   // In a real system, join with posts table to get categories. Here we simulate with post id distribution.
   const freq = new Map<string, number>();
   for (const like of data) {
-    const sourceId = like.post_id ?? like.content_id;
-    if (!sourceId) continue;
+    const sourceId = like.post_id || like.content_id;
+    if (!sourceId?.trim()) continue;
     const cat = sourceId.slice(0, 2); // dummy category
     freq.set(cat, (freq.get(cat) || 0) + 1);
   }
