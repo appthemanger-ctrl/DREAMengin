@@ -38,7 +38,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '25'
+  NODE_VERSION: '24'
   PNPM_VERSION: '10.30.0'
   GENERATED_DIR: .github/generated/elite
 
@@ -80,16 +80,13 @@ jobs:
       - id: lint
         name: Lint GameEngin scope
         run: |
-          WARNINGS=$(pnpm exec next lint \
-            --dir components/games \
-            --dir components/gameengin \
-            --dir lib/gameengin \
-            2>&1 | grep -c "Warning:" || true)
+          LINT_OUTPUT=$(pnpm exec eslint \
+            components/games \
+            components/gameengin \
+            lib/gameengin 2>&1 || true)
+          WARNINGS=$(printf '%s\n' "$LINT_OUTPUT" | grep -c "warning" || true)
           echo "warnings=$WARNINGS" >> "$GITHUB_OUTPUT"
-          pnpm exec next lint \
-            --dir components/games \
-            --dir components/gameengin \
-            --dir lib/gameengin || true
+          printf '%s\n' "$LINT_OUTPUT"
 
       - name: Typecheck
         run: pnpm typecheck || true
@@ -371,11 +368,10 @@ jobs:
 
       - name: ESLint auto-fix (GameEngin scope)
         run: |
-          pnpm exec next lint \
-            --fix \
-            --dir components/games \
-            --dir components/gameengin \
-            --dir lib/gameengin \
+          pnpm exec eslint --fix \
+            components/games \
+            components/gameengin \
+            lib/gameengin \
             || true
 
       - name: Commit auto-fixes (if any)

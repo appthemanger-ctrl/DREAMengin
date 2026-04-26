@@ -370,34 +370,36 @@ export class GameEnginPlatform {
   // ── Internal: build the GameEngineAPI handed to a cartridge ────────────────
 
   private _buildCartridgeApi(): GameEngineAPI {
-    const platform = this;
+    const physics = {} as GameEngineAPI['physics'];
+    Object.defineProperties(physics, {
+      gravity: { get: () => this._gravity },
+      friction: { get: () => this._friction },
+    });
+
     return {
       loop: {
         onTick: (cb) => {
-          platform._tickSubs.add(cb);
-          return () => platform._tickSubs.delete(cb);
+          this._tickSubs.add(cb);
+          return () => this._tickSubs.delete(cb);
         },
         onRender: (cb) => {
-          platform._renderSubs.add(cb);
-          return () => platform._renderSubs.delete(cb);
+          this._renderSubs.add(cb);
+          return () => this._renderSubs.delete(cb);
         },
       },
-      physics: {
-        get gravity() { return platform._gravity; },
-        get friction() { return platform._friction; },
-      },
+      physics,
       input: {
         on: (event, cb) => {
-          let bucket = platform._inputSubs.get(event);
+          let bucket = this._inputSubs.get(event);
           if (!bucket) {
             bucket = new Set();
-            platform._inputSubs.set(event, bucket);
+            this._inputSubs.set(event, bucket);
           }
           const wrapper = cb as unknown as (payload: unknown) => void;
           bucket.add(wrapper);
           return () => bucket?.delete(wrapper);
         },
-        isKeyDown: (key) => platform._heldKeys.has(key),
+        isKeyDown: (key) => this._heldKeys.has(key),
       },
       score: {
         submit: async (gameId, value, level) => {
