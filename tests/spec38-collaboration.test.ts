@@ -7,6 +7,8 @@
 
 import { describe, it, expect } from 'vitest';
 import {
+  broadcastEdit,
+  createCollabSession,
   generateInviteLink,
   parseInviteLink,
   WebRTCCollabSession,
@@ -81,6 +83,36 @@ describe('§38 WebRTCCollabSession onMessage/send (mock channel)', () => {
     // Manually fire internal handler via the exposed peer list
     // (No data channels in node — just ensure no error)
     expect(count).toBe(0);
+  });
+});
+
+// ─── Production fallback ─────────────────────────────────────────────────────
+
+describe('§38 production transport fallback', () => {
+  it('createCollabSession falls back to a local session when Supabase is absent', async () => {
+    const session = await createCollabSession('fallback-ch', { transport: 'supabase' });
+
+    expect(session.transport).toBe('local');
+    expect(session.peers).toHaveLength(1);
+
+    await session.leave();
+  });
+
+  it('local fallback sessions exchange edit payloads on the same channel', async () => {
+    const a = await createCollabSession('local-ch', { transport: 'local' });
+    const b = await createCollabSession('local-ch', { transport: 'local' });
+    const received: unknown[] = [];
+
+    b.onMessage((payload) => {
+      if (payload.type === 'edit') received.push(payload.data);
+    });
+
+    await broadcastEdit(a, { op: 'insert', value: 'dream' });
+
+    expect(received).toEqual([{ op: 'insert', value: 'dream' }]);
+
+    await a.leave();
+    await b.leave();
   });
 });
 

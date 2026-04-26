@@ -29,6 +29,7 @@ import {
   type PeerInfo,
   type CollabSessionOptions,
 } from '@/lib/collaboration';
+import { createClient } from '@/lib/supabase/client';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -91,6 +92,7 @@ export function SharedDreamProvider({
 
   useEffect(() => {
     let mounted = true;
+    let activeSession: CollabSession | null = null;
 
     const id = propChannelId ?? (
       typeof crypto !== 'undefined' && crypto.randomUUID
@@ -106,9 +108,16 @@ export function SharedDreamProvider({
 
     const finalChannelId = urlChannelId ?? id;
 
-    createCollabSession(finalChannelId, sessionOptions)
+    const options = {
+      expectedPeerCount: 40,
+      ...sessionOptions,
+      supabaseClient: sessionOptions.supabaseClient ?? createClient(),
+    } satisfies CollabSessionOptions;
+
+    createCollabSession(finalChannelId, options)
       .then((sess) => {
         if (!mounted) { sess.leave().catch(() => {}); return; }
+        activeSession = sess;
         setSession(sess);
         setConnected(true);
         setChannelId(finalChannelId);
@@ -137,8 +146,8 @@ export function SharedDreamProvider({
 
     return () => {
       mounted = false;
+      activeSession?.leave().catch(() => {});
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propChannelId]);
 
   // ── Actions ───────────────────────────────────────────────────────────────
