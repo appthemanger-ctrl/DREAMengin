@@ -17,14 +17,14 @@
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 export const DELTA_P = 0.1;
-export const LAMBDA   = 1.71;
+export const LAMBDA   = 2.1;
 
 /** Maximum theoretical ι: ΔP × (10·Σ λ^k, k=0..4) */
 export const IOTA_MAX = DELTA_P * (10 * (1 + LAMBDA + LAMBDA ** 2 + LAMBDA ** 3 + LAMBDA ** 4));
 
-/** Protocol thresholds (15 % and 50 % of IOTA_MAX ≈ 19.18) */
+/** Protocol thresholds (15 % and 30 % of IOTA_MAX ≈ 19.18) */
 export const THRESHOLD_FLOW      = IOTA_MAX * 0.15;  // ≈ 2.88
-export const THRESHOLD_SYNTHESIZE = IOTA_MAX * 0.50; // ≈ 9.59
+export const THRESHOLD_SYNTHESIZE = IOTA_MAX * 0.30; // ≈ 5.76
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
