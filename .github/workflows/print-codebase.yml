@@ -1,4 +1,4 @@
-name: Print Codebase (bounded code context)
+name: Print Codebase (code only)
 
 on:
   workflow_dispatch:
@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   print-codebase:
-    name: Dump bounded source context to log
+    name: Dump all source files
     runs-on: ubuntu-latest
 
     steps:
@@ -30,7 +30,7 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Print every source file
+      - name: Print and Archive Codebase
         shell: bash
         run: |
           set -euo pipefail
@@ -126,3 +126,11 @@ jobs:
           echo "================================================================="
           echo "=== DONE — ${total} file(s) printed ==="
           echo "================================================================="
+
+      - name: Create Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dream-engin-source
+          path: .
+          include-hidden-files: false
+          if-no-files-found: error
