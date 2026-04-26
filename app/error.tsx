@@ -3,14 +3,24 @@
 
 import { useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { isAuthRelatedError } from '@/lib/runtime/isAuthRelatedError'
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
     console.error('Route error:', error)
 
-    // Sign out and close the whole app when a crash happens.
-    // This prevents a scenario where one runtime crashes and the other remains
-    // active with a stale or inconsistent session state.
+    // Only force sign-out when the error is genuinely session/auth-related
+    // (e.g. invalid JWT, expired token, 401/403 from the server).
+    // Transient render errors, network blips, or component crashes should
+    // NOT destroy the user session — the "Try again" button lets them recover
+    // without losing context.
+    //
+    // Build-memory ref — event "error":
+    //   components/dreams/dream.PlatformErrorReporter.tsx
+    //   components/gameengin/dream.cartridge.CartridgeErrorBoundary.tsx
+    //   engins/engin.CodeEngin.tsx
+    if (!isAuthRelatedError(error)) return;
+
     const sb = createClient();
     sb.auth.signOut().catch(() => { /* best-effort */ }).finally(() => {
       (window.top ?? window).location.href = '/login';
@@ -87,7 +97,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
             marginBottom: 16,
           }}
         >
-          The page hit an error. Signing you out and redirecting to login…
+          The page hit an error. Hit &ldquo;Try again&rdquo; to recover, or reload if the problem persists.
         </p>
 
         {error?.message && (
