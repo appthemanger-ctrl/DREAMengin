@@ -478,7 +478,7 @@ export default function HomeFeed({
                 <div className="flex gap-2 flex-wrap">
                   {selectedImages.map((img, idx) => (
                     <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-border">
-                      <img src={img.preview} alt="Preview" className="w-full h-full object-cover" />
+                      <Image src={img.preview} alt="Preview" fill unoptimized className="object-cover" />
                       <button type="button" onClick={() => removeImage(idx)} className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5" aria-label="Remove image"><X className="w-3 h-3" /></button>
                     </div>
                   ))}

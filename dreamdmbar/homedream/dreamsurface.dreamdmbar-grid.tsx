@@ -16,7 +16,7 @@ export default function DreamWidgetGrid({ widgets, onWidgetOpen, onWidgetLongPre
           key={widget.id}
           role="button"
           tabIndex={0}
-          aria-selected={selectedWidgetId === widget.id}
+          aria-pressed={selectedWidgetId === widget.id}
           onClick={() => onWidgetOpen(widget)}
           onKeyDown={(e) => { if (e.key === 'Enter') onWidgetOpen(widget); }}
           onContextMenu={(e) => { e.preventDefault(); onWidgetLongPress(widget); }}

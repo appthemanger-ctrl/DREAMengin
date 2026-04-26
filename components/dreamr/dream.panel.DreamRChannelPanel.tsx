@@ -13,6 +13,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import Image from 'next/image';
 import {
   X, Youtube, Play, Maximize2, ExternalLink,
   Loader2, ChevronRight,
@@ -125,7 +126,7 @@ function VideoRow({ item }: { item: UnifiedFeedItem }) {
           <iframe src={embed} title={item.content_text} style={{ width: '100%', height: '100%', border: 'none' }} allow="autoplay; encrypted-media" allowFullScreen />
         ) : (
           <>
-            {thumb && <img src={thumb} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.88 }} />}
+            {thumb && <Image src={thumb} alt="" fill unoptimized style={{ objectFit: 'cover', opacity: 0.88 }} />}
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'rgba(239,68,68,0.90)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Play size={10} fill="#fff" color="#fff" />
@@ -264,7 +265,7 @@ export default function DreamRChannelPanel({ post, activeTopic, onClose }: Props
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
           ) : (
             <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', background: '#0d1526' }}>
-              {thumb && <img src={thumb} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.88 }} />}
+              {thumb && <Image src={thumb} alt="" fill unoptimized style={{ objectFit: 'cover', opacity: 0.88 }} />}
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,transparent 40%,rgba(0,0,0,0.65) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {embed && (
                   <button type="button" onClick={() => setHeroPlaying(true)}
