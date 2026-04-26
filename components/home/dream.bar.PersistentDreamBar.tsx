@@ -3,6 +3,11 @@
 /**
  * PersistentDreamBar — Shell-First DreamDMBar wrapper and home container.
  *
+ * Also exported as `DreamDMContainer` for architectural clarity.
+ * PersistentDreamBar IS the DreamDM Container: the always-mounted shell that
+ * owns the dual-runtime split (HomeDream Surface + DreamSpace) and the
+ * DreamDM Bar seam between them.
+ *
  * The DreamDM Bar IS home. It is never unmounted during navigation and always
  * holds both runtime regions in React's tree:
  *   • HomeDream Surface (top) — shrinks when bar is dragged up
@@ -270,3 +275,18 @@ export default function PersistentDreamBar() {
     </>
   );
 }
+
+/**
+ * DreamDMContainer — canonical architectural alias for PersistentDreamBar.
+ *
+ * PersistentDreamBar is the implementation name; DreamDMContainer is the
+ * architectural name used in diagrams and specs. Both refer to the same
+ * always-mounted shell component that owns the dual-runtime split and the
+ * DreamDM Bar seam.
+ *
+ * Usage:
+ *   import PersistentDreamBar from '@/components/home/dream.bar.PersistentDreamBar';
+ *   // or (named import)
+ *   import { DreamDMContainer } from '@/components/home/dream.bar.PersistentDreamBar';
+ */
+export const DreamDMContainer = PersistentDreamBar;
