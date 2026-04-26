@@ -10,34 +10,21 @@
  *   /engines/music/library  → preset library
  */
 
-import { useRouter } from 'next/navigation';
-import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
+import { makeEnginApp } from '@/components/engines/shared';
 import StarMakerEngin from '@/engins/engin.StarMakerEngin';
 
-const ACCENT = '#a855f7';
-const BACK_HREF = '/daydream/music';
-
-const NAV_ITEMS = [
-  { href: '/engines/music',         label: 'DAW',      emoji: '🎛️' },
-  { href: '/engines/music/studio',  label: 'Studio',   emoji: '🎙️' },
-  { href: '/engines/music/arrange', label: 'Arrange',  emoji: '🎼' },
-  { href: '/engines/music/library', label: 'Library',  emoji: '📂' },
-];
-
-export default function MusicEnginApp() {
-  const router = useRouter();
-  return (
-    <EnginAppShell
-      engineName="StarMakerEngin"
-      engineEmoji="🎵"
-      accentColor={ACCENT}
-      backHref={BACK_HREF}
-      backLabel="Music Daydream"
-      nav={<EnginNavBar items={NAV_ITEMS} accentColor={ACCENT} />}
-    >
-      <div className="h-full overflow-y-auto">
-        <StarMakerEngin onBack={() => router.push(BACK_HREF)} />
-      </div>
-    </EnginAppShell>
-  );
-}
+export default makeEnginApp({
+  id: 'music',
+  name: 'StarMakerEngin',
+  emoji: '🎵',
+  accentColor: '#a855f7',
+  backHref: '/daydream/music',
+  backLabel: 'Music Daydream',
+  nav: [
+    { href: '/engines/music',         label: 'DAW',      emoji: '🎛️' },
+    { href: '/engines/music/studio',  label: 'Studio',   emoji: '🎙️' },
+    { href: '/engines/music/arrange', label: 'Arrange',  emoji: '🎼' },
+    { href: '/engines/music/library', label: 'Library',  emoji: '📂' },
+  ],
+  EnginComponent: StarMakerEngin,
+});

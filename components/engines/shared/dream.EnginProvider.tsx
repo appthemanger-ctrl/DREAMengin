@@ -14,7 +14,7 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
-export type EngineId = 'games' | 'music' | 'code' | 'lab' | 'brand' | 'create';
+export type EngineId = 'games' | 'music' | 'code' | 'lab' | 'brand' | 'create' | 'portfolio';
 
 interface EnginContextValue {
   engineId: EngineId;

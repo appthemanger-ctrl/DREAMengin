@@ -10,34 +10,21 @@
  *   /engines/portfolio/quantum  → quantum circuit canvas
  */
 
-import { useRouter } from 'next/navigation';
-import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
+import { makeEnginApp } from '@/components/engines/shared';
 import PortfolioEngin from '@/engins/portfolio/engin.PortfolioEngin';
 
-const ACCENT = '#2a8ab8';
-const BACK_HREF = '/engines';
-
-const NAV_ITEMS = [
-  { href: '/engines/portfolio',          label: 'Hub',      emoji: '📈' },
-  { href: '/engines/portfolio/optimize', label: 'Optimize', emoji: '⚡' },
-  { href: '/engines/portfolio/assets',   label: 'Assets',   emoji: '🏦' },
-  { href: '/engines/portfolio/quantum',  label: 'Quantum',  emoji: '⚛️' },
-];
-
-export default function PortfolioEnginApp() {
-  const router = useRouter();
-  return (
-    <EnginAppShell
-      engineName="PortfolioEngin"
-      engineEmoji="📈"
-      accentColor={ACCENT}
-      backHref={BACK_HREF}
-      backLabel="Engines"
-      nav={<EnginNavBar items={NAV_ITEMS} accentColor={ACCENT} />}
-    >
-      <div className="h-full overflow-y-auto">
-        <PortfolioEngin onBack={() => router.push(BACK_HREF)} />
-      </div>
-    </EnginAppShell>
-  );
-}
+export default makeEnginApp({
+  id: 'portfolio',
+  name: 'PortfolioEngin',
+  emoji: '📈',
+  accentColor: '#2a8ab8',
+  backHref: '/engines',
+  backLabel: 'Engines',
+  nav: [
+    { href: '/engines/portfolio',          label: 'Hub',      emoji: '📈' },
+    { href: '/engines/portfolio/optimize', label: 'Optimize', emoji: '⚡' },
+    { href: '/engines/portfolio/assets',   label: 'Assets',   emoji: '🏦' },
+    { href: '/engines/portfolio/quantum',  label: 'Quantum',  emoji: '⚛️' },
+  ],
+  EnginComponent: PortfolioEngin,
+});

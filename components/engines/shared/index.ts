@@ -4,3 +4,5 @@ export { default as EnginNavBar } from './dream.bar.EnginNavBar';
 export type { NavItem } from './dream.bar.EnginNavBar';
 export { EnginProvider, useEngin } from './dream.EnginProvider';
 export type { EngineId } from './dream.EnginProvider';
+export type { EnginRuleSet } from './dream.EnginRuleSet';
+export { makeEnginApp } from './dream.makeEnginApp';

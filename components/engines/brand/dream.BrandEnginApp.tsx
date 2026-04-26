@@ -9,33 +9,20 @@
  *   /engines/brand/campaigns  → campaign ROI calculator
  */
 
-import { useRouter } from 'next/navigation';
-import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
+import { makeEnginApp } from '@/components/engines/shared';
 import BrandingEngin from '@/engins/engin.BrandingEngin';
 
-const ACCENT = '#f472b6';
-const BACK_HREF = '/daydream/brand';
-
-const NAV_ITEMS = [
-  { href: '/engines/brand',            label: 'Hub',        emoji: '🎨' },
-  { href: '/engines/brand/identity',   label: 'Identity',   emoji: '🪪' },
-  { href: '/engines/brand/campaigns',  label: 'Campaigns',  emoji: '💰' },
-];
-
-export default function BrandEnginApp() {
-  const router = useRouter();
-  return (
-    <EnginAppShell
-      engineName="BrandingEngin"
-      engineEmoji="🎨"
-      accentColor={ACCENT}
-      backHref={BACK_HREF}
-      backLabel="Brand Daydream"
-      nav={<EnginNavBar items={NAV_ITEMS} accentColor={ACCENT} />}
-    >
-      <div className="h-full overflow-y-auto">
-        <BrandingEngin onBack={() => router.push(BACK_HREF)} />
-      </div>
-    </EnginAppShell>
-  );
-}
+export default makeEnginApp({
+  id: 'brand',
+  name: 'BrandingEngin',
+  emoji: '🎨',
+  accentColor: '#f472b6',
+  backHref: '/daydream/brand',
+  backLabel: 'Brand Daydream',
+  nav: [
+    { href: '/engines/brand',           label: 'Hub',       emoji: '🎨' },
+    { href: '/engines/brand/identity',  label: 'Identity',  emoji: '🪪' },
+    { href: '/engines/brand/campaigns', label: 'Campaigns', emoji: '💰' },
+  ],
+  EnginComponent: BrandingEngin,
+});

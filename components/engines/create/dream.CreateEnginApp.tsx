@@ -10,34 +10,21 @@
  *   /engines/create/queue     → publishing queue
  */
 
-import { useRouter } from 'next/navigation';
-import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
+import { makeEnginApp } from '@/components/engines/shared';
 import ContentEngin from '@/engins/engin.ContentEngin';
 
-const ACCENT = '#fb923c';
-const BACK_HREF = '/daydream/create';
-
-const NAV_ITEMS = [
-  { href: '/engines/create',          label: 'Hub',       emoji: '✨' },
-  { href: '/engines/create/editor',   label: 'Editor',    emoji: '✍️' },
-  { href: '/engines/create/calendar', label: 'Calendar',  emoji: '📅' },
-  { href: '/engines/create/queue',    label: 'Queue',     emoji: '📬' },
-];
-
-export default function CreateEnginApp() {
-  const router = useRouter();
-  return (
-    <EnginAppShell
-      engineName="ContentEngin"
-      engineEmoji="✨"
-      accentColor={ACCENT}
-      backHref={BACK_HREF}
-      backLabel="Create Daydream"
-      nav={<EnginNavBar items={NAV_ITEMS} accentColor={ACCENT} />}
-    >
-      <div className="h-full overflow-y-auto">
-        <ContentEngin onBack={() => router.push(BACK_HREF)} />
-      </div>
-    </EnginAppShell>
-  );
-}
+export default makeEnginApp({
+  id: 'create',
+  name: 'ContentEngin',
+  emoji: '✨',
+  accentColor: '#fb923c',
+  backHref: '/daydream/create',
+  backLabel: 'Create Daydream',
+  nav: [
+    { href: '/engines/create',          label: 'Hub',      emoji: '✨' },
+    { href: '/engines/create/editor',   label: 'Editor',   emoji: '✍️' },
+    { href: '/engines/create/calendar', label: 'Calendar', emoji: '📅' },
+    { href: '/engines/create/queue',    label: 'Queue',    emoji: '📬' },
+  ],
+  EnginComponent: ContentEngin,
+});
