@@ -43,7 +43,7 @@ vi.mock('@/lib/media/postMedia', () => ({
   getPrimaryPostMediaUrl: vi.fn(() => null),
 }));
 
-describe('app/homedream/page auth gating', () => {
+describe('app/home/page auth gating', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
@@ -59,7 +59,7 @@ describe('app/homedream/page auth gating', () => {
   });
 
   it('redirects to login when there is no user and dev bypass is off', async () => {
-    const { default: Home } = await import('@/app/homedream/page');
+    const { default: Home } = await import('@/app/home/page');
 
     await expect(Home()).rejects.toThrow('redirect:/login');
     expect(redirectMock).toHaveBeenCalledWith('/login');
@@ -68,7 +68,7 @@ describe('app/homedream/page auth gating', () => {
   it('renders the home system in dev bypass mode without a Supabase user', async () => {
     isDevBypassActiveMock.mockReturnValue(true);
 
-    const { default: Home } = await import('@/app/homedream/page');
+    const { default: Home } = await import('@/app/home/page');
     const result = await Home();
 
     expect(redirectMock).not.toHaveBeenCalled();

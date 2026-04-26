@@ -83,13 +83,13 @@ describe('DREAMengin v2.0.0 — canonical routes', () => {
     expect(LEGACY_ROUTES.HOME).toBe('/home');
   });
 
-  it('legacy /home route redirects to canonical /homedream', () => {
+  it('/home route renders the HomeDream surface (DreamBarDataBridge)', () => {
     const homePage = readFileSync(
       resolve(__dirname, '../app/home/page.tsx'),
       'utf8',
     );
-    expect(homePage).toContain('/homedream');
-    expect(homePage).toContain('redirect');
+    expect(homePage).toContain('DreamBarDataBridge');
+    expect(homePage).toContain('DreamBarDataBridge');
   });
 });
 
