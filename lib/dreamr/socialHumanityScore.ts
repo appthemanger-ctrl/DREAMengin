@@ -30,7 +30,7 @@ async function getFollowDuration(supabase: any, followerId: string, followeeId: 
     .from('follows')
     .select('created_at')
     .eq('follower_id', followerId)
-    .eq('followee_id', followeeId)
+    .eq('following_id', followeeId)
     .single();
   if (error || !data) return 0;
   const days = (Date.now() - new Date(data.created_at).getTime()) / (1000 * 60 * 60 * 24);
@@ -42,8 +42,8 @@ async function getMessageCount(supabase: any, userA: string, userB: string): Pro
   const { count, error } = await supabase
     .from('messages')
     .select('*', { count: 'exact', head: true })
-    .or(`sender_id.eq.${userA},receiver_id.eq.${userA}`)
-    .or(`sender_id.eq.${userB},receiver_id.eq.${userB}`);
+    .or(`sender_id.eq.${userA},recipient_id.eq.${userA}`)
+    .or(`sender_id.eq.${userB},recipient_id.eq.${userB}`);
   if (error) return 0;
   return count || 0;
 }
@@ -53,11 +53,11 @@ async function getMutualFollowers(supabase: any, userId: string, creatorId: stri
   const { data: userFollowers } = await supabase
     .from('follows')
     .select('follower_id')
-    .eq('followee_id', userId);
+    .eq('following_id', userId);
   const { data: creatorFollowers } = await supabase
     .from('follows')
     .select('follower_id')
-    .eq('followee_id', creatorId);
+    .eq('following_id', creatorId);
   const userSet = new Set(userFollowers?.map((f: { follower_id: string }) => f.follower_id) || []);
   const mutual = (creatorFollowers || []).filter((f: { follower_id: string }) => userSet.has(f.follower_id)).length;
   return mutual;
@@ -67,18 +67,27 @@ async function getMutualFollowers(supabase: any, userId: string, creatorId: stri
 async function getLikeDiversity(supabase: any, userId: string): Promise<number> {
   const { data } = await supabase
     .from('likes')
-    .select('post_id')
+    .select('post_id, content_id')
     .eq('user_id', userId)
     .limit(50);
   if (!data || data.length === 0) return 0;
   // In a real system, join with posts table to get categories. Here we simulate with post id distribution.
   const freq = new Map<string, number>();
+  let total = 0;
   for (const like of data) {
-    const cat = like.post_id.slice(0, 2); // dummy category
+    let rawSourceId = '';
+    if (typeof like.post_id === 'string') {
+      rawSourceId = like.post_id.trim();
+    } else if (typeof like.content_id === 'string') {
+      rawSourceId = like.content_id.trim();
+    }
+    if (!rawSourceId) continue;
+    const cat = rawSourceId.slice(0, 2); // dummy category
     freq.set(cat, (freq.get(cat) || 0) + 1);
+    total++;
   }
+  if (freq.size === 0) return 0;
   let entropy = 0;
-  const total = data.length;
   for (const count of freq.values()) {
     const p = count / total;
     entropy -= p * Math.log2(p);

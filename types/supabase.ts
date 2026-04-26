@@ -1489,6 +1489,36 @@ export type Database = {
           },
         ]
       }
+      forge_assemblies: {
+        Row: {
+          assembly: Json
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+          visibility: string
+        }
+        Insert: {
+          assembly?: Json
+          created_at?: string
+          id?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          visibility?: string
+        }
+        Update: {
+          assembly?: Json
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
       function_invocations: {
         Row: {
           actor_id: string | null
@@ -2624,6 +2654,33 @@ export type Database = {
           },
         ]
       }
+      user_actions: {
+        Row: {
+          action_type: string
+          created_at: string
+          id: string
+          ip_hash: string | null
+          metadata: Json
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          metadata?: Json
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          metadata?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_blocks: {
         Row: {
           id: string
@@ -2748,6 +2805,33 @@ export type Database = {
           key?: string
           title?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      voice_profiles: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          metadata?: Json
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json
+          name?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
