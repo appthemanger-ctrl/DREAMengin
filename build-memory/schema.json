@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-04-20T21:05:33.456Z",
+  "generated_at": "2026-04-26T11:46:24.075Z",
   "generator": "scripts/sync-build-memory.mjs",
   "sources": [
     "types/supabase.ts",
     "supabase/migrations/"
   ],
-  "count": 137,
+  "count": 139,
   "tables": [
     {
       "table": "activity_points",
@@ -2328,6 +2328,52 @@
       "source": "20260323100000_embed_feed_items.sql"
     },
     {
+      "table": "engin_instances",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid primary key default gen_random_uuid()"
+        },
+        {
+          "name": "owner_id",
+          "type": "uuid not null references auth"
+        },
+        {
+          "name": "instance_key",
+          "type": "text not null"
+        },
+        {
+          "name": "engin_name",
+          "type": "text not null"
+        },
+        {
+          "name": "instance_id",
+          "type": "text not null"
+        },
+        {
+          "name": "region",
+          "type": "text not null"
+        },
+        {
+          "name": "mode",
+          "type": "text not null check (mode in ("
+        },
+        {
+          "name": "state",
+          "type": "jsonb not null default"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz not null default now()"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz not null default now()"
+        }
+      ],
+      "source": "20260426000000_activity_coop_gameengin_completion.sql"
+    },
+    {
       "table": "experiment_collaborators",
       "columns": [
         {
@@ -2698,6 +2744,52 @@
         }
       ],
       "source": "types/supabase.ts"
+    },
+    {
+      "table": "gameengin_cartridges",
+      "columns": [
+        {
+          "name": "cartridge_id",
+          "type": "text primary key"
+        },
+        {
+          "name": "title",
+          "type": "text not null"
+        },
+        {
+          "name": "author",
+          "type": "text not null"
+        },
+        {
+          "name": "version",
+          "type": "text not null"
+        },
+        {
+          "name": "dreamr_version",
+          "type": "integer not null default 1"
+        },
+        {
+          "name": "render_mode",
+          "type": "text not null"
+        },
+        {
+          "name": "manifest",
+          "type": "jsonb not null"
+        },
+        {
+          "name": "source_url",
+          "type": "text"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz not null default now()"
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamptz not null default now()"
+        }
+      ],
+      "source": "20260426000000_activity_coop_gameengin_completion.sql"
     },
     {
       "table": "gameengin_snapshots",
