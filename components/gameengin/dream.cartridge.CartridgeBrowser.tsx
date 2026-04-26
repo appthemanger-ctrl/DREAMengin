@@ -82,6 +82,11 @@ export default function CartridgeBrowser({ initialCategory = ALL }: CartridgeBro
             single GameEngin platform. Pick one to launch it on the platform's <code style={{ color: '#a78bfa' }}>GameRuntime</code>.
             Older URLs at <code>/engines/games/library</code> still work — this is the new canonical home.
           </p>
+          <p style={{ margin: '10px 0 0', fontSize: 11, color: '#64748b', maxWidth: 720, lineHeight: 1.5 }}>
+            Cartridge foundation active: native <code style={{ color: '#a78bfa' }}>.dreamr</code> archives validate
+            <code style={{ color: '#a78bfa' }}> DRMR</code> magic bytes, parse their ustar payload, and hand a validated
+            <code style={{ color: '#a78bfa' }}> MANIFEST.json</code> to the WebGPU runtime shell when binary cartridges land.
+          </p>
         </header>
 
         {/* Toolbar */}

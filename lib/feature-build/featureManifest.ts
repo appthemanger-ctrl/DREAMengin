@@ -221,6 +221,10 @@ const CODE_MANIFEST: DaydreamEnginManifest = {
     'Accessible: keyboard navigation for notebook cells',
     'Responsive layout — notebook collapses to single-column on mobile',
   ],
+  solo: true,
+  coop: {
+    affordances: ['presence', 'broadcast', 'hand-off', 'shared-cursor'],
+  },
 };
 
 // ─── Brand / BrandingEngin ────────────────────────────────────────────────────
@@ -285,6 +289,10 @@ const CREATE_MANIFEST: DaydreamEnginManifest = {
     'Accessible: ARIA labels for platform toggles',
     'Empty-state illustration for no-draft scenario',
   ],
+  solo: true,
+  coop: {
+    affordances: ['presence', 'broadcast', 'hand-off', 'co-edit'],
+  },
 };
 
 // ─── Manifest registry ────────────────────────────────────────────────────────

@@ -24,7 +24,7 @@
 
 import { create } from 'zustand';
 import type { RuntimeChannel } from '@/lib/runtime/runtimeChannel';
-import { createLocalChannel } from '@/lib/runtime/runtimeChannel';
+import { createLocalChannel, createRuntimeChannel } from '@/lib/runtime/runtimeChannel';
 import type { RuntimeId } from '@/types/module-manifest';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -89,6 +89,16 @@ interface InstanceManagerState {
    * (use createRealtimeChannel from runtimeChannel.ts).
    */
   promoteToCoOp: (key: string, channel: RuntimeChannel) => void;
+  persistLocal: () => void;
+  restoreLocal: () => void;
+}
+
+const LS_KEY = 'dreamengin:engin-instances';
+
+type PersistedInstance = Omit<EnginInstance, 'channel'>;
+
+function serializeInstances(instances: Record<string, EnginInstance>): PersistedInstance[] {
+  return Object.values(instances).map(({ channel: _channel, ...rest }) => rest);
 }
 
 // ── Zustand store ─────────────────────────────────────────────────────────────
@@ -115,6 +125,7 @@ export const useInstanceManager = create<InstanceManagerState>((set, get) => ({
     set((state) => ({
       instances: { ...state.instances, [key]: instance },
     }));
+    queueMicrotask(() => get().persistLocal());
 
     return instance;
   },
@@ -132,6 +143,7 @@ export const useInstanceManager = create<InstanceManagerState>((set, get) => ({
       delete next[key];
       return { instances: next };
     });
+    queueMicrotask(() => get().persistLocal());
   },
 
   getInstancesForEngin(enginName) {
@@ -156,6 +168,36 @@ export const useInstanceManager = create<InstanceManagerState>((set, get) => ({
         [key]: { ...instance, channel, mode: 'coop' },
       },
     }));
+    queueMicrotask(() => get().persistLocal());
+  },
+
+  persistLocal() {
+    try {
+      if (typeof localStorage === 'undefined') return;
+      localStorage.setItem(LS_KEY, JSON.stringify(serializeInstances(get().instances)));
+    } catch {
+      // Storage can be unavailable in tests/private mode.
+    }
+  },
+
+  restoreLocal() {
+    try {
+      if (typeof localStorage === 'undefined') return;
+      const raw = localStorage.getItem(LS_KEY);
+      if (!raw) return;
+      const rows = JSON.parse(raw) as PersistedInstance[];
+      const restored: Record<string, EnginInstance> = {};
+      for (const row of rows) {
+        restored[row.key] = {
+          ...row,
+          channel: createLocalChannel(row.key),
+          mode: row.mode === 'coop' ? 'coop' : 'solo',
+        };
+      }
+      set({ instances: restored });
+    } catch {
+      // Ignore corrupted local mirrors.
+    }
   },
 }));
 
@@ -169,6 +211,33 @@ export const useInstanceManager = create<InstanceManagerState>((set, get) => ({
  */
 export function buildInstanceKey(enginName: EnginName, instanceId: string): string {
   return `${enginName}:${instanceId}`;
+}
+
+export async function promoteInstanceToRealtime(key: string): Promise<void> {
+  const channel = await createRuntimeChannel(key, 'shared');
+  useInstanceManager.getState().promoteToCoOp(key, channel);
+}
+
+export async function persistInstanceList(userId: string): Promise<void> {
+  const rows = serializeInstances(useInstanceManager.getState().instances);
+  try {
+    const { createClient } = await import('@/lib/supabase/client');
+    const supabase = createClient();
+    await (supabase as any).from('engin_instances').upsert(
+      rows.map((row) => ({
+        owner_id: userId,
+        instance_key: row.key,
+        engin_name: row.enginName,
+        instance_id: row.instanceId,
+        region: row.region,
+        mode: row.mode,
+        updated_at: new Date().toISOString(),
+      })),
+      { onConflict: 'owner_id,instance_key' },
+    );
+  } catch {
+    useInstanceManager.getState().persistLocal();
+  }
 }
 
 /**

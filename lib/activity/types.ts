@@ -221,6 +221,11 @@ export interface TrackAdViewResponse {
   ad_view: AdView;
   verified: boolean;
   credits_earned: number;
+  revenue_split?: {
+    platformShare: number;
+    creatorShare: number;
+    rewardPoolShare: number;
+  };
 }
 
 export interface EarnSkipCreditsRequest {

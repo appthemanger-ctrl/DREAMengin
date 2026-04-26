@@ -7,7 +7,13 @@
 export type IdariEventType =
   | 'idari:log'
   | 'idari:status'
-  | 'idari:result';
+  | 'idari:result'
+  | 'gameengin:maestro'
+  | 'gameengin:prophet'
+  | 'gameengin:artisan'
+  | 'gameengin:mechanic'
+  | 'gameengin:writer'
+  | 'gameengin:tech-director';
 
 export type IdariEventDetail = {
   type: IdariEventType;
@@ -33,6 +39,29 @@ export function onIdariEvent(handler: (detail: IdariEventDetail) => void) {
   };
   window.addEventListener(EVENT_NAME, listener);
   return () => window.removeEventListener(EVENT_NAME, listener);
+}
+
+export type GameEnginAgentRole =
+  | 'maestro'
+  | 'prophet'
+  | 'artisan'
+  | 'mechanic'
+  | 'writer'
+  | 'tech-director';
+
+export function emitGameEnginAgentEvent(input: {
+  role: GameEnginAgentRole;
+  status?: IdariEventDetail['status'];
+  message: string;
+  details?: string;
+}) {
+  emitIdariEvent({
+    type: `gameengin:${input.role}` as IdariEventType,
+    timestamp: new Date().toISOString(),
+    status: input.status ?? 'pending',
+    message: input.message,
+    details: input.details,
+  });
 }
 
 // ── Legacy aliases so any code still importing old names compiles during migration ──

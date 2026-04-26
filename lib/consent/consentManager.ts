@@ -183,6 +183,77 @@ export class ConsentManager {
     this._auditLog.length = 0;
   }
 
+  /** Load persisted consent rows from Supabase when auth is available. */
+  async hydrateFromSupabase(userId: string): Promise<void> {
+    try {
+      const { createClient } = await import('@/lib/supabase/client');
+      const supabase = createClient();
+      const { data } = await (supabase as any)
+        .from('dream_consent')
+        .select('domain, decision, decided_at, session_id')
+        .eq('user_id', userId);
+      for (const row of data ?? []) {
+        this._cache.set(row.domain, {
+          domain: row.domain,
+          decision: row.decision,
+          decidedAt: row.decided_at,
+          sessionId: row.session_id ?? undefined,
+        });
+      }
+      this._persistToLocalStorage();
+    } catch {
+      // Offline/local mode is fully supported.
+    }
+  }
+
+  /** Flush local consent/settings/audit decisions into the RLS-protected tables. */
+  async flushToSupabase(userId: string): Promise<void> {
+    try {
+      const { createClient } = await import('@/lib/supabase/client');
+      const supabase = createClient();
+      const entries = this.getAllEntries().map((entry) => ({
+        user_id: userId,
+        domain: entry.domain,
+        decision: entry.decision,
+        decided_at: entry.decidedAt,
+        session_id: entry.sessionId ?? null,
+      }));
+      if (entries.length > 0) {
+        await (supabase as any)
+          .from('dream_consent')
+          .upsert(entries, { onConflict: 'user_id,domain' });
+      }
+
+      const settings = Object.entries(this.getAllSettings()).map(([key, value]) => ({
+        user_id: userId,
+        key,
+        value,
+        updated_at: new Date().toISOString(),
+      }));
+      if (settings.length > 0) {
+        await (supabase as any)
+          .from('dream_settings')
+          .upsert(settings, { onConflict: 'user_id,key' });
+      }
+
+      const auditRows = this._auditLog.map((entry) => ({
+        user_id: userId,
+        event_type: entry.eventType,
+        domain: entry.domain ?? null,
+        previous_value: entry.previousValue ?? null,
+        new_value: entry.newValue ?? null,
+        session_id: entry.sessionId ?? null,
+        created_at: entry.timestamp,
+      }));
+      if (auditRows.length > 0) {
+        await (supabase as any).from('dream_audit_log').insert(auditRows);
+      }
+    } catch {
+      this._persistToLocalStorage();
+      this._persistSettings();
+    }
+  }
+
   // ── Private ──────────────────────────────────────────────────────────────────
 
   private _appendAudit(entry: AuditEntry): void {

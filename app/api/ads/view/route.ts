@@ -12,6 +12,8 @@ import type {
   TrackAdViewResponse,
 } from '@/lib/activity/types';
 import { CPV_PRICING, CPVTier } from '@/lib/activity/types';
+import { calculateActivityRevenueSplit } from '@/lib/activity/revenueSplit';
+import { calculateSkipCreditsEarned } from '@/lib/activity/skipCredits';
 
 export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
@@ -59,6 +61,18 @@ export async function POST(req: NextRequest) {
 
     const cpvAmount = CPV_PRICING[cpvTier];
 
+    let creatorId: string | null = null;
+    if (post_id) {
+      const { data: post } = await (supabase as any)
+        .from('app_posts')
+        .select('user_id')
+        .eq('id', post_id)
+        .single();
+      creatorId = post?.user_id ?? null;
+    }
+
+    const split = calculateActivityRevenueSplit(cpvAmount);
+
     // Record ad view
     const { data: adView, error: adViewError } = await (supabase as any)
       .from('ad_views')
@@ -71,6 +85,10 @@ export async function POST(req: NextRequest) {
         watched_pct,
         cpv_tier: cpvTier,
         cpv_amount: cpvAmount,
+        creator_id: creatorId,
+        platform_share: split.platformShare,
+        creator_share: split.creatorShare,
+        reward_pool_share: split.rewardPoolShare,
         verified: verified ?? false,
         verified_at: verified ? new Date().toISOString() : null,
       })
@@ -85,15 +103,57 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Calculate credits earned (only if verified and watched 95%+)
-    const creditsEarned = verified && watched_pct >= 95
-      ? (ad_type === 'rewarded' ? 3 : 1)
-      : 0;
+    const creditsEarned = calculateSkipCreditsEarned({
+      adType: ad_type,
+      verified: verified ?? false,
+      watchedPct: watched_pct,
+    });
+
+    if (creditsEarned > 0) {
+      const now = new Date().toISOString();
+      const { data: currentCredits } = await (supabase as any)
+        .from('skip_credits')
+        .select('credits_balance, earned_total')
+        .eq('user_id', user.id)
+        .single();
+
+      if (currentCredits) {
+        await (supabase as any)
+          .from('skip_credits')
+          .update({
+            credits_balance: (currentCredits.credits_balance ?? 0) + creditsEarned,
+            earned_total: (currentCredits.earned_total ?? 0) + creditsEarned,
+            last_earned_at: now,
+            updated_at: now,
+          })
+          .eq('user_id', user.id);
+      } else {
+        await (supabase as any)
+          .from('skip_credits')
+          .insert({
+            user_id: user.id,
+            credits_balance: creditsEarned,
+            earned_total: creditsEarned,
+            last_earned_at: now,
+            updated_at: now,
+          });
+      }
+
+      await (supabase as any)
+        .from('ad_views')
+        .update({ skip_credits_awarded: true })
+        .eq('id', adView.id);
+    }
 
     const response: TrackAdViewResponse = {
       ad_view: adView,
       verified: verified ?? false,
       credits_earned: creditsEarned,
+      revenue_split: {
+        platformShare: split.platformShare,
+        creatorShare: split.creatorShare,
+        rewardPoolShare: split.rewardPoolShare,
+      },
     };
 
     return NextResponse.json(response, {

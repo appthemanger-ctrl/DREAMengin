@@ -15,3 +15,8 @@ export {
   UniversalEditorWrapper,
   type UniversalEditorWrapperProps,
 } from './dream.UniversalEditorWrapper';
+
+export {
+  UniversalEditor,
+  type UniversalEditorProps,
+} from './dream.UniversalEditor';
