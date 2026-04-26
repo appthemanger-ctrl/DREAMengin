@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-26T21:05:45.681Z",
+  "generated_at": "2026-04-26T23:36:39.116Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 121,
+  "count": 115,
   "surfaces": [
     {
       "type": "page",
@@ -23,20 +23,8 @@
     },
     {
       "type": "page",
-      "path": "/about",
-      "file": "app/about/page.tsx",
-      "component": "AboutPage",
-      "imports": [
-        {
-          "name": "PlatformBadge",
-          "from": "@/components/ui/dream.PlatformBadge"
-        }
-      ]
-    },
-    {
-      "type": "page",
-      "path": "/admin",
-      "file": "app/admin/page.tsx",
+      "path": "/(internal)/idari-console",
+      "file": "app/(internal)/idari-console/page.tsx",
       "component": "AdminPage",
       "imports": [
         {
@@ -51,20 +39,32 @@
     },
     {
       "type": "page",
-      "path": "/admin/platform-errors",
-      "file": "app/admin/platform-errors/page.tsx",
+      "path": "/(internal)/idari-console/platform-errors",
+      "file": "app/(internal)/idari-console/platform-errors/page.tsx",
       "component": "PlatformErrorsPage",
       "imports": []
     },
     {
       "type": "page",
-      "path": "/admin/platform-health",
-      "file": "app/admin/platform-health/page.tsx",
+      "path": "/(internal)/idari-console/platform-health",
+      "file": "app/(internal)/idari-console/platform-health/page.tsx",
       "component": "PlatformHealthPage",
       "imports": [
         {
           "name": "PlatformHealth",
           "from": "@/components/idari/dream.PlatformHealth"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/about",
+      "file": "app/about/page.tsx",
+      "component": "AboutPage",
+      "imports": [
+        {
+          "name": "PlatformBadge",
+          "from": "@/components/ui/dream.PlatformBadge"
         }
       ]
     },
@@ -112,13 +112,6 @@
           "from": "@/components/auth/dream.PasswordField"
         }
       ]
-    },
-    {
-      "type": "page",
-      "path": "/codespace",
-      "file": "app/codespace/page.tsx",
-      "component": "CodeSpaceLegacyPage",
-      "imports": []
     },
     {
       "type": "page",
@@ -362,6 +355,13 @@
     },
     {
       "type": "page",
+      "path": "/daydream/music/upload",
+      "file": "app/daydream/music/upload/page.tsx",
+      "component": "UploadMusicPage",
+      "imports": []
+    },
+    {
+      "type": "page",
       "path": "/daydream/play",
       "file": "app/daydream/play/page.tsx",
       "component": "PlayDaydreamLegacyPage",
@@ -383,13 +383,6 @@
     },
     {
       "type": "page",
-      "path": "/dreamengin",
-      "file": "app/dreamengin/page.tsx",
-      "component": "DreamenginLegacyPage",
-      "imports": []
-    },
-    {
-      "type": "page",
       "path": "/dreamr",
       "file": "app/dreamr/page.tsx",
       "component": "DreamRPage",
@@ -403,13 +396,6 @@
           "from": "@/dreamdmbar/homedream/dreamr/dreamsurface.dreamr"
         }
       ]
-    },
-    {
-      "type": "page",
-      "path": "/edit-profile",
-      "file": "app/edit-profile/page.tsx",
-      "component": "EditProfileLegacyRoutePage",
-      "imports": []
     },
     {
       "type": "page",
@@ -927,13 +913,6 @@
     },
     {
       "type": "page",
-      "path": "/home",
-      "file": "app/home/page.tsx",
-      "component": null,
-      "imports": []
-    },
-    {
-      "type": "page",
       "path": "/homedream",
       "file": "app/homedream/page.tsx",
       "component": "HomeDream",
@@ -1090,20 +1069,6 @@
     },
     {
       "type": "page",
-      "path": "/music",
-      "file": "app/music/page.tsx",
-      "component": "MusicLegacyPage",
-      "imports": []
-    },
-    {
-      "type": "page",
-      "path": "/music/upload",
-      "file": "app/music/upload/page.tsx",
-      "component": "UploadMusicPage",
-      "imports": []
-    },
-    {
-      "type": "page",
       "path": "/notes",
       "file": "app/notes/page.tsx",
       "component": "NotesPage",
@@ -1114,13 +1079,6 @@
       "path": "/onboarding",
       "file": "app/onboarding/page.tsx",
       "component": "OnboardingPage",
-      "imports": []
-    },
-    {
-      "type": "page",
-      "path": "/physics-lab",
-      "file": "app/physics-lab/page.tsx",
-      "component": "PhysicsLabLegacyPage",
       "imports": []
     },
     {
