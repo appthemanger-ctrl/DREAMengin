@@ -42,10 +42,12 @@ export interface DualSenseState {
   };
 }
 
+type GamepadHapticActuatorCompat = {
+  pulse?: (value: number, duration: number) => Promise<boolean> | boolean | void;
+};
+
 type GamepadWithHaptics = Gamepad & {
-  hapticActuators?: Array<{
-    pulse: (value: number, duration: number) => Promise<boolean>;
-  }>;
+  hapticActuators?: GamepadHapticActuatorCompat[];
 };
 
 export class DualSenseManager {
@@ -169,10 +171,11 @@ export class DualSenseManager {
   }
 
   rumble(intensity: number, durationMs: number = 100) {
-    const gp = navigator.getGamepads()[this.gamepadIndex] as GamepadWithHaptics | null;
-    if (gp?.hapticActuators?.length && gp.hapticActuators.length > 0) {
+    const gp = navigator.getGamepads()[this.gamepadIndex];
+    const hapticActuator = (gp as GamepadWithHaptics | null)?.hapticActuators?.[0];
+    if (hapticActuator?.pulse) {
       const clampedIntensity = Math.max(0, Math.min(1, intensity));
-      gp.hapticActuators[0].pulse(clampedIntensity, durationMs / 1000);
+      hapticActuator.pulse(clampedIntensity, durationMs / 1000);
     }
   }
 

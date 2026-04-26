@@ -15,6 +15,7 @@
 import { type ReactNode, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { X, ChevronLeft } from 'lucide-react';
+import { InviteFlow, SharedDreamProvider } from '@/components/shared-dream';
 
 export interface EnginAppShellProps {
   engineName: string;
@@ -57,53 +58,56 @@ export default function EnginAppShell({
   }, []);
 
   return (
-    <div
-      ref={shellRef}
-      className={`fixed inset-0 z-[200] flex flex-col bg-[#0a0a0f] text-white ${className}`}
-      style={{ '--engin-accent': accentColor } as React.CSSProperties}
-    >
-      {/* Accent stripe */}
+    <SharedDreamProvider sessionOptions={{ expectedPeerCount: 40 }}>
       <div
-        className="absolute top-0 left-0 right-0 h-[2px]"
-        style={{ background: `linear-gradient(90deg, transparent, ${accentColor}, transparent)` }}
-      />
+        ref={shellRef}
+        className={`fixed inset-0 z-[200] flex flex-col bg-[#0a0a0f] text-white ${className}`}
+        style={{ '--engin-accent': accentColor } as React.CSSProperties}
+      >
+        {/* Accent stripe */}
+        <div
+          className="absolute top-0 left-0 right-0 h-[2px]"
+          style={{ background: `linear-gradient(90deg, transparent, ${accentColor}, transparent)` }}
+        />
 
-      {/* Top bar */}
-      <header className="de-engin-shell-header relative z-10 flex items-center gap-3 px-4 py-3 border-b border-white/10 bg-[#0e0e18]/90 backdrop-blur-sm">
-        <Link
-          href={backHref}
-          className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white/80 transition-colors"
-        >
-          <ChevronLeft size={14} />
-          {backLabel}
-        </Link>
-
-        <div className="flex items-center gap-2 ml-2">
-          <span className="text-xl leading-none">{engineEmoji}</span>
-          <span
-            className="text-sm font-bold tracking-widest uppercase"
-            style={{ color: accentColor }}
-          >
-            {engineName}
-          </span>
-        </div>
-
-        <div className="ml-auto flex items-center gap-2">
-          {nav}
+        {/* Top bar */}
+        <header className="de-engin-shell-header relative z-10 flex items-center gap-3 px-4 py-3 border-b border-white/10 bg-[#0e0e18]/90 backdrop-blur-sm">
           <Link
             href={backHref}
-            className="flex items-center justify-center w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
-            title={`Exit ${engineName}`}
+            className="flex items-center gap-1.5 text-xs text-white/50 hover:text-white/80 transition-colors"
           >
-            <X size={14} className="text-white/60" />
+            <ChevronLeft size={14} />
+            {backLabel}
           </Link>
-        </div>
-      </header>
 
-      {/* Engine content */}
-      <main className="relative flex-1 overflow-hidden">
-        {children}
-      </main>
-    </div>
+          <div className="flex items-center gap-2 ml-2">
+            <span className="text-xl leading-none">{engineEmoji}</span>
+            <span
+              className="text-sm font-bold tracking-widest uppercase"
+              style={{ color: accentColor }}
+            >
+              {engineName}
+            </span>
+          </div>
+
+          <div className="ml-auto flex items-center gap-2">
+            {nav}
+            <InviteFlow className="hidden sm:inline-flex !px-3 !py-1.5 !text-xs" />
+            <Link
+              href={backHref}
+              className="flex items-center justify-center w-7 h-7 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+              title={`Exit ${engineName}`}
+            >
+              <X size={14} className="text-white/60" />
+            </Link>
+          </div>
+        </header>
+
+        {/* Engine content */}
+        <main className="relative flex-1 overflow-hidden">
+          {children}
+        </main>
+      </div>
+    </SharedDreamProvider>
   );
 }

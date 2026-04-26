@@ -29,6 +29,17 @@ describe('standalone /daydream/*/engin routes', () => {
     expect(wrapperSource).toContain('ContentEngin');
   });
 
+  it('EnginAppShell mounts Shared Dream controls for every standalone Engin', () => {
+    const shellSource = readFileSync(
+      join(root, 'components/engines/shared/dream.shell.EnginAppShell.tsx'),
+      'utf-8'
+    );
+
+    expect(shellSource).toContain('SharedDreamProvider');
+    expect(shellSource).toContain('InviteFlow');
+    expect(shellSource).toContain('expectedPeerCount: 40');
+  });
+
   for (const [route, engin, engineSlug] of ENGIN_ROUTES) {
     it(`/daydream/${route}/engin redirects to the standalone /engines/${engineSlug} app`, () => {
       const source = readFileSync(

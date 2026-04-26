@@ -13,7 +13,7 @@
  *   sharedContent — rendered inside the shared (top) section
  */
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useSharedDream } from './dream.SharedDreamProvider';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -33,7 +33,15 @@ export function SharedDreamCanvas({
   sharedContent,
   className = '',
 }: SharedDreamCanvasProps) {
-  const { connected, participants, cursors } = useSharedDream();
+  const { connected, participants, cursors, moveCursor } = useSharedDream();
+
+  const handlePointerMove = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      const rect = event.currentTarget.getBoundingClientRect();
+      void moveCursor(event.clientX - rect.left, event.clientY - rect.top);
+    },
+    [moveCursor],
+  );
 
   return (
     <div
@@ -41,7 +49,10 @@ export function SharedDreamCanvas({
       className={`flex flex-col w-full h-full overflow-hidden rounded-xl border border-white/10 ${className}`}
     >
       {/* ── Shared view (top) ─────────────────────────────────────────────── */}
-      <div className="relative flex-1 min-h-0 bg-black/40 border-b border-white/10 overflow-hidden">
+      <div
+        className="relative flex-1 min-h-0 bg-black/40 border-b border-white/10 overflow-hidden"
+        onPointerMove={handlePointerMove}
+      >
 
         {/* Status bar */}
         <div className="absolute top-2 left-2 right-2 z-10 flex items-center gap-2 pointer-events-none">
@@ -83,7 +94,7 @@ export function SharedDreamCanvas({
       </div>
 
       {/* ── Private controls (bottom) ─────────────────────────────────────── */}
-      <div className="flex-shrink-0 min-h-[80px] bg-black/60 overflow-auto">
+      <div className="relative flex-shrink-0 min-h-[80px] bg-black/60 overflow-auto">
         <div className="absolute right-2 top-1 text-[9px] text-white/20 font-mono pointer-events-none select-none">
           private
         </div>
