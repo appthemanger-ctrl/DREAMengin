@@ -127,11 +127,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-04-26 07:56 UTC | `c0de8aa` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #689 from appthemanger-ctrl/copilot/update-if-conditions-main-to-completedream — Retarget deployment workflow branch conditions to completedream<br> |
 | **auto** | 2026-04-20 20:25 UTC | `16cf0a3` | completedream | appthemanger-ctrl | ~5 modified<br>chore: sync build-memory [skip ci] [skip vercel]<br>✏️: `build-memory/actions.json`, `build-memory/events.json`, `build-memory/routes.json`, `build-memory/schema.json`, `build-memory/ui-surfaces.json` |
 | **auto** | 2026-04-20 16:57 UTC | `384cc10` | completedream | appthemanger-ctrl | ~5 modified<br>chore: sync build-memory [skip ci] [skip vercel]<br>✏️: `build-memory/actions.json`, `build-memory/events.json`, `build-memory/routes.json`, `build-memory/schema.json`, `build-memory/ui-surfaces.json` |
 | **auto** | 2026-04-20 10:07 UTC | `54053e1` | completedream | appthemanger-ctrl | ~5 modified<br>chore: sync build-memory [skip ci] [skip vercel]<br>✏️: `build-memory/actions.json`, `build-memory/events.json`, `build-memory/routes.json`, `build-memory/schema.json`, `build-memory/ui-surfaces.json` |
 | **auto** | 2026-04-20 02:49 UTC | `14d2694` | completedream | appthemanger-ctrl | ~1 modified<br>chore(feeds): bake embed codes — 0 items [skip ci] [skip vercel] — Reasoning: scheduled embed-feed update; baking avoids live API calls at runtime. Architecture justification: render-on-demand rule — docs/ARCHITECTURE.md §10. Performance impact: eliminates per-request social API calls from production runtime.<br>✏️: `public/feeds/embed-feed.json` |
-| **auto** | 2026-04-19 04:13 UTC | `50e72fe` | completedream | appthemanger-ctrl | ~5 modified<br>chore: sync build-memory [skip ci] [skip vercel]<br>✏️: `build-memory/actions.json`, `build-memory/events.json`, `build-memory/routes.json`, `build-memory/schema.json`, `build-memory/ui-surfaces.json` |
 
 ## What changed in this alignment pass
 

@@ -4,11 +4,11 @@
 > Generated automatically - DO NOT EDIT MANUALLY
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)
-**Documentation Date:** 2026-04-20
-**Last Updated:** 4/20/2026, 8:26:10 PM
+**Documentation Date:** 2026-04-26
+**Last Updated:** 4/26/2026, 8:00:26 AM
 **Branch:** completedream
-**Commit:** 870dca73 - chore: sync build-memory [skip ci] [skip vercel]
-**Total Commits:** 5011
+**Commit:** c0de8aa3 - Merge pull request #689 from appthemanger-ctrl/copilot/update-if-conditions-main-to-completedream
+**Total Commits:** 5103
 
 ---
 
@@ -43,13 +43,13 @@
 
 **Quick Stats:**
 
-- 📁 Total Code Files: 798
-- 📝 Total Lines of Code: 166,581
-- 📦 Size: 5.99 MB
-- 🧪 Tests: 184 files, 174 passing
+- 📁 Total Code Files: 792
+- 📝 Total Lines of Code: 164,995
+- 📦 Size: 5.93 MB
+- 🧪 Tests: 190 files, 184 passing
 - 📄 API Routes: 99
-- 🎨 Components: 42 categories
-- 📖 Documentation: 64 files
+- 🎨 Components: 41 categories
+- 📖 Documentation: 95 files
 - ⚙️ GitHub Actions: 51 workflows
 
 ## Tech Stack
@@ -120,28 +120,28 @@ vitest@^4.1.0
 | Directory | Total Files | File Types |
 |-----------|-------------|------------|
 | `app/` | 236 | .tsx(134), .ts(100), .css(2) |
-| `components/` | 300 | .tsx(267), .ts(30), .css(2) |
-| `lib/` | 486 | .ts(390), .json(67), .md(21) |
-| `tests/` | 185 | .ts(184), .md(1) |
+| `components/` | 288 | .tsx(254), .ts(31), .css(2) |
+| `lib/` | 493 | .ts(397), .json(67), .md(21) |
+| `tests/` | 191 | .ts(190), .md(1) |
 | `styles/` | 5 | .css(5) |
 | `public/` | 33 | .png(12), .svg(5), .json(4) |
-| `docs/` | 62 | .md(61), no-extension(1) |
+| `docs/` | 93 | .md(92), no-extension(1) |
 | `scripts/` | 43 | .mjs(19), .ts(11), .sh(5) |
-| `supabase/` | 52 | .sql(51), .toml(1) |
+| `supabase/` | 53 | .sql(52), .toml(1) |
 
 ## Code Metrics
 
 ### File Distribution
 
 - **App Routes (TSX):** 134
-- **Component Files:** 267
-- **Library Files:** 397
-- **Test Files:** 178
+- **Component Files:** 254
+- **Library Files:** 404
+- **Test Files:** 184
 
 ### Code Volume
 
-- **Total Lines:** 166,581
-- **Total Size:** 5.99 MB
+- **Total Lines:** 164,995
+- **Total Size:** 5.93 MB
 
 ## API Routes
 
@@ -265,7 +265,7 @@ vitest@^4.1.0
 
 ## Components
 
-**Total Component Categories:** 42
+**Total Component Categories:** 41
 
 ### Component Organization
 
@@ -275,12 +275,11 @@ vitest@^4.1.0
 | `ads/` | 2 |
 | `auth/` | 1 |
 | `connectors/` | 6 |
-| `controls/` | 1 |
 | `core/` | 1 |
 | `customize/` | 7 |
 | `daydream/` | 15 |
 | `draggable/` | 1 |
-| `dreamengin/` | 20 |
+| `dreamengin/` | 19 |
 | `dreamnav/` | 2 |
 | `dreamr/` | 3 |
 | `dreams/` | 9 |
@@ -289,8 +288,8 @@ vitest@^4.1.0
 | `feeds/` | 1 |
 | `forge/` | 3 |
 | `gameengin/` | 6 |
-| `games/` | 31 |
-| `home/` | 10 |
+| `games/` | 32 |
+| `home/` | 7 |
 | `idari/` | 1 |
 | `landing/` | 6 |
 | `marketplace/` | 2 |
@@ -305,10 +304,10 @@ vitest@^4.1.0
 | `runtime/` | 3 |
 | `shaders/` | 4 |
 | `shared-dream/` | 4 |
-| `spatial/` | 5 |
+| `spatial/` | 3 |
 | `three/` | 2 |
 | `ui/` | 7 |
-| `universal-editor/` | 3 |
+| `universal-editor/` | 4 |
 | `universe/` | 5 |
 | `warp/` | 1 |
 | `webgpu/` | 4 |
@@ -316,14 +315,13 @@ vitest@^4.1.0
 
 ## Database Schema
 
-**Total Migrations:** 49
+**Total Migrations:** 50
 **Schema File:** ✓ Present
 
 ### Migration History
 
 | Migration File |
 |----------------|
-| 20260402000002_game_assets.sql |
 | 20260403000001_pgvector_embeddings.sql |
 | 20260403000002_pgvector_search_rpc.sql |
 | 20260405000001_dreamr_feed_registry.sql |
@@ -333,17 +331,19 @@ vitest@^4.1.0
 | 20260417000001_dream_docs_search_rpc.sql |
 | 20260418000000_gameengin_core.sql |
 | 20260420000001_consent_settings_audit.sql |
-| ... and 39 earlier migrations |
+| 20260426000000_activity_coop_gameengin_completion.sql |
+| ... and 40 earlier migrations |
 
 ## Tests
 
-**Test Files:** 184
-**Tests Passing:** 174
-**Tests Failing:** 1
+**Test Files:** 190
+**Tests Passing:** 184
+**Tests Failing:** 0
 
 ### Test Files
 
 - /tests/activity-first-protocol.test.ts
+- /tests/activity-revenue-split.test.ts
 - /tests/admin-lockout.test.ts
 - /tests/admin-upgrade-readiness.test.ts
 - /tests/agent-bus-consensus.test.ts
@@ -354,20 +354,19 @@ vitest@^4.1.0
 - /tests/authenticated-ui-shells.test.ts
 - /tests/babylon-optimizero.test.ts
 - /tests/babylon-webgpu-engine.test.ts
+- /tests/bar-hide-preserves-both-runtimes.test.ts
 - /tests/boogie-policy-module.test.ts
 - /tests/boogieman.test.ts
 - /tests/bot-detector.test.ts
 - /tests/branding-logos.test.ts
+- /tests/canonical-naming-enforcement.test.ts
 - /tests/child-safety.test.ts
 - /tests/code-dream-preview.test.ts
-- /tests/coercion-table.test.ts
-- /tests/collector-extended.test.ts
-- /tests/compositeengin-features.test.ts
-- ... and 164 more test files
+- ... and 170 more test files
 
 ## Documentation
 
-**Total Documentation Files:** 64
+**Total Documentation Files:** 95
 
 ### Documentation Files
 
@@ -400,8 +399,8 @@ vitest@^4.1.0
 - [GOLD_BUTTON_QUICK_REF.md](/docs/GOLD_BUTTON_QUICK_REF.md)
 - [HANDOFF.md](/docs/HANDOFF.md)
 - [IDARI_CONTRACT.md](/docs/IDARI_CONTRACT.md)
-- [LAW.md](/docs/LAW.md)
-- ... and 34 more docs
+- [ISSUE_FIXES.md](/docs/ISSUE_FIXES.md)
+- ... and 65 more docs
 
 ## CI/CD Workflows
 
@@ -506,16 +505,6 @@ Using Supabase for database, auth, and storage
 
 ### Duplicate component name
 
-- /components/controls/dream.HomeControls.tsx
-- /components/dreamengin/dream.HomeControls.tsx
-
-### Duplicate component name
-
-- /components/dream.HomeSpace.tsx
-- /components/spatial/dream.HomeSpace.tsx
-
-### Duplicate component name
-
 - /components/dream.ProfileSpace.tsx
 - /components/spatial/dream.ProfileSpace.tsx
 
@@ -560,7 +549,6 @@ Using Supabase for database, auth, and storage
 ### Medium Priority
 
 - 🟡 Review and remove redundant code
-- 🟡 Fix 1 failing tests
 
 ### Low Priority
 
@@ -571,4 +559,4 @@ Using Supabase for database, auth, and storage
 ---
 
 *This document is automatically generated by `scripts/analyze-repo-state.mjs`*
-*Last updated: 4/20/2026, 8:26:10 PM*
+*Last updated: 4/26/2026, 8:00:26 AM*
