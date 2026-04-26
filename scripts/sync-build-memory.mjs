@@ -52,8 +52,33 @@ function readFile(p) {
 
 function write(name, data) {
   const file = path.join(OUT, name);
+  const nextBody = JSON.stringify(stripGeneratedAt(data));
+
+  if (fs.existsSync(file)) {
+    try {
+      const existing = JSON.parse(fs.readFileSync(file, 'utf8'));
+      if (JSON.stringify(stripGeneratedAt(existing)) === nextBody) {
+        console.log(`  ↺ build-memory/${name} (unchanged)`);
+        return;
+      }
+    } catch {
+      // Fall through and rewrite invalid JSON files.
+    }
+  }
+
   fs.writeFileSync(file, JSON.stringify(data, null, 2) + '\n');
   console.log(`  ✓ build-memory/${name}`);
+}
+
+function stripGeneratedAt(value) {
+  if (Array.isArray(value)) return value.map(stripGeneratedAt);
+  if (value && typeof value === 'object') {
+    const entries = Object.entries(value)
+      .filter(([key]) => key !== 'generated_at')
+      .map(([key, entryValue]) => [key, stripGeneratedAt(entryValue)]);
+    return Object.fromEntries(entries);
+  }
+  return value;
 }
 
 // ─── 1. actions.json — "use server" files + API route handlers ───────────────
