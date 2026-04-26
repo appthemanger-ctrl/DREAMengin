@@ -54,7 +54,7 @@ export const BUTTON_GROUPS = {
   ],
 
   developer: [
-    { label: "Admin Panel",     href: "/admin" },
+    { label: "Admin Panel",     href: "/idari-console" },
     { label: "Developer Tools", href: "/developer" },
     { label: "API Keys",        href: "/developer/api-keys" },
     { label: "Webhooks",        href: "/developer/webhooks" },

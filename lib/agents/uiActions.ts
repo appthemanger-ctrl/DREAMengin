@@ -59,7 +59,7 @@ const ACTIONS: Action[] = [
         { k: /\b(settings|preferences)\b/, path: '/settings', label: 'Settings' },
         { k: /\b(profile|edit profile)\b/, path: '/edit-profiledream', label: 'Edit ProfileDream' },
         { k: /\b(connectors|imports|youtube)\b/, path: '/connectors', label: 'Connectors' },
-        { k: /\b(admin)\b/, path: '/admin', label: 'Admin' },
+        { k: /\b(admin)\b/, path: '/idari-console', label: 'Admin' },
       ];
       const hit = routes.find((r) => r.k.test(q));
       if (!hit) return { handled: false, reply: '' };

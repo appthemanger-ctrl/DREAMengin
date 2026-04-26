@@ -18,7 +18,7 @@ export default function IDariButton({ isAdmin }: IDariButtonProps) {
 
   return (
     <button
-      onClick={() => router.push('/admin')}
+      onClick={() => router.push('/idari-console')}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       className="fixed bottom-24 right-6 bg-gradient-to-r from-purple-500 to-indigo-500 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 z-40 group"

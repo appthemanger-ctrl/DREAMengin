@@ -35,7 +35,7 @@ interface IDariPanelProps {
 }
 
 /** Minimal valid UIContext for admin panel calls */
-const ADMIN_UI = { route: '/admin' };
+const ADMIN_UI = { route: '/idari-console' };
 
 /**
  * Call the real IDARi endpoint and return the AI response text.

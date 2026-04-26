@@ -113,7 +113,7 @@ export default function AIAssistant() {
       const res = await fetch('/api/ai/idari', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, ui: { route: '/admin' } }),
+        body: JSON.stringify({ message, ui: { route: '/idari-console' } }),
       });
 
       if (res.status === 401) return 'IDARi needs an admin session. Please sign in as admin, then try again.';

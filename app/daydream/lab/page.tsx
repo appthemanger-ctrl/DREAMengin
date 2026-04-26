@@ -28,7 +28,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'scenarios',      emoji: '🗺️', label: 'Scenarios',      desc: 'Build and compare scenarios',     color: '#84cc16', href: '/engines/lab'           },
   { id: 'simulation',     emoji: '🌊', label: 'Simulations',    desc: 'Run and view simulations',       color: '#0ea5e9', href: '/engines/lab/experiments' },
   { id: 'viewer',         emoji: '📊', label: 'Simulation Viewer', desc: 'Visualize model states and results', color: '#8b5cf6', href: '/engines/lab/data'   },
-  { id: 'physics',        emoji: '⚛️', label: 'Physics Lab',    desc: '3D physics environment',         color: '#f59e0b', href: '/physics-lab'           },
+  { id: 'physics',        emoji: '⚛️', label: 'Physics Lab',    desc: '3D physics environment',         color: '#f59e0b', href: '/engines/lab'           },
   { id: 'quantum',        emoji: '💡', label: 'Quantum Circuit', desc: 'Build quantum circuits',        color: '#0ea5e9', href: '/engines/lab/quantum'   },
   { id: 'results',        emoji: '🔗', label: 'Share Results',  desc: 'Publish experiment outcomes',     color: '#c8981a', href: '/daydream/create'       },
 ];
@@ -119,7 +119,7 @@ export default async function LabDaydreamPage() {
             {[
               { emoji: '🧪', label: 'New Experiment', href: '/engines/lab/experiments', color: '#22c55e' },
               { emoji: '⚗️', label: 'My Projects',    href: '/engines/lab',             color: '#6366f1' },
-              { emoji: '⚛️', label: 'Physics Lab',    href: '/physics-lab',             color: '#f59e0b' },
+              { emoji: '⚛️', label: 'Physics Lab',    href: '/engines/lab',             color: '#f59e0b' },
               { emoji: '💡', label: 'Quantum Circuit', href: '/engines/lab/quantum',    color: '#8b5cf6' },
             ].map(item => (
               <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
@@ -433,7 +433,7 @@ export default async function LabDaydreamPage() {
               </p>
             </div>
             <div className="de-widget-actions">
-              <Link href="/physics-lab" className="de-btn de-btn-primary text-xs">Open Physics Lab</Link>
+              <Link href="/engines/lab" className="de-btn de-btn-primary text-xs">Open Physics Lab</Link>
             </div>
           </div>
 

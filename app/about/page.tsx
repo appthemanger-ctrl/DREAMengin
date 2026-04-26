@@ -97,7 +97,7 @@ export default function AboutPage() {
     { name: 'DreamDM', path: '/messages', icon: MessageCircle, description: 'Direct conversations and system signals layered into the plane.' },
     { name: 'DreamMarketplace', path: '/marketplace', icon: ShoppingBag, description: 'Sell widgets, beats, workflows, and creator goods natively.' },
     { name: 'Lab', path: '/lab', icon: Beaker, description: 'Creative computing experiments, simulations, and research tools.' },
-    { name: 'Music', path: '/music', icon: Music, description: 'Recording, sharing, and collaboration spaces for sound.' },
+    { name: 'Music', path: '/daydream/music', icon: Music, description: 'Recording, sharing, and collaboration spaces for sound.' },
     { name: 'Social Hub', path: '/discover', icon: Users, description: 'Community clusters, discovery loops, and shared spaces.' },
     { name: 'Settings', path: '/settings', icon: Settings, description: 'System layer for privacy, security, and personalization.' },
   ];

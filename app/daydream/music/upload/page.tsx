@@ -54,7 +54,7 @@ export default function UploadMusicPage() {
 
       if (insertError) throw insertError;
 
-      router.push('/music');
+      router.push('/daydream/music');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to upload music');
     } finally {
@@ -67,7 +67,7 @@ export default function UploadMusicPage() {
       {/* Header */}
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <Link href="/music" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
+          <Link href="/daydream/music" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
             <ArrowLeft className="w-4 h-4" style={{ color: 'var(--de-text)' }} />
           </Link>
           <Music className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
