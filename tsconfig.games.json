@@ -5,6 +5,7 @@
     "strict": true
   },
   "include": [
+    "next-env.d.ts",
     "games/**/*.ts",
     "games/**/*.tsx",
     "components/games/**/*.ts",

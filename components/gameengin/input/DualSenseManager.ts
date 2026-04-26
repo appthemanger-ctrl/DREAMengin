@@ -42,6 +42,12 @@ export interface DualSenseState {
   };
 }
 
+type GamepadWithHaptics = Gamepad & {
+  hapticActuators?: Array<{
+    pulse: (value: number, duration: number) => Promise<boolean>;
+  }>;
+};
+
 export class DualSenseManager {
   private gamepadIndex = -1;
   private isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -163,7 +169,7 @@ export class DualSenseManager {
   }
 
   rumble(intensity: number, durationMs: number = 100) {
-    const gp = navigator.getGamepads()[this.gamepadIndex];
+    const gp = navigator.getGamepads()[this.gamepadIndex] as GamepadWithHaptics | null;
     if (gp?.hapticActuators?.length && gp.hapticActuators.length > 0) {
       const clampedIntensity = Math.max(0, Math.min(1, intensity));
       gp.hapticActuators[0].pulse(clampedIntensity, durationMs / 1000);

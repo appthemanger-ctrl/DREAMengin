@@ -17,7 +17,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '25'
+  NODE_VERSION: '24'
   PNPM_VERSION: '10.30.0'
   DAYDREAM: 'games'
   ENGIN: 'GameEngin'
@@ -66,11 +66,11 @@ jobs:
       - name: Lint (Games Daydream scope)
         id: lint
         run: |
-          pnpm lint \
-            --file app/daydream/games \
-            --file app/game \
-            --file components/daydream/GameEngin.tsx \
-            --file components/games \
+          pnpm exec eslint \
+            app/daydream/games \
+            app/daydream/game \
+            components/games \
+            lib/gameengin \
             || echo "lint_failed=true" >> "$GITHUB_OUTPUT"
 
       - name: Typecheck
@@ -82,11 +82,11 @@ jobs:
       # ── Auto-fix ──────────────────────────────────────────────────────────────
       - name: ESLint auto-fix (Games Daydream)
         run: |
-          pnpm exec next lint \
-            --fix \
-            --dir app/daydream/games \
-            --dir app/game \
-            --dir components/games \
+          pnpm exec eslint --fix \
+            app/daydream/games \
+            app/daydream/game \
+            components/games \
+            lib/gameengin \
             || true
 
       # ── Commit fixes ──────────────────────────────────────────────────────────
