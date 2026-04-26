@@ -148,7 +148,6 @@ export function SharedDreamProvider({
       mounted = false;
       activeSession?.leave().catch(() => {});
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propChannelId]);
 
   // ── Actions ───────────────────────────────────────────────────────────────
