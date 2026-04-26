@@ -16,7 +16,7 @@ function titleFor(target: DreamDrop): string {
 function safeMediaSource(value: string): string | null {
   try {
     const url = new URL(value);
-    return url.protocol === 'https:' || url.protocol === 'http:' || url.protocol === 'blob:'
+    return url.protocol === 'https:' || url.protocol === 'blob:'
       ? url.toString()
       : null;
   } catch {
@@ -74,7 +74,7 @@ export function UniversalEditor({ target, onSaved }: UniversalEditorProps) {
           <img src={mediaSrc} alt={target.filename ?? 'Dropped image'} className="mb-3 max-h-64 w-full rounded-[18px] object-contain" />
         ) : (
           <p className="mb-3 rounded-[18px] border border-red-300/30 bg-red-950/30 p-3 text-sm text-red-200">
-            Unsafe image URL blocked. Use http, https, or local blob media.
+            Unsafe image URL blocked. Use https or local blob media.
           </p>
         )
       ) : target.type === 'video' ? (
@@ -82,7 +82,7 @@ export function UniversalEditor({ target, onSaved }: UniversalEditorProps) {
           <video src={mediaSrc} controls className="mb-3 max-h-64 w-full rounded-[18px]" />
         ) : (
           <p className="mb-3 rounded-[18px] border border-red-300/30 bg-red-950/30 p-3 text-sm text-red-200">
-            Unsafe video URL blocked. Use http, https, or local blob media.
+            Unsafe video URL blocked. Use https or local blob media.
           </p>
         )
       ) : target.type === 'audio' ? (
@@ -90,7 +90,7 @@ export function UniversalEditor({ target, onSaved }: UniversalEditorProps) {
           <audio src={mediaSrc} controls className="mb-3 w-full" />
         ) : (
           <p className="mb-3 rounded-[18px] border border-red-300/30 bg-red-950/30 p-3 text-sm text-red-200">
-            Unsafe audio URL blocked. Use http, https, or local blob media.
+            Unsafe audio URL blocked. Use https or local blob media.
           </p>
         )
       ) : (

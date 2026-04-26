@@ -78,16 +78,21 @@ type ConsentRow = {
   session_id: string | null;
 };
 
+type ConsentDbResponse<T> = Promise<{
+  data: T | null;
+  error: { message?: string } | null;
+}>;
+
 type ConsentSupabaseClient = {
   from: (table: 'dream_consent' | 'dream_settings' | 'dream_audit_log') => {
     select: (columns?: string) => {
-      eq: (column: string, value: unknown) => Promise<{ data: ConsentRow[] | null }>;
+      eq: (column: string, value: unknown) => ConsentDbResponse<ConsentRow[]>;
     };
     upsert: (
       values: Array<Record<string, unknown>>,
       options: { onConflict: string },
-    ) => Promise<unknown>;
-    insert: (values: Array<Record<string, unknown>>) => Promise<unknown>;
+    ) => ConsentDbResponse<unknown>;
+    insert: (values: Array<Record<string, unknown>>) => ConsentDbResponse<unknown>;
   };
 };
 

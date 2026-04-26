@@ -29,8 +29,8 @@ function unpackUstar(bytes: Uint8Array): DreamrFileEntry[] {
   while (offset + TAR_BLOCK <= bytes.length) {
     const header = bytes.subarray(offset, offset + TAR_BLOCK);
     if (header.every((b) => b === 0)) break;
-    const name = decodeAscii(header.subarray(0, 100)); // ustar name field: bytes 0-100
-    const prefix = decodeAscii(header.subarray(345, 500)); // ustar prefix field: bytes 345-500
+    const name = decodeAscii(header.subarray(0, 100)); // ustar name field: bytes 0-99
+    const prefix = decodeAscii(header.subarray(345, 500)); // ustar prefix field: bytes 345-499 (155 bytes)
     const size = parseOctal(header.subarray(124, 136));
     const fullName = prefix ? `${prefix}/${name}` : name;
     offset += TAR_BLOCK;

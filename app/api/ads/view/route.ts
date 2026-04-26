@@ -17,16 +17,10 @@ import { calculateActivityRevenueSplit } from '@/lib/activity/revenueSplit';
 import { calculateSkipCreditsEarned } from '@/lib/activity/skipCredits';
 
 type ActivitySupabaseClient = {
-  rpc: {
-    (
-      name: 'verify_ad_view',
-      args: { p_ad_id: string; p_viewer_id: string; p_watched_pct: number },
-    ): Promise<{ data: boolean | null }>;
-    (
-      name: 'award_skip_credits',
-      args: { p_user_id: string; p_ad_view_id: string; p_credits: number },
-    ): Promise<{ data: boolean | null }>;
-  };
+  rpc: <T>(
+    name: string,
+    args: Record<string, unknown>,
+  ) => Promise<{ data: T | null; error?: { message?: string } | null }>;
   from: (table: string) => {
     select: (columns?: string) => {
       eq: (column: string, value: unknown) => {
@@ -73,7 +67,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify ad view using database function
-    const { data: verified } = await db.rpc('verify_ad_view', {
+    const { data: verified } = await db.rpc<boolean>('verify_ad_view', {
       p_ad_id: ad_id,
       p_viewer_id: user.id,
       p_watched_pct: watched_pct,
@@ -143,7 +137,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (creditsEarned > 0) {
-      await db.rpc('award_skip_credits', {
+      await db.rpc<boolean>('award_skip_credits', {
         p_user_id: user.id,
         p_ad_view_id: String(adView.id),
         p_credits: creditsEarned,
