@@ -54,6 +54,13 @@ export class UnsupportedProviderError extends Error {
   }
 }
 
+function normalizeNostrRelays(relayRaw: unknown): string[] {
+  if (Array.isArray(relayRaw)) {
+    return relayRaw.map(String).map((relay) => relay.trim()).filter(Boolean);
+  }
+  return String(relayRaw ?? '').split(',').map((relay) => relay.trim()).filter(Boolean);
+}
+
 /**
  * Dispatch a sync for a provider given its stored token_blob credentials.
  *
@@ -87,11 +94,7 @@ export async function dispatchSync(
       return redditSync({ access_token: String(creds.access_token ?? '') });
 
     case 'nostr': {
-      const relayRaw = creds.relays;
-      const relays = Array.isArray(relayRaw)
-        ? relayRaw.map(String).map((r) => r.trim()).filter(Boolean)
-        : String(relayRaw ?? '').split(',').map((r) => r.trim()).filter(Boolean);
-      return nostrSync({ pubkey: String(creds.pubkey ?? ''), relays });
+      return nostrSync({ pubkey: String(creds.pubkey ?? ''), relays: normalizeNostrRelays(creds.relays) });
     }
 
     case 'youtube':

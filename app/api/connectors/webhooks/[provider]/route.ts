@@ -127,6 +127,7 @@ export async function POST(
   } catch (err) {
     console.warn('[connectors:webhook] failed to read payload', {
       provider,
+      requestId: req.headers.get('x-vercel-id') ?? req.headers.get('x-request-id') ?? 'unavailable',
       error: err instanceof Error ? err.message : String(err),
     });
     // Log body read failures without dumping provider payloads; acknowledge regardless.

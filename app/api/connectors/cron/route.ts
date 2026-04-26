@@ -26,6 +26,9 @@ import { DISPATCH_SUPPORTED_PROVIDERS } from '@/lib/connectors/syncDispatch';
 import { isCronAuthorised } from '@/lib/connectors/webhookVerification';
 import type { ReconcileResult } from '@/lib/connectors/reconcile';
 
+const DEFAULT_BATCH_SIZE = 50;
+const MAX_BATCH_SIZE = 100;
+
 interface CronSummary {
   ok: boolean;
   batchSize: number;
@@ -42,9 +45,9 @@ interface CronSummary {
 }
 
 function getCronBatchSize(): number {
-  const parsed = Number.parseInt(process.env.CONNECTOR_CRON_BATCH_SIZE ?? '50', 10);
-  if (!Number.isFinite(parsed)) return 50;
-  return Math.min(Math.max(parsed, 1), 100);
+  const parsed = Number.parseInt(process.env.CONNECTOR_CRON_BATCH_SIZE ?? String(DEFAULT_BATCH_SIZE), 10);
+  if (!Number.isFinite(parsed)) return DEFAULT_BATCH_SIZE;
+  return Math.min(Math.max(parsed, 1), MAX_BATCH_SIZE);
 }
 
 export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | { error: string }>> {

@@ -69,7 +69,6 @@ function isConnectorAuthError(message: string): boolean {
  * @param tokenBlob - Parsed token_blob from connector_accounts (server-only)
  */
 export async function reconcileConnector(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   db: SupabaseClient<Database>,
   userId: string,
   provider: string,
