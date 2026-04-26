@@ -17,14 +17,14 @@ export default function DreamNavControls({ onHome, onBothMenus }: DreamNavContro
     const last = lastTapRef.current;
     lastTapRef.current = now;
 
-    // Double tap → open dual menus (immediate).
+    // Double tap → go home (the only sanctioned double-tap).
     if (now - last <= DOUBLE_TAP_MS) {
-      onBothMenus();
+      onHome();
       return;
     }
 
-    // Single tap → go home (immediate, no delay).
-    onHome();
+    // Single tap → open dual menus (immediate).
+    onBothMenus();
   };
 
   return (

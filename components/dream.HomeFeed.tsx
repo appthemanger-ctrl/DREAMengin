@@ -520,7 +520,7 @@ export default function HomeFeed({
             style={{
               overflowY: 'auto',
               overscrollBehavior: 'contain',
-              touchAction: 'pan-y',
+              touchAction: 'manipulation',
               scrollbarWidth: 'thin',
               scrollSnapType: isCompactEmbedded ? 'y proximity' : undefined,
               ...(embedded
@@ -546,7 +546,7 @@ export default function HomeFeed({
                 style={{
                   borderBottom: postIdx < displayPosts.length - 1 ? '1px solid var(--de-border, rgba(180,185,200,0.15))' : 'none',
                   padding: '16px',
-                  touchAction: 'pan-y',
+                  touchAction: 'manipulation',
                   scrollSnapAlign: isCompactEmbedded ? 'start' : undefined,
                 }}
               >
