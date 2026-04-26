@@ -42,6 +42,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
   const [artifacts, setArtifacts] = useState<DreamArtifact[]>([]);
   const [showSystemModules, setShowSystemModules] = useState(false);
   const [previewAsset, setPreviewAsset] = useState<AssetEntry | null>(null);
+  const [visibleSuggestionIds, setVisibleSuggestionIds] = useState(() => new Set(SUGGESTED_DREAMS.map((dream) => dream.id)));
 
   // ── Ledger asset grid ─────────────────────────────────────────────────────
   const os = useOS();
@@ -308,7 +309,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
           gap: 10,
         }}
       >
-        {artifacts.length === 0 && SUGGESTED_DREAMS.map((dream) => (
+        {artifacts.length === 0 && SUGGESTED_DREAMS.filter((dream) => visibleSuggestionIds.has(dream.id)).map((dream) => (
           <DraggableDream
             key={dream.id}
             dream={{ dream_id: dream.id, type: dream.id, surface: 'dreamspace', runtime: 'FACE', title: dream.name }}
@@ -340,7 +341,11 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
               <button
                 type="button"
                 aria-label={`Remove ${dream.name} suggestion`}
-                onClick={(event) => event.currentTarget.closest('.artifact-card')?.remove()}
+                onClick={() => setVisibleSuggestionIds((current) => {
+                  const next = new Set(current);
+                  next.delete(dream.id);
+                  return next;
+                })}
                 style={{ marginTop: 'auto', alignSelf: 'flex-start', border: 'none', background: 'rgba(255,255,255,0.08)', color: '#f4d37b', borderRadius: 999, padding: '4px 8px', fontSize: 10, fontWeight: 700, cursor: 'pointer' }}
               >
                 Remove

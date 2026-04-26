@@ -24,6 +24,12 @@ export async function POST(req: NextRequest) {
   const toRuntime = body?.toRuntime === 'FACE' ? 'FACE' : 'HOME';
   const position = body?.position && typeof body.position === 'object' ? body.position : {};
   if (body?.swap === true) {
+    const { data: swappedCount, error: rpcError } = await (supabase as any)
+      .rpc('swap_user_dream_runtimes', { p_user_id: user.id });
+    if (!rpcError) {
+      return NextResponse.json({ ok: true, swapped: swappedCount ?? 0 });
+    }
+
     const { data: rows, error: readError } = await (supabase as any)
       .from('dream_instances')
       .select('instance_id,surface')

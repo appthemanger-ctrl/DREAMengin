@@ -34,11 +34,9 @@ export default function DraggableDream({ dream, children, className, style }: Dr
         }));
       }}
       onDrag={(event) => {
-        if (event.clientX || event.clientY) {
-          window.dispatchEvent(new CustomEvent('dream:drag-move', {
-            detail: { dream, clientX: event.clientX, clientY: event.clientY },
-          }));
-        }
+        window.dispatchEvent(new CustomEvent('dream:drag-move', {
+          detail: { dream, clientX: event.clientX, clientY: event.clientY },
+        }));
       }}
       onDragEnd={(event) => {
         setDragging(false);

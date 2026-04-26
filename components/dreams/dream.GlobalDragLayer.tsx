@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import type { DreamDragData } from '@/lib/dreams/drag';
 
 interface DragLayerState {
@@ -11,6 +11,8 @@ interface DragLayerState {
 
 export default function GlobalDreamDragLayer() {
   const [drag, setDrag] = useState<DragLayerState | null>(null);
+  const frameRef = useRef<number | null>(null);
+  const lastPointerRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     const start = (event: Event) => {
@@ -23,9 +25,21 @@ export default function GlobalDreamDragLayer() {
       setDrag({ dream: detail.dream, x: detail.clientX, y: detail.clientY });
     };
     const dragOver = (event: DragEvent) => {
-      setDrag((current) => current ? { ...current, x: event.clientX, y: event.clientY } : current);
+      lastPointerRef.current = { x: event.clientX, y: event.clientY };
+      if (frameRef.current !== null) return;
+      frameRef.current = window.requestAnimationFrame(() => {
+        frameRef.current = null;
+        const point = lastPointerRef.current;
+        if (!point) return;
+        setDrag((current) => current ? { ...current, x: point.x, y: point.y } : current);
+      });
     };
-    const end = () => setDrag(null);
+    const end = () => {
+      if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
+      frameRef.current = null;
+      lastPointerRef.current = null;
+      setDrag(null);
+    };
     window.addEventListener('dream:drag-start', start);
     window.addEventListener('dream:drag-move', move);
     window.addEventListener('dragover', dragOver);
@@ -37,6 +51,7 @@ export default function GlobalDreamDragLayer() {
       window.removeEventListener('dragover', dragOver);
       window.removeEventListener('dream:drag-end', end);
       window.removeEventListener('drop', end);
+      if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
     };
   }, []);
 

@@ -132,7 +132,7 @@ export default function PersistentDreamBar() {
     const toSurface = surfaceForRuntime(toRuntime);
     const fromRuntime = dreamData.runtime;
     void transferDream({ ...dreamData, runtime: toRuntime, surface: toSurface, position }, fromRuntime, toRuntime, position);
-    os.bus.emit('dream:transfer' as keyof Record<string, unknown>, { dreamData, fromRuntime, toRuntime, position });
+    os.bus.emit('dream:transfer', { dreamData, fromRuntime, toRuntime, position });
     const fromSurface = dreamData.surface;
     const nextLayout = {
       home: { dreams: layout.home.dreams.filter((id) => id !== dreamData.dream_id) },
@@ -150,7 +150,7 @@ export default function PersistentDreamBar() {
       dreamspace: { dreams: layout.home.dreams },
     };
     updateDreamLayout(nextLayout, 0);
-    os.bus.emit('dream:transfer' as keyof Record<string, unknown>, {
+    os.bus.emit('dream:transfer', {
       gesture: 'swap-runtimes',
       home: nextLayout.home.dreams,
       dreamspace: nextLayout.dreamspace.dreams,

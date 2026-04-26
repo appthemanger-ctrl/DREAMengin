@@ -32,6 +32,33 @@ CREATE TABLE IF NOT EXISTS public.platform_errors (
 
 ALTER TABLE public.platform_errors ENABLE ROW LEVEL SECURITY;
 
+CREATE OR REPLACE FUNCTION public.swap_user_dream_runtimes(p_user_id UUID)
+RETURNS INTEGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  changed_count INTEGER := 0;
+BEGIN
+  IF auth.uid() IS DISTINCT FROM p_user_id THEN
+    RAISE EXCEPTION 'Not authorized';
+  END IF;
+
+  UPDATE public.dream_instances
+    SET surface = CASE
+      WHEN surface = 0 THEN 1
+      WHEN surface = 1 THEN 0
+      ELSE surface
+    END,
+    updated_at = NOW()
+  WHERE owner_id = p_user_id
+    AND surface IN (0, 1);
+
+  GET DIAGNOSTICS changed_count = ROW_COUNT;
+  RETURN changed_count;
+END;
+$$;
+
 ALTER TABLE public.profiles
   ADD COLUMN IF NOT EXISTS user_layout JSONB NOT NULL DEFAULT
     '{"home":{"dreams":[]},"dreamspace":{"dreams":[]}}'::jsonb;
@@ -60,16 +87,16 @@ DO $$
 BEGIN
   IF to_regclass('public.dream_instances') IS NOT NULL
      AND to_regclass('public.widget_instances') IS NULL THEN
-    EXECUTE 'CREATE VIEW public.widget_instances AS SELECT * FROM public.dream_instances';
+    EXECUTE 'CREATE VIEW public.widget_instances WITH (security_invoker=true) AS SELECT * FROM public.dream_instances';
   END IF;
 
   IF to_regclass('public.dream_definitions') IS NOT NULL
      AND to_regclass('public.widget_definitions') IS NULL THEN
-    EXECUTE 'CREATE VIEW public.widget_definitions AS SELECT * FROM public.dream_definitions';
+    EXECUTE 'CREATE VIEW public.widget_definitions WITH (security_invoker=true) AS SELECT * FROM public.dream_definitions';
   END IF;
 
   IF to_regclass('public.dream_content') IS NOT NULL
      AND to_regclass('public.widget_content') IS NULL THEN
-    EXECUTE 'CREATE VIEW public.widget_content AS SELECT * FROM public.dream_content';
+    EXECUTE 'CREATE VIEW public.widget_content WITH (security_invoker=true) AS SELECT * FROM public.dream_content';
   END IF;
 END $$;

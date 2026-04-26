@@ -11,6 +11,13 @@ const DEFAULT_DREAMS = [
   { id: 'dreamspace-game-quick-launch', name: 'Game Quick Launch', surface: 'dreamspace' as const },
 ];
 
+function buildLayoutFromDreams(dreams: Array<{ id: string; surface: 'home' | 'dreamspace' }>) {
+  return {
+    home: { dreams: dreams.filter((dream) => dream.surface === 'home').map((dream) => dream.id) },
+    dreamspace: { dreams: dreams.filter((dream) => dream.surface === 'dreamspace').map((dream) => dream.id) },
+  };
+}
+
 export default function DreamsLayoutEditor() {
   const { layout, updateDreamLayout, resetDreamLayout } = useDreamLayout();
   const hidden = new Set<string>();
@@ -52,10 +59,7 @@ export default function DreamsLayoutEditor() {
         <button
           type="button"
           className="de-btn de-btn-primary text-xs"
-          onClick={() => updateDreamLayout({
-            home: { dreams: dreams.filter((dream) => dream.surface === 'home').map((dream) => dream.id) },
-            dreamspace: { dreams: dreams.filter((dream) => dream.surface === 'dreamspace').map((dream) => dream.id) },
-          }, 0)}
+          onClick={() => updateDreamLayout(buildLayoutFromDreams(dreams), 0)}
         >
           Save now
         </button>

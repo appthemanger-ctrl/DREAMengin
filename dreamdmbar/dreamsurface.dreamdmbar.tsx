@@ -504,9 +504,10 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     active: false, startY: 0, startTarget: null, didDrag: false,
     lastTapAt: 0, tapTimer: null, textareaFocused: false, touchStartedInTextarea: false,
   });
-  const swapGestureRef = useRef<{ lastTapAt: number; timer: ReturnType<typeof setTimeout> | null }>({
+  const swapGestureRef = useRef<{ lastTapAt: number; timer: ReturnType<typeof setTimeout> | null; queued: boolean }>({
     lastTapAt: 0,
     timer: null,
+    queued: false,
   });
 
   // ── First-time discovery ─────────────────────────────────────────────────
@@ -928,11 +929,15 @@ export default function DreamDMBar({ onHome, onBothMenus, onHomeDreamSpace, onRu
     const isInTextarea = target.tagName === 'TEXTAREA' || target.closest('textarea') !== null;
     const ref = barTouchRef.current;
     const now = Date.now();
-    if (onSwapRuntimes && now - swapGestureRef.current.lastTapAt < 320) {
+    if (onSwapRuntimes && now - swapGestureRef.current.lastTapAt < 320 && !swapGestureRef.current.queued) {
+      swapGestureRef.current.queued = true;
       if (swapGestureRef.current.timer) clearTimeout(swapGestureRef.current.timer);
       swapGestureRef.current.timer = setTimeout(() => {
         onSwapRuntimes();
         swapGestureRef.current.timer = null;
+        window.setTimeout(() => {
+          swapGestureRef.current.queued = false;
+        }, 500);
       }, 420);
     }
     swapGestureRef.current.lastTapAt = now;
