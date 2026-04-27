@@ -44,6 +44,7 @@ import { SkipCreditBalance } from '@/components/ads/dream.SkipCreditBalance';
 const PUBLIC_ROUTES = ['/', '/login', '/join', '/policy', '/about'];
 
 const DEFAULT_WORKFLOW_SPLIT = 0.5;
+const Z_INDEX_SKIP_CREDIT_BALANCE = 120;
 
 export default function PersistentDreamBar() {
   const pathname    = usePathname();
@@ -262,7 +263,7 @@ export default function PersistentDreamBar() {
           position: 'fixed',
           top: 12,
           right: 12,
-          zIndex: 120,
+          zIndex: Z_INDEX_SKIP_CREDIT_BALANCE,
           pointerEvents: 'auto',
         }}
       >

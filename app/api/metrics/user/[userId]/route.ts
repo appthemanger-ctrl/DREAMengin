@@ -9,19 +9,6 @@ import { createServerClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/supabase';
 import { ActivityTier, type GetUserMetricsResponse, type UserMetrics } from '@/lib/activity/types';
 
-type ActivityTierRow = { tier: number | null };
-type ActivityPointsQueryBuilder = PromiseLike<{ data: ActivityTierRow[] | null }> & {
-  eq(column: 'user_id' | 'is_decayed', value: string | boolean): ActivityPointsQueryBuilder;
-  gte(column: 'created_at', value: string): ActivityPointsQueryBuilder;
-  order(column: 'tier', options: { ascending: boolean }): ActivityPointsQueryBuilder;
-  limit(count: number): PromiseLike<{ data: ActivityTierRow[] | null }>;
-};
-type ActivityPointsClient = {
-  from(table: 'activity_points'): {
-    select(columns: 'tier'): ActivityPointsQueryBuilder;
-  };
-};
-
 function toNumber(value: number | string | null | undefined): number {
   const parsed = typeof value === 'string' ? Number(value) : value;
   return typeof parsed === 'number' && Number.isFinite(parsed) ? parsed : 0;
@@ -38,7 +25,7 @@ export async function GET(
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     let currentTier30d = ActivityTier.PASSIVE;
     try {
-      const { data: tierRows } = await (supabase as unknown as ActivityPointsClient)
+      const { data: tierRows } = await supabase
         .from('activity_points')
         .select('tier')
         .eq('user_id', userId)
