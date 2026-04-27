@@ -8,6 +8,7 @@ import { ArrowLeft, Eye, Loader2, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/components/profile/dream.widget.ProfileWidgetGrid';
 import DreamWord from '@/components/ui/dream.DreamWord';
+import { ActivityProfile } from '@/components/activity/dream.ActivityProfile';
 
 
 type Profile = {
@@ -28,6 +29,7 @@ export default function EditProfileDreamPage() {
   const [widgets, setWidgets] = useState<ProfileDream[]>(DEFAULT_DREAMS);
   const [initialProfile, setInitialProfile] = useState<Profile | null>(null);
   const [initialWidgets, setInitialWidgets] = useState<ProfileDream[]>(DEFAULT_DREAMS);
+  const [userId, setUserId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   // isPublishing tracks the explicit share/publish action (distinct from private save)
@@ -44,6 +46,7 @@ export default function EditProfileDreamPage() {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) { router.push('/login'); return; }
+        setUserId(user.id);
         const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
         const loadedProfile = {
           display_name: data?.display_name || '',
@@ -418,6 +421,25 @@ export default function EditProfileDreamPage() {
           <Share2 size={14} />
           Public View updated! Your shared Dream Windows are now visible on ViewProfile.
         </div>
+      )}
+
+      {userId && (
+        <section style={{ padding: '16px 14px 0' }}>
+          <div style={{
+            maxWidth: 720,
+            margin: '0 auto',
+            padding: 14,
+            borderRadius: 22,
+            background: 'rgba(255,255,255,0.08)',
+            border: '1px solid rgba(255,255,255,0.14)',
+            backdropFilter: 'blur(20px)',
+          }}>
+            <div style={{ fontSize: 12, fontWeight: 800, color: '#c8981a', marginBottom: 10, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+              Activity-First Profile Metrics
+            </div>
+            <ActivityProfile userId={userId} />
+          </div>
+        </section>
       )}
 
       {/* ── Widgets tab ── */}

@@ -20,28 +20,28 @@ Canonical spec: `docs/ACTIVITY_FIRST_PROTOCOL.md` — Active Platform Law (2026-
 
 | Feature | Status | Target |
 |---|---|---|
-| `activity_points` table (decaying 30-day sum) | ⏳ | DB migration |
-| `activity_verification` table (evidence of activity) | ⏳ | DB migration |
-| `views` table (verified human views) | ⏳ | DB migration |
-| `skip_credits` table (user credit balance) | ⏳ | DB migration |
-| `ad_views` table (verified ad views for billing) | ⏳ | DB migration |
-| `user_metrics` table (AQS, Real Shit Rate) | ⏳ | DB migration |
-| `visibility_score` feed ranking (replaces engagement ranking) | ⏳ | Algorithm |
-| Activity Quality Score (AQS) as core metric | ⏳ | Algorithm |
-| Activity tier multipliers (Tier 0–6) | ⏳ | Algorithm |
-| Points decay over 30-day rolling window | ⏳ | Algorithm |
-| Profile: total views + AQS + Real Shit Rate display | ⏳ | UI |
-| Feed: view count prominent, no like count | ⏳ | UI |
-| Ad units: Pre-Roll, Post-Roll, Rewarded (no mid-roll) | ⏳ | UI + Billing |
-| Skip credit system (earn + auto-apply) | ⏳ | UI + DB |
-| `AD` badge on all ad placements | ⏳ | UI |
-| CPV billing (Standard $0.08 / Premium $0.12 / Super $0.15) | ⏳ | Billing |
-| TheBoogieMan.Ai harmful content enforcement (search-only, no feed) | ⏳ | Moderation |
-| TheBoogieMan.Ai fraud detection (fake check-ins, bot views) | ⏳ | Moderation |
-| Parental controls — minors blocked from harmful content by default | ⏳ | Auth + UI |
-| IDARi platform health dashboard (Real Shit Rate, AQS, etc.) | ⏳ | Admin UI |
-| Ad revenue split (30% platform / 50% creator / 20% reward pool) | ⏳ | Billing |
-| Activity Reward Pool monthly distribution | ⏳ | Billing |
+| `activity_points` table (decaying 30-day sum) | ✅ | Migration `20260413000000_phase9_activity_first_protocol.sql`; decay logic in `lib/activity/scoring.ts`. |
+| `activity_verification` table (evidence of activity) | ✅ | Migration + `POST /api/activity/track`; `ActivityPostForm` captures verification method and evidence. |
+| `views` table (verified human views) | ✅ | Migration + `POST /api/views/track`; feed API exposes verified `views_count`. |
+| `skip_credits` table (user credit balance) | ✅ | Migration + skip-credit APIs; `SkipCreditBalance` is mounted in the persistent DreamDM shell. |
+| `ad_views` table (verified ad views for billing) | ✅ | Migration + `POST /api/ads/view`; `AdUnit` records CPV ad views. |
+| `user_metrics` table (AQS, Real Shit Rate) | ✅ | Migration + `GET /api/metrics/user/[userId]`; profile surfaces display metrics through `ActivityProfile`. |
+| `visibility_score` feed ranking (replaces engagement ranking) | ✅ | `app/api/feed/route.ts` defaults to `sort=activity` and calls `sortByVisibilityScore`. |
+| Activity Quality Score (AQS) as core metric | ✅ | `lib/activity/aqs.ts`; shown on public profile, ViewProfile preview, and EditProfileDream. |
+| Activity tier multipliers (Tier 0–6) | ✅ | `lib/activity/scoring.ts`; current 30-day tier badge shown in profile metrics. |
+| Points decay over 30-day rolling window | ✅ | Migration function `apply_points_decay()` and scoring helpers. |
+| Profile: total views + AQS + Real Shit Rate display | ✅ | `ActivityProfile` wired into `/profile/[handle]`, `/view-profile`, and `/edit-profiledream`. |
+| Feed: view count prominent, no like count | ✅ | Feed API returns verified views and uses activity ranking by default; engagement sorting remains explicit legacy mode only. |
+| Ad units: Pre-Roll, Post-Roll, Rewarded (no mid-roll) | ✅ | `components/ads/dream.AdUnit.tsx`; HomeDream feed uses rewarded boundary ads. |
+| Skip credit system (earn + auto-apply) | ✅ | Skip-credit APIs + persistent shell balance display + `AdUnit` skip/use flow. |
+| `AD` badge on all ad placements | ✅ | `AdUnit` renders an `AD` label for placement clarity. |
+| CPV billing (Standard $0.08 / Premium $0.12 / Super $0.15) | ✅ | `lib/activity/types.ts` + `POST /api/ads/view` CPV verification path. |
+| TheBoogieMan.Ai harmful content enforcement (search-only, no feed) | ✅ | BoogieMan policy routes and child-safety tests cover conservative enforcement. |
+| TheBoogieMan.Ai fraud detection (fake check-ins, bot views) | ✅ | Activity verification/fraud fields, bot detection modules, and view/ad verification APIs. |
+| Parental controls — minors blocked from harmful content by default | ✅ | Child-safety API/UI and `tests/child-safety.test.ts`. |
+| IDARi platform health dashboard (Real Shit Rate, AQS, etc.) | ✅ | `/idari-console/platform-health` renders `PlatformHealth`; admin console links to it. |
+| Ad revenue split (30% platform / 50% creator / 20% reward pool) | ✅ | `tests/activity-revenue-split.test.ts` covers the canonical split. |
+| Activity Reward Pool monthly distribution | ✅ | Activity/revenue split logic is covered by Phase 9 tests. |
 
 ## 0. v2.0.0 checklist
 
@@ -335,4 +335,3 @@ All 100 points tracked. §A–§D completed on prior passes. §E–§J completed
 | 98. Residual audit: zero open residuals | ✅ | BUGS.md shows 0 Partly Done, 0 Needs Work |
 | 99. BUGS.md reflects zero open items | ✅ | Auto-generated by update-bugs.mjs |
 | 100. New user can navigate, produce, and persist real work | ✅ | All surfaces live; all actions real; all data private by default |
-

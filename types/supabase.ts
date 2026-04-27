@@ -134,6 +134,73 @@ export type Database = {
         }
         Relationships: []
       }
+      activity_points: {
+        Row: {
+          activity_type: string
+          created_at: string
+          decay_timestamp: string
+          description: string | null
+          id: string
+          is_decayed: boolean
+          points: number
+          post_id: string | null
+          tier: number
+          updated_at: string
+          user_id: string
+          verification_id: string | null
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          decay_timestamp?: string
+          description?: string | null
+          id?: string
+          is_decayed?: boolean
+          points: number
+          post_id?: string | null
+          tier: number
+          updated_at?: string
+          user_id: string
+          verification_id?: string | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          decay_timestamp?: string
+          description?: string | null
+          id?: string
+          is_decayed?: boolean
+          points?: number
+          post_id?: string | null
+          tier?: number
+          updated_at?: string
+          user_id?: string
+          verification_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_points_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "app_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_points_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_points_verification_id_fkey"
+            columns: ["verification_id"]
+            isOneToOne: false
+            referencedRelation: "activity_verification"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_rate_limits: {
         Row: {
           endpoint: string

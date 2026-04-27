@@ -7,7 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/supabase';
-import type { GetUserMetricsResponse, UserMetrics } from '@/lib/activity/types';
+import { ActivityTier, isValidActivityTier, type GetUserMetricsResponse, type UserMetrics } from '@/lib/activity/types';
 
 function toNumber(value: number | string | null | undefined): number {
   const parsed = typeof value === 'string' ? Number(value) : value;
@@ -22,6 +22,25 @@ export async function GET(
   const { userId } = await params;
 
   try {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    let currentTier30d = ActivityTier.PASSIVE;
+    try {
+      const { data: tierRows } = await supabase
+        .from('activity_points')
+        .select('tier')
+        .eq('user_id', userId)
+        .eq('is_decayed', false)
+        .gte('created_at', thirtyDaysAgo)
+        .order('tier', { ascending: false })
+        .limit(1);
+      const tier = tierRows?.[0]?.tier;
+      if (isValidActivityTier(tier)) {
+        currentTier30d = tier;
+      }
+    } catch {
+      currentTier30d = ActivityTier.PASSIVE;
+    }
+
     // Get metrics using database function
     const { data, error } = await supabase.rpc(
       'get_user_metrics' as unknown as keyof Database['public']['Functions'],
@@ -48,6 +67,7 @@ export async function GET(
         metrics: {
           user_id: userId,
           aqs: 0,
+          current_tier_30d: currentTier30d,
           real_shit_rate: 0,
           total_views: 0,
           views_per_post: 0,
@@ -66,6 +86,7 @@ export async function GET(
     const metrics: UserMetrics = {
       user_id: rawMetrics.user_id ?? userId,
       aqs: toNumber(rawMetrics.aqs),
+      current_tier_30d: currentTier30d,
       real_shit_rate: toNumber(rawMetrics.real_shit_rate),
       total_views: toNumber(rawMetrics.total_views),
       views_per_post: toNumber(rawMetrics.views_per_post),

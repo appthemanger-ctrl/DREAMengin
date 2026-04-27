@@ -31,6 +31,15 @@ export enum ActivityTier {
   NEVER_DONE_BEFORE = 6,
 }
 
+export function isValidActivityTier(value: unknown): value is ActivityTier {
+  return (
+    typeof value === 'number' &&
+    Number.isInteger(value) &&
+    value >= ActivityTier.PASSIVE &&
+    value <= ActivityTier.NEVER_DONE_BEFORE
+  );
+}
+
 /**
  * Verification Method
  * Per ACTIVITY_FIRST_PROTOCOL.md §II (Verification)
@@ -165,6 +174,7 @@ export interface AdView {
 export interface UserMetrics {
   user_id: string;
   aqs: number; // Activity Quality Score
+  current_tier_30d?: ActivityTier; // Highest non-decayed activity tier in the last 30 days
   real_shit_rate: number; // 0-100
   total_views: number;
   views_per_post: number;
