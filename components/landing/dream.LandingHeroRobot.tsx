@@ -57,7 +57,11 @@ export default function LandingHeroRobot() {
             '0 0 60px rgba(143,216,242,0.16), 0 0 34px rgba(215,166,42,0.12), inset 0 1px 0 rgba(248,241,223,0.18)',
         }}
       >
-        <div className="pointer-events-none absolute inset-3 rounded-[1.6rem] border border-cyan-200/10" aria-hidden="true" />
+        <div
+          className="pointer-events-none absolute inset-3 rounded-[1.6rem] border"
+          style={{ borderColor: 'rgba(143,216,242,0.12)' }}
+          aria-hidden="true"
+        />
         <div
           className="pointer-events-none absolute -inset-5 rounded-full border border-[#c8981a]/20"
           style={{ animation: `landing-robot-orbit ${ORBIT_DURATION_SECONDS}s linear infinite` }}

@@ -221,7 +221,7 @@ export default function DrEamsBabylonHero({
       screenMat.metallic = 0;
       screenMat.roughness = 1;
 
-      // [095] LEFT eye — orange lemniscate loop (per spec)
+      // [095] LEFT eye — metallic gold risograph lemniscate loop.
       const eyeGoldMat = new PBRMaterial('eyeGold', scene);
       eyeGoldMat.albedoColor = RISO_GOLD_LIGHT;
       eyeGoldMat.emissiveColor = RISO_GOLD_LIGHT;
