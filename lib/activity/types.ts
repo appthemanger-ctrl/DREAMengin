@@ -31,6 +31,15 @@ export enum ActivityTier {
   NEVER_DONE_BEFORE = 6,
 }
 
+export function isValidActivityTier(value: unknown): value is ActivityTier {
+  return (
+    typeof value === 'number' &&
+    Number.isInteger(value) &&
+    value >= ActivityTier.PASSIVE &&
+    value <= ActivityTier.NEVER_DONE_BEFORE
+  );
+}
+
 /**
  * Verification Method
  * Per ACTIVITY_FIRST_PROTOCOL.md §II (Verification)

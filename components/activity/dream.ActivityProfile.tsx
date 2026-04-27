@@ -8,7 +8,7 @@
 
 import { useEffect, useState } from 'react';
 import { formatAQS, formatRealShitRate, getAQSTier, getAQSTierColor } from '@/lib/activity/aqs';
-import { ActivityTier, type UserMetrics } from '@/lib/activity/types';
+import { ActivityTier, type GetUserMetricsResponse, type UserMetrics } from '@/lib/activity/types';
 import { TierBadge } from './dream.TierBadge';
 
 interface ActivityProfileProps {
@@ -29,7 +29,7 @@ export function ActivityProfile({ userId, showFullStats = true }: ActivityProfil
           setMetrics(null);
           return;
         }
-        const data = await res.json() as { metrics?: UserMetrics };
+        const data = await res.json() as GetUserMetricsResponse;
         setMetrics(data.metrics ?? null);
       } catch {
         setMetrics(null);

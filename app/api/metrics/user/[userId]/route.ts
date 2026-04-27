@@ -7,7 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/supabase';
-import { ActivityTier, type GetUserMetricsResponse, type UserMetrics } from '@/lib/activity/types';
+import { ActivityTier, isValidActivityTier, type GetUserMetricsResponse, type UserMetrics } from '@/lib/activity/types';
 
 function toNumber(value: number | string | null | undefined): number {
   const parsed = typeof value === 'string' ? Number(value) : value;
@@ -34,7 +34,7 @@ export async function GET(
         .order('tier', { ascending: false })
         .limit(1);
       const tier = tierRows?.[0]?.tier;
-      if (typeof tier === 'number' && tier >= ActivityTier.PASSIVE && tier <= ActivityTier.NEVER_DONE_BEFORE) {
+      if (isValidActivityTier(tier)) {
         currentTier30d = tier;
       }
     } catch {
