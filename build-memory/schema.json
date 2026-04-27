@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-27T00:19:28.132Z",
+  "generated_at": "2026-04-27T06:21:06.299Z",
   "generator": "scripts/sync-build-memory.mjs",
   "sources": [
     "types/supabase.ts",
@@ -11,55 +11,55 @@
       "table": "activity_points",
       "columns": [
         {
-          "name": "id",
-          "type": "uuid PRIMARY KEY DEFAULT gen_random_uuid()"
-        },
-        {
-          "name": "user_id",
-          "type": "uuid NOT NULL REFERENCES auth"
-        },
-        {
-          "name": "tier",
-          "type": "smallint NOT NULL CHECK (tier"
-        },
-        {
-          "name": "points",
-          "type": "integer NOT NULL CHECK (points"
-        },
-        {
           "name": "activity_type",
-          "type": "text NOT NULL"
-        },
-        {
-          "name": "description",
-          "type": "text"
-        },
-        {
-          "name": "verification_id",
-          "type": "uuid REFERENCES public"
-        },
-        {
-          "name": "post_id",
-          "type": "uuid REFERENCES public"
-        },
-        {
-          "name": "decay_timestamp",
-          "type": "timestamptz NOT NULL DEFAULT (now()"
-        },
-        {
-          "name": "is_decayed",
-          "type": "boolean NOT NULL DEFAULT false"
+          "type": "string"
         },
         {
           "name": "created_at",
-          "type": "timestamptz NOT NULL DEFAULT now()"
+          "type": "string"
+        },
+        {
+          "name": "decay_timestamp",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "string | null"
+        },
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "is_decayed",
+          "type": "boolean"
+        },
+        {
+          "name": "points",
+          "type": "number"
+        },
+        {
+          "name": "post_id",
+          "type": "string | null"
+        },
+        {
+          "name": "tier",
+          "type": "number"
         },
         {
           "name": "updated_at",
-          "type": "timestamptz NOT NULL DEFAULT now()"
+          "type": "string"
+        },
+        {
+          "name": "user_id",
+          "type": "string"
+        },
+        {
+          "name": "verification_id",
+          "type": "string | null"
         }
       ],
-      "source": "20260413000000_phase9_activity_first_protocol.sql"
+      "source": "types/supabase.ts"
     },
     {
       "table": "activity_verification",
