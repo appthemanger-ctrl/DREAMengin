@@ -1,58 +1,59 @@
 'use client';
 
 /**
- * BuilderPanel — Visual World Builder tool for the Games Engine app.
+ * BuilderPanel — Visual Character Builder tool for the Games Engine app.
  *
- * 8×8 tile-grid editor with paint mode, tile palette, and save-to-state.
+ * 32×32 pixel graph editor with paint mode, color palette, and save-to-state.
  * Lives at /engines/games/builder.
  */
 
-import { useState, useCallback } from 'react';
-import { Save, Trash2, RotateCcw, Info } from 'lucide-react';
+import { useState, useCallback, type KeyboardEvent } from 'react';
+import { Save, Trash2, Info, Sparkles } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 
-const GRID_SIZE = 8;
+const GRID_SIZE = 32;
 
-type TileType = 'empty' | 'ground' | 'wall' | 'water' | 'lava' | 'coin' | 'spawn' | 'exit';
+type PixelType = 'transparent' | 'outline' | 'skin' | 'hair' | 'primary' | 'secondary' | 'accent' | 'shadow';
 
-interface TileDef {
-  type: TileType;
+interface PixelDef {
+  type: PixelType;
   label: string;
-  emoji: string;
   color: string;
 }
 
-const TILES: TileDef[] = [
-  { type: 'empty',  label: 'Empty',  emoji: '⬛', color: '#111118' },
-  { type: 'ground', label: 'Ground', emoji: '🟫', color: '#7c5a2a' },
-  { type: 'wall',   label: 'Wall',   emoji: '🧱', color: '#6b7280' },
-  { type: 'water',  label: 'Water',  emoji: '🌊', color: '#1e40af' },
-  { type: 'lava',   label: 'Lava',   emoji: '🔥', color: '#b91c1c' },
-  { type: 'coin',   label: 'Coin',   emoji: '🪙', color: '#c8981a' },
-  { type: 'spawn',  label: 'Spawn',  emoji: '🟢', color: '#166534' },
-  { type: 'exit',   label: 'Exit',   emoji: '🏁', color: '#7c3aed' },
+const PIXELS: PixelDef[] = [
+  { type: 'transparent', label: 'Clear', color: '#111118' },
+  { type: 'outline', label: 'Ink', color: '#05060a' },
+  { type: 'skin', label: 'Skin', color: '#f2b28d' },
+  { type: 'hair', label: 'Hair', color: '#51311f' },
+  { type: 'primary', label: 'Suit A', color: '#38bdf8' },
+  { type: 'secondary', label: 'Suit B', color: '#7c3aed' },
+  { type: 'accent', label: 'Power', color: '#facc15' },
+  { type: 'shadow', label: 'Shadow', color: '#334155' },
 ];
 
-function makeEmptyGrid(): TileType[][] {
+const cellId = (row: number, col: number) => `character-pixel-${row}-${col}`;
+
+function makeEmptyGrid(): PixelType[][] {
   return Array.from({ length: GRID_SIZE }, () =>
-    Array.from({ length: GRID_SIZE }, () => 'empty' as TileType)
+    Array.from({ length: GRID_SIZE }, () => 'transparent' as PixelType)
   );
 }
 
 export default function BuilderPanel() {
-  const [grid, setGrid] = useState<TileType[][]>(makeEmptyGrid);
-  const [activeTile, setActiveTile] = useState<TileType>('ground');
+  const [grid, setGrid] = useState<PixelType[][]>(makeEmptyGrid);
+  const [activePixel, setActivePixel] = useState<PixelType>('primary');
   const [isPainting, setIsPainting] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [worldName, setWorldName] = useState('My World');
+  const [characterName, setCharacterName] = useState('Original Hero');
 
   const paintCell = useCallback((row: number, col: number) => {
     setGrid((prev) => {
       const next = prev.map((r) => [...r]);
-      next[row][col] = activeTile;
+      next[row][col] = activePixel;
       return next;
     });
-  }, [activeTile]);
+  }, [activePixel]);
 
   function handleMouseDown(row: number, col: number) {
     setIsPainting(true);
@@ -67,18 +68,48 @@ export default function BuilderPanel() {
     setIsPainting(false);
   }
 
+  function focusCell(row: number, col: number) {
+    document.getElementById(cellId(row, col))?.focus();
+  }
+
+  function handleCellKeyDown(event: KeyboardEvent<HTMLButtonElement>, row: number, col: number) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      paintCell(row, col);
+      return;
+    }
+
+    const next: [number, number] | null =
+      event.key === 'ArrowUp' ? [Math.max(0, row - 1), col] :
+      event.key === 'ArrowDown' ? [Math.min(GRID_SIZE - 1, row + 1), col] :
+      event.key === 'ArrowLeft' ? [row, Math.max(0, col - 1)] :
+      event.key === 'ArrowRight' ? [row, Math.min(GRID_SIZE - 1, col + 1)] :
+      null;
+
+    if (next) {
+      event.preventDefault();
+      focusCell(next[0], next[1]);
+    }
+  }
+
   function clearGrid() {
     setGrid(makeEmptyGrid());
     setSaved(false);
   }
 
-  function saveWorld() {
-    bridge.emit('games', 'games:asset-exported', { assetId: worldName || 'world', assetType: 'level', url: '' });
+  function saveCharacter() {
+    bridge.emit('games', 'games:asset-exported', {
+      assetId: characterName || 'original-character',
+      assetType: 'character',
+      dimensions: `${GRID_SIZE}x${GRID_SIZE}`,
+      pixels: grid,
+      url: '',
+    });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }
 
-  const tileDef = (type: TileType) => TILES.find((t) => t.type === type)!;
+  const pixelDef = (type: PixelType) => PIXELS.find((pixel) => pixel.type === type)!;
 
   return (
     <div
@@ -86,80 +117,86 @@ export default function BuilderPanel() {
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-white mb-1">World Builder</h1>
-          <p className="text-sm text-white/50">Paint a {GRID_SIZE}×{GRID_SIZE} tile map and save it to your game world</p>
+          <h1 className="text-2xl font-bold text-white mb-1">Character Builder</h1>
+          <p className="text-sm text-white/50">Paint an original video game character on a {GRID_SIZE}×{GRID_SIZE} pixel graph</p>
         </div>
 
-        {/* World name */}
         <div className="mb-4">
           <input
             type="text"
-            value={worldName}
-            onChange={(e) => setWorldName(e.target.value)}
+            value={characterName}
+            onChange={(e) => setCharacterName(e.target.value)}
             className="w-full max-w-xs px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#c8981a]/60"
-            placeholder="World name"
+            placeholder="Character name"
           />
         </div>
 
-        {/* Tile palette */}
         <div className="flex flex-wrap gap-2 mb-5">
-          {TILES.map((tile) => (
+          {PIXELS.map((pixel) => (
             <button
-              key={tile.type}
-              onClick={() => setActiveTile(tile.type)}
+              key={pixel.type}
+              onClick={() => setActivePixel(pixel.type)}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all select-none"
               style={
-                activeTile === tile.type
-                  ? { background: `${tile.color}33`, color: 'white', border: `1.5px solid ${tile.color}` }
+                activePixel === pixel.type
+                  ? { background: `${pixel.color}33`, color: 'white', border: `1.5px solid ${pixel.color}` }
                   : { background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.5)', border: '1.5px solid rgba(255,255,255,0.08)' }
               }
             >
-              <span>{tile.emoji}</span>
-              {tile.label}
+              <span className="h-3 w-3 rounded-sm border border-white/20" style={{ background: pixel.color }} />
+              {pixel.label}
             </button>
           ))}
         </div>
 
-        {/* Grid */}
-        <div
-          className="inline-grid border border-white/10 rounded-xl overflow-hidden select-none cursor-crosshair mb-5"
-          style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)` }}
-        >
-          {grid.map((row, ri) =>
-            row.map((cell, ci) => {
-              const def = tileDef(cell);
-              return (
-                <div
-                  key={`${ri}-${ci}`}
-                  onMouseDown={() => handleMouseDown(ri, ci)}
-                  onMouseEnter={() => handleMouseEnter(ri, ci)}
-                  title={def.label}
-                  className="w-9 h-9 flex items-center justify-center text-lg transition-colors"
-                  style={{ background: def.color }}
-                >
-                  {cell !== 'empty' && <span className="text-sm leading-none pointer-events-none">{def.emoji}</span>}
-                </div>
-              );
-            })
-          )}
+        <div className="overflow-x-auto pb-2 mb-5">
+          <div
+            aria-label={`${GRID_SIZE} by ${GRID_SIZE} character pixel graph`}
+            aria-colcount={GRID_SIZE}
+            aria-rowcount={GRID_SIZE}
+            className="inline-grid border border-white/10 rounded-xl overflow-hidden select-none cursor-crosshair bg-[#111118]"
+            role="grid"
+            style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))` }}
+          >
+            {grid.map((row, ri) =>
+              row.map((cell, ci) => {
+                const def = pixelDef(cell);
+                return (
+                  <button
+                    key={`${ri}-${ci}`}
+                    id={cellId(ri, ci)}
+                    type="button"
+                    aria-label={`${def.label} pixel at column ${ci + 1}, row ${ri + 1}`}
+                    aria-selected={cell !== 'transparent'}
+                    onMouseDown={() => handleMouseDown(ri, ci)}
+                    onMouseEnter={() => handleMouseEnter(ri, ci)}
+                    onKeyDown={(event) => handleCellKeyDown(event, ri, ci)}
+                    role="gridcell"
+                    tabIndex={ri === 0 && ci === 0 ? 0 : -1}
+                    title={`${def.label} (${ci + 1}, ${ri + 1})`}
+                    className="h-3 w-3 border-r border-b border-white/[0.06] p-0 transition-colors focus:outline-none focus:ring-1 focus:ring-[#c8981a] focus:ring-inset sm:h-4 sm:w-4"
+                    style={{ background: cell === 'transparent' ? '#111118' : def.color }}
+                  />
+                );
+              })
+            )}
+          </div>
         </div>
 
-        {/* Tile guide */}
         <div className="flex items-start gap-2 p-3 rounded-lg bg-white/[0.03] border border-white/[0.07] mb-5 text-xs text-white/40">
           <Info size={13} className="mt-0.5 flex-shrink-0" />
-          Click or drag to paint tiles. Set a world name then Save to emit to the game runtime.
+          Click or drag to paint pixels. Name your original character, then save to emit a 32×32 character asset to the game runtime.
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button
-            onClick={saveWorld}
+            onClick={saveCharacter}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#c8981a] hover:bg-[#d4a520] text-black text-sm font-bold transition-colors"
           >
             <Save size={14} />
-            {saved ? 'Saved ✓' : 'Save World'}
+            {saved ? 'Saved ✓' : 'Save Character'}
           </button>
           <button
             onClick={clearGrid}
@@ -168,6 +205,10 @@ export default function BuilderPanel() {
             <Trash2 size={14} />
             Clear
           </button>
+          <span className="inline-flex items-center gap-1 text-xs text-white/40">
+            <Sparkles size={13} />
+            1,024 cells for clean retro silhouettes, portraits, and playable sprites.
+          </span>
         </div>
       </div>
     </div>
