@@ -37,6 +37,7 @@
   "dependencies": {
     "@babylonjs/core": "^9.1.0",
     "@babylonjs/havok": "^1.3.12",
+    "@babylonjs/loaders": "^9.4.1",
     "@opentelemetry/api": "^1.9.1",
     "@opentelemetry/exporter-prometheus": "^0.214.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.214.0",
