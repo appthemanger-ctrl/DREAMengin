@@ -165,6 +165,7 @@ export interface AdView {
 export interface UserMetrics {
   user_id: string;
   aqs: number; // Activity Quality Score
+  current_tier_30d?: ActivityTier; // Highest non-decayed activity tier in the last 30 days
   real_shit_rate: number; // 0-100
   total_views: number;
   views_per_post: number;

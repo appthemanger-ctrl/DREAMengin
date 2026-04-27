@@ -7,8 +7,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getUserMetrics, formatAQS, formatRealShitRate, getAQSTier, getAQSTierColor } from '@/lib/activity/aqs';
-import type { UserMetrics } from '@/lib/activity/types';
+import { formatAQS, formatRealShitRate, getAQSTier, getAQSTierColor } from '@/lib/activity/aqs';
+import { ActivityTier, type UserMetrics } from '@/lib/activity/types';
 import { TierBadge } from './dream.TierBadge';
 
 interface ActivityProfileProps {
@@ -23,9 +23,19 @@ export function ActivityProfile({ userId, showFullStats = true }: ActivityProfil
   useEffect(() => {
     async function loadMetrics() {
       setLoading(true);
-      const data = await getUserMetrics(userId);
-      setMetrics(data);
-      setLoading(false);
+      try {
+        const res = await fetch(`/api/metrics/user/${encodeURIComponent(userId)}`);
+        if (!res.ok) {
+          setMetrics(null);
+          return;
+        }
+        const data = await res.json() as { metrics?: UserMetrics };
+        setMetrics(data.metrics ?? null);
+      } catch {
+        setMetrics(null);
+      } finally {
+        setLoading(false);
+      }
     }
 
     loadMetrics();
@@ -54,6 +64,17 @@ export function ActivityProfile({ userId, showFullStats = true }: ActivityProfil
   return (
     <div className="space-y-4">
       {/* Primary Stats */}
+      <div className="flex flex-wrap items-center gap-3">
+        <TierBadge
+          tier={metrics.current_tier_30d ?? ActivityTier.PASSIVE}
+          showDescription
+          size="sm"
+        />
+        <span className="text-xs text-gray-500 dark:text-gray-400">
+          Current 30-day activity tier
+        </span>
+      </div>
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {/* Total Views */}
         <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">

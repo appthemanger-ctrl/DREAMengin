@@ -102,6 +102,9 @@ export default async function AdminPage() {
           <div className="de-widget-header">
             <Activity className="w-4 h-4 mr-2" style={{ color: '#22c55e' }} />
             <span className="de-widget-title">Upgrade Readiness</span>
+            <Link href="/idari-console/platform-health" className="ml-auto text-xs font-semibold underline" style={{ color: '#0ea5e9' }}>
+              Open Activity Health
+            </Link>
           </div>
           <div className="de-widget-body">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">

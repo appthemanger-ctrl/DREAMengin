@@ -38,6 +38,7 @@ import { DIVIDER_H } from '@/lib/dreamdm/barInteractions';
 import { parseDreamDragData, surfaceForRuntime, transferDream, type DreamRuntime } from '@/lib/dreams/drag';
 import { useDreamLayout } from '@/hooks/useDreamLayout';
 import { useOS } from '@/lib/dreamenginOS/OSContext';
+import { SkipCreditBalance } from '@/components/ads/dream.SkipCreditBalance';
 
 /** Routes where the bar must NOT appear (pre-login / public surfaces). */
 const PUBLIC_ROUTES = ['/', '/login', '/join', '/policy', '/about'];
@@ -255,6 +256,18 @@ export default function PersistentDreamBar() {
         onMinimizedChange={isHomeActive ? setIsBarMinimized : undefined}
         onSwapRuntimes={isHomeActive ? swapDreamRuntimes : undefined}
       />
+
+      <div
+        style={{
+          position: 'fixed',
+          top: 12,
+          right: 12,
+          zIndex: 120,
+          pointerEvents: 'auto',
+        }}
+      >
+        <SkipCreditBalance />
+      </div>
 
       {/* ── DreamSpace (bottom runtime) ──────────────────────────────────────
           Always MOUNTED in React. display:none when not on /homedream. */}
