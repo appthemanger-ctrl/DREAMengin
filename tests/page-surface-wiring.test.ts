@@ -96,6 +96,8 @@ describe('page surface wiring', () => {
     expect(builder).toContain('Character Builder');
     expect(builder).toContain("assetType: 'character'");
     expect(builder).toContain('32×32 character asset');
+    expect(builder).toContain('role="grid"');
+    expect(builder).toContain('role="gridcell"');
   });
 
   for (const [path, sideB] of DAYDREAM_PAGES) {

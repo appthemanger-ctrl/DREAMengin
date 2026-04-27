@@ -7,7 +7,7 @@
  * Lives at /engines/games/builder.
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, type KeyboardEvent } from 'react';
 import { Save, Trash2, Info, Sparkles } from 'lucide-react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 
@@ -31,6 +31,8 @@ const PIXELS: PixelDef[] = [
   { type: 'accent', label: 'Power', color: '#facc15' },
   { type: 'shadow', label: 'Shadow', color: '#334155' },
 ];
+
+const cellId = (row: number, col: number) => `character-pixel-${row}-${col}`;
 
 function makeEmptyGrid(): PixelType[][] {
   return Array.from({ length: GRID_SIZE }, () =>
@@ -64,6 +66,30 @@ export default function BuilderPanel() {
 
   function handleMouseUp() {
     setIsPainting(false);
+  }
+
+  function focusCell(row: number, col: number) {
+    document.getElementById(cellId(row, col))?.focus();
+  }
+
+  function handleCellKeyDown(event: KeyboardEvent<HTMLButtonElement>, row: number, col: number) {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      paintCell(row, col);
+      return;
+    }
+
+    const next: [number, number] | null =
+      event.key === 'ArrowUp' ? [Math.max(0, row - 1), col] :
+      event.key === 'ArrowDown' ? [Math.min(GRID_SIZE - 1, row + 1), col] :
+      event.key === 'ArrowLeft' ? [row, Math.max(0, col - 1)] :
+      event.key === 'ArrowRight' ? [row, Math.min(GRID_SIZE - 1, col + 1)] :
+      null;
+
+    if (next) {
+      event.preventDefault();
+      focusCell(next[0], next[1]);
+    }
   }
 
   function clearGrid() {
@@ -128,19 +154,29 @@ export default function BuilderPanel() {
         <div className="overflow-x-auto pb-2 mb-5">
           <div
             aria-label={`${GRID_SIZE} by ${GRID_SIZE} character pixel graph`}
+            aria-colcount={GRID_SIZE}
+            aria-rowcount={GRID_SIZE}
             className="inline-grid border border-white/10 rounded-xl overflow-hidden select-none cursor-crosshair bg-[#111118]"
+            role="grid"
             style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))` }}
           >
             {grid.map((row, ri) =>
               row.map((cell, ci) => {
                 const def = pixelDef(cell);
                 return (
-                  <div
+                  <button
                     key={`${ri}-${ci}`}
+                    id={cellId(ri, ci)}
+                    type="button"
+                    aria-label={`${def.label} pixel at column ${ci + 1}, row ${ri + 1}`}
+                    aria-selected={cell !== 'transparent'}
                     onMouseDown={() => handleMouseDown(ri, ci)}
                     onMouseEnter={() => handleMouseEnter(ri, ci)}
+                    onKeyDown={(event) => handleCellKeyDown(event, ri, ci)}
+                    role="gridcell"
+                    tabIndex={ri === 0 && ci === 0 ? 0 : -1}
                     title={`${def.label} (${ci + 1}, ${ri + 1})`}
-                    className="h-3 w-3 border-r border-b border-white/[0.06] transition-colors sm:h-4 sm:w-4"
+                    className="h-3 w-3 border-r border-b border-white/[0.06] p-0 transition-colors focus:outline-none focus:ring-1 focus:ring-[#c8981a] focus:ring-inset sm:h-4 sm:w-4"
                     style={{ background: cell === 'transparent' ? '#111118' : def.color }}
                   />
                 );
