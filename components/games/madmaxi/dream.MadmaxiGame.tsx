@@ -27,6 +27,9 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useGameAutoStart, useSubmitScore } from '@/lib/games/hooks';
 import { useImmersiveGameLayout } from '@/lib/games/useImmersiveGameLayout';
 import { createBabylonEngine } from '@/lib/babylon/createEngine';
+// Side-effect import: registers the glTF/GLB loader on Babylon's SceneLoader so
+// the MADMAXI authored hero mesh (`/models/madmaxi.glb`) can be imported at runtime.
+import '@babylonjs/loaders/glTF';
 import {
   DreamEngineGodTierSystem,
   applyGodTierToBabylon,
@@ -1607,6 +1610,116 @@ class GameCore {
     };
   }
 
+  /**
+   * Asynchronously imports the authored MADMAXI hero mesh from
+   * `/models/madmaxi.glb` and grafts it onto the procedural rig root, so the
+   * GLB inherits movement, facing, jump/dash visibility, and per-frame scale
+   * pulses without any animation rewrite. The procedural visible meshes are
+   * hidden on success (their TransformNodes are kept alive so the existing
+   * rig animation code keeps running harmlessly). On any failure we leave the
+   * procedural rig fully visible.
+   */
+  private async loadMadmaxiGlbAsync(
+    BJS: typeof import('@babylonjs/core'),
+    scene: import('@babylonjs/core').Scene,
+    shadowGen: import('@babylonjs/core').ShadowGenerator,
+  ) {
+    if (!this.playerRig || this.disposed) return;
+    const rig = this.playerRig;
+    try {
+      const result = await BJS.SceneLoader.ImportMeshAsync('', '/models/', 'madmaxi.glb', scene);
+      if (this.disposed || !this.playerRig) {
+        // Scene was torn down while loading — clean up to avoid leaks.
+        for (const m of result.meshes) m.dispose();
+        return;
+      }
+
+      // Collect importer-created top-level nodes so we can parent + scale them
+      // as a unit. Babylon's GLTF loader injects a "__root__" TransformNode
+      // that already groups everything; reparent it under the rig root.
+      const importedRoot = (result.meshes.find((m) => m.name === '__root__')
+        ?? result.transformNodes.find((n) => n.name === '__root__')
+        ?? null) as import('@babylonjs/core').TransformNode | null;
+
+      const meshes = result.meshes.filter(
+        (m): m is import('@babylonjs/core').AbstractMesh => m.name !== '__root__',
+      );
+
+      // Compute bounds in pre-parenting world space, then size the GLB so it
+      // matches the procedural rig (~2.4 Babylon units tall at scale=1).
+      const TARGET_HEIGHT = 2.4;
+      let minY = Number.POSITIVE_INFINITY;
+      let maxY = Number.NEGATIVE_INFINITY;
+      for (const m of meshes) {
+        const b = m.getBoundingInfo()?.boundingBox;
+        if (!b) continue;
+        if (b.minimumWorld.y < minY) minY = b.minimumWorld.y;
+        if (b.maximumWorld.y > maxY) maxY = b.maximumWorld.y;
+      }
+      const currentHeight = Math.max(maxY - minY, 0.0001);
+      const fitScale = TARGET_HEIGHT / currentHeight;
+
+      // Wrap the imported hierarchy in our own group so we don't fight the
+      // GLTF loader's coordinate-frame conventions on the rig root itself.
+      const glbGroup = new BJS.TransformNode('madmaxi_glb_group', scene);
+      glbGroup.parent = rig.root;
+      glbGroup.scaling = new BJS.Vector3(fitScale, fitScale, fitScale);
+      // Drop the model so its feet sit at rig root y=0 (matches procedural rig).
+      glbGroup.position = new BJS.Vector3(0, -minY * fitScale, 0);
+
+      if (importedRoot) {
+        importedRoot.parent = glbGroup;
+      } else {
+        for (const m of meshes) {
+          if (!m.parent) m.parent = glbGroup;
+        }
+      }
+
+      for (const m of meshes) {
+        m.isPickable = false;
+        m.receiveShadows = true;
+        try {
+          shadowGen.addShadowCaster(m, true);
+        } catch {
+          // Some imported nodes (e.g. instanced/cloned helpers) may reject
+          // shadow casting; ignore — they still render.
+        }
+      }
+
+      // Hide the procedural visible meshes now that the authored hero is
+      // showing. We leave TransformNodes (root/headNode/shoulders/hips) alone
+      // so the rig animation code continues to drive root position/facing.
+      const proceduralMeshes: import('@babylonjs/core').Mesh[] = [
+        rig.torso, rig.coatShell, rig.coatFront,
+        rig.headShell, rig.visorShell, rig.screen,
+        rig.eyeGoldRing, rig.eyeGoldCore, rig.eyeCyanRing, rig.eyeCyanCore,
+        rig.chestHalo, rig.chestCore,
+        rig.bootL, rig.bootR,
+      ];
+      for (const m of proceduralMeshes) {
+        m.isVisible = false;
+      }
+      // Recursively hide any other procedural children parented to root
+      // (limbs, accessories) so only the GLB renders.
+      const stack: import('@babylonjs/core').Node[] = [rig.root];
+      while (stack.length) {
+        const n = stack.pop()!;
+        // Skip the GLB group and its descendants.
+        if (n === glbGroup) continue;
+        const asMesh = n as unknown as import('@babylonjs/core').AbstractMesh;
+        if (typeof (asMesh as { isVisible?: boolean }).isVisible === 'boolean') {
+          asMesh.isVisible = false;
+        }
+        for (const child of n.getChildren()) {
+          if (child !== glbGroup) stack.push(child);
+        }
+      }
+    } catch (err) {
+      // Asset missing or malformed — keep the procedural rig as the fallback.
+      console.warn('[MADMAXI] GLB hero load failed; using procedural rig.', err);
+    }
+  }
+
   // ─── 2020-fidelity scene helpers ──────────────────────────────────────────
 
   /**
@@ -2372,6 +2485,11 @@ class GameCore {
 
     // ── MADMAXI Robot player ─────────────────────────────────────────────────
     this.buildLandingGradePlayerRig(BJS, scene, shadowGen, glow);
+    // Fire-and-forget upgrade: try to import the authored MADMAXI GLB and
+    // parent it under the procedural rig root. Falls back silently to the
+    // procedural rig on any failure (404, parse error, etc.) so gameplay is
+    // never blocked on a network asset.
+    void this.loadMadmaxiGlbAsync(BJS, scene, shadowGen);
 
     // ── Particle system (landing/jump dust) ────────────────────────────────
     const dust = new BJS.ParticleSystem('dust', 60, scene);
