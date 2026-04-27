@@ -6,7 +6,7 @@ import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
 import BuilderPanel from '@/components/engines/games/panels/dream.panel.BuilderPanel';
 import { connection } from 'next/server';
 
-export const metadata = { title: 'World Builder – GameEngin', description: 'Paint your game world.' };
+export const metadata = { title: 'Character Builder – GameEngin', description: 'Paint original 32×32 game characters.' };
 
 const ACCENT = '#c8981a';
 const NAV_ITEMS = [

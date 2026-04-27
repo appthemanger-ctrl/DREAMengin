@@ -89,6 +89,15 @@ describe('page surface wiring', () => {
     });
   }
 
+  it('uses the GameEngin builder for 32x32 original character assets', () => {
+    const builder = source('components/engines/games/panels/dream.panel.BuilderPanel.tsx');
+
+    expect(builder).toContain('const GRID_SIZE = 32');
+    expect(builder).toContain('Character Builder');
+    expect(builder).toContain("assetType: 'character'");
+    expect(builder).toContain('32×32 character asset');
+  });
+
   for (const [path, sideB] of DAYDREAM_PAGES) {
     it(`${path} mounts DaydreamShell with ${sideB}`, () => {
       const page = source(path);
