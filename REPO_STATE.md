@@ -4,11 +4,11 @@
 > Generated automatically - DO NOT EDIT MANUALLY
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)
-**Documentation Date:** 2026-04-26
-**Last Updated:** 4/26/2026, 8:00:26 AM
+**Documentation Date:** 2026-04-27
+**Last Updated:** 4/27/2026, 5:34:01 AM
 **Branch:** completedream
-**Commit:** c0de8aa3 - Merge pull request #689 from appthemanger-ctrl/copilot/update-if-conditions-main-to-completedream
-**Total Commits:** 5103
+**Commit:** 15bd8d05 - Merge pull request #712 from appthemanger-ctrl/copilot/fix-server-components-render-error
+**Total Commits:** 5215
 
 ---
 
@@ -43,14 +43,14 @@
 
 **Quick Stats:**
 
-- 📁 Total Code Files: 792
-- 📝 Total Lines of Code: 164,995
+- 📁 Total Code Files: 802
+- 📝 Total Lines of Code: 165,136
 - 📦 Size: 5.93 MB
-- 🧪 Tests: 190 files, 184 passing
-- 📄 API Routes: 99
+- 🧪 Tests: 195 files, 189 passing
+- 📄 API Routes: 107
 - 🎨 Components: 41 categories
 - 📖 Documentation: 95 files
-- ⚙️ GitHub Actions: 51 workflows
+- ⚙️ GitHub Actions: 53 workflows
 
 ## Tech Stack
 
@@ -119,33 +119,33 @@ vitest@^4.1.0
 
 | Directory | Total Files | File Types |
 |-----------|-------------|------------|
-| `app/` | 236 | .tsx(134), .ts(100), .css(2) |
-| `components/` | 288 | .tsx(254), .ts(31), .css(2) |
-| `lib/` | 493 | .ts(397), .json(67), .md(21) |
-| `tests/` | 191 | .ts(190), .md(1) |
+| `app/` | 239 | .tsx(129), .ts(108), .css(2) |
+| `components/` | 295 | .tsx(260), .ts(32), .css(2) |
+| `lib/` | 502 | .ts(405), .json(67), .md(21) |
+| `tests/` | 196 | .ts(195), .md(1) |
 | `styles/` | 5 | .css(5) |
 | `public/` | 33 | .png(12), .svg(5), .json(4) |
 | `docs/` | 93 | .md(92), no-extension(1) |
 | `scripts/` | 43 | .mjs(19), .ts(11), .sh(5) |
-| `supabase/` | 53 | .sql(52), .toml(1) |
+| `supabase/` | 55 | .sql(54), .toml(1) |
 
 ## Code Metrics
 
 ### File Distribution
 
-- **App Routes (TSX):** 134
-- **Component Files:** 254
-- **Library Files:** 404
-- **Test Files:** 184
+- **App Routes (TSX):** 129
+- **Component Files:** 260
+- **Library Files:** 413
+- **Test Files:** 189
 
 ### Code Volume
 
-- **Total Lines:** 164,995
+- **Total Lines:** 165,136
 - **Total Size:** 5.93 MB
 
 ## API Routes
 
-**Total API Endpoints:** 99
+**Total API Endpoints:** 107
 
 ### All Routes
 
@@ -182,9 +182,11 @@ vitest@^4.1.0
 | `/api/connectors/[provider]/items` | GET | /app/api/connectors/[provider]/items/route.ts |
 | `/api/connectors/[provider]/sync` | POST | /app/api/connectors/[provider]/sync/route.ts |
 | `/api/connectors/[provider]/verify` | GET | /app/api/connectors/[provider]/verify/route.ts |
+| `/api/connectors/cron` | GET | /app/api/connectors/cron/route.ts |
 | `/api/connectors/instagram/oauth/callback` | GET | /app/api/connectors/instagram/oauth/callback/route.ts |
 | `/api/connectors/instagram/oauth/start` | GET | /app/api/connectors/instagram/oauth/start/route.ts |
 | `/api/connectors/status` | GET | /app/api/connectors/status/route.ts |
+| `/api/connectors/webhooks/[provider]` | GET, POST | /app/api/connectors/webhooks/[provider]/route.ts |
 | `/api/connectors/youtube/oauth/callback` | GET | /app/api/connectors/youtube/oauth/callback/route.ts |
 | `/api/connectors/youtube/oauth/start` | GET | /app/api/connectors/youtube/oauth/start/route.ts |
 | `/api/content/generative-fill` | POST | /app/api/content/generative-fill/route.ts |
@@ -199,27 +201,25 @@ vitest@^4.1.0
 | `/api/dream-windows` | GET, POST | /app/api/dream-windows/route.ts |
 | `/api/dreamengin/os-status` | GET | /app/api/dreamengin/os-status/route.ts |
 | `/api/dreamr/feed` | GET | /app/api/dreamr/feed/route.ts |
-| `/api/dreamr/suggested` | GET | /app/api/dreamr/suggested/route.ts |
-| `/api/embed-feed` | GET | /app/api/embed-feed/route.ts |
-| ... | ... | ... and 49 more routes |
+| ... | ... | ... and 57 more routes |
 
 ## Pages & Routes
 
-**Total Pages:** 109
+**Total Pages:** 105
 
 ### All Pages
 
 | Route | File |
 |-------|------|
+| `/(internal)/idari-console` | /app/(internal)/idari-console/page.tsx |
+| `/(internal)/idari-console/platform-errors` | /app/(internal)/idari-console/platform-errors/page.tsx |
+| `/(internal)/idari-console/platform-health` | /app/(internal)/idari-console/platform-health/page.tsx |
 | `/about` | /app/about/page.tsx |
-| `/admin` | /app/admin/page.tsx |
-| `/admin/platform-health` | /app/admin/platform-health/page.tsx |
 | `/ads/create` | /app/ads/create/page.tsx |
 | `/ads` | /app/ads/page.tsx |
 | `/ads/slot/[id]` | /app/ads/slot/[id]/page.tsx |
 | `/auth/reset-password` | /app/auth/reset-password/page.tsx |
 | `/auth/update-password` | /app/auth/update-password/page.tsx |
-| `/codespace` | /app/codespace/page.tsx |
 | `/connectors` | /app/connectors/page.tsx |
 | `/daydream/brand/engin` | /app/daydream/brand/engin/page.tsx |
 | `/daydream/brand` | /app/daydream/brand/page.tsx |
@@ -228,7 +228,6 @@ vitest@^4.1.0
 | `/daydream/constellation` | /app/daydream/constellation/page.tsx |
 | `/daydream/create/engin` | /app/daydream/create/engin/page.tsx |
 | `/daydream/create` | /app/daydream/create/page.tsx |
-| `/daydream/field` | /app/daydream/field/page.tsx |
 | `/daydream/forge` | /app/daydream/forge/page.tsx |
 | `/daydream/game` | /app/daydream/game/page.tsx |
 | `/daydream/games/engin` | /app/daydream/games/engin/page.tsx |
@@ -239,11 +238,11 @@ vitest@^4.1.0
 | `/daydream/media-vault` | /app/daydream/media-vault/page.tsx |
 | `/daydream/music/engin` | /app/daydream/music/engin/page.tsx |
 | `/daydream/music` | /app/daydream/music/page.tsx |
+| `/daydream/music/upload` | /app/daydream/music/upload/page.tsx |
 | `/daydream/play` | /app/daydream/play/page.tsx |
 | `/discover` | /app/discover/page.tsx |
 | `/dream-effects` | /app/dream-effects/page.tsx |
-| `/dreamengin` | /app/dreamengin/page.tsx |
-| `/edit-profile` | /app/edit-profile/page.tsx |
+| `/dreamr` | /app/dreamr/page.tsx |
 | `/edit-profiledream` | /app/edit-profiledream/page.tsx |
 | `/engines/brand/campaigns` | /app/engines/brand/campaigns/page.tsx |
 | `/engines/brand/identity` | /app/engines/brand/identity/page.tsx |
@@ -261,7 +260,8 @@ vitest@^4.1.0
 | `/engines/games` | /app/engines/games/page.tsx |
 | `/engines/games/scores` | /app/engines/games/scores/page.tsx |
 | `/engines/lab/data` | /app/engines/lab/data/page.tsx |
-| ... | ... and 59 more pages |
+| `/engines/lab/experiments` | /app/engines/lab/experiments/page.tsx |
+| ... | ... and 55 more pages |
 
 ## Components
 
@@ -274,16 +274,16 @@ vitest@^4.1.0
 | `activity/` | 3 |
 | `ads/` | 2 |
 | `auth/` | 1 |
-| `connectors/` | 6 |
+| `connectors/` | 7 |
 | `core/` | 1 |
 | `customize/` | 7 |
-| `daydream/` | 15 |
+| `daydream/` | 14 |
 | `draggable/` | 1 |
 | `dreamengin/` | 19 |
 | `dreamnav/` | 2 |
 | `dreamr/` | 3 |
-| `dreams/` | 9 |
-| `engines/` | 39 |
+| `dreams/` | 14 |
+| `engines/` | 41 |
 | `feed/` | 5 |
 | `feeds/` | 1 |
 | `forge/` | 3 |
@@ -315,15 +315,13 @@ vitest@^4.1.0
 
 ## Database Schema
 
-**Total Migrations:** 50
+**Total Migrations:** 52
 **Schema File:** ✓ Present
 
 ### Migration History
 
 | Migration File |
 |----------------|
-| 20260403000001_pgvector_embeddings.sql |
-| 20260403000002_pgvector_search_rpc.sql |
 | 20260405000001_dreamr_feed_registry.sql |
 | 20260405042406_auto_scaffold.sql |
 | 20260413000000_phase9_activity_first_protocol.sql |
@@ -332,12 +330,14 @@ vitest@^4.1.0
 | 20260418000000_gameengin_core.sql |
 | 20260420000001_consent_settings_audit.sql |
 | 20260426000000_activity_coop_gameengin_completion.sql |
-| ... and 40 earlier migrations |
+| 20260426000100_rename_widgets_to_dreams.sql |
+| 20260426000200_build_memory_schema_gaps.sql |
+| ... and 42 earlier migrations |
 
 ## Tests
 
-**Test Files:** 190
-**Tests Passing:** 184
+**Test Files:** 195
+**Tests Passing:** 189
 **Tests Failing:** 0
 
 ### Test Files
@@ -362,7 +362,7 @@ vitest@^4.1.0
 - /tests/canonical-naming-enforcement.test.ts
 - /tests/child-safety.test.ts
 - /tests/code-dream-preview.test.ts
-- ... and 170 more test files
+- ... and 175 more test files
 
 ## Documentation
 
@@ -404,7 +404,7 @@ vitest@^4.1.0
 
 ## CI/CD Workflows
 
-**Total Workflows:** 51
+**Total Workflows:** 53
 
 ### Workflow Files
 
@@ -450,6 +450,7 @@ vitest@^4.1.0
 - optimize-dreamengin.yml
 - portfolio-optimization.yml
 - preflight.yml
+- print-codebase.yml
 - refreshlock.yml
 - repo-snapshot.yml
 - report-driven-coding-agent.yml
@@ -458,6 +459,7 @@ vitest@^4.1.0
 - sql-migration-guard.yml
 - sync-build-memory.yml
 - update-embed-feed.yml
+- update-repo-state.yml
 - vercel-deploy.yml
 
 ## Configuration Files
@@ -480,7 +482,7 @@ vitest@^4.1.0
 
 ### Next.js App Router Architecture
 
-104 Server Components, 30 Client Components
+100 Server Components, 29 Client Components
 
 ### Supabase Backend
 
@@ -559,4 +561,4 @@ Using Supabase for database, auth, and storage
 ---
 
 *This document is automatically generated by `scripts/analyze-repo-state.mjs`*
-*Last updated: 4/26/2026, 8:00:26 AM*
+*Last updated: 4/27/2026, 5:34:01 AM*
