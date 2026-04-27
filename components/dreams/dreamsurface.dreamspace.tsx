@@ -50,6 +50,9 @@ import {
   ENGIN_REGISTRY,
   type ForgeActivityPulse,
 } from '@/lib/forge/forgeRegistry';
+import { useSessionIntelligence } from '@/lib/intelligence/useSessionIntelligence';
+import { resolveResumeDest } from '@/lib/intelligence/continuityHelpers';
+import RuntimeMemoryHUD from '@/components/dreams/dream.panel.RuntimeMemoryHUD';
 
 /** Called to open a URL inside the runtime region (no full-page navigation). */
 type OpenUrlFn = (url: string, title?: string) => void;
@@ -283,6 +286,9 @@ export default function DreamsSpacePanel({
   const [activity, setActivity] = useState<ForgeActivityPulse[]>([]);
   const [suggestions, setSuggestions] = useState<ForgeSuggestion[]>([]);
 
+  // Session intelligence — powers the Resume Dream affordance and Artifact Trail.
+  const { sessionDiff } = useSessionIntelligence();
+
   /** Navigate to a route: use in-region iframe when available, else full navigation. */
   const navigate = (route: string, title?: string) => {
     if (onOpenUrl) {
@@ -323,6 +329,13 @@ export default function DreamsSpacePanel({
   const leadSuggestion = suggestions[0] ?? null;
   const recentHistory = history.slice().reverse().slice(0, 3);
   const recentDestinations = buildRecentDestinations(recentHistory, activity);
+
+  // Resume Dream: prefer the subsystem you left off in last session, then the
+  // hottest live activity pulse, then fall back to the lead Forge suggestion.
+  const resumeDest = resolveResumeDest(sessionDiff?.continueFrom ?? null, activity);
+  const resumeHref  = resumeDest?.href  ?? leadSuggestion?.href  ?? '/daydream/create';
+  const resumeLabel = resumeDest?.label ?? leadSuggestion?.title ?? null;
+  const resumeEmoji = resumeDest?.emoji ?? leadSuggestion?.emoji ?? '🚀';
 
   // Feed view — main dreams space content
   return (
@@ -433,17 +446,17 @@ export default function DreamsSpacePanel({
                 fontSize: 18,
                 flexShrink: 0,
               }}>
-                🚀
+                {resumeEmoji}
               </div>
               <div style={{ minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-heading)' }}>Continue</div>
                 <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>
-                  Jump back into the next thing worth opening.
+                  {resumeLabel ? `Resume ${resumeLabel}` : 'Jump back into the next thing worth opening.'}
                 </div>
               </div>
               <button
                 type="button"
-                onClick={() => navigate(leadSuggestion?.href ?? '/daydream/create', leadSuggestion?.title ?? 'Continue')}
+                onClick={() => navigate(resumeHref, resumeLabel ?? 'Continue')}
                 style={{
                   marginLeft: 'auto',
                   borderRadius: 9999,
@@ -457,7 +470,7 @@ export default function DreamsSpacePanel({
                   whiteSpace: 'nowrap',
                 }}
               >
-                {leadSuggestion?.title ? 'Open recommendation →' : 'Start creating →'}
+                {resumeLabel ? `Resume ${resumeLabel} →` : (leadSuggestion?.title ? 'Open recommendation →' : 'Start creating →')}
               </button>
             </div>
 
@@ -637,6 +650,9 @@ export default function DreamsSpacePanel({
               </div>
             </div>
           </div>
+
+          {/* Section: Runtime Memory HUD — artifact trail + active contexts */}
+          <RuntimeMemoryHUD />
 
           {/* Section: Daydreams */}
           <div style={{
