@@ -48,14 +48,20 @@ export default function LandingHeroRobot() {
         aria-hidden="true"
       />
       <div
-        className="relative rounded-[2rem] border p-3 shadow-2xl backdrop-blur-md md:p-4"
+        className="landing-riso-robot relative rounded-[2rem] border p-3 shadow-2xl backdrop-blur-md md:p-4"
         style={{
-          borderColor: 'rgba(140,170,220,0.18)',
-          background: 'linear-gradient(145deg, rgba(6,12,24,0.48), rgba(12,22,42,0.22))',
-          boxShadow: '0 0 60px rgba(56,189,248,0.14), inset 0 1px 0 rgba(255,255,255,0.08)',
+          borderColor: 'rgba(215,166,42,0.28)',
+          background:
+            'linear-gradient(145deg, rgba(248,241,223,0.16), rgba(143,216,242,0.12) 46%, rgba(215,166,42,0.10))',
+          boxShadow:
+            '0 0 60px rgba(143,216,242,0.16), 0 0 34px rgba(215,166,42,0.12), inset 0 1px 0 rgba(248,241,223,0.18)',
         }}
       >
-        <div className="pointer-events-none absolute inset-3 rounded-[1.6rem] border border-cyan-200/10" aria-hidden="true" />
+        <div
+          className="pointer-events-none absolute inset-3 rounded-[1.6rem] border"
+          style={{ borderColor: 'rgba(143,216,242,0.12)' }}
+          aria-hidden="true"
+        />
         <div
           className="pointer-events-none absolute -inset-5 rounded-full border border-[#c8981a]/20"
           style={{ animation: `landing-robot-orbit ${ORBIT_DURATION_SECONDS}s linear infinite` }}
@@ -85,6 +91,30 @@ export default function LandingHeroRobot() {
           from { transform: rotate(0deg) scale(1); }
           50% { transform: rotate(180deg) scale(1.025); }
           to { transform: rotate(360deg) scale(1); }
+        }
+        .landing-riso-robot::before,
+        .landing-riso-robot::after {
+          content: '';
+          position: absolute;
+          inset: 10px;
+          border-radius: 1.5rem;
+          pointer-events: none;
+          z-index: 2;
+        }
+        .landing-riso-robot::before {
+          background:
+            radial-gradient(circle at 18% 20%, rgba(143,216,242,0.34) 0 1.2px, transparent 1.8px),
+            radial-gradient(circle at 72% 64%, rgba(215,166,42,0.28) 0 1.1px, transparent 1.8px);
+          background-size: 8px 8px, 10px 10px;
+          mix-blend-mode: screen;
+          opacity: 0.56;
+        }
+        .landing-riso-robot::after {
+          background:
+            linear-gradient(90deg, rgba(143,216,242,0.18), transparent 34%, rgba(215,166,42,0.16) 68%, transparent),
+            repeating-linear-gradient(0deg, rgba(248,241,223,0.08) 0 1px, transparent 1px 4px);
+          mix-blend-mode: overlay;
+          opacity: 0.72;
         }
       `}</style>
     </div>

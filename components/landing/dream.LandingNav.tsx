@@ -35,15 +35,28 @@ export default function LandingNav() {
       >
         <span
           style={{
-            background: 'linear-gradient(135deg, #e8d090 0%, #c8981a 60%, #a07820 100%)',
+            background:
+              'linear-gradient(135deg, #f8f1df 0%, #8fd8f2 38%, #d7a62a 72%, #f2d37a 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
+            textShadow: '0 0 18px rgba(143,216,242,0.18)',
           }}
         >
           dream
         </span>
-        <span style={{ color: 'rgba(220,235,255,0.65)' }}>engin</span>
+        <span
+          style={{
+            background:
+              'linear-gradient(135deg, #f8f1df 0%, #bfefff 36%, #d7a62a 76%, #fff4c7 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            textShadow: '0 0 18px rgba(215,166,42,0.16)',
+          }}
+        >
+          engin
+        </span>
       </Link>
 
       <Link

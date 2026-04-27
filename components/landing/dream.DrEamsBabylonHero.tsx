@@ -37,6 +37,12 @@ import {
   type DirectorBabylonScene,
 } from '@/lib/webgpu/director';
 
+const RISO_BLUE = new Color3(0.56, 0.86, 0.95);
+const RISO_BLUE_DARK = new Color3(0.08, 0.23, 0.34);
+const RISO_CREAM = new Color3(0.97, 0.92, 0.82);
+const RISO_GOLD = new Color3(0.82, 0.58, 0.12);
+const RISO_GOLD_LIGHT = new Color3(1.0, 0.78, 0.25);
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * t;
@@ -149,60 +155,60 @@ export default function DrEamsBabylonHero({
       // Scale reference: 1cm ≈ 0.022 Babylon units; apex = 121cm = 2.66u from sole
       // ══════════════════════════════════════════════════════════════════════════
 
-      // [105-111] HELMET: Charcoal-grey metallic sphere — matte with metallic flake
+      // [105-111] HELMET: light-blue risograph ink with metallic gold warmth.
       const helmetMat = new PBRMaterial('helmet', scene);
-      helmetMat.albedoColor = new Color3(0.22, 0.23, 0.27);
-      helmetMat.metallic = 0.70;
-      helmetMat.roughness = 0.30;
-      helmetMat.environmentIntensity = 2.05;
+      helmetMat.albedoColor = RISO_BLUE;
+      helmetMat.metallic = 0.22;
+      helmetMat.roughness = 0.58;
+      helmetMat.environmentIntensity = 1.42;
       helmetMat.clearCoat.isEnabled = true;
-      helmetMat.clearCoat.intensity = 0.88;
-      helmetMat.clearCoat.roughness = 0.04;
-      helmetMat.emissiveColor = new Color3(0.010, 0.010, 0.014);
+      helmetMat.clearCoat.intensity = 0.32;
+      helmetMat.clearCoat.roughness = 0.34;
+      helmetMat.emissiveColor = new Color3(0.030, 0.060, 0.072);
 
-      // Dark glossy mechanical metal — arms, legs, mechanical body
+      // Mechanical ink layer — deep blue instead of black for riso print softness.
       const darkMetalMat = new PBRMaterial('darkMetal', scene);
-      darkMetalMat.albedoColor = new Color3(0.10, 0.12, 0.16);
-      darkMetalMat.metallic = 0.80;
-      darkMetalMat.roughness = 0.20;
-      darkMetalMat.environmentIntensity = 2.10;
+      darkMetalMat.albedoColor = RISO_BLUE_DARK;
+      darkMetalMat.metallic = 0.36;
+      darkMetalMat.roughness = 0.52;
+      darkMetalMat.environmentIntensity = 1.35;
       darkMetalMat.clearCoat.isEnabled = true;
-      darkMetalMat.clearCoat.intensity = 0.62;
-      darkMetalMat.clearCoat.roughness = 0.10;
+      darkMetalMat.clearCoat.intensity = 0.28;
+      darkMetalMat.clearCoat.roughness = 0.30;
 
       // Joint / segment accent — slightly lighter for seams and rings
       const jointMat = new PBRMaterial('joint', scene);
-      jointMat.albedoColor = new Color3(0.19, 0.21, 0.27);
-      jointMat.metallic = 0.82;
-      jointMat.roughness = 0.30;
-      jointMat.environmentIntensity = 1.60;
+      jointMat.albedoColor = RISO_GOLD;
+      jointMat.metallic = 0.72;
+      jointMat.roughness = 0.34;
+      jointMat.environmentIntensity = 1.68;
 
-      // [023-074] COAT: Clean medical white with soft fabric PBR
+      // [023-074] COAT: creamy white riso paper tone.
       const coatMat = new PBRMaterial('coat', scene);
-      coatMat.albedoColor = new Color3(0.95, 0.97, 1.00);
-      coatMat.metallic = 0.04;
-      coatMat.roughness = 0.24;
-      coatMat.environmentIntensity = 1.18;
+      coatMat.albedoColor = RISO_CREAM;
+      coatMat.metallic = 0.02;
+      coatMat.roughness = 0.68;
+      coatMat.environmentIntensity = 1.02;
       coatMat.clearCoat.isEnabled = true;
-      coatMat.clearCoat.intensity = 0.52;
-      coatMat.clearCoat.roughness = 0.18;
-      coatMat.emissiveColor = new Color3(0.007, 0.011, 0.017);
+      coatMat.clearCoat.intensity = 0.18;
+      coatMat.clearCoat.roughness = 0.44;
+      coatMat.emissiveColor = new Color3(0.030, 0.025, 0.014);
 
       // Blue undershirt visible at collar V-neck
       const shirtMat = new PBRMaterial('shirt', scene);
-      shirtMat.albedoColor = new Color3(0.13, 0.28, 0.58);
+      shirtMat.albedoColor = RISO_BLUE_DARK;
       shirtMat.metallic = 0.0;
-      shirtMat.roughness = 0.42;
-      shirtMat.environmentIntensity = 0.58;
+      shirtMat.roughness = 0.62;
+      shirtMat.environmentIntensity = 0.74;
 
       // [084-104] VISOR: Dark purple/black tinted curved glass
       const visorMat = new PBRMaterial('visor', scene);
-      visorMat.albedoColor = new Color3(0.03, 0.04, 0.09);
-      visorMat.alpha = 0.84;
+      visorMat.albedoColor = RISO_BLUE_DARK;
+      visorMat.alpha = 0.78;
       visorMat.metallic = 0.0;
       visorMat.roughness = 0.01;
-      visorMat.environmentIntensity = 2.85;
-      visorMat.emissiveColor = new Color3(0.10, 0.28, 0.44);
+      visorMat.environmentIntensity = 2.10;
+      visorMat.emissiveColor = new Color3(0.10, 0.35, 0.44);
       visorMat.clearCoat.isEnabled = true;
       visorMat.clearCoat.intensity = 1.0;
       visorMat.clearCoat.roughness = 0.01;
@@ -210,60 +216,60 @@ export default function DrEamsBabylonHero({
 
       // [092-093] VISOR: Internal OLED/LED active display plane
       const screenMat = new PBRMaterial('screen', scene);
-      screenMat.albedoColor = new Color3(0.02, 0.12, 0.24);
-      screenMat.emissiveColor = new Color3(0.08, 0.52, 0.74);
+      screenMat.albedoColor = RISO_BLUE_DARK;
+      screenMat.emissiveColor = new Color3(0.14, 0.62, 0.72);
       screenMat.metallic = 0;
       screenMat.roughness = 1;
 
-      // [095] LEFT eye — orange lemniscate loop (per spec)
+      // [095] LEFT eye — metallic gold risograph lemniscate loop.
       const eyeGoldMat = new PBRMaterial('eyeGold', scene);
-      eyeGoldMat.albedoColor = new Color3(1.0, 0.48, 0.0);
-      eyeGoldMat.emissiveColor = new Color3(1.0, 0.48, 0.0);
+      eyeGoldMat.albedoColor = RISO_GOLD_LIGHT;
+      eyeGoldMat.emissiveColor = RISO_GOLD_LIGHT;
       eyeGoldMat.metallic = 0;
       eyeGoldMat.roughness = 1;
 
       // [095] RIGHT eye — blue lemniscate loop (per spec)
       const eyeCyanMat = new PBRMaterial('eyeCyan', scene);
-      eyeCyanMat.albedoColor = new Color3(0.05, 0.44, 1.0);
-      eyeCyanMat.emissiveColor = new Color3(0.0, 0.44, 1.0);
+      eyeCyanMat.albedoColor = RISO_BLUE;
+      eyeCyanMat.emissiveColor = RISO_BLUE;
       eyeCyanMat.metallic = 0;
       eyeCyanMat.roughness = 1;
 
       // [004-010] BOOT: Matte charcoal-grey composite — per spec "matte finish"
       const bootMat = new PBRMaterial('boot', scene);
-      bootMat.albedoColor = new Color3(0.20, 0.21, 0.24);
-      bootMat.metallic = 0.06;
-      bootMat.roughness = 0.76;
-      bootMat.environmentIntensity = 0.85;
+      bootMat.albedoColor = new Color3(0.12, 0.27, 0.36);
+      bootMat.metallic = 0.18;
+      bootMat.roughness = 0.72;
+      bootMat.environmentIntensity = 0.95;
 
       // [001-003] SOLE: Matte black high-friction rubber polymer
       const soleMat = new PBRMaterial('sole', scene);
-      soleMat.albedoColor = new Color3(0.04, 0.04, 0.05);
+      soleMat.albedoColor = new Color3(0.05, 0.10, 0.14);
       soleMat.metallic = 0.0;
       soleMat.roughness = 0.94;
       soleMat.environmentIntensity = 0.38;
 
       // [067-069] BADGE: Silver metallic name-tag plate
       const badgeMat = new PBRMaterial('badge', scene);
-      badgeMat.albedoColor = new Color3(0.82, 0.84, 0.90);
+      badgeMat.albedoColor = RISO_GOLD_LIGHT;
       badgeMat.metallic = 0.94;
-      badgeMat.roughness = 0.12;
-      badgeMat.environmentIntensity = 1.52;
+      badgeMat.roughness = 0.20;
+      badgeMat.environmentIntensity = 1.72;
 
       // Chest halo / arc reactor emblem
       const emblemMat = new PBRMaterial('emblem', scene);
-      emblemMat.albedoColor = new Color3(0.15, 0.38, 0.56);
-      emblemMat.metallic = 0.44;
-      emblemMat.roughness = 0.22;
+      emblemMat.albedoColor = RISO_GOLD;
+      emblemMat.metallic = 0.68;
+      emblemMat.roughness = 0.28;
 
       // Gold orbit-ring material removed alongside the orbit toruses.
 
       // [078-079] NECK: Dark blue high-density polymer strut
       const neckMat = new PBRMaterial('neck', scene);
-      neckMat.albedoColor = new Color3(0.04, 0.08, 0.34);
-      neckMat.metallic = 0.44;
-      neckMat.roughness = 0.28;
-      neckMat.environmentIntensity = 1.24;
+      neckMat.albedoColor = RISO_BLUE_DARK;
+      neckMat.metallic = 0.42;
+      neckMat.roughness = 0.44;
+      neckMat.environmentIntensity = 1.14;
       neckMat.clearCoat.isEnabled = true;
       neckMat.clearCoat.intensity = 0.72;
       neckMat.clearCoat.roughness = 0.09;
