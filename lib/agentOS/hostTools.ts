@@ -6,9 +6,12 @@ import path from 'path';
 const execAsync = promisify(exec);
 
 // Project root for file operations – override via CODEENGIN_PROJECT_ROOT.
-// For Supabase-backed projects, replace the fs calls with storage API calls.
-const PROJECT_ROOT =
-  process.env.CODEENGIN_PROJECT_ROOT ?? process.cwd();
+// Evaluated lazily (inside each function) so Turbopack's NFT tracer does not
+// follow process.cwd() at module initialisation time and include the entire
+// project tree in the bundle.
+function getProjectRoot(): string {
+  return process.env.CODEENGIN_PROJECT_ROOT ?? process.cwd();
+}
 
 /**
  * Host tools exposed to the agent-os VM for CodeEngin.
@@ -20,7 +23,7 @@ const PROJECT_ROOT =
 export const codeEnginHostTools = {
   getFileContent: async (filePath: string): Promise<string> => {
     try {
-      const fullPath = path.resolve(PROJECT_ROOT, filePath);
+      const fullPath = path.resolve(getProjectRoot(), filePath);
       return await readFile(fullPath, 'utf-8');
     } catch (error) {
       return `Error reading file: ${(error as Error).message}`;
@@ -29,7 +32,7 @@ export const codeEnginHostTools = {
 
   writeFile: async (filePath: string, content: string): Promise<string> => {
     try {
-      const fullPath = path.resolve(PROJECT_ROOT, filePath);
+      const fullPath = path.resolve(getProjectRoot(), filePath);
       await writeFile(fullPath, content, 'utf-8');
       return `File ${filePath} written successfully.`;
     } catch (error) {
@@ -41,7 +44,7 @@ export const codeEnginHostTools = {
     cmd: string,
   ): Promise<{ stdout: string; stderr: string }> => {
     try {
-      const { stdout, stderr } = await execAsync(cmd, { cwd: PROJECT_ROOT });
+      const { stdout, stderr } = await execAsync(cmd, { cwd: getProjectRoot() });
       return { stdout, stderr };
     } catch (error) {
       return { stdout: '', stderr: (error as Error).message };
@@ -52,7 +55,7 @@ export const codeEnginHostTools = {
     relativePath = '',
   ): Promise<{ name: string; type: 'file' | 'directory'; path: string }[]> => {
     const { readdir } = await import('fs/promises');
-    const fullPath = path.resolve(PROJECT_ROOT, relativePath);
+    const fullPath = path.resolve(getProjectRoot(), relativePath);
     try {
       const entries = await readdir(fullPath, { withFileTypes: true });
       return entries.map(entry => ({

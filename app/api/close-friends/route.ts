@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const body = await req.json();
+  const body = await req.json().catch(() => ({}));
   const { friend_id } = body ?? {};
 
   if (!friend_id || typeof friend_id !== 'string') {

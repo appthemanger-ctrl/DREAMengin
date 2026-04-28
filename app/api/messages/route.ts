@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await req.json();
+  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
   const { recipient_id, content, conversation_id, media_url, media_type } = body;
 
   if (!content || content.trim().length === 0) {

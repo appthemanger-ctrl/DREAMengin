@@ -41,32 +41,34 @@ export default function ProfilePanel() {
 
   useEffect(() => {
     (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-      const loaded: Profile = {
-        display_name: data?.display_name || '',
-        handle:       data?.handle       || '',
-        bio:          data?.bio          || '',
-        avatar_url:   data?.avatar_url   || null,
-        banner_url:   data?.banner_url   || null,
-        location:     data?.location     || '',
-        website:      data?.website      || '',
-      };
-      setProfile(loaded);
-      let loadedDreams: ProfileDream[] = DEFAULT_DREAMS;
-      if (data?.profile_dream_widgets && Array.isArray(data.profile_dream_widgets) && data.profile_dream_widgets.length > 0) {
-        loadedDreams = data.profile_dream_widgets as ProfileDream[];
-      } else {
-        try {
-          const saved = localStorage.getItem('de-profile-widget-order');
-          if (saved) loadedDreams = JSON.parse(saved);
-        } catch { /* noop */ }
-      }
-      setWidgets(loadedDreams);
-      setInitialProfile(loaded);
-      setInitialWidgets(loadedDreams);
-      setIsLoading(false);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) { setIsLoading(false); return; }
+        const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        const loaded: Profile = {
+          display_name: data?.display_name || '',
+          handle:       data?.handle       || '',
+          bio:          data?.bio          || '',
+          avatar_url:   data?.avatar_url   || null,
+          banner_url:   data?.banner_url   || null,
+          location:     data?.location     || '',
+          website:      data?.website      || '',
+        };
+        setProfile(loaded);
+        let loadedDreams: ProfileDream[] = DEFAULT_DREAMS;
+        if (data?.profile_dream_widgets && Array.isArray(data.profile_dream_widgets) && data.profile_dream_widgets.length > 0) {
+          loadedDreams = data.profile_dream_widgets as ProfileDream[];
+        } else {
+          try {
+            const saved = localStorage.getItem('de-profile-widget-order');
+            if (saved) loadedDreams = JSON.parse(saved);
+          } catch { /* noop */ }
+        }
+        setWidgets(loadedDreams);
+        setInitialProfile(loaded);
+        setInitialWidgets(loadedDreams);
+      } catch { /* auth/network failure — stay in loading=false state */ }
+      finally { setIsLoading(false); }
     })();
    
   }, []);

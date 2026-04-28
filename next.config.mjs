@@ -12,6 +12,23 @@ const nextConfig = {
 
   experimental: {},
 
+  // Exclude build-time config and tooling files from the server-function
+  // output file tracing of routes that use fs/child_process host tools
+  // (e.g. app/api/agent/session).  This prevents Turbopack's NFT tracer
+  // from bundling next.config.mjs, tailwind.config.ts, and similar files
+  // into serverless function zips.
+  outputFileTracingExcludes: {
+    "/api/agent/session": [
+      "./next.config.mjs",
+      "./tailwind.config.ts",
+      "./postcss.config.*",
+      "./tsconfig*.json",
+      "./eslint.config.mjs",
+      "./vitest.config.ts",
+      "./playwright.config.ts",
+    ],
+  },
+
   images: {
     // Stream 8.2 — AVIF/WebP next-gen formats
     // AVIF ~50% smaller than JPEG; WebP fallback for older browsers.
