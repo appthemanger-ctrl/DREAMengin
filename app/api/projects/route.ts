@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await req.json();
+  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
   const { title, description, visibility = 'private', template, tags = [] } = body;
 
   if (!title || title.trim().length === 0) {
@@ -127,7 +127,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await req.json();
+  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
   const { id, title, description, visibility, data: projectData, tags } = body;
 
   if (!id) {

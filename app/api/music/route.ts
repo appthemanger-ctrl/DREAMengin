@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await req.json();
+  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
   const { title, description, embed_url, visibility = 'public', genre, cover_url } = body;
 
   if (!title || title.trim().length === 0) {
