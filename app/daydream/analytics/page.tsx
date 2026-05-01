@@ -1,6 +1,7 @@
 // SURFACE: dreamsurface.DaydreamAnalytics  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 import { BarChart2 } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
 import dynamic from 'next/dynamic';
@@ -37,8 +38,12 @@ const WIDGETS: DaydreamWidget[] = [
 export default async function AnalyticsDaydreamPage() {
   await connection();
   const supabase = await createServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  let user = null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  } catch { /* Supabase not configured — treat as unauthenticated */ }
+  if (!user && !isDevBypassActive()) redirect('/login');
 
   return (
     <DaydreamShell
@@ -59,7 +64,7 @@ export default async function AnalyticsDaydreamPage() {
           badge="Analytics Daydream · Activity-First 2026"
         />
 
-        <AnalyticsDaydream userId={user.id} />
+        <AnalyticsDaydream userId={user?.id ?? ''} />
       </div>
     </DaydreamShell>
   );

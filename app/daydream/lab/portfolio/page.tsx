@@ -1,6 +1,7 @@
 // SURFACE: dreamsurface.DaydreamLabPortfolio  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 import Link from 'next/link';
 import { ArrowLeft, TrendingUp } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
@@ -27,8 +28,12 @@ const ACCENT = '#2a8ab8';
 export default async function OptimizeroPage() {
   await connection();
   const supabase = await createServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  let user = null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  } catch { /* Supabase not configured — treat as unauthenticated */ }
+  if (!user && !isDevBypassActive()) redirect('/login');
 
   return (
     <DaydreamShell

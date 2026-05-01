@@ -1,6 +1,7 @@
 // SURFACE: dreamsurface.DaydreamLab  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { isDevBypassActive } from '@/lib/dev-bypass';
 import Link from 'next/link';
 import { FlaskConical, Play } from 'lucide-react';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
@@ -36,8 +37,12 @@ const WIDGETS: DaydreamWidget[] = [
 export default async function LabDaydreamPage() {
   await connection();
   const supabase = await createServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
+  let user = null;
+  try {
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  } catch { /* Supabase not configured — treat as unauthenticated */ }
+  if (!user && !isDevBypassActive()) redirect('/login');
 
   return (
     <DaydreamShell
