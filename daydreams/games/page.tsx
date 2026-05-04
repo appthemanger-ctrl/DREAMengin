@@ -1,11 +1,21 @@
 import { createServerClient } from '@/lib/supabase/server';
+import { safeGetUser } from '@/lib/supabase/safeGetUser';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Gamepad2, Play, Sparkles, Zap } from 'lucide-react';
 import GamesHub from '@/components/games/dream.GamesHub';
 
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
-import GameEngin from '@/engins/engin.GameEngin';
+import dynamic from 'next/dynamic';
+// Stream 8.3 — Bundle split: GameEngin (Babylon.js) only loads when Side B mounts.
+// docs/ARCHITECTURE.md §10 — render-on-demand, minimal initial bundle.
+const GameEngin = dynamic(() => import('@/engins/engin.GameEngin'), {
+  loading: () => (
+    <div className="flex items-center justify-center h-64">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#c9a227]" />
+    </div>
+  ),
+});
 import OpenDaydreamSideBButton from '@/components/daydream/dream.OpenDaydreamSideBButton';
 import AutoOpenGameEngin from '@/engins/autoopen/dream.AutoOpenGameEngin';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
@@ -84,7 +94,7 @@ const OFFICIAL_SPEC_NOTES = [
 export default async function GamesDaydreamPage() {
   await connection();
   const supabase = await createServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await safeGetUser(supabase);
   if (!user && !isDevBypassActive()) redirect('/login');
 
   return (
