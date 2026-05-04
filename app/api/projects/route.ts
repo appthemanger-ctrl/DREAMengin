@@ -76,7 +76,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const body = await req.json().catch(() => ({})) as Record<string, any>;
   const { title, description, visibility = 'private', template, tags = [] } = body;
 
   if (!title || title.trim().length === 0) {
@@ -127,7 +128,8 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const body = await req.json().catch(() => ({})) as Record<string, any>;
   const { id, title, description, visibility, data: projectData, tags } = body;
 
   if (!id) {
