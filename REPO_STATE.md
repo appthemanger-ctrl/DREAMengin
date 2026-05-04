@@ -4,11 +4,11 @@
 > Generated automatically - DO NOT EDIT MANUALLY
 
 **Documentation Owner:** José Mancilla (appthemanger-ctrl)
-**Documentation Date:** 2026-04-27
-**Last Updated:** 4/27/2026, 5:34:01 AM
+**Documentation Date:** 2026-05-04
+**Last Updated:** 5/4/2026, 3:25:24 AM
 **Branch:** completedream
-**Commit:** 15bd8d05 - Merge pull request #712 from appthemanger-ctrl/copilot/fix-server-components-render-error
-**Total Commits:** 5215
+**Commit:** faa4a21c - chore: sync build-memory [skip ci] [skip vercel]
+**Total Commits:** 5240
 
 ---
 
@@ -43,10 +43,10 @@
 
 **Quick Stats:**
 
-- 📁 Total Code Files: 802
-- 📝 Total Lines of Code: 165,136
-- 📦 Size: 5.93 MB
-- 🧪 Tests: 195 files, 189 passing
+- 📁 Total Code Files: 806
+- 📝 Total Lines of Code: 166,046
+- 📦 Size: 5.97 MB
+- 🧪 Tests: 197 files, 191 passing
 - 📄 API Routes: 107
 - 🎨 Components: 41 categories
 - 📖 Documentation: 95 files
@@ -66,10 +66,11 @@
 
 ### All Dependencies
 
-**Production Dependencies:** 31
+**Production Dependencies:** 32
 ```
 @babylonjs/core@^9.1.0
 @babylonjs/havok@^1.3.12
+@babylonjs/loaders@^9.4.1
 @opentelemetry/api@^1.9.1
 @opentelemetry/exporter-prometheus@^0.214.0
 @opentelemetry/exporter-trace-otlp-http@^0.214.0
@@ -87,8 +88,7 @@ axios@^1.14.0
 clsx@^2.1.1
 framer-motion@^12.35.0
 gsap@^3.14.2
-lucide-react@^0.577.0
-... and 11 more
+... and 12 more
 ```
 
 **Dev Dependencies:** 18
@@ -119,12 +119,12 @@ vitest@^4.1.0
 
 | Directory | Total Files | File Types |
 |-----------|-------------|------------|
-| `app/` | 239 | .tsx(129), .ts(108), .css(2) |
-| `components/` | 295 | .tsx(260), .ts(32), .css(2) |
-| `lib/` | 502 | .ts(405), .json(67), .md(21) |
-| `tests/` | 196 | .ts(195), .md(1) |
+| `app/` | 240 | .tsx(130), .ts(108), .css(2) |
+| `components/` | 297 | .tsx(262), .ts(32), .css(2) |
+| `lib/` | 503 | .ts(406), .json(67), .md(21) |
+| `tests/` | 198 | .ts(197), .md(1) |
 | `styles/` | 5 | .css(5) |
-| `public/` | 33 | .png(12), .svg(5), .json(4) |
+| `public/` | 34 | .png(12), .svg(5), .json(4) |
 | `docs/` | 93 | .md(92), no-extension(1) |
 | `scripts/` | 43 | .mjs(19), .ts(11), .sh(5) |
 | `supabase/` | 55 | .sql(54), .toml(1) |
@@ -133,15 +133,15 @@ vitest@^4.1.0
 
 ### File Distribution
 
-- **App Routes (TSX):** 129
-- **Component Files:** 260
-- **Library Files:** 413
-- **Test Files:** 189
+- **App Routes (TSX):** 130
+- **Component Files:** 262
+- **Library Files:** 414
+- **Test Files:** 191
 
 ### Code Volume
 
-- **Total Lines:** 165,136
-- **Total Size:** 5.93 MB
+- **Total Lines:** 166,046
+- **Total Size:** 5.97 MB
 
 ## API Routes
 
@@ -205,7 +205,7 @@ vitest@^4.1.0
 
 ## Pages & Routes
 
-**Total Pages:** 105
+**Total Pages:** 106
 
 ### All Pages
 
@@ -221,6 +221,7 @@ vitest@^4.1.0
 | `/auth/reset-password` | /app/auth/reset-password/page.tsx |
 | `/auth/update-password` | /app/auth/update-password/page.tsx |
 | `/connectors` | /app/connectors/page.tsx |
+| `/daydream/analytics` | /app/daydream/analytics/page.tsx |
 | `/daydream/brand/engin` | /app/daydream/brand/engin/page.tsx |
 | `/daydream/brand` | /app/daydream/brand/page.tsx |
 | `/daydream/code/engin` | /app/daydream/code/engin/page.tsx |
@@ -260,8 +261,7 @@ vitest@^4.1.0
 | `/engines/games` | /app/engines/games/page.tsx |
 | `/engines/games/scores` | /app/engines/games/scores/page.tsx |
 | `/engines/lab/data` | /app/engines/lab/data/page.tsx |
-| `/engines/lab/experiments` | /app/engines/lab/experiments/page.tsx |
-| ... | ... and 55 more pages |
+| ... | ... and 56 more pages |
 
 ## Components
 
@@ -277,12 +277,12 @@ vitest@^4.1.0
 | `connectors/` | 7 |
 | `core/` | 1 |
 | `customize/` | 7 |
-| `daydream/` | 14 |
+| `daydream/` | 15 |
 | `draggable/` | 1 |
 | `dreamengin/` | 19 |
 | `dreamnav/` | 2 |
 | `dreamr/` | 3 |
-| `dreams/` | 14 |
+| `dreams/` | 15 |
 | `engines/` | 41 |
 | `feed/` | 5 |
 | `feeds/` | 1 |
@@ -336,8 +336,8 @@ vitest@^4.1.0
 
 ## Tests
 
-**Test Files:** 195
-**Tests Passing:** 189
+**Test Files:** 197
+**Tests Passing:** 191
 **Tests Failing:** 0
 
 ### Test Files
@@ -348,6 +348,7 @@ vitest@^4.1.0
 - /tests/admin-upgrade-readiness.test.ts
 - /tests/agent-bus-consensus.test.ts
 - /tests/ai-edit-engine.test.ts
+- /tests/api-route-body-guard.test.ts
 - /tests/asset-optimizer.test.ts
 - /tests/auth-providers-route.test.ts
 - /tests/auth-update-password-page.test.ts
@@ -361,8 +362,7 @@ vitest@^4.1.0
 - /tests/branding-logos.test.ts
 - /tests/canonical-naming-enforcement.test.ts
 - /tests/child-safety.test.ts
-- /tests/code-dream-preview.test.ts
-- ... and 175 more test files
+- ... and 177 more test files
 
 ## Documentation
 
@@ -482,7 +482,7 @@ vitest@^4.1.0
 
 ### Next.js App Router Architecture
 
-100 Server Components, 29 Client Components
+101 Server Components, 29 Client Components
 
 ### Supabase Backend
 
@@ -513,6 +513,7 @@ Using Supabase for database, auth, and storage
 ### Potentially unused dependencies
 
 - @babylonjs/havok
+- @babylonjs/loaders
 - @tensorflow/tfjs
 - @tensorflow/tfjs-backend-webgpu
 - axios
@@ -561,4 +562,4 @@ Using Supabase for database, auth, and storage
 ---
 
 *This document is automatically generated by `scripts/analyze-repo-state.mjs`*
-*Last updated: 4/27/2026, 5:34:01 AM*
+*Last updated: 5/4/2026, 3:25:24 AM*
