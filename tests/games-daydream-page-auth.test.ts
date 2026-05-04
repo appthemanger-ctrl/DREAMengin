@@ -10,7 +10,7 @@
  * error boundary "Something cracked in the dream."
  *
  * Fix: switched to `safeGetUser()` which wraps the call in try/catch and
- * adds a 2 500 ms timeout, matching the pattern used by homedream and dreamr.
+ * adds a 2500 ms timeout, matching the pattern used by homedream and dreamr.
  *
  * This test verifies:
  *  1. The page redirects to /login when there is no authenticated user.
