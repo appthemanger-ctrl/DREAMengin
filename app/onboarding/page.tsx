@@ -113,7 +113,6 @@ export default async function OnboardingPage() {
             <ArrowLeft className="w-4 h-4" style={{ color: 'rgba(165,195,235,0.72)' }} />
           </Link>
           <h1 className="text-lg font-bold" style={{ color: 'rgba(210,230,255,0.90)' }}>Getting Started</h1>
-          <Link href="/homedream" className="ml-auto text-xs font-semibold" style={{ color: 'rgba(140,170,220,0.55)' }}>Skip →</Link>
         </div>
       </header>
 
