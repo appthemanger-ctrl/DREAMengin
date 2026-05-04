@@ -125,7 +125,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const body = await req.json().catch(() => ({})) as Record<string, any>;
   const { content, visibility = 'public', media_urls = [], post_visibility = 'public', original_post_id } = body;
 
   if (!content || content.trim().length === 0) {

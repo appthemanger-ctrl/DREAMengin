@@ -81,7 +81,8 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const body = await req.json().catch(() => ({})) as Record<string, any>;
   const { display_name, handle, bio, avatar_url, banner_url, website, location, dream_config, widget_config, widget_order } = body;
 
   const updateData: Record<string, unknown> = {
