@@ -81,7 +81,18 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
+  const body = await req.json().catch(() => ({})) as {
+    display_name?: string;
+    handle?: string;
+    bio?: string;
+    avatar_url?: string;
+    banner_url?: string;
+    website?: string;
+    location?: string;
+    dream_config?: unknown;
+    widget_config?: unknown;
+    widget_order?: unknown;
+  };
   const { display_name, handle, bio, avatar_url, banner_url, website, location, dream_config, widget_config, widget_order } = body;
 
   const updateData: Record<string, unknown> = {

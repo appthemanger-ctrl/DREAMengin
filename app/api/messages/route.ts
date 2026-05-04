@@ -95,8 +95,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
+  const body = await req.json().catch(() => ({})) as {
+    recipient_id?: string;
+    content?: string;
+    conversation_id?: string;
+    media_url?: string;
+    media_type?: string;
+  };
   const { recipient_id, content, conversation_id, media_url, media_type } = body;
+
+  if (!conversation_id && !recipient_id) {
+    return NextResponse.json({ error: 'recipient_id or conversation_id required' }, { status: 400 });
+  }
 
   if (!content || content.trim().length === 0) {
     return NextResponse.json({ error: 'Message content is required' }, { status: 400 });
@@ -209,6 +219,10 @@ export async function POST(req: NextRequest) {
       }
       convId = newConv.id;
     }
+  }
+
+  if (!convId) {
+    return NextResponse.json({ error: 'Conversation ID is required' }, { status: 400 });
   }
 
   // Insert the message

@@ -53,7 +53,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
+  const body = await req.json().catch(() => ({})) as {
+    content_type?: string;
+    content_id?: string;
+  };
   const { content_type, content_id } = body;
 
   if (!content_type || !content_id) {

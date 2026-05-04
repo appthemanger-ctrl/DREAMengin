@@ -125,7 +125,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
+  const body = await req.json().catch(() => ({})) as {
+    content?: string;
+    visibility?: string;
+    media_urls?: string[];
+    post_visibility?: string;
+    original_post_id?: string;
+  };
   const { content, visibility = 'public', media_urls = [], post_visibility = 'public', original_post_id } = body;
 
   if (!content || content.trim().length === 0) {

@@ -10,7 +10,7 @@ import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHead
 import { connection } from 'next/server';
 
 // Stream 8.3 — Bundle split: AnalyticsEngin only loads when Side B mounts.
-const AnalyticsEngin = dynamic(() => import('@/engins/engin.AnalyticsEngin'), {
+const AnalyticsEngin = dynamic(() => import('@/engins/dream.panel.AnalyticsEngin'), {
   loading: () => (
     <div className="flex items-center justify-center h-64">
       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#6366f1]" />
