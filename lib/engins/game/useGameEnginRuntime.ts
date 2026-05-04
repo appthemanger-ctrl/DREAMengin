@@ -84,11 +84,8 @@ export function useGameEnginRuntime(
   const dispatch = useCallback((action: GameEnginAction): boolean => {
     const rt = runtimeRef.current;
     if (!rt) return false;
-    const applied = rt.dispatch(action);
-    if (applied) {
-      setDerivedState(rt.getDerivedState() as unknown as GameEnginDerivedState);
-    }
-    return applied;
+    return rt.dispatch(action);
+    // State update is handled by the engin:state event subscription above.
   }, []);
 
   return { state: derivedState, dispatch, ready };

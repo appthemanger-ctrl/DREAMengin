@@ -141,14 +141,21 @@ export class EnginRuntime<
 
     // 5. Persist (fire-and-forget)
     if (this._persistenceKey !== false) {
+      const enginId = this._state.enginId;
       this._io.save(this._persistenceKey, this._state.domain).then((ok) => {
         if (ok) {
           _emit('engin:persisted', {
-            enginId: this._state.enginId,
+            enginId,
             key: this._persistenceKey as string,
           });
         }
-      }).catch(() => { /* best-effort */ });
+      }).catch((cause: unknown) => {
+        _emit('engin:error', {
+          enginId,
+          message: 'Persistence failed — state not saved.',
+          cause,
+        });
+      });
     }
 
     return true;

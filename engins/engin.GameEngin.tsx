@@ -345,8 +345,15 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     stateSnapshot: () => ({ type: 'game:state', selectedPlayableGame, controlProfile }),
     onPeerState: (evt) => {
       if (evt.type === 'game:state') {
-        if (typeof evt.selectedPlayableGame === 'string') engineDispatch({ type: 'game:select', payload: { gameId: evt.selectedPlayableGame } });
-        if (typeof evt.controlProfile === 'string') engineDispatch({ type: 'game:control-profile', payload: { profile: evt.controlProfile } });
+        // Co-op sync is best-effort — log if a dispatch is rejected.
+        if (typeof evt.selectedPlayableGame === 'string') {
+          const ok = engineDispatch({ type: 'game:select', payload: { gameId: evt.selectedPlayableGame } });
+          if (!ok && process.env.NODE_ENV !== 'production') console.warn('[GameEngin] co-op select rejected:', evt.selectedPlayableGame);
+        }
+        if (typeof evt.controlProfile === 'string') {
+          const ok = engineDispatch({ type: 'game:control-profile', payload: { profile: evt.controlProfile } });
+          if (!ok && process.env.NODE_ENV !== 'production') console.warn('[GameEngin] co-op control-profile rejected:', evt.controlProfile);
+        }
       }
     },
   });
