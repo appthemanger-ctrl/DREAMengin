@@ -92,11 +92,18 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           MAX_PAGES="${{ github.event.inputs.max_pages }}"
-          MAX_PAGES="${MAX_PAGES:-25}"
+          MAX_PAGES="${MAX_PAGES:-30}"
+          # Discovery, crawl, *and* the interaction phase (humanAI actually
+          # uses dreamr feeds, suggestions, search, comment probe). The
+          # script discovers routes + endpoints from the repo at runtime,
+          # so it scales as the codebase changes.
           python .github/scripts/humanai_audit.py \
             --base-url        "${{ env.BASE_URL }}" \
             --out             "${{ env.REPORT_PATH }}" \
+            --repo-root       "$GITHUB_WORKSPACE" \
             --max-pages       "$MAX_PAGES" \
+            --max-interactions 25 \
+            --interact \
             --wait-for-server
 
       - name: Stop Next.js server
@@ -133,7 +140,7 @@ jobs:
       - name: Open GitHub issue with findings
         if: |
           always()
-          && hashFiles(env.REPORT_PATH) != ''
+          && hashFiles('.github/generated/humanai-audit.md') != ''
           && (github.event_name == 'schedule'
               || github.event.inputs.open_issue == 'true')
         uses: actions/github-script@v7

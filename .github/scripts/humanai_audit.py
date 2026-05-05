@@ -1,36 +1,41 @@
 #!/usr/bin/env python3
 """
-humanAI — Dynamic Website Audit Agent (no Playwright)
+humanAI — a human touch without humans.
 
-The humanAI persona is a Dream Engine UX, design, performance and accessibility
-auditor that browses DREAMengin like a real iOS-first mobile web user. This
-script implements that persona as a **dynamic** crawler:
+humanAI explores DREAMengin like a real, curious iPhone Safari user. It is
+*dynamic* end-to-end: every route, every API endpoint, every interaction
+target is **discovered at runtime** from the repo and from the HTML the
+running server returns. Nothing is hard-coded. As the codebase grows or
+shifts, humanAI adapts on its own — no Playwright, no fixed selectors, no
+brittle test script.
 
-  • Routes are discovered from `app/**/page.tsx` plus by following links found
-    in the HTML the server actually returns. There is no fixed test script,
-    no Playwright, no headless browser — the crawler reacts to what it finds.
+What humanAI does:
 
-  • Each page is fetched over HTTP. We capture status, latency, headers, title,
-    headings, link targets, form actions, image alt coverage, mobile viewport
-    meta, and error/oops markers in the HTML.
+  1. Builds a live **code map** of the repo (app routes, components, lib
+     modules, API endpoints with their HTTP methods) so the persona has a
+     real mental model of how everything works before it touches anything.
+  2. Crawls the running site, following links it actually finds, capturing
+     status, latency, title, headings, forms, image alt coverage, viewport
+     meta, and runtime-error markers.
+  3. **Interacts** with discovered API endpoints — hits the dreamr feed and
+     suggested feeds, exercises search-style endpoints, attempts a comment
+     POST — to see what a real user would actually experience. All
+     interactions are GETs or explicitly-safe idempotent POSTs; destructive
+     verbs are never invoked.
+  4. Optionally hands the whole package — code map + crawl + interactions
+     — to GPT in the humanAI persona, who responds *as a person*: what
+     felt off, what was confusing, what should be reorganized.
 
-  • An optional GPT-4 pass takes the crawl signals and reasons about them as
-    a real human user, listing concrete problems and recommended fixes.
+What humanAI is allowed to recommend:
 
-  • If `OPENAI_API_KEY` is missing the script still emits a structural audit,
-    so it is useful in any environment.
+  - Reorganize / rename / move / edit / delete files that already exist.
+  - Combine existing parts into new structure (still using existing files
+    and code).
+  - **Never** invent new files or new dependencies. The system prompt
+    enforces this and the persona is told to refuse any temptation to do
+    so.
 
-  • A markdown report is written to ``--out`` and the script exits 0 on
-    success. Use ``--fail-on-broken`` to make the script fail when broken
-    links or 5xx responses are encountered (useful in CI gating).
-
-The script depends only on the Python standard library and the helpers in
-``dreamengin_core.py``.
-
-Usage:
-    python .github/scripts/humanai_audit.py \
-        --base-url http://localhost:3000 \
-        --out      .github/generated/humanai-audit.md
+Stdlib only. Builds on ``dreamengin_core`` for shared helpers.
 """
 
 from __future__ import annotations
@@ -47,7 +52,7 @@ import urllib.parse
 import urllib.request
 from html.parser import HTMLParser
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 # Make sibling helper module importable when invoked from any cwd.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -55,6 +60,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from dreamengin_core import (  # noqa: E402  (sys.path tweak above)
     call_openai_simple,
     mkdir_p,
+    read_text,
     write_text,
 )
 
@@ -63,17 +69,19 @@ from dreamengin_core import (  # noqa: E402  (sys.path tweak above)
 
 DEFAULT_BASE_URL = "http://localhost:3000"
 DEFAULT_OUT = ".github/generated/humanai-audit.md"
-DEFAULT_MAX_PAGES = 25
+DEFAULT_MAX_PAGES = 30
+DEFAULT_MAX_INTERACTIONS = 25
 DEFAULT_TIMEOUT = 15  # seconds per request
+
+# Mobile Safari on iPhone — humanAI is iOS-first.
 USER_AGENT = (
-    # Mobile Safari on iPhone — humanAI audits an iOS-first mobile web app.
     "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) "
     "AppleWebKit/605.1.15 (KHTML, like Gecko) "
     "Version/17.0 Mobile/15E148 Safari/604.1 "
     "humanAI/1.0 (+https://github.com/appthemanger-ctrl/DREAMengin)"
 )
 
-# Regex markers that hint at broken renders / runtime errors.
+# Hints that something rendered broken/erroring in the HTML the server returned.
 ERROR_MARKERS = [
     re.compile(r"Application error: a (?:client|server)-side exception", re.I),
     re.compile(r"This page could not be found", re.I),
@@ -82,8 +90,8 @@ ERROR_MARKERS = [
     re.compile(r"NEXT_NOT_FOUND", re.I),
 ]
 
-# Routes we never crawl automatically — destructive or out-of-scope for an
-# anonymous human-style audit.
+# Routes humanAI never crawls automatically (sign-out / callbacks / static /
+# raw API output). API endpoints are exercised separately, on purpose.
 SKIP_PATH_PREFIXES = (
     "/api/",
     "/auth/signout",
@@ -91,12 +99,30 @@ SKIP_PATH_PREFIXES = (
     "/_next/",
 )
 
+# An endpoint is "destructive" if its name suggests it mutates / deletes /
+# charges. humanAI refuses to invoke these even when they expose a POST.
+DESTRUCTIVE_NAME_HINTS = (
+    "delete", "destroy", "remove", "purge", "reset", "wipe",
+    "logout", "signout", "ban", "block", "report", "appeal",
+    "checkout", "charge", "pay", "transfer", "withdraw",
+    "publish", "unpublish", "mute", "unmute",
+    "subscribe", "unsubscribe", "follow", "unfollow",
+    "ncmec", "moderation", "admin",
+)
+
+# Endpoint name fragments that are safe to *probe* with a minimal payload.
+SAFE_INTERACTION_HINTS = (
+    "search", "suggest", "discover", "feed", "list", "recent",
+    "trending", "explore", "health", "status", "preview", "ping",
+    "balance", "summary", "stats",
+)
+
 
 # ── Lightweight HTML extraction ───────────────────────────────────────────────
 
 
 class _PageParser(HTMLParser):
-    """Extract the small set of signals humanAI needs from a page."""
+    """Pull the small set of signals humanAI needs out of a page."""
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
@@ -106,13 +132,15 @@ class _PageParser(HTMLParser):
         self._heading_buf: Optional[List[str]] = None
         self._heading_tag: Optional[str] = None
         self.links: List[str] = []
-        self.forms: List[str] = []
+        self.forms: List[Dict[str, str]] = []
+        self.buttons: List[str] = []
+        self._button_buf: Optional[List[str]] = None
+        self.inputs: List[Dict[str, str]] = []
         self.images_total = 0
         self.images_missing_alt = 0
         self.viewport_meta: Optional[str] = None
         self.html_lang: Optional[str] = None
 
-    # ── tag entry ────────────────────────────────────────────────────────────
     def handle_starttag(self, tag: str, attrs: List[Tuple[str, Optional[str]]]) -> None:
         attrs_d = {k.lower(): (v or "") for k, v in attrs}
         if tag == "title":
@@ -129,15 +157,22 @@ class _PageParser(HTMLParser):
             if href:
                 self.links.append(href)
         elif tag == "form":
-            action = attrs_d.get("action") or ""
-            method = attrs_d.get("method") or "get"
-            self.forms.append(f"{method.upper()} {action}".strip())
+            self.forms.append({
+                "action": attrs_d.get("action") or "",
+                "method": (attrs_d.get("method") or "get").lower(),
+            })
+        elif tag == "button":
+            self._button_buf = []
+        elif tag == "input":
+            self.inputs.append({
+                "type": attrs_d.get("type") or "text",
+                "name": attrs_d.get("name") or "",
+                "placeholder": attrs_d.get("placeholder") or "",
+            })
         elif tag == "img":
             self.images_total += 1
-            alt = attrs_d.get("alt")
-            # alt missing entirely (None) is the failure mode; alt="" is OK
-            # because it explicitly marks decorative images.
-            if alt is None:
+            if attrs_d.get("alt") is None:
+                # alt missing entirely is the failure mode; alt="" is OK.
                 self.images_missing_alt += 1
 
     def handle_endtag(self, tag: str) -> None:
@@ -149,28 +184,35 @@ class _PageParser(HTMLParser):
                 self.headings.append((self._heading_tag or tag, text[:120]))
             self._heading_buf = None
             self._heading_tag = None
+        elif tag == "button" and self._button_buf is not None:
+            text = " ".join("".join(self._button_buf).split())
+            if text:
+                self.buttons.append(text[:60])
+            self._button_buf = None
 
     def handle_data(self, data: str) -> None:
         if self._in_title:
             self.title_parts.append(data)
         if self._heading_buf is not None:
             self._heading_buf.append(data)
+        if self._button_buf is not None:
+            self._button_buf.append(data)
 
     @property
     def title(self) -> str:
         return " ".join("".join(self.title_parts).split())
 
 
-# ── Route discovery ───────────────────────────────────────────────────────────
+# ── Repo discovery (the "code map") ───────────────────────────────────────────
 
 
-def discover_static_routes(repo_root: Path) -> List[str]:
-    """
-    Walk ``app/`` and return public, statically-knowable routes that humanAI
-    can visit without parameters. Skips dynamic segments (``[id]``) and
-    Next.js groups whose first character is ``(`` (e.g. ``(internal)``) when
-    the group is intentionally non-public, but keeps cosmetic groups otherwise.
-    """
+_HTTP_METHOD_RE = re.compile(
+    r"export\s+(?:async\s+)?(?:function|const)\s+(GET|POST|PUT|PATCH|DELETE|OPTIONS|HEAD)\b"
+)
+
+
+def discover_routes(repo_root: Path) -> List[str]:
+    """Static, parameter-free routes humanAI can visit without invented input."""
     app_dir = repo_root / "app"
     if not app_dir.is_dir():
         return ["/"]
@@ -178,15 +220,15 @@ def discover_static_routes(repo_root: Path) -> List[str]:
     routes: Set[str] = {"/"}
     for page in app_dir.rglob("page.tsx"):
         rel = page.relative_to(app_dir).parent
-        parts = []
+        parts: List[str] = []
         skip = False
         for segment in rel.parts:
             if segment.startswith("[") and segment.endswith("]"):
-                # Dynamic segment — humanAI cannot guess a real id, skip.
                 skip = True
                 break
             if segment.startswith("(") and segment.endswith(")"):
-                # Next.js route group — does not appear in the URL.
+                # Next.js route group — invisible in the URL. Internal-only
+                # groups are skipped because humanAI is an end-user persona.
                 if segment.lower().startswith("(internal"):
                     skip = True
                     break
@@ -194,32 +236,88 @@ def discover_static_routes(repo_root: Path) -> List[str]:
             parts.append(segment)
         if skip:
             continue
-        route = "/" + "/".join(parts) if parts else "/"
-        routes.add(route)
-
-    # Stable, predictable ordering: shorter (more important) routes first.
+        routes.add("/" + "/".join(parts) if parts else "/")
     return sorted(routes, key=lambda r: (r.count("/"), r))
+
+
+def discover_api_endpoints(repo_root: Path) -> List[Dict[str, Any]]:
+    """
+    Walk ``app/api/**/route.ts`` and parse exported HTTP method handlers.
+    Returns a list of {path, methods, dynamic} dicts — the live API surface.
+    """
+    api_dir = repo_root / "app" / "api"
+    if not api_dir.is_dir():
+        return []
+
+    out: List[Dict[str, Any]] = []
+    for route_file in api_dir.rglob("route.ts"):
+        rel = route_file.relative_to(repo_root / "app").parent
+        path_segments = ["/" + s for s in rel.parts]
+        url_path = "".join(path_segments) or "/api"
+        dynamic = any(s.startswith("[") for s in rel.parts)
+        source = read_text(route_file)
+        methods = sorted(set(_HTTP_METHOD_RE.findall(source)))
+        if not methods:
+            continue
+        out.append({
+            "path": url_path,
+            "methods": methods,
+            "dynamic": dynamic,
+            "file": str(route_file.relative_to(repo_root)),
+        })
+    out.sort(key=lambda e: e["path"])
+    return out
+
+
+def build_code_map(repo_root: Path, max_files_per_section: int = 80) -> Dict[str, Any]:
+    """
+    A compact mental model of the codebase: pages, components, lib modules,
+    API surface, top-level docs. humanAI uses this to talk about the app
+    with real understanding instead of guessing.
+    """
+    app_dir = repo_root / "app"
+    components_dir = repo_root / "components"
+    lib_dir = repo_root / "lib"
+    docs_dir = repo_root / "docs"
+
+    def _list(root: Path, pattern: str) -> List[str]:
+        if not root.is_dir():
+            return []
+        items = sorted(str(p.relative_to(repo_root)) for p in root.rglob(pattern))
+        return items[:max_files_per_section]
+
+    return {
+        "pages": _list(app_dir, "page.tsx"),
+        "layouts": _list(app_dir, "layout.tsx"),
+        "components": _list(components_dir, "*.tsx"),
+        "lib_modules": _list(lib_dir, "*.ts"),
+        "docs": _list(docs_dir, "*.md"),
+        "api_endpoints": discover_api_endpoints(repo_root),
+    }
 
 
 # ── HTTP fetch ────────────────────────────────────────────────────────────────
 
 
-def fetch(url: str, timeout: int = DEFAULT_TIMEOUT) -> Dict[str, object]:
-    """
-    Fetch a URL, returning a structured result dict. Never raises — all
-    errors are folded into the result so the crawler keeps going.
-    """
+def _request(
+    url: str,
+    method: str = "GET",
+    body: Optional[bytes] = None,
+    extra_headers: Optional[Dict[str, str]] = None,
+    timeout: int = DEFAULT_TIMEOUT,
+) -> Dict[str, Any]:
     started = time.monotonic()
-    req = urllib.request.Request(
-        url,
-        headers={
-            "User-Agent": USER_AGENT,
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.9",
-        },
-    )
-    result: Dict[str, object] = {
+    headers = {
+        "User-Agent": USER_AGENT,
+        "Accept": "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+    }
+    if extra_headers:
+        headers.update(extra_headers)
+    req = urllib.request.Request(url, data=body, headers=headers, method=method)
+    result: Dict[str, Any] = {
         "url": url,
+        "method": method,
         "status": 0,
         "latency_ms": 0,
         "content_type": "",
@@ -229,28 +327,27 @@ def fetch(url: str, timeout: int = DEFAULT_TIMEOUT) -> Dict[str, object]:
     }
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
-            body_bytes = resp.read()
+            data = resp.read()
             result["status"] = resp.status
             result["content_type"] = resp.headers.get("Content-Type", "")
-            result["bytes"] = len(body_bytes)
-            # Only decode when it looks like text — humanAI does not analyse
-            # binary payloads.
-            if "text" in result["content_type"] or "json" in result["content_type"]:
-                result["body"] = body_bytes.decode("utf-8", errors="replace")
+            result["bytes"] = len(data)
+            ct = result["content_type"]
+            if "text" in ct or "json" in ct or "xml" in ct:
+                result["body"] = data.decode("utf-8", errors="replace")
     except urllib.error.HTTPError as exc:
         result["status"] = exc.code
         try:
-            body_bytes = exc.read()
-            result["bytes"] = len(body_bytes)
-            result["body"] = body_bytes.decode("utf-8", errors="replace")
-        except Exception:  # pragma: no cover - defensive
+            data = exc.read()
+            result["bytes"] = len(data)
+            result["body"] = data.decode("utf-8", errors="replace")
+        except Exception:  # pragma: no cover
             pass
         result["error"] = f"HTTP {exc.code} {exc.reason}"
     except urllib.error.URLError as exc:
         result["error"] = f"URL error: {exc.reason}"
     except socket.timeout:
         result["error"] = f"timeout after {timeout}s"
-    except Exception as exc:  # pragma: no cover - defensive
+    except Exception as exc:  # pragma: no cover
         result["error"] = f"{type(exc).__name__}: {exc}"
     finally:
         result["latency_ms"] = int((time.monotonic() - started) * 1000)
@@ -258,7 +355,6 @@ def fetch(url: str, timeout: int = DEFAULT_TIMEOUT) -> Dict[str, object]:
 
 
 def wait_for_server(base_url: str, attempts: int = 60, delay: float = 1.0) -> bool:
-    """Poll ``base_url`` until it responds or ``attempts`` is exhausted."""
     for _ in range(attempts):
         try:
             req = urllib.request.Request(base_url, headers={"User-Agent": USER_AGENT})
@@ -274,8 +370,6 @@ def wait_for_server(base_url: str, attempts: int = 60, delay: float = 1.0) -> bo
 
 
 def normalise_link(base_url: str, href: str) -> Optional[str]:
-    """Resolve ``href`` against ``base_url`` and return it if it is a same-origin
-    HTTP(S) URL we should crawl, otherwise ``None``."""
     if not href or href.startswith(("#", "mailto:", "tel:", "javascript:", "data:")):
         return None
     abs_url = urllib.parse.urljoin(base_url + "/", href)
@@ -288,30 +382,28 @@ def normalise_link(base_url: str, href: str) -> Optional[str]:
     path = parsed.path or "/"
     if any(path.startswith(p) for p in SKIP_PATH_PREFIXES):
         return None
-    # Strip fragment, keep query.
     return urllib.parse.urlunparse(
         (parsed.scheme or parsed_base.scheme, parsed_base.netloc, path, "", parsed.query, "")
     )
 
 
-def analyse_page(result: Dict[str, object]) -> Dict[str, object]:
-    """Parse a fetched page into the structured signals humanAI cares about."""
+def analyse_page(result: Dict[str, Any]) -> Dict[str, Any]:
     body = str(result.get("body") or "")
     content_type = str(result.get("content_type") or "")
     parser = _PageParser()
     if "html" in content_type and body:
         try:
             parser.feed(body)
-        except Exception:  # pragma: no cover - HTMLParser is forgiving
+        except Exception:  # pragma: no cover
             pass
-
     error_hits = [m.pattern for m in ERROR_MARKERS if m.search(body)] if body else []
-
     return {
         "title": parser.title,
         "headings": parser.headings[:8],
         "links": parser.links,
         "forms": parser.forms,
+        "buttons": parser.buttons[:12],
+        "inputs": parser.inputs[:12],
         "images_total": parser.images_total,
         "images_missing_alt": parser.images_missing_alt,
         "viewport_meta": parser.viewport_meta,
@@ -322,37 +414,31 @@ def analyse_page(result: Dict[str, object]) -> Dict[str, object]:
 
 def crawl(
     base_url: str,
-    seed_routes: List[str],
+    seed_routes: Iterable[str],
     max_pages: int,
     timeout: int,
-) -> List[Dict[str, object]]:
-    """Crawl up to ``max_pages`` pages starting from ``seed_routes``."""
+) -> List[Dict[str, Any]]:
     base_url = base_url.rstrip("/")
     queue: List[str] = []
     seen: Set[str] = set()
-
     for route in seed_routes:
         url = base_url + route
         if url not in seen:
             seen.add(url)
             queue.append(url)
 
-    pages: List[Dict[str, object]] = []
+    pages: List[Dict[str, Any]] = []
     while queue and len(pages) < max_pages:
         url = queue.pop(0)
         print(f"[humanAI] visiting {url}", file=sys.stderr)
-        fetched = fetch(url, timeout=timeout)
+        fetched = _request(url, timeout=timeout)
         analysed = analyse_page(fetched)
         page = {**fetched, **analysed}
-        # Drop the (possibly large) body from the public record once parsed —
-        # we only keep a truncated preview for the AI step.
-        body_preview = str(fetched.get("body") or "")[:1500]
-        page["body_preview"] = body_preview
+        page["body_preview"] = str(fetched.get("body") or "")[:1200]
         page.pop("body", None)
         pages.append(page)
 
-        # Dynamic discovery: enqueue same-origin links we found.
-        for href in analysed["links"]:  # type: ignore[index]
+        for href in analysed["links"]:
             link = normalise_link(base_url, href)
             if link and link not in seen and len(seen) < max_pages * 3:
                 seen.add(link)
@@ -360,11 +446,114 @@ def crawl(
     return pages
 
 
+# ── Interaction phase (humanAI actually *uses* the app) ───────────────────────
+
+
+def _is_destructive(endpoint_path: str) -> bool:
+    low = endpoint_path.lower()
+    return any(hint in low for hint in DESTRUCTIVE_NAME_HINTS)
+
+
+def _is_safely_probable(endpoint_path: str) -> bool:
+    low = endpoint_path.lower()
+    return any(hint in low for hint in SAFE_INTERACTION_HINTS)
+
+
+def _payload_for(endpoint_path: str) -> Optional[Tuple[bytes, Dict[str, str]]]:
+    """
+    Build a minimal, plausible JSON payload for a probe POST. Returns
+    ``None`` when we don't have a safe shape to send.
+    """
+    low = endpoint_path.lower()
+    if "search" in low or "discover" in low or "suggest" in low:
+        body = {"q": "dream", "query": "dream", "limit": 5}
+    elif "feed" in low:
+        body = {"limit": 5}
+    elif "comment" in low:
+        # humanAI tries to post a single, friendly, clearly-marked test
+        # comment. The endpoint should reject unauthenticated callers in
+        # most environments — that itself is a useful signal.
+        body = {
+            "post_id": "00000000-0000-0000-0000-000000000000",
+            "content": "humanAI was here — friendly probe, ignore.",
+            "parent_id": None,
+        }
+    elif "preview" in low or "summary" in low:
+        body = {}
+    else:
+        return None
+    return json.dumps(body).encode("utf-8"), {"Content-Type": "application/json"}
+
+
+def interact(
+    base_url: str,
+    endpoints: List[Dict[str, Any]],
+    max_interactions: int,
+    timeout: int,
+) -> List[Dict[str, Any]]:
+    """
+    Discover what humanAI can do with the live API surface and try the safe
+    subset. Never invokes destructive verbs or destructive-named endpoints.
+    """
+    base_url = base_url.rstrip("/")
+    out: List[Dict[str, Any]] = []
+    attempts = 0
+
+    # Stable interaction order: safe-probable first, then everything else.
+    ordered = sorted(
+        (e for e in endpoints if not e["dynamic"]),
+        key=lambda e: (0 if _is_safely_probable(e["path"]) else 1, e["path"]),
+    )
+
+    for ep in ordered:
+        if attempts >= max_interactions:
+            break
+        path = ep["path"]
+        if _is_destructive(path):
+            continue
+        url = base_url + path
+
+        for method in ep["methods"]:
+            if attempts >= max_interactions:
+                break
+            if method in ("DELETE", "PUT", "PATCH"):
+                # humanAI never invokes mutating verbs.
+                continue
+            if method == "OPTIONS" or method == "HEAD":
+                continue
+
+            body: Optional[bytes] = None
+            headers: Dict[str, str] = {}
+            if method == "POST":
+                if not _is_safely_probable(path) and "comment" not in path.lower():
+                    # Without a safe-shape payload hint we don't probe POST.
+                    continue
+                payload = _payload_for(path)
+                if payload is None:
+                    continue
+                body, headers = payload
+
+            print(f"[humanAI] {method} {url}", file=sys.stderr)
+            res = _request(url, method=method, body=body, extra_headers=headers, timeout=timeout)
+            attempts += 1
+            preview = str(res.get("body") or "")[:600]
+            out.append({
+                "endpoint": path,
+                "method": method,
+                "status": res.get("status"),
+                "latency_ms": res.get("latency_ms"),
+                "bytes": res.get("bytes"),
+                "content_type": res.get("content_type"),
+                "error": res.get("error"),
+                "body_preview": preview,
+            })
+    return out
+
+
 # ── Reporting ─────────────────────────────────────────────────────────────────
 
 
-def structural_findings(pages: List[Dict[str, object]]) -> List[str]:
-    """Deterministic findings extracted directly from the crawl signals."""
+def structural_findings(pages: List[Dict[str, Any]]) -> List[str]:
     findings: List[str] = []
     for page in pages:
         url = page["url"]
@@ -373,28 +562,28 @@ def structural_findings(pages: List[Dict[str, object]]) -> List[str]:
             findings.append(f"❌ **{url}** — request failed: {page['error']}")
         elif isinstance(status, int) and status >= 500:
             findings.append(f"❌ **{url}** — server error (HTTP {status})")
-        elif isinstance(status, int) and status >= 400 and status != 404:
+        elif isinstance(status, int) and 400 <= status < 500 and status != 404:
             findings.append(f"⚠️ **{url}** — HTTP {status}")
         if page.get("error_markers"):
             findings.append(
                 f"❌ **{url}** — error markers in HTML: "
-                + ", ".join(str(m) for m in page["error_markers"])  # type: ignore[arg-type]
+                + ", ".join(str(m) for m in page["error_markers"])
             )
         if isinstance(status, int) and 200 <= status < 400:
             if not page.get("title"):
-                findings.append(f"⚠️ **{url}** — missing or empty <title> tag")
+                findings.append(f"⚠️ **{url}** — missing or empty `<title>`")
             if not page.get("viewport_meta"):
                 findings.append(
                     f"⚠️ **{url}** — missing `<meta name=\"viewport\">` "
                     "(critical for an iOS-first mobile web app)"
                 )
             if not page.get("html_lang"):
-                findings.append(f"⚠️ **{url}** — `<html>` missing `lang` attribute (a11y)")
+                findings.append(f"⚠️ **{url}** — `<html>` missing `lang` (a11y)")
             missing = page.get("images_missing_alt") or 0
             total = page.get("images_total") or 0
             if isinstance(missing, int) and missing > 0:
                 findings.append(
-                    f"⚠️ **{url}** — {missing}/{total} images missing `alt` attribute (a11y)"
+                    f"⚠️ **{url}** — {missing}/{total} images missing `alt`"
                 )
             latency = page.get("latency_ms") or 0
             if isinstance(latency, int) and latency > 3000:
@@ -402,162 +591,273 @@ def structural_findings(pages: List[Dict[str, object]]) -> List[str]:
             size = page.get("bytes") or 0
             if isinstance(size, int) and size > 750_000:
                 findings.append(
-                    f"⚠️ **{url}** — large HTML payload ({size // 1024} KB); consider streaming/SSG"
+                    f"⚠️ **{url}** — large HTML payload ({size // 1024} KB)"
                 )
     return findings
 
 
-def summarise_for_ai(pages: List[Dict[str, object]]) -> str:
-    """Build a compact JSON-ish summary of the crawl for the AI prompt."""
-    summary = []
-    for page in pages:
-        summary.append(
-            {
-                "url": page["url"],
-                "status": page["status"],
-                "latency_ms": page["latency_ms"],
-                "bytes": page["bytes"],
-                "title": page.get("title"),
-                "headings": page.get("headings"),
-                "viewport_meta": page.get("viewport_meta"),
-                "html_lang": page.get("html_lang"),
-                "images_total": page.get("images_total"),
-                "images_missing_alt": page.get("images_missing_alt"),
-                "forms": page.get("forms"),
-                "error_markers": page.get("error_markers"),
-                "body_preview": page.get("body_preview"),
-            }
-        )
-    return json.dumps(summary, ensure_ascii=False, indent=2)
+def interaction_findings(interactions: List[Dict[str, Any]]) -> List[str]:
+    findings: List[str] = []
+    for it in interactions:
+        ep = it["endpoint"]
+        method = it["method"]
+        status = it.get("status")
+        if it.get("error") and not (isinstance(status, int) and 200 <= status < 500):
+            findings.append(
+                f"❌ **{method} {ep}** — request failed: {it['error']}"
+            )
+        elif isinstance(status, int) and status >= 500:
+            findings.append(
+                f"❌ **{method} {ep}** — server error (HTTP {status})"
+            )
+        elif isinstance(status, int) and status in (401, 403):
+            # Auth gates are expected in many environments — record as info.
+            findings.append(
+                f"ℹ️ **{method} {ep}** — auth gate (HTTP {status})"
+            )
+        elif isinstance(status, int) and 400 <= status < 500 and status not in (404,):
+            findings.append(
+                f"⚠️ **{method} {ep}** — HTTP {status}"
+            )
+    return findings
 
+
+# ── humanAI persona prompt ────────────────────────────────────────────────────
 
 HUMANAI_SYSTEM_PROMPT = """\
-You are humanAI — a Dream Engine UX, accessibility and performance auditor who
-browses DREAMengin like a real human user on an iPhone (iOS Safari, 390x844).
-Your job is to find problems a real user would hit — *not* to invent issues.
+You are humanAI — a human touch without a human.
 
-DREAMengin is an iOS-first mobile web app built with Next.js 16 App Router,
-React 19, Tailwind, Supabase, and Babylon.js. It must feel SICC: Stylized,
-Intuitive, Cohesive, Coherent, with Super Immersive Creative Controls.
+You are not a linter. You are not a checklist. You are a real, curious,
+impatient iPhone Safari user exploring DREAMengin for the first time, with
+the privileged side-effect of having read the whole codebase. Your job is
+to surface what a real person would feel, notice, get confused by, or get
+excited about — phrased like a person, not a CI bot.
 
-You will receive a JSON crawl of the live site. For each problem you find,
-output ONE bullet in the form:
+DREAMengin in one breath: an iOS-first mobile spatial OS — Next.js 16 App
+Router, React 19, Tailwind, Supabase, Babylon.js. The flagship surface is
+**dreamr** (feed, comments, suggestions, search). The whole product must
+feel SICC: Stylized, Intuitive, Cohesive, Coherent — with Super Immersive
+Creative Controls.
 
-  - <severity emoji> **<URL>** — <one-sentence problem> — *Fix:* <one-sentence fix>
+You will receive three things, all *discovered dynamically* (they grow and
+shrink with the codebase, never hard-coded):
 
-Severity emojis: 🛑 critical (blocks usage), ⚠️ major (degrades UX), 💡 polish.
-Group your output under these markdown headers, in this order, omitting any
-section that has no findings:
+  1. CODE MAP — pages, components, lib modules, API endpoints with HTTP
+     methods. This is your mental model of "how everything works."
+  2. CRAWL — pages humanAI actually loaded as an iPhone, with titles,
+     headings, forms, buttons, inputs, error markers, latency, payload size.
+  3. INTERACTIONS — API calls humanAI actually made (dreamr feed/suggested,
+     search, a friendly comment probe, etc.) with status, latency, response
+     preview.
 
-  ### 🛑 Critical issues
-  ### ⚠️ Major UX / a11y / mobile issues
-  ### 💡 Polish & SICC alignment
+Write a report in this exact markdown structure, omitting any section that
+genuinely has nothing to say:
 
-Be specific. Cite the URL. Do not repeat structural findings the report
-already lists; focus on what only a human user would notice (mobile tap
-targets, copy clarity, broken flows, ambiguous CTAs, jank cues, navigation
-dead-ends, inconsistent typography, etc.). If the crawl shows no issues at
-all in a category, omit the section entirely. Maximum 25 bullets total.
+  ## What I felt as a user
+  Two or three short paragraphs in first person, like a smart friend
+  texting back after trying the app. No bullets here.
+
+  ## What's broken or rough
+  Bullets. One per finding. Format:
+    - <severity> **<URL or endpoint>** — <one-sentence problem> — *Fix:* <one-sentence fix>
+  Severities: 🛑 critical, ⚠️ rough, 💡 polish.
+
+  ## What dreamr taught me
+  Bullets specifically about the dreamr surface (feed, suggested, search,
+  comments, posts) and how they feel together as a single product.
+
+  ## Reorganize, don't invent
+  Concrete suggestions to **edit / rename / move / delete** files that
+  ALREADY EXIST in the code map. Each bullet must reference a real path
+  from the code map. You may combine existing parts into new structure,
+  but you may NOT propose creating a new file or adding a dependency.
+  If you have nothing of this kind to say, omit the section entirely
+  rather than padding it.
+
+Hard rules:
+  • Sound human. Specific, opinionated, kind. No filler, no enterprise
+    voice, no "ensure that" / "it is recommended" / "leverage."
+  • Cite real URLs, real endpoints, real file paths from the inputs.
+  • Never invent files, components, libraries, or routes that aren't in
+    the code map.
+  • Never recommend adding a dependency.
+  • Maximum 35 bullets across all sections combined.
 """
 
 
-def run_ai_pass(api_key: str, model: str, pages: List[Dict[str, object]]) -> str:
-    """Ask GPT to play the humanAI persona over the crawl."""
+def summarise_for_ai(
+    code_map: Dict[str, Any],
+    pages: List[Dict[str, Any]],
+    interactions: List[Dict[str, Any]],
+) -> str:
+    pages_compact = [
+        {
+            "url": p["url"],
+            "status": p["status"],
+            "latency_ms": p["latency_ms"],
+            "bytes": p["bytes"],
+            "title": p.get("title"),
+            "headings": p.get("headings"),
+            "buttons": p.get("buttons"),
+            "inputs": p.get("inputs"),
+            "forms": p.get("forms"),
+            "viewport_meta": p.get("viewport_meta"),
+            "html_lang": p.get("html_lang"),
+            "images_total": p.get("images_total"),
+            "images_missing_alt": p.get("images_missing_alt"),
+            "error_markers": p.get("error_markers"),
+            "body_preview": p.get("body_preview"),
+        }
+        for p in pages
+    ]
+    payload = {
+        "code_map": code_map,
+        "crawl": pages_compact,
+        "interactions": interactions,
+    }
+    return json.dumps(payload, ensure_ascii=False, indent=2)
+
+
+def run_ai_pass(
+    api_key: str,
+    model: str,
+    code_map: Dict[str, Any],
+    pages: List[Dict[str, Any]],
+    interactions: List[Dict[str, Any]],
+) -> str:
     user_prompt = (
-        "Crawl results follow as JSON. Audit the site as a real iPhone user.\n\n"
-        "```json\n" + summarise_for_ai(pages) + "\n```"
+        "Here is everything humanAI discovered, dynamically, this run. "
+        "Write the report exactly as the system prompt specifies.\n\n"
+        "```json\n" + summarise_for_ai(code_map, pages, interactions) + "\n```"
     )
     return call_openai_simple(
         api_key=api_key,
         model=model,
         system=HUMANAI_SYSTEM_PROMPT,
         user=user_prompt,
-        max_tokens=4_000,
+        max_tokens=6_000,
     )
 
 
 def render_report(
     base_url: str,
-    pages: List[Dict[str, object]],
+    code_map: Dict[str, Any],
+    pages: List[Dict[str, Any]],
+    interactions: List[Dict[str, Any]],
     structural: List[str],
+    interaction_notes: List[str],
     ai_section: Optional[str],
 ) -> str:
     ok = sum(1 for p in pages if isinstance(p.get("status"), int) and 200 <= p["status"] < 400)
     failed = len(pages) - ok
-    total_latency = sum(int(p.get("latency_ms") or 0) for p in pages)
-    avg_latency = (total_latency // len(pages)) if pages else 0
+    avg_latency = (
+        sum(int(p.get("latency_ms") or 0) for p in pages) // len(pages) if pages else 0
+    )
 
-    lines: List[str] = []
-    lines.append("# humanAI Audit Report")
-    lines.append("")
-    lines.append(f"_Target_: `{base_url}`  ")
-    lines.append(f"_User agent_: iPhone Safari (humanAI/1.0)  ")
-    lines.append(f"_Pages crawled_: **{len(pages)}** · OK **{ok}** · failing **{failed}**  ")
-    lines.append(f"_Average response_: **{avg_latency} ms**")
-    lines.append("")
-    lines.append("## Crawl summary")
-    lines.append("")
-    lines.append("| URL | Status | Latency | Size | Title |")
-    lines.append("|-----|-------:|--------:|-----:|-------|")
+    out: List[str] = []
+    out.append("# humanAI — a human touch without humans")
+    out.append("")
+    out.append(f"_Target_: `{base_url}`  ")
+    out.append(f"_Persona_: iPhone Safari (humanAI/1.0)  ")
+    out.append(
+        f"_Discovered_: **{len(code_map.get('pages', []))}** pages · "
+        f"**{len(code_map.get('components', []))}** components · "
+        f"**{len(code_map.get('api_endpoints', []))}** API endpoints  "
+    )
+    out.append(
+        f"_Crawled_: **{len(pages)}** pages · OK **{ok}** · failing **{failed}** "
+        f"· avg **{avg_latency} ms**  "
+    )
+    out.append(f"_Interactions_: **{len(interactions)}** API calls (read-only & safe)")
+    out.append("")
+
+    if ai_section:
+        out.append(ai_section.strip())
+        out.append("")
+    else:
+        out.append(
+            "_AI persona pass skipped — set `OPENAI_API_KEY` to let humanAI speak _"
+            "_in their own voice. Structural signals follow._"
+        )
+        out.append("")
+
+    out.append("## Crawl signals")
+    out.append("")
+    out.append("| URL | Status | Latency | Size | Title |")
+    out.append("|-----|-------:|--------:|-----:|-------|")
     for p in pages:
         title = (p.get("title") or "").replace("|", "\\|")[:60]
         size = p.get("bytes") or 0
         size_kb = f"{int(size) // 1024} KB" if isinstance(size, int) and size else "—"
-        status = p.get("status") or "—"
         latency = p.get("latency_ms")
         latency_str = f"{latency} ms" if isinstance(latency, int) else "—"
-        lines.append(
-            f"| `{p['url']}` | {status} | {latency_str} | {size_kb} | {title} |"
+        out.append(
+            f"| `{p['url']}` | {p.get('status') or '—'} | {latency_str} | {size_kb} | {title} |"
         )
-    lines.append("")
-
-    lines.append("## Structural findings")
-    lines.append("")
+    out.append("")
     if structural:
-        lines.extend(structural)
-    else:
-        lines.append("_No structural problems detected by the deterministic checks._")
-    lines.append("")
+        out.append("**Structural notes**")
+        out.append("")
+        out.extend(structural)
+        out.append("")
 
-    lines.append("## humanAI persona findings")
-    lines.append("")
-    if ai_section:
-        lines.append(ai_section.strip())
+    out.append("## API interactions")
+    out.append("")
+    if interactions:
+        out.append("| Endpoint | Method | Status | Latency | Bytes |")
+        out.append("|----------|--------|-------:|--------:|------:|")
+        for it in interactions:
+            out.append(
+                f"| `{it['endpoint']}` | {it['method']} | {it.get('status') or '—'} | "
+                f"{it.get('latency_ms', '—')} ms | {it.get('bytes', 0)} |"
+            )
+        out.append("")
+        if interaction_notes:
+            out.append("**Interaction notes**")
+            out.append("")
+            out.extend(interaction_notes)
+            out.append("")
     else:
-        lines.append(
-            "_AI persona pass skipped — set `OPENAI_API_KEY` to enable GPT-driven_"
-            "_human-style review._"
-        )
-    lines.append("")
+        out.append("_No interaction phase ran (use `--interact` to enable)._")
+        out.append("")
 
-    lines.append("---")
-    lines.append(
-        "_Generated by `.github/scripts/humanai_audit.py`. "
-        "humanAI is dynamic — it discovers routes from the live HTML it gets back, "
-        "not from a fixed Playwright script._"
+    out.append("---")
+    out.append(
+        "_Generated by `.github/scripts/humanai_audit.py`. Routes, endpoints, "
+        "and interaction targets are discovered at runtime — humanAI scales "
+        "with the code, no Playwright, no fixed selectors._"
     )
-    return "\n".join(lines) + "\n"
+    return "\n".join(out) + "\n"
 
 
 # ── CLI ───────────────────────────────────────────────────────────────────────
 
 
 def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="humanAI dynamic website audit")
+    parser = argparse.ArgumentParser(description="humanAI — dynamic, human-style website audit")
     parser.add_argument("--base-url", default=DEFAULT_BASE_URL)
     parser.add_argument("--out", default=DEFAULT_OUT, help="Markdown report path")
     parser.add_argument("--max-pages", type=int, default=DEFAULT_MAX_PAGES)
+    parser.add_argument("--max-interactions", type=int, default=DEFAULT_MAX_INTERACTIONS)
     parser.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT)
     parser.add_argument(
         "--repo-root",
         default=str(Path(__file__).resolve().parents[2]),
-        help="Repository root used to discover routes from app/**/page.tsx",
+        help="Repo root used for runtime route + endpoint discovery",
     )
     parser.add_argument("--model", default="gpt-4.1", help="OpenAI model for the persona pass")
+    parser.add_argument("--no-ai", action="store_true", help="Skip the OpenAI persona pass")
     parser.add_argument(
-        "--no-ai",
+        "--interact",
         action="store_true",
-        help="Skip the OpenAI persona pass even if OPENAI_API_KEY is set",
+        default=True,
+        help="Exercise discovered API endpoints (default: on; --no-interact to disable)",
+    )
+    parser.add_argument(
+        "--no-interact",
+        dest="interact",
+        action="store_false",
+        help="Disable the interaction phase",
     )
     parser.add_argument(
         "--wait-for-server",
@@ -580,29 +880,40 @@ def main(argv: Optional[List[str]] = None) -> int:
         print(f"[humanAI] server at {args.base_url} never responded", file=sys.stderr)
         return 2
 
-    routes = discover_static_routes(repo_root)
-    print(f"[humanAI] {len(routes)} static seed routes from {repo_root}/app", file=sys.stderr)
-
-    pages = crawl(
-        base_url=args.base_url,
-        seed_routes=routes,
-        max_pages=args.max_pages,
-        timeout=args.timeout,
+    code_map = build_code_map(repo_root)
+    routes = discover_routes(repo_root)
+    print(
+        f"[humanAI] code map: {len(code_map['pages'])} pages, "
+        f"{len(code_map['components'])} components, "
+        f"{len(code_map['api_endpoints'])} api endpoints",
+        file=sys.stderr,
     )
 
+    pages = crawl(args.base_url, routes, args.max_pages, args.timeout)
+
+    interactions: List[Dict[str, Any]] = []
+    if args.interact:
+        interactions = interact(
+            args.base_url,
+            code_map["api_endpoints"],
+            args.max_interactions,
+            args.timeout,
+        )
+
     structural = structural_findings(pages)
+    interaction_notes = interaction_findings(interactions)
 
     ai_section: Optional[str] = None
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
     if api_key and not args.no_ai:
         try:
-            ai_section = run_ai_pass(api_key, args.model, pages)
+            ai_section = run_ai_pass(api_key, args.model, code_map, pages, interactions)
         except SystemExit:
-            # call_openai already logged the failure — keep the structural
-            # report so the run is still useful.
             ai_section = "_AI persona pass failed; see workflow logs._"
 
-    report = render_report(args.base_url, pages, structural, ai_section)
+    report = render_report(
+        args.base_url, code_map, pages, interactions, structural, interaction_notes, ai_section
+    )
     out_path = Path(args.out)
     mkdir_p(out_path.parent)
     write_text(out_path, report)
