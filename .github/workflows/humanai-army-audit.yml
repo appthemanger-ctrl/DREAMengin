@@ -34,7 +34,7 @@ on:
         type: boolean
         default: true
   schedule:
-    - cron: '0 5 * * 0'   # every Sunday at 05:00 UTC
+    - cron: '0 5 * * 0' # every Sunday at 05:00 UTC
 
 permissions:
   contents: read
@@ -46,13 +46,15 @@ concurrency:
 
 env:
   NODE_VERSION: '25'
-  PNPM_VERSION: '10.33.0'
+  # Match the repo's declared packageManager in package.json to avoid
+  # ERR_PNPM_BAD_PM_VERSION in pnpm/action-setup.
+  PNPM_VERSION: '10.30.0'
   BASE_URL: http://localhost:3000
   GENERATED_DIR: .github/generated
   ARMY_REPORTS_DIR: .github/generated/army-reports
 
-# ── 1. Build ──────────────────────────────────────────────────────────────────
 jobs:
+  # ── 1. Build ────────────────────────────────────────────────────────────────
   build:
     name: Build DREAMengin
     runs-on: ubuntu-latest
@@ -78,7 +80,7 @@ jobs:
 
       - name: Build DREAMengin
         env:
-          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
         run: pnpm run build
 
@@ -89,7 +91,7 @@ jobs:
           path: .next
           retention-days: 1
 
-# ── 2. Persona runs (parallel matrix) ────────────────────────────────────────
+  # ── 2. Persona runs (parallel matrix) ───────────────────────────────────────
   persona:
     name: Persona — ${{ matrix.persona }}
     needs: build
@@ -132,7 +134,7 @@ jobs:
 
       - name: Start Next.js server in background
         env:
-          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           DEV_BYPASS_AUTH: 'true'
           DEV_ADMIN: 'true'
@@ -191,7 +193,7 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
 
-# ── 3. Orchestrator synthesis ─────────────────────────────────────────────────
+  # ── 3. Orchestrator synthesis ───────────────────────────────────────────────
   orchestrate:
     name: Orchestrator — SICC Master Report
     needs: persona
