@@ -1,3 +1,8 @@
+// Re-export the shared responsive scale system so callers can pull both the
+// legacy compact-runtime helpers and the new adaptable/dynamic/scalable
+// utilities from a single well-known module.
+export * from './responsive';
+
 export const COMPACT_RUNTIME_VIEWPORT_MAX_WIDTH = 768;
 
 export function isCompactRuntimeViewport(width: number): boolean {
