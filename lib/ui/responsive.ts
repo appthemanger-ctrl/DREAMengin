@@ -155,9 +155,9 @@ export function cssClamp(
   const slope = (maxPx - minPx) / (toWidth - fromWidth);
   const intercept = minPx - slope * fromWidth;
   const vw = (slope * 100).toFixed(4);
-  const base = intercept.toFixed(2);
   const sign = intercept >= 0 ? '+' : '-';
-  return `clamp(${minPx}px, calc(${vw}vw ${sign} ${Math.abs(Number(base))}px), ${maxPx}px)`;
+  const interceptPx = Math.abs(intercept).toFixed(2);
+  return `clamp(${minPx}px, calc(${vw}vw ${sign} ${interceptPx}px), ${maxPx}px)`;
 }
 
 /**

@@ -174,7 +174,7 @@ export function useMediaQuery(query: string): boolean {
     }
     const mql = window.matchMedia(query);
     const handler = (event: MediaQueryListEvent | MediaQueryList) => {
-      setMatches('matches' in event ? event.matches : false);
+      setMatches(event.matches);
     };
     handler(mql);
     if (typeof mql.addEventListener === 'function') {

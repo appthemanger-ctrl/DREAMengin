@@ -126,7 +126,7 @@ describe('responsive utilities', () => {
 
   describe('readViewportWidth', () => {
     it('returns the default when window is unavailable (Node test env)', () => {
-      // vitest config uses environment: 'node' so window is undefined here.
+      // In the Node test environment, `window` is undefined.
       expect(readViewportWidth()).toBe(BREAKPOINTS.lg);
       expect(readViewportWidth(640)).toBe(640);
     });
