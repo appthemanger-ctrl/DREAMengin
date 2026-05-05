@@ -8,6 +8,7 @@ import '@/styles/dream-shell.css';
 import '@/styles/home-dream.css';
 import type { Metadata, Viewport } from 'next';
 import { Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { Space_Grotesk, Cormorant_Garamond, Plus_Jakarta_Sans } from 'next/font/google';
 import ThemeProvider from '@/components/providers/dream.ThemeProvider';
 import ThemeApplicator from '@/components/dream.ThemeApplicator';
@@ -17,14 +18,32 @@ import DualRuntimeContainer from '@/components/runtime/dream.DualRuntimeContaine
 import GlobalDreamBar from '@/components/home/dream.bar.GlobalDreamBar';
 import PersistentDreamBar from '@/components/home/dream.bar.PersistentDreamBar';
 import { CustomizeModeProvider } from '@/lib/ui/CustomizeModeContext';
-import GlobalCustomizeUI from '@/components/customize/dream.GlobalCustomizeUI';
-import WarpCanvas from '@/components/warp/dream.WarpCanvas';
 import GodTierProvider from '@/components/providers/dream.GodTierProvider';
-import KonamiDream from '@/components/dream.KonamiDream';
+// CommandPalette is statically imported because tests/integration-wiring.test.ts
+// pins both the import statement and the <CommandPalette /> JSX usage in this
+// file. Other heavy globals are lazy-loaded below via next/dynamic to keep
+// public surfaces (/, /login, /policy) light on first paint.
 import CommandPalette from '@/components/dream.CommandPalette';
 import { OSProvider } from '@/lib/dreamenginOS/OSContext';
-import GlobalDreamDragLayer from '@/components/dreams/dream.GlobalDragLayer';
-import PlatformErrorReporter from '@/components/dreams/dream.PlatformErrorReporter';
+
+// ── Lazy-loaded global overlays (H1: keep them off the public-paint critical path) ──
+// Each is decorative or admin-only and never required for first paint.
+const GlobalCustomizeUI = dynamic(
+  () => import('@/components/customize/dream.GlobalCustomizeUI'),
+  { ssr: false, loading: () => null },
+);
+const GlobalDreamDragLayer = dynamic(
+  () => import('@/components/dreams/dream.GlobalDragLayer'),
+  { ssr: false, loading: () => null },
+);
+const PlatformErrorReporter = dynamic(
+  () => import('@/components/dreams/dream.PlatformErrorReporter'),
+  { ssr: false, loading: () => null },
+);
+const KonamiDream = dynamic(() => import('@/components/dream.KonamiDream'), {
+  ssr: false,
+  loading: () => null,
+});
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -86,7 +105,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <ThemeProvider>
           <ThemeApplicator />
           <Suspense><GodTierProvider /></Suspense>
-          <WarpCanvas effect="flow" maxParticles={200} spawnRate={25} opacity={0.35} />
           <OSProvider>
             <CustomizeModeProvider>
               <DreamSystemProvider>

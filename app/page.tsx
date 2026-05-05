@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import LandingHero from '@/components/dream.LandingHero';
 import { isDevBypassActive } from '@/lib/dev-bypass';
+import { createServerClient } from '@/lib/supabase/server';
+import { safeGetUser } from '@/lib/supabase/safeGetUser';
 
 // Resolve the site origin from env so OG image URLs are absolute.
 // Falls back to the production domain when the env var is absent (CI / prod).
@@ -51,13 +53,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Root() {
+export default async function Root() {
   // Dev-bypass redirect is sync — no loading spinner triggered
   if (isDevBypassActive()) {
     redirect('/homedream');
   }
 
-  // Render landing page immediately; authenticated users are redirected
-  // client-side by LandingHero to avoid blocking on Supabase auth.
+  // Authenticated visitors are redirected server-side so we never ship the
+  // (heavy) marketing landing page — Babylon hero + N-body sim — to logged-in
+  // users. safeGetUser swallows Supabase errors and times out fast, so an
+  // unconfigured Supabase environment falls through to the public landing.
+  const supabase = await createServerClient();
+  const user = await safeGetUser(supabase);
+  if (user) {
+    redirect('/homedream');
+  }
+
   return <LandingHero />;
 }

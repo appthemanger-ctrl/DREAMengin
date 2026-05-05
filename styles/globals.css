@@ -124,10 +124,15 @@ html, body {
     var(--de-theme-mid,  #f0f2f6) 55%,
     var(--de-theme-to,   #f7f3ec) 100%
   );
-  background-attachment: fixed;
+  /* `background-attachment: fixed` removed (HumanAI audit H2): on iOS Safari
+   * it forces a full-viewport repaint on every scroll. The body gradient is
+   * cosmetic and behaves correctly without it. */
   color: var(--de-text);
   font-family: var(--font-space-grotesk, 'Space Grotesk', system-ui, sans-serif);
   overscroll-behavior: none;
+  /* `touch-action: manipulation` is intentional: it disables the iOS
+   * double-tap-zoom delay across the app shell. The marketing landing
+   * page does not need that delay either. */
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   /* iOS text size adjustment */
@@ -139,9 +144,33 @@ html {
 }
 
 body {
-  min-height: 100vh;
+  /* 100dvh (dynamic viewport height) avoids the iOS Safari URL-bar jump
+   * that 100vh produces (HumanAI audit M4). */
+  min-height: 100dvh;
   position: relative;
   overflow-x: hidden;
+}
+
+/* Suppress the body gradient on the public landing page so we don't paint
+ * the light gradient under the hero's solid black background (HumanAI audit M7).
+ *
+ * `:has()` ships in Safari 15.4+ (Mar 2022), Chrome 105+, and Firefox 121+
+ * (Dec 2023). On any older browser the rule simply does not match, and the
+ * worst case is the original behaviour — a brief light gradient visible
+ * behind the hero — which is acceptable graceful degradation. */
+body:has(> [data-route="landing"]) {
+  background: #000;
+}
+
+/* iOS-first 44 px minimum tap target on coarse pointers (HumanAI audit M1).
+ * Previously lived only in app/globals.css, which is not imported. */
+@media (pointer: coarse) {
+  button,
+  a,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }
 
 body::before,
