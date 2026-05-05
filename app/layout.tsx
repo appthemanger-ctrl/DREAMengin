@@ -24,6 +24,7 @@ import GodTierProvider from '@/components/providers/dream.GodTierProvider';
 // public surfaces (/, /login, /policy) light on first paint.
 import CommandPalette from '@/components/dream.CommandPalette';
 import GlobalOverlays from '@/components/dream.GlobalOverlays';
+import OSShellActivator from '@/components/dream.OSShellActivator';
 import { OSProvider } from '@/lib/dreamenginOS/OSContext';
 
 // ── Lazy-loaded global overlays ──
@@ -99,6 +100,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <main role="main" aria-label="Main content">{children}</main>
                   <Suspense><GlobalDreamBar /></Suspense>
                   <Suspense><PersistentDreamBar /></Suspense>
+                  <Suspense><OSShellActivator /></Suspense>
                   <GlobalOverlays />
                   <Suspense><CommandPalette /></Suspense>
                 </DualRuntimeContainer>
