@@ -38,6 +38,67 @@ DREAMengin ships with a unique **humanAI** audit system—**and you can fully cu
 
 ---
 
+### 🪖 humanAI Army: Full-Product SICC Audit at Scale
+
+The **humanAI Army** takes the single-persona audit and multiplies it: five
+distinct AI personas each sweep the *entire* DREAMengin product simultaneously,
+then an orchestrator synthesises all their findings into one prioritized master
+report. Every surface, every integration seam, every hand-off—audited in
+parallel and reported as a single actionable SICC health snapshot.
+
+**What SICC means:**
+- **S**ynchronized — state and context stay consistent across surfaces without the user lifting a finger
+- **I**ntuitive — flows feel natural, labels are obvious, gestures are consistent everywhere
+- **C**oherent — every surface looks and behaves as if one person designed the whole thing
+- **C**ohesive — all surfaces work *together* as a single product; hand-offs strengthen the experience
+
+**The five personas:**
+
+| Persona | File | Focus |
+|---------|------|-------|
+| 🏄 iOS First | `agents/humanAI/personas/ios-first.md` | First-time iPhone user — first impressions, onboarding, overall SICC feel |
+| ⚡ Power User | `agents/humanAI/personas/power-user.md` | Heavy multi-surface user — state persistence, context coherence under real speed |
+| 🎨 Creator | `agents/humanAI/personas/creator.md` | Musician / visual artist — create→publish→sell pipeline integrity |
+| 🌐 Social Explorer | `agents/humanAI/personas/social-explorer.md` | DreamR-centric user — feed, DMs, comments, profiles, social coherence |
+| ♿ Accessibility | `agents/humanAI/personas/accessibility.md` | a11y advocate — tap targets, alt text, screen reader, keyboard nav |
+
+Each persona audits **all surfaces** (HomeDream, DreamSpace, DreamDMBar, DreamR, Shop, Marketplace, all Daydream Engins, modularity, customization, Dreams/widgets). No surface is siloed to one persona—the whole point is SICC cross-surface insight.
+
+**The Orchestrator:**
+
+After all five persona runs finish, the **orchestrator** (`agents/humanAI/orchestrator.md`) reads every report and produces a single master document:
+- 🛑 Critical / ⚠️ Rough / 💡 Polish severity ranking
+- Issues that multiple personas flagged (high-confidence real problems)
+- SICC Score Card per surface
+- Top 10 next actions with file/path references
+- Cross-surface coherence map of the biggest integration seams
+
+**How to run it:**
+
+```bash
+# On-demand via GitHub Actions UI
+# Go to: Actions → humanAI Army SICC Audit → Run workflow
+
+# Or wait for the weekly Sunday 05:00 UTC schedule
+```
+
+**How to customize personas:**
+
+Each persona is a plain Markdown file. To add a new persona:
+1. Create `agents/humanAI/personas/your-persona.md` using an existing persona as a template
+2. Add `your-persona` to the matrix in `.github/workflows/humanai-army-audit.yml`
+3. Push and trigger the workflow
+
+To tune an existing persona's focus, just edit the Markdown file — no code changes needed.
+
+**Files:**
+- Persona prompts: `agents/humanAI/personas/`
+- Orchestrator prompt: `agents/humanAI/orchestrator.md`
+- Audit script (with `--orchestrate` mode): `.github/scripts/humanai_audit.py`
+- Workflow: `.github/workflows/humanai-army-audit.yml`
+
+---
+
 ### ⚡ Docs to Read Before Touching Code
 
 | Priority | File | Why |
