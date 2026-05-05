@@ -11,6 +11,10 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { WarpEngine, WarpEffect, WarpEngineOptions } from './warpEngine';
 
+// Passive 30 fps cap (≈33.33 ms/frame). Keeps the ambient effect smooth
+// while ~halving CPU/GPU/battery cost on mobile vs. an uncapped rAF loop.
+const FRAME_INTERVAL_MS = 1000 / 30;
+
 export interface UseWarpOptions extends WarpEngineOptions {
   /** Start running immediately. Default: true. */
   autoStart?: boolean;
@@ -72,7 +76,16 @@ export function useWarp(opts: UseWarpOptions = {}): UseWarpReturn {
     const engine = engineRef.current;
     if (!canvas || !engine) return;
 
-    const dt = Math.min((ts - lastTsRef.current) / 1000, 0.05); // cap at 50 ms
+    const elapsed = ts - lastTsRef.current;
+    if (elapsed < FRAME_INTERVAL_MS) {
+      // Skip this frame to honour the 30 fps passive cap.
+      if (runningRef.current) {
+        rafRef.current = requestAnimationFrame(loop);
+      }
+      return;
+    }
+
+    const dt = Math.min(elapsed / 1000, 0.05); // cap at 50 ms
     lastTsRef.current = ts;
 
     const dpr = window.devicePixelRatio ?? 1;
@@ -109,23 +122,52 @@ export function useWarp(opts: UseWarpOptions = {}): UseWarpReturn {
     }
   }, []);
 
-  // Start / stop
+  // Start / stop, also bound to document visibility and prefers-reduced-motion
+  // so the ambient effect does not burn CPU/GPU/battery in background tabs
+  // or for users who have requested reduced motion.
   useEffect(() => {
-    runningRef.current = isRunning;
+    if (typeof window === 'undefined') return;
 
-    if (isRunning) {
-      lastTsRef.current = performance.now();
-      rafRef.current = requestAnimationFrame(loop);
-    } else if (rafRef.current !== null) {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
+    const reducedMotionMQ = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+    const isReducedMotion = () => !!reducedMotionMQ?.matches;
+    const isHidden = () =>
+      typeof document !== 'undefined' && document.visibilityState === 'hidden';
 
-    return () => {
+    const stopLoop = () => {
+      runningRef.current = false;
       if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
       }
+    };
+
+    const startLoop = () => {
+      if (runningRef.current) return;
+      runningRef.current = true;
+      lastTsRef.current = performance.now();
+      rafRef.current = requestAnimationFrame(loop);
+    };
+
+    const sync = () => {
+      if (isRunning && !isHidden() && !isReducedMotion()) {
+        startLoop();
+      } else {
+        stopLoop();
+      }
+    };
+
+    sync();
+
+    const onVisibility = () => sync();
+    const onMotionChange = () => sync();
+
+    document.addEventListener('visibilitychange', onVisibility);
+    reducedMotionMQ?.addEventListener?.('change', onMotionChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      reducedMotionMQ?.removeEventListener?.('change', onMotionChange);
+      stopLoop();
     };
   }, [isRunning, loop]);
 
