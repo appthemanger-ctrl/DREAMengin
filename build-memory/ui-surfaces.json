@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-05T03:44:25.463Z",
+  "generated_at": "2026-05-05T18:34:24.004Z",
   "generator": "scripts/sync-build-memory.mjs",
   "count": 115,
   "surfaces": [
@@ -980,10 +980,6 @@
         {
           "name": "PasswordField",
           "from": "@/components/auth/dream.PasswordField"
-        },
-        {
-          "name": "UniverseField",
-          "from": "@/components/landing/dream.scene.UniverseField"
         }
       ]
     },
