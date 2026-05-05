@@ -40,7 +40,6 @@ concurrency:
 
 env:
   NODE_VERSION: '25'
-  PNPM_VERSION: '10.30.0'
   GENERATED_DIR: .github/generated
   REPORT_PATH: .github/generated/humanai-audit.md
   BASE_URL: http://localhost:3000
@@ -57,8 +56,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

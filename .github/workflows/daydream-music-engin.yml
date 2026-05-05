@@ -19,7 +19,6 @@ concurrency:
 
 env:
   NODE_VERSION: '25'
-  PNPM_VERSION: '10.30.0'
   DAYDREAM: 'music'
   ENGIN: 'StarMakerEngin'
 
@@ -39,8 +38,6 @@ jobs:
       # ── Toolchain ─────────────────────────────────────────────────────────────
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node
         uses: ./.github/actions/setup-node

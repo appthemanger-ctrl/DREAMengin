@@ -21,8 +21,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10.30.0
 
       - name: Set up Node.js
         uses: ./.github/actions/setup-node
@@ -52,8 +50,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10.30.0
 
       - name: Set up Node.js
         uses: ./.github/actions/setup-node
