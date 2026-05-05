@@ -1299,12 +1299,19 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
   // Resolve userId
   useEffect(() => {
     setMounted(true);
-    import('@/lib/supabase/client').then(({ createClient }) => {
-      createClient().auth.getUser().then(({ data }: { data: { user: { id: string } | null } }) => {
-        if (data.user) { setUserId(data.user.id); reloadConvs(); }
+    import('@/lib/supabase/client')
+      .then(({ createClient }) =>
+        createClient().auth.getUser().then(({ data }: { data: { user: { id: string } | null } }) => {
+          if (data.user) { setUserId(data.user.id); reloadConvs(); }
+        })
+      )
+      .catch(() => {
+        // Supabase may be unconfigured or temporarily unavailable. The bar must
+        // still render and not surface this as an unhandledRejection — that
+        // would propagate to error.tsx and replace the entire UI with an error
+        // screen (themed by --de-theme-*, which appears as a solid orange page
+        // for users on the sunset/sunrise theme).
       });
-    });
-   
   }, []);
 
   // ── Quick file handlers ────────────────────────────────────────────────────

@@ -62,14 +62,21 @@ export default function DreamBarDataBridge({
   // Auth listener — redirect on sign-out
   useEffect(() => {
     const sb = createClient();
-    const {
-      data: { subscription },
-    } = sb.auth.onAuthStateChange((event: string) => {
-      if (event === 'SIGNED_OUT') {
-        (window.top ?? window).location.href = '/login';
-      }
-    });
-    return () => subscription.unsubscribe();
+    let subscription: { unsubscribe: () => void } | null = null;
+    try {
+      const result = sb.auth.onAuthStateChange((event: string) => {
+        if (event === 'SIGNED_OUT') {
+          (window.top ?? window).location.href = '/login';
+        }
+      });
+      subscription = result?.data?.subscription ?? null;
+    } catch {
+      // Supabase not configured / unavailable — skip the listener rather than
+      // letting the throw bubble to error.tsx (which would replace the whole
+      // post-login UI with the themed error page, appearing as a solid orange
+      // screen on sunset/sunrise themes).
+    }
+    return () => subscription?.unsubscribe();
   }, []);
 
   const revealSplitRuntime = useCallback((nextRatio = DEFAULT_WORKFLOW_SPLIT) => {

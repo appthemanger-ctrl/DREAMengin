@@ -169,7 +169,15 @@ export default function PersistentDreamBar() {
 
   // isHomeActive: DreamBarDataBridge is mounted → regions visible + bar in divider mode.
   // When false: regions are display:none (mounted but invisible) + bar is nav-rail mode.
-  const isHomeActive = runtimeCallbacks !== null;
+  //
+  // On `/homedream` we MUST show the home runtime even before the client-side
+  // DreamBarDataBridge has finished registering callbacks, otherwise the page
+  // appears blank (just the themed background) post-login. The bridge runs in
+  // a useEffect, so on a fresh load there is a window where runtimeCallbacks
+  // is still null and homeData hasn't been pushed yet — without this guarantee
+  // users see "an orange page... that's all that loads after I login".
+  const isHomeRoute = pathname === '/homedream' || pathname.startsWith('/homedream/');
+  const isHomeActive = runtimeCallbacks !== null || isHomeRoute;
 
   // ── Layout ────────────────────────────────────────────────────────────────
   //
@@ -209,13 +217,13 @@ export default function PersistentDreamBar() {
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => handleDreamDrop(event, 'HOME')}
       >
-        {homeData && (
+        {(homeData || isHomeRoute) && (
           <RuntimeView
             world={dualRuntime.state.surfaceSpaceWorld}
             isActive={true}
-            profile={homeData.profile}
-            posts={homeData.initialPosts}
-            isAdmin={homeData.isAdmin}
+            profile={homeData?.profile ?? null}
+            posts={homeData?.initialPosts ?? []}
+            isAdmin={homeData?.isAdmin ?? false}
             onOpenDrEams={openDrEams}
             onOpenDreamSpace={openDreamSpaceInSurface}
             onOpenInRegion={openInSurfaceRegion}
@@ -287,13 +295,13 @@ export default function PersistentDreamBar() {
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => handleDreamDrop(event, 'FACE')}
       >
-        {homeData && (
+        {(homeData || isHomeRoute) && (
           <RuntimeView
             world={dualRuntime.state.dreamSpaceWorld}
             isActive={true}
-            profile={homeData.profile}
-            posts={homeData.initialPosts}
-            isAdmin={homeData.isAdmin}
+            profile={homeData?.profile ?? null}
+            posts={homeData?.initialPosts ?? []}
+            isAdmin={homeData?.isAdmin ?? false}
             onOpenDrEams={openDrEams}
             onOpenDreamSpace={handleHomeDreamSpace}
             onOpenInRegion={openInDreamRegion}
