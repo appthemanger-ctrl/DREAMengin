@@ -1,0 +1,158 @@
+name: humanAI Website Audit
+
+# ──────────────────────────────────────────────────────────────────────────────
+# humanAI — Dynamic, no-Playwright website audit.
+#
+# humanAI browses DREAMengin like a real iPhone Safari user. It is *dynamic*:
+# routes are discovered from app/**/page.tsx and from links found in the HTML
+# the live server returns. There is no fixed test script and no headless
+# browser. An optional GPT-4 persona pass turns the raw crawl into UX,
+# accessibility and mobile findings phrased like a human reviewer.
+#
+# Triggers: workflow_dispatch, plus a weekly schedule.
+# Required secret: OPENAI_API_KEY (optional — runs without it but skips the
+# AI persona pass and emits a structural-only report).
+# Optional secrets: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
+# (used at build time so Supabase-aware pages render).
+# ──────────────────────────────────────────────────────────────────────────────
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_pages:
+        description: 'Maximum pages humanAI will crawl'
+        required: false
+        default: '25'
+      open_issue:
+        description: 'Open a GitHub issue with the report'
+        type: boolean
+        default: true
+  schedule:
+    - cron: '0 6 * * 1'   # every Monday at 06:00 UTC
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: humanai-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '25'
+  PNPM_VERSION: '10.30.0'
+  GENERATED_DIR: .github/generated
+  REPORT_PATH: .github/generated/humanai-audit.md
+  BASE_URL: http://localhost:3000
+
+jobs:
+  audit:
+    name: humanAI dynamic audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build DREAMengin
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: pnpm run build
+
+      - name: Start Next.js server in background
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          # Skip Supabase auth so humanAI can browse without a real session.
+          DEV_BYPASS_AUTH: 'true'
+          DEV_ADMIN: 'true'
+        run: |
+          mkdir -p ${{ env.GENERATED_DIR }}
+          nohup pnpm run start > ${{ env.GENERATED_DIR }}/next-server.log 2>&1 &
+          echo $! > ${{ env.GENERATED_DIR }}/next-server.pid
+
+      - name: Run humanAI audit
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          MAX_PAGES="${{ github.event.inputs.max_pages }}"
+          MAX_PAGES="${MAX_PAGES:-30}"
+          # Discovery, crawl, *and* the interaction phase (humanAI actually
+          # uses dreamr feeds, suggestions, search, comment probe). The
+          # script discovers routes + endpoints from the repo at runtime,
+          # so it scales as the codebase changes.
+          python .github/scripts/humanai_audit.py \
+            --base-url        "${{ env.BASE_URL }}" \
+            --out             "${{ env.REPORT_PATH }}" \
+            --repo-root       "$GITHUB_WORKSPACE" \
+            --max-pages       "$MAX_PAGES" \
+            --max-interactions 25 \
+            --interact \
+            --wait-for-server
+
+      - name: Stop Next.js server
+        if: always()
+        run: |
+          PID_FILE="${{ env.GENERATED_DIR }}/next-server.pid"
+          if [ -f "$PID_FILE" ]; then
+            PID=$(cat "$PID_FILE")
+            if kill -0 "$PID" 2>/dev/null; then
+              kill "$PID" || true
+            fi
+          fi
+
+      - name: Append report to job summary
+        if: always()
+        run: |
+          if [ -f "${{ env.REPORT_PATH }}" ]; then
+            cat "${{ env.REPORT_PATH }}" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "humanAI report was not produced." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload audit artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: humanai-audit
+          path: |
+            ${{ env.REPORT_PATH }}
+            ${{ env.GENERATED_DIR }}/next-server.log
+          retention-days: 14
+          if-no-files-found: warn
+
+      - name: Open GitHub issue with findings
+        if: |
+          always()
+          && hashFiles('.github/generated/humanai-audit.md') != ''
+          && (github.event_name == 'schedule'
+              || github.event.inputs.open_issue == 'true')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync(process.env.REPORT_PATH, 'utf8');
+            const stamp = new Date().toISOString().slice(0, 10);
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              title: `humanAI audit — ${stamp}`,
+              body,
+              labels: ['humanai', 'audit', 'automated'],
+            });
