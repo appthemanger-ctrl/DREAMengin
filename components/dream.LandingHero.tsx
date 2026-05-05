@@ -6,16 +6,14 @@ import { useEffect, useRef } from 'react';
 import UniverseField from '@/components/landing/dream.scene.UniverseField';
 import LandingNav from '@/components/landing/dream.LandingNav';
 import LandingProductStatement from '@/components/landing/dream.LandingProductStatement';
-import LandingHeroRobot from '@/components/landing/dream.LandingHeroRobot';
 import { calibrateDevice, type CalibrationSample } from '@/lib/dreamr/swipeCalibration';
 
 /**
  * LandingHero — slim composition root for the public landing page.
  *
  * Layout order is deliberate so the persistent black background and the
- * MOND-2.1 UniverseField mount *first*, before the heavy Babylon.js hero
- * (which is dynamically imported in LandingHeroRobot). Each visual concern
- * lives in its own component under components/landing/.
+ * MOND-2.1 UniverseField mount first and stay visually dominant. Each visual
+ * concern lives in its own component under components/landing/.
  *
  * The pointer-calibration effect and mission-statement link block are kept
  * here intentionally — they are required by tests/landing-*.test.ts.
@@ -114,9 +112,8 @@ export default function LandingHero() {
 
       <LandingNav />
 
-      <main className="relative z-10 flex-1 flex flex-col lg:flex-row lg:items-center lg:justify-between px-6 md:px-10 lg:px-16 pt-10 pb-10 lg:pt-0 lg:pb-0 gap-8 lg:gap-4">
+      <main className="relative z-10 flex flex-1 items-center justify-center px-6 pt-10 pb-10 md:px-10 lg:px-16 lg:pt-0 lg:pb-0">
         <LandingProductStatement />
-        <LandingHeroRobot />
       </main>
 
       {/* Mission statement — preserved for landing-mission-link test contract */}
