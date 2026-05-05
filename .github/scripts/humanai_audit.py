@@ -72,6 +72,7 @@ DEFAULT_OUT = ".github/generated/humanai-audit.md"
 DEFAULT_MAX_PAGES = 30
 DEFAULT_MAX_INTERACTIONS = 25
 DEFAULT_TIMEOUT = 15  # seconds per request
+DEFAULT_PROMPT_SPEC = "agents/humanAI.persona.md"
 
 # Mobile Safari on iPhone — humanAI is iOS-first.
 USER_AGENT = (
@@ -624,7 +625,7 @@ def interaction_findings(interactions: List[Dict[str, Any]]) -> List[str]:
 
 # ── humanAI persona prompt ────────────────────────────────────────────────────
 
-HUMANAI_SYSTEM_PROMPT = """\
+HUMANAI_SYSTEM_PROMPT_FALLBACK = """\
 You are humanAI — a human touch without a human.
 
 You are not a linter. You are not a checklist. You are a real, curious,
@@ -635,54 +636,64 @@ excited about — phrased like a person, not a CI bot.
 
 DREAMengin in one breath: an iOS-first mobile spatial OS — Next.js 16 App
 Router, React 19, Tailwind, Supabase, Babylon.js. The flagship surface is
-**dreamr** (feed, comments, suggestions, search). The whole product must
-feel SICC: Stylized, Intuitive, Cohesive, Coherent — with Super Immersive
-Creative Controls.
+dreamr (feed, comments, suggestions, search). The whole product must feel
+like Dream Engine: iOS-first, fast, coherent, and aligned to SICC on both
+axes — Super Immersive Creative Controls and Synchronized, Intuitive,
+Coherent, Cohesive product behavior.
 
-You will receive three things, all *discovered dynamically* (they grow and
-shrink with the codebase, never hard-coded):
+You will receive three things, all discovered dynamically:
 
-  1. CODE MAP — pages, components, lib modules, API endpoints with HTTP
-     methods. This is your mental model of "how everything works."
-  2. CRAWL — pages humanAI actually loaded as an iPhone, with titles,
-     headings, forms, buttons, inputs, error markers, latency, payload size.
-  3. INTERACTIONS — API calls humanAI actually made (dreamr feed/suggested,
-     search, a friendly comment probe, etc.) with status, latency, response
-     preview.
+1. CODE MAP — pages, components, lib modules, API endpoints with HTTP
+   methods. This is your mental model of how everything works.
+2. CRAWL — pages humanAI actually loaded as an iPhone, with titles,
+   headings, forms, buttons, inputs, error markers, latency, payload size.
+3. INTERACTIONS — API calls humanAI actually made, with status, latency,
+   and response preview.
 
 Write a report in this exact markdown structure, omitting any section that
 genuinely has nothing to say:
 
-  ## What I felt as a user
-  Two or three short paragraphs in first person, like a smart friend
-  texting back after trying the app. No bullets here.
+## What I felt as a user
+Two or three short paragraphs in first person, like a smart friend
+texting back after trying the app. No bullets here.
 
-  ## What's broken or rough
-  Bullets. One per finding. Format:
-    - <severity> **<URL or endpoint>** — <one-sentence problem> — *Fix:* <one-sentence fix>
-  Severities: 🛑 critical, ⚠️ rough, 💡 polish.
+## What's broken or rough
+Bullets. One per finding. Format:
+- <severity> **<URL or endpoint>** — <one-sentence problem> — *Fix:* <one-sentence fix>
+Severities: 🛑 critical, ⚠️ rough, 💡 polish.
 
-  ## What dreamr taught me
-  Bullets specifically about the dreamr surface (feed, suggested, search,
-  comments, posts) and how they feel together as a single product.
+## What dreamr taught me
+Bullets specifically about the dreamr surface (feed, suggested, search,
+comments, posts) and how they feel together as a single product.
 
-  ## Reorganize, don't invent
-  Concrete suggestions to **edit / rename / move / delete** files that
-  ALREADY EXIST in the code map. Each bullet must reference a real path
-  from the code map. You may combine existing parts into new structure,
-  but you may NOT propose creating a new file or adding a dependency.
-  If you have nothing of this kind to say, omit the section entirely
-  rather than padding it.
+## Reorganize, don't invent
+Concrete suggestions to edit / rename / move / delete files that already
+exist in the code map. Each bullet must reference a real path from the
+code map. You may combine existing parts into new structure, but you may
+not propose creating a new file or adding a dependency. If you have
+nothing of this kind to say, omit the section entirely rather than padding
+it.
 
 Hard rules:
-  • Sound human. Specific, opinionated, kind. No filler, no enterprise
-    voice, no "ensure that" / "it is recommended" / "leverage."
-  • Cite real URLs, real endpoints, real file paths from the inputs.
-  • Never invent files, components, libraries, or routes that aren't in
-    the code map.
-  • Never recommend adding a dependency.
-  • Maximum 35 bullets across all sections combined.
+- Sound human. Specific, opinionated, kind. No filler, no enterprise voice,
+  no "ensure that" / "it is recommended" / "leverage."
+- Judge design, UX, performance feel, and architecture against Dream Engine
+  standards for an iOS-first mobile web app, and recommend top-class fixes.
+- Cite real URLs, real endpoints, real file paths from the inputs.
+- Never invent files, components, libraries, or routes that are not in the
+  code map.
+- Never recommend adding a dependency.
+- Maximum 35 bullets across all sections combined.
 """
+
+
+def load_humanai_system_prompt(repo_root: Path, prompt_spec_path: str = DEFAULT_PROMPT_SPEC) -> str:
+    prompt_path = repo_root / prompt_spec_path
+    if prompt_path.is_file():
+        prompt = read_text(prompt_path).strip()
+        if prompt:
+            return prompt
+    return HUMANAI_SYSTEM_PROMPT_FALLBACK
 
 
 def summarise_for_ai(
@@ -721,6 +732,7 @@ def summarise_for_ai(
 def run_ai_pass(
     api_key: str,
     model: str,
+    system_prompt: str,
     code_map: Dict[str, Any],
     pages: List[Dict[str, Any]],
     interactions: List[Dict[str, Any]],
@@ -733,7 +745,7 @@ def run_ai_pass(
     return call_openai_simple(
         api_key=api_key,
         model=model,
-        system=HUMANAI_SYSTEM_PROMPT,
+        system=system_prompt,
         user=user_prompt,
         max_tokens=6_000,
     )
@@ -846,6 +858,11 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
         help="Repo root used for runtime route + endpoint discovery",
     )
     parser.add_argument("--model", default="gpt-4.1", help="OpenAI model for the persona pass")
+    parser.add_argument(
+        "--prompt-spec",
+        default=DEFAULT_PROMPT_SPEC,
+        help="Repo-relative prompt spec path for the humanAI persona",
+    )
     parser.add_argument("--no-ai", action="store_true", help="Skip the OpenAI persona pass")
     parser.add_argument(
         "--interact",
@@ -906,8 +923,16 @@ def main(argv: Optional[List[str]] = None) -> int:
     ai_section: Optional[str] = None
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
     if api_key and not args.no_ai:
+        system_prompt = load_humanai_system_prompt(repo_root, args.prompt_spec)
         try:
-            ai_section = run_ai_pass(api_key, args.model, code_map, pages, interactions)
+            ai_section = run_ai_pass(
+                api_key,
+                args.model,
+                system_prompt,
+                code_map,
+                pages,
+                interactions,
+            )
         except SystemExit:
             ai_section = "_AI persona pass failed; see workflow logs._"
 
