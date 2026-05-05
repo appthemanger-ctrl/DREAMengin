@@ -97,13 +97,12 @@ export function useGodTier(opts: UseGodTierOptions = {}): UseGodTierReturn {
 
   // ── Cadence: orchestrator + CSS-var write throttle ───────────────────────────
   // Setting CSS custom properties on <html> invalidates style for the entire
-  // document, so we run the orchestrator at most every ORCH_INTERVAL_MS (≈4 Hz)
-  // instead of every animation frame, and only call setProperty for vars whose
-  // values actually changed since the last write.
+  // document, so we run the orchestrator at most every UPDATE_INTERVAL_MS
+  // (≈4 Hz) instead of every animation frame, and only call setProperty for
+  // vars whose values actually changed since the last write.
   const lastOrchTsRef = useRef<number>(0);
   const lastVarsRef = useRef<Record<string, string>>({});
-  const ORCH_INTERVAL_MS = 250;
-  const REACT_STATE_INTERVAL_MS = 250; // React state updates (kept in sync with orch)
+  const UPDATE_INTERVAL_MS = 250;
   const lastReactUpdateRef = useRef<number>(0);
 
   // ── Volatile inputs into refs so the rAF callback identity stays stable ─────
@@ -143,8 +142,8 @@ export function useGodTier(opts: UseGodTierOptions = {}): UseGodTierReturn {
       interactionBurst: runtimeRef.current.interactionBurst,
     };
 
-    // Run the orchestrator + CSS-var write at most every ORCH_INTERVAL_MS.
-    if (ts - lastOrchTsRef.current >= ORCH_INTERVAL_MS) {
+    // Run the orchestrator + CSS-var write at most every UPDATE_INTERVAL_MS.
+    if (ts - lastOrchTsRef.current >= UPDATE_INTERVAL_MS) {
       lastOrchTsRef.current = ts;
 
       const inputs = inputsRef.current;
@@ -169,20 +168,24 @@ export function useGodTier(opts: UseGodTierOptions = {}): UseGodTierReturn {
 
       // Diff-then-set: only call setProperty for vars whose value changed.
       // This avoids invalidating <html> style when nothing actually moved.
+      // `tokens.vars` is a plain string→string map by construction
+      // (see getGodTierUiTokens in godTierEngine.ts), so Object.entries is
+      // safe and avoids a type assertion.
       if (typeof document !== 'undefined') {
         const root = document.documentElement;
         const prev = lastVarsRef.current;
-        const nextVars = tokens.vars as Record<string, string>;
-        for (const k in nextVars) {
-          if (prev[k] !== nextVars[k]) {
-            root.style.setProperty(k, nextVars[k]);
+        const nextVars: Record<string, string> = {};
+        for (const [k, v] of Object.entries(tokens.vars)) {
+          nextVars[k] = v;
+          if (prev[k] !== v) {
+            root.style.setProperty(k, v);
           }
         }
         lastVarsRef.current = nextVars;
       }
 
       // React state at the same cadence — no extra re-renders.
-      if (ts - lastReactUpdateRef.current >= REACT_STATE_INTERVAL_MS) {
+      if (ts - lastReactUpdateRef.current >= UPDATE_INTERVAL_MS) {
         lastReactUpdateRef.current = ts;
         setState(next);
         setUiTokens(tokens);

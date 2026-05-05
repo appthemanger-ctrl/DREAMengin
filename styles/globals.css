@@ -152,7 +152,12 @@ body {
 }
 
 /* Suppress the body gradient on the public landing page so we don't paint
- * the light gradient under the hero's solid black background (HumanAI audit M7). */
+ * the light gradient under the hero's solid black background (HumanAI audit M7).
+ *
+ * `:has()` ships in Safari 15.4+ (Mar 2022), Chrome 105+, and Firefox 121+
+ * (Dec 2023). On any older browser the rule simply does not match, and the
+ * worst case is the original behaviour — a brief light gradient visible
+ * behind the hero — which is acceptable graceful degradation. */
 body:has(> [data-route="landing"]) {
   background: #000;
 }
