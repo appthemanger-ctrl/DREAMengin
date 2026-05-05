@@ -693,6 +693,15 @@ def load_humanai_system_prompt(repo_root: Path, prompt_spec_path: str = DEFAULT_
         prompt = read_text(prompt_path).strip()
         if prompt:
             return prompt
+        print(
+            f"[humanAI] prompt spec is empty; using fallback prompt: {prompt_path}",
+            file=sys.stderr,
+        )
+    else:
+        print(
+            f"[humanAI] prompt spec not found; using fallback prompt: {prompt_path}",
+            file=sys.stderr,
+        )
     return HUMANAI_SYSTEM_PROMPT_FALLBACK
 
 
