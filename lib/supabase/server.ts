@@ -13,9 +13,9 @@ import {
 
 type DisabledSupabaseClient = {
   auth: {
-    getUser: () => Promise<never>
-    getSession: () => Promise<never>
-    signOut: () => Promise<never>
+    getUser: () => Promise<{ data: { user: null }; error: Error }>
+    getSession: () => Promise<{ data: { session: null }; error: Error }>
+    signOut: () => Promise<{ error: null }>
   }
   from: (..._args: unknown[]) => never
   rpc: (..._args: unknown[]) => never
@@ -33,15 +33,13 @@ export type SupabaseCookieStore = Pick<Awaited<ReturnType<typeof cookies>>, 'get
  */
 
 function createDisabledClient(reason: string): SupabaseClient<Database> {
-  const thrower = async () => {
-    throw new Error(reason)
-  }
+  const authError = new Error(reason)
 
   const disabled: DisabledSupabaseClient = {
     auth: {
-      getUser: thrower,
-      getSession: thrower,
-      signOut: thrower,
+      getUser: async () => ({ data: { user: null }, error: authError }),
+      getSession: async () => ({ data: { session: null }, error: authError }),
+      signOut: async () => ({ error: null }),
     },
     from() {
       throw new Error(reason)
