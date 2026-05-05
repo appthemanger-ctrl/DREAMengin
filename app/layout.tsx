@@ -8,7 +8,6 @@ import '@/styles/dream-shell.css';
 import '@/styles/home-dream.css';
 import type { Metadata, Viewport } from 'next';
 import { Suspense } from 'react';
-import dynamic from 'next/dynamic';
 import { Space_Grotesk, Cormorant_Garamond, Plus_Jakarta_Sans } from 'next/font/google';
 import ThemeProvider from '@/components/providers/dream.ThemeProvider';
 import ThemeApplicator from '@/components/dream.ThemeApplicator';
@@ -24,26 +23,14 @@ import GodTierProvider from '@/components/providers/dream.GodTierProvider';
 // file. Other heavy globals are lazy-loaded below via next/dynamic to keep
 // public surfaces (/, /login, /policy) light on first paint.
 import CommandPalette from '@/components/dream.CommandPalette';
+import GlobalOverlays from '@/components/dream.GlobalOverlays';
 import { OSProvider } from '@/lib/dreamenginOS/OSContext';
 
-// ── Lazy-loaded global overlays (H1: keep them off the public-paint critical path) ──
-// Each is decorative or admin-only and never required for first paint.
-const GlobalCustomizeUI = dynamic(
-  () => import('@/components/customize/dream.GlobalCustomizeUI'),
-  { ssr: false, loading: () => null },
-);
-const GlobalDreamDragLayer = dynamic(
-  () => import('@/components/dreams/dream.GlobalDragLayer'),
-  { ssr: false, loading: () => null },
-);
-const PlatformErrorReporter = dynamic(
-  () => import('@/components/dreams/dream.PlatformErrorReporter'),
-  { ssr: false, loading: () => null },
-);
-const KonamiDream = dynamic(() => import('@/components/dream.KonamiDream'), {
-  ssr: false,
-  loading: () => null,
-});
+// ── Lazy-loaded global overlays ──
+// The four `ssr: false` dynamic() imports live in `@/components/dream.GlobalOverlays`
+// (a Client Component) because Next.js 16 disallows `ssr: false` in Server
+// Components. The wrapper preserves the original H1 intent: each overlay is
+// decorative or admin-only and never required for first paint.
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -112,10 +99,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <main role="main" aria-label="Main content">{children}</main>
                   <Suspense><GlobalDreamBar /></Suspense>
                   <Suspense><PersistentDreamBar /></Suspense>
-                  <GlobalCustomizeUI />
-                  <GlobalDreamDragLayer />
-                  <PlatformErrorReporter />
-                  <KonamiDream />
+                  <GlobalOverlays />
                   <Suspense><CommandPalette /></Suspense>
                 </DualRuntimeContainer>
               </DreamSystemProvider>
