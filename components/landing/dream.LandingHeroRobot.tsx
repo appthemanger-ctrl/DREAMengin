@@ -80,12 +80,6 @@ export default function LandingHeroRobot() {
         <span aria-hidden="true" className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_14px_rgba(103,232,249,0.9)]" />
         Dr. Eams online
       </div>
-      <p
-        className="mt-2 text-xs font-semibold select-none tracking-widest uppercase"
-        style={{ color: 'rgba(200,152,26,0.70)', letterSpacing: '0.14em' }}
-      >
-        tap to wake ✦
-      </p>
       <style jsx>{`
         @keyframes landing-robot-orbit {
           from { transform: rotate(0deg) scale(1); }

@@ -111,6 +111,7 @@ import { useDreamSystem, type BarIntentMode } from '@/lib/dreamdm/DreamSystemCon
 import DreamWord from '@/components/ui/dream.DreamWord';
 import { getPreferredViewportHeight, isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
 import { useImmersiveGameLayout } from '@/lib/games/useImmersiveGameLayout';
+import GlowingLight from '@/dreamdmbar/dream.GlowingLight';
 
 // ── Layout constants ─────────────────────────────────────────────────────────
 /** Thick bar height when locked at the bottom */
@@ -139,120 +140,6 @@ const SEAM_H = 2;
 const PARTICLE_D = 12;
 /** Movement slop (px) before a seam touch is treated as a drag vs a tap */
 const SEAM_DRAG_SLOP = 4;
-
-/**
- * GlowingLight — the ambient indicator that replaces the geometric Gold Particle.
- *
- * Appearance: a tiny soft glow with NO hard edges, NO circle border-radius.
- * Implemented exclusively with CSS radial-gradient and box-shadow + blur.
- * The visible light is ~10px; the touch target wrapper is 44×44px (invisible).
- *
- * Props:
- *   isDragging  — glow brightens while the bar is being dragged
- *   isCollapsed — slightly larger glow when bar is collapsed (it's the only element)
- *   firstTime   — subtle pulse animation for first-time discovery
- *   tooltip     — tooltip string (shown for 1s then hidden)
- */
-interface GlowingLightProps {
-  isDragging?: boolean;
-  isCollapsed?: boolean;
-  firstTime?: boolean;
-  tooltip?: string | null;
-  onTouchStart?: (e: React.TouchEvent<HTMLSpanElement>) => void;
-  onTouchMove?: (e: React.TouchEvent<HTMLSpanElement>) => void;
-  onTouchEnd?: (e: React.TouchEvent<HTMLSpanElement>) => void;
-  onClick?: (e: React.MouseEvent<HTMLSpanElement>) => void;
-  style?: React.CSSProperties;
-  'aria-label'?: string;
-}
-
-function GlowingLight({
-  isDragging,
-  isCollapsed,
-  firstTime,
-  tooltip,
-  onTouchStart,
-  onTouchMove,
-  onTouchEnd,
-  onClick,
-  style,
-  'aria-label': ariaLabel,
-}: GlowingLightProps) {
-  const glowSize = isCollapsed ? 14 : 10;
-  const glowOpacity = isDragging ? 1.0 : 0.85;
-  const spreadPx = isDragging ? 18 : (isCollapsed ? 14 : 10);
-
-  return (
-    <span
-      role="button"
-      tabIndex={0}
-      aria-label={ariaLabel ?? 'DreamDM light — tap to open menus'}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-      onClick={onClick}
-      style={{
-        // 44×44 invisible touch target
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: 44,
-        height: 44,
-        position: 'relative',
-        cursor: 'pointer',
-        WebkitTapHighlightColor: 'transparent',
-        touchAction: 'none',
-        flexShrink: 0,
-        animation: 'sicc-gold-blue-breathe 4s ease-in-out infinite',
-        ...style,
-      }}
-    >
-      {/* The actual glow — no border-radius, no geometric shape */}
-      <span
-        aria-hidden
-        style={{
-          display: 'block',
-          width: glowSize,
-          height: glowSize,
-          // Radial gradient fading to transparent — no hard edge
-          background: `radial-gradient(ellipse at center, rgba(255,215,64,${glowOpacity}) 0%, rgba(232,184,48,${glowOpacity * 0.55}) 35%, rgba(200,152,26,${glowOpacity * 0.2}) 65%, transparent 100%)`,
-          // Layered box-shadows for depth — the light effect
-          boxShadow: isDragging
-            ? `0 0 ${spreadPx * 2}px ${spreadPx}px rgba(255,215,64,0.85), 0 0 ${spreadPx * 4}px ${spreadPx * 2}px rgba(200,152,26,0.45), 0 0 2px rgba(255,245,180,0.90)`
-            : `0 0 ${spreadPx}px ${spreadPx / 2}px rgba(255,215,64,${glowOpacity * 0.7}), 0 0 ${spreadPx * 2}px ${spreadPx}px rgba(200,152,26,0.35), 0 0 2px rgba(255,245,180,0.80)`,
-          filter: `blur(${isDragging ? 1.5 : 2}px)`,
-          borderRadius: '50%', // Only used to soften the box-shadow, the actual shape is defined by radial-gradient fading to transparent
-          transition: 'box-shadow 0.25s ease, filter 0.25s ease, width 0.25s ease, height 0.25s ease',
-          animation: firstTime ? 'sicc-gold-breathe 1.4s cubic-bezier(0.45,0.05,0.55,0.95) 3' : undefined,
-        }}
-      />
-      {/* First-time tooltip */}
-      {tooltip && (
-        <span
-          aria-live="polite"
-          style={{
-            position: 'absolute',
-            bottom: '100%',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            background: 'rgba(30,30,30,0.88)',
-            color: 'rgba(255,255,255,0.92)',
-            fontSize: 11,
-            fontWeight: 600,
-            padding: '5px 10px',
-            borderRadius: 8,
-            whiteSpace: 'nowrap',
-            pointerEvents: 'none',
-            marginBottom: 6,
-            boxShadow: '0 2px 12px rgba(0,0,0,0.25)',
-          }}
-        >
-          {tooltip}
-        </span>
-      )}
-    </span>
-  );
-}
 
 function AvatarChip({ name, url, size = 28 }: { name: string; url?: string | null; size?: number }) {
   if (url) {
@@ -441,13 +328,26 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
   const [screenW, setScreenW] = useState(1440);
   /** px the keyboard pushes the visual viewport up from the bottom (0 when hidden) */
   const [keyboardOffsetPx, setKeyboardOffsetPx] = useState(0);
+  const [safeAreaBottomPx, setSafeAreaBottomPx] = useState(0);
   useEffect(() => {
+    const readSafeAreaBottom = () => {
+      const probe = document.createElement('div');
+      probe.style.position = 'fixed';
+      probe.style.bottom = 'env(safe-area-inset-bottom, 0px)';
+      probe.style.visibility = 'hidden';
+      probe.style.pointerEvents = 'none';
+      document.body.appendChild(probe);
+      const inset = parseFloat(window.getComputedStyle(probe).bottom || '0');
+      probe.remove();
+      return Number.isFinite(inset) ? inset : 0;
+    };
     const update = () => {
       const innerH = window.innerHeight;
       const vvH    = window.visualViewport?.height ?? innerH;
       const vvOff  = window.visualViewport?.offsetTop ?? 0;
       setScreenH(getPreferredViewportHeight(innerH, vvH));
       setScreenW(window.visualViewport?.width ?? window.innerWidth);
+      setSafeAreaBottomPx(readSafeAreaBottom());
       // Keyboard offset = layout height minus (visual height + viewport scrolled-up amount)
       const kbOffset = Math.max(0, innerH - vvH - vvOff);
       setKeyboardOffsetPx(kbOffset);
@@ -1128,6 +1028,44 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
     setComposeFocused(false);
   }, [clearBarIntent, quickDraftPreviews]);
 
+  const handleLightKeyDown = useCallback((e: React.KeyboardEvent<HTMLSpanElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onBothMenus();
+      return;
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (onSplitChange && typeof splitRatio === 'number') {
+        onSplitChange(Math.max(SPLIT_RATIO_MIN, splitRatio - 0.05));
+        return;
+      }
+      revealBar();
+      setDragH((current) => Math.min(screenH * 0.85, current + 48));
+      return;
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (onSplitChange && typeof splitRatio === 'number') {
+        onSplitChange(Math.min(SPLIT_RATIO_MAX, splitRatio + 0.05));
+        return;
+      }
+      setDragH(BAR_H);
+      setIsTop(false);
+      setIsTopExpanded(false);
+      setSlideDown(0);
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      if (dividerModeActive) {
+        closeToParticleLine();
+      } else {
+        minimizeDreamDMBar();
+      }
+    }
+  }, [closeToParticleLine, dividerModeActive, minimizeDreamDMBar, onBothMenus, onSplitChange, revealBar, screenH, splitRatio]);
+
   const handleExpandButtonClick = useCallback(() => {
     if (expandTapCount === 0) {
       setExpandTapCount(1);
@@ -1655,10 +1593,11 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
       const barTop = isTopExpanded ? slideDown : 0;
       onBarInsets(barTop + barH, 0);
     } else {
-      // Bar is at the bottom; inset = current bar height (dragH, rests at BAR_H)
-      onBarInsets(0, dragH);
+      // Bar is at the bottom; include the iOS safe-area so the resting bar
+      // clears the home-indicator region instead of overlapping it.
+      onBarInsets(0, dragH + safeAreaBottomPx);
     }
-  }, [isTop, isTopExpanded, dragH, slideDown, onBarInsets]);
+  }, [isTop, isTopExpanded, dragH, safeAreaBottomPx, slideDown, onBarInsets]);
 
   if (!mounted) return null;
 
@@ -1680,10 +1619,10 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
   // (composeExtraH > 0), keeping the divider line anchored at its split position.
   const barH: number    = isDividerMode
     ? DIVIDER_H + composeExtraH
-    : (isTop ? (isTopExpanded ? TOP_H : dragH) : dragH);
+    : (isTop ? (isTopExpanded ? TOP_H : dragH) : dragH + safeAreaBottomPx);
   const barTop: number  = isDividerMode
     ? Math.max(8, dividerBarTop - composeExtraH)
-    : (isTop ? (isTopExpanded ? slideDown : 0) : (screenH - dragH));
+    : (isTop ? (isTopExpanded ? slideDown : 0) : (screenH - dragH - safeAreaBottomPx));
 
   // showFull: whether to render the expanded tab panel instead of the compact bar
   const showFull: boolean = !isDividerMode && (isTopExpanded || dragH > 180);
@@ -1767,7 +1706,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
   if (isMinimized) {
     const posStyle: React.CSSProperties = minOrbPos !== null
       ? { left: minOrbPos.x, top: minOrbPos.y, right: undefined, bottom: undefined }
-      : { right: 20, bottom: 20 + keyboardOffsetPx };
+      : { right: 20, bottom: 20 + keyboardOffsetPx + safeAreaBottomPx };
     return (
       <div
         aria-label="DreamDM — tap to expand, drag to reposition"
@@ -1818,6 +1757,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
           firstTime={firstTimeLight}
           tooltip={lightTooltip}
           aria-label="DreamDM — tap to expand"
+          onKeyDown={handleLightKeyDown}
         />
       </div>
     );
@@ -2249,6 +2189,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
                 onTouchMove={handleLightTouchMove}
                 onTouchEnd={handleLightTouchEnd}
                 onClick={handleLightClick}
+                onKeyDown={handleLightKeyDown}
                 aria-label="DreamDM seam — double tap for menus, hold for input, drag to resize"
               />
             </div>
@@ -2301,6 +2242,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
                   onTouchMove={handleLightTouchMove}
                   onTouchEnd={handleLightTouchEnd}
                   onClick={handleLightClick}
+                  onKeyDown={handleLightKeyDown}
                 />
               </div>
             </div>

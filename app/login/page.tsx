@@ -7,7 +7,6 @@ import Link from "next/link";
 import Image from "next/image";
 import PasswordField from "@/components/auth/dream.PasswordField";
 import { createClient } from "@/lib/supabase/client";
-import UniverseField from "@/components/landing/dream.scene.UniverseField";
 
 // Shared input style — matches the rest of the de-widget design system
 const INPUT_STYLE: React.CSSProperties = {
@@ -34,8 +33,6 @@ function LoginPageInner() {
   const [rememberMe, setRememberMe]   = useState(false);
   const [error, setError]         = useState<string | null>(null);
   const [oauthProviders, setOauthProviders] = useState<{ google: boolean | null; github: boolean | null } | null>(null);
-  // Controls the galaxy field physics: false = gentle Newtonian, true = scaled MOND collapse
-  const [physicsActivated, setPhysicsActivated] = useState(false);
 
   // Show errors from OAuth callback (e.g. Google auth redirect mismatch)
   // Preflight: check which OAuth providers are configured in Supabase
@@ -96,14 +93,8 @@ function LoginPageInner() {
       } else {
         window.localStorage.removeItem("rememberedEmail");
       }
-      // Activate the MOND collapse physics immediately so the galaxy field
-      // dramatically pulls toward the centre while the user watches.
-      setPhysicsActivated(true);
-      // Let the physics effect play for 2 seconds before navigating.
-      setTimeout(() => {
-        router.replace("/homedream");
-        router.refresh();
-      }, 2000);
+      router.replace("/homedream");
+      router.refresh();
     } catch (err: unknown) {
       const msg = (err as { message?: string })?.message ?? "Login failed";
       setError(
@@ -143,43 +134,38 @@ function LoginPageInner() {
   };
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-4 py-10"
-      style={{
-        background: 'linear-gradient(155deg, #070e1c 0%, #0c1829 45%, #0f2244 75%, #0a1628 100%)',
-      }}
-    >
-      {/* Galaxy field — base Newtonian physics until login activates the MOND collapse */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
-        <UniverseField scaled={physicsActivated} />
-      </div>
-
-      {/* Ambient glow — SICC enhanced */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
-        <div style={{
-          position: 'absolute', top: '-100px', right: '-80px',
-          width: '600px', height: '600px',
-          background: 'radial-gradient(circle, rgba(56,189,248,0.12) 0%, rgba(56,189,248,0.04) 40%, transparent 65%)',
-          filter: 'blur(80px)',
-          animation: 'sicc-soft-float 8s ease-in-out infinite',
-        }} />
-        <div style={{
-          position: 'absolute', bottom: '-60px', left: '-50px',
-          width: '500px', height: '500px',
-          background: 'radial-gradient(circle, rgba(200,152,26,0.11) 0%, rgba(200,152,26,0.03) 40%, transparent 65%)',
-          filter: 'blur(80px)',
-          animation: 'sicc-soft-float 6s ease-in-out infinite reverse',
-        }} />
+      <div
+        className="min-h-[100svh] flex flex-col items-center justify-center px-4 py-10"
+        style={{
+          background: 'linear-gradient(155deg, #070e1c 0%, #0c1829 45%, #0f2244 75%, #0a1628 100%)',
+        }}
+      >
+       {/* Ambient glow — SICC enhanced */}
+       <div className="pointer-events-none fixed inset-0 overflow-hidden" aria-hidden="true">
+         <div style={{
+           position: 'absolute', top: '-100px', right: '-80px',
+           width: '600px', height: '600px',
+           background: 'radial-gradient(circle, rgba(56,189,248,0.12) 0%, rgba(56,189,248,0.04) 40%, transparent 65%)',
+           filter: 'blur(56px)',
+           animation: 'sicc-soft-float 8s ease-in-out infinite',
+         }} />
+         <div style={{
+           position: 'absolute', bottom: '-60px', left: '-50px',
+           width: '500px', height: '500px',
+           background: 'radial-gradient(circle, rgba(200,152,26,0.11) 0%, rgba(200,152,26,0.03) 40%, transparent 65%)',
+           filter: 'blur(56px)',
+           animation: 'sicc-soft-float 6s ease-in-out infinite reverse',
+         }} />
         {/* SICC tertiary glow — center */}
         <div style={{
           position: 'absolute', top: '30%', left: '50%',
-          transform: 'translateX(-50%)',
-          width: '400px', height: '300px',
-          background: 'radial-gradient(ellipse, rgba(100,130,255,0.06) 0%, transparent 60%)',
-          filter: 'blur(60px)',
-          animation: 'sicc-soft-float 10s ease-in-out infinite',
-        }} />
-      </div>
+           transform: 'translateX(-50%)',
+           width: '400px', height: '300px',
+           background: 'radial-gradient(ellipse, rgba(100,130,255,0.06) 0%, transparent 60%)',
+           filter: 'blur(40px)',
+           animation: 'sicc-soft-float 10s ease-in-out infinite',
+         }} />
+       </div>
 
       {/* Wordmark — SICC premium */}
       <div className="sicc-soft-float" style={{ marginBottom: 32, textAlign: "center", position: 'relative' }}>
@@ -370,7 +356,7 @@ export default function LoginPage() {
   return (
     <Suspense fallback={
       <div
-        className="min-h-screen flex items-center justify-center"
+        className="min-h-[100svh] flex items-center justify-center"
         style={{ background: 'linear-gradient(155deg, #070e1c 0%, #0c1829 45%, #0f2244 75%, #0a1628 100%)' }}
       >
         <div style={{

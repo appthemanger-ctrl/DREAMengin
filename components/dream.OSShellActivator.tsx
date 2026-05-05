@@ -39,20 +39,12 @@ import type { SystemPanelId } from '@/lib/panels/panelTypes';
 import { DIVIDER_H } from '@/lib/dreamdm/barInteractions';
 import { EnginDispatcher } from '@/lib/runtime/EnginDispatcher';
 import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
+import { isPublicSurfacePath } from '@/lib/routing/surfaces';
 
 const DEFAULT_WORKFLOW_SPLIT = 0.5;
 
-/** Routes that must NEVER activate the OS shell. */
-const PUBLIC_ROUTE_PREFIXES = ['/login', '/join', '/policy', '/about', '/auth'];
-
 /** Route that owns its own bridge (DreamBarDataBridge with richer home data). */
 const OWN_BRIDGE_ROUTES = new Set<string>(['/homedream']);
-
-function isPublicRoute(pathname: string | null): boolean {
-  if (!pathname) return true;
-  if (pathname === '/') return true;
-  return PUBLIC_ROUTE_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'));
-}
 
 export default function OSShellActivator() {
   const pathname = usePathname();
@@ -70,7 +62,7 @@ export default function OSShellActivator() {
   } = useDreamSystem();
 
   const skip =
-    isPublicRoute(pathname) ||
+    isPublicSurfacePath(pathname) ||
     OWN_BRIDGE_ROUTES.has(pathname ?? '') ||
     !homeData?.userId;
 

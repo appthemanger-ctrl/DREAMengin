@@ -19,9 +19,7 @@ import DualBottomMenu, { type SystemMenuAction }    from '@/components/menus/dre
 import DrEamsPanel                                  from '@/components/dreamengin/dream.panel.DrEamsPanel';
 import { useDreamSystem }                           from '@/lib/dreamdm/DreamSystemContext';
 import { runHomeAction }                            from '@/lib/home-buttons/contextual-home';
-
-/** Routes where system menus must NOT appear (pre-login / public surfaces). */
-const PUBLIC_ROUTES = ['/login', '/join', '/policy', '/about'];
+import { isPublicSurfacePath }                      from '@/lib/routing/surfaces';
 
 export default function GlobalDreamBar() {
   const pathname = usePathname();
@@ -83,7 +81,7 @@ export default function GlobalDreamBar() {
   }, [openDrEams, handleHome, openInSurface, runtimeCallbacks, router]);
 
   // ── Hide on public / pre-login routes ────────────────────────────────────
-  if (PUBLIC_ROUTES.includes(pathname)) return null;
+  if (isPublicSurfacePath(pathname)) return null;
 
   return (
     <>

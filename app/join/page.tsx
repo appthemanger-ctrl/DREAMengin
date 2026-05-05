@@ -145,7 +145,7 @@ export default function JoinPage() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center px-4 py-10"
+      className="min-h-[100svh] flex flex-col items-center justify-center px-4 py-10"
       style={{
         background: 'linear-gradient(155deg, #070e1c 0%, #0c1829 45%, #0f2244 75%, #0a1628 100%)',
       }}
@@ -156,14 +156,14 @@ export default function JoinPage() {
           position: 'absolute', top: '-100px', right: '-80px',
           width: '600px', height: '600px',
           background: 'radial-gradient(circle, rgba(56,189,248,0.12) 0%, rgba(56,189,248,0.04) 40%, transparent 65%)',
-          filter: 'blur(80px)',
+          filter: 'blur(56px)',
           animation: 'sicc-soft-float 8s ease-in-out infinite',
         }} />
         <div style={{
           position: 'absolute', bottom: '-60px', left: '-50px',
           width: '500px', height: '500px',
           background: 'radial-gradient(circle, rgba(200,152,26,0.11) 0%, rgba(200,152,26,0.03) 40%, transparent 65%)',
-          filter: 'blur(80px)',
+          filter: 'blur(56px)',
           animation: 'sicc-soft-float 6s ease-in-out infinite reverse',
         }} />
         <div style={{
@@ -171,7 +171,7 @@ export default function JoinPage() {
           transform: 'translateX(-50%)',
           width: '400px', height: '300px',
           background: 'radial-gradient(ellipse, rgba(100,130,255,0.06) 0%, transparent 60%)',
-          filter: 'blur(60px)',
+          filter: 'blur(40px)',
           animation: 'sicc-soft-float 10s ease-in-out infinite',
         }} />
       </div>
