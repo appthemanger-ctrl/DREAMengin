@@ -60,9 +60,9 @@ export default async function Root() {
   }
 
   // Authenticated visitors are redirected server-side so we never ship the
-  // (heavy) marketing landing page — Babylon hero + N-body sim — to logged-in
-  // users. safeGetUser swallows Supabase errors and times out fast, so an
-  // unconfigured Supabase environment falls through to the public landing.
+  // marketing landing page to logged-in users. safeGetUser swallows Supabase
+  // errors and times out fast, so an unconfigured Supabase environment falls
+  // through to the public landing.
   const supabase = await createServerClient();
   const user = await safeGetUser(supabase);
   if (user) {
