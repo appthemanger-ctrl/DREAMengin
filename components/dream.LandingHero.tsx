@@ -2,14 +2,12 @@
 
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 
 import UniverseField from '@/components/landing/dream.scene.UniverseField';
 import LandingNav from '@/components/landing/dream.LandingNav';
 import LandingProductStatement from '@/components/landing/dream.LandingProductStatement';
 import LandingHeroRobot from '@/components/landing/dream.LandingHeroRobot';
 import { calibrateDevice, type CalibrationSample } from '@/lib/dreamr/swipeCalibration';
-import { createClient } from '@/lib/supabase/client';
 
 /**
  * LandingHero — slim composition root for the public landing page.
@@ -21,6 +19,9 @@ import { createClient } from '@/lib/supabase/client';
  *
  * The pointer-calibration effect and mission-statement link block are kept
  * here intentionally — they are required by tests/landing-*.test.ts.
+ *
+ * Authentication redirect lives in `app/page.tsx` (server-side) so that
+ * logged-in users never download this page.
  */
 
 interface GestureState {
@@ -31,19 +32,6 @@ interface GestureState {
 }
 
 export default function LandingHero() {
-  const router = useRouter();
-
-  // Authenticated visitors skip the landing page.
-  useEffect(() => {
-    const supabase = createClient();
-    void supabase.auth
-      .getUser()
-      .then((result: { data?: { user?: unknown } | null }) => {
-        if (result.data?.user) router.replace('/homedream');
-      })
-      .catch(() => {});
-  }, [router]);
-
   // ── Humanity calibration pass — keep wiring required by landing-calibration test ──
   const calibrationRef = useRef<GestureState>({
     samples: [],
@@ -62,6 +50,8 @@ export default function LandingHero() {
     }
 
     function onPointerMove(e: PointerEvent) {
+      // Early-bail before any work to keep this listener cheap on every move
+      // (it will fire across the entire viewport at ~60 Hz on a phone).
       if (state.calibrated || !state.gestureStart) return;
       state.positions.push({ x: e.clientX, y: e.clientY });
     }
@@ -97,9 +87,12 @@ export default function LandingHero() {
       }
     }
 
-    window.addEventListener('pointerdown', onPointerDown);
-    window.addEventListener('pointermove', onPointerMove);
-    window.addEventListener('pointerup', onPointerUp);
+    // Passive listeners — calibration never preventDefaults. This keeps iOS
+    // scroll perf intact when these handlers run on every viewport pointermove.
+    const opts: AddEventListenerOptions = { passive: true };
+    window.addEventListener('pointerdown', onPointerDown, opts);
+    window.addEventListener('pointermove', onPointerMove, opts);
+    window.addEventListener('pointerup', onPointerUp, opts);
 
     return () => {
       window.removeEventListener('pointerdown', onPointerDown);
@@ -112,6 +105,7 @@ export default function LandingHero() {
     <div
       className="relative flex flex-col overflow-hidden"
       style={{ minHeight: '100dvh', background: '#000' }}
+      data-route="landing"
     >
       {/* Persistent simple black background + galaxy starfield — base Newtonian physics */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">

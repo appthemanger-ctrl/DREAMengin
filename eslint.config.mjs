@@ -44,7 +44,6 @@ const eslintConfig = [
     rules: {
       // Turn off noisy advisory rules that don't affect functionality
       "@typescript-eslint/no-unused-vars": "off",
-      "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-require-imports": "off",
       "@typescript-eslint/no-unused-expressions": "off",
       "react/no-unescaped-entities": "off",
@@ -53,7 +52,11 @@ const eslintConfig = [
       "react-hooks/refs": "off",
       "react-hooks/immutability": "off",
       "react-hooks/static-components": "off",
-      "react-hooks/exhaustive-deps": "off",
+      // Re-enabled as warnings (HumanAI audit C4): these are the two rules
+      // most likely to catch hidden render-loops and contract drift. Warning
+      // level keeps CI green while surfacing the debt.
+      "react-hooks/exhaustive-deps": "warn",
+      "@typescript-eslint/no-explicit-any": "warn",
       "prefer-const": "warn",
       // Keep critical rules as warnings
       "@next/next/no-img-element": "warn",

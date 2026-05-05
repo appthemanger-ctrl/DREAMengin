@@ -322,8 +322,18 @@ export class WarpEngine {
       }
     }
 
-    // 2. Reap dead particles
-    this.particles = this.particles.filter(p => p.life > 0);
+    // 2. Reap dead particles via swap-with-last in-place compaction
+    //    (audit H8: avoids per-frame array allocation from `.filter`).
+    const arr = this.particles;
+    let write = 0;
+    for (let read = 0; read < arr.length; read++) {
+      const p = arr[read];
+      if (p.life > 0) {
+        if (write !== read) arr[write] = p;
+        write++;
+      }
+    }
+    if (write < arr.length) arr.length = write;
 
     // 3. Spawn new particles if capacity allows
     this.spawnAccum += this.spawnRate * dt;

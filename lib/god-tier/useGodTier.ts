@@ -95,16 +95,33 @@ export function useGodTier(opts: UseGodTierOptions = {}): UseGodTierReturn {
   const [state, setState] = useState<GodTierState | null>(null);
   const [uiTokens, setUiTokens] = useState<ReturnType<typeof getGodTierUiTokens> | null>(null);
 
-  // ── React state throttle: update React state at ≤5fps to avoid 60fps re-renders.
-  //    CSS custom properties are injected directly every frame (no React overhead).
+  // ── Cadence: orchestrator + CSS-var write throttle ───────────────────────────
+  // Setting CSS custom properties on <html> invalidates style for the entire
+  // document, so we run the orchestrator at most every ORCH_INTERVAL_MS (≈4 Hz)
+  // instead of every animation frame, and only call setProperty for vars whose
+  // values actually changed since the last write.
+  const lastOrchTsRef = useRef<number>(0);
+  const lastVarsRef = useRef<Record<string, string>>({});
+  const ORCH_INTERVAL_MS = 250;
+  const REACT_STATE_INTERVAL_MS = 250; // React state updates (kept in sync with orch)
   const lastReactUpdateRef = useRef<number>(0);
-  const REACT_STATE_INTERVAL_MS = 200; // 5fps cap for React state
+
+  // ── Volatile inputs into refs so the rAF callback identity stays stable ─────
+  // Without this, `tick` (and the rAF effect that depends on it) re-creates
+  // whenever a parent passes a new `nextLikelyRoutes`/`meshes`/`ui` array
+  // literal — which silently cancels and reschedules the loop on every render.
+  const inputsRef = useRef({
+    route, activeTask, primaryIntent, nextLikelyRoutes, meshes, ui, childSafetyMode,
+  });
+  inputsRef.current = {
+    route, activeTask, primaryIntent, nextLikelyRoutes, meshes, ui, childSafetyMode,
+  };
 
   // ── Frame measurement ─────────────────────────────────────────────────────────
   const rafRef = useRef<number | null>(null);
 
   const tick = useCallback((ts: number) => {
-    // Measure frame time
+    // Always measure frame time (cheap; needed for adaptive quality).
     const frameMs = frameTsRef.current === 0 ? 16.6 : ts - frameTsRef.current;
     frameTsRef.current = ts;
 
@@ -126,42 +143,54 @@ export function useGodTier(opts: UseGodTierOptions = {}): UseGodTierReturn {
       interactionBurst: runtimeRef.current.interactionBurst,
     };
 
-    const routeSignals: RouteSignals = {
-      route,
-      activeTask,
-      primaryIntent,
-      nextLikelyRoutes,
-    };
+    // Run the orchestrator + CSS-var write at most every ORCH_INTERVAL_MS.
+    if (ts - lastOrchTsRef.current >= ORCH_INTERVAL_MS) {
+      lastOrchTsRef.current = ts;
 
-    const next = systemRef.current.update({
-      device:  deviceRef.current,
-      runtime: runtimeRef.current,
-      ux:      uxRef.current,
-      route:   routeSignals,
-      meshes,
-      ui,
-      childSafetyMode,
-    });
+      const inputs = inputsRef.current;
+      const routeSignals: RouteSignals = {
+        route: inputs.route,
+        activeTask: inputs.activeTask,
+        primaryIntent: inputs.primaryIntent,
+        nextLikelyRoutes: inputs.nextLikelyRoutes,
+      };
 
-    const tokens = getGodTierUiTokens(next);
+      const next = systemRef.current.update({
+        device:  deviceRef.current,
+        runtime: runtimeRef.current,
+        ux:      uxRef.current,
+        route:   routeSignals,
+        meshes:  inputs.meshes,
+        ui:      inputs.ui,
+        childSafetyMode: inputs.childSafetyMode,
+      });
 
-    // Always inject CSS custom properties directly — zero React overhead.
-    if (typeof document !== 'undefined') {
-      const root = document.documentElement;
-      for (const [k, v] of Object.entries(tokens.vars)) {
-        root.style.setProperty(k, v);
+      const tokens = getGodTierUiTokens(next);
+
+      // Diff-then-set: only call setProperty for vars whose value changed.
+      // This avoids invalidating <html> style when nothing actually moved.
+      if (typeof document !== 'undefined') {
+        const root = document.documentElement;
+        const prev = lastVarsRef.current;
+        const nextVars = tokens.vars as Record<string, string>;
+        for (const k in nextVars) {
+          if (prev[k] !== nextVars[k]) {
+            root.style.setProperty(k, nextVars[k]);
+          }
+        }
+        lastVarsRef.current = nextVars;
+      }
+
+      // React state at the same cadence — no extra re-renders.
+      if (ts - lastReactUpdateRef.current >= REACT_STATE_INTERVAL_MS) {
+        lastReactUpdateRef.current = ts;
+        setState(next);
+        setUiTokens(tokens);
       }
     }
 
-    // Throttle React state updates to avoid 60fps component re-renders.
-    if (ts - lastReactUpdateRef.current >= REACT_STATE_INTERVAL_MS) {
-      lastReactUpdateRef.current = ts;
-      setState(next);
-      setUiTokens(tokens);
-    }
-
     rafRef.current = requestAnimationFrame(tick);
-  }, [route, activeTask, primaryIntent, nextLikelyRoutes, meshes, ui, childSafetyMode]);
+  }, []);
 
   // ── Scroll velocity tracking ───────────────────────────────────────────────
   useEffect(() => {
@@ -209,9 +238,37 @@ export function useGodTier(opts: UseGodTierOptions = {}): UseGodTierReturn {
     // Refresh device signals on mount
     deviceRef.current = defaultDeviceSignals();
 
-    rafRef.current = requestAnimationFrame(tick);
+    const start = () => {
+      if (rafRef.current === null) {
+        // Reset frame timer so the first measured frame after a pause/resume
+        // doesn't get attributed a multi-second delta.
+        frameTsRef.current = 0;
+        rafRef.current = requestAnimationFrame(tick);
+      }
+    };
+    const stop = () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    };
+
+    // Pause when the tab is backgrounded — battery discipline.
+    const onVisibility = () => {
+      if (document.hidden) stop();
+      else start();
+    };
+
+    if (typeof document !== 'undefined' && !document.hidden) start();
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', onVisibility);
+    }
+
     return () => {
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+      stop();
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', onVisibility);
+      }
     };
   }, [tick]);
 
