@@ -182,5 +182,62 @@ export function worldsEqual(a: RuntimeWorld, b: RuntimeWorld): boolean {
   return false;
 }
 
+// ---------------------------------------------------------------------------
+// Torus world map — the "one page / wrap-around navigation" model
+// ---------------------------------------------------------------------------
+
+/**
+ * The DREAMengin world is modelled as a torus: a 2-D grid that wraps in both
+ * axes. Navigating left/right moves through domains; navigating up/down moves
+ * between Surface mode (y=0) and Engin mode (y=1).
+ *
+ * Each (x, y) cell maps to a focusKey that drives what both viewports show.
+ *
+ *   x  Domain     y=0 (surface)        y=1 (engin)
+ *   0  home        home                 home
+ *   1  dreamr      dreamr.feed          dreamr.channel
+ *   2  games       games.library        games.play
+ *   3  music       music.surface        music.engin
+ *   4  code        code.surface         code.engin
+ *   5  brand       brand.surface        brand.engin
+ */
+export const TORUS_DOMAINS = ['home', 'dreamr', 'games', 'music', 'code', 'brand'] as const;
+export type TorusDomain = (typeof TORUS_DOMAINS)[number];
+
+export const TORUS_WIDTH  = TORUS_DOMAINS.length; // wraps on X
+export const TORUS_HEIGHT = 2;                     // wraps on Y (0=surface, 1=engin)
+
+/** Map from (domain, y) → focusKey */
+export const TORUS_FOCUS_MAP: Record<TorusDomain, [surface: string, engin: string]> = {
+  home:   ['home',             'home'],
+  dreamr: ['dreamr.feed',      'dreamr.channel'],
+  games:  ['games.library',    'games.play'],
+  music:  ['music.surface',    'music.engin'],
+  code:   ['code.surface',     'code.engin'],
+  brand:  ['brand.surface',    'brand.engin'],
+};
+
+/** Compute the focusKey for a given torus position */
+export function torusFocusKey(x: number, y: number): string {
+  // The modulo + addition guards against negative x values from moveTorus.
+  // TORUS_DOMAINS is a fixed-length const tuple so the index is always valid,
+  // but we default to 'home' to stay defensive against future array changes.
+  const domain = TORUS_DOMAINS[((x % TORUS_WIDTH) + TORUS_WIDTH) % TORUS_WIDTH] ?? 'home';
+  const pair = TORUS_FOCUS_MAP[domain as keyof typeof TORUS_FOCUS_MAP] ?? TORUS_FOCUS_MAP.home;
+  return y === 0 ? pair[0] : pair[1];
+}
+
+/** Move a torus coordinate by (dx, dy) with wrap-around */
+export function moveTorus(
+  x: number,
+  y: number,
+  dx: number,
+  dy: number,
+): { x: number; y: number } {
+  const nx = ((x + dx) % TORUS_WIDTH  + TORUS_WIDTH)  % TORUS_WIDTH;
+  const ny = ((y + dy) % TORUS_HEIGHT + TORUS_HEIGHT) % TORUS_HEIGHT;
+  return { x: nx, y: ny };
+}
+
 // Re-export canonical name constants for consumers
 export { SURFACE_NAMES, RUNTIME_REGIONS };

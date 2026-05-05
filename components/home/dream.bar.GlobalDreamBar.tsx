@@ -36,6 +36,7 @@ export default function GlobalDreamBar() {
     runtimeCallbacks,
     openInSurface,
     splitRatio,
+    setFocus,
   } = useDreamSystem();
 
   // ── Go home (from "go-home" menu action) ─────────────────────────────────
@@ -43,6 +44,8 @@ export default function GlobalDreamBar() {
   const handleHome = useCallback(() => {
     closeBothMenus();
     closeDrEams();
+    // Update world focus to home region — this is the torus "camera back to origin" move.
+    setFocus('home');
     // Smart Home — the DreamDM Bar IS home. Bar position decides scope:
     //   bar at bottom  → reset Surface (top runtime) only
     //   bar at top     → reset DreamSpace (bottom runtime) only
@@ -53,7 +56,7 @@ export default function GlobalDreamBar() {
       // No dual runtime mounted (we're outside /homedream) — navigate there.
       router.push('/homedream');
     }
-  }, [closeBothMenus, closeDrEams, runtimeCallbacks, router, splitRatio]);
+  }, [closeBothMenus, closeDrEams, setFocus, runtimeCallbacks, router, splitRatio]);
 
   // ── System menu actions — prefer SPA panel when HomeSystem is active,
   //    fall back to route navigation otherwise so links always work.   ──────

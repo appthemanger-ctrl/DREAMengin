@@ -59,6 +59,7 @@ import GameRuntime from '@/lib/gameengin/GameRuntime';
 import type { GameCartridge } from '@/lib/gameengin/cartridge';
 import { wrapAsCartridge } from '@/lib/gameengin/ReactComponentCartridge';
 import RecordingControls from '@/components/games/dream.RecordingControls';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 
 // ── Interfaces ─────────────────────────────────────────────────────────────────
 
@@ -267,6 +268,9 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   const initializedPlaySurfaceRef = useRef(false);
   const autoStartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // ── World focus integration (torus navigation) ──────────────────────────────
+  const { worldFocus, setFocus } = useDreamSystem();
+
   // ── OS Shell: upgradeEngine wiring ──
   const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
   useEffect(() => {
@@ -380,6 +384,28 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   // ── Game Scripts state ───────────────────────────────────────────────────────
   const [scriptState,  setScriptState]  = useState<ScriptState>({ code: STARTER_SCRIPT, language: 'GameScript' });
   const [savedScript,  setSavedScript]  = useState<string | null>(null);
+
+  // ── World focus: respond to games.play focus key ─────────────────────────────
+  // When the world focus moves to 'games.play' (e.g. from a DreamR feed click
+  // or a torus navigation), auto-select the game specified in worldSelection.
+  useEffect(() => {
+    if (worldFocus.focusKey === 'games.play') {
+      const sel = worldFocus.worldSelection as { gameId?: string } | null;
+      if (sel?.gameId && sel.gameId !== activePlayableGame) {
+        setSelectedPlayableGame(sel.gameId);
+      }
+    }
+  }, [worldFocus.focusKey, worldFocus.worldSelection, activePlayableGame]);
+
+  // ── World focus: announce library view when mounted ──────────────────────────
+  useEffect(() => {
+    // Announce to the world that this engin region is the games.library.
+    // Other components can read worldFocus.focusKey to know the bottom viewport
+    // is showing games. Only announce if not already on games focus.
+    if (!worldFocus.focusKey.startsWith('games')) {
+      setFocus('games.library');
+    }
+  }, []); // intentionally empty — runs only on mount to announce region
 
   // ── Supabase scores fetch ────────────────────────────────────────────────────
   useEffect(() => {
@@ -756,7 +782,9 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('de:games:last-launch', gameId);
     }
-  }, [queuePlayableGameStart]);
+    // Announce to world focus so top viewport and other engins know we're playing
+    setFocus('games.play', { gameId });
+  }, [queuePlayableGameStart, setFocus]);
 
   const openPlayableGamePage = useCallback((gameId: string, options: { expand?: boolean } = {}) => {
     savePlayableGame(gameId, options.expand ? 'fullscreen' : 'library-screen');

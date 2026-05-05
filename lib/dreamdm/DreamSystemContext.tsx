@@ -36,6 +36,12 @@ import React, {
 import type { SystemPanelId } from '@/lib/panels/panelTypes';
 import { DEFAULT_SPLIT_RATIO } from '@/lib/dreamdm/barInteractions';
 import { createClient } from '@/lib/supabase/client';
+import {
+  moveTorus as computeMoveTorus,
+  torusFocusKey,
+  TORUS_WIDTH,
+  TORUS_HEIGHT,
+} from '@/lib/runtime/dualRuntime';
 
 // ── Home data shared by DreamBarDataBridge into PersistentDreamBar ───────────
 
@@ -89,6 +95,34 @@ export interface BarIntent {
 }
 
 export const DEFAULT_BAR_INTENT: BarIntent = { mode: 'default' };
+
+// ── World Focus — torus navigation state ─────────────────────────────────────
+
+/**
+ * World focus state: where in the "one page / torus world" the user is.
+ *
+ * focusKey      — canonical string key identifying the focused region
+ *                 (e.g. 'home', 'games.library', 'dreamr.feed')
+ * worldSelection — context-dependent payload (e.g. { gameId } for games.play,
+ *                  { post } for dreamr.youtube)
+ * torusX / torusY — current torus position (x = domain, y = surface|engin)
+ * dominantViewport — which of the two runtime regions is in focus
+ */
+export interface WorldFocusState {
+  focusKey: string;
+  worldSelection: unknown | null;
+  torusX: number;
+  torusY: number;
+  dominantViewport: 'top' | 'bottom';
+}
+
+export const DEFAULT_WORLD_FOCUS: WorldFocusState = {
+  focusKey:          'home',
+  worldSelection:    null,
+  torusX:            0,
+  torusY:            0,
+  dominantViewport:  'top',
+};
 
 // ── Callback types ────────────────────────────────────────────────────────────
 
@@ -172,6 +206,41 @@ interface DreamSystemContextValue {
    */
   homeData: HomeData | null;
   setHomeData: Dispatch<SetStateAction<HomeData | null>>;
+
+  // ── World Focus / Torus Navigation ────────────────────────────────────────
+
+  /**
+   * Current world focus state (torus position + focused region key).
+   * All components can read this to understand what the user is looking at.
+   */
+  worldFocus: WorldFocusState;
+
+  /**
+   * Set focus to a named region of the world.
+   * Updates focusKey + worldSelection without route navigation.
+   * Optionally specify which viewport should become dominant.
+   *
+   * @param key     Focus key (e.g. 'games.play', 'dreamr.youtube')
+   * @param payload Optional context payload (e.g. { gameId: '...' })
+   * @param viewport Optional viewport preference ('top' | 'bottom')
+   */
+  setFocus: (key: string, payload?: unknown, viewport?: 'top' | 'bottom') => void;
+
+  /**
+   * Move the torus cursor by (dx, dy) with wrap-around.
+   * Updates torusX/torusY and derives the new focusKey automatically.
+   *
+   * @param dx Horizontal delta (positive = right/next domain)
+   * @param dy Vertical delta (positive = down / toward engin mode)
+   */
+  moveTorus: (dx: number, dy: number) => void;
+
+  /**
+   * Explicitly set which runtime viewport is dominant (top/bottom).
+   * Used when a user interaction (e.g. tapping a feed card) should
+   * shift attention to a specific viewport.
+   */
+  setDominantViewport: (viewport: 'top' | 'bottom') => void;
 }
 
 // ── Context + provider ────────────────────────────────────────────────────────
@@ -196,6 +265,10 @@ const DreamSystemContext = createContext<DreamSystemContextValue>({
   setIsBarMinimized:          () => {},
   homeData:                   null,
   setHomeData:                () => {},
+  worldFocus:                 DEFAULT_WORLD_FOCUS,
+  setFocus:                   () => {},
+  moveTorus:                  () => {},
+  setDominantViewport:        () => {},
 });
 
 export function DreamSystemProvider({ children }: { children: ReactNode }) {
@@ -209,6 +282,9 @@ export function DreamSystemProvider({ children }: { children: ReactNode }) {
   const [splitRatio,    setSplitRatio]           = useState(0.9);
   const [isBarMinimized, setIsBarMinimized]      = useState(false);
   const [homeData,      setHomeData]             = useState<HomeData | null>(null);
+
+  // ── World Focus / Torus Navigation state ─────────────────────────────────
+  const [worldFocus, setWorldFocusState] = useState<WorldFocusState>(DEFAULT_WORLD_FOCUS);
 
   // Bootstrap homeData from Supabase on any authenticated page so both
   // runtime regions are always available regardless of current route.
@@ -261,6 +337,38 @@ export function DreamSystemProvider({ children }: { children: ReactNode }) {
   const setBarIntent   = useCallback((intent: BarIntent) => setBarIntentState(intent), []);
   const clearBarIntent = useCallback(() => setBarIntentState(DEFAULT_BAR_INTENT), []);
 
+  // ── World Focus handlers ─────────────────────────────────────────────────
+
+  const setFocus = useCallback((
+    key: string,
+    payload?: unknown,
+    viewport?: 'top' | 'bottom',
+  ) => {
+    setWorldFocusState((prev) => ({
+      ...prev,
+      focusKey:         key,
+      worldSelection:   payload ?? null,
+      dominantViewport: viewport ?? prev.dominantViewport,
+    }));
+  }, []);
+
+  const moveTorus = useCallback((dx: number, dy: number) => {
+    setWorldFocusState((prev) => {
+      const { x, y } = computeMoveTorus(prev.torusX, prev.torusY, dx, dy);
+      return {
+        ...prev,
+        torusX:        x,
+        torusY:        y,
+        focusKey:      torusFocusKey(x, y),
+        worldSelection: null,
+      };
+    });
+  }, []);
+
+  const setDominantViewport = useCallback((viewport: 'top' | 'bottom') => {
+    setWorldFocusState((prev) => ({ ...prev, dominantViewport: viewport }));
+  }, []);
+
   return (
     <DreamSystemContext.Provider value={{
       bothMenusOpen,
@@ -282,6 +390,10 @@ export function DreamSystemProvider({ children }: { children: ReactNode }) {
       setIsBarMinimized,
       homeData,
       setHomeData,
+      worldFocus,
+      setFocus,
+      moveTorus,
+      setDominantViewport,
     }}>
       {children}
     </DreamSystemContext.Provider>

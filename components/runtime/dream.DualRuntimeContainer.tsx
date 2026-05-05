@@ -15,11 +15,15 @@
  *
  * Both regions can display the same world simultaneously.
  *
+ * Torus navigation: each region is a stable scroll root. Focus moves are
+ * implemented as `scrollIntoView` calls targeting anchor elements within
+ * the chosen viewport — this is the "camera panning on one page" model.
+ *
  * Naming: uses canonical region names from lib/identity/canonical-names.ts.
  * Architecture: docs/ARCHITECTURE.md §1 (Runtime regions)
  */
 
-import React, { createContext, useCallback, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useRef, useState } from 'react';
 import {
   type DualRuntimeState,
   type RuntimeWorld,
@@ -57,6 +61,21 @@ interface DualRuntimeContextValue {
   goToDreamSpace: () => void;
   /** Returns true if HomeDream Surface is active and Surface Space is dominant */
   isHomeActive: () => boolean;
+
+  /**
+   * Register the scroll-root ref for a viewport so anchor-based focus works.
+   * Called by the viewport's scroll container on mount.
+   * viewport: 'top' = Surface Space, 'bottom' = DreamSpace
+   */
+  registerViewportRef: (viewport: 'top' | 'bottom', ref: React.RefObject<HTMLElement | null>) => void;
+
+  /**
+   * Scroll a viewport to an element with the given anchor id.
+   * This is the "camera moves to region" primitive for torus navigation.
+   * If the element is not found in the viewport's scroll root, falls back
+   * to a global document search.
+   */
+  focusInViewport: (viewport: 'top' | 'bottom', anchorId: string) => void;
 }
 
 const DualRuntimeContext = createContext<DualRuntimeContextValue | null>(null);
@@ -73,6 +92,11 @@ interface DualRuntimeContainerProps {
 
 export default function DualRuntimeContainer({ children }: DualRuntimeContainerProps) {
   const [state, setState] = useState<DualRuntimeState>(DEFAULT_DUAL_RUNTIME);
+
+  // Refs to the scroll-root elements for each viewport.
+  // Populated via registerViewportRef from the PersistentDreamBar scroll containers.
+  const topViewportRef    = useRef<React.RefObject<HTMLElement | null> | null>(null);
+  const bottomViewportRef = useRef<React.RefObject<HTMLElement | null> | null>(null);
 
   const setTopRuntime = useCallback((world: RuntimeWorld) => {
     setState((prev) => setRuntimeWorld(prev, 'top', world));
@@ -106,6 +130,39 @@ export default function DualRuntimeContainer({ children }: DualRuntimeContainerP
     return isHomeActiveTop(state);
   }, [state]);
 
+  // ── Anchor-based viewport focus (torus "camera pan") ─────────────────────
+
+  const registerViewportRef = useCallback((
+    viewport: 'top' | 'bottom',
+    ref: React.RefObject<HTMLElement | null>,
+  ) => {
+    if (viewport === 'top') {
+      topViewportRef.current = ref;
+    } else {
+      bottomViewportRef.current = ref;
+    }
+  }, []);
+
+  const focusInViewport = useCallback((viewport: 'top' | 'bottom', anchorId: string) => {
+    const rootRef = viewport === 'top' ? topViewportRef.current : bottomViewportRef.current;
+    const root = rootRef?.current ?? null;
+
+    // Use CSS.escape for both selector patterns to handle IDs with special characters.
+    const escapedId = CSS.escape(anchorId);
+
+    // Try to find the anchor within the registered scroll root first
+    const target = root
+      ? root.querySelector(`#${escapedId}`)
+      : null;
+
+    // Fall back to global document search if not in viewport root
+    const el = target ?? document.getElementById(anchorId);
+
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, []);
+
   const value: DualRuntimeContextValue = {
     state,
     setTopRuntime,
@@ -116,6 +173,8 @@ export default function DualRuntimeContainer({ children }: DualRuntimeContainerP
     goToHomeDreamSpace,
     goToDreamSpace,
     isHomeActive,
+    registerViewportRef,
+    focusInViewport,
   };
 
   return (

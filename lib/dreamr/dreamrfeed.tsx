@@ -56,6 +56,7 @@ import {
 } from '@/lib/dreamr/swipePersonalization';
 import DreamRCreatorPanel from '@/components/dreamr/dream.panel.DreamRCreatorPanel';
 import DreamRChannelPanel from '@/components/dreamr/dream.panel.DreamRChannelPanel';
+import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 
 // ── Design tokens ──────────────────────────────────────────────────────────────
 
@@ -705,10 +706,18 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   const [swipePrefs,    setSwipePrefs]  = useState(emptyDreamRSwipePreferences);
   const [redistributionNotice, setRedistributionNotice] = useState<string | null>(null);
   // ── Topic channels ────────────────────────────────────────────────────────
-  const [activeTopic,   setActiveTopic] = useState<(typeof DREAMR_TOPICS)[number]>(DREAMR_TOPICS[0]!);
+  // Start on World News (first topic with a query) so YouTube content is immediately visible.
+  // DREAMR_TOPICS is a module-level constant so it is always non-empty; the
+  // non-null assertion on the fallback is safe by construction.
+  const [activeTopic,   setActiveTopic] = useState<(typeof DREAMR_TOPICS)[number]>(
+    DREAMR_TOPICS.find(t => t.query) ?? DREAMR_TOPICS[0]!,
+  );
   const [ytTopicPosts,  setYtTopicPosts] = useState<FeedPost[]>([]);
   const [ytLoading,     setYtLoading]   = useState(false);
   const [ytRefreshing,  setYtRefreshing] = useState(false);
+
+  // ── World focus integration ───────────────────────────────────────────────
+  const { setFocus } = useDreamSystem();
 
   const scrollRef  = useRef<HTMLDivElement>(null);
   const pendingRef = useRef<FeedPost[]>([]);
@@ -748,10 +757,15 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
 
   // ── Fetch YouTube videos for active topic ──────────────────────────────
   const fetchYtTopic = useCallback(async (topic: (typeof DREAMR_TOPICS)[number], refreshing = false) => {
-    if (!topic.query) { setYtTopicPosts([]); return; }
     if (refreshing) setYtRefreshing(true); else setYtLoading(true);
     try {
-      const url = `/api/youtube/live-feed?query=${encodeURIComponent(topic.query)}&max=20`;
+      let url: string;
+      if (!topic.query) {
+        // "All" topic: use discovery (trending + world news mix)
+        url = '/api/youtube/discovery?max=20';
+      } else {
+        url = `/api/youtube/live-feed?query=${encodeURIComponent(topic.query)}&max=20`;
+      }
       const res = await fetch(url);
       if (!mountedRef.current) return;
       if (!res.ok) return;
@@ -888,6 +902,19 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
     return () => clearTimeout(timer);
   }, [activeIdx, personalizedFeedItems, recordDreamRView]);
 
+  // ── World focus: emit selection when active card changes ─────────────────
+  useEffect(() => {
+    const item = personalizedFeedItems[activeIdx];
+    if (!item) return;
+    if (item.kind === 'creator') {
+      setFocus('dreamr.creator', { creator: item.creator });
+    } else if (isYouTube(item.post)) {
+      setFocus('dreamr.youtube', { post: item.post }, 'top');
+    } else {
+      setFocus('dreamr.feed', { post: item.post }, 'top');
+    }
+  }, [activeIdx, personalizedFeedItems, setFocus]);
+
   useEffect(() => {
     if (activeIdx <= personalizedFeedItems.length - 1) return;
     setActiveIdx(Math.max(0, personalizedFeedItems.length - 1));
@@ -952,10 +979,12 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
     recordDreamRView(post, 'left');
     if (isYouTube(post)) {
       setChannelPost(post);
+      setFocus('dreamr.channel', { post }, 'bottom');
     } else {
       setCreatorPost(post);
+      setFocus('dreamr.creator', { post }, 'bottom');
     }
-  }, [recordDreamRView]);
+  }, [recordDreamRView, setFocus]);
 
   const handleSwipeRight = useCallback((post: FeedPost) => {
     setSwipePrefs(prev => nextSwipePreferences(prev, post, 'less'));
