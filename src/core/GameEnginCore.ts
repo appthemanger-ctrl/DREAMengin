@@ -31,6 +31,8 @@ export interface AssetEntry {
   id: string;
   path: string;
   priority: number;
+  /** Explicit asset type.  When omitted the launcher infers from file extension. */
+  type?: 'mesh' | 'texture' | 'audio' | 'shader' | 'script';
 }
 
 export interface GraphicsConfig {
@@ -111,7 +113,29 @@ export interface GameConfig {
   telemetry?: TelemetryConfig;
 }
 
-// ─── Validation Error ─────────────────────────────────────────────────────────
+// ─── Asset type inference ─────────────────────────────────────────────────────
+
+const AUDIO_EXTS   = new Set(['.ogg', '.mp3', '.wav', '.aac', '.opus', '.flac']);
+const TEXTURE_EXTS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.ktx', '.ktx2', '.hdr', '.exr', '.basis']);
+const SHADER_EXTS  = new Set(['.wgsl', '.glsl', '.hlsl', '.frag', '.vert']);
+const MESH_EXTS    = new Set(['.glb', '.gltf', '.fbx', '.obj', '.drc']);
+
+function inferAssetType(
+  path: string,
+  explicit?: AssetEntry['type'],
+): 'mesh' | 'texture' | 'audio' | 'shader' | 'script' {
+  if (explicit) return explicit;
+  const ext = path.slice(path.lastIndexOf('.')).toLowerCase();
+  if (MESH_EXTS.has(ext))    return 'mesh';
+  if (TEXTURE_EXTS.has(ext)) return 'texture';
+  if (AUDIO_EXTS.has(ext))   return 'audio';
+  if (SHADER_EXTS.has(ext))  return 'shader';
+  if (ext === '.js' || ext === '.ts' || ext === '.wasm') return 'script';
+  // Unknown extension — default to mesh (most common streamed asset type)
+  return 'mesh';
+}
+
+
 
 export class GameEnginConfigError extends Error {
   constructor(message: string) {
@@ -263,16 +287,11 @@ export class GameEnginCore {
     // 3. Apply graphics quality tier from config
     this.eliteEngine.setQuality(config.graphics.qualityTier);
 
-    // 4. Configure netcode from networking config
-    if (config.networking) {
-      const { maxRollbackFrames = 8, tickRateHz = 60 } = config.networking;
-      // Netcode is pre-constructed with defaults; override via stats contract
-      // (RollbackNetcode exposes a read-only stats getter; configuration is
-      //  set at construction time — the preset in EliteGameEngine uses sensible
-      //  defaults that match this config's values).
-      void maxRollbackFrames; // documented; used by EliteGameEngine constructor
-      void tickRateHz;
-    }
+    // 4. Networking config is informational at this stage: the EliteGameEngine
+    //    constructs RollbackNetcode and ClientSidePrediction at field-init time
+    //    using its own defaults (maxRollbackFrames: 8, tickRateHz: 60).
+    //    Future versions may accept an EliteGameEngine factory so callers can
+    //    pass custom netcode params at construction time.
 
     // 5. Seed world generator if simulation config provides gravity/entities
     if (config.simulation) {
@@ -301,7 +320,7 @@ export class GameEnginCore {
         this.eliteEngine.assets.register({
           id:       entry.id,
           url:      entry.path,
-          type:     'mesh',
+          type:     inferAssetType(entry.path, entry.type),
           priority: entry.priority,
           lod:      0,
         });
@@ -312,9 +331,7 @@ export class GameEnginCore {
         this.eliteEngine.assets.register({
           id:       entry.id,
           url:      entry.path,
-          type:     entry.path.endsWith('.ogg') || entry.path.endsWith('.mp3')
-                      ? 'audio'
-                      : 'texture',
+          type:     inferAssetType(entry.path, entry.type),
           priority: entry.priority,
           lod:      1,
         });
