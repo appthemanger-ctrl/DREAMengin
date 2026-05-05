@@ -1,5 +1,6 @@
 // SURFACE: dreamsurface.DaydreamGames  (framework-mandated basename: page.tsx)
 import { createServerClient } from '@/lib/supabase/server';
+import { safeGetUser } from '@/lib/supabase/safeGetUser';
 import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import Link from 'next/link';
@@ -94,11 +95,7 @@ const OFFICIAL_SPEC_NOTES = [
 export default async function GamesDaydreamPage() {
   await connection();
   const supabase = await createServerClient();
-  let user = null;
-  try {
-    const { data } = await supabase.auth.getUser();
-    user = data.user;
-  } catch { /* Supabase not configured — treat as unauthenticated */ }
+  const user = await safeGetUser(supabase);
   if (!user && !isDevBypassActive()) redirect('/login');
 
   return (

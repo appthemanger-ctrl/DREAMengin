@@ -119,8 +119,13 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const body = await req.json().catch(() => ({})) as Record<string, any>;
+  const body = await req.json().catch(() => ({})) as {
+    id?: string;
+    title?: string;
+    description?: string;
+    price?: number | string;
+    image_url?: string;
+  };
   const { id, title, description, price, image_url } = body;
 
   if (!id) {
@@ -130,7 +135,9 @@ export async function PUT(req: NextRequest) {
   const updatePayload: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (title !== undefined) updatePayload.name = title.trim();
   if (description !== undefined) updatePayload.description = description?.trim();
-  if (price !== undefined) updatePayload.price = parseFloat(price);
+  if (price !== undefined) {
+    updatePayload.price = typeof price === 'number' ? price : parseFloat(price);
+  }
   if (image_url !== undefined) updatePayload.image_url = image_url;
 
   const { data: item, error } = await supabase
