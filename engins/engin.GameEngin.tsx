@@ -59,6 +59,7 @@ import GameRuntime from '@/lib/gameengin/GameRuntime';
 import type { GameCartridge } from '@/lib/gameengin/cartridge';
 import { wrapAsCartridge } from '@/lib/gameengin/ReactComponentCartridge';
 import RecordingControls from '@/components/games/dream.RecordingControls';
+import { useGameEnginRuntime } from '@/lib/engins/game/useGameEnginRuntime';
 
 // ── Interfaces ─────────────────────────────────────────────────────────────────
 
@@ -267,6 +268,9 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   const initializedPlaySurfaceRef = useRef(false);
   const autoStartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // ── Universal Engin Runtime ───────────────────────────────────────────────────
+  const { state: engineState, dispatch: engineDispatch } = useGameEnginRuntime();
+
   // ── OS Shell: upgradeEngine wiring ──
   const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
   useEffect(() => {
@@ -312,13 +316,15 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   }, [gpConnected, isDualSense, rumble]);
 
   // ── Existing state ───────────────────────────────────────────────────────────
-  const [scores,     setScores]     = useState<GameScore[]>([]);
+  // Domain state is sourced from the universal EnginRuntime; UI-only state stays local.
+  const scores              = engineState.scores;
+  const controlProfile      = engineState.controlProfile;
+  const selectedPlayableGame = engineState.selectedGame;
+  const activePlayableGame  = engineState.activeGame;
+  const savedWorld          = engineState.savedWorld;
   const [loading,    setLoading]    = useState(true);
   const [sharing,    setSharing]    = useState<string | null>(null);
-  const [controlProfile, setControlProfile] = useState('couch');
   const [savedLaunches, setSavedLaunches] = useState<SavedGameSession[]>([]);
-  const [selectedPlayableGame, setSelectedPlayableGame] = useState<string>(GAMES[0]?.id ?? 'platformer');
-  const [activePlayableGame, setActivePlayableGame] = useState<string | null>(null);
   const [expandedPlayableGame, setExpandedPlayableGame] = useState<string | null>(null);
   const [sessionUtilityBarRevealed, setSessionUtilityBarRevealed] = useState(false);
   /** Controls "DREAMengin powered by…" boot splash shown when entering fullscreen */
@@ -339,8 +345,15 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     stateSnapshot: () => ({ type: 'game:state', selectedPlayableGame, controlProfile }),
     onPeerState: (evt) => {
       if (evt.type === 'game:state') {
-        if (typeof evt.selectedPlayableGame === 'string') setSelectedPlayableGame(evt.selectedPlayableGame);
-        if (typeof evt.controlProfile === 'string') setControlProfile(evt.controlProfile);
+        // Co-op sync is best-effort — log if a dispatch is rejected.
+        if (typeof evt.selectedPlayableGame === 'string') {
+          const ok = engineDispatch({ type: 'game:select', payload: { gameId: evt.selectedPlayableGame } });
+          if (!ok && process.env.NODE_ENV !== 'production') console.warn('[GameEngin] co-op select rejected:', evt.selectedPlayableGame);
+        }
+        if (typeof evt.controlProfile === 'string') {
+          const ok = engineDispatch({ type: 'game:control-profile', payload: { profile: evt.controlProfile } });
+          if (!ok && process.env.NODE_ENV !== 'production') console.warn('[GameEngin] co-op control-profile rejected:', evt.controlProfile);
+        }
       }
     },
   });
@@ -371,13 +384,15 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   const [worldName,     setWorldName]     = useState('');
   const [worldGrid,     setWorldGrid]     = useState<TileType[][]>(makeEmptyGrid);
   const [selectedTile,  setSelectedTile]  = useState<TileType>('ground');
-  const [savedWorld,    setSavedWorld]    = useState<WorldState | null>(null);
+  // savedWorld is now sourced from engineState (set via game:world-save dispatch)
 
   // ── Physics Config state ─────────────────────────────────────────────────────
+  // physicsConfig = editing buffer (local); appliedPhysics = committed version (also dispatched to engine)
   const [physicsConfig,   setPhysicsConfig]   = useState<PhysicsConfig>({ gravity: 'earth', friction: 50 });
   const [appliedPhysics,  setAppliedPhysics]  = useState<PhysicsConfig | null>(null);
 
   // ── Game Scripts state ───────────────────────────────────────────────────────
+  // scriptState = editing buffer (local); savedScript = committed version (also dispatched to engine)
   const [scriptState,  setScriptState]  = useState<ScriptState>({ code: STARTER_SCRIPT, language: 'GameScript' });
   const [savedScript,  setSavedScript]  = useState<string | null>(null);
 
@@ -395,11 +410,12 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
         .order('score', { ascending: false })
         .limit(20);
       if (!cancelled) {
-        setScores((data as GameScore[] | null) ?? []);
+        engineDispatch({ type: 'game:scores-loaded', payload: { scores: (data as GameScore[] | null) ?? [] } });
         setLoading(false);
       }
     });
     return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Personal bests (group by game, keep highest) ─────────────────────────────
@@ -418,7 +434,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
       .update({ shared: true })
       .eq('id', scoreId);
     if (!error) {
-      setScores(prev => prev.map(s => s.id === scoreId ? { ...s, shared: true } : s));
+      engineDispatch({ type: 'game:score-shared', payload: { scoreId } });
       recordForgeTransfer('games', 'brand', 'asset', 'Score published to leaderboard');
     }
     setSharing(null);
@@ -452,7 +468,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   }
 
   function handleControlProfileSelect(profileId: string) {
-    setControlProfile(profileId);
+    engineDispatch({ type: 'game:control-profile', payload: { profile: profileId } });
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('de:games:control-profile', profileId);
     }
@@ -475,7 +491,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   function handleSaveWorld() {
     if (!worldName.trim()) return;
     const snapshot = worldGrid.map(r => [...r]);
-    setSavedWorld({ name: worldName.trim(), grid: snapshot });
+    engineDispatch({ type: 'game:world-save', payload: { world: { name: worldName.trim(), grid: snapshot } } });
     forgeRecord('Saved world: ' + worldName.trim());
     recordForgeTransfer('games', 'create', 'level', 'GameEngin world → ContentEngin');
     // Real bridge event: world level exported — Create/Brand Engins may consume it.
@@ -489,11 +505,13 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   // ── Physics Config ────────────────────────────────────────────────────────────
   function handleApplyPhysics() {
     setAppliedPhysics({ ...physicsConfig });
+    engineDispatch({ type: 'game:physics-apply', payload: { config: { ...physicsConfig } } });
   }
 
   // ── Game Scripts ──────────────────────────────────────────────────────────────
   function handleSaveScript() {
     setSavedScript(scriptState.code);
+    engineDispatch({ type: 'game:script-save', payload: { code: scriptState.code, language: scriptState.language } });
     forgeRecord('Saved game script');
     // Task requirement: emit 'games:score-shared' on Save Script.
     // 'games:score-shared' is a planned addition to GamesChannelEvents; cast used
@@ -713,7 +731,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     if (typeof window === 'undefined') return;
     const savedControlProfile = window.localStorage.getItem('de:games:control-profile');
     if (savedControlProfile && GAME_CONTROL_PROFILES.some((profile) => profile.id === savedControlProfile)) {
-      setControlProfile(savedControlProfile);
+      engineDispatch({ type: 'game:control-profile', payload: { profile: savedControlProfile } });
     }
     try {
       const parsed = JSON.parse(window.localStorage.getItem(GAME_LIBRARY_SESSION_STORAGE_KEY) ?? '[]');
@@ -721,6 +739,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     } catch {
       setSavedLaunches([]);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const queuePlayableGameStart = useCallback(() => {
@@ -746,8 +765,8 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   }, [savedLaunches]);
 
   const launchPlayableGame = useCallback((gameId: string, options: { expand?: boolean } = {}) => {
-    setSelectedPlayableGame(gameId);
-    setActivePlayableGame(gameId);
+    engineDispatch({ type: 'game:select', payload: { gameId } });
+    engineDispatch({ type: 'game:session-start', payload: { gameId } });
     if (options.expand) {
       setShowEnginSplash(true);
       setExpandedPlayableGame(gameId);
@@ -756,7 +775,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('de:games:last-launch', gameId);
     }
-  }, [queuePlayableGameStart]);
+  }, [queuePlayableGameStart, engineDispatch]);
 
   const openPlayableGamePage = useCallback((gameId: string, options: { expand?: boolean } = {}) => {
     savePlayableGame(gameId, options.expand ? 'fullscreen' : 'library-screen');
@@ -773,9 +792,9 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     const fallbackGame = savedLaunches[0]?.gameId ?? GAMES[0]?.id ?? 'platformer';
     const requestedGame = resolveGameLaunchId(searchParams.get('game'), GAMES.map((game) => game.id), fallbackGame);
     if (!requestedGame) return;
-    setSelectedPlayableGame(requestedGame);
+    engineDispatch({ type: 'game:select', payload: { gameId: requestedGame } });
     if (isLaunchFlagEnabled(searchParams.get('play'))) {
-      setActivePlayableGame(requestedGame);
+      engineDispatch({ type: 'game:session-start', payload: { gameId: requestedGame } });
       if (isLaunchFlagEnabled(searchParams.get('expand'))) {
         setShowEnginSplash(true);
         setExpandedPlayableGame(requestedGame);
@@ -1305,7 +1324,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
                 <button
                   key={session.gameId}
                   type="button"
-                  onClick={() => setSelectedPlayableGame(session.gameId)}
+                  onClick={() => engineDispatch({ type: 'game:select', payload: { gameId: session.gameId } })}
                   style={{
                     padding: '5px 10px',
                     borderRadius: 999,
@@ -1433,7 +1452,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
                 <button
                   key={game.id}
                   type="button"
-                  onClick={() => setSelectedPlayableGame(game.id)}
+                  onClick={() => engineDispatch({ type: 'game:select', payload: { gameId: game.id } })}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
