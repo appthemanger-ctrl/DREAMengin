@@ -87,8 +87,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js (2026 target)
         uses: ./.github/actions/setup-node
@@ -304,8 +302,6 @@ jobs:
       # ────────────────────────────────────────────────────────────────────────
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js (2026 target — docs/ARCHITECTURE.md §10)
         uses: ./.github/actions/setup-node
@@ -558,8 +554,6 @@ jobs:
 
       - name: Setup pnpm (${{ env.PNPM_VERSION }})
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js ${{ env.NODE_VERSION }} (2026 Vercel target)
         uses: ./.github/actions/setup-node

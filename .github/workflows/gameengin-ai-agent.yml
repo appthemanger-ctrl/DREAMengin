@@ -191,8 +191,6 @@ jobs:
       # 8. Game-only build gate: do not commit if games break the GameEngin/games build
       - name: Setup pnpm ${{ env.PNPM_VERSION }}
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node ${{ env.NODE_VERSION }}
         uses: ./.github/actions/setup-node

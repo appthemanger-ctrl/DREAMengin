@@ -46,7 +46,6 @@ concurrency:
 
 env:
   NODE_VERSION: '25'
-  PNPM_VERSION: '10.33.0'
   BASE_URL: http://localhost:3000
   GENERATED_DIR: .github/generated
   ARMY_REPORTS_DIR: .github/generated/army-reports
@@ -64,8 +63,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -112,8 +109,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
