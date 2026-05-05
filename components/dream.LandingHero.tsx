@@ -102,11 +102,11 @@ export default function LandingHero() {
   }, []);
 
   return (
-    <div
-      className="relative flex flex-col overflow-hidden"
-      style={{ minHeight: '100dvh', background: '#000' }}
-      data-route="landing"
-    >
+      <div
+        className="relative flex flex-col overflow-hidden"
+        style={{ minHeight: '100svh', background: '#000' }}
+        data-route="landing"
+      >
       {/* Persistent simple black background + galaxy starfield — base Newtonian physics */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
         <UniverseField scaled={false} />

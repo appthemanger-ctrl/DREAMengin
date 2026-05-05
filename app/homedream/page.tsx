@@ -4,11 +4,50 @@ import { redirect } from 'next/navigation';
 import DreamBarDataBridge from '@/dreamdmbar/homedream/dream.shell.HomeSystem';
 import { isOwnerEmail } from '@/lib/ai/triad';
 import { isDevBypassActive } from '@/lib/dev-bypass';
+import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import { safeGetUser } from '@/lib/supabase/safeGetUser';
 import { connection } from 'next/server';
 
 const DEV_BYPASS_USER_ID = 'dev-bypass-user';
+
+type ProfileRow = {
+  id: string;
+  handle: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+};
+
+type UserRoleRow = {
+  role: string | null;
+};
+
+type FollowRow = {
+  following_id: string;
+};
+
+type AppPostRow = FeedPost & {
+  media_urls?: string[] | null;
+  media_json?: unknown;
+};
+
+type FeedItemPayload = {
+  title?: string;
+  content_text?: string;
+  author_handle?: string | null;
+  author_name?: string | null;
+  author_avatar?: string | null;
+  permalink?: string | null;
+  media?: Array<{ url?: string | null }>;
+};
+
+type FeedItemRow = {
+  id: string;
+  provider: string;
+  payload: FeedItemPayload | null;
+  published_at: string | null;
+  created_at: string | null;
+};
 
 export default async function HomeDream() {
   await connection();
@@ -28,52 +67,47 @@ export default async function HomeDream() {
 
   // ── Step 2: Data fetching — all failures are non-fatal ───────────────────
   let profile = null;
-  let posts: any[] = [];
+  let posts: FeedPost[] = [];
   let isAdmin = false;
 
   if (user) {
     try {
-    // Fetch user profile
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-      profile = profileData;
+      const isOwner = isOwnerEmail(user.email);
+      const [profileResult, roleResult, feedItemsResult, followsResult] = await Promise.allSettled([
+        supabase
+          .from('profiles')
+          .select('id, handle, display_name, avatar_url')
+          .eq('id', user.id)
+          .single<ProfileRow>(),
+        isOwner
+          ? Promise.resolve({ data: { role: 'admin' } satisfies UserRoleRow })
+          : supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', user.id)
+              .single<UserRoleRow>(),
+        supabase
+          .from('feed_items')
+          .select('id, provider, payload, published_at, created_at')
+          .order('published_at', { ascending: false, nullsFirst: false })
+          .limit(20),
+        supabase
+          .from('follows')
+          .select('following_id')
+          .eq('follower_id', user.id)
+          .returns<FollowRow[]>(),
+      ]);
 
-      // Determine admin status: owner email OR user_roles table
-      if (isOwnerEmail(user.email)) {
-        isAdmin = true;
-      } else {
-        const { data: roleData } = await (supabase as any)
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .single();
-        isAdmin = (roleData as { role?: string } | null)?.role === 'admin';
-      }
+      profile = profileResult.status === 'fulfilled' ? profileResult.value.data ?? null : null;
+      const roleData = roleResult.status === 'fulfilled' ? roleResult.value.data ?? null : null;
+      isAdmin = isOwner || roleData?.role === 'admin';
 
-      // Phase 8 §A Point 1 & 2: Fetch from feed_items (connector-synced content)
-      // + app_posts (platform posts from followed users) — merged unified feed.
-      //
-      // feed_items: private connector items (Mastodon, GitHub, Bluesky, etc.)
-      // app_posts:  public posts from users the authenticated user follows + own posts.
+      const feedItems: FeedItemRow[] = feedItemsResult.status === 'fulfilled'
+        ? (feedItemsResult.value.data as FeedItemRow[] | null) ?? []
+        : [];
+      const follows = followsResult.status === 'fulfilled' ? followsResult.value.data ?? [] : [];
 
-      // Stream 1: connector feed items (Phase 8 §A Point 2)
-      const { data: feedItems } = await (supabase as any)
-        .from('feed_items')
-        .select('id, provider, payload, published_at, created_at')
-        .eq('user_id', user.id)
-        .order('published_at', { ascending: false, nullsFirst: false })
-        .limit(20);
-
-      // Stream 2: followed users' public posts (Phase 8 §A Point 1)
-      const { data: follows } = await supabase
-        .from('follows')
-        .select('following_id')
-        .eq('follower_id', user.id);
-
-      const followedIds = (follows ?? []).map((f: { following_id: string }) => f.following_id);
+      const followedIds = follows.map((f) => f.following_id);
       const authorIds = [user.id, ...followedIds];
 
       const { data: postsData } = await supabase
@@ -85,9 +119,10 @@ export default async function HomeDream() {
         .in('user_id', authorIds)
         .eq('visibility', 'public')
         .order('created_at', { ascending: false })
-        .limit(30);
+        .limit(30)
+        .returns<AppPostRow[]>();
 
-      posts = (postsData || []).map((post: any) => ({
+      const platformPosts = (postsData ?? []).map((post) => ({
         ...post,
         media_url: getPrimaryPostMediaUrl(post),
       }));
@@ -95,31 +130,30 @@ export default async function HomeDream() {
       // Attach connector feed items to the posts array under a normalised shape
       // so HomeDreamSurface / HomeFeed can render them uniformly.
       // Connector items arrive as `{ source: 'connector', ... }` alongside posts.
-      const connectorEntries = (feedItems ?? []).map((item: any) => {
-        const p = (item.payload ?? {}) as Record<string, any>;
+      const connectorEntries: FeedPost[] = feedItems.map((item) => {
+        const payload = item.payload ?? {};
+        const firstMedia = Array.isArray(payload.media) ? payload.media[0] : null;
         return {
           id:            item.id,
           source:        'connector' as const,
           provider:      item.provider,
-          content:       p.content_text ?? p.title ?? '',
-          author_handle: p.author_handle ?? null,
-          author_name:   p.author_name ?? null,
-          media_url:     Array.isArray(p.media) && p.media.length > 0 ? p.media[0].url : null,
-          permalink:     p.permalink ?? null,
-          created_at:    item.published_at ?? item.created_at ?? null,
-          // Stub profile shape for unified rendering
+          content:       payload.content_text ?? payload.title ?? '',
+          visibility:    'private',
+          media_url:     firstMedia?.url ?? null,
+          permalink:     payload.permalink ?? undefined,
+          created_at:    item.published_at ?? item.created_at ?? new Date(0).toISOString(),
           profiles: {
-            handle:       p.author_handle ?? item.provider,
-            display_name: p.author_name   ?? item.provider,
-            avatar_url:   p.author_avatar ?? null,
+            handle:       payload.author_handle ?? item.provider,
+            display_name: payload.author_name ?? item.provider,
+            avatar_url:   payload.author_avatar ?? null,
           },
         };
       });
 
       // Merge and sort by created_at descending; posts first if same time
-      const allEntries: any[] = [...posts, ...connectorEntries];
+      const allEntries: FeedPost[] = [...platformPosts, ...connectorEntries];
       allEntries.sort((a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime()
       );
       posts = allEntries;
     } catch {

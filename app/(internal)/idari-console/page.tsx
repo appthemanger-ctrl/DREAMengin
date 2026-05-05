@@ -16,11 +16,16 @@ import { connection } from 'next/server';
 
 export const metadata = { title: 'Admin – Dreamengin' };
 
+type UserRoleRow = {
+  role: string | null;
+};
+
 export default async function AdminPage() {
   await connection();
   let user = null;
   let profile = null;
   let isAdmin = false;
+  let authWarning: string | null = null;
 
   // Dev admin bypass: when DEV_ADMIN=true the page renders without a real
   // Supabase session so the admin UI can be inspected in dev (req #31–33).
@@ -28,12 +33,15 @@ export default async function AdminPage() {
   const devAdmin = isDevAdminBypassActive();
 
   if (!devAdmin) {
-    try {
-      const supabase = await createServerClient();
-      const { data: { user: authUser } } = await supabase.auth.getUser();
-      user = authUser;
-      if (!user) redirect('/login');
+    const supabase = await createServerClient();
+    const {
+      data: { user: authUser },
+      error: authError,
+    } = await supabase.auth.getUser();
+    user = authUser;
+    if (!user && !authError) redirect('/login');
 
+    if (user) {
       const { data: profileData } = await supabase
         .from('profiles')
         .select('handle, display_name')
@@ -46,21 +54,22 @@ export default async function AdminPage() {
       if (isOwnerEmail(user.email)) {
         isAdmin = true;
       } else {
-         
-        const { data: roleData } = await (supabase as any)
+        const { data: roleData } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id)
-          .single();
+          .single<UserRoleRow>();
         isAdmin =
-          (roleData as { role?: string } | null)?.role === 'admin' ||
+          roleData?.role === 'admin' ||
           user.user_metadata?.role === 'admin';
       }
-    } catch {
-      redirect('/login');
     }
 
-    if (!isAdmin) redirect('/');
+    if (!user && authError) {
+      authWarning = 'Admin auth is temporarily unavailable. Retry once connectivity recovers.';
+    }
+
+    if (!authWarning && !isAdmin) redirect('/');
   }
 
   const readiness = createUpgradeReadinessSnapshot();
@@ -78,6 +87,26 @@ export default async function AdminPage() {
     rejected: { icon: XCircle,     color: '#dc4444' },
     pending:  { icon: Clock,       color: '#f59e0b' },
   };
+
+  if (authWarning) {
+    return (
+      <div className="de-sky-bg min-h-screen flex items-center justify-center px-4">
+        <div className="de-widget max-w-md w-full">
+          <div className="de-widget-header">
+            <AlertTriangle className="w-4 h-4 mr-2" style={{ color: '#f59e0b' }} />
+            <span className="de-widget-title">Admin auth unavailable</span>
+          </div>
+          <div className="de-widget-body space-y-4">
+            <p style={{ color: 'var(--de-text)', fontSize: 14, lineHeight: 1.6 }}>{authWarning}</p>
+            <div className="flex gap-3">
+              <Link href="/settings" className="de-btn de-btn-primary">Back to settings</Link>
+              <Link href="/idari-console" className="de-btn">Retry</Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="de-sky-bg min-h-screen">
