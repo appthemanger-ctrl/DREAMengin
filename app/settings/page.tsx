@@ -7,8 +7,13 @@ import {
   Shield, Database, Bot, Crown, ChevronRight, HelpCircle, LogOut, Cpu
 } from 'lucide-react';
 import { connection } from 'next/server';
+import { isOwnerEmail } from '@/lib/ai/triad';
 
 export const metadata = { title: 'Settings – Dreamengin' };
+
+type UserRoleRow = {
+  role: string | null;
+};
 
 const NAV_GROUPS = [
   {
@@ -47,14 +52,27 @@ const NAV_GROUPS = [
 export default async function SettingsPage() {
   await connection();
   let isAdmin = false;
-  try {
-    const supabase = await createServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) redirect('/login');
-    const { data: profile } = await supabase.from('profiles').select('handle').eq('id', user.id).single();
-    isAdmin = user.user_metadata?.role === 'admin' || profile?.handle === 'admin';
-  } catch {
-    redirect('/login');
+  let authWarning: string | null = null;
+  const supabase = await createServerClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (!user && !userError) redirect('/login');
+  if (user) {
+    try {
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single<UserRoleRow>();
+      isAdmin = isOwnerEmail(user.email) || roleData?.role === 'admin';
+    } catch {
+      authWarning = 'Admin controls are temporarily unavailable. Your session was preserved.';
+    }
+  } else if (userError) {
+    authWarning = 'We could not verify your admin role right now. Core settings remain available.';
   }
 
   return (
@@ -73,6 +91,13 @@ export default async function SettingsPage() {
       </header>
 
       <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
+        {authWarning && (
+          <div className="de-widget" style={{ background: 'rgba(255,255,255,0.95)', border: '1px solid rgba(200,152,26,0.22)' }}>
+            <div className="de-widget-body" style={{ color: 'var(--de-text)', fontSize: 13 }}>
+              {authWarning}
+            </div>
+          </div>
+        )}
 
         {/* Admin section */}
         {isAdmin && (

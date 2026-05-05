@@ -39,9 +39,7 @@ import { parseDreamDragData, surfaceForRuntime, transferDream, type DreamRuntime
 import { useDreamLayout } from '@/hooks/useDreamLayout';
 import { useOS } from '@/lib/dreamenginOS/OSContext';
 import { SkipCreditBalance } from '@/components/ads/dream.SkipCreditBalance';
-
-/** Routes where the bar must NOT appear (pre-login / public surfaces). */
-const PUBLIC_ROUTES = ['/', '/login', '/join', '/policy', '/about'];
+import { isPublicSurfacePath } from '@/lib/routing/surfaces';
 
 const DEFAULT_WORKFLOW_SPLIT = 0.5;
 const Z_INDEX_SKIP_CREDIT_BALANCE = 120;
@@ -137,11 +135,25 @@ export default function PersistentDreamBar() {
   }, [layout, os.bus, updateDreamLayout]);
 
   const swapDreamRuntimes = useCallback(() => {
+    const previousLayout = {
+      home: { dreams: [...layout.home.dreams] },
+      dreamspace: { dreams: [...layout.dreamspace.dreams] },
+      hidden: layout.hidden ? [...layout.hidden] : [],
+    };
     const nextLayout = {
       home: { dreams: layout.dreamspace.dreams },
       dreamspace: { dreams: layout.home.dreams },
       hidden: layout.hidden ?? [],
     };
+    updateDreamLayout(nextLayout, 0);
+    os.bus.emit('dream:transfer', {
+      gesture: 'swap-runtimes',
+      home: nextLayout.home.dreams,
+      dreamspace: nextLayout.dreamspace.dreams,
+    });
+    window.dispatchEvent(new CustomEvent('dream:transfer', {
+      detail: { gesture: 'swap-runtimes', home: nextLayout.home.dreams, dreamspace: nextLayout.dreamspace.dreams },
+    }));
     void fetch('/api/dreams/transfer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -149,27 +161,30 @@ export default function PersistentDreamBar() {
     })
       .then((response) => {
         if (!response.ok) throw new Error('Runtime swap failed');
-        updateDreamLayout(nextLayout, 0);
-        os.bus.emit('dream:transfer', {
-          gesture: 'swap-runtimes',
-          home: nextLayout.home.dreams,
-          dreamspace: nextLayout.dreamspace.dreams,
-        });
-        window.dispatchEvent(new CustomEvent('dream:transfer', {
-          detail: { gesture: 'swap-runtimes', home: nextLayout.home.dreams, dreamspace: nextLayout.dreamspace.dreams },
-        }));
       })
-      .catch((error) => console.error('[Dream runtime swap]', error));
+      .catch((error) => {
+        updateDreamLayout(previousLayout, 0);
+        os.bus.emit('dream:transfer:rollback', previousLayout);
+        console.error('[Dream runtime swap]', error);
+      });
   }, [layout.dreamspace.dreams, layout.hidden, layout.home.dreams, os.bus, updateDreamLayout]);
 
   // Hide on public / pre-login surfaces only
-  if (PUBLIC_ROUTES.some((r) => pathname === r || pathname.startsWith(r + '/'))) {
+  if (isPublicSurfacePath(pathname)) {
     return null;
   }
 
   // isHomeActive: DreamBarDataBridge is mounted → regions visible + bar in divider mode.
   // When false: regions are display:none (mounted but invisible) + bar is nav-rail mode.
-  const isHomeActive = runtimeCallbacks !== null;
+  //
+  // On `/homedream` we MUST show the home runtime even before the client-side
+  // DreamBarDataBridge has finished registering callbacks, otherwise the page
+  // appears blank (just the themed background) post-login. The bridge runs in
+  // a useEffect, so on a fresh load there is a window where runtimeCallbacks
+  // is still null and homeData hasn't been pushed yet — without this guarantee
+  // users see "an orange page... that's all that loads after I login".
+  const isHomeRoute = pathname === '/homedream' || pathname.startsWith('/homedream/');
+  const isHomeActive = runtimeCallbacks !== null || isHomeRoute;
 
   // ── Layout ────────────────────────────────────────────────────────────────
   //
@@ -209,13 +224,13 @@ export default function PersistentDreamBar() {
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => handleDreamDrop(event, 'HOME')}
       >
-        {homeData && (
+        {(homeData || isHomeRoute) && (
           <RuntimeView
             world={dualRuntime.state.surfaceSpaceWorld}
             isActive={true}
-            profile={homeData.profile}
-            posts={homeData.initialPosts}
-            isAdmin={homeData.isAdmin}
+            profile={homeData?.profile ?? null}
+            posts={homeData?.initialPosts ?? []}
+            isAdmin={homeData?.isAdmin ?? false}
             onOpenDrEams={openDrEams}
             onOpenDreamSpace={openDreamSpaceInSurface}
             onOpenInRegion={openInSurfaceRegion}
@@ -287,13 +302,13 @@ export default function PersistentDreamBar() {
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => handleDreamDrop(event, 'FACE')}
       >
-        {homeData && (
+        {(homeData || isHomeRoute) && (
           <RuntimeView
             world={dualRuntime.state.dreamSpaceWorld}
             isActive={true}
-            profile={homeData.profile}
-            posts={homeData.initialPosts}
-            isAdmin={homeData.isAdmin}
+            profile={homeData?.profile ?? null}
+            posts={homeData?.initialPosts ?? []}
+            isAdmin={homeData?.isAdmin ?? false}
             onOpenDrEams={openDrEams}
             onOpenDreamSpace={handleHomeDreamSpace}
             onOpenInRegion={openInDreamRegion}

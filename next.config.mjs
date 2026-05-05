@@ -106,51 +106,64 @@ const nextConfig = {
   // Stream 7.1 — CSP Level 3 + security headers
   // docs/SECURITY.md — least-privilege content policy
   async headers() {
+    const securityHeaders = [
+      {
+        key: "Content-Security-Policy",
+        value: [
+          "default-src 'self'",
+          // unsafe-inline needed for Next.js inline scripts (RSC streaming, hydration data)
+          // wasm-unsafe-eval allows WebAssembly.instantiate without enabling general eval()
+          "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
+          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+          "font-src 'self' https://fonts.gstatic.com",
+          "img-src 'self' data: blob: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://i.ytimg.com https://*.scdn.co",
+          "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.spotify.com https://api.github.com https://assets.babylonjs.com",
+          "media-src 'self' blob: https://*.supabase.co",
+          "worker-src 'self' blob:",
+          "frame-ancestors 'self'",
+        ].join("; "),
+      },
+      {
+        key: "X-Frame-Options",
+        value: "SAMEORIGIN",
+      },
+      {
+        key: "X-Content-Type-Options",
+        value: "nosniff",
+      },
+      {
+        key: "Referrer-Policy",
+        value: "strict-origin-when-cross-origin",
+      },
+      {
+        key: "Permissions-Policy",
+        value: "camera=(), microphone=(self), geolocation=(self), payment=()",
+      },
+    ];
+
+    const sabIsolationHeaders = [
+      {
+        key: "Cross-Origin-Embedder-Policy",
+        value: "credentialless",
+      },
+      {
+        key: "Cross-Origin-Opener-Policy",
+        value: "same-origin",
+      },
+    ];
+
     return [
       {
         source: "/(.*)",
-        headers: [
-          {
-            key: "Cross-Origin-Embedder-Policy",
-            value: "credentialless",
-          },
-          {
-            key: "Cross-Origin-Opener-Policy",
-            value: "same-origin",
-          },
-          {
-            key: "Content-Security-Policy",
-            value: [
-              "default-src 'self'",
-              // unsafe-inline needed for Next.js inline scripts (RSC streaming, hydration data)
-              // wasm-unsafe-eval allows WebAssembly.instantiate without enabling general eval()
-              "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://i.ytimg.com https://*.scdn.co",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.spotify.com https://api.github.com https://assets.babylonjs.com",
-              "media-src 'self' blob: https://*.supabase.co",
-              "worker-src 'self' blob:",
-              "frame-ancestors 'self'",
-            ].join("; "),
-          },
-          {
-            key: "X-Frame-Options",
-            value: "SAMEORIGIN",
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin",
-          },
-          {
-            key: "Permissions-Policy",
-            value: "camera=(), microphone=(self), geolocation=(self), payment=()",
-          },
-        ],
+        headers: securityHeaders,
+      },
+      {
+        source: "/daydream/:path*",
+        headers: sabIsolationHeaders,
+      },
+      {
+        source: "/engines/:path*",
+        headers: sabIsolationHeaders,
       },
     ];
   },

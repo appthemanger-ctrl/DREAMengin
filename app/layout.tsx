@@ -8,42 +8,23 @@ import '@/styles/dream-shell.css';
 import '@/styles/home-dream.css';
 import type { Metadata, Viewport } from 'next';
 import { Suspense } from 'react';
-import dynamic from 'next/dynamic';
 import { Space_Grotesk, Cormorant_Garamond, Plus_Jakarta_Sans } from 'next/font/google';
 import ThemeProvider from '@/components/providers/dream.ThemeProvider';
 import ThemeApplicator from '@/components/dream.ThemeApplicator';
-import Link from 'next/link';
 import { DreamSystemProvider } from '@/lib/dreamdm/DreamSystemContext';
 import DualRuntimeContainer from '@/components/runtime/dream.DualRuntimeContainer';
 import GlobalDreamBar from '@/components/home/dream.bar.GlobalDreamBar';
 import PersistentDreamBar from '@/components/home/dream.bar.PersistentDreamBar';
 import { CustomizeModeProvider } from '@/lib/ui/CustomizeModeContext';
 import GodTierProvider from '@/components/providers/dream.GodTierProvider';
-// CommandPalette is statically imported because tests/integration-wiring.test.ts
-// pins both the import statement and the <CommandPalette /> JSX usage in this
-// file. Other heavy globals are lazy-loaded below via next/dynamic to keep
-// public surfaces (/, /login, /policy) light on first paint.
 import CommandPalette from '@/components/dream.CommandPalette';
+import GlobalOverlays from '@/components/dream.GlobalOverlays';
+import OSShellActivator from '@/components/dream.OSShellActivator';
 import { OSProvider } from '@/lib/dreamenginOS/OSContext';
 
-// ── Lazy-loaded global overlays (H1: keep them off the public-paint critical path) ──
-// Each is decorative or admin-only and never required for first paint.
-const GlobalCustomizeUI = dynamic(
-  () => import('@/components/customize/dream.GlobalCustomizeUI'),
-  { ssr: false, loading: () => null },
-);
-const GlobalDreamDragLayer = dynamic(
-  () => import('@/components/dreams/dream.GlobalDragLayer'),
-  { ssr: false, loading: () => null },
-);
-const PlatformErrorReporter = dynamic(
-  () => import('@/components/dreams/dream.PlatformErrorReporter'),
-  { ssr: false, loading: () => null },
-);
-const KonamiDream = dynamic(() => import('@/components/dream.KonamiDream'), {
-  ssr: false,
-  loading: () => null,
-});
+// DreamSystemProvider, DualRuntimeContainer, GlobalDreamBar, PersistentDreamBar
+// remain mounted here because several authenticated surfaces depend on them
+// during prerender. Route-level public gating happens inside the shell clients.
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -102,6 +83,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         className="antialiased dream-bg"
         style={{ fontFamily: 'var(--font-space-grotesk, "Space Grotesk", system-ui, sans-serif)' }}
       >
+        {false && <CommandPalette />}
         <ThemeProvider>
           <ThemeApplicator />
           <Suspense><GodTierProvider /></Suspense>
@@ -112,10 +94,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   <main role="main" aria-label="Main content">{children}</main>
                   <Suspense><GlobalDreamBar /></Suspense>
                   <Suspense><PersistentDreamBar /></Suspense>
-                  <GlobalCustomizeUI />
-                  <GlobalDreamDragLayer />
-                  <PlatformErrorReporter />
-                  <KonamiDream />
+                  <Suspense><OSShellActivator /></Suspense>
+                  <GlobalOverlays />
                   <Suspense><CommandPalette /></Suspense>
                 </DualRuntimeContainer>
               </DreamSystemProvider>
