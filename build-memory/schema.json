@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-05-05T22:25:14.023Z",
+  "generated_at": "2026-05-06T05:16:29.396Z",
   "generator": "scripts/sync-build-memory.mjs",
   "sources": [
     "types/supabase.ts",
     "supabase/migrations/"
   ],
-  "count": 141,
+  "count": 143,
   "tables": [
     {
       "table": "activity_points",
@@ -4624,6 +4624,12 @@
       "source": "types/supabase.ts"
     },
     {
+      "table": "t",
+      "columns": [],
+      "source": "code-only",
+      "note": "Referenced in code but not found in types/supabase.ts or migrations — may indicate missing migration"
+    },
+    {
       "table": "transactions",
       "columns": [
         {
@@ -5320,6 +5326,12 @@
         }
       ],
       "source": "types/supabase.ts"
+    },
+    {
+      "table": "x",
+      "columns": [],
+      "source": "code-only",
+      "note": "Referenced in code but not found in types/supabase.ts or migrations — may indicate missing migration"
     }
   ]
 }
