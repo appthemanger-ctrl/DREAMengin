@@ -41,6 +41,7 @@ Stdlib only. Builds on ``dreamengin_core`` for shared helpers.
 from __future__ import annotations
 
 import argparse
+import http.client
 import json
 import os
 import re
@@ -330,7 +331,14 @@ def _request(
     }
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
-            data = resp.read()
+            # Streaming/chunked Next.js SSR responses may close mid-flight and
+            # raise IncompleteRead from resp.read(). Treat the partial payload
+            # as a successful response — the status line was already received.
+            try:
+                data = resp.read()
+            except http.client.IncompleteRead as inc:
+                data = inc.partial or b""
+                result["error"] = f"truncated stream ({len(data)} bytes)"
             result["status"] = resp.status
             result["content_type"] = resp.headers.get("Content-Type", "")
             result["bytes"] = len(data)
@@ -340,7 +348,10 @@ def _request(
     except urllib.error.HTTPError as exc:
         result["status"] = exc.code
         try:
-            data = exc.read()
+            try:
+                data = exc.read()
+            except http.client.IncompleteRead as inc:
+                data = inc.partial or b""
             result["bytes"] = len(data)
             result["body"] = data.decode("utf-8", errors="replace")
         except Exception:  # pragma: no cover
@@ -364,6 +375,13 @@ def wait_for_server(base_url: str, attempts: int = 60, delay: float = 1.0) -> bo
             with urllib.request.urlopen(req, timeout=5) as resp:
                 if 200 <= resp.status < 600:
                     return True
+        except urllib.error.HTTPError as exc:
+            # Server responded — it's up, even if the response is an error.
+            if 200 <= exc.code < 600:
+                return True
+        except http.client.IncompleteRead:
+            # Server responded and started streaming — it's up.
+            return True
         except Exception:
             time.sleep(delay)
     return False
