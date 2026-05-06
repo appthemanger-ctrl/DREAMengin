@@ -579,19 +579,12 @@ def structural_findings(pages: List[Dict[str, Any]]) -> List[str]:
     for page in pages:
         url = page["url"]
         status = page.get("status") or 0
-        # Only treat as a hard request failure if we never got a usable status
-        # code. Streamed Next.js SSR responses can produce a truncation error
-        # alongside a valid 2xx/3xx status — those aren't "request failed".
-        if page.get("error") and not (isinstance(status, int) and 200 <= status < 500):
+        if page.get("error"):
             findings.append(f"❌ **{url}** — request failed: {page['error']}")
         elif isinstance(status, int) and status >= 500:
             findings.append(f"❌ **{url}** — server error (HTTP {status})")
         elif isinstance(status, int) and 400 <= status < 500 and status != 404:
             findings.append(f"⚠️ **{url}** — HTTP {status}")
-        elif page.get("error") and isinstance(status, int) and 200 <= status < 400:
-            # Surface partial-stream cases as a soft warning so they're visible
-            # without inflating the "failing" count.
-            findings.append(f"⚠️ **{url}** — {page['error']}")
         if page.get("error_markers"):
             findings.append(
                 f"❌ **{url}** — error markers in HTML: "
