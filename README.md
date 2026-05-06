@@ -114,4 +114,816 @@ To tune an existing persona's focus, just edit the Markdown file — no code cha
 | 🔵 REF  | `docs/HANDOFF.md` | Change timeline — what changed and when |
 | 🔵 REF  | `docs/BUGS.md` | Known bugs and upgrade queue |
 
-...(README continues as before)...
+---
+
+### 🛠 Build & Test Commands
+
+```bash
+pnpm dev          # Start dev server on port 3000
+pnpm build        # Production build (Next.js)
+pnpm typecheck    # TypeScript type-check (no emit)
+pnpm lint         # ESLint — 0 errors policy
+pnpm test         # Run all Vitest tests
+pnpm preflight    # typecheck + lint + tests (full pre-push gate)
+```
+
+> **Dev auth bypass (local only):** set `DEV_BYPASS_AUTH=true` and `DEV_ADMIN=true` in `.env.local`
+
+---
+
+### 📂 Key Directory Map
+
+| Path | What lives here |
+|------|----------------|
+| `app/` | Next.js App Router pages and API route handlers |
+| `app/api/` | 107 API route handlers |
+| `components/daydream/` | The 6 Daydream surfaces + Engin components |
+| `components/games/` | All game components (MADMAXI, NeonDrift, etc.) |
+| `components/home/` | HomeDream + HomeSystem |
+| `components/messaging/` | DreamDMBar (the dual-runtime divider) |
+| `components/music/` | SoundRecorder and music UI |
+| `lib/` | Hooks, utilities, Supabase client, game libs |
+| `docs/` | All governance, law, spec, and policy documents |
+| `.github/workflows/` | 53 CI/CD automation workflows |
+| `tests/` | Vitest test suite (188 test files) |
+| `scripts/` | Maintenance and automation scripts |
+| `build-memory/` | Auto-generated build intelligence snapshots |
+
+---
+
+### 🗂️ File Structure
+<!-- FILE-STRUCTURE:START -->
+```
+DREAMengin/
+├── 🔧 .github/
+│   ├── 📁 actions/
+│   ├── 📁 agents/
+│   ├── 📁 issue-triage/
+│   ├── 📁 scripts/
+│   ├── 📁 workflows/
+│   ├── 📄 pull_request_template.md
+│   ├── 📄 PULL_REQUEST_TEMPLATE.md
+├── 📁 agents/
+├── 📱 app/
+│   ├── 📁 (internal)/
+│   ├── 📁 about/
+│   ├── 📁 actions/
+│   ├── 📁 ads/
+│   ├── 📁 api/
+│   ├── 📁 auth/
+│   ├── 📁 connectors/
+│   ├── 📁 daydream/
+│   ├── 📁 discover/
+│   ├── 📁 dream-effects/
+│   ├── 📁 dreamr/
+│   ├── 📁 edit-profiledream/
+│   ├── 📁 engines/
+│   ├── 📁 feed-settings/
+│   ├── 📁 gameengin/
+│   ├── 📁 homedream/
+│   ├── 📁 join/
+│   ├── 📁 lab/
+│   └── … and 2 more
+├── 📁 assembly/
+├── 📁 backend/
+├── 🧠 build-memory/
+│   ├── 📄 actions.json
+│   ├── 📄 events.json
+│   ├── 📄 routes.json
+│   ├── 📄 schema.json
+│   ├── 📄 ui-surfaces.json
+├── 🧩 components/
+│   ├── 📁 activity/
+│   ├── 📁 ads/
+│   ├── 📁 auth/
+│   ├── 📁 connectors/
+│   ├── 📁 core/
+│   ├── 📁 customize/
+│   ├── 📁 daydream/
+│   ├── 📁 draggable/
+│   ├── 📁 dreamengin/
+│   ├── 📁 dreamnav/
+│   ├── 📁 dreamr/
+│   ├── 📁 dreams/
+│   ├── 📁 engines/
+│   ├── 📁 feed/
+│   ├── 📁 feeds/
+│   ├── 📁 forge/
+│   ├── 📁 gameengin/
+│   ├── 📁 games/
+│   └── … and 2 more
+├── 📁 config/
+├── 📁 core/
+├── 📁 coresurfaces/
+├── 📁 daydreams/
+├── 📋 docs/
+│   ├── 📁 alignment/
+│   ├── 📁 architecture/
+│   ├── 📁 archive/
+│   ├── 📁 engineering/
+│   ├── 📁 enginpipe/
+│   ├── 📁 guides/
+│   ├── 📁 logs/
+│   ├── 📁 policy/
+│   ├── 📄 ACTION_AUDIT.md
+│   ├── 📄 ACTIVITY_FIRST_PROTOCOL.md
+│   ├── 📄 ADD_WORKFLOW.md
+│   ├── 📄 AGENT_PLAYBOOK.md
+│   ├── 📄 AI_MAP.md
+│   ├── 📄 ARCHITECTURE.md
+│   ├── 📄 AUTH_SETUP.md
+│   ├── 📄 AXIOMS.md
+│   ├── 📄 BOOGIEMAN_POLICY.md
+│   ├── 📄 BUGS.md
+│   └── … and 2 more
+├── 📁 dr-eams/
+├── 📁 dreamdmbar/
+├── 📁 engins/
+├── 📁 experiments/
+├── 📁 frontend/
+├── 📁 grafana/
+├── 🪝 hooks/
+│   ├── 📄 use-spatial.ts
+│   ├── 📄 useAccount.ts
+│   ├── 📄 useConnectorInstallFlow.ts
+│   ├── 📄 useDreamLayout.ts
+│   ├── 📄 useHideOnScroll.ts
+│   ├── 📄 useSharedDream.ts
+│   ├── 📄 useTapHoldMove.ts
+│   ├── 📄 useTick.ts
+│   ├── 📄 useViewCounter.ts
+├── 📁 kubernetes/
+├── 📚 lib/
+│   ├── 📁 activity/
+│   ├── 📁 admin/
+│   ├── 📁 agentOS/
+│   ├── 📁 agents/
+│   ├── 📁 ai/
+│   ├── 📁 api/
+│   ├── 📁 assets/
+│   ├── 📁 audio-fingerprint/
+│   ├── 📁 babylon/
+│   ├── 📁 bot-detection/
+│   ├── 📁 branding/
+│   ├── 📁 child-safety/
+│   ├── 📁 code/
+│   ├── 📁 collaboration/
+│   ├── 📁 composite/
+│   ├── 📁 connectors/
+│   ├── 📁 consent/
+│   ├── 📁 content/
+│   └── … and 2 more
+├── 📁 misc/
+├── 📁 output/
+├── 📁 prometheus/
+├── 🌐 public/
+│   ├── 📁 cartridges/
+│   ├── 📁 feeds/
+│   ├── 📁 images/
+│   ├── 📁 models/
+│   ├── 📁 videos/
+│   ├── 📁 workers/
+│   ├── 📄 arm1_transparent.png
+│   ├── 📄 arm2_transparent.png
+│   ├── 📄 coat_transparent.png
+│   ├── 📄 dr-eams-pbr.html
+│   ├── 📄 favicon.ico
+│   ├── 📄 file.svg
+│   ├── 📄 globe.svg
+│   ├── 📄 head_transparent.png
+│   ├── 📄 logo_DREAM_transparent.png
+│   ├── 📄 logo_ENGIN_transparent.png
+│   ├── 📄 logo-icon.png
+│   ├── 📄 manifest.json
+│   └── … and 2 more
+├── ⚙️ scripts/
+│   ├── 📁 archive/
+│   ├── 📁 feature-build/
+│   ├── 📁 gameengin/
+│   ├── 📄 analyze-repo-state.mjs
+│   ├── 📄 autofix-vercel-build.mjs
+│   ├── 📄 check-build-memory-drift.mjs
+│   ├── 📄 check-engin-filenames.mjs
+│   ├── 📄 check-licenses.mjs
+│   ├── 📄 check-root-hygiene.mjs
+│   ├── 📄 close-all-open-prs.sh
+│   ├── 📄 deploy.sh
+│   ├── 📄 export-full-code.mjs
+│   ├── 📄 generate-mobile-nextgen-spec.mjs
+│   ├── 📄 generate-mobile-ps5-spec.mjs
+│   ├── 📄 generate-webapp-final-form.mjs
+│   ├── 📄 law-check.sh
+│   ├── 📄 migrate-imports.sh
+│   ├── 📄 optimize-dreamengin.mjs
+│   └── … and 2 more
+├── 📁 src/
+├── 📁 styles/
+├── 📁 supabase/
+├── 📁 system/
+├── 📁 terraform/
+├── 🧪 tests/
+│   ├── 📁 e2e/
+│   ├── 📁 enginpipe/
+│   ├── 📁 navigation/
+│   ├── 📄 activity-first-protocol.test.ts
+│   ├── 📄 activity-revenue-split.test.ts
+│   ├── 📄 admin-lockout.test.ts
+│   ├── 📄 admin-upgrade-readiness.test.ts
+│   ├── 📄 agent-bus-consensus.test.ts
+│   ├── 📄 ai-edit-engine.test.ts
+│   ├── 📄 api-route-body-guard.test.ts
+│   ├── 📄 asset-optimizer.test.ts
+│   ├── 📄 auth-providers-route.test.ts
+│   ├── 📄 auth-update-password-page.test.ts
+│   ├── 📄 authenticated-ui-shells.test.ts
+│   ├── 📄 babylon-optimizero.test.ts
+│   ├── 📄 babylon-webgpu-engine.test.ts
+│   ├── 📄 bar-hide-preserves-both-runtimes.test.ts
+│   ├── 📄 boogie-policy-module.test.ts
+│   └── … and 2 more
+├── 🏷️ types/
+│   ├── 📄 ads.ts
+│   ├── 📄 ai-system.ts
+│   ├── 📄 ai.ts
+│   ├── 📄 ccc.ts
+│   ├── 📄 connector.ts
+│   ├── 📄 dream-window.ts
+│   ├── 📄 dreamArtifact.ts
+│   ├── 📄 experience.ts
+│   ├── 📄 journey.ts
+│   ├── 📄 marketplace.ts
+│   ├── 📄 module-manifest.ts
+│   ├── 📄 rivet-dev-agent-os.d.ts
+│   ├── 📄 spatial.ts
+│   ├── 📄 supabase.ts
+│   ├── 📄 user-sim.ts
+│   ├── 📄 widget-system-v2.ts
+│   ├── 📄 widgetConfigs.ts
+│   ├── 📄 widgets.ts
+├── 📁 utils/
+├── 📁 workflow/
+├── 📄 AGENTS.md
+├── 📄 CHANGELOG.md
+├── 📄 COOP_AND_SOLO_ROADMAP.md
+├── 📄 eslint.config.mjs
+├── 📄 GameENGINspec.md
+├── 📄 kill-lib.sh
+├── 📄 LICENSE
+├── 📄 next-env.d.ts
+├── 📄 next.config.mjs
+├── 📄 package.json
+├── 📄 playwright.config.ts
+├── 📄 pnpm-lock.yaml
+├── 📄 pnpm-workspace.yaml
+├── 📄 postcss.config.js
+├── 📄 postcss.config.mjs
+├── 📄 README.md
+├── 📄 REPO_STATE.md
+├── 📄 tailwind.config.ts
+├── 📄 tailwindcss-animate.d.ts
+├── 📄 tsconfig.games.json
+├── 📄 tsconfig.gamesengin.json
+├── 📄 tsconfig.json
+├── 📄 vercel.json
+├── 📄 vitest.config.ts
+```
+<!-- FILE-STRUCTURE:END -->
+
+---
+
+### 📊 Current Build Snapshot
+
+| Metric | Value |
+|--------|-------|
+| Phase | Phase 8 — Real Runtime Completion |
+| Routes | ~213 (106 pages + 107 API handlers) |
+| Test files | 188 |
+| Last push | `faa4a21` by **appthemanger-ctrl** on `completedream` |
+| Timestamp | 2026-04-30 16:19 UTC |
+
+---
+
+### ⚠️ Pre-existing Issues (do not fix unless explicitly asked)
+
+- **4 failing tests** in `tests/dreamdm-bar-interactions.test.ts` (`snapSplitRatioOnRelease` suite) — known mismatch, pre-existing
+- **~29 ESLint warnings** (prefer-const, no-img-element, alt-text) — intentional per `eslint.config.mjs`
+
+---
+
+### 🤖 AI Systems
+
+| Agent | API Route | Role |
+|-------|-----------|------|
+| **Dr. Eams** | `/api/ai/eams` | Discovery, routing, idea generation |
+| **IDARi** | `/api/ai/idari` | System maintenance and governance |
+| **TheBoogieMan.Ai** | `/api/ai/boogieman` | Policy enforcement and system overwatch |
+
+---
+
+### 🔄 Auto-Workflows (run on every push — bot commits carry `[skip vercel]`)
+
+| Workflow | Trigger | What it does |
+|----------|---------|-------------|
+| `update-readme.yml` | Every push | Updates this AI context block + Recent Changes table |
+| `update-handoff.yml` | Every push | Prepends row to `docs/HANDOFF.md` change timeline |
+| `update-bugs.yml` | Every push | Regenerates `docs/BUGS.md` from source annotations |
+| `sync-build-memory.yml` | main/completedream/develop | Syncs `build-memory/` JSON snapshots |
+| `update-repo-state.yml` | main/completedream/develop | Full repo analysis → `REPO_STATE.md` |
+| `dreamengin-preflight.yml` | Push to `completedream` | Full CI: build + typecheck + tests |
+| `idari-daily.yml` | Daily 06:00 UTC | IDARi daily improvement cycle (opens PR, never pushes direct) |
+
+---
+
+<!-- DREAMENGIN-AI-CONTEXT:END -->
+
+## Recent Changes
+
+| Revision | Date / Time (UTC) | Branch | Author | Files | Summary |
+|---|---|---|---|---|---|
+| `faa4a21` | 2026-04-30 16:19 UTC | completedream | appthemanger-ctrl | ~5 | chore: sync build-memory [skip ci] [skip vercel] |
+| `15bd8d0` | 2026-04-27 03:37 UTC | completedream | appthemanger-ctrl | — | Merge pull request #712 from appthemanger-ctrl/copilot/fix-server-components-render-error |
+| `c0de8aa` | 2026-04-26 07:56 UTC | completedream | appthemanger-ctrl | — | Merge pull request #689 from appthemanger-ctrl/copilot/update-if-conditions-main-to-completedream |
+| `16cf0a3` | 2026-04-20 20:25 UTC | completedream | appthemanger-ctrl | ~5 | chore: sync build-memory [skip ci] [skip vercel] |
+| `384cc10` | 2026-04-20 16:57 UTC | completedream | appthemanger-ctrl | ~5 | chore: sync build-memory [skip ci] [skip vercel] |
+| `54053e1` | 2026-04-20 10:07 UTC | completedream | appthemanger-ctrl | ~5 | chore: sync build-memory [skip ci] [skip vercel] |
+| `14d2694` | 2026-04-20 02:49 UTC | completedream | appthemanger-ctrl | ~1 | chore(feeds): bake embed codes — 0 items [skip ci] [skip vercel] |
+| `50e72fe` | 2026-04-19 04:13 UTC | completedream | appthemanger-ctrl | ~5 | chore: sync build-memory [skip ci] [skip vercel] |
+
+---
+
+## What DREAMengin Is
+
+DREAMengin is a **customizable, privacy-first, DreamDM-Bar-led spatial operating environment** — not a conventional social app or dashboard. It is a stacked-runtime OS where every surface, module, and creative engine shares the same privacy model, ownership logic, and navigation continuity.
+
+**Private by default.** Nothing becomes visible to others without an explicit user publish action enforced at the data layer.
+
+**SICC design principle:** Synchronized · Intuitive · Coherent · Cohesive. Every motion is intentional; every element enables a real action.
+
+**Build law:** No artificial "repurpose before invent" rule. Build freely; clean as you go. Don't leave orphaned code.
+
+> ⚠️ **DREAMR-FIRST ARCHITECTURE LAW** — Start with **DreamR**. It is the first
+> reference pattern for how everything in DREAMengin should be built: keep a
+> stable core responsible for runtime state, event flow, visibility, safety, and
+> durable execution contracts; move domain variation into swappable rule-sets,
+> scoring logic, transforms, presets, and surface-specific policy. New behavior
+> should be added by composing or replacing rule-sets before touching the core.
+> If a feature request forces a one-off core rewrite, the split is wrong and the
+> architecture must be re-cut.
+>
+> DreamR reference split:
+> - core: `dreamdmbar/homedream/dreamr/dream.DreamRCore.tsx`
+> - feed surface: `dreamdmbar/homedream/dreamr/dream.DreamRFeed.tsx`
+> - rule-set logic: `dreamdmbar/homedream/dreamr/algorithms/dreamrAlgorithm.ts`
+
+> ⚠️ **UNIVERSAL MODULARITY LAW** — Every visual element in DREAMengin (Dream Windows,
+> panels, rails, DreamR units, DreamMenu, overlays, strips, widgets, etc.) must be
+> draggable, re-positionable, and functionally re-mountable in any valid runtime region.
+> Wrap with `DraggableModule`, `DreamWindowShell`, or `UniversalEditorWrapper`.
+> Violations must be logged in `docs/MODULARITY_VIOLATION_LOG.md`.
+> No fixed/immovable UI. No stub modularity. No partial fixes.
+
+---
+
+## Runtime Architecture
+
+DREAMengin runs as a **stacked dual-runtime system**:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  DreamDM Bar — root container (owns both runtimes)      │
+│                                                         │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │ HomeDream Surface (dependent runtime, above bar) │   │
+│  └──────────────────────────────────────────────────┘   │
+│  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━    │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │ DreamSpace        (dependent runtime, below bar) │   │
+│  └──────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
+```
+
+### DreamDM Bar (`dreamdmbar/dreamsurface.dreamdmbar.tsx`)
+
+The DreamDM Bar is the root container of the DREAMengin runtime environment. It is not a component of either runtime; it owns both. HomeDream Surface and DreamSpace are dependent runtimes that the bar carries — they move when the bar moves, and they remain on screen when the bar is hidden.
+
+The bar lives in `app/layout.tsx` so it is **never remounted** across page transitions.
+
+- **Snap points**: `[0.1, 0.5, 0.9, 1.0]` — defined in `lib/dreamdm/barInteractions.ts` (`SPLIT_SNAP_POINTS`)
+- **Default**: `1.0` (bar at bottom; HomeDream Surface dominant)
+- **Fling threshold**: `SPLIT_FLING_VELOCITY_PX_PER_MS = 0.55` — a fast-enough swipe jumps one full snap step
+- **Whole bar** is the drag handle (pointer + touch); not just the grip widget
+- **Gold Particle**: attaches to the top edge of the bar. Detaches to screen-lock only when the bar is dragged so far up that the particle's natural position would go off-screen. Reattaches when the bar is dragged back down
+- **Double-tap**: the Gold Particle is the **only** element in DREAMengin that responds to a double-tap (returns home, resets both runtimes). Everything else is single-tap (`lib/hooks/useTap.ts`)
+- **Context**: `lib/dreamdm/DreamSystemContext.tsx` — shared `splitRatio`, `isBarMinimized`, `barIntent`, and runtime callbacks across all surfaces
+- **Hide behavior:** Hiding the bar removes only the bar's UI. Both HomeDream and DreamSpace remain rendered at the split they held the moment the bar disappeared. Each runtime continues to scroll independently inside its frozen region. The bar never displaces a runtime.
+
+### App Layout providers (`app/layout.tsx`)
+
+- `OSProvider` — global DREAMenginOS instance (event bus + asset ledger + `upgradeEngine`)
+- `DreamSystemProvider` — DreamDM Bar and surface overlay state
+- `ThemeProvider` / `GodTierProvider` — theming and visual layer
+- `WarpCanvas` — persistent background canvas
+- `CommandPalette`, `KonamiDream` — global overlays
+- **Fonts**: Space Grotesk · Cormorant Garamond · Plus Jakarta Sans
+
+---
+
+## Core Surfaces
+
+| Surface | Canonical Route | Shell |
+|---|---|---|
+| **HomeDream** | `/homedream` | `dreamdmbar/homedream/dream.shell.HomeSystem.tsx` |
+| **EditProfileDream** | `/edit-profiledream` | `app/edit-profiledream/page.tsx` |
+| **ViewProfile** | `/view-profile` | `app/view-profile/page.tsx` |
+
+Support/redirect routes: `/home` → `/homedream`, `/edit-profile` → `/edit-profiledream`, `/profile/[handle]` and `/u/[handle]` → ViewProfile projection path.
+
+### HomeDream (`app/homedream/page.tsx`)
+
+- Server-rendered with Supabase auth check; dev bypass via `DEV_BYPASS_AUTH=true`
+- Live feed from the `feed_items` Supabase table (`lib/feed/useLiveFeed.ts`)
+- Dream Window layout persisted per-user via `/api/home-layout`
+- Feed algorithm settings persisted via `/api/settings/feed`
+- Dr. Eams search bar wired inline (`DrEamsSearchBar` → real `openDrEams` from `DreamSystemContext`)
+- Feed scroll is independent from the DreamDM Bar; Gold Button and bar do not scroll with content
+
+### EditProfileDream (`app/edit-profiledream/page.tsx`)
+
+- Spatial builder for the user's public-facing profile
+- **Save Draft** (`handleSave`) and **Publish** (`handlePublish`) are strictly separate DB calls
+- Publish writes atomically to `visibility_mappings`; triggers projection refresh
+- TheBoogieMan.Ai logs `VISIBILITY_CHANGE` events on save and `EXPLICIT_SHARE` on publish
+
+### ViewProfile (`app/view-profile/page.tsx`)
+
+- Reads only from `visibility_mappings` — never from live builder state
+- `notFound()` on any ambiguous or missing record (privacy-safe failure)
+- `/profile/[handle]` shares the same projection path
+
+---
+
+## Dream Windows
+
+Dream Windows are the modular runtime containers — structural, not decorative.
+
+**Lifecycle states**: Unbound → Bound → Mounted → Collapsed
+
+**Implementation**:
+- Type authority: `types/dream-window.ts`
+- API: `app/api/dream-windows/route.ts` (collection) · `app/api/dream-windows/[id]/route.ts` (per-item)
+- Table: `dream_windows` (Supabase, RLS enforced, owner-only mutations)
+- Layer model enforced: **Shell → Connector → Feature → Output** (no layer bypass)
+- `components/dreams/dream.widget.SuperDreamWidget.tsx` — cluster composition (StarMaker, GameSphere, BrandDream, LabCode, ContentStream)
+- `components/dreams/dreamsurface.dreamspace.tsx` — DreamSpace panel revealed by dragging bar up
+- `lib/dreams/useDreamsRuntime.ts` — independent navigation state for the second runtime
+
+---
+
+## Daydream Surface Network
+
+Six Daydream Surfaces, each paired with a Side B Engin runtime. Any surface may connect to multiple Engins; any Engin may power multiple contexts (multi-connection graph, not 1-to-1 pairs).
+
+| Daydream Surface | Route | Engin | Engin file |
+|---|---|---|---|
+| **Music** | `/daydream/music` | **StarMakerEngin** | `engins/engin.StarMakerEngin.tsx` |
+| **Games** | `/daydream/games` | **GameEngin** | `engins/engin.GameEngin.tsx` |
+| **Lab** | `/daydream/lab` | **LabEngin** | `engins/engin.LabEngin.tsx` |
+| **Code** | `/daydream/code` | **CodeEngin** | `engins/engin.CodeEngin.tsx` |
+| **Brand** | `/daydream/brand` | **BrandingEngin** | `engins/engin.BrandingEngin.tsx` |
+| **Create** | `/daydream/create` | **ContentEngin** | `engins/engin.ContentEngin.tsx` |
+
+Shell: `components/daydream/dream.shell.DaydreamShell.tsx` — accepts `sideBComponent` prop. All 6 Daydreams accessible from DreamSpace (DreamsSpacePanel `✦ Daydreams` tab).
+
+Additional surfaces in the daydream tree: `/daydream/forge`, `/daydream/field`, `/daydream/constellation`.
+
+### StarMakerEngin (Music)
+
+`engins/engin.StarMakerEngin.tsx` — Side B control layer. State persisted via `useDaydreamState`.
+
+- 8-step × 4-channel visual sequencer grid
+- Mixing board (4-channel fader strips), BPM / key / major-minor selector
+- Pitch control (−12 → +12 semitones), sound effects palette
+- Stem export (`bridge.emit('music', 'music:stem-ready', …)`)
+- Real Supabase reads/writes to `music_releases` (RLS, `owner_id = auth.uid()`)
+
+**StarMaker panels** (`components/daydream/starmaker/`): Piano Roll · Session View · Multitrack Arrangement · Comping
+
+**Music Engin app** (`components/engines/music/`): `dream.MusicEnginApp.tsx` + Studio · Arrange · Music Library panels — routed at `/engines/music/`.
+
+### GameEngin (Games)
+
+`engins/engin.GameEngin.tsx` — Side B control layer.
+
+- Personal best scores from `game_scores` Supabase table; one-tap leaderboard publish
+- World Builder (5×5 tile-grid), Achievement System (8 achievements), Physics Config, Game Scripts
+- DualSense controller (Bluetooth, Android 12+/iOS 14.5+, haptic + gyro)
+- Cross-Engin Sync Panel (`components/dreamengin/dream.panel.CrossEnginStatusPanel.tsx`)
+
+**Cartridge system** (`components/gameengin/`): CartridgeBrowser · CartridgeLauncher · FeaturedCartridges · CartridgeErrorBoundary · CrashReportModal
+
+Routes: `/gameengin` · `/gameengin/cartridges` · `/gameengin/cartridges/[id]`
+
+**Games on disk** (`components/games/`):
+
+| Game | Component |
+|---|---|
+| MADMAXI | `madmaxi/dream.MadmaxiGame.tsx` + WASM `public/cartridges/mad-maxi/logic/main.wasm` |
+| NeonDrift | `dream.NeonDrift.tsx` |
+| AvenueOfMirrors | `dream.AvenueOfMirrors.tsx` |
+| DefuseRitual | `dream.DefuseRitual.tsx` |
+| EchoArena | `dream.EchoArena.tsx` |
+| EnginFracture | `dream.EnginFracture.tsx` |
+| Glassfall | `dream.Glassfall.tsx` |
+| LexiconSolitaire | `dream.LexiconSolitaire.tsx` |
+| NiteFlyerSolarHymn | `dream.NiteFlyerSolarHymn.tsx` |
+| NullCathedral | `dream.NullCathedral.tsx` |
+| SerpentSiege | `dream.SerpentSiege.tsx` |
+| VoidlineGP | `dream.VoidlineGP.tsx` |
+| BabylonSideScroller | `dream.BabylonSideScroller.tsx` |
+
+HUD: `dream.hud.GameHUD.tsx` · `dream.hud.MobileGameHUD.tsx` · Controller: `dream.GameController.tsx` · Remote: `dream.remote.GameRemote.tsx`
+
+**Games Engin app** (`components/engines/games/`): `dream.GameEnginApp.tsx` + Builder · Library · Scores panels — routed at `/engines/games/`.
+
+### CodeEngin (Code)
+
+`engins/engin.CodeEngin.tsx` — real IDE, no mock data.
+
+- Cell-based code editor with `runCellCode` execution
+- CI runner (lint / typecheck / test / build) via `/api/ci/run`
+- Security scanner via `/api/security/scan`
+- AI co-pilot: `engins/CodeEngin/modules/ai-co-pilot/` (`dream.panel.AgentPanel.tsx` + `useAgentSession`)
+- Core parser: `engins/CodeEngin/core/parser.ts` · Orchestrator: `engins/CodeEngin/orchestrator/dream.index.tsx`
+- Diff viewer: `components/daydream/dream.DiffViewer.tsx`
+- Journey trail: `components/daydream/dream.JourneyTrail.tsx`
+- State persisted via `useDaydreamPersistence`; localStorage backup
+- Bridge: `useCodeEnginBridge` (`lib/runtime/useEnginBridge`)
+
+**Code Engin app** (`components/engines/code/`): `dream.CodeEnginApp.tsx` + AI · Notebook · Projects panels — routed at `/engines/code/`.
+
+### LabEngin (Lab)
+
+`engins/engin.LabEngin.tsx` + `engins/dream.QuantumCircuitCanvas.tsx`.
+
+**Lab Engin app** (`components/engines/lab/`): `dream.LabEnginApp.tsx` + DataViz · Experiments · Quantum panels — routed at `/engines/lab/`.
+
+### BrandingEngin (Brand)
+
+`engins/engin.BrandingEngin.tsx`.
+
+**Brand Engin app** (`components/engines/brand/`): `dream.BrandEnginApp.tsx` + Campaigns · Identity panels — routed at `/engines/brand/`.
+
+### ContentEngin (Create)
+
+`engins/engin.ContentEngin.tsx`. Subscribes to `music:stem-ready` from the bridge (multi-connection: Music → ContentEngin). Drafts saved to `content_drafts` via `/api/drafts`.
+
+**Create Engin app** (`components/engines/create/`): `dream.CreateEnginApp.tsx` + Calendar · Editor · Queue panels — routed at `/engines/create/`.
+
+### Shared Engin infrastructure (`components/engines/shared/`)
+
+- `dream.EnginProvider.tsx` — shared Engin React context
+- `dream.shell.EnginAppShell.tsx` — unified app shell across all 6 Engin apps
+- `dream.bar.EnginNavBar.tsx` — shared navigation bar
+
+### ForgeEngin
+
+`engins/dream.ForgeEngin.tsx` + `components/forge/`: `dream.EngineBuilderCanvas.tsx` · `dream.panel.AIBuilderPanel.tsx` · `dream.widget.ForgeMomentumWidget.tsx`
+
+Routed at `/daydream/forge`. Build actions via `/api/forge/build`.
+
+---
+
+## Platform Modules
+
+| Module | Route | Notes |
+|---|---|---|
+| **DreamDM** (messaging) | `/messages` | Supabase Realtime; per-conversation RLS; boards at `/messages/boards`; `dream.BoardComposer.tsx` |
+| **DreamShop** | `/shop` | Real listings from `merch` table; sell flow at `/shop/sell` |
+| **DreamMarketplace** | `/marketplace` | `marketplace_items` with RLS; slot detail `/marketplace/[id]`; sell at `/marketplace/sell` |
+| **DreamAds** | `/ads` | "My DreamAds" + "Platform Promotions" as distinct sections; create at `/ads/create`; slot detail `/ads/slot/[id]` |
+| **DreamMenu** | (component) | `components/menus/dream.menu.DreamRadialMenu.tsx` (canonical); `DualBottomMenu` wraps `DreamRadialMenu` + `SystemRadialMenu` |
+| **Connectors** | `/connectors` | Instagram OAuth + YouTube OAuth; generic provider connect/disconnect/sync/verify at `/api/connectors/[provider]/` |
+| **Discover** | `/discover` | Feed discovery surface |
+| **DreamR** | `/api/dreamr/` | Feed + suggested routes; `dream.DreamRCore.tsx` + `dream.DreamRFeed.tsx` (in `dreamdmbar/homedream/dreamr/`); channel + creator panels in `components/dreamr/`; **first commandment model** for stable core + swappable rule-set architecture |
+| **Forge** | `/daydream/forge` | `engins/dream.ForgeEngin.tsx`; `dream.ForgeDreamCanvas.tsx`; build actions via `/api/forge/build` |
+| **WebGPU** | `/webgpu` | `components/webgpu/dream.WebGPUShowcase.tsx` |
+| **Universe** | (component) | `components/universe/` — universe shell, node cluster, torus core, universe card |
+| **Shared Dreams** | (component) | `components/shared-dream/` — `dream.SharedDreamCanvas.tsx` + `dream.SharedDreamProvider.tsx` + `dream.InviteFlow.tsx` |
+
+---
+
+## AI Triad
+
+Three AI systems operating under shared platform rules. All require real auth (IDARi additionally requires `IDARI_PASSWORD` env var — returns 503 when absent).
+
+| Agent | Route(s) | Role |
+|---|---|---|
+| **Dr. Eams** | `/api/ai/eams` · `/api/dr-eams/run` · `/api/dr-eams/hf` | Discovery, routing, idea generation; wired as HomeDream search bar |
+| **IDARi** | `/api/ai/idari` | Platform maintenance and governance; admin-guard enforced even under dev bypass |
+| **TheBoogieMan.Ai** | `/api/ai/boogieman` · `/api/ai/boogieman/privacy-event` · `/api/ai/boogieman/child-safety` · `/api/ai/boogieman/status` | Privacy-event logging, content policy enforcement, child-safety overwatch |
+
+Triad coordination: `lib/agents/agentBus.ts` — `runTriadConsensus` gate active server-side for critical ops (e.g. delete-dream).
+
+---
+
+## DREAMenginOS Layer
+
+`lib/dreamenginOS/` — OS-level primitives shared across all Engins and surfaces:
+
+- **`OSContext.tsx`** — `OSProvider` wraps the root layout. Provides:
+  - `ledger` — shared asset + metadata ledger (`lib/ledger.ts`)
+  - `bus` — global event bus (`lib/eventBus.ts`)
+  - `upgradeEngine` — promotes any engine descriptor with OS capabilities
+- **`lib/runtime/runtimeChannel.ts`** — `LocalChannel` (in-memory pub/sub) + `RealtimeChannel` (lazy Supabase, graceful fallback). Factory: `createRuntimeChannel(id, mode)`. **Solo == co-op with one peer** — component tree never branches on mode
+- **`lib/runtime/dualRuntimeBridge.ts`** — cross-Engin event bus (e.g. `bridge.emit('music', 'music:stem-ready', …)`)
+- **Manifest schema**: `DaydreamEnginManifest` in `lib/feature-build/featureManifest.ts` — optional `solo: boolean` and `coop: boolean | { affordances: string[] }` (backwards-compatible)
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16+ (App Router, PPR via `cacheComponents: true`) |
+| UI | React 19, TypeScript 5.9, Tailwind CSS 4 |
+| Database / Auth | Supabase (PostgreSQL 15 + Realtime + RLS) |
+| 3D / Spatial | Babylon.js 9+ (+ Havok physics), Three.js 0.183, React Three Fiber 9 |
+| 2D / Game FX | Pixi.js 8, pixi-viewport, AssemblyScript WASM |
+| Animation | GSAP 3, Framer Motion 12 |
+| State | Zustand 5, SWR 2 |
+| Validation | Zod 4 |
+| AI / ML | TensorFlow.js 4 (WebGPU backend) |
+| Observability | OpenTelemetry SDK + Prometheus exporter + Grafana |
+| DualSense | Custom `lib/dualsense/` bridge (Bluetooth HID) |
+| Drag / Drop | react-dnd 16 |
+
+---
+
+## Getting Started
+
+```bash
+# Prerequisites: Node 24, pnpm 10.30.0
+corepack enable pnpm
+
+# Install
+pnpm install
+
+# Dev server (port 3000)
+pnpm dev
+```
+
+**Dev auth bypass** (skip Supabase locally):
+
+```bash
+# .env.local
+DEV_BYPASS_AUTH=true
+DEV_ADMIN=true
+```
+
+**Full preflight** (run before pushing):
+
+```bash
+pnpm preflight   # typecheck + lint + tests
+```
+
+**Supabase**: run `supabase start` for the local stack, or point `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` to a hosted project. The app degrades gracefully when Supabase is unavailable.
+
+---
+
+## Settings Routes
+
+`/settings/` — account · algorithm · appearance · controls · data · feed · help · notifications · privacy · safety · security · widgets
+
+---
+
+## 6. HomeDream (Core System, Private Operating Surface)
+
+HomeDream Surface is the user's **private root operating surface** — connected to the top of the DreamDM Bar. It is **private by default** at the data layer (RLS), not just the UI.
+
+### Control model
+
+- **Single tap: Open dual menus.** (Daydream radial left + System radial right)
+- **Double tap: Go Home.** (Gold Particle only — the single double-tap target in the system)
+
+### Feed model
+
+The HomeDream feed is **centered around a personalized feed** of real content:
+
+- `feed_items` — connector-synced external content (Mastodon, GitHub, Bluesky, YouTube, etc.)
+- `app_posts` — followed users' posts + own posts; **private by default**, owner-controlled
+
+Feed state is **persistent between sessions** (per-user algorithm settings stored via `/api/settings/feed`).
+
+### What HomeDream renders
+
+1. **Dr. Eams search bar** — wired inline, calls real `openDrEams` from `DreamSystemContext`
+2. **Real merged feed** — `feed_items` + `app_posts`, sorted by `created_at`
+3. **DreamR section** — close friends / channel / creator panels (`dreamdmbar/homedream/dreamr/`)
+4. **6 Daydream navigation** — `DaydreamPulseStrip` linking to Music, Games, Lab, Code, Brand, Create
+5. **Dream Window layout** — user's configured and persisted Dream Windows (Music, Games, Lab, Code, Brand, Create, Profile, Gallery, Link Tree, Social Feed, etc.)
+6. **Compact Dream Window rail** — swipeable strip just above the DreamDM Bar, plus a DreamSpace opener tile
+7. **feed algorithm settings** — persisted per user via `/api/settings/feed`
+8. **posting routes** — `/create`, `/post`, and inline compose; private by default
+
+**What HomeDream is NOT**: a dashboard, a home screen, or a web-app tile grid.
+
+---
+
+## HomeDream System
+
+HomeDream is implemented as a shell-owned dual-runtime surface. The key implementation paths are:
+
+- **Route**: `app/homedream/page.tsx` — server-rendered, Supabase auth check, dev bypass via `DEV_BYPASS_AUTH=true`
+- **System shell**: `dreamdmbar/homedream/dream.shell.HomeSystem.tsx` — mounts the dual-runtime container
+- **Surface composition**: `dreamdmbar/homedream/dream.homedream.HomeDreamSurface.tsx` — the HomeDream content region
+
+### Vocabulary
+
+| Term | Meaning |
+|---|---|
+| **Surface** | A top-level platform layer (HomeDream, Daydream, etc.) |
+| **Daydream** | A creative / utility zone — Side A of a Daydream pair |
+| **Engin** | The powered execution runtime — Side B of a Daydream pair |
+| **Dream Window** | A modular runtime container; the primary building block |
+| **DreamDM Bar** | The persistent split-screen seam and interaction rail |
+| **DreamSpace** | The second runtime layer revealed by the DreamDM Bar |
+| **Gold Particle** | The only double-tap target; returns home and resets runtimes |
+| **Canonical Route** | The single authoritative URL for each surface |
+
+**Enforceable runtime rules:**
+
+- `DreamDMBar persistence is shell-owned` — the bar mounts in `app/layout.tsx`, never inside HomeDream.
+- `DreamSystemContext` exposes `splitRatio`, `isBarMinimized`, `barIntent`, and runtime callbacks to all surfaces.
+- When the bar is `hidden/minimized`, HomeDream remains fully visible and independently scrollable; the split ratio is frozen at its last value, not reset to 0 or 1.
+
+---
+
+## 6. HomeDream (Core System, Private Operating Surface)
+
+HomeDream is the root private operating surface of DREAMengin. It is **private by default** — nothing leaves without an explicit publish action. State is **persistent between sessions** via Supabase and localStorage.
+
+The surface is **centered around a personalized feed** powered by the DreamR algorithm. **6 Daydream navigation** tiles give direct access to all six Daydream surfaces from HomeDream.
+
+**Gold Particle control model:**
+- Single tap: Open dual menus.
+- Double tap: Go Home.
+
+**Layout & settings:**
+- **Dream Window layout** is fully editable and persisted per user via `/api/home-layout`.
+- **feed algorithm settings** are configurable at `/settings/algorithm`.
+- **posting routes**: `/api/posts`, `/api/activity`; DreamDM drafts auto-save on every keystroke.
+
+---
+
+## HomeDream System
+
+Key implementation files:
+
+- `app/homedream/page.tsx` — server-rendered route with Supabase auth check; dev bypass via `DEV_BYPASS_AUTH=true`.
+- `dreamdmbar/homedream/dream.shell.HomeSystem.tsx` — canonical HomeDream shell component; mounted as a dependent of the DreamDM Bar.
+
+**Vocabulary used by this system:**
+
+| Term | Meaning in HomeDream context |
+|---|---|
+| **Surface** | HomeDream is the primary private operating surface |
+| **Daydream** | A creative zone reachable from HomeDream's 6-tile navigation rail |
+| **Engin** | The powered execution runtime for each Daydream (Side B) |
+| **Dream Window** | A modular runtime container placed within HomeDream |
+| **Canonical Route** | `/homedream` — the single authoritative URL for HomeDream |
+
+**Enforceable runtime rules:**
+
+- `DreamDMBar persistence is shell-owned` — the bar mounts in `app/layout.tsx`, never inside HomeDream.
+- `DreamSystemContext` exposes `splitRatio`, `isBarMinimized`, `barIntent`, and runtime callbacks to all surfaces.
+- When the bar is `hidden/minimized`, HomeDream remains fully visible and independently scrollable; the split ratio is frozen at its last value, not reset to 0 or 1.
+
+## 13. Code / CodeEngin
+
+### 13.1 Code (Side A)
+
+Route: `/daydream/code` — `app/daydream/code/page.tsx`
+
+Side A surfaces the user's full code ecosystem. Key features: Project Vault, Snippet Library, Import Files & Zips, Drafts Workspace (`label: 'Drafts'`), and Quick Action tiles (including Open CodeEngin).
+
+### 13.2 CodeEngin (Side B)
+
+Route: `/engines/code` — `engins/engin.CodeEngin.tsx`
+
+A real embedded IDE with no mock data:
+- Cell-based notebook with `runCellCode` execution across multiple languages.
+- CI runner button: Run CI (lint, typecheck, test, build) via `/api/ci/run`.
+- ShellHub for device terminal connections and remote pairing.
+- TaskJobManager for background CI, build, and deploy jobs.
+
+### 13.3 Specialized Dream Windows (Examples)
+
+Code surface Dream Windows available to users:
+
+- Project Dream Window — full project context
+- Code File Dream Window — single-file focus mode
+- Snippet Dream Window — reusable code blocks
+- Terminal Dream Window — embedded shell
+- Deployment Dream Window — deploy pipeline panel
+- Runtime Dream Window — live runtime inspector
+
