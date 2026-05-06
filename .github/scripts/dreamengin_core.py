@@ -35,6 +35,7 @@ from typing import Any, Dict, List, Optional, Union
 DEFAULT_MAX_TOKENS = 16_384
 DEFAULT_TIMEOUT = 180
 OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 # Canonical DREAMengin constraints for all AI agents
 DREAMENGIN_CONSTRAINTS = {
@@ -233,11 +234,15 @@ def call_openai(
     timeout: int = DEFAULT_TIMEOUT,
 ) -> str:
     """
-    Call OpenAI Chat Completions API with error handling.
+    Call OpenAI or Groq Chat Completions API with error handling.
+
+    Automatically detects the API provider based on the key prefix:
+    - Keys starting with "gsk_" use Groq API
+    - All other keys use OpenAI API
 
     Args:
-        api_key: OpenAI API key
-        model: Model name (e.g., 'gpt-4', 'gpt-4-turbo')
+        api_key: OpenAI or Groq API key
+        model: Model name (e.g., 'gpt-4', 'gpt-4-turbo', 'llama-3.3-70b-versatile')
         messages: List of message dicts with 'role' and 'content'
         max_tokens: Maximum tokens in response
         timeout: Request timeout in seconds
@@ -248,6 +253,14 @@ def call_openai(
     Raises:
         SystemExit: On API error (after printing error to stderr)
     """
+    # Detect API provider based on key prefix
+    if api_key.startswith("gsk_"):
+        api_url = GROQ_API_URL
+        api_name = "Groq"
+    else:
+        api_url = OPENAI_API_URL
+        api_name = "OpenAI"
+
     payload = {
         "model": model,
         "max_tokens": max_tokens,
@@ -257,7 +270,7 @@ def call_openai(
     data = json.dumps(payload).encode("utf-8")
 
     req = urllib.request.Request(
-        OPENAI_API_URL,
+        api_url,
         data=data,
         headers={
             "Content-Type": "application/json",
@@ -270,19 +283,19 @@ def call_openai(
             result = json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")
-        print(f"OpenAI API error {exc.code}: {body}", file=sys.stderr)
+        print(f"{api_name} API error {exc.code}: {body}", file=sys.stderr)
         sys.exit(1)
     except urllib.error.URLError as exc:
-        print(f"OpenAI API connection error: {exc.reason}", file=sys.stderr)
+        print(f"{api_name} API connection error: {exc.reason}", file=sys.stderr)
         sys.exit(1)
     except Exception as exc:
-        print(f"OpenAI API unexpected error: {exc}", file=sys.stderr)
+        print(f"{api_name} API unexpected error: {exc}", file=sys.stderr)
         sys.exit(1)
 
     try:
         return result["choices"][0]["message"]["content"]
     except (KeyError, IndexError) as exc:
-        print(f"OpenAI API response missing expected fields: {exc}", file=sys.stderr)
+        print(f"{api_name} API response missing expected fields: {exc}", file=sys.stderr)
         print(f"Response: {result}", file=sys.stderr)
         sys.exit(1)
 
@@ -296,10 +309,12 @@ def call_openai_simple(
     timeout: int = DEFAULT_TIMEOUT,
 ) -> str:
     """
-    Simplified OpenAI call with system and user messages.
+    Simplified OpenAI/Groq call with system and user messages.
+
+    Automatically detects the API provider based on the key prefix.
 
     Args:
-        api_key: OpenAI API key
+        api_key: OpenAI or Groq API key
         model: Model name
         system: System message content
         user: User message content
@@ -460,7 +475,7 @@ def get_env_or_fail(var_name: str, error_message: Optional[str] = None) -> str:
 
 
 def get_openai_key() -> str:
-    """Get OpenAI API key from environment or exit."""
+    """Get OpenAI or Groq API key from environment or exit."""
     return get_env_or_fail("OPENAI_API_KEY", "Error: OPENAI_API_KEY environment variable not set")
 
 
