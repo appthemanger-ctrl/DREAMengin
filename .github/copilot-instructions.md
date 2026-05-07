@@ -51,9 +51,9 @@ The owner is describing **what they see on screen**. Not code. Not architecture.
 
 ---
 
-## HUMANI ESCALATION PROTOCOL
+## HUMAN AI ARMY ESCALATION PROTOCOL
 
-This repo has a built-in runtime audit system: **humanAI**.
+This repo has a built-in runtime audit system: **the human AI army**.
 It crawls the live app as a real iPhone Safari user and reports what it actually experiences.
 
 - Audit script: `.github/scripts/humanai_audit.py`
@@ -61,12 +61,12 @@ It crawls the live app as a real iPhone Safari user and reports what it actually
 - Workflow: `.github/workflows/humanai-audit.yml`
 - Army: `agents/humanAI/personas/` + orchestrator at `agents/humanAI/orchestrator.md`
 
-**Run humanAI when:**
+**Run the human AI army when:**
 - The owner reports a bug you cannot locate in static analysis.
-- You are about to tell the owner the code looks fine — **stop and run humanAI first**.
+- You are about to tell the owner the code looks fine — **stop and run the human AI army first**.
 - You need runtime truth, not pattern-match truth.
 
-humanAI does not defend the code. It reports reality. Trust it.
+The human AI army does not defend the code. It reports reality. Trust it.
 
 ---
 

@@ -71,9 +71,9 @@ Do not hunt for unrelated broken things. Execute **exactly** the requested chang
 
 ---
 
-### HUMANI ESCALATION PROTOCOL
+### HUMAN AI ARMY ESCALATION PROTOCOL
 
-This repo ships with **humanAI** — an automated product audit system that crawls the live app as a real iPhone Safari user and produces human-readable, first-person UX reports.
+This repo ships with the **human AI army** — an automated product audit system that crawls the live app as a real iPhone Safari user and produces human-readable, first-person UX reports.
 
 **Files:**
 - Audit script: `.github/scripts/humanai_audit.py`
@@ -82,12 +82,12 @@ This repo ships with **humanAI** — an automated product audit system that craw
 - Orchestrator: `agents/humanAI/orchestrator.md`
 - Workflow: `.github/workflows/humanai-audit.yml`
 
-**When to run humanAI:**
+**When to run the human AI army:**
 - The owner reports a bug and you cannot find the cause in static analysis.
 - The owner says something "doesn't work" or "feels broken" and you're tempted to say "I don't see a problem."
-- Any time you are about to tell the owner the code looks fine — **stop**. Run humanAI first. Let the runtime audit speak.
+- Any time you are about to tell the owner the code looks fine — **stop**. Run the human AI army first. Let the runtime audit speak.
 
-**humanAI does not defend code. It reports what a real user experiences. Trust it over your static read.**
+**The human AI army does not defend code. It reports what a real user experiences. Trust it over your static read.**
 
 ---
 

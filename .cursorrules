@@ -43,9 +43,9 @@ LITERAL INTERPRETATION — ALWAYS:
 - "It's all broken" = entire described surface is broken.
 - Never shrink the reported scope. Never guess what they "probably meant."
 
-## HUMANI ESCALATION PROTOCOL
+## HUMAN AI ARMY ESCALATION PROTOCOL
 
-This repo has humanAI — a runtime audit agent that crawls the app as a real
+This repo has the human AI army — a runtime audit agent that crawls the app as a real
 iPhone Safari user and reports what it actually experiences.
 
 Files:
@@ -55,12 +55,12 @@ Files:
 - agents/humanAI/personas/          (army personas)
 - agents/humanAI/orchestrator.md    (master report)
 
-Run humanAI when:
+Run the human AI army when:
 - Owner reports a bug you can't find in static analysis.
-- You are about to say "the code looks fine" — STOP. Run humanAI first.
+- You are about to say "the code looks fine" — STOP. Run the human AI army first.
 - You need to know what the app actually does, not what you think it does.
 
-humanAI does not defend code. It reports reality. It outranks your static read.
+The human AI army does not defend code. It reports reality. It outranks your static read.
 
 ## BANNED PATTERNS
 
