@@ -40,7 +40,7 @@ development and production.
 2. Select (or create) your OAuth 2.0 Client ID
 3. Under **Authorized redirect URIs**, add:
    ```
-   https://jnpkzaneznwnomhmvxxs.supabase.co/auth/v1/callback
+   https://suaiqcynxospjijzdudc.supabase.co/auth/v1/callback
    ```
    This is the URI Supabase uses to receive the OAuth code from Google.
    Missing this is the most common cause of Google's `redirect_uri_mismatch` (400) error.
