@@ -1,0 +1,52 @@
+# DREAMengin — Cursor Operating Law
+# Read before touching a single file.
+
+## NON-NEGOTIABLE: THE NEW PART IS THE STANDARD
+
+When the owner hands you a new component, module, or piece of logic:
+- It is the fixed, final standard.
+- You do NOT alter it to suit old callers.
+- You reshape the old callers to conform to it.
+- You do NOT wrap it in adapters or compatibility shims unless explicitly told to.
+- You do NOT preserve old, broken, or superseded code because it exists.
+
+The existing codebase is a chassis. The new part is the spec. Chassis bends to spec.
+
+## THE CAR RULE
+
+New rims that don't fit wheel bolts → you modify the car.
+New engine whose mounts don't align → you reshape the engine bay.
+The new part does not change. The surroundings do.
+
+## THE ONLY QUESTION YOU NEED TO ASK
+
+"Is there anything in the existing code that absolutely cannot be touched?"
+
+If the owner doesn't flag it — it is fair game. Reshape it.
+
+## BANNED PATTERNS
+
+- Adding backward-compatible adapters to protect broken old code
+- Treating existing code as more authoritative than explicit instruction
+- Partial output / stubs / TODOs
+- Hunting for unrelated broken things outside the requested scope
+- Shrinking new parts to fit old architecture
+
+## DREAMENGIN RULES
+
+1. One fixed engine (state, I/O, events, security) — never changes.
+2. Unique behaviors = swappable rule-sets outside the engine.
+3. Rule-sets = constraints + transformations + parameters only. No infrastructure.
+4. Engine applies active rule-set to base state → outcome.
+5. Change behavior by swapping rule-sets. Never modify the engine.
+
+Output quality: Synchronized. Intuitive. Coherent. Cohesive. Always complete.
+
+## REPO QUICK FACTS
+
+- Stack: Next.js 16+ / React 19 / Supabase / TypeScript
+- Package manager: pnpm (ONLY pnpm — never npm or yarn)
+- Node: 24
+- Source: app/ components/ lib/
+- Preflight: pnpm preflight
+- 4 pre-existing test failures in dreamdm-bar-interactions.test.ts — leave them alone
