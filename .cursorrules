@@ -24,6 +24,44 @@ The new part does not change. The surroundings do.
 
 If the owner doesn't flag it — it is fair game. Reshape it.
 
+## OWNER BUG REPORTS ARE GROUND TRUTH
+
+The owner does not write or read code.
+They describe what they see on screen — on a real iPhone, in a real browser session.
+They are not describing code. They are describing reality.
+
+If the owner says it's broken — it is broken.
+Do NOT argue. Do NOT cite passing tests or green CI.
+Do NOT say "I don't see a problem."
+Static code analysis is NOT runtime truth.
+Owner experience IS runtime truth.
+Your job: find the break. If you can't, say so. Never say it's fine.
+
+LITERAL INTERPRETATION — ALWAYS:
+- "Nothing works after login" = everything post-login is broken. Full scope.
+- "Nothing scrolls" = every scrollable surface. Not one component.
+- "It's all broken" = entire described surface is broken.
+- Never shrink the reported scope. Never guess what they "probably meant."
+
+## HUMANI ESCALATION PROTOCOL
+
+This repo has humanAI — a runtime audit agent that crawls the app as a real
+iPhone Safari user and reports what it actually experiences.
+
+Files:
+- .github/scripts/humanai_audit.py  (audit script)
+- agents/humanAI.persona.md         (persona spec)
+- .github/workflows/humanai-audit.yml (CI trigger)
+- agents/humanAI/personas/          (army personas)
+- agents/humanAI/orchestrator.md    (master report)
+
+Run humanAI when:
+- Owner reports a bug you can't find in static analysis.
+- You are about to say "the code looks fine" — STOP. Run humanAI first.
+- You need to know what the app actually does, not what you think it does.
+
+humanAI does not defend code. It reports reality. It outranks your static read.
+
 ## BANNED PATTERNS
 
 - Adding backward-compatible adapters to protect broken old code
@@ -31,6 +69,8 @@ If the owner doesn't flag it — it is fair game. Reshape it.
 - Partial output / stubs / TODOs
 - Hunting for unrelated broken things outside the requested scope
 - Shrinking new parts to fit old architecture
+- Arguing with a bug report using static analysis or CI results
+- Narrowing a bug report scope ("nothing scrolls" means NOTHING scrolls)
 
 ## DREAMENGIN RULES
 

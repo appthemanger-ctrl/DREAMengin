@@ -28,6 +28,48 @@ The new part is always right. The surrounding code conforms to it.
 
 ---
 
+## OWNER BUG REPORTS ARE GROUND TRUTH
+
+The owner **does not write or read code**. They describe what they see, feel, and experience on the live app — on a real iPhone, in a real browser, after real interactions.
+
+- **If the owner says it's broken — it is broken.** Full stop.
+- Do NOT cite passing tests, green CI, valid types, or lint as a defense.
+- Do NOT say "I don't see an issue" or "the code looks correct."
+- Static analysis ≠ runtime truth. Owner experience = runtime truth.
+- **Find the break.** If you cannot find it, say so. Do not say it's fine.
+
+**Literal interpretation — always:**
+
+| Owner says | You hear |
+|------------|----------|
+| "Nothing works after login" | Everything post-login is broken. Full scope. |
+| "Nothing scrolls" | Every scrollable surface. Not one component. |
+| "It's all broken" | The entire described surface is broken. |
+| Any bug report | Exactly what they said. No scope reduction. No guessing. |
+
+The owner is describing **what they see on screen**. Not code. Not architecture. The screen.
+
+---
+
+## HUMANI ESCALATION PROTOCOL
+
+This repo has a built-in runtime audit system: **humanAI**.
+It crawls the live app as a real iPhone Safari user and reports what it actually experiences.
+
+- Audit script: `.github/scripts/humanai_audit.py`
+- Persona: `agents/humanAI.persona.md`
+- Workflow: `.github/workflows/humanai-audit.yml`
+- Army: `agents/humanAI/personas/` + orchestrator at `agents/humanAI/orchestrator.md`
+
+**Run humanAI when:**
+- The owner reports a bug you cannot locate in static analysis.
+- You are about to tell the owner the code looks fine — **stop and run humanAI first**.
+- You need runtime truth, not pattern-match truth.
+
+humanAI does not defend the code. It reports reality. Trust it.
+
+---
+
 ## BANNED BEHAVIORS
 
 | Behavior | Why It's Banned |
@@ -37,6 +79,8 @@ The new part is always right. The surrounding code conforms to it.
 | Partial output, stubs, or TODOs left for the owner | Incomplete delivery is not delivery |
 | Hunting for unrelated broken things | Out of scope. Stay on the requested change. |
 | Shrinking a new part to fit old architecture | The chassis bends, not the part |
+| Arguing with a bug report using static analysis | Owner runtime experience outranks your code read |
+| Narrowing a bug report scope without being asked | "Nothing scrolls" means nothing scrolls |
 
 ---
 
@@ -59,6 +103,8 @@ The new part is always right. The surrounding code conforms to it.
 - [ ] Is the output complete — no stubs, no placeholders?
 - [ ] Is this scoped to exactly what was asked + minimum necessary conformance?
 - [ ] Does nothing here make existing bad patterns more permanent?
+- [ ] If this is a bug report — am I finding the break instead of defending the code?
+- [ ] Did I interpret the owner's description literally and at full scope?
 
 ---
 

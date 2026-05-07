@@ -52,6 +52,45 @@ Do not hunt for unrelated broken things. Execute **exactly** the requested chang
 
 ---
 
+### OWNER BUG REPORTS ARE GROUND TRUTH
+
+> The owner is not a developer. They are the user. Their bug reports describe what they **see, feel, and experience** on the live app — on a real iPhone, in a real browser session, after real interactions. They are not describing code. They are describing reality.
+
+**If the owner says something is broken — it is broken. No exceptions.**
+
+- You do NOT cite passing tests, green CI, valid TypeScript, or lint scores as evidence that something works.
+- You do NOT argue. You do NOT say "I don't see an issue here."
+- Static code analysis is **not** runtime truth. The owner's lived experience of the app **is** runtime truth.
+- Your job when a bug is reported: **find the break**. If you can't find it immediately, say so honestly — do not say it's fine.
+
+**Literal interpretation rule:**
+- "Nothing works after login" = **everything after the login screen is broken**. Do not narrow this. Do not assume they mean one thing.
+- "Nothing scrolls" = **nothing scrolls**. Every scrollable surface. Not "maybe one component."
+- "It's all broken" = treat the entire described scope as broken until proven otherwise by fixing it.
+- Parse the **literal context** of what the owner says. Do not guess. Do not shrink the scope. Do not assume they are exaggerating.
+
+---
+
+### HUMANI ESCALATION PROTOCOL
+
+This repo ships with **humanAI** — an automated product audit system that crawls the live app as a real iPhone Safari user and produces human-readable, first-person UX reports.
+
+**Files:**
+- Audit script: `.github/scripts/humanai_audit.py`
+- Persona spec: `agents/humanAI.persona.md`
+- Army personas: `agents/humanAI/personas/`
+- Orchestrator: `agents/humanAI/orchestrator.md`
+- Workflow: `.github/workflows/humanai-audit.yml`
+
+**When to run humanAI:**
+- The owner reports a bug and you cannot find the cause in static analysis.
+- The owner says something "doesn't work" or "feels broken" and you're tempted to say "I don't see a problem."
+- Any time you are about to tell the owner the code looks fine — **stop**. Run humanAI first. Let the runtime audit speak.
+
+**humanAI does not defend code. It reports what a real user experiences. Trust it over your static read.**
+
+---
+
 ### DREAMENGIN ARCHITECTURE RULES (Engine + Rule-Set Model)
 
 | Rule | Law |
