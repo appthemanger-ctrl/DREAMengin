@@ -5,22 +5,25 @@ import { mu } from '@/lib/torridity/physics';
 import { n as MOND_N } from '@/lib/torridity/constants';
 
 // ═══════════════════════════════════════════════════════════
-//  T U N A B L E S  (pure physics, no morphology helpers)
+//  T U N A B L E S  (pure physics, no guard rails)
 // ═══════════════════════════════════════════════════════════
-const GAS_COUNT = 4000;
-const DARK_COUNT = 1500;
+const GAS_COUNT = 1000;
+const DARK_COUNT = 375;
 const G = 0.28;
 const SOFTENING = 4.0;          // Plummer softening to prevent singularities
 const A0 = 0.22;               // MOND acceleration scale
-const MAX_VELOCITY = 8.0;      // soft numerical ceiling (must exist to keep integrator stable)
+const MAX_VELOCITY = 8.0;      // soft numerical ceiling (must exist to stay stable)
 
 // Radiation pressure
-const RAD_STRENGTH = 320;      // initial outward push from the fireball (arbitrary units)
-const RAD_DECAY = 0.35;        // e-folding time in seconds
-const RAD_BACKGROUND = 0.0005; // tiny per‑second constant outward kick (the "everywhere" light pressure)
+const RAD_STRENGTH = 320;      // initial push from the fireball (arbitrary units)
+const RAD_DECAY = 0.35;        // e‑folding time in seconds
+const RAD_BACKGROUND = 0.0005; // tiny per‑second constant push (“everywhere light”)
 
-// Initial conditions
-const INITIAL_SPREAD = 0.1;    // fraction of viewport size the initial cloud occupies
+// Initial condition
+const INITIAL_SPREAD = 0.1;    // fraction of viewport that the hot cloud fills
+
+// ── Simulation speed ────────────────────────────────────
+const SIM_SPEED = 8;   // 1 real second = 8 simulation seconds
 
 // ═══════════════════════════════════════════════════════════
 //  P A R T I C L E   T Y P E S
@@ -44,27 +47,35 @@ interface Dark {
 // ═══════════════════════════════════════════════════════════
 //  C O R E   C O M P O N E N T
 // ═══════════════════════════════════════════════════════════
-export default function UniverseField() {
+export interface UniverseFieldProps {
+  /**
+   * Kept for compatibility with existing consumers (e.g. LandingHero).
+   * This simulation ignores `scaled` — MOND runs from the first frame.
+   */
+  scaled?: boolean;
+}
+
+export default function UniverseField(_props: UniverseFieldProps) {
+  // (prop intentionally unused – the universe runs naturally from t=0)
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const rawCanvas = canvasRef.current;
-    if (!rawCanvas) return;
-    const canvas: HTMLCanvasElement = rawCanvas;
-    const rawCtx = canvas.getContext('2d', { alpha: false });
-    if (!rawCtx) return;
-    const ctx: CanvasRenderingContext2D = rawCtx;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    if (!ctx) return;
 
     let width = window.innerWidth;
     let height = window.innerHeight;
-    const dpr = Math.min(devicePixelRatio || 1, 2); // cap at 2 for memory
+    const dpr = Math.min(devicePixelRatio || 1, 2);
 
     let gas: Gas[] = [];
     let dark: Dark[] = [];
-    let timeSec = 0;
+    let timeSec = 0;            // simulation time (not wall clock)
     let lastTime = performance.now();
 
-    // ── Initial big bang cloud ───────────────────────────
+    // ── Big‑bang seed ─────────────────────────────────
     function seed() {
       const cx = width / 2;
       const cy = height / 2;
@@ -99,7 +110,7 @@ export default function UniverseField() {
       }
     }
 
-    // ── Radiation force on gas at position (px, py) ──────
+    // ── Radiation force on gas at position (px, py) ──
     function radiationAccel(px: number, py: number, t: number): { ax: number; ay: number } {
       const dx = px - width / 2;
       const dy = py - height / 2;
@@ -113,11 +124,13 @@ export default function UniverseField() {
       };
     }
 
-    // ── Physics tick ──────────────────────────────────────
+    // ── Physics tick ──────────────────────────────────
     function update(dt: number) {
-      timeSec += dt;
-      // Enforce minimum dt to avoid huge jumps, but no framerate target
-      const step = Math.min(dt, 0.1);
+      // Accelerate the simulation clock
+      const simDt = dt * SIM_SPEED;
+      timeSec += simDt;
+      // Enforce maximum step for stability
+      const step = Math.min(simDt, 0.1);
 
       // --- Build flat lists for force loop ---
       const gasActive = gas.filter(p => p.mass > 0);  // all are active, no removal
@@ -211,13 +224,13 @@ export default function UniverseField() {
       }
     }
 
-    // ── Render (no sprites, just raw particles) ──────────
+    // ── Render (no sprites, just raw particles) ──────
     function render() {
       // Faint dark background with trailing
       ctx.fillStyle = 'rgba(2, 2, 5, 0.92)';
       ctx.fillRect(0, 0, width, height);
 
-      // Dark matter – invisible, not drawn (but you could turn on faint dots if curious)
+      // Dark matter – invisible, not drawn
 
       // Gas – colour by mass
       for (const p of gas) {
@@ -237,7 +250,7 @@ export default function UniverseField() {
       }
     }
 
-    // ── Frame loop ───────────────────────────────────────
+    // ── Frame loop ───────────────────────────────────
     function frame(now: number) {
       const dt = (now - lastTime) / 1000;
       lastTime = now;
@@ -246,7 +259,7 @@ export default function UniverseField() {
       requestAnimationFrame(frame);
     }
 
-    // ── Resize handler (keeps the existing universe, only canvas changes) ──
+    // ── Resize handler (keeps the existing universe) ──
     function resize() {
       width = window.innerWidth;
       height = window.innerHeight;
@@ -255,7 +268,7 @@ export default function UniverseField() {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
-    // ── Start ────────────────────────────────────────────
+    // ── Start ────────────────────────────────────────
     resize();
     seed();
     lastTime = performance.now();
