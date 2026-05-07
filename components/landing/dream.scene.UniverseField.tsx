@@ -48,10 +48,12 @@ export default function UniverseField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d', { alpha: false });
-    if (!ctx) return;
+    const rawCanvas = canvasRef.current;
+    if (!rawCanvas) return;
+    const canvas: HTMLCanvasElement = rawCanvas;
+    const rawCtx = canvas.getContext('2d', { alpha: false });
+    if (!rawCtx) return;
+    const ctx: CanvasRenderingContext2D = rawCtx;
 
     let width = window.innerWidth;
     let height = window.innerHeight;
