@@ -9,7 +9,7 @@ import Link from 'next/link';
 export default function LandingNav() {
   return (
     <nav
-      className="relative z-20 flex items-center justify-between px-6 md:px-10"
+      className="relative z-20 flex w-full min-w-0 items-center justify-between gap-4 px-6 md:px-10"
       style={{
         paddingTop: 'max(20px, env(safe-area-inset-top))',
         paddingBottom: 16,
@@ -17,12 +17,13 @@ export default function LandingNav() {
         background: 'rgba(0,0,0,0.55)',
         backdropFilter: 'blur(18px)',
         WebkitBackdropFilter: 'blur(18px)',
+        boxSizing: 'border-box',
       }}
       aria-label="Site navigation"
     >
       <Link
         href="/"
-        className="select-none flex items-baseline gap-0"
+        className="select-none flex min-w-0 items-baseline gap-0"
         aria-label="DREAMengin — home"
         style={{
           fontFamily: 'var(--font-cormorant, Georgia, serif)',
@@ -61,13 +62,14 @@ export default function LandingNav() {
 
       <Link
         href="/login"
-        className="inline-flex items-center justify-center px-5 py-2 text-sm font-semibold rounded-full"
+        className="inline-flex shrink-0 items-center justify-center px-5 py-2 text-sm font-semibold rounded-full"
         style={{
           background: 'linear-gradient(135deg, #F59E0B, #D97706)',
           color: 'white',
           boxShadow: '0 4px 20px rgba(245,158,11,0.35)',
           letterSpacing: '0.01em',
           textDecoration: 'none',
+          boxSizing: 'border-box',
         }}
       >
         Sign In
