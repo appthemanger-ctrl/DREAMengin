@@ -1,281 +1,260 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { mu } from '@/lib/torridity/physics';
 import { n as MOND_N } from '@/lib/torridity/constants';
 
-// ═══════════════════════════════════════════════════════════
-//  T U N A B L E S  (pure physics, no guard rails)
-// ═══════════════════════════════════════════════════════════
-const GAS_COUNT = 1000;
-const DARK_COUNT = 375;
-const G = 0.28;
-const SOFTENING = 4.0;          // Plummer softening to prevent singularities
-const A0 = 0.22;               // MOND acceleration scale
-const MAX_VELOCITY = 8.0;      // soft numerical ceiling (must exist to stay stable)
+const MIN_PARTICLES = 900;
+const MAX_PARTICLES = 1800;
+const GALAXY_COUNT = 5;
+const MAX_DPR = 2;
+const TAU = Math.PI * 2;
+const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
-// Radiation pressure
-const RAD_STRENGTH = 320;      // initial push from the fireball (arbitrary units)
-const RAD_DECAY = 0.35;        // e‑folding time in seconds
-const RAD_BACKGROUND = 0.0005; // tiny per‑second constant push (“everywhere light”)
-
-// Initial condition
-const INITIAL_SPREAD = 0.1;    // fraction of viewport that the hot cloud fills
-
-// ── Simulation speed ────────────────────────────────────
-const SIM_SPEED = 8;   // 1 real second = 8 simulation seconds
-
-// ═══════════════════════════════════════════════════════════
-//  P A R T I C L E   T Y P E S
-// ═══════════════════════════════════════════════════════════
-interface Gas {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  mass: number;
-}
-
-interface Dark {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  mass: number;
-}
-
-// ═══════════════════════════════════════════════════════════
-//  C O R E   C O M P O N E N T
-// ═══════════════════════════════════════════════════════════
 export interface UniverseFieldProps {
-  /**
-   * Kept for compatibility with existing consumers (e.g. LandingHero).
-   * This simulation ignores `scaled` — MOND runs from the first frame.
-   */
   scaled?: boolean;
 }
 
-export default function UniverseField(_props: UniverseFieldProps) {
-  // (prop intentionally unused – the universe runs naturally from t=0)
+interface Galaxy {
+  seedAngle: number;
+  seedDistance: number;
+  orbit: number;
+  rotation: number;
+  spin: number;
+  arms: number;
+  hue: number;
+  tiltX: number;
+  tiltY: number;
+}
 
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function smoothstep(edge0: number, edge1: number, value: number) {
+  const x = clamp((value - edge0) / (edge1 - edge0), 0, 1);
+  return x * x * (3 - 2 * x);
+}
+
+function lerp(from: number, to: number, amount: number) {
+  return from + (to - from) * amount;
+}
+
+function hash(index: number) {
+  const x = Math.sin(index * 12.9898 + 78.233) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+function resizeCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+  canvas.width = Math.max(1, Math.floor(width * dpr));
+  canvas.height = Math.max(1, Math.floor(height * dpr));
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { width, height, dpr };
+}
+
+export default function UniverseField(_props: UniverseFieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current as HTMLCanvasElement;
+    const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d', { alpha: false }) as CanvasRenderingContext2D;
+
+    const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
     if (!ctx) return;
 
-    let width = window.innerWidth;
-    let height = window.innerHeight;
-    const dpr = Math.min(devicePixelRatio || 1, 2);
+    let { width, height } = resizeCanvas(canvas, ctx);
+    let raf = 0;
+    let lastNow = performance.now();
+    let universeAge = 0;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const particleCount = reduceMotion
+      ? 620
+      : clamp(Math.floor((width * height) / 820), MIN_PARTICLES, MAX_PARTICLES);
 
-    let gas: Gas[] = [];
-    let dark: Dark[] = [];
-    let timeSec = 0;            // simulation time (not wall clock)
-    let lastTime = performance.now();
+    const x = new Float32Array(particleCount);
+    const y = new Float32Array(particleCount);
+    const vx = new Float32Array(particleCount);
+    const vy = new Float32Array(particleCount);
+    const birthAngle = new Float32Array(particleCount);
+    const launchRadius = new Float32Array(particleCount);
+    const galaxyIndex = new Uint8Array(particleCount);
+    const orbitRadius = new Float32Array(particleCount);
+    const orbitPhase = new Float32Array(particleCount);
+    const armOffset = new Float32Array(particleCount);
+    const size = new Float32Array(particleCount);
+    const brightness = new Float32Array(particleCount);
+    const color = new Array<string>(particleCount);
 
-    // ── Big‑bang seed ─────────────────────────────────
-    function seed() {
+    const galaxies: Galaxy[] = Array.from({ length: GALAXY_COUNT }, (_, i) => ({
+      seedAngle: -Math.PI / 2 + i * GOLDEN_ANGLE,
+      seedDistance: 0.2 + hash(200 + i) * 0.24,
+      orbit: hash(300 + i) * TAU,
+      rotation: hash(400 + i) * TAU,
+      spin: (i % 2 === 0 ? 1 : -1) * (0.08 + hash(500 + i) * 0.09),
+      arms: i % 2 === 0 ? 3 : 2,
+      hue: [42, 198, 266, 320, 175][i],
+      tiltX: 0.72 + hash(600 + i) * 0.42,
+      tiltY: 0.42 + hash(700 + i) * 0.36,
+    }));
+
+    function seedParticles() {
       const cx = width / 2;
       const cy = height / 2;
-      const spread = Math.min(width, height) * INITIAL_SPREAD;
+      const cloudRadius = Math.min(width, height) * 0.07;
 
-      // Gas particles
-      gas = [];
-      for (let i = 0; i < GAS_COUNT; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const r = Math.pow(Math.random(), 3) * spread; // clumped toward centre
-        gas.push({
-          x: cx + Math.cos(angle) * r,
-          y: cy + Math.sin(angle) * r,
-          vx: 0,
-          vy: 0,
-          mass: 0.3 + Math.random() * 1.2,
-        });
-      }
+      for (let i = 0; i < particleCount; i++) {
+        const a = i * GOLDEN_ANGLE + hash(i) * 0.55;
+        const coldDust = hash(i + 10) > 0.82;
+        const r = Math.pow(hash(i + 20), 2.8) * cloudRadius;
+        const speed = 0.16 + hash(i + 30) * 0.54;
+        const jitter = (hash(i + 40) - 0.5) * 0.65;
 
-      // Dark matter particles (collisionless, feel only gravity)
-      dark = [];
-      for (let i = 0; i < DARK_COUNT; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const r = Math.pow(Math.random(), 3) * spread * 1.1;
-        dark.push({
-          x: cx + Math.cos(angle) * r,
-          y: cy + Math.sin(angle) * r,
-          vx: 0,
-          vy: 0,
-          mass: 0.5 + Math.random() * 2.0,
-        });
+        x[i] = cx + Math.cos(a) * r;
+        y[i] = cy + Math.sin(a) * r;
+        vx[i] = Math.cos(a + jitter) * speed;
+        vy[i] = Math.sin(a + jitter) * speed;
+        birthAngle[i] = a;
+        launchRadius[i] = r;
+        galaxyIndex[i] = i % GALAXY_COUNT;
+        orbitRadius[i] = Math.pow(hash(i + 50), 0.58) * (0.13 + hash(i + 60) * 0.39);
+        orbitPhase[i] = hash(i + 70) * TAU;
+        armOffset[i] = (hash(i + 80) - 0.5) * (coldDust ? 0.95 : 0.34);
+        size[i] = coldDust ? 0.45 + hash(i + 90) * 0.8 : 0.75 + hash(i + 100) * 1.75;
+        brightness[i] = coldDust ? 0.32 + hash(i + 110) * 0.45 : 0.58 + hash(i + 120) * 0.42;
+        color[i] = coldDust
+          ? `hsla(${225 + hash(i + 130) * 70}, 92%, ${64 + hash(i + 140) * 16}%, `
+          : `hsla(${34 + hash(i + 150) * 48}, 100%, ${68 + hash(i + 160) * 24}%, `;
       }
     }
 
-    // ── Radiation force on gas at position (px, py) ──
-    function radiationAccel(px: number, py: number, t: number): { ax: number; ay: number } {
-      const dx = px - width / 2;
-      const dy = py - height / 2;
-      const dist = Math.sqrt(dx * dx + dy * dy + SOFTENING * SOFTENING);
-      // Fireball flash + cosmic background
-      const strength = RAD_STRENGTH * Math.exp(-t * RAD_DECAY) + RAD_BACKGROUND;
-      const force = strength / Math.max(dist, 1.0);
+    function galaxyCenter(galaxy: Galaxy, expansion: number, drift: number) {
+      const radius = Math.min(width, height) * lerp(0.04, galaxy.seedDistance, expansion);
+      const slowOrbit = galaxy.seedAngle + Math.sin(drift * 0.11 + galaxy.orbit) * 0.18;
       return {
-        ax: (dx / dist) * force,
-        ay: (dy / dist) * force,
+        x: width / 2 + Math.cos(slowOrbit) * radius * galaxy.tiltX,
+        y: height / 2 + Math.sin(slowOrbit) * radius * galaxy.tiltY,
       };
     }
 
-    // ── Physics tick ──────────────────────────────────
-    function update(dt: number) {
-      // Accelerate the simulation clock
-      const simDt = dt * SIM_SPEED;
-      timeSec += simDt;
-      // Enforce maximum step for stability
-      const step = Math.min(simDt, 0.1);
-
-      // --- Build flat lists for force loop ---
-      const gasActive = gas.filter(p => p.mass > 0);  // all are active, no removal
-      const darkAll = dark;
-      const allMasses: { x: number; y: number; mass: number; isGas: boolean }[] = [];
-      for (const p of gasActive) allMasses.push({ x: p.x, y: p.y, mass: p.mass, isGas: true });
-      for (const d of darkAll) allMasses.push({ x: d.x, y: d.y, mass: d.mass, isGas: false });
-
-      const n = allMasses.length;
-      const ax = new Float32Array(n);
-      const ay = new Float32Array(n);
-
-      // --- O(N²) gravity with MOND (no shortcuts) ---
-      for (let i = 0; i < n; i++) {
-        const a = allMasses[i];
-        let fx = 0, fy = 0;
-        for (let j = i + 1; j < n; j++) {
-          const b = allMasses[j];
-          const dx = b.x - a.x;
-          const dy = b.y - a.y;
-          const r2 = dx * dx + dy * dy + SOFTENING * SOFTENING;
-          const r = Math.sqrt(r2);
-          const aN_i = (G * b.mass) / r2; // acceleration on i from j
-          const x_i = aN_i / A0;
-          const boost_i = 1 / Math.max(mu(x_i), 0.05);
-          const aMag_i = aN_i * boost_i;
-
-          const aN_j = (G * a.mass) / r2; // acceleration on j from i
-          const x_j = aN_j / A0;
-          const boost_j = 1 / Math.max(mu(x_j), 0.05);
-          const aMag_j = aN_j * boost_j;
-
-          const invR = 1 / r;
-          const ux = dx * invR;
-          const uy = dy * invR;
-          fx += aMag_i * ux;
-          fy += aMag_i * uy;
-          ax[j] -= aMag_j * ux;
-          ay[j] -= aMag_j * uy;
-        }
-        ax[i] += fx;
-        ay[i] += fy;
-      }
-
-      // --- Apply forces (gravity + radiation) ---
-      let idx = 0;
-      for (const p of gasActive) {
-        const gax = ax[idx];
-        const gay = ay[idx];
-        const rad = radiationAccel(p.x, p.y, timeSec);
-        p.vx += (gax + rad.ax) * step;
-        p.vy += (gay + rad.ay) * step;
-        idx++;
-      }
-      for (const d of darkAll) {
-        d.vx += ax[idx] * step;
-        d.vy += ay[idx] * step;
-        idx++;
-      }
-
-      // --- Integrate positions ---
-      for (const p of gasActive) {
-        p.x += p.vx * step;
-        p.y += p.vy * step;
-        // Soft speed limiter – purely numerical
-        const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-        if (speed > MAX_VELOCITY) {
-          const k = MAX_VELOCITY / speed;
-          p.vx *= k;
-          p.vy *= k;
-        }
-        // Toroidal wrap (universe repeats)
-        if (p.x < 0) p.x = width;
-        if (p.x > width) p.x = 0;
-        if (p.y < 0) p.y = height;
-        if (p.y > height) p.y = 0;
-      }
-      for (const d of darkAll) {
-        d.x += d.vx * step;
-        d.y += d.vy * step;
-        const speed = Math.sqrt(d.vx * d.vx + d.vy * d.vy);
-        if (speed > MAX_VELOCITY) {
-          const k = MAX_VELOCITY / speed;
-          d.vx *= k;
-          d.vy *= k;
-        }
-        if (d.x < 0) d.x = width;
-        if (d.x > width) d.x = 0;
-        if (d.y < 0) d.y = height;
-        if (d.y > height) d.y = 0;
-      }
-    }
-
-    // ── Render (no sprites, just raw particles) ──────
-    function render() {
-      // Faint dark background with trailing
-      ctx.fillStyle = 'rgba(2, 2, 5, 0.92)';
+    function paintBackground(ignition: number, expansion: number, formation: number) {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = `rgba(1, 2, 8, ${reduceMotion ? 1 : 0.34})`;
       ctx.fillRect(0, 0, width, height);
 
-      // Dark matter – invisible, not drawn
+      const cx = width / 2;
+      const cy = height / 2;
+      const maxRadius = Math.max(width, height) * lerp(0.22, 0.86, expansion);
+      const womb = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxRadius);
+      womb.addColorStop(0, `rgba(255, 246, 196, ${0.42 * (1 - formation) + 0.1 * ignition})`);
+      womb.addColorStop(0.16, `rgba(255, 118, 64, ${0.24 * (1 - formation)})`);
+      womb.addColorStop(0.46, `rgba(85, 72, 255, ${0.17 + 0.08 * ignition})`);
+      womb.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = womb;
+      ctx.fillRect(0, 0, width, height);
 
-      // Gas – colour by mass
-      for (const p of gas) {
-        const size = Math.sqrt(p.mass) * 0.5;
-        if (p.mass > 120) {
-          ctx.fillStyle = '#ffffff';        // proto‑core
-        } else if (p.mass > 40) {
-          ctx.fillStyle = '#a0d0ff';        // hot massive clump
-        } else if (p.mass > 12) {
-          ctx.fillStyle = '#ffc080';        // warm gas
-        } else {
-          ctx.fillStyle = 'rgba(100, 90, 130, 0.65)'; // cold diffuse
+      if (formation > 0.04) {
+        ctx.globalCompositeOperation = 'lighter';
+        for (const galaxy of galaxies) {
+          const center = galaxyCenter(galaxy, expansion, universeAge);
+          const glowRadius = Math.min(width, height) * (0.08 + formation * 0.18);
+          const glow = ctx.createRadialGradient(center.x, center.y, 0, center.x, center.y, glowRadius);
+          glow.addColorStop(0, `hsla(${galaxy.hue}, 100%, 78%, ${0.16 * formation})`);
+          glow.addColorStop(0.38, `hsla(${galaxy.hue + 34}, 100%, 58%, ${0.07 * formation})`);
+          glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+          ctx.fillStyle = glow;
+          ctx.fillRect(center.x - glowRadius, center.y - glowRadius, glowRadius * 2, glowRadius * 2);
         }
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
-        ctx.fill();
       }
     }
 
-    // ── Frame loop ───────────────────────────────────
+    function updateAndRender(dt: number) {
+      universeAge += dt * (reduceMotion ? 0.28 : 1);
+
+      const ignition = smoothstep(0.05, 1.7, universeAge);
+      const expansion = smoothstep(1.2, 7.8, universeAge);
+      const formation = smoothstep(5.1, 14.8, universeAge);
+      const pull = 0.018 + formation * 0.09;
+      const cx = width / 2;
+      const cy = height / 2;
+      const universeScale = Math.min(width, height);
+      const safeDt = Math.min(dt, 1 / 30);
+
+      paintBackground(ignition, expansion, formation);
+      ctx.globalCompositeOperation = 'lighter';
+
+      for (let i = 0; i < particleCount; i++) {
+        const galaxy = galaxies[galaxyIndex[i]];
+        const center = galaxyCenter(galaxy, expansion, universeAge);
+        const radius = orbitRadius[i] * universeScale * lerp(0.22, 0.95, formation);
+        const arm = Math.floor((orbitPhase[i] / TAU) * galaxy.arms);
+        const spiralAngle =
+          orbitPhase[i] +
+          galaxy.rotation +
+          universeAge * galaxy.spin +
+          radius * 0.018 +
+          (arm * TAU) / galaxy.arms;
+        const dustWave = Math.sin(universeAge * 0.75 + i * 0.017) * armOffset[i] * (1 - formation * 0.35);
+        const spiralX = Math.cos(spiralAngle + dustWave) * radius * galaxy.tiltX;
+        const spiralY = Math.sin(spiralAngle + dustWave) * radius * galaxy.tiltY * 0.64;
+        const freeRadius = launchRadius[i] + universeScale * (0.08 + orbitRadius[i] * 0.72) * expansion;
+        const freeX = cx + Math.cos(birthAngle[i]) * freeRadius;
+        const freeY = cy + Math.sin(birthAngle[i]) * freeRadius;
+        const targetX = lerp(freeX, center.x + spiralX, formation);
+        const targetY = lerp(freeY, center.y + spiralY, formation);
+
+        vx[i] = lerp(vx[i], (targetX - x[i]) * pull, 0.18);
+        vy[i] = lerp(vy[i], (targetY - y[i]) * pull, 0.18);
+        x[i] += vx[i] * safeDt * 60;
+        y[i] += vy[i] * safeDt * 60;
+
+        const depthPulse = 0.72 + Math.sin(universeAge * 1.7 + orbitPhase[i]) * 0.28;
+        const alpha = clamp((0.08 + brightness[i] * (0.52 + formation * 0.46)) * depthPulse, 0.05, 0.92);
+        const starSize = size[i] * (0.7 + formation * 0.9 + (1 - expansion) * ignition * 1.6);
+
+        ctx.fillStyle = `${color[i]}${alpha})`;
+        ctx.fillRect(x[i], y[i], starSize, starSize);
+
+        if (brightness[i] > 0.86 && formation > 0.18) {
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.12 * formation * alpha})`;
+          ctx.fillRect(x[i] - starSize, y[i], starSize * 3, 1);
+          ctx.fillRect(x[i], y[i] - starSize, 1, starSize * 3);
+        }
+      }
+    }
+
     function frame(now: number) {
-      const dt = (now - lastTime) / 1000;
-      lastTime = now;
-      update(dt);
-      render();
-      requestAnimationFrame(frame);
+      const dt = (now - lastNow) / 1000;
+      lastNow = now;
+      updateAndRender(dt);
+      raf = requestAnimationFrame(frame);
     }
 
-    // ── Resize handler (keeps the existing universe) ──
-    function resize() {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width * dpr;
-      canvas.height = height * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    function onResize() {
+      const previousWidth = width;
+      const previousHeight = height;
+      ({ width, height } = resizeCanvas(canvas, ctx));
+      const scaleX = width / Math.max(previousWidth, 1);
+      const scaleY = height / Math.max(previousHeight, 1);
+      for (let i = 0; i < particleCount; i++) {
+        x[i] *= scaleX;
+        y[i] *= scaleY;
+      }
+      paintBackground(0, 0, 0);
     }
 
-    // ── Start ────────────────────────────────────────
-    resize();
-    seed();
-    lastTime = performance.now();
-    requestAnimationFrame(frame);
+    seedParticles();
+    paintBackground(0, 0, 0);
+    raf = requestAnimationFrame(frame);
+    window.addEventListener('resize', onResize, { passive: true });
 
-    window.addEventListener('resize', resize);
-    return () => window.removeEventListener('resize', resize);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', onResize);
+    };
   }, []);
 
   return (
