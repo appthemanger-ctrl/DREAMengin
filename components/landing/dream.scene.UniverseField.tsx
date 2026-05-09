@@ -60,8 +60,9 @@ export default function UniverseField(_props: UniverseFieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const canvasElement = canvasRef.current;
+    if (!canvasElement) return;
+    const canvas = canvasElement;
 
     const drawingContext = canvas.getContext('2d', { alpha: false, desynchronized: true });
     if (!drawingContext) return;
