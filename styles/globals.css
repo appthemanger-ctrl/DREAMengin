@@ -166,6 +166,12 @@ body {
  * behind the hero — which is acceptable graceful degradation. */
 body:has([data-route="landing"]) {
   background: #000;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+html:has([data-route="landing"]) {
+  background: #000;
 }
 
 body:has([data-route="landing"])::before,

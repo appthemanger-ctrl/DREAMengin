@@ -98,7 +98,7 @@ export default function LandingHero() {
   return (
     <div
       className="relative flex w-full max-w-full flex-col overflow-x-hidden"
-      style={{ minHeight: '100dvh', background: '#000' }}
+      style={{ minHeight: '100vh', background: '#000' }}
       data-route="landing"
     >
       {/* Persistent simple black background + cosmic genesis simulation */}
