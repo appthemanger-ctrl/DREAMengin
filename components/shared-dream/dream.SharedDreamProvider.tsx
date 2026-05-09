@@ -151,15 +151,7 @@ export function SharedDreamProvider({
       mounted = false;
       activeSession?.leave().catch(() => {});
     };
-  }, [
-    propChannelId,
-    sessionOptions.expectedPeerCount,
-    sessionOptions.transport,
-    sessionOptions.supabaseClient,
-    sessionOptions.mode,
-    sessionOptions.role,
-    sessionOptions.modeRuleSet,
-  ]);
+  }, [propChannelId]);
 
   const sendEdit = useCallback(async (edit: unknown) => {
     if (!session) return;

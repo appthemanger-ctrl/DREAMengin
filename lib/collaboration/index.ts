@@ -116,6 +116,8 @@ const ALL_EVENTS: readonly CollabEventType[] = [
 ];
 
 const BROADCAST_EVENTS: readonly CollabEventType[] = [
+  'peer_join',
+  'peer_leave',
   'presence_update',
   'cursor',
   'edit',
@@ -129,6 +131,8 @@ const BROADCAST_EVENTS: readonly CollabEventType[] = [
 ];
 
 const PASSIVE_EVENTS: readonly CollabEventType[] = [
+  'peer_join',
+  'peer_leave',
   'presence_update',
   'cursor',
   'data_packet',
@@ -146,7 +150,7 @@ export const DEFAULT_MODE_RULESETS: Record<CollabMode, CollabModeRuleSet> = {
       controller: BROADCAST_EVENTS,
       participant: BROADCAST_EVENTS,
       listener: PASSIVE_EVENTS,
-      observer: ['presence_update', 'cursor', 'custom'],
+      observer: ['peer_join', 'peer_leave', 'presence_update', 'cursor', 'custom'],
     },
     parameters: { syncCadenceMs: 50 },
   },
@@ -167,10 +171,10 @@ export const DEFAULT_MODE_RULESETS: Record<CollabMode, CollabModeRuleSet> = {
     },
     permissions: {
       host: ALL_EVENTS,
-      controller: ['presence_update', 'media_sync', 'control_signal', 'mode_change', 'playhead', 'custom'],
-      participant: ['presence_update', 'media_sync', 'playhead', 'custom'],
-      listener: ['presence_update', 'media_sync', 'playhead', 'custom'],
-      observer: ['presence_update', 'custom'],
+      controller: ['peer_join', 'peer_leave', 'presence_update', 'media_sync', 'control_signal', 'mode_change', 'playhead', 'custom'],
+      participant: ['peer_join', 'peer_leave', 'presence_update', 'media_sync', 'playhead', 'custom'],
+      listener: ['peer_join', 'peer_leave', 'presence_update', 'media_sync', 'playhead', 'custom'],
+      observer: ['peer_join', 'peer_leave', 'presence_update', 'custom'],
     },
     parameters: { clockToleranceMs: 100 },
   },
@@ -191,10 +195,10 @@ export const DEFAULT_MODE_RULESETS: Record<CollabMode, CollabModeRuleSet> = {
     },
     permissions: {
       host: ALL_EVENTS,
-      controller: ['presence_update', 'state_patch', 'data_packet', 'control_signal', 'mode_change', 'custom'],
-      participant: ['presence_update', 'state_patch', 'data_packet', 'custom'],
-      listener: ['presence_update', 'data_packet', 'custom'],
-      observer: ['presence_update', 'custom'],
+      controller: ['peer_join', 'peer_leave', 'presence_update', 'state_patch', 'data_packet', 'control_signal', 'mode_change', 'custom'],
+      participant: ['peer_join', 'peer_leave', 'presence_update', 'state_patch', 'data_packet', 'custom'],
+      listener: ['peer_join', 'peer_leave', 'presence_update', 'data_packet', 'custom'],
+      observer: ['peer_join', 'peer_leave', 'presence_update', 'custom'],
     },
     parameters: { patchMerge: 'last_write_wins' },
   },
@@ -204,9 +208,9 @@ export const DEFAULT_MODE_RULESETS: Record<CollabMode, CollabModeRuleSet> = {
     permissions: {
       host: ALL_EVENTS,
       controller: BROADCAST_EVENTS,
-      participant: ['presence_update', 'cursor', 'edit', 'state_patch', 'custom'],
-      listener: ['presence_update', 'cursor', 'custom'],
-      observer: ['presence_update', 'custom'],
+      participant: ['peer_join', 'peer_leave', 'presence_update', 'cursor', 'edit', 'state_patch', 'custom'],
+      listener: ['peer_join', 'peer_leave', 'presence_update', 'cursor', 'custom'],
+      observer: ['peer_join', 'peer_leave', 'presence_update', 'custom'],
     },
     parameters: { moderated: true },
   },
@@ -227,10 +231,10 @@ export const DEFAULT_MODE_RULESETS: Record<CollabMode, CollabModeRuleSet> = {
     },
     permissions: {
       host: ALL_EVENTS,
-      controller: ['presence_update', 'cursor', 'media_sync', 'control_signal', 'mode_change', 'custom'],
-      participant: ['presence_update', 'cursor', 'custom'],
-      listener: ['presence_update', 'custom'],
-      observer: ['presence_update', 'custom'],
+      controller: ['peer_join', 'peer_leave', 'presence_update', 'cursor', 'media_sync', 'control_signal', 'mode_change', 'custom'],
+      participant: ['peer_join', 'peer_leave', 'presence_update', 'cursor', 'custom'],
+      listener: ['peer_join', 'peer_leave', 'presence_update', 'custom'],
+      observer: ['peer_join', 'peer_leave', 'presence_update', 'custom'],
     },
     parameters: { followHostTimeline: true },
   },
@@ -253,10 +257,10 @@ export const DEFAULT_MODE_RULESETS: Record<CollabMode, CollabModeRuleSet> = {
     },
     permissions: {
       host: ALL_EVENTS,
-      controller: ['presence_update', 'cursor', 'edit', 'state_patch', 'data_packet', 'control_signal', 'mode_change', 'custom'],
-      participant: ['presence_update', 'cursor', 'edit', 'state_patch', 'data_packet', 'custom'],
-      listener: ['presence_update', 'cursor', 'data_packet', 'custom'],
-      observer: ['presence_update', 'custom'],
+      controller: ['peer_join', 'peer_leave', 'presence_update', 'cursor', 'edit', 'state_patch', 'data_packet', 'control_signal', 'mode_change', 'custom'],
+      participant: ['peer_join', 'peer_leave', 'presence_update', 'cursor', 'edit', 'state_patch', 'data_packet', 'custom'],
+      listener: ['peer_join', 'peer_leave', 'presence_update', 'cursor', 'data_packet', 'custom'],
+      observer: ['peer_join', 'peer_leave', 'presence_update', 'custom'],
     },
     parameters: { merge: 'ot-lite' },
   },
@@ -279,7 +283,7 @@ function resolveModeRuleSet(mode: CollabMode, override?: Partial<CollabModeRuleS
 
 function generatePeerId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
-  return `${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+  return `${Math.random().toString(36).slice(2)}-${Date.now().toString(36)}`;
 }
 
 function generateMessageId(): string {
@@ -301,7 +305,7 @@ function normalizePayload(payload: CollabOutboundPayload | CollabPayload, contex
 }): CollabPayload {
   return {
     type: payload.type,
-    peerId: payload.peerId || context.peerId,
+    peerId: payload.peerId ?? context.peerId,
     data: payload.data,
     messageId: payload.messageId ?? generateMessageId(),
     timestamp: payload.timestamp ?? nowMs(),
@@ -314,12 +318,18 @@ function normalizePayload(payload: CollabOutboundPayload | CollabPayload, contex
   };
 }
 
-function canSendPayload(payload: CollabPayload, role: SessionRole, peerCount: number, rules: CollabModeRuleSet): boolean {
-  if (!rules.constraints.allowedEventTypes.includes(payload.type)) return false;
+function canSendPayload(payload: CollabPayload, role: SessionRole, peerCount: number, rules: CollabModeRuleSet): { allowed: boolean; reason?: string } {
+  if (!rules.constraints.allowedEventTypes.includes(payload.type)) {
+    return { allowed: false, reason: `event ${payload.type} is not enabled for mode ${rules.mode}` };
+  }
   const allowedForRole = rules.permissions[role];
-  if (allowedForRole && !allowedForRole.includes(payload.type)) return false;
-  if (payload.type === 'peer_join' && peerCount >= rules.constraints.maxPeers) return false;
-  return true;
+  if (allowedForRole && !allowedForRole.includes(payload.type)) {
+    return { allowed: false, reason: `role ${role} cannot emit ${payload.type} in mode ${rules.mode}` };
+  }
+  if (payload.type === 'peer_join' && peerCount >= rules.constraints.maxPeers) {
+    return { allowed: false, reason: `maxPeers ${rules.constraints.maxPeers} reached for mode ${rules.mode}` };
+  }
+  return { allowed: true };
 }
 
 function applyIncomingPeerState(peers: Map<string, PeerInfo>, payload: CollabPayload): void {
@@ -451,7 +461,13 @@ class LocalCollabSession extends BaseSession implements CollabSession {
   }
   async send(payload: CollabOutboundPayload): Promise<void> {
     let canonical = this.makePayload(payload);
-    if (!canSendPayload(canonical, this.role, this.peers.length, this.modeRuleSet)) return;
+    const permission = canSendPayload(canonical, this.role, this.peers.length, this.modeRuleSet);
+    if (!permission.allowed) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`[collaboration] dropped ${canonical.type}: ${permission.reason ?? 'blocked by rules'}`);
+      }
+      return;
+    }
     canonical = this.modeRuleSet.transformations?.[canonical.type]?.(canonical) ?? canonical;
     applyIncomingPeerState(this._bus.peers, canonical);
     if (canonical.type === 'mode_change') {
@@ -529,7 +545,13 @@ class SupabaseCollabSession extends BaseSession implements CollabSession {
   }
   async send(payload: CollabOutboundPayload): Promise<void> {
     let canonical = this.makePayload(payload);
-    if (!canSendPayload(canonical, this.role, this.peers.length, this.modeRuleSet)) return;
+    const permission = canSendPayload(canonical, this.role, this.peers.length, this.modeRuleSet);
+    if (!permission.allowed) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`[collaboration] dropped ${canonical.type}: ${permission.reason ?? 'blocked by rules'}`);
+      }
+      return;
+    }
     canonical = this.modeRuleSet.transformations?.[canonical.type]?.(canonical) ?? canonical;
     applyIncomingPeerState(this._peers, canonical);
     if (canonical.type === 'mode_change') {
@@ -598,7 +620,13 @@ export class WebRTCCollabSession extends BaseSession implements CollabSession {
   }
   async send(payload: CollabOutboundPayload): Promise<void> {
     let canonical = this.makePayload(payload);
-    if (!canSendPayload(canonical, this.role, this.peers.length, this.modeRuleSet)) return;
+    const permission = canSendPayload(canonical, this.role, this.peers.length, this.modeRuleSet);
+    if (!permission.allowed) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(`[collaboration] dropped ${canonical.type}: ${permission.reason ?? 'blocked by rules'}`);
+      }
+      return;
+    }
     canonical = this.modeRuleSet.transformations?.[canonical.type]?.(canonical) ?? canonical;
     applyIncomingPeerState(this._peers, canonical);
     if (canonical.type === 'mode_change') {

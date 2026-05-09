@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '@supabase/supabase-js';
+import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/supabase/env';
 import {
   createSharedDreamSession,
   leaveSharedDreamSession,
@@ -49,6 +50,10 @@ export interface UseSharedDreamReturn {
   broadcastPresenceUpdate(presence: DreamPresenceUpdate): void;
   getInviteLink: () => string;
   onEvent(handler: DreamEventHandler): () => void;
+}
+
+function getSupabase() {
+  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
 export function useSharedDream(channelId: string): UseSharedDreamReturn {
@@ -130,7 +135,7 @@ export function useSharedDream(channelId: string): UseSharedDreamReturn {
       return;
     }
 
-    const supabase = createClient();
+    const supabase = getSupabase();
 
     createSharedDreamSession(channelId, supabase, [internalHandler], {
       role: 'participant',
@@ -217,13 +222,18 @@ export function useSharedDream(channelId: string): UseSharedDreamReturn {
     };
   }, []);
 
+  const localPeerCountOffset =
+    isConnected && session && !Object.prototype.hasOwnProperty.call(peers, session.peerId)
+      ? 1
+      : 0;
+
   return {
     session,
     peers,
     isConnected,
     role,
     mode,
-    participantCount: Object.keys(peers).length + (isConnected ? 1 : 0),
+    participantCount: Object.keys(peers).length + localPeerCountOffset,
     broadcastCursor,
     broadcast,
     broadcastStatePatch: sendStatePatch,
