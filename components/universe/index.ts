@@ -1,4 +1,3 @@
-export { TorusCore } from './dream.torus-core';
 export { NodeCluster } from './dream.node-cluster';
 export type { NodeItem } from './dream.node-cluster';
 export {
