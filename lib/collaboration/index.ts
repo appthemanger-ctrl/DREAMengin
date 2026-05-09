@@ -1,86 +1,379 @@
 /**
  * lib/collaboration/index.ts — §38 Shared Dream Collaboration
  *
- * Real-time multi-user session layer supporting two transports:
- *
- *   1. Supabase Realtime (broadcast) — zero infrastructure, up to ~40 peers
- *   2. WebRTC Data Channels (peer-to-peer) — ultra-low latency, LAN/offline
- *
- * §38.1 Architecture:
- *   - Two instances of the same component on the same page.
- *   - Shared view (top) visible to all; private controls (bottom) per user.
- *   - Communication via WebRTC Data Channels OR Supabase Realtime.
- *
- * §38.2 Invite flow:
- *   "Launch Shared Dream" → generate invite link → friend accepts
- *   → real-time sync (cursors, edits, playhead). Optional audio call.
- *
- * §38.3 Scaling:
- *   Works for 2–40+ users (WebRTC mesh up to ~8, then Supabase broadcast).
+ * Canonical JAMM-N web session model for DREAMengin.
  */
 
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-// ── §38.1 Transport type ──────────────────────────────────────────────────────
-
 export type CollabTransport = 'supabase' | 'webrtc' | 'local';
 
-// ── Shared event types ────────────────────────────────────────────────────────
+export type SessionRole =
+  | 'host'
+  | 'controller'
+  | 'participant'
+  | 'listener'
+  | 'observer';
+
+export type CollabMode =
+  | 'shared_dream'
+  | 'jammn_media_sync'
+  | 'jammn_data_share'
+  | 'classroom'
+  | 'guided_experience'
+  | 'collaborative_editor';
 
 export type CollabEventType =
-  | 'cursor'
-  | 'edit'
-  | 'playhead'
+  // canonical families
   | 'peer_join'
   | 'peer_leave'
+  | 'presence_update'
+  | 'cursor'
+  | 'edit'
+  | 'state_patch'
+  | 'media_sync'
+  | 'data_packet'
+  | 'control_signal'
+  | 'mode_change'
+  // backward-compatible
+  | 'playhead'
   | 'audio_offer'
   | 'audio_answer'
   | 'ice_candidate'
   | 'custom';
 
-export interface CollabPayload {
-  type: CollabEventType;
-  peerId: string;
-  data: unknown;
+export interface PresenceUpdateData {
+  status?: 'active' | 'idle' | 'away';
+  role?: SessionRole;
+  mode?: CollabMode;
+  profile?: Record<string, unknown>;
 }
 
-export type CollabEventHandler = (payload: CollabPayload) => void;
+export interface MediaSyncData {
+  command: 'play' | 'pause' | 'seek' | 'buffer' | 'stop' | string;
+  timeRefSec?: number;
+  payload?: Record<string, unknown>;
+}
 
-// ── Peer info ─────────────────────────────────────────────────────────────────
+export interface CollabPayload<T = unknown> {
+  type: CollabEventType;
+  peerId: string;
+  data: T;
+  messageId?: string;
+  timestamp?: number;
+  channelId?: string;
+  sessionId?: string;
+  role?: SessionRole;
+  mode?: CollabMode;
+  sequence?: number;
+  transport?: CollabTransport;
+}
+
+export type CollabOutboundPayload<T = unknown> =
+  Pick<CollabPayload<T>, 'type' | 'peerId' | 'data'> &
+  Partial<Omit<CollabPayload<T>, 'type' | 'peerId' | 'data'>>;
+
+export type CollabEventHandler = (payload: CollabPayload) => void;
 
 export interface PeerInfo {
   peerId: string;
   joinedAt: number;
-  /** Transport in use for this peer. */
   transport: CollabTransport;
+  role: SessionRole;
+  mode: CollabMode;
+  lastSeenAt: number;
+  sequence: number;
+  presence?: PresenceUpdateData;
 }
 
-// ── Session interface (common to both transports) ─────────────────────────────
+export interface CollabModeRuleSet {
+  mode: CollabMode;
+  constraints: {
+    allowedEventTypes: readonly CollabEventType[];
+    maxPeers: number;
+  };
+  permissions: Partial<Record<SessionRole, readonly CollabEventType[]>>;
+  transformations?: Partial<Record<CollabEventType, (payload: CollabPayload) => CollabPayload>>;
+  parameters?: Readonly<Record<string, unknown>>;
+}
+
+const ALL_EVENTS: readonly CollabEventType[] = [
+  'peer_join',
+  'peer_leave',
+  'presence_update',
+  'cursor',
+  'edit',
+  'state_patch',
+  'media_sync',
+  'data_packet',
+  'control_signal',
+  'mode_change',
+  'playhead',
+  'audio_offer',
+  'audio_answer',
+  'ice_candidate',
+  'custom',
+];
+
+const BROADCAST_EVENTS: readonly CollabEventType[] = [
+  'presence_update',
+  'cursor',
+  'edit',
+  'state_patch',
+  'media_sync',
+  'data_packet',
+  'control_signal',
+  'mode_change',
+  'playhead',
+  'custom',
+];
+
+const PASSIVE_EVENTS: readonly CollabEventType[] = [
+  'presence_update',
+  'cursor',
+  'data_packet',
+  'media_sync',
+  'playhead',
+  'custom',
+];
+
+export const DEFAULT_MODE_RULESETS: Record<CollabMode, CollabModeRuleSet> = {
+  shared_dream: {
+    mode: 'shared_dream',
+    constraints: { allowedEventTypes: ALL_EVENTS, maxPeers: 40 },
+    permissions: {
+      host: ALL_EVENTS,
+      controller: BROADCAST_EVENTS,
+      participant: BROADCAST_EVENTS,
+      listener: PASSIVE_EVENTS,
+      observer: ['presence_update', 'cursor', 'custom'],
+    },
+    parameters: { syncCadenceMs: 50 },
+  },
+  jammn_media_sync: {
+    mode: 'jammn_media_sync',
+    constraints: {
+      allowedEventTypes: [
+        'peer_join',
+        'peer_leave',
+        'presence_update',
+        'media_sync',
+        'control_signal',
+        'mode_change',
+        'playhead',
+        'custom',
+      ],
+      maxPeers: 60,
+    },
+    permissions: {
+      host: ALL_EVENTS,
+      controller: ['presence_update', 'media_sync', 'control_signal', 'mode_change', 'playhead', 'custom'],
+      participant: ['presence_update', 'media_sync', 'playhead', 'custom'],
+      listener: ['presence_update', 'media_sync', 'playhead', 'custom'],
+      observer: ['presence_update', 'custom'],
+    },
+    parameters: { clockToleranceMs: 100 },
+  },
+  jammn_data_share: {
+    mode: 'jammn_data_share',
+    constraints: {
+      allowedEventTypes: [
+        'peer_join',
+        'peer_leave',
+        'presence_update',
+        'state_patch',
+        'data_packet',
+        'control_signal',
+        'mode_change',
+        'custom',
+      ],
+      maxPeers: 50,
+    },
+    permissions: {
+      host: ALL_EVENTS,
+      controller: ['presence_update', 'state_patch', 'data_packet', 'control_signal', 'mode_change', 'custom'],
+      participant: ['presence_update', 'state_patch', 'data_packet', 'custom'],
+      listener: ['presence_update', 'data_packet', 'custom'],
+      observer: ['presence_update', 'custom'],
+    },
+    parameters: { patchMerge: 'last_write_wins' },
+  },
+  classroom: {
+    mode: 'classroom',
+    constraints: { allowedEventTypes: ALL_EVENTS, maxPeers: 80 },
+    permissions: {
+      host: ALL_EVENTS,
+      controller: BROADCAST_EVENTS,
+      participant: ['presence_update', 'cursor', 'edit', 'state_patch', 'custom'],
+      listener: ['presence_update', 'cursor', 'custom'],
+      observer: ['presence_update', 'custom'],
+    },
+    parameters: { moderated: true },
+  },
+  guided_experience: {
+    mode: 'guided_experience',
+    constraints: {
+      allowedEventTypes: [
+        'peer_join',
+        'peer_leave',
+        'presence_update',
+        'cursor',
+        'media_sync',
+        'control_signal',
+        'mode_change',
+        'custom',
+      ],
+      maxPeers: 40,
+    },
+    permissions: {
+      host: ALL_EVENTS,
+      controller: ['presence_update', 'cursor', 'media_sync', 'control_signal', 'mode_change', 'custom'],
+      participant: ['presence_update', 'cursor', 'custom'],
+      listener: ['presence_update', 'custom'],
+      observer: ['presence_update', 'custom'],
+    },
+    parameters: { followHostTimeline: true },
+  },
+  collaborative_editor: {
+    mode: 'collaborative_editor',
+    constraints: {
+      allowedEventTypes: [
+        'peer_join',
+        'peer_leave',
+        'presence_update',
+        'cursor',
+        'edit',
+        'state_patch',
+        'data_packet',
+        'control_signal',
+        'mode_change',
+        'custom',
+      ],
+      maxPeers: 24,
+    },
+    permissions: {
+      host: ALL_EVENTS,
+      controller: ['presence_update', 'cursor', 'edit', 'state_patch', 'data_packet', 'control_signal', 'mode_change', 'custom'],
+      participant: ['presence_update', 'cursor', 'edit', 'state_patch', 'data_packet', 'custom'],
+      listener: ['presence_update', 'cursor', 'data_packet', 'custom'],
+      observer: ['presence_update', 'custom'],
+    },
+    parameters: { merge: 'ot-lite' },
+  },
+};
+
+function resolveModeRuleSet(mode: CollabMode, override?: Partial<CollabModeRuleSet>): CollabModeRuleSet {
+  const base = DEFAULT_MODE_RULESETS[mode];
+  if (!override) return base;
+  return {
+    mode,
+    constraints: {
+      allowedEventTypes: override.constraints?.allowedEventTypes ?? base.constraints.allowedEventTypes,
+      maxPeers: override.constraints?.maxPeers ?? base.constraints.maxPeers,
+    },
+    permissions: { ...base.permissions, ...(override.permissions ?? {}) },
+    transformations: { ...(base.transformations ?? {}), ...(override.transformations ?? {}) },
+    parameters: { ...(base.parameters ?? {}), ...(override.parameters ?? {}) },
+  };
+}
+
+function generatePeerId(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+  return `${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+}
+
+function generateMessageId(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+  return `msg-${Math.random().toString(36).slice(2)}-${Date.now().toString(36)}`;
+}
+
+function nowMs(): number {
+  return Date.now();
+}
+
+function normalizePayload(payload: CollabOutboundPayload | CollabPayload, context: {
+  channelId: string;
+  peerId: string;
+  role: SessionRole;
+  mode: CollabMode;
+  transport: CollabTransport;
+  sequence: number;
+}): CollabPayload {
+  return {
+    type: payload.type,
+    peerId: payload.peerId || context.peerId,
+    data: payload.data,
+    messageId: payload.messageId ?? generateMessageId(),
+    timestamp: payload.timestamp ?? nowMs(),
+    channelId: payload.channelId ?? context.channelId,
+    sessionId: payload.sessionId ?? context.channelId,
+    role: payload.role ?? context.role,
+    mode: payload.mode ?? context.mode,
+    sequence: payload.sequence ?? context.sequence,
+    transport: payload.transport ?? context.transport,
+  };
+}
+
+function canSendPayload(payload: CollabPayload, role: SessionRole, peerCount: number, rules: CollabModeRuleSet): boolean {
+  if (!rules.constraints.allowedEventTypes.includes(payload.type)) return false;
+  const allowedForRole = rules.permissions[role];
+  if (allowedForRole && !allowedForRole.includes(payload.type)) return false;
+  if (payload.type === 'peer_join' && peerCount >= rules.constraints.maxPeers) return false;
+  return true;
+}
+
+function applyIncomingPeerState(peers: Map<string, PeerInfo>, payload: CollabPayload): void {
+  if (payload.type === 'peer_leave') {
+    peers.delete(payload.peerId);
+    return;
+  }
+
+  const previous = peers.get(payload.peerId);
+  const joinedAtFromJoinPayload =
+    payload.type === 'peer_join'
+      ? (payload.data as { joinedAt?: number } | undefined)?.joinedAt
+      : undefined;
+
+  const next: PeerInfo = {
+    peerId: payload.peerId,
+    joinedAt: joinedAtFromJoinPayload ?? previous?.joinedAt ?? payload.timestamp ?? nowMs(),
+    transport: payload.transport ?? previous?.transport ?? 'local',
+    role: payload.role ?? previous?.role ?? 'participant',
+    mode: payload.mode ?? previous?.mode ?? 'shared_dream',
+    lastSeenAt: payload.timestamp ?? nowMs(),
+    sequence: payload.sequence ?? previous?.sequence ?? 0,
+    presence: previous?.presence,
+  };
+
+  if (payload.type === 'presence_update') {
+    const patch = payload.data as PresenceUpdateData;
+    next.presence = { ...(previous?.presence ?? {}), ...patch };
+    if (patch.role) next.role = patch.role;
+    if (patch.mode) next.mode = patch.mode;
+  }
+
+  if (payload.type === 'mode_change') {
+    const mode = (payload.data as { mode?: CollabMode } | undefined)?.mode;
+    if (mode) next.mode = mode;
+  }
+
+  peers.set(payload.peerId, next);
+}
 
 export interface CollabSession {
   channelId: string;
   peerId: string;
   transport: CollabTransport;
-  /** List of known peers (updated on join/leave). */
+  role: SessionRole;
+  readonly mode: CollabMode;
+  readonly modeRuleSet: CollabModeRuleSet;
   readonly peers: readonly PeerInfo[];
-  /** Broadcast an arbitrary payload to all peers. */
-  send(payload: CollabPayload): Promise<void>;
-  /** Add an event handler for incoming messages. */
+  send(payload: CollabOutboundPayload): Promise<void>;
   onMessage(handler: CollabEventHandler): () => void;
-  /** Leave the session and clean up. */
   leave(): Promise<void>;
+  setMode(mode: CollabMode, changedByRole?: SessionRole): Promise<void>;
+  updatePresence(presence: PresenceUpdateData): Promise<void>;
 }
-
-// ─── Internal helpers ─────────────────────────────────────────────────────────
-
-function generatePeerId(): string {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
-}
-
-// ─── §38 local fallback transport ─────────────────────────────────────────────
 
 interface LocalCollabBus {
   peers: Map<string, PeerInfo>;
@@ -92,417 +385,402 @@ const localBuses = new Map<string, LocalCollabBus>();
 function getLocalBus(channelId: string): LocalCollabBus {
   const existing = localBuses.get(channelId);
   if (existing) return existing;
-  const bus: LocalCollabBus = {
-    peers: new Map(),
-    handlers: new Map(),
-  };
-  localBuses.set(channelId, bus);
-  return bus;
+  const created: LocalCollabBus = { peers: new Map(), handlers: new Map() };
+  localBuses.set(channelId, created);
+  return created;
 }
 
-class LocalCollabSession implements CollabSession {
-  readonly transport: CollabTransport = 'local';
-  private readonly _bus: LocalCollabBus;
-  private readonly _handlers = new Set<CollabEventHandler>();
-
+class BaseSession {
+  protected _handlers = new Set<CollabEventHandler>();
+  protected _sequence = 0;
+  protected _mode: CollabMode;
+  readonly modeRuleSet: CollabModeRuleSet;
   constructor(
     readonly channelId: string,
     readonly peerId: string,
+    readonly transport: CollabTransport,
+    readonly role: SessionRole,
+    mode: CollabMode,
+    modeRuleSet?: Partial<CollabModeRuleSet>,
   ) {
+    this._mode = mode;
+    this.modeRuleSet = resolveModeRuleSet(mode, modeRuleSet);
+  }
+  get mode(): CollabMode {
+    return this._mode;
+  }
+  onMessage(handler: CollabEventHandler): () => void {
+    this._handlers.add(handler);
+    return () => this._handlers.delete(handler);
+  }
+  protected makePayload(payload: CollabOutboundPayload): CollabPayload {
+    this._sequence += 1;
+    return normalizePayload(payload, {
+      channelId: this.channelId,
+      peerId: this.peerId,
+      role: this.role,
+      mode: this._mode,
+      transport: this.transport,
+      sequence: this._sequence,
+    });
+  }
+}
+
+class LocalCollabSession extends BaseSession implements CollabSession {
+  private readonly _bus: LocalCollabBus;
+  constructor(channelId: string, peerId: string, role: SessionRole, mode: CollabMode, modeRuleSet?: Partial<CollabModeRuleSet>) {
+    super(channelId, peerId, 'local', role, mode, modeRuleSet);
     this._bus = getLocalBus(channelId);
     this._bus.handlers.set(peerId, this._handlers);
-    this._bus.peers.set(peerId, { peerId, joinedAt: Date.now(), transport: 'local' });
-    void this.send({ type: 'peer_join', peerId, data: { joinedAt: Date.now(), transport: 'local' } });
+    this._bus.peers.set(peerId, {
+      peerId,
+      joinedAt: nowMs(),
+      transport: 'local',
+      role,
+      mode,
+      lastSeenAt: nowMs(),
+      sequence: 0,
+    });
+    void this.send({ type: 'peer_join', peerId, data: { joinedAt: nowMs(), role, mode, transport: 'local' } });
   }
-
   get peers(): readonly PeerInfo[] {
     return Array.from(this._bus.peers.values());
   }
-
-  async send(payload: CollabPayload): Promise<void> {
-    if (payload.type === 'peer_join') {
-      this._bus.peers.set(payload.peerId, {
-        peerId: payload.peerId,
-        joinedAt: (payload.data as { joinedAt?: number }).joinedAt ?? Date.now(),
-        transport: 'local',
-      });
-    } else if (payload.type === 'peer_leave') {
-      this._bus.peers.delete(payload.peerId);
-    }
-
-    for (const [peerId, handlers] of this._bus.handlers.entries()) {
-      if (peerId === this.peerId && payload.type !== 'peer_join' && payload.type !== 'peer_leave') {
-        continue;
+  get mode(): CollabMode {
+    return this._bus.peers.get(this.peerId)?.mode ?? this._mode;
+  }
+  async send(payload: CollabOutboundPayload): Promise<void> {
+    let canonical = this.makePayload(payload);
+    if (!canSendPayload(canonical, this.role, this.peers.length, this.modeRuleSet)) return;
+    canonical = this.modeRuleSet.transformations?.[canonical.type]?.(canonical) ?? canonical;
+    applyIncomingPeerState(this._bus.peers, canonical);
+    if (canonical.type === 'mode_change') {
+      const mode = (canonical.data as { mode?: CollabMode } | undefined)?.mode;
+      if (mode) {
+        this._mode = mode;
+        for (const peer of this._bus.peers.values()) {
+          peer.mode = mode;
+          this._bus.peers.set(peer.peerId, peer);
+        }
       }
-      for (const h of Array.from(handlers)) {
-        try { h(payload); } catch {}
+    }
+    for (const handlers of this._bus.handlers.values()) {
+      for (const handler of handlers) {
+        try { handler(canonical); } catch {}
       }
     }
   }
-
-  onMessage(handler: CollabEventHandler): () => void {
-    this._handlers.add(handler);
-    return () => { this._handlers.delete(handler); };
+  async setMode(mode: CollabMode, changedByRole: SessionRole = this.role): Promise<void> {
+    await this.send({ type: 'mode_change', peerId: this.peerId, data: { mode, changedByRole }, mode });
   }
-
+  async updatePresence(presence: PresenceUpdateData): Promise<void> {
+    await this.send({ type: 'presence_update', peerId: this.peerId, data: { ...presence, role: presence.role ?? this.role, mode: presence.mode ?? this._mode } });
+  }
   async leave(): Promise<void> {
-    await this.send({ type: 'peer_leave', peerId: this.peerId, data: { leftAt: Date.now() } });
+    await this.send({ type: 'peer_leave', peerId: this.peerId, data: { leftAt: nowMs() } });
     this._handlers.clear();
     this._bus.handlers.delete(this.peerId);
-    if (this._bus.handlers.size === 0) {
-      localBuses.delete(this.channelId);
-    }
+    this._bus.peers.delete(this.peerId);
+    if (this._bus.handlers.size === 0) localBuses.delete(this.channelId);
   }
 }
 
-export function createLocalCollabSession(channelId: string): CollabSession {
-  return new LocalCollabSession(channelId, generatePeerId());
-}
-
-// ─── §38 Supabase transport ───────────────────────────────────────────────────
-
-class SupabaseCollabSession implements CollabSession {
-  readonly transport: CollabTransport = 'supabase';
+class SupabaseCollabSession extends BaseSession implements CollabSession {
   private readonly _peers = new Map<string, PeerInfo>();
-  private readonly _handlers = new Set<CollabEventHandler>();
-  private _channel: import('@supabase/supabase-js').RealtimeChannel;
-
   constructor(
-    readonly channelId: string,
-    readonly peerId: string,
-    channel: import('@supabase/supabase-js').RealtimeChannel,
+    channelId: string,
+    peerId: string,
+    private readonly _channel: import('@supabase/supabase-js').RealtimeChannel,
+    role: SessionRole,
+    mode: CollabMode,
+    modeRuleSet?: Partial<CollabModeRuleSet>,
   ) {
-    this._channel = channel;
-    this._peers.set(peerId, { peerId, joinedAt: Date.now(), transport: 'supabase' });
-
-    channel.on('broadcast', { event: 'collab' }, ({ payload }) => {
-      const p = payload as CollabPayload;
-      if (p.type === 'peer_join') {
-        this._peers.set(p.peerId, {
-          peerId: p.peerId,
-          joinedAt: (p.data as { joinedAt?: number }).joinedAt ?? Date.now(),
-          transport: 'supabase',
-        });
-      } else if (p.type === 'peer_leave') {
-        this._peers.delete(p.peerId);
+    super(channelId, peerId, 'supabase', role, mode, modeRuleSet);
+    this._peers.set(peerId, {
+      peerId,
+      joinedAt: nowMs(),
+      transport: 'supabase',
+      role,
+      mode,
+      lastSeenAt: nowMs(),
+      sequence: 0,
+    });
+    _channel.on('broadcast', { event: 'collab' }, ({ payload }) => {
+      const canonical = normalizePayload(payload as CollabPayload, {
+        channelId: this.channelId,
+        peerId: this.peerId,
+        role: this.role,
+        mode: this._mode,
+        transport: this.transport,
+        sequence: this._sequence,
+      });
+      applyIncomingPeerState(this._peers, canonical);
+      if (canonical.type === 'mode_change') {
+        const modeValue = (canonical.data as { mode?: CollabMode } | undefined)?.mode;
+        if (modeValue) this._mode = modeValue;
       }
-      for (const h of this._handlers) {
-        try { h(p); } catch {}
+      for (const handler of this._handlers) {
+        try { handler(canonical); } catch {}
       }
     });
   }
-
   get peers(): readonly PeerInfo[] {
     return Array.from(this._peers.values());
   }
-
-  async send(payload: CollabPayload): Promise<void> {
-    await this._channel.send({
-      type: 'broadcast',
-      event: 'collab',
-      payload,
-    });
+  async send(payload: CollabOutboundPayload): Promise<void> {
+    let canonical = this.makePayload(payload);
+    if (!canSendPayload(canonical, this.role, this.peers.length, this.modeRuleSet)) return;
+    canonical = this.modeRuleSet.transformations?.[canonical.type]?.(canonical) ?? canonical;
+    applyIncomingPeerState(this._peers, canonical);
+    if (canonical.type === 'mode_change') {
+      const modeValue = (canonical.data as { mode?: CollabMode } | undefined)?.mode;
+      if (modeValue) this._mode = modeValue;
+    }
+    await this._channel.send({ type: 'broadcast', event: 'collab', payload: canonical });
   }
-
-  onMessage(handler: CollabEventHandler): () => void {
-    this._handlers.add(handler);
-    return () => { this._handlers.delete(handler); };
+  async setMode(mode: CollabMode, changedByRole: SessionRole = this.role): Promise<void> {
+    await this.send({ type: 'mode_change', peerId: this.peerId, data: { mode, changedByRole }, mode });
   }
-
+  async updatePresence(presence: PresenceUpdateData): Promise<void> {
+    await this.send({ type: 'presence_update', peerId: this.peerId, data: { ...presence, role: presence.role ?? this.role, mode: presence.mode ?? this._mode } });
+  }
   async leave(): Promise<void> {
-    await this.send({ type: 'peer_leave', peerId: this.peerId, data: { leftAt: Date.now() } });
+    await this.send({ type: 'peer_leave', peerId: this.peerId, data: { leftAt: nowMs() } });
     await this._channel.unsubscribe();
   }
 }
 
-/**
- * createSupabaseCollabSession(channelId, supabaseClient, handlers?)
- *
- * §38: Create (or join) a Supabase Realtime collaborative session.
- * Up to 40+ peers via Supabase broadcast.
- */
-export async function createSupabaseCollabSession(
-  channelId: string,
-  supabaseClient: SupabaseClient,
-  handlers: CollabEventHandler[] = [],
-): Promise<CollabSession> {
-  const peerId = generatePeerId();
-  const channel = supabaseClient.channel(`dream:collab:${channelId}`, {
-    config: { broadcast: { self: false } },
-  });
-
-  const session = new SupabaseCollabSession(channelId, peerId, channel);
-  for (const h of handlers) session.onMessage(h);
-
-  await new Promise<void>((resolve) => {
-    channel.subscribe((status) => {
-      if (status === 'SUBSCRIBED') resolve();
-    });
-  });
-
-  await session.send({
-    type: 'peer_join',
-    peerId,
-    data: { joinedAt: Date.now(), transport: 'supabase' },
-  });
-
-  return session;
-}
-
-// ─── §38 WebRTC transport ─────────────────────────────────────────────────────
-
-/**
- * WebRTC data-channel session for ultra-low-latency 2-8 peer collaboration.
- *
- * §38.2: Signalling is done out-of-band (via Supabase Realtime or any other
- * mechanism). Once both peers have the channel open, messages are sent P2P.
- *
- * For SFU / broadcast mode (8+ peers), fall back to SupabaseCollabSession.
- */
-export class WebRTCCollabSession implements CollabSession {
-  readonly transport: CollabTransport = 'webrtc';
+export class WebRTCCollabSession extends BaseSession implements CollabSession {
   private readonly _peers = new Map<string, PeerInfo>();
-  private readonly _handlers = new Set<CollabEventHandler>();
   private readonly _channels = new Map<string, RTCDataChannel>();
   private readonly _connections = new Map<string, RTCPeerConnection>();
   private readonly _iceServers: RTCIceServer[];
-
   constructor(
-    readonly channelId: string,
-    readonly peerId: string,
+    channelId: string,
+    peerId: string,
     iceServers: RTCIceServer[] = [{ urls: 'stun:stun.l.google.com:19302' }],
+    options: Required<Pick<CollabSessionOptions, 'role' | 'mode'>> & { modeRuleSet?: Partial<CollabModeRuleSet> } = { role: 'participant', mode: 'shared_dream' },
   ) {
+    super(channelId, peerId, 'webrtc', options.role, options.mode, options.modeRuleSet);
     this._iceServers = iceServers;
-    this._peers.set(peerId, { peerId, joinedAt: Date.now(), transport: 'webrtc' });
+    this._peers.set(peerId, { peerId, joinedAt: nowMs(), transport: 'webrtc', role: options.role, mode: options.mode, lastSeenAt: nowMs(), sequence: 0 });
   }
-
   get peers(): readonly PeerInfo[] {
     return Array.from(this._peers.values());
   }
-
-  /**
-   * Create an offer to connect to a remote peer.
-   * The returned offer SDP should be sent to the remote peer via signalling.
-   */
   async createOffer(remotePeerId: string): Promise<RTCSessionDescriptionInit> {
     const pc = new RTCPeerConnection({ iceServers: this._iceServers });
     const dc = pc.createDataChannel('collab', { ordered: false });
     this._setupDataChannel(dc, remotePeerId);
     this._connections.set(remotePeerId, pc);
-
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
     return offer;
   }
-
-  /**
-   * Accept an offer from a remote peer.
-   * The returned answer SDP should be sent back via signalling.
-   */
-  async acceptOffer(
-    remotePeerId: string,
-    offer: RTCSessionDescriptionInit,
-  ): Promise<RTCSessionDescriptionInit> {
+  async acceptOffer(remotePeerId: string, offer: RTCSessionDescriptionInit): Promise<RTCSessionDescriptionInit> {
     const pc = new RTCPeerConnection({ iceServers: this._iceServers });
     this._connections.set(remotePeerId, pc);
-
-    pc.ondatachannel = ({ channel }) => {
-      this._setupDataChannel(channel, remotePeerId);
-    };
-
+    pc.ondatachannel = ({ channel }) => this._setupDataChannel(channel, remotePeerId);
     await pc.setRemoteDescription(offer);
     const answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
     return answer;
   }
-
-  /** Apply an answer from a remote peer. */
-  async applyAnswer(
-    remotePeerId: string,
-    answer: RTCSessionDescriptionInit,
-  ): Promise<void> {
+  async applyAnswer(remotePeerId: string, answer: RTCSessionDescriptionInit): Promise<void> {
     const pc = this._connections.get(remotePeerId);
     if (!pc) throw new Error(`No connection for peer ${remotePeerId}`);
     await pc.setRemoteDescription(answer);
   }
-
-  /** Add an ICE candidate from a remote peer. */
-  async addIceCandidate(
-    remotePeerId: string,
-    candidate: RTCIceCandidateInit,
-  ): Promise<void> {
+  async addIceCandidate(remotePeerId: string, candidate: RTCIceCandidateInit): Promise<void> {
     const pc = this._connections.get(remotePeerId);
     if (!pc) return;
     await pc.addIceCandidate(candidate);
   }
-
-  async send(payload: CollabPayload): Promise<void> {
-    const json = JSON.stringify(payload);
-    for (const dc of this._channels.values()) {
-      if (dc.readyState === 'open') {
-        dc.send(json);
-      }
+  async send(payload: CollabOutboundPayload): Promise<void> {
+    let canonical = this.makePayload(payload);
+    if (!canSendPayload(canonical, this.role, this.peers.length, this.modeRuleSet)) return;
+    canonical = this.modeRuleSet.transformations?.[canonical.type]?.(canonical) ?? canonical;
+    applyIncomingPeerState(this._peers, canonical);
+    if (canonical.type === 'mode_change') {
+      const modeValue = (canonical.data as { mode?: CollabMode } | undefined)?.mode;
+      if (modeValue) this._mode = modeValue;
+    }
+    const json = JSON.stringify(canonical);
+    for (const channel of this._channels.values()) {
+      if (channel.readyState === 'open') channel.send(json);
+    }
+    for (const handler of this._handlers) {
+      try { handler(canonical); } catch {}
     }
   }
-
-  onMessage(handler: CollabEventHandler): () => void {
-    this._handlers.add(handler);
-    return () => { this._handlers.delete(handler); };
+  async setMode(mode: CollabMode, changedByRole: SessionRole = this.role): Promise<void> {
+    await this.send({ type: 'mode_change', peerId: this.peerId, data: { mode, changedByRole }, mode });
   }
-
+  async updatePresence(presence: PresenceUpdateData): Promise<void> {
+    await this.send({ type: 'presence_update', peerId: this.peerId, data: { ...presence, role: presence.role ?? this.role, mode: presence.mode ?? this._mode } });
+  }
   async leave(): Promise<void> {
-    await this.send({ type: 'peer_leave', peerId: this.peerId, data: { leftAt: Date.now() } });
+    await this.send({ type: 'peer_leave', peerId: this.peerId, data: { leftAt: nowMs() } });
     for (const dc of this._channels.values()) dc.close();
     for (const pc of this._connections.values()) pc.close();
     this._channels.clear();
     this._connections.clear();
   }
-
-  // ── Internal ───────────────────────────────────────────────────────────────
-
   private _setupDataChannel(dc: RTCDataChannel, remotePeerId: string): void {
     this._channels.set(remotePeerId, dc);
-
     dc.onopen = () => {
-      this._peers.set(remotePeerId, {
-        peerId: remotePeerId,
-        joinedAt: Date.now(),
-        transport: 'webrtc',
+      const payload = normalizePayload({ type: 'peer_join', peerId: remotePeerId, data: { joinedAt: nowMs(), transport: 'webrtc' }, transport: 'webrtc' }, {
+        channelId: this.channelId,
+        peerId: this.peerId,
+        role: this.role,
+        mode: this._mode,
+        transport: this.transport,
+        sequence: this._sequence,
       });
-      const joinPayload: CollabPayload = {
-        type: 'peer_join',
-        peerId: remotePeerId,
-        data: { joinedAt: Date.now(), transport: 'webrtc' },
-      };
-      for (const h of this._handlers) {
-        try { h(joinPayload); } catch {}
-      }
+      applyIncomingPeerState(this._peers, payload);
+      for (const h of this._handlers) { try { h(payload); } catch {} }
     };
-
     dc.onmessage = ({ data }) => {
       try {
-        const payload = JSON.parse(String(data)) as CollabPayload;
-        for (const h of this._handlers) {
-          try { h(payload); } catch {}
+        const payload = normalizePayload(JSON.parse(String(data)) as CollabPayload, {
+          channelId: this.channelId,
+          peerId: this.peerId,
+          role: this.role,
+          mode: this._mode,
+          transport: this.transport,
+          sequence: this._sequence,
+        });
+        applyIncomingPeerState(this._peers, payload);
+        if (payload.type === 'mode_change') {
+          const modeValue = (payload.data as { mode?: CollabMode } | undefined)?.mode;
+          if (modeValue) this._mode = modeValue;
         }
+        for (const h of this._handlers) { try { h(payload); } catch {} }
       } catch {}
     };
-
     dc.onclose = () => {
-      this._peers.delete(remotePeerId);
-      const leavePayload: CollabPayload = {
-        type: 'peer_leave',
-        peerId: remotePeerId,
-        data: { leftAt: Date.now() },
-      };
-      for (const h of this._handlers) {
-        try { h(leavePayload); } catch {}
-      }
+      const payload = normalizePayload({ type: 'peer_leave', peerId: remotePeerId, data: { leftAt: nowMs() }, transport: 'webrtc' }, {
+        channelId: this.channelId,
+        peerId: this.peerId,
+        role: this.role,
+        mode: this._mode,
+        transport: this.transport,
+        sequence: this._sequence,
+      });
+      applyIncomingPeerState(this._peers, payload);
+      for (const h of this._handlers) { try { h(payload); } catch {} }
     };
   }
 }
 
-// ─── §38 Hybrid session (auto-select transport) ───────────────────────────────
-
 export interface CollabSessionOptions {
-  /** Force a specific transport. Default: auto-select. */
   transport?: CollabTransport;
-  /** Supabase client (required when transport='supabase' or auto). */
   supabaseClient?: SupabaseClient;
-  /** ICE servers for WebRTC (optional, defaults to Google STUN). */
   iceServers?: RTCIceServer[];
-  /** Peer count estimate — >8 forces Supabase transport. */
   expectedPeerCount?: number;
+  role?: SessionRole;
+  mode?: CollabMode;
+  modeRuleSet?: Partial<CollabModeRuleSet>;
 }
 
-/**
- * createCollabSession(channelId, options)
- *
- * §38.2: Auto-selects the best transport:
- *   - WebRTC when RTCPeerConnection is available and expectedPeerCount ≤ 8
- *   - Supabase Realtime otherwise
- *
- * Returns a unified CollabSession interface regardless of transport.
- */
-export async function createCollabSession(
+export function createLocalCollabSession(channelId: string, options: Required<Pick<CollabSessionOptions, 'role' | 'mode'>> & { modeRuleSet?: Partial<CollabModeRuleSet> } = { role: 'participant', mode: 'shared_dream' }): CollabSession {
+  return new LocalCollabSession(channelId, generatePeerId(), options.role, options.mode, options.modeRuleSet);
+}
+
+export async function createSupabaseCollabSession(
   channelId: string,
-  options: CollabSessionOptions = {},
+  supabaseClient: SupabaseClient,
+  handlers: CollabEventHandler[] = [],
+  options: Required<Pick<CollabSessionOptions, 'role' | 'mode'>> & { modeRuleSet?: Partial<CollabModeRuleSet> } = { role: 'participant', mode: 'shared_dream' },
 ): Promise<CollabSession> {
-  const { transport, supabaseClient, iceServers, expectedPeerCount = 2 } = options;
-  const hasSupabaseClient =
-    supabaseClient &&
-    typeof (supabaseClient as unknown as { channel?: unknown }).channel === 'function';
-
-  if (transport === 'local') {
-    return createLocalCollabSession(channelId);
-  }
-
-  if (transport === 'supabase') {
-    if (hasSupabaseClient) {
-      return createSupabaseCollabSession(channelId, supabaseClient);
-    }
-    return createLocalCollabSession(channelId);
-  }
-
-  if (!transport && hasSupabaseClient) {
-    return createSupabaseCollabSession(channelId, supabaseClient);
-  }
-
-  const useWebRTC =
-    transport === 'webrtc' &&
-    typeof RTCPeerConnection !== 'undefined' &&
-    expectedPeerCount <= 8;
-
-  if (useWebRTC) {
-    const peerId = generatePeerId();
-    return new WebRTCCollabSession(channelId, peerId, iceServers);
-  }
-
-  return createLocalCollabSession(channelId);
+  const peerId = generatePeerId();
+  const channel = supabaseClient.channel(`dream:collab:${channelId}`, { config: { broadcast: { self: false } } });
+  const session = new SupabaseCollabSession(channelId, peerId, channel, options.role, options.mode, options.modeRuleSet);
+  for (const handler of handlers) session.onMessage(handler);
+  await new Promise<void>((resolve) => {
+    channel.subscribe((status) => { if (status === 'SUBSCRIBED') resolve(); });
+  });
+  await session.send({ type: 'peer_join', peerId, data: { joinedAt: nowMs(), role: options.role, mode: options.mode, transport: 'supabase' }, role: options.role, mode: options.mode });
+  return session;
 }
 
-// ─── §38.2 Invite link helpers ────────────────────────────────────────────────
+export async function createCollabSession(channelId: string, options: CollabSessionOptions = {}): Promise<CollabSession> {
+  const {
+    transport,
+    supabaseClient,
+    iceServers,
+    expectedPeerCount = 2,
+    role = 'participant',
+    mode = 'shared_dream',
+    modeRuleSet,
+  } = options;
+  const hasSupabaseClient = supabaseClient && typeof (supabaseClient as unknown as { channel?: unknown }).channel === 'function';
+  if (transport === 'local') return createLocalCollabSession(channelId, { role, mode, modeRuleSet });
+  if (transport === 'supabase') {
+    if (hasSupabaseClient) return createSupabaseCollabSession(channelId, supabaseClient, [], { role, mode, modeRuleSet });
+    return createLocalCollabSession(channelId, { role, mode, modeRuleSet });
+  }
+  if (!transport && hasSupabaseClient) return createSupabaseCollabSession(channelId, supabaseClient, [], { role, mode, modeRuleSet });
+  const useWebRTC = transport === 'webrtc' && typeof RTCPeerConnection !== 'undefined' && expectedPeerCount <= 8;
+  if (useWebRTC) return new WebRTCCollabSession(channelId, generatePeerId(), iceServers, { role, mode, modeRuleSet });
+  return createLocalCollabSession(channelId, { role, mode, modeRuleSet });
+}
 
-/**
- * generateInviteLink(baseUrl, channelId)
- *
- * §38.2: Generates the invite URL for "Launch Shared Dream".
- * The recipient opens the link → auto-joins the collaborative session.
- */
 export function generateInviteLink(baseUrl: string, channelId: string): string {
   const url = new URL(baseUrl);
   url.searchParams.set('shared-dream', channelId);
   return url.toString();
 }
 
-/**
- * parseInviteLink(url)
- *
- * Extracts a channelId from a dream invite URL.
- * Returns null if no invite parameter is present.
- */
 export function parseInviteLink(url: string): string | null {
   try {
-    const parsed = new URL(url);
-    return parsed.searchParams.get('shared-dream');
+    return new URL(url).searchParams.get('shared-dream');
   } catch {
     return null;
   }
 }
 
-// ─── §38 Cursor / edit / playhead broadcast helpers ──────────────────────────
-
-/** Broadcast cursor position to all session peers. */
 export function broadcastCursor(session: CollabSession, x: number, y: number): Promise<void> {
   return session.send({ type: 'cursor', peerId: session.peerId, data: { x, y } });
 }
 
-/** Broadcast an edit operation to all session peers. */
 export function broadcastEdit(session: CollabSession, edit: unknown): Promise<void> {
   return session.send({ type: 'edit', peerId: session.peerId, data: edit });
 }
 
-/** Broadcast playhead position (e.g., for audio/video sync). */
 export function broadcastPlayhead(session: CollabSession, positionSec: number): Promise<void> {
   return session.send({ type: 'playhead', peerId: session.peerId, data: { positionSec } });
+}
+
+export function broadcastStatePatch(session: CollabSession, patch: unknown): Promise<void> {
+  return session.send({ type: 'state_patch', peerId: session.peerId, data: patch });
+}
+
+export function broadcastDataPacket(session: CollabSession, packet: unknown): Promise<void> {
+  return session.send({ type: 'data_packet', peerId: session.peerId, data: packet });
+}
+
+export function broadcastMediaSync(
+  session: CollabSession,
+  command: MediaSyncData['command'],
+  timeRefSec?: number,
+  payload?: Record<string, unknown>,
+): Promise<void> {
+  return session.send({ type: 'media_sync', peerId: session.peerId, data: { command, timeRefSec, payload } satisfies MediaSyncData });
+}
+
+export function broadcastControlSignal(
+  session: CollabSession,
+  signal: string,
+  payload?: Record<string, unknown>,
+): Promise<void> {
+  return session.send({ type: 'control_signal', peerId: session.peerId, data: { signal, ...(payload ?? {}) } });
+}
+
+export function broadcastModeChange(session: CollabSession, mode: CollabMode, changedByRole: SessionRole = session.role): Promise<void> {
+  return session.setMode(mode, changedByRole);
+}
+
+export function broadcastPresenceUpdate(session: CollabSession, presence: PresenceUpdateData): Promise<void> {
+  return session.updatePresence(presence);
 }

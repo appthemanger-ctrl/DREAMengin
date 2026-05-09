@@ -1,15 +1,5 @@
 'use client';
 
-/**
- * components/shared-dream/dream.SharedDreamProvider.tsx — §38 Shared Dream Collaboration
- *
- * React context provider that manages the real-time collaboration session.
- * Supports WebRTC DataChannel (≤8 peers) and Supabase Realtime (>8 peers).
- *
- * Exports useSharedDream() hook with:
- *   { participants, sendEdit, onEdit, cursors }
- */
-
 import React, {
   createContext,
   useCallback,
@@ -24,71 +14,73 @@ import {
   parseInviteLink,
   broadcastEdit,
   broadcastCursor,
+  broadcastStatePatch,
+  broadcastDataPacket,
+  broadcastMediaSync,
+  broadcastControlSignal,
+  broadcastModeChange,
+  broadcastPresenceUpdate,
   type CollabSession,
   type CollabEventHandler,
+  type CollabPayload,
   type PeerInfo,
   type CollabSessionOptions,
+  type SessionRole,
+  type CollabMode,
+  type PresenceUpdateData,
 } from '@/lib/collaboration';
 import { createClient } from '@/lib/supabase/client';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 export interface CursorPosition {
   peerId: string;
-  x:      number;
-  y:      number;
+  x: number;
+  y: number;
 }
 
 export interface SharedDreamContextValue {
-  /** Whether the session is connected. */
-  connected:    boolean;
-  /** All known participants including self. */
+  connected: boolean;
   participants: readonly PeerInfo[];
-  /** Current cursors by peerId. */
-  cursors:      readonly CursorPosition[];
-  /** Broadcast an edit payload to all peers. */
-  sendEdit:     (edit: unknown) => Promise<void>;
-  /** Register an edit callback; returns unsubscribe fn. */
-  onEdit:       (cb: (edit: unknown, fromPeer: string) => void) => () => void;
-  /** Broadcast this user's cursor position. */
-  moveCursor:   (x: number, y: number) => Promise<void>;
-  /** Generate an invite link for this session. */
+  cursors: readonly CursorPosition[];
+  role: SessionRole;
+  mode: CollabMode;
+  transport: CollabSession['transport'] | 'local';
+  sendEdit: (edit: unknown) => Promise<void>;
+  sendStatePatch: (patch: unknown) => Promise<void>;
+  sendDataPacket: (packet: unknown) => Promise<void>;
+  sendMediaSync: (command: string, timeRefSec?: number, payload?: Record<string, unknown>) => Promise<void>;
+  sendControlSignal: (signal: string, payload?: Record<string, unknown>) => Promise<void>;
+  sendPresenceUpdate: (presence: PresenceUpdateData) => Promise<void>;
+  changeMode: (mode: CollabMode) => Promise<void>;
+  onEdit: (cb: (edit: unknown, fromPeer: string) => void) => () => void;
+  moveCursor: (x: number, y: number) => Promise<void>;
   getInviteLink: () => string;
-  /** Current session channel ID. */
-  channelId:    string | null;
-  /** Leave and clean up the session. */
-  leave:        () => Promise<void>;
+  channelId: string | null;
+  leave: () => Promise<void>;
 }
-
-// ─── Context ──────────────────────────────────────────────────────────────────
 
 const SharedDreamContext = createContext<SharedDreamContextValue | null>(null);
 
-// ─── Provider Props ───────────────────────────────────────────────────────────
-
 export interface SharedDreamProviderProps {
-  /** Optional explicit channel ID. If omitted, a new channel is created. */
-  channelId?:      string;
+  channelId?: string;
   sessionOptions?: Partial<CollabSessionOptions>;
-  children:        React.ReactNode;
+  children: React.ReactNode;
 }
-
-// ─── Provider ─────────────────────────────────────────────────────────────────
 
 export function SharedDreamProvider({
   channelId: propChannelId,
   sessionOptions = {},
   children,
 }: SharedDreamProviderProps) {
-  const [session,      setSession]      = useState<CollabSession | null>(null);
-  const [connected,    setConnected]    = useState(false);
+  const [session, setSession] = useState<CollabSession | null>(null);
+  const [connected, setConnected] = useState(false);
   const [participants, setParticipants] = useState<readonly PeerInfo[]>([]);
-  const [cursors,      setCursors]      = useState<readonly CursorPosition[]>([]);
-  const [channelId,    setChannelId]    = useState<string | null>(propChannelId ?? null);
+  const [cursors, setCursors] = useState<readonly CursorPosition[]>([]);
+  const [channelId, setChannelId] = useState<string | null>(propChannelId ?? null);
+  const [mode, setMode] = useState<CollabMode>(sessionOptions.mode ?? 'shared_dream');
+  const [role, setRole] = useState<SessionRole>(sessionOptions.role ?? 'participant');
+  const [transport, setTransport] = useState<CollabSession['transport'] | 'local'>('local');
 
   const editListeners = useRef(new Set<(edit: unknown, peer: string) => void>());
-
-  // ── Connect ────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     let mounted = true;
@@ -100,7 +92,6 @@ export function SharedDreamProvider({
         : Math.random().toString(36).slice(2)
     );
 
-    // Check for invite in URL (accept flow)
     const urlChannelId =
       typeof window !== 'undefined'
         ? parseInviteLink(window.location.href)
@@ -110,23 +101,33 @@ export function SharedDreamProvider({
 
     const options = {
       expectedPeerCount: 40,
+      role: 'participant',
+      mode: 'shared_dream',
       ...sessionOptions,
       supabaseClient: sessionOptions.supabaseClient ?? createClient(),
     } satisfies CollabSessionOptions;
 
     createCollabSession(finalChannelId, options)
-      .then((sess) => {
-        if (!mounted) { sess.leave().catch(() => {}); return; }
-        activeSession = sess;
-        setSession(sess);
+      .then((nextSession) => {
+        if (!mounted) { nextSession.leave().catch(() => {}); return; }
+        activeSession = nextSession;
+        setSession(nextSession);
         setConnected(true);
         setChannelId(finalChannelId);
-        setParticipants([...sess.peers]);
+        setParticipants([...nextSession.peers]);
+        setRole(nextSession.role);
+        setMode(nextSession.mode);
+        setTransport(nextSession.transport);
 
-        sess.onMessage(((payload) => {
+        nextSession.onMessage(((payload: CollabPayload) => {
           if (!mounted) return;
-          if (payload.type === 'peer_join' || payload.type === 'peer_leave') {
-            setParticipants([...sess.peers]);
+          if (payload.type === 'peer_join' || payload.type === 'peer_leave' || payload.type === 'presence_update') {
+            setParticipants([...nextSession.peers]);
+          }
+          if (payload.type === 'mode_change') {
+            const nextMode = (payload.data as { mode?: CollabMode } | undefined)?.mode;
+            if (nextMode) setMode(nextMode);
+            setParticipants([...nextSession.peers]);
           } else if (payload.type === 'cursor') {
             const { x, y } = payload.data as { x: number; y: number };
             setCursors((prev) => {
@@ -137,6 +138,8 @@ export function SharedDreamProvider({
             for (const cb of editListeners.current) {
               cb(payload.data, payload.peerId);
             }
+          } else if (payload.type === 'peer_leave') {
+            setCursors((prev) => prev.filter((c) => c.peerId !== payload.peerId));
           }
         }) as CollabEventHandler);
       })
@@ -148,33 +151,68 @@ export function SharedDreamProvider({
       mounted = false;
       activeSession?.leave().catch(() => {});
     };
-  }, [propChannelId]);
+  }, [
+    propChannelId,
+    sessionOptions.expectedPeerCount,
+    sessionOptions.transport,
+    sessionOptions.supabaseClient,
+    sessionOptions.mode,
+    sessionOptions.role,
+    sessionOptions.modeRuleSet,
+  ]);
 
-  // ── Actions ───────────────────────────────────────────────────────────────
+  const sendEdit = useCallback(async (edit: unknown) => {
+    if (!session) return;
+    await broadcastEdit(session, edit);
+  }, [session]);
 
-  const sendEdit = useCallback(
-    async (edit: unknown) => {
-      if (!session) return;
-      await broadcastEdit(session, edit);
-    },
-    [session],
-  );
+  const sendStatePatchEvent = useCallback(async (patch: unknown) => {
+    if (!session) return;
+    await broadcastStatePatch(session, patch);
+  }, [session]);
 
-  const moveCursor = useCallback(
-    async (x: number, y: number) => {
-      if (!session) return;
-      await broadcastCursor(session, x, y);
-    },
-    [session],
-  );
+  const sendDataPacketEvent = useCallback(async (packet: unknown) => {
+    if (!session) return;
+    await broadcastDataPacket(session, packet);
+  }, [session]);
 
-  const onEdit = useCallback(
-    (cb: (edit: unknown, peer: string) => void): () => void => {
-      editListeners.current.add(cb);
-      return () => { editListeners.current.delete(cb); };
-    },
-    [],
-  );
+  const sendMediaSyncEvent = useCallback(async (
+    command: string,
+    timeRefSec?: number,
+    payload?: Record<string, unknown>,
+  ) => {
+    if (!session) return;
+    await broadcastMediaSync(session, command, timeRefSec, payload);
+  }, [session]);
+
+  const sendControlSignalEvent = useCallback(async (
+    signal: string,
+    payload?: Record<string, unknown>,
+  ) => {
+    if (!session) return;
+    await broadcastControlSignal(session, signal, payload);
+  }, [session]);
+
+  const sendPresenceUpdateEvent = useCallback(async (presence: PresenceUpdateData) => {
+    if (!session) return;
+    await broadcastPresenceUpdate(session, presence);
+  }, [session]);
+
+  const changeMode = useCallback(async (nextMode: CollabMode) => {
+    if (!session) return;
+    await broadcastModeChange(session, nextMode, role);
+    setMode(nextMode);
+  }, [session, role]);
+
+  const moveCursor = useCallback(async (x: number, y: number) => {
+    if (!session) return;
+    await broadcastCursor(session, x, y);
+  }, [session]);
+
+  const onEdit = useCallback((cb: (edit: unknown, peer: string) => void): () => void => {
+    editListeners.current.add(cb);
+    return () => { editListeners.current.delete(cb); };
+  }, []);
 
   const getInviteLink = useCallback((): string => {
     if (typeof window === 'undefined' || !channelId) return '';
@@ -194,7 +232,16 @@ export function SharedDreamProvider({
     connected,
     participants,
     cursors,
+    role,
+    mode,
+    transport,
     sendEdit,
+    sendStatePatch: sendStatePatchEvent,
+    sendDataPacket: sendDataPacketEvent,
+    sendMediaSync: sendMediaSyncEvent,
+    sendControlSignal: sendControlSignalEvent,
+    sendPresenceUpdate: sendPresenceUpdateEvent,
+    changeMode,
     onEdit,
     moveCursor,
     getInviteLink,
@@ -209,14 +256,6 @@ export function SharedDreamProvider({
   );
 }
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
-
-/**
- * useSharedDream()
- *
- * Access the shared dream collaboration context.
- * Must be used inside a <SharedDreamProvider>.
- */
 export function useSharedDream(): SharedDreamContextValue {
   const ctx = useContext(SharedDreamContext);
   if (!ctx) {

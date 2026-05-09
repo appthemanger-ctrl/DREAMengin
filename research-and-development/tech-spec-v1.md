@@ -70,3 +70,9 @@ The architecture may include one or more of the following novel implementation a
 ## 7. Development Note
 
 This document is intended as internal research and development documentation describing a potentially patentable coordination, synchronization, and localized distribution architecture. Terminology, scope, claims, and implementation details may evolve during prototyping, testing, legal review, and product development.
+
+## 8. DREAMengin JAMM-N Web Session Profile
+
+Within DREAMengin, JAMM-N is implemented as a browser/session synchronization layer for coordinated data/media/state sharing across authenticated collaboration sessions. The web implementation focuses on typed session events, timing references, peer presence, role-aware controls, and mode/rule-set behavior.
+
+This profile does **not** claim low-level control of Bluetooth firmware or hardware mesh stacks from browser code. It is a production-oriented web coordination protocol built on available runtime transports (for example Supabase Realtime and local/browser session channels).

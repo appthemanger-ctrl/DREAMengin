@@ -134,7 +134,7 @@ These five axioms and guardrails apply to every change:
     - `2.88 ≤ ι < 9.59` → SYNTHESIZE (combine ideas, let flow)  
     - `ι ≥ 9.59` → MANIFEST (build immediately, no isolation, no split threshold)  
     High ι builds in every sense: code, UI, documents, real‑world actions.
-15. **Shared Dream Collaboration**: Any Engin can become a real‑time collaborative workspace. Users invite others via link; shared view (top) and private controls (bottom). Scales to 40+ users.
+15. **Shared Dream Collaboration (JAMM‑N web session profile)**: Any Engin can become a real-time synchronized collaboration runtime. Treat Shared Dream as the canonical browser/session engine for typed sync events, role/mode semantics, and rule-set behavior (shared view top / private controls bottom). This is a web coordination layer, not low-level hardware firmware control.
 16. **Universal Editor**: Tap‑hold (≥300ms) any module → drag to reposition or transfer to another runtime via edge detection. Each module has a manifest; transfer uses a local event bus.
 
 **Route Law** (preferred names):

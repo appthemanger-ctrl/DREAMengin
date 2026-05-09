@@ -60,7 +60,19 @@ export function SharedDreamShell({
   title,
   onExit,
 }: SharedDreamShellProps) {
-  const { session, peers, isConnected, broadcastCursor, broadcast, onEvent } =
+  const {
+    session,
+    peers,
+    isConnected,
+    role,
+    mode,
+    participantCount,
+    broadcastCursor,
+    broadcast,
+    broadcastPresenceUpdate,
+    getInviteLink,
+    onEvent,
+  } =
     useSharedDream(channelId);
 
   const [peerCursors, setPeerCursors] = useState<Record<string, PeerCursor>>({});
@@ -136,13 +148,18 @@ export function SharedDreamShell({
 
   // ── Copy invite link ──
   const copyInvite = useCallback(async () => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : '';
-    await navigator.clipboard.writeText(`${origin}/shared-dream?channel=${channelId}`);
+    const inviteLink = getInviteLink();
+    if (!inviteLink) return;
+    await navigator.clipboard.writeText(inviteLink);
     setInviteCopied(true);
     setTimeout(() => setInviteCopied(false), 2000);
-  }, [channelId]);
+  }, [getInviteLink]);
 
   // ── Cleanup ──
+  useEffect(() => {
+    broadcastPresenceUpdate({ status: isConnected ? 'active' : 'idle', role, mode });
+  }, [broadcastPresenceUpdate, isConnected, role, mode]);
+
   useEffect(() => {
     return () => {
       audioStreamRef.current?.getTracks().forEach((t) => t.stop());
@@ -192,12 +209,15 @@ export function SharedDreamShell({
         >
           {title ?? 'Shared Dream'} &middot; {isConnected ? 'Live' : 'Connecting…'}
         </span>
+        <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace' }}>
+          {mode} · {role}
+        </span>
 
         {/* Peer count + avatars */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <Users style={{ width: 12, height: 12, color: 'rgba(255,255,255,0.35)' }} />
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>
-            {peerList.length + 1}
+            {participantCount}
           </span>
           {peerList.slice(0, 4).map((p) => (
             <div
