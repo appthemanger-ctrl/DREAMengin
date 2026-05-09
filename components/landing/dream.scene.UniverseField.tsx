@@ -63,8 +63,9 @@ export default function UniverseField(_props: UniverseFieldProps) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
-    if (!ctx) return;
+    const drawingContext = canvas.getContext('2d', { alpha: false, desynchronized: true });
+    if (!drawingContext) return;
+    const ctx = drawingContext;
 
     let { width, height } = resizeCanvas(canvas, ctx);
     let raf = 0;
