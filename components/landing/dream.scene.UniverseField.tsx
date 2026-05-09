@@ -63,7 +63,7 @@ export default function UniverseField(_props: UniverseFieldProps) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d', { alpha: false });
+    const ctx = canvas.getContext('2d', { alpha: false }) as CanvasRenderingContext2D;
     if (!ctx) return;
 
     let width = window.innerWidth;
