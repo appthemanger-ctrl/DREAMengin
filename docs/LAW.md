@@ -31,7 +31,7 @@
     - `2.88 ≤ ι < 9.59` → SYNTHESIZE (combine ideas, let flow)  
     - `ι ≥ 9.59` → MANIFEST (build immediately, no isolation, no split threshold)  
     High ι builds in every sense: code, UI, documents, real‑world actions.
-15. **Shared Dream Collaboration**: Any Engin can become a real‑time collaborative workspace. Users invite others via link; shared view (top) and private controls (bottom). Supports code, music, games, design. Scales to 40+ users.
+15. **Shared Dream Collaboration (JAMM‑N web layer)**: Any Engin can become a real-time synchronized session runtime. Shared Dream is the canonical browser/session coordination layer (not firmware control) with typed event families (`peer_join`, `peer_leave`, `presence_update`, `cursor`, `edit`, `state_patch`, `media_sync`, `data_packet`, `control_signal`, `mode_change`), role-aware permissions, and swappable collaboration modes/rule-sets while preserving the top shared / bottom private UX.
 16. **Universal Editor**: Tap‑hold (≥300ms) any module → drag to reposition or transfer to another runtime via edge detection. Each module has a manifest; transfer uses a local event bus.
 
 ---

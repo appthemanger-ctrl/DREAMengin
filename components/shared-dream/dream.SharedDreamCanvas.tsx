@@ -33,7 +33,7 @@ export function SharedDreamCanvas({
   sharedContent,
   className = '',
 }: SharedDreamCanvasProps) {
-  const { connected, participants, cursors, moveCursor } = useSharedDream();
+  const { connected, participants, cursors, moveCursor, mode, role } = useSharedDream();
 
   const handlePointerMove = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
@@ -65,6 +65,9 @@ export function SharedDreamCanvas({
               : 'disconnected'}
           </span>
           <span className="text-[10px] text-white/30 font-mono ml-auto">
+            {mode} · {role}
+          </span>
+          <span className="text-[10px] text-white/30 font-mono">
             shared view
           </span>
         </div>

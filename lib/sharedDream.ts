@@ -1,163 +1,134 @@
 /**
- * Shared Dream Collaboration
+ * lib/sharedDream.ts
  *
- * Real-time multi-user session layer using Supabase Realtime broadcast.
- * No WebRTC — pure broadcast channels.
- *
- * Usage:
- *   const session = await createSharedDreamSession('channel-123', supabase);
- *   broadcastCursorPosition(session, x, y);
+ * Backward-compatible facade over the canonical collaboration engine
+ * in lib/collaboration.
  */
 
-import type { SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import {
+  createCollabSession,
+  broadcastCursor as collabBroadcastCursor,
+  broadcastEdit as collabBroadcastEdit,
+  broadcastStatePatch as collabBroadcastStatePatch,
+  broadcastDataPacket as collabBroadcastDataPacket,
+  broadcastMediaSync as collabBroadcastMediaSync,
+  broadcastControlSignal as collabBroadcastControlSignal,
+  broadcastModeChange as collabBroadcastModeChange,
+  broadcastPresenceUpdate as collabBroadcastPresenceUpdate,
+  type CollabSession,
+  type CollabPayload,
+  type CollabEventHandler,
+  type CollabEventType,
+  type SessionRole,
+  type CollabMode,
+  type PresenceUpdateData,
+} from '@/lib/collaboration';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+export type SharedDreamSession = CollabSession;
+export type DreamEventType = CollabEventType;
+export type DreamBroadcastPayload = CollabPayload;
+export type DreamEventHandler = CollabEventHandler;
+export type DreamSessionRole = SessionRole;
+export type DreamSessionMode = CollabMode;
+export type DreamPresenceUpdate = PresenceUpdateData;
 
-export interface SharedDreamSession {
-  channelId: string;
-  channel: RealtimeChannel;
-  /** Local peer ID (random UUID assigned at session creation/join). */
-  peerId: string;
+export interface SharedDreamSessionOptions {
+  role?: SessionRole;
+  mode?: CollabMode;
 }
 
-export type DreamEventType = 'cursor' | 'edit' | 'peer_join' | 'peer_leave' | 'custom';
-
-export interface DreamBroadcastPayload {
-  type: DreamEventType;
-  peerId: string;
-  data: unknown;
-}
-
-export type DreamEventHandler = (payload: DreamBroadcastPayload) => void;
-
-// ─── Internal helpers ────────────────────────────────────────────────────────
-
-function generatePeerId(): string {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  // Fallback for older environments
-  return Math.random().toString(36).slice(2) + Date.now().toString(36);
-}
-
-function buildChannel(
+async function connectSharedDream(
   channelId: string,
   supabaseClient: SupabaseClient,
-  peerId: string,
-  handlers: DreamEventHandler[]
-): RealtimeChannel {
-  const channel = supabaseClient.channel(`dream:${channelId}`, {
-    config: { broadcast: { self: false } },
+  handlers: DreamEventHandler[] = [],
+  options: SharedDreamSessionOptions = {},
+): Promise<SharedDreamSession> {
+  const session = await createCollabSession(channelId, {
+    transport: 'supabase',
+    supabaseClient,
+    expectedPeerCount: 40,
+    role: options.role ?? 'participant',
+    mode: options.mode ?? 'shared_dream',
   });
 
-  channel.on('broadcast', { event: 'dream_event' }, ({ payload }) => {
-    const typedPayload = payload as DreamBroadcastPayload;
-    handlers.forEach((h) => h(typedPayload));
-  });
+  for (const handler of handlers) {
+    session.onMessage(handler);
+  }
 
-  return channel;
+  return session;
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
-
-/**
- * createSharedDreamSession(channelId, supabaseClient)
- *
- * Creates a new broadcast session and subscribes to it.
- * Announces presence with a peer_join event.
- */
 export async function createSharedDreamSession(
   channelId: string,
   supabaseClient: SupabaseClient,
-  handlers: DreamEventHandler[] = []
+  handlers: DreamEventHandler[] = [],
+  options: SharedDreamSessionOptions = {},
 ): Promise<SharedDreamSession> {
-  const peerId  = generatePeerId();
-  const channel = buildChannel(channelId, supabaseClient, peerId, handlers);
-
-  await new Promise<void>((resolve) => {
-    channel.subscribe((status) => {
-      if (status === 'SUBSCRIBED') resolve();
-    });
-  });
-
-  // Announce join
-  await channel.send({
-    type: 'broadcast',
-    event: 'dream_event',
-    payload: {
-      type: 'peer_join',
-      peerId,
-      data: { joinedAt: new Date().toISOString() },
-    } satisfies DreamBroadcastPayload,
-  });
-
-  return { channelId, channel, peerId };
+  return connectSharedDream(channelId, supabaseClient, handlers, options);
 }
 
-/**
- * joinSharedDreamSession(channelId, supabaseClient)
- *
- * Joins an existing session (identical to create — Supabase channels
- * are idempotent).
- */
 export async function joinSharedDreamSession(
   channelId: string,
   supabaseClient: SupabaseClient,
-  handlers: DreamEventHandler[] = []
+  handlers: DreamEventHandler[] = [],
+  options: SharedDreamSessionOptions = {},
 ): Promise<SharedDreamSession> {
-  return createSharedDreamSession(channelId, supabaseClient, handlers);
+  return connectSharedDream(channelId, supabaseClient, handlers, options);
 }
 
-/**
- * broadcastCursorPosition(session, x, y)
- */
 export function broadcastCursorPosition(
   session: SharedDreamSession,
   x: number,
-  y: number
+  y: number,
 ): void {
-  session.channel.send({
-    type: 'broadcast',
-    event: 'dream_event',
-    payload: {
-      type: 'cursor',
-      peerId: session.peerId,
-      data: { x, y },
-    } satisfies DreamBroadcastPayload,
-  });
+  void collabBroadcastCursor(session, x, y);
 }
 
-/**
- * broadcastEdit(session, payload)
- *
- * Broadcasts an arbitrary edit payload to all session peers.
- */
 export function broadcastEdit(session: SharedDreamSession, payload: unknown): void {
-  session.channel.send({
-    type: 'broadcast',
-    event: 'dream_event',
-    payload: {
-      type: 'edit',
-      peerId: session.peerId,
-      data: payload,
-    } satisfies DreamBroadcastPayload,
-  });
+  void collabBroadcastEdit(session, payload);
 }
 
-/**
- * leaveSharedDreamSession(session)
- *
- * Announces leave and unsubscribes.
- */
+export function broadcastStatePatch(session: SharedDreamSession, patch: unknown): void {
+  void collabBroadcastStatePatch(session, patch);
+}
+
+export function broadcastDataPacket(session: SharedDreamSession, packet: unknown): void {
+  void collabBroadcastDataPacket(session, packet);
+}
+
+export function broadcastMediaSync(
+  session: SharedDreamSession,
+  command: string,
+  timeRefSec?: number,
+  payload?: Record<string, unknown>,
+): void {
+  void collabBroadcastMediaSync(session, command, timeRefSec, payload);
+}
+
+export function broadcastControlSignal(
+  session: SharedDreamSession,
+  signal: string,
+  payload?: Record<string, unknown>,
+): void {
+  void collabBroadcastControlSignal(session, signal, payload);
+}
+
+export function broadcastModeChange(
+  session: SharedDreamSession,
+  mode: CollabMode,
+  changedByRole?: SessionRole,
+): void {
+  void collabBroadcastModeChange(session, mode, changedByRole);
+}
+
+export function broadcastPresenceUpdate(
+  session: SharedDreamSession,
+  presence: PresenceUpdateData,
+): void {
+  void collabBroadcastPresenceUpdate(session, presence);
+}
+
 export async function leaveSharedDreamSession(session: SharedDreamSession): Promise<void> {
-  await session.channel.send({
-    type: 'broadcast',
-    event: 'dream_event',
-    payload: {
-      type: 'peer_leave',
-      peerId: session.peerId,
-      data: { leftAt: new Date().toISOString() },
-    } satisfies DreamBroadcastPayload,
-  });
-  await session.channel.unsubscribe();
+  await session.leave();
 }
