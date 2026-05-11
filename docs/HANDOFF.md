@@ -127,11 +127,11 @@ All docs, canonical name registry, and tests now use the OS-layer naming model:
 
 | # | Date / Time (UTC) | Revision | Branch | Author | Summary |
 |---|---|---|---|---|---|
+| **auto** | 2026-05-09 18:33 UTC | `ac40c85` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #752 from appthemanger-ctrl/copilot/fix-landing-page-background — Upgrade landing universe field rendering<br> |
 | **auto** | 2026-04-30 16:19 UTC | `faa4a21` | completedream | appthemanger-ctrl | ~5 modified<br>chore: sync build-memory [skip ci] [skip vercel]<br>✏️: `build-memory/actions.json`, `build-memory/events.json`, `build-memory/routes.json`, `build-memory/schema.json`, `build-memory/ui-surfaces.json` |
 | **auto** | 2026-04-27 03:37 UTC | `15bd8d0` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #712 from appthemanger-ctrl/copilot/fix-server-components-render-error — Fix engine Server Component auth crashes<br> |
 | **auto** | 2026-04-26 07:56 UTC | `c0de8aa` | completedream | appthemanger-ctrl | no file changes<br>Merge pull request #689 from appthemanger-ctrl/copilot/update-if-conditions-main-to-completedream — Retarget deployment workflow branch conditions to completedream<br> |
 | **auto** | 2026-04-20 20:25 UTC | `16cf0a3` | completedream | appthemanger-ctrl | ~5 modified<br>chore: sync build-memory [skip ci] [skip vercel]<br>✏️: `build-memory/actions.json`, `build-memory/events.json`, `build-memory/routes.json`, `build-memory/schema.json`, `build-memory/ui-surfaces.json` |
-| **auto** | 2026-04-20 16:57 UTC | `384cc10` | completedream | appthemanger-ctrl | ~5 modified<br>chore: sync build-memory [skip ci] [skip vercel]<br>✏️: `build-memory/actions.json`, `build-memory/events.json`, `build-memory/routes.json`, `build-memory/schema.json`, `build-memory/ui-surfaces.json` |
 
 ## What changed in this alignment pass
 
