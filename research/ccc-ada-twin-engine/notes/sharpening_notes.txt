@@ -1,0 +1,17 @@
+CCC / ADA Twin-Engine sharpening notes
+========================================
+
+1. Keep CCC and ADA separate until the prediction step.
+   CCC is the conserved compression engine. ADA is the accounting engine. A claim that only invokes one side is incomplete.
+
+2. Do not erase signs.
+   Signed residuals and signed gradients are part of the information. Unsigned transformations may be useful diagnostics, but they are not the primary coordinate system.
+
+3. Every prediction needs a failure condition.
+   A paper should name the measurement that would count against it. If a claim cannot fail, it belongs in notes, not in the formal paper set.
+
+4. Raw owner-supplied artifacts should remain traceable.
+   Keep original filenames for CSV, TXT, and Python files. Add explanatory README entries rather than renaming source artifacts into more polished titles.
+
+5. Keep research code out of product runtime.
+   Decoder scripts and benchmark tools belong in this archive's code folder unless the owner explicitly asks to productize them.
