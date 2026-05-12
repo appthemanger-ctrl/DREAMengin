@@ -76,7 +76,7 @@ The issue body becomes the report text. The workflow comments back with the resu
 
 ## Notes
 
-- Requires `OPENAI_API_KEY`
+- Requires `GROQ_API_KEY` (preferred) or `OPENAI_API_KEY` compatibility fallback
 - Uses Node 25 + pnpm 10.30.0 (see `.github/actions/setup-node`)
 - Reuses existing DREAMengin scan/patch infrastructure instead of inventing a parallel automation system
 - Advanced targets currently prioritize `BabylonSideScroller`, `ENGINBattle`, and `DREAMquest`

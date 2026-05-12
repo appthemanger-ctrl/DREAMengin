@@ -302,7 +302,7 @@ export default async function CodeDaydreamPage() {
             <div className="de-widget-body">
               {[
                 { key: 'NEXT_PUBLIC_SUPABASE_URL', set: true  },
-                { key: 'OPENAI_API_KEY',           set: false },
+                { key: 'GROQ_API_KEY',             set: false },
                 { key: 'DEV_BYPASS_AUTH',          set: true  },
               ].map(v => (
                 <div key={v.key} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 8px', marginBottom: 3, borderRadius: 7, background: 'rgba(0,0,0,0.04)', fontFamily: 'monospace' }}>

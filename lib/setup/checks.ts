@@ -81,9 +81,9 @@ export function getSetupChecks(env: NodeJS.ProcessEnv = process.env): SetupCheck
       required: false,
     },
     {
-      key: 'OPENAI_API_KEY',
-      ok: Boolean(env.OPENAI_API_KEY),
-      hint: 'Required for OpenAI-powered features.',
+      key: 'GROQ_API_KEY',
+      ok: Boolean(env.GROQ_API_KEY || env.OPENAI_API_KEY),
+      hint: 'Required for AI-powered features (prefer GROQ_API_KEY; OPENAI_API_KEY remains compatibility fallback).',
       required: false,
     },
     {
