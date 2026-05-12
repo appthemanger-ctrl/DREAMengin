@@ -156,8 +156,7 @@ def call_chat_completion(api_key: str, api_url: str, api_name: str, model: str, 
     try:
         with urllib.request.urlopen(req, timeout=180) as resp:
             result = json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as exc:
-        _ = exc
+    except urllib.error.HTTPError:
         print("AI provider request failed with HTTP error.", file=sys.stderr)
         sys.exit(1)
 
