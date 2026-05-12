@@ -1,6 +1,6 @@
 # CCC / ADA Twin-Engine Research Archive
 
-*Jose Mancilla — DREAMengin Research — May 2026*
+*José Mancilla — DREAMengin Research — May 2026*
 
 This directory is the archive landing place for the CCC / ADA Twin-Engine research bundle. It keeps the new papers, data artifacts, decoder materials, and sharpening notes together under `research/` so the work is discoverable from the main research index without mixing it into product runtime code.
 
