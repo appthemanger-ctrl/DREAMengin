@@ -52,7 +52,7 @@ export default function LandingProductStatement() {
         className="text-base md:text-lg leading-relaxed mb-8 max-w-md"
         style={{ color: 'rgba(165,195,235,0.78)' }}
       >
-        A spatial, privacy-first creative OS. Your world — layered, connected, and
+        A privacy-first creative browser based OS. Your world — youre rules, your dreams, and
         entirely yours.
       </p>
 
@@ -70,7 +70,7 @@ export default function LandingProductStatement() {
             boxSizing: 'border-box',
           }}
         >
-          Sign Up — Free
+          Sign Up and start dreaming again!. 
         </Link>
         <Link
           href="/login"
@@ -86,7 +86,8 @@ export default function LandingProductStatement() {
             boxSizing: 'border-box',
           }}
         >
-          Sign In
+          Welcome Back! 
+          
         </Link>
       </div>
     </div>
