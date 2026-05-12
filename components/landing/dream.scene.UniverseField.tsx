@@ -98,7 +98,7 @@ export default function UniverseField(_props: UniverseFieldProps) {
       rotation: hash(400 + i) * TAU,
       spin: (i % 2 === 0 ? 1 : -1) * (0.08 + hash(500 + i) * 0.09),
       arms: i % 2 === 0 ? 3 : 2,
-      hue: [42, 198, 266, 320, 175][i],
+      hue: [42, 198, 266, 320, 175][i % 5],
       tiltX: 0.72 + hash(600 + i) * 0.42,
       tiltY: 0.42 + hash(700 + i) * 0.36,
     }));
