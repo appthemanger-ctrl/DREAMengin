@@ -22,8 +22,9 @@ interface GamesScoresPageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function GamesScoresPage({ searchParams }: GamesScoresPageProps = {}) {
+export default async function GamesScoresPage(props?: GamesScoresPageProps) {
   await connection();
+  const searchParams = props?.searchParams;
   const currentSearchParams = searchParams ? await searchParams : undefined;
   const supabase = await createServerClient();
   let user = null;

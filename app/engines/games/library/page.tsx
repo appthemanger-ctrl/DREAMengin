@@ -22,8 +22,9 @@ interface GamesLibraryPageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function GamesLibraryPage({ searchParams }: GamesLibraryPageProps = {}) {
+export default async function GamesLibraryPage(props?: GamesLibraryPageProps) {
   await connection();
+  const searchParams = props?.searchParams;
   const currentSearchParams = searchParams ? await searchParams : undefined;
   const supabase = await createServerClient();
   let user = null;

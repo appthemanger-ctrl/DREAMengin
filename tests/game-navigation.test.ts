@@ -36,6 +36,7 @@ describe('game launch navigation', () => {
       .toBe('/engines/games?game=platformer&play=1&expand=1');
     expect(resolveSafeNextPath('https://evil.example/engines/games')).toBe('/homedream');
     expect(resolveSafeNextPath('//evil.example/engines/games')).toBe('/homedream');
+    expect(resolveSafeNextPath('/engines%5cgames')).toBe('/homedream');
   });
 
   it('treats only 1 as an enabled launch flag', () => {

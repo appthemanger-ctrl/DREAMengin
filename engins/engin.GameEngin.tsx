@@ -906,7 +906,14 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   useEffect(() => {
     let cancelled = false;
     void Promise.all(
-      GAMES.map(async (game) => [game.id, await loadCartridge(game.id)] as const),
+      GAMES.map(async (game) => {
+        try {
+          return [game.id, await loadCartridge(game.id)] as const;
+        } catch (error) {
+          console.warn(`[GameEngin] Failed to load cartridge "${game.id}"`, error);
+          return [game.id, null] as const;
+        }
+      }),
     ).then((entries) => {
       if (cancelled) return;
       const nextMap: Record<string, GameCartridge> = {};

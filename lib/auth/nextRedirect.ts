@@ -8,7 +8,22 @@ export function resolveSafeNextPath(
   value: string | null | undefined,
   fallback = FALLBACK_NEXT_PATH,
 ) {
-  if (!value || !value.startsWith('/') || value.startsWith('//') || value.includes('\\')) {
+  const normalizedValue = value?.toLowerCase();
+  let decodedValue = value;
+  try {
+    decodedValue = value ? decodeURIComponent(value) : value;
+  } catch {
+    return fallback;
+  }
+
+  if (
+    !value ||
+    !value.startsWith('/') ||
+    value.startsWith('//') ||
+    value.includes('\\') ||
+    decodedValue?.includes('\\') ||
+    normalizedValue?.includes('%5c')
+  ) {
     return fallback;
   }
 

@@ -8,7 +8,6 @@ const MAX_PARTICLES = 20001;
 const GALAXY_COUNT = Math.floor(Math.random() * 120) + 1; 
 const MAX_DPR = 1;
 const TAU = Math.PI * 2;
-const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 const LIGHT_PRESSURE_COEFF = 0.00000045;
 
 const a0 = 1.2e-10;
