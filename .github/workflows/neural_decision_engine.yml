@@ -56,7 +56,7 @@ jobs:
   decide:
     name: Score options and pick the next move
     needs: scan
-    if: ${{ secrets.OPENAI_API_KEY != '' }}
+    if: ${{ secrets.GROQ_API_KEY != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -72,13 +72,14 @@ jobs:
 
       - name: Generate neural decision packet
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          NEURAL_DECISION_MODEL: ${{ vars.GROQ_MODEL_IDARI_HEAVY }}
           DIRECTIVE: ${{ github.event_name == 'workflow_dispatch' && inputs.directive || '' }}
         run: |
           python .github/scripts/ai_neural_decision.py \
             --context "${{ env.GENERATED_DIR }}/dreamengin-context.md" \
             --out "${{ env.GENERATED_DIR }}/neural-decision.json" \
-            --model gpt-4.1 \
+            --model "${NEURAL_DECISION_MODEL:-openai/gpt-oss-120b}" \
             --directive "$DIRECTIVE"
 
       - name: Upload decision artifact
@@ -150,13 +151,14 @@ jobs:
 
       - name: Generate implementation patch
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          NEURAL_IMPLEMENT_MODEL: ${{ vars.GROQ_MODEL_IDARI_HEAVY }}
         run: |
           python .github/scripts/ai_implement.py \
             --context "${{ env.GENERATED_DIR }}/dreamengin-context.md" \
             --spec "${{ env.GENERATED_DIR }}/neural-decision.json" \
             --out "${{ env.GENERATED_DIR }}/neural-decision.patch.diff" \
-            --model gpt-4.1
+            --model "${NEURAL_IMPLEMENT_MODEL:-openai/gpt-oss-120b}"
 
       - name: Apply patch
         id: apply-patch

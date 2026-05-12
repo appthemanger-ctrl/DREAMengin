@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Reads the DREAMengin context snapshot and asks the OpenAI API to generate a
+# Reads the DREAMengin context snapshot and asks the configured AI provider to generate a
 # ranked decision packet: multiple candidate platform moves plus the single best
 # first slice to implement next.
 #
@@ -8,9 +8,9 @@
 #   python .github/scripts/ai_neural_decision.py \
 #       --context .github/generated/dreamengin-context.md \
 #       --out     .github/generated/neural-decision.json \
-#       --model   gpt-4.1
+#       --model   openai/gpt-oss-120b
 #
-# Requires: OPENAI_API_KEY env var
+# Requires: GROQ_API_KEY (preferred) or OPENAI_API_KEY env var
 # Stdlib only — no extra dependencies.
 
 import argparse
@@ -21,6 +21,7 @@ import urllib.error
 import urllib.request
 
 DEFAULT_MAX_TOKENS = 16_384
+DEFAULT_MODEL = os.environ.get("GROQ_MODEL_IDARI_HEAVY", "").strip() or "openai/gpt-oss-120b"
 
 
 SYSTEM = """\
@@ -121,7 +122,20 @@ Output JSON ONLY:
 """
 
 
-def call_openai(api_key: str, model: str, system: str, user: str, max_tokens: int = DEFAULT_MAX_TOKENS) -> str:
+def resolve_api_config() -> tuple[str, str, str]:
+    groq_api_key = os.environ.get("GROQ_API_KEY", "").strip()
+    if groq_api_key:
+        return groq_api_key, "https://api.groq.com/openai/v1/chat/completions", "Groq"
+
+    openai_api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if openai_api_key:
+        return openai_api_key, "https://api.openai.com/v1/chat/completions", "OpenAI"
+
+    print("Error: set GROQ_API_KEY (preferred) or OPENAI_API_KEY.", file=sys.stderr)
+    sys.exit(1)
+
+
+def call_chat_completion(api_key: str, api_url: str, api_name: str, model: str, system: str, user: str, max_tokens: int = DEFAULT_MAX_TOKENS) -> str:
     payload = {
         "model": model,
         "max_tokens": max_tokens,
@@ -132,7 +146,7 @@ def call_openai(api_key: str, model: str, system: str, user: str, max_tokens: in
     }
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
-        "https://api.openai.com/v1/chat/completions",
+        api_url,
         data=data,
         headers={
             "Content-Type": "application/json",
@@ -144,7 +158,7 @@ def call_openai(api_key: str, model: str, system: str, user: str, max_tokens: in
             result = json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")
-        print(f"OpenAI API error {exc.code}: {body}", file=sys.stderr)
+        print(f"{api_name} API error {exc.code}: {body}", file=sys.stderr)
         sys.exit(1)
 
     return result["choices"][0]["message"]["content"]
@@ -185,7 +199,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="AI neural decision packet for DREAMengin")
     parser.add_argument("--context", required=True, help="Path to dreamengin-context.md")
     parser.add_argument("--out", required=True, help="Path to write neural-decision.json")
-    parser.add_argument("--model", default="gpt-4.1", help="OpenAI model name")
+    parser.add_argument("--model", default=DEFAULT_MODEL, help="Model name")
     parser.add_argument("--directive", default="", help="Optional operator directive")
     parser.add_argument(
         "--max-tokens",
@@ -195,10 +209,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
-    if not api_key:
-        print("Error: OPENAI_API_KEY env var is not set.", file=sys.stderr)
-        sys.exit(1)
+    api_key, api_url, api_name = resolve_api_config()
 
     with open(args.context, "r", encoding="utf-8") as fh:
         context_text = fh.read()
@@ -207,7 +218,7 @@ def main() -> None:
     user_prompt = TASK_TEMPLATE.format(context=context_text, directive=directive)
 
     print(f"Calling {args.model} for neural decision packet…", file=sys.stderr)
-    raw = call_openai(api_key, args.model, SYSTEM, user_prompt, max_tokens=args.max_tokens)
+    raw = call_chat_completion(api_key, api_url, api_name, args.model, SYSTEM, user_prompt, max_tokens=args.max_tokens)
     cleaned = strip_markdown_fences(raw)
 
     try:

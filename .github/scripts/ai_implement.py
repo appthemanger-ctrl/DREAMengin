@@ -1,16 +1,16 @@
 # .github/scripts/ai_implement.py
 #
 # Reads the DREAMengin context snapshot + spec proposal and asks the
-# OpenAI API to implement the first coherent slice as a unified diff.
+# configured AI provider to implement the first coherent slice as a unified diff.
 #
 # Usage:
 #   python .github/scripts/ai_implement.py \
 #       --context .github/generated/dreamengin-context.md \
 #       --spec    .github/generated/dreamengin-spec.json \
 #       --out     .github/generated/dreamengin-patch.diff \
-#       --model   gpt-4.1
+#       --model   openai/gpt-oss-120b
 #
-# Requires:  OPENAI_API_KEY env var
+# Requires:  GROQ_API_KEY (preferred) or OPENAI_API_KEY env var
 # Stdlib only — no extra dependencies.
 
 import argparse
@@ -22,6 +22,7 @@ import urllib.request
 
 DEFAULT_MAX_TOKENS = 16_384
 DEFAULT_MAX_ROUND_TRIPS = 8
+DEFAULT_MODEL = os.environ.get("GROQ_MODEL_IDARI_HEAVY", "").strip() or "openai/gpt-oss-120b"
 
 # ── Prompt ────────────────────────────────────────────────────────────────────
 
@@ -84,9 +85,22 @@ Every fix must be:
 Output a unified diff (git patch) ONLY. Start with the first "diff --git" line.
 """
 
-# ── OpenAI call ───────────────────────────────────────────────────────────────
+# ── Chat completion call ──────────────────────────────────────────────────────
 
-def call_openai(api_key: str, model: str, messages: list, max_tokens: int = DEFAULT_MAX_TOKENS):
+def resolve_api_config() -> tuple[str, str, str]:
+    groq_api_key = os.environ.get("GROQ_API_KEY", "").strip()
+    if groq_api_key:
+        return groq_api_key, "https://api.groq.com/openai/v1/chat/completions", "Groq"
+
+    openai_api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    if openai_api_key:
+        return openai_api_key, "https://api.openai.com/v1/chat/completions", "OpenAI"
+
+    print("Error: set GROQ_API_KEY (preferred) or OPENAI_API_KEY.", file=sys.stderr)
+    sys.exit(1)
+
+
+def call_chat_completion(api_key: str, api_url: str, api_name: str, model: str, messages: list, max_tokens: int = DEFAULT_MAX_TOKENS):
     payload = {
         "model": model,
         "max_tokens": max_tokens,
@@ -94,7 +108,7 @@ def call_openai(api_key: str, model: str, messages: list, max_tokens: int = DEFA
     }
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
-        "https://api.openai.com/v1/chat/completions",
+        api_url,
         data=data,
         headers={
             "Content-Type": "application/json",
@@ -106,7 +120,7 @@ def call_openai(api_key: str, model: str, messages: list, max_tokens: int = DEFA
             result = json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
         body = exc.read().decode("utf-8", errors="replace")
-        print(f"OpenAI API error {exc.code}: {body}", file=sys.stderr)
+        print(f"{api_name} API error {exc.code}: {body}", file=sys.stderr)
         sys.exit(1)
 
     content = result["choices"][0]["message"]["content"]
@@ -129,7 +143,7 @@ def main():
     parser.add_argument("--context", required=True,  help="Path to dreamengin-context.md")
     parser.add_argument("--spec",    required=True,  help="Path to dreamengin-spec.json")
     parser.add_argument("--out",     required=True,  help="Path to write dreamengin-patch.diff")
-    parser.add_argument("--model",   default="gpt-4.1", help="OpenAI model name")
+    parser.add_argument("--model",   default=DEFAULT_MODEL, help="Model name")
     parser.add_argument(
         "--max-tokens",
         type=int,
@@ -144,10 +158,7 @@ def main():
     )
     args = parser.parse_args()
 
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
-    if not api_key:
-        print("Error: OPENAI_API_KEY env var is not set.", file=sys.stderr)
-        sys.exit(1)
+    api_key, api_url, api_name = resolve_api_config()
 
     with open(args.context, "r", encoding="utf-8") as fh:
         context_text = fh.read()
@@ -167,7 +178,7 @@ def main():
     finish_reason = None
 
     for attempt in range(args.max_round_trips):
-        raw, finish_reason = call_openai(api_key, args.model, messages, max_tokens=args.max_tokens)
+        raw, finish_reason = call_chat_completion(api_key, api_url, api_name, args.model, messages, max_tokens=args.max_tokens)
         cleaned = strip_markdown_fences(raw)
         chunks.append(cleaned)
 

@@ -80,7 +80,7 @@ describe('admin upgrade readiness', () => {
     const setup = makeSetup([
       { key: 'SUPABASE_URL', ok: false, required: true },
       { key: 'SUPABASE_ANON_KEY', ok: true, required: true },
-      { key: 'OPENAI_API_KEY', ok: false, required: false },
+      { key: 'GROQ_API_KEY', ok: false, required: false },
     ]);
 
     const snapshot = createUpgradeReadinessSnapshot({ manifests, setup });
@@ -96,7 +96,7 @@ describe('admin upgrade readiness', () => {
     const setup = makeSetup([
       { key: 'SUPABASE_URL', ok: true, required: true },
       { key: 'SUPABASE_ANON_KEY', ok: true, required: true },
-      { key: 'OPENAI_API_KEY', ok: true, required: false },
+      { key: 'GROQ_API_KEY', ok: true, required: false },
     ]);
 
     const snapshot = createUpgradeReadinessSnapshot({ manifests, setup });
