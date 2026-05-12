@@ -74,7 +74,9 @@ additional_redirect_urls = [
   "https://dreamengin.vercel.app",
   "https://dreamengin.com",
   "https://www.dreamengin.com",
-  "https://jnpkzaneznwnomhmvxxs.supabase.co/"
+  "https://dreamengin.com/auth/callback",
+  "https://www.dreamengin.com/auth/callback",
+  "https://dreamengin.vercel.app/auth/callback"
 ]
 # How long tokens are valid for, in seconds. Defaults to 3600 (1 hour), maximum 604800 (1 week).
 jwt_expiry = 3600
