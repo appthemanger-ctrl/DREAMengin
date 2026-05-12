@@ -4,8 +4,9 @@
  * Server-safe catalog of every game in the repository, packaged as a
  * GameEngin cartridge entry. Pure data — no React, no client-only imports.
  *
- * Every game in `components/games/dream.GamesHub#GAMES` MUST have a matching entry
- * here. The synchronisation is enforced by `tests/gameengin-cartridges.test.ts`.
+ * This manifest is the source for the shared game catalog, cartridge browser,
+ * loader registry, and GameEngin runtime shelf. The synchronisation is enforced
+ * by `tests/gameengin-cartridges.test.ts`.
  */
 
 export type CartridgeRenderMode = 'canvas' | 'webgpu' | 'babylon' | 'dom';
@@ -23,8 +24,8 @@ export interface CartridgeManifestEntry {
 }
 
 /**
- * Cartridge bay — three legacy flagships kept (MADMAXI, Neon Drift, Echo Arena)
- * plus the nine fusion cartridges that replaced 25 source games.
+ * Cartridge bay — three flagship browser titles plus the nine fusion
+ * cartridges that replaced 25 source games.
  */
 export const CARTRIDGE_MANIFEST: readonly CartridgeManifestEntry[] = [
   // ── Flagship — Babylon.js / WebGPU / deep-systems ────────────────────────

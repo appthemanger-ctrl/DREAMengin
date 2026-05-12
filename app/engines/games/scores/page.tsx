@@ -5,6 +5,7 @@ import { isDevBypassActive } from '@/lib/dev-bypass';
 import { EnginAppShell, EnginNavBar } from '@/components/engines/shared';
 import ScoresPanel from '@/components/engines/games/panels/dream.panel.ScoresPanel';
 import { connection } from 'next/server';
+import { buildLoginRedirectPath } from '@/lib/auth/nextRedirect';
 
 export const metadata = { title: 'Scores – GameEngin', description: 'Your personal best scores.' };
 
@@ -17,15 +18,21 @@ const NAV_ITEMS = [
   { href: '/engines/games/builder', label: 'Builder', emoji: '🗺️' },
 ];
 
-export default async function GamesScoresPage() {
+interface GamesScoresPageProps {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function GamesScoresPage(props?: GamesScoresPageProps) {
   await connection();
+  const searchParams = props?.searchParams;
+  const currentSearchParams = searchParams ? await searchParams : undefined;
   const supabase = await createServerClient();
   let user = null;
   try {
     const { data } = await supabase.auth.getUser();
     user = data.user;
   } catch { /* Supabase not configured — treat as unauthenticated */ }
-  if (!user && !isDevBypassActive()) redirect('/login');
+  if (!user && !isDevBypassActive()) redirect(buildLoginRedirectPath('/engines/games/scores', currentSearchParams));
 
   return (
     <EnginAppShell

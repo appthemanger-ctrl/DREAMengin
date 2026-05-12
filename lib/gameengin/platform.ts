@@ -4,8 +4,8 @@
  * GameEngin Platform — the single, canonical, console-class facade.
  *
  * GameEngin is no longer a "library each game wires up itself" — it is a
- * **next-gen home-console-class browser platform** that any game (new or
- * legacy) can run on. This module is the one coherent surface that ties the
+ * **next-gen home-console-class browser platform** that every registered
+ * cartridge runs on. This module is the one coherent surface that ties the
  * existing pieces together:
  *
  *   • Renderer        — EliteGameEngine (WebGPU-first, ECS, adaptive budget)
@@ -23,9 +23,8 @@
  *        const platform = await GameEnginPlatform.boot(canvas);
  *        await platform.loadCartridge(MyCartridge);
  *   2. **Console feel** — quick resume, controllers, premium FX, AI Director.
- *   3. **Backwards compatibility** — legacy games that import EliteGameEngine,
- *      AIDirector, PostFXManager, wrapAsCartridge, GameRuntime, etc. directly
- *      keep working unchanged. This file is purely additive.
+ *   3. **Registered cartridge contract** — games enter through the manifest,
+ *      loader registry, and GameRuntime host instead of private launch paths.
  *   4. **Game-agnostic** — the platform itself never assumes "what game" is
  *      running. It is the OS layer; cartridges are the apps.
  */

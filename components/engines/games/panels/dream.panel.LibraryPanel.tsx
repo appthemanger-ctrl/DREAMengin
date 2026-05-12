@@ -10,21 +10,21 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Search, Play, Star, Filter } from 'lucide-react';
-import { GAMES } from '@/components/games/dream.GamesHub';
+import { GAME_CATALOG } from '@/lib/games/catalog';
 import { buildGameLaunchHref } from '@/lib/games/navigation';
 
-const CATEGORIES = ['All', ...Array.from(new Set(GAMES.map((g) => g.category ?? 'Other')))];
+const CATEGORIES = ['All', ...Array.from(new Set(GAME_CATALOG.map((g) => g.category ?? 'Other')))];
 
 export default function LibraryPanel() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
 
-  const filtered = GAMES.filter((g) => {
+  const filtered = GAME_CATALOG.filter((g) => {
     const matchCat = category === 'All' || g.category === category;
     const matchSearch =
       !search ||
       g.label.toLowerCase().includes(search.toLowerCase()) ||
-      (g.desc ?? '').toLowerCase().includes(search.toLowerCase());
+      g.desc.toLowerCase().includes(search.toLowerCase());
     return matchCat && matchSearch;
   });
 
@@ -34,7 +34,7 @@ export default function LibraryPanel() {
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-white mb-1">Game Library</h1>
-          <p className="text-sm text-white/50">{GAMES.length} games · browse, filter, launch</p>
+          <p className="text-sm text-white/50">{GAME_CATALOG.length} cartridges · browse, filter, launch</p>
         </div>
 
         {/* Search + Filter row */}

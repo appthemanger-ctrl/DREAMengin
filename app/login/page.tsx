@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import PasswordField from "@/components/auth/dream.PasswordField";
 import { createClient } from "@/lib/supabase/client";
+import { resolveSafeNextPath } from "@/lib/auth/nextRedirect";
 
 // Shared input style — matches the rest of the de-widget design system
 const INPUT_STYLE: React.CSSProperties = {
@@ -33,6 +34,7 @@ function LoginPageInner() {
   const [rememberMe, setRememberMe]   = useState(false);
   const [error, setError]         = useState<string | null>(null);
   const [oauthProviders, setOauthProviders] = useState<{ google: boolean | null; github: boolean | null } | null>(null);
+  const nextPath = useMemo(() => resolveSafeNextPath(searchParams.get("next")), [searchParams]);
 
   // Show errors from OAuth callback (e.g. Google auth redirect mismatch)
   // Preflight: check which OAuth providers are configured in Supabase
@@ -93,7 +95,7 @@ function LoginPageInner() {
       } else {
         window.localStorage.removeItem("rememberedEmail");
       }
-      router.replace("/homedream");
+      router.replace(nextPath);
       router.refresh();
     } catch (err: unknown) {
       const msg = (err as { message?: string })?.message ?? "Login failed";
@@ -124,7 +126,7 @@ function LoginPageInner() {
       const origin = window.location.origin;
       const { error: authError } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${origin}/auth/callback` },
+        options: { redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(nextPath)}` },
       });
       if (authError) throw authError;
     } catch (err: unknown) {

@@ -15,8 +15,7 @@ import {
   type SavedGameSession,
   upsertSavedGameSession,
 } from '@/lib/games/library-state';
-import type { GameRenderMode } from '@/lib/games/performance-baseline';
-import type { MobileHudMode } from '@/lib/games/mobileControls';
+import { GAME_CATALOG, type GameCatalogEntry } from '@/lib/games/catalog';
 import { buildGameLaunchHref, resolveGameLaunchId } from '@/lib/games/navigation';
 import { getAvatarDataUrl, setPlayAsMe } from '@/lib/games/avatar';
 import { useGsapEntrance } from '@/lib/gsap/useGsapEntrance';
@@ -44,71 +43,30 @@ const NiteFlyerSolarHymn  = dynamicImport(() => import('@/components/games/dream
 const LexiconSolitaire    = dynamicImport(() => import('@/components/games/dream.LexiconSolitaire'),    { ssr: false, loading: Loading });
 const DefuseRitual        = dynamicImport(() => import('@/components/games/dream.DefuseRitual'),        { ssr: false, loading: Loading });
 
-export interface GameDef {
-  id: string;
-  emoji: string;
-  label: string;
-  desc: string;
-  category: string;
-  color: string;
-  renderMode: GameRenderMode;
-  subtitle?: string;
-  mobileHudMode?: MobileHudMode;
+export interface GameDef extends GameCatalogEntry {
   /** Render inline inside the hub. Mutually exclusive with `href`. */
   component?: React.ComponentType;
-  /** Navigate to a full page instead of rendering inline. */
-  href?: string;
 }
 
-// ── Playable games — fusion cartridges + 3 legacy flagships ─────────────────
-// Order mirrors `lib/gameengin/cartridges/manifest.ts` (test-enforced parity).
-export const GAMES: GameDef[] = [
-  // ── Legacy flagships kept ─────────────────────────────────────────────────
-  { id: 'platformer',    emoji: '🏎',  label: 'MADMAXI',          category: 'Platformer', color: '#c8981a', renderMode: 'babylon', component: BabylonSideScroller,
-    mobileHudMode: 'buttons',
-    subtitle: 'MADMAXI · Landing-grade robot hero',
-    desc: '150 levels · 15 zones · boss every 10 levels · unique each run — Babylon.js side-scroller rebuilt around the DREAMengin landing robot' },
-  { id: 'neon-drift',    emoji: '🏎️', label: 'Neon Drift',        category: 'Racing',     color: '#0ff',    renderMode: 'webgpu',  component: NeonDrift,
-    subtitle: 'WebGPU · DualSense Ready',
-    desc: 'WebGPU cyberpunk racer — DualSense gyro steering, haptic feedback, high-performance 3D rendering' },
-  { id: 'echo-arena',    emoji: '🎯', label: 'Echo Arena',        category: 'Shooter',    color: '#a78bfa', renderMode: 'webgpu',  component: EchoArena,
-    mobileHudMode: 'joystick',
-    subtitle: 'WebGPU · DualSense Ready',
-    desc: 'WebGPU arena shooter — DualSense gyro aim, top-down combat, high-performance 3D rendering' },
+const GAME_COMPONENTS: Record<string, React.ComponentType> = {
+  platformer: BabylonSideScroller,
+  'neon-drift': NeonDrift,
+  'echo-arena': EchoArena,
+  'null-cathedral': NullCathedral,
+  'voidline-gp': VoidlineGP,
+  'serpent-siege': SerpentSiege,
+  'avenue-of-mirrors': AvenueOfMirrors,
+  'engin-fracture': EnginFracture,
+  glassfall: Glassfall,
+  'nite-flyer-solar-hymn': NiteFlyerSolarHymn,
+  'lexicon-solitaire': LexiconSolitaire,
+  'defuse-ritual': DefuseRitual,
+};
 
-  // ── Fusion flagships ──────────────────────────────────────────────────────
-  { id: 'null-cathedral',    emoji: '♟',  label: 'NULL CATHEDRAL',     category: 'Tactics RPG', color: '#d4af37', renderMode: 'canvas', component: NullCathedral,
-    subtitle: 'Chess + RPG + Minesweeper · Deductive sacrifice',
-    desc: 'A grim tactical RPG where every battle is a chess match played over a buried minefield of repressed memories — Iren Vespa descends the Cathedral of Null to find her sister before CASTLE overwrites her' },
-  { id: 'voidline-gp',       emoji: '🛸', label: 'VOIDLINE GP',        category: 'Racing',      color: '#ff6a3d', renderMode: 'canvas', component: VoidlineGP,
-    subtitle: 'Racing + Shoot + Rhythm · On-the-beat overtake',
-    desc: 'F-Zero by way of rhythm bullet-hell — every shot, drift and boost must land on the soundtrack downbeat or it fizzles. Yuna Orr races to free her mentor on the illegal Voidline circuit' },
-  { id: 'serpent-siege',     emoji: '🐍', label: 'SERPENT SIEGE',      category: 'Strategy',    color: '#5fbf4d', renderMode: 'canvas', component: SerpentSiege,
-    subtitle: 'Snake + TD + RTS · Body-as-build-order',
-    desc: 'A tower-defense RTS where your army is one sentient serpent — every body segment is a tower whose type is set by the terrain beneath it. Defend the Mother Egg from the Vermillion Choir' },
-  { id: 'avenue-of-mirrors', emoji: '🪞', label: 'AVENUE OF MIRRORS',  category: 'Adventure',   color: '#7fb6b1', renderMode: 'canvas', component: AvenueOfMirrors,
-    subtitle: 'Lucid Avenue + Maze + Memory · Navigational amnesia',
-    desc: 'A first-person dream-walk where the maze rebuilds itself the moment you stop looking, and you only navigate by glyph-grids you must memorize. The Compositor wants you forgotten' },
-  { id: 'engin-fracture',    emoji: '⚙️', label: 'ENGIN: FRACTURE',    category: 'Fighting',    color: '#8aa9ff', renderMode: 'canvas', component: EnginFracture,
-    subtitle: 'ENGIN Battle + DREAMwars + Avatar Maker · Built-is-fought',
-    desc: '1v1 mech fighter where every avatar-maker silhouette choice is a frame-data decision, wrapped in a season-long Lattice/Choir/Kindling faction war. Pilot Vesh defects mid-season' },
-
-  // ── Advanced fusions ──────────────────────────────────────────────────────
-  { id: 'glassfall',             emoji: '🔻', label: 'GLASSFALL',              category: 'Puzzle',    color: '#ff7da8', renderMode: 'canvas', component: Glassfall,
-    subtitle: 'Breakout + Tetris + Match-3 · Carve the falling tower',
-    desc: 'A vertical action-puzzler — bounce shards up into falling tetrominos to chip free gems, settle them into 3-matches, push back the rising garbage. Climb the Architect\'s tower' },
-  { id: 'nite-flyer-solar-hymn', emoji: '🌙', label: 'NITE FLYER: SOLAR HYMN', category: 'Adventure', color: '#c47bd6', renderMode: 'canvas', component: NiteFlyerSolarHymn,
-    subtitle: 'Flappy + Pong + DREAMquest · Out-rally a god',
-    desc: 'Side-scrolling dream-courier adventure — flap through painted chapters, deliver one last letter to The Long Pause, then face moon-king bosses in cosmic Pong duels' },
-  { id: 'lexicon-solitaire',     emoji: '📜', label: 'LEXICON SOLITAIRE',      category: 'Card',      color: '#d6b27a', renderMode: 'dom',    component: LexiconSolitaire,
-    subtitle: 'Solitaire + Word Sprint + Trivia · Spell to fight',
-    desc: 'Narrative deckbuilder — lay Klondike cascades, spell words across legal chains to cast spells, answer library trivia for relic-cards. Lin Argo chases the Redactor through five dying libraries' },
-
-  // ── Classic fusion ────────────────────────────────────────────────────────
-  { id: 'defuse-ritual',         emoji: '🕯', label: 'DEFUSE RITUAL',          category: 'Arcade',    color: '#f0c674', renderMode: 'dom',    component: DefuseRitual,
-    subtitle: 'Speed-Tap + Minesweeper · Deduction under panic',
-    desc: 'Nine seconds. A minesweeper grid overlays a candle-lit temple floor. Tap only the safe tiles in the glyph-order shown on the wall — mistakes shorten the timer and brand your hand' },
-];
+export const GAMES: GameDef[] = GAME_CATALOG.map((game) => ({
+  ...game,
+  component: GAME_COMPONENTS[game.id],
+}));
 
 const FEATURED_GAME_IDS = ['platformer', 'null-cathedral', 'engin-fracture', 'voidline-gp'] as const;
 const QUICK_RESUME_FALLBACK_COUNT = 3;

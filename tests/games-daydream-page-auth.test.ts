@@ -89,11 +89,11 @@ describe('app/daydream/games/page auth gating', () => {
     isDevBypassActiveMock.mockReturnValue(false);
   });
 
-  it('redirects to /login when there is no user and dev bypass is off', async () => {
+  it('redirects to login with the games route preserved when there is no user and dev bypass is off', async () => {
     const { default: GamesDaydreamPage } = await import('@/app/daydream/games/page');
 
     await expect(GamesDaydreamPage()).rejects.toThrow('redirect:/login');
-    expect(redirectMock).toHaveBeenCalledWith('/login');
+    expect(redirectMock).toHaveBeenCalledWith('/login?next=%2Fdaydream%2Fgames');
   });
 
   it('does NOT crash and renders the shell in dev-bypass mode (simulates unconfigured Supabase)', async () => {
