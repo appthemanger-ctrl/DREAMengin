@@ -8,10 +8,11 @@ const MAX_PARTICLES = 20001;
 const GALAXY_COUNT = Math.floor(Math.random() * 120) + 1; 
 const MAX_DPR = 1;
 const TAU = Math.PI * 2;
-const LIGHT_PRESSURE_COEFF = 0.00000045;
 
+// --- TORRIDITY & COSMOLOGY (ALL LOGIC RESTORED) ---
 const a0 = 1.2e-10;
 const n = MOND_N;
+const LIGHT_PRESSURE_COEFF = 0.00000045; 
 
 function nu_T(y: number): number {
   if (y <= 0) return 1;
@@ -101,14 +102,15 @@ export default function UniverseField() {
 
     let universeAgeYears = 0;
     const COSMIC_SPEED = 5e8;
-    const particleCount = Math.min(Math.max(Math.floor((width * height) / 820), MIN_PARTICLES), MAX_PARTICLES);
+    const pCount = Math.min(Math.max(Math.floor((width * height) / 820), MIN_PARTICLES), MAX_PARTICLES);
 
-    const x = new Float32Array(particleCount), y = new Float32Array(particleCount);
-    const vx = new Float32Array(particleCount), vy = new Float32Array(particleCount);
-    const gIdx = new Uint8Array(particleCount), oRad = new Float32Array(particleCount);
-    const oPhase = new Float32Array(particleCount), sz = new Float32Array(particleCount);
-    const bright = new Float32Array(particleCount), cType = new Uint8Array(particleCount);
-    const colors = new Array<string>(particleCount);
+    const x = new Float32Array(pCount), y = new Float32Array(pCount);
+    const vx = new Float32Array(pCount), vy = new Float32Array(pCount);
+    const gIdx = new Uint8Array(pCount), oRad = new Float32Array(pCount);
+    const oPhase = new Float32Array(pCount), sz = new Float32Array(pCount);
+    const bright = new Float32Array(pCount), cType = new Uint8Array(pCount);
+    const pulse = new Float32Array(pCount);
+    const colors = new Array<string>(pCount);
 
     const galaxies = Array.from({ length: GALAXY_COUNT }, (_, i) => ({
       orbit: hash(300 + i) * TAU,
@@ -119,23 +121,24 @@ export default function UniverseField() {
       tY: 0.42 + hash(700 + i) * 0.36,
     }));
 
-    for (let i = 0; i < particleCount; i++) {
+    for (let i = 0; i < pCount; i++) {
       x[i] = hash(i) * width; y[i] = hash(i + 1) * height;
       gIdx[i] = i % GALAXY_COUNT;
       oRad[i] = Math.pow(hash(i + 50), 0.58) * (0.13 + hash(i + 60) * 0.39);
       oPhase[i] = hash(i + 70) * TAU;
       const roll = hash(i + 999);
-      if (i % Math.floor(particleCount / GALAXY_COUNT) === 0) {
-        cType[i] = 1; sz[i] = 4; colors[i] = `hsla(260, 100%, 5%, `;
+      
+      if (i % Math.floor(pCount / GALAXY_COUNT) === 0) {
+        cType[i] = 1; sz[i] = 4; colors[i] = `hsla(260, 100%, 0%, `; // Black Hole
       } else {
         cType[i] = roll < 0.002 ? 2 : (roll < 0.05 ? 3 : 0);
         sz[i] = cType[i] === 2 ? 2.5 : (cType[i] === 3 ? 1.2 : 0.8 + hash(i) * 1.5);
-        colors[i] = `hsla(${34 + hash(i) * 50}, 100%, 90%, `;
+        colors[i] = `hsla(${34 + hash(i) * 50}, 100%, 98%, `;
       }
-      bright[i] = 0.6 + hash(i) * 0.4;
+      bright[i] = 0.7 + hash(i) * 0.3;
     }
 
-    const gx = new Float32Array(GALAXY_COUNT), gy = new Float32Array(GALAXY_COUNT);
+    const gxArr = new Float32Array(GALAXY_COUNT), gyArr = new Float32Array(GALAXY_COUNT);
     let last = performance.now();
 
     const frame = (now: number) => {
@@ -154,26 +157,28 @@ export default function UniverseField() {
       const cx = width / 2, cy = height / 2;
       const dim = Math.min(width, height);
 
-      // REDUNDANT MATH FIX: Pre-calculate galaxy centers once per frame
+      // 1. Update Galaxy Centers
       for (let g = 0; g < GALAXY_COUNT; g++) {
         const gal = galaxies[g];
         const r = gal.dist * dim * 0.3 * a;
         const ang = universeAgeYears * 0.1 + gal.orbit;
-        gx[g] = cx + Math.cos(ang) * r;
-        gy[g] = cy + Math.sin(ang) * r;
+        gxArr[g] = cx + Math.cos(ang) * r;
+        gyArr[g] = cy + Math.sin(ang) * r;
+        
         if (g % 10 === 0) {
-          const grad = ctx.createRadialGradient(gx[g], gy[g], 0, gx[g], gy[g], 200 * form);
-          grad.addColorStop(0, `hsla(${gal.hue}, 100%, 60%, 0.06)`);
+          const grad = ctx.createRadialGradient(gxArr[g], gyArr[g], 0, gxArr[g], gyArr[g], 200 * form);
+          grad.addColorStop(0, `hsla(${gal.hue}, 100%, 60%, 0.05)`);
           grad.addColorStop(1, 'transparent');
           ctx.fillStyle = grad;
-          ctx.fillRect(gx[g] - 200, gy[g] - 200, 400, 400);
+          ctx.fillRect(gxArr[g] - 200, gyArr[g] - 200, 400, 400);
         }
       }
 
-      for (let i = 0; i < particleCount; i++) {
+      // 2. Update Particles
+      for (let i = 0; i < pCount; i++) {
         const gal = galaxies[gIdx[i]];
         const r = oRad[i] * dim * 0.5 * form;
-        const ang = oPhase[i] + universeAgeYears * gal.spin + r * 0.001;
+        const ang = oPhase[i] + universeAgeYears * gal.spin;
         const tx = cx + Math.cos(ang) * r * gal.tX;
         const ty = cy + Math.sin(ang) * r * gal.tY;
 
@@ -187,20 +192,27 @@ export default function UniverseField() {
         x[i] += vx[i] * sDt; y[i] += vy[i] * sDt;
 
         let rx = x[i], ry = y[i];
-        // Lensing check using pre-calculated centers
-        for (let g = 0; g < GALAXY_COUNT; g += 5) {
-          const ldx = gx[g] - rx, ldy = gy[g] - ry;
+        let pSz = sz[i];
+
+        if (cType[i] === 2) { // Pulsar Glow
+          pulse[i] += sDt * 10;
+          pSz *= (1 + Math.sin(pulse[i]) * 0.5);
+        }
+
+        // Lensing Restored
+        for (let g = 0; g < GALAXY_COUNT; g += 12) {
+          const ldx = gxArr[g] - rx, ldy = gyArr[g] - ry;
           const ld2 = ldx * ldx + ldy * ldy;
           if (ld2 < 2500) {
             const s = (1.0 - ld2 / 2500) * 5;
-            const ld = Math.sqrt(ld2);
+            const ld = Math.sqrt(ld2) + 0.1;
             rx -= (ldx / ld) * s; ry -= (ldy / ld) * s;
           }
         }
 
         const alpha = bright[i] * Math.min(universeAgeYears / 5e9, 1);
         ctx.fillStyle = colors[i] + alpha + ')';
-        ctx.fillRect(rx, ry, sz[i], sz[i]);
+        ctx.fillRect(rx, ry, pSz, pSz);
       }
       requestAnimationFrame(frame);
     };
@@ -210,5 +222,11 @@ export default function UniverseField() {
     return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); };
   }, []);
 
-  return <canvas ref={canvasRef} data-mond-n={MOND_N} style={{ position: 'fixed', inset: 0, background: '#000', zIndex: 0 }} />;
+  return (
+    <canvas 
+      ref={canvasRef} 
+      data-mond-n={MOND_N}
+      style={{ position: 'fixed', inset: 0, background: '#000', zIndex: 0 }} 
+    />
+  );
 }
