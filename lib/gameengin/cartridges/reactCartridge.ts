@@ -43,7 +43,7 @@ export function defineReactCartridgeLoader(
   importer: () => Promise<{ default: ComponentType }>,
 ) {
   return async (): Promise<GameCartridge> => {
-    const module = await importer();
-    return createReactGameCartridge(id, module.default);
+    const cartridgeModule = await importer();
+    return createReactGameCartridge(id, cartridgeModule.default);
   };
 }
