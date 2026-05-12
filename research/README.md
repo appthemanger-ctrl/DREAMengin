@@ -106,6 +106,7 @@ If you're a physicist, please evaluate the core claims on their merits and ignor
 | [`equations/torridityequate.txt`](equations/torridityequate.txt) | Locked Torridity model specification with all equations |
 | [`data/README.md`](data/README.md) | Description of the data files |
 | [`data/torr_vs_mond_lock_n11.csv`](data/torr_vs_mond_lock_n11.csv) | Head-to-head χ² comparison: Torridity vs MOND for 175 SPARC galaxies |
+| [`ccc-ada-twin-engine/README.md`](ccc-ada-twin-engine/README.md) | CCC / ADA Twin-Engine research archive with framework, axioms, memory, holography, predictions, data, and decoder artifact indexes |
 
 ---
 

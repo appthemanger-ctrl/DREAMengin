@@ -1,0 +1,40 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\title{Axioms and Invariants for the CCC / ADA Twin-Engine}
+\author{Jose Mancilla\\DREAMengin Research, Independent}
+\date{May 2026}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This manuscript states the working axioms of the CCC / ADA Twin-Engine framework and lists the invariants that must survive any future specialization. The purpose is to separate the fixed logical core from application-specific choices such as galaxy rotation curves, gravitational-wave memory, holographic boundaries, or decoder benchmarks.
+\end{abstract}
+
+\section{Axiom 1: Conserved Compression}
+A physical system may compress state across scale, but the compression must preserve a causal invariant. If no invariant survives, the output is not a CCC object; it is merely a lossy summary.
+
+\section{Axiom 2: Adaptive Accounting}
+Every recovered or observed compressed object carries an accounting cost. This cost is not optional metadata. It is part of the physical statement because it determines the maximum recoverable fidelity and the allowed participation range.
+
+\section{Axiom 3: Signed Directionality}
+The sign of a gradient or residual is part of the information. Transformations that erase sign may be useful visualizations, but they cannot be fundamental Twin-Engine coordinates.
+
+\section{Axiom 4: Boundary Closure}
+A boundary may hide degrees of freedom, but it cannot erase the accounting obligation. Hidden state reappears as a recovery ceiling, memory term, entropy budget, or decoder latency floor.
+
+\section{Core Invariants}
+\begin{enumerate}[label=\textbf{I\arabic*.}]
+\item The conserved compression invariant $I_C$ must be stable under permitted coarse-graining.
+\item The accounting deficit $\Delta P_A$ must remain finite and measurable.
+\item Sign-preserving coordinates must outperform unsigned coordinates when residual structure is physical.
+\item A falsification test must be expressible as a bound on either invariant preservation or accounting recovery.
+\end{enumerate}
+
+\section{Use of the Axioms}
+The axioms are intentionally spare. A specialization may add equations, datasets, or implementation details, but it should not weaken these invariants. If a specialization requires sign erasure, unbounded recovery, or unconstrained participation, it is outside the Twin-Engine class.
+
+\end{document}
