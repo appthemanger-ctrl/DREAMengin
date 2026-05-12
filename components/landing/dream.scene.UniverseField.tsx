@@ -3,8 +3,8 @@
 import { useEffect, useRef } from 'react';
 import { n as MOND_N } from '@/lib/torridity/constants';
 
-const MIN_PARTICLES = 900;
-const MAX_PARTICLES = 1800;
+const MIN_PARTICLES = 9000;
+const MAX_PARTICLES = 18000;
 const GALAXY_COUNT = 5;
 const MAX_DPR = 2;
 const TAU = Math.PI * 2;
