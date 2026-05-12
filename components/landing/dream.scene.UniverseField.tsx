@@ -9,7 +9,7 @@ const GALAXY_COUNT = Math.floor(Math.random() * 120) + 1;
 const MAX_DPR = 1;
 const TAU = Math.PI * 2;
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
-const LIGHT_PRESSURE_COEFF = 0.00000045; // Minuscule but accounted for
+const LIGHT_PRESSURE_COEFF = 0.00000045; 
 
 export interface UniverseFieldProps {
   scaled?: boolean;
@@ -51,8 +51,10 @@ export default function UniverseField(_props: UniverseFieldProps) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
-    if (!ctx) return;
+    
+    const context = canvas.getContext('2d', { alpha: false, desynchronized: true });
+    if (!context) return;
+    const ctx = context; // Capture context locally
 
     let width = 0, height = 0;
     const resize = () => {
@@ -108,15 +110,15 @@ export default function UniverseField(_props: UniverseFieldProps) {
         
         const typeRoll = hash(i + 999);
         if (i % Math.floor(particleCount / GALAXY_COUNT) === 0) {
-          celestialType[i] = 1; // Black Hole
+          celestialType[i] = 1; 
           size[i] = 3.5;
           color[i] = `hsla(260, 100%, 2%, `;
         } else if (typeRoll < 0.001) {
-          celestialType[i] = 2; // Pulsar
+          celestialType[i] = 2; 
           size[i] = 1.8;
           color[i] = `hsla(190, 100%, 80%, `;
         } else if (typeRoll < 0.05) {
-          celestialType[i] = 3; // Binary Member
+          celestialType[i] = 3; 
           size[i] = 0.8;
           color[i] = `hsla(45, 100%, 70%, `;
         } else {
@@ -133,12 +135,10 @@ export default function UniverseField(_props: UniverseFieldProps) {
       const formation = smoothstep(5.0, 15.0, universeAge);
       const safeDt = Math.min(dt, 1/30);
       
-      // Paint Background
       ctx.globalCompositeOperation = 'source-over';
       ctx.fillStyle = '#010208';
       ctx.fillRect(0, 0, width, height);
 
-      // Nebula Layer (Gas)
       ctx.globalCompositeOperation = 'lighter';
       for (let g = 0; g < GALAXY_COUNT; g += 20) {
         const galaxy = galaxies[g];
@@ -159,12 +159,10 @@ export default function UniverseField(_props: UniverseFieldProps) {
         const tx = width/2 + Math.cos(angle) * radius * g.tiltX;
         const ty = height/2 + Math.sin(angle) * radius * g.tiltY;
 
-        // Physics: MOND-Inspired + Light Pressure
         const dx = tx - x[i];
         const dy = ty - y[i];
         const dist = Math.sqrt(dx * dx + dy * dy) + 1;
         
-        // Light Pressure (Radiation push from galaxy center)
         const lpX = (dx / dist) * LIGHT_PRESSURE_COEFF * brightness[i];
         const lpY = (dy / dist) * LIGHT_PRESSURE_COEFF * brightness[i];
 
@@ -173,10 +171,9 @@ export default function UniverseField(_props: UniverseFieldProps) {
         x[i] += vx[i];
         y[i] += vy[i];
 
-        // RENDER WITH GRAVITATIONAL LENSING
         let rx = x[i], ry = y[i];
         for (let j = 0; j < particleCount; j += Math.floor(particleCount/GALAXY_COUNT)) {
-          if (celestialType[j] === 1) { // Lensing near Black Holes
+          if (celestialType[j] === 1) { 
             const ldx = x[j] - x[i];
             const ldy = y[j] - y[i];
             const ldist = ldx * ldx + ldy * ldy;
@@ -191,7 +188,6 @@ export default function UniverseField(_props: UniverseFieldProps) {
         const alpha = brightness[i] * clamp(universeAge * 0.2, 0, 1);
         ctx.fillStyle = `${color[i]}${alpha})`;
         
-        // Pulsar Beams
         if (celestialType[i] === 2) {
           pulseTimer[i] += safeDt * 5;
           ctx.save();
@@ -205,7 +201,6 @@ export default function UniverseField(_props: UniverseFieldProps) {
         ctx.fillRect(rx, ry, size[i], size[i]);
       }
       
-      // Cosmic Ray Transient
       if (hash(universeAge) > 0.98) {
         ctx.strokeStyle = 'rgba(255,255,255,0.4)';
         ctx.beginPath();
@@ -224,11 +219,18 @@ export default function UniverseField(_props: UniverseFieldProps) {
     seed();
     raf = requestAnimationFrame(frame);
     window.addEventListener('resize', resize);
+    
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
     };
   }, []);
 
-  return <canvas ref={canvasRef} style={{ position: 'fixed', inset: 0, background: '#000', zIndex: 0 }} />;
+  return (
+    <canvas 
+      ref={canvasRef} 
+      data-mond-n={MOND_N}
+      style={{ position: 'fixed', inset: 0, background: '#000', zIndex: 0 }} 
+    />
+  );
 }
