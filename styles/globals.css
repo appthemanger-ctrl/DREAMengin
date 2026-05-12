@@ -114,6 +114,12 @@
   --glass-shadow: 0 4px 24px rgba(0,0,0,0.08);
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 /* ── Reset ── */
 html, body {
   margin: 0;
@@ -158,8 +164,20 @@ body {
  * (Dec 2023). On any older browser the rule simply does not match, and the
  * worst case is the original behaviour — a brief light gradient visible
  * behind the hero — which is acceptable graceful degradation. */
-body:has(> [data-route="landing"]) {
+body:has([data-route="landing"]) {
   background: #000;
+  min-height: 100vh;
+  min-height: 100dvh;
+  min-height: 100lvh;
+}
+
+html:has([data-route="landing"]) {
+  background: #000;
+}
+
+body:has([data-route="landing"])::before,
+body:has([data-route="landing"])::after {
+  display: none;
 }
 
 /* iOS-first 44 px minimum tap target on coarse pointers (HumanAI audit M1).

@@ -97,8 +97,8 @@ export default function LandingHero() {
 
   return (
     <div
-      className="relative flex flex-col overflow-hidden"
-      style={{ minHeight: '100svh', background: '#000' }}
+      className="relative flex w-full max-w-full flex-col overflow-x-hidden"
+      style={{ minHeight: '100lvh', background: '#000' }}
       data-route="landing"
     >
       {/* Persistent simple black background + cosmic genesis simulation */}
@@ -108,20 +108,21 @@ export default function LandingHero() {
 
       <LandingNav />
 
-      <main className="relative z-10 flex flex-1 items-center justify-center px-6 pt-10 pb-10 md:px-10 lg:px-16 lg:pt-0 lg:pb-0">
+      <main className="relative z-10 flex w-full min-w-0 flex-1 items-center justify-center px-6 pt-10 pb-10 md:px-10 lg:px-16 lg:pt-0 lg:pb-0">
         <LandingProductStatement />
       </main>
 
       {/* Mission statement — preserved for landing-mission-link test contract */}
-      <div className="relative z-10 px-6 md:px-10 pb-10">
+      <div className="relative z-10 w-full min-w-0 px-6 md:px-10 pb-10">
         <Link
           href="/mission"
-          className="group block rounded-3xl border px-5 py-4 mx-auto max-w-2xl transition-all duration-200 hover:shadow-[0_0_28px_rgba(232,208,144,0.12)] md:px-6 md:py-5"
+          className="group block w-full rounded-3xl border px-5 py-4 mx-auto max-w-2xl transition-all duration-200 hover:shadow-[0_0_28px_rgba(232,208,144,0.12)] md:px-6 md:py-5"
           style={{
             borderColor: 'rgba(200,152,26,0.26)',
             background:
               'linear-gradient(135deg, rgba(200,152,26,0.10) 0%, rgba(56,189,248,0.07) 100%)',
             textDecoration: 'none',
+            boxSizing: 'border-box',
           }}
           aria-label="Read the DREAMengin mission statement"
         >

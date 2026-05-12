@@ -16,7 +16,7 @@ import Link from 'next/link';
  */
 export default function LandingProductStatement() {
   return (
-    <div className="flex flex-col items-center text-center lg:items-start lg:text-left lg:max-w-[52%] lg:py-16">
+    <div className="flex w-full min-w-0 max-w-[36rem] flex-col items-center text-center lg:items-start lg:text-left lg:max-w-[52%] lg:py-16">
       <div
         className="de-kicker mb-6"
         style={{ color: '#d4a832' }}
@@ -67,6 +67,7 @@ export default function LandingProductStatement() {
             boxShadow: '0 6px 28px rgba(245,158,11,0.40)',
             letterSpacing: '0.01em',
             textDecoration: 'none',
+            boxSizing: 'border-box',
           }}
         >
           Sign Up — Free
@@ -82,6 +83,7 @@ export default function LandingProductStatement() {
             color: 'rgba(200,220,255,0.88)',
             letterSpacing: '0.01em',
             textDecoration: 'none',
+            boxSizing: 'border-box',
           }}
         >
           Sign In
