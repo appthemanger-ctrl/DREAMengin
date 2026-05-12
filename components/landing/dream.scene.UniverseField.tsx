@@ -3,10 +3,10 @@
 import { useEffect, useRef } from 'react';
 import { n as MOND_N } from '@/lib/torridity/constants';
 
-const MIN_PARTICLES = 9000;
-const MAX_PARTICLES = 18000;
-const GALAXY_COUNT = 5;
-const MAX_DPR = 2;
+const MIN_PARTICLES = 10000;
+const MAX_PARTICLES = 20000;
+const GALAXY_COUNT = Math.floor(Math.random() * 120) + 1; 
+const MAX_DPR = 1;
 const TAU = Math.PI * 2;
 const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
 
