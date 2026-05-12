@@ -30,9 +30,11 @@ export interface YouTubeDiscoveryResponse {
 export async function GET(req: NextRequest): Promise<NextResponse<YouTubeDiscoveryResponse>> {
   const apiKey = getYouTubeApiKey();
   if (!apiKey) {
+    // Optional integration not configured — graceful degradation, not an outage.
+    // Consumers branch on `ok`; emitting 5xx here would create false monitoring alarms.
     return NextResponse.json(
       { ok: false, items: [], fetched: 0, error: 'YOUTUBE_API_KEY is not configured.' },
-      { status: 503 },
+      { status: 200 },
     );
   }
 
