@@ -6,6 +6,7 @@ import {
   MOBILE_HUD_BUTTON_RING,
   normalizeStickVector,
 } from '@/lib/games/mobileControls';
+import { GAME_CATALOG } from '@/lib/games/catalog';
 
 const REPO_ROOT = process.cwd();
 
@@ -37,13 +38,12 @@ describe('shared mobile game controls', () => {
   it('wires the immersive shell to the shared mobile HUD modes for example games', () => {
     const shellSrc = readFileSync(join(REPO_ROOT, 'engins/engin.GameEngin.tsx'), 'utf8');
     const hudSrc = readFileSync(join(REPO_ROOT, 'components/games/dream.hud.GameHUD.tsx'), 'utf8');
-    const gamesSrc = readFileSync(join(REPO_ROOT, 'components/games/dream.GamesHub.tsx'), 'utf8');
     const echoSrc = readFileSync(join(REPO_ROOT, 'components/games/dream.EchoArena.tsx'), 'utf8');
 
     expect(shellSrc).toContain('<GameHUD');
     expect(hudSrc).toContain('<MobileGameHUD');
-    expect(gamesSrc).toContain("mobileHudMode: 'buttons'");
-    expect(gamesSrc).toContain("mobileHudMode: 'joystick'");
+    expect(GAME_CATALOG.find((game) => game.id === 'platformer')?.mobileHudMode).toBe('buttons');
+    expect(GAME_CATALOG.find((game) => game.id === 'echo-arena')?.mobileHudMode).toBe('joystick');
     expect(echoSrc).toContain('useRegisterMobileGameControls');
   });
 

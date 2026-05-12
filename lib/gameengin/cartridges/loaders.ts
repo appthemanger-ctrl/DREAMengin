@@ -8,12 +8,11 @@
  */
 
 import type { GameCartridge } from '../cartridge';
-import { wrapAsCartridge } from '../ReactComponentCartridge';
+import { defineReactCartridgeLoader } from './reactCartridge';
 
 export type CartridgeLoader = () => Promise<GameCartridge>;
 
-const load = (id: string, importer: () => Promise<{ default: React.ComponentType }>): CartridgeLoader =>
-  async () => wrapAsCartridge(id, (await importer()).default);
+const load = defineReactCartridgeLoader;
 
 export const CARTRIDGE_LOADERS: Readonly<Record<string, CartridgeLoader>> = {
   // ── Legacy flagships kept ─────────────────────────────────────────────────

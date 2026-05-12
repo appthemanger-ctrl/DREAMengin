@@ -24,6 +24,7 @@ import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHead
 import { GAME_QUALITY_PILLARS } from '@/lib/games/quality-plan';
 import { buildGameLaunchHref } from '@/lib/games/navigation';
 import { connection } from 'next/server';
+import { buildLoginRedirectPath } from '@/lib/auth/nextRedirect';
 
 export const metadata = { title: 'Games Daydream – DREAMengin', description: 'Play, challenge, and compete.' };
 
@@ -92,11 +93,16 @@ const OFFICIAL_SPEC_NOTES = [
   'Fullscreen play, saved sessions, and the universal HUD belong to GameEngin.',
 ] as const;
 
-export default async function GamesDaydreamPage() {
+interface GamesDaydreamPageProps {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function GamesDaydreamPage({ searchParams }: GamesDaydreamPageProps = {}) {
   await connection();
+  const currentSearchParams = searchParams ? await searchParams : undefined;
   const supabase = await createServerClient();
   const user = await safeGetUser(supabase);
-  if (!user && !isDevBypassActive()) redirect('/login');
+  if (!user && !isDevBypassActive()) redirect(buildLoginRedirectPath('/daydream/games', currentSearchParams));
 
   return (
     <DaydreamShell

@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { buildLoginRedirectPath, resolveSafeNextPath } from '@/lib/auth/nextRedirect';
 import { upsertSavedGameSession } from '@/lib/games/library-state';
 import { buildGameLaunchHref, DEFAULT_GAME_ID, isLaunchFlagEnabled, resolveGameLaunchId } from '@/lib/games/navigation';
 import { GAME_INPUT_KEYBOARD_MAP } from '@/lib/games/useGameInputKeyboardBridge';
@@ -26,6 +27,15 @@ describe('game launch navigation', () => {
     expect(resolveGameLaunchId('snake', ['snake', DEFAULT_GAME_ID])).toBe('snake');
     expect(resolveGameLaunchId('unknown', ['snake', DEFAULT_GAME_ID])).toBe(DEFAULT_GAME_ID);
     expect(resolveGameLaunchId(null, ['snake', DEFAULT_GAME_ID], null)).toBeNull();
+  });
+
+  it('keeps protected game launches intact through login', () => {
+    expect(buildLoginRedirectPath('/engines/games', { game: 'platformer', play: '1', expand: '1' }))
+      .toBe('/login?next=%2Fengines%2Fgames%3Fgame%3Dplatformer%26play%3D1%26expand%3D1');
+    expect(resolveSafeNextPath('/engines/games?game=platformer&play=1&expand=1'))
+      .toBe('/engines/games?game=platformer&play=1&expand=1');
+    expect(resolveSafeNextPath('https://evil.example/engines/games')).toBe('/homedream');
+    expect(resolveSafeNextPath('//evil.example/engines/games')).toBe('/homedream');
   });
 
   it('treats only 1 as an enabled launch flag', () => {

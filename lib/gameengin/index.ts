@@ -52,7 +52,7 @@ export type {
 // ── Game Cartridge Runtime ───────────────────────────────────────────────────
 export { default as GameRuntime } from './GameRuntime';
 export type { GameRuntimeProps } from './GameRuntime';
-export { wrapAsCartridge } from './ReactComponentCartridge';
+export { createReactGameCartridge, defineReactCartridgeLoader } from './cartridges/reactCartridge';
 export { GRAVITY_VALUES } from './cartridge';
 export type {
   GameCartridge,

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient as createSupabaseServerClient } from "@supabase/ssr";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase/env";
+import { resolveSafeNextPath } from "@/lib/auth/nextRedirect";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -12,7 +13,7 @@ export async function GET(request: Request) {
   const errorDescription = url.searchParams.get("error_description");
 
   // Prevent open-redirects: only allow relative paths inside this app.
-  const safeNext = next && next.startsWith("/") ? next : "/homedream";
+  const safeNext = resolveSafeNextPath(next);
 
   // If OAuth provider returned an error, redirect to login with error info
   if (error) {

@@ -57,7 +57,7 @@ import { buildLedgerMediaUrl } from '@/lib/media/ledger';
 import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
 import GameRuntime from '@/lib/gameengin/GameRuntime';
 import type { GameCartridge } from '@/lib/gameengin/cartridge';
-import { wrapAsCartridge } from '@/lib/gameengin/ReactComponentCartridge';
+import { loadCartridge } from '@/lib/gameengin/cartridges/loaders';
 import RecordingControls from '@/components/games/dream.RecordingControls';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import { useGameEnginRuntime } from '@/lib/engins/game/useGameEnginRuntime';
@@ -900,30 +900,36 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   const activePlayable = activePlayableGame ? GAMES.find((game) => game.id === activePlayableGame) ?? null : null;
   const expandedPlayable = expandedPlayableGame ? GAMES.find((game) => game.id === expandedPlayableGame) ?? null : null;
   const savedPlayableSession = selectedPlayable ? savedLaunches.find((session) => session.gameId === selectedPlayable.id) ?? null : null;
-  const ActivePlayableComponent = activePlayable?.component && activePlayable.id === selectedPlayable.id
-    ? activePlayable.component
-    : null;
 
-  // ── Cartridge map — wrap every GAMES entry as a React-component cartridge ──
-  const cartridgeMap = useMemo(() => {
-    const map: Record<string, GameCartridge> = {};
-    for (const game of GAMES) {
-      if (game.component) {
-        map[game.id] = wrapAsCartridge(game.id, game.component);
+  const [cartridgeMap, setCartridgeMap] = useState<Record<string, GameCartridge>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    void Promise.all(
+      GAMES.map(async (game) => [game.id, await loadCartridge(game.id)] as const),
+    ).then((entries) => {
+      if (cancelled) return;
+      const nextMap: Record<string, GameCartridge> = {};
+      for (const [id, cartridge] of entries) {
+        if (cartridge) nextMap[id] = cartridge;
       }
-    }
-    return map;
+      setCartridgeMap(nextMap);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   /** Resolve the active cartridge for the current game */
   const activeCartridge: GameCartridge | null =
-    activePlayable && ActivePlayableComponent && cartridgeMap[activePlayable.id]
+    activePlayable && cartridgeMap[activePlayable.id]
       ? cartridgeMap[activePlayable.id]
       : null;
 
   /** Resolve the expanded (fullscreen) cartridge */
   const expandedCartridge: GameCartridge | null =
-    expandedPlayable?.component && cartridgeMap[expandedPlayable.id]
+    expandedPlayable && cartridgeMap[expandedPlayable.id]
       ? cartridgeMap[expandedPlayable.id]
       : null;
 
@@ -941,7 +947,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     ? gameBridge.lastScriptDeploy
     : null;
 
-  if (expandedPlayable?.component) {
+  if (expandedPlayable) {
     return (
       <div
         ref={playOverlayRef}

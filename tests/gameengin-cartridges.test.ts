@@ -5,15 +5,14 @@
  * platform:
  *   1. Every entry in `CARTRIDGE_MANIFEST` has a matching dynamic loader.
  *   2. Every loader has a matching manifest entry (no orphans).
- *   3. Every manifest id mirrors the legacy `GAMES` array in
- *      `components/games/dream.GamesHub` so users can launch every game from
- *      `/gameengin/cartridges/[id]`.
+ *   3. Every manifest id feeds the shared game catalog so users can launch
+ *      every game from `/gameengin/cartridges/[id]` and GameEngin.
  *   4. Manifest ids are unique and URL-safe.
  *   5. The new `/gameengin/cartridges` route file exists and exports default.
  */
 
 import { describe, it, expect } from 'vitest';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   CARTRIDGE_MANIFEST,
@@ -22,6 +21,7 @@ import {
 } from '@/lib/gameengin/cartridges/manifest';
 import { CARTRIDGE_LOADERS, getCartridgeIds } from '@/lib/gameengin/cartridges/loaders';
 import { GAMES } from '@/components/games/dream.GamesHub';
+import { GAME_CATALOG } from '@/lib/games/catalog';
 
 describe('GameEngin cartridge bay', () => {
   it('manifest is non-empty and ids are unique URL-safe slugs', () => {
@@ -45,12 +45,21 @@ describe('GameEngin cartridge bay', () => {
     }
   });
 
-  it('manifest covers every game in GamesHub.GAMES (backwards compatibility)', () => {
+  it('manifest is the source for the shared game catalog and GamesHub list', () => {
+    const catalogIds = new Set(GAME_CATALOG.map((g) => g.id));
     const gameIds = new Set(GAMES.map((g) => g.id));
     const manifestIds = new Set(CARTRIDGE_MANIFEST.map((c) => c.id));
-    for (const id of gameIds) {
-      expect(manifestIds.has(id), `cartridge missing for repo game "${id}"`).toBe(true);
+    expect(catalogIds).toEqual(manifestIds);
+    for (const id of manifestIds) {
+      expect(gameIds.has(id), `GamesHub missing manifest cartridge "${id}"`).toBe(true);
     }
+  });
+
+  it('GameEngin loads registered cartridges instead of wrapping components at runtime', () => {
+    const engineSource = readFileSync(join(process.cwd(), 'engins', 'engin.GameEngin.tsx'), 'utf8');
+    expect(engineSource).toContain("import { loadCartridge } from '@/lib/gameengin/cartridges/loaders';");
+    expect(engineSource).not.toContain('wrapAsCartridge');
+    expect(engineSource).not.toContain('ReactComponentCartridge');
   });
 
   it('exposes a stable category list', () => {
