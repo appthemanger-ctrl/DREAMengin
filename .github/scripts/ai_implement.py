@@ -119,8 +119,8 @@ def call_chat_completion(api_key: str, api_url: str, api_name: str, model: str, 
         with urllib.request.urlopen(req, timeout=180) as resp:
             result = json.loads(resp.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
-        body = exc.read().decode("utf-8", errors="replace")
-        print(f"{api_name} API error {exc.code}: {body}", file=sys.stderr)
+        _ = exc.read()
+        print(f"{api_name} API error {exc.code}", file=sys.stderr)
         sys.exit(1)
 
     content = result["choices"][0]["message"]["content"]
