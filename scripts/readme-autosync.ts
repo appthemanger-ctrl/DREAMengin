@@ -104,12 +104,12 @@ function normalizePath(filePath: string): string {
 function globToRegExp(glob: string): RegExp {
   const normalized = normalizePath(glob);
   let pattern = '';
-  for (let i = 0; i < normalized.length; i += 1) {
-    const current = normalized[i];
-    const next = normalized[i + 1];
+  for (let charIndex = 0; charIndex < normalized.length; charIndex += 1) {
+    const current = normalized[charIndex];
+    const next = normalized[charIndex + 1];
     if (current === '*' && next === '*') {
       pattern += '.*';
-      i += 1;
+      charIndex += 1;
       continue;
     }
     if (current === '*') {
@@ -171,7 +171,7 @@ function toComponentName(filePath: string): string {
   return clean
     .split(' ')
     .filter(Boolean)
-    .map((part) => part[0]?.toUpperCase() + part.slice(1))
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join('');
 }
 
@@ -217,7 +217,7 @@ function buildTreeLines(files: string[], maxLines = 120): string[] {
       const connector = isLast ? '└── ' : '├── ';
       const childPath = parent ? `${parent}/${child}` : child;
       const isLeaf = !tree.has(childPath);
-      lines.push(`${prefix}${connector}${child}${isLeaf ? '' : ''}`);
+      lines.push(`${prefix}${connector}${child}`);
       if (!isLeaf) {
         emit(childPath, `${prefix}${isLast ? '    ' : '│   '}`);
       }
@@ -339,6 +339,7 @@ function inferDynamicSections(changedFiles: string[], registry: SectionDescripto
 
   const dynamic: SectionDescriptor[] = [];
   const seen = new Set<string>();
+  const usedIds = new Set(registry.map((section) => section.id));
 
   for (const changedFile of changedFiles) {
     const top = normalizePath(changedFile).split('/')[0];
@@ -347,11 +348,21 @@ function inferDynamicSections(changedFiles: string[], registry: SectionDescripto
 
     const title = top
       .split(/[-_]/g)
+      .filter(Boolean)
       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
       .join(' ');
 
+    const baseId = top.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'section';
+    let id = baseId;
+    let idSequence = 2;
+    while (usedIds.has(id)) {
+      id = `${baseId}-${idSequence}`;
+      idSequence += 1;
+    }
+    usedIds.add(id);
+
     dynamic.push({
-      id: top.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
+      id,
       title,
       globs: [`${top}/**`],
     });
