@@ -1,26 +1,106 @@
 name: Extract zip assets into public/
+
 on:
   workflow_dispatch:
+
 permissions:
   contents: write
 
 jobs:
-  run:
+  extract:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    continue-on-error: true
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: ./.github/actions/resilient-engine
-        with:
-          ruleset: .github/ruleset/deploy-artifact.yml
-          allow-failure: 'true'
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+      - name: Unzip -> extract assets into public/ -> commit
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          shopt -s nullglob
+          zips=( *.zip )
+          shopt -u nullglob
+          if [ ${#zips[@]} -eq 0 ]; then
+            echo "No zip files found, nothing to do."
+            exit 0
+          fi
+
+          IFS=$'\n' zips_sorted=($(printf "%s\n" "${zips[@]}" | sort))
+          unset IFS
+          ZIP="${zips_sorted[-1]}"
+          echo "Processing: $ZIP"
+
+          TMP="$(mktemp -d)"
+          unzip -q "$ZIP" -d "$TMP"
+
+          # Flatten single wrapper folder (e.g. DREAMengin-assets/), ignoring __MACOSX
+          ROOT="$TMP"
+          top_dirs=()
+          for d in "$TMP"/*/; do
+            [ -d "$d" ] || continue
+            [[ "$(basename "$d")" == "__MACOSX" ]] && continue
+            top_dirs+=( "$d" )
+          done
+          if [ "${#top_dirs[@]}" -eq 1 ]; then
+            ROOT="${top_dirs[0]}"
+          fi
+
+          # If the zip already has a public/ subfolder, use that as the source
+          # so we don't create public/public/ nesting.
+          if [ -d "$ROOT/public" ]; then
+            ASSET_ROOT="$ROOT/public"
+          else
+            ASSET_ROOT="$ROOT"
+          fi
+
+          # Create destination and sync ONLY asset files into public/.
+          # Source code (src/, package.json, etc.) lives outside public/ and
+          # is therefore structurally unreachable — no excludes needed.
+          mkdir -p public
+
+          rsync -a \
+            --include="*.png" \
+            --include="*.PNG" \
+            --include="*.jpg" \
+            --include="*.JPG" \
+            --include="*.jpeg" \
+            --include="*.JPEG" \
+            --include="*.gif" \
+            --include="*.GIF" \
+            --include="*.webp" \
+            --include="*.svg" \
+            --include="*.mp4" \
+            --include="*.webm" \
+            --include="*.mp3" \
+            --include="*.wav" \
+            --include="*.ogg" \
+            --include="*.woff" \
+            --include="*.woff2" \
+            --include="*.ttf" \
+            --include="*.otf" \
+            --include="*.ico" \
+            --include="*/" \
+            --exclude="*" \
+            "$ASSET_ROOT/" "./public/"
+
+          # Remove the zip from the repo tree
+          rm -f "$ZIP"
+          git rm -f "$ZIP" 2>/dev/null || true
+
+          # sync contents into repo root (protect git internals)
+          rsync -a \
+            --exclude ".git/" \
+            --exclude ".github/" \
+            "$ROOT/" "./"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+          git diff --cached --quiet && echo "No asset changes to commit." && exit 0
+          git commit -m "chore: extract zip assets into public/ [skip ci] [skip vercel]"
+          git push || true
+

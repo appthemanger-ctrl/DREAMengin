@@ -1904,7 +1904,7 @@ Auto-synced from `backend/**`, `core/**`, `coresurfaces/**`, `system/**`, `app/a
 
 ## Agents & Workflow
 Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scripts/**` using repository introspection.
-- Files tracked: **130**
+- Files tracked: **127**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -1921,6 +1921,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 │   │   ├── assemble_report_context.py
 │   │   ├── catalog_games_for_ai.py
 │   │   ├── check-root-hygiene.sh
+│   │   ├── check_workflow_masking.py
 │   │   ├── dreamengin_core.py
 │   │   ├── humanai_audit.py
 │   │   ├── issue-bot.js
@@ -2030,9 +2031,11 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
     ├── generate-mobile-nextgen-spec.mjs
     ├── generate-mobile-ps5-spec.mjs
     ├── generate-webapp-final-form.mjs
-… (10 more files)
+    ├── law-check.sh
+    ├── migrate-imports.sh
+… (7 more files)
 ```
-<details><summary>Agents & Workflow file index (130 files)</summary>
+<details><summary>Agents & Workflow file index (127 files)</summary>
 
 - `.github/scripts/DREAMENGIN_CORE_COMPLETE.md` — documentation file.
 - `.github/scripts/DREAMENGIN_CORE_USAGE.md` — documentation file.
@@ -2043,6 +2046,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 - `.github/scripts/assemble_report_context.py` — project file (py).
 - `.github/scripts/catalog_games_for_ai.py` — project file (py).
 - `.github/scripts/check-root-hygiene.sh` — project file (sh).
+- `.github/scripts/check_workflow_masking.py` — project file (py).
 - `.github/scripts/dreamengin_core.py` — project file (py).
 - `.github/scripts/humanai_audit.py` — project file (py).
 - `.github/scripts/issue-bot.js` — TypeScript/JavaScript runtime module.
@@ -3005,7 +3009,7 @@ Auto-synced from `.env.example`, `.env.local.example`, `app/api/**` using reposi
 
 ## Contributing
 Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using repository introspection.
-- Files tracked: **271**
+- Files tracked: **269**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -3127,13 +3131,13 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 │   │   ├── assemble_report_context.py
 │   │   ├── catalog_games_for_ai.py
 │   │   ├── check-root-hygiene.sh
+│   │   ├── check_workflow_masking.py
 │   │   ├── dreamengin_core.py
 │   │   ├── humanai_audit.py
 │   │   ├── issue-bot.js
-│   │   ├── run-readme-autosync.mjs
-… (151 more files)
+… (149 more files)
 ```
-<details><summary>Contributing file index (271 files)</summary>
+<details><summary>Contributing file index (269 files)</summary>
 
 - `.github/PULL_REQUEST_TEMPLATE.md` — documentation file.
 - `.github/actions/resilient-engine/action.yml` — project file (yml).
@@ -3243,6 +3247,7 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 - `.github/scripts/assemble_report_context.py` — project file (py).
 - `.github/scripts/catalog_games_for_ai.py` — project file (py).
 - `.github/scripts/check-root-hygiene.sh` — project file (sh).
+- `.github/scripts/check_workflow_masking.py` — project file (py).
 - `.github/scripts/dreamengin_core.py` — project file (py).
 - `.github/scripts/humanai_audit.py` — project file (py).
 - `.github/scripts/issue-bot.js` — TypeScript/JavaScript runtime module.
