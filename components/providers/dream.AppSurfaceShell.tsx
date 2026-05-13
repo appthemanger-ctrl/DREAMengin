@@ -6,7 +6,6 @@ import ThemeApplicator from '@/components/dream.ThemeApplicator';
 import { DreamSystemProvider } from '@/lib/dreamdm/DreamSystemContext';
 import DualRuntimeContainer from '@/components/runtime/dream.DualRuntimeContainer';
 import GlobalDreamBar from '@/components/home/dream.bar.GlobalDreamBar';
-import PersistentDreamBar from '@/components/home/dream.bar.PersistentDreamBar';
 import { CustomizeModeProvider } from '@/lib/ui/CustomizeModeContext';
 import GodTierProvider from '@/components/providers/dream.GodTierProvider';
 import CommandPalette from '@/components/dream.CommandPalette';
@@ -36,7 +35,6 @@ export default function AppSurfaceShell({ children }: { children: React.ReactNod
             <DualRuntimeContainer>
               <main role="main" aria-label="Main content">{children}</main>
               <Suspense><GlobalDreamBar /></Suspense>
-              <Suspense><PersistentDreamBar /></Suspense>
               <Suspense><OSShellActivator /></Suspense>
               <GlobalOverlays />
               <Suspense><CommandPalette /></Suspense>

@@ -88,4 +88,16 @@ export interface DreamArtifactBusEventMap {
   'seam:clear': {
     timestamp: number;
   };
+  'engine:tick': {
+    dt: number;
+    elapsed: number;
+  };
+  'engine:render': {
+    dt: number;
+  };
+  'game:input': {
+    key: string;
+    type: 'keydown' | 'keyup';
+    preventDefault: () => void;
+  };
 }
