@@ -1639,17 +1639,88 @@ Keeping these boundaries explicit prevents domain feature code from leaking into
 
 </details>
 ## Agents & Workflow
-`agents/` and `workflow/` provide operational intelligence layers around the fixed runtime. They define how audits/automation reason about the product, not how runtime state is rendered.
-
-How it works in this repo:
-- `AGENTS.md` + persona files define operating law and behavior contracts for HumanAI and other assistants.
-- `agents/humanAI/*` contains persona prompts and orchestration specs used by automated UX/runtime audits.
-- `workflow/archive/*` preserves pipeline environment definitions (Docker/config) used by internal workflow tooling.
-
-These layers consume engine outputs and enforce process quality gates while leaving core runtime behavior in engine + rule-set code.
-#### Agents/workflow files file structure
+Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scripts/**` using repository introspection.
+- Files tracked: **124**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: none
+#### Agents & Workflow file structure
 ```text
-├── AGENTS.md
+├── .github
+│   ├── scripts
+│   │   ├── DREAMENGIN_CORE_COMPLETE.md
+│   │   ├── DREAMENGIN_CORE_USAGE.md
+│   │   ├── ai_implement.py
+│   │   ├── ai_neural_decision.py
+│   │   ├── ai_propose.py
+│   │   ├── ai_report_propose.py
+│   │   ├── assemble_report_context.py
+│   │   ├── catalog_games_for_ai.py
+│   │   ├── check-root-hygiene.sh
+│   │   ├── dreamengin_core.py
+│   │   ├── humanai_audit.py
+│   │   ├── issue-bot.js
+│   │   ├── scan_dreamengin_context.py
+│   │   ├── scan_gameengin_context.py
+│   │   ├── validate_game_sandbox.py
+│   │   └── validate_report_agent_spec.py
+│   └── workflows
+│       ├── autofixvercelbuild.yml
+│       ├── bot-pr-automerge.yml
+│       ├── bouncer.yml
+│       ├── copilot-setup-steps.yml
+│       ├── daydream-all.yml
+│       ├── daydream-brand-engin.yml
+│       ├── daydream-code-engin.yml
+│       ├── daydream-create-engin.yml
+│       ├── daydream-engin-build-cycle.yml
+│       ├── daydream-engin-sicc-refinement.yml
+│       ├── daydream-games-engin.yml
+│       ├── daydream-lab-engin.yml
+│       ├── daydream-music-engin.yml
+│       ├── db-extension-audit.yml
+│       ├── db-extension-check.yml
+│       ├── deploy-artifact.yml
+│       ├── docs-auto-update.yml
+│       ├── dreamengin-preflight.yml
+│       ├── elite-gameengin-evolution.yml
+│       ├── engin-all.yml
+│       ├── exportrepo.yml
+│       ├── game-engin-patrol.yml
+│       ├── game-library-research.yml
+│       ├── gameengin-ai-agent.yml
+│       ├── gameengin-artisan.yml
+│       ├── gameengin-maestro.yml
+│       ├── gameengin-mechanic.yml
+│       ├── gameengin-prophet.yml
+│       ├── gameengin-upgrader.yml
+│       ├── gameengin-writer.yml
+│       ├── games-library-ai-agent.yml
+│       ├── garbageman.yml
+│       ├── generatesupabasetypes.yml
+│       ├── github-actions.yml
+│       ├── humanai-army-audit.yml
+│       ├── humanai-audit.yml
+│       ├── idari-daily.yml
+│       ├── issue-bot.yml
+│       ├── mobile-nextgen-spec-evolution.yml
+│       ├── mobile-ps5-spec-evolution.yml
+│       ├── neural_decision_engine.yml
+│       ├── optimize-dreamengin.yml
+│       ├── portfolio-optimization.yml
+│       ├── preflight.yml
+│       ├── print-codebase.yml
+│       ├── readme-autosync.yml
+│       ├── refreshlock.yml
+│       ├── repo-snapshot.yml
+│       ├── report-driven-coding-agent.yml
+│       ├── root-hygiene.yml
+│       ├── spec-engin-ai-agent.yml
+│       ├── sql-migration-guard.yml
+│       ├── sync-build-memory.yml
+│       ├── update-embed-feed.yml
+│       ├── update-repo-state.yml
+│       └── vercel-deploy.yml
 ├── agents
 │   ├── .gitkeep
 │   ├── humanAI
@@ -1661,32 +1732,171 @@ These layers consume engine outputs and enforce process quality gates while leav
 │   │       ├── power-user.md
 │   │       └── social-explorer.md
 │   └── humanAI.persona.md
-└── workflow
-    └── archive
-        ├── Dockerfile
-        ├── Dockerfile.dev
-        ├── appthemanger-ctrl_DREAMengin_95779c.json
-        ├── config.yaml
-        └── docker-compose.yml
+└── scripts
+    ├── analyze-repo-state.mjs
+    ├── archive
+    │   ├── proxy.ts
+    │   └── validate-deployment.js
+    ├── autofix-vercel-build.mjs
+    ├── check-build-memory-drift.mjs
+    ├── check-engin-filenames.mjs
+    ├── check-licenses.mjs
+    ├── check-root-hygiene.mjs
+    ├── close-all-open-prs.sh
+    ├── deploy.sh
+    ├── export-full-code.mjs
+    ├── feature-build
+    │   └── generate-features.mjs
+    ├── gameengin
+    │   ├── architect-run.ts
+    │   ├── artisan-run.ts
+    │   ├── lib
+    │   │   └── tar.ts
+    │   ├── maestro-analyze.ts
+    │   ├── mechanic-run.ts
+    │   ├── package-cartridge.ts
+    │   ├── prophet-run.ts
+    │   ├── upgrader-run.ts
+    │   └── writer-run.ts
+    ├── generate-mobile-nextgen-spec.mjs
+    ├── generate-mobile-ps5-spec.mjs
+    ├── generate-webapp-final-form.mjs
+    ├── law-check.sh
+    ├── migrate-imports.sh
+    ├── optimize-dreamengin.mjs
+    ├── postbuild.js
+    ├── postbuild.ts
+… (4 more files)
 ```
-<details><summary>Agents/workflow files file index (14 files)</summary>
+<details><summary>Agents & Workflow file index (124 files)</summary>
 
-- `AGENTS.md` — Documentation/spec for AGENTS.
-- `agents/.gitkeep` — Executable/config artifact for gitkeep.
-- `agents/humanAI.persona.md` — Documentation/spec for humanAI persona.
-- `agents/humanAI/orchestrator.md` — Documentation/spec for orchestrator.
-- `agents/humanAI/personas/accessibility.md` — Documentation/spec for accessibility.
-- `agents/humanAI/personas/creator.md` — Documentation/spec for creator.
-- `agents/humanAI/personas/ios-first.md` — Documentation/spec for ios first.
-- `agents/humanAI/personas/power-user.md` — Documentation/spec for power user.
-- `agents/humanAI/personas/social-explorer.md` — Documentation/spec for social explorer.
-- `workflow/archive/Dockerfile` — Executable/config artifact for Dockerfile.
-- `workflow/archive/Dockerfile.dev` — Project file used by this subsystem (dev).
-- `workflow/archive/appthemanger-ctrl_DREAMengin_95779c.json` — Structured data/config for appthemanger ctrl DREAMengin 95779c.
-- `workflow/archive/config.yaml` — Automation/workflow configuration for config.
-- `workflow/archive/docker-compose.yml` — Automation/workflow configuration for docker compose.
+- `.github/scripts/DREAMENGIN_CORE_COMPLETE.md` — documentation file.
+- `.github/scripts/DREAMENGIN_CORE_USAGE.md` — documentation file.
+- `.github/scripts/ai_implement.py` — project file (py).
+- `.github/scripts/ai_neural_decision.py` — project file (py).
+- `.github/scripts/ai_propose.py` — project file (py).
+- `.github/scripts/ai_report_propose.py` — project file (py).
+- `.github/scripts/assemble_report_context.py` — project file (py).
+- `.github/scripts/catalog_games_for_ai.py` — project file (py).
+- `.github/scripts/check-root-hygiene.sh` — project file (sh).
+- `.github/scripts/dreamengin_core.py` — project file (py).
+- `.github/scripts/humanai_audit.py` — project file (py).
+- `.github/scripts/issue-bot.js` — TypeScript/JavaScript runtime module.
+- `.github/scripts/scan_dreamengin_context.py` — project file (py).
+- `.github/scripts/scan_gameengin_context.py` — project file (py).
+- `.github/scripts/validate_game_sandbox.py` — project file (py).
+- `.github/scripts/validate_report_agent_spec.py` — project file (py).
+- `.github/workflows/autofixvercelbuild.yml` — project file (yml).
+- `.github/workflows/bot-pr-automerge.yml` — project file (yml).
+- `.github/workflows/bouncer.yml` — project file (yml).
+- `.github/workflows/copilot-setup-steps.yml` — project file (yml).
+- `.github/workflows/daydream-all.yml` — project file (yml).
+- `.github/workflows/daydream-brand-engin.yml` — project file (yml).
+- `.github/workflows/daydream-code-engin.yml` — project file (yml).
+- `.github/workflows/daydream-create-engin.yml` — project file (yml).
+- `.github/workflows/daydream-engin-build-cycle.yml` — project file (yml).
+- `.github/workflows/daydream-engin-sicc-refinement.yml` — project file (yml).
+- `.github/workflows/daydream-games-engin.yml` — project file (yml).
+- `.github/workflows/daydream-lab-engin.yml` — project file (yml).
+- `.github/workflows/daydream-music-engin.yml` — project file (yml).
+- `.github/workflows/db-extension-audit.yml` — project file (yml).
+- `.github/workflows/db-extension-check.yml` — project file (yml).
+- `.github/workflows/deploy-artifact.yml` — project file (yml).
+- `.github/workflows/docs-auto-update.yml` — project file (yml).
+- `.github/workflows/dreamengin-preflight.yml` — project file (yml).
+- `.github/workflows/elite-gameengin-evolution.yml` — project file (yml).
+- `.github/workflows/engin-all.yml` — project file (yml).
+- `.github/workflows/exportrepo.yml` — project file (yml).
+- `.github/workflows/game-engin-patrol.yml` — project file (yml).
+- `.github/workflows/game-library-research.yml` — project file (yml).
+- `.github/workflows/gameengin-ai-agent.yml` — project file (yml).
+- `.github/workflows/gameengin-artisan.yml` — project file (yml).
+- `.github/workflows/gameengin-maestro.yml` — project file (yml).
+- `.github/workflows/gameengin-mechanic.yml` — project file (yml).
+- `.github/workflows/gameengin-prophet.yml` — project file (yml).
+- `.github/workflows/gameengin-upgrader.yml` — project file (yml).
+- `.github/workflows/gameengin-writer.yml` — project file (yml).
+- `.github/workflows/games-library-ai-agent.yml` — project file (yml).
+- `.github/workflows/garbageman.yml` — project file (yml).
+- `.github/workflows/generatesupabasetypes.yml` — project file (yml).
+- `.github/workflows/github-actions.yml` — project file (yml).
+- `.github/workflows/humanai-army-audit.yml` — project file (yml).
+- `.github/workflows/humanai-audit.yml` — project file (yml).
+- `.github/workflows/idari-daily.yml` — project file (yml).
+- `.github/workflows/issue-bot.yml` — project file (yml).
+- `.github/workflows/mobile-nextgen-spec-evolution.yml` — project file (yml).
+- `.github/workflows/mobile-ps5-spec-evolution.yml` — project file (yml).
+- `.github/workflows/neural_decision_engine.yml` — project file (yml).
+- `.github/workflows/optimize-dreamengin.yml` — project file (yml).
+- `.github/workflows/portfolio-optimization.yml` — project file (yml).
+- `.github/workflows/preflight.yml` — project file (yml).
+- `.github/workflows/print-codebase.yml` — project file (yml).
+- `.github/workflows/readme-autosync.yml` — project file (yml).
+- `.github/workflows/refreshlock.yml` — project file (yml).
+- `.github/workflows/repo-snapshot.yml` — project file (yml).
+- `.github/workflows/report-driven-coding-agent.yml` — project file (yml).
+- `.github/workflows/root-hygiene.yml` — project file (yml).
+- `.github/workflows/spec-engin-ai-agent.yml` — project file (yml).
+- `.github/workflows/sql-migration-guard.yml` — project file (yml).
+- `.github/workflows/sync-build-memory.yml` — project file (yml).
+- `.github/workflows/update-embed-feed.yml` — project file (yml).
+- `.github/workflows/update-repo-state.yml` — project file (yml).
+- `.github/workflows/vercel-deploy.yml` — project file (yml).
+- `agents/.gitkeep` — project file (no extension).
+- `agents/humanAI.persona.md` — documentation file.
+- `agents/humanAI/orchestrator.md` — documentation file.
+- `agents/humanAI/personas/accessibility.md` — documentation file.
+- `agents/humanAI/personas/creator.md` — documentation file.
+- `agents/humanAI/personas/ios-first.md` — documentation file.
+- `agents/humanAI/personas/power-user.md` — documentation file.
+- `agents/humanAI/personas/social-explorer.md` — documentation file.
+- `scripts/analyze-repo-state.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/archive/proxy.ts` — TypeScript/JavaScript runtime module.
+- `scripts/archive/validate-deployment.js` — TypeScript/JavaScript runtime module.
+- `scripts/autofix-vercel-build.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/check-build-memory-drift.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/check-engin-filenames.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/check-licenses.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/check-root-hygiene.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/close-all-open-prs.sh` — project file (sh).
+- `scripts/deploy.sh` — project file (sh).
+- `scripts/export-full-code.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/feature-build/generate-features.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/gameengin/architect-run.ts` — TypeScript/JavaScript runtime module.
+- `scripts/gameengin/artisan-run.ts` — TypeScript/JavaScript runtime module.
+- `scripts/gameengin/lib/tar.ts` — TypeScript/JavaScript runtime module.
+- `scripts/gameengin/maestro-analyze.ts` — TypeScript/JavaScript runtime module.
+- `scripts/gameengin/mechanic-run.ts` — TypeScript/JavaScript runtime module.
+- `scripts/gameengin/package-cartridge.ts` — TypeScript/JavaScript runtime module.
+- `scripts/gameengin/prophet-run.ts` — TypeScript/JavaScript runtime module.
+- `scripts/gameengin/upgrader-run.ts` — TypeScript/JavaScript runtime module.
+- `scripts/gameengin/writer-run.ts` — TypeScript/JavaScript runtime module.
+- `scripts/generate-mobile-nextgen-spec.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/generate-mobile-ps5-spec.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/generate-webapp-final-form.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/law-check.sh` — project file (sh).
+- `scripts/migrate-imports.sh` — project file (sh).
+- `scripts/optimize-dreamengin.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/postbuild.js` — TypeScript/JavaScript runtime module.
+- `scripts/postbuild.ts` — TypeScript/JavaScript runtime module.
+- `scripts/readme-autosync.ts` — TypeScript/JavaScript runtime module.
+- `scripts/repository-state-analysis-section.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/score-pass.cjs` — TypeScript/JavaScript runtime module.
+- `scripts/setup-database.sql` — SQL migration/schema artifact.
+- `scripts/spec-check.cjs` — TypeScript/JavaScript runtime module.
+- `scripts/sync-build-memory.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/ui-ux-agent.py` — project file (py).
+- `scripts/update-bugs.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/update-embed-feed.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/update-handoff.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/update-readme-status-utils.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/update-readme.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/validate-schema-sync.sh` — project file (sh).
+- `scripts/vercel-ignore.cjs` — TypeScript/JavaScript runtime module.
+- `scripts/vercel-preflight.cjs` — TypeScript/JavaScript runtime module.
 
 </details>
+
 ## Research, Experiments & Daydreams
 This repository keeps research, prototypes, and shipping surfaces deliberately separated:
 - **`research/`** stores formal work (Torridity / ledger dynamics datasets, equations, papers); start with `research/README.md`.
@@ -1768,83 +1978,14 @@ This separation supports high-velocity exploration while preventing experimental
 
 </details>
 ## Infra & Ops
-Infra/Ops in DREAMengin is a layered deployment and observability stack:
-- **Deploy/runtime config:** `vercel.json` + Next build scripts define deployment behavior and function runtime limits.
-- **Database operations:** `supabase/migrations/*` evolve schema/policies for runtime features.
-- **CI automation:** `.github/workflows/*` and `.ci/*` snapshots run build/test/audit loops and keep repository state traceable.
-- **Monitoring:** `prometheus/` + `grafana/` configuration define telemetry ingestion and dashboard provisioning.
-- **Infrastructure as code:** `terraform/` codifies cloud resource provisioning boundaries.
-
-Together these directories wire shipping, verification, and production insight into one operational pipeline.
-#### Infra/Ops files file structure
+Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflows/**`, `vercel.json`, `docker-compose.yml` using repository introspection.
+- Files tracked: **61**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: none
+#### Infra & Ops file structure
 ```text
-├── .ci
-│   ├── snapshot.diff.txt
-│   └── snapshot.md
 ├── .github
-│   ├── PULL_REQUEST_TEMPLATE.md
-│   ├── actions
-│   │   └── setup-node
-│   │       └── action.yml
-│   ├── agents
-│   │   ├── Spec-Engin HyperSICC.agent.md
-│   │   ├── dreamengin.agent.md
-│   │   ├── error-tracker.agent.md
-│   │   ├── gameengin-ai-agent.yml
-│   │   ├── gameengin.md
-│   │   ├── humanAI.agent.md
-│   │   ├── idari.agent.md
-│   │   ├── my-agent.agent.md
-│   │   ├── newagent.agent.md
-│   │   └── videogameAi.md
-│   ├── copilot-instructions.md
-│   ├── issue-triage
-│   │   ├── issue-552.md
-│   │   ├── issue-556.md
-│   │   ├── issue-560.md
-│   │   ├── issue-565.md
-│   │   ├── issue-571.md
-│   │   ├── issue-573.md
-│   │   ├── issue-600.md
-│   │   ├── issue-601.md
-│   │   ├── issue-602.md
-│   │   ├── issue-603.md
-│   │   ├── issue-604.md
-│   │   ├── issue-605.md
-│   │   ├── issue-606.md
-│   │   ├── issue-607.md
-│   │   ├── issue-608.md
-│   │   ├── issue-609.md
-│   │   ├── issue-610.md
-│   │   ├── issue-611.md
-│   │   ├── issue-612.md
-│   │   ├── issue-613.md
-│   │   ├── issue-617.md
-│   │   ├── issue-620.md
-│   │   ├── issue-621.md
-│   │   ├── issue-622.md
-│   │   ├── issue-623.md
-│   │   ├── issue-647.md
-│   │   ├── issue-753.md
-│   │   └── issue-754.md
-│   ├── pull_request_template.md
-│   ├── scripts
-│   │   ├── DREAMENGIN_CORE_COMPLETE.md
-│   │   ├── DREAMENGIN_CORE_USAGE.md
-│   │   ├── ai_implement.py
-│   │   ├── ai_neural_decision.py
-│   │   ├── ai_propose.py
-│   │   ├── ai_report_propose.py
-│   │   ├── assemble_report_context.py
-│   │   ├── catalog_games_for_ai.py
-│   │   ├── check-root-hygiene.sh
-│   │   ├── dreamengin_core.py
-│   │   ├── humanai_audit.py
-│   │   ├── issue-bot.js
-│   │   ├── scan_dreamengin_context.py
-│   │   ├── scan_gameengin_context.py
-│   │   ├── validate_game_sandbox.py
-│   │   └── validate_report_agent_spec.py
 │   └── workflows
 │       ├── autofixvercelbuild.yml
 │       ├── bot-pr-automerge.yml
@@ -1891,6 +2032,7 @@ Together these directories wire shipping, verification, and production insight i
 │       ├── portfolio-optimization.yml
 │       ├── preflight.yml
 │       ├── print-codebase.yml
+│       ├── readme-autosync.yml
 │       ├── refreshlock.yml
 │       ├── repo-snapshot.yml
 │       ├── report-driven-coding-agent.yml
@@ -1901,397 +2043,90 @@ Together these directories wire shipping, verification, and production insight i
 │       ├── update-embed-feed.yml
 │       ├── update-repo-state.yml
 │       └── vercel-deploy.yml
-├── .husky
-│   ├── pre-commit
-│   └── pre-push
-├── build-memory
-│   ├── actions.json
-│   ├── events.json
-│   ├── routes.json
-│   ├── schema.json
-│   └── ui-surfaces.json
 ├── grafana
 │   ├── dashboards
 │   │   └── default.yml
 │   └── datasources
 │       └── prometheus.yml
-├── misc
-│   └── images
-│       ├── arm2_transparent.png
-│       ├── coat_transparent.png
-│       ├── head_transparent.png
-│       ├── iconslist.png
-│       ├── logo_DREAM_transparent.png
-│       ├── logo_ENGIN_transparent.png
-│       ├── logo_transparent.png
-│       ├── shoe1_transparent.png
-│       ├── shoe2_transparent.png
-│       ├── sprite_2x_transparent.png
-│       └── sprite_transparent.png
-├── output
-│   ├── patch-plan.json
-│   └── result.json
 ├── prometheus
 │   └── prometheus.yml
-├── scripts
-│   ├── analyze-repo-state.mjs
-│   ├── archive
-│   │   ├── proxy.ts
-│   │   └── validate-deployment.js
-│   ├── autofix-vercel-build.mjs
-│   ├── check-build-memory-drift.mjs
-│   ├── check-engin-filenames.mjs
-│   ├── check-licenses.mjs
-│   ├── check-root-hygiene.mjs
-│   ├── close-all-open-prs.sh
-│   ├── deploy.sh
-│   ├── export-full-code.mjs
-│   ├── feature-build
-│   │   └── generate-features.mjs
-│   ├── gameengin
-│   │   ├── architect-run.ts
-│   │   ├── artisan-run.ts
-│   │   ├── lib
-│   │   │   └── tar.ts
-│   │   ├── maestro-analyze.ts
-│   │   ├── mechanic-run.ts
-│   │   ├── package-cartridge.ts
-│   │   ├── prophet-run.ts
-│   │   ├── upgrader-run.ts
-│   │   └── writer-run.ts
-│   ├── generate-mobile-nextgen-spec.mjs
-│   ├── generate-mobile-ps5-spec.mjs
-│   ├── generate-webapp-final-form.mjs
-│   ├── law-check.sh
-│   ├── migrate-imports.sh
-│   ├── optimize-dreamengin.mjs
-│   ├── postbuild.js
-│   ├── postbuild.ts
-│   ├── repository-state-analysis-section.mjs
-│   ├── score-pass.cjs
-│   ├── setup-database.sql
-│   ├── spec-check.cjs
-│   ├── sync-build-memory.mjs
-│   ├── ui-ux-agent.py
-│   ├── update-bugs.mjs
-│   ├── update-embed-feed.mjs
-│   ├── update-handoff.mjs
-│   ├── update-readme-status-utils.mjs
-│   ├── update-readme.mjs
-│   ├── validate-schema-sync.sh
-│   ├── vercel-ignore.cjs
-│   └── vercel-preflight.cjs
-├── supabase
-│   ├── config.toml
-│   ├── migrations
-│   │   ├── 20240120000000_initial_schema.sql
-│   │   ├── 20240120000001_enable_rls.sql
-│   │   ├── 20260129000000_upgrade_schema.sql
-│   │   ├── 20260210000000_widget_system_v2.sql
-│   │   ├── 20260210000001_ai_system_v2026.sql
-│   │   ├── 20260210_ai_core.sql
-│   │   ├── 20260214000000_security_axioms.sql
-│   │   ├── 20260226000000_admin_lock.sql
-│   │   ├── 20260305000000_create_notes.sql
-│   │   ├── 20260305000001_comments.sql
-│   │   ├── 20260305000002_leaderboard.sql
-│   │   ├── 20260307000000_readme_gaps.sql
-│   │   ├── 20260307000001_conversations_messages.sql
-│   │   ├── 20260310000000_widget_instances_visibility.sql
-│   │   ├── 20260310000001_profiles_widget_config.sql
-│   │   ├── 20260310000002_profile_dream_widgets.sql
-│   │   ├── 20260310000003_connector_accounts.sql
-│   │   ├── 20260310000004_feed_items.sql
-│   │   ├── 20260310000010_dreamdm_bar_pass2.sql
-│   │   ├── 20260315000000_content_drafts.sql
-│   │   ├── 20260316000000_visibility_mappings.sql
-│   │   ├── 20260319000000_journey_dots.sql
-│   │   ├── 20260319065444_new-migration.sql
-│   │   ├── 20260319120000_connector_accounts_schema_reload.sql
-│   │   ├── 20260320000000_scheduled_posts.sql
-│   │   ├── 20260320100000_game_scores_all_games.sql
-│   │   ├── 20260320110000_user_blocks.sql
-│   │   ├── 20260321000000_ads_platform_promotions.sql
-│   │   ├── 20260321200000_phase8a_feed_and_layout.sql
-│   │   ├── 20260322000000_phase8b_dream_windows.sql
-│   │   ├── 20260322000000_policy_events.sql
-│   │   ├── 20260322000001_message_boards.sql
-│   │   ├── 20260323100000_embed_feed_items.sql
-│   │   ├── 20260324000000_phase8e_orders.sql
-│   │   ├── 20260324000001_phase8e_shop_marketplace.sql
-│   │   ├── 20260325000000_phase8f_daydream_network.sql
-│   │   ├── 20260325100000_child_safety.sql
-│   │   ├── 20260401000001_platform_utilities.sql
-│   │   ├── 20260402000001_control_mappings.sql
-│   │   ├── 20260402000002_game_assets.sql
-│   │   ├── 20260403000001_pgvector_embeddings.sql
-│   │   ├── 20260403000002_pgvector_search_rpc.sql
-│   │   ├── 20260405000001_dreamr_feed_registry.sql
-│   │   ├── 20260405042406_auto_scaffold.sql
-│   │   ├── 20260413000000_phase9_activity_first_protocol.sql
-│   │   ├── 20260417000000_repurpose_nods_as_dream_docs.sql
-│   │   ├── 20260417000001_dream_docs_search_rpc.sql
-│   │   ├── 20260418000000_gameengin_core.sql
-│   │   ├── 20260420000001_consent_settings_audit.sql
-│   │   ├── 20260426000000_activity_coop_gameengin_completion.sql
-│   │   ├── 20260426000100_rename_widgets_to_dreams.sql
-│   │   └── 20260426000200_build_memory_schema_gaps.sql
-│   ├── schema-final.sql
-│   └── seed.sql
 ├── terraform
 │   └── main.tf
 └── vercel.json
 ```
-<details><summary>Infra/Ops files file index (238 files)</summary>
+<details><summary>Infra & Ops file index (61 files)</summary>
 
-- `.ci/snapshot.diff.txt` — Project file used by this subsystem (txt).
-- `.ci/snapshot.md` — Documentation/spec for snapshot.
-- `.github/PULL_REQUEST_TEMPLATE.md` — Documentation/spec for PULL REQUEST TEMPLATE.
-- `.github/actions/setup-node/action.yml` — Automation/workflow configuration for action.
-- `.github/agents/Spec-Engin HyperSICC.agent.md` — Documentation/spec for Spec Engin HyperSICC agent.
-- `.github/agents/dreamengin.agent.md` — Documentation/spec for dreamagent.
-- `.github/agents/error-tracker.agent.md` — Documentation/spec for error tracker agent.
-- `.github/agents/gameengin-ai-agent.yml` — Automation/workflow configuration for gameengin ai agent.
-- `.github/agents/gameengin.md` — Documentation/spec for gameengin.
-- `.github/agents/humanAI.agent.md` — Documentation/spec for humanAI agent.
-- `.github/agents/idari.agent.md` — Documentation/spec for idari agent.
-- `.github/agents/my-agent.agent.md` — Documentation/spec for my agent agent.
-- `.github/agents/newagent.agent.md` — Documentation/spec for newagent agent.
-- `.github/agents/videogameAi.md` — Documentation/spec for videogameAi.
-- `.github/copilot-instructions.md` — Documentation/spec for copilot instructions.
-- `.github/issue-triage/issue-552.md` — Documentation/spec for issue 552.
-- `.github/issue-triage/issue-556.md` — Documentation/spec for issue 556.
-- `.github/issue-triage/issue-560.md` — Documentation/spec for issue 560.
-- `.github/issue-triage/issue-565.md` — Documentation/spec for issue 565.
-- `.github/issue-triage/issue-571.md` — Documentation/spec for issue 571.
-- `.github/issue-triage/issue-573.md` — Documentation/spec for issue 573.
-- `.github/issue-triage/issue-600.md` — Documentation/spec for issue 600.
-- `.github/issue-triage/issue-601.md` — Documentation/spec for issue 601.
-- `.github/issue-triage/issue-602.md` — Documentation/spec for issue 602.
-- `.github/issue-triage/issue-603.md` — Documentation/spec for issue 603.
-- `.github/issue-triage/issue-604.md` — Documentation/spec for issue 604.
-- `.github/issue-triage/issue-605.md` — Documentation/spec for issue 605.
-- `.github/issue-triage/issue-606.md` — Documentation/spec for issue 606.
-- `.github/issue-triage/issue-607.md` — Documentation/spec for issue 607.
-- `.github/issue-triage/issue-608.md` — Documentation/spec for issue 608.
-- `.github/issue-triage/issue-609.md` — Documentation/spec for issue 609.
-- `.github/issue-triage/issue-610.md` — Documentation/spec for issue 610.
-- `.github/issue-triage/issue-611.md` — Documentation/spec for issue 611.
-- `.github/issue-triage/issue-612.md` — Documentation/spec for issue 612.
-- `.github/issue-triage/issue-613.md` — Documentation/spec for issue 613.
-- `.github/issue-triage/issue-617.md` — Documentation/spec for issue 617.
-- `.github/issue-triage/issue-620.md` — Documentation/spec for issue 620.
-- `.github/issue-triage/issue-621.md` — Documentation/spec for issue 621.
-- `.github/issue-triage/issue-622.md` — Documentation/spec for issue 622.
-- `.github/issue-triage/issue-623.md` — Documentation/spec for issue 623.
-- `.github/issue-triage/issue-647.md` — Documentation/spec for issue 647.
-- `.github/issue-triage/issue-753.md` — Documentation/spec for issue 753.
-- `.github/issue-triage/issue-754.md` — Documentation/spec for issue 754.
-- `.github/pull_request_template.md` — Documentation/spec for pull request template.
-- `.github/scripts/DREAMENGIN_CORE_COMPLETE.md` — Documentation/spec for DREAMENGIN CORE COMPLETE.
-- `.github/scripts/DREAMENGIN_CORE_USAGE.md` — Documentation/spec for DREAMENGIN CORE USAGE.
-- `.github/scripts/ai_implement.py` — Python automation script for ai implement.
-- `.github/scripts/ai_neural_decision.py` — Python automation script for ai neural decision.
-- `.github/scripts/ai_propose.py` — Python automation script for ai propose.
-- `.github/scripts/ai_report_propose.py` — Python automation script for ai report propose.
-- `.github/scripts/assemble_report_context.py` — Python automation script for assemble report context.
-- `.github/scripts/catalog_games_for_ai.py` — Python automation script for catalog games for ai.
-- `.github/scripts/check-root-hygiene.sh` — Project file used by this subsystem (sh).
-- `.github/scripts/dreamengin_core.py` — Python automation script for dreamengin core.
-- `.github/scripts/humanai_audit.py` — Python automation script for humanai audit.
-- `.github/scripts/issue-bot.js` — JavaScript tooling/runtime script for issue bot.
-- `.github/scripts/scan_dreamengin_context.py` — Python automation script for scan dreamengin context.
-- `.github/scripts/scan_gameengin_context.py` — Python automation script for scan gameengin context.
-- `.github/scripts/validate_game_sandbox.py` — Python automation script for validate game sandbox.
-- `.github/scripts/validate_report_agent_spec.py` — Python automation script for validate report agent spec.
-- `.github/workflows/autofixvercelbuild.yml` — Automation/workflow configuration for autofixvercelbuild.
-- `.github/workflows/bot-pr-automerge.yml` — Automation/workflow configuration for bot pr automerge.
-- `.github/workflows/bouncer.yml` — Automation/workflow configuration for bouncer.
-- `.github/workflows/copilot-setup-steps.yml` — Automation/workflow configuration for copilot setup steps.
-- `.github/workflows/daydream-all.yml` — Automation/workflow configuration for daydream all.
-- `.github/workflows/daydream-brand-engin.yml` — Automation/workflow configuration for daydream brand engin.
-- `.github/workflows/daydream-code-engin.yml` — Automation/workflow configuration for daydream code engin.
-- `.github/workflows/daydream-create-engin.yml` — Automation/workflow configuration for daydream create engin.
-- `.github/workflows/daydream-engin-build-cycle.yml` — Automation/workflow configuration for daydream engin build cycle.
-- `.github/workflows/daydream-engin-sicc-refinement.yml` — Automation/workflow configuration for daydream engin sicc refinement.
-- `.github/workflows/daydream-games-engin.yml` — Automation/workflow configuration for daydream games engin.
-- `.github/workflows/daydream-lab-engin.yml` — Automation/workflow configuration for daydream lab engin.
-- `.github/workflows/daydream-music-engin.yml` — Automation/workflow configuration for daydream music engin.
-- `.github/workflows/db-extension-audit.yml` — Automation/workflow configuration for db extension audit.
-- `.github/workflows/db-extension-check.yml` — Automation/workflow configuration for db extension check.
-- `.github/workflows/deploy-artifact.yml` — Automation/workflow configuration for deploy artifact.
-- `.github/workflows/docs-auto-update.yml` — Automation/workflow configuration for docs auto update.
-- `.github/workflows/dreamengin-preflight.yml` — Automation/workflow configuration for dreamengin preflight.
-- `.github/workflows/elite-gameengin-evolution.yml` — Automation/workflow configuration for elite gameengin evolution.
-- `.github/workflows/engin-all.yml` — Automation/workflow configuration for engin all.
-- `.github/workflows/exportrepo.yml` — Automation/workflow configuration for exportrepo.
-- `.github/workflows/game-engin-patrol.yml` — Automation/workflow configuration for game engin patrol.
-- `.github/workflows/game-library-research.yml` — Automation/workflow configuration for game library research.
-- `.github/workflows/gameengin-ai-agent.yml` — Automation/workflow configuration for gameengin ai agent.
-- `.github/workflows/gameengin-artisan.yml` — Automation/workflow configuration for gameengin artisan.
-- `.github/workflows/gameengin-maestro.yml` — Automation/workflow configuration for gameengin maestro.
-- `.github/workflows/gameengin-mechanic.yml` — Automation/workflow configuration for gameengin mechanic.
-- `.github/workflows/gameengin-prophet.yml` — Automation/workflow configuration for gameengin prophet.
-- `.github/workflows/gameengin-upgrader.yml` — Automation/workflow configuration for gameengin upgrader.
-- `.github/workflows/gameengin-writer.yml` — Automation/workflow configuration for gameengin writer.
-- `.github/workflows/games-library-ai-agent.yml` — Automation/workflow configuration for games library ai agent.
-- `.github/workflows/garbageman.yml` — Automation/workflow configuration for garbageman.
-- `.github/workflows/generatesupabasetypes.yml` — Automation/workflow configuration for generatesupabasetypes.
-- `.github/workflows/github-actions.yml` — Automation/workflow configuration for github actions.
-- `.github/workflows/humanai-army-audit.yml` — Automation/workflow configuration for humanai army audit.
-- `.github/workflows/humanai-audit.yml` — Automation/workflow configuration for humanai audit.
-- `.github/workflows/idari-daily.yml` — Automation/workflow configuration for idari daily.
-- `.github/workflows/issue-bot.yml` — Automation/workflow configuration for issue bot.
-- `.github/workflows/mobile-nextgen-spec-evolution.yml` — Automation/workflow configuration for mobile nextgen spec evolution.
-- `.github/workflows/mobile-ps5-spec-evolution.yml` — Automation/workflow configuration for mobile ps5 spec evolution.
-- `.github/workflows/neural_decision_engine.yml` — Automation/workflow configuration for neural decision engine.
-- `.github/workflows/optimize-dreamengin.yml` — Automation/workflow configuration for optimize dreamengin.
-- `.github/workflows/portfolio-optimization.yml` — Automation/workflow configuration for portfolio optimization.
-- `.github/workflows/preflight.yml` — Automation/workflow configuration for preflight.
-- `.github/workflows/print-codebase.yml` — Automation/workflow configuration for print codebase.
-- `.github/workflows/refreshlock.yml` — Automation/workflow configuration for refreshlock.
-- `.github/workflows/repo-snapshot.yml` — Automation/workflow configuration for repo snapshot.
-- `.github/workflows/report-driven-coding-agent.yml` — Automation/workflow configuration for report driven coding agent.
-- `.github/workflows/root-hygiene.yml` — Automation/workflow configuration for root hygiene.
-- `.github/workflows/spec-engin-ai-agent.yml` — Automation/workflow configuration for spec engin ai agent.
-- `.github/workflows/sql-migration-guard.yml` — Automation/workflow configuration for sql migration guard.
-- `.github/workflows/sync-build-memory.yml` — Automation/workflow configuration for sync build memory.
-- `.github/workflows/update-embed-feed.yml` — Automation/workflow configuration for update embed feed.
-- `.github/workflows/update-repo-state.yml` — Automation/workflow configuration for update repo state.
-- `.github/workflows/vercel-deploy.yml` — Automation/workflow configuration for vercel deploy.
-- `.husky/pre-commit` — Executable/config artifact for pre commit.
-- `.husky/pre-push` — Executable/config artifact for pre push.
-- `build-memory/actions.json` — Structured data/config for actions.
-- `build-memory/events.json` — Structured data/config for events.
-- `build-memory/routes.json` — Structured data/config for routes.
-- `build-memory/schema.json` — Structured data/config for schema.
-- `build-memory/ui-surfaces.json` — Structured data/config for ui surfaces.
-- `grafana/dashboards/default.yml` — Automation/workflow configuration for default.
-- `grafana/datasources/prometheus.yml` — Automation/workflow configuration for prometheus.
-- `misc/images/arm2_transparent.png` — Static visual asset used by the UI/runtime.
-- `misc/images/coat_transparent.png` — Static visual asset used by the UI/runtime.
-- `misc/images/head_transparent.png` — Static visual asset used by the UI/runtime.
-- `misc/images/iconslist.png` — Static visual asset used by the UI/runtime.
-- `misc/images/logo_DREAM_transparent.png` — Static visual asset used by the UI/runtime.
-- `misc/images/logo_ENGIN_transparent.png` — Static visual asset used by the UI/runtime.
-- `misc/images/logo_transparent.png` — Static visual asset used by the UI/runtime.
-- `misc/images/shoe1_transparent.png` — Static visual asset used by the UI/runtime.
-- `misc/images/shoe2_transparent.png` — Static visual asset used by the UI/runtime.
-- `misc/images/sprite_2x_transparent.png` — Static visual asset used by the UI/runtime.
-- `misc/images/sprite_transparent.png` — Static visual asset used by the UI/runtime.
-- `output/patch-plan.json` — Structured data/config for patch plan.
-- `output/result.json` — Structured data/config for result.
-- `prometheus/prometheus.yml` — Automation/workflow configuration for prometheus.
-- `scripts/analyze-repo-state.mjs` — JavaScript tooling/runtime script for analyze repo state.
-- `scripts/archive/proxy.ts` — TypeScript runtime module for proxy.
-- `scripts/archive/validate-deployment.js` — JavaScript tooling/runtime script for validate deployment.
-- `scripts/autofix-vercel-build.mjs` — JavaScript tooling/runtime script for autofix vercel build.
-- `scripts/check-build-memory-drift.mjs` — JavaScript tooling/runtime script for check build memory drift.
-- `scripts/check-engin-filenames.mjs` — JavaScript tooling/runtime script for check engin filenames.
-- `scripts/check-licenses.mjs` — JavaScript tooling/runtime script for check licenses.
-- `scripts/check-root-hygiene.mjs` — JavaScript tooling/runtime script for check root hygiene.
-- `scripts/close-all-open-prs.sh` — Project file used by this subsystem (sh).
-- `scripts/deploy.sh` — Project file used by this subsystem (sh).
-- `scripts/export-full-code.mjs` — JavaScript tooling/runtime script for export full code.
-- `scripts/feature-build/generate-features.mjs` — JavaScript tooling/runtime script for generate features.
-- `scripts/gameengin/architect-run.ts` — TypeScript runtime module for architect run.
-- `scripts/gameengin/artisan-run.ts` — TypeScript runtime module for artisan run.
-- `scripts/gameengin/lib/tar.ts` — TypeScript runtime module for tar.
-- `scripts/gameengin/maestro-analyze.ts` — TypeScript runtime module for maestro analyze.
-- `scripts/gameengin/mechanic-run.ts` — TypeScript runtime module for mechanic run.
-- `scripts/gameengin/package-cartridge.ts` — TypeScript runtime module for package cartridge.
-- `scripts/gameengin/prophet-run.ts` — TypeScript runtime module for prophet run.
-- `scripts/gameengin/upgrader-run.ts` — TypeScript runtime module for upgrader run.
-- `scripts/gameengin/writer-run.ts` — TypeScript runtime module for writer run.
-- `scripts/generate-mobile-nextgen-spec.mjs` — JavaScript tooling/runtime script for generate mobile nextgen spec.
-- `scripts/generate-mobile-ps5-spec.mjs` — JavaScript tooling/runtime script for generate mobile ps5 spec.
-- `scripts/generate-webapp-final-form.mjs` — JavaScript tooling/runtime script for generate webapp final form.
-- `scripts/law-check.sh` — Project file used by this subsystem (sh).
-- `scripts/migrate-imports.sh` — Project file used by this subsystem (sh).
-- `scripts/optimize-dreamengin.mjs` — JavaScript tooling/runtime script for optimize dreamengin.
-- `scripts/postbuild.js` — JavaScript tooling/runtime script for postbuild.
-- `scripts/postbuild.ts` — TypeScript runtime module for postbuild.
-- `scripts/repository-state-analysis-section.mjs` — JavaScript tooling/runtime script for repository state analysis section.
-- `scripts/score-pass.cjs` — JavaScript tooling/runtime script for score pass.
-- `scripts/setup-database.sql` — Database schema or migration for setup database.
-- `scripts/spec-check.cjs` — JavaScript tooling/runtime script for spec check.
-- `scripts/sync-build-memory.mjs` — JavaScript tooling/runtime script for sync build memory.
-- `scripts/ui-ux-agent.py` — Python automation script for ui ux agent.
-- `scripts/update-bugs.mjs` — JavaScript tooling/runtime script for update bugs.
-- `scripts/update-embed-feed.mjs` — JavaScript tooling/runtime script for update embed feed.
-- `scripts/update-handoff.mjs` — JavaScript tooling/runtime script for update handoff.
-- `scripts/update-readme-status-utils.mjs` — JavaScript tooling/runtime script for update readme status utils.
-- `scripts/update-readme.mjs` — JavaScript tooling/runtime script for update readme.
-- `scripts/validate-schema-sync.sh` — Project file used by this subsystem (sh).
-- `scripts/vercel-ignore.cjs` — JavaScript tooling/runtime script for vercel ignore.
-- `scripts/vercel-preflight.cjs` — JavaScript tooling/runtime script for vercel preflight.
-- `supabase/config.toml` — Tooling configuration for config.
-- `supabase/migrations/20240120000000_initial_schema.sql` — Database schema or migration for 20240120000000 initial schema.
-- `supabase/migrations/20240120000001_enable_rls.sql` — Database schema or migration for 20240120000001 enable rls.
-- `supabase/migrations/20260129000000_upgrade_schema.sql` — Database schema or migration for 20260129000000 upgrade schema.
-- `supabase/migrations/20260210000000_widget_system_v2.sql` — Database schema or migration for 20260210000000 widget system v2.
-- `supabase/migrations/20260210000001_ai_system_v2026.sql` — Database schema or migration for 20260210000001 ai system v2026.
-- `supabase/migrations/20260210_ai_core.sql` — Database schema or migration for 20260210 ai core.
-- `supabase/migrations/20260214000000_security_axioms.sql` — Database schema or migration for 20260214000000 security axioms.
-- `supabase/migrations/20260226000000_admin_lock.sql` — Database schema or migration for 20260226000000 admin lock.
-- `supabase/migrations/20260305000000_create_notes.sql` — Database schema or migration for 20260305000000 create notes.
-- `supabase/migrations/20260305000001_comments.sql` — Database schema or migration for 20260305000001 comments.
-- `supabase/migrations/20260305000002_leaderboard.sql` — Database schema or migration for 20260305000002 leaderboard.
-- `supabase/migrations/20260307000000_readme_gaps.sql` — Database schema or migration for 20260307000000 readme gaps.
-- `supabase/migrations/20260307000001_conversations_messages.sql` — Database schema or migration for 20260307000001 conversations messages.
-- `supabase/migrations/20260310000000_widget_instances_visibility.sql` — Database schema or migration for 20260310000000 widget instances visibility.
-- `supabase/migrations/20260310000001_profiles_widget_config.sql` — Database schema or migration for 20260310000001 profiles widget config.
-- `supabase/migrations/20260310000002_profile_dream_widgets.sql` — Database schema or migration for 20260310000002 profile widgets.
-- `supabase/migrations/20260310000003_connector_accounts.sql` — Database schema or migration for 20260310000003 connector accounts.
-- `supabase/migrations/20260310000004_feed_items.sql` — Database schema or migration for 20260310000004 feed items.
-- `supabase/migrations/20260310000010_dreamdm_bar_pass2.sql` — Database schema or migration for 20260310000010 dreamdm bar pass2.
-- `supabase/migrations/20260315000000_content_drafts.sql` — Database schema or migration for 20260315000000 content drafts.
-- `supabase/migrations/20260316000000_visibility_mappings.sql` — Database schema or migration for 20260316000000 visibility mappings.
-- `supabase/migrations/20260319000000_journey_dots.sql` — Database schema or migration for 20260319000000 journey dots.
-- `supabase/migrations/20260319065444_new-migration.sql` — Database schema or migration for 20260319065444 new migration.
-- `supabase/migrations/20260319120000_connector_accounts_schema_reload.sql` — Database schema or migration for 20260319120000 connector accounts schema reload.
-- `supabase/migrations/20260320000000_scheduled_posts.sql` — Database schema or migration for 20260320000000 scheduled posts.
-- `supabase/migrations/20260320100000_game_scores_all_games.sql` — Database schema or migration for 20260320100000 game scores all games.
-- `supabase/migrations/20260320110000_user_blocks.sql` — Database schema or migration for 20260320110000 user blocks.
-- `supabase/migrations/20260321000000_ads_platform_promotions.sql` — Database schema or migration for 20260321000000 ads platform promotions.
-- `supabase/migrations/20260321200000_phase8a_feed_and_layout.sql` — Database schema or migration for 20260321200000 phase8a feed and layout.
-- `supabase/migrations/20260322000000_phase8b_dream_windows.sql` — Database schema or migration for 20260322000000 phase8b windows.
-- `supabase/migrations/20260322000000_policy_events.sql` — Database schema or migration for 20260322000000 policy events.
-- `supabase/migrations/20260322000001_message_boards.sql` — Database schema or migration for 20260322000001 message boards.
-- `supabase/migrations/20260323100000_embed_feed_items.sql` — Database schema or migration for 20260323100000 embed feed items.
-- `supabase/migrations/20260324000000_phase8e_orders.sql` — Database schema or migration for 20260324000000 phase8e orders.
-- `supabase/migrations/20260324000001_phase8e_shop_marketplace.sql` — Database schema or migration for 20260324000001 phase8e shop marketplace.
-- `supabase/migrations/20260325000000_phase8f_daydream_network.sql` — Database schema or migration for 20260325000000 phase8f daynetwork.
-- `supabase/migrations/20260325100000_child_safety.sql` — Database schema or migration for 20260325100000 child safety.
-- `supabase/migrations/20260401000001_platform_utilities.sql` — Database schema or migration for 20260401000001 platform utilities.
-- `supabase/migrations/20260402000001_control_mappings.sql` — Database schema or migration for 20260402000001 control mappings.
-- `supabase/migrations/20260402000002_game_assets.sql` — Database schema or migration for 20260402000002 game assets.
-- `supabase/migrations/20260403000001_pgvector_embeddings.sql` — Database schema or migration for 20260403000001 pgvector embeddings.
-- `supabase/migrations/20260403000002_pgvector_search_rpc.sql` — Database schema or migration for 20260403000002 pgvector search rpc.
-- `supabase/migrations/20260405000001_dreamr_feed_registry.sql` — Database schema or migration for 20260405000001 dreamr feed registry.
-- `supabase/migrations/20260405042406_auto_scaffold.sql` — Database schema or migration for 20260405042406 auto scaffold.
-- `supabase/migrations/20260413000000_phase9_activity_first_protocol.sql` — Database schema or migration for 20260413000000 phase9 activity first protocol.
-- `supabase/migrations/20260417000000_repurpose_nods_as_dream_docs.sql` — Database schema or migration for 20260417000000 repurpose nods as docs.
-- `supabase/migrations/20260417000001_dream_docs_search_rpc.sql` — Database schema or migration for 20260417000001 docs search rpc.
-- `supabase/migrations/20260418000000_gameengin_core.sql` — Database schema or migration for 20260418000000 gameengin core.
-- `supabase/migrations/20260420000001_consent_settings_audit.sql` — Database schema or migration for 20260420000001 consent settings audit.
-- `supabase/migrations/20260426000000_activity_coop_gameengin_completion.sql` — Database schema or migration for 20260426000000 activity coop gameengin completion.
-- `supabase/migrations/20260426000100_rename_widgets_to_dreams.sql` — Database schema or migration for 20260426000100 rename widgets to dreams.
-- `supabase/migrations/20260426000200_build_memory_schema_gaps.sql` — Database schema or migration for 20260426000200 build memory schema gaps.
-- `supabase/schema-final.sql` — Database schema or migration for schema final.
-- `supabase/seed.sql` — Database schema or migration for seed.
-- `terraform/main.tf` — Project file used by this subsystem (tf).
-- `vercel.json` — Structured data/config for vercel.
+- `.github/workflows/autofixvercelbuild.yml` — project file (yml).
+- `.github/workflows/bot-pr-automerge.yml` — project file (yml).
+- `.github/workflows/bouncer.yml` — project file (yml).
+- `.github/workflows/copilot-setup-steps.yml` — project file (yml).
+- `.github/workflows/daydream-all.yml` — project file (yml).
+- `.github/workflows/daydream-brand-engin.yml` — project file (yml).
+- `.github/workflows/daydream-code-engin.yml` — project file (yml).
+- `.github/workflows/daydream-create-engin.yml` — project file (yml).
+- `.github/workflows/daydream-engin-build-cycle.yml` — project file (yml).
+- `.github/workflows/daydream-engin-sicc-refinement.yml` — project file (yml).
+- `.github/workflows/daydream-games-engin.yml` — project file (yml).
+- `.github/workflows/daydream-lab-engin.yml` — project file (yml).
+- `.github/workflows/daydream-music-engin.yml` — project file (yml).
+- `.github/workflows/db-extension-audit.yml` — project file (yml).
+- `.github/workflows/db-extension-check.yml` — project file (yml).
+- `.github/workflows/deploy-artifact.yml` — project file (yml).
+- `.github/workflows/docs-auto-update.yml` — project file (yml).
+- `.github/workflows/dreamengin-preflight.yml` — project file (yml).
+- `.github/workflows/elite-gameengin-evolution.yml` — project file (yml).
+- `.github/workflows/engin-all.yml` — project file (yml).
+- `.github/workflows/exportrepo.yml` — project file (yml).
+- `.github/workflows/game-engin-patrol.yml` — project file (yml).
+- `.github/workflows/game-library-research.yml` — project file (yml).
+- `.github/workflows/gameengin-ai-agent.yml` — project file (yml).
+- `.github/workflows/gameengin-artisan.yml` — project file (yml).
+- `.github/workflows/gameengin-maestro.yml` — project file (yml).
+- `.github/workflows/gameengin-mechanic.yml` — project file (yml).
+- `.github/workflows/gameengin-prophet.yml` — project file (yml).
+- `.github/workflows/gameengin-upgrader.yml` — project file (yml).
+- `.github/workflows/gameengin-writer.yml` — project file (yml).
+- `.github/workflows/games-library-ai-agent.yml` — project file (yml).
+- `.github/workflows/garbageman.yml` — project file (yml).
+- `.github/workflows/generatesupabasetypes.yml` — project file (yml).
+- `.github/workflows/github-actions.yml` — project file (yml).
+- `.github/workflows/humanai-army-audit.yml` — project file (yml).
+- `.github/workflows/humanai-audit.yml` — project file (yml).
+- `.github/workflows/idari-daily.yml` — project file (yml).
+- `.github/workflows/issue-bot.yml` — project file (yml).
+- `.github/workflows/mobile-nextgen-spec-evolution.yml` — project file (yml).
+- `.github/workflows/mobile-ps5-spec-evolution.yml` — project file (yml).
+- `.github/workflows/neural_decision_engine.yml` — project file (yml).
+- `.github/workflows/optimize-dreamengin.yml` — project file (yml).
+- `.github/workflows/portfolio-optimization.yml` — project file (yml).
+- `.github/workflows/preflight.yml` — project file (yml).
+- `.github/workflows/print-codebase.yml` — project file (yml).
+- `.github/workflows/readme-autosync.yml` — project file (yml).
+- `.github/workflows/refreshlock.yml` — project file (yml).
+- `.github/workflows/repo-snapshot.yml` — project file (yml).
+- `.github/workflows/report-driven-coding-agent.yml` — project file (yml).
+- `.github/workflows/root-hygiene.yml` — project file (yml).
+- `.github/workflows/spec-engin-ai-agent.yml` — project file (yml).
+- `.github/workflows/sql-migration-guard.yml` — project file (yml).
+- `.github/workflows/sync-build-memory.yml` — project file (yml).
+- `.github/workflows/update-embed-feed.yml` — project file (yml).
+- `.github/workflows/update-repo-state.yml` — project file (yml).
+- `.github/workflows/vercel-deploy.yml` — project file (yml).
+- `grafana/dashboards/default.yml` — project file (yml).
+- `grafana/datasources/prometheus.yml` — project file (yml).
+- `prometheus/prometheus.yml` — project file (yml).
+- `terraform/main.tf` — project file (tf).
+- `vercel.json` — project file (json).
 
 </details>
-## Testing
-Testing is split between unit/integration coverage and browser-level e2e:
-- `tests/*.test.ts` runs under Vitest (`pnpm test`, `pnpm test:ci`) and covers runtime contracts, APIs, DreamDM behavior, Engins, and protocol laws.
-- `playwright.config.ts` configures browser e2e under `tests/e2e` with desktop Chromium and iPhone WebKit profiles.
-- `pnpm preflight` is the repository quality gate (root hygiene/spec checks + typecheck + lint + test:ci).
 
-When validating release readiness, pair `pnpm preflight` with `pnpm build` so production build regressions are caught in addition to test/lint/type checks.
-#### Testing files file structure
+## Testing
+Auto-synced from `tests/**`, `vitest.config.ts`, `playwright.config.ts` using repository introspection.
+- Files tracked: **205**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: none
+#### Testing file structure
 ```text
 ├── playwright.config.ts
 ├── tests
@@ -2413,345 +2248,238 @@ When validating release readiness, pair `pnpm preflight` with `pnpm build` so pr
 │   ├── lab-section-12-spec.test.ts
 │   ├── landing-calibration.test.ts
 │   ├── landing-mission-link.test.ts
-│   ├── ledger-media.test.ts
-│   ├── live-feed.test.ts
-│   ├── madmaxi-authored-levels.test.ts
-│   ├── madmaxi-mechanics.test.ts
-│   ├── mobile-game-controls.test.ts
-│   ├── modular-os-stores.test.ts
-│   ├── module-registry.test.ts
-│   ├── music-starmaker-section10.test.ts
-│   ├── namespace-isolation.test.ts
-│   ├── navigation
-│   │   ├── manifold-physics.spec.ts
-│   │   ├── navigation.spec.ts
-│   │   └── quaternion.spec.ts
-│   ├── neural-seam-flow.test.ts
-│   ├── notifications.test.ts
-│   ├── offline-queue.test.ts
-│   ├── optimizer.test.ts
-│   ├── os-subsystem-manifest.test.ts
-│   ├── page-surface-wiring.test.ts
-│   ├── phase6-privacy-idari.test.ts
-│   ├── phase7-naming.test.ts
-│   ├── phase8a.test.ts
-│   ├── phase8b-dream-windows.test.ts
-│   ├── phase8e-orders.test.ts
-│   ├── phase8e-shop-marketplace.test.ts
-│   ├── phase8f-daydream-activation.test.ts
-│   ├── phase8f-daydream-network.test.ts
-│   ├── phase8g-dual-runtime-persistence.test.ts
-│   ├── phase8h-triad-consensus.test.ts
-│   ├── phase8i-settings-persistence.test.ts
-│   ├── phase9-adaptive-quality.test.ts
-│   ├── phase9-cross-post.test.ts
-│   ├── phase9-drag-drop.test.ts
-│   ├── phase9-hashtags.test.ts
-│   ├── phase9-notifications.test.ts
-│   ├── phase9-offline-cache.test.ts
-│   ├── phase9-scene-state.test.ts
-│   ├── phase9-touch-gestures.test.ts
-│   ├── platform-utils.test.ts
-│   ├── post-media.test.ts
-│   ├── post-view-counting.test.ts
-│   ├── product-law-principle10-alignment.test.ts
-│   ├── profile-avatar-edit-entrypoints.test.ts
-│   ├── rate-limiting.test.ts
-│   ├── readme-homedream-system.test.ts
-│   ├── readme-section13-code-codeengin.test.ts
-│   ├── readme-section6-homedream.test.ts
-│   ├── report-driven-game-agent.test.ts
-│   ├── repository-state-analysis-section.test.ts
-│   ├── responsive.test.ts
-│   ├── rss-feed.test.ts
-│   ├── runtime-channel.test.ts
-│   ├── runtime-container.test.ts
-│   ├── runtime-viewport.test.ts
-│   ├── runtime-wiring.test.ts
-│   ├── safe-get-user.test.ts
-│   ├── seam-clipboard.test.ts
-│   ├── session-continuity.test.ts
-│   ├── session-pattern-engine.test.ts
-│   ├── skip-credits.test.ts
-│   ├── social-feed.test.ts
-│   ├── social-platforms.test.ts
-│   ├── spec35-vm-bus-events.test.ts
-│   ├── spec36-bot-detection.test.ts
-│   ├── spec37-torridity.test.ts
-│   ├── spec38-collaboration.test.ts
-│   ├── spec41-engine-builder.test.ts
-│   ├── starmaker-music.test.ts
-│   ├── structure-ledger.test.ts
-│   ├── supabase-env.test.ts
-│   ├── swap-manager-extended.test.ts
-│   ├── swipe-calibration.test.ts
-│   ├── tech-foundation.test.ts
-│   ├── torridity-ledger.test.ts
-│   ├── universal-asset-registry.test.ts
-│   ├── universal-visual-modularity.test.ts
-│   ├── update-readme-current-status.test.ts
-│   ├── user-sim.test.ts
-│   ├── utils-extended.test.ts
-│   ├── utils-supabase-server.test.ts
-│   ├── v2-readiness.test.ts
-│   ├── view-profile-public-view-controls.test.ts
-│   ├── warp-engine.test.ts
-│   ├── wasm-gpu-vm.test.ts
-│   ├── webgpu-director.test.ts
-│   ├── widget-install-flow.test.ts
-│   └── youtube-provider.test.ts
-└── vitest.config.ts
+… (85 more files)
 ```
-<details><summary>Testing files file index (204 files)</summary>
+<details><summary>Testing file index (205 files)</summary>
 
-- `playwright.config.ts` — TypeScript runtime module for playwright config.
-- `tests/DUALSENSE_TEST_PLAN.md` — Documentation/spec for DUALSENSE TEST PLAN.
-- `tests/activity-first-protocol.test.ts` — TypeScript runtime module for activity first protocol test.
-- `tests/activity-revenue-split.test.ts` — TypeScript runtime module for activity revenue split test.
-- `tests/admin-lockout.test.ts` — TypeScript runtime module for admin lockout test.
-- `tests/admin-upgrade-readiness.test.ts` — TypeScript runtime module for admin upgrade readiness test.
-- `tests/agent-bus-consensus.test.ts` — TypeScript runtime module for agent bus consensus test.
-- `tests/ai-edit-engine.test.ts` — TypeScript runtime module for ai edit engine test.
-- `tests/api-route-body-guard.test.ts` — TypeScript runtime module for api route body guard test.
-- `tests/asset-optimizer.test.ts` — TypeScript runtime module for asset optimizer test.
-- `tests/auth-providers-route.test.ts` — TypeScript runtime module for auth providers route test.
-- `tests/auth-update-password-page.test.ts` — TypeScript runtime module for auth update password page test.
-- `tests/authenticated-ui-shells.test.ts` — TypeScript runtime module for authenticated ui shells test.
-- `tests/babylon-optimizero.test.ts` — TypeScript runtime module for babylon optimizero test.
-- `tests/babylon-webgpu-engine.test.ts` — TypeScript runtime module for babylon webgpu engine test.
-- `tests/bar-hide-preserves-both-runtimes.test.ts` — TypeScript runtime module for bar hide preserves both runtimes test.
-- `tests/boogie-policy-module.test.ts` — TypeScript runtime module for boogie policy module test.
-- `tests/boogieman.test.ts` — TypeScript runtime module for boogieman test.
-- `tests/bot-detector.test.ts` — TypeScript runtime module for bot detector test.
-- `tests/branding-logos.test.ts` — TypeScript runtime module for branding logos test.
-- `tests/canonical-naming-enforcement.test.ts` — TypeScript runtime module for canonical naming enforcement test.
-- `tests/child-safety.test.ts` — TypeScript runtime module for child safety test.
-- `tests/code-dream-preview.test.ts` — TypeScript runtime module for code dream preview test.
-- `tests/coercion-table.test.ts` — TypeScript runtime module for coercion table test.
-- `tests/collector-extended.test.ts` — TypeScript runtime module for collector extended test.
-- `tests/compositeengin-features.test.ts` — TypeScript runtime module for compositeengin features test.
-- `tests/conform-memory-map.test.ts` — TypeScript runtime module for conform memory map test.
-- `tests/connector-delivery.test.ts` — TypeScript runtime module for connector delivery test.
-- `tests/connectors.test.ts` — TypeScript runtime module for connectors test.
-- `tests/content-intelligence-routes.test.ts` — TypeScript runtime module for content intelligence routes test.
-- `tests/content-publish-intent.test.ts` — TypeScript runtime module for content publish intent test.
-- `tests/contentengin-features.test.ts` — TypeScript runtime module for contentengin features test.
-- `tests/contextual-home.test.ts` — TypeScript runtime module for contextual home test.
-- `tests/creative-optimizero.test.ts` — TypeScript runtime module for creative optimizero test.
-- `tests/data-transform-extended.test.ts` — TypeScript runtime module for data transform extended test.
-- `tests/data-transform.test.ts` — TypeScript runtime module for data transform test.
-- `tests/daydream-engin-routes.test.ts` — TypeScript runtime module for daydream engin routes test.
-- `tests/decide-bar-release.test.ts` — TypeScript runtime module for decide bar release test.
-- `tests/dev-bypass.test.ts` — TypeScript runtime module for dev bypass test.
-- `tests/diff-viewer.test.ts` — TypeScript runtime module for diff viewer test.
-- `tests/dr-eams-code-assist.test.ts` — TypeScript runtime module for dr eams code assist test.
-- `tests/dr-eams-search-bar.test.ts` — TypeScript runtime module for dr eams search bar test.
-- `tests/dream-bar-context.test.ts` — TypeScript runtime module for dream bar context test.
-- `tests/dream-continuity-spine.test.ts` — TypeScript runtime module for dream continuity spine test.
-- `tests/dream-effects.test.ts` — TypeScript runtime module for dream effects test.
-- `tests/dream-os-bus.test.ts` — TypeScript runtime module for dream os bus test.
-- `tests/dream-state.test.ts` — TypeScript runtime module for dream state test.
-- `tests/dream-window-system.test.ts` — TypeScript runtime module for dream window system test.
-- `tests/dreamdm-bar-intent.test.ts` — TypeScript runtime module for dreamdm bar intent test.
-- `tests/dreamdm-bar-interactions.test.ts` — TypeScript runtime module for dreamdm bar interactions test.
-- `tests/dreamdm-bar-wild.test.ts` — TypeScript runtime module for dreamdm bar wild test.
-- `tests/dreamdm-draft.test.ts` — TypeScript runtime module for dreamdm draft test.
-- `tests/dreamdm-messaging-phase2.test.ts` — TypeScript runtime module for dreamdm messaging phase2 test.
-- `tests/dreamengin-os.test.ts` — TypeScript runtime module for dreamengin os test.
-- `tests/dreamnav.tau.test.ts` — TypeScript runtime module for dreamnav tau test.
-- `tests/dreamr-algorithm-velocity.test.ts` — TypeScript runtime module for dreamr algorithm velocity test.
-- `tests/dreamr-algorithm.test.ts` — TypeScript runtime module for dreamr algorithm test.
-- `tests/dreamr-feed-limits.test.ts` — TypeScript runtime module for dreamr feed limits test.
-- `tests/dreamr-feed-topics.test.ts` — TypeScript runtime module for dreamr feed topics test.
-- `tests/dreamr-page-route.test.ts` — TypeScript runtime module for dreamr page route test.
-- `tests/dreamr-swipe-personalization.test.ts` — TypeScript runtime module for dreamr swipe personalization test.
-- `tests/dreamr-visibility-cursor.test.ts` — TypeScript runtime module for dreamr visibility cursor test.
-- `tests/dreamspace-panel.test.ts` — TypeScript runtime module for dreamspace panel test.
-- `tests/drop-target-registry.test.ts` — TypeScript runtime module for drop target registry test.
-- `tests/dual-runtime-bridge-peer-activity.test.ts` — TypeScript runtime module for dual runtime bridge peer activity test.
-- `tests/durable-bridge.test.ts` — TypeScript runtime module for durable bridge test.
-- `tests/e2e/demo.spec.ts` — TypeScript runtime module for demo spec.
-- `tests/e2e/full-coverage.spec.ts` — TypeScript runtime module for full coverage spec.
-- `tests/edit-profiledream-section7.test.ts` — TypeScript runtime module for edit profiledream section7 test.
-- `tests/engin-dispatcher.test.ts` — TypeScript runtime module for engin dispatcher test.
-- `tests/engin-runtime-core.test.ts` — TypeScript runtime module for engin runtime core test.
-- `tests/engin-workflow.test.ts` — TypeScript runtime module for engin workflow test.
-- `tests/enginpipe/manifest.test.ts` — TypeScript runtime module for manifest test.
-- `tests/enginpipe/telemetry.test.ts` — TypeScript runtime module for telemetry test.
-- `tests/enginpipe/tiers.test.ts` — TypeScript runtime module for tiers test.
-- `tests/example.spec.ts` — TypeScript runtime module for example spec.
-- `tests/export-full-code.test.ts` — TypeScript runtime module for export full code test.
-- `tests/feature-build.test.ts` — TypeScript runtime module for feature build test.
-- `tests/forge-build.test.ts` — TypeScript runtime module for forge build test.
-- `tests/forge-engin.test.ts` — TypeScript runtime module for forge test.
-- `tests/forge-momentum.test.ts` — TypeScript runtime module for forge momentum test.
-- `tests/forge-nexus.test.ts` — TypeScript runtime module for forge nexus test.
-- `tests/forge-rituals.test.ts` — TypeScript runtime module for forge rituals test.
-- `tests/fusion-cartridges-depth.test.ts` — TypeScript runtime module for fusion cartridges depth test.
-- `tests/fusion-cartridges.test.ts` — TypeScript runtime module for fusion cartridges test.
-- `tests/game-controller.test.ts` — TypeScript runtime module for game controller test.
-- `tests/game-engin-ruleset.test.ts` — TypeScript runtime module for game engin ruleset test.
-- `tests/game-navigation.test.ts` — TypeScript runtime module for game navigation test.
-- `tests/game-performance-baseline.test.ts` — TypeScript runtime module for game performance baseline test.
-- `tests/game-quality-plan.test.ts` — TypeScript runtime module for game quality plan test.
-- `tests/game-remote-regression.test.ts` — TypeScript runtime module for game remote regression test.
-- `tests/gameengin-architect.test.ts` — TypeScript runtime module for gameengin architect test.
-- `tests/gameengin-cartridges.test.ts` — TypeScript runtime module for gameengin cartridges test.
-- `tests/gameengin-crash-modal.test.ts` — TypeScript runtime module for gameengin crash modal test.
-- `tests/gameengin-loop.test.ts` — TypeScript runtime module for gameengin loop test.
-- `tests/gameengin-power-systems.test.ts` — TypeScript runtime module for gameengin power systems test.
-- `tests/gameengin-progression.test.ts` — TypeScript runtime module for gameengin progression test.
-- `tests/gameengin-remote.test.ts` — TypeScript runtime module for gameengin remote test.
-- `tests/gameengin-spec.test.ts` — TypeScript runtime module for gameengin spec test.
-- `tests/games-daydream-page-auth.test.ts` — TypeScript runtime module for games daydream page auth test.
-- `tests/god-tier-engine.test.ts` — TypeScript runtime module for god tier engine test.
-- `tests/hero-sprite.test.ts` — TypeScript runtime module for hero sprite test.
-- `tests/home-feed-home.test.ts` — TypeScript runtime module for home feed home test.
-- `tests/homedream-page-auth.test.ts` — TypeScript runtime module for homedream page auth test.
-- `tests/icons.test.ts` — TypeScript runtime module for icons test.
-- `tests/idari-admin-guard.test.ts` — TypeScript runtime module for idari admin guard test.
-- `tests/idari-observability-loop.test.ts` — TypeScript runtime module for idari observability loop test.
-- `tests/idari-patch-plan.test.ts` — TypeScript runtime module for idari patch plan test.
-- `tests/instance-manager.test.ts` — TypeScript runtime module for instance manager test.
-- `tests/integration-wiring.test.ts` — TypeScript runtime module for integration wiring test.
-- `tests/is-auth-related-error.test.ts` — TypeScript runtime module for is auth related error test.
-- `tests/journey-insights.test.ts` — TypeScript runtime module for journey insights test.
-- `tests/journey.test.ts` — TypeScript runtime module for journey test.
-- `tests/lab-dream-split.test.ts` — TypeScript runtime module for lab dream split test.
-- `tests/lab-section-12-spec.test.ts` — TypeScript runtime module for lab section 12 spec test.
-- `tests/landing-calibration.test.ts` — TypeScript runtime module for landing calibration test.
-- `tests/landing-mission-link.test.ts` — TypeScript runtime module for landing mission link test.
-- `tests/ledger-media.test.ts` — TypeScript runtime module for ledger media test.
-- `tests/live-feed.test.ts` — TypeScript runtime module for live feed test.
-- `tests/madmaxi-authored-levels.test.ts` — TypeScript runtime module for madmaxi authored levels test.
-- `tests/madmaxi-mechanics.test.ts` — TypeScript runtime module for madmaxi mechanics test.
-- `tests/mobile-game-controls.test.ts` — TypeScript runtime module for mobile game controls test.
-- `tests/modular-os-stores.test.ts` — TypeScript runtime module for modular os stores test.
-- `tests/module-registry.test.ts` — TypeScript runtime module for module registry test.
-- `tests/music-starmaker-section10.test.ts` — TypeScript runtime module for music starmaker section10 test.
-- `tests/namespace-isolation.test.ts` — TypeScript runtime module for namespace isolation test.
-- `tests/navigation/manifold-physics.spec.ts` — TypeScript runtime module for manifold physics spec.
-- `tests/navigation/navigation.spec.ts` — TypeScript runtime module for navigation spec.
-- `tests/navigation/quaternion.spec.ts` — TypeScript runtime module for quaternion spec.
-- `tests/neural-seam-flow.test.ts` — TypeScript runtime module for neural seam flow test.
-- `tests/notifications.test.ts` — TypeScript runtime module for notifications test.
-- `tests/offline-queue.test.ts` — TypeScript runtime module for offline queue test.
-- `tests/optimizer.test.ts` — TypeScript runtime module for optimizer test.
-- `tests/os-subsystem-manifest.test.ts` — TypeScript runtime module for os subsystem manifest test.
-- `tests/page-surface-wiring.test.ts` — TypeScript runtime module for page surface wiring test.
-- `tests/phase6-privacy-idari.test.ts` — TypeScript runtime module for phase6 privacy idari test.
-- `tests/phase7-naming.test.ts` — TypeScript runtime module for phase7 naming test.
-- `tests/phase8a.test.ts` — TypeScript runtime module for phase8a test.
-- `tests/phase8b-dream-windows.test.ts` — TypeScript runtime module for phase8b dream windows test.
-- `tests/phase8e-orders.test.ts` — TypeScript runtime module for phase8e orders test.
-- `tests/phase8e-shop-marketplace.test.ts` — TypeScript runtime module for phase8e shop marketplace test.
-- `tests/phase8f-daydream-activation.test.ts` — TypeScript runtime module for phase8f daydream activation test.
-- `tests/phase8f-daydream-network.test.ts` — TypeScript runtime module for phase8f daydream network test.
-- `tests/phase8g-dual-runtime-persistence.test.ts` — TypeScript runtime module for phase8g dual runtime persistence test.
-- `tests/phase8h-triad-consensus.test.ts` — TypeScript runtime module for phase8h triad consensus test.
-- `tests/phase8i-settings-persistence.test.ts` — TypeScript runtime module for phase8i settings persistence test.
-- `tests/phase9-adaptive-quality.test.ts` — TypeScript runtime module for phase9 adaptive quality test.
-- `tests/phase9-cross-post.test.ts` — TypeScript runtime module for phase9 cross post test.
-- `tests/phase9-drag-drop.test.ts` — TypeScript runtime module for phase9 drag drop test.
-- `tests/phase9-hashtags.test.ts` — TypeScript runtime module for phase9 hashtags test.
-- `tests/phase9-notifications.test.ts` — TypeScript runtime module for phase9 notifications test.
-- `tests/phase9-offline-cache.test.ts` — TypeScript runtime module for phase9 offline cache test.
-- `tests/phase9-scene-state.test.ts` — TypeScript runtime module for phase9 scene state test.
-- `tests/phase9-touch-gestures.test.ts` — TypeScript runtime module for phase9 touch gestures test.
-- `tests/platform-utils.test.ts` — TypeScript runtime module for platform utils test.
-- `tests/post-media.test.ts` — TypeScript runtime module for post media test.
-- `tests/post-view-counting.test.ts` — TypeScript runtime module for post view counting test.
-- `tests/product-law-principle10-alignment.test.ts` — TypeScript runtime module for product law principle10 alignment test.
-- `tests/profile-avatar-edit-entrypoints.test.ts` — TypeScript runtime module for profile avatar edit entrypoints test.
-- `tests/rate-limiting.test.ts` — TypeScript runtime module for rate limiting test.
-- `tests/readme-homedream-system.test.ts` — TypeScript runtime module for readme homedream system test.
-- `tests/readme-section13-code-codeengin.test.ts` — TypeScript runtime module for readme section13 code codetest.
-- `tests/readme-section6-homedream.test.ts` — TypeScript runtime module for readme section6 hometest.
-- `tests/report-driven-game-agent.test.ts` — TypeScript runtime module for report driven game agent test.
-- `tests/repository-state-analysis-section.test.ts` — TypeScript runtime module for repository state analysis section test.
-- `tests/responsive.test.ts` — TypeScript runtime module for responsive test.
-- `tests/rss-feed.test.ts` — TypeScript runtime module for rss feed test.
-- `tests/runtime-channel.test.ts` — TypeScript runtime module for runtime channel test.
-- `tests/runtime-container.test.ts` — TypeScript runtime module for runtime container test.
-- `tests/runtime-viewport.test.ts` — TypeScript runtime module for runtime viewport test.
-- `tests/runtime-wiring.test.ts` — TypeScript runtime module for runtime wiring test.
-- `tests/safe-get-user.test.ts` — TypeScript runtime module for safe get user test.
-- `tests/seam-clipboard.test.ts` — TypeScript runtime module for seam clipboard test.
-- `tests/session-continuity.test.ts` — TypeScript runtime module for session continuity test.
-- `tests/session-pattern-engine.test.ts` — TypeScript runtime module for session pattern engine test.
-- `tests/skip-credits.test.ts` — TypeScript runtime module for skip credits test.
-- `tests/social-feed.test.ts` — TypeScript runtime module for social feed test.
-- `tests/social-platforms.test.ts` — TypeScript runtime module for social platforms test.
-- `tests/spec35-vm-bus-events.test.ts` — TypeScript runtime module for spec35 vm bus events test.
-- `tests/spec36-bot-detection.test.ts` — TypeScript runtime module for spec36 bot detection test.
-- `tests/spec37-torridity.test.ts` — TypeScript runtime module for spec37 torridity test.
-- `tests/spec38-collaboration.test.ts` — TypeScript runtime module for spec38 collaboration test.
-- `tests/spec41-engine-builder.test.ts` — TypeScript runtime module for spec41 engine builder test.
-- `tests/starmaker-music.test.ts` — TypeScript runtime module for starmaker music test.
-- `tests/structure-ledger.test.ts` — TypeScript runtime module for structure ledger test.
-- `tests/supabase-env.test.ts` — TypeScript runtime module for supabase env test.
-- `tests/swap-manager-extended.test.ts` — TypeScript runtime module for swap manager extended test.
-- `tests/swipe-calibration.test.ts` — TypeScript runtime module for swipe calibration test.
-- `tests/tech-foundation.test.ts` — TypeScript runtime module for tech foundation test.
-- `tests/torridity-ledger.test.ts` — TypeScript runtime module for torridity ledger test.
-- `tests/universal-asset-registry.test.ts` — TypeScript runtime module for universal asset registry test.
-- `tests/universal-visual-modularity.test.ts` — TypeScript runtime module for universal visual modularity test.
-- `tests/update-readme-current-status.test.ts` — TypeScript runtime module for update readme current status test.
-- `tests/user-sim.test.ts` — TypeScript runtime module for user sim test.
-- `tests/utils-extended.test.ts` — TypeScript runtime module for utils extended test.
-- `tests/utils-supabase-server.test.ts` — TypeScript runtime module for utils supabase server test.
-- `tests/v2-readiness.test.ts` — TypeScript runtime module for v2 readiness test.
-- `tests/view-profile-public-view-controls.test.ts` — TypeScript runtime module for view profile public view controls test.
-- `tests/warp-engine.test.ts` — TypeScript runtime module for warp engine test.
-- `tests/wasm-gpu-vm.test.ts` — TypeScript runtime module for wasm gpu vm test.
-- `tests/webgpu-director.test.ts` — TypeScript runtime module for webgpu director test.
-- `tests/widget-install-flow.test.ts` — TypeScript runtime module for widget install flow test.
-- `tests/youtube-provider.test.ts` — TypeScript runtime module for youtube provider test.
-- `vitest.config.ts` — TypeScript runtime module for vitest config.
+- `playwright.config.ts` — TypeScript/JavaScript runtime module.
+- `tests/DUALSENSE_TEST_PLAN.md` — documentation file.
+- `tests/activity-first-protocol.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/activity-revenue-split.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/admin-lockout.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/admin-upgrade-readiness.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/agent-bus-consensus.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/ai-edit-engine.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/api-route-body-guard.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/asset-optimizer.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/auth-providers-route.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/auth-update-password-page.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/authenticated-ui-shells.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/babylon-optimizero.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/babylon-webgpu-engine.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/bar-hide-preserves-both-runtimes.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/boogie-policy-module.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/boogieman.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/bot-detector.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/branding-logos.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/canonical-naming-enforcement.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/child-safety.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/code-dream-preview.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/coercion-table.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/collector-extended.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/compositeengin-features.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/conform-memory-map.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/connector-delivery.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/connectors.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/content-intelligence-routes.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/content-publish-intent.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/contentengin-features.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/contextual-home.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/creative-optimizero.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/data-transform-extended.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/data-transform.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/daydream-engin-routes.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/decide-bar-release.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dev-bypass.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/diff-viewer.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dr-eams-code-assist.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dr-eams-search-bar.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dream-bar-context.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dream-continuity-spine.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dream-effects.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dream-os-bus.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dream-state.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dream-window-system.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dreamdm-bar-intent.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dreamdm-bar-interactions.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dreamdm-bar-wild.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dreamdm-draft.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dreamdm-messaging-phase2.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dreamengin-os.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dreamnav.tau.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dreamr-algorithm-velocity.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dreamr-algorithm.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dreamr-feed-limits.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dreamr-feed-topics.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dreamr-page-route.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dreamr-swipe-personalization.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dreamr-visibility-cursor.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dreamspace-panel.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/drop-target-registry.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/dual-runtime-bridge-peer-activity.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/durable-bridge.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/e2e/demo.spec.ts` — TypeScript/JavaScript runtime module.
+- `tests/e2e/full-coverage.spec.ts` — TypeScript/JavaScript runtime module.
+- `tests/edit-profiledream-section7.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/engin-dispatcher.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/engin-runtime-core.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/engin-workflow.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/enginpipe/manifest.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/enginpipe/telemetry.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/enginpipe/tiers.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/example.spec.ts` — TypeScript/JavaScript runtime module.
+- `tests/export-full-code.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/feature-build.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/forge-build.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/forge-engin.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/forge-momentum.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/forge-nexus.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/forge-rituals.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/fusion-cartridges-depth.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/fusion-cartridges.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/game-controller.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/game-engin-ruleset.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/game-navigation.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/game-performance-baseline.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/game-quality-plan.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/game-remote-regression.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/gameengin-architect.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/gameengin-cartridges.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/gameengin-crash-modal.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/gameengin-loop.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/gameengin-power-systems.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/gameengin-progression.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/gameengin-remote.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/gameengin-spec.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/games-daydream-page-auth.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/god-tier-engine.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/hero-sprite.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/home-feed-home.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/homedream-page-auth.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/icons.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/idari-admin-guard.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/idari-observability-loop.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/idari-patch-plan.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/instance-manager.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/integration-wiring.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/is-auth-related-error.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/journey-insights.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/journey.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/lab-dream-split.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/lab-section-12-spec.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/landing-calibration.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/landing-mission-link.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/ledger-media.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/live-feed.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/madmaxi-authored-levels.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/madmaxi-mechanics.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/mobile-game-controls.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/modular-os-stores.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/module-registry.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/music-starmaker-section10.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/namespace-isolation.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/navigation/manifold-physics.spec.ts` — TypeScript/JavaScript runtime module.
+- `tests/navigation/navigation.spec.ts` — TypeScript/JavaScript runtime module.
+- `tests/navigation/quaternion.spec.ts` — TypeScript/JavaScript runtime module.
+- `tests/neural-seam-flow.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/notifications.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/offline-queue.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/optimizer.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/os-subsystem-manifest.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/page-surface-wiring.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase6-privacy-idari.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase7-naming.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase8a.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase8b-dream-windows.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase8e-orders.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase8e-shop-marketplace.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase8f-daydream-activation.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase8f-daydream-network.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase8g-dual-runtime-persistence.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase8h-triad-consensus.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase8i-settings-persistence.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase9-adaptive-quality.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase9-cross-post.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase9-drag-drop.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase9-hashtags.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase9-notifications.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase9-offline-cache.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase9-scene-state.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/phase9-touch-gestures.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/platform-utils.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/post-media.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/post-view-counting.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/product-law-principle10-alignment.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/profile-avatar-edit-entrypoints.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/rate-limiting.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/readme-autosync.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/readme-homedream-system.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/readme-section13-code-codeengin.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/readme-section6-homedream.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/report-driven-game-agent.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/repository-state-analysis-section.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/responsive.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/rss-feed.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/runtime-channel.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/runtime-container.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/runtime-viewport.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/runtime-wiring.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/safe-get-user.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/seam-clipboard.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/session-continuity.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/session-pattern-engine.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/skip-credits.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/social-feed.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/social-platforms.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/spec35-vm-bus-events.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/spec36-bot-detection.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/spec37-torridity.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/spec38-collaboration.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/spec41-engine-builder.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/starmaker-music.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/structure-ledger.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/supabase-env.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/swap-manager-extended.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/swipe-calibration.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/tech-foundation.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/torridity-ledger.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/universal-asset-registry.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/universal-visual-modularity.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/update-readme-current-status.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/user-sim.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/utils-extended.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/utils-supabase-server.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/v2-readiness.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/view-profile-public-view-controls.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/warp-engine.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/wasm-gpu-vm.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/webgpu-director.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/widget-install-flow.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/youtube-provider.test.ts` — TypeScript/JavaScript runtime module.
+- `vitest.config.ts` — TypeScript/JavaScript runtime module.
 
 </details>
-## Getting Started
-1. **Prerequisites**: install Node.js **24** and enable Corepack (`corepack enable`) so the repo uses **pnpm 10.30.0** from the `packageManager` field in `package.json`.
-2. **Install deps**: run `pnpm install` at repo root.
-3. **Set environment**: `cp .env.example .env.local` (or start from `.env.local.example`) and fill required secrets/keys.
-4. **Supabase setup (recommended)**: either run a local stack (`supabase start`) or point `.env.local` to a hosted project (`NEXT_PUBLIC_SUPABASE_URL` + publishable/anon keys).
-5. **Run development shell**: `pnpm dev` and open `http://localhost:3000`.
-6. **Quality checks**: run `pnpm typecheck`, `pnpm lint`, `pnpm test`, then `pnpm preflight`.
-7. **Production verification locally**: run `pnpm build` and then `pnpm start`.
 
-For local UI inspection without full auth wiring, `.env.local.example` documents `DEV_BYPASS_AUTH=true` and `DEV_ADMIN=true` (dev only; never production).
-### Available scripts (from `package.json`)
-```bash
-pnpm dev  # next dev
-pnpm build  # next build
-pnpm vercel-build  # next build
-pnpm start  # next start
-pnpm lint  # eslint .
-pnpm typecheck  # tsc --noEmit
-pnpm test  # vitest run
-pnpm test:ci  # vitest run
-pnpm test:watch  # vitest
-pnpm build-memory:sync  # node scripts/sync-build-memory.mjs
-pnpm build-memory:check  # node scripts/check-build-memory-drift.mjs
-pnpm check:root-hygiene  # node scripts/check-root-hygiene.mjs
-pnpm check:engin-filenames  # node scripts/check-engin-filenames.mjs
-pnpm full-code:export  # node scripts/export-full-code.mjs
-pnpm repo-state  # node scripts/analyze-repo-state.mjs
-pnpm preflight  # node scripts/vercel-preflight.cjs . && pnpm run check:root-hygiene && node scripts/spec-check.cjs . && node scripts/check-engin-filenames.mjs && pnpm run typecheck && pnpm run lint && pnpm run test:ci
-pnpm build:gamesengin  # tsc --project tsconfig.gamesengin.json --noEmit
-pnpm build:games  # tsc --project tsconfig.games.json --noEmit
-pnpm test:games  # vitest run tests/game-navigation.test.ts tests/game-remote-regression.test.ts tests/game-quality-plan.test.ts tests/report-driven-game-agent.test.ts
-pnpm asbuild:debug  # asc assembly/index.ts --target debug --exportRuntime --enable simd --outFile public/workers/engin-shader.wasm
-pnpm asbuild:release  # asc assembly/index.ts --target release --optimize --enable simd --outFile public/workers/engin-shader.wasm
-pnpm asbuild:mad-maxi  # asc assembly/mad-maxi-player.ts -o public/cartridges/mad-maxi/logic/main.wasm --optimizeLevel 3 --shrinkLevel 2 --enable simd --enable bulk-memory
-pnpm gameengin:maestro  # tsx scripts/gameengin/maestro-analyze.ts
-pnpm gameengin:prophet  # tsx scripts/gameengin/prophet-run.ts
-pnpm gameengin:mechanic  # tsx scripts/gameengin/mechanic-run.ts
-pnpm gameengin:artisan  # tsx scripts/gameengin/artisan-run.ts
-pnpm gameengin:writer  # tsx scripts/gameengin/writer-run.ts
-pnpm gameengin:upgrader  # tsx scripts/gameengin/upgrader-run.ts
-pnpm gameengin:package  # tsx scripts/gameengin/package-cartridge.ts
+## Getting Started
+Auto-synced from `README.md`, `.env.example`, `.env.local.example` using repository introspection.
+- Files tracked: **3**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: none
+#### Getting Started file structure
+```text
+├── .env.example
+├── .env.local.example
+└── README.md
 ```
+<details><summary>Getting Started file index (3 files)</summary>
+
+- `.env.example` — project file (example).
+- `.env.local.example` — project file (example).
+- `README.md` — documentation file.
+
+</details>
+
 ## Environment Variables
 The complete env contract is documented in `.env.example`; use `.env.local.example` for local defaults. Key variables by purpose:
 
@@ -2783,11 +2511,348 @@ The complete env contract is documented in `.env.example`; use `.env.local.examp
 
 Do not commit secrets. Treat `.env.example` as source-of-truth documentation and keep `.env.local` gitignored.
 ## Contributing
-- Read `AGENTS.md` and `.cursorrules` before touching runtime architecture; they define the fixed-engine/rule-set law.
-- Use the repository default branch model (`completedream` as base) and create focused feature/fix branches from it.
-- Keep commits small and descriptive; align messages with the subsystem touched (runtime, dreamdmbar, engin, api, etc.).
-- Husky hooks run automatically: `pre-commit` executes lint-staged and `pre-push` runs `pnpm preflight`.
-- Before opening/updating a PR, run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` locally.
-- Update root docs when behavior contracts change, but do not edit subsystem-owned READMEs unless that subsystem change is in scope.
+Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using repository introspection.
+- Files tracked: **209**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: none
+#### Contributing file structure
+```text
+├── .github
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   ├── actions
+│   │   └── setup-node
+│   │       └── action.yml
+│   ├── agents
+│   │   ├── Spec-Engin HyperSICC.agent.md
+│   │   ├── dreamengin.agent.md
+│   │   ├── error-tracker.agent.md
+│   │   ├── gameengin-ai-agent.yml
+│   │   ├── gameengin.md
+│   │   ├── humanAI.agent.md
+│   │   ├── idari.agent.md
+│   │   ├── my-agent.agent.md
+│   │   ├── newagent.agent.md
+│   │   └── videogameAi.md
+│   ├── copilot-instructions.md
+│   ├── issue-triage
+│   │   ├── issue-552.md
+│   │   ├── issue-556.md
+│   │   ├── issue-560.md
+│   │   ├── issue-565.md
+│   │   ├── issue-571.md
+│   │   ├── issue-573.md
+│   │   ├── issue-600.md
+│   │   ├── issue-601.md
+│   │   ├── issue-602.md
+│   │   ├── issue-603.md
+│   │   ├── issue-604.md
+│   │   ├── issue-605.md
+│   │   ├── issue-606.md
+│   │   ├── issue-607.md
+│   │   ├── issue-608.md
+│   │   ├── issue-609.md
+│   │   ├── issue-610.md
+│   │   ├── issue-611.md
+│   │   ├── issue-612.md
+│   │   ├── issue-613.md
+│   │   ├── issue-617.md
+│   │   ├── issue-620.md
+│   │   ├── issue-621.md
+│   │   ├── issue-622.md
+│   │   ├── issue-623.md
+│   │   ├── issue-647.md
+│   │   ├── issue-753.md
+│   │   └── issue-754.md
+│   ├── pull_request_template.md
+│   ├── scripts
+│   │   ├── DREAMENGIN_CORE_COMPLETE.md
+│   │   ├── DREAMENGIN_CORE_USAGE.md
+│   │   ├── ai_implement.py
+│   │   ├── ai_neural_decision.py
+│   │   ├── ai_propose.py
+│   │   ├── ai_report_propose.py
+│   │   ├── assemble_report_context.py
+│   │   ├── catalog_games_for_ai.py
+│   │   ├── check-root-hygiene.sh
+│   │   ├── dreamengin_core.py
+│   │   ├── humanai_audit.py
+│   │   ├── issue-bot.js
+│   │   ├── scan_dreamengin_context.py
+│   │   ├── scan_gameengin_context.py
+│   │   ├── validate_game_sandbox.py
+│   │   └── validate_report_agent_spec.py
+│   └── workflows
+│       ├── autofixvercelbuild.yml
+│       ├── bot-pr-automerge.yml
+│       ├── bouncer.yml
+│       ├── copilot-setup-steps.yml
+│       ├── daydream-all.yml
+│       ├── daydream-brand-engin.yml
+│       ├── daydream-code-engin.yml
+│       ├── daydream-create-engin.yml
+│       ├── daydream-engin-build-cycle.yml
+│       ├── daydream-engin-sicc-refinement.yml
+│       ├── daydream-games-engin.yml
+│       ├── daydream-lab-engin.yml
+│       ├── daydream-music-engin.yml
+│       ├── db-extension-audit.yml
+│       ├── db-extension-check.yml
+│       ├── deploy-artifact.yml
+│       ├── docs-auto-update.yml
+│       ├── dreamengin-preflight.yml
+│       ├── elite-gameengin-evolution.yml
+│       ├── engin-all.yml
+│       ├── exportrepo.yml
+│       ├── game-engin-patrol.yml
+│       ├── game-library-research.yml
+│       ├── gameengin-ai-agent.yml
+│       ├── gameengin-artisan.yml
+│       ├── gameengin-maestro.yml
+│       ├── gameengin-mechanic.yml
+│       ├── gameengin-prophet.yml
+│       ├── gameengin-upgrader.yml
+│       ├── gameengin-writer.yml
+│       ├── games-library-ai-agent.yml
+│       ├── garbageman.yml
+│       ├── generatesupabasetypes.yml
+│       ├── github-actions.yml
+│       ├── humanai-army-audit.yml
+│       ├── humanai-audit.yml
+│       ├── idari-daily.yml
+│       ├── issue-bot.yml
+│       ├── mobile-nextgen-spec-evolution.yml
+│       ├── mobile-ps5-spec-evolution.yml
+│       ├── neural_decision_engine.yml
+│       ├── optimize-dreamengin.yml
+│       ├── portfolio-optimization.yml
+│       ├── preflight.yml
+│       ├── print-codebase.yml
+│       ├── readme-autosync.yml
+│       ├── refreshlock.yml
+│       ├── repo-snapshot.yml
+│       ├── report-driven-coding-agent.yml
+│       ├── root-hygiene.yml
+│       ├── spec-engin-ai-agent.yml
+│       ├── sql-migration-guard.yml
+│       ├── sync-build-memory.yml
+│       ├── update-embed-feed.yml
+│       ├── update-repo-state.yml
+… (89 more files)
+```
+<details><summary>Contributing file index (209 files)</summary>
+
+- `.github/PULL_REQUEST_TEMPLATE.md` — documentation file.
+- `.github/actions/setup-node/action.yml` — project file (yml).
+- `.github/agents/Spec-Engin HyperSICC.agent.md` — documentation file.
+- `.github/agents/dreamengin.agent.md` — documentation file.
+- `.github/agents/error-tracker.agent.md` — documentation file.
+- `.github/agents/gameengin-ai-agent.yml` — project file (yml).
+- `.github/agents/gameengin.md` — documentation file.
+- `.github/agents/humanAI.agent.md` — documentation file.
+- `.github/agents/idari.agent.md` — documentation file.
+- `.github/agents/my-agent.agent.md` — documentation file.
+- `.github/agents/newagent.agent.md` — documentation file.
+- `.github/agents/videogameAi.md` — documentation file.
+- `.github/copilot-instructions.md` — documentation file.
+- `.github/issue-triage/issue-552.md` — documentation file.
+- `.github/issue-triage/issue-556.md` — documentation file.
+- `.github/issue-triage/issue-560.md` — documentation file.
+- `.github/issue-triage/issue-565.md` — documentation file.
+- `.github/issue-triage/issue-571.md` — documentation file.
+- `.github/issue-triage/issue-573.md` — documentation file.
+- `.github/issue-triage/issue-600.md` — documentation file.
+- `.github/issue-triage/issue-601.md` — documentation file.
+- `.github/issue-triage/issue-602.md` — documentation file.
+- `.github/issue-triage/issue-603.md` — documentation file.
+- `.github/issue-triage/issue-604.md` — documentation file.
+- `.github/issue-triage/issue-605.md` — documentation file.
+- `.github/issue-triage/issue-606.md` — documentation file.
+- `.github/issue-triage/issue-607.md` — documentation file.
+- `.github/issue-triage/issue-608.md` — documentation file.
+- `.github/issue-triage/issue-609.md` — documentation file.
+- `.github/issue-triage/issue-610.md` — documentation file.
+- `.github/issue-triage/issue-611.md` — documentation file.
+- `.github/issue-triage/issue-612.md` — documentation file.
+- `.github/issue-triage/issue-613.md` — documentation file.
+- `.github/issue-triage/issue-617.md` — documentation file.
+- `.github/issue-triage/issue-620.md` — documentation file.
+- `.github/issue-triage/issue-621.md` — documentation file.
+- `.github/issue-triage/issue-622.md` — documentation file.
+- `.github/issue-triage/issue-623.md` — documentation file.
+- `.github/issue-triage/issue-647.md` — documentation file.
+- `.github/issue-triage/issue-753.md` — documentation file.
+- `.github/issue-triage/issue-754.md` — documentation file.
+- `.github/pull_request_template.md` — documentation file.
+- `.github/scripts/DREAMENGIN_CORE_COMPLETE.md` — documentation file.
+- `.github/scripts/DREAMENGIN_CORE_USAGE.md` — documentation file.
+- `.github/scripts/ai_implement.py` — project file (py).
+- `.github/scripts/ai_neural_decision.py` — project file (py).
+- `.github/scripts/ai_propose.py` — project file (py).
+- `.github/scripts/ai_report_propose.py` — project file (py).
+- `.github/scripts/assemble_report_context.py` — project file (py).
+- `.github/scripts/catalog_games_for_ai.py` — project file (py).
+- `.github/scripts/check-root-hygiene.sh` — project file (sh).
+- `.github/scripts/dreamengin_core.py` — project file (py).
+- `.github/scripts/humanai_audit.py` — project file (py).
+- `.github/scripts/issue-bot.js` — TypeScript/JavaScript runtime module.
+- `.github/scripts/scan_dreamengin_context.py` — project file (py).
+- `.github/scripts/scan_gameengin_context.py` — project file (py).
+- `.github/scripts/validate_game_sandbox.py` — project file (py).
+- `.github/scripts/validate_report_agent_spec.py` — project file (py).
+- `.github/workflows/autofixvercelbuild.yml` — project file (yml).
+- `.github/workflows/bot-pr-automerge.yml` — project file (yml).
+- `.github/workflows/bouncer.yml` — project file (yml).
+- `.github/workflows/copilot-setup-steps.yml` — project file (yml).
+- `.github/workflows/daydream-all.yml` — project file (yml).
+- `.github/workflows/daydream-brand-engin.yml` — project file (yml).
+- `.github/workflows/daydream-code-engin.yml` — project file (yml).
+- `.github/workflows/daydream-create-engin.yml` — project file (yml).
+- `.github/workflows/daydream-engin-build-cycle.yml` — project file (yml).
+- `.github/workflows/daydream-engin-sicc-refinement.yml` — project file (yml).
+- `.github/workflows/daydream-games-engin.yml` — project file (yml).
+- `.github/workflows/daydream-lab-engin.yml` — project file (yml).
+- `.github/workflows/daydream-music-engin.yml` — project file (yml).
+- `.github/workflows/db-extension-audit.yml` — project file (yml).
+- `.github/workflows/db-extension-check.yml` — project file (yml).
+- `.github/workflows/deploy-artifact.yml` — project file (yml).
+- `.github/workflows/docs-auto-update.yml` — project file (yml).
+- `.github/workflows/dreamengin-preflight.yml` — project file (yml).
+- `.github/workflows/elite-gameengin-evolution.yml` — project file (yml).
+- `.github/workflows/engin-all.yml` — project file (yml).
+- `.github/workflows/exportrepo.yml` — project file (yml).
+- `.github/workflows/game-engin-patrol.yml` — project file (yml).
+- `.github/workflows/game-library-research.yml` — project file (yml).
+- `.github/workflows/gameengin-ai-agent.yml` — project file (yml).
+- `.github/workflows/gameengin-artisan.yml` — project file (yml).
+- `.github/workflows/gameengin-maestro.yml` — project file (yml).
+- `.github/workflows/gameengin-mechanic.yml` — project file (yml).
+- `.github/workflows/gameengin-prophet.yml` — project file (yml).
+- `.github/workflows/gameengin-upgrader.yml` — project file (yml).
+- `.github/workflows/gameengin-writer.yml` — project file (yml).
+- `.github/workflows/games-library-ai-agent.yml` — project file (yml).
+- `.github/workflows/garbageman.yml` — project file (yml).
+- `.github/workflows/generatesupabasetypes.yml` — project file (yml).
+- `.github/workflows/github-actions.yml` — project file (yml).
+- `.github/workflows/humanai-army-audit.yml` — project file (yml).
+- `.github/workflows/humanai-audit.yml` — project file (yml).
+- `.github/workflows/idari-daily.yml` — project file (yml).
+- `.github/workflows/issue-bot.yml` — project file (yml).
+- `.github/workflows/mobile-nextgen-spec-evolution.yml` — project file (yml).
+- `.github/workflows/mobile-ps5-spec-evolution.yml` — project file (yml).
+- `.github/workflows/neural_decision_engine.yml` — project file (yml).
+- `.github/workflows/optimize-dreamengin.yml` — project file (yml).
+- `.github/workflows/portfolio-optimization.yml` — project file (yml).
+- `.github/workflows/preflight.yml` — project file (yml).
+- `.github/workflows/print-codebase.yml` — project file (yml).
+- `.github/workflows/readme-autosync.yml` — project file (yml).
+- `.github/workflows/refreshlock.yml` — project file (yml).
+- `.github/workflows/repo-snapshot.yml` — project file (yml).
+- `.github/workflows/report-driven-coding-agent.yml` — project file (yml).
+- `.github/workflows/root-hygiene.yml` — project file (yml).
+- `.github/workflows/spec-engin-ai-agent.yml` — project file (yml).
+- `.github/workflows/sql-migration-guard.yml` — project file (yml).
+- `.github/workflows/sync-build-memory.yml` — project file (yml).
+- `.github/workflows/update-embed-feed.yml` — project file (yml).
+- `.github/workflows/update-repo-state.yml` — project file (yml).
+- `.github/workflows/vercel-deploy.yml` — project file (yml).
+- `AGENTS.md` — documentation file.
+- `docs/ACTION_AUDIT.md` — documentation file.
+- `docs/ACTIVITY_FIRST_PROTOCOL.md` — documentation file.
+- `docs/ADD_WORKFLOW.md` — documentation file.
+- `docs/AGENT_PLAYBOOK.md` — documentation file.
+- `docs/AI_MAP.md` — documentation file.
+- `docs/ARCHITECTURE.md` — documentation file.
+- `docs/AUTH_SETUP.md` — documentation file.
+- `docs/AXIOMS.md` — documentation file.
+- `docs/BOOGIEMAN_POLICY.md` — documentation file.
+- `docs/BUGS.md` — documentation file.
+- `docs/CHILD_SAFETY_POLICY.md` — documentation file.
+- `docs/CONNECTORS.md` — documentation file.
+- `docs/CONNECTOR_MATRIX.md` — documentation file.
+- `docs/CONSTITUTION.md` — documentation file.
+- `docs/COPILOT_TOOLKIT.md` — documentation file.
+- `docs/DREAMGAME_FORMAT.md` — documentation file.
+- `docs/DR_EAMS.md` — documentation file.
+- `docs/DUALSENSE_EXAMPLE.md` — documentation file.
+- `docs/DUALSENSE_INTEGRATION.md` — documentation file.
+- `docs/ENGIN_RUNTIME.md` — documentation file.
+- `docs/FEATURE_STATUS.md` — documentation file.
+- `docs/GENERATION_LAW.md` — documentation file.
+- `docs/GITHUB_CODING_AGENT.md` — documentation file.
+- `docs/GOLD_BUTTON_DUAL_RUNTIME.md` — documentation file.
+- `docs/GOLD_BUTTON_QUICK_REF.md` — documentation file.
+- `docs/HANDOFF.md` — documentation file.
+- `docs/IDARI_CONTRACT.md` — documentation file.
+- `docs/ISSUE_FIXES.md` — documentation file.
+- `docs/LAW.md` — documentation file.
+- `docs/MODULARITY_VIOLATION_LOG.md` — documentation file.
+- `docs/NAMESPACE_PROTOCOL.md` — documentation file.
+- `docs/NAMING_AUTHORITY.md` — documentation file.
+- `docs/OBSERVABILITY.md` — documentation file.
+- `docs/PHASE9_IMPLEMENTATION.md` — documentation file.
+- `docs/POLICY_TESTS.md` — documentation file.
+- `docs/PRINCIPLES_UPDATE.md` — documentation file.
+- `docs/PRODUCT_DEFINITION.md` — documentation file.
+- `docs/REPO_COMPANION.md` — documentation file.
+- `docs/REPO_STATE_ANALYZER.md` — documentation file.
+- `docs/REPO_STRUCTURE_CONTRACT.md` — documentation file.
+- `docs/REVIEW_QUEUE.md` — documentation file.
+- `docs/SECURITY.md` — documentation file.
+- `docs/THEME.md` — documentation file.
+- `docs/TRIAGE_LOG.md` — documentation file.
+- `docs/WASM_GPU_VM_SUMMARY.md` — documentation file.
+- `docs/WIDGET_SYSTEM_V2.md` — documentation file.
+- `docs/alignment/DOCS_CHANGE_TRACKER.md` — documentation file.
+- `docs/alignment/REPO_TO_SPEC.md` — documentation file.
+- `docs/architecture/IMPLEMENTATION_NOTES.md` — documentation file.
+- `docs/architecture/dreamengin_phase2.md` — documentation file.
+- `docs/archive/.gitkeep` — project file (no extension).
+- `docs/dreamdm_bar_pass1.md` — documentation file.
+- `docs/dreamdm_bar_pass2.md` — documentation file.
+- `docs/dreamdm_messaging_phase2.md` — documentation file.
+- `docs/dreamengin_phase1.md` — documentation file.
+- `docs/dreamengin_phase6.md` — documentation file.
+- `docs/dreamengin_phase8.md` — documentation file.
+- `docs/engin_workflows.md` — documentation file.
+- `docs/engineering/guardrails.md` — documentation file.
+- `docs/enginpipe/README.md` — documentation file.
+- `docs/guides/GITHUB_PUSH_GUIDE.md` — documentation file.
+- `docs/guides/README.agent.md` — documentation file.
+- `docs/icons.md` — documentation file.
+- `docs/issue-552-readme-section-bot-ai-agent-quick-reference.md` — documentation file.
+- `docs/issue-556-readme-section-bot-canonical-route-system.md` — documentation file.
+- `docs/issue-560-readme-section-bot-runtime-model.md` — documentation file.
+- `docs/issue-565-readme-section-bot-3-os-layer-naming-law-canonic.md` — documentation file.
+- `docs/issue-571-readme-section-bot-9-daydream-pair-system-6-dayd.md` — documentation file.
+- `docs/issue-573-readme-section-bot-11-games-gameengin.md` — documentation file.
+- `docs/issue-600-readme-section-bot-recent-changes.md` — documentation file.
+- `docs/issue-601-readme-section-bot-repository-state-analysis.md` — documentation file.
+- `docs/issue-602-readme-section-bot-homedream-system.md` — documentation file.
+- `docs/issue-603-readme-section-bot-core-surfaces.md` — documentation file.
+- `docs/issue-604-readme-section-bot-current-implementation-status.md` — documentation file.
+- `docs/issue-605-readme-section-bot-daydream-surfaces.md` — documentation file.
+- `docs/issue-606-readme-section-bot-daydream-engin-network-model.md` — documentation file.
+- `docs/issue-607-readme-section-bot-dreamdmbar-interaction-rail-r.md` — documentation file.
+- `docs/issue-608-readme-section-bot-1-product-law-16-foundational.md` — documentation file.
+- `docs/issue-609-readme-section-bot-6-homedream-core-system-priva.md` — documentation file.
+- `docs/issue-610-readme-section-bot-10-music-starmakerengin.md` — documentation file.
+- `docs/issue-611-readme-section-bot-12-lab-labengin.md` — documentation file.
+- `docs/issue-612-readme-section-bot-13-code-codeengin.md` — documentation file.
+- `docs/issue-613-readme-section-bot-7-edit-profiledream-core-syst.md` — documentation file.
+- `docs/issue-617-readme-section-bot-8-view-profile-public-shared-.md` — documentation file.
+- `docs/issue-620-readme-section-bot-what-this-is.md` — documentation file.
+- `docs/issue-621-readme-section-bot-start-here.md` — documentation file.
+- `docs/issue-622-readme-section-bot-structure.md` — documentation file.
+- `docs/issue-623-readme-section-bot-root-rules.md` — documentation file.
+- `docs/issue-647-readme-section-bot-how-to-regenerate-this-spec.md` — documentation file.
+- `docs/logs/README_PATCH.md` — documentation file.
+- `docs/mobile-nextgen-web-gaming-engine-spec.md` — documentation file.
+- `docs/mobile-ps5-web-gaming-engine-spec.md` — documentation file.
+- `docs/policy/theboogie.md` — documentation file.
+- `docs/wasm_gpu_vm_spec.md` — documentation file.
+
+</details>
+
 ## License
 MIT — see [LICENSE](LICENSE).
