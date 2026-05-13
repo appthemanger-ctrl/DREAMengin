@@ -367,7 +367,7 @@ Current capability stack:
 
 </details>
 ## Dual Runtimes
-DREAMengin runs two persistent runtime regions separated by the DreamDM seam: **Surface Space** (top) and **DreamSpace** (bottom). `lib/runtime/dualRuntime.ts` defines canonical world state, dominance, and torus navigation so either region can host any world (`HomeDream Surface`, `DreamSpace`, dream, engin, panel, custom).
+DREAMengin runs two persistent runtime regions separated by the DreamDM seam: **Surface Space** (top) and **DreamSpace** (bottom). `lib/runtime/dualRuntime.ts` defines canonical world state, dominance, and torus navigation so either region can host any world (`HomeDream Surface`, `DreamSpace`, `dream`, `engin`, `panel`, `custom`).
 
 `components/runtime/dream.DualRuntimeContainer.tsx` is the state controller used by layout-level shells, while `lib/runtime/dualRuntimeBridge.ts` provides cross-region event transport, durable queueing, and shared message plumbing. `lib/runtime/useDualRuntimePersistence.ts` persists region/world state through OPFS with localStorage fallback so split/runtime choices survive reloads.
 
@@ -1175,7 +1175,7 @@ How it works:
 This repo ships three user-facing primitives that share one runtime contract:
 - **Widgets** — small embeddable units (for cards/tools/media controls) mostly under `components/widgets/*` and `lib/widgets/*`.
 - **Dream Windows** — full modular runtime containers with lifecycle (`unbound → bound → mounted ↔ collapsed`) enforced by `lib/dream-window/DreamWindowLifecycle.ts`.
-- **Surfaces** — canonical mount points where windows/widgets run (HomeDream Surface, DreamSpace, profile/runtime shells).
+- **Surfaces** — canonical mount points where windows/widgets run (HomeDream Surface, DreamSpace, profile/runtime shells), implemented through `dreamsurface.*.tsx` components under `components/dreams/*`, `components/dreamengin/*`, and `dreamdmbar/homedream/*`.
 
 The naming convention `dreamsurface.*.tsx` marks canonical mount components across domains (`dreamsurface.homedream.tsx`, `dreamsurface.dreamspace.tsx`, `dreamsurface.window.tsx`, etc.). These components stay bound to fixed engine plumbing while rule-sets define what each surface renders.
 #### Dreams/Windows/Widgets files file structure
@@ -2711,7 +2711,7 @@ When validating release readiness, pair `pnpm preflight` with `pnpm build` so pr
 
 </details>
 ## Getting Started
-1. **Prerequisites**: install Node.js **24** and enable Corepack (`corepack enable`) so the repo uses **pnpm 10.30.0** from `package.json`.
+1. **Prerequisites**: install Node.js **24** and enable Corepack (`corepack enable`) so the repo uses **pnpm 10.30.0** from the `packageManager` field in `package.json`.
 2. **Install deps**: run `pnpm install` at repo root.
 3. **Set environment**: `cp .env.example .env.local` (or start from `.env.local.example`) and fill required secrets/keys.
 4. **Supabase setup (recommended)**: either run a local stack (`supabase start`) or point `.env.local` to a hosted project (`NEXT_PUBLIC_SUPABASE_URL` + publishable/anon keys).
