@@ -1,0 +1,28 @@
+name: Resilient Engine Smoke
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run resilient-engine smoke command
+        id: engine
+        uses: ./.github/actions/resilient-engine
+        with:
+          command: |
+            echo "resilient-engine smoke ok"
+          allow-failure: 'false'
+      - name: Assert engine exit code
+        shell: bash
+        run: |
+          test "${{ steps.engine.outputs.exit-code }}" = "0"

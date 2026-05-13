@@ -1,283 +1,314 @@
 name: Resilient Engine
-description: >
-  DREAMengin fixed-engine composite action.
-  Wraps any command in retry, soft-fail, summary, and artifact upload.
-  Always exits success when allow-failure is true (the default).
+description: Fixed DREAMengin workflow engine that executes per-workflow rulesets with retry/backoff, secret guards, artifact upload, and structured summaries.
 
 inputs:
   ruleset:
-    description: Path to a ruleset YAML file (optional)
+    description: Path to the workflow ruleset YAML file.
     required: false
     default: ''
   command:
-    description: Shell command to run (overrides ruleset command if provided)
+    description: Optional inline command override.
     required: false
-    default: 'echo "resilient-engine: no-op"'
+    default: ''
   node-version:
-    description: Node.js version
+    description: Node.js version to install when the ruleset needs Node tooling.
     required: false
-    default: '20'
+    default: '24'
   python-version:
-    description: Python version
+    description: Python version to install when the ruleset needs Python tooling.
     required: false
     default: '3.11'
   working-directory:
-    description: Working directory for the command
+    description: Optional working directory override.
     required: false
-    default: '.'
+    default: ''
   required-secrets:
-    description: >
-      Comma-separated list of environment variable names that must be set.
-      If any are missing, the command is skipped and a warning is written to the summary.
+    description: Optional comma-separated required secret override.
     required: false
     default: ''
   artifact-name:
-    description: Name for the artifact to upload (optional)
+    description: Optional artifact name override.
     required: false
     default: ''
   artifact-path:
-    description: Path glob for the artifact to upload (optional)
+    description: Optional artifact path override.
     required: false
     default: ''
   timeout-minutes:
-    description: Per-attempt timeout in minutes
+    description: Optional timeout override for each attempt.
     required: false
-    default: '15'
+    default: ''
   allow-failure:
-    description: If true, the step exits 0 even when the command fails
+    description: Optional allow-failure override.
     required: false
-    default: 'true'
+    default: ''
+
+outputs:
+  exit-code:
+    description: Final exit code from the ruleset command.
+    value: ${{ steps.run-command.outputs.exit_code }}
+  attempts:
+    description: Number of attempts used.
+    value: ${{ steps.run-command.outputs.attempts }}
+  skipped:
+    description: Whether execution was skipped because required secrets were missing.
+    value: ${{ steps.secret-guard.outputs.skipped }}
+  ruleset-path:
+    description: Resolved ruleset path.
+    value: ${{ steps.resolve.outputs.ruleset_path }}
 
 runs:
   using: composite
   steps:
+    - name: Validate checkout
+      shell: bash
+      run: |
+        if [ ! -d .git ]; then
+          echo "resilient-engine requires actions/checkout@v4 to run before this local action." >&2
+          exit 1
+        fi
 
-    # ── 1. Checkout ────────────────────────────────────────────────────────────
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      continue-on-error: true
-      with:
-        fetch-depth: 0
+    - name: Resolve ruleset
+      id: resolve
+      shell: bash
+      env:
+        RAW_RULESET: ${{ inputs.ruleset }}
+        RAW_COMMAND: ${{ inputs.command }}
+        RAW_WORKING_DIRECTORY: ${{ inputs.working-directory }}
+        RAW_REQUIRED_SECRETS: ${{ inputs.required-secrets }}
+        RAW_ARTIFACT_NAME: ${{ inputs.artifact-name }}
+        RAW_ARTIFACT_PATH: ${{ inputs.artifact-path }}
+        RAW_TIMEOUT_MINUTES: ${{ inputs.timeout-minutes }}
+        RAW_ALLOW_FAILURE: ${{ inputs.allow-failure }}
+      run: |
+        ruby <<'RUBY'
+        require 'base64'
+        require 'json'
+        require 'yaml'
 
-    # ── 2. Detect + setup runtimes ─────────────────────────────────────────────
-    - name: Setup pnpm (if pnpm-lock.yaml present)
-      if: hashFiles('pnpm-lock.yaml') != ''
+        def truthy?(value)
+          value.to_s.strip.downcase == 'true'
+        end
+
+        def write_output(name, value)
+          File.open(ENV.fetch('GITHUB_OUTPUT'), 'a') { |file| file.puts("#{name}=#{value}") }
+        end
+
+        ruleset_path = ENV.fetch('RAW_RULESET', '').strip
+        config = {}
+
+        unless ruleset_path.empty?
+          abort("Ruleset not found: #{ruleset_path}") unless File.file?(ruleset_path)
+          loaded = YAML.safe_load(File.read(ruleset_path), permitted_classes: [], aliases: false)
+          config = loaded.is_a?(Hash) ? loaded : {}
+        end
+
+        input_command = ENV.fetch('RAW_COMMAND', '').to_s
+        ruleset_command = config.fetch('command', '').to_s
+        effective_command = input_command.strip.empty? ? ruleset_command : input_command
+        abort('resilient-engine requires a command or ruleset command') if effective_command.strip.empty?
+
+        effective_working_directory = ENV.fetch('RAW_WORKING_DIRECTORY', '').strip
+        effective_working_directory = config.fetch('working_directory', '.').to_s if effective_working_directory.empty?
+        effective_working_directory = '.' if effective_working_directory.empty?
+
+        required_secrets = ENV.fetch('RAW_REQUIRED_SECRETS', '').strip
+        if required_secrets.empty?
+          required_secrets = Array(config['required_secrets']).map(&:to_s).join(',')
+        end
+
+        artifact = config.fetch('artifact', {}) || {}
+        constraints = config.fetch('constraints', {}) || {}
+
+        artifact_name = ENV.fetch('RAW_ARTIFACT_NAME', '').strip
+        artifact_name = artifact.fetch('name', '').to_s if artifact_name.empty?
+
+        artifact_path = ENV.fetch('RAW_ARTIFACT_PATH', '').strip
+        artifact_path = artifact.fetch('path', '').to_s if artifact_path.empty?
+
+        timeout_minutes = ENV.fetch('RAW_TIMEOUT_MINUTES', '').strip
+        timeout_minutes = constraints.fetch('max_runtime_minutes', 15).to_s if timeout_minutes.empty?
+
+        allow_failure = ENV.fetch('RAW_ALLOW_FAILURE', '').strip
+        if allow_failure.empty?
+          allow_failure = constraints.key?('allow_failure') ? constraints['allow_failure'].to_s : 'false'
+        end
+        allow_failure = truthy?(allow_failure) ? 'true' : 'false'
+
+        needs_node = effective_command.match?(/\b(pnpm|npm|node|npx|tsx|ts-node|next|eslint|vitest)\b/i)
+        needs_python = effective_command.match?(/\bpython(?:3)?\b/i)
+
+        write_output('ruleset_name', config.fetch('name', File.basename(ruleset_path, '.yml')).to_s)
+        write_output('ruleset_path', ruleset_path)
+        write_output('command_b64', Base64.strict_encode64(effective_command))
+        write_output('working_directory', effective_working_directory)
+        write_output('required_secrets', required_secrets)
+        write_output('artifact_name', artifact_name)
+        write_output('artifact_path', artifact_path)
+        write_output('timeout_minutes', timeout_minutes)
+        write_output('allow_failure', allow_failure)
+        write_output('needs_node', needs_node ? 'true' : 'false')
+        write_output('needs_python', needs_python ? 'true' : 'false')
+        RUBY
+
+    - name: Setup pnpm
+      if: steps.resolve.outputs.needs_node == 'true'
       uses: pnpm/action-setup@v4
-      continue-on-error: true
 
-    - name: Setup Node.js (if package.json present)
-      if: hashFiles('package.json') != ''
+    - name: Setup Node.js
+      if: steps.resolve.outputs.needs_node == 'true'
       uses: actions/setup-node@v4
-      continue-on-error: true
       with:
         node-version: ${{ inputs.node-version }}
-        cache: ${{ hashFiles('pnpm-lock.yaml') != '' && 'pnpm' || 'npm' }}
-        cache-dependency-path: ${{ hashFiles('pnpm-lock.yaml') != '' && 'pnpm-lock.yaml' || 'package-lock.json' }}
+        cache: pnpm
+        cache-dependency-path: pnpm-lock.yaml
 
-    - name: Setup Python (if requirements.txt or pyproject.toml present)
-      if: hashFiles('requirements.txt', 'pyproject.toml') != ''
+    - name: Setup Python
+      if: steps.resolve.outputs.needs_python == 'true'
       uses: actions/setup-python@v5
-      continue-on-error: true
       with:
         python-version: ${{ inputs.python-version }}
 
-    # ── 3. Install dependencies ────────────────────────────────────────────────
     - name: Install Node dependencies
-      if: hashFiles('package.json') != ''
+      if: steps.resolve.outputs.needs_node == 'true'
       shell: bash
-      continue-on-error: true
       run: |
-        if [ -f "pnpm-lock.yaml" ]; then
-          pnpm install --frozen-lockfile 2>/dev/null \
-            || pnpm install --no-frozen-lockfile 2>/dev/null \
-            || npm ci 2>/dev/null \
-            || npm install 2>/dev/null \
-            || echo "⚠️ All Node install strategies exhausted — continuing"
-        elif [ -f "package-lock.json" ]; then
-          npm ci 2>/dev/null || npm install 2>/dev/null || echo "⚠️ npm install failed — continuing"
-        else
-          npm install 2>/dev/null || echo "⚠️ npm install failed — continuing"
+        if [ -f pnpm-lock.yaml ]; then
+          pnpm install --frozen-lockfile
+        elif [ -f package-lock.json ]; then
+          npm ci
         fi
 
-    - name: Install Python dependencies
-      if: hashFiles('requirements.txt', 'pyproject.toml') != ''
-      shell: bash
-      continue-on-error: true
-      run: |
-        pip install -r requirements.txt 2>/dev/null \
-          || pip install -e . 2>/dev/null \
-          || echo "⚠️ Python install failed — continuing"
-
-    # ── 4. Secret guard ────────────────────────────────────────────────────────
     - name: Secret guard
+      id: secret-guard
       shell: bash
+      env:
+        REQUIRED_SECRETS: ${{ steps.resolve.outputs.required_secrets }}
       run: |
-        REQUIRED="${{ inputs.required-secrets }}"
-        if [ -z "$REQUIRED" ]; then
-          echo "SKIP_ENGINE_COMMAND=false" >> "$GITHUB_ENV"
+        echo "skipped=false" >> "$GITHUB_OUTPUT"
+        if [ -z "$REQUIRED_SECRETS" ]; then
+          echo "RESILIENT_ENGINE_SKIP=false" >> "$GITHUB_ENV"
           exit 0
         fi
+
+        mapfile -t NAMES < <(printf '%s\n' "$REQUIRED_SECRETS" | tr ',' '\n' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//' | sed '/^$/d')
         MISSING=()
-        IFS=',' read -ra NAMES <<< "$REQUIRED"
         for name in "${NAMES[@]}"; do
-          varname=$(echo "$name" | xargs)
-          if [ -z "${!varname:-}" ]; then
-            MISSING+=("$varname")
+          if [ -z "${!name:-}" ]; then
+            MISSING+=("$name")
           fi
         done
-        if [ "${#MISSING[@]}" -gt 0 ]; then
-          echo "SKIP_ENGINE_COMMAND=true" >> "$GITHUB_ENV"
-          {
-            echo ""
-            echo "## ⚠️ Engine — Skipped (missing secrets)"
-            echo ""
-            echo "The following required secrets are not configured: **${MISSING[*]}**"
-            echo ""
-            echo "This is a soft-skip. Configure the secrets to enable this workflow."
-          } >> "$GITHUB_STEP_SUMMARY"
-          echo "⚠️ Skipping — missing secrets: ${MISSING[*]}"
-        else
-          echo "SKIP_ENGINE_COMMAND=false" >> "$GITHUB_ENV"
-          echo "✅ All required secrets present"
-        fi
 
-    # ── 5. Ruleset loader ──────────────────────────────────────────────────────
-    - name: Load ruleset
-      shell: bash
-      run: |
-        RULESET="${{ inputs.ruleset }}"
-        if [ -z "$RULESET" ]; then
-          echo "ℹ️ No ruleset path provided — using inline command"
+        if [ "${#MISSING[@]}" -gt 0 ]; then
+          echo "RESILIENT_ENGINE_SKIP=true" >> "$GITHUB_ENV"
+          echo "skipped=true" >> "$GITHUB_OUTPUT"
+          {
+            echo "## Resilient Engine"
+            echo
+            echo "- Ruleset: \`${{ steps.resolve.outputs.ruleset_path || '(inline command)' }}\`"
+            echo "- Status: skipped"
+            echo "- Reason: missing required secrets \`${MISSING[*]}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "Skipping ruleset because required secrets are missing: ${MISSING[*]}"
           exit 0
         fi
-        # Try exact path, then with .yml suffix
-        for candidate in "$RULESET" "${RULESET}.yml"; do
-          if [ -f "$candidate" ]; then
-            echo "RULESET_PATH=$candidate" >> "$GITHUB_ENV"
-            echo "📋 Loaded ruleset: $candidate"
-            {
-              echo ""
-              echo "### Ruleset: \`$candidate\`"
-              echo "\`\`\`yaml"
-              cat "$candidate"
-              echo "\`\`\`"
-            } >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-        done
-        echo "⚠️ Ruleset not found at '$RULESET' — continuing with inline command"
-        {
-          echo ""
-          echo "⚠️ **Ruleset not found:** \`$RULESET\` — using inline command"
-        } >> "$GITHUB_STEP_SUMMARY"
 
-    # ── 6. Run command with retries ────────────────────────────────────────────
-    - name: Run command
+        echo "RESILIENT_ENGINE_SKIP=false" >> "$GITHUB_ENV"
+
+    - name: Run command with retries
       id: run-command
       shell: bash
+      env:
+        COMMAND_B64: ${{ steps.resolve.outputs.command_b64 }}
+        WORKING_DIRECTORY: ${{ steps.resolve.outputs.working_directory }}
+        TIMEOUT_MINUTES: ${{ steps.resolve.outputs.timeout_minutes }}
+        ALLOW_FAILURE: ${{ steps.resolve.outputs.allow_failure }}
       run: |
-        if [ "${SKIP_ENGINE_COMMAND:-false}" = "true" ]; then
+        if [ "${RESILIENT_ENGINE_SKIP:-false}" = "true" ]; then
           echo "exit_code=0" >> "$GITHUB_OUTPUT"
           echo "attempts=0" >> "$GITHUB_OUTPUT"
-          echo "⏭️ Command skipped (soft-skip due to missing secrets)"
           exit 0
         fi
 
-        COMMAND='${{ inputs.command }}'
-        TIMEOUT='${{ inputs.timeout-minutes }}'
-        WORKING_DIR='${{ inputs.working-directory }}'
-        ALLOW_FAILURE='${{ inputs.allow-failure }}'
-        SLEEP_TIMES=(0 5 15)
+        COMMAND_FILE="$RUNNER_TEMP/resilient-engine-command.sh"
+        printf '%s' "$COMMAND_B64" | base64 --decode > "$COMMAND_FILE"
+        chmod +x "$COMMAND_FILE"
+
+        LOG_FILE="$GITHUB_WORKSPACE/engine-stdout.log"
+        : > "$LOG_FILE"
+
+        BACKOFFS=(0 5 15)
         EXIT_CODE=1
         ATTEMPT=0
 
-        touch engine-stdout.log
-
-        for i in 0 1 2; do
-          ATTEMPT=$((i + 1))
-          SLEEP="${SLEEP_TIMES[$i]}"
-
-          if [ "$SLEEP" -gt 0 ]; then
-            echo "⏳ Retry $ATTEMPT/3 — waiting ${SLEEP}s..."
-            sleep "$SLEEP"
+        for BACKOFF in "${BACKOFFS[@]}"; do
+          ATTEMPT=$((ATTEMPT + 1))
+          if [ "$BACKOFF" -gt 0 ]; then
+            echo "Retry $ATTEMPT/3 after ${BACKOFF}s backoff"
+            sleep "$BACKOFF"
           fi
 
-          echo "🚀 Attempt $ATTEMPT/3"
+          echo "Running attempt $ATTEMPT/3"
           set +e
           (
-            cd "${WORKING_DIR:-.}"
-            timeout "${TIMEOUT}m" bash -lc "$COMMAND"
-          ) 2>&1 | tee -a engine-stdout.log
-          EXIT_CODE="${PIPESTATUS[0]}"
+            cd "$WORKING_DIRECTORY"
+            timeout "${TIMEOUT_MINUTES}m" bash "$COMMAND_FILE"
+          ) 2>&1 | tee -a "$LOG_FILE"
+          EXIT_CODE=${PIPESTATUS[0]}
           set -e
 
           if [ "$EXIT_CODE" -eq 0 ]; then
-            echo "✅ Succeeded on attempt $ATTEMPT"
             break
-          elif [ "$EXIT_CODE" -eq 124 ]; then
-            echo "⏱️ Timed out on attempt $ATTEMPT (limit: ${TIMEOUT}m)"
-          else
-            echo "⚠️ Exited $EXIT_CODE on attempt $ATTEMPT"
           fi
         done
 
         echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
         echo "attempts=$ATTEMPT" >> "$GITHUB_OUTPUT"
 
-        if [ "$EXIT_CODE" -ne 0 ] && [ "$ALLOW_FAILURE" != "true" ]; then
+        if [ "$EXIT_CODE" -ne 0 ] && [ "$ALLOW_FAILURE" != 'true' ]; then
           exit "$EXIT_CODE"
         fi
-        exit 0
 
-    # ── 7. Upload artifacts ────────────────────────────────────────────────────
-    - name: Upload artifacts
-      if: inputs.artifact-name != ''
+    - name: Upload artifact
+      if: always() && steps.resolve.outputs.artifact_name != '' && steps.resolve.outputs.artifact_path != ''
       uses: actions/upload-artifact@v4
-      continue-on-error: true
       with:
-        name: ${{ inputs.artifact-name }}
-        path: ${{ inputs.artifact-path != '' && inputs.artifact-path || 'engine-stdout.log' }}
+        name: ${{ steps.resolve.outputs.artifact_name }}
+        path: ${{ steps.resolve.outputs.artifact_path }}
         if-no-files-found: ignore
 
-    # ── 8. Write summary ───────────────────────────────────────────────────────
     - name: Write summary
       if: always()
       shell: bash
       run: |
         EXIT_CODE="${{ steps.run-command.outputs.exit_code }}"
         ATTEMPTS="${{ steps.run-command.outputs.attempts }}"
-        ALLOW="${{ inputs.allow-failure }}"
+        SKIPPED="${{ steps.secret-guard.outputs.skipped }}"
+        ALLOW_FAILURE="${{ steps.resolve.outputs.allow_failure }}"
 
-        if [ "$EXIT_CODE" = "0" ] || [ "$ATTEMPTS" = "0" ]; then
-          BADGE="✅"
+        if [ "$SKIPPED" = "true" ]; then
+          STATUS="skipped"
+          ICON="⏭️"
+        elif [ "$EXIT_CODE" = "0" ]; then
           STATUS="success"
-        elif [ "$ALLOW" = "true" ]; then
-          BADGE="⚠️"
-          STATUS="soft-fail (exit $EXIT_CODE)"
+          ICON="✅"
+        elif [ "$ALLOW_FAILURE" = "true" ]; then
+          STATUS="soft-fail"
+          ICON="⚠️"
         else
-          BADGE="❌"
-          STATUS="hard-fail (exit $EXIT_CODE)"
+          STATUS="failure"
+          ICON="❌"
         fi
 
         {
-          echo ""
-          echo "## Engine Summary $BADGE"
-          echo ""
+          echo "## Resilient Engine $ICON"
+          echo
           echo "| Key | Value |"
-          echo "|-----|-------|"
-          echo "| Ruleset | \`${{ inputs.ruleset || '(none)' }}\` |"
-          echo "| Working dir | \`${{ inputs.working-directory }}\` |"
-          echo "| Allow failure | \`${{ inputs.allow-failure }}\` |"
-          echo "| Attempts | $ATTEMPTS |"
-          echo "| Exit code | $EXIT_CODE |"
-          echo "| Final status | $STATUS |"
+          echo "| --- | ----- |"
+          echo "| Ruleset | \`${{ steps.resolve.outputs.ruleset_path || '(inline command)' }}\` |"
+          echo "| Working directory | \`${{ steps.resolve.outputs.working_directory }}\` |"
+          echo "| Attempts | ${ATTEMPTS:-0} |"
+          echo "| Exit code | ${EXIT_CODE:-0} |"
+          echo "| Allow failure | \`${ALLOW_FAILURE}\` |"
+          echo "| Status | ${STATUS} |"
         } >> "$GITHUB_STEP_SUMMARY"
-
-    # ── 9. Soft-fail exit ──────────────────────────────────────────────────────
-    - name: Ensure success exit
-      if: always()
-      shell: bash
-      run: |
-        if [ "${{ inputs.allow-failure }}" = "true" ]; then
-          exit 0
-        fi
