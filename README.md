@@ -1904,7 +1904,7 @@ Auto-synced from `backend/**`, `core/**`, `coresurfaces/**`, `system/**`, `app/a
 
 ## Agents & Workflow
 Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scripts/**` using repository introspection.
-- Files tracked: **127**
+- Files tracked: **130**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -1972,6 +1972,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 │       ├── mobile-ps5-spec-evolution.yml
 │       ├── neural_decision_engine.yml
 │       ├── optimize-dreamengin.yml
+│       ├── orphan-guard.yml
 │       ├── portfolio-optimization.yml
 │       ├── preflight.yml
 │       ├── print-codebase.yml
@@ -2008,6 +2009,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
     ├── check-build-memory-drift.mjs
     ├── check-engin-filenames.mjs
     ├── check-licenses.mjs
+    ├── check-orphans.mjs
     ├── check-root-hygiene.mjs
     ├── close-all-open-prs.sh
     ├── deploy.sh
@@ -2028,11 +2030,9 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
     ├── generate-mobile-nextgen-spec.mjs
     ├── generate-mobile-ps5-spec.mjs
     ├── generate-webapp-final-form.mjs
-    ├── law-check.sh
-    ├── migrate-imports.sh
-… (7 more files)
+… (10 more files)
 ```
-<details><summary>Agents & Workflow file index (127 files)</summary>
+<details><summary>Agents & Workflow file index (130 files)</summary>
 
 - `.github/scripts/DREAMENGIN_CORE_COMPLETE.md` — documentation file.
 - `.github/scripts/DREAMENGIN_CORE_USAGE.md` — documentation file.
@@ -2093,6 +2093,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 - `.github/workflows/mobile-ps5-spec-evolution.yml` — project file (yml).
 - `.github/workflows/neural_decision_engine.yml` — project file (yml).
 - `.github/workflows/optimize-dreamengin.yml` — project file (yml).
+- `.github/workflows/orphan-guard.yml` — project file (yml).
 - `.github/workflows/portfolio-optimization.yml` — project file (yml).
 - `.github/workflows/preflight.yml` — project file (yml).
 - `.github/workflows/print-codebase.yml` — project file (yml).
@@ -2124,6 +2125,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 - `scripts/check-build-memory-drift.mjs` — TypeScript/JavaScript runtime module.
 - `scripts/check-engin-filenames.mjs` — TypeScript/JavaScript runtime module.
 - `scripts/check-licenses.mjs` — TypeScript/JavaScript runtime module.
+- `scripts/check-orphans.mjs` — TypeScript/JavaScript runtime module.
 - `scripts/check-root-hygiene.mjs` — TypeScript/JavaScript runtime module.
 - `scripts/close-all-open-prs.sh` — project file (sh).
 - `scripts/deploy.sh` — project file (sh).
@@ -2161,6 +2163,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 - `scripts/validate-schema-sync.sh` — project file (sh).
 - `scripts/vercel-ignore.cjs` — TypeScript/JavaScript runtime module.
 - `scripts/vercel-preflight.cjs` — TypeScript/JavaScript runtime module.
+- `scripts/wire-orphans.mjs` — TypeScript/JavaScript runtime module.
 
 </details>
 
@@ -2246,7 +2249,7 @@ This separation supports high-velocity exploration while preventing experimental
 </details>
 ## Infra & Ops
 Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflows/**`, `vercel.json`, `docker-compose.yml` using repository introspection.
-- Files tracked: **63**
+- Files tracked: **64**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -2296,6 +2299,7 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 │       ├── mobile-ps5-spec-evolution.yml
 │       ├── neural_decision_engine.yml
 │       ├── optimize-dreamengin.yml
+│       ├── orphan-guard.yml
 │       ├── portfolio-optimization.yml
 │       ├── preflight.yml
 │       ├── print-codebase.yml
@@ -2323,7 +2327,7 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 │   └── main.tf
 └── vercel.json
 ```
-<details><summary>Infra & Ops file index (63 files)</summary>
+<details><summary>Infra & Ops file index (64 files)</summary>
 
 - `.github/workflows/autofixvercelbuild.yml` — project file (yml).
 - `.github/workflows/bot-pr-automerge.yml` — project file (yml).
@@ -2367,6 +2371,7 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 - `.github/workflows/mobile-ps5-spec-evolution.yml` — project file (yml).
 - `.github/workflows/neural_decision_engine.yml` — project file (yml).
 - `.github/workflows/optimize-dreamengin.yml` — project file (yml).
+- `.github/workflows/orphan-guard.yml` — project file (yml).
 - `.github/workflows/portfolio-optimization.yml` — project file (yml).
 - `.github/workflows/preflight.yml` — project file (yml).
 - `.github/workflows/print-codebase.yml` — project file (yml).
@@ -2393,7 +2398,7 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 
 ## Testing
 Auto-synced from `tests/**`, `vitest.config.ts`, `playwright.config.ts` using repository introspection.
-- Files tracked: **206**
+- Files tracked: **209**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -2519,9 +2524,9 @@ Auto-synced from `tests/**`, `vitest.config.ts`, `playwright.config.ts` using re
 │   ├── lab-section-12-spec.test.ts
 │   ├── landing-calibration.test.ts
 │   ├── landing-mission-link.test.ts
-… (86 more files)
+… (89 more files)
 ```
-<details><summary>Testing file index (206 files)</summary>
+<details><summary>Testing file index (209 files)</summary>
 
 - `playwright.config.ts` — TypeScript/JavaScript runtime module.
 - `tests/DUALSENSE_TEST_PLAN.md` — documentation file.
@@ -2656,6 +2661,7 @@ Auto-synced from `tests/**`, `vitest.config.ts`, `playwright.config.ts` using re
 - `tests/notifications.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/offline-queue.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/optimizer.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/orphan-wire-script.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/os-subsystem-manifest.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/page-surface-wiring.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/phase6-privacy-idari.test.ts` — TypeScript/JavaScript runtime module.
@@ -2699,6 +2705,7 @@ Auto-synced from `tests/**`, `vitest.config.ts`, `playwright.config.ts` using re
 - `tests/seam-clipboard.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/session-continuity.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/session-pattern-engine.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/setup-env.ts` — TypeScript/JavaScript runtime module.
 - `tests/shell-cartridge-wiring.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/skip-credits.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/social-feed.test.ts` — TypeScript/JavaScript runtime module.
@@ -2710,12 +2717,13 @@ Auto-synced from `tests/**`, `vitest.config.ts`, `playwright.config.ts` using re
 - `tests/spec41-engine-builder.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/starmaker-music.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/structure-ledger.test.ts` — TypeScript/JavaScript runtime module.
-- `tests/supabase-env.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/supabase-config.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/swap-manager-extended.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/swipe-calibration.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/tech-foundation.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/torridity-ledger.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/universal-asset-registry.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/universal-engine.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/universal-visual-modularity.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/update-readme-current-status.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/user-sim.test.ts` — TypeScript/JavaScript runtime module.
@@ -2997,7 +3005,7 @@ Auto-synced from `.env.example`, `.env.local.example`, `app/api/**` using reposi
 
 ## Contributing
 Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using repository introspection.
-- Files tracked: **269**
+- Files tracked: **271**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -3123,9 +3131,9 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 │   │   ├── humanai_audit.py
 │   │   ├── issue-bot.js
 │   │   ├── run-readme-autosync.mjs
-… (149 more files)
+… (151 more files)
 ```
-<details><summary>Contributing file index (269 files)</summary>
+<details><summary>Contributing file index (271 files)</summary>
 
 - `.github/PULL_REQUEST_TEMPLATE.md` — documentation file.
 - `.github/actions/resilient-engine/action.yml` — project file (yml).
@@ -3285,6 +3293,7 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 - `.github/workflows/mobile-ps5-spec-evolution.yml` — project file (yml).
 - `.github/workflows/neural_decision_engine.yml` — project file (yml).
 - `.github/workflows/optimize-dreamengin.yml` — project file (yml).
+- `.github/workflows/orphan-guard.yml` — project file (yml).
 - `.github/workflows/portfolio-optimization.yml` — project file (yml).
 - `.github/workflows/preflight.yml` — project file (yml).
 - `.github/workflows/print-codebase.yml` — project file (yml).
@@ -3346,6 +3355,7 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 - `docs/SECURITY.md` — documentation file.
 - `docs/THEME.md` — documentation file.
 - `docs/TRIAGE_LOG.md` — documentation file.
+- `docs/UNIVERSAL_ENGINE.md` — documentation file.
 - `docs/WASM_GPU_VM_SUMMARY.md` — documentation file.
 - `docs/WIDGET_SYSTEM_V2.md` — documentation file.
 - `docs/alignment/DOCS_CHANGE_TRACKER.md` — documentation file.
@@ -3472,6 +3482,140 @@ Auto-synced from `repo-visualizer/**` using repository introspection.
 - `repo-visualizer/graph.json` — project file (json).
 - `repo-visualizer/index.html` — project file (html).
 - `repo-visualizer/server.mjs` — TypeScript/JavaScript runtime module.
+
+</details>
+
+## Build Memory
+Auto-synced from `build-memory/**` using repository introspection.
+- Files tracked: **6**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: none
+#### Build Memory file structure
+```text
+└── build-memory
+    ├── actions.json
+    ├── events.json
+    ├── registry.json
+    ├── routes.json
+    ├── schema.json
+    └── ui-surfaces.json
+```
+<details><summary>Build Memory file index (6 files)</summary>
+
+- `build-memory/actions.json` — project file (json).
+- `build-memory/events.json` — project file (json).
+- `build-memory/registry.json` — project file (json).
+- `build-memory/routes.json` — project file (json).
+- `build-memory/schema.json` — project file (json).
+- `build-memory/ui-surfaces.json` — project file (json).
+
+</details>
+
+## Src
+Auto-synced from `src/**` using repository introspection.
+- Files tracked: **36**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: `DreamEnginLogo`, `LogoHero`, `Nav`
+#### Src file structure
+```text
+└── src
+    ├── components
+    │   ├── dream.DreamEnginLogo.tsx
+    │   ├── dream.LogoHero.tsx
+    │   └── dream.Nav.tsx
+    ├── configs
+    │   └── demoGameConfig.ts
+    ├── core
+    │   └── GameEnginCore.ts
+    ├── dream
+    │   └── rulesets
+    │       ├── codeengin
+    │       │   └── index.ts
+    │       ├── dreamsengin
+    │       │   └── index.ts
+    │       ├── forgengn
+    │       │   └── index.ts
+    │       ├── gameengin
+    │       │   └── index.ts
+    │       ├── homedream
+    │       │   ├── dream.homedream.constants.ts
+    │       │   ├── dream.homedream.physics.ts
+    │       │   ├── dream.homedream.transforms.ts
+    │       │   └── index.ts
+    │       ├── labengin
+    │       │   └── index.ts
+    │       └── starmakerengin
+    │           └── index.ts
+    ├── dreamsurface
+    │   ├── dreamsurface.bridge.ts
+    │   ├── dreamsurface.delta.ts
+    │   └── index.ts
+    ├── engin
+    │   ├── core
+    │   │   ├── engin.auth.ts
+    │   │   ├── engin.eventbus.ts
+    │   │   ├── engin.ledger.ts
+    │   │   ├── engin.renderloop.ts
+    │   │   └── index.ts
+    │   ├── generated
+    │   │   ├── brain.ts
+    │   │   ├── cartridges.ts
+    │   │   ├── connectors.ts
+    │   │   ├── hooks.ts
+    │   │   ├── index.ts
+    │   │   ├── personas.ts
+    │   │   ├── rulesets.ts
+    │   │   ├── surfaces.ts
+    │   │   └── systems.ts
+    │   └── state
+    │       └── base.json
+    ├── launcher.ts
+    └── lib
+        ├── ai
+        │   └── client.ts
+        └── babylon
+            └── useDreamLogoScene.ts
+```
+<details><summary>Src file index (36 files)</summary>
+
+- `src/components/dream.DreamEnginLogo.tsx` — React UI module for DreamEnginLogo.
+- `src/components/dream.LogoHero.tsx` — React UI module for LogoHero.
+- `src/components/dream.Nav.tsx` — React UI module for Nav.
+- `src/configs/demoGameConfig.ts` — TypeScript/JavaScript runtime module.
+- `src/core/GameEnginCore.ts` — TypeScript/JavaScript runtime module.
+- `src/dream/rulesets/codeengin/index.ts` — TypeScript/JavaScript runtime module.
+- `src/dream/rulesets/dreamsengin/index.ts` — TypeScript/JavaScript runtime module.
+- `src/dream/rulesets/forgengn/index.ts` — TypeScript/JavaScript runtime module.
+- `src/dream/rulesets/gameengin/index.ts` — TypeScript/JavaScript runtime module.
+- `src/dream/rulesets/homedream/dream.homedream.constants.ts` — TypeScript/JavaScript runtime module.
+- `src/dream/rulesets/homedream/dream.homedream.physics.ts` — TypeScript/JavaScript runtime module.
+- `src/dream/rulesets/homedream/dream.homedream.transforms.ts` — TypeScript/JavaScript runtime module.
+- `src/dream/rulesets/homedream/index.ts` — TypeScript/JavaScript runtime module.
+- `src/dream/rulesets/labengin/index.ts` — TypeScript/JavaScript runtime module.
+- `src/dream/rulesets/starmakerengin/index.ts` — TypeScript/JavaScript runtime module.
+- `src/dreamsurface/dreamsurface.bridge.ts` — TypeScript/JavaScript runtime module.
+- `src/dreamsurface/dreamsurface.delta.ts` — TypeScript/JavaScript runtime module.
+- `src/dreamsurface/index.ts` — TypeScript/JavaScript runtime module.
+- `src/engin/core/engin.auth.ts` — TypeScript/JavaScript runtime module.
+- `src/engin/core/engin.eventbus.ts` — TypeScript/JavaScript runtime module.
+- `src/engin/core/engin.ledger.ts` — TypeScript/JavaScript runtime module.
+- `src/engin/core/engin.renderloop.ts` — TypeScript/JavaScript runtime module.
+- `src/engin/core/index.ts` — TypeScript/JavaScript runtime module.
+- `src/engin/generated/brain.ts` — TypeScript/JavaScript runtime module.
+- `src/engin/generated/cartridges.ts` — TypeScript/JavaScript runtime module.
+- `src/engin/generated/connectors.ts` — TypeScript/JavaScript runtime module.
+- `src/engin/generated/hooks.ts` — TypeScript/JavaScript runtime module.
+- `src/engin/generated/index.ts` — TypeScript/JavaScript runtime module.
+- `src/engin/generated/personas.ts` — TypeScript/JavaScript runtime module.
+- `src/engin/generated/rulesets.ts` — TypeScript/JavaScript runtime module.
+- `src/engin/generated/surfaces.ts` — TypeScript/JavaScript runtime module.
+- `src/engin/generated/systems.ts` — TypeScript/JavaScript runtime module.
+- `src/engin/state/base.json` — project file (json).
+- `src/launcher.ts` — TypeScript/JavaScript runtime module.
+- `src/lib/ai/client.ts` — TypeScript/JavaScript runtime module.
+- `src/lib/babylon/useDreamLogoScene.ts` — TypeScript/JavaScript runtime module.
 
 </details>
 
