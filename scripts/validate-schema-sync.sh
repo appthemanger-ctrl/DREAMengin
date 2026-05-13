@@ -2,7 +2,7 @@
 set -euo pipefail
 
 if ! command -v supabase >/dev/null 2>&1; then
-  echo "supabase CLI not found. Install: https://supabase.com/docs/guides/cli"
+  echo "supabase CLI not found. Install: https://supabase.io/docs/guides/cli"
   exit 2
 fi
 

@@ -78,8 +78,8 @@ describe('admin upgrade readiness', () => {
 
   it('keeps proposal gating pending when required setup checks are missing', () => {
     const setup = makeSetup([
-      { key: 'SUPABASE_URL', ok: false, required: true },
-      { key: 'SUPABASE_ANON_KEY', ok: true, required: true },
+      { key: 'NEXT_PUBLIC_SUPABASE_URL', ok: false, required: true },
+      { key: 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', ok: true, required: true },
       { key: 'GROQ_API_KEY', ok: false, required: false },
     ]);
 
@@ -89,13 +89,13 @@ describe('admin upgrade readiness', () => {
     expect(snapshot.proposals[0].idari.status).toBe('approved');
     expect(snapshot.proposals[0].boogieman.status).toBe('pending');
     expect(snapshot.proposals[0].dreams.status).toBe('pending');
-    expect(snapshot.blockers).toContain('Missing required setup: SUPABASE_URL');
+    expect(snapshot.blockers).toContain('Missing required setup: NEXT_PUBLIC_SUPABASE_URL');
   });
 
   it('builds a real PR checklist when setup is ready', () => {
     const setup = makeSetup([
-      { key: 'SUPABASE_URL', ok: true, required: true },
-      { key: 'SUPABASE_ANON_KEY', ok: true, required: true },
+      { key: 'NEXT_PUBLIC_SUPABASE_URL', ok: true, required: true },
+      { key: 'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', ok: true, required: true },
       { key: 'GROQ_API_KEY', ok: true, required: false },
     ]);
 

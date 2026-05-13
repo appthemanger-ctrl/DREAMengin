@@ -38,7 +38,6 @@ export default function JoinPage() {
   const [notice, setNotice]           = useState<string | null>(null);
   const [oauthProviders, setOauthProviders] = useState<{ google: boolean | null; github: boolean | null } | null>(null);
 
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
 
   useEffect(() => {
     fetch("/api/auth/providers")

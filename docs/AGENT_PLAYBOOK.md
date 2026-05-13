@@ -341,7 +341,7 @@ This section maps the most important files and what they do. Read this before se
 | File | Purpose |
 |------|---------|
 | `lib/supabase/` | Supabase client setup (browser, server, env resolution) |
-| `lib/supabase/env.ts` | Env var resolution — reads `NEXT_PUBLIC_` vars safely |
+| `lib/supabase/config.ts` | Env var resolution — reads canonical `NEXT_PUBLIC_` vars safely |
 | `lib/agents/` | AI agent helpers (Dr. Eams, IDARi, TheBoogieMan) |
 | `lib/navigation/` | τ‑navigation system (deterministic state machine) |
 | `lib/navigation/StructureLedger.ts` | Precomputed O(1) navigation state/transition ledger (13 nodes × 78 transitions) |
@@ -432,7 +432,7 @@ README.md
 app/layout.tsx
   └─ wraps all routes; global Supabase provider, theme, fonts
 
-lib/supabase/env.ts  ←  reads process.env NEXT_PUBLIC_* vars
+lib/supabase/config.ts  ←  reads process.env NEXT_PUBLIC_* vars
   └─ used by lib/supabase/browser.ts and lib/supabase/server.ts
        └─ used by all app/api/* routes and auth‑gated pages
 

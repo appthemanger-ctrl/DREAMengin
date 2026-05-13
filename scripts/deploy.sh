@@ -110,8 +110,8 @@ if [ ! -f ".env" ]; then
     print_info "Creating .env file..."
     cat > .env << EOF
 # Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key-here
 
 # Database (for local dev)
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/dreamengin

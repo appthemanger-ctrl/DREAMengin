@@ -95,7 +95,7 @@ const KNOWN_PATTERNS: KnownPattern[] = [
     action:
       'Verify session validity and token expiry; ' +
       'check RLS policy on the affected table; ' +
-      'ensure NEXT_PUBLIC_SUPABASE_ANON_KEY is correctly set.',
+      'ensure NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is correctly set.',
     risk: 'high',
   },
   {

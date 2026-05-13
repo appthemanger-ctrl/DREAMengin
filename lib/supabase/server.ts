@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import type { Database } from '@/types/supabase'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { SUPABASE_CONFIG } from './config'
-import { SUPABASE_SERVICE_ROLE_KEY } from './env'
+import { SUPABASE_SERVICE_ROLE_KEY } from './config'
 
 type DisabledSupabaseClient = {
   auth: {
@@ -59,8 +59,8 @@ export type SupabaseCookieStore = Pick<Awaited<ReturnType<typeof cookies>>, 'get
  * Supabase SSR client factory.
  *
  * - Does not crash builds when env vars are missing.
- * - When unconfigured, returns a "disabled" client that throws only when used.
- * - Env vars resolved by lib/supabase/env.ts (accepts multiple naming conventions).
+ * - When unconfigured, falls back to canonical project config.
+ * - Env vars resolved by lib/supabase/config.ts.
  */
 
 function createDisabledClient(reason: string): SupabaseClient<Database> {
@@ -158,10 +158,22 @@ export async function createServerClient(): Promise<SupabaseClient<Database>> {
   return createServerClientWithCookies(await cookies())
 }
 
+export function createServerClientWithCustomCookies(
+  getAll: () => ReturnType<SupabaseCookieStore['getAll']>,
+  setAll: (cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) => void
+): SupabaseClient<Database> {
+  return createSupabaseServerClient<Database>(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey, {
+    cookies: {
+      getAll,
+      setAll,
+    },
+  })
+}
+
 export async function createServiceClient(): Promise<SupabaseClient<Database>> {
   if (!SUPABASE_CONFIG.url || !SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error(
-      `Supabase service role is not configured. Set dreamengin_SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY in Vercel environment variables.`
+      `Supabase service role is not configured. Set SUPABASE_SERVICE_ROLE_KEY in Vercel environment variables.`
     )
   }
 

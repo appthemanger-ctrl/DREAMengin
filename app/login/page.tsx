@@ -124,7 +124,6 @@ function LoginPageInner() {
 
     setBusy(true);
     try {
-      const origin = window.location.origin;
       const { error: authError } = await supabase.auth.signInWithOAuth({
         provider,
         options: { redirectTo: buildAuthCallbackUrl(origin, nextPath) },

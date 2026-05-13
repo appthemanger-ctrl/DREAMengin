@@ -7,7 +7,7 @@
  * Fetches the latest YouTube videos (and optionally Instagram posts) using
  * server-side API keys, applies an algorithm filter, then:
  *   1. Upserts the filtered items into Supabase `embed_feed_items` table
- *      (if SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY are provided).
+ *      (if NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY are provided).
  *   2. Bakes embed-code output to public/feeds/embed-feed.json as a static
  *      fallback so the site works even if the DB is unreachable.
  *
@@ -21,7 +21,7 @@
  *   FEED_SOURCES               — comma-separated: youtube,instagram (default: youtube)
  *   YOUTUBE_API_KEY            — YouTube Data API v3 key (public data, no OAuth)
  *   INSTAGRAM_ACCESS_TOKEN     — Instagram Basic Display API long-lived token
- *   SUPABASE_URL               — Project URL (e.g. https://xyz.supabase.co)
+ *   NEXT_PUBLIC_SUPABASE_URL   — Project URL
  *   SUPABASE_SERVICE_ROLE_KEY  — Service-role secret (bypasses RLS for CI writes)
  *
  * Architecture justification: render-on-demand / static bake pattern from
@@ -51,7 +51,7 @@ const SOURCES          = (process.env.FEED_SOURCES ?? 'youtube')
 const YOUTUBE_API_KEY  = process.env.YOUTUBE_API_KEY  ?? '';
 const FEED_QUERY       = process.env.FEED_QUERY ?? '';
 const IG_ACCESS_TOKEN  = process.env.INSTAGRAM_ACCESS_TOKEN ?? '';
-const SUPABASE_URL     = process.env.SUPABASE_URL ?? '';
+const NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
 
 const YT_API = 'https://www.googleapis.com/youtube/v3';
@@ -255,11 +255,11 @@ function applyAlgorithm(items) {
  * On conflict (provider, external_id) it updates the row — this keeps view
  * counts and titles fresh on each run.
  *
- * Silently skips if SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY are not set.
+ * Silently skips if NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY are not set.
  */
 async function persistToSupabase(items, generatedAt) {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    console.warn('⚠️  SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set — skipping DB persist.');
+  if (!NEXT_PUBLIC_SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    console.warn('⚠️  NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY not set — skipping DB persist.');
     return { stored: 0, skipped: true };
   }
 
@@ -277,7 +277,7 @@ async function persistToSupabase(items, generatedAt) {
     generated_at:  generatedAt,
   }));
 
-  const endpoint = `${SUPABASE_URL.replace(/\/$/, '')}/rest/v1/embed_feed_items`;
+  const endpoint = `${NEXT_PUBLIC_SUPABASE_URL.replace(/\/$/, '')}/rest/v1/embed_feed_items`;
 
   const res = await fetch(endpoint, {
     method: 'POST',

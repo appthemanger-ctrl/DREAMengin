@@ -22,8 +22,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_CONFIG } from '@/lib/supabase/config';
+import { createServerClient } from '@/lib/supabase/server';
 import { loadEmbedFeed } from '@/lib/feeds/embedFeedLoader';
 import type { EmbedFeedItem } from '@/lib/feeds/embedFeedLoader';
 
@@ -42,49 +41,47 @@ export async function GET(req: NextRequest): Promise<NextResponse<EmbedFeedRespo
   const limit = Math.min(Math.max(1, isNaN(rawLimit) ? 20 : rawLimit), 50);
 
   // ── Try Supabase first ───────────────────────────────────────────────────
-  if (SUPABASE_CONFIG.url && SUPABASE_CONFIG.anonKey) {
-    try {
-      const db = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
-       
-      const query = (db as any)
-        .from('embed_feed_items')
-        .select('provider,external_id,title,permalink,published_at,view_count,tags,embed_html,thumbnail_url,channel_title,generated_at')
-        .order('published_at', { ascending: false })
-        .limit(limit);
+  try {
+    const db = await createServerClient();
 
-      if (provider) {
-        query.eq('provider', provider);
-      }
+    const query = (db as any)
+      .from('embed_feed_items')
+      .select('provider,external_id,title,permalink,published_at,view_count,tags,embed_html,thumbnail_url,channel_title,generated_at')
+      .order('published_at', { ascending: false })
+      .limit(limit);
 
-      const { data, error } = await query;
-      if (!error && Array.isArray(data) && data.length > 0) {
-        const items = data.map((row: Record<string, unknown>) => ({
-          id:            String(row.external_id ?? ''),
-          provider:      String(row.provider ?? ''),
-          title:         String(row.title ?? ''),
-          permalink:     String(row.permalink ?? ''),
-          published_at:  String(row.published_at ?? ''),
-          view_count:    Number(row.view_count ?? 0),
-          tags:          Array.isArray(row.tags) ? (row.tags as string[]) : [],
-          embed_html:    String(row.embed_html ?? ''),
-          thumbnail_url: String(row.thumbnail_url ?? ''),
-          channel_title: String(row.channel_title ?? ''),
-        })) as EmbedFeedItem[];
-
-        const generatedAt = data[0]
-          ? String((data[0] as Record<string, unknown>).generated_at ?? '')
-          : new Date().toISOString();
-
-        return NextResponse.json({
-          ok: true,
-          items,
-          generated_at: generatedAt,
-          source: 'supabase',
-        });
-      }
-    } catch {
-      // Fall through to JSON fallback
+    if (provider) {
+      query.eq('provider', provider);
     }
+
+    const { data, error } = await query;
+    if (!error && Array.isArray(data) && data.length > 0) {
+      const items = data.map((row: Record<string, unknown>) => ({
+        id:            String(row.external_id ?? ''),
+        provider:      String(row.provider ?? ''),
+        title:         String(row.title ?? ''),
+        permalink:     String(row.permalink ?? ''),
+        published_at:  String(row.published_at ?? ''),
+        view_count:    Number(row.view_count ?? 0),
+        tags:          Array.isArray(row.tags) ? (row.tags as string[]) : [],
+        embed_html:    String(row.embed_html ?? ''),
+        thumbnail_url: String(row.thumbnail_url ?? ''),
+        channel_title: String(row.channel_title ?? ''),
+      })) as EmbedFeedItem[];
+
+      const generatedAt = data[0]
+        ? String((data[0] as Record<string, unknown>).generated_at ?? '')
+        : new Date().toISOString();
+
+      return NextResponse.json({
+        ok: true,
+        items,
+        generated_at: generatedAt,
+        source: 'supabase',
+      });
+    }
+  } catch {
+    // Fall through to JSON fallback
   }
 
   // ── JSON fallback ────────────────────────────────────────────────────────

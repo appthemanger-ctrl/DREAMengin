@@ -39,7 +39,7 @@ on:
         required: true
       NEXT_PUBLIC_SUPABASE_URL:
         required: false
-      NEXT_PUBLIC_SUPABASE_ANON_KEY:
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
         required: false
 
 # Allow only one Vercel deploy to run at a time.
@@ -64,4 +64,4 @@ jobs:
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}

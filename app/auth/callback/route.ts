@@ -1,7 +1,7 @@
 // app/auth/callback/route.ts
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { createServerClient as createSupabaseServerClient } from "@supabase/ssr";
+import { createServerClientWithCustomCookies } from "@/lib/supabase/server";
 import { SUPABASE_CONFIG } from "@/lib/supabase/config";
 import { resolveSafeNextPath } from "@/lib/auth/nextRedirect";
 
@@ -32,7 +32,6 @@ export async function GET(request: Request) {
   if (!code) return response;
 
   if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.anonKey) return response;
-
   type CookieToSet = {
     name: string;
     value: string;
@@ -48,22 +47,14 @@ export async function GET(request: Request) {
   // This matches the canonical pattern in lib/supabase/server.ts.
   const cookieStore = await cookies();
 
-  const supabase = createSupabaseServerClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey, {
-    cookies: {
-      // Synchronous: returns the pre-resolved snapshot.
-      getAll() {
-        return cookieStore.getAll();
-      },
-
-      // Synchronous: writes session tokens (and deletes the code_verifier
-      // cookie) onto the redirect response so they reach the browser.
-      setAll(cookiesToSet: CookieToSet[]) {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          response.cookies.set(name, value, options);
-        });
-      },
-    },
-  });
+  const supabase = createServerClientWithCustomCookies(
+    () => cookieStore.getAll(),
+    (cookiesToSet: CookieToSet[]) => {
+      cookiesToSet.forEach(({ name, value, options }) => {
+        response.cookies.set(name, value, options);
+      });
+    }
+  );
 
   try {
     const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);

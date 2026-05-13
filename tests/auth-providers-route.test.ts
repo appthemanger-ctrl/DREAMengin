@@ -1,21 +1,21 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-async function importRouteWithEnv(env: { SUPABASE_URL: string; SUPABASE_ANON_KEY: string }) {
+async function importRouteWithEnv(env: { SUPABASE_URL: string; SUPABASE_PUBLISHABLE_KEY: string }) {
   vi.resetModules();
-  vi.doMock("@/lib/supabase/env", () => env);
+  vi.doMock("@/lib/supabase/config", () => env);
   return import("../app/api/auth/providers/route");
 }
 
 describe("GET /api/auth/providers", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
-    vi.doUnmock("@/lib/supabase/env");
+    vi.doUnmock("@/lib/supabase/config");
   });
 
   it("returns unknown availability when Supabase env is missing", async () => {
     const { GET, UNKNOWN_OAUTH_PROVIDERS } = await importRouteWithEnv({
       SUPABASE_URL: "",
-      SUPABASE_ANON_KEY: "",
+      SUPABASE_PUBLISHABLE_KEY: "",
     });
 
     const response = await GET();
@@ -33,14 +33,14 @@ describe("GET /api/auth/providers", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const { GET } = await importRouteWithEnv({
-      SUPABASE_URL: "https://suaiqcynxospjijzdudc.supabase.co",
-      SUPABASE_ANON_KEY: "anon-key",
+      SUPABASE_URL: "https://example.test",
+      SUPABASE_PUBLISHABLE_KEY: "anon-key",
     });
 
     const response = await GET();
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://suaiqcynxospjijzdudc.supabase.co/auth/v1/settings",
+      "https://example.test/auth/v1/settings",
       expect.objectContaining({
         cache: "no-store",
         headers: expect.objectContaining({
@@ -56,8 +56,8 @@ describe("GET /api/auth/providers", () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network down")));
 
     const { GET, UNKNOWN_OAUTH_PROVIDERS } = await importRouteWithEnv({
-      SUPABASE_URL: "https://suaiqcynxospjijzdudc.supabase.co",
-      SUPABASE_ANON_KEY: "anon-key",
+      SUPABASE_URL: "https://example.test",
+      SUPABASE_PUBLISHABLE_KEY: "anon-key",
     });
 
     const response = await GET();

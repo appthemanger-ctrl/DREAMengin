@@ -5,7 +5,7 @@
  * in lib/collaboration.
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@/engine/io';
 import {
   createCollabSession,
   broadcastCursor as collabBroadcastCursor,
