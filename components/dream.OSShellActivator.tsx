@@ -43,8 +43,8 @@ import { isPublicSurfacePath } from '@/lib/routing/surfaces';
 
 const DEFAULT_WORKFLOW_SPLIT = 0.5;
 
-/** Route that owns its own bridge (DreamBarDataBridge with richer home data). */
-const OWN_BRIDGE_ROUTES = new Set<string>(['/homedream']);
+/** No route owns a special bridge; shell callbacks are global from root layout. */
+const OWN_BRIDGE_ROUTES = new Set<string>();
 
 export default function OSShellActivator() {
   const pathname = usePathname();

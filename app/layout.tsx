@@ -18,6 +18,7 @@ import GodTierProvider from '@/components/providers/dream.GodTierProvider';
 import CommandPalette from '@/components/dream.CommandPalette';
 import GlobalOverlays from '@/components/dream.GlobalOverlays';
 import { OSProvider } from '@/lib/dreamenginOS/OSContext';
+import CartridgeRegistryBootstrap from '@/components/gameengin/dream.CartridgeRegistryBootstrap';
 
 // DreamSystemProvider and DualRuntimeContainer remain mounted at root so every
 // surface has shared runtime context. DMBar mounts under app/dreamdmbar/layout.
@@ -86,6 +87,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <OSProvider>
             <CustomizeModeProvider>
               <DreamSystemProvider>
+                <CartridgeRegistryBootstrap />
                 <DualRuntimeContainer>
                   <main role="main" aria-label="Main content">{children}</main>
                   <GlobalOverlays />

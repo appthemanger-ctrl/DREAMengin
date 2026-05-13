@@ -22,6 +22,10 @@ import type {
   CartridgeInputEvent,
 } from './cartridge';
 import { GRAVITY_VALUES } from './cartridge';
+import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
+import { createLocalChannel } from '@/lib/runtime/runtimeChannel';
+import { recordEmission } from '@/lib/runtime/channelMetrics';
+import { acquireSharedResource, releaseSharedResource } from '@/lib/runtime/sharedResourcePool';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -61,6 +65,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
   const cleanupRef = useRef<(() => void) | null>(null);
   const physicsRef = useRef(physicsConfig);
   const onFrameRef = useRef(onFrame);
+  const scoreChannelRef = useRef(createLocalChannel<{ type: 'game:score-submit'; gameId: string; score: number; level?: number }>('engine:game-scores'));
 
   // Keep refs in sync
   physicsRef.current = physicsConfig;
@@ -77,12 +82,10 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
     return {
       loop: {
         onTick(cb) {
-          tickCbs.add(cb);
-          return () => { tickCbs.delete(cb); };
+          return dreamOSBus.on('engine:tick', ({ dt, elapsed }) => cb(dt, elapsed));
         },
         onRender(cb) {
-          renderCbs.add(cb);
-          return () => { renderCbs.delete(cb); };
+          return dreamOSBus.on('engine:render', ({ dt }) => cb(dt));
         },
       },
       physics: {
@@ -97,10 +100,9 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
       },
       input: {
         on(event, cb) {
-          let set = inputListeners.get(event);
-          if (!set) { set = new Set(); inputListeners.set(event, set); }
-          set.add(cb);
-          return () => { set!.delete(cb); };
+          return dreamOSBus.on('game:input', (payload) => {
+            if (payload.type === event) cb(payload);
+          });
         },
         isKeyDown(key) {
           return keysDown.has(key);
@@ -108,6 +110,8 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
       },
       score: {
         async submit(gameId, value, level) {
+          await scoreChannelRef.current.publish({ type: 'game:score-submit', gameId, score: value, level });
+          recordEmission('games');
           try {
             await fetch('/api/game-scores', {
               method: 'POST',
@@ -120,19 +124,16 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
         },
       },
       pool: {
-        // Simple pool: games should call acquire with the SAME factory reference
-        // to benefit from object reuse. For cross-factory pooling, use ResourcePool directly.
         acquire<T>(factory: () => T): T {
-          return factory();
+          return acquireSharedResource('game:runtime', factory);
         },
-        release<T>(_obj: T): void {
-          // Basic implementation — objects are garbage collected.
-          // Migrated games should use ResourcePool from power-systems.ts directly
-          // for zero-allocation hot paths.
+        release<T>(obj: T): void {
+          releaseSharedResource('game:runtime', obj);
         },
       },
       telemetry: {
         reportFrame(dtMs) {
+          recordEmission('games', dtMs);
           frameTimesRef.current.push(dtMs);
           if (frameTimesRef.current.length > 120) {
             frameTimesRef.current.shift();
@@ -158,6 +159,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
       if (listeners) {
         for (const cb of listeners) cb(payload);
       }
+      dreamOSBus.emit('game:input', payload);
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -207,6 +209,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
         elapsedRef.current += FIXED_DT;
         const dtSeconds = FIXED_DT / 1000;
         const elapsedSeconds = elapsedRef.current / 1000;
+        dreamOSBus.emit('engine:tick', { dt: dtSeconds, elapsed: elapsedSeconds });
         for (const cb of tickCallbacksRef.current) {
           cb(dtSeconds, elapsedSeconds);
         }
@@ -214,6 +217,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
 
       // Render pass (once per frame)
       const renderDt = rawDt / 1000;
+      dreamOSBus.emit('engine:render', { dt: renderDt });
       for (const cb of renderCallbacksRef.current) {
         cb(renderDt);
       }
