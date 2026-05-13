@@ -56,21 +56,36 @@ jobs:
   decide:
     name: Score options and pick the next move
     needs: scan
-    if: ${{ secrets.GROQ_API_KEY != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    outputs:
+      decision_ready: ${{ steps.generate-decision.outputs.ready || 'false' }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Check Groq API availability
+        id: groq-guard
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          if [ -n "$GROQ_API_KEY" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Download context artifact
+        if: steps.groq-guard.outputs.enabled == 'true'
         uses: actions/download-artifact@v4.1.3
         with:
           name: neural-decision-context
           path: ${{ env.GENERATED_DIR }}
 
       - name: Generate neural decision packet
+        if: steps.groq-guard.outputs.enabled == 'true'
+        id: generate-decision
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           NEURAL_DECISION_MODEL: ${{ vars.GROQ_MODEL_IDARI_HEAVY }}
@@ -81,15 +96,25 @@ jobs:
             --out "${{ env.GENERATED_DIR }}/neural-decision.json" \
             --model "${NEURAL_DECISION_MODEL:-openai/gpt-oss-120b}" \
             --directive "$DIRECTIVE"
+          echo "ready=true" >> "$GITHUB_OUTPUT"
 
       - name: Upload decision artifact
+        if: steps.groq-guard.outputs.enabled == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: neural-decision-packet
           path: ${{ env.GENERATED_DIR }}/neural-decision.json
           retention-days: 7
 
+      - name: Note skipped decision packet
+        if: steps.groq-guard.outputs.enabled != 'true'
+        run: |
+          echo "## Neural Decision Packet" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Skipped because \`GROQ_API_KEY\` is not configured for this run." >> "$GITHUB_STEP_SUMMARY"
+
       - name: Write decision summary
+        if: steps.groq-guard.outputs.enabled == 'true'
         run: |
           python - <<'PY'
           import json
@@ -127,7 +152,7 @@ jobs:
   implement:
     name: Implement the selected move
     needs: [scan, decide]
-    if: ${{ needs.decide.result == 'success' }}
+    if: ${{ needs.decide.outputs.decision_ready == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
 

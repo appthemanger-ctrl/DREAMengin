@@ -194,7 +194,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     # Run even if some persona jobs failed (partial synthesis is still useful)
-    if: always() && needs.build.result == 'success'
+    if: always()
 
     steps:
       - name: Checkout

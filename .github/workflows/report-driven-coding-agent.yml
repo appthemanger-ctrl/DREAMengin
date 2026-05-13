@@ -40,16 +40,37 @@ jobs:
     if: github.event_name != 'issues' || contains(github.event.issue.labels.*.name, 'ai-report-agent')
     runs-on: ubuntu-latest
     timeout-minutes: 35
-    env:
-      REPORT_TEXT: ${{ github.event_name == 'issues' && github.event.issue.body || inputs.report_text }}
-      REPORT_PATH: ${{ github.event_name == 'workflow_dispatch' && inputs.report_path || 'docs/BUGS.md' }}
-      REPORT_SOURCE: ${{ github.event_name == 'issues' && format('issue #{0}: {1}', github.event.issue.number, github.event.issue.title) || inputs.report_path }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Resolve report inputs
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          INPUT_REPORT_PATH: ${{ inputs.report_path }}
+          INPUT_REPORT_TEXT: ${{ inputs.report_text }}
+        run: |
+          REPORT_PATH="${INPUT_REPORT_PATH:-docs/BUGS.md}"
+          REPORT_SOURCE="$REPORT_PATH"
+          REPORT_TEXT="$INPUT_REPORT_TEXT"
+
+          if [ "${{ github.event_name }}" = "issues" ]; then
+            REPORT_SOURCE="issue #${ISSUE_NUMBER}: ${ISSUE_TITLE}"
+            REPORT_TEXT="$ISSUE_BODY"
+          fi
+
+          {
+            echo "REPORT_PATH=${REPORT_PATH}"
+            echo "REPORT_SOURCE=${REPORT_SOURCE}"
+            echo "REPORT_TEXT<<__REPORT_TEXT__"
+            echo "${REPORT_TEXT}"
+            echo "__REPORT_TEXT__"
+          } >> "$GITHUB_ENV"
 
       - name: Scan repository context
         run: |
