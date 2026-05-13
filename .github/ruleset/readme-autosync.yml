@@ -1,10 +1,10 @@
 name: readme-autosync
 required_secrets: []
 command: |
-  [ -f scripts/readme-autosync.mjs ] && node scripts/readme-autosync.mjs || echo "⚠️ readme-autosync no-op"
+  node .github/scripts/run-readme-autosync.mjs
 artifact:
-  name: readme-autosync-report
-  path: ''
+  name: readme-autosync
+  path: .github/generated/readme-autosync/**
 constraints:
-  max_runtime_minutes: 10
-  allow_failure: true
+  max_runtime_minutes: 15
+  allow_failure: false
