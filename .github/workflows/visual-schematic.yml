@@ -2,7 +2,7 @@ name: Visual Schematic
 
 on:
   push:
-    branches: [completedream]
+    branches: ['**']
   workflow_dispatch:
 
 permissions:
@@ -16,13 +16,14 @@ concurrency:
 
 jobs:
   build-sync:
-    if: ${{ github.event_name != 'push' || (github.actor != 'github-actions[bot]' && !contains(github.event.head_commit.message, '[viz auto]')) }}
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node + pnpm
         uses: ./.github/actions/setup-node
@@ -41,8 +42,8 @@ jobs:
             exit 0
           fi
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore(viz): refresh visual schematic [viz auto] [skip vercel]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(visual-schematic): auto-update file-level schematic [skip ci] [skip vercel]"
           git push
 
       - name: Upload Pages artifact

@@ -466,6 +466,147 @@ function addEdge(edges, edgeSet, source, target, kind) {
   edges.push({ source, target, kind });
 }
 
+const FILE_LEVEL_SOURCE_DIRS = new Set([
+  'app', 'components', 'lib', 'hooks', 'types', 'engins', 'daydreams',
+  'coresurfaces', 'dreamdmbar', 'src', 'scripts', 'tests', 'utils',
+  'agents', 'dr-eams', 'assembly', 'core',
+]);
+
+function getTopFolder(relPath) {
+  const slash = relPath.indexOf('/');
+  return slash === -1 ? '(root)' : relPath.slice(0, slash);
+}
+
+function buildFileLevelSection(nodes, edges) {
+  // Unique file→file adjacency maps (deduped regardless of edge kind)
+  const outMap = new Map(); // srcPath → Set<tgtPath>
+  const inMap = new Map();  // tgtPath → Set<srcPath>
+
+  for (const node of nodes) {
+    if (!node.id.startsWith('file:')) continue;
+    outMap.set(node.path, new Set());
+    inMap.set(node.path, new Set());
+  }
+
+  for (const edge of edges) {
+    if (!edge.source.startsWith('file:') || !edge.target.startsWith('file:')) continue;
+    const srcPath = edge.source.slice('file:'.length);
+    const tgtPath = edge.target.slice('file:'.length);
+    if (outMap.has(srcPath) && inMap.has(tgtPath)) {
+      outMap.get(srcPath).add(tgtPath);
+      inMap.get(tgtPath).add(srcPath);
+    }
+  }
+
+  // Group files by top-level folder (only source dirs)
+  const byFolder = new Map();
+  for (const node of nodes) {
+    if (!node.id.startsWith('file:')) continue;
+    const topFolder = getTopFolder(node.path);
+    if (!FILE_LEVEL_SOURCE_DIRS.has(topFolder)) continue;
+    if (!byFolder.has(topFolder)) byFolder.set(topFolder, []);
+    byFolder.get(topFolder).push(node);
+  }
+
+  // Sort folders by file count descending
+  const sortedFolders = [...byFolder.entries()].sort((a, b) => b[1].length - a[1].length);
+
+  const lines = ['#### File-Level Connectivity (auto-generated)', ''];
+
+  for (const [folderName, folderFiles] of sortedFolders) {
+    // Sort files by Imported By descending, then path ascending
+    folderFiles.sort((a, b) => {
+      const aIn = inMap.get(a.path)?.size || 0;
+      const bIn = inMap.get(b.path)?.size || 0;
+      if (bIn !== aIn) return bIn - aIn;
+      return a.path.localeCompare(b.path);
+    });
+
+    lines.push(`<details><summary>${folderName}/ (${folderFiles.length} files)</summary>`, '');
+    lines.push('| File | Type | Imports | Imported By | Top Importers | Top Imports |');
+    lines.push('|---|---|---|---|---|---|');
+
+    for (const node of folderFiles) {
+      const outList = [...(outMap.get(node.path) || [])];
+      const inList = [...(inMap.get(node.path) || [])];
+      const topImporters = inList.slice(0, 3).map((p) => `\`${p}\``).join(', ');
+      const topImports = outList.slice(0, 3).map((p) => `\`${p}\``).join(', ');
+      lines.push(`| \`${node.path}\` | ${node.type} | ${outList.length} | ${inList.length} | ${topImporters || '—'} | ${topImports || '—'} |`);
+    }
+
+    lines.push('', '</details>', '');
+  }
+
+  return lines.join('\n');
+}
+
+function buildFileLevelGraphs(nodes, edges) {
+  // Group files by top-level folder (only source dirs)
+  const byFolder = new Map();
+  for (const node of nodes) {
+    if (!node.id.startsWith('file:')) continue;
+    const topFolder = getTopFolder(node.path);
+    if (!FILE_LEVEL_SOURCE_DIRS.has(topFolder)) continue;
+    if (!byFolder.has(topFolder)) byFolder.set(topFolder, []);
+    byFolder.get(topFolder).push(node.path);
+  }
+
+  // Sort folders by file count ascending (smaller = renderable first)
+  const sortedFolders = [...byFolder.entries()].sort((a, b) => a[1].length - b[1].length);
+
+  const lines = ['#### File-Level Graphs by Folder', ''];
+
+  const toNodeId = (p) => 'f_' + p.replace(/[^a-zA-Z0-9]/g, '_');
+
+  for (const [folderName, folderFilePaths] of sortedFolders) {
+    const count = folderFilePaths.length;
+    const folderFileSet = new Set(folderFilePaths);
+
+    lines.push(`<details><summary>${folderName}/ — ${count} files</summary>`, '');
+
+    if (count > 60) {
+      lines.push(`_File-level graph omitted: ${count} files exceeds Mermaid render budget. See table above._`);
+    } else {
+      const nodeDefs = new Map(); // nodeId → label
+      const graphEdges = new Set(); // "  srcId --> tgtId"
+
+      for (const edge of edges) {
+        if (!edge.source.startsWith('file:') || !edge.target.startsWith('file:')) continue;
+        const srcPath = edge.source.slice('file:'.length);
+        const tgtPath = edge.target.slice('file:'.length);
+        if (!folderFileSet.has(srcPath)) continue;
+        const srcId = toNodeId(srcPath);
+        const tgtId = toNodeId(tgtPath);
+        const srcLabel = srcPath.split('/').pop();
+        const tgtLabel = tgtPath.split('/').pop();
+        if (!nodeDefs.has(srcId)) nodeDefs.set(srcId, srcLabel);
+        if (!nodeDefs.has(tgtId)) nodeDefs.set(tgtId, tgtLabel);
+        graphEdges.add(`  ${srcId} --> ${tgtId}`);
+      }
+
+      // Add isolated nodes from this folder (no outgoing edges captured)
+      for (const p of folderFilePaths) {
+        const id = toNodeId(p);
+        if (!nodeDefs.has(id)) nodeDefs.set(id, p.split('/').pop());
+      }
+
+      const mermaidLines = ['```mermaid', 'graph LR'];
+      for (const [id, label] of nodeDefs) {
+        mermaidLines.push(`  ${id}["${label}"]`);
+      }
+      for (const edgeLine of graphEdges) {
+        mermaidLines.push(edgeLine);
+      }
+      mermaidLines.push('```');
+      lines.push(...mermaidLines);
+    }
+
+    lines.push('', '</details>', '');
+  }
+
+  return lines.join('\n');
+}
+
 function buildTopLevelFolderMermaid(edges) {
   const groupFor = (p) => {
     const [first] = p.split('/');
@@ -501,10 +642,13 @@ function buildTopLevelFolderMermaid(edges) {
   return lines.join('\n');
 }
 
-function buildAutoSection(stats, mermaid, orphanRows) {
+function buildAutoSection(stats, mermaid, orphanRows, nodes, edges) {
   const orphanTable = orphanRows.length
     ? orphanRows.map((row) => `| \`${row.path}\` | ${row.type} |`).join('\n')
     : '| _None_ | — |';
+
+  const fileLevelSection = buildFileLevelSection(nodes, edges);
+  const fileLevelGraphs = buildFileLevelGraphs(nodes, edges);
 
   return [
     '### Auto-Generated Repository Overview',
@@ -514,10 +658,14 @@ function buildAutoSection(stats, mermaid, orphanRows) {
     `- **Total edges:** ${stats.totalEdges}`,
     `- **Orphan nodes:** ${stats.orphanCount}`,
     '',
-    '#### Top-Level Folder Connectivity (auto-generated)',
+    '#### Top-Level Folder Connectivity (overview)',
     '```mermaid',
     mermaid,
     '```',
+    '',
+    fileLevelSection,
+    '',
+    fileLevelGraphs,
     '',
     '#### Orphan Files (floating/disconnected)',
     '| Path | Type |',
@@ -528,8 +676,8 @@ function buildAutoSection(stats, mermaid, orphanRows) {
   ].join('\n');
 }
 
-function ensureVisualSchematic(stats, mermaid, orphanRows) {
-  const autoBlock = buildAutoSection(stats, mermaid, orphanRows);
+function ensureVisualSchematic(stats, mermaid, orphanRows, nodes, edges) {
+  const autoBlock = buildAutoSection(stats, mermaid, orphanRows, nodes, edges);
   const baseDoc = [
     '# VISUAL SCHEMATIC',
     '',
@@ -824,7 +972,7 @@ function main() {
     .sort((a, b) => a.path.localeCompare(b.path));
 
   const mermaid = buildTopLevelFolderMermaid(edges);
-  ensureVisualSchematic(stats, mermaid, orphanFileRows);
+  ensureVisualSchematic(stats, mermaid, orphanFileRows, nodes, edges);
 
   console.log(`Generated ${OUTPUT_GRAPH}`);
   console.log(`Generated ${OUTPUT_STATS}`);
