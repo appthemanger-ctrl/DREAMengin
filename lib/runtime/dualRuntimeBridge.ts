@@ -1,6 +1,7 @@
 'use client';
 
 import { EventEmitter } from 'events';
+import { invokeMadMaxiSnapshotTransfer } from '@/lib/runtime/madMaxiSnapshotBridge';
 
 // ── Channel types ──────────────────────────────────────────────────────────────
 
@@ -808,6 +809,15 @@ class DualRuntimeBridge extends EventEmitter {
   }
 
   private dispatchLocal(channel: string, event: string, payload: Record<string, unknown>) {
+    if (channel === 'module' && event === 'transfer') {
+      const modulePayload = payload['module'] as { type?: unknown; id?: unknown } | undefined;
+      const isGameCartridge = modulePayload?.type === 'game-cartridge';
+      const id = String(modulePayload?.id ?? '');
+      if (isGameCartridge && (id.includes('platformer') || id.includes('mad-maxi'))) {
+        void invokeMadMaxiSnapshotTransfer();
+      }
+    }
+
     const key = `${channel}:${event}`;
     const ts = Date.now();
     this.channelState.set(channel, payload);

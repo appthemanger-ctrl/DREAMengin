@@ -29,7 +29,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import DreamDMBar from '@/dreamdmbar/dreamsurface.dreamdmbar';
+import DreamDMRail from '@/dreamdmbar/dreamsurface.dreamdmbar';
 import NeuralSeamCanvas from '@/components/home/dream.NeuralSeamCanvas';
 import RuntimeView from '@/components/runtime/dream.RuntimeView';
 import { useDualRuntime } from '@/components/runtime/dream.DualRuntimeContainer';
@@ -265,7 +265,7 @@ export default function PersistentDreamBar() {
       {/* ── DreamDM Bar (the seam) ────────────────────────────────────────────
           Split props only wired when isHomeActive so the bar stays as a
           simple nav-rail on other pages (no seam, no divider mode touch capture). */}
-      <DreamDMBar
+      <DreamDMRail
         onBothMenus={openBothMenus}
         splitRatio={isHomeActive ? splitRatio : undefined}
         onSplitChange={isHomeActive ? setSplitRatio : undefined}
