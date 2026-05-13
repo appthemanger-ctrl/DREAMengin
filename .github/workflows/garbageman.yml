@@ -1,26 +1,45 @@
 name: Cleanup Repo
+
 on:
   workflow_dispatch:
+
 permissions:
   contents: write
 
 jobs:
-  run:
+  cleanup:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    continue-on-error: true
+
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: ./.github/actions/resilient-engine
-        with:
-          ruleset: .github/ruleset/garbageman.yml
-          allow-failure: 'true'
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
+      - name: Remove junk files
+        run: |
+          echo "🧹 Cleaning repo..."
+
+          # Remove system junk
+          find . -name ".DS_Store" -delete
+          find . -name "Thumbs.db" -delete
+
+          # Remove logs
+          find . -name "*.log" -delete
+
+          # Remove temp files
+          find . -name "*.tmp" -delete
+          find . -name "*.swp" -delete
+
+          # Build artifacts and prototype dumps are not removed automatically
+
+      - name: Commit cleanup (if needed)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "Nothing to clean up."
+          else
+            git commit -m "chore: auto cleanup [skip ci] [skip vercel]"
+            git push || true
+          fi

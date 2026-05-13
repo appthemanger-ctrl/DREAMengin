@@ -22,8 +22,9 @@ name: 🤖 Issue Fix Bot — Consolidated PR
 #
 # Optional secrets (passed to typecheck / build if needed):
 #   NEXT_PUBLIC_SUPABASE_URL
-#   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+#   NEXT_PUBLIC_SUPABASE_ANON_KEY
 # ──────────────────────────────────────────────────────────────────────────────
+
 on:
   workflow_dispatch:
     inputs:
@@ -91,24 +92,229 @@ concurrency:
 # ─────────────────────────────────────────────────────────────────────────────
 # Shared environment
 # ─────────────────────────────────────────────────────────────────────────────
+env:
+  NODE_VERSION:  '25'
+  PNPM_VERSION:  '10.30.0'
+  GIT_USER_NAME:  'github-actions[bot]'
+  GIT_USER_EMAIL: 'github-actions[bot]@users.noreply.github.com'
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Jobs
+# ─────────────────────────────────────────────────────────────────────────────
 jobs:
-  run:
+
+  # ─── Pre-flight: cheap check before setting up the full toolchain ──────────
+  preflight:
+    name: 🔍 Pre-flight — check for open issues
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    continue-on-error: true
+    timeout-minutes: 5
+    outputs:
+      has_issues: ${{ steps.check.outputs.has_issues }}
+      open_count: ${{ steps.check.outputs.open_count }}
+
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: ./.github/actions/resilient-engine
-        with:
-          ruleset: .github/ruleset/issue-bot.yml
-          allow-failure: 'true'
+      - name: Check for open issues (lightweight — no checkout needed)
+        id: check
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          # Build optional label filter args
+          LABEL_FILTER="${{ github.event.inputs.labels_filter || '' }}"
+          LABEL_ARGS=()
+          if [[ -n "$LABEL_FILTER" ]]; then
+            IFS=',' read -ra LABELS <<< "$LABEL_FILTER"
+            for lbl in "${LABELS[@]}"; do
+              trimmed="${lbl#"${lbl%%[![:space:]]*}"}"  # ltrim
+              trimmed="${trimmed%"${trimmed##*[![:space:]]}"}"  # rtrim
+              LABEL_ARGS+=( "--label" "$trimmed" )
+            done
+          fi
+
+          COUNT=$(gh issue list \
+            --repo "${{ github.repository }}" \
+            --state open \
+            --limit 1 \
+            --json number \
+            "${LABEL_ARGS[@]}" \
+            | jq 'length')
+
+          echo "open_count=$COUNT" >> "$GITHUB_OUTPUT"
+
+          if [[ "$COUNT" -gt 0 ]]; then
+            echo "has_issues=true"  >> "$GITHUB_OUTPUT"
+            echo "✅ Found at least $COUNT open issue(s) — proceeding with full bot run."
+          else
+            echo "has_issues=false" >> "$GITHUB_OUTPUT"
+            echo "ℹ️  No open issues found — bot will exit cleanly after setup."
+          fi
+
+  # ─── Main bot job ──────────────────────────────────────────────────────────
+  issue-fix-bot:
+    name: 🤖 Issue Fix Bot
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    # Surface the resolved input values as env vars for the Node.js script
+    env:
+      GITHUB_BASE_BRANCH: >-
+        ${{ github.event_name == 'workflow_dispatch'
+            && inputs.base_branch
+            || 'completedream' }}
+      MAX_ISSUES: >-
+        ${{ github.event_name == 'workflow_dispatch'
+            && inputs.max_issues
+            || '30' }}
+      DRY_RUN: >-
+        ${{ github.event_name == 'workflow_dispatch'
+            && inputs.dry_run
+            || 'false' }}
+      LABELS_FILTER: >-
+        ${{ github.event_name == 'workflow_dispatch'
+            && inputs.labels_filter
+            || '' }}
+
+    steps:
+      # ── 1. Checkout ─────────────────────────────────────────────────────────
+      - name: Checkout (full history for branch creation)
+        uses: actions/checkout@v4
+        with:
+          ref: >-
+            ${{ github.event_name == 'workflow_dispatch'
+                && inputs.base_branch
+                || 'completedream' }}
+          fetch-depth: 0
+          # Use GITHUB_TOKEN so the bot can push the new branch
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 2. Git identity ──────────────────────────────────────────────────────
+      - name: Configure git identity
+        run: |
+          git config user.name  "${{ env.GIT_USER_NAME }}"
+          git config user.email "${{ env.GIT_USER_EMAIL }}"
+
+      # ── 3. pnpm ─────────────────────────────────────────────────────────────
+      - name: Setup pnpm ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v4
+
+      # ── 4. Node.js ──────────────────────────────────────────────────────────
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      # ── 5. Install dependencies ──────────────────────────────────────────────
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+        # Needed so ESLint --fix and pnpm run typecheck both work correctly
+
+      # ── 6. Run the Issue Fix Bot ─────────────────────────────────────────────
+      - name: 🤖 Run Issue Fix Bot
+        id: bot
+        env:
+          GH_TOKEN:                      ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY:             ${{ github.repository }}
+          GITHUB_ACTOR:                  ${{ github.actor }}
+          # Supabase env vars — used by typecheck / build steps if they run
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: node .github/scripts/issue-bot.js
+
+      # ── 7. Capture step summary ──────────────────────────────────────────────
+      - name: Write GitHub Step Summary
+        if: always()
+        run: |
+          SUMMARY_FILE=".github/generated/issue-bot-summary.md"
+          echo "## 🤖 Issue Fix Bot" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          if [[ -f "$SUMMARY_FILE" ]]; then
+            cat "$SUMMARY_FILE" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "| | |" >> "$GITHUB_STEP_SUMMARY"
+            echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Status | ${{ job.status }} |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Open issues (pre-check) | ${{ needs.preflight.outputs.open_count }} |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Base branch | \`${{ env.GITHUB_BASE_BRANCH }}\` |" >> "$GITHUB_STEP_SUMMARY"
+            echo "| Dry run | ${{ env.DRY_RUN }} |" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "---" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Workflow run:** [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" >> "$GITHUB_STEP_SUMMARY"
+
+      # ── 8. Upload generated artifacts ───────────────────────────────────────
+      - name: Upload bot artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: issue-bot-${{ github.run_id }}
+          path: |
+            .github/generated/issue-bot-summary.md
+            .github/generated/issue-bot-pr-body.md
+          if-no-files-found: ignore
+          retention-days: 14
+
+      # ── 9. Notify on failure ─────────────────────────────────────────────────
+      - name: Annotate failure
+        if: failure()
+        run: |
+          echo "::error title=Issue Fix Bot Failed::The bot encountered an error. Check the run logs for details." \
+            "Branch ${BOT_BRANCH:-'(not created)'} may be in a partial state."
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "## ❌ Bot Run Failed" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "The Issue Fix Bot encountered an error. The branch may not have been pushed." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Next steps:**" >> "$GITHUB_STEP_SUMMARY"
+          echo "1. Check the full job logs above for the error message." >> "$GITHUB_STEP_SUMMARY"
+          echo "2. Verify that \`GITHUB_TOKEN\` has \`contents: write\`, \`issues: write\`, and \`pull-requests: write\` permissions." >> "$GITHUB_STEP_SUMMARY"
+          echo "3. Confirm the base branch (\`${{ env.GITHUB_BASE_BRANCH }}\`) exists." >> "$GITHUB_STEP_SUMMARY"
+          echo "4. Re-run the workflow after addressing the issue." >> "$GITHUB_STEP_SUMMARY"
+
+  # ─── Summary job — runs last, always, reports overall result ──────────────
+  summary:
+    name: 📊 Bot Run Summary
+    needs: [preflight, issue-fix-bot]
+    runs-on: ubuntu-latest
+    if: always()
+    timeout-minutes: 2
+
+    steps:
+      - name: Report final status
+        env:
+          PREFLIGHT_RESULT: ${{ needs.preflight.result }}
+          BOT_RESULT:       ${{ needs.issue-fix-bot.result }}
+          OPEN_COUNT:       ${{ needs.preflight.outputs.open_count }}
+          HAS_ISSUES:       ${{ needs.preflight.outputs.has_issues }}
+        run: |
+          set -euo pipefail
+
+          echo "## 📊 Issue Fix Bot — Final Summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Job | Result |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-----|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Pre-flight    | $PREFLIGHT_RESULT |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Issue Fix Bot | $BOT_RESULT       |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Parameter | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-----------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Open issues (at run start)  | $OPEN_COUNT |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Trigger                     | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Actor                       | @${{ github.actor }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Run ID                      | ${{ github.run_id }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+
+          # Determine overall pass/fail
+          if [[ "$BOT_RESULT" == "success" || "$BOT_RESULT" == "skipped" ]]; then
+            echo "✅ **Overall: PASSED**" >> "$GITHUB_STEP_SUMMARY"
+            echo "Issue Fix Bot completed successfully."
+          else
+            echo "❌ **Overall: FAILED**" >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::Issue Fix Bot failed — see job logs for details."
+            exit 1
+          fi

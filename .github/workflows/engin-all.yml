@@ -6,33 +6,227 @@ name: Engin Runtimes — All Health & Feature Patrols
 #
 # Runs all six Engin runtime health patrols as a single matrix workflow.
 # One workflow entry in the Actions tab instead of six.
+
 on:
   workflow_dispatch:
   schedule:
     - cron: '30 2 * * 1'   # weekly Monday 02:30 UTC
+
 permissions:
   contents: write
+
 concurrency:
   group: engin-all-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  NODE_VERSION: '25'
+  PNPM_VERSION: '10.30.0'
+
 jobs:
-  run:
+  engin-health:
+    name: ${{ matrix.emoji }} ${{ matrix.engin }} · Build · Lint · Test · Feature Patrol
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - engin: StarMakerEngin
+            pair: music
+            emoji: "🎤"
+            engin_file: components/daydream/StarMakerEngin.tsx
+          - engin: GameEngin
+            pair: games
+            emoji: "🕹️"
+            engin_file: components/daydream/GameEngin.tsx
+          - engin: LabEngin
+            pair: lab
+            emoji: "⚗️"
+            engin_file: components/daydream/LabEngin.tsx
+          - engin: CodeEngin
+            pair: code
+            emoji: "🖥️"
+            engin_file: components/daydream/CodeEngin.tsx
+          - engin: ContentEngin
+            pair: create
+            emoji: "✍️"
+            engin_file: components/daydream/ContentEngin.tsx
+          - engin: BrandingEngin
+            pair: brand
+            emoji: "📊"
+            engin_file: components/daydream/BrandingEngin.tsx
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: ./.github/actions/resilient-engine
-        with:
-          ruleset: .github/ruleset/engin-all.yml
-          allow-failure: 'true'
+
+      - name: Setup pnpm ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: ./.github/actions/setup-node
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build (Next.js)
+        run: pnpm run build
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Security audit
+        run: pnpm audit --audit-level=high || true
+
+      - name: Lint — ${{ matrix.engin }} scope
+        run: |
+          if [ -f "${{ matrix.engin_file }}" ]; then
+            pnpm exec next lint --file ${{ matrix.engin_file }} || true
+          fi
+
+      - name: Typecheck
+        run: pnpm typecheck || true
+
+      - name: Unit tests
+        run: pnpm exec vitest run --reporter=verbose || true
+
+      - name: Premium feature patrol — ${{ matrix.engin }}
+        run: |
+          PAIR="${{ matrix.pair }}"
+          ENGIN_FILE="${{ matrix.engin_file }}"
+          echo "## Premium feature patrol: $PAIR ($ENGIN_FILE)"
+          case "$PAIR" in
+            music)
+              echo "--- Release operation handlers ---"
+              grep -r "releaseTrack\|publishTrack\|publishRelease\|createRelease\|submitRelease" \
+                "$ENGIN_FILE" app/api/music 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Release handlers not found"
+              echo "--- Publish/distribute handlers ---"
+              grep -r "distribute\|Distribute\|publishTo\|submitToLabel\|distributorAPI" \
+                "$ENGIN_FILE" app/api/music 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Distribute handlers not found"
+              echo "--- BPM / pitch / mix controls ---"
+              grep -rl "bpm\|BPM\|pitch\|Pitch\|mix\|Mix\|gain\|Gain" \
+                "$ENGIN_FILE" components/music 2>/dev/null | grep -v node_modules || echo "⚠ Audio controls not found"
+              echo "--- Stem/track separation ---"
+              grep -r "stem\|Stem\|trackSeparation\|isolate\|stemExtract" \
+                "$ENGIN_FILE" components/music app/api/music 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Stem separation not found"
+              ;;
+            games)
+              echo "--- Score / leaderboard handlers ---"
+              grep -r "score\|Score\|leaderboard\|Leaderboard\|submitScore\|updateScore" \
+                "$ENGIN_FILE" app/api/game-scores 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Score handlers not found"
+              echo "--- World builder / level editor ---"
+              grep -r "WorldBuilder\|LevelEditor\|worldBuilder\|levelEditor\|mapEditor" \
+                "$ENGIN_FILE" components/games 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ World builder not found"
+              echo "--- Achievement system ---"
+              grep -r "achievement\|Achievement\|trophy\|Trophy\|badge\|Badge\|unlockAchievement" \
+                "$ENGIN_FILE" components/games app/api/game-scores 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Achievements not found"
+              echo "--- Physics runtime ---"
+              grep -r "physics\|Physics\|rigidBody\|collider\|Babylon" \
+                "$ENGIN_FILE" components/games 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Physics runtime not found"
+              echo "--- Save / checkpoint ---"
+              grep -r "saveGame\|checkpoint\|Checkpoint\|saveState\|loadSave\|autoSave" \
+                "$ENGIN_FILE" components/games 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Save system not found"
+              ;;
+            lab)
+              echo "--- Experiment runner ---"
+              grep -r "runExperiment\|executeExperiment\|startExperiment\|ExperimentRunner" \
+                "$ENGIN_FILE" app/lab 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Experiment runner not found"
+              echo "--- Simulation status ---"
+              grep -r "simulationStatus\|SimulationStatus\|simRunning\|simComplete" \
+                "$ENGIN_FILE" app/lab 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Simulation status not found"
+              echo "--- Physics cleanup ---"
+              grep -r "dispose\|Dispose\|cleanup\|cleanUp\|teardown\|tearDown" \
+                "$ENGIN_FILE" components/PhysicsLab.tsx 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Physics cleanup not found"
+              echo "--- Quantum circuit execution ---"
+              grep -r "executeCircuit\|runCircuit\|quantumRun\|applyGate\|measureQubit" \
+                "$ENGIN_FILE" components/QuantumCircuitCanvas.tsx 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Quantum execution not found"
+              echo "--- Result export / persistence ---"
+              grep -r "exportResult\|saveResult\|persistResult\|downloadResult" \
+                "$ENGIN_FILE" app/lab 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Result export not found"
+              ;;
+            code)
+              echo "--- Cell execution ---"
+              grep -r "executeCell\|runCell\|cellExecution\|NotebookCell" \
+                "$ENGIN_FILE" app/codespace 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Cell execution not found"
+              echo "--- Live CI integration ---"
+              grep -r "liveCI\|ciIntegration\|runCI\|triggerCI" \
+                "$ENGIN_FILE" 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Live CI integration not found"
+              echo "--- Notebook cell management ---"
+              grep -rl "addCell\|removeCell\|moveCell\|insertCell\|notebook\|Notebook" \
+                "$ENGIN_FILE" app/codespace 2>/dev/null | grep -v node_modules || echo "⚠ Cell management not found"
+              echo "--- Execution cleanup ---"
+              grep -r "abortExecution\|cancelExecution\|killProcess\|execCleanup\|clearOutput" \
+                "$ENGIN_FILE" app/codespace 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Execution cleanup not found"
+              echo "--- Language / syntax support ---"
+              grep -rl "language\|Language\|monaco\|Monaco\|CodeMirror\|highlight\|Highlight" \
+                "$ENGIN_FILE" app/codespace 2>/dev/null | grep -v node_modules || echo "⚠ Language support not found"
+              ;;
+            create)
+              echo "--- Scheduling handlers ---"
+              grep -r "schedule\|Schedule\|publishAt\|scheduledAt\|ContentScheduler" \
+                "$ENGIN_FILE" app/create 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Scheduling not found"
+              echo "--- Draft management ---"
+              grep -r "draft\|Draft\|autosave\|saveDraft\|loadDraft\|autoSave" \
+                "$ENGIN_FILE" app/create app/notes 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Draft management not found"
+              echo "--- Publish queue ---"
+              grep -r "publishQueue\|PublishQueue\|queuePost\|schedulePost" \
+                "$ENGIN_FILE" app/create 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Publish queue not found"
+              echo "--- Cross-platform targets ---"
+              grep -r "platform\|Platform\|publishTarget\|crossPost" \
+                "$ENGIN_FILE" app/create 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Cross-platform targets not found"
+              echo "--- Content types ---"
+              grep -r "contentType\|ContentType\|videoContent\|audioContent\|imageContent" \
+                "$ENGIN_FILE" app/create 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Content types not found"
+              ;;
+            brand)
+              echo "--- Brand analytics queries ---"
+              grep -r "analytics\|Analytics\|brandAnalytics\|queryAnalytics" \
+                "$ENGIN_FILE" app/analytics 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Analytics queries not found"
+              echo "--- Follower / audience queries ---"
+              grep -r "follower\|Follower\|audience\|Audience\|followerCount\|audienceData" \
+                "$ENGIN_FILE" app/analytics 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Follower queries not found"
+              echo "--- Campaign management ---"
+              grep -r "campaign\|Campaign\|createCampaign\|manageCampaign\|launchCampaign" \
+                "$ENGIN_FILE" app/ads 2>/dev/null | grep -v node_modules | head -5 || echo "⚠ Campaign management not found"
+              echo "--- Brand asset management ---"
+              grep -rl "brandAsset\|BrandAsset\|brand-asset\|logoUpload\|assetLibrary" \
+                "$ENGIN_FILE" lib/branding 2>/dev/null | grep -v node_modules || echo "⚠ Brand assets not found"
+              echo "--- DreamAds / platform separation ---"
+              DREAMADS=$(grep -rl "DreamAds\|dreamAds\|dream-ads" "$ENGIN_FILE" app/ads 2>/dev/null | wc -l || echo 0)
+              echo "DreamAds references: $DREAMADS"
+              [ "$DREAMADS" -gt 0 ] && echo "✅ DreamAds naming present" || echo "⚠ DreamAds naming not found"
+              ;;
+          esac
+
+      - name: ESLint auto-fix — ${{ matrix.engin }}
+        run: |
+          if [ -f "${{ matrix.engin_file }}" ]; then
+            pnpm exec next lint --fix --file ${{ matrix.engin_file }} || true
+          fi
+
+      - name: Commit auto-fixes (if any)
+        run: |
+          git config user.name  "engin-${{ matrix.pair }}-bot"
+          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "No fixes to commit."
+          else
+            git add -A
+            git commit -m "fix(engin/${{ matrix.pair }}): ESLint auto-fix — ${{ matrix.engin }} [skip ci] [skip vercel]"
+            git push || true
+          fi
+
+      - name: Job Summary
+        if: always()
+        run: |
+          echo "## ${{ matrix.emoji }} ${{ matrix.engin }} — Health Report" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Engin | ${{ matrix.engin }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Canonical pair | ${{ matrix.pair }} Daydream |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"

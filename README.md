@@ -1901,7 +1901,7 @@ Auto-synced from `backend/**`, `core/**`, `coresurfaces/**`, `system/**`, `app/a
 
 ## Agents & Workflow
 Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scripts/**` using repository introspection.
-- Files tracked: **126**
+- Files tracked: **127**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -1918,6 +1918,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 │   │   ├── assemble_report_context.py
 │   │   ├── catalog_games_for_ai.py
 │   │   ├── check-root-hygiene.sh
+│   │   ├── check_workflow_masking.py
 │   │   ├── dreamengin_core.py
 │   │   ├── humanai_audit.py
 │   │   ├── issue-bot.js
@@ -2026,10 +2027,9 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
     ├── generate-webapp-final-form.mjs
     ├── law-check.sh
     ├── migrate-imports.sh
-    ├── optimize-dreamengin.mjs
-… (6 more files)
+… (7 more files)
 ```
-<details><summary>Agents & Workflow file index (126 files)</summary>
+<details><summary>Agents & Workflow file index (127 files)</summary>
 
 - `.github/scripts/DREAMENGIN_CORE_COMPLETE.md` — documentation file.
 - `.github/scripts/DREAMENGIN_CORE_USAGE.md` — documentation file.
@@ -2040,6 +2040,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 - `.github/scripts/assemble_report_context.py` — project file (py).
 - `.github/scripts/catalog_games_for_ai.py` — project file (py).
 - `.github/scripts/check-root-hygiene.sh` — project file (sh).
+- `.github/scripts/check_workflow_masking.py` — project file (py).
 - `.github/scripts/dreamengin_core.py` — project file (py).
 - `.github/scripts/humanai_audit.py` — project file (py).
 - `.github/scripts/issue-bot.js` — TypeScript/JavaScript runtime module.
@@ -2387,7 +2388,7 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 
 ## Testing
 Auto-synced from `tests/**`, `vitest.config.ts`, `playwright.config.ts` using repository introspection.
-- Files tracked: **206**
+- Files tracked: **207**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -2513,9 +2514,9 @@ Auto-synced from `tests/**`, `vitest.config.ts`, `playwright.config.ts` using re
 │   ├── lab-section-12-spec.test.ts
 │   ├── landing-calibration.test.ts
 │   ├── landing-mission-link.test.ts
-… (86 more files)
+… (87 more files)
 ```
-<details><summary>Testing file index (206 files)</summary>
+<details><summary>Testing file index (207 files)</summary>
 
 - `playwright.config.ts` — TypeScript/JavaScript runtime module.
 - `tests/DUALSENSE_TEST_PLAN.md` — documentation file.
@@ -2693,6 +2694,7 @@ Auto-synced from `tests/**`, `vitest.config.ts`, `playwright.config.ts` using re
 - `tests/seam-clipboard.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/session-continuity.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/session-pattern-engine.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/setup-env.ts` — TypeScript/JavaScript runtime module.
 - `tests/shell-cartridge-wiring.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/skip-credits.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/social-feed.test.ts` — TypeScript/JavaScript runtime module.
@@ -2704,7 +2706,7 @@ Auto-synced from `tests/**`, `vitest.config.ts`, `playwright.config.ts` using re
 - `tests/spec41-engine-builder.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/starmaker-music.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/structure-ledger.test.ts` — TypeScript/JavaScript runtime module.
-- `tests/supabase-env.test.ts` — TypeScript/JavaScript runtime module.
+- `tests/supabase-config.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/swap-manager-extended.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/swipe-calibration.test.ts` — TypeScript/JavaScript runtime module.
 - `tests/tech-foundation.test.ts` — TypeScript/JavaScript runtime module.
@@ -2991,7 +2993,7 @@ Auto-synced from `.env.example`, `.env.local.example`, `app/api/**` using reposi
 
 ## Contributing
 Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using repository introspection.
-- Files tracked: **268**
+- Files tracked: **269**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -3113,13 +3115,13 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 │   │   ├── assemble_report_context.py
 │   │   ├── catalog_games_for_ai.py
 │   │   ├── check-root-hygiene.sh
+│   │   ├── check_workflow_masking.py
 │   │   ├── dreamengin_core.py
 │   │   ├── humanai_audit.py
 │   │   ├── issue-bot.js
-│   │   ├── run-readme-autosync.mjs
-… (148 more files)
+… (149 more files)
 ```
-<details><summary>Contributing file index (268 files)</summary>
+<details><summary>Contributing file index (269 files)</summary>
 
 - `.github/PULL_REQUEST_TEMPLATE.md` — documentation file.
 - `.github/actions/resilient-engine/action.yml` — project file (yml).
@@ -3229,6 +3231,7 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 - `.github/scripts/assemble_report_context.py` — project file (py).
 - `.github/scripts/catalog_games_for_ai.py` — project file (py).
 - `.github/scripts/check-root-hygiene.sh` — project file (sh).
+- `.github/scripts/check_workflow_masking.py` — project file (py).
 - `.github/scripts/dreamengin_core.py` — project file (py).
 - `.github/scripts/humanai_audit.py` — project file (py).
 - `.github/scripts/issue-bot.js` — TypeScript/JavaScript runtime module.
