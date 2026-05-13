@@ -49,6 +49,8 @@ import { useGameInputKeyboardBridge } from '@/lib/games/useGameInputKeyboardBrid
 import { useRemoteChannel } from '@/lib/games/useRemoteChannel';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import { useGameEnginBridge } from '@/lib/runtime/useEnginBridge';
+import { useSharedEnginChannel } from '@/lib/runtime/useSharedEnginChannel';
+import { createInstance } from '@/lib/runtime/instanceManager';
 import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
@@ -341,6 +343,17 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     () => instanceIdProp ?? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)),
   );
   const [coopActive, setCoopActive] = useState(false);
+  const sharedChannel = useSharedEnginChannel({
+    enginName: 'game',
+    instanceId,
+    region: 'engin:game',
+    mode: coopActive ? 'coop' : 'solo',
+  });
+
+  useEffect(() => {
+    createInstance({ enginName: 'game', instanceId, region: 'engin:game', mode: coopActive ? 'coop' : 'solo' });
+  }, [coopActive, instanceId]);
+
   useEnginCoopSync({
     enginName: 'GameEngin',
     instanceId,
@@ -495,6 +508,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
 
   function handleControlProfileSelect(profileId: string) {
     engineDispatch({ type: 'game:control-profile', payload: { profile: profileId } });
+    void sharedChannel.publish({ type: 'game:control-profile', profileId });
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('de:games:control-profile', profileId);
     }
@@ -554,6 +568,14 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   const [lobbyActive, setLobbyActive] = useState(false);
   const [lobbyCode, setLobbyCode] = useState('');
   const [lobbyPlayers, setLobbyPlayers] = useState<string[]>([]);
+
+  useEffect(() => {
+    void sharedChannel.publish({
+      type: 'game:state',
+      selectedPlayableGame,
+      controlProfile,
+    });
+  }, [controlProfile, selectedPlayableGame, sharedChannel.publish]);
 
   // ── Tournament Mode state ────────────────────────────────────────────────────
   const [bracket, setBracket] = useState<Array<{ player1: string; player2: string; winner: string | null }>>([

@@ -74,6 +74,12 @@ interface InstanceManagerState {
     region: RuntimeId,
     mode?: InstanceMode,
   ) => EnginInstance;
+  createInstance: (options: {
+    enginName: EnginName;
+    instanceId: string;
+    region: RuntimeId;
+    mode?: InstanceMode;
+  }) => EnginInstance;
   /**
    * Destroy an instance and release its channel.
    * No-op if the instance doesn't exist.
@@ -135,6 +141,10 @@ export const useInstanceManager = create<InstanceManagerState>((set, get) => ({
     queueMicrotask(() => get().persistLocal());
 
     return instance;
+  },
+
+  createInstance({ enginName, instanceId, region, mode = 'solo' }) {
+    return get().spawn(enginName, instanceId, region, mode);
   },
 
   destroy(key) {
@@ -218,6 +228,15 @@ export const useInstanceManager = create<InstanceManagerState>((set, get) => ({
  */
 export function buildInstanceKey(enginName: EnginName, instanceId: string): string {
   return `${enginName}:${instanceId}`;
+}
+
+export function createInstance(options: {
+  enginName: EnginName;
+  instanceId: string;
+  region: RuntimeId;
+  mode?: InstanceMode;
+}): EnginInstance {
+  return useInstanceManager.getState().createInstance(options);
 }
 
 export async function promoteInstanceToRealtime(key: string): Promise<void> {

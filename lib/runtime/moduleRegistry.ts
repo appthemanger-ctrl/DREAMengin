@@ -86,6 +86,21 @@ export const useModuleRegistry = create<ModuleRegistryState>((set, get) => ({
   },
 }));
 
+export const moduleRegistry = {
+  register(manifest: ModuleManifest) {
+    useModuleRegistry.getState().registerModule(manifest);
+  },
+  unregister(id: string) {
+    useModuleRegistry.getState().unregisterModule(id);
+  },
+  transfer(id: string, targetRuntime: RuntimeId) {
+    return useModuleRegistry.getState().transferModule(id, targetRuntime);
+  },
+  list(): ModuleManifest[] {
+    return Object.values(useModuleRegistry.getState().modules);
+  },
+};
+
 // ── Bridge subscription — receive transfers from remote runtimes ───────────────
 
 /**

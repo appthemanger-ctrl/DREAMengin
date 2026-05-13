@@ -21,6 +21,7 @@ import CommandPalette from '@/components/dream.CommandPalette';
 import GlobalOverlays from '@/components/dream.GlobalOverlays';
 import OSShellActivator from '@/components/dream.OSShellActivator';
 import { OSProvider } from '@/lib/dreamenginOS/OSContext';
+import CartridgeRegistryBootstrap from '@/components/gameengin/dream.CartridgeRegistryBootstrap';
 
 // DreamSystemProvider, DualRuntimeContainer, GlobalDreamBar, PersistentDreamBar
 // remain mounted here because several authenticated surfaces depend on them
@@ -90,6 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <OSProvider>
             <CustomizeModeProvider>
               <DreamSystemProvider>
+                <CartridgeRegistryBootstrap />
                 <DualRuntimeContainer>
                   <main role="main" aria-label="Main content">{children}</main>
                   <Suspense><GlobalDreamBar /></Suspense>
