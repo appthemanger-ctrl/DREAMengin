@@ -1,22 +1,22 @@
 {
-  "generatedAt": "2026-05-13T12:57:21.072Z",
-  "totalFiles": 1904,
-  "totalNodes": 6283,
-  "totalEdges": 5065,
-  "totalFunctionAndClassNodes": 3412,
-  "orphanCount": 3020,
+  "generatedAt": "2026-05-13T13:02:31.308Z",
+  "totalFiles": 1927,
+  "totalNodes": 6339,
+  "totalEdges": 6169,
+  "totalFunctionAndClassNodes": 3437,
+  "orphanCount": 2806,
   "countsByType": {
-    "folder": 584,
-    "doc": 185,
+    "folder": 592,
+    "doc": 186,
     "file": 72,
-    "config": 225,
-    "function": 3265,
+    "config": 227,
+    "function": 3285,
     "python": 13,
-    "class": 147,
+    "class": 152,
     "js": 22,
-    "mjs": 25,
+    "mjs": 27,
     "route": 229,
-    "ts": 734,
+    "ts": 752,
     "tsx": 318,
     "css": 13,
     "jsx": 9,
@@ -27,8 +27,22 @@
   },
   "topConnected": [
     {
+      "id": "file:src/engin/generated/surfaces.ts",
+      "degree": 552,
+      "label": "surfaces.ts",
+      "type": "ts",
+      "path": "src/engin/generated/surfaces.ts"
+    },
+    {
+      "id": "file:src/engin/generated/systems.ts",
+      "degree": 393,
+      "label": "systems.ts",
+      "type": "ts",
+      "path": "src/engin/generated/systems.ts"
+    },
+    {
       "id": "file:lib/supabase/server.ts",
-      "degree": 337,
+      "degree": 338,
       "label": "server.ts",
       "type": "ts",
       "path": "lib/supabase/server.ts"
@@ -42,59 +56,45 @@
     },
     {
       "id": "file:lib/dev-bypass.ts",
-      "degree": 85,
+      "degree": 86,
       "label": "dev-bypass.ts",
       "type": "ts",
       "path": "lib/dev-bypass.ts"
     },
     {
       "id": "file:lib/supabase/client.ts",
-      "degree": 72,
+      "degree": 74,
       "label": "client.ts",
       "type": "ts",
       "path": "lib/supabase/client.ts"
     },
     {
       "id": "file:engins/engin.ContentEngin.tsx",
-      "degree": 67,
+      "degree": 68,
       "label": "engin.ContentEngin.tsx",
       "type": "tsx",
       "path": "engins/engin.ContentEngin.tsx"
     },
     {
+      "id": "file:src/engin/generated/brain.ts",
+      "degree": 68,
+      "label": "brain.ts",
+      "type": "ts",
+      "path": "src/engin/generated/brain.ts"
+    },
+    {
       "id": "file:components/engines/shared/index.ts",
-      "degree": 59,
+      "degree": 60,
       "label": "index.ts",
       "type": "ts",
       "path": "components/engines/shared/index.ts"
     },
     {
       "id": "file:engins/engin.GameEngin.tsx",
-      "degree": 56,
+      "degree": 57,
       "label": "engin.GameEngin.tsx",
       "type": "tsx",
       "path": "engins/engin.GameEngin.tsx"
-    },
-    {
-      "id": "function:lib/supabase/client.ts#createClient",
-      "degree": 56,
-      "label": "createClient",
-      "type": "function",
-      "path": "lib/supabase/client.ts"
-    },
-    {
-      "id": "file:engins/engin.StarMakerEngin.tsx",
-      "degree": 48,
-      "label": "engin.StarMakerEngin.tsx",
-      "type": "tsx",
-      "path": "engins/engin.StarMakerEngin.tsx"
-    },
-    {
-      "id": "file:dreamdmbar/dreamsurface.dreamdmbar.tsx",
-      "degree": 42,
-      "label": "dreamsurface.dreamdmbar.tsx",
-      "type": "tsx",
-      "path": "dreamdmbar/dreamsurface.dreamdmbar.tsx"
     }
   ]
 }
