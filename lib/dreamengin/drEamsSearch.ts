@@ -22,7 +22,7 @@ export type NavSuggestion = {
 };
 
 export const NAV_SUGGESTIONS: NavSuggestion[] = [
-  { label: 'HomeDream',         href: '/homedream',             icon: '🏠' },
+  { label: 'HomeDream',         href: '/dreamdmbar',             icon: '🏠' },
   { label: 'DreamShop',         href: '/shop',                  icon: '🛍️' },
   { label: 'DreamMarketplace',  href: '/marketplace',           icon: '🏪' },
   { label: 'DreamDM',           href: '/messages',              icon: '💬' },
@@ -64,9 +64,9 @@ export type DrEamsRequestBody = {
  * Builds the minimal valid request body for the /api/ai/eams endpoint.
  *
  * @param query  The user's search / question text.
- * @param route  The current UI route (e.g. '/homedream'). Defaults to '/homedream'.
+ * @param route  The current UI route (e.g. '/dreamdmbar'). Defaults to '/dreamdmbar'.
  */
-export function buildDrEamsRequest(query: string, route = '/homedream'): DrEamsRequestBody {
+export function buildDrEamsRequest(query: string, route = '/dreamdmbar'): DrEamsRequestBody {
   return {
     message: query.trim(),
     ui: { route },

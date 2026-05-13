@@ -19,7 +19,7 @@ import {
   getCartridgeManifest,
   getCartridgeCategories,
 } from '@/lib/gameengin/cartridges/manifest';
-import { CARTRIDGE_LOADERS, getCartridgeIds } from '@/lib/gameengin/cartridges/loaders';
+import { CARTRIDGE_LOADERS, getCartridgeIds, loadCartridge } from '@/lib/gameengin/cartridges/loaders';
 import { GAMES } from '@/components/games/dream.GamesHub';
 import { GAME_CATALOG } from '@/lib/games/catalog';
 
@@ -79,6 +79,12 @@ describe('GameEngin cartridge bay', () => {
 
   it('lookup helper returns undefined for unknown ids', () => {
     expect(getCartridgeManifest('definitely-not-a-cartridge')).toBeUndefined();
+  });
+
+  it('throws a useful error when a cartridge id is unknown', async () => {
+    await expect(loadCartridge('definitely-not-a-cartridge')).rejects.toThrow(
+      'Cartridge failed to load: definitely-not-a-cartridge.',
+    );
   });
 
   it('exposes a browsable route at /gameengin/cartridges and /gameengin/cartridges/[id]', () => {

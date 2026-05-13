@@ -17,7 +17,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import type { RuntimeWorld } from '@/lib/runtime/dualRuntime';
-import HomeDreamSurface from '@/dreamdmbar/homedream/dreamsurface.homedream';
+import HomeDreamSurface from '@/app/dreamdmbar/_components/HomeDreamRegion';
 import DreamsSpacePanel from '@/components/dreams/dreamsurface.dreamspace';
 import RuntimeShell from '@/components/runtime/dream.shell.RuntimeShell';
 import EnhancedSpatialShell from '@/components/spatial/dream.shell.EnhancedSpatialShell';
@@ -241,7 +241,7 @@ export default function RuntimeView({
 
   /* ── Engin runtime — open engin route in-region iframe ──────────────────── */
   if (typeof world === 'object' && world.type === 'engin') {
-    const route = ENGIN_ROUTES[world.name] ?? '/homedream';
+    const route = ENGIN_ROUTES[world.name] ?? '/dreamdmbar';
     return (
       <div style={outerStyle}>
         <RuntimeShell

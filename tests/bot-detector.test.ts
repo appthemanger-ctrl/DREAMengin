@@ -5,7 +5,7 @@ import {
   isSwipeBot,
   scoreBotLikelihood,
   scoreSwipePath,
-} from '@/dreamdmbar/homedream/dreamr/algorithms/botDetector';
+} from '@/app/dreamdmbar/_components/dreamr/algorithms/botDetector';
 
 // ─── Fixture helpers ─────────────────────────────────────────────────────────
 

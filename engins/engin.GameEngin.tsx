@@ -924,25 +924,30 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   const savedPlayableSession = selectedPlayable ? savedLaunches.find((session) => session.gameId === selectedPlayable.id) ?? null : null;
 
   const [cartridgeMap, setCartridgeMap] = useState<Record<string, GameCartridge>>({});
+  const [cartridgeErrors, setCartridgeErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let cancelled = false;
     void Promise.all(
       GAMES.map(async (game) => {
         try {
-          return [game.id, await loadCartridge(game.id)] as const;
+          return [game.id, await loadCartridge(game.id), null] as const;
         } catch (error) {
+          const message = error instanceof Error ? error.message : 'Unknown cartridge loader failure.';
           console.warn(`[GameEngin] Failed to load cartridge "${game.id}"`, error);
-          return [game.id, null] as const;
+          return [game.id, null, message] as const;
         }
       }),
     ).then((entries) => {
       if (cancelled) return;
       const nextMap: Record<string, GameCartridge> = {};
-      for (const [id, cartridge] of entries) {
+      const nextErrors: Record<string, string> = {};
+      for (const [id, cartridge, error] of entries) {
         if (cartridge) nextMap[id] = cartridge;
+        if (error) nextErrors[id] = error;
       }
       setCartridgeMap(nextMap);
+      setCartridgeErrors(nextErrors);
     });
 
     return () => {
@@ -955,6 +960,8 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     activePlayable && cartridgeMap[activePlayable.id]
       ? cartridgeMap[activePlayable.id]
       : null;
+  const activeCartridgeError: string | null =
+    activePlayable ? cartridgeErrors[activePlayable.id] ?? null : null;
 
   /** Resolve the expanded (fullscreen) cartridge */
   const expandedCartridge: GameCartridge | null =
@@ -1412,6 +1419,25 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
                       cartridge={activeCartridge}
                       physicsConfig={appliedPhysics}
                     />
+                  </div>
+                ) : activeCartridgeError ? (
+                  <div style={{ minHeight: 320, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 12, padding: '28px 20px' }}>
+                    <div
+                      style={{
+                        borderRadius: 12,
+                        border: '1px solid rgba(248,113,113,0.58)',
+                        background: 'linear-gradient(180deg, rgba(127,29,29,0.55), rgba(69,10,10,0.72))',
+                        color: '#fecaca',
+                        padding: '12px 14px',
+                        fontSize: 13,
+                        fontWeight: 700,
+                      }}
+                    >
+                      Cartridge failed to load: {activePlayable?.id}
+                    </div>
+                    <div style={{ fontSize: 12, lineHeight: 1.6, color: 'rgba(254,202,202,0.9)' }}>
+                      {activeCartridgeError}
+                    </div>
                   </div>
                 ) : (
                   <div style={{ minHeight: 320, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, padding: '32px 24px', textAlign: 'center' }}>

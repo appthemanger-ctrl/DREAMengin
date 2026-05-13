@@ -312,7 +312,7 @@ export interface SlashCommand {
  * Type "/" to trigger the palette.
  */
 export const SLASH_COMMANDS: SlashCommand[] = [
-  { id: 'home',      label: 'Home',           description: 'Go to HomeDream feed',         icon: 'home',      category: 'navigate', href: '/homedream' },
+  { id: 'home',      label: 'Home',           description: 'Go to HomeDream feed',         icon: 'home',      category: 'navigate', href: '/dreamdmbar' },
   { id: 'games',     label: 'Games',          description: 'Open the Games Hub',           icon: 'gamepad-2', category: 'navigate', href: '/daydream/games' },
   { id: 'music',     label: 'Music Studio',   description: 'Open StarMaker music studio',  icon: 'music',     category: 'navigate', href: '/daydream/music' },
   { id: 'code',      label: 'Code Lab',       description: 'Open Code Engin IDE',          icon: 'code-2',    category: 'navigate', href: '/daydream/code' },

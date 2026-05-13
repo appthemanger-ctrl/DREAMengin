@@ -98,7 +98,7 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: text,
-          ui: { route: typeof window !== 'undefined' ? window.location.pathname : '/homedream' },
+          ui: { route: typeof window !== 'undefined' ? window.location.pathname : '/dreamdmbar' },
         }),
       });
 

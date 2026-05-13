@@ -6,12 +6,12 @@ import { DIVIDER_H } from '@/lib/dreamdm/barInteractions';
 
 describe('HomeDream home surface', () => {
   const dashboard = readFileSync(
-    resolve(__dirname, '../dreamdmbar/homedream/dreamsurface.homedream.tsx'),
+    resolve(__dirname, '../app/dreamdmbar/_components/HomeDreamRegion.tsx'),
     'utf8',
   );
   // Canonical HomeSystem.
   const homeSystem = readFileSync(
-    resolve(__dirname, '../dreamdmbar/homedream/dream.shell.HomeSystem.tsx'),
+    resolve(__dirname, '../app/dreamdmbar/_components/DreamBarDataBridge.tsx'),
     'utf8',
   );
   const runtimeShell = readFileSync(

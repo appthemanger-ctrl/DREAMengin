@@ -36,10 +36,17 @@ export const CARTRIDGE_LOADERS: Readonly<Record<string, CartridgeLoader>> = {
   'defuse-ritual':         load('defuse-ritual',         () => import('@/components/games/dream.DefuseRitual')),
 };
 
-export async function loadCartridge(id: string): Promise<GameCartridge | null> {
+export async function loadCartridge(id: string): Promise<GameCartridge> {
   const loader = CARTRIDGE_LOADERS[id];
-  if (!loader) return null;
-  return loader();
+  if (!loader) {
+    throw new Error(`Cartridge failed to load: ${id}. No loader is registered for this cartridge id.`);
+  }
+  try {
+    return await loader();
+  } catch (error) {
+    const details = error instanceof Error ? error.message : String(error);
+    throw new Error(`Cartridge failed to load: ${id}. ${details}`);
+  }
 }
 
 export function getCartridgeIds(): string[] {

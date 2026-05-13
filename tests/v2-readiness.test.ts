@@ -213,7 +213,7 @@ describe('DREAMengin v2.0.0 — build enforcement updated', () => {
 
 describe('DREAMengin v2.0.0 — HomeDreamSurface surface labels', () => {
   const dashboard = readFileSync(
-    resolve(__dirname, '../dreamdmbar/homedream/dreamsurface.homedream.tsx'),
+    resolve(__dirname, '../app/dreamdmbar/_components/HomeDreamRegion.tsx'),
     'utf8',
   );
 

@@ -6,7 +6,7 @@ describe('DreamR direct page route', () => {
   it('renders DreamRSection from app/dreamr/page.tsx', () => {
     const page = readFileSync(resolve(__dirname, '../app/dreamr/page.tsx'), 'utf8');
 
-    expect(page).toContain("import DreamRSection from '@/dreamdmbar/homedream/dreamr/dreamsurface.dreamr'");
+    expect(page).toContain("import DreamRSection from '@/app/dreamdmbar/_components/dreamr/dreamsurface.dreamr'");
     expect(page).toContain('<DreamRSection');
     expect(page).toContain("redirect('/login')");
   });

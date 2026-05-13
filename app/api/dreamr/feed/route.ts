@@ -38,7 +38,7 @@
 
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
-import { rankFeed, type ScoredPost } from '@/dreamdmbar/homedream/dreamr/algorithms/dreamrAlgorithm';
+import { rankFeed, type ScoredPost } from '@/app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import {
   filterByCloseFriends,

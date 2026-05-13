@@ -10,7 +10,7 @@ describe('README HomeDream System spec', () => {
 
   it('documents the canonical HomeDream route and implementation paths', () => {
     expect(homeSystemSection).toContain('app/homedream/page.tsx');
-    expect(homeSystemSection).toContain('dreamdmbar/homedream/dream.shell.HomeSystem.tsx');
+    expect(homeSystemSection).toContain('app/dreamdmbar/_components/DreamBarDataBridge.tsx');
   });
 
   it('defines canonical HomeDream vocabulary used by the system', () => {

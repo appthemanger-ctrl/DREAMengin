@@ -51,8 +51,8 @@ export default function GlobalDreamBar() {
     // See lib/home-buttons/contextual-home.ts and docs/ARCHITECTURE.md §1.
     const fired = runHomeAction(splitRatio, runtimeCallbacks);
     if (!fired) {
-      // No dual runtime mounted (we're outside /homedream) — navigate there.
-      router.push('/homedream');
+      // No dual runtime mounted (we're outside /dreamdmbar) — navigate there.
+      router.push('/dreamdmbar');
     }
   }, [closeBothMenus, closeDrEams, setFocus, runtimeCallbacks, router, splitRatio]);
 
@@ -67,7 +67,7 @@ export default function GlobalDreamBar() {
     if (action === 'dr-eams')       { openDrEams(); return; }
     if (action === 'go-home')       { handleHome(); return; }
 
-    // When HomeSystem's runtimeCallbacks are registered (user is on /homedream),
+    // When HomeSystem's runtimeCallbacks are registered (user is on /dreamdmbar),
     // open the feature inline in Surface Space — no routing, no page reload.
     // When they're not (user is on any other page), fall back to direct navigation.
     const hasSpaCallbacks = Boolean(runtimeCallbacks?.openInSurface);

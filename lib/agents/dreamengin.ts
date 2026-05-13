@@ -59,7 +59,7 @@ export const VOCABULARY: ReadonlyArray<{ canonical: string; forbidden: string[] 
 // ---------------------------------------------------------------------------
 
 export const CORE_SURFACES = {
-  HomeDream:        { route: '/homedream',          privacy: 'private' },
+  HomeDream:        { route: '/dreamdmbar',          privacy: 'private' },
   EditProfileDream: { route: '/edit-profiledream',  privacy: 'private' },
   ViewProfile:      { route: '/view-profile',       privacy: 'public-output' },
   DreamDM:          { route: '/messages',            privacy: 'private' },

@@ -1,13 +1,15 @@
-// SURFACE: dreamsurface.Homedream  (framework-mandated basename: page.tsx)
-import { createServerClient } from '@/lib/supabase/server';
+import { connection } from 'next/server';
 import { redirect } from 'next/navigation';
-import DreamBarDataBridge from '@/dreamdmbar/homedream/dream.shell.HomeSystem';
+import { Suspense } from 'react';
+import { createServerClient } from '@/lib/supabase/server';
+import { safeGetUser } from '@/lib/supabase/safeGetUser';
 import { isOwnerEmail } from '@/lib/ai/triad';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
-import { safeGetUser } from '@/lib/supabase/safeGetUser';
-import { connection } from 'next/server';
+import DreamBarDataBridge from '@/app/dreamdmbar/_components/DreamBarDataBridge';
+import GlobalDreamBar from '@/components/home/dream.bar.GlobalDreamBar';
+import PersistentDreamBar from '@/components/home/dream.bar.PersistentDreamBar';
 
 const DEV_BYPASS_USER_ID = 'dev-bypass-user';
 
@@ -49,23 +51,18 @@ type FeedItemRow = {
   created_at: string | null;
 };
 
-export default async function HomeDream() {
+export default async function DreamDMBarLayout({ children }: { children: React.ReactNode }) {
   await connection();
 
-  // ── Step 1: Auth check ────────────────────────────────────────────────────
-  // Next.js docs: redirect() must be called OUTSIDE try/catch blocks because
-  // it works by throwing a special NEXT_REDIRECT error that must propagate
-  // freely. Calling redirect() inside a try/catch swallows that throw.
   const supabase = await createServerClient();
   const user = await safeGetUser(supabase);
   const devBypass = isDevBypassActive();
   const activeUserId = user?.id ?? (devBypass ? DEV_BYPASS_USER_ID : null);
 
-  // Guard is outside try/catch so the NEXT_REDIRECT throw propagates correctly.
   if (!user && !devBypass) redirect('/login');
+
   const userId = activeUserId ?? DEV_BYPASS_USER_ID;
 
-  // ── Step 2: Data fetching — all failures are non-fatal ───────────────────
   let profile = null;
   let posts: FeedPost[] = [];
   let isAdmin = false;
@@ -127,42 +124,42 @@ export default async function HomeDream() {
         media_url: getPrimaryPostMediaUrl(post),
       }));
 
-      // Attach connector feed items to the posts array under a normalised shape
-      // so HomeDreamSurface / HomeFeed can render them uniformly.
-      // Connector items arrive as `{ source: 'connector', ... }` alongside posts.
       const connectorEntries: FeedPost[] = feedItems.map((item) => {
         const payload = item.payload ?? {};
         const firstMedia = Array.isArray(payload.media) ? payload.media[0] : null;
         return {
-          id:            item.id,
-          source:        'connector' as const,
-          provider:      item.provider,
-          content:       payload.content_text ?? payload.title ?? '',
-          visibility:    'private',
-          media_url:     firstMedia?.url ?? null,
-          permalink:     payload.permalink ?? undefined,
-          created_at:    item.published_at ?? item.created_at ?? new Date(0).toISOString(),
+          id: item.id,
+          source: 'connector' as const,
+          provider: item.provider,
+          content: payload.content_text ?? payload.title ?? '',
+          visibility: 'private',
+          media_url: firstMedia?.url ?? null,
+          permalink: payload.permalink ?? undefined,
+          created_at: item.published_at ?? item.created_at ?? new Date(0).toISOString(),
           profiles: {
-            handle:       payload.author_handle ?? item.provider,
+            handle: payload.author_handle ?? item.provider,
             display_name: payload.author_name ?? item.provider,
-            avatar_url:   payload.author_avatar ?? null,
+            avatar_url: payload.author_avatar ?? null,
           },
         };
       });
 
-      // Merge and sort by created_at descending; posts first if same time
       const allEntries: FeedPost[] = [...platformPosts, ...connectorEntries];
       allEntries.sort((a, b) =>
-        new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime()
+        new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
       );
       posts = allEntries;
     } catch {
-      // Non-fatal: render the home system with whatever data was collected.
-      // The user is authenticated — we must NOT redirect here.
+      // Non-fatal: render shell with available data.
     }
   }
 
   return (
-    <DreamBarDataBridge userId={userId} profile={profile} initialPosts={posts} isAdmin={isAdmin} />
+    <>
+      <DreamBarDataBridge userId={userId} profile={profile} initialPosts={posts} isAdmin={isAdmin} />
+      <Suspense><GlobalDreamBar /></Suspense>
+      <Suspense><PersistentDreamBar /></Suspense>
+      {children}
+    </>
   );
 }

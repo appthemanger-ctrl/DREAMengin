@@ -313,7 +313,7 @@ export default function DrEamsVoiceAssistant() {
 
     // Navigation commands
     if (lower.includes('go to home') || lower.includes('open home') || lower.includes('home page')) {
-      router.push('/homedream');
+      router.push('/dreamdmbar');
       return 'Navigating to your home feed now.';
     }
     if (lower.includes('go to discover') || lower.includes('open discover') || lower.includes('explore')) {

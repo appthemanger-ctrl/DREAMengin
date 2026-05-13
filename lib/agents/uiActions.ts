@@ -48,7 +48,7 @@ const ACTIONS: Action[] = [
     match: (q) => /\b(go to|open|take me to|navigate to|show me)\b/.test(q),
     run: (q, ctx) => {
       const routes: Array<{ k: RegExp; path: string; label: string }> = [
-        { k: /\b(home|dashboard)\b/, path: '/homedream', label: 'HomeDream' },
+        { k: /\b(home|dashboard)\b/, path: '/dreamdmbar', label: 'HomeDream' },
         { k: /\b(discover|search)\b/, path: '/discover', label: 'Discover' },
         { k: /\b(messages|dms|inbox|chat)\b/, path: '/messages', label: 'Messages' },
         { k: /\b(music|tracks|playlists)\b/, path: '/music', label: 'Music' },
@@ -72,7 +72,7 @@ const ACTIONS: Action[] = [
     description: 'Open the Create flow',
     match: (q) => /\b(create|new)\b/.test(q) && /\b(post|content)\b/.test(q),
     run: (_q, ctx) => {
-      ctx.navigate('/homedream?modal=create');
+      ctx.navigate('/dreamdmbar?modal=create');
       return { handled: true, reply: 'Opening Create.' };
     },
   },
