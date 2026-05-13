@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-05-06T05:16:29.396Z",
+  "generated_at": "2026-05-13T08:38:18.567Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 115,
+  "count": 116,
   "surfaces": [
     {
       "type": "page",
@@ -398,6 +398,18 @@
         {
           "name": "DreamRSection",
           "from": "@/dreamdmbar/homedream/dreamr/dreamsurface.dreamr"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/dreamspace",
+      "file": "app/dreamspace/page.tsx",
+      "component": "DreamSpacePage",
+      "imports": [
+        {
+          "name": "DreamSpaceRuntime",
+          "from": "@/components/dreamengin/dreamsurface.dreamspace-runtime"
         }
       ]
     },
