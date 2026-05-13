@@ -1,19 +1,14 @@
 {
-  "generated_at": "2026-05-13T08:38:18.567Z",
+  "generated_at": "2026-05-13T09:08:37.089Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 116,
+  "count": 120,
   "surfaces": [
     {
       "type": "page",
       "path": "/",
       "file": "app/page.tsx",
-      "component": "Root",
-      "imports": [
-        {
-          "name": "LandingHero",
-          "from": "@/components/dream.LandingHero"
-        }
-      ]
+      "component": "Page",
+      "imports": []
     },
     {
       "type": "layout",
@@ -387,6 +382,50 @@
     },
     {
       "type": "page",
+      "path": "/dreamdmbar",
+      "file": "app/dreamdmbar/page.tsx",
+      "component": "DreamDMBarPage",
+      "imports": []
+    },
+    {
+      "type": "layout",
+      "path": "/dreamdmbar",
+      "file": "app/dreamdmbar/layout.tsx",
+      "component": "DreamDMBarLayout"
+    },
+    {
+      "type": "page",
+      "path": "/dreamdmbar/dreamspace",
+      "file": "app/dreamdmbar/dreamspace/page.tsx",
+      "component": "DreamDMBarDreamSpacePage",
+      "imports": [
+        {
+          "name": "useDualRuntime",
+          "from": "@/components/runtime/dream.DualRuntimeContainer"
+        }
+      ]
+    },
+    {
+      "type": "page",
+      "path": "/dreamdmbar/dualruntime",
+      "file": "app/dreamdmbar/dualruntime/page.tsx",
+      "component": "DreamDMBarDualRuntimePage",
+      "imports": []
+    },
+    {
+      "type": "page",
+      "path": "/dreamdmbar/homedream",
+      "file": "app/dreamdmbar/homedream/page.tsx",
+      "component": "DreamDMBarHomeDreamPage",
+      "imports": [
+        {
+          "name": "useDualRuntime",
+          "from": "@/components/runtime/dream.DualRuntimeContainer"
+        }
+      ]
+    },
+    {
+      "type": "page",
       "path": "/dreamr",
       "file": "app/dreamr/page.tsx",
       "component": "DreamRPage",
@@ -394,10 +433,6 @@
         {
           "name": "AuthenticatedPageHeader",
           "from": "@/components/ui/dream.AuthenticatedPageHeader"
-        },
-        {
-          "name": "DreamRSection",
-          "from": "@/dreamdmbar/homedream/dreamr/dreamsurface.dreamr"
         }
       ]
     },
@@ -928,18 +963,6 @@
         {
           "name": "CartridgeLauncher",
           "from": "@/components/gameengin/dream.cartridge.CartridgeLauncher"
-        }
-      ]
-    },
-    {
-      "type": "page",
-      "path": "/homedream",
-      "file": "app/homedream/page.tsx",
-      "component": "HomeDream",
-      "imports": [
-        {
-          "name": "DreamBarDataBridge",
-          "from": "@/dreamdmbar/homedream/dream.shell.HomeSystem"
         }
       ]
     },

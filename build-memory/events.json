@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-13T08:38:18.567Z",
+  "generated_at": "2026-05-13T09:08:37.089Z",
   "generator": "scripts/sync-build-memory.mjs",
   "count": 28,
   "events": [
@@ -174,12 +174,12 @@
       "event": "orientationchange",
       "payload_type": null,
       "files": [
+        "app/dreamdmbar/_components/HomeDreamRegion.tsx",
         "components/dream.HomeFeed.tsx",
         "components/dream.widget.AnchorWidget.tsx",
         "components/home/dream.NeuralSeamCanvas.tsx",
         "components/runtime/dream.shell.RuntimeShell.tsx",
         "dreamdmbar/dreamsurface.dreamdmbar.tsx",
-        "dreamdmbar/homedream/dreamsurface.homedream.tsx",
         "lib/hooks/useResponsive.ts"
       ]
     },
