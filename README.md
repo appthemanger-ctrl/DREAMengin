@@ -5,10 +5,11 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?logo=typescript)](https://www.typescriptlang.org/) [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/) [![pnpm workspace](https://img.shields.io/badge/pnpm-workspace-orange?logo=pnpm)](https://pnpm.io/workspaces) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Live Demo](https://img.shields.io/badge/Live-dreamengin.vercel.app-000?logo=vercel)](https://dreamengin.vercel.app)
 
 ## What is DREAMengin?
-DREAMengin is designed around the **Creative Operating Law** documented in `.cursorrules` and `AGENTS.md`: keep one fixed universal engine for state, I/O, events, and security, and express product differences as swappable rule-sets. The engine is stable infrastructure; features evolve by changing rule-sets, surfaces, and manifests.
+DREAMengin is a spatial creative operating environment built around the **Creative Operating Law**: one fixed engine for universal concerns (state, I/O, events, security), and swappable rule-sets for product behavior. In practice, this means HomeDream, DreamSpace, Dream Windows, Engins, messaging, media, and commerce all share one runtime contract instead of each feature inventing its own stack.
 
-In plain English: DREAMengin behaves like a platform OS where HomeDream, DreamSpace, Dream Windows, Engins, messaging, media, commerce, and collaboration all run through shared runtime primitives instead of disconnected app silos. That gives the project a single behavior model across solo and co-op usage, while still allowing highly modular user-facing composition.
+The repository follows the five architecture rules documented in `.cursorrules` and `AGENTS.md`: (1) one fixed engine, (2) unique behavior in external rule-sets, (3) rule-sets contain constraints/transformations/parameters only, (4) engine applies rule-set to base state to produce outcomes, and (5) behavior changes by swapping rule-sets instead of rewriting the engine.
 
+For readers new to the project: DREAMengin is closer to an OS shell than a single app. Surfaces are mounted into runtime regions, Engins provide domain-specific tools, and collaboration/transport modes can switch from solo to co-op without swapping component trees.
 ## Table of Contents
 - [4. Tech Stack & Monorepo Layout](#tech-stack-monorepo-layout)
 - [5. The Engins](#the-engins)
@@ -40,72 +41,75 @@ In plain English: DREAMengin behaves like a platform OS where HomeDream, DreamSp
 ### Root configuration files
 | File | Purpose |
 |---|---|
-| `package.json` | Structured data/config for package. |
-| `pnpm-workspace.yaml` | Automation/workflow configuration for pnpm workspace. |
-| `next.config.mjs` | JavaScript tooling/runtime script for next config. |
-| `tailwind.config.ts` | TypeScript runtime module for tailwind config. |
-| `tsconfig.json` | Structured data/config for tsconfig. |
-| `tsconfig.games.json` | Structured data/config for tsconfig games. |
-| `tsconfig.gamesengin.json` | Structured data/config for tsconfig gamesengin. |
-| `playwright.config.ts` | TypeScript runtime module for playwright config. |
-| `vitest.config.ts` | TypeScript runtime module for vitest config. |
-| `vercel.json` | Structured data/config for vercel. |
-| `eslint.config.mjs` | JavaScript tooling/runtime script for eslint config. |
-| `.gitleaks.toml` | Tooling configuration for gitleaks. |
-| `postcss.config.js` | JavaScript tooling/runtime script for postcss config. |
-| `postcss.config.mjs` | JavaScript tooling/runtime script for postcss config. |
-| `.env.example` | Project file used by this subsystem (example). |
-| `.env.local.example` | Project file used by this subsystem (example). |
-| `next-env.d.ts` | TypeScript runtime module for next env d. |
-| `tailwindcss-animate.d.ts` | TypeScript runtime module for tailwindcss animate d. |
+| `package.json` | Workspace manifest for the Next.js 16 app, scripts (`preflight`, `build:games*`, `asbuild:*`), and dependency graph for runtime + tooling. |
+| `pnpm-workspace.yaml` | pnpm workspace/build policy file; allows only `esbuild` postinstall builds and marks `sharp`/`unrs-resolver` as ignored built dependencies. |
+| `next.config.mjs` | Next.js runtime config: PPR via `cacheComponents`, CSP/COOP/COEP headers, image remote patterns (Supabase/YouTube/Spotify), route redirects, and output file tracing exclusions for agent/session APIs. |
+| `tailwind.config.ts` | Tailwind token layer for DREAMengin visual language (Dream sky/gold palettes, neumorphic shadows, motion keyframes, shell gradients). |
+| `tsconfig.json` | Primary TypeScript config for App Router code (`@/*` alias, WebGPU types, strict/noEmit, Next plugin, and excludes for tests/assembly). |
+| `tsconfig.games.json` | Isolated TS project for games/daydream game routes plus `lib/games` and game-score APIs. |
+| `tsconfig.gamesengin.json` | Narrower TS project for the games subsystem core paths used by GameEngin runtime validation. |
+| `playwright.config.ts` | E2E runner config (`tests/e2e`) with Chromium + iPhone WebKit projects and local web server boot on port 3000. |
+| `vitest.config.ts` | Unit/integration test config (Node environment, `**/*.test.ts` include set, path alias for `@`, Playwright exclusion). |
+| `vercel.json` | Vercel deployment config: pnpm install/build commands, cron routes (`/api/health`, `/api/connectors/cron`), and function duration limits for AI/connectors/upload endpoints. |
+| `eslint.config.mjs` | Flat ESLint 9 config for Next 16 with repo-specific ignores, warning-level policy, and DreamDM tap-discipline restrictions. |
+| `.gitleaks.toml` | Secret-scanning rules extending default detectors with repo-specific allowlists (`docs/`, `public/`, lockfile UUID noise). |
+| `postcss.config.js` | PostCSS loader entry used by CSS build chain compatibility paths. |
+| `postcss.config.mjs` | ESM variant of PostCSS config used by modern toolchains in the workspace. |
+| `.env.example` | Canonical environment contract documenting Supabase/auth/AI/admin/connector/observability variables and production safety notes. |
+| `.env.local.example` | Local-first environment starter (dev auth bypass, local Supabase placeholders, YouTube key example). |
+| `next-env.d.ts` | Next.js-generated TypeScript environment declarations for the App Router build. |
+| `tailwindcss-animate.d.ts` | Type definitions for `tailwindcss-animate` plugin usage in typed UI code. |
 
 ### Top-level directories
 | Directory | Purpose |
 |---|---|
-| `.ci/` | CI snapshots and automation state artifacts. |
-| `.github/` | GitHub workflows, templates, issue triage, and automation scripts. |
-| `.husky/` | Local git hook entrypoints. |
-| `agents/` | HumanAI and other agent personas/orchestration prompts. |
-| `app/` | Next.js App Router pages, layouts, and API routes. |
-| `assembly/` | AssemblyScript sources compiled to WebAssembly workers/cartridges. |
-| `backend/` | Secondary Express-based backend utilities/services. |
-| `build-memory/` | Generated machine-readable route/action/UI memory snapshots. |
-| `components/` | React UI components grouped by product subsystems. |
-| `config/` | YAML configuration inputs for optimizer/UI-UX tooling. |
-| `core/` | Fixed core engine entry modules. |
-| `coresurfaces/` | Canonical profile/edit core surfaces. |
-| `daydreams/` | Standalone daydream route surfaces outside App Router. |
-| `docs/` | Architecture law, product docs, and operational references. |
-| `dr-eams/` | Dr.Eams AI subsystem prompts and docs. |
-| `dreamdmbar/` | Persistent DreamDM bar and HomeDream runtime shell implementation. |
-| `engins/` | Pluggable Engin implementations (rule-set driven feature engines). |
-| `experiments/` | Experimental prototypes isolated from production paths. |
-| `frontend/` | Legacy Vite frontend (kept for compatibility/migration support). |
-| `grafana/` | Grafana provisioning/config artifacts. |
-| `hooks/` | Shared React hooks used across surfaces. |
-| `lib/` | Core runtime logic, state orchestration, adapters, and domain modules. |
-| `misc/` | Miscellaneous support assets and scripts. |
-| `output/` | Generated automation output artifacts. |
-| `prometheus/` | Prometheus server configuration. |
-| `public/` | Static assets, wasm workers, cartridges, icons, and manifest files. |
-| `research/` | Research datasets/equations/papers that inform implementation. |
-| `research-and-development/` | R&D staging docs and scripts separate from production. |
-| `scripts/` | Project scripts for analysis, enforcement, and automation. |
-| `src/` | Lower-level dream/engin rulesets and bridge primitives. |
-| `styles/` | Global and subsystem CSS layers. |
-| `supabase/` | Supabase config, schema, and SQL migrations. |
-| `system/` | System-level fixed runtime glue modules. |
-| `terraform/` | Infrastructure-as-code root module. |
-| `tests/` | Vitest test suites and supporting test docs. |
-| `types/` | Shared TypeScript types/contracts. |
-| `utils/` | Utility scripts/helpers not owned by another subsystem. |
-| `workflow/` | Workflow definitions for internal engine pipelines. |
-
+| `.ci/` | Generated CI snapshot artifacts used by internal automation/state diff reporting. |
+| `.github/` | Workflow automation, issue triage packs, custom agent definitions, and reusable setup actions. |
+| `.husky/` | Git hook entrypoints (`pre-commit` lint-staged, `pre-push` preflight). |
+| `agents/` | HumanAI persona packs + orchestrator prompts used by runtime/product audit workflows. |
+| `app/` | Next.js App Router entrypoint: pages, layouts, and API routes for core product surfaces. |
+| `assembly/` | AssemblyScript/WASM sources for engine bus and cartridge worker builds. |
+| `backend/` | Secondary Express service stack (social aggregator routes/controllers/services). |
+| `build-memory/` | Machine-readable route/action memory snapshots used by automation and audit tooling. |
+| `components/` | UI layer: runtime shells, panels, Dream widgets, bars, and engine-facing React modules. |
+| `config/` | Optimizer/UI-UX config assets consumed by scripts and automation pipelines. |
+| `core/` | Reserved fixed-engine anchor directory for immutable core substrate boundaries. |
+| `coresurfaces/` | Canonical profile/edit surface components shared across runtime contexts. |
+| `daydreams/` | Standalone daydream routes that expose per-domain surfaces outside normal App Router nesting. |
+| `docs/` | Architecture law, protocol specs, security axioms, and system reference documentation. |
+| `dr-eams/` | Dr.Eams capability manifests/prompts that map assistant actions to real app routes. |
+| `dreamdmbar/` | Persistent DreamDM seam, HomeDream shell surface, and DreamR feed runtime implementation. |
+| `engins/` | Concrete Engin implementations (Game, StarMaker, Lab, Code, Branding, Content, Analytics, Forge, Portfolio). |
+| `experiments/` | Isolated prototypes and temporary feature experiments kept outside production paths. |
+| `frontend/` | Legacy Vite frontend retained for migration compatibility. |
+| `grafana/` | Grafana provisioning dashboards/data-source configuration for ops monitoring. |
+| `hooks/` | Shared React hooks (runtime, collaboration, feed, UI behavior). |
+| `lib/` | Runtime engine logic, domain modules, adapters, channel systems, and persistence utilities. |
+| `misc/` | Non-core support files/scripts not owned by another subsystem. |
+| `output/` | Generated output artifacts from automation/reporting pipelines. |
+| `prometheus/` | Prometheus scrape/alert configuration. |
+| `public/` | Public static assets: icons, manifests, wasm workers, cartridges, media placeholders. |
+| `research/` | Formal research corpus (Torridity/Ledger equations, data, papers) supporting product algorithms. |
+| `research-and-development/` | Long-form R&D drafts and specs separated from shipping architecture docs. |
+| `scripts/` | Repository automation scripts (preflight, hygiene checks, code export, analyzers). |
+| `src/` | Lower-level rulesets and foundational runtime primitives used by higher-level surfaces. |
+| `styles/` | Global style layers (`globals`, `dream-shell`, `home-dream`, transitions). |
+| `supabase/` | Database migrations, schema snapshots, and seed assets for Supabase-backed systems. |
+| `system/` | System-level glue/archive runtime workflow assets used as infra substrate references. |
+| `terraform/` | Infrastructure-as-code root module for deployable cloud resources. |
+| `tests/` | Vitest and E2E test suites covering runtime laws, features, and regression behavior. |
+| `types/` | Shared type contracts for runtime modules, widgets, ads, marketplaces, and manifests. |
+| `utils/` | Generic helper scripts/utilities not specific to a single subsystem. |
+| `workflow/` | Archived workflow environment definitions (Docker/config) used by internal pipeline orchestration. |
 ## The Engins
-An **Engin** in this repository is a pluggable capability layer mounted into the fixed runtime shell. The fixed engine provides lifecycle/state/event plumbing, while each Engin contributes domain-specific constraints, transformations, and UI rules. The active set in `engins/` includes Game, StarMaker (music), Lab, Code, Branding, Content, Analytics, Forge, and Portfolio implementations.
+An **Engin** is a domain module that runs inside the fixed DREAMengin runtime contract. Lifecycle, transport, and security stay in the shared engine; each Engin contributes domain-specific tools and rule-set behavior (music, games, code, branding, etc.).
 
-At runtime, Engins are routed through DreamSpace/HomeDream and can be promoted from solo channels to shared channels using runtime adapters (`lib/runtime/runtimeChannel.ts`, `lib/runtime/useSharedEnginChannel.ts`). This keeps component trees stable while transport mode changes.
-
+Runtime contract highlights:
+- **Lifecycle:** Engins are mounted as runtime worlds (`{ type: 'engin', name }`) through `components/runtime/dream.RuntimeView.tsx` and managed by `DualRuntimeContainer` + `DreamSystemContext`.
+- **Instance identity:** `lib/runtime/instanceManager.ts` keys each instance as `${enginName}:${instanceId}` so the same Engin can run in both Surface Space and DreamSpace concurrently.
+- **Channel binding:** `lib/runtime/runtimeChannel.ts` exposes local and realtime adapters; `useSharedEnginChannel.ts` binds them into a single hook contract for Engin UIs.
+- **Solo → co-op promotion:** instances start with LocalChannel and can be promoted to realtime via `promoteInstanceToRealtime` without changing component trees.
+- **Rule-set injection:** Engin-specific state snapshots/events pass through bridge + context layers, while the fixed engine enforces mount/dispatch shape and transport invariants.
 #### Engins subsystem file structure
 ```text
 └── engins
@@ -155,9 +159,11 @@ At runtime, Engins are routed through DreamSpace/HomeDream and can be promoted f
 </details>
 
 ### BrandingEngin
-**What it is:** `BrandingEngin` is one of the concrete Engin implementations currently tracked on `completedream`.
+**What it is:** BrandingEngin is the brand-operations side-B surface for the Brand daydream (`engins/engin.BrandingEngin.tsx`).
 
-**How it works:** It plugs into the shared Dream runtime through canonical route/surface dispatch and uses the fixed engine context for state/events while exposing `BrandingEngin`-specific UI logic.
+**What it does:** It manages audience segments, campaign/A-B test workflows, brand analytics cards, asset library management, and bridges brand outputs into ContentEngin via runtime events.
+
+**How it works:** The component upgrades into the OS shell (`upgradeEngine`), reads profile/follower data from Supabase (`profiles`, `follows`), emits bridge events like `brand:campaign-launched`, and syncs optional co-op state through `useEnginCoopSync` + shared-dream channels.
 #### BrandingEngin file structure
 ```text
 └── engins
@@ -170,9 +176,11 @@ At runtime, Engins are routed through DreamSpace/HomeDream and can be promoted f
 </details>
 
 ### CodeEngin
-**What it is:** `CodeEngin` is one of the concrete Engin implementations currently tracked on `completedream`.
+**What it is:** CodeEngin is the in-product IDE/automation Engin made of a main surface (`engins/engin.CodeEngin.tsx`) plus modular copilots under `engins/CodeEngin/`.
 
-**How it works:** It plugs into the shared Dream runtime through canonical route/surface dispatch and uses the fixed engine context for state/events while exposing `CodeEngin`-specific UI logic.
+**What it does:** It provides notebook-like code execution (Python/JS/TS), CI/security dashboards, diff/AI edit tooling, crash capture, and agent-assisted coding sessions.
+
+**How it works:** `CodeEngin/modules/ai-co-pilot/*` drives session orchestration through `/api/agent/session`; the orchestrator composes modules into an `ArtifactSlot`; parser/core files define pure utilities; and the Engin publishes cross-engine events through `dualRuntimeBridge` while remaining mounted via runtime world dispatch.
 #### CodeEngin file structure
 ```text
 └── engins
@@ -200,9 +208,11 @@ At runtime, Engins are routed through DreamSpace/HomeDream and can be promoted f
 </details>
 
 ### ContentEngin
-**What it is:** `ContentEngin` is one of the concrete Engin implementations currently tracked on `completedream`.
+**What it is:** ContentEngin is the creator production-control side-B for the Create daydream (`engins/engin.ContentEngin.tsx`).
 
-**How it works:** It plugs into the shared Dream runtime through canonical route/surface dispatch and uses the fixed engine context for state/events while exposing `ContentEngin`-specific UI logic.
+**What it does:** It owns draft/calendar/publishing queues, transcript tooling, SEO scoring, AI-assisted generation, and cross-platform posting preparation.
+
+**How it works:** The Engin persists real drafts/posts through `/api/drafts` and `/api/posts`, uses bridge hooks (`useContentEnginBridge`) for inter-Engin inputs (stems/clips/notebooks), and maintains per-instance collaboration parity via `useEnginCoopSync` without diverging solo/co-op UI trees.
 #### ContentEngin file structure
 ```text
 └── engins
@@ -215,9 +225,11 @@ At runtime, Engins are routed through DreamSpace/HomeDream and can be promoted f
 </details>
 
 ### GameEngin
-**What it is:** `GameEngin` is one of the concrete Engin implementations currently tracked on `completedream`.
+**What it is:** GameEngin is the game operations/control surface for the Games daydream (`engins/engin.GameEngin.tsx`) with auto-open helpers in `engins/autoopen/`.
 
-**How it works:** It plugs into the shared Dream runtime through canonical route/surface dispatch and uses the fixed engine context for state/events while exposing `GameEngin`-specific UI logic.
+**What it does:** It runs game session controls, score publishing, achievement logic, world-builder state, script editing, controller integration, and cross-Engin sync status.
+
+**How it works:** Scores and user-owned game data flow through Supabase-backed routes/tables, game runtime state is wrapped in `ArtifactSlot`, and route-level entry (`?openEngin=1`) is triggered by `dream.AutoOpenGameEngin.tsx` to keep launch behavior consistent across runtime regions.
 #### GameEngin file structure
 ```text
 └── engins
@@ -233,9 +245,11 @@ At runtime, Engins are routed through DreamSpace/HomeDream and can be promoted f
 </details>
 
 ### LabEngin
-**What it is:** `LabEngin` is one of the concrete Engin implementations currently tracked on `completedream`.
+**What it is:** LabEngin is the experiment/simulation control Engin for the Lab daydream (`engins/engin.LabEngin.tsx`) and shared quantum canvas.
 
-**How it works:** It plugs into the shared Dream runtime through canonical route/surface dispatch and uses the fixed engine context for state/events while exposing `LabEngin`-specific UI logic.
+**What it does:** It exposes experiment lists, simulation runners, data visualization/export flows, and quantum circuit interactions that can be consumed by other Engins.
+
+**How it works:** `engins/dream.QuantumCircuitCanvas.tsx` performs actual gate/state-vector simulation; `engin.LabEngin.tsx` reads experiment rows from `physics_experiments`, emits dataset/simulation bridge events, and uses co-op sync hooks for mirrored lab state when collaboration is enabled.
 #### LabEngin file structure
 ```text
 └── engins
@@ -250,9 +264,11 @@ At runtime, Engins are routed through DreamSpace/HomeDream and can be promoted f
 </details>
 
 ### StarMakerEngin
-**What it is:** `StarMakerEngin` is one of the concrete Engin implementations currently tracked on `completedream`.
+**What it is:** StarMakerEngin is the music production side-B for the Music daydream (`engins/engin.StarMakerEngin.tsx`).
 
-**How it works:** It plugs into the shared Dream runtime through canonical route/surface dispatch and uses the fixed engine context for state/events while exposing `StarMakerEngin`-specific UI logic.
+**What it does:** It handles sequencer/mixer/effects controls, arrangement and DAW-style panels, stem prep/export, release management, and music-driven cross-Engin signals.
+
+**How it works:** The Engin stores/retrieves owner-scoped release data in Supabase, emits `music:*` bridge events (for example `music:stem-ready`), integrates shared sessions through `useSharedDream`, and keeps runtime continuity through persisted daydream state helpers.
 #### StarMakerEngin file structure
 ```text
 └── engins
@@ -265,9 +281,11 @@ At runtime, Engins are routed through DreamSpace/HomeDream and can be promoted f
 </details>
 
 ### AnalyticsEngin
-**What it is:** `AnalyticsEngin` is one of the concrete Engin implementations currently tracked on `completedream`.
+**What it is:** AnalyticsEngin is the metrics/control side-B for analytics and monetization observability (`engins/dream.panel.AnalyticsEngin.tsx`).
 
-**How it works:** It plugs into the shared Dream runtime through canonical route/surface dispatch and uses the fixed engine context for state/events while exposing `AnalyticsEngin`-specific UI logic.
+**What it does:** It surfaces activity metrics, skip-credit balances, verified-view tiers, revenue split visibility, and admin-only platform health checks.
+
+**How it works:** User-scoped metrics are fetched from authenticated API endpoints (`/api/metrics/platform`, `/api/skip-credits/balance`), while UI status and runtime parity stay consistent with other Engins via shared coop/persistence hooks.
 #### AnalyticsEngin file structure
 ```text
 └── engins
@@ -280,9 +298,11 @@ At runtime, Engins are routed through DreamSpace/HomeDream and can be promoted f
 </details>
 
 ### ForgeEngin
-**What it is:** `ForgeEngin` is one of the concrete Engin implementations currently tracked on `completedream`.
+**What it is:** ForgeEngin is the meta-orchestration Engin that monitors and coordinates the rest of the creative Engins (`engins/dream.ForgeEngin.tsx`).
 
-**How it works:** It plugs into the shared Dream runtime through canonical route/surface dispatch and uses the fixed engine context for state/events while exposing `ForgeEngin`-specific UI logic.
+**What it does:** It tracks activity pulses, workflow runs, transfer history, momentum/nexus signals, and suggests multi-Engin execution chains.
+
+**How it works:** Forge subscribes to channel events across `music/games/lab/code/brand/create`, stores workflow intelligence via `lib/forge/*`, and emits step-complete events back into target channels to drive coordinated runtime behavior.
 #### ForgeEngin file structure
 ```text
 └── engins
@@ -295,9 +315,11 @@ At runtime, Engins are routed through DreamSpace/HomeDream and can be promoted f
 </details>
 
 ### PortfolioEngin
-**What it is:** `PortfolioEngin` is one of the concrete Engin implementations currently tracked on `completedream`.
+**What it is:** PortfolioEngin (Optimizero side-B) is the finance/optimization Engin under `engins/portfolio/dream.PortfolioEngin.tsx`.
 
-**How it works:** It plugs into the shared Dream runtime through canonical route/surface dispatch and uses the fixed engine context for state/events while exposing `PortfolioEngin`-specific UI logic.
+**What it does:** It configures VQE/QAOA optimization runs, backend/ansatz selections, and presents optimization/quantum result summaries for portfolio decisions.
+
+**How it works:** Runs are dispatched through `/api/ai/idari`, the shared `QuantumCircuitCanvas` renders measurement signals, and completion events are broadcast on the portfolio channel so other runtime surfaces can react.
 #### PortfolioEngin file structure
 ```text
 └── engins
@@ -311,7 +333,14 @@ At runtime, Engins are routed through DreamSpace/HomeDream and can be promoted f
 </details>
 
 ### Custom Engins capability (current state)
-No `engins/custom/` directory exists on this branch. Custom Engin behavior is currently implemented through runtime module manifests, registry/state managers, and channel adapters in `lib/runtime/*`, `lib/universal-editor/*`, and `types/module-manifest.ts`.
+No `engins/custom/` folder is required for extension today; custom Engin capability is implemented by manifest + registry + channel infrastructure.
+
+Current capability stack:
+- **`moduleRegistry` (`lib/runtime/moduleRegistry.ts`)** stores transferable module manifests, slices them per runtime, and propagates `module:transfer` events through the bridge.
+- **`instanceManager` (`lib/runtime/instanceManager.ts`)** creates keyed Engin instances, manages solo/coop modes, and persists instance mirrors (`engin_instances` fallback/local).
+- **`useSharedEnginChannel`** binds runtime channels into React Engin trees and performs live promotion from local to realtime transport.
+- **`module-manifest` contracts (`types/module-manifest.ts`, `lib/universal-editor/module-manifest.ts`)** define validation rules (`id`, `type`, compatible runtimes, serializable content/UI constraints).
+- **`universalEditor` (`lib/universalEditor.ts`)** provides transfer semantics and local event bus primitives so third-party modules can be registered, validated, and moved across runtimes without bypassing the fixed engine contract.
 #### Custom Engin capability files file structure
 ```text
 ├── COOP_AND_SOLO_ROADMAP.md
@@ -338,9 +367,13 @@ No `engins/custom/` directory exists on this branch. Custom Engin behavior is cu
 
 </details>
 ## Dual Runtimes
-DREAMengin runs a dual-runtime model: a top **Surface Space/HomeDream** region and a bottom **DreamSpace** region, coordinated by the persistent DreamDM bar and context state. `lib/runtime/dualRuntime.ts` defines canonical runtime world states and torus navigation, while `DreamSystemContext` and runtime components keep both regions synchronized.
+DREAMengin runs two persistent runtime regions separated by the DreamDM seam: **Surface Space** (top) and **DreamSpace** (bottom). `lib/runtime/dualRuntime.ts` defines canonical world state, dominance, and torus navigation so either region can host any world (`HomeDream Surface`, `DreamSpace`, dream, engin, panel, custom).
 
-The fixed engine applies the same rule-set contract to both runtime regions; only world selection and dominance change. Solo/co-op parity is handled by runtime channels so UI trees remain unified.
+`components/runtime/dream.DualRuntimeContainer.tsx` is the state controller used by layout-level shells, while `lib/runtime/dualRuntimeBridge.ts` provides cross-region event transport, durable queueing, and shared message plumbing. `lib/runtime/useDualRuntimePersistence.ts` persists region/world state through OPFS with localStorage fallback so split/runtime choices survive reloads.
+
+The persistent seam is rendered by `components/home/dream.bar.PersistentDreamBar.tsx` + `dreamdmbar/dreamsurface.dreamdmbar.tsx`, which continuously publishes split-ratio context and keeps both regions mounted.
+
+For compute-heavy parity, the VM pair under `lib/vm/` (`dualVMCoordinator.ts`, `wasmGpuVM.ts`, `inter-vm-messaging.ts`, `resource-quota.ts`, `security.ts`, `snapshot.ts`) enforces quotas, bounds, and snapshot controls while preserving the same rule-set contract in both regions. Solo/co-op parity is maintained through shared runtime channels rather than separate UI implementations.
 #### Dual runtime pipeline file structure
 ```text
 ├── COOP_AND_SOLO_ROADMAP.md
@@ -528,9 +561,15 @@ The fixed engine applies the same rule-set contract to both runtime regions; onl
 
 </details>
 ## Shared Dreams
-Shared Dreams are realtime collaboration sessions where multiple participants co-edit/view synchronized runtime state. The implementation wraps canonical collaboration primitives (`lib/collaboration`) behind `lib/sharedDream.ts` and client hooks (`hooks/useSharedDream.ts`).
+Shared Dreams are realtime collaboration sessions where multiple peers co-edit or co-view the same runtime context. The canonical session model lives in `lib/collaboration/index.ts` (roles, modes, event families, permissions), and `lib/sharedDream.ts` provides the backwards-compatible façade consumed by hooks/components.
 
-State sync is transport-backed by Supabase Realtime and local fallback channels. The fixed engine normalizes broadcast payloads (cursor, edit, patch, media sync, presence), while rule-sets decide how individual Dream/Engin surfaces consume them.
+Runtime flow:
+- `hooks/useSharedDream.ts` and `components/shared-dream/dream.SharedDreamProvider.tsx` create/join sessions and keep peer/cursor/presence state in sync.
+- `lib/supabase/realtime.ts` provides typed transport adapters for broadcast + presence channels, with graceful local fallback paths.
+- Payload normalization (cursor, edit, state_patch, media_sync, data_packet, control_signal, mode_change, presence_update) is centralized before dispatch.
+- `dream.InviteFlow.tsx` generates invite links and auto-join handoff via URL channel parsing.
+
+Shared session persistence/API surface is exposed through `app/api/dream-windows/*`, `app/api/dreams/instances`, and messaging board routes; Phase 8 migrations (`20260321200000_phase8a_feed_and_layout.sql`, `20260322000000_phase8b_dream_windows.sql`, plus messaging migration `20260307000001_conversations_messages.sql`) provide the backing schema and policy boundaries.
 #### Shared-dream pipeline file structure
 ```text
 ├── app
@@ -602,9 +641,16 @@ State sync is transport-backed by Supabase Realtime and local fallback channels.
 
 </details>
 ## Dreamr — Human Media
-Dreamr is the human-media layer (feed, creator posts, social discovery, and dr-eams tooling). It spans App Router surfaces, API routes, and feed components with Supabase-backed content persistence.
+Dreamr is the human-media subsystem spanning ranking, posting, visibility, interaction tracking, and creator discovery. It combines feed algorithms (`dreamrAlgorithm`, torridity ledger scoring, social humanity scoring) with App Router APIs that enforce authenticated writes and policy checks.
 
-The engine handles identity/session/state contracts; Dreamr rule-sets define feed ranking, post rendering, and media interaction behavior. This includes route handlers for feed retrieval, posting, embeds, likes, comments, and draft persistence.
+What it does in this codebase:
+- **Feed ranking:** `app/api/dreamr/feed/route.ts` ranks posts with DreamR signals, diversity constraints, and visibility filtering (`close_friends` handling in `lib/dreamr/closeFriendsVisibility.ts`).
+- **Post lifecycle:** create/read/update flows run through `app/api/posts/*`, `app/api/drafts/*`, `app/api/feed/*`, `app/api/comments/*`, `app/api/likes/*`, and `app/api/views/track/*`.
+- **Humanity + swipe calibration:** `lib/dreamr/socialHumanityScore.ts`, `swipeCalibration.ts`, `swipePersonalization.ts`, and `torridityLedger.ts` tune authenticity and personalization.
+- **Visibility + embeds:** close-friends filtering, embed feed fallback (`/api/embed-feed`), and creator/channel swipe depth paths are part of the runtime feed contract.
+- **Dr.Eams capabilities:** `dr-eams/capabilities.yaml` maps Dreamr/navigation actions to executable surfaces.
+
+Together these pieces implement the “human media” contract: verified interactions, personalization by intent, and policy-gated publishing without splitting away from the fixed engine lifecycle.
 #### Dreamr/human-media files file structure
 ```text
 ├── app
@@ -738,9 +784,13 @@ The engine handles identity/session/state contracts; Dreamr rule-sets define fee
 
 </details>
 ## The Shop
-The Shop is the first-party merch storefront surface (`/shop`) for user-owned listings. It exposes authenticated CRUD via `app/api/shop/route.ts` and validation helpers in `lib/shop/listings.ts`.
+The Shop is DREAMengin’s first-party storefront (`/shop`, `/shop/sell`) for creator-owned merch listings. Unlike Marketplace, Shop behaves as a direct seller storefront tied to the owner’s catalog.
 
-Runtime flow: user creates/updates listings, records persist to Supabase (`merch` table), and feed items are emitted for storefront visibility. Payment processor-specific checkout wiring (e.g., Stripe) is **not present** in the tracked files for this branch.
+Runtime flow:
+- Listing CRUD and validation run through `app/api/shop/route.ts` + `lib/shop/listings.ts`.
+- Records persist to the Supabase `merch` table introduced in `20260324000001_phase8e_shop_marketplace.sql`.
+- Create/update actions emit feed-side visibility artifacts so products can appear in user-facing discovery surfaces.
+- Billing logic in-repo is server-side order math/recording; external checkout provider wiring is intentionally not embedded in this subsystem.
 #### Shop files file structure
 ```text
 ├── app
@@ -771,9 +821,13 @@ Runtime flow: user creates/updates listings, records persist to Supabase (`merch
 
 </details>
 ## The Marketplace
-Marketplace is a distinct peer-to-peer listing layer (`/marketplace`) separated from the Shop. It uses a dedicated `marketplace_items` model, moderation/publish gating, and request flow endpoints.
+Marketplace is the peer-to-peer exchange surface (`/marketplace`, `/marketplace/sell`, `/marketplace/[id]`) and is intentionally separate from Shop. It focuses on cross-user discovery, request workflows, and moderated publish state.
 
-Unlike Shop (seller storefront), Marketplace emphasizes cross-user listing discovery and request workflows with category/tags filtering and seller profile joins at the API layer.
+How it works:
+- Listings and query filters are handled by `app/api/marketplace/route.ts` + `lib/marketplace/listings.ts` with category/tag filtering and seller-profile joins.
+- Buyer → seller outreach runs through `app/api/marketplace/request/route.ts` + `lib/marketplace/request.ts` (request/contact workflow).
+- `marketplace_items` and `marketplace_contact_requests` schema/policies are defined in `20260324000001_phase8e_shop_marketplace.sql` with moderation/publish gating semantics.
+- UI surfaces (`dream.MarketplaceListingCard`, `dream.MarketplaceRequestButton`) consume the same fixed runtime/state contract as other modules.
 #### Marketplace files file structure
 ```text
 ├── app
@@ -824,9 +878,14 @@ Unlike Shop (seller storefront), Marketplace emphasizes cross-user listing disco
 
 </details>
 ## Ads & User Ads
-Ads are implemented through ad surfaces (`/ads`), ad slot rendering, ad view tracking, and order creation endpoints. The code enforces a platform/creator revenue split server-side in `app/api/ads/orders/route.ts`.
+Ads & User Ads cover campaign creation, slot delivery, order accounting, and skip-credit economics across `/ads`, `/ads/create`, and `/ads/slot/[id]`.
 
-User ads are represented as authenticated listing/order interactions plus skip-credit balances and ad-unit rendering components. Billing logic present in-repo is custom server-side math and DB writes; no external payment SDK integration is tracked in these ad files.
+What it does:
+- `app/api/ads/orders/route.ts` applies platform/creator split math during order writes.
+- `app/api/ads/view/route.ts` tracks ad impressions/views for reporting and payout logic.
+- Skip-credit ledger endpoints (`/api/skip-credits/balance|earn|use`) maintain earn/use/balance state consumed by UI components.
+- `components/ads/dream.AdUnit.tsx` renders ad units and `dream.SkipCreditBalance.tsx` exposes user credit balance in-shell.
+- `supabase/migrations/20260321000000_ads_platform_promotions.sql` adds platform promotion + ad-system schema required by these surfaces.
 #### Ads system files file structure
 ```text
 ├── app
@@ -877,9 +936,14 @@ User ads are represented as authenticated listing/order interactions plus skip-c
 
 </details>
 ## The DmBar (`dreamdmbar/`)
-DreamDMBar is the persistent interaction rail/shell. It owns drag gestures, split-ratio runtime control, contextual intents, and direct access to messaging/search/Dr.Eams entry points.
+DreamDMBar is the persistent seam/rail that never leaves the app shell. It owns drag gestures, split-ratio control between Surface Space and DreamSpace, contextual intent routing (search/message/dreams/comment/module-actions), and entry points for Dr.Eams + messaging workflows.
 
-It overlays all routes from `app/layout.tsx`, acting as the runtime seam between Surface Space and DreamSpace. The fixed engine provides global context/state; the DmBar rule-set determines gesture behavior and UI affordances.
+How it works:
+- Mounted globally from `app/layout.tsx` via `PersistentDreamBar`, so it overlays authenticated routes while preserving runtime regions.
+- Core interaction behavior lives in `dreamdmbar/dreamsurface.dreamdmbar.tsx` (drag, split snapping, contextual actions, search, Dr.Eams triggers).
+- The `GlowingLight` control (`dream.GlowingLight.tsx`) is the seam indicator/touch affordance used for primary menu interactions.
+- HomeDream and Dreamr surfaces are embedded under `dreamdmbar/homedream/*`, so the bar is also the runtime home host, not only a navigation strip.
+- Bot-resistance for Dreamr swipe interactions is implemented in `dreamdmbar/homedream/dreamr/algorithms/botDetector.ts`.
 #### DreamDMBar files file structure
 ```text
 └── dreamdmbar
@@ -915,9 +979,13 @@ It overlays all routes from `app/layout.tsx`, acting as the runtime seam between
 
 </details>
 ## Messaging
-Messaging includes direct conversations, boards, and realtime-safe DM interactions across App Router pages, API routes, and DreamDM hooks/components.
+Messaging covers direct conversations, board-style threads, drafts, notifications, and realtime message sync under the DreamDM shell.
 
-Runtime flow: conversation retrieval/send endpoints (`app/api/messages/*`) + client renderers + DreamDM hooks for drafts, notifications, and conversation state. Safety checks (including child-safety scanning) are enforced server-side in message write paths.
+Runtime flow:
+- `app/api/messages/route.ts` handles conversation fetch/send writes with auth + child-safety checks on message content/media.
+- `app/api/messages/boards/route.ts` provides board creation and board post request flow.
+- Client orchestration is split across `useDreamDMConversations`, `useDreamDMMessages`, `useDreamDMDraft`, `useMessagingCore`, and `useNotifications` for list state, realtime inserts, optimistic send, draft persistence, and unread polling.
+- `20260307000001_conversations_messages.sql` provides the core `conversations/messages` schema + policy baseline used by these routes/hooks.
 #### Messaging files file structure
 ```text
 ├── app
@@ -968,9 +1036,16 @@ Runtime flow: conversation retrieval/send endpoints (`app/api/messages/*`) + cli
 
 </details>
 ## HomeDream
-HomeDream is the primary user home surface (`/homedream`) and product center. It composes activity, feed, quick actions, and runtime controls while remaining integrated with the persistent DmBar shell.
+HomeDream is the primary surface runtime (`/homedream`) and is composed as a shell graph rather than a single page widget.
 
-The fixed runtime keeps HomeDream mount/state stable; HomeDream-specific rule-sets in `src/dream/rulesets/homedream/*` and home components define transforms, constants, and behavior. HomeDream can run in either runtime region through dual-runtime dispatch.
+Composition in current code:
+- Active module canvas (`dream.ActiveModuleSurface.tsx`)
+- Daydream pulse strip + flagship engine strip (`dream.DaydreamPulseStrip.tsx`, `dream.FlagshipEnginesStrip.tsx`)
+- Neural seam visual layer (`dream.NeuralSeamCanvas.tsx`)
+- Global + persistent Dream bars (`dream.bar.GlobalDreamBar.tsx`, `dream.bar.PersistentDreamBar.tsx`)
+- Dream widget surfaces (`dream.widget.DreamWidget.tsx`)
+
+`src/dream/rulesets/homedream/*` contains HomeDream-specific constants, transforms, and physics constraints that are applied by the fixed runtime engine. HomeDream can be hosted in either runtime region because dispatch is world-based, not route-only.
 #### HomeDream files file structure
 ```text
 ├── app
@@ -1042,9 +1117,13 @@ The fixed runtime keeps HomeDream mount/state stable; HomeDream-specific rule-se
 
 </details>
 ## DreamSpace
-DreamSpace is the personal canvas/workspace where Dream Windows/Engins are mounted, arranged, and persisted. It is rendered by DreamSpace surface components and runtime/world dispatch logic.
+DreamSpace is the lower-region runtime world optimized for Dream Window hosting, module launch, and spatial arrangement workflows. It differs from HomeDream by focusing on mounted module sessions and workspace composition rather than feed/home orchestration.
 
-The engine layer manages lifecycle and region routing; DreamSpace rule-sets/components provide layout/panel behavior and user editing affordances.
+How it works:
+- `components/dreams/dreamsurface.dreamspace.tsx` renders the DreamSpace panel (apps, feeds, profile modes, recent destinations).
+- `components/dreamengin/dreamsurface.dreamspace-runtime.tsx` hosts runtime-specific DreamSpace module behavior.
+- `lib/dream-window/*` enforces Dream Window lifecycle/state transitions and API mutation helpers.
+- `lib/dreams/useDreamsRuntime.ts` maintains per-instance DreamSpace runtime state so parallel regions can run independently.
 #### DreamSpace files file structure
 ```text
 ├── app
@@ -1093,9 +1172,12 @@ The engine layer manages lifecycle and region routing; DreamSpace rule-sets/comp
 
 </details>
 ## Dreams (Widgets / Windows / Surfaces)
-Canonical terminology in current code/docs is **Dream Window** for modular runtime containers (`CHANGELOG.md`, `lib/dream-window/*`, `types/dream-window.ts`). “Widget” and “Surface” still appear in legacy/compatibility areas and user-facing labels, but Dream Window is the canonical model.
+This repo ships three user-facing primitives that share one runtime contract:
+- **Widgets** — small embeddable units (for cards/tools/media controls) mostly under `components/widgets/*` and `lib/widgets/*`.
+- **Dream Windows** — full modular runtime containers with lifecycle (`unbound → bound → mounted ↔ collapsed`) enforced by `lib/dream-window/DreamWindowLifecycle.ts`.
+- **Surfaces** — canonical mount points where windows/widgets run (HomeDream Surface, DreamSpace, profile/runtime shells).
 
-Lifecycle is enforced through `DreamWindowLifecycle` (unbound → bound → mounted ↔ collapsed), with engine-managed state/events/security and rule-set specific rendering per Dream type.
+The naming convention `dreamsurface.*.tsx` marks canonical mount components across domains (`dreamsurface.homedream.tsx`, `dreamsurface.dreamspace.tsx`, `dreamsurface.window.tsx`, etc.). These components stay bound to fixed engine plumbing while rule-sets define what each surface renders.
 #### Dreams/Windows/Widgets files file structure
 ```text
 ├── app
@@ -1212,9 +1294,14 @@ Lifecycle is enforced through `DreamWindowLifecycle` (unbound → bound → moun
 
 </details>
 ## User-Facing Modularity
-User-facing modularity is delivered via customize bars/panels, draggable modules, universal editor wrappers, and widget libraries/settings pages. Users can compose/rearrange interfaces without editing code.
+User-facing modularity lets end users rearrange and swap runtime modules without editing code. The capability is exposed through customize mode bars/panels, draggable modules, widget libraries, and the universal editor wrappers.
 
-The fixed engine keeps persistence/event contracts unified; modularity rule-sets define what can be moved, edited, installed, and shared per surface.
+Runtime flow:
+- Drag interactions and drop surfaces are mediated by `components/draggable/dream.DraggableModule.tsx` + `lib/runtime/dropTargetRegistry.ts`/`useDragSurface.ts`.
+- Universal editor wrappers (`components/universal-editor/*`) layer editing affordances over module manifests.
+- Layout and installed module state persist through widget/dream settings routes (`/settings/widgets`, `/settings/dreams`) and associated API handlers (`/api/widgets/*`).
+
+The fixed engine provides persistence/event contracts; rule-sets decide which modules are movable/resizable/shareable on each surface.
 #### User-modularity files file structure
 ```text
 ├── app
@@ -1306,9 +1393,15 @@ The fixed engine keeps persistence/event contracts unified; modularity rule-sets
 
 </details>
 ## Custom Engins
-Custom Engins are currently authored through manifests and runtime registration primitives rather than a dedicated `engins/custom/` directory. Authors define module metadata/contracts and register instances/channels through runtime registries.
+From a user perspective, Custom Engins are assembled by selecting/authoring modules that conform to the manifest + runtime contract rather than by creating a separate engine runtime.
 
-Hot-swap and solo/co-op promotion are handled by instance/channel managers (`instanceManager`, `runtimeChannel`, `useSharedEnginChannel`). Sandboxing boundaries come from shared engine constraints and API-layer auth/security rules.
+Practical user flow today:
+1. Module manifests declare compatibility and UI constraints (`types/module-manifest.ts`).
+2. Registry/instance systems register and place those modules in a runtime (`moduleRegistry`, `instanceManager`).
+3. Channel adapters keep behavior consistent in solo or shared sessions (`runtimeChannel`, `useSharedEnginChannel`).
+4. Universal-editor wrappers expose drag/edit/swap affordances on live surfaces.
+
+This section is the user-facing counterpart to [Custom Engins capability (current state)](#custom-engins-capability-current-state): same infrastructure, different perspective (authoring/composition instead of internals).
 #### Custom Engins authoring/runtime files file structure
 ```text
 ├── engins
@@ -1373,9 +1466,15 @@ Hot-swap and solo/co-op promotion are handled by instance/channel managers (`ins
 
 </details>
 ## Full Website Customizability
-Full customizability spans theme tokens (`tailwind.config.ts`), CSS layers (`styles/`), customizable panels/UI (`components/customize/*`, `components/panels/*`), and appearance settings routes/APIs.
+Full-site customization is implemented as a pipeline: design tokens → customization UI → persisted appearance/layout state → runtime application.
 
-The fixed engine keeps rendering/runtime guarantees, while customization rule-sets adjust layout, visual tokens, panel behavior, and per-user appearance state.
+How it works:
+- Theme and visual primitives are defined in token/CSS layers (`tailwind.config.ts`, `styles/*`).
+- User controls live in customize bars/panels (`components/customize/*`) and settings surfaces (`/settings/appearance`).
+- The appearance widget/panel pipeline (`dream.widget.AppearanceWidget.tsx`, `dream.panel.AppearancePanel.tsx`, `dream.ThemeApplicator`) applies per-user choices to active runtime surfaces.
+- Surface-graph edits (layout/effects/font/color) are mediated by editor panels and persisted through API routes under `/api/settings/appearance`.
+
+Result: users can alter palette, layout mood, and module presentation while the fixed engine keeps behavior/safety contracts stable.
 #### Customization/theming files file structure
 ```text
 ├── app
@@ -1473,9 +1572,13 @@ The fixed engine keeps rendering/runtime guarantees, while customization rule-se
 
 </details>
 ## Backend, System, Core & CoreSurfaces
-These directories represent the fixed engine substrate and lower-level system glue. `core/` + `system/` are minimal but canonical anchors, `backend/` carries server-side services, and `coresurfaces/` contains core profile surfaces.
+These four boundaries define what is fixed versus composable in DREAMengin:
+- **`core/`** — immutable engine anchor boundary (fixed substrate placeholder for core runtime entry).
+- **`system/`** — system-level glue/workflow substrate assets that support runtime and automation boundaries.
+- **`backend/`** — secondary Express service utilities (aggregators/controllers/services) that complement, not replace, App Router APIs.
+- **`coresurfaces/`** — canonical always-available profile/edit surfaces used across runtime contexts.
 
-This is where Rule 1–5 separation is most explicit: infrastructure/state contracts stay centralized, while domain-specific behavior is layered through higher-level rule-set modules.
+Keeping these boundaries explicit prevents domain feature code from leaking into engine substrate layers and preserves the engine/rule-set separation required by project law.
 #### Backend/system/core files file structure
 ```text
 ├── backend
@@ -1536,9 +1639,14 @@ This is where Rule 1–5 separation is most explicit: infrastructure/state contr
 
 </details>
 ## Agents & Workflow
-DREAMengin includes explicit agent governance and workflow layers: `AGENTS.md` defines operating law, `agents/` stores personas/orchestration, and `workflow/` stores workflow-oriented assets used by internal automation patterns.
+`agents/` and `workflow/` provide operational intelligence layers around the fixed runtime. They define how audits/automation reason about the product, not how runtime state is rendered.
 
-Agents plug in as operational/control surfaces, not as replacements for the fixed runtime engine. They consume engine outputs and enforce process-level checks.
+How it works in this repo:
+- `AGENTS.md` + persona files define operating law and behavior contracts for HumanAI and other assistants.
+- `agents/humanAI/*` contains persona prompts and orchestration specs used by automated UX/runtime audits.
+- `workflow/archive/*` preserves pipeline environment definitions (Docker/config) used by internal workflow tooling.
+
+These layers consume engine outputs and enforce process quality gates while leaving core runtime behavior in engine + rule-set code.
 #### Agents/workflow files file structure
 ```text
 ├── AGENTS.md
@@ -1580,9 +1688,12 @@ Agents plug in as operational/control surfaces, not as replacements for the fixe
 
 </details>
 ## Research, Experiments & Daydreams
-Research and experiments are intentionally separated from production runtime paths. `research/` and `research-and-development/` preserve exploratory artifacts, while `experiments/` and `daydreams/` hold prototype or transitional surfaces.
+This repository keeps research, prototypes, and shipping surfaces deliberately separated:
+- **`research/`** stores formal work (Torridity / ledger dynamics datasets, equations, papers); start with `research/README.md`.
+- **`experiments/`** holds isolated prototypes not yet merged into production runtime flows.
+- **`daydreams/`** provides standalone route surfaces for each domain (`music`, `games`, `lab`, `code`, `brand`, `create`) outside the main App Router hierarchy.
 
-This separation keeps the fixed engine stable while still allowing high-velocity exploration and speculative design iteration.
+This separation supports high-velocity exploration while preventing experimental drift from destabilizing the fixed runtime engine.
 #### Research/experiments/daydreams files file structure
 ```text
 ├── daydreams
@@ -1657,9 +1768,14 @@ This separation keeps the fixed engine stable while still allowing high-velocity
 
 </details>
 ## Infra & Ops
-Infra/Ops spans deployment, monitoring, DB migration, CI workflows, hooks, automation scripts, and generated operational artifacts. The platform uses Vercel + Supabase + GitHub Actions + Grafana/Prometheus/Terraform assets tracked in-repo.
+Infra/Ops in DREAMengin is a layered deployment and observability stack:
+- **Deploy/runtime config:** `vercel.json` + Next build scripts define deployment behavior and function runtime limits.
+- **Database operations:** `supabase/migrations/*` evolve schema/policies for runtime features.
+- **CI automation:** `.github/workflows/*` and `.ci/*` snapshots run build/test/audit loops and keep repository state traceable.
+- **Monitoring:** `prometheus/` + `grafana/` configuration define telemetry ingestion and dashboard provisioning.
+- **Infrastructure as code:** `terraform/` codifies cloud resource provisioning boundaries.
 
-Operational flow: schema/config evolves through migration and IaC files; workflows/scripts enforce quality gates and automated reports; observability config defines runtime monitoring paths.
+Together these directories wire shipping, verification, and production insight into one operational pipeline.
 #### Infra/Ops files file structure
 ```text
 ├── .ci
@@ -2169,9 +2285,12 @@ Operational flow: schema/config evolves through migration and IaC files; workflo
 
 </details>
 ## Testing
-Testing uses Vitest (`pnpm test`) for unit/integration suites and Playwright config for browser e2e (`tests/e2e`). `pnpm preflight` runs typecheck + lint + test:ci for CI/local gatekeeping.
+Testing is split between unit/integration coverage and browser-level e2e:
+- `tests/*.test.ts` runs under Vitest (`pnpm test`, `pnpm test:ci`) and covers runtime contracts, APIs, DreamDM behavior, Engins, and protocol laws.
+- `playwright.config.ts` configures browser e2e under `tests/e2e` with desktop Chromium and iPhone WebKit profiles.
+- `pnpm preflight` is the repository quality gate (root hygiene/spec checks + typecheck + lint + test:ci).
 
-Pre-existing note from repo docs: historical failures in `tests/dreamdm-bar-interactions.test.ts` are documented in governance docs; treat them as known context when comparing across commits.
+When validating release readiness, pair `pnpm preflight` with `pnpm build` so production build regressions are caught in addition to test/lint/type checks.
 #### Testing files file structure
 ```text
 ├── playwright.config.ts
@@ -2592,13 +2711,15 @@ Pre-existing note from repo docs: historical failures in `tests/dreamdm-bar-inte
 
 </details>
 ## Getting Started
-1. **Install prerequisites**: Node 24 + corepack.
-2. **Install dependencies**: `pnpm install`.
-3. **Environment setup**: copy `.env.example` to `.env.local` and fill values (or start from `.env.local.example`).
-4. **Run dev server**: `pnpm dev`.
-5. **Quality checks**: `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm preflight`.
-6. **Build/start production mode locally**: `pnpm build` then `pnpm start`.
+1. **Prerequisites**: install Node.js **24** and enable Corepack (`corepack enable`) so the repo uses **pnpm 10.30.0** from `package.json`.
+2. **Install deps**: run `pnpm install` at repo root.
+3. **Set environment**: `cp .env.example .env.local` (or start from `.env.local.example`) and fill required secrets/keys.
+4. **Supabase setup (recommended)**: either run a local stack (`supabase start`) or point `.env.local` to a hosted project (`NEXT_PUBLIC_SUPABASE_URL` + publishable/anon keys).
+5. **Run development shell**: `pnpm dev` and open `http://localhost:3000`.
+6. **Quality checks**: run `pnpm typecheck`, `pnpm lint`, `pnpm test`, then `pnpm preflight`.
+7. **Production verification locally**: run `pnpm build` and then `pnpm start`.
 
+For local UI inspection without full auth wiring, `.env.local.example` documents `DEV_BYPASS_AUTH=true` and `DEV_ADMIN=true` (dev only; never production).
 ### Available scripts (from `package.json`)
 ```bash
 pnpm dev  # next dev
@@ -2632,13 +2753,41 @@ pnpm gameengin:upgrader  # tsx scripts/gameengin/upgrader-run.ts
 pnpm gameengin:package  # tsx scripts/gameengin/package-cartridge.ts
 ```
 ## Environment Variables
-Environment variables are documented in `.env.example` and grouped by: Supabase public keys + project-prefixed keys, Postgres connection strings, AI providers, YouTube APIs, admin/session security, owner identity, OAuth connectors, Instagram connector, observability, and local-only auth bypass flags.
+The complete env contract is documented in `.env.example`; use `.env.local.example` for local defaults. Key variables by purpose:
 
-Use `.env.example` as the source of truth for the complete list and `.env.local.example` for local development defaults. Never commit secrets.
+- **Supabase client/runtime**
+  - `NEXT_PUBLIC_SUPABASE_URL`
+  - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  - `SUPABASE_SERVICE_ROLE_KEY` (server only)
+- **Database connections**
+  - `DATABASE_URL`
+  - `DIRECT_URL`
+- **Auth/session/admin guards**
+  - `SESSION_SECRET`
+  - `IDARI_PASSWORD`
+  - `ADMIN_UNLOCK_KEY`
+- **AI providers**
+  - `OPENAI_API_KEY`
+  - `GROQ_API_KEY`
+- **Media/data connectors**
+  - `YOUTUBE_API_KEY`
+  - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`
+  - `INSTAGRAM_CLIENT_ID` / `INSTAGRAM_CLIENT_SECRET`
+- **Observability/app URL**
+  - `SENTRY_DSN`
+  - `LOGTAIL_SOURCE_TOKEN`
+  - `NEXT_PUBLIC_APP_URL`
+- **Dev-only bypass flags (local only)**
+  - `DEV_BYPASS_AUTH`
+  - `DEV_ADMIN`
+
+Do not commit secrets. Treat `.env.example` as source-of-truth documentation and keep `.env.local` gitignored.
 ## Contributing
-- Read `AGENTS.md` for repository operating law and architecture rules.
-- Read `.cursorrules` for the enforced engine/rule-set discipline.
-- Review `CHANGELOG.md` for release-level behavior changes.
-- Review `REPO_STATE.md` for generated repository inventory/metrics.
+- Read `AGENTS.md` and `.cursorrules` before touching runtime architecture; they define the fixed-engine/rule-set law.
+- Use the repository default branch model (`completedream` as base) and create focused feature/fix branches from it.
+- Keep commits small and descriptive; align messages with the subsystem touched (runtime, dreamdmbar, engin, api, etc.).
+- Husky hooks run automatically: `pre-commit` executes lint-staged and `pre-push` runs `pnpm preflight`.
+- Before opening/updating a PR, run `pnpm typecheck`, `pnpm lint`, `pnpm test`, and `pnpm build` locally.
+- Update root docs when behavior contracts change, but do not edit subsystem-owned READMEs unless that subsystem change is in scope.
 ## License
 MIT — see [LICENSE](LICENSE).
