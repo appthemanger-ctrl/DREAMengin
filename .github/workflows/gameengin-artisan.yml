@@ -1,28 +1,33 @@
 name: gameengin-artisan
 
 # Artisan visual asset agent. Spec: GameENGINspec.md §3.3.
+
 on:
   workflow_dispatch:
     inputs:
       target_cartridge: { description: 'Cartridge id', required: false, default: 'mad-maxi' }
+
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
-  run:
+  generate:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    continue-on-error: true
+    timeout-minutes: 20
+    env:
+      TARGET_CARTRIDGE: ${{ github.event.inputs.target_cartridge }}
+      REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
     steps:
-      - uses: ./.github/actions/resilient-engine
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with: { node-version: '24', cache: 'pnpm' }
+      - run: pnpm install --frozen-lockfile
+      - name: Run Artisan
+        run: pnpm tsx scripts/gameengin/artisan-run.ts
+      - name: Upload artisan output
+        uses: actions/upload-artifact@v4
         with:
-          ruleset: .github/ruleset/gameengin-artisan.yml
-          allow-failure: 'true'
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          name: artisan-${{ github.event.inputs.target_cartridge }}
+          path: .gameengin-artisan-output.json

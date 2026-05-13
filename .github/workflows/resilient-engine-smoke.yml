@@ -1,0 +1,55 @@
+name: Resilient Engine Smoke
+
+on:
+  pull_request:
+  push:
+    branches:
+      - completedream
+      - 'copilot/**'
+  workflow_dispatch:
+
+jobs:
+  workflow-guardrails:
+    name: Guardrails (no fake-green patterns)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fail on job-level continue-on-error true
+        run: python .github/scripts/check_workflow_masking.py
+
+      - name: Fail on forbidden allow failure remnants
+        run: |
+          needle="allow"
+          needle+="-failure"
+          if grep -RIn --include='*.yml' --include='*.yaml' "$needle" .github/workflows .github/actions; then
+            echo "::error::Found forbidden allow failure usage."
+            exit 1
+          fi
+
+  resilient-engine-hard-fail:
+    name: Resilient engine hard-failure behavior
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run resilient engine with intentional failure
+        id: intentional_failure
+        # continue-on-error is step-scoped here so we can assert the expected failure outcome below.
+        continue-on-error: true
+        uses: ./.github/actions/resilient-engine
+        with:
+          command: "echo intentional failure && exit 7"
+          retry-attempts: "2"
+          retry-backoff-seconds: "1"
+          timeout-minutes: "1"
+
+      - name: Assert resilient engine exits non-zero on real failure
+        run: |
+          if [ "${{ steps.intentional_failure.outcome }}" != "failure" ]; then
+            echo "::error::Expected resilient-engine action to fail, but outcome was '${{ steps.intentional_failure.outcome }}'."
+            exit 1
+          fi
+          echo "✅ resilient-engine correctly failed on an intentional error."

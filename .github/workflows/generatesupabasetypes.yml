@@ -1,23 +1,34 @@
 name: Generate Supabase Types
+
 on:
   workflow_dispatch:
+
 permissions:
   contents: write
 
 jobs:
-  run:
+  gen:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    continue-on-error: true
     steps:
-      - uses: ./.github/actions/resilient-engine
+      - uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
         with:
-          ruleset: .github/ruleset/generatesupabasetypes.yml
-          allow-failure: 'true'
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          version: latest
+
+      - name: Generate types (via DB URL)
+        run: |
+          supabase gen types typescript \
+            --db-url "${{ secrets.SUPABASE_DB_URL }}" \
+            --schema public > types/supabase.ts
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add types/supabase.ts
+          git commit -m "chore: regenerate supabase types [skip ci] [skip vercel]" || echo "No changes"
+          git push || true
+
+
