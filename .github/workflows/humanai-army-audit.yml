@@ -19,8 +19,9 @@ name: humanAI Army SICC Audit
 #
 # Required secret: OPENAI_API_KEY (optional — runs without it but skips AI
 # synthesis and emits a structural-only master report).
-# Optional secrets: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+# Optional secrets: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
 # ──────────────────────────────────────────────────────────────────────────────
+
 on:
   workflow_dispatch:
     inputs:
@@ -34,30 +35,237 @@ on:
         default: true
   schedule:
     - cron: '0 5 * * 0'   # every Sunday at 05:00 UTC
+
 permissions:
   contents: read
   issues: write
+
 concurrency:
   group: humanai-army-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  NODE_VERSION: '25'
+  BASE_URL: http://localhost:3000
+  GENERATED_DIR: .github/generated
+  ARMY_REPORTS_DIR: .github/generated/army-reports
+
+# ── 1. Build ──────────────────────────────────────────────────────────────────
 jobs:
-  run:
+  build:
+    name: Build DREAMengin
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build DREAMengin
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        run: pnpm run build
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: .next
+          retention-days: 1
+          include-hidden-files: true
+
+# ── 2. Persona runs (parallel matrix) ────────────────────────────────────────
+  persona:
+    name: Persona — ${{ matrix.persona }}
+    needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    continue-on-error: true
+
+    strategy:
+      fail-fast: false
+      matrix:
+        persona:
+          - ios-first
+          - power-user
+          - creator
+          - social-explorer
+          - accessibility
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          fetch-depth: 0
-      - uses: ./.github/actions/resilient-engine
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4.1.3
         with:
-          ruleset: .github/ruleset/humanai-army-audit.yml
-          allow-failure: 'true'
+          name: next-build
+          path: .next
+
+      - name: Start Next.js server in background
+        env:
+          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          DEV_BYPASS_AUTH: 'true'
+          DEV_ADMIN: 'true'
+        run: |
+          mkdir -p ${{ env.GENERATED_DIR }}
+          nohup pnpm run start > ${{ env.GENERATED_DIR }}/next-server-${{ matrix.persona }}.log 2>&1 &
+          echo $! > ${{ env.GENERATED_DIR }}/next-server.pid
+
+      - name: Run humanAI persona audit — ${{ matrix.persona }}
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          MAX_PAGES="${{ github.event.inputs.max_pages }}"
+          MAX_PAGES="${MAX_PAGES:-25}"
+          mkdir -p ${{ env.ARMY_REPORTS_DIR }}
+          python .github/scripts/humanai_audit.py \
+            --base-url          "${{ env.BASE_URL }}" \
+            --out               "${{ env.ARMY_REPORTS_DIR }}/${{ matrix.persona }}.md" \
+            --repo-root         "$GITHUB_WORKSPACE" \
+            --max-pages         "$MAX_PAGES" \
+            --max-interactions  25 \
+            --prompt-spec       "agents/humanAI/personas/${{ matrix.persona }}.md" \
+            --interact \
+            --wait-for-server
+
+      - name: Stop Next.js server
+        if: always()
+        run: |
+          PID_FILE="${{ env.GENERATED_DIR }}/next-server.pid"
+          if [ -f "$PID_FILE" ]; then
+            PID=$(cat "$PID_FILE")
+            if kill -0 "$PID" 2>/dev/null; then
+              kill "$PID" || true
+            fi
+          fi
+
+      - name: Append persona report to job summary
+        if: always()
+        run: |
+          REPORT="${{ env.ARMY_REPORTS_DIR }}/${{ matrix.persona }}.md"
+          if [ -f "$REPORT" ]; then
+            echo "## humanAI Army — ${{ matrix.persona }}" >> "$GITHUB_STEP_SUMMARY"
+            cat "$REPORT" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "humanAI report for ${{ matrix.persona }} was not produced." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload persona report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: humanai-army-${{ matrix.persona }}
+          path: |
+            ${{ env.ARMY_REPORTS_DIR }}/${{ matrix.persona }}.md
+            ${{ env.GENERATED_DIR }}/next-server-${{ matrix.persona }}.log
+          retention-days: 14
+          if-no-files-found: warn
+
+# ── 3. Orchestrator synthesis ─────────────────────────────────────────────────
+  orchestrate:
+    name: Orchestrator — SICC Master Report
+    needs: persona
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Run even if some persona jobs failed (partial synthesis is still useful)
+    if: always()
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all persona reports
+        uses: actions/download-artifact@v4.1.3
+        with:
+          pattern: humanai-army-*
+          path: ${{ env.ARMY_REPORTS_DIR }}
+          merge-multiple: true
+
+      - name: List downloaded reports
+        run: |
+          echo "Reports downloaded to ${{ env.ARMY_REPORTS_DIR }}:"
+          ls -la "${{ env.ARMY_REPORTS_DIR }}" 2>/dev/null || echo "(none)"
+
+      - name: Run orchestrator synthesis
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          mkdir -p ${{ env.GENERATED_DIR }}
+          python .github/scripts/humanai_audit.py \
+            --orchestrate \
+            --reports-dir "${{ env.ARMY_REPORTS_DIR }}" \
+            --out         "${{ env.GENERATED_DIR }}/humanai-army-master.md" \
+            --repo-root   "$GITHUB_WORKSPACE" \
+            --prompt-spec "agents/humanAI/orchestrator.md"
+
+      - name: Append master report to job summary
+        if: always()
+        run: |
+          MASTER="${{ env.GENERATED_DIR }}/humanai-army-master.md"
+          if [ -f "$MASTER" ]; then
+            cat "$MASTER" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "humanAI Army master report was not produced." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload master report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: humanai-army-master-report
+          path: ${{ env.GENERATED_DIR }}/humanai-army-master.md
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Open GitHub issue with master report
+        if: |
+          always()
+          && hashFiles('.github/generated/humanai-army-master.md') != ''
+          && (github.event_name == 'schedule'
+              || github.event.inputs.open_issue == 'true')
+        uses: actions/github-script@v7
+        env:
+          MASTER_REPORT: ${{ env.GENERATED_DIR }}/humanai-army-master.md
+        with:
+          script: |
+            const fs = require('fs');
+            const reportPath = process.env.MASTER_REPORT;
+            if (!fs.existsSync(reportPath)) {
+              core.warning('Master report file not found — skipping issue creation.');
+              return;
+            }
+            const body = fs.readFileSync(reportPath, 'utf8');
+            const stamp = new Date().toISOString().slice(0, 10);
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              title: `humanAI Army SICC Audit — ${stamp}`,
+              body,
+              labels: ['humanai', 'sicc', 'audit', 'automated'],
+            });

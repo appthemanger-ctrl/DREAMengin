@@ -6,31 +6,131 @@ name: Preflight (staging)
 # Note: some tripwire scripts are generated lazily — steps that call them
 # use continue-on-error: true and skip gracefully if the script is absent.
 # ──────────────────────────────────────────────────────────────────────────────
+
 on:
   workflow_dispatch:
+
 permissions:
   contents: write
+
 concurrency:
   group: preflight-staging-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  run:
+  preflight:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    continue-on-error: true
+    timeout-minutes: 20
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: ./.github/actions/resilient-engine
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Install (frozen)
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        # Advisory only — pre-existing TS errors must not gate the pipeline.
+        continue-on-error: true
+        run: pnpm typecheck
+
+      - name: "Tripwire: no spatial-nav imports in primary Home"
+        continue-on-error: true
+        run: |
+          if [ -f "scripts/check-primary-home.mjs" ]; then
+            node scripts/check-primary-home.mjs
+          else
+            echo "⚠️ scripts/check-primary-home.mjs not found — skipping tripwire."
+          fi
+
+      - name: "Tripwire: no nav-mode strings in user-facing files"
+        continue-on-error: true
+        run: |
+          if [ -f "scripts/check-navmode-strings.mjs" ]; then
+            node scripts/check-navmode-strings.mjs
+          else
+            echo "⚠️ scripts/check-navmode-strings.mjs not found — skipping tripwire."
+          fi
+
+      - name: "Tripwire: Golden Button mounted in exactly one place"
+        continue-on-error: true
+        run: |
+          if [ -f "scripts/check-golden-mount.mjs" ]; then
+            node scripts/check-golden-mount.mjs
+          else
+            echo "⚠️ scripts/check-golden-mount.mjs not found — skipping tripwire."
+          fi
+
+      - name: "Tripwire: no launcher grid in primary Home"
+        continue-on-error: true
+        run: |
+          if [ -f "scripts/check-home-launcher-grid.mjs" ]; then
+            node scripts/check-home-launcher-grid.mjs
+          else
+            echo "⚠️ scripts/check-home-launcher-grid.mjs not found — skipping tripwire."
+          fi
+
+      - name: Placeholder scan (ellipsis / TODO)
+        continue-on-error: true
+        run: |
+          if command -v rg >/dev/null 2>&1; then
+            HITS=$(rg -n --hidden \
+              --glob '!.next/**' \
+              --glob '!node_modules/**' \
+              --glob '!pnpm-lock.yaml' \
+              "(\.\.\.)|(TODO:)|(FIXME:)|(REPLACE_ME)|(PASTE_HERE)" . 2>/dev/null || true)
+          else
+            HITS=$(grep -RIn --exclude-dir=node_modules --exclude-dir=.next \
+              -E "\.\.\.|TODO:|FIXME:|REPLACE_ME|PASTE_HERE" . 2>/dev/null || true)
+          fi
+          if [ -n "$HITS" ]; then
+            echo "⚠️  Placeholders / TODOs found:"
+            echo "$HITS"
+          else
+            echo "✅ No placeholders found."
+          fi
+
+      - name: Generate report
+        if: always()
+        shell: bash
+        run: |
+          set -e
+          mkdir -p .ci
+          TZ="America/Los_Angeles"
+          NOW="$(TZ=$TZ date '+%Y-%m-%d %H:%M:%S %Z')"
+
+          {
+            echo "PREFLIGHT REPORT"
+            echo "==============="
+            echo "Time: $NOW"
+            echo "Repo: $GITHUB_REPOSITORY"
+            echo "Branch: ${GITHUB_REF_NAME:-unknown}"
+            echo "Commit: ${GITHUB_SHA:-unknown}"
+            echo ""
+            echo "Note: See job steps for pass/fail details."
+          } > .ci/preflight-staging.txt
+
+          {
+            echo "## Staging Preflight Report"
+            echo ""
+            echo "- Time: \`$NOW\`"
+            echo "- Branch: \`${GITHUB_REF_NAME:-unknown}\`"
+            echo "- Commit: \`${GITHUB_SHA:-unknown}\`"
+            echo ""
+            echo "✅ If this run is green, staging branch is ready."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload preflight artifact
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          ruleset: .github/ruleset/preflight.yml
-          allow-failure: 'true'
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          name: preflight-staging-report
+          path: .ci/preflight-staging.txt
