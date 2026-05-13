@@ -1294,30 +1294,33 @@ The naming convention `dreamsurface.*.tsx` marks canonical mount components acro
 
 </details>
 ## User-Facing Modularity
-User-facing modularity lets end users rearrange and swap runtime modules without editing code. The capability is exposed through customize mode bars/panels, draggable modules, widget libraries, and the universal editor wrappers.
-
-Runtime flow:
-- Drag interactions and drop surfaces are mediated by `components/draggable/dream.DraggableModule.tsx` + `lib/runtime/dropTargetRegistry.ts`/`useDragSurface.ts`.
-- Universal editor wrappers (`components/universal-editor/*`) layer editing affordances over module manifests.
-- Layout and installed module state persist through widget/dream settings routes (`/settings/widgets`, `/settings/dreams`) and associated API handlers (`/api/widgets/*`).
-
-The fixed engine provides persistence/event contracts; rule-sets decide which modules are movable/resizable/shareable on each surface.
-#### User-modularity files file structure
+Auto-synced from `components/**`, `styles/**`, `lib/ui/**`, `hooks/**` using repository introspection.
+- Files tracked: **317**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: `AIAssistant`, `ActiveModuleSurface`, `ActivityPostForm`, `ActivityProfile`, `AdUnit`, `AddDreamCTA`, `AddSliceSheet`, `AlgorithmEngine`, +254 more
+#### User-Facing Modularity file structure
 ```text
-├── app
-│   ├── api
-│   │   └── widgets
-│   │       ├── feed
-│   │       │   └── route.ts
-│   │       └── instances
-│   │           └── route.ts
-│   └── settings
-│       ├── dreams
-│       │   ├── dreams-layout-editor.tsx
-│       │   └── page.tsx
-│       └── widgets
-│           └── page.tsx
 ├── components
+│   ├── activity
+│   │   ├── dream.ActivityPostForm.tsx
+│   │   ├── dream.ActivityProfile.tsx
+│   │   └── dream.TierBadge.tsx
+│   ├── ads
+│   │   ├── dream.AdUnit.tsx
+│   │   └── dream.SkipCreditBalance.tsx
+│   ├── auth
+│   │   └── dream.PasswordField.tsx
+│   ├── connectors
+│   │   ├── dream.AddSliceSheet.tsx
+│   │   ├── dream.ConnectDreamPrompt.tsx
+│   │   ├── dream.ConnectorRow.tsx
+│   │   ├── dream.NoSlotDialog.tsx
+│   │   ├── dream.PlacementMode.tsx
+│   │   ├── dream.widget.ConnectWidgetPrompt.tsx
+│   │   └── dream.widget.ConnectorWidgetPicker.tsx
+│   ├── core
+│   │   └── dream.CoreDream.tsx
 │   ├── customize
 │   │   ├── dream.GlobalCustomizeUI.tsx
 │   │   ├── dream.bar.CustomizeModeBar.tsx
@@ -1327,71 +1330,421 @@ The fixed engine provides persistence/event contracts; rule-sets decide which mo
 │   │       ├── dream.panel.EffectsPanel.tsx
 │   │       ├── dream.panel.FontPanel.tsx
 │   │       └── dream.panel.LayoutPanel.tsx
+│   ├── daydream
+│   │   ├── dream.CodeDreamIDE.tsx
+│   │   ├── dream.DiffViewer.tsx
+│   │   ├── dream.JourneyTrail.tsx
+│   │   ├── dream.LabDreamIDE.tsx
+│   │   ├── dream.NGNEngin.tsx
+│   │   ├── dream.OpenDaydreamSideBButton.tsx
+│   │   ├── dream.StandaloneEnginSurface.tsx
+│   │   ├── dream.constellationmap.tsx
+│   │   ├── dream.shell.DaydreamShell.tsx
+│   │   ├── dreamsurface.daydream.AnalyticsDaydream.tsx
+│   │   ├── dreamsurface.daydream.BrandDaydream.tsx
+│   │   └── starmaker
+│   │       ├── dream.panel.CompingPanel.tsx
+│   │       ├── dream.panel.MultitrackArrangementPanel.tsx
+│   │       ├── dream.panel.PianoRollPanel.tsx
+│   │       └── dream.panel.SessionViewPanel.tsx
 │   ├── draggable
 │   │   └── dream.DraggableModule.tsx
-│   ├── universal-editor
-│   │   ├── dream.UniversalEditor.tsx
-│   │   ├── dream.UniversalEditorWrapper.tsx
-│   │   ├── index.ts
-│   │   └── useTapHoldMove.ts
-│   └── widgets
-│       ├── dream.AddDreamCTA.tsx
-│       ├── dream.ConfigureSheet.tsx
-│       ├── dream.EditModeBanner.tsx
-│       ├── dream.EditModeProvider.tsx
-│       ├── dream.widget.PlayMediaWidget.tsx
-│       ├── dream.widget.UniversalWidget.tsx
-│       ├── dream.widget.WidgetCard.tsx
-│       ├── dream.widget.WidgetLibrary.tsx
-│       ├── dream.widget.WidgetPlaceholder.tsx
-│       ├── dream.widget.WidgetShell.tsx
-│       └── dream.widget.WidgetSurface.tsx
-└── lib
-    ├── runtime
-    │   ├── dropTargetRegistry.ts
-    │   ├── moduleRegistry.ts
-    │   └── useDragSurface.ts
-    ├── universal-editor
-    │   └── module-manifest.ts
-    └── universalEditor.ts
+│   ├── dream.AIAssistant.tsx
+│   ├── dream.AudioVisualizer3D.tsx
+│   ├── dream.BoogieWarningBanner.tsx
+│   ├── dream.BrandLogo.tsx
+│   ├── dream.CommandPalette.tsx
+│   ├── dream.CreatePostModal.tsx
+│   ├── dream.DrEamsModeToggle.tsx
+│   ├── dream.DrEamsVoiceAssistant.tsx
+│   ├── dream.DragToAnchorClose.tsx
+│   ├── dream.FeedCard.tsx
+│   ├── dream.ForgeDreamCanvas.tsx
+│   ├── dream.GlobalOverlays.tsx
+│   ├── dream.HeroSprite.tsx
+│   ├── dream.HomeFeed.tsx
+│   ├── dream.IconSelector.tsx
+│   ├── dream.InnerDreamsButton.tsx
+│   ├── dream.KonamiDream.tsx
+│   ├── dream.LandingHero.tsx
+│   ├── dream.LedgerChart.tsx
+│   ├── dream.MessagesClient.tsx
+│   ├── dream.NotificationCenter.tsx
+│   ├── dream.OSShellActivator.tsx
+│   ├── dream.PhysicsLab.tsx
+│   ├── dream.ProfileEditor.tsx
+│   ├── dream.ProfileShareButton.tsx
+│   ├── dream.ProfileSpace.tsx
+│   ├── dream.PullToRefresh.tsx
+│   ├── dream.ShrunkMode.tsx
+│   ├── dream.SkeletonLoaders.tsx
+│   ├── dream.ThemeApplicator.tsx
+│   ├── dream.ThemeToggle.tsx
+│   ├── dream.ToastSystem.tsx
+│   ├── dream.VoidThemeToggle.tsx
+│   ├── dream.panel.ChildSafetyPanel.tsx
+│   ├── dream.panel.IDariPanel.tsx
+│   ├── dream.universal_asset_registry.tsx
+│   ├── dream.widget.AnchorWidget.tsx
+│   ├── dream.widget.ProfileWidgetBlock.tsx
+│   ├── dream.widget.WidgetBubble.tsx
+│   ├── dreamengin
+│   │   ├── dream.CanvasDropZone.tsx
+│   │   ├── dream.DREAMenginOS.tsx
+│   │   ├── dream.DrEamsCanvas.tsx
+│   │   ├── dream.HomeControls.tsx
+│   │   ├── dream.bar.DrEamsSearchBar.tsx
+│   │   ├── dream.menu.NexusMenu.tsx
+│   │   ├── dream.menu.OutdreamMenu.tsx
+│   │   ├── dream.overlay.ViewAllDreamsOverlay.tsx
+│   │   ├── dream.panel.CrossEnginStatusPanel.tsx
+│   │   ├── dream.panel.DrEamsPanel.tsx
+│   │   ├── dream.scene.BabylonGameScene.tsx
+│   │   ├── dream.scene.DrEamsScene.tsx
+│   │   ├── dream.scene.PortfolioOptimizationScene.tsx
+│   │   ├── dream.shell.EnginShell.tsx
+│   │   ├── dream.widget.AppearanceWidget.tsx
+│   │   ├── dreamsurface.dreamengin.tsx
+│   │   └── engine
+│   │       ├── math.ts
+│   │       └── types.ts
+│   ├── dreamnav
+│   │   ├── dream.DreamNavControls.tsx
+│   │   └── dreamsurface.dreamnav.tsx
+│   ├── dreamr
+│   │   ├── dream.CloseFriendsSettings.tsx
+│   │   ├── dream.panel.DreamRChannelPanel.tsx
+│   │   └── dream.panel.DreamRCreatorPanel.tsx
+│   ├── dreams
+│   │   ├── dream.DraggableDream.tsx
+│   │   ├── dream.GlobalDragLayer.tsx
+│   │   ├── dream.PlatformErrorReporter.tsx
+│   │   ├── dream.SlideOverPanel.tsx
+│   │   ├── dream.connectorlayer.tsx
+… (197 more files)
 ```
-<details><summary>User-modularity files file index (33 files)</summary>
+<details><summary>User-Facing Modularity file index (317 files)</summary>
 
-- `app/api/widgets/feed/route.ts` — API route handler for `/api/widgets/feed`.
-- `app/api/widgets/instances/route.ts` — API route handler for `/api/widgets/instances`.
-- `app/settings/dreams/dreams-layout-editor.tsx` — React UI module for dreams layout editor.
-- `app/settings/dreams/page.tsx` — Next.js route page for `/settings/dreams`.
-- `app/settings/widgets/page.tsx` — Next.js route page for `/settings/widgets`.
+- `components/activity/dream.ActivityPostForm.tsx` — React UI module for ActivityPostForm.
+- `components/activity/dream.ActivityProfile.tsx` — React UI module for ActivityProfile.
+- `components/activity/dream.TierBadge.tsx` — React UI module for TierBadge.
+- `components/ads/dream.AdUnit.tsx` — React UI module for AdUnit.
+- `components/ads/dream.SkipCreditBalance.tsx` — React UI module for SkipCreditBalance.
+- `components/auth/dream.PasswordField.tsx` — React UI module for PasswordField.
+- `components/connectors/dream.AddSliceSheet.tsx` — React UI module for AddSliceSheet.
+- `components/connectors/dream.ConnectDreamPrompt.tsx` — React UI module for ConnectDreamPrompt.
+- `components/connectors/dream.ConnectorRow.tsx` — React UI module for ConnectorRow.
+- `components/connectors/dream.NoSlotDialog.tsx` — React UI module for NoSlotDialog.
+- `components/connectors/dream.PlacementMode.tsx` — React UI module for PlacementMode.
+- `components/connectors/dream.widget.ConnectWidgetPrompt.tsx` — React UI module for WidgetConnectWidgetPrompt.
+- `components/connectors/dream.widget.ConnectorWidgetPicker.tsx` — React UI module for WidgetConnectorWidgetPicker.
+- `components/core/dream.CoreDream.tsx` — React UI module for CoreDream.
 - `components/customize/dream.GlobalCustomizeUI.tsx` — React UI module for GlobalCustomizeUI.
-- `components/customize/dream.bar.CustomizeModeBar.tsx` — React UI module for bar CustomizeModeBar.
-- `components/customize/dream.bar.CustomizeToolbar.tsx` — React UI module for bar CustomizeToolbar.
-- `components/customize/panels/dream.panel.ColorPanel.tsx` — React UI module for panel ColorPanel.
-- `components/customize/panels/dream.panel.EffectsPanel.tsx` — React UI module for panel EffectsPanel.
-- `components/customize/panels/dream.panel.FontPanel.tsx` — React UI module for panel FontPanel.
-- `components/customize/panels/dream.panel.LayoutPanel.tsx` — React UI module for panel LayoutPanel.
+- `components/customize/dream.bar.CustomizeModeBar.tsx` — React UI module for BarCustomizeModeBar.
+- `components/customize/dream.bar.CustomizeToolbar.tsx` — React UI module for BarCustomizeToolbar.
+- `components/customize/panels/dream.panel.ColorPanel.tsx` — React UI module for PanelColorPanel.
+- `components/customize/panels/dream.panel.EffectsPanel.tsx` — React UI module for PanelEffectsPanel.
+- `components/customize/panels/dream.panel.FontPanel.tsx` — React UI module for PanelFontPanel.
+- `components/customize/panels/dream.panel.LayoutPanel.tsx` — React UI module for PanelLayoutPanel.
+- `components/daydream/dream.CodeDreamIDE.tsx` — React UI module for CodeDreamIDE.
+- `components/daydream/dream.DiffViewer.tsx` — React UI module for DiffViewer.
+- `components/daydream/dream.JourneyTrail.tsx` — React UI module for JourneyTrail.
+- `components/daydream/dream.LabDreamIDE.tsx` — React UI module for LabDreamIDE.
+- `components/daydream/dream.NGNEngin.tsx` — React UI module for NGNEngin.
+- `components/daydream/dream.OpenDaydreamSideBButton.tsx` — React UI module for OpenDaydreamSideBButton.
+- `components/daydream/dream.StandaloneEnginSurface.tsx` — React UI module for StandaloneEnginSurface.
+- `components/daydream/dream.constellationmap.tsx` — React UI module for Constellationmap.
+- `components/daydream/dream.shell.DaydreamShell.tsx` — React UI module for ShellDaydreamShell.
+- `components/daydream/dreamsurface.daydream.AnalyticsDaydream.tsx` — React UI module for DreamsurfaceDaydreamAnalyticsDaydream.
+- `components/daydream/dreamsurface.daydream.BrandDaydream.tsx` — React UI module for DreamsurfaceDaydreamBrandDaydream.
+- `components/daydream/starmaker/dream.panel.CompingPanel.tsx` — React UI module for PanelCompingPanel.
+- `components/daydream/starmaker/dream.panel.MultitrackArrangementPanel.tsx` — React UI module for PanelMultitrackArrangementPanel.
+- `components/daydream/starmaker/dream.panel.PianoRollPanel.tsx` — React UI module for PanelPianoRollPanel.
+- `components/daydream/starmaker/dream.panel.SessionViewPanel.tsx` — React UI module for PanelSessionViewPanel.
 - `components/draggable/dream.DraggableModule.tsx` — React UI module for DraggableModule.
+- `components/dream.AIAssistant.tsx` — React UI module for AIAssistant.
+- `components/dream.AudioVisualizer3D.tsx` — React UI module for AudioVisualizer3D.
+- `components/dream.BoogieWarningBanner.tsx` — React UI module for BoogieWarningBanner.
+- `components/dream.BrandLogo.tsx` — React UI module for BrandLogo.
+- `components/dream.CommandPalette.tsx` — React UI module for CommandPalette.
+- `components/dream.CreatePostModal.tsx` — React UI module for CreatePostModal.
+- `components/dream.DrEamsModeToggle.tsx` — React UI module for DrEamsModeToggle.
+- `components/dream.DrEamsVoiceAssistant.tsx` — React UI module for DrEamsVoiceAssistant.
+- `components/dream.DragToAnchorClose.tsx` — React UI module for DragToAnchorClose.
+- `components/dream.FeedCard.tsx` — React UI module for FeedCard.
+- `components/dream.ForgeDreamCanvas.tsx` — React UI module for ForgeDreamCanvas.
+- `components/dream.GlobalOverlays.tsx` — React UI module for GlobalOverlays.
+- `components/dream.HeroSprite.tsx` — React UI module for HeroSprite.
+- `components/dream.HomeFeed.tsx` — React UI module for HomeFeed.
+- `components/dream.IconSelector.tsx` — React UI module for IconSelector.
+- `components/dream.InnerDreamsButton.tsx` — React UI module for InnerDreamsButton.
+- `components/dream.KonamiDream.tsx` — React UI module for KonamiDream.
+- `components/dream.LandingHero.tsx` — React UI module for LandingHero.
+- `components/dream.LedgerChart.tsx` — React UI module for LedgerChart.
+- `components/dream.MessagesClient.tsx` — React UI module for MessagesClient.
+- `components/dream.NotificationCenter.tsx` — React UI module for NotificationCenter.
+- `components/dream.OSShellActivator.tsx` — React UI module for OSShellActivator.
+- `components/dream.PhysicsLab.tsx` — React UI module for PhysicsLab.
+- `components/dream.ProfileEditor.tsx` — React UI module for ProfileEditor.
+- `components/dream.ProfileShareButton.tsx` — React UI module for ProfileShareButton.
+- `components/dream.ProfileSpace.tsx` — React UI module for ProfileSpace.
+- `components/dream.PullToRefresh.tsx` — React UI module for PullToRefresh.
+- `components/dream.ShrunkMode.tsx` — React UI module for ShrunkMode.
+- `components/dream.SkeletonLoaders.tsx` — React UI module for SkeletonLoaders.
+- `components/dream.ThemeApplicator.tsx` — React UI module for ThemeApplicator.
+- `components/dream.ThemeToggle.tsx` — React UI module for ThemeToggle.
+- `components/dream.ToastSystem.tsx` — React UI module for ToastSystem.
+- `components/dream.VoidThemeToggle.tsx` — React UI module for VoidThemeToggle.
+- `components/dream.panel.ChildSafetyPanel.tsx` — React UI module for PanelChildSafetyPanel.
+- `components/dream.panel.IDariPanel.tsx` — React UI module for PanelIDariPanel.
+- `components/dream.universal_asset_registry.tsx` — React UI module for UniversalAssetRegistry.
+- `components/dream.widget.AnchorWidget.tsx` — React UI module for WidgetAnchorWidget.
+- `components/dream.widget.ProfileWidgetBlock.tsx` — React UI module for WidgetProfileWidgetBlock.
+- `components/dream.widget.WidgetBubble.tsx` — React UI module for WidgetWidgetBubble.
+- `components/dreamengin/dream.CanvasDropZone.tsx` — React UI module for CanvasDropZone.
+- `components/dreamengin/dream.DREAMenginOS.tsx` — React UI module for DREAMenginOS.
+- `components/dreamengin/dream.DrEamsCanvas.tsx` — React UI module for DrEamsCanvas.
+- `components/dreamengin/dream.HomeControls.tsx` — React UI module for HomeControls.
+- `components/dreamengin/dream.bar.DrEamsSearchBar.tsx` — React UI module for BarDrEamsSearchBar.
+- `components/dreamengin/dream.menu.NexusMenu.tsx` — React UI module for MenuNexusMenu.
+- `components/dreamengin/dream.menu.OutdreamMenu.tsx` — React UI module for MenuOutdreamMenu.
+- `components/dreamengin/dream.overlay.ViewAllDreamsOverlay.tsx` — React UI module for OverlayViewAllDreamsOverlay.
+- `components/dreamengin/dream.panel.CrossEnginStatusPanel.tsx` — React UI module for PanelCrossEnginStatusPanel.
+- `components/dreamengin/dream.panel.DrEamsPanel.tsx` — React UI module for PanelDrEamsPanel.
+- `components/dreamengin/dream.scene.BabylonGameScene.tsx` — React UI module for SceneBabylonGameScene.
+- `components/dreamengin/dream.scene.DrEamsScene.tsx` — React UI module for SceneDrEamsScene.
+- `components/dreamengin/dream.scene.PortfolioOptimizationScene.tsx` — React UI module for ScenePortfolioOptimizationScene.
+- `components/dreamengin/dream.shell.EnginShell.tsx` — React UI module for ShellEnginShell.
+- `components/dreamengin/dream.widget.AppearanceWidget.tsx` — React UI module for WidgetAppearanceWidget.
+- `components/dreamengin/dreamsurface.dreamengin.tsx` — React UI module for DreamsurfaceDreamengin.
+- `components/dreamengin/engine/math.ts` — TypeScript/JavaScript runtime module.
+- `components/dreamengin/engine/types.ts` — TypeScript/JavaScript runtime module.
+- `components/dreamnav/dream.DreamNavControls.tsx` — React UI module for DreamNavControls.
+- `components/dreamnav/dreamsurface.dreamnav.tsx` — React UI module for DreamsurfaceDreamnav.
+- `components/dreamr/dream.CloseFriendsSettings.tsx` — React UI module for CloseFriendsSettings.
+- `components/dreamr/dream.panel.DreamRChannelPanel.tsx` — React UI module for PanelDreamRChannelPanel.
+- `components/dreamr/dream.panel.DreamRCreatorPanel.tsx` — React UI module for PanelDreamRCreatorPanel.
+- `components/dreams/dream.DraggableDream.tsx` — React UI module for DraggableDream.
+- `components/dreams/dream.GlobalDragLayer.tsx` — React UI module for GlobalDragLayer.
+- `components/dreams/dream.PlatformErrorReporter.tsx` — React UI module for PlatformErrorReporter.
+- `components/dreams/dream.SlideOverPanel.tsx` — React UI module for SlideOverPanel.
+- `components/dreams/dream.connectorlayer.tsx` — React UI module for Connectorlayer.
+- `components/dreams/dream.featurelayer.tsx` — React UI module for Featurelayer.
+- `components/dreams/dream.outputlayer.tsx` — React UI module for Outputlayer.
+- `components/dreams/dream.panel.RuntimeMemoryHUD.tsx` — React UI module for PanelRuntimeMemoryHUD.
+- `components/dreams/dream.shell.DreamShell.tsx` — React UI module for ShellDreamShell.
+- `components/dreams/dream.shell.SharedDreamShell.tsx` — React UI module for ShellSharedDreamShell.
+- `components/dreams/dream.widget.SuperDreamWidget.tsx` — React UI module for WidgetSuperDreamWidget.
+- `components/dreams/dream.window.JourneyDreamWindow.tsx` — React UI module for WindowJourneyDreamWindow.
+- `components/dreams/dreamsurface.dreamspace.tsx` — React UI module for DreamsurfaceDreamspace.
+- `components/dreams/dreamsurface.shell.tsx` — React UI module for DreamsurfaceShell.
+- `components/dreams/dreamsurface.window.tsx` — React UI module for DreamsurfaceWindow.
+- `components/engines/brand/dream.BrandEnginApp.tsx` — React UI module for BrandEnginApp.
+- `components/engines/brand/index.ts` — TypeScript/JavaScript runtime module.
+- `components/engines/brand/panels/dream.panel.CampaignsPanel.tsx` — React UI module for PanelCampaignsPanel.
+- `components/engines/brand/panels/dream.panel.IdentityPanel.tsx` — React UI module for PanelIdentityPanel.
+- `components/engines/code/dream.CodeEnginApp.tsx` — React UI module for CodeEnginApp.
+- `components/engines/code/index.ts` — TypeScript/JavaScript runtime module.
+- `components/engines/code/panels/dream.panel.AIPanel.tsx` — React UI module for PanelAIPanel.
+- `components/engines/code/panels/dream.panel.NotebookPanel.tsx` — React UI module for PanelNotebookPanel.
+- `components/engines/code/panels/dream.panel.ProjectsPanel.tsx` — React UI module for PanelProjectsPanel.
+- `components/engines/create/dream.CreateEnginApp.tsx` — React UI module for CreateEnginApp.
+- `components/engines/create/index.ts` — TypeScript/JavaScript runtime module.
+- `components/engines/create/panels/dream.panel.CalendarPanel.tsx` — React UI module for PanelCalendarPanel.
+- `components/engines/create/panels/dream.panel.EditorPanel.tsx` — React UI module for PanelEditorPanel.
+- `components/engines/create/panels/dream.panel.QueuePanel.tsx` — React UI module for PanelQueuePanel.
+- `components/engines/games/dream.GameEnginApp.tsx` — React UI module for GameEnginApp.
+- `components/engines/games/index.ts` — TypeScript/JavaScript runtime module.
+- `components/engines/games/panels/dream.panel.BuilderPanel.tsx` — React UI module for PanelBuilderPanel.
+- `components/engines/games/panels/dream.panel.LibraryPanel.tsx` — React UI module for PanelLibraryPanel.
+- `components/engines/games/panels/dream.panel.ScoresPanel.tsx` — React UI module for PanelScoresPanel.
+- `components/engines/index.ts` — TypeScript/JavaScript runtime module.
+- `components/engines/lab/dream.LabEnginApp.tsx` — React UI module for LabEnginApp.
+- `components/engines/lab/index.ts` — TypeScript/JavaScript runtime module.
+- `components/engines/lab/panels/dream.panel.DataVizPanel.tsx` — React UI module for PanelDataVizPanel.
+- `components/engines/lab/panels/dream.panel.ExperimentsPanel.tsx` — React UI module for PanelExperimentsPanel.
+- `components/engines/lab/panels/dream.panel.QuantumPanel.tsx` — React UI module for PanelQuantumPanel.
+- `components/engines/music/dream.MusicEnginApp.tsx` — React UI module for MusicEnginApp.
+- `components/engines/music/index.ts` — TypeScript/JavaScript runtime module.
+- `components/engines/music/panels/dream.panel.ArrangePanel.tsx` — React UI module for PanelArrangePanel.
+- `components/engines/music/panels/dream.panel.MusicLibraryPanel.tsx` — React UI module for PanelMusicLibraryPanel.
+- `components/engines/music/panels/dream.panel.StudioPanel.tsx` — React UI module for PanelStudioPanel.
+- `components/engines/portfolio/dream.PortfolioEnginApp.tsx` — React UI module for PortfolioEnginApp.
+- `components/engines/portfolio/index.ts` — TypeScript/JavaScript runtime module.
+- `components/engines/portfolio/panels/dream.panel.AssetsPanel.tsx` — React UI module for PanelAssetsPanel.
+- `components/engines/portfolio/panels/dream.panel.OptimizePanel.tsx` — React UI module for PanelOptimizePanel.
+- `components/engines/portfolio/panels/dream.panel.PortfolioQuantumPanel.tsx` — React UI module for PanelPortfolioQuantumPanel.
+- `components/engines/shared/dream.EnginProvider.tsx` — React UI module for EnginProvider.
+- `components/engines/shared/dream.EnginRuleSet.ts` — TypeScript/JavaScript runtime module.
+- `components/engines/shared/dream.bar.EnginNavBar.tsx` — React UI module for BarEnginNavBar.
+- `components/engines/shared/dream.makeEnginApp.tsx` — React UI module for MakeEnginApp.
+- `components/engines/shared/dream.shell.EnginAppShell.tsx` — React UI module for ShellEnginAppShell.
+- `components/engines/shared/index.ts` — TypeScript/JavaScript runtime module.
+- `components/feed/dream.AlgorithmEngine.tsx` — React UI module for AlgorithmEngine.
+- `components/feed/dream.CommentSection.tsx` — React UI module for CommentSection.
+- `components/feed/dream.FeedVideoCard.tsx` — React UI module for FeedVideoCard.
+- `components/feed/dream.FollowButton.tsx` — React UI module for FollowButton.
+- `components/feed/dream.FollowOnboarding.tsx` — React UI module for FollowOnboarding.
+- `components/feeds/dream.widget.EmbedFeedWidget.tsx` — React UI module for WidgetEmbedFeedWidget.
+- `components/forge/dream.EngineBuilderCanvas.tsx` — React UI module for EngineBuilderCanvas.
+- `components/forge/dream.panel.AIBuilderPanel.tsx` — React UI module for PanelAIBuilderPanel.
+- `components/forge/dream.widget.ForgeMomentumWidget.tsx` — React UI module for WidgetForgeMomentumWidget.
+- `components/gameengin/README.md` — documentation file.
+- `components/gameengin/dream.CartridgeRegistryBootstrap.tsx` — React UI module for CartridgeRegistryBootstrap.
+- `components/gameengin/dream.CrashReportModal.tsx` — React UI module for CrashReportModal.
+- `components/gameengin/dream.cartridge.CartridgeBrowser.tsx` — React UI module for CartridgeCartridgeBrowser.
+- `components/gameengin/dream.cartridge.CartridgeErrorBoundary.tsx` — React UI module for CartridgeCartridgeErrorBoundary.
+- `components/gameengin/dream.cartridge.CartridgeLauncher.tsx` — React UI module for CartridgeCartridgeLauncher.
+- `components/gameengin/dream.cartridge.FeaturedCartridges.tsx` — React UI module for CartridgeFeaturedCartridges.
+- `components/gameengin/input/DualSenseManager.ts` — TypeScript/JavaScript runtime module.
+- `components/games/_fx/canvasFx.ts` — TypeScript/JavaScript runtime module.
+- `components/games/css-modules.d.ts` — TypeScript/JavaScript runtime module.
+- `components/games/dream.AvenueOfMirrors.tsx` — React UI module for AvenueOfMirrors.
+- `components/games/dream.BabylonSideScroller.tsx` — React UI module for BabylonSideScroller.
+- `components/games/dream.DefuseRitual.tsx` — React UI module for DefuseRitual.
+- `components/games/dream.EchoArena.tsx` — React UI module for EchoArena.
+- `components/games/dream.EnginFracture.tsx` — React UI module for EnginFracture.
+- `components/games/dream.GameController.module.css` — project file (css).
+- `components/games/dream.GameController.tsx` — React UI module for GameController.
+- `components/games/dream.GamesHub.tsx` — React UI module for GamesHub.
+- `components/games/dream.Glassfall.tsx` — React UI module for Glassfall.
+- `components/games/dream.Leaderboard.tsx` — React UI module for Leaderboard.
+- `components/games/dream.LexiconSolitaire.tsx` — React UI module for LexiconSolitaire.
+- `components/games/dream.NeonDrift.tsx` — React UI module for NeonDrift.
+- `components/games/dream.NiteFlyerSolarHymn.tsx` — React UI module for NiteFlyerSolarHymn.
+- `components/games/dream.NullCathedral.tsx` — React UI module for NullCathedral.
+- `components/games/dream.RecordingControls.tsx` — React UI module for RecordingControls.
+- `components/games/dream.SerpentSiege.tsx` — React UI module for SerpentSiege.
+- `components/games/dream.VoidlineGP.tsx` — React UI module for VoidlineGP.
+- `components/games/dream.hud.GameHUD.tsx` — React UI module for HudGameHUD.
+- `components/games/dream.hud.LegacyGameHUD.tsx` — React UI module for HudLegacyGameHUD.
+- `components/games/dream.hud.MobileGameHUD.module.css` — project file (css).
+- `components/games/dream.hud.MobileGameHUD.tsx` — React UI module for HudMobileGameHUD.
+- `components/games/dream.remote.GameRemote.tsx` — React UI module for RemoteGameRemote.
+- `components/games/dream.remote.LegacyGameRemote.tsx` — React UI module for RemoteLegacyGameRemote.
+- `components/games/madmaxi/audio.ts` — TypeScript/JavaScript runtime module.
+- `components/games/madmaxi/authoredZonePacks.ts` — TypeScript/JavaScript runtime module.
+- `components/games/madmaxi/config.ts` — TypeScript/JavaScript runtime module.
+- `components/games/madmaxi/dream.MadmaxiGame.tsx` — React UI module for MadmaxiGame.
+- `components/games/madmaxi/index.ts` — TypeScript/JavaScript runtime module.
+- `components/games/madmaxi/levels.ts` — TypeScript/JavaScript runtime module.
+- `components/games/madmaxi/materials.ts` — TypeScript/JavaScript runtime module.
+- `components/games/madmaxi/types.ts` — TypeScript/JavaScript runtime module.
+- `components/games/madmaxi/vfx.ts` — TypeScript/JavaScript runtime module.
+- `components/home/dream.ActiveModuleSurface.tsx` — React UI module for ActiveModuleSurface.
+- `components/home/dream.DaydreamPulseStrip.tsx` — React UI module for DaydreamPulseStrip.
+- `components/home/dream.FlagshipEnginesStrip.tsx` — React UI module for FlagshipEnginesStrip.
+- `components/home/dream.NeuralSeamCanvas.tsx` — React UI module for NeuralSeamCanvas.
+- `components/home/dream.bar.GlobalDreamBar.tsx` — React UI module for BarGlobalDreamBar.
+- `components/home/dream.bar.PersistentDreamBar.tsx` — React UI module for BarPersistentDreamBar.
+- `components/home/dream.widget.DreamWidget.tsx` — React UI module for WidgetDreamWidget.
+- `components/idari/dream.PlatformHealth.tsx` — React UI module for PlatformHealth.
+- `components/landing/dream.LandingNav.tsx` — React UI module for LandingNav.
+- `components/landing/dream.LandingProductStatement.tsx` — React UI module for LandingProductStatement.
+- `components/landing/dream.scene.UniverseField.tsx` — React UI module for SceneUniverseField.
+- `components/marketplace/dream.MarketplaceListingCard.tsx` — React UI module for MarketplaceListingCard.
+- `components/marketplace/dream.MarketplaceRequestButton.tsx` — React UI module for MarketplaceRequestButton.
+- `components/menus/dream.menu.DreamRadialMenu.tsx` — React UI module for MenuDreamRadialMenu.
+- `components/menus/dream.menu.DualBottomMenu.tsx` — React UI module for MenuDualBottomMenu.
+- `components/menus/dream.menu.RadialMenu.tsx` — React UI module for MenuRadialMenu.
+- `components/menus/dream.menu.SystemRadialMenu.tsx` — React UI module for MenuSystemRadialMenu.
+- `components/menus/dream.panel.MenuPanel.tsx` — React UI module for PanelMenuPanel.
+- `components/messaging/dream.BoardComposer.tsx` — React UI module for BoardComposer.
+- `components/music/dream.SoundRecorder.tsx` — React UI module for SoundRecorder.
+- `components/onboarding/dream.OnboardingTip.tsx` — React UI module for OnboardingTip.
+- `components/optimizer/dream.scene.BabylonOptimizeroScene.tsx` — React UI module for SceneBabylonOptimizeroScene.
+- `components/overlays/dream.RootStatusScreen.tsx` — React UI module for RootStatusScreen.
+- `components/panels/dream.panel.AlgorithmPanel.tsx` — React UI module for PanelAlgorithmPanel.
+- `components/panels/dream.panel.AppearancePanel.tsx` — React UI module for PanelAppearancePanel.
+- `components/panels/dream.panel.ConnectorsPanel.tsx` — React UI module for PanelConnectorsPanel.
+- `components/panels/dream.panel.ControlsPanel.tsx` — React UI module for PanelControlsPanel.
+- `components/panels/dream.panel.DataPanel.tsx` — React UI module for PanelDataPanel.
+- `components/panels/dream.panel.FeedPanel.tsx` — React UI module for PanelFeedPanel.
+- `components/panels/dream.panel.FeedSettingsPanel.tsx` — React UI module for PanelFeedSettingsPanel.
+- `components/panels/dream.panel.HelpPanel.tsx` — React UI module for PanelHelpPanel.
+- `components/panels/dream.panel.MarketplacePanel.tsx` — React UI module for PanelMarketplacePanel.
+- `components/panels/dream.panel.PrivacyPanel.tsx` — React UI module for PanelPrivacyPanel.
+- `components/panels/dream.panel.ProfilePanel.tsx` — React UI module for PanelProfilePanel.
+- `components/panels/dream.panel.SafetyPanel.tsx` — React UI module for PanelSafetyPanel.
+- `components/panels/dream.panel.SettingsPanel.tsx` — React UI module for PanelSettingsPanel.
+- `components/panels/dream.panel.WidgetsPanel.tsx` — React UI module for PanelWidgetsPanel.
+- `components/profile/dream.EditableAvatar.tsx` — React UI module for EditableAvatar.
+- `components/profile/dream.ProfileCanvas.tsx` — React UI module for ProfileCanvas.
+- `components/profile/dream.ProfileCustomizeButton.tsx` — React UI module for ProfileCustomizeButton.
+- `components/profile/dream.widget.ProfileWidgetGrid.tsx` — React UI module for WidgetProfileWidgetGrid.
+- `components/providers/dream.AppSurfaceShell.tsx` — React UI module for AppSurfaceShell.
+- `components/providers/dream.GodTierProvider.tsx` — React UI module for GodTierProvider.
+- `components/providers/dream.ThemeProvider.tsx` — React UI module for ThemeProvider.
+- `components/runtime/dream.DualRuntimeContainer.tsx` — React UI module for DualRuntimeContainer.
+- `components/runtime/dream.RuntimeView.tsx` — React UI module for RuntimeView.
+- `components/runtime/dream.shell.RuntimeShell.tsx` — React UI module for ShellRuntimeShell.
+- `components/shaders/dream.LightningWing.tsx` — React UI module for LightningWing.
+- `components/shaders/dream.NeonGlow.tsx` — React UI module for NeonGlow.
+- `components/shaders/dream.Refractor.tsx` — React UI module for Refractor.
+- `components/shaders/index.ts` — TypeScript/JavaScript runtime module.
+- `components/shared-dream/dream.InviteFlow.tsx` — React UI module for InviteFlow.
+- `components/shared-dream/dream.SharedDreamCanvas.tsx` — React UI module for SharedDreamCanvas.
+- `components/shared-dream/dream.SharedDreamProvider.tsx` — React UI module for SharedDreamProvider.
+- `components/shared-dream/index.ts` — TypeScript/JavaScript runtime module.
+- `components/spatial/dream.PixiPhysicsLayer.tsx` — React UI module for PixiPhysicsLayer.
+- `components/spatial/dream.ProfileSpace.tsx` — React UI module for ProfileSpace.
+- `components/spatial/dream.shell.EnhancedSpatialShell.tsx` — React UI module for ShellEnhancedSpatialShell.
+- `components/three/dream.scene.tsx` — React UI module for Scene.
+- `components/three/index.ts` — TypeScript/JavaScript runtime module.
+- `components/ui/dream.AuthenticatedPageHeader.tsx` — React UI module for AuthenticatedPageHeader.
+- `components/ui/dream.DreamWord.tsx` — React UI module for DreamWord.
+- `components/ui/dream.IconList.tsx` — React UI module for IconList.
+- `components/ui/dream.InfinityIcon.tsx` — React UI module for InfinityIcon.
+- `components/ui/dream.PlatformBadge.tsx` — React UI module for PlatformBadge.
+- `components/ui/dream.SheetIcon.tsx` — React UI module for SheetIcon.
+- `components/ui/dream.SocialShareSheet.tsx` — React UI module for SocialShareSheet.
 - `components/universal-editor/dream.UniversalEditor.tsx` — React UI module for UniversalEditor.
 - `components/universal-editor/dream.UniversalEditorWrapper.tsx` — React UI module for UniversalEditorWrapper.
-- `components/universal-editor/index.ts` — TypeScript runtime module for index.
-- `components/universal-editor/useTapHoldMove.ts` — TypeScript runtime module for useTapHoldMove.
+- `components/universal-editor/index.ts` — TypeScript/JavaScript runtime module.
+- `components/universal-editor/useTapHoldMove.ts` — TypeScript/JavaScript runtime module.
+- `components/universe/dream.node-cluster.tsx` — React UI module for NodeCluster.
+- `components/universe/dream.shell.universe-shell.tsx` — React UI module for ShellUniverseShell.
+- `components/universe/dream.universe-card.tsx` — React UI module for UniverseCard.
+- `components/universe/index.ts` — TypeScript/JavaScript runtime module.
+- `components/warp/dream.WarpCanvas.tsx` — React UI module for WarpCanvas.
+- `components/webgpu/dream.WebGPUShowcase.tsx` — React UI module for WebGPUShowcase.
+- `components/webgpu/neuralPostProcess.ts` — TypeScript/JavaScript runtime module.
+- `components/webgpu/renderer.ts` — TypeScript/JavaScript runtime module.
+- `components/webgpu/shaders.ts` — TypeScript/JavaScript runtime module.
 - `components/widgets/dream.AddDreamCTA.tsx` — React UI module for AddDreamCTA.
 - `components/widgets/dream.ConfigureSheet.tsx` — React UI module for ConfigureSheet.
 - `components/widgets/dream.EditModeBanner.tsx` — React UI module for EditModeBanner.
 - `components/widgets/dream.EditModeProvider.tsx` — React UI module for EditModeProvider.
-- `components/widgets/dream.widget.PlayMediaWidget.tsx` — React UI module for widget PlayMediaWidget.
-- `components/widgets/dream.widget.UniversalWidget.tsx` — React UI module for widget UniversalWidget.
-- `components/widgets/dream.widget.WidgetCard.tsx` — React UI module for widget WidgetCard.
-- `components/widgets/dream.widget.WidgetLibrary.tsx` — React UI module for widget WidgetLibrary.
-- `components/widgets/dream.widget.WidgetPlaceholder.tsx` — React UI module for widget WidgetPlaceholder.
-- `components/widgets/dream.widget.WidgetShell.tsx` — React UI module for widget WidgetShell.
-- `components/widgets/dream.widget.WidgetSurface.tsx` — React UI module for widget WidgetSurface.
-- `lib/runtime/dropTargetRegistry.ts` — TypeScript runtime module for dropTargetRegistry.
-- `lib/runtime/moduleRegistry.ts` — TypeScript runtime module for moduleRegistry.
-- `lib/runtime/useDragSurface.ts` — TypeScript runtime module for useDragSurface.
-- `lib/universal-editor/module-manifest.ts` — TypeScript runtime module for module manifest.
-- `lib/universalEditor.ts` — TypeScript runtime module for universalEditor.
+- `components/widgets/dream.widget.PlayMediaWidget.tsx` — React UI module for WidgetPlayMediaWidget.
+- `components/widgets/dream.widget.UniversalWidget.tsx` — React UI module for WidgetUniversalWidget.
+- `components/widgets/dream.widget.WidgetCard.tsx` — React UI module for WidgetWidgetCard.
+- `components/widgets/dream.widget.WidgetLibrary.tsx` — React UI module for WidgetWidgetLibrary.
+- `components/widgets/dream.widget.WidgetPlaceholder.tsx` — React UI module for WidgetWidgetPlaceholder.
+- `components/widgets/dream.widget.WidgetShell.tsx` — React UI module for WidgetWidgetShell.
+- `components/widgets/dream.widget.WidgetSurface.tsx` — React UI module for WidgetWidgetSurface.
+- `hooks/use-spatial.ts` — TypeScript/JavaScript runtime module.
+- `hooks/useAccount.ts` — TypeScript/JavaScript runtime module.
+- `hooks/useConnectorInstallFlow.ts` — TypeScript/JavaScript runtime module.
+- `hooks/useDreamLayout.ts` — TypeScript/JavaScript runtime module.
+- `hooks/useHideOnScroll.ts` — TypeScript/JavaScript runtime module.
+- `hooks/useSharedDream.ts` — TypeScript/JavaScript runtime module.
+- `hooks/useTapHoldMove.ts` — TypeScript/JavaScript runtime module.
+- `hooks/useTick.ts` — TypeScript/JavaScript runtime module.
+- `hooks/useViewCounter.ts` — TypeScript/JavaScript runtime module.
+- `lib/ui/CustomizeModeContext.tsx` — React UI module for CustomizeModeContext.
+- `lib/ui/responsive.ts` — TypeScript/JavaScript runtime module.
+- `lib/ui/runtimeViewport.ts` — TypeScript/JavaScript runtime module.
+- `lib/ui/skin-engine.ts` — TypeScript/JavaScript runtime module.
+- `lib/ui/theme-engine.ts` — TypeScript/JavaScript runtime module.
+- `lib/ui/theme.ts` — TypeScript/JavaScript runtime module.
+- `styles/dream-shell.css` — project file (css).
+- `styles/globals.css` — project file (css).
+- `styles/home-dream.css` — project file (css).
+- `styles/theme.css` — project file (css).
+- `styles/view-transitions.css` — project file (css).
 
 </details>
+
 ## Custom Engins
 From a user perspective, Custom Engins are assembled by selecting/authoring modules that conform to the manifest + runtime contract rather than by creating a separate engine runtime.
 
