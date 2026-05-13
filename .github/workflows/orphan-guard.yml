@@ -1,0 +1,19 @@
+name: Orphan Guard
+
+on:
+  pull_request:
+  push:
+    branches:
+      - completedream
+
+jobs:
+  orphan-guard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-node
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm wire:orphans
+      - run: pnpm check:orphans
