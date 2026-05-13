@@ -15,6 +15,9 @@ jobs:
     timeout-minutes: 25
     continue-on-error: true
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: ./.github/actions/resilient-engine
         with:
           ruleset: .github/ruleset/mobile-nextgen-spec-evolution.yml
