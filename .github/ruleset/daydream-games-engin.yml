@@ -1,0 +1,10 @@
+name: daydream-games-engin
+required_secrets: [OPENAI_API_KEY]
+command: |
+  [ -f scripts/daydream.mjs ] && node scripts/daydream.mjs --engin games || echo "⚠️ daydream-games-engin no-op"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 20
+  allow_failure: true

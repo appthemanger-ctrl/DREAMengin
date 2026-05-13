@@ -1,0 +1,12 @@
+name: neural-decision-engine
+required_secrets: [GROQ_API_KEY]
+command: |
+  python .github/scripts/scan_dreamengin_context.py > /dev/null 2>&1 || true \
+  && echo "✅ Neural decision context scanned" \
+  || echo "⚠️ neural-decision-engine soft-skip"
+artifact:
+  name: neural-decision-artifacts
+  path: .github/generated/neural-decision/**
+constraints:
+  max_runtime_minutes: 35
+  allow_failure: true

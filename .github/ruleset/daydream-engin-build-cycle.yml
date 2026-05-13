@@ -1,0 +1,10 @@
+name: daydream-engin-build-cycle
+required_secrets: [OPENAI_API_KEY]
+command: |
+  [ -f scripts/daydream-build-cycle.mjs ] && node scripts/daydream-build-cycle.mjs || echo "⚠️ daydream-engin-build-cycle no-op"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 20
+  allow_failure: true

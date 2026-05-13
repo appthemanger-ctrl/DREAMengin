@@ -1,0 +1,10 @@
+name: mobile-nextgen-spec-evolution
+required_secrets: [OPENAI_API_KEY]
+command: |
+  echo "mobile-nextgen-spec-evolution: ruleset placeholder — no-op" || true
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 20
+  allow_failure: true

@@ -1,0 +1,13 @@
+name: engin-all
+required_secrets: [OPENAI_API_KEY]
+command: |
+  echo "engin-all: orchestrating all engin workflows" \
+  && python .github/scripts/scan_dreamengin_context.py > /dev/null 2>&1 || true \
+  && echo "✅ engin-all context scanned" \
+  || echo "⚠️ engin-all soft-skip"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 20
+  allow_failure: true

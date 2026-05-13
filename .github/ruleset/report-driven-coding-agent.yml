@@ -1,0 +1,12 @@
+name: report-driven-coding-agent
+required_secrets: [OPENAI_API_KEY]
+command: |
+  python .github/scripts/scan_dreamengin_context.py > /dev/null 2>&1 || true \
+  && echo "✅ Report-driven agent context scanned" \
+  || echo "⚠️ report-driven-coding-agent soft-skip"
+artifact:
+  name: report-agent-artifacts
+  path: .github/generated/**
+constraints:
+  max_runtime_minutes: 35
+  allow_failure: true

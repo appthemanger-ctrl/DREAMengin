@@ -1,0 +1,10 @@
+name: deploy-artifact
+required_secrets: [VERCEL_TOKEN]
+command: |
+  echo "deploy-artifact: handled by Vercel GitHub integration" || true
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 15
+  allow_failure: true

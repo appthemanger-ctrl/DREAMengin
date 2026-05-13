@@ -1,0 +1,10 @@
+name: exportrepo
+required_secrets: []
+command: |
+  [ -f scripts/exportrepo.mjs ] && node scripts/exportrepo.mjs || echo "⚠️ exportrepo no-op"
+artifact:
+  name: repo-export
+  path: exports/**
+constraints:
+  max_runtime_minutes: 10
+  allow_failure: true

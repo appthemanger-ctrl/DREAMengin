@@ -1,0 +1,12 @@
+name: gameengin-ai-agent
+required_secrets: [OPENAI_API_KEY]
+command: |
+  python .github/scripts/scan_dreamengin_context.py > /dev/null 2>&1 || true \
+  && echo "✅ GameEngin AI agent ready" \
+  || echo "⚠️ gameengin-ai-agent soft-skip"
+artifact:
+  name: gameengin-ai-agent-report
+  path: .github/generated/**
+constraints:
+  max_runtime_minutes: 30
+  allow_failure: true

@@ -1,0 +1,10 @@
+name: portfolio-optimization
+required_secrets: [OPENAI_API_KEY]
+command: |
+  echo "portfolio-optimization: ruleset placeholder — no-op" || true
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 20
+  allow_failure: true

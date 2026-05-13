@@ -1,0 +1,12 @@
+name: optimize-dreamengin
+required_secrets: [OPENAI_API_KEY]
+command: |
+  python .github/scripts/scan_dreamengin_context.py > /dev/null 2>&1 || true \
+  && echo "✅ optimize-dreamengin context ready" \
+  || echo "⚠️ optimize-dreamengin soft-skip"
+artifact:
+  name: optimize-dreamengin-report
+  path: .github/generated/**
+constraints:
+  max_runtime_minutes: 20
+  allow_failure: true

@@ -1,0 +1,11 @@
+name: humanai-audit
+required_secrets: [OPENAI_API_KEY]
+command: |
+  python .github/scripts/humanai_audit.py --no-ai 2>/dev/null \
+  || echo "⚠️ humanai-audit soft-skip"
+artifact:
+  name: humanai-audit-report
+  path: .github/generated/humanai/**
+constraints:
+  max_runtime_minutes: 20
+  allow_failure: true

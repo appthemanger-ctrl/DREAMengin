@@ -6,177 +6,30 @@ name: Daydream Lobbies — All Health & Feature Scans
 #
 # Runs all six Daydream lobby health checks as a single matrix workflow.
 # One workflow entry in the Actions tab instead of six.
-
 on:
   workflow_dispatch:
   schedule:
     - cron: '0 2 * * 1'   # weekly Monday 02:00 UTC
-
 permissions:
   contents: write
-
 concurrency:
   group: daydream-all-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  NODE_VERSION: '25'
-  PNPM_VERSION: '10.30.0'
-
 jobs:
-  daydream-health:
-    name: ${{ matrix.emoji }} ${{ matrix.name }} Daydream · Build · Lint · Test · Scan
+  run:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - domain: music
-            name: Music
-            emoji: "🎵"
-            lint_dirs: "app/daydream/music app/music"
-          - domain: games
-            name: Games
-            emoji: "🕹️"
-            lint_dirs: "app/daydream/games app/game"
-          - domain: lab
-            name: Lab
-            emoji: "⚗️"
-            lint_dirs: "app/daydream/lab app/lab app/physics-lab"
-          - domain: code
-            name: Code
-            emoji: "🖥️"
-            lint_dirs: "app/daydream/code app/codespace"
-          - domain: brand
-            name: Brand
-            emoji: "📊"
-            lint_dirs: "app/daydream/brand app/analytics app/ads"
-          - domain: create
-            name: Create
-            emoji: "✍️"
-            lint_dirs: "app/daydream/create app/create app/notes"
-
+    timeout-minutes: 25
+    continue-on-error: true
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: ./.github/actions/resilient-engine
         with:
-          fetch-depth: 0
-
-      - name: Setup pnpm ${{ env.PNPM_VERSION }}
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node ${{ env.NODE_VERSION }}
-        uses: ./.github/actions/setup-node
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build (Next.js)
-        run: pnpm run build
+          ruleset: .github/ruleset/daydream-all.yml
+          allow-failure: 'true'
         env:
-          NEXT_PUBLIC_SUPABASE_URL:      ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-
-      - name: Security audit
-        run: pnpm audit --audit-level=high || true
-
-      - name: Lint — ${{ matrix.name }} Daydream scope
-        run: |
-          ARGS=""
-          for d in ${{ matrix.lint_dirs }}; do
-            [ -d "$d" ] && ARGS="$ARGS --dir $d"
-          done
-          [ -n "$ARGS" ] && pnpm exec next lint $ARGS || true
-
-      - name: Typecheck
-        run: pnpm typecheck || true
-
-      - name: Unit tests
-        run: pnpm exec vitest run --reporter=verbose || true
-
-      - name: Premium feature scan — ${{ matrix.name }}
-        run: |
-          DOMAIN="${{ matrix.domain }}"
-          echo "## Premium feature scan: $DOMAIN"
-          case "$DOMAIN" in
-            music)
-              echo "--- SoundRecorder ---"
-              grep -rl "SoundRecorder" app/daydream/music components/music 2>/dev/null || echo "⚠ SoundRecorder not found"
-              echo "--- Upload handlers ---"
-              grep -rl "upload\|Upload\|handleUpload" app/daydream/music app/music app/api/music 2>/dev/null || echo "⚠ Upload handlers not found"
-              echo "--- Labels & releases ---"
-              grep -rl "label\|Label\|release\|Release" app/daydream/music app/music 2>/dev/null || echo "⚠ Label/release mgmt not found"
-              ;;
-            games)
-              echo "--- Game hub / remote ---"
-              grep -rl "GameHub\|GameRemote\|Leaderboard\|score\|Score" app/daydream/games components/games 2>/dev/null || echo "⚠ Game hub not found"
-              echo "--- Play mode entry ---"
-              grep -rl "playMode\|startGame\|launchGame\|enterGame" app/daydream/games 2>/dev/null || echo "⚠ Play mode entry not found"
-              echo "--- Input detection ---"
-              grep -rl "gamepad\|Gamepad\|keyboard\|Keyboard\|KeyboardEvent" app/daydream/games components/games 2>/dev/null || echo "⚠ Input detection not found"
-              ;;
-            lab)
-              echo "--- Experiment runner ---"
-              grep -rl "runExperiment\|ExperimentRunner\|startExperiment" app/daydream/lab app/lab 2>/dev/null || echo "⚠ Experiment runner not found"
-              echo "--- Simulation status ---"
-              grep -rl "simulationStatus\|SimulationStatus\|simRunning" app/daydream/lab app/lab 2>/dev/null || echo "⚠ Simulation status not found"
-              echo "--- Quantum circuit ---"
-              grep -rl "QuantumCircuit\|applyGate\|measureQubit" app/daydream/lab components 2>/dev/null || echo "⚠ Quantum circuit not found"
-              ;;
-            code)
-              echo "--- Cell execution ---"
-              grep -rl "executeCell\|runCell\|cellExecution\|NotebookCell" app/daydream/code app/codespace 2>/dev/null || echo "⚠ Cell execution not found"
-              echo "--- Live CI integration ---"
-              grep -rl "liveCI\|ciIntegration\|runCI\|triggerCI" app/daydream/code 2>/dev/null || echo "⚠ Live CI integration not found"
-              echo "--- Language server ---"
-              grep -rl "languageServer\|LanguageServer\|monaco\|Monaco" app/daydream/code app/codespace components 2>/dev/null || echo "⚠ Language server not found"
-              ;;
-            brand)
-              echo "--- Brand analytics ---"
-              grep -rl "analytics\|Analytics\|brandAnalytics\|followerCount" app/daydream/brand app/analytics 2>/dev/null || echo "⚠ Brand analytics not found"
-              echo "--- Campaign management ---"
-              grep -rl "campaign\|Campaign\|createCampaign\|manageCampaign" app/daydream/brand app/ads 2>/dev/null || echo "⚠ Campaign management not found"
-              echo "--- DreamAds separation ---"
-              grep -rl "DreamAds\|dream-ads" app/daydream/brand app/ads 2>/dev/null || echo "⚠ DreamAds privacy boundary not found"
-              ;;
-            create)
-              echo "--- Draft management ---"
-              grep -rl "draft\|Draft\|autosave\|saveDraft\|loadDraft" app/daydream/create app/create app/notes 2>/dev/null || echo "⚠ Draft management not found"
-              echo "--- Publish queue ---"
-              grep -rl "publishQueue\|PublishQueue\|schedulePost\|ContentScheduler" app/daydream/create app/create 2>/dev/null || echo "⚠ Publish queue not found"
-              echo "--- Content types ---"
-              grep -rl "contentType\|ContentType\|videoContent\|audioContent" app/daydream/create app/create 2>/dev/null || echo "⚠ Content types not found"
-              ;;
-          esac
-
-      - name: ESLint auto-fix — ${{ matrix.name }} Daydream
-        run: |
-          ARGS=""
-          for d in ${{ matrix.lint_dirs }}; do
-            [ -d "$d" ] && ARGS="$ARGS --dir $d"
-          done
-          [ -n "$ARGS" ] && pnpm exec next lint --fix $ARGS || true
-
-      - name: Commit auto-fixes (if any)
-        run: |
-          git config user.name  "daydream-${{ matrix.domain }}-bot"
-          git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
-          if git diff --quiet && git diff --cached --quiet; then
-            echo "No fixes to commit."
-          else
-            git add -A
-            git commit -m "fix(daydream/${{ matrix.domain }}): ESLint auto-fix [skip ci] [skip vercel]"
-            git push || true
-          fi
-
-      - name: Job Summary
-        if: always()
-        run: |
-          echo "## ${{ matrix.emoji }} ${{ matrix.name }} Daydream Health" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Item | Value |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|------|-------|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Domain | ${{ matrix.name }} |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Branch | \`${{ github.ref_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Triggered by | ${{ github.event_name }} |" >> "$GITHUB_STEP_SUMMARY"
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

@@ -1,0 +1,10 @@
+name: gameengin-prophet
+required_secrets: [OPENAI_API_KEY]
+command: |
+  echo "gameengin-prophet: ruleset placeholder — no-op" || true
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 20
+  allow_failure: true

@@ -1,0 +1,14 @@
+name: garbageman
+required_secrets: []
+command: |
+  find . -name ".DS_Store" -delete 2>/dev/null || true
+  find . -name "Thumbs.db" -delete 2>/dev/null || true
+  find . -name "*.log" -not -path "./.git/*" -delete 2>/dev/null || true
+  find . -name "*.tmp" -not -path "./.git/*" -delete 2>/dev/null || true
+  echo "✅ Cleanup complete"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 5
+  allow_failure: true

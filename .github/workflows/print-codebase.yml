@@ -1,5 +1,4 @@
 name: Print Codebase (code only)
-
 on:
   workflow_dispatch:
     inputs:
@@ -15,122 +14,23 @@ on:
           (default: README.md,docs,spec,app,components,lib,styles,scripts,engine,engins)
         required: false
         default: "README.md,docs,spec,app,components,lib,styles,scripts,engine,engins"
-
 permissions:
   contents: read
 
 jobs:
-  print-codebase:
-    name: Dump all source files
+  run:
     runs-on: ubuntu-latest
-
+    timeout-minutes: 25
+    continue-on-error: true
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: ./.github/actions/resilient-engine
         with:
-          fetch-depth: 1
-
-      - name: Print and Archive Codebase
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          # ── build the -name predicate from the comma-separated input ──────────
-          RAW_EXTS="${{ github.event.inputs.extensions || 'ts,tsx,js,jsx,mjs,cjs,css,scss,json,md,yml,yaml,sh,py,sql,toml' }}"
-          IFS=',' read -ra EXT_LIST <<< "$RAW_EXTS"
-
-          NAME_ARGS=()
-          for ext in "${EXT_LIST[@]}"; do
-            ext="${ext// /}"   # trim spaces
-            if [ -z "$ext" ]; then
-              continue
-            fi
-            if [ ${#NAME_ARGS[@]} -gt 0 ]; then
-              NAME_ARGS+=(-o)
-            fi
-            NAME_ARGS+=(-name "*.${ext}")
-          done
-
-          if [ ${#NAME_ARGS[@]} -eq 0 ]; then
-            echo "No valid extensions were provided."
-            exit 1
-          fi
-
-          # ── scan only useful repo-context roots by default ─────────────────────
-          RAW_ROOTS="${{ github.event.inputs.roots || 'README.md,docs,spec,app,components,lib,styles,scripts,engine,engins' }}"
-          IFS=',' read -ra ROOT_LIST <<< "$RAW_ROOTS"
-
-          SEARCH_ROOTS=()
-          for root in "${ROOT_LIST[@]}"; do
-            root="${root// /}"   # trim spaces
-            if [ -z "$root" ]; then
-              continue
-            fi
-            if [ -e "$root" ]; then
-              SEARCH_ROOTS+=("$root")
-            else
-              echo "Skipping missing root: $root"
-            fi
-          done
-
-          if [ ${#SEARCH_ROOTS[@]} -eq 0 ]; then
-            echo "No valid roots were provided."
-            exit 1
-          fi
-
-          # ── directories to skip entirely ──────────────────────────────────────
-          PRUNE_DIRS=(
-            .git
-            .github/agents
-            .github/generated
-            .github/issue-triage
-            node_modules
-            .next
-            .vercel
-            .turbo
-            dist
-            build
-            out
-            .cache
-            coverage
-            _export
-            workflow/archive
-          )
-
-          PRUNE_ARGS=()
-          for d in "${PRUNE_DIRS[@]}"; do
-            PRUNE_ARGS+=(-path "*/${d}" -prune -o)
-          done
-
-          total=0
-
-          # ── walk & print ──────────────────────────────────────────────────────
-          while IFS= read -r -d '' file; do
-            echo ""
-            echo "================================================================="
-            echo "=== FILE: ${file#./} ==="
-            echo "================================================================="
-            cat "$file"
-            echo ""
-            (( total++ )) || true
-          done < <(
-            find "${SEARCH_ROOTS[@]}" \
-              "${PRUNE_ARGS[@]}" \
-              \( "${NAME_ARGS[@]}" \) \
-              -type f \
-              -print0 \
-            | sort -z
-          )
-
-          echo ""
-          echo "================================================================="
-          echo "=== DONE — ${total} file(s) printed ==="
-          echo "================================================================="
-
-      - name: Create Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: dream-engin-source
-          path: .
-          include-hidden-files: false
-          if-no-files-found: error
+          ruleset: .github/ruleset/print-codebase.yml
+          allow-failure: 'true'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

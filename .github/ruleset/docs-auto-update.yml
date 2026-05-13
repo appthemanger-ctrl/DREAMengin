@@ -1,0 +1,10 @@
+name: docs-auto-update
+required_secrets: []
+command: |
+  [ -f scripts/docs-auto-update.mjs ] && node scripts/docs-auto-update.mjs || echo "⚠️ docs-auto-update no-op"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 10
+  allow_failure: true

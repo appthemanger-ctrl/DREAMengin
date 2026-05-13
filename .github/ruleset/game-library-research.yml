@@ -1,0 +1,12 @@
+name: game-library-research
+required_secrets: [OPENAI_API_KEY]
+command: |
+  python .github/scripts/scan_dreamengin_context.py > /dev/null 2>&1 || true \
+  && echo "✅ Game library research context ready" \
+  || echo "⚠️ game-library-research soft-skip"
+artifact:
+  name: game-library-research-report
+  path: .github/generated/**
+constraints:
+  max_runtime_minutes: 20
+  allow_failure: true

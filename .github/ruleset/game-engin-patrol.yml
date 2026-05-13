@@ -1,0 +1,10 @@
+name: game-engin-patrol
+required_secrets: []
+command: |
+  [ -f scripts/game-engin-patrol.mjs ] && node scripts/game-engin-patrol.mjs || echo "⚠️ game-engin-patrol no-op"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 15
+  allow_failure: true

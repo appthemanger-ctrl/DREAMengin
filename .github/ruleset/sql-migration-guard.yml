@@ -1,0 +1,11 @@
+name: sql-migration-guard
+required_secrets: []
+command: |
+  [ -f scripts/sql-migration-guard.mjs ] && node scripts/sql-migration-guard.mjs \
+  || echo "⚠️ sql-migration-guard no-op"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 10
+  allow_failure: true

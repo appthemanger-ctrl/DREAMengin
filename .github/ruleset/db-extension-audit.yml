@@ -1,0 +1,10 @@
+name: db-extension-audit
+required_secrets: []
+command: |
+  [ -f scripts/db-extension-audit.mjs ] && node scripts/db-extension-audit.mjs || echo "⚠️ db-extension-audit no-op"
+artifact:
+  name: db-audit-report
+  path: ''
+constraints:
+  max_runtime_minutes: 10
+  allow_failure: true

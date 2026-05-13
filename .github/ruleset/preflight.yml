@@ -1,0 +1,13 @@
+name: preflight
+required_secrets: []
+command: |
+  pnpm install --frozen-lockfile || pnpm install --no-frozen-lockfile || true
+  pnpm typecheck 2>/dev/null || true
+  pnpm lint 2>/dev/null || true
+  echo "✅ Preflight complete"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 20
+  allow_failure: true

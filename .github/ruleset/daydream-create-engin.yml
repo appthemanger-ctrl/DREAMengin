@@ -1,0 +1,10 @@
+name: daydream-create-engin
+required_secrets: [OPENAI_API_KEY]
+command: |
+  [ -f scripts/daydream.mjs ] && node scripts/daydream.mjs --engin create || echo "⚠️ daydream-create-engin no-op"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 20
+  allow_failure: true

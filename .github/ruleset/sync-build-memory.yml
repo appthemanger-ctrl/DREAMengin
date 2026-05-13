@@ -1,0 +1,10 @@
+name: sync-build-memory
+required_secrets: []
+command: |
+  [ -f scripts/sync-build-memory.mjs ] && node scripts/sync-build-memory.mjs || echo "⚠️ sync-build-memory no-op"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 10
+  allow_failure: true

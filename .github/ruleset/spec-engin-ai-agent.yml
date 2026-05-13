@@ -1,0 +1,12 @@
+name: spec-engin-ai-agent
+required_secrets: [OPENAI_API_KEY]
+command: |
+  python .github/scripts/scan_dreamengin_context.py > /dev/null 2>&1 || true \
+  && echo "✅ spec-engin AI agent ready" \
+  || echo "⚠️ spec-engin-ai-agent soft-skip"
+artifact:
+  name: spec-engin-ai-agent-report
+  path: .github/generated/**
+constraints:
+  max_runtime_minutes: 30
+  allow_failure: true

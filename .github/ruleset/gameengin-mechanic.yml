@@ -1,0 +1,10 @@
+name: gameengin-mechanic
+required_secrets: [OPENAI_API_KEY]
+command: |
+  echo "gameengin-mechanic: ruleset placeholder — no-op" || true
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 20
+  allow_failure: true

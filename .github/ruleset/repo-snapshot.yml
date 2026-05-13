@@ -1,0 +1,11 @@
+name: repo-snapshot
+required_secrets: []
+command: |
+  [ -f scripts/repo-snapshot.mjs ] && node scripts/repo-snapshot.mjs > /dev/null 2>&1 \
+  || echo "⚠️ repo-snapshot no-op"
+artifact:
+  name: repo-snapshot
+  path: snapshots/**
+constraints:
+  max_runtime_minutes: 10
+  allow_failure: true
