@@ -24,7 +24,7 @@ import {
   rankFeed,
   type DreamRSignals,
   type ScoredPost,
-} from '@/dreamdmbar/homedream/dreamr/algorithms/dreamrAlgorithm';
+} from '@/app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm';
 
 function hoursAgo(h: number): string {
   return new Date(Date.now() - h * 3_600_000).toISOString();

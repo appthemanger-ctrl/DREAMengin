@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { Radio } from 'lucide-react';
 import { connection } from 'next/server';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
-import DreamRSection from '@/dreamdmbar/homedream/dreamr/dreamsurface.dreamr';
+import DreamRSection from '@/app/dreamdmbar/_components/dreamr/dreamsurface.dreamr';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import { safeGetUser } from '@/lib/supabase/safeGetUser';
 

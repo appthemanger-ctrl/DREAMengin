@@ -38,7 +38,7 @@ export default function CommandPalette() {
       iconColor: '#38bdf8',
       iconBg: 'rgba(56,189,248,0.12)',
       keywords: ['home', 'feed', 'dashboard', 'homedream'],
-      action: () => router.push('/homedream'),
+      action: () => router.push('/dreamdmbar'),
       category: 'Surfaces',
       shortcut: '⌘H',
     },

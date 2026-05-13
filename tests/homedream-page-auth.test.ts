@@ -31,7 +31,7 @@ vi.mock('@/lib/dev-bypass', () => ({
   isDevBypassActive: isDevBypassActiveMock,
 }));
 
-vi.mock('@/dreamdmbar/homedream/dream.shell.HomeSystem', () => ({
+vi.mock('@/app/dreamdmbar/_components/DreamBarDataBridge', () => ({
   default: homeSystemMock,
 }));
 
@@ -43,7 +43,7 @@ vi.mock('@/lib/media/postMedia', () => ({
   getPrimaryPostMediaUrl: vi.fn(() => null),
 }));
 
-describe('app/homedream/page auth gating', () => {
+describe('app/dreamdmbar/layout auth gating', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
@@ -59,20 +59,22 @@ describe('app/homedream/page auth gating', () => {
   });
 
   it('redirects to login when there is no user and dev bypass is off', async () => {
-    const { default: Home } = await import('@/app/homedream/page');
+    const { default: DreamDMBarLayout } = await import('@/app/dreamdmbar/layout');
 
-    await expect(Home()).rejects.toThrow('redirect:/login');
+    await expect(DreamDMBarLayout({ children: null })).rejects.toThrow('redirect:/login');
     expect(redirectMock).toHaveBeenCalledWith('/login');
   });
 
   it('renders the home system in dev bypass mode without a Supabase user', async () => {
     isDevBypassActiveMock.mockReturnValue(true);
 
-    const { default: Home } = await import('@/app/homedream/page');
-    const result = await Home();
+    const { default: DreamDMBarLayout } = await import('@/app/dreamdmbar/layout');
+    const result = await DreamDMBarLayout({ children: null });
+    const children = Array.isArray(result?.props?.children) ? result.props.children : [];
+    const bridgeNode = children.find((child: { type?: unknown }) => child?.type === homeSystemMock);
 
     expect(redirectMock).not.toHaveBeenCalled();
-    expect(result).toMatchObject({
+    expect(bridgeNode).toMatchObject({
       type: homeSystemMock,
       props: {
         userId: 'dev-bypass-user',

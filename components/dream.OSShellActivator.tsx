@@ -6,10 +6,10 @@
  * Background
  * ──────────
  * The DREAMengin OS shell (DreamDM Bar + dual runtime regions) lives in
- * `app/layout.tsx` via `<PersistentDreamBar />`. Its visibility / seam-mode
+ * `app/layout.tsx` via the persistent Dream Bar shell component. Its visibility / seam-mode
  * gate is `isHomeActive = runtimeCallbacks !== null`.
  *
- * Until now, only `app/homedream/page.tsx` mounted `<DreamBarDataBridge />`,
+ * Until now, only `app/homedream/page.tsx` mounted the DreamBarDataBridge bridge,
  * which is the only thing that ever called `registerRuntimeCallbacks(...)`.
  * That left every other authenticated route stuck with the bar in nav-rail
  * mode and the runtime regions hidden, even though `DreamSystemContext`

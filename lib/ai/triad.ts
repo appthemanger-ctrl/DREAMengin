@@ -59,7 +59,7 @@ function safeJsonParse(text: string): Record<string, unknown> | null {
 
 export const CANONICAL_NAV_ROUTES: ReadonlySet<string> = new Set([
   // Core surfaces
-  '/homedream',
+  '/dreamdmbar',
   '/home',
   '/edit-profiledream',
   '/edit-profile',

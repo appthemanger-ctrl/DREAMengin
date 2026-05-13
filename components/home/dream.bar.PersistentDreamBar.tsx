@@ -177,13 +177,13 @@ export default function PersistentDreamBar() {
   // isHomeActive: DreamBarDataBridge is mounted → regions visible + bar in divider mode.
   // When false: regions are display:none (mounted but invisible) + bar is nav-rail mode.
   //
-  // On `/homedream` we MUST show the home runtime even before the client-side
+  // On `/dreamdmbar` we MUST show the home runtime even before the client-side
   // DreamBarDataBridge has finished registering callbacks, otherwise the page
   // appears blank (just the themed background) post-login. The bridge runs in
   // a useEffect, so on a fresh load there is a window where runtimeCallbacks
   // is still null and homeData hasn't been pushed yet — without this guarantee
   // users see "an orange page... that's all that loads after I login".
-  const isHomeRoute = pathname === '/homedream' || pathname.startsWith('/homedream/');
+  const isHomeRoute = pathname === '/dreamdmbar' || pathname.startsWith('/dreamdmbar/');
   const isHomeActive = runtimeCallbacks !== null || isHomeRoute;
 
   // ── Layout ────────────────────────────────────────────────────────────────

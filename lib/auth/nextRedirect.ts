@@ -1,4 +1,4 @@
-const FALLBACK_NEXT_PATH = '/homedream';
+const FALLBACK_NEXT_PATH = '/dreamdmbar';
 const SAFE_NEXT_ORIGIN = 'https://dreamengin.local';
 
 type SearchParamValue = string | string[] | undefined;

@@ -139,7 +139,7 @@ export default function DrEamsSearchBar({ onOpenDrEams }: DrEamsSearchBarProps) 
       const res = await fetch('/api/ai/eams', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(buildDrEamsRequest(trimmed, '/homedream')),
+        body: JSON.stringify(buildDrEamsRequest(trimmed, '/dreamdmbar')),
       });
       const data: unknown = await res.json().catch(() => ({}));
       const parsed = parseDrEamsReply(data);

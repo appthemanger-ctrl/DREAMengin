@@ -43,14 +43,14 @@ export const CORE_SURFACES = {
 } as const;
 
 export const CORE_SURFACE_ROUTES = {
-  HOME_DREAM: '/homedream',
+  HOME_DREAM: '/dreamdmbar',
   EDIT_PROFILE_DREAM: '/edit-profiledream',
   VIEW_PROFILE: '/view-profile',
 } as const;
 
 /** Legacy and support routes — valid as redirects and support targets only, never as canonical product surface names */
 export const LEGACY_ROUTES = {
-  /** /home renders the HomeDream surface (DreamBarDataBridge) — aliases the canonical /homedream route */
+  /** /home renders the HomeDream surface (DreamBarDataBridge) — aliases the canonical /dreamdmbar route */
   HOME: '/home',
   /** Support route for EditProfileDream — redirects to canonical /edit-profiledream */
   EDIT_PROFILE: '/edit-profile',

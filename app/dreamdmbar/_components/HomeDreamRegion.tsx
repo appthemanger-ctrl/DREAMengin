@@ -10,7 +10,7 @@ import BrandLogo from '@/components/dream.BrandLogo';
 import DaydreamPulseStrip from '@/components/home/dream.DaydreamPulseStrip';
 import FlagshipEnginesStrip from '@/components/home/dream.FlagshipEnginesStrip';
 import ActiveModuleSurface from '@/components/home/dream.ActiveModuleSurface';
-import DreamRSection from '@/dreamdmbar/homedream/dreamr/dreamsurface.dreamr';
+import DreamRSection from '@/app/dreamdmbar/_components/dreamr/dreamsurface.dreamr';
 import { useNotifications } from '@/lib/notifications/useNotifications';
 import { isCompactRuntimeViewport } from '@/lib/ui/runtimeViewport';
 import DraggableDream from '@/components/dreams/dream.DraggableDream';

@@ -28,7 +28,7 @@ import {
   rankFeed,
   scoreDreamRPost,
   type ScoredPost,
-} from '@/dreamdmbar/homedream/dreamr/algorithms/dreamrAlgorithm';
+} from '@/app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import {
   filterByCloseFriends,
