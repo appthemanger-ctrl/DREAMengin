@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClient as createSupabaseServerClient } from "@supabase/ssr";
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase/env";
+import { SUPABASE_CONFIG } from "@/lib/supabase/config";
 import { resolveSafeNextPath } from "@/lib/auth/nextRedirect";
 
 export async function GET(request: Request) {
@@ -31,7 +31,7 @@ export async function GET(request: Request) {
 
   if (!code) return response;
 
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return response;
+  if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.anonKey) return response;
 
   type CookieToSet = {
     name: string;
@@ -48,7 +48,7 @@ export async function GET(request: Request) {
   // This matches the canonical pattern in lib/supabase/server.ts.
   const cookieStore = await cookies();
 
-  const supabase = createSupabaseServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  const supabase = createSupabaseServerClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey, {
     cookies: {
       // Synchronous: returns the pre-resolved snapshot.
       getAll() {

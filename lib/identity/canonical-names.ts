@@ -43,7 +43,7 @@ export const CORE_SURFACES = {
 } as const;
 
 export const CORE_SURFACE_ROUTES = {
-  HOME_DREAM: '/dreamdmbar',
+  HOME_DREAM: '/homedream',
   EDIT_PROFILE_DREAM: '/edit-profiledream',
   VIEW_PROFILE: '/view-profile',
 } as const;

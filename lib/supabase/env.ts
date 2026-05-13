@@ -42,10 +42,10 @@
 // ── URL ───────────────────────────────────────────────────────────────────────
 
 export const SUPABASE_URL =
-  // Manually added / legacy custom name
-  process.env.NEXT_PUBLIC_dreamengin_SUPABASE_URL ||
   // Standard Vercel-Supabase integration (NEXT_PUBLIC – client + server)
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  // Manually added / legacy custom name
+  process.env.NEXT_PUBLIC_dreamengin_SUPABASE_URL ||
   // Project-prefixed server-only alias (server only – undefined in browser)
   process.env.dreamengin_SUPABASE_URL ||
   '';
@@ -53,13 +53,13 @@ export const SUPABASE_URL =
 // ── Anon / publishable key ────────────────────────────────────────────────────
 
 export const SUPABASE_ANON_KEY =
+  // Standard Vercel-Supabase integration (NEXT_PUBLIC – client + server)
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   // Manually added / legacy custom NEXT_PUBLIC names
   process.env.NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY ||
   process.env.NEXT_PUBLIC_dreamengin_SUPABASE_PUBLISHABLE_KEY ||
-  // Standard Vercel-Supabase integration (NEXT_PUBLIC – client + server)
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
   // Project-prefixed server-only aliases (server only – undefined in browser)
   process.env.dreamengin_SUPABASE_ANON_KEY ||
   process.env.dreamengin_SUPABASE_PUBLISHABLE_KEY ||

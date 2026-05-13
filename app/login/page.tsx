@@ -8,6 +8,7 @@ import Image from "next/image";
 import PasswordField from "@/components/auth/dream.PasswordField";
 import { createClient } from "@/lib/supabase/client";
 import { resolveSafeNextPath } from "@/lib/auth/nextRedirect";
+import { buildAuthCallbackUrl } from "@/lib/supabase/config";
 
 // Shared input style — matches the rest of the de-widget design system
 const INPUT_STYLE: React.CSSProperties = {
@@ -126,7 +127,7 @@ function LoginPageInner() {
       const origin = window.location.origin;
       const { error: authError } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(nextPath)}` },
+        options: { redirectTo: buildAuthCallbackUrl(origin, nextPath) },
       });
       if (authError) throw authError;
     } catch (err: unknown) {

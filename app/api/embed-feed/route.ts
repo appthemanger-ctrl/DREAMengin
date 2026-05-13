@@ -23,7 +23,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/supabase/env';
+import { SUPABASE_CONFIG } from '@/lib/supabase/config';
 import { loadEmbedFeed } from '@/lib/feeds/embedFeedLoader';
 import type { EmbedFeedItem } from '@/lib/feeds/embedFeedLoader';
 
@@ -42,9 +42,9 @@ export async function GET(req: NextRequest): Promise<NextResponse<EmbedFeedRespo
   const limit = Math.min(Math.max(1, isNaN(rawLimit) ? 20 : rawLimit), 50);
 
   // ── Try Supabase first ───────────────────────────────────────────────────
-  if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+  if (SUPABASE_CONFIG.url && SUPABASE_CONFIG.anonKey) {
     try {
-      const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const db = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
        
       const query = (db as any)
         .from('embed_feed_items')
