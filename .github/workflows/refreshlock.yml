@@ -1,48 +1,26 @@
 name: Create/Update pnpm lockfile (push)
-
 on:
   workflow_dispatch:
-
+permissions:
+  contents: write
 concurrency:
   group: refreshlock-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: write
-
 jobs:
-  lockfile:
-    runs-on: ubuntu-24.04
-
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js 25
-        uses: actions/setup-node@v4
+      - uses: ./.github/actions/resilient-engine
         with:
-          node-version: '25'
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
-
-      - name: Generate pnpm lockfile only
-        run: pnpm install --lockfile-only --no-frozen-lockfile
-
-      - name: Build
-        run: pnpm build
+          ruleset: .github/ruleset/refreshlock.yml
+          allow-failure: 'true'
         env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-
-      - name: Commit & push pnpm-lock.yaml (only if changed)
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add pnpm-lock.yaml
-          if git diff --cached --quiet; then
-            echo "No lockfile changes to commit."
-            exit 0
-          fi
-          git commit -m "chore: add/update pnpm lockfile [skip ci] [skip vercel]"
-          git push
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

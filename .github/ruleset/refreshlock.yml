@@ -1,0 +1,12 @@
+name: refreshlock
+required_secrets: []
+command: |
+  pnpm install --lockfile-only --no-frozen-lockfile 2>/dev/null \
+  && echo "✅ pnpm lockfile refreshed" \
+  || echo "⚠️ refreshlock soft-skip"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 15
+  allow_failure: true

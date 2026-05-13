@@ -1,0 +1,10 @@
+name: daydream-music-engin
+required_secrets: [OPENAI_API_KEY]
+command: |
+  [ -f scripts/daydream.mjs ] && node scripts/daydream.mjs --engin music || echo "⚠️ daydream-music-engin no-op"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 20
+  allow_failure: true

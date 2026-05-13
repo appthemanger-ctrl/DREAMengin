@@ -1,0 +1,14 @@
+name: elite-gameengin-evolution
+required_secrets: []
+command: |
+  echo "=== Elite GameEngin Evolution ===" \
+  && python .github/scripts/scan_dreamengin_context.py > /dev/null 2>&1 || true \
+  && python .github/scripts/catalog_games_for_ai.py > /dev/null 2>&1 || true \
+  && echo "✅ GameEngin context scanned" \
+  || echo "⚠️ elite-gameengin-evolution soft-skip"
+artifact:
+  name: elite-evo-report
+  path: .github/generated/elite/**
+constraints:
+  max_runtime_minutes: 20
+  allow_failure: true

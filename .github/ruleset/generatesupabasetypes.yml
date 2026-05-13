@@ -1,0 +1,11 @@
+name: generatesupabasetypes
+required_secrets: [NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY]
+command: |
+  [ -f scripts/generate-supabase-types.mjs ] && node scripts/generate-supabase-types.mjs \
+  || echo "⚠️ generatesupabasetypes no-op"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 10
+  allow_failure: true

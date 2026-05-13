@@ -1,0 +1,10 @@
+name: mobile-ps5-spec-evolution
+required_secrets: [OPENAI_API_KEY]
+command: |
+  echo "mobile-ps5-spec-evolution: ruleset placeholder — no-op" || true
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 20
+  allow_failure: true

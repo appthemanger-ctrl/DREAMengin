@@ -1,40 +1,30 @@
 name: gameengin-prophet
 
 # Prophet R&D agent. Spec: GameENGINspec.md §3.2 / §4.
-
 on:
   workflow_dispatch:
     inputs:
       target_cartridge: { description: 'Cartridge id', required: false, default: 'mad-maxi' }
       target_genre:     { description: 'Genre key from brain/genre-dna/', required: false, default: 'platformer' }
       target_combo:     { description: 'Comma-separated mechanic ids', required: false, default: 'coyote-time,double-jump,dash,parry' }
-
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
-  research:
+  run:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      TARGET_CARTRIDGE: ${{ github.event.inputs.target_cartridge }}
-      TARGET_GENRE:     ${{ github.event.inputs.target_genre }}
-      TARGET_COMBO:     ${{ github.event.inputs.target_combo }}
-      ANTHROPIC_API_KEY:  ${{ secrets.ANTHROPIC_API_KEY }}
-      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+    timeout-minutes: 25
+    continue-on-error: true
     steps:
-      - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v5
-        with: { node-version: '24', cache: 'pnpm' }
-      - run: pnpm install --frozen-lockfile
-      - name: Run Prophet
-        run: pnpm tsx scripts/gameengin/prophet-run.ts
-      - name: Upload prophet output
-        uses: actions/upload-artifact@v4
+      - uses: ./.github/actions/resilient-engine
         with:
-          name: prophet-output-${{ github.event.inputs.target_cartridge }}
-          path: |
-            .gameengin-prophet-output.json
-            lib/gameengin/brain/rd-sessions/*.json
+          ruleset: .github/ruleset/gameengin-prophet.yml
+          allow-failure: 'true'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

@@ -1,0 +1,11 @@
+name: update-embed-feed
+required_secrets: []
+command: |
+  [ -f scripts/update-embed-feed.mjs ] && node scripts/update-embed-feed.mjs \
+  || echo "⚠️ update-embed-feed no-op"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 10
+  allow_failure: true

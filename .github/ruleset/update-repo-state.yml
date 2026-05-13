@@ -1,0 +1,10 @@
+name: update-repo-state
+required_secrets: []
+command: |
+  [ -f scripts/update-repo-state.mjs ] && node scripts/update-repo-state.mjs || echo "⚠️ update-repo-state no-op"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 10
+  allow_failure: true

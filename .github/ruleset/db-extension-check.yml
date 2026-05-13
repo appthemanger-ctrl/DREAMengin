@@ -1,0 +1,10 @@
+name: db-extension-check
+required_secrets: []
+command: |
+  [ -f scripts/db-extension-check.mjs ] && node scripts/db-extension-check.mjs || echo "⚠️ db-extension-check no-op"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 10
+  allow_failure: true

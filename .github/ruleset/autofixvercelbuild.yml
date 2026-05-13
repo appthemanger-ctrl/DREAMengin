@@ -1,0 +1,11 @@
+name: autofixvercelbuild
+required_secrets: []
+command: |
+  [ -f scripts/autofix-vercel-build.mjs ] && node scripts/autofix-vercel-build.mjs \
+  || echo "⚠️ autofixvercelbuild no-op"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 60
+  allow_failure: true

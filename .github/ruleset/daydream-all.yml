@@ -1,0 +1,10 @@
+name: daydream-all
+required_secrets: [OPENAI_API_KEY]
+command: |
+  [ -f scripts/daydream.mjs ] && node scripts/daydream.mjs --all || echo "⚠️ daydream-all no-op"
+artifact:
+  name: daydream-all-report
+  path: .github/generated/daydream/**
+constraints:
+  max_runtime_minutes: 20
+  allow_failure: true

@@ -1,0 +1,11 @@
+name: vercel-deploy
+required_secrets: [VERCEL_TOKEN]
+command: |
+  echo "vercel-deploy: Vercel deploys are handled by the Vercel GitHub integration automatically"
+  echo "This workflow is a manual emergency trigger only"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 15
+  allow_failure: true

@@ -1,0 +1,11 @@
+name: root-hygiene
+required_secrets: []
+command: |
+  [ -f scripts/root-hygiene.mjs ] && node scripts/root-hygiene.mjs \
+  || echo "⚠️ root-hygiene no-op"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 10
+  allow_failure: true

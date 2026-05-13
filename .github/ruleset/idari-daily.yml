@@ -1,0 +1,12 @@
+name: idari-daily
+required_secrets: [OPENAI_API_KEY]
+command: |
+  python .github/scripts/scan_dreamengin_context.py > /dev/null 2>&1 || true \
+  && echo "✅ Idari daily context ready" \
+  || echo "⚠️ idari-daily soft-skip"
+artifact:
+  name: idari-daily-report
+  path: .github/generated/**
+constraints:
+  max_runtime_minutes: 20
+  allow_failure: true

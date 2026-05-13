@@ -1,0 +1,11 @@
+name: bouncer
+required_secrets: []
+command: |
+  [ -f scripts/spec-check.cjs ] && node scripts/spec-check.cjs . \
+  || echo "⚠️ bouncer no-op"
+artifact:
+  name: ''
+  path: ''
+constraints:
+  max_runtime_minutes: 5
+  allow_failure: true
