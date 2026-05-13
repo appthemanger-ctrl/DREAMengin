@@ -51,27 +51,27 @@ runs:
           fi
 
           RULESET_COMMAND="$(python - "$RULESET" <<'PY'
-import re
-import sys
+          import re
+          import sys
 
-path = sys.argv[1]
-command = ""
-with open(path, encoding="utf-8") as handle:
-    for raw in handle:
-        line = raw.strip()
-        if not line or line.startswith("#"):
-            continue
-        match = re.match(r"^command\s*:\s*(.+)$", line)
-        if match:
-            value = match.group(1).strip()
-            if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
-                value = value[1:-1]
-            command = value
-            break
+          path = sys.argv[1]
+          command = ""
+          with open(path, encoding="utf-8") as handle:
+              for raw in handle:
+                  line = raw.strip()
+                  if not line or line.startswith("#"):
+                      continue
+                  match = re.match(r"^command\s*:\s*(.+)$", line)
+                  if match:
+                      value = match.group(1).strip()
+                      if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+                          value = value[1:-1]
+                      command = value
+                      break
 
-print(command)
-PY
-)"
+          print(command)
+          PY
+          )"
 
           if [ -z "$RULESET_COMMAND" ]; then
             echo "::error::Ruleset '$RULESET' does not define a top-level command:"
