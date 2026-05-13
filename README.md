@@ -2461,47 +2461,25 @@ Auto-synced from `tests/**`, `vitest.config.ts`, `playwright.config.ts` using re
 </details>
 
 ## Getting Started
-1. **Prerequisites**: install Node.js **24** and enable Corepack (`corepack enable`) so the repo uses **pnpm 10.30.0** from the `packageManager` field in `package.json`.
-2. **Install deps**: run `pnpm install` at repo root.
-3. **Set environment**: `cp .env.example .env.local` (or start from `.env.local.example`) and fill required secrets/keys.
-4. **Supabase setup (recommended)**: either run a local stack (`supabase start`) or point `.env.local` to a hosted project (`NEXT_PUBLIC_SUPABASE_URL` + publishable/anon keys).
-5. **Run development shell**: `pnpm dev` and open `http://localhost:3000`.
-6. **Quality checks**: run `pnpm typecheck`, `pnpm lint`, `pnpm test`, then `pnpm preflight`.
-7. **Production verification locally**: run `pnpm build` and then `pnpm start`.
-
-For local UI inspection without full auth wiring, `.env.local.example` documents `DEV_BYPASS_AUTH=true` and `DEV_ADMIN=true` (dev only; never production).
-### Available scripts (from `package.json`)
-```bash
-pnpm dev  # next dev
-pnpm build  # next build
-pnpm vercel-build  # next build
-pnpm start  # next start
-pnpm lint  # eslint .
-pnpm typecheck  # tsc --noEmit
-pnpm test  # vitest run
-pnpm test:ci  # vitest run
-pnpm test:watch  # vitest
-pnpm build-memory:sync  # node scripts/sync-build-memory.mjs
-pnpm build-memory:check  # node scripts/check-build-memory-drift.mjs
-pnpm check:root-hygiene  # node scripts/check-root-hygiene.mjs
-pnpm check:engin-filenames  # node scripts/check-engin-filenames.mjs
-pnpm full-code:export  # node scripts/export-full-code.mjs
-pnpm repo-state  # node scripts/analyze-repo-state.mjs
-pnpm preflight  # node scripts/vercel-preflight.cjs . && pnpm run check:root-hygiene && node scripts/spec-check.cjs . && node scripts/check-engin-filenames.mjs && pnpm run typecheck && pnpm run lint && pnpm run test:ci
-pnpm build:gamesengin  # tsc --project tsconfig.gamesengin.json --noEmit
-pnpm build:games  # tsc --project tsconfig.games.json --noEmit
-pnpm test:games  # vitest run tests/game-navigation.test.ts tests/game-remote-regression.test.ts tests/game-quality-plan.test.ts tests/report-driven-game-agent.test.ts
-pnpm asbuild:debug  # asc assembly/index.ts --target debug --exportRuntime --enable simd --outFile public/workers/engin-shader.wasm
-pnpm asbuild:release  # asc assembly/index.ts --target release --optimize --enable simd --outFile public/workers/engin-shader.wasm
-pnpm asbuild:mad-maxi  # asc assembly/mad-maxi-player.ts -o public/cartridges/mad-maxi/logic/main.wasm --optimizeLevel 3 --shrinkLevel 2 --enable simd --enable bulk-memory
-pnpm gameengin:maestro  # tsx scripts/gameengin/maestro-analyze.ts
-pnpm gameengin:prophet  # tsx scripts/gameengin/prophet-run.ts
-pnpm gameengin:mechanic  # tsx scripts/gameengin/mechanic-run.ts
-pnpm gameengin:artisan  # tsx scripts/gameengin/artisan-run.ts
-pnpm gameengin:writer  # tsx scripts/gameengin/writer-run.ts
-pnpm gameengin:upgrader  # tsx scripts/gameengin/upgrader-run.ts
-pnpm gameengin:package  # tsx scripts/gameengin/package-cartridge.ts
+Auto-synced from `README.md`, `.env.example`, `.env.local.example` using repository introspection.
+- Files tracked: **3**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: none
+#### Getting Started file structure
+```text
+├── .env.example
+├── .env.local.example
+└── README.md
 ```
+<details><summary>Getting Started file index (3 files)</summary>
+
+- `.env.example` — project file (example).
+- `.env.local.example` — project file (example).
+- `README.md` — documentation file.
+
+</details>
+
 ## Environment Variables
 The complete env contract is documented in `.env.example`; use `.env.local.example` for local defaults. Key variables by purpose:
 
