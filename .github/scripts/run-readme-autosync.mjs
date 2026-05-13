@@ -127,7 +127,10 @@ function buildComment(summary, isFork) {
 async function upsertComment(eventPayload, body) {
   const token = process.env.GITHUB_TOKEN;
   const repository = process.env.GITHUB_REPOSITORY;
-  if (!token || !repository) return;
+  if (!token || !repository) {
+    console.warn('README autosync: skipping PR comment because GITHUB_TOKEN or GITHUB_REPOSITORY is unavailable.');
+    return;
+  }
 
   const [owner, repo] = repository.split('/');
   const issueNumber = eventPayload?.number || eventPayload?.pull_request?.number;

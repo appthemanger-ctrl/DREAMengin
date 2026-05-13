@@ -1,5 +1,5 @@
 name: Resilient Engine
-description: Fixed DREAMengin workflow engine that executes per-workflow rulesets with retry/backoff, secret guards, artifact upload, and structured summaries.
+description: Fixed DREAMengin workflow engine that executes per-workflow rulesets with retry/backoff, secret guards, artifact upload, and structured summaries. Requires bash and ruby on the runner.
 
 inputs:
   ruleset:
@@ -81,6 +81,10 @@ runs:
         RAW_TIMEOUT_MINUTES: ${{ inputs.timeout-minutes }}
         RAW_ALLOW_FAILURE: ${{ inputs.allow-failure }}
       run: |
+        command -v ruby >/dev/null 2>&1 || {
+          echo "resilient-engine: ruby is required on the runner to parse rulesets." >&2
+          exit 1
+        }
         ruby <<'RUBY'
         require 'base64'
         require 'json'
@@ -98,7 +102,7 @@ runs:
         config = {}
 
         unless ruleset_path.empty?
-          abort("Ruleset not found: #{ruleset_path}") unless File.file?(ruleset_path)
+          abort("resilient-engine: ruleset not found at #{ruleset_path}. Verify the path exists in the repository.") unless File.file?(ruleset_path)
           loaded = YAML.safe_load(File.read(ruleset_path), permitted_classes: [], aliases: false)
           config = loaded.is_a?(Hash) ? loaded : {}
         end
@@ -106,7 +110,7 @@ runs:
         input_command = ENV.fetch('RAW_COMMAND', '').to_s
         ruleset_command = config.fetch('command', '').to_s
         effective_command = input_command.strip.empty? ? ruleset_command : input_command
-        abort('resilient-engine requires a command or ruleset command') if effective_command.strip.empty?
+        abort('resilient-engine: provide a non-empty command input or a command field in the ruleset YAML.') if effective_command.strip.empty?
 
         effective_working_directory = ENV.fetch('RAW_WORKING_DIRECTORY', '').strip
         effective_working_directory = config.fetch('working_directory', '.').to_s if effective_working_directory.empty?
