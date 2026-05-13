@@ -1,25 +1,31 @@
 name: Update Repo State
+
 on:
   workflow_dispatch:
   push:
     branches: [completedream]
+
 permissions:
   contents: write
 
 jobs:
-  run:
+  update:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    continue-on-error: true
     steps:
-      - uses: ./.github/actions/resilient-engine
-        with:
-          ruleset: .github/ruleset/update-repo-state.yml
-          allow-failure: 'true'
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: ./.github/actions/setup-node
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      - name: Deploy to Vercel production
+        if: github.ref_name == 'completedream'
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          test -n "$VERCEL_TOKEN"
+          pnpm dlx vercel@latest pull --yes --environment=production --token="$VERCEL_TOKEN"
+          pnpm dlx vercel@latest build --prod --token="$VERCEL_TOKEN"
+          pnpm dlx vercel@latest deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+      - name: Health check
+        if: github.ref_name == 'completedream'
+        run: curl --fail --retry 5 --retry-delay 10 https://dreamengin.com/api/health

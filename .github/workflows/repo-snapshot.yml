@@ -1,23 +1,51 @@
 name: Repo Snapshot (artifact)
+
 on:
   workflow_dispatch:
+
 permissions:
   contents: write
 
 jobs:
-  run:
+  snapshot:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    continue-on-error: true
+
     steps:
-      - uses: ./.github/actions/resilient-engine
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          ruleset: .github/ruleset/repo-snapshot.yml
-          allow-failure: 'true'
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          fetch-depth: 0
+
+      - name: Build snapshot file
+        shell: bash
+        run: |
+          set -e
+          mkdir -p .ci
+
+          TZ="America/Los_Angeles"
+          NOW="$(TZ=$TZ date '+%Y-%m-%d %H:%M:%S %Z')"
+
+          {
+            echo "REPO SNAPSHOT"
+            echo "============="
+            echo "Time: $NOW"
+            echo "Repo: $GITHUB_REPOSITORY"
+            echo "Branch: ${GITHUB_REF_NAME:-unknown}"
+            echo "Commit: ${GITHUB_SHA:-unknown}"
+            echo ""
+            echo "## Root files"
+            ls -la
+            echo ""
+            echo "## Tree (depth 3, excluding heavy dirs)"
+            find . -maxdepth 3 -mindepth 1 \
+              -not -path "./.git/*" \
+              -not -path "./node_modules/*" \
+              -not -path "./.next/*" \
+              -print | sed 's|^\./||' | sort
+          } > .ci/snapshot.txt
+
+      - name: Upload snapshot artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: repo-snapshot
+          path: .ci/snapshot.txt

@@ -1,27 +1,33 @@
 name: gameengin-upgrader
 
 # Upgrader maintenance agent. Spec: GameENGINspec.md §6 (Agent Profile).
+
 on:
   workflow_dispatch:
     inputs:
       target_cartridge: { description: 'Cartridge id (omit to survey all)', required: false, default: '' }
+
 permissions:
   contents: write
 
 jobs:
-  run:
+  upgrade:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    continue-on-error: true
+    timeout-minutes: 15
+    env:
+      TARGET_CARTRIDGE: ${{ github.event.inputs.target_cartridge }}
     steps:
-      - uses: ./.github/actions/resilient-engine
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with: { node-version: '24', cache: 'pnpm' }
+      - run: pnpm install --frozen-lockfile
+      - name: Run Upgrader
+        run: pnpm tsx scripts/gameengin/upgrader-run.ts
+      - name: Upload upgrader output
+        uses: actions/upload-artifact@v4
         with:
-          ruleset: .github/ruleset/gameengin-upgrader.yml
-          allow-failure: 'true'
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          name: upgrader-${{ github.event.inputs.target_cartridge || 'all' }}
+          path: |
+            .gameengin-upgrader-output.json
+            lib/gameengin/brain/upgrade-history/**

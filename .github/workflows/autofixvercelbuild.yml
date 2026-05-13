@@ -1,26 +1,53 @@
 name: Autofix Vercel Build
+
 on:
   workflow_dispatch:
+
 permissions:
   contents: write
+
 concurrency:
   group: autofix-vercel-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  run:
+  autofix:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    continue-on-error: true
+    timeout-minutes: 60
+
     steps:
-      - uses: ./.github/actions/resilient-engine
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          ruleset: .github/ruleset/autofixvercelbuild.yml
-          allow-failure: 'true'
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 25
+          cache: "pnpm"
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Attempt autofix loop
+        run: node scripts/autofix-vercel-build.mjs
+
+      - name: Commit + push changes (if any)
+        run: |
+          git config user.name "vercel-build-bot"
+          git config user.email "vercel-build-bot@users.noreply.github.com"
+
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git add -A
+          git commit -m "chore: autofix vercel build [skip ci] [skip vercel]" || exit 0
+          git push || true
+
+

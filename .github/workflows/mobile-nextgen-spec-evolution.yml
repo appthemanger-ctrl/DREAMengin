@@ -1,28 +1,42 @@
 name: Mobile Next-Gen Spec Evolution
+
 on:
   workflow_dispatch:
   schedule:
     - cron: '0 8 * * 2'   # weekly Tuesday 08:00 UTC
+
 permissions:
   contents: write
+
 concurrency:
   group: mobile-nextgen-spec-evolution
   cancel-in-progress: true
 
 jobs:
-  run:
+  evolve-spec:
+    name: Research web + evolve next-gen mobile spec
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    continue-on-error: true
+
     steps:
-      - uses: ./.github/actions/resilient-engine
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          ruleset: .github/ruleset/mobile-nextgen-spec-evolution.yml
-          allow-failure: 'true'
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Generate evolving next-gen mobile spec
+        run: node scripts/generate-mobile-nextgen-spec.mjs
+
+      - name: Commit spec updates
+        run: |
+          if [ -n "$(git status --porcelain docs/mobile-nextgen-web-gaming-engine-spec.md)" ]; then
+            git config user.name "Mobile Next-Gen Spec Bot"
+            git config user.email "253588904+appthemanger-ctrl@users.noreply.github.com"
+            git add docs/mobile-nextgen-web-gaming-engine-spec.md
+            git commit -m "docs(spec): evolve next-gen mobile web gaming engine spec [skip ci] [skip vercel]"
+            git push origin HEAD:${GITHUB_REF_NAME}
+          else
+            echo "No spec changes to commit."
+          fi

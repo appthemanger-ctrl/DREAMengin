@@ -13,6 +13,7 @@ name: Deploy to Vercel (Manual)
 #   caller    — name of the calling workflow
 #   reason    — human-readable deploy reason
 # ──────────────────────────────────────────────────────────────────────────────
+
 on:
   workflow_dispatch:
     inputs:
@@ -44,24 +45,56 @@ on:
 
 # Allow only one Vercel deploy to run at a time.
 # Additional calls queue up and run in order rather than being cancelled.
-permissions:
-  contents: read
 concurrency:
   group: vercel-production-deploy
   cancel-in-progress: false
+
+permissions:
+  contents: read
 
 jobs:
   deploy:
     name: Deploy to Vercel (called by ${{ inputs.caller }})
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    continue-on-error: true
+    environment:
+      name: production
+      url: https://dreamengin.com
+
     steps:
-      - uses: ./.github/actions/resilient-engine
-        with:
-          ruleset: .github/ruleset/vercel-deploy.yml
-          allow-failure: 'true'
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Pull Vercel environment
+        run: pnpm dlx vercel@latest pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build for Vercel
+        run: pnpm dlx vercel@latest build --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Deploy prebuilt artifacts
+        run: pnpm dlx vercel@latest deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy summary
+        if: always()
+        run: |
+          {
+            echo "## Vercel Deployment"
+            echo ""
+            echo "| Field | Value |"
+            echo "|-------|-------|"
+            echo "| Caller | ${{ inputs.caller }} |"
+            echo "| Reason | ${{ inputs.reason }} |"
+            echo "| Branch | \`${{ github.ref_name }}\` |"
+            echo "| Commit | \`${{ github.sha }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"

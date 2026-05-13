@@ -6,28 +6,44 @@ name: Bouncer — Hard-Fix Guard
 # - Replaces banned privacy/publish patterns with safe alternatives
 # - Appends safe-projection markers to ViewProfile files using draft state unsafely
 # Lint warnings and typecheck issues are NOT bounced — they are advisory.
+
 on:
   workflow_dispatch:
-permissions:
-  contents: write
+
 concurrency:
   group: bouncer-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 jobs:
-  run:
+  hard-fix:
+    name: Bouncer — Hard-Fix Guard
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    continue-on-error: true
+    timeout-minutes: 5
+
     steps:
-      - uses: ./.github/actions/resilient-engine
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          ruleset: .github/ruleset/bouncer.yml
-          allow-failure: 'true'
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          fetch-depth: 1
+
+      - name: Setup Node 25
+        uses: ./.github/actions/setup-node
+
+      - name: Run spec-check (auto-fix mode)
+        run: node scripts/spec-check.cjs .
+
+      - name: Commit and push fixes (if any)
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "chore(bouncer): auto-fix spec violations [skip ci] [skip vercel]"
+            git push
+            echo "Bouncer committed and pushed fixes."
+          else
+            echo "Bouncer passed — no violations found, nothing to fix."
+          fi

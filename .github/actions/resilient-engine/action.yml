@@ -1,283 +1,142 @@
 name: Resilient Engine
-description: >
-  DREAMengin fixed-engine composite action.
-  Wraps any command in retry, soft-fail, summary, and artifact upload.
-  Always exits success when allow-failure is true (the default).
+description: Fixed-engine composite action that runs a command with retries and fails on real errors.
 
 inputs:
   ruleset:
-    description: Path to a ruleset YAML file (optional)
+    description: Optional ruleset path. When provided, uses top-level `command:` from the file.
     required: false
     default: ''
   command:
-    description: Shell command to run (overrides ruleset command if provided)
+    description: Shell command to run.
     required: false
-    default: 'echo "resilient-engine: no-op"'
-  node-version:
-    description: Node.js version
-    required: false
-    default: '20'
-  python-version:
-    description: Python version
-    required: false
-    default: '3.11'
+    default: 'echo "resilient-engine: no command provided"'
   working-directory:
-    description: Working directory for the command
+    description: Working directory for command execution.
     required: false
     default: '.'
-  required-secrets:
-    description: >
-      Comma-separated list of environment variable names that must be set.
-      If any are missing, the command is skipped and a warning is written to the summary.
-    required: false
-    default: ''
-  artifact-name:
-    description: Name for the artifact to upload (optional)
-    required: false
-    default: ''
-  artifact-path:
-    description: Path glob for the artifact to upload (optional)
-    required: false
-    default: ''
   timeout-minutes:
-    description: Per-attempt timeout in minutes
+    description: Timeout per attempt in minutes.
     required: false
-    default: '15'
-  allow-failure:
-    description: If true, the step exits 0 even when the command fails
+    default: '20'
+  retry-attempts:
+    description: Number of attempts before failing.
     required: false
-    default: 'true'
+    default: '3'
+  retry-backoff-seconds:
+    description: Seconds to wait between retries.
+    required: false
+    default: '5'
 
 runs:
   using: composite
   steps:
-
-    # ── 1. Checkout ────────────────────────────────────────────────────────────
     - name: Checkout repository
       uses: actions/checkout@v4
-      continue-on-error: true
       with:
         fetch-depth: 0
 
-    # ── 2. Detect + setup runtimes ─────────────────────────────────────────────
-    - name: Setup pnpm (if pnpm-lock.yaml present)
-      if: hashFiles('pnpm-lock.yaml') != ''
-      uses: pnpm/action-setup@v4
-      continue-on-error: true
-
-    - name: Setup Node.js (if package.json present)
-      if: hashFiles('package.json') != ''
-      uses: actions/setup-node@v4
-      continue-on-error: true
-      with:
-        node-version: ${{ inputs.node-version }}
-        cache: ${{ hashFiles('pnpm-lock.yaml') != '' && 'pnpm' || 'npm' }}
-        cache-dependency-path: ${{ hashFiles('pnpm-lock.yaml') != '' && 'pnpm-lock.yaml' || 'package-lock.json' }}
-
-    - name: Setup Python (if requirements.txt or pyproject.toml present)
-      if: hashFiles('requirements.txt', 'pyproject.toml') != ''
-      uses: actions/setup-python@v5
-      continue-on-error: true
-      with:
-        python-version: ${{ inputs.python-version }}
-
-    # ── 3. Install dependencies ────────────────────────────────────────────────
-    - name: Install Node dependencies
-      if: hashFiles('package.json') != ''
-      shell: bash
-      continue-on-error: true
-      run: |
-        if [ -f "pnpm-lock.yaml" ]; then
-          pnpm install --frozen-lockfile 2>/dev/null \
-            || pnpm install --no-frozen-lockfile 2>/dev/null \
-            || npm ci 2>/dev/null \
-            || npm install 2>/dev/null \
-            || echo "⚠️ All Node install strategies exhausted — continuing"
-        elif [ -f "package-lock.json" ]; then
-          npm ci 2>/dev/null || npm install 2>/dev/null || echo "⚠️ npm install failed — continuing"
-        else
-          npm install 2>/dev/null || echo "⚠️ npm install failed — continuing"
-        fi
-
-    - name: Install Python dependencies
-      if: hashFiles('requirements.txt', 'pyproject.toml') != ''
-      shell: bash
-      continue-on-error: true
-      run: |
-        pip install -r requirements.txt 2>/dev/null \
-          || pip install -e . 2>/dev/null \
-          || echo "⚠️ Python install failed — continuing"
-
-    # ── 4. Secret guard ────────────────────────────────────────────────────────
-    - name: Secret guard
+    - name: Resolve command
+      id: resolve-command
       shell: bash
       run: |
-        REQUIRED="${{ inputs.required-secrets }}"
-        if [ -z "$REQUIRED" ]; then
-          echo "SKIP_ENGINE_COMMAND=false" >> "$GITHUB_ENV"
-          exit 0
-        fi
-        MISSING=()
-        IFS=',' read -ra NAMES <<< "$REQUIRED"
-        for name in "${NAMES[@]}"; do
-          varname=$(echo "$name" | xargs)
-          if [ -z "${!varname:-}" ]; then
-            MISSING+=("$varname")
-          fi
-        done
-        if [ "${#MISSING[@]}" -gt 0 ]; then
-          echo "SKIP_ENGINE_COMMAND=true" >> "$GITHUB_ENV"
-          {
-            echo ""
-            echo "## ⚠️ Engine — Skipped (missing secrets)"
-            echo ""
-            echo "The following required secrets are not configured: **${MISSING[*]}**"
-            echo ""
-            echo "This is a soft-skip. Configure the secrets to enable this workflow."
-          } >> "$GITHUB_STEP_SUMMARY"
-          echo "⚠️ Skipping — missing secrets: ${MISSING[*]}"
-        else
-          echo "SKIP_ENGINE_COMMAND=false" >> "$GITHUB_ENV"
-          echo "✅ All required secrets present"
-        fi
-
-    # ── 5. Ruleset loader ──────────────────────────────────────────────────────
-    - name: Load ruleset
-      shell: bash
-      run: |
-        RULESET="${{ inputs.ruleset }}"
-        if [ -z "$RULESET" ]; then
-          echo "ℹ️ No ruleset path provided — using inline command"
-          exit 0
-        fi
-        # Try exact path, then with .yml suffix
-        for candidate in "$RULESET" "${RULESET}.yml"; do
-          if [ -f "$candidate" ]; then
-            echo "RULESET_PATH=$candidate" >> "$GITHUB_ENV"
-            echo "📋 Loaded ruleset: $candidate"
-            {
-              echo ""
-              echo "### Ruleset: \`$candidate\`"
-              echo "\`\`\`yaml"
-              cat "$candidate"
-              echo "\`\`\`"
-            } >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-        done
-        echo "⚠️ Ruleset not found at '$RULESET' — continuing with inline command"
-        {
-          echo ""
-          echo "⚠️ **Ruleset not found:** \`$RULESET\` — using inline command"
-        } >> "$GITHUB_STEP_SUMMARY"
-
-    # ── 6. Run command with retries ────────────────────────────────────────────
-    - name: Run command
-      id: run-command
-      shell: bash
-      run: |
-        if [ "${SKIP_ENGINE_COMMAND:-false}" = "true" ]; then
-          echo "exit_code=0" >> "$GITHUB_OUTPUT"
-          echo "attempts=0" >> "$GITHUB_OUTPUT"
-          echo "⏭️ Command skipped (soft-skip due to missing secrets)"
-          exit 0
-        fi
+        set -euo pipefail
 
         COMMAND='${{ inputs.command }}'
-        TIMEOUT='${{ inputs.timeout-minutes }}'
-        WORKING_DIR='${{ inputs.working-directory }}'
-        ALLOW_FAILURE='${{ inputs.allow-failure }}'
-        SLEEP_TIMES=(0 5 15)
-        EXIT_CODE=1
-        ATTEMPT=0
+        RULESET='${{ inputs.ruleset }}'
 
-        touch engine-stdout.log
-
-        for i in 0 1 2; do
-          ATTEMPT=$((i + 1))
-          SLEEP="${SLEEP_TIMES[$i]}"
-
-          if [ "$SLEEP" -gt 0 ]; then
-            echo "⏳ Retry $ATTEMPT/3 — waiting ${SLEEP}s..."
-            sleep "$SLEEP"
+        if [ -n "$RULESET" ]; then
+          if [ ! -f "$RULESET" ]; then
+            echo "::error::Ruleset file not found: $RULESET"
+            exit 1
           fi
 
-          echo "🚀 Attempt $ATTEMPT/3"
-          set +e
-          (
-            cd "${WORKING_DIR:-.}"
-            timeout "${TIMEOUT}m" bash -lc "$COMMAND"
-          ) 2>&1 | tee -a engine-stdout.log
-          EXIT_CODE="${PIPESTATUS[0]}"
-          set -e
+          RULESET_COMMAND="$(python - "$RULESET" <<'PY'
+import re
+import sys
 
-          if [ "$EXIT_CODE" -eq 0 ]; then
-            echo "✅ Succeeded on attempt $ATTEMPT"
+path = sys.argv[1]
+command = ""
+with open(path, encoding="utf-8") as handle:
+    for raw in handle:
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        match = re.match(r"^command\s*:\s*(.+)$", line)
+        if match:
+            value = match.group(1).strip()
+            if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+                value = value[1:-1]
+            command = value
             break
-          elif [ "$EXIT_CODE" -eq 124 ]; then
-            echo "⏱️ Timed out on attempt $ATTEMPT (limit: ${TIMEOUT}m)"
-          else
-            echo "⚠️ Exited $EXIT_CODE on attempt $ATTEMPT"
+
+print(command)
+PY
+)"
+
+          if [ -z "$RULESET_COMMAND" ]; then
+            echo "::error::Ruleset '$RULESET' does not define a top-level command:"
+            echo "::error::  command: <shell command>"
+            exit 1
           fi
-        done
 
-        echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
-        echo "attempts=$ATTEMPT" >> "$GITHUB_OUTPUT"
-
-        if [ "$EXIT_CODE" -ne 0 ] && [ "$ALLOW_FAILURE" != "true" ]; then
-          exit "$EXIT_CODE"
-        fi
-        exit 0
-
-    # ── 7. Upload artifacts ────────────────────────────────────────────────────
-    - name: Upload artifacts
-      if: inputs.artifact-name != ''
-      uses: actions/upload-artifact@v4
-      continue-on-error: true
-      with:
-        name: ${{ inputs.artifact-name }}
-        path: ${{ inputs.artifact-path != '' && inputs.artifact-path || 'engine-stdout.log' }}
-        if-no-files-found: ignore
-
-    # ── 8. Write summary ───────────────────────────────────────────────────────
-    - name: Write summary
-      if: always()
-      shell: bash
-      run: |
-        EXIT_CODE="${{ steps.run-command.outputs.exit_code }}"
-        ATTEMPTS="${{ steps.run-command.outputs.attempts }}"
-        ALLOW="${{ inputs.allow-failure }}"
-
-        if [ "$EXIT_CODE" = "0" ] || [ "$ATTEMPTS" = "0" ]; then
-          BADGE="✅"
-          STATUS="success"
-        elif [ "$ALLOW" = "true" ]; then
-          BADGE="⚠️"
-          STATUS="soft-fail (exit $EXIT_CODE)"
-        else
-          BADGE="❌"
-          STATUS="hard-fail (exit $EXIT_CODE)"
+          COMMAND="$RULESET_COMMAND"
         fi
 
         {
-          echo ""
-          echo "## Engine Summary $BADGE"
-          echo ""
-          echo "| Key | Value |"
-          echo "|-----|-------|"
-          echo "| Ruleset | \`${{ inputs.ruleset || '(none)' }}\` |"
-          echo "| Working dir | \`${{ inputs.working-directory }}\` |"
-          echo "| Allow failure | \`${{ inputs.allow-failure }}\` |"
-          echo "| Attempts | $ATTEMPTS |"
-          echo "| Exit code | $EXIT_CODE |"
-          echo "| Final status | $STATUS |"
-        } >> "$GITHUB_STEP_SUMMARY"
+          echo "command<<__RESILIENT_ENGINE_COMMAND__"
+          echo "$COMMAND"
+          echo "__RESILIENT_ENGINE_COMMAND__"
+        } >> "$GITHUB_OUTPUT"
 
-    # ── 9. Soft-fail exit ──────────────────────────────────────────────────────
-    - name: Ensure success exit
-      if: always()
+    - name: Run command with retry and hard failure
       shell: bash
       run: |
-        if [ "${{ inputs.allow-failure }}" = "true" ]; then
-          exit 0
+        set -euo pipefail
+
+        COMMAND='${{ steps.resolve-command.outputs.command }}'
+        WORKING_DIR='${{ inputs.working-directory }}'
+        ATTEMPTS='${{ inputs.retry-attempts }}'
+        BACKOFF='${{ inputs.retry-backoff-seconds }}'
+        TIMEOUT='${{ inputs.timeout-minutes }}'
+
+        if [ ! -d "$WORKING_DIR" ]; then
+          echo "::error::Working directory not found: $WORKING_DIR"
+          exit 1
         fi
+
+        if ! [[ "$ATTEMPTS" =~ ^[0-9]+$ ]] || [ "$ATTEMPTS" -lt 1 ]; then
+          echo "::error::retry-attempts must be an integer >= 1"
+          exit 1
+        fi
+
+        if ! [[ "$BACKOFF" =~ ^[0-9]+$ ]]; then
+          echo "::error::retry-backoff-seconds must be an integer >= 0"
+          exit 1
+        fi
+
+        if ! [[ "$TIMEOUT" =~ ^[0-9]+$ ]] || [ "$TIMEOUT" -lt 1 ]; then
+          echo "::error::timeout-minutes must be an integer >= 1"
+          exit 1
+        fi
+
+        STATUS=0
+
+        for ATTEMPT in $(seq 1 "$ATTEMPTS"); do
+          echo "🚀 resilient-engine attempt ${ATTEMPT}/${ATTEMPTS}"
+
+          if timeout "${TIMEOUT}m" bash -lc "cd \"$WORKING_DIR\" && $COMMAND"; then
+            echo "✅ resilient-engine succeeded on attempt ${ATTEMPT}/${ATTEMPTS}"
+            exit 0
+          else
+            STATUS=$?
+            echo "⚠️ resilient-engine attempt ${ATTEMPT}/${ATTEMPTS} failed with exit code ${STATUS}"
+          fi
+
+          if [ "$ATTEMPT" -lt "$ATTEMPTS" ] && [ "$BACKOFF" -gt 0 ]; then
+            echo "⏳ waiting ${BACKOFF}s before retry"
+            sleep "$BACKOFF"
+          fi
+        done
+
+        echo "::error::resilient-engine failed after ${ATTEMPTS} attempts (exit ${STATUS})"
+        exit "$STATUS"

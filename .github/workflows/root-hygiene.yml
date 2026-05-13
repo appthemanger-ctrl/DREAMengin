@@ -1,21 +1,14 @@
 name: Root Hygiene
+
 on:
   workflow_dispatch:
 
 jobs:
-  run:
+  check-root:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
-    continue-on-error: true
+    permissions:
+      contents: read
     steps:
-      - uses: ./.github/actions/resilient-engine
-        with:
-          ruleset: .github/ruleset/root-hygiene.yml
-          allow-failure: 'true'
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      - uses: actions/checkout@v4
+      - name: Check root directory hygiene
+        run: .github/scripts/check-root-hygiene.sh
