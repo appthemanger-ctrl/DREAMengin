@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-13T11:41:03.466Z",
+  "generatedAt": "2026-05-13T12:57:21.072Z",
   "root": ".",
   "nodes": [
     {
@@ -10,233 +10,6 @@
       "parent": null,
       "loc": null,
       "isOrphan": false
-    },
-    {
-      "id": "folder:.github",
-      "label": ".github",
-      "type": "folder",
-      "path": ".github",
-      "parent": "folder:.",
-      "loc": null,
-      "isOrphan": false
-    },
-    {
-      "id": "folder:.github/workflows",
-      "label": "workflows",
-      "type": "folder",
-      "path": ".github/workflows",
-      "parent": "folder:.github",
-      "loc": null,
-      "isOrphan": false
-    },
-    {
-      "id": "file:.github/workflows/visual-schematic.yml",
-      "label": "visual-schematic.yml",
-      "type": "config",
-      "path": ".github/workflows/visual-schematic.yml",
-      "parent": "folder:.github/workflows",
-      "loc": null,
-      "isOrphan": false,
-      "tags": []
-    },
-    {
-      "id": "file:VISUAL-SCHEMATIC.md",
-      "label": "VISUAL-SCHEMATIC.md",
-      "type": "doc",
-      "path": "VISUAL-SCHEMATIC.md",
-      "parent": "folder:.",
-      "loc": null,
-      "isOrphan": true,
-      "tags": []
-    },
-    {
-      "id": "folder:repo-visualizer",
-      "label": "repo-visualizer",
-      "type": "folder",
-      "path": "repo-visualizer",
-      "parent": "folder:.",
-      "loc": null,
-      "isOrphan": false
-    },
-    {
-      "id": "file:repo-visualizer/README.md",
-      "label": "README.md",
-      "type": "doc",
-      "path": "repo-visualizer/README.md",
-      "parent": "folder:repo-visualizer",
-      "loc": null,
-      "isOrphan": true,
-      "tags": []
-    },
-    {
-      "id": "function:repo-visualizer/analyzer.mjs#toPosix",
-      "label": "toPosix",
-      "type": "function",
-      "path": "repo-visualizer/analyzer.mjs",
-      "parent": "file:repo-visualizer/analyzer.mjs",
-      "loc": 39,
-      "isOrphan": true,
-      "exported": false
-    },
-    {
-      "id": "function:repo-visualizer/analyzer.mjs#readFileSafe",
-      "label": "readFileSafe",
-      "type": "function",
-      "path": "repo-visualizer/analyzer.mjs",
-      "parent": "file:repo-visualizer/analyzer.mjs",
-      "loc": 43,
-      "isOrphan": true,
-      "exported": false
-    },
-    {
-      "id": "function:repo-visualizer/analyzer.mjs#getTrackedFiles",
-      "label": "getTrackedFiles",
-      "type": "function",
-      "path": "repo-visualizer/analyzer.mjs",
-      "parent": "file:repo-visualizer/analyzer.mjs",
-      "loc": 51,
-      "isOrphan": true,
-      "exported": false
-    },
-    {
-      "id": "function:repo-visualizer/analyzer.mjs#getFileType",
-      "label": "getFileType",
-      "type": "function",
-      "path": "repo-visualizer/analyzer.mjs",
-      "parent": "file:repo-visualizer/analyzer.mjs",
-      "loc": 76,
-      "isOrphan": true,
-      "exported": false
-    },
-    {
-      "id": "function:repo-visualizer/analyzer.mjs#lineOfIndex",
-      "label": "lineOfIndex",
-      "type": "function",
-      "path": "repo-visualizer/analyzer.mjs",
-      "parent": "file:repo-visualizer/analyzer.mjs",
-      "loc": 94,
-      "isOrphan": true,
-      "exported": false
-    },
-    {
-      "id": "function:repo-visualizer/analyzer.mjs#ensureFolderNodes",
-      "label": "ensureFolderNodes",
-      "type": "function",
-      "path": "repo-visualizer/analyzer.mjs",
-      "parent": "file:repo-visualizer/analyzer.mjs",
-      "loc": 98,
-      "isOrphan": true,
-      "exported": false
-    },
-    {
-      "id": "function:repo-visualizer/analyzer.mjs#createRootFolder",
-      "label": "createRootFolder",
-      "type": "function",
-      "path": "repo-visualizer/analyzer.mjs",
-      "parent": "file:repo-visualizer/analyzer.mjs",
-      "loc": 123,
-      "isOrphan": true,
-      "exported": false
-    },
-    {
-      "id": "function:repo-visualizer/analyzer.mjs#normalizeExportName",
-      "label": "normalizeExportName",
-      "type": "function",
-      "path": "repo-visualizer/analyzer.mjs",
-      "parent": "file:repo-visualizer/analyzer.mjs",
-      "loc": 137,
-      "isOrphan": true,
-      "exported": false
-    },
-    {
-      "id": "function:repo-visualizer/analyzer.mjs#resolveImport",
-      "label": "resolveImport",
-      "type": "function",
-      "path": "repo-visualizer/analyzer.mjs",
-      "parent": "file:repo-visualizer/analyzer.mjs",
-      "loc": 141,
-      "isOrphan": true,
-      "exported": false
-    },
-    {
-      "id": "function:repo-visualizer/analyzer.mjs#topLevelRanges",
-      "label": "topLevelRanges",
-      "type": "function",
-      "path": "repo-visualizer/analyzer.mjs",
-      "parent": "file:repo-visualizer/analyzer.mjs",
-      "loc": 170,
-      "isOrphan": true,
-      "exported": false
-    },
-    {
-      "id": "function:repo-visualizer/analyzer.mjs#extractJSImportData",
-      "label": "extractJSImportData",
-      "type": "function",
-      "path": "repo-visualizer/analyzer.mjs",
-      "parent": "file:repo-visualizer/analyzer.mjs",
-      "loc": 213,
-      "isOrphan": true,
-      "exported": false
-    },
-    {
-      "id": "function:repo-visualizer/analyzer.mjs#ensureVisualSchematic",
-      "label": "ensureVisualSchematic",
-      "type": "function",
-      "path": "repo-visualizer/analyzer.mjs",
-      "parent": "file:repo-visualizer/analyzer.mjs",
-      "loc": 530,
-      "isOrphan": true,
-      "exported": false
-    },
-    {
-      "id": "function:repo-visualizer/analyzer.mjs#main",
-      "label": "main",
-      "type": "function",
-      "path": "repo-visualizer/analyzer.mjs",
-      "parent": "file:repo-visualizer/analyzer.mjs",
-      "loc": 563,
-      "isOrphan": true,
-      "exported": false
-    },
-    {
-      "id": "file:repo-visualizer/analyzer.mjs",
-      "label": "analyzer.mjs",
-      "type": "mjs",
-      "path": "repo-visualizer/analyzer.mjs",
-      "parent": "folder:repo-visualizer",
-      "loc": null,
-      "isOrphan": true,
-      "tags": []
-    },
-    {
-      "id": "file:repo-visualizer/index.html",
-      "label": "index.html",
-      "type": "file",
-      "path": "repo-visualizer/index.html",
-      "parent": "folder:repo-visualizer",
-      "loc": null,
-      "isOrphan": true,
-      "tags": []
-    },
-    {
-      "id": "function:repo-visualizer/server.mjs#openBrowser",
-      "label": "openBrowser",
-      "type": "function",
-      "path": "repo-visualizer/server.mjs",
-      "parent": "file:repo-visualizer/server.mjs",
-      "loc": 23,
-      "isOrphan": true,
-      "exported": false
-    },
-    {
-      "id": "file:repo-visualizer/server.mjs",
-      "label": "server.mjs",
-      "type": "mjs",
-      "path": "repo-visualizer/server.mjs",
-      "parent": "folder:repo-visualizer",
-      "loc": null,
-      "isOrphan": true,
-      "tags": []
     },
     {
       "id": "folder:.ci",
@@ -296,6 +69,15 @@
       "loc": null,
       "isOrphan": true,
       "tags": []
+    },
+    {
+      "id": "folder:.github",
+      "label": ".github",
+      "type": "folder",
+      "path": ".github",
+      "parent": "folder:.",
+      "loc": null,
+      "isOrphan": false
     },
     {
       "id": "file:.github/PULL_REQUEST_TEMPLATE.md",
@@ -2461,6 +2243,156 @@
       "tags": []
     },
     {
+      "id": "function:.github/scripts/run-readme-autosync.mjs#readEventPayload",
+      "label": "readEventPayload",
+      "type": "function",
+      "path": ".github/scripts/run-readme-autosync.mjs",
+      "parent": "file:.github/scripts/run-readme-autosync.mjs",
+      "loc": 14,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:.github/scripts/run-readme-autosync.mjs#git",
+      "label": "git",
+      "type": "function",
+      "path": ".github/scripts/run-readme-autosync.mjs",
+      "parent": "file:.github/scripts/run-readme-autosync.mjs",
+      "loc": 20,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:.github/scripts/run-readme-autosync.mjs#tryGit",
+      "label": "tryGit",
+      "type": "function",
+      "path": ".github/scripts/run-readme-autosync.mjs",
+      "parent": "file:.github/scripts/run-readme-autosync.mjs",
+      "loc": 29,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:.github/scripts/run-readme-autosync.mjs#shouldRunWorkflow",
+      "label": "shouldRunWorkflow",
+      "type": "function",
+      "path": ".github/scripts/run-readme-autosync.mjs",
+      "parent": "file:.github/scripts/run-readme-autosync.mjs",
+      "loc": 37,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:.github/scripts/run-readme-autosync.mjs#computeChangedFiles",
+      "label": "computeChangedFiles",
+      "type": "function",
+      "path": ".github/scripts/run-readme-autosync.mjs",
+      "parent": "file:.github/scripts/run-readme-autosync.mjs",
+      "loc": 43,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:.github/scripts/run-readme-autosync.mjs#runAutosync",
+      "label": "runAutosync",
+      "type": "function",
+      "path": ".github/scripts/run-readme-autosync.mjs",
+      "parent": "file:.github/scripts/run-readme-autosync.mjs",
+      "loc": 68,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:.github/scripts/run-readme-autosync.mjs#readSummary",
+      "label": "readSummary",
+      "type": "function",
+      "path": ".github/scripts/run-readme-autosync.mjs",
+      "parent": "file:.github/scripts/run-readme-autosync.mjs",
+      "loc": 80,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:.github/scripts/run-readme-autosync.mjs#readmeChanged",
+      "label": "readmeChanged",
+      "type": "function",
+      "path": ".github/scripts/run-readme-autosync.mjs",
+      "parent": "file:.github/scripts/run-readme-autosync.mjs",
+      "loc": 84,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:.github/scripts/run-readme-autosync.mjs#buildComment",
+      "label": "buildComment",
+      "type": "function",
+      "path": ".github/scripts/run-readme-autosync.mjs",
+      "parent": "file:.github/scripts/run-readme-autosync.mjs",
+      "loc": 89,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:.github/scripts/run-readme-autosync.mjs#upsertComment",
+      "label": "upsertComment",
+      "type": "function",
+      "path": ".github/scripts/run-readme-autosync.mjs",
+      "parent": "file:.github/scripts/run-readme-autosync.mjs",
+      "loc": 126,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:.github/scripts/run-readme-autosync.mjs#commitAndPush",
+      "label": "commitAndPush",
+      "type": "function",
+      "path": ".github/scripts/run-readme-autosync.mjs",
+      "parent": "file:.github/scripts/run-readme-autosync.mjs",
+      "loc": 174,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:.github/scripts/run-readme-autosync.mjs#writeStepSummary",
+      "label": "writeStepSummary",
+      "type": "function",
+      "path": ".github/scripts/run-readme-autosync.mjs",
+      "parent": "file:.github/scripts/run-readme-autosync.mjs",
+      "loc": 182,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:.github/scripts/run-readme-autosync.mjs#ensureArtifact",
+      "label": "ensureArtifact",
+      "type": "function",
+      "path": ".github/scripts/run-readme-autosync.mjs",
+      "parent": "file:.github/scripts/run-readme-autosync.mjs",
+      "loc": 188,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:.github/scripts/run-readme-autosync.mjs#main",
+      "label": "main",
+      "type": "function",
+      "path": ".github/scripts/run-readme-autosync.mjs",
+      "parent": "file:.github/scripts/run-readme-autosync.mjs",
+      "loc": 194,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "file:.github/scripts/run-readme-autosync.mjs",
+      "label": "run-readme-autosync.mjs",
+      "type": "mjs",
+      "path": ".github/scripts/run-readme-autosync.mjs",
+      "parent": "folder:.github/scripts",
+      "loc": null,
+      "isOrphan": true,
+      "tags": []
+    },
+    {
       "id": "function:.github/scripts/scan_dreamengin_context.py#collect_files",
       "label": "collect_files",
       "type": "function",
@@ -2559,6 +2491,15 @@
       "loc": null,
       "isOrphan": true,
       "tags": []
+    },
+    {
+      "id": "folder:.github/workflows",
+      "label": "workflows",
+      "type": "folder",
+      "path": ".github/workflows",
+      "parent": "folder:.github",
+      "loc": null,
+      "isOrphan": false
     },
     {
       "id": "file:.github/workflows/autofixvercelbuild.yml",
@@ -3051,6 +2992,16 @@
       "tags": []
     },
     {
+      "id": "file:.github/workflows/resilient-engine-smoke.yml",
+      "label": "resilient-engine-smoke.yml",
+      "type": "config",
+      "path": ".github/workflows/resilient-engine-smoke.yml",
+      "parent": "folder:.github/workflows",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
       "id": "file:.github/workflows/root-hygiene.yml",
       "label": "root-hygiene.yml",
       "type": "config",
@@ -3115,6 +3066,16 @@
       "label": "vercel-deploy.yml",
       "type": "config",
       "path": ".github/workflows/vercel-deploy.yml",
+      "parent": "folder:.github/workflows",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "file:.github/workflows/visual-schematic.yml",
+      "label": "visual-schematic.yml",
+      "type": "config",
+      "path": ".github/workflows/visual-schematic.yml",
       "parent": "folder:.github/workflows",
       "loc": null,
       "isOrphan": false,
@@ -3234,6 +3195,16 @@
       "label": "REPO_STATE.md",
       "type": "doc",
       "path": "REPO_STATE.md",
+      "parent": "folder:.",
+      "loc": null,
+      "isOrphan": true,
+      "tags": []
+    },
+    {
+      "id": "file:VISUAL-SCHEMATIC.md",
+      "label": "VISUAL-SCHEMATIC.md",
+      "type": "doc",
+      "path": "VISUAL-SCHEMATIC.md",
       "parent": "folder:.",
       "loc": null,
       "isOrphan": true,
@@ -5888,7 +5859,7 @@
       "type": "function",
       "path": "app/api/embed-feed/route.ts",
       "parent": "file:app/api/embed-feed/route.ts",
-      "loc": 37,
+      "loc": 36,
       "isOrphan": false,
       "exported": true
     },
@@ -5902,7 +5873,6 @@
       "isOrphan": false,
       "tags": [
         "api-handler",
-        "supabase-create-client",
         "supabase-table:embed_feed_items"
       ]
     },
@@ -7236,7 +7206,7 @@
       "type": "function",
       "path": "app/api/setup/check/route.ts",
       "parent": "file:app/api/setup/check/route.ts",
-      "loc": 11,
+      "loc": 10,
       "isOrphan": false,
       "exported": true
     },
@@ -10888,7 +10858,7 @@
       "type": "function",
       "path": "app/login/page.tsx",
       "parent": "file:app/login/page.tsx",
-      "loc": 357,
+      "loc": 356,
       "isOrphan": false,
       "exported": true
     },
@@ -23192,6 +23162,25 @@
       ]
     },
     {
+      "id": "folder:engine",
+      "label": "engine",
+      "type": "folder",
+      "path": "engine",
+      "parent": "folder:.",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "file:engine/io.ts",
+      "label": "io.ts",
+      "type": "ts",
+      "path": "engine/io.ts",
+      "parent": "folder:engine",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
       "id": "folder:engins",
       "label": "engins",
       "type": "folder",
@@ -23954,7 +23943,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 214,
+      "loc": 215,
       "isOrphan": true,
       "exported": false
     },
@@ -23964,7 +23953,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 220,
+      "loc": 221,
       "isOrphan": true,
       "exported": false
     },
@@ -23974,7 +23963,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 224,
+      "loc": 225,
       "isOrphan": true,
       "exported": false
     },
@@ -23984,7 +23973,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 228,
+      "loc": 229,
       "isOrphan": true,
       "exported": false
     },
@@ -23994,7 +23983,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 232,
+      "loc": 233,
       "isOrphan": true,
       "exported": false
     },
@@ -24004,7 +23993,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 236,
+      "loc": 237,
       "isOrphan": true,
       "exported": false
     },
@@ -24014,7 +24003,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 265,
+      "loc": 266,
       "isOrphan": false,
       "exported": true
     },
@@ -24024,7 +24013,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1235,
+      "loc": 1236,
       "isOrphan": true,
       "exported": false
     },
@@ -24034,7 +24023,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1247,
+      "loc": 1248,
       "isOrphan": true,
       "exported": false
     },
@@ -24044,7 +24033,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1262,
+      "loc": 1263,
       "isOrphan": true,
       "exported": false
     },
@@ -24054,7 +24043,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1319,
+      "loc": 1320,
       "isOrphan": true,
       "exported": false
     },
@@ -24064,7 +24053,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1452,
+      "loc": 1453,
       "isOrphan": true,
       "exported": false
     },
@@ -24074,7 +24063,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1598,
+      "loc": 1599,
       "isOrphan": true,
       "exported": false
     },
@@ -24084,7 +24073,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1785,
+      "loc": 1786,
       "isOrphan": true,
       "exported": false
     },
@@ -24094,7 +24083,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1992,
+      "loc": 1993,
       "isOrphan": true,
       "exported": false
     },
@@ -24104,7 +24093,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2109,
+      "loc": 2110,
       "isOrphan": true,
       "exported": false
     },
@@ -24114,7 +24103,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2246,
+      "loc": 2247,
       "isOrphan": true,
       "exported": false
     },
@@ -24124,7 +24113,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2335,
+      "loc": 2336,
       "isOrphan": true,
       "exported": false
     },
@@ -24134,7 +24123,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2433,
+      "loc": 2434,
       "isOrphan": true,
       "exported": false
     },
@@ -24144,7 +24133,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2551,
+      "loc": 2552,
       "isOrphan": true,
       "exported": false
     },
@@ -24154,7 +24143,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2760,
+      "loc": 2761,
       "isOrphan": true,
       "exported": false
     },
@@ -24164,7 +24153,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2811,
+      "loc": 2812,
       "isOrphan": true,
       "exported": false
     },
@@ -24174,7 +24163,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2817,
+      "loc": 2818,
       "isOrphan": true,
       "exported": false
     },
@@ -24184,7 +24173,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2823,
+      "loc": 2824,
       "isOrphan": true,
       "exported": false
     },
@@ -24194,7 +24183,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2845,
+      "loc": 2846,
       "isOrphan": true,
       "exported": false
     },
@@ -24204,7 +24193,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2877,
+      "loc": 2878,
       "isOrphan": true,
       "exported": false
     },
@@ -25027,7 +25016,7 @@
       "type": "function",
       "path": "hooks/useSharedDream.ts",
       "parent": "file:hooks/useSharedDream.ts",
-      "loc": 54,
+      "loc": 53,
       "isOrphan": true,
       "exported": false
     },
@@ -25037,7 +25026,7 @@
       "type": "function",
       "path": "hooks/useSharedDream.ts",
       "parent": "file:hooks/useSharedDream.ts",
-      "loc": 58,
+      "loc": 57,
       "isOrphan": false,
       "exported": true
     },
@@ -31257,7 +31246,7 @@
       "type": "function",
       "path": "lib/connectors/youtube.ts",
       "parent": "file:lib/connectors/youtube.ts",
-      "loc": 10,
+      "loc": 4,
       "isOrphan": true,
       "exported": true
     },
@@ -31267,7 +31256,7 @@
       "type": "function",
       "path": "lib/connectors/youtube.ts",
       "parent": "file:lib/connectors/youtube.ts",
-      "loc": 39,
+      "loc": 34,
       "isOrphan": true,
       "exported": false
     },
@@ -31280,7 +31269,6 @@
       "loc": null,
       "isOrphan": true,
       "tags": [
-        "supabase-create-client",
         "supabase-table:feed_items"
       ]
     },
@@ -46897,7 +46885,7 @@
       "type": "function",
       "path": "lib/setup/checks.ts",
       "parent": "file:lib/setup/checks.ts",
-      "loc": 32,
+      "loc": 30,
       "isOrphan": true,
       "exported": true
     },
@@ -46907,7 +46895,7 @@
       "type": "function",
       "path": "lib/setup/checks.ts",
       "parent": "file:lib/setup/checks.ts",
-      "loc": 97,
+      "loc": 95,
       "isOrphan": false,
       "exported": true
     },
@@ -46917,7 +46905,7 @@
       "type": "function",
       "path": "lib/setup/checks.ts",
       "parent": "file:lib/setup/checks.ts",
-      "loc": 115,
+      "loc": 113,
       "isOrphan": false,
       "exported": true
     },
@@ -47586,7 +47574,7 @@
       "type": "function",
       "path": "lib/supabase/config.ts",
       "parent": "file:lib/supabase/config.ts",
-      "loc": 2,
+      "loc": 13,
       "isOrphan": true,
       "exported": false
     },
@@ -47596,7 +47584,7 @@
       "type": "function",
       "path": "lib/supabase/config.ts",
       "parent": "file:lib/supabase/config.ts",
-      "loc": 13,
+      "loc": 24,
       "isOrphan": false,
       "exported": true
     },
@@ -47606,7 +47594,7 @@
       "type": "function",
       "path": "lib/supabase/config.ts",
       "parent": "file:lib/supabase/config.ts",
-      "loc": 31,
+      "loc": 42,
       "isOrphan": false,
       "exported": true
     },
@@ -47616,7 +47604,7 @@
       "type": "function",
       "path": "lib/supabase/config.ts",
       "parent": "file:lib/supabase/config.ts",
-      "loc": 37,
+      "loc": 48,
       "isOrphan": false,
       "exported": true
     },
@@ -47625,26 +47613,6 @@
       "label": "config.ts",
       "type": "ts",
       "path": "lib/supabase/config.ts",
-      "parent": "folder:lib/supabase",
-      "loc": null,
-      "isOrphan": false,
-      "tags": []
-    },
-    {
-      "id": "function:lib/supabase/env.ts#isSupabaseConfigured",
-      "label": "isSupabaseConfigured",
-      "type": "function",
-      "path": "lib/supabase/env.ts",
-      "parent": "file:lib/supabase/env.ts",
-      "loc": 84,
-      "isOrphan": true,
-      "exported": true
-    },
-    {
-      "id": "file:lib/supabase/env.ts",
-      "label": "env.ts",
-      "type": "ts",
-      "path": "lib/supabase/env.ts",
       "parent": "folder:lib/supabase",
       "loc": null,
       "isOrphan": false,
@@ -47741,12 +47709,22 @@
       "exported": true
     },
     {
+      "id": "function:lib/supabase/server.ts#createServerClientWithCustomCookies",
+      "label": "createServerClientWithCustomCookies",
+      "type": "function",
+      "path": "lib/supabase/server.ts",
+      "parent": "file:lib/supabase/server.ts",
+      "loc": 160,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
       "id": "function:lib/supabase/server.ts#createServiceClient",
       "label": "createServiceClient",
       "type": "function",
       "path": "lib/supabase/server.ts",
       "parent": "file:lib/supabase/server.ts",
-      "loc": 160,
+      "loc": 172,
       "isOrphan": false,
       "exported": true
     },
@@ -50832,6 +50810,245 @@
       "tags": []
     },
     {
+      "id": "folder:repo-visualizer",
+      "label": "repo-visualizer",
+      "type": "folder",
+      "path": "repo-visualizer",
+      "parent": "folder:.",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "file:repo-visualizer/README.md",
+      "label": "README.md",
+      "type": "doc",
+      "path": "repo-visualizer/README.md",
+      "parent": "folder:repo-visualizer",
+      "loc": null,
+      "isOrphan": true,
+      "tags": []
+    },
+    {
+      "id": "function:repo-visualizer/analyzer.mjs#toPosix",
+      "label": "toPosix",
+      "type": "function",
+      "path": "repo-visualizer/analyzer.mjs",
+      "parent": "file:repo-visualizer/analyzer.mjs",
+      "loc": 39,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:repo-visualizer/analyzer.mjs#readFileSafe",
+      "label": "readFileSafe",
+      "type": "function",
+      "path": "repo-visualizer/analyzer.mjs",
+      "parent": "file:repo-visualizer/analyzer.mjs",
+      "loc": 43,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:repo-visualizer/analyzer.mjs#getTrackedFiles",
+      "label": "getTrackedFiles",
+      "type": "function",
+      "path": "repo-visualizer/analyzer.mjs",
+      "parent": "file:repo-visualizer/analyzer.mjs",
+      "loc": 51,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:repo-visualizer/analyzer.mjs#getFileType",
+      "label": "getFileType",
+      "type": "function",
+      "path": "repo-visualizer/analyzer.mjs",
+      "parent": "file:repo-visualizer/analyzer.mjs",
+      "loc": 76,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:repo-visualizer/analyzer.mjs#lineOfIndex",
+      "label": "lineOfIndex",
+      "type": "function",
+      "path": "repo-visualizer/analyzer.mjs",
+      "parent": "file:repo-visualizer/analyzer.mjs",
+      "loc": 94,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:repo-visualizer/analyzer.mjs#ensureFolderNodes",
+      "label": "ensureFolderNodes",
+      "type": "function",
+      "path": "repo-visualizer/analyzer.mjs",
+      "parent": "file:repo-visualizer/analyzer.mjs",
+      "loc": 98,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:repo-visualizer/analyzer.mjs#createRootFolder",
+      "label": "createRootFolder",
+      "type": "function",
+      "path": "repo-visualizer/analyzer.mjs",
+      "parent": "file:repo-visualizer/analyzer.mjs",
+      "loc": 123,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:repo-visualizer/analyzer.mjs#normalizeExportName",
+      "label": "normalizeExportName",
+      "type": "function",
+      "path": "repo-visualizer/analyzer.mjs",
+      "parent": "file:repo-visualizer/analyzer.mjs",
+      "loc": 137,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:repo-visualizer/analyzer.mjs#resolveImport",
+      "label": "resolveImport",
+      "type": "function",
+      "path": "repo-visualizer/analyzer.mjs",
+      "parent": "file:repo-visualizer/analyzer.mjs",
+      "loc": 141,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:repo-visualizer/analyzer.mjs#topLevelRanges",
+      "label": "topLevelRanges",
+      "type": "function",
+      "path": "repo-visualizer/analyzer.mjs",
+      "parent": "file:repo-visualizer/analyzer.mjs",
+      "loc": 170,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:repo-visualizer/analyzer.mjs#extractJSImportData",
+      "label": "extractJSImportData",
+      "type": "function",
+      "path": "repo-visualizer/analyzer.mjs",
+      "parent": "file:repo-visualizer/analyzer.mjs",
+      "loc": 213,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:repo-visualizer/analyzer.mjs#buildFileLevelGraphs",
+      "label": "buildFileLevelGraphs",
+      "type": "function",
+      "path": "repo-visualizer/analyzer.mjs",
+      "parent": "file:repo-visualizer/analyzer.mjs",
+      "loc": 542,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:repo-visualizer/analyzer.mjs#buildTopLevelFolderMermaid",
+      "label": "buildTopLevelFolderMermaid",
+      "type": "function",
+      "path": "repo-visualizer/analyzer.mjs",
+      "parent": "file:repo-visualizer/analyzer.mjs",
+      "loc": 609,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:repo-visualizer/analyzer.mjs#buildAutoSection",
+      "label": "buildAutoSection",
+      "type": "function",
+      "path": "repo-visualizer/analyzer.mjs",
+      "parent": "file:repo-visualizer/analyzer.mjs",
+      "loc": 644,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:repo-visualizer/analyzer.mjs#ensureVisualSchematic",
+      "label": "ensureVisualSchematic",
+      "type": "function",
+      "path": "repo-visualizer/analyzer.mjs",
+      "parent": "file:repo-visualizer/analyzer.mjs",
+      "loc": 678,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:repo-visualizer/analyzer.mjs#main",
+      "label": "main",
+      "type": "function",
+      "path": "repo-visualizer/analyzer.mjs",
+      "parent": "file:repo-visualizer/analyzer.mjs",
+      "loc": 711,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "file:repo-visualizer/analyzer.mjs",
+      "label": "analyzer.mjs",
+      "type": "mjs",
+      "path": "repo-visualizer/analyzer.mjs",
+      "parent": "folder:repo-visualizer",
+      "loc": null,
+      "isOrphan": true,
+      "tags": []
+    },
+    {
+      "id": "file:repo-visualizer/graph-stats.json",
+      "label": "graph-stats.json",
+      "type": "config",
+      "path": "repo-visualizer/graph-stats.json",
+      "parent": "folder:repo-visualizer",
+      "loc": null,
+      "isOrphan": true,
+      "tags": []
+    },
+    {
+      "id": "file:repo-visualizer/graph.json",
+      "label": "graph.json",
+      "type": "config",
+      "path": "repo-visualizer/graph.json",
+      "parent": "folder:repo-visualizer",
+      "loc": null,
+      "isOrphan": true,
+      "tags": []
+    },
+    {
+      "id": "file:repo-visualizer/index.html",
+      "label": "index.html",
+      "type": "file",
+      "path": "repo-visualizer/index.html",
+      "parent": "folder:repo-visualizer",
+      "loc": null,
+      "isOrphan": true,
+      "tags": []
+    },
+    {
+      "id": "function:repo-visualizer/server.mjs#openBrowser",
+      "label": "openBrowser",
+      "type": "function",
+      "path": "repo-visualizer/server.mjs",
+      "parent": "file:repo-visualizer/server.mjs",
+      "loc": 23,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "file:repo-visualizer/server.mjs",
+      "label": "server.mjs",
+      "type": "mjs",
+      "path": "repo-visualizer/server.mjs",
+      "parent": "folder:repo-visualizer",
+      "loc": null,
+      "isOrphan": true,
+      "tags": []
+    },
+    {
       "id": "folder:research-and-development",
       "label": "research-and-development",
       "type": "folder",
@@ -51527,7 +51744,7 @@
       "type": "function",
       "path": "scripts/check-root-hygiene.mjs",
       "parent": "file:scripts/check-root-hygiene.mjs",
-      "loc": 64,
+      "loc": 65,
       "isOrphan": true,
       "exported": false
     },
@@ -51934,7 +52151,7 @@
       "type": "function",
       "path": "scripts/gameengin/maestro-analyze.ts",
       "parent": "file:scripts/gameengin/maestro-analyze.ts",
-      "loc": 94,
+      "loc": 101,
       "isOrphan": true,
       "exported": false
     },
@@ -51944,7 +52161,7 @@
       "type": "function",
       "path": "scripts/gameengin/maestro-analyze.ts",
       "parent": "file:scripts/gameengin/maestro-analyze.ts",
-      "loc": 143,
+      "loc": 150,
       "isOrphan": true,
       "exported": false
     },
@@ -51954,7 +52171,7 @@
       "type": "function",
       "path": "scripts/gameengin/maestro-analyze.ts",
       "parent": "file:scripts/gameengin/maestro-analyze.ts",
-      "loc": 157,
+      "loc": 164,
       "isOrphan": true,
       "exported": false
     },
@@ -51966,10 +52183,7 @@
       "parent": "folder:scripts/gameengin",
       "loc": null,
       "isOrphan": true,
-      "tags": [
-        "supabase-create-client",
-        "supabase-table:gameengin_telemetry"
-      ]
+      "tags": []
     },
     {
       "id": "function:scripts/gameengin/mechanic-run.ts#compileAS",
@@ -58158,7 +58372,7 @@
       "path": "supabase/migrations/20260418000000_gameengin_core.sql",
       "parent": "file:supabase/migrations/20260418000000_gameengin_core.sql",
       "loc": null,
-      "isOrphan": false
+      "isOrphan": true
     },
     {
       "id": "sql-table:supabase/migrations/20260418000000_gameengin_core.sql#gameengin_snapshots",
@@ -61521,6 +61735,16 @@
       "tags": []
     },
     {
+      "id": "file:tests/setup-env.ts",
+      "label": "setup-env.ts",
+      "type": "ts",
+      "path": "tests/setup-env.ts",
+      "parent": "folder:tests",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
       "id": "function:tests/shell-cartridge-wiring.test.ts#source",
       "label": "source",
       "type": "function",
@@ -61641,20 +61865,20 @@
       "tags": []
     },
     {
-      "id": "function:tests/supabase-env.test.ts#importSupabaseEnv",
-      "label": "importSupabaseEnv",
+      "id": "function:tests/supabase-config.test.ts#importSupabaseConfig",
+      "label": "importSupabaseConfig",
       "type": "function",
-      "path": "tests/supabase-env.test.ts",
-      "parent": "file:tests/supabase-env.test.ts",
+      "path": "tests/supabase-config.test.ts",
+      "parent": "file:tests/supabase-config.test.ts",
       "loc": 4,
       "isOrphan": false,
       "exported": false
     },
     {
-      "id": "file:tests/supabase-env.test.ts",
-      "label": "supabase-env.test.ts",
+      "id": "file:tests/supabase-config.test.ts",
+      "label": "supabase-config.test.ts",
       "type": "ts",
-      "path": "tests/supabase-env.test.ts",
+      "path": "tests/supabase-config.test.ts",
       "parent": "folder:tests",
       "loc": null,
       "isOrphan": false,
@@ -64143,7 +64367,7 @@
     },
     {
       "source": "file:app/api/embed-feed/route.ts",
-      "target": "file:lib/supabase/config.ts",
+      "target": "file:lib/supabase/server.ts",
       "kind": "import"
     },
     {
@@ -64153,7 +64377,7 @@
     },
     {
       "source": "file:app/api/embed-feed/route.ts",
-      "target": "file:lib/supabase/config.ts",
+      "target": "file:lib/supabase/server.ts",
       "kind": "route-uses"
     },
     {
@@ -64880,6 +65104,11 @@
       "source": "file:app/api/youtube/live-feed/route.ts",
       "target": "file:types/connector.ts",
       "kind": "route-uses"
+    },
+    {
+      "source": "file:app/auth/callback/route.ts",
+      "target": "file:lib/supabase/server.ts",
+      "kind": "import"
     },
     {
       "source": "file:app/auth/callback/route.ts",
@@ -64890,6 +65119,11 @@
       "source": "file:app/auth/callback/route.ts",
       "target": "file:lib/auth/nextRedirect.ts",
       "kind": "import"
+    },
+    {
+      "source": "file:app/auth/callback/route.ts",
+      "target": "file:lib/supabase/server.ts",
+      "kind": "route-uses"
     },
     {
       "source": "file:app/auth/callback/route.ts",
@@ -71808,6 +72042,11 @@
     },
     {
       "source": "file:engins/engin.StarMakerEngin.tsx",
+      "target": "file:lib/supabase/config.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:engins/engin.StarMakerEngin.tsx",
       "target": "file:lib/daydream/useDaydreamState.ts",
       "kind": "import"
     },
@@ -72058,7 +72297,7 @@
     },
     {
       "source": "file:hooks/useSharedDream.ts",
-      "target": "file:lib/supabase/env.ts",
+      "target": "file:lib/supabase/client.ts",
       "kind": "import"
     },
     {
@@ -72323,6 +72562,11 @@
     },
     {
       "source": "file:lib/ai/tool-router.ts",
+      "target": "file:engine/io.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/ai/tool-router.ts",
       "target": "file:lib/ai/audit.ts",
       "kind": "import"
     },
@@ -72429,6 +72673,11 @@
     {
       "source": "file:lib/child-safety/scanMediaUrls.ts",
       "target": "file:lib/child-safety/imageClassifier.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/collaboration/index.ts",
+      "target": "file:engine/io.ts",
       "kind": "import"
     },
     {
@@ -72658,6 +72907,11 @@
     },
     {
       "source": "file:lib/connectors/reconcile.ts",
+      "target": "file:engine/io.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/connectors/reconcile.ts",
       "target": "file:types/supabase.ts",
       "kind": "import"
     },
@@ -72713,7 +72967,7 @@
     },
     {
       "source": "file:lib/connectors/youtube.ts",
-      "target": "file:lib/supabase/env.ts",
+      "target": "file:lib/supabase/server.ts",
       "kind": "import"
     },
     {
@@ -72832,8 +73086,18 @@
       "kind": "import"
     },
     {
+      "source": "file:lib/dreamdm/useDreamDMConversations.ts",
+      "target": "file:engine/io.ts",
+      "kind": "import"
+    },
+    {
       "source": "file:lib/dreamdm/useDreamDMMessages.ts",
       "target": "file:lib/supabase/client.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/dreamdm/useDreamDMMessages.ts",
+      "target": "file:engine/io.ts",
       "kind": "import"
     },
     {
@@ -73000,6 +73264,11 @@
       "source": "file:lib/dreamnav/tau.ts",
       "target": "file:lib/dreamnav/delta.ts",
       "kind": "reexport"
+    },
+    {
+      "source": "file:lib/dreamr/closeFriendsVisibility.ts",
+      "target": "file:engine/io.ts",
+      "kind": "import"
     },
     {
       "source": "file:lib/dreamr/closeFriendsVisibility.ts",
@@ -73249,6 +73518,11 @@
     {
       "source": "file:lib/feed/useLiveFeed.ts",
       "target": "file:lib/media/postMedia.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/feed/useLiveFeed.ts",
+      "target": "file:engine/io.ts",
       "kind": "import"
     },
     {
@@ -73878,6 +74152,11 @@
     },
     {
       "source": "file:lib/ledger.ts",
+      "target": "file:engine/io.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/ledger.ts",
       "target": "file:lib/audioFingerprint.ts",
       "kind": "import"
     },
@@ -74393,7 +74672,12 @@
     },
     {
       "source": "file:lib/setup/checks.ts",
-      "target": "file:lib/supabase/env.ts",
+      "target": "file:lib/supabase/config.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/sharedDream.ts",
+      "target": "file:engine/io.ts",
       "kind": "import"
     },
     {
@@ -74417,11 +74701,6 @@
       "kind": "import"
     },
     {
-      "source": "file:lib/supabase/config.ts",
-      "target": "file:lib/supabase/env.ts",
-      "kind": "import"
-    },
-    {
       "source": "file:lib/supabase/server.ts",
       "target": "file:types/supabase.ts",
       "kind": "import"
@@ -74429,11 +74708,6 @@
     {
       "source": "file:lib/supabase/server.ts",
       "target": "file:lib/supabase/config.ts",
-      "kind": "import"
-    },
-    {
-      "source": "file:lib/supabase/server.ts",
-      "target": "file:lib/supabase/env.ts",
       "kind": "import"
     },
     {
@@ -74629,6 +74903,16 @@
     {
       "source": "file:lib/widgets/useWidget.ts",
       "target": "file:lib/widgets/WidgetBus.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:scripts/archive/proxy.ts",
+      "target": "file:lib/supabase/server.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:scripts/archive/proxy.ts",
+      "target": "file:lib/supabase/config.ts",
       "kind": "import"
     },
     {
@@ -75972,8 +76256,8 @@
       "kind": "import"
     },
     {
-      "source": "file:tests/supabase-env.test.ts",
-      "target": "file:lib/supabase/env.ts",
+      "source": "file:tests/supabase-config.test.ts",
+      "target": "file:lib/supabase/config.ts",
       "kind": "import"
     },
     {
@@ -76958,6 +77242,11 @@
     },
     {
       "source": "file:app/api/embed-feed/route.ts",
+      "target": "function:lib/supabase/server.ts#createServerClient",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/api/embed-feed/route.ts",
       "target": "function:lib/feeds/embedFeedLoader.ts#loadEmbedFeed",
       "kind": "call"
     },
@@ -77404,6 +77693,11 @@
     {
       "source": "file:app/auth/callback/route.ts",
       "target": "function:lib/auth/nextRedirect.ts#resolveSafeNextPath",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/auth/callback/route.ts",
+      "target": "function:lib/supabase/server.ts#createServerClientWithCustomCookies",
       "kind": "call"
     },
     {
@@ -81253,6 +81547,11 @@
     },
     {
       "source": "file:hooks/useSharedDream.ts",
+      "target": "function:lib/supabase/client.ts#createClient",
+      "kind": "call"
+    },
+    {
+      "source": "file:hooks/useSharedDream.ts",
       "target": "function:lib/sharedDream.ts#createSharedDreamSession",
       "kind": "call"
     },
@@ -81709,6 +82008,11 @@
     {
       "source": "file:lib/connectors/syncDispatch.ts",
       "target": "function:lib/connectors/providers/instagram.ts#instagramSync",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/connectors/youtube.ts",
+      "target": "function:lib/supabase/server.ts#createServiceClient",
       "kind": "call"
     },
     {
@@ -82744,6 +83048,11 @@
     {
       "source": "file:lib/widgets/feed-resolver.ts",
       "target": "function:lib/supabase/server.ts#createServerClient",
+      "kind": "call"
+    },
+    {
+      "source": "file:scripts/archive/proxy.ts",
+      "target": "function:lib/supabase/server.ts#createServerClientWithCustomCookies",
       "kind": "call"
     },
     {
@@ -87634,11 +87943,6 @@
     {
       "source": "file:lib/widgets/feed-resolver.ts",
       "target": "sql-table:supabase/migrations/20240120000000_initial_schema.sql#app_posts",
-      "kind": "sql-reference"
-    },
-    {
-      "source": "file:scripts/gameengin/maestro-analyze.ts",
-      "target": "sql-table:supabase/migrations/20260418000000_gameengin_core.sql#gameengin_telemetry",
       "kind": "sql-reference"
     },
     {
