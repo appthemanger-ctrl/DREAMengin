@@ -1993,7 +1993,7 @@ Keeping these boundaries explicit prevents domain feature code from leaking into
 </details>
 ## Agents & Workflow
 Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scripts/**` using repository introspection.
-- Files tracked: **124**
+- Files tracked: **126**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -2010,6 +2010,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 │   │   ├── assemble_report_context.py
 │   │   ├── catalog_games_for_ai.py
 │   │   ├── check-root-hygiene.sh
+│   │   ├── check_workflow_masking.py
 │   │   ├── dreamengin_core.py
 │   │   ├── humanai_audit.py
 │   │   ├── issue-bot.js
@@ -2067,6 +2068,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 │       ├── refreshlock.yml
 │       ├── repo-snapshot.yml
 │       ├── report-driven-coding-agent.yml
+│       ├── resilient-engine-smoke.yml
 │       ├── root-hygiene.yml
 │       ├── spec-engin-ai-agent.yml
 │       ├── sql-migration-guard.yml
@@ -2117,11 +2119,9 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
     ├── law-check.sh
     ├── migrate-imports.sh
     ├── optimize-dreamengin.mjs
-    ├── postbuild.js
-    ├── postbuild.ts
-… (4 more files)
+… (6 more files)
 ```
-<details><summary>Agents & Workflow file index (124 files)</summary>
+<details><summary>Agents & Workflow file index (126 files)</summary>
 
 - `.github/scripts/DREAMENGIN_CORE_COMPLETE.md` — documentation file.
 - `.github/scripts/DREAMENGIN_CORE_USAGE.md` — documentation file.
@@ -2132,6 +2132,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 - `.github/scripts/assemble_report_context.py` — project file (py).
 - `.github/scripts/catalog_games_for_ai.py` — project file (py).
 - `.github/scripts/check-root-hygiene.sh` — project file (sh).
+- `.github/scripts/check_workflow_masking.py` — project file (py).
 - `.github/scripts/dreamengin_core.py` — project file (py).
 - `.github/scripts/humanai_audit.py` — project file (py).
 - `.github/scripts/issue-bot.js` — TypeScript/JavaScript runtime module.
@@ -2188,6 +2189,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 - `.github/workflows/refreshlock.yml` — project file (yml).
 - `.github/workflows/repo-snapshot.yml` — project file (yml).
 - `.github/workflows/report-driven-coding-agent.yml` — project file (yml).
+- `.github/workflows/resilient-engine-smoke.yml` — project file (yml).
 - `.github/workflows/root-hygiene.yml` — project file (yml).
 - `.github/workflows/spec-engin-ai-agent.yml` — project file (yml).
 - `.github/workflows/sql-migration-guard.yml` — project file (yml).
@@ -2332,7 +2334,7 @@ This separation supports high-velocity exploration while preventing experimental
 </details>
 ## Infra & Ops
 Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflows/**`, `vercel.json`, `docker-compose.yml` using repository introspection.
-- Files tracked: **61**
+- Files tracked: **62**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -2389,6 +2391,7 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 │       ├── refreshlock.yml
 │       ├── repo-snapshot.yml
 │       ├── report-driven-coding-agent.yml
+│       ├── resilient-engine-smoke.yml
 │       ├── root-hygiene.yml
 │       ├── spec-engin-ai-agent.yml
 │       ├── sql-migration-guard.yml
@@ -2407,7 +2410,7 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 │   └── main.tf
 └── vercel.json
 ```
-<details><summary>Infra & Ops file index (61 files)</summary>
+<details><summary>Infra & Ops file index (62 files)</summary>
 
 - `.github/workflows/autofixvercelbuild.yml` — project file (yml).
 - `.github/workflows/bot-pr-automerge.yml` — project file (yml).
@@ -2458,6 +2461,7 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 - `.github/workflows/refreshlock.yml` — project file (yml).
 - `.github/workflows/repo-snapshot.yml` — project file (yml).
 - `.github/workflows/report-driven-coding-agent.yml` — project file (yml).
+- `.github/workflows/resilient-engine-smoke.yml` — project file (yml).
 - `.github/workflows/root-hygiene.yml` — project file (yml).
 - `.github/workflows/spec-engin-ai-agent.yml` — project file (yml).
 - `.github/workflows/sql-migration-guard.yml` — project file (yml).
@@ -2865,7 +2869,7 @@ The complete env contract is documented in `.env.example`; use `.env.local.examp
 Do not commit secrets. Treat `.env.example` as source-of-truth documentation and keep `.env.local` gitignored.
 ## Contributing
 Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using repository introspection.
-- Files tracked: **209**
+- Files tracked: **268**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -2874,6 +2878,8 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 ├── .github
 │   ├── PULL_REQUEST_TEMPLATE.md
 │   ├── actions
+│   │   ├── resilient-engine
+│   │   │   └── action.yml
 │   │   └── setup-node
 │   │       └── action.yml
 │   ├── agents
@@ -2918,6 +2924,63 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 │   │   ├── issue-753.md
 │   │   └── issue-754.md
 │   ├── pull_request_template.md
+│   ├── ruleset
+│   │   ├── autofixvercelbuild.yml
+│   │   ├── bot-pr-automerge.yml
+│   │   ├── bouncer.yml
+│   │   ├── copilot-setup-steps.yml
+│   │   ├── daydream-all.yml
+│   │   ├── daydream-brand-engin.yml
+│   │   ├── daydream-code-engin.yml
+│   │   ├── daydream-create-engin.yml
+│   │   ├── daydream-engin-build-cycle.yml
+│   │   ├── daydream-engin-sicc-refinement.yml
+│   │   ├── daydream-games-engin.yml
+│   │   ├── daydream-lab-engin.yml
+│   │   ├── daydream-music-engin.yml
+│   │   ├── db-extension-audit.yml
+│   │   ├── db-extension-check.yml
+│   │   ├── deploy-artifact.yml
+│   │   ├── docs-auto-update.yml
+│   │   ├── dreamengin-preflight.yml
+│   │   ├── elite-gameengin-evolution.yml
+│   │   ├── engin-all.yml
+│   │   ├── exportrepo.yml
+│   │   ├── game-engin-patrol.yml
+│   │   ├── game-library-research.yml
+│   │   ├── gameengin-ai-agent.yml
+│   │   ├── gameengin-artisan.yml
+│   │   ├── gameengin-maestro.yml
+│   │   ├── gameengin-mechanic.yml
+│   │   ├── gameengin-prophet.yml
+│   │   ├── gameengin-upgrader.yml
+│   │   ├── gameengin-writer.yml
+│   │   ├── games-library-ai-agent.yml
+│   │   ├── garbageman.yml
+│   │   ├── generatesupabasetypes.yml
+│   │   ├── github-actions.yml
+│   │   ├── humanai-army-audit.yml
+│   │   ├── humanai-audit.yml
+│   │   ├── idari-daily.yml
+│   │   ├── issue-bot.yml
+│   │   ├── mobile-nextgen-spec-evolution.yml
+│   │   ├── mobile-ps5-spec-evolution.yml
+│   │   ├── neural-decision-engine.yml
+│   │   ├── optimize-dreamengin.yml
+│   │   ├── portfolio-optimization.yml
+│   │   ├── preflight.yml
+│   │   ├── print-codebase.yml
+│   │   ├── readme-autosync.yml
+│   │   ├── refreshlock.yml
+│   │   ├── repo-snapshot.yml
+│   │   ├── report-driven-coding-agent.yml
+│   │   ├── root-hygiene.yml
+│   │   ├── spec-engin-ai-agent.yml
+│   │   ├── sql-migration-guard.yml
+│   │   ├── sync-build-memory.yml
+│   │   ├── update-embed-feed.yml
+│   │   ├── update-repo-state.yml
+│   │   └── vercel-deploy.yml
 │   ├── scripts
 │   │   ├── DREAMENGIN_CORE_COMPLETE.md
 │   │   ├── DREAMENGIN_CORE_USAGE.md
@@ -2928,74 +2991,16 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 │   │   ├── assemble_report_context.py
 │   │   ├── catalog_games_for_ai.py
 │   │   ├── check-root-hygiene.sh
+│   │   ├── check_workflow_masking.py
 │   │   ├── dreamengin_core.py
 │   │   ├── humanai_audit.py
 │   │   ├── issue-bot.js
-│   │   ├── scan_dreamengin_context.py
-│   │   ├── scan_gameengin_context.py
-│   │   ├── validate_game_sandbox.py
-│   │   └── validate_report_agent_spec.py
-│   └── workflows
-│       ├── autofixvercelbuild.yml
-│       ├── bot-pr-automerge.yml
-│       ├── bouncer.yml
-│       ├── copilot-setup-steps.yml
-│       ├── daydream-all.yml
-│       ├── daydream-brand-engin.yml
-│       ├── daydream-code-engin.yml
-│       ├── daydream-create-engin.yml
-│       ├── daydream-engin-build-cycle.yml
-│       ├── daydream-engin-sicc-refinement.yml
-│       ├── daydream-games-engin.yml
-│       ├── daydream-lab-engin.yml
-│       ├── daydream-music-engin.yml
-│       ├── db-extension-audit.yml
-│       ├── db-extension-check.yml
-│       ├── deploy-artifact.yml
-│       ├── docs-auto-update.yml
-│       ├── dreamengin-preflight.yml
-│       ├── elite-gameengin-evolution.yml
-│       ├── engin-all.yml
-│       ├── exportrepo.yml
-│       ├── game-engin-patrol.yml
-│       ├── game-library-research.yml
-│       ├── gameengin-ai-agent.yml
-│       ├── gameengin-artisan.yml
-│       ├── gameengin-maestro.yml
-│       ├── gameengin-mechanic.yml
-│       ├── gameengin-prophet.yml
-│       ├── gameengin-upgrader.yml
-│       ├── gameengin-writer.yml
-│       ├── games-library-ai-agent.yml
-│       ├── garbageman.yml
-│       ├── generatesupabasetypes.yml
-│       ├── github-actions.yml
-│       ├── humanai-army-audit.yml
-│       ├── humanai-audit.yml
-│       ├── idari-daily.yml
-│       ├── issue-bot.yml
-│       ├── mobile-nextgen-spec-evolution.yml
-│       ├── mobile-ps5-spec-evolution.yml
-│       ├── neural_decision_engine.yml
-│       ├── optimize-dreamengin.yml
-│       ├── portfolio-optimization.yml
-│       ├── preflight.yml
-│       ├── print-codebase.yml
-│       ├── readme-autosync.yml
-│       ├── refreshlock.yml
-│       ├── repo-snapshot.yml
-│       ├── report-driven-coding-agent.yml
-│       ├── root-hygiene.yml
-│       ├── spec-engin-ai-agent.yml
-│       ├── sql-migration-guard.yml
-│       ├── sync-build-memory.yml
-│       ├── update-embed-feed.yml
-│       ├── update-repo-state.yml
-… (89 more files)
+… (148 more files)
 ```
-<details><summary>Contributing file index (209 files)</summary>
+<details><summary>Contributing file index (268 files)</summary>
 
 - `.github/PULL_REQUEST_TEMPLATE.md` — documentation file.
+- `.github/actions/resilient-engine/action.yml` — project file (yml).
 - `.github/actions/setup-node/action.yml` — project file (yml).
 - `.github/agents/Spec-Engin HyperSICC.agent.md` — documentation file.
 - `.github/agents/dreamengin.agent.md` — documentation file.
@@ -3037,6 +3042,62 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 - `.github/issue-triage/issue-753.md` — documentation file.
 - `.github/issue-triage/issue-754.md` — documentation file.
 - `.github/pull_request_template.md` — documentation file.
+- `.github/ruleset/autofixvercelbuild.yml` — project file (yml).
+- `.github/ruleset/bot-pr-automerge.yml` — project file (yml).
+- `.github/ruleset/bouncer.yml` — project file (yml).
+- `.github/ruleset/copilot-setup-steps.yml` — project file (yml).
+- `.github/ruleset/daydream-all.yml` — project file (yml).
+- `.github/ruleset/daydream-brand-engin.yml` — project file (yml).
+- `.github/ruleset/daydream-code-engin.yml` — project file (yml).
+- `.github/ruleset/daydream-create-engin.yml` — project file (yml).
+- `.github/ruleset/daydream-engin-build-cycle.yml` — project file (yml).
+- `.github/ruleset/daydream-engin-sicc-refinement.yml` — project file (yml).
+- `.github/ruleset/daydream-games-engin.yml` — project file (yml).
+- `.github/ruleset/daydream-lab-engin.yml` — project file (yml).
+- `.github/ruleset/daydream-music-engin.yml` — project file (yml).
+- `.github/ruleset/db-extension-audit.yml` — project file (yml).
+- `.github/ruleset/db-extension-check.yml` — project file (yml).
+- `.github/ruleset/deploy-artifact.yml` — project file (yml).
+- `.github/ruleset/docs-auto-update.yml` — project file (yml).
+- `.github/ruleset/dreamengin-preflight.yml` — project file (yml).
+- `.github/ruleset/elite-gameengin-evolution.yml` — project file (yml).
+- `.github/ruleset/engin-all.yml` — project file (yml).
+- `.github/ruleset/exportrepo.yml` — project file (yml).
+- `.github/ruleset/game-engin-patrol.yml` — project file (yml).
+- `.github/ruleset/game-library-research.yml` — project file (yml).
+- `.github/ruleset/gameengin-ai-agent.yml` — project file (yml).
+- `.github/ruleset/gameengin-artisan.yml` — project file (yml).
+- `.github/ruleset/gameengin-maestro.yml` — project file (yml).
+- `.github/ruleset/gameengin-mechanic.yml` — project file (yml).
+- `.github/ruleset/gameengin-prophet.yml` — project file (yml).
+- `.github/ruleset/gameengin-upgrader.yml` — project file (yml).
+- `.github/ruleset/gameengin-writer.yml` — project file (yml).
+- `.github/ruleset/games-library-ai-agent.yml` — project file (yml).
+- `.github/ruleset/garbageman.yml` — project file (yml).
+- `.github/ruleset/generatesupabasetypes.yml` — project file (yml).
+- `.github/ruleset/github-actions.yml` — project file (yml).
+- `.github/ruleset/humanai-army-audit.yml` — project file (yml).
+- `.github/ruleset/humanai-audit.yml` — project file (yml).
+- `.github/ruleset/idari-daily.yml` — project file (yml).
+- `.github/ruleset/issue-bot.yml` — project file (yml).
+- `.github/ruleset/mobile-nextgen-spec-evolution.yml` — project file (yml).
+- `.github/ruleset/mobile-ps5-spec-evolution.yml` — project file (yml).
+- `.github/ruleset/neural-decision-engine.yml` — project file (yml).
+- `.github/ruleset/optimize-dreamengin.yml` — project file (yml).
+- `.github/ruleset/portfolio-optimization.yml` — project file (yml).
+- `.github/ruleset/preflight.yml` — project file (yml).
+- `.github/ruleset/print-codebase.yml` — project file (yml).
+- `.github/ruleset/readme-autosync.yml` — project file (yml).
+- `.github/ruleset/refreshlock.yml` — project file (yml).
+- `.github/ruleset/repo-snapshot.yml` — project file (yml).
+- `.github/ruleset/report-driven-coding-agent.yml` — project file (yml).
+- `.github/ruleset/root-hygiene.yml` — project file (yml).
+- `.github/ruleset/spec-engin-ai-agent.yml` — project file (yml).
+- `.github/ruleset/sql-migration-guard.yml` — project file (yml).
+- `.github/ruleset/sync-build-memory.yml` — project file (yml).
+- `.github/ruleset/update-embed-feed.yml` — project file (yml).
+- `.github/ruleset/update-repo-state.yml` — project file (yml).
+- `.github/ruleset/vercel-deploy.yml` — project file (yml).
 - `.github/scripts/DREAMENGIN_CORE_COMPLETE.md` — documentation file.
 - `.github/scripts/DREAMENGIN_CORE_USAGE.md` — documentation file.
 - `.github/scripts/ai_implement.py` — project file (py).
@@ -3046,6 +3107,7 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 - `.github/scripts/assemble_report_context.py` — project file (py).
 - `.github/scripts/catalog_games_for_ai.py` — project file (py).
 - `.github/scripts/check-root-hygiene.sh` — project file (sh).
+- `.github/scripts/check_workflow_masking.py` — project file (py).
 - `.github/scripts/dreamengin_core.py` — project file (py).
 - `.github/scripts/humanai_audit.py` — project file (py).
 - `.github/scripts/issue-bot.js` — TypeScript/JavaScript runtime module.
@@ -3102,6 +3164,7 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 - `.github/workflows/refreshlock.yml` — project file (yml).
 - `.github/workflows/repo-snapshot.yml` — project file (yml).
 - `.github/workflows/report-driven-coding-agent.yml` — project file (yml).
+- `.github/workflows/resilient-engine-smoke.yml` — project file (yml).
 - `.github/workflows/root-hygiene.yml` — project file (yml).
 - `.github/workflows/spec-engin-ai-agent.yml` — project file (yml).
 - `.github/workflows/sql-migration-guard.yml` — project file (yml).
