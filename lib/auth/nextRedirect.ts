@@ -1,5 +1,5 @@
 const FALLBACK_NEXT_PATH = '/homedream';
-const SAFE_NEXT_ORIGIN = 'https://dreamengin.local';
+const SAFE_NEXT_ORIGIN = 'https://dreamengin.com';
 
 type SearchParamValue = string | string[] | undefined;
 type SearchParamRecord = Record<string, SearchParamValue>;
