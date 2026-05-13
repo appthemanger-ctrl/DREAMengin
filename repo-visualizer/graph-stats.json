@@ -1,0 +1,100 @@
+{
+  "generatedAt": "2026-05-13T11:41:03.466Z",
+  "totalFiles": 1899,
+  "totalNodes": 6260,
+  "totalEdges": 5049,
+  "totalFunctionAndClassNodes": 3395,
+  "orphanCount": 3000,
+  "countsByType": {
+    "folder": 583,
+    "config": 222,
+    "doc": 185,
+    "function": 3248,
+    "mjs": 24,
+    "file": 72,
+    "python": 13,
+    "class": 147,
+    "js": 22,
+    "route": 229,
+    "ts": 733,
+    "tsx": 318,
+    "css": 13,
+    "jsx": 9,
+    "cjs": 4,
+    "sql-table": 133,
+    "sql-policy": 250,
+    "sql": 55
+  },
+  "topConnected": [
+    {
+      "id": "file:lib/supabase/server.ts",
+      "degree": 332,
+      "label": "server.ts",
+      "type": "ts",
+      "path": "lib/supabase/server.ts"
+    },
+    {
+      "id": "function:lib/supabase/server.ts#createServerClient",
+      "degree": 173,
+      "label": "createServerClient",
+      "type": "function",
+      "path": "lib/supabase/server.ts"
+    },
+    {
+      "id": "file:lib/dev-bypass.ts",
+      "degree": 85,
+      "label": "dev-bypass.ts",
+      "type": "ts",
+      "path": "lib/dev-bypass.ts"
+    },
+    {
+      "id": "file:lib/supabase/client.ts",
+      "degree": 71,
+      "label": "client.ts",
+      "type": "ts",
+      "path": "lib/supabase/client.ts"
+    },
+    {
+      "id": "file:engins/engin.ContentEngin.tsx",
+      "degree": 67,
+      "label": "engin.ContentEngin.tsx",
+      "type": "tsx",
+      "path": "engins/engin.ContentEngin.tsx"
+    },
+    {
+      "id": "file:components/engines/shared/index.ts",
+      "degree": 59,
+      "label": "index.ts",
+      "type": "ts",
+      "path": "components/engines/shared/index.ts"
+    },
+    {
+      "id": "file:engins/engin.GameEngin.tsx",
+      "degree": 56,
+      "label": "engin.GameEngin.tsx",
+      "type": "tsx",
+      "path": "engins/engin.GameEngin.tsx"
+    },
+    {
+      "id": "function:lib/supabase/client.ts#createClient",
+      "degree": 55,
+      "label": "createClient",
+      "type": "function",
+      "path": "lib/supabase/client.ts"
+    },
+    {
+      "id": "file:engins/engin.StarMakerEngin.tsx",
+      "degree": 47,
+      "label": "engin.StarMakerEngin.tsx",
+      "type": "tsx",
+      "path": "engins/engin.StarMakerEngin.tsx"
+    },
+    {
+      "id": "file:dreamdmbar/dreamsurface.dreamdmbar.tsx",
+      "degree": 42,
+      "label": "dreamsurface.dreamdmbar.tsx",
+      "type": "tsx",
+      "path": "dreamdmbar/dreamsurface.dreamdmbar.tsx"
+    }
+  ]
+}

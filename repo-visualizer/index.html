@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DREAMengin Repo Visual Schematic</title>
+  <script src="https://unpkg.com/cytoscape@3.30.2/dist/cytoscape.min.js"></script>
+  <script src="https://unpkg.com/cytoscape-fcose@2.2.0/cytoscape-fcose.js"></script>
+  <script src="https://unpkg.com/cytoscape-svg@0.4.0/cytoscape-svg.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #06070c;
+      --panel: #11131a;
+      --line: #2a2f3e;
+      --text: #edf1ff;
+      --muted: #9ca7bf;
+    }
+    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font: 14px/1.45 Inter, system-ui, sans-serif; }
+    #app { display: grid; grid-template-columns: 320px 1fr; height: 100%; }
+    #sidebar { border-right: 1px solid var(--line); padding: 12px; overflow: auto; background: #0b0d14; }
+    #cy { width: 100%; height: 100%; }
+    h1 { margin: 0 0 10px; font-size: 18px; }
+    .muted { color: var(--muted); }
+    .control { margin-bottom: 10px; }
+    input, select, button { width: 100%; box-sizing: border-box; padding: 7px 9px; border-radius: 8px; border: 1px solid var(--line); background: var(--panel); color: var(--text); }
+    button { cursor: pointer; margin-top: 6px; }
+    .legend { display: grid; gap: 6px; margin: 10px 0 14px; }
+    .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+    .swatch { width: 12px; height: 12px; border-radius: 999px; display: inline-block; }
+    .edge-legend { padding-left: 16px; margin: 8px 0; }
+    .edge-legend li { margin: 4px 0; }
+    #nodeInfo { margin-top: 12px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: #0e1118; white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <aside id="sidebar">
+      <h1>🗺️ DREAMengin Schematic</h1>
+      <p class="muted">Supabase-style visual map of files, folders, symbols, and relationships.</p>
+
+      <div class="control">
+        <input id="search" placeholder="Search path / symbol" />
+      </div>
+      <div class="control">
+        <select id="typeFilter">
+          <option value="">All node types</option>
+        </select>
+      </div>
+      <div class="control">
+        <label><input id="orphansOnly" type="checkbox" style="width:auto; margin-right: 6px;" /> Show only orphan/floating nodes</label>
+      </div>
+      <div class="control">
+        <button id="fitBtn">Zoom fit</button>
+        <button id="pngBtn">Export PNG</button>
+        <button id="svgBtn">Export SVG</button>
+        <button id="reloadBtn">Reload graph</button>
+      </div>
+
+      <div class="legend">
+        <strong>Node legend</strong>
+        <div class="legend-item"><span class="swatch" style="background:#7a7f93"></span>folder</div>
+        <div class="legend-item"><span class="swatch" style="background:#66d9ef"></span>route</div>
+        <div class="legend-item"><span class="swatch" style="background:#88b6ff"></span>js/ts files</div>
+        <div class="legend-item"><span class="swatch" style="background:#6cd38f"></span>function/class</div>
+        <div class="legend-item"><span class="swatch" style="background:#f7c86b"></span>sql table/policy</div>
+        <div class="legend-item"><span class="swatch" style="background:#b794f4"></span>doc</div>
+        <div class="legend-item"><span class="swatch" style="background:#ff5858"></span>orphan/floating</div>
+      </div>
+
+      <strong>Edge legend</strong>
+      <ul class="edge-legend">
+        <li>solid = import / route-uses</li>
+        <li>dashed = call</li>
+        <li>dotted = sql-reference</li>
+        <li>double-headed = re-export</li>
+      </ul>
+
+      <div id="nodeInfo">Click a node to inspect path, callers, callees, imports, and imported-by.</div>
+    </aside>
+    <main id="cy"></main>
+  </div>
+
+  <script>
+    cytoscape.use(cytoscapeFcose);
+    if (window.cytoscapeSvg) cytoscape.use(window.cytoscapeSvg);
+
+    const TYPE_COLORS = {
+      folder: '#7a7f93',
+      route: '#66d9ef',
+      ts: '#88b6ff',
+      tsx: '#88b6ff',
+      js: '#88b6ff',
+      jsx: '#88b6ff',
+      mjs: '#88b6ff',
+      cjs: '#88b6ff',
+      function: '#6cd38f',
+      class: '#6cd38f',
+      sql: '#f7c86b',
+      'sql-table': '#f7c86b',
+      'sql-policy': '#f7c86b',
+      doc: '#b794f4',
+      css: '#42d9c8',
+      python: '#ffd166',
+      config: '#a0aec0',
+      file: '#9aa4bf'
+    };
+
+    let cy;
+    let graph;
+
+    function colorFor(type, isOrphan) {
+      if (isOrphan) return '#ff5858';
+      return TYPE_COLORS[type] || '#9aa4bf';
+    }
+
+    async function loadGraph() {
+      const res = await fetch('./graph.json', { cache: 'no-store' });
+      graph = await res.json();
+      render();
+      fillTypeFilter();
+      applyFilters();
+    }
+
+    function fillTypeFilter() {
+      const select = document.getElementById('typeFilter');
+      select.innerHTML = '<option value="">All node types</option>';
+      const seen = new Set(graph.nodes.map((n) => n.type));
+      [...seen].sort().forEach((type) => {
+        const opt = document.createElement('option');
+        opt.value = type;
+        opt.textContent = type;
+        select.appendChild(opt);
+      });
+    }
+
+    function buildElements() {
+      const orphanZoneId = 'zone:orphans';
+      const zoneNode = {
+        data: {
+          id: orphanZoneId,
+          label: '🪐 DISCONNECTED / FLOATING',
+          type: 'orphan-zone',
+          path: '(orphan-zone)',
+          parent: null,
+          isOrphan: false
+        }
+      };
+
+      const nodes = graph.nodes.map((node) => {
+        const data = { ...node };
+        if (node.isOrphan && node.type !== 'folder') {
+          data.parent = orphanZoneId;
+        }
+        return { data };
+      });
+
+      const edges = graph.edges.map((edge, index) => ({ data: { id: `e${index}`, ...edge } }));
+      return { nodes: [zoneNode, ...nodes], edges };
+    }
+
+    function render() {
+      const elements = buildElements();
+      if (cy) cy.destroy();
+
+      cy = cytoscape({
+        container: document.getElementById('cy'),
+        elements: [...elements.nodes, ...elements.edges],
+        style: [
+          {
+            selector: 'node',
+            style: {
+              'background-color': (ele) => colorFor(ele.data('type'), ele.data('isOrphan')),
+              label: 'data(label)',
+              color: '#edf1ff',
+              'font-size': 9,
+              'text-wrap': 'wrap',
+              'text-max-width': 120,
+              width: (ele) => ele.data('type') === 'folder' || ele.data('type') === 'orphan-zone' ? 26 : 14,
+              height: (ele) => ele.data('type') === 'folder' || ele.data('type') === 'orphan-zone' ? 26 : 14,
+            },
+          },
+          {
+            selector: 'node[type = "folder"], node[type = "orphan-zone"]',
+            style: {
+              shape: 'round-rectangle',
+              'background-opacity': 0.08,
+              'border-color': '#3c4357',
+              'border-width': 1,
+              'text-valign': 'top',
+              'text-halign': 'center',
+              'font-size': 10,
+              padding: '20px',
+            }
+          },
+          {
+            selector: 'node[type = "orphan-zone"]',
+            style: {
+              'border-color': '#ff5858',
+              'background-color': '#ff5858',
+              'background-opacity': 0.15,
+              'font-size': 13,
+            }
+          },
+          {
+            selector: 'edge',
+            style: {
+              width: 1.4,
+              'line-color': '#7583aa',
+              'target-arrow-color': '#7583aa',
+              'target-arrow-shape': 'triangle',
+              'curve-style': 'bezier',
+              opacity: 0.85,
+            },
+          },
+          { selector: 'edge[kind = "call"]', style: { 'line-style': 'dashed', 'line-color': '#84e0d2', 'target-arrow-color': '#84e0d2' } },
+          { selector: 'edge[kind = "sql-reference"]', style: { 'line-style': 'dotted', 'line-color': '#f7c86b', 'target-arrow-color': '#f7c86b' } },
+          { selector: 'edge[kind = "reexport"]', style: { 'line-style': 'solid', 'line-color': '#ff9f68', 'target-arrow-color': '#ff9f68', 'source-arrow-shape': 'triangle', 'source-arrow-color': '#ff9f68', width: 2.4 } },
+          { selector: 'edge[kind = "route-uses"]', style: { 'line-style': 'solid', 'line-color': '#66d9ef', 'target-arrow-color': '#66d9ef' } },
+          { selector: '.dim', style: { opacity: 0.12 } },
+        ],
+        layout: {
+          name: 'fcose',
+          quality: 'proof',
+          randomize: true,
+          fit: true,
+          nodeRepulsion: 6500,
+          idealEdgeLength: 90,
+          edgeElasticity: 0.25,
+          gravity: 0.25,
+          tile: true,
+          packComponents: true,
+          animate: false,
+        }
+      });
+
+      cy.on('tap', 'node', (event) => showNodeInfo(event.target.data('id')));
+    }
+
+    function connectedSummary(nodeId) {
+      const incoming = graph.edges.filter((e) => e.target === nodeId);
+      const outgoing = graph.edges.filter((e) => e.source === nodeId);
+      const names = (ids) => ids.map((id) => graph.nodes.find((n) => n.id === id)?.label || id);
+      return {
+        callers: names(incoming.map((e) => e.source)),
+        callees: names(outgoing.map((e) => e.target)),
+        imports: names(outgoing.filter((e) => e.kind === 'import').map((e) => e.target)),
+        importedBy: names(incoming.filter((e) => e.kind === 'import').map((e) => e.source)),
+      };
+    }
+
+    function showNodeInfo(nodeId) {
+      const node = graph.nodes.find((n) => n.id === nodeId);
+      if (!node) return;
+      const summary = connectedSummary(nodeId);
+      const locText = node.loc ? `:${node.loc}` : '';
+      document.getElementById('nodeInfo').textContent = [
+        `${node.label} (${node.type})`,
+        `path: ${node.path || '-'}`,
+        `loc: ${locText || '-'}`,
+        `orphan: ${node.isOrphan ? 'yes' : 'no'}`,
+        '',
+        `callers (${summary.callers.length}): ${summary.callers.join(', ') || '-'}`,
+        `callees (${summary.callees.length}): ${summary.callees.join(', ') || '-'}`,
+        `imports (${summary.imports.length}): ${summary.imports.join(', ') || '-'}`,
+        `imported-by (${summary.importedBy.length}): ${summary.importedBy.join(', ') || '-'}`,
+      ].join('\n');
+    }
+
+    function applyFilters() {
+      const search = document.getElementById('search').value.trim().toLowerCase();
+      const type = document.getElementById('typeFilter').value;
+      const orphansOnly = document.getElementById('orphansOnly').checked;
+      if (!cy) return;
+
+      cy.elements().removeClass('dim');
+      cy.nodes().forEach((node) => {
+        if (node.data('type') === 'orphan-zone') return;
+        const text = `${node.data('label')} ${node.data('path')}`.toLowerCase();
+        const matchSearch = !search || text.includes(search);
+        const matchType = !type || node.data('type') === type;
+        const matchOrphan = !orphansOnly || !!node.data('isOrphan');
+        if (!(matchSearch && matchType && matchOrphan)) node.addClass('dim');
+      });
+
+      cy.edges().forEach((edge) => {
+        const srcDim = edge.source().hasClass('dim');
+        const tgtDim = edge.target().hasClass('dim');
+        if (srcDim || tgtDim) edge.addClass('dim');
+        else edge.removeClass('dim');
+      });
+    }
+
+    function download(filename, content, mime) {
+      const blob = new Blob([content], { type: mime });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+    }
+
+    document.getElementById('search').addEventListener('input', applyFilters);
+    document.getElementById('typeFilter').addEventListener('change', applyFilters);
+    document.getElementById('orphansOnly').addEventListener('change', applyFilters);
+    document.getElementById('fitBtn').addEventListener('click', () => cy && cy.fit(undefined, 32));
+    document.getElementById('reloadBtn').addEventListener('click', loadGraph);
+    document.getElementById('pngBtn').addEventListener('click', () => {
+      if (!cy) return;
+      const data = cy.png({ full: true, scale: 2, bg: '#06070c' });
+      const a = document.createElement('a');
+      a.href = data;
+      a.download = 'dreamengin-schematic.png';
+      a.click();
+    });
+    document.getElementById('svgBtn').addEventListener('click', () => {
+      if (!cy) return;
+      const svg = cy.svg({ full: true, bg: '#06070c' });
+      download('dreamengin-schematic.svg', svg, 'image/svg+xml');
+    });
+
+    loadGraph().catch((err) => {
+      document.getElementById('nodeInfo').textContent = `Failed to load graph.json\n${err?.message || err}`;
+      console.error(err);
+    });
+  </script>
+</body>
+</html>

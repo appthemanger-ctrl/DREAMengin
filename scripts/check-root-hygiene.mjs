@@ -14,6 +14,7 @@ const ALLOWED_ROOT_MARKDOWN = new Set([
   'REPO_STATE.md',
   'COOP_AND_SOLO_ROADMAP.md',
   'GameENGINspec.md',
+  'VISUAL-SCHEMATIC.md',
 ]);
 
 const IMAGE_EXTENSIONS = new Set(['.png', '.jpg', '.jpeg']);
