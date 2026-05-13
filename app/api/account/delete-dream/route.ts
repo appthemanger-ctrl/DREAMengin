@@ -6,7 +6,7 @@
 // All three AI agents must approve before deletion proceeds.
 //
 // NOTE: Deleting the auth user requires the Supabase service role key
-// (dreamengin_SUPABASE_SECRET_KEY). createServiceClient() uses it when configured.
+// (SUPABASE_SERVICE_ROLE_KEY). createServiceClient() uses it when configured.
 // Without it, data rows are still removed but the auth identity persists.
 
 import { NextRequest, NextResponse } from 'next/server';

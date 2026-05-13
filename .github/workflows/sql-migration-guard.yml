@@ -10,7 +10,7 @@ name: SQL Migration Guard
 #   DATABASE_URL       — postgres:// URL used to apply migrations (psql / supabase db push)
 #   SUPABASE_DB_URL    — postgres:// URL used to regenerate types (may be the same as above)
 #   NEXT_PUBLIC_SUPABASE_URL       — passed to the build step
-#   NEXT_PUBLIC_SUPABASE_ANON_KEY  — passed to the build step
+#   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY  — passed to the build step
 # ──────────────────────────────────────────────────────────────────────────────
 on:
   workflow_dispatch:
@@ -47,6 +47,6 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

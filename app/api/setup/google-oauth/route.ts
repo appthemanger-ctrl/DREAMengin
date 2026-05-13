@@ -34,7 +34,7 @@ export async function GET(request: Request) {
       value: SUPABASE_CONFIG.url ? `${new URL(SUPABASE_CONFIG.url).origin} (configured)` : "missing",
     },
     {
-      name: "SUPABASE_ANON_KEY configured",
+      name: "SUPABASE_PUBLISHABLE_KEY configured",
       ok: Boolean(SUPABASE_CONFIG.anonKey),
       value: SUPABASE_CONFIG.anonKey ? "configured" : "missing",
     },
@@ -66,9 +66,7 @@ export async function GET(request: Request) {
       },
       step2: {
         title: "Supabase Dashboard — configure Google provider",
-        url: supabaseProjectRef
-          ? `https://supabase.com/dashboard/project/${supabaseProjectRef}/auth/providers`
-          : "https://supabase.com/dashboard/project/_/auth/providers",
+        url: `https://app.supabase.io/project/${supabaseProjectRef}/auth/providers`,
         note:
           "Go to Authentication → Providers → Google. " +
           "Paste your Google Client ID and Client Secret there. " +
@@ -76,9 +74,7 @@ export async function GET(request: Request) {
       },
       step3: {
         title: "Supabase Dashboard — add app callback to redirect URL allow-list",
-        url: supabaseProjectRef
-          ? `https://supabase.com/dashboard/project/${supabaseProjectRef}/auth/url-configuration`
-          : "https://supabase.com/dashboard/project/_/auth/url-configuration",
+        url: `https://app.supabase.io/project/${supabaseProjectRef}/auth/url-configuration`,
         add_to_redirect_urls: [
           appCallbackUrl,
           // Add any other deployment URLs from VERCEL_URL or NEXT_PUBLIC_SITE_URL:

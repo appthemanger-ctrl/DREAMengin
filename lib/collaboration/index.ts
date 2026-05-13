@@ -4,7 +4,7 @@
  * Canonical JAMM-N web session model for DREAMengin.
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@/engine/io';
 
 export type CollabTransport = 'supabase' | 'webrtc' | 'local';
 

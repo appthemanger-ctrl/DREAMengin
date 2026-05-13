@@ -8,7 +8,7 @@ import {
   ToolResult,
   IntentType,
 } from '@/types/ai-system';
-import { SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@/engine/io';
 import { writeAuditLog } from './audit';
 
 // ============================================================================

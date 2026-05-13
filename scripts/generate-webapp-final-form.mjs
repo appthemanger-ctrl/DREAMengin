@@ -593,11 +593,11 @@ async function generateEnvironmentConfig() {
 
 \`\`\`bash
 # Supabase (REQUIRED)
-NEXT_PUBLIC_dreamengin_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_dreamengin_SUPABASE_ANON_KEY=your-anon-key
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-anon-key
 
 # Server-only
-dreamengin_SUPABASE_SECRET_KEY=your-service-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-key
 
 # AI (OPTIONAL)
 ANTHROPIC_API_KEY=your-anthropic-key

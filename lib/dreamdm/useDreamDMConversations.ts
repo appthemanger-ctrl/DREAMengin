@@ -13,7 +13,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import type { RealtimePostgresInsertPayload } from '@supabase/supabase-js';
+import type { RealtimePostgresInsertPayload } from '@/engine/io';
 
 export interface DMConversation {
   id: string;

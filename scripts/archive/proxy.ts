@@ -12,10 +12,10 @@
  * this file (proxy.ts) and the export must be named `proxy`.
  */
 
-import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './lib/supabase/env';
+import { createServerClientWithCustomCookies } from '../../lib/supabase/server';
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from '../../lib/supabase/config';
 import { safeGetUser } from './lib/supabase/safeGetUser';
 
 // ── Blocked hosts ─────────────────────────────────────────────────────────────
@@ -37,7 +37,7 @@ export async function proxy(request: NextRequest) {
 
   // If Supabase is not configured (e.g. local dev without .env.local),
   // skip session refresh and just continue.
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     return NextResponse.next({ request });
   }
 
@@ -45,26 +45,16 @@ export async function proxy(request: NextRequest) {
   // headers/cookies so that Server Components can read them.
   let supabaseResponse = NextResponse.next({ request });
 
-  const supabase = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll(cookiesToSet) {
-        // Write cookies onto the *request* object first so that any
-        // Server Component rendered during this request can read them.
-        cookiesToSet.forEach(({ name, value }) =>
-          request.cookies.set(name, value),
-        );
-        // Replace the response with a fresh one that carries both the
-        // updated request headers and the new Set-Cookie headers.
-        supabaseResponse = NextResponse.next({ request });
-        cookiesToSet.forEach(({ name, value, options }) =>
-          supabaseResponse.cookies.set(name, value, options),
-        );
-      },
+  const supabase = createServerClientWithCustomCookies(
+    () => request.cookies.getAll(),
+    (cookiesToSet) => {
+      cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+      supabaseResponse = NextResponse.next({ request });
+      cookiesToSet.forEach(({ name, value, options }) =>
+        supabaseResponse.cookies.set(name, value, options),
+      );
     },
-  });
+  );
 
   // IMPORTANT: Do not add any logic between createServerClient and
   // getUser() — a proxy bug here can cause random auth failures.

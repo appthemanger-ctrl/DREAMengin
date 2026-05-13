@@ -20,7 +20,7 @@
 
 import 'server-only';
 
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@/engine/io';
 import type { Database } from '@/types/supabase';
 import { dispatchSync } from './syncDispatch';
 import { deduplicateFeedItems } from './normalise';
