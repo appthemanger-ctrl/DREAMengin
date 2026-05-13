@@ -51,10 +51,6 @@ export default function CartridgeLauncher({
     loadCartridge(manifest.id)
       .then((c) => {
         if (cancelled) return;
-        if (!c) {
-          setError(`No loader registered for cartridge "${manifest.id}".`);
-          return;
-        }
         setCartridge(c);
       })
       .catch((err: unknown) => {

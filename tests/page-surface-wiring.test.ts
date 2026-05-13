@@ -53,21 +53,45 @@ const DAYDREAM_PAGES = [
 ] as const;
 
 describe('page surface wiring', () => {
-  it('mounts DreamDMBar and dual-runtime providers from the root layout', () => {
-    const layout = source('app/layout.tsx');
+  it('mounts DreamDMBar shell in app/dreamdmbar layout and keeps root runtime providers', () => {
+    const rootLayout = source('app/layout.tsx');
+    const dmbarLayout = source('app/dreamdmbar/layout.tsx');
 
-    expect(layout).toContain('DreamSystemProvider');
-    expect(layout).toContain('DualRuntimeContainer');
-    expect(layout).toContain('GlobalDreamBar');
-    expect(layout).toContain('PersistentDreamBar');
+    expect(rootLayout).toContain('DreamSystemProvider');
+    expect(rootLayout).toContain('DualRuntimeContainer');
+    expect(rootLayout).not.toContain('GlobalDreamBar');
+    expect(rootLayout).not.toContain('PersistentDreamBar');
+    expect(dmbarLayout).toContain('GlobalDreamBar');
+    expect(dmbarLayout).toContain('PersistentDreamBar');
   });
 
   it('wires DreamR to a real app page', () => {
     const page = source('app/dreamr/page.tsx');
 
-    expect(page).toContain("from '@/dreamdmbar/homedream/dreamr/dreamsurface.dreamr'");
+    expect(page).toContain("from '@/app/dreamdmbar/_components/dreamr/dreamsurface.dreamr'");
     expect(page).toContain('<DreamRSection');
     expect(page).not.toContain("redirect('/homedream')");
+  });
+
+  it('redirects root app page to /dreamdmbar', () => {
+    const rootPage = source('app/page.tsx');
+    expect(rootPage).toContain("redirect('/dreamdmbar')");
+  });
+
+  it('keeps DMBar mounts only at app/dreamdmbar/layout.tsx', () => {
+    const dmbarLayout = source('app/dreamdmbar/layout.tsx');
+    const homedreamPage = source('app/dreamdmbar/homedream/page.tsx');
+    const dreamspacePage = source('app/dreamdmbar/dreamspace/page.tsx');
+    const dualruntimePage = source('app/dreamdmbar/dualruntime/page.tsx');
+
+    expect(dmbarLayout).toContain('PersistentDreamBar');
+    expect(dmbarLayout).toContain('GlobalDreamBar');
+    expect(homedreamPage).not.toContain('PersistentDreamBar');
+    expect(homedreamPage).not.toContain('GlobalDreamBar');
+    expect(dreamspacePage).not.toContain('PersistentDreamBar');
+    expect(dreamspacePage).not.toContain('GlobalDreamBar');
+    expect(dualruntimePage).not.toContain('PersistentDreamBar');
+    expect(dualruntimePage).not.toContain('GlobalDreamBar');
   });
 
   for (const [path, component] of ENGINE_PAGES) {

@@ -16,7 +16,7 @@ import { describe, it, expect } from 'vitest';
 
 // ── Import topic data directly ─────────────────────────────────────────────────
 
-import { DREAMR_TOPICS } from '@/dreamdmbar/homedream/dreamr/dream.DreamRFeed';
+import { DREAMR_TOPICS } from '@/app/dreamdmbar/_components/dreamr/dream.DreamRFeed';
 
 // ── Topic structure tests ──────────────────────────────────────────────────────
 

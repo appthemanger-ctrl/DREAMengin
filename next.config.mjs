@@ -61,7 +61,22 @@ const nextConfig = {
       },
       {
         source: "/home",
-        destination: "/homedream",
+        destination: "/dreamdmbar",
+        permanent: false,
+      },
+      {
+        source: "/homedream",
+        destination: "/dreamdmbar",
+        permanent: false,
+      },
+      {
+        source: "/homedream/:path*",
+        destination: "/dreamdmbar/homedream",
+        permanent: false,
+      },
+      {
+        source: "/dreamspace",
+        destination: "/dreamdmbar/dreamspace",
         permanent: false,
       },
       {
@@ -76,7 +91,7 @@ const nextConfig = {
       },
       {
         source: "/dreamengin",
-        destination: "/homedream",
+        destination: "/dreamdmbar",
         permanent: false,
       },
       {

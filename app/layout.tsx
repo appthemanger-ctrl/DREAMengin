@@ -13,18 +13,14 @@ import ThemeProvider from '@/components/providers/dream.ThemeProvider';
 import ThemeApplicator from '@/components/dream.ThemeApplicator';
 import { DreamSystemProvider } from '@/lib/dreamdm/DreamSystemContext';
 import DualRuntimeContainer from '@/components/runtime/dream.DualRuntimeContainer';
-import GlobalDreamBar from '@/components/home/dream.bar.GlobalDreamBar';
-import PersistentDreamBar from '@/components/home/dream.bar.PersistentDreamBar';
 import { CustomizeModeProvider } from '@/lib/ui/CustomizeModeContext';
 import GodTierProvider from '@/components/providers/dream.GodTierProvider';
 import CommandPalette from '@/components/dream.CommandPalette';
 import GlobalOverlays from '@/components/dream.GlobalOverlays';
-import OSShellActivator from '@/components/dream.OSShellActivator';
 import { OSProvider } from '@/lib/dreamenginOS/OSContext';
 
-// DreamSystemProvider, DualRuntimeContainer, GlobalDreamBar, PersistentDreamBar
-// remain mounted here because several authenticated surfaces depend on them
-// during prerender. Route-level public gating happens inside the shell clients.
+// DreamSystemProvider and DualRuntimeContainer remain mounted at root so every
+// surface has shared runtime context. DMBar mounts under app/dreamdmbar/layout.
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -92,9 +88,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <DreamSystemProvider>
                 <DualRuntimeContainer>
                   <main role="main" aria-label="Main content">{children}</main>
-                  <Suspense><GlobalDreamBar /></Suspense>
-                  <Suspense><PersistentDreamBar /></Suspense>
-                  <Suspense><OSShellActivator /></Suspense>
                   <GlobalOverlays />
                   <Suspense><CommandPalette /></Suspense>
                 </DualRuntimeContainer>

@@ -25,8 +25,8 @@ type DispatchResult = {
 };
 
 const ROUTE_MAP: Record<string, string> = {
-  '/homedream':        '/homedream',
-  '/home':             '/homedream',
+  '/dreamdmbar':        '/dreamdmbar',
+  '/home':             '/dreamdmbar',
   '/messages':         '/messages',
   '/shop':             '/shop',
   '/lab':              '/lab',
@@ -55,7 +55,7 @@ async function dispatchIntent(
     // ── Navigation intent: return a route for the client to navigate to ──
     case 'NAV_DELTA': {
       const raw = typeof payload.route === 'string' ? payload.route : '';
-      const route = ROUTE_MAP[raw] ?? (raw.startsWith('/') ? raw : '/homedream');
+      const route = ROUTE_MAP[raw] ?? (raw.startsWith('/') ? raw : '/dreamdmbar');
       return { executed: true, action_type: 'navigate', action_payload: { route } };
     }
 
@@ -73,7 +73,7 @@ async function dispatchIntent(
       return {
         executed: true,
         action_type: type === 'DREAM_OPEN' ? 'dream_open' : 'dream_preview',
-        action_payload: dream_id ? { dream_id } : { route: '/homedream' },
+        action_payload: dream_id ? { dream_id } : { route: '/dreamdmbar' },
       };
     }
 

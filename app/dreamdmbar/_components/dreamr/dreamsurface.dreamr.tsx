@@ -34,7 +34,7 @@ import {
 } from 'lucide-react';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import DreamRFeed from '@/lib/dreamr/dreamrfeed';
-import DreamRCore from '@/dreamdmbar/homedream/dreamr/dream.DreamRCore';
+import DreamRCore from '@/app/dreamdmbar/_components/dreamr/dream.DreamRCore';
 import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
 import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
 import { createClient } from '@/lib/supabase/client';
