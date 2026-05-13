@@ -10,12 +10,14 @@ function source(path: string): string {
 }
 
 describe('shell + cartridge wiring', () => {
-  it('mounts DMBar from app/layout.tsx only', () => {
+  it('mounts DMBar from app/dreamdmbar/layout.tsx only', () => {
     const layout = source('app/layout.tsx');
-    expect(layout).toMatch(/<\s*PersistentDreamBar\b|<\s*DreamDMBar\b/);
+    const dmbarLayout = source('app/dreamdmbar/layout.tsx');
+    expect(dmbarLayout).toMatch(/<\s*PersistentDreamBar\b|<\s*DreamDMBar\b/);
+    expect(layout).not.toMatch(/<\s*PersistentDreamBar\b|<\s*DreamDMBar\b/);
 
     const files = [
-      'app/layout.tsx',
+      'app/dreamdmbar/layout.tsx',
       'components/providers/dream.AppSurfaceShell.tsx',
       'components/home/dream.bar.PersistentDreamBar.tsx',
       'app/homedream/page.tsx',

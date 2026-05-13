@@ -141,12 +141,12 @@ function matchesAnyGlob(filePath: string, globs: string[]): boolean {
 function walkFiles(dir: string): string[] {
   const output: string[] = [];
   for (const entry of readdirSync(dir)) {
-    if (entry === '.git' || entry === 'node_modules') continue;
+    if (entry === '.git' || entry === 'node_modules' || entry === '__pycache__' || entry === '.next' || entry === 'coverage') continue;
     const full = join(dir, entry);
     const stats = statSync(full);
     if (stats.isDirectory()) {
       output.push(...walkFiles(full));
-    } else if (stats.isFile()) {
+    } else if (stats.isFile() && !entry.endsWith('.pyc')) {
       output.push(normalizePath(relative(ROOT, full)));
     }
   }

@@ -40,7 +40,7 @@ development and production.
 2. Select (or create) your OAuth 2.0 Client ID
 3. Under **Authorized redirect URIs**, add:
    ```
-   https://suaiqcynxospjijzdudc.supabase.co/auth/v1/callback
+   <your-supabase-auth-callback-url>
    ```
    This is the URI Supabase uses to receive the OAuth code from Google.
    Missing this is the most common cause of Google's `redirect_uri_mismatch` (400) error.
@@ -48,7 +48,7 @@ development and production.
 ### Step 2 — Supabase Dashboard (Google provider)
 
 1. Open **Supabase Dashboard → Authentication → Providers** for your project
-   (direct link: `https://supabase.com/dashboard/project/YOUR_PROJECT_REF/auth/providers`)
+   (direct link: `https://app.supabase.io/project/YOUR_PROJECT_REF/auth/providers`)
 2. Enable **Google**
 3. Paste your **Google Client ID** and **Google Client Secret** there
 4. ⚠️ The Client Secret belongs **only** in the Supabase Dashboard — never in `.env.local`,
@@ -63,7 +63,7 @@ development and production.
 ### Step 3 — Supabase Dashboard (redirect URL allow-list)
 
 1. Open **Supabase Dashboard → Authentication → URL Configuration** for your project
-   (direct link: `https://supabase.com/dashboard/project/YOUR_PROJECT_REF/auth/url-configuration`)
+   (direct link: `https://app.supabase.io/project/YOUR_PROJECT_REF/auth/url-configuration`)
 2. Add all of the following to **Redirect URLs**:
 
    | URL | Purpose |

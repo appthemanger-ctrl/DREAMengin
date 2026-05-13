@@ -114,7 +114,7 @@ resource "vercel_project" "dreamengin" {
       target = ["production", "preview"]
     },
     {
-      key       = "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+      key       = "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"
       value     = var.supabase_anon_key
       target    = ["production", "preview"]
       sensitive = true

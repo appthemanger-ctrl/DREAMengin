@@ -37,7 +37,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "*.supabase.co",
+        hostname: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL || "http://localhost").hostname,
         pathname: "/storage/v1/object/public/**",
       },
       { protocol: "https", hostname: "*.googleapis.com" },
@@ -61,7 +61,7 @@ const nextConfig = {
       },
       {
         source: "/home",
-        destination: "/dreamdmbar",
+        destination: "/homedream",
         permanent: false,
       },
       {
@@ -91,7 +91,7 @@ const nextConfig = {
       },
       {
         source: "/dreamengin",
-        destination: "/dreamdmbar",
+        destination: "/homedream",
         permanent: false,
       },
       {
@@ -131,9 +131,9 @@ const nextConfig = {
           "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
           "font-src 'self' https://fonts.gstatic.com",
-          "img-src 'self' data: blob: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://i.ytimg.com https://*.scdn.co",
-          "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.spotify.com https://api.github.com https://assets.babylonjs.com",
-          "media-src 'self' blob: https://*.supabase.co",
+          `img-src 'self' data: blob: ${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""} https://*.googleapis.com https://*.gstatic.com https://i.ytimg.com https://*.scdn.co`,
+          `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""} ${(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/^https:/, "wss:")} https://api.spotify.com https://api.github.com https://assets.babylonjs.com`,
+          `media-src 'self' blob: ${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""}`,
           "worker-src 'self' blob:",
           "frame-ancestors 'self'",
         ].join("; "),

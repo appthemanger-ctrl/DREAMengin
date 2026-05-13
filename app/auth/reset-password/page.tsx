@@ -4,6 +4,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { buildAuthCallbackUrl } from "@/lib/supabase/config";
 
 const INPUT_STYLE: React.CSSProperties = {
   width: "100%",
@@ -28,10 +29,9 @@ export default function ResetPasswordPage() {
     setError(null);
     setBusy(true);
     try {
-      const origin = typeof window !== "undefined" ? window.location.origin : "";
       const { error: authError } = await supabase.auth.resetPasswordForEmail(
         email.trim(),
-        { redirectTo: `${origin}/auth/callback?next=/auth/update-password` },
+        { redirectTo: buildAuthCallbackUrl(origin, '/auth/update-password') },
       );
       if (authError) throw authError;
       setSent(true);

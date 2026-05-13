@@ -11,7 +11,7 @@
  *   const entry = getLedgerEntry(ledger, 'song-1');
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@/engine/io';
 import type { PeakMap, Fingerprint } from './audioFingerprint';
 
 // ─── Entry Types ─────────────────────────────────────────────────────────────

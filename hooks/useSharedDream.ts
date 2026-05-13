@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from '@/lib/supabase/env';
+import { createClient } from '@/lib/supabase/client';
 import {
   createSharedDreamSession,
   leaveSharedDreamSession,
@@ -53,7 +52,7 @@ export interface UseSharedDreamReturn {
 }
 
 function getSupabase() {
-  return createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  return createClient();
 }
 
 export function useSharedDream(channelId: string): UseSharedDreamReturn {

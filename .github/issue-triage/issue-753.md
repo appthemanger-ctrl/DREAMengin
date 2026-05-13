@@ -35,7 +35,7 @@ This issue concerns the **CI/CD pipeline or GitHub Actions workflows**. The auto
 1. Review the failing workflow in `.github/workflows/`
 2. Check [docs/ACTION_AUDIT.md](docs/ACTION_AUDIT.md) for the full workflow inventory.
 3. Common DREAMengin CI fixes:
-   - Ensure `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` secrets are set.
+   - Ensure `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` secrets are set.
    - Check `pnpm-lock.yaml` is committed and up to date (`pnpm install --frozen-lockfile`).
    - Verify Node.js version matches `25` and pnpm version matches `10.30.0`.
    - Add `[skip ci]` to automated commit messages to avoid infinite loops.

@@ -16,7 +16,7 @@
  *         viewer on their list). That requires the service role.
  */
 
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@/engine/io';
 
 export interface VisibilityCandidate {
   user_id?: string | null;
