@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createServerClientWithCustomCookies } from "@/lib/supabase/server";
+import { SUPABASE_CONFIG } from "@/lib/supabase/config";
 import { resolveSafeNextPath } from "@/lib/auth/nextRedirect";
 
 export async function GET(request: Request) {
@@ -30,6 +31,7 @@ export async function GET(request: Request) {
 
   if (!code) return response;
 
+  if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.anonKey) return response;
   type CookieToSet = {
     name: string;
     value: string;

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "@/lib/supabase/config";
+import { SUPABASE_CONFIG, getServerSiteOrigin, getSupabaseAuthCallbackUrl } from "@/lib/supabase/config";
 
 /**
  * GET /api/setup/google-oauth
@@ -17,23 +17,26 @@ import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "@/lib/supabase/config";
  * This endpoint does NOT return any secrets.
  */
 export async function GET(request: Request) {
-  const origin = new URL(request.url).origin;
+  const origin = getServerSiteOrigin(new URL(request.url).origin);
 
-  const supabaseProjectRef = new URL(SUPABASE_URL).hostname.split(".")[0];
-  const supabaseCallbackUrl = `${SUPABASE_URL}/auth/v1/callback`;
+  const supabaseProjectRef = SUPABASE_CONFIG.url
+    ? new URL(SUPABASE_CONFIG.url).hostname.split(".")[0]
+    : null;
+
+  const supabaseCallbackUrl = getSupabaseAuthCallbackUrl();
 
   const appCallbackUrl = `${origin}/auth/callback`;
 
   const checks = [
     {
       name: "SUPABASE_URL configured",
-      ok: Boolean(SUPABASE_URL),
-      value: SUPABASE_URL ? `${new URL(SUPABASE_URL).origin} (configured)` : "missing",
+      ok: Boolean(SUPABASE_CONFIG.url),
+      value: SUPABASE_CONFIG.url ? `${new URL(SUPABASE_CONFIG.url).origin} (configured)` : "missing",
     },
     {
       name: "SUPABASE_PUBLISHABLE_KEY configured",
-      ok: Boolean(SUPABASE_PUBLISHABLE_KEY),
-      value: SUPABASE_PUBLISHABLE_KEY ? "configured" : "missing",
+      ok: Boolean(SUPABASE_CONFIG.anonKey),
+      value: SUPABASE_CONFIG.anonKey ? "configured" : "missing",
     },
     {
       // The Google OAuth Client ID and Secret for Supabase auth belong in the
@@ -76,7 +79,7 @@ export async function GET(request: Request) {
           appCallbackUrl,
           // Add any other deployment URLs from VERCEL_URL or NEXT_PUBLIC_SITE_URL:
           ...(process.env.NEXT_PUBLIC_SITE_URL
-            ? [`${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`]
+            ? [`${getServerSiteOrigin(process.env.NEXT_PUBLIC_SITE_URL)}/auth/callback`]
             : []),
           ...(process.env.VERCEL_URL && process.env.VERCEL_URL !== new URL(appCallbackUrl).hostname
             ? [`https://${process.env.VERCEL_URL}/auth/callback`]
@@ -89,7 +92,7 @@ export async function GET(request: Request) {
       },
     },
     detected: {
-      supabase_url: SUPABASE_URL || null,
+      supabase_url: SUPABASE_CONFIG.url || null,
       supabase_callback_url: supabaseCallbackUrl,
       app_callback_url: appCallbackUrl,
     },

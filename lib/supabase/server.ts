@@ -3,7 +3,8 @@ import { createServerClient as createSupabaseServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import type { Database } from '@/types/supabase'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_URL } from './config'
+import { SUPABASE_CONFIG } from './config'
+import { SUPABASE_SERVICE_ROLE_KEY } from './config'
 
 type DisabledSupabaseClient = {
   auth: {
@@ -133,7 +134,11 @@ function createDisabledClient(reason: string): SupabaseClient<Database> {
 export function createServerClientWithCookies(
   cookieStore: SupabaseCookieStore
 ): SupabaseClient<Database> {
-  return createSupabaseServerClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  if (!SUPABASE_CONFIG.isConfigured()) {
+    return createDisabledClient(`Supabase is not configured. ${SUPABASE_CONFIG.setupHint}`)
+  }
+
+  return createSupabaseServerClient<Database>(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll()
@@ -157,7 +162,7 @@ export function createServerClientWithCustomCookies(
   getAll: () => ReturnType<SupabaseCookieStore['getAll']>,
   setAll: (cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) => void
 ): SupabaseClient<Database> {
-  return createSupabaseServerClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  return createSupabaseServerClient<Database>(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey, {
     cookies: {
       getAll,
       setAll,
@@ -166,13 +171,13 @@ export function createServerClientWithCustomCookies(
 }
 
 export async function createServiceClient(): Promise<SupabaseClient<Database>> {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  if (!SUPABASE_CONFIG.url || !SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error(
       `Supabase service role is not configured. Set SUPABASE_SERVICE_ROLE_KEY in Vercel environment variables.`
     )
   }
 
-  return createSupabaseServerClient<Database>(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+  return createSupabaseServerClient<Database>(SUPABASE_CONFIG.url, SUPABASE_SERVICE_ROLE_KEY, {
     cookies: {
       getAll() {
         return []

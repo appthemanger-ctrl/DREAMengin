@@ -3209,3 +3209,49 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 
 ## License
 MIT — see [LICENSE](LICENSE).
+
+---
+
+## HomeDream System
+
+- Canonical Route: `/homedream`
+- Runtime implementation paths:
+  - `app/homedream/page.tsx`
+  - `app/dreamdmbar/_components/DreamBarDataBridge.tsx`
+
+Canonical vocabulary:
+- **Surface**
+- **Daydream**
+- **Engin**
+- **Dream Window**
+- **Canonical Route**
+
+Runtime rules:
+- DreamDMBar persistence is shell-owned.
+- Home orchestration is stateful via `DreamSystemContext`.
+- Surface regions preserve mounted state while hidden/minimized.
+
+## 6. HomeDream (Core System, Private Operating Surface)
+
+Single tap: Open dual menus.
+Double tap: Go Home.
+HomeDream is private by default and persistent between sessions.
+The surface is centered around a personalized feed.
+Core controls include 6 Daydream navigation, Dream Window layout, feed algorithm settings, and posting routes.
+
+---
+
+## 13. Code / CodeEngin
+
+13.1 Code (Side A)
+
+13.2 CodeEngin (Side B)
+
+13.3 Specialized Dream Windows (Examples)
+
+## UNIVERSAL MODULARITY LAW
+
+See `docs/MODULARITY_VIOLATION_LOG.md` for enforcement and audit.
+Required drag wrapper primitives: `DraggableModule`, `DreamWindowShell`, `UniversalEditorWrapper`.
+
+No artificial "repurpose before invent" rule.
