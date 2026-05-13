@@ -72,23 +72,30 @@ function daysSince(iso: string | null): number | null {
 }
 
 async function fetchTelemetry(cartridgeId: string): Promise<Record<string, number> | null> {
-  const url = process.env.SUPABASE_URL;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return null;
-  const mod = await import('@supabase/supabase-js').catch(() => null);
-  if (!mod) return null;
-  const client = mod.createClient(url, key);
-  const { data, error } = await client
-    .from('gameengin_telemetry')
-    .select('event_type')
-    .eq('cartridge_id', cartridgeId)
-    .gte('client_timestamp', new Date(Date.now() - 86_400_000).toISOString());
-  if (error) {
-    console.warn('[maestro] telemetry fetch failed:', error.message);
+  const telemetrySince = new Date(Date.now() - 86_400_000).toISOString();
+  const query = new URL(`${url.replace(/\/$/, '')}/rest/v1/gameengin_telemetry`);
+  query.searchParams.set('select', 'event_type');
+  query.searchParams.set('cartridge_id', `eq.${cartridgeId}`);
+  query.searchParams.set('client_timestamp', `gte.${telemetrySince}`);
+
+  const response = await fetch(query.toString(), {
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+    },
+  });
+
+  if (!response.ok) {
+    console.warn('[maestro] telemetry fetch failed:', response.status);
     return null;
   }
+  const data = await response.json().catch(() => null);
+  if (!Array.isArray(data)) return null;
   const counts: Record<string, number> = {};
-  for (const r of data ?? []) counts[r.event_type] = (counts[r.event_type] ?? 0) + 1;
+  for (const r of data) counts[r.event_type] = (counts[r.event_type] ?? 0) + 1;
   return counts;
 }
 

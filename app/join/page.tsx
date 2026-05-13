@@ -37,7 +37,6 @@ export default function JoinPage() {
   const [notice, setNotice]           = useState<string | null>(null);
   const [oauthProviders, setOauthProviders] = useState<{ google: boolean | null; github: boolean | null } | null>(null);
 
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
 
   useEffect(() => {
     fetch("/api/auth/providers")
@@ -134,7 +133,7 @@ export default function JoinPage() {
         provider,
         options: {
           // New users coming from /join get onboarding after OAuth callback
-          redirectTo: origin ? `${origin}/auth/callback?next=/onboarding` : undefined,
+          redirectTo: `${window.location.origin}/auth/callback`,
         },
       });
       if (oauthError) setError(oauthError.message);

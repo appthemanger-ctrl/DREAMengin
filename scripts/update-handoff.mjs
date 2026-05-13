@@ -46,7 +46,7 @@ const utcDate = new Date(rawDate)
 // ── 2. Collect file-change stats ──────────────────────────────────────────────
 
 // --name-status gives lines like:  M  app/login/page.tsx
-//                                   A  lib/supabase/env.ts
+//                                   A  lib/supabase/config.ts
 //                                   D  old-file.ts
 const nameStatus = git('git diff-tree --no-commit-id -r --name-status HEAD');
 const lines = nameStatus.split('\n').filter(Boolean);

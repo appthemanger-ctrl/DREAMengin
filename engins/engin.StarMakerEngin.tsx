@@ -28,6 +28,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
 import { createClient } from '@/lib/supabase/client';
+import { SUPABASE_URL as CANONICAL_SUPABASE_URL } from '@/lib/supabase/config';
 import { useDaydreamState } from '@/lib/daydream/useDaydreamState';
 import { useDaydreamPersistence } from '@/lib/daydream/useDaydreamPersistence';
 import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
@@ -465,7 +466,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
       // Binary upload is attempted async below — must not block the export flow.
       // docs/ARCHITECTURE.md §1 (Daydream pair system) + bridge.emit contract.
       const ledgerUrl = exportUser
-        ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/music-ledger/${exportUser.id}/${key}-${Date.now()}.webm`
+        ? `${CANONICAL_SUPABASE_URL}/storage/v1/object/public/music-ledger/${exportUser.id}/${key}-${Date.now()}.webm`
         : '';
 
       bridge.emit('music', 'music:stem-ready', {

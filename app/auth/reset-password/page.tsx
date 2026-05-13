@@ -28,10 +28,9 @@ export default function ResetPasswordPage() {
     setError(null);
     setBusy(true);
     try {
-      const origin = typeof window !== "undefined" ? window.location.origin : "";
       const { error: authError } = await supabase.auth.resetPasswordForEmail(
         email.trim(),
-        { redirectTo: `${origin}/auth/callback?next=/auth/update-password` },
+        { redirectTo: `${window.location.origin}/auth/callback` },
       );
       if (authError) throw authError;
       setSent(true);

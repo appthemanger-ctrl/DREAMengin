@@ -31,7 +31,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
-import type { RealtimePostgresInsertPayload } from '@supabase/supabase-js';
+import type { RealtimePostgresInsertPayload } from '@/engine/io';
 
 // ── Public types ───────────────────────────────────────────────────────────────
 
