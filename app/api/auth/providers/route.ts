@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/env";
+import { SUPABASE_CONFIG } from "@/lib/supabase/config";
 
 /**
  * GET /api/auth/providers
@@ -36,18 +36,18 @@ export function getOAuthProvidersResponse(
 }
 
 export async function GET() {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.anonKey) {
     return NextResponse.json(UNKNOWN_OAUTH_PROVIDERS, {
       headers: { "Cache-Control": "no-store" },
     });
   }
 
   try {
-    const res = await fetch(`${SUPABASE_URL}/auth/v1/settings`, {
+    const res = await fetch(`${SUPABASE_CONFIG.url}/auth/v1/settings`, {
       cache: "no-store",
       headers: {
-        apikey: SUPABASE_ANON_KEY,
-        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        apikey: SUPABASE_CONFIG.anonKey,
+        Authorization: `Bearer ${SUPABASE_CONFIG.anonKey}`,
       },
     });
 

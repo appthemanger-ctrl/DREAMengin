@@ -12,7 +12,7 @@
  * Surface map
  * ──────────────────────────────────────────────────────────────────────
  *  messages   /messages/**         → send a direct message
- *  feed       /dreamdmbar /home /   → create a feed post
+ *  feed       /homedream /home /    → create a feed post
  *  code       /codespace /daydream/code /daydream/lab
  *                                  → open code snippet composer
  *  dreams     /dreamengin          → send to Dr. Eams as chat
@@ -68,7 +68,7 @@ export function detectSurface(pathname: string): DreamBarSurface {
   const p = pathname.toLowerCase();
 
   if (p.startsWith('/messages')) return 'messages';
-  if (p === '/dreamdmbar' || p === '/home' || p === '/') return 'feed';
+  if (p === '/homedream' || p === '/home' || p === '/') return 'feed';
   if (p.startsWith('/codespace') || p.startsWith('/daydream/code') || p.startsWith('/daydream/lab')) return 'code';
   if (p.startsWith('/dreamengin')) return 'dreams';
   if (p.startsWith('/music') || p.startsWith('/daydream/music')) return 'music';

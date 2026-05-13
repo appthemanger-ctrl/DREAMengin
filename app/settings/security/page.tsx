@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { Lock, Smartphone, Key, Shield, AlertTriangle, Check, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
+import { buildAuthCallbackUrl } from '@/lib/supabase/config';
 
 
 export default function SecuritySettingsPage() {
@@ -35,7 +36,7 @@ export default function SecuritySettingsPage() {
         return;
       }
       const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+        redirectTo: buildAuthCallbackUrl(window.location.origin, '/auth/reset-password'),
       });
       if (error) {
         setPwMsg(error.message);

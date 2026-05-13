@@ -1,9 +1,9 @@
 import { createBrowserClient } from '@supabase/ssr'
-import { SUPABASE_URL, SUPABASE_ANON_KEY, SETUP_HINT } from './env'
+import { SUPABASE_CONFIG } from './config'
 
 export function createClient() {
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    const errorMsg = `Supabase is not configured. ${SETUP_HINT}`
+  if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.anonKey) {
+    const errorMsg = `Supabase is not configured. ${SUPABASE_CONFIG.setupHint}`
     const handler: ProxyHandler<object> = {
       get(_target, prop) {
         if (prop === 'auth') {
@@ -22,5 +22,5 @@ export function createClient() {
     return new Proxy({}, handler) as ReturnType<typeof createBrowserClient>
   }
 
-  return createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  return createBrowserClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey)
 }

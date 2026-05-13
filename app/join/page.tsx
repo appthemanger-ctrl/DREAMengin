@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import PasswordField from "@/components/auth/dream.PasswordField";
+import { buildAuthCallbackUrl } from "@/lib/supabase/config";
 
 // Shared input style — matches the de-widget design system
 const INPUT_STYLE: React.CSSProperties = {
@@ -83,7 +84,7 @@ export default function JoinPage() {
         email,
         password,
         options: {
-          emailRedirectTo: origin ? `${origin}/auth/callback` : undefined,
+          emailRedirectTo: origin ? buildAuthCallbackUrl(origin) : undefined,
         },
       });
 
@@ -130,11 +131,14 @@ export default function JoinPage() {
 
     setBusy(true);
     try {
+      const onboardingRedirectTo = origin
+        ? `${buildAuthCallbackUrl(origin)}?next=/onboarding`
+        : undefined;
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
           // New users coming from /join get onboarding after OAuth callback
-          redirectTo: origin ? `${origin}/auth/callback?next=/onboarding` : undefined,
+          redirectTo: onboardingRedirectTo,
         },
       });
       if (oauthError) setError(oauthError.message);
