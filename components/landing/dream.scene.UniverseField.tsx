@@ -8,7 +8,6 @@ const MAX_PARTICLES = 20001;
 const MAX_DPR = 1;
 const TAU = Math.PI * 2;
 const PRESENT_AGE_YEARS = 13.8e9;
-const RESET_AGE_YEARS = 14.6e9;
 const FILAMENT_MODE_COUNT = 5;
 const WELL_COUNT = 18;
 
@@ -224,11 +223,6 @@ export default function UniverseField() {
       last = now;
       universeAgeYears += dt * 5.8e8;
 
-      if (universeAgeYears > RESET_AGE_YEARS) {
-        universeAgeYears = 0;
-        initializeParticles();
-      }
-
       const cosmicAge = Math.min(universeAgeYears, PRESENT_AGE_YEARS);
       const t = clamp01(cosmicAge / PRESENT_AGE_YEARS);
       const scaleFactor = Math.max(getScaleFactor(cosmicAge), 1e-6);
@@ -238,7 +232,7 @@ export default function UniverseField() {
       const starEra = smoothstep(0.38, 0.64, t);
       const mature = smoothstep(0.58, 0.82, t);
       const lateExpansion = smoothstep(0.82, 1, t);
-      const cosmicTime = cosmicAge / 1e9;
+      const cosmicTime = universeAgeYears / 1e9;
       const sDt = Math.min(dt, 1 / 30);
       const cx = width / 2;
       const cy = height / 2;
