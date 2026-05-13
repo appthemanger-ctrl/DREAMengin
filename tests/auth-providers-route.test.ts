@@ -33,14 +33,14 @@ describe("GET /api/auth/providers", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const { GET } = await importRouteWithEnv({
-      SUPABASE_URL: "https://dreamengin.supabase.co",
+      SUPABASE_URL: "https://suaiqcynxospjijzdudc.supabase.co",
       SUPABASE_ANON_KEY: "anon-key",
     });
 
     const response = await GET();
 
     expect(fetchMock).toHaveBeenCalledWith(
-      "https://dreamengin.supabase.co/auth/v1/settings",
+      "https://suaiqcynxospjijzdudc.supabase.co/auth/v1/settings",
       expect.objectContaining({
         cache: "no-store",
         headers: expect.objectContaining({
@@ -56,7 +56,7 @@ describe("GET /api/auth/providers", () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network down")));
 
     const { GET, UNKNOWN_OAUTH_PROVIDERS } = await importRouteWithEnv({
-      SUPABASE_URL: "https://dreamengin.supabase.co",
+      SUPABASE_URL: "https://suaiqcynxospjijzdudc.supabase.co",
       SUPABASE_ANON_KEY: "anon-key",
     });
 
