@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-05-13T12:37:13.208Z",
+  "generatedAt": "2026-05-13T12:47:02.503Z",
   "totals": {
-    "surface": 296,
+    "surface": 295,
     "route-surface": 257,
     "engine-ruleset": 26,
     "connector": 26,
@@ -3925,15 +3925,6 @@
         "ParticlePool",
         "prefersReducedMotion",
         "ScreenShake"
-      ]
-    },
-    {
-      "id": "components/games/css-modules.d",
-      "slot": "surface",
-      "path": "components/games/css-modules.d.ts",
-      "engine": "GameEngin",
-      "exports": [
-        "default"
       ]
     },
     {

@@ -173,8 +173,10 @@ async function detectExports(relPath) {
 }
 
 function classifySlot(relPath) {
-  const isTs = relPath.endsWith('.ts');
-  const isTsx = relPath.endsWith('.tsx');
+  const isDeclarationFile = relPath.endsWith('.d.ts');
+  const isTestLike = /\.((test|spec)\.(ts|tsx))$/.test(relPath);
+  const isTs = relPath.endsWith('.ts') && !isDeclarationFile && !isTestLike;
+  const isTsx = relPath.endsWith('.tsx') && !isTestLike;
   const isSql = relPath.endsWith('.sql');
   const isJson = relPath.endsWith('.json');
   const isMd = relPath.endsWith('.md');
