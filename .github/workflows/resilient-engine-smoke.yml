@@ -8,6 +8,9 @@ on:
       - 'copilot/**'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   workflow-guardrails:
     name: Guardrails (no fake-green patterns)
