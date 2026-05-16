@@ -119,7 +119,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
             label: def.label,
             description: def.description,
             icon: def.icon,
-          } as Parameters<typeof dreamOSBus.emit>[1]);
+          } as unknown as Parameters<typeof dreamOSBus.emit>[1]); // <-- FIX APPLIED HERE
         })
       : {
           async unlock()    {},
