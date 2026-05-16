@@ -9,9 +9,9 @@ It shows every file, folder, symbol, and connection, including disconnected/floa
 ### Auto-Generated Repository Overview
 
 - **Total files:** 1962
-- **Total function/class nodes:** 3543
+- **Total function/class nodes:** 3548
 - **Total edges:** 6314
-- **Orphan nodes:** 2898
+- **Orphan nodes:** 2903
 
 #### Top-Level Folder Connectivity (overview)
 ```mermaid

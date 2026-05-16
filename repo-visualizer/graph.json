@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-16T21:07:27.672Z",
+  "generatedAt": "2026-05-16T21:20:36.013Z",
   "root": ".",
   "nodes": [
     {
@@ -19741,12 +19741,62 @@
       "tags": []
     },
     {
+      "id": "function:components/landing/dream.scene.UniverseField.tsx#mu_T",
+      "label": "mu_T",
+      "type": "function",
+      "path": "components/landing/dream.scene.UniverseField.tsx",
+      "parent": "file:components/landing/dream.scene.UniverseField.tsx",
+      "loc": 19,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:components/landing/dream.scene.UniverseField.tsx#nu_T",
+      "label": "nu_T",
+      "type": "function",
+      "path": "components/landing/dream.scene.UniverseField.tsx",
+      "parent": "file:components/landing/dream.scene.UniverseField.tsx",
+      "loc": 23,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:components/landing/dream.scene.UniverseField.tsx#torridityAccel",
+      "label": "torridityAccel",
+      "type": "function",
+      "path": "components/landing/dream.scene.UniverseField.tsx",
+      "parent": "file:components/landing/dream.scene.UniverseField.tsx",
+      "loc": 30,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
       "id": "function:components/landing/dream.scene.UniverseField.tsx#darkEnergyDensity",
       "label": "darkEnergyDensity",
       "type": "function",
       "path": "components/landing/dream.scene.UniverseField.tsx",
       "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 55,
+      "loc": 48,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:components/landing/dream.scene.UniverseField.tsx#omega_total",
+      "label": "omega_total",
+      "type": "function",
+      "path": "components/landing/dream.scene.UniverseField.tsx",
+      "parent": "file:components/landing/dream.scene.UniverseField.tsx",
+      "loc": 54,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:components/landing/dream.scene.UniverseField.tsx#hubbleFromA",
+      "label": "hubbleFromA",
+      "type": "function",
+      "path": "components/landing/dream.scene.UniverseField.tsx",
+      "parent": "file:components/landing/dream.scene.UniverseField.tsx",
+      "loc": 61,
       "isOrphan": true,
       "exported": false
     },
@@ -19756,7 +19806,7 @@
       "type": "function",
       "path": "components/landing/dream.scene.UniverseField.tsx",
       "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 80,
+      "loc": 68,
       "isOrphan": true,
       "exported": false
     },
@@ -19766,7 +19816,7 @@
       "type": "function",
       "path": "components/landing/dream.scene.UniverseField.tsx",
       "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 103,
+      "loc": 88,
       "isOrphan": true,
       "exported": false
     },
@@ -19776,7 +19826,7 @@
       "type": "function",
       "path": "components/landing/dream.scene.UniverseField.tsx",
       "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 137,
+      "loc": 122,
       "isOrphan": true,
       "exported": false
     },
@@ -19786,7 +19836,7 @@
       "type": "function",
       "path": "components/landing/dream.scene.UniverseField.tsx",
       "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 141,
+      "loc": 126,
       "isOrphan": true,
       "exported": false
     },
@@ -19796,7 +19846,7 @@
       "type": "function",
       "path": "components/landing/dream.scene.UniverseField.tsx",
       "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 146,
+      "loc": 131,
       "isOrphan": true,
       "exported": false
     },
@@ -19806,7 +19856,7 @@
       "type": "function",
       "path": "components/landing/dream.scene.UniverseField.tsx",
       "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 150,
+      "loc": 135,
       "isOrphan": true,
       "exported": false
     },
@@ -19816,7 +19866,7 @@
       "type": "function",
       "path": "components/landing/dream.scene.UniverseField.tsx",
       "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 155,
+      "loc": 140,
       "isOrphan": true,
       "exported": true
     },
