@@ -1381,6 +1381,7 @@ export default function ForgeEngin({ onBack }: Props) {
         </div>
       </div>
     </div>
+    </ArtifactSlot>
   );
 }
 
