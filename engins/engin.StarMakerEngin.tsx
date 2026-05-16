@@ -1198,6 +1198,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
 
       </div>
     </div>
+    </ArtifactSlot>
   );
 }
 
