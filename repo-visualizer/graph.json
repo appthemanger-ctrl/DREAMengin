@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-16T19:23:14.030Z",
+  "generatedAt": "2026-05-16T19:25:10.791Z",
   "root": ".",
   "nodes": [
     {
@@ -24490,7 +24490,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1247,
+      "loc": 1248,
       "isOrphan": true,
       "exported": false
     },
@@ -24500,7 +24500,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1259,
+      "loc": 1260,
       "isOrphan": true,
       "exported": false
     },
@@ -24510,7 +24510,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1274,
+      "loc": 1275,
       "isOrphan": true,
       "exported": false
     },
@@ -24520,7 +24520,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1331,
+      "loc": 1332,
       "isOrphan": true,
       "exported": false
     },
@@ -24530,7 +24530,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1464,
+      "loc": 1465,
       "isOrphan": true,
       "exported": false
     },
@@ -24540,7 +24540,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1610,
+      "loc": 1611,
       "isOrphan": true,
       "exported": false
     },
@@ -24550,7 +24550,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1797,
+      "loc": 1798,
       "isOrphan": true,
       "exported": false
     },
@@ -24560,7 +24560,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2004,
+      "loc": 2005,
       "isOrphan": true,
       "exported": false
     },
@@ -24570,7 +24570,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2121,
+      "loc": 2122,
       "isOrphan": true,
       "exported": false
     },
@@ -24580,7 +24580,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2258,
+      "loc": 2259,
       "isOrphan": true,
       "exported": false
     },
@@ -24590,7 +24590,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2347,
+      "loc": 2348,
       "isOrphan": true,
       "exported": false
     },
@@ -24600,7 +24600,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2445,
+      "loc": 2446,
       "isOrphan": true,
       "exported": false
     },
@@ -24610,7 +24610,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2563,
+      "loc": 2564,
       "isOrphan": true,
       "exported": false
     },
@@ -24620,7 +24620,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2772,
+      "loc": 2773,
       "isOrphan": true,
       "exported": false
     },
@@ -24630,7 +24630,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2823,
+      "loc": 2824,
       "isOrphan": true,
       "exported": false
     },
@@ -24640,7 +24640,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2829,
+      "loc": 2830,
       "isOrphan": true,
       "exported": false
     },
@@ -24650,7 +24650,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2835,
+      "loc": 2836,
       "isOrphan": true,
       "exported": false
     },
@@ -24660,7 +24660,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2857,
+      "loc": 2858,
       "isOrphan": true,
       "exported": false
     },
@@ -24670,7 +24670,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2889,
+      "loc": 2890,
       "isOrphan": true,
       "exported": false
     },
