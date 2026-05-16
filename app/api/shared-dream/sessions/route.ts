@@ -7,6 +7,10 @@ import { createServerClient } from '@/lib/supabase/server';
 import { safeGetUser } from '@/lib/supabase/safeGetUser';
 import { z } from 'zod';
 
+// Escape hatch for missing database types to prevent "Type instantiation is excessively deep"
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyClient = any;
+
 const CreateSchema = z.object({
   name: z.string().min(1).max(80),
 });
@@ -17,7 +21,10 @@ export async function GET(_req: NextRequest) {
   const user = await safeGetUser(supabase);
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { data, error: dbError } = await supabase
+  // Cast client to bypass the TypeScript compiler infinite loop
+  const db = supabase as AnyClient;
+
+  const { data, error: dbError } = await db
     .from('shared_dream_sessions')
     .select(`
       id, name, channel_id, engin_state, active_engins,
@@ -45,7 +52,10 @@ export async function POST(req: NextRequest) {
 
   const channelId = `shared-dream:${crypto.randomUUID()}`;
 
-  const { data: session, error: insertError } = await supabase
+  // Cast client to bypass the TypeScript compiler infinite loop
+  const db = supabase as AnyClient;
+
+  const { data: session, error: insertError } = await db
     .from('shared_dream_sessions')
     .insert({
       name: parsed.data.name,
@@ -61,15 +71,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: insertError?.message ?? 'Insert failed' }, { status: 500 });
   }
 
-  // Auto-join as host
-  await supabase.from('shared_dream_members').insert({
+  // Auto-join as host using the safe client
+  await db.from('shared_dream_members').insert({
     session_id: session.id,
     user_id: user.id,
     role: 'host',
   });
 
-  // Log creation activity
-  await supabase.from('shared_dream_activity').insert({
+  // Log creation activity using the safe client
+  await db.from('shared_dream_activity').insert({
     session_id: session.id,
     user_id: user.id,
     kind: 'created',
