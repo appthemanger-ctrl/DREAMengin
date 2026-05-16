@@ -1,34 +1,34 @@
 {
-  "generatedAt": "2026-05-13T13:03:08.467Z",
-  "totalFiles": 1927,
-  "totalNodes": 6339,
-  "totalEdges": 6169,
-  "totalFunctionAndClassNodes": 3437,
-  "orphanCount": 2806,
+  "generatedAt": "2026-05-16T18:33:56.708Z",
+  "totalFiles": 1962,
+  "totalNodes": 6507,
+  "totalEdges": 6312,
+  "totalFunctionAndClassNodes": 3543,
+  "orphanCount": 2898,
   "countsByType": {
-    "folder": 592,
+    "folder": 608,
     "doc": 186,
     "file": 72,
     "config": 227,
-    "function": 3285,
-    "python": 13,
-    "class": 152,
+    "function": 3387,
+    "python": 14,
+    "class": 156,
     "js": 22,
     "mjs": 27,
-    "route": 229,
-    "ts": 752,
+    "route": 235,
+    "ts": 777,
     "tsx": 318,
     "css": 13,
     "jsx": 9,
     "cjs": 4,
-    "sql-table": 133,
-    "sql-policy": 250,
-    "sql": 55
+    "sql-table": 139,
+    "sql-policy": 255,
+    "sql": 58
   },
   "topConnected": [
     {
       "id": "file:src/engin/generated/surfaces.ts",
-      "degree": 552,
+      "degree": 551,
       "label": "surfaces.ts",
       "type": "ts",
       "path": "src/engin/generated/surfaces.ts"
@@ -42,14 +42,14 @@
     },
     {
       "id": "file:lib/supabase/server.ts",
-      "degree": 338,
+      "degree": 349,
       "label": "server.ts",
       "type": "ts",
       "path": "lib/supabase/server.ts"
     },
     {
       "id": "function:lib/supabase/server.ts#createServerClient",
-      "degree": 174,
+      "degree": 180,
       "label": "createServerClient",
       "type": "function",
       "path": "lib/supabase/server.ts"
@@ -63,14 +63,14 @@
     },
     {
       "id": "file:lib/supabase/client.ts",
-      "degree": 74,
+      "degree": 75,
       "label": "client.ts",
       "type": "ts",
       "path": "lib/supabase/client.ts"
     },
     {
       "id": "file:engins/engin.ContentEngin.tsx",
-      "degree": 68,
+      "degree": 73,
       "label": "engin.ContentEngin.tsx",
       "type": "tsx",
       "path": "engins/engin.ContentEngin.tsx"
@@ -90,11 +90,11 @@
       "path": "components/engines/shared/index.ts"
     },
     {
-      "id": "file:engins/engin.GameEngin.tsx",
-      "degree": 57,
-      "label": "engin.GameEngin.tsx",
-      "type": "tsx",
-      "path": "engins/engin.GameEngin.tsx"
+      "id": "function:lib/supabase/client.ts#createClient",
+      "degree": 58,
+      "label": "createClient",
+      "type": "function",
+      "path": "lib/supabase/client.ts"
     }
   ]
 }
