@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-16T21:01:29.770Z",
+  "generatedAt": "2026-05-16T21:07:27.672Z",
   "root": ".",
   "nodes": [
     {
@@ -7497,7 +7497,7 @@
       "type": "function",
       "path": "app/api/shared-dream/sessions/route.ts",
       "parent": "file:app/api/shared-dream/sessions/route.ts",
-      "loc": 13,
+      "loc": 17,
       "isOrphan": false,
       "exported": true
     },
@@ -7507,7 +7507,7 @@
       "type": "function",
       "path": "app/api/shared-dream/sessions/route.ts",
       "parent": "file:app/api/shared-dream/sessions/route.ts",
-      "loc": 35,
+      "loc": 42,
       "isOrphan": false,
       "exported": true
     },
