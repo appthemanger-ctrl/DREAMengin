@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-16T21:20:36.013Z",
+  "generatedAt": "2026-05-16T21:27:08.873Z",
   "root": ".",
   "nodes": [
     {
@@ -21165,7 +21165,7 @@
       "type": "function",
       "path": "components/shared-dream/dream.SharedDreamRuntime.tsx",
       "parent": "file:components/shared-dream/dream.SharedDreamRuntime.tsx",
-      "loc": 75,
+      "loc": 76,
       "isOrphan": true,
       "exported": false
     },
@@ -21175,7 +21175,7 @@
       "type": "function",
       "path": "components/shared-dream/dream.SharedDreamRuntime.tsx",
       "parent": "file:components/shared-dream/dream.SharedDreamRuntime.tsx",
-      "loc": 265,
+      "loc": 266,
       "isOrphan": true,
       "exported": true
     },
