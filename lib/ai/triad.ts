@@ -8,8 +8,6 @@ import { groqChat, type GroqMessage } from '@/lib/ai/groq';
 import { IntentSchema, type Intent, type IntentType } from '@/lib/ai/schemas';
 import { v4 as uuidv4 } from 'uuid';
 
-const OWNER_EMAIL_DEFAULT = 'appthemanger@gmail.com';
-
 export const AI_MODELS = {
   // User-facing agent — override via GROQ_MODEL_EAMS_FAST / GROQ_MODEL_EAMS_HEAVY
   EAMS_PRIMARY: process.env.GROQ_MODEL_EAMS_FAST || 'meta-llama/llama-4-scout-17b-16e-instruct',
@@ -23,13 +21,15 @@ export const AI_MODELS = {
   BOOGIE: process.env.GROQ_MODEL_BOOGIE || 'openai/gpt-oss-safeguard-20b',
 };
 
-export function getOwnerEmail(): string {
-  return process.env.OWNER_EMAIL || OWNER_EMAIL_DEFAULT;
+export function getOwnerEmail(): string | null {
+  return process.env.OWNER_EMAIL ?? null;
 }
 
 export function isOwnerEmail(email?: string | null): boolean {
   if (!email) return false;
-  return email.toLowerCase() === getOwnerEmail().toLowerCase();
+  const ownerEmail = getOwnerEmail();
+  if (!ownerEmail) return false;
+  return email.toLowerCase() === ownerEmail.toLowerCase();
 }
 
 type EamsPlan = { response_text: string; intents: Intent[]; interpreted_intent?: string };

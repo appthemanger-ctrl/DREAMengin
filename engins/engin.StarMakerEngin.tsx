@@ -74,6 +74,9 @@ import {
   createInitialSessionView,
 } from '@/lib/music/starmakerDaw';
 import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import { ArtifactSlot } from '@/lib/enginpipe';
+import { useEnginWorkflow } from '@/lib/engins/useEnginWorkflow';
+import { useStarMakerEnginRuntime } from '@/lib/engins/music/useStarMakerEnginRuntime';
 import MultitrackArrangementPanel from '@/components/daydream/starmaker/dream.panel.MultitrackArrangementPanel';
 import PianoRollPanel from '@/components/daydream/starmaker/dream.panel.PianoRollPanel';
 import CompingPanel from '@/components/daydream/starmaker/dream.panel.CompingPanel';
@@ -286,6 +289,13 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
 
   // ── OS Shell: local event bus for module-to-module messaging ──
   const busRef = useRef(createEventBus());
+
+  // ── EnginRuntime kernel (music rule-set) ──
+  const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useStarMakerEnginRuntime();
+
+  // ── Workflow (music:beat-composition — default workflow) ──
+  const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
+  useEffect(() => { loadWorkflow('music:beat-composition'); }, [loadWorkflow]);
 
   // ── Part 2 additions: 3D Visualizer, Fingerprint Isolate, Shared Dream ──
   const [show3DVisualizer, setShow3DVisualizer] = useState(false);
@@ -931,6 +941,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
+    <ArtifactSlot artifactId="engin:music">
     <div style={DAW_STYLES.root}>
       {/* Transport Bar */}
       <DAWTransportBar
@@ -4323,5 +4334,6 @@ function DAWFileIOPanel({
         )}
       </div>
     </div>
+    </ArtifactSlot>
   );
 }

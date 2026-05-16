@@ -17,3 +17,8 @@ export {
 } from './dream.SharedDreamCanvas';
 
 export { InviteFlow, type InviteFlowProps } from './dream.InviteFlow';
+
+export {
+  default as SharedDreamRuntime,
+  type SharedDreamRuntimeProps,
+} from './dream.SharedDreamRuntime';

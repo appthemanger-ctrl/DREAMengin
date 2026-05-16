@@ -26,30 +26,58 @@ import { groqChat, type GroqMessage } from '@/lib/ai/groq';
 import { AI_MODELS } from '@/lib/ai/triad';
 import { ENGIN_REGISTRY } from '@/lib/forge/forgeRegistry';
 import type { ForgeLogEvent } from '@/lib/forge/forgeBuild';
+import { createClient } from '@supabase/supabase-js';
 
-// ── Simple server-side rate-limit (1 build per day per IP/token) ────────────
+// ── Persistent rate-limit via Supabase (falls back to in-memory for local dev)
+//    1 build per calendar day per IP/token.
+// ─────────────────────────────────────────────────────────────────────────────
 
-/** Map<token, ISO-date-string> */
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
+const dbReady     = Boolean(supabaseUrl && serviceKey);
+
+function getServiceClient() {
+  if (!dbReady) return null;
+  return createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } });
+}
+
+/** Local fallback Map<token, 'YYYY-MM-DD'> */
 const buildRateMap = new Map<string, string>();
 
-function getDateString(): string {
-  return new Date().toDateString();
+function todayUTC(): string {
+  return new Date().toISOString().slice(0, 10);
 }
 
-function checkServerRateLimit(token: string): boolean {
-  const last = buildRateMap.get(token);
-  return last !== getDateString();
-}
+async function checkAndRecordRateLimit(token: string): Promise<boolean> {
+  const today = todayUTC();
+  const db = getServiceClient();
 
-function recordServerBuild(token: string): void {
-  buildRateMap.set(token, getDateString());
-  // TTL cleanup — keep map from growing unbounded
-  if (buildRateMap.size > 5000) {
-    const today = getDateString();
-    for (const [k, v] of buildRateMap.entries()) {
-      if (v !== today) buildRateMap.delete(k);
+  if (!db) {
+    if (buildRateMap.get(token) === today) return false;
+    buildRateMap.set(token, today);
+    if (buildRateMap.size > 5000) {
+      for (const [k, v] of buildRateMap.entries()) {
+        if (v !== today) buildRateMap.delete(k);
+      }
     }
+    return true;
   }
+
+  const { data: existing } = await db
+    .from('forge_rate_limits')
+    .select('built_date')
+    .eq('token', token)
+    .single();
+
+  if (existing && (existing as { built_date: string }).built_date === today) {
+    return false;
+  }
+
+  await db.from('forge_rate_limits').upsert(
+    { token, built_date: today },
+    { onConflict: 'token' },
+  );
+  return true;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -698,15 +726,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Server-side rate limit
+  // Server-side rate limit (Supabase-persistent, in-memory fallback for local dev)
   const buildToken = req.headers.get('x-build-token') ?? req.headers.get('x-forwarded-for') ?? 'anonymous';
-  if (!checkServerRateLimit(buildToken)) {
+  const allowed = await checkAndRecordRateLimit(buildToken);
+  if (!allowed) {
     return new Response(
       JSON.stringify({ error: 'Daily build limit reached. Try again tomorrow.' }),
       { status: 429, headers: { 'Content-Type': 'application/json' } }
     );
   }
-  recordServerBuild(buildToken);
 
   const useSimulation = !process.env.GROQ_API_KEY;
 
