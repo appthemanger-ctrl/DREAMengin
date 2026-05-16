@@ -103,6 +103,7 @@ const ALL_CHANNEL_EVENTS: Record<DualRuntimeChannel, string[]> = {
   create:  ['create:draft-saved', 'create:published', 'create:export-asset', 'create:queue-updated', 'create:calendar-event'],
   content: [],
   compute: ['vm:initialized', 'vm:workload-submitted', 'vm:inter-vm-message', 'vm:error', 'vm:dispatch-workload'],
+  shared_dream: [], // <-- Added missing property
 };
 
 interface BridgeEvent {
