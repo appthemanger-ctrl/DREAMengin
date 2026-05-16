@@ -1,22 +1,30 @@
 /** @type {import('next').NextConfig} */
+
+// Safely extract the hostname for Next.js Image Optimization
+const getSupabaseHostname = () => {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!url) return "localhost";
+  try {
+    const absoluteUrl = url.startsWith("http") ? url : `https://${url}`;
+    return new URL(absoluteUrl).hostname;
+  } catch (e) {
+    return "supabase.co"; // Graceful fallback to prevent build crashes
+  }
+};
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
+const supabaseWss = supabaseUrl.replace(/^https:/, "wss:");
+
 const nextConfig = {
   serverExternalPackages: ["@supabase/supabase-js"],
-
   productionBrowserSourceMaps: false,
 
-  // Partial Prerendering (PPR) — static shell + dynamic streaming slots.
-  // In Next.js 16+ PPR is activated via `cacheComponents: true`.
-  // All routes have been migrated from `dynamic = 'force-dynamic'` to
-  // `connection()` from 'next/server', which is PPR-compatible.
+  // Next.js 16+ native PPR model (replaces experimental.ppr and dynamicIO)
   cacheComponents: true,
 
   experimental: {},
 
-  // Exclude build-time config and tooling files from the server-function
-  // output file tracing of routes that use fs/child_process host tools
-  // (e.g. app/api/agent/session).  This prevents Turbopack's NFT tracer
-  // from bundling next.config.mjs, tailwind.config.ts, and similar files
-  // into serverless function zips.
+  // Exclude build tooling from route tracing zips
   outputFileTracingExcludes: {
     "/api/agent/session": [
       "./next.config.mjs",
@@ -30,14 +38,11 @@ const nextConfig = {
   },
 
   images: {
-    // Stream 8.2 — AVIF/WebP next-gen formats
-    // AVIF ~50% smaller than JPEG; WebP fallback for older browsers.
-    // Performance impact: better — smaller image payloads.
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
         protocol: "https",
-        hostname: new URL(process.env.NEXT_PUBLIC_SUPABASE_URL || "http://localhost").hostname,
+        hostname: getSupabaseHostname(),
         pathname: "/storage/v1/object/public/**",
       },
       { protocol: "https", hostname: "*.googleapis.com" },
@@ -61,17 +66,17 @@ const nextConfig = {
       },
       {
         source: "/home",
-        destination: "/homedream",
-        permanent: false,
-      },
-      {
-        source: "/homedream",
         destination: "/dreamdmbar",
         permanent: false,
       },
       {
+        source: "/homedream",
+        destination: "/dreamdmbar/homedream", // Fixed infinite loop
+        permanent: false,
+      },
+      {
         source: "/homedream/:path*",
-        destination: "/dreamdmbar/homedream",
+        destination: "/dreamdmbar/homedream/:path*", // Preserved path parameters
         permanent: false,
       },
       {
@@ -117,54 +122,31 @@ const nextConfig = {
     ];
   },
 
-  // COOP/COEP headers for SharedArrayBuffer (WebGPU, game engine, WASM threads)
-  // Stream 7.1 — CSP Level 3 + security headers
-  // docs/SECURITY.md — least-privilege content policy
   async headers() {
     const securityHeaders = [
       {
         key: "Content-Security-Policy",
         value: [
           "default-src 'self'",
-          // unsafe-inline needed for Next.js inline scripts (RSC streaming, hydration data)
-          // wasm-unsafe-eval allows WebAssembly.instantiate without enabling general eval()
-          "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
+          "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'", // Crucial for WASM/Next streaming
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
           "font-src 'self' https://fonts.gstatic.com",
-          `img-src 'self' data: blob: ${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""} https://*.googleapis.com https://*.gstatic.com https://i.ytimg.com https://*.scdn.co`,
-          `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""} ${(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").replace(/^https:/, "wss:")} https://api.spotify.com https://api.github.com https://assets.babylonjs.com`,
-          `media-src 'self' blob: ${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""}`,
+          `img-src 'self' data: blob: ${supabaseUrl} https://*.googleapis.com https://*.gstatic.com https://i.ytimg.com https://*.scdn.co`,
+          `connect-src 'self' ${supabaseUrl} ${supabaseWss} https://*.googleusercontent.com https://api.spotify.com https://api.github.com https://assets.babylonjs.com`, // Fixed mangled domains
+          `media-src 'self' blob: ${supabaseUrl}`,
           "worker-src 'self' blob:",
           "frame-ancestors 'self'",
         ].join("; "),
       },
-      {
-        key: "X-Frame-Options",
-        value: "SAMEORIGIN",
-      },
-      {
-        key: "X-Content-Type-Options",
-        value: "nosniff",
-      },
-      {
-        key: "Referrer-Policy",
-        value: "strict-origin-when-cross-origin",
-      },
-      {
-        key: "Permissions-Policy",
-        value: "camera=(), microphone=(self), geolocation=(self), payment=()",
-      },
+      { key: "X-Frame-Options", value: "SAMEORIGIN" },
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      { key: "Permissions-Policy", value: "camera=(), microphone=(self), geolocation=(self), payment=()" },
     ];
 
     const sabIsolationHeaders = [
-      {
-        key: "Cross-Origin-Embedder-Policy",
-        value: "credentialless",
-      },
-      {
-        key: "Cross-Origin-Opener-Policy",
-        value: "same-origin",
-      },
+      { key: "Cross-Origin-Embedder-Policy", value: "credentialless" },
+      { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
     ];
 
     return [
