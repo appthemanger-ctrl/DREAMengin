@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-16T19:25:10.791Z",
+  "generatedAt": "2026-05-16T19:27:18.042Z",
   "root": ".",
   "nodes": [
     {
@@ -3215,16 +3215,6 @@
       "label": "COOP_AND_SOLO_ROADMAP.md",
       "type": "doc",
       "path": "COOP_AND_SOLO_ROADMAP.md",
-      "parent": "folder:.",
-      "loc": null,
-      "isOrphan": true,
-      "tags": []
-    },
-    {
-      "id": "file:DREAMengin-shareddream-fixed 2.zip",
-      "label": "DREAMengin-shareddream-fixed 2.zip",
-      "type": "file",
-      "path": "DREAMengin-shareddream-fixed 2.zip",
       "parent": "folder:.",
       "loc": null,
       "isOrphan": true,
@@ -68461,6 +68451,11 @@
     },
     {
       "source": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "target": "file:app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
       "target": "file:lib/media/postMedia.ts",
       "kind": "import"
     },
@@ -86242,6 +86237,11 @@
     {
       "source": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
       "target": "function:lib/media/postMedia.ts#getPrimaryPostMediaUrl",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "target": "function:app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm.ts#rankFeed",
       "kind": "call"
     },
     {

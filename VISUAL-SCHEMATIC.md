@@ -8,10 +8,10 @@ It shows every file, folder, symbol, and connection, including disconnected/floa
 <!-- VISUAL-SCHEMATIC:AUTO-GENERATED:START -->
 ### Auto-Generated Repository Overview
 
-- **Total files:** 1963
+- **Total files:** 1962
 - **Total function/class nodes:** 3543
-- **Total edges:** 6312
-- **Orphan nodes:** 2899
+- **Total edges:** 6314
+- **Orphan nodes:** 2898
 
 #### Top-Level Folder Connectivity (overview)
 ```mermaid
@@ -921,7 +921,7 @@ graph LR
 
 | File | Type | Imports | Imported By | Top Importers | Top Imports |
 |---|---|---|---|---|---|
-| `app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm.ts` | ts | 1 | 5 | `app/api/dreamr/suggested/route.ts`, `app/dreamdmbar/_components/dreamr/api/route.ts`, `src/engin/generated/surfaces.ts` | `lib/dreamr/torridityLedger.ts` |
+| `app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm.ts` | ts | 1 | 6 | `app/api/dreamr/suggested/route.ts`, `app/dreamdmbar/_components/dreamr/api/feedHandler.ts`, `app/dreamdmbar/_components/dreamr/api/route.ts` | `lib/dreamr/torridityLedger.ts` |
 | `app/connectors/dream.ConnectorsClient.tsx` | tsx | 10 | 3 | `app/connectors/page.tsx`, `components/panels/dream.panel.ConnectorsPanel.tsx`, `src/engin/generated/surfaces.ts` | `lib/connectors/connectorRegistry.ts`, `components/connectors/dream.ConnectorRow.tsx`, `components/connectors/dream.widget.ConnectWidgetPrompt.tsx` |
 | `app/dreamdmbar/_components/dreamr/dreamsurface.dreamr.tsx` | tsx | 6 | 3 | `app/dreamdmbar/_components/HomeDreamRegion.tsx`, `app/dreamr/page.tsx`, `src/engin/generated/surfaces.ts` | `lib/feed/useLiveFeed.ts`, `lib/dreamr/dreamrfeed.tsx`, `app/dreamdmbar/_components/dreamr/dream.DreamRCore.tsx` |
 | `app/dreamdmbar/_components/HomeDreamRegion.tsx` | tsx | 10 | 3 | `components/core/dream.CoreDream.tsx`, `components/runtime/dream.RuntimeView.tsx`, `src/engin/generated/surfaces.ts` | `components/dream.NotificationCenter.tsx`, `components/dream.HomeFeed.tsx`, `components/dream.BrandLogo.tsx` |
@@ -1081,7 +1081,7 @@ graph LR
 | `app/daydream/play/page.tsx` | route | 1 | 1 | `src/engin/generated/surfaces.ts` | `lib/games/navigation.ts` |
 | `app/discover/page.tsx` | route | 1 | 1 | `src/engin/generated/surfaces.ts` | `lib/supabase/server.ts` |
 | `app/dream-effects/page.tsx` | route | 4 | 1 | `src/engin/generated/surfaces.ts` | `lib/utils.ts`, `lib/gsap/useGsapEntrance.ts`, `lib/webgpu.ts` |
-| `app/dreamdmbar/_components/dreamr/api/feedHandler.ts` | ts | 4 | 1 | `app/api/dreamr/feed/route.ts` | `lib/supabase/server.ts`, `lib/media/postMedia.ts`, `lib/dreamr/closeFriendsVisibility.ts` |
+| `app/dreamdmbar/_components/dreamr/api/feedHandler.ts` | ts | 5 | 1 | `app/api/dreamr/feed/route.ts` | `lib/supabase/server.ts`, `app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm.ts`, `lib/media/postMedia.ts` |
 | `app/dreamdmbar/_components/dreamr/api/route.ts` | route | 5 | 1 | `src/engin/generated/surfaces.ts` | `lib/supabase/server.ts`, `app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm.ts`, `lib/media/postMedia.ts` |
 | `app/dreamdmbar/_components/DreamWidgetGrid.tsx` | tsx | 1 | 1 | `src/engin/generated/surfaces.ts` | `types/widgets.ts` |
 | `app/dreamdmbar/dreamspace/page.tsx` | route | 2 | 1 | `src/engin/generated/surfaces.ts` | `lib/dreamdm/DreamSystemContext.tsx`, `components/runtime/dream.DualRuntimeContainer.tsx` |
@@ -4727,7 +4727,6 @@ _File-level graph omitted: 546 files exceeds Mermaid render budget. See table ab
 | `docs/WIDGET_SYSTEM_V2.md` | doc |
 | `dr-eams/capabilities.yaml` | config |
 | `dr-eams/tools.ts` | ts |
-| `DREAMengin-shareddream-fixed 2.zip` | file |
 | `experiments/.gitkeep` | file |
 | `frontend/public/favicon.ico` | file |
 | `frontend/public/index.html` | file |
