@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-16T19:06:09.857Z",
+  "generatedAt": "2026-05-16T19:09:48.666Z",
   "root": ".",
   "nodes": [
     {
@@ -3225,16 +3225,6 @@
       "label": "DREAMengin-shareddream-fixed 2.zip",
       "type": "file",
       "path": "DREAMengin-shareddream-fixed 2.zip",
-      "parent": "folder:.",
-      "loc": null,
-      "isOrphan": true,
-      "tags": []
-    },
-    {
-      "id": "file:DREAMengin-shareddream-fixed.zip",
-      "label": "DREAMengin-shareddream-fixed.zip",
-      "type": "file",
-      "path": "DREAMengin-shareddream-fixed.zip",
       "parent": "folder:.",
       "loc": null,
       "isOrphan": true,
