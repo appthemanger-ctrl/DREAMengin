@@ -1948,6 +1948,5 @@ function WorkflowCard({ workflow, onStart, onDelete, isCustom }: {
         )}
       </AnimatePresence>
     </div>
-    </ArtifactSlot>
   );
 }
