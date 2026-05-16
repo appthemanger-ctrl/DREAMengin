@@ -4335,6 +4335,5 @@ function DAWFileIOPanel({
         )}
       </div>
     </div>
-    </ArtifactSlot>
   );
 }
