@@ -19,8 +19,8 @@ export async function GET(
   await connection();
   const { id } = await params;
   const supabase = await createServerClient();
-  const { user, error } = await safeGetUser(supabase);
-  if (error || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const user = await safeGetUser(supabase);
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { data: session, error: sessionError } = await supabase
     .from('shared_dream_sessions')
@@ -61,8 +61,8 @@ export async function PATCH(
   await connection();
   const { id } = await params;
   const supabase = await createServerClient();
-  const { user, error } = await safeGetUser(supabase);
-  if (error || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const user = await safeGetUser(supabase);
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   // Must be a member to write
   const { data: membership } = await supabase
