@@ -14,8 +14,8 @@ const CreateSchema = z.object({
 export async function GET(_req: NextRequest) {
   await connection();
   const supabase = await createServerClient();
-  const { user, error } = await safeGetUser(supabase);
-  if (error || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const user = await safeGetUser(supabase);
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { data, error: dbError } = await supabase
     .from('shared_dream_sessions')
@@ -36,8 +36,8 @@ export async function GET(_req: NextRequest) {
 export async function POST(req: NextRequest) {
   await connection();
   const supabase = await createServerClient();
-  const { user, error } = await safeGetUser(supabase);
-  if (error || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const user = await safeGetUser(supabase);
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const body = await req.json().catch(() => ({}));
   const parsed = CreateSchema.safeParse(body);
