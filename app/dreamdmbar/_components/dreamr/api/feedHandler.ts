@@ -52,7 +52,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
-import { rankFeed, type ScoredPost } from './algorithms/dreamrAlgorithm';
+import { rankFeed, type ScoredPost } from '../algorithms/dreamrAlgorithm';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import {
   filterByCloseFriends,
