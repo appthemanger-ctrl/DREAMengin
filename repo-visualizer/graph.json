@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-16T18:46:18.872Z",
+  "generatedAt": "2026-05-16T18:56:27.937Z",
   "root": ".",
   "nodes": [
     {
@@ -3215,6 +3215,16 @@
       "label": "COOP_AND_SOLO_ROADMAP.md",
       "type": "doc",
       "path": "COOP_AND_SOLO_ROADMAP.md",
+      "parent": "folder:.",
+      "loc": null,
+      "isOrphan": true,
+      "tags": []
+    },
+    {
+      "id": "file:DREAMengin-shareddream-fixed.zip",
+      "label": "DREAMengin-shareddream-fixed.zip",
+      "type": "file",
+      "path": "DREAMengin-shareddream-fixed.zip",
       "parent": "folder:.",
       "loc": null,
       "isOrphan": true,
