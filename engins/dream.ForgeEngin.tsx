@@ -29,6 +29,7 @@ import AIBuilderPanel from '@/components/forge/dream.panel.AIBuilderPanel';
 import { bridge, type DualRuntimeChannel } from '@/lib/runtime/dualRuntimeBridge';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import { ArtifactSlot } from '@/lib/enginpipe';
 import {
   CREATIVE_ENGINES,
   ENGIN_REGISTRY,
@@ -298,6 +299,7 @@ export default function ForgeEngin({ onBack }: Props) {
   }, []);
 
   return (
+    <ArtifactSlot artifactId="engin:forge">
     <div style={{ minHeight: '100vh', background: FORGE.bg, color: FORGE.text }}>
       {/* ── Header ── */}
       <header
@@ -1945,5 +1947,6 @@ function WorkflowCard({ workflow, onStart, onDelete, isCustom }: {
         )}
       </AnimatePresence>
     </div>
+    </ArtifactSlot>
   );
 }

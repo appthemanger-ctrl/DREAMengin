@@ -1,6 +1,14 @@
 /**
- * GET /api/dreamr/feed
+ * GET /api/dreamr/feed  ← live HTTP boundary
  *
+ * All handler logic lives in the shared module:
+ *   app/dreamdmbar/_components/dreamr/api/feedHandler.ts
+ *
+ * That module is under `_components/` so Next.js never accidentally serves it
+ * as a duplicate route. This thin re-export keeps the routing boundary clean
+ * and the implementation in one place.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────
  * DreamR-scored feed. Fetches public posts, scores every one with the
  * DreamR humanistic algorithm, and returns them ranked so that creativity,
  * originality, and artistry lead — not follower counts or raw engagement.
@@ -36,87 +44,6 @@
  * where everyone gets their moment.
  */
 
-import { createServerClient } from '@/lib/supabase/server';
-import { NextRequest, NextResponse } from 'next/server';
-import { rankFeed, type ScoredPost } from '@/app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm';
-import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
-import {
-  filterByCloseFriends,
-  loadVisibilityCircle,
-} from '@/lib/dreamr/closeFriendsVisibility';
-import { parseFeedParams, deriveNextCursor } from '@/lib/dreamr/feedCursor';
+import { dreamrFeedHandler } from '@/app/dreamdmbar/_components/dreamr/api/feedHandler';
 
-export async function GET(req: NextRequest) {
-  const supabase = await createServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const { searchParams } = new URL(req.url);
-  const params = parseFeedParams(searchParams);
-
-  const db = supabase as any;
-
-  // ── Fetch a wider pool so the algorithm has material to work with ────────
-  // NOTE: the DB column on app_posts is `view_count` (singular), maintained by
-  // /api/posts/[id]/view on every verified view. The algorithm interface field
-  // is `views_count` (plural). We map DB → algorithm below.
-  //
-  // Pagination: prefer the stable `before` cursor (created_at < cursor) so
-  // pages don't drift when new posts arrive between requests. Fall back to
-  // the legacy numeric offset for backward compatibility with callers that
-  // haven't migrated yet (the in-tree `dreamrfeed.tsx` is one of them).
-  let query = db
-    .from('app_posts')
-    .select('id, user_id, content, visibility, post_visibility, media_url, media_urls, media_json, created_at, view_count, likes_count, comments_count, profiles!inner(handle, display_name, avatar_url)')
-    .eq('visibility', 'public')
-    .order('created_at', { ascending: false });
-
-  if (params.before) {
-    query = query.lt('created_at', params.before).limit(params.fetchLimit);
-  } else {
-    query = query.range(params.offset, params.offset + params.fetchLimit - 1);
-  }
-
-  const { data: rows, error } = await query;
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  const fetched = (rows ?? []) as any[];
-
-  // ── Visibility filter: drop close-friends posts the viewer cannot see ────
-  const circle = await loadVisibilityCircle(user.id);
-  const visible = filterByCloseFriends(fetched, user.id, circle);
-
-  // ── Dedupe ids the client has already seen *before* ranking ──────────────
-  const fresh = params.seen.size > 0
-    ? visible.filter(r => !params.seen.has(r.id))
-    : visible;
-
-  const posts: ScoredPost[] = fresh.map((r: any) => ({
-    id:            r.id,
-    content:       r.content ?? '',
-    media_url:     getPrimaryPostMediaUrl(r),
-    created_at:    r.created_at,
-    views_count:   r.view_count    ?? 0,
-    likes_count:   r.likes_count   ?? 0,
-    comments_count: r.comments_count ?? 0,
-    source:        'post',
-    provider:      'dreamengin',
-    profiles: {
-      handle:       r.profiles?.handle       ?? '',
-      display_name: r.profiles?.display_name ?? null,
-      avatar_url:   r.profiles?.avatar_url   ?? null,
-    },
-  }));
-
-  // ── Rank with the DreamR algorithm ───────────────────────────────────────
-  const ranked = rankFeed(posts).slice(0, params.limit);
-  const nextCursor = deriveNextCursor(ranked, fetched.length, params.fetchLimit);
-
-  return NextResponse.json(
-    { posts: ranked, count: ranked.length, nextCursor },
-    { headers: { 'Cache-Control': 'no-store' } },
-  );
-}
+export const GET = dreamrFeedHandler;

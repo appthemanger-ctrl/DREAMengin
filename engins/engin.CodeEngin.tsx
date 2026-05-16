@@ -28,6 +28,9 @@ import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import { useCodeEnginBridge } from '@/lib/runtime/useEnginBridge';
 import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import { ArtifactSlot } from '@/lib/enginpipe';
+import { useEnginWorkflow } from '@/lib/engins/useEnginWorkflow';
+import { useCodeEnginRuntime } from '@/lib/engins/code/useCodeEnginRuntime';
 import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEnginStatusPanel';
 import {
   parseAiInstruction,
@@ -47,6 +50,7 @@ import {
   type EditableCell,
 } from '@/lib/diff/aiEditEngine';
 import { AgentPanel } from './CodeEngin/modules/ai-co-pilot';
+import { parseCode } from './CodeEngin/core/parser';
 
 // ----------------------------------------------------------------------
 // Types
@@ -400,6 +404,13 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
   }, []);
   const busRef = useRef(createEventBus());
 
+  // ── EnginRuntime kernel (code rule-set) ──
+  const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useCodeEnginRuntime();
+
+  // ── Workflow (code:sprint — default workflow) ──
+  const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
+  useEffect(() => { loadWorkflow('code:sprint'); }, [loadWorkflow]);
+
   // ── Pair programming state ──
   const [pairSessionId] = useState(() => `code-${Date.now()}`);
   const [pairActive, setPairActive] = useState(false);
@@ -507,6 +518,21 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
   const runCell = useCallback(async (cellId: string, language: CellLanguage, code: string) => {
     setCells(prev => prev.map(c => c.id === cellId ? { ...c, status: 'running', output: null, error: undefined } : c));
     try {
+      // ── Pre-flight parse: surface structural errors before sending to runtime ──
+      if (language === 'typescript' || language === 'javascript' || language === 'python') {
+        const parsed = parseCode(code, language);
+        if (!parsed.structurallyValid && parsed.errors.length > 0) {
+          const errorLines = parsed.errors
+            .map(e => `  Line ${e.line}:${e.col} — ${e.message}`)
+            .join('\n');
+          setCells(prev => prev.map(c =>
+            c.id === cellId
+              ? { ...c, status: 'error', output: `Parse error(s) found:\n${errorLines}`, error: errorLines }
+              : c
+          ));
+          return;
+        }
+      }
       const output = await runCellCode(language, code);
       setCells(prev => prev.map(c => c.id === cellId ? { ...c, status: 'done', output } : c));
       bridge.emit('code', 'code:cell-executed', { cellId, language, outputType: 'text' });
@@ -772,6 +798,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
   const handleReplaceAll = (scope: 'cell' | 'codebase') => { if (!findTarget) return; const rx = new RegExp(`\\b${findTarget.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'); if (scope === 'cell') { const ta = lastFocusedRef.current; const targetId = ta?.getAttribute('data-cell-id') || ''; setCells(prev => prev.map(c => c.id === targetId ? { ...c, code: c.code.replace(rx, replaceWith) } : c)); } else { setCells(prev => prev.map(c => ({ ...c, code: c.code.replace(rx, replaceWith) }))); } setFindResults(null); setFindTarget(''); setReplaceWith(''); };
 
   return (
+    <ArtifactSlot artifactId="engin:code">
     <div className="de-sky-bg min-h-screen">
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
@@ -1081,5 +1108,6 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
         <div className="de-widget"><div className="de-widget-header"><span className="de-widget-title">Journey</span></div><div className="de-widget-body"><JourneyTrail compact /></div></div>
       </div>
     </div>
+    </ArtifactSlot>
   );
 }

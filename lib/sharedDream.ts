@@ -132,3 +132,12 @@ export function broadcastPresenceUpdate(
 export async function leaveSharedDreamSession(session: SharedDreamSession): Promise<void> {
   await session.leave();
 }
+
+// ── Persistent session hook ───────────────────────────────────────────────────
+export {
+  useSharedDreamSession,
+  type UseSharedDreamSessionOptions,
+  type UseSharedDreamSessionResult,
+  type SharedDreamMember,
+  type SharedDreamActivityEntry,
+} from './sharedDream/useSharedDreamSession';

@@ -1,6 +1,6 @@
 // src/engin/core/index.ts
 
-import baseStateSeed from '@/src/engin/state/base.json';
+import baseStateSeed from '@/engin/state/base.json';
 import { createClient as createSupabaseClient } from '@/lib/supabase/client';
 
 export type { LedgerEntry, DreamLedger } from './engin.ledger';

@@ -22,19 +22,26 @@ interface Props {
 
 export default function DreamRCore({ sharerId }: Props) {
   useEffect(() => {
-    // Subscribe to the global event bus for DR_ACTION events from HomeDream
-    const unsub = (bridge as unknown as {
-      on?: (event: string, handler: (payload: unknown) => void) => void;
-      off?: (event: string, handler: (payload: unknown) => void) => void;
-      subscribeEventActivity?: (observer: (emission: { event: string; payload: unknown }) => void) => () => void;
-    });
-
-    // Use the typed bridge subscriptions for each interaction type
+    // bridge.subscribe(channel, event, handler) → returns UnsubscribeFn
     const subs = [
       bridge.subscribe('create', 'create:published', (payload) => {
-        // Content published from DreamR — update ledger
-        console.log(`[DreamRCore] Published: ${payload.contentId} via sharer ${sharerId}`);
-        // TODO: POST to /api/dreamr/tally with { contentId, sharerId }
+        const contentId = typeof payload['contentId'] === 'string' ? payload['contentId'] : '';
+        console.log('[DreamRCore] Published:', contentId, 'via sharer', sharerId);
+        void fetch('/api/dreamr/tally', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contentId, sharerId }),
+        }).catch(() => {/* non-fatal */});
+      }),
+
+      bridge.subscribe('games', 'games:achievement-unlocked', (payload) => {
+        const title = typeof payload['title'] === 'string' ? payload['title'] : 'Achievement';
+        console.log('[DreamRCore] Game achievement:', title);
+      }),
+
+      bridge.subscribe('music', 'music:session-end', (payload) => {
+        const sessionId = typeof payload['sessionId'] === 'string' ? payload['sessionId'] : '';
+        console.log('[DreamRCore] Music session ended:', sessionId);
       }),
     ];
 

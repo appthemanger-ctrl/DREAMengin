@@ -32,6 +32,9 @@ import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEngi
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import { ArtifactSlot } from '@/lib/enginpipe';
+import { useEnginWorkflow } from '@/lib/engins/useEnginWorkflow';
+import { useBrandEnginRuntime } from '@/lib/engins/brand/useBrandEnginRuntime';
 
 interface Props {
   onBack: () => void;
@@ -87,6 +90,13 @@ export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Pr
       .then(u => { osRef.current = u; });
   }, []);
   const busRef = useRef(createEventBus());
+
+  // ── EnginRuntime kernel (brand rule-set) ──
+  const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useBrandEnginRuntime();
+
+  // ── Workflow (brand:campaign — default workflow) ──
+  const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
+  useEffect(() => { loadWorkflow('brand:campaign'); }, [loadWorkflow]);
 
   // ── Shared Dream Analytics state ──
   const [sharedAnalyticsId] = useState(() => `brand-analytics-${Date.now()}`);
@@ -409,6 +419,7 @@ export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Pr
                    <Minus className="w-3 h-3" style={{ color: 'var(--de-text-dim)' }} />;
 
   return (
+    <ArtifactSlot artifactId="engin:brand">
     <div className="de-sky-bg min-h-screen">
 
       {/* ── Header ── */}
@@ -1264,5 +1275,6 @@ export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Pr
 
       </div>
     </div>
+    </ArtifactSlot>
   );
 }

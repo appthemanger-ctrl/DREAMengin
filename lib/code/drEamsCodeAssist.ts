@@ -352,7 +352,7 @@ const TEMPLATES: Record<NLCommand['type'], (cmd: NLCommand, lang: CellLanguage) 
     if (lang === 'python') {
       return `def ${name}():\n    """TODO: add docstring."""\n    pass`;
     }
-    return `function ${name}() {\n  // TODO: implement\n}`;
+    return `function ${name}() {\n  // add your implementation here\n}`;
   },
   add_loop: (_cmd, lang) => {
     if (lang === 'python') return `items = []\nfor item in items:\n    print(item)`;

@@ -45,6 +45,9 @@ import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEngi
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import { ArtifactSlot } from '@/lib/enginpipe';
+import { useEnginWorkflow } from '@/lib/engins/useEnginWorkflow';
+import { useContentEnginRuntime } from '@/lib/engins/content/useContentEnginRuntime';
 import {
   parseSRT, parseVTT, computeCuts, applyEditsToSegments,
   exportSRT, searchTranscript, annotateSearchMatches,
@@ -185,6 +188,13 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
       .then(u => { osRef.current = u; });
   }, []);
   const busRef = useRef(createEventBus());
+
+  // ── EnginRuntime kernel (content rule-set) ──
+  const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useContentEnginRuntime();
+
+  // ── Workflow (create:draft — default workflow) ──
+  const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
+  useEffect(() => { loadWorkflow('create:draft'); }, [loadWorkflow]);
 
   // ── 3D Figure from Photos state ──
   const [figure3DPhotos, setFigure3DPhotos]         = useState<string[]>([]);
@@ -1737,6 +1747,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   }
 
   return (
+    <ArtifactSlot artifactId="engin:content">
     <div className="de-sky-bg min-h-screen">
 
       {/* ── Header ── */}
@@ -4625,5 +4636,6 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
 
       </div>
     </div>
+    </ArtifactSlot>
   );
 }

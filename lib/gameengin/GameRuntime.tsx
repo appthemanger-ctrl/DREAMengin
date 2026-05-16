@@ -7,11 +7,17 @@
  *
  * Responsibilities:
  *   - Owns ONE single requestAnimationFrame loop (fixed 60fps timestep)
- *   - Provides the GameEngineAPI to whatever cartridge is loaded
+ *   - Builds and provides the complete GameEngineAPI to whatever cartridge is loaded
  *   - Wires physicsConfig from GameEngin's existing state
  *   - Handles cartridge hot-swap (unmount old, mount new) without page reload
- *   - Shows a real FPS counter in the HUD
- *   - Uses useRef for all mutable state inside the RAF loop (no useState)
+ *   - Shows a real FPS counter in the HUD (engine chrome only — no game HUD here)
+ *
+ * HUD layer contract:
+ *   - ENGINE chrome (this file): FPS counter — top-right, 10px, pointer-events: none
+ *   - GAME chrome: score/lives/level — rendered by the cartridge inside its own container
+ *   - SHELL chrome: mobile controls — rendered by ImmersiveGameShell outside this component
+ *
+ * These three layers never overlap. Do not add score/lives/game info here.
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -21,11 +27,20 @@ import type {
   GravityPreset,
   CartridgeInputEvent,
 } from './cartridge';
-import { GRAVITY_VALUES } from './cartridge';
+import { ENGINE_VERSION, GRAVITY_VALUES } from './cartridge';
 import { dreamOSBus } from '@/lib/runtime/dreamOSBus';
 import { createLocalChannel } from '@/lib/runtime/runtimeChannel';
 import { recordEmission } from '@/lib/runtime/channelMetrics';
 import { acquireSharedResource, releaseSharedResource } from '@/lib/runtime/sharedResourcePool';
+import { createSaveAPI } from './cartridges/saveState';
+import { createAchievementsAPI } from './cartridges/achievementEngine';
+import {
+  stubAudioAPI,
+  stubHapticsAPI,
+  stubAssetsAPI,
+  stubNetworkAPI,
+} from './cartridges/apiStubs';
+import type { AchievementDefinition } from './cartridge';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -52,34 +67,69 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
   const [fps, setFps] = useState(0);
 
   // Mutable refs for RAF loop state
-  const tickCallbacksRef = useRef<Set<(dt: number, elapsed: number) => void>>(new Set());
+  const tickCallbacksRef   = useRef<Set<(dt: number, elapsed: number) => void>>(new Set());
   const renderCallbacksRef = useRef<Set<(dt: number) => void>>(new Set());
-  const keysDownRef = useRef<Set<string>>(new Set());
-  const inputListenersRef = useRef<Map<string, Set<(payload: CartridgeInputEvent) => void>>>(new Map());
-  const rafIdRef = useRef(0);
-  const accumulatorRef = useRef(0);
-  const lastTimeRef = useRef(0);
-  const elapsedRef = useRef(0);
-  const frameTimesRef = useRef<number[]>([]);
-  const fpsIntervalRef = useRef(0);
-  const cleanupRef = useRef<(() => void) | null>(null);
-  const physicsRef = useRef(physicsConfig);
-  const onFrameRef = useRef(onFrame);
-  const scoreChannelRef = useRef(createLocalChannel<{ type: 'game:score-submit'; gameId: string; score: number; level?: number }>('engine:game-scores'));
+  const keysDownRef        = useRef<Set<string>>(new Set());
+  const inputListenersRef  = useRef<Map<string, Set<(payload: CartridgeInputEvent) => void>>>(new Map());
+  const rafIdRef           = useRef(0);
+  const accumulatorRef     = useRef(0);
+  const lastTimeRef        = useRef(0);
+  const elapsedRef         = useRef(0);
+  const frameTimesRef      = useRef<number[]>([]);
+  const fpsIntervalRef     = useRef(0);
+  const cleanupRef         = useRef<(() => void) | null>(null);
+  const physicsRef         = useRef(physicsConfig);
+  const onFrameRef         = useRef(onFrame);
+  const scoreChannelRef    = useRef(
+    createLocalChannel<{ type: 'game:score-submit'; gameId: string; score: number; level?: number }>('engine:game-scores'),
+  );
 
   // Keep refs in sync
-  physicsRef.current = physicsConfig;
-  onFrameRef.current = onFrame;
+  physicsRef.current  = physicsConfig;
+  onFrameRef.current  = onFrame;
 
-  // ── Build the GameEngineAPI ─────────────────────────────────────────────
+  // ── Build the complete GameEngineAPI ───────────────────────────────────────
 
-  const buildAPI = useCallback((): GameEngineAPI => {
-    const tickCbs = tickCallbacksRef.current;
-    const renderCbs = renderCallbacksRef.current;
-    const keysDown = keysDownRef.current;
-    const inputListeners = inputListenersRef.current;
+  const buildAPI = useCallback((forCartridge: GameCartridge): GameEngineAPI => {
+    const cartridgeId  = forCartridge.id;
+    const capabilities = new Set(forCartridge.capabilities ?? []);
+
+    // Save state — real implementation when capability is declared
+    const saveAPI = capabilities.has('save-state')
+      ? createSaveAPI(cartridgeId)
+      : {
+          async list()        { return []; },
+          async load()        { return null; },
+          async write()       {},
+          async erase()       {},
+          async autoSave()    {},
+        };
+
+    // Achievements — real implementation when capability is declared
+    // Games declare their achievements by exporting a static `achievements` array
+    // on their module. React cartridges get an empty registry unless they add
+    // the `achievements` field to their GameCartridge object (v2 extension point).
+    const achievementDefs: AchievementDefinition[] = [];
+    const achievementsAPI = capabilities.has('achievements')
+      ? createAchievementsAPI(cartridgeId, achievementDefs, (def) => {
+          // Emit to dreamOSBus so the shell can show a pop-up
+          dreamOSBus.emit('game:achievement-unlocked' as Parameters<typeof dreamOSBus.emit>[0], {
+            cartridgeId,
+            id: def.id,
+            label: def.label,
+            description: def.description,
+            icon: def.icon,
+          } as Parameters<typeof dreamOSBus.emit>[1]);
+        })
+      : {
+          async unlock()    {},
+          async progress()  {},
+          async getAll()    { return []; },
+        };
 
     return {
+      engineVersion: ENGINE_VERSION,
+
       loop: {
         onTick(cb) {
           return dreamOSBus.on('engine:tick', ({ dt, elapsed }) => cb(dt, elapsed));
@@ -88,6 +138,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
           return dreamOSBus.on('engine:render', ({ dt }) => cb(dt));
         },
       },
+
       physics: {
         get gravity() {
           const preset = physicsRef.current?.gravity ?? 'earth';
@@ -98,31 +149,43 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
           return raw / 100;
         },
       },
+
       input: {
         on(event, cb) {
           return dreamOSBus.on('game:input', (payload) => {
-            if (payload.type === event) cb(payload);
+            if (payload.type === event) cb(payload as CartridgeInputEvent);
           });
         },
         isKeyDown(key) {
-          return keysDown.has(key);
+          return keysDownRef.current.has(key);
         },
       },
+
       score: {
         async submit(gameId, value, level) {
-          await scoreChannelRef.current.publish({ type: 'game:score-submit', gameId, score: value, level });
+          await scoreChannelRef.current.publish({
+            type: 'game:score-submit',
+            gameId,
+            score: value,
+            level,
+          });
           recordEmission('games');
           try {
             await fetch('/api/game-scores', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ game: gameId, score: value, ...(level !== undefined ? { level } : {}) }),
+              body: JSON.stringify({
+                game: gameId,
+                score: value,
+                ...(level !== undefined ? { level } : {}),
+              }),
             });
           } catch {
             // best-effort — 401 for unauthenticated users is expected
           }
         },
       },
+
       pool: {
         acquire<T>(factory: () => T): T {
           return acquireSharedResource('game:runtime', factory);
@@ -131,6 +194,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
           releaseSharedResource('game:runtime', obj);
         },
       },
+
       telemetry: {
         reportFrame(dtMs) {
           recordEmission('games', dtMs);
@@ -140,13 +204,25 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
           }
         },
       },
+
+      save:         saveAPI,
+      achievements: achievementsAPI,
+
+      // Stub implementations for capabilities that need native platform support.
+      // Games that declare these capabilities get the real implementation injected
+      // by a platform extension (e.g. AudioContext, DualSense, LiveKit).
+      // For now the stubs keep the API surface consistent.
+      audio:   stubAudioAPI,
+      haptics: stubHapticsAPI,
+      assets:  stubAssetsAPI,
+      network: stubNetworkAPI,
     };
   }, []);
 
-  // ── Keyboard input wiring ───────────────────────────────────────────────
+  // ── Keyboard input wiring ──────────────────────────────────────────────────
 
   useEffect(() => {
-    const keysDown = keysDownRef.current;
+    const keysDown       = keysDownRef.current;
     const inputListeners = inputListenersRef.current;
 
     const dispatch = (type: 'keydown' | 'keyup', e: KeyboardEvent) => {
@@ -162,31 +238,25 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
       dreamOSBus.emit('game:input', payload);
     };
 
-    const onKeyDown = (e: KeyboardEvent) => {
-      keysDown.add(e.key);
-      dispatch('keydown', e);
-    };
-    const onKeyUp = (e: KeyboardEvent) => {
-      keysDown.delete(e.key);
-      dispatch('keyup', e);
-    };
+    const onKeyDown = (e: KeyboardEvent) => { keysDown.add(e.key);    dispatch('keydown', e); };
+    const onKeyUp   = (e: KeyboardEvent) => { keysDown.delete(e.key); dispatch('keyup', e); };
 
     window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('keyup',   onKeyUp);
     return () => {
       window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener('keyup',   onKeyUp);
     };
   }, []);
 
-  // ── Fixed-timestep RAF loop ─────────────────────────────────────────────
+  // ── Fixed-timestep RAF loop ────────────────────────────────────────────────
 
   useEffect(() => {
     if (!cartridge) return;
 
-    lastTimeRef.current = 0;
+    lastTimeRef.current  = 0;
     accumulatorRef.current = 0;
-    elapsedRef.current = 0;
+    elapsedRef.current   = 0;
     frameTimesRef.current = [];
 
     const loop = (now: number) => {
@@ -196,31 +266,27 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
         return;
       }
 
-      const rawDt = now - lastTimeRef.current;
+      const rawDt       = now - lastTimeRef.current;
       lastTimeRef.current = now;
-      const frameStart = performance.now();
+      const frameStart  = performance.now();
 
-      // Accumulate delta, but cap to prevent spiral of death
+      // Accumulate delta, cap to prevent spiral of death
       accumulatorRef.current = Math.min(accumulatorRef.current + rawDt, MAX_ACCUMULATOR);
 
-      // Run fixed-timestep ticks
+      // Fixed-timestep ticks
       while (accumulatorRef.current >= FIXED_DT) {
         accumulatorRef.current -= FIXED_DT;
-        elapsedRef.current += FIXED_DT;
-        const dtSeconds = FIXED_DT / 1000;
-        const elapsedSeconds = elapsedRef.current / 1000;
-        dreamOSBus.emit('engine:tick', { dt: dtSeconds, elapsed: elapsedSeconds });
-        for (const cb of tickCallbacksRef.current) {
-          cb(dtSeconds, elapsedSeconds);
-        }
+        elapsedRef.current     += FIXED_DT;
+        const dtSec      = FIXED_DT / 1000;
+        const elapsedSec = elapsedRef.current / 1000;
+        dreamOSBus.emit('engine:tick', { dt: dtSec, elapsed: elapsedSec });
+        for (const cb of tickCallbacksRef.current) cb(dtSec, elapsedSec);
       }
 
       // Render pass (once per frame)
       const renderDt = rawDt / 1000;
       dreamOSBus.emit('engine:render', { dt: renderDt });
-      for (const cb of renderCallbacksRef.current) {
-        cb(renderDt);
-      }
+      for (const cb of renderCallbacksRef.current) cb(renderDt);
 
       const frameMs = performance.now() - frameStart;
       frameTimesRef.current.push(frameMs);
@@ -235,7 +301,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
     fpsIntervalRef.current = window.setInterval(() => {
       const times = frameTimesRef.current;
       if (times.length > 0) {
-        const avgMs = times.reduce((a, b) => a + b, 0) / times.length;
+        const avgMs      = times.reduce((a, b) => a + b, 0) / times.length;
         const currentFps = avgMs > 0 ? Math.round(Math.min(1000 / avgMs, MAX_DISPLAY_FPS)) : 0;
         setFps(currentFps);
         onFrameRef.current?.(currentFps);
@@ -248,7 +314,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
     };
   }, [cartridge]);
 
-  // ── Cartridge mount / hot-swap ──────────────────────────────────────────
+  // ── Cartridge mount / hot-swap ─────────────────────────────────────────────
 
   useEffect(() => {
     const container = containerRef.current;
@@ -265,8 +331,8 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
     renderCallbacksRef.current.clear();
     inputListenersRef.current.clear();
 
-    // Build API and mount new cartridge
-    const api = buildAPI();
+    // Build a fresh API scoped to this cartridge and mount
+    const api     = buildAPI(cartridge);
     const cleanup = cartridge.mount(container, api);
     cleanupRef.current = cleanup;
 
@@ -281,9 +347,18 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
     };
   }, [cartridge, buildAPI]);
 
+  // ── Render ─────────────────────────────────────────────────────────────────
+  //
+  // ENGINE chrome only: FPS counter.
+  // GAME chrome (score/lives/level) is rendered by the cartridge inside the
+  // containerRef div — we do not touch it here.
+  // SHELL chrome (mobile controls) is rendered by ImmersiveGameShell outside
+  // this component entirely.
+
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      {/* FPS counter overlay */}
+
+      {/* ── Engine chrome: FPS counter ── */}
       {cartridge && (
         <div
           style={{
@@ -306,7 +381,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
         </div>
       )}
 
-      {/* Game container — cartridges mount into this div */}
+      {/* ── Game container — cartridges mount into this div ── */}
       <div
         ref={containerRef}
         style={{ width: '100%', height: '100%', position: 'relative' }}

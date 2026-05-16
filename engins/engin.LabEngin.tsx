@@ -25,6 +25,9 @@ import CrossEnginStatusPanel from '@/components/dreamengin/dream.panel.CrossEngi
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
+import { ArtifactSlot } from '@/lib/enginpipe';
+import { useEnginWorkflow } from '@/lib/engins/useEnginWorkflow';
+import { useLabEnginRuntime } from '@/lib/engins/lab/useLabEnginRuntime';
 import { ForgeDreamCanvas } from '@/components/dream.ForgeDreamCanvas';
 import { upgradeEngine, createEventBus } from '@/lib/dreamenginOS';
 import type { UpgradedEngine, EngineBase } from '@/lib/dreamenginOS';
@@ -151,6 +154,13 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
       .then(u => { osRef.current = u; });
   }, []);
   const busRef = useRef(createEventBus());
+
+  // ── EnginRuntime kernel (lab rule-set) ──
+  const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useLabEnginRuntime();
+
+  // ── Workflow (lab:experiment — default workflow) ──
+  const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
+  useEffect(() => { loadWorkflow('lab:experiment'); }, [loadWorkflow]);
 
   // ── Engin Forge panel state ──
   const [showForge, setShowForge] = useState(false);
@@ -501,6 +511,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
   }
 
   return (
+    <ArtifactSlot artifactId="engin:lab">
     <div className="de-sky-bg min-h-screen">
 
       {/* ── Header ── */}
@@ -1917,5 +1928,6 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
 
       </div>
     </div>
+    </ArtifactSlot>
   );
 }

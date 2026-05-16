@@ -14,7 +14,8 @@ export type DualRuntimeChannel =
   | 'brand'
   | 'content'
   | 'create'
-  | 'compute';
+  | 'compute'
+  | 'shared_dream';
 
 // ── VM region ─────────────────────────────────────────────────────────────────
 export type VMRegion = 'top' | 'bottom';
