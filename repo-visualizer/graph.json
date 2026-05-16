@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-16T20:42:21.486Z",
+  "generatedAt": "2026-05-16T21:01:29.770Z",
   "root": ".",
   "nodes": [
     {
@@ -7458,7 +7458,7 @@
       "type": "function",
       "path": "app/api/shared-dream/sessions/[id]/route.ts",
       "parent": "file:app/api/shared-dream/sessions/[id]/route.ts",
-      "loc": 14,
+      "loc": 35,
       "isOrphan": false,
       "exported": true
     },
@@ -7468,7 +7468,7 @@
       "type": "function",
       "path": "app/api/shared-dream/sessions/[id]/route.ts",
       "parent": "file:app/api/shared-dream/sessions/[id]/route.ts",
-      "loc": 56,
+      "loc": 93,
       "isOrphan": false,
       "exported": true
     },
@@ -7482,6 +7482,7 @@
       "isOrphan": false,
       "tags": [
         "api-handler",
+        "supabase-table:shared_dream_members",
         "supabase-table:shared_dream_sessions",
         "supabase-table:shared_dream_members",
         "supabase-table:shared_dream_activity",
@@ -95766,12 +95767,12 @@
     },
     {
       "source": "file:app/api/shared-dream/sessions/[id]/route.ts",
-      "target": "sql-table:supabase/migrations/20260516000300_shared_dream_sessions.sql#shared_dream_sessions",
+      "target": "sql-table:supabase/migrations/20260516000300_shared_dream_sessions.sql#shared_dream_members",
       "kind": "sql-reference"
     },
     {
       "source": "file:app/api/shared-dream/sessions/[id]/route.ts",
-      "target": "sql-table:supabase/migrations/20260516000300_shared_dream_sessions.sql#shared_dream_members",
+      "target": "sql-table:supabase/migrations/20260516000300_shared_dream_sessions.sql#shared_dream_sessions",
       "kind": "sql-reference"
     },
     {
