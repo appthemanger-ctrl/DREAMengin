@@ -8,7 +8,7 @@ import { safeGetUser } from '@/lib/supabase/safeGetUser';
 import { z } from 'zod';
 
 const PatchSchema = z.object({
-  engin_state: z.record(z.record(z.unknown())).optional(),
+  engin_state: z.record(z.string(), z.record(z.string(), z.unknown())).optional(),
   active_engins: z.array(z.string()).optional(),
 });
 
