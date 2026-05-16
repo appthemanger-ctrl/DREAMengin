@@ -17,13 +17,10 @@ const LIGHT_PRESSURE_COEFF = 0.00000045;
 const a0 = 1.2e-10; // m/s^2 – critical acceleration
 const n = MOND_N;   // 2.1
 
-// μ(x) = x / (1 + x^n)^(1/n)
 function mu_T(x: number): number {
   return x / Math.pow(1 + Math.pow(x, n), 1 / n);
 }
 
-// ν(y) = inverse of μ for spherical symmetry: g = gN * ν(gN/a0)
-// ν(y) = ((1 + sqrt(1 + 4 y^{-n})) / 2)^(1/n)
 function nu_T(y: number): number {
   if (y <= 0) return 1;
   const inv = Math.pow(y, -n);
@@ -31,36 +28,30 @@ function nu_T(y: number): number {
   return Math.pow(inner, 1 / n);
 }
 
-// Torridity‑corrected acceleration: given Newtonian gN, return actual g
 function torridityAccel(gN: number): number {
   const y = gN / a0;
-  if (y < 1e-12) return Math.sqrt(a0 * gN); // Deep‑MOND limit: g ~ sqrt(a0 gN)
+  if (y < 1e-12) return Math.sqrt(a0 * gN); 
   return gN * nu_T(y);
 }
 
 // ------------------------------------------------------------
-// COSMOLOGY FROM YOUR CHARGE‑FLIP THEORY (no ΛCDM placeholder)
+// COSMOLOGY FROM YOUR CHARGE‑FLIP THEORY
 // ------------------------------------------------------------
-const H0 = 67.4;                // km/s/Mpc, present Hubble rate
-const Omega_m0 = 0.315;        // present matter density fraction
+const H0 = 67.4;                
+const Omega_m0 = 0.315;        
 
-// Parameters for the charge‑flip dark energy
-const z_flip = 0.7;            // redshift where dark energy starts to dominate
-const flip_width = 0.1;        // transition width (your ΔP)
-const Omega_L0 = 1 - Omega_m0; // present dark energy fraction
+const z_flip = 0.7;            
+const flip_width = 0.1;        
+const Omega_L0 = 1 - Omega_m0; 
 
-// Dark energy density as function of scale factor a
-// Models the charge‑flip: ρ_de(a) = ρ_de0 * (1 + tanh( log(a/a_flip) / ΔP )) / 2
 const a_flip = 1 / (1 + z_flip);
 function darkEnergyDensity(a: number): number {
   if (a <= 0) return 0;
   const x = Math.log(a / a_flip) / flip_width;
-  // Smooth step from 0 to 1 centered at a_flip with width ΔP
   const s = (Math.tanh(x) + 1) / 2;
   return Omega_L0 * s;
 }
 
-// Total omega as function of a
 function omega_total(a: number): number {
   if (a <= 0) return 1e-6;
   const omega_m = Omega_m0 / a ** 3;
@@ -68,33 +59,27 @@ function omega_total(a: number): number {
   return omega_m + omega_de;
 }
 
-// Hubble parameter H(a) in km/s/Mpc
 function hubbleFromA(a: number): number {
   return H0 * Math.sqrt(omega_total(a));
 }
 
-// Solve for scale factor a(t) by integrating da/dt = a * H(a)
-// We'll pre‑compute a table from t=0 to present (13.8 Gyr)
 const AGE_STEPS = 2000;
 let ageTable: { t: number; a: number }[] = [];
 
 function buildAgeTable() {
-  const T_PRESENT = 13.8e9; // years
+  const T_PRESENT = 13.8e9; 
   const dt = T_PRESENT / AGE_STEPS;
   ageTable = [{ t: 0, a: 1e-6 }];
   let a = 1e-6;
   let t = 0;
   for (let i = 1; i <= AGE_STEPS; i++) {
     const H = hubbleFromA(a);
-    const da_dt = a * H; // in km/s/Mpc * a, but units cancel in ratio
-    // Convert H from km/s/Mpc to 1/yr: 1 km/s/Mpc = 1.0227e-12 / yr
     const H_yr = H * 1.0227e-12;
     const da = a * H_yr * dt;
     a += da;
     t += dt;
     ageTable.push({ t, a });
   }
-  // Normalize so that a(present) = 1 (last entry)
   const a_present = ageTable[AGE_STEPS].a;
   for (let i = 0; i <= AGE_STEPS; i++) {
     ageTable[i].a /= a_present;
@@ -179,11 +164,10 @@ export default function UniverseField(_props: UniverseFieldProps) {
 
     let raf = 0;
     let lastNow = performance.now();
-    let universeAgeYears = 0; // years since Big Bang
-    const COSMIC_SPEED = 5e8; // 500 million years per real second – universe evolves in ~30 seconds
+    let universeAgeYears = 0; 
+    const COSMIC_SPEED = 5e8; 
     const particleCount = clamp(Math.floor((width * height) / 820), MIN_PARTICLES, MAX_PARTICLES);
 
-    // Buffers
     const x = new Float32Array(particleCount);
     const y = new Float32Array(particleCount);
     const vx = new Float32Array(particleCount);
@@ -219,19 +203,19 @@ export default function UniverseField(_props: UniverseFieldProps) {
         
         const typeRoll = hash(i + 999);
         if (i % Math.floor(particleCount / GALAXY_COUNT) === 0) {
-          celestialType[i] = 1;  // black hole
+          celestialType[i] = 1;  
           size[i] = 3.5;
           color[i] = `hsla(260, 100%, 2%, `;
         } else if (typeRoll < 0.001) {
-          celestialType[i] = 2;  // pulsar
+          celestialType[i] = 2;  
           size[i] = 1.8;
           color[i] = `hsla(190, 100%, 80%, `;
         } else if (typeRoll < 0.05) {
-          celestialType[i] = 3;  // binary
+          celestialType[i] = 3;  
           size[i] = 0.8;
           color[i] = `hsla(45, 100%, 70%, `;
         } else {
-          celestialType[i] = 0;  // star
+          celestialType[i] = 0;  
           size[i] = 0.5 + hash(i) * 1.5;
           color[i] = `hsla(${34 + hash(i) * 50}, 100%, 70%, `;
         }
@@ -239,14 +223,12 @@ export default function UniverseField(_props: UniverseFieldProps) {
       }
     }
 
-    // Pre‑compute expansion table once
     buildAgeTable();
 
     function update(dt: number) {
-      // Advance cosmic time with speed multiplier
       universeAgeYears += dt * COSMIC_SPEED;
-      const a = getScaleFactor(universeAgeYears); // scale factor today = 1
-      const formation = smoothstep(5, 15, universeAgeYears / 1e9); // formation over ~10 Gyr
+      const a = getScaleFactor(universeAgeYears); 
+      const formation = smoothstep(5, 15, universeAgeYears / 1e9); 
 
       const safeDt = Math.min(dt, 1/30);
       
@@ -257,7 +239,6 @@ export default function UniverseField(_props: UniverseFieldProps) {
 
       const centerX = width / 2, centerY = height / 2;
 
-      // Galaxy glow – positions expand with a
       const expand = a;
       for (let g = 0; g < GALAXY_COUNT; g++) {
         const galaxy = galaxies[g];
@@ -273,7 +254,6 @@ export default function UniverseField(_props: UniverseFieldProps) {
         ctx.fillRect(gx - 200, gy - 200, 400, 400);
       }
 
-      // Particle dynamics with Torridity gravity
       for (let i = 0; i < particleCount; i++) {
         const g = galaxies[galaxyIdx[i]];
         const radius = orbitRadius[i] * Math.min(width, height) * 0.5 * formation;
@@ -286,7 +266,6 @@ export default function UniverseField(_props: UniverseFieldProps) {
         const dy = targetY - y[i];
         const dist = Math.sqrt(dx * dx + dy * dy) + 1;
         
-        // Newtonian acceleration (arbitrary scale – visual tuning)
         const gN = 0.05;
         const g_actual = torridityAccel(gN);
         const ax = (dx / dist) * g_actual;
@@ -301,7 +280,6 @@ export default function UniverseField(_props: UniverseFieldProps) {
         x[i] += vx[i] * safeDt;
         y[i] += vy[i] * safeDt;
 
-        // Black hole lensing: iterate over galaxies (centers) instead of particles
         let rx = x[i], ry = y[i];
         for (let g = 0; g < galaxies.length; g++) {
           const gx = centerX + Math.cos(galaxies[g].orbit) * (galaxies[g].seedDistance * Math.min(width, height) * 0.3 * expand);
@@ -333,7 +311,6 @@ export default function UniverseField(_props: UniverseFieldProps) {
         ctx.fillRect(rx, ry, size[i], size[i]);
       }
       
-      // Occasional shooting star effect
       if (hash(universeAgeYears) > 0.98) {
         ctx.strokeStyle = 'rgba(255,255,255,0.4)';
         ctx.beginPath();
@@ -353,7 +330,13 @@ export default function UniverseField(_props: UniverseFieldProps) {
     seed();
     raf = requestAnimationFrame(frame);
     window.addEventListener('resize', resize);
-    
+
+    // CRITICAL FIX: Properly return cleanup function and close the hook
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+    };
+  }, []); // Added dependency array to run only once on component mount
 
   return (
     <canvas 
