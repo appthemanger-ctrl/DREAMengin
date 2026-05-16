@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-05-13T09:08:37.089Z",
+  "generated_at": "2026-05-16T18:02:08.754Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 120,
+  "count": 121,
   "surfaces": [
     {
       "type": "page",
@@ -444,7 +444,7 @@
       "imports": [
         {
           "name": "DreamSpaceRuntime",
-          "from": "@/components/dreamengin/dreamsurface.dreamspace-runtime"
+          "from": "@/components/dreams/dreamsurface.dreamspace"
         }
       ]
     },
@@ -965,6 +965,13 @@
           "from": "@/components/gameengin/dream.cartridge.CartridgeLauncher"
         }
       ]
+    },
+    {
+      "type": "page",
+      "path": "/homedream",
+      "file": "app/homedream/page.tsx",
+      "component": "HomeDreamPage",
+      "imports": []
     },
     {
       "type": "page",
