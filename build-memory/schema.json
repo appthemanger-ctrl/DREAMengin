@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-05-13T09:08:37.089Z",
+  "generated_at": "2026-05-16T18:24:50.781Z",
   "generator": "scripts/sync-build-memory.mjs",
   "sources": [
     "types/supabase.ts",
     "supabase/migrations/"
   ],
-  "count": 143,
+  "count": 153,
   "tables": [
     {
       "table": "activity_points",
@@ -496,6 +496,32 @@
         }
       ],
       "source": "types/supabase.ts"
+    },
+    {
+      "table": "agent_sessions",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT        PRIMARY KEY"
+        },
+        {
+          "name": "user_id",
+          "type": "UUID        REFERENCES auth"
+        },
+        {
+          "name": "data",
+          "type": "JSONB       NOT NULL DEFAULT"
+        },
+        {
+          "name": "expires_at",
+          "type": "TIMESTAMPTZ NOT NULL DEFAULT (NOW()"
+        },
+        {
+          "name": "created_at",
+          "type": "TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+        }
+      ],
+      "source": "20260516000000_agent_sessions_forge_rate_limits.sql"
     },
     {
       "table": "ai_artifacts",
@@ -1276,6 +1302,12 @@
         }
       ],
       "source": "20260405000001_dreamr_feed_registry.sql"
+    },
+    {
+      "table": "collaborative_realities",
+      "columns": [],
+      "source": "code-only",
+      "note": "Referenced in code but not found in types/supabase.ts or migrations — may indicate missing migration"
     },
     {
       "table": "collection_items",
@@ -2380,6 +2412,32 @@
       "source": "20260322000000_phase8b_dream_windows.sql"
     },
     {
+      "table": "dreamr_tally",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid        primary key default gen_random_uuid()"
+        },
+        {
+          "name": "content_id",
+          "type": "text        not null"
+        },
+        {
+          "name": "sharer_id",
+          "type": "text        not null"
+        },
+        {
+          "name": "viewer_id",
+          "type": "text        not null references auth"
+        },
+        {
+          "name": "tallied_at",
+          "type": "timestamptz not null default now()"
+        }
+      ],
+      "source": "20260516000100_dreamr_tally.sql"
+    },
+    {
       "table": "embed_feed_items",
       "columns": [
         {
@@ -2772,6 +2830,20 @@
         }
       ],
       "source": "types/supabase.ts"
+    },
+    {
+      "table": "forge_rate_limits",
+      "columns": [
+        {
+          "name": "token",
+          "type": "TEXT  PRIMARY KEY"
+        },
+        {
+          "name": "built_date",
+          "type": "DATE  NOT NULL DEFAULT CURRENT_DATE"
+        }
+      ],
+      "source": "20260516000000_agent_sessions_forge_rate_limits.sql"
     },
     {
       "table": "function_invocations",
@@ -4258,6 +4330,24 @@
       "source": "20260210_ai_core.sql"
     },
     {
+      "table": "reality_activity_log",
+      "columns": [],
+      "source": "code-only",
+      "note": "Referenced in code but not found in types/supabase.ts or migrations — may indicate missing migration"
+    },
+    {
+      "table": "reality_members",
+      "columns": [],
+      "source": "code-only",
+      "note": "Referenced in code but not found in types/supabase.ts or migrations — may indicate missing migration"
+    },
+    {
+      "table": "reality_state_snapshots",
+      "columns": [],
+      "source": "code-only",
+      "note": "Referenced in code but not found in types/supabase.ts or migrations — may indicate missing migration"
+    },
+    {
       "table": "reports",
       "columns": [
         {
@@ -4428,6 +4518,108 @@
         }
       ],
       "source": "20240120000000_initial_schema.sql"
+    },
+    {
+      "table": "shared_dream_activity",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid        primary key default gen_random_uuid()"
+        },
+        {
+          "name": "session_id",
+          "type": "uuid        not null references public"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid        references auth"
+        },
+        {
+          "name": "kind",
+          "type": "text        not null"
+        },
+        {
+          "name": "label",
+          "type": "text        not null"
+        },
+        {
+          "name": "meta",
+          "type": "jsonb       not null default"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz not null default now()"
+        }
+      ],
+      "source": "20260516000300_shared_dream_sessions.sql"
+    },
+    {
+      "table": "shared_dream_members",
+      "columns": [
+        {
+          "name": "session_id",
+          "type": "uuid        not null references public"
+        },
+        {
+          "name": "user_id",
+          "type": "uuid        not null references auth"
+        },
+        {
+          "name": "role",
+          "type": "text        not null default"
+        },
+        {
+          "name": "joined_at",
+          "type": "timestamptz not null default now()"
+        },
+        {
+          "name": "last_seen_at",
+          "type": "timestamptz not null default now()"
+        }
+      ],
+      "source": "20260516000300_shared_dream_sessions.sql"
+    },
+    {
+      "table": "shared_dream_sessions",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid        primary key default gen_random_uuid()"
+        },
+        {
+          "name": "name",
+          "type": "text        not null"
+        },
+        {
+          "name": "channel_id",
+          "type": "text        not null unique"
+        },
+        {
+          "name": "owner_id",
+          "type": "uuid        not null references auth"
+        },
+        {
+          "name": "engin_state",
+          "type": "jsonb       not null default"
+        },
+        {
+          "name": "active_engins",
+          "type": "text"
+        },
+        {
+          "name": "session_count",
+          "type": "integer     not null default 0"
+        },
+        {
+          "name": "last_active_at",
+          "type": "timestamptz not null default now()"
+        },
+        {
+          "name": "created_at",
+          "type": "timestamptz not null default now()"
+        }
+      ],
+      "source": "20260516000300_shared_dream_sessions.sql"
     },
     {
       "table": "shop_items",

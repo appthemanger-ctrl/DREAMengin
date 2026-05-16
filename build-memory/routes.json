@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-05-13T09:08:37.089Z",
+  "generated_at": "2026-05-16T18:24:50.781Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 107,
+  "count": 113,
   "routes": [
     {
       "path": "/api/account/delete-data",
@@ -374,6 +374,13 @@
       ]
     },
     {
+      "path": "/api/dreamr/tally",
+      "file": "app/api/dreamr/tally/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
       "path": "/api/dreams/feed",
       "file": "app/api/dreams/feed/route.ts",
       "methods": [
@@ -698,6 +705,22 @@
       ]
     },
     {
+      "path": "/api/shared-dream/sessions",
+      "file": "app/api/shared-dream/sessions/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/shared-dream/sessions/[id]",
+      "file": "app/api/shared-dream/sessions/[id]/route.ts",
+      "methods": [
+        "GET",
+        "PATCH"
+      ]
+    },
+    {
       "path": "/api/shellhub/devices",
       "file": "app/api/shellhub/devices/route.ts",
       "methods": [
@@ -731,6 +754,28 @@
     {
       "path": "/api/skip-credits/use",
       "file": "app/api/skip-credits/use/route.ts",
+      "methods": [
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/social/ipfs",
+      "file": "app/api/social/ipfs/route.ts",
+      "methods": [
+        "GET",
+        "POST"
+      ]
+    },
+    {
+      "path": "/api/social/livekit/room",
+      "file": "app/api/social/livekit/room/route.ts",
+      "methods": [
+        "GET"
+      ]
+    },
+    {
+      "path": "/api/social/livekit/token",
+      "file": "app/api/social/livekit/token/route.ts",
       "methods": [
         "POST"
       ]
