@@ -61,7 +61,7 @@ export function filterByCloseFriends<T extends VisibilityCandidate>(
  * "public + own posts", which is the strictest correct behaviour.
  */
 export async function fetchCloseFriendsCircle(
-  serviceClient: SupabaseClient<any>,
+  serviceClient: SupabaseClient<unknown>,
   viewerId: string,
 ): Promise<Set<string>> {
   if (!viewerId) return new Set();
@@ -87,7 +87,7 @@ export async function fetchCloseFriendsCircle(
  * ensures we never crash a feed request just because the service role key
  * isn't configured in some environment.
  */
-export async function loadVisibilityCircle(viewerId: string): Promise<Set<string>> {
+export async function loadVisibilityCircle(viewerId: string: Promise<Set<string>> {
   if (!viewerId) return new Set();
   try {
     const mod = await import('@/lib/supabase/server');

@@ -72,7 +72,7 @@ const PER_TYPE     = 5;
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
-export function useDreamSearch(query: string): UseDreamSearchReturn {
+export function useDreamSearch(query: string: UseDreamSearchReturn {
   const [results,     setResults]     = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [drEamsMode,  setDrEamsMode]  = useState(false);
@@ -90,7 +90,7 @@ export function useDreamSearch(query: string): UseDreamSearchReturn {
 
   // ── Toggle Dr. Eams mode ───────────────────────────────────────────────────
   const toggleDrEams = useCallback(() => {
-    setDrEamsMode((prev) => {
+    setDrEamsMode(prev: Record<string, unknown> => {
       const next = !prev;
       try { localStorage.setItem(DR_EAMS_KEY, String(next)); } catch { /* ignore */ }
       return next;

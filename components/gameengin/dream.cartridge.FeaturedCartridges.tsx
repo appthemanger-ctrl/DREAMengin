@@ -29,10 +29,10 @@ export default function FeaturedCartridges({
   let entries: CartridgeManifestEntry[];
   if (featured && featured.length > 0) {
     entries = featured
-      .map((id) => CARTRIDGE_MANIFEST.find((c) => c.id === id))
+      .map((id: Record<string, unknown>) => CARTRIDGE_MANIFEST.find((c: Record<string, unknown>) => c.id === id))
       .filter((c): c is CartridgeManifestEntry => Boolean(c));
   } else {
-    entries = CARTRIDGE_MANIFEST.filter((c) => c.tier === 'flagship');
+    entries = CARTRIDGE_MANIFEST.filter((c: Record<string, unknown>) => c.tier === 'flagship');
   }
   entries = entries.slice(0, Math.max(1, limit));
 
@@ -45,7 +45,7 @@ export default function FeaturedCartridges({
         </Link>
       </header>
       <ul className="featured-cartridges__grid">
-        {entries.map((c) => (
+        {entries.map((c: Record<string, unknown>) => (
           <li
             key={c.id}
             className="featured-cartridges__card"

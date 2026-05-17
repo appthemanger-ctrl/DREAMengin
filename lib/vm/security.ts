@@ -24,7 +24,7 @@ export class MemoryBoundsError extends Error {
  * Verifies that the half-open byte range [ptr, ptr+len) lies entirely
  * within [0, max).  Throws MemoryBoundsError on any violation.
  */
-export function checkBounds(ptr: number, len: number, max: number): void {
+export function checkBounds(ptr: number, len: number, max: number: void {
   if (
     ptr < 0       ||
     len < 0       ||
@@ -108,8 +108,8 @@ export class GPUTimeSlicer {
    */
   allocate(vmId: string, requestedMs: number): TimeBudget {
     const usedMs = Array.from(this.budgets.values())
-      .filter((b) => b.active)
-      .reduce((sum, b) => sum + b.budgetMs, 0);
+      .filter(b: Record<string, unknown> => b.active)
+      .reduce(sum: Record<string, unknown>, b: Record<string, unknown> => sum + b.budgetMs, 0);
 
     const available = Math.max(0, this.frameBudgetMs - usedMs);
     const budget: TimeBudget = {

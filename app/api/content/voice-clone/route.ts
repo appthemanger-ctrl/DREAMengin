@@ -64,7 +64,7 @@ const ELEVEN_BASE = 'https://api.elevenlabs.io/v1';
  *
  * Requires ELEVENLABS_API_KEY. Falls back to graceful stubs when the key is absent.
  */
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -189,7 +189,7 @@ export async function POST(req: NextRequest) {
       .order('created_at', { ascending: false })
       .catch(() => ({ data: [], error: null })) as { data: unknown[]; error: unknown };
 
-    const profiles = (Array.isArray(result.data) ? result.data : []).map((row) => {
+    const profiles = (Array.isArray(result.data) ? result.data : []).map((row: Record<string, unknown>) => {
       const r = row as Record<string, unknown>;
       return {
         id: String(r.id ?? ''),

@@ -21,7 +21,7 @@ interface CommandItem {
   shortcut?: string;
 }
 
-export default function CommandPalette() {
+export default function CommandPalette( {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -285,7 +285,7 @@ export default function CommandPalette() {
       )
     : commands;
 
-  const groupedCommands = filteredCommands.reduce((acc, cmd) => {
+  const groupedCommands = filteredCommands.reduce(acc: Record<string, unknown>, cmd: Record<string, unknown> => {
     if (!acc[cmd.category]) acc[cmd.category] = [];
     acc[cmd.category].push(cmd);
     return acc;

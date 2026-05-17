@@ -141,7 +141,7 @@ const volumeConstraint: EnginConstraint<StarMakerEnginAction> = (
 
 // ─── Transform ────────────────────────────────────────────────────────────────
 
-function transform(state: EnginBaseState, action: StarMakerEnginAction): EnginBaseState {
+function transform(state: EnginBaseState, action: StarMakerEnginAction: EnginBaseState {
   const domain = (state.domain as Partial<typeof DEFAULT_DOMAIN>);
 
   switch (action.type) {
@@ -219,7 +219,7 @@ function transform(state: EnginBaseState, action: StarMakerEnginAction): EnginBa
 
 // ─── deriveState ──────────────────────────────────────────────────────────────
 
-function deriveState(state: EnginBaseState): StarMakerEnginDerivedState {
+function deriveState(state: EnginBaseState: StarMakerEnginDerivedState {
   const d = state.domain as Partial<typeof DEFAULT_DOMAIN>;
   return {
     lifecycle:       state.lifecycle,

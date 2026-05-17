@@ -15,14 +15,14 @@ export interface RenderLoop {
   onFrame(cb: FrameCallback): () => void;
 }
 
-export function createRenderLoop(): RenderLoop {
+export function createRenderLoop(: RenderLoop {
   let running = false;
   let frameIndex = 0;
   let lastTimestamp = 0;
   let rafId: number | null = null;
   const callbacks = new Set<FrameCallback>();
 
-  function tick(timestamp: number): void {
+  function tick(timestamp: number: void {
     if (!running) return;
     const deltaMs = lastTimestamp === 0 ? 0 : timestamp - lastTimestamp;
     lastTimestamp = timestamp;
@@ -33,14 +33,14 @@ export function createRenderLoop(): RenderLoop {
     rafId = requestAnimationFrame(tick);
   }
 
-  function start(): void {
+  function start(: void {
     if (running) return;
     running = true;
     lastTimestamp = 0;
     rafId = requestAnimationFrame(tick);
   }
 
-  function stop(): void {
+  function stop(: void {
     running = false;
     if (rafId !== null) {
       cancelAnimationFrame(rafId);
@@ -48,7 +48,7 @@ export function createRenderLoop(): RenderLoop {
     }
   }
 
-  function onFrame(cb: FrameCallback): () => void {
+  function onFrame(cb: FrameCallback: () => void {
     callbacks.add(cb);
     return () => {
       callbacks.delete(cb);

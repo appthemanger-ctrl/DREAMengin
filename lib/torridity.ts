@@ -32,7 +32,7 @@ export const TORRIDITY_A0_PERCEPTION = 0.05;          // scaled for UI gravity
  * Interpolation function:  mu → 1 for x ≫ 1 (Newtonian regime),
  *                          mu → x for x ≪ 1 (deep-MOND regime).
  */
-export function mu(x: number): number {
+export function mu(x: number: number {
   if (x === 0) return 0;
   return x / Math.pow(1 + Math.pow(Math.abs(x), TORRIDITY_N), 1 / TORRIDITY_N);
 }
@@ -48,7 +48,7 @@ export function mu(x: number): number {
  * @param buildTime    Build / creation time in minutes.
  * @param uniqueAssets Number of unique assets (images, audio clips, etc.).
  */
-export function contentMass(buildTime: number, uniqueAssets: number): number {
+export function contentMass(buildTime: number, uniqueAssets: number: number {
   return Math.log1p(buildTime * 0.5 + uniqueAssets * 2);
 }
 
@@ -65,7 +65,7 @@ export function contentMass(buildTime: number, uniqueAssets: number): number {
  *
  * slog is applied to keep the output human-perceivable.
  */
-export function torridityRank(views: number, mass: number): number {
+export function torridityRank(views: number, mass: number: number {
   if (mass <= 0) return 0;
   const x = views / (mass * TORRIDITY_A0_PERCEPTION);
   const mondFactor = mu(x);
@@ -83,7 +83,7 @@ export function torridityRank(views: number, mass: number): number {
  *
  * Returns 0 when mass <= 0.  Output lies in [0, 1).
  */
-export function torridityRankSpec(views: number, mass: number): number {
+export function torridityRankSpec(views: number, mass: number: number {
   if (mass <= 0) return 0;
   const v = Math.max(0, views);
   const V = (TORRIDITY_A0_PERCEPTION * Math.log1p(v + 1)) / 4;
@@ -100,7 +100,7 @@ export function torridityRankSpec(views: number, mass: number): number {
  * Fresh content (ageHours = 0) → 0.
  * Approaches 1 asymptotically for very old content.
  */
-export function contentDecayFactor(ageHours: number): number {
+export function contentDecayFactor(ageHours: number: number {
   const age = Math.max(0, ageHours);
   return mu(age / 24);
 }
@@ -113,7 +113,7 @@ export function contentDecayFactor(ageHours: number): number {
  *
  * Returns 0 when mass <= 0.
  */
-export function decayedRank(views: number, mass: number, ageHours: number): number {
+export function decayedRank(views: number, mass: number, ageHours: number: number {
   if (mass <= 0) return 0;
   return torridityRankSpec(views, mass) * (1 - contentDecayFactor(ageHours));
 }
@@ -165,14 +165,14 @@ export interface RankedItem extends ContentItem {
  * Rank a list of content items by torridity, applying the
  * low-mass visibility throttle.  Returns items sorted descending by rank.
  */
-export function rankFeed(items: ContentItem[], feedSlots = 20): RankedItem[] {
+export function rankFeed(items: ContentItem[], feedSlots = 20: RankedItem[] {
   return items
-    .map((item) => {
+    .map((item: Record<string, unknown>) => {
       const mass = contentMass(item.buildTime, item.uniqueAssets);
       const rank = torridityRank(item.views, mass);
       const visibilityCap = throttledVisibility(mass, feedSlots);
       const decayFactor = contentDecayFactor(item.ageHours ?? 0);
       return { ...item, mass, rank, visibilityCap, decayFactor };
     })
-    .sort((a, b) => b.rank - a.rank);
+    .sort(a: Record<string, unknown>, b: Record<string, unknown> => b.rank - a.rank);
 }

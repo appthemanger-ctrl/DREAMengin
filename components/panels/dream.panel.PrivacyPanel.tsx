@@ -30,7 +30,7 @@ function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => vo
   );
 }
 
-export default function PrivacyPanel() {
+export default function PrivacyPanel( {
   const { openInSurface } = useDreamSystem();
   const [settings, setSettings]         = useState<PrivacySettings>(DEFAULT);
   const [saved, setSaved]               = useState(false);
@@ -90,7 +90,7 @@ export default function PrivacyPanel() {
         <div className="de-widget">
           <div className="de-widget-header"><span className="de-widget-title">Profile Visibility</span></div>
           <div className="de-widget-body">
-            {profileToggles.map(({ key, label, desc }) => (
+            {profileToggles.map({ key, label: string, desc } => (
               <div key={key} className="de-row">
                 <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{label}</div><div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{desc}</div></div>
                 <Toggle value={settings[key]} onToggle={() => toggle(key)} label={label} />
@@ -101,7 +101,7 @@ export default function PrivacyPanel() {
         <div className="de-widget">
           <div className="de-widget-header"><EyeOff className="w-4 h-4 mr-2" style={{ color: 'var(--de-text-dim)' }} /><span className="de-widget-title">Content Privacy</span></div>
           <div className="de-widget-body">
-            {contentToggles.map(({ key, label, desc }) => (
+            {contentToggles.map({ key, label: string, desc } => (
               <div key={key} className="de-row">
                 <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{label}</div><div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{desc}</div></div>
                 <Toggle value={settings[key]} onToggle={() => toggle(key)} label={label} />

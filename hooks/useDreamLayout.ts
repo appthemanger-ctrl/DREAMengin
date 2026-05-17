@@ -14,8 +14,8 @@ const DEFAULT_LAYOUT: UserDreamLayout = {
   hidden: [],
 };
 
-function normalizeLayout(value: unknown): UserDreamLayout {
-  const obj = value && typeof value === 'object' ? value as Record<string, any> : {};
+function normalizeLayout(value: unknown: UserDreamLayout {
+  const obj = value && typeof value === 'object' ? value as Record<string, unknown> : {};
   return {
     home: { dreams: Array.isArray(obj.home?.dreams) ? obj.home.dreams.filter((id: unknown) => typeof id === 'string') : [] },
     dreamspace: { dreams: Array.isArray(obj.dreamspace?.dreams) ? obj.dreamspace.dreams.filter((id: unknown) => typeof id === 'string') : [] },
@@ -23,7 +23,7 @@ function normalizeLayout(value: unknown): UserDreamLayout {
   };
 }
 
-export function useDreamLayout() {
+export function useDreamLayout( {
   const [layout, setLayout] = useState<UserDreamLayout>(DEFAULT_LAYOUT);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 

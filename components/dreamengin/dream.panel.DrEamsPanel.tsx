@@ -21,7 +21,7 @@ const QUICK_ACTIONS = [
 ];
 
 /* ── Dr. Eams avatar ── */
-function DrEamsAvatar({ size = 44 }: { size?: number }) {
+function DrEamsAvatar({ size = 44 }: { size?: number } {
   return (
     <div
       style={{
@@ -44,10 +44,10 @@ function DrEamsAvatar({ size = 44 }: { size?: number }) {
 }
 
 /* ── Typing indicator ── */
-function TypingDots() {
+function TypingDots( {
   return (
     <div style={{ display: 'flex', gap: 4, alignItems: 'center', padding: '10px 14px' }}>
-      {[0, 1, 2].map((i) => (
+      {[0, 1, 2].map(i: number => (
         <div
           key={i}
           style={{
@@ -61,7 +61,7 @@ function TypingDots() {
   );
 }
 
-export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
+export default function DrEamsPanel({ onClose }: DrEamsPanelProps {
   const [messages, setMessages] = useState<Message[]>([
     { role: 'ai', text: "Hey! I'm Dr. Eams — your AI companion inside Dreamengin. What are you dreaming up today? ◈" },
   ]);
@@ -90,7 +90,7 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
     const text = (overrideText ?? input).trim();
     if (!text || loading) return;
     setInput('');
-    setMessages((m) => [...m, { role: 'user', text }]);
+    setMessages(m: Record<string, unknown> => [...m, { role: 'user', text }]);
     setLoading(true);
     try {
       const res = await fetch('/api/ai/eams', {
@@ -113,9 +113,9 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
             ? `⚠️ ${data.error.message}`
             : "I'm here! Could you rephrase that?";
 
-      setMessages((m) => [...m, { role: 'ai', text: reply }]);
+      setMessages(m: Record<string, unknown> => [...m, { role: 'ai', text: reply }]);
     } catch {
-      setMessages((m) => [...m, { role: 'ai', text: 'Network error — please try again.' }]);
+      setMessages(m: Record<string, unknown> => [...m, { role: 'ai', text: 'Network error — please try again.' }]);
     } finally {
       setLoading(false);
     }
@@ -196,7 +196,7 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
               scrollbarWidth: 'none',
             }}
           >
-            {messages.map((m, idx) => (
+            {messages.map(m: Record<string, unknown>, idx: number => (
               <div
                 key={idx}
                 style={{
@@ -243,7 +243,7 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
           {/* ── Quick-action chips ── */}
           {showChips && (
             <div style={{ padding: '2px 16px 6px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {QUICK_ACTIONS.map((qa) => (
+              {QUICK_ACTIONS.map((qa: Record<string, unknown>) => (
                 <button
                   key={qa.label}
                   type="button"

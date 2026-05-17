@@ -138,7 +138,7 @@ let _memoryMap: ConformMemoryMap | null = null;
  * Safe to call from both Surface Space and DreamSpace — always returns the
  * same SharedArrayBuffer instance within a single runtime context.
  */
-export function getConformMemoryMap(): ConformMemoryMap {
+export function getConformMemoryMap(: ConformMemoryMap {
   if (_memoryMap) return _memoryMap;
 
   const buffer = new SharedArrayBuffer(MEMORY_SIZE);
@@ -162,7 +162,7 @@ export function getConformMemoryMap(): ConformMemoryMap {
  * Resets the singleton for testing purposes.
  * @internal — never call in production code.
  */
-export function _resetConformMemoryMap(): void {
+export function _resetConformMemoryMap(: void {
   _memoryMap = null;
 }
 
@@ -181,7 +181,7 @@ export function _resetConformMemoryMap(): void {
  *   workers cannot see (they operate on the EnginSAB via postMessage). For
  *   worker-facing seam writes use `EnginDispatcher.setDreamDMBarY()` instead.
  */
-export function writeBarSeam(splitRatio: number): void {
+export function writeBarSeam(splitRatio: number: void {
   if (!Number.isFinite(splitRatio)) return;
   const clamped = Math.max(0, Math.min(1, splitRatio));
   const map = getConformMemoryMap();
@@ -199,7 +199,7 @@ export function writeBarSeam(splitRatio: number): void {
  * @deprecated See `writeBarSeam`. Use `EnginDispatcher.getDreamDMBarY()` for
  *   the worker-facing seam value.
  */
-export function readBarSeam(): number {
+export function readBarSeam(: number {
   const map = getConformMemoryMap();
   const encoded = Atomics.load(map.control, BAR_SEAM_ATOMICS_INDEX);
   return encoded / BAR_SEAM_SCALE;
@@ -393,7 +393,7 @@ export interface Workgroup {
  * holds the full 3-axis SoA entity layout + the DreamDM Bar seam slot + the
  * telemetry zone.
  */
-export function createEnginSAB(): SharedArrayBuffer {
+export function createEnginSAB(: SharedArrayBuffer {
   return new SharedArrayBuffer(SAB_BYTES);
 }
 
@@ -403,7 +403,7 @@ export function createEnginSAB(): SharedArrayBuffer {
  *
  * @throws {RangeError} when `workerCount` is less than 1.
  */
-export function buildWorkgroups(workerCount: number): Workgroup[] {
+export function buildWorkgroups(workerCount: number: Workgroup[] {
   if (workerCount < 1) {
     throw new RangeError(`workerCount must be ≥ 1, got ${workerCount}`);
   }
@@ -427,7 +427,7 @@ export function buildWorkgroups(workerCount: number): Workgroup[] {
  * Extracted as a standalone export so both the worker and unit tests can
  * share the same logic without spawning a Worker.
  */
-export function isIndexInBounds(index: number, wg: Workgroup): boolean {
+export function isIndexInBounds(index: number, wg: Workgroup: boolean {
   return index >= wg.startIndex && index < wg.endIndex;
 }
 
@@ -435,7 +435,7 @@ export function isIndexInBounds(index: number, wg: Workgroup): boolean {
  * Return a Float32Array of length ENTITY_COUNT starting at `byteOffset`.
  * Use for posX / posY / posZ / velX / velY / velZ channels.
  */
-export function f32Channel(sab: SharedArrayBuffer, byteOffset: number): Float32Array {
+export function f32Channel(sab: SharedArrayBuffer, byteOffset: number: Float32Array {
   return new Float32Array(sab, byteOffset, ENTITY_COUNT);
 }
 
@@ -443,7 +443,7 @@ export function f32Channel(sab: SharedArrayBuffer, byteOffset: number): Float32A
  * Return a Uint8Array of length ENTITY_COUNT at OFFSET_DAYDREAM_TYPE.
  * Each slot holds the daydream-class identifier for the corresponding entity.
  */
-export function u8DaydreamType(sab: SharedArrayBuffer): Uint8Array {
+export function u8DaydreamType(sab: SharedArrayBuffer: Uint8Array {
   return new Uint8Array(sab, OFFSET_DAYDREAM_TYPE, ENTITY_COUNT);
 }
 
@@ -454,7 +454,7 @@ export function u8DaydreamType(sab: SharedArrayBuffer): Uint8Array {
  *   atomic by the JS memory model. Use `int32DreamDMBarY` with
  *   `Atomics.store` / `Atomics.load` instead.
  */
-export function f32DreamDMBarY(sab: SharedArrayBuffer): Float32Array {
+export function f32DreamDMBarY(sab: SharedArrayBuffer: Float32Array {
   return new Float32Array(sab, OFFSET_DREAMDM_BAR_Y, 1);
 }
 
@@ -472,7 +472,7 @@ export const BAR_Y_SCALE = 100;
  * are sequentially consistent. The value is encoded as
  * `Math.round(px * BAR_Y_SCALE)` and decoded as `raw / BAR_Y_SCALE`.
  */
-export function int32DreamDMBarY(sab: SharedArrayBuffer): Int32Array {
+export function int32DreamDMBarY(sab: SharedArrayBuffer: Int32Array {
   return new Int32Array(sab, OFFSET_DREAMDM_BAR_Y, 1);
 }
 
@@ -483,7 +483,7 @@ export function int32DreamDMBarY(sab: SharedArrayBuffer): Int32Array {
  * Use with `Atomics.store` / `Atomics.load`.  Value encoding identical to
  * the Y slot: `Math.round(ratio * BAR_Y_SCALE)`.
  */
-export function int32DreamDMBarX(sab: SharedArrayBuffer): Int32Array {
+export function int32DreamDMBarX(sab: SharedArrayBuffer: Int32Array {
   return new Int32Array(sab, OFFSET_DREAMDM_BAR_X, 1);
 }
 
@@ -493,7 +493,7 @@ export function int32DreamDMBarX(sab: SharedArrayBuffer): Int32Array {
  * 0 = unlocked (STATE_NAV / STATE_MANIPULATE), 1 = STATE_LOCKED.
  * Use with `Atomics.store` / `Atomics.load`.
  */
-export function int32LockedState(sab: SharedArrayBuffer): Int32Array {
+export function int32LockedState(sab: SharedArrayBuffer: Int32Array {
   return new Int32Array(sab, OFFSET_LOCKED_STATE, 1);
 }
 
@@ -504,7 +504,7 @@ export function int32LockedState(sab: SharedArrayBuffer): Int32Array {
  * Updated atomically on `window.orientation` change.
  * Use with `Atomics.store` / `Atomics.load`.
  */
-export function int32AxisState(sab: SharedArrayBuffer): Int32Array {
+export function int32AxisState(sab: SharedArrayBuffer: Int32Array {
   return new Int32Array(sab, OFFSET_AXIS_STATE, 1);
 }
 
@@ -512,7 +512,7 @@ export function int32AxisState(sab: SharedArrayBuffer): Int32Array {
  * Return a Float64Array (MAX_WORKERS elements) covering the telemetry zone.
  * Worker i writes µs/tick to slot i.
  */
-export function f64Telemetry(sab: SharedArrayBuffer): Float64Array {
+export function f64Telemetry(sab: SharedArrayBuffer: Float64Array {
   return new Float64Array(sab, OFFSET_TELEMETRY, MAX_WORKERS);
 }
 
@@ -541,7 +541,7 @@ export function f64Telemetry(sab: SharedArrayBuffer): Float64Array {
  * TypeError in modern browsers. Use this check before calling createEnginSAB()
  * or getConformMemoryMap() to avoid cryptic crashes.
  */
-export function isSABAvailable(): boolean {
+export function isSABAvailable(: boolean {
   if (typeof SharedArrayBuffer === 'undefined') return false;
   if (typeof crossOriginIsolated !== 'undefined' && !crossOriginIsolated) return false;
   try {
@@ -577,7 +577,7 @@ export interface EntityBounds {
   velZEnd: number;
 }
 
-export function getEntityBounds(wg: Workgroup): EntityBounds {
+export function getEntityBounds(wg: Workgroup: EntityBounds {
   const F32 = 4;
   return {
     posXStart: OFFSET_POS_X + wg.startIndex * F32,
@@ -601,7 +601,7 @@ export function getEntityBounds(wg: Workgroup): EntityBounds {
  * Throws a `RangeError` when the workgroup has invalid indices.
  * Call before spawning a worker to catch configuration errors early.
  */
-export function validateWorkgroup(wg: Workgroup): void {
+export function validateWorkgroup(wg: Workgroup: void {
   if (wg.startIndex < 0) {
     throw new RangeError(`Workgroup ${wg.workerIndex}: startIndex ${wg.startIndex} must be ≥ 0`);
   }
@@ -625,7 +625,7 @@ export function validateWorkgroup(wg: Workgroup): void {
  * least one thread is left for the main loop.
  * Safe to call in Node.js / SSR — falls back to 1.
  */
-export function getWorkerCount(): number {
+export function getWorkerCount(: number {
   const concurrency =
     typeof navigator !== 'undefined' && navigator.hardwareConcurrency
       ? navigator.hardwareConcurrency

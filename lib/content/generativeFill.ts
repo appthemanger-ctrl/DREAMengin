@@ -149,7 +149,7 @@ export function createMaskDataUrl(
  * @param img     Source image element (must be loaded).
  * @param topN    Number of dominant colors to return (default 5).
  */
-export function analyzeImageColors(img: HTMLImageElement, topN = 5): ImageAnalysis {
+export function analyzeImageColors(img: HTMLImageElement, topN = 5: ImageAnalysis {
   if (typeof document === 'undefined') {
     throw new Error('analyzeImageColors requires a browser environment.');
   }
@@ -180,7 +180,7 @@ export function analyzeImageColors(img: HTMLImageElement, topN = 5): ImageAnalys
     totalBrightness += brightness;
   }
 
-  const sorted = [...buckets.entries()].sort((a, b) => b[1] - a[1]).slice(0, topN);
+  const sorted = [...buckets.entries()].sort(a: Record<string, unknown>, b: Record<string, unknown> => b[1] - a[1]).slice(0, topN);
 
   const dominantColors: DominantColor[] = sorted.map(([key, count]) => {
     const r = ((key >> 10) & 0x1f) << 3;
@@ -206,8 +206,8 @@ export function analyzeImageColors(img: HTMLImageElement, topN = 5): ImageAnalys
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Convert a File to a base64 data URL (browser only). */
-export function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
+export function fileToBase64(file: File: Promise<string> {
+  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
@@ -224,7 +224,7 @@ export function fileToBase64(file: File): Promise<string> {
 // Internal
 // ─────────────────────────────────────────────────────────────────────────────
 
-function sleep(ms: number): Promise<void> {
+function sleep(ms: number: Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 

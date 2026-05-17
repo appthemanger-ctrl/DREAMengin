@@ -43,7 +43,7 @@ interface ExperimentRun {
   completedAt?: Date;
 }
 
-export default function PhysicsLab() {
+export default function PhysicsLab( {
   const [activeTab, setActiveTab] = useState<'design' | 'run' | 'analyze' | 'collaborate'>('design');
   const [isRunning, setIsRunning] = useState(false);
   const [experiments, setExperiments] = useState<ExperimentRun[]>([]);
@@ -75,7 +75,7 @@ export default function PhysicsLab() {
       // Persist experiment summary to localStorage (offline-first persistence)
       let savedExps: unknown[] = [];
       try { savedExps = JSON.parse(localStorage.getItem('de-physics-experiments') || '[]'); } catch { savedExps = []; }
-      const summary = experiments.slice(0, 5).map((e) => ({
+      const summary = experiments.slice(0, 5).map((e: Record<string, unknown>) => ({
         id: e.id,
         runNumber: e.runNumber,
         status: e.status,
@@ -186,7 +186,7 @@ export default function PhysicsLab() {
   };
 
   const generateLayerOutputs = (layers: number) => {
-    return Array.from({ length: Math.min(layers, 99) }, (_, i) => ({
+    return Array.from({ length: Math.min(layers, 99) }, _: Record<string, unknown>, i: number => ({
       layer: i + 1,
       activation: Math.random() * 0.5 + 0.5,
       coherence: Math.random() * 0.3 + 0.7,
@@ -195,14 +195,14 @@ export default function PhysicsLab() {
   };
 
   const generateWaveform = () => {
-    return Array.from({ length: 100 }, (_, i) => ({
+    return Array.from({ length: 100 }, _: Record<string, unknown>, i: number => ({
       x: i,
       y: Math.sin(i * 0.1) * Math.exp(-i * 0.01) + Math.random() * 0.1,
     }));
   };
 
   const generateSpectralData = () => {
-    return Array.from({ length: 50 }, (_, i) => ({
+    return Array.from({ length: 50 }, _: Record<string, unknown>, i: number => ({
       frequency: i * 0.5,
       amplitude: Math.random() * Math.exp(-i * 0.05),
       phase: Math.random() * Math.PI * 2,
@@ -262,7 +262,7 @@ export default function PhysicsLab() {
       {/* Tabs */}
       <div className="max-w-7xl mx-auto mb-6">
         <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-2 flex gap-2">
-          {(['design', 'run', 'analyze', 'collaborate'] as const).map((tab) => (
+          {(['design', 'run', 'analyze', 'collaborate'] as const).map((tab: Record<string, unknown>) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -475,7 +475,7 @@ export default function PhysicsLab() {
                   { label: 'Entropy Change', value: experiments[0].metrics.entropyChange, icon: Zap, color: 'purple' },
                   { label: 'Information Flow', value: experiments[0].metrics.informationFlow, icon: TrendingUp, color: 'green' },
                   { label: 'Boundary Record', value: experiments[0].metrics.boundaryRecord, icon: Layers, color: 'indigo' },
-                ].map((metric) => (
+                ].map((metric: Record<string, unknown>) => (
                   <div key={metric.label} className="bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <metric.icon className={`w-4 h-4 text-${metric.color}-600`} />
@@ -528,7 +528,7 @@ export default function PhysicsLab() {
                     No experiments run yet. Configure parameters and click Run!
                   </p>
                 ) : (
-                  experiments.map((exp) => (
+                  experiments.map((exp: Record<string, unknown>) => (
                     <div
                       key={exp.id}
                       className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"

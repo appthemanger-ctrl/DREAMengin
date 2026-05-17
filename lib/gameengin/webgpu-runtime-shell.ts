@@ -10,11 +10,11 @@ export interface WebGPURuntimeShellPlan {
   handoff: 'webgpu' | 'webgl-fallback' | 'canvas-fallback';
 }
 
-export function canUseWebGPU(): boolean {
+export function canUseWebGPU(: boolean {
   return typeof navigator !== 'undefined' && 'gpu' in navigator;
 }
 
-export function planRuntimeShellHandoff(archive: DreamrCartridgeArchive): WebGPURuntimeShellPlan {
+export function planRuntimeShellHandoff(archive: DreamrCartridgeArchive: WebGPURuntimeShellPlan {
   const wantsWebGPU = archive.manifest.render_mode === 'webgpu';
   const gpuAvailable = canUseWebGPU();
   const handoff = wantsWebGPU

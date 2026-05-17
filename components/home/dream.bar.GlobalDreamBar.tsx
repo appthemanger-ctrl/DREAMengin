@@ -21,7 +21,7 @@ import { useDreamSystem }                           from '@/lib/dreamdm/DreamSys
 import { runHomeAction }                            from '@/lib/home-buttons/contextual-home';
 import { isPublicSurfacePath }                      from '@/lib/routing/surfaces';
 
-export default function GlobalDreamBar() {
+export default function GlobalDreamBar( {
   const pathname = usePathname();
   const router = useRouter();
 

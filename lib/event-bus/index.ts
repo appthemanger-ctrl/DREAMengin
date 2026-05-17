@@ -40,7 +40,7 @@ export function createEventBus<
 >(): EventBus<Events> {
   const listeners = new Map<keyof Events, Set<EventHandler<unknown>>>();
 
-  function getSet(event: keyof Events): Set<EventHandler<unknown>> {
+  function getSet(event: keyof Events: Set<EventHandler<unknown>> {
     let s = listeners.get(event);
     if (!s) {
       s = new Set();
@@ -68,7 +68,7 @@ export function createEventBus<
     },
 
     once<K extends keyof Events>(event: K, handler: EventHandler<Events[K]>) {
-      const wrapper: EventHandler<unknown> = (payload) => {
+      const wrapper: EventHandler<unknown> = payload: Record<string, unknown> => {
         handler(payload as Events[K]);
         listeners.get(event)?.delete(wrapper);
       };
@@ -107,13 +107,13 @@ export function bridgeBuses(
   const forwardersBtoA = new Map<string, EventHandler<unknown>>();
 
   for (const event of aToB) {
-    const fwd: EventHandler<unknown> = (payload) => busB.emit(event, payload);
+    const fwd: EventHandler<unknown> = payload: Record<string, unknown> => busB.emit(event, payload);
     busA.on(event, fwd);
     forwardersAtoB.set(event, fwd);
   }
 
   for (const event of bToA) {
-    const fwd: EventHandler<unknown> = (payload) => busA.emit(event, payload);
+    const fwd: EventHandler<unknown> = payload: Record<string, unknown> => busA.emit(event, payload);
     busB.on(event, fwd);
     forwardersBtoA.set(event, fwd);
   }

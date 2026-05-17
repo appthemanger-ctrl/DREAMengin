@@ -45,11 +45,11 @@ interface UseDreamDMDraftReturn {
   draftAgeMs: number | null;
 }
 
-function buildKey(conversationId: string): string {
+function buildKey(conversationId: string: string {
   return `${STORAGE_PREFIX}${conversationId}`;
 }
 
-function readDraft(conversationId: string): DraftPayload | null {
+function readDraft(conversationId: string: DraftPayload | null {
   if (typeof window === 'undefined') return null;
   try {
     const raw = localStorage.getItem(buildKey(conversationId));
@@ -60,7 +60,7 @@ function readDraft(conversationId: string): DraftPayload | null {
   }
 }
 
-function writeDraft(conversationId: string, payload: DraftPayload): void {
+function writeDraft(conversationId: string, payload: DraftPayload: void {
   if (typeof window === 'undefined') return;
   try {
     const truncated: DraftPayload = {
@@ -81,7 +81,7 @@ function writeDraft(conversationId: string, payload: DraftPayload): void {
  * Return the conversation IDs of all drafts currently in localStorage.
  * Useful for rendering a "You have unsent drafts" indicator or a draft manager UI.
  */
-export function listAllDraftIds(): string[] {
+export function listAllDraftIds(: string[] {
   if (typeof window === 'undefined') return [];
   const ids: string[] = [];
   for (let i = 0; i < localStorage.length; i++) {
@@ -100,7 +100,7 @@ export function listAllDraftIds(): string[] {
  * Drafts without a `savedAt` timestamp are also removed (legacy entries).
  * Returns the array of conversation IDs that were removed.
  */
-export function cleanupStaleDrafts(maxAgeDays: number): string[] {
+export function cleanupStaleDrafts(maxAgeDays: number: string[] {
   if (typeof window === 'undefined') return [];
   const cutoff = Date.now() - maxAgeDays * 86_400_000;
   const removed: string[] = [];
@@ -120,13 +120,13 @@ export function cleanupStaleDrafts(maxAgeDays: number): string[] {
  * Return how old the draft for a conversation is in milliseconds, or null
  * if no draft exists. Useful for UI indicators like "Draft saved 3h ago".
  */
-export function getDraftAge(conversationId: string): number | null {
+export function getDraftAge(conversationId: string: number | null {
   const draft = readDraft(conversationId);
   if (!draft || !draft.savedAt) return null;
   return Date.now() - draft.savedAt;
 }
 
-export function useDreamDMDraft(conversationId: string | null): UseDreamDMDraftReturn {
+export function useDreamDMDraft(conversationId: string | null: UseDreamDMDraftReturn {
   const [draft, setDraft] = useState<DraftPayload | null>(null);
   const [draftRestored, setDraftRestored] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);

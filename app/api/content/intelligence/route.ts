@@ -32,7 +32,7 @@ const IntelligenceSchema = z.discriminatedUnion('type', [
   }),
 ]);
 
-function buildViralHooks(topic: string): string[] {
+function buildViralHooks(topic: string: string[] {
   const clean = topic.trim();
   return [
     `Nobody talks about this, but ${clean} changes everything.`,
@@ -43,7 +43,7 @@ function buildViralHooks(topic: string): string[] {
   ];
 }
 
-function scoreSeoTitle(title: string) {
+function scoreSeoTitle(title: string {
   let score = 40;
   const reasons: string[] = [];
   if (title.length >= 30 && title.length <= 70) {
@@ -78,7 +78,7 @@ interface RepurposeOutput {
   text: string;
 }
 
-function buildRepurposeOutputs(content: string): RepurposeOutput[] {
+function buildRepurposeOutputs(content: string: RepurposeOutput[] {
   const snippet = content.slice(0, 120).trim();
   const hook = snippet.length > 60 ? snippet.slice(0, 60) + '…' : snippet;
   return [
@@ -103,7 +103,7 @@ interface PredictSuggestion {
   bestTime: string;
 }
 
-function buildPredictSchedule(): { suggestions: PredictSuggestion[]; gaps: string[] } {
+function buildPredictSchedule(: { suggestions: PredictSuggestion[]; gaps: string[] } {
   const suggestions: PredictSuggestion[] = [
     { type: '📱 Reel',      title: 'Behind-the-scenes process video',   reason: 'Reels get 3× your average reach',         platform: 'Instagram', bestTime: 'Wed 6 PM' },
     { type: '🧵 Thread',    title: '5 lessons from your last campaign',  reason: 'Educational threads peak Tue–Thu',         platform: 'Twitter/X', bestTime: 'Tue 9 AM' },
@@ -125,7 +125,7 @@ interface BrandVoiceFlag {
   suggestion: string;
 }
 
-function checkBrandVoice(content: string, voiceProfile: string): {
+function checkBrandVoice(content: string, voiceProfile: string: {
   score: number;
   onBrand: string[];
   flags: BrandVoiceFlag[];
@@ -182,7 +182,7 @@ function checkBrandVoice(content: string, voiceProfile: string): {
   return { score, onBrand, flags, rewrite };
 }
 
-function buildSeoOutline(keyword: string) {
+function buildSeoOutline(keyword: string {
   const clean = keyword.trim();
   const cap   = clean.charAt(0).toUpperCase() + clean.slice(1);
   return {
@@ -204,7 +204,7 @@ function buildSeoOutline(keyword: string) {
   };
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -223,7 +223,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Validation error', details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
   const now = new Date().toISOString();
 
   if (parsed.data.type === 'viral-hooks') {

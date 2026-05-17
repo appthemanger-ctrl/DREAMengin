@@ -124,17 +124,17 @@ const PRESS_KIT_ITEMS = [
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const healthScore = Math.round(
-  BRAND_HEALTH_DIMENSIONS.reduce((s, d) => s + d.score, 0) / BRAND_HEALTH_DIMENSIONS.length,
+  BRAND_HEALTH_DIMENSIONS.reduce(s: Record<string, unknown>, d: Record<string, unknown> => s + d.score, 0) / BRAND_HEALTH_DIMENSIONS.length,
 );
 
-function TrendIcon({ trend }: { trend: Trend }) {
+function TrendIcon({ trend }: { trend: Trend } {
   if (trend === 'up')   return <TrendingUp  className="w-3 h-3" style={{ color: '#22c55e' }} />;
   if (trend === 'down') return <TrendingDown className="w-3 h-3" style={{ color: '#ef4444' }} />;
   return <Minus className="w-3 h-3" style={{ color: 'var(--de-text-dim)' }} />;
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
-export default function BrandDaydream() {
+export default function BrandDaydream( {
   const { record: forgeRecord } = useForgeActivity({ enginId: 'brand' });
 
   // ── Profile ────────────────────────────────────────────────────────────────
@@ -169,7 +169,7 @@ export default function BrandDaydream() {
   ]);
   const [analyticsRefreshed, setAnalyticsRefreshed] = useState(false);
 
-  function refreshAnalytics() {
+  function refreshAnalytics( {
     setMetrics([
       { id: 'reach',  label: 'Reach',           value: '12.4K', trend: 'up' },
       { id: 'eng',    label: 'Engagement Rate',  value: '4.7%',  trend: 'up' },
@@ -189,7 +189,7 @@ export default function BrandDaydream() {
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
   const currentPalette = PALETTE_PRESETS[paletteIdx % PALETTE_PRESETS.length];
 
-  function copyColor(c: string) {
+  function copyColor(c: string {
     navigator.clipboard?.writeText(c).catch(() => {});
     setCopiedColor(c);
     setTimeout(() => setCopiedColor(null), 1200);
@@ -197,7 +197,7 @@ export default function BrandDaydream() {
 
   // ── Bio copy ───────────────────────────────────────────────────────────────
   const [copiedBio, setCopiedBio] = useState<string | null>(null);
-  function copyBio(platform: string, text: string) {
+  function copyBio(platform: string, text: string {
     navigator.clipboard?.writeText(text).catch(() => {});
     setCopiedBio(platform);
     setTimeout(() => setCopiedBio(null), 1400);
@@ -205,7 +205,7 @@ export default function BrandDaydream() {
 
   // ── Pitch copy ─────────────────────────────────────────────────────────────
   const [pitchCopied, setPitchCopied] = useState(false);
-  function copyPitch() {
+  function copyPitch( {
     const text = `Hi [Sponsor], I'm ${profile?.display_name ?? 'a creator'} with ${profile?.follower_count ?? 0} followers. Engagement 5.2%. Let's collab.`;
     navigator.clipboard?.writeText(text).catch(() => {});
     setPitchCopied(true);
@@ -475,7 +475,7 @@ export default function BrandDaydream() {
         </div>
         <div className="de-widget-body">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 7 }}>
-            {['#ec4899', '#8b5cf6', '#1e1b4b', '#f9a8d4', '#fbbf24', 'rgba(30,27,75,0.5)'].map((bg, i) => (
+            {['#ec4899', '#8b5cf6', '#1e1b4b', '#f9a8d4', '#fbbf24', 'rgba(30,27,75,0.5)'].map(bg: Record<string, unknown>, i: number => (
               <div key={i} style={{ height: 54, borderRadius: 11, background: bg, border: '2px solid rgba(255,255,255,0.25)', transition: 'transform 0.12s' }}
                 onPointerDown={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.95)'; }}
                 onPointerUp={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
@@ -585,7 +585,7 @@ export default function BrandDaydream() {
         <div className="de-widget-body">
           <div style={{ position: 'relative', paddingLeft: 16 }}>
             <div style={{ position: 'absolute', left: 5, top: 6, bottom: 6, width: 2, background: `${ACCENT}20`, borderRadius: 2 }} />
-            {BRAND_STORY.map((m, i) => (
+            {BRAND_STORY.map(m: Record<string, unknown>, i: number => (
               <div key={m.date} style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: i < BRAND_STORY.length - 1 ? 12 : 0, position: 'relative' }}>
                 <div style={{ position: 'absolute', left: -13, top: 4, width: 8, height: 8, borderRadius: '50%', background: ACCENT, border: '2px solid rgba(255,255,255,0.8)' }} />
                 <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT, minWidth: 36 }}>{m.date}</span>
@@ -603,7 +603,7 @@ export default function BrandDaydream() {
         <div className="de-widget-header">
           <span className="de-widget-title">💰 Revenue Tracker</span>
           <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 800, color: '#22c55e' }}>
-            ${REVENUE_SOURCES.reduce((s, r) => s + r.val, 0).toLocaleString()}
+            ${REVENUE_SOURCES.reduce(s: Record<string, unknown>, r: number => s + r.val, 0).toLocaleString()}
           </span>
         </div>
         <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
@@ -633,7 +633,7 @@ export default function BrandDaydream() {
             Apply your brand palette to Game Engine post-processing and HUD colors across all games.
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-            {GAME_PRESETS.map((preset, i) => (
+            {GAME_PRESETS.map(preset: Record<string, unknown>, i: number => (
               <div key={preset.name} style={{ padding: '10px 8px', borderRadius: 10, background: `${preset.accent}14`, border: `2px solid ${preset.accent}${i === 0 ? '80' : '25'}`, textAlign: 'center' }}>
                 <div style={{ width: 22, height: 22, borderRadius: '50%', background: preset.accent, margin: '0 auto 5px', boxShadow: i === 0 ? `0 0 8px ${preset.accent}` : 'none' }} />
                 <div style={{ fontSize: 10, fontWeight: 700, color: preset.accent }}>{preset.name}</div>

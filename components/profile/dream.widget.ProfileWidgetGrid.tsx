@@ -102,7 +102,7 @@ const BG_STYLES: { value: WidgetBgStyle; label: string }[] = [
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-function getWidgetLabel(type: WidgetType): string {
+function getWidgetLabel(type: WidgetType: string {
   return {
     bio: 'Bio Card', activity: 'Activity', followers: 'Followers',
     photos: 'Photos', linkedin: 'LinkedIn', twitter: 'Twitter', quote: 'Quote',
@@ -114,7 +114,7 @@ function getWidgetLabel(type: WidgetType): string {
 
 const LARGE_DEFAULT_TYPES: ReadonlySet<WidgetType> = new Set(['bio', 'activity', 'photos']);
 
-function getDefaultSize(type: WidgetType): WidgetSize {
+function getDefaultSize(type: WidgetType: WidgetSize {
   return LARGE_DEFAULT_TYPES.has(type) ? 'large' : 'small';
 }
 
@@ -123,7 +123,7 @@ const MIN_SMALL_WIDGET_HEIGHT = 120;
 const BIO_SMALL_TRUNCATE      = 35;   // chars shown in compact bio
 const BIO_LARGE_TRUNCATE      = 55;
 
-function getCardBg(style: WidgetBgStyle, accent: string): React.CSSProperties {
+function getCardBg(style: WidgetBgStyle, accent: string: React.CSSProperties {
   switch (style) {
     case 'glass':  return { background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
     case 'warm':   return { background: 'linear-gradient(135deg, #fff8ed, #fff3d6)' };
@@ -133,29 +133,29 @@ function getCardBg(style: WidgetBgStyle, accent: string): React.CSSProperties {
   }
 }
 
-function getTextColor(style: WidgetBgStyle): string {
+function getTextColor(style: WidgetBgStyle: string {
   return style === 'dark' ? '#ffffff' : '#1a1a1a';
 }
-function getDimColor(style: WidgetBgStyle): string {
+function getDimColor(style: WidgetBgStyle: string {
   return style === 'dark' ? 'rgba(255,255,255,0.55)' : '#999';
 }
 
 // ── Dot-grid icon (iOS-style drag/settings handle) ────────────────────────────
 
-function DotGrid() {
+function DotGrid( {
   return (
     <div aria-hidden="true" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 4px)', gap: '3px', opacity: 0.32 }}>
-      {Array.from({ length: 9 }).map((_, i) => (
+      {Array.from({ length: 9 }).map(_: Record<string, unknown>, i: number => (
         <div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: '#444' }} />
       ))}
     </div>
   );
 }
 
-function SparkLine({ data, color, height = 56 }: { data: number[]; color: string; height?: number }) {
+function SparkLine({ data, color: Record<string, unknown>, height = 56 }: { data: number[]; color: string; height?: number } {
   const min = Math.min(...data), max = Math.max(...data), r = max - min || 1;
   const W = 200, H = height;
-  const pts = data.map((v, i) => `${(i / (data.length - 1)) * W},${H - ((v - min) / r) * (H - 4) - 2}`).join(' ');
+  const pts = data.map(v: Record<string, unknown>, i: number => `${(i / (data.length - 1)) * W},${H - ((v - min) / r) * (H - 4) - 2}`).join(' ');
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height }} preserveAspectRatio="none">
       <polyline points={pts} fill="none" stroke={color} strokeWidth="2.2"
@@ -164,11 +164,11 @@ function SparkLine({ data, color, height = 56 }: { data: number[]; color: string
   );
 }
 
-function BarChart({ data, color }: { data: number[]; color: string }) {
+function BarChart({ data, color }: { data: number[]; color: string } {
   const max = Math.max(...data);
   return (
     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 38 }}>
-      {data.map((v, i) => (
+      {data.map(v: Record<string, unknown>, i: number => (
         <div key={i} style={{
           flex: 1, height: `${(v / max) * 100}%`,
           background: i === data.length - 1 ? color : `${color}44`,
@@ -327,7 +327,7 @@ function WidgetConfigSheet({
               { value: 'private',   icon: '🔒', label: 'Private' },
               { value: 'followers', icon: '👥', label: 'Followers' },
               { value: 'public',    icon: '🌐', label: 'Public' },
-            ] as { value: Widget['visibility']; icon: string; label: string }[]).map(({ value, icon, label }) => (
+            ] as { value: Widget['visibility']; icon: string; label: string }[]).map({ value, icon: Record<string, unknown>, label } => (
               <button key={value} onClick={() => setVisibility(value)} style={{
                 padding: '10px 4px', borderRadius: 12,
                 background: visibility === value ? color : 'rgba(255,255,255,0.85)',
@@ -508,7 +508,7 @@ interface WidgetContentProps {
   likes: number;
 }
 
-function WidgetContent(p: WidgetContentProps) {
+function WidgetContent(p: WidgetContentProps {
   const { type, size, config, displayName, avatarUrl, avatarEditHref, bio, coverUrl, followers, following = 0, posts, likes } = p;
   const accent    = config.accentColor;
   const textColor = getTextColor(config.bgStyle);
@@ -696,7 +696,7 @@ function WidgetContent(p: WidgetContentProps) {
             Recent Photos
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 5 }}>
-            {Array.from({ length: count }).map((_, i) => (
+            {Array.from({ length: count }).map(_: Record<string, unknown>, i: number => (
               <div key={i} style={{ aspectRatio: '1', borderRadius: 10, background: `${accent}14`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: 18, opacity: 0.4 }}>📷</span>
@@ -1053,7 +1053,7 @@ export default function ProfileWidgetGrid({
 
       {/* ── Unified 2-col widget grid ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
-        {widgets.map((w, idx) => (
+        {widgets.map(w: Record<string, unknown>, idx: number => (
           <div
             key={w.id}
             style={cardStyle(w, idx)}
@@ -1170,7 +1170,7 @@ export default function ProfileWidgetGrid({
             padding: '0 14px 10px',
             scrollbarWidth: 'none',
           } as React.CSSProperties}>
-            {WIDGET_TRAY.map(({ type, label, icon }) => {
+            {WIDGET_TRAY.map({ type, label: string, icon } => {
               const active = widgets.some(w => w.type === type);
               return (
                 <button

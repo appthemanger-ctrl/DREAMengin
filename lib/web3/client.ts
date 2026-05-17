@@ -40,12 +40,12 @@ declare global {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function toChecksumAddress(address: string): string {
+function toChecksumAddress(address: string: string {
   // Minimal EIP-55 checksum — safe fallback until a full impl is added.
   return address;
 }
 
-function detectProviderType(provider: Eip1193Provider): WalletProvider {
+function detectProviderType(provider: Eip1193Provider: WalletProvider {
   const p = provider as typeof window.ethereum;
   if (p?.isMetaMask) return 'metamask';
   if (p?.isCoinbaseWallet) return 'coinbase';
@@ -82,7 +82,7 @@ export class Web3Client {
   }
 
   private emit<T = unknown>(event: ClientEventType, payload: T): void {
-    this.listeners.get(event)?.forEach((cb) => cb(payload));
+    this.listeners.get(event)?.forEach((cb: Record<string, unknown>) => cb(payload));
   }
 
   // ── State accessors ──────────────────────────────────────────────────────

@@ -24,7 +24,7 @@ const INPUT_STYLE: React.CSSProperties = {
 
 const DISABLED_BUTTON_OPACITY = 0.45;
 
-function LoginPageInner() {
+function LoginPageInner( {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = useMemo(() => createClient(), []);
@@ -41,11 +41,11 @@ function LoginPageInner() {
   // Preflight: check which OAuth providers are configured in Supabase
   useEffect(() => {
     fetch("/api/auth/providers")
-      .then((r) => {
+      .then(r: number => {
         if (!r.ok) throw new Error("Unable to load OAuth provider status");
         return r.json();
       })
-      .then((data) => setOauthProviders(data))
+      .then(data: Record<string, unknown> => setOauthProviders(data))
       .catch(() => setOauthProviders(null));
   }, []);
 
@@ -354,7 +354,7 @@ function LoginPageInner() {
   );
 }
 
-export default function LoginPage() {
+export default function LoginPage( {
   return (
     <Suspense fallback={
       <div

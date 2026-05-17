@@ -25,7 +25,7 @@ const DEMO_DATASETS: DataSet[] = [
   { id: 'energy',      label: 'Energy (J)',           values: [450, 520, 610, 580, 720, 810, 760, 900, 870, 950] },
 ];
 
-function renderBarChart(values: number[]): string {
+function renderBarChart(values: number[]: string {
   const max = Math.max(...values);
   const height = 8;
   const rows: string[] = [];
@@ -38,11 +38,11 @@ function renderBarChart(values: number[]): string {
     rows.push(`${String(Math.round((row / height) * max)).padStart(4)} │${line}`);
   }
   rows.push(`     └${'──'.repeat(values.length)}`);
-  rows.push(`      ${values.map((_, i) => String(i + 1).padStart(2)).join('')}`);
+  rows.push(`      ${values.map(_: Record<string, unknown>, i: number => String(i + 1).padStart(2)).join('')}`);
   return rows.join('\n');
 }
 
-function renderLineChart(values: number[]): string {
+function renderLineChart(values: number[]: string {
   const max = Math.max(...values);
   const min = Math.min(...values);
   const height = 8;
@@ -63,7 +63,7 @@ function renderLineChart(values: number[]): string {
   return rows.join('\n');
 }
 
-function renderScatter(values: number[]): string {
+function renderScatter(values: number[]: string {
   const max = Math.max(...values);
   const height = 8;
   const rows: string[] = [];
@@ -80,19 +80,19 @@ function renderScatter(values: number[]): string {
   return rows.join('\n');
 }
 
-export default function DataVizPanel() {
+export default function DataVizPanel( {
   const [chartType, setChartType] = useState<ChartType>('bar');
   const [selectedDataset, setSelectedDataset] = useState<string>(DEMO_DATASETS[0].id);
 
-  const dataset = DEMO_DATASETS.find((d) => d.id === selectedDataset) ?? DEMO_DATASETS[0];
+  const dataset = DEMO_DATASETS.find((d: Record<string, unknown>) => d.id === selectedDataset) ?? DEMO_DATASETS[0];
 
   const chart =
     chartType === 'bar'     ? renderBarChart(dataset.values)
     : chartType === 'line'  ? renderLineChart(dataset.values)
     : renderScatter(dataset.values);
 
-  function exportCSV() {
-    const csv = ['index,value', ...dataset.values.map((v, i) => `${i + 1},${v}`)].join('\n');
+  function exportCSV( {
+    const csv = ['index,value', ...dataset.values.map(v: Record<string, unknown>, i: number => `${i + 1},${v}`)].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -125,7 +125,7 @@ export default function DataVizPanel() {
 
         {/* Dataset selector */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
-          {DEMO_DATASETS.map((ds) => (
+          {DEMO_DATASETS.map((ds: Record<string, unknown>) => (
             <button
               key={ds.id}
               onClick={() => setSelectedDataset(ds.id)}
@@ -143,7 +143,7 @@ export default function DataVizPanel() {
 
         {/* Chart type */}
         <div className="flex gap-2 mb-5">
-          {CHART_TYPES.map(({ id, label, icon: Icon }) => (
+          {CHART_TYPES.map({ id, label: string, icon: Icon } => (
             <button
               key={id}
               onClick={() => setChartType(id)}
@@ -173,7 +173,7 @@ export default function DataVizPanel() {
           {[
             { label: 'Min',  value: Math.min(...dataset.values).toFixed(1) },
             { label: 'Max',  value: Math.max(...dataset.values).toFixed(1) },
-            { label: 'Mean', value: (dataset.values.reduce((a, b) => a + b, 0) / dataset.values.length).toFixed(2) },
+            { label: 'Mean', value: (dataset.values.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b, 0) / dataset.values.length).toFixed(2) },
             { label: 'N',    value: String(dataset.values.length) },
           ].map(({ label, value }) => (
             <div key={label} className="flex flex-col items-center p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">

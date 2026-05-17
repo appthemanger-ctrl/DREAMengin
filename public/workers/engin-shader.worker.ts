@@ -133,7 +133,7 @@ let wasmExports: WasmExports | null = null;
  * @param wasmUrl - URL of the compiled binary (default: '/workers/engin-shader.wasm').
  * @param memory  - The shared WebAssembly.Memory whose `.buffer` IS the EnginSAB.
  */
-async function tryLoadWasm(wasmUrl: string, memory: WebAssembly.Memory | null): Promise<void> {
+async function tryLoadWasm(wasmUrl: string, memory: WebAssembly.Memory | null: Promise<void> {
   if (typeof WebAssembly === 'undefined' || !memory) return;
 
   try {
@@ -166,7 +166,7 @@ async function tryLoadWasm(wasmUrl: string, memory: WebAssembly.Memory | null): 
  * Verify that index falls within the worker's assigned Workgroup.
  * Posts a 'bounds_violation' message and returns false if the index is unsafe.
  */
-function assertInBounds(index: number): boolean {
+function assertInBounds(index: number: boolean {
   if (!workgroup) return false;
   if (index >= workgroup.startIndex && index < workgroup.endIndex) return true;
 
@@ -181,7 +181,7 @@ function assertInBounds(index: number): boolean {
 
 // ─── Physics tick ─────────────────────────────────────────────────────────────
 
-function tick(): void {
+function tick(: void {
   if (!workgroup || !sab) return;
 
   const t0 = performance.now();
@@ -276,7 +276,7 @@ function tick(): void {
 
 // ─── RAF loop ─────────────────────────────────────────────────────────────────
 
-function rafLoop(): void {
+function rafLoop(: void {
   if (!running) return;
   tick();
   rafHandle = requestAnimationFrame(rafLoop);

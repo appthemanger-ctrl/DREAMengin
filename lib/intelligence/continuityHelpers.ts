@@ -43,16 +43,16 @@ export interface ResumeDest {
  * Session continuity uses Engin names as subsystem IDs; Forge activity uses
  * registry IDs — so we need to check both.
  */
-function findEntry(subsystemId: string): EnginEntry | null {
+function findEntry(subsystemId: string: EnginEntry | null {
   if (!subsystemId) return null;
   return (
-    ENGIN_REGISTRY.find((e) => e.id === subsystemId) ??
-    ENGIN_REGISTRY.find((e) => e.name === subsystemId) ??
+    ENGIN_REGISTRY.find((e: Record<string, unknown>) => e.id === subsystemId) ??
+    ENGIN_REGISTRY.find((e: Record<string, unknown>) => e.name === subsystemId) ??
     null
   );
 }
 
-function entryToResumeDest(entry: EnginEntry): ResumeDest {
+function entryToResumeDest(entry: EnginEntry: ResumeDest {
   return {
     href:   entry.daydreamHref,
     label:  entry.name,
@@ -89,7 +89,7 @@ export function resolveResumeDest(
 
   // 2. Hottest live activity pulse.
   if (activity.length > 0) {
-    const hottest = [...activity].sort((a, b) => b.heat - a.heat)[0];
+    const hottest = [...activity].sort(a: Record<string, unknown>, b: Record<string, unknown> => b.heat - a.heat)[0];
     if (hottest) {
       const entry = findEntry(hottest.enginId);
       if (entry) return entryToResumeDest(entry);
@@ -102,7 +102,7 @@ export function resolveResumeDest(
 // ── Artifact kind helpers ─────────────────────────────────────────────────────
 
 /** Short human-readable badge for a DreamOSArtifactKind. */
-export function formatArtifactKind(kind: string): string {
+export function formatArtifactKind(kind: string: string {
   const LABELS: Record<string, string> = {
     event:         'EVT',
     'code-run':    'CODE',
@@ -118,7 +118,7 @@ export function formatArtifactKind(kind: string): string {
 }
 
 /** Accent colour for a DreamOSArtifactKind — uses existing platform palette. */
-export function getArtifactAccent(kind: string): string {
+export function getArtifactAccent(kind: string: string {
   const ACCENTS: Record<string, string> = {
     event:         '#d4a843',   // gold — bridge event
     'code-run':    '#22d3ee',   // cyan — code

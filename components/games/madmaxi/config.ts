@@ -31,7 +31,7 @@ export const MADMAXI_POWERUP_KINDS = [
 export const MADMAXI_SUPER_STREAK = 9;
 export const MADMAXI_SUPER_SECONDS = 30;
 
-export function seededRng(seed: number) {
+export function seededRng(seed: number {
   let s = (seed | 0) >>> 0;
   return () => {
     s = Math.imul(s, 1664525) + 1013904223 >>> 0;
@@ -39,21 +39,21 @@ export function seededRng(seed: number) {
   };
 }
 
-export function getZoneIdx(level: number): number {
+export function getZoneIdx(level: number: number {
   return Math.min(14, Math.floor((level - 1) / 10));
 }
 
-export function isBossLevel(level: number): boolean {
+export function isBossLevel(level: number: boolean {
   return level % 10 === 0 && level >= 10 && level <= TOTAL_LEVELS;
 }
 
-export function getMadmaxiEnemyCount(level: number): number {
+export function getMadmaxiEnemyCount(level: number: number {
   if (isBossLevel(level)) return 1;
   const bandSlot = ((Math.max(1, level) - 1) % 10) + 1;
   return Math.min(10, bandSlot + 1);
 }
 
-export function getEnemyKindForIndex(index: number, level: number): MadmaxiEnemyKind {
+export function getEnemyKindForIndex(index: number, level: number: MadmaxiEnemyKind {
   const rotation = Math.floor((Math.max(1, level) - 1) / 10) % MADMAXI_ENEMY_KINDS.length;
   return MADMAXI_ENEMY_KINDS[(index + rotation) % MADMAXI_ENEMY_KINDS.length];
 }
@@ -128,6 +128,6 @@ export const BOSSES: BossMeta[] = [
   { name:'The Dream King', title:'Ruler of All Dreams', intro:'From the heart of every dream ever dreamed.\nFINAL BOSS. Fifteen hits.', hp:15, spd:2.4, size:3.2, col:[0.80,0.60,0.08], em:[0.28,0.18,0.00] },
 ];
 
-export function getBossForLevel(level: number): BossMeta {
+export function getBossForLevel(level: number: BossMeta {
   return BOSSES[Math.min(BOSSES.length - 1, Math.floor(level / 10) - 1)];
 }

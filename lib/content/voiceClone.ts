@@ -58,7 +58,7 @@ export interface ListVoiceProfilesResult {
 // Remote API helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-export async function cloneVoice(req: VoiceCloneRequest): Promise<VoiceCloneResult> {
+export async function cloneVoice(req: VoiceCloneRequest: Promise<VoiceCloneResult> {
   const res = await fetch('/api/content/voice-clone', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -73,7 +73,7 @@ export async function cloneVoice(req: VoiceCloneRequest): Promise<VoiceCloneResu
   return res.json() as Promise<VoiceCloneResult>;
 }
 
-export async function textToSpeech(req: TTSRequest): Promise<TTSResult> {
+export async function textToSpeech(req: TTSRequest: Promise<TTSResult> {
   const res = await fetch('/api/content/voice-clone', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -89,7 +89,7 @@ export async function textToSpeech(req: TTSRequest): Promise<TTSResult> {
 }
 
 /** Fetch all voice profiles saved by the current user. */
-export async function listVoiceProfiles(): Promise<ListVoiceProfilesResult> {
+export async function listVoiceProfiles(: Promise<ListVoiceProfilesResult> {
   const res = await fetch('/api/content/voice-clone', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -105,7 +105,7 @@ export async function listVoiceProfiles(): Promise<ListVoiceProfilesResult> {
 }
 
 /** Delete a saved voice profile by ID. */
-export async function deleteVoiceProfile(voiceId: string): Promise<{ message: string }> {
+export async function deleteVoiceProfile(voiceId: string: Promise<{ message: string }> {
   const res = await fetch('/api/content/voice-clone', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -141,7 +141,7 @@ export function speakWithBrowserTTS(
   rate = 1.0,
   pitch = 1.0
 ): Promise<void> {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     if (typeof window === 'undefined' || !window.speechSynthesis) {
       reject(new Error('Web Speech API is not available in this environment.'));
       return;
@@ -158,7 +158,7 @@ export function speakWithBrowserTTS(
     }
 
     utterance.onend = () => resolve();
-    utterance.onerror = (e) => reject(new Error(`Speech synthesis error: ${e.error}`));
+    utterance.onerror = e: unknown => reject(new Error(`Speech synthesis error: ${e.error}`));
 
     window.speechSynthesis.cancel(); // cancel any ongoing speech
     window.speechSynthesis.speak(utterance);
@@ -166,7 +166,7 @@ export function speakWithBrowserTTS(
 }
 
 /** Return the list of voices available via Web Speech API (browser only). */
-export function getBrowserVoices(): SpeechSynthesisVoice[] {
+export function getBrowserVoices(: SpeechSynthesisVoice[] {
   if (typeof window === 'undefined' || !window.speechSynthesis) return [];
   return window.speechSynthesis.getVoices();
 }
@@ -176,8 +176,8 @@ export function getBrowserVoices(): SpeechSynthesisVoice[] {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Convert an audio File to base64 (browser only). */
-export function audioFileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
+export function audioFileToBase64(file: File: Promise<string> {
+  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
@@ -189,7 +189,7 @@ export function audioFileToBase64(file: File): Promise<string> {
 }
 
 /** Estimate TTS audio duration in seconds from word count. */
-export function estimateDurationSeconds(text: string, wordsPerMinute = 150): number {
+export function estimateDurationSeconds(text: string, wordsPerMinute = 150: number {
   const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
   return wordCount / (wordsPerMinute / 60);
 }

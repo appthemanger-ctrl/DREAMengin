@@ -77,7 +77,7 @@ const TIME_BUCKETS = [
 /**
  * Read history entries from localStorage.
  */
-function readHistory(): HistoryEntry[] {
+function readHistory(: HistoryEntry[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(FORGE_HISTORY_KEY);
@@ -91,7 +91,7 @@ function readHistory(): HistoryEntry[] {
 /**
  * Get the time-of-day bucket for a given hour.
  */
-export function getTimeBucket(hour: number): typeof TIME_BUCKETS[number] {
+export function getTimeBucket(hour: number: typeof TIME_BUCKETS[number] {
   // Night wraps around midnight
   if (hour >= 21 || hour < 5) return TIME_BUCKETS[3]; // night
   if (hour >= 5 && hour < 12) return TIME_BUCKETS[0]; // morning
@@ -103,7 +103,7 @@ export function getTimeBucket(hour: number): typeof TIME_BUCKETS[number] {
  * Detect time-of-day patterns: which engines are predominantly used at
  * specific times of day.
  */
-export function detectTimePatterns(history: HistoryEntry[]): ForgeRitual[] {
+export function detectTimePatterns(history: HistoryEntry[]: ForgeRitual[] {
   if (history.length < MIN_OCCURRENCES) return [];
 
   // Count engine usage by time bucket
@@ -122,7 +122,7 @@ export function detectTimePatterns(history: HistoryEntry[]): ForgeRitual[] {
     const engine = ENGIN_REGISTRY.find(e => e.id === enginId);
     if (!engine) continue;
 
-    const total = Object.values(bucketCounts).reduce((s, c) => s + c, 0);
+    const total = Object.values(bucketCounts).reduce(s: Record<string, unknown>, c: Record<string, unknown> => s + c, 0);
     if (total < MIN_OCCURRENCES) continue;
 
     // Find dominant time bucket (> 60% of uses)
@@ -151,7 +151,7 @@ export function detectTimePatterns(history: HistoryEntry[]): ForgeRitual[] {
 /**
  * Detect sequence patterns: recurring 2- or 3-engine sequences.
  */
-export function detectSequencePatterns(history: HistoryEntry[]): ForgeRitual[] {
+export function detectSequencePatterns(history: HistoryEntry[]: ForgeRitual[] {
   if (history.length < 3) return [];
 
   // Extract engine-switch sequences (ignore consecutive same-engine entries)
@@ -234,7 +234,7 @@ export function detectSequencePatterns(history: HistoryEntry[]): ForgeRitual[] {
  * Detect session patterns: average session length, engine switches per session.
  * A "session" is a group of actions with gaps < 30 minutes.
  */
-export function detectSessionPatterns(history: HistoryEntry[]): ForgeRitual[] {
+export function detectSessionPatterns(history: HistoryEntry[]: ForgeRitual[] {
   if (history.length < 3) return [];
 
   const SESSION_GAP = 30 * 60_000; // 30 minutes
@@ -258,7 +258,7 @@ export function detectSessionPatterns(history: HistoryEntry[]): ForgeRitual[] {
 
   // Average engines per session
   const enginesPerSession = sessions.map(s => new Set(s.map(e => e.enginId)).size);
-  const avgEngines = enginesPerSession.reduce((s, c) => s + c, 0) / enginesPerSession.length;
+  const avgEngines = enginesPerSession.reduce(s: Record<string, unknown>, c: Record<string, unknown> => s + c, 0) / enginesPerSession.length;
 
   if (avgEngines >= 2) {
     rituals.push({
@@ -285,7 +285,7 @@ export function detectSessionPatterns(history: HistoryEntry[]): ForgeRitual[] {
     .filter(d => d > 0);
 
   if (durations.length >= MIN_OCCURRENCES) {
-    const avgMs = durations.reduce((s, d) => s + d, 0) / durations.length;
+    const avgMs = durations.reduce(s: Record<string, unknown>, d: Record<string, unknown> => s + d, 0) / durations.length;
     const avgMin = Math.round(avgMs / 60_000);
 
     if (avgMin >= 5) {
@@ -309,7 +309,7 @@ export function detectSessionPatterns(history: HistoryEntry[]): ForgeRitual[] {
 /**
  * Detect engine affinity: the user's most-used engine.
  */
-export function detectAffinityPatterns(history: HistoryEntry[]): ForgeRitual[] {
+export function detectAffinityPatterns(history: HistoryEntry[]: ForgeRitual[] {
   if (history.length < MIN_OCCURRENCES) return [];
 
   const counts = new Map<string, number>();
@@ -317,7 +317,7 @@ export function detectAffinityPatterns(history: HistoryEntry[]): ForgeRitual[] {
     counts.set(entry.enginId, (counts.get(entry.enginId) ?? 0) + 1);
   }
 
-  const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  const sorted = [...counts.entries()].sort(a: Record<string, unknown>, b: Record<string, unknown> => b[1] - a[1]);
   if (sorted.length === 0) return [];
 
   const rituals: ForgeRitual[] = [];
@@ -364,7 +364,7 @@ export function detectAffinityPatterns(history: HistoryEntry[]): ForgeRitual[] {
 /**
  * Compute a full Ritual snapshot from current history data.
  */
-export function computeRituals(historyOverride?: HistoryEntry[]): RitualSnapshot {
+export function computeRituals(historyOverride?: HistoryEntry[]: RitualSnapshot {
   const history = historyOverride ?? readHistory();
 
   const allRituals = [
@@ -375,7 +375,7 @@ export function computeRituals(historyOverride?: HistoryEntry[]): RitualSnapshot
   ];
 
   // Sort by confidence descending
-  allRituals.sort((a, b) => b.confidence - a.confidence);
+  allRituals.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.confidence - a.confidence);
 
   return {
     rituals: allRituals,

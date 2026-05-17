@@ -30,7 +30,7 @@ const RANK_MEDAL: Record<number, { emoji: string; color: string; label: string }
   3: { emoji: '🥉', color: '#a0674a', label: '3rd' },
 };
 
-function RankBadge({ rank }: { rank: number }) {
+function RankBadge({ rank }: { rank: number } {
   const medal = RANK_MEDAL[rank];
   if (medal) {
     return (
@@ -49,7 +49,7 @@ function RankBadge({ rank }: { rank: number }) {
   );
 }
 
-export default function Leaderboard({ game }: Props) {
+export default function Leaderboard({ game }: Props {
   const [scores, setScores] = useState<ScoreEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +62,7 @@ export default function Leaderboard({ game }: Props) {
     setError(null);
 
     fetch(`/api/game-scores?game=${encodeURIComponent(game)}&limit=10`)
-      .then((res) => res.json())
+      .then(res: Record<string, unknown> => res.json())
       .then(({ data, error: err }) => {
         if (cancelled) return;
         if (err) {
@@ -117,7 +117,7 @@ export default function Leaderboard({ game }: Props) {
 
   return (
     <ol className="divide-y" style={{ '--divider': 'rgba(160,195,240,0.15)' } as React.CSSProperties}>
-      {scores.map((entry) => {
+      {scores.map((entry: Record<string, unknown>) => {
         const isFirst = entry.rank === 1;
         const handle = entry.profile?.handle || entry.profile?.display_name || 'Anonymous';
 

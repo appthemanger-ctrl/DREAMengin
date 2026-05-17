@@ -38,11 +38,11 @@ type RuntimeState = {
 
 const DR_EAMS_HEIGHT = 0.9144; // 3 feet
 
-function clamp(value: number, min: number, max: number) {
+function clamp(value: number, min: number, max: number {
   return Math.max(min, Math.min(max, value));
 }
 
-function getBounds(meshes: AbstractMesh[]) {
+function getBounds(meshes: AbstractMesh[] {
   let min = new Vector3(Infinity, Infinity, Infinity);
   let max = new Vector3(-Infinity, -Infinity, -Infinity);
 
@@ -55,7 +55,7 @@ function getBounds(meshes: AbstractMesh[]) {
   return { min, max };
 }
 
-function createBlackMetal(scene: Scene) {
+function createBlackMetal(scene: Scene {
   const mat = new PBRMaterial('drEamsBlackMetal', scene);
   mat.albedoColor = new Color3(0.02, 0.02, 0.025);
   mat.metallic = 1.0;
@@ -69,7 +69,7 @@ function createBlackMetal(scene: Scene) {
   return mat;
 }
 
-function createWhiteCoat(scene: Scene) {
+function createWhiteCoat(scene: Scene {
   const mat = new PBRMaterial('drEamsWhiteCoat', scene);
   mat.albedoColor = new Color3(0.95, 0.96, 0.98);
   mat.metallic = 0.02;
@@ -77,7 +77,7 @@ function createWhiteCoat(scene: Scene) {
   return mat;
 }
 
-function createDarkVisor(scene: Scene) {
+function createDarkVisor(scene: Scene {
   const mat = new PBRMaterial('drEamsDarkVisor', scene);
   mat.albedoColor = new Color3(0.03, 0.04, 0.06);
   mat.metallic = 0.08;
@@ -91,7 +91,7 @@ function createDarkVisor(scene: Scene) {
   return mat;
 }
 
-function createFakeVisorGlow(root: TransformNode, scene: Scene) {
+function createFakeVisorGlow(root: TransformNode, scene: Scene {
   const glow = MeshBuilder.CreatePlane(
     'drEamsFakeGlow',
     { width: 0.22, height: 0.11 },
@@ -111,7 +111,7 @@ function createFakeVisorGlow(root: TransformNode, scene: Scene) {
   return glow;
 }
 
-function maybeFixBoots(meshes: AbstractMesh[]) {
+function maybeFixBoots(meshes: AbstractMesh[] {
   for (const mesh of meshes) {
     const n = mesh.name.toLowerCase();
     if (!n.includes('boot')) continue;
@@ -120,7 +120,7 @@ function maybeFixBoots(meshes: AbstractMesh[]) {
   }
 }
 
-function applyMaterials(meshes: AbstractMesh[], scene: Scene) {
+function applyMaterials(meshes: AbstractMesh[], scene: Scene {
   const blackMetal = createBlackMetal(scene);
   const whiteCoat = createWhiteCoat(scene);
   const darkVisor = createDarkVisor(scene);
@@ -153,7 +153,7 @@ function applyMaterials(meshes: AbstractMesh[], scene: Scene) {
   }
 }
 
-async function buildDrEams(scene: Scene, canvas: HTMLCanvasElement) {
+async function buildDrEams(scene: Scene, canvas: HTMLCanvasElement {
   const result = await SceneLoader.ImportMeshAsync('', '/models/', 'dr-eams.glb', scene);
 
   const meshes = result.meshes.filter(
@@ -192,7 +192,7 @@ async function buildDrEams(scene: Scene, canvas: HTMLCanvasElement) {
     reaction: 0,
   };
 
-  const pointerObserver = scene.onPointerObservable.add((info) => {
+  const pointerObserver = scene.onPointerObservable.add(info: Record<string, unknown> => {
     if (
       info.type === PointerEventTypes.POINTERMOVE &&
       info.event instanceof PointerEvent
@@ -262,7 +262,7 @@ async function buildDrEams(scene: Scene, canvas: HTMLCanvasElement) {
   return { dispose, triggerReaction };
 }
 
-export default function DrEamsScene() {
+export default function DrEamsScene( {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const triggerReactionRef = useRef<(() => void) | null>(null);
   const godTierRef = useRef(new DreamEngineGodTierSystem());
@@ -329,7 +329,7 @@ export default function DrEamsScene() {
           disposeActor = dispose;
           triggerReactionRef.current = triggerReaction;
         })
-        .catch((error) => {
+        .catch(error: unknown => {
           console.error('Failed to load Dr. Eams GLB:', error);
         });
 
@@ -357,7 +357,7 @@ export default function DrEamsScene() {
             runtime: { frameMs: avgFrame, avgFrameMs: avgFrame, cpuMs: avgFrame * 0.4, gpuMs: avgFrame * 0.5, droppedFrameRatio: 0, inputLatencyMs: 20, scrollVelocity: 0, pointerVelocity: 0, interactionBurst: 0 },
             ux:      defaultUXSignals(),
             route:   defaultRouteSignals('/dr-eams'),
-            meshes:  scene.meshes.map((m) => ({ id: m.id, visible: m.isVisible, interactive: m.isPickable, nearPointer: false, distanceToCamera: 4, transformDelta: 0, materialChanged: false, screenCoverage: 0.25, semanticWeight: 1.0, motionWeight: 0.9, detailWeight: 1.0, heroWeight: 1.0, occluded: false })),
+            meshes:  scene.meshes.map((m: Record<string, unknown>) => ({ id: m.id, visible: m.isVisible, interactive: m.isPickable, nearPointer: false, distanceToCamera: 4, transformDelta: 0, materialChanged: false, screenCoverage: 0.25, semanticWeight: 1.0, motionWeight: 0.9, detailWeight: 1.0, heroWeight: 1.0, occluded: false })),
             ui: [],
           });
           applyGodTierToBabylon(engine, scene as unknown as BabylonSceneLike, gt, window.devicePixelRatio ?? 1);

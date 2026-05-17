@@ -16,7 +16,7 @@ interface Message {
   timestamp: Date;
 }
 
-export default function AIAssistant() {
+export default function AIAssistant( {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -45,17 +45,17 @@ export default function AIAssistant() {
   // Dr. Eams Full Experience mode (guidance + safe UI actions)
   useEffect(() => {
     setFullExperience(getDrEamsMode());
-    const off = onDrEamsModeChange((v) => setFullExperience(v));
+    const off = onDrEamsModeChange(v: number => setFullExperience(v));
     return () => off();
   }, []);
 
   // Teach-on-first-use: UI can emit teach events; Dr. Eams explains once.
   useEffect(() => {
-    const off = onTeach((evt) => {
+    const off = onTeach(evt: Record<string, unknown> => {
       if (!fullExperience) return;
       if (hasTaught(evt.featureId)) return;
       markTaught(evt.featureId);
-      setMessages((prev) => [
+      setMessages(prev: Record<string, unknown> => [
         ...prev,
         {
           id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
@@ -70,7 +70,7 @@ export default function AIAssistant() {
 
   // Surface iDari activity inside this assistant as well
   useEffect(() => {
-    const unsubscribe = onIdariEvent((evt) => {
+    const unsubscribe = onIdariEvent(evt: Record<string, unknown> => {
       const shouldSurface =
         evt.type === 'idari:status' ||
         evt.status === 'error' ||
@@ -79,7 +79,7 @@ export default function AIAssistant() {
 
       if (!shouldSurface) return;
 
-      setMessages((prev) => [
+      setMessages(prev: Record<string, unknown> => [
         ...prev,
         {
           id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
@@ -93,7 +93,7 @@ export default function AIAssistant() {
   }, []);
 
   const addAssistantMessage = (content: string) => {
-    setMessages((prev) => [
+    setMessages(prev: Record<string, unknown> => [
       ...prev,
       {
         id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
@@ -138,7 +138,7 @@ export default function AIAssistant() {
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages(prev: Record<string, unknown> => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
@@ -250,7 +250,7 @@ export default function AIAssistant() {
       {!isMinimized && (
         <>
           <div className="flex-1 overflow-y-auto p-4 space-y-4 h-[480px]">
-            {messages.map((message) => (
+            {messages.map((message: Record<string, unknown>) => (
               <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div
                   className={`max-w-[80%] p-3 rounded-lg ${

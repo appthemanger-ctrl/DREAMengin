@@ -46,7 +46,7 @@ export const CONTACT_REQUEST_MESSAGE_MAX = 1000;
  * Caller is responsible for providing the authenticated user id
  * and the seller_id looked up from the listing record.
  */
-export function validateContactRequest(body: unknown): ContactRequestValidationResult {
+export function validateContactRequest(body: unknown: ContactRequestValidationResult {
   const errors: string[] = [];
 
   if (!body || typeof body !== 'object') {

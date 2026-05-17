@@ -308,8 +308,8 @@ export const FEATURE_MANIFESTS: readonly DaydreamEnginManifest[] = [
 ] as const;
 
 /** Look up the manifest for a specific domain. */
-export function getManifest(domain: DaydreamDomain): DaydreamEnginManifest {
-  const manifest = FEATURE_MANIFESTS.find((m) => m.domain === domain);
+export function getManifest(domain: DaydreamDomain: DaydreamEnginManifest {
+  const manifest = FEATURE_MANIFESTS.find((m: Record<string, unknown>) => m.domain === domain);
   if (!manifest) {
     throw new Error(`No feature manifest found for domain: ${domain}`);
   }

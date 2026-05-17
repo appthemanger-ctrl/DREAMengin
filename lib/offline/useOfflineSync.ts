@@ -66,7 +66,7 @@ export function useOfflineSync(
 
   // Listen for connectivity changes
   useEffect(() => {
-    const unsub = onConnectivityChange((nowOnline) => {
+    const unsub = onConnectivityChange(nowOnline: Record<string, unknown> => {
       setOnline(nowOnline);
       if (nowOnline) {
         void doSync();

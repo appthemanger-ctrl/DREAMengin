@@ -5,7 +5,7 @@ import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHead
 
 export const metadata = { title: 'Dreams – DREAMengin Settings' };
 
-export default function LegacyWidgetsSettingsPage() {
+export default function LegacyWidgetsSettingsPage( {
   return (
     <div className="de-sky-bg min-h-screen">
       <AuthenticatedPageHeader

@@ -71,8 +71,8 @@ export function AudioVisualizer3D({
   useEffect(() => {
     if (!peakMap) { setHotspots([]); return; }
     // Show top-20 peaks as hotspots
-    const sorted = [...peakMap.peaks].sort((a, b) => b.magnitude - a.magnitude).slice(0, 20);
-    const spots: Hotspot[] = sorted.map((p) => ({
+    const sorted = [...peakMap.peaks].sort(a: Record<string, unknown>, b: Record<string, unknown> => b.magnitude - a.magnitude).slice(0, 20);
+    const spots: Hotspot[] = sorted.map((p: Record<string, unknown>) => ({
       frequencyHz: p.frequencyHz,
       binIndex:    p.binIndex,
       timeSlice:   p.timeSlice,
@@ -86,7 +86,7 @@ export function AudioVisualizer3D({
   useEffect(() => {
     let mounted = true;
 
-    async function initBabylon() {
+    async function initBabylon( {
       const canvas = canvasRef.current;
       if (!canvas || !mounted) return;
 
@@ -157,7 +157,7 @@ export function AudioVisualizer3D({
     const dataArray    = new Uint8Array(bufferLength);
     const step         = Math.floor(bufferLength / barCount);
 
-    function update() {
+    function update( {
       animFrameRef.current = requestAnimationFrame(update);
       analyser.getByteFrequencyData(dataArray);
 
@@ -220,7 +220,7 @@ export function AudioVisualizer3D({
     filterNode.connect(dest);
     const rec    = new MediaRecorder(dest.stream);
     const chunks: BlobPart[] = [];
-    rec.ondataavailable = (e) => chunks.push(e.data);
+    rec.ondataavailable = e: unknown => chunks.push(e.data);
     rec.onstop = () => {
       const blob = new Blob(chunks, { type: 'audio/webm' });
       const url  = URL.createObjectURL(blob);
@@ -261,7 +261,7 @@ export function AudioVisualizer3D({
       />
 
       {/* Hotspot overlay */}
-      {hotspots.map((hs, i) => (
+      {hotspots.map(hs: Record<string, unknown>, i: number => (
         <button
           key={i}
           onClick={() => handleHotspotTap(hs)}

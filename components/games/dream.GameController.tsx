@@ -74,7 +74,7 @@ const ZERO_VEC: MobileControlVector = { x: 0, y: 0 };
 
 // ─── Left-stick legacy sync ─────────────────────────────────────────────────
 
-function useLegacyMoveSync() {
+function useLegacyMoveSync( {
   const activeMoveRef = useRef<ReturnType<typeof getLegacyMoveAction>>(null);
 
   const sync = useCallback((vector: MobileControlVector) => {
@@ -104,7 +104,7 @@ function useLegacyMoveSync() {
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
-export default function GameController({ gameLabel, onExit }: GameControllerProps) {
+export default function GameController({ gameLabel, onExit }: GameControllerProps {
   // ── Stick state (visual only; logic lives in refs) ──────────────────────
   const [leftStick,  setLeftStick]  = useState<StickState>(INACTIVE_STICK);
   const [rightStick, setRightStick] = useState<StickState>(INACTIVE_STICK);
@@ -144,9 +144,9 @@ export default function GameController({ gameLabel, onExit }: GameControllerProp
     const mgr = btnMgrRef.current!;
     const unsub = mgr.subscribe(({ button, interaction }) => {
       if (interaction === 'hold-start' || interaction === 'tap-and-hold') {
-        setPressedBtns((prev) => ({ ...prev, [button]: true }));
+        setPressedBtns(prev: Record<string, unknown> => ({ ...prev, [button]: true }));
       } else if (interaction === 'release') {
-        setPressedBtns((prev) => ({ ...prev, [button]: false }));
+        setPressedBtns(prev: Record<string, unknown> => ({ ...prev, [button]: false }));
       }
     });
     return unsub;
@@ -205,7 +205,7 @@ export default function GameController({ gameLabel, onExit }: GameControllerProp
     emitMobileMove(mv);
     syncLegacyMove(mv);
 
-    setLeftStick((prev) => ({ ...prev, vector: vec }));
+    setLeftStick(prev: Record<string, unknown> => ({ ...prev, vector: vec }));
   }, [syncLegacyMove]);
 
   const handleLeftEnd = useCallback((e: React.TouchEvent) => {
@@ -323,7 +323,7 @@ export default function GameController({ gameLabel, onExit }: GameControllerProp
       ? { x: (dx / dist) * scale, y: (dy / dist) * scale }
       : { x: 0, y: 0 };
 
-    setRightStick((prev) => ({ ...prev, vector: vec }));
+    setRightStick(prev: Record<string, unknown> => ({ ...prev, vector: vec }));
   }, [stopAutoFire]);
 
   const handleRightEnd = useCallback((e: React.TouchEvent) => {
@@ -387,7 +387,7 @@ export default function GameController({ gameLabel, onExit }: GameControllerProp
 
   const handleRightZoneStart = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
-    Array.from(e.changedTouches).forEach((touch) => {
+    Array.from(e.changedTouches).forEach((touch: Record<string, unknown>) => {
       const btn = findButtonAt(touch.clientX, touch.clientY);
       if (btn) {
         rightTouchRouteRef.current.set(touch.identifier, 'button');
@@ -404,7 +404,7 @@ export default function GameController({ gameLabel, onExit }: GameControllerProp
 
   const handleRightZoneMove = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
-    Array.from(e.changedTouches).forEach((touch) => {
+    Array.from(e.changedTouches).forEach((touch: Record<string, unknown>) => {
       const route = rightTouchRouteRef.current.get(touch.identifier);
       if (route === 'stick') {
         const synth = { ...e, changedTouches: [touch] } as unknown as React.TouchEvent;
@@ -416,7 +416,7 @@ export default function GameController({ gameLabel, onExit }: GameControllerProp
 
   const handleRightZoneEnd = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
-    Array.from(e.changedTouches).forEach((touch) => {
+    Array.from(e.changedTouches).forEach((touch: Record<string, unknown>) => {
       const route = rightTouchRouteRef.current.get(touch.identifier);
       rightTouchRouteRef.current.delete(touch.identifier);
       if (route === 'button') {
@@ -547,7 +547,7 @@ export default function GameController({ gameLabel, onExit }: GameControllerProp
             ['circle',   styles.faceCircle  ],
             ['x',        styles.faceCross   ],
           ] as [ControllerButton, string][]).map(([id, posClass]) => {
-            const def = CONTROLLER_BUTTON_DEFS.find((d) => d.id === id)!;
+            const def = CONTROLLER_BUTTON_DEFS.find((d: Record<string, unknown>) => d.id === id)!;
             return (
               <div
                 key={id}
@@ -563,8 +563,8 @@ export default function GameController({ gameLabel, onExit }: GameControllerProp
 
       {/* ── Shoulder buttons ─────────────────────────────── */}
       <div className={clsx(styles.shoulderGroup, styles.shoulderGroupLeft)}>
-        {shoulderPairs.left.map((btn) => {
-          const def = CONTROLLER_BUTTON_DEFS.find((d) => d.id === btn)!;
+        {shoulderPairs.left.map((btn: Record<string, unknown>) => {
+          const def = CONTROLLER_BUTTON_DEFS.find((d: Record<string, unknown>) => d.id === btn)!;
           return (
             <div
               key={btn}
@@ -581,8 +581,8 @@ export default function GameController({ gameLabel, onExit }: GameControllerProp
       </div>
 
       <div className={clsx(styles.shoulderGroup, styles.shoulderGroupRight)}>
-        {shoulderPairs.right.map((btn) => {
-          const def = CONTROLLER_BUTTON_DEFS.find((d) => d.id === btn)!;
+        {shoulderPairs.right.map((btn: Record<string, unknown>) => {
+          const def = CONTROLLER_BUTTON_DEFS.find((d: Record<string, unknown>) => d.id === btn)!;
           return (
             <div
               key={btn}

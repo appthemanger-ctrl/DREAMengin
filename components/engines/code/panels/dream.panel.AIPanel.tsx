@@ -67,12 +67,12 @@ describe('processData', () => {
 \`\`\``,
 };
 
-function getSimResponse(prompt: string): string {
+function getSimResponse(prompt: string: string {
   if (prompt.toLowerCase().includes('test')) return SIMULATED_RESPONSES.tests;
   return SIMULATED_RESPONSES.default;
 }
 
-export default function AIPanel() {
+export default function AIPanel( {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '0',
@@ -90,25 +90,25 @@ export default function AIPanel() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  async function sendMessage(prompt?: string) {
+  async function sendMessage(prompt?: string {
     const text = (prompt ?? input).trim();
     if (!text || loading) return;
     setInput('');
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content: text, timestamp: new Date() };
-    setMessages((prev) => [...prev, userMsg]);
+    setMessages(prev: Record<string, unknown> => [...prev, userMsg]);
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 800 + Math.random() * 1200));
+    await new Promise(r: number => setTimeout(r, 800 + Math.random() * 1200));
     const reply: Message = {
       id: (Date.now() + 1).toString(),
       role: 'assistant',
       content: getSimResponse(text),
       timestamp: new Date(),
     };
-    setMessages((prev) => [...prev, reply]);
+    setMessages(prev: Record<string, unknown> => [...prev, reply]);
     setLoading(false);
   }
 
-  function copyMessage(content: string, id: string) {
+  function copyMessage(content: string, id: string {
     navigator.clipboard.writeText(content).catch(() => {});
     setCopied(id);
     setTimeout(() => setCopied(null), 2000);
@@ -130,7 +130,7 @@ export default function AIPanel() {
 
         {/* Quick prompts */}
         <div className="flex flex-wrap gap-1.5 mt-3">
-          {QUICK_PROMPTS.map((p) => (
+          {QUICK_PROMPTS.map((p: Record<string, unknown>) => (
             <button
               key={p}
               onClick={() => sendMessage(p)}
@@ -144,7 +144,7 @@ export default function AIPanel() {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-        {messages.map((msg) => (
+        {messages.map((msg: Record<string, unknown>) => (
           <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             {msg.role === 'assistant' && (
               <div className="w-6 h-6 rounded-full bg-[#22d3ee]/20 flex items-center justify-center mr-2 mt-1 flex-shrink-0">

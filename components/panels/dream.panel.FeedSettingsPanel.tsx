@@ -46,7 +46,7 @@ function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => vo
   );
 }
 
-export default function FeedSettingsPanel() {
+export default function FeedSettingsPanel( {
   const [prefs, setPrefs] = useState<FeedPreferences>(DEFAULT_PREFS);
   const [activeTopics, setActiveTopics] = useState<Set<string>>(new Set(DEFAULT_TOPIC_IDS));
   const [saved, setSaved] = useState(false);
@@ -54,13 +54,13 @@ export default function FeedSettingsPanel() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setPrefs((p) => ({ ...p, ...JSON.parse(raw) }));
+      if (raw) setPrefs(p: Record<string, unknown> => ({ ...p, ...JSON.parse(raw) }));
     } catch { /* ignore */ }
     setActiveTopics(new Set(loadActiveTopicIds()));
   }, []);
 
   const toggle = useCallback((key: keyof FeedPreferences) => {
-    setPrefs((prev) => {
+    setPrefs(prev: Record<string, unknown> => {
       const next = { ...prev, [key]: !prev[key] };
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
       return next;
@@ -70,7 +70,7 @@ export default function FeedSettingsPanel() {
   }, []);
 
   const toggleTopic = useCallback((id: string) => {
-    setActiveTopics((prev) => {
+    setActiveTopics(prev: Record<string, unknown> => {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
@@ -85,7 +85,7 @@ export default function FeedSettingsPanel() {
   }, []);
 
   const selectAll = useCallback(() => {
-    const all = new Set(ALL_TOPICS.map((t) => t.id));
+    const all = new Set(ALL_TOPICS.map((t: Record<string, unknown>) => t.id));
     setActiveTopics(all);
     try { localStorage.setItem(FEED_TOPICS_KEY, JSON.stringify(Array.from(all))); } catch { /* ignore */ }
     setSaved(true);
@@ -143,7 +143,7 @@ export default function FeedSettingsPanel() {
             </div>
           )}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {ALL_TOPICS.map((topic) => {
+            {ALL_TOPICS.map((topic: Record<string, unknown>) => {
               const active = activeTopics.has(topic.id);
               return (
                 <button
@@ -171,7 +171,7 @@ export default function FeedSettingsPanel() {
       <div className="de-widget" style={{ margin: '0 16px', background: 'rgba(255,255,255,0.95)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
         <div className="de-widget-header"><span className="de-widget-title">Feed Preferences</span></div>
         <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-          {prefRows.map(({ key, label, desc }, idx) => (
+          {prefRows.map({ key, label: string, desc }, idx: number => (
             <div key={key} style={{
               display: 'flex', alignItems: 'center', gap: 12,
               padding: '12px 8px',

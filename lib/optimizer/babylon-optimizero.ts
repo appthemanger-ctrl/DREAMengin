@@ -33,7 +33,7 @@ export interface BabylonUICandidate {
   };
   material?: {
     type: 'standard' | 'pbr' | 'holographic' | 'glass' | 'glow';
-    properties: Record<string, any>;
+    properties: Record<string, unknown>;
   };
   interaction?: {
     clickable: boolean;
@@ -41,7 +41,7 @@ export interface BabylonUICandidate {
     draggable: boolean;
     callback?: string;
   };
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -336,7 +336,7 @@ export class BabylonUIOptimizero extends CreativeOptimizero<BabylonUICandidate> 
    */
   optimizeUILayout(
     candidates: BabylonUICandidate[],
-    context?: Record<string, any>
+    context?: Record<string, unknown>
   ): OptimizeroResult<BabylonUICandidate> {
     const wrappedCandidates: CreativeCandidate<BabylonUICandidate>[] = candidates.map(
       (data, index) => ({

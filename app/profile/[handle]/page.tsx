@@ -44,7 +44,7 @@ interface ProfilePageProps {
 // next-prerender-random violation surfaced from `Next.MetadataOutlet`
 // when client components below are dragged into SSR.
 
-export default async function ProfilePage({ params }: ProfilePageProps) {
+export default async function ProfilePage({ params }: ProfilePageProps {
   // Mark this render as request-only so the strict Cache-Components
   // prerender check is bypassed for the (Math.random-using) client
   // subtree below. generateMetadata above already awaits connection()
@@ -93,7 +93,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     active_state: string;
   }> | null = null;
   try {
-    const dreamWindowQuery = (supabase as any)
+    const dreamWindowQuery = (supabase as SupabaseClient)
       .from('dream_windows')
       .select('id, type, config, size, position, visibility, active_state')
       .eq('owner_id', profile.id);
@@ -122,7 +122,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   const visibleDreams = isOwner
     ? allDreams // Owner preview: show everything
-    : allDreams.filter((w) => {
+    : allDreams.filter((w: Record<string, unknown>) => {
         const vis = (w.visibility ?? 'private') as string;
         // Strict enforcement: only shared/public/followers — never private
         // Note: new dream_windows records use 'shared'; legacy ProfileDream uses 'followers'

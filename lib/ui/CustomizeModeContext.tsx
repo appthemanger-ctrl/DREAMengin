@@ -48,7 +48,7 @@ export interface CustomizeModeContextValue {
 
 const CustomizeModeContext = createContext<CustomizeModeContextValue | null>(null);
 
-export function useCustomizeMode(): CustomizeModeContextValue {
+export function useCustomizeMode(: CustomizeModeContextValue {
   const ctx = useContext(CustomizeModeContext);
   if (!ctx) throw new Error('useCustomizeMode must be used inside CustomizeModeProvider');
   return ctx;
@@ -56,7 +56,7 @@ export function useCustomizeMode(): CustomizeModeContextValue {
 
 // ── Provider ───────────────────────────────────────────────────────────────────
 
-export function CustomizeModeProvider({ children }: { children: React.ReactNode }) {
+export function CustomizeModeProvider({ children }: { children: React.ReactNode } {
   const [isCustomizeMode, setIsCustomizeMode] = useState(false);
   const [activePage, setActivePage] = useState<SkinPage | null>(null);
   const [activePanel, setActivePanel] = useState<'color' | 'font' | 'layout' | 'effects' | null>(null);
@@ -87,13 +87,13 @@ export function CustomizeModeProvider({ children }: { children: React.ReactNode 
   }, [allSkins, activePage]);
 
   const openPanel = useCallback((panel: 'color' | 'font' | 'layout' | 'effects') => {
-    setActivePanel((prev) => (prev === panel ? null : panel));
+    setActivePanel(prev: Record<string, unknown> => (prev === panel ? null : panel));
   }, []);
 
   const closePanel = useCallback(() => setActivePanel(null), []);
 
   const updateDraft = useCallback((partial: Partial<SkinData>) => {
-    setDraftSkin((prev) => {
+    setDraftSkin(prev: Record<string, unknown> => {
       const next = { ...prev, ...partial };
       // Live preview
       applySkin(next);
@@ -103,7 +103,7 @@ export function CustomizeModeProvider({ children }: { children: React.ReactNode 
 
   const saveSkin = useCallback(() => {
     if (!activePage) return;
-    setAllSkins((prev) => {
+    setAllSkins(prev: Record<string, unknown> => {
       const next: AllPageSkins = {
         ...prev,
         [activePage]: { ...draftSkin },

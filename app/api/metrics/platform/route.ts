@@ -18,20 +18,20 @@ type AdViewAggregateRow = {
   verified: boolean | null;
 };
 
-function toFiniteNumber(value: number | string | null | undefined): number | null {
+function toFiniteNumber(value: number | string | null | undefined: number | null {
   const parsed = typeof value === 'string' ? Number(value) : value;
   return typeof parsed === 'number' && Number.isFinite(parsed) ? parsed : null;
 }
 
-function average(values: number[]): number {
+function average(values: number[]: number {
   if (values.length === 0) {
     return 0;
   }
 
-  return values.reduce((sum, value) => sum + value, 0) / values.length;
+  return values.reduce(sum: Record<string, unknown>, value: Record<string, unknown> => sum + value, 0) / values.length;
 }
 
-export async function GET(_req: NextRequest) {
+export async function GET(_req: NextRequest {
   const supabase = await createServerClient();
 
   // Auth required (admin only)
@@ -77,19 +77,19 @@ export async function GET(_req: NextRequest) {
     }
 
     const realShitValues = (userMetrics ?? [])
-      .map((row) => toFiniteNumber(row.real_shit_rate))
+      .map((row: Record<string, unknown>) => toFiniteNumber(row.real_shit_rate))
       .filter((value): value is number => value !== null);
 
-    const activeUsers = (userMetrics ?? []).filter((row) => {
+    const activeUsers = (userMetrics ?? []).filter((row: Record<string, unknown>) => {
       const aqs = toFiniteNumber(row.aqs);
       return aqs !== null && aqs > 0;
     });
 
     const activeAqsValues = activeUsers
-      .map((row) => toFiniteNumber(row.aqs))
+      .map((row: Record<string, unknown>) => toFiniteNumber(row.aqs))
       .filter((value): value is number => value !== null);
 
-    const verifiedAdViews = (recentAdViews ?? []).filter((row) => row.verified === true).length;
+    const verifiedAdViews = (recentAdViews ?? []).filter((row: Record<string, unknown>) => row.verified === true).length;
     const totalAdViews = recentAdViews?.length ?? 0;
 
     // Total verified views
@@ -121,8 +121,8 @@ export async function GET(_req: NextRequest) {
     }
 
     const totalActivityRows = activityRows?.length ?? 0;
-    const creatorRows = (activityRows ?? []).filter((r) => (r.tier ?? 0) >= 3).length;
-    const outsideRows = (activityRows ?? []).filter((r) => r.tier === 4).length;
+    const creatorRows = (activityRows ?? []).filter((r: Record<string, unknown>) => (r.tier ?? 0) >= 3).length;
+    const outsideRows = (activityRows ?? []).filter((r: Record<string, unknown>) => r.tier === 4).length;
     const creation_to_consumption_ratio =
       totalActivityRows > 0 ? creatorRows / totalActivityRows : 0;
     const outside_activity_rate =
@@ -166,7 +166,7 @@ export async function GET(_req: NextRequest) {
       average_aqs: average(activeAqsValues),
       total_active_users: new Set(
         activeUsers
-          .map((row) => row.user_id)
+          .map((row: Record<string, unknown>) => row.user_id)
           .filter((userId): userId is string => Boolean(userId)),
       ).size,
       total_verified_views: totalVerifiedViews ?? 0,

@@ -7,7 +7,7 @@ import { ArrowLeft, User, Mail, Calendar, Shield, Trash2 } from 'lucide-react';
 import { connection } from 'next/server';
 
 
-export default async function AccountSettingsPage() {
+export default async function AccountSettingsPage( {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

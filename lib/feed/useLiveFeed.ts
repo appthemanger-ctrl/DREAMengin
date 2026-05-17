@@ -106,7 +106,7 @@ export interface UseLiveFeedReturn {
 
 // ── Hook ───────────────────────────────────────────────────────────────────────
 
-export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFeedReturn {
+export function useLiveFeed(userId: string, initialPosts: FeedPost[]: UseLiveFeedReturn {
   const [posts, setPosts] = useState<FeedPost[]>(initialPosts);
   // Posts from other users held in a queue until the user taps the banner
   const [queued, setQueued] = useState<FeedPost[]>([]);
@@ -119,12 +119,12 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFe
   // ── Stable callbacks ────────────────────────────────────────────────────────
 
   const flushNew = useCallback(() => {
-    setQueued((prev) => {
+    setQueued(prev: Record<string, unknown> => {
       if (prev.length === 0) return prev;
-      setPosts((cur) => {
+      setPosts(cur: Record<string, unknown> => {
         // Merge queued items in, deduplicating against current feed
-        const ids = new Set(cur.map((p) => p.id));
-        const fresh = prev.filter((p) => !ids.has(p.id));
+        const ids = new Set(cur.map((p: Record<string, unknown>) => p.id));
+        const fresh = prev.filter((p: Record<string, unknown>) => !ids.has(p.id));
         return [...fresh, ...cur];
       });
       return [];
@@ -137,14 +137,14 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFe
   }, []);
 
   const prependPost = useCallback((post: FeedPost) => {
-    setPosts((prev) => {
-      if (prev.some((p) => p.id === post.id)) return prev;
+    setPosts(prev: Record<string, unknown> => {
+      if (prev.some((p: Record<string, unknown>) => p.id === post.id)) return prev;
       return [post, ...prev];
     });
   }, []);
 
   const updatePost = useCallback((id: string, changes: Partial<FeedPost>) => {
-    setPosts((prev) => prev.map((p) => (p.id === id ? { ...p, ...changes } : p)));
+    setPosts(prev: Record<string, unknown> => prev.map((p: Record<string, unknown>) => (p.id === id ? { ...p, ...changes } : p)));
   }, []);
 
   // ── Realtime subscriptions ─────────────────────────────────────────────────
@@ -181,7 +181,7 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFe
 
           if (!data) return;
            
-          const d = data as any;
+          const d = data as Record<string, unknown>;
 
           const newPost: FeedPost = {
             id:             d.id,
@@ -201,14 +201,14 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFe
 
           if (authorId === userId) {
             // Own post — prepend immediately (dedup with optimistic insert)
-            setPosts((prev) => {
-              if (prev.some((p) => p.id === postId)) return prev;
+            setPosts(prev: Record<string, unknown> => {
+              if (prev.some((p: Record<string, unknown>) => p.id === postId)) return prev;
               return [newPost, ...prev];
             });
           } else {
             // Someone else's post — queue behind the banner
-            setQueued((prev) => {
-              if (prev.some((p) => p.id === postId)) return prev;
+            setQueued(prev: Record<string, unknown> => {
+              if (prev.some((p: Record<string, unknown>) => p.id === postId)) return prev;
               return [newPost, ...prev];
             });
           }
@@ -224,8 +224,8 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFe
         (payload: RealtimePostgresInsertPayload<Record<string, unknown>>) => {
           const raw = payload.new as Record<string, unknown>;
           // Sync like/comment counts in place — zero re-fetch
-          setPosts((prev) =>
-            prev.map((p) =>
+          setPosts(prev: Record<string, unknown> =>
+            prev.map((p: Record<string, unknown>) =>
               p.id === raw.id
                 ? {
                     ...p,
@@ -257,7 +257,7 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFe
         (payload: RealtimePostgresInsertPayload<Record<string, unknown>>) => {
           const raw = payload.new as Record<string, unknown>;
            
-          const p = (raw.payload ?? {}) as Record<string, any>;
+          const p = (raw.payload ?? {}) as Record<string, unknown>;
 
           const newEntry: FeedPost = {
             id:             raw.id         as string,
@@ -279,8 +279,8 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFe
           };
 
           // Connector items always queue — they are from external services
-          setQueued((prev) => {
-            if (prev.some((q) => q.id === newEntry.id)) return prev;
+          setQueued(prev: Record<string, unknown> => {
+            if (prev.some((q: Record<string, unknown>) => q.id === newEntry.id)) return prev;
             return [newEntry, ...prev];
           });
         },

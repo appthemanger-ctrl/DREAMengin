@@ -51,7 +51,7 @@ const TABS: { id: Tab; label: string; icon: typeof Music2 }[] = [
   { id: 'templates',   label: 'Templates',      icon: FolderOpen },
 ];
 
-export default function MusicLibraryPanel() {
+export default function MusicLibraryPanel( {
   const [tab, setTab] = useState<Tab>('beats');
 
   const items = tab === 'beats' ? BEAT_PRESETS : tab === 'instruments' ? INSTRUMENT_PRESETS : TEMPLATES;
@@ -66,7 +66,7 @@ export default function MusicLibraryPanel() {
 
         {/* Tabs */}
         <div className="flex gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/10 mb-6">
-          {TABS.map(({ id, label, icon: Icon }) => (
+          {TABS.map({ id, label: string, icon: Icon } => (
             <button
               key={id}
               onClick={() => setTab(id)}
@@ -85,7 +85,7 @@ export default function MusicLibraryPanel() {
 
         {/* Items */}
         <div className="space-y-2">
-          {items.map((item) => (
+          {items.map((item: Record<string, unknown>) => (
             <button
               key={item.id}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.04] border border-white/10 hover:border-[#a855f7]/40 hover:bg-white/[0.07] transition-all text-left"
@@ -104,7 +104,7 @@ export default function MusicLibraryPanel() {
                 <div className="text-xs text-white/40">{item.meta}</div>
               </div>
               <div className="flex items-center gap-1.5 flex-wrap justify-end">
-                {item.tags.slice(0, 2).map((tag) => (
+                {item.tags.slice(0, 2).map((tag: Record<string, unknown>) => (
                   <span
                     key={tag}
                     className="text-[10px] px-2 py-0.5 rounded-full bg-white/[0.06] text-white/40"

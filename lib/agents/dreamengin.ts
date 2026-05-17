@@ -184,7 +184,7 @@ export interface Violation {
  * DREAMengin vocabulary rules. Returns violations for any forbidden
  * terminology that should use canonical vocabulary instead.
  */
-export function validateVocabulary(text: string): Violation[] {
+export function validateVocabulary(text: string: Violation[] {
   const violations: Violation[] = [];
   for (const entry of VOCABULARY) {
     for (const bad of entry.forbidden) {
@@ -206,7 +206,7 @@ export function validateVocabulary(text: string): Violation[] {
  * DREAMengin uses gold / light-blue / white — not red / yellow / green
  * status indicators.
  */
-export function validatePalette(hexColors: string[]): Violation[] {
+export function validatePalette(hexColors: string[]: Violation[] {
   const trafficLightPatterns = [
     { pattern: /^#(22c55e|16a34a|15803d|4ade80|86efac)/i, name: 'green (traffic-light)' },
     { pattern: /^#(f59e0b|d97706|fbbf24|fcd34d)/i,        name: 'amber/yellow (traffic-light)' },
@@ -235,7 +235,7 @@ export function validatePrivacy(
   surfaceName: string,
   intendedVisibility: 'private' | 'public' | 'shared',
 ): Violation[] {
-  const rule = PRIVACY_RULES.find((r) => r.surface === surfaceName);
+  const rule = PRIVACY_RULES.find((r: Record<string, unknown>) => r.surface === surfaceName);
   if (!rule) return [];
   if (rule.defaultVisibility === 'private' && intendedVisibility === 'public') {
     return [{
@@ -328,7 +328,7 @@ export interface DreamEnginEventDetail {
   message: string;
 }
 
-export function emitDreamEnginEvent(detail: DreamEnginEventDetail): void {
+export function emitDreamEnginEvent(detail: DreamEnginEventDetail: void {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(
     new CustomEvent<DreamEnginEventDetail>(DREAMENGIN_EVENT, { detail }),

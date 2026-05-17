@@ -83,10 +83,10 @@ function computeMagnitudes(
 }
 
 /** Return indices of the top-K values in arr. */
-function topKIndices(arr: Float32Array, k: number): number[] {
-  const indexed = Array.from(arr).map((v, i) => ({ v, i }));
-  indexed.sort((a, b) => b.v - a.v);
-  return indexed.slice(0, k).map((x) => x.i);
+function topKIndices(arr: Float32Array, k: number: number[] {
+  const indexed = Array.from(arr).map(v: Record<string, unknown>, i: number => ({ v, i }));
+  indexed.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.v - a.v);
+  return indexed.slice(0, k).map((x: Record<string, unknown>) => x.i);
 }
 
 // ─── buildPeakMap ─────────────────────────────────────────────────────────────

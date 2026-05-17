@@ -10,7 +10,7 @@ import { THEME_PRESETS as GRADIENT_PRESETS, applyTheme, applyVoidTheme, isVoidTh
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 
 /* ── VOID / OLED Dark Theme Toggle ── */
-function VoidThemeSection() {
+function VoidThemeSection( {
   const [isVoid, setIsVoid] = useState(false);
 
   useEffect(() => {
@@ -98,7 +98,7 @@ function VoidThemeSection() {
 }
 
 /* ── Gradient Preset Picker ── */
-function GradientThemePicker() {
+function GradientThemePicker( {
   const [active, setActive] = useState(() => {
     if (typeof window === 'undefined') return 'default';
     try {
@@ -130,7 +130,7 @@ function GradientThemePicker() {
         Sky-blue + gold gradients, everywhere. Pick your vibe.
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-        {Object.entries(GRADIENT_PRESETS).map(([id, { label, emoji, theme }]) => {
+        {Object.entries(GRADIENT_PRESETS).map([id, { label, emoji: Record<string, unknown>, theme }] => {
           const isActive = active === id;
           return (
             <button
@@ -272,7 +272,7 @@ function PresetCard({
 }
 
 /* ── Background Image Section ── */
-function BgImageSection() {
+function BgImageSection( {
   const [bgImage, setBgImage] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
     const stored = localStorage.getItem('dreamengin:bgImage');
@@ -288,7 +288,7 @@ function BgImageSection() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = ev: Event => {
       const dataUrl = ev.target?.result as string;
       setBgImage(dataUrl);
       localStorage.setItem('dreamengin:bgImage', dataUrl);
@@ -384,7 +384,7 @@ const BG_STYLES = [
   },
 ];
 
-export default function AppearanceSettingsPage() {
+export default function AppearanceSettingsPage( {
   const { presetId, overrides, setPreset, setOverrides, resetOverrides } = useTheme();
   const { enterCustomizeMode } = useCustomizeMode();
 
@@ -460,7 +460,7 @@ export default function AppearanceSettingsPage() {
               { page: 'profile'    as const, label: 'Profile',    emoji: '👤' },
               { page: 'dreamspace' as const, label: 'DreamSpace', emoji: '✦' },
               { page: 'feed'       as const, label: 'Feed',       emoji: '📡' },
-            ]).map(({ page, label, emoji }) => (
+            ]).map({ page, label: string, emoji } => (
               <button
                 key={page}
                 type="button"
@@ -496,7 +496,7 @@ export default function AppearanceSettingsPage() {
             Theme Presets
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-            {THEME_PRESETS.map((p) => (
+            {THEME_PRESETS.map((p: Record<string, unknown>) => (
               <PresetCard
                 key={p.id}
                 preset={p}
@@ -564,7 +564,7 @@ export default function AppearanceSettingsPage() {
           </div>
           <div className="de-widget-tile" style={{ padding: 16 }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-              {ACCENT_SWATCHES.map((swatch) => {
+              {ACCENT_SWATCHES.map((swatch: Record<string, unknown>) => {
                 const isActive = overrides.accentHue === swatch.hue;
                 return (
                   <button
@@ -627,7 +627,7 @@ export default function AppearanceSettingsPage() {
             Background Style
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-            {BG_STYLES.map((bg) => {
+            {BG_STYLES.map((bg: Record<string, unknown>) => {
               const isActive = presetId === bg.presetId;
               return (
                 <button

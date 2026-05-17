@@ -49,7 +49,7 @@ const sectionTitle: CSSProperties = {
   color: THEME.dim,
 };
 
-function pill(color: string): CSSProperties {
+function pill(color: string: CSSProperties {
   return {
     fontSize: 10,
     fontWeight: 700,
@@ -61,7 +61,7 @@ function pill(color: string): CSSProperties {
   };
 }
 
-function pickerStyle(color: string = THEME.accent): CSSProperties {
+function pickerStyle(color: string = THEME.accent: CSSProperties {
   return {
     width: '100%',
     padding: '9px 10px',
@@ -76,7 +76,7 @@ function pickerStyle(color: string = THEME.accent): CSSProperties {
   };
 }
 
-function disclosureToggleStyle(active: boolean): CSSProperties {
+function disclosureToggleStyle(active: boolean: CSSProperties {
   return {
     width: '100%',
     padding: '9px 12px',
@@ -353,7 +353,7 @@ export default function MultitrackArrangementPanel({
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 1, height: 20 }}>
-                  {source.waveform.slice(0, 16).map((h, index) => (
+                  {source.waveform.slice(0, 16).map(h: Record<string, unknown>, index: number => (
                     <div
                       key={index}
                       style={{
@@ -401,7 +401,7 @@ export default function MultitrackArrangementPanel({
               TRACKS
             </div>
             <div style={{ flex: 1, display: 'grid', gridTemplateColumns: `repeat(${ARRANGEMENT_BARS}, minmax(0, 1fr))` }}>
-              {Array.from({ length: ARRANGEMENT_BARS }, (_, bar) => (
+              {Array.from({ length: ARRANGEMENT_BARS }, _: Record<string, unknown>, bar: Record<string, unknown> => (
                 <div key={bar} style={{
                   padding: '8px 0',
                   textAlign: 'center',
@@ -479,7 +479,7 @@ export default function MultitrackArrangementPanel({
 
                 <div style={{ flex: 1, position: 'relative', background: '#0a0d14' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: `repeat(${ARRANGEMENT_BARS}, minmax(0, 1fr))`, height: '100%' }}>
-                    {Array.from({ length: ARRANGEMENT_BARS }, (_, bar) => (
+                    {Array.from({ length: ARRANGEMENT_BARS }, _: Record<string, unknown>, bar: Record<string, unknown> => (
                       <button
                         key={bar}
                         type="button"

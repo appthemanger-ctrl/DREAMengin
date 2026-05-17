@@ -43,7 +43,7 @@ export class QuotaExceededError extends Error {
 
   constructor(violations: QuotaViolation[]) {
     super(
-      `VM resource quota exceeded: ${violations.map((v) => v.message).join('; ')}`,
+      `VM resource quota exceeded: ${violations.map((v: Record<string, unknown>) => v.message).join('; ')}`,
     );
     this.name = 'QuotaExceededError';
     this.violations = violations;
@@ -67,7 +67,7 @@ export const DEFAULT_RESOURCE_QUOTA: ResourceQuota = {
  * Validates current resource usage against the provided quota.
  * Throws QuotaExceededError listing all violations if any limit is exceeded.
  */
-export function enforceQuota(quota: ResourceQuota, usage: ResourceUsage): void {
+export function enforceQuota(quota: ResourceQuota, usage: ResourceUsage: void {
   const violations: QuotaViolation[] = [];
 
   if (usage.gpuBufferCount > quota.maxGpuBuffers) {
@@ -116,7 +116,7 @@ export function enforceQuota(quota: ResourceQuota, usage: ResourceUsage): void {
  *
  * Non-throwing variant. Returns true if all limits are satisfied.
  */
-export function withinQuota(quota: ResourceQuota, usage: ResourceUsage): boolean {
+export function withinQuota(quota: ResourceQuota, usage: ResourceUsage: boolean {
   try {
     enforceQuota(quota, usage);
     return true;

@@ -36,7 +36,7 @@ export interface EnginIOAdapter {
 // ─── Key namespacing helper ───────────────────────────────────────────────────
 
 /** Produce the localStorage / storage key for an engin + domain key. */
-export function enginStorageKey(enginId: string, key: string): string {
+export function enginStorageKey(enginId: string, key: string: string {
   return `de:engin:${enginId}:${key}`;
 }
 

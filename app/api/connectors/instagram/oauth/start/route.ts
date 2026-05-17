@@ -26,7 +26,7 @@ const IG_AUTH_URL = 'https://api.instagram.com/oauth/authorize';
 // Basic Display API scope — access to user's own media
 const IG_SCOPE = 'user_profile,user_media';
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
+export async function GET(req: NextRequest: Promise<NextResponse> {
   const clientId = process.env.INSTAGRAM_CLIENT_ID ?? '';
   if (!clientId) {
     return NextResponse.json(

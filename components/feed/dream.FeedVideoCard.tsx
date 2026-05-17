@@ -22,7 +22,7 @@ import type { FeedPost } from '@/lib/feed/useLiveFeed';
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 
-function extractYouTubeId(url: string): string | null {
+function extractYouTubeId(url: string: string | null {
   try {
     const u = new URL(url);
     if (u.hostname === 'youtu.be') {
@@ -37,7 +37,7 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
-function buildEmbedUrl(post: FeedPost): string | null {
+function buildEmbedUrl(post: FeedPost: string | null {
   const src = post.permalink ?? post.media_url ?? null;
   if (!src) return null;
   const vid = extractYouTubeId(src);
@@ -47,7 +47,7 @@ function buildEmbedUrl(post: FeedPost): string | null {
   return null;
 }
 
-function isDirectVideo(url: string): boolean {
+function isDirectVideo(url: string: boolean {
   return /\.(mp4|webm|ogg|mov)(\?|$)/i.test(url);
 }
 
@@ -70,7 +70,7 @@ export interface FeedVideoCardProps {
 
 // ── component ──────────────────────────────────────────────────────────────────
 
-export default function FeedVideoCard({ post, allVideos, videoIndex }: FeedVideoCardProps) {
+export default function FeedVideoCard({ post, allVideos: Record<string, unknown>, videoIndex }: FeedVideoCardProps {
   const [currentIndex, setCurrentIndex] = useState(videoIndex);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -148,10 +148,10 @@ export default function FeedVideoCard({ post, allVideos, videoIndex }: FeedVideo
 
       if (dx < 0 && hasNext) {
         // Swipe left → next video
-        setCurrentIndex((prev) => Math.min(prev + 1, allVideos.length - 1));
+        setCurrentIndex(prev: Record<string, unknown> => Math.min(prev + 1, allVideos.length - 1));
       } else if (dx > 0 && hasPrev) {
         // Swipe right → previous video
-        setCurrentIndex((prev) => Math.max(prev - 1, 0));
+        setCurrentIndex(prev: Record<string, unknown> => Math.max(prev - 1, 0));
       }
     };
 
@@ -271,7 +271,7 @@ export default function FeedVideoCard({ post, allVideos, videoIndex }: FeedVideo
       }}>
         <button
           type="button"
-          onClick={() => { setCurrentIndex((p) => Math.max(p - 1, 0)); }}
+          onClick={() => { setCurrentIndex(p: Record<string, unknown> => Math.max(p - 1, 0)); }}
           disabled={!hasPrev}
           style={{
             padding: '4px 10px', borderRadius: 8,
@@ -294,7 +294,7 @@ export default function FeedVideoCard({ post, allVideos, videoIndex }: FeedVideo
           {(() => {
             const start = Math.max(0, currentIndex - 2);
             const end = Math.min(allVideos.length, start + 5);
-            return Array.from({ length: end - start }, (_, i) => {
+            return Array.from({ length: end - start }, _: Record<string, unknown>, i: number => {
               const abs = i + start;
               return (
                 <button
@@ -320,7 +320,7 @@ export default function FeedVideoCard({ post, allVideos, videoIndex }: FeedVideo
 
         <button
           type="button"
-          onClick={() => { setCurrentIndex((p) => Math.min(p + 1, allVideos.length - 1)); }}
+          onClick={() => { setCurrentIndex(p: Record<string, unknown> => Math.min(p + 1, allVideos.length - 1)); }}
           disabled={!hasNext}
           style={{
             padding: '4px 10px', borderRadius: 8,

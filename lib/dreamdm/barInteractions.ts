@@ -14,7 +14,7 @@ export const SPLIT_FLING_VELOCITY_PX_PER_MS = 0.55;
 /**
  * Returns the nearest canonical snap point for the given split ratio.
  */
-export function snapToSplitPoint(ratio: number): number {
+export function snapToSplitPoint(ratio: number: number {
   let best: number = SPLIT_SNAP_POINTS[0];
   let bestDist = Math.abs(ratio - best);
   for (const pt of SPLIT_SNAP_POINTS) {
@@ -31,7 +31,7 @@ export function snapToSplitPoint(ratio: number): number {
  * the snap steps one increment past the nearest point in that direction, giving a
  * momentum-style feel consistent with the gold-button swipe gesture.
  */
-export function snapSplitRatioOnRelease(ratio: number, velocityPxPerMs: number): number {
+export function snapSplitRatioOnRelease(ratio: number, velocityPxPerMs: number: number {
   const nearest = snapToSplitPoint(ratio);
   const idx = (SPLIT_SNAP_POINTS as readonly number[]).indexOf(nearest);
   if (velocityPxPerMs >= SPLIT_FLING_VELOCITY_PX_PER_MS && idx > 0) {
@@ -81,12 +81,12 @@ export function resolveGoldTapAction(
 }
 
 /** Treats small pointer movement as a tap instead of a swipe or throw. */
-export function shouldTreatGoldReleaseAsTap(dy: number): boolean {
+export function shouldTreatGoldReleaseAsTap(dy: number: boolean {
   return Math.abs(dy) <= GOLD_TAP_SLOP_PX;
 }
 
 /** Returns pointer velocity in pixels per millisecond and guards same-frame samples from dividing by zero. */
-export function calculatePointerVelocity(previousY: number, nextY: number, previousAt: number, nextAt: number): number {
+export function calculatePointerVelocity(previousY: number, nextY: number, previousAt: number, nextAt: number: number {
   return (nextY - previousY) / Math.max(nextAt - previousAt, MIN_POINTER_SAMPLE_DELTA_MS);
 }
 
@@ -209,7 +209,7 @@ export const ORB_TAP_SLOP = 8;
  * Clamps a minimized-orb CSS offset (right/bottom) so the orb stays fully
  * on-screen. `viewportExtent` is the viewport dimension (width for x, height for y).
  */
-export function clampOrbOffset(offset: number, viewportExtent: number): number {
+export function clampOrbOffset(offset: number, viewportExtent: number: number {
   return Math.max(0, Math.min(viewportExtent - ORB_SIZE, offset));
 }
 
@@ -249,7 +249,7 @@ export type MoodPeriod = 'dawn' | 'morning' | 'afternoon' | 'dusk' | 'night';
  *   dusk:      17–19 — sunset purple/orange
  *   night:     20–4  — deep indigo
  */
-export function getMoodPeriod(hour: number): MoodPeriod {
+export function getMoodPeriod(hour: number: MoodPeriod {
   const h = ((hour % 24) + 24) % 24;
   if (h >= 5 && h <= 7) return 'dawn';
   if (h >= 8 && h <= 11) return 'morning';
@@ -330,7 +330,7 @@ export const SLASH_COMMANDS: SlashCommand[] = [
  * Filters slash commands by a query string (after removing the leading "/").
  * Matches against label, description, and category.
  */
-export function filterSlashCommands(query: string): SlashCommand[] {
+export function filterSlashCommands(query: string: SlashCommand[] {
   const q = query.toLowerCase().replace(/^\//, '').trim();
   if (!q) return SLASH_COMMANDS;
   return SLASH_COMMANDS.filter(
@@ -361,7 +361,7 @@ export function computeTypingRhythm(
 ): number {
   if (recentKeystrokeTimestamps.length < 2) return 0;
   // Only consider keystrokes within the window
-  const recent = recentKeystrokeTimestamps.filter((t) => now - t < windowMs);
+  const recent = recentKeystrokeTimestamps.filter((t: Record<string, unknown>) => now - t < windowMs);
   if (recent.length < 2) return 0;
   // Average interval between keystrokes
   let totalInterval = 0;
@@ -378,7 +378,7 @@ export function computeTypingRhythm(
  * Returns a CSS width multiplier for the drag handle bar based on typing rhythm.
  * Idle = 1.0x, max rhythm = 2.5x (the handle "dances" wider).
  */
-export function rhythmToHandleScale(intensity: number): number {
+export function rhythmToHandleScale(intensity: number: number {
   return 1 + intensity * 1.5;
 }
 
@@ -436,7 +436,7 @@ export function resolveStreak(stored: StreakData | null, now: Date = new Date())
  */
 export type StreakTier = 'none' | 'ember' | 'fire' | 'inferno' | 'legend';
 
-export function getStreakTier(count: number): StreakTier {
+export function getStreakTier(count: number: StreakTier {
   if (count <= 0) return 'none';
   if (count <= 2) return 'ember';
   if (count <= 6) return 'fire';
@@ -488,7 +488,7 @@ export interface Particle {
   life: number; // 0..1 remaining
 }
 
-export function generateParticles(count: number): Particle[] {
+export function generateParticles(count: number: Particle[] {
   const colors = [
     '#f7e07a', '#e8c040', '#d4a843', '#a16207',  // golds
     '#7dd3fc', '#38bdf8', '#2a8ab8',              // blues

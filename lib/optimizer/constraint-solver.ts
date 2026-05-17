@@ -32,7 +32,7 @@ export class ConstraintSolver {
   solve<T = any>(
     items: OptimizationItem[],
     constraints: Constraint[],
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): RankedItem<OptimizationItem>[] {
     const startTime = Date.now();
 
@@ -48,10 +48,10 @@ export class ConstraintSolver {
     });
 
     // Sort by score (descending)
-    scoredItems.sort((a, b) => b.score - a.score);
+    scoredItems.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.score - a.score);
 
     // Assign ranks
-    scoredItems.forEach((item, index) => {
+    scoredItems.forEach(item: Record<string, unknown>, index: number => {
       item.rank = index + 1;
     });
 
@@ -199,8 +199,8 @@ export class ConstraintSolver {
     });
 
     // Sort and assign ranks
-    combinedScores.sort((a, b) => b.score - a.score);
-    combinedScores.forEach((item, index) => {
+    combinedScores.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.score - a.score);
+    combinedScores.forEach(item: Record<string, unknown>, index: number => {
       item.rank = index + 1;
     });
 

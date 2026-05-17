@@ -187,12 +187,12 @@ export interface EditableCell {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 /** Escape a string for safe use in a RegExp pattern. */
-export function escapeRegex(s: string): string {
+export function escapeRegex(s: string: string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /** Count the 1-based line number for a character offset in a string. */
-function lineNumberAt(text: string, offset: number): number {
+function lineNumberAt(text: string, offset: number: number {
   return text.slice(0, offset).split('\n').length;
 }
 
@@ -200,7 +200,7 @@ function lineNumberAt(text: string, offset: number): number {
  * Find the start offset of the word that contains `cursor` in `text`.
  * A "word" is a maximal run of \w characters.
  */
-export function wordBoundsAt(text: string, cursor: number): { start: number; end: number } {
+export function wordBoundsAt(text: string, cursor: number: { start: number; end: number } {
   let start = cursor;
   let end   = cursor;
   while (start > 0 && /\w/.test(text[start - 1])) start--;
@@ -209,7 +209,7 @@ export function wordBoundsAt(text: string, cursor: number): { start: number; end
 }
 
 /** Find the start/end of the line containing `offset` in `text`. */
-export function lineBoundsAt(text: string, offset: number): { start: number; end: number } {
+export function lineBoundsAt(text: string, offset: number: { start: number; end: number } {
   let start = offset;
   let end   = offset;
   while (start > 0 && text[start - 1] !== '\n') start--;
@@ -227,7 +227,7 @@ export function lineBoundsAt(text: string, offset: number): { start: number; end
  * Does NOT handle multi-line block comments — acceptable limitation for
  * notebook cell snippets.
  */
-function buildStringCommentMask(text: string): Set<number> {
+function buildStringCommentMask(text: string: Set<number> {
   const mask = new Set<number>();
   let i = 0;
   while (i < text.length) {
@@ -320,7 +320,7 @@ function findEnclosingPair(
  *
  * Returns null when the cursor is not enclosed by any bracket pair.
  */
-export function blockBoundsAt(text: string, cursor: number): { start: number; end: number } | null {
+export function blockBoundsAt(text: string, cursor: number: { start: number; end: number } | null {
   const masked = buildStringCommentMask(text);
   return (
     findEnclosingPair(text, cursor, masked, '{', '}') ??
@@ -335,7 +335,7 @@ export function blockBoundsAt(text: string, cursor: number): { start: number; en
  * Supports JS/TS `function`, arrow functions, and Python `def`.
  * Falls back to blockBoundsAt if no function keyword is found.
  */
-export function functionBoundsAt(text: string, cursor: number): { start: number; end: number } | null {
+export function functionBoundsAt(text: string, cursor: number: { start: number; end: number } | null {
   // Find the block first
   const block = blockBoundsAt(text, cursor);
   if (!block) return null;
@@ -358,7 +358,7 @@ export function functionBoundsAt(text: string, cursor: number): { start: number;
 const CONTEXT_SIZE = 3;
 const MAX_DIFF_LINES = 60;
 
-export function generateDiffLines(before: string, after: string): EditDiffLine[] {
+export function generateDiffLines(before: string, after: string: EditDiffLine[] {
   const beforeLines = before.split('\n');
   const afterLines  = after.split('\n');
 
@@ -411,11 +411,11 @@ export function generateDiffLines(before: string, after: string): EditDiffLine[]
   return trimContextLines(result, CONTEXT_SIZE);
 }
 
-function trimContextLines(lines: EditDiffLine[], keep: number): EditDiffLine[] {
+function trimContextLines(lines: EditDiffLine[], keep: number: EditDiffLine[] {
   if (lines.length === 0) return lines;
   // Find indices of non-context lines
   const changed = lines
-    .map((l, i) => l.type !== 'context' ? i : -1)
+    .map(l: Record<string, unknown>, i: number => l.type !== 'context' ? i : -1)
     .filter(i => i >= 0);
   if (changed.length === 0) return lines.slice(0, Math.min(keep * 2 + 1, lines.length));
 
@@ -443,7 +443,7 @@ function trimContextLines(lines: EditDiffLine[], keep: number): EditDiffLine[] {
  *   - "everywhere" / "all" / "codebase" trigger the all-cells scope regardless of
  *     which root pattern matched.
  */
-export function parseAiInstruction(instruction: string): AiSuggestion {
+export function parseAiInstruction(instruction: string: AiSuggestion {
   const lower = instruction.toLowerCase().trim();
   const isAllCells = /everywhere|all\s+cells|all\s+occurrences|codebase/.test(lower);
 
@@ -581,7 +581,7 @@ export interface BuildPreviewOptions {
  * Build a full EditPreview — what will change, where, and the diff.
  * This is the main entry point for the trust layer preview step.
  */
-export function buildEditPreview(opts: BuildPreviewOptions): EditPreview {
+export function buildEditPreview(opts: BuildPreviewOptions: EditPreview {
   const { cells, activeCellId, cursorOffset, scope, target, replacement } = opts;
   const activeCell = cells.find(c => c.id === activeCellId) ?? cells[0];
 
@@ -718,7 +718,7 @@ export function buildEditPreview(opts: BuildPreviewOptions): EditPreview {
 }
 
 /** Find the first occurrence of `target` word in `text`. */
-function findFirstOccurrence(text: string, target: string): { start: number; end: number } | null {
+function findFirstOccurrence(text: string, target: string: { start: number; end: number } | null {
   const rx = new RegExp(`\\b${escapeRegex(target)}\\b`);
   const m  = text.match(rx);
   if (!m || m.index === undefined) return null;
@@ -735,7 +735,7 @@ export function applyMatchesForCell(
   replacement: string,
 ): string {
   if (matches.length === 0) return code;
-  const sorted = [...matches].sort((a, b) => b.start - a.start); // right to left
+  const sorted = [...matches].sort(a: Record<string, unknown>, b: Record<string, unknown> => b.start - a.start); // right to left
   let result = code;
   for (const m of sorted) {
     result = result.slice(0, m.start) + replacement + result.slice(m.end);

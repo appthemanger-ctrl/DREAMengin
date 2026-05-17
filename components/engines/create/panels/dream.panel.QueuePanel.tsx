@@ -35,38 +35,38 @@ const INIT_ITEMS: QueueItem[] = [
   { id: '3', type: 'Thread', title: 'Industry insights', preview: '1/ A thread on the future of…', scheduledAt: null, status: 'scheduled' },
 ];
 
-export default function QueuePanel() {
+export default function QueuePanel( {
   const [items, setItems] = useState<QueueItem[]>(INIT_ITEMS);
   const [newTitle, setNewTitle] = useState('');
   const [newType, setNewType] = useState<ContentType>('Post');
   const [showAdd, setShowAdd] = useState(false);
   const [publishing, setPublishing] = useState<string | null>(null);
 
-  async function publishItem(id: string) {
+  async function publishItem(id: string {
     setPublishing(id);
-    setItems((prev) => prev.map((i) => i.id === id ? { ...i, status: 'publishing' } : i));
+    setItems(prev: Record<string, unknown> => prev.map(i: number => i.id === id ? { ...i, status: 'publishing' } : i));
     try {
-      const item = items.find((i) => i.id === id)!;
+      const item = items.find(i: number => i.id === id)!;
       const res = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: item.preview, content_type: item.type.toLowerCase() }),
       });
       if (!res.ok) throw new Error('Publish failed');
-      setItems((prev) => prev.map((i) => i.id === id ? { ...i, status: 'published' } : i));
+      setItems(prev: Record<string, unknown> => prev.map(i: number => i.id === id ? { ...i, status: 'published' } : i));
     } catch {
-      setItems((prev) => prev.map((i) => i.id === id ? { ...i, status: 'failed' } : i));
+      setItems(prev: Record<string, unknown> => prev.map(i: number => i.id === id ? { ...i, status: 'failed' } : i));
     }
     setPublishing(null);
   }
 
-  function removeItem(id: string) {
-    setItems((prev) => prev.filter((i) => i.id !== id));
+  function removeItem(id: string {
+    setItems(prev: Record<string, unknown> => prev.filter(i: number => i.id !== id));
   }
 
-  function addItem() {
+  function addItem( {
     if (!newTitle.trim()) return;
-    setItems((prev) => [...prev, {
+    setItems(prev: Record<string, unknown> => [...prev, {
       id: Date.now().toString(),
       type: newType,
       title: newTitle.trim(),
@@ -94,10 +94,10 @@ export default function QueuePanel() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-white mb-1">Publishing Queue</h1>
-            <p className="text-sm text-white/50">{items.filter((i) => i.status === 'scheduled').length} items scheduled</p>
+            <p className="text-sm text-white/50">{items.filter(i: number => i.status === 'scheduled').length} items scheduled</p>
           </div>
           <button
-            onClick={() => setShowAdd((s) => !s)}
+            onClick={() => setShowAdd(s: string => !s)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#fb923c]/20 hover:bg-[#fb923c]/30 text-[#fb923c] text-xs font-medium transition-all"
           >
             <Plus size={13} />
@@ -113,7 +113,7 @@ export default function QueuePanel() {
               onChange={(e) => setNewType(e.target.value as ContentType)}
               className="px-2.5 py-1.5 bg-black/30 border border-white/10 rounded-lg text-sm text-white focus:outline-none"
             >
-              {(['Post', 'Video', 'Story', 'Thread'] as ContentType[]).map((t) => (
+              {(['Post', 'Video', 'Story', 'Thread'] as ContentType[]).map((t: Record<string, unknown>) => (
                 <option key={t} value={t}>{t}</option>
               ))}
             </select>
@@ -137,7 +137,7 @@ export default function QueuePanel() {
 
         {/* Queue */}
         <div className="space-y-2">
-          {items.map((item) => {
+          {items.map((item: Record<string, unknown>) => {
             const accent = TYPE_COLORS[item.type];
             return (
               <div

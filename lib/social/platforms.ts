@@ -243,24 +243,24 @@ export const SOCIAL_PLATFORMS: SocialPlatform[] = [
 
 /** Map from platform id → SocialPlatform for O(1) access */
 export const PLATFORM_MAP: Record<string, SocialPlatform> = Object.fromEntries(
-  SOCIAL_PLATFORMS.map((p) => [p.id, p])
+  SOCIAL_PLATFORMS.map((p: Record<string, unknown>) => [p.id, p])
 );
 
 /**
  * Detect which platform a URL belongs to.
  * Returns the matching SocialPlatform or undefined.
  */
-export function detectPlatform(url: string): SocialPlatform | undefined {
+export function detectPlatform(url: string: SocialPlatform | undefined {
   if (!url) return undefined;
   return SOCIAL_PLATFORMS.find(
-    (p) => p.urlPatterns.length > 0 && p.urlPatterns.some((re) => re.test(url))
+    (p) => p.urlPatterns.length > 0 && p.urlPatterns.some((re: Record<string, unknown>) => re.test(url))
   );
 }
 
 /**
  * Return a platform by id, falling back to the 'other' platform.
  */
-export function getPlatform(id: string): SocialPlatform {
+export function getPlatform(id: string: SocialPlatform {
   return PLATFORM_MAP[id] ?? (PLATFORM_MAP['other'] as SocialPlatform);
 }
 

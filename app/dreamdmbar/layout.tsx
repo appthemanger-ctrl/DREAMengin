@@ -51,7 +51,7 @@ type FeedItemRow = {
   created_at: string | null;
 };
 
-export default async function DreamDMBarLayout({ children }: { children: React.ReactNode }) {
+export default async function DreamDMBarLayout({ children }: { children: React.ReactNode } {
   await connection();
 
   const supabase = await createServerClient();
@@ -104,7 +104,7 @@ export default async function DreamDMBarLayout({ children }: { children: React.R
         : [];
       const follows = followsResult.status === 'fulfilled' ? followsResult.value.data ?? [] : [];
 
-      const followedIds = follows.map((f) => f.following_id);
+      const followedIds = follows.map((f: Record<string, unknown>) => f.following_id);
       const authorIds = [user.id, ...followedIds];
 
       const { data: postsData } = await supabase
@@ -119,12 +119,12 @@ export default async function DreamDMBarLayout({ children }: { children: React.R
         .limit(30)
         .returns<AppPostRow[]>();
 
-      const platformPosts = (postsData ?? []).map((post) => ({
+      const platformPosts = (postsData ?? []).map((post: Record<string, unknown>) => ({
         ...post,
         media_url: getPrimaryPostMediaUrl(post),
       }));
 
-      const connectorEntries: FeedPost[] = feedItems.map((item) => {
+      const connectorEntries: FeedPost[] = feedItems.map((item: Record<string, unknown>) => {
         const payload = item.payload ?? {};
         const firstMedia = Array.isArray(payload.media) ? payload.media[0] : null;
         return {
@@ -145,7 +145,7 @@ export default async function DreamDMBarLayout({ children }: { children: React.R
       });
 
       const allEntries: FeedPost[] = [...platformPosts, ...connectorEntries];
-      allEntries.sort((a, b) =>
+      allEntries.sort(a: Record<string, unknown>, b: Record<string, unknown> =>
         new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
       );
       posts = allEntries;

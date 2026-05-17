@@ -34,7 +34,7 @@ export async function DELETE(
 
   // Fetch post to verify ownership — never trust client-supplied user_id
    
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
   const { data: post, error: fetchError } = await db
     .from('app_posts')
     .select('id, user_id')

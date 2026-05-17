@@ -17,11 +17,11 @@ interface WidgetBubbleProps {
     id: string;
     type: string;
      
-    config_json: any;
+    config_json: unknown;
   };
 }
 
-export default function WidgetBubble({ widget }: WidgetBubbleProps) {
+export default function WidgetBubble({ widget }: WidgetBubbleProps {
   const [{ isDragging }, drag] = useDrag({
     type: 'widget',
     item: { id: widget.id, type: widget.type },

@@ -155,7 +155,7 @@ const VALID_TRANSPORTS = ['WebSocket', 'WebRTC', 'WebTransport'] as const;
  * Checks for misconfigured parameters and throws `GameEnginConfigError` on
  * the first violation found.  Called synchronously before any subsystem init.
  */
-export function validateConfig(config: GameConfig): void {
+export function validateConfig(config: GameConfig: void {
   if (!config.id || config.id.trim() === '') {
     throw new GameEnginConfigError('`id` must be a non-empty string.');
   }
@@ -341,7 +341,7 @@ export class GameEnginCore {
 
     // 7. Enable telemetry / profiler
     if (config.telemetry?.enabled) {
-      this.eliteEngine.onFrame((_dt, telemetry) => {
+      this.eliteEngine.onFrame(_dt: Record<string, unknown>, telemetry: Record<string, unknown> => {
         const minFps = config.telemetry?.minAcceptableFps ?? 25;
         if (telemetry.avgFps < minFps) {
           console.warn(

@@ -62,7 +62,7 @@ export interface GameRuntimeProps {
 
 // ── Component ────────────────────────────────────────────────────────────────
 
-export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameRuntimeProps) {
+export default function GameRuntime({ cartridge, physicsConfig: Record<string, unknown>, onFrame }: GameRuntimeProps {
   const containerRef = useRef<HTMLDivElement>(null);
   const [fps, setFps] = useState(0);
 
@@ -108,7 +108,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
     // Achievements — real implementation when capability is declared
     const achievementDefs: AchievementDefinition[] = [];
     const achievementsAPI = capabilities.has('achievements')
-      ? createAchievementsAPI(cartridgeId, achievementDefs, (def) => {
+      ? createAchievementsAPI(cartridgeId, achievementDefs, def: Record<string, unknown> => {
           // Emit to dreamOSBus so the shell can show a pop-up
           dreamOSBus.emit('game:achievement-unlocked' as Parameters<typeof dreamOSBus.emit>[0], {
             cartridgeId,
@@ -149,7 +149,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
 
       input: {
         on(event, cb) {
-          return dreamOSBus.on('game:input', (payload) => {
+          return dreamOSBus.on('game:input', payload: Record<string, unknown> => {
             if (payload.type === event) cb(payload as CartridgeInputEvent);
           });
         },
@@ -299,7 +299,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
     fpsIntervalRef.current = window.setInterval(() => {
       const times = frameTimesRef.current;
       if (times.length > 0) {
-        const avgMs      = times.reduce((a, b) => a + b, 0) / times.length;
+        const avgMs      = times.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b, 0) / times.length;
         const currentFps = avgMs > 0 ? Math.round(Math.min(1000 / avgMs, MAX_DISPLAY_FPS)) : 0;
         setFps(currentFps);
         onFrameRef.current?.(currentFps);

@@ -30,7 +30,7 @@ export const LONGFORM_CONTENT_THRESHOLD = 180;
 export const CREATOR_PREFERENCE_WEIGHT = 8;
 export const TYPE_PREFERENCE_WEIGHT = 4;
 
-export function emptyDreamRSwipePreferences(): DreamRSwipePreferenceSets {
+export function emptyDreamRSwipePreferences(: DreamRSwipePreferenceSets {
   return {
     moreCreators: new Set(),
     moreTypes: new Set(),
@@ -40,11 +40,11 @@ export function emptyDreamRSwipePreferences(): DreamRSwipePreferenceSets {
   };
 }
 
-export function creatorPreferenceKey(post: DreamRSwipePost): string {
+export function creatorPreferenceKey(post: DreamRSwipePost: string {
   return (post.profiles?.handle ?? post.profiles?.display_name ?? 'anonymous').trim().toLowerCase();
 }
 
-export function contentTypePreferenceKey(post: DreamRSwipePost): string {
+export function contentTypePreferenceKey(post: DreamRSwipePost: string {
   const provider = post.provider?.trim().toLowerCase();
   if (provider && provider !== 'dreamengin') return provider;
 
@@ -88,7 +88,7 @@ export function nextSwipePreferences(
   return next;
 }
 
-export function shouldRecordDreamRView(intent: DreamRViewIntent): boolean {
+export function shouldRecordDreamRView(intent: DreamRViewIntent: boolean {
   return intent === 'left' || intent === 'up';
 }
 
@@ -117,7 +117,7 @@ export function personalizeFeedOrder<T>(
   if (!hasPreferences) return [...items];
 
   return items
-    .map((item, index) => {
+    .map(item: Record<string, unknown>, index: number => {
       const post = getPost(item);
       if (!post) return { item, index, score: 0, hidden: false };
 
@@ -137,6 +137,6 @@ export function personalizeFeedOrder<T>(
       };
     })
     .filter(entry => !entry.hidden)
-    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .sort(a: Record<string, unknown>, b: Record<string, unknown> => b.score - a.score || a.index - b.index)
     .map(entry => entry.item);
 }

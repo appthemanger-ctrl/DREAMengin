@@ -88,7 +88,7 @@ const SHALLOW_MARKERS = ['entered', 'activated', 'opened'];
 /**
  * Read history entries from localStorage.
  */
-export function readHistory(): HistoryEntry[] {
+export function readHistory(: HistoryEntry[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(FORGE_HISTORY_KEY);
@@ -104,7 +104,7 @@ export function readHistory(): HistoryEntry[] {
  * Based on actions-per-hour over the last 24 hours.
  * 10+ actions/hour = 100, scaled linearly below that.
  */
-export function computeVelocity(history: HistoryEntry[]): number {
+export function computeVelocity(history: HistoryEntry[]: number {
   const now = Date.now();
   const last24h = history.filter(
     e => now - new Date(e.timestamp).getTime() < MS_PER_DAY,
@@ -125,7 +125,7 @@ export function computeVelocity(history: HistoryEntry[]): number {
  * Based on how many unique engines were used in the last 7 days.
  * Using all 6 creative engines = 100.
  */
-export function computeDiversity(history: HistoryEntry[]): number {
+export function computeDiversity(history: HistoryEntry[]: number {
   const now = Date.now();
   const last7d = history.filter(
     e => now - new Date(e.timestamp).getTime() < 7 * MS_PER_DAY,
@@ -141,7 +141,7 @@ export function computeDiversity(history: HistoryEntry[]): number {
  * Compute streak: consecutive calendar days with at least one action,
  * counting backwards from today.
  */
-export function computeStreak(history: HistoryEntry[]): number {
+export function computeStreak(history: HistoryEntry[]: number {
   if (history.length === 0) return 0;
 
   // Group by calendar day (UTC)
@@ -170,7 +170,7 @@ export function computeStreak(history: HistoryEntry[]): number {
  * Compute depth score (0–100).
  * Ratio of "meaningful" actions to total actions in the last 7 days.
  */
-export function computeDepth(history: HistoryEntry[]): number {
+export function computeDepth(history: HistoryEntry[]: number {
   const now = Date.now();
   const last7d = history.filter(
     e => now - new Date(e.timestamp).getTime() < 7 * MS_PER_DAY,
@@ -191,7 +191,7 @@ export function computeDepth(history: HistoryEntry[]): number {
 /**
  * Map composite score to a momentum level.
  */
-export function getLevel(composite: number): MomentumLevel {
+export function getLevel(composite: number: MomentumLevel {
   if (composite >= 85) return 'TRANSCENDENT';
   if (composite >= 65) return 'BLAZING';
   if (composite >= 40) return 'FLOWING';
@@ -202,7 +202,7 @@ export function getLevel(composite: number): MomentumLevel {
 /**
  * Get the accent colour for a momentum level.
  */
-export function getLevelColor(level: MomentumLevel): string {
+export function getLevelColor(level: MomentumLevel: string {
   switch (level) {
     case 'TRANSCENDENT': return '#a855f7';
     case 'BLAZING':      return '#ef4444';
@@ -215,7 +215,7 @@ export function getLevelColor(level: MomentumLevel): string {
 /**
  * Get the emoji for a momentum level.
  */
-export function getLevelEmoji(level: MomentumLevel): string {
+export function getLevelEmoji(level: MomentumLevel: string {
   switch (level) {
     case 'TRANSCENDENT': return '🌟';
     case 'BLAZING':      return '🔥';
@@ -228,7 +228,7 @@ export function getLevelEmoji(level: MomentumLevel): string {
 /**
  * Compute a full momentum snapshot from current history data.
  */
-export function computeMomentum(historyOverride?: HistoryEntry[]): MomentumSnapshot {
+export function computeMomentum(historyOverride?: HistoryEntry[]: MomentumSnapshot {
   const history = historyOverride ?? readHistory();
   const now = Date.now();
 

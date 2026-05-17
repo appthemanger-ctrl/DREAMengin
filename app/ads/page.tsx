@@ -8,10 +8,10 @@ import DreamWord from '@/components/ui/dream.DreamWord';
 import { connection } from 'next/server';
 
 
-export default async function AdsPage() {
+export default async function AdsPage( {
   await connection();
   const supabase = await createServerClient();
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -51,8 +51,8 @@ export default async function AdsPage() {
 
   // Separate user DreamAds from platform promotions (Phase 6 item 11)
   // Use strict equality so null/undefined listings land in userAdListings (owner's own ads).
-  const userAdListings = allListings.filter((l) => l.is_platform_promotion !== true);
-  const platformPromotions = allListings.filter((l) => l.is_platform_promotion === true);
+  const userAdListings = allListings.filter((l: Record<string, unknown>) => l.is_platform_promotion !== true);
+  const platformPromotions = allListings.filter((l: Record<string, unknown>) => l.is_platform_promotion === true);
 
   return (
     <div className="de-sky-bg min-h-screen">
@@ -109,7 +109,7 @@ export default async function AdsPage() {
                 <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Create your first ad slot to start earning</p>
               </div>
             ) : (
-              mySlots.map((slot) => (
+              mySlots.map((slot: Record<string, unknown>) => (
                 <Link key={slot.id} href={`/ads/slot/${slot.id}`} className="de-row" style={{ borderRadius: 10 }}>
                   <div style={{ width: 40, height: 40, borderRadius: 10, background: 'rgba(200,152,26,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <LayoutGrid className="w-5 h-5" style={{ color: 'var(--de-gold)' }} />
@@ -161,7 +161,7 @@ export default async function AdsPage() {
                 </p>
               </div>
             ) : (
-              userAdListings.map((listing) => (
+              userAdListings.map((listing: Record<string, unknown>) => (
                 <a
                   key={listing.id}
                   href={`/ads/slot/${listing.ad_slots?.id}`}
@@ -199,7 +199,7 @@ export default async function AdsPage() {
               </span>
             </div>
             <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-              {platformPromotions.map((listing) => (
+              {platformPromotions.map((listing: Record<string, unknown>) => (
                 <a
                   key={listing.id}
                   href={`/ads/slot/${listing.ad_slots?.id}`}
@@ -234,7 +234,7 @@ export default async function AdsPage() {
               <span style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{myOrders.length} order{myOrders.length !== 1 ? 's' : ''}</span>
             </div>
             <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-              {myOrders.map((order) => (
+              {myOrders.map((order: Record<string, unknown>) => (
                 <div key={order.id} className="de-row">
                   <div style={{ flex: 1 }}>
                     <div className="text-sm font-semibold capitalize" style={{ color: 'var(--de-heading)' }}>

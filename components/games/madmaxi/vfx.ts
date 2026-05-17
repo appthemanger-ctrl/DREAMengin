@@ -55,7 +55,7 @@ interface PSConfig {
   dir2: [number, number, number];
 }
 
-function makePS(BJS: BJS, scene: Scene, name: string, cfg: PSConfig): ParticleSystem {
+function makePS(BJS: BJS, scene: Scene, name: string, cfg: PSConfig: ParticleSystem {
   const ps = new BJS.ParticleSystem(name, cfg.capacity, scene);
   ps.particleTexture = new BJS.Texture(PARTICLE_TEX_DATA, scene);
   ps.emitter = new BJS.Vector3(0, 0, 0);
@@ -74,7 +74,7 @@ function makePS(BJS: BJS, scene: Scene, name: string, cfg: PSConfig): ParticleSy
   return ps;
 }
 
-export function createMadmaxiVfx(BJS: BJS, scene: Scene, glow: GlowLayer | null): VfxKit {
+export function createMadmaxiVfx(BJS: BJS, scene: Scene, glow: GlowLayer | null: VfxKit {
   // ─── Sparks ────────────────────────────────────────────────────────────
   const sparks = makePS(BJS, scene, 'madmaxi_sparks', {
     capacity: 80,

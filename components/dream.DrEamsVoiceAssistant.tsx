@@ -13,7 +13,7 @@ interface Message {
   isVoice?: boolean;
 }
 
-export default function DrEamsVoiceAssistant() {
+export default function DrEamsVoiceAssistant( {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -36,9 +36,9 @@ export default function DrEamsVoiceAssistant() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
    
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
    
-  const synthRef = useRef<any>(null);
+  const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -52,7 +52,7 @@ export default function DrEamsVoiceAssistant() {
 
   // Listen for iDari activity and surface it inside Dr. Eams chat
   useEffect(() => {
-    const unsubscribe = onIdariEvent((evt) => {
+    const unsubscribe = onIdariEvent(evt: Record<string, unknown> => {
       // Avoid spamming: only surface status + errors, and occasional key logs
       const shouldSurface =
         evt.type === 'idari:status' ||
@@ -77,7 +77,7 @@ export default function DrEamsVoiceAssistant() {
     if (typeof window === 'undefined') return;
 
      
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition = (window as Window & { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition || (window as Window & { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
     const SpeechSynthesis = window.speechSynthesis;
 
     // Detect browser support once
@@ -90,7 +90,7 @@ export default function DrEamsVoiceAssistant() {
       recognition.lang = 'en-US';
 
        
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event: unknown) => {
         let interimTranscript = '';
         let finalTranscript = '';
 
@@ -120,7 +120,7 @@ export default function DrEamsVoiceAssistant() {
       };
 
        
-      recognition.onerror = (event: any) => {
+      recognition.onerror = (event: unknown) => {
         console.error('Speech recognition error:', event.error);
         if (event.error === 'no-speech') {
           // Restart recognition if no speech detected
@@ -213,7 +213,7 @@ export default function DrEamsVoiceAssistant() {
     // Try to use a male voice for Dr. Eams
     const voices = synthRef.current.getVoices();
      
-    const maleVoice = voices.find((voice: any) => 
+    const maleVoice = voices.find((voice: unknown) => 
       voice.name.includes('Male') || voice.name.includes('Daniel') || voice.name.includes('David')
     );
     if (maleVoice) {
@@ -556,7 +556,7 @@ export default function DrEamsVoiceAssistant() {
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 h-[480px]">
-            {messages.map((message) => (
+            {messages.map((message: Record<string, unknown>) => (
               <div
                 key={message.id}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}

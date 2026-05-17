@@ -111,7 +111,7 @@ export function useKeySet(
  * The returned callback is intentionally stable (empty `useCallback` deps when
  * `game` is a string literal) so it is safe to include in `useEffect` dep arrays.
  */
-export function useSubmitScore(game: string) {
+export function useSubmitScore(game: string {
   return useCallback(
     (score: number, level?: number) => {
       fetch('/api/game-scores', {
@@ -171,12 +171,12 @@ export function useGamePerformanceBaseline({
     runtimeSeenAtRef.current = 0;
 
     let cancelled = false;
-    isWebGPUAvailable().then((webgpuSupported) => {
+    isWebGPUAvailable().then(webgpuSupported: Record<string, unknown> => {
       if (cancelled) return;
-      setBaseline((prev) => createPendingBaseline(gameId, renderMode, webgpuSupported, prev));
+      setBaseline(prev: Record<string, unknown> => createPendingBaseline(gameId, renderMode, webgpuSupported, prev));
     }).catch(() => {
       if (cancelled) return;
-      setBaseline((prev) => createPendingBaseline(gameId, renderMode, false, prev));
+      setBaseline(prev: Record<string, unknown> => createPendingBaseline(gameId, renderMode, false, prev));
     });
 
     return () => {
@@ -193,7 +193,7 @@ export function useGamePerformanceBaseline({
     const tick = (timestamp: number) => {
       const sample = sampler.pushFrame(timestamp);
       if (sample) {
-        setBaseline((prev) => {
+        setBaseline(prev: Record<string, unknown> => {
           // Prefer engine-reported runtime telemetry briefly so WebGPU/Babylon
           // games can override the generic shell sampler without flicker.
           if (prev?.source === 'runtime' && performance.now() - runtimeSeenAtRef.current < RUNTIME_BASELINE_GRACE_MS) {

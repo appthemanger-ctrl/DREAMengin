@@ -15,7 +15,7 @@ const NAV_ITEMS = [
   { href: '/engines/brand/campaigns',  label: 'Campaigns', emoji: '💰' },
 ];
 
-export default async function BrandCampaignsPage() {
+export default async function BrandCampaignsPage( {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

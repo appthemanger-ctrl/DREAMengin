@@ -18,13 +18,13 @@ export async function recommendItems(
   const engine = new GCTEngine({ preferGPU: true, numTemplates: itemProfiles.length });
   await engine.init();
 
-  const templates: Template[] = itemProfiles.map((item) => ({
+  const templates: Template[] = itemProfiles.map((item: Record<string, unknown>) => ({
     id: item.id,
     data: item.vector,
   }));
 
   const matches = await engine.search(userHistory, templates, threshold);
   return matches
-    .sort((a, b) => b.correlation - a.correlation)
-    .map((match) => match.templateId);
+    .sort(a: Record<string, unknown>, b: Record<string, unknown> => b.correlation - a.correlation)
+    .map((match: Record<string, unknown>) => match.templateId);
 }

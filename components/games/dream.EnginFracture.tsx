@@ -52,7 +52,7 @@ interface Mech {
 }
 interface Bullet { x: number; y: number; vx: number; dmg: number; ttl: number; from: 'p' | 'e'; col: string; }
 
-export default function EnginFracture() {
+export default function EnginFracture( {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [build, setBuild] = useState<Build>({ chassis: 'lance', arm: 'pulse', leg: 'jet', faction: 'kindling' });
@@ -162,7 +162,7 @@ export default function EnginFracture() {
             if (b.from === 'p') scoreRef.current += b.dmg;
           }
         }
-        bulletsRef.current = bulletsRef.current.filter((b) => b.ttl > 0);
+        bulletsRef.current = bulletsRef.current.filter(b: Record<string, unknown> => b.ttl > 0);
 
         // End conditions
         if (p.hp <= 0) setPhase('defeat');
@@ -278,7 +278,7 @@ function Picker({ label, options, value, onChange }: {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       <div style={{ color: '#8aa9ff', fontSize: 11, letterSpacing: 3 }}>{label}</div>
-      {options.map((o) => (
+      {options.map((o: Record<string, unknown>) => (
         <button key={o.id} onClick={() => onChange(o.id)} style={{
           textAlign: 'left', padding: '6px 8px', fontSize: 12,
           background: value === o.id ? 'rgba(138,169,255,0.2)' : 'rgba(20,24,48,0.6)',

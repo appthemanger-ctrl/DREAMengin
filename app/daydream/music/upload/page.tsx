@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { ArrowLeft, Music, Upload, Loader2, Youtube, Info } from 'lucide-react';
 
 
-export default function UploadMusicPage() {
+export default function UploadMusicPage( {
   const [title, setTitle] = useState('');
   const [embedUrl, setEmbedUrl] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'private'>('public');

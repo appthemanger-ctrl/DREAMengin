@@ -21,7 +21,7 @@ interface GameHUDProps {
   playHref?: string;
 }
 
-export default function GameHUD({ gameLabel, gameEmoji, playHref }: GameHUDProps) {
+export default function GameHUD({ gameLabel, gameEmoji: Record<string, unknown>, playHref }: GameHUDProps {
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
 
@@ -92,7 +92,7 @@ export default function GameHUD({ gameLabel, gameEmoji, playHref }: GameHUDProps
         {/* Center: expand / collapse button */}
         <button
           type="button"
-          onClick={() => setExpanded((prev) => !prev)}
+          onClick={() => setExpanded(prev: Record<string, unknown> => !prev)}
           aria-label={expanded ? 'Close remote' : 'Open remote'}
           style={{
             fontSize: 16,

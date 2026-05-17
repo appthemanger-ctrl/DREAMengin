@@ -11,7 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import type { TrackViewRequest, TrackViewResponse } from '@/lib/activity/types';
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   const supabase = await createServerClient();
 
   // Auth check (optional - allow anonymous views)
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     // Rate-limit: max 1 view per post per user per hour (authenticated users only)
     if (user) {
       const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-      const { count: recentViewCount } = await (supabase as any)
+      const { count: recentViewCount } = await (supabase as SupabaseClient)
         .from('views')
         .select('id', { count: 'exact', head: true })
         .eq('viewer_id', user.id)
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
       (view_duration === undefined || view_duration >= 3); // 3+ seconds
 
     // Record view
-    const { data: view, error: viewError } = await (supabase as any)
+    const { data: view, error: viewError } = await (supabase as SupabaseClient)
       .from('views')
       .insert({
         post_id,

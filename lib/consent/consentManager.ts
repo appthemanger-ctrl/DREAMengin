@@ -189,7 +189,7 @@ export class ConsentManager {
 
   getAllSettings(): Record<string, string> {
     const obj: Record<string, string> = {};
-    this._settings.forEach((v, k) => { obj[k] = v; });
+    this._settings.forEach(v: Record<string, unknown>, k: number => { obj[k] = v; });
     return obj;
   }
 
@@ -256,7 +256,7 @@ export class ConsentManager {
         console.warn('[ConsentManager] flush user mismatch blocked');
         return;
       }
-      const entries = this.getAllEntries().map((entry) => ({
+      const entries = this.getAllEntries().map((entry: Record<string, unknown>) => ({
         user_id: userId,
         domain: entry.domain,
         decision: entry.decision,
@@ -281,7 +281,7 @@ export class ConsentManager {
           .upsert(settings, { onConflict: 'user_id,key' });
       }
 
-      const auditRows = this._auditLog.map((entry) => ({
+      const auditRows = this._auditLog.map((entry: Record<string, unknown>) => ({
         user_id: userId,
         event_type: entry.eventType,
         domain: entry.domain ?? null,

@@ -114,7 +114,7 @@ const creativityConstraint: EnginConstraint<ContentEnginAction> = (
 
 // ─── Transform ────────────────────────────────────────────────────────────────
 
-function transform(state: EnginBaseState, action: ContentEnginAction): EnginBaseState {
+function transform(state: EnginBaseState, action: ContentEnginAction: EnginBaseState {
   const domain = (state.domain as Partial<typeof DEFAULT_DOMAIN>);
   const queue  = () => (domain.publishQueue ?? []) as CalendarItem[];
 
@@ -132,14 +132,14 @@ function transform(state: EnginBaseState, action: ContentEnginAction): EnginBase
     case 'content:item-remove': {
       const { itemId } = (action as EnginAction<'content:item-remove', { itemId: string }>).payload!;
       return patchBaseState(state, {
-        domain: { ...domain, publishQueue: queue().filter((i) => i.id !== itemId) },
+        domain: { ...domain, publishQueue: queue().filter(i: number => i.id !== itemId) },
       });
     }
 
     case 'content:item-publish': {
       const { itemId } = (action as EnginAction<'content:item-publish', { itemId: string }>).payload!;
       return patchBaseState(state, {
-        domain: { ...domain, publishQueue: queue().filter((i) => i.id !== itemId) },
+        domain: { ...domain, publishQueue: queue().filter(i: number => i.id !== itemId) },
       });
     }
 
@@ -147,7 +147,7 @@ function transform(state: EnginBaseState, action: ContentEnginAction): EnginBase
       const { platform } = (action as EnginAction<'content:platform-toggle', { platform: Platform }>).payload!;
       const current = (domain.activePlatforms ?? DEFAULT_DOMAIN.activePlatforms) as Platform[];
       const next = current.includes(platform)
-        ? current.filter((p) => p !== platform)
+        ? current.filter((p: Record<string, unknown>) => p !== platform)
         : [...current, platform];
       return patchBaseState(state, { domain: { ...domain, activePlatforms: next } });
     }
@@ -178,7 +178,7 @@ function transform(state: EnginBaseState, action: ContentEnginAction): EnginBase
 
 // ─── deriveState ──────────────────────────────────────────────────────────────
 
-function deriveState(state: EnginBaseState): ContentEnginDerivedState {
+function deriveState(state: EnginBaseState: ContentEnginDerivedState {
   const d = state.domain as Partial<typeof DEFAULT_DOMAIN>;
   return {
     lifecycle:       state.lifecycle,

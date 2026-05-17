@@ -103,7 +103,7 @@ export function applyInertialDecay(
  */
 export const SNAP_THRESHOLD = 0.02; // radians (~1.15°)
 
-export function shouldSnapToGrid(position: number): boolean {
+export function shouldSnapToGrid(position: number: boolean {
   return Math.abs(position) < SNAP_THRESHOLD;
 }
 

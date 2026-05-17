@@ -40,7 +40,7 @@ export interface MastodonStatus {
   media_attachments: Array<{ url: string; type: string }>;
 }
 
-export function normalizeMastodonPost(status: MastodonStatus): NormalizedPost {
+export function normalizeMastodonPost(status: MastodonStatus: NormalizedPost {
   const firstMedia = status.media_attachments[0];
   const strippedContent = status.content.replace(/<[^>]*>/g, '').trim();
   return {
@@ -74,7 +74,7 @@ export function normalizeNostrEvent(
   event: NostrEvent,
   authorProfile?: { name?: string; picture?: string },
 ): NormalizedPost {
-  const mediaTag = event.tags.find((t) => t[0] === 'r' || t[0] === 'image');
+  const mediaTag = event.tags.find((t: Record<string, unknown>) => t[0] === 'r' || t[0] === 'image');
   return {
     id: `nostr:${event.id}`,
     source: 'nostr',
@@ -112,7 +112,7 @@ export interface BlueskyPost {
   };
 }
 
-export function normalizeBlueskyPost(post: BlueskyPost): NormalizedPost {
+export function normalizeBlueskyPost(post: BlueskyPost: NormalizedPost {
   const img = post.record.embed?.images?.[0];
   return {
     id: `bluesky:${post.cid}`,

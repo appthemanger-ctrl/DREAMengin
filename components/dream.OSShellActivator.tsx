@@ -46,7 +46,7 @@ const DEFAULT_WORKFLOW_SPLIT = 0.5;
 /** No route owns a special bridge; shell callbacks are global from root layout. */
 const OWN_BRIDGE_ROUTES = new Set<string>();
 
-export default function OSShellActivator() {
+export default function OSShellActivator( {
   const pathname = usePathname();
   const dualRuntime = useDualRuntime();
   const {
@@ -73,7 +73,7 @@ export default function OSShellActivator() {
   const revealSplitRuntime = useCallback(
     (nextRatio = DEFAULT_WORKFLOW_SPLIT) => {
       setIsBarMinimized(false);
-      setSplitRatio((current) => {
+      setSplitRatio(current: Record<string, unknown> => {
         if (current >= 0.98 || current <= 0.02) return nextRatio;
         return current;
       });
@@ -97,7 +97,7 @@ export default function OSShellActivator() {
     dualRuntime.setBottomRuntime('DreamSpace');
     dualRuntime.setDominantRuntime('DreamSpace');
     setIsBarMinimized(false);
-    setSplitRatio((current) => (current >= 0.5 ? 0.25 : current));
+    setSplitRatio(current: Record<string, unknown> => (current >= 0.5 ? 0.25 : current));
     closeBothMenus();
     closeDrEams();
   }, [closeBothMenus, closeDrEams, dualRuntime, setIsBarMinimized, setSplitRatio]);

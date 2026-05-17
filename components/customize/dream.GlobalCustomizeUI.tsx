@@ -12,7 +12,7 @@ import EffectsPanel from './panels/dream.panel.EffectsPanel';
  * GlobalCustomizeUI — assembles all customize mode UI into one component.
  * Rendered once in app/layout.tsx so it's available on every page.
  */
-export default function GlobalCustomizeUI() {
+export default function GlobalCustomizeUI( {
   return (
     <>
       {/* Fixed top banner while in customize mode */}

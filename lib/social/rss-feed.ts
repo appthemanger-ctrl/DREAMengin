@@ -98,14 +98,14 @@ export interface RssFeedConfig {
  * Returns the public RSS feed URL for a YouTube channel.
  * No API key required — this feed is always public.
  */
-export function youtubeChannelRssUrl(channelId: string): string {
+export function youtubeChannelRssUrl(channelId: string: string {
   return `https://www.youtube.com/feeds/videos.xml?channel_id=${encodeURIComponent(channelId)}`;
 }
 
 /**
  * Returns the public RSS feed URL for a YouTube playlist.
  */
-export function youtubePlaylistRssUrl(playlistId: string): string {
+export function youtubePlaylistRssUrl(playlistId: string: string {
   return `https://www.youtube.com/feeds/videos.xml?playlist_id=${encodeURIComponent(playlistId)}`;
 }
 
@@ -113,7 +113,7 @@ export function youtubePlaylistRssUrl(playlistId: string): string {
  * Returns the public RSS feed URL for a subreddit.
  * Accepts names with or without the "r/" prefix.
  */
-export function redditSubredditRssUrl(subreddit: string): string {
+export function redditSubredditRssUrl(subreddit: string: string {
   const name = subreddit.replace(/^r\//, '');
   return `https://www.reddit.com/r/${encodeURIComponent(name)}/.rss?limit=25`;
 }
@@ -122,7 +122,7 @@ export function redditSubredditRssUrl(subreddit: string): string {
  * Returns the public RSS feed URL for a Reddit user's submitted posts.
  * Accepts names with or without the "u/" prefix.
  */
-export function redditUserRssUrl(username: string): string {
+export function redditUserRssUrl(username: string: string {
   const name = username.replace(/^u\//, '');
   return `https://www.reddit.com/user/${encodeURIComponent(name)}/submitted/.rss?limit=25`;
 }
@@ -133,7 +133,7 @@ export function redditUserRssUrl(username: string): string {
  * @param instanceUrl - full instance URL, e.g. "https://mastodon.social"
  * @param handle      - local handle without the @instance suffix, e.g. "alice"
  */
-export function mastodonUserRssUrl(instanceUrl: string, handle: string): string {
+export function mastodonUserRssUrl(instanceUrl: string, handle: string: string {
   const base = instanceUrl.replace(/\/$/, '');
   const localHandle = handle.replace(/^@/, '').split('@')[0];
   return `${base}/@${localHandle}.rss`;
@@ -142,7 +142,7 @@ export function mastodonUserRssUrl(instanceUrl: string, handle: string): string 
 /**
  * Returns the public Atom feed URL for a GitHub user's activity.
  */
-export function githubUserAtomUrl(username: string): string {
+export function githubUserAtomUrl(username: string: string {
   return `https://github.com/${encodeURIComponent(username)}.atom`;
 }
 
@@ -150,7 +150,7 @@ export function githubUserAtomUrl(username: string): string {
  * Returns the RSS feed URL for a Nostr public key via the njump.me gateway.
  * npub or hex pubkey are both accepted.
  */
-export function nostrGatewayRssUrl(pubkeyOrNpub: string): string {
+export function nostrGatewayRssUrl(pubkeyOrNpub: string: string {
   return `https://njump.me/${encodeURIComponent(pubkeyOrNpub)}/rss`;
 }
 
@@ -159,7 +159,7 @@ export function nostrGatewayRssUrl(pubkeyOrNpub: string): string {
  * Accepts a username (e.g. "alice") or a publication slug.
  * For custom domains use the full URL form: https://pub.medium.com/feed
  */
-export function mediumUserRssUrl(username: string): string {
+export function mediumUserRssUrl(username: string: string {
   const name = username.replace(/^@/, '');
   return `https://medium.com/feed/@${encodeURIComponent(name)}`;
 }
@@ -168,7 +168,7 @@ export function mediumUserRssUrl(username: string): string {
  * Returns the RSS feed URL for a Dev.to user.
  * https://dev.to/feed/username
  */
-export function devtoUserRssUrl(username: string): string {
+export function devtoUserRssUrl(username: string: string {
   return `https://dev.to/feed/${encodeURIComponent(username)}`;
 }
 
@@ -177,7 +177,7 @@ export function devtoUserRssUrl(username: string): string {
  * Accepts either a full subdomain URL (e.g. "https://mynewsletter.substack.com")
  * or just the subdomain slug (e.g. "mynewsletter").
  */
-export function substackRssUrl(subdomainOrUrl: string): string {
+export function substackRssUrl(subdomainOrUrl: string: string {
   if (subdomainOrUrl.startsWith('http')) {
     const base = subdomainOrUrl.replace(/\/$/, '');
     return `${base}/feed`;
@@ -189,7 +189,7 @@ export function substackRssUrl(subdomainOrUrl: string): string {
  * Returns the RSS feed URL for Hacker News stories.
  * @param type - 'newest' | 'best' | 'ask' | 'show' | 'jobs' (default: 'best')
  */
-export function hackerNewsRssUrl(type: 'newest' | 'best' | 'ask' | 'show' | 'jobs' = 'best'): string {
+export function hackerNewsRssUrl(type: 'newest' | 'best' | 'ask' | 'show' | 'jobs' = 'best': string {
   const map = {
     newest: 'https://hnrss.org/newest',
     best: 'https://hnrss.org/best',
@@ -203,7 +203,7 @@ export function hackerNewsRssUrl(type: 'newest' | 'best' | 'ask' | 'show' | 'job
 /**
  * Returns the RSS feed URL for a Hacker News user's submissions.
  */
-export function hackerNewsUserRssUrl(username: string): string {
+export function hackerNewsUserRssUrl(username: string: string {
   return `https://hnrss.org/submitted?id=${encodeURIComponent(username)}`;
 }
 
@@ -215,7 +215,7 @@ export function hackerNewsUserRssUrl(username: string): string {
  * @param nitterInstance - e.g. "https://nitter.net" (defaults to nitter.net)
  * @param username       - Twitter handle without @
  */
-export function twitterNitterRssUrl(nitterInstance: string, username: string): string {
+export function twitterNitterRssUrl(nitterInstance: string, username: string: string {
   const base = nitterInstance.replace(/\/$/, '');
   return `${base}/${encodeURIComponent(username)}/rss`;
 }
@@ -238,7 +238,7 @@ export const DEFAULT_NITTER_INSTANCE = 'https://nitter.net';
  * Public Page RSS still works. Personal profiles should use the "Any RSS Feed"
  * connector with a third-party bridge if needed.
  */
-export function facebookPageRssUrl(pageIdOrUrl: string): string {
+export function facebookPageRssUrl(pageIdOrUrl: string: string {
   // Extract the page identifier from a full URL if provided
   let id = pageIdOrUrl.trim();
   if (id.includes('facebook.com/')) {
@@ -261,7 +261,7 @@ export function facebookPageRssUrl(pageIdOrUrl: string): string {
  * @param username - Pinterest username
  * @param board    - Optional board slug. If omitted, returns all public pins.
  */
-export function pinterestRssUrl(username: string, board?: string): string {
+export function pinterestRssUrl(username: string, board?: string: string {
   const u = encodeURIComponent(username.replace(/^@/, ''));
   if (board && board.trim()) {
     return `https://www.pinterest.com/${u}/${encodeURIComponent(board.trim())}.rss`;
@@ -275,7 +275,7 @@ export function pinterestRssUrl(username: string, board?: string): string {
  *
  * Accepts either a username ("myblog") or a full URL ("https://myblog.tumblr.com").
  */
-export function tumblrRssUrl(usernameOrUrl: string): string {
+export function tumblrRssUrl(usernameOrUrl: string: string {
   let slug = usernameOrUrl.trim();
   if (slug.includes('tumblr.com')) {
     const match = slug.match(/([^/.]+)\.tumblr\.com/);
@@ -299,7 +299,7 @@ export function tumblrRssUrl(usernameOrUrl: string): string {
  * @param username    - TikTok username without @
  * @param rsshubBase  - RSSHub instance URL (defaults to https://rsshub.app)
  */
-export function tiktokProfileRssUrl(username: string, rsshubBase = 'https://rsshub.app'): string {
+export function tiktokProfileRssUrl(username: string, rsshubBase = 'https://rsshub.app': string {
   const base = rsshubBase.replace(/\/$/, '');
   return `${base}/tiktok/user/@${encodeURIComponent(username.replace(/^@/, ''))}`;
 }
@@ -308,7 +308,7 @@ export function tiktokProfileRssUrl(username: string, rsshubBase = 'https://rssh
  * Returns the given podcast / generic RSS feed URL unchanged.
  * This is a passthrough — the user provides the full URL.
  */
-export function podcastRssUrl(feedUrl: string): string {
+export function podcastRssUrl(feedUrl: string: string {
   return feedUrl;
 }
 
@@ -317,7 +317,7 @@ export function podcastRssUrl(feedUrl: string): string {
 // Lazily-created singleton; each call shares the same Parser instance.
 let _parser: Parser | null = null;
 
-function getParser(): Parser {
+function getParser(: Parser {
   if (!_parser) {
     _parser = new Parser({
       customFields: RSS_CUSTOM_FIELDS,
@@ -358,7 +358,7 @@ export async function parseRssFeed(
   const channelTitle = feed.title ?? config.authorName ?? config.provider;
   const items = (feed.items ?? []).slice(0, limit);
 
-  return items.map((item) => normaliseRssItem(item, config, channelTitle));
+  return items.map((item: Record<string, unknown>) => normaliseRssItem(item, config, channelTitle));
 }
 
 // ── Item normaliser ───────────────────────────────────────────────────────
@@ -372,7 +372,7 @@ export async function parseRssFeed(
  */
 export function normaliseRssItem(
    
-  item: any,
+  item: unknown,
   config: RssFeedConfig,
   channelTitle: string,
 ): UnifiedFeedItem {
@@ -426,7 +426,7 @@ export function normaliseRssItem(
  *  5. <img src> inside content:encoded / description HTML
  */
  
-export function extractFirstImage(item: any): string | null {
+export function extractFirstImage(item: unknown: string | null {
   // 1) enclosure
   if (item.enclosure?.url && isImageLike(item.enclosure.url)) {
     return item.enclosure.url;
@@ -436,19 +436,19 @@ export function extractFirstImage(item: any): string | null {
   if (Array.isArray(item.mediaContent)) {
     const url = item.mediaContent.find(
        
-      (x: any) => x?.$?.url && isImageLike(x.$?.url),
+      (x: unknown) => x?.$?.url && isImageLike(x.$?.url),
     )?.$?.url;
     if (url) return url;
     // Fall back to any url even if it's a video (still usable as thumbnail)
      
-    const anyUrl = item.mediaContent.find((x: any) => x?.$?.url)?.$?.url;
+    const anyUrl = item.mediaContent.find((x: unknown) => x?.$?.url)?.$?.url;
     if (anyUrl) return anyUrl;
   }
 
   // 3) media:thumbnail (array)
   if (Array.isArray(item.mediaThumbnail)) {
      
-    const url = item.mediaThumbnail.find((x: any) => x?.$?.url)?.$?.url;
+    const url = item.mediaThumbnail.find((x: unknown) => x?.$?.url)?.$?.url;
     if (url) return url;
   }
 
@@ -458,7 +458,7 @@ export function extractFirstImage(item: any): string | null {
      
     const thumb = Array.isArray(group['media:thumbnail'])
        
-      ? group['media:thumbnail'].find((x: any) => x?.$?.url)?.$?.url
+      ? group['media:thumbnail'].find((x: unknown) => x?.$?.url)?.$?.url
       : group['media:thumbnail']?.$?.url;
     if (thumb) return thumb;
   }
@@ -482,7 +482,7 @@ export function extractFirstImage(item: any): string | null {
  * Strips HTML tags and decodes common HTML entities, returning plain text.
  * Also collapses excessive whitespace.
  */
-export function stripHtml(input?: string | null): string {
+export function stripHtml(input?: string | null: string {
   if (!input) return '';
   return input
     .replace(/<[^>]*>/g, ' ')
@@ -497,7 +497,7 @@ export function stripHtml(input?: string | null): string {
 }
 
 /** Returns true if the URL looks like an image (common extensions or known CDN paths). */
-function isImageLike(url: string): boolean {
+function isImageLike(url: string: boolean {
   return /\.(jpe?g|png|gif|webp|avif|svg)(\?|$)/i.test(url);
 }
 
@@ -513,7 +513,7 @@ function guessMediaType(
 }
 
 /** Convert any date string to ISO 8601, falling back to now on parse failure. */
-function toIso(raw: string): string {
+function toIso(raw: string: string {
   const d = new Date(raw);
   return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
 }

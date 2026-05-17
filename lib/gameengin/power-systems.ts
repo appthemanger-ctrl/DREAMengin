@@ -207,7 +207,7 @@ export class ComputeShaderPipeline {
     const encoder = dev.createCommandEncoder();
     const pass = encoder.beginComputePass();
     pass.setPipeline(nativePipeline);
-    dispatch.bindings.forEach((buf, i) => {
+    dispatch.bindings.forEach(buf: Record<string, unknown>, i: number => {
       // Cast layout to bypass branded GPUBindGroupLayout type check
       const layout = nativePipeline.getBindGroupLayout(0) as unknown as GPUBindGroupLayout;
       const bg = dev.createBindGroup({
@@ -675,7 +675,7 @@ export class WorkerJobSystem {
   enqueue<T>(job: Job<T>): Promise<JobResult<T>> {
     return new Promise(resolve => {
       this.queue.push({ job, resolve: resolve as (r: JobResult) => void });
-      this.queue.sort((a, b) =>
+      this.queue.sort(a: Record<string, unknown>, b: Record<string, unknown> =>
         PRIORITY_WEIGHT[a.job.priority ?? 'normal'] - PRIORITY_WEIGHT[b.job.priority ?? 'normal']
       );
       this._drain();
@@ -779,7 +779,7 @@ export class ProceduralWorldGen {
       }
     }
 
-    const avgH = heightmap.reduce((a, b) => a + b, 0) / heightmap.length;
+    const avgH = heightmap.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b, 0) / heightmap.length;
     const biome = avgH < seaLevel ? 'ocean'
                 : avgH < seaLevel + 0.1 ? 'beach'
                 : avgH < 0.6 ? 'forest'
@@ -987,7 +987,7 @@ export class SpatialAudioDSP {
 
   get stats() { return { sources: this.sources.size, sampleRate: this.ctx?.sampleRate ?? 0, state: this.ctx?.state ?? 'unavailable' }; }
 
-  dispose(): void { this.sources.forEach((_, id) => this.removeSource(id)); this.ctx?.close(); this.ctx = null; }
+  dispose(): void { this.sources.forEach(_: Record<string, unknown>, id: string => this.removeSource(id)); this.ctx?.close(); this.ctx = null; }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1268,7 +1268,7 @@ export class GPUProfiler {
         const m = performance.measure('__gp_frame', '__gp_frame_start', '__gp_frame_end');
         this.currentFrame.totalMs = m.duration;
       } catch {
-        this.currentFrame.totalMs = this.currentFrame.spans.reduce((a, s) => a + s.durationMs, 0);
+        this.currentFrame.totalMs = this.currentFrame.spans.reduce(a: Record<string, unknown>, s: string => a + s.durationMs, 0);
       }
     }
     this.frames.push(this.currentFrame);
@@ -1282,14 +1282,14 @@ export class GPUProfiler {
   avgFrameMs(n = 60): number {
     const slice = this.frames.slice(-n);
     if (!slice.length) return 0;
-    return slice.reduce((a, f) => a + f.totalMs, 0) / slice.length;
+    return slice.reduce(a: Record<string, unknown>, f: Record<string, unknown> => a + f.totalMs, 0) / slice.length;
   }
 
   /** Slowest span label across the last frame. */
   hotSpot(): string {
     const last = this.frames[this.frames.length - 1];
     if (!last || !last.spans.length) return 'none';
-    return last.spans.reduce((a, b) => a.durationMs > b.durationMs ? a : b).label;
+    return last.spans.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a.durationMs > b.durationMs ? a : b).label;
   }
 
   getFrames(n = 60): ProfileFrame[] { return this.frames.slice(-n); }
@@ -1368,7 +1368,7 @@ export class TypedEventBus<M extends EventMap = EventMap> {
     this.listeners.get(event)!.push({ fn, once });
   }
 
-  get stats() { return { listeners: [...this.listeners.values()].reduce((a, v) => a + v.length, 0), history: this.history.length, emitCount: this.emitCount }; }
+  get stats() { return { listeners: [...this.listeners.values()].reduce(a: Record<string, unknown>, v: number => a + v.length, 0), history: this.history.length, emitCount: this.emitCount }; }
 
   dispose(): void { this.listeners.clear(); this.history = []; }
 }
@@ -1971,7 +1971,7 @@ export class AssetStreamManager {
     if (!h || h.state !== 'unloaded') return false;
     h.state = 'queued';
     this.queue.push(h);
-    this.queue.sort((a, b) => b.priority - a.priority || a.lod - b.lod);
+    this.queue.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.priority - a.priority || a.lod - b.lod);
     this._drain();
     return true;
   }
@@ -2007,7 +2007,7 @@ export class AssetStreamManager {
 
   private _evictIfNeeded(): void {
     if (this.loadedBytes <= this.maxCacheBytes) return;
-    const loaded = [...this.assets.values()].filter(h => h.state === 'loaded').sort((a, b) => (a.priority - b.priority));
+    const loaded = [...this.assets.values()].filter(h => h.state === 'loaded').sort(a: Record<string, unknown>, b: Record<string, unknown> => (a.priority - b.priority));
     for (const h of loaded) {
       if (this.loadedBytes <= this.maxCacheBytes * 0.8) break;
       this.loadedBytes -= h.data?.byteLength ?? 0;

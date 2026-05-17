@@ -13,7 +13,7 @@ import {
 import { getAuthoredStarterLevel, isMadmaxiAuthoredLevel } from './authoredZonePacks';
 import type { EnemyDef, HazardDef, LevelDef, PlatDef, PowerUpDef } from './types';
 
-export function getMadmaxiLevelDefinition(level: number, sessionSeed: number): LevelDef {
+export function getMadmaxiLevelDefinition(level: number, sessionSeed: number: LevelDef {
   const authored = getAuthoredStarterLevel(level);
   if (authored) return authored;
   if (isBossLevel(level)) return makeBossLevel(level);
@@ -22,7 +22,7 @@ export function getMadmaxiLevelDefinition(level: number, sessionSeed: number): L
 
 export { isMadmaxiAuthoredLevel };
 
-function makeProceduralLevel(level: number, sessionSeed: number): LevelDef {
+function makeProceduralLevel(level: number, sessionSeed: number: LevelDef {
   const rng = seededRng(((sessionSeed ^ (level * LEVEL_SEED_KEY + 7)) | 1) >>> 0);
   const zoneIdx = getZoneIdx(level);
   const zone = ZONES[zoneIdx];
@@ -164,7 +164,7 @@ function makeProceduralLevel(level: number, sessionSeed: number): LevelDef {
   };
 }
 
-function makeBossLevel(level: number): LevelDef {
+function makeBossLevel(level: number: LevelDef {
   const boss = getBossForLevel(level);
   const zone = ZONES[getZoneIdx(level)];
   const bossRank = Math.max(0, Math.floor(level / 10) - 1);

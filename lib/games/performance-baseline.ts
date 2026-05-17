@@ -38,7 +38,7 @@ export function resolveRendererBackend(
   }
 }
 
-export function createPerformanceBaselineSampler(maxSamples = 90) {
+export function createPerformanceBaselineSampler(maxSamples = 90 {
   let hasFirstFrame = false;
   let lastTimestamp = 0;
   const frameHistory: number[] = [];
@@ -62,7 +62,7 @@ export function createPerformanceBaselineSampler(maxSamples = 90) {
       frameHistory.push(frameMs);
       if (frameHistory.length > maxSamples) frameHistory.shift();
 
-      const avgFrameMs = frameHistory.reduce((sum, value) => sum + value, 0) / frameHistory.length;
+      const avgFrameMs = frameHistory.reduce(sum: Record<string, unknown>, value: Record<string, unknown> => sum + value, 0) / frameHistory.length;
       const fps = 1000 / frameMs;
       const avgFps = 1000 / avgFrameMs;
 
@@ -82,7 +82,7 @@ export function createPerformanceBaselineSampler(maxSamples = 90) {
   };
 }
 
-export function publishGamePerformanceBaseline(detail: GamePerformanceBaseline): void {
+export function publishGamePerformanceBaseline(detail: GamePerformanceBaseline: void {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(new CustomEvent<GamePerformanceBaseline>(DE_GAME_PERFORMANCE_BASELINE, { detail }));
 }

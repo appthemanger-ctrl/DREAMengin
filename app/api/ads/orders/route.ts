@@ -30,7 +30,7 @@ import { createServerClient } from '@/lib/supabase/server';
 const PLATFORM_SHARE_PERCENT = 0.10; // 10% DREAMengin platform cut
 
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   const supabase = await createServerClient();
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
   const platformPayout = parseFloat((gross * PLATFORM_SHARE_PERCENT).toFixed(2));
   const creatorPayout  = parseFloat((gross - platformPayout).toFixed(2));
 
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
   const { data, error } = await db
     .from('ad_orders')
     .insert([{

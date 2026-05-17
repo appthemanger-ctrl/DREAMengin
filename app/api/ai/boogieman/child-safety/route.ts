@@ -64,15 +64,15 @@ type ChildSafetyScanBody = z.infer<typeof ChildSafetyScanBodySchema>;
 // The Set is returned empty (not null) on error — scan proceeds without hash matching.
 // ============================================================================
 
-async function loadKnownBadHashes(supabase: Awaited<ReturnType<typeof createServerClient>>): Promise<Set<string>> {
+async function loadKnownBadHashes(supabase: Awaited<ReturnType<typeof createServerClient>>: Promise<Set<string>> {
   try {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await (supabase as SupabaseClient)
       .from('child_safety_hash_registry')
       .select('hash_sha256');
 
     if (error || !data) return new Set();
     return new Set(
-      (data as { hash_sha256: string }[]).map((r) => r.hash_sha256.toLowerCase()),
+      (data as { hash_sha256: string }[]).map((r: Record<string, unknown>) => r.hash_sha256.toLowerCase()),
     );
   } catch {
     return new Set();
@@ -83,7 +83,7 @@ async function loadKnownBadHashes(supabase: Awaited<ReturnType<typeof createServ
 // POST — scan handler
 // ============================================================================
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   const requestStart = Date.now();
   const request_id = uuidv4();
 
@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Access control: admin or owner only
-  const { data: roleData } = await (supabase as any)
+  const { data: roleData } = await (supabase as SupabaseClient)
     .from('user_roles')
     .select('role')
     .eq('user_id', user.id)

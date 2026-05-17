@@ -73,7 +73,7 @@ export interface PlatformCapabilities {
  * Detect the runtime capabilities of the current host. Safe in SSR — returns a
  * conservative all-false snapshot when `window` / `navigator` are missing.
  */
-export function detectCapabilities(): PlatformCapabilities {
+export function detectCapabilities(: PlatformCapabilities {
   if (typeof window === 'undefined' || typeof navigator === 'undefined') {
     return {
       webgpu: false, webgl2: false, gamepad: false, webhid: false,
@@ -225,7 +225,7 @@ export class GameEnginPlatform {
       window.addEventListener('keyup', platform._onKeyUp);
     }
 
-    platform.engine.onFrame((dt, telemetry) => {
+    platform.engine.onFrame(dt: number, telemetry: Record<string, unknown> => {
       platform._telemetry = telemetry;
       platform._elapsed += dt;
       for (const cb of platform._tickSubs) cb(dt, platform._elapsed);
@@ -415,7 +415,7 @@ export class GameEnginPlatform {
 
       network: {
         send: (type: string, payload: unknown) => {},
-        onMessage: (type: string, cb: (payload: any) => void) => () => {},
+        onMessage: (type: string, cb: (payload: unknown) => void) => () => {},
       },
       
       loop: {
@@ -432,7 +432,7 @@ export class GameEnginPlatform {
       physics,
       
       input: {
-        on: (event: string, cb: (payload: any) => void) => {
+        on: (event: string, cb: (payload: unknown) => void) => {
           let bucket = this._inputSubs.get(event);
           if (!bucket) {
             bucket = new Set();

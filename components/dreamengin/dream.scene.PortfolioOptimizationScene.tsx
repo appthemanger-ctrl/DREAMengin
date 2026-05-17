@@ -55,20 +55,20 @@ interface DataParticle {
 }
 
 // ── helpers ─────────────────────────────────────────────────────────────────
-function hex2rgba(hex: string, a: number): string {
+function hex2rgba(hex: string, a: number: string {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
   return `rgba(${r},${g},${b},${a})`;
 }
 
-function nodeXY(node: AssetNode, cx: number, cy: number): [number, number] {
+function nodeXY(node: AssetNode, cx: number, cy: number: [number, number] {
   const x = cx + node.orbitRadius * Math.cos(node.orbitAngle);
   const y = cy + node.orbitRadius * Math.sin(node.orbitAngle) * node.tiltY;
   return [x, y];
 }
 
-export default function PortfolioOptimizationScene() {
+export default function PortfolioOptimizationScene( {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -86,12 +86,12 @@ export default function PortfolioOptimizationScene() {
     let particles: DataParticle[] = [];
 
     // ── build scene geometry ─────────────────────────────────────────────
-    function buildScene() {
+    function buildScene( {
       cx = canvas!.width  / 2;
       cy = canvas!.height / 2;
       const base = Math.min(cx, cy);
 
-      nodes = TICKERS.map((ticker, i) => {
+      nodes = TICKERS.map(ticker: Record<string, unknown>, i: number => {
         const outer  = i < 6;
         const orbitR = base * (outer ? 0.44 : 0.26);
         const speed  = (outer ? 0.18 : 0.30) * (i % 2 === 0 ? 1 : -1);
@@ -113,7 +113,7 @@ export default function PortfolioOptimizationScene() {
       for (let i = 0; i < 24; i++) spawnParticle();
     }
 
-    function spawnParticle() {
+    function spawnParticle( {
       const idx    = Math.floor(Math.random() * nodes.length);
       const toHub  = Math.random() > 0.5;
       particles.push({
@@ -126,17 +126,17 @@ export default function PortfolioOptimizationScene() {
     }
 
     // ── resize ───────────────────────────────────────────────────────────
-    function resize() {
+    function resize( {
       canvas!.width  = window.innerWidth;
       canvas!.height = window.innerHeight;
       buildScene();
     }
 
     // ── drawing helpers ──────────────────────────────────────────────────
-    function drawOrbitalRings() {
+    function drawOrbitalRings( {
       const base  = Math.min(cx, cy);
       const rings = [0.44, 0.26];
-      rings.forEach((r, ri) => {
+      rings.forEach(r: Record<string, unknown>, ri: Record<string, unknown> => {
         const radius = base * r;
         const alpha  = 0.07 + 0.03 * Math.sin(time * 0.4 + ri);
         ctx.beginPath();
@@ -147,7 +147,7 @@ export default function PortfolioOptimizationScene() {
       });
     }
 
-    function drawBackgroundRings() {
+    function drawBackgroundRings( {
       const base  = Math.min(cx, cy);
       for (let r = 3; r >= 0; r--) {
         const radius = base * (0.62 + r * 0.08);
@@ -176,7 +176,7 @@ export default function PortfolioOptimizationScene() {
       ctx.fill();
     }
 
-    function drawHub() {
+    function drawHub( {
       const r  = 24 + 3 * Math.sin(time * 0.9);
       const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 2.8);
       grd.addColorStop(0,   hex2rgba(BLUE, 0.55));
@@ -207,14 +207,14 @@ export default function PortfolioOptimizationScene() {
       ctx.fillText('QUBO', cx, cy + 5);
     }
 
-    function updateNodes() {
+    function updateNodes( {
       nodes.forEach(n => {
         n.orbitAngle += n.orbitSpeed * 0.010;
         [n.x, n.y] = nodeXY(n, cx, cy);
       });
     }
 
-    function drawHubSpokes() {
+    function drawHubSpokes( {
       nodes.forEach(n => {
         const alpha = 0.10 + 0.06 * Math.sin(time * 0.6 + n.pulsePhase);
         ctx.beginPath();
@@ -228,7 +228,7 @@ export default function PortfolioOptimizationScene() {
       });
     }
 
-    function drawNodeConnections() {
+    function drawNodeConnections( {
       const maxDist = Math.min(cx, cy) * 0.55;
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
@@ -247,7 +247,7 @@ export default function PortfolioOptimizationScene() {
       }
     }
 
-    function drawParticles() {
+    function drawParticles( {
       particles.forEach(p => {
         let ax: number, ay: number, bx: number, by: number;
         if (p.from === -1) {
@@ -295,7 +295,7 @@ export default function PortfolioOptimizationScene() {
       });
     }
 
-    function drawNode(n: AssetNode) {
+    function drawNode(n: AssetNode {
       const pulse  = 1 + 0.10 * Math.sin(time * 1.1 + n.pulsePhase);
       const r      = n.nodeSize * pulse;
 
@@ -327,7 +327,7 @@ export default function PortfolioOptimizationScene() {
       ctx.fillText(n.ticker, n.x, n.y);
     }
 
-    function drawCaption() {
+    function drawCaption( {
       const y = cy + Math.min(cx, cy) * 0.72;
       ctx.textAlign    = 'center';
       ctx.textBaseline = 'middle';
@@ -339,7 +339,7 @@ export default function PortfolioOptimizationScene() {
     }
 
     // ── main loop ────────────────────────────────────────────────────────
-    function frame() {
+    function frame( {
       time += 0.016;
       ctx.clearRect(0, 0, canvas!.width, canvas!.height);
 

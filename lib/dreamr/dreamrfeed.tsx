@@ -80,8 +80,8 @@ const RIGHT_SWIPE_SCROLL_BUFFER_CARDS = 2;
 const REDISTRIBUTION_EXPLANATION =
   'this card is recycled to someone more likely to swipe up or left before it earns a real view.';
 
-function nmR(s = 5) { return `${-s}px ${-s}px ${s*2.4}px ${DR.shadowLight}, ${s}px ${s}px ${s*2.8}px ${DR.shadowDark}`; }
-function nmI(s = 4) { return `inset ${-s}px ${-s}px ${s*2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s*2.4}px ${DR.shadowDark}`; }
+function nmR(s = 5 { return `${-s}px ${-s}px ${s*2.4}px ${DR.shadowLight}, ${s}px ${s}px ${s*2.8}px ${DR.shadowDark}`; }
+function nmI(s = 4 { return `inset ${-s}px ${-s}px ${s*2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s*2.4}px ${DR.shadowDark}`; }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -109,7 +109,7 @@ interface DreamRFeedProps {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function relTime(iso: string): string {
+function relTime(iso: string: string {
   const s = (Date.now() - new Date(iso).getTime()) / 1000;
   if (s < 60)    return `${Math.floor(s)}s`;
   if (s < 3600)  return `${Math.floor(s/60)}m`;
@@ -117,16 +117,16 @@ function relTime(iso: string): string {
   return `${Math.floor(s/86400)}d`;
 }
 
-function fmtViews(n: number): string {
+function fmtViews(n: number: string {
   if (n >= 1_000_000) return `${(n/1_000_000).toFixed(1)}M`;
   if (n >= 1_000)     return `${(n/1_000).toFixed(1)}k`;
   return String(n);
 }
 
-function isImage(u?: string | null) { return !!u && /\.(jpe?g|png|gif|webp|avif|svg)(\?|$)/i.test(u); }
-function isYouTube(post: FeedPost) { return post.provider === 'youtube' || !!(post.permalink?.includes('youtu')); }
+function isImage(u?: string | null { return !!u && /\.(jpe?g|png|gif|webp|avif|svg)(\?|$)/i.test(u); }
+function isYouTube(post: FeedPost { return post.provider === 'youtube' || !!(post.permalink?.includes('youtu')); }
 
-function redistributionMessage(creator: string, type: string): string {
+function redistributionMessage(creator: string, type: string: string {
   return `Showing you less ${type} from ${creator}; ${REDISTRIBUTION_EXPLANATION}`;
 }
 
@@ -149,7 +149,7 @@ export const DREAMR_TOPICS: Array<{ id: string; label: string; emoji: string; qu
 ];
 
 // Extract YouTube video ID from permalink
-function ytVideoId(post: FeedPost): string | null {
+function ytVideoId(post: FeedPost: string | null {
   const src = post.permalink ?? null;
   if (!src) return null;
   try {
@@ -161,13 +161,13 @@ function ytVideoId(post: FeedPost): string | null {
   return m?.[1] ?? null;
 }
 
-function ytEmbedUrl(post: FeedPost): string | null {
+function ytEmbedUrl(post: FeedPost: string | null {
   const id = ytVideoId(post);
   return id ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0` : null;
 }
 
 // Convert a UnifiedFeedItem to FeedPost (for YouTube topic items)
-function ytItemToFeedPost(item: UnifiedFeedItem): FeedPost {
+function ytItemToFeedPost(item: UnifiedFeedItem: FeedPost {
   const thumbnail = item.media[0]?.thumbnail_url ?? item.media[0]?.url ?? null;
   return {
     id:          `yt:${item.external_id}`,
@@ -217,7 +217,7 @@ interface VideoCardProps {
   onShare: (id: string) => void;
 }
 
-function VideoPostCard({ post, isActive, onSwipeLeft, onSwipeRight, onLike, liked, saved, onSave, onShare }: VideoCardProps) {
+function VideoPostCard({ post, isActive: Record<string, unknown>, onSwipeLeft: Record<string, unknown>, onSwipeRight: Record<string, unknown>, onLike: Record<string, unknown>, liked: Record<string, unknown>, saved: Record<string, unknown>, onSave: Record<string, unknown>, onShare }: VideoCardProps {
   const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -395,7 +395,7 @@ interface CardProps {
   onComment: (id: string) => void;
 }
 
-function PostCard({ post, isActive, onSwipeLeft, onSwipeRight, onLike, liked, saved, onSave, onShare, onComment }: CardProps) {
+function PostCard({ post, isActive: Record<string, unknown>, onSwipeLeft: Record<string, unknown>, onSwipeRight: Record<string, unknown>, onLike: Record<string, unknown>, liked: Record<string, unknown>, saved: Record<string, unknown>, onSave: Record<string, unknown>, onShare: Record<string, unknown>, onComment }: CardProps {
   const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const hasDark = isImage(post.media_url);
   const [captionExpanded, setCaptionExpanded] = useState(false);
@@ -633,7 +633,7 @@ function SuggestedContentCard({ post, onSwipeLeft, onSwipeRight }: { post: FeedP
 
 // ── Suggested CREATOR card ────────────────────────────────────────────────────
 
-function SuggestedCreatorCard({ creator }: { creator: SuggestedCreator }) {
+function SuggestedCreatorCard({ creator }: { creator: SuggestedCreator } {
   const [following, setFollowing] = useState(false);
 
   const handleFollow = async () => {
@@ -689,7 +689,7 @@ function SuggestedCreatorCard({ creator }: { creator: SuggestedCreator }) {
 
 // ── Main feed ─────────────────────────────────────────────────────────────────
 
-export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
+export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps {
   // ── State ─────────────────────────────────────────────────────────────────
   const [posts,         setPosts]       = useState<FeedPost[]>(initialPosts);
   const [sugContent,    setSugContent]  = useState<FeedPost[]>([]);
@@ -1141,7 +1141,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
         {/* Spacer for topic strip */}
         <div style={{ height: 54, flexShrink: 0, scrollSnapAlign: 'none' }} />
 
-        {personalizedFeedItems.map((item, i) => (
+        {personalizedFeedItems.map(item: Record<string, unknown>, i: number => (
           <div
             key={item.kind === 'creator' ? `creator-${item.creator.id}` : item.post.id}
             style={{ width: '100%', height: '100%', flexShrink: 0, scrollSnapAlign: 'start' }}

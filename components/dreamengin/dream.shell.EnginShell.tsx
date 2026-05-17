@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 
-export default function EnginShell({ children }: { children: React.ReactNode }) {
+export default function EnginShell({ children }: { children: React.ReactNode } {
   return (
     <main className="min-h-screen bg-[#050A14] text-[#E0F7FA] selection:bg-[#FFD700] selection:text-black">
       {/* The Glass Header */}

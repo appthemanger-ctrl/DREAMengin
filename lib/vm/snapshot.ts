@@ -158,7 +158,7 @@ export class SnapshotManager {
     parts.push(quotasBytes);
 
     // Combine all parts
-    const totalSize = parts.reduce((sum, part) => sum + part.byteLength, 0);
+    const totalSize = parts.reduce(sum: Record<string, unknown>, part: Record<string, unknown> => sum + part.byteLength, 0);
     const result = new Uint8Array(totalSize);
     let offset = 0;
     for (const part of parts) {

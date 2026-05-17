@@ -29,11 +29,11 @@ export default function ConfigureSheet({
   onClose,
 }: ConfigureSheetProps) {
   const [values, setValues] = useState<Record<string, string | boolean>>(
-    Object.fromEntries(fields.map((f) => [f.key, f.value]))
+    Object.fromEntries(fields.map((f: Record<string, unknown>) => [f.key, f.value]))
   );
 
   const set = (key: string, value: string | boolean) =>
-    setValues((prev) => ({ ...prev, [key]: value }));
+    setValues(prev: Record<string, unknown> => ({ ...prev, [key]: value }));
 
   return (
     <div
@@ -65,7 +65,7 @@ export default function ConfigureSheet({
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 20 }}>
-            {fields.map((field) => (
+            {fields.map((field: Record<string, unknown>) => (
               <div key={field.key}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <div>
@@ -134,7 +134,7 @@ export default function ConfigureSheet({
                         color: 'var(--de-text)',
                       }}
                     >
-                      {field.options?.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
+                      {field.options?.map((opt: Record<string, unknown>) => <option key={opt} value={opt}>{opt}</option>)}
                     </select>
                   )}
                 </div>

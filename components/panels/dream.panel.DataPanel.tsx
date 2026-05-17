@@ -11,7 +11,7 @@ import { ArrowLeft, Database, Download, Trash2, AlertTriangle, Check, Loader2 } 
 import { createClient } from '@/lib/supabase/client';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 
-export default function DataPanel() {
+export default function DataPanel( {
   const { openInSurface } = useDreamSystem();
   const [exporting, setExporting]       = useState(false);
   const [exportMsg, setExportMsg]       = useState('');

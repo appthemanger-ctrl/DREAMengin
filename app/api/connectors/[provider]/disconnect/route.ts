@@ -39,7 +39,7 @@ export async function DELETE(
   }
 
    
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
 
   // Verify the connector account exists for this user before attempting delete
   const { data: existing, error: fetchError } = await db

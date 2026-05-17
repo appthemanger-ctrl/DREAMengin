@@ -80,7 +80,7 @@ interface DualRuntimeContextValue {
 
 const DualRuntimeContext = createContext<DualRuntimeContextValue | null>(null);
 
-export function useDualRuntime(): DualRuntimeContextValue {
+export function useDualRuntime(: DualRuntimeContextValue {
   const ctx = useContext(DualRuntimeContext);
   if (!ctx) throw new Error('useDualRuntime must be used within DualRuntimeContainer');
   return ctx;
@@ -90,7 +90,7 @@ interface DualRuntimeContainerProps {
   children: React.ReactNode;
 }
 
-export default function DualRuntimeContainer({ children }: DualRuntimeContainerProps) {
+export default function DualRuntimeContainer({ children }: DualRuntimeContainerProps {
   const [state, setState] = useState<DualRuntimeState>(DEFAULT_DUAL_RUNTIME);
 
   // Refs to the scroll-root elements for each viewport.
@@ -99,31 +99,31 @@ export default function DualRuntimeContainer({ children }: DualRuntimeContainerP
   const bottomViewportRef = useRef<React.RefObject<HTMLElement | null> | null>(null);
 
   const setTopRuntime = useCallback((world: RuntimeWorld) => {
-    setState((prev) => setRuntimeWorld(prev, 'top', world));
+    setState(prev: Record<string, unknown> => setRuntimeWorld(prev, 'top', world));
   }, []);
 
   const setBottomRuntime = useCallback((world: RuntimeWorld) => {
-    setState((prev) => setRuntimeWorld(prev, 'bottom', world));
+    setState(prev: Record<string, unknown> => setRuntimeWorld(prev, 'bottom', world));
   }, []);
 
   const swapDominance = useCallback(() => {
-    setState((prev) => swapDominantRuntime(prev));
+    setState(prev: Record<string, unknown> => swapDominantRuntime(prev));
   }, []);
 
   const setDominantRuntime = useCallback((region: 'Surface Space' | 'DreamSpace') => {
-    setState((prev) => ({ ...prev, dominantRegion: region }));
+    setState(prev: Record<string, unknown> => ({ ...prev, dominantRegion: region }));
   }, []);
 
   const goToHome = useCallback(() => {
-    setState((prev) => makeHomeActiveTop(prev));
+    setState(prev: Record<string, unknown> => makeHomeActiveTop(prev));
   }, []);
 
   const goToHomeDreamSpace = useCallback(() => {
-    setState((prev) => makeHomeDreamSpaceActive(prev));
+    setState(prev: Record<string, unknown> => makeHomeDreamSpaceActive(prev));
   }, []);
 
   const goToDreamSpace = useCallback(() => {
-    setState((prev) => makeDreamSpaceActiveSurface(prev));
+    setState(prev: Record<string, unknown> => makeDreamSpaceActiveSurface(prev));
   }, []);
 
   const isHomeActive = useCallback(() => {

@@ -16,7 +16,7 @@ export const metadata = {
   description: 'Platform health metrics for IDARi admin surface.',
 };
 
-export default async function PlatformHealthPage() {
+export default async function PlatformHealthPage( {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

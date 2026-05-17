@@ -20,7 +20,7 @@ type ProjectCard = {
   profiles?: { handle: string; display_name: string | null; avatar_url: string | null } | null;
 };
 
-function VisibilityBadge({ visibility }: { visibility: string }) {
+function VisibilityBadge({ visibility }: { visibility: string } {
   const isPublic = visibility === 'public';
   return (
     <span
@@ -41,7 +41,7 @@ function VisibilityBadge({ visibility }: { visibility: string }) {
   );
 }
 
-function ProjectCard({ project, showIframe = true }: { project: ProjectCard; showIframe?: boolean }) {
+function ProjectCard({ project, showIframe = true }: { project: ProjectCard; showIframe?: boolean } {
   return (
     <div className="de-widget" style={{ overflow: 'hidden' }}>
       {showIframe && project.renderUrl && (
@@ -83,10 +83,10 @@ function ProjectCard({ project, showIframe = true }: { project: ProjectCard; sho
   );
 }
 
-export default async function LabPage() {
+export default async function LabPage( {
   await connection();
   const supabase = await createServerClient();
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -143,7 +143,7 @@ export default async function LabPage() {
             <div className="de-widget-body">
               {displayMyProjects.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {displayMyProjects.map((project) => (
+                  {displayMyProjects.map((project: Record<string, unknown>) => (
                     <ProjectCard key={project.id} project={project} showIframe />
                   ))}
                 </div>
@@ -165,7 +165,7 @@ export default async function LabPage() {
               </div>
               <div className="de-widget-body">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {featuredRenders.map((project) => (
+                  {featuredRenders.map((project: Record<string, unknown>) => (
                     <div key={project.id} className="de-widget" style={{ overflow: 'hidden' }}>
                       <div style={{ height: 180, overflow: 'hidden', borderBottom: '1px solid var(--de-border)', pointerEvents: 'none' }}>
                         <iframe
@@ -198,7 +198,7 @@ export default async function LabPage() {
               </div>
               <div className="de-widget-body">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {publicProjects.map((project) => (
+                  {publicProjects.map((project: Record<string, unknown>) => (
                     <div key={project.id} className="de-widget">
                       <div className="de-widget-body">
                         <div className="flex items-center gap-2 mb-2">

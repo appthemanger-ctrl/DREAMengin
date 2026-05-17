@@ -220,7 +220,7 @@ export class WasmGpuVM {
         // Note: This returns synchronously but the read is async
         // In production, this should be handled via a callback or polling
         this.bufferManager.read(handle, memory.memory, wasmPtr, offset, size)
-          .catch((error) => {
+          .catch(error: unknown => {
             console.error('[VM] Buffer read failed:', error);
           });
         return 0; // SUCCESS (async operation started)
@@ -237,7 +237,7 @@ export class WasmGpuVM {
         if (!memory) return 3; // INVALID_ARGUMENT
 
         this.bufferManager.map(handle, memory.memory, wasmPtr, offset, size, writable !== 0)
-          .catch((error) => {
+          .catch(error: unknown => {
             console.error('[VM] Buffer map failed:', error);
           });
         return 0; // SUCCESS (async operation started)
@@ -259,7 +259,7 @@ export class WasmGpuVM {
           const handle = this.state.nextPipelineHandle++;
 
           this.pipelineCache.getOrCreate(wgslSource)
-            .then(({ pipeline, sourceHash, cacheHit }) => {
+            .then({ pipeline, sourceHash: Record<string, unknown>, cacheHit } => {
               const descriptor: ComputePipelineDescriptor = {
                 handle,
                 wgslSource,
@@ -277,7 +277,7 @@ export class WasmGpuVM {
                 this.state.counters.pipelineCacheMisses++;
               }
             })
-            .catch((error) => {
+            .catch(error: unknown => {
               console.error('[VM] Pipeline creation failed:', error);
               this.state.pipelines.delete(handle);
             });
@@ -489,7 +489,7 @@ export class WasmGpuVM {
         // Note: This is synchronous in the syscall but async in reality
         // In production, use a callback or polling mechanism
         this.state.queue.onSubmittedWorkDone()
-          .catch((error) => {
+          .catch(error: unknown => {
             console.error('[VM] Wait fence failed:', error);
           });
         return 0; // SUCCESS (async operation started)

@@ -23,13 +23,13 @@ type Props = {
  * Renders a vertical list of icon + label navigation links.
  * Each row uses the .pillBtn glass-capsule style from globals.css.
  */
-export default function IconList({ items, iconSize = 32, className = '' }: Props) {
+export default function IconList({ items, iconSize = 32, className = '' }: Props {
   return (
     <ul
       className={className}
       style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}
     >
-      {items.map((item) => (
+      {items.map((item: Record<string, unknown>) => (
         <li key={item.href}>
           <Link
             href={item.href}

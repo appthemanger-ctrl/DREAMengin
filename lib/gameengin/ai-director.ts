@@ -153,15 +153,15 @@ export class AIDirector {
       const b1 = [-0.15, 0.1, 0.0, 0.05, -0.1, 0.1, -0.05, 0.0];
 
       // Layer 1 forward
-      const h1 = b1.map((b, j) => {
-        const sum = features.reduce((acc, f, i) => acc + f * w1[i][j], b);
+      const h1 = b1.map(b: Record<string, unknown>, j: number => {
+        const sum = features.reduce(acc: Record<string, unknown>, f: Record<string, unknown>, i: number => acc + f * w1[i][j], b);
         return Math.max(0, sum); // ReLU
       });
 
       // Layer 2: 8→1 sigmoid
       const w2 = [0.5, 0.4, 0.6, 0.4, 0.5, 0.3, 0.5, 0.4];
       const b2 = -0.3;
-      const logit = h1.reduce((acc, h, i) => acc + h * w2[i], b2);
+      const logit = h1.reduce(acc: Record<string, unknown>, h: number, i: number => acc + h * w2[i], b2);
       const target = 1 / (1 + Math.exp(-logit)); // sigmoid
 
       return this.challengeLevel + (target - this.challengeLevel) * 0.05;

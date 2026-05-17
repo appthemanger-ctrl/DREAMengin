@@ -10,7 +10,7 @@ import { ArrowLeft, Cpu } from 'lucide-react';
 import AlgorithmEngine    from '@/components/feed/dream.AlgorithmEngine';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 
-export default function AlgorithmPanel() {
+export default function AlgorithmPanel( {
   const { openInSurface } = useDreamSystem();
 
   return (

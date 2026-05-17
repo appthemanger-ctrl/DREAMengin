@@ -7,7 +7,7 @@ import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
  * CustomizeModeBar — fixed top banner shown when customize mode is active.
  * Matches the "CUSTOMIZE MODE | Done" design from the product spec.
  */
-export default function CustomizeModeBar() {
+export default function CustomizeModeBar( {
   const { isCustomizeMode, activePage, exitCustomizeMode, saveSkin } = useCustomizeMode();
 
   if (!isCustomizeMode) return null;

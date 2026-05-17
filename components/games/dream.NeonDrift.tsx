@@ -57,11 +57,11 @@ interface BoostGateState {
 }
 
 // Lane X positions (centre of each lane)
-function laneX(lane: number): number {
+function laneX(lane: number: number {
   return (lane - Math.floor(LANE_COUNT / 2)) * LANE_WIDTH;
 }
 
-export default function NeonDrift() {
+export default function NeonDrift( {
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
   const [multiplier, setMultiplier] = useState(1);
@@ -404,7 +404,7 @@ export default function NeonDrift() {
         });
 
         let lastTelemetryHud = 0;
-        elite.onFrame((_dt, telemetry) => {
+        elite.onFrame(_dt: Record<string, unknown>, telemetry: Record<string, unknown> => {
           if (performance.now() - lastTelemetryHud < 250) return;
           lastTelemetryHud = performance.now();
           setRenderInfo(
@@ -423,7 +423,7 @@ export default function NeonDrift() {
             source: 'runtime',
           });
         });
-        elite.onQualityChange((budget) => {
+        elite.onQualityChange(budget: Record<string, unknown> => {
           postFx?.applyBudget(budget);
         });
 

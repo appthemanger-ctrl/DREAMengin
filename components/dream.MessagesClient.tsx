@@ -41,20 +41,20 @@ interface MessagesClientProps {
 }
 
 /** Parse a subject line from message content formatted as "**Subject:** [subject]\n\n[body]" */
-function parseSubject(content: string): { subject: string | null; body: string } {
+function parseSubject(content: string: { subject: string | null; body: string } {
   const match = content.match(/^\*\*Subject:\*\* (.+?)\n\n([\s\S]*)$/);
   if (match) return { subject: match[1].trim(), body: match[2].trimStart() };
   return { subject: null, body: content };
 }
 
 /** Format a message with an optional subject */
-function formatMessageContent(subject: string, body: string): string {
+function formatMessageContent(subject: string, body: string: string {
   if (subject.trim()) return `**Subject:** ${subject.trim()}\n\n${body}`;
   return body;
 }
 
 /** Render message content with optional subject heading */
-function MessageContent({ content, isMe }: { content: string; isMe: boolean }) {
+function MessageContent({ content, isMe }: { content: string; isMe: boolean } {
   const { subject, body } = parseSubject(content);
   return (
     <>
@@ -69,7 +69,7 @@ function MessageContent({ content, isMe }: { content: string; isMe: boolean }) {
 }
 
 /** Get a preview string for a conversation list item */
-function getConversationPreview(lastMessage: string): string {
+function getConversationPreview(lastMessage: string: string {
   const { subject, body } = parseSubject(lastMessage);
   return subject ? `Re: ${subject}` : body;
 }
@@ -78,7 +78,7 @@ function getConversationPreview(lastMessage: string): string {
  *  Must be long enough for a mousedown on a suggestion to fire before blur hides the list. */
 const SUGGESTIONS_CLOSE_DELAY_MS = 200;
 
-export default function MessagesClient({ userId, initialConversations, fromDrEams = false, initialDrEamsQuery = '' }: MessagesClientProps) {
+export default function MessagesClient({ userId, initialConversations: Record<string, unknown>, fromDrEams = false, initialDrEamsQuery = '' }: MessagesClientProps {
   const [conversations, setConversations] = useState(initialConversations);
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(initialConversations[0] || null);
   const [newMessage, setNewMessage] = useState('');
@@ -447,7 +447,7 @@ export default function MessagesClient({ userId, initialConversations, fromDrEam
                   {!isSuggesting && searchSuggestions.length === 0 && searchQuery.trim() && (
                     <p className="px-4 py-2.5 text-xs" style={{ color: 'var(--de-text-dim)' }}>No results for &ldquo;{searchQuery}&rdquo;</p>
                   )}
-                  {searchSuggestions.map((result) => (
+                  {searchSuggestions.map((result: Record<string, unknown>) => (
                     <button
                       key={`${result.type}-${result.id}`}
                       role="option"
@@ -458,7 +458,7 @@ export default function MessagesClient({ userId, initialConversations, fromDrEam
                         clearSuggestions();
                         setShowSuggestions(false);
                         if (result.type === 'conversation' && result.targetId) {
-                          const conv = conversations.find((c) => c.id === result.targetId);
+                          const conv = conversations.find((c: Record<string, unknown>) => c.id === result.targetId);
                           if (conv) setSelectedConv(conv);
                           else if (result.href) router.push(result.href);
                         } else if (result.type === 'person' && result.targetId) {
@@ -502,7 +502,7 @@ export default function MessagesClient({ userId, initialConversations, fromDrEam
                   </Link>
                 </div>
               ) : (
-                filteredConversations.map((conv) => (
+                filteredConversations.map((conv: Record<string, unknown>) => (
                   <button
                     key={conv.id}
                     onClick={() => setSelectedConv(conv)}
@@ -596,7 +596,7 @@ export default function MessagesClient({ userId, initialConversations, fromDrEam
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {messages.map((msg) => {
+                      {messages.map((msg: Record<string, unknown>) => {
                         const isMe = msg.sender_id === userId;
                         return (
                           <div key={msg.id} className={`flex items-end gap-2 ${isMe ? 'justify-end' : ''}`}>
@@ -746,7 +746,7 @@ export default function MessagesClient({ userId, initialConversations, fromDrEam
                     {/* Email-compose toggle */}
                     <button
                       type="button"
-                      onClick={() => setShowSubjectField((v) => !v)}
+                      onClick={() => setShowSubjectField(v: number => !v)}
                       disabled={isSending}
                       className="p-3 rounded-xl transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center disabled:opacity-50"
                       style={{ background: showSubjectField ? 'rgba(42,138,184,0.15)' : 'rgba(160,195,240,0.12)', color: showSubjectField ? 'var(--de-accent)' : 'var(--de-text-dim)' }}

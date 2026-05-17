@@ -71,7 +71,7 @@ export interface ConnectionResult {
  * const result = dispatch(createBindAction('window-abc', 'starmaker-engin'));
  * // → { ok: true, message: "Connection action 'bind' dispatched: ..." }
  */
-export function dispatch(action: ConnectionAction): ConnectionResult {
+export function dispatch(action: ConnectionAction: ConnectionResult {
   if (!isValidConnectionVerb(action.verb)) {
     const isRejected = isRejectedConnectionVerb(action.verb);
     const rejectionHint = isRejected

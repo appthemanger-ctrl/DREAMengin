@@ -5,12 +5,12 @@ import { Bot, BotOff } from 'lucide-react'
 import { getDrEamsMode, onDrEamsModeChange, setDrEamsMode } from '@/lib/agents/drEamsMode'
 import { emitTeach } from '@/lib/agents/teachBus'
 
-export default function DrEamsModeToggle() {
+export default function DrEamsModeToggle( {
   const [enabled, setEnabled] = useState(true)
 
   useEffect(() => {
     setEnabled(getDrEamsMode())
-    const off = onDrEamsModeChange((v) => setEnabled(v))
+    const off = onDrEamsModeChange(v: number => setEnabled(v))
     return () => off()
   }, [])
 

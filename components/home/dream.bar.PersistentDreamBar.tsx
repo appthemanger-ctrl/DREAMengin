@@ -44,7 +44,7 @@ import { isPublicSurfacePath } from '@/lib/routing/surfaces';
 const DEFAULT_WORKFLOW_SPLIT = 0.5;
 const Z_INDEX_SKIP_CREDIT_BALANCE = 120;
 
-export default function PersistentDreamBar() {
+export default function PersistentDreamBar( {
   const pathname    = usePathname();
   const dualRuntime = useDualRuntime();
   const {
@@ -73,7 +73,7 @@ export default function PersistentDreamBar() {
 
   const revealSplitRuntime = useCallback((nextRatio = DEFAULT_WORKFLOW_SPLIT) => {
     setIsBarMinimized(false);
-    setSplitRatio((current) => {
+    setSplitRatio(current: Record<string, unknown> => {
       if (current >= 0.98 || current <= 0.02) return nextRatio;
       return current;
     });
@@ -125,8 +125,8 @@ export default function PersistentDreamBar() {
     os.bus.emit('dream:transfer', { dreamData, fromRuntime, toRuntime, position });
     const fromSurface = dreamData.surface;
     const nextLayout = {
-      home: { dreams: layout.home.dreams.filter((id) => id !== dreamData.dream_id) },
-      dreamspace: { dreams: layout.dreamspace.dreams.filter((id) => id !== dreamData.dream_id) },
+      home: { dreams: layout.home.dreams.filter((id: Record<string, unknown>) => id !== dreamData.dream_id) },
+      dreamspace: { dreams: layout.dreamspace.dreams.filter((id: Record<string, unknown>) => id !== dreamData.dream_id) },
     };
     nextLayout[toSurface].dreams = [...nextLayout[toSurface].dreams, dreamData.dream_id];
     if (fromSurface !== toSurface) {
@@ -159,10 +159,10 @@ export default function PersistentDreamBar() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ dreamData: { dream_id: '__swap__', type: 'runtime-swap' }, fromRuntime: 'HOME', toRuntime: 'FACE', swap: true }),
     })
-      .then((response) => {
+      .then(response: Record<string, unknown> => {
         if (!response.ok) throw new Error('Runtime swap failed');
       })
-      .catch((error) => {
+      .catch(error: unknown => {
         updateDreamLayout(previousLayout, 0);
         os.bus.emit('dream:transfer:rollback', previousLayout);
         console.error('[Dream runtime swap]', error);

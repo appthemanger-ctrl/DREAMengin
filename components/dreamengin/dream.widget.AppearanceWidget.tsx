@@ -163,7 +163,7 @@ export default function AppearanceWidget({ onClose }: { onClose: () => void }) {
           Theme Presets
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 18 }}>
-          {THEME_PRESETS.map((p) => (
+          {THEME_PRESETS.map((p: Record<string, unknown>) => (
             <PresetCard
               key={p.id}
               preset={p}

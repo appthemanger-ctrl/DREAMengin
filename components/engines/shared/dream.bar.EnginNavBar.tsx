@@ -21,12 +21,12 @@ interface EnginNavBarProps {
   accentColor: string;
 }
 
-export default function EnginNavBar({ items, accentColor }: EnginNavBarProps) {
+export default function EnginNavBar({ items, accentColor }: EnginNavBarProps {
   const pathname = usePathname();
 
   return (
     <nav className="flex items-center gap-1 overflow-x-auto px-2 py-1">
-      {items.map((item) => {
+      {items.map((item: Record<string, unknown>) => {
         // Active: exact match or pathname starts with href (for sub-paths)
         const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
         return (

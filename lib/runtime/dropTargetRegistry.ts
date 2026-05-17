@@ -84,7 +84,7 @@ class DropTargetRegistry {
    * Return all registered targets in a given region (for diagnostics).
    */
   getTargetsForRegion(region: RuntimeId): DropTarget[] {
-    return Array.from(this._targets.values()).filter((t) => t.region === region);
+    return Array.from(this._targets.values()).filter((t: Record<string, unknown>) => t.region === region);
   }
 
   /** Total number of registered targets. */

@@ -12,7 +12,7 @@ export function computeDelta<T extends object>(prev: T, next: T): StateDelta<T> 
     ...(Object.keys(prev) as (keyof T)[]),
     ...(Object.keys(next) as (keyof T)[]),
   ]);
-  const changedKeys = [...allKeys].filter((key) => prev[key] !== next[key]);
+  const changedKeys = [...allKeys].filter((key: Record<string, unknown>) => prev[key] !== next[key]);
   return { previous: prev, next, changedKeys };
 }
 

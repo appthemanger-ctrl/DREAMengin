@@ -9,7 +9,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/supabase';
 import { ActivityTier, isValidActivityTier, type GetUserMetricsResponse, type UserMetrics } from '@/lib/activity/types';
 
-function toNumber(value: number | string | null | undefined): number {
+function toNumber(value: number | string | null | undefined: number {
   const parsed = typeof value === 'string' ? Number(value) : value;
   return typeof parsed === 'number' && Number.isFinite(parsed) ? parsed : 0;
 }

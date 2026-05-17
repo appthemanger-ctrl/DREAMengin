@@ -170,7 +170,7 @@ export class LiveKitRoomManager {
   }
 
   private emit<T = unknown>(event: RoomEventType, payload: T): void {
-    this.listeners.get(event)?.forEach((cb) => cb(payload));
+    this.listeners.get(event)?.forEach((cb: Record<string, unknown>) => cb(payload));
   }
 
   // ── Connection lifecycle ───────────────────────────────────────────────────
@@ -214,19 +214,19 @@ export class LiveKitRoomManager {
     try {
       const info = await fetchRoomInfo(this.state.roomName);
       const prevParticipants = new Set(
-        this.state.participants.map((p) => p.identity)
+        this.state.participants.map((p: Record<string, unknown>) => p.identity)
       );
       const nextParticipants = new Set(
-        info.participants.map((p) => p.identity)
+        info.participants.map((p: Record<string, unknown>) => p.identity)
       );
 
       info.participants
-        .filter((p) => !prevParticipants.has(p.identity))
-        .forEach((p) => this.emit('participantJoined', p));
+        .filter((p: Record<string, unknown>) => !prevParticipants.has(p.identity))
+        .forEach((p: Record<string, unknown>) => this.emit('participantJoined', p));
 
       this.state.participants
-        .filter((p) => !nextParticipants.has(p.identity))
-        .forEach((p) => this.emit('participantLeft', p));
+        .filter((p: Record<string, unknown>) => !nextParticipants.has(p.identity))
+        .forEach((p: Record<string, unknown>) => this.emit('participantLeft', p));
 
       this.state = {
         ...this.state,

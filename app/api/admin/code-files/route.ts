@@ -26,7 +26,7 @@ export interface FileNode {
   children?: FileNode[];
 }
 
-async function buildTree(absDir: string, root: string, depth = 0): Promise<FileNode[]> {
+async function buildTree(absDir: string, root: string, depth = 0: Promise<FileNode[]> {
   if (depth > 5) return [];
   let entries;
   try {
@@ -45,13 +45,13 @@ async function buildTree(absDir: string, root: string, depth = 0): Promise<FileN
       nodes.push({ name: e.name, type: 'file', path: rel });
     }
   }
-  return nodes.sort((a, b) => {
+  return nodes.sort(a: Record<string, unknown>, b: Record<string, unknown> => {
     if (a.type !== b.type) return a.type === 'dir' ? -1 : 1;
     return a.name.localeCompare(b.name);
   });
 }
 
-function allowedRoot(topDir: AllowedTopDir): string {
+function allowedRoot(topDir: AllowedTopDir: string {
   switch (topDir) {
     case 'app':
       return path.join(/*turbopackIgnore: true*/ process.cwd(), 'app');
@@ -69,7 +69,7 @@ function allowedRoot(topDir: AllowedTopDir): string {
 }
 
 // ── Path-safety guard ────────────────────────────────────────────────────────
-function resolveAllowedFile(relPath: string): { abs: string; rel: string } | null {
+function resolveAllowedFile(relPath: string: { abs: string; rel: string } | null {
   if (path.isAbsolute(relPath)) return null;
   const normalized = path.normalize(relPath).replaceAll(path.sep, '/');
   if (normalized === '.' || normalized.startsWith('../') || normalized.includes('/../')) return null;
@@ -77,7 +77,7 @@ function resolveAllowedFile(relPath: string): { abs: string; rel: string } | nul
   const segments = normalized.split('/').filter(Boolean);
   const topDir = segments[0] as AllowedTopDir | undefined;
   if (!topDir || !ALLOWED_TOP_DIRS.includes(topDir)) return null;
-  if (segments.some((s) => s === '..' || BLOCKED_SEGMENTS.has(s))) return null;
+  if (segments.some((s: Record<string, unknown>) => s === '..' || BLOCKED_SEGMENTS.has(s))) return null;
   if (!ALLOWED_EXTENSIONS.has(path.extname(normalized))) return null;
 
   return {
@@ -87,12 +87,12 @@ function resolveAllowedFile(relPath: string): { abs: string; rel: string } | nul
 }
 
 // ── Deny helper ──────────────────────────────────────────────────────────────
-function deny(msg: string, status: number) {
+function deny(msg: string, status: number {
   return NextResponse.json({ error: msg }, { status });
 }
 
 // ── Route handler ────────────────────────────────────────────────────────────
-export async function POST(request: Request) {
+export async function POST(request: Request {
   // 1. Block blacklisted domains immediately — no information leakage
   if (isDomainBlocked(request)) {
     return deny('Access denied.', 403);

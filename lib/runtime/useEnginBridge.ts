@@ -13,7 +13,7 @@
 import { useEffect, useState } from 'react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 
-function ts() {
+function ts( {
   return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
@@ -41,7 +41,7 @@ export interface CodeEnginBridgeState {
   };
 }
 
-export function useCodeEnginBridge(): CodeEnginBridgeState {
+export function useCodeEnginBridge(: CodeEnginBridgeState {
   const [lastBpm, setLastBpm] = useState<number | null>(null);
   const [lastGameScore, setLastGameScore] = useState<number | null>(null);
   const [lastLabResult, setLastLabResult] = useState<string | null>(null);
@@ -61,41 +61,41 @@ export function useCodeEnginBridge(): CodeEnginBridgeState {
 
   useEffect(() => {
     const subs = [
-      bridge.subscribe('music', 'music:bpm-changed', (p) => {
+      bridge.subscribe('music', 'music:bpm-changed', p: Record<string, unknown> => {
         setLastBpm(p.bpm);
-        setStatus((s) => ({ ...s, music: `BPM ${p.bpm} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, music: `BPM ${p.bpm} · ${ts()}` }));
       }),
-      bridge.subscribe('games', 'games:score-submitted', (p) => {
+      bridge.subscribe('games', 'games:score-submitted', p: Record<string, unknown> => {
         setLastGameScore(p.score);
-        setStatus((s) => ({ ...s, games: `Score ${p.score} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, games: `Score ${p.score} · ${ts()}` }));
       }),
-      bridge.subscribe('lab', 'lab:result-ready', (p) => {
+      bridge.subscribe('lab', 'lab:result-ready', p: Record<string, unknown> => {
         setLastLabResult(p.experimentId);
-        setStatus((s) => ({ ...s, lab: `Result: ${p.experimentId} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, lab: `Result: ${p.experimentId} · ${ts()}` }));
       }),
-      bridge.subscribe('create', 'create:published', (p) => {
+      bridge.subscribe('create', 'create:published', p: Record<string, unknown> => {
         setLastCreatePublish(p.contentId);
-        setStatus((s) => ({ ...s, create: `Published ${p.contentId} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, create: `Published ${p.contentId} · ${ts()}` }));
       }),
-      bridge.subscribe('brand', 'brand:campaign-launched', (p) => {
+      bridge.subscribe('brand', 'brand:campaign-launched', p: Record<string, unknown> => {
         setLastBrandCampaign(p.title);
-        setStatus((s) => ({ ...s, brand: `Campaign: ${p.title} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, brand: `Campaign: ${p.title} · ${ts()}` }));
       }),
       // ── Seam workflow events ─────────────────────────────────────────────────
-      bridge.subscribe('code', 'code:game-script-imported', (p) => {
+      bridge.subscribe('code', 'code:game-script-imported', p: Record<string, unknown> => {
         setLastGameScript(p.gameTitle);
-        setStatus((s) => ({ ...s, seam: `Game script: ${p.gameTitle} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Game script: ${p.gameTitle} · ${ts()}` }));
       }),
-      bridge.subscribe('code', 'code:lab-dataset-received', (p) => {
+      bridge.subscribe('code', 'code:lab-dataset-received', p: Record<string, unknown> => {
         setLastLabDataset(p.experimentId);
-        setStatus((s) => ({ ...s, seam: `Lab data: ${p.experimentId} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Lab data: ${p.experimentId} · ${ts()}` }));
       }),
-      bridge.subscribe('code', 'code:lab-to-forge-requested', (p) => {
+      bridge.subscribe('code', 'code:lab-to-forge-requested', p: Record<string, unknown> => {
         setLastForgeRequest(p.experimentId);
-        setStatus((s) => ({ ...s, seam: `Forge gen: ${p.experimentId} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Forge gen: ${p.experimentId} · ${ts()}` }));
       }),
     ];
-    return () => subs.forEach((u) => u());
+    return () => subs.forEach((u: Record<string, unknown>) => u());
   }, []);
 
   return {
@@ -140,7 +140,7 @@ export interface GameEnginBridgeState {
   };
 }
 
-export function useGameEnginBridge(): GameEnginBridgeState {
+export function useGameEnginBridge(: GameEnginBridgeState {
   const [lastBpm, setLastBpm] = useState<number | null>(null);
   const [lastBpmTrackId, setLastBpmTrackId] = useState<string | null>(null);
   const [lastCodeBuild, setLastCodeBuild] = useState<string | null>(null);
@@ -163,50 +163,50 @@ export function useGameEnginBridge(): GameEnginBridgeState {
 
   useEffect(() => {
     const subs = [
-      bridge.subscribe('music', 'music:bpm-changed', (p) => {
+      bridge.subscribe('music', 'music:bpm-changed', p: Record<string, unknown> => {
         setLastBpm(p.bpm);
         setLastBpmTrackId(p.trackId);
-        setStatus((s) => ({ ...s, music: `BPM ${p.bpm} synced · ${ts()}` }));
+        setStatus(s: string => ({ ...s, music: `BPM ${p.bpm} synced · ${ts()}` }));
       }),
-      bridge.subscribe('code', 'code:build-success', (p) => {
+      bridge.subscribe('code', 'code:build-success', p: Record<string, unknown> => {
         setLastCodeBuild(p.projectId);
-        setStatus((s) => ({ ...s, code: `Deploy: ${p.projectId} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, code: `Deploy: ${p.projectId} · ${ts()}` }));
       }),
-      bridge.subscribe('lab', 'lab:result-ready', (p) => {
+      bridge.subscribe('lab', 'lab:result-ready', p: Record<string, unknown> => {
         setLastLabResult(p.experimentId);
-        setStatus((s) => ({ ...s, lab: `Result: ${p.experimentId} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, lab: `Result: ${p.experimentId} · ${ts()}` }));
       }),
-      bridge.subscribe('create', 'create:export-asset', (p) => {
+      bridge.subscribe('create', 'create:export-asset', p: Record<string, unknown> => {
         setLastCreateAsset(p.assetId);
-        setStatus((s) => ({ ...s, create: `Asset ready · ${ts()}` }));
+        setStatus(s: string => ({ ...s, create: `Asset ready · ${ts()}` }));
       }),
-      bridge.subscribe('brand', 'brand:segment-created', (p) => {
+      bridge.subscribe('brand', 'brand:segment-created', p: Record<string, unknown> => {
         setLastBrandSegment(p.name);
-        setStatus((s) => ({ ...s, brand: `Segment: ${p.name} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, brand: `Segment: ${p.name} · ${ts()}` }));
       }),
       // ── Seam workflow events ─────────────────────────────────────────────────
-      bridge.subscribe('games', 'games:soundtrack-requested', (p) => {
+      bridge.subscribe('games', 'games:soundtrack-requested', p: Record<string, unknown> => {
         setLastSoundtrack(p.trackId);
-        setStatus((s) => ({ ...s, seam: `Soundtrack: ${p.trackTitle} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Soundtrack: ${p.trackTitle} · ${ts()}` }));
       }),
-      bridge.subscribe('games', 'games:script-deploy-requested', (p) => {
+      bridge.subscribe('games', 'games:script-deploy-requested', p: Record<string, unknown> => {
         setLastScriptDeploy(p.cellId);
-        setStatus((s) => ({ ...s, seam: `Script deploy: ${p.cellId} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Script deploy: ${p.cellId} · ${ts()}` }));
       }),
-      bridge.subscribe('games', 'games:asset-import-requested', (p) => {
+      bridge.subscribe('games', 'games:asset-import-requested', p: Record<string, unknown> => {
         setLastAssetImport(p.assetId);
-        setStatus((s) => ({ ...s, seam: `Asset import: ${p.assetName} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Asset import: ${p.assetName} · ${ts()}` }));
       }),
-      bridge.subscribe('games', 'games:lore-content-received', (p) => {
+      bridge.subscribe('games', 'games:lore-content-received', p: Record<string, unknown> => {
         setLastLoreContent(p.contentId);
-        setStatus((s) => ({ ...s, seam: `Lore: ${p.title} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Lore: ${p.title} · ${ts()}` }));
       }),
-      bridge.subscribe('games', 'games:brand-skin-requested', (p) => {
+      bridge.subscribe('games', 'games:brand-skin-requested', p: Record<string, unknown> => {
         setLastBrandSkin(p.campaignId);
-        setStatus((s) => ({ ...s, seam: `Brand skin: ${p.campaignId} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Brand skin: ${p.campaignId} · ${ts()}` }));
       }),
     ];
-    return () => subs.forEach((u) => u());
+    return () => subs.forEach((u: Record<string, unknown>) => u());
   }, []);
 
   return {
@@ -247,7 +247,7 @@ export interface StarMakerEnginBridgeState {
   };
 }
 
-export function useStarMakerEnginBridge(): StarMakerEnginBridgeState {
+export function useStarMakerEnginBridge(: StarMakerEnginBridgeState {
   const [lastGameSession, setLastGameSession] = useState<string | null>(null);
   const [lastCodeBuild, setLastCodeBuild] = useState<string | null>(null);
   const [lastLabExport, setLastLabExport] = useState<string | null>(null);
@@ -266,37 +266,37 @@ export function useStarMakerEnginBridge(): StarMakerEnginBridgeState {
 
   useEffect(() => {
     const subs = [
-      bridge.subscribe('games', 'games:session-started', (p) => {
+      bridge.subscribe('games', 'games:session-started', p: Record<string, unknown> => {
         setLastGameSession(p.gameTitle);
-        setStatus((s) => ({ ...s, games: `Playing: ${p.gameTitle} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, games: `Playing: ${p.gameTitle} · ${ts()}` }));
       }),
-      bridge.subscribe('code', 'code:build-success', (p) => {
+      bridge.subscribe('code', 'code:build-success', p: Record<string, unknown> => {
         setLastCodeBuild(p.projectId);
-        setStatus((s) => ({ ...s, code: `Build: ${p.projectId} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, code: `Build: ${p.projectId} · ${ts()}` }));
       }),
-      bridge.subscribe('lab', 'lab:data-exported', (p) => {
+      bridge.subscribe('lab', 'lab:data-exported', p: Record<string, unknown> => {
         setLastLabExport(p.exportId);
-        setStatus((s) => ({ ...s, lab: `Export ready · ${ts()}` }));
+        setStatus(s: string => ({ ...s, lab: `Export ready · ${ts()}` }));
       }),
-      bridge.subscribe('create', 'create:draft-saved', (p) => {
+      bridge.subscribe('create', 'create:draft-saved', p: Record<string, unknown> => {
         setLastCreateDraft(p.title);
-        setStatus((s) => ({ ...s, create: `Draft: ${p.title} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, create: `Draft: ${p.title} · ${ts()}` }));
       }),
-      bridge.subscribe('brand', 'brand:asset-updated', (p) => {
+      bridge.subscribe('brand', 'brand:asset-updated', p: Record<string, unknown> => {
         setLastBrandAsset(p.assetType);
-        setStatus((s) => ({ ...s, brand: `Asset: ${p.assetType} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, brand: `Asset: ${p.assetType} · ${ts()}` }));
       }),
       // ── Seam workflow events ─────────────────────────────────────────────────
-      bridge.subscribe('music', 'music:visualizer-scene-requested', (p) => {
+      bridge.subscribe('music', 'music:visualizer-scene-requested', p: Record<string, unknown> => {
         setLastVisualizerScene(p.assetId);
-        setStatus((s) => ({ ...s, seam: `Visualizer scene: ${p.assetName} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Visualizer scene: ${p.assetName} · ${ts()}` }));
       }),
-      bridge.subscribe('music', 'music:sonification-requested', (p) => {
+      bridge.subscribe('music', 'music:sonification-requested', p: Record<string, unknown> => {
         setLastSonification(p.experimentId);
-        setStatus((s) => ({ ...s, seam: `Sonify: ${p.experimentId} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Sonify: ${p.experimentId} · ${ts()}` }));
       }),
     ];
-    return () => subs.forEach((u) => u());
+    return () => subs.forEach((u: Record<string, unknown>) => u());
   }, []);
 
   return {
@@ -335,7 +335,7 @@ export interface LabEnginBridgeState {
   };
 }
 
-export function useLabEnginBridge(): LabEnginBridgeState {
+export function useLabEnginBridge(: LabEnginBridgeState {
   const [lastStem, setLastStem] = useState<string | null>(null);
   const [lastGameScore, setLastGameScore] = useState<number | null>(null);
   const [lastCodeCell, setLastCodeCell] = useState<string | null>(null);
@@ -355,41 +355,41 @@ export function useLabEnginBridge(): LabEnginBridgeState {
 
   useEffect(() => {
     const subs = [
-      bridge.subscribe('music', 'music:stem-ready', (p) => {
+      bridge.subscribe('music', 'music:stem-ready', p: Record<string, unknown> => {
         setLastStem(p.stemType);
-        setStatus((s) => ({ ...s, music: `Stem: ${p.stemType} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, music: `Stem: ${p.stemType} · ${ts()}` }));
       }),
-      bridge.subscribe('games', 'games:score-submitted', (p) => {
+      bridge.subscribe('games', 'games:score-submitted', p: Record<string, unknown> => {
         setLastGameScore(p.score);
-        setStatus((s) => ({ ...s, games: `Score ${p.score} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, games: `Score ${p.score} · ${ts()}` }));
       }),
-      bridge.subscribe('code', 'code:cell-executed', (p) => {
+      bridge.subscribe('code', 'code:cell-executed', p: Record<string, unknown> => {
         setLastCodeCell(p.cellId);
-        setStatus((s) => ({ ...s, code: `Cell ${p.cellId} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, code: `Cell ${p.cellId} · ${ts()}` }));
       }),
-      bridge.subscribe('create', 'create:published', (p) => {
+      bridge.subscribe('create', 'create:published', p: Record<string, unknown> => {
         setLastCreatePublish(p.contentId);
-        setStatus((s) => ({ ...s, create: `Published · ${ts()}` }));
+        setStatus(s: string => ({ ...s, create: `Published · ${ts()}` }));
       }),
-      bridge.subscribe('brand', 'brand:analytics-snapshot', (p) => {
+      bridge.subscribe('brand', 'brand:analytics-snapshot', p: Record<string, unknown> => {
         setLastBrandSnapshot(p.snapshotId);
-        setStatus((s) => ({ ...s, brand: `Snapshot ready · ${ts()}` }));
+        setStatus(s: string => ({ ...s, brand: `Snapshot ready · ${ts()}` }));
       }),
       // ── Seam workflow events ─────────────────────────────────────────────────
-      bridge.subscribe('lab', 'lab:stem-visualization-requested', (p) => {
+      bridge.subscribe('lab', 'lab:stem-visualization-requested', p: Record<string, unknown> => {
         setLastStemVisualization(p.stemType);
-        setStatus((s) => ({ ...s, seam: `Stem viz: ${p.stemType} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Stem viz: ${p.stemType} · ${ts()}` }));
       }),
-      bridge.subscribe('lab', 'lab:code-experiment-requested', (p) => {
+      bridge.subscribe('lab', 'lab:code-experiment-requested', p: Record<string, unknown> => {
         setLastCodeExperiment(p.cellId);
-        setStatus((s) => ({ ...s, seam: `Experiment: ${p.cellId} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Experiment: ${p.cellId} · ${ts()}` }));
       }),
-      bridge.subscribe('lab', 'lab:asset-simulation-requested', (p) => {
+      bridge.subscribe('lab', 'lab:asset-simulation-requested', p: Record<string, unknown> => {
         setLastAssetSimulation(p.assetId);
-        setStatus((s) => ({ ...s, seam: `Simulate: ${p.assetName} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Simulate: ${p.assetName} · ${ts()}` }));
       }),
     ];
-    return () => subs.forEach((u) => u());
+    return () => subs.forEach((u: Record<string, unknown>) => u());
   }, []);
 
   return {
@@ -429,7 +429,7 @@ export interface BrandingEnginBridgeState {
   };
 }
 
-export function useBrandingEnginBridge(): BrandingEnginBridgeState {
+export function useBrandingEnginBridge(: BrandingEnginBridgeState {
   const [lastTrack, setLastTrack] = useState<string | null>(null);
   const [lastAchievement, setLastAchievement] = useState<string | null>(null);
   const [lastCodeDeploy, setLastCodeDeploy] = useState<string | null>(null);
@@ -449,41 +449,41 @@ export function useBrandingEnginBridge(): BrandingEnginBridgeState {
 
   useEffect(() => {
     const subs = [
-      bridge.subscribe('music', 'music:track-released', (p) => {
+      bridge.subscribe('music', 'music:track-released', p: Record<string, unknown> => {
         setLastTrack(p.title);
-        setStatus((s) => ({ ...s, music: `Released: ${p.title} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, music: `Released: ${p.title} · ${ts()}` }));
       }),
-      bridge.subscribe('games', 'games:achievement-unlocked', (p) => {
+      bridge.subscribe('games', 'games:achievement-unlocked', p: Record<string, unknown> => {
         setLastAchievement(p.title);
-        setStatus((s) => ({ ...s, games: `Achievement: ${p.title} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, games: `Achievement: ${p.title} · ${ts()}` }));
       }),
-      bridge.subscribe('code', 'code:deploy-to-game', (p) => {
+      bridge.subscribe('code', 'code:deploy-to-game', p: Record<string, unknown> => {
         setLastCodeDeploy(p.projectId);
-        setStatus((s) => ({ ...s, code: `Deploy: ${p.projectId} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, code: `Deploy: ${p.projectId} · ${ts()}` }));
       }),
-      bridge.subscribe('lab', 'lab:simulation-complete', (p) => {
+      bridge.subscribe('lab', 'lab:simulation-complete', p: Record<string, unknown> => {
         setLastLabSim(p.simulationId);
-        setStatus((s) => ({ ...s, lab: `Sim done · ${ts()}` }));
+        setStatus(s: string => ({ ...s, lab: `Sim done · ${ts()}` }));
       }),
-      bridge.subscribe('create', 'create:published', (p) => {
+      bridge.subscribe('create', 'create:published', p: Record<string, unknown> => {
         setLastPublish(p.contentId);
-        setStatus((s) => ({ ...s, create: `Published · ${ts()}` }));
+        setStatus(s: string => ({ ...s, create: `Published · ${ts()}` }));
       }),
       // ── Seam workflow events ─────────────────────────────────────────────────
-      bridge.subscribe('brand', 'brand:music-release-requested', (p) => {
+      bridge.subscribe('brand', 'brand:music-release-requested', p: Record<string, unknown> => {
         setLastMusicRelease(p.trackId);
-        setStatus((s) => ({ ...s, seam: `Release: ${p.trackTitle} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Release: ${p.trackTitle} · ${ts()}` }));
       }),
-      bridge.subscribe('brand', 'brand:achievement-campaign-requested', (p) => {
+      bridge.subscribe('brand', 'brand:achievement-campaign-requested', p: Record<string, unknown> => {
         setLastAchievementCampaign(p.achievement);
-        setStatus((s) => ({ ...s, seam: `Achievement campaign: ${p.achievement} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Achievement campaign: ${p.achievement} · ${ts()}` }));
       }),
-      bridge.subscribe('brand', 'brand:content-campaign-requested', (p) => {
+      bridge.subscribe('brand', 'brand:content-campaign-requested', p: Record<string, unknown> => {
         setLastContentCampaign(p.contentId);
-        setStatus((s) => ({ ...s, seam: `Content campaign: ${p.title} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Content campaign: ${p.title} · ${ts()}` }));
       }),
     ];
-    return () => subs.forEach((u) => u());
+    return () => subs.forEach((u: Record<string, unknown>) => u());
   }, []);
 
   return {
@@ -528,7 +528,7 @@ export interface ContentEnginBridgeState {
   };
 }
 
-export function useContentEnginBridge(): ContentEnginBridgeState {
+export function useContentEnginBridge(: ContentEnginBridgeState {
   const [lastStem, setLastStem] = useState<string | null>(null);
   const [lastStemUrl, setLastStemUrl] = useState<string | null>(null);
   const [lastAchievement, setLastAchievement] = useState<string | null>(null);
@@ -551,50 +551,50 @@ export function useContentEnginBridge(): ContentEnginBridgeState {
 
   useEffect(() => {
     const subs = [
-      bridge.subscribe('music', 'music:stem-ready', (p) => {
+      bridge.subscribe('music', 'music:stem-ready', p: Record<string, unknown> => {
         setLastStem(p.stemType);
         setLastStemUrl(p.url);
-        setStatus((s) => ({ ...s, music: `Stem: ${p.stemType} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, music: `Stem: ${p.stemType} · ${ts()}` }));
       }),
-      bridge.subscribe('games', 'games:achievement-unlocked', (p) => {
+      bridge.subscribe('games', 'games:achievement-unlocked', p: Record<string, unknown> => {
         setLastAchievement(p.title);
-        setStatus((s) => ({ ...s, games: `Achievement: ${p.title} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, games: `Achievement: ${p.title} · ${ts()}` }));
       }),
-      bridge.subscribe('code', 'code:notebook-exported', (p) => {
+      bridge.subscribe('code', 'code:notebook-exported', p: Record<string, unknown> => {
         setLastNotebook(p.notebookId);
-        setStatus((s) => ({ ...s, code: `Notebook: ${p.notebookId} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, code: `Notebook: ${p.notebookId} · ${ts()}` }));
       }),
-      bridge.subscribe('lab', 'lab:data-exported', (p) => {
+      bridge.subscribe('lab', 'lab:data-exported', p: Record<string, unknown> => {
         setLastLabExport(p.exportId);
-        setStatus((s) => ({ ...s, lab: `Export ready · ${ts()}` }));
+        setStatus(s: string => ({ ...s, lab: `Export ready · ${ts()}` }));
       }),
-      bridge.subscribe('brand', 'brand:asset-updated', (p) => {
+      bridge.subscribe('brand', 'brand:asset-updated', p: Record<string, unknown> => {
         setLastBrandAsset(p.assetType);
-        setStatus((s) => ({ ...s, brand: `Asset: ${p.assetType} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, brand: `Asset: ${p.assetType} · ${ts()}` }));
       }),
       // ── Seam workflow events ─────────────────────────────────────────────────
-      bridge.subscribe('create', 'create:music-attached', (p) => {
+      bridge.subscribe('create', 'create:music-attached', p: Record<string, unknown> => {
         setLastMusicAttached(p.trackId);
-        setStatus((s) => ({ ...s, seam: `Music: ${p.trackTitle} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Music: ${p.trackTitle} · ${ts()}` }));
       }),
-      bridge.subscribe('create', 'create:notebook-publish-requested', (p) => {
+      bridge.subscribe('create', 'create:notebook-publish-requested', p: Record<string, unknown> => {
         setLastNotebookPublish(p.notebookId);
-        setStatus((s) => ({ ...s, seam: `Notebook publish: ${p.title} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Notebook publish: ${p.title} · ${ts()}` }));
       }),
-      bridge.subscribe('create', 'create:asset-embedded', (p) => {
+      bridge.subscribe('create', 'create:asset-embedded', p: Record<string, unknown> => {
         setLastAssetEmbedded(p.assetId);
-        setStatus((s) => ({ ...s, seam: `3D embed: ${p.assetName} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `3D embed: ${p.assetName} · ${ts()}` }));
       }),
-      bridge.subscribe('create', 'create:game-clip-embedded', (p) => {
+      bridge.subscribe('create', 'create:game-clip-embedded', p: Record<string, unknown> => {
         setLastGameClip(p.sessionId);
-        setStatus((s) => ({ ...s, seam: `Game clip: ${p.gameTitle} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Game clip: ${p.gameTitle} · ${ts()}` }));
       }),
-      bridge.subscribe('create', 'create:brand-kit-applied', (p) => {
+      bridge.subscribe('create', 'create:brand-kit-applied', p: Record<string, unknown> => {
         setLastBrandKitApplied(p.kitId);
-        setStatus((s) => ({ ...s, seam: `Brand kit: ${p.kitId} · ${ts()}` }));
+        setStatus(s: string => ({ ...s, seam: `Brand kit: ${p.kitId} · ${ts()}` }));
       }),
     ];
-    return () => subs.forEach((u) => u());
+    return () => subs.forEach((u: Record<string, unknown>) => u());
   }, []);
 
   return {

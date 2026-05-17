@@ -95,7 +95,7 @@ export function useEnginCoopSync({
 
   useEffect(() => {
     if (!active || !onPeerState) return;
-    const off = subscribe((evt) => {
+    const off = subscribe(evt: Record<string, unknown> => {
       onPeerState(evt);
     });
     return off;

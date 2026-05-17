@@ -167,11 +167,11 @@ export function inferRootCause(
   snapshot: TelemetrySnapshot,
 ): RootCauseAnalysis {
   const errorMessages = snapshot.logs
-    .filter((l) => l.level === 'error' || l.level === 'warn')
-    .map((l) => l.message);
+    .filter((l: Record<string, unknown>) => l.level === 'error' || l.level === 'warn')
+    .map((l: Record<string, unknown>) => l.message);
 
   const allEvidence: string[] = [
-    ...anomalies.flatMap((a) => a.evidence),
+    ...anomalies.flatMap(a: Record<string, unknown> => a.evidence),
     ...errorMessages,
   ];
 

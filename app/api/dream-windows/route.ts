@@ -40,7 +40,7 @@ type RequiredField = (typeof REQUIRED_FIELDS)[number];
 function validateRequiredFields(
   body: Record<string, unknown>,
 ): RequiredField[] {
-  return REQUIRED_FIELDS.filter((field) => {
+  return REQUIRED_FIELDS.filter((field: Record<string, unknown>) => {
     const value = body[field];
     return value === undefined || value === null;
   });
@@ -62,7 +62,7 @@ function validateRequiredFields(
  * This route only returns records the RLS policy already permits.
  * Private records from other users are never returned (Point 15).
  */
-export async function GET(_req: NextRequest) {
+export async function GET(_req: NextRequest {
   const supabase = await createServerClient();
   const {
     data: { user },
@@ -74,7 +74,7 @@ export async function GET(_req: NextRequest) {
 
   // RLS enforces visibility rules — the DB will only return permitted rows.
    
-  const { data: dreamWindows, error } = await (supabase as any)
+  const { data: dreamWindows, error } = await (supabase as SupabaseClient)
     .from('dream_windows')
     .select('*')
     .order('created_at', { ascending: false });
@@ -107,7 +107,7 @@ export async function GET(_req: NextRequest) {
  *
  * Persists to dream_windows table on every call (Point 11, 16).
  */
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   const supabase = await createServerClient();
   const {
     data: { user },
@@ -171,7 +171,7 @@ export async function POST(req: NextRequest) {
 
   // ── Insert ───────────────────────────────────────────────────────────────
    
-  const { data: dreamWindow, error } = await (supabase as any)
+  const { data: dreamWindow, error } = await (supabase as SupabaseClient)
     .from('dream_windows')
     .insert({
       id: body.id as string,

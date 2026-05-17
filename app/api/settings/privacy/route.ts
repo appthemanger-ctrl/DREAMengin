@@ -16,7 +16,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 
 
-export async function GET() {
+export async function GET( {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -24,7 +24,7 @@ export async function GET() {
   }
 
    
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
 
   const { data, error } = await db
     .from('settings')
@@ -37,11 +37,11 @@ export async function GET() {
   }
 
    
-  const privacy = (data?.data as any)?.privacy ?? null;
+  const privacy = (data?.data as Record<string, unknown>)?.privacy ?? null;
   return NextResponse.json({ ok: true, privacy });
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
   }
 
    
-  const db2 = supabase as any;
+  const db2 = supabase as SupabaseClient;
 
   // Fetch existing settings first to merge
   const { data: existing } = await db2
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     .maybeSingle();
 
    
-  const currentData = (existing?.data ?? {}) as Record<string, any>;
+  const currentData = (existing?.data ?? {}) as Record<string, unknown>;
   const merged = { ...currentData, privacy: body };
 
   const { error: upsertError } = await db2

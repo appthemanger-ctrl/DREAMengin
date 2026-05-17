@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { decodeLedgerBlob } from '@/lib/media/ledger';
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest {
   const { searchParams } = new URL(req.url);
   const bucket = searchParams.get('bucket');
   const storagePath = searchParams.get('path');

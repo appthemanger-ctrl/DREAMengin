@@ -49,12 +49,12 @@ export const CartridgeManifestSchema = z.object({
 export type CartridgeManifest = z.infer<typeof CartridgeManifestSchema>;
 
 /** Validate a parsed JSON manifest object. Throws ZodError on failure. */
-export function validateManifest(input: unknown): CartridgeManifest {
+export function validateManifest(input: unknown: CartridgeManifest {
   return CartridgeManifestSchema.parse(input);
 }
 
 /** True if the first 4 bytes of `buf` match `DRMR`. */
-export function hasCartridgeMagic(buf: Uint8Array | ArrayBuffer): boolean {
+export function hasCartridgeMagic(buf: Uint8Array | ArrayBuffer: boolean {
   const view = buf instanceof ArrayBuffer ? new Uint8Array(buf) : buf;
   if (view.length < 4) return false;
   for (let i = 0; i < 4; i++) {

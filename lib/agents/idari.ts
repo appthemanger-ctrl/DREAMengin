@@ -124,25 +124,25 @@ const CORE_ARCHITECTURE_PATTERN = /\b(DreamDMBar|DreamDM Bar|HomeSystem|RLS)\b/i
 const VAGUE_TERMS_PATTERN =
   /\b(around|etc|eventually|kind of|maybe|possibly|roughly|some|somehow|something|stuff|things|whatever)\b/gi;
 
-function countMatches(source: string, pattern: RegExp): number {
+function countMatches(source: string, pattern: RegExp: number {
   const matches = source.match(pattern);
   return matches ? matches.length : 0;
 }
 
-function countUniqueMatches(source: string, pattern: RegExp): number {
+function countUniqueMatches(source: string, pattern: RegExp: number {
   const matches = source.match(pattern);
-  return matches ? new Set(matches.map((match) => match.toLowerCase())).size : 0;
+  return matches ? new Set(matches.map((match: Record<string, unknown>) => match.toLowerCase())).size : 0;
 }
 
-export function assessGenerationLawScope(message: string): GenerationLawAssessment {
+export function assessGenerationLawScope(message: string: GenerationLawAssessment {
   const source = message.trim();
   const task_count = Math.max(
     1,
-    TASK_PATTERNS.reduce((total, pattern) => total + countMatches(source, pattern), 0),
+    TASK_PATTERNS.reduce(total: Record<string, unknown>, pattern: Record<string, unknown> => total + countMatches(source, pattern), 0),
   );
   const file_count = Math.max(
     0,
-    FILE_PATTERNS.reduce((max, pattern) => Math.max(max, countUniqueMatches(source, pattern)), 0),
+    FILE_PATTERNS.reduce(max: Record<string, unknown>, pattern: Record<string, unknown> => Math.max(max, countUniqueMatches(source, pattern)), 0),
   );
   const dependency_schema_count = countUniqueMatches(source, DEPENDENCY_SCHEMA_PATTERN);
   const vague_term_count = countMatches(source, VAGUE_TERMS_PATTERN);
@@ -234,7 +234,7 @@ export function updateKnownIssueStatus(
 // Agent factory + event bus (existing, unchanged).
 // ---------------------------------------------------------------------------
 
-export function createIDARiAgent(widgetId?: string): IDARiAgent {
+export function createIDARiAgent(widgetId?: string: IDARiAgent {
   return {
     id: "idari-core",
     tier: "idari",
@@ -246,7 +246,7 @@ export function createIDARiAgent(widgetId?: string): IDARiAgent {
   };
 }
 
-export function emitIDARiEvent(detail: IDARiResult) {
+export function emitIDARiEvent(detail: IDARiResult {
   if (typeof window === "undefined") return;
   window.dispatchEvent(
     new CustomEvent<IDARiResult>(IDARI_EVENT, { detail })
@@ -314,8 +314,8 @@ export function evaluateSpecRequirements(
   specVersion: string,
   requirements: SpecRequirement[]
 ): SpecCheckResult {
-  const unmetCount = requirements.filter((r) => r.status === "missing").length;
-  const partialCount = requirements.filter((r) => r.status === "partial").length;
+  const unmetCount = requirements.filter((r: Record<string, unknown>) => r.status === "missing").length;
+  const partialCount = requirements.filter((r: Record<string, unknown>) => r.status === "partial").length;
   const overall: SpecCheckResult["overall"] =
     unmetCount > 0 ? "fail" : partialCount > 0 ? "warn" : "pass";
 

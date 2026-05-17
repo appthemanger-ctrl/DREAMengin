@@ -50,21 +50,21 @@ interface DiffViewerProps {
 
 // ─── Helper: line background ──────────────────────────────────────────────────
 
-function lineBg(line: FullFileLine): string {
+function lineBg(line: FullFileLine: string {
   if (line.collapsed)         return COLLAPSED_BG;
   if (line.type === 'added')  return ADD_BG;
   if (line.type === 'removed') return DEL_BG;
   return 'transparent';
 }
 
-function linePrefix(line: FullFileLine): string {
+function linePrefix(line: FullFileLine: string {
   if (line.collapsed)          return '  ';
   if (line.type === 'added')   return '+ ';
   if (line.type === 'removed') return '- ';
   return '  ';
 }
 
-function lineFg(line: FullFileLine): string {
+function lineFg(line: FullFileLine: string {
   if (line.type === 'added')   return ADD_FG;
   if (line.type === 'removed') return DEL_FG;
   if (line.collapsed)          return CTX_FG;
@@ -106,7 +106,7 @@ export default function DiffViewer({
   // ── Hunk start line indices (for scrolling) ─────────────────────────────────
   const hunkLineIndex: number[] = useMemo(() => {
     const idx: number[] = [];
-    lines.forEach((l, i) => {
+    lines.forEach(l: Record<string, unknown>, i: number => {
       if (l.isHunkStart) idx.push(i);
     });
     return idx;
@@ -269,7 +269,7 @@ export default function DiffViewer({
             scrollbarWidth: 'thin',
           }}
         >
-          {lines.map((line, idx) => {
+          {lines.map(line: Record<string, unknown>, idx: number => {
             const isActiveHunk = line.hunkIndex === activeHunk && !line.collapsed;
             return (
               <div
@@ -357,7 +357,7 @@ export default function DiffViewer({
 
 // ─── Shared nav-button style ─────────────────────────────────────────────────
 
-function navBtnStyle(disabled: boolean): CSSProperties {
+function navBtnStyle(disabled: boolean: CSSProperties {
   return {
     display: 'flex',
     alignItems: 'center',

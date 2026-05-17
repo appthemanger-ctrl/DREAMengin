@@ -2,9 +2,9 @@ import { createServerClient } from '@/lib/supabase/server';
 
 export const metadata = { title: 'Platform Errors – Admin' };
 
-export default async function PlatformErrorsPage() {
+export default async function PlatformErrorsPage( {
   const supabase = await createServerClient();
-  const { data } = await (supabase as any)
+  const { data } = await (supabase as SupabaseClient)
     .from('platform_errors')
     .select('*')
     .order('created_at', { ascending: false })
@@ -16,7 +16,7 @@ export default async function PlatformErrorsPage() {
         <div className="de-widget">
           <div className="de-widget-header"><span className="de-widget-title">Recent platform errors</span></div>
           <div className="de-widget-body" style={{ display: 'grid', gap: 10 }}>
-            {(data ?? []).map((error: any) => (
+            {(data ?? []).map((error: unknown) => (
               <div key={error.id} className="de-row" style={{ display: 'block' }}>
                 <div className="text-xs" style={{ color: 'var(--de-gold)', fontWeight: 800 }}>{error.source} · {error.created_at}</div>
                 <div className="text-sm" style={{ color: 'var(--de-heading)', fontWeight: 700 }}>{error.message}</div>

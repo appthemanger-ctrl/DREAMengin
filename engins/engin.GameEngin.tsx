@@ -130,7 +130,7 @@ const RayTracedLighting = 'game-feature-2026'; // 2026: Ray-traced lighting
 const SpatialAudio      = 'game-feature-2026'; // 2026: 3D spatial audio
 const AICompanions      = 'game-feature-2026'; // 2026: AI-powered NPCs
 
-const GAME_LABELS = Object.fromEntries(GAMES.map((game) => [game.id, game.label])) as Record<string, string>;
+const GAME_LABELS = Object.fromEntries(GAMES.map((game: Record<string, unknown>) => [game.id, game.label])) as Record<string, string>;
 const QUICK_PLAY_GAME_IDS = [
   'platformer',
   'rts',
@@ -238,7 +238,7 @@ const CROSS_ENGIN_CHANNELS = [
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-function makeEmptyGrid(): TileType[][] {
+function makeEmptyGrid(: TileType[][] {
   return Array.from({ length: 5 }, () =>
     Array.from({ length: 5 }, (): TileType => 'empty'),
   );
@@ -254,7 +254,7 @@ import { ArtifactSlot } from '@/lib/enginpipe';
  * snapshot lifecycle) attach at a single, consistent point. The inner
  * component is otherwise unchanged.
  */
-export default function GameEngin(props: Props) {
+export default function GameEngin(props: Props {
   return (
     <ArtifactSlot artifactId="engin:game">
       <GameEnginInner {...props} />
@@ -262,7 +262,7 @@ export default function GameEngin(props: Props) {
   );
 }
 
-function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
+function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
   const gameBridge = useGameEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'games' });
   const searchParams = useSearchParams();
@@ -291,7 +291,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   const [dreamGameFile, setDreamGameFile] = useState<{ name: string; size: number } | null>(null);
   const dreamGameInputRef = useRef<HTMLInputElement>(null);
 
-  function handleDreamGamePick(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleDreamGamePick(e: React.ChangeEvent<HTMLInputElement> {
     const file = e.target.files?.[0];
     if (!file) return;
     setDreamGameFile({ name: file.name, size: file.size });
@@ -309,7 +309,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     if (typeof window === 'undefined') return;
 
     // Make rumble function globally accessible for games
-    (window as any).gamepadRumble = rumble;
+    (window as Window & { gamepadRumble?: (intensity: number, duration: number) => void }).gamepadRumble = rumble;
 
     // Welcome haptic feedback when DualSense connects
     if (gpConnected && isDualSense) {
@@ -317,7 +317,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     }
 
     return () => {
-      delete (window as any).gamepadRumble;
+      delete (window as Window & { gamepadRumble?: (intensity: number, duration: number) => void }).gamepadRumble;
     };
   }, [gpConnected, isDualSense, rumble]);
 
@@ -387,7 +387,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     let cancelled = false;
     import('@babylonjs/core')
       .then(({ WebGPUEngine }) =>
-        WebGPUEngine.IsSupportedAsync.then((supported) => {
+        WebGPUEngine.IsSupportedAsync.then(supported: Record<string, unknown> => {
           if (!cancelled) setEngineType(supported ? 'WebGPU' : 'WebGL2');
         }),
       )
@@ -458,13 +458,13 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   }, []);
 
   // ── Personal bests (group by game, keep highest) ─────────────────────────────
-  const bestByGame = scores.reduce<Record<string, number>>((acc, s) => {
+  const bestByGame = scores.reduce<Record<string, number>>(acc: Record<string, unknown>, s: string => {
     if (acc[s.game] === undefined || s.score > acc[s.game]) acc[s.game] = s.score;
     return acc;
   }, {});
 
   // ── Share to Leaderboard ─────────────────────────────────────────────────────
-  async function handleShare(scoreId: string) {
+  async function handleShare(scoreId: string {
     setSharing(scoreId);
     forgeRecord('Shared game score');
     const supabase = createClient();
@@ -480,7 +480,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   }
 
   // ── Share Game Clip to ContentEngin ─────────────────────────────────────────
-  function handleShareClip(game: string, score: number) {
+  function handleShareClip(game: string, score: number {
     forgeRecord(`Shared ${game} clip to Content`);
     recordForgeTransfer('games', 'create', 'clip', `${game} clip → ContentEngin`);
     bridge.emit('create', 'create:game-clip-embedded', {
@@ -494,7 +494,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   }
 
   // ── Share Achievement Campaign to BrandingEngin ──────────────────────────────
-  function handleShareAchievementCampaign(achievementName: string) {
+  function handleShareAchievementCampaign(achievementName: string {
     forgeRecord(`Shared ${achievementName} achievement to Brand`);
     recordForgeTransfer('games', 'brand', 'campaign', `${achievementName} → BrandingEngin`);
     bridge.emit('brand', 'brand:achievement-campaign-requested', {
@@ -506,7 +506,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     });
   }
 
-  function handleControlProfileSelect(profileId: string) {
+  function handleControlProfileSelect(profileId: string {
     engineDispatch({ type: 'game:control-profile', payload: { profile: profileId } });
     void sharedChannel.publish({ type: 'game:control-profile', profileId });
     if (typeof window !== 'undefined') {
@@ -528,7 +528,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     });
   }, [selectedTile]);
 
-  function handleSaveWorld() {
+  function handleSaveWorld( {
     if (!worldName.trim()) return;
     const snapshot = worldGrid.map(r => [...r]);
     engineDispatch({ type: 'game:world-save', payload: { world: { name: worldName.trim(), grid: snapshot } } });
@@ -543,13 +543,13 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   }
 
   // ── Physics Config ────────────────────────────────────────────────────────────
-  function handleApplyPhysics() {
+  function handleApplyPhysics( {
     setAppliedPhysics({ ...physicsConfig });
     engineDispatch({ type: 'game:physics-apply', payload: { config: { ...physicsConfig } } });
   }
 
   // ── Game Scripts ──────────────────────────────────────────────────────────────
-  function handleSaveScript() {
+  function handleSaveScript( {
     setSavedScript(scriptState.code);
     engineDispatch({ type: 'game:script-save', payload: { code: scriptState.code, language: scriptState.language } });
     forgeRecord('Saved game script');
@@ -622,7 +622,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     }
     return () => { if (srRef.current) clearInterval(srRef.current); };
   }, [srActive]);
-  function srFormat(ms: number) {
+  function srFormat(ms: number {
     const m = Math.floor(ms / 60000);
     const s = Math.floor((ms % 60000) / 1000);
     const cs = Math.floor((ms % 1000) / 10);
@@ -678,7 +678,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     } catch { /* ignore */ }
     return initialQuests;
   });
-  function toggleQuest(id: string) {
+  function toggleQuest(id: string {
     setQuests(prev => {
       const next = prev.map(q => {
         if (q.id !== id) return q;
@@ -706,7 +706,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     return parseInt(localStorage.getItem('de-season-xp') ?? '4200', 10);
   });
   const seasonMax = 10000;
-  function earnXP(amount: number) {
+  function earnXP(amount: number {
     setSeasonXP(prev => {
       const next = Math.min(prev + amount, seasonMax);
       if (typeof window !== 'undefined') localStorage.setItem('de-season-xp', String(next));
@@ -759,7 +759,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   }, [worldGrid, worldName, physicsConfig, scriptState, gameRestoring]);
 
   const syncedMusicClip = savedMusicState?.ledgerAudio ?? null;
-  const crossEnginChannels = CROSS_ENGIN_CHANNELS.map((engin) => {
+  const crossEnginChannels = CROSS_ENGIN_CHANNELS.map((engin: Record<string, unknown>) => {
     // Pull live status from bridge hook, fall back to static label
     const liveStatus: Record<string, string> = {
       Music:  gameBridge.connectionStatus.music,
@@ -778,7 +778,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const savedControlProfile = window.localStorage.getItem('de:games:control-profile');
-    if (savedControlProfile && GAME_CONTROL_PROFILES.some((profile) => profile.id === savedControlProfile)) {
+    if (savedControlProfile && GAME_CONTROL_PROFILES.some((profile: Record<string, unknown>) => profile.id === savedControlProfile)) {
       engineDispatch({ type: 'game:control-profile', payload: { profile: savedControlProfile } });
     }
     try {
@@ -798,7 +798,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   }, []);
 
   const savePlayableGame = useCallback((gameId: string, source: SavedGameSession['source']) => {
-    const game = GAMES.find((entry) => entry.id === gameId);
+    const game = GAMES.find((entry: Record<string, unknown>) => entry.id === gameId);
     if (typeof window === 'undefined' || !game) return;
     const nextSession: SavedGameSession = {
       gameId,
@@ -806,7 +806,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
       savedAt: new Date().toISOString(),
       source,
     };
-    const updated = [nextSession, ...savedLaunches.filter((session) => session.gameId !== gameId)]
+    const updated = [nextSession, ...savedLaunches.filter((session: Record<string, unknown>) => session.gameId !== gameId)]
       .slice(0, MAX_SAVED_GAME_SESSIONS);
     window.localStorage.setItem(GAME_LIBRARY_SESSION_STORAGE_KEY, JSON.stringify(updated));
     setSavedLaunches(updated);
@@ -840,7 +840,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     initializedPlaySurfaceRef.current = true;
 
     const fallbackGame = savedLaunches[0]?.gameId ?? GAMES[0]?.id ?? 'platformer';
-    const requestedGame = resolveGameLaunchId(searchParams.get('game'), GAMES.map((game) => game.id), fallbackGame);
+    const requestedGame = resolveGameLaunchId(searchParams.get('game'), GAMES.map((game: Record<string, unknown>) => game.id), fallbackGame);
     if (!requestedGame) return;
     engineDispatch({ type: 'game:select', payload: { gameId: requestedGame } });
     if (isLaunchFlagEnabled(searchParams.get('play'))) {
@@ -918,10 +918,10 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   }, [expandedPlayableGame]);
 
   // ── Achievement computation ───────────────────────────────────────────────────
-  const selectedPlayable = GAMES.find((game) => game.id === selectedPlayableGame) ?? GAMES[0];
-  const activePlayable = activePlayableGame ? GAMES.find((game) => game.id === activePlayableGame) ?? null : null;
-  const expandedPlayable = expandedPlayableGame ? GAMES.find((game) => game.id === expandedPlayableGame) ?? null : null;
-  const savedPlayableSession = selectedPlayable ? savedLaunches.find((session) => session.gameId === selectedPlayable.id) ?? null : null;
+  const selectedPlayable = GAMES.find((game: Record<string, unknown>) => game.id === selectedPlayableGame) ?? GAMES[0];
+  const activePlayable = activePlayableGame ? GAMES.find((game: Record<string, unknown>) => game.id === activePlayableGame) ?? null : null;
+  const expandedPlayable = expandedPlayableGame ? GAMES.find((game: Record<string, unknown>) => game.id === expandedPlayableGame) ?? null : null;
+  const savedPlayableSession = selectedPlayable ? savedLaunches.find((session: Record<string, unknown>) => session.gameId === selectedPlayable.id) ?? null : null;
 
   const [cartridgeMap, setCartridgeMap] = useState<Record<string, GameCartridge>>({});
   const [cartridgeErrors, setCartridgeErrors] = useState<Record<string, string>>({});
@@ -938,7 +938,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
           return [game.id, null, message] as const;
         }
       }),
-    ).then((entries) => {
+    ).then(entries: Record<string, unknown> => {
       if (cancelled) return;
       const nextMap: Record<string, GameCartridge> = {};
       const nextErrors: Record<string, string> = {};
@@ -1042,7 +1042,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
             type="button"
             aria-label={sessionUtilityBarRevealed ? 'Hide game chat bar' : 'Open game chat bar'}
             title={sessionUtilityBarRevealed ? 'Hide game chat bar' : 'Open game chat bar'}
-            onClick={() => setSessionUtilityBarRevealed((prev) => !prev)}
+            onClick={() => setSessionUtilityBarRevealed(prev: Record<string, unknown> => !prev)}
             style={{
               width: sessionUtilityBarRevealed ? 58 : 44,
               height: sessionUtilityBarRevealed ? 12 : 8,
@@ -1142,7 +1142,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   }
 
   // ── Lobby handlers ───────────────────────────────────────────────────────────
-  function handleCreateRoom() {
+  function handleCreateRoom( {
     const code = Math.random().toString(36).slice(2, 8).toUpperCase();
     setLobbyCode(code);
     setLobbyPlayers(['You']);
@@ -1150,7 +1150,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     forgeRecord('Created lobby room');
   }
 
-  function handleStartLobbyGame() {
+  function handleStartLobbyGame( {
     forgeRecord('Started lobby game');
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'games', 'game:lobby-start', { code: lobbyCode, players: lobbyPlayers },
@@ -1158,15 +1158,15 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   }
 
   // ── Tournament handlers ──────────────────────────────────────────────────────
-  function handlePickWinner(matchIndex: number, winner: string) {
-    setBracket(prev => prev.map((m, i) => i === matchIndex ? { ...m, winner } : m));
+  function handlePickWinner(matchIndex: number, winner: string {
+    setBracket(prev => prev.map(m: Record<string, unknown>, i: number => i === matchIndex ? { ...m, winner } : m));
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'games', 'game:tournament-match', { matchIndex, winner },
     );
   }
 
   // ── Replay handlers ──────────────────────────────────────────────────────────
-  function handleReplayToggle() {
+  function handleReplayToggle( {
     const next = !replayRecording;
     setReplayRecording(next);
     forgeRecord(next ? 'Started recording replay' : 'Stopped recording replay');
@@ -1185,7 +1185,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   }
 
   // ── Social Challenge handlers ────────────────────────────────────────────────
-  function handleSendChallenge() {
+  function handleSendChallenge( {
     setChallengeSent(true);
     forgeRecord('Sent game challenge');
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
@@ -1194,7 +1194,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
     setTimeout(() => setChallengeSent(false), 3000);
   }
 
-  function handleAcceptChallenge(id: string) {
+  function handleAcceptChallenge(id: string {
     setActiveChallenges(prev => prev.filter(c => c.id !== id));
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'games', 'game:challenge-accept', { id },
@@ -1202,8 +1202,8 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   }
 
   // ── Render ────────────────────────────────────────────────────────────────────
-  const activeControlProfile = GAME_CONTROL_PROFILES.find((profile) => profile.id === controlProfile) ?? GAME_CONTROL_PROFILES[0];
-  const playableCategoriesCount = new Set(GAMES.map((game) => game.category)).size;
+  const activeControlProfile = GAME_CONTROL_PROFILES.find((profile: Record<string, unknown>) => profile.id === controlProfile) ?? GAME_CONTROL_PROFILES[0];
+  const playableCategoriesCount = new Set(GAMES.map((game: Record<string, unknown>) => game.category)).size;
   const engineDeckStats = [
     { label: 'Playable', value: String(GAMES.length), tone: '#7dd3fc' },
     { label: 'Categories', value: String(playableCategoriesCount), tone: '#c084fc' },
@@ -1328,7 +1328,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10, marginBottom: 14 }}>
-              {engineDeckStats.map((stat) => (
+              {engineDeckStats.map((stat: Record<string, unknown>) => (
                 <div
                   key={stat.label}
                   style={{
@@ -1369,7 +1369,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
                   Engine Status
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {selectedPlayableStatus.map((item) => (
+                  {selectedPlayableStatus.map((item: Record<string, unknown>) => (
                     <span
                       key={item}
                       style={{
@@ -1390,7 +1390,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
             </div>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
-              {savedLaunches.slice(0, 5).map((session) => (
+              {savedLaunches.slice(0, 5).map((session: Record<string, unknown>) => (
                 <button
                   key={session.gameId}
                   type="button"
@@ -1464,7 +1464,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
                   Launch Modes
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {['Fullscreen Boot', 'Screen Play', 'Remote Dock'].map((mode) => (
+                  {['Fullscreen Boot', 'Screen Play', 'Remote Dock'].map((mode: Record<string, unknown>) => (
                     <span
                       key={mode}
                       style={{
@@ -1488,7 +1488,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
                   Engine Capabilities
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {selectedPlayableCapabilities.map((capability) => (
+                  {selectedPlayableCapabilities.map((capability: Record<string, unknown>) => (
                     <span
                       key={capability}
                       style={{
@@ -1537,7 +1537,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
             )}
 
             <div style={{ display: 'grid', gap: 8, marginTop: 12 }}>
-              {GAMES.slice(0, 12).map((game) => (
+              {GAMES.slice(0, 12).map((game: Record<string, unknown>) => (
                 <button
                   key={game.id}
                   type="button"
@@ -1557,7 +1557,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
                 >
                   <span style={{ fontSize: 20, lineHeight: 1 }}>{game.emoji}</span>
                   <span style={{ flex: 1, fontSize: 13, fontWeight: 700 }}>{game.label}</span>
-                  {savedLaunches.some((session) => session.gameId === game.id) && (
+                  {savedLaunches.some((session: Record<string, unknown>) => session.gameId === game.id) && (
                     <span style={{ fontSize: 10, fontWeight: 700, color: '#4ade80' }}>Saved</span>
                   )}
                 </button>
@@ -1601,7 +1601,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
               </div>
             )}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
-              {GAME_QUALITY_PILLARS.map((pillar) => (
+              {GAME_QUALITY_PILLARS.map((pillar: Record<string, unknown>) => (
                 <span
                   key={pillar.id}
                   style={{
@@ -1619,7 +1619,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
               ))}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {GAME_CONTROL_PROFILES.map((profile) => {
+              {GAME_CONTROL_PROFILES.map((profile: Record<string, unknown>) => {
                 const selected = profile.id === activeControlProfile.id;
                 return (
                   <button
@@ -1689,9 +1689,9 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {QUICK_PLAY_GAME_IDS.slice(0, 3)
-                .map((gameId) => GAMES.find((game) => game.id === gameId))
+                .map((gameId: Record<string, unknown>) => GAMES.find((game: Record<string, unknown>) => game.id === gameId))
                 .filter((game): game is (typeof GAMES)[number] => Boolean(game))
-                .map((g) => (
+                .map((g: Record<string, unknown>) => (
                 <Link
                   key={g.id}
                   href={buildGameLaunchHref(g.id, { play: true })}
@@ -1947,8 +1947,8 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
                   maxWidth: 270,
                 }}
               >
-                {worldGrid.map((row, ri) =>
-                  row.map((tile, ci) => (
+                {worldGrid.map(row: Record<string, unknown>, ri: Record<string, unknown> =>
+                  row.map(tile: Record<string, unknown>, ci: Record<string, unknown> => (
                     <button
                       key={`${ri}-${ci}`}
                       type="button"
@@ -2369,7 +2369,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
                   <div style={{ fontSize: 24, fontWeight: 900, letterSpacing: '0.15em', color: ACCENT, fontFamily: 'monospace' }}>{lobbyCode}</div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {Array.from({ length: 4 }).map((_, i) => (
+                  {Array.from({ length: 4 }).map(_: Record<string, unknown>, i: number => (
                     <div
                       key={i}
                       style={{
@@ -2433,7 +2433,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {bracket.map((match, i) => (
+              {bracket.map(match: Record<string, unknown>, i: number => (
                 <div
                   key={i}
                   style={{
@@ -2486,7 +2486,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-              {analyticsData.map((m, i) => (
+              {analyticsData.map(m: Record<string, unknown>, i: number => (
                 <div
                   key={i}
                   style={{
@@ -2775,7 +2775,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
             </div>
             {srSplits.length > 0 && (
               <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {srSplits.map((split, i) => (
+                {srSplits.map(split: Record<string, unknown>, i: number => (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, padding: '4px 8px', borderRadius: 7, background: split <= srPB * ((i + 1) / 3) ? 'rgba(34,197,94,0.06)' : 'rgba(239,68,68,0.06)' }}>
                     <span style={{ color: 'var(--de-text-dim)' }}>Split {i + 1}</span>
                     <span style={{ fontFamily: 'monospace', color: 'var(--de-heading)' }}>{srFormat(split)}</span>

@@ -10,26 +10,26 @@ export const AVATAR_CREATED_KEY = 'de:avatar:created';
 export const AVATAR_PLAY_AS_ME_KEY = 'de:avatar:play-as-me';
 
 /** Return the stored avatar data URL, or null if none exists. */
-export function getAvatarDataUrl(): string | null {
+export function getAvatarDataUrl(: string | null {
   if (typeof window === 'undefined') return null;
   return window.localStorage.getItem(AVATAR_IMAGE_KEY);
 }
 
 /** Persist a data URL as the active avatar. */
-export function setAvatarDataUrl(dataUrl: string): void {
+export function setAvatarDataUrl(dataUrl: string: void {
   if (typeof window === 'undefined') return;
   window.localStorage.setItem(AVATAR_IMAGE_KEY, dataUrl);
   window.localStorage.setItem(AVATAR_CREATED_KEY, new Date().toISOString());
 }
 
 /** True when the user has created an avatar. */
-export function hasAvatar(): boolean {
+export function hasAvatar(: boolean {
   if (typeof window === 'undefined') return false;
   return !!window.localStorage.getItem(AVATAR_CREATED_KEY);
 }
 
 /** Remove the stored avatar entirely. */
-export function clearAvatar(): void {
+export function clearAvatar(: void {
   if (typeof window === 'undefined') return;
   window.localStorage.removeItem(AVATAR_IMAGE_KEY);
   window.localStorage.removeItem(AVATAR_CREATED_KEY);
@@ -43,7 +43,7 @@ export function resizeImageToDataUrl(
   file: File,
   size = 256,
 ): Promise<string> {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
@@ -67,13 +67,13 @@ export function resizeImageToDataUrl(
 }
 
 /** Flag that the next game launch should show the avatar overlay. */
-export function setPlayAsMe(): void {
+export function setPlayAsMe(: void {
   if (typeof window === 'undefined') return;
   window.localStorage.setItem(AVATAR_PLAY_AS_ME_KEY, '1');
 }
 
 /** Consume (read + clear) the play-as-me flag. */
-export function consumePlayAsMe(): boolean {
+export function consumePlayAsMe(: boolean {
   if (typeof window === 'undefined') return false;
   const flag = window.localStorage.getItem(AVATAR_PLAY_AS_ME_KEY) === '1';
   if (flag) window.localStorage.removeItem(AVATAR_PLAY_AS_ME_KEY);

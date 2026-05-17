@@ -16,7 +16,7 @@ const NAV_ITEMS = [
   { href: '/engines/music/library', label: 'Library', emoji: '📂' },
 ];
 
-export default async function MusicLibraryPage() {
+export default async function MusicLibraryPage( {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

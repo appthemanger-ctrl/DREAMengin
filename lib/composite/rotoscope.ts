@@ -96,7 +96,7 @@ export function createProject(
 /**
  * Add a layer to a project (immutable).
  */
-export function addLayer(project: RotoProject, name: string): RotoProject {
+export function addLayer(project: RotoProject, name: string: RotoProject {
   const layer: RotoLayer = {
     id: `layer_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
     name, opacity: 1, visible: true, blendMode: 'add', keyframes: [],
@@ -115,7 +115,7 @@ export function setKeyframe(
   const layers = project.layers.map(l => {
     if (l.id !== layerId) return l;
     const kfs = l.keyframes.filter(k => k.frame !== shape.frame);
-    return { ...l, keyframes: [...kfs, shape].sort((a, b) => a.frame - b.frame) };
+    return { ...l, keyframes: [...kfs, shape].sort(a: Record<string, unknown>, b: Record<string, unknown> => a.frame - b.frame) };
   });
   return { ...project, layers };
 }
@@ -138,7 +138,7 @@ export function removeKeyframe(
  * Interpolate a layer's shape at any frame using linear interpolation between
  * the nearest surrounding keyframes. Returns null if no keyframes exist.
  */
-export function interpolateShape(layer: RotoLayer, frame: number): InterpolatedShape | null {
+export function interpolateShape(layer: RotoLayer, frame: number: InterpolatedShape | null {
   if (layer.keyframes.length === 0) return null;
 
   const kfs = layer.keyframes;
@@ -168,7 +168,7 @@ export function interpolateShape(layer: RotoLayer, frame: number): InterpolatedS
     return { frame, points: lo.points, opacity: layer.opacity, feather: lerp(lo.feather, hi.feather, t) };
   }
 
-  const points = lo.points.map((lp, i) => {
+  const points = lo.points.map(lp: Record<string, unknown>, i: number => {
     const hp = hi.points[i];
     return {
       x: lerp(lp.x, hp.x, t),
@@ -190,10 +190,10 @@ export function interpolateShape(layer: RotoLayer, frame: number): InterpolatedS
  * @param w        Image width (pixels) — for converting normalised coords.
  * @param h        Image height (pixels).
  */
-export function exportShapeSVG(shape: RotoShape, w: number, h: number): string {
+export function exportShapeSVG(shape: RotoShape, w: number, h: number: string {
   if (shape.points.length === 0) return '';
 
-  function px(norm: number, dim: number): string {
+  function px(norm: number, dim: number: string {
     return (norm * dim).toFixed(2);
   }
 
@@ -221,7 +221,7 @@ export function exportShapeSVG(shape: RotoShape, w: number, h: number): string {
 /**
  * Export all visible layers at a given frame as a complete SVG document.
  */
-export function exportFrameSVG(project: RotoProject, frame: number): string {
+export function exportFrameSVG(project: RotoProject, frame: number: string {
   const { width: w, height: h } = project;
   const shapePaths: string[] = [];
   const filters: string[] = [];
@@ -261,7 +261,7 @@ export function exportFrameSVG(project: RotoProject, frame: number): string {
 /**
  * List the keyframe frames for a layer.
  */
-export function keyframeList(layer: RotoLayer): number[] {
+export function keyframeList(layer: RotoLayer: number[] {
   return layer.keyframes.map(k => k.frame);
 }
 
@@ -269,6 +269,6 @@ export function keyframeList(layer: RotoLayer): number[] {
 // Internal
 // ─────────────────────────────────────────────────────────────────────────────
 
-function lerp(a: number, b: number, t: number): number {
+function lerp(a: number, b: number, t: number: number {
   return a + (b - a) * t;
 }

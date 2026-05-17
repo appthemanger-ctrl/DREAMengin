@@ -81,12 +81,12 @@ export function useDragSurface({
     return () => dropTargetRegistry.unregister(targetId.current);
   }, [region, priority, handleDrop]);
 
-  const onDragOver: React.DragEventHandler = useCallback((e) => {
+  const onDragOver: React.DragEventHandler = useCallback(e: unknown => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
   }, []);
 
-  const onDragEnter: React.DragEventHandler = useCallback((e) => {
+  const onDragEnter: React.DragEventHandler = useCallback(e: unknown => {
     e.preventDefault();
     enterCount.current++;
     setIsOver(true);

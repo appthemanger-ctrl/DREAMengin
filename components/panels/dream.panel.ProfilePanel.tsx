@@ -22,7 +22,7 @@ type Profile = {
   website: string;
 };
 
-export default function ProfilePanel() {
+export default function ProfilePanel( {
   const [profile, setProfile] = useState<Profile>({
     display_name: '', handle: '', bio: '',
     avatar_url: null, banner_url: null, location: '', website: '',
@@ -123,7 +123,7 @@ export default function ProfilePanel() {
       );
       await fetch('/api/ai/boogieman/privacy-event', { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ event_type: 'PROFILE_PUBLISH', content_id: 'profile_info', content_type: 'profile_info', to_visibility: 'public', update_mapping: true }) });
-      await Promise.allSettled(publicWidgets.map((w) =>
+      await Promise.allSettled(publicWidgets.map((w: Record<string, unknown>) =>
         fetch('/api/ai/boogieman/privacy-event', { method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ event_type: 'EXPLICIT_SHARE', content_id: w.id, content_type: 'dream_window', to_visibility: w.visibility ?? 'public', update_mapping: true }) })
       ));
@@ -140,7 +140,7 @@ export default function ProfilePanel() {
       const file = input.files?.[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (e) => setProfile(p => ({ ...p, avatar_url: e.target?.result as string }));
+      reader.onload = e: unknown => setProfile(p => ({ ...p, avatar_url: e.target?.result as string }));
       reader.readAsDataURL(file);
       input.removeEventListener('change', handler);
     };
@@ -208,7 +208,7 @@ export default function ProfilePanel() {
 
       {/* ── Tabs ── */}
       <div style={{ display: 'flex', borderBottom: '1px solid rgba(160,195,240,0.2)' }}>
-        {(['widgets', 'info'] as const).map((tab) => (
+        {(['widgets', 'info'] as const).map((tab: Record<string, unknown>) => (
           <button key={tab} type="button" onClick={() => setActiveTab(tab)} style={{
             flex: 1, padding: '10px 0', background: 'none', border: 'none', cursor: 'pointer',
             fontSize: 13, fontWeight: activeTab === tab ? 700 : 500,

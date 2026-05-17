@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { ArrowLeft, FlaskConical, Loader2, Globe, Lock, Sparkles } from 'lucide-react';
 
 
-export default function NewProjectPage() {
+export default function NewProjectPage( {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'private'>('private');
@@ -78,7 +78,7 @@ export default function NewProjectPage() {
           <div className="de-widget-header"><span className="de-widget-title">Quick Start Templates</span></div>
           <div className="de-widget-body">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              {templates.map((template) => (
+              {templates.map((template: Record<string, unknown>) => (
                 <button
                   key={template.name}
                   type="button"

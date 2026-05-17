@@ -36,7 +36,7 @@ const SHADOWS: { id: SkinShadow; label: string; desc: string }[] = [
 /**
  * LayoutPanel — choose the widget layout density and shadow depth.
  */
-export default function LayoutPanel() {
+export default function LayoutPanel( {
   const { activePanel, closePanel, draftSkin, updateDraft } = useCustomizeMode();
 
   if (activePanel !== 'layout') return null;
@@ -49,7 +49,7 @@ export default function LayoutPanel() {
           Layout Style
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-          {LAYOUTS.map(({ id, label, icon, desc }) => {
+          {LAYOUTS.map({ id, label: string, icon: Record<string, unknown>, desc } => {
             const isActive = draftSkin.layout === id;
             return (
               <button

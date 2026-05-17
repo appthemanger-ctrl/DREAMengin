@@ -35,7 +35,7 @@ interface GoogleTokenResponse {
   error_description?: string;
 }
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
+export async function GET(req: NextRequest: Promise<NextResponse> {
   const url = new URL(req.url);
   const code  = url.searchParams.get('code')  ?? '';
   const state = url.searchParams.get('state') ?? '';
@@ -110,7 +110,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
   // ── Store token in connector_accounts ────────────────────────────────────
    
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
   const now = new Date().toISOString();
 
   const tokenBlob: Record<string, string> = {

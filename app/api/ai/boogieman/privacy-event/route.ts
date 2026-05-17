@@ -49,7 +49,7 @@ type PrivacyEvent = z.infer<typeof PrivacyEventSchema>;
 
 // ── Route handler ─────────────────────────────────────────────────────────────
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   const requestStart = Date.now();
   const request_id = uuidv4();
 
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
   let mappingUpdated = false;
   if (event.update_mapping) {
      
-    const { error: upsertError } = await (supabase as any)
+    const { error: upsertError } = await (supabase as SupabaseClient)
       .from('visibility_mappings')
       .upsert(
         {

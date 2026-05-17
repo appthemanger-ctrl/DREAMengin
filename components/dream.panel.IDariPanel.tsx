@@ -41,7 +41,7 @@ const ADMIN_UI = { route: '/idari-console' };
  * Call the real IDARi endpoint and return the AI response text.
  * Throws on network/auth error so callers can log the failure.
  */
-async function callIdari(message: string): Promise<string> {
+async function callIdari(message: string: Promise<string> {
   const res = await fetch('/api/ai/idari', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -54,7 +54,7 @@ async function callIdari(message: string): Promise<string> {
   return data.response_text ?? 'IDARi processed the request.';
 }
 
-export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps) {
+export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps {
   // ── Control tab state ────────────────────────────────────────────────────────
   const [isRunning, setIsRunning] = useState(true);
   const [logs, setLogs] = useState<IdariLog[]>([]);
@@ -339,7 +339,7 @@ export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps
                   No activity yet. Activate IDARi to start monitoring.
                 </p>
               ) : (
-                logs.map((log, idx) => (
+                logs.map(log: Record<string, unknown>, idx: number => (
                   <div
                     key={idx}
                     className="flex items-start gap-2 p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"

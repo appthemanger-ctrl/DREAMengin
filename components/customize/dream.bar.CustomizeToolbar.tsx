@@ -7,7 +7,7 @@ import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
  * CustomizeToolbar — fixed bottom toolbar shown in customize mode.
  * Tabs: Color | Font | Layout | Effects | Save
  */
-export default function CustomizeToolbar() {
+export default function CustomizeToolbar( {
   const { isCustomizeMode, activePanel, openPanel, saveSkin } = useCustomizeMode();
 
   if (!isCustomizeMode) return null;
@@ -42,7 +42,7 @@ export default function CustomizeToolbar() {
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >
-      {TABS.map(({ id, icon, label }) => {
+      {TABS.map({ id, icon: Record<string, unknown>, label } => {
         const isActive = activePanel === id;
         return (
           <button

@@ -82,7 +82,7 @@ export function SharedDreamCanvas({
         </div>
 
         {/* Remote cursors */}
-        {cursors.map((c) => (
+        {cursors.map((c: Record<string, unknown>) => (
           <div
             key={c.peerId}
             className="absolute pointer-events-none transition-transform duration-75"

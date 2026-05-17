@@ -42,7 +42,7 @@ export interface TapHoldMoveBindings {
 
 // ─── Edge detection ───────────────────────────────────────────────────────────
 
-function detectEdgeRuntime(x: number, y: number): RuntimeId | null {
+function detectEdgeRuntime(x: number, y: number: RuntimeId | null {
   if (typeof window === 'undefined') return null;
   const { innerWidth: w, innerHeight: h } = window;
   if (x <= EDGE_PX)          return 'HomeDream';
@@ -102,7 +102,7 @@ export function useTapHoldMove({
 
   // ── Mouse ────────────────────────────────────────────────────────────────
 
-  const onMouseDown: React.MouseEventHandler = useCallback((e) => {
+  const onMouseDown: React.MouseEventHandler = useCallback(e: unknown => {
     if (disabled) return;
     const { clientX: x, clientY: y } = e;
     holdTimer.current = setTimeout(() => beginDrag(x, y), TAP_HOLD_MS);
@@ -110,7 +110,7 @@ export function useTapHoldMove({
 
   // ── Touch ─────────────────────────────────────────────────────────────────
 
-  const onTouchStart: React.TouchEventHandler = useCallback((e) => {
+  const onTouchStart: React.TouchEventHandler = useCallback(e: unknown => {
     if (disabled) return;
     const touch = e.touches[0];
     if (!touch) return;

@@ -53,7 +53,7 @@ const TRANSITION_LEDGER: ReadonlyMap<string, DreamNode> = (() => {
  * Return the pre-built, frozen DreamState for a node.
  * O(1) — no state construction at call time.
  */
-export function matchState(node: DreamNode): Readonly<DreamState> {
+export function matchState(node: DreamNode: Readonly<DreamState> {
   const state = STATE_LEDGER.get(node);
   if (!state) throw new RangeError(`StructureLedger: unknown node "${node}"`);
   return state;
@@ -63,7 +63,7 @@ export function matchState(node: DreamNode): Readonly<DreamState> {
  * Resolve the next DreamNode for a (node, direction) pair.
  * O(1) — the outcome was computed at module-load time.
  */
-export function resolveTransition(node: DreamNode, direction: MoveDirection): DreamNode {
+export function resolveTransition(node: DreamNode, direction: MoveDirection: DreamNode {
   const key = `${node}:${direction}`;
   const next = TRANSITION_LEDGER.get(key);
   if (next === undefined) throw new RangeError(`StructureLedger: unknown key "${key}"`);
@@ -74,7 +74,7 @@ export function resolveTransition(node: DreamNode, direction: MoveDirection): Dr
  * Diagnostic: sizes of the two ledgers.
  * Expected: { states: 13, transitions: 78 }
  */
-export function ledgerStats(): { states: number; transitions: number } {
+export function ledgerStats(: { states: number; transitions: number } {
   return {
     states: STATE_LEDGER.size,
     transitions: TRANSITION_LEDGER.size,

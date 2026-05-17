@@ -25,7 +25,7 @@ export interface ActivityPostData {
   media_url?: string;
 }
 
-export function ActivityPostForm({ onSubmit, onCancel }: ActivityPostFormProps) {
+export function ActivityPostForm({ onSubmit, onCancel }: ActivityPostFormProps {
   const [content, setContent] = useState('');
   const [tier, setTier] = useState<ActivityTier>(ActivityTier.REFLECTION);
   const [activityType, setActivityType] = useState('');
@@ -107,8 +107,8 @@ export function ActivityPostForm({ onSubmit, onCancel }: ActivityPostFormProps) 
         </label>
         <div className="space-y-2">
           {Object.values(ActivityTier)
-            .filter((t) => typeof t === 'number')
-            .map((t) => {
+            .filter((t: Record<string, unknown>) => typeof t === 'number')
+            .map((t: Record<string, unknown>) => {
               const tierNum = t as ActivityTier;
               return (
                 <label

@@ -64,14 +64,14 @@ const LANG_ALIASES: Record<string, string> = {
   toml: 'toml',
 };
 
-function normaliseLanguage(raw: string): string {
+function normaliseLanguage(raw: string: string {
   const lower = raw.toLowerCase().trim();
   return LANG_ALIASES[lower] ?? lower;
 }
 
 // ─── Per-language symbol extractors ──────────────────────────────────────────
 
-function extractTSSymbols(lines: string[]): ParsedSymbol[] {
+function extractTSSymbols(lines: string[]: ParsedSymbol[] {
   const symbols: ParsedSymbol[] = [];
   const funcRe   = /(?:export\s+)?(?:async\s+)?function\s+([A-Za-z_$][\w$]*)/;
   const arrowRe  = /(?:export\s+)?(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?\(/;
@@ -80,7 +80,7 @@ function extractTSSymbols(lines: string[]): ParsedSymbol[] {
   const typeRe   = /(?:export\s+)?(?:type|interface)\s+([A-Za-z_$][\w$]*)/;
   const varRe    = /(?:export\s+)?(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*[:=]/;
 
-  lines.forEach((line, i) => {
+  lines.forEach(line: Record<string, unknown>, i: number => {
     const ln = i + 1;
     let m: RegExpMatchArray | null;
     if ((m = line.match(funcRe)))        symbols.push({ kind: 'function', name: m[1], line: ln });
@@ -93,13 +93,13 @@ function extractTSSymbols(lines: string[]): ParsedSymbol[] {
   return symbols;
 }
 
-function extractPythonSymbols(lines: string[]): ParsedSymbol[] {
+function extractPythonSymbols(lines: string[]: ParsedSymbol[] {
   const symbols: ParsedSymbol[] = [];
   const funcRe   = /^(?:async\s+)?def\s+([A-Za-z_][\w]*)/;
   const classRe  = /^class\s+([A-Za-z_][\w]*)/;
   const importRe = /^(?:import|from)\s+(\S+)/;
 
-  lines.forEach((line, i) => {
+  lines.forEach(line: Record<string, unknown>, i: number => {
     const ln = i + 1;
     const trimmed = line.trimStart();
     let m: RegExpMatchArray | null;
@@ -110,14 +110,14 @@ function extractPythonSymbols(lines: string[]): ParsedSymbol[] {
   return symbols;
 }
 
-function extractGoSymbols(lines: string[]): ParsedSymbol[] {
+function extractGoSymbols(lines: string[]: ParsedSymbol[] {
   const symbols: ParsedSymbol[] = [];
   const funcRe   = /^func\s+(?:\([^)]+\)\s+)?([A-Za-z_][\w]*)/;
   const typeRe   = /^type\s+([A-Za-z_][\w]*)/;
   const importRe = /^\s*"([^"]+)"/;
 
   let inImportBlock = false;
-  lines.forEach((line, i) => {
+  lines.forEach(line: Record<string, unknown>, i: number => {
     const ln = i + 1;
     if (line.trim() === 'import (') { inImportBlock = true; return; }
     if (inImportBlock && line.trim() === ')') { inImportBlock = false; return; }
@@ -134,7 +134,7 @@ function extractGoSymbols(lines: string[]): ParsedSymbol[] {
   return symbols;
 }
 
-function extractRustSymbols(lines: string[]): ParsedSymbol[] {
+function extractRustSymbols(lines: string[]: ParsedSymbol[] {
   const symbols: ParsedSymbol[] = [];
   const fnRe     = /(?:pub\s+)?(?:async\s+)?fn\s+([a-z_][\w]*)/;
   const structRe = /(?:pub\s+)?struct\s+([A-Za-z_][\w]*)/;
@@ -142,7 +142,7 @@ function extractRustSymbols(lines: string[]): ParsedSymbol[] {
   const traitRe  = /(?:pub\s+)?trait\s+([A-Za-z_][\w]*)/;
   const useRe    = /^use\s+([^;]+)/;
 
-  lines.forEach((line, i) => {
+  lines.forEach(line: Record<string, unknown>, i: number => {
     const ln = i + 1;
     const trimmed = line.trimStart();
     let m: RegExpMatchArray | null;
@@ -157,7 +157,7 @@ function extractRustSymbols(lines: string[]): ParsedSymbol[] {
 
 // ─── Bracket / paren balance checker ─────────────────────────────────────────
 
-function checkBracketBalance(content: string, lang: string): ParseError[] {
+function checkBracketBalance(content: string, lang: string: ParseError[] {
   if (!['typescript','javascript','json','rust','go','cpp','c','java','csharp'].includes(lang)) {
     return [];
   }
@@ -189,7 +189,7 @@ function checkBracketBalance(content: string, lang: string): ParseError[] {
 
     if (ch === '/' && nxt === '/') { inLineComment  = true;  col += 2; i++; continue; }
     if (ch === '/' && nxt === '*') { inBlockComment = true;  col += 2; i++; continue; }
-    if (ch === '"' || ch === "'" || ch === '`') { inStr = ch as any; col++; continue; }
+    if (ch === '"' || ch === "'" || ch === '`') { inStr = ch as string; col++; continue; }
 
     if (ch in PAIRS) {
       stack.push({ ch, line, col });
@@ -216,11 +216,11 @@ function checkBracketBalance(content: string, lang: string): ParseError[] {
 
 // ─── JSON validator ───────────────────────────────────────────────────────────
 
-function checkJSON(content: string): ParseError[] {
+function checkJSON(content: string: ParseError[] {
   try {
     JSON.parse(content);
     return [];
-  } catch (e: any) {
+  } catch (e: unknown) {
     const msg: string = e?.message ?? 'Invalid JSON';
     const posMatch = msg.match(/line (\d+) column (\d+)/);
     if (posMatch) {
@@ -232,11 +232,11 @@ function checkJSON(content: string): ParseError[] {
 
 // ─── Python indentation check ─────────────────────────────────────────────────
 
-function checkPythonIndent(lines: string[]): ParseError[] {
+function checkPythonIndent(lines: string[]: ParseError[] {
   const warnings: ParseError[] = [];
   let expectedIndent: number | null = null;
 
-  lines.forEach((line, i) => {
+  lines.forEach(line: Record<string, unknown>, i: number => {
     if (line.trim() === '' || line.trimStart().startsWith('#')) return;
     const indent = line.length - line.trimStart().length;
     if (line.trimEnd().endsWith(':')) {
@@ -263,7 +263,7 @@ function checkPythonIndent(lines: string[]): ParseError[] {
  * Analyses source code and returns a structured ParseResult.
  * Safe in any runtime: browser, edge, Node — no external deps.
  */
-export function parseCode(content: string, language: string): ParseResult {
+export function parseCode(content: string, language: string: ParseResult {
   const lang  = normaliseLanguage(language);
   const lines = content.split('\n');
 
@@ -293,15 +293,15 @@ export function parseCode(content: string, language: string): ParseResult {
     errors.push(...checkJSON(content));
   } else {
     const bracketErrs = checkBracketBalance(content, lang);
-    errors.push(...bracketErrs.filter((e) => e.severity === 'error'));
-    warnings.push(...bracketErrs.filter((e) => e.severity === 'warning'));
+    errors.push(...bracketErrs.filter((e: Record<string, unknown>) => e.severity === 'error'));
+    warnings.push(...bracketErrs.filter((e: Record<string, unknown>) => e.severity === 'warning'));
   }
 
   if (lang === 'python') {
     warnings.push(...checkPythonIndent(lines));
   }
 
-  lines.forEach((line, i) => {
+  lines.forEach(line: Record<string, unknown>, i: number => {
     if (line !== line.trimEnd()) {
       warnings.push({
         line: i + 1, col: line.trimEnd().length + 1,

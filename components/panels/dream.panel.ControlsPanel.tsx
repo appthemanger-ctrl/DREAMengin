@@ -30,7 +30,7 @@ function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => vo
   );
 }
 
-export default function ControlsPanel() {
+export default function ControlsPanel( {
   const { openInSurface } = useDreamSystem();
   const [settings, setSettings] = useState<ControlsSettings>(DEFAULT);
   const [saved, setSaved]       = useState(false);
@@ -71,7 +71,7 @@ export default function ControlsPanel() {
         <div className="de-widget">
           <div className="de-widget-header"><span className="de-widget-title">Button Behavior</span></div>
           <div className="de-widget-body">
-            {rows.map(({ key, label, desc }) => (
+            {rows.map({ key, label: string, desc } => (
               <div key={key} className="de-row">
                 <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{label}</div><div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{desc}</div></div>
                 <Toggle value={settings[key]} onToggle={() => toggle(key)} label={label} />

@@ -60,22 +60,22 @@ export interface TorridityPostLike {
  * Preserves sign, compresses large values, and is scale-invariant.
  * Applied to all deviations, velocities, and engagement metrics.
  */
-export function slog(x: number): number {
+export function slog(x: number: number {
   return Math.sign(x) * Math.log(1 + Math.abs(x));
 }
 
-export function getInteractionDelta(pixelDelta: number): number {
+export function getInteractionDelta(pixelDelta: number: number {
   return slog(pixelDelta);
 }
 
-export function getDeceleration(velocity: number): number {
+export function getDeceleration(velocity: number: number {
   const sign = Math.sign(velocity);
   const x = Math.abs(velocity) / TORRIDITY_LEDGER_CONFIG.a0;
   const drift = x / Math.pow(1 + Math.pow(x, TORRIDITY_LEDGER_CONFIG.n), 1 / TORRIDITY_LEDGER_CONFIG.n);
   return sign * drift;
 }
 
-export function calculateSnapForce(distance: number, currentVelocity: number, viewportExtent: number): number {
+export function calculateSnapForce(distance: number, currentVelocity: number, viewportExtent: number: number {
   const snapZone = Math.max(viewportExtent * TORRIDITY_LEDGER_CONFIG.deltaP, 1);
   if (distance < snapZone) {
     const resistance = 0.85;
@@ -94,12 +94,12 @@ export function verifyHumanity(
   return betaSlope >= profile.slopeMin && betaSlope <= profile.slopeMax;
 }
 
-export function getPostMass(meta: PostMassMeta): number {
+export function getPostMass(meta: PostMassMeta: number {
   const effort = ((meta.buildTime ?? 0) * 0.5) + ((meta.uniqueAssets ?? 0) * 2.0);
   return Math.log(1 + Math.abs(effort));
 }
 
-export function normalizeHumanViews(viewsCount: number): number {
+export function normalizeHumanViews(viewsCount: number: number {
   const safeViews = Math.max(0, viewsCount);
   return TORRIDITY_LEDGER_CONFIG.a0 * (Math.log1p(safeViews + 1) / 4);
 }
@@ -118,7 +118,7 @@ export function calculateRank({
   return M < 1.5 ? Math.min(weight, TORRIDITY_LEDGER_CONFIG.deltaP) : weight;
 }
 
-export function derivePostMassMeta(post: TorridityPostLike): PostMassMeta {
+export function derivePostMassMeta(post: TorridityPostLike: PostMassMeta {
   const content = post.content ?? '';
   const words = content.trim().split(/\s+/).filter(Boolean).length;
   const hasMedia = Boolean(post.media_url);
@@ -138,7 +138,7 @@ export function derivePostMassMeta(post: TorridityPostLike): PostMassMeta {
  *
  * Range is approximately 0–0.79 (not normalized to 1).
  */
-export function calculateOriginality(meta: OriginalityMeta): number {
+export function calculateOriginality(meta: OriginalityMeta: number {
   const { uniqueWordRatio, hasOriginalMedia, maxSimilarity } = meta;
   return (
     0.4 * slog(Math.max(0, uniqueWordRatio)) +

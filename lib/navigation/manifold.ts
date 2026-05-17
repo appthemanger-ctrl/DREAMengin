@@ -68,7 +68,7 @@ export function projectCubicToSphere(
  * λ → 1 when zoomed out
  * λ → 0 when zoomed in
  */
-export function computeLambda(depth: number, maxDepth: number = 5): number {
+export function computeLambda(depth: number, maxDepth: number = 5: number {
   // Normalize depth to [0, 1]
   const normalizedDepth = Math.min(depth / maxDepth, 1);
   
@@ -88,7 +88,7 @@ export function computeLambda(depth: number, maxDepth: number = 5): number {
  * y = sin(θ) sin(φ)
  * z = cos(θ)
  */
-export function cartesianToSpherical(v: Vector3): SphericalCoords {
+export function cartesianToSpherical(v: Vector3: SphericalCoords {
   const r = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
   
   if (r < VECTOR_ZERO_THRESHOLD) {
@@ -110,7 +110,7 @@ export function cartesianToSpherical(v: Vector3): SphericalCoords {
 /**
  * Convert spherical coordinates to Cartesian
  */
-export function sphericalToCartesian(coords: SphericalCoords, radius: number = 1): Vector3 {
+export function sphericalToCartesian(coords: SphericalCoords, radius: number = 1: Vector3 {
   return {
     x: radius * Math.sin(coords.theta) * Math.cos(coords.phi),
     y: radius * Math.sin(coords.theta) * Math.sin(coords.phi),
@@ -126,7 +126,7 @@ export function sphericalToCartesian(coords: SphericalCoords, radius: number = 1
  * weight = smoothstep(0, ε, distToEdge)
  * position = mix(faceA, faceB, weight)
  */
-export function smoothstep(edge0: number, edge1: number, x: number): number {
+export function smoothstep(edge0: number, edge1: number, x: number: number {
   // Clamp x to [edge0, edge1]
   const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
   
@@ -140,7 +140,7 @@ export function smoothstep(edge0: number, edge1: number, x: number): number {
  * - faceX: -1 (left edge) to 1 (right edge)
  * - faceY: -1 (bottom edge) to 1 (top edge)
  */
-export function distanceToEdge(faceX: number, faceY: number): number {
+export function distanceToEdge(faceX: number, faceY: number: number {
   // Distance to each edge
   const distLeft = faceX + 1;    // Distance to left edge (-1)
   const distRight = 1 - faceX;   // Distance to right edge (1)
@@ -220,7 +220,7 @@ export function computeWidgetCurvature(
 /**
  * Normalize vector to unit length
  */
-export function normalizeVector(v: Vector3): Vector3 {
+export function normalizeVector(v: Vector3: Vector3 {
   const length = Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
   
   if (length < VECTOR_ZERO_THRESHOLD) {
@@ -237,21 +237,21 @@ export function normalizeVector(v: Vector3): Vector3 {
 /**
  * Compute vector magnitude
  */
-export function vectorMagnitude(v: Vector3): number {
+export function vectorMagnitude(v: Vector3: number {
   return Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
 /**
  * Vector dot product
  */
-export function dotProduct(v1: Vector3, v2: Vector3): number {
+export function dotProduct(v1: Vector3, v2: Vector3: number {
   return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
 /**
  * Vector cross product
  */
-export function crossProduct(v1: Vector3, v2: Vector3): Vector3 {
+export function crossProduct(v1: Vector3, v2: Vector3: Vector3 {
   return {
     x: v1.y * v2.z - v1.z * v2.y,
     y: v1.z * v2.x - v1.x * v2.z,

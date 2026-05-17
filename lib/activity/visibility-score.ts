@@ -27,7 +27,7 @@ import type { ActivityTier } from './types';
  * @param postId - Post ID
  * @returns Visibility score (integer)
  */
-export async function calculateVisibilityScore(postId: string): Promise<number> {
+export async function calculateVisibilityScore(postId: string: Promise<number> {
   const supabase = createClient();
 
   try {
@@ -94,10 +94,10 @@ export async function sortByVisibilityScore<T extends { id: string }>(
 ): Promise<T[]> {
   if (posts.length === 0) return posts;
 
-  const postIds = posts.map((p) => p.id);
+  const postIds = posts.map((p: Record<string, unknown>) => p.id);
   const scores = await calculateVisibilityScores(postIds);
 
-  return [...posts].sort((a, b) => {
+  return [...posts].sort(a: Record<string, unknown>, b: Record<string, unknown> => {
     const scoreA = scores.get(a.id) ?? 0;
     const scoreB = scores.get(b.id) ?? 0;
     return scoreB - scoreA; // Descending
@@ -120,7 +120,7 @@ export async function getVisibilityRankedFeed(
     before?: string; // ISO date cursor
     provider?: string; // Optional provider filter
   } = {},
-): Promise<any[]> {
+): Promise<unknown[]> {
   const supabase = createClient();
   const { limit = 30, before, provider } = options;
 
@@ -131,7 +131,7 @@ export async function getVisibilityRankedFeed(
       .select('following_id')
       .eq('follower_id', userId);
 
-    const followedIds = (follows ?? []).map((f: any) => f.following_id);
+    const followedIds = (follows ?? []).map((f: unknown) => f.following_id);
     const authorIds = [userId, ...followedIds];
 
     // Get posts from followed users + own posts
@@ -174,7 +174,7 @@ export async function getVisibilityRankedFeed(
  * @param postId - Post ID
  * @returns true if post should be promoted
  */
-export async function shouldPromotePost(postId: string): Promise<boolean> {
+export async function shouldPromotePost(postId: string: Promise<boolean> {
   const supabase = createClient();
 
   try {
@@ -199,7 +199,7 @@ export async function shouldPromotePost(postId: string): Promise<boolean> {
  * @param tier - Activity tier (0-6)
  * @returns Multiplier value
  */
-function getTierMultiplier(tier: ActivityTier): number {
+function getTierMultiplier(tier: ActivityTier: number {
   const multipliers: Record<number, number> = {
     0: 1,   // Passive
     1: 2,   // Reflection

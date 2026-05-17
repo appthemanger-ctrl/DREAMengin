@@ -16,7 +16,7 @@ const NAV_ITEMS = [
   { href: '/engines/code/ai',       label: 'AI',       emoji: '🤖' },
 ];
 
-export default async function CodeAIPage() {
+export default async function CodeAIPage( {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

@@ -33,7 +33,7 @@ interface UseConversationsReturn {
   reload: () => void;
 }
 
-export function useDreamDMConversations(userId: string, initial: DMConversation[] = []): UseConversationsReturn {
+export function useDreamDMConversations(userId: string, initial: DMConversation[] = []: UseConversationsReturn {
   const [conversations, setConversations] = useState<DMConversation[]>(initial);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -58,7 +58,7 @@ export function useDreamDMConversations(userId: string, initial: DMConversation[
       if (error || !data) return;
 
        
-      const formatted: DMConversation[] = (data as any[]).map((conv) => {
+      const formatted: DMConversation[] = (data as unknown[]).map((conv: Record<string, unknown>) => {
         const other = conv.participant1_id === userId ? conv.participant2 : conv.participant1;
         return {
           id: conv.id,

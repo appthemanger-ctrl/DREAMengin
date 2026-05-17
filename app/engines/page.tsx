@@ -85,7 +85,7 @@ const ENGINES = [
   },
 ] as const;
 
-export default async function EnginesHubPage() {
+export default async function EnginesHubPage( {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -114,7 +114,7 @@ export default async function EnginesHubPage() {
 
         {/* Engine cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {ENGINES.map((engine) => (
+          {ENGINES.map((engine: Record<string, unknown>) => (
             <Link
               key={engine.id}
               href={engine.href}
@@ -154,7 +154,7 @@ export default async function EnginesHubPage() {
 
               {/* Sub-routes */}
               <div className="relative flex flex-wrap gap-1.5">
-                {engine.subroutes.map((route) => (
+                {engine.subroutes.map((route: Record<string, unknown>) => (
                   <span
                     key={route}
                     className="text-[11px] px-2 py-0.5 rounded-full"

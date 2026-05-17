@@ -47,7 +47,7 @@ const COMPATIBILITY_CLUSTERS: Record<string, { label: string; clusterKey: string
   create:  { label: 'ContentStream', clusterKey: 'contentstream' },
 };
 
-function getCluster(type: string): { label: string; clusterKey: string } | null {
+function getCluster(type: string: { label: string; clusterKey: string } | null {
   return COMPATIBILITY_CLUSTERS[type.toLowerCase()] ?? null;
 }
 
@@ -57,7 +57,7 @@ type ClusterGroup = {
   windows: DreamWindowRecord[];
 };
 
-function groupIntoClusters(windows: DreamWindowRecord[]): ClusterGroup[] {
+function groupIntoClusters(windows: DreamWindowRecord[]: ClusterGroup[] {
   const groups = new Map<string, ClusterGroup>();
 
   for (const w of windows) {
@@ -160,7 +160,7 @@ function DreamWindowTile({
   );
 }
 
-function actionBtn(color: string): React.CSSProperties {
+function actionBtn(color: string: React.CSSProperties {
   return {
     fontSize: 11,
     fontWeight: 700,
@@ -205,7 +205,7 @@ function ClusterCard({ group, onRemove, onBind, onCollapse }: {
             layout === 'grid' ? 'repeat(2, minmax(0, 1fr))' : '1fr',
         }}
       >
-        {group.windows.map((w) => (
+        {group.windows.map((w: Record<string, unknown>) => (
           <DreamWindowTile
             key={w.id}
             window={w}
@@ -251,7 +251,7 @@ export default function SuperDreamWidget({
   const filtered = useMemo(
     () =>
       types && types.length > 0
-        ? dreamWindows.filter((w) => types.includes(w.type))
+        ? dreamWindows.filter((w: Record<string, unknown>) => types.includes(w.type))
         : dreamWindows,
     [dreamWindows, types],
   );
@@ -293,7 +293,7 @@ export default function SuperDreamWidget({
         <span className="de-widget-title">{title}</span>
         <button
           type="button"
-          onClick={() => setAdding((v) => !v)}
+          onClick={() => setAdding(v: number => !v)}
           style={{
             fontSize: 18,
             lineHeight: 1,
@@ -372,7 +372,7 @@ export default function SuperDreamWidget({
           </div>
         )}
 
-        {clusters.map((group) => (
+        {clusters.map((group: Record<string, unknown>) => (
           <ClusterCard
             key={group.clusterKey}
             group={group}

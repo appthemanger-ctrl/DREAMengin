@@ -29,7 +29,7 @@ const MAX_ARTIFACTS = 5;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function relativeTime(ms: number): string {
+function relativeTime(ms: number: string {
   const diff = Date.now() - ms;
   const secs = Math.floor(diff / 1000);
   if (secs < 60) return `${secs}s`;
@@ -41,7 +41,7 @@ function relativeTime(ms: number): string {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export default function RuntimeMemoryHUD() {
+export default function RuntimeMemoryHUD( {
   const [snapshot, setSnapshot] = useState<DreamOSSnapshot>({
     artifacts: [],
     runtimeContexts: [],
@@ -49,7 +49,7 @@ export default function RuntimeMemoryHUD() {
 
   // Subscribe to the bus — re-render whenever anything changes.
   useEffect(() => {
-    const unsub = dreamOSBus.subscribe((next) => setSnapshot(next));
+    const unsub = dreamOSBus.subscribe(next: Record<string, unknown> => setSnapshot(next));
     return unsub;
   }, []);
 
@@ -102,7 +102,7 @@ export default function RuntimeMemoryHUD() {
             marginBottom: trail.length > 0 ? 12 : 0,
           }}
         >
-          {activeContexts.map((ctx) => (
+          {activeContexts.map((ctx: Record<string, unknown>) => (
             <span
               key={ctx.region}
               style={{
@@ -140,7 +140,7 @@ export default function RuntimeMemoryHUD() {
       {/* Artifact trail */}
       {trail.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {trail.map((artifact) => {
+          {trail.map((artifact: Record<string, unknown>) => {
             const accent = getArtifactAccent(artifact.kind);
             const badge  = formatArtifactKind(artifact.kind);
             const ago    = relativeTime(artifact.updatedAt);

@@ -56,7 +56,7 @@ export type ValidationResult = {
  * Validates raw inbound body for a new shop listing.
  * Returns `valid: true` only when all business rules pass.
  */
-export function validateShopListing(body: unknown): ValidationResult {
+export function validateShopListing(body: unknown: ValidationResult {
   const errors: string[] = [];
 
   if (!body || typeof body !== 'object') {

@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import CodeEnginApp from '@/components/engines/code/dream.CodeEnginApp';
 import { connection } from 'next/server';
-export default async function CodeEnginAppPage() {
+export default async function CodeEnginAppPage( {
   await connection();
   const supabase = await createServerClient();
   let user = null;

@@ -72,7 +72,7 @@ export default function CrashReportModal({
   // Esc to close.
   useEffect(() => {
     if (!open) return;
-    function onKey(e: KeyboardEvent) {
+    function onKey(e: KeyboardEvent {
       if (e.key === 'Escape') onClose();
     }
     window.addEventListener('keydown', onKey);
@@ -84,7 +84,7 @@ export default function CrashReportModal({
   const trimmed = statement.trim();
   const canSubmit = trimmed.length > 0 && send.kind !== 'sending' && send.kind !== 'sent';
 
-  async function submit() {
+  async function submit( {
     if (!context || !canSubmit) return;
     setSend({ kind: 'sending' });
     const payload = {
@@ -244,7 +244,7 @@ export default function CrashReportModal({
   );
 }
 
-function btnStyle(bg: string, fg: string, disabled = false): React.CSSProperties {
+function btnStyle(bg: string, fg: string, disabled = false: React.CSSProperties {
   return {
     appearance: 'none',
     border: 'none',

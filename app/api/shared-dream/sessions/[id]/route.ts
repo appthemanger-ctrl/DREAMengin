@@ -9,7 +9,7 @@ import { z } from 'zod';
 
 // Escape hatch for missing database types to prevent "Type instantiation is excessively deep"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyClient = any;
+type AnyClient = SupabaseClient;
 
 interface SharedDreamSession {
   id: string;

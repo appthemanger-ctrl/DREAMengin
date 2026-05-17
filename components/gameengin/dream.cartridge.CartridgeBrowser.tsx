@@ -27,7 +27,7 @@ export interface CartridgeBrowserProps {
   initialCategory?: string;
 }
 
-export default function CartridgeBrowser({ initialCategory = ALL }: CartridgeBrowserProps) {
+export default function CartridgeBrowser({ initialCategory = ALL }: CartridgeBrowserProps {
   const [search, setSearch]     = useState('');
   const [category, setCategory] = useState(initialCategory);
   const [tier, setTier]         = useState<string>(ALL);
@@ -37,7 +37,7 @@ export default function CartridgeBrowser({ initialCategory = ALL }: CartridgeBro
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return CARTRIDGE_MANIFEST.filter((c) => {
+    return CARTRIDGE_MANIFEST.filter((c: Record<string, unknown>) => {
       if (category !== ALL && c.category !== category) return false;
       if (tier !== ALL && c.tier !== tier) return false;
       if (!q) return true;
@@ -129,7 +129,7 @@ export default function CartridgeBrowser({ initialCategory = ALL }: CartridgeBro
             No cartridges match. Try a different search.
           </div>
         ) : (
-          TIER_ORDER.map((t) => {
+          TIER_ORDER.map((t: Record<string, unknown>) => {
             const items = grouped.get(t) ?? [];
             if (items.length === 0) return null;
             return (
@@ -145,7 +145,7 @@ export default function CartridgeBrowser({ initialCategory = ALL }: CartridgeBro
                   gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
                   gap: 14,
                 }}>
-                  {items.map((c) => <CartridgeCard key={c.id} cartridge={c} />)}
+                  {items.map((c: Record<string, unknown>) => <CartridgeCard key={c.id} cartridge={c} />)}
                 </div>
               </section>
             );
@@ -164,7 +164,7 @@ function FilterRow({
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
       <span style={{ fontSize: 10, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.1em' }}>{label}</span>
-      {options.map((opt) => {
+      {options.map((opt: Record<string, unknown>) => {
         const active = value === opt;
         return (
           <button
@@ -191,7 +191,7 @@ function FilterRow({
 
 // ── Card ────────────────────────────────────────────────────────────────────
 
-function CartridgeCard({ cartridge: c }: { cartridge: CartridgeManifestEntry }) {
+function CartridgeCard({ cartridge: c }: { cartridge: CartridgeManifestEntry } {
   return (
     <Link
       href={`/gameengin/cartridges/${c.id}`}
@@ -238,7 +238,7 @@ function CartridgeCard({ cartridge: c }: { cartridge: CartridgeManifestEntry }) 
   );
 }
 
-function tierColor(t: typeof TIER_ORDER[number]): string {
+function tierColor(t: typeof TIER_ORDER[number]: string {
   switch (t) {
     case 'flagship': return '#fbbf24';
     case 'advanced': return '#a78bfa';

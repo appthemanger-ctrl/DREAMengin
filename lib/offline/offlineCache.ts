@@ -93,14 +93,14 @@ export interface SyncQueueEntry {
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
-export function openDB(): Promise<IDBDatabase> {
+export function openDB(: Promise<IDBDatabase> {
   if (typeof indexedDB === 'undefined') {
     return Promise.reject(new Error('IndexedDB not available'));
   }
 
   if (dbPromise) return dbPromise;
 
-  dbPromise = new Promise<IDBDatabase>((resolve, reject) => {
+  dbPromise = new Promise<IDBDatabase>(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onupgradeneeded = () => {
@@ -137,9 +137,9 @@ export function openDB(): Promise<IDBDatabase> {
 
 // ─── Asset operations ─────────────────────────────────────────────────────────
 
-export async function cacheAsset(asset: CachedAsset): Promise<void> {
+export async function cacheAsset(asset: CachedAsset: Promise<void> {
   const db = await openDB();
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_ASSETS, 'readwrite');
     tx.objectStore(STORE_ASSETS).put(asset);
     tx.oncomplete = () => resolve();
@@ -147,9 +147,9 @@ export async function cacheAsset(asset: CachedAsset): Promise<void> {
   });
 }
 
-export async function getAsset(id: string): Promise<CachedAsset | undefined> {
+export async function getAsset(id: string: Promise<CachedAsset | undefined> {
   const db = await openDB();
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_ASSETS, 'readonly');
     const req = tx.objectStore(STORE_ASSETS).get(id);
     req.onsuccess = () => resolve(req.result as CachedAsset | undefined);
@@ -157,9 +157,9 @@ export async function getAsset(id: string): Promise<CachedAsset | undefined> {
   });
 }
 
-export async function deleteAsset(id: string): Promise<void> {
+export async function deleteAsset(id: string: Promise<void> {
   const db = await openDB();
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_ASSETS, 'readwrite');
     tx.objectStore(STORE_ASSETS).delete(id);
     tx.oncomplete = () => resolve();
@@ -167,9 +167,9 @@ export async function deleteAsset(id: string): Promise<void> {
   });
 }
 
-export async function listAssets(): Promise<CachedAsset[]> {
+export async function listAssets(: Promise<CachedAsset[]> {
   const db = await openDB();
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_ASSETS, 'readonly');
     const req = tx.objectStore(STORE_ASSETS).getAll();
     req.onsuccess = () => resolve(req.result as CachedAsset[]);
@@ -179,9 +179,9 @@ export async function listAssets(): Promise<CachedAsset[]> {
 
 // ─── Scene operations ─────────────────────────────────────────────────────────
 
-export async function saveScene(scene: CachedScene): Promise<void> {
+export async function saveScene(scene: CachedScene: Promise<void> {
   const db = await openDB();
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_SCENES, 'readwrite');
     tx.objectStore(STORE_SCENES).put(scene);
     tx.oncomplete = () => resolve();
@@ -189,9 +189,9 @@ export async function saveScene(scene: CachedScene): Promise<void> {
   });
 }
 
-export async function getScene(id: string): Promise<CachedScene | undefined> {
+export async function getScene(id: string: Promise<CachedScene | undefined> {
   const db = await openDB();
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_SCENES, 'readonly');
     const req = tx.objectStore(STORE_SCENES).get(id);
     req.onsuccess = () => resolve(req.result as CachedScene | undefined);
@@ -199,9 +199,9 @@ export async function getScene(id: string): Promise<CachedScene | undefined> {
   });
 }
 
-export async function deleteScene(id: string): Promise<void> {
+export async function deleteScene(id: string: Promise<void> {
   const db = await openDB();
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_SCENES, 'readwrite');
     tx.objectStore(STORE_SCENES).delete(id);
     tx.oncomplete = () => resolve();
@@ -209,9 +209,9 @@ export async function deleteScene(id: string): Promise<void> {
   });
 }
 
-export async function listScenes(): Promise<CachedScene[]> {
+export async function listScenes(: Promise<CachedScene[]> {
   const db = await openDB();
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_SCENES, 'readonly');
     const req = tx.objectStore(STORE_SCENES).getAll();
     req.onsuccess = () => resolve(req.result as CachedScene[]);
@@ -221,9 +221,9 @@ export async function listScenes(): Promise<CachedScene[]> {
 
 // ─── Sync queue ───────────────────────────────────────────────────────────────
 
-export async function enqueueSyncAction(entry: Omit<SyncQueueEntry, 'id'>): Promise<void> {
+export async function enqueueSyncAction(entry: Omit<SyncQueueEntry, 'id'>: Promise<void> {
   const db = await openDB();
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_SYNC_QUEUE, 'readwrite');
     tx.objectStore(STORE_SYNC_QUEUE).add(entry);
     tx.oncomplete = () => resolve();
@@ -231,9 +231,9 @@ export async function enqueueSyncAction(entry: Omit<SyncQueueEntry, 'id'>): Prom
   });
 }
 
-export async function getSyncQueue(): Promise<SyncQueueEntry[]> {
+export async function getSyncQueue(: Promise<SyncQueueEntry[]> {
   const db = await openDB();
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_SYNC_QUEUE, 'readonly');
     const req = tx.objectStore(STORE_SYNC_QUEUE).getAll();
     req.onsuccess = () => resolve(req.result as SyncQueueEntry[]);
@@ -241,9 +241,9 @@ export async function getSyncQueue(): Promise<SyncQueueEntry[]> {
   });
 }
 
-export async function clearSyncQueue(): Promise<void> {
+export async function clearSyncQueue(: Promise<void> {
   const db = await openDB();
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_SYNC_QUEUE, 'readwrite');
     tx.objectStore(STORE_SYNC_QUEUE).clear();
     tx.oncomplete = () => resolve();
@@ -251,9 +251,9 @@ export async function clearSyncQueue(): Promise<void> {
   });
 }
 
-export async function removeSyncEntry(id: number): Promise<void> {
+export async function removeSyncEntry(id: number: Promise<void> {
   const db = await openDB();
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_SYNC_QUEUE, 'readwrite');
     tx.objectStore(STORE_SYNC_QUEUE).delete(id);
     tx.oncomplete = () => resolve();
@@ -263,7 +263,7 @@ export async function removeSyncEntry(id: number): Promise<void> {
 
 // ─── Online/Offline detection ─────────────────────────────────────────────────
 
-export function isOnline(): boolean {
+export function isOnline(: boolean {
   if (typeof navigator === 'undefined') return true;
   return navigator.onLine !== false;
 }

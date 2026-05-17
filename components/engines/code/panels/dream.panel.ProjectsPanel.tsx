@@ -29,7 +29,7 @@ const LANG_COLORS: Record<string, string> = {
   default:    '#6366f1',
 };
 
-export default function ProjectsPanel() {
+export default function ProjectsPanel( {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -39,7 +39,7 @@ export default function ProjectsPanel() {
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function loadProjects() {
+  async function loadProjects( {
     setLoading(true);
     setError(null);
     const supabase = createClient();
@@ -58,7 +58,7 @@ export default function ProjectsPanel() {
 
   useEffect(() => { loadProjects(); }, []);
 
-  async function createProject() {
+  async function createProject( {
     if (!newTitle.trim()) return;
     setCreating(true);
     const supabase = createClient();
@@ -100,7 +100,7 @@ export default function ProjectsPanel() {
               <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
             </button>
             <button
-              onClick={() => setShowForm((f) => !f)}
+              onClick={() => setShowForm(f: Record<string, unknown> => !f)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#22d3ee]/20 hover:bg-[#22d3ee]/30 text-[#22d3ee] text-xs font-medium transition-all"
             >
               <Plus size={13} />
@@ -133,7 +133,7 @@ export default function ProjectsPanel() {
                 onChange={(e) => setNewLang(e.target.value)}
                 className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-[#22d3ee]/50"
               >
-                {Object.keys(LANG_COLORS).filter((l) => l !== 'default').map((l) => (
+                {Object.keys(LANG_COLORS).filter((l: Record<string, unknown>) => l !== 'default').map((l: Record<string, unknown>) => (
                   <option key={l} value={l}>{l.charAt(0).toUpperCase() + l.slice(1)}</option>
                 ))}
               </select>
@@ -168,7 +168,7 @@ export default function ProjectsPanel() {
 
         {!loading && projects.length > 0 && (
           <div className="space-y-2">
-            {projects.map((proj) => {
+            {projects.map((proj: Record<string, unknown>) => {
               const langColor = LANG_COLORS[proj.language ?? 'default'] ?? LANG_COLORS.default;
               return (
                 <div

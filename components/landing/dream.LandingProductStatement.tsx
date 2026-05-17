@@ -14,7 +14,7 @@ import Link from 'next/link';
  * No animated word ticker, no platform-stat grid, no feature strip — those
  * lived in the old monolithic LandingHero and were the heaviest layout cost.
  */
-export default function LandingProductStatement() {
+export default function LandingProductStatement( {
   return (
     <div className="flex w-full min-w-0 max-w-[36rem] flex-col items-center text-center lg:items-start lg:text-left lg:max-w-[52%] lg:py-16">
       <div

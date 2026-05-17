@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { ArrowLeft, DollarSign, Loader2, LayoutGrid, Info } from 'lucide-react';
 
 
-export default function CreateAdSlotPage() {
+export default function CreateAdSlotPage( {
   const [placement, setPlacement] = useState('sidebar_banner');
   const [priceDay, setPriceDay] = useState('5.00');
   const [priceWeek, setPriceWeek] = useState('25.00');
@@ -78,7 +78,7 @@ export default function CreateAdSlotPage() {
           <div className="de-widget">
             <div className="de-widget-header"><span className="de-widget-title">Placement Location</span></div>
             <div className="de-widget-body" style={{ padding: 0 }}>
-              {placements.map((p) => (
+              {placements.map((p: Record<string, unknown>) => (
                 <button
                   key={p.id}
                   type="button"

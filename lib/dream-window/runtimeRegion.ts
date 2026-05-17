@@ -155,7 +155,7 @@ export function mountWindowInDreamSpace(
   state: RuntimeRegionState,
   ref: DreamWindowRef,
 ): RuntimeRegionState {
-  const existing = state.dreamSpace.mountedWindows.filter((w) => w.id !== ref.id);
+  const existing = state.dreamSpace.mountedWindows.filter((w: Record<string, unknown>) => w.id !== ref.id);
   return {
     ...state,
     dreamSpace: {
@@ -181,7 +181,7 @@ export function dismountWindowFromDreamSpace(
     ...state,
     dreamSpace: {
       ...state.dreamSpace,
-      mountedWindows: state.dreamSpace.mountedWindows.filter((w) => w.id !== id),
+      mountedWindows: state.dreamSpace.mountedWindows.filter((w: Record<string, unknown>) => w.id !== id),
     },
   };
 }
@@ -220,7 +220,7 @@ export function setSeamPosition(
  * const surface = getSurfaceSpaceSurface(state);
  * // → 'HomeDream Surface'
  */
-export function getSurfaceSpaceSurface(state: RuntimeRegionState): string {
+export function getSurfaceSpaceSurface(state: RuntimeRegionState: string {
   return state.surfaceSpace.activeSurface;
 }
 
@@ -230,7 +230,7 @@ export function getSurfaceSpaceSurface(state: RuntimeRegionState): string {
  * @example
  * if (isDreamSpaceDominant(state)) { ... }
  */
-export function isDreamSpaceDominant(state: RuntimeRegionState): boolean {
+export function isDreamSpaceDominant(state: RuntimeRegionState: boolean {
   return state.dreamSpace.isDominant;
 }
 

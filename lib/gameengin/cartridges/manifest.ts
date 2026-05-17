@@ -74,12 +74,12 @@ export const CARTRIDGE_MANIFEST: readonly CartridgeManifestEntry[] = [
 ];
 
 /** Quick lookup by id. Returns undefined if no cartridge with that id exists. */
-export function getCartridgeManifest(id: string): CartridgeManifestEntry | undefined {
-  return CARTRIDGE_MANIFEST.find((c) => c.id === id);
+export function getCartridgeManifest(id: string: CartridgeManifestEntry | undefined {
+  return CARTRIDGE_MANIFEST.find((c: Record<string, unknown>) => c.id === id);
 }
 
 /** Distinct categories preserved in manifest order. */
-export function getCartridgeCategories(): string[] {
+export function getCartridgeCategories(: string[] {
   const seen = new Set<string>();
   const out: string[] = [];
   for (const c of CARTRIDGE_MANIFEST) {

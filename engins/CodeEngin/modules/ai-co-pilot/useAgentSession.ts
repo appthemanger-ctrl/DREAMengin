@@ -15,7 +15,7 @@ export interface UseAgentSessionReturn {
   closeSession: () => Promise<void>;
 }
 
-export function useAgentSession(): UseAgentSessionReturn {
+export function useAgentSession(: UseAgentSessionReturn {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<AgentMessage[]>([]);

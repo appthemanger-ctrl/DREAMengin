@@ -209,13 +209,13 @@ export const WIDGET_REGISTRY: ReadonlyArray<WidgetTypeDef> = [
 ] as const;
 
 // ── Lookup helpers (req 43) ────────────────────────────────────────────────
-export function getWidgetTypeDef(id: string): WidgetTypeDef | undefined {
-  return WIDGET_REGISTRY.find((w) => w.id === id);
+export function getWidgetTypeDef(id: string: WidgetTypeDef | undefined {
+  return WIDGET_REGISTRY.find((w: Record<string, unknown>) => w.id === id);
 }
 
 /** All widget types that belong to a given connector (req 45) */
-export function getWidgetTypesForConnector(connectorId: string): WidgetTypeDef[] {
-  return WIDGET_REGISTRY.filter((w) => w.connectorId === connectorId);
+export function getWidgetTypesForConnector(connectorId: string: WidgetTypeDef[] {
+  return WIDGET_REGISTRY.filter((w: Record<string, unknown>) => w.connectorId === connectorId);
 }
 
 /** Connector status used to determine what CTA to show (req 46-48) */

@@ -59,7 +59,7 @@ export const MAX_PIECES = 30;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function uuid(): string {
+function uuid(: string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
   }
@@ -68,7 +68,7 @@ function uuid(): string {
 
 // ── Factory ───────────────────────────────────────────────────────────────────
 
-export function createAssembly(name: string, description = ''): EngineAssembly {
+export function createAssembly(name: string, description = '': EngineAssembly {
   return {
     id: uuid(),
     name,
@@ -109,7 +109,7 @@ export function removePiece(
 ): EngineAssembly {
   return {
     ...assembly,
-    pieces: assembly.pieces.filter((p) => p.instanceId !== instanceId),
+    pieces: assembly.pieces.filter((p: Record<string, unknown>) => p.instanceId !== instanceId),
     connections: assembly.connections.filter(
       (c) => c.fromInstanceId !== instanceId && c.toInstanceId !== instanceId,
     ),
@@ -125,7 +125,7 @@ export function movePiece(
 ): EngineAssembly {
   return {
     ...assembly,
-    pieces: assembly.pieces.map((p) =>
+    pieces: assembly.pieces.map((p: Record<string, unknown>) =>
       p.instanceId === instanceId ? { ...p, x, y } : p,
     ),
     updatedAt: Date.now(),
@@ -158,7 +158,7 @@ export function removeConnection(
 ): EngineAssembly {
   return {
     ...assembly,
-    connections: assembly.connections.filter((c) => c.id !== connectionId),
+    connections: assembly.connections.filter((c: Record<string, unknown>) => c.id !== connectionId),
     updatedAt: Date.now(),
   };
 }
@@ -198,9 +198,9 @@ export function validateAssembly(
     }
   }
 
-  const hasSource    = manifests.some((m) => m.role === 'source');
-  const hasProcessor = manifests.some((m) => m.role === 'processor');
-  const hasOutput    = manifests.some((m) => m.role === 'output');
+  const hasSource    = manifests.some((m: Record<string, unknown>) => m.role === 'source');
+  const hasProcessor = manifests.some((m: Record<string, unknown>) => m.role === 'processor');
+  const hasOutput    = manifests.some((m: Record<string, unknown>) => m.role === 'output');
 
   if (!hasSource)    errors.push({ code: 'missing-source',    message: 'Assembly must include at least one source piece.' });
   if (!hasProcessor) errors.push({ code: 'missing-processor', message: 'Assembly must include at least one processor piece.' });
@@ -209,17 +209,17 @@ export function validateAssembly(
   return errors;
 }
 
-export function isValidAssembly(assembly: EngineAssembly): boolean {
+export function isValidAssembly(assembly: EngineAssembly: boolean {
   return validateAssembly(assembly).length === 0;
 }
 
 // ── JSON Serialization ────────────────────────────────────────────────────────
 
-export function serializeAssembly(assembly: EngineAssembly): string {
+export function serializeAssembly(assembly: EngineAssembly: string {
   return JSON.stringify(assembly, null, 2);
 }
 
-export function deserializeAssembly(json: string): EngineAssembly {
+export function deserializeAssembly(json: string: EngineAssembly {
   const parsed = JSON.parse(json) as unknown;
   if (
     typeof parsed !== 'object' ||

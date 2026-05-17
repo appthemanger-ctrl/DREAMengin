@@ -64,7 +64,7 @@ async function fetchPlatformFeed(
   // Normalise the backend's raw posts (mastodon/nostr/bluesky shape) into the
   // NormalizedPost interface. The backend already returns a partially normalised
   // shape from its aggregators; we cast + fill defaults here.
-  return raw.map((item: any): NormalizedPost => ({
+  return raw.map((item: unknown): NormalizedPost => ({
     id: String(item.id ?? crypto.randomUUID()),
     source:
       (item.platform as NormalizedPost['source']) ??
@@ -87,7 +87,7 @@ async function fetchPlatformFeed(
 }
 
 /** Derive source from an id string prefixed by platform name */
-function deriveSource(id: string): NormalizedPost['source'] {
+function deriveSource(id: string: NormalizedPost['source'] {
   if (id.startsWith('mastodon_')) return 'mastodon';
   if (id.startsWith('nostr_')) return 'nostr';
   if (id.startsWith('bluesky_')) return 'bluesky';
@@ -95,7 +95,7 @@ function deriveSource(id: string): NormalizedPost['source'] {
 }
 
 /** Strip basic HTML tags from Mastodon status content */
-function stripHtml(html: string): string {
+function stripHtml(html: string: string {
   return html
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<\/p>/gi, '\n')

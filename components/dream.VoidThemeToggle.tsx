@@ -12,7 +12,7 @@
 import { useEffect, useState } from 'react';
 import { applyVoidTheme, isVoidThemeActive } from '@/components/dream.ThemeApplicator';
 
-export default function VoidThemeToggle() {
+export default function VoidThemeToggle( {
   const [isVoid, setIsVoid] = useState(false);
   const [mounted, setMounted] = useState(false);
 

@@ -22,7 +22,7 @@ import { CheckCircle, AlertCircle, Clock, RefreshCw, Lock, XCircle, Settings } f
 
 // ── Status badge (DREAMengin palette — gold / light-blue / muted) ─────────
 
-function StatusBadge({ status }: { status: ConnectorStatus }) {
+function StatusBadge({ status }: { status: ConnectorStatus } {
   const map: Record<ConnectorStatus, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
     connected:         { label: 'Connected',      color: 'var(--de-accent, #c8a84e)', bg: 'rgba(200,168,78,0.12)',  icon: <CheckCircle size={12} /> },
     not_connected:     { label: 'Not Connected',  color: 'var(--de-text-dim)',        bg: 'rgba(160,195,240,0.15)', icon: <Clock size={12} /> },
@@ -72,7 +72,7 @@ function CredentialModal({
   errorMsg: string | null;
 }) {
   const [values, setValues] = useState<Record<string, string>>(
-    Object.fromEntries(fields.map((f) => [f.key, ''])),
+    Object.fromEntries(fields.map((f: Record<string, unknown>) => [f.key, ''])),
   );
 
   return (
@@ -97,7 +97,7 @@ function CredentialModal({
               {errorMsg}
             </div>
           )}
-          {fields.map((field) => (
+          {fields.map((field: Record<string, unknown>) => (
             <div key={field.key} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               <label style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)' }}>
                 {field.label}
@@ -106,7 +106,7 @@ function CredentialModal({
                 type={field.type}
                 placeholder={field.placeholder}
                 value={values[field.key] ?? ''}
-                onChange={(e) => setValues((prev) => ({ ...prev, [field.key]: e.target.value }))}
+                onChange={(e) => setValues(prev: Record<string, unknown> => ({ ...prev, [field.key]: e.target.value }))}
                 style={{
                   padding: '8px 12px', borderRadius: 8, fontSize: 13,
                   border: '1px solid rgba(160,195,240,0.3)',
@@ -136,7 +136,7 @@ function CredentialModal({
 
 // ── Credential fields per provider ────────────────────────────────────────
 
-function getCredentialFields(provider: string): CredentialField[] {
+function getCredentialFields(provider: string: CredentialField[] {
   switch (provider) {
     case 'mastodon':
       return [
@@ -173,7 +173,7 @@ export interface ConnectorRowProps {
   onConnectSuccess: (connectorId: string, connectorName: string) => void;
 }
 
-export default function ConnectorRow({ connector, status, onConnectSuccess }: ConnectorRowProps) {
+export default function ConnectorRow({ connector, status: Record<string, unknown>, onConnectSuccess }: ConnectorRowProps {
   const initialStatus: ConnectorStatus =
     connector.tier === 'tier3' ? 'unsupported' : status;
 
@@ -184,7 +184,7 @@ export default function ConnectorRow({ connector, status, onConnectSuccess }: Co
 
   const fields = getCredentialFields(connector.id);
 
-  async function handleConnect(creds: Record<string, string>) {
+  async function handleConnect(creds: Record<string, string> {
     setSubmitting(true);
     setErrorMsg(null);
     try {
@@ -234,7 +234,7 @@ export default function ConnectorRow({ connector, status, onConnectSuccess }: Co
   /** Connectors with oauthStartUrl use browser redirect, not the credential modal. */
   const usesOAuth = !!connector.oauthStartUrl;
 
-  function handleConnectClick() {
+  function handleConnectClick( {
     if (btnDisabled) return;
     if (usesOAuth && connector.oauthStartUrl) {
       window.location.href = connector.oauthStartUrl;

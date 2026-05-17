@@ -66,7 +66,7 @@ export interface ButtonInteractionEvent {
   interaction: ButtonInteraction;
 }
 
-function emitWindowEvent(button: ControllerButton, interaction: ButtonInteraction) {
+function emitWindowEvent(button: ControllerButton, interaction: ButtonInteraction {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(
     new CustomEvent<ButtonInteractionEvent>('de-ctrl-button', {
@@ -84,7 +84,7 @@ interface ButtonState {
   isTapAndHoldCandidate: boolean;
 }
 
-function freshState(): ButtonState {
+function freshState(: ButtonState {
   return {
     touchId: null,
     pressStart: 0,
@@ -126,7 +126,7 @@ export class ButtonInteractionManager {
 
   private fire(button: ControllerButton, interaction: ButtonInteraction) {
     emitWindowEvent(button, interaction);
-    this.listeners.forEach((fn) => fn({ button, interaction }));
+    this.listeners.forEach((fn: Record<string, unknown>) => fn({ button, interaction }));
   }
 
   /**

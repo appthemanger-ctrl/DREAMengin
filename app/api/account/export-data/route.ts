@@ -27,7 +27,7 @@ const EXPORT_TARGETS: Array<{ table: string; ownerCol: string }> = [
   { table: 'notes',              ownerCol: 'user_id' },
 ];
 
-export async function GET(_req: NextRequest) {
+export async function GET(_req: NextRequest {
   const supabase = await createServerClient();
 
   const {
@@ -40,7 +40,7 @@ export async function GET(_req: NextRequest) {
   }
 
    
-  const supabaseAny = supabase as any;
+  const supabaseAny = supabase as SupabaseClient;
 
   const exportData: Record<string, unknown[] | null> = {};
   const skipped: string[] = [];

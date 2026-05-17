@@ -20,11 +20,11 @@ interface Props {
   sharerId: string;
 }
 
-export default function DreamRCore({ sharerId }: Props) {
+export default function DreamRCore({ sharerId }: Props {
   useEffect(() => {
     // bridge.subscribe(channel, event, handler) → returns UnsubscribeFn
     const subs = [
-      bridge.subscribe('create', 'create:published', (payload) => {
+      bridge.subscribe('create', 'create:published', payload: Record<string, unknown> => {
         const contentId = typeof payload['contentId'] === 'string' ? payload['contentId'] : '';
         console.log('[DreamRCore] Published:', contentId, 'via sharer', sharerId);
         void fetch('/api/dreamr/tally', {
@@ -34,18 +34,18 @@ export default function DreamRCore({ sharerId }: Props) {
         }).catch(() => {/* non-fatal */});
       }),
 
-      bridge.subscribe('games', 'games:achievement-unlocked', (payload) => {
+      bridge.subscribe('games', 'games:achievement-unlocked', payload: Record<string, unknown> => {
         const title = typeof payload['title'] === 'string' ? payload['title'] : 'Achievement';
         console.log('[DreamRCore] Game achievement:', title);
       }),
 
-      bridge.subscribe('music', 'music:session-end', (payload) => {
+      bridge.subscribe('music', 'music:session-end', payload: Record<string, unknown> => {
         const sessionId = typeof payload['sessionId'] === 'string' ? payload['sessionId'] : '';
         console.log('[DreamRCore] Music session ended:', sessionId);
       }),
     ];
 
-    return () => subs.forEach((u) => u());
+    return () => subs.forEach((u: Record<string, unknown>) => u());
   }, [sharerId]);
 
   // Logic-only component — renders nothing

@@ -69,7 +69,7 @@ type DreamOSCustomEventHandler<K extends DreamOSCustomEventName> = (
 
 const MAX_ARTIFACTS = 48;
 
-function channelToSubsystem(channel: DualRuntimeChannel): string {
+function channelToSubsystem(channel: DualRuntimeChannel: string {
   switch (channel) {
     case 'music':
       return 'StarMakerEngin';
@@ -88,7 +88,7 @@ function channelToSubsystem(channel: DualRuntimeChannel): string {
   }
 }
 
-function relatedSubsystemsForChannel(channel: DualRuntimeChannel): readonly string[] {
+function relatedSubsystemsForChannel(channel: DualRuntimeChannel: readonly string[] {
   switch (channel) {
     case 'music':
       return ['GameEngin', 'ContentEngin', 'BrandingEngin', AI_AGENTS.DR_EAMS];
@@ -107,15 +107,15 @@ function relatedSubsystemsForChannel(channel: DualRuntimeChannel): readonly stri
   }
 }
 
-function formatEventTitle(event: string): string {
+function formatEventTitle(event: string: string {
   return event
     .split(':')
-    .map((segment) => segment.replace(/-/g, ' '))
-    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .map((segment: Record<string, unknown>) => segment.replace(/-/g, ' '))
+    .map((segment: Record<string, unknown>) => segment.charAt(0).toUpperCase() + segment.slice(1))
     .join(' · ');
 }
 
-function worldToSubsystemId(world: RuntimeWorld): string {
+function worldToSubsystemId(world: RuntimeWorld: string {
   if (typeof world === 'string') {
     if (world === 'DreamSpace') return 'dreamspace';
     if (world === 'HomeDream Surface') return 'home';
@@ -129,7 +129,7 @@ function worldToSubsystemId(world: RuntimeWorld): string {
   return 'unknown';
 }
 
-export function deriveAIRuntimeContext(world: RuntimeWorld): RuntimeContext['aiContext'] {
+export function deriveAIRuntimeContext(world: RuntimeWorld: RuntimeContext['aiContext'] {
   const subsystemId = worldToSubsystemId(world).toLowerCase();
   if (subsystemId.includes('code')) return 'code';
   if (subsystemId.includes('lab')) return 'lab';
@@ -140,7 +140,7 @@ export function deriveAIRuntimeContext(world: RuntimeWorld): RuntimeContext['aiC
   return 'general';
 }
 
-function buildRuntimeContext(input: PublishRuntimeContextInput): RuntimeContext {
+function buildRuntimeContext(input: PublishRuntimeContextInput: RuntimeContext {
   return {
     ...input,
     aiContext: deriveAIRuntimeContext(input.world),
@@ -158,7 +158,7 @@ function publishRuntimeContextStrategy(
   return next;
 }
 
-function createRuntimeContextContainer(): RuntimeContainer<RuntimeContextStore, PublishRuntimeContextInput> {
+function createRuntimeContextContainer(: RuntimeContainer<RuntimeContextStore, PublishRuntimeContextInput> {
   return new RuntimeContainer<RuntimeContextStore, PublishRuntimeContextInput>(
     new Map<RuntimeRegion, RuntimeContext>(),
     publishRuntimeContextStrategy,
@@ -175,7 +175,7 @@ class DreamOSBusImpl {
   >();
 
   constructor() {
-    bridge.subscribeEventActivity((emission) => {
+    bridge.subscribeEventActivity(emission: Record<string, unknown> => {
       this.recordBridgeEmission(emission);
     });
   }
@@ -234,8 +234,8 @@ class DreamOSBusImpl {
    */
   getArtifactsByKind(kind: DreamOSArtifactKind): DreamOSSharedArtifact[] {
     return Array.from(this.artifacts.values())
-      .filter((a) => a.kind === kind)
-      .sort((a, b) => b.updatedAt - a.updatedAt);
+      .filter(a: Record<string, unknown> => a.kind === kind)
+      .sort(a: Record<string, unknown>, b: Record<string, unknown> => b.updatedAt - a.updatedAt);
   }
 
   // ── Improvement 66: getArtifactCount ─────────────────────────────────────
@@ -307,9 +307,9 @@ class DreamOSBusImpl {
 
   getSnapshot(): DreamOSSnapshot {
     return {
-      artifacts: Array.from(this.artifacts.values()).sort((a, b) => b.updatedAt - a.updatedAt),
+      artifacts: Array.from(this.artifacts.values()).sort(a: Record<string, unknown>, b: Record<string, unknown> => b.updatedAt - a.updatedAt),
       runtimeContexts: Array.from(this.runtimeContexts.getState().values())
-        .sort((a, b) => a.region.localeCompare(b.region)),
+        .sort(a: Record<string, unknown>, b: Record<string, unknown> => a.region.localeCompare(b.region)),
     };
   }
 

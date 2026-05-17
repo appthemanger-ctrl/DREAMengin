@@ -85,7 +85,7 @@ const SUBSYSTEM_LABELS: Record<string, string> = {
   profile: '👤 Profile',
 };
 
-function labelFor(subsystemId: string): string {
+function labelFor(subsystemId: string: string {
   return SUBSYSTEM_LABELS[subsystemId] ?? `⬡ ${subsystemId}`;
 }
 
@@ -169,7 +169,7 @@ export class SessionPatternEngine {
     }
 
     const entries = Array.from(fromMap.entries());
-    const total = entries.reduce((sum, [, count]) => sum + count, 0);
+    const total = entries.reduce(sum: number, [, count] => sum + count, 0);
 
     let learnedNorm: { subsystemId: string; confidence: number }[];
     if (this.tfReady) {
@@ -191,18 +191,18 @@ export class SessionPatternEngine {
       const coldWeight = 1 - learnWeight;
       const coldDefaults = this.coldStartDefaults(currentSubsystemId);
 
-      const learnedMap = new Map(learnedNorm.map((p) => [p.subsystemId, p.confidence]));
+      const learnedMap = new Map(learnedNorm.map((p: Record<string, unknown>) => [p.subsystemId, p.confidence]));
       const coldMap = new Map(coldDefaults.map(([id, conf]) => [id, conf]));
 
       const allIds = new Set([...learnedMap.keys(), ...coldMap.keys()]);
-      const blended = Array.from(allIds).map((id) => ({
+      const blended = Array.from(allIds).map((id: Record<string, unknown>) => ({
         subsystemId: id,
         confidence: learnWeight * (learnedMap.get(id) ?? 0) + coldWeight * (coldMap.get(id) ?? 0),
       }));
 
       return blended
-        .filter((p) => p.confidence > 0)
-        .sort((a, b) => b.confidence - a.confidence)
+        .filter((p: Record<string, unknown>) => p.confidence > 0)
+        .sort(a: Record<string, unknown>, b: Record<string, unknown> => b.confidence - a.confidence)
         .slice(0, topN)
         .map(({ subsystemId, confidence }) => ({
           subsystemId,
@@ -213,7 +213,7 @@ export class SessionPatternEngine {
 
     // Pure learned (transitionCount > COLD_START_THRESHOLD).
     return learnedNorm
-      .sort((a, b) => b.confidence - a.confidence)
+      .sort(a: Record<string, unknown>, b: Record<string, unknown> => b.confidence - a.confidence)
       .slice(0, topN)
       .map(({ subsystemId, confidence }) => ({
         subsystemId,
@@ -324,7 +324,7 @@ export class SessionPatternEngine {
       tensor.dispose();
       softmax.dispose();
 
-      return entries.map(([subsystemId], i) => ({
+      return entries.map([subsystemId], i: number => ({
         subsystemId,
         confidence: probsArray[i] ?? 0,
       }));

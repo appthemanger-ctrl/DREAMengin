@@ -28,7 +28,7 @@ type SceneAny = Scene & Record<string, unknown>;
  * micro-variation map. Re-used by every detail material in the scene to
  * avoid texture allocation pressure on low-tier devices.
  */
-export function getSharedNoiseTexture(BJS: BJS, scene: Scene): DynamicTexture {
+export function getSharedNoiseTexture(BJS: BJS, scene: Scene: DynamicTexture {
   const cached = (scene as SceneAny)[NOISE_TEX_KEY] as DynamicTexture | undefined;
   if (cached) return cached;
 

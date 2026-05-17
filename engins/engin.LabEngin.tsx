@@ -143,7 +143,7 @@ const LAB_DREAM_WINDOWS = [
   { label: 'Simulation Viewer Dream Window', href: '/engines/lab/quantum' },
 ] as const;
 
-export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) {
+export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props {
   const labBridge = useLabEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'lab' });
 
@@ -200,7 +200,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
   }, []);
 
   // ── Simulation runner ──────────────────────────────────────────────────────
-  function runSim(id: string) {
+  function runSim(id: string {
     setSimStates(prev => ({ ...prev, [id]: 'running' }));
     forgeRecord(`Ran simulation ${id}`);
     setTimeout(() => {
@@ -213,7 +213,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
   }
 
   // ── Export handler ─────────────────────────────────────────────────────────
-  function handleExportData() {
+  function handleExportData( {
     forgeRecord('Exported data');
     recordForgeTransfer('lab', 'code', 'dataset', 'Lab data export → CodeEngin');
     recordForgeTransfer('lab', 'create', 'dataset', 'Lab data export → CreateEngin');
@@ -291,7 +291,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
     'ai-director-v2':   false,
     'quantum-sim':      true,
   });
-  function toggleFlag(id: string) {
+  function toggleFlag(id: string {
     setFeatureFlags(prev => ({ ...prev, [id]: !prev[id] }));
   }
 
@@ -313,7 +313,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
   const [benchRunning, setBenchRunning] = useState(false);
   const [benchResults, setBenchResults] = useState<Array<{ name: string; score: string; unit: string }>>([]);
   const [benchSaveMsg, setBenchSaveMsg] = useState('');
-  async function runBenchmark() {
+  async function runBenchmark( {
     setBenchRunning(true);
     setBenchResults([]);
     setBenchSaveMsg('');
@@ -372,7 +372,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
   };
 
   // ── Collab lab handler ───────────────────────────────────────────────────────
-  function handleStartCollabLab() {
+  function handleStartCollabLab( {
     const code = Math.random().toString(36).slice(2, 8).toUpperCase();
     setCollabLabCode(code);
     setCollabLabActive(true);
@@ -382,7 +382,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
   }
 
   // ── Hypothesis handler ───────────────────────────────────────────────────────
-  function handleGenerateHypotheses() {
+  function handleGenerateHypotheses( {
     setHypothesisLoading(true);
     setHypotheses([]);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
@@ -399,12 +399,12 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
   }
 
   // ── Molecule handler ─────────────────────────────────────────────────────────
-  function handleSelectMolecule(mol: string) {
+  function handleSelectMolecule(mol: string {
     setSelectedMolecule(mol);
     setMoleculeDisplay(MOLECULE_DATA[mol] ?? '');
   }
 
-  function handleAnalyzeMolecule() {
+  function handleAnalyzeMolecule( {
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'lab', 'lab:molecule-analyze', { molecule: selectedMolecule },
     );
@@ -413,7 +413,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
   // ── Quantum measure handler ─────────────────────────────────────────────────
   const [quantumRunning, setQuantumRunning] = useState(false);
   const [quantumResult, setQuantumResult]   = useState<QuantumMeasurementResult | null>(null);
-  function handleQuantumMeasure(result?: QuantumMeasurementResult) {
+  function handleQuantumMeasure(result?: QuantumMeasurementResult {
     setQuantumMeasured(true);
     setQuantumRunning(false);
     if (result) setQuantumResult(result);
@@ -432,7 +432,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
   }
 
   // ── Dataset handler ──────────────────────────────────────────────────────────
-  function handleImportDataset(name: string) {
+  function handleImportDataset(name: string {
     setSelectedDataset(name);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'lab', 'lab:dataset-import', { name },
@@ -454,7 +454,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
     if (splitOutRef.current) splitOutRef.current.scrollTop = splitOutRef.current.scrollHeight;
   }, [splitOut]);
 
-  function runSplitScript() {
+  function runSplitScript( {
     if (splitRunning) return;
     setSplitRunning(true);
     setSplitOut([]);
@@ -473,14 +473,14 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
         : splitLang === 'javascript'
           ? [`Node.js v22 [LabEngin runtime]`, `> Executing…`, `Mean: 20.00`, `Std:  16.04`, `> ✅ Done`]
           : [`bash [LabEngin runtime]`, `$ Executing…`, `mean=-0.012 std=0.998`, `$ Exit 0`];
-    lines.forEach((line, i) => setTimeout(() => {
+    lines.forEach(line: Record<string, unknown>, i: number => setTimeout(() => {
       setSplitOut(prev => [...prev, line]);
       if (i === lines.length - 1) { setSplitRunning(false); setVizSeed(s => s + 7); }
     }, 140 * (i + 1)));
   }
 
   // ── Publish result handler ───────────────────────────────────────────────────
-  function handlePublishResult(title: string) {
+  function handlePublishResult(title: string {
     if (!title.trim()) return;
     setPublishingResult(true);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
@@ -592,7 +592,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
           <div className="de-widget-body">
             <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 8 }}>Side B functions:</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
-              {LAB_SIDE_B_FUNCTIONS.map((item) => (
+              {LAB_SIDE_B_FUNCTIONS.map((item: Record<string, unknown>) => (
                 <span key={item} style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 9999, background: 'rgba(34,197,94,0.1)', color: ACCENT, border: '1px solid rgba(34,197,94,0.2)' }}>
                   {item}
                 </span>
@@ -600,7 +600,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
             </div>
             <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 8 }}>Specialized Dream Windows:</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 6 }}>
-              {LAB_DREAM_WINDOWS.map((item) => (
+              {LAB_DREAM_WINDOWS.map((item: Record<string, unknown>) => (
                 <Link key={item.label} href={item.href} style={{ fontSize: 10, fontWeight: 700, color: ACCENT, textDecoration: 'none', padding: '6px 8px', borderRadius: 8, border: '1px solid rgba(34,197,94,0.2)', background: 'rgba(34,197,94,0.08)' }}>
                   {item.label}
                 </Link>
@@ -725,7 +725,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
                     {splitOut.length === 0 && !splitRunning && (
                       <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.4)', fontFamily: 'monospace' }}>Results stream here…</p>
                     )}
-                    {splitOut.map((line, i) => (
+                    {splitOut.map(line: Record<string, unknown>, i: number => (
                       <pre key={i} style={{ margin: 0, fontSize: 11, fontFamily: '"Fira Code",monospace',
                         color: line.startsWith('[') ? '#4ade80' : line.startsWith('✅') ? '#4ade80' : line.startsWith('$') || line.startsWith('>>>') ? '#93c5fd' : '#e2e8f0',
                         whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.55 }}>
@@ -800,7 +800,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
                         const layers = [4,8,6,4,2]; let s = vizSeed+31;
                         const chars = ['·','▫','▪','◾','◼','■'];
                         const maxW = Math.max(...layers);
-                        return layers.map((w, i) => {
+                        return layers.map(w: Record<string, unknown>, i: number => {
                           const pad=' '.repeat(Math.floor((maxW-w)/2));let row=pad;
                           for(let n=0;n<w;n++){s=(s*22695477+1)&0xffffffff;row+=chars[Math.abs(s)%chars.length]+' ';}
                           const act=((Math.abs(s)&0xff)/255).toFixed(2);
@@ -1351,7 +1351,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
           <div className="de-widget-body">
             {hypotheses.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
-                {hypotheses.map((h, i) => (
+                {hypotheses.map(h: Record<string, unknown>, i: number => (
                   <div
                     key={i}
                     style={{
@@ -1773,7 +1773,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
                 { h: 'Neural convergence improves with batch size 64 vs 32',             status: '🔄', outcome: 'In progress' },
                 { h: 'WebGPU compute shaders outperform JS by 10×',                      status: '✅', outcome: 'Confirmed' },
                 { h: 'Fluid viscosity > 0.8 causes unstable simulation',                 status: '❌', outcome: 'Refuted' },
-              ].map((row, i) => (
+              ].map(row: Record<string, unknown>, i: number => (
                 <div key={i} style={{ padding: '8px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: `1px solid rgba(34,197,94,0.15)` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
                     <span style={{ fontSize: 10, fontWeight: 700, color: row.outcome === 'Confirmed' ? '#22c55e' : row.outcome === 'Refuted' ? '#ef4444' : '#f59e0b' }}>{row.status} {row.outcome}</span>

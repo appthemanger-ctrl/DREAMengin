@@ -44,7 +44,7 @@ const REVENUE_SPLIT = [
   { label: 'Reward Pool',  pct: 20, color: '#f59e0b', desc: 'Monthly distribution to active users' },
 ];
 
-export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: Props) {
+export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: Props {
   const [userId, setUserId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [platformMetrics, setPlatformMetrics] = useState<GetPlatformMetricsResponse | null>(null);
@@ -73,7 +73,7 @@ export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: P
       if (data.user) {
         setUserId(data.user.id);
         // Check admin role
-        (supabase as any)
+        (supabase as SupabaseClient)
           .from('user_roles')
           .select('role')
           .eq('user_id', data.user.id)
@@ -91,8 +91,8 @@ export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: P
     if (!isAdmin) return;
     setPlatformLoading(true);
     fetch('/api/metrics/platform')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => setPlatformMetrics(data))
+      .then(r: number => (r.ok ? r.json() : null))
+      .then(data: Record<string, unknown> => setPlatformMetrics(data))
       .catch(() => {})
       .finally(() => setPlatformLoading(false));
   }, [isAdmin]);
@@ -102,8 +102,8 @@ export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: P
     if (!userId) return;
     setCreditsLoading(true);
     fetch('/api/skip-credits/balance')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => setSkipCredit(data?.skip_credit ?? null))
+      .then(r: number => (r.ok ? r.json() : null))
+      .then(data: Record<string, unknown> => setSkipCredit(data?.skip_credit ?? null))
       .catch(() => {})
       .finally(() => setCreditsLoading(false));
   }, [userId]);
@@ -112,8 +112,8 @@ export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: P
     if (!isAdmin) return;
     setPlatformLoading(true);
     fetch('/api/metrics/platform')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => setPlatformMetrics(data))
+      .then(r: number => (r.ok ? r.json() : null))
+      .then(data: Record<string, unknown> => setPlatformMetrics(data))
       .catch(() => {})
       .finally(() => setPlatformLoading(false));
   };
@@ -166,7 +166,7 @@ export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: P
                 { label: 'Balance',  value: skipCredit.credits_balance, color: '#f59e0b' },
                 { label: 'Earned',   value: skipCredit.earned_total,    color: '#22c55e' },
                 { label: 'Spent',    value: skipCredit.spent_total,     color: '#f87171' },
-              ].map((m) => (
+              ].map((m: Record<string, unknown>) => (
                 <div key={m.label} style={{ textAlign: 'center', padding: '8px 4px', background: `rgba(${m.color === '#f59e0b' ? '245,158,11' : m.color === '#22c55e' ? '34,197,94' : '248,113,113'},0.08)`, borderRadius: 10 }}>
                   <div style={{ fontSize: 18, fontWeight: 800, color: m.color }}>{m.value}</div>
                   <div style={{ fontSize: 9, color: '#94a3b8', marginTop: 2 }}>{m.label}</div>
@@ -188,7 +188,7 @@ export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: P
             <span style={{ fontSize: 12, fontWeight: 700, color: '#e2e8f0' }}>Ad Revenue Split</span>
           </div>
           <div className="space-y-3">
-            {REVENUE_SPLIT.map((row) => (
+            {REVENUE_SPLIT.map((row: Record<string, unknown>) => (
               <div key={row.label}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                   <span style={{ fontSize: 11, fontWeight: 600, color: row.color }}>{row.label}</span>
@@ -217,7 +217,7 @@ export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: P
               { label: 'Standard',      tier: 'AQS ≤ 499',    cpv: '$0.08', color: '#64748b' },
               { label: 'Premium',       tier: 'AQS 500–999',  cpv: '$0.12', color: '#38bdf8' },
               { label: 'Super Premium', tier: 'AQS 1000+',    cpv: '$0.15', color: '#a78bfa' },
-            ].map((row) => (
+            ].map((row: Record<string, unknown>) => (
               <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.04)' }}>
                 <div>
                   <div style={{ fontSize: 11, fontWeight: 600, color: row.color }}>{row.label}</div>
@@ -258,7 +258,7 @@ export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: P
                   { label: 'Avg AQS',           value: platformMetrics.average_aqs.toFixed(0),               target: `>${PLATFORM_HEALTH_TARGETS.average_aqs}`,        ok: platformMetrics.average_aqs >= PLATFORM_HEALTH_TARGETS.average_aqs },
                   { label: 'Harmful Content',   value: `${platformMetrics.harmful_content_rate.toFixed(3)}%`, target: `<${PLATFORM_HEALTH_TARGETS.harmful_content_rate}%`, ok: platformMetrics.harmful_content_rate <= PLATFORM_HEALTH_TARGETS.harmful_content_rate },
                   { label: 'Ad View Rate',      value: `${platformMetrics.ad_view_rate.toFixed(1)}%`,         target: `>${PLATFORM_HEALTH_TARGETS.ad_view_rate}%`,       ok: platformMetrics.ad_view_rate >= PLATFORM_HEALTH_TARGETS.ad_view_rate },
-                ].map((m) => (
+                ].map((m: Record<string, unknown>) => (
                   <div key={m.label} style={{ padding: '8px 10px', borderRadius: 8, background: `rgba(${m.ok ? '34,197,94' : '239,68,68'},0.06)`, border: `1px solid rgba(${m.ok ? '34,197,94' : '239,68,68'},0.18)` }}>
                     <div style={{ fontSize: 13, fontWeight: 800, color: m.ok ? '#22c55e' : '#ef4444' }}>{m.value}</div>
                     <div style={{ fontSize: 9, color: '#64748b' }}>{m.label}</div>

@@ -54,7 +54,7 @@ interface Mote { x: number; y: number; vx: number; vy: number; r: number; g: num
 // ── Static star layer ─────────────────────────────────────────────────────────
 interface Star { x: number; y: number; sz: number; a: number; tw: number; }
 
-function makeMote(w: number, h: number): Mote {
+function makeMote(w: number, h: number: Mote {
   const col = NODES[Math.floor(Math.random() * NODES.length)];
   return {
     x: Math.random() * w, y: Math.random() * h,
@@ -66,7 +66,7 @@ function makeMote(w: number, h: number): Mote {
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
-export default function DreamConstellationMap() {
+export default function DreamConstellationMap( {
   const canvasRef  = useRef<HTMLCanvasElement>(null);
   const stateRef   = useRef<{ raf: number; t: number; last: number; hovered: NodeId | null; motes: Mote[]; stars: Star[]; ringPhases: number[] } | null>(null);
   const [hovered, setHovered] = useState<NodeId | null>(null);
@@ -111,10 +111,10 @@ export default function DreamConstellationMap() {
         a:  Math.random() * 0.45 + 0.15,
         tw: Math.random() * Math.PI * 2,
       })),
-      ringPhases: Array.from({ length: NODES.length }, (_, i) => i * (5.5 / NODES.length)),
+      ringPhases: Array.from({ length: NODES.length }, _: Record<string, unknown>, i: number => i * (5.5 / NODES.length)),
     };
 
-    function render(ts: number) {
+    function render(ts: number {
       const s = stateRef.current!;
       const dt = Math.min((ts - s.last) / 1000, 0.05);
       s.last = ts;
@@ -161,8 +161,8 @@ export default function DreamConstellationMap() {
 
       // ── Edges ────────────────────────────────────────────────────────────
       for (const [aid, bid] of EDGES) {
-        const a  = NODES.find((n) => n.id === aid)!;
-        const b  = NODES.find((n) => n.id === bid)!;
+        const a  = NODES.find((n: Record<string, unknown>) => n.id === aid)!;
+        const b  = NODES.find((n: Record<string, unknown>) => n.id === bid)!;
         const pa = getNodePos(a, W, H);
         const pb = getNodePos(b, W, H);
 
@@ -277,7 +277,7 @@ export default function DreamConstellationMap() {
     const onClick = (e: MouseEvent) => {
       const hit = hitTest(e.clientX, e.clientY, window.innerWidth, window.innerHeight);
       if (hit) {
-        const node = NODES.find((n) => n.id === hit)!;
+        const node = NODES.find((n: Record<string, unknown>) => n.id === hit)!;
         router.push(node.href);
       }
     };
@@ -301,7 +301,7 @@ export default function DreamConstellationMap() {
       if (touch) {
         const hit = hitTest(touch.clientX, touch.clientY, window.innerWidth, window.innerHeight);
         if (hit) {
-          const node = NODES.find((n) => n.id === hit)!;
+          const node = NODES.find((n: Record<string, unknown>) => n.id === hit)!;
           router.push(node.href);
         }
       }
@@ -336,7 +336,7 @@ export default function DreamConstellationMap() {
 
       {/* Hover tooltip */}
       {hovered && (() => {
-        const n = NODES.find((x) => x.id === hovered)!;
+        const n = NODES.find((x: Record<string, unknown>) => x.id === hovered)!;
         return (
           <div
             style={{

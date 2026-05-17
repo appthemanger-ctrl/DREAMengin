@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 
 const TIP_KEY = 'dreamengin:onboarding:nav-tip-seen';
 
-export default function OnboardingTip() {
+export default function OnboardingTip( {
   const [show, setShow] = useState(false);
 
   useEffect(() => {

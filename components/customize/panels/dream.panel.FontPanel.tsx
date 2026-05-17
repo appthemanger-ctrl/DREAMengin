@@ -42,7 +42,7 @@ const FONT_CSS: Record<SkinFont, string> = {
 /**
  * FontPanel — choose the UI typeface for the current page skin.
  */
-export default function FontPanel() {
+export default function FontPanel( {
   const { activePanel, closePanel, draftSkin, updateDraft } = useCustomizeMode();
 
   if (activePanel !== 'font') return null;
@@ -50,7 +50,7 @@ export default function FontPanel() {
   return (
     <SlidePanel title="Font" onClose={closePanel}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {FONTS.map(({ id, label, preview, desc }) => {
+        {FONTS.map({ id, label: string, preview: Record<string, unknown>, desc } => {
           const isActive = draftSkin.fontFamily === id;
           return (
             <button

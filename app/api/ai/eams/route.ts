@@ -15,7 +15,7 @@ import { boogiePolicyCheck, isOwnerEmail, planWithEams, validateWithIdari } from
 
 
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   const requestStart = Date.now();
   const request_id = uuidv4();
 
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
 
   // Determine actor role
    
-  const { data: roleData } = await (supabase as any)
+  const { data: roleData } = await (supabase as SupabaseClient)
     .from('user_roles')
     .select('role')
     .eq('user_id', user.id)
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
       if (recentPosts && recentPosts.length > 0) {
         const postsText = recentPosts
            
-          .map((p: any) =>
+          .map((p: unknown) =>
             `- "${String(p.content ?? '').slice(0, 80)}" (${p.visibility ?? 'unknown'}, ${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'unknown'})`
           )
           .join('\n');
@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
   });
 
   // Filter to ALLOW and CONFIRM intents
-  const allowedIntents = validatedIntents.filter((_, i) => {
+  const allowedIntents = validatedIntents.filter(_: Record<string, unknown>, i: number => {
     const d = boogieResult.per_intent[i];
     return d && (d.decision === 'ALLOW' || d.decision === 'CONFIRM');
   });
@@ -164,7 +164,7 @@ export async function POST(req: NextRequest) {
 
   // Generate confirm token if any intent needs confirmation
   let confirm_token: string | undefined;
-  if (allowedDecisions.some((d) => d.decision === 'CONFIRM')) {
+  if (allowedDecisions.some((d: Record<string, unknown>) => d.decision === 'CONFIRM')) {
     confirm_token = makeConfirmToken({ requestId: request_id, userId: user.id, ttlSeconds: 300 });
   }
 

@@ -14,7 +14,7 @@ export interface ActivityRevenueSplit {
   rewardPoolShare: number;
 }
 
-function roundCurrency(value: number): number {
+function roundCurrency(value: number: number {
   return Math.round(value * 100) / 100;
 }
 
@@ -39,7 +39,7 @@ export function calculateActivityRevenueSplit(
   };
 }
 
-export function validateActivityRevenueSplit(split: ActivityRevenueSplit): boolean {
+export function validateActivityRevenueSplit(split: ActivityRevenueSplit: boolean {
   const total = roundCurrency(
     split.platformShare + split.creatorShare + split.rewardPoolShare,
   );

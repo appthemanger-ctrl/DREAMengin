@@ -33,7 +33,7 @@ export type { Rect } from './FrustumCuller';
  * renderer.drawRect(0, 0, 100, 50, '#22d3ee');
  * renderer.present();
  */
-export function createRenderer(type: 'canvas2d', canvas: HTMLCanvasElement): import('./Canvas2DRenderer').Canvas2DRenderer {
+export function createRenderer(type: 'canvas2d', canvas: HTMLCanvasElement: import('./Canvas2DRenderer').Canvas2DRenderer {
   if (type === 'canvas2d') {
     const { Canvas2DRenderer } = require('./Canvas2DRenderer') as typeof import('./Canvas2DRenderer');
     return new Canvas2DRenderer(canvas);

@@ -20,7 +20,7 @@ export interface GameCatalogEntry {
   href?: string;
 }
 
-export const GAME_CATALOG: readonly GameCatalogEntry[] = CARTRIDGE_MANIFEST.map((cartridge) => ({
+export const GAME_CATALOG: readonly GameCatalogEntry[] = CARTRIDGE_MANIFEST.map((cartridge: Record<string, unknown>) => ({
   id: cartridge.id,
   emoji: cartridge.emoji,
   label: cartridge.label,
@@ -32,4 +32,4 @@ export const GAME_CATALOG: readonly GameCatalogEntry[] = CARTRIDGE_MANIFEST.map(
   mobileHudMode: MOBILE_HUD_BY_GAME_ID[cartridge.id],
 }));
 
-export const GAME_CATALOG_IDS = GAME_CATALOG.map((game) => game.id);
+export const GAME_CATALOG_IDS = GAME_CATALOG.map((game: Record<string, unknown>) => game.id);

@@ -57,7 +57,7 @@ const DIRECTIONAL_ACTIONS: GameInputAction[] = [
   'move-down-right',
 ];
 
-function emitKeyboardEvent(type: 'keydown' | 'keyup', input: KeyboardInput) {
+function emitKeyboardEvent(type: 'keydown' | 'keyup', input: KeyboardInput {
   window.dispatchEvent(new KeyboardEvent(type, {
     key: input.key,
     code: input.code,
@@ -66,7 +66,7 @@ function emitKeyboardEvent(type: 'keydown' | 'keyup', input: KeyboardInput) {
   }));
 }
 
-export function useGameInputKeyboardBridge() {
+export function useGameInputKeyboardBridge( {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -76,7 +76,7 @@ export function useGameInputKeyboardBridge() {
     const getInputKey = (input: KeyboardInput) => `${input.code}:${input.key}`;
 
     const pressInputs = (inputs: KeyboardInput[]) => {
-      inputs.forEach((input) => {
+      inputs.forEach((input: Record<string, unknown>) => {
         const inputKey = getInputKey(input);
         const nextCount = (pressedCounts.get(inputKey) ?? 0) + 1;
         pressedCounts.set(inputKey, nextCount);
@@ -85,7 +85,7 @@ export function useGameInputKeyboardBridge() {
     };
 
     const releaseInputs = (inputs: KeyboardInput[]) => {
-      inputs.forEach((input) => {
+      inputs.forEach((input: Record<string, unknown>) => {
         const inputKey = getInputKey(input);
         const prevCount = pressedCounts.get(inputKey) ?? 0;
         if (prevCount <= 1) {
@@ -132,7 +132,7 @@ export function useGameInputKeyboardBridge() {
     window.addEventListener('de-game-input', handler as EventListener);
     return () => {
       window.removeEventListener('de-game-input', handler as EventListener);
-      activeInputsByAction.forEach((inputs) => releaseInputs(inputs));
+      activeInputsByAction.forEach((inputs: Record<string, unknown>) => releaseInputs(inputs));
       activeInputsByAction.clear();
       pressedCounts.clear();
     };

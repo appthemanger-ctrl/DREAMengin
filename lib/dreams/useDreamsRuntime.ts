@@ -41,11 +41,11 @@ const DEFAULT_STATE: DreamsRuntimeState = {
   detailTitle: null,
 };
 
-export function useDreamsRuntime(): DreamsRuntime {
+export function useDreamsRuntime(: DreamsRuntime {
   const [state, setState] = useState<DreamsRuntimeState>(DEFAULT_STATE);
 
   const openDetail = useCallback((url: string, title: string) => {
-    setState((prev) => ({
+    setState(prev: Record<string, unknown> => ({
       ...prev,
       view: 'detail',
       detailUrl: url,
@@ -54,7 +54,7 @@ export function useDreamsRuntime(): DreamsRuntime {
   }, []);
 
   const goToFeed = useCallback(() => {
-    setState((prev) => ({
+    setState(prev: Record<string, unknown> => ({
       ...prev,
       view: 'feed',
       detailUrl: null,
@@ -63,7 +63,7 @@ export function useDreamsRuntime(): DreamsRuntime {
   }, []);
 
   const setService = useCallback((service: string | null) => {
-    setState((prev) => ({
+    setState(prev: Record<string, unknown> => ({
       ...prev,
       activeService: service,
       view: 'feed',

@@ -79,7 +79,7 @@ const AIBrandKit          = 'brand-feature-2026'; // 2026: AI-powered brand kit 
 const MotionGraphics      = 'brand-feature-2026'; // 2026: Motion graphics support
 const Analytics2_0        = 'brand-feature-2026'; // 2026: Advanced analytics 2.0
 
-export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Props) {
+export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Props {
   const brandBridge = useBrandingEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'brand' });
 
@@ -187,7 +187,7 @@ export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Pr
   }, []);
 
   // ── Refresh analytics ──────────────────────────────────────────────────────
-  function refreshAnalytics() {
+  function refreshAnalytics( {
     setMetrics([
       { id: 'reach',  label: 'Reach',           value: '12.4K', trend: 'up',   icon: <Users className="w-4 h-4" /> },
       { id: 'eng',    label: 'Engagement Rate',  value: '4.7%',  trend: 'up',   icon: <TrendingUp className="w-4 h-4" /> },
@@ -201,7 +201,7 @@ export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Pr
   }
 
   // ── Launch A/B Test ────────────────────────────────────────────────────────
-  function launchTest() {
+  function launchTest( {
     if (!abName.trim()) return;
     const t: ABTest = { id: crypto.randomUUID(), name: abName.trim(), variantA: abVarA.trim(), variantB: abVarB.trim(), paused: false };
     setAbTests(prev => [t, ...prev]);
@@ -264,7 +264,7 @@ export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Pr
   const [paletteIdx, setPaletteIdx] = useState(0);
   const currentPalette = PALETTE_PRESETS[paletteIdx % PALETTE_PRESETS.length];
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
-  function copyColor(c: string) {
+  function copyColor(c: string {
     navigator.clipboard?.writeText(c).catch(() => {});
     setCopiedColor(c);
     setTimeout(() => setCopiedColor(null), 1200);
@@ -309,7 +309,7 @@ export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Pr
   }, [assets, abTests, brandRestoring]);
 
   // ── Segment handler ───────────────────────────────────────────────────────────
-  function handleCreateSegment() {
+  function handleCreateSegment( {
     if (!newSegName.trim()) return;
     const seg = {
       id: `seg-${Date.now()}`,
@@ -326,7 +326,7 @@ export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Pr
   }
 
   // ── Voice AI handler ─────────────────────────────────────────────────────────
-  function handleVoiceGenerate() {
+  function handleVoiceGenerate( {
     if (!voicePrompt.trim()) return;
     setVoiceLoading(true);
     setVoiceSuggestion('');
@@ -345,7 +345,7 @@ export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Pr
   }
 
   // ── Competitor handler ────────────────────────────────────────────────────────
-  function handleAddCompetitor() {
+  function handleAddCompetitor( {
     const handle = watchHandle.trim().startsWith('@') ? watchHandle.trim() : `@${watchHandle.trim()}`;
     if (!watchHandle.trim()) return;
     setCompetitors(prev => [{ handle, followers: '—', lastPost: 'just now' }, ...prev]);
@@ -356,7 +356,7 @@ export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Pr
   }
 
   // ── Asset handler — inserts to brand_kit_items with optimistic update ────────
-  async function handleSaveAsset() {
+  async function handleSaveAsset( {
     if (!newAssetName.trim() || !newAssetValue.trim()) return;
     forgeRecord('Saved brand asset');
     const optimisticId = `as-${Date.now()}`;
@@ -392,7 +392,7 @@ export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Pr
 
   // ── Send to ContentEngin (multi-connection: Brand → ContentEngin) ─────────────
   // multi-connection path: Brand → ContentEngin via /api/drafts + bridge event
-  async function handleSendToContentEngin() {
+  async function handleSendToContentEngin( {
     if (!voiceSuggestion.trim()) return;
     forgeRecord('Sent to ContentEngin');
     recordForgeTransfer('brand', 'create', 'voice-draft', 'Brand voice → ContentEngin draft');
@@ -639,7 +639,7 @@ export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Pr
                 { label: 'Budget ($)', val: budget, setter: setBudget },
                 { label: 'Impressions', val: impressions, setter: setImpressions },
                 { label: 'Conversions', val: conversions, setter: setConversions },
-              ].map(({ label, val, setter }) => (
+              ].map({ label, val: number, setter } => (
                 <div key={label}>
                   <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
                   <input type="number" min="0" value={val} onChange={e => setter(e.target.value)} placeholder="0"
@@ -850,7 +850,7 @@ export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Pr
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
-              {competitors.map((c, i) => (
+              {competitors.map(c: Record<string, unknown>, i: number => (
                 <div
                   key={i}
                   style={{

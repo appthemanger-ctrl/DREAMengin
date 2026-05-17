@@ -5,7 +5,7 @@ import { createServerClientWithCustomCookies } from "@/lib/supabase/server";
 import { SUPABASE_CONFIG } from "@/lib/supabase/config";
 import { resolveSafeNextPath } from "@/lib/auth/nextRedirect";
 
-export async function GET(request: Request) {
+export async function GET(request: Request {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const next = url.searchParams.get("next");
@@ -50,7 +50,7 @@ export async function GET(request: Request) {
   const supabase = createServerClientWithCustomCookies(
     () => cookieStore.getAll(),
     (cookiesToSet: CookieToSet[]) => {
-      cookiesToSet.forEach(({ name, value, options }) => {
+      cookiesToSet.forEach({ name, value: Record<string, unknown>, options } => {
         response.cookies.set(name, value, options);
       });
     }

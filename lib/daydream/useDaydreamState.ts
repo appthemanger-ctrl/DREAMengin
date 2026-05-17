@@ -36,7 +36,7 @@ export interface UseDaydreamStateReturn {
   markVisited: () => void;
 }
 
-export function useDaydreamState({ daydreamType, side }: UseDaydreamStateOptions): UseDaydreamStateReturn {
+export function useDaydreamState({ daydreamType, side }: UseDaydreamStateOptions: UseDaydreamStateReturn {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const markVisited = useCallback(async () => {

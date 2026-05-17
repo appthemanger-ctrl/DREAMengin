@@ -24,7 +24,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'connectors',  emoji: '🔌', label: 'Connectors',      desc: 'Link GitHub, GitLab, and more', color: '#8b5cf6', href: '/connectors'  },
 ];
 
-export default async function CodeDaydreamPage() {
+export default async function CodeDaydreamPage( {
   await connection();
   const supabase = await createServerClient();
   let user = null;

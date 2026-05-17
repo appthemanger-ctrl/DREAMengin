@@ -76,7 +76,7 @@ const RULE_CONFIG: Record<string, { label: string; color: string; emoji: string 
 // HELPERS
 // ============================================================================
 
-function severityBar(severity: number) {
+function severityBar(severity: number {
   const pct = Math.round(severity * 100);
   const color = severity >= 0.8 ? '#dc2626' : severity >= 0.5 ? '#f59e0b' : '#22c55e';
   return (
@@ -89,7 +89,7 @@ function severityBar(severity: number) {
   );
 }
 
-function relativeTime(iso: string): string {
+function relativeTime(iso: string: string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60_000);
   if (mins < 1) return 'just now';
@@ -107,7 +107,7 @@ interface ChildSafetyPanelProps {
   isAdmin: boolean;
 }
 
-export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
+export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps {
   const [activeTab, setActiveTab] = useState<'queue' | 'hashes'>('queue');
 
   // ── Queue state ──────────────────────────────────────────────────────────
@@ -156,13 +156,13 @@ export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
     const results = await Promise.allSettled(
       statuses.map(([s]) =>
         fetch(`/api/admin/child-safety?status=${encodeURIComponent(s)}&limit=1`)
-          .then((r) => r.json() as Promise<{ count?: number }>)
-          .then((d) => d.count ?? 0)
+          .then(r: number => r.json() as Promise<{ count?: number }>)
+          .then(d: Record<string, unknown> => d.count ?? 0)
           .catch(() => 0),
       ),
     );
     const newCounts: IncidentCounts = { pending: 0, submitted: 0, failed: 0, actioned: 0, dismissed: 0 };
-    results.forEach((r, i) => {
+    results.forEach(r: Record<string, unknown>, i: number => {
       const key = statuses[i][1];
       newCounts[key] = r.status === 'fulfilled' ? (r.value as number) : 0;
     });
@@ -206,8 +206,8 @@ export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
     setHashUploadResult(null);
     const lines = hashInput
       .split(/[\n,\s]+/)
-      .map((l) => l.trim().toLowerCase())
-      .filter((l) => /^[0-9a-f]{64}$/.test(l));
+      .map((l: Record<string, unknown>) => l.trim().toLowerCase())
+      .filter((l: Record<string, unknown>) => /^[0-9a-f]{64}$/.test(l));
 
     if (lines.length === 0) {
       setHashError('No valid SHA-256 hashes found. Each hash must be exactly 64 hex characters.');
@@ -221,7 +221,7 @@ export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'add_hashes',
-          hashes: lines.map((h) => ({ hash_sha256: h, source: hashSource, content_type: 'image' })),
+          hashes: lines.map((h: Record<string, unknown>) => ({ hash_sha256: h, source: hashSource, content_type: 'image' })),
         }),
       });
       const json = await res.json() as { ok?: boolean; inserted_count?: number; submitted_count?: number; error?: string };
@@ -268,7 +268,7 @@ export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
           { label: 'Failed',    value: counts.failed,    color: '#ef4444', status: 'NCMEC_SUBMISSION_FAILED' },
           { label: 'Actioned',  value: counts.actioned,  color: '#3b82f6', status: 'REVIEWED_ACTIONED' },
           { label: 'Dismissed', value: counts.dismissed, color: '#6b7280', status: 'REVIEWED_DISMISSED' },
-        ] as const).map(({ label, value, color, status }) => (
+        ] as const).map({ label, value: Record<string, unknown>, color: Record<string, unknown>, status } => (
           <button
             key={label}
             onClick={() => setStatusFilter(status)}
@@ -290,7 +290,7 @@ export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
         {([
           { id: 'queue',  label: 'Incident Queue', icon: Activity },
           { id: 'hashes', label: 'Hash Registry',  icon: Hash },
-        ] as const).map(({ id, label, icon: Icon }) => (
+        ] as const).map({ id, label: string, icon: Icon } => (
           <button
             key={id}
             type="button"
@@ -352,7 +352,7 @@ export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
             </div>
           ) : (
             <div className="space-y-3">
-              {incidents.map((inc) => {
+              {incidents.map((inc: Record<string, unknown>) => {
                 const ruleConf = RULE_CONFIG[inc.rule_code] ?? { label: inc.rule_code, color: '#6b7280', emoji: '❓' };
                 const statusConf = STATUS_CONFIG[inc.status] ?? STATUS_CONFIG['PENDING_REVIEW'];
                 const StatusIcon = statusConf.Icon;
@@ -501,7 +501,7 @@ export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Hash Source</label>
               <div className="flex gap-2 flex-wrap">
-                {['NCMEC', 'IWF', 'INHOPE', 'internal'].map((src) => (
+                {['NCMEC', 'IWF', 'INHOPE', 'internal'].map((src: Record<string, unknown>) => (
                   <button
                     key={src}
                     type="button"
@@ -533,7 +533,7 @@ export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
               />
               <div className="mt-1 text-xs text-slate-400">
                 Valid hashes detected: {
-                  hashInput.split(/[\n,\s]+/).filter((l) => /^[0-9a-f]{64}$/i.test(l.trim())).length
+                  hashInput.split(/[\n,\s]+/).filter((l: Record<string, unknown>) => /^[0-9a-f]{64}$/i.test(l.trim())).length
                 }
               </div>
             </div>

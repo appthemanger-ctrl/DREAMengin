@@ -6,7 +6,7 @@
  * instead of the legacy WebGL path.
  */
 
-export async function isWebGPUAvailable(): Promise<boolean> {
+export async function isWebGPUAvailable(: Promise<boolean> {
   if (typeof navigator === 'undefined') return false;
   if (!('gpu' in navigator)) return false;
 
@@ -22,7 +22,7 @@ export async function isWebGPUAvailable(): Promise<boolean> {
  * Return a label describing the best available GPU backend so UI can
  * surface it to the user.
  */
-export async function getRendererBackend(): Promise<'webgpu' | 'webgl2' | 'webgl'> {
+export async function getRendererBackend(: Promise<'webgpu' | 'webgl2' | 'webgl'> {
   if (await isWebGPUAvailable()) return 'webgpu';
 
   if (typeof document === 'undefined') return 'webgl2';

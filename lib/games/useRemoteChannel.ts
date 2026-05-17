@@ -23,7 +23,7 @@ const CHANNEL_NAME = 'de-game-remote';
 // do not open/close a new channel on every invocation.
 let _broadcastChannel: BroadcastChannel | null = null;
 
-function getBroadcastChannel(): BroadcastChannel | null {
+function getBroadcastChannel(: BroadcastChannel | null {
   if (typeof window === 'undefined' || typeof BroadcastChannel === 'undefined') return null;
   if (!_broadcastChannel) {
     try {
@@ -44,7 +44,7 @@ function getBroadcastChannel(): BroadcastChannel | null {
  * Broadcast a game input action to all same-origin tabs/windows.
  * Called alongside the existing local `fireAction` in GameRemote.
  */
-export function broadcastGameInput(action: string, active: boolean) {
+export function broadcastGameInput(action: string, active: boolean {
   try {
     getBroadcastChannel()?.postMessage({ action, active });
   } catch {
@@ -56,7 +56,7 @@ export function broadcastGameInput(action: string, active: boolean) {
  * Listen for cross-tab game remote inputs and re-dispatch them as local
  * `de-game-input` CustomEvents so all game components receive them unchanged.
  */
-export function useRemoteChannel() {
+export function useRemoteChannel( {
   useEffect(() => {
     if (typeof BroadcastChannel === 'undefined') return;
 

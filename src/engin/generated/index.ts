@@ -10,7 +10,7 @@ import { personas } from './personas';
 import { systems } from './systems';
 import { hooks } from './hooks';
 
-export function hydrateEngineRegistry(engine: UniversalEngine): void {
+export function hydrateEngineRegistry(engine: UniversalEngine: void {
   engine.registry.hydrate({
     rulesets,
     surfaces,

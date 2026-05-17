@@ -56,7 +56,7 @@ export default function PasswordField({
         />
         <button
           type="button"
-          onClick={() => setVisible((current) => !current)}
+          onClick={() => setVisible(current: Record<string, unknown> => !current)}
           className="absolute right-1 top-1/2 grid h-11 w-11 -translate-y-1/2 place-items-center rounded-lg"
           style={{ color: 'rgba(140,170,220,0.55)' }}
           aria-label={visible ? `Hide ${label}` : `Show ${label}`}

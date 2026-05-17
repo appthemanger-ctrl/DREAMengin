@@ -16,7 +16,7 @@ const NAV_ITEMS = [
   { href: '/engines/create/queue',    label: 'Queue',    emoji: '📬' },
 ];
 
-export default async function CreateQueuePage() {
+export default async function CreateQueuePage( {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

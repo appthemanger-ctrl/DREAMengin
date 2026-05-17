@@ -88,7 +88,7 @@ const EMPTY_FEED: EmbedFeed = {
  * Returns an empty feed (not an error) if the file has not yet been generated
  * by the workflow, so callers can handle the "no items yet" state gracefully.
  */
-export function loadEmbedFeed(): EmbedFeed {
+export function loadEmbedFeed(: EmbedFeed {
   try {
     const raw = readFileSync(FEED_PATH, 'utf-8');
     const parsed = JSON.parse(raw) as EmbedFeed;
@@ -107,6 +107,6 @@ export function loadEmbedFeed(): EmbedFeed {
  * @example
  *   const ytItems = loadEmbedFeedByProvider('youtube');
  */
-export function loadEmbedFeedByProvider(provider: string): EmbedFeedItem[] {
+export function loadEmbedFeedByProvider(provider: string: EmbedFeedItem[] {
   return loadEmbedFeed().items.filter(item => item.provider === provider);
 }

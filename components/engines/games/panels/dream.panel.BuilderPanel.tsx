@@ -34,13 +34,13 @@ const PIXELS: PixelDef[] = [
 
 const cellId = (row: number, col: number) => `character-pixel-${row}-${col}`;
 
-function makeEmptyGrid(): PixelType[][] {
+function makeEmptyGrid(: PixelType[][] {
   return Array.from({ length: GRID_SIZE }, () =>
     Array.from({ length: GRID_SIZE }, () => 'transparent' as PixelType)
   );
 }
 
-export default function BuilderPanel() {
+export default function BuilderPanel( {
   const [grid, setGrid] = useState<PixelType[][]>(makeEmptyGrid);
   const [activePixel, setActivePixel] = useState<PixelType>('primary');
   const [isPainting, setIsPainting] = useState(false);
@@ -48,31 +48,31 @@ export default function BuilderPanel() {
   const [characterName, setCharacterName] = useState('Original Hero');
 
   const paintCell = useCallback((row: number, col: number) => {
-    setGrid((prev) => {
-      const next = prev.map((r) => [...r]);
+    setGrid(prev: Record<string, unknown> => {
+      const next = prev.map((r: Record<string, unknown>) => [...r]);
       next[row][col] = activePixel;
       return next;
     });
   }, [activePixel]);
 
-  function handleMouseDown(row: number, col: number) {
+  function handleMouseDown(row: number, col: number {
     setIsPainting(true);
     paintCell(row, col);
   }
 
-  function handleMouseEnter(row: number, col: number) {
+  function handleMouseEnter(row: number, col: number {
     if (isPainting) paintCell(row, col);
   }
 
-  function handleMouseUp() {
+  function handleMouseUp( {
     setIsPainting(false);
   }
 
-  function focusCell(row: number, col: number) {
+  function focusCell(row: number, col: number {
     document.getElementById(cellId(row, col))?.focus();
   }
 
-  function handleCellKeyDown(event: KeyboardEvent<HTMLButtonElement>, row: number, col: number) {
+  function handleCellKeyDown(event: KeyboardEvent<HTMLButtonElement>, row: number, col: number {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       paintCell(row, col);
@@ -92,12 +92,12 @@ export default function BuilderPanel() {
     }
   }
 
-  function clearGrid() {
+  function clearGrid( {
     setGrid(makeEmptyGrid());
     setSaved(false);
   }
 
-  function saveCharacter() {
+  function saveCharacter( {
     bridge.emit('games', 'games:asset-exported', {
       assetId: characterName || 'original-character',
       assetType: 'character',
@@ -109,7 +109,7 @@ export default function BuilderPanel() {
     setTimeout(() => setSaved(false), 2000);
   }
 
-  const pixelDef = (type: PixelType) => PIXELS.find((pixel) => pixel.type === type)!;
+  const pixelDef = (type: PixelType) => PIXELS.find((pixel: Record<string, unknown>) => pixel.type === type)!;
 
   return (
     <div
@@ -134,7 +134,7 @@ export default function BuilderPanel() {
         </div>
 
         <div className="flex flex-wrap gap-2 mb-5">
-          {PIXELS.map((pixel) => (
+          {PIXELS.map((pixel: Record<string, unknown>) => (
             <button
               key={pixel.type}
               onClick={() => setActivePixel(pixel.type)}
@@ -160,8 +160,8 @@ export default function BuilderPanel() {
             role="grid"
             style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))` }}
           >
-            {grid.map((row, ri) =>
-              row.map((cell, ci) => {
+            {grid.map(row: Record<string, unknown>, ri: Record<string, unknown> =>
+              row.map(cell: Record<string, unknown>, ci: Record<string, unknown> => {
                 const def = pixelDef(cell);
                 return (
                   <button

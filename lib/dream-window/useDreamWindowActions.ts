@@ -80,7 +80,7 @@ async function fetchDreamWindow<T>(
 ): Promise<{ ok: boolean; data: T | null; error: string | null }> {
   try {
     const res = await fetch(input, init);
-    const json = await res.json().catch((error) => {
+    const json = await res.json().catch(error: unknown => {
       console.warn('[DreamWindow] failed to parse JSON response', error);
       return {};
     }) as {
@@ -100,7 +100,7 @@ async function fetchDreamWindow<T>(
   }
 }
 
-export async function createDreamWindow(body: CreateDreamWindowBody): Promise<DreamWindowRecord | null> {
+export async function createDreamWindow(body: CreateDreamWindowBody: Promise<DreamWindowRecord | null> {
   const result = await fetchDreamWindow<DreamWindowRecord>('/api/dream-windows', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -125,7 +125,7 @@ export async function patchDreamWindow(
 // Hook implementation
 // ---------------------------------------------------------------------------
 
-export function useDreamWindowActions(): UseDreamWindowActionsReturn {
+export function useDreamWindowActions(: UseDreamWindowActionsReturn {
   const [dreamWindows, setDreamWindows] = useState<DreamWindowRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -168,7 +168,7 @@ export function useDreamWindowActions(): UseDreamWindowActionsReturn {
         setError('Failed to create Dream Window');
         return null;
       }
-      setDreamWindows((prev) => [created, ...prev]);
+      setDreamWindows(prev: Record<string, unknown> => [created, ...prev]);
       return created;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -190,7 +190,7 @@ export function useDreamWindowActions(): UseDreamWindowActionsReturn {
         setError((json as { error?: string }).error ?? 'Failed to delete Dream Window');
         return false;
       }
-      setDreamWindows((prev) => prev.filter((w) => w.id !== id));
+      setDreamWindows(prev: Record<string, unknown> => prev.filter((w: Record<string, unknown>) => w.id !== id));
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -220,8 +220,8 @@ export function useDreamWindowActions(): UseDreamWindowActionsReturn {
         return null;
       }
       const updated = json.dreamWindow!;
-      setDreamWindows((prev) =>
-        prev.map((w) => (w.id === id ? updated : w)),
+      setDreamWindows(prev: Record<string, unknown> =>
+        prev.map((w: Record<string, unknown>) => (w.id === id ? updated : w)),
       );
       return updated;
     } catch (err) {
@@ -244,7 +244,7 @@ export function useDreamWindowActions(): UseDreamWindowActionsReturn {
         setError('Failed to update Dream Window');
         return null;
       }
-      setDreamWindows((prev) => prev.map((window) => (window.id === id ? updated : window)));
+      setDreamWindows(prev: Record<string, unknown> => prev.map((window: Record<string, unknown>) => (window.id === id ? updated : window)));
       return updated;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');

@@ -535,16 +535,16 @@ const WORKFLOWS: readonly WorkflowDefinition[] = [
  * Find all workflows that connect a given source Engin to a target Engin.
  * Returns an empty array when no workflow is defined for that pair.
  */
-export function findWorkflows(from: EnginKey, to: EnginKey): WorkflowDefinition[] {
-  return WORKFLOWS.filter((w) => w.from === from && w.to === to);
+export function findWorkflows(from: EnginKey, to: EnginKey: WorkflowDefinition[] {
+  return WORKFLOWS.filter((w: Record<string, unknown>) => w.from === from && w.to === to);
 }
 
 /**
  * Find a single workflow by its unique ID.
  * Returns undefined if no workflow with that ID is registered.
  */
-export function findWorkflowById(id: string): WorkflowDefinition | undefined {
-  return WORKFLOWS.find((w) => w.id === id);
+export function findWorkflowById(id: string: WorkflowDefinition | undefined {
+  return WORKFLOWS.find((w: Record<string, unknown>) => w.id === id);
 }
 
 /**
@@ -555,7 +555,7 @@ export function findWorkflowById(id: string): WorkflowDefinition | undefined {
  *
  * @returns true if the workflow was found and executed; false if the ID is unknown.
  */
-export function executeWorkflow(id: string, payload: Record<string, unknown>): boolean {
+export function executeWorkflow(id: string, payload: Record<string, unknown>: boolean {
   const workflow = findWorkflowById(id);
   if (!workflow) return false;
   try {
@@ -571,7 +571,7 @@ export function executeWorkflow(id: string, payload: Record<string, unknown>): b
  * Return a readonly snapshot of every registered workflow.
  * Useful for building seam UI menus or debugging the registry.
  */
-export function allWorkflows(): readonly WorkflowDefinition[] {
+export function allWorkflows(: readonly WorkflowDefinition[] {
   return WORKFLOWS;
 }
 
@@ -581,7 +581,7 @@ export function allWorkflows(): readonly WorkflowDefinition[] {
  * Return all workflows that accept the given artifact type (or 'any').
  * Useful when the drag payload has a known type but the target Engin is unknown.
  */
-export function getWorkflowsByArtifactType(type: WorkflowArtifactType): WorkflowDefinition[] {
+export function getWorkflowsByArtifactType(type: WorkflowArtifactType: WorkflowDefinition[] {
   return WORKFLOWS.filter(
     (w) => w.artifactTypes.includes(type) || w.artifactTypes.includes('any'),
   );
@@ -600,7 +600,7 @@ export interface WorkflowStats {
  * Return aggregate statistics about the registered workflow set.
  * Useful for analytics and debugging the seam configuration.
  */
-export function getWorkflowStats(): WorkflowStats {
+export function getWorkflowStats(: WorkflowStats {
   const bySource: Record<string, number> = {};
   const byTarget: Record<string, number> = {};
   const byArtifactType: Record<string, number> = {};
@@ -622,6 +622,6 @@ export function getWorkflowStats(): WorkflowStats {
  * Returns true when a workflow with the given ID is registered.
  * Slightly faster than findWorkflowById(id) !== undefined for boolean checks.
  */
-export function workflowExists(id: string): boolean {
-  return WORKFLOWS.some((w) => w.id === id);
+export function workflowExists(id: string: boolean {
+  return WORKFLOWS.some((w: Record<string, unknown>) => w.id === id);
 }

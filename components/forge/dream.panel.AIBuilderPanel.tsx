@@ -55,7 +55,7 @@ const AGENT_INITIALS: Record<string, string> = {
 
 const PHASES = ['Parsing', 'Dr. Eams', 'IDARi', 'Safety', 'Generating', 'Staging', 'Done'] as const;
 
-function getPhaseIndexFromStep(step: string): number {
+function getPhaseIndexFromStep(step: string: number {
   if (step.includes('Parsing'))               return 0;
   if (step.includes('Dr. Eams'))              return 1;
   if (step.includes('IDARi is architecting')) return 2;
@@ -68,7 +68,7 @@ function getPhaseIndexFromStep(step: string): number {
 
 // ── Phase progress bar ────────────────────────────────────────────────────────
 
-function PhaseBar({ activePhase }: { activePhase: number }) {
+function PhaseBar({ activePhase }: { activePhase: number } {
   return (
     <div style={{
       display: 'flex',
@@ -81,7 +81,7 @@ function PhaseBar({ activePhase }: { activePhase: number }) {
       marginBottom: 10,
       overflowX: 'auto',
     }}>
-      {PHASES.map((phase, idx) => {
+      {PHASES.map(phase: Record<string, unknown>, idx: number => {
         const isDone    = idx < activePhase;
         const isActive  = idx === activePhase;
 
@@ -143,7 +143,7 @@ function PhaseBar({ activePhase }: { activePhase: number }) {
 
 type CodeLogEvent = Extract<ForgeLogEvent, { type: 'code' }>;
 
-function CodeBlock({ event }: { event: CodeLogEvent }) {
+function CodeBlock({ event }: { event: CodeLogEvent } {
   const [copied, setCopied] = useState(false);
   const lines = event.content.split('\n');
   const MAX_VISIBLE = 15;
@@ -254,13 +254,13 @@ const EXAMPLE_CHIPS = [
   { emoji: '🔬', text: 'Monte Carlo simulation of stock price movement' },
 ] as const;
 
-function formatTimestamp(ts: number): string {
+function formatTimestamp(ts: number: string {
   return new Date(ts).toLocaleTimeString('en-US', {
     hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
   });
 }
 
-function buildMarkdownSummary(logs: ForgeLogEvent[], prompt: string): string {
+function buildMarkdownSummary(logs: ForgeLogEvent[], prompt: string: string {
   const lines = [
     `# ForgeEngin AI Build Log`,
     `**Prompt:** ${prompt}`,
@@ -565,7 +565,7 @@ function HistoryItem({ record, onLaunch }: { record: ForgeBuildRecord; onLaunch:
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function AIBuilderPanel() {
+export default function AIBuilderPanel( {
   const router = useRouter();
   const { state, logs, result, submit, reset, rateLimitError } = useForgeBuild();
 
@@ -620,7 +620,7 @@ export default function AIBuilderPanel() {
   const visibleLogs = useMemo(() => logs.filter(e => e.type !== 'done'), [logs]);
   const lastAgentVisibleIdx = useMemo(() => {
     if (state !== 'running') return -1;
-    return visibleLogs.reduce((idx, log, i) => (log.type === 'agent' ? i : idx), -1);
+    return visibleLogs.reduce(idx: number, log: Record<string, unknown>, i: number => (log.type === 'agent' ? i : idx), -1);
   }, [visibleLogs, state]);
 
   const handleSubmit = useCallback(() => {
@@ -682,7 +682,7 @@ export default function AIBuilderPanel() {
           { name: 'Dr. Eams', role: 'Creative', Icon: User, color: AGENT_COLORS['Dr. Eams'] },
           { name: 'IDARi', role: 'Systems', Icon: Settings, color: AGENT_COLORS['IDARi'] },
           { name: 'TheBoogieMan.Ai', role: 'Policy', Icon: Shield, color: AGENT_COLORS['TheBoogieMan.Ai'] },
-        ].map(({ name, role, Icon, color }) => (
+        ].map({ name, role: Record<string, unknown>, Icon: Record<string, unknown>, color } => (
           <div
             key={name}
             style={{
@@ -983,7 +983,7 @@ export default function AIBuilderPanel() {
                 borderRadius: 12,
                 display: 'flex', flexDirection: 'column', gap: 1,
               }}>
-                {visibleLogs.map((event, i) => (
+                {visibleLogs.map(event: Record<string, unknown>, i: number => (
                   <LogEntry
                     key={`${event.type}-${event.ts}-${i}`}
                     event={event}

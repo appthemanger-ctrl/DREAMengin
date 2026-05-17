@@ -31,7 +31,7 @@ export interface UseWarpReturn {
   setEffect: (effect: WarpEffect) => void;
 }
 
-export function useWarp(opts: UseWarpOptions = {}): UseWarpReturn {
+export function useWarp(opts: UseWarpOptions = {}: UseWarpReturn {
   const { autoStart = true, ...engineOpts } = opts;
 
   const canvasRef  = useRef<HTMLCanvasElement | null>(null);

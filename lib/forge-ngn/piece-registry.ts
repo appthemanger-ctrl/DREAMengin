@@ -41,7 +41,7 @@ export interface PieceManifest {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function p(id: string, label: string, type: PortType): Port {
+function p(id: string, label: string, type: PortType: Port {
   return { id, label, type };
 }
 
@@ -306,13 +306,13 @@ export const PIECE_REGISTRY: PieceManifest[] = [
 ];
 
 /** Look up a piece by id */
-export function getPiece(id: string): PieceManifest | undefined {
-  return PIECE_REGISTRY.find((p) => p.id === id);
+export function getPiece(id: string: PieceManifest | undefined {
+  return PIECE_REGISTRY.find((p: Record<string, unknown>) => p.id === id);
 }
 
 /** All pieces in a given category */
-export function getPiecesByCategory(category: PieceCategory): PieceManifest[] {
-  return PIECE_REGISTRY.filter((p) => p.category === category);
+export function getPiecesByCategory(category: PieceCategory: PieceManifest[] {
+  return PIECE_REGISTRY.filter((p: Record<string, unknown>) => p.category === category);
 }
 
 /** All distinct categories */

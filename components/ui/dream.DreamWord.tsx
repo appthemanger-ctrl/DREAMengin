@@ -16,6 +16,6 @@
  *
  * Works in both server components and client components — no hooks, no state.
  */
-export default function DreamWord() {
+export default function DreamWord( {
   return <span className="de-dream-word">Dream</span>;
 }

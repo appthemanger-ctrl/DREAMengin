@@ -450,18 +450,18 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
 
 export const GENRE_LIST = [...new Set(BEAT_PRESETS.map(p => p.genre))];
 
-export function getPresetsByGenre(genre: string): BeatPreset[] {
+export function getPresetsByGenre(genre: string: BeatPreset[] {
   return BEAT_PRESETS.filter(p => p.genre === genre);
 }
 
-export function findPreset(id: string): BeatPreset | undefined {
+export function findPreset(id: string: BeatPreset | undefined {
   return BEAT_PRESETS.find(p => p.id === id);
 }
 
-export function findInstrumentPreset(id: string): InstrumentPreset | undefined {
+export function findInstrumentPreset(id: string: InstrumentPreset | undefined {
   return INSTRUMENT_PRESETS.find(p => p.id === id);
 }
 
-export function findProjectTemplate(id: string): ProjectTemplate | undefined {
+export function findProjectTemplate(id: string: ProjectTemplate | undefined {
   return PROJECT_TEMPLATES.find(p => p.id === id);
 }

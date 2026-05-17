@@ -6,7 +6,7 @@ import { reportChildSafetyIncident } from '@/lib/child-safety/ncmecReporter';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import { createHash } from 'crypto';
 
-function normalizePostMedia<T extends Record<string, any>>(post: T): T & { media_url: string | null } {
+function normalizePostMedia<T extends Record<string, unknown>>(post: T): T & { media_url: string | null } {
   return {
     ...post,
     media_url: getPrimaryPostMediaUrl(post),
@@ -20,8 +20,8 @@ function normalizePostMedia<T extends Record<string, any>>(post: T): T & { media
 //   sort   — 'trending' to order by likes_count DESC (fallback: created_at DESC)
 //   limit  — number of posts to return (default 20, max 500 for following, max 50 otherwise)
 //   offset — pagination offset
-export async function GET(req: NextRequest) {
-  const supabase = (await createServerClient()) as any;
+export async function GET(req: NextRequest {
+  const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
     followedIds.push(user.id);
 
     // Resolve close-friends list so we can filter visibility correctly.
-    const { data: cfRows } = await (supabase as any)
+    const { data: cfRows } = await (supabase as SupabaseClient)
       .from('close_friends')
       .select('user_id')
       .eq('friend_id', user.id);
@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
       (cfRows ?? []).map((r: { user_id: string }) => r.user_id),
     );
 
-    const { data: rawPosts, error } = await (supabase as any)
+    const { data: rawPosts, error } = await (supabase as SupabaseClient)
       .from('app_posts')
       .select('*, profiles!inner(id, handle, display_name, avatar_url)')
       .in('user_id', followedIds)
@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
 
     // Filter out close_friends posts where the viewer is not in the poster's list.
     const posts = (rawPosts ?? [])
-      .filter((p: any) => {
+      .filter((p: unknown) => {
         if (p.post_visibility === 'close_friends') {
           return closeFriendPosters.has(p.user_id) || p.user_id === user.id;
         }
@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
       })
       .slice(0, limit);
 
-    return NextResponse.json({ posts: posts.map((post: any) => normalizePostMedia(post)), total_cap: 500 });
+    return NextResponse.json({ posts: posts.map((post: unknown) => normalizePostMedia(post)), total_cap: 500 });
   }
 
   // ── Trending feed: order by likes_count DESC, then recent ─────────────────
@@ -96,7 +96,7 @@ export async function GET(req: NextRequest) {
       .range(offset, offset + limit - 1);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json({ posts: (posts ?? []).map((post: any) => normalizePostMedia(post)) });
+    return NextResponse.json({ posts: (posts ?? []).map((post: unknown) => normalizePostMedia(post)) });
   }
 
   // ── Default feed: public posts ordered by recency ─────────────────────────
@@ -113,12 +113,12 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ posts: (posts ?? []).map((post: any) => normalizePostMedia(post)) });
+  return NextResponse.json({ posts: (posts ?? []).map((post: unknown) => normalizePostMedia(post)) });
 }
 
 // POST - Create a new post
-export async function POST(req: NextRequest) {
-  const supabase = (await createServerClient()) as any;
+export async function POST(req: NextRequest {
+  const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
   const windowMs = 5 * 60 * 1000;
   const windowStart = new Date(Date.now() - windowMs).toISOString();
 
-  const { count: recentCount, error: rateError } = await (supabase as any)
+  const { count: recentCount, error: rateError } = await (supabase as SupabaseClient)
     .from('app_posts')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', user.id)
@@ -173,7 +173,7 @@ export async function POST(req: NextRequest) {
       surface: 'post',
       contentRef: `draft:${contentHash.slice(0, 16)}`,
       contentHash,
-    }).catch((err) => console.error('[child-safety] post report error:', err));
+    }).catch(err: unknown => console.error('[child-safety] post report error:', err));
 
     return NextResponse.json(
       { error: 'Content violates our child safety policy and has been blocked.' },
@@ -197,7 +197,7 @@ export async function POST(req: NextRequest) {
         detectionResult: mediaSafetyResult,
         surface: 'post',
         contentRef: `media:${Array.isArray(media_urls) ? String(media_urls.length) : '?'}_files`,
-      }).catch((err) => console.error('[child-safety] post media report error:', err));
+      }).catch(err: unknown => console.error('[child-safety] post media report error:', err));
 
       return NextResponse.json(
         { error: 'Attached media violates our child safety policy and has been blocked.' },
@@ -229,7 +229,7 @@ export async function POST(req: NextRequest) {
 
   // Also create a feed item for the user
    
-  await (supabase as any).from('feed_items').insert({
+  await (supabase as SupabaseClient).from('feed_items').insert({
     user_id: user.id,
     type: 'post',
     content: { text: content.trim(), post_id: post.id },

@@ -48,7 +48,7 @@ export async function resolveFeedHost(
     
     // Build query for feed items
      
-    let query = (supabase as any)
+    let query = (supabase as SupabaseClient)
       .from('feed_items')
       .select('id, user_id, ts, title, summary, url, media_json, tags_json, visibility, importance_score')
       .eq('user_id', targetUserId)
@@ -80,7 +80,7 @@ export async function resolveFeedHost(
     const items: FeedItemSummary[] = await Promise.all((feedItems || []).map(async (item: Record<string, unknown>) => {
       // Fetch engagement counts for this item
        
-      const { data: engagementData } = await (supabase as any)
+      const { data: engagementData } = await (supabase as SupabaseClient)
         .from('content_engagement')
         .select('engagement_type')
         .eq('content_id', item.id);
@@ -174,7 +174,7 @@ async function verifyScopePermissions(
 // 3. HELPERS
 // =====================================================
 
-function extractMediaPreviewUrl(mediaJson: unknown): string | undefined {
+function extractMediaPreviewUrl(mediaJson: unknown: string | undefined {
   if (!mediaJson || typeof mediaJson !== 'object') {
     return undefined;
   }
@@ -197,7 +197,7 @@ function extractMediaPreviewUrl(mediaJson: unknown): string | undefined {
   return undefined;
 }
 
-function generateETag(items: FeedItemSummary[]): string {
+function generateETag(items: FeedItemSummary[]: string {
   // Simple ETag based on item count and last updated timestamp
   if (items.length === 0) {
     return `"empty-${Date.now()}"`;
@@ -220,7 +220,7 @@ function generateETag(items: FeedItemSummary[]): string {
  *
  * @param limit - Maximum number of posts to return (default 20).
  */
-export async function resolvePublicAppPosts(limit = 20): Promise<HostResolved> {
+export async function resolvePublicAppPosts(limit = 20: Promise<HostResolved> {
   const supabase = await createServerClient();
 
   try {
@@ -240,7 +240,7 @@ export async function resolvePublicAppPosts(limit = 20): Promise<HostResolved> {
       };
     }
 
-    const items: FeedItemSummary[] = (posts || []).map((post) => ({
+    const items: FeedItemSummary[] = (posts || []).map((post: Record<string, unknown>) => ({
       item_id: post.id as string,
       author_id: post.user_id as string,
       created_at: post.created_at as string,
@@ -317,7 +317,7 @@ export async function subscribeAppPostsRealtime(
 // 6. FEED_ITEMS REALTIME SUBSCRIPTION HELPERS (Widget System V2)
 // =====================================================
 
-export function getFeedChannelKey(scope: FeedScope, userId: string): string {
+export function getFeedChannelKey(scope: FeedScope, userId: string: string {
   return scope === FeedScope.SELF
     ? `feed:SELF:${userId}`
     : `feed:FOLLOW:${userId}`;

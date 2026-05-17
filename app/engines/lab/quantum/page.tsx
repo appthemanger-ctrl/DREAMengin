@@ -16,7 +16,7 @@ const NAV_ITEMS = [
   { href: '/engines/lab/quantum',     label: 'Quantum',     emoji: '⚛️' },
 ];
 
-export default async function LabQuantumPage() {
+export default async function LabQuantumPage( {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

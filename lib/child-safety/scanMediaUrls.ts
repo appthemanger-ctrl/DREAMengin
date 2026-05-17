@@ -78,7 +78,7 @@ export interface ScanMediaUrlsInput {
 // ============================================================================
 
 /** Infer MIME type from Content-Type header or URL path extension */
-function inferMime(contentType: string | null, url: string): ImageMime | null {
+function inferMime(contentType: string | null, url: string: ImageMime | null {
   if (contentType) {
     const base = contentType.split(';')[0].trim().toLowerCase();
     if (SUPPORTED_IMAGE_MIMES.includes(base as ImageMime)) {
@@ -99,14 +99,14 @@ function inferMime(contentType: string | null, url: string): ImageMime | null {
 }
 
 /** Load known-bad hashes from child_safety_hash_registry. Returns empty Set on error. */
-async function loadKnownBadHashes(supabase: SupabaseLike): Promise<Set<string>> {
+async function loadKnownBadHashes(supabase: SupabaseLike: Promise<Set<string>> {
   try {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await (supabase as SupabaseClient)
       .from('child_safety_hash_registry')
       .select('hash_sha256');
     if (error || !data) return new Set();
     return new Set(
-      (data as { hash_sha256: string }[]).map((r) => r.hash_sha256.toLowerCase()),
+      (data as { hash_sha256: string }[]).map((r: Record<string, unknown>) => r.hash_sha256.toLowerCase()),
     );
   } catch {
     return new Set();
@@ -116,7 +116,7 @@ async function loadKnownBadHashes(supabase: SupabaseLike): Promise<Set<string>> 
 /**
  * A CLEAN sentinel result — returned when no images were flagged.
  */
-function cleanResult(): ChildSafetyResult {
+function cleanResult(: ChildSafetyResult {
   return {
     flagged: false,
     rule_code: null,
@@ -238,7 +238,7 @@ export async function scanMediaUrlsForChildSafety(
  * Used by callers that receive mixed-type media arrays and want to skip
  * non-image URLs without fetching them.
  */
-export function isImageUrl(url: string): boolean {
+export function isImageUrl(url: string: boolean {
   try {
     const pathname = new URL(url).pathname.toLowerCase();
     const ext = pathname.split('.').pop() ?? '';

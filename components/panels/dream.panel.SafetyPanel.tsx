@@ -17,7 +17,7 @@ interface PolicyEvent {
   rule_code: string; category: string; expiry: string | null; policy_version: string;
 }
 
-export default function SafetyPanel() {
+export default function SafetyPanel( {
   const { openInSurface } = useDreamSystem();
   const [log, setLog]       = useState<PolicyEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +29,7 @@ export default function SafetyPanel() {
         const { data: { user } } = await sb.auth.getUser();
         if (!user) { setLoading(false); return; }
          
-        const { data } = await (sb as any)
+        const { data } = await (sb as SupabaseClient)
           .from('policy_events')
           .select('event_id, timestamp, action, rule_code, category, expiry, policy_version')
           .eq('user_id', user.id)
@@ -74,7 +74,7 @@ export default function SafetyPanel() {
             ) : log.length === 0 ? (
               <p style={{ fontSize: 13, color: 'var(--de-text-dim)', textAlign: 'center', padding: '16px 0' }}>No policy events on your account.</p>
             ) : (
-              log.map((ev) => (
+              log.map((ev: Record<string, unknown>) => (
                 <div key={ev.event_id} style={{ padding: '10px 0', borderBottom: '1px solid rgba(160,195,240,0.15)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
                     <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{ev.action}</span>

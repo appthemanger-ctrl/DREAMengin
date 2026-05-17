@@ -45,7 +45,7 @@ export class DreamOptimizer {
    */
   optimizeFeed(feedItems: FeedItem[]): RankedItem<FeedItem>[] {
     if (!this.config.feed_selection?.enabled) {
-      return feedItems.map((item, index) => ({
+      return feedItems.map(item: Record<string, unknown>, index: number => ({
         item,
         score: 1,
         rank: index + 1,
@@ -87,7 +87,7 @@ export class DreamOptimizer {
     userPermissions: string[]
   ): RankedItem<SearchResult>[] {
     if (!this.config.search_ranking?.enabled) {
-      return searchResults.map((item, index) => ({
+      return searchResults.map(item: Record<string, unknown>, index: number => ({
         item,
         score: item.relevance_score,
         rank: index + 1,
@@ -126,7 +126,7 @@ export class DreamOptimizer {
    */
   optimizeWidgets(widgets: WidgetPriority[]): RankedItem<WidgetPriority>[] {
     if (!this.config.widget_priority?.enabled) {
-      return widgets.map((item, index) => ({
+      return widgets.map(item: Record<string, unknown>, index: number => ({
         item,
         score: 1,
         rank: index + 1,
@@ -162,7 +162,7 @@ export class DreamOptimizer {
    */
   optimizeAssetLoading(assets: Asset[]): RankedItem<Asset>[] {
     if (!this.config.asset_loading?.enabled) {
-      return assets.map((item, index) => ({
+      return assets.map(item: Record<string, unknown>, index: number => ({
         item,
         score: 1,
         rank: index + 1,
@@ -200,7 +200,7 @@ export class DreamOptimizer {
     notifications: Notification[]
   ): RankedItem<Notification>[] {
     if (!this.config.notification_priority?.enabled) {
-      return notifications.map((item, index) => ({
+      return notifications.map(item: Record<string, unknown>, index: number => ({
         item,
         score: 1,
         rank: index + 1,
@@ -238,7 +238,7 @@ export class DreamOptimizer {
     queuedActions: QueuedAction[]
   ): RankedItem<QueuedAction>[] {
     if (!this.config.offline_queue?.enabled) {
-      return queuedActions.map((item, index) => ({
+      return queuedActions.map(item: Record<string, unknown>, index: number => ({
         item,
         score: 1,
         rank: index + 1,
@@ -300,7 +300,7 @@ export class DreamOptimizer {
       };
     }
 
-    const rejected: Array<{ option: CreativeOption; reasons: any[] }> = [];
+    const rejected: Array<{ option: CreativeOption; reasons: unknown[] }> = [];
     const validCandidates: Array<{
       option: CreativeOption;
       scores: CreativeScore;
@@ -346,10 +346,10 @@ export class DreamOptimizer {
     );
 
     // Sort by final score descending
-    rankedOptions.sort((a, b) => b.final_score - a.final_score);
+    rankedOptions.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.final_score - a.final_score);
 
     // Assign ranks
-    rankedOptions.forEach((option, index) => {
+    rankedOptions.forEach(option: Record<string, unknown>, index: number => {
       option.rank = index + 1;
     });
 
@@ -392,7 +392,7 @@ export class DreamOptimizer {
     for (const constraint of constraints) {
       const weight = constraint.weight;
       const priorityMultiplier = this.getWeightMultiplier(constraint.priority);
-      const scoreValue = (scores as any)[constraint.name] || 0;
+      const scoreValue = (scores as Record<string, number>)[constraint.name] || 0;
 
       // Negative weights for cost and risk (we want to minimize these)
       if (constraint.name === 'cost' || constraint.name === 'risk') {

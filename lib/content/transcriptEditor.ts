@@ -54,7 +54,7 @@ export interface SearchResult {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Parse an SRT string into transcript segments. */
-export function parseSRT(srt: string): TranscriptSegment[] {
+export function parseSRT(srt: string: TranscriptSegment[] {
   const blocks = srt.trim().split(/\n\s*\n/);
   const segments: TranscriptSegment[] = [];
 
@@ -82,7 +82,7 @@ export function parseSRT(srt: string): TranscriptSegment[] {
 }
 
 /** Parse a WebVTT string into transcript segments. */
-export function parseVTT(vtt: string): TranscriptSegment[] {
+export function parseVTT(vtt: string: TranscriptSegment[] {
   const lines = vtt.replace(/\r\n/g, '\n').split('\n');
   const segments: TranscriptSegment[] = [];
   let id = 1;
@@ -138,7 +138,7 @@ export function computeCuts(
   const toDelete = allWords.filter(w => deletedIdx.has(w.index));
   if (toDelete.length === 0) return [];
 
-  const sorted = [...toDelete].sort((a, b) => a.startMs - b.startMs);
+  const sorted = [...toDelete].sort(a: Record<string, unknown>, b: Record<string, unknown> => a.startMs - b.startMs);
   const cuts: TimelineCut[] = [];
   let cur: TimelineCut = { cutStartMs: sorted[0].startMs, cutEndMs: sorted[0].endMs };
 
@@ -194,9 +194,9 @@ export function applyEditsToSegments(
  * Pass the result of `applyEditsToSegments` to export a trimmed transcript,
  * or the original segments to round-trip the file.
  */
-export function exportSRT(segments: TranscriptSegment[]): string {
+export function exportSRT(segments: TranscriptSegment[]: string {
   return segments
-    .map((seg, idx) => {
+    .map(seg: Record<string, unknown>, idx: number => {
       const start = msToSrtTime(seg.startMs);
       const end = msToSrtTime(seg.endMs);
       return `${idx + 1}\n${start} --> ${end}\n${seg.text}`;
@@ -268,14 +268,14 @@ export function annotateSearchMatches(
 /**
  * Flatten all segments back to plain text for display.
  */
-export function segmentsToPlainText(segments: TranscriptSegment[]): string {
+export function segmentsToPlainText(segments: TranscriptSegment[]: string {
   return segments.map(s => s.text).join(' ');
 }
 
 /**
  * Compute total duration in milliseconds across all segments.
  */
-export function totalDurationMs(segments: TranscriptSegment[]): number {
+export function totalDurationMs(segments: TranscriptSegment[]: number {
   if (segments.length === 0) return 0;
   return segments[segments.length - 1].endMs - segments[0].startMs;
 }
@@ -284,7 +284,7 @@ export function totalDurationMs(segments: TranscriptSegment[]): number {
 // Internal helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-function srtTimeToMs(h: string, m: string, s: string, ms: string): number {
+function srtTimeToMs(h: string, m: string, s: string, ms: string: number {
   return (
     parseInt(h, 10) * 3_600_000 +
     parseInt(m, 10) * 60_000 +
@@ -293,7 +293,7 @@ function srtTimeToMs(h: string, m: string, s: string, ms: string): number {
   );
 }
 
-function msToSrtTime(ms: number): string {
+function msToSrtTime(ms: number: string {
   const h = Math.floor(ms / 3_600_000);
   const m = Math.floor((ms % 3_600_000) / 60_000);
   const s = Math.floor((ms % 60_000) / 1_000);
@@ -301,8 +301,8 @@ function msToSrtTime(ms: number): string {
   return `${pad2(h)}:${pad2(m)}:${pad2(s)},${pad3(msPart)}`;
 }
 
-function pad2(n: number): string { return String(n).padStart(2, '0'); }
-function pad3(n: number): string { return String(n).padStart(3, '0'); }
+function pad2(n: number: string { return String(n).padStart(2, '0'); }
+function pad3(n: number: string { return String(n).padStart(3, '0'); }
 
 /**
  * Syllable-proportional word timing.
@@ -320,7 +320,7 @@ function syllableProportionalWords(
   if (rawWords.length === 0) return [];
   const duration = endMs - startMs;
   const syllables = rawWords.map(w => countSyllables(w));
-  const totalSyllables = syllables.reduce((a, b) => a + b, 0) || rawWords.length;
+  const totalSyllables = syllables.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b, 0) || rawWords.length;
 
   const result: TranscriptWord[] = [];
   let cursor = startMs;
@@ -338,7 +338,7 @@ function syllableProportionalWords(
   return result;
 }
 
-function countSyllables(word: string): number {
+function countSyllables(word: string: number {
   const w = word.toLowerCase().replace(/[^a-z]/g, '');
   if (w.length <= 3) return 1;
   const cleaned = w.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '').replace(/^y/, '');

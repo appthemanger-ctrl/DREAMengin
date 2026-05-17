@@ -35,7 +35,7 @@ export class AnchorWidgetStorage {
    * Initialize default home slots (all blank)
    */
   private static createDefaultHomeSlots(): HomeSlotMapping[] {
-    return Array.from({ length: this.HOME_SLOTS_COUNT }, (_, index) => ({
+    return Array.from({ length: this.HOME_SLOTS_COUNT }, _: Record<string, unknown>, index: number => ({
       slotIndex: index,
       widgetId: null
     }));
@@ -139,7 +139,7 @@ export class AnchorWidgetStorage {
     }
     
     // Sort by pinned first, then by lastFocused
-    state.priorityWidgets.sort((a, b) => {
+    state.priorityWidgets.sort(a: Record<string, unknown>, b: Record<string, unknown> => {
       if (a.pinned && !b.pinned) return -1;
       if (!a.pinned && b.pinned) return 1;
       return b.lastFocused - a.lastFocused;

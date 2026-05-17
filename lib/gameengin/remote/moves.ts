@@ -101,6 +101,6 @@ export const MULTITOUCH_COMBOS: readonly MultiTouchCombo[] = Object.freeze([
 export const ALL_COMBOS: readonly Combo[] = Object.freeze([...BASE_COMBOS, ...SPRINT_COMBOS]);
 
 /** Returns the maximum combo sequence length declared. */
-export function maxComboLength(combos: readonly Combo[] = ALL_COMBOS): number {
-  return combos.reduce((m, c) => Math.max(m, c.sequence.length), 0);
+export function maxComboLength(combos: readonly Combo[] = ALL_COMBOS: number {
+  return combos.reduce(m: Record<string, unknown>, c: Record<string, unknown> => Math.max(m, c.sequence.length), 0);
 }

@@ -22,7 +22,7 @@ interface GamesBuilderPageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function GamesBuilderPage(props?: GamesBuilderPageProps) {
+export default async function GamesBuilderPage(props?: GamesBuilderPageProps {
   await connection();
   const searchParams = props?.searchParams;
   const currentSearchParams = searchParams ? await searchParams : undefined;

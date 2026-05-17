@@ -124,7 +124,7 @@ export function useSharedDreamSession({
     let cancelled = false;
     const supabase = createClient();
 
-    async function bootstrap() {
+    async function bootstrap( {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || cancelled) { setIsLoading(false); return; }
       userIdRef.current = user.id;
@@ -196,7 +196,7 @@ export function useSharedDreamSession({
           .order('joined_at', { ascending: true });
 
         if (!cancelled && mData) {
-          setMembers(mData.map((m) => ({
+          setMembers(mData.map((m: Record<string, unknown>) => ({
             userId: m.user_id as string,
             role: m.role as string,
             joinedAt: m.joined_at as string,
@@ -213,7 +213,7 @@ export function useSharedDreamSession({
           .limit(20);
 
         if (!cancelled && aData) {
-          setActivity(aData.map((a) => ({
+          setActivity(aData.map(a: Record<string, unknown> => ({
             id: a.id as string,
             userId: a.user_id as string | null,
             kind: a.kind as string,
@@ -251,7 +251,7 @@ export function useSharedDreamSession({
 
   const saveEnginState = useCallback((enginKey: string, state: Record<string, unknown>) => {
     bufferRef.current = { ...bufferRef.current, [enginKey]: state };
-    setSavedEnginState((prev) => ({ ...prev, [enginKey]: state }));
+    setSavedEnginState(prev: Record<string, unknown> => ({ ...prev, [enginKey]: state }));
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => { void flushBuffer(); }, 1000);
   }, [flushBuffer]);
@@ -270,7 +270,7 @@ export function useSharedDreamSession({
       label,
       createdAt: new Date().toISOString(),
     };
-    setActivity((prev) => [entry, ...prev].slice(0, 30));
+    setActivity(prev: Record<string, unknown> => [entry, ...prev].slice(0, 30));
     void supabase.from('shared_dream_activity').insert({
       session_id: sid,
       user_id: uid,

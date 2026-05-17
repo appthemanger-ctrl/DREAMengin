@@ -103,8 +103,8 @@ const LS_KEY = 'dreamengin:engin-instances';
 
 type PersistedInstance = Omit<EnginInstance, 'channel'>;
 
-function serializeInstances(instances: Record<string, EnginInstance>): PersistedInstance[] {
-  return Object.values(instances).map((instance) => ({
+function serializeInstances(instances: Record<string, EnginInstance>: PersistedInstance[] {
+  return Object.values(instances).map((instance: Record<string, unknown>) => ({
     key: instance.key,
     enginName: instance.enginName,
     instanceId: instance.instanceId,
@@ -116,7 +116,7 @@ function serializeInstances(instances: Record<string, EnginInstance>): Persisted
 
 // ── Zustand store ─────────────────────────────────────────────────────────────
 
-export const useInstanceManager = create<InstanceManagerState>((set, get) => ({
+export const useInstanceManager = create<InstanceManagerState>(set: Record<string, unknown>, get: Record<string, unknown> => ({
   instances: {},
 
   spawn(enginName, instanceId, region, mode = 'solo') {
@@ -135,7 +135,7 @@ export const useInstanceManager = create<InstanceManagerState>((set, get) => ({
       createdAt: Date.now(),
     };
 
-    set((state) => ({
+    set(state: Record<string, unknown> => ({
       instances: { ...state.instances, [key]: instance },
     }));
     queueMicrotask(() => get().persistLocal());
@@ -155,7 +155,7 @@ export const useInstanceManager = create<InstanceManagerState>((set, get) => ({
     // Async close — fire and forget; no await in Zustand action.
     instance.channel.close().catch(() => {});
 
-    set((state) => {
+    set(state: Record<string, unknown> => {
       const next = { ...state.instances };
       delete next[key];
       return { instances: next };
@@ -164,11 +164,11 @@ export const useInstanceManager = create<InstanceManagerState>((set, get) => ({
   },
 
   getInstancesForEngin(enginName) {
-    return Object.values(get().instances).filter((i) => i.enginName === enginName);
+    return Object.values(get().instances).filter(i: number => i.enginName === enginName);
   },
 
   getInstancesForRegion(region) {
-    return Object.values(get().instances).filter((i) => i.region === region);
+    return Object.values(get().instances).filter(i: number => i.region === region);
   },
 
   promoteToCoOp(key, channel) {
@@ -179,7 +179,7 @@ export const useInstanceManager = create<InstanceManagerState>((set, get) => ({
     // Close the old local channel silently.
     instance.channel.close().catch(() => {});
 
-    set((state) => ({
+    set(state: Record<string, unknown> => ({
       instances: {
         ...state.instances,
         [key]: { ...instance, channel, mode: 'coop' },
@@ -226,7 +226,7 @@ export const useInstanceManager = create<InstanceManagerState>((set, get) => ({
  * Returns the canonical key used throughout the instance manager.
  * Exported so consumers can construct keys without instantiating the store.
  */
-export function buildInstanceKey(enginName: EnginName, instanceId: string): string {
+export function buildInstanceKey(enginName: EnginName, instanceId: string: string {
   return `${enginName}:${instanceId}`;
 }
 
@@ -239,12 +239,12 @@ export function createInstance(options: {
   return useInstanceManager.getState().createInstance(options);
 }
 
-export async function promoteInstanceToRealtime(key: string): Promise<void> {
+export async function promoteInstanceToRealtime(key: string: Promise<void> {
   const channel = await createRuntimeChannel(key, 'shared');
   useInstanceManager.getState().promoteToCoOp(key, channel);
 }
 
-export async function persistInstanceList(userId: string): Promise<void> {
+export async function persistInstanceList(userId: string: Promise<void> {
   const rows = serializeInstances(useInstanceManager.getState().instances);
   try {
     const { createClient } = await import('@/lib/supabase/client');
@@ -259,7 +259,7 @@ export async function persistInstanceList(userId: string): Promise<void> {
       };
     };
     await db.from('engin_instances').upsert(
-      rows.map((row) => ({
+      rows.map((row: Record<string, unknown>) => ({
         owner_id: userId,
         instance_key: row.key,
         engin_name: row.enginName,

@@ -40,7 +40,7 @@ export function createEventBus<
   const handlers = new Map<keyof Events, Set<EventHandler<unknown>>>();
   let _destroyed = false;
 
-  function assertAlive() {
+  function assertAlive( {
     if (_destroyed) throw new Error('EventBus: cannot use a destroyed bus.');
   }
 
@@ -61,7 +61,7 @@ export function createEventBus<
 
     emit<K extends keyof Events>(event: K, payload: Events[K]) {
       assertAlive();
-      handlers.get(event)?.forEach((h) => h(payload));
+      handlers.get(event)?.forEach((h: Record<string, unknown>) => h(payload));
     },
 
     destroy() {
@@ -92,7 +92,7 @@ export function createDualRuntimeHub(
 
   const bridgedKey = '__bridged';
 
-  const relayAtoB: EventHandler<unknown> = (payload) => {
+  const relayAtoB: EventHandler<unknown> = payload: Record<string, unknown> => {
     if (
       payload !== null &&
       typeof payload === 'object' &&
@@ -105,7 +105,7 @@ export function createDualRuntimeHub(
     });
   };
 
-  const relayBtoA: EventHandler<unknown> = (payload) => {
+  const relayBtoA: EventHandler<unknown> = payload: Record<string, unknown> => {
     if (
       payload !== null &&
       typeof payload === 'object' &&

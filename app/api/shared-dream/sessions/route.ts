@@ -9,13 +9,13 @@ import { z } from 'zod';
 
 // Escape hatch for missing database types to prevent "Type instantiation is excessively deep"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyClient = any;
+type AnyClient = SupabaseClient;
 
 const CreateSchema = z.object({
   name: z.string().min(1).max(80),
 });
 
-export async function GET(_req: NextRequest) {
+export async function GET(_req: NextRequest {
   await connection();
   const supabase = await createServerClient();
   const user = await safeGetUser(supabase);
@@ -40,7 +40,7 @@ export async function GET(_req: NextRequest) {
   return NextResponse.json({ sessions: data ?? [] });
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   await connection();
   const supabase = await createServerClient();
   const user = await safeGetUser(supabase);

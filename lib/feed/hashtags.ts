@@ -53,7 +53,7 @@ export interface TrendingTag {
  *   - Duplicates (case-insensitive) are removed; first occurrence wins display
  *   - At most MAX_TAGS_PER_POST tags returned
  */
-export function extractHashtags(text: string): Hashtag[] {
+export function extractHashtags(text: string: Hashtag[] {
   if (!text) return [];
 
   const matches = text.match(/#[a-zA-Z0-9][a-zA-Z0-9_-]*/g);
@@ -81,7 +81,7 @@ export function extractHashtags(text: string): Hashtag[] {
  * Validate a single tag string (without # prefix).
  * Returns the normalised (lowercased) tag or null if invalid.
  */
-export function validateTag(raw: string): string | null {
+export function validateTag(raw: string: string | null {
   const trimmed = raw.trim().replace(/^#/, '');
   if (!trimmed) return null;
   if (trimmed.length > MAX_TAG_LENGTH) return null;
@@ -133,7 +133,7 @@ export function calculateTrending(
   );
 
   // Sort by momentum descending
-  results.sort((a, b) => b.momentum - a.momentum);
+  results.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.momentum - a.momentum);
 
   return results.slice(0, limit);
 }
@@ -143,7 +143,7 @@ export function calculateTrending(
 /**
  * Format a tag for display with # prefix.
  */
-export function formatTag(tag: string): string {
+export function formatTag(tag: string: string {
   return `#${tag}`;
 }
 

@@ -10,7 +10,7 @@
 import { useState, useEffect } from 'react';
 import { computeMomentum, getLevelColor, getLevelEmoji, type MomentumSnapshot } from '@/lib/forge/forgeMomentum';
 
-export default function ForgeMomentumWidget() {
+export default function ForgeMomentumWidget( {
   const [snap, setSnap] = useState<MomentumSnapshot | null>(null);
 
   useEffect(() => {

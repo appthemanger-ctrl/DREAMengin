@@ -77,7 +77,7 @@ const _ENGIN_ALIAS_MAP: Readonly<Record<string, EnginKey>> = {
   games: 'game',
 };
 
-function _toEnginKey(value: unknown): EnginKey | null {
+function _toEnginKey(value: unknown: EnginKey | null {
   if (typeof value !== 'string') return null;
   // Direct hit — exact case
   const direct = _ENGIN_ALIAS_MAP[value];

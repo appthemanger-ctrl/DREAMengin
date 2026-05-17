@@ -31,7 +31,7 @@ export enum ActivityTier {
   NEVER_DONE_BEFORE = 6,
 }
 
-export function isValidActivityTier(value: unknown): value is ActivityTier {
+export function isValidActivityTier(value: unknown: value is ActivityTier {
   return (
     typeof value === 'number' &&
     Number.isInteger(value) &&

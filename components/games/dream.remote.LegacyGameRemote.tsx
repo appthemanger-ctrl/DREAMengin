@@ -39,7 +39,7 @@ export type GameInputAction =
   | 'jump-spin' | 'jump-shoot' | 'l2' | 'r1' | 'l3' | 'r3'
   | 'pause';
 
-function fireAction(action: GameInputAction, active: boolean) {
+function fireAction(action: GameInputAction, active: boolean {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('de-game-input', { detail: { action, active } }));
   }
@@ -82,7 +82,7 @@ const RIGHT_STICK_RING_BUTTONS = [
 // ── Direction helpers ─────────────────────────────────────────────────────────
 type Dir8 = 'right' | 'down-right' | 'down' | 'down-left' | 'left' | 'up-left' | 'up' | 'up-right';
 
-function angleToDir(dx: number, dy: number): Dir8 | null {
+function angleToDir(dx: number, dy: number: Dir8 | null {
   const dist = Math.hypot(dx, dy);
   if (dist < DEAD) return null;
   const a = Math.atan2(dy, dx) * (180 / Math.PI); // -180..180, right=0, down=90
@@ -97,7 +97,7 @@ function angleToDir(dx: number, dy: number): Dir8 | null {
   return null;
 }
 
-function clampToCircle(v: { x: number; y: number }, maxR: number) {
+function clampToCircle(v: { x: number; y: number }, maxR: number {
   const d = Math.hypot(v.x, v.y);
   return d > maxR ? { x: (v.x / d) * maxR, y: (v.y / d) * maxR } : v;
 }
@@ -281,7 +281,7 @@ function Stick({
         }}
       >
         {/* Cardinal tick marks — subtle direction indicators for both sticks */}
-        {[0, 90, 180, 270].map((deg, i) => {
+        {[0, 90, 180, 270].map(deg: Record<string, unknown>, i: number => {
           const rad = (deg * Math.PI) / 180;
           const r = padRadius - 8;
           const tx = Math.cos(rad) * r + padRadius;
@@ -552,7 +552,7 @@ export default function GameRemote({
           padding: `10px ${outerPaddingX}px 0`,
           flexShrink: 0,
         }}>
-          {REMOTE_ACTION_PILLS.map(({ sym, label, color }) => (
+          {REMOTE_ACTION_PILLS.map({ sym, label: string, color } => (
             <div key={sym} style={{
               display: 'flex', alignItems: 'center', gap: 4,
               padding: '2px 7px', borderRadius: 999,
@@ -671,7 +671,7 @@ export default function GameRemote({
               clickColor="#fef08a"
             />
 
-            {RIGHT_STICK_RING_BUTTONS.map(({ sym, label, action, color, top, left }) => (
+            {RIGHT_STICK_RING_BUTTONS.map({ sym, label: string, action: Record<string, unknown>, color: Record<string, unknown>, top: Record<string, unknown>, left } => (
               <button
                 key={sym}
                 type="button"

@@ -1,14 +1,14 @@
 
-type Callback = (payload: any) => void;
+type Callback = (payload: unknown) => void;
 
 class WidgetBus {
   private listeners: Record<string, Callback[]> = {};
   private memory: Record<string, unknown> = {};
   private children: Record<string, string[]> = {};
 
-  emit(channel: string, payload: any) {
+  emit(channel: string, payload: unknown) {
     if (this.listeners[channel]) {
-      this.listeners[channel].forEach((cb) => cb(payload));
+      this.listeners[channel].forEach((cb: Record<string, unknown>) => cb(payload));
     }
   }
 
@@ -21,7 +21,7 @@ class WidgetBus {
 
   off(channel: string, callback: Callback) {
     if (this.listeners[channel]) {
-      this.listeners[channel] = this.listeners[channel].filter((cb) => cb !== callback);
+      this.listeners[channel] = this.listeners[channel].filter((cb: Record<string, unknown>) => cb !== callback);
     }
   }
 
@@ -42,7 +42,7 @@ class WidgetBus {
 
   // --- Trigger chains ---
 
-  chain(channels: string[], payload: any) {
+  chain(channels: string[], payload: unknown) {
     for (const ch of channels) {
       this.emit(ch, payload);
     }
@@ -66,7 +66,7 @@ class WidgetBus {
 
   removeChild(parentId: string, childId: string) {
     if (this.children[parentId]) {
-      this.children[parentId] = this.children[parentId].filter((id) => id !== childId);
+      this.children[parentId] = this.children[parentId].filter((id: Record<string, unknown>) => id !== childId);
     }
     this.emit(`despawn:${parentId}`, childId);
   }

@@ -36,7 +36,7 @@ const TEMPLATES: Record<ContentType, string[]> = {
 
 const CONTENT_TYPES: ContentType[] = ['Post', 'Thread', 'Story', 'Video'];
 
-export default function EditorPanel() {
+export default function EditorPanel( {
   const [contentType, setContentType] = useState<ContentType>('Post');
   const [draft, setDraft] = useState('');
   const [templateIdx, setTemplateIdx] = useState(0);
@@ -44,14 +44,14 @@ export default function EditorPanel() {
   const [saved, setSaved] = useState(false);
   const textRef = useRef<HTMLTextAreaElement>(null);
 
-  function applyTemplate() {
+  function applyTemplate( {
     const templates = TEMPLATES[contentType];
     const template = templates[templateIdx % templates.length];
     setDraft(template);
-    setTemplateIdx((i) => i + 1);
+    setTemplateIdx(i: number => i + 1);
   }
 
-  function insertFormat(prefix: string, suffix = '') {
+  function insertFormat(prefix: string, suffix = '' {
     const ta = textRef.current;
     if (!ta) return;
     const start = ta.selectionStart;
@@ -61,7 +61,7 @@ export default function EditorPanel() {
     setDraft(newText);
   }
 
-  async function save() {
+  async function save( {
     if (!draft.trim()) return;
     setSaving(true);
     try {
@@ -92,7 +92,7 @@ export default function EditorPanel() {
 
         {/* Content type selector */}
         <div className="flex gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/10 mb-5">
-          {CONTENT_TYPES.map((type) => (
+          {CONTENT_TYPES.map((type: Record<string, unknown>) => (
             <button
               key={type}
               onClick={() => { setContentType(type); setDraft(''); setTemplateIdx(0); }}
@@ -116,7 +116,7 @@ export default function EditorPanel() {
             { icon: Hash,    fn: () => insertFormat('#'),        title: 'Heading' },
             { icon: Link2,   fn: () => insertFormat('[', '](url)'), title: 'Link' },
             { icon: List,    fn: () => insertFormat('\n- '),     title: 'List item' },
-          ].map(({ icon: Icon, fn, title }) => (
+          ].map({ icon: Icon, fn: (...args: unknown[]) => unknown, title } => (
             <button
               key={title}
               onClick={fn}

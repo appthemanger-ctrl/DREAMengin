@@ -17,7 +17,7 @@ import DraggableDream from '@/components/dreams/dream.DraggableDream';
 
 // ─── Asset icon helpers ───────────────────────────────────────────────────────
 
-function assetIcon(type: AssetType): string {
+function assetIcon(type: AssetType: string {
   switch (type) {
     case 'audio': return '🎵';
     case 'image': return '🖼️';
@@ -37,20 +37,20 @@ const SUGGESTED_DREAMS = [
   { id: 'dreamspace-game-quick-launch', icon: '🎮', name: 'Game Quick Launch', description: 'Jump straight into your latest GameEngin cartridge.', capabilities: ['game', 'launch'] },
 ];
 
-export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
+export default function DreamSpace({ initialAccountId }: DreamSpaceProps {
   const { accountId } = useAccount(initialAccountId);
   const [artifacts, setArtifacts] = useState<DreamArtifact[]>([]);
   const [showSystemModules, setShowSystemModules] = useState(false);
   const [previewAsset, setPreviewAsset] = useState<AssetEntry | null>(null);
-  const [visibleSuggestionIds, setVisibleSuggestionIds] = useState(() => new Set(SUGGESTED_DREAMS.map((dream) => dream.id)));
+  const [visibleSuggestionIds, setVisibleSuggestionIds] = useState(() => new Set(SUGGESTED_DREAMS.map((dream: Record<string, unknown>) => dream.id)));
 
   // ── Ledger asset grid ─────────────────────────────────────────────────────
   const os = useOS();
   const [assetTick, setAssetTick] = useState(0);
   useEffect(() => {
     // Re-read ledger whenever a new asset is stored
-    const unsub = os.bus.on('ledger:asset:new', () => setAssetTick((n) => n + 1));
-    return () => os.bus.off('ledger:asset:new', () => setAssetTick((n) => n + 1));
+    const unsub = os.bus.on('ledger:asset:new', () => setAssetTick(n: number => n + 1));
+    return () => os.bus.off('ledger:asset:new', () => setAssetTick(n: number => n + 1));
   }, [os.bus]);
   const ledgerAssets = useMemo(
     () => getAllByKind(os.ledger, 'asset'),
@@ -74,7 +74,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
   }, [accountId, refreshArtifacts]);
 
   const systemArtifacts = useMemo(
-    () => listSystemArtifacts(accountId).filter((artifact) => artifact.metadata?.hidden === true),
+    () => listSystemArtifacts(accountId).filter((artifact: Record<string, unknown>) => artifact.metadata?.hidden === true),
     [accountId],
   );
 
@@ -131,7 +131,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
               gap: 8,
             }}
           >
-            {ledgerAssets.map((asset) => (
+            {ledgerAssets.map((asset: Record<string, unknown>) => (
               <button
                 key={asset.id}
                 type="button"
@@ -281,7 +281,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
         </div>
         <button
           type="button"
-          onClick={() => setShowSystemModules((value) => !value)}
+          onClick={() => setShowSystemModules(value: Record<string, unknown> => !value)}
           aria-label="Open system modules"
           style={{
             marginLeft: 'auto',
@@ -309,7 +309,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
           gap: 10,
         }}
       >
-        {artifacts.length === 0 && SUGGESTED_DREAMS.filter((dream) => visibleSuggestionIds.has(dream.id)).map((dream) => (
+        {artifacts.length === 0 && SUGGESTED_DREAMS.filter((dream: Record<string, unknown>) => visibleSuggestionIds.has(dream.id)).map((dream: Record<string, unknown>) => (
           <DraggableDream
             key={dream.id}
             dream={{ dream_id: dream.id, type: dream.id, surface: 'dreamspace', runtime: 'FACE', title: dream.name }}
@@ -341,7 +341,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
               <button
                 type="button"
                 aria-label={`Remove ${dream.name} suggestion`}
-                onClick={() => setVisibleSuggestionIds((current) => {
+                onClick={() => setVisibleSuggestionIds(current: Record<string, unknown> => {
                   const next = new Set(current);
                   next.delete(dream.id);
                   return next;
@@ -353,7 +353,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
             </div>
           </DraggableDream>
         ))}
-        {artifacts.map((artifact) => (
+        {artifacts.map((artifact: Record<string, unknown>) => (
           <DraggableDream
             key={artifact.id}
             dream={{ dream_id: artifact.id, type: artifact.type ?? 'artifact', surface: 'dreamspace', runtime: 'FACE', title: artifact.name }}
@@ -411,7 +411,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
                 All system Dreams are already visible in DreamSpace.
               </div>
             ) : (
-              systemArtifacts.map((artifact) => (
+              systemArtifacts.map((artifact: Record<string, unknown>) => (
                 <div
                   key={artifact.id}
                   style={{

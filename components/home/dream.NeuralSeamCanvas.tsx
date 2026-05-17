@@ -55,7 +55,7 @@ interface NeuralSeamCanvasProps {
   splitRatio: number;
 }
 
-export default function NeuralSeamCanvas({ active, splitRatio }: NeuralSeamCanvasProps) {
+export default function NeuralSeamCanvas({ active, splitRatio }: NeuralSeamCanvasProps {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<SeamParticle[]>([]);
   const rafRef = useRef<number | null>(null);
@@ -253,7 +253,7 @@ export default function NeuralSeamCanvas({ active, splitRatio }: NeuralSeamCanva
   useEffect(() => {
     if (!active) return;
 
-    const unsub = bridge.subscribeEventActivity((emission) => {
+    const unsub = bridge.subscribeEventActivity(emission: Record<string, unknown> => {
       particlesRef.current.push(createSeamParticle(emission.channel));
       // Cap total live particles to prevent runaway allocations.
       if (particlesRef.current.length > 80) {

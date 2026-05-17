@@ -40,17 +40,17 @@ const UNIVERSE: Asset[] = [
   { ticker: 'ETH',   name: 'Ethereum (spot ETF)',   sector: 'Crypto',        price: 3420.0,  change:  2.80 },
 ];
 
-const SECTORS = ['All', ...Array.from(new Set(UNIVERSE.map((a) => a.sector)))];
+const SECTORS = ['All', ...Array.from(new Set(UNIVERSE.map(a: Record<string, unknown> => a.sector)))];
 const MAX_SELECTED = 6;
 
-export default function AssetsPanel() {
+export default function AssetsPanel( {
   const [selected, setSelected] = useState<Set<string>>(
     new Set(['AAPL', 'MSFT', 'NVDA'])
   );
   const [sectorFilter, setSectorFilter] = useState('All');
 
-  function toggle(ticker: string) {
-    setSelected((prev) => {
+  function toggle(ticker: string {
+    setSelected(prev: Record<string, unknown> => {
       const next = new Set(prev);
       if (next.has(ticker)) {
         next.delete(ticker);
@@ -61,14 +61,14 @@ export default function AssetsPanel() {
     });
   }
 
-  function reset() {
+  function reset( {
     setSelected(new Set(['AAPL', 'MSFT', 'NVDA']));
     setSectorFilter('All');
   }
 
   const filtered = sectorFilter === 'All'
     ? UNIVERSE
-    : UNIVERSE.filter((a) => a.sector === sectorFilter);
+    : UNIVERSE.filter(a: Record<string, unknown> => a.sector === sectorFilter);
 
   return (
     <div className="h-full overflow-y-auto p-4 md:p-6">
@@ -97,7 +97,7 @@ export default function AssetsPanel() {
             {selected.size} / {MAX_SELECTED} assets selected
           </span>
           <div className="flex gap-1.5">
-            {Array.from(selected).map((t) => (
+            {Array.from(selected).map((t: Record<string, unknown>) => (
               <span
                 key={t}
                 className="text-[10px] font-bold px-1.5 py-0.5 rounded"
@@ -111,7 +111,7 @@ export default function AssetsPanel() {
 
         {/* Sector filter */}
         <div className="flex flex-wrap gap-2 mb-4">
-          {SECTORS.map((s) => (
+          {SECTORS.map((s: Record<string, unknown>) => (
             <button
               key={s}
               onClick={() => setSectorFilter(s)}
@@ -129,7 +129,7 @@ export default function AssetsPanel() {
 
         {/* Asset list */}
         <div className="space-y-2">
-          {filtered.map((asset) => {
+          {filtered.map((asset: Record<string, unknown>) => {
             const isSelected  = selected.has(asset.ticker);
             const isMaxed     = !isSelected && selected.size >= MAX_SELECTED;
             const isPositive  = asset.change >= 0;

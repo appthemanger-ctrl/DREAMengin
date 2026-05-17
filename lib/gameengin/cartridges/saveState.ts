@@ -21,15 +21,15 @@ import type { CartridgeSaveAPI, CartridgeSaveSlot } from '../cartridge';
 const PREFIX = 'dreamge:save';
 const MAX_SLOTS = 8;
 
-function catalogKey(cartridgeId: string): string {
+function catalogKey(cartridgeId: string: string {
   return `${PREFIX}:${cartridgeId}:catalog`;
 }
 
-function slotKey(cartridgeId: string, slot: number): string {
+function slotKey(cartridgeId: string, slot: number: string {
   return `${PREFIX}:${cartridgeId}:${slot}`;
 }
 
-function readCatalog(cartridgeId: string): Record<number, { timestamp: number; label: string }> {
+function readCatalog(cartridgeId: string: Record<number, { timestamp: number; label: string }> {
   try {
     const raw = localStorage.getItem(catalogKey(cartridgeId));
     if (!raw) return {};
@@ -50,7 +50,7 @@ function writeCatalog(
   }
 }
 
-function autoLabel(slot: number): string {
+function autoLabel(slot: number: string {
   const now = new Date();
   const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const date = now.toLocaleDateString([], { month: 'short', day: 'numeric' });
@@ -61,7 +61,7 @@ function autoLabel(slot: number): string {
  * Create a CartridgeSaveAPI instance bound to a specific cartridge id.
  * Called once by the GameRuntime when building the GameEngineAPI for a mount.
  */
-export function createSaveAPI(cartridgeId: string): CartridgeSaveAPI {
+export function createSaveAPI(cartridgeId: string: CartridgeSaveAPI {
   return {
     async list(): Promise<CartridgeSaveSlot[]> {
       const catalog = readCatalog(cartridgeId);
@@ -77,7 +77,7 @@ export function createSaveAPI(cartridgeId: string): CartridgeSaveAPI {
           // Corrupted slot — skip
         }
       }
-      return slots.sort((a, b) => a.slot - b.slot);
+      return slots.sort(a: Record<string, unknown>, b: Record<string, unknown> => a.slot - b.slot);
     },
 
     async load(slot: number): Promise<CartridgeSaveSlot | null> {
@@ -124,7 +124,7 @@ export function createSaveAPI(cartridgeId: string): CartridgeSaveAPI {
 }
 
 /** Wipe ALL save data for a cartridge. Used when the user uninstalls a game. */
-export function purgeCartridgeSaves(cartridgeId: string): void {
+export function purgeCartridgeSaves(cartridgeId: string: void {
   for (let i = 0; i < MAX_SLOTS; i++) {
     localStorage.removeItem(slotKey(cartridgeId, i));
   }
@@ -132,7 +132,7 @@ export function purgeCartridgeSaves(cartridgeId: string): void {
 }
 
 /** Total bytes used by a cartridge's save data (approximate). */
-export function getSaveStorageBytes(cartridgeId: string): number {
+export function getSaveStorageBytes(cartridgeId: string: number {
   let bytes = 0;
   for (let i = 0; i < MAX_SLOTS; i++) {
     const raw = localStorage.getItem(slotKey(cartridgeId, i));

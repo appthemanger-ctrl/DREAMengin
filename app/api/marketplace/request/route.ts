@@ -23,7 +23,7 @@ import {
   buildContactRequestRecord,
 } from '@/lib/marketplace/request';
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 

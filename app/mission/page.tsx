@@ -1,7 +1,7 @@
 // SURFACE: dreamsurface.Mission  (framework-mandated basename: page.tsx)
 import Link from 'next/link';
 
-export default function MissionPage() {
+export default function MissionPage( {
   return (
     <main
       className="min-h-screen px-6 py-16 md:px-10 lg:px-16"

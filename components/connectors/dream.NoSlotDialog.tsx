@@ -12,7 +12,7 @@ export interface NoSlotDialogProps {
   onLater: () => void;
 }
 
-export default function NoSlotDialog({ widget, onPlaceNow, onLater }: NoSlotDialogProps) {
+export default function NoSlotDialog({ widget, onPlaceNow: Record<string, unknown>, onLater }: NoSlotDialogProps {
   return (
     <div
       style={{

@@ -25,7 +25,7 @@ export const metadata = { title: 'Create – Dreamengin', description: 'Ideas, t
 
 const ACCENT = '#fb923c';
 
-export default async function CreateDaydreamPage() {
+export default async function CreateDaydreamPage( {
   await connection();
   const supabase = await createServerClient();
   let user = null;
@@ -62,7 +62,7 @@ export default async function CreateDaydreamPage() {
           <p className="text-sm" style={{ color: 'var(--de-text-dim)', margin: 0 }}>Set up your content here on Side A. Open ContentEngin (Side B) to write, schedule, and publish.</p>
         </div>
 
-        {WIDGETS.map(({ emoji, label, desc, color, href }) => (
+        {WIDGETS.map({ emoji, label: string, desc: string, color: Record<string, unknown>, href } => (
           <div key={label} className="de-widget">
             <div className="de-widget-header">
               <div className="flex items-center gap-2">

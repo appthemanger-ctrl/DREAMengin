@@ -58,7 +58,7 @@ interface PianoRollPanelProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function sectionHeader(label: string, extra?: React.ReactNode) {
+function sectionHeader(label: string, extra?: React.ReactNode {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 8,
@@ -75,7 +75,7 @@ function sectionHeader(label: string, extra?: React.ReactNode) {
   );
 }
 
-function pill(color: string, text: string) {
+function pill(color: string, text: string {
   return (
     <span style={{
       fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 999,
@@ -88,7 +88,7 @@ function pill(color: string, text: string) {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function PianoRollPanel({ state, bpm, onStateChange }: PianoRollPanelProps) {
+export default function PianoRollPanel({ state, bpm: Record<string, unknown>, onStateChange }: PianoRollPanelProps {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredCell, setHoveredCell] = useState<{ pitch: number; beat: number } | null>(null);
 
@@ -106,10 +106,10 @@ export default function PianoRollPanel({ state, bpm, onStateChange }: PianoRollP
   };
   const div = quantizeDivisions[quantize];
   const totalCols = Math.round(totalBeats / div);
-  const beats: number[] = Array.from({ length: totalCols }, (_, i) => i * div);
+  const beats: number[] = Array.from({ length: totalCols }, _: Record<string, unknown>, i: number => i * div);
 
   // Lookup: does a note occupy (pitch, beat)?
-  function noteAt(pitch: number, beat: number): MidiNote | undefined {
+  function noteAt(pitch: number, beat: number: MidiNote | undefined {
     return notes.find(n =>
       n.pitch === pitch &&
       beat >= n.startBeat &&
@@ -130,7 +130,7 @@ export default function PianoRollPanel({ state, bpm, onStateChange }: PianoRollP
     }
   }, [notes, state, onStateChange, quantize, div]);
 
-  function scrollOctave(delta: number) {
+  function scrollOctave(delta: number {
     const next = viewBottomPitch + delta * 12;
     if (next < 0 || next > 103) return;
     onStateChange({ ...state, viewBottomPitch: next });
@@ -261,7 +261,7 @@ export default function PianoRollPanel({ state, bpm, onStateChange }: PianoRollP
                 borderBottom: `1px solid ${T.border}`,
                 minWidth: gridWidthPx,
               }}>
-                {beats.map((beat, i) => (
+                {beats.map(beat: Record<string, unknown>, i: number => (
                   <div
                     key={i}
                     style={{
@@ -297,7 +297,7 @@ export default function PianoRollPanel({ state, bpm, onStateChange }: PianoRollP
                           ? `1px solid rgba(0,208,240,0.12)`
                           : `1px solid ${T.border}`,
                       }}>
-                      {beats.map((beat, bi) => {
+                      {beats.map(beat: Record<string, unknown>, bi: Record<string, unknown> => {
                         const note = noteAt(pitch, beat);
                         const isHovered = hoveredCell?.pitch === pitch && hoveredCell?.beat === beat;
                         const isStartOfNote = note && note.startBeat === beat;

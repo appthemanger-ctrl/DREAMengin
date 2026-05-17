@@ -99,7 +99,7 @@ export function ArtifactSlot({
  * Hook used inside an artifact's component tree to read the slot's
  * shared context. Throws if called outside an `<ArtifactSlot>`.
  */
-export function useArtifactSlot(): ArtifactSlotContextValue {
+export function useArtifactSlot(: ArtifactSlotContextValue {
   const ctx = useContext(ArtifactSlotContext);
   if (!ctx) {
     throw new Error(
@@ -114,6 +114,6 @@ export function useArtifactSlot(): ArtifactSlotContextValue {
  * throwing. Useful for components that may be reused both inside and
  * outside an artifact slot.
  */
-export function useOptionalArtifactSlot(): ArtifactSlotContextValue | null {
+export function useOptionalArtifactSlot(: ArtifactSlotContextValue | null {
   return useContext(ArtifactSlotContext);
 }

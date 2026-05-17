@@ -61,7 +61,7 @@ const ACTIONS: Action[] = [
         { k: /\b(connectors|imports|youtube)\b/, path: '/connectors', label: 'Connectors' },
         { k: /\b(admin)\b/, path: '/idari-console', label: 'Admin' },
       ];
-      const hit = routes.find((r) => r.k.test(q));
+      const hit = routes.find((r: Record<string, unknown>) => r.k.test(q));
       if (!hit) return { handled: false, reply: '' };
       ctx.navigate(hit.path);
       return { handled: true, reply: `Opening ${hit.label}.` };
@@ -87,7 +87,7 @@ const ACTIONS: Action[] = [
   },
 ];
 
-export function executeUiAction(query: string, ctx: UiActionContext): UiActionResult | null {
+export function executeUiAction(query: string, ctx: UiActionContext: UiActionResult | null {
   const q = query.trim().toLowerCase();
   for (const a of ACTIONS) {
     if (a.match(q)) {
@@ -98,7 +98,7 @@ export function executeUiAction(query: string, ctx: UiActionContext): UiActionRe
   return null;
 }
 
-export function getUiCapabilities(): string {
+export function getUiCapabilities(: string {
   const lines = [
     'Here are safe UI actions I can do:',
     '- Navigate: Home, Discover, Music, Lab, Messages, Analytics, Shop, Ads, Settings, Profile, Connectors',

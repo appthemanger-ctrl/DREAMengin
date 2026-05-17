@@ -16,7 +16,7 @@ const NAV_ITEMS = [
   { href: '/engines/portfolio/quantum',  label: 'Quantum',  emoji: '⚛️' },
 ];
 
-export default async function PortfolioOptimizePage() {
+export default async function PortfolioOptimizePage( {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

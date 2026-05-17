@@ -162,7 +162,7 @@ async function idariPlanner(
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   const requestStart = Date.now();
   const request_id = uuidv4();
 
@@ -202,7 +202,7 @@ export async function POST(req: NextRequest) {
 
   // Determine role — admin/owner only gate (IDARI_CONTRACT.md, Phase 6 point 5).
    
-  const { data: roleData } = await (supabase as any)
+  const { data: roleData } = await (supabase as SupabaseClient)
     .from('user_roles')
     .select('role')
     .eq('user_id', user.id)
@@ -284,7 +284,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const allowedIntents = validatedIntents.filter((_, i) => {
+  const allowedIntents = validatedIntents.filter(_: Record<string, unknown>, i: number => {
     const d = boogieResult.per_intent[i];
     return d && (d.decision === 'ALLOW' || d.decision === 'CONFIRM');
   });

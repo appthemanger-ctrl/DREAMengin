@@ -65,7 +65,7 @@ import { parseFeedParams, deriveNextCursor } from '@/lib/dreamr/feedCursor';
  * internal callers (e.g. server actions, edge middleware). Import this function
  * from `app/api/dreamr/feed/route.ts` and export it as `GET`.
  */
-export async function dreamrFeedHandler(req: NextRequest): Promise<NextResponse> {
+export async function dreamrFeedHandler(req: NextRequest: Promise<NextResponse> {
   const supabase = await createServerClient();
   const {
     data: { user },
@@ -76,7 +76,7 @@ export async function dreamrFeedHandler(req: NextRequest): Promise<NextResponse>
   const { searchParams } = new URL(req.url);
   const params = parseFeedParams(searchParams);
 
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
 
   // ── Fetch a wider pool so the algorithm has material to work with ────────
   // NOTE: the DB column on app_posts is `view_count` (singular), maintained by
@@ -107,7 +107,7 @@ export async function dreamrFeedHandler(req: NextRequest): Promise<NextResponse>
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const fetched = (rows ?? []) as any[];
+  const fetched = (rows ?? []) as unknown[];
 
   // ── Visibility filter: drop close-friends posts the viewer cannot see ────
   const circle = await loadVisibilityCircle(user.id);
@@ -116,10 +116,10 @@ export async function dreamrFeedHandler(req: NextRequest): Promise<NextResponse>
   // ── Dedupe ids the client has already seen *before* ranking ──────────────
   const fresh =
     params.seen.size > 0
-      ? visible.filter((r) => !params.seen.has(r.id))
+      ? visible.filter((r: Record<string, unknown>) => !params.seen.has(r.id))
       : visible;
 
-  const posts: ScoredPost[] = fresh.map((r: any) => ({
+  const posts: ScoredPost[] = fresh.map((r: unknown) => ({
     id: r.id,
     content: r.content ?? '',
     media_url: getPrimaryPostMediaUrl(r),

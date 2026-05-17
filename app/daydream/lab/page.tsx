@@ -34,7 +34,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'results',        emoji: '🔗', label: 'Share Results',  desc: 'Publish experiment outcomes',     color: '#c8981a', href: '/daydream/create'       },
 ];
 
-export default async function LabDaydreamPage() {
+export default async function LabDaydreamPage( {
   await connection();
   const supabase = await createServerClient();
   let user = null;
@@ -274,7 +274,7 @@ export default async function LabDaydreamPage() {
                 { h: 'WebGPU outperforms JS by 10×', outcome: 'Confirmed', color: '#22c55e' },
                 { h: 'Batch size 64 improves convergence', outcome: 'In Progress', color: '#f59e0b' },
                 { h: 'Fluid viscosity >0.8 causes instability', outcome: 'Refuted', color: '#ef4444' },
-              ].map((r, i) => (
+              ].map(r: Record<string, unknown>, i: number => (
                 <div key={i} style={{ padding: '7px 10px', marginBottom: 5, borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: `1px solid ${r.color}18` }}>
                   <div style={{ fontSize: 9, fontWeight: 700, color: r.color, marginBottom: 3 }}>{r.outcome}</div>
                   <div style={{ fontSize: 11, color: 'var(--de-heading)' }}>{r.h}</div>

@@ -61,9 +61,9 @@ async function fetchInstagramJson<T>(path: string, accessToken: string): Promise
 
 // ── Normaliser ────────────────────────────────────────────────────────────────
 
-function normaliseInstagramMedia(item: InstagramMedia): UnifiedFeedItem {
+function normaliseInstagramMedia(item: InstagramMedia: UnifiedFeedItem {
   const caption = item.caption ?? '';
-  const tags = (caption.match(/#\w+/g) ?? []).map((t) => t.slice(1).toLowerCase());
+  const tags = (caption.match(/#\w+/g) ?? []).map((t: Record<string, unknown>) => t.slice(1).toLowerCase());
   const thumbnail = item.thumbnail_url ?? item.media_url ?? '';
 
   return {
@@ -87,7 +87,7 @@ function normaliseInstagramMedia(item: InstagramMedia): UnifiedFeedItem {
  * Verifies Instagram credentials by calling /me.
  * Returns the Instagram username on success.
  */
-export async function instagramVerify(creds: InstagramCredentials): Promise<string> {
+export async function instagramVerify(creds: InstagramCredentials: Promise<string> {
   const user = await fetchInstagramJson<InstagramUser>(
     '/me?fields=id,username',
     creds.access_token,
@@ -99,7 +99,7 @@ export async function instagramVerify(creds: InstagramCredentials): Promise<stri
  * Fetches the authenticated user's recent media posts.
  * Returns up to 25 normalised UnifiedFeedItems sorted newest first.
  */
-export async function instagramSync(creds: InstagramCredentials): Promise<UnifiedFeedItem[]> {
+export async function instagramSync(creds: InstagramCredentials: Promise<UnifiedFeedItem[]> {
   const data = await fetchInstagramJson<InstagramMediaListResponse>(
     '/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,username&limit=25',
     creds.access_token,
@@ -107,14 +107,14 @@ export async function instagramSync(creds: InstagramCredentials): Promise<Unifie
 
   return (data.data ?? [])
     .map(normaliseInstagramMedia)
-    .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at));
+    .sort(a: Record<string, unknown>, b: Record<string, unknown> => Date.parse(b.published_at) - Date.parse(a.published_at));
 }
 
 /**
  * Returns the configured Instagram App credentials from the environment.
  * Server-only — never exposed to the browser.
  */
-export function getInstagramOAuthConfig() {
+export function getInstagramOAuthConfig( {
   return {
     clientId:     process.env.INSTAGRAM_CLIENT_ID     ?? '',
     clientSecret: process.env.INSTAGRAM_CLIENT_SECRET ?? '',

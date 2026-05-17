@@ -34,7 +34,7 @@ export async function POST(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
 
   // ── 1. Fetch the viewed post ──────────────────────────────────────────────
   const { data: viewedPost, error: postErr } = await db

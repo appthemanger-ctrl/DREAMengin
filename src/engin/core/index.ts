@@ -96,7 +96,7 @@ function deepFreeze<T>(value: T): T {
   return Object.freeze(record) as T;
 }
 
-function normalizeState(input: unknown): Record<string, unknown> {
+function normalizeState(input: unknown: Record<string, unknown> {
   if (input && typeof input === 'object' && !Array.isArray(input)) {
     return input as Record<string, unknown>;
   }
@@ -138,11 +138,11 @@ class EngineRegistry {
   }
 
   resolveBySlot(slot: RegistrySlot): RegistryEntry[] {
-    return Array.from(this.entriesById.values()).filter((entry) => entry.slot === slot);
+    return Array.from(this.entriesById.values()).filter((entry: Record<string, unknown>) => entry.slot === slot);
   }
 
   resolveByEngine(engineName: string): RegistryEntry[] {
-    return Array.from(this.entriesById.values()).filter((entry) => entry.engine === engineName);
+    return Array.from(this.entriesById.values()).filter((entry: Record<string, unknown>) => entry.engine === engineName);
   }
 
   getLoader(id: string): LoaderFactory | null {
@@ -435,10 +435,10 @@ export class UniversalEngine {
 
     const byEngine = this.registry
       .resolveByEngine(requestedId)
-      .find((entry) => entry.slot === 'engine-ruleset');
+      .find((entry: Record<string, unknown>) => entry.slot === 'engine-ruleset');
     if (byEngine) return byEngine.id;
 
-    const fromGroup = Object.keys(this.registry.getGroups().rulesets).find((id) => id === requestedId);
+    const fromGroup = Object.keys(this.registry.getGroups().rulesets).find((id: Record<string, unknown>) => id === requestedId);
     if (fromGroup) return fromGroup;
 
     return requestedId;

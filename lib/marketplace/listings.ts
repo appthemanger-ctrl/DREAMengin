@@ -70,7 +70,7 @@ export type ValidationResult = {
 /**
  * Validates raw inbound body for a new marketplace listing.
  */
-export function validateMarketplaceListing(body: unknown): ValidationResult {
+export function validateMarketplaceListing(body: unknown: ValidationResult {
   const errors: string[] = [];
 
   if (!body || typeof body !== 'object') {
@@ -99,11 +99,11 @@ export function validateMarketplaceListing(body: unknown): ValidationResult {
   }
 
   if (typeof b.tags === 'string') {
-    const tags = b.tags.split(',').map((t) => t.trim()).filter(Boolean);
+    const tags = b.tags.split(',').map((t: Record<string, unknown>) => t.trim()).filter(Boolean);
     if (tags.length > MARKETPLACE_TAGS_MAX) {
       errors.push(`Maximum ${MARKETPLACE_TAGS_MAX} tags allowed.`);
     }
-    const longTag = tags.find((t) => t.length > MARKETPLACE_TAG_MAX_LENGTH);
+    const longTag = tags.find((t: Record<string, unknown>) => t.length > MARKETPLACE_TAG_MAX_LENGTH);
     if (longTag) {
       errors.push(`Each tag must be ${MARKETPLACE_TAG_MAX_LENGTH} characters or fewer.`);
     }
@@ -128,7 +128,7 @@ export function normalizeMarketplaceListing(
   const priceFloat   = parseFloat(String(input.price ?? 0)) || 0;
   const priceCents   = Math.round(priceFloat * 100);
   const parsedTags   = typeof input.tags === 'string'
-    ? input.tags.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean).slice(0, MARKETPLACE_TAGS_MAX)
+    ? input.tags.split(',').map((t: Record<string, unknown>) => t.trim().toLowerCase()).filter(Boolean).slice(0, MARKETPLACE_TAGS_MAX)
     : [];
 
   return {
@@ -149,7 +149,7 @@ export function normalizeMarketplaceListing(
  * Used in MarketplaceListingCard and marketplace/[id]/page.tsx.
  * Point 43: navigation link from listing resolves to real data.
  */
-export function marketplaceDetailRoute(itemId: string): string {
+export function marketplaceDetailRoute(itemId: string: string {
   return `/marketplace/${itemId}`;
 }
 
@@ -157,7 +157,7 @@ export function marketplaceDetailRoute(itemId: string): string {
  * Formats price_cents for display.
  * Returns 'Free' for zero-price items.
  */
-export function formatMarketplacePrice(priceCents: number): string {
+export function formatMarketplacePrice(priceCents: number: string {
   if (priceCents === 0) return 'Free';
   return `$${(priceCents / 100).toFixed(2)}`;
 }

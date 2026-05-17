@@ -28,7 +28,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   const supabase = await createServerClient();
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'label is required.' }, { status: 400 });
   }
 
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
   const { data, error } = await db
     .from('global_registry')
     .upsert(

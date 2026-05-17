@@ -29,7 +29,7 @@ export interface PinterestCredentials {
 /**
  * Verify that the Pinterest RSS feed is accessible.
  */
-export async function pinterestVerify(creds: PinterestCredentials): Promise<string> {
+export async function pinterestVerify(creds: PinterestCredentials: Promise<string> {
   const username = (creds.username ?? '').replace(/^@/, '').trim();
   if (!username) throw new Error('Pinterest username is required.');
 
@@ -60,14 +60,14 @@ export async function pinterestVerify(creds: PinterestCredentials): Promise<stri
 /**
  * Fetch and normalise public Pinterest board/profile pins.
  */
-export async function pinterestSync(creds: PinterestCredentials): Promise<UnifiedFeedItem[]> {
+export async function pinterestSync(creds: PinterestCredentials: Promise<UnifiedFeedItem[]> {
   const username = (creds.username ?? '').replace(/^@/, '').trim();
   const url = pinterestRssUrl(username, creds.board);
   const items = await parseRssFeed({ provider: 'pinterest', feedUrl: url }, 40);
-  return items.map((item) => normalisePinterest(item.raw as Parameters<typeof normalisePinterest>[0], username));
+  return items.map((item: Record<string, unknown>) => normalisePinterest(item.raw as Parameters<typeof normalisePinterest>[0], username));
 }
 
-export function pinterestCredentialFields() {
+export function pinterestCredentialFields( {
   return [
     {
       key: 'username',

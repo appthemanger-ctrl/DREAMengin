@@ -44,7 +44,7 @@ type Profile = {
  * visibility = 'private' records. This is enforced at both the query level
  * (explicit filter) and the RLS level (dream_windows table policies).
  */
-export default async function ViewProfilePage() {
+export default async function ViewProfilePage( {
   await connection();
   const supabase = await createServerClient();
 
@@ -123,7 +123,7 @@ export default async function ViewProfilePage() {
     visibility: string; active_state: string;
   }> | null = null;
   try {
-    const { data } = await (supabase as any)
+    const { data } = await (supabase as SupabaseClient)
       .from('dream_windows')
       .select('id, type, config, size, position, visibility, active_state')
       .eq('owner_id', user.id)
@@ -142,7 +142,7 @@ export default async function ViewProfilePage() {
   type VisibilityMappingRow = { content_id: string; visibility: string };
   let mappingsData: VisibilityMappingRow[] | null = null;
   try {
-    const { data } = await (supabase as any)
+    const { data } = await (supabase as SupabaseClient)
       .from('visibility_mappings')
       .select('content_id, visibility')
       .eq('user_id', user.id);
@@ -153,7 +153,7 @@ export default async function ViewProfilePage() {
 
   // Build a lookup: content_id → visibility
   const mappingLookup = new Map<string, string>(
-    (mappingsData ?? []).map((m) => [m.content_id, m.visibility])
+    (mappingsData ?? []).map((m: Record<string, unknown>) => [m.content_id, m.visibility])
   );
 
   // Use server-persisted widget projection (falls back to defaults if not set)
@@ -167,7 +167,7 @@ export default async function ViewProfilePage() {
   // Consult visibility_mappings first (authoritative); fall back to widget.visibility.
   // Widgets with no visibility set default to 'private' (nothing public by default).
   // Phase 8 §B Point 21: never include 'private' visibility Dream Windows.
-  const savedDreams = allSavedDreams.filter((w) => {
+  const savedDreams = allSavedDreams.filter((w: Record<string, unknown>) => {
     // Use visibility_mappings record if one exists for this widget
     const mappedVisibility = mappingLookup.get(w.id);
     const effectiveVisibility = mappedVisibility ?? w.visibility ?? 'private';

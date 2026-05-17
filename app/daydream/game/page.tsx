@@ -11,13 +11,13 @@ type GamePageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function GamePage({ searchParams }: GamePageProps) {
+export default async function GamePage({ searchParams }: GamePageProps {
   await connection();
   const params = new URLSearchParams();
   const resolved = await searchParams;
   Object.entries(resolved).forEach(([key, value]) => {
     if (Array.isArray(value)) {
-      value.forEach((entry) => params.append(key, entry));
+      value.forEach((entry: Record<string, unknown>) => params.append(key, entry));
       return;
     }
     if (typeof value === 'string') {

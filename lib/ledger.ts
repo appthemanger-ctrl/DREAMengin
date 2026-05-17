@@ -123,11 +123,11 @@ export function createLedger(
 
 // ─── Internal helpers ────────────────────────────────────────────────────────
 
-function now(): string {
+function now(: string {
   return new Date().toISOString();
 }
 
-async function persist(ledger: Ledger, entry: LedgerEntry): Promise<void> {
+async function persist(ledger: Ledger, entry: LedgerEntry: Promise<void> {
   if (!ledger.supabase) return;
   try {
     await ledger.supabase.from(ledger.tableName).upsert({
@@ -143,7 +143,7 @@ async function persist(ledger: Ledger, entry: LedgerEntry): Promise<void> {
 
 // ─── CRUD helpers ─────────────────────────────────────────────────────────────
 
-export function getLedgerEntry(ledger: Ledger, id: string): LedgerEntry | undefined {
+export function getLedgerEntry(ledger: Ledger, id: string: LedgerEntry | undefined {
   return ledger.entries.get(id);
 }
 
@@ -295,7 +295,7 @@ export function storeAsset(
  * Increments the view count for a torridity entry, or creates one with
  * default values if it does not yet exist.
  */
-export function recordView(ledger: Ledger, contentId: string): void {
+export function recordView(ledger: Ledger, contentId: string: void {
   const id = `tr_${contentId}`;
   const existing = ledger.entries.get(id);
   if (existing?.kind === 'torridity') {

@@ -106,7 +106,7 @@ const BASELINE_OVERLAY_OFFSET_PX     = 14;
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export default function ImmersiveGameShell() {
+export default function ImmersiveGameShell( {
   const router       = useRouter();
   const searchParams = useSearchParams();
   const rootRef      = useRef<HTMLDivElement>(null);
@@ -114,11 +114,11 @@ export default function ImmersiveGameShell() {
   // ── Resolve game from manifest ───────────────────────────────────────────
   const gameId = resolveGameLaunchId(
     searchParams.get('game'),
-    CARTRIDGE_MANIFEST.map((c) => c.id),
+    CARTRIDGE_MANIFEST.map((c: Record<string, unknown>) => c.id),
     DEFAULT_GAME_ID,
   );
   const game = useMemo(
-    () => CARTRIDGE_MANIFEST.find((c) => c.id === gameId) ?? CARTRIDGE_MANIFEST[0],
+    () => CARTRIDGE_MANIFEST.find((c: Record<string, unknown>) => c.id === gameId) ?? CARTRIDGE_MANIFEST[0],
     [gameId],
   );
 
@@ -137,7 +137,7 @@ export default function ImmersiveGameShell() {
     setCartridge(null);
     setCartridgeError(null);
     loadCartridge(gameId)
-      .then((c) => { if (!cancelled) setCartridge(c); })
+      .then(c: Record<string, unknown> => { if (!cancelled) setCartridge(c); })
       .catch((err: unknown) => {
         if (!cancelled) {
           setCartridgeError(err instanceof Error ? err.message : 'Failed to load cartridge.');

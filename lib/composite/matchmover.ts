@@ -136,7 +136,7 @@ export function addSample(
 ): CameraTrack {
   const points = track.trackPoints.map(p =>
     p.id === pointId
-      ? { ...p, samples: [...p.samples, sample].sort((a, b) => a.frame - b.frame) }
+      ? { ...p, samples: [...p.samples, sample].sort(a: Record<string, unknown>, b: Record<string, unknown> => a.frame - b.frame) }
       : p
   );
   return { ...track, trackPoints: points };
@@ -174,11 +174,11 @@ export function computeHomography(
 /**
  * Estimate per-frame velocity and acceleration for each track point.
  */
-export function estimateCameraMotion(track: CameraTrack): MotionEstimate[] {
+export function estimateCameraMotion(track: CameraTrack: MotionEstimate[] {
   const estimates: MotionEstimate[] = [];
 
   for (const pt of track.trackPoints) {
-    const sorted = [...pt.samples].sort((a, b) => a.frame - b.frame);
+    const sorted = [...pt.samples].sort(a: Record<string, unknown>, b: Record<string, unknown> => a.frame - b.frame);
     for (let i = 1; i < sorted.length; i++) {
       const prev = sorted[i - 1];
       const cur = sorted[i];
@@ -213,7 +213,7 @@ export function estimateCameraMotion(track: CameraTrack): MotionEstimate[] {
  *
  * Format: pointName,frame,x,y,confidence
  */
-export function exportTrackCSV(track: CameraTrack): string {
+export function exportTrackCSV(track: CameraTrack: string {
   const rows = ['pointName,frame,x,y,confidence'];
   for (const pt of track.trackPoints) {
     for (const s of pt.samples) {
@@ -226,8 +226,8 @@ export function exportTrackCSV(track: CameraTrack): string {
 /**
  * Return a human-readable solve summary.
  */
-export function trackSummary(track: CameraTrack): string {
-  const totalSamples = track.trackPoints.reduce((acc, p) => acc + p.samples.length, 0);
+export function trackSummary(track: CameraTrack: string {
+  const totalSamples = track.trackPoints.reduce(acc: Record<string, unknown>, p: Record<string, unknown> => acc + p.samples.length, 0);
   const solved = track.trackPoints.filter(p => p.solved).length;
   const status = track.isSolved
     ? `Solved (error: ${track.solveError.toFixed(3)} px)`
@@ -275,15 +275,15 @@ function dlt4PointSolve(
   ];
 }
 
-function normalisePoints(pts: [number, number][]): [[number, number], number] {
-  const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length;
-  const cy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
-  const avgDist = pts.reduce((s, p) => s + Math.sqrt((p[0] - cx) ** 2 + (p[1] - cy) ** 2), 0) / pts.length;
+function normalisePoints(pts: [number, number][]: [[number, number], number] {
+  const cx = pts.reduce(s: Record<string, unknown>, p: Record<string, unknown> => s + p[0], 0) / pts.length;
+  const cy = pts.reduce(s: Record<string, unknown>, p: Record<string, unknown> => s + p[1], 0) / pts.length;
+  const avgDist = pts.reduce(s: Record<string, unknown>, p: Record<string, unknown> => s + Math.sqrt((p[0] - cx) ** 2 + (p[1] - cy) ** 2), 0) / pts.length;
   const scale = avgDist > 0 ? Math.SQRT2 / avgDist : 1;
   return [[cx, cy], scale];
 }
 
-function normMatrix(off: [number, number], scale: number): number[][] {
+function normMatrix(off: [number, number], scale: number: number[][] {
   return [
     [scale, 0, -scale * off[0]],
     [0, scale, -scale * off[1]],
@@ -291,7 +291,7 @@ function normMatrix(off: [number, number], scale: number): number[][] {
   ];
 }
 
-function denormMatrix(off: [number, number], scale: number): number[][] {
+function denormMatrix(off: [number, number], scale: number: number[][] {
   return [
     [1 / scale, 0, off[0]],
     [0, 1 / scale, off[1]],
@@ -299,7 +299,7 @@ function denormMatrix(off: [number, number], scale: number): number[][] {
   ];
 }
 
-function mat3Mul(A: number[][], B: number[][]): number[][] {
+function mat3Mul(A: number[][], B: number[][]: number[][] {
   const C = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
   for (let r = 0; r < 3; r++)
     for (let c = 0; c < 3; c++)
@@ -309,7 +309,7 @@ function mat3Mul(A: number[][], B: number[][]): number[][] {
 }
 
 /** Solve A*h ≈ 0 using Gaussian elimination with partial pivoting. */
-function solveHomogeneousLS(A: number[][]): number[] {
+function solveHomogeneousLS(A: number[][]: number[] {
   const m = A.length;      // 8
   const n = A[0].length;   // 9
   const M = A.map(r => [...r]);

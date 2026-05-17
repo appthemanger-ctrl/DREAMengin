@@ -44,13 +44,13 @@ interface CronSummary {
   }>;
 }
 
-function getCronBatchSize(): number {
+function getCronBatchSize(: number {
   const parsed = Number.parseInt(process.env.CONNECTOR_CRON_BATCH_SIZE ?? String(DEFAULT_BATCH_SIZE), 10);
   if (!Number.isFinite(parsed)) return DEFAULT_BATCH_SIZE;
   return Math.min(Math.max(parsed, 1), MAX_BATCH_SIZE);
 }
 
-export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | { error: string }>> {
+export async function GET(req: NextRequest: Promise<NextResponse<CronSummary | { error: string }>> {
   // ── Authorisation ────────────────────────────────────────────────────────
   if (
     !isCronAuthorised(
@@ -72,7 +72,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | 
   }
 
    
-  const anyDb = db as any;
+  const anyDb = db as SupabaseClient;
 
   // ── Fetch all connected accounts for supported providers ─────────────────
   const batchSize = getCronBatchSize();
@@ -115,7 +115,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | 
     results.push(result);
   }
 
-  const succeeded = results.filter((r) => r.ok).length;
+  const succeeded = results.filter((r: Record<string, unknown>) => r.ok).length;
 
   return NextResponse.json({
     ok: true,
@@ -124,7 +124,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | 
     succeeded,
     failed: results.length - succeeded,
     // Never include userId or token data in the output; only safe summary fields.
-    results: results.map((r) => ({
+    results: results.map((r: Record<string, unknown>) => ({
       provider: r.provider,
       ok: r.ok,
       fetched: r.fetched,

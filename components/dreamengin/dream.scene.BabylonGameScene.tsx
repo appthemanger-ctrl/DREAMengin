@@ -26,7 +26,7 @@ interface BabylonGameSceneProps {
   onGameSelect?: (gameId: string) => void;
 }
 
-export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps) {
+export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps {
   const canvasRef   = useRef<HTMLCanvasElement>(null);
   const engineRef   = useRef<import('@babylonjs/core').AbstractEngine | null>(null);
   // God Tier system instance — persists for this scene's lifetime
@@ -162,7 +162,7 @@ export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps
       });
 
       // Click handler for game orbs
-      scene.onPointerObservable.add((pointerInfo) => {
+      scene.onPointerObservable.add(pointerInfo: Record<string, unknown> => {
         // PointerEventTypes.POINTERTAP = 4 (from @babylonjs/core)
         if (pointerInfo.type === 4 && pointerInfo.pickInfo?.hit) {
           const mesh = pointerInfo.pickInfo.pickedMesh;
@@ -175,7 +175,7 @@ export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps
       // Render loop — God Tier drives hardware scaling; Director drives per-object quality
       let lastGodTierMs = 0;
       // Track last-frame visibility for Director temporal stability
-      let lastVisibleIds = new Set<string>(scene.meshes.map((m) => m.id));
+      let lastVisibleIds = new Set<string>(scene.meshes.map((m: Record<string, unknown>) => m.id));
 
       engine.runRenderLoop(() => {
         scene.render();
@@ -202,7 +202,7 @@ export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps
             },
             ux:    defaultUXSignals(),
             route: defaultRouteSignals('/game-hub'),
-            meshes: scene.meshes.map((m) => ({
+            meshes: scene.meshes.map((m: Record<string, unknown>) => ({
               id: m.id,
               visible: m.isVisible,
               interactive: m.isPickable,
@@ -253,7 +253,7 @@ export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps
           );
 
           // Update last-frame visibility set for next tick
-          lastVisibleIds = new Set(scene.meshes.filter((m) => m.isVisible).map((m) => m.id));
+          lastVisibleIds = new Set(scene.meshes.filter((m: Record<string, unknown>) => m.isVisible).map((m: Record<string, unknown>) => m.id));
         }
       });
 

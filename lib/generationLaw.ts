@@ -77,7 +77,7 @@ export interface PrePassChecklist {
  *
  * Computes ι for a creative pass using the weighted formula.
  */
-export function calculateInventionForce(pass: CreativePass): InventionResult {
+export function calculateInventionForce(pass: CreativePass: InventionResult {
   const { n, a, s, v, xi } = pass;
   const rawSum =
     n  * 1           +
@@ -97,7 +97,7 @@ export function calculateInventionForce(pass: CreativePass): InventionResult {
  *
  * Maps an ι value to its creative protocol.
  */
-export function getPassProtocol(iota: number): Protocol {
+export function getPassProtocol(iota: number: Protocol {
   if (iota >= THRESHOLD_SYNTHESIZE) return 'MANIFEST';
   if (iota >= THRESHOLD_FLOW)       return 'SYNTHESIZE';
   return 'FLOW';
@@ -110,7 +110,7 @@ export function getPassProtocol(iota: number): Protocol {
  * MANIFEST passes are always approved.
  * FLOW passes are flagged but not blocked.
  */
-export function runPrePassChecklist(pass: CreativePass): PrePassChecklist {
+export function runPrePassChecklist(pass: CreativePass: PrePassChecklist {
   const { iota, protocol } = calculateInventionForce(pass);
 
   const approved = true;
@@ -164,8 +164,8 @@ export function logResidual(
  *
  * Returns all residuals recorded for a given pass.
  */
-export function auditPostPass(passId: string): ResidualClass[] {
-  return BUGS_LOG.filter((r) => r.passId === passId);
+export function auditPostPass(passId: string: ResidualClass[] {
+  return BUGS_LOG.filter((r: Record<string, unknown>) => r.passId === passId);
 }
 
 // ─── Doc Relationships ────────────────────────────────────────────────────────

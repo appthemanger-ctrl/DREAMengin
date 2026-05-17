@@ -64,7 +64,7 @@ export interface DreamBarContext {
 
 // ── Surface detection (pure function — testable without React) ────────────────
 
-export function detectSurface(pathname: string): DreamBarSurface {
+export function detectSurface(pathname: string: DreamBarSurface {
   const p = pathname.toLowerCase();
 
   if (p.startsWith('/messages')) return 'messages';

@@ -79,11 +79,11 @@ const SYSTEM_ARTIFACT_TEMPLATES: readonly Omit<DreamArtifact, 'ownerId' | 'creat
   },
 ];
 
-function isBrowser() {
+function isBrowser( {
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 }
 
-function mergeWithSystemArtifacts(accountId: string, artifacts: DreamArtifact[]): DreamArtifact[] {
+function mergeWithSystemArtifacts(accountId: string, artifacts: DreamArtifact[]: DreamArtifact[] {
   const map = new Map<string, DreamArtifact>();
   for (const artifact of getDefaultSystemArtifacts(accountId)) {
     map.set(artifact.id, artifact);
@@ -94,21 +94,21 @@ function mergeWithSystemArtifacts(accountId: string, artifacts: DreamArtifact[])
   return Array.from(map.values());
 }
 
-function writeArtifacts(accountId: string, artifacts: DreamArtifact[]) {
+function writeArtifacts(accountId: string, artifacts: DreamArtifact[] {
   if (!isBrowser()) return;
   window.localStorage.setItem(STORAGE_KEY(accountId), JSON.stringify(artifacts));
 }
 
-export function getDefaultSystemArtifacts(defaultOwnerId = 'system'): DreamArtifact[] {
+export function getDefaultSystemArtifacts(defaultOwnerId = 'system': DreamArtifact[] {
   const createdAt = Date.now();
-  return SYSTEM_ARTIFACT_TEMPLATES.map((artifact) => ({
+  return SYSTEM_ARTIFACT_TEMPLATES.map((artifact: Record<string, unknown>) => ({
     ...artifact,
     ownerId: artifact.source === 'system' ? 'system' : defaultOwnerId,
     createdAt,
   }));
 }
 
-export function loadArtifacts(accountId?: string | null): DreamArtifact[] {
+export function loadArtifacts(accountId?: string | null: DreamArtifact[] {
   if (!accountId) return getDefaultSystemArtifacts();
   if (!isBrowser()) return getDefaultSystemArtifacts(accountId);
 
@@ -123,28 +123,28 @@ export function loadArtifacts(accountId?: string | null): DreamArtifact[] {
   }
 }
 
-export function saveArtifact(accountId: string, artifact: DreamArtifact) {
+export function saveArtifact(accountId: string, artifact: DreamArtifact {
   const existing = loadArtifacts(accountId);
-  const map = new Map(existing.map((entry) => [entry.id, entry]));
+  const map = new Map(existing.map((entry: Record<string, unknown>) => [entry.id, entry]));
   map.set(artifact.id, artifact);
   writeArtifacts(accountId, Array.from(map.values()));
 }
 
-export function saveArtifacts(accountId: string, artifacts: DreamArtifact[]) {
+export function saveArtifacts(accountId: string, artifacts: DreamArtifact[] {
   writeArtifacts(accountId, mergeWithSystemArtifacts(accountId, artifacts));
 }
 
-export function removeArtifact(accountId: string, artifactId: string) {
-  const next = loadArtifacts(accountId).filter((artifact) => artifact.id !== artifactId);
+export function removeArtifact(accountId: string, artifactId: string {
+  const next = loadArtifacts(accountId).filter((artifact: Record<string, unknown>) => artifact.id !== artifactId);
   writeArtifacts(accountId, next);
 }
 
-export function listVisibleArtifacts(accountId?: string | null): DreamArtifact[] {
-  return loadArtifacts(accountId).filter((artifact) => artifact.metadata?.hidden !== true);
+export function listVisibleArtifacts(accountId?: string | null: DreamArtifact[] {
+  return loadArtifacts(accountId).filter((artifact: Record<string, unknown>) => artifact.metadata?.hidden !== true);
 }
 
-export function hideArtifact(accountId: string, artifactId: string) {
-  const next = loadArtifacts(accountId).map((artifact) =>
+export function hideArtifact(accountId: string, artifactId: string {
+  const next = loadArtifacts(accountId).map((artifact: Record<string, unknown>) =>
     artifact.id === artifactId
       ? { ...artifact, metadata: { ...(artifact.metadata ?? {}), hidden: true } }
       : artifact,
@@ -152,8 +152,8 @@ export function hideArtifact(accountId: string, artifactId: string) {
   writeArtifacts(accountId, next);
 }
 
-export function restoreArtifact(accountId: string, artifactId: string) {
-  const next = loadArtifacts(accountId).map((artifact) =>
+export function restoreArtifact(accountId: string, artifactId: string {
+  const next = loadArtifacts(accountId).map((artifact: Record<string, unknown>) =>
     artifact.id === artifactId
       ? { ...artifact, metadata: { ...(artifact.metadata ?? {}), hidden: false } }
       : artifact,
@@ -161,6 +161,6 @@ export function restoreArtifact(accountId: string, artifactId: string) {
   writeArtifacts(accountId, next);
 }
 
-export function listSystemArtifacts(accountId?: string | null): DreamArtifact[] {
-  return loadArtifacts(accountId).filter((artifact) => artifact.isSystemModule);
+export function listSystemArtifacts(accountId?: string | null: DreamArtifact[] {
+  return loadArtifacts(accountId).filter((artifact: Record<string, unknown>) => artifact.isSystemModule);
 }

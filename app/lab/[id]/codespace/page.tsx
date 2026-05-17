@@ -39,7 +39,7 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
-export default function CodeSpacePage({ params }: Props) {
+export default function CodeSpacePage({ params }: Props {
   const { id } = use(params);
 
   const [code, setCode] = useState(DEFAULT_HTML);
@@ -91,7 +91,7 @@ export default function CodeSpacePage({ params }: Props) {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = ev: Event => {
       const text = ev.target?.result;
       if (typeof text === 'string') setCode(text);
     };
@@ -342,7 +342,7 @@ export default function CodeSpacePage({ params }: Props) {
             overflowY: 'auto',
           }}
         >
-          {SNIPPETS[language].map((snippet) => (
+          {SNIPPETS[language].map((snippet: Record<string, unknown>) => (
             <button
               key={snippet}
               type="button"

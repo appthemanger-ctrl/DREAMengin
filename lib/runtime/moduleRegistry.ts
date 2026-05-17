@@ -42,17 +42,17 @@ interface ModuleRegistryState {
 
 // ── Zustand store ─────────────────────────────────────────────────────────────
 
-export const useModuleRegistry = create<ModuleRegistryState>((set, get) => ({
+export const useModuleRegistry = create<ModuleRegistryState>(set: Record<string, unknown>, get: Record<string, unknown> => ({
   modules: {},
 
   registerModule(manifest) {
-    set((state) => ({
+    set(state: Record<string, unknown> => ({
       modules: { ...state.modules, [manifest.id]: manifest },
     }));
   },
 
   unregisterModule(id) {
-    set((state) => {
+    set(state: Record<string, unknown> => {
       const next = { ...state.modules };
       delete next[id];
       return { modules: next };
@@ -67,7 +67,7 @@ export const useModuleRegistry = create<ModuleRegistryState>((set, get) => ({
 
     const updated: ModuleManifest = { ...manifest, sourceRuntime: targetRuntime };
 
-    set((state) => ({
+    set(state: Record<string, unknown> => ({
       modules: { ...state.modules, [id]: updated },
     }));
 
@@ -82,7 +82,7 @@ export const useModuleRegistry = create<ModuleRegistryState>((set, get) => ({
   },
 
   getModulesForRuntime(runtime) {
-    return Object.values(get().modules).filter((m) => m.sourceRuntime === runtime);
+    return Object.values(get().modules).filter((m: Record<string, unknown>) => m.sourceRuntime === runtime);
   },
 }));
 
@@ -109,8 +109,8 @@ export const moduleRegistry = {
  *
  * Returns the unsubscribe function.
  */
-export function subscribeRegistryToTransferEvents(): () => void {
-  return bridge.subscribe('module', 'transfer', (payload) => {
+export function subscribeRegistryToTransferEvents(: () => void {
+  return bridge.subscribe('module', 'transfer', payload: Record<string, unknown> => {
     const raw = payload as { module?: unknown; targetRuntime?: unknown };
     if (!raw.module || typeof raw.module !== 'object') return;
     const manifest = raw.module as ModuleManifest;

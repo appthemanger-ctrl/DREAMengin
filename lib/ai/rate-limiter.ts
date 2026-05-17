@@ -76,7 +76,7 @@ export async function checkRateLimit(
 // GET CURRENT RPM (for Boogie signals)
 // ============================================================================
 
-export async function getCurrentRPM(userId: string, endpoint: string): Promise<number> {
+export async function getCurrentRPM(userId: string, endpoint: string: Promise<number> {
   const supabase = await createServerClient();
 
   const { data } = await supabase

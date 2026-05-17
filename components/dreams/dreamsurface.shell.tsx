@@ -42,7 +42,7 @@ class DreamErrorBoundary extends Component<{ children: React.ReactNode; title: s
 }
 
 // ── Skeleton rows ──────────────────────────────────────────────────────────
-function SkeletonRow({ width = '100%' }: { width?: string }) {
+function SkeletonRow({ width = '100%' }: { width?: string } {
   return (
     <div style={{
       height: 12, borderRadius: 6, background: 'rgba(160,195,240,0.25)',
@@ -101,7 +101,7 @@ export default function DreamShell({
 
   useEffect(() => {
     if (!menuOpen) return;
-    function handleClick(e: MouseEvent) {
+    function handleClick(e: MouseEvent {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuOpen(false);
       }
@@ -140,7 +140,7 @@ export default function DreamShell({
             type="button"
             aria-label="Dream options"
             aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((v) => !v)}
+            onClick={() => setMenuOpen(v: number => !v)}
             style={{
               width: 28, height: 28, borderRadius: 8,
               border: '1px solid var(--de-border)',
@@ -167,7 +167,7 @@ export default function DreamShell({
                 { label: '⚙️  Configure', fn: onConfigure },
                 { label: '👁  Hide Dream', fn: onHide },
                 { label: '🗑  Remove Dream', fn: onRemove, danger: true },
-              ].map(({ label, fn, danger }) => (
+              ].map({ label, fn: (...args: unknown[]) => unknown, danger } => (
                 <button
                   key={label}
                   type="button"

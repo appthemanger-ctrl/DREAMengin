@@ -87,28 +87,28 @@ const DEFAULT_CONFIG: Required<GestureConfig> = {
 
 // ─── Utility functions ────────────────────────────────────────────────────────
 
-function distance(a: Vec2, b: Vec2): number {
+function distance(a: Vec2, b: Vec2: number {
   const dx = a.x - b.x;
   const dy = a.y - b.y;
   return Math.sqrt(dx * dx + dy * dy);
 }
 
-function midpoint(a: Vec2, b: Vec2): Vec2 {
+function midpoint(a: Vec2, b: Vec2: Vec2 {
   return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
 }
 
-function angle(a: Vec2, b: Vec2): number {
+function angle(a: Vec2, b: Vec2: number {
   return Math.atan2(b.y - a.y, b.x - a.x);
 }
 
-function angleDelta(from: number, to: number): number {
+function angleDelta(from: number, to: number: number {
   let delta = to - from;
   while (delta > Math.PI) delta -= Math.PI * 2;
   while (delta < -Math.PI) delta += Math.PI * 2;
   return delta;
 }
 
-function touchToVec2(touch: Touch): Vec2 {
+function touchToVec2(touch: Touch: Vec2 {
   return { x: touch.clientX, y: touch.clientY };
 }
 
@@ -117,18 +117,18 @@ interface TrackedTouch {
   point: Vec2;
 }
 
-function touchIdentifier(touch: Touch): number {
+function touchIdentifier(touch: Touch: number {
   return typeof touch.identifier === 'number' ? touch.identifier : 0;
 }
 
-function trackTouches(touches: Touch[]): TrackedTouch[] {
-  return touches.map((touch) => ({
+function trackTouches(touches: Touch[]: TrackedTouch[] {
+  return touches.map((touch: Record<string, unknown>) => ({
     id: touchIdentifier(touch),
     point: touchToVec2(touch),
   }));
 }
 
-function centroid(touches: Touch[]): Vec2 {
+function centroid(touches: Touch[]: Vec2 {
   let x = 0;
   let y = 0;
   for (const t of touches) {

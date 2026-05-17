@@ -60,7 +60,7 @@ interface CompingPanelProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function fmtTimestamp(ms: number): string {
+function fmtTimestamp(ms: number: string {
   const d = new Date(ms);
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
@@ -91,7 +91,7 @@ function StarRating({
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function CompingPanel({ state, onStateChange }: CompingPanelProps) {
+export default function CompingPanel({ state, onStateChange }: CompingPanelProps {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedTakeId, setSelectedTakeId] = useState<string | null>(null);
 
@@ -109,13 +109,13 @@ export default function CompingPanel({ state, onStateChange }: CompingPanelProps
     });
   }, [state, takes, onStateChange]);
 
-  function handleAddTake() {
+  function handleAddTake( {
     const newTake = createDemoTake(takes.length, totalDurationSec);
     newTake.color = TAKE_COLORS[takes.length % TAKE_COLORS.length];
     onStateChange({ ...state, takes: [...takes, newTake] });
   }
 
-  function handleRemoveTake(id: string) {
+  function handleRemoveTake(id: string {
     onStateChange({
       ...state,
       takes: takes.filter(t => t.id !== id),
@@ -124,7 +124,7 @@ export default function CompingPanel({ state, onStateChange }: CompingPanelProps
     if (selectedTakeId === id) setSelectedTakeId(null);
   }
 
-  function handleAutoComp() {
+  function handleAutoComp( {
     // Mark highest-rated take(s) as active, others inactive
     const maxRating = Math.max(...takes.map(t => t.rating));
     onStateChange({
@@ -283,7 +283,7 @@ export default function CompingPanel({ state, onStateChange }: CompingPanelProps
                     flex: 1, display: 'flex', alignItems: 'center',
                     gap: 1, padding: '6px 8px', background: take.active ? `${take.color}06` : 'transparent',
                   }}>
-                    {take.waveform.slice(0, WAVEFORM_BARS).map((h, i) => (
+                    {take.waveform.slice(0, WAVEFORM_BARS).map(h: Record<string, unknown>, i: number => (
                       <div
                         key={i}
                         style={{
@@ -323,7 +323,7 @@ export default function CompingPanel({ state, onStateChange }: CompingPanelProps
                 ACTIVE COMP — {activeTakes.length} take{activeTakes.length > 1 ? 's' : ''} contributing
               </div>
               <div style={{ display: 'flex', gap: 4, height: 12, borderRadius: 4, overflow: 'hidden' }}>
-                {activeTakes.map((take, i) => (
+                {activeTakes.map(take: Record<string, unknown>, i: number => (
                   <div
                     key={take.id}
                     title={take.name}

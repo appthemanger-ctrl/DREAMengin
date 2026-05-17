@@ -82,7 +82,7 @@ export default function EnhancedSpatialShell({
     engine.getWidgetMemory().initialize(widgets);
     
     // Listen to navigation changes
-    const handleNavChange = (data: any) => {
+    const handleNavChange = (data: unknown) => {
       const snapshot = data.state as Int32Array;
       setNavState({
         layer: snapshot[0],
@@ -138,10 +138,10 @@ export default function EnhancedSpatialShell({
             {navState.layer === LAYER_PROFILE ? (
               /* ── Profile layer: delegate to ProfileSpace widget canvas ── */
               <ProfileSpace
-                widgets={activeWidgets.filter((w) => w.context === 'PROFILE')}
+                widgets={activeWidgets.filter((w: Record<string, unknown>) => w.context === 'PROFILE')}
               />
             ) : activeWidgets.length > 0 ? (
-              activeWidgets.map((widget) => (
+              activeWidgets.map((widget: Record<string, unknown>) => (
                 <div
                   key={widget.instanceId}
                   className="absolute top-0 left-0"

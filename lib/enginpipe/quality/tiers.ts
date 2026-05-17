@@ -51,7 +51,7 @@ export interface CapabilityInput {
  *   - screen pixels (0-15 pts; 1920×1080 → full marks)
  *   - GPU keyword bonus (0-15 pts)
  */
-export function scoreCapabilities(input: CapabilityInput = {}): number {
+export function scoreCapabilities(input: CapabilityInput = {}: number {
   const nav = input.navigator ?? null;
   const screen = input.screen ?? null;
   const gpu = (input.gpuRenderer ?? '').toLowerCase();
@@ -85,7 +85,7 @@ export function scoreCapabilities(input: CapabilityInput = {}): number {
  * a typical desktop lands on `high`/`ultra`, mid-range mobile on
  * `medium`, and low-end mobile on `low`.
  */
-export function tierFromScore(score: number): QualityTier {
+export function tierFromScore(score: number: QualityTier {
   if (score >= 80) return 'ultra';
   if (score >= 60) return 'high';
   if (score >= 35) return 'medium';
@@ -100,16 +100,16 @@ export function tierFromScore(score: number): QualityTier {
  *
  *   detectCapabilityTier({ navigator, screen })
  */
-export function detectCapabilityTier(input: CapabilityInput = {}): QualityTier {
+export function detectCapabilityTier(input: CapabilityInput = {}: QualityTier {
   return tierFromScore(scoreCapabilities(input));
 }
 
 /** Look up the configuration for a tier. */
-export function getTierConfig(tier: QualityTier): QualityTierConfig {
+export function getTierConfig(tier: QualityTier: QualityTierConfig {
   return DEFAULT_TIER_CONFIG[tier];
 }
 
-function clamp(value: number, lo: number, hi: number): number {
+function clamp(value: number, lo: number, hi: number: number {
   if (Number.isNaN(value)) return lo;
   return Math.max(lo, Math.min(hi, value));
 }

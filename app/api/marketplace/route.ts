@@ -13,7 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // ── GET /api/marketplace?category=<category> ─────────────────────────
 // Returns all published marketplace items, optionally filtered by category.
 // Joins with profiles to surface seller handle + display name.
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest {
   const supabase = await createServerClient();
 
   const { searchParams } = new URL(req.url);
@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
 // ── POST /api/marketplace ─────────────────────────────────────────────
 // Auth-gated. Inserts a new marketplace_item for the current user.
 // is_published is always false — admin publishes after review.
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -112,9 +112,9 @@ export async function POST(req: NextRequest) {
 
   // Tags: comma-separated string → trimmed string array, max 10 tags, 40 chars each
   const parsedTags = typeof tags === 'string'
-    ? tags.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean).slice(0, 10)
+    ? tags.split(',').map((t: Record<string, unknown>) => t.trim().toLowerCase()).filter(Boolean).slice(0, 10)
     : [];
-  if (parsedTags.some((t) => t.length > 40)) {
+  if (parsedTags.some((t: Record<string, unknown>) => t.length > 40)) {
     return NextResponse.json({ error: 'Each tag must be 40 characters or fewer.' }, { status: 400 });
   }
 

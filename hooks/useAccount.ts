@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
-export function useAccount(initialAccountId?: string | null) {
+export function useAccount(initialAccountId?: string | null {
   const [accountId, setAccountId] = useState<string | null>(initialAccountId ?? null);
 
   useEffect(() => {

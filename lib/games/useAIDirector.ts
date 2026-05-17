@@ -50,7 +50,7 @@ export interface AIDirectorHookResult {
  * Stable React hook for the AI Director adaptive difficulty system.
  * Safe to call in any client component.  `update` is referentially stable.
  */
-export function useAIDirector(): AIDirectorHookResult {
+export function useAIDirector(: AIDirectorHookResult {
   const directorRef = useRef<AIDirector>(new AIDirector());
   const [ready, setReady] = useState(false);
   const [state, setState] = useState<DirectorState>(DEFAULT_STATE);

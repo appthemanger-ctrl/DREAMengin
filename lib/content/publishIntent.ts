@@ -8,7 +8,7 @@ export interface PublishIntentInput {
   seoInput?: string | null;
 }
 
-function clean(value?: string | null): string | null {
+function clean(value?: string | null: string | null {
   const trimmed = value?.trim();
   return trimmed ? trimmed : null;
 }
@@ -37,7 +37,7 @@ export interface PublishToDreamRParams {
   onPublished: (payload: { contentId: string; platform: string }) => void;
 }
 
-export function resolvePublishIntent(input: PublishIntentInput): string | null {
+export function resolvePublishIntent(input: PublishIntentInput: string | null {
   const directDraft = clean(input.draft);
   if (directDraft) return directDraft;
 

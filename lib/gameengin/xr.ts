@@ -22,7 +22,7 @@ interface XRSessionLike {
   addEventListener(type: 'end', cb: () => void): void;
 }
 
-function getXRSystem(): XRSystemLike | null {
+function getXRSystem(: XRSystemLike | null {
   if (typeof navigator === 'undefined') return null;
   const xr = (navigator as Navigator & { xr?: XRSystemLike }).xr;
   return xr ?? null;
@@ -107,7 +107,7 @@ export class HandTrackingInput {
 
   onAction(cb: (side: 'left' | 'right', action: UnifiedAction) => void): () => void {
     this.subscribers.push(cb);
-    return () => { this.subscribers = this.subscribers.filter((s) => s !== cb); };
+    return () => { this.subscribers = this.subscribers.filter((s: Record<string, unknown>) => s !== cb); };
   }
 
   /** Feed a pose snapshot; emits actions on rising edges. */

@@ -14,7 +14,7 @@ const BlockBodySchema = z.object({
 });
 
 /** GET /api/blocks — return the caller's current block list */
-export async function GET() {
+export async function GET( {
   const supabase = await createServerClient();
   const { data: { user }, error: authErr } = await supabase.auth.getUser();
   if (authErr || !user) return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
@@ -30,7 +30,7 @@ export async function GET() {
 }
 
 /** POST /api/blocks — block a user */
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   const supabase = await createServerClient();
   const { data: { user }, error: authErr } = await supabase.auth.getUser();
   if (authErr || !user) return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
 }
 
 /** DELETE /api/blocks?blocked_id=<uuid> — unblock a user */
-export async function DELETE(req: NextRequest) {
+export async function DELETE(req: NextRequest {
   const supabase = await createServerClient();
   const { data: { user }, error: authErr } = await supabase.auth.getUser();
   if (authErr || !user) return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');

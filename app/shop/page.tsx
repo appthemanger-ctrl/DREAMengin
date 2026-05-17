@@ -8,7 +8,7 @@ import { connection } from 'next/server';
 
 export const metadata = { title: 'DreamShop – Dreamengin', description: 'Sell and discover digital products.' };
 
-export default async function ShopPage() {
+export default async function ShopPage( {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -55,7 +55,7 @@ export default async function ShopPage() {
           </div>
           {myItems && myItems.length > 0 ? (
             <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-              {myItems.map((item) => (
+              {myItems.map((item: Record<string, unknown>) => (
                 <div key={item.id} className="de-row" style={{ borderRadius: 10 }}>
                   <div style={{
                     width: 44, height: 44, borderRadius: 10, flexShrink: 0,
@@ -92,7 +92,7 @@ export default async function ShopPage() {
             </div>
             <div className="de-widget-body">
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-                {allItems.map((item) => (
+                {allItems.map((item: Record<string, unknown>) => (
                   <div key={item.id} className="de-surface" style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <div style={{
                       height: 80, borderRadius: 10,

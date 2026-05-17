@@ -69,14 +69,14 @@ export class CartridgeErrorBoundary extends Component<BoundaryProps, BoundarySta
 export function useGlobalCrashListener(active: boolean, onCrash: (e: CartridgeCrashEvent) => void) {
   useEffect(() => {
     if (!active || typeof window === 'undefined') return;
-    function handleError(ev: ErrorEvent) {
+    function handleError(ev: ErrorEvent {
       onCrash({
         name: ev.error?.name ?? 'Error',
         message: ev.error?.message ?? ev.message,
         stack: ev.error?.stack,
       });
     }
-    function handleRejection(ev: PromiseRejectionEvent) {
+    function handleRejection(ev: PromiseRejectionEvent {
       const r = ev.reason;
       onCrash({
         name: r?.name ?? 'UnhandledRejection',

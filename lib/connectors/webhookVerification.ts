@@ -30,7 +30,7 @@
  *
  * @returns hub.challenge string to echo, or null if not a valid WebSub verification.
  */
-export function extractYouTubeWebSubChallenge(params: URLSearchParams): string | null {
+export function extractYouTubeWebSubChallenge(params: URLSearchParams: string | null {
   const mode = params.get('hub.mode');
   const challenge = params.get('hub.challenge');
   if ((mode === 'subscribe' || mode === 'unsubscribe') && challenge) {

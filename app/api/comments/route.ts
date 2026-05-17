@@ -19,7 +19,7 @@ const DeleteCommentSchema = z.object({
 
 // GET /api/comments?post_id=<uuid>
 // Returns comments for a post joined with profile display_name + avatar_url, ordered ASC
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest {
   const { searchParams } = new URL(req.url);
   const postId = searchParams.get('post_id');
 
@@ -51,18 +51,18 @@ export async function GET(req: NextRequest) {
   }
 
   // Fetch profile data for all comment authors in one query
-  const userIds = [...new Set(comments.map((c) => c.user_id))];
+  const userIds = [...new Set(comments.map((c: Record<string, unknown>) => c.user_id))];
   const { data: profiles } = await supabase
     .from('profiles')
     .select('id, display_name, avatar_url, handle')
     .in('id', userIds);
 
   const profilesMap = Object.fromEntries(
-    (profiles || []).map((p) => [p.id, p])
+    (profiles || []).map((p: Record<string, unknown>) => [p.id, p])
   );
 
   // Merge profile data into each comment
-  const enriched = comments.map((c) => ({
+  const enriched = comments.map((c: Record<string, unknown>) => ({
     ...c,
     profile: profilesMap[c.user_id] ?? null,
   }));
@@ -72,7 +72,7 @@ export async function GET(req: NextRequest) {
 
 // POST /api/comments
 // Body: { post_id, content } — auth required
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   const supabase = await createServerClient();
   const {
     data: { user },
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
 
   const parsed = PostCommentSchema.safeParse(body);
   if (!parsed.success) {
-    const message = parsed.error.issues.map((i) => i.message).join('; ');
+    const message = parsed.error.issues.map(i: number => i.message).join('; ');
     return NextResponse.json({ data: null, error: message }, { status: 422 });
   }
 
@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
       surface: 'comment',
       contentRef: `post:${post_id}:draft:${contentHash.slice(0, 16)}`,
       contentHash,
-    }).catch((err) => console.error('[child-safety] comment report error:', err));
+    }).catch(err: unknown => console.error('[child-safety] comment report error:', err));
 
     return NextResponse.json(
       { data: null, error: 'Comment violates our child safety policy and has been blocked.' },
@@ -142,7 +142,7 @@ export async function POST(req: NextRequest) {
 
 // DELETE /api/comments
 // Body: { comment_id } — auth required; user can only delete own comments
-export async function DELETE(req: NextRequest) {
+export async function DELETE(req: NextRequest {
   const supabase = await createServerClient();
   const {
     data: { user },
@@ -161,7 +161,7 @@ export async function DELETE(req: NextRequest) {
 
   const parsed = DeleteCommentSchema.safeParse(body);
   if (!parsed.success) {
-    const message = parsed.error.issues.map((i) => i.message).join('; ');
+    const message = parsed.error.issues.map(i: number => i.message).join('; ');
     return NextResponse.json({ data: null, error: message }, { status: 422 });
   }
 

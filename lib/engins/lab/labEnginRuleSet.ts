@@ -112,7 +112,7 @@ const simStartConstraint: EnginConstraint<LabEnginAction> = (
 
 // ─── Transform ────────────────────────────────────────────────────────────────
 
-function transform(state: EnginBaseState, action: LabEnginAction): EnginBaseState {
+function transform(state: EnginBaseState, action: LabEnginAction: EnginBaseState {
   const domain = (state.domain as Partial<typeof DEFAULT_DOMAIN>);
 
   switch (action.type) {
@@ -181,7 +181,7 @@ function transform(state: EnginBaseState, action: LabEnginAction): EnginBaseStat
 
 // ─── deriveState ──────────────────────────────────────────────────────────────
 
-function deriveState(state: EnginBaseState): LabEnginDerivedState {
+function deriveState(state: EnginBaseState: LabEnginDerivedState {
   const d = state.domain as Partial<typeof DEFAULT_DOMAIN>;
   return {
     lifecycle:           state.lifecycle,

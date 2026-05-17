@@ -211,7 +211,7 @@ function useGPUCanvas(
 
 // ── Backend badge ─────────────────────────────────────────────────────────────
 
-function BackendBadge({ backend }: { backend: string | null }) {
+function BackendBadge({ backend }: { backend: string | null } {
   if (!backend) {
     return (
       <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.06em' }}>
@@ -299,7 +299,7 @@ function SectionCard({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function WebGPUShowcase() {
+export default function WebGPUShowcase( {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fps,       setFps]       = useState<number>(0);
   const [backend,   setBackend]   = useState<string | null>(null);
@@ -464,7 +464,7 @@ export default function WebGPUShowcase() {
         </h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
-          {SECTIONS.map((s) => (
+          {SECTIONS.map((s: Record<string, unknown>) => (
             <SectionCard key={s.id} {...s} />
           ))}
         </div>

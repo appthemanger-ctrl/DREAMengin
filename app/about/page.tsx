@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import PlatformBadge from '@/components/ui/dream.PlatformBadge';
 
-export default function AboutPage() {
+export default function AboutPage( {
 
   const features = [
     {
@@ -223,7 +223,7 @@ export default function AboutPage() {
         <section className="mb-12">
           <h2 style={{ fontSize: 22, fontWeight: 800, color: 'rgba(220,235,255,0.95)', marginBottom: 20, textAlign: 'center' }}>Unified Interface &amp; Navigation Vision</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
-            {navigationPrinciples.map((principle) => (
+            {navigationPrinciples.map((principle: Record<string, unknown>) => (
               <div key={principle.title} style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 20, boxShadow: "0 4px 32px rgba(0,0,0,0.3)", overflow: "hidden" }}>
                 <div className="de-widget-body">
                   <h3 style={{ fontSize: 14, fontWeight: 700, color: 'rgba(220,235,255,0.95)', marginBottom: 6 }}>{principle.title}</h3>
@@ -238,7 +238,7 @@ export default function AboutPage() {
         <section className="mb-12">
           <h2 style={{ fontSize: 22, fontWeight: 800, color: 'rgba(220,235,255,0.95)', marginBottom: 20, textAlign: 'center' }}>Widget Rails &amp; Layers</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
-            {widgetSystem.map((item) => (
+            {widgetSystem.map((item: Record<string, unknown>) => (
               <div key={item.title} style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 20, boxShadow: "0 4px 32px rgba(0,0,0,0.3)", overflow: "hidden" }}>
                 <div className="de-widget-body">
                   <h3 style={{ fontSize: 14, fontWeight: 700, color: 'rgba(220,235,255,0.95)', marginBottom: 6 }}>{item.title}</h3>
@@ -253,7 +253,7 @@ export default function AboutPage() {
         <section className="mb-12">
           <h2 style={{ fontSize: 22, fontWeight: 800, color: 'rgba(220,235,255,0.95)', marginBottom: 20, textAlign: 'center' }}>What Makes Us Different</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
-            {features.map((feature) => (
+            {features.map((feature: Record<string, unknown>) => (
               <div key={feature.title} style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 20, boxShadow: "0 4px 32px rgba(0,0,0,0.3)", overflow: "hidden" }}>
                 <div className="de-widget-body">
                   <div style={{ width: 44, height: 44, borderRadius: 12, background: `linear-gradient(135deg, ${feature.color.replace('from-', '').replace(' to-', ', ')})`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
@@ -272,7 +272,7 @@ export default function AboutPage() {
           <h2 style={{ fontSize: 22, fontWeight: 800, color: 'rgba(220,235,255,0.95)', marginBottom: 20, textAlign: 'center' }}>Explore the Spaces</h2>
           <div style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 20, boxShadow: "0 4px 32px rgba(0,0,0,0.3)", overflow: "hidden" }}>
             <div className="de-widget-body" style={{ padding: '6px 8px' }}>
-              {spaces.map((page) => (
+              {spaces.map((page: Record<string, unknown>) => (
                 <Link key={page.name} href={page.path} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", minHeight: 52, cursor: "pointer", borderRadius: 10, transition: "background 0.12s", textDecoration: "none" }}>
                   <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(42,138,184,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <page.icon className="w-4 h-4" style={{ color: '#38bdf8' }} />
@@ -304,7 +304,7 @@ export default function AboutPage() {
                   'You control who sees your content with granular privacy settings',
                   'Delete your data anytime — we actually delete it',
                   'No behavioral tracking or surveillance capitalism',
-                ].map((item) => (
+                ].map((item: Record<string, unknown>) => (
                   <li key={item} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 13, color: 'rgba(200,220,255,0.82)', lineHeight: 1.5 }}>
                     <span style={{ color: '#10b981', flexShrink: 0, marginTop: 1, fontWeight: 700 }}>✓</span>
                     {item}

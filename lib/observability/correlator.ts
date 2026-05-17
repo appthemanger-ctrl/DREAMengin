@@ -45,8 +45,8 @@ const SEVERITY_ORDER: Record<AnomalySeverity, number> = { high: 0, medium: 1, lo
 /**
  * Detect 30-second windows where 3 or more errors/warnings cluster together.
  */
-export function detectErrorSpikes(logs: LogEntry[]): AnomalySignal[] {
-  const problematic = logs.filter((l) => l.level === 'error' || l.level === 'warn');
+export function detectErrorSpikes(logs: LogEntry[]: AnomalySignal[] {
+  const problematic = logs.filter((l: Record<string, unknown>) => l.level === 'error' || l.level === 'warn');
   if (problematic.length < 3) return [];
 
   // Bucket into 30-second windows keyed by epoch-bucket (ms)
@@ -60,13 +60,13 @@ export function detectErrorSpikes(logs: LogEntry[]): AnomalySignal[] {
   const signals: AnomalySignal[] = [];
   for (const [bucket, entries] of windows) {
     if (entries.length < 3) continue;
-    const errorOnly = entries.filter((e) => e.level === 'error');
+    const errorOnly = entries.filter((e: Record<string, unknown>) => e.level === 'error');
     signals.push({
       type: 'error_spike',
       severity: errorOnly.length >= 3 ? 'high' : 'medium',
       description: `${entries.length} errors/warnings in 30 s window (${errorOnly.length} errors)`,
       window_start: new Date(bucket).toISOString(),
-      evidence: entries.slice(0, 5).map((e) => `[${e.level.toUpperCase()}] ${e.message}`),
+      evidence: entries.slice(0, 5).map((e: Record<string, unknown>) => `[${e.level.toUpperCase()}] ${e.message}`),
     });
   }
   return signals;
@@ -78,7 +78,7 @@ export function detectErrorSpikes(logs: LogEntry[]): AnomalySignal[] {
  * Per span name: flag when p95 latency is >3× the p50 AND absolute p95 > 1 s,
  * or when any spans carry an error/timeout status.
  */
-export function detectLatencySpikes(traces: TraceSpan[]): AnomalySignal[] {
+export function detectLatencySpikes(traces: TraceSpan[]: AnomalySignal[] {
   if (traces.length < 2) return [];
 
   const byName = new Map<string, TraceSpan[]>();
@@ -90,10 +90,10 @@ export function detectLatencySpikes(traces: TraceSpan[]): AnomalySignal[] {
   const signals: AnomalySignal[] = [];
   for (const [name, spans] of byName) {
     if (spans.length < 2) continue;
-    const durations = spans.map((s) => s.duration_ms).sort((a, b) => a - b);
+    const durations = spans.map((s: Record<string, unknown>) => s.duration_ms).sort(a: Record<string, unknown>, b: Record<string, unknown> => a - b);
     const p50 = durations[Math.floor(durations.length * 0.5)];
     const p95 = durations[Math.floor(durations.length * 0.95)];
-    const failedSpans = spans.filter((s) => s.status === 'error' || s.status === 'timeout');
+    const failedSpans = spans.filter((s: Record<string, unknown>) => s.status === 'error' || s.status === 'timeout');
 
     if (p95 > p50 * 3 && p95 > 1000) {
       signals.push({
@@ -115,7 +115,7 @@ export function detectLatencySpikes(traces: TraceSpan[]): AnomalySignal[] {
         window_start: spans[0].timestamp,
         evidence: failedSpans
           .slice(0, 3)
-          .map((s) => `[${s.status.toUpperCase()}] ${s.name} (${s.duration_ms}ms)`),
+          .map((s: Record<string, unknown>) => `[${s.status.toUpperCase()}] ${s.name} (${s.duration_ms}ms)`),
       });
     }
   }
@@ -129,7 +129,7 @@ export function detectLatencySpikes(traces: TraceSpan[]): AnomalySignal[] {
  * deviations from the mean — provided the stddev is itself large relative to
  * the mean (noisy series).
  */
-export function detectMetricAnomalies(metrics: MetricPoint[]): AnomalySignal[] {
+export function detectMetricAnomalies(metrics: MetricPoint[]: AnomalySignal[] {
   const byName = new Map<string, MetricPoint[]>();
   for (const m of metrics) {
     if (!byName.has(m.name)) byName.set(m.name, []);
@@ -139,14 +139,14 @@ export function detectMetricAnomalies(metrics: MetricPoint[]): AnomalySignal[] {
   const signals: AnomalySignal[] = [];
   for (const [name, points] of byName) {
     if (points.length < 4) continue;
-    const values = points.map((p) => p.value);
-    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const values = points.map((p: Record<string, unknown>) => p.value);
+    const mean = values.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b, 0) / values.length;
     if (mean === 0) continue;
-    const variance = values.reduce((a, b) => a + (b - mean) ** 2, 0) / values.length;
+    const variance = values.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + (b - mean) ** 2, 0) / values.length;
     const stddev = Math.sqrt(variance);
     if (stddev < mean * 0.3) continue; // series is too stable to trigger
 
-    const outliers = points.filter((p) => Math.abs(p.value - mean) > 2.5 * stddev);
+    const outliers = points.filter((p: Record<string, unknown>) => Math.abs(p.value - mean) > 2.5 * stddev);
     if (outliers.length === 0) continue;
 
     signals.push({
@@ -156,7 +156,7 @@ export function detectMetricAnomalies(metrics: MetricPoint[]): AnomalySignal[] {
       window_start: points[0].timestamp,
       evidence: outliers
         .slice(0, 3)
-        .map((p) => `${name}=${p.value.toFixed(2)} at ${p.timestamp}`),
+        .map((p: Record<string, unknown>) => `${name}=${p.value.toFixed(2)} at ${p.timestamp}`),
     });
   }
   return signals;
@@ -191,7 +191,7 @@ export function detectSustainedErrorRate(
   threshold = 0.4,
 ): AnomalySignal[] {
   if (logs.length < 5) return [];
-  const errorAndWarn = logs.filter((l) => l.level === 'error' || l.level === 'warn');
+  const errorAndWarn = logs.filter((l: Record<string, unknown>) => l.level === 'error' || l.level === 'warn');
   const rate = errorAndWarn.length / logs.length;
   if (rate < threshold) return [];
   return [
@@ -202,7 +202,7 @@ export function detectSustainedErrorRate(
       window_start: logs[0].timestamp,
       evidence: [
         `${errorAndWarn.length} errors/warns out of ${logs.length} total log entries`,
-        ...errorAndWarn.slice(0, 4).map((e) => `[${e.level.toUpperCase()}] ${e.message}`),
+        ...errorAndWarn.slice(0, 4).map((e: Record<string, unknown>) => `[${e.level.toUpperCase()}] ${e.message}`),
       ],
     },
   ];
@@ -214,7 +214,7 @@ export function detectSustainedErrorRate(
  * Pass `options` to tune detection thresholds.
  */
 // ── Improvement 28: correlate accepts options ─────────────────────────────────
-export function correlate(snapshot: TelemetrySnapshot, options: CorrelateOptions = {}): CorrelationResult {
+export function correlate(snapshot: TelemetrySnapshot, options: CorrelateOptions = {}: CorrelationResult {
   const {
     errorSpikeThreshold,
     sustainedErrorRateThreshold = 0.4,
@@ -229,17 +229,17 @@ export function correlate(snapshot: TelemetrySnapshot, options: CorrelateOptions
     ...detectLatencySpikes(snapshot.traces),
     ...detectMetricAnomalies(snapshot.metrics),
     ...detectSustainedErrorRate(snapshot.logs, sustainedErrorRateThreshold),
-  ].sort((a, b) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
+  ].sort(a: Record<string, unknown>, b: Record<string, unknown> => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
 
-  const hasHigh = anomalies.some((a) => a.severity === 'high');
-  const hasMedium = anomalies.some((a) => a.severity === 'medium');
+  const hasHigh = anomalies.some(a: Record<string, unknown> => a.severity === 'high');
+  const hasMedium = anomalies.some(a: Record<string, unknown> => a.severity === 'medium');
   const health: CorrelationResult['health'] =
     hasHigh ? 'critical' : hasMedium ? 'degraded' : 'healthy';
 
   const logCount = snapshot.logs.length;
-  const errorCount = snapshot.logs.filter((l) => l.level === 'error').length;
+  const errorCount = snapshot.logs.filter((l: Record<string, unknown>) => l.level === 'error').length;
   const traceCount = snapshot.traces.length;
-  const failedTraceCount = snapshot.traces.filter((t) => t.status !== 'ok').length;
+  const failedTraceCount = snapshot.traces.filter((t: Record<string, unknown>) => t.status !== 'ok').length;
 
   const summary =
     anomalies.length === 0

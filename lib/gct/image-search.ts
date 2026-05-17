@@ -19,11 +19,11 @@ export async function findSimilarImages(
   const engine = new GCTEngine({ preferGPU: true, numTemplates: imageDatabase.length });
   await engine.init();
 
-  const templates: Template[] = imageDatabase.map((image) => ({
+  const templates: Template[] = imageDatabase.map((image: Record<string, unknown>) => ({
     id: image.id,
     data: image.data,
   }));
 
   const matches = await engine.search(queryImage, templates, threshold);
-  return matches.sort((a, b) => b.correlation - a.correlation);
+  return matches.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.correlation - a.correlation);
 }

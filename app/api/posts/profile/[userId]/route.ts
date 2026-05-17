@@ -32,7 +32,7 @@ export async function GET(
   let isCloseFriend = false;
 
   if (!isOwner) {
-    const { data: cfRow } = await (supabase as any)
+    const { data: cfRow } = await (supabase as SupabaseClient)
       .from('close_friends')
       .select('user_id')
       .eq('user_id', userId)
@@ -42,7 +42,7 @@ export async function GET(
   }
 
   // ── Fetch saved posts (up to 25) ──────────────────────────────────────────
-  const { data: savedRows } = await (supabase as any)
+  const { data: savedRows } = await (supabase as SupabaseClient)
     .from('saved_posts')
     .select('post_id, saved_at, app_posts!inner(*, profiles!inner(id, handle, display_name, avatar_url))')
     .eq('user_id', userId)
@@ -53,7 +53,7 @@ export async function GET(
   const savedPosts: unknown[] = [];
 
   for (const row of savedRows ?? []) {
-    const post = row.app_posts as any;
+    const post = row.app_posts as Record<string, unknown>;
     if (!post) continue;
     // Apply visibility filter
     if (post.post_visibility === 'close_friends' && !isOwner && !isCloseFriend) continue;
@@ -66,7 +66,7 @@ export async function GET(
   const ephemeralPosts: unknown[] = [];
 
   if (ephemeralSlots > 0) {
-    const { data: ephemeralRows } = await (supabase as any)
+    const { data: ephemeralRows } = await (supabase as SupabaseClient)
       .from('app_posts')
       .select('*, profiles!inner(id, handle, display_name, avatar_url)')
       .eq('user_id', userId)

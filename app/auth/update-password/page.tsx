@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import PasswordField from "@/components/auth/dream.PasswordField";
 
-export default function UpdatePasswordPage() {
+export default function UpdatePasswordPage( {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const [password, setPassword] = useState("");

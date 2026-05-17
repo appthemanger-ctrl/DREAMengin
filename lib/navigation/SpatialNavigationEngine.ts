@@ -129,7 +129,7 @@ export class SpatialNavigationEngine {
   /**
    * Handle pointer move
    */
-  private handlePointerMove(state: any): void {
+  private handlePointerMove(state: unknown): void {
     const now = performance.now();
     
     // Start gesture if not already active

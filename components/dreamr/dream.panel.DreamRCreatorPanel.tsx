@@ -38,10 +38,10 @@ const DR = {
   font:         'var(--font-dreamr,"Plus Jakarta Sans",system-ui,sans-serif)',
 } as const;
 
-function nmRaised(size = 5): string {
+function nmRaised(size = 5: string {
   return `${-size}px ${-size}px ${size * 2.4}px ${DR.shadowLight}, ${size}px ${size}px ${size * 2.8}px ${DR.shadowDark}`;
 }
-function nmInset(size = 4): string {
+function nmInset(size = 4: string {
   return `inset ${-size}px ${-size}px ${size * 2}px ${DR.shadowLight}, inset ${size}px ${size}px ${size * 2.4}px ${DR.shadowDark}`;
 }
 
@@ -61,7 +61,7 @@ interface Props { post: FeedPost; onClose: () => void }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-function relTime(iso: string): string {
+function relTime(iso: string: string {
   const s = (Date.now() - new Date(iso).getTime()) / 1000;
   if (s < 60)    return `${Math.floor(s)}s`;
   if (s < 3600)  return `${Math.floor(s / 60)}m`;
@@ -69,7 +69,7 @@ function relTime(iso: string): string {
   return `${Math.floor(s / 86400)}d`;
 }
 
-function SocialBadge({ provider }: { provider: string }) {
+function SocialBadge({ provider }: { provider: string } {
   const icons: Record<string, React.ReactNode> = {
     instagram: <Instagram size={13} />,
     youtube:   <Youtube   size={13} />,
@@ -96,7 +96,7 @@ function SocialBadge({ provider }: { provider: string }) {
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
-export default function DreamRCreatorPanel({ post, onClose }: Props) {
+export default function DreamRCreatorPanel({ post, onClose }: Props {
   const creator  = post.profiles;
   const panelRef = useRef<HTMLDivElement>(null);
   const [following,    setFollowing]    = useState(false);

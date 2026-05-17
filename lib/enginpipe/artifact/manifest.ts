@@ -71,7 +71,7 @@ export type EnginArtifactManifest = z.infer<typeof EnginArtifactManifestSchema>;
  * Throws ZodError on validation failure. Use {@link safeParseManifest}
  * for a non-throwing variant.
  */
-export function parseManifest(input: unknown): EnginArtifactManifest {
+export function parseManifest(input: unknown: EnginArtifactManifest {
   return EnginArtifactManifestSchema.parse(input);
 }
 

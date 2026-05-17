@@ -43,7 +43,7 @@ import {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function DrEamsBadge({ size = 28 }: { size?: number }) {
+function DrEamsBadge({ size = 28 }: { size?: number } {
   return (
     <div
       aria-hidden="true"
@@ -67,7 +67,7 @@ function DrEamsBadge({ size = 28 }: { size?: number }) {
   );
 }
 
-function SpinningDot() {
+function SpinningDot( {
   return (
     <>
       <style>{`@keyframes de-spin{to{transform:rotate(360deg)}}`}</style>
@@ -106,7 +106,7 @@ export interface DrEamsSearchBarProps {
 // DrEamsSearchBar
 // ---------------------------------------------------------------------------
 
-export default function DrEamsSearchBar({ onOpenDrEams }: DrEamsSearchBarProps) {
+export default function DrEamsSearchBar({ onOpenDrEams }: DrEamsSearchBarProps {
   const router = useRouter();
 
   const [query, setQuery]         = useState('');
@@ -314,7 +314,7 @@ export default function DrEamsSearchBar({ onOpenDrEams }: DrEamsSearchBarProps) 
           }}
         >
           {/* Navigation matches */}
-          {suggestions.map((s) => (
+          {suggestions.map((s: Record<string, unknown>) => (
             <button
               key={s.label}
               type="button"

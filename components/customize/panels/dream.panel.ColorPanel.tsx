@@ -31,7 +31,7 @@ const ACCENT_COLORS = [
 /**
  * ColorPanel — slide-up sheet for background gradient + accent colour.
  */
-export default function ColorPanel() {
+export default function ColorPanel( {
   const { activePanel, closePanel, draftSkin, updateDraft } = useCustomizeMode();
   const [tab, setTab] = useState<'gradient' | 'accent' | 'presets'>('gradient');
 
@@ -41,7 +41,7 @@ export default function ColorPanel() {
     <SlidePanel title="Color" onClose={closePanel}>
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
-        {(['gradient', 'accent', 'presets'] as const).map((t) => (
+        {(['gradient', 'accent', 'presets'] as const).map((t: Record<string, unknown>) => (
           <button
             key={t}
             type="button"
@@ -61,7 +61,7 @@ export default function ColorPanel() {
 
       {tab === 'gradient' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-          {GRADIENT_PRESETS.map(({ id, label, from, mid, to }) => {
+          {GRADIENT_PRESETS.map({ id, label: string, from: string, mid: number, to } => {
             const isActive = draftSkin.bgFrom === from && draftSkin.bgTo === to;
             return (
               <button
@@ -141,7 +141,7 @@ export default function ColorPanel() {
 
       {tab === 'presets' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-          {SKIN_PRESETS.map((preset) => {
+          {SKIN_PRESETS.map((preset: Record<string, unknown>) => {
             const isActive =
               draftSkin.bgFrom === preset.skin.bgFrom &&
               draftSkin.bgTo   === preset.skin.bgTo;

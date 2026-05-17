@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';
 import LabEnginApp from '@/components/engines/lab/dream.LabEnginApp';
 import { connection } from 'next/server';
-export default async function LabEnginAppPage() {
+export default async function LabEnginAppPage( {
   await connection();
   const supabase = await createServerClient();
   let user = null;

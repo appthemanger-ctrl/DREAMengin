@@ -13,20 +13,20 @@ interface Recording {
   mimeType: string;
 }
 
-function formatTime(ms: number) {
+function formatTime(ms: number {
   const s = Math.floor(ms / 1000);
   const m = Math.floor(s / 60);
   return `${m}:${String(s % 60).padStart(2, '0')}`;
 }
 
-function formatSeconds(sec: number) {
+function formatSeconds(sec: number {
   const m = Math.floor(sec / 60);
   const s = Math.floor(sec % 60);
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
 /** Detect the best supported MIME type — handles Safari (mp4/aac) and other browsers. */
-function getBestMimeType(): string {
+function getBestMimeType(: string {
   const preferred = [
     'audio/mp4;codecs=aac',
     'audio/mp4',
@@ -42,14 +42,14 @@ function getBestMimeType(): string {
 }
 
 /** Guess extension from mime type */
-function extFromMime(mime: string) {
+function extFromMime(mime: string {
   if (mime.includes('mp4')) return 'mp4';
   if (mime.includes('webm')) return 'webm';
   if (mime.includes('ogg')) return 'ogg';
   return 'webm';
 }
 
-export default function SoundRecorder() {
+export default function SoundRecorder( {
   const [state, setState]           = useState<RecorderState>('idle');
   const [recordings, setRecordings] = useState<Recording[]>([]);
   const [elapsed, setElapsed]       = useState(0);
@@ -118,13 +118,13 @@ export default function SoundRecorder() {
       const usedMime = mr.mimeType || mimeType || 'audio/webm';
 
       chunksRef.current = [];
-      mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      mr.ondataavailable = e: unknown => { if (e.data.size > 0) chunksRef.current.push(e.data); };
       mr.onstop = () => {
-        stream.getTracks().forEach((t) => t.stop());
+        stream.getTracks().forEach((t: Record<string, unknown>) => t.stop());
         const blob = new Blob(chunksRef.current, { type: usedMime });
         const url = URL.createObjectURL(blob);
         const durationMs = Date.now() - startTimeRef.current;
-        setRecordings((prev) => [...prev, { url, name: `Take ${prev.length + 1}`, durationMs, blob, mimeType: usedMime }]);
+        setRecordings(prev: Record<string, unknown> => [...prev, { url, name: `Take ${prev.length + 1}`, durationMs, blob, mimeType: usedMime }]);
         setState('recorded');
         if (timerRef.current) clearInterval(timerRef.current);
         cancelAnimationFrame(animFrameRef.current);
@@ -191,7 +191,7 @@ export default function SoundRecorder() {
       return;
     }
     // Pause any currently playing
-    audioElsRef.current.forEach((el) => el.pause());
+    audioElsRef.current.forEach((el: Record<string, unknown>) => el.pause());
     cancelAnimationFrame(playRafRef.current);
     setPlayingIdx(null);
 
@@ -239,7 +239,7 @@ export default function SoundRecorder() {
 
   /* delete */
   const deleteRecording = useCallback((idx: number) => {
-    setRecordings((prev) => {
+    setRecordings(prev: Record<string, unknown> => {
       const next = [...prev];
       URL.revokeObjectURL(next[idx].url);
       next.splice(idx, 1);
@@ -357,7 +357,7 @@ export default function SoundRecorder() {
             </span>
           </div>
 
-          {recordings.map((rec, idx) => {
+          {recordings.map(rec: Record<string, unknown>, idx: number => {
             const isPlaying = playingIdx === idx;
             const pos = playPosition[idx] ?? 0;
             return (

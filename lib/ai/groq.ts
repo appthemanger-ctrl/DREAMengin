@@ -24,7 +24,7 @@ interface GroqResponse {
   }>;
 }
 
-function parseGroqResponse(json: unknown): string {
+function parseGroqResponse(json: unknown: string {
   if (
     json == null ||
     typeof json !== 'object' ||
@@ -41,7 +41,7 @@ function parseGroqResponse(json: unknown): string {
   return content;
 }
 
-export async function groqChat(opts: GroqChatOptions): Promise<string> {
+export async function groqChat(opts: GroqChatOptions: Promise<string> {
   const apiKey = process.env.GROQ_API_KEY;
 
   // Never throw at import time (breaks builds). If missing, fail softly.
@@ -77,7 +77,7 @@ export async function groqChat(opts: GroqChatOptions): Promise<string> {
  * key is valid, false otherwise.  Never throws.  Used by IDARi's health
  * monitor (req #86).
  */
-export async function groqHealthCheck(): Promise<boolean> {
+export async function groqHealthCheck(: Promise<boolean> {
   try {
     await groqChat({
       model: 'llama-3.3-70b-versatile',

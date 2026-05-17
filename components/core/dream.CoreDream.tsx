@@ -20,7 +20,7 @@ type Props = {
     avatar_url?: string | null;
   } | null;
    
-  posts?: any[];
+  posts?: unknown[];
 };
 
 /* ── Recent activity agent definitions ── */
@@ -55,7 +55,7 @@ const RECENT_AGENTS = [
 ] as const;
 
 /* ── Shared section header row ── */
-function SectionHeader({ title, badge }: { title: string; badge?: number }) {
+function SectionHeader({ title, badge }: { title: string; badge?: number } {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
       <span style={{ fontWeight: 700, fontSize: 18, color: 'var(--de-heading)' }}>{title}</span>
@@ -76,7 +76,7 @@ function SectionHeader({ title, badge }: { title: string; badge?: number }) {
 }
 
 /* ── Feed post card ── */
-function PostCard() {
+function PostCard( {
   const [liked, setLiked] = useState(false);
   return (
     <div style={{
@@ -118,10 +118,10 @@ function PostCard() {
       {/* Post actions */}
       <div style={{ padding: '2px 16px 14px', display: 'flex', gap: 22 }}>
         {([
-          { icon: liked ? '♥' : '♡', label: 'Like',    action: () => setLiked((v) => !v) },
+          { icon: liked ? '♥' : '♡', label: 'Like',    action: () => setLiked(v: number => !v) },
           { icon: '💬',               label: 'Comment', action: undefined },
           { icon: '↗',               label: 'Share',   action: undefined },
-        ] as const).map(({ icon, label, action }) => (
+        ] as const).map({ icon, label: string, action } => (
           <button
             key={label}
             type="button"
@@ -143,7 +143,7 @@ function PostCard() {
 }
 
 /* ── Recent Activity agent card ── */
-function AgentCard({ agent }: { agent: typeof RECENT_AGENTS[number] }) {
+function AgentCard({ agent }: { agent: typeof RECENT_AGENTS[number] } {
   return (
     <div style={{
       minWidth: 148,
@@ -176,7 +176,7 @@ function AgentCard({ agent }: { agent: typeof RECENT_AGENTS[number] }) {
 }
 
 /* ── Key Metrics cards ── */
-function MetricsRow() {
+function MetricsRow( {
   const cards = [
     {
       id: 'eams',
@@ -198,7 +198,7 @@ function MetricsRow() {
 
   return (
     <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' }}>
-      {cards.map((card) => (
+      {cards.map((card: Record<string, unknown>) => (
         <div key={card.id} style={{
           minWidth: card.minWidth,
           padding: '14px 16px',
@@ -207,7 +207,7 @@ function MetricsRow() {
           boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
           flexShrink: 0,
         }}>
-          {card.rows.map((row) => (
+          {card.rows.map((row: Record<string, unknown>) => (
             <div key={row.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
               <div style={{
                 width: 28, height: 28, borderRadius: '50%',
@@ -235,7 +235,7 @@ function MetricsRow() {
       }}>
         <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)', marginBottom: 10, display: 'block' }}>Tams</span>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 32 }}>
-          {[0.45, 0.75, 0.5, 1, 0.65].map((h, i) => (
+          {[0.45, 0.75, 0.5, 1, 0.65].map(h: Record<string, unknown>, i: number => (
             <div key={i} style={{
               flex: 1, borderRadius: 3,
               height: `${h * 100}%`,
@@ -255,7 +255,7 @@ function HomeFace({ onOpenDrEams, onOpenDreamSpace, profile, posts, isAdmin }: {
   profile: Props['profile'];
   isAdmin?: boolean;
    
-  posts?: any[];
+  posts?: unknown[];
 }) {
   return (
     <HomeDreamSurface
@@ -340,7 +340,7 @@ function ProfileFace({ profile, onToggleFace }: { profile: Props['profile']; onT
           { label: 'Achievements', value: '23', badge: 23 },
           { label: 'Dream Goals',  value: '12', badge: 12 },
           { label: 'About Me',     value: 'Bio & Interests' },
-        ].map((item) => (
+        ].map((item: Record<string, unknown>) => (
           <div key={item.label} style={{
             background: 'rgba(255,255,255,0.88)', borderRadius: 14,
             boxShadow: '0 1px 8px rgba(0,0,0,0.05)',
@@ -382,7 +382,7 @@ function ProfileFace({ profile, onToggleFace }: { profile: Props['profile']; onT
           { label: 'YouTube', value: '95k views'   },
           { label: 'Friends', value: '257'          },
           { label: 'Twitter', value: '#dreamingbig' },
-        ].map((item) => (
+        ].map((item: Record<string, unknown>) => (
           <div key={item.label} style={{
             background: 'rgba(255,255,255,0.88)', borderRadius: 14,
             boxShadow: '0 1px 8px rgba(0,0,0,0.05)',
@@ -398,7 +398,7 @@ function ProfileFace({ profile, onToggleFace }: { profile: Props['profile']; onT
 }
 
 /* ── WallBanner (used in profile face only) ── */
-function WallBanner() {
+function WallBanner( {
   const [wallImage, setWallImage] = useState<string | null>(() => {
     try {
       const stored = localStorage.getItem('dreamengin:wall:image');
@@ -413,7 +413,7 @@ function WallBanner() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = ev: Event => {
       const url = ev.target?.result as string;
       setWallImage(url);
       try { localStorage.setItem('dreamengin:wall:image', url); } catch { /* noop */ }
@@ -449,7 +449,7 @@ function WallBanner() {
 }
 
 /* ── Main export ── */
-export default function CoreDream({ face, isOpen, onToggleFace, onClose: _onClose, onOpenDrEams, onOpenDreamSpace, isAdmin, profile, posts }: Props) {
+export default function CoreDream({ face, isOpen: Record<string, unknown>, onToggleFace: Record<string, unknown>, onClose: _onClose, onOpenDrEams: Record<string, unknown>, onOpenDreamSpace: Record<string, unknown>, isAdmin: Record<string, unknown>, profile: Record<string, unknown>, posts }: Props {
   if (!isOpen) return null;
 
   if (face === 'profile') {

@@ -44,7 +44,7 @@ export default function IconSelector({
 
   return (
     <div className={className} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-      {ICON_OPTIONS.map((option) => {
+      {ICON_OPTIONS.map((option: Record<string, unknown>) => {
         const isSelected = selected === option.name;
         return (
           <button

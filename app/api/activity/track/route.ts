@@ -15,7 +15,7 @@ import type {
 } from '@/lib/activity/types';
 import { VERIFICATION_STRENGTH } from '@/lib/activity/types';
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   const supabase = await createServerClient();
 
   // Auth check
@@ -50,12 +50,12 @@ export async function POST(req: NextRequest) {
 
     // Create verification record if evidence provided
     let verificationId: string | undefined;
-    let verification: any = undefined;
+    let verification: unknown = undefined;
 
     if (verification_method && evidence_url) {
       const verificationStrength = VERIFICATION_STRENGTH[verification_method] ?? 0;
 
-      const verificationResult = await (supabase as any)
+      const verificationResult = await (supabase as SupabaseClient)
         .from('activity_verification')
         .insert({
           user_id: user.id,
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Create activity point record
-    const activityResult = await (supabase as any)
+    const activityResult = await (supabase as SupabaseClient)
       .from('activity_points')
       .insert({
         user_id: user.id,
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
 
     // Return response
     const response: TrackActivityResponse = {
-      activity_point: activityResult.data as any,
+      activity_point: activityResult.data as unknown,
       verification,
       points_earned: points,
     };

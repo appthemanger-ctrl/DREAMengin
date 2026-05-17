@@ -136,7 +136,7 @@ const winnerConstraint: EnginConstraint<BrandEnginAction> = (
 
 // ─── Transform ────────────────────────────────────────────────────────────────
 
-function transform(state: EnginBaseState, action: BrandEnginAction): EnginBaseState {
+function transform(state: EnginBaseState, action: BrandEnginAction: EnginBaseState {
   const domain = (state.domain as Partial<typeof DEFAULT_DOMAIN>);
   const tests  = () => (domain.abTests ?? []) as ABTest[];
 
@@ -161,7 +161,7 @@ function transform(state: EnginBaseState, action: BrandEnginAction): EnginBaseSt
       return patchBaseState(state, {
         domain: {
           ...domain,
-          abTests: tests().map((t) => t.id === testId ? { ...t, paused } : t),
+          abTests: tests().map((t: Record<string, unknown>) => t.id === testId ? { ...t, paused } : t),
         },
       });
     }
@@ -171,7 +171,7 @@ function transform(state: EnginBaseState, action: BrandEnginAction): EnginBaseSt
       return patchBaseState(state, {
         domain: {
           ...domain,
-          abTests: tests().map((t) => t.id === testId ? { ...t, winner } : t),
+          abTests: tests().map((t: Record<string, unknown>) => t.id === testId ? { ...t, winner } : t),
         },
       });
     }
@@ -202,7 +202,7 @@ function transform(state: EnginBaseState, action: BrandEnginAction): EnginBaseSt
 
 // ─── deriveState ──────────────────────────────────────────────────────────────
 
-function deriveState(state: EnginBaseState): BrandEnginDerivedState {
+function deriveState(state: EnginBaseState: BrandEnginDerivedState {
   const d = state.domain as Partial<typeof DEFAULT_DOMAIN>;
   return {
     lifecycle:          state.lifecycle,

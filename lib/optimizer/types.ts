@@ -141,7 +141,7 @@ export interface OptimizationResult {
 export interface OptimizationItem {
   id: string;
   score: number;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 export interface ConstraintSolverOptions {
@@ -154,13 +154,13 @@ export interface RankedItem<T = any> {
   item: T;
   score: number;
   rank: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // Feed selection types
 export interface FeedItem {
   id: string;
-  content: any;
+  content: unknown;
   timestamp: Date;
   source: string;
   engagement?: {
@@ -187,7 +187,7 @@ export interface SearchResult {
   type: 'surface' | 'dream' | 'content' | 'user';
   relevance_score: number;
   name: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 // Asset loading types
@@ -226,11 +226,11 @@ export interface CreativeOption {
   variant_type?: string;
   tone?: string;
   style?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface CreativeContext {
-  user_preferences?: Record<string, any>;
+  user_preferences?: Record<string, unknown>;
   topic?: string;
   style_guide?: string;
   constraints?: string[];

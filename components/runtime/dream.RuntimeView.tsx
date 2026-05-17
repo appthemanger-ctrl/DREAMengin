@@ -50,7 +50,7 @@ interface RuntimeViewProps {
     avatar_url?: string | null;
   } | null;
    
-  posts?: any[];
+  posts?: unknown[];
   isAdmin?: boolean;
   onOpenDrEams: () => void;
   onOpenDreamSpace?: () => void;

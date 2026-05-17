@@ -9,7 +9,7 @@ import { createInstance } from '@/lib/runtime/instanceManager';
  * Automatically opens GameEngin Side B when the games surface is entered with
  * `?openEngin=1`.
  */
-export default function AutoOpenGameEngin() {
+export default function AutoOpenGameEngin( {
   const searchParams = useSearchParams();
   const instanceId = searchParams.get('instanceId') ?? 'autoopen';
   const sharedChannel = useSharedEnginChannel({

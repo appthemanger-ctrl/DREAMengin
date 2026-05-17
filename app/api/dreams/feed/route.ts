@@ -21,7 +21,7 @@ async function resolveFeedForInstance(
   const supabase = await createServerClient();
   
   // Fetch dream instance and definition
-  const { data: instance, error: instanceError } = await (supabase as any)
+  const { data: instance, error: instanceError } = await (supabase as SupabaseClient)
     .from('dream_instances')
     .select(`
       *,
@@ -60,7 +60,7 @@ async function resolveFeedForInstance(
   };
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest {
   await connection();
   try {
     const supabase = await createServerClient();
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest {
   await connection();
   try {
     const supabase = await createServerClient();

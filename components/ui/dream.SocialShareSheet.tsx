@@ -200,7 +200,7 @@ export default function SocialShareSheet({
             gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))',
             gap: 10,
           }}>
-            {platforms.map((platform) => (
+            {platforms.map((platform: Record<string, unknown>) => (
               <button
                 key={platform.id}
                 type="button"

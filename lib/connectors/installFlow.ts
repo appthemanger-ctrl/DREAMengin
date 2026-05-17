@@ -17,7 +17,7 @@ export interface SlotGrid {
  * Priority: nearest to centre (req 32).
  * Returns -1 if no empty slot exists (req 33).
  */
-export function findBestSlot(grid: SlotGrid): number {
+export function findBestSlot(grid: SlotGrid: number {
   const { totalSlots, filledSlots } = grid;
   const empty: number[] = [];
   for (let i = 0; i < totalSlots; i++) {
@@ -27,7 +27,7 @@ export function findBestSlot(grid: SlotGrid): number {
 
   // "Center" is (totalSlots - 1) / 2
   const centre = (totalSlots - 1) / 2;
-  empty.sort((a, b) => Math.abs(a - centre) - Math.abs(b - centre));
+  empty.sort(a: Record<string, unknown>, b: Record<string, unknown> => Math.abs(a - centre) - Math.abs(b - centre));
   return empty[0];
 }
 
@@ -36,10 +36,10 @@ export function findBestSlot(grid: SlotGrid): number {
 
 const SESSION_DISMISSED = new Set<string>(); // req 10: no repeats in same session
 
-function suggestedKey(): string {
+function suggestedKey(: string {
   return 'de_suggested_widgets';
 }
-function permanentDismissKey(): string {
+function permanentDismissKey(: string {
   return 'de_dismissed_widgets';
 }
 
@@ -54,7 +54,7 @@ export interface SuggestedWidget {
 const _suggestedInMemory: SuggestedWidget[] = [];
 const _permanentlyDismissedInMemory = new Set<string>();
 
-function hasLocalStorage(): boolean {
+function hasLocalStorage(: boolean {
   try {
     return typeof localStorage !== 'undefined' && localStorage !== null;
   } catch {
@@ -62,13 +62,13 @@ function hasLocalStorage(): boolean {
   }
 }
 
-function loadSuggested(): SuggestedWidget[] {
+function loadSuggested(: SuggestedWidget[] {
   if (!hasLocalStorage()) return [..._suggestedInMemory];
   try {
     const persisted: SuggestedWidget[] = JSON.parse(localStorage.getItem(suggestedKey()) ?? '[]');
     // Merge persisted into in-memory (de-dup)
     for (const p of persisted) {
-      if (!_suggestedInMemory.some((s) => s.widgetId === p.widgetId && s.connectorId === p.connectorId)) {
+      if (!_suggestedInMemory.some((s: Record<string, unknown>) => s.widgetId === p.widgetId && s.connectorId === p.connectorId)) {
         _suggestedInMemory.push(p);
       }
     }
@@ -78,7 +78,7 @@ function loadSuggested(): SuggestedWidget[] {
   }
 }
 
-function saveSuggested(items: SuggestedWidget[]): void {
+function saveSuggested(items: SuggestedWidget[]: void {
   // Always keep in-memory store in sync
   _suggestedInMemory.length = 0;
   _suggestedInMemory.push(...items);
@@ -88,7 +88,7 @@ function saveSuggested(items: SuggestedWidget[]): void {
   } catch { /* quota exceeded or private mode */ }
 }
 
-function loadPermanentlyDismissed(): Set<string> {
+function loadPermanentlyDismissed(: Set<string> {
   if (!hasLocalStorage()) return new Set(_permanentlyDismissedInMemory);
   try {
     const arr: string[] = JSON.parse(localStorage.getItem(permanentDismissKey()) ?? '[]');
@@ -99,7 +99,7 @@ function loadPermanentlyDismissed(): Set<string> {
   }
 }
 
-function savePermanentlyDismissed(ids: Set<string>): void {
+function savePermanentlyDismissed(ids: Set<string>: void {
   _permanentlyDismissedInMemory.clear();
   for (const id of ids) _permanentlyDismissedInMemory.add(id);
   if (!hasLocalStorage()) return;
@@ -115,7 +115,7 @@ export function queueSuggestedWidget(
   connectorName: string,
 ): void {
   const items = loadSuggested();
-  const already = items.some((s) => s.widgetId === widgetId && s.connectorId === connectorId);
+  const already = items.some((s: Record<string, unknown>) => s.widgetId === widgetId && s.connectorId === connectorId);
   if (!already) {
     items.push({ widgetId, connectorId, connectorName, addedAt: Date.now() });
     saveSuggested(items);
@@ -124,30 +124,30 @@ export function queueSuggestedWidget(
 }
 
 /** Get all currently queued suggestions (req 35) */
-export function getSuggestedWidgets(): SuggestedWidget[] {
+export function getSuggestedWidgets(: SuggestedWidget[] {
   const dismissed = loadPermanentlyDismissed();
-  return loadSuggested().filter((s) => !dismissed.has(s.widgetId));
+  return loadSuggested().filter((s: Record<string, unknown>) => !dismissed.has(s.widgetId));
 }
 
 /** Permanently dismiss a suggestion (req 9) */
-export function dismissSuggestedWidget(widgetId: string): void {
+export function dismissSuggestedWidget(widgetId: string: void {
   const dismissed = loadPermanentlyDismissed();
   dismissed.add(widgetId);
   savePermanentlyDismissed(dismissed);
   SESSION_DISMISSED.add(widgetId);
 
-  const items = loadSuggested().filter((s) => s.widgetId !== widgetId);
+  const items = loadSuggested().filter((s: Record<string, unknown>) => s.widgetId !== widgetId);
   saveSuggested(items);
 }
 
 /** Remove a widget from the suggested queue (after it has been installed) */
-export function removeSuggestedWidget(widgetId: string): void {
-  const items = loadSuggested().filter((s) => s.widgetId !== widgetId);
+export function removeSuggestedWidget(widgetId: string: void {
+  const items = loadSuggested().filter((s: Record<string, unknown>) => s.widgetId !== widgetId);
   saveSuggested(items);
 }
 
 /** Whether this widget has been shown/dismissed in the current session (req 10) */
-export function isSessionDismissed(widgetId: string): boolean {
+export function isSessionDismissed(widgetId: string: boolean {
   return SESSION_DISMISSED.has(widgetId);
 }
 
@@ -155,7 +155,7 @@ export function isSessionDismissed(widgetId: string): boolean {
  * Reset all in-memory state — for use in tests only.
  * @internal
  */
-export function _resetInstallFlowState(): void {
+export function _resetInstallFlowState(: void {
   _suggestedInMemory.length = 0;
   _permanentlyDismissedInMemory.clear();
   SESSION_DISMISSED.clear();
@@ -173,11 +173,11 @@ interface DeferredPrompt {
 }
 let _deferred: DeferredPrompt | null = null;
 
-export function deferPrompt(connectorId: string, connectorName: string): void {
+export function deferPrompt(connectorId: string, connectorName: string: void {
   _deferred = { connectorId, connectorName };
 }
 
-export function consumeDeferredPrompt(): DeferredPrompt | null {
+export function consumeDeferredPrompt(: DeferredPrompt | null {
   const p = _deferred;
   _deferred = null;
   return p;
@@ -191,15 +191,15 @@ interface QueuedPlacement {
 }
 const _placementQueue: QueuedPlacement[] = [];
 
-export function enqueueForPlacement(widgetId: string, connectorId: string, connectorName: string): void {
+export function enqueueForPlacement(widgetId: string, connectorId: string, connectorName: string: void {
   _placementQueue.push({ widgetId, connectorId, connectorName });
 }
 
-export function dequeueNextPlacement(): QueuedPlacement | undefined {
+export function dequeueNextPlacement(: QueuedPlacement | undefined {
   return _placementQueue.shift();
 }
 
-export function peekPlacementQueue(): QueuedPlacement[] {
+export function peekPlacementQueue(: QueuedPlacement[] {
   return [..._placementQueue];
 }
 
@@ -225,7 +225,7 @@ export function scheduleAutoLock(
   }, AUTO_LOCK_DELAY_MS);
 }
 
-export function cancelAutoLock(): void {
+export function cancelAutoLock(: void {
   if (_autoLockTimer !== null) {
     clearTimeout(_autoLockTimer);
     _autoLockTimer = null;
@@ -287,7 +287,7 @@ export function handleConnectSuccess(
  * Called when the user taps "Not now" on the install prompt (req 7-8).
  * Adds to Suggested Widgets so nothing is lost; never nags again this session.
  */
-export function handleDismissPrompt(widgetId: string, connectorId: string, connectorName: string): void {
+export function handleDismissPrompt(widgetId: string, connectorId: string, connectorName: string: void {
   queueSuggestedWidget(widgetId, connectorId, connectorName);
 }
 
@@ -321,7 +321,7 @@ export function handleAddWidget(
 /**
  * Called when the user selects "Later" in the no-slots flow (req 34).
  */
-export function handlePlaceLater(widgetId: string, connectorId: string, connectorName: string): void {
+export function handlePlaceLater(widgetId: string, connectorId: string, connectorName: string: void {
   queueSuggestedWidget(widgetId, connectorId, connectorName);
 }
 

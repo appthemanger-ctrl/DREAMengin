@@ -36,7 +36,7 @@ const MESSAGES = [
   'REALITY.EXE HAS BEEN REPLACED',
 ];
 
-export default function KonamiDream() {
+export default function KonamiDream( {
   const [active, setActive]   = useState(false);
   const [msgIdx, setMsgIdx]   = useState(0);
 
@@ -349,7 +349,7 @@ export default function KonamiDream() {
             </motion.div>
 
             {/* Corner ✦ decorations */}
-            {(['tl', 'tr', 'bl', 'br'] as const).map((corner) => (
+            {(['tl', 'tr', 'bl', 'br'] as const).map((corner: Record<string, unknown>) => (
               <div
                 key={corner}
                 aria-hidden="true"

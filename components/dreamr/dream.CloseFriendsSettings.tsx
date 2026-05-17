@@ -33,7 +33,7 @@ interface SearchResult {
 
 const ACCENT = '#c8981a';
 
-export default function CloseFriendsSettings() {
+export default function CloseFriendsSettings( {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

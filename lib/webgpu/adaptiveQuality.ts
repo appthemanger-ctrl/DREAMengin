@@ -96,7 +96,7 @@ const PROFILES: Record<QualityTier, QualityProfile> = {
   },
 };
 
-export function getQualityProfile(tier: QualityTier): QualityProfile {
+export function getQualityProfile(tier: QualityTier: QualityProfile {
   return { ...PROFILES[tier] };
 }
 
@@ -113,7 +113,7 @@ export interface BatteryState {
  * Read battery state from the Battery Status API.
  * Returns null if the API is unavailable (desktop, unsupported browser).
  */
-export async function getBatteryState(): Promise<BatteryState | null> {
+export async function getBatteryState(: Promise<BatteryState | null> {
   if (typeof navigator === 'undefined') return null;
 
   try {
@@ -143,7 +143,7 @@ export async function getBatteryState(): Promise<BatteryState | null> {
  * Approximate device memory in GB (Device Memory API).
  * Returns null if unavailable.
  */
-export function getDeviceMemoryGB(): number | null {
+export function getDeviceMemoryGB(: number | null {
   if (typeof navigator === 'undefined') return null;
   const nav = navigator as Navigator & { deviceMemory?: number };
   return nav.deviceMemory ?? null;
@@ -152,7 +152,7 @@ export function getDeviceMemoryGB(): number | null {
 /**
  * Logical CPU core count (Navigator.hardwareConcurrency).
  */
-export function getCoreCount(): number {
+export function getCoreCount(: number {
   if (typeof navigator === 'undefined') return 4;
   return navigator.hardwareConcurrency ?? 4;
 }
@@ -182,7 +182,7 @@ export interface DeviceSignals {
  *   6. Low memory (≤2 GB) → medium
  *   7. Otherwise → ultra
  */
-export function resolveQualityTier(signals: DeviceSignals): QualityTier {
+export function resolveQualityTier(signals: DeviceSignals: QualityTier {
   const { battery, memoryGB, pressure } = signals;
 
   // Battery-first: aggressive power saving when battery is critical

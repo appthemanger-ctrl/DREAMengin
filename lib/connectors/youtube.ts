@@ -2,9 +2,9 @@ import 'server-only'
 
 import { createServiceClient } from '@/lib/supabase/server'
 
-export async function pollYouTube(userId: string, accessToken: string) {
+export async function pollYouTube(userId: string, accessToken: string {
   try {
-    const supabase = (await createServiceClient()) as any
+    const supabase = (await createServiceClient()) as SupabaseClient
     // Fetch user's subscriptions
     const response = await fetch(
       'https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&maxResults=50',
@@ -32,9 +32,9 @@ export async function pollYouTube(userId: string, accessToken: string) {
   }
 }
 
-async function fetchChannelVideos(userId: string, accessToken: string, channelId: string) {
+async function fetchChannelVideos(userId: string, accessToken: string, channelId: string {
   try {
-    const supabase = (await createServiceClient()) as any
+    const supabase = (await createServiceClient()) as SupabaseClient
     const response = await fetch(
       `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&order=date&maxResults=10&type=video`,
       {

@@ -8,7 +8,7 @@ interface IDariButtonProps {
   isAdmin: boolean;
 }
 
-export default function IDariButton({ isAdmin }: IDariButtonProps) {
+export default function IDariButton({ isAdmin }: IDariButtonProps {
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
 

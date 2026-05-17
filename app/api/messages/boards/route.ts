@@ -14,7 +14,7 @@ const BoardSchema = z.object({
   is_public: z.boolean().default(false),
 });
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest {
   try {
     const supabase = await createServerClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();

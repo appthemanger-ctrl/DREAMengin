@@ -13,5 +13,5 @@ export function upsertSavedGameSession(
   existing: SavedGameSession[],
   next: SavedGameSession,
 ) {
-  return [next, ...existing.filter((session) => session.gameId !== next.gameId)].slice(0, MAX_SAVED_GAME_SESSIONS);
+  return [next, ...existing.filter((session: Record<string, unknown>) => session.gameId !== next.gameId)].slice(0, MAX_SAVED_GAME_SESSIONS);
 }

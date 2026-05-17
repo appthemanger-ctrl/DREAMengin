@@ -4,7 +4,7 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
-export async function POST(request: Request) {
+export async function POST(request: Request {
   const apiKey = request.headers.get('x-api-key');
   if (apiKey !== process.env.CI_API_KEY) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       low: advisories.filter(a => a.severity === 'low').length,
     };
     return NextResponse.json({ summary, advisories });
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error.stdout) {
       // pnpm audit exits with non‑zero when vulnerabilities found, but stdout still contains JSON
       const advisories = [];

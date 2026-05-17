@@ -95,7 +95,7 @@ export class LLMNPCBrain {
   }
 
   private withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
+    return new Promise<T>(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
       const timer = setTimeout(() => reject(new Error('llm_timeout')), ms);
       promise.then(
         (v) => { clearTimeout(timer); resolve(v); },

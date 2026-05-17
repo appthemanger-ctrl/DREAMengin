@@ -52,7 +52,7 @@ type Props = {
   sideBVariant?: 'widgets' | 'game-remote';
 };
 
-export default function DaydreamShell({ title, enginName, accentColor, widgets, children, daydreamType, sideBComponent, sideBVariant = 'widgets' }: Props) {
+export default function DaydreamShell({ title, enginName: Record<string, unknown>, accentColor: Record<string, unknown>, widgets: Record<string, unknown>, children: Record<string, unknown>, daydreamType: Record<string, unknown>, sideBComponent: Record<string, unknown>, sideBVariant = 'widgets' }: Props {
   const [side, setSide] = useState<'A' | 'B'>('A');
   const searchParams = useSearchParams();
 
@@ -413,7 +413,7 @@ function EnginPillControls({ enginName, accentColor, onBack }: {
 }
 
 /* ── Single marble bubble widget ── */
-function MarbleWidget({ w }: { w: DaydreamWidget }) {
+function MarbleWidget({ w }: { w: DaydreamWidget } {
   const tile = (
     <div
       className="premium-shimmer"

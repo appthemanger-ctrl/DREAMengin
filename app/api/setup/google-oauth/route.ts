@@ -16,7 +16,7 @@ import { SUPABASE_CONFIG, getServerSiteOrigin, getSupabaseAuthCallbackUrl } from
  *
  * This endpoint does NOT return any secrets.
  */
-export async function GET(request: Request) {
+export async function GET(request: Request {
   const origin = getServerSiteOrigin(new URL(request.url).origin);
 
   const supabaseProjectRef = SUPABASE_CONFIG.url
@@ -52,8 +52,8 @@ export async function GET(request: Request) {
 
   return NextResponse.json({
     required_config_ok: checks
-      .filter((c) => c.ok !== null)
-      .every((c) => c.ok),
+      .filter((c: Record<string, unknown>) => c.ok !== null)
+      .every((c: Record<string, unknown>) => c.ok),
     checks,
     instructions: {
       step1: {

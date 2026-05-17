@@ -18,7 +18,7 @@ type Props = {
   itemTitle: string;
 };
 
-export default function MarketplaceRequestButton({ itemId, itemTitle }: Props) {
+export default function MarketplaceRequestButton({ itemId, itemTitle }: Props {
   const [message,   setMessage]   = useState('');
   const [isOpen,    setIsOpen]    = useState(false);
   const [isLoading, setIsLoading] = useState(false);

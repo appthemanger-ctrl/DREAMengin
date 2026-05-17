@@ -31,7 +31,7 @@ const JOYSTICK_TRAVEL_RATIO = 0.45;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function loadPersisted(key: string, fallback: number, min?: number, max?: number): number {
+function loadPersisted(key: string, fallback: number, min?: number, max?: number: number {
   try {
     const v = parseFloat(localStorage.getItem(key) ?? '');
     if (!isNaN(v) && (min === undefined || v >= min) && (max === undefined || v <= max)) return v;
@@ -39,7 +39,7 @@ function loadPersisted(key: string, fallback: number, min?: number, max?: number
   return fallback;
 }
 
-function savePersisted(key: string, value: number) {
+function savePersisted(key: string, value: number {
   try { localStorage.setItem(key, String(value)); } catch { /* ignore */ }
 }
 
@@ -54,7 +54,7 @@ interface MobileGameHUDProps {
 const ZERO_VECTOR: MobileControlVector = { x: 0, y: 0 };
 type TouchPoint = { clientX: number; clientY: number };
 
-function getStickTransform(vector: MobileControlVector) {
+function getStickTransform(vector: MobileControlVector {
   return `translate(calc(-50% + ${vector.x * 50}%), calc(-50% + ${vector.y * 50}%))`;
 }
 
@@ -65,7 +65,7 @@ function keepPreviousVectorIfUnchanged(
   return previous.x === next.x && previous.y === next.y ? previous : next;
 }
 
-function formatVectorLabel(vector: MobileControlVector, idleLabel: string) {
+function formatVectorLabel(vector: MobileControlVector, idleLabel: string {
   const magnitude = Math.hypot(vector.x, vector.y);
   if (magnitude < 0.08) return idleLabel;
   const x = vector.x > 0.18 ? 'R' : vector.x < -0.18 ? 'L' : '•';
@@ -73,7 +73,7 @@ function formatVectorLabel(vector: MobileControlVector, idleLabel: string) {
   return `${x}${y}`;
 }
 
-function isInJoystickZone(touch: TouchPoint, dock: HTMLDivElement | null): boolean {
+function isInJoystickZone(touch: TouchPoint, dock: HTMLDivElement | null: boolean {
   if (!dock) return false;
   const rect = dock.getBoundingClientRect();
   const dist = Math.hypot(
@@ -85,7 +85,7 @@ function isInJoystickZone(touch: TouchPoint, dock: HTMLDivElement | null): boole
 
 const INTERACTIVE_BUTTONS = new Set(['jump', 'dash', 'action']);
 
-export default function MobileGameHUD({ gameLabel, gameEmoji, mode, onExit }: MobileGameHUDProps) {
+export default function MobileGameHUD({ gameLabel, gameEmoji: Record<string, unknown>, mode: Record<string, unknown>, onExit }: MobileGameHUDProps {
   const leftDockRef = useRef<HTMLDivElement>(null);
   const rightDockRef = useRef<HTMLDivElement>(null);
   const leftCapRef = useRef<HTMLDivElement>(null);
@@ -112,7 +112,7 @@ export default function MobileGameHUD({ gameLabel, gameEmoji, mode, onExit }: Mo
   const [isTouching, setIsTouching] = useState(false);
   const [sizeControlHidden, setSizeControlHidden] = useState(false);
 
-  const interactiveButtons = MOBILE_HUD_BUTTON_RING.filter((b) => b.interactive);
+  const interactiveButtons = MOBILE_HUD_BUTTON_RING.filter(b: Record<string, unknown> => b.interactive);
 
   // ── Emit CSS var so game stage clears the remote ──────────────────────────
   useEffect(() => {
@@ -164,14 +164,14 @@ export default function MobileGameHUD({ gameLabel, gameEmoji, mode, onExit }: Mo
 
   const updateLeftVector = useCallback((nextVector: MobileControlVector) => {
     syncStickCap(leftCapRef.current, nextVector);
-    setLeftVector((prev) => keepPreviousVectorIfUnchanged(prev, nextVector));
+    setLeftVector(prev: Record<string, unknown> => keepPreviousVectorIfUnchanged(prev, nextVector));
     emitMobileMove(nextVector);
     syncLegacyMove(nextVector);
   }, [syncLegacyMove, syncStickCap]);
 
   const updateRightVector = useCallback((nextVector: MobileControlVector) => {
     syncStickCap(rightCapRef.current, nextVector);
-    setRightVector((prev) => keepPreviousVectorIfUnchanged(prev, nextVector));
+    setRightVector(prev: Record<string, unknown> => keepPreviousVectorIfUnchanged(prev, nextVector));
     emitMobileLook(nextVector);
   }, [syncStickCap]);
 
@@ -203,7 +203,7 @@ export default function MobileGameHUD({ gameLabel, gameEmoji, mode, onExit }: Mo
 
   const handleLeftTouchMove = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const touch = Array.from(event.changedTouches).find((t) => t.identifier === leftTouchIdRef.current);
+    const touch = Array.from(event.changedTouches).find((t: Record<string, unknown>) => t.identifier === leftTouchIdRef.current);
     if (!touch) return;
     updateStickFromTouch(touch, leftDockRef.current, updateLeftVector);
   }, [updateLeftVector, updateStickFromTouch]);
@@ -217,14 +217,14 @@ export default function MobileGameHUD({ gameLabel, gameEmoji, mode, onExit }: Mo
 
   const handleLeftTouchEnd = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
-    if (Array.from(event.changedTouches).some((t) => t.identifier === leftTouchIdRef.current)) {
+    if (Array.from(event.changedTouches).some((t: Record<string, unknown>) => t.identifier === leftTouchIdRef.current)) {
       releaseLeftStick();
     }
   }, [releaseLeftStick]);
 
   // ── Button helpers ────────────────────────────────────────────────────────
   const updateButtonPressed = useCallback((buttonId: string, active: boolean) => {
-    setPressedButtons((prev) => {
+    setPressedButtons(prev: Record<string, unknown> => {
       if ((prev[buttonId] ?? false) === active) return prev;
       return { ...prev, [buttonId]: active };
     });
@@ -260,7 +260,7 @@ export default function MobileGameHUD({ gameLabel, gameEmoji, mode, onExit }: Mo
   // ── Right dock — combined joystick + buttons ──────────────────────────────
   const handleRightDockTouchStart = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
-    Array.from(event.changedTouches).forEach((touch) => {
+    Array.from(event.changedTouches).forEach((touch: Record<string, unknown>) => {
       markTouchStart();
       if (rightJoyTouchIdRef.current === null && isInJoystickZone(touch, rightDockRef.current)) {
         rightJoyTouchIdRef.current = touch.identifier;
@@ -276,7 +276,7 @@ export default function MobileGameHUD({ gameLabel, gameEmoji, mode, onExit }: Mo
 
   const handleRightDockTouchMove = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
-    Array.from(event.changedTouches).forEach((touch) => {
+    Array.from(event.changedTouches).forEach((touch: Record<string, unknown>) => {
       if (touch.identifier === rightJoyTouchIdRef.current) {
         updateStickFromTouch(touch, rightDockRef.current, updateRightVector);
       } else if (rightBtnTouchesRef.current.has(touch.identifier)) {
@@ -316,7 +316,7 @@ export default function MobileGameHUD({ gameLabel, gameEmoji, mode, onExit }: Mo
 
   const handleRightDockTouchEnd = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
-    Array.from(event.changedTouches).forEach((t) => releaseRightDockTouch(t.identifier, t.clientX, t.clientY));
+    Array.from(event.changedTouches).forEach((t: Record<string, unknown>) => releaseRightDockTouch(t.identifier, t.clientX, t.clientY));
   }, [releaseRightDockTouch]);
 
   // ── Pause / Exit ──────────────────────────────────────────────────────────
@@ -335,7 +335,7 @@ export default function MobileGameHUD({ gameLabel, gameEmoji, mode, onExit }: Mo
 
   // ── Size control ──────────────────────────────────────────────────────────
   const adjustScale = useCallback((delta: number) => {
-    setRemoteScale((prev) => {
+    setRemoteScale(prev: Record<string, unknown> => {
       const next = Math.min(SCALE_MAX, Math.max(SCALE_MIN, Math.round((prev + delta) * 10) / 10));
       savePersisted('de:hud:scale', next);
       return next;
@@ -503,7 +503,7 @@ export default function MobileGameHUD({ gameLabel, gameEmoji, mode, onExit }: Mo
             dragStartRef.current = null;
             markTouchEnd();
             // If pointer barely moved, treat as a tap → toggle size control
-            if (moved < 6) setSizeControlHidden((v) => !v);
+            if (moved < 6) setSizeControlHidden(v: number => !v);
           }}
           onPointerCancel={handleDragEnd}
           title="Drag to reposition · Tap to show/hide size controls"
@@ -532,7 +532,7 @@ export default function MobileGameHUD({ gameLabel, gameEmoji, mode, onExit }: Mo
             style={{ transform: getStickTransform(rightVector) }}
           />
           {/* Ring buttons — hidden in joystick-only mode */}
-          {mode !== 'joystick' && MOBILE_HUD_BUTTON_RING.map((button) => (
+          {mode !== 'joystick' && MOBILE_HUD_BUTTON_RING.map((button: Record<string, unknown>) => (
             <div
               key={button.id}
               ref={(node) => { ringButtonRefs.current[button.id] = node; }}

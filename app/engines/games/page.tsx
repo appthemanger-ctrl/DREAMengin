@@ -11,7 +11,7 @@ interface GamesEnginAppPageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function GamesEnginAppPage(props?: GamesEnginAppPageProps) {
+export default async function GamesEnginAppPage(props?: GamesEnginAppPageProps {
   await connection();
   const searchParams = props?.searchParams;
   const currentSearchParams = searchParams ? await searchParams : undefined;

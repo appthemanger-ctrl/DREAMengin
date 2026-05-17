@@ -23,7 +23,7 @@ const ACTION_TEMPLATES: Array<{ id: Action; data: Float32Array }> = [
 let engine: GCTEngine | null = null;
 let initPromise: Promise<void> | null = null;
 
-async function getEngine(): Promise<GCTEngine> {
+async function getEngine(: Promise<GCTEngine> {
   if (!engine) {
     engine = new GCTEngine({ preferGPU: true, numTemplates: 24 });
     initPromise = engine.init();
@@ -35,20 +35,20 @@ async function getEngine(): Promise<GCTEngine> {
   return engine;
 }
 
-function deterministicAxisFallback(v: GestureVector): Action {
+function deterministicAxisFallback(v: GestureVector: Action {
   if (Math.abs(v.dx) >= Math.abs(v.dy)) {
     return v.dx < 0 ? 'swipe_left' : 'swipe_right';
   }
   return v.dy < 0 ? 'swipe_up' : 'swipe_down';
 }
 
-export async function chooseAxisAction(v: GestureVector): Promise<{ action: Action; debug: GCTDebug }> {
+export async function chooseAxisAction(v: GestureVector: Promise<{ action: Action; debug: GCTDebug }> {
   const fallback = deterministicAxisFallback(v);
   const templateInput = new Float32Array([v.dx, v.dy, Math.max(v.magnitude, 1)]);
 
   try {
     const gct = await getEngine();
-    const templates: Template[] = ACTION_TEMPLATES.map((t) => ({ id: t.id, data: t.data }));
+    const templates: Template[] = ACTION_TEMPLATES.map((t: Record<string, unknown>) => ({ id: t.id, data: t.data }));
     const matches = await gct.search(templateInput, templates, 0.72);
     const sorted = sortMatches(matches);
 
@@ -63,7 +63,7 @@ export async function chooseAxisAction(v: GestureVector): Promise<{ action: Acti
         action: fallback,
         debug: {
           used: false,
-          scores: sorted.slice(0, 4).map((m) => ({ id: m.templateId, correlation: Number(m.correlation.toFixed(3)) })),
+          scores: sorted.slice(0, 4).map((m: Record<string, unknown>) => ({ id: m.templateId, correlation: Number(m.correlation.toFixed(3)) })),
         },
       };
     }
@@ -73,7 +73,7 @@ export async function chooseAxisAction(v: GestureVector): Promise<{ action: Acti
       debug: {
         used: true,
         selectedId: winner.templateId,
-        scores: sorted.slice(0, 4).map((m) => ({ id: m.templateId, correlation: Number(m.correlation.toFixed(3)) })),
+        scores: sorted.slice(0, 4).map((m: Record<string, unknown>) => ({ id: m.templateId, correlation: Number(m.correlation.toFixed(3)) })),
       },
     };
   } catch {
@@ -81,8 +81,8 @@ export async function chooseAxisAction(v: GestureVector): Promise<{ action: Acti
   }
 }
 
-function sortMatches(matches: GCTMatch[]): GCTMatch[] {
-  return [...matches].sort((a, b) => b.correlation - a.correlation);
+function sortMatches(matches: GCTMatch[]: GCTMatch[] {
+  return [...matches].sort(a: Record<string, unknown>, b: Record<string, unknown> => b.correlation - a.correlation);
 }
 
 export type WidgetCandidate = {
@@ -101,7 +101,7 @@ export async function chooseWidgetForSlot(
 
   try {
     const gct = await getEngine();
-    const templates: Template[] = candidates.map((candidate) => ({
+    const templates: Template[] = candidates.map((candidate: Record<string, unknown>) => ({
       id: candidate.widget_instance_id,
       data: candidate.contextVector,
     }));
@@ -120,7 +120,7 @@ export async function chooseWidgetForSlot(
       debug: {
         used: true,
         selectedId: selected.templateId,
-        scores: matches.slice(0, 6).map((m) => ({ id: m.templateId, correlation: Number(m.correlation.toFixed(3)) })),
+        scores: matches.slice(0, 6).map((m: Record<string, unknown>) => ({ id: m.templateId, correlation: Number(m.correlation.toFixed(3)) })),
       },
     };
   } catch {

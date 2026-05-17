@@ -49,7 +49,7 @@ interface FeedState {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function relativeTime(iso: string): string {
+function relativeTime(iso: string: string {
   if (!iso) return '';
   const diff = Date.now() - new Date(iso).getTime();
   const minutes = Math.floor(diff / 60_000);
@@ -62,7 +62,7 @@ function relativeTime(iso: string): string {
   return new Date(iso).toLocaleDateString();
 }
 
-function formatViews(n: number): string {
+function formatViews(n: number: string {
   if (n <= 0) return '';
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M views`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K views`;
@@ -71,7 +71,7 @@ function formatViews(n: number): string {
 
 // ── Instagram embed script loader ─────────────────────────────────────────────
 
-function useInstagramEmbedScript(hasInstagram: boolean) {
+function useInstagramEmbedScript(hasInstagram: boolean {
   useEffect(() => {
     if (!hasInstagram) return;
     if (document.querySelector('script[src*="instagram.com/embed.js"]')) {
@@ -91,7 +91,7 @@ function useInstagramEmbedScript(hasInstagram: boolean) {
 
 // ── Skeleton card ─────────────────────────────────────────────────────────────
 
-function SkeletonCard() {
+function SkeletonCard( {
   return (
     <div style={{
       borderRadius: 12, overflow: 'hidden',
@@ -113,7 +113,7 @@ function SkeletonCard() {
 
 // ── Embed card ────────────────────────────────────────────────────────────────
 
-function EmbedCard({ item }: { item: EmbedFeedItem }) {
+function EmbedCard({ item }: { item: EmbedFeedItem } {
   const isYouTube   = item.provider === 'youtube';
   const isInstagram = item.provider === 'instagram';
 
@@ -227,7 +227,7 @@ function EmbedCard({ item }: { item: EmbedFeedItem }) {
         {/* Tags */}
         {item.tags.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 2 }}>
-            {item.tags.slice(0, 4).map((tag) => (
+            {item.tags.slice(0, 4).map((tag: Record<string, unknown>) => (
               <span
                 key={tag}
                 style={{
@@ -269,7 +269,7 @@ export default function EmbedFeedWidget({
     const ctrl = new AbortController();
     abortRef.current = ctrl;
 
-    setState((s) => ({ ...s, loading: true, error: null }));
+    setState(s: string => ({ ...s, loading: true, error: null }));
 
     try {
       const params = new URLSearchParams({ limit: String(limit) });
@@ -285,7 +285,7 @@ export default function EmbedFeedWidget({
       setState({ items: data.items, generatedAt: data.generated_at, loading: false, error: null });
     } catch (err) {
       if ((err as { name?: string }).name === 'AbortError') return;
-      setState((s) => ({
+      setState(s: string => ({
         ...s,
         loading: false,
         error: (err instanceof Error ? err.message : 'Failed to load embed feed'),
@@ -297,7 +297,7 @@ export default function EmbedFeedWidget({
     fetchFeed(provider);
   }, [fetchFeed, provider]);
 
-  const hasInstagram = state.items.some((i) => i.provider === 'instagram');
+  const hasInstagram = state.items.some(i: number => i.provider === 'instagram');
   useInstagramEmbedScript(hasInstagram);
 
   // ── Provider tabs ──────────────────────────────────────────────────────────
@@ -312,7 +312,7 @@ export default function EmbedFeedWidget({
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <div style={{ flex: 1, display: 'flex', gap: 4 }}>
-          {tabs.map((tab) => (
+          {tabs.map((tab: Record<string, unknown>) => (
             <button
               key={tab.id}
               type="button"
@@ -382,7 +382,7 @@ export default function EmbedFeedWidget({
           gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
           gap: 12,
         }}>
-          {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
+          {Array.from({ length: 4 }).map(_: Record<string, unknown>, i: number => <SkeletonCard key={i} />)}
         </div>
       )}
 
@@ -413,7 +413,7 @@ export default function EmbedFeedWidget({
           gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
           gap: 12,
         }}>
-          {state.items.map((item) => (
+          {state.items.map((item: Record<string, unknown>) => (
             <EmbedCard key={`${item.provider}-${item.id}`} item={item} />
           ))}
         </div>

@@ -28,7 +28,7 @@ export interface DreamArtifact {
   ownerId: string;
   isSystemModule: boolean;
   createdAt: number;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface ActiveModuleInstance {
@@ -36,7 +36,7 @@ export interface ActiveModuleInstance {
   artifactId: string;
   runtimeRegion: RuntimeRegionKey;
   containerId: string;
-  state: any;
+  state: unknown;
   dreamWindowId?: string;
   moduleUrl?: string;
   title?: string;

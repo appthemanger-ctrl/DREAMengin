@@ -29,7 +29,7 @@ const COL = {
   bossEye: '#ff5577',
 } as const;
 
-export default function NiteFlyerSolarHymn() {
+export default function NiteFlyerSolarHymn( {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const birdRef = useRef({ x: 140, y: H / 2, vy: 0 });
@@ -94,7 +94,7 @@ export default function NiteFlyerSolarHymn() {
           pipesRef.current.push({ x: W + 40, gapY, gapH });
         }
         for (const p of pipesRef.current) p.x -= (180 + chapterRef.current * 30) * dt;
-        pipesRef.current = pipesRef.current.filter((p) => p.x > -80);
+        pipesRef.current = pipesRef.current.filter((p: Record<string, unknown>) => p.x > -80);
         // Collisions
         if (b.y < 0 || b.y > H) { setPhase('defeat'); return; }
         for (const p of pipesRef.current) {

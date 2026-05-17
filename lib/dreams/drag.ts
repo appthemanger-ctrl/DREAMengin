@@ -13,11 +13,11 @@ export interface DreamDragData {
 
 export const DREAM_DRAG_MIME = 'application/x-dreamengin-dream';
 
-export function serializeDreamDragData(data: DreamDragData): string {
+export function serializeDreamDragData(data: DreamDragData: string {
   return JSON.stringify(data);
 }
 
-export function parseDreamDragData(raw: string | null | undefined): DreamDragData | null {
+export function parseDreamDragData(raw: string | null | undefined: DreamDragData | null {
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as Partial<DreamDragData>;
@@ -59,6 +59,6 @@ export async function transferDream(
   return payload;
 }
 
-export function surfaceForRuntime(runtime: DreamRuntime): DreamSurfaceName {
+export function surfaceForRuntime(runtime: DreamRuntime: DreamSurfaceName {
   return runtime === 'HOME' ? 'home' : 'dreamspace';
 }

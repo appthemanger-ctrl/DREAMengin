@@ -52,7 +52,7 @@ const FEATURES = [
   { key: 'zne_local',       label: 'ZNE',   desc: 'Zero-Noise Extrapolation (local)',            color: '#ec4899' },
 ] as const;
 
-export default function PortfolioEngin({ onBack }: Props) {
+export default function PortfolioEngin({ onBack }: Props {
   const [algorithm, setAlgorithm] = useState<Algorithm>('vqe');
   const [backend,   setBackend]   = useState<Backend>('local_simulator');
   const [ansatz,    setAnsatz]    = useState<Ansatz>('real_amplitudes');
@@ -64,7 +64,7 @@ export default function PortfolioEngin({ onBack }: Props) {
   // Portfolio is its own 7th engine — pulse Forge under its own enginId
   const forge = useForgeActivity({ enginId: 'portfolio' });
 
-  async function handleRun() {
+  async function handleRun( {
     setRunning(true);
     setResult(null);
     setError(null);
@@ -349,7 +349,7 @@ export default function PortfolioEngin({ onBack }: Props) {
             <div className="de-widget-body">
               {/* Per-asset selection */}
               <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
-                {quantumResult.selectedAssets.map((selected, i) => (
+                {quantumResult.selectedAssets.map(selected: Record<string, unknown>, i: number => (
                   <div key={i} style={{
                     flex: 1, padding: '8px 4px', borderRadius: 8, textAlign: 'center',
                     background:  selected ? `${ACCENT}10` : 'transparent',
@@ -383,7 +383,7 @@ export default function PortfolioEngin({ onBack }: Props) {
               </div>
               {/* Probability distribution summary */}
               <div style={{ marginTop: 8, display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-                {quantumResult.probabilities.map((p, i) => (
+                {quantumResult.probabilities.map(p: Record<string, unknown>, i: number => (
                   p > 0.02 ? (
                     <span key={i} style={{
                       fontSize: 9, fontFamily: 'monospace', padding: '2px 5px',
@@ -452,7 +452,7 @@ export default function PortfolioEngin({ onBack }: Props) {
                   { icon: Activity,    label: 'Portfolio Risk',  value: result.portfolioRisk,   unit: '%',  color: '#f59e0b'  },
                   { icon: ShieldCheck, label: 'Sharpe Ratio',   value: result.sharpeRatio,     unit: '',   color: ACCENT     },
                   { icon: Cpu,         label: 'Objective',      value: result.objectiveValue,  unit: '',   color: PURPLE    },
-                ].map(({ icon: Icon, label, value, unit, color }) => (
+                ].map({ icon: Icon, label: string, value: Record<string, unknown>, unit: Record<string, unknown>, color } => (
                   <div
                     key={label}
                     className="de-metric de-surface"

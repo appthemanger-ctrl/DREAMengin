@@ -23,7 +23,7 @@ interface PolicyEvent {
   policy_version: string;
 }
 
-export default async function SafetySettingsPage() {
+export default async function SafetySettingsPage( {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -32,7 +32,7 @@ export default async function SafetySettingsPage() {
   // policy_events is not yet in the generated Supabase schema types;
   // cast to any until the table is added to the type generation pipeline.
    
-  const { data: logData } = await (supabase as any)
+  const { data: logData } = await (supabase as SupabaseClient)
     .from('policy_events')
     .select('event_id, timestamp, action, rule_code, category, expiry, policy_version')
     .eq('user_id', user.id)
@@ -108,7 +108,7 @@ export default async function SafetySettingsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {log.map((entry) => (
+                  {log.map((entry: Record<string, unknown>) => (
                     <tr key={entry.event_id} style={{ borderTop: '1px solid rgba(160,195,240,0.15)' }}>
                       <td style={{ padding: '5px 6px', color: 'var(--de-text-dim)', whiteSpace: 'nowrap' }}>
                         {new Date(entry.timestamp).toLocaleDateString()}

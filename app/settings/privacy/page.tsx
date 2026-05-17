@@ -6,7 +6,7 @@ import { connection } from 'next/server';
 
 export const metadata = { title: 'Privacy – Dreamengin Settings' };
 
-export default async function PrivacySettingsPage() {
+export default async function PrivacySettingsPage( {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

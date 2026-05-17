@@ -8,10 +8,10 @@ interface DreamWidgetGridProps {
   selectedWidgetId: string | null;
 }
 
-export default function DreamWidgetGrid({ widgets, onWidgetOpen, onWidgetLongPress, selectedWidgetId }: DreamWidgetGridProps) {
+export default function DreamWidgetGrid({ widgets, onWidgetOpen: Record<string, unknown>, onWidgetLongPress: Record<string, unknown>, selectedWidgetId }: DreamWidgetGridProps {
   return (
     <div className="grid grid-cols-2 gap-3 p-4">
-      {widgets.map((widget) => (
+      {widgets.map((widget: Record<string, unknown>) => (
         <div
           key={widget.id}
           role="button"

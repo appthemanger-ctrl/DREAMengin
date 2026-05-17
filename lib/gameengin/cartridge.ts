@@ -23,7 +23,7 @@
 export const ENGINE_VERSION = '2.0.0';
 
 /** Compare semver strings. Returns true if engine satisfies minVersion. */
-export function engineSatisfies(minVersion: string): boolean {
+export function engineSatisfies(minVersion: string: boolean {
   const parse = (v: string) => v.split('.').map(Number);
   const [maj, min, pat] = parse(ENGINE_VERSION);
   const [rMaj, rMin, rPat] = parse(minVersion);
