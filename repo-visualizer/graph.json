@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-17T05:32:08.261Z",
+  "generatedAt": "2026-05-17T08:08:39.002Z",
   "root": ".",
   "nodes": [
     {
@@ -3215,6 +3215,16 @@
       "label": "COOP_AND_SOLO_ROADMAP.md",
       "type": "doc",
       "path": "COOP_AND_SOLO_ROADMAP.md",
+      "parent": "folder:.",
+      "loc": null,
+      "isOrphan": true,
+      "tags": []
+    },
+    {
+      "id": "file:DREAMengin-repaired-with-nodemodules.zip",
+      "label": "DREAMengin-repaired-with-nodemodules.zip",
+      "type": "file",
+      "path": "DREAMengin-repaired-with-nodemodules.zip",
       "parent": "folder:.",
       "loc": null,
       "isOrphan": true,
