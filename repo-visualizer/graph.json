@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-17T05:32:08.261Z",
+  "generatedAt": "2026-05-17T06:43:15.799Z",
   "root": ".",
   "nodes": [
     {
@@ -3215,6 +3215,16 @@
       "label": "COOP_AND_SOLO_ROADMAP.md",
       "type": "doc",
       "path": "COOP_AND_SOLO_ROADMAP.md",
+      "parent": "folder:.",
+      "loc": null,
+      "isOrphan": true,
+      "tags": []
+    },
+    {
+      "id": "file:DREAMenginree-fixed 3.zip",
+      "label": "DREAMenginree-fixed 3.zip",
+      "type": "file",
+      "path": "DREAMenginree-fixed 3.zip",
       "parent": "folder:.",
       "loc": null,
       "isOrphan": true,
