@@ -77,7 +77,7 @@ const pendingJobs = new Map<
   }
 >();
 
-function getWorker(: Worker {
+function getWorker(: Worker) {
   if (!workerInstance) {
     workerInstance = new Worker('/workers/asset-optimizer.worker.js');
     workerInstance.onmessage = (e: MessageEvent) => {
@@ -154,7 +154,7 @@ export async function optimiseAsset(
  * Returns the appropriate folder and source tags for the global_registry
  * based on the upload context.
  */
-export function registryTagsForContext(context: AssetUploadContext: {
+export function registryTagsForContext(context: AssetUploadContext:) {
   folder: string;
   source: string;
 } {

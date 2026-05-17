@@ -8,7 +8,7 @@ const SECRET = process.env.AI_CONFIRM_TOKEN_SECRET;
 // Resolved at module load; null in production when env var is absent.
 const CACHED_SECRET = SECRET || (process.env.NODE_ENV === 'production' ? null : 'dev-secret-change-in-production');
 
-function getSecret(: string {
+function getSecret(: string) {
   if (!CACHED_SECRET) {
     throw new Error('AI_CONFIRM_TOKEN_SECRET environment variable is required');
   }
@@ -30,7 +30,7 @@ interface VerifyConfirmTokenInput {
 /**
  * Generate HMAC confirmation token
  */
-export function makeConfirmToken(input: MakeConfirmTokenInput: string {
+export function makeConfirmToken(input: MakeConfirmTokenInput: string) {
   const { requestId, userId, ttlSeconds } = input;
   const expiresAt = Date.now() + ttlSeconds * 1000;
   const payload = `${requestId}:${userId}:${expiresAt}`;
@@ -47,7 +47,7 @@ export function makeConfirmToken(input: MakeConfirmTokenInput: string {
 /**
  * Verify confirmation token
  */
-export function verifyConfirmToken(input: VerifyConfirmTokenInput: boolean {
+export function verifyConfirmToken(input: VerifyConfirmTokenInput: boolean) {
   const { token, requestId, userId } = input;
   
   try {

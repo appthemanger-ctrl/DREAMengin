@@ -71,7 +71,7 @@ export async function checkRateLimit(
  * Get current RPM for boogie evaluation (read-only, no increment).
  * Reads from ai_rate_limits by user_id + endpoint, using the latest window.
  */
-export async function getCurrentRPM(userId: string, endpoint: string: Promise<number> {
+export async function getCurrentRPM(userId: string, endpoint: string: Promise<number>) {
   try {
     const supabase = await createServerClient();
 

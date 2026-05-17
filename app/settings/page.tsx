@@ -49,7 +49,7 @@ const NAV_GROUPS = [
   },
 ];
 
-export default async function SettingsPage( {
+export default async function SettingsPage() {
   await connection();
   let isAdmin = false;
   let authWarning: string | null = null;

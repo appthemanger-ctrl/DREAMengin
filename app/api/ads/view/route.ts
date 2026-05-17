@@ -45,12 +45,12 @@ type InsertedAdViewRow = {
   id?: string | null;
 };
 
-function getInsertedAdViewId(adView: InsertedAdViewRow: string | null {
+function getInsertedAdViewId(adView: InsertedAdViewRow: string | null) {
   const id = adView.id;
   return typeof id === 'string' && id.length > 0 ? id : null;
 }
 
-export async function POST(req: NextRequest {
+export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
   const db = supabase as unknown as ActivitySupabaseClient;
 

@@ -207,14 +207,14 @@ export const FX_PRESETS: FxPreset[] = [
 /**
  * Get a preset by id. Returns undefined if not found.
  */
-export function getPreset(id: string: FxPreset | undefined {
+export function getPreset(id: string: FxPreset | undefined) {
   return FX_PRESETS.find(p => p.id === id);
 }
 
 /**
  * Filter presets by category.
  */
-export function presetsByCategory(category: FxCategory: FxPreset[] {
+export function presetsByCategory(category: FxCategory: FxPreset[]) {
   return FX_PRESETS.filter(p => p.category === category);
 }
 
@@ -256,7 +256,7 @@ export function setSimParam(
 /**
  * Get the effective parameter value (override if set, else preset default).
  */
-export function getSimParam(sim: FxSimulation, paramName: string: FxParam['value'] | undefined {
+export function getSimParam(sim: FxSimulation, paramName: string: FxParam['value'] | undefined) {
   if (paramName in sim.overrides) return sim.overrides[paramName];
   const preset = getPreset(sim.presetId);
   return preset?.params.find(p => p.name === paramName)?.value;
@@ -265,13 +265,13 @@ export function getSimParam(sim: FxSimulation, paramName: string: FxParam['value
 /**
  * Reset all parameter overrides to preset defaults.
  */
-export function resetSimParams(sim: FxSimulation: FxSimulation {
+export function resetSimParams(sim: FxSimulation: FxSimulation) {
   return { ...sim, overrides: {} };
 }
 
 /**
  * Return all unique categories present in the preset catalogue.
  */
-export function allCategories(: FxCategory[] {
+export function allCategories(: FxCategory[]) {
   return [...new Set(FX_PRESETS.map(p => p.category))];
 }

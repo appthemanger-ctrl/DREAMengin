@@ -106,7 +106,7 @@ export interface UseLiveFeedReturn {
 
 // ── Hook ───────────────────────────────────────────────────────────────────────
 
-export function useLiveFeed(userId: string, initialPosts: FeedPost[]: UseLiveFeedReturn {
+export function useLiveFeed(userId: string, initialPosts: FeedPost[]: UseLiveFeedReturn) {
   const [posts, setPosts] = useState<FeedPost[]>(initialPosts);
   // Posts from other users held in a queue until the user taps the banner
   const [queued, setQueued] = useState<FeedPost[]>([]);

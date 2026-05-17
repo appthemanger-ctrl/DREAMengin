@@ -31,7 +31,7 @@ const JOYSTICK_TRAVEL_RATIO = 0.45;
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function loadPersisted(key: string, fallback: number, min?: number, max?: number: number {
+function loadPersisted(key: string, fallback: number, min?: number, max?: number: number) {
   try {
     const v = parseFloat(localStorage.getItem(key) ?? '');
     if (!isNaN(v) && (min === undefined || v >= min) && (max === undefined || v <= max)) return v;
@@ -39,7 +39,7 @@ function loadPersisted(key: string, fallback: number, min?: number, max?: number
   return fallback;
 }
 
-function savePersisted(key: string, value: number {
+function savePersisted(key: string, value: number) {
   try { localStorage.setItem(key, String(value)); } catch { /* ignore */ }
 }
 
@@ -54,7 +54,7 @@ interface MobileGameHUDProps {
 const ZERO_VECTOR: MobileControlVector = { x: 0, y: 0 };
 type TouchPoint = { clientX: number; clientY: number };
 
-function getStickTransform(vector: MobileControlVector {
+function getStickTransform(vector: MobileControlVector) {
   return `translate(calc(-50% + ${vector.x * 50}%), calc(-50% + ${vector.y * 50}%))`;
 }
 
@@ -65,7 +65,7 @@ function keepPreviousVectorIfUnchanged(
   return previous.x === next.x && previous.y === next.y ? previous : next;
 }
 
-function formatVectorLabel(vector: MobileControlVector, idleLabel: string {
+function formatVectorLabel(vector: MobileControlVector, idleLabel: string) {
   const magnitude = Math.hypot(vector.x, vector.y);
   if (magnitude < 0.08) return idleLabel;
   const x = vector.x > 0.18 ? 'R' : vector.x < -0.18 ? 'L' : '•';
@@ -73,7 +73,7 @@ function formatVectorLabel(vector: MobileControlVector, idleLabel: string {
   return `${x}${y}`;
 }
 
-function isInJoystickZone(touch: TouchPoint, dock: HTMLDivElement | null: boolean {
+function isInJoystickZone(touch: TouchPoint, dock: HTMLDivElement | null: boolean) {
   if (!dock) return false;
   const rect = dock.getBoundingClientRect();
   const dist = Math.hypot(
@@ -85,7 +85,7 @@ function isInJoystickZone(touch: TouchPoint, dock: HTMLDivElement | null: boolea
 
 const INTERACTIVE_BUTTONS = new Set(['jump', 'dash', 'action']);
 
-export default function MobileGameHUD({ gameLabel, gameEmoji: Record<string, unknown>, mode: Record<string, unknown>, onExit }: MobileGameHUDProps {
+export default function MobileGameHUD() { gameLabel, gameEmoji: Record<string, unknown>, mode: Record<string, unknown>, onExit }: MobileGameHUDProps {
   const leftDockRef = useRef<HTMLDivElement>(null);
   const rightDockRef = useRef<HTMLDivElement>(null);
   const leftCapRef = useRef<HTMLDivElement>(null);

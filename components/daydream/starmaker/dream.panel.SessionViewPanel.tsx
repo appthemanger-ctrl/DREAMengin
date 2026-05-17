@@ -53,7 +53,7 @@ interface SessionViewPanelProps {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function SessionViewPanel({ state, bpm: Record<string, unknown>, onStateChange }: SessionViewPanelProps {
+export default function SessionViewPanel() { state, bpm: Record<string, unknown>, onStateChange }: SessionViewPanelProps {
   const [isOpen, setIsOpen] = useState(false);
   const [flash, setFlash] = useState(false);
   const flashTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -92,7 +92,7 @@ export default function SessionViewPanel({ state, bpm: Record<string, unknown>, 
     });
   }, [state, tracks, onStateChange]);
 
-  function handleClipClick(trackId: string, clipIndex: number {
+  function handleClipClick(trackId: string, clipIndex: number) {
     const track = tracks.find(t => t.id === trackId);
     if (!track) return;
     const clip = track.clips[clipIndex];
@@ -114,7 +114,7 @@ export default function SessionViewPanel({ state, bpm: Record<string, unknown>, 
     });
   }
 
-  function handleSceneLaunch(sceneIndex: number {
+  function handleSceneLaunch(sceneIndex: number) {
     // Launch all non-empty clips in this scene row, stop others in each track
     onStateChange({
       ...state,
@@ -128,7 +128,7 @@ export default function SessionViewPanel({ state, bpm: Record<string, unknown>, 
     });
   }
 
-  function handleStopAll( {
+  function handleStopAll() {
     onStateChange({
       ...state,
       tracks: tracks.map(tr => ({
@@ -138,24 +138,24 @@ export default function SessionViewPanel({ state, bpm: Record<string, unknown>, 
     });
   }
 
-  function handleMuteToggle(trackId: string {
+  function handleMuteToggle(trackId: string) {
     const track = tracks.find(t => t.id === trackId);
     if (!track) return;
     updateTrack(trackId, { muted: !track.muted });
   }
 
-  function handleSoloToggle(trackId: string {
+  function handleSoloToggle(trackId: string) {
     const newSolo = soloTrackId === trackId ? null : trackId;
     onStateChange({ ...state, soloTrackId: newSolo });
   }
 
-  function handleArmToggle(trackId: string {
+  function handleArmToggle(trackId: string) {
     const track = tracks.find(t => t.id === trackId);
     if (!track) return;
     updateTrack(trackId, { armed: !track.armed });
   }
 
-  function handleVolumeChange(trackId: string, volume: number {
+  function handleVolumeChange(trackId: string, volume: number) {
     updateTrack(trackId, { volume });
   }
 

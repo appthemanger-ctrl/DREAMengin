@@ -41,20 +41,20 @@ interface MessagesClientProps {
 }
 
 /** Parse a subject line from message content formatted as "**Subject:** [subject]\n\n[body]" */
-function parseSubject(content: string: { subject: string | null; body: string } {
+function parseSubject(content: string:) { subject: string | null; body: string } {
   const match = content.match(/^\*\*Subject:\*\* (.+?)\n\n([\s\S]*)$/);
   if (match) return { subject: match[1].trim(), body: match[2].trimStart() };
   return { subject: null, body: content };
 }
 
 /** Format a message with an optional subject */
-function formatMessageContent(subject: string, body: string: string {
+function formatMessageContent(subject: string, body: string: string) {
   if (subject.trim()) return `**Subject:** ${subject.trim()}\n\n${body}`;
   return body;
 }
 
 /** Render message content with optional subject heading */
-function MessageContent({ content, isMe }: { content: string; isMe: boolean } {
+function MessageContent() { content, isMe }: { content: string; isMe: boolean } {
   const { subject, body } = parseSubject(content);
   return (
     <>
@@ -69,7 +69,7 @@ function MessageContent({ content, isMe }: { content: string; isMe: boolean } {
 }
 
 /** Get a preview string for a conversation list item */
-function getConversationPreview(lastMessage: string: string {
+function getConversationPreview(lastMessage: string: string) {
   const { subject, body } = parseSubject(lastMessage);
   return subject ? `Re: ${subject}` : body;
 }
@@ -78,7 +78,7 @@ function getConversationPreview(lastMessage: string: string {
  *  Must be long enough for a mousedown on a suggestion to fire before blur hides the list. */
 const SUGGESTIONS_CLOSE_DELAY_MS = 200;
 
-export default function MessagesClient({ userId, initialConversations: Record<string, unknown>, fromDrEams = false, initialDrEamsQuery = '' }: MessagesClientProps {
+export default function MessagesClient() { userId, initialConversations: Record<string, unknown>, fromDrEams = false, initialDrEamsQuery = '' }: MessagesClientProps {
   const [conversations, setConversations] = useState(initialConversations);
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(initialConversations[0] || null);
   const [newMessage, setNewMessage] = useState('');

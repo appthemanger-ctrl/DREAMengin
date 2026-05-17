@@ -87,7 +87,7 @@ const fetcher = async (key: string) => {
 /**
  * Hook for managing spatial navigation state
  */
-export function useSpatialNavigation(initialSpace: SpaceType = "home" {
+export function useSpatialNavigation(initialSpace: SpaceType = "home") {
   const [navigation, setNavigation] = useState<NavigationState>({
     space: initialSpace,
     currentIndex: 0,
@@ -152,7 +152,7 @@ export function useSpatialNavigation(initialSpace: SpaceType = "home" {
 /**
  * Hook for managing widgets
  */
-export function useWidgets(userId: string, space?: SpaceType {
+export function useWidgets(userId: string, space?: SpaceType) {
   const key = space ? `widgets/${userId}/${space}` : `widgets/${userId}`;
   const { data: widgets, error, isLoading } = useSWR<Widget[]>(key, fetcher);
 
@@ -247,7 +247,7 @@ export function useWidgets(userId: string, space?: SpaceType {
 /**
  * Hook for managing content objects (HOME content archive)
  */
-export function useContent(userId: string {
+export function useContent(userId: string) {
   const key = `content/${userId}`;
   const { data: content, error, isLoading } = useSWR<ContentObject[]>(key, fetcher);
 
@@ -332,7 +332,7 @@ export function useContent(userId: string {
 /**
  * Hook for managing albums
  */
-export function useAlbums(userId: string {
+export function useAlbums(userId: string) {
   const key = `albums/${userId}`;
   const { data: albums, error, isLoading } = useSWR<Album[]>(key, fetcher);
 
@@ -414,7 +414,7 @@ export function useAlbums(userId: string {
 /**
  * Hook for sharing content from HOME to PROFILE
  */
-export function useShareToProfile(userId: string {
+export function useShareToProfile(userId: string) {
   const [isSharing, setIsSharing] = useState(false);
 
   const shareContent = useCallback(

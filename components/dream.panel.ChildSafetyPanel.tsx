@@ -76,7 +76,7 @@ const RULE_CONFIG: Record<string, { label: string; color: string; emoji: string 
 // HELPERS
 // ============================================================================
 
-function severityBar(severity: number {
+function severityBar(severity: number) {
   const pct = Math.round(severity * 100);
   const color = severity >= 0.8 ? '#dc2626' : severity >= 0.5 ? '#f59e0b' : '#22c55e';
   return (
@@ -89,7 +89,7 @@ function severityBar(severity: number {
   );
 }
 
-function relativeTime(iso: string: string {
+function relativeTime(iso: string: string) {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60_000);
   if (mins < 1) return 'just now';
@@ -107,7 +107,7 @@ interface ChildSafetyPanelProps {
   isAdmin: boolean;
 }
 
-export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps {
+export default function ChildSafetyPanel() { isAdmin }: ChildSafetyPanelProps {
   const [activeTab, setActiveTab] = useState<'queue' | 'hashes'>('queue');
 
   // ── Queue state ──────────────────────────────────────────────────────────

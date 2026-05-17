@@ -114,7 +114,7 @@ interface BridgeEvent {
 
 type Props = { onBack: () => void };
 
-export default function ForgeEngin({ onBack }: Props {
+export default function ForgeEngin() { onBack }: Props {
   const [showAIBuilder, setShowAIBuilder] = useState(false);
   const [activity, setActivity] = useState<ForgeActivityPulse[]>([]);
   const [selectedEngine, setSelectedEngine] = useState<string | null>(null);
@@ -1388,7 +1388,7 @@ export default function ForgeEngin({ onBack }: Props {
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function PulseCard({ icon, label, value, accent }: {
+function PulseCard() { icon, label, value, accent }: {
   icon: React.ReactNode;
   label: string;
   value: string;
@@ -1410,7 +1410,7 @@ function PulseCard({ icon, label, value, accent }: {
   );
 }
 
-function EngineStatusCard({ engine, heat, lastActive, isSelected, onSelect }: {
+function EngineStatusCard() { engine, heat, lastActive, isSelected, onSelect }: {
   engine: EnginEntry;
   heat: number;
   lastActive: string;
@@ -1481,7 +1481,7 @@ function EngineStatusCard({ engine, heat, lastActive, isSelected, onSelect }: {
   );
 }
 
-function EngineDetailPanel({ engine, heat, lastActive, activity }: {
+function EngineDetailPanel() { engine, heat, lastActive, activity }: {
   engine: EnginEntry;
   heat: number;
   lastActive: string;
@@ -1607,7 +1607,7 @@ const LINKAGES = [
 
 // ── Suggestion Card ───────────────────────────────────────────────────────────
 
-function SuggestionCard({ suggestion }: { suggestion: ForgeSuggestion } {
+function SuggestionCard() { suggestion }: { suggestion: ForgeSuggestion } {
   return (
     <div
       style={{
@@ -1655,7 +1655,7 @@ function SuggestionCard({ suggestion }: { suggestion: ForgeSuggestion } {
 
 // ── Active Workflow Panel ─────────────────────────────────────────────────────
 
-function ActiveWorkflowPanel({ run, allWorkflows, onCompleteStep, onFailStep, onDismiss }: {
+function ActiveWorkflowPanel() { run, allWorkflows, onCompleteStep, onFailStep, onDismiss }: {
   run: WorkflowRunState;
   allWorkflows: readonly ForgeWorkflow[];
   onCompleteStep: (i: number) => void;
@@ -1801,7 +1801,7 @@ function ActiveWorkflowPanel({ run, allWorkflows, onCompleteStep, onFailStep, on
 
 // ── Workflow Card ─────────────────────────────────────────────────────────────
 
-function WorkflowCard({ workflow, onStart, onDelete, isCustom }: {
+function WorkflowCard() { workflow, onStart, onDelete, isCustom }: {
   workflow: ForgeWorkflow;
   onStart?: () => void;
   onDelete?: () => void;

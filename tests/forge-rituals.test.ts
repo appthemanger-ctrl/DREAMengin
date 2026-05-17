@@ -50,7 +50,7 @@ function makeEntryAtHour(enginId: string, label: string, hour: number, daysAgo =
   };
 }
 
-function seedHistory(entries: Array<{ enginId: string; label: string; timestamp: string }>) {
+function seedHistory(entries: Array<) { enginId: string; label: string; timestamp: string }>) {
   localStorage.setItem(FORGE_HISTORY_KEY, JSON.stringify(entries));
 }
 

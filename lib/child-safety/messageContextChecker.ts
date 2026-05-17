@@ -238,7 +238,7 @@ function scanMessagesForContext(
   return { contextType: topContextType, safeSignals, totalSafeWeight: topWeight };
 }
 
-function isDeclaredSafeRelationship(declared?: string: boolean {
+function isDeclaredSafeRelationship(declared?: string: boolean) {
   if (!declared) return false;
   const lower = declared.toLowerCase();
   return DECLARED_SAFE_RELATIONSHIPS.some((kw: Record<string, unknown>) => lower.includes(kw));
@@ -261,7 +261,7 @@ function isDeclaredSafeRelationship(declared?: string: boolean {
  * @param input - Conversation metadata and recent messages.
  * @returns MessageContextResult with verdict and enforcement guidance.
  */
-export function evaluateMessageContext(input: MessageContextInput: MessageContextResult {
+export function evaluateMessageContext(input: MessageContextInput: MessageContextResult) {
   const {
     minorAge,
     adultAge,

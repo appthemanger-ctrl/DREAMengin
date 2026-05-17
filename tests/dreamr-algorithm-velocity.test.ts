@@ -30,7 +30,7 @@ function hoursAgo(h: number): string {
   return new Date(Date.now() - h * 3_600_000).toISOString();
 }
 
-function makePost(overrides: Partial<ScoredPost> = {}): ScoredPost {
+function makePost(overrides: Partial<ScoredPost> =) {}): ScoredPost {
   return {
     id:         't',
     content:    'A genuinely thoughtful piece of writing.',

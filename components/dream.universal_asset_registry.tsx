@@ -111,11 +111,11 @@ const TYPE_META: Record<string, { icon: React.ReactNode; color: string; label: s
 
 const DEFAULT_TYPE_META = { icon: <Box className="w-4 h-4" />, color: '#64748b', label: 'Object' };
 
-function getTypeMeta(type: string {
+function getTypeMeta(type: string) {
   return TYPE_META[type] ?? DEFAULT_TYPE_META;
 }
 
-function formatTimestamp(iso: string: string {
+function formatTimestamp(iso: string: string) {
   try {
     const d = new Date(iso);
     const now = new Date();
@@ -144,7 +144,7 @@ export interface UniversalAssetRegistryProps {
   onSelectAsset?: (entry: EnrichedEntry) => void;
 }
 
-export default function UniversalAssetRegistry({
+export default function UniversalAssetRegistry() {
   compact = false,
   accentColor = ACCENT,
   onSelectAsset,

@@ -63,7 +63,7 @@ const DEFAULT_SANDBOX: AssemblySandbox = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function ForgeDreamCanvas( {
+export function ForgeDreamCanvas() {
   const [activeCategory, setActiveCategory] = useState<ComponentCategory>('Audio & Music');
   const [placed,         setPlaced]         = useState<PlacedPiece[]>([]);
   const [wires,          setWires]          = useState<Wire[]>([]);

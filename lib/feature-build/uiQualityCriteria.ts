@@ -139,7 +139,7 @@ export const SICC_GLOBAL_CRITERIA: readonly UIQualityCheck[] = [
 // ─── Per-dimension helpers ────────────────────────────────────────────────────
 
 /** Filter global criteria to a single SICC dimension. */
-export function getCriteriaForDimension(dim: SICCDimension: UIQualityCheck[] {
+export function getCriteriaForDimension(dim: SICCDimension: UIQualityCheck[]) {
   return SICC_GLOBAL_CRITERIA.filter((c: Record<string, unknown>) => c.dimension === dim);
 }
 

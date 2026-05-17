@@ -17,7 +17,7 @@ interface PolicyEvent {
   rule_code: string; category: string; expiry: string | null; policy_version: string;
 }
 
-export default function SafetyPanel( {
+export default function SafetyPanel() {
   const { openInSurface } = useDreamSystem();
   const [log, setLog]       = useState<PolicyEvent[]>([]);
   const [loading, setLoading] = useState(true);

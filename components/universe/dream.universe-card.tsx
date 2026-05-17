@@ -10,7 +10,7 @@ interface UniverseCardProps {
   interactive?: boolean;
 }
 
-export function UniverseCard({
+export function UniverseCard() {
   children,
   className,
   glowOnHover = true,
@@ -74,7 +74,7 @@ export function UniverseCard({
 }
 
 // Header variant
-export function UniverseCardHeader({
+export function UniverseCardHeader() {
   children,
   className,
 }: {
@@ -89,7 +89,7 @@ export function UniverseCardHeader({
 }
 
 // Content variant
-export function UniverseCardContent({
+export function UniverseCardContent() {
   children,
   className,
 }: {
@@ -100,7 +100,7 @@ export function UniverseCardContent({
 }
 
 // Footer variant
-export function UniverseCardFooter({
+export function UniverseCardFooter() {
   children,
   className,
 }: {

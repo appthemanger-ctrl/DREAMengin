@@ -44,7 +44,7 @@ interface PeerCursor {
 
 const PEER_COLORS = ['#fbbf24', '#34d399', '#60a5fa', '#f472b6', '#a78bfa', '#fb923c'];
 
-function peerColor(peerId: string: string {
+function peerColor(peerId: string: string) {
   let hash = 0;
   for (let i = 0; i < peerId.length; i++) {
     hash = (hash * 31 + peerId.charCodeAt(i)) & 0xffff;
@@ -54,7 +54,7 @@ function peerColor(peerId: string: string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function SharedDreamShell({
+export function SharedDreamShell() {
   channelId,
   children,
   title,

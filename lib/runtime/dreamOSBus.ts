@@ -69,7 +69,7 @@ type DreamOSCustomEventHandler<K extends DreamOSCustomEventName> = (
 
 const MAX_ARTIFACTS = 48;
 
-function channelToSubsystem(channel: DualRuntimeChannel: string {
+function channelToSubsystem(channel: DualRuntimeChannel: string) {
   switch (channel) {
     case 'music':
       return 'StarMakerEngin';
@@ -88,7 +88,7 @@ function channelToSubsystem(channel: DualRuntimeChannel: string {
   }
 }
 
-function relatedSubsystemsForChannel(channel: DualRuntimeChannel: readonly string[] {
+function relatedSubsystemsForChannel(channel: DualRuntimeChannel: readonly string[]) {
   switch (channel) {
     case 'music':
       return ['GameEngin', 'ContentEngin', 'BrandingEngin', AI_AGENTS.DR_EAMS];
@@ -107,7 +107,7 @@ function relatedSubsystemsForChannel(channel: DualRuntimeChannel: readonly strin
   }
 }
 
-function formatEventTitle(event: string: string {
+function formatEventTitle(event: string: string) {
   return event
     .split(':')
     .map((segment: Record<string, unknown>) => segment.replace(/-/g, ' '))
@@ -115,7 +115,7 @@ function formatEventTitle(event: string: string {
     .join(' · ');
 }
 
-function worldToSubsystemId(world: RuntimeWorld: string {
+function worldToSubsystemId(world: RuntimeWorld: string) {
   if (typeof world === 'string') {
     if (world === 'DreamSpace') return 'dreamspace';
     if (world === 'HomeDream Surface') return 'home';
@@ -129,7 +129,7 @@ function worldToSubsystemId(world: RuntimeWorld: string {
   return 'unknown';
 }
 
-export function deriveAIRuntimeContext(world: RuntimeWorld: RuntimeContext['aiContext'] {
+export function deriveAIRuntimeContext(world: RuntimeWorld: RuntimeContext['aiContext']) {
   const subsystemId = worldToSubsystemId(world).toLowerCase();
   if (subsystemId.includes('code')) return 'code';
   if (subsystemId.includes('lab')) return 'lab';
@@ -140,7 +140,7 @@ export function deriveAIRuntimeContext(world: RuntimeWorld: RuntimeContext['aiCo
   return 'general';
 }
 
-function buildRuntimeContext(input: PublishRuntimeContextInput: RuntimeContext {
+function buildRuntimeContext(input: PublishRuntimeContextInput: RuntimeContext) {
   return {
     ...input,
     aiContext: deriveAIRuntimeContext(input.world),
@@ -158,7 +158,7 @@ function publishRuntimeContextStrategy(
   return next;
 }
 
-function createRuntimeContextContainer(: RuntimeContainer<RuntimeContextStore, PublishRuntimeContextInput> {
+function createRuntimeContextContainer(: RuntimeContainer<RuntimeContextStore, PublishRuntimeContextInput>) {
   return new RuntimeContainer<RuntimeContextStore, PublishRuntimeContextInput>(
     new Map<RuntimeRegion, RuntimeContext>(),
     publishRuntimeContextStrategy,

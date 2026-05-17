@@ -80,7 +80,7 @@ export async function launch(
  * and calls `launch()` with the demo configuration.  Called automatically
  * when this module runs in a browser context.
  */
-async function autoLaunch(: Promise<void> {
+async function autoLaunch(: Promise<void>) {
   if (typeof document === 'undefined') return; // SSR / Node — skip
 
   const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement | null;

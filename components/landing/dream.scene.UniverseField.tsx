@@ -17,18 +17,18 @@ const LIGHT_PRESSURE_COEFF = 0.00000045;
 const a0 = 1.2e-10; // m/s^2 – critical acceleration
 const n = MOND_N;   // 2.1
 
-function mu_T(x: number: number {
+function mu_T(x: number: number) {
   return x / Math.pow(1 + Math.pow(x, n), 1 / n);
 }
 
-function nu_T(y: number: number {
+function nu_T(y: number: number) {
   if (y <= 0) return 1;
   const inv = Math.pow(y, -n);
   const inner = (1 + Math.sqrt(1 + 4 * inv)) / 2;
   return Math.pow(inner, 1 / n);
 }
 
-function torridityAccel(gN: number: number {
+function torridityAccel(gN: number: number) {
   const y = gN / a0;
   if (y < 1e-12) return Math.sqrt(a0 * gN); 
   return gN * nu_T(y);
@@ -45,28 +45,28 @@ const flip_width = 0.1;
 const Omega_L0 = 1 - Omega_m0; 
 
 const a_flip = 1 / (1 + z_flip);
-function darkEnergyDensity(a: number: number {
+function darkEnergyDensity(a: number: number) {
   if (a <= 0) return 0;
   const x = Math.log(a / a_flip) / flip_width;
   const s = (Math.tanh(x) + 1) / 2;
   return Omega_L0 * s;
 }
 
-function omega_total(a: number: number {
+function omega_total(a: number: number) {
   if (a <= 0) return 1e-6;
   const omega_m = Omega_m0 / a ** 3;
   const omega_de = darkEnergyDensity(a);
   return omega_m + omega_de;
 }
 
-function hubbleFromA(a: number: number {
+function hubbleFromA(a: number: number) {
   return H0 * Math.sqrt(omega_total(a));
 }
 
 const AGE_STEPS = 2000;
 let ageTable: { t: number; a: number }[] = [];
 
-function buildAgeTable( {
+function buildAgeTable() {
   const T_PRESENT = 13.8e9; 
   const dt = T_PRESENT / AGE_STEPS;
   ageTable = [{ t: 0, a: 1e-6 }];
@@ -86,7 +86,7 @@ function buildAgeTable( {
   }
 }
 
-function getScaleFactor(ageYears: number: number {
+function getScaleFactor(ageYears: number: number) {
   if (ageTable.length === 0) buildAgeTable();
   if (ageYears <= 0) return 0;
   if (ageYears >= ageTable[AGE_STEPS].t) return ageTable[AGE_STEPS].a;
@@ -120,25 +120,25 @@ interface Galaxy {
   tiltY: number;
 }
 
-function clamp(value: number, min: number, max: number {
+function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, value));
 }
 
-function smoothstep(edge0: number, edge1: number, value: number {
+function smoothstep(edge0: number, edge1: number, value: number) {
   const x = clamp((value - edge0) / (edge1 - edge0), 0, 1);
   return x * x * (3 - 2 * x);
 }
 
-function lerp(from: number, to: number, amount: number {
+function lerp(from: number, to: number, amount: number) {
   return from + (to - from) * amount;
 }
 
-function hash(index: number {
+function hash(index: number) {
   const x = Math.sin(index * 12.9898 + 78.233) * 43758.5453;
   return x - Math.floor(x);
 }
 
-export default function UniverseField(_props: UniverseFieldProps {
+export default function UniverseField(_props: UniverseFieldProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -193,7 +193,7 @@ export default function UniverseField(_props: UniverseFieldProps {
       tiltY: 0.42 + hash(700 + i) * 0.36,
     }));
 
-    function seed( {
+    function seed() {
       for (let i = 0; i < particleCount; i++) {
         x[i] = hash(i) * width;
         y[i] = hash(i + 1) * height;
@@ -225,7 +225,7 @@ export default function UniverseField(_props: UniverseFieldProps {
 
     buildAgeTable();
 
-    function update(dt: number {
+    function update(dt: number) {
       universeAgeYears += dt * COSMIC_SPEED;
       const a = getScaleFactor(universeAgeYears); 
       const formation = smoothstep(5, 15, universeAgeYears / 1e9); 

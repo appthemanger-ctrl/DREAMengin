@@ -216,25 +216,25 @@ const STEM_LIST: { key: StemKey; label: string }[] = [
 
 // ─── Pure helpers ──────────────────────────────────────────────────────────────
 
-function createEmptyBeatGrid(: BeatGrid {
+function createEmptyBeatGrid(: BeatGrid) {
   return Array.from({ length: BEAT_CHANNELS.length }, () =>
     Array.from({ length: BEAT_STEPS }, () => false),
   );
 }
 
-function clamp(v: number, lo: number, hi: number: number {
+function clamp(v: number, lo: number, hi: number: number) {
   return Math.min(hi, Math.max(lo, v));
 }
 
-function getDefaultChord(musicalKey: MusicalKey, keyMode: 'major' | 'minor': string {
+function getDefaultChord(musicalKey: MusicalKey, keyMode: 'major' | 'minor': string) {
   return `${musicalKey}${keyMode === 'minor' ? 'min' : 'maj'}`;
 }
 
-function getQualityModeGainMultiplier(qualityMode: PlaybackQualityMode: number {
+function getQualityModeGainMultiplier(qualityMode: PlaybackQualityMode: number) {
   return qualityMode === 'studio' ? 0.12 : qualityMode === 'streaming' ? 0.095 : 0.08;
 }
 
-function getQualityModeVisualBoost(qualityMode: PlaybackQualityMode: number {
+function getQualityModeVisualBoost(qualityMode: PlaybackQualityMode: number) {
   return qualityMode === 'studio' ? 0.12 : qualityMode === 'streaming' ? 0.06 : 0.02;
 }
 
@@ -267,7 +267,7 @@ const bpmBtnStyle: React.CSSProperties = {
 
 // ─── Root component ────────────────────────────────────────────────────────────
 
-export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: Props {
+export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }: Props {
   const starBridge = useStarMakerEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'music' });
 
@@ -399,7 +399,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   }, []);
 
   // ── Supabase: publish draft ──
-  async function handlePublish(releaseId: string {
+  async function handlePublish(releaseId: string) {
     setPublishing(releaseId);
     forgeRecord('Published release');
     const supabase = createClient();
@@ -787,7 +787,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   }, []);
 
   // ── Waveform toggle handler ──
-  function handleWaveformToggle( {
+  function handleWaveformToggle() {
     const next = !waveformRecording;
     setWaveformRecording(next);
     if (next) setWaveformBars(buildPlaybackBars(playbackStep));
@@ -796,7 +796,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
     );
   }
 
-  function handleTransportToggle( {
+  function handleTransportToggle() {
     if (playbackActive) {
       setPlaybackActive(false);
       setPlaybackStep(0);
@@ -820,7 +820,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   }
 
   // ── Chord play handler ──
-  function handleChordPlay(index: number {
+  function handleChordPlay(index: number) {
     setChordPlaying(index);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'music', 'music:chord-play', { chord: chordProgression[index], index },
@@ -829,7 +829,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   }
 
   // ── Melody ask handler ──
-  function handleMelodyAsk( {
+  function handleMelodyAsk() {
     setMelodyLoading(true);
     setMelodySuggestions([]);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
@@ -849,7 +849,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   }
 
   // ── Collab toggle handler ──
-  function handleCollabToggle( {
+  function handleCollabToggle() {
     if (!collabActive) {
       const code = Math.random().toString(36).slice(2, 8).toUpperCase();
       setCollabCode(code);
@@ -863,7 +863,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   }
 
   // ── Playlist reorder handler ──
-  function movePlaylistItem(index: number, direction: 'up' | 'down' {
+  function movePlaylistItem(index: number, direction: 'up' | 'down') {
     setPlaylist(prev => {
       const next = [...prev];
       const target = direction === 'up' ? index - 1 : index + 1;
@@ -873,7 +873,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
     });
   }
 
-  function handleSavePlaylist( {
+  function handleSavePlaylist() {
     forgeRecord('Saved playlist');
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'music', 'music:playlist-save', { order: playlist.map(p => p.id) },
@@ -881,7 +881,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   }
 
   // ── Preset Library handlers ──
-  function handleApplyPreset(preset: BeatPreset {
+  function handleApplyPreset(preset: BeatPreset) {
     setBeatGrid(preset.grid.map(row => [...row]));
     setBpm(clamp(preset.bpm, 60, 180));
     setMusicalKey(preset.key as MusicalKey);
@@ -896,7 +896,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
     );
   }
 
-  function handleApplyInstrument(inst: InstrumentPreset {
+  function handleApplyInstrument(inst: InstrumentPreset) {
     setMixer({ ...inst.mixer });
     setActiveEffects(new Set(inst.effects as EffectName[]));
     setPitch(inst.pitch);
@@ -905,7 +905,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
     );
   }
 
-  function handleApplyTemplate(tmpl: ProjectTemplate {
+  function handleApplyTemplate(tmpl: ProjectTemplate) {
     handleApplyPreset(tmpl.preset);
     handleApplyInstrument(tmpl.instrument);
     setQualityMode(tmpl.qualityMode);
@@ -914,7 +914,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
 
   // ── Listen for recordings sent from SoundRecorder via CustomEvent ──
   useEffect(() => {
-    function handleRecordingEvent(e: Event {
+    function handleRecordingEvent(e: Event) {
       const detail = (e as CustomEvent<{ blob: Blob; name: string; mimeType: string }>).detail;
       if (detail?.blob) setExternalLoadRequest({ ...detail });
     }
@@ -1246,7 +1246,7 @@ const DAW_STYLES = {
   } as React.CSSProperties,
 };
 
-function dawPill(color: string: React.CSSProperties {
+function dawPill(color: string: React.CSSProperties) {
   return {
     fontSize: 10,
     fontWeight: 700,
@@ -1258,7 +1258,7 @@ function dawPill(color: string: React.CSSProperties {
   };
 }
 
-function dawPickerStyle(color: string = DAW.accent: React.CSSProperties {
+function dawPickerStyle(color: string = DAW.accent: React.CSSProperties) {
   return {
     width: '100%',
     padding: '8px 10px',
@@ -1273,7 +1273,7 @@ function dawPickerStyle(color: string = DAW.accent: React.CSSProperties {
   };
 }
 
-function dawDisclosureToggleStyle(active: boolean: React.CSSProperties {
+function dawDisclosureToggleStyle(active: boolean: React.CSSProperties) {
   return {
     width: '100%',
     padding: '9px 12px',
@@ -1330,7 +1330,7 @@ interface DAWTransportBarProps {
   onChangeBpm: (delta: number) => void;
 }
 
-function DAWTransportBar({
+function DAWTransportBar() {
   bpm, playing, playbackStep, musicalKey, keyMode, waveformRecording,
   onBack, onTogglePlayback, onWaveformRecord, onSkipToStart, onChangeBpm,
 }: DAWTransportBarProps) {
@@ -1463,7 +1463,7 @@ interface DAWMultiTrackPanelProps {
   onWaveformToggle: () => void;
 }
 
-function DAWMultiTrackPanel({
+function DAWMultiTrackPanel() {
   mixer, stemReady, beatGrid, playbackStep, playing, waveformRecording,
 }: DAWMultiTrackPanelProps) {
   const channelLevels: Record<string, number> = {
@@ -1476,7 +1476,7 @@ function DAWMultiTrackPanel({
     other:    mixer.fx / 100,
   };
 
-  function makeWaveform(key: string, level: number, steps: number: number[] {
+  function makeWaveform(key: string, level: number, steps: number: number[]) {
     const seed = key.split('').reduce(a: Record<string, unknown>, c: Record<string, unknown> => a + c.charCodeAt(0), 0);
     return Array.from({ length: steps }, _: Record<string, unknown>, i: number => {
       const pseudo = Math.abs(Math.sin((seed * 7 + i * 1.618) * 2.399)) * level;
@@ -1609,14 +1609,14 @@ interface DAWStemSplitterPanelProps {
   onPrepareExport: () => void;
 }
 
-function DAWStemSplitterPanel({
+function DAWStemSplitterPanel() {
   stemReady, exportPending, exportDone, onToggleStem, onPrepareExport,
 }: DAWStemSplitterPanelProps) {
   const [expanded, setExpanded] = useState(true);
   const anyChecked = Object.values(stemReady).some(Boolean);
   const allChecked = Object.values(stemReady).every(Boolean);
 
-  function toggleAll( {
+  function toggleAll() {
     const allKeys: StemKey[] = ['vocals', 'drums', 'bass', 'other'];
     if (allChecked) {
       allKeys.forEach(k => { if (stemReady[k]) onToggleStem(k); });
@@ -1796,7 +1796,7 @@ interface DAWPatternSequencerProps {
   onBpmInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-function DAWPatternSequencer({
+function DAWPatternSequencer() {
   beatGrid, playbackStep, playing, qualityMode, profile,
   onToggleBeat, onTogglePlayback, onQualityModeChange,
 }: DAWPatternSequencerProps) {
@@ -2003,7 +2003,7 @@ const DAW_MIXER_STRIPS: Array<{ key: keyof MixerState; label: string; color: str
   { key: 'fx',          label: 'FX',   color: '#f97316' },
 ];
 
-function DAWMixerEffectsPanel({ mixer, activeEffects: Record<string, unknown>, onMixerChange: Record<string, unknown>, onToggleEffect }: DAWMixerEffectsPanelProps {
+function DAWMixerEffectsPanel() { mixer, activeEffects: Record<string, unknown>, onMixerChange: Record<string, unknown>, onToggleEffect }: DAWMixerEffectsPanelProps {
   const [mixExpanded, setMixExpanded] = useState(true);
   const [fxExpanded, setFxExpanded] = useState(false);
 
@@ -2120,7 +2120,7 @@ interface DAWKeyPitchPanelProps {
   onPitchChange: (v: number) => void;
 }
 
-function DAWKeyPitchPanel({
+function DAWKeyPitchPanel() {
   bpm, musicalKey, keyMode, pitch,
   onChangeBpm, onBpmInput, onKeyChange, onModeChange, onPitchChange,
 }: DAWKeyPitchPanelProps) {
@@ -2257,7 +2257,7 @@ interface DAWChordMelodyPanelProps {
   onMelodyAsk: () => void;
 }
 
-function DAWChordMelodyPanel({
+function DAWChordMelodyPanel() {
   progression, chordPlaying, melodySuggestions, melodyLoading,
   onChangeChord, onChordPlay, onMelodyAsk,
 }: DAWChordMelodyPanelProps) {
@@ -2346,7 +2346,7 @@ interface DAWReleasePanelProps {
   onPublish: (id: string) => void;
 }
 
-function DAWReleasePanel({ strategy, releases: Record<string, unknown>, loading: Record<string, unknown>, publishing: Record<string, unknown>, onPublish }: DAWReleasePanelProps {
+function DAWReleasePanel() { strategy, releases: Record<string, unknown>, loading: Record<string, unknown>, publishing: Record<string, unknown>, onPublish }: DAWReleasePanelProps {
   return (
     <div style={{ background: DAW.surface, borderBottom: `1px solid ${DAW.border}` }}>
       <div style={{ ...DAW_STYLES.sectionHeader }}>
@@ -2444,7 +2444,7 @@ interface DAWCollabPlaylistPanelProps {
   onPlaylistSave: () => void;
 }
 
-function DAWCollabPlaylistPanel({
+function DAWCollabPlaylistPanel() {
   collabActive, collabCode, playlist, onCollabToggle, onPlaylistMove, onPlaylistSave,
 }: DAWCollabPlaylistPanelProps) {
   return (
@@ -2562,7 +2562,7 @@ interface DAWPresetLibraryPanelProps {
   onApplyTemplate:  (t: ProjectTemplate) => void;
 }
 
-function DAWPresetLibraryPanel({
+function DAWPresetLibraryPanel() {
   genreFilter, activePresetId, activeTemplateId, presetApplied,
   onGenreChange, onApplyPreset, onApplyInstrument, onApplyTemplate,
 }: DAWPresetLibraryPanelProps) {
@@ -2771,7 +2771,7 @@ function DAWPresetLibraryPanel({
 // WAV encoder — convert AudioBuffer to downloadable WAV blob
 // ─────────────────────────────────────────────────────────────────────────────
 
-function encodeWav(buffer: AudioBuffer: Blob {
+function encodeWav(buffer: AudioBuffer: Blob) {
   const numCh = buffer.numberOfChannels;
   const sr = buffer.sampleRate;
   const len = buffer.length;
@@ -2822,19 +2822,19 @@ const FIO_BARS = 96;  // number of waveform bars
 const ZOOM_LEVELS = [0.5, 0.75, 1, 1.5, 2, 3, 4] as const;
 const ZOOM_LABELS: Record<number, string> = { 0.5: '½×', 0.75: '¾×', 1: '1×', 1.5: '1.5×', 2: '2×', 3: '3×', 4: '4×' };
 
-function fmtSec(s: number: string {
+function fmtSec(s: number: string) {
   const m = Math.floor(s / 60);
   const rem = (s % 60).toFixed(2).padStart(5, '0');
   return `${m}:${rem}`;
 }
 
-function fmtFileSize(bytes: number: string {
+function fmtFileSize(bytes: number: string) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function buildWaveform(buffer: AudioBuffer, bars: number: number[] {
+function buildWaveform(buffer: AudioBuffer, bars: number: number[]) {
   const raw = buffer.getChannelData(0);
   const chunkSize = Math.max(1, Math.floor(raw.length / bars));
   return Array.from({ length: bars }, _: Record<string, unknown>, i: number => {
@@ -2856,7 +2856,7 @@ interface HistoryEntry {
   name: string;
 }
 
-function computeAudioStats(buffer: AudioBuffer: AudioStats {
+function computeAudioStats(buffer: AudioBuffer: AudioStats) {
   let peak = 0;
   let sumSquares = 0;
   let samples = 0;
@@ -2888,7 +2888,7 @@ function computeAudioStats(buffer: AudioBuffer: AudioStats {
   };
 }
 
-function DAWFileIOPanel({
+function DAWFileIOPanel() {
   bpm,
   externalLoad,
   persistedLedgerAudio,
@@ -2964,18 +2964,18 @@ function DAWFileIOPanel({
   const [show3DVisualizerFIO, setShow3DVisualizerFIO] = useState(false);
 
   // ── Helper: get/create OfflineAudioContext for processing ──
-  function getOfflineCtx(length: number, sr: number, ch: number {
+  function getOfflineCtx(length: number, sr: number, ch: number) {
     return new OfflineAudioContext(ch, length, sr);
   }
 
   // ── Helper: show operation message ──
-  function showOpMsg(msg: string {
+  function showOpMsg(msg: string) {
     setOpMsg(msg);
     setTimeout(() => setOpMsg(null), 3500);
   }
 
   // ── Helper: wire AnalyserNode to the current audio element ──
-  function ensureAnalyserFIO(: AnalyserNode | null {
+  function ensureAnalyserFIO(: AnalyserNode | null) {
     const audio = audioRef.current;
     if (!audio) return null;
     if (!audioCtxRef.current) {
@@ -3002,7 +3002,7 @@ function DAWFileIOPanel({
   }
 
   // ── Handler: Isolate Sound — builds peak map ref and opens 3D visualizer ──
-  function handleIsolateSoundFIO( {
+  function handleIsolateSoundFIO() {
     const pm = peakMapRef.current;
     if (!pm) { showOpMsg('⚠ Load audio first to isolate sounds'); return; }
     const analyser = ensureAnalyserFIO();
@@ -3012,40 +3012,40 @@ function DAWFileIOPanel({
   }
 
   // ── Helper: download a blob ──
-  function downloadBlob(blob: Blob, name: string {
+  function downloadBlob(blob: Blob, name: string) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = name; a.click();
     URL.revokeObjectURL(url);
   }
 
-  function clampZoom(next: number {
+  function clampZoom(next: number) {
     return Math.max(0.5, Math.min(4, Math.round(next * 4) / 4));
   }
 
-  function getCurrentHistoryEntry(: HistoryEntry | null {
+  function getCurrentHistoryEntry(: HistoryEntry | null) {
     if (!audioBlobRef.current || !fileName) return null;
     return { blob: audioBlobRef.current, name: fileName };
   }
 
-  function syncHistoryTick( {
+  function syncHistoryTick() {
     setHistoryTick(v => v + 1);
   }
 
-  function pushHistory(ref: React.MutableRefObject<HistoryEntry[]>, entry: HistoryEntry {
+  function pushHistory(ref: React.MutableRefObject<HistoryEntry[]>, entry: HistoryEntry) {
     ref.current.push(entry);
     if (ref.current.length > 24) ref.current.shift();
     syncHistoryTick();
   }
 
-  function clearRedoStack( {
+  function clearRedoStack() {
     if (redoStackRef.current.length > 0) {
       redoStackRef.current = [];
       syncHistoryTick();
     }
   }
 
-  function syncWaveformViewport(targetBar: number, explicitZoom?: number {
+  function syncWaveformViewport(targetBar: number, explicitZoom?: number) {
     const scroller = waveformScrollRef.current;
     if (!scroller || waveform.length === 0) return;
     const activeBarWidth = Math.max(3, Math.round(4 * (explicitZoom ?? zoomLevel))) + 1;
@@ -3053,11 +3053,11 @@ function DAWFileIOPanel({
     scroller.scrollTo({ left: targetLeft, behavior: 'smooth' });
   }
 
-  function getBarSeconds( {
+  function getBarSeconds() {
     return 240 / Math.max(60, bpm);
   }
 
-  function captureCurrentToRack( {
+  function captureCurrentToRack() {
     const currentBlob = audioBlobRef.current;
     const currentBuffer = audioBufRef.current;
     if (!fileName || !currentBlob || !currentBuffer) {
@@ -3080,7 +3080,7 @@ function DAWFileIOPanel({
     showOpMsg(`✓ Added ${fileName} to Source Rack`);
   }
 
-  function placeArrangementClip(trackId: ArrangementTrackId, startBar: number {
+  function placeArrangementClip(trackId: ArrangementTrackId, startBar: number) {
     const sourceId = selectedSourceId ?? sourceLibrary[0]?.id ?? null;
     if (!sourceId) {
       showOpMsg('⚠ Capture a clip into the Source Rack first');
@@ -3119,7 +3119,7 @@ function DAWFileIOPanel({
     }));
   }
 
-  function stopArrangementPlayback(resetPlayhead = true {
+  function stopArrangementPlayback(resetPlayhead = true) {
     arrangementSourcesRef.current.forEach(node => {
       try { node.stop(); } catch { /* already stopped */ }
     });
@@ -3452,7 +3452,7 @@ function DAWFileIOPanel({
 
   // ── Keyboard shortcuts for faster DAW workflow ──
   useEffect(() => {
-    function onKeyDown(e: KeyboardEvent {
+    function onKeyDown(e: KeyboardEvent) {
       const target = e.target as HTMLElement | null;
       const tag = target?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || target?.isContentEditable) return;
@@ -3506,7 +3506,7 @@ function DAWFileIOPanel({
   ]);
 
   // ── Transport: Play / Pause ──
-  function togglePlay( {
+  function togglePlay() {
     const audio = audioRef.current;
     if (!audio || !fileName) return;
     if (isPlaying) {
@@ -3530,7 +3530,7 @@ function DAWFileIOPanel({
   }
 
   // ── Transport: Stop ──
-  function handleStop( {
+  function handleStop() {
     const audio = audioRef.current;
     if (!audio) return;
     audio.pause();
@@ -3542,7 +3542,7 @@ function DAWFileIOPanel({
   }
 
   // ── Seek from progress bar click ──
-  function handleSeekBar(e: React.MouseEvent<HTMLDivElement> {
+  function handleSeekBar(e: React.MouseEvent<HTMLDivElement>) {
     const audio = audioRef.current;
     if (!audio || !audio.duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
@@ -3552,7 +3552,7 @@ function DAWFileIOPanel({
   }
 
   // ── Waveform: click to seek + drag to select ──
-  function handleBarMouseDown(barIdx: number, e: React.MouseEvent {
+  function handleBarMouseDown(barIdx: number, e: React.MouseEvent) {
     e.preventDefault();
     setDragAnchor(barIdx);
     setIsDragging(true);
@@ -3565,7 +3565,7 @@ function DAWFileIOPanel({
     }
   }
 
-  function handleBarMouseEnter(barIdx: number {
+  function handleBarMouseEnter(barIdx: number) {
     setHoveredBar(barIdx);
     if (isDragging && dragAnchor !== null) {
       const lo = Math.min(dragAnchor, barIdx);
@@ -3574,13 +3574,13 @@ function DAWFileIOPanel({
     }
   }
 
-  function handleBarMouseUp( {
+  function handleBarMouseUp() {
     setIsDragging(false);
   }
 
   // ── Sample operation helpers ──
 
-  function getSelectionBuffer(: AudioBuffer | null {
+  function getSelectionBuffer(: AudioBuffer | null) {
     const buf = audioBufRef.current;
     if (!buf) return null;
     const start = selStart !== null ? Math.floor((selStart / waveform.length) * buf.length) : 0;
@@ -3599,7 +3599,7 @@ function DAWFileIOPanel({
     return offBuf;
   }
 
-  async function handleTrim( {
+  async function handleTrim() {
     const trimBuf = getSelectionBuffer();
     if (!trimBuf) { showOpMsg('⚠ Load audio first'); return; }
     setOpPending(true);
@@ -3612,7 +3612,7 @@ function DAWFileIOPanel({
     setOpPending(false);
   }
 
-  async function handleFadeIn( {
+  async function handleFadeIn() {
     const buf = audioBufRef.current;
     if (!buf) { showOpMsg('⚠ Load audio first'); return; }
     setOpPending(true);
@@ -3637,7 +3637,7 @@ function DAWFileIOPanel({
     setOpPending(false);
   }
 
-  async function handleFadeOut( {
+  async function handleFadeOut() {
     const buf = audioBufRef.current;
     if (!buf) { showOpMsg('⚠ Load audio first'); return; }
     setOpPending(true);
@@ -3662,7 +3662,7 @@ function DAWFileIOPanel({
     setOpPending(false);
   }
 
-  async function handleNormalize( {
+  async function handleNormalize() {
     const buf = audioBufRef.current;
     if (!buf) { showOpMsg('⚠ Load audio first'); return; }
     setOpPending(true);
@@ -3685,7 +3685,7 @@ function DAWFileIOPanel({
     setOpPending(false);
   }
 
-  async function handleReverse( {
+  async function handleReverse() {
     const buf = audioBufRef.current;
     if (!buf) { showOpMsg('⚠ Load audio first'); return; }
     setOpPending(true);
@@ -3707,7 +3707,7 @@ function DAWFileIOPanel({
     setOpPending(false);
   }
 
-  async function handleSilence( {
+  async function handleSilence() {
     const buf = audioBufRef.current;
     if (!buf) { showOpMsg('⚠ Load audio first'); return; }
     if (selStart === null) { showOpMsg('⚠ Select a region first (drag on waveform)'); return; }
@@ -3727,7 +3727,7 @@ function DAWFileIOPanel({
     setOpPending(false);
   }
 
-  function handleExportAudio( {
+  function handleExportAudio() {
     const buf = audioBufRef.current;
     if (!buf) {
       // Fall back to original blob
@@ -3745,7 +3745,7 @@ function DAWFileIOPanel({
     showOpMsg(`✓ Downloaded as WAV: ${baseName}.wav`);
   }
 
-  function handleExportProject( {
+  function handleExportProject() {
     const snapshot = {
       ...projectSnapshot,
       arrangement: {

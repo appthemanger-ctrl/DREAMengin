@@ -21,7 +21,7 @@ import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHead
 import { buildAuthCallbackUrl } from '@/lib/supabase/config';
 
 
-export default function SecuritySettingsPage( {
+export default function SecuritySettingsPage() {
   const [pwLoading, setPwLoading] = useState(false);
   const [pwMsg, setPwMsg] = useState('');
   const supabase = createClient();

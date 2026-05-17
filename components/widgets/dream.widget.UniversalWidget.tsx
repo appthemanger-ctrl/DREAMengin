@@ -39,7 +39,7 @@ const SERVICE_CONFIGS: Record<NonNullable<ServiceType>, {
   github:    { icon: '🐙', label: 'GitHub',       placeholder: 'Connect GitHub to see your activity',  color: '#333'    },
 };
 
-function timeLabel(iso: string {
+function timeLabel(iso: string) {
   const ms = Date.now() - new Date(iso).getTime();
   if (!Number.isFinite(ms) || ms < 0) return '';
   const mins = Math.floor(ms / 60000);
@@ -50,7 +50,7 @@ function timeLabel(iso: string {
   return `${days}d`;
 }
 
-export default function UniversalWidget({ service = null, title: string, sliceName }: UniversalWidgetProps {
+export default function UniversalWidget() { service = null, title: string, sliceName }: UniversalWidgetProps {
   const [showAddWidgets, setShowAddWidgets] = useState(false);
   const [items, setItems] = useState<ConnectorFeedItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -67,7 +67,7 @@ export default function UniversalWidget({ service = null, title: string, sliceNa
   useEffect(() => {
     let cancelled = false;
 
-    async function load( {
+    async function load() {
       if (!service || !supportsLiveFeed) return;
       setLoading(true);
       setLoadError(null);

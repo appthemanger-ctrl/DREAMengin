@@ -184,7 +184,7 @@ export interface Violation {
  * DREAMengin vocabulary rules. Returns violations for any forbidden
  * terminology that should use canonical vocabulary instead.
  */
-export function validateVocabulary(text: string: Violation[] {
+export function validateVocabulary(text: string: Violation[]) {
   const violations: Violation[] = [];
   for (const entry of VOCABULARY) {
     for (const bad of entry.forbidden) {
@@ -206,7 +206,7 @@ export function validateVocabulary(text: string: Violation[] {
  * DREAMengin uses gold / light-blue / white — not red / yellow / green
  * status indicators.
  */
-export function validatePalette(hexColors: string[]: Violation[] {
+export function validatePalette(hexColors: string[]: Violation[]) {
   const trafficLightPatterns = [
     { pattern: /^#(22c55e|16a34a|15803d|4ade80|86efac)/i, name: 'green (traffic-light)' },
     { pattern: /^#(f59e0b|d97706|fbbf24|fcd34d)/i,        name: 'amber/yellow (traffic-light)' },
@@ -251,7 +251,7 @@ export function validatePrivacy(
  * Validate that navigation between surfaces preserves context
  * (no world reset, no page-loss feeling).
  */
-export function validateNavigation(transition: {
+export function validateNavigation(transition:) {
   from: string;
   to: string;
   preservesContext: boolean;
@@ -270,7 +270,7 @@ export function validateNavigation(transition: {
  * Validate that an action in the UI is real (not a fake button).
  * Every visible action must do something real per AXIOMS.
  */
-export function validateAction(action: {
+export function validateAction(action:) {
   label: string;
   hasHandler: boolean;
   isDisabledWithReason: boolean;
@@ -290,7 +290,7 @@ export function validateAction(action: {
  * client-side UI. Credential input must use type="password" and
  * OAuth flows must use server-side redirects, not token paste fields.
  */
-export function validateCredentialSafety(field: {
+export function validateCredentialSafety(field:) {
   label: string;
   type: string;
   exposesToken: boolean;
@@ -328,7 +328,7 @@ export interface DreamEnginEventDetail {
   message: string;
 }
 
-export function emitDreamEnginEvent(detail: DreamEnginEventDetail: void {
+export function emitDreamEnginEvent(detail: DreamEnginEventDetail: void) {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(
     new CustomEvent<DreamEnginEventDetail>(DREAMENGIN_EVENT, { detail }),

@@ -9,7 +9,7 @@ type Props = {
   height?: number;
 };
 
-function draw(canvas: HTMLCanvasElement, data: LedgerData {
+function draw(canvas: HTMLCanvasElement, data: LedgerData) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
@@ -79,7 +79,7 @@ function draw(canvas: HTMLCanvasElement, data: LedgerData {
   }
 }
 
-export default function LedgerChart({ data, width = 800, height = 360 }: Props {
+export default function LedgerChart() { data, width = 800, height = 360 }: Props {
   const ref = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {

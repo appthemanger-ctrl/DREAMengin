@@ -27,7 +27,7 @@ export interface WasmFeatureSet {
 
 // ─── Feature detection helpers ────────────────────────────────────────────────
 
-function tryValidate(bytes: number[]: boolean {
+function tryValidate(bytes: number[]: boolean) {
   try {
     return WebAssembly.validate(new Uint8Array(bytes));
   } catch {
@@ -35,7 +35,7 @@ function tryValidate(bytes: number[]: boolean {
   }
 }
 
-function detectSIMD(: boolean {
+function detectSIMD(: boolean) {
   // Minimal module: one function returning v128 via i32x4.splat
   // magic + version + type(()->v128) + func + code(i32.const 0; i32x4.splat; drop; end)
   return tryValidate([
@@ -47,11 +47,11 @@ function detectSIMD(: boolean {
   ]);
 }
 
-function detectThreads(: boolean {
+function detectThreads(: boolean) {
   return typeof SharedArrayBuffer !== 'undefined';
 }
 
-function detectBulkMemory(: boolean {
+function detectBulkMemory(: boolean) {
   // memory.copy: 0xfc 0x0a 0x00 0x00
   return tryValidate([
     0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
@@ -65,7 +65,7 @@ function detectBulkMemory(: boolean {
   ]);
 }
 
-function detectMultiMemory(: boolean {
+function detectMultiMemory(: boolean) {
   // Module with 2 memory entries (multi-memory proposal)
   return tryValidate([
     0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
@@ -75,7 +75,7 @@ function detectMultiMemory(: boolean {
   ]);
 }
 
-function detectExceptions(: boolean {
+function detectExceptions(: boolean) {
   // Exception proposal: tag section (0x0d)
   return tryValidate([
     0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
@@ -87,7 +87,7 @@ function detectExceptions(: boolean {
   ]);
 }
 
-function detectTailCall(: boolean {
+function detectTailCall(: boolean) {
   // return_call 0 (opcode 0x12)
   return tryValidate([
     0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
@@ -99,7 +99,7 @@ function detectTailCall(: boolean {
   ]);
 }
 
-function detectReferenceTypes(: boolean {
+function detectReferenceTypes(: boolean) {
   // Table of externref (0x6f)
   return tryValidate([
     0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00,
@@ -120,7 +120,7 @@ let _cached: WasmFeatureSet | null = null;
  * Probes the current JS engine for WebAssembly 2.0 proposal support.
  * Results are cached after the first call.
  */
-export function detectWasmFeatures(: WasmFeatureSet {
+export function detectWasmFeatures(: WasmFeatureSet) {
   if (_cached) return _cached;
 
   _cached = {
@@ -137,6 +137,6 @@ export function detectWasmFeatures(: WasmFeatureSet {
 }
 
 /** Reset the feature detection cache (useful in tests). */
-export function resetWasmFeatureCache(: void {
+export function resetWasmFeatureCache(: void) {
   _cached = null;
 }

@@ -4,7 +4,7 @@ type Props = {
   label: string;
 };
 
-export default function OpenDaydreamSideBButton({ label }: Props {
+export default function OpenDaydreamSideBButton() { label }: Props {
   return (
     <button
       type="button"

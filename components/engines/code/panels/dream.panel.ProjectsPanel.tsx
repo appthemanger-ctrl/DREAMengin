@@ -29,7 +29,7 @@ const LANG_COLORS: Record<string, string> = {
   default:    '#6366f1',
 };
 
-export default function ProjectsPanel( {
+export default function ProjectsPanel() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -39,7 +39,7 @@ export default function ProjectsPanel( {
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function loadProjects( {
+  async function loadProjects() {
     setLoading(true);
     setError(null);
     const supabase = createClient();
@@ -58,7 +58,7 @@ export default function ProjectsPanel( {
 
   useEffect(() => { loadProjects(); }, []);
 
-  async function createProject( {
+  async function createProject() {
     if (!newTitle.trim()) return;
     setCreating(true);
     const supabase = createClient();

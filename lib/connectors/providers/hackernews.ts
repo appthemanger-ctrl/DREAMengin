@@ -32,7 +32,7 @@ export interface HackerNewsCredentials {
 /**
  * Verify by checking hnrss.org is reachable.
  */
-export async function hackernewsVerify(creds: HackerNewsCredentials: Promise<string> {
+export async function hackernewsVerify(creds: HackerNewsCredentials: Promise<string>) {
   const url = creds.username
     ? hackerNewsUserRssUrl(creds.username.trim())
     : hackerNewsRssUrl(creds.feed_type ?? 'best');
@@ -46,7 +46,7 @@ export async function hackernewsVerify(creds: HackerNewsCredentials: Promise<str
 /**
  * Fetch and normalise HN items.
  */
-export async function hackernewsSync(creds: HackerNewsCredentials: Promise<UnifiedFeedItem[]> {
+export async function hackernewsSync(creds: HackerNewsCredentials: Promise<UnifiedFeedItem[]>) {
   const url = creds.username
     ? hackerNewsUserRssUrl(creds.username.trim())
     : hackerNewsRssUrl(creds.feed_type ?? 'best');
@@ -55,7 +55,7 @@ export async function hackernewsSync(creds: HackerNewsCredentials: Promise<Unifi
   return items.map((item: Record<string, unknown>) => normaliseHackerNews(item.raw as Parameters<typeof normaliseHackerNews>[0]));
 }
 
-export function hackernewsCredentialFields( {
+export function hackernewsCredentialFields() {
   return [
     {
       key: 'feed_type',

@@ -35,7 +35,7 @@ const CATEGORIES = [
   { id: 'appeals',     label: 'Appeals',                       icon: FileText },
 ];
 
-export default function PolicyPage( {
+export default function PolicyPage() {
   return (
     <div className="de-sky-bg min-h-screen">
       <header
@@ -346,7 +346,7 @@ export default function PolicyPage( {
 
 // ---- helpers ----------------------------------------------------------------
 
-function PolicyTable({ rows }: { rows: [string, string: Record<string, unknown>, string][] } {
+function PolicyTable() { rows }: { rows: [string, string: Record<string, unknown>, string][] } {
   return (
     <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
       <thead>

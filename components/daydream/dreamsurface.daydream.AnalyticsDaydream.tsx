@@ -36,7 +36,7 @@ interface Props {
   userId: string;
 }
 
-export default function AnalyticsDaydream({ userId }: Props {
+export default function AnalyticsDaydream() { userId }: Props {
   return (
     <div className="de-auth-content space-y-4">
       {/* ── Intro ────────────────────────────────────────────────────────── */}
@@ -221,7 +221,7 @@ export default function AnalyticsDaydream({ userId }: Props {
 }
 
 /** Converts a CSS hex color like #6366f1 to "99,102,241" for use in rgba(). */
-function hexToRgb(hex: string: string {
+function hexToRgb(hex: string: string) {
   const clean = hex.replace('#', '');
   const r = parseInt(clean.slice(0, 2), 16);
   const g = parseInt(clean.slice(2, 4), 16);

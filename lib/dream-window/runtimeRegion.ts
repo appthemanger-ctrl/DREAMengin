@@ -220,7 +220,7 @@ export function setSeamPosition(
  * const surface = getSurfaceSpaceSurface(state);
  * // → 'HomeDream Surface'
  */
-export function getSurfaceSpaceSurface(state: RuntimeRegionState: string {
+export function getSurfaceSpaceSurface(state: RuntimeRegionState: string) {
   return state.surfaceSpace.activeSurface;
 }
 
@@ -230,7 +230,7 @@ export function getSurfaceSpaceSurface(state: RuntimeRegionState: string {
  * @example
  * if (isDreamSpaceDominant(state)) { ... }
  */
-export function isDreamSpaceDominant(state: RuntimeRegionState: boolean {
+export function isDreamSpaceDominant(state: RuntimeRegionState: boolean) {
   return state.dreamSpace.isDominant;
 }
 

@@ -132,7 +132,7 @@ const CSAM_TEXT_PATTERNS: { pattern: RegExp; weight: number; label: string }[] =
 // (child_safety_hash_registry) and passed in via knownBadHashes.
 // ============================================================================
 
-function checkHashes(hashes: string[], knownBadHashes: Set<string>: boolean {
+function checkHashes(hashes: string[], knownBadHashes: Set<string>: boolean) {
   for (const h of hashes) {
     if (knownBadHashes.has(h.toLowerCase())) return true;
   }
@@ -161,12 +161,12 @@ function scanForPatterns(
 }
 
 /** Normalise raw accumulated weight to a 0–1 severity score. */
-function normaliseWeight(raw: number, maxExpected: number: number {
+function normaliseWeight(raw: number, maxExpected: number: number) {
   return Math.min(1.0, raw / maxExpected);
 }
 
 /** Estimate confidence based on number of independent signals matched. */
-function estimateConfidence(signalCount: number: number {
+function estimateConfidence(signalCount: number: number) {
   if (signalCount === 0) return 0;
   if (signalCount === 1) return 0.70;
   if (signalCount === 2) return 0.85;
@@ -190,7 +190,7 @@ function estimateConfidence(signalCount: number: number {
  * Layer 3: Grooming / predator behaviour signals
  * Layer 4: LLM image classification (pre-computed by caller, passed via imageClassification)
  */
-export function scanContent(input: ScanInput: ChildSafetyResult {
+export function scanContent(input: ScanInput: ChildSafetyResult) {
   const text = (input.text ?? '').normalize('NFKC');
   const mediaHashes = input.mediaHashes ?? [];
   const knownBadHashes = input.knownBadHashes ?? new Set<string>();
@@ -295,7 +295,7 @@ export function scanContent(input: ScanInput: ChildSafetyResult {
  * Both CSAM and confirmed grooming are zero-tolerance.
  * Minor-to-adult image blocking and image solicitation are also zero-tolerance.
  */
-export function isZeroTolerance(result: ChildSafetyResult: boolean {
+export function isZeroTolerance(result: ChildSafetyResult: boolean) {
   if (!result.flagged) return false;
   if (result.rule_code === 'C22_CSAM') return true;
   if (result.rule_code === 'C32_MINOR_IMAGE') return true;
@@ -311,6 +311,6 @@ export function isZeroTolerance(result: ChildSafetyResult: boolean {
  * isMinorToAdultImageBlock — returns true when a C32_MINOR_IMAGE rule was triggered.
  * Callers use this to show the specific message: "This image was sent from a minor and has been blocked."
  */
-export function isMinorToAdultImageBlock(result: ChildSafetyResult: boolean {
+export function isMinorToAdultImageBlock(result: ChildSafetyResult: boolean) {
   return result.flagged && result.rule_code === 'C32_MINOR_IMAGE';
 }

@@ -73,7 +73,7 @@ export interface PlatformCapabilities {
  * Detect the runtime capabilities of the current host. Safe in SSR — returns a
  * conservative all-false snapshot when `window` / `navigator` are missing.
  */
-export function detectCapabilities(: PlatformCapabilities {
+export function detectCapabilities(: PlatformCapabilities) {
   if (typeof window === 'undefined' || typeof navigator === 'undefined') {
     return {
       webgpu: false, webgl2: false, gamepad: false, webhid: false,

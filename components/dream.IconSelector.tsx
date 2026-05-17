@@ -29,7 +29,7 @@ type Props = {
   className?: string;
 };
 
-export default function IconSelector({
+export default function IconSelector() {
   defaultValue = 'file',
   onChange,
   size = 44,

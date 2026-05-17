@@ -21,7 +21,7 @@ type Phase = 'menu' | 'playing' | 'won' | 'lost';
 
 interface Tile { mine: boolean; glyph: string; revealed: boolean; mineHit: boolean; }
 
-function makeBoard(: { tiles: Tile[]; rowHints: number[]; colHints: number[]; safeOrder: number[]; safeGlyphs: string[] } {
+function makeBoard(:) { tiles: Tile[]; rowHints: number[]; colHints: number[]; safeOrder: number[]; safeGlyphs: string[] } {
   const tiles: Tile[] = Array.from({ length: TOTAL_TILES }, () => ({ mine: false, glyph: GLYPHS[Math.floor(Math.random() * GLYPHS.length)], revealed: false, mineHit: false }));
   // Plant mines
   let placed = 0;
@@ -44,7 +44,7 @@ function makeBoard(: { tiles: Tile[]; rowHints: number[]; colHints: number[]; sa
   return { tiles, rowHints, colHints, safeOrder, safeGlyphs };
 }
 
-export default function DefuseRitual( {
+export default function DefuseRitual() {
   const [phase, setPhase] = useState<Phase>('menu');
   const [board, setBoard] = useState(() => makeBoard());
   const [step, setStep] = useState(0);

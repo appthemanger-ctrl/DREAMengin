@@ -45,7 +45,7 @@ const SEVERITY_ORDER: Record<AnomalySeverity, number> = { high: 0, medium: 1, lo
 /**
  * Detect 30-second windows where 3 or more errors/warnings cluster together.
  */
-export function detectErrorSpikes(logs: LogEntry[]: AnomalySignal[] {
+export function detectErrorSpikes(logs: LogEntry[]: AnomalySignal[]) {
   const problematic = logs.filter((l: Record<string, unknown>) => l.level === 'error' || l.level === 'warn');
   if (problematic.length < 3) return [];
 
@@ -78,7 +78,7 @@ export function detectErrorSpikes(logs: LogEntry[]: AnomalySignal[] {
  * Per span name: flag when p95 latency is >3× the p50 AND absolute p95 > 1 s,
  * or when any spans carry an error/timeout status.
  */
-export function detectLatencySpikes(traces: TraceSpan[]: AnomalySignal[] {
+export function detectLatencySpikes(traces: TraceSpan[]: AnomalySignal[]) {
   if (traces.length < 2) return [];
 
   const byName = new Map<string, TraceSpan[]>();
@@ -129,7 +129,7 @@ export function detectLatencySpikes(traces: TraceSpan[]: AnomalySignal[] {
  * deviations from the mean — provided the stddev is itself large relative to
  * the mean (noisy series).
  */
-export function detectMetricAnomalies(metrics: MetricPoint[]: AnomalySignal[] {
+export function detectMetricAnomalies(metrics: MetricPoint[]: AnomalySignal[]) {
   const byName = new Map<string, MetricPoint[]>();
   for (const m of metrics) {
     if (!byName.has(m.name)) byName.set(m.name, []);
@@ -214,7 +214,7 @@ export function detectSustainedErrorRate(
  * Pass `options` to tune detection thresholds.
  */
 // ── Improvement 28: correlate accepts options ─────────────────────────────────
-export function correlate(snapshot: TelemetrySnapshot, options: CorrelateOptions = {}: CorrelationResult {
+export function correlate(snapshot: TelemetrySnapshot, options: CorrelateOptions =) {}: CorrelationResult {
   const {
     errorSpikeThreshold,
     sustainedErrorRateThreshold = 0.4,

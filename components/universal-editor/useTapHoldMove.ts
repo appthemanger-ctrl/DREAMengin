@@ -42,7 +42,7 @@ export interface TapHoldMoveBindings {
 
 // ─── Edge detection ───────────────────────────────────────────────────────────
 
-function detectEdgeRuntime(x: number, y: number: RuntimeId | null {
+function detectEdgeRuntime(x: number, y: number: RuntimeId | null) {
   if (typeof window === 'undefined') return null;
   const { innerWidth: w, innerHeight: h } = window;
   if (x <= EDGE_PX)          return 'HomeDream';
@@ -54,7 +54,7 @@ function detectEdgeRuntime(x: number, y: number: RuntimeId | null {
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
-export function useTapHoldMove({
+export function useTapHoldMove() {
   manifest,
   onDragStart,
   onMove,

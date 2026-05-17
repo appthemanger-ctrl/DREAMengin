@@ -26,7 +26,7 @@ const DEFAULT: ControlsSettings = {
   hapticFeedback: false,
 };
 
-function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => void; label: string }) {
+function Toggle() { value, onToggle, label }: { value: boolean; onToggle: () => void; label: string }) {
   return (
     <button
       type="button"
@@ -50,7 +50,7 @@ function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => vo
   );
 }
 
-export default function ControlsClient( {
+export default function ControlsClient() {
   const [settings, setSettings] = useState<ControlsSettings>(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);

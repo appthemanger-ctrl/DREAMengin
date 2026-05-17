@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { getInitialDarkMode, toggleDarkMode as toggleDarkModeValue } from '@/lib/ui/theme';
 import { emitTeach } from '@/lib/agents/teachBus';
 
-export default function ThemeToggle( {
+export default function ThemeToggle() {
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {

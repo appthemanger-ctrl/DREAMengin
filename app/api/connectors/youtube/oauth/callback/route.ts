@@ -35,7 +35,7 @@ interface GoogleTokenResponse {
   error_description?: string;
 }
 
-export async function GET(req: NextRequest: Promise<NextResponse> {
+export async function GET(req: NextRequest: Promise<NextResponse>) {
   const url = new URL(req.url);
   const code  = url.searchParams.get('code')  ?? '';
   const state = url.searchParams.get('state') ?? '';

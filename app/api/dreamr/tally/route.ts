@@ -35,7 +35,7 @@ const TallyBodySchema = z.object({
   sharerId:  z.string().min(1).max(256),
 });
 
-export async function POST(req: NextRequest: Promise<NextResponse> {
+export async function POST(req: NextRequest: Promise<NextResponse>) {
   // ── 1. Parse + validate body ─────────────────────────────────────────────
   let body: unknown;
   try {

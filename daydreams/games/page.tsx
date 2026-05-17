@@ -91,7 +91,7 @@ const OFFICIAL_SPEC_NOTES = [
   'Fullscreen play, saved sessions, and the universal HUD belong to GameEngin.',
 ] as const;
 
-export default async function GamesDaydreamPage( {
+export default async function GamesDaydreamPage() {
   await connection();
   const supabase = await createServerClient();
   const user = await safeGetUser(supabase);

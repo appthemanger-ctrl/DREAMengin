@@ -741,7 +741,7 @@ const LUCID_CONTRACT_DEFS: Array<{
   },
 ];
 
-export function createInitialLucidAvenueState(options: { mode?: LucidAvenueMode } = {}: LucidAvenueState {
+export function createInitialLucidAvenueState(options:) { mode?: LucidAvenueMode } = {}: LucidAvenueState {
   const mode = options.mode ?? 'story';
   return {
     mode,
@@ -781,7 +781,7 @@ export function createInitialLucidAvenueState(options: { mode?: LucidAvenueMode 
   };
 }
 
-export function getLucidAvenueDistrict(id: DistrictId {
+export function getLucidAvenueDistrict(id: DistrictId) {
   return LUCID_AVENUE_DISTRICTS[id];
 }
 
@@ -795,7 +795,7 @@ export function getLucidAvenuePatrolPositions(
   }));
 }
 
-export function getLucidAvenueMissionChecklist(state: LucidAvenueState {
+export function getLucidAvenueMissionChecklist(state: LucidAvenueState) {
   const checklist = [
     state.mode === 'sandbox'
       ? `🟦 Free-roam sandbox live (${state.completedContractIds.length}/${LUCID_AVENUE_TOTAL_CONTRACTS} route contracts banked).`
@@ -828,7 +828,7 @@ export function getLucidAvenueMissionChecklist(state: LucidAvenueState {
   return checklist;
 }
 
-export function getLucidAvenueRouteContracts(state: LucidAvenueState {
+export function getLucidAvenueRouteContracts(state: LucidAvenueState) {
   return LUCID_CONTRACT_DEFS.map((contract: Record<string, unknown>) => ({
     id: contract.id,
     title: contract.title,
@@ -837,7 +837,7 @@ export function getLucidAvenueRouteContracts(state: LucidAvenueState {
   }));
 }
 
-export function calculateLucidAvenueScore(state: LucidAvenueState {
+export function calculateLucidAvenueScore(state: LucidAvenueState) {
   const flagCount = Object.values(state.flags).filter(Boolean).length;
   const base = (state.shards.length * 500)
     + (flagCount * 250)
@@ -852,7 +852,7 @@ export function calculateLucidAvenueScore(state: LucidAvenueState {
   return Math.max(0, base + (state.outcome === 'win' ? 2500 : 0));
 }
 
-export function getLucidAvenueCompletionPercent(state: LucidAvenueState {
+export function getLucidAvenueCompletionPercent(state: LucidAvenueState) {
   const progress = state.shards.length
     + Object.values(state.flags).filter(Boolean).length
     + state.completedContractIds.length
@@ -860,7 +860,7 @@ export function getLucidAvenueCompletionPercent(state: LucidAvenueState {
   return Math.min(100, Math.round((progress / (LUCID_AVENUE_TOTAL_SHARDS + LUCID_AVENUE_TOTAL_FLAGS + LUCID_AVENUE_TOTAL_CONTRACTS + 2)) * 100));
 }
 
-export function getLucidAvenueStoryBeat(state: LucidAvenueState {
+export function getLucidAvenueStoryBeat(state: LucidAvenueState) {
   if (state.mode === 'sandbox') {
     return {
       act: 'Sandbox · Lucid free roam',
@@ -910,19 +910,19 @@ export function getLucidAvenueStoryBeat(state: LucidAvenueState {
   };
 }
 
-function keyForPosition(position: Position {
+function keyForPosition(position: Position) {
   return `${position.x},${position.y}`;
 }
 
-export function isSamePosition(a: Position, b: Position {
+export function isSamePosition(a: Position, b: Position) {
   return a.x === b.x && a.y === b.y;
 }
 
-function isAdjacent(a: Position, b: Position {
+function isAdjacent(a: Position, b: Position) {
   return Math.abs(a.x - b.x) + Math.abs(a.y - b.y) <= 1;
 }
 
-function meetsRequirements(state: LucidAvenueState, requirements: Requirement[] = [] {
+function meetsRequirements(state: LucidAvenueState, requirements: Requirement[] = []) {
   if (state.mode === 'sandbox') return true;
   return requirements.every((requirement: Record<string, unknown>) => (
     requirement === 'allShards'
@@ -931,7 +931,7 @@ function meetsRequirements(state: LucidAvenueState, requirements: Requirement[] 
   ));
 }
 
-function syncContracts(state: LucidAvenueState {
+function syncContracts(state: LucidAvenueState) {
   let nextState = state;
 
   for (const contract of LUCID_CONTRACT_DEFS) {
@@ -952,29 +952,29 @@ function syncContracts(state: LucidAvenueState {
   return nextState;
 }
 
-function tileAt(district: LucidDistrict, position: Position {
+function tileAt(district: LucidDistrict, position: Position) {
   return district.map[position.y]?.[position.x] ?? '#';
 }
 
-function appendLog(state: LucidAvenueState, text: string {
+function appendLog(state: LucidAvenueState, text: string) {
   return {
     ...state,
     log: [text, ...state.log].slice(0, MAX_LOG_ENTRIES),
   };
 }
 
-function withMessage(state: LucidAvenueState, message: string, logText = message {
+function withMessage(state: LucidAvenueState, message: string, logText = message) {
   return appendLog({ ...state, message }, logText);
 }
 
-function isPassable(state: LucidAvenueState, district: LucidDistrict, position: Position {
+function isPassable(state: LucidAvenueState, district: LucidDistrict, position: Position) {
   if (tileAt(district, position) === '#') return false;
   const lock = district.locks.find((entry: Record<string, unknown>) => isSamePosition(entry.position, position));
   if (!lock) return true;
   return meetsRequirements(state, lock.requirements);
 }
 
-function collectAtCurrentPosition(state: LucidAvenueState {
+function collectAtCurrentPosition(state: LucidAvenueState) {
   const district = getLucidAvenueDistrict(state.districtId);
   let nextState = state;
 
@@ -1004,7 +1004,7 @@ function collectAtCurrentPosition(state: LucidAvenueState {
   return nextState;
 }
 
-function warpIfStandingOnExit(state: LucidAvenueState {
+function warpIfStandingOnExit(state: LucidAvenueState) {
   const district = getLucidAvenueDistrict(state.districtId);
   const exit = district.exits.find((entry: Record<string, unknown>) => isSamePosition(entry.position, state.player));
   if (!exit) return state;
@@ -1023,7 +1023,7 @@ function warpIfStandingOnExit(state: LucidAvenueState {
   }, `➡️ ${exit.label}`);
 }
 
-function resolvePatrolContact(state: LucidAvenueState, reason: string {
+function resolvePatrolContact(state: LucidAvenueState, reason: string) {
   const nextHeat = state.mode === 'sandbox'
     ? Math.min(MAX_HEAT - 1, state.heat + 1)
     : Math.min(MAX_HEAT, state.heat + 2);
@@ -1046,7 +1046,7 @@ function resolvePatrolContact(state: LucidAvenueState, reason: string {
   return nextState;
 }
 
-function advancePatrols(state: LucidAvenueState {
+function advancePatrols(state: LucidAvenueState) {
   if (state.outcome !== 'playing') return state;
   const district = getLucidAvenueDistrict(state.districtId);
   const patrolSteps = { ...state.patrolSteps };
@@ -1077,15 +1077,15 @@ function advancePatrols(state: LucidAvenueState {
   return nextState;
 }
 
-function findNearbyNpc(state: LucidAvenueState {
+function findNearbyNpc(state: LucidAvenueState) {
   return getLucidAvenueDistrict(state.districtId).npcs.find((npc: Record<string, unknown>) => isAdjacent(npc.position, state.player));
 }
 
-function findNearbyTerminal(state: LucidAvenueState {
+function findNearbyTerminal(state: LucidAvenueState) {
   return getLucidAvenueDistrict(state.districtId).terminals.find((terminal: Record<string, unknown>) => isAdjacent(terminal.position, state.player));
 }
 
-function handleNpcInteraction(state: LucidAvenueState, npc: LucidNpc {
+function handleNpcInteraction(state: LucidAvenueState, npc: LucidNpc) {
   switch (npc.id) {
     case 'rook':
       if (!state.flags.metRook) {
@@ -1213,7 +1213,7 @@ function handleNpcInteraction(state: LucidAvenueState, npc: LucidNpc {
   }
 }
 
-function handleTerminalInteraction(state: LucidAvenueState, terminal: LucidTerminal {
+function handleTerminalInteraction(state: LucidAvenueState, terminal: LucidTerminal) {
   switch (terminal.id) {
     case 'junction-core':
       if (!state.flags.tramPass) {
@@ -1276,7 +1276,7 @@ function handleTerminalInteraction(state: LucidAvenueState, terminal: LucidTermi
   }
 }
 
-export function moveLucidAvenuePlayer(state: LucidAvenueState, dx: number, dy: number {
+export function moveLucidAvenuePlayer(state: LucidAvenueState, dx: number, dy: number) {
   if (state.outcome !== 'playing') return state;
   const burst = state.vehicleBoostTurns > 0
     ? state.vehicleId === 'tram-runner' ? 3 : 2
@@ -1344,7 +1344,7 @@ export function moveLucidAvenuePlayer(state: LucidAvenueState, dx: number, dy: n
   return syncContracts(nextState);
 }
 
-export function waitLucidAvenueTurn(state: LucidAvenueState {
+export function waitLucidAvenueTurn(state: LucidAvenueState) {
   if (state.outcome !== 'playing') return state;
   return syncContracts(advancePatrols(appendLog({
     ...state,
@@ -1353,7 +1353,7 @@ export function waitLucidAvenueTurn(state: LucidAvenueState {
   }, '⏱️ Waited one beat.')));
 }
 
-export function scanLucidAvenue(state: LucidAvenueState {
+export function scanLucidAvenue(state: LucidAvenueState) {
   if (state.outcome !== 'playing') return state;
   if (state.battery <= 0) {
     return withMessage(state, 'Battery dry. You need another cache before running a city scan.', '🔋 No battery left for scan.');
@@ -1369,7 +1369,7 @@ export function scanLucidAvenue(state: LucidAvenueState {
   }, '📡 Scan pulse fired.')));
 }
 
-export function jamLucidAvenueGrid(state: LucidAvenueState {
+export function jamLucidAvenueGrid(state: LucidAvenueState) {
   if (state.outcome !== 'playing') return state;
   if (state.battery <= 0) {
     return withMessage(state, 'Battery too low. You need charge before pushing a district-wide GameEngin jam.', '🔋 No battery left for jam.');
@@ -1390,7 +1390,7 @@ export function jamLucidAvenueGrid(state: LucidAvenueState {
   }, '🛰️ District patrol grid jammed.')));
 }
 
-export function deployLucidAvenueVehicle(state: LucidAvenueState, vehicleId: Exclude<LucidVehicleId, 'foot'> {
+export function deployLucidAvenueVehicle(state: LucidAvenueState, vehicleId: Exclude<LucidVehicleId, 'foot'>) {
   if (state.outcome !== 'playing') return state;
   if (state.battery <= 0) {
     return withMessage(state, 'Battery too low to deploy a city vehicle.', '🔋 No battery left for vehicle deployment.');
@@ -1415,7 +1415,7 @@ export function deployLucidAvenueVehicle(state: LucidAvenueState, vehicleId: Exc
   }, `🏍️ ${vehicleId === 'tram-runner' ? 'Tram-runner' : 'Hoverbike'} deployed.`));
 }
 
-export function fastTravelLucidAvenue(state: LucidAvenueState, districtId: DistrictId {
+export function fastTravelLucidAvenue(state: LucidAvenueState, districtId: DistrictId) {
   if (state.outcome !== 'playing') return state;
   if (districtId === state.districtId) {
     return withMessage(state, `${getLucidAvenueDistrict(districtId).name} already loaded.`, '🗺️ Already in that district.');
@@ -1443,7 +1443,7 @@ export function fastTravelLucidAvenue(state: LucidAvenueState, districtId: Distr
   }, `🗺️ Atlas jumped to ${target.name}.`));
 }
 
-export function getLucidAvenueHint(state: LucidAvenueState {
+export function getLucidAvenueHint(state: LucidAvenueState) {
   if (state.mode === 'sandbox' && state.completedContractIds.length < LUCID_AVENUE_TOTAL_CONTRACTS) {
     return 'AI sandbox hint: jump districts from the atlas, deploy a vehicle, and clear route contracts in any order.';
   }
@@ -1485,7 +1485,7 @@ export function getLucidAvenueHint(state: LucidAvenueState {
   return 'AI route hint: interact with the Observatory Core to finish the run.';
 }
 
-export function requestLucidAvenueHint(state: LucidAvenueState {
+export function requestLucidAvenueHint(state: LucidAvenueState) {
   if (state.outcome !== 'playing') return state;
   const hint = getLucidAvenueHint(state);
   return syncContracts(appendLog({
@@ -1494,7 +1494,7 @@ export function requestLucidAvenueHint(state: LucidAvenueState {
   }, `🧠 ${hint}`));
 }
 
-export function interactInLucidAvenue(state: LucidAvenueState {
+export function interactInLucidAvenue(state: LucidAvenueState) {
   if (state.outcome !== 'playing') return state;
   const npc = findNearbyNpc(state);
   if (npc) return syncContracts(handleNpcInteraction(state, npc));
@@ -1505,12 +1505,12 @@ export function interactInLucidAvenue(state: LucidAvenueState {
   return withMessage(state, 'No terminal handshake and no one close enough to talk to.', '… Nothing to interact with here.');
 }
 
-export function getLucidAvenuePatrolPathKeys(districtId: DistrictId {
+export function getLucidAvenuePatrolPathKeys(districtId: DistrictId) {
   const district = getLucidAvenueDistrict(districtId);
   return new Set(district.patrols.flatMap((patrol: Record<string, unknown>) => patrol.path.map(keyForPosition)));
 }
 
-export function getLucidAvenueObjectiveKeys(state: LucidAvenueState {
+export function getLucidAvenueObjectiveKeys(state: LucidAvenueState) {
   const district = getLucidAvenueDistrict(state.districtId);
   const keys = new Set<string>();
 

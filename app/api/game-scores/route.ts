@@ -19,7 +19,7 @@ const PostScoreSchema = z.object({
 
 // GET /api/game-scores?game=<name>&limit=<n>
 // Returns top N scores for the given game, enriched with player handle
-export async function GET(req: NextRequest {
+export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const game = searchParams.get('game');
   const limitParam = searchParams.get('limit');
@@ -78,7 +78,7 @@ export async function GET(req: NextRequest {
 
 // POST /api/game-scores
 // Body: { game, score, level? } — auth required
-export async function POST(req: NextRequest {
+export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
   const {
     data: { user },

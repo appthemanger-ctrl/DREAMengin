@@ -50,7 +50,7 @@ export interface UnifiedFeedEntry {
   raw?: Record<string, unknown>;
 }
 
-export async function GET(req: NextRequest {
+export async function GET(req: NextRequest) {
   const supabase = await createServerClient();
 
   const { data: { user }, error: userErr } = await supabase.auth.getUser();

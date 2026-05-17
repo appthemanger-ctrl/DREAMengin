@@ -47,7 +47,7 @@ const SIMULATED_OUTPUTS: Record<string, string> = {
 
 let execCounter = 0;
 
-function simulateRun(source: string: Promise<string> {
+function simulateRun(source: string: Promise<string>) {
   return new Promise(resolve: Record<string, unknown> => {
     const delay = 400 + Math.random() * 800;
     setTimeout(() => {
@@ -66,7 +66,7 @@ function simulateRun(source: string: Promise<string> {
   });
 }
 
-export default function NotebookPanel( {
+export default function NotebookPanel() {
   const [cells, setCells] = useState<Cell[]>(STARTER_CELLS);
 
   const addCell = useCallback((type: CellType = 'code') => {
@@ -99,7 +99,7 @@ export default function NotebookPanel( {
     }
   }, [cells]);
 
-  async function runAll( {
+  async function runAll() {
     for (const cell of cells) {
       await runCell(cell.id);
     }

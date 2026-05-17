@@ -382,28 +382,28 @@ export const REJECTED_OS_TERMS = [
 /**
  * Returns true if the given string is the canonical platform name.
  */
-export function isCanonicalPlatformName(name: string: boolean {
+export function isCanonicalPlatformName(name: string: boolean) {
   return name === PLATFORM_NAME;
 }
 
 /**
  * Returns true if the given string is a rejected (non-canonical) platform name variant.
  */
-export function isRejectedPlatformVariant(name: string: boolean {
+export function isRejectedPlatformVariant(name: string: boolean) {
   return (REJECTED_PLATFORM_VARIANTS as readonly string[]).includes(name);
 }
 
 /**
  * Returns true if the given string is a valid Engin control surface name.
  */
-export function isValidEnginName(name: string: name is EnginSurface {
+export function isValidEnginName(name: string: name is EnginSurface) {
   return (ALL_ENGIN_NAMES as readonly string[]).includes(name);
 }
 
 /**
  * Returns true if the given string is a rejected Engin name variant.
  */
-export function isRejectedEnginName(name: string: boolean {
+export function isRejectedEnginName(name: string: boolean) {
   return (REJECTED_ENGIN_NAMES as readonly string[]).includes(name);
 }
 
@@ -411,84 +411,84 @@ export function isRejectedEnginName(name: string: boolean {
  * Returns true if the given string ends with the canonical 'Engin' suffix
  * (and is therefore a potential control-layer surface name).
  */
-export function hasEnginSuffix(name: string: boolean {
+export function hasEnginSuffix(name: string: boolean) {
   return name.endsWith('Engin');
 }
 
 /**
  * Returns true if the given string ends with the rejected 'Engine' suffix.
  */
-export function hasEngineSuffix(name: string: boolean {
+export function hasEngineSuffix(name: string: boolean) {
   return name.endsWith('Engine');
 }
 
 /**
  * Returns true if the given string is a valid canonical Daydream domain name.
  */
-export function isValidDaydreamDomain(name: string: name is DaydreamDomain {
+export function isValidDaydreamDomain(name: string: name is DaydreamDomain) {
   return (Object.values(DAYDREAM_DOMAINS) as string[]).includes(name);
 }
 
 /**
  * Returns true if the given string is a valid canonical platform module name.
  */
-export function isValidModuleName(name: string: name is PlatformModule {
+export function isValidModuleName(name: string: name is PlatformModule) {
   return (Object.values(PLATFORM_MODULES) as string[]).includes(name);
 }
 
 /**
  * Returns true if the given string is a rejected generic module name.
  */
-export function isRejectedModuleName(name: string: boolean {
+export function isRejectedModuleName(name: string: boolean) {
   return (REJECTED_MODULE_NAMES as readonly string[]).includes(name);
 }
 
 /**
  * Returns true if the given string is a rejected OS-layer UI term.
  */
-export function isRejectedOsTerm(name: string: boolean {
+export function isRejectedOsTerm(name: string: boolean) {
   return (REJECTED_OS_TERMS as readonly string[]).includes(name);
 }
 
 /**
  * Returns true if the given string is a valid Dream Window state.
  */
-export function isValidDreamWindowState(name: string: name is DreamWindowState {
+export function isValidDreamWindowState(name: string: name is DreamWindowState) {
   return (Object.values(DREAM_WINDOW_STATES) as string[]).includes(name);
 }
 
 /**
  * Returns true if the given string is a valid canonical connection verb.
  */
-export function isValidConnectionVerb(verb: string: verb is ConnectionVerb {
+export function isValidConnectionVerb(verb: string: verb is ConnectionVerb) {
   return (CONNECTION_VERBS as readonly string[]).includes(verb);
 }
 
 /**
  * Returns true if the given string is a rejected connection verb.
  */
-export function isRejectedConnectionVerb(verb: string: boolean {
+export function isRejectedConnectionVerb(verb: string: boolean) {
   return (REJECTED_CONNECTION_VERBS as readonly string[]).includes(verb);
 }
 
 /**
  * Returns true if the given string is a valid canonical runtime region.
  */
-export function isValidRuntimeRegion(name: string: name is RuntimeRegion {
+export function isValidRuntimeRegion(name: string: name is RuntimeRegion) {
   return (Object.values(RUNTIME_REGIONS) as string[]).includes(name);
 }
 
 /**
  * Returns true if the given string is a valid canonical surface name (with suffix).
  */
-export function isValidSurfaceName(name: string: name is SurfaceName {
+export function isValidSurfaceName(name: string: name is SurfaceName) {
   return (Object.values(SURFACE_NAMES) as string[]).includes(name);
 }
 
 /**
  * Returns true if the given string is a preferred Route Law naming label.
  */
-export function isRouteLawPreferredName(name: string: name is RouteLawPreferredName {
+export function isRouteLawPreferredName(name: string: name is RouteLawPreferredName) {
   return (ROUTE_LAW_NAMING_PREFERENCES as readonly string[]).includes(name);
 }
 
@@ -496,7 +496,7 @@ export function isRouteLawPreferredName(name: string: name is RouteLawPreferredN
  * Returns the canonical Engin surface name for a given Daydream domain.
  * Returns undefined if the domain is not canonical.
  */
-export function getEnginForDomain(domain: string: EnginSurface | undefined {
+export function getEnginForDomain(domain: string: EnginSurface | undefined) {
   if (!isValidDaydreamDomain(domain)) return undefined;
   return DAYDREAM_TO_ENGIN[domain];
 }
@@ -505,7 +505,7 @@ export function getEnginForDomain(domain: string: EnginSurface | undefined {
  * Validates a proposed name against all naming authority rules.
  * Returns an array of violation strings. Empty array means the name is valid.
  */
-export function validateName(name: string: string[] {
+export function validateName(name: string: string[]) {
   const violations: string[] = [];
 
   if (isRejectedPlatformVariant(name)) {

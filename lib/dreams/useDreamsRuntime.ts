@@ -41,7 +41,7 @@ const DEFAULT_STATE: DreamsRuntimeState = {
   detailTitle: null,
 };
 
-export function useDreamsRuntime(: DreamsRuntime {
+export function useDreamsRuntime(: DreamsRuntime) {
   const [state, setState] = useState<DreamsRuntimeState>(DEFAULT_STATE);
 
   const openDetail = useCallback((url: string, title: string) => {

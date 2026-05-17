@@ -13,7 +13,7 @@ import { ArtifactSlot } from '@/lib/enginpipe';
  * Import example:
  *   import CodeEnginOrchestrator from '@/engins/CodeEngin/orchestrator';
  */
-export default function CodeEnginOrchestrator( {
+export default function CodeEnginOrchestrator() {
   return (
     <ArtifactSlot artifactId="engin:code">
       <div className="space-y-4">

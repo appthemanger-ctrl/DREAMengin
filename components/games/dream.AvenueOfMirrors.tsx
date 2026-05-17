@@ -36,7 +36,7 @@ const COL = {
   panel: 'rgba(12,18,20,0.85)',
 } as const;
 
-function newMaze(: number[][] {
+function newMaze(: number[][]) {
   // Recursive backtracker
   const m: number[][] = Array.from({ length: MAP_N }, () => Array<number>(MAP_N).fill(1));
   const stack: Array<[number, number]> = [[1, 1]];
@@ -57,7 +57,7 @@ function newMaze(: number[][] {
   return m;
 }
 
-function makeGlyphGrid(size: number: string[][] {
+function makeGlyphGrid(size: number: string[][]) {
   const glyphs = ['◆', '○', '△', '✕', '▽', '◐', '✦', '▫', '☉', '⌬'];
   const grid: string[][] = [];
   for (let r = 0; r < size; r++) {
@@ -68,7 +68,7 @@ function makeGlyphGrid(size: number: string[][] {
   return grid;
 }
 
-export default function AvenueOfMirrors( {
+export default function AvenueOfMirrors() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const mazeRef = useRef<number[][]>(newMaze());

@@ -21,7 +21,7 @@ interface ProfileData {
   theme: unknown;
 }
 
-export default function ProfileEditor({ profile }: { profile: ProfileData } {
+export default function ProfileEditor() { profile }: { profile: ProfileData } {
   const supabase = createClient();
   const { enterCustomizeMode } = useCustomizeMode();
   const [saving, setSaving] = useState(false);

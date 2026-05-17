@@ -37,7 +37,7 @@ interface Props {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function groupDotsByTime(dots: JourneyDot[]: JourneyTimeGroup[] {
+function groupDotsByTime(dots: JourneyDot[]: JourneyTimeGroup[]) {
   const now = Date.now();
   const DAY = 86_400_000;
 
@@ -60,7 +60,7 @@ function groupDotsByTime(dots: JourneyDot[]: JourneyTimeGroup[] {
 }
 
 /** Map significance (0–1) to dot radius in px. */
-function dotRadius(significance: number: number {
+function dotRadius(significance: number: number) {
   if (significance >= 0.9) return 8;
   if (significance >= 0.6) return 6;
   return 4;
@@ -69,7 +69,7 @@ function dotRadius(significance: number: number {
 // ── Sparkline helpers ─────────────────────────────────────────────────────────
 
 /** Compute last-7-day activity bucket counts from a dots array (index 0 = oldest, 6 = today). */
-function computeSparkline(dots: JourneyDot[]: number[] {
+function computeSparkline(dots: JourneyDot[]: number[]) {
   const now = Date.now();
   const DAY = 86_400_000;
   const buckets = Array<number>(7).fill(0);
@@ -81,7 +81,7 @@ function computeSparkline(dots: JourneyDot[]: number[] {
 }
 
 /** Mini 7-day sparkline bar chart shown beneath the streak banner. */
-function SparklineBar({ dots }: { dots: JourneyDot[] } {
+function SparklineBar() { dots }: { dots: JourneyDot[] } {
   const data = computeSparkline(dots);
   const max  = Math.max(...data, 1);
   return (
@@ -112,7 +112,7 @@ function SparklineBar({ dots }: { dots: JourneyDot[] } {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export default function JourneyTrail({ limit = 50, compact = false }: Props {
+export default function JourneyTrail() { limit = 50, compact = false }: Props {
   const [dots,          setDots]          = useState<JourneyDot[]>([]);
   const [annotated,     setAnnotated]     = useState<AnnotatedDot[]>([]);
   const [streak,        setStreak]        = useState(0);

@@ -21,7 +21,7 @@ interface GameHUDProps {
   playHref?: string;
 }
 
-export default function GameHUD({ gameLabel, gameEmoji: Record<string, unknown>, playHref }: GameHUDProps {
+export default function GameHUD() { gameLabel, gameEmoji: Record<string, unknown>, playHref }: GameHUDProps {
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
 

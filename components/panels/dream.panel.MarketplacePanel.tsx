@@ -29,7 +29,7 @@ const FALLBACK_CATEGORIES = [
   { icon: '🎵', label: 'Music',      desc: 'Sample packs and sound kits' },
 ];
 
-export default function MarketplacePanel( {
+export default function MarketplacePanel() {
   const { openInSurface } = useDreamSystem();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading]   = useState(true);

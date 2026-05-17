@@ -23,7 +23,7 @@ const ICONS: Record<string, string> = {
   'view-all-dreams': '⬡', 'edit-layout': '⊞',
 };
 
-export default function RadialMenu({ open, anchor: Record<string, unknown>, items: Record<string, unknown>, onClose: Record<string, unknown>, variant = 'blue' }: Props {
+export default function RadialMenu() { open, anchor: Record<string, unknown>, items: Record<string, unknown>, onClose: Record<string, unknown>, variant = 'blue' }: Props {
   const overlayRef = useRef<HTMLDivElement>(null);
 
   // Close on Escape

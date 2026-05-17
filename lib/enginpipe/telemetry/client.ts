@@ -44,7 +44,7 @@ const DEFAULT_TABLE = 'gameengin_telemetry';
 /**
  * Create a telemetry client bound to a Supabase instance.
  */
-export function createTelemetryClient(opts: TelemetryClientOptions {
+export function createTelemetryClient(opts: TelemetryClientOptions) {
   const table = opts.table ?? DEFAULT_TABLE;
 
   return {

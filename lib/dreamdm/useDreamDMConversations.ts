@@ -33,7 +33,7 @@ interface UseConversationsReturn {
   reload: () => void;
 }
 
-export function useDreamDMConversations(userId: string, initial: DMConversation[] = []: UseConversationsReturn {
+export function useDreamDMConversations(userId: string, initial: DMConversation[] = []: UseConversationsReturn) {
   const [conversations, setConversations] = useState<DMConversation[]>(initial);
   const [isLoading, setIsLoading] = useState(false);
 

@@ -174,7 +174,7 @@ export const ICON_ENTRIES = Object.entries(ICONS) as [IconName, { col: number; r
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 /** Returns the CSS background-position offset (negative px) for a named icon. */
-export function getIconPos(name: IconName: { x: number; y: number } {
+export function getIconPos(name: IconName:) { x: number; y: number } {
   const { col, row } = ICONS[name];
   return {
     x: col === 0 ? 0 : -(col * FRAME_W),
@@ -183,7 +183,7 @@ export function getIconPos(name: IconName: { x: number; y: number } {
 }
 
 /** Type-guard: returns true if `name` is a registered IconName. */
-export function hasIcon(name: string: name is IconName {
+export function hasIcon(name: string: name is IconName) {
   return Object.prototype.hasOwnProperty.call(ICONS, name);
 }
 
@@ -191,7 +191,7 @@ export function hasIcon(name: string: name is IconName {
  * Dev-only: validates every entry is within grid bounds.
  * Call once on app mount behind `process.env.NODE_ENV === 'development'`.
  */
-export function validateIconMap(: void {
+export function validateIconMap(: void) {
   if (process.env.NODE_ENV !== 'development') return;
   const seen = new Map<string, IconName>();
   for (const [name, { col, row }] of ICON_ENTRIES) {

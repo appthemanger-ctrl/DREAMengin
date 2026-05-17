@@ -14,7 +14,7 @@ interface DraggableDreamProps {
   style?: React.CSSProperties;
 }
 
-export default function DraggableDream({ dream, children: Record<string, unknown>, className: Record<string, unknown>, style }: DraggableDreamProps {
+export default function DraggableDream() { dream, children: Record<string, unknown>, className: Record<string, unknown>, style }: DraggableDreamProps {
   const [dragging, setDragging] = useState(false);
   const frameRef = useRef<number | null>(null);
   const pointerRef = useRef<{ x: number; y: number } | null>(null);

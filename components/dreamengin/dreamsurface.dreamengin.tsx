@@ -13,7 +13,7 @@ import CanvasDropZone, { type AssetImportPayload } from './dream.CanvasDropZone'
 import DREAMenginOS from './dream.DREAMenginOS';
 import { DreamNavProvider } from '@/components/dreamnav/dreamsurface.dreamnav';
 
-export default function DreamenginApp( {
+export default function DreamenginApp() {
   const pathname = usePathname();
   const mountedRef = useRef(true);
   const [showNexus, setShowNexus] = useState(false);

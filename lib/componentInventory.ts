@@ -186,7 +186,7 @@ export const COMPONENT_INVENTORY: AtomicComponent[] = [
  *
  * Returns all components in a given category.
  */
-export function getByCategory(category: ComponentCategory: AtomicComponent[] {
+export function getByCategory(category: ComponentCategory: AtomicComponent[]) {
   return COMPONENT_INVENTORY.filter((c: Record<string, unknown>) => c.category === category);
 }
 
@@ -195,7 +195,7 @@ export function getByCategory(category: ComponentCategory: AtomicComponent[] {
  *
  * Case-insensitive search across id, name, and description.
  */
-export function searchComponents(query: string: AtomicComponent[] {
+export function searchComponents(query: string: AtomicComponent[]) {
   const q = query.toLowerCase();
   return COMPONENT_INVENTORY.filter(
     (c) =>

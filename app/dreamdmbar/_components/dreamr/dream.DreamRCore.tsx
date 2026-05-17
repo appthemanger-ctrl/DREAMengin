@@ -20,7 +20,7 @@ interface Props {
   sharerId: string;
 }
 
-export default function DreamRCore({ sharerId }: Props {
+export default function DreamRCore() { sharerId }: Props {
   useEffect(() => {
     // bridge.subscribe(channel, event, handler) → returns UnsubscribeFn
     const subs = [

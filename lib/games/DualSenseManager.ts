@@ -70,7 +70,7 @@ export interface DualSenseConfig {
 
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
-export function useDualSense(config: DualSenseConfig = {} {
+export function useDualSense(config: DualSenseConfig =) {} {
   const {
     enableGyro = true,
     enableHaptics = true,

@@ -19,7 +19,7 @@ interface UploadedMedia {
   file: File;
 }
 
-export default function CreatePostModal({ onClose, userId }: CreatePostModalProps {
+export default function CreatePostModal() { onClose, userId }: CreatePostModalProps {
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [visibility, setVisibility] = useState<'public' | 'followers' | 'private'>('followers');

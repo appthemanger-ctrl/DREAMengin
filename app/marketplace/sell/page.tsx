@@ -24,7 +24,7 @@ const CATEGORIES = [
   { value: 'music',     label: '🎵 Music',     desc: 'Sample pack or sound kit' },
 ];
 
-export default function MarketplaceSellPage( {
+export default function MarketplaceSellPage() {
   const supabase = createClient();
   const router   = useRouter();
 

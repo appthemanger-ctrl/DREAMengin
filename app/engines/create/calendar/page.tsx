@@ -16,7 +16,7 @@ const NAV_ITEMS = [
   { href: '/engines/create/queue',    label: 'Queue',    emoji: '📬' },
 ];
 
-export default async function CreateCalendarPage( {
+export default async function CreateCalendarPage() {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

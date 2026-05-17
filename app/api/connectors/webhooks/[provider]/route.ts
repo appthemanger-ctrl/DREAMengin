@@ -42,7 +42,7 @@ import {
 
 // ── Service-role client (bypasses RLS for server-side webhook writes) ─────────
 
-function createServiceClient( {
+function createServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return null;
@@ -60,7 +60,7 @@ interface YouTubeWebhookEntry {
   authorName: string;
 }
 
-function parseYouTubeAtom(xml: string: YouTubeWebhookEntry | null {
+function parseYouTubeAtom(xml: string: YouTubeWebhookEntry | null) {
   const get = (tag: string) => {
     const m = xml.match(new RegExp(`<${tag}[^>]*>([^<]*)<\/${tag}>`, 's'));
     return m ? m[1].trim() : '';

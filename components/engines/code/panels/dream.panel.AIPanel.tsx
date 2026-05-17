@@ -67,12 +67,12 @@ describe('processData', () => {
 \`\`\``,
 };
 
-function getSimResponse(prompt: string: string {
+function getSimResponse(prompt: string: string) {
   if (prompt.toLowerCase().includes('test')) return SIMULATED_RESPONSES.tests;
   return SIMULATED_RESPONSES.default;
 }
 
-export default function AIPanel( {
+export default function AIPanel() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '0',
@@ -90,7 +90,7 @@ export default function AIPanel( {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  async function sendMessage(prompt?: string {
+  async function sendMessage(prompt?: string) {
     const text = (prompt ?? input).trim();
     if (!text || loading) return;
     setInput('');
@@ -108,7 +108,7 @@ export default function AIPanel( {
     setLoading(false);
   }
 
-  function copyMessage(content: string, id: string {
+  function copyMessage(content: string, id: string) {
     navigator.clipboard.writeText(content).catch(() => {});
     setCopied(id);
     setTimeout(() => setCopied(null), 2000);

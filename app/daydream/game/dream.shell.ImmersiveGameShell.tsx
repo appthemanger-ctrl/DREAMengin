@@ -106,7 +106,7 @@ const BASELINE_OVERLAY_OFFSET_PX     = 14;
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export default function ImmersiveGameShell( {
+export default function ImmersiveGameShell() {
   const router       = useRouter();
   const searchParams = useSearchParams();
   const rootRef      = useRef<HTMLDivElement>(null);

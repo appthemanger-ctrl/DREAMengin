@@ -24,7 +24,7 @@ export interface WidgetPlaceholderProps {
   style?: React.CSSProperties;
 }
 
-export default function WidgetPlaceholder({
+export default function WidgetPlaceholder() {
   onOpenLibrary,
   onRemove,
   isEditing,

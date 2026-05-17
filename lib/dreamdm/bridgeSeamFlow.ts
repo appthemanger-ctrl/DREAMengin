@@ -43,7 +43,7 @@ export const SEAM_CHANNEL_COLORS: Record<string, string> = {
 export const SEAM_DEFAULT_COLOR = '#c8981a';
 
 /** Returns the canonical hex color for a bridge channel. */
-export function channelColor(channel: string: string {
+export function channelColor(channel: string: string) {
   return SEAM_CHANNEL_COLORS[channel] ?? SEAM_DEFAULT_COLOR;
 }
 
@@ -104,7 +104,7 @@ let _nextId = 0;
  * The particle originates at a random horizontal position and moves toward the
  * nearer screen edge, fading out over EMISSION_LIFESPAN_MS ms.
  */
-export function createSeamParticle(channel: string: SeamParticle {
+export function createSeamParticle(channel: string: SeamParticle) {
   const id = _nextId++;
   // Start anywhere in the middle 60% of the canvas.
   const startX = 0.2 + Math.random() * 0.6;
@@ -137,7 +137,7 @@ export function createSeamParticle(channel: string: SeamParticle {
  * These drift left-to-right at a low opacity when no real emissions are
  * happening, keeping the seam alive without being distracting.
  */
-export function createIdleParticle(startX: number: SeamParticle {
+export function createIdleParticle(startX: number: SeamParticle) {
   const id = _nextId++;
   return {
     id,
@@ -167,7 +167,7 @@ export function createIdleParticle(startX: number: SeamParticle {
  * the rAF loop). Dead particles remain in the array until `evictDeadParticles`
  * removes them.
  */
-export function tickParticles(particles: SeamParticle[], dtMs: number: void {
+export function tickParticles(particles: SeamParticle[], dtMs: number: void) {
   for (const p of particles) {
     if (p.age >= 1) continue;
 
@@ -200,7 +200,7 @@ export function tickParticles(particles: SeamParticle[], dtMs: number: void {
 /**
  * Return true if the particle has expired and can be removed from the array.
  */
-export function isParticleDead(p: SeamParticle: boolean {
+export function isParticleDead(p: SeamParticle: boolean) {
   return p.age >= 1 || p.alpha <= 0.01 || p.x < -0.05 || p.x > 1.05;
 }
 
@@ -208,7 +208,7 @@ export function isParticleDead(p: SeamParticle: boolean {
  * Remove dead particles from the array.
  * Returns a new array (non-mutating) to make React state updates clean.
  */
-export function evictDeadParticles(particles: SeamParticle[]: SeamParticle[] {
+export function evictDeadParticles(particles: SeamParticle[]: SeamParticle[]) {
   return particles.filter((p: Record<string, unknown>) => !isParticleDead(p));
 }
 
@@ -216,6 +216,6 @@ export function evictDeadParticles(particles: SeamParticle[]: SeamParticle[] {
  * Reset the internal particle ID counter. Used in tests only.
  * @internal
  */
-export function _resetIdCounter(: void {
+export function _resetIdCounter(: void) {
   _nextId = 0;
 }

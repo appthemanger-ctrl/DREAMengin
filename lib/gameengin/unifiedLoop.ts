@@ -65,11 +65,11 @@ let _running = false;
 
 // ─── Private helpers ──────────────────────────────────────────────────────────
 
-function _sortEntries(: void {
+function _sortEntries(: void) {
   _entries.sort(a: Record<string, unknown>, b: Record<string, unknown> => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]);
 }
 
-function _tick(now: number: void {
+function _tick(now: number: void) {
   // Re-schedule immediately so we keep the loop alive even if a game throws.
   _rafHandle = requestAnimationFrame(_tick);
 
@@ -101,14 +101,14 @@ function _tick(now: number: void {
   }
 }
 
-function _startLoop(: void {
+function _startLoop(: void) {
   if (_running || typeof requestAnimationFrame === 'undefined') return;
   _running = true;
   _lastTime = 0;
   _rafHandle = requestAnimationFrame(_tick);
 }
 
-function _stopLoop(: void {
+function _stopLoop(: void) {
   if (!_running) return;
   _running = false;
   if (_rafHandle) cancelAnimationFrame(_rafHandle);
@@ -150,13 +150,13 @@ export function registerGame(
  *
  * @param id - the same identifier passed to `registerGame`
  */
-export function unregisterGame(id: string: void {
+export function unregisterGame(id: string: void) {
   _entries = _entries.filter(e => e.id !== id);
   if (_entries.length === 0) _stopLoop();
 }
 
 /** Returns the number of currently-registered games. */
-export function activeGameCount(: number {
+export function activeGameCount(: number) {
   return _entries.length;
 }
 
@@ -164,7 +164,7 @@ export function activeGameCount(: number {
  * Whether the unified RAF loop is currently running.
  * Useful for diagnostics.
  */
-export function isLoopRunning(: boolean {
+export function isLoopRunning(: boolean) {
   return _running;
 }
 
@@ -172,7 +172,7 @@ export function isLoopRunning(: boolean {
  * Force-reset the loop (removes all games, cancels RAF).
  * Intended for test teardown only — do not call in production code.
  */
-export function _resetLoop(: void {
+export function _resetLoop(: void) {
   _stopLoop();
   _entries = [];
 }

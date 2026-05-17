@@ -125,7 +125,7 @@ let vm: AgentOsManager | null = null;
  * Returns the singleton AgentOS manager, creating it on first call.
  * The manager is shared across all agent sessions in a single server process.
  */
-export async function getAgentOS(: Promise<AgentOsManager> {
+export async function getAgentOS(: Promise<AgentOsManager>) {
   if (!vm) {
     vm = new AgentOsManager();
   }

@@ -21,7 +21,7 @@ export interface InviteFlowProps {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function InviteFlow({ className = '' }: InviteFlowProps {
+export function InviteFlow() { className = '' }: InviteFlowProps {
   const { getInviteLink, channelId, connected } = useSharedDream();
   const [open,    setOpen]    = useState(false);
   const [copied,  setCopied]  = useState(false);

@@ -38,7 +38,7 @@ export function resolveRendererBackend(
   }
 }
 
-export function createPerformanceBaselineSampler(maxSamples = 90 {
+export function createPerformanceBaselineSampler(maxSamples = 90) {
   let hasFirstFrame = false;
   let lastTimestamp = 0;
   const frameHistory: number[] = [];
@@ -82,7 +82,7 @@ export function createPerformanceBaselineSampler(maxSamples = 90 {
   };
 }
 
-export function publishGamePerformanceBaseline(detail: GamePerformanceBaseline: void {
+export function publishGamePerformanceBaseline(detail: GamePerformanceBaseline: void) {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(new CustomEvent<GamePerformanceBaseline>(DE_GAME_PERFORMANCE_BASELINE, { detail }));
 }

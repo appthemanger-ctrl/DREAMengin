@@ -156,7 +156,7 @@ echo "✅ All systems go!"`,
 
 // ─── Simulated engine outputs ─────────────────────────────────────────────────
 
-function getMockOutput(language: Language, engine: EngineId, code: string: string[] {
+function getMockOutput(language: Language, engine: EngineId, code: string: string[]) {
   const ts = () => new Date().toISOString().slice(11, 19);
 
   // Scan code for sim keywords to enrich output
@@ -232,7 +232,7 @@ function getMockOutput(language: Language, engine: EngineId, code: string: strin
 
 // ─── ASCII visualizations ─────────────────────────────────────────────────────
 
-function AsciiHeatmap({ cols = 32, rows = 6, seed = 42 }: { cols?: number; rows?: number; seed?: number } {
+function AsciiHeatmap() { cols = 32, rows = 6, seed = 42 }: { cols?: number; rows?: number; seed?: number } {
   const chars = ['░', '▒', '▓', '█'];
   let s = seed;
   const lines: string[] = [];
@@ -251,7 +251,7 @@ function AsciiHeatmap({ cols = 32, rows = 6, seed = 42 }: { cols?: number; rows?
   );
 }
 
-function AsciiBarChart({ values, labels }: { values: number[]; labels: string[] } {
+function AsciiBarChart() { values, labels }: { values: number[]; labels: string[] } {
   const max = Math.max(...values, 1);
   return (
     <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', height: 60 }}>
@@ -268,7 +268,7 @@ function AsciiBarChart({ values, labels }: { values: number[]; labels: string[] 
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function CodeDreamIDE( {
+export default function CodeDreamIDE() {
   const [language,     setLanguage]    = useState<Language>('python');
   const [code,         setCode]        = useState(DEMO_CODE.python);
   const [engine,       setEngine]      = useState<EngineId>('none');

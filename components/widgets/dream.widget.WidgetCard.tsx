@@ -33,7 +33,7 @@ export interface WidgetCardProps {
  * @deprecated Use DreamShell directly.
  * This shim delegates to DreamShell while exposing the legacy WidgetCard interface.
  */
-export default function WidgetCard({
+export default function WidgetCard() {
   title,
   children,
   onConfigure,

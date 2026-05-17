@@ -23,39 +23,39 @@ type AlgoMode = 'mine' | 'dream';
 /* ─────────────────────────────────────────────
    localStorage helpers
 ───────────────────────────────────────────── */
-function loadMode(: AlgoMode {
+function loadMode(: AlgoMode) {
   if (typeof window === 'undefined') return 'mine';
   return (localStorage.getItem('de-algo-mode') as AlgoMode) || 'mine';
 }
-function saveMode(m: AlgoMode { localStorage.setItem('de-algo-mode', m); }
+function saveMode(m: AlgoMode) { localStorage.setItem('de-algo-mode', m); }
 
-function loadPresets(: FeedPreset[] {
+function loadPresets(: FeedPreset[]) {
   if (typeof window === 'undefined') return [];
   try { return JSON.parse(localStorage.getItem('de-feed-presets') || '[]'); }
   catch { return []; }
 }
-function savePresets(p: FeedPreset[] { localStorage.setItem('de-feed-presets', JSON.stringify(p)); }
+function savePresets(p: FeedPreset[]) { localStorage.setItem('de-feed-presets', JSON.stringify(p)); }
 
-function loadActive(: string { return localStorage.getItem('de-active-preset') || 'all'; }
-function saveActive(id: string { localStorage.setItem('de-active-preset', id); }
+function loadActive(: string) { return localStorage.getItem('de-active-preset') || 'all'; }
+function saveActive(id: string) { localStorage.setItem('de-active-preset', id); }
 
-function loadMix(: string[] {
+function loadMix(: string[]) {
   try { return JSON.parse(localStorage.getItem('de-mix-presets') || '[]'); }
   catch { return []; }
 }
-function saveMix(ids: string[] { localStorage.setItem('de-mix-presets', JSON.stringify(ids)); }
+function saveMix(ids: string[]) { localStorage.setItem('de-mix-presets', JSON.stringify(ids)); }
 
-function loadChildSafety(: boolean {
+function loadChildSafety(: boolean) {
   if (typeof window === 'undefined') return false;
   return localStorage.getItem('de-child-safety') === 'true';
 }
-function saveChildSafety(v: boolean { localStorage.setItem('de-child-safety', String(v)); }
+function saveChildSafety(v: boolean) { localStorage.setItem('de-child-safety', String(v)); }
 
 /* ─────────────────────────────────────────────
    Follow settings reader (for display)
 ───────────────────────────────────────────── */
 type FollowSetting = { handle: string; displayName: string; frequency: string };
-function loadFollows(: FollowSetting[] {
+function loadFollows(: FollowSetting[]) {
   try {
     const raw = JSON.parse(localStorage.getItem('de-follow-settings') || '{}');
     return Object.values(raw) as FollowSetting[];
@@ -94,7 +94,7 @@ const TOPIC_OPTIONS = [
 
 const EMOJIS = ['📡','✨','☀️','🌴','🏈','🎵','🎮','🎨','💼','😌','🔔','🌙','🔥','💎','🚀','🌊','🎯','⚡'];
 
-function PresetCreator({ onSave, onCancel, editing }: {
+function PresetCreator() { onSave, onCancel, editing }: {
   onSave: (p: FeedPreset) => void;
   onCancel: () => void;
   editing?: FeedPreset;
@@ -232,7 +232,7 @@ function PresetCreator({ onSave, onCancel, editing }: {
 /* ─────────────────────────────────────────────
    Main AlgorithmEngine
 ───────────────────────────────────────────── */
-export default function AlgorithmEngine( {
+export default function AlgorithmEngine() {
   const [mode,        setMode]        = useState<AlgoMode>(loadMode);
   const [presets,     setPresets]     = useState<FeedPreset[]>(loadPresets);
   const [activeId,    setActiveId]    = useState<string>(loadActive);
@@ -554,7 +554,7 @@ export default function AlgorithmEngine( {
 /* ─────────────────────────────────────────────
    Preset Row sub-component
 ───────────────────────────────────────────── */
-function PresetRow({ emoji, name, desc, isActive, isMixed, mixOn, onActivate, onMixToggle, onEdit, onDelete, onShare, isPublic }: {
+function PresetRow() { emoji, name, desc, isActive, isMixed, mixOn, onActivate, onMixToggle, onEdit, onDelete, onShare, isPublic }: {
   emoji: string; name: string; desc: string;
   isActive: boolean; isMixed: boolean; mixOn: boolean;
   onActivate: () => void; onMixToggle: () => void;

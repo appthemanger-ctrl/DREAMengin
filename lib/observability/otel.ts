@@ -36,7 +36,7 @@ const SERVICE_VERSION = process.env.npm_package_version ?? '2.0.0';
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 
-function ensureInit(: void {
+function ensureInit(: void) {
   if (_initialised) return;
   _initialised = true;
 
@@ -78,13 +78,13 @@ function ensureInit(: void {
 // ── Public API ────────────────────────────────────────────────────────────────
 
 /** Return the global OTel Meter (creates instruments lazily). */
-export function getMeter(: Meter {
+export function getMeter(: Meter) {
   ensureInit();
   return _meter!;
 }
 
 /** Return the global OTel Tracer (creates spans lazily). */
-export function getTracer(: Tracer {
+export function getTracer(: Tracer) {
   ensureInit();
   return _tracer!;
 }
@@ -96,7 +96,7 @@ export function getTracer(: Tracer {
  * Uses the PrometheusExporter's built-in HTTP handler with a mock
  * request/response pair to capture the serialised metric text.
  */
-export async function getPrometheusMetrics(: Promise<string> {
+export async function getPrometheusMetrics(: Promise<string>) {
   ensureInit();
   if (!_promExporter) return '';
 

@@ -8,7 +8,7 @@ interface PullToRefreshProps {
   children: ReactNode;
 }
 
-export default function PullToRefresh({ onRefresh, children }: PullToRefreshProps {
+export default function PullToRefresh() { onRefresh, children }: PullToRefreshProps {
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [touchStart, setTouchStart] = useState(0);

@@ -13,7 +13,7 @@
 import { useEffect, useState } from 'react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 
-function ts( {
+function ts() {
   return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
@@ -41,7 +41,7 @@ export interface CodeEnginBridgeState {
   };
 }
 
-export function useCodeEnginBridge(: CodeEnginBridgeState {
+export function useCodeEnginBridge(: CodeEnginBridgeState) {
   const [lastBpm, setLastBpm] = useState<number | null>(null);
   const [lastGameScore, setLastGameScore] = useState<number | null>(null);
   const [lastLabResult, setLastLabResult] = useState<string | null>(null);
@@ -140,7 +140,7 @@ export interface GameEnginBridgeState {
   };
 }
 
-export function useGameEnginBridge(: GameEnginBridgeState {
+export function useGameEnginBridge(: GameEnginBridgeState) {
   const [lastBpm, setLastBpm] = useState<number | null>(null);
   const [lastBpmTrackId, setLastBpmTrackId] = useState<string | null>(null);
   const [lastCodeBuild, setLastCodeBuild] = useState<string | null>(null);
@@ -247,7 +247,7 @@ export interface StarMakerEnginBridgeState {
   };
 }
 
-export function useStarMakerEnginBridge(: StarMakerEnginBridgeState {
+export function useStarMakerEnginBridge(: StarMakerEnginBridgeState) {
   const [lastGameSession, setLastGameSession] = useState<string | null>(null);
   const [lastCodeBuild, setLastCodeBuild] = useState<string | null>(null);
   const [lastLabExport, setLastLabExport] = useState<string | null>(null);
@@ -335,7 +335,7 @@ export interface LabEnginBridgeState {
   };
 }
 
-export function useLabEnginBridge(: LabEnginBridgeState {
+export function useLabEnginBridge(: LabEnginBridgeState) {
   const [lastStem, setLastStem] = useState<string | null>(null);
   const [lastGameScore, setLastGameScore] = useState<number | null>(null);
   const [lastCodeCell, setLastCodeCell] = useState<string | null>(null);
@@ -429,7 +429,7 @@ export interface BrandingEnginBridgeState {
   };
 }
 
-export function useBrandingEnginBridge(: BrandingEnginBridgeState {
+export function useBrandingEnginBridge(: BrandingEnginBridgeState) {
   const [lastTrack, setLastTrack] = useState<string | null>(null);
   const [lastAchievement, setLastAchievement] = useState<string | null>(null);
   const [lastCodeDeploy, setLastCodeDeploy] = useState<string | null>(null);
@@ -528,7 +528,7 @@ export interface ContentEnginBridgeState {
   };
 }
 
-export function useContentEnginBridge(: ContentEnginBridgeState {
+export function useContentEnginBridge(: ContentEnginBridgeState) {
   const [lastStem, setLastStem] = useState<string | null>(null);
   const [lastStemUrl, setLastStemUrl] = useState<string | null>(null);
   const [lastAchievement, setLastAchievement] = useState<string | null>(null);

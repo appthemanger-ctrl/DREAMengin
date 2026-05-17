@@ -42,7 +42,7 @@ class DreamErrorBoundary extends Component<{ children: React.ReactNode; title: s
 }
 
 // ── Skeleton rows ──────────────────────────────────────────────────────────
-function SkeletonRow({ width = '100%' }: { width?: string } {
+function SkeletonRow() { width = '100%' }: { width?: string } {
   return (
     <div style={{
       height: 12, borderRadius: 6, background: 'rgba(160,195,240,0.25)',
@@ -81,7 +81,7 @@ export interface DreamShellProps {
   style?: React.CSSProperties;
 }
 
-export default function DreamShell({
+export default function DreamShell() {
   widgetId,
   title,
   icon,
@@ -101,7 +101,7 @@ export default function DreamShell({
 
   useEffect(() => {
     if (!menuOpen) return;
-    function handleClick(e: MouseEvent {
+    function handleClick(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuOpen(false);
       }

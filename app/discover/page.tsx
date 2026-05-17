@@ -71,7 +71,7 @@ const DAYDREAMS = [
 
 type Profile = { id: string; handle: string; display_name: string | null; bio: string | null; avatar_url: string | null };
 
-export default async function DiscoverPage({ searchParams }: { searchParams: Promise<{ q?: string }> } {
+export default async function DiscoverPage() { searchParams }: { searchParams: Promise<{ q?: string }> } {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

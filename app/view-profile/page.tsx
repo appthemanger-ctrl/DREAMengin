@@ -44,7 +44,7 @@ type Profile = {
  * visibility = 'private' records. This is enforced at both the query level
  * (explicit filter) and the RLS level (dream_windows table policies).
  */
-export default async function ViewProfilePage( {
+export default async function ViewProfilePage() {
   await connection();
   const supabase = await createServerClient();
 

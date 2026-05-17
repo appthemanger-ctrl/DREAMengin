@@ -112,7 +112,7 @@ interface PendingConnection {
   fromPortId: string;
 }
 
-export default function NGNEngin({ onBack }: Props {
+export default function NGNEngin() { onBack }: Props {
   const [assembly, setAssembly]           = useState<EngineAssembly>(() => createAssembly('My Engine'));
   const [expandedCats, setExpandedCats]   = useState<Set<PieceCategory>>(new Set(['Audio']));
   const [search, setSearch]               = useState('');
@@ -528,7 +528,7 @@ interface PlacedPieceCardProps {
   onPortClick: (instanceId: string, portId: string, isInput: boolean) => void;
 }
 
-function PlacedPieceCard({ placed, pending: Record<string, unknown>, onMouseDown: Record<string, unknown>, onRemove: Record<string, unknown>, onPortClick }: PlacedPieceCardProps {
+function PlacedPieceCard() { placed, pending: Record<string, unknown>, onMouseDown: Record<string, unknown>, onRemove: Record<string, unknown>, onPortClick }: PlacedPieceCardProps {
   const [hovered, setHovered] = useState(false);
 
   const manifest = getPiece(placed.pieceId);

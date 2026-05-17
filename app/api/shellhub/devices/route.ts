@@ -32,7 +32,7 @@ export interface ShellHubDevicesResponse {
   error?: string;
 }
 
-export async function GET(: Promise<NextResponse<ShellHubDevicesResponse>> {
+export async function GET(: Promise<NextResponse<ShellHubDevicesResponse>>) {
   const supabase = await createServerClient();
    
   const db = supabase as SupabaseClient;

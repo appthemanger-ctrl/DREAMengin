@@ -43,7 +43,7 @@ const MAX_HISTORY_ENTRIES = 100;
  * Note: recordForgeActivity in forgeRegistry.ts also writes to this key inline
  * to avoid circular imports.  This function is the canonical API for direct writes.
  */
-export function appendForgeHistory(enginId: string, label: string: void {
+export function appendForgeHistory(enginId: string, label: string: void) {
   if (typeof window === 'undefined') return;
   try {
     const history = readForgeHistory();
@@ -59,7 +59,7 @@ export function appendForgeHistory(enginId: string, label: string: void {
 /**
  * Read the full activity history log.
  */
-export function readForgeHistory(: ForgeHistoryEntry[] {
+export function readForgeHistory(: ForgeHistoryEntry[]) {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
@@ -73,7 +73,7 @@ export function readForgeHistory(: ForgeHistoryEntry[] {
 /**
  * Clear all history (for testing / reset).
  */
-export function clearForgeHistory(: void {
+export function clearForgeHistory(: void) {
   if (typeof window === 'undefined') return;
   try { localStorage.removeItem(HISTORY_STORAGE_KEY); } catch { /* silent */ }
 }
@@ -84,7 +84,7 @@ export function clearForgeHistory(: void {
  * Transition map: tracks how often engine A is followed by engine B.
  * Key: "fromId→toId", Value: count
  */
-function buildTransitionMap(history: ForgeHistoryEntry[]: Map<string, number> {
+function buildTransitionMap(history: ForgeHistoryEntry[]: Map<string, number>) {
   const map = new Map<string, number>();
   for (let i = 1; i < history.length; i++) {
     const from = history[i - 1].enginId;
@@ -254,7 +254,7 @@ const ENGINE_KEYWORDS: Record<string, string[]> = {
  * → matches: games, music, create
  * → generates steps based on engine capabilities
  */
-export function parseGoalToWorkflow(goal: string: ForgeWorkflow | null {
+export function parseGoalToWorkflow(goal: string: ForgeWorkflow | null) {
   if (!goal.trim()) return null;
 
   const goalLower = goal.toLowerCase();
@@ -302,7 +302,7 @@ export function parseGoalToWorkflow(goal: string: ForgeWorkflow | null {
   };
 }
 
-function generateStepDescription(engineId: string, goal: string: string {
+function generateStepDescription(engineId: string, goal: string: string) {
   switch (engineId) {
     case 'games':
       if (goal.includes('level')) return 'design levels in the world builder';
@@ -393,7 +393,7 @@ export function recordForgeTransfer(
 /**
  * Read all recorded transfers.
  */
-export function readForgeTransfers(: ForgeTransferEntry[] {
+export function readForgeTransfers(: ForgeTransferEntry[]) {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(TRANSFER_STORAGE_KEY);
@@ -407,7 +407,7 @@ export function readForgeTransfers(: ForgeTransferEntry[] {
 /**
  * Clear all transfers (for testing / reset).
  */
-export function clearForgeTransfers(: void {
+export function clearForgeTransfers(: void) {
   if (typeof window === 'undefined') return;
   try { localStorage.removeItem(TRANSFER_STORAGE_KEY); } catch { /* silent */ }
 }
@@ -419,7 +419,7 @@ const CUSTOM_WORKFLOWS_KEY = 'de:forge:custom-workflows';
 /**
  * Save a user-created workflow.
  */
-export function saveCustomWorkflow(workflow: ForgeWorkflow: void {
+export function saveCustomWorkflow(workflow: ForgeWorkflow: void) {
   if (typeof window === 'undefined') return;
   try {
     const existing = readCustomWorkflows();
@@ -435,7 +435,7 @@ export function saveCustomWorkflow(workflow: ForgeWorkflow: void {
 /**
  * Read all user-created workflows.
  */
-export function readCustomWorkflows(: ForgeWorkflow[] {
+export function readCustomWorkflows(: ForgeWorkflow[]) {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(CUSTOM_WORKFLOWS_KEY);
@@ -449,7 +449,7 @@ export function readCustomWorkflows(: ForgeWorkflow[] {
 /**
  * Delete a user-created workflow by id.
  */
-export function deleteCustomWorkflow(workflowId: string: void {
+export function deleteCustomWorkflow(workflowId: string: void) {
   if (typeof window === 'undefined') return;
   try {
     const existing = readCustomWorkflows();
@@ -463,7 +463,7 @@ export function deleteCustomWorkflow(workflowId: string: void {
 /**
  * Clear all custom workflows (for testing / reset).
  */
-export function clearCustomWorkflows(: void {
+export function clearCustomWorkflows(: void) {
   if (typeof window === 'undefined') return;
   try { localStorage.removeItem(CUSTOM_WORKFLOWS_KEY); } catch { /* silent */ }
 }
@@ -491,7 +491,7 @@ const WORKFLOW_RUNS_KEY = 'de:forge:workflow-runs';
 /**
  * Start a new workflow run, initialising all steps to 'pending'.
  */
-export function startWorkflowRun(workflowId: string, stepCount: number: WorkflowRunState {
+export function startWorkflowRun(workflowId: string, stepCount: number: WorkflowRunState) {
   const run: WorkflowRunState = {
     workflowId,
     startedAt: new Date().toISOString(),
@@ -553,7 +553,7 @@ export function updateWorkflowStep(
 /**
  * Read the active workflow run, if any.
  */
-export function getActiveWorkflowRun(: WorkflowRunState | null {
+export function getActiveWorkflowRun(: WorkflowRunState | null) {
   if (typeof window === 'undefined') return null;
   try {
     const raw = localStorage.getItem(WORKFLOW_RUNS_KEY);
@@ -567,7 +567,7 @@ export function getActiveWorkflowRun(: WorkflowRunState | null {
 /**
  * Clear the active workflow run.
  */
-export function clearWorkflowRun(: void {
+export function clearWorkflowRun(: void) {
   if (typeof window === 'undefined') return;
   try { localStorage.removeItem(WORKFLOW_RUNS_KEY); } catch { /* silent */ }
 }

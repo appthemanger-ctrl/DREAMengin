@@ -10,7 +10,7 @@ interface OutdreamMenuProps {
 }
 
 // OutdreamMenu: the Daydreams navigation menu for outer-shell node navigation.
-export default function OutdreamMenu({ onClose }: OutdreamMenuProps {
+export default function OutdreamMenu() { onClose }: OutdreamMenuProps {
   const { node, dispatch } = useDreamNav();
 
   const goTo = async (target: Node) => {

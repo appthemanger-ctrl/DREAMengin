@@ -38,7 +38,7 @@ const FEATURES = [
   { key: 'zne_local',       label: 'ZNE',   desc: 'Zero-Noise Extrapolation (local)',           color: '#ec4899'  },
 ] as const;
 
-export default function OptimizePanel( {
+export default function OptimizePanel() {
   const [algorithm, setAlgorithm] = useState<Algorithm>('vqe');
   const [backend,   setBackend]   = useState<Backend>('local_simulator');
   const [ansatz,    setAnsatz]    = useState<Ansatz>('real_amplitudes');
@@ -47,7 +47,7 @@ export default function OptimizePanel( {
   const [error,         setError]         = useState<string | null>(null);
   const [quantumResult, setQuantumResult] = useState<QuantumMeasurementResult | null>(null);
 
-  async function handleRun( {
+  async function handleRun() {
     setRunning(true);
     setResult(null);
     setError(null);

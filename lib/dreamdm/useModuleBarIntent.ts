@@ -56,7 +56,7 @@ export interface UseModuleBarIntentResult {
   openCommentInBar: (targetPostId: string, targetLabel?: string) => void;
 }
 
-export function useModuleBarIntent(moduleId: string: UseModuleBarIntentResult {
+export function useModuleBarIntent(moduleId: string: UseModuleBarIntentResult) {
   const { setBarIntent, clearBarIntent, barIntent } = useDreamSystem();
 
   const focusModuleInBar = useCallback(

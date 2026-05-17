@@ -22,7 +22,7 @@ import { n, deltaP, a0Perception } from './constants';
  *   mu → 1 for x ≫ 1  (Newtonian / high-engagement regime)
  *   mu → x for x ≪ 1  (deep-MOND / low-engagement regime)
  */
-export function mu(x: number: number {
+export function mu(x: number: number) {
   if (x === 0) return 0;
   const ax = Math.abs(x);
   return ax / Math.pow(1 + Math.pow(ax, n), 1 / n);
@@ -37,7 +37,7 @@ export function mu(x: number: number {
  * buildTime    — creation time in minutes
  * uniqueAssets — number of unique assets (images, audio clips, etc.)
  */
-export function contentMass(buildTime: number, uniqueAssets: number: number {
+export function contentMass(buildTime: number, uniqueAssets: number: number) {
   return Math.log1p(buildTime * 0.5 + uniqueAssets * 2);
 }
 
@@ -51,7 +51,7 @@ export function contentMass(buildTime: number, uniqueAssets: number: number {
  *   factor = mu(x)
  *   rank   = log1p(factor * views)
  */
-export function torridityRank(views: number, mass: number: number {
+export function torridityRank(views: number, mass: number: number) {
   if (mass <= 0) return 0;
   const x      = views / (mass * a0Perception);
   const factor = mu(x);
@@ -69,7 +69,7 @@ export function torridityRank(views: number, mass: number: number {
  *
  * Feed rank after decay: rank * (1 - decayFactor(ageHours))
  */
-export function decayFactor(ageHours: number: number {
+export function decayFactor(ageHours: number: number) {
   return mu(ageHours / 24);
 }
 
@@ -115,7 +115,7 @@ export interface RankedItem extends ContentItem {
  * Rank a batch of content items, applying the decay factor and
  * low-mass throttling gate. Returns items sorted descending by decayedRank.
  */
-export function rankFeed(items: ContentItem[], feedSlots = 20: RankedItem[] {
+export function rankFeed(items: ContentItem[], feedSlots = 20: RankedItem[]) {
   return items
     .map((item: Record<string, unknown>) => {
       const mass        = contentMass(item.buildTime, item.uniqueAssets);

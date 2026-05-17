@@ -21,7 +21,7 @@ export function buildGameLaunchHref(
   return `${pathname}?${params.toString()}`;
 }
 
-export function isLaunchFlagEnabled(value: string | null | undefined {
+export function isLaunchFlagEnabled(value: string | null | undefined) {
   return value === '1';
 }
 

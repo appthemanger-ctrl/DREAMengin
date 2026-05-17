@@ -46,7 +46,7 @@ const DEFAULT_WORKFLOW_SPLIT = 0.5;
 /** No route owns a special bridge; shell callbacks are global from root layout. */
 const OWN_BRIDGE_ROUTES = new Set<string>();
 
-export default function OSShellActivator( {
+export default function OSShellActivator() {
   const pathname = usePathname();
   const dualRuntime = useDualRuntime();
   const {

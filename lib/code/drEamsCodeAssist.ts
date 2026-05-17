@@ -106,7 +106,7 @@ export const VOCAB_TERMS: Set<string> = new Set(CODE_VOCABULARY.map(v => v.term.
  * Return all vocabulary entries whose term appears in the query.
  * Returns at most 5 matches, sorted by category breadth.
  */
-export function matchCodeVocabulary(query: string: VocabEntry[] {
+export function matchCodeVocabulary(query: string: VocabEntry[]) {
   if (!query.trim()) return [];
   const lower = query.toLowerCase();
   const matches = CODE_VOCABULARY.filter(v => lower.includes(v.term.toLowerCase()));
@@ -131,7 +131,7 @@ const BASH_HINTS    = /^\s*(#!\/|echo |cd |ls |grep |curl |apt |brew |pnpm |npm 
  * Heuristically detect the language of a code snippet.
  * Falls back to 'python'.
  */
-export function detectLanguageFromCode(code: string: CellLanguage {
+export function detectLanguageFromCode(code: string: CellLanguage) {
   if (!code.trim()) return 'python';
   if (BASH_HINTS.test(code))   return 'bash';
   if (TS_HINTS.test(code))     return 'typescript';
@@ -159,7 +159,7 @@ const DEBUG_PATTERNS    = /\b(fix|debug|error|bug|fail|crash|wrong|issue|problem
 /**
  * Classify a natural-language query into an intent category.
  */
-export function classifyQuery(query: string: QueryIntent {
+export function classifyQuery(query: string: QueryIntent) {
   if (!query.trim()) return 'general';
   const lower = query.toLowerCase();
   if (matchCodeVocabulary(lower).length > 0 && EXPLAIN_PATTERNS.test(lower)) return 'vocabulary';
@@ -189,7 +189,7 @@ export interface CodeContext {
  * Privacy: only `selectedCode` (≤ 2 000 chars) is ever sent — never the full
  * notebook or multi-file codebase.
  */
-export function buildCodeSystemPrompt(context: CodeContext: string {
+export function buildCodeSystemPrompt(context: CodeContext: string) {
   const intent = classifyQuery('');   // baseline — caller should pass the user query too
   const vocabBlock = CODE_VOCABULARY.slice(0, 10)
     .map(v => `  - ${v.term}: ${v.definition}`)
@@ -223,7 +223,7 @@ export function buildCodeSystemPrompt(context: CodeContext: string {
  * Build the prompt that includes the user's query intent.
  * This augments buildCodeSystemPrompt with query-specific instructions.
  */
-export function buildCodePrompt(query: string, context: CodeContext: string {
+export function buildCodePrompt(query: string, context: CodeContext: string) {
   const intent = classifyQuery(query);
   const matched = matchCodeVocabulary(query);
 
@@ -266,7 +266,7 @@ const FENCE_RE = /```(\w*)\n?([\s\S]*?)```/g;
  * Parse a Dr. Eams text response into text and extracted code blocks.
  * Caller can then insert the code blocks into the active notebook cell.
  */
-export function parseCodeResponse(raw: string: ParsedCodeResponse {
+export function parseCodeResponse(raw: string: ParsedCodeResponse) {
   const codeBlocks: ParsedCodeResponse['codeBlocks'] = [];
   let text = raw.replace(FENCE_RE, _: Record<string, unknown>, lang: string, code: string => {
     codeBlocks.push({ language: lang || 'text', code: code.trim() });
@@ -324,7 +324,7 @@ const NL_PATTERNS: Array<{ re: RegExp; type: NLCommand['type']; extractSubject?:
  * Detect a natural-language coding command from a user query.
  * Returns `null` if no pattern matches.
  */
-export function detectNLCommand(query: string: NLCommand | null {
+export function detectNLCommand(query: string: NLCommand | null) {
   for (const { re, type, extractSubject } of NL_PATTERNS) {
     const match = query.match(re);
     if (match) {
@@ -374,14 +374,14 @@ const TEMPLATES: Record<NLCommand['type'], (cmd: NLCommand, lang: CellLanguage) 
  * Generate a code scaffold from a detected NL command.
  * This is a purely local template expansion — no network call required.
  */
-export function generateCodeFromCommand(cmd: NLCommand, language: CellLanguage: string {
+export function generateCodeFromCommand(cmd: NLCommand, language: CellLanguage: string) {
   const template = TEMPLATES[cmd.type];
   return template ? template(cmd, language) : `# TODO: implement "${cmd.subject ?? 'task'}"`;
 }
 
 // ─── Helper: extract fenced code blocks as plain strings ──────────────────────
 
-function parseCodeBlocks(raw: string: string[] {
+function parseCodeBlocks(raw: string: string[]) {
   return parseCodeResponse(raw).codeBlocks.map(b: Record<string, unknown> => b.code);
 }
 

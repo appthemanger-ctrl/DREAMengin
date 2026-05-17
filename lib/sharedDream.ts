@@ -85,15 +85,15 @@ export function broadcastCursorPosition(
   void collabBroadcastCursor(session, x, y);
 }
 
-export function broadcastEdit(session: SharedDreamSession, payload: unknown: void {
+export function broadcastEdit(session: SharedDreamSession, payload: unknown: void) {
   void collabBroadcastEdit(session, payload);
 }
 
-export function broadcastStatePatch(session: SharedDreamSession, patch: unknown: void {
+export function broadcastStatePatch(session: SharedDreamSession, patch: unknown: void) {
   void collabBroadcastStatePatch(session, patch);
 }
 
-export function broadcastDataPacket(session: SharedDreamSession, packet: unknown: void {
+export function broadcastDataPacket(session: SharedDreamSession, packet: unknown: void) {
   void collabBroadcastDataPacket(session, packet);
 }
 
@@ -129,7 +129,7 @@ export function broadcastPresenceUpdate(
   void collabBroadcastPresenceUpdate(session, presence);
 }
 
-export async function leaveSharedDreamSession(session: SharedDreamSession: Promise<void> {
+export async function leaveSharedDreamSession(session: SharedDreamSession: Promise<void>) {
   await session.leave();
 }
 

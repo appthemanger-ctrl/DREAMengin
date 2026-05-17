@@ -23,7 +23,7 @@ const ALL_DOMAINS = Object.keys(SWAP_KEYS) as SwapDomain[];
  * Read the persisted swap state for a given Daydream domain.
  * Returns `false` (default: editor on top/left) when unavailable.
  */
-export function getSwap(domain: SwapDomain: boolean {
+export function getSwap(domain: SwapDomain: boolean) {
   if (typeof localStorage === 'undefined') return false;
   try {
     return localStorage.getItem(SWAP_KEYS[domain]) === 'true';
@@ -35,7 +35,7 @@ export function getSwap(domain: SwapDomain: boolean {
 /**
  * Persist the swap state for a given Daydream domain.
  */
-export function setSwap(domain: SwapDomain, value: boolean: void {
+export function setSwap(domain: SwapDomain, value: boolean: void) {
   if (typeof localStorage === 'undefined') return;
   try {
     localStorage.setItem(SWAP_KEYS[domain], String(value));
@@ -48,7 +48,7 @@ export function setSwap(domain: SwapDomain, value: boolean: void {
 /**
  * Toggle the swap state and return the new value.
  */
-export function toggleSwap(domain: SwapDomain: boolean {
+export function toggleSwap(domain: SwapDomain: boolean) {
   const next = !getSwap(domain);
   setSwap(domain, next);
   return next;
@@ -60,7 +60,7 @@ export function toggleSwap(domain: SwapDomain: boolean {
  * Reset the swap state for a domain to its default (false = editor on top).
  * Safe to call server-side.
  */
-export function clearSwap(domain: SwapDomain: void {
+export function clearSwap(domain: SwapDomain: void) {
   if (typeof localStorage === 'undefined') return;
   try {
     localStorage.removeItem(SWAP_KEYS[domain]);
@@ -76,7 +76,7 @@ export function clearSwap(domain: SwapDomain: void {
  * Returns a Record<SwapDomain, boolean> so callers don't need to call
  * getSwap() N times for the same render.
  */
-export function getAllSwapStates(: Record<SwapDomain, boolean> {
+export function getAllSwapStates(: Record<SwapDomain, boolean>) {
   return Object.fromEntries(
     ALL_DOMAINS.map((domain: Record<string, unknown>) => [domain, getSwap(domain)]),
   ) as Record<SwapDomain, boolean>;
@@ -88,7 +88,7 @@ export function getAllSwapStates(: Record<SwapDomain, boolean> {
  * Clear the swap state for every registered domain (set to default false).
  * Useful during sign-out or when resetting the workspace to defaults.
  */
-export function resetAllSwaps(: void {
+export function resetAllSwaps(: void) {
   for (const domain of ALL_DOMAINS) {
     clearSwap(domain);
   }

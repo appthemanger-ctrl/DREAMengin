@@ -208,13 +208,13 @@ export const THEME_PRESETS: ThemePreset[] = [
   { id: 'dream-sunset',   label: 'Dream Sunset',   tokens: DREAM_SUNSET },
 ];
 
-export function getPreset(id: string: ThemePreset {
+export function getPreset(id: string: ThemePreset) {
   return THEME_PRESETS.find((p: Record<string, unknown>) => p.id === id) ?? THEME_PRESETS[0];
 }
 
 // ── Apply theme to DOM ──────────────────────────────────────────────────────
 
-export function applyTheme(presetId: string, overrides: UserOverrides = DEFAULT_OVERRIDES: void {
+export function applyTheme(presetId: string, overrides: UserOverrides = DEFAULT_OVERRIDES: void) {
   if (typeof document === 'undefined') return;
   const preset = getPreset(presetId);
   const t = preset.tokens;
@@ -276,7 +276,7 @@ export interface StoredTheme {
   overrides: UserOverrides;
 }
 
-export function loadStoredTheme(: StoredTheme {
+export function loadStoredTheme(: StoredTheme) {
   if (typeof window === 'undefined') return { presetId: 'dream-ice', overrides: DEFAULT_OVERRIDES };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -288,7 +288,7 @@ export function loadStoredTheme(: StoredTheme {
   return { presetId: 'dream-ice', overrides: DEFAULT_OVERRIDES };
 }
 
-export function saveTheme(presetId: string, overrides: UserOverrides: void {
+export function saveTheme(presetId: string, overrides: UserOverrides: void) {
   if (typeof window === 'undefined') return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify({ presetId, overrides }));
 }

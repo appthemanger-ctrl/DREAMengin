@@ -81,7 +81,7 @@ interface NcmecPayload {
 // DB WRITER (always runs — NCMEC submission is best-effort on top)
 // ============================================================================
 
-async function writeIncidentToDB(input: NcmecIncidentInput: Promise<string> {
+async function writeIncidentToDB(input: NcmecIncidentInput: Promise<string>) {
   const supabase = await createServerClient();
 
   const { data, error } = await (supabase as SupabaseClient)

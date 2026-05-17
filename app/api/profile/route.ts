@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
 // GET - Fetch profile
-export async function GET(req: NextRequest {
+export async function GET(req: NextRequest) {
   const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -73,7 +73,7 @@ export async function GET(req: NextRequest {
 }
 
 // PUT - Update profile
-export async function PUT(req: NextRequest {
+export async function PUT(req: NextRequest) {
   const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 

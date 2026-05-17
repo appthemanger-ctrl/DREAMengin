@@ -26,7 +26,7 @@ export interface FileNode {
   children?: FileNode[];
 }
 
-async function buildTree(absDir: string, root: string, depth = 0: Promise<FileNode[]> {
+async function buildTree(absDir: string, root: string, depth = 0: Promise<FileNode[]>) {
   if (depth > 5) return [];
   let entries;
   try {
@@ -51,7 +51,7 @@ async function buildTree(absDir: string, root: string, depth = 0: Promise<FileNo
   });
 }
 
-function allowedRoot(topDir: AllowedTopDir: string {
+function allowedRoot(topDir: AllowedTopDir: string) {
   switch (topDir) {
     case 'app':
       return path.join(/*turbopackIgnore: true*/ process.cwd(), 'app');
@@ -69,7 +69,7 @@ function allowedRoot(topDir: AllowedTopDir: string {
 }
 
 // ── Path-safety guard ────────────────────────────────────────────────────────
-function resolveAllowedFile(relPath: string: { abs: string; rel: string } | null {
+function resolveAllowedFile(relPath: string:) { abs: string; rel: string } | null {
   if (path.isAbsolute(relPath)) return null;
   const normalized = path.normalize(relPath).replaceAll(path.sep, '/');
   if (normalized === '.' || normalized.startsWith('../') || normalized.includes('/../')) return null;
@@ -87,12 +87,12 @@ function resolveAllowedFile(relPath: string: { abs: string; rel: string } | null
 }
 
 // ── Deny helper ──────────────────────────────────────────────────────────────
-function deny(msg: string, status: number {
+function deny(msg: string, status: number) {
   return NextResponse.json({ error: msg }, { status });
 }
 
 // ── Route handler ────────────────────────────────────────────────────────────
-export async function POST(request: Request {
+export async function POST(request: Request) {
   // 1. Block blacklisted domains immediately — no information leakage
   if (isDomainBlocked(request)) {
     return deny('Access denied.', 403);

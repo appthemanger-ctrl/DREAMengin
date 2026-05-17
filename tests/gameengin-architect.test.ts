@@ -28,7 +28,7 @@ import {
 
 const CONCEPT_LIB = path.join(BRAIN_ROOT, 'concept-library');
 
-function makeValidVision(overrides: Partial<VisionStatement> = {}): VisionStatement {
+function makeValidVision(overrides: Partial<VisionStatement> =) {}): VisionStatement {
   return {
     vision_id: 'test-architect-vision',
     title: 'Test Architect Vision',

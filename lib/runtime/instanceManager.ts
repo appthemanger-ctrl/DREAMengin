@@ -103,7 +103,7 @@ const LS_KEY = 'dreamengin:engin-instances';
 
 type PersistedInstance = Omit<EnginInstance, 'channel'>;
 
-function serializeInstances(instances: Record<string, EnginInstance>: PersistedInstance[] {
+function serializeInstances(instances: Record<string, EnginInstance>: PersistedInstance[]) {
   return Object.values(instances).map((instance: Record<string, unknown>) => ({
     key: instance.key,
     enginName: instance.enginName,
@@ -226,11 +226,11 @@ export const useInstanceManager = create<InstanceManagerState>(set: Record<strin
  * Returns the canonical key used throughout the instance manager.
  * Exported so consumers can construct keys without instantiating the store.
  */
-export function buildInstanceKey(enginName: EnginName, instanceId: string: string {
+export function buildInstanceKey(enginName: EnginName, instanceId: string: string) {
   return `${enginName}:${instanceId}`;
 }
 
-export function createInstance(options: {
+export function createInstance(options:) {
   enginName: EnginName;
   instanceId: string;
   region: RuntimeId;
@@ -239,12 +239,12 @@ export function createInstance(options: {
   return useInstanceManager.getState().createInstance(options);
 }
 
-export async function promoteInstanceToRealtime(key: string: Promise<void> {
+export async function promoteInstanceToRealtime(key: string: Promise<void>) {
   const channel = await createRuntimeChannel(key, 'shared');
   useInstanceManager.getState().promoteToCoOp(key, channel);
 }
 
-export async function persistInstanceList(userId: string: Promise<void> {
+export async function persistInstanceList(userId: string: Promise<void>) {
   const rows = serializeInstances(useInstanceManager.getState().instances);
   try {
     const { createClient } = await import('@/lib/supabase/client');

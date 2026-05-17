@@ -43,7 +43,7 @@ const COL = {
   slow: '#76d8ff',
 } as const;
 
-function genTerrain(: Terrain[][] {
+function genTerrain(: Terrain[][]) {
   const t: Terrain[][] = Array.from({ length: ROWS }, () => Array<Terrain>(COLS).fill('plain'));
   // sprinkle biomes
   for (let i = 0; i < 38; i++) {
@@ -60,7 +60,7 @@ const TERRAIN_KIND: Record<Terrain, SegmentKind | null> = {
   plain: null, forest: 'arrow', ruins: 'mortar', water: 'slow',
 };
 
-export default function SerpentSiege( {
+export default function SerpentSiege() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const terrainRef = useRef<Terrain[][]>(genTerrain());

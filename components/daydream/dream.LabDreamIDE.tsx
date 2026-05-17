@@ -116,7 +116,7 @@ const VIZ_TYPES: Array<{ id: VizType; label: string; desc: string }> = [
 
 // ─── ASCII helpers ────────────────────────────────────────────────────────────
 
-function asciiHeatmap(cols: number, rows: number, seed: number: string {
+function asciiHeatmap(cols: number, rows: number, seed: number: string) {
   const chars = ['░', '▒', '▓', '█'];
   let s = seed;
   const lines: string[] = [];
@@ -131,7 +131,7 @@ function asciiHeatmap(cols: number, rows: number, seed: number: string {
   return lines.join('\n');
 }
 
-function asciiDensity(cols: number, rows: number, seed: number: string {
+function asciiDensity(cols: number, rows: number, seed: number: string) {
   const chars = [' ', '.', ':', '+', 'o', 'O', '#', '@'];
   let s = seed;
   const cx = cols / 2;
@@ -152,7 +152,7 @@ function asciiDensity(cols: number, rows: number, seed: number: string {
   return lines.join('\n');
 }
 
-function asciiActivation(layers: number[], seed: number: string {
+function asciiActivation(layers: number[], seed: number: string) {
   const chars = ['·', '▫', '▪', '◾', '◼', '■'];
   let s = seed;
   const lines: string[] = [];
@@ -172,7 +172,7 @@ function asciiActivation(layers: number[], seed: number: string {
 
 // ─── Simulated output generation ──────────────────────────────────────────────
 
-function getMockOutput(language: Language, simId: SimId: string[] {
+function getMockOutput(language: Language, simId: SimId: string[]) {
   const ts = () => new Date().toISOString().slice(11, 19);
   const sim = SIMS.find(s => s.id === simId);
 
@@ -228,7 +228,7 @@ function getMockOutput(language: Language, simId: SimId: string[] {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function LabDreamIDE( {
+export default function LabDreamIDE() {
   const [language,  setLanguage]  = useState<Language>('python');
   const [code,      setCode]      = useState(DEMO_CODE.python);
   const [simId,     setSimId]     = useState<SimId>('none');

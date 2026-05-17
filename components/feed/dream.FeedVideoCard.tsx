@@ -22,7 +22,7 @@ import type { FeedPost } from '@/lib/feed/useLiveFeed';
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 
-function extractYouTubeId(url: string: string | null {
+function extractYouTubeId(url: string: string | null) {
   try {
     const u = new URL(url);
     if (u.hostname === 'youtu.be') {
@@ -37,7 +37,7 @@ function extractYouTubeId(url: string: string | null {
   return null;
 }
 
-function buildEmbedUrl(post: FeedPost: string | null {
+function buildEmbedUrl(post: FeedPost: string | null) {
   const src = post.permalink ?? post.media_url ?? null;
   if (!src) return null;
   const vid = extractYouTubeId(src);
@@ -47,7 +47,7 @@ function buildEmbedUrl(post: FeedPost: string | null {
   return null;
 }
 
-function isDirectVideo(url: string: boolean {
+function isDirectVideo(url: string: boolean) {
   return /\.(mp4|webm|ogg|mov)(\?|$)/i.test(url);
 }
 
@@ -70,7 +70,7 @@ export interface FeedVideoCardProps {
 
 // ── component ──────────────────────────────────────────────────────────────────
 
-export default function FeedVideoCard({ post, allVideos: Record<string, unknown>, videoIndex }: FeedVideoCardProps {
+export default function FeedVideoCard() { post, allVideos: Record<string, unknown>, videoIndex }: FeedVideoCardProps {
   const [currentIndex, setCurrentIndex] = useState(videoIndex);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);

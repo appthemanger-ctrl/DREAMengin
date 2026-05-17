@@ -97,7 +97,7 @@ export interface LightningWingProps {
   rotation?: [number, number, number];
 }
 
-export function LightningWing({
+export function LightningWing() {
   color = '#4488ff',
   intensity = 1.0,
   branchCount = 5.0,

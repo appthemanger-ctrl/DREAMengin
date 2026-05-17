@@ -42,12 +42,12 @@ const TIER1_IDS = new Set(CONNECTOR_REGISTRY.filter((c: Record<string, unknown>)
 
 // ── Sync button ────────────────────────────────────────────────────────────
 
-function SyncButton({ connectorId, connectorName }: { connectorId: string; connectorName: string } {
+function SyncButton() { connectorId, connectorName }: { connectorId: string; connectorName: string } {
   const [syncing, setSyncing] = useState(false);
   const [lastSynced, setLastSynced] = useState<string | null>(null);
   const [syncError, setSyncError] = useState<string | null>(null);
 
-  async function handleSync( {
+  async function handleSync() {
     if (syncing) return;
     setSyncing(true);
     setSyncError(null);
@@ -99,7 +99,7 @@ function SyncButton({ connectorId, connectorName }: { connectorId: string; conne
 
 // ── Main component ─────────────────────────────────────────────────────────
 
-export default function ConnectorsClient( {
+export default function ConnectorsClient() {
   const [menuOpen] = useState(false);
   const [slices, setSlices] = useState<FeedSlice[]>([]);
   const [installedWidgets, setInstalledWidgets] = useState<Array<{
@@ -135,7 +135,7 @@ export default function ConnectorsClient( {
       .catch(() => { /* keep registry defaults on network error */ });
   }, []);
 
-  function handleAutoLock( {
+  function handleAutoLock() {
     // Caller is responsible for locking to LOCKED / safe mode
   }
 
@@ -145,11 +145,11 @@ export default function ConnectorsClient( {
     isMenuOpen: menuOpen,
   });
 
-  function handlePromptAdd(widgetId: string {
+  function handlePromptAdd(widgetId: string) {
     flow.onPromptAdd(widgetId);
   }
 
-  function handlePlacementDone(slot: number {
+  function handlePlacementDone(slot: number) {
     if (flow.placementRequest) {
       setGrid(prev: Record<string, unknown> => ({
         ...prev,
@@ -169,7 +169,7 @@ export default function ConnectorsClient( {
     flow.onPlacementDone(slot);
   }
 
-  function handleConnectSuccess(connectorId: string, connectorName: string {
+  function handleConnectSuccess(connectorId: string, connectorName: string) {
     // Add to connected set so Sync Now button appears
     if (TIER1_IDS.has(connectorId)) {
       setConnectedIds(prev: Record<string, unknown> => new Set([...prev, connectorId]));

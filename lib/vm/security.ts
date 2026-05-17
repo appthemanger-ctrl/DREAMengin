@@ -24,7 +24,7 @@ export class MemoryBoundsError extends Error {
  * Verifies that the half-open byte range [ptr, ptr+len) lies entirely
  * within [0, max).  Throws MemoryBoundsError on any violation.
  */
-export function checkBounds(ptr: number, len: number, max: number: void {
+export function checkBounds(ptr: number, len: number, max: number: void) {
   if (
     ptr < 0       ||
     len < 0       ||

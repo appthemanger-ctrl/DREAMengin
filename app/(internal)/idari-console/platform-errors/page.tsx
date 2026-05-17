@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 
 export const metadata = { title: 'Platform Errors – Admin' };
 
-export default async function PlatformErrorsPage( {
+export default async function PlatformErrorsPage() {
   const supabase = await createServerClient();
   const { data } = await (supabase as SupabaseClient)
     .from('platform_errors')

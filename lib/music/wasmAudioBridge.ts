@@ -83,7 +83,7 @@ let loadAttempted = false;
  * `pnpm run asbuild:release`).  Returns `null` if loading fails — the caller
  * should fall back to the JS path.
  */
-async function loadWasmModule(: Promise<EnginWasmExports | null> {
+async function loadWasmModule(: Promise<EnginWasmExports | null>) {
   if (loadAttempted) return cachedExports;
   loadAttempted = true;
 
@@ -117,7 +117,7 @@ async function loadWasmModule(: Promise<EnginWasmExports | null> {
 // JS fallback implementations
 // ---------------------------------------------------------------------------
 
-function jsApplyGain(buffer: Float32Array, gain: number: void {
+function jsApplyGain(buffer: Float32Array, gain: number: void) {
   // Process 4 at a time for cache-friendly access (mirrors SIMD semantics).
   let i = 0;
   const len = buffer.length;
@@ -179,7 +179,7 @@ function wasmApplyGain(
  * Attempts to load the Wasm SIMD module; falls back to JS if unavailable.
  * Call this once in your component/hook and reuse the returned bridge.
  */
-export async function createWasmAudioBridge(: Promise<WasmAudioBridge> {
+export async function createWasmAudioBridge(: Promise<WasmAudioBridge>) {
   const exports = await loadWasmModule();
 
   const isWasmActive = exports !== null;

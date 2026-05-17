@@ -15,7 +15,7 @@
 import Link from 'next/link';
 import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
 
-export default function JourneyDreamWindow( {
+export default function JourneyDreamWindow() {
   return (
     <div className="de-widget" style={{ minHeight: 180 }}>
       {/* Layer 1 — DreamShell header */}

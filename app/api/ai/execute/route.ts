@@ -150,7 +150,7 @@ async function dispatchIntent(
 // Route handler
 // ---------------------------------------------------------------------------
 
-export async function POST(req: NextRequest {
+export async function POST(req: NextRequest) {
   const requestStart = Date.now();
 
   // Parse and validate request

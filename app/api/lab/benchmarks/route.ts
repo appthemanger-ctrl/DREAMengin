@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 
 
-function runServerBenchmarks( {
+function runServerBenchmarks() {
   const start = performance.now();
   let acc = 0;
   for (let i = 0; i < 100_000; i += 1) acc += Math.sqrt(i);
@@ -20,7 +20,7 @@ function runServerBenchmarks( {
   ];
 }
 
-export async function POST(_req: NextRequest {
+export async function POST(_req: NextRequest) {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {

@@ -10,7 +10,7 @@ export const metadata = {
   description: 'An interactive 3-D node map of all your Dream Surfaces.',
 };
 
-export default async function ConstellationPage( {
+export default async function ConstellationPage() {
   await connection();
   const supabase = await createServerClient();
   let user = null;

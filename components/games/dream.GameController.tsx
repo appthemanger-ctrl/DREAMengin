@@ -74,7 +74,7 @@ const ZERO_VEC: MobileControlVector = { x: 0, y: 0 };
 
 // ─── Left-stick legacy sync ─────────────────────────────────────────────────
 
-function useLegacyMoveSync( {
+function useLegacyMoveSync() {
   const activeMoveRef = useRef<ReturnType<typeof getLegacyMoveAction>>(null);
 
   const sync = useCallback((vector: MobileControlVector) => {
@@ -104,7 +104,7 @@ function useLegacyMoveSync( {
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
-export default function GameController({ gameLabel, onExit }: GameControllerProps {
+export default function GameController() { gameLabel, onExit }: GameControllerProps {
   // ── Stick state (visual only; logic lives in refs) ──────────────────────
   const [leftStick,  setLeftStick]  = useState<StickState>(INACTIVE_STICK);
   const [rightStick, setRightStick] = useState<StickState>(INACTIVE_STICK);

@@ -58,7 +58,7 @@ const TIPS = [
   },
 ];
 
-export default async function OnboardingPage( {
+export default async function OnboardingPage() {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

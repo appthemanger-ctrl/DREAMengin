@@ -43,7 +43,7 @@ interface ExperimentRun {
   completedAt?: Date;
 }
 
-export default function PhysicsLab( {
+export default function PhysicsLab() {
   const [activeTab, setActiveTab] = useState<'design' | 'run' | 'analyze' | 'collaborate'>('design');
   const [isRunning, setIsRunning] = useState(false);
   const [experiments, setExperiments] = useState<ExperimentRun[]>([]);

@@ -5,6 +5,6 @@ import { redirect } from 'next/navigation';
  * Redirects immediately to the HomeDream surface so navigating
  * directly to the bar route always lands on the live home surface.
  */
-export default function DreamDMBarPage( {
+export default function DreamDMBarPage() {
   redirect('/dreamdmbar/homedream');
 }

@@ -93,7 +93,7 @@ export interface SyncQueueEntry {
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
-export function openDB(: Promise<IDBDatabase> {
+export function openDB(: Promise<IDBDatabase>) {
   if (typeof indexedDB === 'undefined') {
     return Promise.reject(new Error('IndexedDB not available'));
   }
@@ -137,7 +137,7 @@ export function openDB(: Promise<IDBDatabase> {
 
 // ─── Asset operations ─────────────────────────────────────────────────────────
 
-export async function cacheAsset(asset: CachedAsset: Promise<void> {
+export async function cacheAsset(asset: CachedAsset: Promise<void>) {
   const db = await openDB();
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_ASSETS, 'readwrite');
@@ -147,7 +147,7 @@ export async function cacheAsset(asset: CachedAsset: Promise<void> {
   });
 }
 
-export async function getAsset(id: string: Promise<CachedAsset | undefined> {
+export async function getAsset(id: string: Promise<CachedAsset | undefined>) {
   const db = await openDB();
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_ASSETS, 'readonly');
@@ -157,7 +157,7 @@ export async function getAsset(id: string: Promise<CachedAsset | undefined> {
   });
 }
 
-export async function deleteAsset(id: string: Promise<void> {
+export async function deleteAsset(id: string: Promise<void>) {
   const db = await openDB();
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_ASSETS, 'readwrite');
@@ -167,7 +167,7 @@ export async function deleteAsset(id: string: Promise<void> {
   });
 }
 
-export async function listAssets(: Promise<CachedAsset[]> {
+export async function listAssets(: Promise<CachedAsset[]>) {
   const db = await openDB();
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_ASSETS, 'readonly');
@@ -179,7 +179,7 @@ export async function listAssets(: Promise<CachedAsset[]> {
 
 // ─── Scene operations ─────────────────────────────────────────────────────────
 
-export async function saveScene(scene: CachedScene: Promise<void> {
+export async function saveScene(scene: CachedScene: Promise<void>) {
   const db = await openDB();
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_SCENES, 'readwrite');
@@ -189,7 +189,7 @@ export async function saveScene(scene: CachedScene: Promise<void> {
   });
 }
 
-export async function getScene(id: string: Promise<CachedScene | undefined> {
+export async function getScene(id: string: Promise<CachedScene | undefined>) {
   const db = await openDB();
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_SCENES, 'readonly');
@@ -199,7 +199,7 @@ export async function getScene(id: string: Promise<CachedScene | undefined> {
   });
 }
 
-export async function deleteScene(id: string: Promise<void> {
+export async function deleteScene(id: string: Promise<void>) {
   const db = await openDB();
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_SCENES, 'readwrite');
@@ -209,7 +209,7 @@ export async function deleteScene(id: string: Promise<void> {
   });
 }
 
-export async function listScenes(: Promise<CachedScene[]> {
+export async function listScenes(: Promise<CachedScene[]>) {
   const db = await openDB();
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_SCENES, 'readonly');
@@ -221,7 +221,7 @@ export async function listScenes(: Promise<CachedScene[]> {
 
 // ─── Sync queue ───────────────────────────────────────────────────────────────
 
-export async function enqueueSyncAction(entry: Omit<SyncQueueEntry, 'id'>: Promise<void> {
+export async function enqueueSyncAction(entry: Omit<SyncQueueEntry, 'id'>: Promise<void>) {
   const db = await openDB();
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_SYNC_QUEUE, 'readwrite');
@@ -231,7 +231,7 @@ export async function enqueueSyncAction(entry: Omit<SyncQueueEntry, 'id'>: Promi
   });
 }
 
-export async function getSyncQueue(: Promise<SyncQueueEntry[]> {
+export async function getSyncQueue(: Promise<SyncQueueEntry[]>) {
   const db = await openDB();
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_SYNC_QUEUE, 'readonly');
@@ -241,7 +241,7 @@ export async function getSyncQueue(: Promise<SyncQueueEntry[]> {
   });
 }
 
-export async function clearSyncQueue(: Promise<void> {
+export async function clearSyncQueue(: Promise<void>) {
   const db = await openDB();
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_SYNC_QUEUE, 'readwrite');
@@ -251,7 +251,7 @@ export async function clearSyncQueue(: Promise<void> {
   });
 }
 
-export async function removeSyncEntry(id: number: Promise<void> {
+export async function removeSyncEntry(id: number: Promise<void>) {
   const db = await openDB();
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_SYNC_QUEUE, 'readwrite');
@@ -263,7 +263,7 @@ export async function removeSyncEntry(id: number: Promise<void> {
 
 // ─── Online/Offline detection ─────────────────────────────────────────────────
 
-export function isOnline(: boolean {
+export function isOnline(: boolean) {
   if (typeof navigator === 'undefined') return true;
   return navigator.onLine !== false;
 }

@@ -55,7 +55,7 @@ export interface UseNotificationsReturn {
   reload: () => void;
 }
 
-export function useNotifications(: UseNotificationsReturn {
+export function useNotifications(: UseNotificationsReturn) {
   const [notifications, setNotifications] = useState<UiNotification[]>([]);
   const [isLoading,     setIsLoading]     = useState(true);
   const [error,         setError]         = useState<string | null>(null);

@@ -55,7 +55,7 @@ const AGENT_INITIALS: Record<string, string> = {
 
 const PHASES = ['Parsing', 'Dr. Eams', 'IDARi', 'Safety', 'Generating', 'Staging', 'Done'] as const;
 
-function getPhaseIndexFromStep(step: string: number {
+function getPhaseIndexFromStep(step: string: number) {
   if (step.includes('Parsing'))               return 0;
   if (step.includes('Dr. Eams'))              return 1;
   if (step.includes('IDARi is architecting')) return 2;
@@ -68,7 +68,7 @@ function getPhaseIndexFromStep(step: string: number {
 
 // ── Phase progress bar ────────────────────────────────────────────────────────
 
-function PhaseBar({ activePhase }: { activePhase: number } {
+function PhaseBar() { activePhase }: { activePhase: number } {
   return (
     <div style={{
       display: 'flex',
@@ -143,7 +143,7 @@ function PhaseBar({ activePhase }: { activePhase: number } {
 
 type CodeLogEvent = Extract<ForgeLogEvent, { type: 'code' }>;
 
-function CodeBlock({ event }: { event: CodeLogEvent } {
+function CodeBlock() { event }: { event: CodeLogEvent } {
   const [copied, setCopied] = useState(false);
   const lines = event.content.split('\n');
   const MAX_VISIBLE = 15;
@@ -254,13 +254,13 @@ const EXAMPLE_CHIPS = [
   { emoji: '🔬', text: 'Monte Carlo simulation of stock price movement' },
 ] as const;
 
-function formatTimestamp(ts: number: string {
+function formatTimestamp(ts: number: string) {
   return new Date(ts).toLocaleTimeString('en-US', {
     hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
   });
 }
 
-function buildMarkdownSummary(logs: ForgeLogEvent[], prompt: string: string {
+function buildMarkdownSummary(logs: ForgeLogEvent[], prompt: string: string) {
   const lines = [
     `# ForgeEngin AI Build Log`,
     `**Prompt:** ${prompt}`,
@@ -301,7 +301,7 @@ function buildMarkdownSummary(logs: ForgeLogEvent[], prompt: string: string {
 
 // ── Log entry renderer ────────────────────────────────────────────────────────
 
-function LogEntry({
+function LogEntry() {
   event,
   isActive = false,
   isRunning = false,
@@ -517,7 +517,7 @@ function LogEntry({
 
 // ── Build history item ────────────────────────────────────────────────────────
 
-function HistoryItem({ record, onLaunch }: { record: ForgeBuildRecord; onLaunch: (href: string) => void }) {
+function HistoryItem() { record, onLaunch }: { record: ForgeBuildRecord; onLaunch: (href: string) => void }) {
   const enginEntry = ENGIN_REGISTRY.find(e => e.id === record.primaryEnginId);
   const elapsed = Date.now() - new Date(record.createdAt).getTime();
   const timeStr =
@@ -565,7 +565,7 @@ function HistoryItem({ record, onLaunch }: { record: ForgeBuildRecord; onLaunch:
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function AIBuilderPanel( {
+export default function AIBuilderPanel() {
   const router = useRouter();
   const { state, logs, result, submit, reset, rateLimitError } = useForgeBuild();
 

@@ -25,7 +25,7 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
-export function useToast( {
+export function useToast() {
   const context = useContext(ToastContext);
   if (!context) {
     throw new Error('useToast must be used within ToastProvider');
@@ -33,7 +33,7 @@ export function useToast( {
   return context;
 }
 
-export function ToastProvider({ children }: { children: React.ReactNode } {
+export function ToastProvider() { children }: { children: React.ReactNode } {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const addToast = (type: ToastType, message: string, duration: number = 5000) => {
@@ -61,7 +61,7 @@ export function ToastProvider({ children }: { children: React.ReactNode } {
   );
 }
 
-function ToastContainer({ toasts, onRemove }: { toasts: Toast[]; onRemove: (id: string) => void }) {
+function ToastContainer() { toasts, onRemove }: { toasts: Toast[]; onRemove: (id: string) => void }) {
   return (
     <div
       style={{
@@ -115,7 +115,7 @@ const TOAST_CONFIG: Record<ToastType, { color: string; bg: string; border: strin
   },
 };
 
-function ToastItem({ toast, onRemove, index }: { toast: Toast; onRemove: () => void; index: number }) {
+function ToastItem() { toast, onRemove, index }: { toast: Toast; onRemove: () => void; index: number }) {
   const [isExiting, setIsExiting] = useState(false);
   const config = TOAST_CONFIG[toast.type];
 

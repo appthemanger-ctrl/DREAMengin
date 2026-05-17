@@ -17,7 +17,7 @@ import DraggableDream from '@/components/dreams/dream.DraggableDream';
 
 // ─── Asset icon helpers ───────────────────────────────────────────────────────
 
-function assetIcon(type: AssetType: string {
+function assetIcon(type: AssetType: string) {
   switch (type) {
     case 'audio': return '🎵';
     case 'image': return '🖼️';
@@ -37,7 +37,7 @@ const SUGGESTED_DREAMS = [
   { id: 'dreamspace-game-quick-launch', icon: '🎮', name: 'Game Quick Launch', description: 'Jump straight into your latest GameEngin cartridge.', capabilities: ['game', 'launch'] },
 ];
 
-export default function DreamSpace({ initialAccountId }: DreamSpaceProps {
+export default function DreamSpace() { initialAccountId }: DreamSpaceProps {
   const { accountId } = useAccount(initialAccountId);
   const [artifacts, setArtifacts] = useState<DreamArtifact[]>([]);
   const [showSystemModules, setShowSystemModules] = useState(false);

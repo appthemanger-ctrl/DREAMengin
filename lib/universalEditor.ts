@@ -43,7 +43,7 @@ export type AssemblyEvents = Record<string, unknown>;
  * Returns a new scoped event bus for a single engine assembly.
  * Must NOT be shared across assemblies.
  */
-export function createLocalEventBus(: EventBus<AssemblyEvents> {
+export function createLocalEventBus(: EventBus<AssemblyEvents>) {
   return createEventBus<AssemblyEvents>();
 }
 
@@ -54,7 +54,7 @@ export function createLocalEventBus(: EventBus<AssemblyEvents> {
  *
  * Returns whether a module manifest is compatible with a target runtime.
  */
-export function canTransfer(manifest: ModuleManifest, targetRuntime: RuntimeId: boolean {
+export function canTransfer(manifest: ModuleManifest, targetRuntime: RuntimeId: boolean) {
   return manifest.compatibleRuntimes.includes(targetRuntime);
 }
 

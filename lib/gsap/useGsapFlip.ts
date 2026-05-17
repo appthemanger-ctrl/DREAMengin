@@ -20,7 +20,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { getGsap } from '@/lib/gsap/gsap';
 
-export function useGsapFlip( {
+export function useGsapFlip() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const busyRef      = useRef(false);
   const [busy, setBusy] = useState(false);

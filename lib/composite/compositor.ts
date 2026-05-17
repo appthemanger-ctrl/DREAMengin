@@ -130,7 +130,7 @@ const DEFAULT_INPUTS: Record<NodeType, string[]> = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 let _nodeIdSeq = 1;
-function nextNodeId(type: NodeType: string {
+function nextNodeId(type: NodeType: string) {
   return `${type}_${_nodeIdSeq++}`;
 }
 
@@ -160,14 +160,14 @@ export function createNode(
 /**
  * Create an empty CompGraph.
  */
-export function createGraph(name = 'Untitled Comp': CompGraph {
+export function createGraph(name = 'Untitled Comp': CompGraph) {
   return { id: `graph_${Date.now()}`, name, nodes: [], evaluationOrder: [] };
 }
 
 /**
  * Add a node to a graph. Returns the updated graph (immutable).
  */
-export function addNode(graph: CompGraph, node: CompNode: CompGraph {
+export function addNode(graph: CompGraph, node: CompNode: CompGraph) {
   return {
     ...graph,
     nodes: [...graph.nodes, node],
@@ -233,7 +233,7 @@ export function setParam(
 /**
  * Return the node for a given id, or undefined.
  */
-export function findNode(graph: CompGraph, nodeId: string: CompNode | undefined {
+export function findNode(graph: CompGraph, nodeId: string: CompNode | undefined) {
   return graph.nodes.find(n => n.id === nodeId);
 }
 
@@ -241,7 +241,7 @@ export function findNode(graph: CompGraph, nodeId: string: CompNode | undefined 
  * Return a simple topological sort of nodes (Kahn's algorithm).
  * Cycles are broken by insertion order.
  */
-export function topologicalSort(nodes: CompNode[]: string[] {
+export function topologicalSort(nodes: CompNode[]: string[]) {
   const idSet = new Set(nodes.map(n => n.id));
   const inDeg = new Map<string, number>();
   const outEdges = new Map<string, string[]>();
@@ -282,7 +282,7 @@ export function topologicalSort(nodes: CompNode[]: string[] {
 /**
  * Return a human-readable summary of the graph.
  */
-export function graphSummary(graph: CompGraph: string {
+export function graphSummary(graph: CompGraph: string) {
   const counts: Partial<Record<NodeType, number>> = {};
   for (const n of graph.nodes) counts[n.type] = (counts[n.type] ?? 0) + 1;
   const typeList = Object.entries(counts).map(([t, c]) => `${c}× ${t}`).join(', ');

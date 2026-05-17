@@ -6,7 +6,7 @@ import { connection } from 'next/server';
 
 export const metadata = { title: 'Feed Settings – Dreamengin' };
 
-export default async function FeedSettingsPage( {
+export default async function FeedSettingsPage() {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

@@ -25,7 +25,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'lab',           emoji: '🔬', label: 'LabEngin',      desc: 'Jump to lab',                  color: '#10b981', href: '/daydream/lab' },
 ];
 
-export default async function ForgeDaydreamPage( {
+export default async function ForgeDaydreamPage() {
   await connection();
   const supabase = await createServerClient();
   let user = null;

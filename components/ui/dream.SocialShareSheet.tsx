@@ -30,7 +30,7 @@ interface SocialShareSheetProps {
   platforms?: SocialPlatform[];
 }
 
-export default function SocialShareSheet({
+export default function SocialShareSheet() {
   open,
   onClose,
   url,

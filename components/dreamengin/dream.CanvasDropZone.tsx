@@ -32,7 +32,7 @@ const IMAGE_EXTS = new Set(['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg']);
 const AUDIO_EXTS = new Set(['mp3', 'wav', 'ogg', 'm4a', 'flac', 'aac']);
 const MODEL_EXTS = new Set(['glb', 'gltf', 'obj', 'fbx', 'stl']);
 
-export function classifyFile(filename: string: AssetCategory {
+export function classifyFile(filename: string: AssetCategory) {
   const ext = filename.split('.').pop()?.toLowerCase() ?? '';
   if (IMAGE_EXTS.has(ext)) return 'image';
   if (AUDIO_EXTS.has(ext)) return 'audio';
@@ -40,7 +40,7 @@ export function classifyFile(filename: string: AssetCategory {
   return 'unknown';
 }
 
-function getMimeType(file: File: string {
+function getMimeType(file: File: string) {
   if (file.type) return file.type;
   const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
   const map: Record<string, string> = {
@@ -63,7 +63,7 @@ const ALL_ACCEPTED = [
   ...Array.from(MODEL_EXTS),
 ];
 
-export function isAcceptedFile(filename: string: boolean {
+export function isAcceptedFile(filename: string: boolean) {
   const ext = filename.split('.').pop()?.toLowerCase() ?? '';
   return ALL_ACCEPTED.includes(ext);
 }
@@ -96,7 +96,7 @@ interface CanvasDropZoneProps {
   disabled?: boolean;
 }
 
-export default function CanvasDropZone({
+export default function CanvasDropZone() {
   children,
   onImport,
   className,

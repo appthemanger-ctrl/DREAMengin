@@ -12,7 +12,7 @@ interface DragToAnchorCloseProps {
  * DragToAnchorClose - Enables closing widgets by dragging to anchor
  * Implements the drag-to-anchor close contract
  */
-export function DragToAnchorClose({ anchorRect, onClose: Record<string, unknown>, children }: DragToAnchorCloseProps {
+export function DragToAnchorClose() { anchorRect, onClose: Record<string, unknown>, children }: DragToAnchorCloseProps {
   const [isDragging, setIsDragging] = useState(false);
   const [isOverAnchor, setIsOverAnchor] = useState(false);
   const dragStateRef = useRef({
@@ -160,7 +160,7 @@ export function DragToAnchorClose({ anchorRect, onClose: Record<string, unknown>
 /**
  * DragHandle - Component to mark draggable area
  */
-export function DragHandle({ children, className = '' }: { children?: React.ReactNode; className?: string } {
+export function DragHandle() { children, className = '' }: { children?: React.ReactNode; className?: string } {
   return (
     <div className={`drag-handle ${className}`}>
       {children || (

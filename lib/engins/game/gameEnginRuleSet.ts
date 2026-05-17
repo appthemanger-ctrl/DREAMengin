@@ -164,7 +164,7 @@ const physicsConstraint: EnginConstraint<GameEnginAction> = (
 
 // ─── Transform ────────────────────────────────────────────────────────────────
 
-function transform(state: EnginBaseState, action: GameEnginAction: EnginBaseState {
+function transform(state: EnginBaseState, action: GameEnginAction: EnginBaseState) {
   const domain = (state.domain as Partial<typeof DEFAULT_DOMAIN>);
 
   switch (action.type) {
@@ -247,7 +247,7 @@ function transform(state: EnginBaseState, action: GameEnginAction: EnginBaseStat
 
 // ─── deriveState ──────────────────────────────────────────────────────────────
 
-function deriveState(state: EnginBaseState: GameEnginDerivedState {
+function deriveState(state: EnginBaseState: GameEnginDerivedState) {
   const d = state.domain as Partial<typeof DEFAULT_DOMAIN>;
   return {
     lifecycle: state.lifecycle,

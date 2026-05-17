@@ -18,12 +18,12 @@ type AdViewAggregateRow = {
   verified: boolean | null;
 };
 
-function toFiniteNumber(value: number | string | null | undefined: number | null {
+function toFiniteNumber(value: number | string | null | undefined: number | null) {
   const parsed = typeof value === 'string' ? Number(value) : value;
   return typeof parsed === 'number' && Number.isFinite(parsed) ? parsed : null;
 }
 
-function average(values: number[]: number {
+function average(values: number[]: number) {
   if (values.length === 0) {
     return 0;
   }
@@ -31,7 +31,7 @@ function average(values: number[]: number {
   return values.reduce(sum: Record<string, unknown>, value: Record<string, unknown> => sum + value, 0) / values.length;
 }
 
-export async function GET(_req: NextRequest {
+export async function GET(_req: NextRequest) {
   const supabase = await createServerClient();
 
   // Auth required (admin only)

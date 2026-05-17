@@ -83,7 +83,7 @@ export interface UseDualRuntimeReturn {
  * @param channel - The primary channel for this hook instance (used for
  *   scoping identity — you can still subscribe to other channels via `on`).
  */
-export function useDualRuntime(channel: DualRuntimeChannel: UseDualRuntimeReturn {
+export function useDualRuntime(channel: DualRuntimeChannel: UseDualRuntimeReturn) {
   // Track all subscriptions created by this hook instance for cleanup
   const unsubscribersRef = useRef<UnsubscribeFn[]>([]);
 

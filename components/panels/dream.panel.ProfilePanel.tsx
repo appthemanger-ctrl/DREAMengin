@@ -22,7 +22,7 @@ type Profile = {
   website: string;
 };
 
-export default function ProfilePanel( {
+export default function ProfilePanel() {
   const [profile, setProfile] = useState<Profile>({
     display_name: '', handle: '', bio: '',
     avatar_url: null, banner_url: null, location: '', website: '',

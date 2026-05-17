@@ -92,13 +92,13 @@ export const ZONE_QUOTES: Record<Exclude<Zone, 'idle'>, string[]> = {
 };
 
 /** Pick a random funny line for the given zone. Exported for unit tests. */
-export function pickZoneQuote(zone: Exclude<Zone, 'idle'>: string {
+export function pickZoneQuote(zone: Exclude<Zone, 'idle'>: string) {
   const pool = ZONE_QUOTES[zone];
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
 /** Exported for unit tests */
-export function hitZone(offsetY: number, displayH: number: Zone {
+export function hitZone(offsetY: number, displayH: number: Zone) {
   const rel = offsetY / displayH;
   if (rel < 0.30) return 'head';
   if (rel < 0.68) return 'torso';
@@ -115,7 +115,7 @@ type Images = {
   shoe2: HTMLImageElement | null;
 };
 
-function loadImg(src: string: Promise<HTMLImageElement> {
+function loadImg(src: string: Promise<HTMLImageElement>) {
   return new Promise(resolve => {
     const img = new Image();
     img.onload  = () => resolve(img);
@@ -131,7 +131,7 @@ type Props = {
   className?: string;
 };
 
-export default function HeroSprite({
+export default function HeroSprite() {
   width  = 480,
   height = 480,
   className = '',
@@ -242,12 +242,12 @@ export default function HeroSprite({
     }
 
     // Pause on hidden tab (ARCHITECTURE.md §17.3 — battery-aware)
-    function onVisibility( {
+    function onVisibility() {
       if (!document.hidden) rafId = requestAnimationFrame(tick);
     }
     document.addEventListener('visibilitychange', onVisibility);
 
-    function tick(now: number {
+    function tick(now: number) {
       if (stopped) return;
 
       // Skip draw while tab is hidden — rAF won't fire anyway, but guard is cheap

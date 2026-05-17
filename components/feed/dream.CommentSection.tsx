@@ -27,7 +27,7 @@ interface Props {
   postId: string;
 }
 
-function Avatar({ profile, size = 32 }: { profile: CommentProfile | null; size?: number } {
+function Avatar() { profile, size = 32 }: { profile: CommentProfile | null; size?: number } {
   const initials = (profile?.display_name || profile?.handle || '?')[0].toUpperCase();
 
   if (profile?.avatar_url) {
@@ -59,7 +59,7 @@ function Avatar({ profile, size = 32 }: { profile: CommentProfile | null; size?:
   );
 }
 
-export default function CommentSection({ postId }: Props {
+export default function CommentSection() { postId }: Props {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

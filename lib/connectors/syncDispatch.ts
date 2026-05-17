@@ -54,7 +54,7 @@ export class UnsupportedProviderError extends Error {
   }
 }
 
-function normalizeNostrRelays(relayRaw: unknown: string[] {
+function normalizeNostrRelays(relayRaw: unknown: string[]) {
   if (Array.isArray(relayRaw)) {
     return relayRaw.map(String).map((relay: Record<string, unknown>) => relay.trim()).filter(Boolean);
   }

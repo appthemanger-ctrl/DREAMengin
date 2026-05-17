@@ -15,7 +15,7 @@ interface UniverseShellProps {
  * page renders the universe field (see components/landing/dream.scene.UniverseField.tsx).
  * Inner surfaces stay quiet so user content reads cleanly.
  */
-export function UniverseShell({
+export function UniverseShell() {
   children,
   className,
 }: UniverseShellProps) {

@@ -29,7 +29,7 @@ const MAX_ARTIFACTS = 5;
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function relativeTime(ms: number: string {
+function relativeTime(ms: number: string) {
   const diff = Date.now() - ms;
   const secs = Math.floor(diff / 1000);
   if (secs < 60) return `${secs}s`;
@@ -41,7 +41,7 @@ function relativeTime(ms: number: string {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export default function RuntimeMemoryHUD( {
+export default function RuntimeMemoryHUD() {
   const [snapshot, setSnapshot] = useState<DreamOSSnapshot>({
     artifacts: [],
     runtimeContexts: [],

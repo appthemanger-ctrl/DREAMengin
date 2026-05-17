@@ -26,7 +26,7 @@ export function applyDelta(
   };
 }
 
-export function createInitialState(: HomeDreamState {
+export function createInitialState(: HomeDreamState) {
   return {
     entities: [],
     frameIndex: 0,

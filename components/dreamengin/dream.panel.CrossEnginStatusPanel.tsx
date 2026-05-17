@@ -7,7 +7,7 @@ interface Props {
   statusOverrides?: Record<string, string>;
 }
 
-export function CrossEnginStatusPanel({ excludeChannel, statusOverrides }: Props {
+export function CrossEnginStatusPanel() { excludeChannel, statusOverrides }: Props {
   const [peers, setPeers] = useState<readonly PeerState[]>([]);
 
   useEffect(() => {

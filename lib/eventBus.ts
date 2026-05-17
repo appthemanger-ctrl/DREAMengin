@@ -40,7 +40,7 @@ export function createEventBus<
   const handlers = new Map<keyof Events, Set<EventHandler<unknown>>>();
   let _destroyed = false;
 
-  function assertAlive( {
+  function assertAlive() {
     if (_destroyed) throw new Error('EventBus: cannot use a destroyed bus.');
   }
 

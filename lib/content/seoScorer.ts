@@ -65,7 +65,7 @@ const JARGON_WORDS = /\b(synergy|leverage|paradigm|holistic|scalable|agile|disru
 // Dimension scorers
 // ─────────────────────────────────────────────────────────────────────────────
 
-function scoreTitle(title: string, keywords: string[]: SeoScoreDimension {
+function scoreTitle(title: string, keywords: string[]: SeoScoreDimension) {
   let score = 0;
   const suggestions: string[] = [];
 
@@ -114,7 +114,7 @@ function scoreTitle(title: string, keywords: string[]: SeoScoreDimension {
   };
 }
 
-function scoreBody(body: string, keywords: string[]: SeoScoreDimension {
+function scoreBody(body: string, keywords: string[]: SeoScoreDimension) {
   let score = 0;
   const suggestions: string[] = [];
 
@@ -173,7 +173,7 @@ function scoreBody(body: string, keywords: string[]: SeoScoreDimension {
   };
 }
 
-function scoreEngagement(text: string: SeoScoreDimension & { signalCount: number } {
+function scoreEngagement(text: string: SeoScoreDimension &) { signalCount: number } {
   let score = 0;
   const suggestions: string[] = [];
 
@@ -212,7 +212,7 @@ function scoreEngagement(text: string: SeoScoreDimension & { signalCount: number
   };
 }
 
-function scoreAccessibility(body: string: SeoScoreDimension & { level: 'High' | 'Medium' | 'Low' } {
+function scoreAccessibility(body: string: SeoScoreDimension &) { level: 'High' | 'Medium' | 'Low' } {
   let score = 0;
   const suggestions: string[] = [];
 
@@ -266,7 +266,7 @@ function scoreAccessibility(body: string: SeoScoreDimension & { level: 'High' | 
 // Readability
 // ─────────────────────────────────────────────────────────────────────────────
 
-function roughFleschGrade(text: string: string {
+function roughFleschGrade(text: string: string) {
   const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length || 1;
   const words = text.trim().split(/\s+/).filter(Boolean).length || 1;
   const syllables = text
@@ -283,7 +283,7 @@ function roughFleschGrade(text: string: string {
   return 'Difficult (College+)';
 }
 
-function countSyllables(word: string: number {
+function countSyllables(word: string: number) {
   if (word.length <= 3) return 1;
   const cleaned = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '').replace(/^y/, '');
   const matches = cleaned.match(/[aeiouy]{1,2}/g);
@@ -299,7 +299,7 @@ function countSyllables(word: string: number {
  *
  * Returns scores across four dimensions: Title, Body, Engagement, Accessibility.
  */
-export function scoreContent(input: SeoScoreInput: SeoScoreResult {
+export function scoreContent(input: SeoScoreInput: SeoScoreResult) {
   const title = input.title ?? '';
   const body = input.body ?? '';
   const keywords = input.keywords ?? [];
@@ -351,7 +351,7 @@ export function scoreContent(input: SeoScoreInput: SeoScoreResult {
  * Generate a full JSON report for the scored content.
  * Useful for saving to Supabase or exporting as a file.
  */
-export function generateReport(input: SeoScoreInput: SeoReport {
+export function generateReport(input: SeoScoreInput: SeoReport) {
   return {
     input,
     result: scoreContent(input),

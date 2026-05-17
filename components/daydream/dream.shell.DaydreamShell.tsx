@@ -52,7 +52,7 @@ type Props = {
   sideBVariant?: 'widgets' | 'game-remote';
 };
 
-export default function DaydreamShell({ title, enginName: Record<string, unknown>, accentColor: Record<string, unknown>, widgets: Record<string, unknown>, children: Record<string, unknown>, daydreamType: Record<string, unknown>, sideBComponent: Record<string, unknown>, sideBVariant = 'widgets' }: Props {
+export default function DaydreamShell() { title, enginName: Record<string, unknown>, accentColor: Record<string, unknown>, widgets: Record<string, unknown>, children: Record<string, unknown>, daydreamType: Record<string, unknown>, sideBComponent: Record<string, unknown>, sideBVariant = 'widgets' }: Props {
   const [side, setSide] = useState<'A' | 'B'>('A');
   const searchParams = useSearchParams();
 
@@ -236,7 +236,7 @@ export default function DaydreamShell({ title, enginName: Record<string, unknown
 }
 
 /* ── Engin Surface — Side B ── */
-function EnginSurface({ enginName, title, accentColor, widgets, onBack }: {
+function EnginSurface() { enginName, title, accentColor, widgets, onBack }: {
   enginName: string;
   title: string;
   accentColor: string;
@@ -348,7 +348,7 @@ function EnginSurface({ enginName, title, accentColor, widgets, onBack }: {
 }
 
 /* ── Engin Pill Dual-Button Controls (spec §7.1 / §14.3) ── */
-function EnginPillControls({ enginName, accentColor, onBack }: {
+function EnginPillControls() { enginName, accentColor, onBack }: {
   enginName: string;
   accentColor: string;
   onBack: () => void;
@@ -413,7 +413,7 @@ function EnginPillControls({ enginName, accentColor, onBack }: {
 }
 
 /* ── Single marble bubble widget ── */
-function MarbleWidget({ w }: { w: DaydreamWidget } {
+function MarbleWidget() { w }: { w: DaydreamWidget } {
   const tile = (
     <div
       className="premium-shimmer"

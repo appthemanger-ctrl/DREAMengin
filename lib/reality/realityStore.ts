@@ -28,7 +28,7 @@ import type {
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
-function buildChannelId(realityId: string: string {
+function buildChannelId(realityId: string: string) {
   return `reality:${realityId}`;
 }
 
@@ -304,7 +304,7 @@ export async function loadActivity(
 
 // ── Row mapper ────────────────────────────────────────────────────────────────
 
-function rowToReality(row: Record<string, unknown>: Reality {
+function rowToReality(row: Record<string, unknown>: Reality) {
   return {
     id: row['id'] as string,
     name: row['name'] as string,

@@ -16,7 +16,7 @@ interface Message {
   timestamp: Date;
 }
 
-export default function AIAssistant( {
+export default function AIAssistant() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);

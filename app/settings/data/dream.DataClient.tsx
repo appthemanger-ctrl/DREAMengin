@@ -11,7 +11,7 @@ import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Database, Download, Trash2, AlertTriangle, Check, Loader2 } from 'lucide-react';
 
-export default function DataClient( {
+export default function DataClient() {
   const [exporting, setExporting] = useState(false);
   const [exportMsg, setExportMsg] = useState('');
 

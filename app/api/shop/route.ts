@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateShopListing, normalizeShopListing } from '@/lib/shop/listings';
 
 // GET - Fetch merch items
-export async function GET(req: NextRequest {
+export async function GET(req: NextRequest) {
   const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -36,7 +36,7 @@ export async function GET(req: NextRequest {
 }
 
 // POST - Create a merch listing
-export async function POST(req: NextRequest {
+export async function POST(req: NextRequest) {
   const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -111,7 +111,7 @@ export async function POST(req: NextRequest {
 }
 
 // PUT - Update a merch listing
-export async function PUT(req: NextRequest {
+export async function PUT(req: NextRequest) {
   const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -156,7 +156,7 @@ export async function PUT(req: NextRequest {
 }
 
 // DELETE - Remove a merch listing
-export async function DELETE(req: NextRequest {
+export async function DELETE(req: NextRequest) {
   const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 

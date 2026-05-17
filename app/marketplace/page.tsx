@@ -27,7 +27,7 @@ const FALLBACK_CATEGORIES = [
   { icon: '🎵', label: 'Music',      href: '/daydream/music', desc: 'Sample packs and sound kits' },
 ];
 
-export default async function MarketplacePage( {
+export default async function MarketplacePage() {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

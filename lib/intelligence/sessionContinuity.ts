@@ -76,7 +76,7 @@ const MAX_STORED_SESSIONS = 5;
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 
-function summariseSession(s: StoredSession: SessionSummary {
+function summariseSession(s: StoredSession: SessionSummary) {
   const unique = [...new Set(s.activations)];
   const freq = new Map<string, number>();
   for (const id of s.activations) freq.set(id, (freq.get(id) ?? 0) + 1);
@@ -101,7 +101,7 @@ function summariseSession(s: StoredSession: SessionSummary {
   };
 }
 
-function buildDiff(last: StoredSession, current: StoredSession: SessionDiff {
+function buildDiff(last: StoredSession, current: StoredSession: SessionDiff) {
   const lastSet = new Set(last.activations);
   const currentSet = new Set(current.activations);
 
@@ -136,7 +136,7 @@ const DB_NAME = 'dreamengin-continuity';
 const STORE_NAME = 'sessions';
 const DB_VERSION = 1;
 
-function openDB(: Promise<IDBDatabase> {
+function openDB(: Promise<IDBDatabase>) {
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = () => {
@@ -150,7 +150,7 @@ function openDB(: Promise<IDBDatabase> {
   });
 }
 
-async function createIDBBackend(: Promise<SessionStorageBackend> {
+async function createIDBBackend(: Promise<SessionStorageBackend>) {
   const db = await openDB();
   return {
     async read(): Promise<StoredSession[]> {
@@ -183,7 +183,7 @@ async function createIDBBackend(: Promise<SessionStorageBackend> {
 
 const LS_KEY = 'dreamengin-continuity-sessions';
 
-function createLSBackend(: SessionStorageBackend {
+function createLSBackend(: SessionStorageBackend) {
   return {
     async read(): Promise<StoredSession[]> {
       try {
@@ -206,7 +206,7 @@ function createLSBackend(: SessionStorageBackend {
 
 // ─── In-memory backend (SSR / test / non-browser contexts) ───────────────────
 
-function createMemoryBackend(: SessionStorageBackend {
+function createMemoryBackend(: SessionStorageBackend) {
   return {
     async read(): Promise<StoredSession[]> { return []; },
     async write(): Promise<void> { /* no-op */ },

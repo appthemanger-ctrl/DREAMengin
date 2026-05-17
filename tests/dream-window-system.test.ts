@@ -82,7 +82,7 @@ import {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function makeUnbound(overrides: Partial<DreamWindowInstance> = {}): DreamWindowInstance {
+function makeUnbound(overrides: Partial<DreamWindowInstance> =) {}): DreamWindowInstance {
   return createDreamWindowInstance({
     id: 'test-window-1',
     type: 'music',

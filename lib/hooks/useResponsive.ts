@@ -36,7 +36,7 @@ let cachedSnapshot: ViewportSnapshot | null = null;
 const listeners = new Set<Listener>();
 let resizeBound = false;
 
-function readSnapshot(: ViewportSnapshot {
+function readSnapshot(: ViewportSnapshot) {
   if (typeof window === 'undefined') return SSR_SNAPSHOT;
   const w = window.innerWidth;
   const h = window.innerHeight;
@@ -46,12 +46,12 @@ function readSnapshot(: ViewportSnapshot {
   };
 }
 
-function ensureSnapshot(: ViewportSnapshot {
+function ensureSnapshot(: ViewportSnapshot) {
   if (!cachedSnapshot) cachedSnapshot = readSnapshot();
   return cachedSnapshot;
 }
 
-function notify( {
+function notify() {
   const next = readSnapshot();
   const prev = cachedSnapshot;
   if (prev && prev.width === next.width && prev.height === next.height) return;
@@ -77,7 +77,7 @@ function subscribe(listener: Listener: () => void {
   };
 }
 
-function getServerSnapshot(: ViewportSnapshot {
+function getServerSnapshot(: ViewportSnapshot) {
   return SSR_SNAPSHOT;
 }
 
@@ -85,41 +85,41 @@ function getServerSnapshot(: ViewportSnapshot {
  * Subscribe to live viewport width/height updates. SSR-safe: returns desktop
  * defaults during server render and hydrates to real values on mount.
  */
-export function useViewport(: ViewportSnapshot {
+export function useViewport(: ViewportSnapshot) {
   return useSyncExternalStore(subscribe, ensureSnapshot, getServerSnapshot);
 }
 
 /** Current named breakpoint, updated on resize. */
-export function useBreakpoint(: Breakpoint {
+export function useBreakpoint(: Breakpoint) {
   const { width } = useViewport();
   return getBreakpoint(width);
 }
 
 /** True when the viewport is at least the given breakpoint. */
-export function useIsAtLeast(bp: Breakpoint: boolean {
+export function useIsAtLeast(bp: Breakpoint: boolean) {
   const { width } = useViewport();
   return isAtLeast(width, bp);
 }
 
 /** True when the viewport is below the given breakpoint. */
-export function useIsBelow(bp: Breakpoint: boolean {
+export function useIsBelow(bp: Breakpoint: boolean) {
   const { width } = useViewport();
   return isBelow(width, bp);
 }
 
 /** Convenience: true on phone-sized viewports (`< md`). */
-export function useIsMobile(: boolean {
+export function useIsMobile(: boolean) {
   return useIsBelow('md');
 }
 
 /** Convenience: true on tablet-sized viewports (`md` ≤ width < `lg`). */
-export function useIsTablet(: boolean {
+export function useIsTablet(: boolean) {
   const { width } = useViewport();
   return isAtLeast(width, 'md') && isBelow(width, 'lg');
 }
 
 /** Convenience: true on desktop-sized viewports (`>= lg`). */
-export function useIsDesktop(: boolean {
+export function useIsDesktop(: boolean) {
   return useIsAtLeast('lg');
 }
 
@@ -160,7 +160,7 @@ export function useFluid(
  * @example
  *   const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
  */
-export function useMediaQuery(query: string: boolean {
+export function useMediaQuery(query: string: boolean) {
   const [matches, setMatches] = useState<boolean>(() => {
     if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
       return false;
@@ -190,6 +190,6 @@ export function useMediaQuery(query: string: boolean {
 }
 
 /** Read once, non-reactive. Useful for initial-render decisions. */
-export function getCurrentViewportWidth(: number {
+export function getCurrentViewportWidth(: number) {
   return readViewportWidth();
 }

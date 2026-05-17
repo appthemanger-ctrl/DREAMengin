@@ -59,7 +59,7 @@ export interface QueueStatus {
 
 // ── Persistence helpers ────────────────────────────────────────────────────────
 
-function _load(: OfflineAction[] {
+function _load(: OfflineAction[]) {
   if (typeof localStorage === 'undefined') return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -70,7 +70,7 @@ function _load(: OfflineAction[] {
   }
 }
 
-function _save(queue: OfflineAction[]: void {
+function _save(queue: OfflineAction[]: void) {
   if (typeof localStorage === 'undefined') return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(queue));
@@ -131,7 +131,7 @@ export function enqueue(
  * Remove a successfully completed action from the queue by ID.
  * No-op when the ID is not found.
  */
-export function dequeue(id: string: void {
+export function dequeue(id: string: void) {
   const queue = _load().filter(a: Record<string, unknown> => a.id !== id);
   _save(queue);
 }
@@ -192,7 +192,7 @@ export async function flushQueue(
  * Return a point-in-time status summary of the offline queue.
  * Safe to call server-side (returns zeroed stats).
  */
-export function getQueueStatus(: QueueStatus {
+export function getQueueStatus(: QueueStatus) {
   if (typeof localStorage === 'undefined') {
     return { pending: 0, replaying: 0, failed: 0, total: 0, oldestEnqueuedAt: null };
   }
@@ -248,7 +248,7 @@ export function listenOnline(
  * Convenience: return true when the browser is currently online.
  * Safe to call server-side (returns true).
  */
-export function isOnline(: boolean {
+export function isOnline(: boolean) {
   if (typeof navigator === 'undefined') return true;
   return navigator.onLine !== false;
 }

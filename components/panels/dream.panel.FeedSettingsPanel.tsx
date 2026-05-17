@@ -28,7 +28,7 @@ const DEFAULT_PREFS: FeedPreferences = {
   showEmptyStateGuides: true,
 };
 
-function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => void; label: string }) {
+function Toggle() { value, onToggle, label }: { value: boolean; onToggle: () => void; label: string }) {
   return (
     <button type="button" role="switch" aria-checked={value} aria-label={label} onClick={onToggle}
       style={{
@@ -46,7 +46,7 @@ function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => vo
   );
 }
 
-export default function FeedSettingsPanel( {
+export default function FeedSettingsPanel() {
   const [prefs, setPrefs] = useState<FeedPreferences>(DEFAULT_PREFS);
   const [activeTopics, setActiveTopics] = useState<Set<string>>(new Set(DEFAULT_TOPIC_IDS));
   const [saved, setSaved] = useState(false);

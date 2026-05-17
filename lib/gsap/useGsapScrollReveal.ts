@@ -48,7 +48,7 @@ export interface ScrollRevealOptions {
 }
 
 /** Distance offset in pixels for each direction. */
-function directionOffset(direction: NonNullable<ScrollRevealOptions['direction']>: {
+function directionOffset(direction: NonNullable<ScrollRevealOptions['direction']>:) {
   x: number; y: number;
 } {
   switch (direction) {

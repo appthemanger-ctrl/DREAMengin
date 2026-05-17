@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { spawn } from 'child_process';
 
-function runCommand(command: string, cwd: string: Promise<{ stdout: string; stderr: string; code: number }> {
+function runCommand(command: string, cwd: string: Promise<) { stdout: string; stderr: string; code: number }> {
   return new Promise(resolve: Record<string, unknown> => {
     const child = spawn(command, { shell: true, cwd });
     let stdout = '', stderr = '';
@@ -11,7 +11,7 @@ function runCommand(command: string, cwd: string: Promise<{ stdout: string; stde
   });
 }
 
-export async function POST(request: Request {
+export async function POST(request: Request) {
   const apiKey = request.headers.get('x-api-key');
   if (apiKey !== process.env.CI_API_KEY) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

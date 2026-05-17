@@ -85,7 +85,7 @@ const SUBSYSTEM_LABELS: Record<string, string> = {
   profile: '👤 Profile',
 };
 
-function labelFor(subsystemId: string: string {
+function labelFor(subsystemId: string: string) {
   return SUBSYSTEM_LABELS[subsystemId] ?? `⬡ ${subsystemId}`;
 }
 

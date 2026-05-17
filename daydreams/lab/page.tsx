@@ -21,7 +21,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'share',          emoji: '🔗', label: 'Share Results',  desc: 'Post an experiment update',      color: '#c8981a', href: '/daydream/create'       },
 ];
 
-export default async function LabDaydreamPage( {
+export default async function LabDaydreamPage() {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

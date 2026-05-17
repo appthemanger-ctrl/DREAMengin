@@ -38,7 +38,7 @@ interface RuntimeShellProps {
   iframeTitle?: string;
 }
 
-export default function RuntimeShell({
+export default function RuntimeShell() {
   children,
   iframeUrl,
   onCloseIframe,

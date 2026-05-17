@@ -23,7 +23,7 @@ export interface DevtoCredentials {
 /**
  * Verify by checking that the RSS feed is accessible.
  */
-export async function devtoVerify(creds: DevtoCredentials: Promise<string> {
+export async function devtoVerify(creds: DevtoCredentials: Promise<string>) {
   if (!creds.username || creds.username.trim().length === 0) {
     throw new Error('Dev.to username is required.');
   }
@@ -38,14 +38,14 @@ export async function devtoVerify(creds: DevtoCredentials: Promise<string> {
 /**
  * Fetch and normalise the user's Dev.to article feed.
  */
-export async function devtoSync(creds: DevtoCredentials: Promise<UnifiedFeedItem[]> {
+export async function devtoSync(creds: DevtoCredentials: Promise<UnifiedFeedItem[]>) {
   const username = creds.username.trim();
   const url = devtoUserRssUrl(username);
   const items = await parseRssFeed({ provider: 'devto', feedUrl: url }, 40);
   return items.map((item: Record<string, unknown>) => normaliseDevto(item.raw as Parameters<typeof normaliseDevto>[0], username));
 }
 
-export function devtoCredentialFields( {
+export function devtoCredentialFields() {
   return [
     {
       key: 'username',

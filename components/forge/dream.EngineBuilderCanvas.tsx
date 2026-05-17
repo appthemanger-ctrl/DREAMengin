@@ -118,7 +118,7 @@ export interface EngineBuilderCanvasProps {
   initialJson?: string;
 }
 
-export default function EngineBuilderCanvas({
+export default function EngineBuilderCanvas() {
   onSave,
   initialJson,
 }: EngineBuilderCanvasProps) {
@@ -183,12 +183,12 @@ export default function EngineBuilderCanvas({
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
-  function showToast(msg: string, ok = true {
+  function showToast(msg: string, ok = true) {
     setToast({ msg, ok });
     setTimeout(() => setToast(null), 3000);
   }
 
-  function inferRole(component: AtomicComponent: AtomicPiece['role'] {
+  function inferRole(component: AtomicComponent: AtomicPiece['role']) {
     const name = component.name.toLowerCase();
     if (name.includes('loader') || name.includes('input') || name.includes('source') ||
         name.includes('recorder') || name.includes('handler') || name.includes('reader'))
@@ -199,7 +199,7 @@ export default function EngineBuilderCanvas({
     return 'processor';
   }
 
-  function portColor(role: AtomicPiece['role']: string {
+  function portColor(role: AtomicPiece['role']: string) {
     if (role === 'source')    return C.source;
     if (role === 'output')    return C.output;
     if (role === 'processor') return C.processor;
@@ -357,7 +357,7 @@ export default function EngineBuilderCanvas({
   const PIECE_H  = 80;
   const PORT_R   = 6;
 
-  function piecePortPos(piece: CanvasPiece, portId: string, isInput: boolean {
+  function piecePortPos(piece: CanvasPiece, portId: string, isInput: boolean) {
     const ports = isInput ? piece.inputPorts : piece.outputPorts;
     const idx   = ports.findIndex((p: Record<string, unknown>) => p.id === portId);
     const count = ports.length;
@@ -793,7 +793,7 @@ export default function EngineBuilderCanvas({
 
 // ── Toolbar button helper ─────────────────────────────────────────────────────
 
-function ToolbarBtn({
+function ToolbarBtn() {
   icon, label, onClick, accent, danger,
 }: {
   icon: React.ReactNode;

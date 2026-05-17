@@ -36,7 +36,7 @@ function sourceExists(relPath: string): boolean {
 
 // ── Supabase mock factory ─────────────────────────────────────────────────────
 
-function makeMockSupabase(overrides: Record<string, unknown> = {}) {
+function makeMockSupabase(overrides: Record<string, unknown> =) {}) {
   const mockSelect = vi.fn().mockReturnThis();
   const mockEq     = vi.fn().mockReturnThis();
   const mockOrder  = vi.fn().mockReturnThis();

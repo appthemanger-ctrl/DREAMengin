@@ -80,7 +80,7 @@ const MAX_BUILDS = 10;
  * Type guard: narrow an unknown value to ForgeLogEvent.
  * Useful in parsers and tests.
  */
-export function isForgeLogEvent(value: unknown: value is ForgeLogEvent {
+export function isForgeLogEvent(value: unknown: value is ForgeLogEvent) {
   if (!value || typeof value !== 'object') return false;
   const v = value as Record<string, unknown>;
   if (typeof v.type !== 'string') return false;
@@ -121,7 +121,7 @@ export function isForgeLogEvent(value: unknown: value is ForgeLogEvent {
 /**
  * Persist a build record to localStorage (keep last MAX_BUILDS).
  */
-export function saveForgeBuild(record: ForgeBuildRecord: void {
+export function saveForgeBuild(record: ForgeBuildRecord: void) {
   if (typeof window === 'undefined') return;
   try {
     const existing = readForgeBuilds();
@@ -135,7 +135,7 @@ export function saveForgeBuild(record: ForgeBuildRecord: void {
 /**
  * Read all stored build records from localStorage.
  */
-export function readForgeBuilds(: ForgeBuildRecord[] {
+export function readForgeBuilds(: ForgeBuildRecord[]) {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(BUILDS_KEY);
@@ -149,7 +149,7 @@ export function readForgeBuilds(: ForgeBuildRecord[] {
 /**
  * Remove all stored build records.
  */
-export function clearForgeBuilds(: void {
+export function clearForgeBuilds(: void) {
   if (typeof window === 'undefined') return;
   try {
     localStorage.removeItem(BUILDS_KEY);
@@ -164,7 +164,7 @@ export function clearForgeBuilds(: void {
  * Returns true when the user has NOT yet built today.
  * Uses `new Date().toDateString()` as the day key — locale-stable.
  */
-export function canBuildToday(: boolean {
+export function canBuildToday(: boolean) {
   if (typeof window === 'undefined') return true;
   try {
     const last = localStorage.getItem(RATE_KEY);
@@ -178,7 +178,7 @@ export function canBuildToday(: boolean {
 /**
  * Stamp today's date so `canBuildToday()` returns false for the rest of the day.
  */
-export function recordBuildToday(: void {
+export function recordBuildToday(: void) {
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(RATE_KEY, new Date().toDateString());
@@ -206,7 +206,7 @@ interface NotebookCell {
  * - `lab-config`    → writes to `de:forge:staged-lab`
  * - `content-draft` → writes to `de:forge:staged-draft`
  */
-export function stageForgeArtifact(artifact: ForgeArtifact: void {
+export function stageForgeArtifact(artifact: ForgeArtifact: void) {
   if (typeof window === 'undefined') return;
   try {
     if (artifact.type === 'code-cells') {

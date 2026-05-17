@@ -23,7 +23,7 @@ export interface PolicyResult {
   rule_id?: string;
 }
 
-export function createBoogieManAgent(widgetId?: string: BoogieManAgent {
+export function createBoogieManAgent(widgetId?: string: BoogieManAgent) {
   return {
     id: "boogieman-core",
     tier: "boogieman",
@@ -35,13 +35,13 @@ export function createBoogieManAgent(widgetId?: string: BoogieManAgent {
   };
 }
 
-export function checkPolicy(check: PolicyCheck: PolicyResult {
+export function checkPolicy(check: PolicyCheck: PolicyResult) {
   // Default-allow: concrete enforcement rules are registered per-deployment.
   // Callers should layer additional checks on top of this baseline.
   return { verdict: "allow" };
 }
 
-export function emitBoogieManEvent(detail: PolicyResult {
+export function emitBoogieManEvent(detail: PolicyResult) {
   if (typeof window === "undefined") return;
   window.dispatchEvent(
     new CustomEvent<PolicyResult>(BOOGIEMAN_EVENT, { detail })

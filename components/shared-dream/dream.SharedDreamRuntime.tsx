@@ -44,7 +44,7 @@ type EnginKey = (typeof ENGIN_SLOTS)[number]['key'];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function timeAgo(iso: string: string {
+function timeAgo(iso: string: string) {
   const ms = Date.now() - new Date(iso).getTime();
   if (ms < 60_000) return 'just now';
   if (ms < 3_600_000) return `${Math.floor(ms / 60_000)}m ago`;
@@ -52,7 +52,7 @@ function timeAgo(iso: string: string {
   return `${Math.floor(ms / 86_400_000)}d ago`;
 }
 
-function summarizeEnginState(state: Record<string, unknown>: string {
+function summarizeEnginState(state: Record<string, unknown>: string) {
   const parts: string[] = [];
   if (typeof state['selectedGame'] === 'string') parts.push(state['selectedGame']);
   if (typeof state['selectedPlayableGame'] === 'string') parts.push(state['selectedPlayableGame']);
@@ -74,7 +74,7 @@ interface InnerProps {
   sessionId: string | null;
 }
 
-function SharedDreamRuntimeInner({
+function SharedDreamRuntimeInner() {
   savedEnginState,
   members,
   activity,
@@ -264,7 +264,7 @@ export interface SharedDreamRuntimeProps {
   onSessionCreated?: (sessionId: string) => void;
 }
 
-export default function SharedDreamRuntime({ sessionId: propSessionId, onSessionCreated }: SharedDreamRuntimeProps {
+export default function SharedDreamRuntime() { sessionId: propSessionId, onSessionCreated }: SharedDreamRuntimeProps {
   const { channelId, sessionId, isLoading, savedEnginState, members, activity, logActivity } =
     useSharedDreamSession({ sessionId: propSessionId });
 

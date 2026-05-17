@@ -44,7 +44,7 @@ const CreateDraftSchema = z.object({
 
 // ── GET /api/drafts ──────────────────────────────────────────────────────────
 
-export async function GET(_req: NextRequest: Promise<NextResponse> {
+export async function GET(_req: NextRequest: Promise<NextResponse>) {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -71,7 +71,7 @@ export async function GET(_req: NextRequest: Promise<NextResponse> {
 
 // ── POST /api/drafts ─────────────────────────────────────────────────────────
 
-export async function POST(req: NextRequest: Promise<NextResponse> {
+export async function POST(req: NextRequest: Promise<NextResponse>) {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 

@@ -44,13 +44,13 @@ interface CronSummary {
   }>;
 }
 
-function getCronBatchSize(: number {
+function getCronBatchSize(: number) {
   const parsed = Number.parseInt(process.env.CONNECTOR_CRON_BATCH_SIZE ?? String(DEFAULT_BATCH_SIZE), 10);
   if (!Number.isFinite(parsed)) return DEFAULT_BATCH_SIZE;
   return Math.min(Math.max(parsed, 1), MAX_BATCH_SIZE);
 }
 
-export async function GET(req: NextRequest: Promise<NextResponse<CronSummary | { error: string }>> {
+export async function GET(req: NextRequest: Promise<NextResponse<CronSummary |) { error: string }>> {
   // ── Authorisation ────────────────────────────────────────────────────────
   if (
     !isCronAuthorised(

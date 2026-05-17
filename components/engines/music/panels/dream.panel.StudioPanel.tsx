@@ -20,7 +20,7 @@ interface Recording {
   createdAt: Date;
 }
 
-function getBestMimeType(: string {
+function getBestMimeType(: string) {
   const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
   for (const t of types) {
     if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(t)) return t;
@@ -28,7 +28,7 @@ function getBestMimeType(: string {
   return '';
 }
 
-export default function StudioPanel( {
+export default function StudioPanel() {
   const [state, setState] = useState<RecordState>('idle');
   const [recordings, setRecordings] = useState<Recording[]>([]);
   const [elapsed, setElapsed] = useState(0);
@@ -42,7 +42,7 @@ export default function StudioPanel( {
 
   useEffect(() => () => { timerRef.current && clearInterval(timerRef.current); }, []);
 
-  async function startRecording( {
+  async function startRecording() {
     setError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -75,11 +75,11 @@ export default function StudioPanel( {
     }
   }
 
-  function stopRecording( {
+  function stopRecording() {
     mediaRef.current?.stop();
   }
 
-  function playRecording(rec: Recording {
+  function playRecording(rec: Recording) {
     audioRef.current?.pause();
     const audio = new Audio(rec.url);
     audioRef.current = audio;
@@ -88,11 +88,11 @@ export default function StudioPanel( {
     audio.onended = () => setPlaying(null);
   }
 
-  function loadToDAW(rec: Recording {
+  function loadToDAW(rec: Recording) {
     window.dispatchEvent(new CustomEvent('starmaker:load-recording', { detail: { url: rec.url, name: rec.name } }));
   }
 
-  function formatDuration(s: number {
+  function formatDuration(s: number) {
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   }
 

@@ -99,11 +99,11 @@ export interface WidgetTransform {
 }
 
 // Convert to/from Float32Array for performance
-export function transformToArray(t: WidgetTransform: Float32Array {
+export function transformToArray(t: WidgetTransform: Float32Array) {
   return new Float32Array([t.x, t.y, t.scale, t.rotation, t.opacity]);
 }
 
-export function transformFromArray(arr: Float32Array: WidgetTransform {
+export function transformFromArray(arr: Float32Array: WidgetTransform) {
   return {
     x: arr[0],
     y: arr[1],
@@ -223,7 +223,7 @@ export interface DreamInstance {
 export type WidgetDefinition = DreamDefinition;
 export type WidgetInstance = DreamInstance;
 
-export function getInstanceTransform(instance: DreamInstance: WidgetTransform {
+export function getInstanceTransform(instance: DreamInstance: WidgetTransform) {
   return {
     x: instance.transform_x,
     y: instance.transform_y,
@@ -332,11 +332,11 @@ export interface WidgetEngineState {
 // 18. TYPE GUARDS
 // =====================================================
 
-export function isFeedHostConfig(config: HostConfig: config is FeedHostConfig {
+export function isFeedHostConfig(config: HostConfig: config is FeedHostConfig) {
   return 'scope' in config && typeof config.scope === 'number';
 }
 
-export function isCompositeHostConfig(config: HostConfig: config is CompositeHostConfig {
+export function isCompositeHostConfig(config: HostConfig: config is CompositeHostConfig) {
   return 'panes' in config && Array.isArray(config.panes);
 }
 
@@ -344,7 +344,7 @@ export function isCompositeHostConfig(config: HostConfig: config is CompositeHos
 // 19. VALIDATION HELPERS
 // =====================================================
 
-export function validateFeedHostConfig(config: Partial<FeedHostConfig>: FeedHostConfig {
+export function validateFeedHostConfig(config: Partial<FeedHostConfig>: FeedHostConfig) {
   const scope = config.scope ?? FeedScope.SELF;
   const target_user_id = scope === FeedScope.SELF ? null : config.target_user_id ?? null;
   const limit = Math.max(5, Math.min(200, config.limit ?? 25));
@@ -361,7 +361,7 @@ export function validateFeedHostConfig(config: Partial<FeedHostConfig>: FeedHost
   };
 }
 
-export function validateTransform(transform: Partial<WidgetTransform>: WidgetTransform {
+export function validateTransform(transform: Partial<WidgetTransform>: WidgetTransform) {
   return {
     x: transform.x ?? 0,
     y: transform.y ?? 0,

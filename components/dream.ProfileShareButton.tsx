@@ -11,7 +11,7 @@ interface ProfileShareButtonProps {
   text?: string;
 }
 
-export default function ProfileShareButton({ url, text }: ProfileShareButtonProps = {} {
+export default function ProfileShareButton() { url, text }: ProfileShareButtonProps = {} {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const shareUrl = url ?? (typeof window !== 'undefined' ? window.location.href : '');

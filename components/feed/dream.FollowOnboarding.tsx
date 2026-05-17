@@ -23,13 +23,13 @@ export type FollowSettings = {
   savedAt: string;
 };
 
-function loadFollowSettings(: Record<string, FollowSettings> {
+function loadFollowSettings(: Record<string, FollowSettings>) {
   if (typeof window === 'undefined') return {};
   try { return JSON.parse(localStorage.getItem('de-follow-settings') || '{}'); }
   catch { return {}; }
 }
 
-export function saveFollowSetting(handle: string, displayName: string, frequency: FollowFrequency {
+export function saveFollowSetting(handle: string, displayName: string, frequency: FollowFrequency) {
   const all = loadFollowSettings();
   all[handle] = { handle, displayName, frequency, savedAt: new Date().toISOString() };
   localStorage.setItem('de-follow-settings', JSON.stringify(all));
@@ -42,7 +42,7 @@ type Props = {
   onClose: () => void;
 };
 
-export default function FollowOnboarding({ handle, displayName: Record<string, unknown>, onConfirm: Record<string, unknown>, onClose }: Props {
+export default function FollowOnboarding() { handle, displayName: Record<string, unknown>, onConfirm: Record<string, unknown>, onClose }: Props {
   const [selected, setSelected] = useState<FollowFrequency>('highlights');
 
   const confirm = useCallback(() => {

@@ -52,7 +52,7 @@ interface Mech {
 }
 interface Bullet { x: number; y: number; vx: number; dmg: number; ttl: number; from: 'p' | 'e'; col: string; }
 
-export default function EnginFracture( {
+export default function EnginFracture() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [build, setBuild] = useState<Build>({ chassis: 'lance', arm: 'pulse', leg: 'jet', faction: 'kindling' });
@@ -269,7 +269,7 @@ export default function EnginFracture( {
   );
 }
 
-function Picker({ label, options, value, onChange }: {
+function Picker() { label, options, value, onChange }: {
   label: string;
   options: Array<{ id: string; label: string; info: string }>;
   value: string;

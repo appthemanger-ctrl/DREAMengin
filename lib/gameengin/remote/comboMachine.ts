@@ -143,7 +143,7 @@ export class ComboMachine {
   }
 }
 
-function sequenceEquals(a: readonly FaceButton[], b: readonly FaceButton[]: boolean {
+function sequenceEquals(a: readonly FaceButton[], b: readonly FaceButton[]: boolean) {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
   return true;

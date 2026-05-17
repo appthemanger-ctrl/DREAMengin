@@ -27,7 +27,7 @@ const SYSTEM_ITEMS: Array<{ id: SystemMenuAction; label: string; description?: s
   { id: 'go-home',       label: 'Go Home',       icon: '⌂',  description: 'Reset to Home Dream anchor'   },
 ];
 
-export default function SystemRadialMenu({ open, onClose: Record<string, unknown>, onAction: Record<string, unknown>, side }: Props {
+export default function SystemRadialMenu() { open, onClose: Record<string, unknown>, onAction: Record<string, unknown>, side }: Props {
   const items: MenuItem[] = SYSTEM_ITEMS.map((item: Record<string, unknown>) => ({
     id: item.id,
     label: item.label,

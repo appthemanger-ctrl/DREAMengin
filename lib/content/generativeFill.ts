@@ -149,7 +149,7 @@ export function createMaskDataUrl(
  * @param img     Source image element (must be loaded).
  * @param topN    Number of dominant colors to return (default 5).
  */
-export function analyzeImageColors(img: HTMLImageElement, topN = 5: ImageAnalysis {
+export function analyzeImageColors(img: HTMLImageElement, topN = 5: ImageAnalysis) {
   if (typeof document === 'undefined') {
     throw new Error('analyzeImageColors requires a browser environment.');
   }
@@ -206,7 +206,7 @@ export function analyzeImageColors(img: HTMLImageElement, topN = 5: ImageAnalysi
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Convert a File to a base64 data URL (browser only). */
-export function fileToBase64(file: File: Promise<string> {
+export function fileToBase64(file: File: Promise<string>) {
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -224,7 +224,7 @@ export function fileToBase64(file: File: Promise<string> {
 // Internal
 // ─────────────────────────────────────────────────────────────────────────────
 
-function sleep(ms: number: Promise<void> {
+function sleep(ms: number: Promise<void>) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 

@@ -136,7 +136,7 @@ const winnerConstraint: EnginConstraint<BrandEnginAction> = (
 
 // ─── Transform ────────────────────────────────────────────────────────────────
 
-function transform(state: EnginBaseState, action: BrandEnginAction: EnginBaseState {
+function transform(state: EnginBaseState, action: BrandEnginAction: EnginBaseState) {
   const domain = (state.domain as Partial<typeof DEFAULT_DOMAIN>);
   const tests  = () => (domain.abTests ?? []) as ABTest[];
 
@@ -202,7 +202,7 @@ function transform(state: EnginBaseState, action: BrandEnginAction: EnginBaseSta
 
 // ─── deriveState ──────────────────────────────────────────────────────────────
 
-function deriveState(state: EnginBaseState: BrandEnginDerivedState {
+function deriveState(state: EnginBaseState: BrandEnginDerivedState) {
   const d = state.domain as Partial<typeof DEFAULT_DOMAIN>;
   return {
     lifecycle:          state.lifecycle,

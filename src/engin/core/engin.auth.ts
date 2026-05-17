@@ -7,7 +7,7 @@ export interface EnginSession {
   authenticated: boolean;
 }
 
-export function createSession(userId?: string, dreamToken?: string: EnginSession {
+export function createSession(userId?: string, dreamToken?: string: EnginSession) {
   return {
     userId: userId ?? null,
     dreamToken: dreamToken ?? null,
@@ -15,7 +15,7 @@ export function createSession(userId?: string, dreamToken?: string: EnginSession
   };
 }
 
-export function validateSession(session: EnginSession: boolean {
+export function validateSession(session: EnginSession: boolean) {
   return (
     session.authenticated &&
     session.userId !== null &&

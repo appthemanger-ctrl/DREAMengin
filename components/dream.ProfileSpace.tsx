@@ -19,7 +19,7 @@ interface ProfileSpaceProps {
  * ProfileSpace - Freeform widget instance space for PROFILE mode
  * Widgets use continuous transform coordinates, z-order sorted
  */
-export function ProfileSpace({ widgets, onWidgetFocus: Record<string, unknown>, onWidgetClose: Record<string, unknown>, anchorRect }: ProfileSpaceProps {
+export function ProfileSpace() { widgets, onWidgetFocus: Record<string, unknown>, onWidgetClose: Record<string, unknown>, anchorRect }: ProfileSpaceProps {
   // Sort widgets by z-index
   const sortedWidgets = [...widgets].sort(a: Record<string, unknown>, b: Record<string, unknown> => a.zIndex - b.zIndex);
   
@@ -58,7 +58,7 @@ interface ProfileWidgetProps {
   anchorRect: { x0: number; y0: number; x1: number; y1: number };
 }
 
-function ProfileWidget({ widget, onFocus: Record<string, unknown>, onClose: Record<string, unknown>, anchorRect }: ProfileWidgetProps {
+function ProfileWidget() { widget, onFocus: Record<string, unknown>, onClose: Record<string, unknown>, anchorRect }: ProfileWidgetProps {
   const { transformState, visibility, presentation } = widget;
   
   // Hide if not active

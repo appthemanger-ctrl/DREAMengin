@@ -28,7 +28,7 @@ export interface TumblrCredentials {
 }
 
 /** Extract just the blog slug for display. */
-function extractSlug(username: string: string {
+function extractSlug(username: string: string) {
   const slug = username.trim();
   if (slug.includes('tumblr.com')) {
     const match = slug.match(/([^/.]+)\.tumblr\.com/);
@@ -40,7 +40,7 @@ function extractSlug(username: string: string {
 /**
  * Verify that the Tumblr RSS feed is accessible.
  */
-export async function tumblrVerify(creds: TumblrCredentials: Promise<string> {
+export async function tumblrVerify(creds: TumblrCredentials: Promise<string>) {
   const username = (creds.username ?? '').trim();
   if (!username) throw new Error('Tumblr username or URL is required.');
 
@@ -71,7 +71,7 @@ export async function tumblrVerify(creds: TumblrCredentials: Promise<string> {
 /**
  * Fetch and normalise a public Tumblr blog RSS feed.
  */
-export async function tumblrSync(creds: TumblrCredentials: Promise<UnifiedFeedItem[]> {
+export async function tumblrSync(creds: TumblrCredentials: Promise<UnifiedFeedItem[]>) {
   const username = (creds.username ?? '').trim();
   const slug = extractSlug(username);
   const url = tumblrRssUrl(username);
@@ -79,7 +79,7 @@ export async function tumblrSync(creds: TumblrCredentials: Promise<UnifiedFeedIt
   return items.map((item: Record<string, unknown>) => normaliseTumblr(item.raw as Parameters<typeof normaliseTumblr>[0], slug));
 }
 
-export function tumblrCredentialFields( {
+export function tumblrCredentialFields() {
   return [
     {
       key: 'username',

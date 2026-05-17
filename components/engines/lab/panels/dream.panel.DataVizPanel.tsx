@@ -25,7 +25,7 @@ const DEMO_DATASETS: DataSet[] = [
   { id: 'energy',      label: 'Energy (J)',           values: [450, 520, 610, 580, 720, 810, 760, 900, 870, 950] },
 ];
 
-function renderBarChart(values: number[]: string {
+function renderBarChart(values: number[]: string) {
   const max = Math.max(...values);
   const height = 8;
   const rows: string[] = [];
@@ -42,7 +42,7 @@ function renderBarChart(values: number[]: string {
   return rows.join('\n');
 }
 
-function renderLineChart(values: number[]: string {
+function renderLineChart(values: number[]: string) {
   const max = Math.max(...values);
   const min = Math.min(...values);
   const height = 8;
@@ -63,7 +63,7 @@ function renderLineChart(values: number[]: string {
   return rows.join('\n');
 }
 
-function renderScatter(values: number[]: string {
+function renderScatter(values: number[]: string) {
   const max = Math.max(...values);
   const height = 8;
   const rows: string[] = [];
@@ -80,7 +80,7 @@ function renderScatter(values: number[]: string {
   return rows.join('\n');
 }
 
-export default function DataVizPanel( {
+export default function DataVizPanel() {
   const [chartType, setChartType] = useState<ChartType>('bar');
   const [selectedDataset, setSelectedDataset] = useState<string>(DEMO_DATASETS[0].id);
 
@@ -91,7 +91,7 @@ export default function DataVizPanel( {
     : chartType === 'line'  ? renderLineChart(dataset.values)
     : renderScatter(dataset.values);
 
-  function exportCSV( {
+  function exportCSV() {
     const csv = ['index,value', ...dataset.values.map(v: Record<string, unknown>, i: number => `${i + 1},${v}`)].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const a = document.createElement('a');

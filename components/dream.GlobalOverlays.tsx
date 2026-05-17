@@ -32,7 +32,7 @@ const KonamiDream = dynamic(() => import('@/components/dream.KonamiDream'), {
   loading: () => null,
 });
 
-export default function GlobalOverlays( {
+export default function GlobalOverlays() {
   return (
     <>
       <GlobalCustomizeUI />

@@ -18,7 +18,7 @@ type Props = {
  * hydration mismatch. The client picks the randomised logo on mount.
  * Fixed width/height prevent layout shift.
  */
-export default function BrandLogo({
+export default function BrandLogo() {
   width = 40,
   height = 40,
   alt = 'Dreamengin',

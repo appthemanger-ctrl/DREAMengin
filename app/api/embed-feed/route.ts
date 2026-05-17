@@ -34,7 +34,7 @@ export interface EmbedFeedResponse {
   error?: string;
 }
 
-export async function GET(req: NextRequest: Promise<NextResponse<EmbedFeedResponse>> {
+export async function GET(req: NextRequest: Promise<NextResponse<EmbedFeedResponse>>) {
   const { searchParams } = req.nextUrl;
   const provider = searchParams.get('provider') ?? '';
   const rawLimit = parseInt(searchParams.get('limit') ?? '20', 10);

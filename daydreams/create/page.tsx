@@ -23,7 +23,7 @@ export const metadata = { title: 'Create – Dreamengin', description: 'Ideas, t
 
 const ACCENT = '#f59e0b';
 
-export default async function CreateDaydreamPage( {
+export default async function CreateDaydreamPage() {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

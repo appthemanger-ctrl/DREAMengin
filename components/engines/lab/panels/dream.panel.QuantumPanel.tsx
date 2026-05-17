@@ -40,11 +40,11 @@ const GATE_DEFS: GateDef[] = [
 const QUBITS = 4;
 const COLS = 8;
 
-function gateDef(type: GateType {
+function gateDef(type: GateType) {
   return GATE_DEFS.find((g: Record<string, unknown>) => g.type === type)!;
 }
 
-function simulateMeasurements(gates: Gate[]: string {
+function simulateMeasurements(gates: Gate[]: string) {
   const results: string[] = [];
   for (let q = 0; q < QUBITS; q++) {
     const qubitGates = gates.filter((g: Record<string, unknown>) => g.qubit === q).sort(a: Record<string, unknown>, b: Record<string, unknown> => a.col - b.col);
@@ -61,7 +61,7 @@ function simulateMeasurements(gates: Gate[]: string {
   return results.join('\n');
 }
 
-export default function QuantumPanel( {
+export default function QuantumPanel() {
   const [gates, setGates] = useState<Gate[]>([]);
   const [selectedGate, setSelectedGate] = useState<GateType>('H');
   const [result, setResult] = useState<string | null>(null);
@@ -80,12 +80,12 @@ export default function QuantumPanel( {
     setResult(null);
   }, []);
 
-  function clear( {
+  function clear() {
     setGates([]);
     setResult(null);
   }
 
-  function measure( {
+  function measure() {
     setResult(simulateMeasurements(gates));
   }
 

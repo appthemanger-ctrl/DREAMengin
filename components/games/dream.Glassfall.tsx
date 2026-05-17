@@ -40,7 +40,7 @@ const TETROMINOES: Array<Array<[number, number]>> = [
 interface ShardState { x: number; y: number; vx: number; vy: number; color: Exclude<CellColor, 0>; }
 interface FallingPiece { cells: Array<[number, number]>; cx: number; cy: number; color: Exclude<CellColor, 0>; }
 
-export default function Glassfall( {
+export default function Glassfall() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const gridRef = useRef<CellColor[][]>(Array.from({ length: ROWS }, () => Array<CellColor>(COLS).fill(0)));

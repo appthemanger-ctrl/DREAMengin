@@ -20,7 +20,7 @@ const MODEL_DEFAULTS: Record<AiAgent, string> = {
   boogieman: "gpt-4o",
 };
 
-function modelFor(agent: AiAgent: string {
+function modelFor(agent: AiAgent: string) {
   const envKey = `AI_MODEL_${agent.toUpperCase()}` as keyof NodeJS.ProcessEnv;
   return (process.env[envKey] as string | undefined) ?? MODEL_DEFAULTS[agent];
 }

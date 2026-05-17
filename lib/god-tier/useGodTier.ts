@@ -65,7 +65,7 @@ export interface UseGodTierReturn {
   recordCorrection: () => void;
 }
 
-export function useGodTier(opts: UseGodTierOptions = {}: UseGodTierReturn {
+export function useGodTier(opts: UseGodTierOptions =) {}: UseGodTierReturn {
   const {
     route = '/',
     activeTask = 'browse',

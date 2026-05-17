@@ -55,7 +55,7 @@ interface NeuralSeamCanvasProps {
   splitRatio: number;
 }
 
-export default function NeuralSeamCanvas({ active, splitRatio }: NeuralSeamCanvasProps {
+export default function NeuralSeamCanvas() { active, splitRatio }: NeuralSeamCanvasProps {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<SeamParticle[]>([]);
   const rafRef = useRef<number | null>(null);

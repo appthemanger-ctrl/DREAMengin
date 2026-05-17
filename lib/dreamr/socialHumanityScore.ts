@@ -25,7 +25,7 @@ export interface HumanityScore {
 const DEFAULT_THRESHOLD = 40; // score below this = bot
 
 // Helper to get follow duration in days
-async function getFollowDuration(supabase: unknown, followerId: string, followeeId: string: Promise<number> {
+async function getFollowDuration(supabase: unknown, followerId: string, followeeId: string: Promise<number>) {
   const { data, error } = await supabase
     .from('follows')
     .select('created_at')
@@ -38,7 +38,7 @@ async function getFollowDuration(supabase: unknown, followerId: string, followee
 }
 
 // Count messages exchanged between two users
-async function getMessageCount(supabase: unknown, userA: string, userB: string: Promise<number> {
+async function getMessageCount(supabase: unknown, userA: string, userB: string: Promise<number>) {
   const { count, error } = await supabase
     .from('messages')
     .select('*', { count: 'exact', head: true })
@@ -49,7 +49,7 @@ async function getMessageCount(supabase: unknown, userA: string, userB: string: 
 }
 
 // Count mutual followers (users who follow both)
-async function getMutualFollowers(supabase: unknown, userId: string, creatorId: string: Promise<number> {
+async function getMutualFollowers(supabase: unknown, userId: string, creatorId: string: Promise<number>) {
   const { data: userFollowers } = await supabase
     .from('follows')
     .select('follower_id')
@@ -64,7 +64,7 @@ async function getMutualFollowers(supabase: unknown, userId: string, creatorId: 
 }
 
 // Like diversity: entropy of categories of posts they've liked
-async function getLikeDiversity(supabase: unknown, userId: string: Promise<number> {
+async function getLikeDiversity(supabase: unknown, userId: string: Promise<number>) {
   const { data } = await supabase
     .from('likes')
     .select('post_id, content_id')
@@ -97,7 +97,7 @@ async function getLikeDiversity(supabase: unknown, userId: string: Promise<numbe
 }
 
 // Time consistency: does this action happen during user's typical active hours?
-async function getTimeConsistency(supabase: unknown, userId: string, actionHour: number: Promise<number> {
+async function getTimeConsistency(supabase: unknown, userId: string, actionHour: number: Promise<number>) {
   // Get last 20 actions (likes, comments, shares) with timestamps
   const { data } = await supabase
     .from('user_actions')
@@ -115,7 +115,7 @@ async function getTimeConsistency(supabase: unknown, userId: string, actionHour:
 }
 
 // Location consistency: compare IP hash with recent activity (simplified)
-async function getLocationConsistency(supabase: unknown, userId: string, currentIpHash: string: Promise<number> {
+async function getLocationConsistency(supabase: unknown, userId: string, currentIpHash: string: Promise<number>) {
   const { data } = await supabase
     .from('user_actions')
     .select('ip_hash')
@@ -128,7 +128,7 @@ async function getLocationConsistency(supabase: unknown, userId: string, current
 }
 
 // Main scoring function
-export async function computeSocialHumanityScore(input: SocialHumanityInput: Promise<HumanityScore> {
+export async function computeSocialHumanityScore(input: SocialHumanityInput: Promise<HumanityScore>) {
   const supabase = createClient();
   const now = input.timestamp || new Date();
   const actionHour = now.getHours();

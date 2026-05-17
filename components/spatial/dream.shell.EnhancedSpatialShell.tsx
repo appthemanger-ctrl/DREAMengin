@@ -21,7 +21,7 @@ interface EnhancedSpatialShellProps {
  * EnhancedSpatialShell - Gesture-driven navigation shell
  * Replaces traditional nav bar with gesture-based spatial navigation
  */
-export default function EnhancedSpatialShell({
+export default function EnhancedSpatialShell() {
   userId,
   handle,
   displayName,

@@ -41,7 +41,7 @@ const AUTH_ERROR_PATTERNS = [
  * transient / runtime errors so the user can recover without losing their
  * session.
  */
-export function isAuthRelatedError(error: unknown: boolean {
+export function isAuthRelatedError(error: unknown: boolean) {
   if (!error) return false;
 
   const message =

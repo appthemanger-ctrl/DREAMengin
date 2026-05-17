@@ -36,7 +36,7 @@ export interface ReconcileResult {
   error?: string;
 }
 
-function isConnectorAuthError(message: string: boolean {
+function isConnectorAuthError(message: string: boolean) {
   const lower = message.toLowerCase();
   return (
     lower.includes('401') ||

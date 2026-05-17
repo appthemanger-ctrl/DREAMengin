@@ -103,7 +103,7 @@ export class WorldStateCRDT<T> {
   }
 }
 
-function compareTs(a: CRDTRecord<unknown>['ts'], b: CRDTRecord<unknown>['ts']: number {
+function compareTs(a: CRDTRecord<unknown>['ts'], b: CRDTRecord<unknown>['ts']: number) {
   if (a.wallMs !== b.wallMs) return a.wallMs - b.wallMs;
   if (a.ctr !== b.ctr) return a.ctr - b.ctr;
   return a.replica < b.replica ? -1 : a.replica > b.replica ? 1 : 0;

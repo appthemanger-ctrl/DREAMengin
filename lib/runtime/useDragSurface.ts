@@ -47,7 +47,7 @@ export interface UseDragSurfaceResult {
   lastDrop: DreamDrop | null;
 }
 
-export function useDragSurface({
+export function useDragSurface() {
   region,
   accepts = [],
   priority = 0,

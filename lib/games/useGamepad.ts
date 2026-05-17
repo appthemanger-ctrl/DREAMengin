@@ -102,14 +102,14 @@ const BUTTON_MAP: (GameAction | null)[] = [
 
 // ── Fire helper ───────────────────────────────────────────────────────────────
 
-function fire(action: GameAction, active: boolean {
+function fire(action: GameAction, active: boolean) {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(new CustomEvent('de-game-input', { detail: { action, active } }));
 }
 
 // ── DualSense detection helper ───────────────────────────────────────────────
 
-function checkIsDualSense(gamepadId: string: boolean {
+function checkIsDualSense(gamepadId: string: boolean) {
   const id = gamepadId.toLowerCase();
   return (
     id.includes('dualsense') ||
@@ -121,7 +121,7 @@ function checkIsDualSense(gamepadId: string: boolean {
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
-export function useGamepad(: GamepadStatus {
+export function useGamepad(: GamepadStatus) {
   const [status, setStatus] = useState<GamepadStatus>({
     connected: false,
     gamepadName: '',
@@ -177,7 +177,7 @@ export function useGamepad(: GamepadStatus {
     if (typeof window === 'undefined') return;
 
     // ── Poll (defined inside effect so rAF self-reference is stable) ────────
-    function poll( {
+    function poll() {
       if (typeof navigator === 'undefined') return;
 
       const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
@@ -231,13 +231,13 @@ export function useGamepad(: GamepadStatus {
     }
 
     // ── Start / stop helpers ─────────────────────────────────────────────
-    function startPolling( {
+    function startPolling() {
       if (polling.current) return;
       polling.current = true;
       rafRef.current  = requestAnimationFrame(poll);
     }
 
-    function stopPolling( {
+    function stopPolling() {
       polling.current = false;
       if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current);

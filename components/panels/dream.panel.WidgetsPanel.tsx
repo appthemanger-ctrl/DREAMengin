@@ -22,7 +22,7 @@ const DEFAULT_WIDGETS: WidgetEntry[] = [
   { name: 'Portfolio', pinned: false, visible: false },
 ];
 
-export default function WidgetsPanel( {
+export default function WidgetsPanel() {
   const { openInSurface } = useDreamSystem();
   const [widgets, setWidgets] = useState<WidgetEntry[]>(DEFAULT_WIDGETS);
   const [loading, setLoading] = useState(true);

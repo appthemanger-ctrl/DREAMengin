@@ -31,7 +31,7 @@ interface BrandIdentity {
   accentColor: string;
 }
 
-export default function IdentityPanel( {
+export default function IdentityPanel() {
   const [identity, setIdentity] = useState<BrandIdentity>({
     name: '',
     tagline: '',
@@ -42,7 +42,7 @@ export default function IdentityPanel( {
   });
   const [saved, setSaved] = useState(false);
 
-  function applyPalette(palette: typeof PRESET_PALETTES[0] {
+  function applyPalette(palette: typeof PRESET_PALETTES[0]) {
     setIdentity(prev: Record<string, unknown> => ({
       ...prev,
       primaryColor: palette.colors[0],
@@ -51,7 +51,7 @@ export default function IdentityPanel( {
     }));
   }
 
-  function save( {
+  function save() {
     bridge.emit('brand', 'brand:asset-updated', { assetType: 'color-palette', assetId: identity.name || 'brand-identity' });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);

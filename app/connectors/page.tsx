@@ -8,7 +8,7 @@ import { connection } from 'next/server';
 
 export const metadata = { title: 'System Integrations – Dreamengin', description: 'Connect and configure your system integrations.' };
 
-export default async function ConnectorsPage( {
+export default async function ConnectorsPage() {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

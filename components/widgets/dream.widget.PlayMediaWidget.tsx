@@ -16,7 +16,7 @@ interface PlayMediaWidgetProps {
   title?: string;
 }
 
-export default function PlayMediaWidget({ tracks = [], title = 'Play Media' }: PlayMediaWidgetProps {
+export default function PlayMediaWidget() { tracks = [], title = 'Play Media' }: PlayMediaWidgetProps {
   const [currentIndex, setCurrentIndex] = useState<number | null>(null);
   const [playing, setPlaying] = useState(false);
   const [showQueue, setShowQueue] = useState(false);

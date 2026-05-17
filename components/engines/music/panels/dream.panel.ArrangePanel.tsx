@@ -36,13 +36,13 @@ const TRACKS = [
 
 const TOTAL_BARS = 32;
 
-export default function ArrangePanel( {
+export default function ArrangePanel() {
   const [bpm, setBpm] = useState(128);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playhead, setPlayhead] = useState(1);
   const [sections, setSections] = useState<Section[]>(DEFAULT_SECTIONS);
 
-  function addSection( {
+  function addSection() {
     const lastBar = Math.max(...sections.map((s: Record<string, unknown>) => s.startBar + s.lengthBars), 1);
     setSections(prev: Record<string, unknown> => [
       ...prev,

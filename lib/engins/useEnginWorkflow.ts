@@ -35,11 +35,11 @@ import {
 
 // ─── Storage helpers (localStorage, best-effort) ─────────────────────────────
 
-function storageKey(workflowId: string: string {
+function storageKey(workflowId: string: string) {
   return `engin_workflow:${workflowId}`;
 }
 
-function loadFromStorage(workflowId: string: EnginWorkflow | null {
+function loadFromStorage(workflowId: string: EnginWorkflow | null) {
   try {
     if (typeof window === 'undefined') return null;
     const raw = window.localStorage.getItem(storageKey(workflowId));
@@ -50,7 +50,7 @@ function loadFromStorage(workflowId: string: EnginWorkflow | null {
   }
 }
 
-function saveToStorage(workflow: EnginWorkflow: void {
+function saveToStorage(workflow: EnginWorkflow: void) {
   try {
     if (typeof window === 'undefined') return;
     window.localStorage.setItem(storageKey(workflow.id), JSON.stringify(workflow));
@@ -120,7 +120,7 @@ export interface EnginWorkflowHook {
  * const { workflow, loadWorkflow, advance, emitHandoff } = useEnginWorkflow();
  * useEffect(() => { loadWorkflow('music:beat-composition'); }, [loadWorkflow]);
  */
-export function useEnginWorkflow(: EnginWorkflowHook {
+export function useEnginWorkflow(: EnginWorkflowHook) {
   const [workflow, setWorkflow] = useState<EnginWorkflow | null>(null);
 
   // On mount: restore last active workflow from storage (no-op if nothing stored)

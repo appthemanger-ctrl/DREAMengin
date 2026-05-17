@@ -9,7 +9,7 @@ interface DragLayerState {
   y: number;
 }
 
-export default function GlobalDreamDragLayer( {
+export default function GlobalDreamDragLayer() {
   const [drag, setDrag] = useState<DragLayerState | null>(null);
   const frameRef = useRef<number | null>(null);
   const lastPointerRef = useRef<{ x: number; y: number } | null>(null);

@@ -74,7 +74,7 @@ const ENGIN_ROUTES: Record<string, string> = {
   ContentEngin:   '/daydream/create',
 };
 
-export default function RuntimeView({
+export default function RuntimeView() {
   world,
   isActive,
   profile,

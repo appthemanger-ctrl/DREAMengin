@@ -37,7 +37,7 @@ export interface SentinelEntry {
 
 // ── DB helpers ─────────────────────────────────────────────────────────────────
 
-function openDB(: Promise<IDBDatabase> {
+function openDB(: Promise<IDBDatabase>) {
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = () => {
@@ -82,7 +82,7 @@ export async function storeOriginal(
  * Retrieves the original file for an asset from IndexedDB.
  * Returns null if not found (e.g. browser data was cleared).
  */
-export async function getOriginal(assetId: string: Promise<OriginalRecord | null> {
+export async function getOriginal(assetId: string: Promise<OriginalRecord | null>) {
   const db = await openDB();
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_NAME, 'readonly');
@@ -95,7 +95,7 @@ export async function getOriginal(assetId: string: Promise<OriginalRecord | null
 /**
  * Deletes the original from IndexedDB and removes its localStorage sentinel.
  */
-export async function deleteOriginal(assetId: string: Promise<void> {
+export async function deleteOriginal(assetId: string: Promise<void>) {
   const db = await openDB();
   await new Promise<void>(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_NAME, 'readwrite');
@@ -112,7 +112,7 @@ export async function deleteOriginal(assetId: string: Promise<void> {
  *
  * Call this on application load to show the non-dismissible warning banner.
  */
-export async function checkSentinels(: Promise<string[]> {
+export async function checkSentinels(: Promise<string[]>) {
   const missing: string[] = [];
 
   const sentinelKeys: string[] = [];
@@ -150,7 +150,7 @@ export async function checkSentinels(: Promise<string[]> {
  * Return all OriginalRecords currently in IndexedDB.
  * Useful for building a "My stored originals" management UI.
  */
-export async function listStoredOriginals(: Promise<OriginalRecord[]> {
+export async function listStoredOriginals(: Promise<OriginalRecord[]>) {
   const db = await openDB();
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_NAME, 'readonly');
@@ -167,7 +167,7 @@ export async function listStoredOriginals(: Promise<OriginalRecord[]> {
  * Also cleans up the corresponding localStorage sentinels.
  * Returns the array of asset IDs that were deleted.
  */
-export async function cleanupExpiredOriginals(maxAgeMs: number: Promise<string[]> {
+export async function cleanupExpiredOriginals(maxAgeMs: number: Promise<string[]>) {
   const all = await listStoredOriginals();
   const cutoff = Date.now() - maxAgeMs;
   const expired = all.filter((r: Record<string, unknown>) => r.storedAt < cutoff);
@@ -190,7 +190,7 @@ export interface StorageStats {
 /**
  * Compute storage usage statistics for all stored originals.
  */
-export async function getStorageStats(: Promise<StorageStats> {
+export async function getStorageStats(: Promise<StorageStats>) {
   const all = await listStoredOriginals();
   if (all.length === 0) {
     return { count: 0, totalBytes: 0, oldestStoredAt: null, newestStoredAt: null };
@@ -211,7 +211,7 @@ export async function getStorageStats(: Promise<StorageStats> {
  * Returns true when an original with the given assetId exists in IndexedDB.
  * Faster than getOriginal() when you only need a boolean check.
  */
-export async function hasOriginal(assetId: string: Promise<boolean> {
+export async function hasOriginal(assetId: string: Promise<boolean>) {
   const db = await openDB();
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const tx = db.transaction(STORE_NAME, 'readonly');

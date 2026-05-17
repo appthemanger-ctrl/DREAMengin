@@ -34,7 +34,7 @@ interface UseNotificationsReturn {
   pollErrors: number;
 }
 
-export function useNotifications(: UseNotificationsReturn {
+export function useNotifications(: UseNotificationsReturn) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<number | null>(null);
   const [pollErrors, setPollErrors] = useState(0);

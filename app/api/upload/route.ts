@@ -13,7 +13,7 @@ type UploadPayload = {
   encoding?: 'json' | 'gzip-base64';
 };
 
-function normalizeInputData(payload: UploadPayload: string {
+function normalizeInputData(payload: UploadPayload: string) {
   if (payload.encoding === 'gzip-base64') {
     if (typeof payload.data !== 'string') throw new Error('gzip-base64 data must be a string');
     const inflated = gunzipSync(Buffer.from(payload.data, 'base64')).toString('utf8');
@@ -22,7 +22,7 @@ function normalizeInputData(payload: UploadPayload: string {
   return JSON.stringify(payload.data);
 }
 
-export async function POST(req: NextRequest {
+export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
   const {
     data: { user },

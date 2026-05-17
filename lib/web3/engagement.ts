@@ -29,7 +29,7 @@ const BACKEND_BASE = process.env.NEXT_PUBLIC_BACKEND_URL ?? '/api';
 
 // ─── Off-chain fallback ───────────────────────────────────────────────────────
 
-async function trackOffChain(payload: EngagementPayload: Promise<void> {
+async function trackOffChain(payload: EngagementPayload: Promise<void>) {
   const res = await fetch(`${BACKEND_BASE}/engagement/track`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -44,7 +44,7 @@ async function trackOffChain(payload: EngagementPayload: Promise<void> {
   }
 }
 
-async function fetchStatsOffChain(contentId: string: Promise<EngagementStats> {
+async function fetchStatsOffChain(contentId: string: Promise<EngagementStats>) {
   const res = await fetch(
     `${BACKEND_BASE}/engagement/stats/${encodeURIComponent(contentId)}`
   );
@@ -192,6 +192,6 @@ export function getOptimisticDelta(
   return optimisticCache.get(contentId) ?? { delta: {}, hasLiked: false };
 }
 
-export function clearOptimisticDelta(contentId: string: void {
+export function clearOptimisticDelta(contentId: string: void) {
   optimisticCache.delete(contentId);
 }

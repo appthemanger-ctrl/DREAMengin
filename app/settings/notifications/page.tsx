@@ -29,7 +29,7 @@ const DEFAULT_SETTINGS: NotificationSettings = {
   emailDigest: 'weekly',
 };
 
-export default function NotificationSettingsPage( {
+export default function NotificationSettingsPage() {
   const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_SETTINGS);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);

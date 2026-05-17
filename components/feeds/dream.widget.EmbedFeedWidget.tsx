@@ -49,7 +49,7 @@ interface FeedState {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function relativeTime(iso: string: string {
+function relativeTime(iso: string: string) {
   if (!iso) return '';
   const diff = Date.now() - new Date(iso).getTime();
   const minutes = Math.floor(diff / 60_000);
@@ -62,7 +62,7 @@ function relativeTime(iso: string: string {
   return new Date(iso).toLocaleDateString();
 }
 
-function formatViews(n: number: string {
+function formatViews(n: number: string) {
   if (n <= 0) return '';
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M views`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K views`;
@@ -71,7 +71,7 @@ function formatViews(n: number: string {
 
 // ── Instagram embed script loader ─────────────────────────────────────────────
 
-function useInstagramEmbedScript(hasInstagram: boolean {
+function useInstagramEmbedScript(hasInstagram: boolean) {
   useEffect(() => {
     if (!hasInstagram) return;
     if (document.querySelector('script[src*="instagram.com/embed.js"]')) {
@@ -91,7 +91,7 @@ function useInstagramEmbedScript(hasInstagram: boolean {
 
 // ── Skeleton card ─────────────────────────────────────────────────────────────
 
-function SkeletonCard( {
+function SkeletonCard() {
   return (
     <div style={{
       borderRadius: 12, overflow: 'hidden',
@@ -113,7 +113,7 @@ function SkeletonCard( {
 
 // ── Embed card ────────────────────────────────────────────────────────────────
 
-function EmbedCard({ item }: { item: EmbedFeedItem } {
+function EmbedCard() { item }: { item: EmbedFeedItem } {
   const isYouTube   = item.provider === 'youtube';
   const isInstagram = item.provider === 'instagram';
 
@@ -249,7 +249,7 @@ function EmbedCard({ item }: { item: EmbedFeedItem } {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function EmbedFeedWidget({
+export default function EmbedFeedWidget() {
   defaultProvider = 'all',
   limit = 20,
   className = '',

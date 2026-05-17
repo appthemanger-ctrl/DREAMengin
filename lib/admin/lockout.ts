@@ -26,7 +26,7 @@ import { createServiceClient } from '@/lib/supabase/server';
 let _cachedLocked: boolean | null = null;
 
 /** Returns true when admin access is permanently locked. */
-export async function isAdminLocked(: Promise<boolean> {
+export async function isAdminLocked(: Promise<boolean>) {
   // Fast path 1: emergency env-var override.
   if (process.env.ADMIN_LOCKOUT === '1') return true;
 
@@ -57,7 +57,7 @@ export async function isAdminLocked(: Promise<boolean> {
 }
 
 /** Call once when an incorrect password is entered — locks forever. */
-export async function triggerAdminLockout(: Promise<void> {
+export async function triggerAdminLockout(: Promise<void>) {
   // Set the in-process cache immediately so subsequent requests in
   // this instance are blocked even if the DB write is slow.
   _cachedLocked = true;
@@ -83,7 +83,7 @@ export async function triggerAdminLockout(: Promise<void> {
 export const OWNER_EMAIL = process.env.OWNER_EMAIL || 'Appthemanger@gmail.com';
 
 /** Returns true only for the owner's email (case-insensitive). */
-export function isOwner(email?: string | null: boolean {
+export function isOwner(email?: string | null: boolean) {
   if (!email) return false;
   return email.toLowerCase() === OWNER_EMAIL.toLowerCase();
 }
@@ -96,7 +96,7 @@ export function isOwner(email?: string | null: boolean {
 const BLOCKED_DOMAINS: string[] = [];
 
 /** Returns true if the request originates from a blocked domain. */
-export function isDomainBlocked(req: Request: boolean {
+export function isDomainBlocked(req: Request: boolean) {
   if (BLOCKED_DOMAINS.length === 0) return false;
   const headers = [
     req.headers.get('origin') ?? '',

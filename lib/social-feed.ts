@@ -48,14 +48,14 @@ const parser = new Parser({
 
 // ── HTML helpers ──────────────────────────────────────────────────────────
 
-export function stripHtml(input?: string | null {
+export function stripHtml(input?: string | null) {
   if (!input) return "";
   return input.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
 
 // ── Image extraction ──────────────────────────────────────────────────────
 
-export function extractFirstImage(item: unknown: string | null {
+export function extractFirstImage(item: unknown: string | null) {
   // 1) enclosure
   if (item.enclosure?.url) return item.enclosure.url;
 

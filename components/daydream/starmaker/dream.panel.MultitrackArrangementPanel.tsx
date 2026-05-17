@@ -49,7 +49,7 @@ const sectionTitle: CSSProperties = {
   color: THEME.dim,
 };
 
-function pill(color: string: CSSProperties {
+function pill(color: string: CSSProperties) {
   return {
     fontSize: 10,
     fontWeight: 700,
@@ -61,7 +61,7 @@ function pill(color: string: CSSProperties {
   };
 }
 
-function pickerStyle(color: string = THEME.accent: CSSProperties {
+function pickerStyle(color: string = THEME.accent: CSSProperties) {
   return {
     width: '100%',
     padding: '9px 10px',
@@ -76,7 +76,7 @@ function pickerStyle(color: string = THEME.accent: CSSProperties {
   };
 }
 
-function disclosureToggleStyle(active: boolean: CSSProperties {
+function disclosureToggleStyle(active: boolean: CSSProperties) {
   return {
     width: '100%',
     padding: '9px 12px',
@@ -130,7 +130,7 @@ interface Props {
   onSelectedClipGainChange: (gain: number) => void;
 }
 
-export default function MultitrackArrangementPanel({
+export default function MultitrackArrangementPanel() {
   hasAudio,
   sourceLibrary,
   selectedSourceId,

@@ -6,7 +6,7 @@ import DreamsLayoutEditor from './dreams-layout-editor';
 
 export const metadata = { title: 'Dreams – DREAMengin Settings' };
 
-export default function DreamsSettingsPage( {
+export default function DreamsSettingsPage() {
   return (
     <div className="de-sky-bg min-h-screen">
       <AuthenticatedPageHeader

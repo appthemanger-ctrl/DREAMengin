@@ -12,7 +12,7 @@ interface ShrunkModeProps {
  * ShrunkMode - 12 priority widget launchers
  * Displays most recently used or pinned widgets for quick access
  */
-export function ShrunkMode({ priorityWidgets, onWidgetSelect }: ShrunkModeProps {
+export function ShrunkMode() { priorityWidgets, onWidgetSelect }: ShrunkModeProps {
   // Display up to 12 widgets
   const displayWidgets = priorityWidgets.slice(0, 12);
   
@@ -48,7 +48,7 @@ interface PriorityWidgetLauncherProps {
   onSelect?: (widgetId: string) => void;
 }
 
-function PriorityWidgetLauncher({ widget, onSelect }: PriorityWidgetLauncherProps {
+function PriorityWidgetLauncher() { widget, onSelect }: PriorityWidgetLauncherProps {
   return (
     <div
       className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-400 flex flex-col items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95 shadow-md relative"

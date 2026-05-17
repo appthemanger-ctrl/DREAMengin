@@ -43,11 +43,11 @@ const GATE_DEFS: GateDef[] = [
 const QUBITS = 4; // 4 qubits → 4 assets
 const COLS   = 8;
 
-function gateDef(type: GateType {
+function gateDef(type: GateType) {
   return GATE_DEFS.find((g: Record<string, unknown>) => g.type === type)!;
 }
 
-function simulate(gates: Gate[]: { bitstring: string; interpretation: string } {
+function simulate(gates: Gate[]:) { bitstring: string; interpretation: string } {
   const bits: string[] = [];
   const lines: string[] = [];
 
@@ -83,7 +83,7 @@ function simulate(gates: Gate[]: { bitstring: string; interpretation: string } {
   return { bitstring, interpretation: `${interpretation}\n\n${lines.join('\n')}` };
 }
 
-export default function PortfolioQuantumPanel( {
+export default function PortfolioQuantumPanel() {
   const [gates,        setGates]        = useState<Gate[]>([]);
   const [selectedGate, setSelectedGate] = useState<GateType>('H');
   const [result,       setResult]       = useState<{ bitstring: string; interpretation: string } | null>(null);
@@ -101,8 +101,8 @@ export default function PortfolioQuantumPanel( {
     setResult(null);
   }, []);
 
-  function clear( { setGates([]); setResult(null); }
-  function measure( { setResult(simulate(gates)); }
+  function clear() { setGates([]); setResult(null); }
+  function measure() { setResult(simulate(gates)); }
 
   return (
     <div className="h-full overflow-y-auto p-4 md:p-6">

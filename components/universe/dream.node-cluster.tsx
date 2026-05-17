@@ -23,7 +23,7 @@ interface NodeClusterProps {
   interactive?: boolean;
 }
 
-export function NodeCluster({
+export function NodeCluster() {
   nodes,
   className,
   layout = 'grid',
@@ -172,7 +172,7 @@ export function NodeCluster({
 
 // Individual node components
 
-function NodeGridItem({
+function NodeGridItem() {
   node,
   isHovered,
   connectedToHovered,
@@ -257,7 +257,7 @@ function NodeGridItem({
   );
 }
 
-function NodeListItem({
+function NodeListItem() {
   node,
   isHovered,
   onHover,
@@ -326,7 +326,7 @@ function NodeListItem({
   );
 }
 
-function NodeRadialItem({
+function NodeRadialItem() {
   node,
   isHovered,
   onHover,

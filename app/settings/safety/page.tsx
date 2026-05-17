@@ -23,7 +23,7 @@ interface PolicyEvent {
   policy_version: string;
 }
 
-export default async function SafetySettingsPage( {
+export default async function SafetySettingsPage() {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

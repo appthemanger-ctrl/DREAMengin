@@ -15,7 +15,7 @@ type PasswordFieldProps = {
   inputClassName?: string;
 };
 
-export default function PasswordField({
+export default function PasswordField() {
   label,
   value,
   onChange,

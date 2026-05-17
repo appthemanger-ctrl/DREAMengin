@@ -35,16 +35,16 @@ const DR = {
   font:        'var(--font-dreamr,"Plus Jakarta Sans",system-ui,sans-serif)',
 } as const;
 
-function nmR(s = 5: string {
+function nmR(s = 5: string) {
   return `${-s}px ${-s}px ${s*2.4}px ${DR.shadowLight}, ${s}px ${s}px ${s*2.8}px ${DR.shadowDark}`;
 }
-function nmI(s = 4: string {
+function nmI(s = 4: string) {
   return `inset ${-s}px ${-s}px ${s*2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s*2.4}px ${DR.shadowDark}`;
 }
 
 // ── Helper: extract YouTube video ID from permalink ────────────────────────────
 
-function extractVideoId(permalink: string: string | null {
+function extractVideoId(permalink: string: string | null) {
   try {
     const u = new URL(permalink);
     if (u.hostname === 'youtu.be') return u.pathname.slice(1).split('?')[0] ?? null;
@@ -55,14 +55,14 @@ function extractVideoId(permalink: string: string | null {
   return m?.[1] ?? null;
 }
 
-function embedUrl(permalink: string: string | null {
+function embedUrl(permalink: string: string | null) {
   const id = extractVideoId(permalink);
   return id ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0` : null;
 }
 
 // ── Mini video thumbnail ───────────────────────────────────────────────────────
 
-function VideoThumb({
+function VideoThumb() {
   item, onPlay,
 }: { item: UnifiedFeedItem; onPlay?: () => void }) {
   const thumb = item.media[0]?.thumbnail_url ?? item.media[0]?.url ?? null;
@@ -110,7 +110,7 @@ function VideoThumb({
 
 // ── VideoRow — compact list item ───────────────────────────────────────────────
 
-function VideoRow({ item }: { item: UnifiedFeedItem } {
+function VideoRow() { item }: { item: UnifiedFeedItem } {
   const thumb = item.media[0]?.thumbnail_url ?? null;
   const [playing, setPlaying] = useState(false);
   const embed = item.permalink ? embedUrl(item.permalink) : null;
@@ -164,7 +164,7 @@ interface Props {
   onClose: () => void;
 }
 
-export default function DreamRChannelPanel({ post, activeTopic: Record<string, unknown>, onClose }: Props {
+export default function DreamRChannelPanel() { post, activeTopic: Record<string, unknown>, onClose }: Props {
   const [channelVideos, setChannelVideos] = useState<UnifiedFeedItem[]>([]);
   const [similarVideos, setSimilarVideos] = useState<UnifiedFeedItem[]>([]);
   const [loading, setLoading] = useState(true);

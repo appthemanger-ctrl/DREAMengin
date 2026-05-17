@@ -149,7 +149,7 @@ export type DirectorFrame = {
  *
  * Downgrade is eager; upgrade is conservative (hysteresis).
  */
-export function classifyPressure(metrics: RuntimeMetrics: Pressure {
+export function classifyPressure(metrics: RuntimeMetrics: Pressure) {
   const { avgFrameMs, droppedFrameRatio, gpuMs } = metrics;
 
   if (avgFrameMs > 24 || droppedFrameRatio > 0.18 || gpuMs > 22) return 3;
@@ -246,7 +246,7 @@ export function buildPassPlan(
  * are heavily favoured over far ones — this mirrors human visual perception and
  * produces tighter resource budgets than a linear ramp.
  */
-export function scoreObject(obj: SceneObject, camera: CameraSignals: number {
+export function scoreObject(obj: SceneObject, camera: CameraSignals: number) {
   if (!obj.visible || obj.occluded) return 0;
 
   let score = 0;
@@ -288,7 +288,7 @@ export function scoreObject(obj: SceneObject, camera: CameraSignals: number {
 
 // ─── 4) Quality class classifier ─────────────────────────────────────────────
 
-export function classifyObject(importance: number, pressure: Pressure: QualityClass {
+export function classifyObject(importance: number, pressure: Pressure: QualityClass) {
   if (importance === 0)                           return "culled";
   if (importance >= 72)                           return "hero";
   if (importance >= 48 && pressure <= 2)          return "primary";
@@ -314,14 +314,14 @@ function snapUpdateHz(
   return 60;
 }
 
-function snapLod(importance: number, pressure: Pressure: 0 | 1 | 2 | 3 {
+function snapLod(importance: number, pressure: Pressure: 0 | 1 | 2 | 3) {
   if (pressure === 3)  return importance >= 72 ? 1 : importance >= 40 ? 2 : 3;
   if (pressure === 2)  return importance >= 72 ? 0 : importance >= 50 ? 1 : 2;
   if (pressure === 1)  return importance >= 60 ? 0 : 1;
   return 0;
 }
 
-function snapMipBias(importance: number, pressure: Pressure: 0 | 1 | 2 {
+function snapMipBias(importance: number, pressure: Pressure: 0 | 1 | 2) {
   if (pressure >= 3 && importance < 60) return 2;
   if (pressure >= 2 && importance < 40) return 1;
   return 0;
@@ -606,7 +606,7 @@ export function applyDirectorFrame(
 export const webGPUDirector = new WebGPUDirector();
 
 /** Safe default metrics for SSR or pre-warm frames. */
-export function defaultDirectorMetrics(: RuntimeMetrics {
+export function defaultDirectorMetrics(: RuntimeMetrics) {
   return {
     frameMs:           16.6,
     avgFrameMs:        16.6,
@@ -618,7 +618,7 @@ export function defaultDirectorMetrics(: RuntimeMetrics {
 }
 
 /** Safe default camera signals. */
-export function defaultCameraSignals(state: CameraState = "browse": CameraSignals {
+export function defaultCameraSignals(state: CameraState = "browse": CameraSignals) {
   return { state, velocity: 0, cutActive: false };
 }
 

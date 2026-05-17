@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { ArrowLeft, FlaskConical, Loader2, Globe, Lock, Sparkles } from 'lucide-react';
 
 
-export default function NewProjectPage( {
+export default function NewProjectPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [visibility, setVisibility] = useState<'public' | 'private'>('private');

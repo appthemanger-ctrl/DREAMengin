@@ -127,14 +127,14 @@ const healthScore = Math.round(
   BRAND_HEALTH_DIMENSIONS.reduce(s: Record<string, unknown>, d: Record<string, unknown> => s + d.score, 0) / BRAND_HEALTH_DIMENSIONS.length,
 );
 
-function TrendIcon({ trend }: { trend: Trend } {
+function TrendIcon() { trend }: { trend: Trend } {
   if (trend === 'up')   return <TrendingUp  className="w-3 h-3" style={{ color: '#22c55e' }} />;
   if (trend === 'down') return <TrendingDown className="w-3 h-3" style={{ color: '#ef4444' }} />;
   return <Minus className="w-3 h-3" style={{ color: 'var(--de-text-dim)' }} />;
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
-export default function BrandDaydream( {
+export default function BrandDaydream() {
   const { record: forgeRecord } = useForgeActivity({ enginId: 'brand' });
 
   // ── Profile ────────────────────────────────────────────────────────────────
@@ -169,7 +169,7 @@ export default function BrandDaydream( {
   ]);
   const [analyticsRefreshed, setAnalyticsRefreshed] = useState(false);
 
-  function refreshAnalytics( {
+  function refreshAnalytics() {
     setMetrics([
       { id: 'reach',  label: 'Reach',           value: '12.4K', trend: 'up' },
       { id: 'eng',    label: 'Engagement Rate',  value: '4.7%',  trend: 'up' },
@@ -189,7 +189,7 @@ export default function BrandDaydream( {
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
   const currentPalette = PALETTE_PRESETS[paletteIdx % PALETTE_PRESETS.length];
 
-  function copyColor(c: string {
+  function copyColor(c: string) {
     navigator.clipboard?.writeText(c).catch(() => {});
     setCopiedColor(c);
     setTimeout(() => setCopiedColor(null), 1200);
@@ -197,7 +197,7 @@ export default function BrandDaydream( {
 
   // ── Bio copy ───────────────────────────────────────────────────────────────
   const [copiedBio, setCopiedBio] = useState<string | null>(null);
-  function copyBio(platform: string, text: string {
+  function copyBio(platform: string, text: string) {
     navigator.clipboard?.writeText(text).catch(() => {});
     setCopiedBio(platform);
     setTimeout(() => setCopiedBio(null), 1400);
@@ -205,7 +205,7 @@ export default function BrandDaydream( {
 
   // ── Pitch copy ─────────────────────────────────────────────────────────────
   const [pitchCopied, setPitchCopied] = useState(false);
-  function copyPitch( {
+  function copyPitch() {
     const text = `Hi [Sponsor], I'm ${profile?.display_name ?? 'a creator'} with ${profile?.follower_count ?? 0} followers. Engagement 5.2%. Let's collab.`;
     navigator.clipboard?.writeText(text).catch(() => {});
     setPitchCopied(true);

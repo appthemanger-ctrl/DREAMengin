@@ -131,7 +131,7 @@ function assertState(
  * @throws if called from any state other than 'Unbound Dream Window'
  * @throws if `sourceBindings` is empty
  */
-export function bindDreamWindow(instance: DreamWindowInstance: DreamWindowInstance {
+export function bindDreamWindow(instance: DreamWindowInstance: DreamWindowInstance) {
   assertState(instance, DREAM_WINDOW_STATES.UNBOUND, 'bindDreamWindow');
 
   if (instance.sourceBindings.length === 0) {
@@ -153,7 +153,7 @@ export function bindDreamWindow(instance: DreamWindowInstance: DreamWindowInstan
  *
  * @throws if called from any state other than 'Bound Dream Window'
  */
-export function mountDreamWindow(instance: DreamWindowInstance: DreamWindowInstance {
+export function mountDreamWindow(instance: DreamWindowInstance: DreamWindowInstance) {
   assertState(instance, DREAM_WINDOW_STATES.BOUND, 'mountDreamWindow');
   return { ...instance, activeState: DREAM_WINDOW_STATES.MOUNTED };
 }
@@ -167,7 +167,7 @@ export function mountDreamWindow(instance: DreamWindowInstance: DreamWindowInsta
  *
  * @throws if called from any state other than 'Mounted Dream Window'
  */
-export function collapseDreamWindow(instance: DreamWindowInstance: DreamWindowInstance {
+export function collapseDreamWindow(instance: DreamWindowInstance: DreamWindowInstance) {
   assertState(instance, DREAM_WINDOW_STATES.MOUNTED, 'collapseDreamWindow');
   return { ...instance, activeState: DREAM_WINDOW_STATES.COLLAPSED };
 }
@@ -180,7 +180,7 @@ export function collapseDreamWindow(instance: DreamWindowInstance: DreamWindowIn
  *
  * @throws if called from any state other than 'Collapsed Dream Window'
  */
-export function activateDreamWindow(instance: DreamWindowInstance: DreamWindowInstance {
+export function activateDreamWindow(instance: DreamWindowInstance: DreamWindowInstance) {
   assertState(instance, DREAM_WINDOW_STATES.COLLAPSED, 'activateDreamWindow');
   return { ...instance, activeState: DREAM_WINDOW_STATES.MOUNTED };
 }
@@ -194,7 +194,7 @@ export function activateDreamWindow(instance: DreamWindowInstance: DreamWindowIn
  *
  * @throws if called from any state other than 'Mounted Dream Window'
  */
-export function unmountDreamWindow(instance: DreamWindowInstance: DreamWindowInstance {
+export function unmountDreamWindow(instance: DreamWindowInstance: DreamWindowInstance) {
   assertState(instance, DREAM_WINDOW_STATES.MOUNTED, 'unmountDreamWindow');
   return { ...instance, activeState: DREAM_WINDOW_STATES.BOUND };
 }
@@ -208,7 +208,7 @@ export function unmountDreamWindow(instance: DreamWindowInstance: DreamWindowIns
  *
  * @throws if called from any state other than 'Bound Dream Window'
  */
-export function unbindDreamWindow(instance: DreamWindowInstance: DreamWindowInstance {
+export function unbindDreamWindow(instance: DreamWindowInstance: DreamWindowInstance) {
   assertState(instance, DREAM_WINDOW_STATES.BOUND, 'unbindDreamWindow');
   return { ...instance, activeState: DREAM_WINDOW_STATES.UNBOUND };
 }

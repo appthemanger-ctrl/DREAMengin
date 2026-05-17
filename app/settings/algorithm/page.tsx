@@ -11,7 +11,7 @@ export const metadata = {
   description: 'Build your own feed. Your rules, your presets, your order.',
 };
 
-export default async function AlgorithmPage( {
+export default async function AlgorithmPage() {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

@@ -23,7 +23,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'music',     emoji: '🎵', label: 'Music Studio', desc: 'Your artist side',            color: '#8b5cf6', href: '/daydream/music' },
 ];
 
-export default async function BrandDaydreamPage( {
+export default async function BrandDaydreamPage() {
   await connection();
   const supabase = await createServerClient();
   let user = null;

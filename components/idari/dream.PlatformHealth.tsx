@@ -10,12 +10,12 @@ import { useEffect, useState } from 'react';
 import type { GetPlatformMetricsResponse } from '@/lib/activity/types';
 import { PLATFORM_HEALTH_TARGETS } from '@/lib/activity/types';
 
-export function PlatformHealth( {
+export function PlatformHealth() {
   const [metrics, setMetrics] = useState<GetPlatformMetricsResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadMetrics( {
+    async function loadMetrics() {
       try {
         const res = await fetch('/api/metrics/platform');
         if (res.ok) {

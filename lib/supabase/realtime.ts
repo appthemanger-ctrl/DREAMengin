@@ -57,7 +57,7 @@ export interface DreamRSubscribeOptions {
  *  - `sendPulse(pulse)` — broadcast a pulse to the room.
  *  - `unsubscribe()` — cleanly tear down the subscription.
  */
-export function subscribeDreamR({
+export function subscribeDreamR() {
   client,
   roomId,
   onPulse,
@@ -136,7 +136,7 @@ export interface LiveMessageSubscribeOptions {
  *
  * Returns a handle with `send`, `setTyping`, and `unsubscribe`.
  */
-export function subscribeLiveMessages({
+export function subscribeLiveMessages() {
   client,
   conversationId,
   onMessage,

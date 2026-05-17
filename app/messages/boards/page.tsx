@@ -7,7 +7,7 @@ import { connection } from 'next/server';
 
 export const metadata = { title: 'Boards – Dreamengin' };
 
-export default async function BoardsPage( {
+export default async function BoardsPage() {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

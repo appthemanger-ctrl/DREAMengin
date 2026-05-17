@@ -70,7 +70,7 @@ export type ValidationResult = {
 /**
  * Validates raw inbound body for a new marketplace listing.
  */
-export function validateMarketplaceListing(body: unknown: ValidationResult {
+export function validateMarketplaceListing(body: unknown: ValidationResult) {
   const errors: string[] = [];
 
   if (!body || typeof body !== 'object') {
@@ -149,7 +149,7 @@ export function normalizeMarketplaceListing(
  * Used in MarketplaceListingCard and marketplace/[id]/page.tsx.
  * Point 43: navigation link from listing resolves to real data.
  */
-export function marketplaceDetailRoute(itemId: string: string {
+export function marketplaceDetailRoute(itemId: string: string) {
   return `/marketplace/${itemId}`;
 }
 
@@ -157,7 +157,7 @@ export function marketplaceDetailRoute(itemId: string: string {
  * Formats price_cents for display.
  * Returns 'Free' for zero-price items.
  */
-export function formatMarketplacePrice(priceCents: number: string {
+export function formatMarketplacePrice(priceCents: number: string) {
   if (priceCents === 0) return 'Free';
   return `$${(priceCents / 100).toFixed(2)}`;
 }

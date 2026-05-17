@@ -40,7 +40,7 @@ export function createEventBus<
 >(): EventBus<Events> {
   const listeners = new Map<keyof Events, Set<EventHandler<unknown>>>();
 
-  function getSet(event: keyof Events: Set<EventHandler<unknown>> {
+  function getSet(event: keyof Events: Set<EventHandler<unknown>>) {
     let s = listeners.get(event);
     if (!s) {
       s = new Set();

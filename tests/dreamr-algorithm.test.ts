@@ -33,7 +33,7 @@ import {
 
 // ── Helper ────────────────────────────────────────────────────────────────────
 
-function makePost(overrides: Partial<ScoredPost> = {}): ScoredPost {
+function makePost(overrides: Partial<ScoredPost> =) {}): ScoredPost {
   return {
     id:         'test-id',
     content:    'A genuinely thoughtful piece of writing.',

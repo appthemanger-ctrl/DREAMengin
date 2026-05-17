@@ -35,7 +35,7 @@ export function useViewCounter(
     const el = ref.current;
 
     /** Records the view by calling the server API. Fire-and-forget. */
-    function recordView( {
+    function recordView() {
       if (countedRef.current) return;
       countedRef.current = true;
       fetch(`/api/posts/${postId}/view`, { method: 'POST' }).catch(() => {

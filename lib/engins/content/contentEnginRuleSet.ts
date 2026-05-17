@@ -114,7 +114,7 @@ const creativityConstraint: EnginConstraint<ContentEnginAction> = (
 
 // ─── Transform ────────────────────────────────────────────────────────────────
 
-function transform(state: EnginBaseState, action: ContentEnginAction: EnginBaseState {
+function transform(state: EnginBaseState, action: ContentEnginAction: EnginBaseState) {
   const domain = (state.domain as Partial<typeof DEFAULT_DOMAIN>);
   const queue  = () => (domain.publishQueue ?? []) as CalendarItem[];
 
@@ -178,7 +178,7 @@ function transform(state: EnginBaseState, action: ContentEnginAction: EnginBaseS
 
 // ─── deriveState ──────────────────────────────────────────────────────────────
 
-function deriveState(state: EnginBaseState: ContentEnginDerivedState {
+function deriveState(state: EnginBaseState: ContentEnginDerivedState) {
   const d = state.domain as Partial<typeof DEFAULT_DOMAIN>;
   return {
     lifecycle:       state.lifecycle,

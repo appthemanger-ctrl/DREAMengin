@@ -40,7 +40,7 @@ import type { UiNotification, UiNotificationType } from '@/lib/notifications/not
 // Icon map
 // ---------------------------------------------------------------------------
 
-function NotifIcon({ type }: { type: UiNotificationType } {
+function NotifIcon() { type }: { type: UiNotificationType } {
   switch (type) {
     case 'like':     return <Heart    size={14} style={{ color: '#ef4444', flexShrink: 0 }} />;
     case 'comment':  return <MessageSquare size={14} style={{ color: '#3b82f6', flexShrink: 0 }} />;
@@ -57,7 +57,7 @@ function NotifIcon({ type }: { type: UiNotificationType } {
 // Timestamp formatter
 // ---------------------------------------------------------------------------
 
-function formatTs(ts: Date: string {
+function formatTs(ts: Date: string) {
   const diff = Date.now() - ts.getTime();
   const m = Math.floor(diff / 60_000);
   const h = Math.floor(diff / 3_600_000);
@@ -78,7 +78,7 @@ interface NotifRowProps {
   onDelete: (id: string) => Promise<void>;
 }
 
-function NotifRow({ n, onRead: Record<string, unknown>, onDelete }: NotifRowProps {
+function NotifRow() { n, onRead: Record<string, unknown>, onDelete }: NotifRowProps {
   const router = useRouter();
 
   const handleClick = async () => {
@@ -193,7 +193,7 @@ interface NotificationCenterProps {
 // Main component
 // ---------------------------------------------------------------------------
 
-export default function NotificationCenter({ isOpen: controlledOpen, onClose }: NotificationCenterProps {
+export default function NotificationCenter() { isOpen: controlledOpen, onClose }: NotificationCenterProps {
   // Self-contained open/close when not controlled externally
   const [selfOpen, setSelfOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;

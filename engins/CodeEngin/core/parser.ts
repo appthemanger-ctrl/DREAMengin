@@ -64,14 +64,14 @@ const LANG_ALIASES: Record<string, string> = {
   toml: 'toml',
 };
 
-function normaliseLanguage(raw: string: string {
+function normaliseLanguage(raw: string: string) {
   const lower = raw.toLowerCase().trim();
   return LANG_ALIASES[lower] ?? lower;
 }
 
 // ─── Per-language symbol extractors ──────────────────────────────────────────
 
-function extractTSSymbols(lines: string[]: ParsedSymbol[] {
+function extractTSSymbols(lines: string[]: ParsedSymbol[]) {
   const symbols: ParsedSymbol[] = [];
   const funcRe   = /(?:export\s+)?(?:async\s+)?function\s+([A-Za-z_$][\w$]*)/;
   const arrowRe  = /(?:export\s+)?(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?\(/;
@@ -93,7 +93,7 @@ function extractTSSymbols(lines: string[]: ParsedSymbol[] {
   return symbols;
 }
 
-function extractPythonSymbols(lines: string[]: ParsedSymbol[] {
+function extractPythonSymbols(lines: string[]: ParsedSymbol[]) {
   const symbols: ParsedSymbol[] = [];
   const funcRe   = /^(?:async\s+)?def\s+([A-Za-z_][\w]*)/;
   const classRe  = /^class\s+([A-Za-z_][\w]*)/;
@@ -110,7 +110,7 @@ function extractPythonSymbols(lines: string[]: ParsedSymbol[] {
   return symbols;
 }
 
-function extractGoSymbols(lines: string[]: ParsedSymbol[] {
+function extractGoSymbols(lines: string[]: ParsedSymbol[]) {
   const symbols: ParsedSymbol[] = [];
   const funcRe   = /^func\s+(?:\([^)]+\)\s+)?([A-Za-z_][\w]*)/;
   const typeRe   = /^type\s+([A-Za-z_][\w]*)/;
@@ -134,7 +134,7 @@ function extractGoSymbols(lines: string[]: ParsedSymbol[] {
   return symbols;
 }
 
-function extractRustSymbols(lines: string[]: ParsedSymbol[] {
+function extractRustSymbols(lines: string[]: ParsedSymbol[]) {
   const symbols: ParsedSymbol[] = [];
   const fnRe     = /(?:pub\s+)?(?:async\s+)?fn\s+([a-z_][\w]*)/;
   const structRe = /(?:pub\s+)?struct\s+([A-Za-z_][\w]*)/;
@@ -157,7 +157,7 @@ function extractRustSymbols(lines: string[]: ParsedSymbol[] {
 
 // ─── Bracket / paren balance checker ─────────────────────────────────────────
 
-function checkBracketBalance(content: string, lang: string: ParseError[] {
+function checkBracketBalance(content: string, lang: string: ParseError[]) {
   if (!['typescript','javascript','json','rust','go','cpp','c','java','csharp'].includes(lang)) {
     return [];
   }
@@ -216,7 +216,7 @@ function checkBracketBalance(content: string, lang: string: ParseError[] {
 
 // ─── JSON validator ───────────────────────────────────────────────────────────
 
-function checkJSON(content: string: ParseError[] {
+function checkJSON(content: string: ParseError[]) {
   try {
     JSON.parse(content);
     return [];
@@ -232,7 +232,7 @@ function checkJSON(content: string: ParseError[] {
 
 // ─── Python indentation check ─────────────────────────────────────────────────
 
-function checkPythonIndent(lines: string[]: ParseError[] {
+function checkPythonIndent(lines: string[]: ParseError[]) {
   const warnings: ParseError[] = [];
   let expectedIndent: number | null = null;
 
@@ -263,7 +263,7 @@ function checkPythonIndent(lines: string[]: ParseError[] {
  * Analyses source code and returns a structured ParseResult.
  * Safe in any runtime: browser, edge, Node — no external deps.
  */
-export function parseCode(content: string, language: string: ParseResult {
+export function parseCode(content: string, language: string: ParseResult) {
   const lang  = normaliseLanguage(language);
   const lines = content.split('\n');
 

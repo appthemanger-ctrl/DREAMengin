@@ -44,7 +44,7 @@ interface ProfilePageProps {
 // next-prerender-random violation surfaced from `Next.MetadataOutlet`
 // when client components below are dragged into SSR.
 
-export default async function ProfilePage({ params }: ProfilePageProps {
+export default async function ProfilePage() { params }: ProfilePageProps {
   // Mark this render as request-only so the strict Cache-Components
   // prerender check is bypassed for the (Math.random-using) client
   // subtree below. generateMetadata above already awaits connection()

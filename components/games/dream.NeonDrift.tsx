@@ -57,11 +57,11 @@ interface BoostGateState {
 }
 
 // Lane X positions (centre of each lane)
-function laneX(lane: number: number {
+function laneX(lane: number: number) {
   return (lane - Math.floor(LANE_COUNT / 2)) * LANE_WIDTH;
 }
 
-export default function NeonDrift( {
+export default function NeonDrift() {
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
   const [multiplier, setMultiplier] = useState(1);

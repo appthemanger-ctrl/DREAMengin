@@ -29,7 +29,7 @@ export interface YouTubeLiveFeedResponse {
   error?: string;
 }
 
-export async function GET(req: NextRequest: Promise<NextResponse<YouTubeLiveFeedResponse>> {
+export async function GET(req: NextRequest: Promise<NextResponse<YouTubeLiveFeedResponse>>) {
   const apiKey = getYouTubeApiKey();
   if (!apiKey) {
     // Optional integration not configured — graceful degradation, not an outage.

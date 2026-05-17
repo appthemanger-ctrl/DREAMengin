@@ -89,7 +89,7 @@ interface TiltGameCardProps {
   onPlayAsMe: (id: string) => void;
 }
 
-function TiltGameCard({ game, isSaved: Record<string, unknown>, onPlay: Record<string, unknown>, hasAvatar: Record<string, unknown>, onPlayAsMe }: TiltGameCardProps {
+function TiltGameCard() { game, isSaved: Record<string, unknown>, onPlay: Record<string, unknown>, hasAvatar: Record<string, unknown>, onPlayAsMe }: TiltGameCardProps {
   const { motionProps, glareStyle } = useMotionTilt({ maxTilt: 8, scale: 1.04, glare: true });
 
   const cardContent = (
@@ -232,7 +232,7 @@ function TiltGameCard({ game, isSaved: Record<string, unknown>, onPlay: Record<s
   );
 }
 
-export default function GamesHub( {
+export default function GamesHub() {
   const [savedSessions, setSavedSessions] = useState<SavedGameSession[]>([]);
   const [filter, setFilter] = useState<string>('All');
   const [query, setQuery] = useState('');

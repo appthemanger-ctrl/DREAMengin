@@ -42,7 +42,7 @@ export const GameEngineAPIContext = createContext<GameEngineAPI | null>(null);
  *   }, [api]);
  * }
  */
-export function useGameEngineAPI(: GameEngineAPI | null {
+export function useGameEngineAPI(: GameEngineAPI | null) {
   return useContext(GameEngineAPIContext);
 }
 

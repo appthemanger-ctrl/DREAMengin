@@ -55,7 +55,7 @@ export interface SwipePathScore {
 
 /** Perpendicular distances from each interior touch point to the chord
  *  connecting the first and last point of the swipe. */
-function perpendicularDeviations(points: TouchPoint[]: number[] {
+function perpendicularDeviations(points: TouchPoint[]: number[]) {
   if (points.length < 3) return [];
   const p0 = points[0];
   const pn = points[points.length - 1];
@@ -72,7 +72,7 @@ function perpendicularDeviations(points: TouchPoint[]: number[] {
 }
 
 /** Normalised Shannon entropy (0–1) using 10 equal-width bins. */
-function shannonEntropy(values: number[]: number {
+function shannonEntropy(values: number[]: number) {
   if (values.length === 0) return 0;
   const BINS = 10;
   const max = Math.max(...values);
@@ -98,7 +98,7 @@ function shannonEntropy(values: number[]: number {
 }
 
 /** |mean(firstHalf) − mean(secondHalf)| of the deviation array. */
-function coarseGrainShift(deviations: number[]: number {
+function coarseGrainShift(deviations: number[]: number) {
   if (deviations.length < 2) return 0;
   const half = Math.floor(deviations.length / 2);
   const mean = (arr: number[]) => arr.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b, 0) / arr.length;
@@ -143,7 +143,7 @@ function crossSwipeSimilarity(
 }
 
 /** slog-transformed velocity variance and mean jerk from touch points. */
-function velocityFeatures(points: TouchPoint[]: { variance: number; jerk: number } {
+function velocityFeatures(points: TouchPoint[]:) { variance: number; jerk: number } {
   if (points.length < 2) return { variance: 0, jerk: 0 };
 
   const velocities: number[] = [];
@@ -236,7 +236,7 @@ export function scoreSwipePath(
 }
 
 /** Convenience wrapper — returns true when the swipe path scores as bot. */
-export function isSwipeBot(points: TouchPoint[], recentPaths: number[][] = []: boolean {
+export function isSwipeBot(points: TouchPoint[], recentPaths: number[][] = []: boolean) {
   return scoreSwipePath(points, recentPaths).isBot;
 }
 
@@ -251,7 +251,7 @@ export interface InteractionSignal {
 }
 
 /** Returns a coarse confidence score 0–1 based on timing heuristics only. */
-export function scoreBotLikelihood(signal: InteractionSignal: number {
+export function scoreBotLikelihood(signal: InteractionSignal: number) {
   let score = 0;
   if (signal.sessionDurationMs !== undefined && signal.sessionDurationMs < 500) {
     score += 0.5;
@@ -262,7 +262,7 @@ export function scoreBotLikelihood(signal: InteractionSignal: number {
   return Math.min(score, 1);
 }
 
-export function isLikelyBot(signal: InteractionSignal, threshold = 0.7: boolean {
+export function isLikelyBot(signal: InteractionSignal, threshold = 0.7: boolean) {
   return scoreBotLikelihood(signal) >= threshold;
 }
 

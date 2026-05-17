@@ -101,7 +101,7 @@ export interface UseSharedDreamSessionResult {
 // JSONB patch after the debounce settles.
 type EnginStateBuffer = Record<string, Record<string, unknown>>;
 
-export function useSharedDreamSession({
+export function useSharedDreamSession() {
   sessionId: propSessionId,
   name = 'Shared Dream',
 }: UseSharedDreamSessionOptions = {}): UseSharedDreamSessionResult {
@@ -124,7 +124,7 @@ export function useSharedDreamSession({
     let cancelled = false;
     const supabase = createClient();
 
-    async function bootstrap( {
+    async function bootstrap() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || cancelled) { setIsLoading(false); return; }
       userIdRef.current = user.id;

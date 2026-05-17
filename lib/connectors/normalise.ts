@@ -102,7 +102,7 @@ interface BlueskyFeedViewPost {
   };
 }
 
-export function normaliseBluesky(feedItem: BlueskyFeedViewPost: UnifiedFeedItem {
+export function normaliseBluesky(feedItem: BlueskyFeedViewPost: UnifiedFeedItem) {
   const { post } = feedItem;
   const record = post.record ?? {};
 
@@ -163,7 +163,7 @@ interface GitHubEvent {
   created_at?: string;
 }
 
-export function normaliseGitHub(event: GitHubEvent: UnifiedFeedItem {
+export function normaliseGitHub(event: GitHubEvent: UnifiedFeedItem) {
   const handle = event.actor?.login ?? 'unknown';
   const displayName = event.actor?.display_login ?? handle;
   const repoName = event.repo?.name ?? '';
@@ -216,7 +216,7 @@ interface RedditPost {
   };
 }
 
-export function normaliseReddit(post: RedditPost: UnifiedFeedItem {
+export function normaliseReddit(post: RedditPost: UnifiedFeedItem) {
   const d = post.data;
   const handle = d.author ?? 'unknown';
   const sub = d.subreddit_name_prefixed ?? 'r/unknown';
@@ -261,7 +261,7 @@ interface NostrEvent {
   npub?: string;
 }
 
-export function normaliseNostr(event: NostrEvent: UnifiedFeedItem {
+export function normaliseNostr(event: NostrEvent: UnifiedFeedItem) {
   const handle = event.npub ?? event.pubkey.slice(0, 16);
   const created = event.created_at
     ? new Date(event.created_at * 1000).toISOString()
@@ -316,7 +316,7 @@ export interface YouTubeSearchItem {
   };
 }
 
-function bestYouTubeThumb(thumbnails?: ThumbnailMap: string | undefined {
+function bestYouTubeThumb(thumbnails?: ThumbnailMap: string | undefined) {
   if (!thumbnails) return undefined;
   return thumbnails.maxres?.url
     ?? thumbnails.standard?.url
@@ -360,7 +360,7 @@ export function normaliseYouTubePlaylistItem(
   };
 }
 
-export function normaliseYouTubeSearchResult(item: YouTubeSearchItem: UnifiedFeedItem {
+export function normaliseYouTubeSearchResult(item: YouTubeSearchItem: UnifiedFeedItem) {
   const videoId = item.id?.videoId ?? '';
   const title = item.snippet?.title ?? 'Untitled video';
   const channelTitle = item.snippet?.channelTitle ?? 'YouTube';
@@ -437,7 +437,7 @@ function normaliseGenericRssItem(
   };
 }
 
-function normaliseGenericRssMedia(item: GenericRssItem, alt: string: FeedItemMedia[] {
+function normaliseGenericRssMedia(item: GenericRssItem, alt: string: FeedItemMedia[]) {
   const enclosureUrl = item.enclosure?.url;
   if (!enclosureUrl) return [];
 
@@ -462,44 +462,44 @@ function normaliseGenericRssMedia(item: GenericRssItem, alt: string: FeedItemMed
   }];
 }
 
-export function normaliseDevto(item: GenericRssItem, username: string: UnifiedFeedItem {
+export function normaliseDevto(item: GenericRssItem, username: string: UnifiedFeedItem) {
   return normaliseGenericRssItem('devto', item, username, username);
 }
 
-export function normaliseFacebook(item: GenericRssItem, handle: string: UnifiedFeedItem {
+export function normaliseFacebook(item: GenericRssItem, handle: string: UnifiedFeedItem) {
   return normaliseGenericRssItem('facebook', item, handle, handle);
 }
 
-export function normaliseHackerNews(item: GenericRssItem: UnifiedFeedItem {
+export function normaliseHackerNews(item: GenericRssItem: UnifiedFeedItem) {
   const author = item.author ?? item['dc:creator'] ?? item.creator ?? 'hackernews';
   return normaliseGenericRssItem('hackernews', item, author, author);
 }
 
-export function normaliseMedium(item: GenericRssItem, handle: string: UnifiedFeedItem {
+export function normaliseMedium(item: GenericRssItem, handle: string: UnifiedFeedItem) {
   return normaliseGenericRssItem('medium', item, handle, handle);
 }
 
-export function normalisePinterest(item: GenericRssItem, username: string: UnifiedFeedItem {
+export function normalisePinterest(item: GenericRssItem, username: string: UnifiedFeedItem) {
   return normaliseGenericRssItem('pinterest', item, username, username);
 }
 
-export function normalisePodcast(item: GenericRssItem, authorName: string: UnifiedFeedItem {
+export function normalisePodcast(item: GenericRssItem, authorName: string: UnifiedFeedItem) {
   return normaliseGenericRssItem('podcast', item, authorName, authorName);
 }
 
-export function normaliseSubstack(item: GenericRssItem, slug: string: UnifiedFeedItem {
+export function normaliseSubstack(item: GenericRssItem, slug: string: UnifiedFeedItem) {
   return normaliseGenericRssItem('substack', item, slug, slug);
 }
 
-export function normaliseTikTok(item: GenericRssItem, username: string: UnifiedFeedItem {
+export function normaliseTikTok(item: GenericRssItem, username: string: UnifiedFeedItem) {
   return normaliseGenericRssItem('tiktok', item, `@${username}`, `@${username}`);
 }
 
-export function normaliseTumblr(item: GenericRssItem, slug: string: UnifiedFeedItem {
+export function normaliseTumblr(item: GenericRssItem, slug: string: UnifiedFeedItem) {
   return normaliseGenericRssItem('tumblr', item, slug, slug);
 }
 
-export function normaliseTwitter(item: GenericRssItem, username: string: UnifiedFeedItem {
+export function normaliseTwitter(item: GenericRssItem, username: string: UnifiedFeedItem) {
   return normaliseGenericRssItem('twitter', item, `@${username}`, `@${username}`);
 }
 
@@ -509,7 +509,7 @@ export function normaliseTwitter(item: GenericRssItem, username: string: Unified
  * Deduplicates a list of UnifiedFeedItems by (provider, external_id).
  * The first occurrence wins; duplicates are dropped.
  */
-export function deduplicateFeedItems(items: UnifiedFeedItem[]: UnifiedFeedItem[] {
+export function deduplicateFeedItems(items: UnifiedFeedItem[]: UnifiedFeedItem[]) {
   const seen = new Set<string>();
   return items.filter((item: Record<string, unknown>) => {
     const key = `${item.provider}:${item.external_id}`;
@@ -522,7 +522,7 @@ export function deduplicateFeedItems(items: UnifiedFeedItem[]: UnifiedFeedItem[]
 // ── Internal helpers ──────────────────────────────────────────────────────
 
 /** Strip HTML tags from a string, returning plain text. */
-export function stripHtml(html: string: string {
+export function stripHtml(html: string: string) {
   return html
     .replace(/<[^>]*>/g, ' ')
     .replace(/&amp;/g, '&')
@@ -535,7 +535,7 @@ export function stripHtml(html: string: string {
 }
 
 /** Extract hostname from a URL, falling back to the raw string on failure. */
-export function hostFromUrl(url: string: string {
+export function hostFromUrl(url: string: string) {
   try {
     return new URL(url).hostname;
   } catch {
@@ -544,7 +544,7 @@ export function hostFromUrl(url: string: string {
 }
 
 /** Convert an AT Protocol URI (at://did:plc:.../app.bsky.feed.post/...) to an https URL. */
-export function atUriToHttps(atUri: string, handle: string: string {
+export function atUriToHttps(atUri: string, handle: string: string) {
   // at://did:plc:xxx/app.bsky.feed.post/yyy → https://bsky.app/profile/{handle}/post/yyy
   const parts = atUri.split('/');
   const rkey = parts[parts.length - 1];

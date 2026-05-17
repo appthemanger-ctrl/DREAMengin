@@ -14,7 +14,7 @@ import { createServerClient } from '@/lib/supabase/server';
 
 const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:4000';
 
-async function requireUser(req: NextRequest {
+async function requireUser(req: NextRequest) {
   const supabase = await createServerClient();
   const {
     data: { user },
@@ -24,7 +24,7 @@ async function requireUser(req: NextRequest {
 
 // ─── Upload ───────────────────────────────────────────────────────────────────
 
-export async function POST(req: NextRequest: Promise<NextResponse> {
+export async function POST(req: NextRequest: Promise<NextResponse>) {
   const user = await requireUser(req);
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest: Promise<NextResponse> {
 
 // ─── Retrieve ─────────────────────────────────────────────────────────────────
 
-export async function GET(req: NextRequest: Promise<NextResponse> {
+export async function GET(req: NextRequest: Promise<NextResponse>) {
   const user = await requireUser(req);
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 

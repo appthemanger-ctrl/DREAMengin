@@ -24,7 +24,7 @@ export interface MediumCredentials {
  * Verify by fetching the first page of the RSS feed.
  * If it returns at least one item, credentials are valid.
  */
-export async function mediumVerify(creds: MediumCredentials: Promise<string> {
+export async function mediumVerify(creds: MediumCredentials: Promise<string>) {
   if (!creds.username || creds.username.trim().length === 0) {
     throw new Error('Medium username is required.');
   }
@@ -39,7 +39,7 @@ export async function mediumVerify(creds: MediumCredentials: Promise<string> {
 /**
  * Fetch and normalise the user's Medium feed.
  */
-export async function mediumSync(creds: MediumCredentials: Promise<UnifiedFeedItem[]> {
+export async function mediumSync(creds: MediumCredentials: Promise<UnifiedFeedItem[]>) {
   const username = creds.username.trim();
   const url = mediumUserRssUrl(username);
   const items = await parseRssFeed({ provider: 'medium', feedUrl: url }, 40);
@@ -47,7 +47,7 @@ export async function mediumSync(creds: MediumCredentials: Promise<UnifiedFeedIt
   return items.map((item: Record<string, unknown>) => normaliseMedium(item.raw as Parameters<typeof normaliseMedium>[0], `@${username}`));
 }
 
-export function mediumCredentialFields( {
+export function mediumCredentialFields() {
   return [
     {
       key: 'username',

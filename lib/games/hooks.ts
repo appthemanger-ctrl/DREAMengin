@@ -111,7 +111,7 @@ export function useKeySet(
  * The returned callback is intentionally stable (empty `useCallback` deps when
  * `game` is a string literal) so it is safe to include in `useEffect` dep arrays.
  */
-export function useSubmitScore(game: string {
+export function useSubmitScore(game: string) {
   return useCallback(
     (score: number, level?: number) => {
       fetch('/api/game-scores', {
@@ -152,7 +152,7 @@ function createPendingBaseline(
   };
 }
 
-export function useGamePerformanceBaseline({
+export function useGamePerformanceBaseline() {
   active,
   gameId,
   renderMode,

@@ -48,6 +48,6 @@ export const TelemetryEventSchema = z.object({
 export type TelemetryEvent = z.infer<typeof TelemetryEventSchema>;
 
 /** Validate (and apply defaults to) a telemetry event. Throws on failure. */
-export function parseTelemetryEvent(input: unknown: TelemetryEvent {
+export function parseTelemetryEvent(input: unknown: TelemetryEvent) {
   return TelemetryEventSchema.parse(input);
 }

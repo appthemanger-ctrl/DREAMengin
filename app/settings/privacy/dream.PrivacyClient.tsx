@@ -36,7 +36,7 @@ const DEFAULT_SETTINGS: PrivacySettings = {
   hideConnectorData: true,
 };
 
-function Toggle({
+function Toggle() {
   value,
   onToggle,
   label,
@@ -81,7 +81,7 @@ function Toggle({
   );
 }
 
-export default function PrivacyClient( {
+export default function PrivacyClient() {
   const [settings, setSettings] = useState<PrivacySettings>(DEFAULT_SETTINGS);
   const [saved, setSaved] = useState(false);
   const [appealReason, setAppealReason] = useState('');

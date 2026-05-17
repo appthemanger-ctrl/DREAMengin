@@ -7,7 +7,7 @@ type MadMaxiWasmExports = {
 
 let madMaxiExportsPromise: Promise<MadMaxiWasmExports | null> | null = null;
 
-async function loadMadMaxiExports(: Promise<MadMaxiWasmExports | null> {
+async function loadMadMaxiExports(: Promise<MadMaxiWasmExports | null>) {
   if (madMaxiExportsPromise) return madMaxiExportsPromise;
   madMaxiExportsPromise = (async () => {
     try {
@@ -26,7 +26,7 @@ async function loadMadMaxiExports(: Promise<MadMaxiWasmExports | null> {
   return madMaxiExportsPromise;
 }
 
-export async function invokeMadMaxiSnapshotTransfer(: Promise<void> {
+export async function invokeMadMaxiSnapshotTransfer(: Promise<void>) {
   const exp = await loadMadMaxiExports();
   if (!exp) return;
 

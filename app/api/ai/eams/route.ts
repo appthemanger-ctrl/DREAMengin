@@ -15,7 +15,7 @@ import { boogiePolicyCheck, isOwnerEmail, planWithEams, validateWithIdari } from
 
 
 
-export async function POST(req: NextRequest {
+export async function POST(req: NextRequest) {
   const requestStart = Date.now();
   const request_id = uuidv4();
 

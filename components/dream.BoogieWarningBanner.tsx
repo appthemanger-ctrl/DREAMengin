@@ -67,7 +67,7 @@ const SEVERITY_STYLES: Record<string, { border: string; icon: string; badge: str
  * - "Appeal" link → /policy#appeals (req 13)
  * - Expiry countdown if applicable
  */
-export default function BoogieWarningBanner({
+export default function BoogieWarningBanner() {
   result,
   dismissible = true,
   className = '',

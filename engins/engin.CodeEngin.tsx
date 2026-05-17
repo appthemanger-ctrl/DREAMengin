@@ -112,7 +112,7 @@ const DEMO_CELLS: NotebookCell[] = [
 let pyodideInstance: unknown = null;
 let pyodidePromise: Promise<unknown> | null = null;
 
-async function loadPyodide( {
+async function loadPyodide() {
   if (pyodideInstance) return pyodideInstance;
   if (pyodidePromise) return pyodidePromise;
   const script = document.createElement('script');
@@ -128,7 +128,7 @@ async function loadPyodide( {
   return pyodideInstance;
 }
 
-async function executePython(code: string: Promise<string> {
+async function executePython(code: string: Promise<string>) {
   try {
     const pyodide = await loadPyodide();
     pyodide.runPython(`
@@ -146,7 +146,7 @@ sys.stdout = StringIO()
   }
 }
 
-function executeJavaScript(code: string: string {
+function executeJavaScript(code: string: string) {
   try {
     const logs: string[] = [];
     const originalLog = console.log;
@@ -161,16 +161,16 @@ function executeJavaScript(code: string: string {
   }
 }
 
-function executeTypeScript(code: string: string {
+function executeTypeScript(code: string: string) {
   const jsCode = code.replace(/: \w+/g, '').replace(/interface\s+\w+\s*\{[^}]*\}/g, '');
   return executeJavaScript(jsCode);
 }
 
-function executeBash(code: string: string {
+function executeBash(code: string: string) {
   return 'Bash execution requires a backend sandbox. Use Python or JavaScript.';
 }
 
-async function runCellCode(language: CellLanguage, code: string: Promise<string> {
+async function runCellCode(language: CellLanguage, code: string: Promise<string>) {
   switch (language) {
     case 'python': return await executePython(code);
     case 'javascript': return executeJavaScript(code);
@@ -193,7 +193,7 @@ interface CrashReport {
   timestamp: Date;
 }
 
-function CrashRecoveryPanel({ cells }: { cells: NotebookCell[] } {
+function CrashRecoveryPanel() { cells }: { cells: NotebookCell[] } {
   const [crashes, setCrashes] = useState<CrashReport[]>(() => {
     try { const saved = localStorage.getItem('de_crash_logs'); return saved ? JSON.parse(saved) : []; } catch { return []; }
   });
@@ -272,7 +272,7 @@ interface TaskItem {
   createdAt: Date;
 }
 
-function TaskJobManager( {
+function TaskJobManager() {
   const [tasks, setTasks] = useState<TaskItem[]>(() => {
     try { const saved = localStorage.getItem('de_tasks'); return saved ? JSON.parse(saved) : []; } catch { return []; }
   });
@@ -339,7 +339,7 @@ function TaskJobManager( {
 // CI & SECURITY HELPERS (REAL API CALLS)
 // ----------------------------------------------------------------------
 
-async function callCI(apiKey: string: Promise<unknown> {
+async function callCI(apiKey: string: Promise<unknown>) {
   const res = await fetch('/api/ci/run', {
     method: 'POST',
     headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
@@ -347,7 +347,7 @@ async function callCI(apiKey: string: Promise<unknown> {
   return res.json();
 }
 
-async function callSecurityScan(apiKey: string: Promise<unknown> {
+async function callSecurityScan(apiKey: string: Promise<unknown>) {
   const res = await fetch('/api/security/scan', {
     method: 'POST',
     headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
@@ -359,7 +359,7 @@ async function callSecurityScan(apiKey: string: Promise<unknown> {
 // AI ASSIST — routes through /api/ai/eams (server-side; GROQ_API_KEY never touches the client)
 // ----------------------------------------------------------------------
 
-async function callEamsAssist(prompt: string, codeContext?: string, language?: CellLanguage: Promise<string> {
+async function callEamsAssist(prompt: string, codeContext?: string, language?: CellLanguage: Promise<string>) {
   const body: Record<string, unknown> = {
     message: prompt,
     ui: { route: '/daydream/code' },
@@ -388,7 +388,7 @@ async function callEamsAssist(prompt: string, codeContext?: string, language?: C
 // MAIN COMPONENT
 // ----------------------------------------------------------------------
 
-export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props {
+export default function CodeEngin() { onBack, instanceId: instanceIdProp }: Props {
   const { record: forgeRecord } = useForgeActivity({ enginId: 'code' });
   const codeBridge = useCodeEnginBridge();
   const { persistState } = useDaydreamState({ daydreamType: 'code', side: 'B' });
@@ -738,7 +738,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props 
     if (shellhubStatus === 'connected') fetchShellhubDevices();
   }, [shellhubStatus]);
 
-  function newCellId( { return `cell-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`; }
+  function newCellId() { return `cell-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`; }
 
   // Styles
   const tabStyle = (id: ActiveTab): CSSProperties => ({

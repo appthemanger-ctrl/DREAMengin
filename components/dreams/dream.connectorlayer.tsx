@@ -10,7 +10,7 @@ export interface DreamConnectorLayerProps {
   children: ReactNode;
 }
 
-export default function DreamConnectorLayer({
+export default function DreamConnectorLayer() {
   connected,
   provider,
   capabilities = [],

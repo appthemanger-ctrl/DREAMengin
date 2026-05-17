@@ -40,16 +40,16 @@ const WIDGET_SLOTS: WidgetSlot[] = [
   { id: 'site',        icon: Globe,       label: 'Website',      desc: 'Your link in bio',           color: '#0ea5e9' },
 ];
 
-function loadVisibility(: Record<string, boolean> {
+function loadVisibility(: Record<string, boolean>) {
   if (typeof window === 'undefined') return {};
   try { return JSON.parse(localStorage.getItem('de-profile-widgets') || '{}'); }
   catch { return {}; }
 }
-function saveVisibility(v: Record<string, boolean> {
+function saveVisibility(v: Record<string, boolean>) {
   localStorage.setItem('de-profile-widgets', JSON.stringify(v));
 }
 
-export default function ProfileCanvas({ initialProfile }: { initialProfile: Profile } {
+export default function ProfileCanvas() { initialProfile }: { initialProfile: Profile } {
   const supabase = createClient();
   const [profile, setProfile]       = useState(initialProfile);
   const [editing, setEditing]       = useState(false);

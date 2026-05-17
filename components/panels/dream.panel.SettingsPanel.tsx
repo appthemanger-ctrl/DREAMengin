@@ -49,7 +49,7 @@ const NAV_GROUPS: Array<{
   },
 ];
 
-export default function SettingsPanel( {
+export default function SettingsPanel() {
   const { openInSurface } = useDreamSystem();
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -65,7 +65,7 @@ export default function SettingsPanel( {
     })();
   }, []);
 
-  async function handleSignOut( {
+  async function handleSignOut() {
     const sb = createClient();
     await sb.auth.signOut();
     (window.top ?? window).location.href = '/login';

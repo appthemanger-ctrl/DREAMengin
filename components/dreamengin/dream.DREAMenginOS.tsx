@@ -62,7 +62,7 @@ const EMPTY_STATS: DispatcherStats = {
   boundsViolations: 0,
 };
 
-function dispatcherStatsEqual(a: DispatcherStats, b: DispatcherStats: boolean {
+function dispatcherStatsEqual(a: DispatcherStats, b: DispatcherStats: boolean) {
   if (a.workerCount !== b.workerCount || a.boundsViolations !== b.boundsViolations) {
     return false;
   }
@@ -72,7 +72,7 @@ function dispatcherStatsEqual(a: DispatcherStats, b: DispatcherStats: boolean {
   return a.microsecondsPerTick.every(value: Record<string, unknown>, index: number => value === b.microsecondsPerTick[index]);
 }
 
-export default function DREAMenginOS({
+export default function DREAMenginOS() {
   audioSource,
   onReady,
   onSelectSubsystem,

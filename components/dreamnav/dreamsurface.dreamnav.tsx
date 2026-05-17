@@ -11,7 +11,7 @@ interface DreamNavCtx {
 
 const DreamNavContext = createContext<DreamNavCtx | null>(null);
 
-export function DreamNavProvider({ children }: { children: React.ReactNode } {
+export function DreamNavProvider() { children }: { children: React.ReactNode } {
   const [state, dispatch] = useReducer(reduceNav, DEFAULT_NAV_STATE);
 
   return (
@@ -21,7 +21,7 @@ export function DreamNavProvider({ children }: { children: React.ReactNode } {
   );
 }
 
-export function useDreamNav(: DreamNavCtx {
+export function useDreamNav(: DreamNavCtx) {
   const ctx = useContext(DreamNavContext);
   if (!ctx) throw new Error('useDreamNav must be used inside <DreamNavProvider>');
   return ctx;

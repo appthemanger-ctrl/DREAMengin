@@ -3,7 +3,7 @@ import { createServerClient } from '@/lib/supabase/server';
 
 const DEFAULT_LAYOUT = { home: { dreams: [] }, dreamspace: { dreams: [] }, hidden: [] };
 
-function normalizeLayout(input: unknown {
+function normalizeLayout(input: unknown) {
   const obj = input && typeof input === 'object' ? input as Record<string, unknown> : {};
   return {
     home: { dreams: Array.isArray(obj.home?.dreams) ? obj.home.dreams.filter((id: unknown) => typeof id === 'string') : [] },
@@ -12,7 +12,7 @@ function normalizeLayout(input: unknown {
   };
 }
 
-export async function GET( {
+export async function GET() {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -32,7 +32,7 @@ export async function GET( {
   return NextResponse.json({ ok: true, layout: normalizeLayout((data as Record<string, unknown>)?.user_layout) });
 }
 
-export async function POST(req: NextRequest {
+export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {

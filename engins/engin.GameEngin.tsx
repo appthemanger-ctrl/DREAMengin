@@ -238,7 +238,7 @@ const CROSS_ENGIN_CHANNELS = [
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-function makeEmptyGrid(: TileType[][] {
+function makeEmptyGrid(: TileType[][]) {
   return Array.from({ length: 5 }, () =>
     Array.from({ length: 5 }, (): TileType => 'empty'),
   );
@@ -254,7 +254,7 @@ import { ArtifactSlot } from '@/lib/enginpipe';
  * snapshot lifecycle) attach at a single, consistent point. The inner
  * component is otherwise unchanged.
  */
-export default function GameEngin(props: Props {
+export default function GameEngin(props: Props) {
   return (
     <ArtifactSlot artifactId="engin:game">
       <GameEnginInner {...props} />
@@ -262,7 +262,7 @@ export default function GameEngin(props: Props {
   );
 }
 
-function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
+function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
   const gameBridge = useGameEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'games' });
   const searchParams = useSearchParams();
@@ -291,7 +291,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
   const [dreamGameFile, setDreamGameFile] = useState<{ name: string; size: number } | null>(null);
   const dreamGameInputRef = useRef<HTMLInputElement>(null);
 
-  function handleDreamGamePick(e: React.ChangeEvent<HTMLInputElement> {
+  function handleDreamGamePick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
     setDreamGameFile({ name: file.name, size: file.size });
@@ -464,7 +464,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
   }, {});
 
   // ── Share to Leaderboard ─────────────────────────────────────────────────────
-  async function handleShare(scoreId: string {
+  async function handleShare(scoreId: string) {
     setSharing(scoreId);
     forgeRecord('Shared game score');
     const supabase = createClient();
@@ -480,7 +480,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
   }
 
   // ── Share Game Clip to ContentEngin ─────────────────────────────────────────
-  function handleShareClip(game: string, score: number {
+  function handleShareClip(game: string, score: number) {
     forgeRecord(`Shared ${game} clip to Content`);
     recordForgeTransfer('games', 'create', 'clip', `${game} clip → ContentEngin`);
     bridge.emit('create', 'create:game-clip-embedded', {
@@ -494,7 +494,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
   }
 
   // ── Share Achievement Campaign to BrandingEngin ──────────────────────────────
-  function handleShareAchievementCampaign(achievementName: string {
+  function handleShareAchievementCampaign(achievementName: string) {
     forgeRecord(`Shared ${achievementName} achievement to Brand`);
     recordForgeTransfer('games', 'brand', 'campaign', `${achievementName} → BrandingEngin`);
     bridge.emit('brand', 'brand:achievement-campaign-requested', {
@@ -506,7 +506,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
     });
   }
 
-  function handleControlProfileSelect(profileId: string {
+  function handleControlProfileSelect(profileId: string) {
     engineDispatch({ type: 'game:control-profile', payload: { profile: profileId } });
     void sharedChannel.publish({ type: 'game:control-profile', profileId });
     if (typeof window !== 'undefined') {
@@ -528,7 +528,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
     });
   }, [selectedTile]);
 
-  function handleSaveWorld( {
+  function handleSaveWorld() {
     if (!worldName.trim()) return;
     const snapshot = worldGrid.map(r => [...r]);
     engineDispatch({ type: 'game:world-save', payload: { world: { name: worldName.trim(), grid: snapshot } } });
@@ -543,13 +543,13 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
   }
 
   // ── Physics Config ────────────────────────────────────────────────────────────
-  function handleApplyPhysics( {
+  function handleApplyPhysics() {
     setAppliedPhysics({ ...physicsConfig });
     engineDispatch({ type: 'game:physics-apply', payload: { config: { ...physicsConfig } } });
   }
 
   // ── Game Scripts ──────────────────────────────────────────────────────────────
-  function handleSaveScript( {
+  function handleSaveScript() {
     setSavedScript(scriptState.code);
     engineDispatch({ type: 'game:script-save', payload: { code: scriptState.code, language: scriptState.language } });
     forgeRecord('Saved game script');
@@ -622,7 +622,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
     }
     return () => { if (srRef.current) clearInterval(srRef.current); };
   }, [srActive]);
-  function srFormat(ms: number {
+  function srFormat(ms: number) {
     const m = Math.floor(ms / 60000);
     const s = Math.floor((ms % 60000) / 1000);
     const cs = Math.floor((ms % 1000) / 10);
@@ -678,7 +678,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
     } catch { /* ignore */ }
     return initialQuests;
   });
-  function toggleQuest(id: string {
+  function toggleQuest(id: string) {
     setQuests(prev => {
       const next = prev.map(q => {
         if (q.id !== id) return q;
@@ -706,7 +706,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
     return parseInt(localStorage.getItem('de-season-xp') ?? '4200', 10);
   });
   const seasonMax = 10000;
-  function earnXP(amount: number {
+  function earnXP(amount: number) {
     setSeasonXP(prev => {
       const next = Math.min(prev + amount, seasonMax);
       if (typeof window !== 'undefined') localStorage.setItem('de-season-xp', String(next));
@@ -1142,7 +1142,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
   }
 
   // ── Lobby handlers ───────────────────────────────────────────────────────────
-  function handleCreateRoom( {
+  function handleCreateRoom() {
     const code = Math.random().toString(36).slice(2, 8).toUpperCase();
     setLobbyCode(code);
     setLobbyPlayers(['You']);
@@ -1150,7 +1150,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
     forgeRecord('Created lobby room');
   }
 
-  function handleStartLobbyGame( {
+  function handleStartLobbyGame() {
     forgeRecord('Started lobby game');
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'games', 'game:lobby-start', { code: lobbyCode, players: lobbyPlayers },
@@ -1158,7 +1158,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
   }
 
   // ── Tournament handlers ──────────────────────────────────────────────────────
-  function handlePickWinner(matchIndex: number, winner: string {
+  function handlePickWinner(matchIndex: number, winner: string) {
     setBracket(prev => prev.map(m: Record<string, unknown>, i: number => i === matchIndex ? { ...m, winner } : m));
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'games', 'game:tournament-match', { matchIndex, winner },
@@ -1166,7 +1166,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
   }
 
   // ── Replay handlers ──────────────────────────────────────────────────────────
-  function handleReplayToggle( {
+  function handleReplayToggle() {
     const next = !replayRecording;
     setReplayRecording(next);
     forgeRecord(next ? 'Started recording replay' : 'Stopped recording replay');
@@ -1185,7 +1185,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
   }
 
   // ── Social Challenge handlers ────────────────────────────────────────────────
-  function handleSendChallenge( {
+  function handleSendChallenge() {
     setChallengeSent(true);
     forgeRecord('Sent game challenge');
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
@@ -1194,7 +1194,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
     setTimeout(() => setChallengeSent(false), 3000);
   }
 
-  function handleAcceptChallenge(id: string {
+  function handleAcceptChallenge(id: string) {
     setActiveChallenges(prev => prev.filter(c => c.id !== id));
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'games', 'game:challenge-accept', { id },
@@ -2912,7 +2912,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props {
  * Full-screen "DREAMengin powered by…" boot splash shown for 2.5 s when a game
  * enters fullscreen. Auto-dismisses via onDone callback.
  */
-function EnginBootSplash({
+function EnginBootSplash() {
   game,
   onDone,
 }: {

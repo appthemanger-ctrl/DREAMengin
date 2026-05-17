@@ -52,7 +52,7 @@ interface HomeFeedProps {
   embedded?: boolean;
 }
 
-export default function HomeFeed({
+export default function HomeFeed() {
   userId,
   userHandle,
   userAvatar,

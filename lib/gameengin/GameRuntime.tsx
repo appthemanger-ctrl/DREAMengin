@@ -62,7 +62,7 @@ export interface GameRuntimeProps {
 
 // ── Component ────────────────────────────────────────────────────────────────
 
-export default function GameRuntime({ cartridge, physicsConfig: Record<string, unknown>, onFrame }: GameRuntimeProps {
+export default function GameRuntime() { cartridge, physicsConfig: Record<string, unknown>, onFrame }: GameRuntimeProps {
   const containerRef = useRef<HTMLDivElement>(null);
   const [fps, setFps] = useState(0);
 

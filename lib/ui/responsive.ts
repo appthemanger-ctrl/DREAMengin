@@ -40,7 +40,7 @@ export const BREAKPOINT_ORDER: readonly Breakpoint[] = [
  * Returns the largest breakpoint key whose minimum width is <= the given
  * viewport width. Falls back to `'xs'` for sub-360 widths.
  */
-export function getBreakpoint(width: number: Breakpoint {
+export function getBreakpoint(width: number: Breakpoint) {
   if (!Number.isFinite(width) || width <= 0) return 'xs';
   let current: Breakpoint = 'xs';
   for (const bp of BREAKPOINT_ORDER) {
@@ -54,13 +54,13 @@ export function getBreakpoint(width: number: Breakpoint {
 }
 
 /** True if `width` is at or above the named breakpoint. */
-export function isAtLeast(width: number, bp: Breakpoint: boolean {
+export function isAtLeast(width: number, bp: Breakpoint: boolean) {
   if (!Number.isFinite(width)) return false;
   return width >= BREAKPOINTS[bp];
 }
 
 /** True if `width` is below the named breakpoint. */
-export function isBelow(width: number, bp: Breakpoint: boolean {
+export function isBelow(width: number, bp: Breakpoint: boolean) {
   if (!Number.isFinite(width)) return false;
   return width < BREAKPOINTS[bp];
 }
@@ -98,7 +98,7 @@ export function fluid(
 }
 
 /** Clamp a numeric value into `[low, high]`. */
-export function clamp(value: number, low: number, high: number: number {
+export function clamp(value: number, low: number, high: number: number) {
   if (!Number.isFinite(value)) return low;
   if (low > high) return low;
   if (value < low) return low;
@@ -166,7 +166,7 @@ export function cssClamp(
  * server-render with desktop defaults and hydrate without layout shift on
  * desktop-class viewports.
  */
-export function readViewportWidth(defaultWidth: number = BREAKPOINTS.lg: number {
+export function readViewportWidth(defaultWidth: number = BREAKPOINTS.lg: number) {
   if (typeof window === 'undefined') return defaultWidth;
   const w = window.innerWidth;
   return Number.isFinite(w) && w > 0 ? w : defaultWidth;

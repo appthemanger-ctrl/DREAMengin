@@ -11,7 +11,7 @@ import { Refractor } from '@/components/shaders/dream.Refractor';
 /* ------------------------------------------------------------------ */
 /*  Slowly rotating group used as a scene container                    */
 /* ------------------------------------------------------------------ */
-function RotatingGroup({ children }: { children: React.ReactNode } {
+function RotatingGroup() { children }: { children: React.ReactNode } {
   const group = useRef<THREE.Group>(null);
 
   useFrame(_state: Record<string, unknown>, delta: Record<string, unknown> => {
@@ -35,7 +35,7 @@ interface OrbitalStarProps {
   color: string;
 }
 
-function OrbitalStar({ radius, speed: Record<string, unknown>, offset: number, color }: OrbitalStarProps {
+function OrbitalStar() { radius, speed: Record<string, unknown>, offset: number, color }: OrbitalStarProps {
   const ref = useRef<THREE.Mesh>(null);
 
   useFrame(({ clock }) => {
@@ -78,7 +78,7 @@ export interface DreamSceneProps {
   className?: string;
 }
 
-export function DreamScene({ className }: DreamSceneProps {
+export function DreamScene() { className }: DreamSceneProps {
   return (
     <div className={className} style={{ width: '100%', height: '100%', minHeight: 400 }}>
       <Canvas

@@ -67,13 +67,13 @@ function uniquePathsForNode(predicate: (path: (typeof ALL_CONNECTION_PATHS)[numb
   return ALL_CONNECTION_PATHS.filter(predicate).map((path: Record<string, unknown>) => path.id);
 }
 
-function verbsForDaydream(label: keyof typeof DAYDREAM_ROUTES {
+function verbsForDaydream(label: keyof typeof DAYDREAM_ROUTES) {
   return ALL_CONNECTION_PATHS
     .filter((path: Record<string, unknown>) => path.daydreamSurface === label)
     .map((path: Record<string, unknown>) => path.verb);
 }
 
-export function buildDreamenginOSSubsystemManifest(: DreamenginOSSubsystemManifest {
+export function buildDreamenginOSSubsystemManifest(: DreamenginOSSubsystemManifest) {
   const aiNodes: DreamenginOSSubsystemNode[] = [
     {
       id: 'ai:dr-eams',

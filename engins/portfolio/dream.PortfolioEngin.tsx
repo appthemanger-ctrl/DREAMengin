@@ -52,7 +52,7 @@ const FEATURES = [
   { key: 'zne_local',       label: 'ZNE',   desc: 'Zero-Noise Extrapolation (local)',            color: '#ec4899' },
 ] as const;
 
-export default function PortfolioEngin({ onBack }: Props {
+export default function PortfolioEngin() { onBack }: Props {
   const [algorithm, setAlgorithm] = useState<Algorithm>('vqe');
   const [backend,   setBackend]   = useState<Backend>('local_simulator');
   const [ansatz,    setAnsatz]    = useState<Ansatz>('real_amplitudes');
@@ -64,7 +64,7 @@ export default function PortfolioEngin({ onBack }: Props {
   // Portfolio is its own 7th engine — pulse Forge under its own enginId
   const forge = useForgeActivity({ enginId: 'portfolio' });
 
-  async function handleRun( {
+  async function handleRun() {
     setRunning(true);
     setResult(null);
     setError(null);

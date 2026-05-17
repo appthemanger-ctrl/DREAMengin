@@ -20,7 +20,7 @@ type ProjectCard = {
   profiles?: { handle: string; display_name: string | null; avatar_url: string | null } | null;
 };
 
-function VisibilityBadge({ visibility }: { visibility: string } {
+function VisibilityBadge() { visibility }: { visibility: string } {
   const isPublic = visibility === 'public';
   return (
     <span
@@ -41,7 +41,7 @@ function VisibilityBadge({ visibility }: { visibility: string } {
   );
 }
 
-function ProjectCard({ project, showIframe = true }: { project: ProjectCard; showIframe?: boolean } {
+function ProjectCard() { project, showIframe = true }: { project: ProjectCard; showIframe?: boolean } {
   return (
     <div className="de-widget" style={{ overflow: 'hidden' }}>
       {showIframe && project.renderUrl && (
@@ -83,7 +83,7 @@ function ProjectCard({ project, showIframe = true }: { project: ProjectCard; sho
   );
 }
 
-export default async function LabPage( {
+export default async function LabPage() {
   await connection();
   const supabase = await createServerClient();
   const db = supabase as SupabaseClient;

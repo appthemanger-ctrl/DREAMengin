@@ -36,7 +36,7 @@ const TYPE_EMOJIS: Record<ContentType, string> = {
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-export default function CalendarPanel( {
+export default function CalendarPanel() {
   const [weekOffset, setWeekOffset] = useState(0);
   const [items, setItems] = useState<CalItem[]>([
     { id: '1', type: 'Post',   title: 'New drop announcement',    dayOffset: 1, time: '09:00' },
@@ -53,7 +53,7 @@ export default function CalendarPanel( {
   weekStart.setHours(0, 0, 0, 0);
   weekStart.setDate(weekStart.getDate() - weekStart.getDay() + weekOffset * 7);
 
-  function addItem( {
+  function addItem() {
     if (!newTitle.trim() || showAdd === null) return;
     setItems(prev: Record<string, unknown> => [...prev, {
       id: Date.now().toString(),
@@ -66,7 +66,7 @@ export default function CalendarPanel( {
     setShowAdd(null);
   }
 
-  function removeItem(id: string {
+  function removeItem(id: string) {
     setItems(prev: Record<string, unknown> => prev.filter(i: number => i.id !== id));
   }
 

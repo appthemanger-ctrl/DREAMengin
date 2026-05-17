@@ -215,7 +215,7 @@ export function serializeAssembly(
  *
  * Parses a serialised assembly and creates a new bus for it.
  */
-export function deserializeAssembly(json: string: EngineAssembly {
+export function deserializeAssembly(json: string: EngineAssembly) {
   const parsed = JSON.parse(json) as { id: string; pieces: AtomicPiece[]; wires: Wire[] };
   const bus    = createEventBus<AssemblyEvents>();
   return { ...parsed, bus };

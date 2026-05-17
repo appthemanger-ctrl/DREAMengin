@@ -43,13 +43,13 @@ const UNIVERSE: Asset[] = [
 const SECTORS = ['All', ...Array.from(new Set(UNIVERSE.map(a: Record<string, unknown> => a.sector)))];
 const MAX_SELECTED = 6;
 
-export default function AssetsPanel( {
+export default function AssetsPanel() {
   const [selected, setSelected] = useState<Set<string>>(
     new Set(['AAPL', 'MSFT', 'NVDA'])
   );
   const [sectorFilter, setSectorFilter] = useState('All');
 
-  function toggle(ticker: string {
+  function toggle(ticker: string) {
     setSelected(prev: Record<string, unknown> => {
       const next = new Set(prev);
       if (next.has(ticker)) {
@@ -61,7 +61,7 @@ export default function AssetsPanel( {
     });
   }
 
-  function reset( {
+  function reset() {
     setSelected(new Set(['AAPL', 'MSFT', 'NVDA']));
     setSectorFilter('All');
   }

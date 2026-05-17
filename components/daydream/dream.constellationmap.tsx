@@ -54,7 +54,7 @@ interface Mote { x: number; y: number; vx: number; vy: number; r: number; g: num
 // ── Static star layer ─────────────────────────────────────────────────────────
 interface Star { x: number; y: number; sz: number; a: number; tw: number; }
 
-function makeMote(w: number, h: number: Mote {
+function makeMote(w: number, h: number: Mote) {
   const col = NODES[Math.floor(Math.random() * NODES.length)];
   return {
     x: Math.random() * w, y: Math.random() * h,
@@ -66,7 +66,7 @@ function makeMote(w: number, h: number: Mote {
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
-export default function DreamConstellationMap( {
+export default function DreamConstellationMap() {
   const canvasRef  = useRef<HTMLCanvasElement>(null);
   const stateRef   = useRef<{ raf: number; t: number; last: number; hovered: NodeId | null; motes: Mote[]; stars: Star[]; ringPhases: number[] } | null>(null);
   const [hovered, setHovered] = useState<NodeId | null>(null);
@@ -114,7 +114,7 @@ export default function DreamConstellationMap( {
       ringPhases: Array.from({ length: NODES.length }, _: Record<string, unknown>, i: number => i * (5.5 / NODES.length)),
     };
 
-    function render(ts: number {
+    function render(ts: number) {
       const s = stateRef.current!;
       const dt = Math.min((ts - s.last) / 1000, 0.05);
       s.last = ts;

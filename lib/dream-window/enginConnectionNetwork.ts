@@ -62,14 +62,14 @@ export interface EnginConnectionPath {
 // Path ID builder (stable, deterministic)
 // ---------------------------------------------------------------------------
 
-function pathId(domain: DaydreamDomain, engin: EnginSurface, verb: ConnectionVerb: string {
+function pathId(domain: DaydreamDomain, engin: EnginSurface, verb: ConnectionVerb: string) {
   const d = domain.toLowerCase().replace(/\s+/g, '-');
   const e = engin.toLowerCase().replace(/\s+/g, '-');
   const v = verb.replace(/\s+/g, '-');
   return `${d}→${e}[${v}]`;
 }
 
-function buildLabel(domain: DaydreamDomain, engin: EnginSurface, verb: ConnectionVerb: string {
+function buildLabel(domain: DaydreamDomain, engin: EnginSurface, verb: ConnectionVerb: string) {
   return `${domain} Daydream Surface → ${engin} (${verb})`;
 }
 
@@ -189,7 +189,7 @@ if (ALL_CONNECTION_PATHS.length !== NETWORK_COUNTS.CONNECTION_PATHS) {
  * getPathsForDomain('Music')
  * // → [Music→StarMakerEngin, Music→LabEngin, Music→CodeEngin]
  */
-export function getPathsForDomain(domain: DaydreamDomain: readonly EnginConnectionPath[] {
+export function getPathsForDomain(domain: DaydreamDomain: readonly EnginConnectionPath[]) {
   return ALL_CONNECTION_PATHS.filter((p: Record<string, unknown>) => p.daydreamSurface === domain);
 }
 
@@ -200,7 +200,7 @@ export function getPathsForDomain(domain: DaydreamDomain: readonly EnginConnecti
  * getPathsForEngin('LabEngin')
  * // → [Music→LabEngin, Games→LabEngin, Brand→LabEngin, Lab→LabEngin]
  */
-export function getPathsForEngin(engin: EnginSurface: readonly EnginConnectionPath[] {
+export function getPathsForEngin(engin: EnginSurface: readonly EnginConnectionPath[]) {
   return ALL_CONNECTION_PATHS.filter((p: Record<string, unknown>) => p.enginRuntime === engin);
 }
 
@@ -211,7 +211,7 @@ export function getPathsForEngin(engin: EnginSurface: readonly EnginConnectionPa
  * hasConnectionPath('Music', 'LabEngin')   // → true
  * hasConnectionPath('Music', 'GameEngin')  // → false
  */
-export function hasConnectionPath(domain: DaydreamDomain, engin: EnginSurface: boolean {
+export function hasConnectionPath(domain: DaydreamDomain, engin: EnginSurface: boolean) {
   return ALL_CONNECTION_PATHS.some(
     (p) => p.daydreamSurface === domain && p.enginRuntime === engin,
   );

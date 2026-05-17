@@ -26,7 +26,7 @@ import type { TimeSlice } from './fingerprint';
  * Copies PCM sample ranges from `audioBuffer` for each slice and
  * concatenates them into a fresh AudioBuffer.  No async required.
  */
-export function extractStem(audioBuffer: AudioBuffer, slices: TimeSlice[]: AudioBuffer {
+export function extractStem(audioBuffer: AudioBuffer, slices: TimeSlice[]: AudioBuffer) {
   if (slices.length === 0) return audioBuffer;
 
   const { sampleRate, numberOfChannels } = audioBuffer;

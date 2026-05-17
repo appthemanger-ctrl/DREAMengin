@@ -29,7 +29,7 @@ const DEFAULT_PREFS: FeedPreferences = {
   showEmptyStateGuides: true,
 };
 
-function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => void; label: string }) {
+function Toggle() { value, onToggle, label }: { value: boolean; onToggle: () => void; label: string }) {
   return (
     <button
       type="button"
@@ -53,7 +53,7 @@ function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => vo
   );
 }
 
-export default function FeedSettingsClient( {
+export default function FeedSettingsClient() {
   // Initialize with localStorage value to avoid setState in effect
   const [prefs, setPrefs] = useState<FeedPreferences>(() => {
     try {

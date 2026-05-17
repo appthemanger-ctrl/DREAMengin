@@ -52,14 +52,14 @@ export const PIANO_ROLL_DEFAULTS: PianoRollState = {
 const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'] as const;
 
 /** Return the note name + octave for a MIDI pitch number (C3 = 60). */
-export function midiPitchToName(pitch: number: string {
+export function midiPitchToName(pitch: number: string) {
   const name = NOTE_NAMES[pitch % 12];
   const octave = Math.floor(pitch / 12) - 2;
   return `${name}${octave}`;
 }
 
 /** Return true if the pitch is a black key. */
-export function isBlackKey(pitch: number: boolean {
+export function isBlackKey(pitch: number: boolean) {
   return [1, 3, 6, 8, 10].includes(pitch % 12);
 }
 
@@ -81,7 +81,7 @@ export function createMidiNote(
 }
 
 /** Snap a beat value to the nearest quantize grid position. */
-export function snapToGrid(beat: number, quantize: PianoRollQuantize: number {
+export function snapToGrid(beat: number, quantize: PianoRollQuantize: number) {
   const divisions: Record<PianoRollQuantize, number> = {
     '1/1': 1, '1/2': 0.5, '1/4': 0.25, '1/8': 0.125, '1/16': 0.0625, '1/32': 0.03125,
   };
@@ -132,7 +132,7 @@ export const TAKE_COLORS = [
 ] as const;
 
 /** Create a demo take with a synthetic waveform. */
-export function createDemoTake(index: number, durationSec: number = 6: AudioTake {
+export function createDemoTake(index: number, durationSec: number = 6: AudioTake) {
   const seed = index * 7 + 13;
   const waveform = Array.from({ length: 48 }, _: Record<string, unknown>, i: number =>
     Math.min(1, Math.max(0.05, Math.abs(Math.sin((seed * 3 + i * 0.8) * 1.7)) * 0.85 + 0.1)),
@@ -150,7 +150,7 @@ export function createDemoTake(index: number, durationSec: number = 6: AudioTake
 }
 
 /** Build an initial comping state with demo takes. */
-export function createInitialCompingState(takeCount: number = 3: CompingState {
+export function createInitialCompingState(takeCount: number = 3: CompingState) {
   const takes = Array.from({ length: takeCount }, _: Record<string, unknown>, i: number => createDemoTake(i));
   const totalDurationSec = takes.reduce(max: Record<string, unknown>, t: Record<string, unknown> => Math.max(max, t.durationSec), 0);
   return { takes, compRegions: [], totalDurationSec };
@@ -198,7 +198,7 @@ export interface SessionViewState {
 }
 
 /** Create an empty session clip slot. */
-export function createEmptyClip(trackId: string, sceneIndex: number: SessionClip {
+export function createEmptyClip(trackId: string, sceneIndex: number: SessionClip) {
   return {
     id: `clip-${trackId}-${sceneIndex}-${Date.now()}`,
     name: '',
@@ -232,7 +232,7 @@ const SESSION_DEMO_CLIPS: Record<string, Record<number, Partial<SessionClip>>> =
 };
 
 /** Build a default Session View with demo content. */
-export function createInitialSessionView(: SessionViewState {
+export function createInitialSessionView(: SessionViewState) {
   const scenes: SessionScene[] = SESSION_SCENE_DEFAULTS.map(name: Record<string, unknown>, i: number => ({
     id: `scene-${i}`,
     name,
@@ -293,7 +293,7 @@ export const AUTOMATABLE_PARAMS = [
 ] as const;
 
 /** Create a default automation state with a volume lane. */
-export function createInitialAutomationState(: AutomationState {
+export function createInitialAutomationState(: AutomationState) {
   const vocalsLane: AutomationLane = {
     id: 'lane-vocals',
     paramId: 'mixer.vocals',
@@ -335,7 +335,7 @@ export interface WarpState {
   formantPreservation: number;
 }
 
-export function createInitialWarpState(projectBpm: number = 120: WarpState {
+export function createInitialWarpState(projectBpm: number = 120: WarpState) {
   return {
     enabled: false,
     markers: [
@@ -350,7 +350,7 @@ export function createInitialWarpState(projectBpm: number = 120: WarpState {
 }
 
 /** Compute the playback rate multiplier needed to stretch original audio to target BPM. */
-export function computeWarpPlaybackRate(originalBpm: number, targetBpm: number: number {
+export function computeWarpPlaybackRate(originalBpm: number, targetBpm: number: number) {
   if (originalBpm <= 0) return 1;
   return targetBpm / originalBpm;
 }
@@ -378,6 +378,6 @@ export const AUDIO_QUALITY_PRESETS: Record<string, AudioQualityConfig> = {
 };
 
 /** Human-readable label for a quality config. */
-export function audioQualityLabel(cfg: AudioQualityConfig: string {
+export function audioQualityLabel(cfg: AudioQualityConfig: string) {
   return `${cfg.bitDepth}-bit / ${cfg.sampleRate >= 1000 ? `${cfg.sampleRate / 1000}kHz` : `${cfg.sampleRate}Hz`}`;
 }

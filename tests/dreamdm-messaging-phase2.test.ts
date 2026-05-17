@@ -147,7 +147,7 @@ describe('SearchResult type contract', () => {
 
 const MAX_FILE_BYTES = 50 * 1024 * 1024;
 
-function validateFile(file: { size: number }): string | null {
+function validateFile(file:) { size: number }): string | null {
   if (file.size > MAX_FILE_BYTES) return 'File must be smaller than 50 MB';
   return null;
 }

@@ -34,7 +34,7 @@ interface DaydreamPulseStripProps {
   onOpenDaydream?: (href: string, label: string) => void;
 }
 
-export default function DaydreamPulseStrip({ onOpenDaydream }: DaydreamPulseStripProps {
+export default function DaydreamPulseStrip() { onOpenDaydream }: DaydreamPulseStripProps {
   const router = useRouter();
 
   const openDaydream = (href: string, label: string) => {

@@ -64,7 +64,7 @@ function validateDotInput(body: Record<string, unknown>): string | null {
 
 // ── Fixture factories ─────────────────────────────────────────────────────────
 
-function makeDot(overrides: Partial<JourneyDot> = {}): JourneyDot {
+function makeDot(overrides: Partial<JourneyDot> =) {}): JourneyDot {
   return {
     id:           'test-id',
     user_id:      'user-123',

@@ -10,7 +10,7 @@ import { THEME_PRESETS as GRADIENT_PRESETS, applyTheme, applyVoidTheme, isVoidTh
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 
 /* ── VOID / OLED Dark Theme Toggle ── */
-function VoidThemeSection( {
+function VoidThemeSection() {
   const [isVoid, setIsVoid] = useState(false);
 
   useEffect(() => {
@@ -98,7 +98,7 @@ function VoidThemeSection( {
 }
 
 /* ── Gradient Preset Picker ── */
-function GradientThemePicker( {
+function GradientThemePicker() {
   const [active, setActive] = useState(() => {
     if (typeof window === 'undefined') return 'default';
     try {
@@ -170,7 +170,7 @@ function GradientThemePicker( {
 
 
 /* ── Slider component (styled with Dream tokens) ── */
-function Slider({
+function Slider() {
   label,
   value,
   min,
@@ -218,7 +218,7 @@ function Slider({
 }
 
 /* ── Preset cards ── */
-function PresetCard({
+function PresetCard() {
   preset,
   isActive,
   onSelect,
@@ -272,7 +272,7 @@ function PresetCard({
 }
 
 /* ── Background Image Section ── */
-function BgImageSection( {
+function BgImageSection() {
   const [bgImage, setBgImage] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
     const stored = localStorage.getItem('dreamengin:bgImage');
@@ -384,7 +384,7 @@ const BG_STYLES = [
   },
 ];
 
-export default function AppearanceSettingsPage( {
+export default function AppearanceSettingsPage() {
   const { presetId, overrides, setPreset, setOverrides, resetOverrides } = useTheme();
   const { enterCustomizeMode } = useCustomizeMode();
 

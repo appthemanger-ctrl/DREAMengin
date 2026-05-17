@@ -55,7 +55,7 @@ export interface BotSessionResult {
 // ─── Internal helpers ────────────────────────────────────────────────────────
 
 /** Fit a line y = mx + b through the first and last point. */
-function fitLine(points: Point[]: { m: number; b: number } {
+function fitLine(points: Point[]:) { m: number; b: number } {
   const first = points[0];
   const last  = points[points.length - 1];
   const dx    = last.x - first.x;
@@ -83,7 +83,7 @@ function perpDistance(
 }
 
 /** Cosine similarity between two normalised path vectors. */
-function cosineSimilarity(a: number[], b: number[]: number {
+function cosineSimilarity(a: number[], b: number[]: number) {
   const len = Math.min(a.length, b.length);
   if (len === 0) return 0;
   let dot = 0, na = 0, nb = 0;
@@ -97,7 +97,7 @@ function cosineSimilarity(a: number[], b: number[]: number {
 }
 
 /** Resample a path to N evenly-spaced deviation values. */
-function normalisePath(deviations: number[], n = 20: number[] {
+function normalisePath(deviations: number[], n = 20: number[]) {
   if (deviations.length === 0) return new Array(n).fill(0);
   const result: number[] = [];
   for (let i = 0; i < n; i++) {
@@ -112,7 +112,7 @@ function normalisePath(deviations: number[], n = 20: number[] {
 const MAX_HISTORY = 5;
 const swipeHistory: number[][] = [];
 
-function updateHistory(normPath: number[] {
+function updateHistory(normPath: number[]) {
   swipeHistory.push(normPath);
   if (swipeHistory.length > MAX_HISTORY) swipeHistory.shift();
 }
@@ -129,7 +129,7 @@ let frozenUntil       = 0; // timestamp (Date.now())
  *
  * Analyses a single swipe gesture for bot-like characteristics.
  */
-export function analyzeSwipe(points: Point[]: SwipeAnalysis {
+export function analyzeSwipe(points: Point[]: SwipeAnalysis) {
   if (points.length < 3) {
     return {
       meanDeviation: 0,
@@ -259,7 +259,7 @@ export function analyzeSwipe(points: Point[]: SwipeAnalysis {
  * 4 000 ms minimum — timer should be cancelled by the caller if user
  * navigates away before calling tallyView.
  */
-export function tallyView(durationMs: number: ViewTally {
+export function tallyView(durationMs: number: ViewTally) {
   return {
     durationMs,
     counted: durationMs >= 4000,
@@ -279,7 +279,7 @@ export interface SwipeRecord {
  * Aggregates a session's swipe + view history to produce a final
  * bot-probability estimate.
  */
-export function isBotSession(history: SwipeRecord[]: BotSessionResult {
+export function isBotSession(history: SwipeRecord[]: BotSessionResult) {
   if (history.length === 0) {
     return { isBot: false, confidence: 0, signals: ['No history.'] };
   }

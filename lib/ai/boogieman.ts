@@ -42,7 +42,7 @@ export { BOOGIE_POLICY_VERSION };
 // SIMULATION MODE (req 61, 62) — never enable in production
 // ============================================================================
 
-function isSimulationMode(: boolean {
+function isSimulationMode(: boolean) {
   return process.env.BOOGIE_SIMULATION_MODE === 'true';
 }
 
@@ -78,7 +78,7 @@ export function computeRiskScore(
 // Given risk score and severity, return the smallest action that is warranted.
 // ============================================================================
 
-export function selectAction(params: {
+export function selectAction(params:) {
   riskScore: number;
   severityLevel: StrikeSeverityLevel;
   confidence: number;
@@ -116,7 +116,7 @@ export function selectAction(params: {
 // EXPIRY CALCULATION (req 39, 41, 44)
 // ============================================================================
 
-function computeExpiryISO(action: EnforcementAction, strikeCount = 1: string | null {
+function computeExpiryISO(action: EnforcementAction, strikeCount = 1: string | null) {
   const now = Date.now();
   let durationSeconds: number | null = null;
 
@@ -149,7 +149,7 @@ function computeExpiryISO(action: EnforcementAction, strikeCount = 1: string | n
 // SCOPE SELECTION (req 47, 48) — prefer surface-specific lock over blanket
 // ============================================================================
 
-function selectScopes(ruleCode: string, action: EnforcementAction: PolicyScope[] {
+function selectScopes(ruleCode: string, action: EnforcementAction: PolicyScope[]) {
   // For blanket actions, restrict all scopes
   if (action === 'TEMP_BAN' || action === 'TEMP_SUSPEND') {
     return ['POSTING', 'MESSAGING', 'LINKING', 'MARKETPLACE', 'TEMPLATE_SHARE'];
@@ -171,7 +171,7 @@ function selectScopes(ruleCode: string, action: EnforcementAction: PolicyScope[]
 // Must not reveal internal signals or thresholds (req 11, 63)
 // ============================================================================
 
-function buildUserExplanation(params: {
+function buildUserExplanation(params:) {
   action: EnforcementAction;
   ruleCode: string;
   scopes: PolicyScope[];
@@ -217,7 +217,7 @@ function buildUserExplanation(params: {
 // evidence_refs = hashes/IDs only, never raw private content (req 19)
 // ============================================================================
 
-function buildAuditEvent(params: {
+function buildAuditEvent(params:) {
   userId: string;
   action: EnforcementAction;
   severity: number;
@@ -266,7 +266,7 @@ export interface BoogieEnforceInput {
   blastRadius?: number;       // req 25: number of users potentially affected
 }
 
-export function boogieEnforce(input: BoogieEnforceInput: BoogieEnforceOutput {
+export function boogieEnforce(input: BoogieEnforceInput: BoogieEnforceOutput) {
   const {
     userId,
     ruleCode,
@@ -365,18 +365,18 @@ export function boogieEnforce(input: BoogieEnforceInput: BoogieEnforceOutput {
 // HELPERS
 // ============================================================================
 
-function mapToStrikeSeverity(severity: number: StrikeSeverityLevel {
+function mapToStrikeSeverity(severity: number: StrikeSeverityLevel) {
   if (severity >= THRESHOLDS.CRITICAL_SEVERITY) return 'CRITICAL';
   if (severity >= 0.70) return 'HIGH';
   if (severity >= 0.40) return 'MEDIUM';
   return 'LOW';
 }
 
-export function getStrikeWeight(level: StrikeSeverityLevel: number {
+export function getStrikeWeight(level: StrikeSeverityLevel: number) {
   return STRIKE_WEIGHTS[level];
 }
 
-export function getStrikeExpiryDays(level: StrikeSeverityLevel: number {
+export function getStrikeExpiryDays(level: StrikeSeverityLevel: number) {
   return STRIKE_EXPIRY_DAYS[level];
 }
 
@@ -396,7 +396,7 @@ const ADMIN_ONLY_INTENTS = ['DIAG_SCHEMA_SNAPSHOT', 'DIAG_RLS_SNAPSHOT'];
 const HIGH_RISK_INTENTS = ['DREAM_CONFIG_PATCH', 'DREAM_REORDER'];
 const WRITE_INTENTS = ['POST_CREATE', 'DREAM_CONFIG_PATCH', 'DREAM_REORDER'];
 
-export function boogieEvaluate(input: BoogieEvaluateInput: BoogieOutput {
+export function boogieEvaluate(input: BoogieEvaluateInput: BoogieOutput) {
   const { actorRole, rateRpm, intents } = input;
 
   const perIntentResults: BoogieResult[] = [];

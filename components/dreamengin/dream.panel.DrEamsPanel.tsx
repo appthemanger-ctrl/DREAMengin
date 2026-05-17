@@ -21,7 +21,7 @@ const QUICK_ACTIONS = [
 ];
 
 /* ── Dr. Eams avatar ── */
-function DrEamsAvatar({ size = 44 }: { size?: number } {
+function DrEamsAvatar() { size = 44 }: { size?: number } {
   return (
     <div
       style={{
@@ -44,7 +44,7 @@ function DrEamsAvatar({ size = 44 }: { size?: number } {
 }
 
 /* ── Typing indicator ── */
-function TypingDots( {
+function TypingDots() {
   return (
     <div style={{ display: 'flex', gap: 4, alignItems: 'center', padding: '10px 14px' }}>
       {[0, 1, 2].map(i: number => (
@@ -61,7 +61,7 @@ function TypingDots( {
   );
 }
 
-export default function DrEamsPanel({ onClose }: DrEamsPanelProps {
+export default function DrEamsPanel() { onClose }: DrEamsPanelProps {
   const [messages, setMessages] = useState<Message[]>([
     { role: 'ai', text: "Hey! I'm Dr. Eams — your AI companion inside Dreamengin. What are you dreaming up today? ◈" },
   ]);

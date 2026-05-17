@@ -6,7 +6,7 @@ type StatusAction = {
   primary?: boolean;
 };
 
-export default function RootStatusScreen({
+export default function RootStatusScreen() {
   eyebrow,
   title,
   message,

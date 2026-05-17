@@ -47,7 +47,7 @@ const ENRICHMENT_QUERIES: string[] = [
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 /** Convert a UnifiedFeedItem (YouTube) → FeedPost so HomeFeed can render it. */
-function ytItemToFeedPost(item: UnifiedFeedItem: FeedPost {
+function ytItemToFeedPost(item: UnifiedFeedItem: FeedPost) {
   const thumbnail =
     item.media.length > 0
       ? (item.media[0].thumbnail_url ?? item.media[0].url ?? null)
@@ -99,7 +99,7 @@ export interface UseYouTubeLiveFeedReturn {
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
-export function useYouTubeLiveFeed(: UseYouTubeLiveFeedReturn {
+export function useYouTubeLiveFeed(: UseYouTubeLiveFeedReturn) {
   const [ytPosts, setYtPosts] = useState<FeedPost[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -127,7 +127,7 @@ export function useYouTubeLiveFeed(: UseYouTubeLiveFeedReturn {
     mountedRef.current = true;
     const ctrl = new AbortController();
 
-    async function init( {
+    async function init() {
       setIsRefreshing(true);
       try {
         const queries = getQueries();

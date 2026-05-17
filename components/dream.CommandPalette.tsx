@@ -21,7 +21,7 @@ interface CommandItem {
   shortcut?: string;
 }
 
-export default function CommandPalette( {
+export default function CommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -451,7 +451,7 @@ export default function CommandPalette( {
  * Renders a Search icon fixed at bottom-left above the DreamDM bar.
  * Exported so CommandPalette can render it alongside the backdrop.
  */
-export function MobileCmdFab({ onClick }: { onClick: () => void }) {
+export function MobileCmdFab() { onClick }: { onClick: () => void }) {
   return (
     <button
       type="button"

@@ -53,14 +53,14 @@ type _SV = _C[];
 const _IS2 = 1 / Math.SQRT2;
 const _GATE_H: _Gate = [[_IS2,0],[_IS2,0],[_IS2,0],[-_IS2,0]];
 
-function _gateRx(t: number: _Gate { const c=Math.cos(t/2),s=Math.sin(t/2); return [[c,0],[0,-s],[0,-s],[c,0]]; }
-function _gateRy(t: number: _Gate { const c=Math.cos(t/2),s=Math.sin(t/2); return [[c,0],[-s,0],[s,0],[c,0]]; }
-function _gateRz(t: number: _Gate { const c=Math.cos(t/2),s=Math.sin(t/2); return [[c,-s],[0,0],[0,0],[c,s]]; }
-function _groundState(n: number: _SV { const sv = Array.from({length: 1 << n}, (): _C => [0, 0]); sv[0] = [1, 0]; return sv as _SV; }
-function _cmul([r1, i1]: _C, [r2, i2]: _C: _C { return [r1*r2-i1*i2, r1*i2+i1*r2]; }
-function _cadd([r1, i1]: _C, [r2, i2]: _C: _C { return [r1+r2, i1+i2]; }
+function _gateRx(t: number: _Gate) { const c=Math.cos(t/2),s=Math.sin(t/2); return [[c,0],[0,-s],[0,-s],[c,0]]; }
+function _gateRy(t: number: _Gate) { const c=Math.cos(t/2),s=Math.sin(t/2); return [[c,0],[-s,0],[s,0],[c,0]]; }
+function _gateRz(t: number: _Gate) { const c=Math.cos(t/2),s=Math.sin(t/2); return [[c,-s],[0,0],[0,0],[c,s]]; }
+function _groundState(n: number: _SV) { const sv = Array.from({length: 1 << n}, (): _C => [0, 0]); sv[0] = [1, 0]; return sv as _SV; }
+function _cmul([r1, i1]: _C, [r2, i2]: _C: _C) { return [r1*r2-i1*i2, r1*i2+i1*r2]; }
+function _cadd([r1, i1]: _C, [r2, i2]: _C: _C) { return [r1+r2, i1+i2]; }
 
-function _applyGate1(sv: _SV, n: number, q: number, u: _Gate: _SV {
+function _applyGate1(sv: _SV, n: number, q: number, u: _Gate: _SV) {
   const next = sv.slice();
   const bit = 1 << (n - 1 - q);
   for (let i = 0; i < sv.length; i++) {
@@ -73,7 +73,7 @@ function _applyGate1(sv: _SV, n: number, q: number, u: _Gate: _SV {
   return next;
 }
 
-function _applyCNOT(sv: _SV, n: number, ctrl: number, tgt: number: _SV {
+function _applyCNOT(sv: _SV, n: number, ctrl: number, tgt: number: _SV) {
   const next = sv.slice();
   const cBit = 1 << (n - 1 - ctrl), tBit = 1 << (n - 1 - tgt);
   for (let i = 0; i < sv.length; i++) {
@@ -85,7 +85,7 @@ function _applyCNOT(sv: _SV, n: number, ctrl: number, tgt: number: _SV {
 const _RETURNS = [0.12, 0.09, 0.15], _SIGMA = [0.20, 0.15, 0.25];
 const _CORR    = [[1, 0.3, 0.1], [0.3, 1, 0.2], [0.1, 0.2, 1]];
 
-function _quboCost(bits: boolean[]: number {
+function _quboCost(bits: boolean[]: number) {
   let c = 0;
   bits.forEach(b: Record<string, unknown>, i: number => { if (b) c -= _RETURNS[i] ?? 0.1; });
   for (let i = 0; i < bits.length; i++)
@@ -97,7 +97,7 @@ function _quboCost(bits: boolean[]: number {
 
 type _Op = { kind: string; q?: number; ctrl?: number; tgt?: number; theta?: number };
 
-function _buildCircuit(n: number, algo: string, ansatz: string: _Op[] {
+function _buildCircuit(n: number, algo: string, ansatz: string: _Op[]) {
   const ops: _Op[] = [];
   if (algo === 'qaoa') {
     const g = Math.PI * 0.4, b = Math.PI * 0.35;
@@ -125,7 +125,7 @@ function _buildCircuit(n: number, algo: string, ansatz: string: _Op[] {
   return ops;
 }
 
-function _runCircuit(numQubits: number, algo: string, ansatz: string: QuantumComputeResult {
+function _runCircuit(numQubits: number, algo: string, ansatz: string: QuantumComputeResult) {
   let sv = _groundState(numQubits);
   for (const op of _buildCircuit(numQubits, algo, ansatz)) {
     if      (op.kind === 'H'  && op.q    != null)                    sv = _applyGate1(sv, numQubits, op.q, _GATE_H);

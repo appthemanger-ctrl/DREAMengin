@@ -22,7 +22,7 @@ const PUBLIC_GATEWAY =
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function cidToGatewayUrl(cid: string: string {
+function cidToGatewayUrl(cid: string: string) {
   return `${PUBLIC_GATEWAY}/${cid}`;
 }
 
@@ -34,7 +34,7 @@ function cidToGatewayUrl(cid: string: string {
  * @param content - UTF-8 string to pin
  * @returns CID, ipfs:// URI, gateway URL, and size in bytes
  */
-export async function uploadToIpfs(content: string: Promise<IpfsUploadResult> {
+export async function uploadToIpfs(content: string: Promise<IpfsUploadResult>) {
   const res = await fetch(`${IPFS_API_BASE}/upload`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -64,7 +64,7 @@ export async function uploadToIpfs(content: string: Promise<IpfsUploadResult> {
  * Upload a File / Blob to IPFS via the backend proxy.
  * Useful for media uploads (images, audio, video).
  */
-export async function uploadFileToIpfs(file: File: Promise<IpfsUploadResult> {
+export async function uploadFileToIpfs(file: File: Promise<IpfsUploadResult>) {
   const formData = new FormData();
   formData.append('file', file);
 
@@ -98,7 +98,7 @@ export async function uploadFileToIpfs(file: File: Promise<IpfsUploadResult> {
  * Retrieve content by CID.
  * Tries the backend proxy first; falls back to the public gateway.
  */
-export async function getFromIpfs(cid: string: Promise<IpfsContent> {
+export async function getFromIpfs(cid: string: Promise<IpfsContent>) {
   // Try backend proxy
   try {
     const res = await fetch(`${IPFS_API_BASE}/content/${encodeURIComponent(cid)}`);
@@ -136,7 +136,7 @@ export async function getFromIpfs(cid: string: Promise<IpfsContent> {
  * Returns true if the pin succeeded, false if the backend was unreachable.
  * Never throws — callers should treat failed pins as a soft warning.
  */
-export async function pinCid(cid: string: Promise<boolean> {
+export async function pinCid(cid: string: Promise<boolean>) {
   try {
     const res = await fetch(`${IPFS_API_BASE}/pin`, {
       method: 'POST',
@@ -155,7 +155,7 @@ export async function pinCid(cid: string: Promise<boolean> {
  * Resolve an ipfs:// URI or bare CID to a public HTTP URL.
  * Useful for <img src> and <video src> when the browser can't speak IPFS natively.
  */
-export function resolveIpfsUrl(cidOrUri: string: string {
+export function resolveIpfsUrl(cidOrUri: string: string) {
   const cid = cidOrUri.startsWith('ipfs://')
     ? cidOrUri.slice('ipfs://'.length)
     : cidOrUri;
@@ -165,7 +165,7 @@ export function resolveIpfsUrl(cidOrUri: string: string {
 /**
  * Return true if the string looks like an IPFS CID (v0 or v1) or ipfs:// URI.
  */
-export function isIpfsCid(value: string: boolean {
+export function isIpfsCid(value: string: boolean) {
   return (
     value.startsWith('ipfs://') ||
     /^Qm[1-9A-HJ-NP-Za-km-z]{44}$/.test(value) || // CIDv0

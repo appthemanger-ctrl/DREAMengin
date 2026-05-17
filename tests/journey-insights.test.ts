@@ -27,7 +27,7 @@ import {
 // ── Fixture helpers ───────────────────────────────────────────────────────────
 
 let nextId = 1;
-function makeDot(overrides: Partial<JourneyDot> = {}): JourneyDot {
+function makeDot(overrides: Partial<JourneyDot> =) {}): JourneyDot {
   return {
     id:           String(nextId++),
     user_id:      'user-1',

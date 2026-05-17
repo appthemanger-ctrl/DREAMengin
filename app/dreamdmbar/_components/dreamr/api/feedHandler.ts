@@ -65,7 +65,7 @@ import { parseFeedParams, deriveNextCursor } from '@/lib/dreamr/feedCursor';
  * internal callers (e.g. server actions, edge middleware). Import this function
  * from `app/api/dreamr/feed/route.ts` and export it as `GET`.
  */
-export async function dreamrFeedHandler(req: NextRequest: Promise<NextResponse> {
+export async function dreamrFeedHandler(req: NextRequest: Promise<NextResponse>) {
   const supabase = await createServerClient();
   const {
     data: { user },

@@ -80,7 +80,7 @@ interface DualRuntimeContextValue {
 
 const DualRuntimeContext = createContext<DualRuntimeContextValue | null>(null);
 
-export function useDualRuntime(: DualRuntimeContextValue {
+export function useDualRuntime(: DualRuntimeContextValue) {
   const ctx = useContext(DualRuntimeContext);
   if (!ctx) throw new Error('useDualRuntime must be used within DualRuntimeContainer');
   return ctx;
@@ -90,7 +90,7 @@ interface DualRuntimeContainerProps {
   children: React.ReactNode;
 }
 
-export default function DualRuntimeContainer({ children }: DualRuntimeContainerProps {
+export default function DualRuntimeContainer() { children }: DualRuntimeContainerProps {
   const [state, setState] = useState<DualRuntimeState>(DEFAULT_DUAL_RUNTIME);
 
   // Refs to the scroll-root elements for each viewport.

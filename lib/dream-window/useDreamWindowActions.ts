@@ -100,7 +100,7 @@ async function fetchDreamWindow<T>(
   }
 }
 
-export async function createDreamWindow(body: CreateDreamWindowBody: Promise<DreamWindowRecord | null> {
+export async function createDreamWindow(body: CreateDreamWindowBody: Promise<DreamWindowRecord | null>) {
   const result = await fetchDreamWindow<DreamWindowRecord>('/api/dream-windows', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -125,7 +125,7 @@ export async function patchDreamWindow(
 // Hook implementation
 // ---------------------------------------------------------------------------
 
-export function useDreamWindowActions(: UseDreamWindowActionsReturn {
+export function useDreamWindowActions(: UseDreamWindowActionsReturn) {
   const [dreamWindows, setDreamWindows] = useState<DreamWindowRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

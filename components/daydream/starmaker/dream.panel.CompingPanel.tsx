@@ -60,12 +60,12 @@ interface CompingPanelProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function fmtTimestamp(ms: number: string {
+function fmtTimestamp(ms: number: string) {
   const d = new Date(ms);
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
-function StarRating({
+function StarRating() {
   rating,
   onChange,
 }: { rating: TakeRating; onChange: (r: TakeRating) => void }) {
@@ -91,7 +91,7 @@ function StarRating({
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function CompingPanel({ state, onStateChange }: CompingPanelProps {
+export default function CompingPanel() { state, onStateChange }: CompingPanelProps {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedTakeId, setSelectedTakeId] = useState<string | null>(null);
 
@@ -109,13 +109,13 @@ export default function CompingPanel({ state, onStateChange }: CompingPanelProps
     });
   }, [state, takes, onStateChange]);
 
-  function handleAddTake( {
+  function handleAddTake() {
     const newTake = createDemoTake(takes.length, totalDurationSec);
     newTake.color = TAKE_COLORS[takes.length % TAKE_COLORS.length];
     onStateChange({ ...state, takes: [...takes, newTake] });
   }
 
-  function handleRemoveTake(id: string {
+  function handleRemoveTake(id: string) {
     onStateChange({
       ...state,
       takes: takes.filter(t => t.id !== id),
@@ -124,7 +124,7 @@ export default function CompingPanel({ state, onStateChange }: CompingPanelProps
     if (selectedTakeId === id) setSelectedTakeId(null);
   }
 
-  function handleAutoComp( {
+  function handleAutoComp() {
     // Mark highest-rated take(s) as active, others inactive
     const maxRating = Math.max(...takes.map(t => t.rating));
     onStateChange({

@@ -39,7 +39,7 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
-export default function CodeSpacePage({ params }: Props {
+export default function CodeSpacePage() { params }: Props {
   const { id } = use(params);
 
   const [code, setCode] = useState(DEFAULT_HTML);

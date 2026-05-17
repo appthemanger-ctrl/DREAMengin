@@ -38,7 +38,7 @@ interface BabylonOptimizeroSceneProps {
   initialPreset?: WeightPreset;
 }
 
-export default function BabylonOptimizeroScene({
+export default function BabylonOptimizeroScene() {
   onElementSelect,
   initialPreset = 'default',
 }: BabylonOptimizeroSceneProps) {

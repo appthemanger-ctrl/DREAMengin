@@ -38,7 +38,7 @@ export interface EnginBaseState {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 /** Create the initial base state for an engine. */
-export function createBaseState(enginId: string: EnginBaseState {
+export function createBaseState(enginId: string: EnginBaseState) {
   return {
     enginId,
     lifecycle: 'idle',

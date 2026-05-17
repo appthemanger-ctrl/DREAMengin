@@ -73,7 +73,7 @@ interface VideosResponse {
   }>;
 }
 
-function requireAccessToken(accessToken: string: string {
+function requireAccessToken(accessToken: string: string) {
   const token = accessToken.trim();
   if (!token) {
     throw new Error('YouTube access token is required.');
@@ -81,7 +81,7 @@ function requireAccessToken(accessToken: string: string {
   return token;
 }
 
-function getFirstEnvValue(...keys: string[]: string | undefined {
+function getFirstEnvValue(...keys: string[]: string | undefined) {
   for (const key of keys) {
     const value = process.env[key]?.trim();
     if (value) return value;
@@ -89,11 +89,11 @@ function getFirstEnvValue(...keys: string[]: string | undefined {
   return undefined;
 }
 
-export function getYouTubeApiKey(: string | undefined {
+export function getYouTubeApiKey(: string | undefined) {
   return getFirstEnvValue('YOUTUBE_API_KEY', 'API_KEY');
 }
 
-export function getYouTubeAnalyticsApiKey(: string | undefined {
+export function getYouTubeAnalyticsApiKey(: string | undefined) {
   return getFirstEnvValue('YOUTUBE_ANALYTICS_API_KEY', 'YOUTUBE_API_KEY', 'API_KEY');
 }
 
@@ -139,12 +139,12 @@ async function fetchYouTubePublicJson<T>(url: string, apiKey: string): Promise<T
  * Verifies the token by calling Google's userinfo endpoint.
  * Returns a human-readable identifier on success.
  */
-export async function youtubeVerify(creds: YouTubeCredentials: Promise<string> {
+export async function youtubeVerify(creds: YouTubeCredentials: Promise<string>) {
   const user = await fetchYouTubeJson<GoogleUserInfo>(GOOGLE_USERINFO_API, creds.access_token);
   return user.email ?? user.name ?? user.id ?? 'youtube-user';
 }
 
-async function fetchRelatedPlaylists(accessToken: string {
+async function fetchRelatedPlaylists(accessToken: string) {
   const data = await fetchYouTubeJson<RelatedPlaylistsResponse>(
     `${YT_API}/channels?part=contentDetails&mine=true&maxResults=1`,
     accessToken,
@@ -205,7 +205,7 @@ async function fetchSubscriptionFeed(
   return batches.flat();
 }
 
-async function fetchTrendingVideos(apiKey: string, maxResults: number: Promise<UnifiedFeedItem[]> {
+async function fetchTrendingVideos(apiKey: string, maxResults: number: Promise<UnifiedFeedItem[]>) {
   const data = await fetchYouTubePublicJson<VideosResponse>(
     `${YT_API}/videos?part=snippet&chart=mostPopular&regionCode=US&maxResults=${maxResults}&key=${encodeURIComponent(apiKey)}`,
     apiKey,
@@ -217,7 +217,7 @@ async function fetchTrendingVideos(apiKey: string, maxResults: number: Promise<U
   }));
 }
 
-async function fetchWorldNewsVideos(apiKey: string, maxResults: number: Promise<UnifiedFeedItem[]> {
+async function fetchWorldNewsVideos(apiKey: string, maxResults: number: Promise<UnifiedFeedItem[]>) {
   const data = await fetchYouTubePublicJson<SearchResponse>(
     `${YT_API}/search?part=snippet&q=${encodeURIComponent('world news')}&type=video&order=date&relevanceLanguage=en&maxResults=${maxResults}&key=${encodeURIComponent(apiKey)}`,
     apiKey,
@@ -262,7 +262,7 @@ export async function youtubeSearchByQuery(
   return (data.items ?? []).map(normaliseYouTubeSearchResult);
 }
 
-export async function youtubeDiscovery(apiKey: string, max: number: Promise<UnifiedFeedItem[]> {
+export async function youtubeDiscovery(apiKey: string, max: number: Promise<UnifiedFeedItem[]>) {
   const safeMax = Math.min(Math.max(1, Number.isFinite(max) ? Math.trunc(max) : 30), 50);
   const fetchMax = Math.min(Math.max(safeMax, 12), 50);
 
@@ -282,7 +282,7 @@ export async function youtubeDiscovery(apiKey: string, max: number: Promise<Unif
  *
  * Results are normalised and sorted newest-first.
  */
-export async function youtubeSync(creds: YouTubeCredentials: Promise<UnifiedFeedItem[]> {
+export async function youtubeSync(creds: YouTubeCredentials: Promise<UnifiedFeedItem[]>) {
   await youtubeVerify(creds);
 
   const accessToken = requireAccessToken(creds.access_token);

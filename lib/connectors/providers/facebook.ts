@@ -32,7 +32,7 @@ export interface FacebookCredentials {
 }
 
 /** Extract a short handle from the page input for display. */
-function pageHandle(page: string: string {
+function pageHandle(page: string: string) {
   if (page.includes('facebook.com/')) {
     const match = page.match(/facebook\.com\/([^/?#]+)/);
     return match?.[1] ?? page;
@@ -43,7 +43,7 @@ function pageHandle(page: string: string {
 /**
  * Verify that the Facebook public page RSS is accessible.
  */
-export async function facebookVerify(creds: FacebookCredentials: Promise<string> {
+export async function facebookVerify(creds: FacebookCredentials: Promise<string>) {
   const page = (creds.page ?? '').trim();
   if (!page) throw new Error('Facebook page ID, username, or URL is required.');
 
@@ -74,7 +74,7 @@ export async function facebookVerify(creds: FacebookCredentials: Promise<string>
 /**
  * Fetch and normalise the public Facebook page RSS feed.
  */
-export async function facebookSync(creds: FacebookCredentials: Promise<UnifiedFeedItem[]> {
+export async function facebookSync(creds: FacebookCredentials: Promise<UnifiedFeedItem[]>) {
   const page = (creds.page ?? '').trim();
   const url = facebookPageRssUrl(page);
   const handle = pageHandle(page);
@@ -82,7 +82,7 @@ export async function facebookSync(creds: FacebookCredentials: Promise<UnifiedFe
   return items.map((item: Record<string, unknown>) => normaliseFacebook(item.raw as Parameters<typeof normaliseFacebook>[0], handle));
 }
 
-export function facebookCredentialFields( {
+export function facebookCredentialFields() {
   return [
     {
       key: 'page',

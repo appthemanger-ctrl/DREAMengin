@@ -21,7 +21,7 @@ type Profile = {
   website: string;
 };
 
-export default function EditProfileDreamPage( {
+export default function EditProfileDreamPage() {
   const [profile, setProfile] = useState<Profile>({
     display_name: '', handle: '', bio: '',
     avatar_url: null, banner_url: null, location: '', website: '',

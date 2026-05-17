@@ -36,7 +36,7 @@ export interface ConnectWidgetPromptProps {
  * ConnectWidgetPrompt — shows immediately after a successful connection.
  * Only one should be mounted at a time (parent is responsible for req 18).
  */
-export default function ConnectWidgetPrompt({
+export default function ConnectWidgetPrompt() {
   connectorName,
   connectorId,
   widgetTypes,
@@ -68,13 +68,13 @@ export default function ConnectWidgetPrompt({
      
   }, [menuOpen]);
 
-  function dismiss( {
+  function dismiss() {
     setVisible(false);
     if (timerRef.current) clearTimeout(timerRef.current);
     if (primary) onDismiss(primary.id);
   }
 
-  function handleAdd( {
+  function handleAdd() {
     if (timerRef.current) clearTimeout(timerRef.current);
     if (primary) onAdd(primary.id);
   }

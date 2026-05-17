@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { ArrowLeft, DollarSign, Loader2, LayoutGrid, Info } from 'lucide-react';
 
 
-export default function CreateAdSlotPage( {
+export default function CreateAdSlotPage() {
   const [placement, setPlacement] = useState('sidebar_banner');
   const [priceDay, setPriceDay] = useState('5.00');
   const [priceWeek, setPriceWeek] = useState('25.00');

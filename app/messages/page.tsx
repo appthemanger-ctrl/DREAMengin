@@ -9,7 +9,7 @@ interface MessagesPageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function MessagesPage({ searchParams }: MessagesPageProps {
+export default async function MessagesPage() { searchParams }: MessagesPageProps {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

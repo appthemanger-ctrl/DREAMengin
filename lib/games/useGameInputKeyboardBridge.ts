@@ -57,7 +57,7 @@ const DIRECTIONAL_ACTIONS: GameInputAction[] = [
   'move-down-right',
 ];
 
-function emitKeyboardEvent(type: 'keydown' | 'keyup', input: KeyboardInput {
+function emitKeyboardEvent(type: 'keydown' | 'keyup', input: KeyboardInput) {
   window.dispatchEvent(new KeyboardEvent(type, {
     key: input.key,
     code: input.code,
@@ -66,7 +66,7 @@ function emitKeyboardEvent(type: 'keydown' | 'keyup', input: KeyboardInput {
   }));
 }
 
-export function useGameInputKeyboardBridge( {
+export function useGameInputKeyboardBridge() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 

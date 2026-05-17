@@ -11,7 +11,7 @@ import { connection } from 'next/server';
  * a redirect so traffic forwards to the canonical Games Daydream at /daydream/games.
  */
 
-export default async function PlayDaydreamLegacyPage( {
+export default async function PlayDaydreamLegacyPage() {
   await connection();
   redirect(buildGameLaunchHref(DEFAULT_GAME_ID));
 }

@@ -38,7 +38,7 @@ export interface InfinityIconProps {
   ariaLabel?: string;
 }
 
-export default function InfinityIcon({
+export default function InfinityIcon() {
   size = 40,
   variant = 'flat',
   colorScheme = 'gold',

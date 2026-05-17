@@ -10,7 +10,7 @@ import { useAgentSession } from './useAgentSession';
  * full chat interface once a session is running.  All communication happens
  * via /api/agent/session so no agent-os imports are needed on the client.
  */
-export function AgentPanel( {
+export function AgentPanel() {
   const {
     messages,
     isLoading,

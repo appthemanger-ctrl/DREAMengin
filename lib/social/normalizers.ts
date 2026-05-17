@@ -40,7 +40,7 @@ export interface MastodonStatus {
   media_attachments: Array<{ url: string; type: string }>;
 }
 
-export function normalizeMastodonPost(status: MastodonStatus: NormalizedPost {
+export function normalizeMastodonPost(status: MastodonStatus: NormalizedPost) {
   const firstMedia = status.media_attachments[0];
   const strippedContent = status.content.replace(/<[^>]*>/g, '').trim();
   return {
@@ -112,7 +112,7 @@ export interface BlueskyPost {
   };
 }
 
-export function normalizeBlueskyPost(post: BlueskyPost: NormalizedPost {
+export function normalizeBlueskyPost(post: BlueskyPost: NormalizedPost) {
   const img = post.record.embed?.images?.[0];
   return {
     id: `bluesky:${post.cid}`,

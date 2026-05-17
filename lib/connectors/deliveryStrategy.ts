@@ -142,7 +142,7 @@ export const DELIVERY_STRATEGY_MATRIX: ReadonlyArray<ConnectorDeliveryStrategy> 
  * Look up the delivery strategy for a provider.
  * Returns undefined if the provider is not in the matrix.
  */
-export function getDeliveryStrategy(provider: string: ConnectorDeliveryStrategy | undefined {
+export function getDeliveryStrategy(provider: string: ConnectorDeliveryStrategy | undefined) {
   return DELIVERY_STRATEGY_MATRIX.find((s: Record<string, unknown>) => s.provider === provider);
 }
 
@@ -150,7 +150,7 @@ export function getDeliveryStrategy(provider: string: ConnectorDeliveryStrategy 
  * Returns true if the provider has any webhook-based delivery
  * (either 'webhook' or 'webhook+poll').
  */
-export function supportsWebhook(provider: string: boolean {
+export function supportsWebhook(provider: string: boolean) {
   const s = getDeliveryStrategy(provider);
   return s?.delivery === 'webhook' || s?.delivery === 'webhook+poll';
 }
@@ -159,7 +159,7 @@ export function supportsWebhook(provider: string: boolean {
  * Returns true if the provider supports poll-based delivery
  * (either 'poll' or 'webhook+poll').
  */
-export function supportsPoll(provider: string: boolean {
+export function supportsPoll(provider: string: boolean) {
   const s = getDeliveryStrategy(provider);
   return s?.delivery === 'poll' || s?.delivery === 'webhook+poll';
 }
@@ -168,13 +168,13 @@ export function supportsPoll(provider: string: boolean {
  * Returns true if the provider supports a webhook verification
  * challenge (YouTube WebSub or Meta hub.mode=subscribe handshake).
  */
-export function supportsWebhookVerification(provider: string: boolean {
+export function supportsWebhookVerification(provider: string: boolean) {
   return getDeliveryStrategy(provider)?.webhookVerifiable ?? false;
 }
 
 /**
  * All provider ids that appear in the delivery strategy matrix.
  */
-export function knownDeliveryProviders(: string[] {
+export function knownDeliveryProviders(: string[]) {
   return DELIVERY_STRATEGY_MATRIX.map((s: Record<string, unknown>) => s.provider);
 }

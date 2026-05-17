@@ -271,7 +271,7 @@ const DreamSystemContext = createContext<DreamSystemContextValue>({
   setDominantViewport:        () => {},
 });
 
-export function DreamSystemProvider({ children }: { children: ReactNode } {
+export function DreamSystemProvider() { children }: { children: ReactNode } {
   const [bothMenusOpen, setBothMenusOpen]       = useState(false);
   const [drEamsOpen,    setDrEamsOpen]           = useState(false);
   const [runtimeCallbacks, setRuntimeCallbacks] = useState<RuntimeCallbacks | null>(null);

@@ -53,7 +53,7 @@ const asLinks = (v: unknown): Array<{ title: string; url: string }> => {
     .filter(Boolean) as Array<{ title: string; url: string }>;
 };
 
-export default function ProfileSpace({
+export default function ProfileSpace() {
   userId,
   handle,
   displayName,
@@ -303,7 +303,7 @@ export default function ProfileSpace({
   );
 }
 
-function EmptyProfileState({ isOwner, onAddWidget }: { isOwner: boolean; onAddWidget: () => void }) {
+function EmptyProfileState() { isOwner, onAddWidget }: { isOwner: boolean; onAddWidget: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center h-full p-4 text-center">
       <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
@@ -328,7 +328,7 @@ function EmptyProfileState({ isOwner, onAddWidget }: { isOwner: boolean; onAddWi
   );
 }
 
-function WidgetRenderer({
+function WidgetRenderer() {
   widget,
   content,
   isEditing,
@@ -408,7 +408,7 @@ function WidgetRenderer({
   );
 }
 
-function GalleryWidget({ content, config }: { content: ContentObject[]; config: Widget["config"] } {
+function GalleryWidget() { content, config }: { content: ContentObject[]; config: Widget["config"] } {
   const layout = asString((config as Record<string, unknown>).layout, "grid");
   const columns = Math.min(Math.max(asNumber((config as Record<string, unknown>).columns, 3), 1), 4);
 
@@ -440,7 +440,7 @@ function GalleryWidget({ content, config }: { content: ContentObject[]; config: 
   );
 }
 
-function BlankWidget( {
+function BlankWidget() {
   return (
     <div className="p-8 text-center text-muted-foreground">
       <div className="w-16 h-16 rounded-full bg-muted/60 mx-auto mb-3 flex items-center justify-center">
@@ -452,7 +452,7 @@ function BlankWidget( {
   );
 }
 
-function MediaWidget({ content }: { content?: ContentObject } {
+function MediaWidget() { content }: { content?: ContentObject } {
   if (!content) return <div className="p-8 text-center text-muted-foreground">No media selected</div>;
 
   return (
@@ -474,7 +474,7 @@ function MediaWidget({ content }: { content?: ContentObject } {
   );
 }
 
-function TextWidget({ config }: { config: Widget["config"] } {
+function TextWidget() { config }: { config: Widget["config"] } {
   const title = asString((config as Record<string, unknown>).title, "");
   const text = asString((config as Record<string, unknown>).text, "");
   return (
@@ -485,7 +485,7 @@ function TextWidget({ config }: { config: Widget["config"] } {
   );
 }
 
-function ProfileInfoWidget({ config }: { config: Widget["config"] } {
+function ProfileInfoWidget() { config }: { config: Widget["config"] } {
   const bioText = asString((config as Record<string, unknown>).bio, "");
   const location = asString((config as Record<string, unknown>).location, "");
   return (
@@ -496,7 +496,7 @@ function ProfileInfoWidget({ config }: { config: Widget["config"] } {
   );
 }
 
-function LinkTreeWidget({ config }: { config: Widget["config"] } {
+function LinkTreeWidget() { config }: { config: Widget["config"] } {
   const links = asLinks((config as Record<string, unknown>).links);
   return (
     <div className="p-4 space-y-2">
@@ -520,7 +520,7 @@ function LinkTreeWidget({ config }: { config: Widget["config"] } {
   );
 }
 
-function EmbedWidget({ config }: { config: Widget["config"] } {
+function EmbedWidget() { config }: { config: Widget["config"] } {
   const embedUrl = asString((config as Record<string, unknown>).embedUrl, "");
   if (!embedUrl) return <div className="p-8 text-center text-muted-foreground">No embed URL provided</div>;
   return (
@@ -535,7 +535,7 @@ function EmbedWidget({ config }: { config: Widget["config"] } {
   );
 }
 
-function FeedWidget({ config }: { config: Widget["config"] } {
+function FeedWidget() { config }: { config: Widget["config"] } {
   return (
     <div className="p-4">
       <div className="flex items-center gap-2 mb-4">
@@ -554,7 +554,7 @@ function FeedWidget({ config }: { config: Widget["config"] } {
   );
 }
 
-function AlbumWidget({ content }: { content: ContentObject[] } {
+function AlbumWidget() { content }: { content: ContentObject[] } {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -632,7 +632,7 @@ function AlbumWidget({ content }: { content: ContentObject[] } {
   );
 }
 
-function WidgetTypeIcon({ type, className }: { type: WidgetType; className?: string } {
+function WidgetTypeIcon() { type, className }: { type: WidgetType; className?: string } {
   switch (type) {
     case "blank":
       return <Square className={className} />;
@@ -657,7 +657,7 @@ function WidgetTypeIcon({ type, className }: { type: WidgetType; className?: str
   }
 }
 
-function WidgetSettingsModal({
+function WidgetSettingsModal() {
   widget,
   onClose,
   onUpdate,
@@ -748,7 +748,7 @@ function WidgetSettingsModal({
   );
 }
 
-function AddWidgetModal({
+function AddWidgetModal() {
   userId,
   onClose,
   onCreate,

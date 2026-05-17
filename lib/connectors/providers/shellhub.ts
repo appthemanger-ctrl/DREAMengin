@@ -101,7 +101,7 @@ async function shellhubFetch<T>(
  * A 200 response (even with an empty list) confirms the key is valid.
  * Returns a human-readable summary string on success.
  */
-export async function shellhubVerify(creds: ShellHubCredentials: Promise<string> {
+export async function shellhubVerify(creds: ShellHubCredentials: Promise<string>) {
   const devices = await shellhubFetch<ShellHubDevice[]>(
     creds.server_url,
     creds.api_key,
@@ -134,7 +134,7 @@ export async function shellhubListDevices(
  * Returns the credential field definitions for the ShellHub connector.
  * Used by the UI to render the connection form.
  */
-export function shellhubCredentialFields( {
+export function shellhubCredentialFields() {
   return [
     {
       key: 'server_url',

@@ -48,7 +48,7 @@ export interface CustomizeModeContextValue {
 
 const CustomizeModeContext = createContext<CustomizeModeContextValue | null>(null);
 
-export function useCustomizeMode(: CustomizeModeContextValue {
+export function useCustomizeMode(: CustomizeModeContextValue) {
   const ctx = useContext(CustomizeModeContext);
   if (!ctx) throw new Error('useCustomizeMode must be used inside CustomizeModeProvider');
   return ctx;
@@ -56,7 +56,7 @@ export function useCustomizeMode(: CustomizeModeContextValue {
 
 // ── Provider ───────────────────────────────────────────────────────────────────
 
-export function CustomizeModeProvider({ children }: { children: React.ReactNode } {
+export function CustomizeModeProvider() { children }: { children: React.ReactNode } {
   const [isCustomizeMode, setIsCustomizeMode] = useState(false);
   const [activePage, setActivePage] = useState<SkinPage | null>(null);
   const [activePanel, setActivePanel] = useState<'color' | 'font' | 'layout' | 'effects' | null>(null);

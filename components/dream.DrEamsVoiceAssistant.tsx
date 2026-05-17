@@ -13,7 +13,7 @@ interface Message {
   isVoice?: boolean;
 }
 
-export default function DrEamsVoiceAssistant( {
+export default function DrEamsVoiceAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([

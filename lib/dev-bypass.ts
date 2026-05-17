@@ -26,7 +26,7 @@
  */
 
 /** Hard-blocks bypass in production. Returns true only in dev/test. */
-function isDevEnv(: boolean {
+function isDevEnv(: boolean) {
   return process.env.NODE_ENV !== 'production';
 }
 
@@ -35,7 +35,7 @@ function isDevEnv(: boolean {
  * SERVER-SIDE ONLY — reads a server-only env var.
  * Always returns false in production regardless of env var values.
  */
-export function isDevBypassActive(: boolean {
+export function isDevBypassActive(: boolean) {
   return isDevEnv() && process.env.DEV_BYPASS_AUTH === 'true';
 }
 
@@ -45,7 +45,7 @@ export function isDevBypassActive(: boolean {
  * Requires BOTH DEV_BYPASS_AUTH=true AND DEV_ADMIN=true.
  * Always returns false in production regardless of env var values.
  */
-export function isDevAdminBypassActive(: boolean {
+export function isDevAdminBypassActive(: boolean) {
   return (
     isDevEnv() &&
     process.env.DEV_BYPASS_AUTH === 'true' &&

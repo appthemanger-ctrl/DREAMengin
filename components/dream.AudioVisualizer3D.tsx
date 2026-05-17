@@ -45,7 +45,7 @@ interface Hotspot {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function AudioVisualizer3D({
+export function AudioVisualizer3D() {
   analyser,
   peakMap,
   onStemExtracted,
@@ -86,7 +86,7 @@ export function AudioVisualizer3D({
   useEffect(() => {
     let mounted = true;
 
-    async function initBabylon( {
+    async function initBabylon() {
       const canvas = canvasRef.current;
       if (!canvas || !mounted) return;
 
@@ -157,7 +157,7 @@ export function AudioVisualizer3D({
     const dataArray    = new Uint8Array(bufferLength);
     const step         = Math.floor(bufferLength / barCount);
 
-    function update( {
+    function update() {
       animFrameRef.current = requestAnimationFrame(update);
       analyser.getByteFrequencyData(dataArray);
 

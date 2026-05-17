@@ -13,7 +13,7 @@ const links = [
   { href: '/about',       label: 'About' },
 ]
 
-export default function Nav( {
+export default function Nav() {
   const [open, setOpen] = useState(false)
   return (
     <nav className="de-nav">

@@ -66,7 +66,7 @@ export interface ButtonInteractionEvent {
   interaction: ButtonInteraction;
 }
 
-function emitWindowEvent(button: ControllerButton, interaction: ButtonInteraction {
+function emitWindowEvent(button: ControllerButton, interaction: ButtonInteraction) {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(
     new CustomEvent<ButtonInteractionEvent>('de-ctrl-button', {
@@ -84,7 +84,7 @@ interface ButtonState {
   isTapAndHoldCandidate: boolean;
 }
 
-function freshState(: ButtonState {
+function freshState(: ButtonState) {
   return {
     touchId: null,
     pressStart: 0,

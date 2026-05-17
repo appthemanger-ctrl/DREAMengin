@@ -25,7 +25,7 @@ const WIDGETS: DaydreamWidget[] = [
 // ── accent colour for this Daydream ────────────────────────────
 const ACCENT = '#2a8ab8';
 
-export default async function OptimizeroPage( {
+export default async function OptimizeroPage() {
   await connection();
   const supabase = await createServerClient();
   let user = null;

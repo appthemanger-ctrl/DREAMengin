@@ -6,7 +6,7 @@ import { AlertTriangle, Trash2, X, Loader2, ShieldAlert } from 'lucide-react';
 type ModalType = 'delete-data' | 'delete-account' | null;
 
 /** Premium in-app confirmation modal — replaces browser `window.confirm/prompt` */
-function ConfirmModal({
+function ConfirmModal() {
   type,
   onClose,
 }: {
@@ -34,7 +34,7 @@ function ConfirmModal({
   const requiredWord = isAccount ? 'DELETE' : 'DELETE MY DATA';
   const isMatch = input.trim().toUpperCase() === requiredWord;
 
-  async function handleConfirm( {
+  async function handleConfirm() {
     if (!isMatch) return;
     setPending(true);
     setError('');
@@ -253,7 +253,7 @@ function ConfirmModal({
   );
 }
 
-export default function DangerZoneActions( {
+export default function DangerZoneActions() {
   const [modal, setModal] = useState<ModalType>(null);
 
   return (

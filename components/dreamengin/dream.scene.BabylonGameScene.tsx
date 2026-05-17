@@ -26,7 +26,7 @@ interface BabylonGameSceneProps {
   onGameSelect?: (gameId: string) => void;
 }
 
-export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps {
+export default function BabylonGameScene() { onGameSelect }: BabylonGameSceneProps {
   const canvasRef   = useRef<HTMLCanvasElement>(null);
   const engineRef   = useRef<import('@babylonjs/core').AbstractEngine | null>(null);
   // God Tier system instance — persists for this scene's lifetime

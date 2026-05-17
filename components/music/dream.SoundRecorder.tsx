@@ -13,20 +13,20 @@ interface Recording {
   mimeType: string;
 }
 
-function formatTime(ms: number {
+function formatTime(ms: number) {
   const s = Math.floor(ms / 1000);
   const m = Math.floor(s / 60);
   return `${m}:${String(s % 60).padStart(2, '0')}`;
 }
 
-function formatSeconds(sec: number {
+function formatSeconds(sec: number) {
   const m = Math.floor(sec / 60);
   const s = Math.floor(sec % 60);
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
 /** Detect the best supported MIME type — handles Safari (mp4/aac) and other browsers. */
-function getBestMimeType(: string {
+function getBestMimeType(: string) {
   const preferred = [
     'audio/mp4;codecs=aac',
     'audio/mp4',
@@ -42,14 +42,14 @@ function getBestMimeType(: string {
 }
 
 /** Guess extension from mime type */
-function extFromMime(mime: string {
+function extFromMime(mime: string) {
   if (mime.includes('mp4')) return 'mp4';
   if (mime.includes('webm')) return 'webm';
   if (mime.includes('ogg')) return 'ogg';
   return 'webm';
 }
 
-export default function SoundRecorder( {
+export default function SoundRecorder() {
   const [state, setState]           = useState<RecorderState>('idle');
   const [recordings, setRecordings] = useState<Recording[]>([]);
   const [elapsed, setElapsed]       = useState(0);

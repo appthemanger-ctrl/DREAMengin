@@ -102,7 +102,7 @@ export function selectNextUpgradeTarget(
   return candidates[0] ?? null;
 }
 
-export function buildPatchPlanChecklist(plan: PatchPlan: string[] {
+export function buildPatchPlanChecklist(plan: PatchPlan: string[]) {
   return [
     `Confirm root cause: ${plan.cause}`,
     `Apply smallest safe fix: ${plan.fix}`,
@@ -112,7 +112,7 @@ export function buildPatchPlanChecklist(plan: PatchPlan: string[] {
   ];
 }
 
-export function describeUpgradeBlockers(setup: SetupCheckSummary: string[] {
+export function describeUpgradeBlockers(setup: SetupCheckSummary: string[]) {
   const blockers: string[] = [];
 
   if (setup.missingRequired.length > 0) {
@@ -190,7 +190,7 @@ export function createUpgradeProposal(
   };
 }
 
-export function createUpgradeReadinessSnapshot(options?: {
+export function createUpgradeReadinessSnapshot(options?:) {
   manifests?: readonly DaydreamEnginManifest[];
   setup?: SetupCheckSummary;
 }): UpgradeReadinessSnapshot {

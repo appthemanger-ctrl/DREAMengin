@@ -26,7 +26,7 @@ const VALID_STATUSES = [
 // GET — fetch incident review queue
 // ============================================================================
 
-export async function GET(req: NextRequest {
+export async function GET(req: NextRequest) {
   const supabase = await createServerClient();
   const { data: { user }, error: userErr } = await supabase.auth.getUser();
   if (userErr || !user) return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
@@ -82,7 +82,7 @@ const AddHashesBodySchema = z.object({
 
 const AdminBodySchema = z.discriminatedUnion('action', [ReviewBodySchema, AddHashesBodySchema]);
 
-export async function POST(req: NextRequest {
+export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
   const { data: { user }, error: userErr } = await supabase.auth.getUser();
   if (userErr || !user) return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');

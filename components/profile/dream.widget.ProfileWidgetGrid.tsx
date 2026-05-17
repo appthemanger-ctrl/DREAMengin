@@ -102,7 +102,7 @@ const BG_STYLES: { value: WidgetBgStyle; label: string }[] = [
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-function getWidgetLabel(type: WidgetType: string {
+function getWidgetLabel(type: WidgetType: string) {
   return {
     bio: 'Bio Card', activity: 'Activity', followers: 'Followers',
     photos: 'Photos', linkedin: 'LinkedIn', twitter: 'Twitter', quote: 'Quote',
@@ -114,7 +114,7 @@ function getWidgetLabel(type: WidgetType: string {
 
 const LARGE_DEFAULT_TYPES: ReadonlySet<WidgetType> = new Set(['bio', 'activity', 'photos']);
 
-function getDefaultSize(type: WidgetType: WidgetSize {
+function getDefaultSize(type: WidgetType: WidgetSize) {
   return LARGE_DEFAULT_TYPES.has(type) ? 'large' : 'small';
 }
 
@@ -123,7 +123,7 @@ const MIN_SMALL_WIDGET_HEIGHT = 120;
 const BIO_SMALL_TRUNCATE      = 35;   // chars shown in compact bio
 const BIO_LARGE_TRUNCATE      = 55;
 
-function getCardBg(style: WidgetBgStyle, accent: string: React.CSSProperties {
+function getCardBg(style: WidgetBgStyle, accent: string: React.CSSProperties) {
   switch (style) {
     case 'glass':  return { background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
     case 'warm':   return { background: 'linear-gradient(135deg, #fff8ed, #fff3d6)' };
@@ -133,16 +133,16 @@ function getCardBg(style: WidgetBgStyle, accent: string: React.CSSProperties {
   }
 }
 
-function getTextColor(style: WidgetBgStyle: string {
+function getTextColor(style: WidgetBgStyle: string) {
   return style === 'dark' ? '#ffffff' : '#1a1a1a';
 }
-function getDimColor(style: WidgetBgStyle: string {
+function getDimColor(style: WidgetBgStyle: string) {
   return style === 'dark' ? 'rgba(255,255,255,0.55)' : '#999';
 }
 
 // ── Dot-grid icon (iOS-style drag/settings handle) ────────────────────────────
 
-function DotGrid( {
+function DotGrid() {
   return (
     <div aria-hidden="true" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 4px)', gap: '3px', opacity: 0.32 }}>
       {Array.from({ length: 9 }).map(_: Record<string, unknown>, i: number => (
@@ -152,7 +152,7 @@ function DotGrid( {
   );
 }
 
-function SparkLine({ data, color: Record<string, unknown>, height = 56 }: { data: number[]; color: string; height?: number } {
+function SparkLine() { data, color: Record<string, unknown>, height = 56 }: { data: number[]; color: string; height?: number } {
   const min = Math.min(...data), max = Math.max(...data), r = max - min || 1;
   const W = 200, H = height;
   const pts = data.map(v: Record<string, unknown>, i: number => `${(i / (data.length - 1)) * W},${H - ((v - min) / r) * (H - 4) - 2}`).join(' ');
@@ -164,7 +164,7 @@ function SparkLine({ data, color: Record<string, unknown>, height = 56 }: { data
   );
 }
 
-function BarChart({ data, color }: { data: number[]; color: string } {
+function BarChart() { data, color }: { data: number[]; color: string } {
   const max = Math.max(...data);
   return (
     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 38 }}>
@@ -181,7 +181,7 @@ function BarChart({ data, color }: { data: number[]; color: string } {
 
 // ── Widget Config Sheet ────────────────────────────────────────────────────────
 
-function WidgetConfigSheet({
+function WidgetConfigSheet() {
   widget, onClose, onSave,
 }: {
   widget: Widget;
@@ -434,7 +434,7 @@ function WidgetConfigSheet({
 
 // ── Connector-sourced widget shell ────────────────────────────────────────────
 
-function ConnectorSourcedWidget({
+function ConnectorSourcedWidget() {
   symbol, brandColor, bgColor, name, sub,
   textColor, dimColor, connected, accent, extra, size,
 }: {
@@ -508,7 +508,7 @@ interface WidgetContentProps {
   likes: number;
 }
 
-function WidgetContent(p: WidgetContentProps {
+function WidgetContent(p: WidgetContentProps) {
   const { type, size, config, displayName, avatarUrl, avatarEditHref, bio, coverUrl, followers, following = 0, posts, likes } = p;
   const accent    = config.accentColor;
   const textColor = getTextColor(config.bgStyle);
@@ -918,7 +918,7 @@ interface ProfileWidgetGridProps {
   onSave?: (widgets: Widget[]) => void;
 }
 
-export default function ProfileWidgetGrid({
+export default function ProfileWidgetGrid() {
   displayName, handle: _handle, avatarUrl, avatarEditHref, bio, coverUrl,
   followers = 0, following = 0, posts = 12, likes = 46,
   isEditing = false,

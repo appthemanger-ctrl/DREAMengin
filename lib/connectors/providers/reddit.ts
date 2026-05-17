@@ -35,7 +35,7 @@ interface RedditUser {
  * Verify credentials by calling GET /api/v1/me
  * Returns the authenticated username on success.
  */
-export async function redditVerify(creds: RedditCredentials: Promise<string> {
+export async function redditVerify(creds: RedditCredentials: Promise<string>) {
   const res = await fetch(`${REDDIT_API}/api/v1/me`, {
     headers: {
       Authorization: `Bearer ${creds.access_token}`,
@@ -51,7 +51,7 @@ export async function redditVerify(creds: RedditCredentials: Promise<string> {
  * Fetch the user's home feed and return normalised items.
  * Calls GET /best or / (personalised frontpage when authenticated).
  */
-export async function redditSync(creds: RedditCredentials: Promise<UnifiedFeedItem[]> {
+export async function redditSync(creds: RedditCredentials: Promise<UnifiedFeedItem[]>) {
   const res = await fetch(`${REDDIT_API}/?limit=40`, {
     headers: {
       Authorization: `Bearer ${creds.access_token}`,
@@ -67,7 +67,7 @@ export async function redditSync(creds: RedditCredentials: Promise<UnifiedFeedIt
 /**
  * Fetch the user's saved posts.
  */
-export async function redditSyncSaved(creds: RedditCredentials: Promise<UnifiedFeedItem[]> {
+export async function redditSyncSaved(creds: RedditCredentials: Promise<UnifiedFeedItem[]>) {
   const username = await redditVerify(creds);
   const res = await fetch(`${REDDIT_API}/user/${username}/saved?limit=40`, {
     headers: {
@@ -80,7 +80,7 @@ export async function redditSyncSaved(creds: RedditCredentials: Promise<UnifiedF
   return (listing.data?.children ?? []).map((post: Record<string, unknown>) => normaliseReddit(post as Parameters<typeof normaliseReddit>[0]));
 }
 
-export function redditCredentialFields( {
+export function redditCredentialFields() {
   return [
     {
       key: 'access_token',

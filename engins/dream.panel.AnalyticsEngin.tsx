@@ -44,7 +44,7 @@ const REVENUE_SPLIT = [
   { label: 'Reward Pool',  pct: 20, color: '#f59e0b', desc: 'Monthly distribution to active users' },
 ];
 
-export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: Props {
+export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }: Props {
   const [userId, setUserId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [platformMetrics, setPlatformMetrics] = useState<GetPlatformMetricsResponse | null>(null);

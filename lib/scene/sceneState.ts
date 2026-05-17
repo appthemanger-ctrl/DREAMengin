@@ -36,7 +36,7 @@ export type { SceneSnapshot, SceneObject, CachedScene };
 /**
  * Create a minimal default scene snapshot (empty canvas, default camera).
  */
-export function createDefaultSnapshot(: SceneSnapshot {
+export function createDefaultSnapshot(: SceneSnapshot) {
   return {
     camera: {
       position: [0, 5, -10],
@@ -93,14 +93,14 @@ export async function restoreScene(
 /**
  * Remove a persisted scene.
  */
-export async function removeScene(sceneId: string: Promise<void> {
+export async function removeScene(sceneId: string: Promise<void>) {
   await deleteScene(sceneId);
 }
 
 /**
  * List all persisted scene IDs.
  */
-export async function listPersistedScenes(: Promise<string[]> {
+export async function listPersistedScenes(: Promise<string[]>) {
   const scenes = await listScenes();
   return scenes.map((s: Record<string, unknown>) => s.id);
 }
@@ -157,7 +157,7 @@ export function scenesAreDifferent(
  *   // On unmount:
  *   autosave.flush();
  */
-export function createAutoSave(sceneId: string, intervalMs = 2000 {
+export function createAutoSave(sceneId: string, intervalMs = 2000) {
   let lastSnapshot: SceneSnapshot | null = null;
   let pending: SceneSnapshot | null = null;
   let timer: ReturnType<typeof setTimeout> | null = null;

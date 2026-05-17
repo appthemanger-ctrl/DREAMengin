@@ -8,12 +8,12 @@
 
 import { useEffect, useState } from 'react';
 
-export function SkipCreditBalance( {
+export function SkipCreditBalance() {
   const [balance, setBalance] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadBalance( {
+    async function loadBalance() {
       try {
         const res = await fetch('/api/skip-credits/balance');
         if (res.ok) {

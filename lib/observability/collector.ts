@@ -65,7 +65,7 @@ const traceBuffer: TraceSpan[] = [];
 
 let _counter = 0;
 
-function nextId(prefix: string: string {
+function nextId(prefix: string: string) {
   _counter += 1;
   return `${prefix}-${_counter}-${Date.now()}`;
 }
@@ -174,7 +174,7 @@ export function collectTrace(
  * Return a snapshot of all telemetry within the last `windowMs` milliseconds.
  * Defaults to the last 5 minutes.
  */
-export function getSnapshot(windowMs = 5 * 60 * 1000: TelemetrySnapshot {
+export function getSnapshot(windowMs = 5 * 60 * 1000: TelemetrySnapshot) {
   const cutoff = new Date(Date.now() - windowMs).toISOString();
   return {
     logs: logBuffer.filter((e: Record<string, unknown>) => e.timestamp >= cutoff),
@@ -185,7 +185,7 @@ export function getSnapshot(windowMs = 5 * 60 * 1000: TelemetrySnapshot {
 }
 
 /** Return current buffer sizes (total, not windowed). */
-export function getBufferStats(: { logs: number; metrics: number; traces: number } {
+export function getBufferStats(:) { logs: number; metrics: number; traces: number } {
   return {
     logs: logBuffer.length,
     metrics: metricBuffer.length,
@@ -194,7 +194,7 @@ export function getBufferStats(: { logs: number; metrics: number; traces: number
 }
 
 /** Flush all buffers — used in tests and manual resets. */
-export function clearBuffers(: void {
+export function clearBuffers(: void) {
   logBuffer.length = 0;
   metricBuffer.length = 0;
   traceBuffer.length = 0;
@@ -221,7 +221,7 @@ export function collectBatchLogs(
  * Compute errors-per-minute within the given window.
  * Returns 0 when the window contains no data.
  */
-export function getErrorRate(windowMs = 5 * 60 * 1000: number {
+export function getErrorRate(windowMs = 5 * 60 * 1000: number) {
   const cutoff = new Date(Date.now() - windowMs).toISOString();
   const errorCount = logBuffer.filter(
     (e) => e.timestamp >= cutoff && e.level === 'error',
@@ -236,7 +236,7 @@ export function getErrorRate(windowMs = 5 * 60 * 1000: number {
  * Return the P95 latency (ms) across all trace spans in the given window.
  * Returns 0 when no traces are present.
  */
-export function getP95Latency(windowMs = 5 * 60 * 1000: number {
+export function getP95Latency(windowMs = 5 * 60 * 1000: number) {
   const cutoff = new Date(Date.now() - windowMs).toISOString();
   const durations = traceBuffer
     .filter((t: Record<string, unknown>) => t.timestamp >= cutoff)
@@ -253,7 +253,7 @@ export function getP95Latency(windowMs = 5 * 60 * 1000: number {
  * Group trace spans by their `trace_id` for distributed request tracing.
  * Returns a Map keyed by trace_id, each value being the spans in arrival order.
  */
-export function groupTracesByTraceId(windowMs = 5 * 60 * 1000: Map<string, TraceSpan[]> {
+export function groupTracesByTraceId(windowMs = 5 * 60 * 1000: Map<string, TraceSpan[]>) {
   const cutoff = new Date(Date.now() - windowMs).toISOString();
   const result = new Map<string, TraceSpan[]>();
   for (const span of traceBuffer) {
@@ -277,7 +277,7 @@ export interface LogSeverityCounts {
 /**
  * Return the count of log entries at each severity level within the window.
  */
-export function getLogCountsBySeverity(windowMs = 5 * 60 * 1000: LogSeverityCounts {
+export function getLogCountsBySeverity(windowMs = 5 * 60 * 1000: LogSeverityCounts) {
   const cutoff = new Date(Date.now() - windowMs).toISOString();
   const counts: LogSeverityCounts = { debug: 0, info: 0, warn: 0, error: 0 };
   for (const e of logBuffer) {

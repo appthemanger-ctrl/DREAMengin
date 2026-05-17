@@ -14,7 +14,7 @@ import type { Json } from '@/types/supabase';
 // Helpers
 // ---------------------------------------------------------------------------
 
-async function requireAdmin(: Promise<{ userId: string }> {
+async function requireAdmin(: Promise<) { userId: string }> {
   const supabase = await createServerClient();
 
   const {

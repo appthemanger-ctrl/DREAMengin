@@ -11,7 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import type { TrackViewRequest, TrackViewResponse } from '@/lib/activity/types';
 
-export async function POST(req: NextRequest {
+export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
 
   // Auth check (optional - allow anonymous views)

@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
 // GET - Fetch music releases
-export async function GET(req: NextRequest {
+export async function GET(req: NextRequest) {
   const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest {
 }
 
 // POST - Upload/create a music release
-export async function POST(req: NextRequest {
+export async function POST(req: NextRequest) {
   const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest {
 }
 
 // DELETE - Remove a music release
-export async function DELETE(req: NextRequest {
+export async function DELETE(req: NextRequest) {
   const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 

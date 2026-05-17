@@ -24,7 +24,7 @@ export interface MastodonCredentials {
  * Calls GET /api/v1/accounts/verify_credentials
  * Returns the account display name on success, or throws.
  */
-export async function mastodonVerify(creds: MastodonCredentials: Promise<string> {
+export async function mastodonVerify(creds: MastodonCredentials: Promise<string>) {
   const base = creds.instance_url.replace(/\/$/, '');
   const res = await fetch(`${base}/api/v1/accounts/verify_credentials`, {
     headers: { Authorization: `Bearer ${creds.access_token}` },
@@ -40,7 +40,7 @@ export async function mastodonVerify(creds: MastodonCredentials: Promise<string>
  * Fetch the home timeline and return normalised feed items.
  * Calls GET /api/v1/timelines/home?limit=40
  */
-export async function mastodonSync(creds: MastodonCredentials: Promise<UnifiedFeedItem[]> {
+export async function mastodonSync(creds: MastodonCredentials: Promise<UnifiedFeedItem[]>) {
   const base = creds.instance_url.replace(/\/$/, '');
   const res = await fetch(`${base}/api/v1/timelines/home?limit=40`, {
     headers: { Authorization: `Bearer ${creds.access_token}` },
@@ -52,7 +52,7 @@ export async function mastodonSync(creds: MastodonCredentials: Promise<UnifiedFe
   );
 }
 
-export function mastodonCredentialFields( {
+export function mastodonCredentialFields() {
   return [
     {
       key: 'instance_url',

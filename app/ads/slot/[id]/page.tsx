@@ -7,7 +7,7 @@ import type { AdSlot } from '@/types/ads';
 import { connection } from 'next/server';
 
 
-export default async function AdSlotPage({ params }: { params: { id: string } } {
+export default async function AdSlotPage() { params }: { params: { id: string } } {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

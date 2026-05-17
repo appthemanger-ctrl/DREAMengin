@@ -19,13 +19,13 @@ interface GameScore {
   shared: boolean;
 }
 
-export default function ScoresPanel( {
+export default function ScoresPanel() {
   const [scores, setScores] = useState<GameScore[]>([]);
   const [loading, setLoading] = useState(true);
   const [sharing, setSharing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function loadScores( {
+  async function loadScores() {
     setLoading(true);
     setError(null);
     const supabase = createClient();
@@ -44,7 +44,7 @@ export default function ScoresPanel( {
 
   useEffect(() => { loadScores(); }, []);
 
-  async function shareScore(id: string {
+  async function shareScore(id: string) {
     setSharing(id);
     const supabase = createClient();
     await supabase.from('game_scores').update({ shared: true }).eq('id', id);

@@ -118,7 +118,7 @@ export function shouldApplyRecenter(
 /**
  * Update recenter state when user activity is detected
  */
-export function updateActivityTime(state: RecenterState, currentTime: number: RecenterState {
+export function updateActivityTime(state: RecenterState, currentTime: number: RecenterState) {
   return {
     lastActivityTime: currentTime,
     isIdle: false,

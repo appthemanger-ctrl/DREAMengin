@@ -32,7 +32,7 @@ interface GhostPreviewState {
 
 const DEFAULT_WINDOW_SIZE = { width: 600, height: 400 };
 
-function clamp(value: number, min: number, max: number {
+function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
@@ -49,12 +49,12 @@ function resolveModulePosition(
   };
 }
 
-function shouldUseModuleLoader(moduleUrl?: string {
+function shouldUseModuleLoader(moduleUrl?: string) {
   if (!moduleUrl) return true;
   return !moduleUrl.startsWith('/');
 }
 
-export default function ActiveModuleSurface({ accountId }: ActiveModuleSurfaceProps {
+export default function ActiveModuleSurface() { accountId }: ActiveModuleSurfaceProps {
   const surfaceRef = useRef<HTMLDivElement>(null);
   const iframeRefs = useRef<Record<string, HTMLIFrameElement | null>>({});
   const dragArtifactRef = useRef<DreamArtifact | null>(null);

@@ -35,7 +35,7 @@ interface BlueskySession {
  * Create a session using the AT Protocol createSession XRPC.
  * Returns the session object including accessJwt.
  */
-async function createSession(creds: BlueskyCredentials: Promise<BlueskySession> {
+async function createSession(creds: BlueskyCredentials: Promise<BlueskySession>) {
   const res = await fetch(`${BSKY_PDS}/xrpc/com.atproto.server.createSession`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -54,7 +54,7 @@ async function createSession(creds: BlueskyCredentials: Promise<BlueskySession> 
  * Verify credentials by creating a session.
  * Returns the user's handle on success.
  */
-export async function blueskyVerify(creds: BlueskyCredentials: Promise<string> {
+export async function blueskyVerify(creds: BlueskyCredentials: Promise<string>) {
   const session = await createSession(creds);
   return session.handle;
 }
@@ -63,7 +63,7 @@ export async function blueskyVerify(creds: BlueskyCredentials: Promise<string> {
  * Fetch the home feed (following feed) and return normalised items.
  * Uses app.bsky.feed.getTimeline XRPC.
  */
-export async function blueskySync(creds: BlueskyCredentials: Promise<UnifiedFeedItem[]> {
+export async function blueskySync(creds: BlueskyCredentials: Promise<UnifiedFeedItem[]>) {
   const session = await createSession(creds);
   const res = await fetch(`${BSKY_PDS}/xrpc/app.bsky.feed.getTimeline?limit=40`, {
     headers: { Authorization: `Bearer ${session.accessJwt}` },
@@ -73,7 +73,7 @@ export async function blueskySync(creds: BlueskyCredentials: Promise<UnifiedFeed
   return (data.feed ?? []).map((item: Record<string, unknown>) => normaliseBluesky(item as Parameters<typeof normaliseBluesky>[0]));
 }
 
-export function blueskyCredentialFields( {
+export function blueskyCredentialFields() {
   return [
     {
       key: 'handle',

@@ -180,7 +180,7 @@ const PALETTES: Record<WarpEffect, string[]> = {
   orbit:     ['#fbbf24', '#fb923c', '#f472b6', '#e879f9', '#a78bfa'],
 };
 
-function randomColor(effect: WarpEffect: string {
+function randomColor(effect: WarpEffect: string) {
   const palette = PALETTES[effect];
   return palette[Math.floor(Math.random() * palette.length)];
 }
@@ -193,7 +193,7 @@ function randomColor(effect: WarpEffect: string {
  * Spawn a single particle appropriate for a given effect.
  * Mirrors Warp's `wp.zeros()` / `wp.array()` allocation helpers.
  */
-export function spawnParticle(effect: WarpEffect, width: number, height: number: WarpParticle {
+export function spawnParticle(effect: WarpEffect, width: number, height: number: WarpParticle) {
   let x = Math.random() * width;
   let y = Math.random() * height;
   let vx = (Math.random() - 0.5) * 80;

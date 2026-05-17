@@ -27,7 +27,7 @@ export interface AddSliceSheetProps {
   onClose: () => void;
 }
 
-export default function AddSliceSheet({
+export default function AddSliceSheet() {
   connector,
   existingSlices,
   onAdd,
@@ -39,12 +39,12 @@ export default function AddSliceSheet({
   // Limit to 5 slice types (req 56)
   const available = connector.sliceTypes.slice(0, 5);
 
-  function handlePick(st: SliceTypeDef {
+  function handlePick(st: SliceTypeDef) {
     setSelected(st);
     setStep('preview');
   }
 
-  function handleAdd( {
+  function handleAdd() {
     if (!selected) return;
     const slice: Omit<FeedSlice, 'order'> = {
       id: `${connector.id}-${selected.id}-${Date.now()}`,

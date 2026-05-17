@@ -5,7 +5,7 @@ import { useTheme } from '@/components/providers/dream.ThemeProvider';
 import { THEME_PRESETS, DEFAULT_OVERRIDES } from '@/lib/ui/theme-engine';
 
 /* ── Slider ── */
-function Slider({
+function Slider() {
   label,
   value,
   min,
@@ -53,7 +53,7 @@ function Slider({
 }
 
 /* ── Preset card ── */
-function PresetCard({
+function PresetCard() {
   preset,
   isActive,
   onSelect,
@@ -106,7 +106,7 @@ function PresetCard({
 }
 
 /* ── Main overlay widget ── */
-export default function AppearanceWidget({ onClose }: { onClose: () => void }) {
+export default function AppearanceWidget() { onClose }: { onClose: () => void }) {
   const { presetId, overrides, setPreset, setOverrides, resetOverrides } = useTheme();
 
   const handleBrightness = useCallback((v: number) => setOverrides({ brightness: v }), [setOverrides]);

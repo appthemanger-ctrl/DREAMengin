@@ -7,6 +7,6 @@ import { redirect } from 'next/navigation';
  * The root of the GameEngin URL family routes straight into the cartridge
  * catalogue so users discover the platform's library in one click.
  */
-export default function GameEnginIndexPage(: never {
+export default function GameEnginIndexPage(: never) {
   redirect('/gameengin/cartridges');
 }

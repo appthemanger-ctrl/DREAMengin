@@ -141,7 +141,7 @@ const PARTICLE_D = 12;
 /** Movement slop (px) before a seam touch is treated as a drag vs a tap */
 const SEAM_DRAG_SLOP = 4;
 
-function AvatarChip({ name, url: string, size = 28 }: { name: string; url?: string | null; size?: number } {
+function AvatarChip() { name, url: string, size = 28 }: { name: string; url?: string | null; size?: number } {
   if (url) {
     return (
       <Image
@@ -170,7 +170,7 @@ function AvatarChip({ name, url: string, size = 28 }: { name: string; url?: stri
 // ─────────────────────────────────────────────────────────────────────────────
 // ContextIcon — maps DreamBarContext iconHint to a Lucide icon
 // ─────────────────────────────────────────────────────────────────────────────
-function ContextIcon({ ctx, size }: { ctx: DreamBarContext; size: number } {
+function ContextIcon() { ctx, size }: { ctx: DreamBarContext; size: number } {
   const props = { size, 'aria-hidden': true as const, style: { color: 'var(--de-blue)' } as React.CSSProperties };
   switch (ctx.iconHint) {
     case 'send':           return <Send          {...props} />;
@@ -188,7 +188,7 @@ function ContextIcon({ ctx, size }: { ctx: DreamBarContext; size: number } {
 // ─────────────────────────────────────────────────────────────────────────────
 // SlashCommandIcon — maps slash command icon hints to Lucide icons
 // ─────────────────────────────────────────────────────────────────────────────
-function SlashCommandIcon({ icon, size }: { icon: string; size: number } {
+function SlashCommandIcon() { icon, size }: { icon: string; size: number } {
   const props = { size, 'aria-hidden': true as const };
   switch (icon) {
     case 'home':         return <Home        {...props} />;
@@ -210,7 +210,7 @@ function SlashCommandIcon({ icon, size }: { icon: string; size: number } {
 // ─────────────────────────────────────────────────────────────────────────────
 // StreakFlame — renders the dream streak flame icon with tier-appropriate style
 // ─────────────────────────────────────────────────────────────────────────────
-function StreakFlame({ count, tier }: { count: number; tier: StreakTier } {
+function StreakFlame() { count, tier }: { count: number; tier: StreakTier } {
   if (tier === 'none') return null;
   const colors: Record<StreakTier, string> = {
     none: 'transparent',
@@ -252,7 +252,7 @@ function StreakFlame({ count, tier }: { count: number; tier: StreakTier } {
 // ─────────────────────────────────────────────────────────────────────────────
 // ParticleFountain — renders animated particles from Gold Particle long-press
 // ─────────────────────────────────────────────────────────────────────────────
-function ParticleFountain({ particles, centerX: Record<string, unknown>, centerY }: { particles: Particle[]; centerX: number; centerY: number } {
+function ParticleFountain() { particles, centerX: Record<string, unknown>, centerY }: { particles: Particle[]; centerX: number; centerY: number } {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 200, pointerEvents: 'none' }} aria-hidden>
       {particles.map((p: Record<string, unknown>) => (
@@ -318,7 +318,7 @@ interface DreamDMBarProps {
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
-export default function DreamDMBar({ onBothMenus, onRuntimeModeChange: Record<string, unknown>, onRuntimeBlendChange: Record<string, unknown>, onBarInsets: Record<string, unknown>, splitRatio: Record<string, unknown>, onSplitChange: Record<string, unknown>, onMinimizedChange: Record<string, unknown>, onSwapRuntimes }: DreamDMBarProps {
+export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<string, unknown>, onRuntimeBlendChange: Record<string, unknown>, onBarInsets: Record<string, unknown>, splitRatio: Record<string, unknown>, onSplitChange: Record<string, unknown>, onMinimizedChange: Record<string, unknown>, onSwapRuntimes }: DreamDMBarProps {
   const isGameImmersive = useImmersiveGameLayout();
   /** Gold Particle diameter — shrinks when a game overlay is active so it stays out of the way */
   const goldSz = isGameImmersive ? 36 : GOLD_SZ;
@@ -924,7 +924,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange: Record<st
     // It was a tap — the light's touch handlers manage the tap separately
   }, [onSplitChange, screenH, splitRatio]);
 
-  function openDreamDMInput( {
+  function openDreamDMInput() {
     setIsMinimized(false);
     revealBar();
     setIsBloom(true);
@@ -2910,7 +2910,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange: Record<st
 // ModeButton — compact pill for switching bar intent mode
 // ─────────────────────────────────────────────────────────────────────────────
 
-function ModeButton({
+function ModeButton() {
   mode,
   icon,
   activeMode,
@@ -2999,7 +2999,7 @@ interface DreamSpaceMessagingProps {
   onSearchResultSelect:(r: SearchResult) => void;
 }
 
-function DreamSpaceMessaging({
+function DreamSpaceMessaging() {
   conversations, selectedConv, onSelectConv,
   messages, msgsLoading, msgsEndRef, userId,
   messageBody, onMessageBodyChange, draftRestored,

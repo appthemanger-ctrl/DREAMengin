@@ -35,14 +35,14 @@ const INIT_ITEMS: QueueItem[] = [
   { id: '3', type: 'Thread', title: 'Industry insights', preview: '1/ A thread on the future of…', scheduledAt: null, status: 'scheduled' },
 ];
 
-export default function QueuePanel( {
+export default function QueuePanel() {
   const [items, setItems] = useState<QueueItem[]>(INIT_ITEMS);
   const [newTitle, setNewTitle] = useState('');
   const [newType, setNewType] = useState<ContentType>('Post');
   const [showAdd, setShowAdd] = useState(false);
   const [publishing, setPublishing] = useState<string | null>(null);
 
-  async function publishItem(id: string {
+  async function publishItem(id: string) {
     setPublishing(id);
     setItems(prev: Record<string, unknown> => prev.map(i: number => i.id === id ? { ...i, status: 'publishing' } : i));
     try {
@@ -60,11 +60,11 @@ export default function QueuePanel( {
     setPublishing(null);
   }
 
-  function removeItem(id: string {
+  function removeItem(id: string) {
     setItems(prev: Record<string, unknown> => prev.filter(i: number => i.id !== id));
   }
 
-  function addItem( {
+  function addItem() {
     if (!newTitle.trim()) return;
     setItems(prev: Record<string, unknown> => [...prev, {
       id: Date.now().toString(),

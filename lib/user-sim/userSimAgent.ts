@@ -144,7 +144,7 @@ const MIN_TAP_TARGET_PX = 44;
  * Analyse a PerceptionFrame and return quantified BehaviorSignals.
  * All calculations are deterministic so they can be unit-tested.
  */
-export function perceive(frame: PerceptionFrame: BehaviorSignals {
+export function perceive(frame: PerceptionFrame: BehaviorSignals) {
   const elements = frame.visible_elements;
   const total = elements.length;
 
@@ -509,7 +509,7 @@ export interface JourneyRunnerInput {
  * browser or mock).  The runner drives the agent through each frame in order,
  * stops early on `abandon`, and returns the full SimJourneyResult.
  */
-export function runJourney(input: JourneyRunnerInput: SimJourneyResult {
+export function runJourney(input: JourneyRunnerInput: SimJourneyResult) {
   const { frames, persona_type } = input;
   const journey_id = input.journey_id ?? uuidv4();
   const persona = PERSONAS[persona_type];
@@ -623,7 +623,7 @@ export function judgeJourney(
 // HELPERS
 // ============================================================================
 
-function clamp01(v: number: number {
+function clamp01(v: number: number) {
   return Math.max(0, Math.min(1, v));
 }
 

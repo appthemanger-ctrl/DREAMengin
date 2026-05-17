@@ -39,7 +39,7 @@ function makeEntry(enginId: string, label: string, hoursAgo: number) {
   };
 }
 
-function seedHistory(entries: Array<{ enginId: string; label: string; timestamp: string }>) {
+function seedHistory(entries: Array<) { enginId: string; label: string; timestamp: string }>) {
   localStorage.setItem(FORGE_HISTORY_KEY, JSON.stringify(entries));
 }
 

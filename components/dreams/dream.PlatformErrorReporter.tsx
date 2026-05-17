@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 
-export default function PlatformErrorReporter( {
+export default function PlatformErrorReporter() {
   useEffect(() => {
     const report = (message: string, stack?: string, metadata?: Record<string, unknown>) => {
       void fetch('/api/platform/errors', {

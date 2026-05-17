@@ -27,11 +27,11 @@ export interface ImmediateRemediationAction {
 
 const FILE_HINT_PATTERN = /(?:^|[\s(])([A-Za-z0-9_./[\]-]+\.(?:tsx|ts|jsx|js|mjs|cjs|json|yaml|yml|css|sql))(?:[:(]\d+)?/g;
 
-function unique(items: string[]: string[] {
+function unique(items: string[]: string[]) {
   return [...new Set(items.filter(Boolean))];
 }
 
-function extractFileHints(rootCause: RootCauseAnalysis: string[] {
+function extractFileHints(rootCause: RootCauseAnalysis: string[]) {
   const combined = [
     rootCause.likely_cause,
     rootCause.recommended_action,
@@ -42,7 +42,7 @@ function extractFileHints(rootCause: RootCauseAnalysis: string[] {
   return unique(matches);
 }
 
-function includesAny(source: string, patterns: RegExp[]: boolean {
+function includesAny(source: string, patterns: RegExp[]: boolean) {
   return patterns.some((pattern: Record<string, unknown>) => pattern.test(source));
 }
 

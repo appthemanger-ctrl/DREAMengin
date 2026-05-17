@@ -95,7 +95,7 @@ const SESSION_SEED: number =
   typeof window !== 'undefined' ? (Math.floor(Math.random() * 2147483647) || 1) : 1;
 
 // ─── Component ───────────────────────────────────────────────────────────────
-export default function BabylonSideScroller( {
+export default function BabylonSideScroller() {
   const immersive = useImmersiveGameLayout();
   const canvasRef  = useRef<HTMLCanvasElement>(null);
   const gameRef    = useRef<GameCore | null>(null);

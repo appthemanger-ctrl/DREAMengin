@@ -24,7 +24,7 @@ const INPUT_STYLE: React.CSSProperties = {
 
 const DISABLED_BUTTON_OPACITY = 0.45;
 
-function LoginPageInner( {
+function LoginPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = useMemo(() => createClient(), []);
@@ -354,7 +354,7 @@ function LoginPageInner( {
   );
 }
 
-export default function LoginPage( {
+export default function LoginPage() {
   return (
     <Suspense fallback={
       <div

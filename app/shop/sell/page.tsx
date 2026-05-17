@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { ArrowLeft, ShoppingBag, Loader2, DollarSign, Package, ImageIcon } from 'lucide-react';
 
 
-export default function SellItemPage( {
+export default function SellItemPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');

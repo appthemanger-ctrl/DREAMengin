@@ -36,7 +36,7 @@ async function getUserAge(
 }
 
 // GET - Fetch conversations
-export async function GET(req: NextRequest {
+export async function GET(req: NextRequest) {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -87,7 +87,7 @@ export async function GET(req: NextRequest {
 }
 
 // POST - Send a message
-export async function POST(req: NextRequest {
+export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 

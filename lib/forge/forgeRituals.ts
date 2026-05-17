@@ -77,7 +77,7 @@ const TIME_BUCKETS = [
 /**
  * Read history entries from localStorage.
  */
-function readHistory(: HistoryEntry[] {
+function readHistory(: HistoryEntry[]) {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(FORGE_HISTORY_KEY);
@@ -91,7 +91,7 @@ function readHistory(: HistoryEntry[] {
 /**
  * Get the time-of-day bucket for a given hour.
  */
-export function getTimeBucket(hour: number: typeof TIME_BUCKETS[number] {
+export function getTimeBucket(hour: number: typeof TIME_BUCKETS[number]) {
   // Night wraps around midnight
   if (hour >= 21 || hour < 5) return TIME_BUCKETS[3]; // night
   if (hour >= 5 && hour < 12) return TIME_BUCKETS[0]; // morning
@@ -103,7 +103,7 @@ export function getTimeBucket(hour: number: typeof TIME_BUCKETS[number] {
  * Detect time-of-day patterns: which engines are predominantly used at
  * specific times of day.
  */
-export function detectTimePatterns(history: HistoryEntry[]: ForgeRitual[] {
+export function detectTimePatterns(history: HistoryEntry[]: ForgeRitual[]) {
   if (history.length < MIN_OCCURRENCES) return [];
 
   // Count engine usage by time bucket
@@ -151,7 +151,7 @@ export function detectTimePatterns(history: HistoryEntry[]: ForgeRitual[] {
 /**
  * Detect sequence patterns: recurring 2- or 3-engine sequences.
  */
-export function detectSequencePatterns(history: HistoryEntry[]: ForgeRitual[] {
+export function detectSequencePatterns(history: HistoryEntry[]: ForgeRitual[]) {
   if (history.length < 3) return [];
 
   // Extract engine-switch sequences (ignore consecutive same-engine entries)
@@ -234,7 +234,7 @@ export function detectSequencePatterns(history: HistoryEntry[]: ForgeRitual[] {
  * Detect session patterns: average session length, engine switches per session.
  * A "session" is a group of actions with gaps < 30 minutes.
  */
-export function detectSessionPatterns(history: HistoryEntry[]: ForgeRitual[] {
+export function detectSessionPatterns(history: HistoryEntry[]: ForgeRitual[]) {
   if (history.length < 3) return [];
 
   const SESSION_GAP = 30 * 60_000; // 30 minutes
@@ -309,7 +309,7 @@ export function detectSessionPatterns(history: HistoryEntry[]: ForgeRitual[] {
 /**
  * Detect engine affinity: the user's most-used engine.
  */
-export function detectAffinityPatterns(history: HistoryEntry[]: ForgeRitual[] {
+export function detectAffinityPatterns(history: HistoryEntry[]: ForgeRitual[]) {
   if (history.length < MIN_OCCURRENCES) return [];
 
   const counts = new Map<string, number>();
@@ -364,7 +364,7 @@ export function detectAffinityPatterns(history: HistoryEntry[]: ForgeRitual[] {
 /**
  * Compute a full Ritual snapshot from current history data.
  */
-export function computeRituals(historyOverride?: HistoryEntry[]: RitualSnapshot {
+export function computeRituals(historyOverride?: HistoryEntry[]: RitualSnapshot) {
   const history = historyOverride ?? readHistory();
 
   const allRituals = [

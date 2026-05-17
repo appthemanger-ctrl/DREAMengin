@@ -49,7 +49,7 @@ type CodeEvent = Extract<ForgeLogEvent, { type: 'code' }>;
 type ResultEvent = Extract<ForgeLogEvent, { type: 'result' }>;
 
 /** Build a ForgeArtifact from a code SSE event + the resolved enginId */
-function buildArtifact(codeEvent: CodeEvent, enginId: string: ForgeArtifact {
+function buildArtifact(codeEvent: CodeEvent, enginId: string: ForgeArtifact) {
   return {
     type: ARTIFACT_TYPE_MAP[enginId] ?? 'content-draft',
     enginId,
@@ -61,7 +61,7 @@ function buildArtifact(codeEvent: CodeEvent, enginId: string: ForgeArtifact {
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
-export function useForgeBuild(: UseForgeBuildReturn {
+export function useForgeBuild(: UseForgeBuildReturn) {
   const [state, setState] = useState<import('@/lib/forge/forgeBuild').ForgeBuildState>('idle');
   const [logs, setLogs] = useState<ForgeLogEvent[]>([]);
   const [result, setResult] = useState<ForgeBuildRecord | null>(null);

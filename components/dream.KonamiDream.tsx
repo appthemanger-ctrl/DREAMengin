@@ -36,7 +36,7 @@ const MESSAGES = [
   'REALITY.EXE HAS BEEN REPLACED',
 ];
 
-export default function KonamiDream( {
+export default function KonamiDream() {
   const [active, setActive]   = useState(false);
   const [msgIdx, setMsgIdx]   = useState(0);
 

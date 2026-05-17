@@ -97,7 +97,7 @@ const ICON_RADIUS = 14;
 const ICON_FONT = 26;
 const LABEL_FONT = 11;
 
-function formatRelativeTime(iso: string: string {
+function formatRelativeTime(iso: string: string) {
   const diffMs = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diffMs / 60_000);
   if (mins <= 0) return 'now';
@@ -107,7 +107,7 @@ function formatRelativeTime(iso: string: string {
   return `${Math.floor(hours / 24)}d`;
 }
 
-export function getAppRoute(engineId: string: string | undefined {
+export function getAppRoute(engineId: string: string | undefined) {
   return ENGIN_REGISTRY.find((engine: Record<string, unknown>) => engine.id === engineId)?.daydreamHref;
 }
 
@@ -152,7 +152,7 @@ export function buildRecentDestinations(
  * iOS-style squircle app icon.
  * Clicking navigates to the canonical surface route — no iframe dead-ends.
  */
-function AppIcon({ icon, label, color, onClick }: {
+function AppIcon() { icon, label, color, onClick }: {
   icon: string;
   label: string;
   color: string;
@@ -223,7 +223,7 @@ function AppIcon({ icon, label, color, onClick }: {
 }
 
 /** Mini animated horizontal bar chart for recent creative energy. */
-function EngineBarChart({ engines }: { engines: string[] } {
+function EngineBarChart() { engines }: { engines: string[] } {
   const counts = engines.reduce<Record<string, number>>(acc: Record<string, unknown>, e: unknown => {
     acc[e] = (acc[e] ?? 0) + 1;
     return acc;
@@ -261,7 +261,7 @@ function EngineBarChart({ engines }: { engines: string[] } {
   );
 }
 
-export default function DreamsSpacePanel({
+export default function DreamsSpacePanel() {
   onOpenUrl,
   onOpenInRegion,
   accountId,

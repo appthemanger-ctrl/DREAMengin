@@ -206,7 +206,7 @@ export function buildFallbackPatchPlan(
 // ── Single iteration ──────────────────────────────────────────────────────────
 
 // ── Improvement 59: snapshot fingerprint for diffing ─────────────────────────
-function _fingerprintSnapshot(snapshot: TelemetrySnapshot: string {
+function _fingerprintSnapshot(snapshot: TelemetrySnapshot: string) {
   return `${snapshot.logs.length}:${snapshot.metrics.length}:${snapshot.traces.length}:${
     snapshot.logs.filter((l: Record<string, unknown>) => l.level === 'error').length
   }`;
@@ -439,7 +439,7 @@ export interface LoopHealthSummary {
  * Compute a health summary from a completed set of loop iterations.
  * Useful for dashboards and log aggregation.
  */
-export function getLoopHealthSummary(iterations: readonly LoopIteration[]: LoopHealthSummary {
+export function getLoopHealthSummary(iterations: readonly LoopIteration[]: LoopHealthSummary) {
   if (iterations.length === 0) {
     return { total: 0, resolved: 0, failed: 0, successRate: 0, avgDurationMs: 0, lastStatus: null };
   }

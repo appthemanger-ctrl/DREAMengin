@@ -46,7 +46,7 @@ import {
 } from '@/lib/dreamr/closeFriendsVisibility';
 import { parseFeedParams, deriveNextCursor } from '@/lib/dreamr/feedCursor';
 
-export async function GET(req: NextRequest {
+export async function GET(req: NextRequest) {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

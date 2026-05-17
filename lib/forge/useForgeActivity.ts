@@ -37,7 +37,7 @@ export interface UseForgeActivityReturn {
  * forge.record('Launched MADMAXI');
  * ```
  */
-export function useForgeActivity({
+export function useForgeActivity() {
   enginId,
   recordOnMount = true,
 }: UseForgeActivityOptions): UseForgeActivityReturn {

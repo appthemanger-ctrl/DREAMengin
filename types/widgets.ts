@@ -115,7 +115,7 @@ export interface SubWidgetRef {
 
 // -------- helpers --------
 
-export function getWidgetType(widget: unknown: WidgetType | undefined {
+export function getWidgetType(widget: unknown: WidgetType | undefined) {
   if (!widget || typeof widget !== 'object') return undefined;
   const w = widget as Record<string, unknown>;
   const type = w['type'];
@@ -125,7 +125,7 @@ export function getWidgetType(widget: unknown: WidgetType | undefined {
   return undefined;
 }
 
-export function getWidgetConfig(widget: unknown: Record<string, unknown> {
+export function getWidgetConfig(widget: unknown: Record<string, unknown>) {
   if (!widget || typeof widget !== 'object') return {};
   const w = widget as Record<string, unknown>;
   const configJson = w['config_json'];
@@ -140,18 +140,18 @@ export function getWidgetConfig(widget: unknown: Record<string, unknown> {
 }
 
 // -------- type guards (fix the “never” error) --------
-export function isWidgetInstance(widget: unknown: widget is WidgetInstance {
+export function isWidgetInstance(widget: unknown: widget is WidgetInstance) {
   return !!widget && typeof widget === "object" && "id" in (widget as Record<string, unknown>);
 }
 
-export function isFeedWidget(widget: unknown: widget is WidgetInstance {
+export function isFeedWidget(widget: unknown: widget is WidgetInstance) {
   return getWidgetType(widget) === "feed";
 }
 
-export function isTextWidget(widget: unknown: widget is WidgetInstance {
+export function isTextWidget(widget: unknown: widget is WidgetInstance) {
   return getWidgetType(widget) === "text";
 }
 
-export function isMediaWidget(widget: unknown: widget is WidgetInstance {
+export function isMediaWidget(widget: unknown: widget is WidgetInstance) {
   return getWidgetType(widget) === "media";
 }

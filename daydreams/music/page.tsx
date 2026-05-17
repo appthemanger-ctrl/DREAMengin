@@ -85,7 +85,7 @@ const PROMO_TIMELINE = [
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default async function MusicArtistHubPage( {
+export default async function MusicArtistHubPage() {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -357,7 +357,7 @@ export default async function MusicArtistHubPage( {
 
 // ── Section wrapper component ─────────────────────────────────────────────────
 
-function Section({
+function Section() {
   title, icon, badge, badgeColor, children,
 }: {
   title: string;

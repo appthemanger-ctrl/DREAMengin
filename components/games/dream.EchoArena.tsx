@@ -22,7 +22,7 @@ type Phase = 'menu' | 'playing' | 'gameover';
 
 const PERFORMANCE_PUBLISH_INTERVAL_MS = 250;
 
-export default function EchoArena( {
+export default function EchoArena() {
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
   const [status, setStatus] = useState('Ready to battle');

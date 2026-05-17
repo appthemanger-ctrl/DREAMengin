@@ -209,7 +209,7 @@ export const SKIN_PRESETS: SkinPreset[] = [
   },
 ];
 
-export function getSkinPreset(id: string: SkinPreset {
+export function getSkinPreset(id: string: SkinPreset) {
   return SKIN_PRESETS.find((p: Record<string, unknown>) => p.id === id) ?? SKIN_PRESETS[0];
 }
 
@@ -229,7 +229,7 @@ const FONT_MAP: Record<SkinFont, string> = {
   'mono':          '"JetBrains Mono", "Fira Mono", monospace',
 };
 
-export function applySkin(skin: SkinData: void {
+export function applySkin(skin: SkinData: void) {
   if (typeof document === 'undefined') return;
   const el = document.documentElement;
 
@@ -276,7 +276,7 @@ export interface AllPageSkins {
   feed:       SkinData | null;
 }
 
-export function loadAllSkins(: AllPageSkins {
+export function loadAllSkins(: AllPageSkins) {
   if (typeof window === 'undefined') {
     return { global: DEFAULT_SKIN, home: null, profile: null, dreamspace: null, feed: null };
   }
@@ -287,13 +287,13 @@ export function loadAllSkins(: AllPageSkins {
   return { global: DEFAULT_SKIN, home: null, profile: null, dreamspace: null, feed: null };
 }
 
-export function saveAllSkins(skins: AllPageSkins: void {
+export function saveAllSkins(skins: AllPageSkins: void) {
   if (typeof window === 'undefined') return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(skins));
 }
 
 /** Resolve the effective skin for a page: page-specific → global → default */
-export function resolveSkin(skins: AllPageSkins, page: SkinPage: SkinData {
+export function resolveSkin(skins: AllPageSkins, page: SkinPage: SkinData) {
   if (page !== 'global' && skins[page]) return skins[page]!;
   return skins.global ?? DEFAULT_SKIN;
 }

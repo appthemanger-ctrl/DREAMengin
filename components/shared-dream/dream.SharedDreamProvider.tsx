@@ -66,7 +66,7 @@ export interface SharedDreamProviderProps {
   children: React.ReactNode;
 }
 
-export function SharedDreamProvider({
+export function SharedDreamProvider() {
   channelId: propChannelId,
   sessionOptions = {},
   children,
@@ -248,7 +248,7 @@ export function SharedDreamProvider({
   );
 }
 
-export function useSharedDream(: SharedDreamContextValue {
+export function useSharedDream(: SharedDreamContextValue) {
   const ctx = useContext(SharedDreamContext);
   if (!ctx) {
     throw new Error('useSharedDream() must be used inside <SharedDreamProvider>');

@@ -41,7 +41,7 @@ interface IGLongTokenResponse {
   error?:        { message: string; type: string; code: number };
 }
 
-export async function GET(req: NextRequest: Promise<NextResponse> {
+export async function GET(req: NextRequest: Promise<NextResponse>) {
   const url   = new URL(req.url);
   const code  = url.searchParams.get('code')  ?? '';
   const state = url.searchParams.get('state') ?? '';

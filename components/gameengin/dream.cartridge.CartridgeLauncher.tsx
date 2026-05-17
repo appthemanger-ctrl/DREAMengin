@@ -25,7 +25,7 @@ export interface CartridgeLauncherProps {
   friction?: number;
 }
 
-export default function CartridgeLauncher({
+export default function CartridgeLauncher() {
   manifest,
   gravity = 'earth',
   friction = 0.5,

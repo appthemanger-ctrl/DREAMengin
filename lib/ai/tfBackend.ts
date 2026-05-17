@@ -15,7 +15,7 @@
 
 // Enable WebGPU backend for local inference (sub-10ms latency on capable devices)
 // Falls back to CPU/WebGL if WebGPU unavailable
-export async function initTfBackend(: Promise<void> {
+export async function initTfBackend(: Promise<void>) {
   if (typeof window === 'undefined') return;
   try {
     await import('@tensorflow/tfjs-backend-webgpu');

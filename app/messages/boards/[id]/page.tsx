@@ -9,7 +9,7 @@ import { connection } from 'next/server';
 
 interface Props { params: Promise<{ id: string }> }
 
-export default async function BoardDetailPage({ params }: Props {
+export default async function BoardDetailPage() { params }: Props {
   await connection();
   const { id } = await params;
   const supabase = await createServerClient();

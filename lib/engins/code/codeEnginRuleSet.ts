@@ -136,7 +136,7 @@ const zoomConstraint: EnginConstraint<CodeEnginAction> = (
 
 // ─── Transform ────────────────────────────────────────────────────────────────
 
-function transform(state: EnginBaseState, action: CodeEnginAction: EnginBaseState {
+function transform(state: EnginBaseState, action: CodeEnginAction: EnginBaseState) {
   const domain = (state.domain as Partial<typeof DEFAULT_DOMAIN>);
   const cells  = () => (domain.cells ?? DEFAULT_CELLS) as NotebookCell[];
 
@@ -217,7 +217,7 @@ function transform(state: EnginBaseState, action: CodeEnginAction: EnginBaseStat
 
 // ─── deriveState ──────────────────────────────────────────────────────────────
 
-function deriveState(state: EnginBaseState: CodeEnginDerivedState {
+function deriveState(state: EnginBaseState: CodeEnginDerivedState) {
   const d = state.domain as Partial<typeof DEFAULT_DOMAIN>;
   return {
     lifecycle:        state.lifecycle,

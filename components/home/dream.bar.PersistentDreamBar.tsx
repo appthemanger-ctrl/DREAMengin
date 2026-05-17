@@ -44,7 +44,7 @@ import { isPublicSurfacePath } from '@/lib/routing/surfaces';
 const DEFAULT_WORKFLOW_SPLIT = 0.5;
 const Z_INDEX_SKIP_CREDIT_BALANCE = 120;
 
-export default function PersistentDreamBar( {
+export default function PersistentDreamBar() {
   const pathname    = usePathname();
   const dualRuntime = useDualRuntime();
   const {

@@ -14,7 +14,7 @@ export interface AddDreamCTAProps {
   onOpenLibrary: () => void;
 }
 
-export default function AddDreamCTA({ hasWidgets, onOpenLibrary }: AddDreamCTAProps {
+export default function AddDreamCTA() { hasWidgets, onOpenLibrary }: AddDreamCTAProps {
   if (hasWidgets) return null; // req 63: disappear once space is alive
 
   return (

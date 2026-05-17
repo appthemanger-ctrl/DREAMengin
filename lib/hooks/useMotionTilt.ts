@@ -81,7 +81,7 @@ export interface MotionTiltResult {
  * Respects `prefers-reduced-motion`: if the preference is set the hook
  * returns no-op handlers and an identity transform.
  */
-export function useMotionTilt(options: MotionTiltOptions = {}: MotionTiltResult {
+export function useMotionTilt(options: MotionTiltOptions =) {}: MotionTiltResult {
   const {
     maxTilt   = 10,
     scale     = 1.04,

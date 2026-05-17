@@ -90,7 +90,7 @@ export const DREAMR_WEIGHTS: Record<keyof DreamRSignals, number> = {
  * Curve: 0 words=0, 20=0.30, 80=0.70, 150=0.90, 300+=1.0
  * Soft-caps so novellas don't dominate over precise, spare writing.
  */
-export function scoreContentDepth(content: string: number {
+export function scoreContentDepth(content: string: number) {
   const words = content.trim().split(/\s+/).filter(w => w.length > 1).length;
   if (words === 0) return 0;
   // Logarithmic growth capped at 1.0
@@ -137,7 +137,7 @@ export function scoreDreamenginMade(
  * Score = ratio of real words (≥4 chars, not hashtag) to all tokens.
  * Falls to 0 for posts that are purely hashtags or emojis.
  */
-export function scoreTextRichness(content: string: number {
+export function scoreTextRichness(content: string: number) {
   if (!content.trim()) return 0;
   const tokens = content.trim().split(/\s+/);
   const realWords = tokens.filter(t =>
@@ -157,7 +157,7 @@ export function scoreTextRichness(content: string: number {
  * This means a week-old masterpiece can still surface; a minute-old
  * spam post doesn't automatically jump the queue.
  */
-export function scoreFreshness(createdAt: string: number {
+export function scoreFreshness(createdAt: string: number) {
   const ageHours = (Date.now() - new Date(createdAt).getTime()) / 3_600_000;
   if (ageHours < 0) return 0.5;                      // future-dated — neutral
   if (ageHours <= 2)   return 0.85 + 0.15 * (ageHours / 2);  // 0.85–1.0 ramp-up
@@ -211,7 +211,7 @@ export function computeViewVelocity(
  * Reference: 50 v/h ≈ 1.0 (sqrt cap). Modest by design — viral velocity
  * is allowed to nudge the ranking, not own it.
  */
-export function scoreViewVelocity(velocity: number: number {
+export function scoreViewVelocity(velocity: number: number) {
   if (!Number.isFinite(velocity) || velocity <= 0) return 0;
   return Math.min(1, Math.sqrt(velocity) / Math.sqrt(50));
 }
@@ -221,7 +221,7 @@ export function scoreViewVelocity(velocity: number: number {
  * Returns the key in DREAMR_WEIGHTS whose `signals[k] * weights[k]` is max.
  * Ties are broken by the canonical key order in DREAMR_WEIGHTS.
  */
-export function dominantSignal(signals: DreamRSignals: keyof DreamRSignals {
+export function dominantSignal(signals: DreamRSignals: keyof DreamRSignals) {
   let bestKey: keyof DreamRSignals = 'contentDepth';
   let bestVal = -Infinity;
   for (const k of Object.keys(DREAMR_WEIGHTS) as Array<keyof DreamRSignals>) {
@@ -246,7 +246,7 @@ export const DREAMR_REASONS: Record<keyof DreamRSignals, string> = {
 
 // ── Composite scorer ─────────────────────────────────────────────────────────
 
-export function scoreDreamRPost(post: ScoredPost: {
+export function scoreDreamRPost(post: ScoredPost:) {
   score: number;
   signals: DreamRSignals;
   torridityRank: number;
@@ -307,7 +307,7 @@ export function scoreDreamRPost(post: ScoredPost: {
  * appeared in the previous 2 slots (penalty 0.25×) so the feed feels
  * like a wide stage, not a spotlight on one person.
  */
-export function rankFeed(posts: ScoredPost[]: ScoredPost[] {
+export function rankFeed(posts: ScoredPost[]: ScoredPost[]) {
   // First pass — compute raw scores
   const scored = posts.map(p => {
     const {

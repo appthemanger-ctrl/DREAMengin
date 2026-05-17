@@ -54,7 +54,7 @@ export type AnnotatedDot = JourneyDot & { insight: DotInsight };
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /** Truncate a timestamp to midnight UTC to compare calendar days. */
-function calendarDay(isoString: string: number {
+function calendarDay(isoString: string: number) {
   const d = new Date(isoString);
   return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
 }
@@ -67,7 +67,7 @@ function calendarDay(isoString: string: number {
  *
  * We scan from oldest to newest (reversed) so that "first" means temporally first.
  */
-export function findFirstOccurrenceIds(dots: JourneyDot[]: Set<string> {
+export function findFirstOccurrenceIds(dots: JourneyDot[]: Set<string>) {
   const seen = new Set<string>();
   const firstIds = new Set<string>();
 
@@ -87,7 +87,7 @@ export function findFirstOccurrenceIds(dots: JourneyDot[]: Set<string> {
  *
  * Returns 0 if there are no dots or no activity today/yesterday.
  */
-export function computeCurrentStreak(dots: JourneyDot[]: number {
+export function computeCurrentStreak(dots: JourneyDot[]: number) {
   if (dots.length === 0) return 0;
 
   const activeDays = new Set(dots.map(d => calendarDay(d.created_at)));
@@ -114,7 +114,7 @@ export function computeCurrentStreak(dots: JourneyDot[]: number {
  * Only dots from the last 7 days receive a frequency annotation — older dots
  * are not annotated because "X times this week" is meaningless for historical items.
  */
-export function computeWeeklyFrequency(dots: JourneyDot[]: Map<string, number> {
+export function computeWeeklyFrequency(dots: JourneyDot[]: Map<string, number>) {
   const result = new Map<string, number>();
   const now           = Date.now();
   const SEVEN_DAYS_MS = 7 * MS_PER_DAY;
@@ -149,7 +149,7 @@ export function computeWeeklyFrequency(dots: JourneyDot[]: Map<string, number> {
  * Returns a map from dot.id → gap-in-days.
  * The dots are expected to be ordered newest-first (API canonical order).
  */
-export function detectReturnGaps(dots: JourneyDot[]: Map<string, number> {
+export function detectReturnGaps(dots: JourneyDot[]: Map<string, number>) {
   const result = new Map<string, number>();
   // Track the last seen date per (kind + surface) key
   const lastSeen = new Map<string, number>();
@@ -181,7 +181,7 @@ export function detectReturnGaps(dots: JourneyDot[]: Map<string, number> {
  * Returns AnnotatedDot[] in the same order as the input.
  * This is the single function JourneyTrail.tsx calls — one pass.
  */
-export function annotateDotsWithInsights(dots: JourneyDot[]: AnnotatedDot[] {
+export function annotateDotsWithInsights(dots: JourneyDot[]: AnnotatedDot[]) {
   if (dots.length === 0) return [];
 
   const firstIds       = findFirstOccurrenceIds(dots);

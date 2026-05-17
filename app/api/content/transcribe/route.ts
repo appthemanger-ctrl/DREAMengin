@@ -19,7 +19,7 @@ const TranscribeSchema = z.object({
 
 type TranscribeBody = z.infer<typeof TranscribeSchema>;
 
-export async function POST(req: NextRequest {
+export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {

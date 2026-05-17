@@ -15,7 +15,7 @@ import { buildGameLaunchHref } from '@/lib/games/navigation';
 
 const CATEGORIES = ['All', ...Array.from(new Set(GAME_CATALOG.map((g: Record<string, unknown>) => g.category ?? 'Other')))];
 
-export default function LibraryPanel( {
+export default function LibraryPanel() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
 

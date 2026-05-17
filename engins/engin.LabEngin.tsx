@@ -143,7 +143,7 @@ const LAB_DREAM_WINDOWS = [
   { label: 'Simulation Viewer Dream Window', href: '/engines/lab/quantum' },
 ] as const;
 
-export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props {
+export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props {
   const labBridge = useLabEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'lab' });
 
@@ -200,7 +200,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props {
   }, []);
 
   // ── Simulation runner ──────────────────────────────────────────────────────
-  function runSim(id: string {
+  function runSim(id: string) {
     setSimStates(prev => ({ ...prev, [id]: 'running' }));
     forgeRecord(`Ran simulation ${id}`);
     setTimeout(() => {
@@ -213,7 +213,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props {
   }
 
   // ── Export handler ─────────────────────────────────────────────────────────
-  function handleExportData( {
+  function handleExportData() {
     forgeRecord('Exported data');
     recordForgeTransfer('lab', 'code', 'dataset', 'Lab data export → CodeEngin');
     recordForgeTransfer('lab', 'create', 'dataset', 'Lab data export → CreateEngin');
@@ -291,7 +291,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props {
     'ai-director-v2':   false,
     'quantum-sim':      true,
   });
-  function toggleFlag(id: string {
+  function toggleFlag(id: string) {
     setFeatureFlags(prev => ({ ...prev, [id]: !prev[id] }));
   }
 
@@ -313,7 +313,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props {
   const [benchRunning, setBenchRunning] = useState(false);
   const [benchResults, setBenchResults] = useState<Array<{ name: string; score: string; unit: string }>>([]);
   const [benchSaveMsg, setBenchSaveMsg] = useState('');
-  async function runBenchmark( {
+  async function runBenchmark() {
     setBenchRunning(true);
     setBenchResults([]);
     setBenchSaveMsg('');
@@ -372,7 +372,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props {
   };
 
   // ── Collab lab handler ───────────────────────────────────────────────────────
-  function handleStartCollabLab( {
+  function handleStartCollabLab() {
     const code = Math.random().toString(36).slice(2, 8).toUpperCase();
     setCollabLabCode(code);
     setCollabLabActive(true);
@@ -382,7 +382,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props {
   }
 
   // ── Hypothesis handler ───────────────────────────────────────────────────────
-  function handleGenerateHypotheses( {
+  function handleGenerateHypotheses() {
     setHypothesisLoading(true);
     setHypotheses([]);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
@@ -399,12 +399,12 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props {
   }
 
   // ── Molecule handler ─────────────────────────────────────────────────────────
-  function handleSelectMolecule(mol: string {
+  function handleSelectMolecule(mol: string) {
     setSelectedMolecule(mol);
     setMoleculeDisplay(MOLECULE_DATA[mol] ?? '');
   }
 
-  function handleAnalyzeMolecule( {
+  function handleAnalyzeMolecule() {
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'lab', 'lab:molecule-analyze', { molecule: selectedMolecule },
     );
@@ -413,7 +413,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props {
   // ── Quantum measure handler ─────────────────────────────────────────────────
   const [quantumRunning, setQuantumRunning] = useState(false);
   const [quantumResult, setQuantumResult]   = useState<QuantumMeasurementResult | null>(null);
-  function handleQuantumMeasure(result?: QuantumMeasurementResult {
+  function handleQuantumMeasure(result?: QuantumMeasurementResult) {
     setQuantumMeasured(true);
     setQuantumRunning(false);
     if (result) setQuantumResult(result);
@@ -432,7 +432,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props {
   }
 
   // ── Dataset handler ──────────────────────────────────────────────────────────
-  function handleImportDataset(name: string {
+  function handleImportDataset(name: string) {
     setSelectedDataset(name);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'lab', 'lab:dataset-import', { name },
@@ -454,7 +454,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props {
     if (splitOutRef.current) splitOutRef.current.scrollTop = splitOutRef.current.scrollHeight;
   }, [splitOut]);
 
-  function runSplitScript( {
+  function runSplitScript() {
     if (splitRunning) return;
     setSplitRunning(true);
     setSplitOut([]);
@@ -480,7 +480,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props {
   }
 
   // ── Publish result handler ───────────────────────────────────────────────────
-  function handlePublishResult(title: string {
+  function handlePublishResult(title: string) {
     if (!title.trim()) return;
     setPublishingResult(true);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(

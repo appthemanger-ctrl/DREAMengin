@@ -46,7 +46,7 @@ const PIECE_GLYPH: Record<PieceKind, string> = {
   P: '♟', N: '♞', B: '♝', R: '♜', Q: '♛', K: '♚',
 };
 
-function startBoard(: Cell[][] {
+function startBoard(: Cell[][]) {
   const b: Cell[][] = Array.from({ length: N }, () => Array<Cell>(N).fill(null));
   // Iren (bottom)
   b[7][0] = { kind: 'R', side: 'iren' };
@@ -71,7 +71,7 @@ function startBoard(: Cell[][] {
   return b;
 }
 
-function plantMines(: { mines: boolean[][]; kinds: (MineKind | null)[][] } {
+function plantMines(:) { mines: boolean[][]; kinds: (MineKind | null)[][] } {
   const m: boolean[][] = Array.from({ length: N }, () => Array<boolean>(N).fill(false));
   const k: (MineKind | null)[][] = Array.from({ length: N }, () => Array<MineKind | null>(N).fill(null));
   let placed = 0;
@@ -90,7 +90,7 @@ function plantMines(: { mines: boolean[][]; kinds: (MineKind | null)[][] } {
 }
 
 /** True if `side`'s king at (kr,kc) would be attacked by any opponent piece on `b`. */
-function squareAttacked(b: Cell[][], kr: number, kc: number, byOpp: Side: boolean {
+function squareAttacked(b: Cell[][], kr: number, kc: number, byOpp: Side: boolean) {
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
     const p = b[r][c];
     if (!p || p.side !== byOpp) continue;
@@ -108,7 +108,7 @@ function squareAttacked(b: Cell[][], kr: number, kc: number, byOpp: Side: boolea
 // Simplified legal moves — pawns single-step + diagonal capture, knights L-shape,
 // bishops/rooks/queens slide, king 1-step. No castling, no en-passant. This is
 // enough to make the deductive-sacrifice loop legible.
-function legalMoves(b: Cell[][], r: number, c: number: Array<[number, number]> {
+function legalMoves(b: Cell[][], r: number, c: number: Array<[number, number]>) {
   const piece = b[r][c]; if (!piece) return [];
   const out: Array<[number, number]> = [];
   const slide = (dr: number, dc: number) => {
@@ -155,17 +155,17 @@ function legalMoves(b: Cell[][], r: number, c: number: Array<[number, number]> {
   return out;
 }
 
-function rowMineHints(mines: boolean[][]: number[] {
+function rowMineHints(mines: boolean[][]: number[]) {
   return mines.map((row: Record<string, unknown>) => row.filter(Boolean).length);
 }
-function colMineHints(mines: boolean[][]: number[] {
+function colMineHints(mines: boolean[][]: number[]) {
   const out = new Array<number>(N).fill(0);
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (mines[r][c]) out[c]++;
   return out;
 }
 
 // ── Component ───────────────────────────────────────────────────────────────
-export default function NullCathedral( {
+export default function NullCathedral() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const boardRef = useRef<Cell[][]>(startBoard());

@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import { useDualRuntime } from '@/components/runtime/dream.DualRuntimeContainer';
 
-export default function DreamDMBarHomeDreamPage( {
+export default function DreamDMBarHomeDreamPage() {
   const { setFocus } = useDreamSystem();
   const dualRuntime = useDualRuntime();
 

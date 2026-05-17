@@ -84,7 +84,7 @@ const PEAK_THRESHOLD_FRACTION = TORRIDITY_DP * TORRIDITY_N; // 0.21
  * We use a DFT-based approach here that works in both browser and
  * server environments (for testing).
  */
-export function buildPeakMap(audioBuffer: AudioBuffer, topK = DEFAULT_TOP_K: PeakMap {
+export function buildPeakMap(audioBuffer: AudioBuffer, topK = DEFAULT_TOP_K: PeakMap) {
   const sampleRate      = audioBuffer.sampleRate;
   const fftSize         = DEFAULT_FFT_SIZE;
   const sliceSamples    = Math.floor(sampleRate * DEFAULT_SLICE_DURATION);
@@ -140,7 +140,7 @@ export function buildPeakMap(audioBuffer: AudioBuffer, topK = DEFAULT_TOP_K: Pea
 
 // ─── Fingerprint helpers ──────────────────────────────────────────────────────
 
-function peaksInWindow(peakMap: PeakMap, startSec: number, endSec: number: Peak[] {
+function peaksInWindow(peakMap: PeakMap, startSec: number, endSec: number: Peak[]) {
   const startSlice = Math.floor(startSec / peakMap.sliceDurationSec);
   const endSlice   = Math.ceil(endSec / peakMap.sliceDurationSec);
   return peakMap.peaks.filter(
@@ -148,7 +148,7 @@ function peaksInWindow(peakMap: PeakMap, startSec: number, endSec: number: Peak[
   );
 }
 
-function buildSignature(peaks: Peak[], fftSize: number: number[] {
+function buildSignature(peaks: Peak[], fftSize: number: number[]) {
   const halfBins = fftSize / 2;
   const vec      = new Array<number>(halfBins).fill(0);
   for (const p of peaks) {
@@ -230,7 +230,7 @@ export function matchFingerprint(
  * Uses constellation peak-map technique described in docs/LAW.md §17.
  * No AI model required — pure signal fingerprinting.
  */
-export function createFingerprintIsolator( {
+export function createFingerprintIsolator() {
   let _reference: Fingerprint | null = null;
 
   return {

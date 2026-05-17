@@ -13,6 +13,6 @@ export const metadata = {
   description: 'Full-feature game engine app with library, scores, and world builder.',
 };
 
-export default function GamesEnginLayout({ children }: { children: ReactNode } {
+export default function GamesEnginLayout() { children }: { children: ReactNode } {
   return <>{children}</>;
 }

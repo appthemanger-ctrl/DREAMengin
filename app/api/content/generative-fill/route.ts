@@ -36,7 +36,7 @@ const REPLICATE_MODEL_VERSION = '95b7223104132402a9ae91d072d9f753d76f6bbec0f64d0
 const MAX_POLL_MS = 60_000;
 const POLL_INTERVAL_MS = 2_000;
 
-async function pollPrediction(predictionUrl: string, apiToken: string: Promise<ReplicatePrediction> {
+async function pollPrediction(predictionUrl: string, apiToken: string: Promise<ReplicatePrediction>) {
   const deadline = Date.now() + MAX_POLL_MS;
   while (Date.now() < deadline) {
     await new Promise(r => setTimeout(r, POLL_INTERVAL_MS));
@@ -60,7 +60,7 @@ async function pollPrediction(predictionUrl: string, apiToken: string: Promise<R
  * When REPLICATE_API_TOKEN is set, calls stable-diffusion-inpainting via Replicate.
  * Falls back to a graceful dev stub when no credentials are present.
  */
-export async function POST(req: NextRequest {
+export async function POST(req: NextRequest) {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {

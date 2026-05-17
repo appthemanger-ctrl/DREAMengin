@@ -22,7 +22,7 @@ import type { TelemetrySnapshot } from '@/lib/observability/collector';
  * Format: `logs:metrics:traces:errors:<errorDigest>`
  * Where errorDigest is a simple checksum of the first 5 error messages.
  */
-export function fingerprintSnapshot(snapshot: TelemetrySnapshot: string {
+export function fingerprintSnapshot(snapshot: TelemetrySnapshot: string) {
   const errorMessages = snapshot.logs
     .filter((l: Record<string, unknown>) => l.level === 'error')
     .slice(0, 5)
@@ -48,7 +48,7 @@ export function fingerprintSnapshot(snapshot: TelemetrySnapshot: string {
  * A pure string equality check — the caller is responsible for producing
  * fingerprints via fingerprintSnapshot().
  */
-export function snapshotsAreEquivalent(a: string, b: string: boolean {
+export function snapshotsAreEquivalent(a: string, b: string: boolean) {
   return a === b;
 }
 

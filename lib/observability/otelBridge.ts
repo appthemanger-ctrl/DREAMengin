@@ -25,7 +25,7 @@ let _traceHistogram: Histogram | null = null;
 let _activeRequests: UpDownCounter | null = null;
 let _errorCounter: Counter | null = null;
 
-function ensureInstruments(: void {
+function ensureInstruments(: void) {
   if (_logCounter) return;
   const meter = getMeter();
 
@@ -113,7 +113,7 @@ function ensureInstruments(: void {
  * We record log counts by level as a counter — actual log content is NOT
  * exported to avoid leaking PII into the telemetry pipeline.
  */
-export function otelRecordLog(level: string, source?: string: void {
+export function otelRecordLog(level: string, source?: string: void) {
   if (!_bridgeReady) return;
   ensureInstruments();
   const attrs: Record<string, string> = { level };
@@ -170,14 +170,14 @@ export function otelRecordTrace(
 }
 
 /** Increment the active request counter (call from middleware). */
-export function otelRequestStart(: void {
+export function otelRequestStart(: void) {
   if (!_bridgeReady) return;
   ensureInstruments();
   _activeRequests!.add(1);
 }
 
 /** Decrement the active request counter (call from middleware). */
-export function otelRequestEnd(: void {
+export function otelRequestEnd(: void) {
   if (!_bridgeReady) return;
   ensureInstruments();
   _activeRequests!.add(-1);
@@ -190,7 +190,7 @@ export function otelRequestEnd(: void {
  * call has an effect. After this, every collectLog / collectMetric /
  * collectTrace call in the collector will also emit OTel signals.
  */
-export function initOtelBridge(: void {
+export function initOtelBridge(: void) {
   if (_bridgeReady) return;
   ensureInstruments();
   _bridgeReady = true;

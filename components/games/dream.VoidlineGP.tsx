@@ -43,7 +43,7 @@ const COL = {
   perfect: '#ffe76b',
 } as const;
 
-export default function VoidlineGP( {
+export default function VoidlineGP() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const shipXRef = useRef(W / 2);

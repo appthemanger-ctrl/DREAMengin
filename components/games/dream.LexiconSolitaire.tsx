@@ -25,7 +25,7 @@ const LIBRARY_TRIVIA: Array<{ q: string; a: string[]; correct: number }> = [
   { q: 'A whole word is, to a Library Beast,...', a: ['a meal', 'a wound', 'a debt', 'a song'], correct: 0 },
 ];
 
-function makeDeck(: Card[] {
+function makeDeck(: Card[]) {
   const out: Card[] = [];
   for (let i = 0; i < 36; i++) {
     const letter = LETTERS[Math.floor(Math.random() * LETTERS.length)];
@@ -34,7 +34,7 @@ function makeDeck(: Card[] {
   return out;
 }
 
-function isReasonableWord(w: string: boolean {
+function isReasonableWord(w: string: boolean) {
   // Heuristic: ≥3 letters, contains a vowel, not all same letter
   if (w.length < 3) return false;
   if (!/[AEIOU]/.test(w)) return false;
@@ -42,7 +42,7 @@ function isReasonableWord(w: string: boolean {
   return true;
 }
 
-export default function LexiconSolitaire( {
+export default function LexiconSolitaire() {
   const [phase, setPhase] = useState<Phase>('menu');
   const [columns, setColumns] = useState<Card[][]>([]);
   const [hand, setHand] = useState<Card[]>([]);

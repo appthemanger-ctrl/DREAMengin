@@ -80,35 +80,35 @@ const MAJOR_INTERVALS = [0, 2, 4, 5, 7, 9, 11] as const;
 const MINOR_INTERVALS = [0, 2, 3, 5, 7, 8, 10] as const;
 const STEM_EXPORT_COUNT = 4;
 
-function clamp(value: number, min: number, max: number: number {
+function clamp(value: number, min: number, max: number: number) {
   return Math.min(max, Math.max(min, value));
 }
 
-function pluralize(count: number, singular: string: string {
+function pluralize(count: number, singular: string: string) {
   return count === 1 ? singular : `${singular}s`;
 }
 
-function toDb(value: number: number {
+function toDb(value: number: number) {
   return Math.round(value * 10) / 10;
 }
 
-function getScale(musicalKey: string, keyMode: 'major' | 'minor': string[] {
+function getScale(musicalKey: string, keyMode: 'major' | 'minor': string[]) {
   const rootIndex = NOTE_ORDER.indexOf(musicalKey as (typeof NOTE_ORDER)[number]);
   const safeIndex = rootIndex === -1 ? 0 : rootIndex;
   const intervals = keyMode === 'minor' ? MINOR_INTERVALS : MAJOR_INTERVALS;
   return intervals.map(interval => NOTE_ORDER[(safeIndex + interval) % NOTE_ORDER.length]);
 }
 
-function getChordRoot(chord: string: string {
+function getChordRoot(chord: string: string) {
   const match = chord.match(/^[A-G]#?/);
   return match?.[0] ?? 'C';
 }
 
-function rotateNotes(notes: string[], startIndex: number, length: number: string[] {
+function rotateNotes(notes: string[], startIndex: number, length: number: string[]) {
   return Array.from({ length }, _: Record<string, unknown>, index: number => notes[(startIndex + index) % notes.length]);
 }
 
-export function summarizePlaybackProfile(input: PlaybackProfileInput: PlaybackProfile {
+export function summarizePlaybackProfile(input: PlaybackProfileInput: PlaybackProfile) {
   const activeSteps = input.beatGrid.reduce(
     (sum, row) => sum + row.filter(Boolean).length,
     0,
@@ -162,7 +162,7 @@ export function summarizePlaybackProfile(input: PlaybackProfileInput: PlaybackPr
   };
 }
 
-export function buildReleaseStrategy(input: ReleaseStrategyInput: ReleaseStrategy {
+export function buildReleaseStrategy(input: ReleaseStrategyInput: ReleaseStrategy) {
   const readyStemCount = Object.values(input.stemReady).filter(Boolean).length;
   const missingStemCount = STEM_EXPORT_COUNT - readyStemCount;
   const blockers: string[] = [];
@@ -234,7 +234,7 @@ export function buildReleaseStrategy(input: ReleaseStrategyInput: ReleaseStrateg
   };
 }
 
-export function createMelodySuggestions(input: MelodySuggestionInput: MelodySuggestion[] {
+export function createMelodySuggestions(input: MelodySuggestionInput: MelodySuggestion[]) {
   const scale = getScale(input.musicalKey, input.keyMode);
   const roots = input.chordProgression.map(getChordRoot);
   const anchorRoot = roots[0] ?? input.musicalKey;

@@ -72,7 +72,7 @@ const PER_TYPE     = 5;
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
-export function useDreamSearch(query: string: UseDreamSearchReturn {
+export function useDreamSearch(query: string: UseDreamSearchReturn) {
   const [results,     setResults]     = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [drEamsMode,  setDrEamsMode]  = useState(false);

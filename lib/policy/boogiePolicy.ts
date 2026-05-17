@@ -180,7 +180,7 @@ export interface BoogieEvaluateInput {
  *  - includes the policy_ref so every result links back to a written rule (req 94)
  *  - never reveals internals (req 95)
  */
-export function boogieEvaluate(input: BoogieEvaluateInput: PolicyResult {
+export function boogieEvaluate(input: BoogieEvaluateInput: PolicyResult) {
   const {
     policy_ref,
     severity = 0,
@@ -255,7 +255,7 @@ function selectPolicySeverity(
   return PolicySeverity.S0_NOTICE;
 }
 
-function escalateSeverity(level: PolicySeverityLevel: PolicySeverityLevel {
+function escalateSeverity(level: PolicySeverityLevel: PolicySeverityLevel) {
   const order: PolicySeverityLevel[] = [
     PolicySeverity.S0_NOTICE,
     PolicySeverity.S1_SOFT_WARN,
@@ -268,7 +268,7 @@ function escalateSeverity(level: PolicySeverityLevel: PolicySeverityLevel {
   return order[Math.min(idx + 1, order.length - 1)];
 }
 
-function selectPolicyActions(level: PolicySeverityLevel, _allowed: boolean: string[] {
+function selectPolicyActions(level: PolicySeverityLevel, _allowed: boolean: string[]) {
   switch (level) {
     case PolicySeverity.S0_NOTICE:       return ['NUDGE'];
     case PolicySeverity.S1_SOFT_WARN:    return ['WARN'];
@@ -285,7 +285,7 @@ function selectPolicyActions(level: PolicySeverityLevel, _allowed: boolean: stri
 // Dispatches a CustomEvent so any UI component can respond consistently.
 // ============================================================================
 
-export function emitBoogieManEvent(result: PolicyResult: void {
+export function emitBoogieManEvent(result: PolicyResult: void) {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(
     new CustomEvent<PolicyResult>('dreamengin:boogieman', { detail: result }),

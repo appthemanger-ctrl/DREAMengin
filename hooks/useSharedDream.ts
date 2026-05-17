@@ -51,11 +51,11 @@ export interface UseSharedDreamReturn {
   onEvent(handler: DreamEventHandler): () => void;
 }
 
-function getSupabase( {
+function getSupabase() {
   return createClient();
 }
 
-export function useSharedDream(channelId: string: UseSharedDreamReturn {
+export function useSharedDream(channelId: string: UseSharedDreamReturn) {
   const [session, setSession] = useState<SharedDreamSession | null>(null);
   const [isConnected, setConnected] = useState(false);
   const [peers, setPeers] = useState<Record<string, PeerState>>({});

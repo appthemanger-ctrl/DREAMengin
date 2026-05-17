@@ -27,7 +27,7 @@ const DEFAULT_CONSTRAINT: PhysicsConstraint = {
   collisionEnabled: true,
 };
 
-export function resolveConstraint(entityType: string: PhysicsConstraint {
+export function resolveConstraint(entityType: string: PhysicsConstraint) {
   return (
     HOMEDREAM_PHYSICS_CONSTRAINTS.find((c: Record<string, unknown>) => c.entityType === entityType) ??
     DEFAULT_CONSTRAINT

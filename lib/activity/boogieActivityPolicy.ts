@@ -30,7 +30,7 @@ const IMPOSSIBLE_CHECK_IN_METERS = 5000;
 // leaving room for noisy anonymous traffic before enforcement.
 const BOT_VIEW_SPIKE_RATE = 0.25;
 
-export function resolveActivityFeedTreatment(signals: BoogieActivitySignals: ActivityFeedTreatment {
+export function resolveActivityFeedTreatment(signals: BoogieActivitySignals: ActivityFeedTreatment) {
   const category = signals.category ?? PolicyCategory.NONE;
   if (signals.viewerIsMinor && BLOCKED_FOR_MINORS.has(category)) return 'blocked';
   if (category === PolicyCategory.MINORS) return 'blocked';
@@ -39,11 +39,11 @@ export function resolveActivityFeedTreatment(signals: BoogieActivitySignals: Act
   return 'feed';
 }
 
-export function shouldExcludeFromFeed(signals: BoogieActivitySignals: boolean {
+export function shouldExcludeFromFeed(signals: BoogieActivitySignals: boolean) {
   return resolveActivityFeedTreatment(signals) !== 'feed';
 }
 
-export function detectActivityFraudSignals(params: {
+export function detectActivityFraudSignals(params:) {
   duplicateContent?: boolean;
   fakeCheckInDistanceMeters?: number | null;
   botViewRate?: number;
