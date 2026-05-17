@@ -9,7 +9,7 @@
  *   5. velocityVarianceJerk(path,timestamps) — slog-transformed velocity stats
  */
 
-// --- Types --------------------------------------------------------------------
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface PathPoint {
   x: number;
@@ -18,15 +18,15 @@ export interface PathPoint {
 
 export type Path = PathPoint[];
 
-// --- Internal helpers ---------------------------------------------------------
+// ─── Internal helpers ─────────────────────────────────────────────────────────
 
 /** Natural log of (1 + |x|) * sign(x) — symmetric log for human-scale values. */
-function slog(x: number: number) {
+function slog(x: number): number {
   return Math.sign(x) * Math.log1p(Math.abs(x));
 }
 
 /** Fit a line through first and last point of a path. Returns {dx, dy, len}. */
-function lineDirection(path: Path:) { dx: number; dy: number; len: number } {
+function lineDirection(path: Path): { dx: number; dy: number; len: number } {
   const first = path[0];
   const last  = path[path.length - 1];
   const dx    = last.x - first.x;
@@ -36,28 +36,28 @@ function lineDirection(path: Path:) { dx: number; dy: number; len: number } {
 }
 
 /** Signed perpendicular distance from point to line through p0→p1. */
-function perpDist(p: PathPoint, p0: PathPoint, dx: number, dy: number, len: number: number) {
+function perpDist(p: PathPoint, p0: PathPoint, dx: number, dy: number, len: number): number {
   if (len < 1e-9) return Math.sqrt((p.x - p0.x) ** 2 + (p.y - p0.y) ** 2);
   // Cross product / length = perpendicular distance
   return Math.abs((p.x - p0.x) * dy - (p.y - p0.y) * dx) / len;
 }
 
 /** Normalise a vector to unit length. */
-function normalise(v: number[]: number[]) {
-  const norm = Math.sqrt(v.reduce(s: Record<string, unknown>, x: number => s + x * x, 0));
+function normalise(v: number[]): number[] {
+  const norm = Math.sqrt(v.reduce(s: Record<string, unknown>, (x: number ) => s + x * x, 0));
   if (norm < 1e-12) return v.map(() => 0);
   return v.map((x: Record<string, unknown>) => x / norm);
 }
 
 /** Dot product of two same-length vectors. */
-function dot(a: number[], b: number[]: number) {
+function dot(a: number[], b: number[]): number {
   let s = 0;
   for (let i = 0; i < Math.min(a.length, b.length); i++) s += a[i] * b[i];
   return s;
 }
 
 /** Resample a path to exactly N equally-spaced points by linear interpolation. */
-function resample(path: Path, n: number: Path) {
+function resample(path: Path, n: number): Path {
   if (path.length <= 1) return Array(n).fill(path[0] ?? { x: 0, y: 0 }) as Path;
   const out: Path = [];
   const total = path.length - 1;
@@ -74,7 +74,7 @@ function resample(path: Path, n: number: Path) {
   return out;
 }
 
-// --- §36 Metric 1: perpendicularDeviation ------------------------------------
+// ─── §36 Metric 1: perpendicularDeviation ────────────────────────────────────
 
 /**
  * perpendicularDeviation(path)
@@ -84,16 +84,16 @@ function resample(path: Path, n: number: Path) {
  *
  * Human: > 1.5 px   Bot: < 0.8 px
  */
-export function perpendicularDeviation(path: Path: number) {
+export function perpendicularDeviation(path: Path): number {
   if (path.length < 3) return 0;
   const { dx, dy, len } = lineDirection(path);
   const p0 = path[0];
   const inner = path.slice(1, -1);
   const deviations = inner.map((p: Record<string, unknown>) => perpDist(p, p0, dx, dy, len));
-  return deviations.reduce(s: Record<string, unknown>, d: Record<string, unknown> => s + d, 0) / deviations.length;
+  return deviations.reduce((s: Record<string, unknown>, d: Record<string, unknown>) => s + d, 0) / deviations.length;
 }
 
-// --- §36 Metric 2: crossSwipeSimilarity --------------------------------------
+// ─── §36 Metric 2: crossSwipeSimilarity ──────────────────────────────────────
 
 /**
  * crossSwipeSimilarity(paths)
@@ -104,7 +104,7 @@ export function perpendicularDeviation(path: Path: number) {
  * High similarity (> 0.95) is suspicious (bot).
  * Humans typically score < 0.85.
  */
-export function crossSwipeSimilarity(paths: Path[]: number) {
+export function crossSwipeSimilarity(paths: Path[]): number {
   const window = paths.slice(-5);
   if (window.length < 2) return 0;
 
@@ -125,7 +125,7 @@ export function crossSwipeSimilarity(paths: Path[]: number) {
   return pairs > 0 ? Math.max(0, Math.min(1, totalSim / pairs)) : 0;
 }
 
-// --- §36 Metric 3: coarseGrainInvariance -------------------------------------
+// ─── §36 Metric 3: coarseGrainInvariance ─────────────────────────────────────
 
 /**
  * coarseGrainInvariance(path)
@@ -135,7 +135,7 @@ export function crossSwipeSimilarity(paths: Path[]: number) {
  *
  * Human: diff < 0.1   Bot: diff > 0.15
  */
-export function coarseGrainInvariance(path: Path: number) {
+export function coarseGrainInvariance(path: Path): number {
   if (path.length < 4) return 0;
   const mid   = Math.floor(path.length / 2);
   const first = path.slice(0, mid + 1);
@@ -146,7 +146,7 @@ export function coarseGrainInvariance(path: Path: number) {
   );
 }
 
-// --- §36 Metric 4: deviationEntropy ------------------------------------------
+// ─── §36 Metric 4: deviationEntropy ──────────────────────────────────────────
 
 /**
  * deviationEntropy(path)
@@ -156,7 +156,7 @@ export function coarseGrainInvariance(path: Path: number) {
  *
  * Human: > 0.7   Bot: < 0.5
  */
-export function deviationEntropy(path: Path: number) {
+export function deviationEntropy(path: Path): number {
   if (path.length < 3) return 0;
 
   const { dx, dy, len } = lineDirection(path);
@@ -184,7 +184,7 @@ export function deviationEntropy(path: Path: number) {
   return entropy / Math.log2(N_BINS);
 }
 
-// --- §36 Metric 5: velocityVarianceJerk --------------------------------------
+// ─── §36 Metric 5: velocityVarianceJerk ──────────────────────────────────────
 
 export interface VelocityStats {
   variance: number;
@@ -200,7 +200,7 @@ export interface VelocityStats {
  * Human: variance > 0.5, jerk > 0.3
  * Bot:   variance < 0.3, jerk ≈ 0
  */
-export function velocityVarianceJerk(path: Path, timestamps: number[]: VelocityStats) {
+export function velocityVarianceJerk(path: Path, timestamps: number[]): VelocityStats {
   const n = Math.min(path.length, timestamps.length);
   if (n < 2) return { variance: 0, jerk: 0 };
 
@@ -213,8 +213,8 @@ export function velocityVarianceJerk(path: Path, timestamps: number[]: VelocityS
     speeds.push(Math.sqrt(dx * dx + dy * dy) / dt);
   }
 
-  const mean = speeds.reduce(s: Record<string, unknown>, v: number => s + v, 0) / speeds.length;
-  const variance = speeds.reduce(s: Record<string, unknown>, v: number => s + (v - mean) ** 2, 0) / speeds.length;
+  const mean = speeds.reduce(s: Record<string, unknown>, (v: number ) => s + v, 0) / speeds.length;
+  const variance = speeds.reduce(s: Record<string, unknown>, (v: number ) => s + (v - mean) ** 2, 0) / speeds.length;
 
   // Jerk: 3rd derivative ≈ differences of accelerations
   const accels: number[] = [];
@@ -224,7 +224,7 @@ export function velocityVarianceJerk(path: Path, timestamps: number[]: VelocityS
   for (let i = 1; i < accels.length; i++) jerks.push(Math.abs(accels[i] - accels[i - 1]));
 
   const meanJerk = jerks.length > 0
-    ? jerks.reduce(s: Record<string, unknown>, j: number => s + j, 0) / jerks.length
+    ? jerks.reduce(s: Record<string, unknown>, (j: number ) => s + j, 0) / jerks.length
     : 0;
 
   return {

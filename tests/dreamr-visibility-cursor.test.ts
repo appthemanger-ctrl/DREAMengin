@@ -22,7 +22,7 @@ import {
   MAX_SEEN_IDS,
 } from '@/lib/dreamr/feedCursor';
 
-// -- filterByCloseFriends -----------------------------------------------------
+// ── filterByCloseFriends ─────────────────────────────────────────────────────
 
 describe('filterByCloseFriends', () => {
   const posts = [
@@ -36,7 +36,7 @@ describe('filterByCloseFriends', () => {
 
   it('lets all public posts through to any viewer', () => {
     const out = filterByCloseFriends(posts, 'mallory', new Set());
-    const ids = out.map(p => p.id);
+    const ids = out.map((p) => p.id);
     expect(ids).toContain('p1');
     expect(ids).toContain('p4');
     expect(ids).toContain('p5');
@@ -44,7 +44,7 @@ describe('filterByCloseFriends', () => {
 
   it('hides close_friends posts from viewers not in the poster\'s circle', () => {
     const out = filterByCloseFriends(posts, 'mallory', new Set());
-    const ids = out.map(p => p.id);
+    const ids = out.map((p) => p.id);
     expect(ids).not.toContain('p2');
     expect(ids).not.toContain('p3');
     expect(ids).not.toContain('p6');
@@ -52,7 +52,7 @@ describe('filterByCloseFriends', () => {
 
   it('reveals close_friends posts to viewers in the poster\'s circle', () => {
     const out = filterByCloseFriends(posts, 'mallory', new Set(['bob', 'eve']));
-    const ids = out.map(p => p.id);
+    const ids = out.map((p) => p.id);
     expect(ids).toContain('p2');
     expect(ids).toContain('p6');
     expect(ids).not.toContain('p3'); // carol didn't add mallory
@@ -60,7 +60,7 @@ describe('filterByCloseFriends', () => {
 
   it('always shows a viewer their own close_friends posts', () => {
     const out = filterByCloseFriends(posts, 'bob', new Set());
-    const ids = out.map(p => p.id);
+    const ids = out.map((p) => p.id);
     expect(ids).toContain('p2'); // bob's own CF post
   });
 
@@ -70,7 +70,7 @@ describe('filterByCloseFriends', () => {
       'viewer',
       new Set(),
     );
-    expect(out.map(p => p.id)).toContain('x');
+    expect(out.map((p) => p.id)).toContain('x');
   });
 
   it('treats missing user_id on a CF post as not visible (defensive)', () => {
@@ -84,13 +84,13 @@ describe('filterByCloseFriends', () => {
 
   it('does not mutate the input array', () => {
     const input = [...posts];
-    const ids = input.map(p => p.id);
+    const ids = input.map((p) => p.id);
     filterByCloseFriends(input, 'mallory', new Set());
-    expect(input.map(p => p.id)).toEqual(ids);
+    expect(input.map((p) => p.id)).toEqual(ids);
   });
 });
 
-// -- parseFeedParams ----------------------------------------------------------
+// ── parseFeedParams ──────────────────────────────────────────────────────────
 
 describe('parseFeedParams', () => {
   it('returns sensible defaults for empty input', () => {
@@ -151,7 +151,7 @@ describe('parseFeedParams', () => {
   });
 });
 
-// -- deriveNextCursor ---------------------------------------------------------
+// ── deriveNextCursor ─────────────────────────────────────────────────────────
 
 describe('deriveNextCursor', () => {
   it('returns null when fewer rows than fetchLimit (end of pool)', () => {

@@ -40,7 +40,7 @@ import {
   type EditPreview,
 } from '@/lib/diff/aiEditEngine';
 
-// --- Fixtures -----------------------------------------------------------------
+// ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 const CELL_A: EditableCell = {
   id: 'cell-a',
@@ -67,7 +67,7 @@ const CELLS = [CELL_A, CELL_B];
 // "function greet(name) {" — 'n' is at index 16
 const CURSOR_ON_NAME = 18; // inside "name" in "greet(name)"
 
-// --- escapeRegex --------------------------------------------------------------
+// ─── escapeRegex ──────────────────────────────────────────────────────────────
 
 describe('escapeRegex', () => {
   it('escapes dot', () => expect(escapeRegex('a.b')).toBe('a\\.b'));
@@ -75,7 +75,7 @@ describe('escapeRegex', () => {
   it('escapes nothing for simple word', () => expect(escapeRegex('hello')).toBe('hello'));
 });
 
-// --- parseAiInstruction -------------------------------------------------------
+// ─── parseAiInstruction ───────────────────────────────────────────────────────
 
 describe('parseAiInstruction', () => {
   it('detects rename … to … → word-in-file scope', () => {
@@ -132,7 +132,7 @@ describe('parseAiInstruction', () => {
     expect(s.scopeRationale.length).toBeGreaterThan(0);
   });
 
-  // -- Fix 2: new patterns -------------------------------------------------------
+  // ── Fix 2: new patterns ───────────────────────────────────────────────────────
 
   it('detects swap X with Y → word-in-file scope, high confidence', () => {
     const s = parseAiInstruction('swap oldName with newName');
@@ -165,7 +165,7 @@ describe('parseAiInstruction', () => {
     expect(s.confidence).toBe('medium');
   });
 
-  // -- Fix 2: confidence field ---------------------------------------------------
+  // ── Fix 2: confidence field ───────────────────────────────────────────────────
 
   it('rename/replace/swap/delete give high confidence', () => {
     expect(parseAiInstruction('rename foo to bar').confidence).toBe('high');
@@ -200,7 +200,7 @@ describe('parseAiInstruction', () => {
     }
   });
 
-  // -- Fix 2: backtick-quoted targets -------------------------------------------
+  // ── Fix 2: backtick-quoted targets ───────────────────────────────────────────
 
   it('handles backtick-quoted target in rename', () => {
     const s = parseAiInstruction('rename `oldFn` to `newFn`');
@@ -214,7 +214,7 @@ describe('parseAiInstruction', () => {
     expect(s.replacement).toBe('total');
   });
 
-  // -- Fix 1: "all cells" keyword triggers all-cells scope ----------------------
+  // ── Fix 1: "all cells" keyword triggers all-cells scope ──────────────────────
 
   it('"all cells" keyword triggers word-in-codebase scope', () => {
     const s = parseAiInstruction('rename foo to bar in all cells');
@@ -227,7 +227,7 @@ describe('parseAiInstruction', () => {
   });
 });
 
-// --- wordBoundsAt -------------------------------------------------------------
+// ─── wordBoundsAt ─────────────────────────────────────────────────────────────
 
 describe('wordBoundsAt', () => {
   const code = 'const greeting = "hello";';
@@ -254,7 +254,7 @@ describe('wordBoundsAt', () => {
   });
 });
 
-// --- lineBoundsAt -------------------------------------------------------------
+// ─── lineBoundsAt ─────────────────────────────────────────────────────────────
 
 describe('lineBoundsAt', () => {
   const code = 'line one\nline two\nline three';
@@ -275,7 +275,7 @@ describe('lineBoundsAt', () => {
   });
 });
 
-// --- blockBoundsAt ------------------------------------------------------------
+// ─── blockBoundsAt ────────────────────────────────────────────────────────────
 
 describe('blockBoundsAt', () => {
   const code = 'if (x) { doSomething(); }';
@@ -293,7 +293,7 @@ describe('blockBoundsAt', () => {
     expect(blockBoundsAt(noBlock, 5)).toBeNull();
   });
 
-  // -- Fix 3: string/comment masking --------------------------------------------
+  // ── Fix 3: string/comment masking ────────────────────────────────────────────
 
   it('ignores { } inside a string literal', () => {
     // The real block is the if-body; the string "{ fake }" must not confuse it
@@ -315,7 +315,7 @@ describe('blockBoundsAt', () => {
     expect(b!.end).toBe(code3.length);
   });
 
-  // -- Fix 3: fallback to [ ] and ( ) -------------------------------------------
+  // ── Fix 3: fallback to [ ] and ( ) ───────────────────────────────────────────
 
   it('falls back to [ ] when no { } enclosing block', () => {
     const arr = 'const items = [1, 2, 3];';
@@ -334,7 +334,7 @@ describe('blockBoundsAt', () => {
   });
 });
 
-// --- functionBoundsAt --------------------------------------------------------
+// ─── functionBoundsAt ────────────────────────────────────────────────────────
 
 describe('functionBoundsAt', () => {
   const code = 'function add(a, b) { return a + b; }';
@@ -352,7 +352,7 @@ describe('functionBoundsAt', () => {
   });
 });
 
-// --- buildEditPreview — scope: word ------------------------------------------
+// ─── buildEditPreview — scope: word ──────────────────────────────────────────
 
 describe('buildEditPreview — word scope', () => {
   it('returns one match for the word under cursor', () => {
@@ -377,7 +377,7 @@ describe('buildEditPreview — word scope', () => {
   });
 });
 
-// --- buildEditPreview — scope: line ------------------------------------------
+// ─── buildEditPreview — scope: line ──────────────────────────────────────────
 
 describe('buildEditPreview — line scope', () => {
   it('matches the full line the cursor is on', () => {
@@ -391,7 +391,7 @@ describe('buildEditPreview — line scope', () => {
   });
 });
 
-// --- buildEditPreview — scope: block -----------------------------------------
+// ─── buildEditPreview — scope: block ─────────────────────────────────────────
 
 describe('buildEditPreview — block scope', () => {
   it('matches the enclosing block', () => {
@@ -406,7 +406,7 @@ describe('buildEditPreview — block scope', () => {
   });
 });
 
-// --- buildEditPreview — scope: file ------------------------------------------
+// ─── buildEditPreview — scope: file ──────────────────────────────────────────
 
 describe('buildEditPreview — file scope', () => {
   it('matches the entire cell', () => {
@@ -421,7 +421,7 @@ describe('buildEditPreview — file scope', () => {
   });
 });
 
-// --- buildEditPreview — scope: word-in-file ----------------------------------
+// ─── buildEditPreview — scope: word-in-file ──────────────────────────────────
 
 describe('buildEditPreview — word-in-file scope', () => {
   it('finds all occurrences in the active cell only', () => {
@@ -442,12 +442,12 @@ describe('buildEditPreview — word-in-file scope', () => {
       scope: 'word-in-file', target: 'name', replacement: 'username',
     });
     // Only cell-a has "name" (in the function signature)
-    const cellIds = new Set(preview.matches.map(m => m.cellId));
+    const cellIds = new Set(preview.matches.map((m) => m.cellId));
     expect(cellIds.has('cell-b')).toBe(false);
   });
 });
 
-// --- buildEditPreview — scope: word-in-codebase ------------------------------
+// ─── buildEditPreview — scope: word-in-codebase ──────────────────────────────
 
 describe('buildEditPreview — word-in-codebase scope', () => {
   it('finds matches across all cells', () => {
@@ -471,7 +471,7 @@ describe('buildEditPreview — word-in-codebase scope', () => {
   });
 });
 
-// --- buildEditPreview — risk & confirmation -----------------------------------
+// ─── buildEditPreview — risk & confirmation ───────────────────────────────────
 
 describe('buildEditPreview — risk levels', () => {
   it('word scope is low risk', () => {
@@ -502,7 +502,7 @@ describe('buildEditPreview — risk levels', () => {
   });
 });
 
-// --- applyMatchesForCell ------------------------------------------------------
+// ─── applyMatchesForCell ──────────────────────────────────────────────────────
 
 describe('applyMatchesForCell', () => {
   it('replaces a single match correctly', () => {
@@ -514,7 +514,7 @@ describe('applyMatchesForCell', () => {
   it('replaces multiple matches right-to-left without offset corruption', () => {
     const code = 'foo + foo + foo';
     // All occurrences of "foo" (word-in-file)
-    const matches = [...code.matchAll(/\bfoo\b/g)].map(m => ({
+    const matches = [...code.matchAll(/\bfoo\b/g)].map((m) => ({
       cellId: 'x', start: m.index!, end: m.index! + 3, matched: 'foo', lineNo: 1,
     }));
     const result = applyMatchesForCell(code, matches, 'bar');
@@ -527,7 +527,7 @@ describe('applyMatchesForCell', () => {
   });
 });
 
-// --- applyEdit ----------------------------------------------------------------
+// ─── applyEdit ────────────────────────────────────────────────────────────────
 
 describe('applyEdit', () => {
   it('updates only cells that contain matches', () => {
@@ -536,8 +536,8 @@ describe('applyEdit', () => {
       scope: 'word-in-file', target: 'msg', replacement: 'message',
     });
     const { cells: updated } = applyEdit(CELLS, preview);
-    expect(updated.find(c => c.id === 'cell-a')!.code).toContain('message');
-    expect(updated.find(c => c.id === 'cell-b')!.code).toBe(CELL_B.code);
+    expect(updated.find((c) => c.id === 'cell-a')!.code).toContain('message');
+    expect(updated.find((c) => c.id === 'cell-b')!.code).toBe(CELL_B.code);
   });
 
   it('returns a valid undo snapshot with original code', () => {
@@ -546,7 +546,7 @@ describe('applyEdit', () => {
       scope: 'word-in-file', target: 'msg', replacement: 'message',
     });
     const { undo } = applyEdit(CELLS, preview);
-    expect(undo.cells.find(c => c.id === 'cell-a')!.code).toBe(CELL_A.code);
+    expect(undo.cells.find((c) => c.id === 'cell-a')!.code).toBe(CELL_A.code);
     expect(undo.description).toContain('Undo');
   });
 
@@ -560,7 +560,7 @@ describe('applyEdit', () => {
   });
 });
 
-// --- undoEdit -----------------------------------------------------------------
+// ─── undoEdit ─────────────────────────────────────────────────────────────────
 
 describe('undoEdit', () => {
   it('restores cells to their pre-edit state', () => {
@@ -570,26 +570,26 @@ describe('undoEdit', () => {
     });
     const { cells: updated, undo } = applyEdit(CELLS, preview);
     // Verify the change was applied
-    expect(updated.find(c => c.id === 'cell-a')!.code).toContain('message');
+    expect(updated.find((c) => c.id === 'cell-a')!.code).toContain('message');
     // Undo it
     const restored = undoEdit(updated, undo);
-    expect(restored.find(c => c.id === 'cell-a')!.code).toBe(CELL_A.code);
+    expect(restored.find((c) => c.id === 'cell-a')!.code).toBe(CELL_A.code);
   });
 
   it('does not affect cells that were not in the snapshot', () => {
     const snapshot = { cells: [{ id: 'cell-a', code: 'original' }], description: 'test' };
     // cell-b is not in the snapshot → should be unchanged
     const result = undoEdit(CELLS, snapshot);
-    expect(result.find(c => c.id === 'cell-b')!.code).toBe(CELL_B.code);
+    expect(result.find((c) => c.id === 'cell-b')!.code).toBe(CELL_B.code);
   });
 });
 
-// --- generateDiffLines --------------------------------------------------------
+// ─── generateDiffLines ────────────────────────────────────────────────────────
 
 describe('generateDiffLines', () => {
   it('returns only context lines when before === after', () => {
     const lines = generateDiffLines('abc\ndef', 'abc\ndef');
-    const changed = lines.filter(l => l.type !== 'context');
+    const changed = lines.filter((l) => l.type !== 'context');
     expect(changed).toHaveLength(0);
   });
 
@@ -597,26 +597,26 @@ describe('generateDiffLines', () => {
     const before = 'line1\nline2\nline3';
     const after  = 'line1\nLINE2\nline3';
     const lines = generateDiffLines(before, after);
-    expect(lines.some(l => l.type === 'removed' && l.content === 'line2')).toBe(true);
-    expect(lines.some(l => l.type === 'added'   && l.content === 'LINE2')).toBe(true);
+    expect(lines.some((l) => l.type === 'removed' && l.content === 'line2')).toBe(true);
+    expect(lines.some((l) => l.type === 'added'   && l.content === 'LINE2')).toBe(true);
   });
 
   it('handles entirely different content', () => {
     const lines = generateDiffLines('foo', 'bar');
-    expect(lines.some(l => l.type === 'removed')).toBe(true);
-    expect(lines.some(l => l.type === 'added')).toBe(true);
+    expect(lines.some((l) => l.type === 'removed')).toBe(true);
+    expect(lines.some((l) => l.type === 'added')).toBe(true);
   });
 
   it('returns an empty array when both inputs are empty strings', () => {
     // empty.split('\n') = [''] — one empty context line; trimContextLines reduces to minimal context
     const lines = generateDiffLines('', '');
     // No changed lines means this is all context — may be [] or a single empty-context line
-    const changed = lines.filter(l => l.type !== 'context');
+    const changed = lines.filter((l) => l.type !== 'context');
     expect(changed).toHaveLength(0);
   });
 });
 
-// --- SCOPE constants ----------------------------------------------------------
+// ─── SCOPE constants ──────────────────────────────────────────────────────────
 
 describe('SCOPE_ORDER', () => {
   it('contains all 7 scopes', () => {

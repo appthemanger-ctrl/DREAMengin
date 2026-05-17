@@ -25,7 +25,7 @@ import { EliteGameEngine }    from '@/lib/gameengin/core';
 import { GameEnginRuntime }   from '@/lib/gameengin/gameEnginRuntime';
 import type { QualityTier }   from '@/lib/gameengin/core';
 
-// --- Configuration Types ------------------------------------------------------
+// ─── Configuration Types ──────────────────────────────────────────────────────
 
 export interface AssetEntry {
   id: string;
@@ -113,7 +113,7 @@ export interface GameConfig {
   telemetry?: TelemetryConfig;
 }
 
-// --- Asset type inference -----------------------------------------------------
+// ─── Asset type inference ─────────────────────────────────────────────────────
 
 const AUDIO_EXTS   = new Set(['.ogg', '.mp3', '.wav', '.aac', '.opus', '.flac']);
 const TEXTURE_EXTS = new Set(['.png', '.jpg', '.jpeg', '.webp', '.ktx', '.ktx2', '.hdr', '.exr', '.basis']);
@@ -144,7 +144,7 @@ export class GameEnginConfigError extends Error {
   }
 }
 
-// --- Validation ---------------------------------------------------------------
+// ─── Validation ───────────────────────────────────────────────────────────────
 
 const VALID_QUALITY_TIERS: QualityTier[] = ['ultra', 'high', 'medium', 'low'];
 const VALID_TRANSPORTS = ['WebSocket', 'WebRTC', 'WebTransport'] as const;
@@ -155,7 +155,7 @@ const VALID_TRANSPORTS = ['WebSocket', 'WebRTC', 'WebTransport'] as const;
  * Checks for misconfigured parameters and throws `GameEnginConfigError` on
  * the first violation found.  Called synchronously before any subsystem init.
  */
-export function validateConfig(config: GameConfig: void) {
+export function validateConfig(config: GameConfig): void {
   if (!config.id || config.id.trim() === '') {
     throw new GameEnginConfigError('`id` must be a non-empty string.');
   }
@@ -166,7 +166,7 @@ export function validateConfig(config: GameConfig: void) {
     throw new GameEnginConfigError('`version` must be a non-empty string.');
   }
 
-  // -- Graphics --
+  // ── Graphics ──
   if (!VALID_QUALITY_TIERS.includes(config.graphics.qualityTier)) {
     throw new GameEnginConfigError(
       `graphics.qualityTier must be one of: ${VALID_QUALITY_TIERS.join(', ')}.`
@@ -180,7 +180,7 @@ export function validateConfig(config: GameConfig: void) {
     throw new GameEnginConfigError('graphics.targetFps must be 60 or 120.');
   }
 
-  // -- Simulation --
+  // ── Simulation ──
   const sim = config.simulation;
   if (sim?.fixedTimestepMs !== undefined && sim.fixedTimestepMs <= 0) {
     throw new GameEnginConfigError('simulation.fixedTimestepMs must be > 0.');
@@ -189,7 +189,7 @@ export function validateConfig(config: GameConfig: void) {
     throw new GameEnginConfigError('simulation.maxEntities must be >= 1.');
   }
 
-  // -- Networking --
+  // ── Networking ──
   const net = config.networking;
   if (net !== undefined) {
     if (!VALID_TRANSPORTS.includes(net.primaryTransport)) {
@@ -221,13 +221,13 @@ export function validateConfig(config: GameConfig: void) {
     }
   }
 
-  // -- Assets --
+  // ── Assets ──
   const memBudget = config.assets?.memoryBudgetMib;
   if (memBudget !== undefined && memBudget < 16) {
     throw new GameEnginConfigError('assets.memoryBudgetMib must be >= 16 MiB.');
   }
 
-  // -- Telemetry --
+  // ── Telemetry ──
   const minFps = config.telemetry?.minAcceptableFps;
   if (minFps !== undefined && (minFps < 1 || minFps > 120)) {
     throw new GameEnginConfigError(
@@ -236,7 +236,7 @@ export function validateConfig(config: GameConfig: void) {
   }
 }
 
-// --- GameEnginCore ------------------------------------------------------------
+// ─── GameEnginCore ────────────────────────────────────────────────────────────
 
 /**
  * GameEnginCore
@@ -255,7 +255,7 @@ export class GameEnginCore {
   private config: GameConfig | null = null;
   private running = false;
 
-  // -- Start -----------------------------------------------------------------
+  // ── Start ─────────────────────────────────────────────────────────────────
 
   /**
    * start(canvas, config)
@@ -341,7 +341,7 @@ export class GameEnginCore {
 
     // 7. Enable telemetry / profiler
     if (config.telemetry?.enabled) {
-      this.eliteEngine.onFrame(_dt: Record<string, unknown>, telemetry: Record<string, unknown> => {
+      this.eliteEngine.onFrame((_dt: Record<string, unknown>, telemetry: Record<string, unknown>) => {
         const minFps = config.telemetry?.minAcceptableFps ?? 25;
         if (telemetry.avgFps < minFps) {
           console.warn(
@@ -375,7 +375,7 @@ export class GameEnginCore {
     console.log(`[GameEnginCore] ✅ "${config.name}" is running.`);
   }
 
-  // -- Stop ------------------------------------------------------------------
+  // ── Stop ──────────────────────────────────────────────────────────────────
 
   /**
    * stop()
@@ -401,7 +401,7 @@ export class GameEnginCore {
     console.log('[GameEnginCore] Engine stopped.');
   }
 
-  // -- Accessors -------------------------------------------------------------
+  // ── Accessors ─────────────────────────────────────────────────────────────
 
   /** True while the engine is running. */
   get isRunning(): boolean {

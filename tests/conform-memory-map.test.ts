@@ -37,7 +37,7 @@ beforeEach(() => {
   _resetConformMemoryMap();
 });
 
-// -- Buffer sizing and alignment -----------------------------------------------
+// ── Buffer sizing and alignment ───────────────────────────────────────────────
 
 describe('Conform Mode — SharedArrayBuffer allocation', () => {
   it('allocates exactly 16 MB', () => {
@@ -64,7 +64,7 @@ describe('Conform Mode — SharedArrayBuffer allocation', () => {
   });
 });
 
-// -- Cache-line alignment ------------------------------------------------------
+// ── Cache-line alignment ──────────────────────────────────────────────────────
 
 describe('SoA array offsets — 64-byte cache-line alignment', () => {
   it('CACHE_LINE is 64 bytes', () => {
@@ -101,7 +101,7 @@ describe('SoA array offsets — 64-byte cache-line alignment', () => {
   });
 });
 
-// -- SoA layout for 10,000 entities -------------------------------------------
+// ── SoA layout for 10,000 entities ───────────────────────────────────────────
 
 describe('Conform Mode — SoA entity layout', () => {
   it('ENTITY_COUNT is 10,000', () => {
@@ -161,7 +161,7 @@ describe('Conform Mode — SoA entity layout', () => {
   });
 });
 
-// -- Control region ------------------------------------------------------------
+// ── Control region ────────────────────────────────────────────────────────────
 
 describe('Conform Mode — control region', () => {
   it('control view is an Int32Array', () => {
@@ -180,7 +180,7 @@ describe('Conform Mode — control region', () => {
   });
 });
 
-// -- DreamDM Bar Seam Logic ----------------------------------------------------
+// ── DreamDM Bar Seam Logic ────────────────────────────────────────────────────
 
 describe('DreamDM Bar Seam Logic — writeBarSeam / readBarSeam', () => {
   it('writes 0.9 (Surface-focus) and reads it back', () => {
@@ -226,7 +226,7 @@ describe('DreamDM Bar Seam Logic — writeBarSeam / readBarSeam', () => {
   });
 });
 
-// -- TheBoogieMan.Ai policy guard ----------------------------------------------
+// ── TheBoogieMan.Ai policy guard ──────────────────────────────────────────────
 
 describe('boogieMemoryGuard — HomeDream private region protection', () => {
   it('allows access at offset 0 for any consumer', () => {

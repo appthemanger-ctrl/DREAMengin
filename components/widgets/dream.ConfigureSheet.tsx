@@ -20,7 +20,7 @@ interface ConfigureSheetProps {
   onClose: () => void;
 }
 
-export default function ConfigureSheet() {
+export default function ConfigureSheet(){
   title,
   description,
   fields = [],
@@ -33,7 +33,7 @@ export default function ConfigureSheet() {
   );
 
   const set = (key: string, value: string | boolean) =>
-    setValues(prev: Record<string, unknown> => ({ ...prev, [key]: value }));
+    setValues((prev: Record<string, unknown>) => ({ ...prev, [key]: value }));
 
   return (
     <div

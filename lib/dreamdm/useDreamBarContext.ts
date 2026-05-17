@@ -10,7 +10,7 @@
  * surface (CONSTITUTION Art. I — "one coherent living interface").
  *
  * Surface map
- * ----------------------------------------------------------------------
+ * ──────────────────────────────────────────────────────────────────────
  *  messages   /messages/**         → send a direct message
  *  feed       /homedream /home /    → create a feed post
  *  code       /codespace /daydream/code /daydream/lab
@@ -24,7 +24,7 @@
  *  general    (everything else)    → open messages compose fallback
  *
  * Intent override (BarIntentMode)
- * ----------------------------------------------------------------------
+ * ──────────────────────────────────────────────────────────────────────
  *  When a BarIntent is active (search / message / dreams / comment),
  *  the resolved context overrides the surface-detected defaults so the
  *  bar input, placeholder, and action button match the user's chosen mode.
@@ -34,7 +34,7 @@ import { usePathname } from 'next/navigation';
 import { useMemo } from 'react';
 import type { BarIntentMode } from './DreamSystemContext';
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 export type DreamBarSurface =
   | 'messages'
@@ -62,9 +62,9 @@ export interface DreamBarContext {
   iconHint: 'send' | 'pen-line' | 'code' | 'bot' | 'music' | 'sparkles' | 'search' | 'message-circle';
 }
 
-// -- Surface detection (pure function — testable without React) ----------------
+// ── Surface detection (pure function — testable without React) ────────────────
 
-export function detectSurface(pathname: string: DreamBarSurface) {
+export function detectSurface(pathname: string): DreamBarSurface {
   const p = pathname.toLowerCase();
 
   if (p.startsWith('/messages')) return 'messages';
@@ -78,7 +78,7 @@ export function detectSurface(pathname: string: DreamBarSurface) {
   return 'general';
 }
 
-// -- Context map ---------------------------------------------------------------
+// ── Context map ───────────────────────────────────────────────────────────────
 
 const CONTEXT_MAP: Record<DreamBarSurface, Omit<DreamBarContext, 'surface'>> = {
   messages: {
@@ -131,7 +131,7 @@ const CONTEXT_MAP: Record<DreamBarSurface, Omit<DreamBarContext, 'surface'>> = {
   },
 };
 
-// -- Intent overrides (pure function — testable without React) -----------------
+// ── Intent overrides (pure function — testable without React) ─────────────────
 
 /**
  * Resolves bar context overrides when a BarIntentMode is active.
@@ -175,7 +175,7 @@ export function resolveIntentOverride(
   }
 }
 
-// -- Hook ----------------------------------------------------------------------
+// ── Hook ──────────────────────────────────────────────────────────────────────
 
 export function useDreamBarContext(
   intentMode?: BarIntentMode,

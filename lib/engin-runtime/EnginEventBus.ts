@@ -14,7 +14,7 @@
 
 import { createEventBus, type EventBus, type EventHandler } from '@/lib/eventBus';
 
-// --- Lifecycle events (always emitted by the runtime) ------------------------
+// ─── Lifecycle events (always emitted by the runtime) ────────────────────────
 
 export interface EnginLifecycleEvents extends Record<string, unknown> {
   'engin:started':   { enginId: string };
@@ -27,7 +27,7 @@ export interface EnginLifecycleEvents extends Record<string, unknown> {
   'engin:restored':  { enginId: string; key: string };
 }
 
-// --- Domain events (rule-sets add their own) ----------------------------------
+// ─── Domain events (rule-sets add their own) ──────────────────────────────────
 
 /**
  * EnginEventMap — union of lifecycle + domain-specific events.
@@ -37,7 +37,7 @@ export type EnginEventMap<
   DomainEvents extends Record<string, unknown> = Record<string, unknown>,
 > = EnginLifecycleEvents & DomainEvents;
 
-// --- Scoped bus ---------------------------------------------------------------
+// ─── Scoped bus ───────────────────────────────────────────────────────────────
 
 export interface EnginEventBus<
   DomainEvents extends Record<string, unknown> = Record<string, unknown>,

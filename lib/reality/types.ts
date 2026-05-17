@@ -20,7 +20,7 @@
 
 import type { SessionRole, CollabMode } from '@/lib/collaboration';
 
-// -- Reality identity ----------------------------------------------------------
+// ── Reality identity ──────────────────────────────────────────────────────────
 
 /** Who can join a Reality without an explicit invite. */
 export type RealityMode = 'open' | 'invite_only' | 'private';
@@ -58,7 +58,7 @@ export interface Reality {
   lastActivityAt: string;
 }
 
-// -- Reality membership --------------------------------------------------------
+// ── Reality membership ────────────────────────────────────────────────────────
 
 /** A user's membership record in a Reality. */
 export interface RealityMember {
@@ -74,7 +74,7 @@ export interface RealityMember {
   isOnline: boolean;
 }
 
-// -- Reality snapshots ---------------------------------------------------------
+// ── Reality snapshots ─────────────────────────────────────────────────────────
 
 /**
  * A point-in-time snapshot of the entire Reality state.
@@ -93,7 +93,7 @@ export interface RealitySnapshot {
   capturedAt: string;
 }
 
-// -- Reality activity ----------------------------------------------------------
+// ── Reality activity ──────────────────────────────────────────────────────────
 
 export type RealityActivityKind =
   | 'member_joined'
@@ -117,7 +117,7 @@ export interface RealityActivityEntry {
   createdAt: string;
 }
 
-// -- Runtime context -----------------------------------------------------------
+// ── Runtime context ───────────────────────────────────────────────────────────
 
 /** What the RealityContext exposes to consumers. */
 export interface RealityContextValue {

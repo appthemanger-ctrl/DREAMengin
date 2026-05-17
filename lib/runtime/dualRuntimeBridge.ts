@@ -3,7 +3,7 @@
 import { EventEmitter } from 'events';
 import { invokeMadMaxiSnapshotTransfer } from '@/lib/runtime/madMaxiSnapshotBridge';
 
-// -- Channel types --------------------------------------------------------------
+// ── Channel types ──────────────────────────────────────────────────────────────
 
 export type DualRuntimeChannel =
   | 'code'
@@ -17,10 +17,10 @@ export type DualRuntimeChannel =
   | 'compute'
   | 'shared_dream';
 
-// -- VM region -----------------------------------------------------------------
+// ── VM region ─────────────────────────────────────────────────────────────────
 export type VMRegion = 'top' | 'bottom';
 
-// -- Quantum compute result ----------------------------------------------------
+// ── Quantum compute result ────────────────────────────────────────────────────
 export interface QuantumComputeResult {
   algorithm: string;
   ansatz: string;
@@ -33,7 +33,7 @@ export interface QuantumComputeResult {
   computedAt: number;
 }
 
-// -- VM workload ---------------------------------------------------------------
+// ── VM workload ───────────────────────────────────────────────────────────────
 export interface VMWorkload {
   id: string;
   region: VMRegion;
@@ -42,7 +42,7 @@ export interface VMWorkload {
   priority: number;
 }
 
-// -- Quantum circuit compute engine (inline) -----------------------------------
+// ── Quantum circuit compute engine (inline) ───────────────────────────────────
 // Pure complex-number state vector simulation; no canvas, no components.
 // Dispatched automatically on bridge.emit('lab', 'quantum:run', payload).
 
@@ -53,14 +53,14 @@ type _SV = _C[];
 const _IS2 = 1 / Math.SQRT2;
 const _GATE_H: _Gate = [[_IS2,0],[_IS2,0],[_IS2,0],[-_IS2,0]];
 
-function _gateRx(t: number: _Gate) { const c=Math.cos(t/2),s=Math.sin(t/2); return [[c,0],[0,-s],[0,-s],[c,0]]; }
-function _gateRy(t: number: _Gate) { const c=Math.cos(t/2),s=Math.sin(t/2); return [[c,0],[-s,0],[s,0],[c,0]]; }
-function _gateRz(t: number: _Gate) { const c=Math.cos(t/2),s=Math.sin(t/2); return [[c,-s],[0,0],[0,0],[c,s]]; }
-function _groundState(n: number: _SV) { const sv = Array.from({length: 1 << n}, (): _C => [0, 0]); sv[0] = [1, 0]; return sv as _SV; }
-function _cmul([r1, i1]: _C, [r2, i2]: _C: _C) { return [r1*r2-i1*i2, r1*i2+i1*r2]; }
-function _cadd([r1, i1]: _C, [r2, i2]: _C: _C) { return [r1+r2, i1+i2]; }
+function _gateRx(t: number): _Gate { const c=Math.cos(t/2),s=Math.sin(t/2); return [[c,0],[0,-s],[0,-s],[c,0]]; }
+function _gateRy(t: number): _Gate { const c=Math.cos(t/2),s=Math.sin(t/2); return [[c,0],[-s,0],[s,0],[c,0]]; }
+function _gateRz(t: number): _Gate { const c=Math.cos(t/2),s=Math.sin(t/2); return [[c,-s],[0,0],[0,0],[c,s]]; }
+function _groundState(n: number): _SV { const sv = Array.from({length: 1 << n}, (): _C => [0, 0]); sv[0] = [1, 0]; return sv as _SV; }
+function _cmul([r1, i1]: _C, [r2, i2]: _C): _C { return [r1*r2-i1*i2, r1*i2+i1*r2]; }
+function _cadd([r1, i1]: _C, [r2, i2]: _C): _C { return [r1+r2, i1+i2]; }
 
-function _applyGate1(sv: _SV, n: number, q: number, u: _Gate: _SV) {
+function _applyGate1(sv: _SV, n: number, q: number, u: _Gate): _SV {
   const next = sv.slice();
   const bit = 1 << (n - 1 - q);
   for (let i = 0; i < sv.length; i++) {
@@ -73,7 +73,7 @@ function _applyGate1(sv: _SV, n: number, q: number, u: _Gate: _SV) {
   return next;
 }
 
-function _applyCNOT(sv: _SV, n: number, ctrl: number, tgt: number: _SV) {
+function _applyCNOT(sv: _SV, n: number, ctrl: number, tgt: number): _SV {
   const next = sv.slice();
   const cBit = 1 << (n - 1 - ctrl), tBit = 1 << (n - 1 - tgt);
   for (let i = 0; i < sv.length; i++) {
@@ -85,9 +85,9 @@ function _applyCNOT(sv: _SV, n: number, ctrl: number, tgt: number: _SV) {
 const _RETURNS = [0.12, 0.09, 0.15], _SIGMA = [0.20, 0.15, 0.25];
 const _CORR    = [[1, 0.3, 0.1], [0.3, 1, 0.2], [0.1, 0.2, 1]];
 
-function _quboCost(bits: boolean[]: number) {
+function _quboCost(bits: boolean[]): number {
   let c = 0;
-  bits.forEach(b: Record<string, unknown>, i: number => { if (b) c -= _RETURNS[i] ?? 0.1; });
+  bits.forEach(b: Record<string, unknown>, (i: number ) => { if (b) c -= _RETURNS[i] ?? 0.1; });
   for (let i = 0; i < bits.length; i++)
     for (let j = i + 1; j < bits.length; j++)
       if (bits[i] && bits[j])
@@ -97,7 +97,7 @@ function _quboCost(bits: boolean[]: number) {
 
 type _Op = { kind: string; q?: number; ctrl?: number; tgt?: number; theta?: number };
 
-function _buildCircuit(n: number, algo: string, ansatz: string: _Op[]) {
+function _buildCircuit(n: number, algo: string, ansatz: string): _Op[] {
   const ops: _Op[] = [];
   if (algo === 'qaoa') {
     const g = Math.PI * 0.4, b = Math.PI * 0.35;
@@ -125,7 +125,7 @@ function _buildCircuit(n: number, algo: string, ansatz: string: _Op[]) {
   return ops;
 }
 
-function _runCircuit(numQubits: number, algo: string, ansatz: string: QuantumComputeResult) {
+function _runCircuit(numQubits: number, algo: string, ansatz: string): QuantumComputeResult {
   let sv = _groundState(numQubits);
   for (const op of _buildCircuit(numQubits, algo, ansatz)) {
     if      (op.kind === 'H'  && op.q    != null)                    sv = _applyGate1(sv, numQubits, op.q, _GATE_H);
@@ -135,33 +135,33 @@ function _runCircuit(numQubits: number, algo: string, ansatz: string: QuantumCom
     else if (op.kind === 'CX' && op.ctrl != null && op.tgt   != null) sv = _applyCNOT(sv, numQubits, op.ctrl, op.tgt);
   }
   const ps = sv.map(([r, i]) => r * r + i * i);
-  const topIdx = ps.reduce(best: Record<string, unknown>, v: number, i: number => (v > ps[best] ? i : best), 0);
-  const topBits = Array.from({ length: numQubits }, _: Record<string, unknown>, k: number => Boolean((topIdx >> (numQubits - 1 - k)) & 1));
-  const ev = ps.reduce(sum: number, prob: Record<string, unknown>, i: number => {
-    const bits = Array.from({ length: numQubits }, _: Record<string, unknown>, k: number => Boolean((i >> (numQubits - 1 - k)) & 1));
+  const topIdx = ps.reduce(best: Record<string, unknown>, (v: number, i: number ) => (v > ps[best] ? i : best), 0);
+  const topBits = Array.from({ length: numQubits }, _: Record<string, unknown>, (k: number ) => Boolean((topIdx >> (numQubits - 1 - k)) & 1));
+  const ev = ps.reduce(sum: number, prob: Record<string, unknown>, (i: number ) => {
+    const bits = Array.from({ length: numQubits }, _: Record<string, unknown>, (k: number ) => Boolean((i >> (numQubits - 1 - k)) & 1));
     return sum + prob * _quboCost(bits);
   }, 0);
   return {
     algorithm: algo, ansatz, numQubits, probabilities: ps,
-    topBitstring: topBits.map(b => b ? '1' : '0').join(''),
+    topBitstring: topBits.map((b) => b ? '1' : '0').join(''),
     topProbability: ps[topIdx] ?? 0, selectedAssets: topBits,
     expectationValue: ev, computedAt: Date.now(),
   };
 }
 
-// -- Inter-VM ring buffer constants --------------------------------------------
+// ── Inter-VM ring buffer constants ────────────────────────────────────────────
 const VM_QUEUE_CAPACITY = 256;
 const VM_MESSAGE_SIZE   = 1024;
 const VM_QUEUE_BUF_SIZE = VM_QUEUE_CAPACITY * VM_MESSAGE_SIZE + 8; // +8 for producer/consumer indices
 
-// -- Event schema types (intentionally loose — channels define their own events) -
+// ── Event schema types (intentionally loose — channels define their own events) ─
 
 export type ChannelEventKey<_C extends DualRuntimeChannel> = string;
 export type ChannelEventPayload<_C extends DualRuntimeChannel, _K extends string> = Record<string, unknown>;
 export type BridgeEventHandler<P = Record<string, unknown>> = (payload: P) => void;
 export type UnsubscribeFn = () => void;
 
-// -- Peer state ----------------------------------------------------------------
+// ── Peer state ────────────────────────────────────────────────────────────────
 
 export interface PeerState {
   channel: string;
@@ -169,7 +169,7 @@ export interface PeerState {
   lastActivityAt: number | null;
 }
 
-// -- Emission record -----------------------------------------------------------
+// ── Emission record ───────────────────────────────────────────────────────────
 
 export interface AnyBridgeEmission {
   channel: string;
@@ -178,7 +178,7 @@ export interface AnyBridgeEmission {
   emittedAt: number;
 }
 
-// -- Durable delivery types ----------------------------------------------------
+// ── Durable delivery types ────────────────────────────────────────────────────
 
 /** Lifecycle of a durable emission. */
 export type AckStatus = 'pending' | 'acked' | 'dropped';
@@ -198,7 +198,7 @@ export interface QueuedEmission extends AnyBridgeEmission {
   ttlMs: number;
 }
 
-// -- Shared memory bus constants -----------------------------------------------
+// ── Shared memory bus constants ───────────────────────────────────────────────
 
 const ENTRY_WORDS = 4; // channel:event, payloadPtr, payloadLen, reserved
 const ENTRY_BYTES = ENTRY_WORDS * 4;
@@ -207,12 +207,12 @@ const DEFAULT_ALLOC_START = 1 * 1024 * 1024; // 1 MB offset to avoid clobbering 
 const POLL_INTERVAL_MS = 0; // as fast as possible; the timer is coalesced by the browser/event loop
 const BUS_WASM_URL = new URL('../bus.wasm', import.meta.url);
 
-// -- Improvement 31: durable queue max size ------------------------------------
+// ── Improvement 31: durable queue max size ────────────────────────────────────
 /** Maximum number of entries kept in the durable queue. Oldest dropped entries
  *  are purged first when the limit is exceeded to prevent unbounded memory growth. */
 const MAX_DURABLE_QUEUE_SIZE = 200;
 
-// -- Improvement 35: emission counter -----------------------------------------
+// ── Improvement 35: emission counter ─────────────────────────────────────────
 /** Monotonically increasing count of all emissions (emit + emitDurable). */
 let _totalEmissions = 0;
 /** Run eviction every N emissions to avoid the per-emit overhead on busy buses. */
@@ -243,7 +243,7 @@ class DualRuntimeBridge extends EventEmitter {
   private readonly encoder = new TextEncoder();
   private readonly decoder = new TextDecoder();
 
-  // -- Dual VM upgrade -------------------------------------------------------
+  // ── Dual VM upgrade ───────────────────────────────────────────────────────
   private _vmTop:    unknown = null;
   private _vmBottom: unknown = null;
   private _vmInterQueue: {
@@ -258,11 +258,11 @@ class DualRuntimeBridge extends EventEmitter {
     super();
     this.setMaxListeners(100);
     void this.initWasm();
-    // -- Quantum compute handler -------------------------------------------
+    // ── Quantum compute handler ───────────────────────────────────────────
     // bridge.emit('lab', 'quantum:run', {algorithm, ansatz, numQubits?})
     // → runs QAOA/VQE state-vector simulation inline
     // → emits 'lab:quantum:result' which dreamOSBus auto-ingests as lab-result
-    this.subscribe('lab', 'quantum:run', payload: Record<string, unknown> => {
+    this.subscribe(('lab', 'quantum:run', payload: Record<string, unknown>) => {
       const algo      = (payload['algorithm']  as string) ?? 'vqe';
       const ansatz    = (payload['ansatz']     as string) ?? 'real_amplitudes';
       const numQubits = (payload['numQubits']  as number) ?? 3;
@@ -275,7 +275,7 @@ class DualRuntimeBridge extends EventEmitter {
     });
   }
 
-  // -- WASM bridge initialisation ---------------------------------------------
+  // ── WASM bridge initialisation ─────────────────────────────────────────----
 
   private async initWasm(): Promise<void> {
     if (this.busOnline) return;
@@ -334,7 +334,7 @@ class DualRuntimeBridge extends EventEmitter {
   private async loadWasmBinary(): Promise<ArrayBuffer> {
     // Browser / worker path: fetch the emitted asset URL.
     if (typeof window !== 'undefined' && typeof fetch === 'function') {
-      return fetch(BUS_WASM_URL).then(r: number => r.arrayBuffer());
+      return fetch(BUS_WASM_URL).then((r: number ) => r.arrayBuffer());
     }
 
     // Node / Vitest path: read directly from the filesystem to avoid file:// fetch limitations.
@@ -440,7 +440,7 @@ class DualRuntimeBridge extends EventEmitter {
     return true;
   }
 
-  // -- Channel emission -------------------------------------------------------
+  // ── Channel emission ───────────────────────────────────────────────────────
 
   /** Emit an event on a named channel. Primary public API for cross-Engin events. */
   emit(channel: string, event: string, payload: Record<string, unknown>): boolean {
@@ -460,7 +460,7 @@ class DualRuntimeBridge extends EventEmitter {
     return this.channelState.get(channel) ?? null;
   }
 
-  // -- Event subscriptions ----------------------------------------------------
+  // ── Event subscriptions ────────────────────────────────────────────────────
 
   /** Subscribe to a specific channel:event. Returns an unsubscribe function. */
   subscribe(
@@ -477,7 +477,7 @@ class DualRuntimeBridge extends EventEmitter {
     };
   }
 
-  // -- Peer activity ----------------------------------------------------------
+  // ── Peer activity ──────────────────────────────────────────────────────────
 
   /** Subscribe to peer-activity changes. Returns an unsubscribe function. */
   subscribePeerActivity(callback: (peers: ReadonlyArray<PeerState>) => void): UnsubscribeFn {
@@ -491,7 +491,7 @@ class DualRuntimeBridge extends EventEmitter {
     return Array.from(this.peers.values());
   }
 
-  // -- Emission activity ------------------------------------------------------
+  // ── Emission activity ──────────────────────────────────────────────────────
 
   /** Subscribe to all bridge emissions (any channel/event). Used by dreamOSBus. */
   subscribeEventActivity(callback: (emission: AnyBridgeEmission) => void): UnsubscribeFn {
@@ -499,7 +499,7 @@ class DualRuntimeBridge extends EventEmitter {
     return () => { this.emissionListeners.delete(callback); };
   }
 
-  // -- Durable delivery ------------------------------------------------------
+  // ── Durable delivery ──────────────────────────────────────────────────────
 
   /**
    * Emit a cross-Engin event that requires delivery acknowledgement.
@@ -583,7 +583,7 @@ class DualRuntimeBridge extends EventEmitter {
     return Array.from(this.durableQueue.values());
   }
 
-  // -- Improvement 34: getStats ----------------------------------------------
+  // ── Improvement 34: getStats ──────────────────────────────────────────────
 
   /**
    * Return a point-in-time snapshot of bridge statistics.
@@ -605,7 +605,7 @@ class DualRuntimeBridge extends EventEmitter {
       else dropped++;
     }
     const subscriberCount = Array.from(this.peers.values())
-      .reduce(sum: Record<string, unknown>, p: Record<string, unknown> => sum + p.subscriberCount, 0);
+      .reduce((sum: Record<string, unknown>, p: Record<string, unknown>) => sum + p.subscriberCount, 0);
     return {
       totalEmissions: _totalEmissions,
       queueDepth: this.durableQueue.size,
@@ -617,7 +617,7 @@ class DualRuntimeBridge extends EventEmitter {
     };
   }
 
-  // -- Improvement 36: hasSubscribers ---------------------------------------
+  // ── Improvement 36: hasSubscribers ───────────────────────────────────────
 
   /**
    * Returns true when at least one subscriber is active on the given channel.
@@ -627,7 +627,7 @@ class DualRuntimeBridge extends EventEmitter {
     return (this.peers.get(channel)?.subscriberCount ?? 0) > 0;
   }
 
-  // -- Dual VM API -----------------------------------------------------------
+  // ── Dual VM API ───────────────────────────────────────────────────────────
 
   /**
    * Initialize the top and bottom WASM+GPU VMs plus the inter-VM
@@ -649,7 +649,7 @@ class DualRuntimeBridge extends EventEmitter {
         this._vmInterQueue = { buffer, producerIndex, consumerIndex };
       }
       // Workload dispatch: compute:vm:dispatch-workload → submitVMWorkload
-      this.subscribe('compute', 'vm:dispatch-workload', p: Record<string, unknown> => {
+      this.subscribe(('compute', 'vm:dispatch-workload', p: Record<string, unknown>) => {
         void this._handleVMWorkload(p);
       });
       this.emit('compute', 'vm:initialized', {
@@ -717,7 +717,7 @@ class DualRuntimeBridge extends EventEmitter {
     };
   }
 
-  // -- Test / teardown helpers ------------------------------------------------
+  // ── Test / teardown helpers ────────────────────────────────────────────────
 
   /**
    * Remove all listeners, peers, channel state, and durable queue entries.
@@ -734,7 +734,7 @@ class DualRuntimeBridge extends EventEmitter {
     if (this.wasm?.reset) this.wasm.reset();
   }
 
-  // -- Private helpers --------------------------------------------------------
+  // ── Private helpers ────────────────────────────────────────────────────────
 
   /** Remove durable queue entries that have exceeded their TTL. */
   private _evictExpired(): void {

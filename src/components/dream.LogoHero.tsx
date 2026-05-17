@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image'
 
-export default function LogoHero() {
+export default function LogoHero( ){
   return (
     <div className="relative flex flex-col items-center select-none">
       {/* Glow rings */}

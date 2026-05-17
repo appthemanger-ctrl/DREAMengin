@@ -19,7 +19,7 @@ import { Play, StopCircle, Loader2, CheckCircle, Bot, Monitor, Database, Gamepad
 import { getSwap, toggleSwap } from '@/lib/runtime/swapManager';
 import { bridge as dualRuntimeBridge } from '@/lib/runtime/dualRuntimeBridge';
 
-// --- Types --------------------------------------------------------------------
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type Language = 'python' | 'javascript' | 'typescript' | 'bash';
 type EngineId = 'game' | 'lab' | 'sim' | 'asset' | 'none';
@@ -35,7 +35,7 @@ interface EngineConn {
   icon:        React.ReactNode;
 }
 
-// --- Constants ----------------------------------------------------------------
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const ACCENT      = '#6366f1';
 const CODE_BG     = '#0d1117';
@@ -154,9 +154,9 @@ pnpm exec vitest run --reporter=verbose
 echo "✅ All systems go!"`,
 };
 
-// --- Simulated engine outputs -------------------------------------------------
+// ─── Simulated engine outputs ─────────────────────────────────────────────────
 
-function getMockOutput(language: Language, engine: EngineId, code: string: string[]) {
+function getMockOutput(language: Language, engine: EngineId, code: string): string[] {
   const ts = () => new Date().toISOString().slice(11, 19);
 
   // Scan code for sim keywords to enrich output
@@ -230,9 +230,9 @@ function getMockOutput(language: Language, engine: EngineId, code: string: strin
   }
 }
 
-// --- ASCII visualizations -----------------------------------------------------
+// ─── ASCII visualizations ─────────────────────────────────────────────────────
 
-function AsciiHeatmap() { cols = 32, rows = 6, seed = 42 }: { cols?: number; rows?: number; seed?: number } {
+function AsciiHeatmap({ cols = 32, rows = 6, seed = 42 }: ) { cols?: number; rows?: number; seed?: number } {
   const chars = ['░', '▒', '▓', '█'];
   let s = seed;
   const lines: string[] = [];
@@ -251,11 +251,11 @@ function AsciiHeatmap() { cols = 32, rows = 6, seed = 42 }: { cols?: number; row
   );
 }
 
-function AsciiBarChart() { values, labels }: { values: number[]; labels: string[] } {
+function AsciiBarChart({ values, labels }: ) { values: number[]; labels: string[] } {
   const max = Math.max(...values, 1);
   return (
     <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end', height: 60 }}>
-      {values.map(v: Record<string, unknown>, i: number => (
+      {values.map(v: Record<string, unknown>, (i: number ) => (
         <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, flex: 1 }}>
           <div style={{ fontSize: 9, color: '#4ade80', fontWeight: 700 }}>{v}</div>
           <div style={{ width: '100%', background: '#4ade80', borderRadius: '2px 2px 0 0', height: `${(v / max) * 44}px` }} />
@@ -266,9 +266,9 @@ function AsciiBarChart() { values, labels }: { values: number[]; labels: string[
   );
 }
 
-// --- Component ----------------------------------------------------------------
+// ─── Component ────────────────────────────────────────────────────────────────
 
-export default function CodeDreamIDE() {
+export default function CodeDreamIDE( ){
   const [language,     setLanguage]    = useState<Language>('python');
   const [code,         setCode]        = useState(DEMO_CODE.python);
   const [engine,       setEngine]      = useState<EngineId>('none');
@@ -317,9 +317,9 @@ export default function CodeDreamIDE() {
     dualRuntimeBridge.emit('code', 'code:run', { language, code, engine });
 
     const lines = getMockOutput(language, engine, code);
-    lines.forEach(line: Record<string, unknown>, i: number => {
+    lines.forEach(line: Record<string, unknown>, (i: number ) => {
       setTimeout(() => {
-        setOutputLines(prev => {
+        setOutputLines((prev) => {
           const next = [...prev, line];
           if (i === lines.length - 1) {
             setStatus('done');
@@ -337,7 +337,7 @@ export default function CodeDreamIDE() {
 
   const handleStop = useCallback(() => {
     setStatus('error');
-    setOutputLines(prev => {
+    setOutputLines((prev) => {
       const next = [...prev, `[${new Date().toISOString().slice(11, 19)}] ⛔ Interrupted by user`];
       dualRuntimeBridge.emit('code', 'code:output', { lines: next, status: 'error' });
       return next;
@@ -392,12 +392,12 @@ export default function CodeDreamIDE() {
     }
   }, [eamsPrompt, eamsLoading, language, code]);
 
-  const activeEngine = ENGINE_CONNECTIONS.find(e => e.id === engine) ?? ENGINE_CONNECTIONS[0];
+  const activeEngine = ENGINE_CONNECTIONS.find((e) => e.id === engine) ?? ENGINE_CONNECTIONS[0];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
 
-      {/* -- Engine Connection Strip ----------------------------- */}
+      {/* ── Engine Connection Strip ───────────────────────────── */}
       <div className="de-widget" style={{ marginBottom: 12 }}>
         <div className="de-widget-header">
           <span className="de-widget-title">🔌 Engine Connection</span>
@@ -408,7 +408,7 @@ export default function CodeDreamIDE() {
         </div>
         <div className="de-widget-body" style={{ paddingBottom: 6 }}>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {ENGINE_CONNECTIONS.map(eng => (
+            {ENGINE_CONNECTIONS.map((eng) => (
               <button
                 key={eng.id}
                 type="button"
@@ -437,7 +437,7 @@ export default function CodeDreamIDE() {
         </div>
       </div>
 
-      {/* -- IDE Split: code left + preview right --------------- */}
+      {/* ── IDE Split: code left + preview right ─────────────── */}
       <div
         className="de-widget"
         style={{ marginBottom: 12 }}
@@ -447,7 +447,7 @@ export default function CodeDreamIDE() {
           {/* Language selector */}
           <span className="de-widget-title">Live IDE</span>
           <div style={{ display: 'flex', gap: 4 }}>
-            {LANGUAGES.map(lang => (
+            {LANGUAGES.map((lang) => (
               <button
                 key={lang.id}
                 type="button"
@@ -468,7 +468,7 @@ export default function CodeDreamIDE() {
           {/* Live / Manual mode toggle */}
           <button
             type="button"
-            onClick={() => setLiveMode(m => !m)}
+            onClick={() => setLiveMode((m) => !m)}
             title={liveMode ? 'Switch to Manual mode' : 'Switch to Live mode (auto-run on change)'}
             style={{
               display: 'flex', alignItems: 'center', gap: 4,
@@ -505,7 +505,7 @@ export default function CodeDreamIDE() {
 
           {/* Preview mode */}
           <div style={{ display: 'flex', gap: 4, marginLeft: 'auto' }}>
-            {PREVIEW_MODES.map(m => (
+            {PREVIEW_MODES.map((m) => (
               <button
                 key={m.id}
                 type="button"
@@ -535,7 +535,7 @@ export default function CodeDreamIDE() {
         >
           {/* Editor panel — rendered first when not swapped, second when swapped */}
           {swapped && (
-            /* -- SWAPPED LEFT: Preview -- */
+            /* ── SWAPPED LEFT: Preview ── */
             <div style={{ borderRight: '1px solid rgba(160,195,240,0.15)', display: 'flex', flexDirection: 'column' }}>
               <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
                 fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em',
@@ -557,7 +557,7 @@ export default function CodeDreamIDE() {
                     {outputLines.length === 0 && status === 'idle' && (
                       <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.45)', fontFamily: 'monospace' }}>Press Run ▶ to execute…</p>
                     )}
-                    {outputLines.map(line: Record<string, unknown>, i: number => (
+                    {outputLines.map(line: Record<string, unknown>, (i: number ) => (
                       <pre key={i} style={{ margin: 0, fontSize: 11, fontFamily: '"Fira Code",ui-monospace,monospace',
                         color: line.startsWith('[') ? OUT_OK : line.startsWith('>>>') ? '#93c5fd' : line.startsWith('$') ? '#fbbf24' : (line.startsWith('⛔') || line.startsWith('Error')) ? OUT_ERR : CODE_FG,
                         whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.55 }}>
@@ -585,7 +585,7 @@ export default function CodeDreamIDE() {
                       Draw calls: {outputLines.length > 0 ? '24' : '—'}<br />
                       Physics: {engine === 'game' && outputLines.length > 0 ? 'Havok ●' : 'idle'}<br /><br />
                       {outputLines.length > 0 ? (
-                        <>┌----------------------┐<br />|  ░░░░░░░░░░░░░░░░░░  |<br />|  ░░░░░ 👾 ░░░░░░░░  |<br />|  ░░░░░░░░░░░░░░░░░░  |<br />|  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  |<br />└----------------------┘</>
+                        <>┌──────────────────────┐<br />│  ░░░░░░░░░░░░░░░░░░  │<br />│  ░░░░░ 👾 ░░░░░░░░  │<br />│  ░░░░░░░░░░░░░░░░░░  │<br />│  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │<br />└──────────────────────┘</>
                       ) : '   [waiting for run…]'}
                     </div>
                   </div>
@@ -607,7 +607,7 @@ export default function CodeDreamIDE() {
             </div>
           )}
 
-          {/* -- Editor panel (left when not swapped) -- */}
+          {/* ── Editor panel (left when not swapped) ── */}
           {!swapped && (
           <div style={{ borderRight: '1px solid rgba(160,195,240,0.15)', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
@@ -700,7 +700,7 @@ export default function CodeDreamIDE() {
           </div>
           )}
 
-          {/* -- Preview panel — rendered second when not swapped, first when swapped -- */}
+          {/* ── Preview panel — rendered second when not swapped, first when swapped ── */}
           {!swapped && (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
@@ -735,7 +735,7 @@ export default function CodeDreamIDE() {
                         Press Run ▶ to execute…
                       </p>
                     )}
-                    {outputLines.map(line: Record<string, unknown>, i: number => (
+                    {outputLines.map(line: Record<string, unknown>, (i: number ) => (
                       <pre key={i} style={{
                         margin: 0, fontSize: 11, fontFamily: '"Fira Code",ui-monospace,monospace',
                         color: line.startsWith('[') ? OUT_OK
@@ -794,12 +794,12 @@ export default function CodeDreamIDE() {
                       <br />
                       {outputLines.length > 0 ? (
                         <>
-                          ┌----------------------┐<br />
-                          |  ░░░░░░░░░░░░░░░░░░  |<br />
-                          |  ░░░░░ 👾 ░░░░░░░░  |<br />
-                          |  ░░░░░░░░░░░░░░░░░░  |<br />
-                          |  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  |<br />
-                          └----------------------┘
+                          ┌──────────────────────┐<br />
+                          │  ░░░░░░░░░░░░░░░░░░  │<br />
+                          │  ░░░░░ 👾 ░░░░░░░░  │<br />
+                          │  ░░░░░░░░░░░░░░░░░░  │<br />
+                          │  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │<br />
+                          └──────────────────────┘
                         </>
                       ) : (
                         '   [waiting for run…]'
@@ -911,7 +911,7 @@ export default function CodeDreamIDE() {
         </div>
       </div>
 
-      {/* -- Dr. Eams Quick Assist ------------------------------- */}
+      {/* ── Dr. Eams Quick Assist ─────────────────────────────── */}
       <div className="de-widget" style={{ marginBottom: 12 }}>
         <div className="de-widget-header">
           <Bot className="w-4 h-4" style={{ color: '#a78bfa' }} />

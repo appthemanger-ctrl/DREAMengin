@@ -4,7 +4,7 @@
  * OSShellActivator — global, route-aware DreamDM Bar activator.
  *
  * Background
- * ----------
+ * ──────────
  * The DREAMengin OS shell (DreamDM Bar + dual runtime regions) lives in
  * `app/layout.tsx` via the persistent Dream Bar shell component. Its visibility / seam-mode
  * gate is `isHomeActive = runtimeCallbacks !== null`.
@@ -16,7 +16,7 @@
  * already bootstraps `homeData` for any authenticated user.
  *
  * What this does
- * --------------
+ * ──────────────
  * Mounted once globally (from `app/layout.tsx`), this component registers
  * the same runtime callbacks `DreamBarDataBridge` registers, on every
  * authenticated route. It deliberately does NOT touch `homeData` — that
@@ -24,7 +24,7 @@
  * `DreamBarDataBridge` on `/homedream`.
  *
  * Skip rules
- * ----------
+ * ──────────
  *   • Pre-login / public routes (`/`, `/login`, `/join`, `/policy`,
  *     `/about`, `/auth/*`) — leave the shell completely off.
  *   • `/homedream` — DreamBarDataBridge is mounted there with richer data;
@@ -46,7 +46,7 @@ const DEFAULT_WORKFLOW_SPLIT = 0.5;
 /** No route owns a special bridge; shell callbacks are global from root layout. */
 const OWN_BRIDGE_ROUTES = new Set<string>();
 
-export default function OSShellActivator() {
+export default function OSShellActivator( ){
   const pathname = usePathname();
   const dualRuntime = useDualRuntime();
   const {
@@ -66,14 +66,14 @@ export default function OSShellActivator() {
     OWN_BRIDGE_ROUTES.has(pathname ?? '') ||
     !homeData?.userId;
 
-  // -- Callback wiring ----------------------------------------------------
+  // ── Callback wiring ────────────────────────────────────────────────────
   // Mirrors DreamBarDataBridge so the bar/menus behave identically on every
   // authenticated route. No homeData mutation here.
 
   const revealSplitRuntime = useCallback(
     (nextRatio = DEFAULT_WORKFLOW_SPLIT) => {
       setIsBarMinimized(false);
-      setSplitRatio(current: Record<string, unknown> => {
+      setSplitRatio((current: Record<string, unknown>) => {
         if (current >= 0.98 || current <= 0.02) return nextRatio;
         return current;
       });
@@ -97,7 +97,7 @@ export default function OSShellActivator() {
     dualRuntime.setBottomRuntime('DreamSpace');
     dualRuntime.setDominantRuntime('DreamSpace');
     setIsBarMinimized(false);
-    setSplitRatio(current: Record<string, unknown> => (current >= 0.5 ? 0.25 : current));
+    setSplitRatio((current: Record<string, unknown>) => (current >= 0.5 ? 0.25 : current));
     closeBothMenus();
     closeDrEams();
   }, [closeBothMenus, closeDrEams, dualRuntime, setIsBarMinimized, setSplitRatio]);

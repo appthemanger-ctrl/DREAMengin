@@ -21,7 +21,7 @@ import { useDreamSystem }                           from '@/lib/dreamdm/DreamSys
 import { runHomeAction }                            from '@/lib/home-buttons/contextual-home';
 import { isPublicSurfacePath }                      from '@/lib/routing/surfaces';
 
-export default function GlobalDreamBar() {
+export default function GlobalDreamBar( ){
   const pathname = usePathname();
   const router = useRouter();
 
@@ -37,7 +37,7 @@ export default function GlobalDreamBar() {
     setFocus,
   } = useDreamSystem();
 
-  // -- Go home (from "go-home" menu action) ---------------------------------
+  // ── Go home (from "go-home" menu action) ─────────────────────────────────
 
   const handleHome = useCallback(() => {
     closeBothMenus();
@@ -56,8 +56,8 @@ export default function GlobalDreamBar() {
     }
   }, [closeBothMenus, closeDrEams, setFocus, runtimeCallbacks, router, splitRatio]);
 
-  // -- System menu actions — prefer SPA panel when HomeSystem is active,
-  //    fall back to route navigation otherwise so links always work.   ------
+  // ── System menu actions — prefer SPA panel when HomeSystem is active,
+  //    fall back to route navigation otherwise so links always work.   ──────
 
   const handleSystemAction = useCallback((action: SystemMenuAction) => {
     // NOTE: don't close the menu synchronously here. The PanelItem's onClick
@@ -80,7 +80,7 @@ export default function GlobalDreamBar() {
     if (action === 'appearance')    { hasSpaCallbacks ? openInSurface('settings/appearance') : router.push('/settings/appearance');   return; }
   }, [openDrEams, handleHome, openInSurface, runtimeCallbacks, router]);
 
-  // -- Hide on public / pre-login routes ------------------------------------
+  // ── Hide on public / pre-login routes ────────────────────────────────────
   if (isPublicSurfacePath(pathname)) return null;
 
   return (

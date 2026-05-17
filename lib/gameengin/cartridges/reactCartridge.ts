@@ -18,7 +18,7 @@ import { createContext, createElement, useContext, type ComponentType } from 're
 import { createRoot, type Root } from 'react-dom/client';
 import type { GameCartridge, GameEngineAPI } from '@/lib/gameengin/cartridge';
 
-// -- GameEngineAPI context -----------------------------------------------------
+// ── GameEngineAPI context ─────────────────────────────────────────────────────
 
 /**
  * React context that carries the GameEngineAPI into the cartridge component
@@ -42,11 +42,11 @@ export const GameEngineAPIContext = createContext<GameEngineAPI | null>(null);
  *   }, [api]);
  * }
  */
-export function useGameEngineAPI(: GameEngineAPI | null) {
+export function useGameEngineAPI(): GameEngineAPI | null {
   return useContext(GameEngineAPIContext);
 }
 
-// -- Factory -------------------------------------------------------------------
+// ── Factory ───────────────────────────────────────────────────────────────────
 
 /**
  * Wrap a React component as a GameCartridge.

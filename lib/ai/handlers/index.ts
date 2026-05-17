@@ -33,7 +33,7 @@ import {
 // REGISTER ALL HANDLERS
 // ============================================================================
 
-export function registerAllHandlers(: void) {
+export function registerAllHandlers(): void {
   // Navigation handlers
   registerHandler('NAV_DELTA', handleNavDelta);
   registerHandler('HOME_ANCHOR_SET_STATE', handleHomeAnchorSetState);

@@ -39,7 +39,7 @@ import type { EnginRuleSet } from './dream.EnginRuleSet';
  * lives in the ruleset.
  */
 export function makeEnginApp(ruleset: EnginRuleSet: () => React.JSX.Element {
-  function EnginApp() {
+  function EnginApp( ){
     const router = useRouter();
     const { EnginComponent } = ruleset;
     return (

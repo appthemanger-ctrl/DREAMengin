@@ -11,14 +11,14 @@ const DEFAULT_DREAMS = [
   { id: 'dreamspace-game-quick-launch', name: 'Game Quick Launch', surface: 'dreamspace' as const },
 ];
 
-function buildLayoutFromDreams(dreams: Array<) { id: string; surface: 'home' | 'dreamspace' }> {
+function buildLayoutFromDreams(dreams: Array<){ id: string; surface: 'home' | 'dreamspace' }> {
   return {
     home: { dreams: dreams.filter((dream: Record<string, unknown>) => dream.surface === 'home').map((dream: Record<string, unknown>) => dream.id) },
     dreamspace: { dreams: dreams.filter((dream: Record<string, unknown>) => dream.surface === 'dreamspace').map((dream: Record<string, unknown>) => dream.id) },
   };
 }
 
-export default function DreamsLayoutEditor() {
+export default function DreamsLayoutEditor( ){
   const { layout, updateDreamLayout, resetDreamLayout } = useDreamLayout();
   const hidden = new Set(layout.hidden ?? []);
   const ordered = [

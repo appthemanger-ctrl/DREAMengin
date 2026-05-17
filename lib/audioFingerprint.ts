@@ -11,7 +11,7 @@
 
 import { TORRIDITY_N, TORRIDITY_DP } from './torridity';
 
-// --- Types --------------------------------------------------------------------
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 /** A single frequency peak. */
 export interface Peak {
@@ -60,7 +60,7 @@ export interface MatchResult {
   similarityScore: number;
 }
 
-// --- Constants ----------------------------------------------------------------
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const DEFAULT_FFT_SIZE        = 2048;
 const DEFAULT_SLICE_DURATION  = 0.1;   // 100 ms per slice
@@ -72,7 +72,7 @@ const DEFAULT_TOP_K           = 5;
  */
 const PEAK_THRESHOLD_FRACTION = TORRIDITY_DP * TORRIDITY_N; // 0.21
 
-// --- buildPeakMap -------------------------------------------------------------
+// ─── buildPeakMap ─────────────────────────────────────────────────────────────
 
 /**
  * buildPeakMap(audioBuffer, topK)
@@ -84,7 +84,7 @@ const PEAK_THRESHOLD_FRACTION = TORRIDITY_DP * TORRIDITY_N; // 0.21
  * We use a DFT-based approach here that works in both browser and
  * server environments (for testing).
  */
-export function buildPeakMap(audioBuffer: AudioBuffer, topK = DEFAULT_TOP_K: PeakMap) {
+export function buildPeakMap(audioBuffer: AudioBuffer, topK = DEFAULT_TOP_K): PeakMap {
   const sampleRate      = audioBuffer.sampleRate;
   const fftSize         = DEFAULT_FFT_SIZE;
   const sliceSamples    = Math.floor(sampleRate * DEFAULT_SLICE_DURATION);
@@ -117,7 +117,7 @@ export function buildPeakMap(audioBuffer: AudioBuffer, topK = DEFAULT_TOP_K: Pea
     }
 
     // Sort descending by magnitude and take topK
-    magnitudes.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.mag - a.mag);
+    magnitudes.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.mag - a.mag);
     for (let k = 0; k < Math.min(topK, magnitudes.length); k++) {
       const { bin, mag } = magnitudes[k];
       peaks.push({
@@ -138,9 +138,9 @@ export function buildPeakMap(audioBuffer: AudioBuffer, topK = DEFAULT_TOP_K: Pea
   };
 }
 
-// --- Fingerprint helpers ------------------------------------------------------
+// ─── Fingerprint helpers ──────────────────────────────────────────────────────
 
-function peaksInWindow(peakMap: PeakMap, startSec: number, endSec: number: Peak[]) {
+function peaksInWindow(peakMap: PeakMap, startSec: number, endSec: number): Peak[] {
   const startSlice = Math.floor(startSec / peakMap.sliceDurationSec);
   const endSlice   = Math.ceil(endSec / peakMap.sliceDurationSec);
   return peakMap.peaks.filter(
@@ -148,7 +148,7 @@ function peaksInWindow(peakMap: PeakMap, startSec: number, endSec: number: Peak[
   );
 }
 
-function buildSignature(peaks: Peak[], fftSize: number: number[]) {
+function buildSignature(peaks: Peak[], fftSize: number): number[] {
   const halfBins = fftSize / 2;
   const vec      = new Array<number>(halfBins).fill(0);
   for (const p of peaks) {
@@ -157,11 +157,11 @@ function buildSignature(peaks: Peak[], fftSize: number: number[]) {
     }
   }
   // Normalise to unit length
-  const norm = Math.sqrt(vec.reduce(a: Record<string, unknown>, v: number => a + v * v, 0));
+  const norm = Math.sqrt(vec.reduce(a: Record<string, unknown>, (v: number ) => a + v * v, 0));
   return norm > 0 ? vec.map((v: Record<string, unknown>) => v / norm) : vec;
 }
 
-// --- recordReferenceFingerprint ----------------------------------------------
+// ─── recordReferenceFingerprint ──────────────────────────────────────────────
 
 /**
  * recordReferenceFingerprint(peakMap, startTime, endTime)
@@ -180,7 +180,7 @@ export function recordReferenceFingerprint(
   return { id, startTime, endTime, peakMap: { ...peakMap, peaks: windowPeaks }, signature };
 }
 
-// --- matchFingerprint --------------------------------------------------------
+// ─── matchFingerprint ────────────────────────────────────────────────────────
 
 /**
  * matchFingerprint(fingerprint, candidatePeakMap, threshold)
@@ -217,7 +217,7 @@ export function matchFingerprint(
   return results;
 }
 
-// --- createFingerprintIsolator -----------------------------------------------
+// ─── createFingerprintIsolator ───────────────────────────────────────────────
 
 /**
  * createFingerprintIsolator()
@@ -230,7 +230,7 @@ export function matchFingerprint(
  * Uses constellation peak-map technique described in docs/LAW.md §17.
  * No AI model required — pure signal fingerprinting.
  */
-export function createFingerprintIsolator() {
+export function createFingerprintIsolator( ){
   let _reference: Fingerprint | null = null;
 
   return {
@@ -272,7 +272,7 @@ export function createFingerprintIsolator() {
   };
 }
 
-// --- extractAudioChunks ------------------------------------------------------
+// ─── extractAudioChunks ──────────────────────────────────────────────────────
 
 /**
  * extractAudioChunks(audioBuffer, timeSlices)

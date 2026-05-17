@@ -29,7 +29,7 @@ export interface PodcastCredentials {
 }
 
 /** Basic URL validation — must be http(s). */
-function isValidFeedUrl(url: string: boolean) {
+function isValidFeedUrl(url: string): boolean {
   try {
     const u = new URL(url);
     return u.protocol === 'http:' || u.protocol === 'https:';
@@ -43,7 +43,7 @@ function isValidFeedUrl(url: string: boolean) {
  * Specifically calls out 401/403 as "feed is private" so the user knows
  * exactly what to fix.
  */
-function httpErrorMessage(status: number, url: string: string) {
+function httpErrorMessage(status: number, url: string): string {
   if (status === 401 || status === 403) {
     return (
       `This feed requires authentication (${status}). ` +
@@ -68,7 +68,7 @@ function httpErrorMessage(status: number, url: string: string) {
  *
  * Returns the feed URL on success, or throws with a user-friendly message.
  */
-export async function podcastVerify(creds: PodcastCredentials: Promise<string>) {
+export async function podcastVerify(creds: PodcastCredentials): Promise<string> {
   const url = (creds.feed_url ?? '').trim();
   if (!isValidFeedUrl(url)) {
     throw new Error(
@@ -125,7 +125,7 @@ export async function podcastVerify(creds: PodcastCredentials: Promise<string>) 
 /**
  * Fetch and normalise items from any public RSS/Atom feed.
  */
-export async function podcastSync(creds: PodcastCredentials: Promise<UnifiedFeedItem[]>) {
+export async function podcastSync(creds: PodcastCredentials): Promise<UnifiedFeedItem[]> {
   const url = (creds.feed_url ?? '').trim();
   if (!isValidFeedUrl(url)) {
     throw new Error('Invalid feed URL.');
@@ -142,7 +142,7 @@ export async function podcastSync(creds: PodcastCredentials: Promise<UnifiedFeed
   );
 }
 
-export function podcastCredentialFields() {
+export function podcastCredentialFields( ){
   return [
     {
       key: 'feed_url',

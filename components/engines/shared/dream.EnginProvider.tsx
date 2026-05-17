@@ -30,7 +30,7 @@ interface EnginProviderProps {
   children: ReactNode;
 }
 
-export function EnginProvider() { engineId, accentColor: Record<string, unknown>, children }: EnginProviderProps {
+export function EnginProvider({ engineId, accentColor: Record<string, unknown>, children }: EnginProviderProps) {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export function EnginProvider() { engineId, accentColor: Record<string, unknown>
   );
 }
 
-export function useEngin(: EnginContextValue) {
+export function useEngin(): EnginContextValue {
   const ctx = useContext(EnginContext);
   if (!ctx) throw new Error('useEngin must be used inside <EnginProvider>');
   return ctx;

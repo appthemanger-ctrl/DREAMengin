@@ -35,7 +35,7 @@ const CATEGORIES = [
   { id: 'appeals',     label: 'Appeals',                       icon: FileText },
 ];
 
-export default function PolicyPage() {
+export default function PolicyPage( ){
   return (
     <div className="de-sky-bg min-h-screen">
       <header
@@ -111,7 +111,7 @@ export default function PolicyPage() {
             <span className="de-widget-title">On this page</span>
           </div>
           <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-            {CATEGORIES.map({ id, label: string, icon: Icon } => (
+            {CATEGORIES.map(({ id, label: string, icon: Icon }) => (
               <a key={id} href={`#${id}`} className="de-row" style={{ borderRadius: 10 }}>
                 <div
                   style={{
@@ -346,7 +346,7 @@ export default function PolicyPage() {
 
 // ---- helpers ----------------------------------------------------------------
 
-function PolicyTable() { rows }: { rows: [string, string: Record<string, unknown>, string][] } {
+function PolicyTable({ rows }: ) { rows: [string, string: Record<string, unknown>, string][] } {
   return (
     <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
       <thead>
@@ -357,7 +357,7 @@ function PolicyTable() { rows }: { rows: [string, string: Record<string, unknown
         </tr>
       </thead>
       <tbody>
-        {rows.map([num, code: Record<string, unknown>, desc] => (
+        {rows.map(([num, code: Record<string, unknown>, desc]) => (
           <tr key={code} style={{ borderTop: '1px solid rgba(160,195,240,0.15)' }}>
             <td style={{ padding: '5px 6px', color: 'var(--de-text-dim)', whiteSpace: 'nowrap', verticalAlign: 'top' }}>{num}</td>
             <td style={{ padding: '5px 6px', verticalAlign: 'top', whiteSpace: 'nowrap' }}>

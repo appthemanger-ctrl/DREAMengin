@@ -15,7 +15,7 @@
 
 import { FORGE_HISTORY_KEY, CREATIVE_ENGINES, ENGIN_REGISTRY } from './forgeRegistry';
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface NexusEdge {
   /** Source engine id */
@@ -77,7 +77,7 @@ export interface NexusSnapshot {
   computedAt: string;
 }
 
-// -- History Entry type --------------------------------------------------------
+// ── History Entry type ────────────────────────────────────────────────────────
 
 interface HistoryEntry {
   enginId: string;
@@ -85,12 +85,12 @@ interface HistoryEntry {
   timestamp: string;
 }
 
-// -- Core Computation ----------------------------------------------------------
+// ── Core Computation ──────────────────────────────────────────────────────────
 
 /**
  * Read history entries from localStorage.
  */
-function readHistory(: HistoryEntry[]) {
+function readHistory(): HistoryEntry[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(FORGE_HISTORY_KEY);
@@ -105,7 +105,7 @@ function readHistory(: HistoryEntry[]) {
  * Build a directed transition map from history.
  * Key: "from→to", Value: count
  */
-export function buildTransitionMap(history: HistoryEntry[]: Map<string, number>) {
+export function buildTransitionMap(history: HistoryEntry[]): Map<string, number> {
   const map = new Map<string, number>();
   for (let i = 1; i < history.length; i++) {
     const from = history[i - 1].enginId;
@@ -120,7 +120,7 @@ export function buildTransitionMap(history: HistoryEntry[]: Map<string, number>)
 /**
  * Compute all edges from a transition map.
  */
-export function computeEdges(transitions: Map<string, number>: NexusEdge[]) {
+export function computeEdges(transitions: Map<string, number>): NexusEdge[] {
   if (transitions.size === 0) return [];
 
   const maxWeight = Math.max(...transitions.values());
@@ -128,8 +128,8 @@ export function computeEdges(transitions: Map<string, number>: NexusEdge[]) {
 
   for (const [key, weight] of transitions) {
     const [from, to] = key.split('→');
-    const fromEng = ENGIN_REGISTRY.find(e => e.id === from);
-    const toEng = ENGIN_REGISTRY.find(e => e.id === to);
+    const fromEng = ENGIN_REGISTRY.find((e) => e.id === from);
+    const toEng = ENGIN_REGISTRY.find((e) => e.id === to);
     if (!fromEng || !toEng) continue;
 
     edges.push({
@@ -141,14 +141,14 @@ export function computeEdges(transitions: Map<string, number>: NexusEdge[]) {
     });
   }
 
-  return edges.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.weight - a.weight);
+  return edges.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.weight - a.weight);
 }
 
 /**
  * Compute node metrics from edges.
  */
-export function computeNodes(edges: NexusEdge[]: NexusNode[]) {
-  const creativeIds = new Set(CREATIVE_ENGINES.map(e => e.id));
+export function computeNodes(edges: NexusEdge[]): NexusNode[] {
+  const creativeIds = new Set(CREATIVE_ENGINES.map((e) => e.id));
   const inbound = new Map<string, number>();
   const outbound = new Map<string, number>();
 
@@ -159,12 +159,12 @@ export function computeNodes(edges: NexusEdge[]: NexusNode[]) {
 
   const maxDegree = Math.max(
     1,
-    ...CREATIVE_ENGINES.map(e =>
+    ...CREATIVE_ENGINES.map((e) =>
       (inbound.get(e.id) ?? 0) + (outbound.get(e.id) ?? 0),
     ),
   );
 
-  return CREATIVE_ENGINES.map(engine => {
+  return CREATIVE_ENGINES.map((engine) => {
     const ib = inbound.get(engine.id) ?? 0;
     const ob = outbound.get(engine.id) ?? 0;
     return {
@@ -185,7 +185,7 @@ export function computeNodes(edges: NexusEdge[]: NexusNode[]) {
  * Uses a simple greedy approach: find pairs with bidirectional edges,
  * then merge overlapping pairs.
  */
-export function detectClusters(edges: NexusEdge[]: AffinityCluster[]) {
+export function detectClusters(edges: NexusEdge[]): AffinityCluster[] {
   // Find bidirectional pairs
   const pairs: Array<[string, string, number]> = [];
   const edgeMap = new Map<string, number>();
@@ -227,12 +227,12 @@ export function detectClusters(edges: NexusEdge[]: AffinityCluster[]) {
     }
   }
 
-  return clusters.map(engineSet: Record<string, unknown>, i: number => {
+  return clusters.map(engineSet: Record<string, unknown>, (i: number ) => {
     const engineIds = [...engineSet];
     // Pick accent from highest-centrality engine
-    const primary = ENGIN_REGISTRY.find(e => e.id === engineIds[0]);
+    const primary = ENGIN_REGISTRY.find((e) => e.id === engineIds[0]);
     const emojis = engineIds
-      .map(id => ENGIN_REGISTRY.find(e => e.id === id)?.emoji ?? '?')
+      .map((id) => ENGIN_REGISTRY.find((e) => e.id === id)?.emoji ?? '?')
       .join(' + ');
 
     return {
@@ -249,7 +249,7 @@ export function detectClusters(edges: NexusEdge[]: AffinityCluster[]) {
  * Find the dominant pipeline — the longest frequently-used chain of engines.
  * Uses greedy path extension from the most-used starting engine.
  */
-export function findDominantPipeline(edges: NexusEdge[]: string[]) {
+export function findDominantPipeline(edges: NexusEdge[]): string[] {
   if (edges.length === 0) return [];
 
   // Build adjacency: for each engine, find the strongest outbound edge
@@ -297,14 +297,14 @@ export function findDominantPipeline(edges: NexusEdge[]: string[]) {
 /**
  * Compute a full Nexus snapshot from current history data.
  */
-export function computeNexus(historyOverride?: HistoryEntry[]: NexusSnapshot) {
+export function computeNexus(historyOverride?: HistoryEntry[]): NexusSnapshot {
   const history = historyOverride ?? readHistory();
   const transitions = buildTransitionMap(history);
   const edges = computeEdges(transitions);
   const nodes = computeNodes(edges);
   const clusters = detectClusters(edges);
   const dominantPipeline = findDominantPipeline(edges);
-  const totalTransitions = edges.reduce(sum: Record<string, unknown>, e: unknown => sum + e.weight, 0);
+  const totalTransitions = edges.reduce(sum: Record<string, unknown>, (e: unknown ) => sum + e.weight, 0);
 
   return {
     edges,

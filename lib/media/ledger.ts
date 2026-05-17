@@ -51,7 +51,7 @@ type StorageUploadClient = {
   };
 };
 
-function bytesToBase64(bytes: Uint8Array: string) {
+function bytesToBase64(bytes: Uint8Array): string {
   if (typeof Buffer !== 'undefined') {
     return Buffer.from(bytes).toString('base64');
   }
@@ -63,7 +63,7 @@ function bytesToBase64(bytes: Uint8Array: string) {
   return btoa(binary);
 }
 
-function base64ToBytes(value: string: Uint8Array) {
+function base64ToBytes(value: string): Uint8Array {
   if (typeof Buffer !== 'undefined') {
     return Uint8Array.from(Buffer.from(value, 'base64'));
   }
@@ -75,29 +75,29 @@ function base64ToBytes(value: string: Uint8Array) {
   return bytes;
 }
 
-function bytesToFloats(bytes: Uint8Array: number[]) {
+function bytesToFloats(bytes: Uint8Array): number[] {
   const aligned = bytes.byteOffset % 4 === 0
     ? new Float32Array(bytes.buffer, bytes.byteOffset, Math.floor(bytes.byteLength / 4))
     : new Float32Array(bytes.slice().buffer);
   return Array.from(aligned);
 }
 
-function valuesToBuffer(values: number[]: ArrayBuffer) {
+function valuesToBuffer(values: number[]): ArrayBuffer {
   return new Float32Array(values).buffer.slice(0);
 }
 
-function clampByte(value: number: number) {
+function clampByte(value: number): number {
   return Math.max(0, Math.min(255, Math.round(value)));
 }
 
-function findNewline(bytes: Uint8Array, start = 0: number) {
+function findNewline(bytes: Uint8Array, start = 0): number {
   for (let i = start; i < bytes.length; i += 1) {
     if (bytes[i] === NEWLINE_BYTE) return i;
   }
   return -1;
 }
 
-function parseLedgerBinary(bytes: Uint8Array:) { header: LedgerBinaryHeader; payload: Uint8Array } {
+function parseLedgerBinary(bytes: Uint8Array): { header: LedgerBinaryHeader; payload: Uint8Array } {
   const firstNewline = findNewline(bytes);
   const secondNewline = firstNewline >= 0 ? findNewline(bytes, firstNewline + 1) : -1;
 
@@ -118,11 +118,11 @@ function parseLedgerBinary(bytes: Uint8Array:) { header: LedgerBinaryHeader; pay
   };
 }
 
-export function encodeToLedger(buffer: number[]: number[]) {
+export function encodeToLedger(buffer: number[]): number[] {
   return buffer.map((val: Record<string, unknown>) => Math.sign(val) * Math.log(1 + Math.abs(val)));
 }
 
-export function compressData(encodedBuffer: number[]: number[]) {
+export function compressData(encodedBuffer: number[]): number[] {
   return encodedBuffer.filter((dataPoint: Record<string, unknown>) => {
     const x = Math.abs(dataPoint) / DATA_PHYSICS.a0;
     const expected = x / Math.pow(1 + Math.pow(x, DATA_PHYSICS.n), 1 / DATA_PHYSICS.n);
@@ -133,11 +133,11 @@ export function compressData(encodedBuffer: number[]: number[]) {
   });
 }
 
-export function decodeFromLedger(buffer: number[]: number[]) {
+export function decodeFromLedger(buffer: number[]): number[] {
   return buffer.map((val: Record<string, unknown>) => Math.sign(val) * (Math.exp(Math.abs(val)) - 1));
 }
 
-export function analyzeLedgerDensity(encodedBuffer: number[]: LedgerDensityProfile) {
+export function analyzeLedgerDensity(encodedBuffer: number[]): LedgerDensityProfile {
   const signal = compressData(encodedBuffer);
   const signalCount = signal.length;
   const signalRatio = encodedBuffer.length > 0 ? signalCount / encodedBuffer.length : 0;
@@ -152,7 +152,7 @@ export function analyzeLedgerDensity(encodedBuffer: number[]: LedgerDensityProfi
   };
 }
 
-async function encodeValuesWithThrottle(encodedValues: number[], profile: LedgerDensityProfile: Promise<ArrayBuffer>) {
+async function encodeValuesWithThrottle(encodedValues: number[], profile: LedgerDensityProfile): Promise<ArrayBuffer> {
   if (!profile.blackHoleThrottleApplied) {
     return valuesToBuffer(encodedValues);
   }
@@ -160,12 +160,12 @@ async function encodeValuesWithThrottle(encodedValues: number[], profile: Ledger
   const floats = new Float32Array(encodedValues.length);
   for (let offset = 0; offset < encodedValues.length; offset += profile.throttleChunkSize) {
     floats.set(encodedValues.slice(offset, offset + profile.throttleChunkSize), offset);
-    await new Promise<void>(resolve: Record<string, unknown> => setTimeout(resolve, 0));
+    await new Promise<void>((resolve: Record<string, unknown>) => setTimeout(resolve, 0));
   }
   return floats.buffer.slice(0);
 }
 
-export function buildLedgerMediaUrl(bucket: string, storagePath: string: string) {
+export function buildLedgerMediaUrl(bucket: string, storagePath: string): string {
   return `/api/ledger-media?bucket=${encodeURIComponent(bucket)}&path=${encodeURIComponent(storagePath)}`;
 }
 
@@ -189,13 +189,13 @@ export function encodeUint8ArrayToLedgerString(
   return JSON.stringify(payload);
 }
 
-export function decodeLedgerStringToUint8Array(serialized: string: Uint8Array) {
+export function decodeLedgerStringToUint8Array(serialized: string): Uint8Array {
   const payload = JSON.parse(serialized) as LedgerDbPayload;
   const decoded = decodeFromLedger(bytesToFloats(base64ToBytes(payload.encodedBase64)));
   return Uint8Array.from(decoded.slice(0, payload.originalSize).map(clampByte));
 }
 
-export async function encodeBlobToLedger(blob: Blob, options?:) { fileName?: string; mimeType?: string }: Promise<Blob> {
+export async function encodeBlobToLedger(blob: Blob, options?): { fileName?: string; mimeType?: string }: Promise<Blob> {
   const source = new Uint8Array(await blob.arrayBuffer());
   const encodedValues = encodeToLedger(Array.from(source));
   const profile = analyzeLedgerDensity(encodedValues);
@@ -216,7 +216,7 @@ export async function encodeBlobToLedger(blob: Blob, options?:) { fileName?: str
   );
 }
 
-export async function decodeLedgerBlob(blob: Blob: Promise<Blob>) {
+export async function decodeLedgerBlob(blob: Blob): Promise<Blob> {
   const { header, payload } = parseLedgerBinary(new Uint8Array(await blob.arrayBuffer()));
   const decoded = decodeFromLedger(bytesToFloats(payload));
   return new Blob(

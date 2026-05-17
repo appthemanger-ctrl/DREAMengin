@@ -67,19 +67,19 @@ export type WarpEffect = 'particles' | 'field' | 'flow' | 'orbit';
 // ---------------------------------------------------------------------------
 
 /** Integrate velocity → position. */
-export const integrateKernel: WarpKernel = p: Record<string, unknown>, { dt } => {
+export const integrateKernel: WarpKernel = (p: Record<string, unknown>, { dt }) => {
   p.pos.x += p.vel.x * dt;
   p.pos.y += p.vel.y * dt;
 };
 
 /** Decay particle life; push opacity. */
-export const decayKernel: WarpKernel = p: Record<string, unknown>, { dt } => {
+export const decayKernel: WarpKernel = (p: Record<string, unknown>, { dt }) => {
   p.life = Math.max(0, p.life - p.decay * dt);
   p.opacity = p.life;
 };
 
 /** Gentle downward gravity. */
-export const gravityKernel: WarpKernel = p: Record<string, unknown>, { dt } => {
+export const gravityKernel: WarpKernel = (p: Record<string, unknown>, { dt }) => {
   const G = 40; // pixels / s²
   p.vel.y += G * dt;
 };
@@ -88,7 +88,7 @@ export const gravityKernel: WarpKernel = p: Record<string, unknown>, { dt } => {
  * Turbulence — adds sine-based pseudo-noise to velocity so streams
  * break up organically, similar to a Warp noise kernel.
  */
-export const turbulenceKernel: WarpKernel = p: Record<string, unknown>, { time, dt } => {
+export const turbulenceKernel: WarpKernel = (p: Record<string, unknown>, { time, dt }) => {
   const freq = 0.8;
   const amp  = 18;
   p.vel.x += Math.sin(time * freq + p.pos.y * 0.01) * amp * dt;
@@ -99,7 +99,7 @@ export const turbulenceKernel: WarpKernel = p: Record<string, unknown>, { time, 
  * Spiral attractor — pulls particles toward the canvas centre along a
  * tangential arc so they spiral inward (think galaxy simulation).
  */
-export const spiralKernel: WarpKernel = p: Record<string, unknown>, { width, height: Record<string, unknown>, dt } => {
+export const spiralKernel: WarpKernel = (p: Record<string, unknown>, { width, height: Record<string, unknown>, dt }) => {
   const cx = width  / 2;
   const cy = height / 2;
   const dx = cx - p.pos.x;
@@ -118,7 +118,7 @@ export const spiralKernel: WarpKernel = p: Record<string, unknown>, { width, hei
  * Expansion — pushes particles away from the canvas centre (big-bang
  * style).  Useful for the 'field' effect.
  */
-export const expansionKernel: WarpKernel = p: Record<string, unknown>, { width, height: Record<string, unknown>, dt } => {
+export const expansionKernel: WarpKernel = (p: Record<string, unknown>, { width, height: Record<string, unknown>, dt }) => {
   const cx = width  / 2;
   const cy = height / 2;
   const dx = p.pos.x - cx;
@@ -133,7 +133,7 @@ export const expansionKernel: WarpKernel = p: Record<string, unknown>, { width, 
  * Flow field — steers velocity according to a smooth angle field derived
  * from position.  Mimics Warp's array-indexing kernels.
  */
-export const flowKernel: WarpKernel = p: Record<string, unknown>, { time, dt } => {
+export const flowKernel: WarpKernel = (p: Record<string, unknown>, { time, dt }) => {
   const scale = 0.004;
   const angle = Math.sin(p.pos.x * scale + time * 0.4) *
                 Math.cos(p.pos.y * scale + time * 0.3) *
@@ -144,14 +144,14 @@ export const flowKernel: WarpKernel = p: Record<string, unknown>, { time, dt } =
 };
 
 /** Dampen velocity so it doesn't grow unbounded. */
-export const dampingKernel: WarpKernel = p: Record<string, unknown>, { dt } => {
+export const dampingKernel: WarpKernel = (p: Record<string, unknown>, { dt }) => {
   const factor = Math.exp(-2.5 * dt);
   p.vel.x *= factor;
   p.vel.y *= factor;
 };
 
 /** Wrap particles that escape the canvas back to the opposite edge. */
-export const wrapBoundaryKernel: WarpKernel = p: Record<string, unknown>, { width, height } => {
+export const wrapBoundaryKernel: WarpKernel = (p: Record<string, unknown>, { width, height }) => {
   if (p.pos.x < 0)      p.pos.x += width;
   if (p.pos.x > width)  p.pos.x -= width;
   if (p.pos.y < 0)      p.pos.y += height;
@@ -180,7 +180,7 @@ const PALETTES: Record<WarpEffect, string[]> = {
   orbit:     ['#fbbf24', '#fb923c', '#f472b6', '#e879f9', '#a78bfa'],
 };
 
-function randomColor(effect: WarpEffect: string) {
+function randomColor(effect: WarpEffect): string {
   const palette = PALETTES[effect];
   return palette[Math.floor(Math.random() * palette.length)];
 }
@@ -193,7 +193,7 @@ function randomColor(effect: WarpEffect: string) {
  * Spawn a single particle appropriate for a given effect.
  * Mirrors Warp's `wp.zeros()` / `wp.array()` allocation helpers.
  */
-export function spawnParticle(effect: WarpEffect, width: number, height: number: WarpParticle) {
+export function spawnParticle(effect: WarpEffect, width: number, height: number): WarpParticle {
   let x = Math.random() * width;
   let y = Math.random() * height;
   let vx = (Math.random() - 0.5) * 80;

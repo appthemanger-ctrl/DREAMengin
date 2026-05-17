@@ -10,10 +10,10 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
-// -- GET /api/marketplace?category=<category> -------------------------
+// ── GET /api/marketplace?category=<category> ─────────────────────────
 // Returns all published marketplace items, optionally filtered by category.
 // Joins with profiles to surface seller handle + display name.
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest ){
   const supabase = await createServerClient();
 
   const { searchParams } = new URL(req.url);
@@ -57,10 +57,10 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ items: items ?? [] });
 }
 
-// -- POST /api/marketplace ---------------------------------------------
+// ── POST /api/marketplace ─────────────────────────────────────────────
 // Auth-gated. Inserts a new marketplace_item for the current user.
 // is_published is always false — admin publishes after review.
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
     tags?: string;
   };
 
-  // -- Input validation (server-side, Axiom 4) --
+  // ── Input validation (server-side, Axiom 4) ──
   const trimmedTitle = (title ?? '').trim();
   if (!trimmedTitle || trimmedTitle.length === 0) {
     return NextResponse.json({ error: 'Title is required.' }, { status: 400 });

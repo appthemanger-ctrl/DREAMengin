@@ -11,7 +11,7 @@ import type { AnomalySignal } from './correlator';
 import type { TelemetrySnapshot } from './collector';
 import type { PatchRisk } from '@/lib/agents/idari';
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 export type RootCauseConfidence = 'high' | 'medium' | 'low';
 
@@ -30,7 +30,7 @@ export interface RootCauseAnalysis {
   evidence_summary: string[];
 }
 
-// -- Known error patterns ------------------------------------------------------
+// ── Known error patterns ──────────────────────────────────────────────────────
 
 interface KnownPattern {
   pattern: RegExp;
@@ -153,7 +153,7 @@ const KNOWN_PATTERNS: KnownPattern[] = [
   },
 ];
 
-// -- Main ----------------------------------------------------------------------
+// ── Main ──────────────────────────────────────────────────────────────────────
 
 /**
  * Infer the most likely root cause from anomaly signals and raw log messages.
@@ -171,7 +171,7 @@ export function inferRootCause(
     .map((l: Record<string, unknown>) => l.message);
 
   const allEvidence: string[] = [
-    ...anomalies.flatMap(a: Record<string, unknown> => a.evidence),
+    ...anomalies.flatMap((a: Record<string, unknown>) => a.evidence),
     ...errorMessages,
   ];
 

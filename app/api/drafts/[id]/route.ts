@@ -18,7 +18,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 
 
-// -- Validation ---------------------------------------------------------------
+// ── Validation ───────────────────────────────────────────────────────────────
 
 const CONTENT_TYPES = [
   'post', 'video', 'story', 'thread',
@@ -32,7 +32,7 @@ const PatchDraftSchema = z.object({
   scheduled_at: z.string().datetime({ offset: true }).nullable().optional(),
 }).strict();
 
-// -- DELETE /api/drafts/:id ---------------------------------------------------
+// ── DELETE /api/drafts/:id ───────────────────────────────────────────────────
 
 export async function DELETE(
   _req: NextRequest,
@@ -74,7 +74,7 @@ export async function DELETE(
   return new NextResponse(null, { status: 204 });
 }
 
-// -- PATCH /api/drafts/:id ----------------------------------------------------
+// ── PATCH /api/drafts/:id ────────────────────────────────────────────────────
 
 export async function PATCH(
   req: NextRequest,

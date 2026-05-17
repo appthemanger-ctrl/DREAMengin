@@ -45,14 +45,14 @@ export class DreamOptimizer {
    */
   optimizeFeed(feedItems: FeedItem[]): RankedItem<FeedItem>[] {
     if (!this.config.feed_selection?.enabled) {
-      return feedItems.map(item: Record<string, unknown>, index: number => ({
+      return feedItems.map(item: Record<string, unknown>, (index: number ) => ({
         item,
         score: 1,
         rank: index + 1,
       }));
     }
 
-    const optimizationItems: OptimizationItem[] = feedItems.map(item => ({
+    const optimizationItems: OptimizationItem[] = feedItems.map((item) => ({
       id: item.id,
       score: 0,
       metadata: {
@@ -70,8 +70,8 @@ export class DreamOptimizer {
       this.config.feed_selection.constraints
     );
 
-    return ranked.map(r => ({
-      item: feedItems.find(f => f.id === r.item.id)!,
+    return ranked.map((r) => ({
+      item: feedItems.find((f) => f.id === r.item.id)!,
       score: r.score,
       rank: r.rank,
       metadata: r.metadata,
@@ -87,14 +87,14 @@ export class DreamOptimizer {
     userPermissions: string[]
   ): RankedItem<SearchResult>[] {
     if (!this.config.search_ranking?.enabled) {
-      return searchResults.map(item: Record<string, unknown>, index: number => ({
+      return searchResults.map(item: Record<string, unknown>, (index: number ) => ({
         item,
         score: item.relevance_score,
         rank: index + 1,
       }));
     }
 
-    const optimizationItems: OptimizationItem[] = searchResults.map(result => ({
+    const optimizationItems: OptimizationItem[] = searchResults.map((result) => ({
       id: result.id,
       score: 0,
       metadata: {
@@ -113,8 +113,8 @@ export class DreamOptimizer {
       this.config.search_ranking.constraints
     );
 
-    return ranked.map(r => ({
-      item: searchResults.find(s => s.id === r.item.id)!,
+    return ranked.map((r) => ({
+      item: searchResults.find((s) => s.id === r.item.id)!,
       score: r.score,
       rank: r.rank,
       metadata: r.metadata,
@@ -126,14 +126,14 @@ export class DreamOptimizer {
    */
   optimizeWidgets(widgets: WidgetPriority[]): RankedItem<WidgetPriority>[] {
     if (!this.config.widget_priority?.enabled) {
-      return widgets.map(item: Record<string, unknown>, index: number => ({
+      return widgets.map(item: Record<string, unknown>, (index: number ) => ({
         item,
         score: 1,
         rank: index + 1,
       }));
     }
 
-    const optimizationItems: OptimizationItem[] = widgets.map(widget => ({
+    const optimizationItems: OptimizationItem[] = widgets.map((widget) => ({
       id: widget.widget_id,
       score: 0,
       metadata: {
@@ -149,8 +149,8 @@ export class DreamOptimizer {
       this.config.widget_priority.constraints
     );
 
-    return ranked.map(r => ({
-      item: widgets.find(w => w.widget_id === r.item.id)!,
+    return ranked.map((r) => ({
+      item: widgets.find((w) => w.widget_id === r.item.id)!,
       score: r.score,
       rank: r.rank,
       metadata: r.metadata,
@@ -162,14 +162,14 @@ export class DreamOptimizer {
    */
   optimizeAssetLoading(assets: Asset[]): RankedItem<Asset>[] {
     if (!this.config.asset_loading?.enabled) {
-      return assets.map(item: Record<string, unknown>, index: number => ({
+      return assets.map(item: Record<string, unknown>, (index: number ) => ({
         item,
         score: 1,
         rank: index + 1,
       }));
     }
 
-    const optimizationItems: OptimizationItem[] = assets.map(asset => ({
+    const optimizationItems: OptimizationItem[] = assets.map((asset) => ({
       id: asset.id,
       score: 0,
       metadata: {
@@ -185,8 +185,8 @@ export class DreamOptimizer {
       this.config.asset_loading.constraints
     );
 
-    return ranked.map(r => ({
-      item: assets.find(a => a.id === r.item.id)!,
+    return ranked.map((r) => ({
+      item: assets.find((a) => a.id === r.item.id)!,
       score: r.score,
       rank: r.rank,
       metadata: r.metadata,
@@ -200,14 +200,14 @@ export class DreamOptimizer {
     notifications: Notification[]
   ): RankedItem<Notification>[] {
     if (!this.config.notification_priority?.enabled) {
-      return notifications.map(item: Record<string, unknown>, index: number => ({
+      return notifications.map(item: Record<string, unknown>, (index: number ) => ({
         item,
         score: 1,
         rank: index + 1,
       }));
     }
 
-    const optimizationItems: OptimizationItem[] = notifications.map(notif => ({
+    const optimizationItems: OptimizationItem[] = notifications.map((notif) => ({
       id: notif.id,
       score: 0,
       metadata: {
@@ -223,8 +223,8 @@ export class DreamOptimizer {
       this.config.notification_priority.constraints
     );
 
-    return ranked.map(r => ({
-      item: notifications.find(n => n.id === r.item.id)!,
+    return ranked.map((r) => ({
+      item: notifications.find((n) => n.id === r.item.id)!,
       score: r.score,
       rank: r.rank,
       metadata: r.metadata,
@@ -238,14 +238,14 @@ export class DreamOptimizer {
     queuedActions: QueuedAction[]
   ): RankedItem<QueuedAction>[] {
     if (!this.config.offline_queue?.enabled) {
-      return queuedActions.map(item: Record<string, unknown>, index: number => ({
+      return queuedActions.map(item: Record<string, unknown>, (index: number ) => ({
         item,
         score: 1,
         rank: index + 1,
       }));
     }
 
-    const optimizationItems: OptimizationItem[] = queuedActions.map(action => ({
+    const optimizationItems: OptimizationItem[] = queuedActions.map((action) => ({
       id: action.id,
       score: 0,
       metadata: {
@@ -261,8 +261,8 @@ export class DreamOptimizer {
       this.config.offline_queue.constraints
     );
 
-    return ranked.map(r => ({
-      item: queuedActions.find(a => a.id === r.item.id)!,
+    return ranked.map((r) => ({
+      item: queuedActions.find((a) => a.id === r.item.id)!,
       score: r.score,
       rank: r.rank,
       metadata: r.metadata,
@@ -346,10 +346,10 @@ export class DreamOptimizer {
     );
 
     // Sort by final score descending
-    rankedOptions.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.final_score - a.final_score);
+    rankedOptions.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.final_score - a.final_score);
 
     // Assign ranks
-    rankedOptions.forEach(option: Record<string, unknown>, index: number => {
+    rankedOptions.forEach(option: Record<string, unknown>, (index: number ) => {
       option.rank = index + 1;
     });
 
@@ -464,7 +464,7 @@ export class DreamOptimizer {
       /\benables?\b/i,
       /\ballows?\b/i,
     ];
-    if (actionablePatterns.some(p => p.test(option.content))) {
+    if (actionablePatterns.some((p) => p.test(option.content))) {
       score += 0.1;
     }
 
@@ -487,7 +487,7 @@ export class DreamOptimizer {
       'beautiful', 'elegant', 'stunning', 'amazing', 'wonderful',
       'delightful', 'charming', 'vibrant', 'exciting', 'inspiring'
     ];
-    const wordCount = delightfulWords.filter(word =>
+    const wordCount = delightfulWords.filter((word) =>
       option.content.toLowerCase().includes(word)
     ).length;
     score += Math.min(0.2, wordCount * 0.05);
@@ -528,7 +528,7 @@ export class DreamOptimizer {
     // Check user preferences
     if (context.user_preferences) {
       const prefKeys = Object.keys(context.user_preferences);
-      const matchingPrefs = prefKeys.filter(key => {
+      const matchingPrefs = prefKeys.filter((key) => {
         const prefValue = context.user_preferences![key];
         return option.metadata?.[key] === prefValue;
       }).length;
@@ -537,7 +537,7 @@ export class DreamOptimizer {
 
     // Check constraint compliance
     if (context.constraints) {
-      const violations = context.constraints.filter(constraint =>
+      const violations = context.constraints.filter((constraint) =>
         option.content.toLowerCase().includes(constraint.toLowerCase())
       ).length;
       score -= violations * 0.1;
@@ -571,7 +571,7 @@ export class DreamOptimizer {
         /breaking\s+change/i,
         /large\s+refactor/i,
       ];
-      if (expensivePatterns.some(p => p.test(option.content))) {
+      if (expensivePatterns.some((p) => p.test(option.content))) {
         cost += 0.2;
       }
     }
@@ -597,7 +597,7 @@ export class DreamOptimizer {
         /potential\s+issue/i,
         /not\s+recommended/i,
       ];
-      if (riskyPatterns.some(p => p.test(option.content))) {
+      if (riskyPatterns.some((p) => p.test(option.content))) {
         risk += 0.2;
       }
 

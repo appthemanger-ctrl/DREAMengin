@@ -7,13 +7,13 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-// -- Mock localStorage --------------------------------------------------------
+// ── Mock localStorage ────────────────────────────────────────────────────────
 const localStorageStore: Record<string, string> = {};
 const localStorageMock = {
   getItem: (key: string) => localStorageStore[key] ?? null,
   setItem: (key: string, value: string) => { localStorageStore[key] = value; },
   removeItem: (key: string) => { delete localStorageStore[key]; },
-  clear: () => { Object.keys(localStorageStore).forEach(k => delete localStorageStore[k]); },
+  clear: () => { Object.keys(localStorageStore).forEach((k) => delete localStorageStore[k]); },
 };
 vi.stubGlobal('localStorage', localStorageMock);
 vi.stubGlobal('window', { localStorage: localStorageMock });
@@ -29,7 +29,7 @@ import {
 
 import { FORGE_HISTORY_KEY } from '@/lib/forge/forgeRegistry';
 
-// -- Helpers ------------------------------------------------------------------
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
 function makeEntry(enginId: string, label: string, hoursAgo: number) {
   return {
@@ -50,11 +50,11 @@ function makeEntryAtHour(enginId: string, label: string, hour: number, daysAgo =
   };
 }
 
-function seedHistory(entries: Array<) { enginId: string; label: string; timestamp: string }>) {
+function seedHistory(entries: Array<){ enginId: string; label: string; timestamp: string }>) {
   localStorage.setItem(FORGE_HISTORY_KEY, JSON.stringify(entries));
 }
 
-// -- Tests --------------------------------------------------------------------
+// ── Tests ────────────────────────────────────────────────────────────────────
 
 describe('Forge Rituals', () => {
   beforeEach(() => {
@@ -143,11 +143,11 @@ describe('Forge Rituals', () => {
         makeEntry('lab', 'f', 1),
       ];
       const rituals = detectSequencePatterns(history);
-      const bigrams = rituals.filter(r => r.id.startsWith('seq2'));
+      const bigrams = rituals.filter((r) => r.id.startsWith('seq2'));
       expect(bigrams.length).toBeGreaterThan(0);
 
       // music→games should appear (2 times)
-      const musicToGames = bigrams.find(r => 
+      const musicToGames = bigrams.find((r) => 
         r.engines[0] === 'music' && r.engines[1] === 'games'
       );
       expect(musicToGames).toBeDefined();
@@ -165,11 +165,11 @@ describe('Forge Rituals', () => {
         makeEntry('code', 'g', 4),
       ];
       const rituals = detectSequencePatterns(history);
-      const trigrams = rituals.filter(r => r.id.startsWith('seq3'));
+      const trigrams = rituals.filter((r) => r.id.startsWith('seq3'));
       expect(trigrams.length).toBeGreaterThan(0);
 
       // music→games→code should appear (2 times)
-      const mgc = trigrams.find(r =>
+      const mgc = trigrams.find((r) =>
         r.engines[0] === 'music' && r.engines[1] === 'games' && r.engines[2] === 'code'
       );
       expect(mgc).toBeDefined();
@@ -185,7 +185,7 @@ describe('Forge Rituals', () => {
         makeEntry('music', 'e', 1),
       ];
       const rituals = detectSequencePatterns(history);
-      const gamesMusic = rituals.find(r =>
+      const gamesMusic = rituals.find((r) =>
         r.id.startsWith('seq2') && r.engines[0] === 'games' && r.engines[1] === 'music'
       );
       expect(gamesMusic).toBeDefined();
@@ -216,7 +216,7 @@ describe('Forge Rituals', () => {
         { enginId: 'create', label: 'f', timestamp: new Date(now - 10 * 60_000).toISOString() },
       ];
       const rituals = detectSessionPatterns(history);
-      const multiEngine = rituals.find(r => r.id === 'session-multi-engine');
+      const multiEngine = rituals.find((r) => r.id === 'session-multi-engine');
       expect(multiEngine).toBeDefined();
       expect(multiEngine!.description).toContain('3.0');
     });
@@ -235,7 +235,7 @@ describe('Forge Rituals', () => {
         makeEntry('music', 'd', 2),
       ];
       const rituals = detectAffinityPatterns(history);
-      const topAffinity = rituals.find(r => r.id === 'affinity-games');
+      const topAffinity = rituals.find((r) => r.id === 'affinity-games');
       expect(topAffinity).toBeDefined();
       expect(topAffinity!.title).toContain('GameEngin');
       expect(topAffinity!.occurrences).toBe(3);
@@ -247,7 +247,7 @@ describe('Forge Rituals', () => {
         makeEntry('music', 'b', 1),
       ];
       const rituals = detectAffinityPatterns(history);
-      const unexplored = rituals.find(r => r.id === 'affinity-unexplored');
+      const unexplored = rituals.find((r) => r.id === 'affinity-unexplored');
       expect(unexplored).toBeDefined();
       expect(unexplored!.engines.length).toBeGreaterThan(0);
       // Should not include games or music

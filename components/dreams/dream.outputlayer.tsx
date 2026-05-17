@@ -13,7 +13,7 @@ export interface DreamOutputLayerProps {
   children: ReactNode;
 }
 
-export default function DreamOutputLayer() {
+export default function DreamOutputLayer(){
   mode,
   visibility = 'private',
   isExplicitlyShared = false,

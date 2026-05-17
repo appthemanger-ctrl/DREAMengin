@@ -98,7 +98,7 @@ interface LLMVerdictRaw {
 
 const VALID_RISK_LEVELS: ImageRiskLevel[] = ['none', 'low', 'medium', 'high', 'certain'];
 
-function parseVerdict(raw: string:) { risk: ImageRiskLevel; confidence: number } {
+function parseVerdict(raw: string): { risk: ImageRiskLevel; confidence: number } {
   // Strip any markdown code fences the model may have added
   const cleaned = raw.replace(/```[a-z]*\n?/gi, '').trim();
 

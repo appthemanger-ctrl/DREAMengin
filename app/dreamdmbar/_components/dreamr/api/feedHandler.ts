@@ -65,7 +65,7 @@ import { parseFeedParams, deriveNextCursor } from '@/lib/dreamr/feedCursor';
  * internal callers (e.g. server actions, edge middleware). Import this function
  * from `app/api/dreamr/feed/route.ts` and export it as `GET`.
  */
-export async function dreamrFeedHandler(req: NextRequest: Promise<NextResponse>) {
+export async function dreamrFeedHandler(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const {
     data: { user },
@@ -78,7 +78,7 @@ export async function dreamrFeedHandler(req: NextRequest: Promise<NextResponse>)
 
   const db = supabase as SupabaseClient;
 
-  // -- Fetch a wider pool so the algorithm has material to work with --------
+  // ── Fetch a wider pool so the algorithm has material to work with ────────
   // NOTE: the DB column on app_posts is `view_count` (singular), maintained by
   // /api/posts/[id]/view on every verified view. The algorithm interface field
   // is `views_count` (plural). We map DB → algorithm below.
@@ -109,11 +109,11 @@ export async function dreamrFeedHandler(req: NextRequest: Promise<NextResponse>)
 
   const fetched = (rows ?? []) as unknown[];
 
-  // -- Visibility filter: drop close-friends posts the viewer cannot see ----
+  // ── Visibility filter: drop close-friends posts the viewer cannot see ────
   const circle = await loadVisibilityCircle(user.id);
   const visible = filterByCloseFriends(fetched, user.id, circle);
 
-  // -- Dedupe ids the client has already seen *before* ranking --------------
+  // ── Dedupe ids the client has already seen *before* ranking ──────────────
   const fresh =
     params.seen.size > 0
       ? visible.filter((r: Record<string, unknown>) => !params.seen.has(r.id))
@@ -136,7 +136,7 @@ export async function dreamrFeedHandler(req: NextRequest: Promise<NextResponse>)
     },
   }));
 
-  // -- Rank with the DreamR algorithm ---------------------------------------
+  // ── Rank with the DreamR algorithm ───────────────────────────────────────
   const ranked = rankFeed(posts).slice(0, params.limit);
   const nextCursor = deriveNextCursor(ranked, fetched.length, params.fetchLimit);
 

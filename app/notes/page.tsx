@@ -9,7 +9,7 @@ export const metadata = { title: 'Notes – Dreamengin', description: 'Your pers
 
 type Note = { id: number; title: string | null };
 
-export default async function NotesPage() {
+export default async function NotesPage( ){
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

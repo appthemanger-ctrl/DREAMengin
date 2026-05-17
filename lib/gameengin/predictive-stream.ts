@@ -59,7 +59,7 @@ export class MLPrefetchModel {
   plan(candidates: PrefetchCandidate[], opts: { metered?: boolean } = {}): PrefetchPlan {
     const budget = this.meteredAware && opts.metered ? Math.floor(this.budget / 2) : this.budget;
     const eligible = candidates.filter((c: Record<string, unknown>) => c.probability >= this.minProb && c.estBytes > 0);
-    eligible.sort(a: Record<string, unknown>, b: Record<string, unknown> => (b.probability / b.estBytes) - (a.probability / a.estBytes));
+    eligible.sort((a: Record<string, unknown>, b: Record<string, unknown>) => (b.probability / b.estBytes) - (a.probability / a.estBytes));
     const fetch: PrefetchCandidate[] = [];
     const skip: PrefetchCandidate[] = [];
     let used = 0;
@@ -78,7 +78,7 @@ export class MLPrefetchModel {
   }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface BehaviorPrediction {
   chunkId: string;
@@ -146,14 +146,14 @@ export class BehaviorAnticipator {
       scores.set(link.chunkId, (scores.get(link.chunkId) ?? 0) + directional * 0.5);
     }
 
-    const totalScore = Array.from(scores.values()).reduce(s: Record<string, unknown>, v: number => s + v, 0);
+    const totalScore = Array.from(scores.values()).reduce(s: Record<string, unknown>, (v: number ) => s + v, 0);
     const sorted = Array.from(scores.entries())
       .map(([chunkId, raw]): BehaviorPrediction => ({
         chunkId,
         probability: totalScore > 0 ? raw / totalScore : 0,
         predictedDwellMs: this.dwellMsByChunk.get(chunkId) ?? 1000,
       }))
-      .sort(a: Record<string, unknown>, b: Record<string, unknown> => b.probability - a.probability)
+      .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.probability - a.probability)
       .slice(0, k);
 
     return sorted;

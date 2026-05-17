@@ -26,7 +26,7 @@ let _cached: LogoPath | null = null;
  * shuffle.  Falls back gracefully: if fewer than 3 logos are available
  * at runtime the first in-array path is returned instead.
  */
-export function getRandomLogo(: LogoPath) {
+export function getRandomLogo(): LogoPath {
   if (_cached) return _cached;
 
   // Shallow copy so LOGO_PATHS const is never mutated.
@@ -45,6 +45,6 @@ export function getRandomLogo(: LogoPath) {
 }
 
 /** Reset per-load cache.  Used in unit tests only. */
-export function resetLogoCache(: void) {
+export function resetLogoCache(): void {
   _cached = null;
 }

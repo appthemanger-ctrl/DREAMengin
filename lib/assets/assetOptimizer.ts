@@ -28,7 +28,7 @@
 
 import { storeOriginal } from './indexedDBStore';
 
-// -- Types ----------------------------------------------------------------------
+// ── Types ──────────────────────────────────────────────────────────────────────
 
 export type OptimisationQuality = 'high' | 'balanced' | 'performance';
 
@@ -64,7 +64,7 @@ export interface OptimisationResult {
   method: string;
 }
 
-// -- Worker singleton -----------------------------------------------------------
+// ── Worker singleton ───────────────────────────────────────────────────────────
 
 let workerInstance: Worker | null = null;
 let jobCounter = 0;
@@ -77,7 +77,7 @@ const pendingJobs = new Map<
   }
 >();
 
-function getWorker(: Worker) {
+function getWorker(): Worker {
   if (!workerInstance) {
     workerInstance = new Worker('/workers/asset-optimizer.worker.js');
     workerInstance.onmessage = (e: MessageEvent) => {
@@ -103,7 +103,7 @@ function getWorker(: Worker) {
   return workerInstance;
 }
 
-// -- Main export ----------------------------------------------------------------
+// ── Main export ────────────────────────────────────────────────────────────────
 
 /**
  * Optimises a file using a Web Worker and stores the original in IndexedDB.
@@ -129,7 +129,7 @@ export async function optimiseAsset(
   const worker = getWorker();
   const jobId = ++jobCounter;
 
-  return new Promise<OptimisationResult>(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
+  return new Promise<OptimisationResult>((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
     pendingJobs.set(jobId, { resolve, reject, onProgress });
 
     worker.postMessage({
@@ -144,7 +144,7 @@ export async function optimiseAsset(
 
     // The worker needs the file content — transfer via a separate message
     // after the job is registered to keep the message ordering clear.
-    file.arrayBuffer().then(buf: Record<string, unknown> => {
+    file.arrayBuffer().then((buf: Record<string, unknown>) => {
       worker.postMessage({ jobId, type: 'file_data', buffer: buf }, [buf]);
     }).catch(reject);
   });
@@ -154,7 +154,7 @@ export async function optimiseAsset(
  * Returns the appropriate folder and source tags for the global_registry
  * based on the upload context.
  */
-export function registryTagsForContext(context: AssetUploadContext:) {
+export function registryTagsForContext(context: AssetUploadContext): {
   folder: string;
   source: string;
 } {

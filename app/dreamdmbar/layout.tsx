@@ -51,7 +51,7 @@ type FeedItemRow = {
   created_at: string | null;
 };
 
-export default async function DreamDMBarLayout() { children }: { children: React.ReactNode } {
+export default async function DreamDMBarLayout({ children }: ) { children: React.ReactNode } {
   await connection();
 
   const supabase = await createServerClient();
@@ -145,7 +145,7 @@ export default async function DreamDMBarLayout() { children }: { children: React
       });
 
       const allEntries: FeedPost[] = [...platformPosts, ...connectorEntries];
-      allEntries.sort(a: Record<string, unknown>, b: Record<string, unknown> =>
+      allEntries.sort((a: Record<string, unknown>, b: Record<string, unknown>) =>
         new Date(b.created_at ?? 0).getTime() - new Date(a.created_at ?? 0).getTime(),
       );
       posts = allEntries;

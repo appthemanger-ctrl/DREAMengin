@@ -23,7 +23,7 @@ type Props = {
   posts?: unknown[];
 };
 
-/* -- Recent activity agent definitions -- */
+/* ── Recent activity agent definitions ── */
 const RECENT_AGENTS = [
   {
     id: 'dr-eams',
@@ -54,8 +54,8 @@ const RECENT_AGENTS = [
   },
 ] as const;
 
-/* -- Shared section header row -- */
-function SectionHeader() { title, badge }: { title: string; badge?: number } {
+/* ── Shared section header row ── */
+function SectionHeader({ title, badge }: ) { title: string; badge?: number } {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
       <span style={{ fontWeight: 700, fontSize: 18, color: 'var(--de-heading)' }}>{title}</span>
@@ -75,8 +75,8 @@ function SectionHeader() { title, badge }: { title: string; badge?: number } {
   );
 }
 
-/* -- Feed post card -- */
-function PostCard() {
+/* ── Feed post card ── */
+function PostCard( ){
   const [liked, setLiked] = useState(false);
   return (
     <div style={{
@@ -118,10 +118,10 @@ function PostCard() {
       {/* Post actions */}
       <div style={{ padding: '2px 16px 14px', display: 'flex', gap: 22 }}>
         {([
-          { icon: liked ? '♥' : '♡', label: 'Like',    action: () => setLiked(v: number => !v) },
+          { icon: liked ? '♥' : '♡', label: 'Like',    action: () => setLiked((v: number ) => !v) },
           { icon: '💬',               label: 'Comment', action: undefined },
           { icon: '↗',               label: 'Share',   action: undefined },
-        ] as const).map({ icon, label: string, action } => (
+        ] as const).map(({ icon, label: string, action }) => (
           <button
             key={label}
             type="button"
@@ -142,8 +142,8 @@ function PostCard() {
   );
 }
 
-/* -- Recent Activity agent card -- */
-function AgentCard() { agent }: { agent: typeof RECENT_AGENTS[number] } {
+/* ── Recent Activity agent card ── */
+function AgentCard({ agent }: ) { agent: typeof RECENT_AGENTS[number] } {
   return (
     <div style={{
       minWidth: 148,
@@ -175,8 +175,8 @@ function AgentCard() { agent }: { agent: typeof RECENT_AGENTS[number] } {
   );
 }
 
-/* -- Key Metrics cards -- */
-function MetricsRow() {
+/* ── Key Metrics cards ── */
+function MetricsRow( ){
   const cards = [
     {
       id: 'eams',
@@ -235,7 +235,7 @@ function MetricsRow() {
       }}>
         <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)', marginBottom: 10, display: 'block' }}>Tams</span>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 32 }}>
-          {[0.45, 0.75, 0.5, 1, 0.65].map(h: Record<string, unknown>, i: number => (
+          {[0.45, 0.75, 0.5, 1, 0.65].map(h: Record<string, unknown>, (i: number ) => (
             <div key={i} style={{
               flex: 1, borderRadius: 3,
               height: `${h * 100}%`,
@@ -248,8 +248,8 @@ function MetricsRow() {
   );
 }
 
-/* -- Home face — delegates to HomeDreamSurface -- */
-function HomeFace() { onOpenDrEams, onOpenDreamSpace, profile, posts, isAdmin }: {
+/* ── Home face — delegates to HomeDreamSurface ── */
+function HomeFace({ onOpenDrEams, onOpenDreamSpace, profile, posts, isAdmin }: ) {
   onOpenDrEams: () => void;
   onOpenDreamSpace?: () => void;
   profile: Props['profile'];
@@ -268,8 +268,8 @@ function HomeFace() { onOpenDrEams, onOpenDreamSpace, profile, posts, isAdmin }:
   );
 }
 
-/* -- Profile face -- */
-function ProfileFace() { profile, onToggleFace }: { profile: Props['profile']; onToggleFace: () => void }) {
+/* ── Profile face ── */
+function ProfileFace({ profile, onToggleFace }: ) { profile: Props['profile']; onToggleFace: () => void }) {
   const name   = profile?.display_name || 'Dreamer';
   const handle = profile?.handle || 'dreamer';
 
@@ -397,8 +397,8 @@ function ProfileFace() { profile, onToggleFace }: { profile: Props['profile']; o
   );
 }
 
-/* -- WallBanner (used in profile face only) -- */
-function WallBanner() {
+/* ── WallBanner (used in profile face only) ── */
+function WallBanner( ){
   const [wallImage, setWallImage] = useState<string | null>(() => {
     try {
       const stored = localStorage.getItem('dreamengin:wall:image');
@@ -413,7 +413,7 @@ function WallBanner() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = ev: Event => {
+    reader.onload = (ev: Event ) => {
       const url = ev.target?.result as string;
       setWallImage(url);
       try { localStorage.setItem('dreamengin:wall:image', url); } catch { /* noop */ }
@@ -448,8 +448,8 @@ function WallBanner() {
   );
 }
 
-/* -- Main export -- */
-export default function CoreDream() { face, isOpen: Record<string, unknown>, onToggleFace: Record<string, unknown>, onClose: _onClose, onOpenDrEams: Record<string, unknown>, onOpenDreamSpace: Record<string, unknown>, isAdmin: Record<string, unknown>, profile: Record<string, unknown>, posts }: Props {
+/* ── Main export ── */
+export default function CoreDream({ face, isOpen: Record<string, unknown>, onToggleFace: Record<string, unknown>, onClose: _onClose, onOpenDrEams: Record<string, unknown>, onOpenDreamSpace: Record<string, unknown>, isAdmin: Record<string, unknown>, profile: Record<string, unknown>, posts }: Props) {
   if (!isOpen) return null;
 
   if (face === 'profile') {

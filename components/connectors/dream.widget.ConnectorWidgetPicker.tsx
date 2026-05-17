@@ -14,7 +14,7 @@ import Link from 'next/link';
 import { Search, X, Check, Plug, ArrowRight } from 'lucide-react';
 import type { WidgetType } from '@/components/profile/dream.widget.ProfileWidgetGrid';
 
-// -- Top-10 connector definitions ---------------------------------------------
+// ── Top-10 connector definitions ─────────────────────────────────────────────
 
 export interface PickerConnector {
   id: string;
@@ -124,7 +124,7 @@ export const TOP_10_CONNECTORS: PickerConnector[] = [
   },
 ];
 
-// -- Component -----------------------------------------------------------------
+// ── Component ─────────────────────────────────────────────────────────────────
 
 export interface ConnectorWidgetPickerProps {
   /** Widget types already present in the grid — these connectors are DISABLED */
@@ -135,7 +135,7 @@ export interface ConnectorWidgetPickerProps {
   onClose: () => void;
 }
 
-export default function ConnectorWidgetPicker() {
+export default function ConnectorWidgetPicker(){
   activeWidgetTypes,
   onAdd,
   onClose,
@@ -151,13 +151,13 @@ export default function ConnectorWidgetPicker() {
     );
   }, [query]);
 
-  function handleCardTap(connector: PickerConnector) {
+  function handleCardTap(connector: PickerConnector ){
     // HARD RULE: already in grid → do nothing
     if (activeWidgetTypes.includes(connector.widgetType)) return;
     setPending(connector);
   }
 
-  function handleConfirm() {
+  function handleConfirm( ){
     if (!pending) return;
     onAdd(pending);
     setPending(null);
@@ -166,7 +166,7 @@ export default function ConnectorWidgetPicker() {
 
   return (
     <>
-      {/* -- Frosted backdrop -- */}
+      {/* ── Frosted backdrop ── */}
       <div
         onClick={() => { if (pending) { setPending(null); } else { onClose(); } }}
         style={{
@@ -177,7 +177,7 @@ export default function ConnectorWidgetPicker() {
         }}
       />
 
-      {/* -- Bottom sheet -- */}
+      {/* ── Bottom sheet ── */}
       <div style={{
         position: 'fixed', bottom: 0, left: 0, right: 0,
         zIndex: 211,
@@ -189,12 +189,12 @@ export default function ConnectorWidgetPicker() {
         paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 24px)',
       }}>
 
-        {/* -- Handle -- */}
+        {/* ── Handle ── */}
         <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 12, flexShrink: 0 }}>
           <div style={{ width: 38, height: 4, borderRadius: 99, background: 'rgba(0,0,0,0.15)' }} />
         </div>
 
-        {/* -- Header -- */}
+        {/* ── Header ── */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '10px 18px 0', flexShrink: 0,
@@ -242,7 +242,7 @@ export default function ConnectorWidgetPicker() {
           </div>
         </div>
 
-        {/* -- Search bar -- */}
+        {/* ── Search bar ── */}
         <div style={{ padding: '12px 18px 0', flexShrink: 0 }}>
           <div style={{
             display: 'flex', alignItems: 'center', gap: 9,
@@ -272,10 +272,10 @@ export default function ConnectorWidgetPicker() {
           </div>
         </div>
 
-        {/* -- Scrollable content -- */}
+        {/* ── Scrollable content ── */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '14px 18px 0' }}>
 
-          {/* -- Confirmation phase -- */}
+          {/* ── Confirmation phase ── */}
           {pending && (
             <div style={{
               background: 'rgba(255,255,255,0.96)',
@@ -355,7 +355,7 @@ export default function ConnectorWidgetPicker() {
             </div>
           )}
 
-          {/* -- Grid of connector cards -- */}
+          {/* ── Grid of connector cards ── */}
           {!pending && (
             <>
               {filtered.length === 0 ? (
@@ -414,9 +414,9 @@ export default function ConnectorWidgetPicker() {
   );
 }
 
-// -- Connector card ------------------------------------------------------------
+// ── Connector card ────────────────────────────────────────────────────────────
 
-function ConnectorCard() {
+function ConnectorCard(){
   connector, isAdded, onTap,
 }: {
   connector: PickerConnector;

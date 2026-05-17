@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Send, Loader2 } from 'lucide-react';
 
-export default function BoardComposer() { boardId, userId }: { boardId: string; userId: string } {
+export default function BoardComposer({ boardId, userId }: ) { boardId: string; userId: string } {
   const [content, setContent] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState('');

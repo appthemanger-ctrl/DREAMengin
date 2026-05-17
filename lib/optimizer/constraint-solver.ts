@@ -37,7 +37,7 @@ export class ConstraintSolver {
     const startTime = Date.now();
 
     // Calculate weighted scores for each item
-    const scoredItems = items.map(item => {
+    const scoredItems = items.map((item) => {
       const score = this.calculateScore(item, constraints);
       return {
         item,
@@ -48,10 +48,10 @@ export class ConstraintSolver {
     });
 
     // Sort by score (descending)
-    scoredItems.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.score - a.score);
+    scoredItems.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.score - a.score);
 
     // Assign ranks
-    scoredItems.forEach(item: Record<string, unknown>, index: number => {
+    scoredItems.forEach(item: Record<string, unknown>, (index: number ) => {
       item.rank = index + 1;
     });
 
@@ -144,7 +144,7 @@ export class ConstraintSolver {
   ): boolean {
     for (const constraint of constraints) {
       if (constraint.priority === 'critical') {
-        const allSatisfied = items.every(item => {
+        const allSatisfied = items.every((item) => {
           const score = this.evaluateConstraint(item, constraint);
           return score >= 0.5; // Critical constraints must be at least 50% satisfied
         });
@@ -170,17 +170,17 @@ export class ConstraintSolver {
     }>
   ): RankedItem<OptimizationItem>[] {
     // Calculate scores for each objective
-    const objectiveScores = objectives.map(objective => {
+    const objectiveScores = objectives.map((objective) => {
       const rankedItems = this.solve(items, objective.constraints);
       return {
         name: objective.name,
         weight: objective.weight,
-        scores: new Map(rankedItems.map(ri => [ri.item.id, ri.score])),
+        scores: new Map(rankedItems.map((ri) => [ri.item.id, ri.score])),
       };
     });
 
     // Combine scores across objectives
-    const combinedScores = items.map(item => {
+    const combinedScores = items.map((item) => {
       let totalScore = 0;
       let totalWeight = 0;
 
@@ -199,8 +199,8 @@ export class ConstraintSolver {
     });
 
     // Sort and assign ranks
-    combinedScores.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.score - a.score);
-    combinedScores.forEach(item: Record<string, unknown>, index: number => {
+    combinedScores.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.score - a.score);
+    combinedScores.forEach(item: Record<string, unknown>, (index: number ) => {
       item.rank = index + 1;
     });
 

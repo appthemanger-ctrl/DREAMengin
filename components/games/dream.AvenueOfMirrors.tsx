@@ -36,7 +36,7 @@ const COL = {
   panel: 'rgba(12,18,20,0.85)',
 } as const;
 
-function newMaze(: number[][]) {
+function newMaze(): number[][] {
   // Recursive backtracker
   const m: number[][] = Array.from({ length: MAP_N }, () => Array<number>(MAP_N).fill(1));
   const stack: Array<[number, number]> = [[1, 1]];
@@ -57,7 +57,7 @@ function newMaze(: number[][]) {
   return m;
 }
 
-function makeGlyphGrid(size: number: string[][]) {
+function makeGlyphGrid(size: number): string[][] {
   const glyphs = ['◆', '○', '△', '✕', '▽', '◐', '✦', '▫', '☉', '⌬'];
   const grid: string[][] = [];
   for (let r = 0; r < size; r++) {
@@ -68,7 +68,7 @@ function makeGlyphGrid(size: number: string[][]) {
   return grid;
 }
 
-export default function AvenueOfMirrors() {
+export default function AvenueOfMirrors( ){
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const mazeRef = useRef<number[][]>(newMaze());
@@ -160,7 +160,7 @@ export default function AvenueOfMirrors() {
         checkMirror();
       }
 
-      // -- Render raycast --------------------------------------------------
+      // ── Render raycast ──────────────────────────────────────────────────
       // Sky / floor
       ctx.fillStyle = COL.ceil; ctx.fillRect(0, 0, VIEW_W, VIEW_H / 2);
       ctx.fillStyle = COL.floor; ctx.fillRect(0, VIEW_H / 2, VIEW_W, VIEW_H / 2);
@@ -273,7 +273,7 @@ export default function AvenueOfMirrors() {
           <Overlay>
             <div style={{ color: COL.accent, fontSize: 13, letterSpacing: 4 }}>MIRROR · MEMORIZE</div>
             <div style={{ display: 'grid', gridTemplateColumns: `repeat(${memoryRef.current.gridSize}, 36px)`, gap: 6 }}>
-              {memoryRef.current.grid.flatMap(row: Record<string, unknown>, r: number => row.map(g: Record<string, unknown>, c: Record<string, unknown> => (
+              {memoryRef.current.grid.flatMap(row: Record<string, unknown>, (r: number ) => row.map((g: Record<string, unknown>, c: Record<string, unknown>) => (
                 <div key={`${r}-${c}`} style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', background: COL.panel, border: `1px solid ${COL.accent}`, color: COL.glyph, fontSize: 22 }}>{g}</div>
               )))}
             </div>
@@ -284,7 +284,7 @@ export default function AvenueOfMirrors() {
           <Overlay>
             <div style={{ color: COL.accent, fontSize: 13, letterSpacing: 4 }}>RECALL</div>
             <div style={{ display: 'grid', gridTemplateColumns: `repeat(${memoryRef.current.gridSize}, 40px)`, gap: 6 }}>
-              {recallGuess.flatMap(row: Record<string, unknown>, r: number => row.map(g: Record<string, unknown>, c: Record<string, unknown> => (
+              {recallGuess.flatMap(row: Record<string, unknown>, (r: number ) => row.map((g: Record<string, unknown>, c: Record<string, unknown>) => (
                 <select
                   key={`${r}-${c}`}
                   value={g}

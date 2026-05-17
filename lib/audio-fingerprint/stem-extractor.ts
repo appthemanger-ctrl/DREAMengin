@@ -18,7 +18,7 @@
 
 import type { TimeSlice } from './fingerprint';
 
-// --- Synchronous (copy-paste, no Web Audio render) ----------------------------
+// ─── Synchronous (copy-paste, no Web Audio render) ────────────────────────────
 
 /**
  * extractStem — synchronous slice stitcher.
@@ -26,12 +26,12 @@ import type { TimeSlice } from './fingerprint';
  * Copies PCM sample ranges from `audioBuffer` for each slice and
  * concatenates them into a fresh AudioBuffer.  No async required.
  */
-export function extractStem(audioBuffer: AudioBuffer, slices: TimeSlice[]: AudioBuffer) {
+export function extractStem(audioBuffer: AudioBuffer, slices: TimeSlice[]): AudioBuffer {
   if (slices.length === 0) return audioBuffer;
 
   const { sampleRate, numberOfChannels } = audioBuffer;
 
-  const totalSamples = slices.reduce(sum: Record<string, unknown>, sl: Record<string, unknown> => {
+  const totalSamples = slices.reduce((sum: Record<string, unknown>, sl: Record<string, unknown>) => {
     const start = Math.max(0, Math.floor(sl.startTimeSec * sampleRate));
     const end   = Math.min(audioBuffer.length, Math.floor(sl.endTimeSec * sampleRate));
     return sum + Math.max(0, end - start);
@@ -62,7 +62,7 @@ export function extractStem(audioBuffer: AudioBuffer, slices: TimeSlice[]: Audio
   return output;
 }
 
-// --- Async (OfflineAudioContext render — best quality) ------------------------
+// ─── Async (OfflineAudioContext render — best quality) ────────────────────────
 
 const FADE_SAMPLES = 220; // ~5 ms at 44100 Hz
 
@@ -89,7 +89,7 @@ export async function extractStemAsync(
 
   const { sampleRate, numberOfChannels } = audioBuffer;
 
-  const totalSamples = slices.reduce(sum: Record<string, unknown>, sl: Record<string, unknown> => {
+  const totalSamples = slices.reduce((sum: Record<string, unknown>, sl: Record<string, unknown>) => {
     const start = Math.max(0, Math.floor(sl.startTimeSec * sampleRate));
     const end   = Math.min(audioBuffer.length, Math.floor(sl.endTimeSec * sampleRate));
     return sum + Math.max(0, end - start);

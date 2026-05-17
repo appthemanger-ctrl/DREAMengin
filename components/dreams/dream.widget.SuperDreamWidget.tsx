@@ -47,7 +47,7 @@ const COMPATIBILITY_CLUSTERS: Record<string, { label: string; clusterKey: string
   create:  { label: 'ContentStream', clusterKey: 'contentstream' },
 };
 
-function getCluster(type: string:) { label: string; clusterKey: string } | null {
+function getCluster(type: string): { label: string; clusterKey: string } | null {
   return COMPATIBILITY_CLUSTERS[type.toLowerCase()] ?? null;
 }
 
@@ -57,7 +57,7 @@ type ClusterGroup = {
   windows: DreamWindowRecord[];
 };
 
-function groupIntoClusters(windows: DreamWindowRecord[]: ClusterGroup[]) {
+function groupIntoClusters(windows: DreamWindowRecord[]): ClusterGroup[] {
   const groups = new Map<string, ClusterGroup>();
 
   for (const w of windows) {
@@ -78,7 +78,7 @@ function groupIntoClusters(windows: DreamWindowRecord[]: ClusterGroup[]) {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function DreamWindowTile() {
+function DreamWindowTile(){
   window: w,
   onRemove,
   onBind,
@@ -160,7 +160,7 @@ function DreamWindowTile() {
   );
 }
 
-function actionBtn(color: string: React.CSSProperties) {
+function actionBtn(color: string): React.CSSProperties {
   return {
     fontSize: 11,
     fontWeight: 700,
@@ -173,7 +173,7 @@ function actionBtn(color: string: React.CSSProperties) {
   };
 }
 
-function ClusterCard() { group, onRemove, onBind, onCollapse }: {
+function ClusterCard({ group, onRemove, onBind, onCollapse }: ) {
   group: ClusterGroup;
   onRemove: (id: string) => void;
   onBind: (id: string) => void;
@@ -230,7 +230,7 @@ export interface SuperDreamWidgetProps {
   title?: string;
 }
 
-export default function SuperDreamWidget() {
+export default function SuperDreamWidget(){
   types,
   title = 'Dream Windows',
 }: SuperDreamWidgetProps) {
@@ -293,7 +293,7 @@ export default function SuperDreamWidget() {
         <span className="de-widget-title">{title}</span>
         <button
           type="button"
-          onClick={() => setAdding(v: number => !v)}
+          onClick={() => setAdding((v: number ) => !v)}
           style={{
             fontSize: 18,
             lineHeight: 1,
@@ -385,4 +385,3 @@ export default function SuperDreamWidget() {
     </section>
   );
 }
-

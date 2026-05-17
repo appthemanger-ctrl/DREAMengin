@@ -38,7 +38,7 @@ interface BabylonOptimizeroSceneProps {
   initialPreset?: WeightPreset;
 }
 
-export default function BabylonOptimizeroScene() {
+export default function BabylonOptimizeroScene(){
   onElementSelect,
   initialPreset = 'default',
 }: BabylonOptimizeroSceneProps) {
@@ -186,7 +186,7 @@ export default function BabylonOptimizeroScene() {
 
       // Render only valid candidates from optimization result
       if (result.ranked_candidates.length > 0) {
-        result.ranked_candidates.forEach(scoredCandidate: Record<string, unknown>, index: number => {
+        result.ranked_candidates.forEach(scoredCandidate: Record<string, unknown>, (index: number ) => {
           const candidate = scoredCandidate.data;
 
           if (candidate.type === 'mesh') {
@@ -272,7 +272,7 @@ export default function BabylonOptimizeroScene() {
       }
 
       // Click handler
-      scene.onPointerObservable.add(pointerInfo: Record<string, unknown> => {
+      scene.onPointerObservable.add((pointerInfo: Record<string, unknown>) => {
         if (pointerInfo.type === 4 && pointerInfo.pickInfo?.hit) {
           const mesh = pointerInfo.pickInfo.pickedMesh;
           if (mesh?.metadata?.candidateId && onElementSelect) {

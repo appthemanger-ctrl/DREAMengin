@@ -12,7 +12,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-// -- Types mirrored from the route ---------------------------------------------
+// ── Types mirrored from the route ─────────────────────────────────────────────
 
 interface PostRow {
   id: string;
@@ -26,7 +26,7 @@ interface ViewRecord {
   viewer_id: string;
 }
 
-// -- Pure counting logic (extracted for testability) ---------------------------
+// ── Pure counting logic (extracted for testability) ───────────────────────────
 
 /**
  * Resolves the root post by following original_post_id chain.
@@ -54,7 +54,7 @@ function isFirstShareOfRoot(
 
   // Find all posts by the same sharer referencing this root.
   const sharerPosts = [...posts.values()]
-    .filter(p => p.user_id === viewedPost.user_id && p.original_post_id === rootPostId)
+    .filter((p) => p.user_id === viewedPost.user_id && p.original_post_id === rootPostId)
     .sort((a, b) => a.id.localeCompare(b.id)); // id ordering as proxy for time
 
   return sharerPosts.length > 0 && sharerPosts[0].id === viewedPost.id;
@@ -103,7 +103,7 @@ function applyViewCount(
   return { counted: true, newViewCount: root.view_count + 1 };
 }
 
-// -- Tests ---------------------------------------------------------------------
+// ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe('View counting: exclusion rules', () => {
   const posts = new Map<string, PostRow>([

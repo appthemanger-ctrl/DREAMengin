@@ -18,7 +18,7 @@ export interface Quaternion {
 /**
  * Create identity quaternion
  */
-export function identityQuaternion(: Quaternion) {
+export function identityQuaternion(): Quaternion {
   return { w: 1, x: 0, y: 0, z: 0 };
 }
 
@@ -28,7 +28,7 @@ export function identityQuaternion(: Quaternion) {
  * @param angle - rotation angle in radians
  * @returns Unit quaternion
  */
-export function fromAxisAngle(axis:) { x: number; y: number; z: number }, angle: number: Quaternion {
+export function fromAxisAngle(axis: ){ x: number; y: number; z: number }, angle: number: Quaternion {
   const halfAngle = angle / 2;
   const sinHalf = Math.sin(halfAngle);
   const cosHalf = Math.cos(halfAngle);
@@ -54,7 +54,7 @@ export function fromAxisAngle(axis:) { x: number; y: number; z: number }, angle:
  * @param dy - vertical swipe delta
  * @param sensitivity - sensitivity constant k
  */
-export function fromGestureSwipe(dx: number, dy: number, sensitivity: number = 0.01: Quaternion) {
+export function fromGestureSwipe(dx: number, dy: number, sensitivity: number = 0.01): Quaternion {
   // Swipe magnitude
   const magnitude = Math.sqrt(dx * dx + dy * dy);
   
@@ -90,7 +90,7 @@ export function fromGestureSwipe(dx: number, dy: number, sensitivity: number = 0
  * @param q2 - second quaternion
  * @returns Product q1 ⊗ q2
  */
-export function multiply(q1: Quaternion, q2: Quaternion: Quaternion) {
+export function multiply(q1: Quaternion, q2: Quaternion): Quaternion {
   return {
     w: q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z,
     x: q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y,
@@ -104,7 +104,7 @@ export function multiply(q1: Quaternion, q2: Quaternion: Quaternion) {
  * Section 3.4: Drift Correction - normalize every N frames
  * Prevents accumulation error
  */
-export function normalize(q: Quaternion: Quaternion) {
+export function normalize(q: Quaternion): Quaternion {
   const length = Math.sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
   
   // Handle edge case
@@ -123,14 +123,14 @@ export function normalize(q: Quaternion: Quaternion) {
 /**
  * Compute quaternion magnitude
  */
-export function magnitude(q: Quaternion: number) {
+export function magnitude(q: Quaternion): number {
   return Math.sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
 }
 
 /**
  * Check if quaternion is valid (not NaN, not zero)
  */
-export function isValid(q: Quaternion: boolean) {
+export function isValid(q: Quaternion): boolean {
   return (
     !isNaN(q.w) && !isNaN(q.x) && !isNaN(q.y) && !isNaN(q.z) &&
     isFinite(q.w) && isFinite(q.x) && isFinite(q.y) && isFinite(q.z)
@@ -141,7 +141,7 @@ export function isValid(q: Quaternion: boolean) {
  * Convert quaternion to rotation matrix (3x3)
  * For integration with existing transform systems
  */
-export function toRotationMatrix(q: Quaternion: number[][]) {
+export function toRotationMatrix(q: Quaternion): number[][] {
   const { w, x, y, z } = q;
   
   return [
@@ -166,7 +166,7 @@ export function toRotationMatrix(q: Quaternion: number[][]) {
 /**
  * Apply quaternion rotation to a 3D vector
  */
-export function rotateVector(q: Quaternion, v:) { x: number; y: number; z: number }: { x: number; y: number; z: number } {
+export function rotateVector(q: Quaternion, v): { x: number; y: number; z: number }: { x: number; y: number; z: number } {
   // Convert vector to quaternion
   const vq: Quaternion = { w: 0, x: v.x, y: v.y, z: v.z };
   
@@ -183,7 +183,7 @@ export function rotateVector(q: Quaternion, v:) { x: number; y: number; z: numbe
  * Spherical linear interpolation between two quaternions
  * Useful for smooth animation
  */
-export function slerp(q1: Quaternion, q2: Quaternion, t: number: Quaternion) {
+export function slerp(q1: Quaternion, q2: Quaternion, t: number): Quaternion {
   // Clamp t to [0, 1]
   t = Math.max(0, Math.min(1, t));
   
@@ -225,7 +225,7 @@ export function slerp(q1: Quaternion, q2: Quaternion, t: number: Quaternion) {
  * Convert quaternion to Euler angles (for debugging only)
  * Returns { pitch, yaw, roll } in radians
  */
-export function toEulerAngles(q: Quaternion:) { pitch: number; yaw: number; roll: number } {
+export function toEulerAngles(q: Quaternion): { pitch: number; yaw: number; roll: number } {
   const { w, x, y, z } = q;
   
   // Roll (x-axis rotation)

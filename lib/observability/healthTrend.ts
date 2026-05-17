@@ -13,7 +13,7 @@
 
 import type { LoopIteration, LoopStatus } from '@/lib/agents/idariLoop';
 
-// -- Improvement 76: updateHealthTrend / rolling state -------------------------
+// ── Improvement 76: updateHealthTrend / rolling state ─────────────────────────
 
 export type HealthStatus = 'healthy' | 'degraded' | 'critical';
 
@@ -29,7 +29,7 @@ const _trendBuffer: HealthDataPoint[] = [];
  * Push a health status data point into the rolling trend window.
  * At most MAX_TREND_WINDOW points are kept; oldest are evicted first.
  */
-export function updateHealthTrend(status: HealthStatus: void) {
+export function updateHealthTrend(status: HealthStatus): void {
   _trendBuffer.push({ status, timestamp: Date.now() });
   if (_trendBuffer.length > MAX_TREND_WINDOW) {
     _trendBuffer.shift();
@@ -37,11 +37,11 @@ export function updateHealthTrend(status: HealthStatus: void) {
 }
 
 /** Reset the trend buffer — for tests and explicit resets. */
-export function clearHealthTrend(: void) {
+export function clearHealthTrend(): void {
   _trendBuffer.length = 0;
 }
 
-// -- Improvement 77: getHealthTrend --------------------------------------------
+// ── Improvement 77: getHealthTrend ────────────────────────────────────────────
 
 export type HealthTrend = 'improving' | 'stable' | 'degrading';
 
@@ -53,7 +53,7 @@ export type HealthTrend = 'improving' | 'stable' | 'degrading';
  * - 'degrading': more unhealthy statuses in the second half
  * - 'stable': no significant change
  */
-export function getHealthTrend(windowSize = 20: HealthTrend) {
+export function getHealthTrend(windowSize = 20: HealthTrend ){
   const recent = _trendBuffer.slice(-Math.min(windowSize, _trendBuffer.length));
   if (recent.length < 4) return 'stable';
 
@@ -73,14 +73,14 @@ export function getHealthTrend(windowSize = 20: HealthTrend) {
   return 'stable';
 }
 
-// -- Improvement 78: getHealthScore --------------------------------------------
+// ── Improvement 78: getHealthScore ────────────────────────────────────────────
 
 /**
  * Compute a 0-100 health score from recent loop iterations.
  * 100 = all iterations resolved, 0 = all iterations failed.
  * Score is weighted toward recency (more recent iterations count more).
  */
-export function getHealthScore(iterations: readonly LoopIteration[]: number) {
+export function getHealthScore(iterations: readonly LoopIteration[]): number {
   if (iterations.length === 0) return 100; // no data = assume healthy
   const recent = iterations.slice(-20); // use at most last 20 iterations
   let weightedSum = 0;
@@ -94,7 +94,7 @@ export function getHealthScore(iterations: readonly LoopIteration[]: number) {
   return totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 100;
 }
 
-// -- Improvement 79: getMTTR ---------------------------------------------------
+// ── Improvement 79: getMTTR ───────────────────────────────────────────────────
 
 /**
  * Compute the Mean Time To Recovery (MTTR) in milliseconds.
@@ -102,7 +102,7 @@ export function getHealthScore(iterations: readonly LoopIteration[]: number) {
  * MTTR is defined as the average time between a 'failed' iteration and the
  * next 'resolved' iteration. Returns null when there are no recovery events.
  */
-export function getMTTR(iterations: readonly LoopIteration[]: number | null) {
+export function getMTTR(iterations: readonly LoopIteration[]): number | null {
   const recoveryTimes: number[] = [];
 
   for (let i = 0; i < iterations.length - 1; i++) {
@@ -118,10 +118,10 @@ export function getMTTR(iterations: readonly LoopIteration[]: number | null) {
   }
 
   if (recoveryTimes.length === 0) return null;
-  return recoveryTimes.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b, 0) / recoveryTimes.length;
+  return recoveryTimes.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / recoveryTimes.length;
 }
 
-// -- Improvement 80: exportHealthReport ---------------------------------------
+// ── Improvement 80: exportHealthReport ───────────────────────────────────────
 
 export interface HealthReport {
   generatedAt: string;
@@ -140,9 +140,9 @@ export interface HealthReport {
  * Produce a structured health report from recent loop iterations.
  * Suitable for export to a monitoring dashboard or log aggregation system.
  */
-export function exportHealthReport(iterations: readonly LoopIteration[]: HealthReport) {
-  const resolved = iterations.filter(i: number => i.status === 'resolved').length;
-  const failed = iterations.filter(i: number => i.status === 'failed').length;
+export function exportHealthReport(iterations: readonly LoopIteration[]): HealthReport {
+  const resolved = iterations.filter((i: number ) => i.status === 'resolved').length;
+  const failed = iterations.filter((i: number ) => i.status === 'failed').length;
   const lastStatus = iterations.length > 0 ? iterations[iterations.length - 1].status : null;
 
   // Collect the most common anomaly types across all iterations

@@ -22,7 +22,7 @@ interface WriteAuditLogInput {
  * Write to admin_audit_log table.
  * policy_version is always stamped so every row is traceable to a published rule (req 3, 18).
  */
-export async function writeAuditLog(input: WriteAuditLogInput: Promise<void>) {
+export async function writeAuditLog(input: WriteAuditLogInput): Promise<void> {
   try {
     const supabase = await createServerClient();
 

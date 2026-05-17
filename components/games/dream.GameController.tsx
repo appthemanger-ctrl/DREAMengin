@@ -72,9 +72,9 @@ const INACTIVE_STICK: StickState = {
 
 const ZERO_VEC: MobileControlVector = { x: 0, y: 0 };
 
-// --- Left-stick legacy sync -------------------------------------------------
+// ─── Left-stick legacy sync ─────────────────────────────────────────────────
 
-function useLegacyMoveSync() {
+function useLegacyMoveSync( ){
   const activeMoveRef = useRef<ReturnType<typeof getLegacyMoveAction>>(null);
 
   const sync = useCallback((vector: MobileControlVector) => {
@@ -102,10 +102,10 @@ function useLegacyMoveSync() {
   return { sync, stop };
 }
 
-// --- Component --------------------------------------------------------------
+// ─── Component ──────────────────────────────────────────────────────────────
 
-export default function GameController() { gameLabel, onExit }: GameControllerProps {
-  // -- Stick state (visual only; logic lives in refs) ----------------------
+export default function GameController({ gameLabel, onExit }: GameControllerProps) {
+  // ── Stick state (visual only; logic lives in refs) ──────────────────────
   const [leftStick,  setLeftStick]  = useState<StickState>(INACTIVE_STICK);
   const [rightStick, setRightStick] = useState<StickState>(INACTIVE_STICK);
   const [shootFlash, setShootFlash] = useState(false);
@@ -113,7 +113,7 @@ export default function GameController() { gameLabel, onExit }: GameControllerPr
   const [pauseActive, setPauseActive] = useState(false);
   const [exitActive,  setExitActive]  = useState(false);
 
-  // -- Refs — touch tracking (avoids stale closure issues) ----------------
+  // ── Refs — touch tracking (avoids stale closure issues) ────────────────
   const leftTouchIdRef    = useRef<number | null>(null);
   const leftOriginRef     = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const leftVectorRef     = useRef<StickVector>({ x: 0, y: 0 });
@@ -127,32 +127,32 @@ export default function GameController() { gameLabel, onExit }: GameControllerPr
   const autoFireTimerRef    = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoFireIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // -- Button interaction manager -----------------------------------------
+  // ── Button interaction manager ─────────────────────────────────────────
   const btnMgrRef = useRef<ButtonInteractionManager | null>(null);
   if (!btnMgrRef.current) {
     btnMgrRef.current = new ButtonInteractionManager();
   }
 
-  // -- Button DOM refs for hit-testing -----------------------------------
+  // ── Button DOM refs for hit-testing ───────────────────────────────────
   const btnRefs = useRef<Partial<Record<ControllerButton, HTMLDivElement | null>>>({});
 
-  // -- Legacy move sync --------------------------------------------------
+  // ── Legacy move sync ──────────────────────────────────────────────────
   const { sync: syncLegacyMove, stop: stopLegacyMove } = useLegacyMoveSync();
 
-  // -- Wire button manager to visual state -------------------------------
+  // ── Wire button manager to visual state ───────────────────────────────
   useEffect(() => {
     const mgr = btnMgrRef.current!;
     const unsub = mgr.subscribe(({ button, interaction }) => {
       if (interaction === 'hold-start' || interaction === 'tap-and-hold') {
-        setPressedBtns(prev: Record<string, unknown> => ({ ...prev, [button]: true }));
+        setPressedBtns((prev: Record<string, unknown>) => ({ ...prev, [button]: true }));
       } else if (interaction === 'release') {
-        setPressedBtns(prev: Record<string, unknown> => ({ ...prev, [button]: false }));
+        setPressedBtns((prev: Record<string, unknown>) => ({ ...prev, [button]: false }));
       }
     });
     return unsub;
   }, []);
 
-  // -- Cleanup on unmount ------------------------------------------------
+  // ── Cleanup on unmount ────────────────────────────────────────────────
   useEffect(() => {
     return () => {
       btnMgrRef.current?.destroy();
@@ -164,9 +164,9 @@ export default function GameController() { gameLabel, onExit }: GameControllerPr
     };
   }, [stopLegacyMove]);
 
-  // ------------------------------------------------------------------------
+  // ────────────────────────────────────────────────────────────────────────
   // LEFT STICK
-  // ------------------------------------------------------------------------
+  // ────────────────────────────────────────────────────────────────────────
 
   const handleLeftStart = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
@@ -205,7 +205,7 @@ export default function GameController() { gameLabel, onExit }: GameControllerPr
     emitMobileMove(mv);
     syncLegacyMove(mv);
 
-    setLeftStick(prev: Record<string, unknown> => ({ ...prev, vector: vec }));
+    setLeftStick((prev: Record<string, unknown>) => ({ ...prev, vector: vec }));
   }, [syncLegacyMove]);
 
   const handleLeftEnd = useCallback((e: React.TouchEvent) => {
@@ -231,9 +231,9 @@ export default function GameController() { gameLabel, onExit }: GameControllerPr
     setLeftStick(INACTIVE_STICK);
   }, [stopLegacyMove]);
 
-  // ------------------------------------------------------------------------
+  // ────────────────────────────────────────────────────────────────────────
   // RIGHT STICK  (tap=shoot, drag=aim, tap-and-hold=auto-fire)
-  // ------------------------------------------------------------------------
+  // ────────────────────────────────────────────────────────────────────────
 
   const fireShot = useCallback(() => {
     emitMobileShoot();
@@ -323,7 +323,7 @@ export default function GameController() { gameLabel, onExit }: GameControllerPr
       ? { x: (dx / dist) * scale, y: (dy / dist) * scale }
       : { x: 0, y: 0 };
 
-    setRightStick(prev: Record<string, unknown> => ({ ...prev, vector: vec }));
+    setRightStick((prev: Record<string, unknown>) => ({ ...prev, vector: vec }));
   }, [stopAutoFire]);
 
   const handleRightEnd = useCallback((e: React.TouchEvent) => {
@@ -365,9 +365,9 @@ export default function GameController() { gameLabel, onExit }: GameControllerPr
     emitMobileLookDelta(0, 0);
   }, [fireShot, stopAutoFire]);
 
-  // ------------------------------------------------------------------------
+  // ────────────────────────────────────────────────────────────────────────
   // BUTTON HIT-TESTING  (right zone routes to buttons or right stick)
-  // ------------------------------------------------------------------------
+  // ────────────────────────────────────────────────────────────────────────
 
   const findButtonAt = useCallback((cx: number, cy: number): ControllerButton | null => {
     for (const def of CONTROLLER_BUTTON_DEFS) {
@@ -444,9 +444,9 @@ export default function GameController() { gameLabel, onExit }: GameControllerPr
     btnMgrRef.current?.pressEnd(btn, e.changedTouches[0]?.identifier ?? -1);
   }, []);
 
-  // ------------------------------------------------------------------------
+  // ────────────────────────────────────────────────────────────────────────
   // PAUSE  (centre pill)
-  // ------------------------------------------------------------------------
+  // ────────────────────────────────────────────────────────────────────────
 
   const handlePauseStart = useCallback(() => {
     setPauseActive(true);
@@ -459,24 +459,24 @@ export default function GameController() { gameLabel, onExit }: GameControllerPr
     fireLegacyGameInput('pause', false);
   }, []);
 
-  // ------------------------------------------------------------------------
+  // ────────────────────────────────────────────────────────────────────────
   // Shoulder pairs (L1/L2 on left, R1/R2 on right)
-  // ------------------------------------------------------------------------
+  // ────────────────────────────────────────────────────────────────────────
 
   const shoulderPairs = useMemo(() => ({
     left:  ['l1', 'l2'] as ControllerButton[],
     right: ['r1', 'r2'] as ControllerButton[],
   }), []);
 
-  // ------------------------------------------------------------------------
+  // ────────────────────────────────────────────────────────────────────────
   // RENDER
-  // ------------------------------------------------------------------------
+  // ────────────────────────────────────────────────────────────────────────
 
   return (
     <div className={styles.overlay}>
       <div className={styles.hudBadge}>{gameLabel}</div>
 
-      {/* -- Left zone (movement) ---------------------------- */}
+      {/* ── Left zone (movement) ──────────────────────────── */}
       <div
         className={styles.leftZone}
         onTouchStart={handleLeftStart}
@@ -507,7 +507,7 @@ export default function GameController() { gameLabel, onExit }: GameControllerPr
         )}
       </div>
 
-      {/* -- Right zone (aim / shoot + buttons) ------------- */}
+      {/* ── Right zone (aim / shoot + buttons) ───────────── */}
       <div
         className={styles.rightZone}
         onTouchStart={handleRightZoneStart}
@@ -561,7 +561,7 @@ export default function GameController() { gameLabel, onExit }: GameControllerPr
         </div>
       </div>
 
-      {/* -- Shoulder buttons ------------------------------- */}
+      {/* ── Shoulder buttons ─────────────────────────────── */}
       <div className={clsx(styles.shoulderGroup, styles.shoulderGroupLeft)}>
         {shoulderPairs.left.map((btn: Record<string, unknown>) => {
           const def = CONTROLLER_BUTTON_DEFS.find((d: Record<string, unknown>) => d.id === btn)!;
@@ -598,7 +598,7 @@ export default function GameController() { gameLabel, onExit }: GameControllerPr
         })}
       </div>
 
-      {/* -- Centre pills ----------------------------------- */}
+      {/* ── Centre pills ─────────────────────────────────── */}
       <div className={styles.centerPills}>
         <button
           type="button"

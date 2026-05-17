@@ -56,15 +56,15 @@ const CAMERA_BY_NODE: Record<DreamNode, { x: number; y: number; z: number }> = {
   '6b': { x: 0, y: 0, z: -2 },
 };
 
-function toBaseNode(node: DreamNode: string) {
+function toBaseNode(node: DreamNode): string {
   return node.endsWith('b') ? node[0] : node;
 }
 
-function isOuter(node: DreamNode: boolean) {
+function isOuter(node: DreamNode): boolean {
   return node.endsWith('b');
 }
 
-function computeState(nextNode: DreamNode: DreamState) {
+function computeState(nextNode: DreamNode): DreamState {
   const base = nextNode === '0' ? '1' : toBaseNode(nextNode);
   return {
     node: nextNode,
@@ -79,19 +79,19 @@ function computeState(nextNode: DreamNode: DreamState) {
  * Build the DreamState for any node without requiring a prior state.
  * Used by StructureLedger to precompute the conserved state table.
  */
-export function getStateForNode(node: DreamNode: DreamState) {
+export function getStateForNode(node: DreamNode): DreamState {
   return computeState(node);
 }
 
-export function createInitialDreamState(: DreamState) {
+export function createInitialDreamState(): DreamState {
   return computeState('0');
 }
 
-export function returnHome(: DreamState) {
+export function returnHome(): DreamState {
   return computeState('0');
 }
 
-export function move(state: DreamState, direction: MoveDirection: DreamState) {
+export function move(state: DreamState, direction: MoveDirection): DreamState {
   const targetBase = DIRECTION_TO_BASE[direction];
 
   if (state.node === '0') {
@@ -114,6 +114,6 @@ export function move(state: DreamState, direction: MoveDirection: DreamState) {
 }
 
 /** Z transition keeps Z context (example: 6b -> zoomIn -> 6). */
-export function zoom(state: DreamState, direction: 'in' | 'out': DreamState) {
+export function zoom(state: DreamState, direction: 'in' | 'out'): DreamState {
   return move(state, direction === 'in' ? 'zoomIn' : 'zoomOut');
 }

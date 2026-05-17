@@ -35,7 +35,7 @@ export class AnchorWidgetStorage {
    * Initialize default home slots (all blank)
    */
   private static createDefaultHomeSlots(): HomeSlotMapping[] {
-    return Array.from({ length: this.HOME_SLOTS_COUNT }, _: Record<string, unknown>, index: number => ({
+    return Array.from({ length: this.HOME_SLOTS_COUNT }, _: Record<string, unknown>, (index: number ) => ({
       slotIndex: index,
       widgetId: null
     }));
@@ -100,7 +100,7 @@ export class AnchorWidgetStorage {
    * Get widget ID for a home slot
    */
   static getSlotWidget(state: AnchorWidgetState, slotIndex: number): string | null {
-    const slot = state.homeSlots.find(s => s.slotIndex === slotIndex);
+    const slot = state.homeSlots.find((s) => s.slotIndex === slotIndex);
     return slot?.widgetId || null;
   }
   
@@ -112,7 +112,7 @@ export class AnchorWidgetStorage {
     slotIndex: number,
     widgetId: string | null
   ): void {
-    const slot = state.homeSlots.find(s => s.slotIndex === slotIndex);
+    const slot = state.homeSlots.find((s) => s.slotIndex === slotIndex);
     if (slot) {
       slot.widgetId = widgetId;
     } else {
@@ -124,7 +124,7 @@ export class AnchorWidgetStorage {
    * Update priority widgets based on focus and usage
    */
   static updatePriorities(state: AnchorWidgetState, focusedWidgetId: string): void {
-    const existing = state.priorityWidgets.find(w => w.widgetId === focusedWidgetId);
+    const existing = state.priorityWidgets.find((w) => w.widgetId === focusedWidgetId);
     
     if (existing) {
       existing.lastFocused = Date.now();
@@ -139,7 +139,7 @@ export class AnchorWidgetStorage {
     }
     
     // Sort by pinned first, then by lastFocused
-    state.priorityWidgets.sort(a: Record<string, unknown>, b: Record<string, unknown> => {
+    state.priorityWidgets.sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
       if (a.pinned && !b.pinned) return -1;
       if (!a.pinned && b.pinned) return 1;
       return b.lastFocused - a.lastFocused;

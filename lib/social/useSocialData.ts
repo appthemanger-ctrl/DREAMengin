@@ -20,7 +20,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { NormalizedPost } from '@/lib/social/normalizers';
 
-// --- Types -------------------------------------------------------------------
+// ─── Types ───────────────────────────────────────────────────────────────────
 
 export type SocialPlatformFilter = 'all' | 'mastodon' | 'nostr' | 'bluesky';
 
@@ -39,13 +39,13 @@ export interface SocialDataState {
   currentPlatform: SocialPlatformFilter;
 }
 
-// --- Constants ----------------------------------------------------------------
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const BACKEND_BASE = process.env.NEXT_PUBLIC_BACKEND_URL ?? '/api/social';
 const DEFAULT_LIMIT = 30;
 const POLL_INTERVAL_MS = 60_000; // refresh every 60 s in the background
 
-// --- Fetch helpers ------------------------------------------------------------
+// ─── Fetch helpers ────────────────────────────────────────────────────────────
 
 async function fetchPlatformFeed(
   platform: SocialPlatformFilter,
@@ -87,7 +87,7 @@ async function fetchPlatformFeed(
 }
 
 /** Derive source from an id string prefixed by platform name */
-function deriveSource(id: string: NormalizedPost['source']) {
+function deriveSource(id: string): NormalizedPost['source'] {
   if (id.startsWith('mastodon_')) return 'mastodon';
   if (id.startsWith('nostr_')) return 'nostr';
   if (id.startsWith('bluesky_')) return 'bluesky';
@@ -95,7 +95,7 @@ function deriveSource(id: string: NormalizedPost['source']) {
 }
 
 /** Strip basic HTML tags from Mastodon status content */
-function stripHtml(html: string: string) {
+function stripHtml(html: string): string {
   return html
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<\/p>/gi, '\n')
@@ -124,7 +124,7 @@ function countByPlatform(
   );
 }
 
-// --- Hook --------------------------------------------------------------------
+// ─── Hook ────────────────────────────────────────────────────────────────────
 
 /**
  * Aggregated decentralized social feed hook.

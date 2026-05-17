@@ -5,7 +5,7 @@ export * from './responsive';
 
 export const COMPACT_RUNTIME_VIEWPORT_MAX_WIDTH = 768;
 
-export function isCompactRuntimeViewport(width: number: boolean) {
+export function isCompactRuntimeViewport(width: number): boolean {
   return width < COMPACT_RUNTIME_VIEWPORT_MAX_WIDTH;
 }
 

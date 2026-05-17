@@ -31,7 +31,7 @@ interface BrandIdentity {
   accentColor: string;
 }
 
-export default function IdentityPanel() {
+export default function IdentityPanel( ){
   const [identity, setIdentity] = useState<BrandIdentity>({
     name: '',
     tagline: '',
@@ -42,8 +42,8 @@ export default function IdentityPanel() {
   });
   const [saved, setSaved] = useState(false);
 
-  function applyPalette(palette: typeof PRESET_PALETTES[0]) {
-    setIdentity(prev: Record<string, unknown> => ({
+  function applyPalette(palette: typeof PRESET_PALETTES[0] ){
+    setIdentity((prev: Record<string, unknown>) => ({
       ...prev,
       primaryColor: palette.colors[0],
       secondaryColor: palette.colors[1],
@@ -51,7 +51,7 @@ export default function IdentityPanel() {
     }));
   }
 
-  function save() {
+  function save( ){
     bridge.emit('brand', 'brand:asset-updated', { assetType: 'color-palette', assetId: identity.name || 'brand-identity' });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
@@ -90,7 +90,7 @@ export default function IdentityPanel() {
               {identity.tagline || 'Your tagline here'}
             </div>
             <div className="flex gap-2 mt-2">
-              {[identity.primaryColor, identity.secondaryColor, identity.accentColor].map(c: Record<string, unknown>, i: number => (
+              {[identity.primaryColor, identity.secondaryColor, identity.accentColor].map(c: Record<string, unknown>, (i: number ) => (
                 <div key={i} className="w-5 h-5 rounded-full border-2 border-black/20" style={{ background: c }} />
               ))}
             </div>
@@ -107,7 +107,7 @@ export default function IdentityPanel() {
             <input
               type="text"
               value={identity.name}
-              onChange={(e) => setIdentity(p: Record<string, unknown> => ({ ...p, name: e.target.value }))}
+              onChange={(e) => setIdentity((p: Record<string, unknown>) => ({ ...p, name: e.target.value }))}
               placeholder="Your brand name"
               className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#f472b6]/60"
             />
@@ -121,7 +121,7 @@ export default function IdentityPanel() {
             <input
               type="text"
               value={identity.tagline}
-              onChange={(e) => setIdentity(p: Record<string, unknown> => ({ ...p, tagline: e.target.value }))}
+              onChange={(e) => setIdentity((p: Record<string, unknown>) => ({ ...p, tagline: e.target.value }))}
               placeholder="Short brand tagline"
               className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder-white/30 focus:outline-none focus:border-[#f472b6]/60"
             />
@@ -134,7 +134,7 @@ export default function IdentityPanel() {
               {EMOJI_PALETTE.map((emoji: Record<string, unknown>) => (
                 <button
                   key={emoji}
-                  onClick={() => setIdentity(p: Record<string, unknown> => ({ ...p, logoEmoji: emoji }))}
+                  onClick={() => setIdentity((p: Record<string, unknown>) => ({ ...p, logoEmoji: emoji }))}
                   className="w-10 h-10 rounded-xl flex items-center justify-center text-xl transition-all"
                   style={
                     identity.logoEmoji === emoji
@@ -162,7 +162,7 @@ export default function IdentityPanel() {
                   className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/20 transition-all"
                 >
                   <div className="flex gap-0.5">
-                    {palette.colors.map(c: Record<string, unknown>, i: number => (
+                    {palette.colors.map(c: Record<string, unknown>, (i: number ) => (
                       <div key={i} className="w-4 h-4 rounded-full" style={{ background: c }} />
                     ))}
                   </div>

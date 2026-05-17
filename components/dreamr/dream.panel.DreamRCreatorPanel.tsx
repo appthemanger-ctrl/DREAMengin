@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 
-// -- Design tokens --------------------------------------------------------------
+// ── Design tokens ──────────────────────────────────────────────────────────────
 
 const DR = {
   bg:           '#e8eff6',
@@ -38,14 +38,14 @@ const DR = {
   font:         'var(--font-dreamr,"Plus Jakarta Sans",system-ui,sans-serif)',
 } as const;
 
-function nmRaised(size = 5: string) {
+function nmRaised(size = 5: string ){
   return `${-size}px ${-size}px ${size * 2.4}px ${DR.shadowLight}, ${size}px ${size}px ${size * 2.8}px ${DR.shadowDark}`;
 }
-function nmInset(size = 4: string) {
+function nmInset(size = 4: string ){
   return `inset ${-size}px ${-size}px ${size * 2}px ${DR.shadowLight}, inset ${size}px ${size}px ${size * 2.4}px ${DR.shadowDark}`;
 }
 
-// -- Types ----------------------------------------------------------------------
+// ── Types ──────────────────────────────────────────────────────────────────────
 
 interface CreatorPost {
   id: string;
@@ -59,9 +59,9 @@ interface ConnectedSocial { provider: string; handle?: string }
 
 interface Props { post: FeedPost; onClose: () => void }
 
-// -- Helpers --------------------------------------------------------------------
+// ── Helpers ────────────────────────────────────────────────────────────────────
 
-function relTime(iso: string: string) {
+function relTime(iso: string): string {
   const s = (Date.now() - new Date(iso).getTime()) / 1000;
   if (s < 60)    return `${Math.floor(s)}s`;
   if (s < 3600)  return `${Math.floor(s / 60)}m`;
@@ -69,7 +69,7 @@ function relTime(iso: string: string) {
   return `${Math.floor(s / 86400)}d`;
 }
 
-function SocialBadge() { provider }: { provider: string } {
+function SocialBadge({ provider }: ) { provider: string } {
   const icons: Record<string, React.ReactNode> = {
     instagram: <Instagram size={13} />,
     youtube:   <Youtube   size={13} />,
@@ -94,9 +94,9 @@ function SocialBadge() { provider }: { provider: string } {
   );
 }
 
-// -- Component ------------------------------------------------------------------
+// ── Component ──────────────────────────────────────────────────────────────────
 
-export default function DreamRCreatorPanel() { post, onClose }: Props {
+export default function DreamRCreatorPanel({ post, onClose }: Props) {
   const creator  = post.profiles;
   const panelRef = useRef<HTMLDivElement>(null);
   const [following,    setFollowing]    = useState(false);
@@ -116,8 +116,8 @@ export default function DreamRCreatorPanel() { post, onClose }: Props {
     if (!creator?.handle) return;
     setLoadingPosts(true);
     fetch(`/api/posts?handle=${encodeURIComponent(creator.handle)}&limit=6`)
-      .then(r => r.ok ? r.json() : { posts: [] })
-      .then(d => setCreatorPosts((Array.isArray(d.posts) ? d.posts : Array.isArray(d) ? d : []).slice(0, 6)))
+      .then((r) => r.ok ? r.json() : { posts: [] })
+      .then((d) => setCreatorPosts((Array.isArray(d.posts) ? d.posts : Array.isArray(d) ? d : []).slice(0, 6)))
       .catch(() => setCreatorPosts([]))
       .finally(() => setLoadingPosts(false));
   }, [creator?.handle]);
@@ -125,9 +125,9 @@ export default function DreamRCreatorPanel() { post, onClose }: Props {
   // Fetch connected socials
   useEffect(() => {
     fetch('/api/connectors/status')
-      .then(r => r.ok ? r.json() : [])
+      .then((r) => r.ok ? r.json() : [])
       .then((d: Array<{ provider?: string; connected?: boolean; handle?: string }>) => {
-        setSocials(Array.isArray(d) ? d.filter(c => c.connected && c.provider).map(c => ({ provider: c.provider!, handle: c.handle })) : []);
+        setSocials(Array.isArray(d) ? d.filter((c) => c.connected && c.provider).map((c) => ({ provider: c.provider!, handle: c.handle })) : []);
       })
       .catch(() => setSocials([]));
   }, []);
@@ -172,7 +172,7 @@ export default function DreamRCreatorPanel() { post, onClose }: Props {
           fontFamily: DR.font,
         }}
       >
-        {/* -- Top identity card ------------------------------------------- */}
+        {/* ── Top identity card ─────────────────────────────────────────── */}
         <div style={{ padding: '20px 18px 0' }}>
           {/* Close button */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 14 }}>
@@ -240,7 +240,7 @@ export default function DreamRCreatorPanel() { post, onClose }: Props {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 16 }}>
             <button
               type="button"
-              onClick={() => setFollowing(f => !f)}
+              onClick={() => setFollowing((f) => !f)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 7,
                 padding: '10px 22px', borderRadius: 99, border: 'none',
@@ -271,11 +271,11 @@ export default function DreamRCreatorPanel() { post, onClose }: Props {
             </button>
 
             {/* Connected socials */}
-            {socials.slice(0, 3).map(s => <SocialBadge key={s.provider} provider={s.provider} />)}
+            {socials.slice(0, 3).map((s) => <SocialBadge key={s.provider} provider={s.provider} />)}
           </div>
         </div>
 
-        {/* -- Scrollable body ---------------------------------------------- */}
+        {/* ── Scrollable body ────────────────────────────────────────────── */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '0 18px 80px' }}>
 
           {/* Hashtag chips */}
@@ -285,7 +285,7 @@ export default function DreamRCreatorPanel() { post, onClose }: Props {
                 Themes
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-                {tags.map(tag => (
+                {tags.map((tag) => (
                   <span
                     key={tag}
                     style={{
@@ -310,7 +310,7 @@ export default function DreamRCreatorPanel() { post, onClose }: Props {
 
           {loadingPosts ? (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              {[1, 2, 3, 4].map(i => (
+              {[1, 2, 3, 4].map((i) => (
                 <div key={i} style={{ height: 90, borderRadius: 14, background: DR.bg, boxShadow: nmInset(3) }} />
               ))}
             </div>
@@ -320,7 +320,7 @@ export default function DreamRCreatorPanel() { post, onClose }: Props {
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              {creatorPosts.map(cp => (
+              {creatorPosts.map((cp) => (
                 <div
                   key={cp.id}
                   style={{
@@ -378,7 +378,7 @@ export default function DreamRCreatorPanel() { post, onClose }: Props {
           </div>
         </div>
 
-        {/* -- DreamR brand footer ------------------------------------------ */}
+        {/* ── DreamR brand footer ────────────────────────────────────────── */}
         <div
           style={{
             padding: '12px 18px',

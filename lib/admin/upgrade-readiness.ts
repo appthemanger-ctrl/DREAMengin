@@ -57,9 +57,9 @@ export function summarizeBuildReadiness(
   manifests: readonly DaydreamEnginManifest[] = FEATURE_MANIFESTS,
 ): BuildReadinessSummary {
   const states = computeAllBuildCycleStates(manifests);
-  const totalImplemented = states.reduce(sum: Record<string, unknown>, state: Record<string, unknown> => sum + state.featuresImplemented, 0);
-  const totalPlanned = states.reduce(sum: Record<string, unknown>, state: Record<string, unknown> => sum + state.featurePlanned, 0);
-  const totalMaxFeatures = states.reduce(sum: Record<string, unknown>, state: Record<string, unknown> => sum + state.maxFeatures, 0);
+  const totalImplemented = states.reduce((sum: Record<string, unknown>, state: Record<string, unknown>) => sum + state.featuresImplemented, 0);
+  const totalPlanned = states.reduce((sum: Record<string, unknown>, state: Record<string, unknown>) => sum + state.featurePlanned, 0);
+  const totalMaxFeatures = states.reduce((sum: Record<string, unknown>, state: Record<string, unknown>) => sum + state.maxFeatures, 0);
 
   return {
     states,
@@ -77,7 +77,7 @@ export function selectNextUpgradeTarget(
 ): UpgradeTarget | null {
   const states = computeAllBuildCycleStates(manifests);
   const candidates = manifests
-    .map(manifest: Record<string, unknown>, index: number => ({ manifest, state: states[index] }))
+    .map(manifest: Record<string, unknown>, (index: number ) => ({ manifest, state: states[index] }))
     .filter(({ state }) => state.featurePlanned > 0)
     .map(({ manifest, state }) => {
       const nextFeature = manifest.features.find((feature: Record<string, unknown>) => feature.status === 'planned');
@@ -92,7 +92,7 @@ export function selectNextUpgradeTarget(
       };
     })
     .filter((candidate): candidate is UpgradeTarget => candidate !== null)
-    .sort(left: Record<string, unknown>, right: Record<string, unknown> =>
+    .sort((left: Record<string, unknown>, right: Record<string, unknown>) =>
       (right.state.progressPct - left.state.progressPct) ||
       (right.state.featuresImplemented - left.state.featuresImplemented) ||
       (left.state.featurePlanned - right.state.featurePlanned) ||
@@ -102,7 +102,7 @@ export function selectNextUpgradeTarget(
   return candidates[0] ?? null;
 }
 
-export function buildPatchPlanChecklist(plan: PatchPlan: string[]) {
+export function buildPatchPlanChecklist(plan: PatchPlan): string[] {
   return [
     `Confirm root cause: ${plan.cause}`,
     `Apply smallest safe fix: ${plan.fix}`,
@@ -112,7 +112,7 @@ export function buildPatchPlanChecklist(plan: PatchPlan: string[]) {
   ];
 }
 
-export function describeUpgradeBlockers(setup: SetupCheckSummary: string[]) {
+export function describeUpgradeBlockers(setup: SetupCheckSummary): string[] {
   const blockers: string[] = [];
 
   if (setup.missingRequired.length > 0) {
@@ -190,7 +190,7 @@ export function createUpgradeProposal(
   };
 }
 
-export function createUpgradeReadinessSnapshot(options?:) {
+export function createUpgradeReadinessSnapshot(options?: ){
   manifests?: readonly DaydreamEnginManifest[];
   setup?: SetupCheckSummary;
 }): UpgradeReadinessSnapshot {

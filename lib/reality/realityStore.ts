@@ -26,13 +26,13 @@ import type {
   RealityActivityKind,
 } from './types';
 
-// -- helpers -------------------------------------------------------------------
+// ── helpers ───────────────────────────────────────────────────────────────────
 
-function buildChannelId(realityId: string: string) {
+function buildChannelId(realityId: string): string {
   return `reality:${realityId}`;
 }
 
-// -- Reality CRUD --------------------------------------------------------------
+// ── Reality CRUD ──────────────────────────────────────────────────────────────
 
 /** Load a single Reality by ID. Returns null if not found. */
 export async function getRealityById(
@@ -127,7 +127,7 @@ export async function touchReality(
     .eq('id', realityId);
 }
 
-// -- Membership ----------------------------------------------------------------
+// ── Membership ────────────────────────────────────────────────────────────────
 
 /** Join a Reality. Upserts the membership row (idempotent). */
 export async function joinReality(
@@ -187,7 +187,7 @@ export async function listMembers(
   }));
 }
 
-// -- Snapshots -----------------------------------------------------------------
+// ── Snapshots ─────────────────────────────────────────────────────────────────
 
 /**
  * Save a Reality state snapshot.
@@ -247,7 +247,7 @@ export async function loadLatestSnapshot(
   };
 }
 
-// -- Activity log --------------------------------------------------------------
+// ── Activity log ──────────────────────────────────────────────────────────────
 
 /** Append an activity entry to the Reality's timeline. */
 export async function appendActivity(
@@ -302,9 +302,9 @@ export async function loadActivity(
   }));
 }
 
-// -- Row mapper ----------------------------------------------------------------
+// ── Row mapper ────────────────────────────────────────────────────────────────
 
-function rowToReality(row: Record<string, unknown>: Reality) {
+function rowToReality(row: Record<string, unknown>): Reality {
   return {
     id: row['id'] as string,
     name: row['name'] as string,

@@ -34,7 +34,7 @@ type Project = {
 };
 
 
-export default async function LabProjectPage() { params }: LabProjectPageProps {
+export default async function LabProjectPage({ params }: LabProjectPageProps) {
   await connection();
   const { id } = await params;
   const supabase = await createServerClient();

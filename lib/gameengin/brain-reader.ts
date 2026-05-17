@@ -71,12 +71,12 @@ export interface ProgressionModel {
   content_cadence: string;
 }
 
-export function readGenreDNA(genre: string: GenreDNA) {
+export function readGenreDNA(genre: string): GenreDNA {
   return readJSON<GenreDNA>(path.join(BRAIN_ROOT, 'genre-dna', `${genre}.json`));
 }
 
 /** Returns every genre slug present in the brain (excluding `template`). */
-export function listGenres(: string[]) {
+export function listGenres(): string[] {
   const dir = path.join(BRAIN_ROOT, 'genre-dna');
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir)
@@ -86,7 +86,7 @@ export function listGenres(: string[]) {
     .sort();
 }
 
-export function readProgressionModel(genre: string: ProgressionModel | null) {
+export function readProgressionModel(genre: string): ProgressionModel | null {
   const dna = readGenreDNA(genre);
   return dna.progression_model ?? null;
 }
@@ -101,13 +101,13 @@ export interface MechanicEntry {
   fun_heuristics?: Record<string, number>;
 }
 
-export function readMechanic(category: string, name: string: MechanicEntry) {
+export function readMechanic(category: string, name: string): MechanicEntry {
   return readJSON<MechanicEntry>(
     path.join(BRAIN_ROOT, 'mechanic-library', category, `${name}.json`),
   );
 }
 
-export function listMechanics(category?: string: MechanicEntry[]) {
+export function listMechanics(category?: string): MechanicEntry[] {
   const root = path.join(BRAIN_ROOT, 'mechanic-library');
   const cats = category ? [category] : fs.readdirSync(root).filter((c: Record<string, unknown>) => {
     return fs.statSync(path.join(root, c)).isDirectory();
@@ -134,15 +134,15 @@ export interface StructuralMechanic extends MechanicEntry {
   applies_to_structures: StructureType[];
 }
 
-export function listStructuralMechanics(: StructuralMechanic[]) {
+export function listStructuralMechanics(): StructuralMechanic[] {
   return listMechanics('structural') as StructuralMechanic[];
 }
 
-export function readInspiration(slug: string: Record<string, unknown>) {
+export function readInspiration(slug: string): Record<string, unknown> {
   return readJSON(path.join(BRAIN_ROOT, 'inspiration-corpus', `${slug}.json`));
 }
 
-export function readPrinciple(slug: string: string) {
+export function readPrinciple(slug: string): string {
   return fs.readFileSync(path.join(BRAIN_ROOT, 'principles', `${slug}.md`), 'utf-8');
 }
 
@@ -150,7 +150,7 @@ export function readPrinciple(slug: string: string) {
  * Deterministic mechanic-combo signature hash (spec §4.4).
  * `genre + sorted(mechanic ids)` joined by `+` then sha256-prefixed.
  */
-export function signatureHash(genre: string, mechanicIds: string[]: string) {
+export function signatureHash(genre: string, mechanicIds: string[]): string {
   const sorted = [...mechanicIds].map((m: Record<string, unknown>) => m.trim().toLowerCase()).sort();
   const payload = [genre.trim().toLowerCase(), ...sorted].join('+');
   const digest = createHash('sha256').update(payload).digest('hex');
@@ -171,14 +171,14 @@ export interface OriginalityRegistry {
   signatures: OriginalitySignature[];
 }
 
-export function readOriginalityRegistry(: OriginalityRegistry) {
+export function readOriginalityRegistry(): OriginalityRegistry {
   return readJSON<OriginalityRegistry>(
     path.join(BRAIN_ROOT, 'originality-registry', 'signatures.json'),
   );
 }
 
 /** Spec §4.4: returns true when the combo is novel enough to register. */
-export function isOriginal(hash: string, minNoveltyScore = 0.3: boolean) {
+export function isOriginal(hash: string, minNoveltyScore = 0.3): boolean {
   const reg = readOriginalityRegistry();
   const existing = reg.signatures.find((s: Record<string, unknown>) => s.hash === hash);
   if (!existing) return true;
@@ -186,7 +186,7 @@ export function isOriginal(hash: string, minNoveltyScore = 0.3: boolean) {
 }
 
 /** Spec §2.3 — Prophet logging research session (JSON, not the bare MD example in spec). */
-export function logRDSession(agent: string, topic: string, findings: unknown: string) {
+export function logRDSession(agent: string, topic: string, findings: unknown): string {
   const now = new Date();
   const date = now.toISOString().slice(0, 10);
   const stamp = now.toISOString().replace(/[:.]/g, '-');
@@ -218,18 +218,18 @@ export function logRDSession(agent: string, topic: string, findings: unknown: st
 
 const CARTRIDGES_ROOT = path.join(process.cwd(), 'public', 'cartridges');
 
-function nowStamp(:) { date: string; stamp: string; iso: string } {
+function nowStamp(): { date: string; stamp: string; iso: string } {
   const d = new Date();
   const iso = d.toISOString();
   return { date: iso.slice(0, 10), stamp: iso.replace(/[:.]/g, '-'), iso };
 }
 
-function ensureDir(p: string: void) {
+function ensureDir(p: string): void {
   fs.mkdirSync(p, { recursive: true });
 }
 
 /** Lists every cartridge id present under `public/cartridges/` (must contain MANIFEST.json). */
-export function listCartridges(: string[]) {
+export function listCartridges(): string[] {
   if (!fs.existsSync(CARTRIDGES_ROOT)) return [];
   return fs
     .readdirSync(CARTRIDGES_ROOT)
@@ -252,7 +252,7 @@ export interface TechniqueEntry {
   references?: string[];
 }
 
-export function listTechniques(category?: string: TechniqueEntry[]) {
+export function listTechniques(category?: string): TechniqueEntry[] {
   const root = path.join(BRAIN_ROOT, 'technique-library');
   if (!fs.existsSync(root)) return [];
   const cats = category
@@ -279,7 +279,7 @@ export interface MaterialRecipe {
   use_cases?: string[];
 }
 
-export function listMaterialRecipes(: MaterialRecipe[]) {
+export function listMaterialRecipes(): MaterialRecipe[] {
   const dir = path.join(BRAIN_ROOT, 'material-recipes');
   if (!fs.existsSync(dir)) return [];
   return fs
@@ -288,7 +288,7 @@ export function listMaterialRecipes(: MaterialRecipe[]) {
     .map((f: Record<string, unknown>) => readJSON<MaterialRecipe>(path.join(dir, f)));
 }
 
-export function listCompositionPrinciples(: Array<Record<string, unknown>>) {
+export function listCompositionPrinciples(): Array<Record<string, unknown>> {
   const dir = path.join(BRAIN_ROOT, 'composition-principles');
   if (!fs.existsSync(dir)) return [];
   return fs
@@ -307,7 +307,7 @@ export interface AssetRegistryEntry {
   generated_at: string;
 }
 
-export function recordAssetGeneration(entry: Omit<AssetRegistryEntry, 'generated_at'>: string) {
+export function recordAssetGeneration(entry: Omit<AssetRegistryEntry, 'generated_at'>): string {
   const { date, stamp, iso } = nowStamp();
   const dir = path.join(BRAIN_ROOT, 'asset-registry');
   ensureDir(dir);
@@ -329,7 +329,7 @@ export interface CharacterVoice {
   examples: string[];
 }
 
-export function readCharacterVoice(cartridgeId: string: CharacterVoice | null) {
+export function readCharacterVoice(cartridgeId: string): CharacterVoice | null {
   const filePath = path.join(BRAIN_ROOT, 'character-voices', `${cartridgeId}.json`);
   if (!fs.existsSync(filePath)) return null;
   return readJSON<CharacterVoice>(filePath);
@@ -344,13 +344,13 @@ export interface EmotionalTone {
   example_lines: string[];
 }
 
-export function readEmotionalTone(tone: string: EmotionalTone | null) {
+export function readEmotionalTone(tone: string): EmotionalTone | null {
   const filePath = path.join(BRAIN_ROOT, 'emotional-tones', `${tone}.json`);
   if (!fs.existsSync(filePath)) return null;
   return readJSON<EmotionalTone>(filePath);
 }
 
-export function listEmotionalTones(: EmotionalTone[]) {
+export function listEmotionalTones(): EmotionalTone[] {
   const dir = path.join(BRAIN_ROOT, 'emotional-tones');
   if (!fs.existsSync(dir)) return [];
   return fs
@@ -359,7 +359,7 @@ export function listEmotionalTones(: EmotionalTone[]) {
     .map((f: Record<string, unknown>) => readJSON<EmotionalTone>(path.join(dir, f)));
 }
 
-export function listDialoguePatterns(: Array<Record<string, unknown>>) {
+export function listDialoguePatterns(): Array<Record<string, unknown>> {
   const dir = path.join(BRAIN_ROOT, 'dialogue-patterns');
   if (!fs.existsSync(dir)) return [];
   return fs
@@ -376,7 +376,7 @@ export interface NarrativePacing {
   rules: string[];
 }
 
-export function readNarrativePacing(: NarrativePacing) {
+export function readNarrativePacing(): NarrativePacing {
   return readJSON<NarrativePacing>(path.join(BRAIN_ROOT, 'narrative-pacing', 'default.json'));
 }
 
@@ -393,7 +393,7 @@ export interface BuildHistoryEntry {
   built_at: string;
 }
 
-export function recordBuild(entry: Omit<BuildHistoryEntry, 'built_at'>: string) {
+export function recordBuild(entry: Omit<BuildHistoryEntry, 'built_at'>): string {
   const { date, stamp, iso } = nowStamp();
   const dir = path.join(BRAIN_ROOT, 'build-history');
   ensureDir(dir);
@@ -420,7 +420,7 @@ export interface WorkQueueEntry {
   assignments: AssignmentLogEntry[];
 }
 
-export function recordAssignments(entries: AssignmentLogEntry[], cartridgesSurveyed: string[]: string) {
+export function recordAssignments(entries: AssignmentLogEntry[], cartridgesSurveyed: string[]): string {
   const { date, stamp, iso } = nowStamp();
   const dir = path.join(BRAIN_ROOT, 'work-queue');
   ensureDir(dir);
@@ -438,7 +438,7 @@ export function recordAssignments(entries: AssignmentLogEntry[], cartridgesSurve
  * Returns the most recent ISO timestamp at which `agent` touched `cartridgeId`,
  * by scanning `rd-sessions/`. Returns `null` if never touched.
  */
-export function getLastTouched(cartridgeId: string, agent: AgentName: string | null) {
+export function getLastTouched(cartridgeId: string, agent: AgentName): string | null {
   const dir = path.join(BRAIN_ROOT, 'rd-sessions');
   if (!fs.existsSync(dir)) return null;
   const files = fs.readdirSync(dir).filter((f: Record<string, unknown>) => f.endsWith('.json'));
@@ -468,7 +468,7 @@ export interface UpgradePrioritizationRules {
   cooldown_days_per_dimension: Record<string, number>;
 }
 
-export function readUpgradeRules(: UpgradePrioritizationRules) {
+export function readUpgradeRules(): UpgradePrioritizationRules {
   return readJSON<UpgradePrioritizationRules>(
     path.join(BRAIN_ROOT, 'upgrade-history', 'prioritization-rules.json'),
   );
@@ -483,7 +483,7 @@ export interface UpgradeHistoryEntry {
   generated_at: string;
 }
 
-export function recordUpgrade(entry: Omit<UpgradeHistoryEntry, 'generated_at'>: string) {
+export function recordUpgrade(entry: Omit<UpgradeHistoryEntry, 'generated_at'>): string {
   const { date, stamp, iso } = nowStamp();
   const dir = path.join(BRAIN_ROOT, 'upgrade-history', entry.cartridge_id);
   ensureDir(dir);
@@ -511,7 +511,7 @@ export interface ActiveProjects {
 
 const ACTIVE_PROJECTS_PATH = path.join(BRAIN_ROOT, 'active-projects.json');
 
-export function readActiveProjects(: ActiveProjects) {
+export function readActiveProjects(): ActiveProjects {
   if (!fs.existsSync(ACTIVE_PROJECTS_PATH)) {
     return { max_slots: 2, slots: [] };
   }
@@ -530,7 +530,7 @@ export function readActiveProjects(: ActiveProjects) {
  * Throws on violation; the caller (Maestro / operator UI) decides how to
  * surface the error.
  */
-export function setActiveProjects(next: ActiveProjects: void) {
+export function setActiveProjects(next: ActiveProjects): void {
   const cap = next.max_slots ?? 2;
   if (next.slots.length > cap) {
     throw new Error(`active-projects: ${next.slots.length} slots exceeds Two-Project cap of ${cap}`);
@@ -548,7 +548,7 @@ export function setActiveProjects(next: ActiveProjects: void) {
   fs.writeFileSync(ACTIVE_PROJECTS_PATH, JSON.stringify(next, null, 2));
 }
 
-export function isActiveCartridge(cartridgeId: string: boolean) {
+export function isActiveCartridge(cartridgeId: string): boolean {
   return readActiveProjects().slots.some((s: Record<string, unknown>) => s.cartridge_id === cartridgeId);
 }
 
@@ -573,7 +573,7 @@ export interface CrashReportEntry extends CrashReportInput {
  */
 export const CRASH_REPORT_MAX_BYTES = 16 * 1024;
 
-export function recordCrashReport(input: CrashReportInput: string) {
+export function recordCrashReport(input: CrashReportInput): string {
   if (!input || typeof input !== 'object') {
     throw new Error('crash-report: invalid payload');
   }
@@ -599,7 +599,7 @@ export function recordCrashReport(input: CrashReportInput: string) {
   return filePath;
 }
 
-export function listCrashReports(cartridgeId: string: CrashReportEntry[]) {
+export function listCrashReports(cartridgeId: string): CrashReportEntry[] {
   const dir = path.join(BRAIN_ROOT, 'crash-reports', cartridgeId);
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir)
@@ -626,7 +626,7 @@ const CONCEPT_PATTERN_DIRS: Record<ConceptPatternCategory, string> = {
   'scope-formula': 'scope-formulas',
 };
 
-export function listConceptPatterns(category?: ConceptPatternCategory: ConceptPattern[]) {
+export function listConceptPatterns(category?: ConceptPatternCategory): ConceptPattern[] {
   const root = path.join(BRAIN_ROOT, 'concept-patterns');
   if (!fs.existsSync(root)) return [];
   const cats: ConceptPatternCategory[] = category
@@ -677,7 +677,7 @@ export const VISION_STATEMENT_MAX_BYTES = 8 * 1024;
 /** One studio-day cap from the directive. */
 export const VISION_BUDGET_MAX_HOURS = 24;
 
-export function recordVisionStatement(v: VisionStatement: string) {
+export function recordVisionStatement(v: VisionStatement): string {
   if (!v || typeof v !== 'object') throw new Error('vision: invalid payload');
   if (!SLUG_RE.test(v.vision_id ?? '')) throw new Error(`vision: invalid vision_id "${v.vision_id}"`);
   if (!v.title?.trim()) throw new Error('vision: title required');
@@ -713,7 +713,7 @@ export function recordVisionStatement(v: VisionStatement: string) {
   return filePath;
 }
 
-export function listVisionStatements(: VisionStatement[]) {
+export function listVisionStatements(): VisionStatement[] {
   const dir = path.join(BRAIN_ROOT, 'concept-library');
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir)
@@ -722,7 +722,7 @@ export function listVisionStatements(: VisionStatement[]) {
     .map((f: Record<string, unknown>) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf-8')) as VisionStatement);
 }
 
-export function readVisionStatement(visionId: string: VisionStatement | null) {
+export function readVisionStatement(visionId: string): VisionStatement | null {
   if (!SLUG_RE.test(visionId)) return null;
   const filePath = path.join(BRAIN_ROOT, 'concept-library', `${visionId}.json`);
   if (!fs.existsSync(filePath)) return null;
@@ -740,11 +740,11 @@ interface CartridgeManifestRaw {
   [key: string]: unknown;
 }
 
-function manifestPath(cartridgeId: string: string) {
+function manifestPath(cartridgeId: string): string {
   return path.join(CARTRIDGES_ROOT, cartridgeId, 'MANIFEST.json');
 }
 
-function readManifestRaw(cartridgeId: string: CartridgeManifestRaw | null) {
+function readManifestRaw(cartridgeId: string): CartridgeManifestRaw | null {
   const p = manifestPath(cartridgeId);
   if (!fs.existsSync(p)) return null;
   return JSON.parse(fs.readFileSync(p, 'utf-8')) as CartridgeManifestRaw;
@@ -755,13 +755,13 @@ function readManifestRaw(cartridgeId: string: CartridgeManifestRaw | null) {
  * cartridge whose MANIFEST omits the field — every cartridge counts as
  * backlog by default per the directive.
  */
-export function readCartridgeStatus(cartridgeId: string: CartridgeStatus) {
+export function readCartridgeStatus(cartridgeId: string): CartridgeStatus {
   const m = readManifestRaw(cartridgeId);
   const s = m?.status;
   return s && VALID_CARTRIDGE_STATUS.includes(s) ? s : 'improving';
 }
 
-export function setCartridgeStatus(cartridgeId: string, status: CartridgeStatus: void) {
+export function setCartridgeStatus(cartridgeId: string, status: CartridgeStatus): void {
   if (!SLUG_RE.test(cartridgeId)) throw new Error(`cartridge-status: invalid cartridge_id "${cartridgeId}"`);
   if (!VALID_CARTRIDGE_STATUS.includes(status)) {
     throw new Error(`cartridge-status: invalid status "${status}"`);
@@ -772,7 +772,7 @@ export function setCartridgeStatus(cartridgeId: string, status: CartridgeStatus:
   fs.writeFileSync(manifestPath(cartridgeId), JSON.stringify(m, null, 2) + '\n');
 }
 
-export function listCartridgesByStatus(status: CartridgeStatus: string[]) {
+export function listCartridgesByStatus(status: CartridgeStatus): string[] {
   return listCartridges().filter((id: Record<string, unknown>) => readCartridgeStatus(id) === status);
 }
 
@@ -803,14 +803,14 @@ export interface ProgressionState extends ProgressionStateInput {
 
 const PROGRESSION_STATE_DIR = path.join(BRAIN_ROOT, 'progression-state');
 
-function clamp01(n: number: number) {
+function clamp01(n: number): number {
   if (!Number.isFinite(n)) return 0;
   if (n < 0) return 0;
   if (n > 1) return 1;
   return n;
 }
 
-function sanitizeStringArray(input: unknown: string[] | undefined) {
+function sanitizeStringArray(input: unknown): string[] | undefined {
   if (!Array.isArray(input)) return undefined;
   const out: string[] = [];
   for (const v of input) {
@@ -819,7 +819,7 @@ function sanitizeStringArray(input: unknown: string[] | undefined) {
   return out;
 }
 
-export function recordProgressionState(input: ProgressionStateInput: string) {
+export function recordProgressionState(input: ProgressionStateInput): string {
   if (!input || typeof input !== 'object') {
     throw new Error('progression-state: invalid payload');
   }
@@ -884,7 +884,7 @@ export function recordProgressionState(input: ProgressionStateInput: string) {
   return filePath;
 }
 
-export function readProgressionState(cartridgeId: string: ProgressionState | null) {
+export function readProgressionState(cartridgeId: string): ProgressionState | null {
   if (!SLUG_RE.test(cartridgeId)) return null;
   const filePath = path.join(PROGRESSION_STATE_DIR, `${cartridgeId}.json`);
   if (!fs.existsSync(filePath)) return null;

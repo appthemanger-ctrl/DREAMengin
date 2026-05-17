@@ -5,7 +5,7 @@
 
 import React, { Component, useEffect, useRef, useState } from 'react';
 
-// -- Error Boundary ---------------------------------------------------------
+// ── Error Boundary ─────────────────────────────────────────────────────────
 interface EBState { hasError: boolean; }
 class DreamErrorBoundary extends Component<{ children: React.ReactNode; title: string }, EBState> {
   constructor(props: { children: React.ReactNode; title: string }) {
@@ -41,8 +41,8 @@ class DreamErrorBoundary extends Component<{ children: React.ReactNode; title: s
   }
 }
 
-// -- Skeleton rows ----------------------------------------------------------
-function SkeletonRow() { width = '100%' }: { width?: string } {
+// ── Skeleton rows ──────────────────────────────────────────────────────────
+function SkeletonRow({ width = '100%' }: ) { width?: string } {
   return (
     <div style={{
       height: 12, borderRadius: 6, background: 'rgba(160,195,240,0.25)',
@@ -51,7 +51,7 @@ function SkeletonRow() { width = '100%' }: { width?: string } {
   );
 }
 
-// -- DreamShell props -------------------------------------------------------
+// ── DreamShell props ───────────────────────────────────────────────────────
 export type DreamDataState = 'loading' | 'ready' | 'error' | 'reconnect_required';
 
 export interface DreamShellProps {
@@ -81,7 +81,7 @@ export interface DreamShellProps {
   style?: React.CSSProperties;
 }
 
-export default function DreamShell() {
+export default function DreamShell(){
   widgetId,
   title,
   icon,
@@ -101,7 +101,7 @@ export default function DreamShell() {
 
   useEffect(() => {
     if (!menuOpen) return;
-    function handleClick(e: MouseEvent) {
+    function handleClick(e: MouseEvent ){
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuOpen(false);
       }
@@ -116,7 +116,7 @@ export default function DreamShell() {
       className={`de-widget dream-shell-content${className ? ` ${className}` : ''}`}
       style={{ position: 'relative', containerType: 'inline-size', ...style }}
     >
-      {/* -- Header -- */}
+      {/* ── Header ── */}
       <div className="de-widget-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 18 }}>{icon}</span>
@@ -140,7 +140,7 @@ export default function DreamShell() {
             type="button"
             aria-label="Dream options"
             aria-expanded={menuOpen}
-            onClick={() => setMenuOpen(v: number => !v)}
+            onClick={() => setMenuOpen((v: number ) => !v)}
             style={{
               width: 28, height: 28, borderRadius: 8,
               border: '1px solid var(--de-border)',
@@ -188,7 +188,7 @@ export default function DreamShell() {
         </div>
       </div>
 
-      {/* -- Body -- */}
+      {/* ── Body ── */}
       <div
         className="de-widget-body"
         style={{ minHeight: minContentHeight, position: 'relative' }}

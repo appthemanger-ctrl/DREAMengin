@@ -52,7 +52,7 @@ interface Mech {
 }
 interface Bullet { x: number; y: number; vx: number; dmg: number; ttl: number; from: 'p' | 'e'; col: string; }
 
-export default function EnginFracture() {
+export default function EnginFracture( ){
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [build, setBuild] = useState<Build>({ chassis: 'lance', arm: 'pulse', leg: 'jet', faction: 'kindling' });
@@ -162,7 +162,7 @@ export default function EnginFracture() {
             if (b.from === 'p') scoreRef.current += b.dmg;
           }
         }
-        bulletsRef.current = bulletsRef.current.filter(b: Record<string, unknown> => b.ttl > 0);
+        bulletsRef.current = bulletsRef.current.filter((b: Record<string, unknown>) => b.ttl > 0);
 
         // End conditions
         if (p.hp <= 0) setPhase('defeat');
@@ -172,7 +172,7 @@ export default function EnginFracture() {
         }
       }
 
-      // -- Render -----------------------------------------------------------
+      // ── Render ───────────────────────────────────────────────────────────
       // Saturation grid floor
       ctx.fillStyle = '#0a0d1c'; ctx.fillRect(0, 0, W, H);
       const grad = ctx.createLinearGradient(0, GROUND, 0, H);
@@ -269,7 +269,7 @@ export default function EnginFracture() {
   );
 }
 
-function Picker() { label, options, value, onChange }: {
+function Picker({ label, options, value, onChange }: ) {
   label: string;
   options: Array<{ id: string; label: string; info: string }>;
   value: string;

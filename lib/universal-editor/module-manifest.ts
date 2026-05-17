@@ -5,11 +5,11 @@
  * Compatible with the existing universalEditor.ts in lib/.
  */
 
-// --- Runtime IDs --------------------------------------------------------------
+// ─── Runtime IDs ──────────────────────────────────────────────────────────────
 
 export type RuntimeId = 'HomeDream' | 'DreamSpace' | 'Daydream' | 'Engin';
 
-// --- UI Hints -----------------------------------------------------------------
+// ─── UI Hints ─────────────────────────────────────────────────────────────────
 
 export interface UIHints {
   minWidth?:     number;
@@ -19,7 +19,7 @@ export interface UIHints {
   [key: string]: unknown;
 }
 
-// --- Module Manifest ----------------------------------------------------------
+// ─── Module Manifest ──────────────────────────────────────────────────────────
 
 export interface ModuleManifest {
   /** Unique module identifier. */
@@ -36,7 +36,7 @@ export interface ModuleManifest {
   uiHints?: UIHints;
 }
 
-// --- Factory ------------------------------------------------------------------
+// ─── Factory ──────────────────────────────────────────────────────────────────
 
 /**
  * createManifest(overrides)
@@ -55,10 +55,10 @@ export function createManifest(
   };
 }
 
-// --- Validation helpers -------------------------------------------------------
+// ─── Validation helpers ───────────────────────────────────────────────────────
 
 /** Returns true when the manifest is valid (has id, type, at least one compat runtime). */
-export function isValidManifest(m: unknown: m is ModuleManifest) {
+export function isValidManifest(m: unknown): m is ModuleManifest {
   if (!m || typeof m !== 'object') return false;
   const obj = m as Record<string, unknown>;
   return (
@@ -70,6 +70,6 @@ export function isValidManifest(m: unknown: m is ModuleManifest) {
 }
 
 /** Check whether a manifest can be transferred to targetRuntime. */
-export function canTransferTo(manifest: ModuleManifest, target: RuntimeId: boolean) {
+export function canTransferTo(manifest: ModuleManifest, target: RuntimeId): boolean {
   return manifest.compatibleRuntimes.includes(target);
 }

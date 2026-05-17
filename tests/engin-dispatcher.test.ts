@@ -54,7 +54,7 @@ import { EnginDispatcher } from '@/lib/runtime/EnginDispatcher';
 
 const root = process.cwd();
 
-// --- SAB layout ---------------------------------------------------------------
+// ─── SAB layout ───────────────────────────────────────────────────────────────
 
 describe('EnginMemory — SAB layout constants', () => {
   it('ENTITY_COUNT is 10 000', () => {
@@ -123,7 +123,7 @@ describe('EnginMemory — SAB layout constants', () => {
   });
 });
 
-// --- SAB factory -------------------------------------------------------------
+// ─── SAB factory ─────────────────────────────────────────────────────────────
 
 describe('createEnginSAB', () => {
   it('creates a SharedArrayBuffer of exactly SAB_BYTES', () => {
@@ -145,7 +145,7 @@ describe('createEnginSAB', () => {
   });
 });
 
-// --- Typed-array view helpers -------------------------------------------------
+// ─── Typed-array view helpers ─────────────────────────────────────────────────
 
 describe('SAB view helpers', () => {
   it('f32Channel returns Float32Array of length ENTITY_COUNT', () => {
@@ -244,7 +244,7 @@ describe('SAB view helpers', () => {
   });
 });
 
-// --- Workgroup partitioning ---------------------------------------------------
+// ─── Workgroup partitioning ───────────────────────────────────────────────────
 
 describe('buildWorkgroups', () => {
   it('throws for workerCount < 1', () => {
@@ -302,7 +302,7 @@ describe('buildWorkgroups', () => {
   });
 });
 
-// --- Bounds guard -------------------------------------------------------------
+// ─── Bounds guard ─────────────────────────────────────────────────────────────
 
 describe('isIndexInBounds', () => {
   const wg = { workerIndex: 1, startIndex: 2500, endIndex: 5000 };
@@ -333,7 +333,7 @@ describe('isIndexInBounds', () => {
   });
 });
 
-// --- EnginDispatcher singleton ------------------------------------------------
+// ─── EnginDispatcher singleton ────────────────────────────────────────────────
 
 describe('EnginDispatcher singleton', () => {
   beforeEach(() => {
@@ -405,7 +405,7 @@ describe('EnginDispatcher singleton', () => {
   });
 });
 
-// --- Dual-Runtime Seam — DreamDM Bar y-offset --------------------------------
+// ─── Dual-Runtime Seam — DreamDM Bar y-offset ────────────────────────────────
 
 describe('EnginDispatcher — Dual-Runtime Seam (DreamDM Bar y-offset)', () => {
   afterEach(() => {
@@ -479,7 +479,7 @@ describe('EnginDispatcher — Dual-Runtime Seam (DreamDM Bar y-offset)', () => {
   });
 });
 
-// --- Seam control — updateSeamOffset / locked / axis -------------------------
+// ─── Seam control — updateSeamOffset / locked / axis ─────────────────────────
 
 describe('EnginDispatcher — Seam Control (updateSeamOffset / locked / axis)', () => {
   afterEach(() => {
@@ -617,7 +617,7 @@ describe('EnginDispatcher — Seam Control (updateSeamOffset / locked / axis)', 
   });
 });
 
-// --- Elite-Runtime Telemetry --------------------------------------------------
+// ─── Elite-Runtime Telemetry ──────────────────────────────────────────────────
 
 describe('EnginDispatcher — Elite-Runtime Telemetry', () => {
   afterEach(() => {
@@ -645,7 +645,7 @@ describe('EnginDispatcher — Elite-Runtime Telemetry', () => {
   });
 });
 
-// --- Worker source-level contract --------------------------------------------
+// ─── Worker source-level contract ────────────────────────────────────────────
 
 describe('engin-shader.worker.ts — source contract', () => {
   const workerSrc = readFileSync(
@@ -726,7 +726,7 @@ describe('engin-shader.worker.ts — source contract', () => {
   });
 });
 
-// --- IDARi/TheBoogieMan audit integrity ---------------------------------------
+// ─── IDARi/TheBoogieMan audit integrity ───────────────────────────────────────
 
 describe('Audit — no worker writes outside assigned range', () => {
   it('workgroups from buildWorkgroups have non-overlapping ranges', () => {

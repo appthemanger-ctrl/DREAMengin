@@ -22,7 +22,7 @@ import {
   type CellLanguage,
 } from '@/lib/code/drEamsCodeAssist';
 
-// -- VOCAB_TERMS sanity check ---------------------------------------------------
+// ── VOCAB_TERMS sanity check ───────────────────────────────────────────────────
 
 describe('VOCAB_TERMS', () => {
   it('contains expected core terms', () => {
@@ -40,7 +40,7 @@ describe('VOCAB_TERMS', () => {
   });
 });
 
-// -- CODE_VOCABULARY shape -----------------------------------------------------
+// ── CODE_VOCABULARY shape ─────────────────────────────────────────────────────
 
 describe('CODE_VOCABULARY', () => {
   it('every entry has term, category, definition and example', () => {
@@ -56,7 +56,7 @@ describe('CODE_VOCABULARY', () => {
   });
 
   it('covers all required categories', () => {
-    const cats = new Set(CODE_VOCABULARY.map(v => v.category));
+    const cats = new Set(CODE_VOCABULARY.map((v) => v.category));
     expect(cats.has('general')).toBe(true);
     expect(cats.has('oop')).toBe(true);
     expect(cats.has('ds')).toBe(true);
@@ -70,7 +70,7 @@ describe('CODE_VOCABULARY', () => {
   });
 });
 
-// -- matchCodeVocabulary --------------------------------------------------------
+// ── matchCodeVocabulary ────────────────────────────────────────────────────────
 
 describe('matchCodeVocabulary', () => {
   it('returns empty array for empty query', () => {
@@ -81,12 +81,12 @@ describe('matchCodeVocabulary', () => {
   it('matches a single known term', () => {
     const results = matchCodeVocabulary('what is a variable?');
     expect(results.length).toBeGreaterThan(0);
-    expect(results.some(r => r.term === 'variable')).toBe(true);
+    expect(results.some((r) => r.term === 'variable')).toBe(true);
   });
 
   it('matches multiple terms in one query', () => {
     const results = matchCodeVocabulary('explain recursion and dynamic programming');
-    const terms = results.map(r => r.term);
+    const terms = results.map((r) => r.term);
     expect(terms).toContain('recursion');
     expect(terms).toContain('dynamic programming');
   });
@@ -108,7 +108,7 @@ describe('matchCodeVocabulary', () => {
   });
 });
 
-// -- detectLanguageFromCode ----------------------------------------------------
+// ── detectLanguageFromCode ────────────────────────────────────────────────────
 
 describe('detectLanguageFromCode', () => {
   it('returns python for blank input', () => {
@@ -144,7 +144,7 @@ describe('detectLanguageFromCode', () => {
   });
 });
 
-// -- classifyQuery -------------------------------------------------------------
+// ── classifyQuery ─────────────────────────────────────────────────────────────
 
 describe('classifyQuery', () => {
   it('returns general for empty query', () => {
@@ -181,7 +181,7 @@ describe('classifyQuery', () => {
   });
 });
 
-// -- detectNLCommand -----------------------------------------------------------
+// ── detectNLCommand ───────────────────────────────────────────────────────────
 
 describe('detectNLCommand', () => {
   it('returns null for unrecognised input', () => {
@@ -228,7 +228,7 @@ describe('detectNLCommand', () => {
   });
 });
 
-// -- generateCodeFromCommand ---------------------------------------------------
+// ── generateCodeFromCommand ───────────────────────────────────────────────────
 
 describe('generateCodeFromCommand', () => {
   it('generates Python class scaffold', () => {
@@ -278,7 +278,7 @@ describe('generateCodeFromCommand', () => {
   });
 });
 
-// -- parseCodeResponse ---------------------------------------------------------
+// ── parseCodeResponse ─────────────────────────────────────────────────────────
 
 describe('parseCodeResponse', () => {
   it('parses response with no code blocks', () => {
@@ -320,7 +320,7 @@ describe('parseCodeResponse', () => {
   });
 });
 
-// -- buildCodeSystemPrompt -----------------------------------------------------
+// ── buildCodeSystemPrompt ─────────────────────────────────────────────────────
 
 describe('buildCodeSystemPrompt', () => {
   it('includes language in prompt', () => {

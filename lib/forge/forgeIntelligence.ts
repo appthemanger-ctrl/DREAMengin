@@ -22,7 +22,7 @@ import {
   type EnginEntry,
 } from './forgeRegistry';
 
-// -- Activity History ----------------------------------------------------------
+// ── Activity History ──────────────────────────────────────────────────────────
 
 export interface ForgeHistoryEntry {
   /** Engine id */
@@ -43,7 +43,7 @@ const MAX_HISTORY_ENTRIES = 100;
  * Note: recordForgeActivity in forgeRegistry.ts also writes to this key inline
  * to avoid circular imports.  This function is the canonical API for direct writes.
  */
-export function appendForgeHistory(enginId: string, label: string: void) {
+export function appendForgeHistory(enginId: string, label: string): void {
   if (typeof window === 'undefined') return;
   try {
     const history = readForgeHistory();
@@ -59,7 +59,7 @@ export function appendForgeHistory(enginId: string, label: string: void) {
 /**
  * Read the full activity history log.
  */
-export function readForgeHistory(: ForgeHistoryEntry[]) {
+export function readForgeHistory(): ForgeHistoryEntry[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(HISTORY_STORAGE_KEY);
@@ -73,18 +73,18 @@ export function readForgeHistory(: ForgeHistoryEntry[]) {
 /**
  * Clear all history (for testing / reset).
  */
-export function clearForgeHistory(: void) {
+export function clearForgeHistory(): void {
   if (typeof window === 'undefined') return;
   try { localStorage.removeItem(HISTORY_STORAGE_KEY); } catch { /* silent */ }
 }
 
-// -- Pattern Detection ---------------------------------------------------------
+// ── Pattern Detection ─────────────────────────────────────────────────────────
 
 /**
  * Transition map: tracks how often engine A is followed by engine B.
  * Key: "fromId→toId", Value: count
  */
-function buildTransitionMap(history: ForgeHistoryEntry[]: Map<string, number>) {
+function buildTransitionMap(history: ForgeHistoryEntry[]): Map<string, number> {
   const map = new Map<string, number>();
   for (let i = 1; i < history.length; i++) {
     const from = history[i - 1].enginId;
@@ -118,16 +118,16 @@ export function predictNextEngines(
   }
 
   // Sort by frequency, descending
-  candidates.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.count - a.count);
+  candidates.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.count - a.count);
 
-  const totalOutgoing = candidates.reduce(s: Record<string, unknown>, c: Record<string, unknown> => s + c.count, 0);
-  return candidates.slice(0, limit).map(c => ({
+  const totalOutgoing = candidates.reduce((s: Record<string, unknown>, c: Record<string, unknown>) => s + c.count, 0);
+  return candidates.slice(0, limit).map((c) => ({
     engine: c.engine,
     confidence: totalOutgoing > 0 ? c.count / totalOutgoing : 0,
   }));
 }
 
-// -- Contextual Suggestions ----------------------------------------------------
+// ── Contextual Suggestions ────────────────────────────────────────────────────
 
 export interface ForgeSuggestion {
   /** What type of suggestion */
@@ -167,7 +167,7 @@ export function generateSuggestions(
   for (const wf of matchingWorkflows.slice(0, 2)) {
     const nextIdx = wf.engines.indexOf(enginId);
     const nextEngine = nextIdx >= 0 && nextIdx < wf.engines.length - 1
-      ? ENGIN_REGISTRY.find(e => e.id === wf.engines[nextIdx + 1])
+      ? ENGIN_REGISTRY.find((e) => e.id === wf.engines[nextIdx + 1])
       : null;
 
     suggestions.push({
@@ -175,7 +175,7 @@ export function generateSuggestions(
       title: wf.title,
       reason: nextEngine
         ? `Continue to ${nextEngine.name} — ${wf.steps[nextIdx + 1] ?? 'next step'}`
-        : `Start this workflow from ${ENGIN_REGISTRY.find(e => e.id === enginId)?.name ?? enginId}`,
+        : `Start this workflow from ${ENGIN_REGISTRY.find((e) => e.id === enginId)?.name ?? enginId}`,
       accent: wf.accent,
       emoji: wf.emoji,
       href: nextEngine?.daydreamHref,
@@ -190,7 +190,7 @@ export function generateSuggestions(
     suggestions.push({
       type: 'next-engine',
       title: `Open ${engine.name}`,
-      reason: `You often go to ${engine.name} after ${ENGIN_REGISTRY.find(e => e.id === enginId)?.name ?? enginId} (${Math.round(confidence * 100)}% of the time)`,
+      reason: `You often go to ${engine.name} after ${ENGIN_REGISTRY.find((e) => e.id === enginId)?.name ?? enginId} (${Math.round(confidence * 100)}% of the time)`,
       accent: engine.accent,
       emoji: engine.emoji,
       href: engine.daydreamHref,
@@ -232,7 +232,7 @@ export function generateSuggestions(
   return suggestions;
 }
 
-// -- Natural Language Goal Parser ----------------------------------------------
+// ── Natural Language Goal Parser ──────────────────────────────────────────────
 
 /**
  * Keyword-to-engine mapping for natural language goal parsing.
@@ -254,7 +254,7 @@ const ENGINE_KEYWORDS: Record<string, string[]> = {
  * → matches: games, music, create
  * → generates steps based on engine capabilities
  */
-export function parseGoalToWorkflow(goal: string: ForgeWorkflow | null) {
+export function parseGoalToWorkflow(goal: string): ForgeWorkflow | null {
   if (!goal.trim()) return null;
 
   const goalLower = goal.toLowerCase();
@@ -271,12 +271,12 @@ export function parseGoalToWorkflow(goal: string: ForgeWorkflow | null) {
   if (matched.length === 0) return null;
 
   // Sort by relevance score
-  matched.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.score - a.score);
-  const engineIds = matched.map(m => m.id);
+  matched.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.score - a.score);
+  const engineIds = matched.map((m) => m.id);
 
   // Generate steps based on matched engines
-  const steps = engineIds.map(eid => {
-    const engine = ENGIN_REGISTRY.find(e => e.id === eid);
+  const steps = engineIds.map((eid) => {
+    const engine = ENGIN_REGISTRY.find((e) => e.id === eid);
     if (!engine) return '';
     return `Open ${engine.name} → ${generateStepDescription(eid, goalLower)}`;
   }).filter(Boolean);
@@ -289,7 +289,7 @@ export function parseGoalToWorkflow(goal: string: ForgeWorkflow | null) {
     }
   }
 
-  const primaryEngine = ENGIN_REGISTRY.find(e => e.id === engineIds[0]);
+  const primaryEngine = ENGIN_REGISTRY.find((e) => e.id === engineIds[0]);
 
   return {
     id: `goal-${Date.now()}`,
@@ -302,7 +302,7 @@ export function parseGoalToWorkflow(goal: string: ForgeWorkflow | null) {
   };
 }
 
-function generateStepDescription(engineId: string, goal: string: string) {
+function generateStepDescription(engineId: string, goal: string): string {
   switch (engineId) {
     case 'games':
       if (goal.includes('level')) return 'design levels in the world builder';
@@ -333,7 +333,7 @@ function generateStepDescription(engineId: string, goal: string: string) {
   }
 }
 
-// -- Cross-Engine Asset Transfer -----------------------------------------------
+// ── Cross-Engine Asset Transfer ───────────────────────────────────────────────
 
 export interface ForgeTransferEntry {
   /** Unique transfer id */
@@ -393,7 +393,7 @@ export function recordForgeTransfer(
 /**
  * Read all recorded transfers.
  */
-export function readForgeTransfers(: ForgeTransferEntry[]) {
+export function readForgeTransfers(): ForgeTransferEntry[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(TRANSFER_STORAGE_KEY);
@@ -407,24 +407,24 @@ export function readForgeTransfers(: ForgeTransferEntry[]) {
 /**
  * Clear all transfers (for testing / reset).
  */
-export function clearForgeTransfers(: void) {
+export function clearForgeTransfers(): void {
   if (typeof window === 'undefined') return;
   try { localStorage.removeItem(TRANSFER_STORAGE_KEY); } catch { /* silent */ }
 }
 
-// -- User-Created Workflows ----------------------------------------------------
+// ── User-Created Workflows ────────────────────────────────────────────────────
 
 const CUSTOM_WORKFLOWS_KEY = 'de:forge:custom-workflows';
 
 /**
  * Save a user-created workflow.
  */
-export function saveCustomWorkflow(workflow: ForgeWorkflow: void) {
+export function saveCustomWorkflow(workflow: ForgeWorkflow): void {
   if (typeof window === 'undefined') return;
   try {
     const existing = readCustomWorkflows();
     // Replace if same id exists
-    const updated = existing.filter(w => w.id !== workflow.id);
+    const updated = existing.filter((w) => w.id !== workflow.id);
     updated.push(workflow);
     localStorage.setItem(CUSTOM_WORKFLOWS_KEY, JSON.stringify(updated));
   } catch {
@@ -435,7 +435,7 @@ export function saveCustomWorkflow(workflow: ForgeWorkflow: void) {
 /**
  * Read all user-created workflows.
  */
-export function readCustomWorkflows(: ForgeWorkflow[]) {
+export function readCustomWorkflows(): ForgeWorkflow[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(CUSTOM_WORKFLOWS_KEY);
@@ -449,11 +449,11 @@ export function readCustomWorkflows(: ForgeWorkflow[]) {
 /**
  * Delete a user-created workflow by id.
  */
-export function deleteCustomWorkflow(workflowId: string: void) {
+export function deleteCustomWorkflow(workflowId: string): void {
   if (typeof window === 'undefined') return;
   try {
     const existing = readCustomWorkflows();
-    const filtered = existing.filter(w => w.id !== workflowId);
+    const filtered = existing.filter((w) => w.id !== workflowId);
     localStorage.setItem(CUSTOM_WORKFLOWS_KEY, JSON.stringify(filtered));
   } catch {
     // localStorage unavailable — silent
@@ -463,12 +463,12 @@ export function deleteCustomWorkflow(workflowId: string: void) {
 /**
  * Clear all custom workflows (for testing / reset).
  */
-export function clearCustomWorkflows(: void) {
+export function clearCustomWorkflows(): void {
   if (typeof window === 'undefined') return;
   try { localStorage.removeItem(CUSTOM_WORKFLOWS_KEY); } catch { /* silent */ }
 }
 
-// -- Workflow Step Tracking & Failure Recovery ---------------------------------
+// ── Workflow Step Tracking & Failure Recovery ─────────────────────────────────
 
 export interface WorkflowStepStatus {
   workflowId: string;
@@ -491,12 +491,12 @@ const WORKFLOW_RUNS_KEY = 'de:forge:workflow-runs';
 /**
  * Start a new workflow run, initialising all steps to 'pending'.
  */
-export function startWorkflowRun(workflowId: string, stepCount: number: WorkflowRunState) {
+export function startWorkflowRun(workflowId: string, stepCount: number): WorkflowRunState {
   const run: WorkflowRunState = {
     workflowId,
     startedAt: new Date().toISOString(),
     status: 'running',
-    steps: Array.from({ length: stepCount }, _: Record<string, unknown>, i: number => ({
+    steps: Array.from({ length: stepCount }, _: Record<string, unknown>, (i: number ) => ({
       workflowId,
       stepIndex: i,
       status: i === 0 ? 'active' : 'pending',
@@ -537,9 +537,9 @@ export function updateWorkflowStep(
   }
 
   // Check if all steps are done
-  const allDone = run.steps.every(s => s.status === 'complete' || s.status === 'failed');
+  const allDone = run.steps.every((s) => s.status === 'complete' || s.status === 'failed');
   if (allDone) {
-    run.status = run.steps.some(s => s.status === 'failed') ? 'failed' : 'complete';
+    run.status = run.steps.some((s) => s.status === 'failed') ? 'failed' : 'complete';
   }
 
   if (typeof window !== 'undefined') {
@@ -553,7 +553,7 @@ export function updateWorkflowStep(
 /**
  * Read the active workflow run, if any.
  */
-export function getActiveWorkflowRun(: WorkflowRunState | null) {
+export function getActiveWorkflowRun(): WorkflowRunState | null {
   if (typeof window === 'undefined') return null;
   try {
     const raw = localStorage.getItem(WORKFLOW_RUNS_KEY);
@@ -567,7 +567,7 @@ export function getActiveWorkflowRun(: WorkflowRunState | null) {
 /**
  * Clear the active workflow run.
  */
-export function clearWorkflowRun(: void) {
+export function clearWorkflowRun(): void {
   if (typeof window === 'undefined') return;
   try { localStorage.removeItem(WORKFLOW_RUNS_KEY); } catch { /* silent */ }
 }
@@ -581,7 +581,7 @@ export function getFailureRecovery(
 ): ForgeSuggestion[] {
   const suggestions: ForgeSuggestion[] = [];
   const engineId = workflow.engines[failedStep.stepIndex];
-  const engine = ENGIN_REGISTRY.find(e => e.id === engineId);
+  const engine = ENGIN_REGISTRY.find((e) => e.id === engineId);
 
   if (!engine) return suggestions;
 
@@ -597,7 +597,7 @@ export function getFailureRecovery(
 
   // Suggest skipping to next step
   if (failedStep.stepIndex < workflow.steps.length - 1) {
-    const nextEngine = ENGIN_REGISTRY.find(e => e.id === workflow.engines[failedStep.stepIndex + 1]);
+    const nextEngine = ENGIN_REGISTRY.find((e) => e.id === workflow.engines[failedStep.stepIndex + 1]);
     if (nextEngine) {
       suggestions.push({
         type: 'workflow',

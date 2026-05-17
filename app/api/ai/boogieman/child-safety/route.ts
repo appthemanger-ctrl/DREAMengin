@@ -64,7 +64,7 @@ type ChildSafetyScanBody = z.infer<typeof ChildSafetyScanBodySchema>;
 // The Set is returned empty (not null) on error — scan proceeds without hash matching.
 // ============================================================================
 
-async function loadKnownBadHashes(supabase: Awaited<ReturnType<typeof createServerClient>>: Promise<Set<string>>) {
+async function loadKnownBadHashes(supabase: Awaited<ReturnType<typeof createServerClient>>): Promise<Set<string>> {
   try {
     const { data, error } = await (supabase as SupabaseClient)
       .from('child_safety_hash_registry')
@@ -83,7 +83,7 @@ async function loadKnownBadHashes(supabase: Awaited<ReturnType<typeof createServ
 // POST — scan handler
 // ============================================================================
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const requestStart = Date.now();
   const request_id = uuidv4();
 
@@ -129,10 +129,10 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // -- Load known-bad hash set ----------------------------------------------
+  // ── Load known-bad hash set ──────────────────────────────────────────────
   const knownBadHashes = await loadKnownBadHashes(supabase);
 
-  // -- Layer 4: LLM image classification (runs before scanContent) ----------
+  // ── Layer 4: LLM image classification (runs before scanContent) ──────────
   // classifyImage is async so we run it here and pass the result into scanContent.
   let imageClassification: import('@/lib/child-safety/imageClassifier').ImageClassificationResult | undefined;
   if (request.imageBase64) {
@@ -142,7 +142,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // -- Run child safety detector --------------------------------------------
+  // ── Run child safety detector ────────────────────────────────────────────
   const detection = scanContent({
     text: request.text,
     mediaHashes: request.mediaHashes,
@@ -150,7 +150,7 @@ export async function POST(req: NextRequest) {
     imageClassification,
   });
 
-  // -- If clean, return early -----------------------------------------------
+  // ── If clean, return early ───────────────────────────────────────────────
   if (!detection.flagged) {
     return NextResponse.json(
       {
@@ -165,7 +165,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // -- Enforce via BoogieMan -------------------------------------------------
+  // ── Enforce via BoogieMan ─────────────────────────────────────────────────
   const enforcement = boogieEnforce({
     userId: request.reportedUserId,
     ruleCode: detection.rule_code!,
@@ -175,7 +175,7 @@ export async function POST(req: NextRequest) {
     blastRadius: 1,
   });
 
-  // -- Report to NCMEC + write to DB -----------------------------------------
+  // ── Report to NCMEC + write to DB ─────────────────────────────────────────
   const contentHash = request.text
     ? createHash('sha256').update(request.text).digest('hex')
     : undefined;
@@ -212,7 +212,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // -- Write audit log -------------------------------------------------------
+  // ── Write audit log ───────────────────────────────────────────────────────
   await writeAuditLog({
     request_id,
     user_id: user.id,

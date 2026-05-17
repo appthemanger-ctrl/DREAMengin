@@ -20,7 +20,7 @@ const ALL_DREAMS: Array<{ node: Node; label: string; icon: string; tag: string }
   { node: 6,    label: 'Shell',    icon: '✦',  tag: 'Depth · Out'    },
 ];
 
-export default function ViewAllDreamsOverlay() {
+export default function ViewAllDreamsOverlay(){
   onClose,
   onReturnHome,
 }: {
@@ -75,7 +75,7 @@ export default function ViewAllDreamsOverlay() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
-          {ALL_DREAMS.map({ node: target, label: string, icon: Record<string, unknown>, tag } => (
+          {ALL_DREAMS.map(({ node: target, label: string, icon: Record<string, unknown>, tag }) => (
             <button
               key={String(target)}
               type="button"

@@ -18,7 +18,7 @@
  * Naming authority: lib/identity/canonical-names.ts
  */
 
-// -- Dream Window lifecycle ----------------------------------------------------
+// ── Dream Window lifecycle ────────────────────────────────────────────────────
 export type {
   DreamWindowInstance,
   DreamWindowSize,
@@ -46,7 +46,7 @@ export type {
   DreamWindowLayerValidationResult,
 } from './DreamWindowLifecycle';
 
-// -- Connection verbs ----------------------------------------------------------
+// ── Connection verbs ──────────────────────────────────────────────────────────
 export type { ConnectionAction, ConnectionResult } from './connectionVerbs';
 
 export {
@@ -64,7 +64,7 @@ export {
 
 export type { ConnectionVerb } from './connectionVerbs';
 
-// -- Runtime region ------------------------------------------------------------
+// ── Runtime region ────────────────────────────────────────────────────────────
 export type {
   DreamWindowRef,
   SurfaceSpaceState,
@@ -84,7 +84,7 @@ export {
   RUNTIME_REGIONS,
 } from './runtimeRegion';
 
-// -- Engin connection network --------------------------------------------------
+// ── Engin connection network ──────────────────────────────────────────────────
 export type { EnginConnectionPath } from './enginConnectionNetwork';
 
 export {

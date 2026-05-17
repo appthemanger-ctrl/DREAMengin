@@ -57,13 +57,13 @@ export interface ProjectTemplate {
   instrument: InstrumentPreset;
 }
 
-// --- Beat Presets -------------------------------------------------------------
+// ─── Beat Presets ─────────────────────────────────────────────────────────────
 
 const T = true;
 const F = false;
 
 export const BEAT_PRESETS: BeatPreset[] = [
-  // -- Trap ------------------------------------------------------------------
+  // ── Trap ──────────────────────────────────────────────────────────────────
   {
     id: 'trap-808',
     name: 'Trap 808',
@@ -100,7 +100,7 @@ export const BEAT_PRESETS: BeatPreset[] = [
     description: 'South London dark minor key syncopated pattern.',
     inspiredBy: 'Ableton Live / Sample Pack (Splice)',
   },
-  // -- House -----------------------------------------------------------------
+  // ── House ─────────────────────────────────────────────────────────────────
   {
     id: 'house-4x4',
     name: 'House 4×4',
@@ -137,7 +137,7 @@ export const BEAT_PRESETS: BeatPreset[] = [
     description: 'Warm, rolling bassline-ready deep house groove.',
     inspiredBy: 'Logic Pro / Native Instruments Kontakt',
   },
-  // -- Lo-Fi -----------------------------------------------------------------
+  // ── Lo-Fi ─────────────────────────────────────────────────────────────────
   {
     id: 'lofi-chill',
     name: 'Lo-Fi Chill',
@@ -156,7 +156,7 @@ export const BEAT_PRESETS: BeatPreset[] = [
     description: 'Crunchy sampled-vinyl lo-fi hip hop study beat.',
     inspiredBy: 'MPC / Splice Lo-Fi Pack',
   },
-  // -- Reggaeton --------------------------------------------------------------
+  // ── Reggaeton ──────────────────────────────────────────────────────────────
   {
     id: 'reggaeton-dem',
     name: 'Reggaeton Dembow',
@@ -175,7 +175,7 @@ export const BEAT_PRESETS: BeatPreset[] = [
     description: 'Classic dembow rhythm pattern with driving percussion.',
     inspiredBy: 'Pro Tools / Cubase',
   },
-  // -- Afrobeats --------------------------------------------------------------
+  // ── Afrobeats ──────────────────────────────────────────────────────────────
   {
     id: 'afrobeats-naija',
     name: 'Afrobeats Naija',
@@ -194,7 +194,7 @@ export const BEAT_PRESETS: BeatPreset[] = [
     description: 'Nigerian Afrobeats groove with layered percussion accents.',
     inspiredBy: 'Ableton / IK Multimedia',
   },
-  // -- Pop -------------------------------------------------------------------
+  // ── Pop ───────────────────────────────────────────────────────────────────
   {
     id: 'pop-anthem',
     name: 'Pop Anthem',
@@ -213,7 +213,7 @@ export const BEAT_PRESETS: BeatPreset[] = [
     description: 'Radio-ready pop anthem drum machine with punchy lead synth.',
     inspiredBy: 'Logic Pro Smart Tempo / AIVA',
   },
-  // -- Rock ------------------------------------------------------------------
+  // ── Rock ──────────────────────────────────────────────────────────────────
   {
     id: 'rock-drive',
     name: 'Rock Drive',
@@ -232,7 +232,7 @@ export const BEAT_PRESETS: BeatPreset[] = [
     description: 'Driving rock drum feel with power chord rhythm accents.',
     inspiredBy: 'Pro Tools / Cubase Score',
   },
-  // -- Drum & Bass -----------------------------------------------------------
+  // ── Drum & Bass ───────────────────────────────────────────────────────────
   {
     id: 'dnb-neurofunk',
     name: 'Neurofunk',
@@ -251,7 +251,7 @@ export const BEAT_PRESETS: BeatPreset[] = [
     description: 'Neurofunk drum pattern with Amen-style breaks and reese bass.',
     inspiredBy: 'Ableton / iZotope Neutron',
   },
-  // -- R&B -------------------------------------------------------------------
+  // ── R&B ───────────────────────────────────────────────────────────────────
   {
     id: 'rnb-groove',
     name: 'R&B Groove',
@@ -270,7 +270,7 @@ export const BEAT_PRESETS: BeatPreset[] = [
     description: 'Neo-soul inspired R&B groove with pocket feel.',
     inspiredBy: 'Logic Pro / Splice RnB Pack',
   },
-  // -- Techno ----------------------------------------------------------------
+  // ── Techno ────────────────────────────────────────────────────────────────
   {
     id: 'techno-berlin',
     name: 'Berlin Techno',
@@ -291,7 +291,7 @@ export const BEAT_PRESETS: BeatPreset[] = [
   },
 ];
 
-// --- Instrument Presets --------------------------------------------------------
+// ─── Instrument Presets ────────────────────────────────────────────────────────
 
 export const INSTRUMENT_PRESETS: InstrumentPreset[] = [
   {
@@ -386,7 +386,7 @@ export const INSTRUMENT_PRESETS: InstrumentPreset[] = [
   },
 ];
 
-// --- Project Templates ---------------------------------------------------------
+// ─── Project Templates ─────────────────────────────────────────────────────────
 
 export const PROJECT_TEMPLATES: ProjectTemplate[] = [
   {
@@ -408,8 +408,8 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     key: 'C#',
     keyMode: 'minor',
     qualityMode: 'streaming',
-    preset: BEAT_PRESETS.find(p => p.id === 'trap-808')!,
-    instrument: INSTRUMENT_PRESETS.find(p => p.id === 'bass-808')!,
+    preset: BEAT_PRESETS.find((p) => p.id === 'trap-808')!,
+    instrument: INSTRUMENT_PRESETS.find((p) => p.id === 'bass-808')!,
   },
   {
     id: 'house-club',
@@ -419,8 +419,8 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     key: 'F',
     keyMode: 'minor',
     qualityMode: 'studio',
-    preset: BEAT_PRESETS.find(p => p.id === 'house-4x4')!,
-    instrument: INSTRUMENT_PRESETS.find(p => p.id === 'lead-saw')!,
+    preset: BEAT_PRESETS.find((p) => p.id === 'house-4x4')!,
+    instrument: INSTRUMENT_PRESETS.find((p) => p.id === 'lead-saw')!,
   },
   {
     id: 'lofi-session',
@@ -430,8 +430,8 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     key: 'F',
     keyMode: 'major',
     qualityMode: 'streaming',
-    preset: BEAT_PRESETS.find(p => p.id === 'lofi-chill')!,
-    instrument: INSTRUMENT_PRESETS.find(p => p.id === 'keys-rhodes')!,
+    preset: BEAT_PRESETS.find((p) => p.id === 'lofi-chill')!,
+    instrument: INSTRUMENT_PRESETS.find((p) => p.id === 'keys-rhodes')!,
   },
   {
     id: 'pop-radio',
@@ -441,27 +441,27 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     key: 'G',
     keyMode: 'major',
     qualityMode: 'studio',
-    preset: BEAT_PRESETS.find(p => p.id === 'pop-anthem')!,
-    instrument: INSTRUMENT_PRESETS.find(p => p.id === 'lead-saw')!,
+    preset: BEAT_PRESETS.find((p) => p.id === 'pop-anthem')!,
+    instrument: INSTRUMENT_PRESETS.find((p) => p.id === 'lead-saw')!,
   },
 ];
 
-// --- Helpers -------------------------------------------------------------------
+// ─── Helpers ───────────────────────────────────────────────────────────────────
 
-export const GENRE_LIST = [...new Set(BEAT_PRESETS.map(p => p.genre))];
+export const GENRE_LIST = [...new Set(BEAT_PRESETS.map((p) => p.genre))];
 
-export function getPresetsByGenre(genre: string: BeatPreset[]) {
-  return BEAT_PRESETS.filter(p => p.genre === genre);
+export function getPresetsByGenre(genre: string): BeatPreset[] {
+  return BEAT_PRESETS.filter((p) => p.genre === genre);
 }
 
-export function findPreset(id: string: BeatPreset | undefined) {
-  return BEAT_PRESETS.find(p => p.id === id);
+export function findPreset(id: string): BeatPreset | undefined {
+  return BEAT_PRESETS.find((p) => p.id === id);
 }
 
-export function findInstrumentPreset(id: string: InstrumentPreset | undefined) {
-  return INSTRUMENT_PRESETS.find(p => p.id === id);
+export function findInstrumentPreset(id: string): InstrumentPreset | undefined {
+  return INSTRUMENT_PRESETS.find((p) => p.id === id);
 }
 
-export function findProjectTemplate(id: string: ProjectTemplate | undefined) {
-  return PROJECT_TEMPLATES.find(p => p.id === id);
+export function findProjectTemplate(id: string): ProjectTemplate | undefined {
+  return PROJECT_TEMPLATES.find((p) => p.id === id);
 }

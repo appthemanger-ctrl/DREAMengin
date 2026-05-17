@@ -15,7 +15,7 @@ import { boogiePolicyCheck, isOwnerEmail, planWithEams, validateWithIdari } from
 
 
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const requestStart = Date.now();
   const request_id = uuidv4();
 
@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
   });
 
   // Filter to ALLOW and CONFIRM intents
-  const allowedIntents = validatedIntents.filter(_: Record<string, unknown>, i: number => {
+  const allowedIntents = validatedIntents.filter(_: Record<string, unknown>, (i: number ) => {
     const d = boogieResult.per_intent[i];
     return d && (d.decision === 'ALLOW' || d.decision === 'CONFIRM');
   });

@@ -11,7 +11,7 @@ import { ArrowLeft, Database, Download, Trash2, AlertTriangle, Check, Loader2 } 
 import { createClient } from '@/lib/supabase/client';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 
-export default function DataPanel() {
+export default function DataPanel( ){
   const { openInSurface } = useDreamSystem();
   const [exporting, setExporting]       = useState(false);
   const [exportMsg, setExportMsg]       = useState('');
@@ -59,7 +59,7 @@ export default function DataPanel() {
         </div>
       </header>
       <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
-        {/* -- System Critical: Volatile Asset Export -- */}
+        {/* ── System Critical: Volatile Asset Export ── */}
         <div
           className="de-system-critical-modal de-ghost-volatile"
           style={{ padding: '0', overflow: 'hidden' }}

@@ -38,7 +38,7 @@ export interface InfinityIconProps {
   ariaLabel?: string;
 }
 
-export default function InfinityIcon() {
+export default function InfinityIcon(){
   size = 40,
   variant = 'flat',
   colorScheme = 'gold',
@@ -113,7 +113,7 @@ export default function InfinityIcon() {
     );
   }
 
-  // -- circle / squircle badge container ----------------------------------------
+  // ── circle / squircle badge container ────────────────────────────────────────
   const radius = variant === 'circle' ? '50%' : `${Math.round(size * 0.22)}px`;
   const bg     = colorScheme === 'dark'
     ? '#0a0a0a'

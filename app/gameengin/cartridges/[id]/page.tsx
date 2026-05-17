@@ -21,7 +21,7 @@ interface PageProps {
 // Next to prerender a metadata shell for the dynamic [id] segment and
 // re-trigger the Math.random violation surfaced from `Next.MetadataOutlet`.
 
-export default async function GameEnginCartridgePage() { params }: PageProps {
+export default async function GameEnginCartridgePage({ params }: PageProps) {
   // Mark this render as request-only so the strict Cache-Components
   // prerender check is bypassed for the client-component subtree below.
   await connection();

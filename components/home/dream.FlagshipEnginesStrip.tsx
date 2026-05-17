@@ -61,7 +61,7 @@ const FLAGSHIPS = [
   },
 ] as const;
 
-export default function FlagshipEnginesStrip() {
+export default function FlagshipEnginesStrip(){
   isCompactViewport = false,
 }: FlagshipEnginesStripProps) {
   const router = useRouter();
@@ -98,7 +98,7 @@ export default function FlagshipEnginesStrip() {
         overflow: 'hidden',
       }}
     >
-      {/* -- Header -- */}
+      {/* ── Header ── */}
       <div
         style={{
           display: 'flex',
@@ -173,7 +173,7 @@ export default function FlagshipEnginesStrip() {
         </button>
       </div>
 
-      {/* -- Flagship cards -- */}
+      {/* ── Flagship cards ── */}
       <div
         style={{
           display: 'grid',
@@ -182,7 +182,7 @@ export default function FlagshipEnginesStrip() {
           padding: '14px',
         }}
       >
-        {FLAGSHIPS.map({ id, label: string, tagline: Record<string, unknown>, href: Record<string, unknown>, Icon: Record<string, unknown>, accent } => (
+        {FLAGSHIPS.map(({ id, label: string, tagline: Record<string, unknown>, href: Record<string, unknown>, Icon: Record<string, unknown>, accent }) => (
           <button
             key={id}
             type="button"
@@ -296,7 +296,7 @@ export default function FlagshipEnginesStrip() {
         ))}
       </div>
 
-      {/* -- DREAMfield-mini momentum read-out -- */}
+      {/* ── DREAMfield-mini momentum read-out ── */}
       <div
         style={{
           margin: '0 14px 14px',

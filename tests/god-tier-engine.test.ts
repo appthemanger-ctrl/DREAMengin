@@ -36,7 +36,7 @@ import {
   type BabylonSceneLike,
 } from '@/lib/god-tier/godTierEngine';
 
-// --- Fixtures -----------------------------------------------------------------
+// ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 const makeMesh = (overrides: Partial<MeshSnapshot> = {}): MeshSnapshot => ({
   id: 'test-mesh',
@@ -103,7 +103,7 @@ const device: DeviceSignals = {
   prefersReducedMotion: false,
 };
 
-// --- RingAverage --------------------------------------------------------------
+// ─── RingAverage ──────────────────────────────────────────────────────────────
 
 describe('RingAverage', () => {
   it('returns 0 on empty ring', () => {
@@ -131,7 +131,7 @@ describe('RingAverage', () => {
   });
 });
 
-// --- maxAssumptionBoot --------------------------------------------------------
+// ─── maxAssumptionBoot ────────────────────────────────────────────────────────
 
 describe('maxAssumptionBoot', () => {
   it('returns GOD_TIER mode', () => {
@@ -156,7 +156,7 @@ describe('maxAssumptionBoot', () => {
   });
 });
 
-// --- framePressureShield ------------------------------------------------------
+// ─── framePressureShield ──────────────────────────────────────────────────────
 
 describe('framePressureShield', () => {
   it('returns pressureLevel 0 for fast frames', () => {
@@ -182,7 +182,7 @@ describe('framePressureShield', () => {
   });
 });
 
-// --- fidelityScaler -----------------------------------------------------------
+// ─── fidelityScaler ───────────────────────────────────────────────────────────
 
 describe('fidelityScaler', () => {
   it('reduces scale under high frame pressure', () => {
@@ -203,7 +203,7 @@ describe('fidelityScaler', () => {
   });
 });
 
-// --- heroObjectImportance -----------------------------------------------------
+// ─── heroObjectImportance ─────────────────────────────────────────────────────
 
 describe('heroObjectImportance', () => {
   it('gives high score to visible interactive mesh near camera', () => {
@@ -225,7 +225,7 @@ describe('heroObjectImportance', () => {
   });
 });
 
-// --- eliteMeshPolicy ---------------------------------------------------------
+// ─── eliteMeshPolicy ─────────────────────────────────────────────────────────
 
 describe('eliteMeshPolicy', () => {
   it('freezes truly dead meshes', () => {
@@ -255,7 +255,7 @@ describe('eliteMeshPolicy', () => {
   });
 });
 
-// --- cinematicMotionStack -----------------------------------------------------
+// ─── cinematicMotionStack ─────────────────────────────────────────────────────
 
 describe('cinematicMotionStack', () => {
   it('returns reduced-motion plan when reducedMotion=true', () => {
@@ -281,7 +281,7 @@ describe('cinematicMotionStack', () => {
   });
 });
 
-// --- visualDominanceEngine ----------------------------------------------------
+// ─── visualDominanceEngine ────────────────────────────────────────────────────
 
 describe('visualDominanceEngine', () => {
   it('boosts primary contrast when user is struggling', () => {
@@ -303,7 +303,7 @@ describe('visualDominanceEngine', () => {
   });
 });
 
-// --- predictIntent ------------------------------------------------------------
+// ─── predictIntent ────────────────────────────────────────────────────────────
 
 describe('predictIntent', () => {
   it('predicts navigate_route when next routes are provided', () => {
@@ -333,7 +333,7 @@ describe('predictIntent', () => {
   });
 });
 
-// --- speculativePrefetchEngine ------------------------------------------------
+// ─── speculativePrefetchEngine ────────────────────────────────────────────────
 
 describe('speculativePrefetchEngine', () => {
   it('always includes critical prefetch for current route', () => {
@@ -359,7 +359,7 @@ describe('speculativePrefetchEngine', () => {
   });
 });
 
-// --- frictionOverride ---------------------------------------------------------
+// ─── frictionOverride ─────────────────────────────────────────────────────────
 
 describe('frictionOverride', () => {
   it('returns empty array when there is no friction', () => {
@@ -390,7 +390,7 @@ describe('frictionOverride', () => {
   });
 });
 
-// --- uiPrioritySolver ---------------------------------------------------------
+// ─── uiPrioritySolver ─────────────────────────────────────────────────────────
 
 describe('uiPrioritySolver', () => {
   it('ranks primary CTAs first', () => {
@@ -424,7 +424,7 @@ describe('uiPrioritySolver', () => {
   });
 });
 
-// --- applyGodTierToBabylon ----------------------------------------------------
+// ─── applyGodTierToBabylon ────────────────────────────────────────────────────
 
 describe('applyGodTierToBabylon', () => {
   it('sets hardware scaling level on the engine', () => {
@@ -515,7 +515,7 @@ describe('applyGodTierToBabylon', () => {
   });
 });
 
-// --- getGodTierUiTokens -------------------------------------------------------
+// ─── getGodTierUiTokens ───────────────────────────────────────────────────────
 
 describe('getGodTierUiTokens', () => {
   it('returns classes string including god-tier-ui', () => {
@@ -548,7 +548,7 @@ describe('getGodTierUiTokens', () => {
   });
 });
 
-// --- DreamEngineGodTierSystem (full orchestrator) -----------------------------
+// ─── DreamEngineGodTierSystem (full orchestrator) ─────────────────────────────
 
 describe('DreamEngineGodTierSystem', () => {
   let system: DreamEngineGodTierSystem;
@@ -601,7 +601,7 @@ describe('DreamEngineGodTierSystem', () => {
   });
 });
 
-// --- defaultSignals -----------------------------------------------------------
+// ─── defaultSignals ───────────────────────────────────────────────────────────
 
 describe('default signal helpers', () => {
   it('defaultDeviceSignals returns valid structure in non-browser', () => {
@@ -627,7 +627,7 @@ describe('default signal helpers', () => {
   });
 });
 
-// --- computeAlgorithmLevel ----------------------------------------------------
+// ─── computeAlgorithmLevel ────────────────────────────────────────────────────
 
 describe('computeAlgorithmLevel', () => {
   it('returns 5 at full intensity with no pressure', () => {
@@ -655,7 +655,7 @@ describe('computeAlgorithmLevel', () => {
   });
 });
 
-// --- buildChildContentFilter --------------------------------------------------
+// ─── buildChildContentFilter ──────────────────────────────────────────────────
 
 describe('buildChildContentFilter', () => {
   it('returns disabled filter when childSafetyMode is false', () => {
@@ -676,7 +676,7 @@ describe('buildChildContentFilter', () => {
   });
 });
 
-// --- DreamEngineGodTierSystem — level + child safety -------------------------
+// ─── DreamEngineGodTierSystem — level + child safety ─────────────────────────
 
 describe('DreamEngineGodTierSystem algorithmLevel and childContentFilter', () => {
   let system: DreamEngineGodTierSystem;

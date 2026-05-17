@@ -4,7 +4,7 @@ import { useRef, useCallback } from 'react';
  * Custom hook for synthetic haptic feedback using Web Audio API
  * Creates click/tick sounds without requiring audio files
  */
-export function useTick() {
+export function useTick( ){
   const audioContextRef = useRef<AudioContext | null>(null);
   const isInitializedRef = useRef(false);
 

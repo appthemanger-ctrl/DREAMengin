@@ -94,7 +94,7 @@ export async function PATCH(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // -- Fetch existing record to verify ownership ----------------------------
+  // ── Fetch existing record to verify ownership ────────────────────────────
    
   const { data: existing, error: fetchError } = await (supabase as SupabaseClient)
     .from('dream_windows')
@@ -106,7 +106,7 @@ export async function PATCH(
     return NextResponse.json({ error: 'Dream Window not found' }, { status: 404 });
   }
 
-  // -- owner_id enforcement (Point 15) -------------------------------------
+  // ── owner_id enforcement (Point 15) ─────────────────────────────────────
   if (existing.owner_id !== user.id) {
     return NextResponse.json(
       { error: 'Forbidden — only the owner may update this Dream Window' },
@@ -121,7 +121,7 @@ export async function PATCH(
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
-  // -- Build the update payload ---------------------------------------------
+  // ── Build the update payload ─────────────────────────────────────────────
   const update: Record<string, unknown> = {};
 
   if (body.active_state !== undefined) {
@@ -180,7 +180,7 @@ export async function PATCH(
     update.destination_rules = body.destination_rules;
   }
 
-  // -- Layer validation on mount (Point 20) --------------------------------
+  // ── Layer validation on mount (Point 20) ────────────────────────────────
   if (update.active_state === DREAM_WINDOW_STATES.MOUNTED) {
     // Merge existing config with any config update to get the effective config
     const effectiveConfig = {
@@ -217,7 +217,7 @@ export async function PATCH(
     return NextResponse.json({ error: 'No fields to update' }, { status: 400 });
   }
 
-  // -- Apply update ---------------------------------------------------------
+  // ── Apply update ─────────────────────────────────────────────────────────
    
   const { data: dreamWindow, error: updateError } = await (supabase as SupabaseClient)
     .from('dream_windows')
@@ -268,7 +268,7 @@ export async function DELETE(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // -- Fetch to verify ownership --------------------------------------------
+  // ── Fetch to verify ownership ────────────────────────────────────────────
    
   const { data: existing, error: fetchError } = await (supabase as SupabaseClient)
     .from('dream_windows')
@@ -280,7 +280,7 @@ export async function DELETE(
     return NextResponse.json({ error: 'Dream Window not found' }, { status: 404 });
   }
 
-  // -- owner_id enforcement (Point 15) -------------------------------------
+  // ── owner_id enforcement (Point 15) ─────────────────────────────────────
   if (existing.owner_id !== user.id) {
     return NextResponse.json(
       { error: 'Forbidden — only the owner may delete this Dream Window' },
@@ -288,7 +288,7 @@ export async function DELETE(
     );
   }
 
-  // -- Step 1: Delete the dream_windows row --------------------------------
+  // ── Step 1: Delete the dream_windows row ────────────────────────────────
   // dream_window_projections are removed via ON DELETE CASCADE (FK: source_id).
    
   const { error: deleteError } = await (supabase as SupabaseClient)
@@ -300,7 +300,7 @@ export async function DELETE(
     return NextResponse.json({ error: deleteError.message }, { status: 500 });
   }
 
-  // -- Step 2: Delete from visibility_mappings WHERE content_id = id --------
+  // ── Step 2: Delete from visibility_mappings WHERE content_id = id ────────
   // Best-effort cleanup — the main record is already gone.
    
   const { error: visError } = await (supabase as SupabaseClient)

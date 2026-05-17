@@ -39,7 +39,7 @@ export const THEME_PRESETS: Record<string, { label: string; emoji: string; theme
   },
 };
 
-export function applyTheme(theme: DeTheme) {
+export function applyTheme(theme: DeTheme ){
   const root = document.documentElement;
   root.style.setProperty('--de-theme-from',    theme.from);
   root.style.setProperty('--de-theme-mid',     theme.mid);
@@ -50,7 +50,7 @@ export function applyTheme(theme: DeTheme) {
 }
 
 /** Toggle VOID / OLED dark theme by setting data-theme="void" on documentElement */
-export function applyVoidTheme(enable: boolean) {
+export function applyVoidTheme(enable: boolean ){
   const root = document.documentElement;
   if (enable) {
     root.setAttribute('data-theme', 'void');
@@ -67,12 +67,12 @@ export function applyVoidTheme(enable: boolean) {
   window.dispatchEvent(new CustomEvent('de-theme-mode-changed', { detail: { void: enable } }));
 }
 
-export function isVoidThemeActive(: boolean) {
+export function isVoidThemeActive(): boolean {
   if (typeof document === 'undefined') return false;
   return document.documentElement.getAttribute('data-theme') === 'void';
 }
 
-export default function ThemeApplicator() {
+export default function ThemeApplicator( ){
   useEffect(() => {
     const load = () => {
       try {

@@ -24,10 +24,10 @@ import {
   RETURN_GAP_DAYS,
 } from '@/lib/journey/journeyInsights';
 
-// -- Fixture helpers -----------------------------------------------------------
+// ── Fixture helpers ───────────────────────────────────────────────────────────
 
 let nextId = 1;
-function makeDot(overrides: Partial<JourneyDot> =) {}): JourneyDot {
+function makeDot(overrides: Partial<JourneyDot> = ){}): JourneyDot {
   return {
     id:           String(nextId++),
     user_id:      'user-1',
@@ -52,7 +52,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-// --- findFirstOccurrenceIds ---------------------------------------------------
+// ─── findFirstOccurrenceIds ───────────────────────────────────────────────────
 
 describe('findFirstOccurrenceIds()', () => {
   it('returns empty set for empty input', () => {
@@ -86,7 +86,7 @@ describe('findFirstOccurrenceIds()', () => {
   });
 });
 
-// --- computeCurrentStreak -----------------------------------------------------
+// ─── computeCurrentStreak ─────────────────────────────────────────────────────
 
 describe('computeCurrentStreak()', () => {
   it('returns 0 for empty dot list', () => {
@@ -132,7 +132,7 @@ describe('computeCurrentStreak()', () => {
   });
 });
 
-// --- computeWeeklyFrequency ---------------------------------------------------
+// ─── computeWeeklyFrequency ───────────────────────────────────────────────────
 
 describe('computeWeeklyFrequency()', () => {
   it('returns empty map for empty input', () => {
@@ -175,7 +175,7 @@ describe('computeWeeklyFrequency()', () => {
   });
 });
 
-// --- detectReturnGaps ---------------------------------------------------------
+// ─── detectReturnGaps ─────────────────────────────────────────────────────────
 
 describe('detectReturnGaps()', () => {
   it('returns empty map for empty input', () => {
@@ -212,7 +212,7 @@ describe('detectReturnGaps()', () => {
   });
 });
 
-// --- annotateDotsWithInsights -------------------------------------------------
+// ─── annotateDotsWithInsights ─────────────────────────────────────────────────
 
 describe('annotateDotsWithInsights()', () => {
   it('returns empty array for empty input', () => {
@@ -238,7 +238,7 @@ describe('annotateDotsWithInsights()', () => {
     const older = makeDot({ id: 'old', kind: 'connector_linked', created_at: daysAgo(5) });
     const newer = makeDot({ id: 'new', kind: 'connector_linked', created_at: daysAgo(1) });
     const result = annotateDotsWithInsights([newer, older]);
-    const byId = new Map(result.map(d => [d.id, d]));
+    const byId = new Map(result.map((d) => [d.id, d]));
     expect(byId.get('old')!.insight.isFirst).toBe(true);
     expect(byId.get('new')!.insight.isFirst).toBeUndefined();
   });
@@ -247,7 +247,7 @@ describe('annotateDotsWithInsights()', () => {
     const d1 = makeDot({ id: '1', kind: 'content_shared', created_at: daysAgo(1) });
     const d2 = makeDot({ id: '2', kind: 'content_shared', created_at: daysAgo(2) });
     const result = annotateDotsWithInsights([d1, d2]);
-    const byId   = new Map(result.map(d => [d.id, d]));
+    const byId   = new Map(result.map((d) => [d.id, d]));
     expect(byId.get('1')!.insight.weeklyFrequency).toBe(2);
     expect(byId.get('2')!.insight.weeklyFrequency).toBe(2);
   });
@@ -257,7 +257,7 @@ describe('annotateDotsWithInsights()', () => {
     const older = makeDot({ id: 'old', kind: 'surface_first_entry', surface: 'Brand', created_at: daysAgo(gap + 1) });
     const newer = makeDot({ id: 'new', kind: 'surface_first_entry', surface: 'Brand', created_at: daysAgo(1) });
     const result = annotateDotsWithInsights([newer, older]);
-    const byId   = new Map(result.map(d => [d.id, d]));
+    const byId   = new Map(result.map((d) => [d.id, d]));
     expect(byId.get('new')!.insight.returnAfterDays).toBeGreaterThanOrEqual(RETURN_GAP_DAYS);
     expect(byId.get('old')!.insight.returnAfterDays).toBeUndefined();
   });
@@ -277,6 +277,6 @@ describe('annotateDotsWithInsights()', () => {
       makeDot({ id: 'third',  created_at: daysAgo(2) }),
     ];
     const result = annotateDotsWithInsights(dots);
-    expect(result.map(d => d.id)).toEqual(['first', 'second', 'third']);
+    expect(result.map((d) => d.id)).toEqual(['first', 'second', 'third']);
   });
 });

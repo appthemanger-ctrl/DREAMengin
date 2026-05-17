@@ -51,8 +51,8 @@ describe('DreamR swipe personalization', () => {
       { post: post({ id: 'c', profiles: { handle: 'alpha' } }) },
     ];
     const prefs = nextSwipePreferences(emptyDreamRSwipePreferences(), items[2]!.post, 'more');
-    const ordered = personalizeFeedOrder(items, prefs, item => item.post);
-    expect(ordered.map(item => item.post.id)).toEqual(['c', 'a', 'b']);
+    const ordered = personalizeFeedOrder((items, prefs, item) => item.post);
+    expect(ordered.map((item) => item.post.id)).toEqual(['c', 'a', 'b']);
   });
 
   it('only records real views for up/dwell or left-match intent', () => {

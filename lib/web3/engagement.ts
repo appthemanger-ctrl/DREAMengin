@@ -23,13 +23,13 @@ import {
 } from './types';
 import { web3Client } from './client';
 
-// --- Constants ----------------------------------------------------------------
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const BACKEND_BASE = process.env.NEXT_PUBLIC_BACKEND_URL ?? '/api';
 
-// --- Off-chain fallback -------------------------------------------------------
+// ─── Off-chain fallback ───────────────────────────────────────────────────────
 
-async function trackOffChain(payload: EngagementPayload: Promise<void>) {
+async function trackOffChain(payload: EngagementPayload): Promise<void> {
   const res = await fetch(`${BACKEND_BASE}/engagement/track`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -44,7 +44,7 @@ async function trackOffChain(payload: EngagementPayload: Promise<void>) {
   }
 }
 
-async function fetchStatsOffChain(contentId: string: Promise<EngagementStats>) {
+async function fetchStatsOffChain(contentId: string): Promise<EngagementStats> {
   const res = await fetch(
     `${BACKEND_BASE}/engagement/stats/${encodeURIComponent(contentId)}`
   );
@@ -69,7 +69,7 @@ async function fetchStatsOffChain(contentId: string: Promise<EngagementStats>) {
   };
 }
 
-// --- On-chain write (stub — wired when contract is deployed) -----------------
+// ─── On-chain write (stub — wired when contract is deployed) ─────────────────
 
 /**
  * Emit an engagement event to the on-chain contract.
@@ -108,7 +108,7 @@ async function trackOnChain(
   return null;
 }
 
-// --- Public API ---------------------------------------------------------------
+// ─── Public API ───────────────────────────────────────────────────────────────
 
 /**
  * Record an engagement action (like, repost, comment) for `contentId`.
@@ -159,7 +159,7 @@ export async function getEngagementStats(
   return fetchStatsOffChain(contentId);
 }
 
-// --- Optimistic engagement cache ----------------------------------------------
+// ─── Optimistic engagement cache ──────────────────────────────────────────────
 
 /**
  * In-memory optimistic cache used by `useEngagement` to provide instant
@@ -192,6 +192,6 @@ export function getOptimisticDelta(
   return optimisticCache.get(contentId) ?? { delta: {}, hasLiked: false };
 }
 
-export function clearOptimisticDelta(contentId: string: void) {
+export function clearOptimisticDelta(contentId: string): void {
   optimisticCache.delete(contentId);
 }

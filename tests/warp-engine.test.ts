@@ -24,7 +24,7 @@ import {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makeParticle(overrides: Partial<WarpParticle> =) {}): WarpParticle {
+function makeParticle(overrides: Partial<WarpParticle> = ){}): WarpParticle {
   return {
     pos:     { x: 400, y: 300 },
     vel:     { x: 10, y: -10 },
@@ -37,7 +37,7 @@ function makeParticle(overrides: Partial<WarpParticle> =) {}): WarpParticle {
   };
 }
 
-function makeCtx(overrides: Partial<WarpContext> =) {}): WarpContext {
+function makeCtx(overrides: Partial<WarpContext> = ){}): WarpContext {
   return {
     time:   1.0,
     dt:     0.016,

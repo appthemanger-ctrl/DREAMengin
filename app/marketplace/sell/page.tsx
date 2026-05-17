@@ -24,11 +24,11 @@ const CATEGORIES = [
   { value: 'music',     label: '🎵 Music',     desc: 'Sample pack or sound kit' },
 ];
 
-export default function MarketplaceSellPage() {
+export default function MarketplaceSellPage( ){
   const supabase = createClient();
   const router   = useRouter();
 
-  // -- Auth gate -------------------------------------------------
+  // ── Auth gate ─────────────────────────────────────────────────
   useEffect(() => {
     const checkAuth = async () => {
       const { data } = await supabase.auth.getUser();
@@ -39,7 +39,7 @@ export default function MarketplaceSellPage() {
    
   }, []);
 
-  // -- Form state ------------------------------------------------
+  // ── Form state ────────────────────────────────────────────────
   const [title,       setTitle]       = useState('');
   const [description, setDescription] = useState('');
   const [category,    setCategory]    = useState('widget');
@@ -50,7 +50,7 @@ export default function MarketplaceSellPage() {
   const [error,     setError]     = useState('');
   const [success,   setSuccess]   = useState(false);
 
-  // -- Submit ----------------------------------------------------
+  // ── Submit ────────────────────────────────────────────────────
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -101,7 +101,7 @@ export default function MarketplaceSellPage() {
 
   return (
     <div className="de-sky-bg min-h-screen">
-      {/* -- Header -- */}
+      {/* ── Header ── */}
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <Link href="/marketplace" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
@@ -115,7 +115,7 @@ export default function MarketplaceSellPage() {
       <div className="max-w-2xl mx-auto px-4 py-6 pb-24">
         <form onSubmit={handleSubmit} className="space-y-4">
 
-          {/* -- Listing details -- */}
+          {/* ── Listing details ── */}
           <div className="de-widget">
             <div className="de-widget-header"><span className="de-widget-title">Listing Details</span></div>
             <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -151,7 +151,7 @@ export default function MarketplaceSellPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                 <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-text-dim)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Category *</span>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
-                  {CATEGORIES.map({ value, label: string, desc } => (
+                  {CATEGORIES.map(({ value, label: string, desc }) => (
                     <button
                       key={value}
                       type="button"
@@ -238,12 +238,12 @@ export default function MarketplaceSellPage() {
             </div>
           </div>
 
-          {/* -- Info -- */}
+          {/* ── Info ── */}
           <div className="de-notice" style={{ lineHeight: 1.6 }}>
             Items are reviewed before they go live. By submitting you confirm you own the rights to this content.
           </div>
 
-          {/* -- Tips -- */}
+          {/* ── Tips ── */}
           <div className="de-widget">
             <div className="de-widget-header"><span className="de-widget-title">Tips for a great listing</span></div>
             <div className="de-widget-body">
@@ -253,7 +253,7 @@ export default function MarketplaceSellPage() {
                   'Add a detailed description — features, compatible versions, what&apos;s included.',
                   'Tags help buyers discover your listing — choose relevant keywords.',
                   'Set price to 0 to make it free and build reputation first.',
-                ].map(tip: Record<string, unknown>, i: number => (
+                ].map(tip: Record<string, unknown>, (i: number ) => (
                   <li key={i} className="de-row" style={{ borderBottom: 'none', paddingBlock: 4 }}>
                     <span style={{ color: 'var(--de-gold)', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{i + 1}.</span>
                     <span style={{ fontSize: 13, color: 'var(--de-text)' }} dangerouslySetInnerHTML={{ __html: tip }} />

@@ -12,16 +12,16 @@
 import React, { useCallback, useState } from 'react';
 import { useSharedDream } from './dream.SharedDreamProvider';
 
-// --- Types --------------------------------------------------------------------
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface InviteFlowProps {
   /** Optional className for the trigger button. */
   className?: string;
 }
 
-// --- Component ----------------------------------------------------------------
+// ─── Component ────────────────────────────────────────────────────────────────
 
-export function InviteFlow() { className = '' }: InviteFlowProps {
+export function InviteFlow({ className = '' }: InviteFlowProps) {
   const { getInviteLink, channelId, connected } = useSharedDream();
   const [open,    setOpen]    = useState(false);
   const [copied,  setCopied]  = useState(false);
@@ -53,7 +53,7 @@ export function InviteFlow() { className = '' }: InviteFlowProps {
 
   return (
     <>
-      {/* -- Trigger button --------------------------------------------------- */}
+      {/* ── Trigger button ─────────────────────────────────────────────────── */}
       <button
         onClick={handleOpen}
         disabled={!connected}
@@ -69,7 +69,7 @@ export function InviteFlow() { className = '' }: InviteFlowProps {
         Launch Shared Dream
       </button>
 
-      {/* -- Modal ----------------------------------------------------------- */}
+      {/* ── Modal ─────────────────────────────────────────────────────────── */}
       {open && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"

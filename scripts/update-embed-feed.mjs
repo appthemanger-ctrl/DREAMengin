@@ -45,9 +45,9 @@ const OUTPUT_PATH = join(REPO_ROOT, 'public', 'feeds', 'embed-feed.json');
 const MIN_VIEW_COUNT   = parseInt(process.env.FEED_MIN_VIEW_COUNT  ?? '0',  10);
 const MAX_ITEMS        = parseInt(process.env.FEED_MAX_ITEMS        ?? '20', 10);
 const REQUIRED_TAGS    = (process.env.FEED_REQUIRED_TAGS ?? '')
-  .split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+  .split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
 const SOURCES          = (process.env.FEED_SOURCES ?? 'youtube')
-  .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  .split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
 const YOUTUBE_API_KEY  = process.env.YOUTUBE_API_KEY  ?? '';
 const FEED_QUERY       = process.env.FEED_QUERY ?? '';
 const IG_ACCESS_TOKEN  = process.env.INSTAGRAM_ACCESS_TOKEN ?? '';
@@ -121,7 +121,7 @@ async function fetchYouTubeSearchVideos(apiKey, query, maxResults = 50) {
   // Search results use a different shape (id.videoId) than the videos list
   // endpoint (id = string). Normalise to the same structure normaliseYouTubeItem
   // expects so the pipeline is uniform.
-  return (data.items ?? []).map(item => ({
+  return (data.items ?? []).map((item) => ({
     id: item.id?.videoId ?? '',
     snippet: item.snippet ?? {},
     statistics: {},
@@ -134,7 +134,7 @@ function normaliseYouTubeItem(item) {
   const snippet     = item.snippet ?? {};
   const statistics  = item.statistics ?? {};
   const viewCount   = parseInt(statistics.viewCount ?? '0', 10);
-  const tags        = (snippet.tags ?? []).map(t => t.toLowerCase());
+  const tags        = (snippet.tags ?? []).map((t) => t.toLowerCase());
   const title       = snippet.title ?? '';
   const channelTitle = snippet.channelTitle ?? '';
   const publishedAt  = snippet.publishedAt ?? new Date().toISOString();
@@ -198,7 +198,7 @@ function normaliseInstagramItem(item) {
   const thumbnail   = item.thumbnail_url ?? item.media_url ?? '';
 
   // Extract hashtags from the caption
-  const tags = (caption.match(/#\w+/g) ?? []).map(t => t.slice(1).toLowerCase());
+  const tags = (caption.match(/#\w+/g) ?? []).map((t) => t.slice(1).toLowerCase());
 
   // Instagram oEmbed-style blockquote (works without extra API call)
   const embedHtml =
@@ -232,12 +232,12 @@ function normaliseInstagramItem(item) {
  *   2. If REQUIRED_TAGS is non-empty, at least one tag must match
  */
 function applyAlgorithm(items) {
-  return items.filter(item => {
+  return items.filter((item) => {
     if (item.view_count < MIN_VIEW_COUNT) return false;
 
     if (REQUIRED_TAGS.length > 0) {
-      const hasTag = REQUIRED_TAGS.some(required =>
-        item.tags.some(tag => tag.includes(required)) ||
+      const hasTag = REQUIRED_TAGS.some((required) =>
+        item.tags.some((tag) => tag.includes(required)) ||
         item.title.toLowerCase().includes(required),
       );
       if (!hasTag) return false;
@@ -263,7 +263,7 @@ async function persistToSupabase(items, generatedAt) {
     return { stored: 0, skipped: true };
   }
 
-  const rows = items.map(item => ({
+  const rows = items.map((item) => ({
     provider:      item.provider,
     external_id:   item.id,
     title:         item.title,
@@ -391,7 +391,7 @@ async function main() {
   }
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error('Fatal:', err);
   process.exit(1);
 });

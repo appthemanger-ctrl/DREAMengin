@@ -55,7 +55,7 @@ import {
 } from '@/lib/forge-ngn/assembly';
 import { createEventBus, bridgeBuses } from '@/lib/event-bus';
 
-// -- Design tokens -------------------------------------------------------------
+// ── Design tokens ─────────────────────────────────────────────────────────────
 
 const T = {
   bg:       '#09090f',
@@ -71,7 +71,7 @@ const T = {
   success:  '#4ade80',
 };
 
-// -- Category icons -------------------------------------------------------------
+// ── Category icons ─────────────────────────────────────────────────────────────
 
 const CAT_ICON: Record<PieceCategory, React.ReactNode> = {
   Audio:   <Music   size={13} />,
@@ -93,7 +93,7 @@ const CAT_COLOR: Record<PieceCategory, string> = {
   Runtime: '#7c6cff',
 };
 
-// -- Role badge ----------------------------------------------------------------
+// ── Role badge ────────────────────────────────────────────────────────────────
 
 const ROLE_COLOR: Record<PieceManifest['role'], string> = {
   source:    '#34d399',
@@ -101,7 +101,7 @@ const ROLE_COLOR: Record<PieceManifest['role'], string> = {
   output:    '#fb923c',
 };
 
-// -- Component -----------------------------------------------------------------
+// ── Component ─────────────────────────────────────────────────────────────────
 
 interface Props {
   onBack?: () => void;
@@ -112,7 +112,7 @@ interface PendingConnection {
   fromPortId: string;
 }
 
-export default function NGNEngin() { onBack }: Props {
+export default function NGNEngin({ onBack }: Props) {
   const [assembly, setAssembly]           = useState<EngineAssembly>(() => createAssembly('My Engine'));
   const [expandedCats, setExpandedCats]   = useState<Set<PieceCategory>>(new Set(['Audio']));
   const [search, setSearch]               = useState('');
@@ -137,7 +137,7 @@ export default function NGNEngin() { onBack }: Props {
   const errors = validateAssembly(assembly);
   const valid  = errors.length === 0;
 
-  // -- Sidebar helpers ----------------------------------------------------------
+  // ── Sidebar helpers ──────────────────────────────────────────────────────────
 
   const filteredPieces = useCallback((cat: PieceCategory): PieceManifest[] => {
     const base = getPiecesByCategory(cat);
@@ -147,14 +147,14 @@ export default function NGNEngin() { onBack }: Props {
   }, [search]);
 
   const toggleCat = (cat: PieceCategory) => {
-    setExpandedCats(prev: Record<string, unknown> => {
+    setExpandedCats((prev: Record<string, unknown>) => {
       const next = new Set(prev);
       next.has(cat) ? next.delete(cat) : next.add(cat);
       return next;
     });
   };
 
-  // -- Canvas drag-drop ---------------------------------------------------------
+  // ── Canvas drag-drop ─────────────────────────────────────────────────────────
 
   const handleCanvasDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -183,12 +183,12 @@ export default function NGNEngin() { onBack }: Props {
     if (!rect) return;
     const x = e.clientX - rect.left - dragOffset.x;
     const y = e.clientY - rect.top  - dragOffset.y;
-    setAssembly(a: Record<string, unknown> => movePiece(a, draggingId, x, y));
+    setAssembly((a: Record<string, unknown>) => movePiece(a, draggingId, x, y));
   }, [draggingId, dragOffset]);
 
   const handleCanvasMouseUp = () => setDraggingId(null);
 
-  // -- Port wiring --------------------------------------------------------------
+  // ── Port wiring ──────────────────────────────────────────────────────────────
 
   const handlePortClick = (instanceId: string, portId: string, isInput: boolean) => {
     if (!isInput && !pending) {
@@ -196,12 +196,12 @@ export default function NGNEngin() { onBack }: Props {
       return;
     }
     if (isInput && pending) {
-      setAssembly(a: Record<string, unknown> => addConnection(a, pending.fromInstanceId, pending.fromPortId, instanceId, portId));
+      setAssembly((a: Record<string, unknown>) => addConnection(a, pending.fromInstanceId, pending.fromPortId, instanceId, portId));
       setPending(null);
     }
   };
 
-  // -- Actions ------------------------------------------------------------------
+  // ── Actions ──────────────────────────────────────────────────────────────────
 
   const handleSave = () => {
     const json = serializeAssembly(assembly);
@@ -221,12 +221,12 @@ export default function NGNEngin() { onBack }: Props {
     setShareUrl(`${window.location.origin}/marketplace?assembly=${encoded}`);
   };
 
-  // -- Render --------------------------------------------------------------------
+  // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
     <div style={{ display: 'flex', height: '100%', background: T.bg, color: T.text, fontFamily: 'inherit', overflow: 'hidden' }}>
 
-      {/* -- Sidebar ------------------------------------------------------------ */}
+      {/* ── Sidebar ──────────────────────────────────────────────────────────── */}
       <aside style={{ width: 240, borderRight: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', background: T.sidebar, flexShrink: 0 }}>
 
         {/* Header */}
@@ -309,7 +309,7 @@ export default function NGNEngin() { onBack }: Props {
         </div>
       </aside>
 
-      {/* -- Main --------------------------------------------------------------- */}
+      {/* ── Main ─────────────────────────────────────────────────────────────── */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
         {/* Toolbar */}
@@ -317,7 +317,7 @@ export default function NGNEngin() { onBack }: Props {
           <Zap size={16} color={T.accent} />
           <input
             value={assembly.name}
-            onChange={(e) => setAssembly(a: Record<string, unknown> => ({ ...a, name: e.target.value }))}
+            onChange={(e) => setAssembly((a: Record<string, unknown>) => ({ ...a, name: e.target.value }))}
             style={{ background: 'transparent', border: 'none', color: T.text, fontSize: 14, fontWeight: 600, outline: 'none', width: 180 }}
           />
 
@@ -359,7 +359,7 @@ export default function NGNEngin() { onBack }: Props {
           {errors.length > 0 && (
             <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} style={{ overflow: 'hidden', flexShrink: 0 }}>
               <div style={{ padding: '6px 16px', background: 'rgba(255,94,94,0.08)', borderBottom: '1px solid rgba(255,94,94,0.25)', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                {errors.map(err: Record<string, unknown>, i: number => (
+                {errors.map(err: Record<string, unknown>, (i: number ) => (
                   <span key={i} style={{ fontSize: 11, color: T.error }}>{err.message}</span>
                 ))}
               </div>
@@ -406,7 +406,7 @@ export default function NGNEngin() { onBack }: Props {
               placed={placed}
               pending={pending}
               onMouseDown={(e) => handlePieceMouseDown(e, placed.instanceId)}
-              onRemove={() => setAssembly(a: Record<string, unknown> => removePiece(a, placed.instanceId))}
+              onRemove={() => setAssembly((a: Record<string, unknown>) => removePiece(a, placed.instanceId))}
               onPortClick={handlePortClick}
             />
           ))}
@@ -424,7 +424,7 @@ export default function NGNEngin() { onBack }: Props {
         </div>
       </div>
 
-      {/* -- Sandbox overlay ---------------------------------------------------- */}
+      {/* ── Sandbox overlay ──────────────────────────────────────────────────── */}
       <AnimatePresence>
         {sandboxOpen && (
           <motion.div
@@ -454,7 +454,7 @@ export default function NGNEngin() { onBack }: Props {
         )}
       </AnimatePresence>
 
-      {/* -- Share URL modal ---------------------------------------------------- */}
+      {/* ── Share URL modal ──────────────────────────────────────────────────── */}
       <AnimatePresence>
         {shareUrl && (
           <motion.div
@@ -492,7 +492,7 @@ export default function NGNEngin() { onBack }: Props {
   );
 }
 
-// -- PlacedPieceCard -----------------------------------------------------------
+// ── PlacedPieceCard ───────────────────────────────────────────────────────────
 
 const T2 = {
   bg:       '#09090f',
@@ -528,7 +528,7 @@ interface PlacedPieceCardProps {
   onPortClick: (instanceId: string, portId: string, isInput: boolean) => void;
 }
 
-function PlacedPieceCard() { placed, pending: Record<string, unknown>, onMouseDown: Record<string, unknown>, onRemove: Record<string, unknown>, onPortClick }: PlacedPieceCardProps {
+function PlacedPieceCard({ placed, pending: Record<string, unknown>, onMouseDown: Record<string, unknown>, onRemove: Record<string, unknown>, onPortClick }: PlacedPieceCardProps) {
   const [hovered, setHovered] = useState(false);
 
   const manifest = getPiece(placed.pieceId);

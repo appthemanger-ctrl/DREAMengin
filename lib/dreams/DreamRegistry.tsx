@@ -7,7 +7,7 @@ export type RegisteredDreamComponent = React.ComponentType<{
   open?: (href: string, title?: string) => void;
 }>;
 
-function DreamRegistryCard() {
+function DreamRegistryCard(){
   dreamId,
   title,
   state,
@@ -48,7 +48,7 @@ function DreamRegistryCard() {
   );
 }
 
-function QuickNoteDream(props: React.ComponentProps<typeof DreamRegistryCard>) {
+function QuickNoteDream(props: React.ComponentProps<typeof DreamRegistryCard> ){
   return (
     <div className="de-glass" style={{ borderRadius: 28, padding: 24, maxWidth: 520 }}>
       <div className="de-tag">Quick Note</div>
@@ -72,7 +72,7 @@ function QuickNoteDream(props: React.ComponentProps<typeof DreamRegistryCard>) {
   );
 }
 
-function TodayStatsDream() {
+function TodayStatsDream( ){
   return (
     <div className="de-glass" style={{ borderRadius: 28, padding: 28, maxWidth: 520, textAlign: 'center' }}>
       <div className="de-tag">Today’s Stats</div>
@@ -92,7 +92,7 @@ function TodayStatsDream() {
   );
 }
 
-function GameQuickLaunchDream() { open }: React.ComponentProps<typeof DreamRegistryCard> {
+function GameQuickLaunchDream({ open }: React.ComponentProps<typeof DreamRegistryCard>) {
   return (
     <DreamRegistryCard
       dreamId="dreamspace-game-quick-launch"
@@ -112,6 +112,6 @@ export const DreamRegistry: Record<string, RegisteredDreamComponent> = {
   feed: DreamRegistryCard,
 };
 
-export function getDreamComponent(type?: string: RegisteredDreamComponent) {
+export function getDreamComponent(type?: string): RegisteredDreamComponent {
   return (type && DreamRegistry[type]) || DreamRegistry.default;
 }

@@ -6,7 +6,7 @@ import FollowOnboarding, { type FollowFrequency } from '@/components/feed/dream.
 
 type Props = { handle: string; displayName: string };
 
-export default function FollowButton() { handle, displayName }: Props {
+export default function FollowButton({ handle, displayName }: Props) {
   const [open,      setOpen]      = useState(false);
   const [following, setFollowing] = useState(false);
 

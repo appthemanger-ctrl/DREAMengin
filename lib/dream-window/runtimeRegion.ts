@@ -6,12 +6,12 @@
  * lib/identity/canonical-names.ts.
  *
  * Regions:
- *   ┌--------------------------------------┐
- *   |          Surface Space               |  ← hosts active surfaces
- *   |  (HomeDream, Daydreams, Engins …)   |
- *   ├-------- DreamDM Bar / Seam ----------┤  ← Runtime Seam
- *   |          DreamSpace                  |  ← hosts Dream Windows + launcher
- *   └--------------------------------------┘
+ *   ┌──────────────────────────────────────┐
+ *   │          Surface Space               │  ← hosts active surfaces
+ *   │  (HomeDream, Daydreams, Engins …)   │
+ *   ├──────── DreamDM Bar / Seam ──────────┤  ← Runtime Seam
+ *   │          DreamSpace                  │  ← hosts Dream Windows + launcher
+ *   └──────────────────────────────────────┘
  *
  * Architecture: docs/ARCHITECTURE.md §1 (Runtime regions)
  * Naming: docs/NAMING_AUTHORITY.md §6 (OS-layer naming)
@@ -220,7 +220,7 @@ export function setSeamPosition(
  * const surface = getSurfaceSpaceSurface(state);
  * // → 'HomeDream Surface'
  */
-export function getSurfaceSpaceSurface(state: RuntimeRegionState: string) {
+export function getSurfaceSpaceSurface(state: RuntimeRegionState): string {
   return state.surfaceSpace.activeSurface;
 }
 
@@ -230,7 +230,7 @@ export function getSurfaceSpaceSurface(state: RuntimeRegionState: string) {
  * @example
  * if (isDreamSpaceDominant(state)) { ... }
  */
-export function isDreamSpaceDominant(state: RuntimeRegionState: boolean) {
+export function isDreamSpaceDominant(state: RuntimeRegionState): boolean {
   return state.dreamSpace.isDominant;
 }
 

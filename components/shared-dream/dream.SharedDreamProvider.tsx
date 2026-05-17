@@ -66,7 +66,7 @@ export interface SharedDreamProviderProps {
   children: React.ReactNode;
 }
 
-export function SharedDreamProvider() {
+export function SharedDreamProvider(){
   channelId: propChannelId,
   sessionOptions = {},
   children,
@@ -108,7 +108,7 @@ export function SharedDreamProvider() {
     } satisfies CollabSessionOptions;
 
     createCollabSession(finalChannelId, options)
-      .then(nextSession: Record<string, unknown> => {
+      .then((nextSession: Record<string, unknown>) => {
         if (!mounted) { nextSession.leave().catch(() => {}); return; }
         activeSession = nextSession;
         setSession(nextSession);
@@ -130,7 +130,7 @@ export function SharedDreamProvider() {
             setParticipants([...nextSession.peers]);
           } else if (payload.type === 'cursor') {
             const { x, y } = payload.data as { x: number; y: number };
-            setCursors(prev: Record<string, unknown> => {
+            setCursors((prev: Record<string, unknown>) => {
               const filtered = prev.filter((c: Record<string, unknown>) => c.peerId !== payload.peerId);
               return [...filtered, { peerId: payload.peerId, x, y }];
             });
@@ -139,11 +139,11 @@ export function SharedDreamProvider() {
               cb(payload.data, payload.peerId);
             }
           } else if (payload.type === 'peer_leave') {
-            setCursors(prev: Record<string, unknown> => prev.filter((c: Record<string, unknown>) => c.peerId !== payload.peerId));
+            setCursors((prev: Record<string, unknown>) => prev.filter((c: Record<string, unknown>) => c.peerId !== payload.peerId));
           }
         }) as CollabEventHandler);
       })
-      .catch(err: unknown => {
+      .catch((err: unknown ) => {
         console.error('[SharedDreamProvider] Failed to connect:', err);
       });
 
@@ -248,7 +248,7 @@ export function SharedDreamProvider() {
   );
 }
 
-export function useSharedDream(: SharedDreamContextValue) {
+export function useSharedDream(): SharedDreamContextValue {
   const ctx = useContext(SharedDreamContext);
   if (!ctx) {
     throw new Error('useSharedDream() must be used inside <SharedDreamProvider>');

@@ -1,11 +1,11 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-export function cn(...inputs: ClassValue[]) {
+export function cn(...inputs: ClassValue[] ){
   return twMerge(clsx(inputs))
 }
 
-export function formatDate(date: string | Date) {
+export function formatDate(date: string | Date ){
   return new Date(date).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -13,7 +13,7 @@ export function formatDate(date: string | Date) {
   })
 }
 
-export function formatRelativeTime(date: string | Date, options?:) { compact?: boolean } {
+export function formatRelativeTime(date: string | Date, options?): { compact?: boolean } {
   const now = new Date()
   const target = new Date(date)
   const diffMs = now.getTime() - target.getTime()
@@ -36,11 +36,11 @@ export function formatRelativeTime(date: string | Date, options?:) { compact?: b
   return formatDate(date)
 }
 
-export function generateDedupeHash(userId: string, source: string, externalId: string) {
+export function generateDedupeHash(userId: string, source: string, externalId): string {
   return `${userId}-${source}-${externalId}`
 }
 
-// -- Improvement 6: debounce ---------------------------------------------------
+// ── Improvement 6: debounce ───────────────────────────────────────────────────
 
  
 type AnyFn = (...args: unknown[]) => void;
@@ -58,7 +58,7 @@ export function debounce<T extends AnyFn>(
    
   let pendingArgs: unknown[] | null = null
 
-  function debounced(...args: Parameters<T>) {
+  function debounced(...args: Parameters<T> ){
     pendingArgs = args
     if (timer !== null) clearTimeout(timer)
     timer = setTimeout(() => {
@@ -82,7 +82,7 @@ export function debounce<T extends AnyFn>(
   return debounced as T & { cancel: () => void; flush: (...args: Parameters<T>) => void }
 }
 
-// -- Improvement 7: throttle ---------------------------------------------------
+// ── Improvement 7: throttle ───────────────────────────────────────────────────
 
 /**
  * Returns a throttled version of `fn` that fires at most once every
@@ -96,7 +96,7 @@ export function throttle<T extends AnyFn>(
   let lastCallAt = 0
   let timer: ReturnType<typeof setTimeout> | null = null
 
-  function throttled(...args: Parameters<T>) {
+  function throttled(...args: Parameters<T> ){
     const now = Date.now()
     const remaining = intervalMs - (now - lastCallAt)
     if (timer !== null) clearTimeout(timer)
@@ -119,25 +119,25 @@ export function throttle<T extends AnyFn>(
   return throttled as T & { cancel: () => void }
 }
 
-// -- Improvement 8: clamp ------------------------------------------------------
+// ── Improvement 8: clamp ──────────────────────────────────────────────────────
 
 /** Constrain `value` to the inclusive range [min, max]. */
-export function clamp(value: number, min: number, max: number: number) {
+export function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
 }
 
-// -- Improvement 9: truncate ---------------------------------------------------
+// ── Improvement 9: truncate ───────────────────────────────────────────────────
 
 /**
  * Truncate `str` to at most `maxLen` characters (including the suffix).
  * Default suffix is '…'.
  */
-export function truncate(str: string, maxLen: number, suffix = '…': string) {
+export function truncate(str: string, maxLen: number, suffix = '…'): string {
   if (str.length <= maxLen) return str
   return str.slice(0, Math.max(0, maxLen - suffix.length)) + suffix
 }
 
-// -- Improvement 10: retry -----------------------------------------------------
+// ── Improvement 10: retry ─────────────────────────────────────────────────────
 
 /**
  * Retry an async function up to `maxAttempts` times using exponential backoff.
@@ -167,14 +167,14 @@ export async function retry<T>(
   throw lastError
 }
 
-// -- Improvement 11: sleep -----------------------------------------------------
+// ── Improvement 11: sleep ─────────────────────────────────────────────────────
 
 /** Return a Promise that resolves after `ms` milliseconds. */
-export function sleep(ms: number: Promise<void>) {
-  return new Promise(resolve: Record<string, unknown> => setTimeout(resolve, ms))
+export function sleep(ms: number): Promise<void> {
+  return new Promise((resolve: Record<string, unknown>) => setTimeout(resolve, ms))
 }
 
-// -- Improvement 12: deepClone -------------------------------------------------
+// ── Improvement 12: deepClone ─────────────────────────────────────────────────
 
 /**
  * Deep-clone a value using `structuredClone` when available, falling back to
@@ -187,7 +187,7 @@ export function deepClone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
 }
 
-// -- Improvement 13: groupBy ---------------------------------------------------
+// ── Improvement 13: groupBy ───────────────────────────────────────────────────
 
 /**
  * Group an array by a derived key.
@@ -204,7 +204,7 @@ export function groupBy<T, K>(arr: readonly T[], keyFn: (item: T) => K): Map<K, 
   return map
 }
 
-// -- Improvement 14: unique ----------------------------------------------------
+// ── Improvement 14: unique ────────────────────────────────────────────────────
 
 /**
  * Return a new array with duplicate values removed (identity comparison).
@@ -214,12 +214,12 @@ export function unique<T>(arr: readonly T[]): T[] {
   return [...new Set(arr)]
 }
 
-// -- Improvement 15: assert ----------------------------------------------------
+// ── Improvement 15: assert ────────────────────────────────────────────────────
 
 /**
  * Assert that `condition` is truthy, throwing an `Error` with `message` when
  * it is not. TypeScript narrows the type of `condition` to `true` after this.
  */
-export function assert(condition: unknown, message: string: asserts condition) {
+export function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(`Assertion failed: ${message}`)
 }

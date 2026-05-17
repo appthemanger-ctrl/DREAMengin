@@ -17,7 +17,7 @@ const EMBEDDING_DIMENSIONS = 1536;
  * Falls back gracefully when the API key is absent (e.g. CI / local dev
  * without credentials).
  */
-async function fetchEmbedding(text: string: Promise<number[] | null>) {
+async function fetchEmbedding(text: string): Promise<number[] | null> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     console.warn('[dream-docs] OPENAI_API_KEY not set — skipping embedding');
@@ -56,7 +56,7 @@ async function fetchEmbedding(text: string: Promise<number[] | null>) {
  * Silently no-ops if the OPENAI_API_KEY is absent so that local dev / CI
  * environments don't break.
  */
-export async function embedDocSection(sectionId: number, content: string: Promise<void>) {
+export async function embedDocSection(sectionId: number, content: string): Promise<void> {
   const embedding = await fetchEmbedding(content);
   if (!embedding) return;
 

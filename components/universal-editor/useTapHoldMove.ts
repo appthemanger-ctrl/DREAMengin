@@ -14,12 +14,12 @@
 import { useCallback, useEffect, useRef } from 'react';
 import type { ModuleManifest, RuntimeId } from '@/lib/universal-editor/module-manifest';
 
-// --- Constants ----------------------------------------------------------------
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const TAP_HOLD_MS  = 300;
 const EDGE_PX      = 40;
 
-// --- Types --------------------------------------------------------------------
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface Position {
   x: number;
@@ -40,9 +40,9 @@ export interface TapHoldMoveBindings {
   onTouchStart:  React.TouchEventHandler;
 }
 
-// --- Edge detection -----------------------------------------------------------
+// ─── Edge detection ───────────────────────────────────────────────────────────
 
-function detectEdgeRuntime(x: number, y: number: RuntimeId | null) {
+function detectEdgeRuntime(x: number, y: number): RuntimeId | null {
   if (typeof window === 'undefined') return null;
   const { innerWidth: w, innerHeight: h } = window;
   if (x <= EDGE_PX)          return 'HomeDream';
@@ -52,9 +52,9 @@ function detectEdgeRuntime(x: number, y: number: RuntimeId | null) {
   return null;
 }
 
-// --- Hook ---------------------------------------------------------------------
+// ─── Hook ─────────────────────────────────────────────────────────────────────
 
-export function useTapHoldMove() {
+export function useTapHoldMove(){
   manifest,
   onDragStart,
   onMove,
@@ -66,7 +66,7 @@ export function useTapHoldMove() {
   const dragging   = useRef(false);
   const startPos   = useRef<Position>({ x: 0, y: 0 });
 
-  // -- Drag started --------------------------------------------------------
+  // ── Drag started ────────────────────────────────────────────────────────
 
   const beginDrag = useCallback((x: number, y: number) => {
     dragging.current = true;
@@ -74,7 +74,7 @@ export function useTapHoldMove() {
     onDragStart?.(manifest);
   }, [manifest, onDragStart]);
 
-  // -- Move ----------------------------------------------------------------
+  // ── Move ────────────────────────────────────────────────────────────────
 
   const handleMove = useCallback((x: number, y: number) => {
     if (!dragging.current) return;
@@ -87,7 +87,7 @@ export function useTapHoldMove() {
     }
   }, [manifest, onMove, onTransfer]);
 
-  // -- End drag ------------------------------------------------------------
+  // ── End drag ────────────────────────────────────────────────────────────
 
   const endDrag = useCallback(() => {
     if (holdTimer.current) {
@@ -100,17 +100,17 @@ export function useTapHoldMove() {
     }
   }, [manifest, onDragEnd]);
 
-  // -- Mouse ----------------------------------------------------------------
+  // ── Mouse ────────────────────────────────────────────────────────────────
 
-  const onMouseDown: React.MouseEventHandler = useCallback(e: unknown => {
+  const onMouseDown: React.MouseEventHandler = useCallback((e: unknown ) => {
     if (disabled) return;
     const { clientX: x, clientY: y } = e;
     holdTimer.current = setTimeout(() => beginDrag(x, y), TAP_HOLD_MS);
   }, [disabled, beginDrag]);
 
-  // -- Touch -----------------------------------------------------------------
+  // ── Touch ─────────────────────────────────────────────────────────────────
 
-  const onTouchStart: React.TouchEventHandler = useCallback(e: unknown => {
+  const onTouchStart: React.TouchEventHandler = useCallback((e: unknown ) => {
     if (disabled) return;
     const touch = e.touches[0];
     if (!touch) return;
@@ -118,7 +118,7 @@ export function useTapHoldMove() {
     holdTimer.current = setTimeout(() => beginDrag(x, y), TAP_HOLD_MS);
   }, [disabled, beginDrag]);
 
-  // -- Global move/end listeners ------------------------------------------
+  // ── Global move/end listeners ──────────────────────────────────────────
 
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => handleMove(e.clientX, e.clientY);

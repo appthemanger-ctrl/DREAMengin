@@ -23,8 +23,8 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// -- hoisted mocks (must be declared before any imports that trigger module
-//    evaluation, because vi.mock() is hoisted to the top of the file) --------
+// ── hoisted mocks (must be declared before any imports that trigger module
+//    evaluation, because vi.mock() is hoisted to the top of the file) ────────
 
 const redirectMock = vi.hoisted(() =>
   vi.fn((path: string) => {
@@ -76,7 +76,7 @@ vi.mock('lucide-react', () => ({
   Zap: vi.fn(() => null),
 }));
 
-// -- tests --------------------------------------------------------------------
+// ── tests ────────────────────────────────────────────────────────────────────
 
 describe('app/daydream/games/page auth gating', () => {
   beforeEach(() => {

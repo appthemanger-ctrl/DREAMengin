@@ -64,7 +64,7 @@ const ELEVEN_BASE = 'https://api.elevenlabs.io/v1';
  *
  * Requires ELEVENLABS_API_KEY. Falls back to graceful stubs when the key is absent.
  */
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
   const elevenLabsKey = process.env.ELEVENLABS_API_KEY;
   const db = supabase as unknown as SupabaseDb;
 
-  // -- clone ----------------------------------------------------------------
+  // ── clone ────────────────────────────────────────────────────────────────
   if (parsed.data.action === 'clone') {
     const { voiceName, sampleBase64 } = parsed.data;
 
@@ -157,7 +157,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // -- list ----------------------------------------------------------------
+  // ── list ────────────────────────────────────────────────────────────────
   if (parsed.data.action === 'list') {
     if (elevenLabsKey) {
       try {
@@ -168,7 +168,7 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: 'ElevenLabs list failed' }, { status: res.status });
         }
         const data = await res.json() as { voices: Array<{ voice_id: string; name: string; created_at_unix: number }> };
-        const profiles = data.voices.map(v => ({
+        const profiles = data.voices.map((v) => ({
           id: v.voice_id,
           name: v.name,
           createdAt: new Date((v.created_at_unix ?? 0) * 1000).toISOString(),
@@ -201,7 +201,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ profiles });
   }
 
-  // -- delete ---------------------------------------------------------------
+  // ── delete ───────────────────────────────────────────────────────────────
   if (parsed.data.action === 'delete') {
     const { voiceId } = parsed.data;
 
@@ -232,7 +232,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: `Voice profile "${voiceId}" deleted.` });
   }
 
-  // -- tts -----------------------------------------------------------------
+  // ── tts ─────────────────────────────────────────────────────────────────
   const { text, voiceId, stability = 0.5, similarityBoost = 0.75 } = parsed.data;
 
   if (elevenLabsKey) {

@@ -58,7 +58,7 @@ import DreamRCreatorPanel from '@/components/dreamr/dream.panel.DreamRCreatorPan
 import DreamRChannelPanel from '@/components/dreamr/dream.panel.DreamRChannelPanel';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 
-// -- Design tokens --------------------------------------------------------------
+// ── Design tokens ──────────────────────────────────────────────────────────────
 
 const DR = {
   bg:          '#e8eff6',
@@ -80,10 +80,10 @@ const RIGHT_SWIPE_SCROLL_BUFFER_CARDS = 2;
 const REDISTRIBUTION_EXPLANATION =
   'this card is recycled to someone more likely to swipe up or left before it earns a real view.';
 
-function nmR(s = 5) { return `${-s}px ${-s}px ${s*2.4}px ${DR.shadowLight}, ${s}px ${s}px ${s*2.8}px ${DR.shadowDark}`; }
-function nmI(s = 4) { return `inset ${-s}px ${-s}px ${s*2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s*2.4}px ${DR.shadowDark}`; }
+function nmR(s = 5 ){ return `${-s}px ${-s}px ${s*2.4}px ${DR.shadowLight}, ${s}px ${s}px ${s*2.8}px ${DR.shadowDark}`; }
+function nmI(s = 4 ){ return `inset ${-s}px ${-s}px ${s*2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s*2.4}px ${DR.shadowDark}`; }
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 interface SuggestedCreator {
   id: string;
@@ -107,9 +107,9 @@ interface DreamRFeedProps {
   initialPosts: FeedPost[];
 }
 
-// -- Helpers -------------------------------------------------------------------
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-function relTime(iso: string: string) {
+function relTime(iso: string): string {
   const s = (Date.now() - new Date(iso).getTime()) / 1000;
   if (s < 60)    return `${Math.floor(s)}s`;
   if (s < 3600)  return `${Math.floor(s/60)}m`;
@@ -117,20 +117,20 @@ function relTime(iso: string: string) {
   return `${Math.floor(s/86400)}d`;
 }
 
-function fmtViews(n: number: string) {
+function fmtViews(n: number): string {
   if (n >= 1_000_000) return `${(n/1_000_000).toFixed(1)}M`;
   if (n >= 1_000)     return `${(n/1_000).toFixed(1)}k`;
   return String(n);
 }
 
-function isImage(u?: string | null) { return !!u && /\.(jpe?g|png|gif|webp|avif|svg)(\?|$)/i.test(u); }
-function isYouTube(post: FeedPost) { return post.provider === 'youtube' || !!(post.permalink?.includes('youtu')); }
+function isImage(u?: string | null ){ return !!u && /\.(jpe?g|png|gif|webp|avif|svg)(\?|$)/i.test(u); }
+function isYouTube(post: FeedPost ){ return post.provider === 'youtube' || !!(post.permalink?.includes('youtu')); }
 
-function redistributionMessage(creator: string, type: string: string) {
+function redistributionMessage(creator: string, type: string): string {
   return `Showing you less ${type} from ${creator}; ${REDISTRIBUTION_EXPLANATION}`;
 }
 
-// -- Topic channels -------------------------------------------------------------
+// ── Topic channels ─────────────────────────────────────────────────────────────
 // Featured top-10 topics for the DreamR channel strip (plus "All").
 // Each maps to a YouTube search query.
 
@@ -149,7 +149,7 @@ export const DREAMR_TOPICS: Array<{ id: string; label: string; emoji: string; qu
 ];
 
 // Extract YouTube video ID from permalink
-function ytVideoId(post: FeedPost: string | null) {
+function ytVideoId(post: FeedPost): string | null {
   const src = post.permalink ?? null;
   if (!src) return null;
   try {
@@ -161,13 +161,13 @@ function ytVideoId(post: FeedPost: string | null) {
   return m?.[1] ?? null;
 }
 
-function ytEmbedUrl(post: FeedPost: string | null) {
+function ytEmbedUrl(post: FeedPost): string | null {
   const id = ytVideoId(post);
   return id ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0` : null;
 }
 
 // Convert a UnifiedFeedItem to FeedPost (for YouTube topic items)
-function ytItemToFeedPost(item: UnifiedFeedItem: FeedPost) {
+function ytItemToFeedPost(item: UnifiedFeedItem): FeedPost {
   const thumbnail = item.media[0]?.thumbnail_url ?? item.media[0]?.url ?? null;
   return {
     id:          `yt:${item.external_id}`,
@@ -183,9 +183,9 @@ function ytItemToFeedPost(item: UnifiedFeedItem: FeedPost) {
   };
 }
 
-// -- Action button --------------------------------------------------------------
+// ── Action button ──────────────────────────────────────────────────────────────
 
-function ActionBtn() {
+function ActionBtn(){
   icon, onClick, dark, active, ariaLabel,
 }: { icon: React.ReactNode; onClick: () => void; dark: boolean; active?: boolean; ariaLabel: string }) {
   return (
@@ -201,9 +201,9 @@ function ActionBtn() {
   );
 }
 
-// -- Regular post card ---------------------------------------------------------
+// ── Regular post card ─────────────────────────────────────────────────────────
 
-// -- YouTube / Video post card (snap-scroll) -----------------------------------
+// ── YouTube / Video post card (snap-scroll) ───────────────────────────────────
 
 interface VideoCardProps {
   post: FeedPost;
@@ -217,7 +217,7 @@ interface VideoCardProps {
   onShare: (id: string) => void;
 }
 
-function VideoPostCard() { post, isActive: Record<string, unknown>, onSwipeLeft: Record<string, unknown>, onSwipeRight: Record<string, unknown>, onLike: Record<string, unknown>, liked: Record<string, unknown>, saved: Record<string, unknown>, onSave: Record<string, unknown>, onShare }: VideoCardProps {
+function VideoPostCard({ post, isActive: Record<string, unknown>, onSwipeLeft: Record<string, unknown>, onSwipeRight: Record<string, unknown>, onLike: Record<string, unknown>, liked: Record<string, unknown>, saved: Record<string, unknown>, onSave: Record<string, unknown>, onShare }: VideoCardProps) {
   const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -380,7 +380,7 @@ function VideoPostCard() { post, isActive: Record<string, unknown>, onSwipeLeft:
   );
 }
 
-// -- Regular post card ---------------------------------------------------------
+// ── Regular post card ─────────────────────────────────────────────────────────
 
 interface CardProps {
   post: FeedPost;
@@ -395,7 +395,7 @@ interface CardProps {
   onComment: (id: string) => void;
 }
 
-function PostCard() { post, isActive: Record<string, unknown>, onSwipeLeft: Record<string, unknown>, onSwipeRight: Record<string, unknown>, onLike: Record<string, unknown>, liked: Record<string, unknown>, saved: Record<string, unknown>, onSave: Record<string, unknown>, onShare: Record<string, unknown>, onComment }: CardProps {
+function PostCard({ post, isActive: Record<string, unknown>, onSwipeLeft: Record<string, unknown>, onSwipeRight: Record<string, unknown>, onLike: Record<string, unknown>, liked: Record<string, unknown>, saved: Record<string, unknown>, onSave: Record<string, unknown>, onShare: Record<string, unknown>, onComment }: CardProps) {
   const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const hasDark = isImage(post.media_url);
   const [captionExpanded, setCaptionExpanded] = useState(false);
@@ -528,7 +528,7 @@ function PostCard() { post, isActive: Record<string, unknown>, onSwipeLeft: Reco
             {cleanCaption.length > CAPTION_LIMIT && (
               <button
                 type="button"
-                onClick={e => { e.stopPropagation(); setCaptionExpanded(x => !x); }}
+                onClick={e => { e.stopPropagation(); setCaptionExpanded((x) => !x); }}
                 style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.60)', fontFamily: DR.font }}
               >
                 {captionExpanded ? <><ChevronUp size={11} /> less</> : <><ChevronDown size={11} /> more</>}
@@ -554,9 +554,9 @@ function PostCard() { post, isActive: Record<string, unknown>, onSwipeLeft: Reco
   );
 }
 
-// -- Suggested CONTENT card ----------------------------------------------------
+// ── Suggested CONTENT card ────────────────────────────────────────────────────
 
-function SuggestedContentCard() { post, onSwipeLeft, onSwipeRight }: { post: FeedPost; onSwipeLeft: () => void; onSwipeRight: () => void }) {
+function SuggestedContentCard({ post, onSwipeLeft, onSwipeRight }: ) { post: FeedPost; onSwipeLeft: () => void; onSwipeRight: () => void }) {
   const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const caption = post.content?.slice(0, 120) ?? '';
 
@@ -631,9 +631,9 @@ function SuggestedContentCard() { post, onSwipeLeft, onSwipeRight }: { post: Fee
   );
 }
 
-// -- Suggested CREATOR card ----------------------------------------------------
+// ── Suggested CREATOR card ────────────────────────────────────────────────────
 
-function SuggestedCreatorCard() { creator }: { creator: SuggestedCreator } {
+function SuggestedCreatorCard({ creator }: ) { creator: SuggestedCreator } {
   const [following, setFollowing] = useState(false);
 
   const handleFollow = async () => {
@@ -687,10 +687,10 @@ function SuggestedCreatorCard() { creator }: { creator: SuggestedCreator } {
   );
 }
 
-// -- Main feed -----------------------------------------------------------------
+// ── Main feed ─────────────────────────────────────────────────────────────────
 
-export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
-  // -- State -----------------------------------------------------------------
+export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
+  // ── State ─────────────────────────────────────────────────────────────────
   const [posts,         setPosts]       = useState<FeedPost[]>(initialPosts);
   const [sugContent,    setSugContent]  = useState<FeedPost[]>([]);
   const [sugCreators,   setSugCreators] = useState<SuggestedCreator[]>([]);
@@ -705,18 +705,18 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
   const [hasMore,       setHasMore]     = useState(true);
   const [swipePrefs,    setSwipePrefs]  = useState(emptyDreamRSwipePreferences);
   const [redistributionNotice, setRedistributionNotice] = useState<string | null>(null);
-  // -- Topic channels --------------------------------------------------------
+  // ── Topic channels ────────────────────────────────────────────────────────
   // Start on World News (first topic with a query) so YouTube content is immediately visible.
   // DREAMR_TOPICS is a module-level constant so it is always non-empty; the
   // non-null assertion on the fallback is safe by construction.
   const [activeTopic,   setActiveTopic] = useState<(typeof DREAMR_TOPICS)[number]>(
-    DREAMR_TOPICS.find(t => t.query) ?? DREAMR_TOPICS[0]!,
+    DREAMR_TOPICS.find((t) => t.query) ?? DREAMR_TOPICS[0]!,
   );
   const [ytTopicPosts,  setYtTopicPosts] = useState<FeedPost[]>([]);
   const [ytLoading,     setYtLoading]   = useState(false);
   const [ytRefreshing,  setYtRefreshing] = useState(false);
 
-  // -- World focus integration -----------------------------------------------
+  // ── World focus integration ───────────────────────────────────────────────
   const { setFocus } = useDreamSystem();
 
   const scrollRef  = useRef<HTMLDivElement>(null);
@@ -727,35 +727,35 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
 
   useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; }; }, []);
 
-  // -- Fetch DreamR-ranked native feed --------------------------------------
+  // ── Fetch DreamR-ranked native feed ──────────────────────────────────────
   useEffect(() => {
     if (!userId) return;
     fetch('/api/dreamr/feed?limit=20')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
         if (d?.posts?.length) { setPosts(d.posts); offsetRef.current = d.posts.length; }
       })
       .catch(() => {});
   }, [userId]);
 
-  // -- Fetch suggested content/creators (for interstitial cards) -------------
+  // ── Fetch suggested content/creators (for interstitial cards) ─────────────
   useEffect(() => {
     if (!userId) return;
     fetch('/api/dreamr/suggested?type=content&limit=4')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.suggestions) setSugContent(d.suggestions); })
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d?.suggestions) setSugContent(d.suggestions); })
       .catch(() => {});
   }, [userId]);
 
   useEffect(() => {
     if (!userId) return;
     fetch('/api/dreamr/suggested?type=creators&limit=3')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.suggestions) setSugCreators(d.suggestions); })
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d?.suggestions) setSugCreators(d.suggestions); })
       .catch(() => {});
   }, [userId]);
 
-  // -- Fetch YouTube videos for active topic ------------------------------
+  // ── Fetch YouTube videos for active topic ──────────────────────────────
   const fetchYtTopic = useCallback(async (topic: (typeof DREAMR_TOPICS)[number], refreshing = false) => {
     if (refreshing) setYtRefreshing(true); else setYtLoading(true);
     try {
@@ -789,17 +789,17 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
     return () => clearInterval(timer);
   }, [activeTopic, fetchYtTopic]);
 
-  // -- Live poll for new native posts (every 60 s) ------------------------
+  // ── Live poll for new native posts (every 60 s) ────────────────────────
   useEffect(() => {
     if (!userId) return;
     setIsLive(true);
     const interval = setInterval(() => {
       fetch('/api/dreamr/feed?limit=5')
-        .then(r => r.ok ? r.json() : null)
-        .then(d => {
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => {
           if (!d?.posts?.length) return;
           const currentIds = new Set(posts.map((p: FeedPost) => p.id));
-          const fresh = (d.posts as FeedPost[]).filter(p => !currentIds.has(p.id));
+          const fresh = (d.posts as FeedPost[]).filter((p) => !currentIds.has(p.id));
           if (fresh.length > 0) { pendingRef.current = fresh; setNewCount(fresh.length); }
         })
         .catch(() => {});
@@ -809,23 +809,23 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
 
   const flushNew = useCallback(() => {
     if (pendingRef.current.length > 0) {
-      setPosts(prev => [...pendingRef.current, ...prev]);
+      setPosts((prev) => [...pendingRef.current, ...prev]);
       pendingRef.current = [];
       setNewCount(0);
       scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, []);
 
-  // -- Load more posts when near the end --------------------------------
+  // ── Load more posts when near the end ────────────────────────────────
   const loadMore = useCallback(() => {
     if (loadingMore || !hasMore || !userId) return;
     setLoadingMore(true);
     fetch(`/api/dreamr/feed?limit=20&offset=${offsetRef.current}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
         if (d?.posts?.length) {
-          setPosts(prev => {
-            const existingIds = new Set(prev.map(p => p.id));
+          setPosts((prev) => {
+            const existingIds = new Set(prev.map((p) => p.id));
             const fresh = (d.posts as FeedPost[]).filter((p: FeedPost) => !existingIds.has(p.id));
             offsetRef.current += fresh.length;
             return [...prev, ...fresh];
@@ -839,7 +839,7 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
       .finally(() => setLoadingMore(false));
   }, [loadingMore, hasMore, userId]);
 
-  // -- Interleave: native posts + YouTube topic videos + suggested ------
+  // ── Interleave: native posts + YouTube topic videos + suggested ──────
   // Pattern: 3 native posts → 1 YouTube video, then periodically a suggested card
   const feedItems = useMemo((): FeedItem[] => {
     const items: FeedItem[] = [];
@@ -877,7 +877,7 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
   }, [posts, ytTopicPosts, sugContent, sugCreators]);
 
   const personalizedFeedItems = useMemo((): FeedItem[] => (
-    personalizeFeedOrder(feedItems, swipePrefs, item => item.kind === 'creator' ? null : item.post)
+    personalizeFeedOrder((feedItems, swipePrefs, item) => item.kind === 'creator' ? null : item.post)
   ), [feedItems, swipePrefs]);
 
   const handleScroll = useCallback(() => {
@@ -902,7 +902,7 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
     return () => clearTimeout(timer);
   }, [activeIdx, personalizedFeedItems, recordDreamRView]);
 
-  // -- World focus: emit selection when active card changes -----------------
+  // ── World focus: emit selection when active card changes ─────────────────
   useEffect(() => {
     const item = personalizedFeedItems[activeIdx];
     if (!item) return;
@@ -920,7 +920,7 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
     setActiveIdx(Math.max(0, personalizedFeedItems.length - 1));
   }, [activeIdx, personalizedFeedItems.length]);
 
-  // -- Keyboard navigation (↑/↓ / j/k for desktop) ----------------------
+  // ── Keyboard navigation (↑/↓ / j/k for desktop) ──────────────────────
   useEffect(() => {
     const el = scrollRef.current; if (!el) return;
     const onKey = (e: KeyboardEvent) => {
@@ -941,13 +941,13 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
 
   const handleLike = useCallback(async (id: string) => {
     const wasLiked = likedPosts.has(id);
-    setLikedPosts(prev => { const n = new Set(prev); wasLiked ? n.delete(id) : n.add(id); return n; });
+    setLikedPosts((prev) => { const n = new Set(prev); wasLiked ? n.delete(id) : n.add(id); return n; });
     try { await fetch('/api/likes', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ content_type: 'post', content_id: id }) }); }
     catch { /* non-critical */ }
   }, [likedPosts]);
 
   const handleSave = useCallback((id: string) => {
-    setSavedPosts(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+    setSavedPosts((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   }, []);
 
   const handleShare = useCallback(async (id: string) => {
@@ -972,9 +972,9 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
     }
   }, []);
 
-  // -- Swipe-left routing -------------------------------------------------
+  // ── Swipe-left routing ─────────────────────────────────────────────────
   const handleSwipeLeft = useCallback((post: FeedPost) => {
-    setSwipePrefs(prev => nextSwipePreferences(prev, post, 'more'));
+    setSwipePrefs((prev) => nextSwipePreferences(prev, post, 'more'));
     setRedistributionNotice(null);
     recordDreamRView(post, 'left');
     if (isYouTube(post)) {
@@ -987,7 +987,7 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
   }, [recordDreamRView, setFocus]);
 
   const handleSwipeRight = useCallback((post: FeedPost) => {
-    setSwipePrefs(prev => nextSwipePreferences(prev, post, 'less'));
+    setSwipePrefs((prev) => nextSwipePreferences(prev, post, 'less'));
     const creator = post.profiles?.display_name ?? post.profiles?.handle ?? 'this creator';
     const type = contentTypePreferenceKey(post);
     setRedistributionNotice(redistributionMessage(creator, type));
@@ -1002,7 +1002,7 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
     });
   }, [activeIdx, personalizedFeedItems.length]);
 
-  // -- Empty state --------------------------------------------------------
+  // ── Empty state ────────────────────────────────────────────────────────
   if (personalizedFeedItems.length === 0 && !ytLoading) {
     return (
       <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, background: DR.bg, fontFamily: DR.font }}>
@@ -1017,7 +1017,7 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
               Discover creators
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {sugCreators.slice(0, 3).map(c => (
+              {sugCreators.slice(0, 3).map((c) => (
                 <div key={c.id} style={{ background: DR.bg, borderRadius: 16, boxShadow: nmR(5), padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
                   {c.avatar_url ? (
                     <Image src={c.avatar_url} alt="" width={45} height={45} style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
@@ -1042,7 +1042,7 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', background: DR.bg }}>
 
-      {/* -- Topic channel strip -------------------------------------------- */}
+      {/* ── Topic channel strip ──────────────────────────────────────────── */}
       <div
         style={{
           position: 'absolute', top: 0, left: 0, right: 0, zIndex: 25,
@@ -1058,7 +1058,7 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
             pointerEvents: 'auto',
           }}
         >
-          {DREAMR_TOPICS.map(topic => {
+          {DREAMR_TOPICS.map((topic) => {
             const active = activeTopic.id === topic.id;
             return (
               <button
@@ -1095,7 +1095,7 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
         </div>
       </div>
 
-      {/* -- New posts banner ---------------------------------------------- */}
+      {/* ── New posts banner ────────────────────────────────────────────── */}
       {newCount > 0 && (
         <button type="button" onClick={flushNew}
           style={{ position: 'absolute', top: 58, left: '50%', transform: 'translateX(-50%)', zIndex: 30, display: 'flex', alignItems: 'center', gap: 7, background: DR.bg, boxShadow: nmR(5), border: 'none', borderRadius: 99, padding: '9px 20px', fontSize: 12, fontWeight: 700, color: DR.sky, cursor: 'pointer', fontFamily: DR.font, whiteSpace: 'nowrap' }}>
@@ -1119,21 +1119,21 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
         </div>
       )}
 
-      {/* -- Live dot (top-right) ------------------------------------------- */}
+      {/* ── Live dot (top-right) ─────────────────────────────────────────── */}
       {isLive && (
         <div style={{ position: 'absolute', top: 14, right: 14, zIndex: 30, display: 'flex', alignItems: 'center', gap: 5, background: DR.bg, boxShadow: nmR(2), borderRadius: 99, padding: '4px 10px', fontSize: 9, fontWeight: 800, color: DR.sky, letterSpacing: '0.10em', textTransform: 'uppercase', fontFamily: DR.font }}>
           <Wifi size={9} /> Live
         </div>
       )}
 
-      {/* -- Loading spinner for YouTube topic ----------------------------- */}
+      {/* ── Loading spinner for YouTube topic ───────────────────────────── */}
       {ytLoading && personalizedFeedItems.length === 0 && (
         <div style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', background: DR.bg }}>
           <Loader2 size={28} style={{ color: DR.sky, animation: 'dr-spin 0.8s linear infinite' }} />
         </div>
       )}
 
-      {/* -- Scroll-snap container ------------------------------------------ */}
+      {/* ── Scroll-snap container ────────────────────────────────────────── */}
       <div
         ref={scrollRef} onScroll={handleScroll}
         style={{ width: '100%', height: '100%', overflowY: 'scroll', overflowX: 'hidden', scrollSnapType: 'y mandatory', scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}
@@ -1141,7 +1141,7 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
         {/* Spacer for topic strip */}
         <div style={{ height: 54, flexShrink: 0, scrollSnapAlign: 'none' }} />
 
-        {personalizedFeedItems.map(item: Record<string, unknown>, i: number => (
+        {personalizedFeedItems.map(item: Record<string, unknown>, (i: number ) => (
           <div
             key={item.kind === 'creator' ? `creator-${item.creator.id}` : item.post.id}
             style={{ width: '100%', height: '100%', flexShrink: 0, scrollSnapAlign: 'start' }}
@@ -1182,7 +1182,7 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
         )}
       </div>
 
-      {/* -- Scroll nudge --------------------------------------------------- */}
+      {/* ── Scroll nudge ─────────────────────────────────────────────────── */}
       {activeIdx === 0 && personalizedFeedItems.length > 1 && (
         <div style={{ position: 'absolute', bottom: 72, left: '50%', transform: 'translateX(-50%)', zIndex: 15, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, animation: 'dr-nudge 2s ease-in-out infinite' }}>
           <div style={{ background: DR.bg, boxShadow: nmR(3), borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -1192,14 +1192,14 @@ export default function DreamRFeed() { userId, initialPosts }: DreamRFeedProps {
         </div>
       )}
 
-      {/* -- DreamR creator panel (swipe left on native posts) ------------ */}
+      {/* ── DreamR creator panel (swipe left on native posts) ──────────── */}
       {creatorPost && (
         <div style={{ position: 'absolute', inset: 0, zIndex: 40 }}>
           <DreamRCreatorPanel post={creatorPost} onClose={() => setCreatorPost(null)} />
         </div>
       )}
 
-      {/* -- YouTube channel panel (swipe left on YouTube cards) ----------- */}
+      {/* ── YouTube channel panel (swipe left on YouTube cards) ─────────── */}
       {channelPost && (
         <div style={{ position: 'absolute', inset: 0, zIndex: 40 }}>
           <DreamRChannelPanel

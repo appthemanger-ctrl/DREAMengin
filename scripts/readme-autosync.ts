@@ -214,12 +214,12 @@ function buildTreeLines(files: string[], maxLines = 120): string[] {
     children.forEach((child, index) => {
       if (lines.length >= maxLines) return;
       const isLast = index === children.length - 1;
-      const connector = isLast ? '└-- ' : '├-- ';
+      const connector = isLast ? '└── ' : '├── ';
       const childPath = parent ? `${parent}/${child}` : child;
       const isLeaf = !tree.has(childPath);
       lines.push(`${prefix}${connector}${child}`);
       if (!isLeaf) {
-        emit(childPath, `${prefix}${isLast ? '    ' : '|   '}`);
+        emit(childPath, `${prefix}${isLast ? '    ' : '│   '}`);
       }
     });
   };
@@ -394,7 +394,7 @@ export function computeAffected(
   return affected;
 }
 
-export function runReadmeAutosync(options:) { changedFiles: string[]; summaryFile?: string }): AutosyncSummary {
+export function runReadmeAutosync(options: ){ changedFiles: string[]; summaryFile?: string }): AutosyncSummary {
   if (!existsSync(README_PATH)) {
     throw new Error(`README not found at ${README_PATH}`);
   }

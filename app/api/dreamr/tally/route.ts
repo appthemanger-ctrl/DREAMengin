@@ -35,8 +35,8 @@ const TallyBodySchema = z.object({
   sharerId:  z.string().min(1).max(256),
 });
 
-export async function POST(req: NextRequest: Promise<NextResponse>) {
-  // -- 1. Parse + validate body ---------------------------------------------
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  // ── 1. Parse + validate body ─────────────────────────────────────────────
   let body: unknown;
   try {
     body = await req.json();
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest: Promise<NextResponse>) {
   }
   const { contentId, sharerId } = parsed.data;
 
-  // -- 2. Auth --------------------------------------------------------------
+  // ── 2. Auth ──────────────────────────────────────────────────────────────
   let viewerId: string;
   try {
     const supabase = await createServerClient();
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest: Promise<NextResponse>) {
     }
     viewerId = user.id;
 
-    // -- 3. Upsert tally row -----------------------------------------------
+    // ── 3. Upsert tally row ───────────────────────────────────────────────
     // Upsert is idempotent: the same (content, sharer, viewer) triple only
     // ever writes one row. Re-publishing the same content just refreshes
     // tallied_at which is acceptable and keeps the table from bloating.

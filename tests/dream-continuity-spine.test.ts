@@ -13,7 +13,7 @@ import {
 } from '@/lib/intelligence/continuityHelpers';
 import type { ForgeActivityPulse } from '@/lib/forge/forgeRegistry';
 
-// -- resolveResumeDest ---------------------------------------------------------
+// ── resolveResumeDest ─────────────────────────────────────────────────────────
 
 describe('resolveResumeDest', () => {
   it('returns null when continueFrom is null and activity is empty', () => {
@@ -104,7 +104,7 @@ describe('resolveResumeDest', () => {
   });
 });
 
-// -- formatArtifactKind --------------------------------------------------------
+// ── formatArtifactKind ────────────────────────────────────────────────────────
 
 describe('formatArtifactKind', () => {
   it('maps known kinds to short labels', () => {
@@ -126,7 +126,7 @@ describe('formatArtifactKind', () => {
   });
 });
 
-// -- getArtifactAccent ---------------------------------------------------------
+// ── getArtifactAccent ─────────────────────────────────────────────────────────
 
 describe('getArtifactAccent', () => {
   it('returns a CSS colour string for known kinds', () => {

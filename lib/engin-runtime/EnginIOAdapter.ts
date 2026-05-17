@@ -11,7 +11,7 @@
  * storage-agnostic.  Rule-sets never call I/O directly.
  */
 
-// --- Adapter contract ---------------------------------------------------------
+// ─── Adapter contract ─────────────────────────────────────────────────────────
 
 export interface EnginIOAdapter {
   /**
@@ -33,14 +33,14 @@ export interface EnginIOAdapter {
   remove(key: string): Promise<boolean>;
 }
 
-// --- Key namespacing helper ---------------------------------------------------
+// ─── Key namespacing helper ───────────────────────────────────────────────────
 
 /** Produce the localStorage / storage key for an engin + domain key. */
-export function enginStorageKey(enginId: string, key: string: string) {
+export function enginStorageKey(enginId: string, key: string): string {
   return `de:engin:${enginId}:${key}`;
 }
 
-// --- LocalStorageAdapter -----------------------------------------------------
+// ─── LocalStorageAdapter ─────────────────────────────────────────────────────
 
 /**
  * LocalStorageAdapter
@@ -93,7 +93,7 @@ export class LocalStorageAdapter implements EnginIOAdapter {
   }
 }
 
-// --- MemoryAdapter (test / SSR fallback) -------------------------------------
+// ─── MemoryAdapter (test / SSR fallback) ─────────────────────────────────────
 
 /**
  * MemoryAdapter

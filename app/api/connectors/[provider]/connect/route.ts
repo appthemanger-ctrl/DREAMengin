@@ -46,7 +46,7 @@ export async function POST(
 
   const credentials = (body as { credentials?: Record<string, string> }).credentials ?? (body as Record<string, string>);
 
-  // -- Verify credentials with provider -----------------------------------
+  // ── Verify credentials with provider ───────────────────────────────────
   let verifiedAt: string | null = null;
   let lastError: string | null = null;
   let status: ConnectorConnectResponse['status'] = 'error';
@@ -95,7 +95,7 @@ export async function POST(
     status = 'error';
   }
 
-  // -- Upsert connector_accounts row --------------------------------------
+  // ── Upsert connector_accounts row ──────────────────────────────────────
   // token_blob stores credentials server-side only.
   // We never return token_blob in the response.
   // db is cast to `any` because connector_accounts is a new table not yet in the generated Supabase types.

@@ -55,7 +55,7 @@ interface PSConfig {
   dir2: [number, number, number];
 }
 
-function makePS(BJS: BJS, scene: Scene, name: string, cfg: PSConfig: ParticleSystem) {
+function makePS(BJS: BJS, scene: Scene, name: string, cfg: PSConfig): ParticleSystem {
   const ps = new BJS.ParticleSystem(name, cfg.capacity, scene);
   ps.particleTexture = new BJS.Texture(PARTICLE_TEX_DATA, scene);
   ps.emitter = new BJS.Vector3(0, 0, 0);
@@ -74,8 +74,8 @@ function makePS(BJS: BJS, scene: Scene, name: string, cfg: PSConfig: ParticleSys
   return ps;
 }
 
-export function createMadmaxiVfx(BJS: BJS, scene: Scene, glow: GlowLayer | null: VfxKit) {
-  // --- Sparks ------------------------------------------------------------
+export function createMadmaxiVfx(BJS: BJS, scene: Scene, glow: GlowLayer | null): VfxKit {
+  // ─── Sparks ────────────────────────────────────────────────────────────
   const sparks = makePS(BJS, scene, 'madmaxi_sparks', {
     capacity: 80,
     minSize: 0.06, maxSize: 0.18,
@@ -86,7 +86,7 @@ export function createMadmaxiVfx(BJS: BJS, scene: Scene, glow: GlowLayer | null:
   });
   sparks.start();
 
-  // --- Dash trail --------------------------------------------------------
+  // ─── Dash trail ────────────────────────────────────────────────────────
   const dashTrail = makePS(BJS, scene, 'madmaxi_dash_trail', {
     capacity: 60,
     minSize: 0.10, maxSize: 0.34,
@@ -97,7 +97,7 @@ export function createMadmaxiVfx(BJS: BJS, scene: Scene, glow: GlowLayer | null:
   });
   dashTrail.start();
 
-  // --- Coin starburst ----------------------------------------------------
+  // ─── Coin starburst ────────────────────────────────────────────────────
   const coinBurst = makePS(BJS, scene, 'madmaxi_coin_burst', {
     capacity: 40,
     minSize: 0.08, maxSize: 0.20,
@@ -108,7 +108,7 @@ export function createMadmaxiVfx(BJS: BJS, scene: Scene, glow: GlowLayer | null:
   });
   coinBurst.start();
 
-  // --- Boss-enrage embers ------------------------------------------------
+  // ─── Boss-enrage embers ────────────────────────────────────────────────
   const embers = makePS(BJS, scene, 'madmaxi_embers', {
     capacity: 60,
     minSize: 0.08, maxSize: 0.22,
@@ -118,7 +118,7 @@ export function createMadmaxiVfx(BJS: BJS, scene: Scene, glow: GlowLayer | null:
     dir1: [-0.5, 0.4, -0.3], dir2: [0.5, 1.6, 0.3],
   });
 
-  // --- Landing ring ------------------------------------------------------
+  // ─── Landing ring ──────────────────────────────────────────────────────
   // A flat disc that expands and fades. Lives outside the particle system so
   // we can give it a precise pop-in/pop-out animation curve.
   const ringDiameter = 0.6;

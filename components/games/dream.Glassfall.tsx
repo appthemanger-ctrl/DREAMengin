@@ -40,7 +40,7 @@ const TETROMINOES: Array<Array<[number, number]>> = [
 interface ShardState { x: number; y: number; vx: number; vy: number; color: Exclude<CellColor, 0>; }
 interface FallingPiece { cells: Array<[number, number]>; cx: number; cy: number; color: Exclude<CellColor, 0>; }
 
-export default function Glassfall() {
+export default function Glassfall( ){
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const gridRef = useRef<CellColor[][]>(Array.from({ length: ROWS }, () => Array<CellColor>(COLS).fill(0)));
@@ -284,7 +284,7 @@ export default function Glassfall() {
         shakeRef.current.step(dt);
       }
 
-      // -- Render -----------------------------------------------------------
+      // ── Render ───────────────────────────────────────────────────────────
       // Sunset gradient (with sun-disc + cloud silhouettes parallax)
       const grad = ctx.createLinearGradient(0, 0, 0, H);
       grad.addColorStop(0, '#411541'); grad.addColorStop(0.6, '#a3346e'); grad.addColorStop(1, '#1a0c1a');
@@ -361,7 +361,7 @@ export default function Glassfall() {
       particlesRef.current.draw(ctx);
       ctx.restore();
 
-      // -- Minimal HUD -- score chip top-right + thin garbage-rise meter on side
+      // ── Minimal HUD ── score chip top-right + thin garbage-rise meter on side
       // Score chip
       ctx.fillStyle = 'rgba(0,0,0,0.5)';
       ctx.fillRect(W - 88, 6, 82, 18);

@@ -8,7 +8,7 @@
 import { Plug }            from 'lucide-react';
 import ConnectorsClient    from '@/app/connectors/dream.ConnectorsClient';
 
-export default function ConnectorsPanel() {
+export default function ConnectorsPanel( ){
   return (
     <div style={{ padding: '12px 0 100px' }}>
 

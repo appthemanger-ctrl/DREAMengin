@@ -21,7 +21,7 @@
  *   // { emissionCount: 1, errorCount: 0, avgLatencyMs: 12, lastActivityAt: ... }
  */
 
-// -- Types ----------------------------------------------------------------------
+// ── Types ──────────────────────────────────────────────────────────────────────
 
 export interface ChannelMetrics {
   /** Channel identifier. */
@@ -40,7 +40,7 @@ export interface ChannelMetrics {
   lastActivityAt: number | null;
 }
 
-// -- Internal state -------------------------------------------------------------
+// ── Internal state ─────────────────────────────────────────────────────────────
 
 interface _ChannelState {
   emissionCount: number;
@@ -52,7 +52,7 @@ interface _ChannelState {
 
 const _state = new Map<string, _ChannelState>();
 
-function _ensure(channel: string: _ChannelState) {
+function _ensure(channel: string): _ChannelState {
   let s = _state.get(channel);
   if (!s) {
     s = { emissionCount: 0, errorCount: 0, totalLatencyMs: 0, latencySamples: 0, lastActivityAt: null };
@@ -61,13 +61,13 @@ function _ensure(channel: string: _ChannelState) {
   return s;
 }
 
-// -- Improvement 68: recordEmission --------------------------------------------
+// ── Improvement 68: recordEmission ────────────────────────────────────────────
 
 /**
  * Record an emission on `channel`.
  * Optionally provide a latency measurement in ms to track average latency.
  */
-export function recordEmission(channel: string, latencyMs?: number: void) {
+export function recordEmission(channel: string, latencyMs?: number): void {
   const s = _ensure(channel);
   s.emissionCount++;
   s.lastActivityAt = Date.now();
@@ -77,25 +77,25 @@ export function recordEmission(channel: string, latencyMs?: number: void) {
   }
 }
 
-// -- Improvement 69: recordError -----------------------------------------------
+// ── Improvement 69: recordError ───────────────────────────────────────────────
 
 /**
  * Record an error on `channel`.
  * Increments both the error count and the last-activity timestamp.
  */
-export function recordError(channel: string: void) {
+export function recordError(channel: string): void {
   const s = _ensure(channel);
   s.errorCount++;
   s.lastActivityAt = Date.now();
 }
 
-// -- Improvement 70: getChannelMetrics -----------------------------------------
+// ── Improvement 70: getChannelMetrics ─────────────────────────────────────────
 
 /**
  * Return the current metrics for a single channel.
  * Returns zeroed metrics when the channel has never been used.
  */
-export function getChannelMetrics(channel: string: ChannelMetrics) {
+export function getChannelMetrics(channel: string): ChannelMetrics {
   const s = _state.get(channel);
   if (!s) {
     return { channel, emissionCount: 0, errorCount: 0, avgLatencyMs: 0, lastActivityAt: null };
@@ -109,24 +109,24 @@ export function getChannelMetrics(channel: string: ChannelMetrics) {
   };
 }
 
-// -- Improvement 71: getAllChannelMetrics --------------------------------------
+// ── Improvement 71: getAllChannelMetrics ──────────────────────────────────────
 
 /**
  * Return a snapshot of metrics for every channel that has been used.
  * Sorted by emission count descending (most active first).
  */
-export function getAllChannelMetrics(: ChannelMetrics[]) {
+export function getAllChannelMetrics(): ChannelMetrics[] {
   return Array.from(_state.keys())
     .map(getChannelMetrics)
-    .sort(a: Record<string, unknown>, b: Record<string, unknown> => b.emissionCount - a.emissionCount);
+    .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.emissionCount - a.emissionCount);
 }
 
-// -- Improvement 72: resetChannelMetrics --------------------------------------
+// ── Improvement 72: resetChannelMetrics ──────────────────────────────────────
 
 /**
  * Clear all recorded metrics.
  * Intended for test teardown and explicit reset scenarios.
  */
-export function resetChannelMetrics(: void) {
+export function resetChannelMetrics(): void {
   _state.clear();
 }

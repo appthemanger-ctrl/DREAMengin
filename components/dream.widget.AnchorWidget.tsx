@@ -24,7 +24,7 @@ interface AnchorWidgetProps {
  * AnchorWidget - Single persistent widget controlling Home/Profile/Shrunk modes
  * Exists exactly once, never unmounted after auth
  */
-export function AnchorWidget() {
+export function AnchorWidget(){
   navStateBuffer,
   returnStack,
   widgetMemory,
@@ -50,7 +50,7 @@ export function AnchorWidget() {
   
   // Force re-render when state changes
   const [, forceUpdate] = useState(0);
-  const triggerUpdate = useCallback(() => forceUpdate(v => v + 1), []);
+  const triggerUpdate = useCallback(() => forceUpdate((v) => v + 1), []);
   
   // Container ref
   const containerRef = useRef<HTMLDivElement>(null);

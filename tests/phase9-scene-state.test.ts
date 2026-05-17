@@ -11,7 +11,7 @@ import {
   type SceneSnapshot,
 } from '@/lib/scene/sceneState';
 
-// --- Default snapshot ---------------------------------------------------------
+// ─── Default snapshot ─────────────────────────────────────────────────────────
 
 describe('Scene State — createDefaultSnapshot', () => {
   it('returns a valid default snapshot', () => {
@@ -25,7 +25,7 @@ describe('Scene State — createDefaultSnapshot', () => {
   });
 });
 
-// --- Scene diffing ------------------------------------------------------------
+// ─── Scene diffing ────────────────────────────────────────────────────────────
 
 describe('Scene State — scenesAreDifferent', () => {
   const makeSnapshot = (overrides?: Partial<SceneSnapshot>): SceneSnapshot => ({

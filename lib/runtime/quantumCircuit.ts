@@ -8,10 +8,10 @@
  * Consumed by dualRuntimeBridge when it receives a 'lab:quantum:run' event.
  */
 
-// -- Re-export the result type so bridge and callers share one definition ------
+// ── Re-export the result type so bridge and callers share one definition ──────
 export type { QuantumComputeResult } from './dualRuntimeBridge';
 
-// -- Internal complex-number primitives ----------------------------------------
+// ── Internal complex-number primitives ────────────────────────────────────────
 
 type Complex = [number, number];
 type Gate2x2 = [Complex, Complex, Complex, Complex];
@@ -24,36 +24,36 @@ const GATE_H: Gate2x2 = [
   [INV_SQRT2, 0], [-INV_SQRT2, 0],
 ];
 
-function gateRx(theta: number: Gate2x2) {
+function gateRx(theta: number): Gate2x2 {
   const c = Math.cos(theta / 2), s = Math.sin(theta / 2);
   return [[c, 0], [0, -s], [0, -s], [c, 0]];
 }
 
-function gateRy(theta: number: Gate2x2) {
+function gateRy(theta: number): Gate2x2 {
   const c = Math.cos(theta / 2), s = Math.sin(theta / 2);
   return [[c, 0], [-s, 0], [s, 0], [c, 0]];
 }
 
-function gateRz(theta: number: Gate2x2) {
+function gateRz(theta: number): Gate2x2 {
   const c = Math.cos(theta / 2), s = Math.sin(theta / 2);
   return [[c, -s], [0, 0], [0, 0], [c, s]];
 }
 
-function groundState(numQubits: number: StateVector) {
+function groundState(numQubits: number): StateVector {
   const sv: StateVector = Array.from({ length: 1 << numQubits }, (): Complex => [0, 0]);
   sv[0] = [1, 0];
   return sv;
 }
 
-function cmul([r1, i1]: Complex, [r2, i2]: Complex: Complex) {
+function cmul([r1, i1]: Complex, [r2, i2]: Complex): Complex {
   return [r1 * r2 - i1 * i2, r1 * i2 + i1 * r2];
 }
 
-function cadd([r1, i1]: Complex, [r2, i2]: Complex: Complex) {
+function cadd([r1, i1]: Complex, [r2, i2]: Complex): Complex {
   return [r1 + r2, i1 + i2];
 }
 
-function applyGate1(sv: StateVector, numQubits: number, qubit: number, gate: Gate2x2: StateVector) {
+function applyGate1(sv: StateVector, numQubits: number, qubit: number, gate: Gate2x2): StateVector {
   const next = sv.slice();
   const bit = 1 << (numQubits - 1 - qubit);
   for (let i = 0; i < sv.length; i++) {
@@ -66,7 +66,7 @@ function applyGate1(sv: StateVector, numQubits: number, qubit: number, gate: Gat
   return next;
 }
 
-function applyCNOT(sv: StateVector, numQubits: number, ctrl: number, tgt: number: StateVector) {
+function applyCNOT(sv: StateVector, numQubits: number, ctrl: number, tgt: number): StateVector {
   const next = sv.slice();
   const cBit = 1 << (numQubits - 1 - ctrl);
   const tBit = 1 << (numQubits - 1 - tgt);
@@ -80,15 +80,15 @@ function applyCNOT(sv: StateVector, numQubits: number, ctrl: number, tgt: number
   return next;
 }
 
-// -- Portfolio QUBO cost (assets: returns, sigma, correlations) ----------------
+// ── Portfolio QUBO cost (assets: returns, sigma, correlations) ────────────────
 
 const ASSET_RETURNS = [0.12, 0.09, 0.15];
 const ASSET_SIGMA   = [0.20, 0.15, 0.25];
 const ASSET_CORR    = [[1, 0.3, 0.1], [0.3, 1, 0.2], [0.1, 0.2, 1]] as const;
 
-function quboCost(bits: boolean[]: number) {
+function quboCost(bits: boolean[]): number {
   let cost = 0;
-  bits.forEach(selected: Record<string, unknown>, i: number => {
+  bits.forEach(selected: Record<string, unknown>, (i: number ) => {
     if (selected) cost -= ASSET_RETURNS[i] ?? 0.1;
   });
   for (let i = 0; i < bits.length; i++) {
@@ -105,11 +105,11 @@ function quboCost(bits: boolean[]: number) {
   return cost;
 }
 
-// -- Circuit builders ----------------------------------------------------------
+// ── Circuit builders ──────────────────────────────────────────────────────────
 
 type CircuitOp = { kind: string; q?: number; ctrl?: number; tgt?: number; theta?: number };
 
-function buildCircuit(n: number, algo: string, ansatz: string: CircuitOp[]) {
+function buildCircuit(n: number, algo: string, ansatz: string): CircuitOp[] {
   const ops: CircuitOp[] = [];
 
   if (algo === 'qaoa') {
@@ -141,7 +141,7 @@ function buildCircuit(n: number, algo: string, ansatz: string: CircuitOp[]) {
   return ops;
 }
 
-// -- Public API ----------------------------------------------------------------
+// ── Public API ────────────────────────────────────────────────────────────────
 
 import type { QuantumComputeResult } from './dualRuntimeBridge';
 
@@ -174,13 +174,13 @@ export function runQuantumCircuit(
   }
 
   const probabilities = sv.map(([r, i]) => r * r + i * i);
-  const topIdx = probabilities.reduce(best: Record<string, unknown>, v: number, i: number => (v > probabilities[best] ? i : best), 0);
+  const topIdx = probabilities.reduce(best: Record<string, unknown>, (v: number, i: number ) => (v > probabilities[best] ? i : best), 0);
   const topBits = Array.from(
     { length: numQubits },
     (_, k) => Boolean((topIdx >> (numQubits - 1 - k)) & 1),
   );
-  const expectationValue = probabilities.reduce(sum: number, prob: Record<string, unknown>, i: number => {
-    const bits = Array.from({ length: numQubits }, _: Record<string, unknown>, k: number => Boolean((i >> (numQubits - 1 - k)) & 1));
+  const expectationValue = probabilities.reduce(sum: number, prob: Record<string, unknown>, (i: number ) => {
+    const bits = Array.from({ length: numQubits }, _: Record<string, unknown>, (k: number ) => Boolean((i >> (numQubits - 1 - k)) & 1));
     return sum + prob * quboCost(bits);
   }, 0);
 
@@ -189,7 +189,7 @@ export function runQuantumCircuit(
     ansatz,
     numQubits,
     probabilities,
-    topBitstring: topBits.map(b: Record<string, unknown> => (b ? '1' : '0')).join(''),
+    topBitstring: topBits.map((b: Record<string, unknown>) => (b ? '1' : '0')).join(''),
     topProbability: probabilities[topIdx] ?? 0,
     selectedAssets: topBits,
     expectationValue,

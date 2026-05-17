@@ -21,7 +21,7 @@ interface GameHUDProps {
   playHref?: string;
 }
 
-export default function GameHUD() { gameLabel, gameEmoji: Record<string, unknown>, playHref }: GameHUDProps {
+export default function GameHUD({ gameLabel, gameEmoji: Record<string, unknown>, playHref }: GameHUDProps) {
   const router = useRouter();
   const [expanded, setExpanded] = useState(false);
 
@@ -53,7 +53,7 @@ export default function GameHUD() { gameLabel, gameEmoji: Record<string, unknown
         transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       }}
     >
-      {/* -- Collapsed strip -- always visible at the top of the HUD -- */}
+      {/* ── Collapsed strip ── always visible at the top of the HUD ── */}
       <div
         style={{
           height: 44,
@@ -92,7 +92,7 @@ export default function GameHUD() { gameLabel, gameEmoji: Record<string, unknown
         {/* Center: expand / collapse button */}
         <button
           type="button"
-          onClick={() => setExpanded(prev: Record<string, unknown> => !prev)}
+          onClick={() => setExpanded((prev: Record<string, unknown>) => !prev)}
           aria-label={expanded ? 'Close remote' : 'Open remote'}
           style={{
             fontSize: 16,
@@ -135,7 +135,7 @@ export default function GameHUD() { gameLabel, gameEmoji: Record<string, unknown
         </button>
       </div>
 
-      {/* -- Expanded panel — always mounted so transition is smooth -- */}
+      {/* ── Expanded panel — always mounted so transition is smooth ── */}
       <div
         style={{
           /* pointer-events off when visually hidden to avoid ghost interactions */

@@ -22,7 +22,7 @@ interface XRSessionLike {
   addEventListener(type: 'end', cb: () => void): void;
 }
 
-function getXRSystem(: XRSystemLike | null) {
+function getXRSystem(): XRSystemLike | null {
   if (typeof navigator === 'undefined') return null;
   const xr = (navigator as Navigator & { xr?: XRSystemLike }).xr;
   return xr ?? null;
@@ -83,7 +83,7 @@ export class WebXRSession {
   get didFallBack(): boolean { return this.fallbackInvoked; }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export type HandJoint =
   | 'wrist'
@@ -131,7 +131,7 @@ export class HandTrackingInput {
   }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface SpatialAnchor {
   id: string;

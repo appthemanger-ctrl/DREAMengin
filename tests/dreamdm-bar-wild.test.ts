@@ -34,7 +34,7 @@ import {
   type StreakTier,
 } from '@/lib/dreamdm/barInteractions';
 
-// -- Mood Aura System ---------------------------------------------------------
+// ── Mood Aura System ─────────────────────────────────────────────────────────
 
 describe('getMoodPeriod', () => {
   it('returns dawn for hours 5–7', () => {
@@ -111,7 +111,7 @@ describe('Surface accent colors', () => {
   });
 });
 
-// -- Slash Commands ----------------------------------------------------------
+// ── Slash Commands ──────────────────────────────────────────────────────────
 
 describe('SLASH_COMMANDS', () => {
   it('has at least 10 commands', () => {
@@ -135,7 +135,7 @@ describe('SLASH_COMMANDS', () => {
   });
 
   it('has unique ids', () => {
-    const ids = SLASH_COMMANDS.map(c => c.id);
+    const ids = SLASH_COMMANDS.map((c) => c.id);
     const unique = new Set(ids);
     expect(unique.size).toBe(ids.length);
   });
@@ -153,13 +153,13 @@ describe('filterSlashCommands', () => {
   it('filters by label', () => {
     const results = filterSlashCommands('game');
     expect(results.length).toBeGreaterThan(0);
-    expect(results.some(r => r.label.toLowerCase().includes('game'))).toBe(true);
+    expect(results.some((r) => r.label.toLowerCase().includes('game'))).toBe(true);
   });
 
   it('filters by description', () => {
     const results = filterSlashCommands('starmaker');
     expect(results.length).toBeGreaterThan(0);
-    expect(results.some(r => r.description.toLowerCase().includes('starmaker'))).toBe(true);
+    expect(results.some((r) => r.description.toLowerCase().includes('starmaker'))).toBe(true);
   });
 
   it('is case-insensitive', () => {
@@ -179,7 +179,7 @@ describe('filterSlashCommands', () => {
   });
 });
 
-// -- Typing Rhythm Visualizer -------------------------------------------------
+// ── Typing Rhythm Visualizer ─────────────────────────────────────────────────
 
 describe('computeTypingRhythm', () => {
   it('returns 0 for fewer than 2 keystrokes', () => {
@@ -227,7 +227,7 @@ describe('rhythmToHandleScale', () => {
   });
 });
 
-// -- Dream Streak Counter ----------------------------------------------------
+// ── Dream Streak Counter ────────────────────────────────────────────────────
 
 describe('todayDateString', () => {
   it('returns an ISO date string in YYYY-MM-DD format', () => {
@@ -304,7 +304,7 @@ describe('STREAK_STORAGE_KEY', () => {
   });
 });
 
-// -- Quick React Emoji Row --------------------------------------------------
+// ── Quick React Emoji Row ──────────────────────────────────────────────────
 
 describe('QUICK_REACTIONS', () => {
   it('has at least 5 reactions', () => {
@@ -320,13 +320,13 @@ describe('QUICK_REACTIONS', () => {
   });
 
   it('has unique emojis', () => {
-    const emojis = QUICK_REACTIONS.map(r => r.emoji);
+    const emojis = QUICK_REACTIONS.map((r) => r.emoji);
     const unique = new Set(emojis);
     expect(unique.size).toBe(emojis.length);
   });
 });
 
-// -- Gold Button Long-Press --------------------------------------------------
+// ── Gold Button Long-Press ──────────────────────────────────────────────────
 
 describe('GOLD_LONG_PRESS_MS', () => {
   it('is 800ms', () => {
@@ -358,14 +358,14 @@ describe('generateParticles', () => {
 
   it('particles have unique ids', () => {
     const particles = generateParticles(24);
-    const ids = particles.map(p => p.id);
+    const ids = particles.map((p) => p.id);
     const unique = new Set(ids);
     expect(unique.size).toBe(ids.length);
   });
 
   it('particles have varied velocities (not all identical)', () => {
     const particles = generateParticles(10);
-    const vxSet = new Set(particles.map(p => p.vx));
+    const vxSet = new Set(particles.map((p) => p.vx));
     // With randomness, extremely unlikely all 10 have the same vx
     expect(vxSet.size).toBeGreaterThan(1);
   });

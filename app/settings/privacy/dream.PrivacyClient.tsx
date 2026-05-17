@@ -36,7 +36,7 @@ const DEFAULT_SETTINGS: PrivacySettings = {
   hideConnectorData: true,
 };
 
-function Toggle() {
+function Toggle(){
   value,
   onToggle,
   label,
@@ -81,7 +81,7 @@ function Toggle() {
   );
 }
 
-export default function PrivacyClient() {
+export default function PrivacyClient( ){
   const [settings, setSettings] = useState<PrivacySettings>(DEFAULT_SETTINGS);
   const [saved, setSaved] = useState(false);
   const [appealReason, setAppealReason] = useState('');
@@ -99,7 +99,7 @@ export default function PrivacyClient() {
   // Load block list
   useEffect(() => {
     fetch('/api/blocks')
-      .then(r => r.json())
+      .then((r) => r.json())
       .then((d: { blocks?: BlockEntry[] }) => { if (d.blocks) setBlocks(d.blocks); })
       .catch(() => {});
   }, []);
@@ -117,13 +117,13 @@ export default function PrivacyClient() {
       });
       const data = await res.json() as { ok?: boolean; message?: string; block?: BlockEntry };
       if (!res.ok) { setBlockError(data.message ?? 'Failed to block user.'); }
-      else if (data.block) { setBlocks(prev => [data.block!, ...prev]); setBlockInput(''); }
+      else if (data.block) { setBlocks((prev) => [data.block!, ...prev]); setBlockInput(''); }
     } catch { setBlockError('Network error — please try again.'); }
     finally { setBlockLoading(false); }
   };
 
   const handleUnblock = async (blocked_id: string) => {
-    setBlocks(prev => prev.filter(b => b.blocked_id !== blocked_id));
+    setBlocks((prev) => prev.filter((b) => b.blocked_id !== blocked_id));
     await fetch(`/api/blocks?blocked_id=${blocked_id}`, { method: 'DELETE' }).catch(() => {});
   };
 
@@ -134,16 +134,16 @@ export default function PrivacyClient() {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as Partial<PrivacySettings>;
-        setSettings(prev: Record<string, unknown> => ({ ...prev, ...parsed }));
+        setSettings((prev: Record<string, unknown>) => ({ ...prev, ...parsed }));
       }
     } catch { /* ignore */ }
 
     // Then fetch the real stored settings from Supabase
     fetch('/api/settings/privacy')
-      .then(r: number => r.json())
+      .then((r: number ) => r.json())
       .then((data: { ok: boolean; privacy: Partial<PrivacySettings> | null }) => {
         if (data.ok && data.privacy) {
-          setSettings(prev: Record<string, unknown> => ({ ...prev, ...data.privacy }));
+          setSettings((prev: Record<string, unknown>) => ({ ...prev, ...data.privacy }));
           // Update cache
           try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...DEFAULT_SETTINGS, ...data.privacy })); } catch { /* ignore */ }
         }
@@ -152,7 +152,7 @@ export default function PrivacyClient() {
   }, []);
 
   const toggle = useCallback((key: keyof PrivacySettings) => {
-    setSettings(prev: Record<string, unknown> => {
+    setSettings((prev: Record<string, unknown>) => {
       const next = { ...prev, [key]: !prev[key] };
       // Update localStorage cache immediately for fast re-render
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
@@ -230,7 +230,7 @@ export default function PrivacyClient() {
         <div className="de-widget">
           <div className="de-widget-header"><span className="de-widget-title">Profile Visibility</span></div>
           <div className="de-widget-body">
-            {profileToggles.map({ key, label: string, desc } => (
+            {profileToggles.map(({ key, label: string, desc }) => (
               <div key={key} className="de-row">
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{label}</div>
@@ -248,7 +248,7 @@ export default function PrivacyClient() {
             <span className="de-widget-title">Content Privacy</span>
           </div>
           <div className="de-widget-body">
-            {contentToggles.map({ key, label: string, desc } => (
+            {contentToggles.map(({ key, label: string, desc }) => (
               <div key={key} className="de-row">
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{label}</div>
@@ -299,7 +299,7 @@ export default function PrivacyClient() {
                 No blocked users.
               </p>
             ) : (
-              blocks.map(b => (
+              blocks.map((b) => (
                 <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0', borderBottom: '1px solid rgba(160,195,240,0.1)' }}>
                   <UserX className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#dc4444', opacity: 0.6 }} />
                   <span style={{ flex: 1, fontSize: 11, color: 'var(--de-text-dim)', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

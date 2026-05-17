@@ -25,5 +25,5 @@ export async function findSimilarImages(
   }));
 
   const matches = await engine.search(queryImage, templates, threshold);
-  return matches.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.correlation - a.correlation);
+  return matches.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.correlation - a.correlation);
 }

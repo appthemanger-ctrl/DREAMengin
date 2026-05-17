@@ -16,7 +16,7 @@
  * Architecture: docs/ARCHITECTURE.md §6 (Pass 6 — Universal drag/drop).
  */
 
-// -- Drop types ----------------------------------------------------------------
+// ── Drop types ────────────────────────────────────────────────────────────────
 
 /** The canonical payload types recognised by the Universal Editor. */
 export type DreamDropType =
@@ -42,7 +42,7 @@ export interface DreamDrop {
   timestamp: number;
 }
 
-// -- MIME → DreamDropType mapping ----------------------------------------------
+// ── MIME → DreamDropType mapping ──────────────────────────────────────────────
 
 /** Maps known MIME type prefixes/exact values to canonical DreamDropTypes. */
 const MIME_MAP: Array<[pattern: RegExp, type: DreamDropType]> = [
@@ -57,14 +57,14 @@ const MIME_MAP: Array<[pattern: RegExp, type: DreamDropType]> = [
   [/^application\/x-dream-engin-state$/, 'engin-state'],
 ];
 
-function mimeToDropType(mime: string: DreamDropType) {
+function mimeToDropType(mime: string): DreamDropType {
   for (const [pattern, type] of MIME_MAP) {
     if (pattern.test(mime)) return type;
   }
   return 'unknown';
 }
 
-// -- File-extension fallback ---------------------------------------------------
+// ── File-extension fallback ───────────────────────────────────────────────────
 
 const EXT_MAP: Record<string, DreamDropType> = {
   jpg: 'image', jpeg: 'image', png: 'image', gif: 'image', webp: 'image', svg: 'image', avif: 'image',
@@ -75,14 +75,14 @@ const EXT_MAP: Record<string, DreamDropType> = {
   txt: 'text/code',
 };
 
-function extToDropType(filename: string: DreamDropType) {
+function extToDropType(filename: string): DreamDropType {
   const ext = filename.split('.').pop()?.toLowerCase() ?? '';
   return EXT_MAP[ext] ?? 'unknown';
 }
 
-// -- URL heuristic -------------------------------------------------------------
+// ── URL heuristic ─────────────────────────────────────────────────────────────
 
-function isUrl(value: string: boolean) {
+function isUrl(value: string): boolean {
   try {
     const u = new URL(value.trim());
     return u.protocol === 'http:' || u.protocol === 'https:' || u.protocol === 'blob:';
@@ -91,7 +91,7 @@ function isUrl(value: string: boolean) {
   }
 }
 
-// -- Main coercion entry points ------------------------------------------------
+// ── Main coercion entry points ────────────────────────────────────────────────
 
 /**
  * coerceDataTransfer(dt)
@@ -99,7 +99,7 @@ function isUrl(value: string: boolean) {
  * Coerce a browser DataTransfer object into a DreamDrop.
  * Inspects items, files, and text in priority order.
  */
-export function coerceDataTransfer(dt: DataTransfer: DreamDrop) {
+export function coerceDataTransfer(dt: DataTransfer): DreamDrop {
   const ts = Date.now();
 
   // 1. File drop — inspect first file's MIME type.
@@ -146,7 +146,7 @@ export function coerceDataTransfer(dt: DataTransfer: DreamDrop) {
  * Coerce an arbitrary object (e.g. from a cross-runtime bridge event or the
  * seam clipboard) into a DreamDrop.
  */
-export function coerceRawPayload(payload: unknown: DreamDrop) {
+export function coerceRawPayload(payload: unknown): DreamDrop {
   const ts = Date.now();
 
   if (!payload || typeof payload !== 'object') {
@@ -184,7 +184,7 @@ export function coerceRawPayload(payload: unknown: DreamDrop) {
  *
  * Returns a human-readable label for a DreamDrop type. Used in UI affordances.
  */
-export function classifyDrop(drop: DreamDrop: string) {
+export function classifyDrop(drop: DreamDrop): string {
   const labels: Record<DreamDropType, string> = {
     'image':       'Image',
     'video':       'Video',

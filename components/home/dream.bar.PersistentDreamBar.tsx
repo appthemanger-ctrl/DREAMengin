@@ -44,7 +44,7 @@ import { isPublicSurfacePath } from '@/lib/routing/surfaces';
 const DEFAULT_WORKFLOW_SPLIT = 0.5;
 const Z_INDEX_SKIP_CREDIT_BALANCE = 120;
 
-export default function PersistentDreamBar() {
+export default function PersistentDreamBar( ){
   const pathname    = usePathname();
   const dualRuntime = useDualRuntime();
   const {
@@ -69,11 +69,11 @@ export default function PersistentDreamBar() {
     return () => window.removeEventListener('resize', update);
   }, []);
 
-  // -- All callbacks before any early return (Rules of Hooks) ---------------
+  // ── All callbacks before any early return (Rules of Hooks) ───────────────
 
   const revealSplitRuntime = useCallback((nextRatio = DEFAULT_WORKFLOW_SPLIT) => {
     setIsBarMinimized(false);
-    setSplitRatio(current: Record<string, unknown> => {
+    setSplitRatio((current: Record<string, unknown>) => {
       if (current >= 0.98 || current <= 0.02) return nextRatio;
       return current;
     });
@@ -159,10 +159,10 @@ export default function PersistentDreamBar() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ dreamData: { dream_id: '__swap__', type: 'runtime-swap' }, fromRuntime: 'HOME', toRuntime: 'FACE', swap: true }),
     })
-      .then(response: Record<string, unknown> => {
+      .then((response: Record<string, unknown>) => {
         if (!response.ok) throw new Error('Runtime swap failed');
       })
-      .catch(error: unknown => {
+      .catch((error: unknown ) => {
         updateDreamLayout(previousLayout, 0);
         os.bus.emit('dream:transfer:rollback', previousLayout);
         console.error('[Dream runtime swap]', error);
@@ -190,7 +190,7 @@ export default function PersistentDreamBar() {
     pathname.startsWith('/dreamdmbar/');
   const isHomeActive = runtimeCallbacks !== null || isHomeRoute;
 
-  // -- Layout ----------------------------------------------------------------
+  // ── Layout ────────────────────────────────────────────────────────────────
   //
   // Bar minimize rule: collapsing the bar means DIVIDER_H → 0. The region
   // CSS heights still reference splitRatio so both runtimes stay at their
@@ -204,13 +204,13 @@ export default function PersistentDreamBar() {
     ? Math.round(((viewportHeight - dividerHeight) * runtimeSplitRatio) + dividerHeight / 2)
     : undefined;
 
-  // -- Render ----------------------------------------------------------------
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <>
       <NeuralSeamCanvas active={isHomeActive} splitRatio={splitRatio} />
 
-      {/* -- HomeDream Surface (top runtime) ----------------------------------
+      {/* ── HomeDream Surface (top runtime) ──────────────────────────────────
           Always MOUNTED in React. display:none when not on /homedream so it
           never covers page content. State preserved across navigation. */}
       <div
@@ -247,7 +247,7 @@ export default function PersistentDreamBar() {
         )}
       </div>
 
-      {/* -- Divider zone fill ------------------------------------------------
+      {/* ── Divider zone fill ────────────────────────────────────────────────
           The DreamDM seam owns only its visible 2px divider reservation so the
           two runtimes stay tight without a dead band between them. */}
       {isHomeActive && !isBarMinimized && (
@@ -266,7 +266,7 @@ export default function PersistentDreamBar() {
         />
       )}
 
-      {/* -- DreamDM Bar (the seam) --------------------------------------------
+      {/* ── DreamDM Bar (the seam) ────────────────────────────────────────────
           Split props only wired when isHomeActive so the bar stays as a
           simple nav-rail on other pages (no seam, no divider mode touch capture). */}
       <DreamDMRail
@@ -289,7 +289,7 @@ export default function PersistentDreamBar() {
         <SkipCreditBalance />
       </div>
 
-      {/* -- DreamSpace (bottom runtime) --------------------------------------
+      {/* ── DreamSpace (bottom runtime) ──────────────────────────────────────
           Always MOUNTED in React. display:none when not on /homedream. */}
       <div
         style={{

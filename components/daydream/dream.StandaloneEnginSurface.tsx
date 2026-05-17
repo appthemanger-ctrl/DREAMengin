@@ -26,7 +26,7 @@ type Props = {
   backHref: string;
 };
 
-export default function StandaloneEnginSurface() { engin, backHref }: Props {
+export default function StandaloneEnginSurface({ engin, backHref }: Props) {
   const router = useRouter();
   const EnginComponent = ENGIN_COMPONENTS[engin];
 

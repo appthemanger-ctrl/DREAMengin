@@ -27,7 +27,7 @@ import type { RuntimeChannel } from '@/lib/runtime/runtimeChannel';
 import { createLocalChannel, createRuntimeChannel } from '@/lib/runtime/runtimeChannel';
 import type { RuntimeId } from '@/types/module-manifest';
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 export type EnginName =
   | 'StarMakerEngin'
@@ -59,7 +59,7 @@ export interface EnginInstance {
   createdAt: number;
 }
 
-// -- Store shape ---------------------------------------------------------------
+// ── Store shape ───────────────────────────────────────────────────────────────
 
 interface InstanceManagerState {
   /** All active instances, keyed by instance key. */
@@ -103,7 +103,7 @@ const LS_KEY = 'dreamengin:engin-instances';
 
 type PersistedInstance = Omit<EnginInstance, 'channel'>;
 
-function serializeInstances(instances: Record<string, EnginInstance>: PersistedInstance[]) {
+function serializeInstances(instances: Record<string, EnginInstance>): PersistedInstance[] {
   return Object.values(instances).map((instance: Record<string, unknown>) => ({
     key: instance.key,
     enginName: instance.enginName,
@@ -114,9 +114,9 @@ function serializeInstances(instances: Record<string, EnginInstance>: PersistedI
   }));
 }
 
-// -- Zustand store -------------------------------------------------------------
+// ── Zustand store ─────────────────────────────────────────────────────────────
 
-export const useInstanceManager = create<InstanceManagerState>(set: Record<string, unknown>, get: Record<string, unknown> => ({
+export const useInstanceManager = create<InstanceManagerState>((set: Record<string, unknown>, get: Record<string, unknown>) => ({
   instances: {},
 
   spawn(enginName, instanceId, region, mode = 'solo') {
@@ -135,7 +135,7 @@ export const useInstanceManager = create<InstanceManagerState>(set: Record<strin
       createdAt: Date.now(),
     };
 
-    set(state: Record<string, unknown> => ({
+    set((state: Record<string, unknown>) => ({
       instances: { ...state.instances, [key]: instance },
     }));
     queueMicrotask(() => get().persistLocal());
@@ -155,7 +155,7 @@ export const useInstanceManager = create<InstanceManagerState>(set: Record<strin
     // Async close — fire and forget; no await in Zustand action.
     instance.channel.close().catch(() => {});
 
-    set(state: Record<string, unknown> => {
+    set((state: Record<string, unknown>) => {
       const next = { ...state.instances };
       delete next[key];
       return { instances: next };
@@ -164,11 +164,11 @@ export const useInstanceManager = create<InstanceManagerState>(set: Record<strin
   },
 
   getInstancesForEngin(enginName) {
-    return Object.values(get().instances).filter(i: number => i.enginName === enginName);
+    return Object.values(get().instances).filter((i: number ) => i.enginName === enginName);
   },
 
   getInstancesForRegion(region) {
-    return Object.values(get().instances).filter(i: number => i.region === region);
+    return Object.values(get().instances).filter((i: number ) => i.region === region);
   },
 
   promoteToCoOp(key, channel) {
@@ -179,7 +179,7 @@ export const useInstanceManager = create<InstanceManagerState>(set: Record<strin
     // Close the old local channel silently.
     instance.channel.close().catch(() => {});
 
-    set(state: Record<string, unknown> => ({
+    set((state: Record<string, unknown>) => ({
       instances: {
         ...state.instances,
         [key]: { ...instance, channel, mode: 'coop' },
@@ -218,7 +218,7 @@ export const useInstanceManager = create<InstanceManagerState>(set: Record<strin
   },
 }));
 
-// -- Convenience helpers -------------------------------------------------------
+// ── Convenience helpers ───────────────────────────────────────────────────────
 
 /**
  * buildInstanceKey(enginName, instanceId)
@@ -226,11 +226,11 @@ export const useInstanceManager = create<InstanceManagerState>(set: Record<strin
  * Returns the canonical key used throughout the instance manager.
  * Exported so consumers can construct keys without instantiating the store.
  */
-export function buildInstanceKey(enginName: EnginName, instanceId: string: string) {
+export function buildInstanceKey(enginName: EnginName, instanceId: string): string {
   return `${enginName}:${instanceId}`;
 }
 
-export function createInstance(options:) {
+export function createInstance(options: ){
   enginName: EnginName;
   instanceId: string;
   region: RuntimeId;
@@ -239,12 +239,12 @@ export function createInstance(options:) {
   return useInstanceManager.getState().createInstance(options);
 }
 
-export async function promoteInstanceToRealtime(key: string: Promise<void>) {
+export async function promoteInstanceToRealtime(key: string): Promise<void> {
   const channel = await createRuntimeChannel(key, 'shared');
   useInstanceManager.getState().promoteToCoOp(key, channel);
 }
 
-export async function persistInstanceList(userId: string: Promise<void>) {
+export async function persistInstanceList(userId: string): Promise<void> {
   const rows = serializeInstances(useInstanceManager.getState().instances);
   try {
     const { createClient } = await import('@/lib/supabase/client');

@@ -101,7 +101,7 @@ export interface UseSharedDreamSessionResult {
 // JSONB patch after the debounce settles.
 type EnginStateBuffer = Record<string, Record<string, unknown>>;
 
-export function useSharedDreamSession() {
+export function useSharedDreamSession(){
   sessionId: propSessionId,
   name = 'Shared Dream',
 }: UseSharedDreamSessionOptions = {}): UseSharedDreamSessionResult {
@@ -118,13 +118,13 @@ export function useSharedDreamSession() {
   const userIdRef = useRef<string | null>(null);
   const sessionIdRef = useRef<string | null>(propSessionId ?? null);
 
-  // -- Bootstrap: load or create session ------------------------------------
+  // ── Bootstrap: load or create session ────────────────────────────────────
 
   useEffect(() => {
     let cancelled = false;
     const supabase = createClient();
 
-    async function bootstrap() {
+    async function bootstrap( ){
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || cancelled) { setIsLoading(false); return; }
       userIdRef.current = user.id;
@@ -213,7 +213,7 @@ export function useSharedDreamSession() {
           .limit(20);
 
         if (!cancelled && aData) {
-          setActivity(aData.map(a: Record<string, unknown> => ({
+          setActivity(aData.map((a: Record<string, unknown>) => ({
             id: a.id as string,
             userId: a.user_id as string | null,
             kind: a.kind as string,
@@ -231,7 +231,7 @@ export function useSharedDreamSession() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propSessionId]);
 
-  // -- Flush buffer to DB (debounced) ----------------------------------------
+  // ── Flush buffer to DB (debounced) ────────────────────────────────────────
 
   const flushBuffer = useCallback(async () => {
     const sid = sessionIdRef.current;
@@ -247,16 +247,16 @@ export function useSharedDreamSession() {
       .eq('id', sid);
   }, []);
 
-  // -- saveEnginState: merge into buffer then debounce flush -----------------
+  // ── saveEnginState: merge into buffer then debounce flush ─────────────────
 
   const saveEnginState = useCallback((enginKey: string, state: Record<string, unknown>) => {
     bufferRef.current = { ...bufferRef.current, [enginKey]: state };
-    setSavedEnginState(prev: Record<string, unknown> => ({ ...prev, [enginKey]: state }));
+    setSavedEnginState((prev: Record<string, unknown>) => ({ ...prev, [enginKey]: state }));
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => { void flushBuffer(); }, 1000);
   }, [flushBuffer]);
 
-  // -- logActivity -----------------------------------------------------------
+  // ── logActivity ───────────────────────────────────────────────────────────
 
   const logActivity = useCallback((kind: string, label: string, meta: Record<string, unknown> = {}) => {
     const sid = sessionIdRef.current;
@@ -270,7 +270,7 @@ export function useSharedDreamSession() {
       label,
       createdAt: new Date().toISOString(),
     };
-    setActivity(prev: Record<string, unknown> => [entry, ...prev].slice(0, 30));
+    setActivity((prev: Record<string, unknown>) => [entry, ...prev].slice(0, 30));
     void supabase.from('shared_dream_activity').insert({
       session_id: sid,
       user_id: uid,
@@ -280,7 +280,7 @@ export function useSharedDreamSession() {
     });
   }, []);
 
-  // -- Flush on unmount (user leaving) --------------------------------------
+  // ── Flush on unmount (user leaving) ──────────────────────────────────────
 
   useEffect(() => {
     return () => {

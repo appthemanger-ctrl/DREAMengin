@@ -23,14 +23,14 @@ import {
 import { getSwap, toggleSwap } from '@/lib/runtime/swapManager';
 import { bridge as dualRuntimeBridge } from '@/lib/runtime/dualRuntimeBridge';
 
-// --- Types --------------------------------------------------------------------
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type Language    = 'python' | 'javascript' | 'bash';
 type SimId       = 'particle' | 'fluid' | 'quantum' | 'neural' | 'none';
 type VizType     = 'heatmap' | 'density' | 'activation';
 type RunStatus   = 'idle' | 'running' | 'done' | 'error';
 
-// --- Constants ----------------------------------------------------------------
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const ACCENT   = '#22c55e';
 const CODE_BG  = '#0d1117';
@@ -75,8 +75,8 @@ print("\\n✅ Experiment complete")`,
 // Select a simulation above, then Run ▶
 
 const data = [1, 4, 9, 16, 25, 36, 49];
-const mean = data.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b, 0) / data.length;
-const std  = Math.sqrt(data.map(x => (x - mean) ** 2).reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b) / data.length);
+const mean = data.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / data.length;
+const std  = Math.sqrt(data.map((x) => (x - mean) ** 2).reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b) / data.length);
 
 console.log('Data:', data);
 console.log('Mean:', mean.toFixed(2));
@@ -114,9 +114,9 @@ const VIZ_TYPES: Array<{ id: VizType; label: string; desc: string }> = [
   { id: 'activation', label: '🧠 Neural Activation',    desc: 'Per-layer activation strength'   },
 ];
 
-// --- ASCII helpers ------------------------------------------------------------
+// ─── ASCII helpers ────────────────────────────────────────────────────────────
 
-function asciiHeatmap(cols: number, rows: number, seed: number: string) {
+function asciiHeatmap(cols: number, rows: number, seed: number): string {
   const chars = ['░', '▒', '▓', '█'];
   let s = seed;
   const lines: string[] = [];
@@ -131,7 +131,7 @@ function asciiHeatmap(cols: number, rows: number, seed: number: string) {
   return lines.join('\n');
 }
 
-function asciiDensity(cols: number, rows: number, seed: number: string) {
+function asciiDensity(cols: number, rows: number, seed: number): string {
   const chars = [' ', '.', ':', '+', 'o', 'O', '#', '@'];
   let s = seed;
   const cx = cols / 2;
@@ -152,12 +152,12 @@ function asciiDensity(cols: number, rows: number, seed: number: string) {
   return lines.join('\n');
 }
 
-function asciiActivation(layers: number[], seed: number: string) {
+function asciiActivation(layers: number[], seed: number): string {
   const chars = ['·', '▫', '▪', '◾', '◼', '■'];
   let s = seed;
   const lines: string[] = [];
   const maxW = Math.max(...layers);
-  layers.forEach(width: Record<string, unknown>, i: number => {
+  layers.forEach(width: Record<string, unknown>, (i: number ) => {
     const pad = Math.floor((maxW - width) / 2);
     let row = ' '.repeat(pad);
     for (let n = 0; n < width; n++) {
@@ -170,11 +170,11 @@ function asciiActivation(layers: number[], seed: number: string) {
   return lines.join('\n');
 }
 
-// --- Simulated output generation ----------------------------------------------
+// ─── Simulated output generation ──────────────────────────────────────────────
 
-function getMockOutput(language: Language, simId: SimId: string[]) {
+function getMockOutput(language: Language, simId: SimId): string[] {
   const ts = () => new Date().toISOString().slice(11, 19);
-  const sim = SIMS.find(s => s.id === simId);
+  const sim = SIMS.find((s) => s.id === simId);
 
   if (simId !== 'none' && sim) {
     return [
@@ -226,9 +226,9 @@ function getMockOutput(language: Language, simId: SimId: string[]) {
   }
 }
 
-// --- Component ----------------------------------------------------------------
+// ─── Component ────────────────────────────────────────────────────────────────
 
-export default function LabDreamIDE() {
+export default function LabDreamIDE( ){
   const [language,  setLanguage]  = useState<Language>('python');
   const [code,      setCode]      = useState(DEMO_CODE.python);
   const [simId,     setSimId]     = useState<SimId>('none');
@@ -271,13 +271,13 @@ export default function LabDreamIDE() {
     dualRuntimeBridge.emit('lab', 'lab:run', { language, code, simId });
 
     const mockLines = getMockOutput(language, simId);
-    mockLines.forEach(line: Record<string, unknown>, i: number => {
+    mockLines.forEach(line: Record<string, unknown>, (i: number ) => {
       setTimeout(() => {
-        setLines(prev => {
+        setLines((prev) => {
           const next = [...prev, line];
           if (i === mockLines.length - 1) {
             setStatus('done');
-            setVizSeed(s => s + 7);
+            setVizSeed((s) => s + 7);
             // Emit completed result
             dualRuntimeBridge.emit('lab', 'lab:result', { lines: next, status: 'done' });
           }
@@ -292,7 +292,7 @@ export default function LabDreamIDE() {
 
   const handleStop = useCallback(() => {
     setStatus('error');
-    setLines(prev => {
+    setLines((prev) => {
       const next = [...prev, `[${new Date().toISOString().slice(11, 19)}] ⛔ Stopped`];
       dualRuntimeBridge.emit('lab', 'lab:result', { lines: next, status: 'error' });
       return next;
@@ -320,12 +320,12 @@ export default function LabDreamIDE() {
     };
   }, [code, liveMode]);
 
-  const activeSim = SIMS.find(s => s.id === simId) ?? SIMS[0];
+  const activeSim = SIMS.find((s) => s.id === simId) ?? SIMS[0];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
 
-      {/* -- Simulation Selector --------------------------------- */}
+      {/* ── Simulation Selector ───────────────────────────────── */}
       <div className="de-widget" style={{ marginBottom: 12 }}>
         <div className="de-widget-header">
           <FlaskConical className="w-4 h-4" style={{ color: ACCENT }} />
@@ -337,7 +337,7 @@ export default function LabDreamIDE() {
         </div>
         <div className="de-widget-body" style={{ paddingBottom: 6 }}>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {SIMS.map(sim => (
+            {SIMS.map((sim) => (
               <button
                 key={sim.id}
                 type="button"
@@ -359,13 +359,13 @@ export default function LabDreamIDE() {
         </div>
       </div>
 
-      {/* -- IDE Split: input left + output right ---------------- */}
+      {/* ── IDE Split: input left + output right ──────────────── */}
       <div className="de-widget" style={{ marginBottom: 12 }}>
         <div className="de-widget-header" style={{ gap: 8, flexWrap: 'wrap' }}>
           <Activity className="w-4 h-4" style={{ color: ACCENT }} />
           <span className="de-widget-title ml-1">Lab IDE</span>
           <div style={{ display: 'flex', gap: 4 }}>
-            {LANGUAGES.map(lang => (
+            {LANGUAGES.map((lang) => (
               <button
                 key={lang.id}
                 type="button"
@@ -386,7 +386,7 @@ export default function LabDreamIDE() {
           {/* Live / Manual mode toggle */}
           <button
             type="button"
-            onClick={() => setLiveMode(m => !m)}
+            onClick={() => setLiveMode((m) => !m)}
             title={liveMode ? 'Switch to Manual mode' : 'Switch to Live mode (auto-run on change)'}
             style={{
               display: 'flex', alignItems: 'center', gap: 4,
@@ -424,7 +424,7 @@ export default function LabDreamIDE() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, minHeight: 320 }}>
 
-          {/* -- OUTPUT panel — left when swapped -- */}
+          {/* ── OUTPUT panel — left when swapped ── */}
           {swapped && (
             <div style={{ borderRight: '1px solid rgba(160,195,240,0.15)', display: 'flex', flexDirection: 'column' }}>
               <div style={{ padding: '7px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
@@ -440,7 +440,7 @@ export default function LabDreamIDE() {
                 {lines.length === 0 && status === 'idle' && (
                   <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.4)', fontFamily: 'monospace' }}>Results appear here after Run ▶…</p>
                 )}
-                {lines.map(line: Record<string, unknown>, i: number => (
+                {lines.map(line: Record<string, unknown>, (i: number ) => (
                   <pre key={i} style={{ margin: 0, fontSize: 11, fontFamily: '"Fira Code",ui-monospace,monospace',
                     color: line.startsWith('[') ? OUT_OK : (line.startsWith('$') || line.startsWith('>>>')) ? '#93c5fd' : line.startsWith('⛔') ? OUT_ERR : line.startsWith('✅') ? OUT_OK : CODE_FG,
                     whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.55 }}>
@@ -457,7 +457,7 @@ export default function LabDreamIDE() {
             </div>
           )}
 
-          {/* -- INPUT panel (editor) — left when not swapped, right when swapped -- */}
+          {/* ── INPUT panel (editor) — left when not swapped, right when swapped ── */}
           {!swapped && (
             <div style={{ borderRight: '1px solid rgba(160,195,240,0.15)', display: 'flex', flexDirection: 'column' }}>
               <div style={{ padding: '7px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
@@ -518,7 +518,7 @@ export default function LabDreamIDE() {
             </div>
           )}
 
-          {/* -- OUTPUT panel — right when not swapped -- */}
+          {/* ── OUTPUT panel — right when not swapped ── */}
           {!swapped && (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <div style={{ padding: '7px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
@@ -536,7 +536,7 @@ export default function LabDreamIDE() {
                     Results appear here after Run ▶…
                   </p>
                 )}
-                {lines.map(line: Record<string, unknown>, i: number => (
+                {lines.map(line: Record<string, unknown>, (i: number ) => (
                   <pre key={i} style={{
                     margin: 0, fontSize: 11, fontFamily: '"Fira Code",ui-monospace,monospace',
                     color: line.startsWith('[') ? OUT_OK
@@ -561,7 +561,7 @@ export default function LabDreamIDE() {
             </div>
           )}
 
-          {/* -- INPUT panel (editor) — right when swapped -- */}
+          {/* ── INPUT panel (editor) — right when swapped ── */}
           {swapped && (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <div style={{ padding: '7px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
@@ -624,13 +624,13 @@ export default function LabDreamIDE() {
         </div>
       </div>
 
-      {/* -- Visualization Panel: 3 high-density maps ----------- */}
+      {/* ── Visualization Panel: 3 high-density maps ─────────── */}
       <div className="de-widget" style={{ marginBottom: 12 }}>
         <div className="de-widget-header">
           <BarChart2 className="w-4 h-4" style={{ color: ACCENT }} />
           <span className="de-widget-title ml-2">Visualizations</span>
           <div style={{ display: 'flex', gap: 4, marginLeft: 'auto' }}>
-            {VIZ_TYPES.map(v => (
+            {VIZ_TYPES.map((v) => (
               <button
                 key={v.id}
                 type="button"
@@ -700,7 +700,7 @@ export default function LabDreamIDE() {
           <div style={{ textAlign: 'right', marginTop: 8 }}>
             <button
               type="button"
-              onClick={() => setVizSeed(s => s + Math.ceil(Math.random() * 100))}
+              onClick={() => setVizSeed((s) => s + Math.ceil(Math.random() * 100))}
               style={{ padding: '3px 9px', borderRadius: 6, fontSize: 10, fontWeight: 700,
                 border: `1px solid ${ACCENT}30`, background: `${ACCENT}0a`, color: ACCENT,
                 cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}

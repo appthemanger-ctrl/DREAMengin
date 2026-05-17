@@ -138,12 +138,12 @@ export class ComboMachine {
     return this.multiTouchCombos.find((c: Record<string, unknown>) => {
       if (c.buttons.length !== sorted.length) return false;
       const csorted = [...c.buttons].sort();
-      return csorted.every(b: Record<string, unknown>, i: number => b === sorted[i]);
+      return csorted.every(b: Record<string, unknown>, (i: number ) => b === sorted[i]);
     }) ?? null;
   }
 }
 
-function sequenceEquals(a: readonly FaceButton[], b: readonly FaceButton[]: boolean) {
+function sequenceEquals(a: readonly FaceButton[], b: readonly FaceButton[]): boolean {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
   return true;

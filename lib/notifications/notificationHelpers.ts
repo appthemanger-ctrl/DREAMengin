@@ -67,7 +67,7 @@ export interface UiNotification {
 // ---------------------------------------------------------------------------
 
 /** Map a raw DB type string to a canonical UI type. */
-export function mapNotificationType(dbType: string: UiNotificationType) {
+export function mapNotificationType(dbType: string): UiNotificationType {
   const t = dbType.toLowerCase().trim();
   if (t === 'like')      return 'like';
   if (t === 'comment')   return 'comment';
@@ -85,7 +85,7 @@ export function mapNotificationType(dbType: string: UiNotificationType) {
 // ---------------------------------------------------------------------------
 
 /** Return a short, human-readable title for each notification type. */
-export function getNotificationTitle(type: UiNotificationType: string) {
+export function getNotificationTitle(type: UiNotificationType): string {
   switch (type) {
     case 'like':     return 'New Like';
     case 'comment':  return 'New Comment';
@@ -212,7 +212,7 @@ export function extractNotificationMessage(
  * Convert a raw Supabase `notifications` row into a typed `UiNotification`
  * ready for consumption by the NotificationCenter component.
  */
-export function normalizeDbRow(row: DbNotificationRow: UiNotification) {
+export function normalizeDbRow(row: DbNotificationRow): UiNotification {
   const uiType   = mapNotificationType(row.type);
   const content  = row.content ?? null;
   const title    = getNotificationTitle(uiType);
@@ -235,12 +235,12 @@ export function normalizeDbRow(row: DbNotificationRow: UiNotification) {
 // ---------------------------------------------------------------------------
 
 /** Count unread notifications in a list. */
-export function getUnreadCount(notifications: UiNotification[]: number) {
+export function getUnreadCount(notifications: UiNotification[]): number {
   return notifications.filter((n: Record<string, unknown>) => !n.read).length;
 }
 
 /** Sort notifications newest-first. Mutates a copy, does not mutate input. */
-export function sortByRecent(notifications: UiNotification[]: UiNotification[]) {
+export function sortByRecent(notifications: UiNotification[]): UiNotification[] {
   return [...notifications].sort(
     (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
   );

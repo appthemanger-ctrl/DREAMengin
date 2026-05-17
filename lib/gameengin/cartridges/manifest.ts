@@ -28,7 +28,7 @@ export interface CartridgeManifestEntry {
  * cartridges that replaced 25 source games.
  */
 export const CARTRIDGE_MANIFEST: readonly CartridgeManifestEntry[] = [
-  // -- Flagship — Babylon.js / WebGPU / deep-systems ------------------------
+  // ── Flagship — Babylon.js / WebGPU / deep-systems ────────────────────────
   { id: 'platformer', label: 'MADMAXI', emoji: '🏎', category: 'Platformer', color: '#c8981a', renderMode: 'babylon', tier: 'flagship',
     subtitle: 'MADMAXI · Landing-grade robot hero',
     description: '150 levels · 15 zones · boss every 10 levels · unique each run — Babylon.js side-scroller rebuilt around the DREAMengin landing robot' },
@@ -39,7 +39,7 @@ export const CARTRIDGE_MANIFEST: readonly CartridgeManifestEntry[] = [
     subtitle: 'WebGPU · DualSense Ready',
     description: 'WebGPU arena shooter — DualSense gyro aim, top-down combat, high-performance 3D rendering' },
 
-  // -- Fusion flagships — replace 25 source cartridges ----------------------
+  // ── Fusion flagships — replace 25 source cartridges ──────────────────────
   { id: 'null-cathedral', label: 'NULL CATHEDRAL', emoji: '♟', category: 'Tactics RPG', color: '#d4af37', renderMode: 'canvas', tier: 'flagship',
     subtitle: 'Chess + RPG + Minesweeper · Deductive sacrifice',
     description: 'A grim tactical RPG where every battle is a chess match played over a buried minefield of repressed memories — Iren Vespa descends the Cathedral of Null to find her sister before CASTLE overwrites her' },
@@ -56,7 +56,7 @@ export const CARTRIDGE_MANIFEST: readonly CartridgeManifestEntry[] = [
     subtitle: 'ENGIN Battle + DREAMwars + Avatar Maker · Built-is-fought',
     description: '1v1 mech fighter where every avatar-maker silhouette choice is a frame-data decision, wrapped in a season-long Lattice/Choir/Kindling faction war. Pilot Vesh defects mid-season' },
 
-  // -- Advanced fusion cartridges -------------------------------------------
+  // ── Advanced fusion cartridges ───────────────────────────────────────────
   { id: 'glassfall', label: 'GLASSFALL', emoji: '🔻', category: 'Puzzle', color: '#ff7da8', renderMode: 'canvas', tier: 'advanced',
     subtitle: 'Breakout + Tetris + Match-3 · Carve the falling tower',
     description: 'A vertical action-puzzler — bounce shards up into falling tetrominos to chip free gems, settle them into 3-matches, push back the rising garbage. Climb the Architect\'s tower' },
@@ -67,19 +67,19 @@ export const CARTRIDGE_MANIFEST: readonly CartridgeManifestEntry[] = [
     subtitle: 'Solitaire + Word Sprint + Trivia · Spell to fight',
     description: 'Narrative deckbuilder — lay Klondike cascades, spell words across legal chains to cast spells, answer library trivia for relic-cards. Lin Argo chases the Redactor through five dying libraries' },
 
-  // -- Classic fusion cartridge ---------------------------------------------
+  // ── Classic fusion cartridge ─────────────────────────────────────────────
   { id: 'defuse-ritual', label: 'DEFUSE RITUAL', emoji: '🕯', category: 'Arcade', color: '#f0c674', renderMode: 'dom', tier: 'classic',
     subtitle: 'Speed-Tap + Minesweeper · Deduction under panic',
     description: 'Nine seconds. A minesweeper grid overlays a candle-lit temple floor. Tap only the safe tiles in the glyph-order shown on the wall — mistakes shorten the timer and brand your hand' },
 ];
 
 /** Quick lookup by id. Returns undefined if no cartridge with that id exists. */
-export function getCartridgeManifest(id: string: CartridgeManifestEntry | undefined) {
+export function getCartridgeManifest(id: string): CartridgeManifestEntry | undefined {
   return CARTRIDGE_MANIFEST.find((c: Record<string, unknown>) => c.id === id);
 }
 
 /** Distinct categories preserved in manifest order. */
-export function getCartridgeCategories(: string[]) {
+export function getCartridgeCategories(): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
   for (const c of CARTRIDGE_MANIFEST) {

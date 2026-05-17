@@ -62,17 +62,17 @@ const EMPTY_STATS: DispatcherStats = {
   boundsViolations: 0,
 };
 
-function dispatcherStatsEqual(a: DispatcherStats, b: DispatcherStats: boolean) {
+function dispatcherStatsEqual(a: DispatcherStats, b: DispatcherStats): boolean {
   if (a.workerCount !== b.workerCount || a.boundsViolations !== b.boundsViolations) {
     return false;
   }
   if (a.microsecondsPerTick.length !== b.microsecondsPerTick.length) {
     return false;
   }
-  return a.microsecondsPerTick.every(value: Record<string, unknown>, index: number => value === b.microsecondsPerTick[index]);
+  return a.microsecondsPerTick.every(value: Record<string, unknown>, (index: number ) => value === b.microsecondsPerTick[index]);
 }
 
-export default function DREAMenginOS() {
+export default function DREAMenginOS(){
   audioSource,
   onReady,
   onSelectSubsystem,
@@ -200,7 +200,7 @@ export default function DREAMenginOS() {
 
     const glow = new GlowLayer('OS_GLOW', scene);
 
-    highlightedFamilies.forEach(family: Record<string, unknown>, index: number => {
+    highlightedFamilies.forEach(family: Record<string, unknown>, (index: number ) => {
       const angle = (index / highlightedFamilies.length) * Math.PI * 2;
       const radius = 5.5;
       const orb = MeshBuilder.CreateSphere(`dreamengin-family-${family.id}`, {
@@ -226,7 +226,7 @@ export default function DREAMenginOS() {
       };
     });
 
-    scene.onPointerObservable.add(pointerInfo: Record<string, unknown> => {
+    scene.onPointerObservable.add((pointerInfo: Record<string, unknown>) => {
       if (pointerInfo.type !== PointerEventTypes.POINTERPICK) return;
       const node = pointerInfo.pickInfo?.pickedMesh?.metadata?.subsystemNode as
         | DreamenginOSSubsystemNode
@@ -276,19 +276,19 @@ export default function DREAMenginOS() {
     setDispatcherStats(dispatcher.stats);
 
     const poll = window.setInterval(() => {
-      setDispatcherStats(previous: Record<string, unknown> => {
+      setDispatcherStats((previous: Record<string, unknown>) => {
         const next = dispatcher.stats;
         return dispatcherStatsEqual(previous, next) ? previous : next;
       });
     }, 1000);
 
-    const unsubscribePeers = bridge.subscribePeerActivity(peers: Record<string, unknown> => {
+    const unsubscribePeers = bridge.subscribePeerActivity((peers: Record<string, unknown>) => {
       setPeerStates(peers);
     });
-    const unsubscribeIdari = onIdariEvent(detail: Record<string, unknown> => {
+    const unsubscribeIdari = onIdariEvent((detail: Record<string, unknown>) => {
       setLastIdariEvent(detail);
     });
-    const unsubscribeOSBus = dreamOSBus.subscribe(snapshot: Record<string, unknown> => {
+    const unsubscribeOSBus = dreamOSBus.subscribe((snapshot: Record<string, unknown>) => {
       setSharedArtifacts(snapshot.artifacts.slice(0, 4));
       setRuntimeContexts(snapshot.runtimeContexts);
     });
@@ -328,7 +328,7 @@ export default function DREAMenginOS() {
 
   const handleImport = useCallback((payload: AssetImportPayload) => {
     setLastImportedAsset(payload);
-    setImportCount(count: number => count + 1);
+    setImportCount((count: number ) => count + 1);
   }, []);
 
   const statusColor =
@@ -464,7 +464,7 @@ export default function DREAMenginOS() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 8 }}>
-          {manifest.families.slice(0, 8).map(family: Record<string, unknown>, fi: Record<string, unknown> => {
+          {manifest.families.slice(0, 8).map((family: Record<string, unknown>, fi: Record<string, unknown>) => {
             const fColor = ORB_COLORS[fi % ORB_COLORS.length];
             return (
               <button
@@ -595,7 +595,7 @@ export default function DREAMenginOS() {
               { label: 'Live Peers', value: livePeerCount,                     accent: '#10b981' },
               { label: 'Bounds',     value: dispatcherStats.boundsViolations,  accent: dispatcherStats.boundsViolations > 0 ? '#fb923c' : '#5de8ff' },
               { label: 'Seam',       value: seamVisible ? 'ON' : 'OFF',        accent: seamVisible ? '#10b981' : '#64748b' },
-            ] as { label: string; value: string | number; accent: string }[]).map({ label, value: Record<string, unknown>, accent } => (
+            ] as { label: string; value: string | number; accent: string }[]).map(({ label, value: Record<string, unknown>, accent }) => (
               <div key={label} style={{
                 borderRadius: 10,
                 border:       `1px solid ${accent}22`,
@@ -648,7 +648,7 @@ export default function DREAMenginOS() {
         </div>
       </div>
 
-      {/* -- Dr. Eams — session intelligence panel --------------------------- */}
+      {/* ── Dr. Eams — session intelligence panel ─────────────────────────── */}
       {predictions.length > 0 ? (
         <div
           style={{
@@ -692,7 +692,7 @@ export default function DREAMenginOS() {
           ) : null}
 
           <div style={{ display: 'grid', gap: 5 }}>
-            {predictions.map(pred: Record<string, unknown>, index: number => (
+            {predictions.map(pred: Record<string, unknown>, (index: number ) => (
               <div
                 key={pred.subsystemId}
                 style={{

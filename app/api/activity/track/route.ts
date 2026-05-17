@@ -15,7 +15,7 @@ import type {
 } from '@/lib/activity/types';
 import { VERIFICATION_STRENGTH } from '@/lib/activity/types';
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
 
   // Auth check

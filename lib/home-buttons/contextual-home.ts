@@ -23,7 +23,7 @@ export const HOME_TOP_THRESHOLD    = 0.34;
 export type HomeTarget = 'surface' | 'dreamspace' | 'both';
 
 /** Pure function — what does Home mean at this splitRatio? */
-export function resolveHomeTarget(splitRatio: number: HomeTarget) {
+export function resolveHomeTarget(splitRatio: number): HomeTarget {
   if (splitRatio >= HOME_BOTTOM_THRESHOLD) return 'surface';
   if (splitRatio <= HOME_TOP_THRESHOLD)    return 'dreamspace';
   return 'both';

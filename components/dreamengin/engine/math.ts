@@ -1,12 +1,12 @@
 // components/dreamengin/engine/math.ts
 // Deterministic math helpers for DREAMengin's toroidal navigation + "quantum" yaw.
 
-export function clamp(v: number, lo: number, hi: number: number) {
+export function clamp(v: number, lo: number, hi: number): number {
   return v < lo ? lo : v > hi ? hi : v;
 }
 
 // Positive modulo wrap for JavaScript (handles negative values)
-export function wrap(v: number, size: number: number) {
+export function wrap(v: number, size: number): number {
   const r = v % size;
   return r < 0 ? r + size : r;
 }
@@ -14,14 +14,14 @@ export function wrap(v: number, size: number: number) {
 // Unit-complex yaw representation q = (cosθ, sinθ).
 export type UnitComplex = Float32Array; // [re, im]
 
-export function unitComplexFromAngle(thetaRad: number, out: UnitComplex: UnitComplex) {
+export function unitComplexFromAngle(thetaRad: number, out: UnitComplex): UnitComplex {
   out[0] = Math.cos(thetaRad);
   out[1] = Math.sin(thetaRad);
   return out;
 }
 
 // q <- q * e^{i dTheta}
-export function unitComplexRotate(q: UnitComplex, dThetaRad: number: void) {
+export function unitComplexRotate(q: UnitComplex, dThetaRad: number): void {
   const c = Math.cos(dThetaRad);
   const s = Math.sin(dThetaRad);
   const re = q[0];

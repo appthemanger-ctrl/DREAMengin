@@ -47,9 +47,9 @@ export interface SeoReport {
   generatedAt: string;
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 // Word lists
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 const POWER_WORDS = /\b(how|why|what|guide|best|tips|ultimate|secret|top|proven|free|new|exclusive|boost|unlock|master|discover|transform|instantly|guaranteed|\d+\s+ways|\d+\s+steps|\d+\s+tips)/i;
 
@@ -61,11 +61,11 @@ const PASSIVE_VOICE = /\b(is|are|was|were|be|been|being)\s+\w+ed\b/gi;
 
 const JARGON_WORDS = /\b(synergy|leverage|paradigm|holistic|scalable|agile|disruptive|pivot|bandwidth|actionable|deliverable|ecosystem|ideate|verticals|stakeholder|roi|kpi|b2b|b2c|saas|cpc|ctr|seo|sem|crm|erp|api|ux|ui|sdk|ide)\b/gi;
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 // Dimension scorers
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
-function scoreTitle(title: string, keywords: string[]: SeoScoreDimension) {
+function scoreTitle(title: string, keywords: string[]): SeoScoreDimension {
   let score = 0;
   const suggestions: string[] = [];
 
@@ -97,7 +97,7 @@ function scoreTitle(title: string, keywords: string[]: SeoScoreDimension) {
     suggestions.push('Address the reader directly ("you / your") for higher relevance.');
   }
 
-  const kwHit = keywords.some(k => title.toLowerCase().includes(k.toLowerCase()));
+  const kwHit = keywords.some((k) => title.toLowerCase().includes(k.toLowerCase()));
   if (kwHit) {
     score += 15;
   } else if (keywords.length > 0) {
@@ -114,7 +114,7 @@ function scoreTitle(title: string, keywords: string[]: SeoScoreDimension) {
   };
 }
 
-function scoreBody(body: string, keywords: string[]: SeoScoreDimension) {
+function scoreBody(body: string, keywords: string[]): SeoScoreDimension {
   let score = 0;
   const suggestions: string[] = [];
 
@@ -148,7 +148,7 @@ function scoreBody(body: string, keywords: string[]: SeoScoreDimension) {
 
   const kwDensity =
     keywords.length > 0
-      ? keywords.reduce(acc: Record<string, unknown>, k: number => {
+      ? keywords.reduce(acc: Record<string, unknown>, (k: number ) => {
           const re = new RegExp(`\\b${k}\\b`, 'gi');
           return acc + (body.match(re)?.length ?? 0);
         }, 0) / Math.max(words.length, 1)
@@ -173,7 +173,7 @@ function scoreBody(body: string, keywords: string[]: SeoScoreDimension) {
   };
 }
 
-function scoreEngagement(text: string: SeoScoreDimension &) { signalCount: number } {
+function scoreEngagement(text: string): SeoScoreDimension & { signalCount: number } {
   let score = 0;
   const suggestions: string[] = [];
 
@@ -212,11 +212,11 @@ function scoreEngagement(text: string: SeoScoreDimension &) { signalCount: numbe
   };
 }
 
-function scoreAccessibility(body: string: SeoScoreDimension &) { level: 'High' | 'Medium' | 'Low' } {
+function scoreAccessibility(body: string): SeoScoreDimension & { level: 'High' | 'Medium' | 'Low' } {
   let score = 0;
   const suggestions: string[] = [];
 
-  const sentences = body.split(/[.!?]+/).filter(s => s.trim().length > 0);
+  const sentences = body.split(/[.!?]+/).filter((s) => s.trim().length > 0);
   const avgWordsPerSentence = sentences.length > 0
     ? body.trim().split(/\s+/).length / sentences.length
     : 0;
@@ -262,18 +262,18 @@ function scoreAccessibility(body: string: SeoScoreDimension &) { level: 'High' |
   };
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 // Readability
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
-function roughFleschGrade(text: string: string) {
-  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length || 1;
+function roughFleschGrade(text: string): string {
+  const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0).length || 1;
   const words = text.trim().split(/\s+/).filter(Boolean).length || 1;
   const syllables = text
     .toLowerCase()
     .replace(/[^a-z]/g, ' ')
     .split(/\s+/)
-    .reduce(acc: Record<string, unknown>, w: number => acc + countSyllables(w), 0) || 1;
+    .reduce(acc: Record<string, unknown>, (w: number ) => acc + countSyllables(w), 0) || 1;
 
   const score = 206.835 - 1.015 * (words / sentences) - 84.6 * (syllables / words);
 
@@ -283,23 +283,23 @@ function roughFleschGrade(text: string: string) {
   return 'Difficult (College+)';
 }
 
-function countSyllables(word: string: number) {
+function countSyllables(word: string): number {
   if (word.length <= 3) return 1;
   const cleaned = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '').replace(/^y/, '');
   const matches = cleaned.match(/[aeiouy]{1,2}/g);
   return Math.max(1, matches?.length ?? 1);
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 // Public API
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 /**
  * Score content client-side with zero latency.
  *
  * Returns scores across four dimensions: Title, Body, Engagement, Accessibility.
  */
-export function scoreContent(input: SeoScoreInput: SeoScoreResult) {
+export function scoreContent(input: SeoScoreInput): SeoScoreResult {
   const title = input.title ?? '';
   const body = input.body ?? '';
   const keywords = input.keywords ?? [];
@@ -329,13 +329,13 @@ export function scoreContent(input: SeoScoreInput: SeoScoreResult) {
     dimensions.push({ label: acc.label, score: acc.score, maxScore: acc.maxScore, suggestion: acc.suggestion });
   }
 
-  const rawTotal = dimensions.reduce(a: Record<string, unknown>, d: Record<string, unknown> => a + d.score, 0);
-  const rawMax = dimensions.reduce(a: Record<string, unknown>, d: Record<string, unknown> => a + d.maxScore, 0);
+  const rawTotal = dimensions.reduce((a: Record<string, unknown>, d: Record<string, unknown>) => a + d.score, 0);
+  const rawMax = dimensions.reduce((a: Record<string, unknown>, d: Record<string, unknown>) => a + d.maxScore, 0);
   const overall = rawMax > 0 ? Math.round((rawTotal / rawMax) * 100) : 50;
 
   const topSuggestions = dimensions
-    .map(d => d.suggestion)
-    .filter(s =>
+    .map((d) => d.suggestion)
+    .filter((s) =>
       !s.toLowerCase().includes('looks solid') &&
       !s.toLowerCase().includes('well-optimised') &&
       !s.toLowerCase().includes('looks strong') &&
@@ -351,7 +351,7 @@ export function scoreContent(input: SeoScoreInput: SeoScoreResult) {
  * Generate a full JSON report for the scored content.
  * Useful for saving to Supabase or exporting as a file.
  */
-export function generateReport(input: SeoScoreInput: SeoReport) {
+export function generateReport(input: SeoScoreInput): SeoReport {
   return {
     input,
     result: scoreContent(input),

@@ -85,11 +85,11 @@ const SUBSYSTEM_LABELS: Record<string, string> = {
   profile: '👤 Profile',
 };
 
-function labelFor(subsystemId: string: string) {
+function labelFor(subsystemId: string): string {
   return SUBSYSTEM_LABELS[subsystemId] ?? `⬡ ${subsystemId}`;
 }
 
-// --- Session Pattern Engine ---------------------------------------------------
+// ─── Session Pattern Engine ───────────────────────────────────────────────────
 
 export class SessionPatternEngine {
   /** Bigram counts: transitions[from][to] = count */
@@ -101,7 +101,7 @@ export class SessionPatternEngine {
 
   private tfReady = false;
 
-  // -- Lifecycle ------------------------------------------------------------
+  // ── Lifecycle ────────────────────────────────────────────────────────────
 
   async init(): Promise<void> {
     try {
@@ -123,7 +123,7 @@ export class SessionPatternEngine {
     }
   }
 
-  // -- Ingestion ------------------------------------------------------------
+  // ── Ingestion ────────────────────────────────────────────────────────────
 
   /**
    * Ingest a subsystem activation event.
@@ -147,7 +147,7 @@ export class SessionPatternEngine {
     }
   }
 
-  // -- Prediction -----------------------------------------------------------
+  // ── Prediction ───────────────────────────────────────────────────────────
 
   /**
    * Predict the top-N most likely next subsystem activations given the current
@@ -169,7 +169,7 @@ export class SessionPatternEngine {
     }
 
     const entries = Array.from(fromMap.entries());
-    const total = entries.reduce(sum: number, [, count] => sum + count, 0);
+    const total = entries.reduce((sum: number, [, count]) => sum + count, 0);
 
     let learnedNorm: { subsystemId: string; confidence: number }[];
     if (this.tfReady) {
@@ -202,7 +202,7 @@ export class SessionPatternEngine {
 
       return blended
         .filter((p: Record<string, unknown>) => p.confidence > 0)
-        .sort(a: Record<string, unknown>, b: Record<string, unknown> => b.confidence - a.confidence)
+        .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.confidence - a.confidence)
         .slice(0, topN)
         .map(({ subsystemId, confidence }) => ({
           subsystemId,
@@ -213,7 +213,7 @@ export class SessionPatternEngine {
 
     // Pure learned (transitionCount > COLD_START_THRESHOLD).
     return learnedNorm
-      .sort(a: Record<string, unknown>, b: Record<string, unknown> => b.confidence - a.confidence)
+      .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.confidence - a.confidence)
       .slice(0, topN)
       .map(({ subsystemId, confidence }) => ({
         subsystemId,
@@ -250,7 +250,7 @@ export class SessionPatternEngine {
     this.subsystemsSeen.length = 0;
   }
 
-  // -- Persistence -----------------------------------------------------------
+  // ── Persistence ───────────────────────────────────────────────────────────
 
   /**
    * Exports the learned bigram transition matrix as a plain JSON-serialisable
@@ -283,7 +283,7 @@ export class SessionPatternEngine {
     }
   }
 
-  // -- Cold-start helpers ----------------------------------------------------
+  // ── Cold-start helpers ────────────────────────────────────────────────────
 
   private coldStartDefaults(subsystemId: string): [string, number][] {
     return COLD_START_WEIGHTS[subsystemId] ?? DEFAULT_COLD_START;
@@ -299,7 +299,7 @@ export class SessionPatternEngine {
       }));
   }
 
-  // -- TF.js normalisation ---------------------------------------------------
+  // ── TF.js normalisation ───────────────────────────────────────────────────
 
   /**
    * Uses TF.js softmax-like normalisation for sharper probability separation
@@ -324,7 +324,7 @@ export class SessionPatternEngine {
       tensor.dispose();
       softmax.dispose();
 
-      return entries.map([subsystemId], i: number => ({
+      return entries.map([subsystemId], (i: number ) => ({
         subsystemId,
         confidence: probsArray[i] ?? 0,
       }));

@@ -17,14 +17,14 @@
 
 import { slog } from './slog';
 
-// --- Constants ----------------------------------------------------------------
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 export const TORRIDITY_N  = 2.1;
 export const TORRIDITY_DP = TORRIDITY_N - 2;          // 0.1
 export const TORRIDITY_LAMBDA = 1.71;
 export const TORRIDITY_A0_PERCEPTION = 0.05;          // scaled for UI gravity
 
-// --- MOND Interpolation -------------------------------------------------------
+// ─── MOND Interpolation ───────────────────────────────────────────────────────
 
 /**
  * mu(x) = x / (1 + x^n)^(1/n)
@@ -32,12 +32,12 @@ export const TORRIDITY_A0_PERCEPTION = 0.05;          // scaled for UI gravity
  * Interpolation function:  mu → 1 for x ≫ 1 (Newtonian regime),
  *                          mu → x for x ≪ 1 (deep-MOND regime).
  */
-export function mu(x: number: number) {
+export function mu(x: number): number {
   if (x === 0) return 0;
   return x / Math.pow(1 + Math.pow(Math.abs(x), TORRIDITY_N), 1 / TORRIDITY_N);
 }
 
-// --- Content Mass -------------------------------------------------------------
+// ─── Content Mass ─────────────────────────────────────────────────────────────
 
 /**
  * contentMass(buildTime, uniqueAssets)
@@ -48,11 +48,11 @@ export function mu(x: number: number) {
  * @param buildTime    Build / creation time in minutes.
  * @param uniqueAssets Number of unique assets (images, audio clips, etc.).
  */
-export function contentMass(buildTime: number, uniqueAssets: number: number) {
+export function contentMass(buildTime: number, uniqueAssets: number): number {
   return Math.log1p(buildTime * 0.5 + uniqueAssets * 2);
 }
 
-// --- Torridity Rank -----------------------------------------------------------
+// ─── Torridity Rank ───────────────────────────────────────────────────────────
 
 /**
  * torridityRank(views, mass)
@@ -65,14 +65,14 @@ export function contentMass(buildTime: number, uniqueAssets: number: number) {
  *
  * slog is applied to keep the output human-perceivable.
  */
-export function torridityRank(views: number, mass: number: number) {
+export function torridityRank(views: number, mass: number): number {
   if (mass <= 0) return 0;
   const x = views / (mass * TORRIDITY_A0_PERCEPTION);
   const mondFactor = mu(x);
   return slog(mondFactor * views);
 }
 
-// --- Torridity Rank (spec-exact, §37) ----------------------------------------
+// ─── Torridity Rank (spec-exact, §37) ────────────────────────────────────────
 
 /**
  * torridityRankSpec(views, mass)
@@ -83,14 +83,14 @@ export function torridityRank(views: number, mass: number: number) {
  *
  * Returns 0 when mass <= 0.  Output lies in [0, 1).
  */
-export function torridityRankSpec(views: number, mass: number: number) {
+export function torridityRankSpec(views: number, mass: number): number {
   if (mass <= 0) return 0;
   const v = Math.max(0, views);
   const V = (TORRIDITY_A0_PERCEPTION * Math.log1p(v + 1)) / 4;
   return mu(V * mass);
 }
 
-// --- Content Decay (§37) -----------------------------------------------------
+// ─── Content Decay (§37) ─────────────────────────────────────────────────────
 
 /**
  * contentDecayFactor(ageHours)
@@ -100,7 +100,7 @@ export function torridityRankSpec(views: number, mass: number: number) {
  * Fresh content (ageHours = 0) → 0.
  * Approaches 1 asymptotically for very old content.
  */
-export function contentDecayFactor(ageHours: number: number) {
+export function contentDecayFactor(ageHours: number): number {
   const age = Math.max(0, ageHours);
   return mu(age / 24);
 }
@@ -113,12 +113,12 @@ export function contentDecayFactor(ageHours: number: number) {
  *
  * Returns 0 when mass <= 0.
  */
-export function decayedRank(views: number, mass: number, ageHours: number: number) {
+export function decayedRank(views: number, mass: number, ageHours: number): number {
   if (mass <= 0) return 0;
   return torridityRankSpec(views, mass) * (1 - contentDecayFactor(ageHours));
 }
 
-// --- Throttling Gate ----------------------------------------------------------
+// ─── Throttling Gate ──────────────────────────────────────────────────────────
 
 /**
  * Low-mass content visibility cap.
@@ -140,7 +140,7 @@ export function throttledVisibility(
   return Math.max(1, Math.floor(feedSlots * 0.1));
 }
 
-// --- Batch Ranking -----------------------------------------------------------
+// ─── Batch Ranking ───────────────────────────────────────────────────────────
 
 export interface ContentItem {
   id: string;
@@ -165,7 +165,7 @@ export interface RankedItem extends ContentItem {
  * Rank a list of content items by torridity, applying the
  * low-mass visibility throttle.  Returns items sorted descending by rank.
  */
-export function rankFeed(items: ContentItem[], feedSlots = 20: RankedItem[]) {
+export function rankFeed(items: ContentItem[], feedSlots = 20): RankedItem[] {
   return items
     .map((item: Record<string, unknown>) => {
       const mass = contentMass(item.buildTime, item.uniqueAssets);
@@ -174,5 +174,5 @@ export function rankFeed(items: ContentItem[], feedSlots = 20: RankedItem[]) {
       const decayFactor = contentDecayFactor(item.ageHours ?? 0);
       return { ...item, mass, rank, visibilityCap, decayFactor };
     })
-    .sort(a: Record<string, unknown>, b: Record<string, unknown> => b.rank - a.rank);
+    .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.rank - a.rank);
 }

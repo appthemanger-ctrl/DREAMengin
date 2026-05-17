@@ -16,10 +16,10 @@
  * Architecture: docs/ARCHITECTURE.md §3 — logic layer (lib/).
  */
 
-// -- Physics / Lab telemetry (browser-safe, RLS-protected) --------------------
+// ── Physics / Lab telemetry (browser-safe, RLS-protected) ────────────────────
 export { logPhysicsExperiment } from './lab';
 
-// -- Social feed ---------------------------------------------------------------
+// ── Social feed ───────────────────────────────────────────────────────────────
 // The canonical feed lives in app/api/feed/route.ts.
 // This helper fetches from that route so callers don't need the URL.
 
@@ -39,7 +39,7 @@ export type FeedEntry = {
  * Fetches the unified HomeDream feed from the server-side API route.
  * Returns an empty array on error.
  */
-export async function getFeed(opts?:) {
+export async function getFeed(opts?: ){
   limit?: number;
   before?: string;
   provider?: string;
@@ -62,7 +62,7 @@ export async function getFeed(opts?:) {
   }
 }
 
-// -- Global Association Layer — GAL registry sync (server-delegated) -----------
+// ── Global Association Layer — GAL registry sync (server-delegated) ───────────
 
 export type RegistryEntry = {
   id: string;
@@ -101,7 +101,7 @@ export async function syncToGlobalRegistry(
   }
 }
 
-// -- Monetization — Ad order processing (server-delegated) ---------------------
+// ── Monetization — Ad order processing (server-delegated) ─────────────────────
 
 export type AdOrderResult = {
   id: string;

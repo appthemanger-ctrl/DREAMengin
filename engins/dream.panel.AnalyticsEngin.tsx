@@ -44,7 +44,7 @@ const REVENUE_SPLIT = [
   { label: 'Reward Pool',  pct: 20, color: '#f59e0b', desc: 'Monthly distribution to active users' },
 ];
 
-export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }: Props {
+export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: Props) {
   const [userId, setUserId] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [platformMetrics, setPlatformMetrics] = useState<GetPlatformMetricsResponse | null>(null);
@@ -91,8 +91,8 @@ export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }:
     if (!isAdmin) return;
     setPlatformLoading(true);
     fetch('/api/metrics/platform')
-      .then(r: number => (r.ok ? r.json() : null))
-      .then(data: Record<string, unknown> => setPlatformMetrics(data))
+      .then((r: number ) => (r.ok ? r.json() : null))
+      .then((data: Record<string, unknown>) => setPlatformMetrics(data))
       .catch(() => {})
       .finally(() => setPlatformLoading(false));
   }, [isAdmin]);
@@ -102,8 +102,8 @@ export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }:
     if (!userId) return;
     setCreditsLoading(true);
     fetch('/api/skip-credits/balance')
-      .then(r: number => (r.ok ? r.json() : null))
-      .then(data: Record<string, unknown> => setSkipCredit(data?.skip_credit ?? null))
+      .then((r: number ) => (r.ok ? r.json() : null))
+      .then((data: Record<string, unknown>) => setSkipCredit(data?.skip_credit ?? null))
       .catch(() => {})
       .finally(() => setCreditsLoading(false));
   }, [userId]);
@@ -112,8 +112,8 @@ export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }:
     if (!isAdmin) return;
     setPlatformLoading(true);
     fetch('/api/metrics/platform')
-      .then(r: number => (r.ok ? r.json() : null))
-      .then(data: Record<string, unknown> => setPlatformMetrics(data))
+      .then((r: number ) => (r.ok ? r.json() : null))
+      .then((data: Record<string, unknown>) => setPlatformMetrics(data))
       .catch(() => {})
       .finally(() => setPlatformLoading(false));
   };
@@ -141,7 +141,7 @@ export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }:
 
       <div className="px-4 py-4 space-y-4">
 
-        {/* -- Deep Activity Metrics ------------------------------------------- */}
+        {/* ── Deep Activity Metrics ─────────────────────────────────────────── */}
         {userId && (
           <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: '16px', border: '1px solid rgba(99,102,241,0.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -152,7 +152,7 @@ export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }:
           </div>
         )}
 
-        {/* -- Skip Credit Balance --------------------------------------------- */}
+        {/* ── Skip Credit Balance ───────────────────────────────────────────── */}
         <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: '16px', border: '1px solid rgba(245,158,11,0.2)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <Zap className="w-4 h-4" style={{ color: '#f59e0b' }} />
@@ -181,7 +181,7 @@ export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }:
           </p>
         </div>
 
-        {/* -- Revenue Split --------------------------------------------------- */}
+        {/* ── Revenue Split ─────────────────────────────────────────────────── */}
         <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: '16px', border: '1px solid rgba(34,197,94,0.2)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <DollarSign className="w-4 h-4" style={{ color: '#22c55e' }} />
@@ -206,7 +206,7 @@ export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }:
           </p>
         </div>
 
-        {/* -- Verified View Summary ------------------------------------------- */}
+        {/* ── Verified View Summary ─────────────────────────────────────────── */}
         <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: '16px', border: '1px solid rgba(56,189,248,0.2)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <Eye className="w-4 h-4" style={{ color: '#38bdf8' }} />
@@ -232,7 +232,7 @@ export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }:
           </p>
         </div>
 
-        {/* -- Platform Health (Admin only) ------------------------------------ */}
+        {/* ── Platform Health (Admin only) ──────────────────────────────────── */}
         {isAdmin && (
           <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: '16px', border: '1px solid rgba(239,68,68,0.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -277,7 +277,7 @@ export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }:
           </div>
         )}
 
-        {/* -- Cross-Engin Sync ------------------------------------------------ */}
+        {/* ── Cross-Engin Sync ──────────────────────────────────────────────── */}
         <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: '16px', border: '1px solid rgba(99,102,241,0.15)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <TrendingUp className="w-4 h-4" style={{ color: ACCENT }} />
@@ -286,7 +286,7 @@ export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }:
           <CrossEnginStatusPanel excludeChannel="analytics" />
         </div>
 
-        {/* -- Journey Trail --------------------------------------------------- */}
+        {/* ── Journey Trail ─────────────────────────────────────────────────── */}
         <JourneyTrail compact />
 
       </div>

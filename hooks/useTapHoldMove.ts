@@ -18,12 +18,12 @@ import { useEffect, useRef, useCallback } from 'react';
 import type { ModuleManifest, RuntimeId } from '../lib/universalEditor';
 import { canTransfer } from '../lib/universalEditor';
 
-// --- Constants ----------------------------------------------------------------
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 const HOLD_DURATION_MS    = 300;
 const EDGE_THRESHOLD_PX   = 60;
 
-// --- Edge detection -----------------------------------------------------------
+// ─── Edge detection ───────────────────────────────────────────────────────────
 
 function detectEdgeRuntime(
   clientX: number,
@@ -37,7 +37,7 @@ function detectEdgeRuntime(
   return null;
 }
 
-// --- Hook ---------------------------------------------------------------------
+// ─── Hook ─────────────────────────────────────────────────────────────────────
 
 export interface UseTapHoldMoveOptions {
   /** The module manifest for this draggable element. */
@@ -67,7 +67,7 @@ export function useTapHoldMove(
     const el = ref.current;
     if (!el) return;
 
-    // -- Pointer down → start hold timer --
+    // ── Pointer down → start hold timer ──
     const onPointerDown = (e: PointerEvent) => {
       holdFired.current = false;
       holdTimer.current = setTimeout(() => {
@@ -79,7 +79,7 @@ export function useTapHoldMove(
       }, HOLD_DURATION_MS);
     };
 
-    // -- Pointer move → check edge if dragging --
+    // ── Pointer move → check edge if dragging ──
     const onPointerMove = (e: PointerEvent) => {
       if (!dragging.current) return;
       const target = detectEdgeRuntime(e.clientX, e.clientY);
@@ -90,7 +90,7 @@ export function useTapHoldMove(
       }
     };
 
-    // -- Pointer up → trigger transfer or cancel --
+    // ── Pointer up → trigger transfer or cancel ──
     const onPointerUp = (e: PointerEvent) => {
       if (holdTimer.current !== null) {
         clearTimeout(holdTimer.current);

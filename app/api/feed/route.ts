@@ -50,7 +50,7 @@ export interface UnifiedFeedEntry {
   raw?: Record<string, unknown>;
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest ){
   const supabase = await createServerClient();
 
   const { data: { user }, error: userErr } = await supabase.auth.getUser();
@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
 
   const entries: UnifiedFeedEntry[] = [];
 
-  // -- Stream 1: feed_items (connector-synced content) ----------------------
+  // ── Stream 1: feed_items (connector-synced content) ──────────────────────
   {
      
     const db = supabase as SupabaseClient;
@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // -- Stream 2: app_posts (public posts from followed users + own posts) -----
+  // ── Stream 2: app_posts (public posts from followed users + own posts) ─────
   {
     // Collect followed user IDs
      
@@ -165,7 +165,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // -- Merge + sort ----------------------------------------------------------
+  // ── Merge + sort ──────────────────────────────────────────────────────────
   // Phase 9: Activity-First Protocol — sort by visibility_score when sort=activity
   if (sort === 'activity') {
     // Use visibility score algorithm (AQS-based ranking)
@@ -179,7 +179,7 @@ export async function GET(req: NextRequest) {
   }
 
   // Legacy sorting (for backward compatibility)
-  entries.sort(a: Record<string, unknown>, b: Record<string, unknown> => {
+  entries.sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
     if (sort === 'trending') {
       // trending: posts with most likes first, then by date
       const aLikes = a.likes_count ?? 0;

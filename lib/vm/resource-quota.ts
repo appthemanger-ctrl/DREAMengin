@@ -5,7 +5,7 @@
  * hard-limiting GPU buffer allocation, VRAM usage, and compute time.
  */
 
-// --- Types --------------------------------------------------------------------
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface ResourceQuota {
   /** Maximum number of live GPU buffers. */
@@ -36,7 +36,7 @@ export interface QuotaViolation {
   message: string;
 }
 
-// --- Errors -------------------------------------------------------------------
+// ─── Errors ───────────────────────────────────────────────────────────────────
 
 export class QuotaExceededError extends Error {
   readonly violations: readonly QuotaViolation[];
@@ -50,7 +50,7 @@ export class QuotaExceededError extends Error {
   }
 }
 
-// --- Defaults -----------------------------------------------------------------
+// ─── Defaults ─────────────────────────────────────────────────────────────────
 
 export const DEFAULT_RESOURCE_QUOTA: ResourceQuota = {
   maxGpuBuffers:   2048,
@@ -59,7 +59,7 @@ export const DEFAULT_RESOURCE_QUOTA: ResourceQuota = {
   maxComputeMs:    100,
 };
 
-// --- Enforcement --------------------------------------------------------------
+// ─── Enforcement ──────────────────────────────────────────────────────────────
 
 /**
  * enforceQuota(quota, usage)
@@ -67,7 +67,7 @@ export const DEFAULT_RESOURCE_QUOTA: ResourceQuota = {
  * Validates current resource usage against the provided quota.
  * Throws QuotaExceededError listing all violations if any limit is exceeded.
  */
-export function enforceQuota(quota: ResourceQuota, usage: ResourceUsage: void) {
+export function enforceQuota(quota: ResourceQuota, usage: ResourceUsage): void {
   const violations: QuotaViolation[] = [];
 
   if (usage.gpuBufferCount > quota.maxGpuBuffers) {
@@ -116,7 +116,7 @@ export function enforceQuota(quota: ResourceQuota, usage: ResourceUsage: void) {
  *
  * Non-throwing variant. Returns true if all limits are satisfied.
  */
-export function withinQuota(quota: ResourceQuota, usage: ResourceUsage: boolean) {
+export function withinQuota(quota: ResourceQuota, usage: ResourceUsage): boolean {
   try {
     enforceQuota(quota, usage);
     return true;

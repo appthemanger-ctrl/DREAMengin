@@ -43,7 +43,7 @@ import {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function DrEamsBadge() { size = 28 }: { size?: number } {
+function DrEamsBadge({ size = 28 }: ) { size?: number } {
   return (
     <div
       aria-hidden="true"
@@ -67,7 +67,7 @@ function DrEamsBadge() { size = 28 }: { size?: number } {
   );
 }
 
-function SpinningDot() {
+function SpinningDot( ){
   return (
     <>
       <style>{`@keyframes de-spin{to{transform:rotate(360deg)}}`}</style>
@@ -106,7 +106,7 @@ export interface DrEamsSearchBarProps {
 // DrEamsSearchBar
 // ---------------------------------------------------------------------------
 
-export default function DrEamsSearchBar() { onOpenDrEams }: DrEamsSearchBarProps {
+export default function DrEamsSearchBar({ onOpenDrEams }: DrEamsSearchBarProps) {
   const router = useRouter();
 
   const [query, setQuery]         = useState('');
@@ -125,7 +125,7 @@ export default function DrEamsSearchBar() { onOpenDrEams }: DrEamsSearchBarProps
   const showAskChip = query.trim().length > 0;
   const hasDropdown = dropOpen && (suggestions.length > 0 || showAskChip);
 
-  // -- Ask Dr. Eams ----------------------------------------------------------
+  // ── Ask Dr. Eams ──────────────────────────────────────────────────────────
 
   const askDrEams = useCallback(async (q: string) => {
     const trimmed = q.trim();
@@ -155,7 +155,7 @@ export default function DrEamsSearchBar() { onOpenDrEams }: DrEamsSearchBarProps
     }
   }, [loading]);
 
-  // -- Nav suggestion click --------------------------------------------------
+  // ── Nav suggestion click ──────────────────────────────────────────────────
 
   const selectSuggestion = useCallback((s: NavSuggestion) => {
     setDropOpen(false);
@@ -168,7 +168,7 @@ export default function DrEamsSearchBar() { onOpenDrEams }: DrEamsSearchBarProps
     }
   }, [router, onOpenDrEams]);
 
-  // -- Keyboard handling -----------------------------------------------------
+  // ── Keyboard handling ─────────────────────────────────────────────────────
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== 'Enter' || !query.trim()) return;
@@ -184,7 +184,7 @@ export default function DrEamsSearchBar() { onOpenDrEams }: DrEamsSearchBarProps
     void askDrEams(query);
   }, [query, suggestions, askDrEams, selectSuggestion]);
 
-  // -- Close dropdown on outside pointer ------------------------------------
+  // ── Close dropdown on outside pointer ────────────────────────────────────
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -196,7 +196,7 @@ export default function DrEamsSearchBar() { onOpenDrEams }: DrEamsSearchBarProps
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // -- Clear state when user starts typing again -----------------------------
+  // ── Clear state when user starts typing again ─────────────────────────────
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
@@ -211,7 +211,7 @@ export default function DrEamsSearchBar() { onOpenDrEams }: DrEamsSearchBarProps
     inputRef.current?.focus();
   }, []);
 
-  // -- "Send to DreamDM" handler ---------------------------------------------
+  // ── "Send to DreamDM" handler ─────────────────────────────────────────────
 
   const sendToDreamDM = useCallback(() => {
     if (!reply) return;
@@ -220,7 +220,7 @@ export default function DrEamsSearchBar() { onOpenDrEams }: DrEamsSearchBarProps
     router.push(url);
   }, [reply, router]);
 
-  // -- Render ----------------------------------------------------------------
+  // ── Render ────────────────────────────────────────────────────────────────
 
   const pillBorderColor = reply
     ? 'rgba(74,144,217,0.40)'
@@ -231,7 +231,7 @@ export default function DrEamsSearchBar() { onOpenDrEams }: DrEamsSearchBarProps
   return (
     <div ref={containerRef} style={{ flex: 1, position: 'relative' }}>
 
-      {/* -- Search pill -- */}
+      {/* ── Search pill ── */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -292,7 +292,7 @@ export default function DrEamsSearchBar() { onOpenDrEams }: DrEamsSearchBarProps
         )}
       </div>
 
-      {/* -- Dropdown: navigation suggestions + "Ask Dr. Eams" chip -- */}
+      {/* ── Dropdown: navigation suggestions + "Ask Dr. Eams" chip ── */}
       {hasDropdown && (
         <div
           role="listbox"
@@ -383,7 +383,7 @@ export default function DrEamsSearchBar() { onOpenDrEams }: DrEamsSearchBarProps
         </div>
       )}
 
-      {/* -- Inline Dr. Eams reply card -- */}
+      {/* ── Inline Dr. Eams reply card ── */}
       {reply && !dropOpen && (
         <div
           role="region"

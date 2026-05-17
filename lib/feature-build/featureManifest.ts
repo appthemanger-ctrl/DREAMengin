@@ -22,7 +22,7 @@
 
 import type { DaydreamDomain, EnginSurface } from '@/lib/identity/canonical-names';
 
-// --- Feature status -----------------------------------------------------------
+// ─── Feature status ───────────────────────────────────────────────────────────
 
 /**
  * implemented — fully built, tested, stable.
@@ -50,7 +50,7 @@ export interface FeatureEntry {
   detectPaths: string[];
 }
 
-// --- Pair manifest ------------------------------------------------------------
+// ─── Pair manifest ────────────────────────────────────────────────────────────
 
 export interface DaydreamEnginManifest {
   domain: DaydreamDomain;
@@ -91,7 +91,7 @@ export interface DaydreamEnginManifest {
   coop?: boolean | { affordances: string[] };
 }
 
-// --- Music / StarMakerEngin ---------------------------------------------------
+// ─── Music / StarMakerEngin ───────────────────────────────────────────────────
 
 const MUSIC_MANIFEST: DaydreamEnginManifest = {
   domain: 'Music',
@@ -129,7 +129,7 @@ const MUSIC_MANIFEST: DaydreamEnginManifest = {
   },
 };
 
-// --- Games / GameEngin --------------------------------------------------------
+// ─── Games / GameEngin ────────────────────────────────────────────────────────
 
 const GAMES_MANIFEST: DaydreamEnginManifest = {
   domain: 'Games',
@@ -162,7 +162,7 @@ const GAMES_MANIFEST: DaydreamEnginManifest = {
   ],
 };
 
-// --- Lab / LabEngin -----------------------------------------------------------
+// ─── Lab / LabEngin ───────────────────────────────────────────────────────────
 
 const LAB_MANIFEST: DaydreamEnginManifest = {
   domain: 'Lab',
@@ -192,7 +192,7 @@ const LAB_MANIFEST: DaydreamEnginManifest = {
   ],
 };
 
-// --- Code / CodeEngin --------------------------------------------------------
+// ─── Code / CodeEngin ────────────────────────────────────────────────────────
 
 const CODE_MANIFEST: DaydreamEnginManifest = {
   domain: 'Code',
@@ -227,7 +227,7 @@ const CODE_MANIFEST: DaydreamEnginManifest = {
   },
 };
 
-// --- Brand / BrandingEngin ----------------------------------------------------
+// ─── Brand / BrandingEngin ────────────────────────────────────────────────────
 
 const BRAND_MANIFEST: DaydreamEnginManifest = {
   domain: 'Brand',
@@ -258,7 +258,7 @@ const BRAND_MANIFEST: DaydreamEnginManifest = {
   ],
 };
 
-// --- Create / ContentEngin ----------------------------------------------------
+// ─── Create / ContentEngin ────────────────────────────────────────────────────
 
 const CREATE_MANIFEST: DaydreamEnginManifest = {
   domain: 'Create',
@@ -295,7 +295,7 @@ const CREATE_MANIFEST: DaydreamEnginManifest = {
   },
 };
 
-// --- Manifest registry --------------------------------------------------------
+// ─── Manifest registry ────────────────────────────────────────────────────────
 
 /** All 6 Daydream+Engin pair manifests in canonical domain order. */
 export const FEATURE_MANIFESTS: readonly DaydreamEnginManifest[] = [
@@ -308,7 +308,7 @@ export const FEATURE_MANIFESTS: readonly DaydreamEnginManifest[] = [
 ] as const;
 
 /** Look up the manifest for a specific domain. */
-export function getManifest(domain: DaydreamDomain: DaydreamEnginManifest) {
+export function getManifest(domain: DaydreamDomain): DaydreamEnginManifest {
   const manifest = FEATURE_MANIFESTS.find((m: Record<string, unknown>) => m.domain === domain);
   if (!manifest) {
     throw new Error(`No feature manifest found for domain: ${domain}`);

@@ -6,7 +6,7 @@ import MusicEnginApp from '@/components/engines/music/dream.MusicEnginApp';
 import { connection } from 'next/server';
 
 
-export default async function MusicEnginAppPage() {
+export default async function MusicEnginAppPage( ){
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

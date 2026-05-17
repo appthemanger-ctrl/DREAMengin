@@ -12,7 +12,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
 const supabaseReady = Boolean(supabaseUrl && serviceRoleKey);
 
-function getServiceClient() {
+function getServiceClient( ){
   if (!supabaseReady) return null;
   return createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false },
@@ -23,7 +23,7 @@ function getServiceClient() {
 const devSessions = new Map<string, { id: string; createdAt: number }>();
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
 
-async function persistSession(sessionId: string, userId: string | null: Promise<void>) {
+async function persistSession(sessionId: string, userId: string | null): Promise<void> {
   const db = getServiceClient();
   if (!db) {
     devSessions.set(sessionId, { id: sessionId, createdAt: Date.now() });
@@ -36,7 +36,7 @@ async function persistSession(sessionId: string, userId: string | null: Promise<
   );
 }
 
-async function sessionExists(sessionId: string: Promise<boolean>) {
+async function sessionExists(sessionId: string): Promise<boolean> {
   const db = getServiceClient();
   if (!db) {
     const s = devSessions.get(sessionId);
@@ -60,7 +60,7 @@ async function sessionExists(sessionId: string: Promise<boolean>) {
   return true;
 }
 
-async function deleteSession(sessionId: string: Promise<void>) {
+async function deleteSession(sessionId: string): Promise<void> {
   const db = getServiceClient();
   if (!db) {
     devSessions.delete(sessionId);
@@ -73,7 +73,7 @@ async function deleteSession(sessionId: string: Promise<void>) {
 // Route handler
 // ---------------------------------------------------------------------------
 
-export async function POST(req: Request) {
+export async function POST(req: Request ){
   const body = (await req.json()) as {
     action: string;
     sessionId?: string;

@@ -62,26 +62,26 @@ export interface ClipSummary {
   jointNames: string[];
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 // Public API
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 /**
  * Parse a BVH file string into a MocapClip.
  * Throws a descriptive error on malformed input.
  */
-export function parseBVH(bvhText: string: MocapClip) {
-  const lines = bvhText.replace(/\r\n/g, '\n').split('\n').map(l => l.trim()).filter(Boolean);
+export function parseBVH(bvhText: string): MocapClip {
+  const lines = bvhText.replace(/\r\n/g, '\n').split('\n').map((l) => l.trim()).filter(Boolean);
   let i = 0;
 
-  function consume(keyword: string) {
+  function consume(keyword: string ){
     if (!lines[i]?.toUpperCase().startsWith(keyword.toUpperCase())) {
       throw new Error(`BVH parse: expected "${keyword}", got "${lines[i]}" at line ${i}`);
     }
     i++;
   }
 
-  function parseJoint(isRoot: boolean: Joint) {
+  function parseJoint(isRoot: boolean): Joint {
     const nameParts = lines[i].split(/\s+/);
     const name = nameParts[1] ?? 'unknown';
     i++;
@@ -131,7 +131,7 @@ export function parseBVH(bvhText: string: MocapClip) {
   // Build channel offset map (joint name → index within a single frame)
   const channelOffsets = new Map<string, number>();
   let channelCount = 0;
-  function indexJoint(j: Joint) {
+  function indexJoint(j: Joint ){
     channelOffsets.set(j.name, channelCount);
     channelCount += j.channels.length;
     for (const child of j.children) indexJoint(child);
@@ -151,12 +151,12 @@ export function parseBVH(bvhText: string: MocapClip) {
 /**
  * Extract all joint transforms for a given frame index.
  */
-export function getFramePose(clip: MocapClip, frame: number: FramePose) {
+export function getFramePose(clip: MocapClip, frame: number): FramePose {
   const f = Math.max(0, Math.min(frame, clip.frameCount - 1));
   const frameStart = f * clip.channelCount;
   const joints: JointTransform[] = [];
 
-  function extract(j: Joint) {
+  function extract(j: Joint ){
     const off = clip.channelOffsets.get(j.name) ?? 0;
     let tx = 0, ty = 0, tz = 0, rx = 0, ry = 0, rz = 0;
     for (let c = 0; c < j.channels.length; c++) {
@@ -181,10 +181,10 @@ export function getFramePose(clip: MocapClip, frame: number: FramePose) {
  *
  * Example: apply a 180 cm capture to a 90 cm character with scaleFactor = 0.5.
  */
-export function retargetClip(clip: MocapClip, scaleFactor: number: MocapClip) {
+export function retargetClip(clip: MocapClip, scaleFactor: number): MocapClip {
   const scaled = Float64Array.from(clip.motion);
 
-  function scaleJoint(j: Joint) {
+  function scaleJoint(j: Joint ){
     const off = clip.channelOffsets.get(j.name) ?? 0;
     for (let f = 0; f < clip.frameCount; f++) {
       const base = f * clip.channelCount + off;
@@ -204,10 +204,10 @@ export function retargetClip(clip: MocapClip, scaleFactor: number: MocapClip) {
 /**
  * Re-export a MocapClip to BVH text (round-trip).
  */
-export function exportBVH(clip: MocapClip: string) {
+export function exportBVH(clip: MocapClip): string {
   const out: string[] = ['HIERARCHY'];
 
-  function writeJoint(j: Joint, depth: number, isRoot: boolean) {
+  function writeJoint(j: Joint, depth: number, isRoot): boolean {
     const p = '  '.repeat(depth);
     out.push(`${p}${isRoot ? 'ROOT' : 'JOINT'} ${j.name}`);
     out.push(`${p}{`);
@@ -239,9 +239,9 @@ export function exportBVH(clip: MocapClip: string) {
 /**
  * Return a human-readable summary of the clip.
  */
-export function clipSummary(clip: MocapClip: ClipSummary) {
+export function clipSummary(clip: MocapClip): ClipSummary {
   const jointNames: string[] = [];
-  function collect(j: Joint) { jointNames.push(j.name); j.children.forEach(collect); }
+  function collect(j: Joint ){ jointNames.push(j.name); j.children.forEach(collect); }
   collect(clip.root);
   return {
     frameCount: clip.frameCount,
@@ -253,11 +253,11 @@ export function clipSummary(clip: MocapClip: ClipSummary) {
   };
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 // Internal
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
-export function findJoint(root: Joint, name: string: Joint | null) {
+export function findJoint(root: Joint, name: string): Joint | null {
   if (root.name === name) return root;
   for (const child of root.children) {
     const found = findJoint(child, name);

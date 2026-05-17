@@ -44,7 +44,7 @@ interface ProfilePageProps {
 // next-prerender-random violation surfaced from `Next.MetadataOutlet`
 // when client components below are dragged into SSR.
 
-export default async function ProfilePage() { params }: ProfilePageProps {
+export default async function ProfilePage({ params }: ProfilePageProps) {
   // Mark this render as request-only so the strict Cache-Components
   // prerender check is bypassed for the (Math.random-using) client
   // subtree below. generateMetadata above already awaits connection()
@@ -81,7 +81,7 @@ export default async function ProfilePage() { params }: ProfilePageProps {
   const isOwner = currentUser?.id === profile.id;
   const displayName = profile.display_name || profile.handle;
 
-  // -- Phase 8 §B Point 21: Enforce dream_windows visibility at query level --
+  // ── Phase 8 §B Point 21: Enforce dream_windows visibility at query level ──
   // Non-owners ONLY receive records with visibility = 'shared' or 'public'.
   // The query never includes 'private' records for non-owners.
   // RLS policies on dream_windows enforce this at the DB layer as well.
@@ -145,7 +145,7 @@ export default async function ProfilePage() { params }: ProfilePageProps {
         <div style={{ position: 'absolute', top: '20%', left: '50%', transform: 'translate(-50%, -50%)', width: '900px', height: '600px', background: 'radial-gradient(ellipse, rgba(30,80,180,0.07) 0%, transparent 65%)', filter: 'blur(80px)' }} />
       </div>
 
-      {/* -- Owner preview banner -- */}
+      {/* ── Owner preview banner ── */}
       {isOwner && (
         <div style={{
           background: 'rgba(200,152,26,0.10)',
@@ -163,14 +163,14 @@ export default async function ProfilePage() { params }: ProfilePageProps {
         </div>
       )}
 
-      {/* -- dreamengin brand header -- */}
+      {/* ── dreamengin brand header ── */}
       <div style={{ paddingTop: 18, paddingBottom: 2, textAlign: 'center', position: 'relative', zIndex: 10 }}>
         <span className="de-wordmark" style={{ fontSize: 28, background: 'linear-gradient(135deg, #e8d090 0%, #c8981a 60%, #a07820 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
           <DreamWord />engin
         </span>
       </div>
 
-      {/* -- "My Profile" row -- */}
+      {/* ── "My Profile" row ── */}
       <div style={{
         maxWidth: 520, margin: '0 auto',
         padding: '8px 16px 16px',
@@ -208,14 +208,14 @@ export default async function ProfilePage() { params }: ProfilePageProps {
         </div>
       </div>
 
-      {/* -- Activity Profile (Phase 9 Activity-First metrics) -- */}
+      {/* ── Activity Profile (Phase 9 Activity-First metrics) ── */}
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '8px 16px 0', position: 'relative', zIndex: 10 }}>
         <Suspense fallback={<div className="h-24 animate-pulse bg-white/5 rounded-lg" />}>
           <ActivityProfile userId={profile.id} />
         </Suspense>
       </div>
 
-      {/* -- Widget grid -- */}
+      {/* ── Widget grid ── */}
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '0 16px', position: 'relative', zIndex: 10 }}>
         <ProfileWidgetGrid
           displayName={displayName}
@@ -232,7 +232,7 @@ export default async function ProfilePage() { params }: ProfilePageProps {
         />
       </div>
 
-      {/* -- Gold infinity button — WebGPU 2026 glow -- */}
+      {/* ── Gold infinity button — WebGPU 2026 glow ── */}
       <div style={{ textAlign: 'center', marginTop: 32, position: 'relative', zIndex: 10 }}>
         <div style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',

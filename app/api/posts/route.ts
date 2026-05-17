@@ -20,7 +20,7 @@ function normalizePostMedia<T extends Record<string, unknown>>(post: T): T & { m
 //   sort   — 'trending' to order by likes_count DESC (fallback: created_at DESC)
 //   limit  — number of posts to return (default 20, max 500 for following, max 50 otherwise)
 //   offset — pagination offset
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest ){
   const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
   const feed   = searchParams.get('feed');   // 'following' | null
   const sort   = searchParams.get('sort');   // 'trending'  | null
 
-  // -- Following feed: restrict to users the caller follows -----------------
+  // ── Following feed: restrict to users the caller follows ─────────────────
   // Hard limit: last 500 posts total across all followed users (spec §1).
   if (feed === 'following') {
     const requestedLimit = parseInt(searchParams.get('limit') ?? '20', 10);
@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ posts: posts.map((post: unknown) => normalizePostMedia(post)), total_cap: 500 });
   }
 
-  // -- Trending feed: order by likes_count DESC, then recent -----------------
+  // ── Trending feed: order by likes_count DESC, then recent ─────────────────
   if (sort === 'trending') {
     const limit  = Math.min(parseInt(searchParams.get('limit')  ?? '20', 10), 50);
     const offset = parseInt(searchParams.get('offset') ?? '0', 10);
@@ -99,7 +99,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ posts: (posts ?? []).map((post: unknown) => normalizePostMedia(post)) });
   }
 
-  // -- Default feed: public posts ordered by recency -------------------------
+  // ── Default feed: public posts ordered by recency ─────────────────────────
   const limit  = Math.min(parseInt(searchParams.get('limit')  ?? '20', 10), 50);
   const offset = parseInt(searchParams.get('offset') ?? '0', 10);
   const { data: posts, error } = await supabase
@@ -117,7 +117,7 @@ export async function GET(req: NextRequest) {
 }
 
 // POST - Create a new post
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Content is required' }, { status: 400 });
   }
 
-  // -- Rate limiting (spec §4) -----------------------------------------------
+  // ── Rate limiting (spec §4) ───────────────────────────────────────────────
   // Close-friends posts: 50 per 5 minutes.
   // Public posts: 10 per 5 minutes.
   const isCloseFriendsPost = post_visibility === 'close_friends';
@@ -159,9 +159,9 @@ export async function POST(req: NextRequest) {
       { status: 429 },
     );
   }
-  // -------------------------------------------------------------------------
+  // ─────────────────────────────────────────────────────────────────────────
 
-  // -- TheBoogieMan child safety scan (zero-tolerance) ----------------------
+  // ── TheBoogieMan child safety scan (zero-tolerance) ──────────────────────
   const childSafetyResult = scanContent({ text: content });
   if (childSafetyResult.flagged) {
     const contentHash = createHash('sha256').update(content).digest('hex');
@@ -173,7 +173,7 @@ export async function POST(req: NextRequest) {
       surface: 'post',
       contentRef: `draft:${contentHash.slice(0, 16)}`,
       contentHash,
-    }).catch(err: unknown => console.error('[child-safety] post report error:', err));
+    }).catch((err: unknown ) => console.error('[child-safety] post report error:', err));
 
     return NextResponse.json(
       { error: 'Content violates our child safety policy and has been blocked.' },
@@ -181,7 +181,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // -- TheBoogieMan media image scan (LLM + hash) — real-time ---------------
+  // ── TheBoogieMan media image scan (LLM + hash) — real-time ───────────────
   // Scans each image attached to the post before it is written to the DB.
   // Graceful degradation: if Groq is not configured or fetch fails, scan
   // returns CLEAN (skipped) so the post is never blocked by transient errors.
@@ -197,7 +197,7 @@ export async function POST(req: NextRequest) {
         detectionResult: mediaSafetyResult,
         surface: 'post',
         contentRef: `media:${Array.isArray(media_urls) ? String(media_urls.length) : '?'}_files`,
-      }).catch(err: unknown => console.error('[child-safety] post media report error:', err));
+      }).catch((err: unknown ) => console.error('[child-safety] post media report error:', err));
 
       return NextResponse.json(
         { error: 'Attached media violates our child safety policy and has been blocked.' },
@@ -205,7 +205,7 @@ export async function POST(req: NextRequest) {
       );
     }
   }
-  // -------------------------------------------------------------------------
+  // ─────────────────────────────────────────────────────────────────────────
 
   const { data: post, error } = await supabase
     .from('app_posts')

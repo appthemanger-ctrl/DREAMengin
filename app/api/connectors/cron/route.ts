@@ -44,14 +44,14 @@ interface CronSummary {
   }>;
 }
 
-function getCronBatchSize(: number) {
+function getCronBatchSize(): number {
   const parsed = Number.parseInt(process.env.CONNECTOR_CRON_BATCH_SIZE ?? String(DEFAULT_BATCH_SIZE), 10);
   if (!Number.isFinite(parsed)) return DEFAULT_BATCH_SIZE;
   return Math.min(Math.max(parsed, 1), MAX_BATCH_SIZE);
 }
 
-export async function GET(req: NextRequest: Promise<NextResponse<CronSummary |) { error: string }>> {
-  // -- Authorisation --------------------------------------------------------
+export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | { error: string }>> {
+  // ── Authorisation ────────────────────────────────────────────────────────
   if (
     !isCronAuthorised(
       req.headers.get('authorization'),
@@ -62,7 +62,7 @@ export async function GET(req: NextRequest: Promise<NextResponse<CronSummary |) 
     return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
   }
 
-  // -- Supabase service-role client (bypasses RLS) --------------------------
+  // ── Supabase service-role client (bypasses RLS) ──────────────────────────
   let db;
   try {
     db = await createServiceClient();
@@ -74,7 +74,7 @@ export async function GET(req: NextRequest: Promise<NextResponse<CronSummary |) 
    
   const anyDb = db as SupabaseClient;
 
-  // -- Fetch all connected accounts for supported providers -----------------
+  // ── Fetch all connected accounts for supported providers ─────────────────
   const batchSize = getCronBatchSize();
   const { data: accounts, error: fetchError } = await anyDb
     .from('connector_accounts')
@@ -102,7 +102,7 @@ export async function GET(req: NextRequest: Promise<NextResponse<CronSummary |) 
     });
   }
 
-  // -- Reconcile each account -----------------------------------------------
+  // ── Reconcile each account ───────────────────────────────────────────────
   // Process sequentially to avoid stampeding provider APIs.
   const results: ReconcileResult[] = [];
   for (const account of accounts) {

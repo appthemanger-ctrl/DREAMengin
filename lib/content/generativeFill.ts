@@ -46,9 +46,9 @@ export interface ImageAnalysis {
   averageBrightness: number;
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 // Remote API helper
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 /**
  * Request a generative fill from the server.
@@ -94,9 +94,9 @@ export async function requestGenerativeFill(
   throw lastError ?? new Error('Generative fill failed');
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 // Browser-side canvas utilities
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 /**
  * Generate a black-and-white mask PNG (base64) from a selection rectangle.
@@ -149,7 +149,7 @@ export function createMaskDataUrl(
  * @param img     Source image element (must be loaded).
  * @param topN    Number of dominant colors to return (default 5).
  */
-export function analyzeImageColors(img: HTMLImageElement, topN = 5: ImageAnalysis) {
+export function analyzeImageColors(img: HTMLImageElement, topN = 5): ImageAnalysis {
   if (typeof document === 'undefined') {
     throw new Error('analyzeImageColors requires a browser environment.');
   }
@@ -180,7 +180,7 @@ export function analyzeImageColors(img: HTMLImageElement, topN = 5: ImageAnalysi
     totalBrightness += brightness;
   }
 
-  const sorted = [...buckets.entries()].sort(a: Record<string, unknown>, b: Record<string, unknown> => b[1] - a[1]).slice(0, topN);
+  const sorted = [...buckets.entries()].sort((a: Record<string, unknown>, b: Record<string, unknown>) => b[1] - a[1]).slice(0, topN);
 
   const dominantColors: DominantColor[] = sorted.map(([key, count]) => {
     const r = ((key >> 10) & 0x1f) << 3;
@@ -201,13 +201,13 @@ export function analyzeImageColors(img: HTMLImageElement, topN = 5: ImageAnalysi
   };
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 // File helpers
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 /** Convert a File to a base64 data URL (browser only). */
-export function fileToBase64(file: File: Promise<string>) {
-  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
+export function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
@@ -220,11 +220,11 @@ export function fileToBase64(file: File: Promise<string>) {
   });
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 // Internal
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
-function sleep(ms: number: Promise<void>) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 

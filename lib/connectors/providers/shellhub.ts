@@ -22,14 +22,14 @@
 export const SHELLHUB_DEFAULT_SERVER = 'https://cloud.shellhub.io';
 const SHELLHUB_API_BASE = '/api/v1';
 
-// --- Credential shape --------------------------------------------------------
+// ─── Credential shape ────────────────────────────────────────────────────────
 
 export interface ShellHubCredentials {
   server_url: string;
   api_key: string;
 }
 
-// --- Response shapes from ShellHub API --------------------------------------
+// ─── Response shapes from ShellHub API ──────────────────────────────────────
 
 export interface ShellHubDevice {
   uid: string;
@@ -49,7 +49,7 @@ export interface ShellHubDevice {
   namespace: string;
 }
 
-// --- Internal helper ---------------------------------------------------------
+// ─── Internal helper ─────────────────────────────────────────────────────────
 
 /**
  * Make an authenticated request to a ShellHub API endpoint.
@@ -94,14 +94,14 @@ async function shellhubFetch<T>(
   return res.json() as Promise<T>;
 }
 
-// --- Public API --------------------------------------------------------------
+// ─── Public API ──────────────────────────────────────────────────────────────
 
 /**
  * Verify credentials by fetching the first page of devices.
  * A 200 response (even with an empty list) confirms the key is valid.
  * Returns a human-readable summary string on success.
  */
-export async function shellhubVerify(creds: ShellHubCredentials: Promise<string>) {
+export async function shellhubVerify(creds: ShellHubCredentials): Promise<string> {
   const devices = await shellhubFetch<ShellHubDevice[]>(
     creds.server_url,
     creds.api_key,
@@ -134,7 +134,7 @@ export async function shellhubListDevices(
  * Returns the credential field definitions for the ShellHub connector.
  * Used by the UI to render the connection form.
  */
-export function shellhubCredentialFields() {
+export function shellhubCredentialFields( ){
   return [
     {
       key: 'server_url',

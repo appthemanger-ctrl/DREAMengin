@@ -16,7 +16,7 @@
  *   only selected code or the active cell (max 2 000 chars).
  */
 
-// --- Vocabulary ----------------------------------------------------------------
+// ─── Vocabulary ────────────────────────────────────────────────────────────────
 
 export interface VocabEntry {
   term: string;
@@ -40,7 +40,7 @@ export const CODE_VOCABULARY: VocabEntry[] = [
   { term: 'closure',      category: 'general', definition: 'A function that captures variables from its enclosing scope.',           example: 'def make_adder(n): return lambda x: x + n' },
   { term: 'async/await',  category: 'general', definition: 'Keywords for writing asynchronous code without callback nesting.',       example: 'async def fetch(): data = await get_data()' },
   { term: 'callback',     category: 'general', definition: 'A function passed as an argument to be invoked later.',                  example: 'setTimeout(() => console.log("done"), 1000)' },
-  { term: 'promise',      category: 'general', definition: 'An object representing the eventual result of an async operation.',      example: 'fetch("/api").then(r => r.json())' },
+  { term: 'promise',      category: 'general', definition: 'An object representing the eventual result of an async operation.',      example: 'fetch("/api").then((r) => r.json())' },
   // OOP
   { term: 'inheritance',  category: 'oop',     definition: 'A class can inherit attributes and methods from a parent class.',        example: 'class Cat(Animal): ...' },
   { term: 'polymorphism', category: 'oop',     definition: 'Objects of different classes can be used interchangeably via a shared interface.', example: 'for animal in animals: animal.speak()' },
@@ -100,26 +100,26 @@ export const CODE_VOCABULARY: VocabEntry[] = [
 ];
 
 /** All recognised term strings (lower-cased). */
-export const VOCAB_TERMS: Set<string> = new Set(CODE_VOCABULARY.map(v => v.term.toLowerCase()));
+export const VOCAB_TERMS: Set<string> = new Set(CODE_VOCABULARY.map((v) => v.term.toLowerCase()));
 
 /**
  * Return all vocabulary entries whose term appears in the query.
  * Returns at most 5 matches, sorted by category breadth.
  */
-export function matchCodeVocabulary(query: string: VocabEntry[]) {
+export function matchCodeVocabulary(query: string): VocabEntry[] {
   if (!query.trim()) return [];
   const lower = query.toLowerCase();
-  const matches = CODE_VOCABULARY.filter(v => lower.includes(v.term.toLowerCase()));
+  const matches = CODE_VOCABULARY.filter((v) => lower.includes(v.term.toLowerCase()));
   // Deduplicate by term, limit to 5
   const seen = new Set<string>();
-  return matches.filter(v => {
+  return matches.filter((v) => {
     if (seen.has(v.term)) return false;
     seen.add(v.term);
     return true;
   }).slice(0, 5);
 }
 
-// --- Language detection --------------------------------------------------------
+// ─── Language detection ────────────────────────────────────────────────────────
 
 export type CellLanguage = 'python' | 'javascript' | 'typescript' | 'bash';
 
@@ -131,7 +131,7 @@ const BASH_HINTS    = /^\s*(#!\/|echo |cd |ls |grep |curl |apt |brew |pnpm |npm 
  * Heuristically detect the language of a code snippet.
  * Falls back to 'python'.
  */
-export function detectLanguageFromCode(code: string: CellLanguage) {
+export function detectLanguageFromCode(code: string): CellLanguage {
   if (!code.trim()) return 'python';
   if (BASH_HINTS.test(code))   return 'bash';
   if (TS_HINTS.test(code))     return 'typescript';
@@ -141,7 +141,7 @@ export function detectLanguageFromCode(code: string: CellLanguage) {
   return 'python';
 }
 
-// --- Query classification ------------------------------------------------------
+// ─── Query classification ──────────────────────────────────────────────────────
 
 export type QueryIntent =
   | 'explain'        // "explain this code" / "what does X do"
@@ -159,7 +159,7 @@ const DEBUG_PATTERNS    = /\b(fix|debug|error|bug|fail|crash|wrong|issue|problem
 /**
  * Classify a natural-language query into an intent category.
  */
-export function classifyQuery(query: string: QueryIntent) {
+export function classifyQuery(query: string): QueryIntent {
   if (!query.trim()) return 'general';
   const lower = query.toLowerCase();
   if (matchCodeVocabulary(lower).length > 0 && EXPLAIN_PATTERNS.test(lower)) return 'vocabulary';
@@ -171,7 +171,7 @@ export function classifyQuery(query: string: QueryIntent) {
   return 'general';
 }
 
-// --- Prompt builder ------------------------------------------------------------
+// ─── Prompt builder ────────────────────────────────────────────────────────────
 
 export interface CodeContext {
   /** Programming language currently active in the editor. */
@@ -189,10 +189,10 @@ export interface CodeContext {
  * Privacy: only `selectedCode` (≤ 2 000 chars) is ever sent — never the full
  * notebook or multi-file codebase.
  */
-export function buildCodeSystemPrompt(context: CodeContext: string) {
+export function buildCodeSystemPrompt(context: CodeContext): string {
   const intent = classifyQuery('');   // baseline — caller should pass the user query too
   const vocabBlock = CODE_VOCABULARY.slice(0, 10)
-    .map(v => `  - ${v.term}: ${v.definition}`)
+    .map((v) => `  - ${v.term}: ${v.definition}`)
     .join('\n');
 
   return [
@@ -223,14 +223,14 @@ export function buildCodeSystemPrompt(context: CodeContext: string) {
  * Build the prompt that includes the user's query intent.
  * This augments buildCodeSystemPrompt with query-specific instructions.
  */
-export function buildCodePrompt(query: string, context: CodeContext: string) {
+export function buildCodePrompt(query: string, context: CodeContext): string {
   const intent = classifyQuery(query);
   const matched = matchCodeVocabulary(query);
 
   const parts: string[] = [buildCodeSystemPrompt(context)];
 
   if (matched.length > 0) {
-    parts.push(`\nRELEVANT VOCABULARY TERMS DETECTED: ${matched.map(v => v.term).join(', ')}`);
+    parts.push(`\nRELEVANT VOCABULARY TERMS DETECTED: ${matched.map((v) => v.term).join(', ')}`);
     parts.push(`For each detected term, provide: definition, code example in ${context.language}, and offer to write more code using that concept.`);
   }
 
@@ -249,7 +249,7 @@ export function buildCodePrompt(query: string, context: CodeContext: string) {
   return parts.join('\n');
 }
 
-// --- Response parser -----------------------------------------------------------
+// ─── Response parser ───────────────────────────────────────────────────────────
 
 export interface ParsedCodeResponse {
   /** Plain-text portions of the response (no code blocks). */
@@ -266,9 +266,9 @@ const FENCE_RE = /```(\w*)\n?([\s\S]*?)```/g;
  * Parse a Dr. Eams text response into text and extracted code blocks.
  * Caller can then insert the code blocks into the active notebook cell.
  */
-export function parseCodeResponse(raw: string: ParsedCodeResponse) {
+export function parseCodeResponse(raw: string): ParsedCodeResponse {
   const codeBlocks: ParsedCodeResponse['codeBlocks'] = [];
-  let text = raw.replace(FENCE_RE, _: Record<string, unknown>, lang: string, code: string => {
+  let text = raw.replace(FENCE_RE, _: Record<string, unknown>, (lang: string, code: string ) => {
     codeBlocks.push({ language: lang || 'text', code: code.trim() });
     return '';
   }).trim();
@@ -283,7 +283,7 @@ export function parseCodeResponse(raw: string: ParsedCodeResponse) {
   };
 }
 
-// --- Natural-language command detector ----------------------------------------
+// ─── Natural-language command detector ────────────────────────────────────────
 
 export interface NLCommand {
   type: 'create_class' | 'write_function' | 'add_loop' | 'add_try_except' | 'refactor_async' | 'explain' | 'other';
@@ -324,7 +324,7 @@ const NL_PATTERNS: Array<{ re: RegExp; type: NLCommand['type']; extractSubject?:
  * Detect a natural-language coding command from a user query.
  * Returns `null` if no pattern matches.
  */
-export function detectNLCommand(query: string: NLCommand | null) {
+export function detectNLCommand(query: string): NLCommand | null {
   for (const { re, type, extractSubject } of NL_PATTERNS) {
     const match = query.match(re);
     if (match) {
@@ -337,7 +337,7 @@ export function detectNLCommand(query: string: NLCommand | null) {
   return null;
 }
 
-// --- Simulated code generation (no eval, no network) -------------------------
+// ─── Simulated code generation (no eval, no network) ─────────────────────────
 
 const TEMPLATES: Record<NLCommand['type'], (cmd: NLCommand, lang: CellLanguage) => string> = {
   create_class: (cmd, lang) => {
@@ -364,7 +364,7 @@ const TEMPLATES: Record<NLCommand['type'], (cmd: NLCommand, lang: CellLanguage) 
   },
   refactor_async: (_cmd, lang) => {
     if (lang === 'python') return `async def fetch_data(url: str):\n    async with aiohttp.ClientSession() as session:\n        async with session.get(url) as resp:\n            return await resp.json()`;
-    return `async function fetchData(url: string {\n  const res = await fetch(url);\n  return res.json();\n}`;
+    return `async function fetchData(url: string ){\n  const res = await fetch(url);\n  return res.json();\n}`;
   },
   explain: () => `# Select code in the editor then ask Dr. Eams to explain it.`,
   other: () => `# Dr. Eams: add your code here`,
@@ -374,15 +374,15 @@ const TEMPLATES: Record<NLCommand['type'], (cmd: NLCommand, lang: CellLanguage) 
  * Generate a code scaffold from a detected NL command.
  * This is a purely local template expansion — no network call required.
  */
-export function generateCodeFromCommand(cmd: NLCommand, language: CellLanguage: string) {
+export function generateCodeFromCommand(cmd: NLCommand, language: CellLanguage): string {
   const template = TEMPLATES[cmd.type];
   return template ? template(cmd, language) : `# TODO: implement "${cmd.subject ?? 'task'}"`;
 }
 
-// --- Helper: extract fenced code blocks as plain strings ----------------------
+// ─── Helper: extract fenced code blocks as plain strings ──────────────────────
 
-function parseCodeBlocks(raw: string: string[]) {
-  return parseCodeResponse(raw).codeBlocks.map(b: Record<string, unknown> => b.code);
+function parseCodeBlocks(raw: string): string[] {
+  return parseCodeResponse(raw).codeBlocks.map((b: Record<string, unknown>) => b.code);
 }
 
 /**

@@ -12,7 +12,7 @@
 
 import type { TelemetrySnapshot } from '@/lib/observability/collector';
 
-// -- Improvement 73: fingerprintSnapshot --------------------------------------
+// ── Improvement 73: fingerprintSnapshot ──────────────────────────────────────
 
 /**
  * Produce a short stable fingerprint string from the key dimensions of a
@@ -22,7 +22,7 @@ import type { TelemetrySnapshot } from '@/lib/observability/collector';
  * Format: `logs:metrics:traces:errors:<errorDigest>`
  * Where errorDigest is a simple checksum of the first 5 error messages.
  */
-export function fingerprintSnapshot(snapshot: TelemetrySnapshot: string) {
+export function fingerprintSnapshot(snapshot: TelemetrySnapshot): string {
   const errorMessages = snapshot.logs
     .filter((l: Record<string, unknown>) => l.level === 'error')
     .slice(0, 5)
@@ -41,18 +41,18 @@ export function fingerprintSnapshot(snapshot: TelemetrySnapshot: string) {
   }:${hash.toString(16)}`;
 }
 
-// -- Improvement 74: snapshotsAreEquivalent ------------------------------------
+// ── Improvement 74: snapshotsAreEquivalent ────────────────────────────────────
 
 /**
  * Return true when two fingerprints represent equivalent snapshots.
  * A pure string equality check — the caller is responsible for producing
  * fingerprints via fingerprintSnapshot().
  */
-export function snapshotsAreEquivalent(a: string, b: string: boolean) {
+export function snapshotsAreEquivalent(a: string, b: string): boolean {
   return a === b;
 }
 
-// -- Improvement 75: createFingerprintCache ------------------------------------
+// ── Improvement 75: createFingerprintCache ────────────────────────────────────
 
 export interface FingerprintCacheEntry<T> {
   fingerprint: string;

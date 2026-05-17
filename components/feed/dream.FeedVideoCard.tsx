@@ -20,9 +20,9 @@ import {
 } from 'lucide-react';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 
-// -- helpers --------------------------------------------------------------------
+// ── helpers ────────────────────────────────────────────────────────────────────
 
-function extractYouTubeId(url: string: string | null) {
+function extractYouTubeId(url: string): string | null {
   try {
     const u = new URL(url);
     if (u.hostname === 'youtu.be') {
@@ -37,7 +37,7 @@ function extractYouTubeId(url: string: string | null) {
   return null;
 }
 
-function buildEmbedUrl(post: FeedPost: string | null) {
+function buildEmbedUrl(post: FeedPost): string | null {
   const src = post.permalink ?? post.media_url ?? null;
   if (!src) return null;
   const vid = extractYouTubeId(src);
@@ -47,11 +47,11 @@ function buildEmbedUrl(post: FeedPost: string | null) {
   return null;
 }
 
-function isDirectVideo(url: string: boolean) {
+function isDirectVideo(url: string): boolean {
   return /\.(mp4|webm|ogg|mov)(\?|$)/i.test(url);
 }
 
-// -- types ----------------------------------------------------------------------
+// ── types ──────────────────────────────────────────────────────────────────────
 
 export interface FeedVideoCardProps {
   /** The video post this card is anchored to in the feed. */
@@ -68,9 +68,9 @@ export interface FeedVideoCardProps {
   videoIndex: number;
 }
 
-// -- component ------------------------------------------------------------------
+// ── component ──────────────────────────────────────────────────────────────────
 
-export default function FeedVideoCard() { post, allVideos: Record<string, unknown>, videoIndex }: FeedVideoCardProps {
+export default function FeedVideoCard({ post, allVideos: Record<string, unknown>, videoIndex }: FeedVideoCardProps) {
   const [currentIndex, setCurrentIndex] = useState(videoIndex);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -93,7 +93,7 @@ export default function FeedVideoCard() { post, allVideos: Record<string, unknow
   const hasPrev = currentIndex > 0;
   const hasNext = currentIndex < allVideos.length - 1;
 
-  // -- Swipe gesture ------------------------------------------------------------
+  // ── Swipe gesture ────────────────────────────────────────────────────────────
   // We attach the touchmove listener with { passive: false } so we can call
   // preventDefault and stop the page from scrolling while the user is doing a
   // horizontal swipe across the card.
@@ -148,10 +148,10 @@ export default function FeedVideoCard() { post, allVideos: Record<string, unknow
 
       if (dx < 0 && hasNext) {
         // Swipe left → next video
-        setCurrentIndex(prev: Record<string, unknown> => Math.min(prev + 1, allVideos.length - 1));
+        setCurrentIndex((prev: Record<string, unknown>) => Math.min(prev + 1, allVideos.length - 1));
       } else if (dx > 0 && hasPrev) {
         // Swipe right → previous video
-        setCurrentIndex(prev: Record<string, unknown> => Math.max(prev - 1, 0));
+        setCurrentIndex((prev: Record<string, unknown>) => Math.max(prev - 1, 0));
       }
     };
 
@@ -166,7 +166,7 @@ export default function FeedVideoCard() { post, allVideos: Record<string, unknow
     };
   }, [allVideos.length, hasPrev, hasNext]);
 
-  // -- sub-components -----------------------------------------------------------
+  // ── sub-components ───────────────────────────────────────────────────────────
 
   const PlayButton = ({ size = 52 }: { size?: number }) => (
     <div
@@ -271,7 +271,7 @@ export default function FeedVideoCard() { post, allVideos: Record<string, unknow
       }}>
         <button
           type="button"
-          onClick={() => { setCurrentIndex(p: Record<string, unknown> => Math.max(p - 1, 0)); }}
+          onClick={() => { setCurrentIndex((p: Record<string, unknown>) => Math.max(p - 1, 0)); }}
           disabled={!hasPrev}
           style={{
             padding: '4px 10px', borderRadius: 8,
@@ -294,7 +294,7 @@ export default function FeedVideoCard() { post, allVideos: Record<string, unknow
           {(() => {
             const start = Math.max(0, currentIndex - 2);
             const end = Math.min(allVideos.length, start + 5);
-            return Array.from({ length: end - start }, _: Record<string, unknown>, i: number => {
+            return Array.from({ length: end - start }, _: Record<string, unknown>, (i: number ) => {
               const abs = i + start;
               return (
                 <button
@@ -320,7 +320,7 @@ export default function FeedVideoCard() { post, allVideos: Record<string, unknow
 
         <button
           type="button"
-          onClick={() => { setCurrentIndex(p: Record<string, unknown> => Math.min(p + 1, allVideos.length - 1)); }}
+          onClick={() => { setCurrentIndex((p: Record<string, unknown>) => Math.min(p + 1, allVideos.length - 1)); }}
           disabled={!hasNext}
           style={{
             padding: '4px 10px', borderRadius: 8,
@@ -337,7 +337,7 @@ export default function FeedVideoCard() { post, allVideos: Record<string, unknow
     );
   };
 
-  // -- Fullscreen modal ---------------------------------------------------------
+  // ── Fullscreen modal ─────────────────────────────────────────────────────────
 
   if (isExpanded) {
     return (
@@ -445,7 +445,7 @@ export default function FeedVideoCard() { post, allVideos: Record<string, unknow
     );
   }
 
-  // -- Inline card --------------------------------------------------------------
+  // ── Inline card ──────────────────────────────────────────────────────────────
 
   return (
     <div

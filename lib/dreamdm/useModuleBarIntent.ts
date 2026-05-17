@@ -36,7 +36,7 @@ import { useCallback } from 'react';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import type { ModuleBarAction } from '@/lib/dreamdm/DreamSystemContext';
 
-// -- Hook ----------------------------------------------------------------------
+// ── Hook ──────────────────────────────────────────────────────────────────────
 
 export interface UseModuleBarIntentResult {
   /**
@@ -56,7 +56,7 @@ export interface UseModuleBarIntentResult {
   openCommentInBar: (targetPostId: string, targetLabel?: string) => void;
 }
 
-export function useModuleBarIntent(moduleId: string: UseModuleBarIntentResult) {
+export function useModuleBarIntent(moduleId: string): UseModuleBarIntentResult {
   const { setBarIntent, clearBarIntent, barIntent } = useDreamSystem();
 
   const focusModuleInBar = useCallback(

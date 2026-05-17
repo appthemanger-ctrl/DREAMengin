@@ -97,7 +97,7 @@ interface GamesDaydreamPageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function GamesDaydreamPage(props?: GamesDaydreamPageProps) {
+export default async function GamesDaydreamPage(props?: GamesDaydreamPageProps ){
   await connection();
   const searchParams = props?.searchParams;
   const currentSearchParams = searchParams ? await searchParams : undefined;

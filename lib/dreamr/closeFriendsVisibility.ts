@@ -42,7 +42,7 @@ export function filterByCloseFriends<T extends VisibilityCandidate>(
   viewerId: string,
   allowedPosterIds: ReadonlySet<string>,
 ): T[] {
-  return posts.filter(p => {
+  return posts.filter((p) => {
     const vis = p.post_visibility ?? 'public';
     if (vis !== 'close_friends') return true;
     if (p.user_id === viewerId) return true;
@@ -72,7 +72,7 @@ export async function fetchCloseFriendsCircle(
   if (error || !data) return new Set();
   return new Set(
     (data as Array<{ user_id: string }>)
-      .map(r => r.user_id)
+      .map((r) => r.user_id)
       .filter(Boolean),
   );
 }
@@ -87,7 +87,7 @@ export async function fetchCloseFriendsCircle(
  * ensures we never crash a feed request just because the service role key
  * isn't configured in some environment.
  */
-export async function loadVisibilityCircle(viewerId: string: Promise<Set<string>>) {
+export async function loadVisibilityCircle(viewerId: string): Promise<Set<string>> {
   if (!viewerId) return new Set();
   try {
     const mod = await import('@/lib/supabase/server');

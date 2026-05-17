@@ -13,7 +13,7 @@ import { getRendererBackend } from '@/lib/webgpu';
    when the user actually visits this page. SSR is disabled because
    Three.js / WebGL need the browser's <canvas>. */
 const DreamScene = dynamic(
-  () => import('@/components/three/dream.scene').then(m: Record<string, unknown> => m.DreamScene),
+  () => import('@/components/three/dream.scene').then((m: Record<string, unknown>) => m.DreamScene),
   { ssr: false },
 );
 
@@ -46,7 +46,7 @@ const features = [
 /* ------------------------------------------------------------------ */
 /*  Page component                                                     */
 /* ------------------------------------------------------------------ */
-export default function DreamEffectsPage() {
+export default function DreamEffectsPage( ){
   const [backend, setBackend] = useState<string>('detecting…');
   const cardsRef = useRef<HTMLElement | null>(null);
 
@@ -58,7 +58,7 @@ export default function DreamEffectsPage() {
   });
 
   useEffect(() => {
-    getRendererBackend().then(b: Record<string, unknown> => setBackend(b));
+    getRendererBackend().then((b: Record<string, unknown>) => setBackend(b));
   }, []);
 
   return (

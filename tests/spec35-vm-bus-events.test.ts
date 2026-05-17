@@ -8,7 +8,7 @@
 
 import { describe, it, expect } from 'vitest';
 
-// -- §35.5 event type shape guards --------------------------------------------
+// ── §35.5 event type shape guards ────────────────────────────────────────────
 
 describe('§35.5 VM Bus Event type shapes', () => {
   it('vm:workload-submitted payload matches spec shape', () => {

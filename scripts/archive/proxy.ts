@@ -18,7 +18,7 @@ import { createServerClientWithCustomCookies } from '../../lib/supabase/server';
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from '../../lib/supabase/config';
 import { safeGetUser } from './lib/supabase/safeGetUser';
 
-// -- Blocked hosts -------------------------------------------------------------
+// ── Blocked hosts ─────────────────────────────────────────────────────────────
 const BLOCKED_HOST = 'theboogieman.ai';
 
 export async function proxy(request: NextRequest) {

@@ -46,7 +46,7 @@ import {
 } from '@/lib/dreamr/closeFriendsVisibility';
 import { parseFeedParams, deriveNextCursor } from '@/lib/dreamr/feedCursor';
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
 
   const db = supabase as SupabaseClient;
 
-  // -- Fetch a wider pool so the algorithm has material to work with --------
+  // ── Fetch a wider pool so the algorithm has material to work with ────────
   // NOTE: the DB column on app_posts is `view_count` (singular), maintained by
   // /api/posts/[id]/view on every verified view. The algorithm interface field
   // is `views_count` (plural). We map DB → algorithm below.
@@ -85,13 +85,13 @@ export async function GET(req: NextRequest) {
 
   const fetched = (rows ?? []) as unknown[];
 
-  // -- Visibility filter: drop close-friends posts the viewer cannot see ----
+  // ── Visibility filter: drop close-friends posts the viewer cannot see ────
   const circle = await loadVisibilityCircle(user.id);
   const visible = filterByCloseFriends(fetched, user.id, circle);
 
-  // -- Dedupe ids the client has already seen *before* ranking --------------
+  // ── Dedupe ids the client has already seen *before* ranking ──────────────
   const fresh = params.seen.size > 0
-    ? visible.filter(r => !params.seen.has(r.id))
+    ? visible.filter((r) => !params.seen.has(r.id))
     : visible;
 
   const posts: ScoredPost[] = fresh.map((r: unknown) => ({
@@ -111,7 +111,7 @@ export async function GET(req: NextRequest) {
     },
   }));
 
-  // -- Rank with the DreamR algorithm ---------------------------------------
+  // ── Rank with the DreamR algorithm ───────────────────────────────────────
   const ranked = rankFeed(posts).slice(0, params.limit);
   const nextCursor = deriveNextCursor(ranked, fetched.length, params.fetchLimit);
 

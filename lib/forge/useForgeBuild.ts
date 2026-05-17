@@ -33,7 +33,7 @@ export interface UseForgeBuildReturn {
   rateLimitError: string | null;
 }
 
-// -- Helpers -------------------------------------------------------------------
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 /** Map enginId → ForgeArtifactType */
 const ARTIFACT_TYPE_MAP: Record<string, ForgeArtifactType> = {
@@ -49,7 +49,7 @@ type CodeEvent = Extract<ForgeLogEvent, { type: 'code' }>;
 type ResultEvent = Extract<ForgeLogEvent, { type: 'result' }>;
 
 /** Build a ForgeArtifact from a code SSE event + the resolved enginId */
-function buildArtifact(codeEvent: CodeEvent, enginId: string: ForgeArtifact) {
+function buildArtifact(codeEvent: CodeEvent, enginId: string): ForgeArtifact {
   return {
     type: ARTIFACT_TYPE_MAP[enginId] ?? 'content-draft',
     enginId,
@@ -59,9 +59,9 @@ function buildArtifact(codeEvent: CodeEvent, enginId: string: ForgeArtifact) {
   };
 }
 
-// -- Hook ----------------------------------------------------------------------
+// ── Hook ──────────────────────────────────────────────────────────────────────
 
-export function useForgeBuild(: UseForgeBuildReturn) {
+export function useForgeBuild(): UseForgeBuildReturn {
   const [state, setState] = useState<import('@/lib/forge/forgeBuild').ForgeBuildState>('idle');
   const [logs, setLogs] = useState<ForgeLogEvent[]>([]);
   const [result, setResult] = useState<ForgeBuildRecord | null>(null);
@@ -122,7 +122,7 @@ export function useForgeBuild(: UseForgeBuildReturn) {
             ts: Date.now(),
           };
           collectedLogs.push(errEvent);
-          setLogs(prev => [...prev, errEvent]);
+          setLogs((prev) => [...prev, errEvent]);
           setState('error');
           return;
         }
@@ -168,11 +168,11 @@ export function useForgeBuild(: UseForgeBuildReturn) {
             }
 
             collectedLogs.push(event);
-            setLogs(prev => [...prev, event]);
+            setLogs((prev) => [...prev, event]);
 
             if (event.type === 'done') {
               // Find result event
-              const resultEvent = collectedLogs.find(e => e.type === 'result') as
+              const resultEvent = collectedLogs.find((e) => e.type === 'result') as
                 ResultEvent | undefined;
 
               // Build artifact if we have code content and a resolved enginId
@@ -221,7 +221,7 @@ export function useForgeBuild(: UseForgeBuildReturn) {
           ts: Date.now(),
         };
         collectedLogs.push(errEvent);
-        setLogs(prev => [...prev, errEvent]);
+        setLogs((prev) => [...prev, errEvent]);
         setState('error');
       }
     })();

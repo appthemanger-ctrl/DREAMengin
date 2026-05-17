@@ -16,7 +16,7 @@ export interface GlowingLightProps {
   'aria-label'?: string;
 }
 
-export default function GlowingLight() {
+export default function GlowingLight(){
   isDragging,
   isCollapsed,
   firstTime,

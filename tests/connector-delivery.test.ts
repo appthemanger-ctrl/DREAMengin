@@ -28,7 +28,7 @@ import {
   isCronAuthorised,
 } from '@/lib/connectors/webhookVerification';
 
-// -- A. deliveryStrategy -------------------------------------------------------
+// ── A. deliveryStrategy ───────────────────────────────────────────────────────
 
 describe('DELIVERY_STRATEGY_MATRIX', () => {
   it('has at least 7 entries covering all Tier-1 sync providers', () => {
@@ -158,7 +158,7 @@ describe('knownDeliveryProviders', () => {
   });
 });
 
-// -- B. YouTube WebSub challenge extraction ------------------------------------
+// ── B. YouTube WebSub challenge extraction ────────────────────────────────────
 
 describe('extractYouTubeWebSubChallenge', () => {
   it('returns challenge for hub.mode=subscribe', () => {
@@ -202,7 +202,7 @@ describe('extractYouTubeWebSubChallenge', () => {
   });
 });
 
-// -- C. Meta webhook challenge extraction --------------------------------------
+// ── C. Meta webhook challenge extraction ──────────────────────────────────────
 
 describe('extractMetaWebhookChallenge', () => {
   const EXPECTED = 'my-secret-verify-token';
@@ -266,7 +266,7 @@ describe('extractMetaWebhookChallenge', () => {
   });
 });
 
-// -- D. isCronAuthorised -------------------------------------------------------
+// ── D. isCronAuthorised ───────────────────────────────────────────────────────
 
 describe('isCronAuthorised', () => {
   it('allows when secret matches Authorization header', () => {

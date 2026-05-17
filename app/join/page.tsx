@@ -23,7 +23,7 @@ const INPUT_STYLE: React.CSSProperties = {
 
 const DISABLED_BUTTON_OPACITY = 0.45;
 
-export default function JoinPage() {
+export default function JoinPage( ){
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
@@ -41,11 +41,11 @@ export default function JoinPage() {
 
   useEffect(() => {
     fetch("/api/auth/providers")
-      .then(r: number => {
+      .then((r: number ) => {
         if (!r.ok) throw new Error("Unable to load OAuth provider status");
         return r.json();
       })
-      .then(data: Record<string, unknown> => setOauthProviders(data))
+      .then((data: Record<string, unknown>) => setOauthProviders(data))
       .catch(() => setOauthProviders(null));
   }, []);
 
@@ -59,7 +59,7 @@ export default function JoinPage() {
     }
   }, []);
 
-  async function signup(e: React.FormEvent) {
+  async function signup(e: React.FormEvent ){
     e.preventDefault();
     setError(null);
     setNotice(null);
@@ -116,7 +116,7 @@ export default function JoinPage() {
     }
   }
 
-  async function oauth(provider: "google" | "github") {
+  async function oauth(provider: "google" | "github" ){
     setError(null);
 
     // Guard: if we know this provider is not configured, show a friendly message

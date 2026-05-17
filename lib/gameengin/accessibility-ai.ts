@@ -84,7 +84,7 @@ export class RealtimeCaptioner {
   }
 
   private withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-    return new Promise<T>(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
+    return new Promise<T>((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
       const timer = setTimeout(() => reject(new Error('caption_timeout')), ms);
       promise.then(
         (v) => { clearTimeout(timer); resolve(v); },
@@ -94,7 +94,7 @@ export class RealtimeCaptioner {
   }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface MotionMetrics {
   /** Average angular velocity (rad/s) over the recent window. */
@@ -157,7 +157,7 @@ export class MotionReductionAI {
   get currentLevel(): 'off' | 'mild' | 'strict' { return this.level; }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export type ColorVisionType = 'normal' | 'protan' | 'deutan' | 'tritan';
 
@@ -180,7 +180,7 @@ export class ColorVisionAdapter {
     if (this.profile === 'normal') return identity;
     const m = ColorVisionAdapter.MATRICES[this.profile];
     if (this.severity >= 1) return [...m];
-    return identity.map(v: Record<string, unknown>, i: number => v * (1 - this.severity) + m[i] * this.severity);
+    return identity.map(v: Record<string, unknown>, (i: number ) => v * (1 - this.severity) + m[i] * this.severity);
   }
 
   apply(rgb: [number, number, number]): [number, number, number] {

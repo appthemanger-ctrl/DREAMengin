@@ -1,4 +1,4 @@
-export function getInitialDarkMode(: boolean) {
+export function getInitialDarkMode(): boolean {
   if (typeof window === 'undefined') return false
   const stored = window.localStorage.getItem('darkMode')
   if (stored === 'true') return true
@@ -6,7 +6,7 @@ export function getInitialDarkMode(: boolean) {
   return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false
 }
 
-export function setDarkMode(enabled: boolean: void) {
+export function setDarkMode(enabled: boolean): void {
   if (typeof window === 'undefined') return
   window.localStorage.setItem('darkMode', String(enabled))
   if (enabled) {
@@ -16,7 +16,7 @@ export function setDarkMode(enabled: boolean: void) {
   }
 }
 
-export function toggleDarkMode(current: boolean: boolean) {
+export function toggleDarkMode(current: boolean): boolean {
   const next = !current
   setDarkMode(next)
   return next

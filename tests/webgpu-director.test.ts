@@ -28,7 +28,7 @@ import {
   type DirectorBabylonMesh,
 } from '@/lib/webgpu/director';
 
-// --- Fixtures -----------------------------------------------------------------
+// ─── Fixtures ─────────────────────────────────────────────────────────────────
 
 const nominalMetrics = (): RuntimeMetrics => ({
   frameMs:           16.0,
@@ -77,7 +77,7 @@ const makeObject = (overrides: Partial<SceneObject> = {}): SceneObject => ({
   ...overrides,
 });
 
-// --- classifyPressure ---------------------------------------------------------
+// ─── classifyPressure ─────────────────────────────────────────────────────────
 
 describe('classifyPressure', () => {
   it('returns 0 for nominal metrics', () => {
@@ -106,7 +106,7 @@ describe('classifyPressure', () => {
   });
 });
 
-// --- buildPassPlan ------------------------------------------------------------
+// ─── buildPassPlan ────────────────────────────────────────────────────────────
 
 describe('buildPassPlan', () => {
   it('enables all hero passes at pressure 0 with hero camera', () => {
@@ -164,7 +164,7 @@ describe('buildPassPlan', () => {
   });
 });
 
-// --- scoreObject --------------------------------------------------------------
+// ─── scoreObject ──────────────────────────────────────────────────────────────
 
 describe('scoreObject', () => {
   it('returns 0 for invisible object', () => {
@@ -195,7 +195,7 @@ describe('scoreObject', () => {
   });
 });
 
-// --- classifyObject -----------------------------------------------------------
+// ─── classifyObject ───────────────────────────────────────────────────────────
 
 describe('classifyObject', () => {
   it('classifies importance 0 as culled', () => {
@@ -223,7 +223,7 @@ describe('classifyObject', () => {
   });
 });
 
-// --- decideObject -------------------------------------------------------------
+// ─── decideObject ─────────────────────────────────────────────────────────────
 
 describe('decideObject', () => {
   it('freezes invisible non-moving objects', () => {
@@ -279,7 +279,7 @@ describe('decideObject', () => {
   });
 });
 
-// --- resolveFrameBudget -------------------------------------------------------
+// ─── resolveFrameBudget ───────────────────────────────────────────────────────
 
 describe('resolveFrameBudget', () => {
   it('is within budget for nominal metrics', () => {
@@ -306,7 +306,7 @@ describe('resolveFrameBudget', () => {
   });
 });
 
-// --- resolveTemporalState -----------------------------------------------------
+// ─── resolveTemporalState ─────────────────────────────────────────────────────
 
 describe('resolveTemporalState', () => {
   it('enables TAA at pressure 0 without cut', () => {
@@ -344,7 +344,7 @@ describe('resolveTemporalState', () => {
   });
 });
 
-// --- resolveResolutionScale ---------------------------------------------------
+// ─── resolveResolutionScale ───────────────────────────────────────────────────
 
 describe('resolveResolutionScale', () => {
   it('returns 1.0 at pressure 0 for hero camera', () => {
@@ -373,7 +373,7 @@ describe('resolveResolutionScale', () => {
   });
 });
 
-// --- WebGPUDirector -----------------------------------------------------------
+// ─── WebGPUDirector ───────────────────────────────────────────────────────────
 
 describe('WebGPUDirector', () => {
   let director: WebGPUDirector;
@@ -432,7 +432,7 @@ describe('WebGPUDirector', () => {
   });
 });
 
-// --- applyDirectorFrame -------------------------------------------------------
+// ─── applyDirectorFrame ───────────────────────────────────────────────────────
 
 describe('applyDirectorFrame', () => {
   const makeMesh = (id: string, frozen = false): DirectorBabylonMesh => ({
@@ -501,7 +501,7 @@ describe('applyDirectorFrame', () => {
   });
 });
 
-// --- default helpers ----------------------------------------------------------
+// ─── default helpers ──────────────────────────────────────────────────────────
 
 describe('default helpers', () => {
   it('defaultDirectorMetrics returns nominal values', () => {
@@ -522,7 +522,7 @@ describe('default helpers', () => {
   });
 });
 
-// --- scoreObject improvements -------------------------------------------------
+// ─── scoreObject improvements ─────────────────────────────────────────────────
 
 describe('scoreObject — squared distance falloff', () => {
   it('close object scores much higher than mid-range (non-linear gap)', () => {
@@ -544,7 +544,7 @@ describe('scoreObject — squared distance falloff', () => {
   });
 });
 
-// --- buildPassPlan — transition camera ssao -----------------------------------
+// ─── buildPassPlan — transition camera ssao ───────────────────────────────────
 
 describe('buildPassPlan — transition camera', () => {
   it('disables ssao during camera transition', () => {
@@ -559,7 +559,7 @@ describe('buildPassPlan — transition camera', () => {
   });
 });
 
-// --- snapUpdateHz — motion-weight aware --------------------------------------
+// ─── snapUpdateHz — motion-weight aware ──────────────────────────────────────
 
 describe('decideObject — motion-aware update rate', () => {
   it('high motionWeight object does not drop to 15Hz at pressure 3', () => {
@@ -590,7 +590,7 @@ describe('decideObject — motion-aware update rate', () => {
   });
 });
 
-// --- resolveResolutionScale — metrics feedback --------------------------------
+// ─── resolveResolutionScale — metrics feedback ────────────────────────────────
 
 describe('resolveResolutionScale — budget feedback', () => {
   it('tightens scale when gpu is near budget at pressure 0', () => {
@@ -615,7 +615,7 @@ describe('resolveResolutionScale — budget feedback', () => {
   });
 });
 
-// --- babylonMeshToSceneObject -------------------------------------------------
+// ─── babylonMeshToSceneObject ─────────────────────────────────────────────────
 
 describe('babylonMeshToSceneObject', () => {
   const makeBabylonMesh = (id: string, isVisible = true): DirectorBabylonMesh => ({
@@ -659,7 +659,7 @@ describe('babylonMeshToSceneObject', () => {
   });
 });
 
-// --- buildSceneObjects --------------------------------------------------------
+// ─── buildSceneObjects ────────────────────────────────────────────────────────
 
 describe('buildSceneObjects', () => {
   const makeMesh = (id: string, isVisible = true): DirectorBabylonMesh => ({

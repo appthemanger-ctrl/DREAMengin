@@ -21,7 +21,7 @@ vi.mock('@/lib/supabase/server', () => ({
 }));
 import { isOwner, isDomainBlocked, OWNER_EMAIL } from '@/lib/admin/lockout';
 
-// -- isOwner -------------------------------------------------------------------
+// ── isOwner ───────────────────────────────────────────────────────────────────
 
 describe('isOwner', () => {
   it('returns true for the exact owner email', () => {
@@ -50,7 +50,7 @@ describe('isOwner', () => {
   });
 });
 
-// -- isDomainBlocked -----------------------------------------------------------
+// ── isDomainBlocked ───────────────────────────────────────────────────────────
 // NOTE: theboogieman.ai is blocked at the edge via the Host-header check in
 // middleware.ts, NOT via BLOCKED_DOMAINS in lockout.ts (which the owner
 // intentionally left empty so they can reach this API from their BoogieMan AI

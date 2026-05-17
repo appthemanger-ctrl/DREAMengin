@@ -23,13 +23,13 @@ import React, { useEffect, useState } from 'react';
 import { dreamOSBus, type DreamOSSnapshot } from '@/lib/runtime/dreamOSBus';
 import { formatArtifactKind, getArtifactAccent } from '@/lib/intelligence/continuityHelpers';
 
-// -- Layout constants ----------------------------------------------------------
+// ── Layout constants ──────────────────────────────────────────────────────────
 
 const MAX_ARTIFACTS = 5;
 
-// -- Helpers -------------------------------------------------------------------
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-function relativeTime(ms: number: string) {
+function relativeTime(ms: number): string {
   const diff = Date.now() - ms;
   const secs = Math.floor(diff / 1000);
   if (secs < 60) return `${secs}s`;
@@ -39,9 +39,9 @@ function relativeTime(ms: number: string) {
   return `${hrs}h`;
 }
 
-// -- Component -----------------------------------------------------------------
+// ── Component ─────────────────────────────────────────────────────────────────
 
-export default function RuntimeMemoryHUD() {
+export default function RuntimeMemoryHUD( ){
   const [snapshot, setSnapshot] = useState<DreamOSSnapshot>({
     artifacts: [],
     runtimeContexts: [],
@@ -49,7 +49,7 @@ export default function RuntimeMemoryHUD() {
 
   // Subscribe to the bus — re-render whenever anything changes.
   useEffect(() => {
-    const unsub = dreamOSBus.subscribe(next: Record<string, unknown> => setSnapshot(next));
+    const unsub = dreamOSBus.subscribe((next: Record<string, unknown>) => setSnapshot(next));
     return unsub;
   }, []);
 

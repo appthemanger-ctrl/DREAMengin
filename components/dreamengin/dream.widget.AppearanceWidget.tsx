@@ -4,8 +4,8 @@ import React, { useCallback } from 'react';
 import { useTheme } from '@/components/providers/dream.ThemeProvider';
 import { THEME_PRESETS, DEFAULT_OVERRIDES } from '@/lib/ui/theme-engine';
 
-/* -- Slider -- */
-function Slider() {
+/* ── Slider ── */
+function Slider(){
   label,
   value,
   min,
@@ -52,8 +52,8 @@ function Slider() {
   );
 }
 
-/* -- Preset card -- */
-function PresetCard() {
+/* ── Preset card ── */
+function PresetCard(){
   preset,
   isActive,
   onSelect,
@@ -105,8 +105,8 @@ function PresetCard() {
   );
 }
 
-/* -- Main overlay widget -- */
-export default function AppearanceWidget() { onClose }: { onClose: () => void }) {
+/* ── Main overlay widget ── */
+export default function AppearanceWidget({ onClose }: ) { onClose: () => void }) {
   const { presetId, overrides, setPreset, setOverrides, resetOverrides } = useTheme();
 
   const handleBrightness = useCallback((v: number) => setOverrides({ brightness: v }), [setOverrides]);

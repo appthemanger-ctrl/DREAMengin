@@ -96,7 +96,7 @@ function deepFreeze<T>(value: T): T {
   return Object.freeze(record) as T;
 }
 
-function normalizeState(input: unknown: Record<string, unknown>) {
+function normalizeState(input: unknown): Record<string, unknown> {
   if (input && typeof input === 'object' && !Array.isArray(input)) {
     return input as Record<string, unknown>;
   }

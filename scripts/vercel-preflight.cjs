@@ -31,7 +31,7 @@ const nextConfigCandidates = [
   "next.config.ts",
   "next.config.js",
   "next.config.mjs"
-].map(f => path2.join(root2, f)).filter(fs2.existsSync);
+].map((f) => path2.join(root2, f)).filter(fs2.existsSync);
 
 if (nextConfigCandidates.length === 0) {
   fail2("Missing Next.js config in app root");
@@ -45,7 +45,7 @@ if (nextConfigText.includes("ignoreBuildErrors: true")) {
 ok2("TypeScript build errors are not ignored");
 
 const lockfiles = ["package-lock.json", "pnpm-lock.yaml", "yarn.lock"]
-  .map(f => path2.join(root2, f))
+  .map((f) => path2.join(root2, f))
   .filter(fs2.existsSync);
 
 if (lockfiles.length === 0) fail2("No lockfile in app root");

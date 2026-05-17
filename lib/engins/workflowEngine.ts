@@ -13,7 +13,7 @@
  *   - Handoffs may only fire from export stage.
  */
 
-// --- Engin identity -----------------------------------------------------------
+// ─── Engin identity ───────────────────────────────────────────────────────────
 
 export type EnginId =
   | 'music'
@@ -23,7 +23,7 @@ export type EnginId =
   | 'brand'
   | 'create';
 
-// --- Workflow stage -----------------------------------------------------------
+// ─── Workflow stage ───────────────────────────────────────────────────────────
 
 export type WorkflowStage = 'draft' | 'active' | 'review' | 'export';
 
@@ -37,13 +37,13 @@ export const STAGE_LABELS: Record<WorkflowStage, string> = {
 };
 
 /** Returns true if `to` is a valid forward advance from `from`. */
-export function isValidTransition(from: WorkflowStage, to: WorkflowStage: boolean) {
+export function isValidTransition(from: WorkflowStage, to: WorkflowStage): boolean {
   const fi = STAGE_ORDER.indexOf(from);
   const ti = STAGE_ORDER.indexOf(to);
   return ti === fi + 1;
 }
 
-// --- Cross-Engin handoff paths ------------------------------------------------
+// ─── Cross-Engin handoff paths ────────────────────────────────────────────────
 
 export type HandoffKind =
   | 'music:stem-ready'
@@ -85,11 +85,11 @@ export const HANDOFF_PATHS: readonly HandoffPath[] = [
 ] as const;
 
 /** Returns all handoff paths available from a given Engin. */
-export function handoffsFrom(enginId: EnginId: readonly HandoffPath[]) {
+export function handoffsFrom(enginId: EnginId): readonly HandoffPath[] {
   return HANDOFF_PATHS.filter((p: Record<string, unknown>) => p.from === enginId);
 }
 
-// --- Workflow definition (catalog entry) --------------------------------------
+// ─── Workflow definition (catalog entry) ──────────────────────────────────────
 
 export interface WorkflowDef {
   /** Namespaced ID: `<enginId>:<slug>` */
@@ -125,16 +125,16 @@ export const WORKFLOW_CATALOG: readonly WorkflowDef[] = [
 ] as const;
 
 /** Returns all workflow definitions for a given Engin. */
-export function workflowsForEngin(enginId: EnginId: readonly WorkflowDef[]) {
+export function workflowsForEngin(enginId: EnginId): readonly WorkflowDef[] {
   return WORKFLOW_CATALOG.filter((w: Record<string, unknown>) => w.enginId === enginId);
 }
 
 /** Looks up a workflow definition by ID. Returns undefined if not found. */
-export function findWorkflowDef(workflowId: string: WorkflowDef | undefined) {
+export function findWorkflowDef(workflowId: string): WorkflowDef | undefined {
   return WORKFLOW_CATALOG.find((w: Record<string, unknown>) => w.id === workflowId);
 }
 
-// --- Live workflow instance ---------------------------------------------------
+// ─── Live workflow instance ───────────────────────────────────────────────────
 
 export interface EnginWorkflow {
   /** Namespaced ID — matches WorkflowDef.id */
@@ -153,7 +153,7 @@ export interface EnginWorkflow {
   updatedAt: string;
 }
 
-// --- Factory ------------------------------------------------------------------
+// ─── Factory ──────────────────────────────────────────────────────────────────
 
 /**
  * Create a new EnginWorkflow instance in `draft` stage.
@@ -161,7 +161,7 @@ export interface EnginWorkflow {
  * @param workflowId  Must match a WorkflowDef.id in WORKFLOW_CATALOG.
  * @param now         Optional ISO timestamp override (for deterministic tests).
  */
-export function createWorkflow(workflowId: string, now?: string: EnginWorkflow) {
+export function createWorkflow(workflowId: string, now?: string): EnginWorkflow {
   const def = findWorkflowDef(workflowId);
   if (!def) {
     throw new Error(`Unknown workflow ID: "${workflowId}". Check WORKFLOW_CATALOG.`);
@@ -179,7 +179,7 @@ export function createWorkflow(workflowId: string, now?: string: EnginWorkflow) 
   };
 }
 
-// --- Transitions -------------------------------------------------------------
+// ─── Transitions ─────────────────────────────────────────────────────────────
 
 export type StageTransitionResult =
   | { ok: true; workflow: EnginWorkflow }
@@ -240,12 +240,12 @@ export function advanceStage(
  * Abandon a workflow. Returns a new workflow with `abandoned: true`.
  * Abandonment is final — no further stage transitions are permitted.
  */
-export function abandonWorkflow(workflow: EnginWorkflow, now?: string: EnginWorkflow) {
+export function abandonWorkflow(workflow: EnginWorkflow, now?: string): EnginWorkflow {
   const ts = now ?? new Date().toISOString();
   return { ...workflow, abandoned: true, updatedAt: ts };
 }
 
-// --- Handoff eligibility ------------------------------------------------------
+// ─── Handoff eligibility ──────────────────────────────────────────────────────
 
 export interface HandoffEligibility {
   readonly eligible: boolean;
@@ -261,7 +261,7 @@ export interface HandoffEligibility {
  * Handoffs are only permitted from a workflow in `export` stage that has
  * at least one registered handoff path.
  */
-export function checkHandoffEligibility(workflow: EnginWorkflow: HandoffEligibility) {
+export function checkHandoffEligibility(workflow: EnginWorkflow): HandoffEligibility {
   if (workflow.abandoned) {
     return { eligible: false, availablePaths: [], reason: 'Workflow is abandoned.' };
   }
@@ -285,13 +285,13 @@ export function checkHandoffEligibility(workflow: EnginWorkflow: HandoffEligibil
   return { eligible: true, availablePaths };
 }
 
-// --- Utility ------------------------------------------------------------------
+// ─── Utility ──────────────────────────────────────────────────────────────────
 
 /**
  * Returns a short human-readable summary string for a workflow.
  * Useful for bridge event payloads and Journey Trail labels.
  */
-export function describeWorkflow(workflow: EnginWorkflow: string) {
+export function describeWorkflow(workflow: EnginWorkflow): string {
   const stageLabel = STAGE_LABELS[workflow.stage];
   const suffix = workflow.abandoned ? ' (abandoned)' : '';
   return `${workflow.name} [${stageLabel}]${suffix}`;

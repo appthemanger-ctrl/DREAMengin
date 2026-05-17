@@ -13,9 +13,9 @@ import { ResourcePool } from '../power-systems';
 
 export { ResourcePool } from '../power-systems';
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  ObjectPoolingSystem — named registry of ResourcePool instances
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 /**
  * Higher-level manager for multiple named ResourcePool instances.

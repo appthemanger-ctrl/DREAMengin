@@ -55,14 +55,14 @@ export interface UseNotificationsReturn {
   reload: () => void;
 }
 
-export function useNotifications(: UseNotificationsReturn) {
+export function useNotifications(): UseNotificationsReturn {
   const [notifications, setNotifications] = useState<UiNotification[]>([]);
   const [isLoading,     setIsLoading]     = useState(true);
   const [error,         setError]         = useState<string | null>(null);
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // -- Fetch from API --------------------------------------------------------
+  // ── Fetch from API ────────────────────────────────────────────────────────
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -100,7 +100,7 @@ export function useNotifications(: UseNotificationsReturn) {
     }
   }, []);
 
-  // -- Initial load + polling ------------------------------------------------
+  // ── Initial load + polling ────────────────────────────────────────────────
 
   useEffect(() => {
     void fetchNotifications();
@@ -116,11 +116,11 @@ export function useNotifications(: UseNotificationsReturn) {
     };
   }, [fetchNotifications]);
 
-  // -- Mark single as read ---------------------------------------------------
+  // ── Mark single as read ───────────────────────────────────────────────────
 
   const markAsRead = useCallback(async (id: string) => {
     // Optimistic update first
-    setNotifications(prev: Record<string, unknown> => applyOptimisticRead(prev, id));
+    setNotifications((prev: Record<string, unknown>) => applyOptimisticRead(prev, id));
 
     try {
       await fetch('/api/notifications', {
@@ -135,10 +135,10 @@ export function useNotifications(: UseNotificationsReturn) {
     }
   }, [fetchNotifications]);
 
-  // -- Mark all as read ------------------------------------------------------
+  // ── Mark all as read ──────────────────────────────────────────────────────
 
   const markAllAsRead = useCallback(async () => {
-    setNotifications(prev: Record<string, unknown> => applyOptimisticMarkAll(prev));
+    setNotifications((prev: Record<string, unknown>) => applyOptimisticMarkAll(prev));
 
     try {
       await fetch('/api/notifications', {
@@ -152,10 +152,10 @@ export function useNotifications(: UseNotificationsReturn) {
     }
   }, [fetchNotifications]);
 
-  // -- Delete one notification -----------------------------------------------
+  // ── Delete one notification ───────────────────────────────────────────────
 
   const deleteNotification = useCallback(async (id: string) => {
-    setNotifications(prev: Record<string, unknown> => applyOptimisticDelete(prev, id));
+    setNotifications((prev: Record<string, unknown>) => applyOptimisticDelete(prev, id));
 
     try {
       await fetch(`/api/notifications?id=${encodeURIComponent(id)}`, {
@@ -167,7 +167,7 @@ export function useNotifications(: UseNotificationsReturn) {
     }
   }, [fetchNotifications]);
 
-  // -- Expose ----------------------------------------------------------------
+  // ── Expose ────────────────────────────────────────────────────────────────
 
   return {
     notifications,

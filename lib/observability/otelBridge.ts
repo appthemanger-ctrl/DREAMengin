@@ -13,11 +13,11 @@ import { SpanStatusCode, type Span } from '@opentelemetry/api';
 import { getMeter, getTracer } from './otel';
 import type { Counter, Histogram, UpDownCounter } from '@opentelemetry/api';
 
-// -- Singleton guard -----------------------------------------------------------
+// ── Singleton guard ───────────────────────────────────────────────────────────
 
 let _bridgeReady = false;
 
-// -- OTel instruments (created lazily) -----------------------------------------
+// ── OTel instruments (created lazily) ─────────────────────────────────────────
 
 let _logCounter: Counter | null = null;
 let _metricGauge: Histogram | null = null;
@@ -25,7 +25,7 @@ let _traceHistogram: Histogram | null = null;
 let _activeRequests: UpDownCounter | null = null;
 let _errorCounter: Counter | null = null;
 
-function ensureInstruments(: void) {
+function ensureInstruments(): void {
   if (_logCounter) return;
   const meter = getMeter();
 
@@ -59,7 +59,7 @@ function ensureInstruments(: void) {
     description: 'Process uptime in seconds',
     unit: 's',
   });
-  processUptime.addCallback(result: Record<string, unknown> => {
+  processUptime.addCallback((result: Record<string, unknown>) => {
     result.observe(process.uptime());
   });
 
@@ -67,7 +67,7 @@ function ensureInstruments(: void) {
     description: 'Node.js heap used in bytes',
     unit: 'By',
   });
-  heapUsed.addCallback(result: Record<string, unknown> => {
+  heapUsed.addCallback((result: Record<string, unknown>) => {
     result.observe(process.memoryUsage().heapUsed);
   });
 
@@ -75,7 +75,7 @@ function ensureInstruments(: void) {
     description: 'Node.js heap total in bytes',
     unit: 'By',
   });
-  heapTotal.addCallback(result: Record<string, unknown> => {
+  heapTotal.addCallback((result: Record<string, unknown>) => {
     result.observe(process.memoryUsage().heapTotal);
   });
 
@@ -83,7 +83,7 @@ function ensureInstruments(: void) {
     description: 'Resident set size in bytes',
     unit: 'By',
   });
-  rss.addCallback(result: Record<string, unknown> => {
+  rss.addCallback((result: Record<string, unknown>) => {
     result.observe(process.memoryUsage().rss);
   });
 
@@ -100,20 +100,20 @@ function ensureInstruments(: void) {
     (globalThis as Record<string, unknown>).__dreamengin_otel_event_loop_lag = Math.max(0, lag);
   }, 1000);
   if (_lagInterval.unref) _lagInterval.unref();
-  eventLoopLag.addCallback(result: Record<string, unknown> => {
+  eventLoopLag.addCallback((result: Record<string, unknown>) => {
     const lag = ((globalThis as Record<string, unknown>).__dreamengin_otel_event_loop_lag as number) ?? 0;
     result.observe(lag);
   });
 }
 
-// -- Bridge functions (called from patched collector) --------------------------
+// ── Bridge functions (called from patched collector) ──────────────────────────
 
 /**
  * Forward a log entry to OTel metrics.
  * We record log counts by level as a counter — actual log content is NOT
  * exported to avoid leaking PII into the telemetry pipeline.
  */
-export function otelRecordLog(level: string, source?: string: void) {
+export function otelRecordLog(level: string, source?: string): void {
   if (!_bridgeReady) return;
   ensureInstruments();
   const attrs: Record<string, string> = { level };
@@ -170,27 +170,27 @@ export function otelRecordTrace(
 }
 
 /** Increment the active request counter (call from middleware). */
-export function otelRequestStart(: void) {
+export function otelRequestStart(): void {
   if (!_bridgeReady) return;
   ensureInstruments();
   _activeRequests!.add(1);
 }
 
 /** Decrement the active request counter (call from middleware). */
-export function otelRequestEnd(: void) {
+export function otelRequestEnd(): void {
   if (!_bridgeReady) return;
   ensureInstruments();
   _activeRequests!.add(-1);
 }
 
-// -- Initialisation ------------------------------------------------------------
+// ── Initialisation ────────────────────────────────────────────────────────────
 
 /**
  * Activate the OTel bridge. Safe to call multiple times — only the first
  * call has an effect. After this, every collectLog / collectMetric /
  * collectTrace call in the collector will also emit OTel signals.
  */
-export function initOtelBridge(: void) {
+export function initOtelBridge(): void {
   if (_bridgeReady) return;
   ensureInstruments();
   _bridgeReady = true;

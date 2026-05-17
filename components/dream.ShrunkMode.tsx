@@ -12,7 +12,7 @@ interface ShrunkModeProps {
  * ShrunkMode - 12 priority widget launchers
  * Displays most recently used or pinned widgets for quick access
  */
-export function ShrunkMode() { priorityWidgets, onWidgetSelect }: ShrunkModeProps {
+export function ShrunkMode({ priorityWidgets, onWidgetSelect }: ShrunkModeProps) {
   // Display up to 12 widgets
   const displayWidgets = priorityWidgets.slice(0, 12);
   
@@ -29,7 +29,7 @@ export function ShrunkMode() { priorityWidgets, onWidgetSelect }: ShrunkModeProp
           ))}
           
           {/* Fill empty slots */}
-          {Array.from({ length: Math.max(0, 12 - displayWidgets.length) }).map(_: Record<string, unknown>, index: number => (
+          {Array.from({ length: Math.max(0, 12 - displayWidgets.length) }).map(_: Record<string, unknown>, (index: number ) => (
             <div
               key={`empty-${index}`}
               className="w-16 h-16 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center"
@@ -48,7 +48,7 @@ interface PriorityWidgetLauncherProps {
   onSelect?: (widgetId: string) => void;
 }
 
-function PriorityWidgetLauncher() { widget, onSelect }: PriorityWidgetLauncherProps {
+function PriorityWidgetLauncher({ widget, onSelect }: PriorityWidgetLauncherProps) {
   return (
     <div
       className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-400 flex flex-col items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95 shadow-md relative"

@@ -21,7 +21,7 @@ const CommentSection = ({ postId, onClose }) => {
         room.on('dataReceived', (payload) => {
           if (payload.topic === `comment:${postId}`) {
             const comment = JSON.parse(payload.payload);
-            setComments(prev => [...prev, comment]);
+            setComments((prev) => [...prev, comment]);
           }
         });
       } catch (error) {
@@ -57,7 +57,7 @@ const CommentSection = ({ postId, onClose }) => {
       });
       
       // Add to local state
-      setComments(prev => [...prev, comment]);
+      setComments((prev) => [...prev, comment]);
       setNewComment('');
     } catch (error) {
       console.error('Error sending comment:', error);

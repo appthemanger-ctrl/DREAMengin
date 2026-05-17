@@ -15,7 +15,7 @@ import {
   type DbNotificationRow,
 } from '@/lib/notifications/notificationHelpers';
 
-// --- Remix notification type --------------------------------------------------
+// ─── Remix notification type ──────────────────────────────────────────────────
 
 describe('Phase 9 Notifications — remix type', () => {
   it('maps "remix" DB type to remix UI type', () => {
@@ -41,7 +41,7 @@ describe('Phase 9 Notifications — remix type', () => {
   });
 });
 
-// --- Asset-aware action URLs --------------------------------------------------
+// ─── Asset-aware action URLs ──────────────────────────────────────────────────
 
 describe('Phase 9 Notifications — asset-aware action URLs', () => {
   it('routes remix notifications to the Engin with asset param', () => {
@@ -78,7 +78,7 @@ describe('Phase 9 Notifications — asset-aware action URLs', () => {
   });
 });
 
-// --- normalizeDbRow with remix ------------------------------------------------
+// ─── normalizeDbRow with remix ────────────────────────────────────────────────
 
 describe('Phase 9 Notifications — normalizeDbRow remix', () => {
   it('normalises a remix notification row', () => {

@@ -6,7 +6,7 @@ import { Heart, MessageCircle, Share2, Users, X, Check, Plug, ChevronLeft, Chevr
 import ConnectorWidgetPicker, { type PickerConnector, TOP_10_CONNECTORS } from '@/components/connectors/dream.widget.ConnectorWidgetPicker';
 import EditableAvatar from '@/components/profile/dream.EditableAvatar';
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 export type WidgetType =
   | 'bio' | 'activity' | 'followers' | 'photos'
@@ -60,7 +60,7 @@ export const DEFAULT_WIDGETS: Widget[] = [
   { id: 'quote',     type: 'quote',     size: 'small' },
 ];
 
-// -- Canonical aliases (preferred for new code) ----------------------------
+// ── Canonical aliases (preferred for new code) ────────────────────────────
 export type DreamType    = WidgetType;
 export type DreamSize    = WidgetSize;
 export type DreamBgStyle = WidgetBgStyle;
@@ -100,9 +100,9 @@ const BG_STYLES: { value: WidgetBgStyle; label: string }[] = [
   { value: 'dark',   label: 'Dark' },
 ];
 
-// -- Helpers --------------------------------------------------------------------
+// ── Helpers ────────────────────────────────────────────────────────────────────
 
-function getWidgetLabel(type: WidgetType: string) {
+function getWidgetLabel(type: WidgetType): string {
   return {
     bio: 'Bio Card', activity: 'Activity', followers: 'Followers',
     photos: 'Photos', linkedin: 'LinkedIn', twitter: 'Twitter', quote: 'Quote',
@@ -114,16 +114,16 @@ function getWidgetLabel(type: WidgetType: string) {
 
 const LARGE_DEFAULT_TYPES: ReadonlySet<WidgetType> = new Set(['bio', 'activity', 'photos']);
 
-function getDefaultSize(type: WidgetType: WidgetSize) {
+function getDefaultSize(type: WidgetType): WidgetSize {
   return LARGE_DEFAULT_TYPES.has(type) ? 'large' : 'small';
 }
 
-// -- Layout / content constants -------------------------------------------------
+// ── Layout / content constants ─────────────────────────────────────────────────
 const MIN_SMALL_WIDGET_HEIGHT = 120;
 const BIO_SMALL_TRUNCATE      = 35;   // chars shown in compact bio
 const BIO_LARGE_TRUNCATE      = 55;
 
-function getCardBg(style: WidgetBgStyle, accent: string: React.CSSProperties) {
+function getCardBg(style: WidgetBgStyle, accent: string): React.CSSProperties {
   switch (style) {
     case 'glass':  return { background: 'rgba(255,255,255,0.55)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' };
     case 'warm':   return { background: 'linear-gradient(135deg, #fff8ed, #fff3d6)' };
@@ -133,29 +133,29 @@ function getCardBg(style: WidgetBgStyle, accent: string: React.CSSProperties) {
   }
 }
 
-function getTextColor(style: WidgetBgStyle: string) {
+function getTextColor(style: WidgetBgStyle): string {
   return style === 'dark' ? '#ffffff' : '#1a1a1a';
 }
-function getDimColor(style: WidgetBgStyle: string) {
+function getDimColor(style: WidgetBgStyle): string {
   return style === 'dark' ? 'rgba(255,255,255,0.55)' : '#999';
 }
 
-// -- Dot-grid icon (iOS-style drag/settings handle) ----------------------------
+// ── Dot-grid icon (iOS-style drag/settings handle) ────────────────────────────
 
-function DotGrid() {
+function DotGrid( ){
   return (
     <div aria-hidden="true" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 4px)', gap: '3px', opacity: 0.32 }}>
-      {Array.from({ length: 9 }).map(_: Record<string, unknown>, i: number => (
+      {Array.from({ length: 9 }).map(_: Record<string, unknown>, (i: number ) => (
         <div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: '#444' }} />
       ))}
     </div>
   );
 }
 
-function SparkLine() { data, color: Record<string, unknown>, height = 56 }: { data: number[]; color: string; height?: number } {
+function SparkLine({ data, color: Record<string, unknown>, height = 56 }: ) { data: number[]; color: string; height?: number } {
   const min = Math.min(...data), max = Math.max(...data), r = max - min || 1;
   const W = 200, H = height;
-  const pts = data.map(v: Record<string, unknown>, i: number => `${(i / (data.length - 1)) * W},${H - ((v - min) / r) * (H - 4) - 2}`).join(' ');
+  const pts = data.map(v: Record<string, unknown>, (i: number ) => `${(i / (data.length - 1)) * W},${H - ((v - min) / r) * (H - 4) - 2}`).join(' ');
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height }} preserveAspectRatio="none">
       <polyline points={pts} fill="none" stroke={color} strokeWidth="2.2"
@@ -164,11 +164,11 @@ function SparkLine() { data, color: Record<string, unknown>, height = 56 }: { da
   );
 }
 
-function BarChart() { data, color }: { data: number[]; color: string } {
+function BarChart({ data, color }: ) { data: number[]; color: string } {
   const max = Math.max(...data);
   return (
     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 38 }}>
-      {data.map(v: Record<string, unknown>, i: number => (
+      {data.map(v: Record<string, unknown>, (i: number ) => (
         <div key={i} style={{
           flex: 1, height: `${(v / max) * 100}%`,
           background: i === data.length - 1 ? color : `${color}44`,
@@ -179,9 +179,9 @@ function BarChart() { data, color }: { data: number[]; color: string } {
   );
 }
 
-// -- Widget Config Sheet --------------------------------------------------------
+// ── Widget Config Sheet ────────────────────────────────────────────────────────
 
-function WidgetConfigSheet() {
+function WidgetConfigSheet(){
   widget, onClose, onSave,
 }: {
   widget: Widget;
@@ -252,10 +252,10 @@ function WidgetConfigSheet() {
 
         <div style={{ padding: '0 18px 8px' }}>
 
-          {/* -- Widget Size -- */}
+          {/* ── Widget Size ── */}
           <label style={sectionLabel}>Size</label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {(['small', 'large'] as WidgetSize[]).map(s => (
+            {(['small', 'large'] as WidgetSize[]).map((s) => (
               <button key={s} onClick={() => setSize(s)} style={{
                 padding: '12px 0', borderRadius: 12,
                 background: size === s ? color : 'rgba(255,255,255,0.85)',
@@ -274,7 +274,7 @@ function WidgetConfigSheet() {
                   width: s === 'small' ? 20 : 44,
                   height: 20,
                 }}>
-                  {(s === 'small' ? [1] : [1, 2]).map(n => (
+                  {(s === 'small' ? [1] : [1, 2]).map((n) => (
                     <div key={n} style={{
                       borderRadius: 4,
                       background: size === s ? 'rgba(255,255,255,0.45)' : `${color}25`,
@@ -286,7 +286,7 @@ function WidgetConfigSheet() {
             ))}
           </div>
 
-          {/* -- Accent Color -- */}
+          {/* ── Accent Color ── */}
           <label style={sectionLabel}>Accent Color</label>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             {COLOR_SWATCHES.map(({ color: c, label }) => (
@@ -302,7 +302,7 @@ function WidgetConfigSheet() {
             ))}
           </div>
 
-          {/* -- Background Style -- */}
+          {/* ── Background Style ── */}
           <label style={sectionLabel}>Background</label>
           <div style={{ display: 'flex', gap: 8 }}>
             {BG_STYLES.map(({ value, label }) => (
@@ -320,14 +320,14 @@ function WidgetConfigSheet() {
             ))}
           </div>
 
-          {/* -- Visibility -- */}
+          {/* ── Visibility ── */}
           <label style={sectionLabel}>Visibility</label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
             {([
               { value: 'private',   icon: '🔒', label: 'Private' },
               { value: 'followers', icon: '👥', label: 'Followers' },
               { value: 'public',    icon: '🌐', label: 'Public' },
-            ] as { value: Widget['visibility']; icon: string; label: string }[]).map({ value, icon: Record<string, unknown>, label } => (
+            ] as { value: Widget['visibility']; icon: string; label: string }[]).map(({ value, icon: Record<string, unknown>, label }) => (
               <button key={value} onClick={() => setVisibility(value)} style={{
                 padding: '10px 4px', borderRadius: 12,
                 background: visibility === value ? color : 'rgba(255,255,255,0.85)',
@@ -344,7 +344,7 @@ function WidgetConfigSheet() {
             ))}
           </div>
 
-          {/* -- Widget-specific options -- */}
+          {/* ── Widget-specific options ── */}
           {widget.type === 'quote' && (
             <>
               <label style={sectionLabel}>Quote Text</label>
@@ -374,7 +374,7 @@ function WidgetConfigSheet() {
             <>
               <label style={sectionLabel}>Time Range</label>
               <div style={{ display: 'flex', gap: 8 }}>
-                {([7, 30, 90] as const).map(d => (
+                {([7, 30, 90] as const).map((d) => (
                   <button key={d} onClick={() => setActDays(d)} style={{
                     flex: 1, padding: '8px 0', borderRadius: 10,
                     background: actDays === d ? color : 'rgba(255,255,255,0.8)',
@@ -393,7 +393,7 @@ function WidgetConfigSheet() {
             <>
               <label style={sectionLabel}>Photo Count</label>
               <div style={{ display: 'flex', gap: 8 }}>
-                {([3, 6, 9] as const).map(n => (
+                {([3, 6, 9] as const).map((n) => (
                   <button key={n} onClick={() => setPhotoCount(n)} style={{
                     flex: 1, padding: '8px 0', borderRadius: 10,
                     background: photoCount === n ? color : 'rgba(255,255,255,0.8)',
@@ -408,7 +408,7 @@ function WidgetConfigSheet() {
             </>
           )}
 
-          {/* -- Apply -- */}
+          {/* ── Apply ── */}
           <button onClick={() => {
             onSave({
               accentColor: color, bgStyle,
@@ -432,9 +432,9 @@ function WidgetConfigSheet() {
   );
 }
 
-// -- Connector-sourced widget shell --------------------------------------------
+// ── Connector-sourced widget shell ────────────────────────────────────────────
 
-function ConnectorSourcedWidget() {
+function ConnectorSourcedWidget(){
   symbol, brandColor, bgColor, name, sub,
   textColor, dimColor, connected, accent, extra, size,
 }: {
@@ -491,7 +491,7 @@ function ConnectorSourcedWidget() {
   );
 }
 
-// -- Widget content (size-aware) ------------------------------------------------
+// ── Widget content (size-aware) ────────────────────────────────────────────────
 
 interface WidgetContentProps {
   type: WidgetType;
@@ -508,7 +508,7 @@ interface WidgetContentProps {
   likes: number;
 }
 
-function WidgetContent(p: WidgetContentProps) {
+function WidgetContent(p: WidgetContentProps ){
   const { type, size, config, displayName, avatarUrl, avatarEditHref, bio, coverUrl, followers, following = 0, posts, likes } = p;
   const accent    = config.accentColor;
   const textColor = getTextColor(config.bgStyle);
@@ -539,7 +539,7 @@ function WidgetContent(p: WidgetContentProps) {
 
   switch (type) {
 
-    // -- Bio ------------------------------------------------------------------
+    // ── Bio ──────────────────────────────────────────────────────────────────
     case 'bio': {
       if (!isLarge) {
         return (
@@ -613,7 +613,7 @@ function WidgetContent(p: WidgetContentProps) {
       );
     }
 
-    // -- Activity -------------------------------------------------------------
+    // ── Activity ─────────────────────────────────────────────────────────────
     case 'activity': {
       if (!isLarge) {
         return (
@@ -641,7 +641,7 @@ function WidgetContent(p: WidgetContentProps) {
       );
     }
 
-    // -- Followers -------------------------------------------------------------
+    // ── Followers ─────────────────────────────────────────────────────────────
     case 'followers': {
       const fmt = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n || 0);
       if (!isLarge) {
@@ -686,7 +686,7 @@ function WidgetContent(p: WidgetContentProps) {
       );
     }
 
-    // -- Photos ----------------------------------------------------------------
+    // ── Photos ────────────────────────────────────────────────────────────────
     case 'photos': {
       const count = isLarge ? 4 : 3;
       const cols  = isLarge ? 2 : 3;
@@ -696,7 +696,7 @@ function WidgetContent(p: WidgetContentProps) {
             Recent Photos
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 5 }}>
-            {Array.from({ length: count }).map(_: Record<string, unknown>, i: number => (
+            {Array.from({ length: count }).map(_: Record<string, unknown>, (i: number ) => (
               <div key={i} style={{ aspectRatio: '1', borderRadius: 10, background: `${accent}14`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: 18, opacity: 0.4 }}>📷</span>
@@ -712,7 +712,7 @@ function WidgetContent(p: WidgetContentProps) {
       );
     }
 
-    // -- LinkedIn --------------------------------------------------------------
+    // ── LinkedIn ──────────────────────────────────────────────────────────────
     case 'linkedin': {
       return (
         <div>
@@ -749,7 +749,7 @@ function WidgetContent(p: WidgetContentProps) {
       );
     }
 
-    // -- Twitter ---------------------------------------------------------------
+    // ── Twitter ───────────────────────────────────────────────────────────────
     case 'twitter': {
       if (!isLarge) {
         return (
@@ -817,7 +817,7 @@ function WidgetContent(p: WidgetContentProps) {
       );
     }
 
-    // -- Quote -----------------------------------------------------------------
+    // ── Quote ─────────────────────────────────────────────────────────────────
     case 'quote': {
       return (
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: isLarge ? 110 : 80 }}>
@@ -829,7 +829,7 @@ function WidgetContent(p: WidgetContentProps) {
       );
     }
 
-    // -- Connector widgets -----------------------------------------------------
+    // ── Connector widgets ─────────────────────────────────────────────────────
 
     case 'instagram': return (
       <ConnectorSourcedWidget size={size}
@@ -900,7 +900,7 @@ function WidgetContent(p: WidgetContentProps) {
   }
 }
 
-// -- Main component -------------------------------------------------------------
+// ── Main component ─────────────────────────────────────────────────────────────
 
 interface ProfileWidgetGridProps {
   displayName: string;
@@ -918,7 +918,7 @@ interface ProfileWidgetGridProps {
   onSave?: (widgets: Widget[]) => void;
 }
 
-export default function ProfileWidgetGrid() {
+export default function ProfileWidgetGrid(){
   displayName, handle: _handle, avatarUrl, avatarEditHref, bio, coverUrl,
   followers = 0, following = 0, posts = 12, likes = 46,
   isEditing = false,
@@ -944,7 +944,7 @@ export default function ProfileWidgetGrid() {
   };
 
   const addWidget = (type: WidgetType) => {
-    if (widgets.some(w => w.type === type)) return;
+    if (widgets.some((w) => w.type === type)) return;
     const next = [...widgets, {
       id: `${type}-${Date.now()}`,
       type,
@@ -956,21 +956,21 @@ export default function ProfileWidgetGrid() {
   };
 
   const removeWidget = (id: string) => {
-    const next = widgets.filter(w => w.id !== id);
+    const next = widgets.filter((w) => w.id !== id);
     setWidgets(next);
     onSave?.(next);
   };
 
   /** Save config, size, and visibility from the config sheet */
   const saveWidget = (widgetId: string, cfg: WidgetConfig, size: WidgetSize, vis: Widget['visibility']) => {
-    const next = widgets.map(w => w.id === widgetId ? { ...w, config: cfg, size, visibility: vis } : w);
+    const next = widgets.map((w) => w.id === widgetId ? { ...w, config: cfg, size, visibility: vis } : w);
     setWidgets(next);
     onSave?.(next);
   };
 
   /** Quick toggle between small and large directly on the card */
   const toggleSize = (widgetId: string) => {
-    const next = widgets.map(w => {
+    const next = widgets.map((w) => {
       if (w.id !== widgetId) return w;
       const current = w.size ?? getDefaultSize(w.type);
       return { ...w, size: (current === 'small' ? 'large' : 'small') as WidgetSize };
@@ -1024,7 +1024,7 @@ export default function ProfileWidgetGrid() {
   return (
     <div style={{ paddingBottom: isEditing ? 96 : 0 }}>
 
-      {/* -- Profile Strength bar (edit mode only) -- */}
+      {/* ── Profile Strength bar (edit mode only) ── */}
       {isEditing && (
         <div style={{
           marginBottom: 16, padding: '14px 16px',
@@ -1051,9 +1051,9 @@ export default function ProfileWidgetGrid() {
         </div>
       )}
 
-      {/* -- Unified 2-col widget grid -- */}
+      {/* ── Unified 2-col widget grid ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
-        {widgets.map(w: Record<string, unknown>, idx: number => (
+        {widgets.map(w: Record<string, unknown>, (idx: number ) => (
           <div
             key={w.id}
             style={cardStyle(w, idx)}
@@ -1138,7 +1138,7 @@ export default function ProfileWidgetGrid() {
         ))}
       </div>
 
-      {/* -- ∞ gold button -- */}
+      {/* ── ∞ gold button ── */}
       <div style={{ textAlign: 'center', marginTop: 28 }}>
         <div style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
@@ -1151,7 +1151,7 @@ export default function ProfileWidgetGrid() {
         </div>
       </div>
 
-      {/* -- Fixed bottom widget chip strip (edit mode only) -- */}
+      {/* ── Fixed bottom widget chip strip (edit mode only) ── */}
       {isEditing && (
         <div style={{
           position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 90,
@@ -1170,8 +1170,8 @@ export default function ProfileWidgetGrid() {
             padding: '0 14px 10px',
             scrollbarWidth: 'none',
           } as React.CSSProperties}>
-            {WIDGET_TRAY.map({ type, label: string, icon } => {
-              const active = widgets.some(w => w.type === type);
+            {WIDGET_TRAY.map(({ type, label: string, icon }) => {
+              const active = widgets.some((w) => w.type === type);
               return (
                 <button
                   key={type}
@@ -1228,7 +1228,7 @@ export default function ProfileWidgetGrid() {
       {/* Connector widget picker */}
       {isEditing && showConnectorPicker && (
         <ConnectorWidgetPicker
-          activeWidgetTypes={widgets.map(w => w.type)}
+          activeWidgetTypes={widgets.map((w) => w.type)}
           onAdd={handleConnectorAdd}
           onClose={() => setShowConnectorPicker(false)}
         />

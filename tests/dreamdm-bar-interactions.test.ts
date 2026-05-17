@@ -105,7 +105,7 @@ describe('bar snap helpers', () => {
   });
 });
 
-// -- Split-screen divider snap helpers -----------------------------------------
+// ── Split-screen divider snap helpers ─────────────────────────────────────────
 
 describe('snapToSplitPoint', () => {
   it('snaps 0.9 ratio to the Surface-focus point', () => {
@@ -190,7 +190,7 @@ describe('split-screen divider constants', () => {
   });
 });
 
-// -- Minimized orb drag helpers ----------------------------------------------
+// ── Minimized orb drag helpers ──────────────────────────────────────────────
 
 describe('minimized orb constants', () => {
   it('exports a positive ORB_SIZE', () => {
@@ -255,7 +255,7 @@ describe('computeOrbDragPosition', () => {
   });
 });
 
-// -- Glowing light position cycle --------------------------------------------
+// ── Glowing light position cycle ────────────────────────────────────────────
 
 import { cycleLightPosition, DRAG_TAP_THRESHOLD_PX, DOUBLE_TAP_WINDOW_MS, type LightPosition } from '@/lib/dreamdm/barInteractions';
 

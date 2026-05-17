@@ -31,7 +31,7 @@ interface FeedCardProps {
   userId?: string;
 }
 
-export default memo(function FeedCard({ item, userId }: FeedCardProps {
+export default memo(function FeedCard({ item, userId }: FeedCardProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [likes, setLikes] = useState(item.likes_count || 0);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
@@ -64,8 +64,8 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
     if (isDemo || !userId) return;
     
     fetch(`/api/likes?content_type=post&content_id=${item.id}`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setIsLiked(data.has_liked || false);
         setLikes(data.like_count || 0);
       })
@@ -101,7 +101,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
     
     if (isDemo) {
       setIsLiked(!isLiked);
-      setLikes(prev => isLiked ? prev - 1 : prev + 1);
+      setLikes((prev) => isLiked ? prev - 1 : prev + 1);
       return;
     }
     
@@ -109,14 +109,14 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
     const wasLiked = isLiked;
     
     setIsLiked(!wasLiked);
-    setLikes(prev => wasLiked ? prev - 1 : prev + 1);
+    setLikes((prev) => wasLiked ? prev - 1 : prev + 1);
     
     try {
       if (wasLiked) {
         const res = await fetch(`/api/likes?content_type=post&content_id=${item.id}`, { method: 'DELETE' });
         const data = await res.json();
         if (res.ok) setLikes(data.like_count);
-        else { setIsLiked(wasLiked); setLikes(prev => prev + 1); }
+        else { setIsLiked(wasLiked); setLikes((prev) => prev + 1); }
       } else {
         const res = await fetch('/api/likes', {
           method: 'POST',
@@ -125,11 +125,11 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
         });
         const data = await res.json();
         if (res.ok) setLikes(data.like_count);
-        else { setIsLiked(wasLiked); setLikes(prev => prev - 1); }
+        else { setIsLiked(wasLiked); setLikes((prev) => prev - 1); }
       }
     } catch {
       setIsLiked(wasLiked);
-      setLikes(prev => wasLiked ? prev + 1 : prev - 1);
+      setLikes((prev) => wasLiked ? prev + 1 : prev - 1);
     } finally {
       setIsLikeLoading(false);
     }
@@ -201,7 +201,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
           data-source={source}
           style={{ position: 'relative' }}
         >
-          {/* -- Source accent left bar -- */}
+          {/* ── Source accent left bar ── */}
           <div style={{
             position: 'absolute',
             left: 0, top: 0, bottom: 0,
@@ -211,7 +211,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
           }} />
 
           <div style={{ padding: '14px 16px 14px 20px' }}>
-            {/* -- Author row -- */}
+            {/* ── Author row ── */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
               {/* Avatar with gradient ring */}
               <span className="avatar-ring" style={{ flexShrink: 0 }}>
@@ -269,7 +269,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
                 </span>
                 <button
                   type="button"
-                  onClick={() => setShowMenu(v => !v)}
+                  onClick={() => setShowMenu((v) => !v)}
                   style={{
                     width: 28, height: 28, borderRadius: 8,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -302,7 +302,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
                       { icon: <Bookmark size={13} />, label: isSaved ? 'Saved ✓' : 'Save post', action: handleSave },
                       { icon: copyDone ? <Link2 size={13} /> : <Share2 size={13} />, label: copyDone ? 'Link copied!' : 'Share / Copy link', action: handleShare },
                       { icon: <Flag size={13} />, label: 'Report post', action: handleReport, danger: true },
-                    ].map({ icon, label: string, action: Record<string, unknown>, danger } => (
+                    ].map(({ icon, label: string, action: Record<string, unknown>, danger }) => (
                       <button
                         key={label}
                         type="button"
@@ -326,7 +326,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
               </div>
             </div>
 
-            {/* -- Title -- */}
+            {/* ── Title ── */}
             {displayTitle && (
               <h3 style={{
                 fontSize: 15, fontWeight: 800, color: 'var(--de-heading)',
@@ -337,7 +337,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
               </h3>
             )}
 
-            {/* -- Content -- */}
+            {/* ── Content ── */}
             {displayContent && (
               <p style={{
                 fontSize: 13, color: 'var(--de-text-dim)',
@@ -351,7 +351,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
               </p>
             )}
 
-            {/* -- Media -- */}
+            {/* ── Media ── */}
             {(() => {
               const thumbnail =
                 (item.media_json && typeof item.media_json === 'object' && !Array.isArray(item.media_json) &&
@@ -403,7 +403,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
               return null;
             })()}
 
-            {/* -- Actions -- */}
+            {/* ── Actions ── */}
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               paddingTop: 10, borderTop: '1px solid rgba(160,195,240,0.15)',
@@ -422,7 +422,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
               <button
                 type="button"
                 className="feed-action-btn"
-                onClick={() => setShowComments(v => !v)}
+                onClick={() => setShowComments((v) => !v)}
                 aria-label={showComments ? 'Hide comments' : 'Comment'}
                 aria-expanded={showComments}
                 style={{ color: showComments ? 'var(--de-accent)' : undefined }}
@@ -467,4 +467,3 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
     </UniverseCard>
   );
 })
-

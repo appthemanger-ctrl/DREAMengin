@@ -12,13 +12,13 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, it, expect, vi } from 'vitest';
 
-// -- Mock localStorage --------------------------------------------------------
+// ── Mock localStorage ────────────────────────────────────────────────────────
 const localStorageStore: Record<string, string> = {};
 const localStorageMock = {
   getItem: (key: string) => localStorageStore[key] ?? null,
   setItem: (key: string, value: string) => { localStorageStore[key] = value; },
   removeItem: (key: string) => { delete localStorageStore[key]; },
-  clear: () => { Object.keys(localStorageStore).forEach(k => delete localStorageStore[k]); },
+  clear: () => { Object.keys(localStorageStore).forEach((k) => delete localStorageStore[k]); },
 };
 vi.stubGlobal('localStorage', localStorageMock);
 vi.stubGlobal('window', { localStorage: localStorageMock });
@@ -28,7 +28,7 @@ import {
   CREATIVE_ENGINES,
 } from '@/lib/forge/forgeRegistry';
 
-// -- Source file reads for structural assertions -----------------------------
+// ── Source file reads for structural assertions ─────────────────────────────
 
 const commandPaletteSrc = readFileSync(
   resolve(__dirname, '../components/dream.CommandPalette.tsx'),
@@ -50,7 +50,7 @@ const workspaceDashboardSrc = readFileSync(
   'utf8',
 );
 
-// -- Tests ---------------------------------------------------------------------
+// ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe('Global Integration — CommandPalette', () => {
   it('root layout imports and mounts CommandPalette', () => {

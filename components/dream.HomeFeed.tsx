@@ -52,7 +52,7 @@ interface HomeFeedProps {
   embedded?: boolean;
 }
 
-export default function HomeFeed() {
+export default function HomeFeed(){
   userId,
   userHandle,
   userAvatar,
@@ -83,7 +83,7 @@ export default function HomeFeed() {
   const [selectedImages, setSelectedImages] = useState<{ file: File; preview: string }[]>([]);
   const [viewportWidth, setViewportWidth] = useState(1280);
   const imageInputRef = useRef<HTMLInputElement>(null);
-  // -- Inline comments state -------------------------------------------------
+  // ── Inline comments state ─────────────────────────────────────────────────
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
   const [commentsMap, setCommentsMap] = useState<Record<string, Comment[]>>({});
   const [commentLoadingSet, setCommentLoadingSet] = useState<Set<string>>(new Set());
@@ -126,20 +126,20 @@ export default function HomeFeed() {
 
   const loadComments = useCallback(async (postId: string) => {
     if (commentsMap[postId]) return; // already loaded
-    setCommentLoadingSet(prev => new Set(prev).add(postId));
+    setCommentLoadingSet((prev) => new Set(prev).add(postId));
     try {
       const res = await fetch(`/api/comments?post_id=${encodeURIComponent(postId)}&limit=20`);
       if (res.ok) {
         const data = await res.json() as { data?: Comment[] };
-        setCommentsMap(prev => ({ ...prev, [postId]: data.data ?? [] }));
+        setCommentsMap((prev) => ({ ...prev, [postId]: data.data ?? [] }));
       }
     } catch { /* silent */ } finally {
-      setCommentLoadingSet(prev => { const s = new Set(prev); s.delete(postId); return s; });
+      setCommentLoadingSet((prev) => { const s = new Set(prev); s.delete(postId); return s; });
     }
   }, [commentsMap]);
 
   const toggleComments = useCallback(async (postId: string) => {
-    setExpandedComments(prev => {
+    setExpandedComments((prev) => {
       const next = new Set(prev);
       if (next.has(postId)) {
         next.delete(postId);
@@ -185,7 +185,7 @@ export default function HomeFeed() {
     if (activeTab === 'trending')  params.set('sort', 'trending');
     if (activeTab === 'following') params.set('feed', 'following');
     fetch(`/api/posts?${params.toString()}`)
-      .then(r: number => r.json())
+      .then((r: number ) => r.json())
       .then((data: { posts?: FeedPost[] }) => { if (data.posts) replacePosts(data.posts); })
       .catch(() => {})
       .finally(() => setTabLoading(false));
@@ -208,13 +208,13 @@ export default function HomeFeed() {
     for (const file of files) {
       if (file.size > maxSize) continue;
       if (!file.type.startsWith('image/')) continue;
-      setSelectedImages(prev: Record<string, unknown> => [...prev, { file, preview: URL.createObjectURL(file) }]);
+      setSelectedImages((prev: Record<string, unknown>) => [...prev, { file, preview: URL.createObjectURL(file) }]);
     }
     if (e.target) e.target.value = '';
   }, []);
 
   const removeImage = useCallback((idx: number) => {
-    setSelectedImages(prev: Record<string, unknown> => {
+    setSelectedImages((prev: Record<string, unknown>) => {
       const next = [...prev];
       URL.revokeObjectURL(next[idx].preview);
       next.splice(idx, 1);
@@ -275,7 +275,7 @@ export default function HomeFeed() {
       };
       prependPost(createdPost);
       setNewPostContent('');
-      setSelectedImages(prev: Record<string, unknown> => { prev.forEach((img: Record<string, unknown>) => URL.revokeObjectURL(img.preview)); return []; });
+      setSelectedImages((prev: Record<string, unknown>) => { prev.forEach((img: Record<string, unknown>) => URL.revokeObjectURL(img.preview)); return []; });
       setShowComposer(false);
     } catch (err) {
       setPostError(err instanceof Error ? err.message : 'Unable to create your post right now.');
@@ -286,7 +286,7 @@ export default function HomeFeed() {
 
   const toggleLike = async (postId: string) => {
     const alreadyLiked = likedPosts.has(postId);
-    setLikedPosts(prev => { const n = new Set(prev); if (alreadyLiked) n.delete(postId); else n.add(postId); return n; });
+    setLikedPosts((prev) => { const n = new Set(prev); if (alreadyLiked) n.delete(postId); else n.add(postId); return n; });
     const cur = posts.find((p: Record<string, unknown>) => p.id === postId)?.likes_count ?? 0;
     updatePost(postId, { likes_count: Math.max(0, cur + (alreadyLiked ? -1 : 1)) });
     try {
@@ -296,14 +296,14 @@ export default function HomeFeed() {
         await fetch('/api/likes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content_type: 'post', content_id: postId }) });
       }
     } catch {
-      setLikedPosts(prev => { const n = new Set(prev); if (alreadyLiked) n.add(postId); else n.delete(postId); return n; });
+      setLikedPosts((prev) => { const n = new Set(prev); if (alreadyLiked) n.add(postId); else n.delete(postId); return n; });
       updatePost(postId, { likes_count: cur });
     }
   };
 
   const toggleSave = async (postId: string) => {
     const alreadySaved = savedPosts.has(postId);
-    setSavedPosts(prev => { const n = new Set(prev); if (alreadySaved) n.delete(postId); else n.add(postId); return n; });
+    setSavedPosts((prev) => { const n = new Set(prev); if (alreadySaved) n.delete(postId); else n.add(postId); return n; });
     try {
       if (alreadySaved) {
         await fetch(`/api/favorites?target_type=post&target_id=${encodeURIComponent(postId)}`, { method: 'DELETE' });
@@ -311,7 +311,7 @@ export default function HomeFeed() {
         await fetch('/api/favorites', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target_type: 'post', target_id: postId }) });
       }
     } catch {
-      setSavedPosts(prev => { const n = new Set(prev); if (alreadySaved) n.add(postId); else n.delete(postId); return n; });
+      setSavedPosts((prev) => { const n = new Set(prev); if (alreadySaved) n.add(postId); else n.delete(postId); return n; });
     }
   };
 
@@ -325,7 +325,7 @@ export default function HomeFeed() {
 
   const isCompactEmbedded = embedded && isCompactRuntimeViewport(viewportWidth);
 
-  // -- Merge platform posts with YouTube live items ---------------------------
+  // ── Merge platform posts with YouTube live items ───────────────────────────
   // Insert 1 YouTube card after every 3 platform posts; remaining yt items
   // append at the end. YouTube items are stable across renders — only
   // ytPosts reference changes when the sliding window updates.
@@ -347,7 +347,7 @@ export default function HomeFeed() {
   // video sits in the context for swipe navigation.
   const ytIndexMap = useMemo<Map<string, number>>(() => {
     const m = new Map<string, number>();
-    ytPosts.forEach(p: Record<string, unknown>, i: number => m.set(p.id, i));
+    ytPosts.forEach(p: Record<string, unknown>, (i: number ) => m.set(p.id, i));
     return m;
   }, [ytPosts]);
 
@@ -365,7 +365,7 @@ export default function HomeFeed() {
             { id: 'feed'      as const, label: 'For You',   icon: Sparkles },
             { id: 'trending'  as const, label: 'Trending',  icon: TrendingUp },
             { id: 'following' as const, label: 'Following', icon: Users },
-          ].map(tab => (
+          ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -396,7 +396,7 @@ export default function HomeFeed() {
           </div>
         </div>
 
-        {/* -- YouTube feed refresh button ------------------------- */}
+        {/* ── YouTube feed refresh button ───────────────────────── */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8, flexShrink: 0 }}>
           <button
             type="button"
@@ -476,7 +476,7 @@ export default function HomeFeed() {
               {/* Image previews */}
               {selectedImages.length > 0 && (
                 <div className="flex gap-2 flex-wrap">
-                  {selectedImages.map(img: Record<string, unknown>, idx: number => (
+                  {selectedImages.map(img: Record<string, unknown>, (idx: number ) => (
                     <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-border">
                       <Image src={img.preview} alt="Preview" fill unoptimized className="object-cover" />
                       <button type="button" onClick={() => removeImage(idx)} className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5" aria-label="Remove image"><X className="w-3 h-3" /></button>
@@ -489,13 +489,13 @@ export default function HomeFeed() {
               <div className="flex items-center justify-between pt-3 border-t border-border">
                 <div className="flex items-center gap-2">
                   <button type="button" onClick={() => imageInputRef.current?.click()} className="p-2 rounded-lg hover:bg-muted transition-colors" title="Add image"><ImageIcon className="w-5 h-5 text-primary" /></button>
-                  <button onClick={() => setNewPostVisibility(v => v === 'public' ? 'private' : 'public')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-muted transition-colors text-sm text-muted-foreground">
+                  <button onClick={() => setNewPostVisibility((v) => v === 'public' ? 'private' : 'public')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-muted transition-colors text-sm text-muted-foreground">
                     {newPostVisibility === 'public' ? <Globe className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                     {newPostVisibility === 'public' ? 'Public' : 'Private'}
                   </button>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => { setShowComposer(false); setNewPostContent(''); setSelectedImages(prev: Record<string, unknown> => { prev.forEach((img: Record<string, unknown>) => URL.revokeObjectURL(img.preview)); return []; }); }} className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[40px]">Cancel</button>
+                  <button onClick={() => { setShowComposer(false); setNewPostContent(''); setSelectedImages((prev: Record<string, unknown>) => { prev.forEach((img: Record<string, unknown>) => URL.revokeObjectURL(img.preview)); return []; }); }} className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[40px]">Cancel</button>
                   <button onClick={handleCreatePost} disabled={(!newPostContent.trim() && selectedImages.length === 0) || isPosting} className="flex items-center gap-2 px-5 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors min-h-[40px]">
                     {isPosting ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" />Post</>}
                   </button>
@@ -536,7 +536,7 @@ export default function HomeFeed() {
               <button onClick={() => setShowComposer(true)} className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors min-h-[48px]">Create a Post</button>
             </div>
           ) : (
-            displayPosts.map(post: Record<string, unknown>, postIdx: Record<string, unknown> => (
+            displayPosts.map((post: Record<string, unknown>, postIdx: Record<string, unknown>) => (
               <Fragment key={post.id}>
               <article
                 className="bg-card hover:border-primary/20 transition-colors"
@@ -644,7 +644,7 @@ export default function HomeFeed() {
                     </button>
                   </div>
                 )}
-                {/* -- Inline comment thread --------------------------------------- */}
+                {/* ── Inline comment thread ─────────────────────────────────────── */}
                 {expandedComments.has(post.id) && (
                   <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(180,185,200,0.15)' }}>
                     {commentLoadingSet.has(post.id) ? (
@@ -655,7 +655,7 @@ export default function HomeFeed() {
                           {(commentsMap[post.id] ?? []).length === 0 ? (
                             <p className="text-xs text-muted-foreground text-center py-3">No comments yet — be first!</p>
                           ) : (
-                            (commentsMap[post.id] ?? []).map(c => (
+                            (commentsMap[post.id] ?? []).map((c) => (
                               <div key={c.id} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                                 <EditableAvatar
                                   src={c.profile?.avatar_url}

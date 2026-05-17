@@ -9,8 +9,8 @@ import { THEME_PRESETS } from '@/lib/ui/theme-engine';
 import { THEME_PRESETS as GRADIENT_PRESETS, applyTheme, applyVoidTheme, isVoidThemeActive, type DeTheme } from '@/components/dream.ThemeApplicator';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 
-/* -- VOID / OLED Dark Theme Toggle -- */
-function VoidThemeSection() {
+/* ── VOID / OLED Dark Theme Toggle ── */
+function VoidThemeSection( ){
   const [isVoid, setIsVoid] = useState(false);
 
   useEffect(() => {
@@ -97,8 +97,8 @@ function VoidThemeSection() {
   );
 }
 
-/* -- Gradient Preset Picker -- */
-function GradientThemePicker() {
+/* ── Gradient Preset Picker ── */
+function GradientThemePicker( ){
   const [active, setActive] = useState(() => {
     if (typeof window === 'undefined') return 'default';
     try {
@@ -130,7 +130,7 @@ function GradientThemePicker() {
         Sky-blue + gold gradients, everywhere. Pick your vibe.
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-        {Object.entries(GRADIENT_PRESETS).map([id, { label, emoji: Record<string, unknown>, theme }] => {
+        {Object.entries(GRADIENT_PRESETS).map(([id, { label, emoji: Record<string, unknown>, theme }]) => {
           const isActive = active === id;
           return (
             <button
@@ -169,8 +169,8 @@ function GradientThemePicker() {
 }
 
 
-/* -- Slider component (styled with Dream tokens) -- */
-function Slider() {
+/* ── Slider component (styled with Dream tokens) ── */
+function Slider(){
   label,
   value,
   min,
@@ -217,8 +217,8 @@ function Slider() {
   );
 }
 
-/* -- Preset cards -- */
-function PresetCard() {
+/* ── Preset cards ── */
+function PresetCard(){
   preset,
   isActive,
   onSelect,
@@ -271,8 +271,8 @@ function PresetCard() {
   );
 }
 
-/* -- Background Image Section -- */
-function BgImageSection() {
+/* ── Background Image Section ── */
+function BgImageSection( ){
   const [bgImage, setBgImage] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
     const stored = localStorage.getItem('dreamengin:bgImage');
@@ -288,7 +288,7 @@ function BgImageSection() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = ev: Event => {
+    reader.onload = (ev: Event ) => {
       const dataUrl = ev.target?.result as string;
       setBgImage(dataUrl);
       localStorage.setItem('dreamengin:bgImage', dataUrl);
@@ -384,14 +384,14 @@ const BG_STYLES = [
   },
 ];
 
-export default function AppearanceSettingsPage() {
+export default function AppearanceSettingsPage( ){
   const { presetId, overrides, setPreset, setOverrides, resetOverrides } = useTheme();
   const { enterCustomizeMode } = useCustomizeMode();
 
-  // -- DB sync: load appearance settings on mount (Phase 8 §I Point 83) --
+  // ── DB sync: load appearance settings on mount (Phase 8 §I Point 83) ──
   useEffect(() => {
     fetch('/api/settings/appearance')
-      .then(r => r.json())
+      .then((r) => r.json())
       .then((data: { ok: boolean; appearance: { presetId?: string; overrides?: Record<string, number> } | null }) => {
         if (data.ok && data.appearance) {
           if (data.appearance.presetId) setPreset(data.appearance.presetId);
@@ -402,7 +402,7 @@ export default function AppearanceSettingsPage() {
    
   }, []);
 
-  // -- DB sync: save on presetId or overrides change (Phase 8 §I Point 83) --
+  // ── DB sync: save on presetId or overrides change (Phase 8 §I Point 83) ──
   // Debounce to avoid rapid writes during slider drags
   const debounceSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
@@ -446,7 +446,7 @@ export default function AppearanceSettingsPage() {
 
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '20px 16px' }}>
 
-        {/* -- Customize Mode entry points -- */}
+        {/* ── Customize Mode entry points ── */}
         <section style={{ marginBottom: 24 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 4 }}>
             Customize Your Space
@@ -460,7 +460,7 @@ export default function AppearanceSettingsPage() {
               { page: 'profile'    as const, label: 'Profile',    emoji: '👤' },
               { page: 'dreamspace' as const, label: 'DreamSpace', emoji: '✦' },
               { page: 'feed'       as const, label: 'Feed',       emoji: '📡' },
-            ]).map({ page, label: string, emoji } => (
+            ]).map(({ page, label: string, emoji }) => (
               <button
                 key={page}
                 type="button"
@@ -484,10 +484,10 @@ export default function AppearanceSettingsPage() {
           </div>
         </section>
 
-        {/* -- VOID / OLED Dark Mode -- */}
+        {/* ── VOID / OLED Dark Mode ── */}
         <VoidThemeSection />
 
-        {/* -- Gradient Theme — user-editable sky+gold -- */}
+        {/* ── Gradient Theme — user-editable sky+gold ── */}
         <GradientThemePicker />
 
         {/* Theme Presets */}

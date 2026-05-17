@@ -29,7 +29,7 @@ import { InviteFlow } from './dream.InviteFlow';
 import { useSharedDreamSession } from '@/lib/sharedDream/useSharedDreamSession';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 
-// -- Engin slot config --------------------------------------------------------
+// ── Engin slot config ────────────────────────────────────────────────────────
 
 const ENGIN_SLOTS = [
   { key: 'engin:game',       label: 'GameEngin',       icon: '🎮', route: '/app/daydream/games' },
@@ -42,9 +42,9 @@ const ENGIN_SLOTS = [
 
 type EnginKey = (typeof ENGIN_SLOTS)[number]['key'];
 
-// -- Helpers ------------------------------------------------------------------
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
-function timeAgo(iso: string: string) {
+function timeAgo(iso: string): string {
   const ms = Date.now() - new Date(iso).getTime();
   if (ms < 60_000) return 'just now';
   if (ms < 3_600_000) return `${Math.floor(ms / 60_000)}m ago`;
@@ -52,7 +52,7 @@ function timeAgo(iso: string: string) {
   return `${Math.floor(ms / 86_400_000)}d ago`;
 }
 
-function summarizeEnginState(state: Record<string, unknown>: string) {
+function summarizeEnginState(state: Record<string, unknown>): string {
   const parts: string[] = [];
   if (typeof state['selectedGame'] === 'string') parts.push(state['selectedGame']);
   if (typeof state['selectedPlayableGame'] === 'string') parts.push(state['selectedPlayableGame']);
@@ -63,7 +63,7 @@ function summarizeEnginState(state: Record<string, unknown>: string) {
   return parts.length > 0 ? parts.join(' · ') : 'Active';
 }
 
-// -- Inner (inside SharedDreamProvider) ---------------------------------------
+// ── Inner (inside SharedDreamProvider) ───────────────────────────────────────
 
 interface InnerProps {
   savedEnginState: Record<string, Record<string, unknown>>;
@@ -74,7 +74,7 @@ interface InnerProps {
   sessionId: string | null;
 }
 
-function SharedDreamRuntimeInner() {
+function SharedDreamRuntimeInner(){
   savedEnginState,
   members,
   activity,
@@ -92,8 +92,8 @@ function SharedDreamRuntimeInner() {
   // When an Engin publishes via the bridge, mark it active and log activity
   useEffect(() => {
     const unsubs = ENGIN_SLOTS.map((slot: Record<string, unknown>) =>
-      bridge.subscribe('shared_dream', `${slot.key}:state`, payload: Record<string, unknown> => {
-        setActiveEngins(prev: Record<string, unknown> => {
+      bridge.subscribe(('shared_dream', `${slot.key}:state`, payload: Record<string, unknown>) => {
+        setActiveEngins((prev: Record<string, unknown>) => {
           if (prev.has(slot.key)) return prev;
           const next = new Set(prev);
           next.add(slot.key);
@@ -218,7 +218,7 @@ function SharedDreamRuntimeInner() {
       {/* Activity timeline */}
       {activity.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 120, overflowY: 'auto' }}>
-          {activity.slice(0, 10).map(a: Record<string, unknown> => (
+          {activity.slice(0, 10).map((a: Record<string, unknown>) => (
             <div
               key={a.id}
               style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 10, color: 'rgba(255,255,255,0.35)' }}
@@ -255,7 +255,7 @@ function SharedDreamRuntimeInner() {
   );
 }
 
-// -- Public export -------------------------------------------------------------
+// ── Public export ─────────────────────────────────────────────────────────────
 
 export interface SharedDreamRuntimeProps {
   /** UUID of an existing shared_dream_sessions row. Omit to create a new session. */
@@ -264,7 +264,7 @@ export interface SharedDreamRuntimeProps {
   onSessionCreated?: (sessionId: string) => void;
 }
 
-export default function SharedDreamRuntime() { sessionId: propSessionId, onSessionCreated }: SharedDreamRuntimeProps {
+export default function SharedDreamRuntime({ sessionId: propSessionId, onSessionCreated }: SharedDreamRuntimeProps) {
   const { channelId, sessionId, isLoading, savedEnginState, members, activity, logActivity } =
     useSharedDreamSession({ sessionId: propSessionId });
 

@@ -15,9 +15,9 @@ import { getAllByKind } from '@/lib/ledger';
 import type { AssetEntry, AssetType } from '@/lib/ledger';
 import DraggableDream from '@/components/dreams/dream.DraggableDream';
 
-// --- Asset icon helpers -------------------------------------------------------
+// ─── Asset icon helpers ───────────────────────────────────────────────────────
 
-function assetIcon(type: AssetType: string) {
+function assetIcon(type: AssetType): string {
   switch (type) {
     case 'audio': return '🎵';
     case 'image': return '🖼️';
@@ -37,20 +37,20 @@ const SUGGESTED_DREAMS = [
   { id: 'dreamspace-game-quick-launch', icon: '🎮', name: 'Game Quick Launch', description: 'Jump straight into your latest GameEngin cartridge.', capabilities: ['game', 'launch'] },
 ];
 
-export default function DreamSpace() { initialAccountId }: DreamSpaceProps {
+export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
   const { accountId } = useAccount(initialAccountId);
   const [artifacts, setArtifacts] = useState<DreamArtifact[]>([]);
   const [showSystemModules, setShowSystemModules] = useState(false);
   const [previewAsset, setPreviewAsset] = useState<AssetEntry | null>(null);
   const [visibleSuggestionIds, setVisibleSuggestionIds] = useState(() => new Set(SUGGESTED_DREAMS.map((dream: Record<string, unknown>) => dream.id)));
 
-  // -- Ledger asset grid -----------------------------------------------------
+  // ── Ledger asset grid ─────────────────────────────────────────────────────
   const os = useOS();
   const [assetTick, setAssetTick] = useState(0);
   useEffect(() => {
     // Re-read ledger whenever a new asset is stored
-    const unsub = os.bus.on('ledger:asset:new', () => setAssetTick(n: number => n + 1));
-    return () => os.bus.off('ledger:asset:new', () => setAssetTick(n: number => n + 1));
+    const unsub = os.bus.on('ledger:asset:new', () => setAssetTick((n: number ) => n + 1));
+    return () => os.bus.off('ledger:asset:new', () => setAssetTick((n: number ) => n + 1));
   }, [os.bus]);
   const ledgerAssets = useMemo(
     () => getAllByKind(os.ledger, 'asset'),
@@ -118,7 +118,7 @@ export default function DreamSpace() { initialAccountId }: DreamSpaceProps {
         boxShadow: '0 18px 40px rgba(0,0,0,0.18)',
       }}
     >
-      {/* -- Shared Asset Ledger Grid ----------------------------------------- */}
+      {/* ── Shared Asset Ledger Grid ───────────────────────────────────────── */}
       {ledgerAssets.length > 0 && (
         <div>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 8 }}>
@@ -174,7 +174,7 @@ export default function DreamSpace() { initialAccountId }: DreamSpaceProps {
         </div>
       )}
 
-      {/* -- Asset Preview Modal ---------------------------------------------- */}
+      {/* ── Asset Preview Modal ────────────────────────────────────────────── */}
       {previewAsset && (
         <div
           role="dialog"
@@ -281,7 +281,7 @@ export default function DreamSpace() { initialAccountId }: DreamSpaceProps {
         </div>
         <button
           type="button"
-          onClick={() => setShowSystemModules(value: Record<string, unknown> => !value)}
+          onClick={() => setShowSystemModules((value: Record<string, unknown>) => !value)}
           aria-label="Open system modules"
           style={{
             marginLeft: 'auto',
@@ -341,7 +341,7 @@ export default function DreamSpace() { initialAccountId }: DreamSpaceProps {
               <button
                 type="button"
                 aria-label={`Remove ${dream.name} suggestion`}
-                onClick={() => setVisibleSuggestionIds(current: Record<string, unknown> => {
+                onClick={() => setVisibleSuggestionIds((current: Record<string, unknown>) => {
                   const next = new Set(current);
                   next.delete(dream.id);
                   return next;

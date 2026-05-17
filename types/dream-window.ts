@@ -18,7 +18,7 @@
  * Phase 8 Section B: Point 19 — canonical type authority.
  */
 
-// -- Re-export lifecycle types from the state machine -------------------------
+// ── Re-export lifecycle types from the state machine ─────────────────────────
 // Also import locally so they can be used in this file's interface definitions
 import type {
   DreamWindowInstance,
@@ -40,7 +40,7 @@ export type {
 export { DREAM_WINDOW_STATES } from '@/lib/dream-window/DreamWindowLifecycle';
 export type { DreamWindowState } from '@/lib/dream-window/DreamWindowLifecycle';
 
-// -- Database record shape -----------------------------------------------------
+// ── Database record shape ─────────────────────────────────────────────────────
 
 /**
  * A Dream Window record as stored in (and returned from) the database.
@@ -80,7 +80,7 @@ export interface DreamWindowRecord {
   updated_at: string;
 }
 
-// -- API request/response shapes -----------------------------------------------
+// ── API request/response shapes ───────────────────────────────────────────────
 
 /**
  * Body shape accepted by POST /api/dream-windows.

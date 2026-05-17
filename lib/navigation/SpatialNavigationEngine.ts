@@ -344,6 +344,6 @@ export class SpatialNavigationEngine {
   }
   
   private emit(event: EngineEventType, data: unknown): void {
-    this.listeners.get(event)?.forEach(callback => callback(data));
+    this.listeners.get(event)?.forEach((callback) => callback(data));
   }
 }

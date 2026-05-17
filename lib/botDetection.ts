@@ -12,7 +12,7 @@
 
 import { slog, slogVariance, slogEntropy } from './slog';
 
-// --- Types --------------------------------------------------------------------
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface Point {
   x: number;
@@ -52,10 +52,10 @@ export interface BotSessionResult {
   signals: string[];
 }
 
-// --- Internal helpers --------------------------------------------------------
+// ─── Internal helpers ────────────────────────────────────────────────────────
 
 /** Fit a line y = mx + b through the first and last point. */
-function fitLine(points: Point[]:) { m: number; b: number } {
+function fitLine(points: Point[]): { m: number; b: number } {
   const first = points[0];
   const last  = points[points.length - 1];
   const dx    = last.x - first.x;
@@ -83,7 +83,7 @@ function perpDistance(
 }
 
 /** Cosine similarity between two normalised path vectors. */
-function cosineSimilarity(a: number[], b: number[]: number) {
+function cosineSimilarity(a: number[], b: number[]): number {
   const len = Math.min(a.length, b.length);
   if (len === 0) return 0;
   let dot = 0, na = 0, nb = 0;
@@ -97,7 +97,7 @@ function cosineSimilarity(a: number[], b: number[]: number) {
 }
 
 /** Resample a path to N evenly-spaced deviation values. */
-function normalisePath(deviations: number[], n = 20: number[]) {
+function normalisePath(deviations: number[], n = 20): number[] {
   if (deviations.length === 0) return new Array(n).fill(0);
   const result: number[] = [];
   for (let i = 0; i < n; i++) {
@@ -107,29 +107,29 @@ function normalisePath(deviations: number[], n = 20: number[]) {
   return result;
 }
 
-// --- In-memory swipe history for cross-similarity ----------------------------
+// ─── In-memory swipe history for cross-similarity ────────────────────────────
 
 const MAX_HISTORY = 5;
 const swipeHistory: number[][] = [];
 
-function updateHistory(normPath: number[]) {
+function updateHistory(normPath: number[] ){
   swipeHistory.push(normPath);
   if (swipeHistory.length > MAX_HISTORY) swipeHistory.shift();
 }
 
-// --- Perfect-line trap state --------------------------------------------------
+// ─── Perfect-line trap state ──────────────────────────────────────────────────
 
 let perfectLineStreak = 0;
 let frozenUntil       = 0; // timestamp (Date.now())
 
-// --- analyzeSwipe ------------------------------------------------------------
+// ─── analyzeSwipe ────────────────────────────────────────────────────────────
 
 /**
  * analyzeSwipe(points)
  *
  * Analyses a single swipe gesture for bot-like characteristics.
  */
-export function analyzeSwipe(points: Point[]: SwipeAnalysis) {
+export function analyzeSwipe(points: Point[]): SwipeAnalysis {
   if (points.length < 3) {
     return {
       meanDeviation: 0,
@@ -147,22 +147,22 @@ export function analyzeSwipe(points: Point[]: SwipeAnalysis) {
   const vertical = m === Infinity;
   const lineX    = b; // reused as lineX when vertical
 
-  // -- Perpendicular deviations --
+  // ── Perpendicular deviations ──
   const deviations = points.map((p: Record<string, unknown>) => perpDistance(p, m, b, vertical, lineX));
-  const meanDev    = deviations.reduce(a: Record<string, unknown>, c: Record<string, unknown> => a + c, 0) / deviations.length;
+  const meanDev    = deviations.reduce((a: Record<string, unknown>, c: Record<string, unknown>) => a + c, 0) / deviations.length;
 
-  // -- Coarse-graining invariance --
+  // ── Coarse-graining invariance ──
   const half   = Math.floor(deviations.length / 2);
   const first  = deviations.slice(0, half);
   const second = deviations.slice(half);
-  const meanFirst  = first.reduce(a: Record<string, unknown>, c: Record<string, unknown> => a + c, 0) / (first.length || 1);
-  const meanSecond = second.reduce(a: Record<string, unknown>, c: Record<string, unknown> => a + c, 0) / (second.length || 1);
+  const meanFirst  = first.reduce((a: Record<string, unknown>, c: Record<string, unknown>) => a + c, 0) / (first.length || 1);
+  const meanSecond = second.reduce((a: Record<string, unknown>, c: Record<string, unknown>) => a + c, 0) / (second.length || 1);
   const coarseGrainDiff = Math.abs(meanFirst - meanSecond);
 
-  // -- Entropy --
+  // ── Entropy ──
   const entropy = slogEntropy(deviations);
 
-  // -- Velocity + Jerk (slog-transformed) --
+  // ── Velocity + Jerk (slog-transformed) ──
   const velocities: number[] = [];
   for (let i = 1; i < points.length; i++) {
     const dt = points[i].t - points[i - 1].t;
@@ -178,18 +178,18 @@ export function analyzeSwipe(points: Point[]: SwipeAnalysis) {
     const dt = points[i + 1] ? points[i + 1].t - points[i].t : 1;
     jerks.push(Math.abs(velocities[i] - velocities[i - 1]) / (dt || 1));
   }
-  const slogJerk = jerks.length > 0 ? slog(jerks.reduce(a: Record<string, unknown>, c: Record<string, unknown> => a + c, 0) / jerks.length) : 0;
+  const slogJerk = jerks.length > 0 ? slog(jerks.reduce((a: Record<string, unknown>, c: Record<string, unknown>) => a + c, 0) / jerks.length) : 0;
 
-  // -- Cross-path similarity --
+  // ── Cross-path similarity ──
   const normPath   = normalisePath(deviations);
   let crossSim     = 0;
   if (swipeHistory.length > 0) {
     const sims = swipeHistory.map((h: Record<string, unknown>) => cosineSimilarity(normPath, h));
-    crossSim = sims.reduce(a: Record<string, unknown>, c: Record<string, unknown> => a + c, 0) / sims.length;
+    crossSim = sims.reduce((a: Record<string, unknown>, c: Record<string, unknown>) => a + c, 0) / sims.length;
   }
   updateHistory(normPath);
 
-  // -- Perfect-line trap --
+  // ── Perfect-line trap ──
   const now = Date.now();
   if (now < frozenUntil) {
     return {
@@ -224,7 +224,7 @@ export function analyzeSwipe(points: Point[]: SwipeAnalysis) {
     perfectLineStreak = 0;
   }
 
-  // -- Decision --
+  // ── Decision ──
   const signals: string[] = [];
   let botScore = 0;
 
@@ -250,7 +250,7 @@ export function analyzeSwipe(points: Point[]: SwipeAnalysis) {
   };
 }
 
-// --- tallyView ---------------------------------------------------------------
+// ─── tallyView ───────────────────────────────────────────────────────────────
 
 /**
  * tallyView(durationMs)
@@ -259,14 +259,14 @@ export function analyzeSwipe(points: Point[]: SwipeAnalysis) {
  * 4 000 ms minimum — timer should be cancelled by the caller if user
  * navigates away before calling tallyView.
  */
-export function tallyView(durationMs: number: ViewTally) {
+export function tallyView(durationMs: number): ViewTally {
   return {
     durationMs,
     counted: durationMs >= 4000,
   };
 }
 
-// --- isBotSession ------------------------------------------------------------
+// ─── isBotSession ────────────────────────────────────────────────────────────
 
 export interface SwipeRecord {
   analysis: SwipeAnalysis;
@@ -279,7 +279,7 @@ export interface SwipeRecord {
  * Aggregates a session's swipe + view history to produce a final
  * bot-probability estimate.
  */
-export function isBotSession(history: SwipeRecord[]: BotSessionResult) {
+export function isBotSession(history: SwipeRecord[]): BotSessionResult {
   if (history.length === 0) {
     return { isBot: false, confidence: 0, signals: ['No history.'] };
   }
@@ -292,11 +292,11 @@ export function isBotSession(history: SwipeRecord[]: BotSessionResult) {
   if (botSwipeRatio > 0.6) signals.push(`${Math.round(botSwipeRatio * 100)}% bot swipes`);
 
   const avgDeviation =
-    history.reduce(a: Record<string, unknown>, r: number => a + r.analysis.meanDeviation, 0) / history.length;
+    history.reduce(a: Record<string, unknown>, (r: number ) => a + r.analysis.meanDeviation, 0) / history.length;
   if (avgDeviation < 0.8) signals.push(`avg deviation ${avgDeviation.toFixed(2)} < 0.8`);
 
   const avgCrossSim =
-    history.reduce(a: Record<string, unknown>, r: number => a + r.analysis.crossSimilarity, 0) / history.length;
+    history.reduce(a: Record<string, unknown>, (r: number ) => a + r.analysis.crossSimilarity, 0) / history.length;
   if (avgCrossSim > 0.95) signals.push(`avg crossSim ${avgCrossSim.toFixed(2)} > 0.95`);
 
   const viewedRecords = history.filter((r: Record<string, unknown>) => r.viewTally !== undefined);

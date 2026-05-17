@@ -15,7 +15,7 @@ import {
   parseCodeResponse,
 } from '@/lib/code/drEamsCodeAssist';
 
-// --- Simulation result helpers ------------------------------------------------
+// ─── Simulation result helpers ────────────────────────────────────────────────
 
 /** Mirrors the SIMS constant used in LabEngin and the Lab Dream split IDE. */
 const LAB_SIMS = [
@@ -28,7 +28,7 @@ const LAB_SIMS = [
 type SimId = (typeof LAB_SIMS)[number]['id'];
 
 function getSimResult(id: SimId): string {
-  return LAB_SIMS.find(s => s.id === id)?.result ?? '';
+  return LAB_SIMS.find((s) => s.id === id)?.result ?? '';
 }
 
 describe('LAB_SIMS', () => {
@@ -62,7 +62,7 @@ describe('LAB_SIMS', () => {
   });
 });
 
-// --- Mock script execution (deterministic) ------------------------------------
+// ─── Mock script execution (deterministic) ────────────────────────────────────
 
 /** Mirrors getLabMockOutput used in the Lab Dream split IDE. */
 function getLabMockOutput(language: 'python' | 'javascript' | 'bash', script: string): string {
@@ -128,7 +128,7 @@ describe('getLabMockOutput', () => {
   });
 });
 
-// --- Visualization types ------------------------------------------------------
+// ─── Visualization types ──────────────────────────────────────────────────────
 
 /** Mirrors VIZ_TYPES used in LabEngin's visualization tab. */
 const VIZ_TYPES = [
@@ -151,14 +151,14 @@ describe('VIZ_TYPES', () => {
   });
 
   it('includes heatmap, density, and activation', () => {
-    const ids = VIZ_TYPES.map(v => v.id);
+    const ids = VIZ_TYPES.map((v) => v.id);
     expect(ids).toContain('heatmap');
     expect(ids).toContain('density');
     expect(ids).toContain('activation');
   });
 });
 
-// --- ASCII heatmap rendering --------------------------------------------------
+// ─── ASCII heatmap rendering ──────────────────────────────────────────────────
 
 /** Mirrors the ASCII heatmap generator used in LabEngin's viz panel. */
 function renderAsciiHeatmap(rows: number, cols: number, seed = 42): string {
@@ -206,7 +206,7 @@ describe('renderAsciiHeatmap', () => {
   });
 });
 
-// --- Lab language detection ---------------------------------------------------
+// ─── Lab language detection ───────────────────────────────────────────────────
 
 describe('detectLanguageFromCode (lab context)', () => {
   it('detects Python data science code', () => {
@@ -220,7 +220,7 @@ describe('detectLanguageFromCode (lab context)', () => {
   });
 });
 
-// --- Lab NL command detection -------------------------------------------------
+// ─── Lab NL command detection ─────────────────────────────────────────────────
 
 describe('detectNLCommand (lab context)', () => {
   it('detects create class for experiment runner', () => {
@@ -241,7 +241,7 @@ describe('detectNLCommand (lab context)', () => {
   });
 });
 
-// --- Code generation for lab context -----------------------------------------
+// ─── Code generation for lab context ─────────────────────────────────────────
 
 describe('generateCodeFromCommand (lab context)', () => {
   it('generates Python Experiment class', () => {
@@ -258,7 +258,7 @@ describe('generateCodeFromCommand (lab context)', () => {
   });
 });
 
-// --- parseCodeResponse (lab IDE context) -------------------------------------
+// ─── parseCodeResponse (lab IDE context) ─────────────────────────────────────
 
 describe('parseCodeResponse (lab IDE)', () => {
   it('extracts Python code blocks from a Dr. Eams data science answer', () => {

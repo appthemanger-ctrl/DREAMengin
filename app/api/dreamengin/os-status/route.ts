@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 
-export async function GET() {
+export async function GET( ){
   let isFix = false;
   let connectedConnectors = 0;
   let authenticated = false;

@@ -33,7 +33,7 @@ type AnyClient = SupabaseClient;
 // ---------------------------------------------------------------------------
 // GET — list scheduled posts
 // ---------------------------------------------------------------------------
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
 // ---------------------------------------------------------------------------
 // POST — create a scheduled post
 // ---------------------------------------------------------------------------
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
 // ---------------------------------------------------------------------------
 // PUT — update an existing scheduled post
 // ---------------------------------------------------------------------------
-export async function PUT(req: NextRequest) {
+export async function PUT(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -123,7 +123,7 @@ export async function PUT(req: NextRequest) {
 // ---------------------------------------------------------------------------
 // DELETE — remove a scheduled post
 // ---------------------------------------------------------------------------
-export async function DELETE(req: NextRequest) {
+export async function DELETE(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

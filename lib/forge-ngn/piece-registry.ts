@@ -39,9 +39,9 @@ export interface PieceManifest {
   role: 'source' | 'processor' | 'output';
 }
 
-// -- Helpers -------------------------------------------------------------------
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-function p(id: string, label: string, type: PortType: Port) {
+function p(id: string, label: string, type: PortType): Port {
   return { id, label, type };
 }
 
@@ -57,7 +57,7 @@ function piece(
   return { id, label, category, description, role, inputPorts, outputPorts };
 }
 
-// -- Audio Pieces --------------------------------------------------------------
+// ── Audio Pieces ──────────────────────────────────────────────────────────────
 
 const AUDIO_PIECES: PieceManifest[] = [
   piece('audio.mic-input', 'Mic Input', 'Audio', 'Live microphone capture', 'source',
@@ -102,7 +102,7 @@ const AUDIO_PIECES: PieceManifest[] = [
     [p('map', 'Peak Map', 'data'), p('start', 'Start', 'data'), p('end', 'End', 'data')], [p('fp', 'Fingerprint', 'data')]),
 ];
 
-// -- Visual Pieces -------------------------------------------------------------
+// ── Visual Pieces ─────────────────────────────────────────────────────────────
 
 const VISUAL_PIECES: PieceManifest[] = [
   piece('visual.camera', 'Camera Input', 'Visual', 'Device camera capture', 'source',
@@ -137,7 +137,7 @@ const VISUAL_PIECES: PieceManifest[] = [
     [p('a', 'Video A', 'video'), p('b', 'Video B', 'video'), p('t', 'Time', 'data')], [p('out', 'Video', 'video')]),
 ];
 
-// -- AI Pieces -----------------------------------------------------------------
+// ── AI Pieces ─────────────────────────────────────────────────────────────────
 
 const AI_PIECES: PieceManifest[] = [
   piece('ai.chat', 'AI Chat', 'AI', 'Conversational AI panel', 'processor',
@@ -166,7 +166,7 @@ const AI_PIECES: PieceManifest[] = [
     [p('swipes', 'Swipe Data', 'data')], [p('score', 'Bot Score', 'data'), p('blocked', 'Blocked', 'event')]),
 ];
 
-// -- Game Pieces ---------------------------------------------------------------
+// ── Game Pieces ───────────────────────────────────────────────────────────────
 
 const GAME_PIECES: PieceManifest[] = [
   piece('game.loop', 'Game Loop', 'Game', 'Fixed-timestep game update loop', 'source',
@@ -199,7 +199,7 @@ const GAME_PIECES: PieceManifest[] = [
     [p('state', 'State', 'data')], [p('loaded', 'Loaded State', 'data')]),
 ];
 
-// -- Social Pieces -------------------------------------------------------------
+// ── Social Pieces ─────────────────────────────────────────────────────────────
 
 const SOCIAL_PIECES: PieceManifest[] = [
   piece('social.feed', 'Dream Feed', 'Social', 'Scrollable content feed with torridity ranking', 'source',
@@ -228,7 +228,7 @@ const SOCIAL_PIECES: PieceManifest[] = [
     [p('assembly', 'Assembly', 'data')], [p('listing', 'Listing', 'data')]),
 ];
 
-// -- Utility Pieces ------------------------------------------------------------
+// ── Utility Pieces ────────────────────────────────────────────────────────────
 
 const UTILITY_PIECES: PieceManifest[] = [
   piece('util.timer', 'Timer', 'Utility', 'Interval / one-shot timer', 'source',
@@ -269,7 +269,7 @@ const UTILITY_PIECES: PieceManifest[] = [
     [p('views', 'Views', 'data'), p('mass', 'Mass', 'data')], [p('rank', 'Rank', 'data')]),
 ];
 
-// -- Runtime Pieces ------------------------------------------------------------
+// ── Runtime Pieces ────────────────────────────────────────────────────────────
 
 const RUNTIME_PIECES: PieceManifest[] = [
   piece('runtime.dual-hub', 'Dual Runtime Hub', 'Runtime',
@@ -293,7 +293,7 @@ const RUNTIME_PIECES: PieceManifest[] = [
     [], [p('bus', 'Bus', 'data')]),
 ];
 
-// -- Full Registry -------------------------------------------------------------
+// ── Full Registry ─────────────────────────────────────────────────────────────
 
 export const PIECE_REGISTRY: PieceManifest[] = [
   ...AUDIO_PIECES,
@@ -306,12 +306,12 @@ export const PIECE_REGISTRY: PieceManifest[] = [
 ];
 
 /** Look up a piece by id */
-export function getPiece(id: string: PieceManifest | undefined) {
+export function getPiece(id: string): PieceManifest | undefined {
   return PIECE_REGISTRY.find((p: Record<string, unknown>) => p.id === id);
 }
 
 /** All pieces in a given category */
-export function getPiecesByCategory(category: PieceCategory: PieceManifest[]) {
+export function getPiecesByCategory(category: PieceCategory): PieceManifest[] {
   return PIECE_REGISTRY.filter((p: Record<string, unknown>) => p.category === category);
 }
 

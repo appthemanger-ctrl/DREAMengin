@@ -36,7 +36,7 @@ export interface ReconcileResult {
   error?: string;
 }
 
-function isConnectorAuthError(message: string: boolean) {
+function isConnectorAuthError(message: string): boolean {
   const lower = message.toLowerCase();
   return (
     lower.includes('401') ||
@@ -78,7 +78,7 @@ export async function reconcileConnector(
    
   const anyDb = db as SupabaseClient;
 
-  // -- 1. Dispatch ------------------------------------------------------------
+  // ── 1. Dispatch ────────────────────────────────────────────────────────────
 
   let items;
   try {
@@ -98,11 +98,11 @@ export async function reconcileConnector(
     return { ok: false, provider, userId, fetched: 0, stored: 0, last_synced_at: now, error: msg };
   }
 
-  // -- 2. Dedup ---------------------------------------------------------------
+  // ── 2. Dedup ───────────────────────────────────────────────────────────────
 
   const deduped = deduplicateFeedItems(items);
 
-  // -- 3. Upsert feed_items --------------------------------------------------
+  // ── 3. Upsert feed_items ──────────────────────────────────────────────────
 
   let stored = 0;
   if (deduped.length > 0) {
@@ -132,7 +132,7 @@ export async function reconcileConnector(
     stored = count ?? deduped.length;
   }
 
-  // -- 4. Update connector_accounts metadata ---------------------------------
+  // ── 4. Update connector_accounts metadata ─────────────────────────────────
 
   await anyDb
     .from('connector_accounts')

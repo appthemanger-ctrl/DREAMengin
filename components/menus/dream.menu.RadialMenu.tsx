@@ -23,7 +23,7 @@ const ICONS: Record<string, string> = {
   'view-all-dreams': '⬡', 'edit-layout': '⊞',
 };
 
-export default function RadialMenu() { open, anchor: Record<string, unknown>, items: Record<string, unknown>, onClose: Record<string, unknown>, variant = 'blue' }: Props {
+export default function RadialMenu({ open, anchor: Record<string, unknown>, items: Record<string, unknown>, onClose: Record<string, unknown>, variant = 'blue' }: Props) {
   const overlayRef = useRef<HTMLDivElement>(null);
 
   // Close on Escape
@@ -91,7 +91,7 @@ export default function RadialMenu() { open, anchor: Record<string, unknown>, it
         </div>
 
         {/* Radial items */}
-        {items.map(item: Record<string, unknown>, index: number => {
+        {items.map(item: Record<string, unknown>, (index: number ) => {
           const angle = ((Math.PI * 2) / Math.max(items.length, 1)) * index - Math.PI / 2;
           const x = Math.cos(angle) * RADIUS;
           const y = Math.sin(angle) * RADIUS;

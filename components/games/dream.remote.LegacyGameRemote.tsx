@@ -30,7 +30,7 @@ import { useGamepad } from '@/lib/games/useGamepad';
 import { buildGameLaunchHref, DEFAULT_GAME_ID } from '@/lib/games/navigation';
 import { broadcastGameInput } from '@/lib/games/useRemoteChannel';
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 export type GameInputAction =
   | 'move-left' | 'move-right' | 'move-up' | 'move-down'
   | 'move-up-left' | 'move-up-right' | 'move-down-left' | 'move-down-right'
@@ -39,14 +39,14 @@ export type GameInputAction =
   | 'jump-spin' | 'jump-shoot' | 'l2' | 'r1' | 'l3' | 'r3'
   | 'pause';
 
-function fireAction(action: GameInputAction, active: boolean) {
+function fireAction(action: GameInputAction, active): boolean {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('de-game-input', { detail: { action, active } }));
   }
   broadcastGameInput(action, active);
 }
 
-// -- Constants -----------------------------------------------------------------
+// ── Constants ─────────────────────────────────────────────────────────────────
 const LEFT_PAD_R    = 52;   // outer pad radius (px)
 const RIGHT_PAD_R   = 70;   // right analog is intentionally larger for readability
 const LEFT_KNOB_R   = 15;   // inner knob radius
@@ -79,10 +79,10 @@ const RIGHT_STICK_RING_BUTTONS = [
   { sym: '△', label: 'Duck', action: 'duck' as GameInputAction, color: '#4ade80', top: 146, left: 72 },
 ] as const;
 
-// -- Direction helpers ---------------------------------------------------------
+// ── Direction helpers ─────────────────────────────────────────────────────────
 type Dir8 = 'right' | 'down-right' | 'down' | 'down-left' | 'left' | 'up-left' | 'up' | 'up-right';
 
-function angleToDir(dx: number, dy: number: Dir8 | null) {
+function angleToDir(dx: number, dy: number): Dir8 | null {
   const dist = Math.hypot(dx, dy);
   if (dist < DEAD) return null;
   const a = Math.atan2(dy, dx) * (180 / Math.PI); // -180..180, right=0, down=90
@@ -97,12 +97,12 @@ function angleToDir(dx: number, dy: number: Dir8 | null) {
   return null;
 }
 
-function clampToCircle(v:) { x: number; y: number }, maxR: number {
+function clampToCircle(v: ){ x: number; y: number }, maxR: number {
   const d = Math.hypot(v.x, v.y);
   return d > maxR ? { x: (v.x / d) * maxR, y: (v.y / d) * maxR } : v;
 }
 
-// -- Mapping tables ------------------------------------------------------------
+// ── Mapping tables ────────────────────────────────────────────────────────────
 const RIGHT_MAP: Record<Dir8, { action: GameInputAction; label: string; sym: string; color: string }> = {
   'up':         { action: 'jump',       label: 'JUMP',       sym: '×',  color: '#38bdf8' },
   'down':       { action: 'duck',       label: 'DUCK',       sym: '△',  color: '#4ade80' },
@@ -125,7 +125,7 @@ const LEFT_MAP: Record<Dir8, { action: GameInputAction; label: string }> = {
   'down-right': { action: 'move-down-right', label: '↘'       },
 };
 
-// -- Single thumbstick ---------------------------------------------------------
+// ── Single thumbstick ─────────────────────────────────────────────────────────
 interface StickProps {
   side: 'left' | 'right';
   accentColor: string;
@@ -137,7 +137,7 @@ interface StickProps {
   clickColor?: string;
 }
 
-function Stick() {
+function Stick(){
   side,
   accentColor,
   label,
@@ -232,7 +232,7 @@ function Stick() {
   const activeInfo = dir ? map[dir] : null;
   const dirLabel   = activeInfo ? activeInfo.label : null;
   const buttonLabel = buttonAction
-    ? (Object.values(RIGHT_MAP).find(info => info.action === buttonAction)?.label ?? buttonAction)
+    ? (Object.values(RIGHT_MAP).find((info) => info.action === buttonAction)?.label ?? buttonAction)
     : null;
   const labelColor = side === 'right' && dir
     ? RIGHT_MAP[dir].color
@@ -281,7 +281,7 @@ function Stick() {
         }}
       >
         {/* Cardinal tick marks — subtle direction indicators for both sticks */}
-        {[0, 90, 180, 270].map(deg: Record<string, unknown>, i: number => {
+        {[0, 90, 180, 270].map(deg: Record<string, unknown>, (i: number ) => {
           const rad = (deg * Math.PI) / 180;
           const r = padRadius - 8;
           const tx = Math.cos(rad) * r + padRadius;
@@ -362,7 +362,7 @@ function Stick() {
   );
 }
 
-// -- GameRemote ----------------------------------------------------------------
+// ── GameRemote ────────────────────────────────────────────────────────────────
 interface GameRemoteProps {
   onBack?: () => void;
   embedded?: boolean;
@@ -375,7 +375,7 @@ interface GameRemoteProps {
   exitHref?: string;
 }
 
-export default function GameRemote() {
+export default function GameRemote(){
   onBack,
   embedded = false,
   playHref,
@@ -552,7 +552,7 @@ export default function GameRemote() {
           padding: `10px ${outerPaddingX}px 0`,
           flexShrink: 0,
         }}>
-          {REMOTE_ACTION_PILLS.map({ sym, label: string, color } => (
+          {REMOTE_ACTION_PILLS.map(({ sym, label: string, color }) => (
             <div key={sym} style={{
               display: 'flex', alignItems: 'center', gap: 4,
               padding: '2px 7px', borderRadius: 999,
@@ -671,7 +671,7 @@ export default function GameRemote() {
               clickColor="#fef08a"
             />
 
-            {RIGHT_STICK_RING_BUTTONS.map({ sym, label: string, action: Record<string, unknown>, color: Record<string, unknown>, top: Record<string, unknown>, left } => (
+            {RIGHT_STICK_RING_BUTTONS.map(({ sym, label: string, action: Record<string, unknown>, color: Record<string, unknown>, top: Record<string, unknown>, left }) => (
               <button
                 key={sym}
                 type="button"

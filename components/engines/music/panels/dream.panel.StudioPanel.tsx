@@ -20,7 +20,7 @@ interface Recording {
   createdAt: Date;
 }
 
-function getBestMimeType(: string) {
+function getBestMimeType(): string {
   const types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
   for (const t of types) {
     if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(t)) return t;
@@ -28,7 +28,7 @@ function getBestMimeType(: string) {
   return '';
 }
 
-export default function StudioPanel() {
+export default function StudioPanel( ){
   const [state, setState] = useState<RecordState>('idle');
   const [recordings, setRecordings] = useState<Recording[]>([]);
   const [elapsed, setElapsed] = useState(0);
@@ -42,14 +42,14 @@ export default function StudioPanel() {
 
   useEffect(() => () => { timerRef.current && clearInterval(timerRef.current); }, []);
 
-  async function startRecording() {
+  async function startRecording( ){
     setError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mimeType = getBestMimeType();
       const mr = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       chunksRef.current = [];
-      mr.ondataavailable = e: unknown => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      mr.ondataavailable = (e: unknown ) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
       mr.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: mimeType || 'audio/webm' });
         const url = URL.createObjectURL(blob);
@@ -60,7 +60,7 @@ export default function StudioPanel() {
           duration: elapsed,
           createdAt: new Date(),
         };
-        setRecordings(prev: Record<string, unknown> => [rec, ...prev]);
+        setRecordings((prev: Record<string, unknown>) => [rec, ...prev]);
         stream.getTracks().forEach((t: Record<string, unknown>) => t.stop());
         clearInterval(timerRef.current!);
         setState('stopped');
@@ -69,17 +69,17 @@ export default function StudioPanel() {
       mediaRef.current = mr;
       setState('recording');
       setElapsed(0);
-      timerRef.current = setInterval(() => setElapsed(e: unknown => e + 1), 1000);
+      timerRef.current = setInterval(() => setElapsed((e: unknown ) => e + 1), 1000);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Microphone access denied');
     }
   }
 
-  function stopRecording() {
+  function stopRecording( ){
     mediaRef.current?.stop();
   }
 
-  function playRecording(rec: Recording) {
+  function playRecording(rec: Recording ){
     audioRef.current?.pause();
     const audio = new Audio(rec.url);
     audioRef.current = audio;
@@ -88,11 +88,11 @@ export default function StudioPanel() {
     audio.onended = () => setPlaying(null);
   }
 
-  function loadToDAW(rec: Recording) {
+  function loadToDAW(rec: Recording ){
     window.dispatchEvent(new CustomEvent('starmaker:load-recording', { detail: { url: rec.url, name: rec.name } }));
   }
 
-  function formatDuration(s: number) {
+  function formatDuration(s: number ){
     return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
   }
 

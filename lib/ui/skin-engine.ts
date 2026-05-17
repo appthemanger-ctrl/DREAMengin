@@ -8,7 +8,7 @@
  * — no tier gating, no locks, no "coming soon" placeholders.
  */
 
-// -- Types ----------------------------------------------------------------------
+// ── Types ──────────────────────────────────────────────────────────────────────
 
 export type SkinPage = 'home' | 'profile' | 'dreamspace' | 'feed' | 'global';
 
@@ -49,7 +49,7 @@ export interface SkinData {
   layout: SkinLayout;
 }
 
-// -- Default skin (matches Dream Ice) ------------------------------------------
+// ── Default skin (matches Dream Ice) ──────────────────────────────────────────
 
 export const DEFAULT_SKIN: SkinData = {
   bgFrom:        '#e9ecf1',
@@ -67,7 +67,7 @@ export const DEFAULT_SKIN: SkinData = {
   layout:        'card',
 };
 
-// -- Free preset skins ---------------------------------------------------------
+// ── Free preset skins ─────────────────────────────────────────────────────────
 
 export interface SkinPreset {
   id:       string;
@@ -161,7 +161,7 @@ export const SKIN_PRESETS: SkinPreset[] = [
       accentColor: '#0aa880',
     },
   },
-  // -- All skins available — no tier gating in production -------------------
+  // ── All skins available — no tier gating in production ───────────────────
   {
     id: 'neon-grid',
     label: 'Neon Grid',
@@ -209,11 +209,11 @@ export const SKIN_PRESETS: SkinPreset[] = [
   },
 ];
 
-export function getSkinPreset(id: string: SkinPreset) {
+export function getSkinPreset(id: string): SkinPreset {
   return SKIN_PRESETS.find((p: Record<string, unknown>) => p.id === id) ?? SKIN_PRESETS[0];
 }
 
-// -- CSS variable map ----------------------------------------------------------
+// ── CSS variable map ──────────────────────────────────────────────────────────
 
 const SHADOW_MAP: Record<SkinShadow, string> = {
   none:   'none',
@@ -229,7 +229,7 @@ const FONT_MAP: Record<SkinFont, string> = {
   'mono':          '"JetBrains Mono", "Fira Mono", monospace',
 };
 
-export function applySkin(skin: SkinData: void) {
+export function applySkin(skin: SkinData): void {
   if (typeof document === 'undefined') return;
   const el = document.documentElement;
 
@@ -264,7 +264,7 @@ export function applySkin(skin: SkinData: void) {
   window.dispatchEvent(new Event('de-skin-changed'));
 }
 
-// -- Per-page skin storage -----------------------------------------------------
+// ── Per-page skin storage ─────────────────────────────────────────────────────
 
 const STORAGE_KEY = 'dreamengin-skins-v1';
 
@@ -276,7 +276,7 @@ export interface AllPageSkins {
   feed:       SkinData | null;
 }
 
-export function loadAllSkins(: AllPageSkins) {
+export function loadAllSkins(): AllPageSkins {
   if (typeof window === 'undefined') {
     return { global: DEFAULT_SKIN, home: null, profile: null, dreamspace: null, feed: null };
   }
@@ -287,13 +287,13 @@ export function loadAllSkins(: AllPageSkins) {
   return { global: DEFAULT_SKIN, home: null, profile: null, dreamspace: null, feed: null };
 }
 
-export function saveAllSkins(skins: AllPageSkins: void) {
+export function saveAllSkins(skins: AllPageSkins): void {
   if (typeof window === 'undefined') return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(skins));
 }
 
 /** Resolve the effective skin for a page: page-specific → global → default */
-export function resolveSkin(skins: AllPageSkins, page: SkinPage: SkinData) {
+export function resolveSkin(skins: AllPageSkins, page: SkinPage): SkinData {
   if (page !== 'global' && skins[page]) return skins[page]!;
   return skins.global ?? DEFAULT_SKIN;
 }

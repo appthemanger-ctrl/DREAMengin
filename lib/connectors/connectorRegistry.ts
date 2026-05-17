@@ -99,7 +99,7 @@ export interface ConnectorDef {
 }
 
 export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
-  // -- TIER 1: Fully supported --------------------------------------------
+  // ── TIER 1: Fully supported ────────────────────────────────────────────
   {
     id: 'mastodon',
     name: 'Mastodon',
@@ -250,7 +250,7 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
     ],
   },
 
-  // -- TIER 2: Gated (requires approval or paid plan) ---------------------
+  // ── TIER 2: Gated (requires approval or paid plan) ─────────────────────
   {
     id: 'twitter',
     name: 'X / Twitter',
@@ -358,7 +358,7 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
     ],
   },
 
-  // -- TIER 3: Explicitly unsupported ------------------------------------
+  // ── TIER 3: Explicitly unsupported ────────────────────────────────────
   {
     id: 'snapchat',
     name: 'Snapchat',
@@ -392,7 +392,7 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
     ],
   },
 
-  // -- Additional RSS-based Tier 1 providers -----------------------------
+  // ── Additional RSS-based Tier 1 providers ─────────────────────────────
   {
     id: 'medium',
     name: 'Medium',
@@ -517,6 +517,6 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
 ] as const;
 
 /** Look up a connector definition by stable ID (req 43) */
-export function getConnectorDef(id: string: ConnectorDef | undefined) {
+export function getConnectorDef(id: string): ConnectorDef | undefined {
   return CONNECTOR_REGISTRY.find((c: Record<string, unknown>) => c.id === id);
 }

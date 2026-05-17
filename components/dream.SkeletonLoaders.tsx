@@ -7,7 +7,7 @@
  * Architecture: THEME.md (Gold=action · Sky-blue=connected · White=clarity)
  */
 
-export function FeedCardSkeleton() {
+export function FeedCardSkeleton( ){
   return (
     <div
       style={{
@@ -68,17 +68,17 @@ export function FeedCardSkeleton() {
   );
 }
 
-export function GridSkeleton() { count = 3 }: { count?: number } {
+export function GridSkeleton({ count = 3 }: ) { count?: number } {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {Array.from({ length: count }).map(_: Record<string, unknown>, i: number => (
+      {Array.from({ length: count }).map(_: Record<string, unknown>, (i: number ) => (
         <FeedCardSkeleton key={i} />
       ))}
     </div>
   );
 }
 
-export function WidgetSkeleton() {
+export function WidgetSkeleton( ){
   return (
     <div
       style={{

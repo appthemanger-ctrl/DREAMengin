@@ -21,7 +21,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'connectors',  emoji: '🔌', label: 'Connectors',      desc: 'Link GitHub, GitLab, and more', color: '#8b5cf6', href: '/connectors'  },
 ];
 
-export default async function CodeDaydreamPage() {
+export default async function CodeDaydreamPage( ){
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -57,7 +57,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Code Vault: Project & File Browser -- */}
+          {/* ── Code Vault: Project & File Browser ── */}
           <div className="de-widget" style={{ borderColor: 'rgba(99,102,241,0.25)' }}>
             <div className="de-widget-header">
               <FolderOpen className="w-4 h-4" style={{ color: '#6366f1' }} />
@@ -73,7 +73,7 @@ export default async function CodeDaydreamPage() {
                 { emoji: '🎮', name: 'game-engine-mod',    lang: 'TypeScript', updated: 'Today',      preview: 'game'   },
                 { emoji: '🌐', name: 'personal-site',      lang: 'JavaScript', updated: 'Yesterday',  preview: 'webapp' },
                 { emoji: '🎵', name: 'beat-generator',     lang: 'Python',     updated: '3 days ago', preview: 'music'  },
-              ].map(p => (
+              ].map((p) => (
                 <Link key={p.name} href={`/engines/code?project=${p.name}`} style={{ textDecoration: 'none' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 12, marginBottom: 8, background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(99,102,241,0.12)', cursor: 'pointer' }}>
                     <span style={{ fontSize: 22 }}>{p.emoji}</span>
@@ -100,7 +100,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Zip / File Import -- */}
+          {/* ── Zip / File Import ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <Upload className="w-4 h-4" style={{ color: '#6366f1' }} />
@@ -115,7 +115,7 @@ export default async function CodeDaydreamPage() {
                   { emoji: '🗜️', label: 'Upload .zip',    href: '/engines/code?import=zip' },
                   { emoji: '📄', label: 'Upload file',    href: '/engines/code?import=file' },
                   { emoji: '🔗', label: 'Clone from Git', href: '/engines/code?import=git' },
-                ].map(opt => (
+                ].map((opt) => (
                   <Link key={opt.label} href={opt.href} style={{ flex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6, padding: '10px 8px', borderRadius: 10, background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)', justifyContent: 'center' }}>
                     <span style={{ fontSize: 16 }}>{opt.emoji}</span>
                     <span style={{ fontSize: 11, fontWeight: 700, color: '#6366f1' }}>{opt.label}</span>
@@ -125,7 +125,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Preview Types -- */}
+          {/* ── Preview Types ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <FileCode2 className="w-4 h-4" style={{ color: '#6366f1' }} />
@@ -141,7 +141,7 @@ export default async function CodeDaydreamPage() {
                   { emoji: '🎮', label: 'Game',       desc: 'Babylon.js / WebGPU output', color: '#c8981a', href: '/engines/code?preview=game'   },
                   { emoji: '🎵', label: 'Music',      desc: 'Audio + waveform render',   color: '#8b5cf6', href: '/engines/code?preview=music'  },
                   { emoji: '📊', label: 'Data / Chart', desc: 'D3 / canvas output',      color: '#0ea5e9', href: '/engines/code?preview=data'   },
-                ].map(t => (
+                ].map((t) => (
                   <Link key={t.label} href={t.href} style={{ textDecoration: 'none', padding: '12px 14px', borderRadius: 12, background: `${t.color}08`, border: `1px solid ${t.color}25` }}>
                     <div style={{ fontSize: 22, marginBottom: 4 }}>{t.emoji}</div>
                     <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 2 }}>{t.label}</div>
@@ -155,14 +155,14 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Feature 1: Quick Links -- */}
+          {/* ── Feature 1: Quick Links ── */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
             {[
               { emoji: '💻', label: 'Open Codespace',  href: '/codespace',   color: '#6366f1' },
               { emoji: '📁', label: 'Projects',         href: '/lab',         color: '#2a8ab8' },
               { emoji: '⚛️', label: 'Physics Lab',      href: '/physics-lab', color: '#f59e0b' },
               { emoji: '📝', label: 'Notes',            href: '/notes',       color: '#ec4899' },
-            ].map(item => (
+            ].map((item) => (
               <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
                 <div style={{ background: 'rgba(255,255,255,0.82)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: 16, padding: '18px 16px', border: `1px solid ${item.color}20`, display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
                   <span style={{ fontSize: 24 }}>{item.emoji}</span>
@@ -172,7 +172,7 @@ export default async function CodeDaydreamPage() {
             ))}
           </div>
 
-          {/* -- Feature 2: CI/CD Pipeline -- */}
+          {/* ── Feature 2: CI/CD Pipeline ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">CI/CD Pipeline</span>
@@ -184,7 +184,7 @@ export default async function CodeDaydreamPage() {
                 { name: 'typecheck',  status: 'passing', duration: '42s' },
                 { name: 'lint',       status: 'passing', duration: '18s' },
                 { name: 'test',       status: 'passing', duration: '2m 11s' },
-              ].map(j => (
+              ].map((j) => (
                 <div key={j.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 10px', marginBottom: 4, borderRadius: 8, background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.12)' }}>
                   <span style={{ fontSize: 11, fontFamily: 'monospace', color: '#6366f1' }}>{j.name}</span>
                   <div style={{ display: 'flex', gap: 8 }}>
@@ -196,7 +196,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Feature 3: Security Scanner -- */}
+          {/* ── Feature 3: Security Scanner ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">🔐 Security Scanner</span>
@@ -208,7 +208,7 @@ export default async function CodeDaydreamPage() {
                 { check: 'Secrets in code',  ok: true,  note: 'No hardcoded secrets' },
                 { check: 'XSS vectors',      ok: false, note: '1 potential innerHTML' },
                 { check: 'Auth exposure',    ok: true,  note: 'Server-side scoped' },
-              ].map(c => (
+              ].map((c) => (
                 <div key={c.check} style={{ display: 'flex', gap: 8, padding: '6px 8px', marginBottom: 4, borderRadius: 8, background: c.ok ? 'rgba(34,197,94,0.05)' : 'rgba(245,158,11,0.07)', border: `1px solid ${c.ok ? 'rgba(34,197,94,0.15)' : 'rgba(245,158,11,0.2)'}` }}>
                   <span style={{ fontSize: 12 }}>{c.ok ? '✅' : '⚠'}</span>
                   <div>
@@ -220,7 +220,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Feature 4: Performance Profiler -- */}
+          {/* ── Feature 4: Performance Profiler ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">📊 Performance Profiler</span>
@@ -230,7 +230,7 @@ export default async function CodeDaydreamPage() {
                 { fn: 'renderHomeDreamSurface()', avg: '2.1ms', hot: true },
                 { fn: 'parseFeedItems()',            avg: '18ms',  hot: true },
                 { fn: 'syncSupabaseState()',         avg: '44ms',  hot: false },
-              ].map(f => (
+              ].map((f) => (
                 <div key={f.fn} style={{ padding: '7px 10px', marginBottom: 5, borderRadius: 8, background: f.hot ? 'rgba(239,68,68,0.05)' : 'rgba(255,255,255,0.5)', border: `1px solid ${f.hot ? 'rgba(239,68,68,0.15)' : 'rgba(0,0,0,0.06)'}` }}>
                   <div style={{ fontSize: 11, fontFamily: 'monospace', color: f.hot ? '#ef4444' : '#6366f1' }}>{f.fn}</div>
                   <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginTop: 2 }}>avg: {f.avg}{f.hot && ' 🔥 hot path'}</div>
@@ -239,7 +239,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Feature 5: Package Manager -- */}
+          {/* ── Feature 5: Package Manager ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">📦 Package Manager</span>
@@ -249,7 +249,7 @@ export default async function CodeDaydreamPage() {
                 { pkg: 'next',            version: '15.3.1', upToDate: true  },
                 { pkg: '@babylonjs/core', version: '7.32.0', upToDate: false, latest: '8.1.0' },
                 { pkg: '@tensorflow/tfjs',version: '4.22.0', upToDate: true  },
-              ].map(p => (
+              ].map((p) => (
                 <div key={p.pkg} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 10px', marginBottom: 4, borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(99,102,241,0.1)' }}>
                   <span style={{ fontSize: 11, fontFamily: 'monospace', color: '#6366f1' }}>{p.pkg}</span>
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -262,7 +262,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Feature 6: Database Browser -- */}
+          {/* ── Feature 6: Database Browser ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">🗄 Database Browser</span>
@@ -272,7 +272,7 @@ export default async function CodeDaydreamPage() {
                 { table: 'profiles',   rows: '1,842', size: '2.4 MB' },
                 { table: 'app_posts',  rows: '14,203', size: '18.1 MB' },
                 { table: 'game_scores',rows: '28,190', size: '5.2 MB' },
-              ].map(t => (
+              ].map((t) => (
                 <div key={t.table} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 10px', marginBottom: 3, borderRadius: 7, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(99,102,241,0.08)' }}>
                   <span style={{ fontSize: 11, fontFamily: 'monospace', color: '#6366f1' }}>{t.table}</span>
                   <div style={{ display: 'flex', gap: 8, fontSize: 10, color: 'var(--de-text-dim)' }}>
@@ -283,7 +283,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Feature 7: Environment Manager -- */}
+          {/* ── Feature 7: Environment Manager ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">🌍 Environment Manager</span>
@@ -294,7 +294,7 @@ export default async function CodeDaydreamPage() {
                 { key: 'NEXT_PUBLIC_SUPABASE_URL', set: true  },
                 { key: 'OPENAI_API_KEY',           set: false },
                 { key: 'DEV_BYPASS_AUTH',          set: true  },
-              ].map(v => (
+              ].map((v) => (
                 <div key={v.key} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 8px', marginBottom: 3, borderRadius: 7, background: 'rgba(0,0,0,0.04)', fontFamily: 'monospace' }}>
                   <span style={{ fontSize: 10, color: '#6366f1' }}>{v.key}</span>
                   <span style={{ fontSize: 10, color: v.set ? 'var(--de-text-dim)' : '#ef4444', fontWeight: v.set ? 400 : 700 }}>{v.set ? '••••••••' : 'NOT SET'}</span>
@@ -303,7 +303,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Feature 8: AI Code Assist -- */}
+          {/* ── Feature 8: AI Code Assist ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">🤖 AI Code Assist</span>
@@ -313,14 +313,14 @@ export default async function CodeDaydreamPage() {
                 AI-powered code suggestions, refactoring, bug detection, and documentation generation — all from inside the Live Notebook in CodeEngin.
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {['Refactor', 'Explain Code', 'Write Tests', 'Fix Bug', 'Add Docs'].map(a => (
+                {['Refactor', 'Explain Code', 'Write Tests', 'Fix Bug', 'Add Docs'].map((a) => (
                   <span key={a} style={{ padding: '4px 10px', borderRadius: 999, fontSize: 10, fontWeight: 600, background: 'rgba(99,102,241,0.1)', color: '#6366f1', border: '1px solid rgba(99,102,241,0.2)' }}>{a}</span>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* -- Feature 9: Pair Programming -- */}
+          {/* ── Feature 9: Pair Programming ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">👥 Pair Programming</span>
@@ -330,14 +330,14 @@ export default async function CodeDaydreamPage() {
                 Real-time collaborative coding — invite a co-author by handle. Edits appear live with a colored cursor.
               </p>
               <div style={{ display: 'flex', gap: 8 }}>
-                {['@builderwiz', '@codelab99'].map(h => (
+                {['@builderwiz', '@codelab99'].map((h) => (
                   <div key={h} style={{ flex: 1, padding: '8px 10px', borderRadius: 9, background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.18)', textAlign: 'center', fontSize: 11, fontWeight: 700, color: '#6366f1' }}>{h}</div>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* -- Feature 10: Snippet Library -- */}
+          {/* ── Feature 10: Snippet Library ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">📚 Snippet Library</span>
@@ -348,7 +348,7 @@ export default async function CodeDaydreamPage() {
                 { title: 'Supabase auth guard',  lang: 'TypeScript' },
                 { title: 'ECS entity factory',   lang: 'TypeScript' },
                 { title: 'Tailwind dark mode',   lang: 'CSS' },
-              ].map(s => (
+              ].map((s) => (
                 <div key={s.title} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 10px', marginBottom: 4, borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(99,102,241,0.1)' }}>
                   <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-heading)' }}>{s.title}</span>
                   <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{s.lang}</span>
@@ -357,14 +357,14 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Feature 11: API Inspector -- */}
+          {/* ── Feature 11: API Inspector ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">🔌 API Inspector</span>
             </div>
             <div className="de-widget-body">
               <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
-                {['GET', 'POST', 'PUT', 'DELETE'].map(m => (
+                {['GET', 'POST', 'PUT', 'DELETE'].map((m) => (
                   <span key={m} style={{ padding: '3px 8px', borderRadius: 5, fontSize: 10, fontWeight: 700, background: m === 'GET' ? 'rgba(34,197,94,0.12)' : m === 'POST' ? 'rgba(99,102,241,0.12)' : 'rgba(0,0,0,0.06)', color: m === 'GET' ? '#22c55e' : m === 'POST' ? '#6366f1' : 'var(--de-text-dim)' }}>{m}</span>
                 ))}
               </div>
@@ -374,7 +374,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Feature 12: Deployment Console -- */}
+          {/* ── Feature 12: Deployment Console ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">🚀 Deployment Console</span>
@@ -385,7 +385,7 @@ export default async function CodeDaydreamPage() {
                 { env: 'Production', url: 'dreamengin.app', status: 'live' },
                 { env: 'Preview',    url: 'preview.dreamengin.app', status: 'ready' },
                 { env: 'Dev',        url: 'localhost:3000', status: 'local' },
-              ].map(d => (
+              ].map((d) => (
                 <div key={d.env} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 10px', marginBottom: 4, borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(34,197,94,0.1)' }}>
                   <div>
                     <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)' }}>{d.env}</span>
@@ -397,7 +397,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Feature 13: GitHub Integration -- */}
+          {/* ── Feature 13: GitHub Integration ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">GitHub Integration</span>
@@ -408,7 +408,7 @@ export default async function CodeDaydreamPage() {
                   { label: 'Open PRs',   val: '3', color: '#6366f1' },
                   { label: 'Commits',    val: '24', color: '#0ea5e9' },
                   { label: 'Stars',      val: '48', color: '#f59e0b' },
-                ].map(m => (
+                ].map((m) => (
                   <div key={m.label} style={{ padding: '8px 6px', borderRadius: 9, background: `${m.color}0e`, border: `1px solid ${m.color}20`, textAlign: 'center' }}>
                     <div style={{ fontSize: 16, fontWeight: 800, color: m.color }}>{m.val}</div>
                     <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 2 }}>{m.label}</div>
@@ -418,7 +418,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Feature 14: Diff Viewer -- */}
+          {/* ── Feature 14: Diff Viewer ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">Diff Viewer</span>
@@ -432,7 +432,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Feature 15: ShellHub Terminal -- */}
+          {/* ── Feature 15: ShellHub Terminal ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">Shell Terminal</span>
@@ -447,7 +447,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Feature 16: Live Notebook -- */}
+          {/* ── Feature 16: Live Notebook ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">📓 Live Notebook</span>
@@ -460,7 +460,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Feature 17: Cross-Engin Connections -- */}
+          {/* ── Feature 17: Cross-Engin Connections ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">🔗 Cross-Engin Sync</span>
@@ -472,7 +472,7 @@ export default async function CodeDaydreamPage() {
                   { name: 'LabEngin',      color: '#8b5cf6', on: true },
                   { name: 'ContentEngin',  color: '#f59e0b', on: false },
                   { name: 'BrandEngin',    color: '#ec4899', on: true },
-                ].map(e => (
+                ].map((e) => (
                   <div key={e.name} style={{ textAlign: 'center', padding: '7px 5px', borderRadius: 8, background: e.on ? `${e.color}0e` : 'rgba(0,0,0,0.04)', border: `1px solid ${e.on ? e.color + '25' : 'rgba(0,0,0,0.06)'}` }}>
                     <div style={{ fontSize: 8, fontWeight: 700, color: e.on ? e.color : 'var(--de-text-dim)' }}>{e.name.replace('Engin','')}</div>
                     <div style={{ fontSize: 8, color: e.on ? e.color : 'var(--de-text-dim)', marginTop: 2 }}>{e.on ? '●' : '○'}</div>
@@ -482,7 +482,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Feature 18: Projects -- */}
+          {/* ── Feature 18: Projects ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">📁 Projects</span>
@@ -495,7 +495,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- Feature 19: Trust Layer -- */}
+          {/* ── Feature 19: Trust Layer ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">🛡 AI Trust Layer</span>
@@ -505,14 +505,14 @@ export default async function CodeDaydreamPage() {
                 Every AI code suggestion goes through the Trust Layer — you review, accept, or reject changes before they commit. Zero blind writes to your codebase.
               </p>
               <div style={{ display: 'flex', gap: 6 }}>
-                {['Review', 'Accept', 'Reject', 'Modify'].map(a => (
+                {['Review', 'Accept', 'Reject', 'Modify'].map((a) => (
                   <div key={a} style={{ flex: 1, padding: '6px 4px', borderRadius: 7, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.18)', textAlign: 'center', fontSize: 9, fontWeight: 700, color: '#6366f1' }}>{a}</div>
                 ))}
               </div>
             </div>
           </div>
 
-          {/* -- Feature 20: Game Engine Code Integration -- */}
+          {/* ── Feature 20: Game Engine Code Integration ── */}
           <div className="de-widget">
             <div className="de-widget-header">
               <span className="de-widget-title">🎮 Game Engine Integration</span>
@@ -527,7 +527,7 @@ export default async function CodeDaydreamPage() {
             </div>
           </div>
 
-          {/* -- CodeEngin Info -- */}
+          {/* ── CodeEngin Info ── */}
           <div style={{ background: 'rgba(99,102,241,0.06)', borderRadius: 14, padding: '14px 16px', border: '1px solid rgba(99,102,241,0.15)' }}>
             <div style={{ fontSize: 12, fontWeight: 700, color: '#6366f1', marginBottom: 4 }}>CodeEngin — 20 Features on Side B</div>
             <p style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5, margin: 0 }}>

@@ -80,7 +80,7 @@ describe('Phase 8 §H — No API key in NEXT_PUBLIC_ (Point 74)', () => {
 
       const match = codePart.match(/NEXT_PUBLIC_[A-Z0-9_]+/g) ?? [];
       for (const variable of match) {
-        const isForbidden = AI_KEY_PATTERNS.some(p => variable.startsWith(p));
+        const isForbidden = AI_KEY_PATTERNS.some((p) => variable.startsWith(p));
         expect(
           !isForbidden,
           `Found AI API key exposed via NEXT_PUBLIC_: ${variable} in: ${line}`,
@@ -101,7 +101,7 @@ describe('Phase 8 §H — No legacy rate limit references (Point 75)', () => {
     const activeRefs = output
       .split('\n')
       .filter(Boolean)
-      .filter(line => !line.includes('//') && !line.includes('* ') && !line.includes('tests/'));
+      .filter((line) => !line.includes('//') && !line.includes('* ') && !line.includes('tests/'));
     expect(activeRefs).toHaveLength(0);
   });
 
@@ -114,7 +114,7 @@ describe('Phase 8 §H — No legacy rate limit references (Point 75)', () => {
     const activeRefs = output
       .split('\n')
       .filter(Boolean)
-      .filter(line => !line.includes('//') && !line.includes('* ') && !line.includes('tests/'));
+      .filter((line) => !line.includes('//') && !line.includes('* ') && !line.includes('tests/'));
     expect(activeRefs).toHaveLength(0);
   });
 

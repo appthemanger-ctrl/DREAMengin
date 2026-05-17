@@ -7,13 +7,13 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-// -- Mock localStorage --------------------------------------------------------
+// ── Mock localStorage ────────────────────────────────────────────────────────
 const localStorageStore: Record<string, string> = {};
 const localStorageMock = {
   getItem: (key: string) => localStorageStore[key] ?? null,
   setItem: (key: string, value: string) => { localStorageStore[key] = value; },
   removeItem: (key: string) => { delete localStorageStore[key]; },
-  clear: () => { Object.keys(localStorageStore).forEach(k => delete localStorageStore[k]); },
+  clear: () => { Object.keys(localStorageStore).forEach((k) => delete localStorageStore[k]); },
 };
 vi.stubGlobal('localStorage', localStorageMock);
 vi.stubGlobal('window', { localStorage: localStorageMock });
@@ -33,7 +33,7 @@ import {
 
 import { FORGE_HISTORY_KEY } from '@/lib/forge/forgeRegistry';
 
-// -- Helpers ------------------------------------------------------------------
+// ── Helpers ──────────────────────────────────────────────────────────────────
 
 function makeEntry(enginId: string, label: string, hoursAgo: number) {
   return {
@@ -51,11 +51,11 @@ function makeEntryAt(enginId: string, label: string, date: Date) {
   };
 }
 
-function seedHistory(entries: Array<) { enginId: string; label: string; timestamp: string }>) {
+function seedHistory(entries: Array<){ enginId: string; label: string; timestamp: string }>) {
   localStorage.setItem(FORGE_HISTORY_KEY, JSON.stringify(entries));
 }
 
-// -- Tests --------------------------------------------------------------------
+// ── Tests ────────────────────────────────────────────────────────────────────
 
 describe('Forge Momentum', () => {
   beforeEach(() => {
@@ -239,8 +239,8 @@ describe('Forge Momentum', () => {
       expect(snap.composite).toBeGreaterThan(0);
       expect(snap.enginesUsedToday.length).toBeGreaterThanOrEqual(3);
       expect(snap.actionsToday).toBe(3);
-      expect(snap.dimensions.find(d => d.name === 'Velocity')!.score).toBeGreaterThan(0);
-      expect(snap.dimensions.find(d => d.name === 'Diversity')!.score).toBeGreaterThan(0);
+      expect(snap.dimensions.find((d) => d.name === 'Velocity')!.score).toBeGreaterThan(0);
+      expect(snap.dimensions.find((d) => d.name === 'Diversity')!.score).toBeGreaterThan(0);
     });
 
     it('reads from localStorage when no override provided', () => {

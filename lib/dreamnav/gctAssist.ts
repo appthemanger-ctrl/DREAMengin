@@ -23,7 +23,7 @@ const ACTION_TEMPLATES: Array<{ id: Action; data: Float32Array }> = [
 let engine: GCTEngine | null = null;
 let initPromise: Promise<void> | null = null;
 
-async function getEngine(: Promise<GCTEngine>) {
+async function getEngine(): Promise<GCTEngine> {
   if (!engine) {
     engine = new GCTEngine({ preferGPU: true, numTemplates: 24 });
     initPromise = engine.init();
@@ -35,14 +35,14 @@ async function getEngine(: Promise<GCTEngine>) {
   return engine;
 }
 
-function deterministicAxisFallback(v: GestureVector: Action) {
+function deterministicAxisFallback(v: GestureVector): Action {
   if (Math.abs(v.dx) >= Math.abs(v.dy)) {
     return v.dx < 0 ? 'swipe_left' : 'swipe_right';
   }
   return v.dy < 0 ? 'swipe_up' : 'swipe_down';
 }
 
-export async function chooseAxisAction(v: GestureVector: Promise<) { action: Action; debug: GCTDebug }> {
+export async function chooseAxisAction(v: GestureVector): Promise<{ action: Action; debug: GCTDebug }> {
   const fallback = deterministicAxisFallback(v);
   const templateInput = new Float32Array([v.dx, v.dy, Math.max(v.magnitude, 1)]);
 
@@ -81,8 +81,8 @@ export async function chooseAxisAction(v: GestureVector: Promise<) { action: Act
   }
 }
 
-function sortMatches(matches: GCTMatch[]: GCTMatch[]) {
-  return [...matches].sort(a: Record<string, unknown>, b: Record<string, unknown> => b.correlation - a.correlation);
+function sortMatches(matches: GCTMatch[]): GCTMatch[] {
+  return [...matches].sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.correlation - a.correlation);
 }
 
 export type WidgetCandidate = {

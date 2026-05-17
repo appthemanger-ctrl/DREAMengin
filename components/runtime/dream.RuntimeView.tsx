@@ -23,7 +23,7 @@ import RuntimeShell from '@/components/runtime/dream.shell.RuntimeShell';
 import EnhancedSpatialShell from '@/components/spatial/dream.shell.EnhancedSpatialShell';
 import type { RuntimeRegion } from '@/lib/identity/canonical-names';
 
-// -- Panel components (loaded in-region, never as overlays) -------------------
+// ── Panel components (loaded in-region, never as overlays) ───────────────────
 import SettingsPanel     from '@/components/panels/dream.panel.SettingsPanel';
 import ConnectorsPanel   from '@/components/panels/dream.panel.ConnectorsPanel';
 import MarketplacePanel  from '@/components/panels/dream.panel.MarketplacePanel';
@@ -74,7 +74,7 @@ const ENGIN_ROUTES: Record<string, string> = {
   ContentEngin:   '/daydream/create',
 };
 
-export default function RuntimeView() {
+export default function RuntimeView(){
   world,
   isActive,
   profile,
@@ -89,7 +89,7 @@ export default function RuntimeView() {
   seamVisible,
   dominantRegion,
 }: RuntimeViewProps) {
-  /* -- In-region iframe state ----------------------------------------------- */
+  /* ── In-region iframe state ─────────────────────────────────────────────── */
   const [iframeUrl,   setIframeUrl]   = useState<string | null>(null);
   const [iframeTitle, setIframeTitle] = useState<string>('');
 
@@ -107,7 +107,7 @@ export default function RuntimeView() {
    
   useEffect(() => { setIframeUrl(null); setIframeTitle(''); }, [world]);
 
-  /* -- Shared outer wrapper style ------------------------------------------- */
+  /* ── Shared outer wrapper style ─────────────────────────────────────────── */
   const outerStyle: React.CSSProperties = {
     position: 'absolute',
     inset: 0,
@@ -122,7 +122,7 @@ export default function RuntimeView() {
     contain: 'layout paint size',
   };
 
-  /* -- Home runtime ---------------------------------------------------------- */
+  /* ── Home runtime ────────────────────────────────────────────────────────── */
   if (world === 'HomeDream Surface') {
     return (
       <div style={outerStyle}>
@@ -146,7 +146,7 @@ export default function RuntimeView() {
     );
   }
 
-  /* -- DreamSpace runtime ---------------------------------------------------- */
+  /* ── DreamSpace runtime ──────────────────────────────────────────────────── */
   if (world === 'DreamSpace') {
     return (
       <div
@@ -172,7 +172,7 @@ export default function RuntimeView() {
     );
   }
 
-  /* -- View Profile Surface runtime ----------------------------------------- */
+  /* ── View Profile Surface runtime ───────────────────────────────────────── */
   if (world === 'View Profile Surface') {
     if (profile?.id && profile?.handle) {
       return (
@@ -215,7 +215,7 @@ export default function RuntimeView() {
     );
   }
 
-  /* -- Dream runtime — open the dream URL in-region ------------------------- */
+  /* ── Dream runtime — open the dream URL in-region ───────────────────────── */
   if (typeof world === 'object' && world.type === 'dream') {
     const DreamComponent = getDreamComponent(world.id);
     return (
@@ -239,7 +239,7 @@ export default function RuntimeView() {
     );
   }
 
-  /* -- Engin runtime — open engin route in-region iframe -------------------- */
+  /* ── Engin runtime — open engin route in-region iframe ──────────────────── */
   if (typeof world === 'object' && world.type === 'engin') {
     const route = ENGIN_ROUTES[world.name] ?? '/dreamdmbar';
     return (
@@ -277,7 +277,7 @@ export default function RuntimeView() {
     );
   }
 
-  /* -- Custom runtime — open the custom path in-region iframe --------------- */
+  /* ── Custom runtime — open the custom path in-region iframe ─────────────── */
   if (typeof world === 'object' && world.type === 'custom') {
     return (
       <div style={outerStyle}>
@@ -314,7 +314,7 @@ export default function RuntimeView() {
     );
   }
 
-  /* -- Panel world — a system feature loaded in-region via world dispatch --- */
+  /* ── Panel world — a system feature loaded in-region via world dispatch ─── */
   if (typeof world === 'object' && world.type === 'panel') {
     const PANEL_MAP: Record<SystemPanelId, React.ReactNode> = {
       'settings':             <SettingsPanel />,

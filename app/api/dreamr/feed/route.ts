@@ -8,7 +8,7 @@
  * as a duplicate route. This thin re-export keeps the routing boundary clean
  * and the implementation in one place.
  *
- * -----------------------------------------------------------------------------
+ * ─────────────────────────────────────────────────────────────────────────────
  * DreamR-scored feed. Fetches public posts, scores every one with the
  * DreamR humanistic algorithm, and returns them ranked so that creativity,
  * originality, and artistry lead — not follower counts or raw engagement.

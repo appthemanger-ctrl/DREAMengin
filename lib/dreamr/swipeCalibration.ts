@@ -13,7 +13,7 @@
  * outside the device's natural operating range.
  */
 
-// --- Types -------------------------------------------------------------------
+// ─── Types ───────────────────────────────────────────────────────────────────
 
 /**
  * A single warm-up sample collected during the calibration phase.
@@ -43,7 +43,7 @@ export interface CalibrationProfile {
   calibratedAt: string;
 }
 
-// --- Factory defaults (match TORRIDITY_LEDGER_CONFIG) ------------------------
+// ─── Factory defaults (match TORRIDITY_LEDGER_CONFIG) ────────────────────────
 
 const FACTORY_DEFAULTS: Readonly<CalibrationProfile> = {
   slopeMin: 0.6,
@@ -55,7 +55,7 @@ const FACTORY_DEFAULTS: Readonly<CalibrationProfile> = {
 // Module-level active profile, starts at factory defaults.
 let activeProfile: CalibrationProfile = { ...FACTORY_DEFAULTS };
 
-// --- Public API ---------------------------------------------------------------
+// ─── Public API ───────────────────────────────────────────────────────────────
 
 /**
  * Compute a device-specific CalibrationProfile from warm-up samples and
@@ -72,11 +72,11 @@ let activeProfile: CalibrationProfile = { ...FACTORY_DEFAULTS };
  *
  * @returns The newly computed and stored CalibrationProfile.
  */
-export function calibrateDevice(samples: CalibrationSample[]: CalibrationProfile) {
+export function calibrateDevice(samples: CalibrationSample[]): CalibrationProfile {
   if (samples.length === 0) return activeProfile;
 
   const meanDev =
-    samples.reduce(sum: Record<string, unknown>, s: string => sum + s.observedDeviationPx, 0) / samples.length;
+    samples.reduce(sum: Record<string, unknown>, (s: string ) => sum + s.observedDeviationPx, 0) / samples.length;
 
   // Scale factor relative to the canonical 1.5 px human-jitter threshold.
   const devScale = Math.max(0.5, Math.min(2.0, meanDev / 1.5));
@@ -102,7 +102,7 @@ export function calibrateDevice(samples: CalibrationSample[]: CalibrationProfile
 }
 
 /** Return the currently active CalibrationProfile (starts at factory defaults). */
-export function getActiveProfile(: CalibrationProfile) {
+export function getActiveProfile(): CalibrationProfile {
   return activeProfile;
 }
 
@@ -110,11 +110,11 @@ export function getActiveProfile(: CalibrationProfile) {
  * Replace the active profile with a previously persisted one.
  * Call this on app start to restore a user's saved calibration.
  */
-export function setActiveProfile(profile: CalibrationProfile: void) {
+export function setActiveProfile(profile: CalibrationProfile): void {
   activeProfile = { ...profile };
 }
 
 /** Reset calibration back to factory defaults. */
-export function resetCalibration(: void) {
+export function resetCalibration(): void {
   activeProfile = { ...FACTORY_DEFAULTS };
 }

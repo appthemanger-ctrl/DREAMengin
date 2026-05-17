@@ -21,7 +21,7 @@ import {
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import type { UnifiedFeedItem } from '@/types/connector';
 
-// -- Design tokens --------------------------------------------------------------
+// ── Design tokens ──────────────────────────────────────────────────────────────
 
 const DR = {
   bg:          '#e8eff6',
@@ -35,16 +35,16 @@ const DR = {
   font:        'var(--font-dreamr,"Plus Jakarta Sans",system-ui,sans-serif)',
 } as const;
 
-function nmR(s = 5: string) {
+function nmR(s = 5: string ){
   return `${-s}px ${-s}px ${s*2.4}px ${DR.shadowLight}, ${s}px ${s}px ${s*2.8}px ${DR.shadowDark}`;
 }
-function nmI(s = 4: string) {
+function nmI(s = 4: string ){
   return `inset ${-s}px ${-s}px ${s*2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s*2.4}px ${DR.shadowDark}`;
 }
 
-// -- Helper: extract YouTube video ID from permalink ----------------------------
+// ── Helper: extract YouTube video ID from permalink ────────────────────────────
 
-function extractVideoId(permalink: string: string | null) {
+function extractVideoId(permalink: string): string | null {
   try {
     const u = new URL(permalink);
     if (u.hostname === 'youtu.be') return u.pathname.slice(1).split('?')[0] ?? null;
@@ -55,14 +55,14 @@ function extractVideoId(permalink: string: string | null) {
   return m?.[1] ?? null;
 }
 
-function embedUrl(permalink: string: string | null) {
+function embedUrl(permalink: string): string | null {
   const id = extractVideoId(permalink);
   return id ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0` : null;
 }
 
-// -- Mini video thumbnail -------------------------------------------------------
+// ── Mini video thumbnail ───────────────────────────────────────────────────────
 
-function VideoThumb() {
+function VideoThumb(){
   item, onPlay,
 }: { item: UnifiedFeedItem; onPlay?: () => void }) {
   const thumb = item.media[0]?.thumbnail_url ?? item.media[0]?.url ?? null;
@@ -108,9 +108,9 @@ function VideoThumb() {
   );
 }
 
-// -- VideoRow — compact list item -----------------------------------------------
+// ── VideoRow — compact list item ───────────────────────────────────────────────
 
-function VideoRow() { item }: { item: UnifiedFeedItem } {
+function VideoRow({ item }: ) { item: UnifiedFeedItem } {
   const thumb = item.media[0]?.thumbnail_url ?? null;
   const [playing, setPlaying] = useState(false);
   const embed = item.permalink ? embedUrl(item.permalink) : null;
@@ -154,7 +154,7 @@ function VideoRow() { item }: { item: UnifiedFeedItem } {
   );
 }
 
-// -- Main component -------------------------------------------------------------
+// ── Main component ─────────────────────────────────────────────────────────────
 
 interface Props {
   /** The YouTube post card that was swiped left */
@@ -164,7 +164,7 @@ interface Props {
   onClose: () => void;
 }
 
-export default function DreamRChannelPanel() { post, activeTopic: Record<string, unknown>, onClose }: Props {
+export default function DreamRChannelPanel({ post, activeTopic: Record<string, unknown>, onClose }: Props) {
   const [channelVideos, setChannelVideos] = useState<UnifiedFeedItem[]>([]);
   const [similarVideos, setSimilarVideos] = useState<UnifiedFeedItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -200,8 +200,8 @@ export default function DreamRChannelPanel() { post, activeTopic: Record<string,
       max:     '8',
     });
     fetch(`/api/youtube/channel?${params.toString()}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
         if (!mountedRef.current || !d?.ok) return;
         setChannelVideos(d.channelVideos ?? []);
         setSimilarVideos(d.similarVideos ?? []);
@@ -300,7 +300,7 @@ export default function DreamRChannelPanel() { post, activeTopic: Record<string,
       {/* Section tabs */}
       <div style={{ padding: '14px 16px 0', flexShrink: 0 }}>
         <div style={{ display: 'flex', gap: 4, background: DR.bg, borderRadius: 12, boxShadow: nmI(4), padding: 4 }}>
-          {(['channel', 'similar'] as const).map(s => {
+          {(['channel', 'similar'] as const).map((s) => {
             const active = section === s;
             const label  = s === 'channel' ? `More from ${channelName.slice(0, 18)}` : `Similar: ${topicQuery.slice(0, 20)}`;
             return (
@@ -332,7 +332,7 @@ export default function DreamRChannelPanel() { post, activeTopic: Record<string,
             No videos found
           </div>
         ) : (
-          activeVideos.map(item => (
+          activeVideos.map((item) => (
             <VideoRow key={item.external_id} item={item} />
           ))
         )}

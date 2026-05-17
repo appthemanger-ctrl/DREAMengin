@@ -31,7 +31,7 @@ export enum ActivityTier {
   NEVER_DONE_BEFORE = 6,
 }
 
-export function isValidActivityTier(value: unknown: value is ActivityTier) {
+export function isValidActivityTier(value: unknown): value is ActivityTier {
   return (
     typeof value === 'number' &&
     Number.isInteger(value) &&
@@ -91,9 +91,9 @@ export enum AdType {
   REWARDED = 'rewarded',
 }
 
-// ------------------------------------------------------------------------------
+// ══════════════════════════════════════════════════════════════════════════════
 // Database Row Types
-// ------------------------------------------------------------------------------
+// ══════════════════════════════════════════════════════════════════════════════
 
 export interface ActivityPoint {
   id: string;
@@ -188,9 +188,9 @@ export interface UserMetrics {
   updated_at: string;
 }
 
-// ------------------------------------------------------------------------------
+// ══════════════════════════════════════════════════════════════════════════════
 // API Request/Response Types
-// ------------------------------------------------------------------------------
+// ══════════════════════════════════════════════════════════════════════════════
 
 export interface TrackActivityRequest {
   tier: ActivityTier;
@@ -274,9 +274,9 @@ export interface GetPlatformMetricsResponse {
   calculated_at: string;
 }
 
-// ------------------------------------------------------------------------------
+// ══════════════════════════════════════════════════════════════════════════════
 // Helper Types
-// ------------------------------------------------------------------------------
+// ══════════════════════════════════════════════════════════════════════════════
 
 /**
  * Tier multipliers for visibility score calculation

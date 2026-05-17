@@ -26,16 +26,16 @@ import {
 } from '@/lib/engin-runtime/EnginBaseState';
 import type { EnginCapability } from '@/lib/engin-runtime/EnginCapabilities';
 
-// --- Simulation types ---------------------------------------------------------
+// ─── Simulation types ─────────────────────────────────────────────────────────
 
 export type SimulationKind = 'particle' | 'fluid' | 'quantum' | 'neural';
 export type SimState = 'idle' | 'running' | 'complete';
 
-// --- Chart type ---------------------------------------------------------------
+// ─── Chart type ───────────────────────────────────────────────────────────────
 
 export type ChartType = 'line' | 'bar' | 'scatter';
 
-// --- Experiment ---------------------------------------------------------------
+// ─── Experiment ───────────────────────────────────────────────────────────────
 
 export interface Experiment {
   id: string;
@@ -43,7 +43,7 @@ export interface Experiment {
   status: 'draft' | 'running' | 'complete' | 'failed';
 }
 
-// --- Simulation result --------------------------------------------------------
+// ─── Simulation result ────────────────────────────────────────────────────────
 
 export interface SimulationResult {
   kind: SimulationKind;
@@ -51,7 +51,7 @@ export interface SimulationResult {
   completedAt: string;
 }
 
-// --- Domain state shape -------------------------------------------------------
+// ─── Domain state shape ───────────────────────────────────────────────────────
 
 export interface LabEnginDerivedState extends Record<string, unknown> {
   lifecycle: EnginBaseState['lifecycle'];
@@ -65,7 +65,7 @@ export interface LabEnginDerivedState extends Record<string, unknown> {
   physicsPayload: Record<string, unknown> | null;
 }
 
-// --- Action discriminated union -----------------------------------------------
+// ─── Action discriminated union ───────────────────────────────────────────────
 
 export type LabEnginAction =
   | EnginAction<'lab:experiments-loaded',   { experiments: Experiment[] }>
@@ -78,7 +78,7 @@ export type LabEnginAction =
   | EnginAction<'lab:research-export-ready', Record<string, never>>
   | EnginAction<'lab:physics-received',     { payload: Record<string, unknown> }>;
 
-// --- Default domain state -----------------------------------------------------
+// ─── Default domain state ─────────────────────────────────────────────────────
 
 const DEFAULT_DOMAIN: Omit<LabEnginDerivedState, 'lifecycle'> = {
   experiments: [],
@@ -91,7 +91,7 @@ const DEFAULT_DOMAIN: Omit<LabEnginDerivedState, 'lifecycle'> = {
   physicsPayload: null,
 };
 
-// --- Constraints --------------------------------------------------------------
+// ─── Constraints ──────────────────────────────────────────────────────────────
 
 const simStartConstraint: EnginConstraint<LabEnginAction> = (
   state,
@@ -110,9 +110,9 @@ const simStartConstraint: EnginConstraint<LabEnginAction> = (
   return { valid: true };
 };
 
-// --- Transform ----------------------------------------------------------------
+// ─── Transform ────────────────────────────────────────────────────────────────
 
-function transform(state: EnginBaseState, action: LabEnginAction: EnginBaseState) {
+function transform(state: EnginBaseState, action: LabEnginAction): EnginBaseState {
   const domain = (state.domain as Partial<typeof DEFAULT_DOMAIN>);
 
   switch (action.type) {
@@ -179,9 +179,9 @@ function transform(state: EnginBaseState, action: LabEnginAction: EnginBaseState
   }
 }
 
-// --- deriveState --------------------------------------------------------------
+// ─── deriveState ──────────────────────────────────────────────────────────────
 
-function deriveState(state: EnginBaseState: LabEnginDerivedState) {
+function deriveState(state: EnginBaseState): LabEnginDerivedState {
   const d = state.domain as Partial<typeof DEFAULT_DOMAIN>;
   return {
     lifecycle:           state.lifecycle,
@@ -196,7 +196,7 @@ function deriveState(state: EnginBaseState: LabEnginDerivedState) {
   };
 }
 
-// --- Rule-set params ----------------------------------------------------------
+// ─── Rule-set params ──────────────────────────────────────────────────────────
 
 const PARAMS: EnginRuleSetParams = {
   enginId: 'lab',
@@ -216,7 +216,7 @@ const REQUIRED_CAPABILITIES: ReadonlyArray<EnginCapability> = [
   'bridge:listen',
 ];
 
-// --- Exported rule-set --------------------------------------------------------
+// ─── Exported rule-set ────────────────────────────────────────────────────────
 
 export const LAB_ENGIN_RULE_SET: EnginRuleSetContract<LabEnginAction> = {
   params: PARAMS,

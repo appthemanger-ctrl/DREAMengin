@@ -31,7 +31,7 @@ const PARTICLE_STRIDE = 32; // 8 × f32
 
 type NavWithGPU = Navigator & { readonly gpu: GPU };
 
-// --- Public API ---------------------------------------------------------------
+// ─── Public API ───────────────────────────────────────────────────────────────
 
 export class WebGPURenderer {
   // core
@@ -72,7 +72,7 @@ export class WebGPURenderer {
   private h = 1;
   public time = 0;
 
-  // -- Factory ---------------------------------------------------------------
+  // ── Factory ───────────────────────────────────────────────────────────────
 
   private constructor() {}
 
@@ -82,7 +82,7 @@ export class WebGPURenderer {
     return r;
   }
 
-  // -- Initialisation --------------------------------------------------------
+  // ── Initialisation ────────────────────────────────────────────────────────
 
   private async _init(canvas: HTMLCanvasElement) {
     const gpu = (navigator as NavWithGPU).gpu;
@@ -100,7 +100,7 @@ export class WebGPURenderer {
     this._seedParticles();
   }
 
-  // -- Buffer creation -------------------------------------------------------
+  // ── Buffer creation ───────────────────────────────────────────────────────
 
   private _mkBuffers() {
     const d = this.dev;
@@ -135,7 +135,7 @@ export class WebGPURenderer {
     });
   }
 
-  // -- Pipeline creation -----------------------------------------------------
+  // ── Pipeline creation ─────────────────────────────────────────────────────
 
   private _mkPipelines() {
     const d = this.dev;
@@ -218,7 +218,7 @@ export class WebGPURenderer {
     });
   }
 
-  // -- Particle seed ---------------------------------------------------------
+  // ── Particle seed ─────────────────────────────────────────────────────────
 
   private _seedParticles() {
     const data = new Float32Array(N_PARTICLES * 8);
@@ -238,7 +238,7 @@ export class WebGPURenderer {
     this.dev.queue.writeBuffer(this.pBuf, 0, data);
   }
 
-  // -- Resize ----------------------------------------------------------------
+  // ── Resize ────────────────────────────────────────────────────────────────
 
   resize(w: number, h: number) {
     if (w === this.w && h === this.h) return;
@@ -263,7 +263,7 @@ export class WebGPURenderer {
     this._rebuildBGs();
   }
 
-  // -- Bind groups -----------------------------------------------------------
+  // ── Bind groups ───────────────────────────────────────────────────────────
 
   private _rebuildBGs() {
     const d = this.dev;
@@ -311,7 +311,7 @@ export class WebGPURenderer {
     ]);
   }
 
-  // -- Frame -----------------------------------------------------------------
+  // ── Frame ─────────────────────────────────────────────────────────────────
 
   frame(dt: number) {
     this.time += dt;
@@ -322,7 +322,7 @@ export class WebGPURenderer {
 
     const enc = d.createCommandEncoder({ label: 'frame' });
 
-    // -- 1. Compute: particle physics -------------------------------------
+    // ── 1. Compute: particle physics ─────────────────────────────────────
     {
       const cp = enc.beginComputePass();
       cp.setPipeline(this.cpPipe);
@@ -331,7 +331,7 @@ export class WebGPURenderer {
       cp.end();
     }
 
-    // -- 2. Scene: lemniscate + particles → HDR ---------------------------
+    // ── 2. Scene: lemniscate + particles → HDR ───────────────────────────
     {
       const rp = enc.beginRenderPass({
         colorAttachments: [{
@@ -351,7 +351,7 @@ export class WebGPURenderer {
       rp.end();
     }
 
-    // -- 3. Bright pass: hdr → bloom0 -------------------------------------
+    // ── 3. Bright pass: hdr → bloom0 ─────────────────────────────────────
     {
       const rp = enc.beginRenderPass({
         colorAttachments: [{
@@ -365,7 +365,7 @@ export class WebGPURenderer {
       rp.end();
     }
 
-    // -- 4. Blur H: bloom0 → bloom1 ---------------------------------------
+    // ── 4. Blur H: bloom0 → bloom1 ───────────────────────────────────────
     {
       const rp = enc.beginRenderPass({
         colorAttachments: [{
@@ -379,7 +379,7 @@ export class WebGPURenderer {
       rp.end();
     }
 
-    // -- 5. Blur V: bloom1 → bloom0 ---------------------------------------
+    // ── 5. Blur V: bloom1 → bloom0 ───────────────────────────────────────
     {
       const rp = enc.beginRenderPass({
         colorAttachments: [{
@@ -393,7 +393,7 @@ export class WebGPURenderer {
       rp.end();
     }
 
-    // -- 6. Composite → canvas ---------------------------------------------
+    // ── 6. Composite → canvas ─────────────────────────────────────────────
     {
       const rp = enc.beginRenderPass({
         colorAttachments: [{
@@ -410,7 +410,7 @@ export class WebGPURenderer {
     d.queue.submit([enc.finish()]);
   }
 
-  // -- Cleanup ---------------------------------------------------------------
+  // ── Cleanup ───────────────────────────────────────────────────────────────
 
   destroy() {
     this.hdrTex?.destroy();

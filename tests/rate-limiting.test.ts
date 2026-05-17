@@ -8,7 +8,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-// -- Pure rate-limit logic (extracted for testability) --------------------------
+// ── Pure rate-limit logic (extracted for testability) ──────────────────────────
 
 const WINDOW_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -33,7 +33,7 @@ function windowStart(now = Date.now()): string {
   return new Date(now - WINDOW_MS).toISOString();
 }
 
-// -- Tests ---------------------------------------------------------------------
+// ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe('Rate limiting: public posts (10 per 5 min)', () => {
   it('allows posting when under the limit', () => {

@@ -189,7 +189,7 @@ export class CreativeOptimizero<T = any> {
     }
 
     // Step 7: Rank remaining options by final_score (descending)
-    scored.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.final_score - a.final_score);
+    scored.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.final_score - a.final_score);
 
     // Step 8: Return best option + top alternatives
     const best = scored.length > 0 ? scored[0] : null;

@@ -15,7 +15,7 @@ export interface UseAgentSessionReturn {
   closeSession: () => Promise<void>;
 }
 
-export function useAgentSession(: UseAgentSessionReturn) {
+export function useAgentSession(): UseAgentSessionReturn {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<AgentMessage[]>([]);
@@ -36,14 +36,14 @@ export function useAgentSession(: UseAgentSessionReturn) {
     async (prompt: string) => {
       if (!sessionId) return;
       setIsLoading(true);
-      setMessages(prev => [...prev, { role: 'user', content: prompt }]);
+      setMessages((prev) => [...prev, { role: 'user', content: prompt }]);
       const res = await fetch('/api/agent/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'prompt', sessionId, prompt }),
       });
       const data = await res.json() as { response: string };
-      setMessages(prev => [
+      setMessages((prev) => [
         ...prev,
         { role: 'assistant', content: data.response },
       ]);

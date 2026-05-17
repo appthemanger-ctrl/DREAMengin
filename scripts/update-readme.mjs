@@ -82,9 +82,9 @@ const utcDate = new Date(rawDate || Date.now())
 const nameStatus = git('git diff-tree --no-commit-id -r --name-status HEAD');
 const diffLines  = nameStatus.split('\n').filter(Boolean);
 
-const added    = diffLines.filter(l => l.startsWith('A')).length;
-const modified = diffLines.filter(l => l.startsWith('M')).length;
-const deleted  = diffLines.filter(l => l.startsWith('D')).length;
+const added    = diffLines.filter((l) => l.startsWith('A')).length;
+const modified = diffLines.filter((l) => l.startsWith('M')).length;
+const deleted  = diffLines.filter((l) => l.startsWith('D')).length;
 
 const statParts = [];
 if (added)    statParts.push(`+${added}`);
@@ -95,13 +95,13 @@ const statLine = statParts.length ? statParts.join(' ') : '—';
 // ── 3. Collect live repo stats ────────────────────────────────────────────────
 
 const testCount     = existsSync(resolve(ROOT, 'tests'))
-  ? readdirSync(resolve(ROOT, 'tests')).filter(f => f.endsWith('.test.ts')).length
+  ? readdirSync(resolve(ROOT, 'tests')).filter((f) => f.endsWith('.test.ts')).length
   : 0;
 const pageCount     = countShell(`find ${ROOT}/app -name "page.tsx" 2>/dev/null | wc -l`);
 const apiCount      = countShell(`find ${ROOT}/app/api -name "route.ts" 2>/dev/null | wc -l`);
 const routeCount    = pageCount + apiCount;
 const workflowCount = existsSync(resolve(ROOT, '.github/workflows'))
-  ? readdirSync(resolve(ROOT, '.github/workflows')).filter(f => f.endsWith('.yml') || f.endsWith('.yaml')).length
+  ? readdirSync(resolve(ROOT, '.github/workflows')).filter((f) => f.endsWith('.yml') || f.endsWith('.yaml')).length
   : 0;
 
 // ── 4a. Build a live file-structure tree (2 levels deep) ──────────────────────
@@ -134,7 +134,7 @@ function buildFileStructure() {
   }
 
   const entries = readdirSync(ROOT)
-    .filter(n => !SKIP.has(n) && !n.startsWith('.') || n === '.github')
+    .filter((n) => !SKIP.has(n) && !n.startsWith('.') || n === '.github')
     .sort((a, b) => {
       // dirs first
       const aDir = statSync(join(ROOT, a)).isDirectory();
@@ -158,7 +158,7 @@ function buildFileStructure() {
       let children;
       try {
         children = readdirSync(abs)
-          .filter(c => !SKIP.has(c) && !c.startsWith('.'))
+          .filter((c) => !SKIP.has(c) && !c.startsWith('.'))
           .sort((a, b) => {
             const aD = statSync(join(abs, a)).isDirectory();
             const bD = statSync(join(abs, b)).isDirectory();

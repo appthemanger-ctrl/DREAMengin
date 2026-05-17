@@ -41,7 +41,7 @@ import {
   Eye, Download, Settings, Zap, Grid, List,
 } from 'lucide-react';
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 /** A row from the global_registry table (GAL hub). */
 export interface RegistryEntry {
@@ -91,7 +91,7 @@ type SortMode = 'newest' | 'oldest' | 'alphabetical' | 'type';
 /** View mode for the asset grid. */
 type ViewMode = 'grid' | 'list';
 
-// -- Constants -----------------------------------------------------------------
+// ── Constants ─────────────────────────────────────────────────────────────────
 
 const ACCENT = '#c8981a'; // Gold — canonical DREAMengin premium accent
 const ACCENT_BG = 'rgba(200,152,26,0.08)';
@@ -111,11 +111,11 @@ const TYPE_META: Record<string, { icon: React.ReactNode; color: string; label: s
 
 const DEFAULT_TYPE_META = { icon: <Box className="w-4 h-4" />, color: '#64748b', label: 'Object' };
 
-function getTypeMeta(type: string) {
+function getTypeMeta(type: string ){
   return TYPE_META[type] ?? DEFAULT_TYPE_META;
 }
 
-function formatTimestamp(iso: string: string) {
+function formatTimestamp(iso: string): string {
   try {
     const d = new Date(iso);
     const now = new Date();
@@ -133,7 +133,7 @@ function formatTimestamp(iso: string: string) {
   }
 }
 
-// -- Component -----------------------------------------------------------------
+// ── Component ─────────────────────────────────────────────────────────────────
 
 export interface UniversalAssetRegistryProps {
   /** Optional compact mode — hides the header and reduces padding. */
@@ -144,46 +144,46 @@ export interface UniversalAssetRegistryProps {
   onSelectAsset?: (entry: EnrichedEntry) => void;
 }
 
-export default function UniversalAssetRegistry() {
+export default function UniversalAssetRegistry(){
   compact = false,
   accentColor = ACCENT,
   onSelectAsset,
 }: UniversalAssetRegistryProps) {
   const { record: forgeRecord } = useForgeActivity({ enginId: 'registry' });
 
-  // -- Core state --------------------------------------------------------------
+  // ── Core state ──────────────────────────────────────────────────────────────
   const [entries, setEntries] = useState<EnrichedEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // -- Search & filter ---------------------------------------------------------
+  // ── Search & filter ─────────────────────────────────────────────────────────
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<SortMode>('newest');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [showFilters, setShowFilters] = useState(false);
 
-  // -- Detail panel ------------------------------------------------------------
+  // ── Detail panel ────────────────────────────────────────────────────────────
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  // -- CRUD state --------------------------------------------------------------
+  // ── CRUD state ──────────────────────────────────────────────────────────────
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editLabel, setEditLabel] = useState('');
   const [deleting, setDeleting] = useState<string | null>(null);
 
-  // -- Register new asset ------------------------------------------------------
+  // ── Register new asset ──────────────────────────────────────────────────────
   const [showRegister, setShowRegister] = useState(false);
   const [newType, setNewType] = useState('');
   const [newInternalId, setNewInternalId] = useState('');
   const [newLabel, setNewLabel] = useState('');
   const [registering, setRegistering] = useState(false);
 
-  // -- Refs --------------------------------------------------------------------
+  // ── Refs ────────────────────────────────────────────────────────────────────
   const channelRef = useRef<ReturnType<ReturnType<typeof createClient>['channel']> | null>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
 
-  // -- Data fetching -----------------------------------------------------------
+  // ── Data fetching ───────────────────────────────────────────────────────────
 
   const fetchRegistry = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -218,8 +218,8 @@ export default function UniversalAssetRegistry() {
 
       // Fetch game_assets for enrichment (only for game_asset type entries)
       const gameAssetIds = raw
-        .filter(e => e.object_type === 'game_asset')
-        .map(e => e.internal_id);
+        .filter((e) => e.object_type === 'game_asset')
+        .map((e) => e.internal_id);
 
       const gameAssetsMap: Record<string, GameAssetRow> = {};
       if (gameAssetIds.length > 0) {
@@ -251,7 +251,7 @@ export default function UniversalAssetRegistry() {
       }
 
       // Enrich entries
-      const enriched: EnrichedEntry[] = raw.map(entry => ({
+      const enriched: EnrichedEntry[] = raw.map((entry) => ({
         ...entry,
         gameAsset: entry.object_type === 'game_asset' ? gameAssetsMap[entry.internal_id] : undefined,
         bindings: entry.object_type === 'game_asset' ? bindingsMap[entry.internal_id] : undefined,
@@ -266,12 +266,12 @@ export default function UniversalAssetRegistry() {
     }
   }, []);
 
-  // -- Initial load ------------------------------------------------------------
+  // ── Initial load ────────────────────────────────────────────────────────────
   useEffect(() => {
     fetchRegistry();
   }, [fetchRegistry]);
 
-  // -- Realtime subscription ---------------------------------------------------
+  // ── Realtime subscription ───────────────────────────────────────────────────
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
@@ -292,30 +292,30 @@ export default function UniversalAssetRegistry() {
     };
   }, [fetchRegistry]);
 
-  // -- Computed: unique categories ---------------------------------------------
+  // ── Computed: unique categories ─────────────────────────────────────────────
   const categories = useMemo(() => {
     const types = new Map<string, number>();
     for (const e of entries) {
       types.set(e.object_type, (types.get(e.object_type) ?? 0) + 1);
     }
     return Array.from(types.entries())
-      .sort(a: Record<string, unknown>, b: Record<string, unknown> => b[1] - a[1])
+      .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b[1] - a[1])
       .map(([type, count]) => ({ type, count, ...getTypeMeta(type) }));
   }, [entries]);
 
-  // -- Computed: filtered & sorted entries -------------------------------------
+  // ── Computed: filtered & sorted entries ─────────────────────────────────────
   const filteredEntries = useMemo(() => {
     let result = entries;
 
     // Category filter
     if (activeCategory) {
-      result = result.filter(e => e.object_type === activeCategory);
+      result = result.filter((e) => e.object_type === activeCategory);
     }
 
     // Search filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      result = result.filter(e =>
+      result = result.filter((e) =>
         e.label.toLowerCase().includes(q) ||
         e.object_type.toLowerCase().includes(q) ||
         e.internal_id.toLowerCase().includes(q)
@@ -325,29 +325,29 @@ export default function UniversalAssetRegistry() {
     // Sort
     switch (sortMode) {
       case 'newest':
-        result = [...result].sort(a: Record<string, unknown>, b: Record<string, unknown> => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        result = [...result].sort((a: Record<string, unknown>, b: Record<string, unknown>) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         break;
       case 'oldest':
-        result = [...result].sort(a: Record<string, unknown>, b: Record<string, unknown> => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        result = [...result].sort((a: Record<string, unknown>, b: Record<string, unknown>) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
         break;
       case 'alphabetical':
-        result = [...result].sort(a: Record<string, unknown>, b: Record<string, unknown> => a.label.localeCompare(b.label));
+        result = [...result].sort((a: Record<string, unknown>, b: Record<string, unknown>) => a.label.localeCompare(b.label));
         break;
       case 'type':
-        result = [...result].sort(a: Record<string, unknown>, b: Record<string, unknown> => a.object_type.localeCompare(b.object_type));
+        result = [...result].sort((a: Record<string, unknown>, b: Record<string, unknown>) => a.object_type.localeCompare(b.object_type));
         break;
     }
 
     return result;
   }, [entries, activeCategory, searchQuery, sortMode]);
 
-  // -- Stats -------------------------------------------------------------------
+  // ── Stats ───────────────────────────────────────────────────────────────────
   const stats = useMemo(() => {
     const total = entries.length;
-    const gameAssets = entries.filter(e => e.object_type === 'game_asset').length;
-    const withBindings = entries.filter(e => e.bindings && e.bindings.length > 0).length;
-    const withDna = entries.filter(e => e.gameAsset?.config_dna).length;
-    const recentCount = entries.filter(e => {
+    const gameAssets = entries.filter((e) => e.object_type === 'game_asset').length;
+    const withBindings = entries.filter((e) => e.bindings && e.bindings.length > 0).length;
+    const withDna = entries.filter((e) => e.gameAsset?.config_dna).length;
+    const recentCount = entries.filter((e) => {
       const d = new Date(e.created_at);
       const now = new Date();
       return now.getTime() - d.getTime() < 7 * 24 * 60 * 60 * 1000;
@@ -355,7 +355,7 @@ export default function UniversalAssetRegistry() {
     return { total, gameAssets, withBindings, withDna, recentCount, typeCount: categories.length };
   }, [entries, categories]);
 
-  // -- CRUD handlers -----------------------------------------------------------
+  // ── CRUD handlers ───────────────────────────────────────────────────────────
 
   const handleRegister = useCallback(async () => {
     if (!newType.trim() || !newInternalId.trim() || !newLabel.trim()) return;
@@ -409,7 +409,7 @@ export default function UniversalAssetRegistry() {
         setError(updateError.message);
       } else {
         forgeRecord(`Renamed asset: ${entry.label} → ${editLabel.trim()}`);
-        setEntries(prev => prev.map(e =>
+        setEntries((prev) => prev.map((e) =>
           e.id === entry.id ? { ...e, label: editLabel.trim() } : e
         ));
       }
@@ -432,7 +432,7 @@ export default function UniversalAssetRegistry() {
         setError(deleteError.message);
       } else {
         forgeRecord(`Deleted asset: ${entry.label}`);
-        setEntries(prev => prev.filter(e => e.id !== entry.id));
+        setEntries((prev) => prev.filter((e) => e.id !== entry.id));
         if (expandedId === entry.id) setExpandedId(null);
       }
     } catch {
@@ -443,10 +443,10 @@ export default function UniversalAssetRegistry() {
   }, [forgeRecord, expandedId]);
 
   const toggleExpand = useCallback((id: string) => {
-    setExpandedId(prev => prev === id ? null : id);
+    setExpandedId((prev) => prev === id ? null : id);
   }, []);
 
-  // -- Render helpers ----------------------------------------------------------
+  // ── Render helpers ──────────────────────────────────────────────────────────
 
   const renderStatCard = (label: string, value: number | string, icon: React.ReactNode, color: string) => (
     <div
@@ -832,7 +832,7 @@ export default function UniversalAssetRegistry() {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {entry.bindings.map(binding => (
+                  {entry.bindings.map((binding) => (
                     <div
                       key={binding.id}
                       style={{
@@ -878,11 +878,11 @@ export default function UniversalAssetRegistry() {
     );
   };
 
-  // -- Main render -------------------------------------------------------------
+  // ── Main render ─────────────────────────────────────────────────────────────
 
   return (
     <div style={{ padding: compact ? '8px' : '20px 16px', maxWidth: 960, margin: '0 auto' }}>
-      {/* -- Header ---------------------------------------------------------- */}
+      {/* ── Header ────────────────────────────────────────────────────────── */}
       {!compact && (
         <div style={{ marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -914,7 +914,7 @@ export default function UniversalAssetRegistry() {
         </div>
       )}
 
-      {/* -- Error banner ---------------------------------------------------- */}
+      {/* ── Error banner ──────────────────────────────────────────────────── */}
       {error && (
         <div style={{
           padding: '10px 14px',
@@ -945,7 +945,7 @@ export default function UniversalAssetRegistry() {
         </div>
       )}
 
-      {/* -- Stats dashboard ------------------------------------------------- */}
+      {/* ── Stats dashboard ───────────────────────────────────────────────── */}
       {!loading && entries.length > 0 && (
         <div style={{
           display: 'grid',
@@ -962,7 +962,7 @@ export default function UniversalAssetRegistry() {
         </div>
       )}
 
-      {/* -- Toolbar: Search + Filter + Actions ------------------------------ */}
+      {/* ── Toolbar: Search + Filter + Actions ────────────────────────────── */}
       <div style={{
         display: 'flex', flexWrap: 'wrap', gap: 8,
         marginBottom: 14, alignItems: 'center',
@@ -1103,7 +1103,7 @@ export default function UniversalAssetRegistry() {
         </button>
       </div>
 
-      {/* -- Category tabs --------------------------------------------------- */}
+      {/* ── Category tabs ─────────────────────────────────────────────────── */}
       {showFilters && categories.length > 0 && (
         <div style={{
           display: 'flex', flexWrap: 'wrap', gap: 6,
@@ -1126,7 +1126,7 @@ export default function UniversalAssetRegistry() {
             All ({entries.length})
           </button>
 
-          {categories.map(cat => (
+          {categories.map((cat) => (
             <button
               key={cat.type}
               onClick={() => setActiveCategory(activeCategory === cat.type ? null : cat.type)}
@@ -1145,7 +1145,7 @@ export default function UniversalAssetRegistry() {
         </div>
       )}
 
-      {/* -- Register new asset form ----------------------------------------- */}
+      {/* ── Register new asset form ───────────────────────────────────────── */}
       {showRegister && (
         <div style={{
           marginBottom: 16, padding: '16px',
@@ -1232,7 +1232,7 @@ export default function UniversalAssetRegistry() {
         </div>
       )}
 
-      {/* -- Loading state --------------------------------------------------- */}
+      {/* ── Loading state ─────────────────────────────────────────────────── */}
       {loading && (
         <div style={{
           display: 'flex', flexDirection: 'column',
@@ -1246,7 +1246,7 @@ export default function UniversalAssetRegistry() {
         </div>
       )}
 
-      {/* -- Empty state ----------------------------------------------------- */}
+      {/* ── Empty state ───────────────────────────────────────────────────── */}
       {!loading && filteredEntries.length === 0 && (
         <div style={{
           display: 'flex', flexDirection: 'column',
@@ -1281,7 +1281,7 @@ export default function UniversalAssetRegistry() {
         </div>
       )}
 
-      {/* -- Asset grid / list ----------------------------------------------- */}
+      {/* ── Asset grid / list ─────────────────────────────────────────────── */}
       {!loading && filteredEntries.length > 0 && (
         <>
           {/* Result count */}
@@ -1304,12 +1304,12 @@ export default function UniversalAssetRegistry() {
             flexDirection: viewMode === 'list' ? 'column' : undefined,
             gap: 10,
           }}>
-            {filteredEntries.map(entry => renderAssetCard(entry))}
+            {filteredEntries.map((entry) => renderAssetCard(entry))}
           </div>
         </>
       )}
 
-      {/* -- Footer / live indicator ----------------------------------------- */}
+      {/* ── Footer / live indicator ───────────────────────────────────────── */}
       {!loading && (
         <div style={{
           marginTop: 20,
@@ -1330,7 +1330,7 @@ export default function UniversalAssetRegistry() {
   );
 }
 
-// -- Shared inline styles (detail panel fields) --------------------------------
+// ── Shared inline styles (detail panel fields) ────────────────────────────────
 
 const detailFieldStyle: React.CSSProperties = {
   padding: '8px 10px',

@@ -30,11 +30,11 @@ type PersistedState = Record<string, {
   progress?: number;
 }>;
 
-function storeKey(cartridgeId: string: string) {
+function storeKey(cartridgeId: string): string {
   return `${PREFIX}:${cartridgeId}`;
 }
 
-function readState(cartridgeId: string: PersistedState) {
+function readState(cartridgeId: string): PersistedState {
   try {
     const raw = localStorage.getItem(storeKey(cartridgeId));
     if (!raw) return {};
@@ -44,7 +44,7 @@ function readState(cartridgeId: string: PersistedState) {
   }
 }
 
-function writeState(cartridgeId: string, state: PersistedState: void) {
+function writeState(cartridgeId: string, state: PersistedState): void {
   try {
     localStorage.setItem(storeKey(cartridgeId), JSON.stringify(state));
   } catch {
@@ -114,12 +114,12 @@ export function createAchievementsAPI(
 }
 
 /** Wipe all achievement state for a cartridge. */
-export function purgeCartridgeAchievements(cartridgeId: string: void) {
+export function purgeCartridgeAchievements(cartridgeId: string): void {
   localStorage.removeItem(storeKey(cartridgeId));
 }
 
 /** Return count of unlocked achievements for a cartridge (without full API). */
-export function getUnlockedCount(cartridgeId: string: number) {
+export function getUnlockedCount(cartridgeId: string): number {
   const state = readState(cartridgeId);
   return Object.values(state).filter((s: Record<string, unknown>) => s.unlocked).length;
 }

@@ -41,7 +41,7 @@ const ADMIN_UI = { route: '/idari-console' };
  * Call the real IDARi endpoint and return the AI response text.
  * Throws on network/auth error so callers can log the failure.
  */
-async function callIdari(message: string: Promise<string>) {
+async function callIdari(message: string): Promise<string> {
   const res = await fetch('/api/ai/idari', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -54,8 +54,8 @@ async function callIdari(message: string: Promise<string>) {
   return data.response_text ?? 'IDARi processed the request.';
 }
 
-export default function IDariPanel() { userId: _userId, isAdmin }: IDariPanelProps {
-  // -- Control tab state --------------------------------------------------------
+export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps) {
+  // ── Control tab state ────────────────────────────────────────────────────────
   const [isRunning, setIsRunning] = useState(true);
   const [logs, setLogs] = useState<IdariLog[]>([]);
   const [prompt, setPrompt] = useState('');
@@ -129,7 +129,7 @@ export default function IDariPanel() { userId: _userId, isAdmin }: IDariPanelPro
 
   const addLog = (action: string, status: IdariLog['status'], details?: string) => {
     const timestamp = new Date();
-    setLogs(prev => [{ timestamp, action, status, details }, ...prev.slice(0, 49)]);
+    setLogs((prev) => [{ timestamp, action, status, details }, ...prev.slice(0, 49)]);
     emitIdariEvent({
       type: 'idari:log',
       timestamp: timestamp.toISOString(),
@@ -235,7 +235,7 @@ export default function IDariPanel() { userId: _userId, isAdmin }: IDariPanelPro
         </button>
       </div>
 
-      {/* -- Control -------------------------------------------------------- */}
+      {/* ── Control ──────────────────────────────────────────────────────── */}
       <>
         {/* Status Indicators */}
           <div className="grid grid-cols-3 gap-3 mb-6">
@@ -339,7 +339,7 @@ export default function IDariPanel() { userId: _userId, isAdmin }: IDariPanelPro
                   No activity yet. Activate IDARi to start monitoring.
                 </p>
               ) : (
-                logs.map(log: Record<string, unknown>, idx: number => (
+                logs.map(log: Record<string, unknown>, (idx: number ) => (
                   <div
                     key={idx}
                     className="flex items-start gap-2 p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"

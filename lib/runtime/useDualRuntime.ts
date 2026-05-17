@@ -33,7 +33,7 @@ import {
   type PeerState,
 } from './dualRuntimeBridge';
 
-// --- Return type --------------------------------------------------------------
+// ─── Return type ──────────────────────────────────────────────────────────────
 
 export interface UseDualRuntimeReturn {
   /**
@@ -75,7 +75,7 @@ export interface UseDualRuntimeReturn {
   channel: DualRuntimeChannel;
 }
 
-// --- Hook ---------------------------------------------------------------------
+// ─── Hook ─────────────────────────────────────────────────────────────────────
 
 /**
  * useDualRuntime
@@ -83,7 +83,7 @@ export interface UseDualRuntimeReturn {
  * @param channel - The primary channel for this hook instance (used for
  *   scoping identity — you can still subscribe to other channels via `on`).
  */
-export function useDualRuntime(channel: DualRuntimeChannel: UseDualRuntimeReturn) {
+export function useDualRuntime(channel: DualRuntimeChannel): UseDualRuntimeReturn {
   // Track all subscriptions created by this hook instance for cleanup
   const unsubscribersRef = useRef<UnsubscribeFn[]>([]);
 
@@ -92,7 +92,7 @@ export function useDualRuntime(channel: DualRuntimeChannel: UseDualRuntimeReturn
 
   // Refresh peers snapshot from bridge-driven activity updates
   useEffect(() => {
-    return bridge.subscribePeerActivity(nextPeers: Record<string, unknown> => {
+    return bridge.subscribePeerActivity((nextPeers: Record<string, unknown>) => {
       setPeers(nextPeers);
     });
   }, []);
@@ -158,7 +158,7 @@ export function useDualRuntime(channel: DualRuntimeChannel: UseDualRuntimeReturn
   return { emit, on, peers, channel };
 }
 
-// --- Convenience re-exports ---------------------------------------------------
+// ─── Convenience re-exports ───────────────────────────────────────────────────
 
 export type {
   DualRuntimeChannel,

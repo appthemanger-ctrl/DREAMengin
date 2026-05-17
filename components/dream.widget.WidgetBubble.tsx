@@ -21,7 +21,7 @@ interface WidgetBubbleProps {
   };
 }
 
-export default function WidgetBubble() { widget }: WidgetBubbleProps {
+export default function WidgetBubble({ widget }: WidgetBubbleProps) {
   const [{ isDragging }, drag] = useDrag({
     type: 'widget',
     item: { id: widget.id, type: widget.type },

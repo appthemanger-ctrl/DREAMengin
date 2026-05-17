@@ -10,7 +10,7 @@ interface NexusMenuProps {
   onViewAllDreams: () => void;
 }
 
-export default function NexusMenu() { onClose, onOpenDrEams: Record<string, unknown>, onViewAllDreams }: NexusMenuProps {
+export default function NexusMenu({ onClose, onOpenDrEams: Record<string, unknown>, onViewAllDreams }: NexusMenuProps) {
   const router = useRouter();
 
   const items = [

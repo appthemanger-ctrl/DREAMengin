@@ -23,7 +23,7 @@ export const metadata = { title: 'Create – Dreamengin', description: 'Ideas, t
 
 const ACCENT = '#f59e0b';
 
-export default async function CreateDaydreamPage() {
+export default async function CreateDaydreamPage( ){
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -51,7 +51,7 @@ export default async function CreateDaydreamPage() {
       <div className="de-auth-content space-y-4">
         <p className="text-sm" style={{ color: 'var(--de-text-dim)' }}>Set up your content here on Side A. Open ContentEngin (Side B) to write, schedule, and publish.</p>
 
-        {WIDGETS.map({ emoji, label: string, desc: string, color: Record<string, unknown>, href } => (
+        {WIDGETS.map(({ emoji, label: string, desc: string, color: Record<string, unknown>, href }) => (
           <div key={label} className="de-widget">
             <div className="de-widget-header">
               <div className="flex items-center gap-2">
@@ -70,7 +70,7 @@ export default async function CreateDaydreamPage() {
           </div>
         ))}
 
-        {/* -- Open ContentEngin CTA -- */}
+        {/* ── Open ContentEngin CTA ── */}
         <div className="de-widget" style={{ borderColor: 'rgba(245,158,11,0.3)', background: 'linear-gradient(135deg, rgba(245,158,11,0.06), rgba(251,191,36,0.04))' }}>
           <div className="de-widget-header">
             <Sparkles className="w-4 h-4" style={{ color: ACCENT }} />
@@ -81,7 +81,7 @@ export default async function CreateDaydreamPage() {
               Open <strong>ContentEngin (Side B)</strong> for the full creation suite — draft composer, content calendar, publishing queue, AI caption generator, SEO scorer, and more.
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
-              {['Draft Composer', 'Content Calendar', 'Publish Queue', 'AI Captions', 'SEO Scorer', 'Repurposer'].map(f => (
+              {['Draft Composer', 'Content Calendar', 'Publish Queue', 'AI Captions', 'SEO Scorer', 'Repurposer'].map((f) => (
                 <span key={f} style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 999, background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}25` }}>{f}</span>
               ))}
             </div>
@@ -92,7 +92,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* -- Feature 7: Content Repurposer -- */}
+        {/* ── Feature 7: Content Repurposer ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <FileText className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -105,7 +105,7 @@ export default async function CreateDaydreamPage() {
                 { from: '🎬 Long Video', to: '📱 5 Reels' },
                 { from: '🎙 Podcast', to: '📝 Newsletter' },
                 { from: '🧵 Thread', to: '📸 Carousel' },
-              ].map(r => (
+              ].map((r) => (
                 <div key={r.from} style={{ padding: '9px 10px', borderRadius: 9, background: `${ACCENT}08`, border: `1px solid ${ACCENT}15` }}>
                   <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{r.from}</div>
                   <div style={{ fontSize: 11, fontWeight: 700, color: ACCENT, marginTop: 2 }}>→ {r.to}</div>
@@ -115,7 +115,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* -- Feature 8: SEO Title Optimizer -- */}
+        {/* ── Feature 8: SEO Title Optimizer ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <BarChart2 className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -126,7 +126,7 @@ export default async function CreateDaydreamPage() {
               { title: 'How I Built [X] in [Time]', score: 92, color: '#22c55e' },
               { title: 'The Ultimate Guide to [Topic]', score: 85, color: '#f59e0b' },
               { title: '[N] Things I Learned from [X]', score: 88, color: '#22c55e' },
-            ].map(t => (
+            ].map((t) => (
               <div key={t.title} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 10px', marginBottom: 5, borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}15` }}>
                 <span style={{ fontSize: 11, color: 'var(--de-heading)' }}>{t.title}</span>
                 <span style={{ fontSize: 10, fontWeight: 700, color: t.color }}>{t.score}pts</span>
@@ -135,7 +135,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* -- Feature 9: Multi-Platform Scheduler -- */}
+        {/* ── Feature 9: Multi-Platform Scheduler ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <Calendar className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -148,7 +148,7 @@ export default async function CreateDaydreamPage() {
                 { platform: '🎵 TikTok',    optimal: 'Fri 7 PM' },
                 { platform: '🐦 X',         optimal: 'Thu 9 AM' },
                 { platform: '▶️ YouTube',   optimal: 'Sat 2 PM' },
-              ].map(p => (
+              ].map((p) => (
                 <div key={p.platform} style={{ padding: '9px 10px', borderRadius: 9, background: `${ACCENT}08`, border: `1px solid ${ACCENT}15` }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 2 }}>{p.platform}</div>
                   <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>Best: {p.optimal}</div>
@@ -158,7 +158,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* -- Feature 10: Publishing Queue -- */}
+        {/* ── Feature 10: Publishing Queue ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">📤 Publishing Queue</span>
@@ -171,7 +171,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* -- Feature 11: AI Caption Generator -- */}
+        {/* ── Feature 11: AI Caption Generator ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">✨ AI Caption Generator</span>
@@ -181,28 +181,28 @@ export default async function CreateDaydreamPage() {
               Describe your post and get 3 caption variants — short, medium, and story-style — optimized for each platform.
             </p>
             <div style={{ display: 'flex', gap: 6 }}>
-              {['Short', 'Medium', 'Story'].map(v => (
+              {['Short', 'Medium', 'Story'].map((v) => (
                 <div key={v} style={{ flex: 1, padding: '7px 4px', borderRadius: 8, background: `${ACCENT}10`, border: `1px solid ${ACCENT}20`, textAlign: 'center', fontSize: 11, fontWeight: 700, color: ACCENT }}>{v}</div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* -- Feature 12: Hashtag Optimizer -- */}
+        {/* ── Feature 12: Hashtag Optimizer ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title"># Hashtag Optimizer</span>
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-              {['#dreamlife', '#creator', '#buildinpublic', '#contentgame', '#dreamengin', '#buildingthefuture'].map(tag => (
+              {['#dreamlife', '#creator', '#buildinpublic', '#contentgame', '#dreamengin', '#buildingthefuture'].map((tag) => (
                 <span key={tag} style={{ padding: '4px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}25` }}>{tag}</span>
               ))}
             </div>
           </div>
         </div>
 
-        {/* -- Feature 13: Short Video Editor -- */}
+        {/* ── Feature 13: Short Video Editor ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <Video className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -213,14 +213,14 @@ export default async function CreateDaydreamPage() {
               Trim, caption, and format video clips for Reels, TikTok, and YouTube Shorts — all from the browser.
             </p>
             <div style={{ display: 'flex', gap: 6 }}>
-              {['Trim', 'Caption', 'Format', 'Export'].map(a => (
+              {['Trim', 'Caption', 'Format', 'Export'].map((a) => (
                 <div key={a} style={{ flex: 1, padding: '7px 4px', borderRadius: 8, background: `${ACCENT}10`, border: `1px solid ${ACCENT}20`, textAlign: 'center', fontSize: 11, fontWeight: 700, color: ACCENT }}>{a}</div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* -- Feature 14: Template Gallery -- */}
+        {/* ── Feature 14: Template Gallery ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">🎨 Template Gallery</span>
@@ -234,7 +234,7 @@ export default async function CreateDaydreamPage() {
                 { name: 'Reaction',     emoji: '😮' },
                 { name: 'Q&A',          emoji: '💬' },
                 { name: 'Day-in-Life',  emoji: '📅' },
-              ].map(t => (
+              ].map((t) => (
                 <div key={t.name} style={{ padding: '10px 6px', borderRadius: 9, background: `${ACCENT}08`, border: `1px solid ${ACCENT}15`, textAlign: 'center' }}>
                   <div style={{ fontSize: 20 }}>{t.emoji}</div>
                   <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', marginTop: 4 }}>{t.name}</div>
@@ -244,7 +244,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* -- Feature 15: Content Analytics Summary -- */}
+        {/* ── Feature 15: Content Analytics Summary ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <BarChart2 className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -263,7 +263,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* -- Feature 16: Ad Copy Generator -- */}
+        {/* ── Feature 16: Ad Copy Generator ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">📣 Ad Copy Generator</span>
@@ -278,7 +278,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* -- Feature 17: Newsletter Template -- */}
+        {/* ── Feature 17: Newsletter Template ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">✉ Newsletter Template</span>
@@ -295,7 +295,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* -- Feature 18: Co-authoring Draft -- */}
+        {/* ── Feature 18: Co-authoring Draft ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">👥 Co-authoring Draft</span>
@@ -305,14 +305,14 @@ export default async function CreateDaydreamPage() {
               Collaborate on drafts with co-authors in real-time. Mentions, comments, and version history included.
             </p>
             <div style={{ display: 'flex', gap: 8 }}>
-              {['@coauthor1', '@creator2'].map(h => (
+              {['@coauthor1', '@creator2'].map((h) => (
                 <div key={h} style={{ flex: 1, padding: '7px 10px', borderRadius: 9, background: `${ACCENT}08`, border: `1px solid ${ACCENT}15`, textAlign: 'center', fontSize: 11, fontWeight: 700, color: ACCENT }}>{h}</div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* -- Feature 19: Performance Predictor -- */}
+        {/* ── Feature 19: Performance Predictor ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">📈 Performance Predictor</span>
@@ -324,7 +324,7 @@ export default async function CreateDaydreamPage() {
                 { type: '📝 Carousel', score: 84, label: 'Strong' },
                 { type: '🐦 Thread', score: 72, label: 'Moderate' },
                 { type: '📸 Static', score: 58, label: 'Average' },
-              ].map(f => (
+              ].map((f) => (
                 <div key={f.type} style={{ padding: '8px 8px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}12`, textAlign: 'center' }}>
                   <div style={{ fontSize: 12, marginBottom: 3 }}>{f.type}</div>
                   <div style={{ fontSize: 16, fontWeight: 800, color: f.score >= 80 ? '#22c55e' : f.score >= 65 ? ACCENT : '#ef4444' }}>{f.score}%</div>
@@ -335,7 +335,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* -- Feature 20: Game Cinematic Intro Templates -- */}
+        {/* ── Feature 20: Game Cinematic Intro Templates ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">🎮 Cinematic Intro Templates</span>
@@ -351,7 +351,7 @@ export default async function CreateDaydreamPage() {
                 { name: 'Drift Intro', emoji: '🏎', tier: 'Premium' },
                 { name: 'Galaxy Fly', emoji: '🌌', tier: 'Premium' },
                 { name: 'Glitch Cut', emoji: '⚡', tier: 'Free' },
-              ].map(t => (
+              ].map((t) => (
                 <div key={t.name} style={{ padding: '9px 9px', borderRadius: 9, background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.18)' }}>
                   <div style={{ fontSize: 18, marginBottom: 3 }}>{t.emoji}</div>
                   <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)' }}>{t.name}</div>
@@ -365,7 +365,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* -- Workflow Brain -- */}
+        {/* ── Workflow Brain ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <Brain className="w-4 h-4 mr-1" style={{ color: '#6366f1' }} />
@@ -382,7 +382,7 @@ export default async function CreateDaydreamPage() {
                 { icon: '💡', label: 'Ideation',   badge: 'done'    },
                 { icon: '✍️', label: 'Production', badge: 'active'  },
                 { icon: '📤', label: 'Publish',    badge: 'pending' },
-              ].map(s => (
+              ].map((s) => (
                 <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: s.badge === 'active' ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.4)', border: `1px solid ${s.badge === 'active' ? 'rgba(99,102,241,0.25)' : 'rgba(160,195,240,0.15)'}` }}>
                   <span>{s.icon}</span>
                   <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)', flex: 1 }}>{s.label}</span>
@@ -396,7 +396,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* -- Auto Content Repurposer -- */}
+        {/* ── Auto Content Repurposer ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <RefreshCw className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -408,7 +408,7 @@ export default async function CreateDaydreamPage() {
               Paste one piece of long-form content — get 10 platform-ready formats in seconds. Blog → Tweet, Reel, Newsletter, Short, and more.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
-              {['Twitter/X', 'Instagram', 'LinkedIn', 'TikTok', 'YouTube Short', 'Newsletter', 'Pinterest', 'Podcast Intro', 'Blog CTA', 'Reel Hook'].map(p => (
+              {['Twitter/X', 'Instagram', 'LinkedIn', 'TikTok', 'YouTube Short', 'Newsletter', 'Pinterest', 'Podcast Intro', 'Blog CTA', 'Reel Hook'].map((p) => (
                 <div key={p} style={{ padding: '5px 8px', borderRadius: 7, background: `${ACCENT}08`, border: `1px solid ${ACCENT}15`, fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)' }}>{p}</div>
               ))}
             </div>
@@ -418,7 +418,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* -- AI Post Intelligence -- */}
+        {/* ── AI Post Intelligence ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <Sparkles className="w-4 h-4 mr-1" style={{ color: '#6366f1' }} />
@@ -433,7 +433,7 @@ export default async function CreateDaydreamPage() {
                 { label: 'Gap Detection',       desc: 'Spot content type gaps before they cost reach' },
                 { label: 'Next Best Content',   desc: 'AI picks the format most likely to perform now' },
                 { label: 'Optimal Post Time',   desc: 'Per-platform schedule based on your engagement' },
-              ].map(f => (
+              ].map((f) => (
                 <div key={f.label} style={{ padding: '7px 10px', borderRadius: 8, background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.12)' }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: '#6366f1', marginBottom: 1 }}>{f.label}</div>
                   <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{f.desc}</div>

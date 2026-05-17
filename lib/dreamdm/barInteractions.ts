@@ -1,4 +1,4 @@
-// -- Split-screen divider constants --------------------------------------------
+// ── Split-screen divider constants ────────────────────────────────────────────
 /** Fixed layout reservation (px) for the resting DreamDM seam between runtimes. */
 export const DIVIDER_H = 2;
 /** Canonical snap points for the split-screen divider: [Dream-focus, Balanced, Surface-focus, Surface-only] */
@@ -14,7 +14,7 @@ export const SPLIT_FLING_VELOCITY_PX_PER_MS = 0.55;
 /**
  * Returns the nearest canonical snap point for the given split ratio.
  */
-export function snapToSplitPoint(ratio: number: number) {
+export function snapToSplitPoint(ratio: number): number {
   let best: number = SPLIT_SNAP_POINTS[0];
   let bestDist = Math.abs(ratio - best);
   for (const pt of SPLIT_SNAP_POINTS) {
@@ -31,7 +31,7 @@ export function snapToSplitPoint(ratio: number: number) {
  * the snap steps one increment past the nearest point in that direction, giving a
  * momentum-style feel consistent with the gold-button swipe gesture.
  */
-export function snapSplitRatioOnRelease(ratio: number, velocityPxPerMs: number: number) {
+export function snapSplitRatioOnRelease(ratio: number, velocityPxPerMs: number): number {
   const nearest = snapToSplitPoint(ratio);
   const idx = (SPLIT_SNAP_POINTS as readonly number[]).indexOf(nearest);
   if (velocityPxPerMs >= SPLIT_FLING_VELOCITY_PX_PER_MS && idx > 0) {
@@ -45,7 +45,7 @@ export function snapSplitRatioOnRelease(ratio: number, velocityPxPerMs: number: 
   return nearest;
 }
 
-// -- Gold-button / bar snap constants (legacy bar-window behaviour) -------------
+// ── Gold-button / bar snap constants (legacy bar-window behaviour) ─────────────
 /** Matches the existing touch-friendly second-tap escalation window used by the gold button. */
 export const GOLD_SECOND_TAP_WINDOW_MS = 280;
 export const GOLD_TAP_SLOP_PX = 14;
@@ -81,17 +81,17 @@ export function resolveGoldTapAction(
 }
 
 /** Treats small pointer movement as a tap instead of a swipe or throw. */
-export function shouldTreatGoldReleaseAsTap(dy: number: boolean) {
+export function shouldTreatGoldReleaseAsTap(dy: number): boolean {
   return Math.abs(dy) <= GOLD_TAP_SLOP_PX;
 }
 
 /** Returns pointer velocity in pixels per millisecond and guards same-frame samples from dividing by zero. */
-export function calculatePointerVelocity(previousY: number, nextY: number, previousAt: number, nextAt: number: number) {
+export function calculatePointerVelocity(previousY: number, nextY: number, previousAt: number, nextAt: number): number {
   return (nextY - previousY) / Math.max(nextAt - previousAt, MIN_POINTER_SAMPLE_DELTA_MS);
 }
 
 /** Only a downward swipe from the top-pinned state should collapse the bar. */
-export function shouldCollapseGoldSwipe() {
+export function shouldCollapseGoldSwipe(){
   dy,
   isTop,
 }: {
@@ -105,7 +105,7 @@ export function shouldCollapseGoldSwipe() {
  * Snaps a bottom-origin drag to the top if it is already near the top, tall enough,
  * or thrown upward fast enough after clearing the minimum fling distance.
  */
-export function shouldSnapBottomDragToTop() {
+export function shouldSnapBottomDragToTop(){
   screenH,
   dragH,
   barH,
@@ -126,7 +126,7 @@ export function shouldSnapBottomDragToTop() {
 }
 
 /** Collapses the expanded top panel when the user drags far enough down or throws it downward. */
-export function shouldCollapseTopExpandedDrag() {
+export function shouldCollapseTopExpandedDrag(){
   dy,
   slideDown,
   snapDownPx,
@@ -157,7 +157,7 @@ export function shouldCollapseTopExpandedDrag() {
  */
 export type BarReleaseAction = 'snap-top' | 'snap-bottom' | 'park';
 
-export function decideBarRelease() {
+export function decideBarRelease(){
   screenH,
   dragH,
   barH: _barH,
@@ -199,7 +199,7 @@ export function decideBarRelease() {
   return 'park';
 }
 
-// -- Minimized orb position helpers -------------------------------------------
+// ── Minimized orb position helpers ───────────────────────────────────────────
 /** Size of the minimized gold orb (px). */
 export const ORB_SIZE = 48;
 /** Tap slop for the minimized orb — movement below this threshold is treated as a tap. */
@@ -209,7 +209,7 @@ export const ORB_TAP_SLOP = 8;
  * Clamps a minimized-orb CSS offset (right/bottom) so the orb stays fully
  * on-screen. `viewportExtent` is the viewport dimension (width for x, height for y).
  */
-export function clampOrbOffset(offset: number, viewportExtent: number: number) {
+export function clampOrbOffset(offset: number, viewportExtent: number): number {
   return Math.max(0, Math.min(viewportExtent - ORB_SIZE, offset));
 }
 
@@ -232,7 +232,7 @@ export function computeOrbDragPosition(
   };
 }
 
-// -- Mood Aura System ---------------------------------------------------------
+// ── Mood Aura System ─────────────────────────────────────────────────────────
 
 /**
  * Time-of-day period for the mood aura system.
@@ -249,7 +249,7 @@ export type MoodPeriod = 'dawn' | 'morning' | 'afternoon' | 'dusk' | 'night';
  *   dusk:      17–19 — sunset purple/orange
  *   night:     20–4  — deep indigo
  */
-export function getMoodPeriod(hour: number: MoodPeriod) {
+export function getMoodPeriod(hour: number): MoodPeriod {
   const h = ((hour % 24) + 24) % 24;
   if (h >= 5 && h <= 7) return 'dawn';
   if (h >= 8 && h <= 11) return 'morning';
@@ -276,7 +276,7 @@ export const MOOD_EDGE_COLORS: Record<MoodPeriod, string> = {
   night:     'rgba(92,107,192,0.55)',
 };
 
-// -- Surface accent colors -----------------------------------------------------
+// ── Surface accent colors ─────────────────────────────────────────────────────
 
 /**
  * Surface-aware accent overlay — each surface gets a subtle color identity
@@ -295,7 +295,7 @@ export const SURFACE_ACCENT_COLORS: Record<SurfaceAccent, string> = {
   general:  'rgba(158,158,158,0.04)',
 };
 
-// -- Slash command types ------------------------------------------------------
+// ── Slash command types ──────────────────────────────────────────────────────
 
 export interface SlashCommand {
   id: string;
@@ -330,7 +330,7 @@ export const SLASH_COMMANDS: SlashCommand[] = [
  * Filters slash commands by a query string (after removing the leading "/").
  * Matches against label, description, and category.
  */
-export function filterSlashCommands(query: string: SlashCommand[]) {
+export function filterSlashCommands(query: string): SlashCommand[] {
   const q = query.toLowerCase().replace(/^\//, '').trim();
   if (!q) return SLASH_COMMANDS;
   return SLASH_COMMANDS.filter(
@@ -341,7 +341,7 @@ export function filterSlashCommands(query: string: SlashCommand[]) {
   );
 }
 
-// -- Typing rhythm helpers ----------------------------------------------------
+// ── Typing rhythm helpers ────────────────────────────────────────────────────
 
 /**
  * Computes a "rhythm intensity" from 0..1 based on recent keystroke timing.
@@ -378,11 +378,11 @@ export function computeTypingRhythm(
  * Returns a CSS width multiplier for the drag handle bar based on typing rhythm.
  * Idle = 1.0x, max rhythm = 2.5x (the handle "dances" wider).
  */
-export function rhythmToHandleScale(intensity: number: number) {
+export function rhythmToHandleScale(intensity: number): number {
   return 1 + intensity * 1.5;
 }
 
-// -- Dream Streak helpers -----------------------------------------------------
+// ── Dream Streak helpers ─────────────────────────────────────────────────────
 
 export const STREAK_STORAGE_KEY = 'de-dream-streak';
 
@@ -436,7 +436,7 @@ export function resolveStreak(stored: StreakData | null, now: Date = new Date())
  */
 export type StreakTier = 'none' | 'ember' | 'fire' | 'inferno' | 'legend';
 
-export function getStreakTier(count: number: StreakTier) {
+export function getStreakTier(count: number): StreakTier {
   if (count <= 0) return 'none';
   if (count <= 2) return 'ember';
   if (count <= 6) return 'fire';
@@ -444,7 +444,7 @@ export function getStreakTier(count: number: StreakTier) {
   return 'legend';
 }
 
-// -- Quick React Emojis -------------------------------------------------------
+// ── Quick React Emojis ───────────────────────────────────────────────────────
 
 /**
  * Quick reaction emojis available in comment mode.
@@ -465,7 +465,7 @@ export const QUICK_REACTIONS: QuickReaction[] = [
   { emoji: '✨', label: 'Sparkles', animClass: 'sicc-react-pop' },
 ];
 
-// -- Gold button long-press --------------------------------------------------
+// ── Gold button long-press ──────────────────────────────────────────────────
 
 /** Duration (ms) of a long-press to trigger the particle fountain. */
 export const GOLD_LONG_PRESS_MS = 800;
@@ -488,7 +488,7 @@ export interface Particle {
   life: number; // 0..1 remaining
 }
 
-export function generateParticles(count: number: Particle[]) {
+export function generateParticles(count: number): Particle[] {
   const colors = [
     '#f7e07a', '#e8c040', '#d4a843', '#a16207',  // golds
     '#7dd3fc', '#38bdf8', '#2a8ab8',              // blues
@@ -513,7 +513,7 @@ export function generateParticles(count: number: Particle[]) {
   return particles;
 }
 
-// -- Glowing light position cycle ---------------------------------------------
+// ── Glowing light position cycle ─────────────────────────────────────────────
 
 /** Minimum vertical movement (px) to treat a touch as a drag instead of a tap. */
 export const DRAG_TAP_THRESHOLD_PX = 5;

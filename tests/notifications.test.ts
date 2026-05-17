@@ -32,9 +32,9 @@ import {
   type UiNotification,
 } from '@/lib/notifications/notificationHelpers';
 
-// -- Helpers --------------------------------------------------------------------
+// ── Helpers ────────────────────────────────────────────────────────────────────
 
-function makeRow(overrides: Partial<DbNotificationRow> =) {}): DbNotificationRow {
+function makeRow(overrides: Partial<DbNotificationRow> = ){}): DbNotificationRow {
   return {
     id: 'row-1',
     type: 'like',
@@ -45,7 +45,7 @@ function makeRow(overrides: Partial<DbNotificationRow> =) {}): DbNotificationRow
   };
 }
 
-function makeUiNotif(overrides: Partial<UiNotification> =) {}): UiNotification {
+function makeUiNotif(overrides: Partial<UiNotification> = ){}): UiNotification {
   return {
     id: 'n-1',
     type: 'like',
@@ -57,7 +57,7 @@ function makeUiNotif(overrides: Partial<UiNotification> =) {}): UiNotification {
   };
 }
 
-// -- mapNotificationType --------------------------------------------------------
+// ── mapNotificationType ────────────────────────────────────────────────────────
 
 describe('mapNotificationType', () => {
   it('maps known types exactly', () => {
@@ -88,7 +88,7 @@ describe('mapNotificationType', () => {
   });
 });
 
-// -- getNotificationTitle -------------------------------------------------------
+// ── getNotificationTitle ───────────────────────────────────────────────────────
 
 describe('getNotificationTitle', () => {
   it('returns a non-empty string for every known type', () => {
@@ -108,7 +108,7 @@ describe('getNotificationTitle', () => {
   });
 });
 
-// -- getNotificationActionUrl ---------------------------------------------------
+// ── getNotificationActionUrl ───────────────────────────────────────────────────
 
 describe('getNotificationActionUrl', () => {
   it('returns /messages?conversation_id=... for message type with conversation_id', () => {
@@ -161,7 +161,7 @@ describe('getNotificationActionUrl', () => {
   });
 });
 
-// -- extractNotificationMessage -------------------------------------------------
+// ── extractNotificationMessage ─────────────────────────────────────────────────
 
 describe('extractNotificationMessage', () => {
   it('prefers an explicit "message" field in content', () => {
@@ -201,7 +201,7 @@ describe('extractNotificationMessage', () => {
   });
 });
 
-// -- normalizeDbRow -------------------------------------------------------------
+// ── normalizeDbRow ─────────────────────────────────────────────────────────────
 
 describe('normalizeDbRow', () => {
   it('produces a UiNotification with correct shape', () => {
@@ -258,7 +258,7 @@ describe('normalizeDbRow', () => {
   });
 });
 
-// -- getUnreadCount -------------------------------------------------------------
+// ── getUnreadCount ─────────────────────────────────────────────────────────────
 
 describe('getUnreadCount', () => {
   it('returns 0 for an empty list', () => {
@@ -283,7 +283,7 @@ describe('getUnreadCount', () => {
   });
 });
 
-// -- sortByRecent ---------------------------------------------------------------
+// ── sortByRecent ───────────────────────────────────────────────────────────────
 
 describe('sortByRecent', () => {
   it('sorts newest-first', () => {
@@ -316,7 +316,7 @@ describe('sortByRecent', () => {
   });
 });
 
-// -- applyOptimisticRead --------------------------------------------------------
+// ── applyOptimisticRead ────────────────────────────────────────────────────────
 
 describe('applyOptimisticRead', () => {
   it('marks the target notification as read', () => {
@@ -348,7 +348,7 @@ describe('applyOptimisticRead', () => {
   });
 });
 
-// -- applyOptimisticMarkAll -----------------------------------------------------
+// ── applyOptimisticMarkAll ─────────────────────────────────────────────────────
 
 describe('applyOptimisticMarkAll', () => {
   it('marks all notifications as read', () => {
@@ -372,7 +372,7 @@ describe('applyOptimisticMarkAll', () => {
   });
 });
 
-// -- applyOptimisticDelete ------------------------------------------------------
+// ── applyOptimisticDelete ──────────────────────────────────────────────────────
 
 describe('applyOptimisticDelete', () => {
   it('removes the notification with the matching id', () => {
@@ -402,7 +402,7 @@ describe('applyOptimisticDelete', () => {
   });
 });
 
-// -- Integration: normalizeDbRow + getUnreadCount -------------------------------
+// ── Integration: normalizeDbRow + getUnreadCount ───────────────────────────────
 
 describe('integration: normalise + aggregate', () => {
   it('normalising a batch of rows then counting unread gives correct result', () => {

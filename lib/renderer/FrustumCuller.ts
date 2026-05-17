@@ -15,7 +15,7 @@
  *   }
  */
 
-// --- Rect ---------------------------------------------------------------------
+// ─── Rect ─────────────────────────────────────────────────────────────────────
 
 /** An axis-aligned rectangle in logical (pixel) space. */
 export interface Rect {
@@ -29,7 +29,7 @@ export interface Rect {
   h: number;
 }
 
-// --- FrustumCuller ------------------------------------------------------------
+// ─── FrustumCuller ────────────────────────────────────────────────────────────
 
 /**
  * Axis-aligned 2-D frustum (viewport) culler.

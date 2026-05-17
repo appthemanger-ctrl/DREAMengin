@@ -27,7 +27,7 @@ export interface CartridgeBrowserProps {
   initialCategory?: string;
 }
 
-export default function CartridgeBrowser() { initialCategory = ALL }: CartridgeBrowserProps {
+export default function CartridgeBrowser({ initialCategory = ALL }: CartridgeBrowserProps) {
   const [search, setSearch]     = useState('');
   const [category, setCategory] = useState(initialCategory);
   const [tier, setTier]         = useState<string>(ALL);
@@ -156,9 +156,9 @@ export default function CartridgeBrowser() { initialCategory = ALL }: CartridgeB
   );
 }
 
-// -- Filter pill row ---------------------------------------------------------
+// ── Filter pill row ─────────────────────────────────────────────────────────
 
-function FilterRow() {
+function FilterRow(){
   label, options, value, onChange,
 }: { label: string; options: readonly string[]; value: string; onChange: (v: string) => void }) {
   return (
@@ -189,9 +189,9 @@ function FilterRow() {
   );
 }
 
-// -- Card --------------------------------------------------------------------
+// ── Card ────────────────────────────────────────────────────────────────────
 
-function CartridgeCard() { cartridge: c }: { cartridge: CartridgeManifestEntry } {
+function CartridgeCard({ cartridge: c }: ) { cartridge: CartridgeManifestEntry } {
   return (
     <Link
       href={`/gameengin/cartridges/${c.id}`}
@@ -238,7 +238,7 @@ function CartridgeCard() { cartridge: c }: { cartridge: CartridgeManifestEntry }
   );
 }
 
-function tierColor(t: typeof TIER_ORDER[number]: string) {
+function tierColor(t: typeof TIER_ORDER[number]): string {
   switch (t) {
     case 'flagship': return '#fbbf24';
     case 'advanced': return '#a78bfa';

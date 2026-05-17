@@ -14,7 +14,7 @@ type AuthenticatedPageHeaderProps = {
   containerClassName?: string;
 };
 
-export default function AuthenticatedPageHeader() {
+export default function AuthenticatedPageHeader(){
   backHref,
   title,
   icon,

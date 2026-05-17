@@ -113,7 +113,7 @@ const DEFAULT_POLICY: PolicyVersion = {
 // SIGNAL DETECTION
 // ============================================================================
 
-function detectJailbreak(message: string, payload: Record<string, unknown>: boolean) {
+function detectJailbreak(message: string, payload: Record<string, unknown>): boolean {
   const patterns = [
     /ignore\s+(previous\s+)?instructions?/i,
     /act\s+as\s+(a\s+)?(system|admin|root)/i,
@@ -128,7 +128,7 @@ function detectJailbreak(message: string, payload: Record<string, unknown>: bool
   return patterns.some((pattern: Record<string, unknown>) => pattern.test(textToCheck));
 }
 
-function detectToolOverride(message: string, payload: Record<string, unknown>: boolean) {
+function detectToolOverride(message: string, payload: Record<string, unknown>): boolean {
   const patterns = [
     /run\s+(sql|query|command)/i,
     /execute\s+(code|script|function)/i,
@@ -142,13 +142,13 @@ function detectToolOverride(message: string, payload: Record<string, unknown>: b
   return patterns.some((pattern: Record<string, unknown>) => pattern.test(textToCheck));
 }
 
-function detectSchemaPoisoning(payload: Record<string, unknown>: boolean) {
+function detectSchemaPoisoning(payload: Record<string, unknown>): boolean {
   const payloadStr = JSON.stringify(payload).toLowerCase();
   const patterns = ['alter table', 'drop table', 'create table', 'grant ', 'revoke '];
   return patterns.some((p: Record<string, unknown>) => payloadStr.includes(p));
 }
 
-function detectSecretLike(payload: Record<string, unknown>: boolean) {
+function detectSecretLike(payload: Record<string, unknown>): boolean {
   const payloadStr = JSON.stringify(payload);
   const patterns = [
     /sk-[a-zA-Z0-9]{32,}/i, // OpenAI-style keys
@@ -162,7 +162,7 @@ function detectSecretLike(payload: Record<string, unknown>: boolean) {
   return patterns.some((pattern: Record<string, unknown>) => pattern.test(payloadStr));
 }
 
-function detectPII(payload: Record<string, unknown>: boolean) {
+function detectPII(payload: Record<string, unknown>): boolean {
   const payloadStr = JSON.stringify(payload);
   const patterns = [
     /\b\d{3}-\d{2}-\d{4}\b/, // SSN
@@ -189,12 +189,12 @@ function detectCrossUserTarget(
   return false;
 }
 
-function detectDestructive(intent: Intent: boolean) {
+function detectDestructive(intent: Intent): boolean {
   const destructiveIntents = ['DREAM_REMOVE', 'POST_DELETE'];
   return destructiveIntents.includes(intent.type);
 }
 
-function detectMassWrite(intent: Intent: boolean) {
+function detectMassWrite(intent: Intent): boolean {
   const payload = intent.payload;
 
   // Check for array operations
@@ -210,7 +210,7 @@ function detectMassWrite(intent: Intent: boolean) {
   return false;
 }
 
-function detectPrivilegeEscalation(intent: Intent, actor: ActorContext: boolean) {
+function detectPrivilegeEscalation(intent: Intent, actor: ActorContext): boolean {
   // Check if user is trying to use admin intents
   const adminIntents = [
     'DIAG_SCHEMA_SNAPSHOT',
@@ -314,7 +314,7 @@ export async function detectSignals(
 // RISK SCORING
 // ============================================================================
 
-function calculateRiskScore(signals: BoogieSignals, weights: RiskWeights: number) {
+function calculateRiskScore(signals: BoogieSignals, weights: RiskWeights): number {
   let score = 0;
 
   // Feature vector to weight mapping
@@ -472,10 +472,10 @@ export async function verifyIntents(
 // REDACTION HELPERS
 // ============================================================================
 
-export function redactSecrets(payload: Record<string, unknown>: Record<string, unknown>) {
+export function redactSecrets(payload: Record<string, unknown>): Record<string, unknown> {
   const redacted = { ...payload };
 
-  function redactValue(val: unknown: unknown) {
+  function redactValue(val: unknown): unknown {
     if (typeof val === 'string') {
       // Redact JWT patterns, API keys, hex keys
       let s: string = val;

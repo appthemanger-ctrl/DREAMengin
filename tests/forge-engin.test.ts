@@ -7,13 +7,13 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 
-// -- Mock localStorage (test environment is 'node', no browser globals) -------
+// ── Mock localStorage (test environment is 'node', no browser globals) ───────
 const localStorageStore: Record<string, string> = {};
 const localStorageMock = {
   getItem: (key: string) => localStorageStore[key] ?? null,
   setItem: (key: string, value: string) => { localStorageStore[key] = value; },
   removeItem: (key: string) => { delete localStorageStore[key]; },
-  clear: () => { Object.keys(localStorageStore).forEach(k => delete localStorageStore[k]); },
+  clear: () => { Object.keys(localStorageStore).forEach((k) => delete localStorageStore[k]); },
 };
 vi.stubGlobal('localStorage', localStorageMock);
 vi.stubGlobal('window', { localStorage: localStorageMock });
@@ -30,7 +30,7 @@ import {
   type ForgeActivityPulse,
 } from '@/lib/forge/forgeRegistry';
 
-// -- Registry tests ------------------------------------------------------------
+// ── Registry tests ────────────────────────────────────────────────────────────
 
 describe('ENGIN_REGISTRY', () => {
   it('contains 7 entries (6 creative + forge)', () => {
@@ -58,12 +58,12 @@ describe('ENGIN_REGISTRY', () => {
   });
 
   it('has unique ids', () => {
-    const ids = ENGIN_REGISTRY.map(e => e.id);
+    const ids = ENGIN_REGISTRY.map((e) => e.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
 
   it('has unique names', () => {
-    const names = ENGIN_REGISTRY.map(e => e.name);
+    const names = ENGIN_REGISTRY.map((e) => e.name);
     expect(new Set(names).size).toBe(names.length);
   });
 });
@@ -74,11 +74,11 @@ describe('CREATIVE_ENGINES', () => {
   });
 
   it('does not include forge', () => {
-    expect(CREATIVE_ENGINES.find(e => e.id === 'forge')).toBeUndefined();
+    expect(CREATIVE_ENGINES.find((e) => e.id === 'forge')).toBeUndefined();
   });
 
   it('includes all 6 creative engine ids', () => {
-    const ids = CREATIVE_ENGINES.map(e => e.id);
+    const ids = CREATIVE_ENGINES.map((e) => e.id);
     expect(ids).toContain('games');
     expect(ids).toContain('music');
     expect(ids).toContain('code');
@@ -88,7 +88,7 @@ describe('CREATIVE_ENGINES', () => {
   });
 });
 
-// -- Activity Pulse tests ------------------------------------------------------
+// ── Activity Pulse tests ──────────────────────────────────────────────────────
 
 describe('Forge Activity Pulse', () => {
   beforeEach(() => {
@@ -171,7 +171,7 @@ describe('getForgeHeat', () => {
   });
 });
 
-// -- formatRelativeTime tests --------------------------------------------------
+// ── formatRelativeTime tests ──────────────────────────────────────────────────
 
 describe('formatRelativeTime', () => {
   it('returns "just now" for recent timestamps', () => {
@@ -195,17 +195,17 @@ describe('formatRelativeTime', () => {
   });
 });
 
-// -- Integration wiring tests --------------------------------------------------
+// ── Integration wiring tests ──────────────────────────────────────────────────
 
 describe('ForgeEngin integration wiring', () => {
   it('ForgeEngin is listed in ENGIN_REGISTRY with correct accent', () => {
-    const forge = ENGIN_REGISTRY.find(e => e.id === 'forge');
+    const forge = ENGIN_REGISTRY.find((e) => e.id === 'forge');
     expect(forge).toBeDefined();
     expect(forge!.accent).toBe('#ef4444');
   });
 
   it('ForgeEngin daydreamHref points to /daydream/forge', () => {
-    const forge = ENGIN_REGISTRY.find(e => e.id === 'forge');
+    const forge = ENGIN_REGISTRY.find((e) => e.id === 'forge');
     expect(forge!.daydreamHref).toBe('/daydream/forge');
   });
 
@@ -223,7 +223,7 @@ describe('ForgeEngin integration wiring', () => {
   });
 });
 
-// -- FORGE_WORKFLOWS tests -----------------------------------------------------
+// ── FORGE_WORKFLOWS tests ─────────────────────────────────────────────────────
 
 describe('FORGE_WORKFLOWS', () => {
   it('has at least 3 workflows', () => {
@@ -231,12 +231,12 @@ describe('FORGE_WORKFLOWS', () => {
   });
 
   it('every workflow has unique id', () => {
-    const ids = FORGE_WORKFLOWS.map(w => w.id);
+    const ids = FORGE_WORKFLOWS.map((w) => w.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
 
   it('every workflow references valid engine ids', () => {
-    const validIds = new Set(ENGIN_REGISTRY.map(e => e.id));
+    const validIds = new Set(ENGIN_REGISTRY.map((e) => e.id));
     for (const wf of FORGE_WORKFLOWS) {
       for (const eid of wf.engines) {
         expect(validIds.has(eid)).toBe(true);
@@ -263,7 +263,7 @@ describe('FORGE_WORKFLOWS', () => {
   });
 });
 
-// -- useForgeActivity hook unit test (non-React) -------------------------------
+// ── useForgeActivity hook unit test (non-React) ───────────────────────────────
 
 describe('useForgeActivity integration', () => {
   beforeEach(() => {
@@ -276,7 +276,7 @@ describe('useForgeActivity integration', () => {
     recordForgeActivity('code', 'Ran CI');
     const timeline = readForgeActivity();
     expect(timeline).toHaveLength(3);
-    const ids = timeline.map(p => p.enginId);
+    const ids = timeline.map((p) => p.enginId);
     expect(ids).toContain('games');
     expect(ids).toContain('music');
     expect(ids).toContain('code');
@@ -284,13 +284,13 @@ describe('useForgeActivity integration', () => {
 
   it('each engine pulse has a label matching the recorded action', () => {
     recordForgeActivity('lab', 'Ran simulation');
-    const pulse = readForgeActivity().find(p => p.enginId === 'lab');
+    const pulse = readForgeActivity().find((p) => p.enginId === 'lab');
     expect(pulse).toBeDefined();
     expect(pulse!.label).toBe('Ran simulation');
   });
 });
 
-// -- Forge Intelligence Tests --------------------------------------------------
+// ── Forge Intelligence Tests ──────────────────────────────────────────────────
 
 import {
   appendForgeHistory,
@@ -403,13 +403,13 @@ describe('Contextual Suggestions', () => {
 
   it('suggests content creation after publish action', () => {
     const suggestions = generateSuggestions({ enginId: 'music', label: 'Published release' });
-    const contentSuggestion = suggestions.find(s => s.title === 'Create a post about it');
+    const contentSuggestion = suggestions.find((s) => s.title === 'Create a post about it');
     expect(contentSuggestion).toBeDefined();
   });
 
   it('suggests GameEngin for audio-related actions', () => {
     const suggestions = generateSuggestions({ enginId: 'music', label: 'Created a beat' });
-    const gameSug = suggestions.find(s => s.title === 'Wire into GameEngin');
+    const gameSug = suggestions.find((s) => s.title === 'Wire into GameEngin');
     expect(gameSug).toBeDefined();
   });
 });
@@ -594,21 +594,21 @@ describe('Failure Recovery', () => {
       status: 'failed' as const,
       failureReason: 'Export failed',
     };
-    const workflow = FORGE_WORKFLOWS.find(w => w.id === 'music-video')!;
+    const workflow = FORGE_WORKFLOWS.find((w) => w.id === 'music-video')!;
     const recovery = getFailureRecovery(failedStep, workflow);
     expect(recovery.length).toBeGreaterThan(0);
     // Should have retry suggestion
-    const retry = recovery.find(s => s.title.includes('Retry'));
+    const retry = recovery.find((s) => s.title.includes('Retry'));
     expect(retry).toBeDefined();
     // Should have skip suggestion (if not last step)
     if (workflow.steps.length > 1) {
-      const skip = recovery.find(s => s.title.includes('Skip'));
+      const skip = recovery.find((s) => s.title.includes('Skip'));
       expect(skip).toBeDefined();
     }
   });
 });
 
-// -- Cross-Engine Transfer Integration Tests ----------------------------------
+// ── Cross-Engine Transfer Integration Tests ──────────────────────────────────
 
 describe('Cross-Engine Transfer System', () => {
   beforeEach(() => localStorage.clear());
@@ -664,7 +664,7 @@ describe('Cross-Engine Transfer System', () => {
     recordForgeTransfer('games', 'create', 'level', 'Games → Content');
     const transfers = readForgeTransfers();
     expect(transfers).toHaveLength(4);
-    const pairs = transfers.map(t => `${t.fromEnginId}→${t.toEnginId}`);
+    const pairs = transfers.map((t) => `${t.fromEnginId}→${t.toEnginId}`);
     expect(pairs).toContain('brand→create');
     expect(pairs).toContain('lab→code');
     expect(pairs).toContain('music→games');
@@ -672,7 +672,7 @@ describe('Cross-Engine Transfer System', () => {
   });
 
   it('transfers reference valid engine ids', () => {
-    const validIds = new Set(ENGIN_REGISTRY.map(e => e.id));
+    const validIds = new Set(ENGIN_REGISTRY.map((e) => e.id));
     recordForgeTransfer('music', 'games', 'audio', 'test');
     recordForgeTransfer('brand', 'create', 'draft', 'test');
     recordForgeTransfer('lab', 'code', 'data', 'test');
@@ -692,7 +692,7 @@ describe('Cross-Engine Transfer System', () => {
   });
 });
 
-// -- Forge Activity Coverage Tests ---------------------------------------------
+// ── Forge Activity Coverage Tests ─────────────────────────────────────────────
 
 describe('Forge Activity Coverage — all engines record activity', () => {
   beforeEach(() => localStorage.clear());
@@ -703,7 +703,7 @@ describe('Forge Activity Coverage — all engines record activity', () => {
     }
     const activity = readForgeActivity();
     expect(activity).toHaveLength(CREATIVE_ENGINES.length);
-    const ids = activity.map(a => a.enginId);
+    const ids = activity.map((a) => a.enginId);
     for (const engine of CREATIVE_ENGINES) {
       expect(ids).toContain(engine.id);
     }
@@ -721,7 +721,7 @@ describe('Forge Activity Coverage — all engines record activity', () => {
     // History: all 4
     const history = readForgeHistory();
     expect(history.length).toBe(4);
-    expect(history.map(h => h.label)).toEqual([
+    expect(history.map((h) => h.label)).toEqual([
       'Saved world', 'Saved script', 'Shared score', 'Created room',
     ]);
   });
@@ -742,7 +742,7 @@ describe('Forge Activity Coverage — all engines record activity', () => {
     const history = readForgeHistory();
     expect(history.length).toBe(gameActions.length);
     for (const action of gameActions) {
-      expect(history.some(h => h.label === action)).toBe(true);
+      expect(history.some((h) => h.label === action)).toBe(true);
     }
   });
 
@@ -754,7 +754,7 @@ describe('Forge Activity Coverage — all engines record activity', () => {
     const history = readForgeHistory();
     expect(history.length).toBe(musicActions.length);
     for (const action of musicActions) {
-      expect(history.some(h => h.label === action)).toBe(true);
+      expect(history.some((h) => h.label === action)).toBe(true);
     }
   });
 
@@ -787,7 +787,7 @@ describe('Forge Activity Coverage — all engines record activity', () => {
 
   it('export-related suggestions trigger for stem actions', () => {
     const suggestions = generateSuggestions({ enginId: 'music', label: 'Exported stems' });
-    const exportSug = suggestions.find(s => s.title === 'Use in another engine');
+    const exportSug = suggestions.find((s) => s.title === 'Use in another engine');
     expect(exportSug).toBeDefined();
   });
 });

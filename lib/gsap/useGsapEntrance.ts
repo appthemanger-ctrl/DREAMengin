@@ -53,14 +53,14 @@ export function useGsapEntrance(
     // Skip if deps haven't actually changed (avoids redundant re-runs on
     // parent re-renders that don't affect the list)
     const same = deps.length === prevDepsRef.current.length
-      && deps.every(d: Record<string, unknown>, i: number => d === prevDepsRef.current[i]);
+      && deps.every(d: Record<string, unknown>, (i: number ) => d === prevDepsRef.current[i]);
     prevDepsRef.current = deps;
     if (same) return;
 
     const children = Array.from(el.children) as HTMLElement[];
     if (!children.length) return;
 
-    getGsap().then(gsap => {
+    getGsap().then((gsap) => {
       // Instantly reset so the animation always plays from scratch
       gsap.set(children, { opacity: 0, y, willChange: 'transform, opacity' });
       gsap.to(children, {

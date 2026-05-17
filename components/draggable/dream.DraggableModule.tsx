@@ -27,7 +27,7 @@ import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import type { ModuleManifest, RuntimeId } from '@/types/module-manifest';
 
-// -- Constants -----------------------------------------------------------------
+// ── Constants ─────────────────────────────────────────────────────────────────
 
 /** Hold duration before drag mode activates (ms). */
 const HOLD_MS = 300;
@@ -38,7 +38,7 @@ const EDGE_HOLD_MS = 500;
 /** Pixels of movement before hold is cancelled (prevents accidental lifts). */
 const MOVE_CANCEL_PX = 8;
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 interface DraggableModuleProps {
   manifest: ModuleManifest;
@@ -48,21 +48,21 @@ interface DraggableModuleProps {
   onTransfer?: (manifest: ModuleManifest, targetRuntime: RuntimeId) => void;
 }
 
-// -- Component -----------------------------------------------------------------
+// ── Component ─────────────────────────────────────────────────────────────────
 
-export default function DraggableModule() {
+export default function DraggableModule(){
   manifest,
   children,
   className,
   onTransfer,
 }: DraggableModuleProps) {
-  // -- State ------------------------------------------------------------------
+  // ── State ──────────────────────────────────────────────────────────────────
   const [lifted, setLifted] = useState(false);
   const [transferring, setTransferring] = useState(false);
   const [edgeSide, setEdgeSide] = useState<'left' | 'right' | null>(null);
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
 
-  // -- Refs (don't need re-render) -------------------------------------------
+  // ── Refs (don't need re-render) ───────────────────────────────────────────
   const rootRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
   const startPos = useRef({ x: 0, y: 0 });
@@ -71,7 +71,7 @@ export default function DraggableModule() {
   const rafHandle = useRef<number | null>(null);
   const capturedPointerId = useRef<number | null>(null);
 
-  // -- Helpers ---------------------------------------------------------------
+  // ── Helpers ───────────────────────────────────────────────────────────────
 
   const cancelHoldTimer = useCallback(() => {
     if (holdTimer.current !== null) {
@@ -107,7 +107,7 @@ export default function DraggableModule() {
     }
   }, [cancelEdgeTimer]);
 
-  // -- Transfer logic --------------------------------------------------------
+  // ── Transfer logic ────────────────────────────────────────────────────────
 
   const resolveTargetRuntime = useCallback(
     (clientX: number): RuntimeId | null => {
@@ -162,7 +162,7 @@ export default function DraggableModule() {
     [manifest, cancelDrag, cancelEdgeTimer, onTransfer],
   );
 
-  // -- Pointer event handlers ------------------------------------------------
+  // ── Pointer event handlers ────────────────────────────────────────────────
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
@@ -239,7 +239,7 @@ export default function DraggableModule() {
     cancelDrag();
   }, [cancelHoldTimer, cancelDrag]);
 
-  // -- Keyboard accessibility ------------------------------------------------
+  // ── Keyboard accessibility ────────────────────────────────────────────────
 
   useEffect(() => {
     const el = rootRef.current;
@@ -259,7 +259,7 @@ export default function DraggableModule() {
     return () => el.removeEventListener('keydown', handleKeyDown);
   }, [manifest.ui.movable, performTransfer]);
 
-  // -- Screen-edge aria announcement -----------------------------------------
+  // ── Screen-edge aria announcement ─────────────────────────────────────────
 
   const edgeLabel =
     edgeSide === 'left'
@@ -268,7 +268,7 @@ export default function DraggableModule() {
         ? 'Approaching right edge — release to transfer to DreamSpace'
         : undefined;
 
-  // -- Derived styles — all GPU-composited ----------------------------------
+  // ── Derived styles — all GPU-composited ──────────────────────────────────
 
   const transform = lifted
     ? `translate3d(${translate.x}px,${translate.y}px,0) scale(1.05)`

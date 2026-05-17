@@ -10,11 +10,11 @@
  * Architecture: docs/AGENT_PLAYBOOK.md §1 — Foundation.Kernel owns state.
  */
 
-// --- Lifecycle ----------------------------------------------------------------
+// ─── Lifecycle ────────────────────────────────────────────────────────────────
 
 export type EnginLifecycle = 'idle' | 'starting' | 'running' | 'paused' | 'stopping' | 'stopped';
 
-// --- Base state record --------------------------------------------------------
+// ─── Base state record ────────────────────────────────────────────────────────
 
 /**
  * EnginBaseState — the immutable core state owned by every engine instance.
@@ -35,10 +35,10 @@ export interface EnginBaseState {
   readonly domain: Readonly<Record<string, unknown>>;
 }
 
-// --- Helpers -----------------------------------------------------------------
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 /** Create the initial base state for an engine. */
-export function createBaseState(enginId: string: EnginBaseState) {
+export function createBaseState(enginId: string): EnginBaseState {
   return {
     enginId,
     lifecycle: 'idle',

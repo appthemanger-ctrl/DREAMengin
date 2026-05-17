@@ -26,7 +26,7 @@ export type DualVMCoordinator = typeof _coordinator;
 
 let _initialized = false;
 
-export function getDualVMCoordinator(: DualVMCoordinator | null) {
+export function getDualVMCoordinator(): DualVMCoordinator | null {
   return _initialized ? _coordinator : null;
 }
 
@@ -40,7 +40,7 @@ export async function initializeDualVMCoordinator(
   return _coordinator;
 }
 
-export function destroyDualVMCoordinator(: void) {
+export function destroyDualVMCoordinator(): void {
   if (_initialized) {
     bridge.destroyVMs();
     _initialized = false;

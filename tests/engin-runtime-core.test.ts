@@ -25,7 +25,7 @@ import { EnginRuntime, createEnginRuntime } from '@/lib/engin-runtime';
 import type { EnginRuleSetContract, EnginAction } from '@/lib/engin-runtime/EnginRuleSetContract';
 import type { EnginBaseState } from '@/lib/engin-runtime/EnginBaseState';
 
-// --- Minimal stub rule-set for testing ---------------------------------------
+// ─── Minimal stub rule-set for testing ───────────────────────────────────────
 
 type CounterAction =
   | EnginAction<'counter:increment', { by: number }>
@@ -66,7 +66,7 @@ const counterRuleSet: EnginRuleSetContract<CounterAction> = {
   },
 };
 
-// --- EnginBaseState -----------------------------------------------------------
+// ─── EnginBaseState ───────────────────────────────────────────────────────────
 
 describe('EnginBaseState', () => {
   it('createBaseState returns correct initial values', () => {
@@ -101,7 +101,7 @@ describe('EnginBaseState', () => {
   });
 });
 
-// --- Capability gating --------------------------------------------------------
+// ─── Capability gating ────────────────────────────────────────────────────────
 
 describe('EnginCapabilities', () => {
   it('gateCapability: grants permitted capabilities', () => {
@@ -127,7 +127,7 @@ describe('EnginCapabilities', () => {
   });
 });
 
-// --- EnginIOAdapter — MemoryAdapter ------------------------------------------
+// ─── EnginIOAdapter — MemoryAdapter ──────────────────────────────────────────
 
 describe('MemoryAdapter', () => {
   let adapter: MemoryAdapter;
@@ -160,7 +160,7 @@ describe('MemoryAdapter', () => {
   });
 });
 
-// --- enginStorageKey helper ---------------------------------------------------
+// ─── enginStorageKey helper ───────────────────────────────────────────────────
 
 describe('enginStorageKey', () => {
   it('namespaces key correctly', () => {
@@ -168,7 +168,7 @@ describe('enginStorageKey', () => {
   });
 });
 
-// --- Event bus ----------------------------------------------------------------
+// ─── Event bus ────────────────────────────────────────────────────────────────
 
 describe('EnginEventBus', () => {
   it('emits and receives lifecycle events', () => {
@@ -196,7 +196,7 @@ describe('EnginEventBus', () => {
   });
 });
 
-// --- EnginRuntime -------------------------------------------------------------
+// ─── EnginRuntime ─────────────────────────────────────────────────────────────
 
 describe('EnginRuntime', () => {
   let runtime: EnginRuntime<CounterAction>;
@@ -278,7 +278,7 @@ describe('EnginRuntime', () => {
   it('persist and restore round-trips domain state', async () => {
     runtime.dispatch({ type: 'counter:increment', payload: { by: 42 } });
     // Allow the async persist to settle
-    await new Promise(r => setTimeout(r, 10));
+    await new Promise((r) => setTimeout(r, 10));
 
     // Create a new runtime with the same adapter (shared MemoryAdapter)
     const adapter = new MemoryAdapter();

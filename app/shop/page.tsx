@@ -8,7 +8,7 @@ import { connection } from 'next/server';
 
 export const metadata = { title: 'DreamShop – Dreamengin', description: 'Sell and discover digital products.' };
 
-export default async function ShopPage() {
+export default async function ShopPage( ){
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -46,7 +46,7 @@ export default async function ShopPage() {
 
       <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
 
-        {/* -- Your Listings -- */}
+        {/* ── Your Listings ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <Package className="w-4 h-4 mr-2" style={{ color: 'var(--de-gold)' }} />
@@ -84,7 +84,7 @@ export default async function ShopPage() {
           )}
         </div>
 
-        {/* -- Browse -- */}
+        {/* ── Browse ── */}
         {allItems && allItems.length > 0 && (
           <div className="de-widget">
             <div className="de-widget-header">

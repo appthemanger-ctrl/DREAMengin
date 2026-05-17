@@ -12,7 +12,7 @@ export default class MastodonAggregator {
   async getTrendingPosts(limit = 50) {
     try {
       const { data } = await this.client.get('trends/statuses', { limit });
-      return data.map(post => this.normalizePost(post));
+      return data.map((post) => this.normalizePost(post));
     } catch (error) {
       console.error('Mastodon API error:', error);
       return [];

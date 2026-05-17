@@ -6,7 +6,7 @@ const SURFACE = {
   FACE: 1,
 } as const;
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {

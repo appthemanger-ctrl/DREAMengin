@@ -30,7 +30,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { RefreshCw, ExternalLink, Eye, Hash } from 'lucide-react';
 import type { EmbedFeedItem } from '@/lib/feeds/embedFeedLoader';
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 type Provider = 'all' | 'youtube' | 'instagram';
 
@@ -47,9 +47,9 @@ interface FeedState {
   error: string | null;
 }
 
-// -- Helpers -------------------------------------------------------------------
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-function relativeTime(iso: string: string) {
+function relativeTime(iso: string): string {
   if (!iso) return '';
   const diff = Date.now() - new Date(iso).getTime();
   const minutes = Math.floor(diff / 60_000);
@@ -62,16 +62,16 @@ function relativeTime(iso: string: string) {
   return new Date(iso).toLocaleDateString();
 }
 
-function formatViews(n: number: string) {
+function formatViews(n: number): string {
   if (n <= 0) return '';
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M views`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K views`;
   return `${n.toLocaleString()} views`;
 }
 
-// -- Instagram embed script loader ---------------------------------------------
+// ── Instagram embed script loader ─────────────────────────────────────────────
 
-function useInstagramEmbedScript(hasInstagram: boolean) {
+function useInstagramEmbedScript(hasInstagram: boolean ){
   useEffect(() => {
     if (!hasInstagram) return;
     if (document.querySelector('script[src*="instagram.com/embed.js"]')) {
@@ -89,9 +89,9 @@ function useInstagramEmbedScript(hasInstagram: boolean) {
   }, [hasInstagram]);
 }
 
-// -- Skeleton card -------------------------------------------------------------
+// ── Skeleton card ─────────────────────────────────────────────────────────────
 
-function SkeletonCard() {
+function SkeletonCard( ){
   return (
     <div style={{
       borderRadius: 12, overflow: 'hidden',
@@ -111,9 +111,9 @@ function SkeletonCard() {
   );
 }
 
-// -- Embed card ----------------------------------------------------------------
+// ── Embed card ────────────────────────────────────────────────────────────────
 
-function EmbedCard() { item }: { item: EmbedFeedItem } {
+function EmbedCard({ item }: ) { item: EmbedFeedItem } {
   const isYouTube   = item.provider === 'youtube';
   const isInstagram = item.provider === 'instagram';
 
@@ -127,7 +127,7 @@ function EmbedCard() { item }: { item: EmbedFeedItem } {
       border: '1px solid rgba(160,195,240,0.14)',
       display: 'flex', flexDirection: 'column',
     }}>
-      {/* -- Embed area -- */}
+      {/* ── Embed area ── */}
       <div style={{ position: 'relative', width: '100%' }}>
         {isYouTube && ytId ? (
           <div style={{ position: 'relative', paddingTop: '56.25%', background: '#000' }}>
@@ -176,7 +176,7 @@ function EmbedCard() { item }: { item: EmbedFeedItem } {
         ) : null}
       </div>
 
-      {/* -- Meta -- */}
+      {/* ── Meta ── */}
       <div style={{ padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 4 }}>
         {/* Title */}
         <a
@@ -247,9 +247,9 @@ function EmbedCard() { item }: { item: EmbedFeedItem } {
   );
 }
 
-// -- Main component ------------------------------------------------------------
+// ── Main component ────────────────────────────────────────────────────────────
 
-export default function EmbedFeedWidget() {
+export default function EmbedFeedWidget(){
   defaultProvider = 'all',
   limit = 20,
   className = '',
@@ -269,7 +269,7 @@ export default function EmbedFeedWidget() {
     const ctrl = new AbortController();
     abortRef.current = ctrl;
 
-    setState(s: string => ({ ...s, loading: true, error: null }));
+    setState((s: string ) => ({ ...s, loading: true, error: null }));
 
     try {
       const params = new URLSearchParams({ limit: String(limit) });
@@ -285,7 +285,7 @@ export default function EmbedFeedWidget() {
       setState({ items: data.items, generatedAt: data.generated_at, loading: false, error: null });
     } catch (err) {
       if ((err as { name?: string }).name === 'AbortError') return;
-      setState(s: string => ({
+      setState((s: string ) => ({
         ...s,
         loading: false,
         error: (err instanceof Error ? err.message : 'Failed to load embed feed'),
@@ -297,10 +297,10 @@ export default function EmbedFeedWidget() {
     fetchFeed(provider);
   }, [fetchFeed, provider]);
 
-  const hasInstagram = state.items.some(i: number => i.provider === 'instagram');
+  const hasInstagram = state.items.some((i: number ) => i.provider === 'instagram');
   useInstagramEmbedScript(hasInstagram);
 
-  // -- Provider tabs ----------------------------------------------------------
+  // ── Provider tabs ──────────────────────────────────────────────────────────
   const tabs: { id: Provider; label: string; icon: string }[] = [
     { id: 'all',       label: 'All',       icon: '✨' },
     { id: 'youtube',   label: 'YouTube',   icon: '📺' },
@@ -382,7 +382,7 @@ export default function EmbedFeedWidget() {
           gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
           gap: 12,
         }}>
-          {Array.from({ length: 4 }).map(_: Record<string, unknown>, i: number => <SkeletonCard key={i} />)}
+          {Array.from({ length: 4 }).map(_: Record<string, unknown>, (i: number ) => <SkeletonCard key={i} />)}
         </div>
       )}
 

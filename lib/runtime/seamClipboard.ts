@@ -26,7 +26,7 @@
  *   const firedIds = seamClipboard.setWithEngins('starmaker', 'lab', artifact);
  *
  * Usage (consumer — runs in a runtime region):
- *   const off = seamClipboard.subscribe(payload => { ... });
+ *   const off = seamClipboard.subscribe((payload) => { ... });
  *   return off; // cleanup
  *
  * Architecture: docs/ARCHITECTURE.md §1 (Runtime regions)
@@ -43,7 +43,7 @@ import {
   type EnginKey,
 } from '@/lib/runtime/enginWorkflowRegistry';
 
-// -- Engin key normaliser -------------------------------------------------------
+// ── Engin key normaliser ───────────────────────────────────────────────────────
 
 /**
  * Maps the many ways an engin name might appear in a drag payload to the
@@ -77,7 +77,7 @@ const _ENGIN_ALIAS_MAP: Readonly<Record<string, EnginKey>> = {
   games: 'game',
 };
 
-function _toEnginKey(value: unknown: EnginKey | null) {
+function _toEnginKey(value: unknown): EnginKey | null {
   if (typeof value !== 'string') return null;
   // Direct hit — exact case
   const direct = _ENGIN_ALIAS_MAP[value];
@@ -96,7 +96,7 @@ function _toEnginKey(value: unknown: EnginKey | null) {
   return null;
 }
 
-// -- Payload type --------------------------------------------------------------
+// ── Payload type ──────────────────────────────────────────────────────────────
 
 export type SeamClipboardMimeType = 'text/plain' | 'application/json' | 'application/x-dream-artifact';
 
@@ -113,12 +113,12 @@ export interface SeamClipboardPayload {
   timestamp: number;
 }
 
-// -- Subscriber type -----------------------------------------------------------
+// ── Subscriber type ───────────────────────────────────────────────────────────
 
 type SeamClipboardListener = (payload: SeamClipboardPayload) => void;
 type UnsubscribeFn = () => void;
 
-// -- Improvement 37: payload size guard ---------------------------------------
+// ── Improvement 37: payload size guard ───────────────────────────────────────
 /** Maximum allowed payload content size in bytes (512 KB). */
 const MAX_PAYLOAD_BYTES = 512 * 1024;
 
@@ -139,7 +139,7 @@ class SeamClipboard {
    * Calling set() again overwrites the previous value and fires a new event.
    */
   set(input: Omit<SeamClipboardPayload, 'timestamp'>): void {
-    // -- Improvement 37: reject oversized payloads -------------------------
+    // ── Improvement 37: reject oversized payloads ─────────────────────────
     const byteLen = typeof TextEncoder !== 'undefined'
       ? new TextEncoder().encode(input.content).length
       : input.content.length;
@@ -162,7 +162,7 @@ class SeamClipboard {
         if (sourceEngin !== null && targetEngin !== null) {
           const workflows = findWorkflows(sourceEngin, targetEngin);
           for (const workflow of workflows) {
-            // -- Improvement 38: per-workflow try/catch -------------------
+            // ── Improvement 38: per-workflow try/catch ───────────────────
             try {
               workflow.execute({ ...parsed, _seamTimestamp: payload.timestamp });
             } catch (workflowErr) {
@@ -214,7 +214,7 @@ class SeamClipboard {
     const workflows = findWorkflows(from, to);
     const firedIds: string[] = [];
     for (const workflow of workflows) {
-      // -- Improvement 38: per-workflow try/catch ---------------------------
+      // ── Improvement 38: per-workflow try/catch ───────────────────────────
       try {
         workflow.execute({ ...artifact, _seamTimestamp: Date.now() });
         firedIds.push(workflow.id);
@@ -235,7 +235,7 @@ class SeamClipboard {
     return () => { this.listeners.delete(handler); };
   }
 
-  // -- Improvement 39: getSubscriberCount -----------------------------------
+  // ── Improvement 39: getSubscriberCount ───────────────────────────────────
   /** Return the number of active subscribers. Useful for debugging. */
   getSubscriberCount(): number {
     return this.listeners.size;

@@ -15,7 +15,7 @@
 
 import { PLATFORM_MAP, type SocialPlatform } from './platforms';
 
-// --- Types --------------------------------------------------------------------
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface DreamSharePayload {
   /** Dream / post ID */
@@ -38,7 +38,7 @@ export interface CrossPostTarget {
   shareUrl: string;
 }
 
-// --- Share URL targets supported for one-click cross-post ---------------------
+// ─── Share URL targets supported for one-click cross-post ─────────────────────
 
 const CROSS_POST_PLATFORM_IDS = [
   'twitter',
@@ -79,7 +79,7 @@ export function buildCrossPostTargets(
  * Format the share text for cross-posting.
  * Includes title, description (if short), and hashtags.
  */
-export function formatShareText(payload: DreamSharePayload: string) {
+export function formatShareText(payload: DreamSharePayload): string {
   const parts: string[] = [];
 
   parts.push(payload.title);
@@ -100,7 +100,7 @@ export function formatShareText(payload: DreamSharePayload: string) {
  * Open a cross-post share URL in a new window/tab.
  * Uses window.open with standard social share dimensions.
  */
-export function openCrossPost(shareUrl: string: void) {
+export function openCrossPost(shareUrl: string): void {
   if (typeof window === 'undefined') return;
 
   // Try native Web Share API first (better on mobile)
@@ -112,7 +112,7 @@ export function openCrossPost(shareUrl: string: void) {
  * Use the native Web Share API if available (mobile-first).
  * Falls back to openCrossPost if not supported.
  */
-export async function nativeShare(payload: DreamSharePayload: Promise<boolean>) {
+export async function nativeShare(payload: DreamSharePayload): Promise<boolean> {
   if (typeof navigator === 'undefined') return false;
 
   if (navigator.share) {
@@ -131,7 +131,7 @@ export async function nativeShare(payload: DreamSharePayload: Promise<boolean>) 
   return false;
 }
 
-// --- OG Meta helpers (for rich link previews) ---------------------------------
+// ─── OG Meta helpers (for rich link previews) ─────────────────────────────────
 
 /**
  * Build Open Graph meta tags for a Dream page.
@@ -139,7 +139,7 @@ export async function nativeShare(payload: DreamSharePayload: Promise<boolean>) 
  *
  * Usage: return these from a Next.js generateMetadata() function.
  */
-export function buildDreamOgMeta(payload: DreamSharePayload: Record<string, string>) {
+export function buildDreamOgMeta(payload: DreamSharePayload): Record<string, string> {
   const meta: Record<string, string> = {
     'og:type': 'website',
     'og:title': payload.title,

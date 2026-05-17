@@ -63,7 +63,7 @@ export type SupabaseCookieStore = Pick<Awaited<ReturnType<typeof cookies>>, 'get
  * - Env vars resolved by lib/supabase/config.ts.
  */
 
-function createDisabledClient(reason: string: SupabaseClient<Database>) {
+function createDisabledClient(reason: string): SupabaseClient<Database> {
   const authError = new Error(reason)
 
   // Proxy that satisfies the postgrest query-builder shape: every method
@@ -145,7 +145,7 @@ export function createServerClientWithCookies(
       },
       setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
         try {
-          cookiesToSet.forEach({ name, value: Record<string, unknown>, options } => cookieStore.set(name, value, options))
+          cookiesToSet.forEach(({ name, value: Record<string, unknown>, options }) => cookieStore.set(name, value, options))
         } catch {
           // Called from a Server Component. Ignore if middleware refreshes sessions.
         }
@@ -154,7 +154,7 @@ export function createServerClientWithCookies(
   })
 }
 
-export async function createServerClient(: Promise<SupabaseClient<Database>>) {
+export async function createServerClient(): Promise<SupabaseClient<Database>> {
   return createServerClientWithCookies(await cookies())
 }
 
@@ -170,7 +170,7 @@ export function createServerClientWithCustomCookies(
   })
 }
 
-export async function createServiceClient(: Promise<SupabaseClient<Database>>) {
+export async function createServiceClient(): Promise<SupabaseClient<Database>> {
   if (!SUPABASE_CONFIG.url || !SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error(
       `Supabase service role is not configured. Set SUPABASE_SERVICE_ROLE_KEY in Vercel environment variables.`

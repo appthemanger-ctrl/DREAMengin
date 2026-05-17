@@ -19,13 +19,13 @@ interface GameScore {
   shared: boolean;
 }
 
-export default function ScoresPanel() {
+export default function ScoresPanel( ){
   const [scores, setScores] = useState<GameScore[]>([]);
   const [loading, setLoading] = useState(true);
   const [sharing, setSharing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function loadScores() {
+  async function loadScores( ){
     setLoading(true);
     setError(null);
     const supabase = createClient();
@@ -44,16 +44,16 @@ export default function ScoresPanel() {
 
   useEffect(() => { loadScores(); }, []);
 
-  async function shareScore(id: string) {
+  async function shareScore(id: string ){
     setSharing(id);
     const supabase = createClient();
     await supabase.from('game_scores').update({ shared: true }).eq('id', id);
-    setScores(prev: Record<string, unknown> => prev.map((s: Record<string, unknown>) => s.id === id ? { ...s, shared: true } : s));
+    setScores((prev: Record<string, unknown>) => prev.map((s: Record<string, unknown>) => s.id === id ? { ...s, shared: true } : s));
     setSharing(null);
   }
 
   const formatGame = (g: string) =>
-    g.replace(/-/g, ' ').replace(/\b\w/g, c: Record<string, unknown> => c.toUpperCase());
+    g.replace(/-/g, ' ').replace((/\b\w/g, c: Record<string, unknown>) => c.toUpperCase());
 
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
@@ -97,7 +97,7 @@ export default function ScoresPanel() {
 
         {!loading && scores.length > 0 && (
           <div className="space-y-2">
-            {scores.map(score: Record<string, unknown>, idx: number => (
+            {scores.map(score: Record<string, unknown>, (idx: number ) => (
               <div
                 key={score.id}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.04] border border-white/10 hover:border-[#c8981a]/30 transition-all"

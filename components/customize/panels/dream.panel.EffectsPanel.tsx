@@ -7,7 +7,7 @@ import { SlidePanel } from './dream.panel.ColorPanel';
 /**
  * EffectsPanel — control glass blur, brightness, saturation, and widget opacity.
  */
-export default function EffectsPanel() {
+export default function EffectsPanel( ){
   const { activePanel, closePanel, draftSkin, updateDraft } = useCustomizeMode();
 
   if (activePanel !== 'effects') return null;
@@ -69,9 +69,9 @@ export default function EffectsPanel() {
   );
 }
 
-// -- Reusable slider row -------------------------------------------------------
+// ── Reusable slider row ───────────────────────────────────────────────────────
 
-function SliderRow() {
+function SliderRow(){
   label, value, displaySuffix,
   min, max, step,
   rawValue,

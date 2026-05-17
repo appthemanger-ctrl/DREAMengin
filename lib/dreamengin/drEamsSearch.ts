@@ -43,10 +43,10 @@ export const NAV_SUGGESTIONS: NavSuggestion[] = [
  * Returns nav suggestions whose label contains the query (case-insensitive).
  * Returns at most `limit` results (default 5).
  */
-export function matchNavSuggestions(query: string, limit = 5: NavSuggestion[]) {
+export function matchNavSuggestions(query: string, limit = 5): NavSuggestion[] {
   if (!query.trim()) return [];
   const q = query.trim().toLowerCase();
-  return NAV_SUGGESTIONS.filter(s => s.label.toLowerCase().includes(q)).slice(0, limit);
+  return NAV_SUGGESTIONS.filter((s) => s.label.toLowerCase().includes(q)).slice(0, limit);
 }
 
 // ---------------------------------------------------------------------------
@@ -66,7 +66,7 @@ export type DrEamsRequestBody = {
  * @param query  The user's search / question text.
  * @param route  The current UI route (e.g. '/homedream'). Defaults to '/homedream'.
  */
-export function buildDrEamsRequest(query: string, route = '/homedream': DrEamsRequestBody) {
+export function buildDrEamsRequest(query: string, route = '/homedream'): DrEamsRequestBody {
   return {
     message: query.trim(),
     ui: { route },
@@ -92,7 +92,7 @@ export type DrEamsParsedReply = {
  *  - API error: `{ ok: false, error: { message: "..." } }`
  *  - Any unknown shape → safe fallback text
  */
-export function parseDrEamsReply(data: unknown: DrEamsParsedReply) {
+export function parseDrEamsReply(data: unknown): DrEamsParsedReply {
   if (data && typeof data === 'object') {
     const d = data as Record<string, unknown>;
 
@@ -128,7 +128,7 @@ export function parseDrEamsReply(data: unknown: DrEamsParsedReply) {
  * originated from a Dr. Eams search bar interaction. The `q` param carries
  * the original query so the user can share the insight with a friend.
  */
-export function buildDreamDMUrl(query: string: string) {
+export function buildDreamDMUrl(query: string): string {
   const params = new URLSearchParams({
     from: 'dr-eams',
     q: query.trim(),
@@ -144,7 +144,7 @@ export function buildDreamDMUrl(query: string: string) {
  * Truncates a string to `maxChars` and appends `…` if cut.
  * Used to keep inline previews readable.
  */
-export function truncatePreview(text: string, maxChars = 36: string) {
+export function truncatePreview(text: string, maxChars = 36): string {
   if (text.length <= maxChars) return text;
   return text.slice(0, maxChars).trimEnd() + '…';
 }

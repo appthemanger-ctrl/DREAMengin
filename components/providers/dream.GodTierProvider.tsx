@@ -11,7 +11,7 @@
 import { useGodTier } from '@/lib/god-tier/useGodTier';
 import { usePathname } from 'next/navigation';
 
-export default function GodTierProvider() {
+export default function GodTierProvider( ){
   const pathname = usePathname();
 
   // Derive activeTask from route for richer signals

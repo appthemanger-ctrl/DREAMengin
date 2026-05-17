@@ -67,12 +67,12 @@ describe('processData', () => {
 \`\`\``,
 };
 
-function getSimResponse(prompt: string: string) {
+function getSimResponse(prompt: string): string {
   if (prompt.toLowerCase().includes('test')) return SIMULATED_RESPONSES.tests;
   return SIMULATED_RESPONSES.default;
 }
 
-export default function AIPanel() {
+export default function AIPanel( ){
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '0',
@@ -90,25 +90,25 @@ export default function AIPanel() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  async function sendMessage(prompt?: string) {
+  async function sendMessage(prompt?: string ){
     const text = (prompt ?? input).trim();
     if (!text || loading) return;
     setInput('');
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content: text, timestamp: new Date() };
-    setMessages(prev: Record<string, unknown> => [...prev, userMsg]);
+    setMessages((prev: Record<string, unknown>) => [...prev, userMsg]);
     setLoading(true);
-    await new Promise(r: number => setTimeout(r, 800 + Math.random() * 1200));
+    await new Promise((r: number ) => setTimeout(r, 800 + Math.random() * 1200));
     const reply: Message = {
       id: (Date.now() + 1).toString(),
       role: 'assistant',
       content: getSimResponse(text),
       timestamp: new Date(),
     };
-    setMessages(prev: Record<string, unknown> => [...prev, reply]);
+    setMessages((prev: Record<string, unknown>) => [...prev, reply]);
     setLoading(false);
   }
 
-  function copyMessage(content: string, id: string) {
+  function copyMessage(content: string, id): string {
     navigator.clipboard.writeText(content).catch(() => {});
     setCopied(id);
     setTimeout(() => setCopied(null), 2000);

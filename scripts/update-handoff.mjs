@@ -51,10 +51,10 @@ const utcDate = new Date(rawDate)
 const nameStatus = git('git diff-tree --no-commit-id -r --name-status HEAD');
 const lines = nameStatus.split('\n').filter(Boolean);
 
-const added    = lines.filter(l => l.startsWith('A')).map(l => l.replace(/^A\s+/, ''));
-const modified = lines.filter(l => l.startsWith('M')).map(l => l.replace(/^M\s+/, ''));
-const deleted  = lines.filter(l => l.startsWith('D')).map(l => l.replace(/^D\s+/, ''));
-const renamed  = lines.filter(l => l.startsWith('R')).map(l => l.replace(/^R\d*\s+/, ''));
+const added    = lines.filter((l) => l.startsWith('A')).map((l) => l.replace(/^A\s+/, ''));
+const modified = lines.filter((l) => l.startsWith('M')).map((l) => l.replace(/^M\s+/, ''));
+const deleted  = lines.filter((l) => l.startsWith('D')).map((l) => l.replace(/^D\s+/, ''));
+const renamed  = lines.filter((l) => l.startsWith('R')).map((l) => l.replace(/^R\d*\s+/, ''));
 
 // Compact stat line, e.g. "+3 files  −1 file  ~5 files"
 const statParts = [];
@@ -69,7 +69,7 @@ function formatList(arr, prefix) {
   if (!arr.length) return '';
   const shown = arr.slice(0, 12);
   const extra = arr.length - shown.length;
-  let out = shown.map(f => `\`${f}\``).join(', ');
+  let out = shown.map((f) => `\`${f}\``).join(', ');
   if (extra > 0) out += ` … +${extra} more`;
   return `${prefix}: ${out}`;
 }

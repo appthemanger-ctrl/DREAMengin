@@ -101,7 +101,7 @@ export function setRuntimeWorld(
  * Swap which region is dominant.
  * Controlled by DreamDM Bar drag — toggles Surface Space ↔ DreamSpace dominance.
  */
-export function swapDominantRuntime(state: DualRuntimeState: DualRuntimeState) {
+export function swapDominantRuntime(state: DualRuntimeState): DualRuntimeState {
   return {
     ...state,
     dominantRegion:
@@ -115,7 +115,7 @@ export function swapDominantRuntime(state: DualRuntimeState: DualRuntimeState) {
  * Make HomeDream Surface the active world in Surface Space and set it dominant.
  * Used when the user double-taps the Gold button to return home.
  */
-export function makeHomeActiveTop(state: DualRuntimeState: DualRuntimeState) {
+export function makeHomeActiveTop(state: DualRuntimeState): DualRuntimeState {
   return {
     ...state,
     surfaceSpaceWorld: SURFACE_NAMES.HOME_DREAM_SURFACE,
@@ -130,7 +130,7 @@ export function makeHomeActiveTop(state: DualRuntimeState: DualRuntimeState) {
  * locked at the top — gives the user two independent HomeDream views
  * simultaneously (one in Surface Space, one in DreamSpace).
  */
-export function makeHomeDreamSpaceActive(state: DualRuntimeState: DualRuntimeState) {
+export function makeHomeDreamSpaceActive(state: DualRuntimeState): DualRuntimeState {
   return {
     ...state,
     dreamSpaceWorld: SURFACE_NAMES.HOME_DREAM_SURFACE,
@@ -147,7 +147,7 @@ export function makeHomeDreamSpaceActive(state: DualRuntimeState: DualRuntimeSta
  * allowing two independent DreamSpace sessions simultaneously (e.g. two
  * Daydreams or Engins open at the same time).
  */
-export function makeDreamSpaceActiveSurface(state: DualRuntimeState: DualRuntimeState) {
+export function makeDreamSpaceActiveSurface(state: DualRuntimeState): DualRuntimeState {
   return {
     ...state,
     surfaceSpaceWorld: RUNTIME_REGIONS.DREAM_SPACE,
@@ -159,7 +159,7 @@ export function makeDreamSpaceActiveSurface(state: DualRuntimeState: DualRuntime
  * Check if HomeDream Surface is currently the active world in Surface Space
  * and Surface Space is the dominant region.
  */
-export function isHomeActiveTop(state: DualRuntimeState: boolean) {
+export function isHomeActiveTop(state: DualRuntimeState): boolean {
   return (
     state.surfaceSpaceWorld === SURFACE_NAMES.HOME_DREAM_SURFACE &&
     state.dominantRegion === RUNTIME_REGIONS.SURFACE_SPACE
@@ -169,7 +169,7 @@ export function isHomeActiveTop(state: DualRuntimeState: boolean) {
 /**
  * Check if two RuntimeWorld values are structurally equal.
  */
-export function worldsEqual(a: RuntimeWorld, b: RuntimeWorld: boolean) {
+export function worldsEqual(a: RuntimeWorld, b: RuntimeWorld): boolean {
   if (typeof a === 'string' && typeof b === 'string') {
     return a === b;
   }
@@ -218,7 +218,7 @@ export const TORUS_FOCUS_MAP: Record<TorusDomain, [surface: string, engin: strin
 };
 
 /** Compute the focusKey for a given torus position */
-export function torusFocusKey(x: number, y: number: string) {
+export function torusFocusKey(x: number, y: number): string {
   // The modulo + addition guards against negative x values from moveTorus.
   // TORUS_DOMAINS is a fixed-length const tuple so the index is always valid,
   // but we default to 'home' to stay defensive against future array changes.

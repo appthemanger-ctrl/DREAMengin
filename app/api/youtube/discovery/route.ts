@@ -27,7 +27,7 @@ export interface YouTubeDiscoveryResponse {
   error?: string;
 }
 
-export async function GET(req: NextRequest: Promise<NextResponse<YouTubeDiscoveryResponse>>) {
+export async function GET(req: NextRequest): Promise<NextResponse<YouTubeDiscoveryResponse>> {
   const apiKey = getYouTubeApiKey();
   if (!apiKey) {
     // Optional integration not configured — graceful degradation, not an outage.

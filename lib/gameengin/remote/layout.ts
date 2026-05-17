@@ -54,7 +54,7 @@ export const RIGHT_JOYSTICK_RADIUS_MM = LEFT_JOYSTICK_RADIUS_MM * RIGHT_JOYSTICK
  * which is the CSS reference). Any HUD that knows the real device DPI should
  * pass it in to get an accurate on-screen radius.
  */
-export function radiusMmToPx(mm: number, dpi = 160: number) {
+export function radiusMmToPx(mm: number, dpi = 160): number {
   return (mm / 25.4) * dpi;
 }
 
@@ -73,11 +73,11 @@ export const HUD_ALLOWED_ELEMENTS = Object.freeze([
 
 export type HudAllowedElement = (typeof HUD_ALLOWED_ELEMENTS)[number];
 
-export function isHudElementAllowed(element: string: element is HudAllowedElement) {
+export function isHudElementAllowed(element: string): element is HudAllowedElement {
   return (HUD_ALLOWED_ELEMENTS as readonly string[]).includes(element);
 }
 
 /** Convenience accessor — returns the allocation for a given orientation. */
-export function layoutFor(orientation: RemoteOrientation: RemoteAllocation) {
+export function layoutFor(orientation: RemoteOrientation): RemoteAllocation {
   return orientation === 'portrait' ? PORTRAIT_LAYOUT : LANDSCAPE_LAYOUT;
 }

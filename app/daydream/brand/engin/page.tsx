@@ -4,7 +4,7 @@ import { connection } from 'next/server';
 
 
 /** Redirect to the standalone BrandingEngin app. */
-export default async function BrandEnginRedirectPage() {
+export default async function BrandEnginRedirectPage( ){
   await connection();
   redirect('/engines/brand');
 }

@@ -13,7 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import { generateServerToken, LiveKitError } from '@/lib/social/livekit';
 
-export async function POST(req: NextRequest: Promise<NextResponse>) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const {
     data: { user },

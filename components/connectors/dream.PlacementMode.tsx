@@ -27,7 +27,7 @@ export interface PlacementModeProps {
   onAutoLock: () => void;
 }
 
-export default function PlacementMode() {
+export default function PlacementMode(){
   widget,
   totalSlots,
   filledSlots,
@@ -38,14 +38,14 @@ export default function PlacementMode() {
   const [chosen, setChosen] = useState<number | null>(null);
   const [history, setHistory] = useState<number[]>([]); // for Undo (req 37)
 
-  function handleSlotTap(slot: number) {
+  function handleSlotTap(slot: number ){
     if (filledSlots.has(slot)) return;
-    setHistory(prev: Record<string, unknown> => [...prev, slot]);
+    setHistory((prev: Record<string, unknown>) => [...prev, slot]);
     setChosen(slot);
   }
 
   const handleUndo = useCallback(() => {
-    setHistory(prev: Record<string, unknown> => {
+    setHistory((prev: Record<string, unknown>) => {
       const next = [...prev];
       next.pop();
       setChosen(next.length > 0 ? next[next.length - 1] : null);
@@ -53,20 +53,20 @@ export default function PlacementMode() {
     });
   }, [widget.id]);
 
-  function handleDone() {
+  function handleDone( ){
     if (chosen === null) return;
     handlePlacementDone(onAutoLock); // req 40: return to LOCKED
     onDone({ widgetId: widget.id, slot: chosen });
   }
 
-  function handleCancel() {
+  function handleCancel( ){
     handlePlacementCancel(onAutoLock); // req 40
     onCancel();
   }
 
   // Keyboard: Escape cancels (req 36)
   useEffect(() => {
-    function onKey(e: KeyboardEvent) {
+    function onKey(e: KeyboardEvent ){
       if (e.key === 'Escape') handleCancel();
     }
     window.addEventListener('keydown', onKey);
@@ -91,7 +91,7 @@ export default function PlacementMode() {
         gap: 12, padding: 16, alignContent: 'start',
         pointerEvents: 'none',
       }}>
-        {Array.from({ length: totalSlots }, _: Record<string, unknown>, i: number => {
+        {Array.from({ length: totalSlots }, _: Record<string, unknown>, (i: number ) => {
           const filled = filledSlots.has(i);
           const selected = chosen === i;
           return (

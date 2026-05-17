@@ -39,7 +39,7 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
-export default function CodeSpacePage() { params }: Props {
+export default function CodeSpacePage({ params }: Props) {
   const { id } = use(params);
 
   const [code, setCode] = useState(DEFAULT_HTML);
@@ -91,7 +91,7 @@ export default function CodeSpacePage() { params }: Props {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = ev: Event => {
+    reader.onload = (ev: Event ) => {
       const text = ev.target?.result;
       if (typeof text === 'string') setCode(text);
     };
@@ -142,7 +142,7 @@ export default function CodeSpacePage() { params }: Props {
         background: '#0d0d1a',
       }}
     >
-      {/* -- Top bar -- */}
+      {/* ── Top bar ── */}
       <header
         style={{
           display: 'flex',
@@ -196,7 +196,7 @@ export default function CodeSpacePage() { params }: Props {
         </div>
       </header>
 
-      {/* -- Preview Panel (~35vh) -- */}
+      {/* ── Preview Panel (~35vh) ── */}
       <div style={{ height: '35vh', display: 'flex', flexDirection: 'column', borderBottom: '2px solid #6366f1' }}>
         <div style={panelHeaderStyle}>
           <span style={panelLabelStyle}>Preview</span>
@@ -237,7 +237,7 @@ export default function CodeSpacePage() { params }: Props {
         />
       </div>
 
-      {/* -- Editor Panel (~35vh) -- */}
+      {/* ── Editor Panel (~35vh) ── */}
       <div style={{ height: '35vh', display: 'flex', flexDirection: 'column', borderBottom: '2px solid #8b5cf6' }}>
         <div style={panelHeaderStyle}>
           <span style={panelLabelStyle}>Editor</span>
@@ -303,7 +303,7 @@ export default function CodeSpacePage() { params }: Props {
         />
       </div>
 
-      {/* -- Snippets + Actions Panel (~30vh) -- */}
+      {/* ── Snippets + Actions Panel (~30vh) ── */}
       <div style={{ flex: 1, minHeight: '30vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div style={panelHeaderStyle}>
           <span style={panelLabelStyle}>Quick Snippets</span>

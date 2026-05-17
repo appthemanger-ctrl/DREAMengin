@@ -27,7 +27,7 @@ type DreamRProfile = {
   bio?: string | null;
 };
 
-export default async function DreamRPage() {
+export default async function DreamRPage( ){
   await connection();
   const supabase = await createServerClient();
   const user = await safeGetUser(supabase);

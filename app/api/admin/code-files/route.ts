@@ -13,7 +13,7 @@ import {
 // NOTE: Do not add `export const runtime = 'nodejs'` here — it is incompatible
 // with nextConfig.cacheComponents (Turbopack build error in Next.js 16+).
 
-// -- File-tree builder --------------------------------------------------------
+// ── File-tree builder ────────────────────────────────────────────────────────
 const ALLOWED_TOP_DIRS = ['app', 'components', 'lib', 'hooks', 'types', 'styles'] as const;
 type AllowedTopDir = (typeof ALLOWED_TOP_DIRS)[number];
 const ALLOWED_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.css', '.json', '.md', '.mjs', '.cjs']);
@@ -26,7 +26,7 @@ export interface FileNode {
   children?: FileNode[];
 }
 
-async function buildTree(absDir: string, root: string, depth = 0: Promise<FileNode[]>) {
+async function buildTree(absDir: string, root: string, depth = 0): Promise<FileNode[]> {
   if (depth > 5) return [];
   let entries;
   try {
@@ -45,13 +45,13 @@ async function buildTree(absDir: string, root: string, depth = 0: Promise<FileNo
       nodes.push({ name: e.name, type: 'file', path: rel });
     }
   }
-  return nodes.sort(a: Record<string, unknown>, b: Record<string, unknown> => {
+  return nodes.sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
     if (a.type !== b.type) return a.type === 'dir' ? -1 : 1;
     return a.name.localeCompare(b.name);
   });
 }
 
-function allowedRoot(topDir: AllowedTopDir: string) {
+function allowedRoot(topDir: AllowedTopDir): string {
   switch (topDir) {
     case 'app':
       return path.join(/*turbopackIgnore: true*/ process.cwd(), 'app');
@@ -68,8 +68,8 @@ function allowedRoot(topDir: AllowedTopDir: string) {
   }
 }
 
-// -- Path-safety guard --------------------------------------------------------
-function resolveAllowedFile(relPath: string:) { abs: string; rel: string } | null {
+// ── Path-safety guard ────────────────────────────────────────────────────────
+function resolveAllowedFile(relPath: string): { abs: string; rel: string } | null {
   if (path.isAbsolute(relPath)) return null;
   const normalized = path.normalize(relPath).replaceAll(path.sep, '/');
   if (normalized === '.' || normalized.startsWith('../') || normalized.includes('/../')) return null;
@@ -86,13 +86,13 @@ function resolveAllowedFile(relPath: string:) { abs: string; rel: string } | nul
   };
 }
 
-// -- Deny helper --------------------------------------------------------------
-function deny(msg: string, status: number) {
+// ── Deny helper ──────────────────────────────────────────────────────────────
+function deny(msg: string, status): number {
   return NextResponse.json({ error: msg }, { status });
 }
 
-// -- Route handler ------------------------------------------------------------
-export async function POST(request: Request) {
+// ── Route handler ────────────────────────────────────────────────────────────
+export async function POST(request: Request ){
   // 1. Block blacklisted domains immediately — no information leakage
   if (isDomainBlocked(request)) {
     return deny('Access denied.', 403);

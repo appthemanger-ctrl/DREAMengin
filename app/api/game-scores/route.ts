@@ -19,7 +19,7 @@ const PostScoreSchema = z.object({
 
 // GET /api/game-scores?game=<name>&limit=<n>
 // Returns top N scores for the given game, enriched with player handle
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest ){
   const { searchParams } = new URL(req.url);
   const game = searchParams.get('game');
   const limitParam = searchParams.get('limit');
@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
   );
 
   // Merge profile data into each score entry and add rank
-  const enriched = scores.map(s: Record<string, unknown>, index: number => ({
+  const enriched = scores.map(s: Record<string, unknown>, (index: number ) => ({
     ...s,
     rank: index + 1,
     profile: profilesMap[s.user_id] ?? null,
@@ -78,7 +78,7 @@ export async function GET(req: NextRequest) {
 
 // POST /api/game-scores
 // Body: { game, score, level? } — auth required
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
   const {
     data: { user },
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
 
   const parsed = PostScoreSchema.safeParse(body);
   if (!parsed.success) {
-    const message = parsed.error.issues.map(i: number => i.message).join('; ');
+    const message = parsed.error.issues.map((i: number ) => i.message).join('; ');
     return NextResponse.json({ data: null, error: message }, { status: 422 });
   }
 

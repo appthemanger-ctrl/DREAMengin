@@ -33,7 +33,7 @@ import { createClient } from '@/lib/supabase/client';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import type { RealtimePostgresInsertPayload } from '@/engine/io';
 
-// -- Public types ---------------------------------------------------------------
+// ── Public types ───────────────────────────────────────────────────────────────
 
 /** Unified feed post shape used by HomeFeed and the realtime hook. */
 export interface FeedPost {
@@ -64,7 +64,7 @@ export interface FeedPost {
   /** Original post URL for connector items (mastodon, youtube, …) */
   permalink?: string;
 
-  // -- DreamR transparency payload --------------------------------------------
+  // ── DreamR transparency payload ────────────────────────────────────────────
   // Populated by the DreamR feed routes (rankFeed → ScoredPost). All optional
   // because connector items, realtime-arrival posts, and pre-DreamR feeds may
   // not carry them.
@@ -104,9 +104,9 @@ export interface UseLiveFeedReturn {
   updatePost: (id: string, changes: Partial<FeedPost>) => void;
 }
 
-// -- Hook -----------------------------------------------------------------------
+// ── Hook ───────────────────────────────────────────────────────────────────────
 
-export function useLiveFeed(userId: string, initialPosts: FeedPost[]: UseLiveFeedReturn) {
+export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFeedReturn {
   const [posts, setPosts] = useState<FeedPost[]>(initialPosts);
   // Posts from other users held in a queue until the user taps the banner
   const [queued, setQueued] = useState<FeedPost[]>([]);
@@ -116,12 +116,12 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]: UseLiveFee
   const postsChannelRef = useRef<ReturnType<ReturnType<typeof createClient>['channel']> | null>(null);
   const itemsChannelRef = useRef<ReturnType<ReturnType<typeof createClient>['channel']> | null>(null);
 
-  // -- Stable callbacks --------------------------------------------------------
+  // ── Stable callbacks ────────────────────────────────────────────────────────
 
   const flushNew = useCallback(() => {
-    setQueued(prev: Record<string, unknown> => {
+    setQueued((prev: Record<string, unknown>) => {
       if (prev.length === 0) return prev;
-      setPosts(cur: Record<string, unknown> => {
+      setPosts((cur: Record<string, unknown>) => {
         // Merge queued items in, deduplicating against current feed
         const ids = new Set(cur.map((p: Record<string, unknown>) => p.id));
         const fresh = prev.filter((p: Record<string, unknown>) => !ids.has(p.id));
@@ -137,24 +137,24 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]: UseLiveFee
   }, []);
 
   const prependPost = useCallback((post: FeedPost) => {
-    setPosts(prev: Record<string, unknown> => {
+    setPosts((prev: Record<string, unknown>) => {
       if (prev.some((p: Record<string, unknown>) => p.id === post.id)) return prev;
       return [post, ...prev];
     });
   }, []);
 
   const updatePost = useCallback((id: string, changes: Partial<FeedPost>) => {
-    setPosts(prev: Record<string, unknown> => prev.map((p: Record<string, unknown>) => (p.id === id ? { ...p, ...changes } : p)));
+    setPosts((prev: Record<string, unknown>) => prev.map((p: Record<string, unknown>) => (p.id === id ? { ...p, ...changes } : p)));
   }, []);
 
-  // -- Realtime subscriptions -------------------------------------------------
+  // ── Realtime subscriptions ─────────────────────────────────────────────────
 
   useEffect(() => {
     if (!userId) return;
 
     const supabase = createClient();
 
-    // -- Channel 1: app_posts (public posts from any user) ------------------
+    // ── Channel 1: app_posts (public posts from any user) ──────────────────
     const postsChannel = supabase
       .channel(`homedream-posts:${userId}`)
       .on(
@@ -201,13 +201,13 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]: UseLiveFee
 
           if (authorId === userId) {
             // Own post — prepend immediately (dedup with optimistic insert)
-            setPosts(prev: Record<string, unknown> => {
+            setPosts((prev: Record<string, unknown>) => {
               if (prev.some((p: Record<string, unknown>) => p.id === postId)) return prev;
               return [newPost, ...prev];
             });
           } else {
             // Someone else's post — queue behind the banner
-            setQueued(prev: Record<string, unknown> => {
+            setQueued((prev: Record<string, unknown>) => {
               if (prev.some((p: Record<string, unknown>) => p.id === postId)) return prev;
               return [newPost, ...prev];
             });
@@ -224,7 +224,7 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]: UseLiveFee
         (payload: RealtimePostgresInsertPayload<Record<string, unknown>>) => {
           const raw = payload.new as Record<string, unknown>;
           // Sync like/comment counts in place — zero re-fetch
-          setPosts(prev: Record<string, unknown> =>
+          setPosts((prev: Record<string, unknown>) =>
             prev.map((p: Record<string, unknown>) =>
               p.id === raw.id
                 ? {
@@ -243,7 +243,7 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]: UseLiveFee
 
     postsChannelRef.current = postsChannel;
 
-    // -- Channel 2: feed_items (connector-synced items for this user) --------
+    // ── Channel 2: feed_items (connector-synced items for this user) ────────
     const itemsChannel = supabase
       .channel(`homedream-items:${userId}`)
       .on(
@@ -279,7 +279,7 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]: UseLiveFee
           };
 
           // Connector items always queue — they are from external services
-          setQueued(prev: Record<string, unknown> => {
+          setQueued((prev: Record<string, unknown>) => {
             if (prev.some((q: Record<string, unknown>) => q.id === newEntry.id)) return prev;
             return [newEntry, ...prev];
           });

@@ -29,7 +29,7 @@ const DEFAULT_WORKFLOW_SPLIT = 0.5;
  * Per Bar Ownership Law §0 (docs/LAW.md): the DreamDM Bar IS home.
  * This component is purely a data bridge — it has no UI of its own.
  */
-export default function DreamBarDataBridge() {
+export default function DreamBarDataBridge(){
   userId,
   profile,
   initialPosts,
@@ -81,7 +81,7 @@ export default function DreamBarDataBridge() {
 
   const revealSplitRuntime = useCallback((nextRatio = DEFAULT_WORKFLOW_SPLIT) => {
     setIsBarMinimized(false);
-    setSplitRatio(current: Record<string, unknown> => {
+    setSplitRatio((current: Record<string, unknown>) => {
       if (current >= 0.98 || current <= 0.02) {
         return nextRatio;
       }
@@ -111,7 +111,7 @@ export default function DreamBarDataBridge() {
     dualRuntime.setBottomRuntime('DreamSpace');
     dualRuntime.setDominantRuntime('DreamSpace');
     setIsBarMinimized(false);
-    setSplitRatio(current: Record<string, unknown> => (current >= 0.5 ? 0.25 : current));
+    setSplitRatio((current: Record<string, unknown>) => (current >= 0.5 ? 0.25 : current));
     closeBothMenus();
     closeDrEams();
   }, [closeBothMenus, closeDrEams, dualRuntime, setIsBarMinimized, setSplitRatio]);

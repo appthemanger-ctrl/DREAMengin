@@ -21,7 +21,7 @@ interface EnginNavBarProps {
   accentColor: string;
 }
 
-export default function EnginNavBar() { items, accentColor }: EnginNavBarProps {
+export default function EnginNavBar({ items, accentColor }: EnginNavBarProps) {
   const pathname = usePathname();
 
   return (

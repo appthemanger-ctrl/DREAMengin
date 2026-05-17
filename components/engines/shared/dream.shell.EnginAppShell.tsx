@@ -28,7 +28,7 @@ export interface EnginAppShellProps {
   className?: string;
 }
 
-export default function EnginAppShell() {
+export default function EnginAppShell(){
   engineName,
   engineEmoji,
   accentColor,

@@ -35,7 +35,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'profile',     emoji: '👤', label: 'Public Profile', desc: 'See what others see',          color: '#2a8ab8', href: '/view-profile' },
 ];
 
-export default async function AnalyticsDaydreamPage() {
+export default async function AnalyticsDaydreamPage( ){
   await connection();
   const supabase = await createServerClient();
   let user = null;

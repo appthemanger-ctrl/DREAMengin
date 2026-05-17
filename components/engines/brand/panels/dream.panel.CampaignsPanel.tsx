@@ -25,7 +25,7 @@ const INIT_CAMPAIGNS: Campaign[] = [
   { id: '2', name: 'Collab Promo Series',  budget: 300,  impressions: 52000, clicks: 940,  conversions: 28, revenue: 1400 },
 ];
 
-function calcMetrics(c: Campaign) {
+function calcMetrics(c: Campaign ){
   const cpm    = c.impressions > 0 ? (c.budget / c.impressions) * 1000 : 0;
   const cpc    = c.clicks > 0 ? c.budget / c.clicks : 0;
   const roi    = c.budget > 0 ? ((c.revenue - c.budget) / c.budget) * 100 : 0;
@@ -34,20 +34,20 @@ function calcMetrics(c: Campaign) {
   return { cpm, cpc, roi, cvr, roas };
 }
 
-export default function CampaignsPanel() {
+export default function CampaignsPanel( ){
   const [campaigns, setCampaigns] = useState<Campaign[]>(INIT_CAMPAIGNS);
   const [showCalc, setShowCalc] = useState(false);
   const [calc, setCalc] = useState({ budget: 500, impressions: 80000, clicks: 1500, conversions: 40, revenue: 2000 });
   const [showNew, setShowNew] = useState(false);
   const [newName, setNewName] = useState('');
 
-  function removeCampaign(id: string) {
-    setCampaigns(prev: Record<string, unknown> => prev.filter((c: Record<string, unknown>) => c.id !== id));
+  function removeCampaign(id: string ){
+    setCampaigns((prev: Record<string, unknown>) => prev.filter((c: Record<string, unknown>) => c.id !== id));
   }
 
-  function addCampaign() {
+  function addCampaign( ){
     if (!newName.trim()) return;
-    setCampaigns(prev: Record<string, unknown> => [...prev, {
+    setCampaigns((prev: Record<string, unknown>) => [...prev, {
       id: Date.now().toString(),
       name: newName.trim(),
       budget: calc.budget,
@@ -74,14 +74,14 @@ export default function CampaignsPanel() {
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => setShowCalc(s: string => !s)}
+              onClick={() => setShowCalc((s: string ) => !s)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white text-xs transition-all"
             >
               <Calculator size={13} />
               Calculator
             </button>
             <button
-              onClick={() => setShowNew(s: string => !s)}
+              onClick={() => setShowNew((s: string ) => !s)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f472b6]/20 hover:bg-[#f472b6]/30 text-[#f472b6] text-xs font-medium transition-all"
             >
               <Plus size={13} />
@@ -104,13 +104,13 @@ export default function CampaignsPanel() {
                 { key: 'clicks', label: 'Clicks', step: 100 },
                 { key: 'conversions', label: 'Conversions', step: 5 },
                 { key: 'revenue', label: 'Revenue ($)', step: 100 },
-              ].map({ key, label: string, step } => (
+              ].map(({ key, label: string, step }) => (
                 <div key={key}>
                   <label className="block text-xs text-white/40 mb-1">{label}</label>
                   <input
                     type="number"
                     value={calc[key as keyof typeof calc]}
-                    onChange={(e) => setCalc(p: Record<string, unknown> => ({ ...p, [key]: Number(e.target.value) }))}
+                    onChange={(e) => setCalc((p: Record<string, unknown>) => ({ ...p, [key]: Number(e.target.value) }))}
                     step={step}
                     min={0}
                     className="w-full px-2.5 py-1.5 bg-black/30 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-[#f472b6]/50"
@@ -183,7 +183,7 @@ export default function CampaignsPanel() {
                     { label: 'CPC',  value: `$${fmt(m.cpc)}` },
                     { label: 'ROAS', value: `${fmt(m.roas)}×` },
                     { label: 'ROI',  value: `${fmt(m.roi, 1)}%`, isRoi: true },
-                  ].map({ label, value: Record<string, unknown>, isRoi } => (
+                  ].map(({ label, value: Record<string, unknown>, isRoi }) => (
                     <div key={label} className="py-2 bg-[#0a0a0f]">
                       <div className="text-white/30">{label}</div>
                       <div

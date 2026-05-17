@@ -111,11 +111,11 @@ describe('buildReleaseStrategy', () => {
     expect(polished.score).toBeGreaterThan(draft.score);
     expect(polished.headline).toBe('Prime for wide release');
     expect(polished.blockers).toHaveLength(0);
-    expect(polished.targets.every(target => target.readiness === 'ready')).toBe(true);
+    expect(polished.targets.every((target) => target.readiness === 'ready')).toBe(true);
 
     expect(draft.headline).toBe('Keep polishing before launch');
-    expect(draft.blockers.some(item => item.includes('Limiter + Compressor'))).toBe(true);
-    expect(draft.targets.some(target => target.readiness === 'needs-work')).toBe(true);
+    expect(draft.blockers.some((item) => item.includes('Limiter + Compressor'))).toBe(true);
+    expect(draft.targets.some((target) => target.readiness === 'needs-work')).toBe(true);
   });
 });
 
@@ -132,7 +132,7 @@ describe('createMelodySuggestions', () => {
 
     expect(suggestions).toHaveLength(3);
     for (const suggestion of suggestions) {
-      expect(suggestion.notes.every(note => ['D', 'E', 'F#', 'G', 'A', 'B', 'C#'].includes(note))).toBe(true);
+      expect(suggestion.notes.every((note) => ['D', 'E', 'F#', 'G', 'A', 'B', 'C#'].includes(note))).toBe(true);
       expect(suggestion.compatibilityScore).toBeGreaterThanOrEqual(70);
     }
     expect(suggestions[0].reason).toContain('D');
@@ -223,9 +223,9 @@ describe('StarMaker sample editor advanced workflow', () => {
   });
 });
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 // starmakerDaw data model helpers
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('midiPitchToName', () => {
   it('converts standard MIDI pitch numbers to note names', () => {
@@ -268,12 +268,12 @@ describe('createInitialCompingState', () => {
     const state = createInitialCompingState(4);
     expect(state.takes).toHaveLength(4);
     expect(state.takes[0].active).toBe(true);
-    expect(state.takes.every(t => t.waveform.length === 48)).toBe(true);
+    expect(state.takes.every((t) => t.waveform.length === 48)).toBe(true);
   });
 
   it('sets totalDurationSec from the longest take', () => {
     const state = createInitialCompingState(3);
-    const maxDuration = Math.max(...state.takes.map(t => t.durationSec));
+    const maxDuration = Math.max(...state.takes.map((t) => t.durationSec));
     expect(state.totalDurationSec).toBe(maxDuration);
   });
 });
@@ -288,9 +288,9 @@ describe('createInitialSessionView', () => {
 
   it('includes demo clips in the drums track', () => {
     const view = createInitialSessionView();
-    const drums = view.tracks.find(t => t.id === 'drums');
+    const drums = view.tracks.find((t) => t.id === 'drums');
     expect(drums).toBeDefined();
-    const filledClips = drums!.clips.filter(c => !c.isEmpty);
+    const filledClips = drums!.clips.filter((c) => !c.isEmpty);
     expect(filledClips.length).toBeGreaterThan(0);
   });
 });
@@ -321,7 +321,7 @@ describe('audioQualityLabel + AUDIO_QUALITY_PRESETS', () => {
   it('has all five presets with increasing quality', () => {
     const presets = Object.values(AUDIO_QUALITY_PRESETS);
     expect(presets).toHaveLength(5);
-    const sampleRates = presets.map(p => p.sampleRate);
+    const sampleRates = presets.map((p) => p.sampleRate);
     expect(sampleRates).toContain(192000);
     expect(sampleRates).toContain(44100);
   });
@@ -336,9 +336,9 @@ describe('PIANO_ROLL_DEFAULTS', () => {
   });
 });
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 // Industry-standard DAW panels — structural tests
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 describe('PianoRollPanel', () => {
   it('renders a piano keyboard strip with beat ruler', () => {

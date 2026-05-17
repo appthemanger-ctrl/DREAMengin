@@ -46,7 +46,7 @@ import {
   type EngineAssembly,
 } from '@/lib/forge/engineForge';
 
-// -- Design tokens -------------------------------------------------------------
+// ── Design tokens ─────────────────────────────────────────────────────────────
 
 const C = {
   bg:       '#0a0a0f',
@@ -66,7 +66,7 @@ const C = {
   hub:      '#f97316',   // orange — dual runtime hub
 } as const;
 
-// -- Category colours ----------------------------------------------------------
+// ── Category colours ──────────────────────────────────────────────────────────
 
 const CATEGORY_COLORS: Record<string, string> = {
   'Audio & Music':          '#ec4899',
@@ -82,14 +82,14 @@ const CATEGORY_COLORS: Record<string, string> = {
   'Science & Simulation':   '#f43f5e',
 };
 
-// -- Canvas piece state (adds position + role override) ------------------------
+// ── Canvas piece state (adds position + role override) ────────────────────────
 
 interface CanvasPiece extends AtomicPiece {
   x: number;
   y: number;
 }
 
-// -- Wire-drawing state --------------------------------------------------------
+// ── Wire-drawing state ────────────────────────────────────────────────────────
 
 interface WireInProgress {
   fromPieceId: string;
@@ -100,7 +100,7 @@ interface WireInProgress {
   toY:         number;
 }
 
-// -- §41 DUAL RUNTIME HUB piece ------------------------------------------------
+// ── §41 DUAL RUNTIME HUB piece ────────────────────────────────────────────────
 
 const DUAL_RUNTIME_HUB: AtomicComponent = {
   id:          'forge-dual-runtime-hub',
@@ -109,7 +109,7 @@ const DUAL_RUNTIME_HUB: AtomicComponent = {
   category:    'Science & Simulation',
 };
 
-// -- Component -----------------------------------------------------------------
+// ── Component ─────────────────────────────────────────────────────────────────
 
 export interface EngineBuilderCanvasProps {
   /** Called with the JSON-serialised assembly when the user saves. */
@@ -118,24 +118,24 @@ export interface EngineBuilderCanvasProps {
   initialJson?: string;
 }
 
-export default function EngineBuilderCanvas() {
+export default function EngineBuilderCanvas(){
   onSave,
   initialJson,
 }: EngineBuilderCanvasProps) {
-  // -- Sidebar state ----------------------------------------------------------
+  // ── Sidebar state ──────────────────────────────────────────────────────────
 
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
     new Set(['Audio & Music']),
   );
   const [searchQuery, setSearchQuery] = useState('');
 
-  // -- Canvas state ----------------------------------------------------------
+  // ── Canvas state ──────────────────────────────────────────────────────────
 
   const [pieces, setPieces] = useState<CanvasPiece[]>(() => {
     if (initialJson) {
       try {
         const asm = deserializeAssembly(initialJson);
-        return asm.pieces.map(p: Record<string, unknown>, i: number => ({
+        return asm.pieces.map(p: Record<string, unknown>, (i: number ) => ({
           ...p,
           x: 200 + (i % 4) * 180,
           y: 100 + Math.floor(i / 4) * 140,
@@ -162,7 +162,7 @@ export default function EngineBuilderCanvas() {
 
   const canvasRef = useRef<SVGSVGElement>(null);
 
-  // -- Derived ----------------------------------------------------------------
+  // ── Derived ────────────────────────────────────────────────────────────────
 
   const categories = useMemo(
     () => Array.from(new Set(COMPONENT_INVENTORY.map((c: Record<string, unknown>) => c.category))),
@@ -181,14 +181,14 @@ export default function EngineBuilderCanvas() {
 
   const validation = useMemo(() => validateAssembly(pieces, wires), [pieces, wires]);
 
-  // -- Helpers ----------------------------------------------------------------
+  // ── Helpers ────────────────────────────────────────────────────────────────
 
-  function showToast(msg: string, ok = true) {
+  function showToast(msg: string, ok = true ){
     setToast({ msg, ok });
     setTimeout(() => setToast(null), 3000);
   }
 
-  function inferRole(component: AtomicComponent: AtomicPiece['role']) {
+  function inferRole(component: AtomicComponent): AtomicPiece['role'] {
     const name = component.name.toLowerCase();
     if (name.includes('loader') || name.includes('input') || name.includes('source') ||
         name.includes('recorder') || name.includes('handler') || name.includes('reader'))
@@ -199,14 +199,14 @@ export default function EngineBuilderCanvas() {
     return 'processor';
   }
 
-  function portColor(role: AtomicPiece['role']: string) {
+  function portColor(role: AtomicPiece['role']): string {
     if (role === 'source')    return C.source;
     if (role === 'output')    return C.output;
     if (role === 'processor') return C.processor;
     return C.hub;
   }
 
-  // -- Actions ----------------------------------------------------------------
+  // ── Actions ────────────────────────────────────────────────────────────────
 
   const addPiece = useCallback((component: AtomicComponent) => {
     if (pieces.length >= 30) {
@@ -216,7 +216,7 @@ export default function EngineBuilderCanvas() {
     const role = inferRole(component);
     const piece = atomicPieceFromComponent(component, role);
     const canvas = canvasRef.current?.getBoundingClientRect();
-    setPieces(prev: Record<string, unknown> => [
+    setPieces((prev: Record<string, unknown>) => [
       ...prev,
       {
         ...piece,
@@ -228,8 +228,8 @@ export default function EngineBuilderCanvas() {
   }, [pieces.length]);
 
   const removePiece = useCallback((pieceId: string) => {
-    setPieces(prev: Record<string, unknown> => prev.filter((p: Record<string, unknown>) => p.id !== pieceId));
-    setWires(prev: Record<string, unknown> => prev.filter(
+    setPieces((prev: Record<string, unknown>) => prev.filter((p: Record<string, unknown>) => p.id !== pieceId));
+    setWires((prev: Record<string, unknown>) => prev.filter(
       (w) => w.fromPieceId !== pieceId && w.toPieceId !== pieceId,
     ));
     if (selectedPiece === pieceId) setSelectedPiece(null);
@@ -256,7 +256,7 @@ export default function EngineBuilderCanvas() {
         toPieceId,
         toPortId,
       };
-      setWires(prev: Record<string, unknown> => [...prev, wire]);
+      setWires((prev: Record<string, unknown>) => [...prev, wire]);
       setWireInProgress(null);
     },
     [wireInProgress],
@@ -293,7 +293,7 @@ export default function EngineBuilderCanvas() {
   const loadAssembly = useCallback((json: string) => {
     try {
       const asm = deserializeAssembly(json);
-      setPieces(asm.pieces.map(p: Record<string, unknown>, i: number => ({
+      setPieces(asm.pieces.map(p: Record<string, unknown>, (i: number ) => ({
         ...p,
         x: 200 + (i % 4) * 180,
         y: 100 + Math.floor(i / 4) * 140,
@@ -306,7 +306,7 @@ export default function EngineBuilderCanvas() {
     }
   }, []);
 
-  // -- Drag handlers ---------------------------------------------------------
+  // ── Drag handlers ─────────────────────────────────────────────────────────
 
   const onPiecePointerDown = useCallback(
     (e: React.PointerEvent, pieceId: string) => {
@@ -329,14 +329,14 @@ export default function EngineBuilderCanvas() {
         if (!canvas) return;
         const x = e.clientX - canvas.left - dragOffset.x;
         const y = e.clientY - canvas.top  - dragOffset.y;
-        setPieces(prev: Record<string, unknown> =>
+        setPieces((prev: Record<string, unknown>) =>
           prev.map((p: Record<string, unknown>) => p.id === dragPieceId ? { ...p, x, y } : p),
         );
       }
       if (wireInProgress) {
         const canvas = canvasRef.current?.getBoundingClientRect();
         if (!canvas) return;
-        setWireInProgress(prev: Record<string, unknown> => prev ? {
+        setWireInProgress((prev: Record<string, unknown>) => prev ? {
           ...prev,
           toX: e.clientX - canvas.left,
           toY: e.clientY - canvas.top,
@@ -351,13 +351,13 @@ export default function EngineBuilderCanvas() {
     if (wireInProgress) setWireInProgress(null);
   }, [wireInProgress]);
 
-  // -- Render ----------------------------------------------------------------
+  // ── Render ────────────────────────────────────────────────────────────────
 
   const PIECE_W  = 160;
   const PIECE_H  = 80;
   const PORT_R   = 6;
 
-  function piecePortPos(piece: CanvasPiece, portId: string, isInput: boolean) {
+  function piecePortPos(piece: CanvasPiece, portId: string, isInput): boolean {
     const ports = isInput ? piece.inputPorts : piece.outputPorts;
     const idx   = ports.findIndex((p: Record<string, unknown>) => p.id === portId);
     const count = ports.length;
@@ -383,7 +383,7 @@ export default function EngineBuilderCanvas() {
         border: `1px solid ${C.border2}`,
       }}
     >
-      {/* -- Left Sidebar: Piece Palette ----------------------------------- */}
+      {/* ── Left Sidebar: Piece Palette ─────────────────────────────────── */}
       <div
         style={{
           width: 260,
@@ -431,7 +431,7 @@ export default function EngineBuilderCanvas() {
             <div key={cat}>
               <button
                 onClick={() =>
-                  setExpandedCategories(prev: Record<string, unknown> => {
+                  setExpandedCategories((prev: Record<string, unknown>) => {
                     const next = new Set(prev);
                     if (next.has(cat)) next.delete(cat); else next.add(cat);
                     return next;
@@ -509,7 +509,7 @@ export default function EngineBuilderCanvas() {
         })}
       </div>
 
-      {/* -- Central Canvas ----------------------------------------------- */}
+      {/* ── Central Canvas ─────────────────────────────────────────────── */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Toolbar */}
         <div
@@ -552,7 +552,7 @@ export default function EngineBuilderCanvas() {
               const file = input.files?.[0];
               if (!file) return;
               const reader = new FileReader();
-              reader.onload = e: unknown => loadAssembly(String(e.target?.result ?? ''));
+              reader.onload = (e: unknown ) => loadAssembly(String(e.target?.result ?? ''));
               reader.readAsText(file);
             };
             input.click();
@@ -595,7 +595,7 @@ export default function EngineBuilderCanvas() {
                   style={{ cursor: 'pointer' }}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setWires(prev: Record<string, unknown> => prev.filter((w: Record<string, unknown>) => w.id !== wire.id));
+                    setWires((prev: Record<string, unknown>) => prev.filter((w: Record<string, unknown>) => w.id !== wire.id));
                   }}
                 />
               </g>
@@ -697,7 +697,7 @@ export default function EngineBuilderCanvas() {
                 </foreignObject>
 
                 {/* Input ports (left side) */}
-                {piece.inputPorts.map(port: Record<string, unknown>, idx: number => {
+                {piece.inputPorts.map(port: Record<string, unknown>, (idx: number ) => {
                   const { x, y } = piecePortPos(piece, port.id, true);
                   return (
                     <g key={`in-${port.id}`}>
@@ -719,7 +719,7 @@ export default function EngineBuilderCanvas() {
                 })}
 
                 {/* Output ports (right side) */}
-                {piece.outputPorts.map(port: Record<string, unknown>, idx: number => {
+                {piece.outputPorts.map(port: Record<string, unknown>, (idx: number ) => {
                   const { x, y } = piecePortPos(piece, port.id, false);
                   return (
                     <g key={`out-${port.id}`}>
@@ -759,7 +759,7 @@ export default function EngineBuilderCanvas() {
         </svg>
       </div>
 
-      {/* -- Toast -------------------------------------------------------- */}
+      {/* ── Toast ──────────────────────────────────────────────────────── */}
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -791,9 +791,9 @@ export default function EngineBuilderCanvas() {
   );
 }
 
-// -- Toolbar button helper -----------------------------------------------------
+// ── Toolbar button helper ─────────────────────────────────────────────────────
 
-function ToolbarBtn() {
+function ToolbarBtn(){
   icon, label, onClick, accent, danger,
 }: {
   icon: React.ReactNode;

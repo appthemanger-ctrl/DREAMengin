@@ -17,7 +17,7 @@
 
 import Parser from "rss-parser";
 
-// -- Types -----------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────
 
 export type SocialSource = "instagram" | "x" | "tiktok" | "youtube";
 
@@ -33,7 +33,7 @@ export type SocialFeedItem = {
   description: string | null;
 };
 
-// -- Parser singleton ------------------------------------------------------
+// ── Parser singleton ──────────────────────────────────────────────────────
 
 const parser = new Parser({
   customFields: {
@@ -46,16 +46,16 @@ const parser = new Parser({
   },
 });
 
-// -- HTML helpers ----------------------------------------------------------
+// ── HTML helpers ──────────────────────────────────────────────────────────
 
-export function stripHtml(input?: string | null) {
+export function stripHtml(input?: string | null ){
   if (!input) return "";
   return input.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
 
-// -- Image extraction ------------------------------------------------------
+// ── Image extraction ──────────────────────────────────────────────────────
 
-export function extractFirstImage(item: unknown: string | null) {
+export function extractFirstImage(item: unknown): string | null {
   // 1) enclosure
   if (item.enclosure?.url) return item.enclosure.url;
 
@@ -84,7 +84,7 @@ export function extractFirstImage(item: unknown: string | null) {
   return null;
 }
 
-// -- Feed fetcher ----------------------------------------------------------
+// ── Feed fetcher ──────────────────────────────────────────────────────────
 
 /**
  * Fetches a public RSS / Atom feed and returns normalised SocialFeedItems.

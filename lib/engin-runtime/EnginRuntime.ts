@@ -26,7 +26,7 @@ import {
 } from './EnginCapabilities';
 import type { EnginAction, EnginRuleSetContract } from './EnginRuleSetContract';
 
-// --- Runtime options ----------------------------------------------------------
+// ─── Runtime options ──────────────────────────────────────────────────────────
 
 export interface EnginRuntimeOptions {
   /** Override the capability map (e.g. for admin or guest users). */
@@ -37,7 +37,7 @@ export interface EnginRuntimeOptions {
   persistenceKey?: string | false;
 }
 
-// --- Runtime -----------------------------------------------------------------
+// ─── Runtime ─────────────────────────────────────────────────────────────────
 
 export class EnginRuntime<
   A extends EnginAction = EnginAction,
@@ -66,7 +66,7 @@ export class EnginRuntime<
     this.bus = createEnginEventBus<DomainEvents>();
   }
 
-  // --- Read -------------------------------------------------------------------
+  // ─── Read ───────────────────────────────────────────────────────────────────
 
   /** Current raw base state (read-only snapshot). */
   get state(): Readonly<EnginBaseState> {
@@ -83,7 +83,7 @@ export class EnginRuntime<
     return this._ruleSet.deriveState(this._state);
   }
 
-  // --- Action dispatch --------------------------------------------------------
+  // ─── Action dispatch ────────────────────────────────────────────────────────
 
   /**
    * dispatch(action)
@@ -142,7 +142,7 @@ export class EnginRuntime<
     // 5. Persist (fire-and-forget)
     if (this._persistenceKey !== false) {
       const enginId = this._state.enginId;
-      this._io.save(this._persistenceKey, this._state.domain).then(ok: boolean => {
+      this._io.save(this._persistenceKey, this._state.domain).then((ok: boolean ) => {
         if (ok) {
           _emit('engin:persisted', {
             enginId,
@@ -161,7 +161,7 @@ export class EnginRuntime<
     return true;
   }
 
-  // --- Lifecycle --------------------------------------------------------------
+  // ─── Lifecycle ──────────────────────────────────────────────────────────────
 
   /** Transition the engine to a new lifecycle stage. */
   private _setLifecycle(lc: EnginLifecycle): void {
@@ -199,7 +199,7 @@ export class EnginRuntime<
     );
   }
 
-  // --- Persistence helpers ----------------------------------------------------
+  // ─── Persistence helpers ────────────────────────────────────────────────────
 
   /**
    * restore()

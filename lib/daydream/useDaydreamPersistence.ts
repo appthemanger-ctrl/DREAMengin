@@ -74,11 +74,11 @@ export function useDaydreamPersistence<T = Record<string, unknown>>(
   const [isRestoring, setIsRestoring] = useState(true);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // -- Load state from DB on mount ----------------------------------------------
+  // ── Load state from DB on mount ──────────────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
 
-    async function load() {
+    async function load( ){
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
 
@@ -107,7 +107,7 @@ export function useDaydreamPersistence<T = Record<string, unknown>>(
     };
   }, [daydreamType]);
 
-  // -- Persist state to DB (debounced 800 ms) -----------------------------------
+  // ── Persist state to DB (debounced 800 ms) ───────────────────────────────────
   const persistState = useCallback(
     (payload: T) => {
       if (debounceRef.current) clearTimeout(debounceRef.current);

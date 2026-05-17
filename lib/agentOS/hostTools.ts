@@ -9,7 +9,7 @@ const execAsync = promisify(exec);
 // Evaluated lazily (inside each function) so Turbopack's NFT tracer does not
 // follow process.cwd() at module initialisation time and include the entire
 // project tree in the bundle.
-function getProjectRoot(: string) {
+function getProjectRoot(): string {
   return process.env.CODEENGIN_PROJECT_ROOT ?? process.cwd();
 }
 
@@ -58,7 +58,7 @@ export const codeEnginHostTools = {
     const fullPath = path.resolve(getProjectRoot(), relativePath);
     try {
       const entries = await readdir(fullPath, { withFileTypes: true });
-      return entries.map(entry => ({
+      return entries.map((entry) => ({
         name: entry.name,
         type: entry.isDirectory() ? 'directory' : 'file',
         path: path.join(relativePath, entry.name),

@@ -17,7 +17,7 @@ import { describe, it, expect } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// -- Modules under test --------------------------------------------------------
+// ── Modules under test ────────────────────────────────────────────────────────
 
 import {
   SHOP_TABLE,
@@ -50,7 +50,7 @@ import {
   CONTACT_REQUEST_MESSAGE_MAX,
 } from '@/lib/marketplace/request';
 
-// -- Helper: read migration file -----------------------------------------------
+// ── Helper: read migration file ───────────────────────────────────────────────
 
 function readMigration(filename: string): string {
   const migDir = path.resolve(__dirname, '../supabase/migrations');
@@ -60,9 +60,9 @@ function readMigration(filename: string): string {
 
 const PHASE8E_MIGRATION = readMigration('20260324000001_phase8e_shop_marketplace.sql');
 
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 // Point 39 — DreamShop real listing capability
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 
 describe('Phase 8 §E Point 39 — DreamShop real listing capability', () => {
   it('SHOP_TABLE references the canonical merch database table', () => {
@@ -100,9 +100,9 @@ describe('Phase 8 §E Point 39 — DreamShop real listing capability', () => {
   });
 });
 
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 // Point 40 — DreamShop item create flow
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 
 describe('Phase 8 §E Point 40 — DreamShop item create flow', () => {
   it('validateShopListing accepts a valid listing', () => {
@@ -175,9 +175,9 @@ describe('Phase 8 §E Point 40 — DreamShop item create flow', () => {
   });
 });
 
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 // Point 41 — DreamShop order history private by default
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 
 describe('Phase 8 §E Point 41 — DreamShop order history private by default', () => {
   it('SHOP_ORDERS_TABLE is shop_orders', () => {
@@ -232,9 +232,9 @@ describe('Phase 8 §E Point 41 — DreamShop order history private by default', 
   });
 });
 
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 // Point 42 — DreamMarketplace real listing capability
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 
 describe('Phase 8 §E Point 42 — DreamMarketplace real listing capability', () => {
   it('MARKETPLACE_TABLE references marketplace_items', () => {
@@ -308,9 +308,9 @@ describe('Phase 8 §E Point 42 — DreamMarketplace real listing capability', ()
   });
 });
 
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 // Point 43 — DreamMarketplace slot detail from real DB record
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 
 describe('Phase 8 §E Point 43 — DreamMarketplace slot detail surface', () => {
   it('detail page file exists at app/marketplace/[id]/page.tsx', () => {
@@ -351,9 +351,9 @@ describe('Phase 8 §E Point 43 — DreamMarketplace slot detail surface', () => 
   });
 });
 
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 // Point 44 — Public listings auth-gated; private data owner-only
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 
 describe('Phase 8 §E Point 44 — Public listings auth-gated; private data owner-only', () => {
   it('merch RLS select policy requires auth.uid() IS NOT NULL', () => {
@@ -399,9 +399,9 @@ describe('Phase 8 §E Point 44 — Public listings auth-gated; private data owne
   });
 });
 
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 // Point 45 — DreamShop sell flow creates real listing with real API response
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 
 describe('Phase 8 §E Point 45 — DreamShop sell flow real API response', () => {
   it('sell page POSTs to /api/shop (not direct Supabase)', () => {
@@ -460,9 +460,9 @@ describe('Phase 8 §E Point 45 — DreamShop sell flow real API response', () =>
   });
 });
 
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 // Point 46 — DreamMarketplace "Request" flow routes to real system action
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 
 describe('Phase 8 §E Point 46 — DreamMarketplace Request/contact flow', () => {
   it('MARKETPLACE_CONTACT_TABLE is marketplace_contact_requests', () => {
@@ -583,9 +583,9 @@ describe('Phase 8 §E Point 46 — DreamMarketplace Request/contact flow', () =>
   });
 });
 
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 // Cross-cutting — price formatting utility
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 
 describe('formatMarketplacePrice helper', () => {
   it('returns "Free" for 0 cents', () => {
@@ -599,9 +599,9 @@ describe('formatMarketplacePrice helper', () => {
   });
 });
 
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 // Cross-cutting — MARKETPLACE_TAGS validation edge cases
-// --------------------------------------------------------------------------------
+// ════════════════════════════════════════════════════════════════════════════════
 
 describe('Marketplace tag validation edge cases', () => {
   it('accepts a listing with no tags', () => {

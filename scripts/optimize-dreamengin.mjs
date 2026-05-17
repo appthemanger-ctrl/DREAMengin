@@ -14,7 +14,7 @@ import { parse } from 'yaml';
 // Parse command line arguments
 const args = process.argv.slice(2);
 const getArg = (name) => {
-  const arg = args.find(a => a.startsWith(`--${name}=`));
+  const arg = args.find((a) => a.startsWith(`--${name}=`));
   return arg ? arg.split('=')[1] : null;
 };
 
@@ -87,8 +87,8 @@ for (const targetName of targetsToOptimize) {
 
   // Analyze constraints
   const constraints = targetConfig.constraints || [];
-  const criticalConstraints = constraints.filter(c => c.priority === 'critical').length;
-  const highConstraints = constraints.filter(c => c.priority === 'high').length;
+  const criticalConstraints = constraints.filter((c) => c.priority === 'critical').length;
+  const highConstraints = constraints.filter((c) => c.priority === 'high').length;
   const constraintsSatisfied = constraints.length; // Assume all satisfied for demo
 
   totalConstraints += constraints.length;

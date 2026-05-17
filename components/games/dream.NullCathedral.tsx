@@ -28,7 +28,7 @@ const CELL = 56;        // px
 const SIZE = N * CELL;  // canvas pixel size of board
 const MINE_COUNT = 7;
 
-// -- Palette (Bloodborne-on-PS2 stained gloom) ------------------------------
+// ── Palette (Bloodborne-on-PS2 stained gloom) ──────────────────────────────
 const COL = {
   bgTop:    '#0b0a14',
   bgBot:    '#181020',
@@ -46,7 +46,7 @@ const PIECE_GLYPH: Record<PieceKind, string> = {
   P: '♟', N: '♞', B: '♝', R: '♜', Q: '♛', K: '♚',
 };
 
-function startBoard(: Cell[][]) {
+function startBoard(): Cell[][] {
   const b: Cell[][] = Array.from({ length: N }, () => Array<Cell>(N).fill(null));
   // Iren (bottom)
   b[7][0] = { kind: 'R', side: 'iren' };
@@ -71,7 +71,7 @@ function startBoard(: Cell[][]) {
   return b;
 }
 
-function plantMines(:) { mines: boolean[][]; kinds: (MineKind | null)[][] } {
+function plantMines(): { mines: boolean[][]; kinds: (MineKind | null)[][] } {
   const m: boolean[][] = Array.from({ length: N }, () => Array<boolean>(N).fill(false));
   const k: (MineKind | null)[][] = Array.from({ length: N }, () => Array<MineKind | null>(N).fill(null));
   let placed = 0;
@@ -90,7 +90,7 @@ function plantMines(:) { mines: boolean[][]; kinds: (MineKind | null)[][] } {
 }
 
 /** True if `side`'s king at (kr,kc) would be attacked by any opponent piece on `b`. */
-function squareAttacked(b: Cell[][], kr: number, kc: number, byOpp: Side: boolean) {
+function squareAttacked(b: Cell[][], kr: number, kc: number, byOpp: Side): boolean {
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
     const p = b[r][c];
     if (!p || p.side !== byOpp) continue;
@@ -108,7 +108,7 @@ function squareAttacked(b: Cell[][], kr: number, kc: number, byOpp: Side: boolea
 // Simplified legal moves — pawns single-step + diagonal capture, knights L-shape,
 // bishops/rooks/queens slide, king 1-step. No castling, no en-passant. This is
 // enough to make the deductive-sacrifice loop legible.
-function legalMoves(b: Cell[][], r: number, c: number: Array<[number, number]>) {
+function legalMoves(b: Cell[][], r: number, c: number): Array<[number, number]> {
   const piece = b[r][c]; if (!piece) return [];
   const out: Array<[number, number]> = [];
   const slide = (dr: number, dc: number) => {
@@ -155,17 +155,17 @@ function legalMoves(b: Cell[][], r: number, c: number: Array<[number, number]>) 
   return out;
 }
 
-function rowMineHints(mines: boolean[][]: number[]) {
+function rowMineHints(mines: boolean[][]): number[] {
   return mines.map((row: Record<string, unknown>) => row.filter(Boolean).length);
 }
-function colMineHints(mines: boolean[][]: number[]) {
+function colMineHints(mines: boolean[][]): number[] {
   const out = new Array<number>(N).fill(0);
   for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (mines[r][c]) out[c]++;
   return out;
 }
 
-// -- Component ---------------------------------------------------------------
-export default function NullCathedral() {
+// ── Component ───────────────────────────────────────────────────────────────
+export default function NullCathedral( ){
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const boardRef = useRef<Cell[][]>(startBoard());
@@ -203,7 +203,7 @@ export default function NullCathedral() {
   // Submit on terminal phase
   useEffect(() => { if (phase === 'victory' || phase === 'defeat') submit(score); }, [phase, score, submit]);
 
-  // -- Render loop ------------------------------------------------------------
+  // ── Render loop ────────────────────────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current; if (!canvas) return;
     const ctx = canvas.getContext('2d'); if (!ctx) return;
@@ -350,7 +350,7 @@ export default function NullCathedral() {
     return () => cancelAnimationFrame(raf);
   }, [selected, moves, turn]);
 
-  // -- Click handling ---------------------------------------------------------
+  // ── Click handling ─────────────────────────────────────────────────────────
   const onCanvasClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (phaseRef.current !== 'playing' || turn !== 'iren') return;
     const rect = e.currentTarget.getBoundingClientRect();
@@ -405,15 +405,15 @@ export default function NullCathedral() {
       shakeRef.current.kick(2);
       if (captured.kind === 'K' && captured.side === 'castle') {
         boardRef.current = b;
-        setScore(s: string => s + pts);
-        setLog(l: Record<string, unknown> => [logEntry + ' · CASTLE collapses.', ...l].slice(0, 8));
+        setScore((s: string ) => s + pts);
+        setLog((l: Record<string, unknown>) => [logEntry + ' · CASTLE collapses.', ...l].slice(0, 8));
         setPhase('victory');
         return;
       }
       if (captured.kind === 'K' && captured.side === 'iren') {
         boardRef.current = b;
-        setScore(s: string => s + pts);
-        setLog(l: Record<string, unknown> => [logEntry + ' · Iren is overwritten.', ...l].slice(0, 8));
+        setScore((s: string ) => s + pts);
+        setLog((l: Record<string, unknown>) => [logEntry + ' · Iren is overwritten.', ...l].slice(0, 8));
         setPhase('defeat');
         return;
       }
@@ -453,7 +453,7 @@ export default function NullCathedral() {
       }
       if (moved.kind === 'K') {
         boardRef.current = b;
-        setLog(l: Record<string, unknown> => [logEntry + ` · ${side === 'iren' ? 'Iren' : 'CASTLE'} king lost.`, ...l].slice(0, 8));
+        setLog((l: Record<string, unknown>) => [logEntry + ` · ${side === 'iren' ? 'Iren' : 'CASTLE'} king lost.`, ...l].slice(0, 8));
         setPhase(side === 'iren' ? 'defeat' : 'victory');
         return;
       }
@@ -472,7 +472,7 @@ export default function NullCathedral() {
         const sit = b[fuse.r][fuse.c];
         if (sit) {
           if (sit.kind === 'K') {
-            setLog(l: Record<string, unknown> => [`Time-mine takes ${sit.side === 'iren' ? 'Iren' : 'CASTLE'} king`, ...l].slice(0, 8));
+            setLog((l: Record<string, unknown>) => [`Time-mine takes ${sit.side === 'iren' ? 'Iren' : 'CASTLE'} king`, ...l].slice(0, 8));
             setPhase(sit.side === 'iren' ? 'defeat' : 'victory');
             return;
           }
@@ -484,8 +484,8 @@ export default function NullCathedral() {
     }
     timeMineFusesRef.current = surviving;
 
-    setScore(s: string => s + pts);
-    setLog(l: Record<string, unknown> => [logEntry, ...l].slice(0, 8));
+    setScore((s: string ) => s + pts);
+    setLog((l: Record<string, unknown>) => [logEntry, ...l].slice(0, 8));
     setTurn(side === 'iren' ? 'castle' : 'iren');
   };
 
@@ -510,7 +510,7 @@ export default function NullCathedral() {
     return () => clearTimeout(t);
   }, [phase, turn, movePiece, setPhase]);
 
-  // -- UI ---------------------------------------------------------------------
+  // ── UI ─────────────────────────────────────────────────────────────────────
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, padding: 16, background: 'linear-gradient(180deg, #06050a 0%, #11091a 100%)', color: '#e8e0d0', minHeight: '100%', fontFamily: '"Iowan Old Style", "Palatino", serif' }}>
       <div style={{ position: 'relative', width: '100%', maxWidth: SIZE }}>

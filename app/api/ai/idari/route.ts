@@ -162,11 +162,11 @@ async function idariPlanner(
   }
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const requestStart = Date.now();
   const request_id = uuidv4();
 
-  // -- Service availability guard (Phase 6 item 6) --------------------------
+  // ── Service availability guard (Phase 6 item 6) ──────────────────────────
   // If IDARI_PASSWORD is not configured in the environment, the service cannot
   // be safely operated. Return 503 rather than silently accepting requests.
   // This check runs before any auth/body parsing so unauthenticated callers
@@ -284,7 +284,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const allowedIntents = validatedIntents.filter(_: Record<string, unknown>, i: number => {
+  const allowedIntents = validatedIntents.filter(_: Record<string, unknown>, (i: number ) => {
     const d = boogieResult.per_intent[i];
     return d && (d.decision === 'ALLOW' || d.decision === 'CONFIRM');
   });

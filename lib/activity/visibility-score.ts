@@ -27,7 +27,7 @@ import type { ActivityTier } from './types';
  * @param postId - Post ID
  * @returns Visibility score (integer)
  */
-export async function calculateVisibilityScore(postId: string: Promise<number>) {
+export async function calculateVisibilityScore(postId: string): Promise<number> {
   const supabase = createClient();
 
   try {
@@ -97,7 +97,7 @@ export async function sortByVisibilityScore<T extends { id: string }>(
   const postIds = posts.map((p: Record<string, unknown>) => p.id);
   const scores = await calculateVisibilityScores(postIds);
 
-  return [...posts].sort(a: Record<string, unknown>, b: Record<string, unknown> => {
+  return [...posts].sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
     const scoreA = scores.get(a.id) ?? 0;
     const scoreB = scores.get(b.id) ?? 0;
     return scoreB - scoreA; // Descending
@@ -174,7 +174,7 @@ export async function getVisibilityRankedFeed(
  * @param postId - Post ID
  * @returns true if post should be promoted
  */
-export async function shouldPromotePost(postId: string: Promise<boolean>) {
+export async function shouldPromotePost(postId: string): Promise<boolean> {
   const supabase = createClient();
 
   try {
@@ -199,7 +199,7 @@ export async function shouldPromotePost(postId: string: Promise<boolean>) {
  * @param tier - Activity tier (0-6)
  * @returns Multiplier value
  */
-function getTierMultiplier(tier: ActivityTier: number) {
+function getTierMultiplier(tier: ActivityTier): number {
   const multipliers: Record<number, number> = {
     0: 1,   // Passive
     1: 2,   // Reflection
@@ -219,7 +219,7 @@ function getTierMultiplier(tier: ActivityTier: number) {
  * @param params - Score parameters
  * @returns Estimated visibility score
  */
-export function estimateVisibilityScore(params:) {
+export function estimateVisibilityScore(params: ){
   aqs: number;
   tier: ActivityTier;
   verificationStrength: number;

@@ -18,7 +18,7 @@ import {
   type Path,
 } from './swipe-physics';
 
-// --- Types --------------------------------------------------------------------
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface SwipeRecord {
   path:       Path;
@@ -31,7 +31,7 @@ export interface BotScore {
   flags:      string[];
 }
 
-// --- Thresholds ---------------------------------------------------------------
+// ─── Thresholds ───────────────────────────────────────────────────────────────
 
 const PERFECT_LINE_PX        = 1.5;
 const BOT_DEVIATION_PX       = 0.8;
@@ -43,14 +43,14 @@ const FREEZE_MIN_MS           = 3000;
 const FREEZE_MAX_MS           = 5000;
 const BOT_CONFIDENCE_THRESHOLD = 0.6;
 
-// --- BotDetector -------------------------------------------------------------
+// ─── BotDetector ─────────────────────────────────────────────────────────────
 
 export class BotDetector {
   private readonly history: SwipeRecord[] = [];
   private perfectLineStreak    = 0;
   private frozenUntilMs        = 0;
 
-  // -- Public API -------------------------------------------------------------
+  // ── Public API ─────────────────────────────────────────────────────────────
 
   /** Add a swipe to the history. Also runs the Perfect Line Trap. */
   recordSwipe(path: Path, timestamps: number[]): 'ok' | 'freeze' | 'block' {
@@ -86,7 +86,7 @@ export class BotDetector {
 
     // 1. Mean perpendicular deviation
     const allPaths = this.history.map((r: Record<string, unknown>) => r.path);
-    const avgDev   = allPaths.reduce(s: Record<string, unknown>, p: Record<string, unknown> => s + perpendicularDeviation(p), 0) / allPaths.length;
+    const avgDev   = allPaths.reduce((s: Record<string, unknown>, p: Record<string, unknown>) => s + perpendicularDeviation(p), 0) / allPaths.length;
     if (avgDev < BOT_DEVIATION_PX) {
       botSignals++;
       flags.push(`Low deviation: ${avgDev.toFixed(2)} px (bot < ${BOT_DEVIATION_PX})`);

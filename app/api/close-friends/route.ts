@@ -7,7 +7,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(_req: NextRequest) {
+export async function GET(_req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -22,7 +22,7 @@ export async function GET(_req: NextRequest) {
   return NextResponse.json({ close_friends: data ?? [] });
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true, added: true }, { status: 201 });
 }
 
-export async function DELETE(req: NextRequest) {
+export async function DELETE(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

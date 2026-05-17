@@ -26,7 +26,7 @@ interface BabylonGameSceneProps {
   onGameSelect?: (gameId: string) => void;
 }
 
-export default function BabylonGameScene() { onGameSelect }: BabylonGameSceneProps {
+export default function BabylonGameScene({ onGameSelect }: BabylonGameSceneProps) {
   const canvasRef   = useRef<HTMLCanvasElement>(null);
   const engineRef   = useRef<import('@babylonjs/core').AbstractEngine | null>(null);
   // God Tier system instance — persists for this scene's lifetime
@@ -162,7 +162,7 @@ export default function BabylonGameScene() { onGameSelect }: BabylonGameScenePro
       });
 
       // Click handler for game orbs
-      scene.onPointerObservable.add(pointerInfo: Record<string, unknown> => {
+      scene.onPointerObservable.add((pointerInfo: Record<string, unknown>) => {
         // PointerEventTypes.POINTERTAP = 4 (from @babylonjs/core)
         if (pointerInfo.type === 4 && pointerInfo.pickInfo?.hit) {
           const mesh = pointerInfo.pickInfo.pickedMesh;
@@ -186,7 +186,7 @@ export default function BabylonGameScene() { onGameSelect }: BabylonGameScenePro
           const perf = (engine as import('@babylonjs/core').Engine).performanceMonitor;
           const avgFrame = perf ? perf.averageFrameTime : 16.6;
 
-          // -- God Tier: hardware scaling + image processing ------------------
+          // ── God Tier: hardware scaling + image processing ──────────────────
           const gtState = godTierRef.current.update({
             device:  defaultDeviceSignals(),
             runtime: {
@@ -221,7 +221,7 @@ export default function BabylonGameScene() { onGameSelect }: BabylonGameScenePro
           });
           applyGodTierToBabylon(engine, scene as unknown as import('@/lib/god-tier/godTierEngine').BabylonSceneLike, gtState, window.devicePixelRatio ?? 1);
 
-          // -- WebGPU Director: per-object freeze / shadow / LOD --------------
+          // ── WebGPU Director: per-object freeze / shadow / LOD ──────────────
           const dirObjects = buildSceneObjects(
             scene.meshes as unknown as import('@/lib/webgpu/director').DirectorBabylonMesh[],
             (m) => ({

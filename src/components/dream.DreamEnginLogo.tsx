@@ -13,7 +13,7 @@ interface DreamEnginLogoProps extends DreamLogoSceneOptions {
 
 /**
  * DreamEnginLogo
- * --------------
+ * ──────────────
  * Renders the animated DREAMengin logo inside a Babylon.js WebGL canvas.
  *
  * Usage
@@ -36,7 +36,7 @@ interface DreamEnginLogoProps extends DreamLogoSceneOptions {
  * exports stay sharp at any canvas size. Babylon does NOT apply bilinear
  * blur when this mode is set.
  */
-export function DreamEnginLogo() {
+export function DreamEnginLogo(){
   width = 320,
   height = 160,
   className,

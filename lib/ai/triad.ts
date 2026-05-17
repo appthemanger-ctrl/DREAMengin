@@ -21,11 +21,11 @@ export const AI_MODELS = {
   BOOGIE: process.env.GROQ_MODEL_BOOGIE || 'openai/gpt-oss-safeguard-20b',
 };
 
-export function getOwnerEmail(: string | null) {
+export function getOwnerEmail(): string | null {
   return process.env.OWNER_EMAIL ?? null;
 }
 
-export function isOwnerEmail(email?: string | null: boolean) {
+export function isOwnerEmail(email?: string | null): boolean {
   if (!email) return false;
   const ownerEmail = getOwnerEmail();
   if (!ownerEmail) return false;
@@ -34,7 +34,7 @@ export function isOwnerEmail(email?: string | null: boolean) {
 
 type EamsPlan = { response_text: string; intents: Intent[]; interpreted_intent?: string };
 
-function safeJsonParse(text: string: Record<string, unknown> | null) {
+function safeJsonParse(text: string): Record<string, unknown> | null {
   try {
     return JSON.parse(text);
   } catch {
@@ -109,7 +109,7 @@ const CODE_VOCAB_SNAPSHOT = [
   'shader, mesh, quaternion, physics, particle system',
 ].join('; ');
 
-export async function planWithEams(input:) {
+export async function planWithEams(input: ){
   message: string;
   actorEmail?: string | null;
   actorRole: 'user' | 'admin' | 'owner';
@@ -281,7 +281,7 @@ export function validateWithIdari(
   const notes: string[] = [];
   const allowed = context === 'admin' ? ADMIN_ALLOWED_INTENT_TYPES : USER_ALLOWED_INTENT_TYPES;
   const filtered = intents
-    .filter(i: number => allowed.includes(i.type))
+    .filter((i: number ) => allowed.includes(i.type))
     .slice(0, 3);
 
   if (filtered.length !== intents.length) {
@@ -294,7 +294,7 @@ export function validateWithIdari(
 // Boogie: policy layer. Use existing rule engine elsewhere; this is LLM helper.
 // ---------------------------------------------------------------------------
 
-export async function boogiePolicyCheck(input:) {
+export async function boogiePolicyCheck(input: ){
   actorRole: 'user' | 'admin' | 'owner';
   actorEmail?: string | null;
   message: string;

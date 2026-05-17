@@ -1001,7 +1001,7 @@ const PACKS: ZoneStarterPack[] = [
   },
 ];
 
-function buildPlatforms(template: StarterTemplate:) { platforms: PlatDef[]; routePlatforms: PlatDef[]; goal: PlatDef } {
+function buildPlatforms(template: StarterTemplate): { platforms: PlatDef[]; routePlatforms: PlatDef[]; goal: PlatDef } {
   const routePlatforms: PlatDef[] = [];
   let cursor = 0;
   for (const step of template.steps) {
@@ -1033,16 +1033,16 @@ function buildPlatforms(template: StarterTemplate:) { platforms: PlatDef[]; rout
   };
 }
 
-function buildCoins(routePlatforms: PlatDef[], goal: PlatDef: CoinDef[]) {
+function buildCoins(routePlatforms: PlatDef[], goal: PlatDef): CoinDef[] {
   const regularPlatforms = routePlatforms.slice(0, 9);
-  const coins = regularPlatforms.map(platform: Record<string, unknown>, index: number => ({
+  const coins = regularPlatforms.map(platform: Record<string, unknown>, (index: number ) => ({
     x: platform.x + Math.round(platform.w * (0.32 + (index % 3) * 0.18)),
     y: platform.y - 30 - (index % 2) * 8,
   }));
   return [...coins, { x: goal.x + 38, y: goal.y - 34, isGoal: true }];
 }
 
-function resolveEnemyAnchor(kind: MadmaxiEnemyKind, platform: PlatDef, x: number: Pick<EnemyDef, 'y' | 'anchorX' | 'anchorY'>) {
+function resolveEnemyAnchor(kind: MadmaxiEnemyKind, platform: PlatDef, x: number): Pick<EnemyDef, 'y' | 'anchorX' | 'anchorY'> {
   switch (kind) {
     case 'flyer': {
       const hoverY = Math.max(150, platform.y - 54);
@@ -1079,14 +1079,14 @@ function resolveEnemyAnchor(kind: MadmaxiEnemyKind, platform: PlatDef, x: number
   }
 }
 
-function buildEnemies(level: number, zoneIdx: number, template: StarterTemplate, routePlatforms: PlatDef[]: EnemyDef[]) {
+function buildEnemies(level: number, zoneIdx: number, template: StarterTemplate, routePlatforms: PlatDef[]): EnemyDef[] {
   const requiredCount = getMadmaxiEnemyCount(level);
   const enemyKinds: MadmaxiEnemyKind[] = [...template.signatureEnemies];
   while (enemyKinds.length < requiredCount) {
     enemyKinds.push(template.enemyCycle[(enemyKinds.length - template.signatureEnemies.length) % template.enemyCycle.length]);
   }
 
-  return enemyKinds.slice(0, requiredCount).map(kind: Record<string, unknown>, index: number => {
+  return enemyKinds.slice(0, requiredCount).map(kind: Record<string, unknown>, (index: number ) => {
     const safeStart = Math.min(routePlatforms.length - 1, 1);
     const safeEnd = Math.max(safeStart, routePlatforms.length - 2);
     const span = Math.max(0, safeEnd - safeStart);
@@ -1105,7 +1105,7 @@ function buildEnemies(level: number, zoneIdx: number, template: StarterTemplate,
   });
 }
 
-function buildHazards(template: StarterTemplate, routePlatforms: PlatDef[]: HazardDef[]) {
+function buildHazards(template: StarterTemplate, routePlatforms: PlatDef[]): HazardDef[] {
   return template.hazards.map((hazard: Record<string, unknown>) => {
     const platform = routePlatforms[Math.min(routePlatforms.length - 1, hazard.slot)];
     return {
@@ -1119,7 +1119,7 @@ function buildHazards(template: StarterTemplate, routePlatforms: PlatDef[]: Haza
   });
 }
 
-function buildPowerUps(template: StarterTemplate, routePlatforms: PlatDef[]: PowerUpDef[]) {
+function buildPowerUps(template: StarterTemplate, routePlatforms: PlatDef[]): PowerUpDef[] {
   return template.powerUps.map((powerUp: Record<string, unknown>) => {
     const platform = routePlatforms[Math.min(routePlatforms.length - 1, powerUp.slot)];
     return {
@@ -1130,7 +1130,7 @@ function buildPowerUps(template: StarterTemplate, routePlatforms: PlatDef[]: Pow
   });
 }
 
-function buildStarterLevel(level: number, zoneIdx: number, template: StarterTemplate, includeZoneStory: boolean: LevelDef) {
+function buildStarterLevel(level: number, zoneIdx: number, template: StarterTemplate, includeZoneStory: boolean): LevelDef {
   const zone = ZONES[zoneIdx];
   const { platforms, routePlatforms, goal } = buildPlatforms(template);
   const storyParts = [
@@ -1156,7 +1156,7 @@ function buildStarterLevel(level: number, zoneIdx: number, template: StarterTemp
   };
 }
 
-export function getAuthoredStarterLevel(level: number: LevelDef | null) {
+export function getAuthoredStarterLevel(level: number): LevelDef | null {
   const zoneSlot = ((level - 1) % 10) + 1;
   if (zoneSlot !== 1 && zoneSlot !== 2) return null;
   const zoneIdx = Math.floor((level - 1) / 10);
@@ -1165,6 +1165,6 @@ export function getAuthoredStarterLevel(level: number: LevelDef | null) {
   return buildStarterLevel(level, zoneIdx, zoneSlot === 1 ? pack.levelOne : pack.levelTwo, zoneSlot === 1);
 }
 
-export function isMadmaxiAuthoredLevel(level: number: boolean) {
+export function isMadmaxiAuthoredLevel(level: number): boolean {
   return getAuthoredStarterLevel(level) !== null;
 }

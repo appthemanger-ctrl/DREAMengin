@@ -40,7 +40,7 @@ interface RawPayload {
   [key: string]: unknown;
 }
 
-function pick(payload: RawPayload) {
+function pick(payload: RawPayload ){
   const cleaned: Record<string, unknown> = {};
   for (const k of Object.keys(payload)) {
     if (ALLOWED_KEYS.has(k)) cleaned[k] = payload[k];
@@ -48,7 +48,7 @@ function pick(payload: RawPayload) {
   return cleaned;
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   let raw: string;
   try {
     raw = await req.text();

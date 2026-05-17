@@ -97,7 +97,7 @@ const ICON_RADIUS = 14;
 const ICON_FONT = 26;
 const LABEL_FONT = 11;
 
-function formatRelativeTime(iso: string: string) {
+function formatRelativeTime(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diffMs / 60_000);
   if (mins <= 0) return 'now';
@@ -107,7 +107,7 @@ function formatRelativeTime(iso: string: string) {
   return `${Math.floor(hours / 24)}d`;
 }
 
-export function getAppRoute(engineId: string: string | undefined) {
+export function getAppRoute(engineId: string): string | undefined {
   return ENGIN_REGISTRY.find((engine: Record<string, unknown>) => engine.id === engineId)?.daydreamHref;
 }
 
@@ -132,7 +132,7 @@ export function buildRecentDestinations(
     })),
     ...activity
       .slice()
-      .sort(a: Record<string, unknown>, b: Record<string, unknown> => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime())
+      .sort((a: Record<string, unknown>, b: Record<string, unknown>) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime())
       .map((entry: Record<string, unknown>) => ({
         key: `activity-${entry.enginId}`,
         label: entry.label,
@@ -152,7 +152,7 @@ export function buildRecentDestinations(
  * iOS-style squircle app icon.
  * Clicking navigates to the canonical surface route — no iframe dead-ends.
  */
-function AppIcon() { icon, label, color, onClick }: {
+function AppIcon({ icon, label, color, onClick }: ) {
   icon: string;
   label: string;
   color: string;
@@ -223,8 +223,8 @@ function AppIcon() { icon, label, color, onClick }: {
 }
 
 /** Mini animated horizontal bar chart for recent creative energy. */
-function EngineBarChart() { engines }: { engines: string[] } {
-  const counts = engines.reduce<Record<string, number>>(acc: Record<string, unknown>, e: unknown => {
+function EngineBarChart({ engines }: ) { engines: string[] } {
+  const counts = engines.reduce<Record<string, number>>(acc: Record<string, unknown>, (e: unknown ) => {
     acc[e] = (acc[e] ?? 0) + 1;
     return acc;
   }, {});
@@ -232,7 +232,7 @@ function EngineBarChart() { engines }: { engines: string[] } {
   const max = Math.max(...entries.map(([, v]) => v), 1);
   return (
     <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 5 }}>
-      {entries.map([engine, count], i: number => (
+      {entries.map([engine, count], (i: number ) => (
         <div key={engine} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{
             fontSize:     9,
@@ -261,7 +261,7 @@ function EngineBarChart() { engines }: { engines: string[] } {
   );
 }
 
-export default function DreamsSpacePanel() {
+export default function DreamsSpacePanel(){
   onOpenUrl,
   onOpenInRegion,
   accountId,
@@ -412,7 +412,7 @@ export default function DreamsSpacePanel() {
 
       <AnimatePresence mode="wait" initial={false}>
         {view === 'apps' ? (
-        /* -- Permanent iOS-style app home screen ------------------------------- */
+        /* ── Permanent iOS-style app home screen ─────────────────────────────── */
         <motion.div
           key="apps"
           style={{ flex: 1, overflowY: 'auto', padding: '12px 10px 20px' }}
@@ -619,7 +619,7 @@ export default function DreamsSpacePanel() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {activity.length > 0 ? activity
                     .slice()
-                    .sort(a: Record<string, unknown>, b: Record<string, unknown> => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime())
+                    .sort((a: Record<string, unknown>, b: Record<string, unknown>) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime())
                     .slice(0, 3)
                     .map((item: Record<string, unknown>) => (
                       <div
@@ -733,7 +733,7 @@ export default function DreamsSpacePanel() {
 
         </motion.div>
       ) : view === 'feeds' ? (
-        /* -- Feeds — connector content -- */
+        /* ── Feeds — connector content ── */
         <motion.div
           key="feeds"
           style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
@@ -808,7 +808,7 @@ export default function DreamsSpacePanel() {
           </div>
         </motion.div>
       ) : (
-        /* -- Profile — DreamSpace spatial profile surface -- */
+        /* ── Profile — DreamSpace spatial profile surface ── */
         <motion.div
           key="profile"
           style={{ flex: 1, overflow: 'hidden' }}

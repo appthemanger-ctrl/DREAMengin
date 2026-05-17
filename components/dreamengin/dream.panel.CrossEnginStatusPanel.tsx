@@ -7,7 +7,7 @@ interface Props {
   statusOverrides?: Record<string, string>;
 }
 
-export function CrossEnginStatusPanel() { excludeChannel, statusOverrides }: Props {
+export function CrossEnginStatusPanel({ excludeChannel, statusOverrides }: Props) {
   const [peers, setPeers] = useState<readonly PeerState[]>([]);
 
   useEffect(() => {
@@ -17,8 +17,8 @@ export function CrossEnginStatusPanel() { excludeChannel, statusOverrides }: Pro
   return (
     <div className="de-widget-grid"> 
       {peers
-        .filter(peer => peer.channel !== excludeChannel)
-        .map(peer => {
+        .filter((peer) => peer.channel !== excludeChannel)
+        .map((peer) => {
           const isLive = peer.subscriberCount > 0 ||
             (peer.lastActivityAt !== null && Date.now() - peer.lastActivityAt < 60_000);
           

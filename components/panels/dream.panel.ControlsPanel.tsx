@@ -21,7 +21,7 @@ const DEFAULT: ControlsSettings = {
   dragToLock: true, showLockHint: true, persistPositions: true, hapticFeedback: false,
 };
 
-function Toggle() { value, onToggle, label }: { value: boolean; onToggle: () => void; label: string }) {
+function Toggle({ value, onToggle, label }: ) { value: boolean; onToggle: () => void; label: string }) {
   return (
     <button type="button" role="switch" aria-checked={value} aria-label={label} onClick={onToggle}
       style={{ width: 44, height: 26, borderRadius: 13, background: value ? 'var(--de-accent)' : 'rgba(160,195,240,0.3)', position: 'relative', cursor: 'pointer', border: 'none', flexShrink: 0, transition: 'background 0.15s' }}>
@@ -30,17 +30,17 @@ function Toggle() { value, onToggle, label }: { value: boolean; onToggle: () => 
   );
 }
 
-export default function ControlsPanel() {
+export default function ControlsPanel( ){
   const { openInSurface } = useDreamSystem();
   const [settings, setSettings] = useState<ControlsSettings>(DEFAULT);
   const [saved, setSaved]       = useState(false);
 
   useEffect(() => {
-    try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) setSettings(p => ({ ...p, ...JSON.parse(raw) })); } catch { /* ignore */ }
+    try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) setSettings((p) => ({ ...p, ...JSON.parse(raw) })); } catch { /* ignore */ }
   }, []);
 
   const toggle = useCallback((key: keyof ControlsSettings) => {
-    setSettings(prev => {
+    setSettings((prev) => {
       const next = { ...prev, [key]: !prev[key] };
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
       return next;
@@ -71,7 +71,7 @@ export default function ControlsPanel() {
         <div className="de-widget">
           <div className="de-widget-header"><span className="de-widget-title">Button Behavior</span></div>
           <div className="de-widget-body">
-            {rows.map({ key, label: string, desc } => (
+            {rows.map(({ key, label: string, desc }) => (
               <div key={key} className="de-row">
                 <div style={{ flex: 1 }}><div style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{label}</div><div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{desc}</div></div>
                 <Toggle value={settings[key]} onToggle={() => toggle(key)} label={label} />

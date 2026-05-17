@@ -18,7 +18,7 @@ const CATEGORY_EMOJI: Record<string, string> = {
   music: '🎵', sound: '🎵',
 };
 
-export default function MarketplaceListingCard() { item }: { item: MarketplaceListing } {
+export default function MarketplaceListingCard({ item }: ) { item: MarketplaceListing } {
   const emoji = CATEGORY_EMOJI[item.category?.toLowerCase()] ?? '📄';
   const isFree = item.price_cents === 0;
   const price = isFree ? 'Free' : `$${(item.price_cents / 100).toFixed(2)}`;

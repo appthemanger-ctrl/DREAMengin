@@ -14,9 +14,9 @@ import { THEME_PRESETS as GRADIENT_PRESETS, applyTheme, type DeTheme } from '@/c
 import { useCustomizeMode }  from '@/lib/ui/CustomizeModeContext';
 import { useDreamSystem }    from '@/lib/dreamdm/DreamSystemContext';
 
-// -- Gradient theme picker (same logic as appearance page) --------------------
+// ── Gradient theme picker (same logic as appearance page) ────────────────────
 
-function GradientThemePicker() {
+function GradientThemePicker( ){
   const [active, setActive] = useState('default');
   useEffect(() => {
     try {
@@ -38,7 +38,7 @@ function GradientThemePicker() {
       <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 4 }}>Gradient Theme</div>
       <div style={{ fontSize: 12, color: 'var(--de-text-dim)', marginBottom: 12 }}>Sky-blue + gold gradients. Pick your vibe.</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-        {Object.entries(GRADIENT_PRESETS).map([id, { label, emoji: Record<string, unknown>, theme }] => {
+        {Object.entries(GRADIENT_PRESETS).map(([id, { label, emoji: Record<string, unknown>, theme }]) => {
           const isActive = active === id;
           return (
             <button key={id} type="button" onClick={() => select(id)} style={{
@@ -58,9 +58,9 @@ function GradientThemePicker() {
   );
 }
 
-// -- Slider control ------------------------------------------------------------
+// ── Slider control ────────────────────────────────────────────────────────────
 
-function Slider() { label, value, min, max, step, onChange }: { label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void }) {
+function Slider({ label, value, min, max, step, onChange }: ) { label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void }) {
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
@@ -74,9 +74,9 @@ function Slider() { label, value, min, max, step, onChange }: { label: string; v
   );
 }
 
-// -- Preset card ---------------------------------------------------------------
+// ── Preset card ───────────────────────────────────────────────────────────────
 
-function PresetCard() { preset, isActive, onSelect }: { preset: (typeof THEME_PRESETS)[number]; isActive: boolean; onSelect: () => void }) {
+function PresetCard({ preset, isActive, onSelect }: ) { preset: (typeof THEME_PRESETS)[number]; isActive: boolean; onSelect: () => void }) {
   return (
     <button type="button" onClick={onSelect} style={{
       padding: '12px 10px', borderRadius: 14, cursor: 'pointer',
@@ -90,9 +90,9 @@ function PresetCard() { preset, isActive, onSelect }: { preset: (typeof THEME_PR
   );
 }
 
-// -- Main panel ----------------------------------------------------------------
+// ── Main panel ────────────────────────────────────────────────────────────────
 
-export default function AppearancePanel() {
+export default function AppearancePanel( ){
   const { openInSurface }                               = useDreamSystem();
   const { presetId, overrides, setPreset, setOverrides, resetOverrides } = useTheme();
   const { enterCustomizeMode }                          = useCustomizeMode();
@@ -126,7 +126,7 @@ export default function AppearancePanel() {
               { page: 'profile'     as const, label: 'Profile',    emoji: '👤' },
               { page: 'dreamspace'  as const, label: 'DreamSpace', emoji: '✦' },
               { page: 'feed'        as const, label: 'Feed',       emoji: '📡' },
-            ]).map({ page, label: string, emoji } => (
+            ]).map(({ page, label: string, emoji }) => (
               <button key={page} type="button" onClick={() => enterCustomizeMode(page)} style={{
                 padding: '14px 12px', borderRadius: 16,
                 border: '1.5px solid rgba(58,111,216,0.22)', background: 'rgba(58,111,216,0.06)',

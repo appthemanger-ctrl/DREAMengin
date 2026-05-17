@@ -20,7 +20,7 @@ type UserRoleRow = {
   role: string | null;
 };
 
-export default async function AdminPage() {
+export default async function AdminPage( ){
   await connection();
   let user = null;
   let profile = null;
@@ -142,7 +142,7 @@ export default async function AdminPage() {
                 { label: 'Optional Integrations', value: `${readiness.setup.optionalPassed}/${readiness.setup.optionalTotal}`, icon: Zap, color: '#6366f1' },
                 { label: 'Pairs in BUILD', value: `${readiness.build.buildPairs}`, icon: Users, color: '#0ea5e9' },
                 { label: 'Overall Progress', value: `${readiness.build.overallProgressPct}%`, icon: CheckCircle, color: '#f59e0b' },
-              ].map({ label, value: Record<string, unknown>, icon: Icon, color } => (
+              ].map({ label, value: Record<string, unknown>, (icon: Icon, color }) => (
                 <div key={label} className="de-surface">
                   <div className="de-metric">
                     <Icon className="w-4 h-4 mb-2" style={{ color }} />
@@ -168,7 +168,7 @@ export default async function AdminPage() {
                   { name: 'Dr. Eams',  role: 'User Impact',        color: '#0ea5e9', icon: '🧠', desc: 'Evaluates user experience impact' },
                   { name: 'IDARi',     role: 'Optimization',       color: '#6366f1', icon: '⚡', desc: 'Analyzes performance & efficiency' },
                   { name: 'BoogieMan', role: 'Policy / Overwatch', color: '#f59e0b', icon: '🛡', desc: 'Assesses policy risk & moderation' },
-              ].map({ name, role: Record<string, unknown>, color: Record<string, unknown>, icon: Record<string, unknown>, desc } => (
+              ].map(({ name, role: Record<string, unknown>, color: Record<string, unknown>, icon: Record<string, unknown>, desc }) => (
                 <div key={name} className="de-surface p-3">
                   <div style={{ fontSize: 20, marginBottom: 4 }}>{icon}</div>
                   <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{name}</div>

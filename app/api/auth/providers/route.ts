@@ -35,7 +35,7 @@ export function getOAuthProvidersResponse(
   };
 }
 
-export async function GET() {
+export async function GET( ){
   if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.anonKey) {
     return NextResponse.json(UNKNOWN_OAUTH_PROVIDERS, {
       headers: { "Cache-Control": "no-store" },

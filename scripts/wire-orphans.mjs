@@ -277,7 +277,7 @@ async function writeFileSafely(targetPath, content) {
   await fs.writeFile(targetPath, content, 'utf8');
 }
 
-export async function buildRegistry(options = { write: true }) {
+export async function buildRegistry(options = ){ write: true }) {
   const write = options.write !== false;
   const scannedFiles = await collectScannedFiles();
   const entries = [];

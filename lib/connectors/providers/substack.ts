@@ -25,7 +25,7 @@ export interface SubstackCredentials {
 }
 
 /** Extract the subdomain slug from a Substack URL or slug string. */
-function extractSlug(publication: string: string) {
+function extractSlug(publication: string): string {
   if (publication.includes('substack.com')) {
     // e.g. https://mynewsletter.substack.com/ → mynewsletter
     const match = publication.match(/https?:\/\/([^.]+)\.substack\.com/);
@@ -37,7 +37,7 @@ function extractSlug(publication: string: string) {
 /**
  * Verify by checking that the RSS feed is accessible.
  */
-export async function substackVerify(creds: SubstackCredentials: Promise<string>) {
+export async function substackVerify(creds: SubstackCredentials): Promise<string> {
   if (!creds.publication || creds.publication.trim().length === 0) {
     throw new Error('Substack publication is required (slug or URL).');
   }
@@ -52,14 +52,14 @@ export async function substackVerify(creds: SubstackCredentials: Promise<string>
 /**
  * Fetch and normalise the Substack newsletter feed.
  */
-export async function substackSync(creds: SubstackCredentials: Promise<UnifiedFeedItem[]>) {
+export async function substackSync(creds: SubstackCredentials): Promise<UnifiedFeedItem[]> {
   const slug = extractSlug(creds.publication.trim());
   const url = substackRssUrl(creds.publication.trim());
   const items = await parseRssFeed({ provider: 'substack', feedUrl: url }, 40);
   return items.map((item: Record<string, unknown>) => normaliseSubstack(item.raw as Parameters<typeof normaliseSubstack>[0], slug));
 }
 
-export function substackCredentialFields() {
+export function substackCredentialFields( ){
   return [
     {
       key: 'publication',

@@ -21,7 +21,7 @@ type Profile = {
   website: string;
 };
 
-export default function EditProfileDreamPage() {
+export default function EditProfileDreamPage( ){
   const [profile, setProfile] = useState<Profile>({
     display_name: '', handle: '', bio: '',
     avatar_url: null, banner_url: null, location: '', website: '',
@@ -124,7 +124,7 @@ export default function EditProfileDreamPage() {
       });
       localStorage.setItem('de-profile-widget-order', JSON.stringify(widgets));
 
-      // -- Phase 6 item 7: Log visibility-change events to TheBoogieMan --------
+      // ── Phase 6 item 7: Log visibility-change events to TheBoogieMan ────────
       // On a private save, detect Dream Windows whose visibility changed and log
       // VISIBILITY_CHANGE events (no update_mapping — draft not yet published).
       // Per dreamengin_phase6.md point 7: log ALL privacy-adjacent decisions.
@@ -254,7 +254,7 @@ export default function EditProfileDreamPage() {
       const file = input.files?.[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = e: unknown => setProfile(p => ({ ...p, avatar_url: e.target?.result as string }));
+      reader.onload = (e: unknown ) => setProfile((p) => ({ ...p, avatar_url: e.target?.result as string }));
       reader.readAsDataURL(file);
       input.removeEventListener('change', handler);
     };
@@ -291,7 +291,7 @@ export default function EditProfileDreamPage() {
       paddingBottom: 100,
       position: 'relative',
     }}>
-      {/* -- Inline header (not sticky — DreamDMBar is the persistent navigation) -- */}
+      {/* ── Inline header (not sticky — DreamDMBar is the persistent navigation) ── */}
       <header style={{
         background: 'rgba(7,14,28,0.85)',
         backdropFilter: 'blur(24px)',
@@ -384,7 +384,7 @@ export default function EditProfileDreamPage() {
 
         {/* Tab bar — inline, scrolls with page */}
         <div style={{ display: 'flex', gap: 0, paddingBottom: 2 }}>
-          {(['widgets', 'info'] as const).map(tab => (
+          {(['widgets', 'info'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -442,7 +442,7 @@ export default function EditProfileDreamPage() {
         </section>
       )}
 
-      {/* -- Widgets tab -- */}
+      {/* ── Widgets tab ── */}
       {activeTab === 'widgets' && (
         <div style={{ padding: '16px 14px' }}>
           <ProfileWidgetGrid
@@ -458,7 +458,7 @@ export default function EditProfileDreamPage() {
         </div>
       )}
 
-      {/* -- Info tab -- */}
+      {/* ── Info tab ── */}
       {activeTab === 'info' && (
         <div style={{ padding: '16px 14px' }}>
 
@@ -520,19 +520,19 @@ export default function EditProfileDreamPage() {
             <div>
               <label style={labelStyle}>Display Name</label>
               <input type="text" value={profile.display_name}
-                onChange={e => setProfile(p => ({ ...p, display_name: e.target.value }))}
+                onChange={e => setProfile((p) => ({ ...p, display_name: e.target.value }))}
                 placeholder="Your name" style={inputStyle} />
             </div>
             <div>
               <label style={labelStyle}>Handle</label>
               <input type="text" value={profile.handle}
-                onChange={e => setProfile(p => ({ ...p, handle: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') }))}
+                onChange={e => setProfile((p) => ({ ...p, handle: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') }))}
                 placeholder="@yourhandle" style={inputStyle} />
             </div>
             <div>
               <label style={labelStyle}>Bio</label>
               <textarea value={profile.bio}
-                onChange={e => setProfile(p => ({ ...p, bio: e.target.value.slice(0, 160) }))}
+                onChange={e => setProfile((p) => ({ ...p, bio: e.target.value.slice(0, 160) }))}
                 placeholder="UX Designer | Coffee Lover | Traveler"
                 rows={3}
                 style={{ ...inputStyle, resize: 'none' }} />
@@ -543,13 +543,13 @@ export default function EditProfileDreamPage() {
             <div>
               <label style={labelStyle}>Location</label>
               <input type="text" value={profile.location}
-                onChange={e => setProfile(p => ({ ...p, location: e.target.value }))}
+                onChange={e => setProfile((p) => ({ ...p, location: e.target.value }))}
                 placeholder="City, Country" style={inputStyle} />
             </div>
             <div>
               <label style={labelStyle}>Website</label>
               <input type="url" value={profile.website}
-                onChange={e => setProfile(p => ({ ...p, website: e.target.value }))}
+                onChange={e => setProfile((p) => ({ ...p, website: e.target.value }))}
                 placeholder="https://yoursite.com" style={inputStyle} />
             </div>
           </div>

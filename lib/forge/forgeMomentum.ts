@@ -18,7 +18,7 @@
 import { FORGE_HISTORY_KEY } from './forgeRegistry';
 import { CREATIVE_ENGINES } from './forgeRegistry';
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface MomentumDimension {
   /** Dimension name */
@@ -59,7 +59,7 @@ export type MomentumLevel =
   | 'BLAZING'
   | 'TRANSCENDENT';
 
-// -- History Entry type (mirrors ForgeHistoryEntry from forgeIntelligence) -----
+// ── History Entry type (mirrors ForgeHistoryEntry from forgeIntelligence) ─────
 
 interface HistoryEntry {
   enginId: string;
@@ -67,7 +67,7 @@ interface HistoryEntry {
   timestamp: string;
 }
 
-// -- Constants -----------------------------------------------------------------
+// ── Constants ─────────────────────────────────────────────────────────────────
 
 const MS_PER_DAY = 86_400_000;
 const MS_PER_HOUR = 3_600_000;
@@ -83,12 +83,12 @@ const DEPTH_MARKERS = [
 /** Actions that are just navigations (not counted as deep work) */
 const SHALLOW_MARKERS = ['entered', 'activated', 'opened'];
 
-// -- Core Computation ----------------------------------------------------------
+// ── Core Computation ──────────────────────────────────────────────────────────
 
 /**
  * Read history entries from localStorage.
  */
-export function readHistory(: HistoryEntry[]) {
+export function readHistory(): HistoryEntry[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(FORGE_HISTORY_KEY);
@@ -104,7 +104,7 @@ export function readHistory(: HistoryEntry[]) {
  * Based on actions-per-hour over the last 24 hours.
  * 10+ actions/hour = 100, scaled linearly below that.
  */
-export function computeVelocity(history: HistoryEntry[]: number) {
+export function computeVelocity(history: HistoryEntry[]): number {
   const now = Date.now();
   const last24h = history.filter(
     e => now - new Date(e.timestamp).getTime() < MS_PER_DAY,
@@ -112,7 +112,7 @@ export function computeVelocity(history: HistoryEntry[]: number) {
   if (last24h.length === 0) return 0;
 
   // Calculate time span of activity (at least 1 hour to avoid division by tiny numbers)
-  const timestamps = last24h.map(e => new Date(e.timestamp).getTime());
+  const timestamps = last24h.map((e) => new Date(e.timestamp).getTime());
   const span = Math.max(now - Math.min(...timestamps), MS_PER_HOUR);
   const hoursActive = span / MS_PER_HOUR;
   const actionsPerHour = last24h.length / hoursActive;
@@ -125,15 +125,15 @@ export function computeVelocity(history: HistoryEntry[]: number) {
  * Based on how many unique engines were used in the last 7 days.
  * Using all 6 creative engines = 100.
  */
-export function computeDiversity(history: HistoryEntry[]: number) {
+export function computeDiversity(history: HistoryEntry[]): number {
   const now = Date.now();
   const last7d = history.filter(
     e => now - new Date(e.timestamp).getTime() < 7 * MS_PER_DAY,
   );
-  const uniqueEngines = new Set(last7d.map(e => e.enginId));
+  const uniqueEngines = new Set(last7d.map((e) => e.enginId));
   // Only count creative engine IDs
-  const creativeIds = new Set(CREATIVE_ENGINES.map(e => e.id));
-  const validEngines = [...uniqueEngines].filter(id => creativeIds.has(id));
+  const creativeIds = new Set(CREATIVE_ENGINES.map((e) => e.id));
+  const validEngines = [...uniqueEngines].filter((id) => creativeIds.has(id));
   return Math.round((validEngines.length / CREATIVE_ENGINES.length) * 100);
 }
 
@@ -141,7 +141,7 @@ export function computeDiversity(history: HistoryEntry[]: number) {
  * Compute streak: consecutive calendar days with at least one action,
  * counting backwards from today.
  */
-export function computeStreak(history: HistoryEntry[]: number) {
+export function computeStreak(history: HistoryEntry[]): number {
   if (history.length === 0) return 0;
 
   // Group by calendar day (UTC)
@@ -170,7 +170,7 @@ export function computeStreak(history: HistoryEntry[]: number) {
  * Compute depth score (0–100).
  * Ratio of "meaningful" actions to total actions in the last 7 days.
  */
-export function computeDepth(history: HistoryEntry[]: number) {
+export function computeDepth(history: HistoryEntry[]): number {
   const now = Date.now();
   const last7d = history.filter(
     e => now - new Date(e.timestamp).getTime() < 7 * MS_PER_DAY,
@@ -180,8 +180,8 @@ export function computeDepth(history: HistoryEntry[]: number) {
   let meaningful = 0;
   for (const entry of last7d) {
     const lower = entry.label.toLowerCase();
-    const isShallow = SHALLOW_MARKERS.some(m => lower.includes(m));
-    const isDeep = DEPTH_MARKERS.some(m => lower.includes(m));
+    const isShallow = SHALLOW_MARKERS.some((m) => lower.includes(m));
+    const isDeep = DEPTH_MARKERS.some((m) => lower.includes(m));
     if (isDeep && !isShallow) meaningful++;
   }
 
@@ -191,7 +191,7 @@ export function computeDepth(history: HistoryEntry[]: number) {
 /**
  * Map composite score to a momentum level.
  */
-export function getLevel(composite: number: MomentumLevel) {
+export function getLevel(composite: number): MomentumLevel {
   if (composite >= 85) return 'TRANSCENDENT';
   if (composite >= 65) return 'BLAZING';
   if (composite >= 40) return 'FLOWING';
@@ -202,7 +202,7 @@ export function getLevel(composite: number: MomentumLevel) {
 /**
  * Get the accent colour for a momentum level.
  */
-export function getLevelColor(level: MomentumLevel: string) {
+export function getLevelColor(level: MomentumLevel): string {
   switch (level) {
     case 'TRANSCENDENT': return '#a855f7';
     case 'BLAZING':      return '#ef4444';
@@ -215,7 +215,7 @@ export function getLevelColor(level: MomentumLevel: string) {
 /**
  * Get the emoji for a momentum level.
  */
-export function getLevelEmoji(level: MomentumLevel: string) {
+export function getLevelEmoji(level: MomentumLevel): string {
   switch (level) {
     case 'TRANSCENDENT': return '🌟';
     case 'BLAZING':      return '🔥';
@@ -228,7 +228,7 @@ export function getLevelEmoji(level: MomentumLevel: string) {
 /**
  * Compute a full momentum snapshot from current history data.
  */
-export function computeMomentum(historyOverride?: HistoryEntry[]: MomentumSnapshot) {
+export function computeMomentum(historyOverride?: HistoryEntry[]): MomentumSnapshot {
   const history = historyOverride ?? readHistory();
   const now = Date.now();
 
@@ -254,7 +254,7 @@ export function computeMomentum(historyOverride?: HistoryEntry[]: MomentumSnapsh
   const todayEntries = history.filter(
     e => now - new Date(e.timestamp).getTime() < MS_PER_DAY,
   );
-  const enginesUsedToday = [...new Set(todayEntries.map(e => e.enginId))];
+  const enginesUsedToday = [...new Set(todayEntries.map((e) => e.enginId))];
 
   // Actions this week
   const weekEntries = history.filter(

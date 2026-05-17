@@ -31,7 +31,7 @@ const ACCENT_COLORS = [
 /**
  * ColorPanel — slide-up sheet for background gradient + accent colour.
  */
-export default function ColorPanel() {
+export default function ColorPanel( ){
   const { activePanel, closePanel, draftSkin, updateDraft } = useCustomizeMode();
   const [tab, setTab] = useState<'gradient' | 'accent' | 'presets'>('gradient');
 
@@ -61,7 +61,7 @@ export default function ColorPanel() {
 
       {tab === 'gradient' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-          {GRADIENT_PRESETS.map({ id, label: string, from: string, mid: number, to } => {
+          {GRADIENT_PRESETS.map(({ id, label: string, from: string, mid: number, to }) => {
             const isActive = draftSkin.bgFrom === from && draftSkin.bgTo === to;
             return (
               <button
@@ -180,9 +180,9 @@ export default function ColorPanel() {
   );
 }
 
-// -- Reusable slide-up panel shell ---------------------------------------------
+// ── Reusable slide-up panel shell ─────────────────────────────────────────────
 
-export function SlidePanel() {
+export function SlidePanel(){
   title, children, onClose,
 }: {
   title: string;

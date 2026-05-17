@@ -11,7 +11,7 @@
  * `TerrainSystem` and `GIProbeSystem` are canonical aliases.
  */
 
-// --- Classes -----------------------------------------------------------------
+// ─── Classes ─────────────────────────────────────────────────────────────────
 
 export {
   ProceduralWorldGen,
@@ -25,7 +25,7 @@ export { TerrainEngine as TerrainSystem } from '../power-systems';
 /** Alias: GIProbeSystem → GlobalIllumProbes. */
 export { GlobalIllumProbes as GIProbeSystem } from '../power-systems';
 
-// --- Types -------------------------------------------------------------------
+// ─── Types ───────────────────────────────────────────────────────────────────
 
 export type {
   WorldGenConfig,

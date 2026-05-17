@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 
-export async function GET() {
+export async function GET( ){
   const supabase = await createServerClient();
   const { data, error } = await (supabase as SupabaseClient)
     .from('platform_errors')
@@ -12,7 +12,7 @@ export async function GET() {
   return NextResponse.json({ ok: true, errors: data ?? [] });
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   const body = await req.json().catch(() => ({}));

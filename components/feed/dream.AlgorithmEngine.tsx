@@ -4,9 +4,9 @@ import { useState, useCallback, useEffect, useId } from 'react';
 import Link from 'next/link';
 import { Plus, Check, Trash2, Share2, Shuffle, Zap, User, ChevronRight, X, Edit3, Shield, ShieldCheck } from 'lucide-react';
 
-/* ---------------------------------------------
+/* ─────────────────────────────────────────────
    Types
---------------------------------------------- */
+───────────────────────────────────────────── */
 export type FeedPreset = {
   id: string;
   name: string;
@@ -20,51 +20,51 @@ export type FeedPreset = {
 
 type AlgoMode = 'mine' | 'dream';
 
-/* ---------------------------------------------
+/* ─────────────────────────────────────────────
    localStorage helpers
---------------------------------------------- */
-function loadMode(: AlgoMode) {
+───────────────────────────────────────────── */
+function loadMode(): AlgoMode {
   if (typeof window === 'undefined') return 'mine';
   return (localStorage.getItem('de-algo-mode') as AlgoMode) || 'mine';
 }
-function saveMode(m: AlgoMode) { localStorage.setItem('de-algo-mode', m); }
+function saveMode(m: AlgoMode ){ localStorage.setItem('de-algo-mode', m); }
 
-function loadPresets(: FeedPreset[]) {
+function loadPresets(): FeedPreset[] {
   if (typeof window === 'undefined') return [];
   try { return JSON.parse(localStorage.getItem('de-feed-presets') || '[]'); }
   catch { return []; }
 }
-function savePresets(p: FeedPreset[]) { localStorage.setItem('de-feed-presets', JSON.stringify(p)); }
+function savePresets(p: FeedPreset[] ){ localStorage.setItem('de-feed-presets', JSON.stringify(p)); }
 
-function loadActive(: string) { return localStorage.getItem('de-active-preset') || 'all'; }
-function saveActive(id: string) { localStorage.setItem('de-active-preset', id); }
+function loadActive(): string { return localStorage.getItem('de-active-preset') || 'all'; }
+function saveActive(id: string ){ localStorage.setItem('de-active-preset', id); }
 
-function loadMix(: string[]) {
+function loadMix(): string[] {
   try { return JSON.parse(localStorage.getItem('de-mix-presets') || '[]'); }
   catch { return []; }
 }
-function saveMix(ids: string[]) { localStorage.setItem('de-mix-presets', JSON.stringify(ids)); }
+function saveMix(ids: string[] ){ localStorage.setItem('de-mix-presets', JSON.stringify(ids)); }
 
-function loadChildSafety(: boolean) {
+function loadChildSafety(): boolean {
   if (typeof window === 'undefined') return false;
   return localStorage.getItem('de-child-safety') === 'true';
 }
-function saveChildSafety(v: boolean) { localStorage.setItem('de-child-safety', String(v)); }
+function saveChildSafety(v: boolean ){ localStorage.setItem('de-child-safety', String(v)); }
 
-/* ---------------------------------------------
+/* ─────────────────────────────────────────────
    Follow settings reader (for display)
---------------------------------------------- */
+───────────────────────────────────────────── */
 type FollowSetting = { handle: string; displayName: string; frequency: string };
-function loadFollows(: FollowSetting[]) {
+function loadFollows(): FollowSetting[] {
   try {
     const raw = JSON.parse(localStorage.getItem('de-follow-settings') || '{}');
     return Object.values(raw) as FollowSetting[];
   } catch { return []; }
 }
 
-/* ---------------------------------------------
+/* ─────────────────────────────────────────────
    Preset Creator sub-component
---------------------------------------------- */
+───────────────────────────────────────────── */
 const FREQ_OPTIONS = [
   { id: 'all',       label: '📡 Everything',   desc: 'All posts in real time'          },
   { id: 'highlights',label: '✨ Highlights',    desc: 'Best posts auto-selected'        },
@@ -94,7 +94,7 @@ const TOPIC_OPTIONS = [
 
 const EMOJIS = ['📡','✨','☀️','🌴','🏈','🎵','🎮','🎨','💼','😌','🔔','🌙','🔥','💎','🚀','🌊','🎯','⚡'];
 
-function PresetCreator() { onSave, onCancel, editing }: {
+function PresetCreator({ onSave, onCancel, editing }: ) {
   onSave: (p: FeedPreset) => void;
   onCancel: () => void;
   editing?: FeedPreset;
@@ -108,7 +108,7 @@ function PresetCreator() { onSave, onCancel, editing }: {
   const [isPublic,  setIsPublic]  = useState(editing?.isPublic    ?? false);
 
   const toggleSource = (id: string) =>
-    setSources(s => s.includes(id) ? s.filter(x => x !== id) : [...s, id]);
+    setSources((s) => s.includes(id) ? s.filter((x) => x !== id) : [...s, id]);
 
   const submit = () => {
     if (!name.trim()) return;
@@ -139,7 +139,7 @@ function PresetCreator() { onSave, onCancel, editing }: {
       <div>
         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 6 }}>Icon</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {EMOJIS.map(e => (
+          {EMOJIS.map((e) => (
             <button key={e} type="button" onClick={() => setEmoji(e)}
               style={{ width: 36, height: 36, borderRadius: 10, fontSize: 18, border: 'none', cursor: 'pointer',
                 background: emoji === e ? 'rgba(42,138,184,0.15)' : 'rgba(255,255,255,0.5)',
@@ -171,7 +171,7 @@ function PresetCreator() { onSave, onCancel, editing }: {
       <div>
         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>Topics &amp; Sources</div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-          {TOPIC_OPTIONS.map(t => {
+          {TOPIC_OPTIONS.map((t) => {
             const on = sources.includes(t.id);
             return (
               <button key={t.id} type="button" onClick={() => toggleSource(t.id)}
@@ -192,7 +192,7 @@ function PresetCreator() { onSave, onCancel, editing }: {
       <div>
         <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 8 }}>How Often</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-          {FREQ_OPTIONS.map(f => (
+          {FREQ_OPTIONS.map((f) => (
             <button key={f.id} type="button" onClick={() => setFrequency(f.id)}
               style={{ padding: '10px 14px', borderRadius: 12, border: 'none', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 background: frequency === f.id ? 'linear-gradient(135deg, rgba(42,138,184,0.12), rgba(200,152,26,0.10))' : 'rgba(255,255,255,0.55)',
@@ -214,7 +214,7 @@ function PresetCreator() { onSave, onCancel, editing }: {
           <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>Share this setup</div>
           <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Others can copy it from your profile or shop</div>
         </div>
-        <button type="button" onClick={() => setIsPublic(v => !v)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+        <button type="button" onClick={() => setIsPublic((v) => !v)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
           <div style={{ width: 44, height: 26, borderRadius: 13, background: isPublic ? 'var(--de-accent)' : 'rgba(160,195,240,0.3)', position: 'relative', transition: 'background 0.2s' }}>
             <div style={{ position: 'absolute', top: 3, left: isPublic ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', transition: 'left 0.2s' }} />
           </div>
@@ -229,10 +229,10 @@ function PresetCreator() { onSave, onCancel, editing }: {
   );
 }
 
-/* ---------------------------------------------
+/* ─────────────────────────────────────────────
    Main AlgorithmEngine
---------------------------------------------- */
-export default function AlgorithmEngine() {
+───────────────────────────────────────────── */
+export default function AlgorithmEngine( ){
   const [mode,        setMode]        = useState<AlgoMode>(loadMode);
   const [presets,     setPresets]     = useState<FeedPreset[]>(loadPresets);
   const [activeId,    setActiveId]    = useState<string>(loadActive);
@@ -247,7 +247,7 @@ export default function AlgorithmEngine() {
   const switchMode = useCallback((m: AlgoMode) => { setMode(m); saveMode(m); }, []);
 
   const toggleChildSafety = useCallback(() => {
-    setChildSafety(v => { const next = !v; saveChildSafety(next); return next; });
+    setChildSafety((v) => { const next = !v; saveChildSafety(next); return next; });
   }, []);
 
   const activate = useCallback((id: string) => {
@@ -256,16 +256,16 @@ export default function AlgorithmEngine() {
   }, []);
 
   const toggleMix = useCallback((id: string) => {
-    setMixIds(prev => {
-      const next = prev.includes(id) ? prev.filter(x => x !== id) : prev.length < 3 ? [...prev, id] : prev;
+    setMixIds((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : prev.length < 3 ? [...prev, id] : prev;
       saveMix(next);
       return next;
     });
   }, []);
 
   const savePreset = useCallback((p: FeedPreset) => {
-    setPresets(prev => {
-      const next = prev.find(x => x.id === p.id) ? prev.map(x => x.id === p.id ? p : x) : [...prev, p];
+    setPresets((prev) => {
+      const next = prev.find((x) => x.id === p.id) ? prev.map((x) => x.id === p.id ? p : x) : [...prev, p];
       savePresets(next);
       return next;
     });
@@ -273,7 +273,7 @@ export default function AlgorithmEngine() {
   }, []);
 
   const deletePreset = useCallback((id: string) => {
-    setPresets(prev => { const next = prev.filter(x => x.id !== id); savePresets(next); return next; });
+    setPresets((prev) => { const next = prev.filter((x) => x.id !== id); savePresets(next); return next; });
     if (activeId === id) { setActiveId('all'); saveActive('all'); }
   }, [activeId]);
 
@@ -284,12 +284,12 @@ export default function AlgorithmEngine() {
     setTimeout(() => setShareAlert(''), 3500);
   }, []);
 
-  const activePreset = presets.find(p => p.id === activeId);
+  const activePreset = presets.find((p) => p.id === activeId);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
-      {/* -- Algorithm Power Level -- */}
+      {/* ── Algorithm Power Level ── */}
       <div className="de-widget" style={{ background: 'linear-gradient(135deg, rgba(42,138,184,0.10), rgba(200,152,26,0.08))' }}>
         <div className="de-widget-header">
           <Zap className="w-4 h-4 mr-2" style={{ color: 'var(--de-gold)' }} />
@@ -300,7 +300,7 @@ export default function AlgorithmEngine() {
         </div>
         <div className="de-widget-body">
           <div style={{ display: 'flex', gap: 6 }}>
-            {([1, 2, 3, 4, 5] as const).map(n => (
+            {([1, 2, 3, 4, 5] as const).map((n) => (
               <div key={n} style={{ flex: 1, height: 8, borderRadius: 4, background: 'linear-gradient(90deg, var(--de-theme-btn-from, #2a8ab8), var(--de-theme-btn-to, #c8981a))', opacity: 1 }} />
             ))}
           </div>
@@ -310,7 +310,7 @@ export default function AlgorithmEngine() {
         </div>
       </div>
 
-      {/* -- Child Safety -- */}
+      {/* ── Child Safety ── */}
       <div className="de-widget">
         <div className="de-widget-header">
           {childSafety
@@ -343,7 +343,7 @@ export default function AlgorithmEngine() {
         </div>
       </div>
 
-      {/* -- Algorithm Mode Toggle -- */}
+      {/* ── Algorithm Mode Toggle ── */}
       <div className="de-widget" style={{ background: 'linear-gradient(135deg, rgba(42,138,184,0.08), rgba(200,152,26,0.06))' }}>
         <div className="de-widget-header">
           <span className="de-widget-title">Who Controls Your Feed?</span>
@@ -353,7 +353,7 @@ export default function AlgorithmEngine() {
             {[
               { id: 'mine',  emoji: '🧠', label: 'My Algorithm',    desc: 'Your rules. Your presets. Your order.' },
               { id: 'dream', emoji: '✨', label: 'Dream Algorithm', desc: 'Dreamengin curates for you.' },
-            ].map(opt => {
+            ].map((opt) => {
               const active = mode === opt.id;
               return (
                 <button key={opt.id} type="button" onClick={() => switchMode(opt.id as AlgoMode)}
@@ -380,7 +380,7 @@ export default function AlgorithmEngine() {
               </div>
               {mixOn && mixIds.length > 0 && (
                 <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginTop: 3 }}>
-                  Mixing: {mixIds.map(id => presets.find(p => p.id === id)?.emoji).join(' + ')}
+                  Mixing: {mixIds.map((id) => presets.find((p) => p.id === id)?.emoji).join(' + ')}
                 </div>
               )}
             </div>
@@ -388,7 +388,7 @@ export default function AlgorithmEngine() {
         </div>
       </div>
 
-      {/* -- Your Setups -- */}
+      {/* ── Your Setups ── */}
       {mode === 'mine' && (
         <div className="de-widget">
           <div className="de-widget-header">
@@ -422,7 +422,7 @@ export default function AlgorithmEngine() {
             />
 
             {/* User-created presets */}
-            {presets.map(p => (
+            {presets.map((p) => (
               <PresetRow
                 key={p.id}
                 emoji={p.emoji} name={p.name} desc={p.description || `${p.sources.length} topics · ${p.frequency}`}
@@ -447,13 +447,13 @@ export default function AlgorithmEngine() {
         </div>
       )}
 
-      {/* -- Mix Mode -- */}
+      {/* ── Mix Mode ── */}
       {mode === 'mine' && presets.length > 0 && (
         <div className="de-widget">
           <div className="de-widget-header">
             <Shuffle className="w-4 h-4 mr-2" style={{ color: 'var(--de-gold)' }} />
             <span className="de-widget-title">Mix Mode</span>
-            <button type="button" onClick={() => setMixOn(v => !v)} style={{ background: 'none', border: 'none', cursor: 'pointer', marginLeft: 'auto', padding: 0 }}>
+            <button type="button" onClick={() => setMixOn((v) => !v)} style={{ background: 'none', border: 'none', cursor: 'pointer', marginLeft: 'auto', padding: 0 }}>
               <div style={{ width: 44, height: 26, borderRadius: 13, background: mixOn ? 'var(--de-gold)' : 'rgba(160,195,240,0.3)', position: 'relative', transition: 'background 0.2s' }}>
                 <div style={{ position: 'absolute', top: 3, left: mixOn ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.15)', transition: 'left 0.2s' }} />
               </div>
@@ -465,7 +465,7 @@ export default function AlgorithmEngine() {
                 Pick up to 3 setups. Their content blends together.
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {presets.map(p => {
+                {presets.map((p) => {
                   const on = mixIds.includes(p.id);
                   return (
                     <button key={p.id} type="button" onClick={() => toggleMix(p.id)}
@@ -482,7 +482,7 @@ export default function AlgorithmEngine() {
               </div>
               {mixIds.length > 0 && (
                 <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 10, background: 'rgba(200,152,26,0.08)', border: '1px solid rgba(200,152,26,0.2)', fontSize: 12, color: 'var(--de-heading)', fontWeight: 600 }}>
-                  Now mixing: {mixIds.map(id => { const p = presets.find(x => x.id === id); return p ? `${p.emoji} ${p.name}` : ''; }).filter(Boolean).join(' + ')}
+                  Now mixing: {mixIds.map((id) => { const p = presets.find((x) => x.id === id); return p ? `${p.emoji} ${p.name}` : ''; }).filter(Boolean).join(' + ')}
                 </div>
               )}
             </div>
@@ -490,7 +490,7 @@ export default function AlgorithmEngine() {
         </div>
       )}
 
-      {/* -- Who You Follow + Their Settings -- */}
+      {/* ── Who You Follow + Their Settings ── */}
       {follows.length > 0 && (
         <div className="de-widget">
           <div className="de-widget-header">
@@ -498,7 +498,7 @@ export default function AlgorithmEngine() {
             <span className="de-widget-title">Following Settings</span>
           </div>
           <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-            {follows.map(f => (
+            {follows.map((f) => (
               <div key={f.handle} className="de-row" style={{ borderRadius: 10 }}>
                 <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, rgba(42,138,184,0.15), rgba(200,152,26,0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: 'var(--de-accent)', flexShrink: 0 }}>
                   {(f.displayName || f.handle)[0].toUpperCase()}
@@ -519,7 +519,7 @@ export default function AlgorithmEngine() {
         </div>
       )}
 
-      {/* -- Share Alert -- */}
+      {/* ── Share Alert ── */}
       {shareAlert && (
         <div style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(42,138,184,0.1)', border: '1px solid rgba(42,138,184,0.2)', fontSize: 13, fontWeight: 600, color: 'var(--de-accent)', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Check className="w-4 h-4" /> {shareAlert}
@@ -527,7 +527,7 @@ export default function AlgorithmEngine() {
         </div>
       )}
 
-      {/* -- Discover public setups -- */}
+      {/* ── Discover public setups ── */}
       <div className="de-widget">
         <div className="de-widget-header">
           <Zap className="w-4 h-4 mr-2" style={{ color: 'var(--de-gold)' }} />
@@ -551,10 +551,10 @@ export default function AlgorithmEngine() {
   );
 }
 
-/* ---------------------------------------------
+/* ─────────────────────────────────────────────
    Preset Row sub-component
---------------------------------------------- */
-function PresetRow() { emoji, name, desc, isActive, isMixed, mixOn, onActivate, onMixToggle, onEdit, onDelete, onShare, isPublic }: {
+───────────────────────────────────────────── */
+function PresetRow({ emoji, name, desc, isActive, isMixed, mixOn, onActivate, onMixToggle, onEdit, onDelete, onShare, isPublic }: ) {
   emoji: string; name: string; desc: string;
   isActive: boolean; isMixed: boolean; mixOn: boolean;
   onActivate: () => void; onMixToggle: () => void;
@@ -587,7 +587,7 @@ function PresetRow() { emoji, name, desc, isActive, isMixed, mixOn, onActivate, 
 
         {/* Menu */}
         {(onEdit || onDelete || onShare) && (
-          <button type="button" onClick={() => setOpen(v => !v)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'var(--de-text-dim)', fontSize: 16, lineHeight: 1 }}>
+          <button type="button" onClick={() => setOpen((v) => !v)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px', color: 'var(--de-text-dim)', fontSize: 16, lineHeight: 1 }}>
             ···
           </button>
         )}

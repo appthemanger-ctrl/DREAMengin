@@ -20,7 +20,7 @@
  *   - Snapshot save/load (deterministic binary layout)
  */
 
-// --- Tuning (mirrors tuning.json) --------------------------------------------
+// ─── Tuning (mirrors tuning.json) ────────────────────────────────────────────
 const FIXED_HZ:        f32 = 60.0;
 const GRAVITY:         f32 = 15.0;
 const MAX_HSPEED:      f32 = 7.5;
@@ -37,7 +37,7 @@ const DASH_FRAMES:     i32 = 11;
 const DASH_COOLDOWN:   i32 = 15;
 const DASH_IFRAMES:    i32 = 7;
 
-// --- State (single instance, in linear memory) -------------------------------
+// ─── State (single instance, in linear memory) ───────────────────────────────
 class PlayerState {
   // kinematics
   x:  f32 = 0.0; y:  f32 = 0.0;
@@ -60,7 +60,7 @@ class PlayerState {
 
 const state = new PlayerState();
 
-// --- Input layout (matches host InputState) ----------------------------------
+// ─── Input layout (matches host InputState) ──────────────────────────────────
 // Host writes at inputPtr 8 contiguous bytes:
 //   [0]=left [1]=right [2]=jump [3]=dash [4]=attack [5]=pause [6]=down [7]=up
 class InputSnapshot {
@@ -73,7 +73,7 @@ const input = new InputSnapshot();
 let prevJump: bool = false;
 let prevDash: bool = false;
 
-// --- Spec-required exports ---------------------------------------------------
+// ─── Spec-required exports ───────────────────────────────────────────────────
 
 export function init(_platformPtr: usize): void {
   state.x = 0.0; state.y = 0.0;
@@ -193,7 +193,7 @@ export function update(deltaMs: f32): void {
   }
 }
 
-// --- Snapshot save / load ----------------------------------------------------
+// ─── Snapshot save / load ────────────────────────────────────────────────────
 // Deterministic layout (little-endian, packed):
 //   f32 x, y, vx, vy
 //   u8  onGround
@@ -247,7 +247,7 @@ export function getMemoryUsage(): i32 {
   return <i32>__heap_base;
 }
 
-// --- Diagnostic exports (used by host telemetry & tests) ---------------------
+// ─── Diagnostic exports (used by host telemetry & tests) ─────────────────────
 export function getX(): f32 { return state.x; }
 export function getY(): f32 { return state.y; }
 export function getVX(): f32 { return state.vx; }

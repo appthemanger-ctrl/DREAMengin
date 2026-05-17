@@ -18,7 +18,7 @@ export interface DreamSurfaceBridge {
   swapRuleset(currentRuleset: string, nextRuleset: string, bus: EventBus): void;
 }
 
-export function createBridge(: DreamSurfaceBridge) {
+export function createBridge(): DreamSurfaceBridge {
   function applyRulesetDelta(
     ledger: DreamLedger,
     bus: EventBus,
@@ -38,7 +38,7 @@ export function createBridge(: DreamSurfaceBridge) {
     return { ledger: nextLedger, state: nextState };
   }
 
-  function swapRuleset(currentRuleset: string, nextRuleset: string, bus: EventBus: void) {
+  function swapRuleset(currentRuleset: string, nextRuleset: string, bus: EventBus): void {
     bus.publish({
       type: 'ruleset:swap',
       payload: { from: currentRuleset, to: nextRuleset },

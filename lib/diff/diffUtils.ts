@@ -10,7 +10,7 @@
  *   - Scroll-margin metadata (proportion of each hunk in the full file)
  */
 
-// --- Types --------------------------------------------------------------------
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export type DiffLineType = 'added' | 'removed' | 'context' | 'hunk-header';
 
@@ -50,7 +50,7 @@ export interface DiffFile {
   removedCount: number;
 }
 
-// --- Parser -------------------------------------------------------------------
+// ─── Parser ───────────────────────────────────────────────────────────────────
 
 const HUNK_HEADER_RE = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@(.*)/;
 
@@ -58,7 +58,7 @@ const HUNK_HEADER_RE = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@(.*)/;
  * Parse a single unified diff text (may cover one or more files).
  * Returns one DiffFile per "--- a/..." / "+++ b/..." header pair.
  */
-export function parseUnifiedDiff(diffText: string: DiffFile[]) {
+export function parseUnifiedDiff(diffText: string): DiffFile[] {
   const files: DiffFile[] = [];
   let current: DiffFile | null = null;
   let currentHunk: DiffHunk | null = null;
@@ -132,13 +132,13 @@ export function parseUnifiedDiff(diffText: string: DiffFile[]) {
   return files;
 }
 
-function finalise(file: DiffFile: DiffFile) {
+function finalise(file: DiffFile): DiffFile {
   // Re-index hunks so .index is always correct after pushes
-  file.hunks = file.hunks.map(h: Record<string, unknown>, i: number => ({ ...h, index: i }));
+  file.hunks = file.hunks.map(h: Record<string, unknown>, (i: number ) => ({ ...h, index: i }));
   return file;
 }
 
-// --- Full-file view helpers ---------------------------------------------------
+// ─── Full-file view helpers ───────────────────────────────────────────────────
 
 export interface FullFileLine extends DiffLine {
   /** True when this line belongs to a collapsed context region */
@@ -210,7 +210,7 @@ export function buildFullFileLines(
   return result;
 }
 
-function makePlaceholder(startLine: number, count: number: FullFileLine) {
+function makePlaceholder(startLine: number, count: number): FullFileLine {
   return {
     type: 'context',
     content: `… ${count} unchanged line${count === 1 ? '' : 's'}`,
@@ -221,12 +221,12 @@ function makePlaceholder(startLine: number, count: number: FullFileLine) {
   };
 }
 
-// --- Navigation helpers -------------------------------------------------------
+// ─── Navigation helpers ───────────────────────────────────────────────────────
 
 /**
  * Return the index of the first hunk in the file, or -1 if there are none.
  */
-export function firstHunkIndex(file: DiffFile: number) {
+export function firstHunkIndex(file: DiffFile): number {
   return file.hunks.length > 0 ? 0 : -1;
 }
 
@@ -234,7 +234,7 @@ export function firstHunkIndex(file: DiffFile: number) {
  * Return the index of the previous hunk (wrapping around), given the current
  * hunk index.
  */
-export function prevHunkIndex(file: DiffFile, current: number: number) {
+export function prevHunkIndex(file: DiffFile, current: number): number {
   if (file.hunks.length === 0) return -1;
   return (current - 1 + file.hunks.length) % file.hunks.length;
 }
@@ -243,12 +243,12 @@ export function prevHunkIndex(file: DiffFile, current: number: number) {
  * Return the index of the next hunk (wrapping around), given the current
  * hunk index.
  */
-export function nextHunkIndex(file: DiffFile, current: number: number) {
+export function nextHunkIndex(file: DiffFile, current: number): number {
   if (file.hunks.length === 0) return -1;
   return (current + 1) % file.hunks.length;
 }
 
-// --- Scroll-margin helpers ----------------------------------------------------
+// ─── Scroll-margin helpers ────────────────────────────────────────────────────
 
 export interface HunkScrollMarker {
   /** 0-based hunk index */
@@ -281,7 +281,7 @@ export function buildScrollMarkers(
   });
 }
 
-// --- Demo diff ----------------------------------------------------------------
+// ─── Demo diff ────────────────────────────────────────────────────────────────
 
 /**
  * A self-contained demo unified diff used by DiffViewer in demo mode.
@@ -305,7 +305,7 @@ export const DEMO_DIFF = `--- a/lib/diff/diffUtils.ts
    removedCount: number;
  }
  
-+// --- Full-file helpers --------------------------------------------------------
++// ─── Full-file helpers ────────────────────────────────────────────────────────
 +
 +export interface FullFileLine extends DiffLine {
 +  collapsed: boolean;
@@ -313,11 +313,11 @@ export const DEMO_DIFF = `--- a/lib/diff/diffUtils.ts
 +  hunkIndex: number;
 +}
 +
- // --- Parser -------------------------------------------------------------------
+ // ─── Parser ───────────────────────────────────────────────────────────────────
  
  const HUNK_HEADER_RE = /^@@ -(\d+)(?:,(\d+))? \\+(\d+)(?:,(\d+))? @@(.*)/;
-@@ -89,3 +101,18 @@ function finalise(file: DiffFile: DiffFile {
-   file.hunks = file.hunks.map(h: Record<string, unknown>, i: number => ({ ...h, index: i }));
+@@ -89,3 +101,18 @@ function finalise(file: DiffFile): DiffFile {
+   file.hunks = file.hunks.map(h: Record<string, unknown>, (i: number ) => ({ ...h, index: i }));
    return file;
  }
 +

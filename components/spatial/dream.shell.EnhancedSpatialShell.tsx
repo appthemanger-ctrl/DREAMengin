@@ -21,7 +21,7 @@ interface EnhancedSpatialShellProps {
  * EnhancedSpatialShell - Gesture-driven navigation shell
  * Replaces traditional nav bar with gesture-based spatial navigation
  */
-export default function EnhancedSpatialShell() {
+export default function EnhancedSpatialShell(){
   userId,
   handle,
   displayName,
@@ -136,7 +136,7 @@ export default function EnhancedSpatialShell() {
         >
           <div className="relative w-full h-full">
             {navState.layer === LAYER_PROFILE ? (
-              /* -- Profile layer: delegate to ProfileSpace widget canvas -- */
+              /* ── Profile layer: delegate to ProfileSpace widget canvas ── */
               <ProfileSpace
                 widgets={activeWidgets.filter((w: Record<string, unknown>) => w.context === 'PROFILE')}
               />

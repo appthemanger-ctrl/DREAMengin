@@ -8,13 +8,13 @@ interface Props {
   containerRef: React.RefObject<HTMLElement | null>;
 }
 
-function fmtTime(ms: number: string) {
+function fmtTime(ms: number): string {
   const s = Math.floor(ms / 1000);
   const m = Math.floor(s / 60);
   return `${String(m).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
 }
 
-export default function RecordingControls() { containerRef }: Props {
+export default function RecordingControls({ containerRef }: Props) {
   const capture = useRef(new GameCapture());
   const [recording, setRecording] = useState(false);
   const [elapsed, setElapsed] = useState(0);

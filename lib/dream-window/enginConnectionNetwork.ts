@@ -7,21 +7,21 @@
  *
  * Network layout (11 paths total):
  *
- *   Music  --bind----------► StarMakerEngin
- *   Music  --route into----► LabEngin
- *   Music  --connect across► CodeEngin
+ *   Music  ──bind──────────► StarMakerEngin
+ *   Music  ──route into────► LabEngin
+ *   Music  ──connect across► CodeEngin
  *
- *   Games  --bind----------► GameEngin
- *   Games  --route into----► LabEngin
- *   Games  --connect across► CodeEngin
+ *   Games  ──bind──────────► GameEngin
+ *   Games  ──route into────► LabEngin
+ *   Games  ──connect across► CodeEngin
  *
- *   Brand  --bind----------► BrandingEngin
- *   Brand  --route into----► ContentEngin
- *   Brand  --connect across► LabEngin
+ *   Brand  ──bind──────────► BrandingEngin
+ *   Brand  ──route into────► ContentEngin
+ *   Brand  ──connect across► LabEngin
  *
- *   Create --bind----------► ContentEngin
+ *   Create ──bind──────────► ContentEngin
  *
- *   Lab    --bind----------► LabEngin
+ *   Lab    ──bind──────────► LabEngin
  *
  * Architecture: docs/ARCHITECTURE.md §1 (Daydream Surface Network, multi-connection)
  * Naming: lib/identity/canonical-names.ts (all domain/engin names sourced here)
@@ -62,14 +62,14 @@ export interface EnginConnectionPath {
 // Path ID builder (stable, deterministic)
 // ---------------------------------------------------------------------------
 
-function pathId(domain: DaydreamDomain, engin: EnginSurface, verb: ConnectionVerb: string) {
+function pathId(domain: DaydreamDomain, engin: EnginSurface, verb: ConnectionVerb): string {
   const d = domain.toLowerCase().replace(/\s+/g, '-');
   const e = engin.toLowerCase().replace(/\s+/g, '-');
   const v = verb.replace(/\s+/g, '-');
   return `${d}→${e}[${v}]`;
 }
 
-function buildLabel(domain: DaydreamDomain, engin: EnginSurface, verb: ConnectionVerb: string) {
+function buildLabel(domain: DaydreamDomain, engin: EnginSurface, verb: ConnectionVerb): string {
   return `${domain} Daydream Surface → ${engin} (${verb})`;
 }
 
@@ -78,7 +78,7 @@ function buildLabel(domain: DaydreamDomain, engin: EnginSurface, verb: Connectio
 // ---------------------------------------------------------------------------
 
 export const ALL_CONNECTION_PATHS: readonly EnginConnectionPath[] = [
-  // -- Music (3 paths) ------------------------------------------------------
+  // ── Music (3 paths) ──────────────────────────────────────────────────────
   {
     id: pathId(DAYDREAM_DOMAINS.MUSIC, ENGIN_SURFACES.MUSIC, 'bind'),
     daydreamSurface: DAYDREAM_DOMAINS.MUSIC,
@@ -101,7 +101,7 @@ export const ALL_CONNECTION_PATHS: readonly EnginConnectionPath[] = [
     label:           buildLabel(DAYDREAM_DOMAINS.MUSIC, ENGIN_SURFACES.CODE, 'connect across'),
   },
 
-  // -- Games (3 paths) ------------------------------------------------------
+  // ── Games (3 paths) ──────────────────────────────────────────────────────
   {
     id: pathId(DAYDREAM_DOMAINS.GAMES, ENGIN_SURFACES.GAMES, 'bind'),
     daydreamSurface: DAYDREAM_DOMAINS.GAMES,
@@ -124,7 +124,7 @@ export const ALL_CONNECTION_PATHS: readonly EnginConnectionPath[] = [
     label:           buildLabel(DAYDREAM_DOMAINS.GAMES, ENGIN_SURFACES.CODE, 'connect across'),
   },
 
-  // -- Brand (3 paths) ------------------------------------------------------
+  // ── Brand (3 paths) ──────────────────────────────────────────────────────
   {
     id: pathId(DAYDREAM_DOMAINS.BRAND, ENGIN_SURFACES.BRAND, 'bind'),
     daydreamSurface: DAYDREAM_DOMAINS.BRAND,
@@ -147,7 +147,7 @@ export const ALL_CONNECTION_PATHS: readonly EnginConnectionPath[] = [
     label:           buildLabel(DAYDREAM_DOMAINS.BRAND, ENGIN_SURFACES.LAB, 'connect across'),
   },
 
-  // -- Create (1 path) ------------------------------------------------------
+  // ── Create (1 path) ──────────────────────────────────────────────────────
   {
     id: pathId(DAYDREAM_DOMAINS.CREATE, ENGIN_SURFACES.CREATE, 'bind'),
     daydreamSurface: DAYDREAM_DOMAINS.CREATE,
@@ -156,7 +156,7 @@ export const ALL_CONNECTION_PATHS: readonly EnginConnectionPath[] = [
     label:           buildLabel(DAYDREAM_DOMAINS.CREATE, ENGIN_SURFACES.CREATE, 'bind'),
   },
 
-  // -- Lab (1 path) ---------------------------------------------------------
+  // ── Lab (1 path) ─────────────────────────────────────────────────────────
   {
     id: pathId(DAYDREAM_DOMAINS.LAB, ENGIN_SURFACES.LAB, 'bind'),
     daydreamSurface: DAYDREAM_DOMAINS.LAB,
@@ -189,7 +189,7 @@ if (ALL_CONNECTION_PATHS.length !== NETWORK_COUNTS.CONNECTION_PATHS) {
  * getPathsForDomain('Music')
  * // → [Music→StarMakerEngin, Music→LabEngin, Music→CodeEngin]
  */
-export function getPathsForDomain(domain: DaydreamDomain: readonly EnginConnectionPath[]) {
+export function getPathsForDomain(domain: DaydreamDomain): readonly EnginConnectionPath[] {
   return ALL_CONNECTION_PATHS.filter((p: Record<string, unknown>) => p.daydreamSurface === domain);
 }
 
@@ -200,7 +200,7 @@ export function getPathsForDomain(domain: DaydreamDomain: readonly EnginConnecti
  * getPathsForEngin('LabEngin')
  * // → [Music→LabEngin, Games→LabEngin, Brand→LabEngin, Lab→LabEngin]
  */
-export function getPathsForEngin(engin: EnginSurface: readonly EnginConnectionPath[]) {
+export function getPathsForEngin(engin: EnginSurface): readonly EnginConnectionPath[] {
   return ALL_CONNECTION_PATHS.filter((p: Record<string, unknown>) => p.enginRuntime === engin);
 }
 
@@ -211,7 +211,7 @@ export function getPathsForEngin(engin: EnginSurface: readonly EnginConnectionPa
  * hasConnectionPath('Music', 'LabEngin')   // → true
  * hasConnectionPath('Music', 'GameEngin')  // → false
  */
-export function hasConnectionPath(domain: DaydreamDomain, engin: EnginSurface: boolean) {
+export function hasConnectionPath(domain: DaydreamDomain, engin: EnginSurface): boolean {
   return ALL_CONNECTION_PATHS.some(
     (p) => p.daydreamSurface === domain && p.enginRuntime === engin,
   );

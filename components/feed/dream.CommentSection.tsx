@@ -27,7 +27,7 @@ interface Props {
   postId: string;
 }
 
-function Avatar() { profile, size = 32 }: { profile: CommentProfile | null; size?: number } {
+function Avatar({ profile, size = 32 }: ) { profile: CommentProfile | null; size?: number } {
   const initials = (profile?.display_name || profile?.handle || '?')[0].toUpperCase();
 
   if (profile?.avatar_url) {
@@ -59,7 +59,7 @@ function Avatar() { profile, size = 32 }: { profile: CommentProfile | null; size
   );
 }
 
-export default function CommentSection() { postId }: Props {
+export default function CommentSection({ postId }: Props) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -83,7 +83,7 @@ export default function CommentSection() { postId }: Props {
     const controller = new AbortController();
 
     fetch(`/api/comments?post_id=${encodeURIComponent(postId)}`, { signal: controller.signal })
-      .then(res: Record<string, unknown> => res.json())
+      .then((res: Record<string, unknown>) => res.json())
       .then(({ data, error: err }) => {
         if (err) {
           setError(err);
@@ -91,7 +91,7 @@ export default function CommentSection() { postId }: Props {
           setComments(data ?? []);
         }
       })
-      .catch(e: unknown => {
+      .catch((e: unknown ) => {
         if (e.name !== 'AbortError') setError('Failed to load comments');
       })
       .finally(() => setLoading(false));
@@ -101,7 +101,7 @@ export default function CommentSection() { postId }: Props {
 
   const handleDelete = async (commentId: string) => {
     // Optimistic remove
-    setComments(prev: Record<string, unknown> => prev.filter((c: Record<string, unknown>) => c.id !== commentId));
+    setComments((prev: Record<string, unknown>) => prev.filter((c: Record<string, unknown>) => c.id !== commentId));
     try {
       const res = await fetch('/api/comments', {
         method: 'DELETE',
@@ -117,7 +117,7 @@ export default function CommentSection() { postId }: Props {
     } catch {
       // Reload to restore state
       fetch(`/api/comments?post_id=${encodeURIComponent(postId)}`)
-        .then(r => r.json())
+        .then((r) => r.json())
         .then(({ data }) => { if (data) setComments(data); })
         .catch(() => {});
     }
@@ -141,7 +141,7 @@ export default function CommentSection() { postId }: Props {
       profile: null,
       optimistic: true,
     };
-    setComments(prev => [...prev, optimistic]);
+    setComments((prev) => [...prev, optimistic]);
     setDraft('');
 
     try {
@@ -161,14 +161,14 @@ export default function CommentSection() { postId }: Props {
       const saved = body.data;
 
       // Replace optimistic entry with the real one from the server
-      setComments(prev =>
-        prev.map(c => (c.id === optimisticId && saved ? { ...saved, optimistic: false } : c)),
+      setComments((prev) =>
+        prev.map((c) => (c.id === optimisticId && saved ? { ...saved, optimistic: false } : c)),
       );
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Something went wrong';
       setSubmitError(msg);
       // Remove the failed optimistic entry
-      setComments(prev => prev.filter(c => c.id !== optimisticId));
+      setComments((prev) => prev.filter((c) => c.id !== optimisticId));
       // Restore the draft so the user can retry
       setDraft(text);
     } finally {

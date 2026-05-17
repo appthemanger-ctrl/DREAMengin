@@ -17,7 +17,7 @@ import {
 
 beforeEach(() => { clearBuffers(); });
 
-// -- Improvement 91: collectBatchLogs -----------------------------------------
+// ── Improvement 91: collectBatchLogs ─────────────────────────────────────────
 describe('collectBatchLogs', () => {
   it('pushes multiple log entries atomically', () => {
     collectBatchLogs([
@@ -36,7 +36,7 @@ describe('collectBatchLogs', () => {
   });
 });
 
-// -- Improvement 92: getErrorRate ----------------------------------------------
+// ── Improvement 92: getErrorRate ──────────────────────────────────────────────
 describe('getErrorRate', () => {
   it('returns 0 when no logs', () => {
     expect(getErrorRate()).toBe(0);
@@ -51,7 +51,7 @@ describe('getErrorRate', () => {
   });
 });
 
-// -- Improvement 93: getP95Latency ---------------------------------------------
+// ── Improvement 93: getP95Latency ─────────────────────────────────────────────
 describe('getP95Latency', () => {
   it('returns 0 when no traces', () => {
     expect(getP95Latency()).toBe(0);
@@ -69,7 +69,7 @@ describe('getP95Latency', () => {
   });
 });
 
-// -- Improvement 94: groupTracesByTraceId --------------------------------------
+// ── Improvement 94: groupTracesByTraceId ──────────────────────────────────────
 describe('groupTracesByTraceId', () => {
   it('groups spans by trace_id', () => {
     collectTrace('span-a', 10, 'ok', undefined, 'trace-1');
@@ -86,7 +86,7 @@ describe('groupTracesByTraceId', () => {
   });
 });
 
-// -- Improvement 95: getLogCountsBySeverity ------------------------------------
+// ── Improvement 95: getLogCountsBySeverity ────────────────────────────────────
 describe('getLogCountsBySeverity', () => {
   it('returns zeroed counts when no logs', () => {
     const counts = getLogCountsBySeverity();

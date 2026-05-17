@@ -228,7 +228,7 @@ export interface NavigationState {
 // TYPE GUARDS
 // =============================================================================
 
-export function isContentObject(obj: unknown: obj is ContentObject) {
+export function isContentObject(obj: unknown): obj is ContentObject {
   return (
     typeof obj === "object" &&
     obj !== null &&
@@ -239,7 +239,7 @@ export function isContentObject(obj: unknown: obj is ContentObject) {
   );
 }
 
-export function isWidget(obj: unknown: obj is Widget) {
+export function isWidget(obj: unknown): obj is Widget {
   return (
     typeof obj === "object" &&
     obj !== null &&
@@ -250,7 +250,7 @@ export function isWidget(obj: unknown: obj is Widget) {
   );
 }
 
-export function isAlbum(obj: unknown: obj is Album) {
+export function isAlbum(obj: unknown): obj is Album {
   return (
     typeof obj === "object" &&
     obj !== null &&

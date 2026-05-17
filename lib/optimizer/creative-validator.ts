@@ -89,7 +89,7 @@ export function validateCreativeOption(
 
 // Individual validation functions
 
-function checkBreaksBuild(option: CreativeOption: boolean) {
+function checkBreaksBuild(option: CreativeOption): boolean {
   const content = option.content.toLowerCase();
 
   // Check for patterns that would break the build
@@ -105,10 +105,10 @@ function checkBreaksBuild(option: CreativeOption: boolean) {
     return true;
   }
 
-  return breakPatterns.some(pattern => pattern.test(content));
+  return breakPatterns.some((pattern) => pattern.test(content));
 }
 
-function checkBreaksVercel(option: CreativeOption: boolean) {
+function checkBreaksVercel(option: CreativeOption): boolean {
   const content = option.content.toLowerCase();
 
   // Check for patterns that would break Vercel
@@ -122,10 +122,10 @@ function checkBreaksVercel(option: CreativeOption: boolean) {
     return true;
   }
 
-  return vercelBreakPatterns.some(pattern => pattern.test(content));
+  return vercelBreakPatterns.some((pattern) => pattern.test(content));
 }
 
-function checkBreaksPrivacy(option: CreativeOption: boolean) {
+function checkBreaksPrivacy(option: CreativeOption): boolean {
   const content = option.content.toLowerCase();
 
   // Check for privacy violations
@@ -142,10 +142,10 @@ function checkBreaksPrivacy(option: CreativeOption: boolean) {
     return true;
   }
 
-  return privacyViolations.some(pattern => pattern.test(content));
+  return privacyViolations.some((pattern) => pattern.test(content));
 }
 
-function checkBreaksNavigation(option: CreativeOption: boolean) {
+function checkBreaksNavigation(option: CreativeOption): boolean {
   const content = option.content.toLowerCase();
 
   // Check for navigation breaks
@@ -160,10 +160,10 @@ function checkBreaksNavigation(option: CreativeOption: boolean) {
     return true;
   }
 
-  return navBreakPatterns.some(pattern => pattern.test(content));
+  return navBreakPatterns.some((pattern) => pattern.test(content));
 }
 
-function checkFakeAction(option: CreativeOption: boolean) {
+function checkFakeAction(option: CreativeOption): boolean {
   const content = option.content.toLowerCase();
 
   // Check for fake actions
@@ -178,10 +178,10 @@ function checkFakeAction(option: CreativeOption: boolean) {
     return true;
   }
 
-  return fakeActionPatterns.some(pattern => pattern.test(content));
+  return fakeActionPatterns.some((pattern) => pattern.test(content));
 }
 
-function checkInvalidTypeScript(option: CreativeOption: boolean) {
+function checkInvalidTypeScript(option: CreativeOption): boolean {
   const content = option.content;
 
   // Basic TypeScript syntax checks
@@ -202,10 +202,10 @@ function checkInvalidTypeScript(option: CreativeOption: boolean) {
     return true;
   }
 
-  return invalidTsPatterns.some(pattern => pattern.test(content));
+  return invalidTsPatterns.some((pattern) => pattern.test(content));
 }
 
-function checkInvalidImports(option: CreativeOption: boolean) {
+function checkInvalidImports(option: CreativeOption): boolean {
   const content = option.content.toLowerCase();
 
   // Check for invalid imports
@@ -219,10 +219,10 @@ function checkInvalidImports(option: CreativeOption: boolean) {
     return true;
   }
 
-  return invalidImportPatterns.some(pattern => pattern.test(content));
+  return invalidImportPatterns.some((pattern) => pattern.test(content));
 }
 
-function checkInfiniteLoop(option: CreativeOption: boolean) {
+function checkInfiniteLoop(option: CreativeOption): boolean {
   const content = option.content.toLowerCase();
 
   // Check for potential infinite loops
@@ -237,10 +237,10 @@ function checkInfiniteLoop(option: CreativeOption: boolean) {
     return true;
   }
 
-  return infiniteLoopPatterns.some(pattern => pattern.test(content));
+  return infiniteLoopPatterns.some((pattern) => pattern.test(content));
 }
 
-function checkPerformanceRegression(option: CreativeOption: boolean) {
+function checkPerformanceRegression(option: CreativeOption): boolean {
   const content = option.content.toLowerCase();
 
   // Check for performance issues
@@ -260,5 +260,5 @@ function checkPerformanceRegression(option: CreativeOption: boolean) {
     return true;
   }
 
-  return perfRegressionPatterns.some(pattern => pattern.test(content));
+  return perfRegressionPatterns.some((pattern) => pattern.test(content));
 }

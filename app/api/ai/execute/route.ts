@@ -52,21 +52,21 @@ async function dispatchIntent(
   const { type, payload } = intent;
 
   switch (type) {
-    // -- Navigation intent: return a route for the client to navigate to --
+    // ── Navigation intent: return a route for the client to navigate to ──
     case 'NAV_DELTA': {
       const raw = typeof payload.route === 'string' ? payload.route : '';
       const route = ROUTE_MAP[raw] ?? (raw.startsWith('/') ? raw : '/dreamdmbar');
       return { executed: true, action_type: 'navigate', action_payload: { route } };
     }
 
-    // -- Open the home anchor menu --
+    // ── Open the home anchor menu ──
     case 'HOME_MENU_OPEN':
     case 'HOME_ANCHOR_SET_STATE': {
       const state = typeof payload.state === 'number' ? payload.state : 1;
       return { executed: true, action_type: 'home_menu_open', action_payload: { state } };
     }
 
-    // -- Navigate to a dream / preview one --
+    // ── Navigate to a dream / preview one ──
     case 'DREAM_OPEN':
     case 'DREAM_PREVIEW': {
       const dream_id = typeof payload.dream_id === 'string' ? payload.dream_id : null;
@@ -77,7 +77,7 @@ async function dispatchIntent(
       };
     }
 
-    // -- Patch dream config --
+    // ── Patch dream config ──
     case 'DREAM_CONFIG_PATCH': {
       const dream_id = typeof payload.dream_id === 'string' ? payload.dream_id : null;
       if (!dream_id) return { executed: false, error: 'dream_id required for DREAM_CONFIG_PATCH' };
@@ -92,12 +92,12 @@ async function dispatchIntent(
       return { executed: true, action_type: 'dream_config_patch', action_payload: { dream_id, patch } };
     }
 
-    // -- Reorder dreams --
+    // ── Reorder dreams ──
     case 'DREAM_REORDER': {
       const order = Array.isArray(payload.order) ? payload.order as string[] : null;
       if (!order) return { executed: false, error: 'order array required for DREAM_REORDER' };
       await Promise.all(
-        order.map(id: Record<string, unknown>, idx: number =>
+        order.map(id: Record<string, unknown>, (idx: number ) =>
           supabase
             .from('dream_instances')
             .update({ config: { position: idx } as Json })
@@ -108,19 +108,19 @@ async function dispatchIntent(
       return { executed: true, action_type: 'dream_reorder', action_payload: { order } };
     }
 
-    // -- Search: return query for client to execute --
+    // ── Search: return query for client to execute ──
     case 'SEARCH': {
       const query = typeof payload.query === 'string' ? payload.query : '';
       return { executed: true, action_type: 'search', action_payload: { query, route: `/search?q=${encodeURIComponent(query)}` } };
     }
 
-    // -- Navigate to create post --
+    // ── Navigate to create post ──
     case 'POST_CREATE': {
       const prefill = typeof payload.body === 'string' ? payload.body : '';
       return { executed: true, action_type: 'navigate', action_payload: { route: '/create', prefill } };
     }
 
-    // -- Admin diagnostics --
+    // ── Admin diagnostics ──
     case 'DIAG_SCHEMA_SNAPSHOT': {
       if (actorRole !== 'admin' && actorRole !== 'owner') {
         return { executed: false, error: 'Admin role required for DIAG_SCHEMA_SNAPSHOT' };
@@ -150,7 +150,7 @@ async function dispatchIntent(
 // Route handler
 // ---------------------------------------------------------------------------
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const requestStart = Date.now();
 
   // Parse and validate request
@@ -217,7 +217,7 @@ export async function POST(req: NextRequest) {
 
   // Resolve the intents to dispatch: client sends full intent objects back
   // (intent_ids used for cross-reference / audit; intents used for dispatch)
-  const candidateIntents = request.intents?.filter(i => request.intent_ids.includes(i.intent_id)) ?? [];
+  const candidateIntents = request.intents?.filter((i) => request.intent_ids.includes(i.intent_id)) ?? [];
 
   if (candidateIntents.length === 0) {
     return jsonApiError(400, 'NO_INTENTS', 'No resolvable intents found. Please include the full intents array.');
@@ -237,7 +237,7 @@ export async function POST(req: NextRequest) {
     }),
   );
 
-  const allOk = results.every(r => r.executed);
+  const allOk = results.every((r) => r.executed);
 
   await writeAuditLog({
     request_id: request.request_id,
@@ -247,8 +247,8 @@ export async function POST(req: NextRequest) {
     latency_ms: Date.now() - requestStart,
     payload: {
       intent_count: safeIntents.length,
-      executed_count: results.filter(r => r.executed).length,
-      intent_types: safeIntents.map(i => i.type),
+      executed_count: results.filter((r) => r.executed).length,
+      intent_types: safeIntents.map((i) => i.type),
     },
   });
 

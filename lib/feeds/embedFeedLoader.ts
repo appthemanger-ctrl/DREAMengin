@@ -22,7 +22,7 @@ import 'server-only';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 /** A single baked embed item produced by scripts/update-embed-feed.mjs. */
 export interface EmbedFeedItem {
@@ -66,7 +66,7 @@ export interface EmbedFeed {
   items: EmbedFeedItem[];
 }
 
-// -- Loader --------------------------------------------------------------------
+// ── Loader ────────────────────────────────────────────────────────────────────
 
 const FEED_PATH = join(process.cwd(), 'public', 'feeds', 'embed-feed.json');
 
@@ -88,7 +88,7 @@ const EMPTY_FEED: EmbedFeed = {
  * Returns an empty feed (not an error) if the file has not yet been generated
  * by the workflow, so callers can handle the "no items yet" state gracefully.
  */
-export function loadEmbedFeed(: EmbedFeed) {
+export function loadEmbedFeed(): EmbedFeed {
   try {
     const raw = readFileSync(FEED_PATH, 'utf-8');
     const parsed = JSON.parse(raw) as EmbedFeed;
@@ -107,6 +107,6 @@ export function loadEmbedFeed(: EmbedFeed) {
  * @example
  *   const ytItems = loadEmbedFeedByProvider('youtube');
  */
-export function loadEmbedFeedByProvider(provider: string: EmbedFeedItem[]) {
-  return loadEmbedFeed().items.filter(item => item.provider === provider);
+export function loadEmbedFeedByProvider(provider: string): EmbedFeedItem[] {
+  return loadEmbedFeed().items.filter((item) => item.provider === provider);
 }

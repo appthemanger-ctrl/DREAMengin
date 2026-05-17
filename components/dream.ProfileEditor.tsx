@@ -21,7 +21,7 @@ interface ProfileData {
   theme: unknown;
 }
 
-export default function ProfileEditor() { profile }: { profile: ProfileData } {
+export default function ProfileEditor({ profile }: ) { profile: ProfileData } {
   const supabase = createClient();
   const { enterCustomizeMode } = useCustomizeMode();
   const [saving, setSaving] = useState(false);
@@ -85,7 +85,7 @@ export default function ProfileEditor() { profile }: { profile: ProfileData } {
       if (updateError) throw updateError;
 
       // Update local state
-      setFormData(prev => ({ ...prev, avatar_url: mediaUrl }));
+      setFormData((prev) => ({ ...prev, avatar_url: mediaUrl }));
       
       alert('Avatar updated successfully!');
     } catch (error: unknown) {
@@ -134,7 +134,7 @@ export default function ProfileEditor() { profile }: { profile: ProfileData } {
 
       if (updateError) throw updateError;
 
-      setFormData(prev => ({ ...prev, cover_image_url: mediaUrl }));
+      setFormData((prev) => ({ ...prev, cover_image_url: mediaUrl }));
       
       alert('Cover image updated successfully!');
     } catch (error: unknown) {
@@ -154,7 +154,7 @@ export default function ProfileEditor() { profile }: { profile: ProfileData } {
         .update({
           display_name: formData.display_name,
           bio: formData.bio,
-          links: links.filter(l => l.url),
+          links: links.filter((l) => l.url),
         })
         .eq('id', profile.id);
 
@@ -180,7 +180,7 @@ export default function ProfileEditor() { profile }: { profile: ProfileData } {
   };
 
   const removeLink = (index: number) => {
-    setLinks(links.filter(_: Record<string, unknown>, i: number => i !== index));
+    setLinks(links.filter(_: Record<string, unknown>, (i: number ) => i !== index));
   };
 
   /** Auto-detect platform from a pasted URL; always updates when a known platform is detected. */
@@ -201,7 +201,7 @@ export default function ProfileEditor() { profile }: { profile: ProfileData } {
     if (!name) return 'U';
     return name
       .split(' ')
-      .map(n => n[0])
+      .map((n) => n[0])
       .join('')
       .toUpperCase()
       .slice(0, 2);
@@ -319,7 +319,7 @@ export default function ProfileEditor() { profile }: { profile: ProfileData } {
                 <input
                   type="text"
                   value={formData.display_name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, display_name: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, display_name: e.target.value }))}
                   placeholder="Your name"
                   className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
                 />
@@ -331,7 +331,7 @@ export default function ProfileEditor() { profile }: { profile: ProfileData } {
                 </label>
                 <textarea
                   value={formData.bio}
-                  onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, bio: e.target.value }))}
                   placeholder="Tell us about yourself..."
                   rows={4}
                   className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none transition-all"
@@ -366,7 +366,7 @@ export default function ProfileEditor() { profile }: { profile: ProfileData } {
                   No links added yet. Click "Add Link" to get started.
                 </p>
               ) : (
-                links.map(link: Record<string, unknown>, index: number => (
+                links.map(link: Record<string, unknown>, (index: number ) => (
                   <div key={index} className="flex gap-2">
                     <select
                       value={link.platform}

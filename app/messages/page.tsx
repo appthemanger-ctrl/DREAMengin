@@ -9,7 +9,7 @@ interface MessagesPageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function MessagesPage() { searchParams }: MessagesPageProps {
+export default async function MessagesPage({ searchParams }: MessagesPageProps) {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -35,7 +35,7 @@ export default async function MessagesPage() { searchParams }: MessagesPageProps
     .order('updated_at', { ascending: false });
 
   // Get the other participant for each conversation
-  const formattedConversations = (conversations || []).map(conv => {
+  const formattedConversations = (conversations || []).map((conv) => {
     const otherParticipant = conv.participant1_id === user.id 
       ? conv.participant2 
       : conv.participant1;

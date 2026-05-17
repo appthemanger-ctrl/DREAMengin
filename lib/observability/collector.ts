@@ -8,7 +8,7 @@
 // Part of the AI-assisted observability and remediation loop described in
 // docs/ARCHITECTURE.md §13 and the IDARi system spec.
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -54,7 +54,7 @@ export interface TelemetrySnapshot {
   collected_at: string;
 }
 
-// -- Ring buffer ---------------------------------------------------------------
+// ── Ring buffer ───────────────────────────────────────────────────────────────
 
 const MAX_ENTRIES = 500;
 
@@ -65,7 +65,7 @@ const traceBuffer: TraceSpan[] = [];
 
 let _counter = 0;
 
-function nextId(prefix: string: string) {
+function nextId(prefix: string): string {
   _counter += 1;
   return `${prefix}-${_counter}-${Date.now()}`;
 }
@@ -77,7 +77,7 @@ function pushCapped<T>(buffer: T[], entry: T): void {
   }
 }
 
-// -- OTel bridge (lazy-loaded, server-only) ------------------------------------
+// ── OTel bridge (lazy-loaded, server-only) ────────────────────────────────────
 
 let _otelBridge: typeof import('./otelBridge') | null = null;
 
@@ -98,7 +98,7 @@ function getOtelBridge(: typeof import('./otelBridge') | null {
   return _otelBridge;
 }
 
-// -- Collection API ------------------------------------------------------------
+// ── Collection API ────────────────────────────────────────────────────────────
 
 /**
  * Record a log entry in the observability collector.
@@ -168,13 +168,13 @@ export function collectTrace(
   getOtelBridge()?.otelRecordTrace(name, duration_ms, status, tags);
 }
 
-// -- Query ---------------------------------------------------------------------
+// ── Query ─────────────────────────────────────────────────────────────────────
 
 /**
  * Return a snapshot of all telemetry within the last `windowMs` milliseconds.
  * Defaults to the last 5 minutes.
  */
-export function getSnapshot(windowMs = 5 * 60 * 1000: TelemetrySnapshot) {
+export function getSnapshot(windowMs = 5 * 60 * 1000: TelemetrySnapshot ){
   const cutoff = new Date(Date.now() - windowMs).toISOString();
   return {
     logs: logBuffer.filter((e: Record<string, unknown>) => e.timestamp >= cutoff),
@@ -185,7 +185,7 @@ export function getSnapshot(windowMs = 5 * 60 * 1000: TelemetrySnapshot) {
 }
 
 /** Return current buffer sizes (total, not windowed). */
-export function getBufferStats(:) { logs: number; metrics: number; traces: number } {
+export function getBufferStats(): { logs: number; metrics: number; traces: number } {
   return {
     logs: logBuffer.length,
     metrics: metricBuffer.length,
@@ -194,14 +194,14 @@ export function getBufferStats(:) { logs: number; metrics: number; traces: numbe
 }
 
 /** Flush all buffers — used in tests and manual resets. */
-export function clearBuffers(: void) {
+export function clearBuffers(): void {
   logBuffer.length = 0;
   metricBuffer.length = 0;
   traceBuffer.length = 0;
   _counter = 0;
 }
 
-// -- Improvement 21: collectBatchLogs -----------------------------------------
+// ── Improvement 21: collectBatchLogs ─────────────────────────────────────────
 
 /**
  * Push multiple log entries in one call — useful when replaying buffered
@@ -215,13 +215,13 @@ export function collectBatchLogs(
   }
 }
 
-// -- Improvement 22: getErrorRate ----------------------------------------------
+// ── Improvement 22: getErrorRate ──────────────────────────────────────────────
 
 /**
  * Compute errors-per-minute within the given window.
  * Returns 0 when the window contains no data.
  */
-export function getErrorRate(windowMs = 5 * 60 * 1000: number) {
+export function getErrorRate(windowMs = 5 * 60 * 1000: number ){
   const cutoff = new Date(Date.now() - windowMs).toISOString();
   const errorCount = logBuffer.filter(
     (e) => e.timestamp >= cutoff && e.level === 'error',
@@ -230,30 +230,30 @@ export function getErrorRate(windowMs = 5 * 60 * 1000: number) {
   return windowMinutes > 0 ? errorCount / windowMinutes : 0;
 }
 
-// -- Improvement 23: getP95Latency ---------------------------------------------
+// ── Improvement 23: getP95Latency ─────────────────────────────────────────────
 
 /**
  * Return the P95 latency (ms) across all trace spans in the given window.
  * Returns 0 when no traces are present.
  */
-export function getP95Latency(windowMs = 5 * 60 * 1000: number) {
+export function getP95Latency(windowMs = 5 * 60 * 1000: number ){
   const cutoff = new Date(Date.now() - windowMs).toISOString();
   const durations = traceBuffer
     .filter((t: Record<string, unknown>) => t.timestamp >= cutoff)
     .map((t: Record<string, unknown>) => t.duration_ms)
-    .sort(a: Record<string, unknown>, b: Record<string, unknown> => a - b);
+    .sort((a: Record<string, unknown>, b: Record<string, unknown>) => a - b);
   if (durations.length === 0) return 0;
   const idx = Math.floor(durations.length * 0.95);
   return durations[Math.min(idx, durations.length - 1)];
 }
 
-// -- Improvement 24: groupTracesByTraceId --------------------------------------
+// ── Improvement 24: groupTracesByTraceId ──────────────────────────────────────
 
 /**
  * Group trace spans by their `trace_id` for distributed request tracing.
  * Returns a Map keyed by trace_id, each value being the spans in arrival order.
  */
-export function groupTracesByTraceId(windowMs = 5 * 60 * 1000: Map<string, TraceSpan[]>) {
+export function groupTracesByTraceId(windowMs = 5 * 60 * 1000: Map<string, TraceSpan[]> ){
   const cutoff = new Date(Date.now() - windowMs).toISOString();
   const result = new Map<string, TraceSpan[]>();
   for (const span of traceBuffer) {
@@ -265,7 +265,7 @@ export function groupTracesByTraceId(windowMs = 5 * 60 * 1000: Map<string, Trace
   return result;
 }
 
-// -- Improvement 25: getLogCountsBySeverity ------------------------------------
+// ── Improvement 25: getLogCountsBySeverity ────────────────────────────────────
 
 export interface LogSeverityCounts {
   debug: number;
@@ -277,7 +277,7 @@ export interface LogSeverityCounts {
 /**
  * Return the count of log entries at each severity level within the window.
  */
-export function getLogCountsBySeverity(windowMs = 5 * 60 * 1000: LogSeverityCounts) {
+export function getLogCountsBySeverity(windowMs = 5 * 60 * 1000: LogSeverityCounts ){
   const cutoff = new Date(Date.now() - windowMs).toISOString();
   const counts: LogSeverityCounts = { debug: 0, info: 0, warn: 0, error: 0 };
   for (const e of logBuffer) {

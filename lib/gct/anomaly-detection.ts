@@ -21,13 +21,13 @@ export async function detectAnomalies(
   const engine = new GCTEngine({ preferGPU: true, numTemplates: normalPatterns.length });
   await engine.init();
 
-  const templates: Template[] = normalPatterns.map(pattern: Record<string, unknown>, index: number => ({
+  const templates: Template[] = normalPatterns.map(pattern: Record<string, unknown>, (index: number ) => ({
     id: `pattern-${index}`,
     data: pattern,
   }));
 
   const matches = await engine.search(recentData, templates, threshold);
-  const sorted = matches.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.correlation - a.correlation);
+  const sorted = matches.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.correlation - a.correlation);
 
   return {
     isAnomaly: sorted.length === 0,

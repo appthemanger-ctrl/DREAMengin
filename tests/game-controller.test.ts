@@ -27,7 +27,7 @@ import {
 
 const REPO_ROOT = process.cwd();
 
-// --- Left stick math --------------------------------------------------------
+// ─── Left stick math ────────────────────────────────────────────────────────
 
 describe('gameControllerLeft – stick vector math', () => {
   it('returns zero vector when at origin', () => {
@@ -63,7 +63,7 @@ describe('gameControllerLeft – stick vector math', () => {
   });
 });
 
-// --- Right stick tap/aim -----------------------------------------------------
+// ─── Right stick tap/aim ─────────────────────────────────────────────────────
 
 describe('gameControllerRight – tap detection', () => {
   it('classifies a short, low-movement touch as a tap', () => {
@@ -102,7 +102,7 @@ describe('gameControllerRight – aim delta', () => {
   });
 });
 
-// --- Button interaction manager ----------------------------------------------
+// ─── Button interaction manager ──────────────────────────────────────────────
 
 describe('ButtonInteractionManager – tap', () => {
   it('emits hold-start then tap then release for a short press', () => {
@@ -243,7 +243,7 @@ describe('ButtonInteractionManager – button definitions', () => {
   });
 });
 
-// --- Integration — source-level checks ---------------------------------------
+// ─── Integration — source-level checks ───────────────────────────────────────
 
 describe('GameController integration', () => {
   it('GameHUD routes the controller mode to GameController', () => {

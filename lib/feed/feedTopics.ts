@@ -58,7 +58,7 @@ export const DEFAULT_TOPIC_IDS: string[] = [
 export const FEED_TOPICS_KEY = 'de-feed-topics';
 
 /** Load active topic ids from localStorage (falls back to defaults). */
-export function loadActiveTopicIds(: string[]) {
+export function loadActiveTopicIds(): string[] {
   if (typeof window === 'undefined') return DEFAULT_TOPIC_IDS;
   try {
     const raw = localStorage.getItem(FEED_TOPICS_KEY);
@@ -71,7 +71,7 @@ export function loadActiveTopicIds(: string[]) {
 }
 
 /** Resolve active topic ids → query strings for YouTube API. */
-export function topicIdsToQueries(ids: string[]: string[]) {
+export function topicIdsToQueries(ids: string[]): string[] {
   const idSet = new Set(ids);
   return ALL_TOPICS
     .filter((t: Record<string, unknown>) => idSet.has(t.id))

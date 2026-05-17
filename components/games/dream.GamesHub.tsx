@@ -28,11 +28,11 @@ const Loading = () => (
   </div>
 );
 
-// -- Dynamically imported games (ssr:false — all use canvas / browser APIs) --
+// ── Dynamically imported games (ssr:false — all use canvas / browser APIs) ──
 const BabylonSideScroller = dynamicImport(() => import('@/components/games/dream.BabylonSideScroller'), { ssr: false, loading: Loading });
 const NeonDrift           = dynamicImport(() => import('@/components/games/dream.NeonDrift'),           { ssr: false, loading: Loading });
 const EchoArena           = dynamicImport(() => import('@/components/games/dream.EchoArena'),           { ssr: false, loading: Loading });
-// -- Fusion cartridges — replace 25 source games -----------------------------
+// ── Fusion cartridges — replace 25 source games ─────────────────────────────
 const NullCathedral       = dynamicImport(() => import('@/components/games/dream.NullCathedral'),       { ssr: false, loading: Loading });
 const VoidlineGP          = dynamicImport(() => import('@/components/games/dream.VoidlineGP'),          { ssr: false, loading: Loading });
 const SerpentSiege        = dynamicImport(() => import('@/components/games/dream.SerpentSiege'),        { ssr: false, loading: Loading });
@@ -77,7 +77,7 @@ const ENGINE_CAPABILITY_CHIPS = [
   'Powered by DREAMengin',
 ] as const;
 
-// -- Tilt-enabled game card ----------------------------------------------------
+// ── Tilt-enabled game card ────────────────────────────────────────────────────
 // Extracted as a proper component so `useMotionTilt` (a hook) can be called
 // once per card — hooks cannot be called inside a .map() callback.
 
@@ -89,7 +89,7 @@ interface TiltGameCardProps {
   onPlayAsMe: (id: string) => void;
 }
 
-function TiltGameCard() { game, isSaved: Record<string, unknown>, onPlay: Record<string, unknown>, hasAvatar: Record<string, unknown>, onPlayAsMe }: TiltGameCardProps {
+function TiltGameCard({ game, isSaved: Record<string, unknown>, onPlay: Record<string, unknown>, hasAvatar: Record<string, unknown>, onPlayAsMe }: TiltGameCardProps) {
   const { motionProps, glareStyle } = useMotionTilt({ maxTilt: 8, scale: 1.04, glare: true });
 
   const cardContent = (
@@ -232,7 +232,7 @@ function TiltGameCard() { game, isSaved: Record<string, unknown>, onPlay: Record
   );
 }
 
-export default function GamesHub() {
+export default function GamesHub( ){
   const [savedSessions, setSavedSessions] = useState<SavedGameSession[]>([]);
   const [filter, setFilter] = useState<string>('All');
   const [query, setQuery] = useState('');
@@ -248,7 +248,7 @@ export default function GamesHub() {
   const featuredRef = useGsapScrollReveal<HTMLDivElement>({ direction: 'up', stagger: 0.07, duration: 0.42 });
   const categoryRef = useGsapScrollReveal<HTMLDivElement>({ direction: 'left', stagger: 0.03, duration: 0.3, threshold: 0.05 });
 
-  const categories = ['All', ...Array.from(new Set(GAMES.map(g => g.category))).sort()];
+  const categories = ['All', ...Array.from(new Set(GAMES.map((g) => g.category))).sort()];
   const normalizedQuery = query.trim().toLowerCase();
   const filteredByCategory = filter === 'All' ? GAMES : GAMES.filter((game: Record<string, unknown>) => game.category === filter);
   const filtered = normalizedQuery
@@ -341,7 +341,7 @@ export default function GamesHub() {
     };
   }, []);
 
-  // -- Library — pick a game and play ----------------------------------------
+  // ── Library — pick a game and play ────────────────────────────────────────
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div
@@ -555,7 +555,7 @@ export default function GamesHub() {
 
       {/* Category filter pills — GSAP scroll-reveal on first viewport entry */}
       <div ref={categoryRef} style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-        {categories.map(cat => (
+        {categories.map((cat) => (
           <button
             key={cat}
             type="button"
@@ -576,7 +576,7 @@ export default function GamesHub() {
       {/* Game card grid — AnimatePresence for smooth filter transitions + 3-D tilt cards */}
       <div ref={gridRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
         <AnimatePresence mode="popLayout">
-          {filtered.map(game => {
+          {filtered.map((game) => {
             const isSaved = savedSessions.some((s: Record<string, unknown>) => s.gameId === game.id);
             return (
               <TiltGameCard

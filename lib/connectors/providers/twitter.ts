@@ -32,7 +32,7 @@ export interface TwitterCredentials {
  * Verify by checking that the Nitter RSS feed URL is reachable.
  * The account MUST be public — protected accounts return a 404 or redirect.
  */
-export async function twitterVerify(creds: TwitterCredentials: Promise<string>) {
+export async function twitterVerify(creds: TwitterCredentials): Promise<string> {
   const username = creds.username.replace(/^@/, '').trim();
   if (!username) throw new Error('Twitter/X username is required.');
 
@@ -73,7 +73,7 @@ export async function twitterVerify(creds: TwitterCredentials: Promise<string>) 
 /**
  * Fetch and normalise the public Twitter/X profile feed via Nitter RSS.
  */
-export async function twitterSync(creds: TwitterCredentials: Promise<UnifiedFeedItem[]>) {
+export async function twitterSync(creds: TwitterCredentials): Promise<UnifiedFeedItem[]> {
   const username = creds.username.replace(/^@/, '').trim();
   const instance = (creds.nitter_instance || DEFAULT_NITTER_INSTANCE).trim();
   const url = twitterNitterRssUrl(instance, username);
@@ -81,7 +81,7 @@ export async function twitterSync(creds: TwitterCredentials: Promise<UnifiedFeed
   return items.map((item: Record<string, unknown>) => normaliseTwitter(item.raw as Parameters<typeof normaliseTwitter>[0], username));
 }
 
-export function twitterCredentialFields() {
+export function twitterCredentialFields( ){
   return [
     {
       key: 'username',

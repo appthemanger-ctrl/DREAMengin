@@ -13,7 +13,7 @@
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
 
-// -- PrivacyEventSchema contract -----------------------------------------------
+// ── PrivacyEventSchema contract ───────────────────────────────────────────────
 // We re-define the schema locally to test its contract without importing
 // the route handler (which has Next.js dependencies).
 
@@ -31,7 +31,7 @@ const PrivacyEventSchema = z.object({
   update_mapping: z.boolean().optional().default(false),
 });
 
-// -- Privacy event schema validation ------------------------------------------
+// ── Privacy event schema validation ──────────────────────────────────────────
 
 describe('BoogieMan PrivacyEventSchema', () => {
   it('accepts a valid VISIBILITY_CHANGE event', () => {
@@ -120,7 +120,7 @@ describe('BoogieMan PrivacyEventSchema', () => {
   });
 });
 
-// -- Privacy exposure policy guard (Phase 6 spec point 8) ---------------------
+// ── Privacy exposure policy guard (Phase 6 spec point 8) ─────────────────────
 
 describe('Privacy exposure policy guard', () => {
   /**
@@ -156,7 +156,7 @@ describe('Privacy exposure policy guard', () => {
   });
 });
 
-// -- IDARi admin-only guard contract ------------------------------------------
+// ── IDARi admin-only guard contract ──────────────────────────────────────────
 
 describe('IDARi admin gate', () => {
   type ActorRole = 'admin' | 'owner';
@@ -200,7 +200,7 @@ describe('IDARi admin gate', () => {
   });
 });
 
-// -- visibility_mappings default (Privacy by Design) --------------------------
+// ── visibility_mappings default (Privacy by Design) ──────────────────────────
 
 describe('visibility_mappings privacy defaults', () => {
   it('new records default to private (nothing public by default)', () => {

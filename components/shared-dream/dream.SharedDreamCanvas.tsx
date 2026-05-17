@@ -16,7 +16,7 @@
 import React, { useCallback } from 'react';
 import { useSharedDream } from './dream.SharedDreamProvider';
 
-// --- Types --------------------------------------------------------------------
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface SharedDreamCanvasProps {
   componentId:    string;
@@ -25,9 +25,9 @@ export interface SharedDreamCanvasProps {
   className?:     string;
 }
 
-// --- Component ----------------------------------------------------------------
+// ─── Component ────────────────────────────────────────────────────────────────
 
-export function SharedDreamCanvas() {
+export function SharedDreamCanvas(){
   componentId,
   children,
   sharedContent,
@@ -48,7 +48,7 @@ export function SharedDreamCanvas() {
       data-component-id={componentId}
       className={`flex flex-col w-full h-full overflow-hidden rounded-xl border border-white/10 ${className}`}
     >
-      {/* -- Shared view (top) ----------------------------------------------- */}
+      {/* ── Shared view (top) ─────────────────────────────────────────────── */}
       <div
         className="relative flex-1 min-h-0 bg-black/40 border-b border-white/10 overflow-hidden"
         onPointerMove={handlePointerMove}
@@ -96,7 +96,7 @@ export function SharedDreamCanvas() {
         ))}
       </div>
 
-      {/* -- Private controls (bottom) --------------------------------------- */}
+      {/* ── Private controls (bottom) ─────────────────────────────────────── */}
       <div className="relative flex-shrink-0 min-h-[80px] bg-black/60 overflow-auto">
         <div className="absolute right-2 top-1 text-[9px] text-white/20 font-mono pointer-events-none select-none">
           private

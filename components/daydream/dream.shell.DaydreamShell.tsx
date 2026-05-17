@@ -52,7 +52,7 @@ type Props = {
   sideBVariant?: 'widgets' | 'game-remote';
 };
 
-export default function DaydreamShell() { title, enginName: Record<string, unknown>, accentColor: Record<string, unknown>, widgets: Record<string, unknown>, children: Record<string, unknown>, daydreamType: Record<string, unknown>, sideBComponent: Record<string, unknown>, sideBVariant = 'widgets' }: Props {
+export default function DaydreamShell({ title, enginName: Record<string, unknown>, accentColor: Record<string, unknown>, widgets: Record<string, unknown>, children: Record<string, unknown>, daydreamType: Record<string, unknown>, sideBComponent: Record<string, unknown>, sideBVariant = 'widgets' }: Props) {
   const [side, setSide] = useState<'A' | 'B'>('A');
   const searchParams = useSearchParams();
 
@@ -70,7 +70,7 @@ export default function DaydreamShell() { title, enginName: Record<string, unkno
   const { record: recordForge } = useForgeActivity({ enginId: resolvedEnginId });
 
   const flip = useCallback(() => {
-    gsapFlip(() => setSide(s => {
+    gsapFlip(() => setSide((s) => {
       const next = s === 'A' ? 'B' : 'A';
       // Record forge pulse on Side B (Engin) activation
       if (next === 'B') recordForge(`Activated ${enginName}`);
@@ -103,7 +103,7 @@ export default function DaydreamShell() { title, enginName: Record<string, unkno
    
   }, []);
 
-  // -- Journey Trail — surface_first_entry instrumentation ------------------
+  // ── Journey Trail — surface_first_entry instrumentation ──────────────────
   // Fires once the first time this surface is ever visited by the user.
   // Deduplicated by kind + surface together so each surface produces exactly one dot.
   useEffect(() => {
@@ -141,7 +141,7 @@ export default function DaydreamShell() { title, enginName: Record<string, unkno
         }
       </div>
 
-      {/* -- Side A only: corner fold tab → opens Side B (Engin) -- */}
+      {/* ── Side A only: corner fold tab → opens Side B (Engin) ── */}
       {side === 'A' && (
         <>
           <motion.button
@@ -193,7 +193,7 @@ export default function DaydreamShell() { title, enginName: Record<string, unkno
             ENGIN →
           </div>
 
-          {/* -- Mobile: prominent bottom-center ENGIN pill button -- */}
+          {/* ── Mobile: prominent bottom-center ENGIN pill button ── */}
           <motion.button
             type="button"
             onClick={flip}
@@ -235,8 +235,8 @@ export default function DaydreamShell() { title, enginName: Record<string, unkno
   );
 }
 
-/* -- Engin Surface — Side B -- */
-function EnginSurface() { enginName, title, accentColor, widgets, onBack }: {
+/* ── Engin Surface — Side B ── */
+function EnginSurface({ enginName, title, accentColor, widgets, onBack }: ) {
   enginName: string;
   title: string;
   accentColor: string;
@@ -340,15 +340,15 @@ function EnginSurface() { enginName, title, accentColor, widgets, onBack }: {
 
         {/* Marble widget grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginTop: 20 }}>
-          {widgets.map(w => <MarbleWidget key={w.id} w={w} />)}
+          {widgets.map((w) => <MarbleWidget key={w.id} w={w} />)}
         </div>
       </div>
     </div>
   );
 }
 
-/* -- Engin Pill Dual-Button Controls (spec §7.1 / §14.3) -- */
-function EnginPillControls() { enginName, accentColor, onBack }: {
+/* ── Engin Pill Dual-Button Controls (spec §7.1 / §14.3) ── */
+function EnginPillControls({ enginName, accentColor, onBack }: ) {
   enginName: string;
   accentColor: string;
   onBack: () => void;
@@ -412,8 +412,8 @@ function EnginPillControls() { enginName, accentColor, onBack }: {
   );
 }
 
-/* -- Single marble bubble widget -- */
-function MarbleWidget() { w }: { w: DaydreamWidget } {
+/* ── Single marble bubble widget ── */
+function MarbleWidget({ w }: ) { w: DaydreamWidget } {
   const tile = (
     <div
       className="premium-shimmer"

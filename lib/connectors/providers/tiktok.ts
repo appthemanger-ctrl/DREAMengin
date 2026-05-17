@@ -32,7 +32,7 @@ export interface TikTokCredentials {
 /**
  * Verify by checking the RSSHub TikTok URL is reachable.
  */
-export async function tiktokVerify(creds: TikTokCredentials: Promise<string>) {
+export async function tiktokVerify(creds: TikTokCredentials): Promise<string> {
   const username = (creds.username ?? '').replace(/^@/, '').trim();
   if (!username) throw new Error('TikTok username is required.');
 
@@ -67,7 +67,7 @@ export async function tiktokVerify(creds: TikTokCredentials: Promise<string>) {
 /**
  * Fetch and normalise a public TikTok profile feed via RSSHub.
  */
-export async function tiktokSync(creds: TikTokCredentials: Promise<UnifiedFeedItem[]>) {
+export async function tiktokSync(creds: TikTokCredentials): Promise<UnifiedFeedItem[]> {
   const username = (creds.username ?? '').replace(/^@/, '').trim();
   const rsshubBase = (creds.rsshub_instance || 'https://rsshub.app').trim();
   const url = tiktokProfileRssUrl(username, rsshubBase);
@@ -75,7 +75,7 @@ export async function tiktokSync(creds: TikTokCredentials: Promise<UnifiedFeedIt
   return items.map((item: Record<string, unknown>) => normaliseTikTok(item.raw as Parameters<typeof normaliseTikTok>[0], username));
 }
 
-export function tiktokCredentialFields() {
+export function tiktokCredentialFields( ){
   return [
     {
       key: 'username',

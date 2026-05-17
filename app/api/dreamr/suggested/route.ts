@@ -35,7 +35,7 @@ import {
   loadVisibilityCircle,
 } from '@/lib/dreamr/closeFriendsVisibility';
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
 
   const db = supabase as SupabaseClient;
 
-  // -- Who does the user already follow? ------------------------------------
+  // ── Who does the user already follow? ────────────────────────────────────
   const { data: follows } = await supabase
     .from('follows')
     .select('following_id')
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
   const excludeIds = [...followedIds, user.id];
   const circle = await loadVisibilityCircle(user.id);
 
-  // -- Suggested CONTENT -----------------------------------------------------
+  // ── Suggested CONTENT ─────────────────────────────────────────────────────
   if (type === 'content') {
     // NOTE: DB column is `view_count` (singular); algorithm field is `views_count`.
     const { data: rows } = await db
@@ -93,7 +93,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ suggestions: ranked }, { headers: { 'Cache-Control': 'no-store' } });
   }
 
-  // -- Suggested CREATORS ----------------------------------------------------
+  // ── Suggested CREATORS ────────────────────────────────────────────────────
   if (type === 'creators') {
     // Pull a wider pool of recent public posts so we can score the body of
     // each creator's recent work, not just count them. We need content +
@@ -183,7 +183,7 @@ export async function GET(req: NextRequest) {
     //   activityBoost = sqrt(min(post_count, 10)) / sqrt(10)  — modest
     // Quality dominates; recency and activity are tie-breakers.
     const ranked = [...creatorMap.values()]
-      .map(c => {
+      .map((c) => {
         const ageHours = (Date.now() - new Date(c.latest_post_at).getTime()) / 3_600_000;
         const recencyBoost  = 1 / (1 + ageHours / 72);
         const activityBoost = Math.sqrt(Math.min(c.post_count, 10)) / Math.sqrt(10);
@@ -204,7 +204,7 @@ export async function GET(req: NextRequest) {
           dreamr_reason:    c.best_reason,
         };
       })
-      .sort(a: Record<string, unknown>, b: Record<string, unknown> => b.creator_score - a.creator_score)
+      .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.creator_score - a.creator_score)
       .slice(0, limit);
 
     return NextResponse.json({ suggestions: ranked }, { headers: { 'Cache-Control': 'no-store' } });

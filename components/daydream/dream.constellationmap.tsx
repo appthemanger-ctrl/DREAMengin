@@ -15,7 +15,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-// -- Node definitions ---------------------------------------------------------
+// ── Node definitions ─────────────────────────────────────────────────────────
 const NODES = [
   { id: 'music',     emoji: '🎵', label: 'Music',     href: '/daydream/music',     r: 200, g:  88, b: 212, cx: 0.20, cy: 0.32 },
   { id: 'games',     emoji: '🎮', label: 'Games',     href: '/daydream/games',     r:  34, g: 197, b:  94, cx: 0.50, cy: 0.15 },
@@ -29,7 +29,7 @@ const NODES = [
 
 type NodeId = typeof NODES[number]['id'];
 
-// -- Edges (fully-connected constellation through analytics hub) --------------
+// ── Edges (fully-connected constellation through analytics hub) ──────────────
 const EDGES: [NodeId, NodeId][] = [
   ['analytics', 'music'],
   ['analytics', 'games'],
@@ -48,13 +48,13 @@ const EDGES: [NodeId, NodeId][] = [
   ['forge',  'games'],
 ];
 
-// -- Ambient particle layer ----------------------------------------------------
+// ── Ambient particle layer ────────────────────────────────────────────────────
 interface Mote { x: number; y: number; vx: number; vy: number; r: number; g: number; b: number; a: number; life: number; }
 
-// -- Static star layer ---------------------------------------------------------
+// ── Static star layer ─────────────────────────────────────────────────────────
 interface Star { x: number; y: number; sz: number; a: number; tw: number; }
 
-function makeMote(w: number, h: number: Mote) {
+function makeMote(w: number, h: number): Mote {
   const col = NODES[Math.floor(Math.random() * NODES.length)];
   return {
     x: Math.random() * w, y: Math.random() * h,
@@ -65,8 +65,8 @@ function makeMote(w: number, h: number: Mote) {
   };
 }
 
-// -- Component ----------------------------------------------------------------
-export default function DreamConstellationMap() {
+// ── Component ────────────────────────────────────────────────────────────────
+export default function DreamConstellationMap( ){
   const canvasRef  = useRef<HTMLCanvasElement>(null);
   const stateRef   = useRef<{ raf: number; t: number; last: number; hovered: NodeId | null; motes: Mote[]; stars: Star[]; ringPhases: number[] } | null>(null);
   const [hovered, setHovered] = useState<NodeId | null>(null);
@@ -111,10 +111,10 @@ export default function DreamConstellationMap() {
         a:  Math.random() * 0.45 + 0.15,
         tw: Math.random() * Math.PI * 2,
       })),
-      ringPhases: Array.from({ length: NODES.length }, _: Record<string, unknown>, i: number => i * (5.5 / NODES.length)),
+      ringPhases: Array.from({ length: NODES.length }, _: Record<string, unknown>, (i: number ) => i * (5.5 / NODES.length)),
     };
 
-    function render(ts: number) {
+    function render(ts: number ){
       const s = stateRef.current!;
       const dt = Math.min((ts - s.last) / 1000, 0.05);
       s.last = ts;
@@ -128,7 +128,7 @@ export default function DreamConstellationMap() {
       ctx.scale(dpr, dpr);
       ctx.clearRect(0, 0, W, H);
 
-      // -- Background gradient ----------------------------------------------
+      // ── Background gradient ──────────────────────────────────────────────
       const bg = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.8);
       bg.addColorStop(0,   'rgba(8,16,38,0.96)');
       bg.addColorStop(0.5, 'rgba(5,12,28,0.98)');
@@ -136,7 +136,7 @@ export default function DreamConstellationMap() {
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, H);
 
-      // -- Static starfield -------------------------------------------------
+      // ── Static starfield ─────────────────────────────────────────────────
       for (const st of s.stars) {
         const twinkle = 0.65 + 0.35 * Math.sin(s.t * 1.5 + st.tw);
         ctx.beginPath();
@@ -145,7 +145,7 @@ export default function DreamConstellationMap() {
         ctx.fill();
       }
 
-      // -- Ambient motes ----------------------------------------------------
+      // ── Ambient motes ────────────────────────────────────────────────────
       for (const m of s.motes) {
         m.x += m.vx * dt;
         m.y += m.vy * dt;
@@ -159,7 +159,7 @@ export default function DreamConstellationMap() {
         ctx.fill();
       }
 
-      // -- Edges ------------------------------------------------------------
+      // ── Edges ────────────────────────────────────────────────────────────
       for (const [aid, bid] of EDGES) {
         const a  = NODES.find((n: Record<string, unknown>) => n.id === aid)!;
         const b  = NODES.find((n: Record<string, unknown>) => n.id === bid)!;
@@ -200,7 +200,7 @@ export default function DreamConstellationMap() {
         }
       }
 
-      // -- Nodes ------------------------------------------------------------
+      // ── Nodes ────────────────────────────────────────────────────────────
       for (let ni = 0; ni < NODES.length; ni++) {
         const n = NODES[ni];
         const { x, y } = getNodePos(n, W, H);
@@ -208,7 +208,7 @@ export default function DreamConstellationMap() {
         const breathe  = 1 + 0.15 * Math.sin(s.t * 1.2 + n.cx * 7);
         const size     = (isHot ? 42 : 34) * breathe;
 
-        // -- Ring pulse — staggered per node -------------------------------
+        // ── Ring pulse — staggered per node ───────────────────────────────
         const ringProgress = (s.t * 0.26 + s.ringPhases[ni]) % 1;
         const ringR        = ringProgress * size * 5.8;
         const ringAlpha    = (1 - ringProgress) * (isHot ? 0.72 : 0.42);
@@ -220,7 +220,7 @@ export default function DreamConstellationMap() {
           ctx.stroke();
         }
 
-        // -- Glow halo — boosted saturation / contrast ---------------------
+        // ── Glow halo — boosted saturation / contrast ─────────────────────
         const halo = ctx.createRadialGradient(x, y, 0, x, y, size * 4.2);
         halo.addColorStop(0,    `rgba(${n.r},${n.g},${n.b},${isHot ? 0.72 : 0.42})`);
         halo.addColorStop(0.35, `rgba(${n.r},${n.g},${n.b},${isHot ? 0.30 : 0.15})`);

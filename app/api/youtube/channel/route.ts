@@ -27,7 +27,7 @@ export interface YouTubeChannelResponse {
   error?: string;
 }
 
-export async function GET(req: NextRequest: Promise<NextResponse<YouTubeChannelResponse>>) {
+export async function GET(req: NextRequest): Promise<NextResponse<YouTubeChannelResponse>> {
   const apiKey = getYouTubeApiKey();
   if (!apiKey) {
     // Optional integration not configured — graceful degradation, not an outage.
@@ -59,8 +59,8 @@ export async function GET(req: NextRequest: Promise<NextResponse<YouTubeChannelR
     ]);
 
     // Deduplicate similarVideos against channelVideos
-    const channelIds = new Set(channelVideos.map(v => v.external_id));
-    const uniqueSimilar = similarVideos.filter(v => !channelIds.has(v.external_id));
+    const channelIds = new Set(channelVideos.map((v) => v.external_id));
+    const uniqueSimilar = similarVideos.filter((v) => !channelIds.has(v.external_id));
 
     return NextResponse.json(
       { ok: true, channelVideos, similarVideos: uniqueSimilar, channel, topic },

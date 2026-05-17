@@ -13,7 +13,7 @@ interface HomeControlsProps {
 
 const BTN = 48;
 
-export default function HomeControls() { onBothMenus }: HomeControlsProps {
+export default function HomeControls({ onBothMenus }: HomeControlsProps) {
   const handleTap = () => {
     onBothMenus();
   };

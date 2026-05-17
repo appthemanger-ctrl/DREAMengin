@@ -13,7 +13,7 @@
 /**
  * slog(x) = Math.sign(x) * Math.log1p(Math.abs(x))
  */
-export function slog(x: number: number) {
+export function slog(x: number): number {
   return Math.sign(x) * Math.log1p(Math.abs(x));
 }
 
@@ -21,35 +21,35 @@ export function slog(x: number: number) {
  * Inverse of slog.
  * slogInv(y) = Math.sign(y) * (Math.exp(Math.abs(y)) - 1)
  */
-export function slogInv(y: number: number) {
+export function slogInv(y: number): number {
   return Math.sign(y) * (Math.exp(Math.abs(y)) - 1);
 }
 
 /**
  * Apply slog element-wise to an array.
  */
-export function slogArray(xs: number[]: number[]) {
+export function slogArray(xs: number[]): number[] {
   return xs.map(slog);
 }
 
 /**
  * slog-transform a deviation series, then compute its mean.
  */
-export function slogMean(xs: number[]: number) {
+export function slogMean(xs: number[]): number {
   if (xs.length === 0) return 0;
   const transformed = slogArray(xs);
-  return transformed.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b, 0) / transformed.length;
+  return transformed.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / transformed.length;
 }
 
 /**
  * slog-transform a deviation series, then compute its variance.
  */
-export function slogVariance(xs: number[]: number) {
+export function slogVariance(xs: number[]): number {
   if (xs.length < 2) return 0;
   const transformed = slogArray(xs);
-  const mean = transformed.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b, 0) / transformed.length;
+  const mean = transformed.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / transformed.length;
   const squaredDiffs = transformed.map((v: Record<string, unknown>) => (v - mean) ** 2);
-  return squaredDiffs.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b, 0) / (transformed.length - 1);
+  return squaredDiffs.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / (transformed.length - 1);
 }
 
 /**
@@ -58,11 +58,11 @@ export function slogVariance(xs: number[]: number) {
  *
  * Returns a value in [0, log(n)].  Divide by log(n) for [0,1].
  */
-export function slogEntropy(xs: number[]: number) {
+export function slogEntropy(xs: number[]): number {
   if (xs.length === 0) return 0;
   const transformed = slogArray(xs).map(Math.abs);
-  const total = transformed.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b, 0);
+  const total = transformed.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0);
   if (total === 0) return 0;
   const probs = transformed.map((v: Record<string, unknown>) => v / total);
-  return -probs.reduce(acc: Record<string, unknown>, p: Record<string, unknown> => (p > 0 ? acc + p * Math.log(p) : acc), 0);
+  return -probs.reduce((acc: Record<string, unknown>, p: Record<string, unknown>) => (p > 0 ? acc + p * Math.log(p) : acc), 0);
 }

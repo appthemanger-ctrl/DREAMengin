@@ -144,11 +144,11 @@ const MIN_TAP_TARGET_PX = 44;
  * Analyse a PerceptionFrame and return quantified BehaviorSignals.
  * All calculations are deterministic so they can be unit-tested.
  */
-export function perceive(frame: PerceptionFrame: BehaviorSignals) {
+export function perceive(frame: PerceptionFrame): BehaviorSignals {
   const elements = frame.visible_elements;
   const total = elements.length;
 
-  // -- friction ----------------------------------------------------------------
+  // ── friction ────────────────────────────────────────────────────────────────
   // Elevated by: no CTAs, small tap-targets, missing labels.
   const ctaCount = elements.filter((e: Record<string, unknown>) => e.is_cta).length;
   const smallTargets = elements.filter(
@@ -163,21 +163,21 @@ export function perceive(frame: PerceptionFrame: BehaviorSignals) {
     total > 0 ? (smallTargets / total) * 0.3 : 0,
     total > 0 ? (unlabelledInteractive / total) * 0.3 : 0,
   ];
-  const friction = clamp01(frictionFactors.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b, 0));
+  const friction = clamp01(frictionFactors.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0));
 
-  // -- confusion ---------------------------------------------------------------
+  // ── confusion ───────────────────────────────────────────────────────────────
   // Elevated by: multiple competing CTAs (> 3), very high element density.
   const competingCtas = Math.max(0, ctaCount - 3);
   const densityFactor = total > 30 ? 0.3 : total > 15 ? 0.15 : 0;
   const confusion = clamp01(competingCtas * 0.1 + densityFactor);
 
-  // -- layout clarity ----------------------------------------------------------
+  // ── layout clarity ──────────────────────────────────────────────────────────
   // Inverse of confusion plus a bonus for labelled CTAs.
   const labelledCtas = elements.filter((e: Record<string, unknown>) => e.is_cta && e.label).length;
   const clarityBonus = ctaCount > 0 ? (labelledCtas / ctaCount) * 0.4 : 0;
   const layout_clarity = clamp01(1 - confusion + clarityBonus - friction * 0.3);
 
-  // -- trust signals -----------------------------------------------------------
+  // ── trust signals ───────────────────────────────────────────────────────────
   // Proxy: HTTPS in URL + presence of terms/privacy/security text in element labels.
   const httpsPresent = frame.url.startsWith('https://') ? 0.4 : 0;
   const trustKeywords = ['privacy', 'secure', 'verified', 'trusted', 'policy'];
@@ -186,7 +186,7 @@ export function perceive(frame: PerceptionFrame: BehaviorSignals) {
   ).length;
   const trust_signals = clamp01(httpsPresent + Math.min(trustHits * 0.15, 0.6));
 
-  // -- mobile reachability -----------------------------------------------------
+  // ── mobile reachability ─────────────────────────────────────────────────────
   // Simplistic model: if viewport width ≤ 480 (mobile), check whether CTAs
   // are in the bottom 40% of the viewport (thumb zone).  Without positional
   // data we use tap-target size as a proxy.
@@ -200,7 +200,7 @@ export function perceive(frame: PerceptionFrame: BehaviorSignals) {
       : 0.5
     : 1.0;
 
-  // -- broken / misleading heuristics -----------------------------------------
+  // ── broken / misleading heuristics ─────────────────────────────────────────
   const brokenKeywords = ['error', '404', '500', 'loading…', 'undefined'];
   const misleadingKeywords = ['free*', 'limited offer', 'act now', 'you must'];
   const ui_appears_broken = elements.some((e: Record<string, unknown>) =>
@@ -364,7 +364,7 @@ export function judgeStep(
     });
   };
 
-  // -- No primary CTA ----------------------------------------------------------
+  // ── No primary CTA ──────────────────────────────────────────────────────────
   const ctaCount = frame.visible_elements.filter((e: Record<string, unknown>) => e.is_cta).length;
   if (ctaCount === 0) {
     push(
@@ -377,7 +377,7 @@ export function judgeStep(
     );
   }
 
-  // -- Small tap targets -------------------------------------------------------
+  // ── Small tap targets ───────────────────────────────────────────────────────
   const smallTargets = frame.visible_elements.filter(
     (e) => e.tap_target_px !== null && e.tap_target_px < MIN_TAP_TARGET_PX,
   );
@@ -392,7 +392,7 @@ export function judgeStep(
     );
   }
 
-  // -- Unlabelled interactive elements ----------------------------------------
+  // ── Unlabelled interactive elements ────────────────────────────────────────
   const unlabelled = frame.visible_elements.filter(
     (e) =>
       (e.tag === 'button' || e.tag === 'a' || e.tag === 'input') &&
@@ -410,7 +410,7 @@ export function judgeStep(
     );
   }
 
-  // -- Low trust signals for trust-sensitive persona ---------------------------
+  // ── Low trust signals for trust-sensitive persona ───────────────────────────
   if (signals.trust_signals < persona.trust_threshold) {
     push(
       'Insufficient trust signals for this persona',
@@ -422,7 +422,7 @@ export function judgeStep(
     );
   }
 
-  // -- Mobile reachability -----------------------------------------------------
+  // ── Mobile reachability ─────────────────────────────────────────────────────
   if (frame.viewport.width <= 480 && signals.mobile_reachability < 0.6) {
     push(
       'Primary CTA not easily reachable on mobile',
@@ -434,7 +434,7 @@ export function judgeStep(
     );
   }
 
-  // -- Broken UI ---------------------------------------------------------------
+  // ── Broken UI ───────────────────────────────────────────────────────────────
   if (signals.ui_appears_broken) {
     push(
       'UI appears broken or contains unresolved error state',
@@ -446,7 +446,7 @@ export function judgeStep(
     );
   }
 
-  // -- Dark patterns -----------------------------------------------------------
+  // ── Dark patterns ───────────────────────────────────────────────────────────
   if (signals.ui_appears_misleading) {
     push(
       'Potentially misleading copy detected',
@@ -458,7 +458,7 @@ export function judgeStep(
     );
   }
 
-  // -- High confusion ----------------------------------------------------------
+  // ── High confusion ──────────────────────────────────────────────────────────
   if (signals.confusion > 0.5) {
     push(
       'Page presents too many competing calls-to-action',
@@ -470,7 +470,7 @@ export function judgeStep(
     );
   }
 
-  // -- Accessibility focus (accessibility-sensitive persona only) -------------
+  // ── Accessibility focus (accessibility-sensitive persona only) ─────────────
   if (persona.accessibility_priority) {
     const nonFocusable = frame.visible_elements.filter(
       (e) =>
@@ -509,7 +509,7 @@ export interface JourneyRunnerInput {
  * browser or mock).  The runner drives the agent through each frame in order,
  * stops early on `abandon`, and returns the full SimJourneyResult.
  */
-export function runJourney(input: JourneyRunnerInput: SimJourneyResult) {
+export function runJourney(input: JourneyRunnerInput): SimJourneyResult {
   const { frames, persona_type } = input;
   const journey_id = input.journey_id ?? uuidv4();
   const persona = PERSONAS[persona_type];
@@ -540,10 +540,10 @@ export function runJourney(input: JourneyRunnerInput: SimJourneyResult) {
   const frictionValues = steps.map((s: Record<string, unknown>) => s.signals.friction);
   const confusionValues = steps.map((s: Record<string, unknown>) => s.signals.confusion);
   const avgFriction = frictionValues.length
-    ? frictionValues.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b, 0) / frictionValues.length
+    ? frictionValues.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / frictionValues.length
     : 0;
   const avgConfusion = confusionValues.length
-    ? confusionValues.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b, 0) / confusionValues.length
+    ? confusionValues.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / confusionValues.length
     : 0;
 
   const findingsBySeverity = countBySeverity(allFindings);
@@ -623,7 +623,7 @@ export function judgeJourney(
 // HELPERS
 // ============================================================================
 
-function clamp01(v: number: number) {
+function clamp01(v: number): number {
   return Math.max(0, Math.min(1, v));
 }
 

@@ -8,12 +8,12 @@ export interface UniversalEditorProps {
   onSaved?: (draftId: string) => void;
 }
 
-function titleFor(target: DreamDrop: string) {
+function titleFor(target: DreamDrop): string {
   const label = classifyDrop(target);
   return `${label} draft${target.filename ? ` · ${target.filename}` : ''}`;
 }
 
-function safeMediaSource(value: string: string | null) {
+function safeMediaSource(value: string): string | null {
   try {
     const url = new URL(value);
     if (url.protocol === 'https:') return url.toString();
@@ -26,7 +26,7 @@ function safeMediaSource(value: string: string | null) {
   }
 }
 
-export function UniversalEditor() { target, onSaved }: UniversalEditorProps {
+export function UniversalEditor({ target, onSaved }: UniversalEditorProps) {
   const [content, setContent] = useState(target.content);
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const mediaSrc = useMemo(() => safeMediaSource(content), [content]);
@@ -39,7 +39,7 @@ export function UniversalEditor() { target, onSaved }: UniversalEditorProps {
     }
   }, [content, target.type]);
 
-  async function saveDraft() {
+  async function saveDraft( ){
     setStatus('saving');
     try {
       const res = await fetch('/api/drafts', {

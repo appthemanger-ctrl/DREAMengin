@@ -13,7 +13,7 @@ export interface DreamLedger {
   syncClock: number;
 }
 
-export function createLedger(: DreamLedger) {
+export function createLedger(): DreamLedger {
   return { entries: [], syncClock: 0 };
 }
 

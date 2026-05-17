@@ -28,9 +28,9 @@ import { ENGIN_REGISTRY } from '@/lib/forge/forgeRegistry';
 import type { ForgeLogEvent } from '@/lib/forge/forgeBuild';
 import { createClient } from '@supabase/supabase-js';
 
-// -- Persistent rate-limit via Supabase (falls back to in-memory for local dev)
+// ── Persistent rate-limit via Supabase (falls back to in-memory for local dev)
 //    1 build per calendar day per IP/token.
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
@@ -80,7 +80,7 @@ async function checkAndRecordRateLimit(token: string): Promise<boolean> {
   return true;
 }
 
-// -- Helpers -------------------------------------------------------------------
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function safeJsonParse(text: string): Record<string, unknown> | null {
   try {
@@ -102,7 +102,7 @@ function encodeSSE(event: ForgeLogEvent): Uint8Array {
   return new TextEncoder().encode(`data: ${JSON.stringify(event)}\n\n`);
 }
 
-// -- Artifact meta helpers -----------------------------------------------------
+// ── Artifact meta helpers ─────────────────────────────────────────────────────
 
 interface ArtifactMeta {
   language: string;
@@ -165,7 +165,7 @@ function getArtifactMeta(enginId: string, prompt: string): ArtifactMeta {
   }
 }
 
-// -- Simulation content generators ---------------------------------------------
+// ── Simulation content generators ─────────────────────────────────────────────
 
 function getSimulatedArtifact(enginId: string, prompt: string): string {
   const shortPrompt = prompt.slice(0, 48);
@@ -239,7 +239,7 @@ export async function fetchWithRetry(
   throw new Error(\`fetchWithRetry: all \${retries} attempts failed for \${url}\`);
 }
 
-const sleep = (ms: number) => new Promise<void>(r => setTimeout(r, ms));`;
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));`;
     case 'lab':
       return `# ForgeEngin generated — ${shortPrompt}
 # LabEngin · Python
@@ -348,7 +348,7 @@ We're just getting started. Drop a comment, share your thoughts, and let's build
   }
 }
 
-// -- Simulation mode (no GROQ_API_KEY) ----------------------------------------
+// ── Simulation mode (no GROQ_API_KEY) ────────────────────────────────────────
 
 interface SimTask {
   enginId: string;
@@ -391,7 +391,7 @@ function buildSimulation(prompt: string): SimResult {
     primaryEnginId = 'create'; primaryHref = '/daydream/create';
   }
 
-  const enginEntry = ENGIN_REGISTRY.find(e => e.id === primaryEnginId);
+  const enginEntry = ENGIN_REGISTRY.find((e) => e.id === primaryEnginId);
   const enginName = enginEntry?.name ?? 'GameEngin';
   const meta = getArtifactMeta(primaryEnginId, prompt);
 
@@ -516,12 +516,12 @@ function buildSimulation(prompt: string): SimResult {
   };
 }
 
-// -- Real AI orchestration -----------------------------------------------------
+// ── Real AI orchestration ─────────────────────────────────────────────────────
 
 async function callEams(prompt: string): Promise<string> {
   const engineList = ENGIN_REGISTRY
-    .filter(e => e.id !== 'forge')
-    .map(e => `${e.id} (${e.name}): ${e.desc}`)
+    .filter((e) => e.id !== 'forge')
+    .map((e) => `${e.id} (${e.name}): ${e.desc}`)
     .join('\n');
 
   const system: GroqMessage = {
@@ -571,7 +571,7 @@ function getDefaultIdariResult(prompt: string): IdariCallResult {
   else if (lower.includes('brand') || lower.includes('design') || lower.includes('palette') || lower.includes('logo')) { enginId = 'brand'; href = '/daydream/brand'; }
   else if (lower.includes('lab') || lower.includes('data') || lower.includes('simulation') || lower.includes('experiment') || lower.includes('monte')) { enginId = 'lab'; href = '/daydream/lab'; }
   else if (lower.includes('content') || lower.includes('post') || lower.includes('publish') || lower.includes('draft')) { enginId = 'create'; href = '/daydream/create'; }
-  const name = ENGIN_REGISTRY.find(e => e.id === enginId)?.name ?? 'Engin';
+  const name = ENGIN_REGISTRY.find((e) => e.id === enginId)?.name ?? 'Engin';
   return {
     tasks: [
       { enginId, action: 'scaffold', detail: `Initialise ${name} workspace for "${prompt.slice(0, 40)}"` },
@@ -587,7 +587,7 @@ function getDefaultIdariResult(prompt: string): IdariCallResult {
 }
 
 async function callIdari(prompt: string, eamsPlan: string): Promise<IdariCallResult> {
-  const engineIds = ENGIN_REGISTRY.filter(e => e.id !== 'forge').map(e => e.id).join(', ');
+  const engineIds = ENGIN_REGISTRY.filter((e) => e.id !== 'forge').map((e) => e.id).join(', ');
 
   const system: GroqMessage = {
     role: 'system',
@@ -625,10 +625,10 @@ async function callIdari(prompt: string, eamsPlan: string): Promise<IdariCallRes
     if (!parsed) return defaultResult;
 
     const tasks = Array.isArray(parsed.tasks) ? (parsed.tasks as IdariTask[]).slice(0, 5) : defaultResult.tasks;
-    const validEnginIds = ENGIN_REGISTRY.map(e => e.id);
+    const validEnginIds = ENGIN_REGISTRY.map((e) => e.id);
     const primaryEnginId = (typeof parsed.primaryEnginId === 'string' && validEnginIds.includes(parsed.primaryEnginId))
       ? parsed.primaryEnginId : defaultResult.primaryEnginId;
-    const validHrefs = ENGIN_REGISTRY.filter(e => e.id !== 'forge').map(e => e.daydreamHref);
+    const validHrefs = ENGIN_REGISTRY.filter((e) => e.id !== 'forge').map((e) => e.daydreamHref);
     const primaryHref = (typeof parsed.primaryHref === 'string' && validHrefs.includes(parsed.primaryHref))
       ? parsed.primaryHref : defaultResult.primaryHref;
     const summary = typeof parsed.summary === 'string' ? parsed.summary : defaultResult.summary;
@@ -697,7 +697,7 @@ async function callGenerate(
   }
 }
 
-// -- Route handler -------------------------------------------------------------
+// ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
   // Validate body
@@ -746,36 +746,36 @@ export async function POST(req: NextRequest) {
 
       try {
         if (useSimulation) {
-          // -- Simulation mode ---------------------------------------------
+          // ── Simulation mode ─────────────────────────────────────────────
 
           send({ type: 'step', step: 'PHASE: Parsing your request...', ts: Date.now() });
-          await new Promise(r => setTimeout(r, 150));
+          await new Promise((r) => setTimeout(r, 150));
 
           const sim = buildSimulation(prompt);
-          const enginEntry = ENGIN_REGISTRY.find(e => e.id === sim.primaryEnginId);
+          const enginEntry = ENGIN_REGISTRY.find((e) => e.id === sim.primaryEnginId);
           const enginName = enginEntry?.name ?? 'Engin';
 
           // Dr. Eams round
           send({ type: 'step', step: 'PHASE: Dr. Eams is thinking creatively...', ts: Date.now() });
-          await new Promise(r => setTimeout(r, 200));
+          await new Promise((r) => setTimeout(r, 200));
           send({ type: 'agent', agent: 'Dr. Eams', message: sim.eamsThinking, ts: Date.now() });
-          await new Promise(r => setTimeout(r, 450));
+          await new Promise((r) => setTimeout(r, 450));
           send({ type: 'agent', agent: 'Dr. Eams', message: sim.eamsMessage, ts: Date.now() });
-          await new Promise(r => setTimeout(r, 250));
+          await new Promise((r) => setTimeout(r, 250));
 
           // IDARi round
           send({ type: 'step', step: 'PHASE: IDARi is architecting the solution...', ts: Date.now() });
-          await new Promise(r => setTimeout(r, 200));
+          await new Promise((r) => setTimeout(r, 200));
           send({ type: 'agent', agent: 'IDARi', message: '⚙️ Reviewing Dr. Eams\' plan — validating Engin compatibility and task breakdown...', ts: Date.now() });
-          await new Promise(r => setTimeout(r, 400));
+          await new Promise((r) => setTimeout(r, 400));
           send({ type: 'agent', agent: 'IDARi', message: sim.idariMessage, ts: Date.now() });
-          await new Promise(r => setTimeout(r, 250));
+          await new Promise((r) => setTimeout(r, 250));
 
           // BoogieMan round
           send({ type: 'step', step: 'PHASE: TheBoogieMan.Ai is checking policy...', ts: Date.now() });
-          await new Promise(r => setTimeout(r, 200));
+          await new Promise((r) => setTimeout(r, 200));
           send({ type: 'agent', agent: 'TheBoogieMan.Ai', message: '🔍 Running policy scan — checking content safety, privacy, platform guidelines...', ts: Date.now() });
-          await new Promise(r => setTimeout(r, 400));
+          await new Promise((r) => setTimeout(r, 400));
 
           if (!sim.boogieApproved) {
             send({ type: 'agent', agent: 'TheBoogieMan.Ai', message: `🚫 ${sim.boogieMessage}`, ts: Date.now() });
@@ -785,16 +785,16 @@ export async function POST(req: NextRequest) {
           }
 
           send({ type: 'agent', agent: 'TheBoogieMan.Ai', message: sim.boogieMessage, ts: Date.now() });
-          await new Promise(r => setTimeout(r, 200));
+          await new Promise((r) => setTimeout(r, 200));
 
           // Execution — tasks
           send({ type: 'step', step: 'PHASE: Generating artifact...', ts: Date.now() });
-          await new Promise(r => setTimeout(r, 150));
+          await new Promise((r) => setTimeout(r, 150));
 
           for (const task of sim.idariTasks) {
-            const enginLabel = ENGIN_REGISTRY.find(e => e.id === task.enginId)?.name ?? task.enginId.toUpperCase();
+            const enginLabel = ENGIN_REGISTRY.find((e) => e.id === task.enginId)?.name ?? task.enginId.toUpperCase();
             send({ type: 'step', step: `${enginLabel}: ${task.detail}`, ts: Date.now() });
-            await new Promise(r => setTimeout(r, 320));
+            await new Promise((r) => setTimeout(r, 320));
           }
 
           // Emit the actual code artifact
@@ -805,17 +805,17 @@ export async function POST(req: NextRequest) {
             content: sim.artifactContent,
             ts: Date.now(),
           });
-          await new Promise(r => setTimeout(r, 200));
+          await new Promise((r) => setTimeout(r, 200));
 
           // Emit real file event
           send({ type: 'file', path: sim.artifactFilename, action: 'created', ts: Date.now() });
-          await new Promise(r => setTimeout(r, 150));
+          await new Promise((r) => setTimeout(r, 150));
 
           // Staging phase
           send({ type: 'step', step: `PHASE: Staging to ${enginName}...`, ts: Date.now() });
-          await new Promise(r => setTimeout(r, 200));
+          await new Promise((r) => setTimeout(r, 200));
           send({ type: 'step', step: `✓ Staged artifact to ${enginName} — ready to launch`, ts: Date.now() });
-          await new Promise(r => setTimeout(r, 150));
+          await new Promise((r) => setTimeout(r, 150));
 
           send({
             type: 'result',
@@ -826,28 +826,28 @@ export async function POST(req: NextRequest) {
           });
 
           send({ type: 'step', step: 'PHASE: Build complete! 🎉', ts: Date.now() });
-          await new Promise(r => setTimeout(r, 100));
+          await new Promise((r) => setTimeout(r, 100));
           send({ type: 'done', ts: Date.now() });
 
         } else {
-          // -- Real AI orchestration (4 Groq rounds) -----------------------
+          // ── Real AI orchestration (4 Groq rounds) ───────────────────────
 
-          // - Round 1: Dr. Eams ---------------------------------------------
+          // ─ Round 1: Dr. Eams ─────────────────────────────────────────────
           send({ type: 'step', step: 'PHASE: Parsing your request...', ts: Date.now() });
-          await new Promise(r => setTimeout(r, 100));
+          await new Promise((r) => setTimeout(r, 100));
 
           send({ type: 'step', step: 'PHASE: Dr. Eams is thinking creatively...', ts: Date.now() });
           send({ type: 'agent', agent: 'Dr. Eams', message: '🧠 Analysing your prompt — mapping creative intent to Engin capabilities...', ts: Date.now() });
           const eamsPlan = await callEams(prompt);
           send({ type: 'agent', agent: 'Dr. Eams', message: eamsPlan, ts: Date.now() });
 
-          // - Round 2: IDARi -------------------------------------------------
+          // ─ Round 2: IDARi ─────────────────────────────────────────────────
           send({ type: 'step', step: 'PHASE: IDARi is architecting the solution...', ts: Date.now() });
           send({ type: 'agent', agent: 'IDARi', message: '⚙️ Reviewing Dr. Eams\' plan — validating Engin compatibility, task breakdown, and architecture constraints...', ts: Date.now() });
           const idariResult = await callIdari(prompt, eamsPlan);
           send({ type: 'agent', agent: 'IDARi', message: idariResult.idariMessage, ts: Date.now() });
 
-          // - Round 3: BoogieMan ---------------------------------------------
+          // ─ Round 3: BoogieMan ─────────────────────────────────────────────
           send({ type: 'step', step: 'PHASE: TheBoogieMan.Ai is checking policy...', ts: Date.now() });
           send({ type: 'agent', agent: 'TheBoogieMan.Ai', message: '🔍 Running policy and safety scan — checking content, privacy, platform guidelines...', ts: Date.now() });
           const boogieResult = await callBoogie(prompt);
@@ -860,17 +860,17 @@ export async function POST(req: NextRequest) {
           }
           send({ type: 'agent', agent: 'TheBoogieMan.Ai', message: `✅ ${boogieResult.message}`, ts: Date.now() });
 
-          // - Execution steps ------------------------------------------------
+          // ─ Execution steps ────────────────────────────────────────────────
           send({ type: 'step', step: 'PHASE: Generating artifact...', ts: Date.now() });
           for (const task of idariResult.tasks) {
-            const enginLabel = ENGIN_REGISTRY.find(e => e.id === task.enginId)?.name ?? task.enginId.toUpperCase();
+            const enginLabel = ENGIN_REGISTRY.find((e) => e.id === task.enginId)?.name ?? task.enginId.toUpperCase();
             send({ type: 'step', step: `${enginLabel}: ${task.detail}`, ts: Date.now() });
-            await new Promise(r => setTimeout(r, 120));
+            await new Promise((r) => setTimeout(r, 120));
           }
 
-          // - Round 4: GENERATE artifact -------------------------------------
+          // ─ Round 4: GENERATE artifact ─────────────────────────────────────
           const meta = getArtifactMeta(idariResult.primaryEnginId, prompt);
-          const generateTask = idariResult.tasks.find(t => t.action.includes('generate') || t.action.includes('Generate'))
+          const generateTask = idariResult.tasks.find((t) => t.action.includes('generate') || t.action.includes('Generate'))
             ?? idariResult.tasks[1]
             ?? idariResult.tasks[0];
 
@@ -890,16 +890,16 @@ export async function POST(req: NextRequest) {
             content: artifactContent,
             ts: Date.now(),
           });
-          await new Promise(r => setTimeout(r, 100));
+          await new Promise((r) => setTimeout(r, 100));
 
           // Emit real file event
           send({ type: 'file', path: meta.filename, action: 'created', ts: Date.now() });
 
           // Staging phase
-          const enginEntry = ENGIN_REGISTRY.find(e => e.id === idariResult.primaryEnginId);
+          const enginEntry = ENGIN_REGISTRY.find((e) => e.id === idariResult.primaryEnginId);
           const enginName = enginEntry?.name ?? 'Engin';
           send({ type: 'step', step: `PHASE: Staging to ${enginName}...`, ts: Date.now() });
-          await new Promise(r => setTimeout(r, 100));
+          await new Promise((r) => setTimeout(r, 100));
           send({ type: 'step', step: `✓ Staged artifact to ${enginName} — ready to launch`, ts: Date.now() });
 
           // Result + done

@@ -14,7 +14,7 @@ export interface EventBus {
   publish(e: EnginEvent): void;
 }
 
-export function createEventBus(: EventBus) {
+export function createEventBus(): EventBus {
   const listeners = new Map<string, Set<Handler>>();
 
   function subscribe(type: string, handler: Handler: () => void {
@@ -27,7 +27,7 @@ export function createEventBus(: EventBus) {
     };
   }
 
-  function publish(e: EnginEvent: void) {
+  function publish(e: EnginEvent): void {
     const handlers = listeners.get(e.type);
     if (handlers) {
       for (const handler of handlers) {

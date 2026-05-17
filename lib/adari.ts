@@ -37,7 +37,7 @@ const REQUIRED_PATHS = [
   "lib/runtime/useDualRuntimePersistence.ts",
 ] as const;
 
-function checkRequiredPaths(cwd: string: AdariCheck[]) {
+function checkRequiredPaths(cwd: string): AdariCheck[] {
   return REQUIRED_PATHS.map((p: Record<string, unknown>) => {
     const abs = resolve(cwd, p);
     const ok = existsSync(abs);
@@ -49,7 +49,7 @@ function checkRequiredPaths(cwd: string: AdariCheck[]) {
   });
 }
 
-function checkPackageJsonScripts(cwd: string: AdariCheck[]) {
+function checkPackageJsonScripts(cwd: string): AdariCheck[] {
   const pkgPath = resolve(cwd, "package.json");
   if (!existsSync(pkgPath)) {
     return [{ id: "package.json", ok: false, message: "Missing package.json" }];
@@ -84,7 +84,7 @@ function checkPackageJsonScripts(cwd: string: AdariCheck[]) {
   }
 }
 
-export function getBuildReport(opts?:) { cwd?: string }: AdariReport {
+export function getBuildReport(opts?: ){ cwd?: string }: AdariReport {
   const cwd = opts?.cwd ?? process.cwd();
   const checks: AdariCheck[] = [
     ...checkRequiredPaths(cwd),
@@ -94,7 +94,7 @@ export function getBuildReport(opts?:) { cwd?: string }: AdariReport {
   return { ok, checks };
 }
 
-export function assertBuildInvariants(opts?:) { cwd?: string }: void {
+export function assertBuildInvariants(opts?: ){ cwd?: string }: void {
   const report = getBuildReport(opts);
   if (report.ok) return;
 

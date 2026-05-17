@@ -5,7 +5,7 @@ import {
   type StoredSession,
 } from '@/lib/intelligence/sessionContinuity';
 
-// -- In-memory test backend ----------------------------------------------------
+// ── In-memory test backend ────────────────────────────────────────────────────
 // Injected via the constructor so tests run in any environment (node or jsdom)
 // without needing IndexedDB or localStorage at all.
 
@@ -17,7 +17,7 @@ function makeMemoryBackend(initial: StoredSession[] = []): SessionStorageBackend
   };
 }
 
-// -- Tests ---------------------------------------------------------------------
+// ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe('SessionContinuity', () => {
   let backend: SessionStorageBackend;

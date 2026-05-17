@@ -11,7 +11,7 @@
  * `GPUComputeSystem` is an alias for `ComputeShaderPipeline`.
  */
 
-// --- Classes -----------------------------------------------------------------
+// ─── Classes ─────────────────────────────────────────────────────────────────
 
 export {
   ComputeShaderPipeline,
@@ -22,7 +22,7 @@ export {
 /** Alias: GPUComputeSystem → ComputeShaderPipeline. */
 export { ComputeShaderPipeline as GPUComputeSystem } from '../power-systems';
 
-// --- Types -------------------------------------------------------------------
+// ─── Types ───────────────────────────────────────────────────────────────────
 
 export type {
   ComputeKernel,

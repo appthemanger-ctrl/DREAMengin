@@ -19,7 +19,7 @@ interface UploadedMedia {
   file: File;
 }
 
-export default function CreatePostModal() { onClose, userId }: CreatePostModalProps {
+export default function CreatePostModal({ onClose, userId }: CreatePostModalProps) {
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [visibility, setVisibility] = useState<'public' | 'followers' | 'private'>('followers');
@@ -45,7 +45,7 @@ export default function CreatePostModal() { onClose, userId }: CreatePostModalPr
       // Create preview URL
       const previewUrl = URL.createObjectURL(file);
       
-      setUploadedMedia(prev => [...prev, {
+      setUploadedMedia((prev) => [...prev, {
         type,
         url: previewUrl,
         file
@@ -57,7 +57,7 @@ export default function CreatePostModal() { onClose, userId }: CreatePostModalPr
   };
 
   const removeMedia = (index: number) => {
-    setUploadedMedia(prev => {
+    setUploadedMedia((prev) => {
       const newMedia = [...prev];
       URL.revokeObjectURL(newMedia[index].url);
       newMedia.splice(index, 1);
@@ -183,7 +183,7 @@ export default function CreatePostModal() { onClose, userId }: CreatePostModalPr
           {/* Media Preview */}
           {uploadedMedia.length > 0 && (
             <div className="grid grid-cols-2 gap-2">
-              {uploadedMedia.map(media: Record<string, unknown>, index: number => (
+              {uploadedMedia.map(media: Record<string, unknown>, (index: number ) => (
                 <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800">
                   {media.type === 'image' && (
                     <Image src={media.url} alt="Upload preview" fill unoptimized className="object-cover" />

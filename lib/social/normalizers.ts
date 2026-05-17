@@ -24,7 +24,7 @@ export interface NormalizedPost {
   visibility: 'public' | 'private' | 'close_friends';
 }
 
-// -- Mastodon ------------------------------------------------------------------
+// ── Mastodon ──────────────────────────────────────────────────────────────────
 
 export interface MastodonStatus {
   id: string;
@@ -40,7 +40,7 @@ export interface MastodonStatus {
   media_attachments: Array<{ url: string; type: string }>;
 }
 
-export function normalizeMastodonPost(status: MastodonStatus: NormalizedPost) {
+export function normalizeMastodonPost(status: MastodonStatus): NormalizedPost {
   const firstMedia = status.media_attachments[0];
   const strippedContent = status.content.replace(/<[^>]*>/g, '').trim();
   return {
@@ -60,7 +60,7 @@ export function normalizeMastodonPost(status: MastodonStatus: NormalizedPost) {
   };
 }
 
-// -- Nostr ---------------------------------------------------------------------
+// ── Nostr ─────────────────────────────────────────────────────────────────────
 
 export interface NostrEvent {
   id: string;
@@ -92,7 +92,7 @@ export function normalizeNostrEvent(
   };
 }
 
-// -- Bluesky -------------------------------------------------------------------
+// ── Bluesky ───────────────────────────────────────────────────────────────────
 
 export interface BlueskyPost {
   uri: string;
@@ -112,7 +112,7 @@ export interface BlueskyPost {
   };
 }
 
-export function normalizeBlueskyPost(post: BlueskyPost: NormalizedPost) {
+export function normalizeBlueskyPost(post: BlueskyPost): NormalizedPost {
   const img = post.record.embed?.images?.[0];
   return {
     id: `bluesky:${post.cid}`,

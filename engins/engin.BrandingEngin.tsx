@@ -47,7 +47,7 @@ interface ProfileData {
   follower_count: number;
 }
 
-// -- Brand Analytics ------------------------------------------------------------
+// ── Brand Analytics ────────────────────────────────────────────────────────────
 interface AnalyticMetric {
   id: string;
   label: string;
@@ -56,7 +56,7 @@ interface AnalyticMetric {
   icon: React.ReactNode;
 }
 
-// -- A/B Test -------------------------------------------------------------------
+// ── A/B Test ───────────────────────────────────────────────────────────────────
 interface ABTest {
   id: string;
   name: string;
@@ -79,31 +79,31 @@ const AIBrandKit          = 'brand-feature-2026'; // 2026: AI-powered brand kit 
 const MotionGraphics      = 'brand-feature-2026'; // 2026: Motion graphics support
 const Analytics2_0        = 'brand-feature-2026'; // 2026: Advanced analytics 2.0
 
-export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: Props {
+export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Props) {
   const brandBridge = useBrandingEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'brand' });
 
-  // -- OS Shell --
+  // ── OS Shell ──
   const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
   useEffect(() => {
     upgradeEngine({ id: 'brand', name: 'BrandingEngin' }, ['bridge', 'telemetry'])
-      .then(u => { osRef.current = u; });
+      .then((u) => { osRef.current = u; });
   }, []);
   const busRef = useRef(createEventBus());
 
-  // -- EnginRuntime kernel (brand rule-set) --
+  // ── EnginRuntime kernel (brand rule-set) ──
   const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useBrandEnginRuntime();
 
-  // -- Workflow (brand:campaign — default workflow) --
+  // ── Workflow (brand:campaign — default workflow) ──
   const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
   useEffect(() => { loadWorkflow('brand:campaign'); }, [loadWorkflow]);
 
-  // -- Shared Dream Analytics state --
+  // ── Shared Dream Analytics state ──
   const [sharedAnalyticsId] = useState(() => `brand-analytics-${Date.now()}`);
   const [sharedAnalyticsActive, setSharedAnalyticsActive] = useState(false);
   const sharedAnalytics = useSharedDream(sharedAnalyticsActive ? sharedAnalyticsId : '');
 
-  // -- Co-op channel ---------------------------------------------------------
+  // ── Co-op channel ─────────────────────────────────────────────────────────
   const [instanceId] = useState(
     () => instanceIdProp ?? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)),
   );
@@ -116,10 +116,10 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     onPeerState: (_evt) => { /* brand analytics are read-only; peer sync is view-only */ },
   });
 
-  // -- Daydream state persistence (Phase 8 §F Point 55) --
+  // ── Daydream state persistence (Phase 8 §F Point 55) ──
   const { persistState } = useDaydreamState({ daydreamType: 'brand', side: 'B' });
 
-  // -- Daydream DB persistence with restore (Phase 8 §F pts 49, 55) --
+  // ── Daydream DB persistence with restore (Phase 8 §F pts 49, 55) ──
   type BrandSavedState = { abTests?: ABTest[]; assets?: Array<{ id: string; name: string; type: 'logo' | 'color' | 'font'; value: string }> };
   const {
     savedState: savedBrandState,
@@ -129,11 +129,11 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
 
   const brandRestoredRef = useRef(false);
 
-  // -- Existing state ---------------------------------------------------------
+  // ── Existing state ─────────────────────────────────────────────────────────
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // -- Brand Analytics state --------------------------------------------------
+  // ── Brand Analytics state ──────────────────────────────────────────────────
   const [metrics, setMetrics] = useState<AnalyticMetric[]>([
     { id: 'reach',    label: 'Reach',            value: '—', trend: 'flat', icon: <Users className="w-4 h-4" /> },
     { id: 'eng',      label: 'Engagement Rate',  value: '—', trend: 'flat', icon: <TrendingUp className="w-4 h-4" /> },
@@ -141,24 +141,24 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     { id: 'growth',   label: 'Follower Growth',  value: '—', trend: 'flat', icon: <Megaphone className="w-4 h-4" /> },
   ]);
 
-  // -- Cross-Engin: GameEngin achievement campaign receiver --
+  // ── Cross-Engin: GameEngin achievement campaign receiver ──
   const [dismissedAchievement, setDismissedAchievement] = useState<string | null>(null);
   const achievementPrompt = brandBridge.lastAchievement !== null && brandBridge.lastAchievement !== dismissedAchievement
     ? brandBridge.lastAchievement
     : null;
 
-  // -- A/B Test state ---------------------------------------------------------
+  // ── A/B Test state ─────────────────────────────────────────────────────────
   const [abTests, setAbTests]     = useState<ABTest[]>([]);
   const [abName, setAbName]       = useState('');
   const [abVarA, setAbVarA]       = useState('');
   const [abVarB, setAbVarB]       = useState('');
 
-  // -- ROI Calculator state ---------------------------------------------------
+  // ── ROI Calculator state ───────────────────────────────────────────────────
   const [budget, setBudget]           = useState('');
   const [impressions, setImpressions] = useState('');
   const [conversions, setConversions] = useState('');
 
-  // -- Load profile -----------------------------------------------------------
+  // ── Load profile ───────────────────────────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
     const supabase = createClient();
@@ -186,8 +186,8 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     return () => { cancelled = true; };
   }, []);
 
-  // -- Refresh analytics ------------------------------------------------------
-  function refreshAnalytics() {
+  // ── Refresh analytics ──────────────────────────────────────────────────────
+  function refreshAnalytics( ){
     setMetrics([
       { id: 'reach',  label: 'Reach',           value: '12.4K', trend: 'up',   icon: <Users className="w-4 h-4" /> },
       { id: 'eng',    label: 'Engagement Rate',  value: '4.7%',  trend: 'up',   icon: <TrendingUp className="w-4 h-4" /> },
@@ -200,11 +200,11 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     recordForgeTransfer('brand', 'create', 'analytics-snapshot', 'Brand analytics snapshot → ContentEngin insights');
   }
 
-  // -- Launch A/B Test --------------------------------------------------------
-  function launchTest() {
+  // ── Launch A/B Test ────────────────────────────────────────────────────────
+  function launchTest( ){
     if (!abName.trim()) return;
     const t: ABTest = { id: crypto.randomUUID(), name: abName.trim(), variantA: abVarA.trim(), variantB: abVarB.trim(), paused: false };
-    setAbTests(prev => [t, ...prev]);
+    setAbTests((prev) => [t, ...prev]);
     setAbName(''); setAbVarA(''); setAbVarB('');
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'brand', 'brand:campaign-launched', { testId: t.id, name: t.name, variantA: t.variantA, variantB: t.variantB },
@@ -212,7 +212,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     recordForgeTransfer('brand', 'create', 'campaign', `Campaign "${t.name}" launched → ContentEngin variants`);
   }
 
-  // -- ROI calculations -------------------------------------------------------
+  // ── ROI calculations ───────────────────────────────────────────────────────
   const budgetN      = parseFloat(budget)      || 0;
   const impressionsN = parseFloat(impressions) || 0;
   const conversionsN = parseFloat(conversions) || 0;
@@ -220,7 +220,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
   const cpc  = conversionsN > 0 ? (budgetN / conversionsN).toFixed(2) : '—';
   const roi  = budgetN > 0      ? (((conversionsN * 10 - budgetN) / budgetN) * 100).toFixed(1) : '—';
 
-  // -- Audience Segments state --------------------------------------------------
+  // ── Audience Segments state ──────────────────────────────────────────────────
   const [segments, setSegments] = useState<Array<{ id: string; name: string; size: number; tags: string[] }>>([
     { id: 'seg-1', name: 'Power Creators',  size: 4200, tags: ['video', 'daily-poster'] },
     { id: 'seg-2', name: 'Music Fans',      size: 1850, tags: ['music', 'stream'] },
@@ -228,14 +228,14 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
   ]);
   const [newSegName, setNewSegName] = useState('');
 
-  // -- Brand Voice AI state -----------------------------------------------------
+  // ── Brand Voice AI state ─────────────────────────────────────────────────────
   const [voicePrompt, setVoicePrompt]         = useState('');
   const [voiceSuggestion, setVoiceSuggestion] = useState('');
   const [voiceLoading, setVoiceLoading]       = useState(false);
   // multi-connection path: Brand → ContentEngin
   const [contentBridgeSending, setContentBridgeSending] = useState(false);
 
-  // -- Competitor Watch state ---------------------------------------------------
+  // ── Competitor Watch state ───────────────────────────────────────────────────
   const [competitors, setCompetitors] = useState<Array<{ handle: string; followers: string; lastPost: string }>>([
     { handle: '@creativebrand',  followers: '84.2K', lastPost: '2h ago' },
     { handle: '@designmaster',   followers: '210K',  lastPost: '5h ago' },
@@ -243,7 +243,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
   ]);
   const [watchHandle, setWatchHandle] = useState('');
 
-  // -- Asset Library state ------------------------------------------------------
+  // ── Asset Library state ──────────────────────────────────────────────────────
   const [assets, setAssets] = useState<Array<{ id: string; name: string; type: 'logo' | 'color' | 'font'; value: string }>>([
     { id: 'as-1', name: 'Primary Logo',    type: 'logo',  value: 'DREAMengin.svg' },
     { id: 'as-2', name: 'Brand Pink',      type: 'color', value: '#ec4899' },
@@ -253,7 +253,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
   const [newAssetName, setNewAssetName]   = useState('');
   const [newAssetValue, setNewAssetValue] = useState('');
 
-  // -- Color Palette Generator (regeneratable) -----------------------------------
+  // ── Color Palette Generator (regeneratable) ───────────────────────────────────
   const PALETTE_PRESETS = [
     ['#ec4899','#f9a8d4','#c026d3','#fbbf24','#1e1b4b','#f0fdf4'],
     ['#2a8ab8','#bae6fd','#0284c7','#f59e0b','#0f172a','#f8fafc'],
@@ -264,16 +264,16 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
   const [paletteIdx, setPaletteIdx] = useState(0);
   const currentPalette = PALETTE_PRESETS[paletteIdx % PALETTE_PRESETS.length];
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
-  function copyColor(c: string) {
+  function copyColor(c: string ){
     navigator.clipboard?.writeText(c).catch(() => {});
     setCopiedColor(c);
     setTimeout(() => setCopiedColor(null), 1200);
   }
 
-  // -- Game Engine Visual Preset active selection --------------------------------
+  // ── Game Engine Visual Preset active selection ────────────────────────────────
   const [activePreset, setActivePreset] = useState('Brand Pink');
 
-  // -- Load brand_kit_items from DB on mount -------------------------------------
+  // ── Load brand_kit_items from DB on mount ─────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
     const supabase = createClient();
@@ -293,14 +293,14 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     return () => { cancelled = true; };
   }, []);
 
-  // -- Restore workspace state from DB once on mount -----------------------------
+  // ── Restore workspace state from DB once on mount ─────────────────────────────
   useEffect(() => {
     if (brandRestoring || brandRestoredRef.current || !savedBrandState) return;
     brandRestoredRef.current = true;
     if (savedBrandState.abTests && savedBrandState.abTests.length > 0) setAbTests(savedBrandState.abTests);
   }, [brandRestoring, savedBrandState]);
 
-  // -- Persist brand workspace state to Supabase (Phase 8 §F Point 55) --
+  // ── Persist brand workspace state to Supabase (Phase 8 §F Point 55) ──
   useEffect(() => {
     if (brandRestoring) return;
     persistState({ side: 'B', assets });
@@ -308,8 +308,8 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
    
   }, [assets, abTests, brandRestoring]);
 
-  // -- Segment handler -----------------------------------------------------------
-  function handleCreateSegment() {
+  // ── Segment handler ───────────────────────────────────────────────────────────
+  function handleCreateSegment( ){
     if (!newSegName.trim()) return;
     const seg = {
       id: `seg-${Date.now()}`,
@@ -317,7 +317,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
       size: Math.floor(Math.random() * 5000) + 100,
       tags: [],
     };
-    setSegments(prev => [seg, ...prev]);
+    setSegments((prev) => [seg, ...prev]);
     setNewSegName('');
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'brand', 'brand:segment-create', { name: newSegName.trim() },
@@ -325,8 +325,8 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     recordForgeTransfer('brand', 'create', 'audience-segment', `Audience segment "${seg.name}" → ContentEngin targeting`);
   }
 
-  // -- Voice AI handler ---------------------------------------------------------
-  function handleVoiceGenerate() {
+  // ── Voice AI handler ─────────────────────────────────────────────────────────
+  function handleVoiceGenerate( ){
     if (!voicePrompt.trim()) return;
     setVoiceLoading(true);
     setVoiceSuggestion('');
@@ -344,19 +344,19 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     }, 1200);
   }
 
-  // -- Competitor handler --------------------------------------------------------
-  function handleAddCompetitor() {
+  // ── Competitor handler ────────────────────────────────────────────────────────
+  function handleAddCompetitor( ){
     const handle = watchHandle.trim().startsWith('@') ? watchHandle.trim() : `@${watchHandle.trim()}`;
     if (!watchHandle.trim()) return;
-    setCompetitors(prev => [{ handle, followers: '—', lastPost: 'just now' }, ...prev]);
+    setCompetitors((prev) => [{ handle, followers: '—', lastPost: 'just now' }, ...prev]);
     setWatchHandle('');
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'brand', 'brand:competitor-add', { handle },
     );
   }
 
-  // -- Asset handler — inserts to brand_kit_items with optimistic update --------
-  async function handleSaveAsset() {
+  // ── Asset handler — inserts to brand_kit_items with optimistic update ────────
+  async function handleSaveAsset( ){
     if (!newAssetName.trim() || !newAssetValue.trim()) return;
     forgeRecord('Saved brand asset');
     const optimisticId = `as-${Date.now()}`;
@@ -367,7 +367,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
       value: newAssetValue.trim(),
     };
     // Optimistic update — show in UI immediately
-    setAssets(prev => [optimisticAsset, ...prev]);
+    setAssets((prev) => [optimisticAsset, ...prev]);
     setNewAssetName('');
     setNewAssetValue('');
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
@@ -384,15 +384,15 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           .select('id')
           .single();
         if (data?.id) {
-          setAssets(prev => prev.map(a => a.id === optimisticId ? { ...a, id: data.id } : a));
+          setAssets((prev) => prev.map((a) => a.id === optimisticId ? { ...a, id: data.id } : a));
         }
       }
     } catch { /* non-blocking — optimistic item remains */ }
   }
 
-  // -- Send to ContentEngin (multi-connection: Brand → ContentEngin) -------------
+  // ── Send to ContentEngin (multi-connection: Brand → ContentEngin) ─────────────
   // multi-connection path: Brand → ContentEngin via /api/drafts + bridge event
-  async function handleSendToContentEngin() {
+  async function handleSendToContentEngin( ){
     if (!voiceSuggestion.trim()) return;
     forgeRecord('Sent to ContentEngin');
     recordForgeTransfer('brand', 'create', 'voice-draft', 'Brand voice → ContentEngin draft');
@@ -422,7 +422,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     <ArtifactSlot artifactId="engin:brand">
     <div className="de-sky-bg min-h-screen">
 
-      {/* -- Header -- */}
+      {/* ── Header ── */}
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <button type="button" onClick={onBack} className="p-2 -ml-2 rounded-full"
@@ -439,10 +439,10 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
         </div>
       </header>
 
-      {/* -- Body -- */}
+      {/* ── Body ── */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
 
-        {/* -- Game → BrandingEngin Achievement Campaign receiver -- */}
+        {/* ── Game → BrandingEngin Achievement Campaign receiver ── */}
         {achievementPrompt && (
           <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(200,152,26,0.3)', background: 'rgba(200,152,26,0.04)' }}>
             <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -467,7 +467,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         )}
 
-        {/* -- Brand Kit (existing) -- */}
+        {/* ── Brand Kit (existing) ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header"><span className="de-widget-title">Brand Kit</span></div>
           <div className="de-widget-body">
@@ -508,7 +508,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Analytics link (existing) -- */}
+        {/* ── Analytics link (existing) ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header"><span className="de-widget-title">Analytics</span></div>
           <div className="de-widget-body">
@@ -530,12 +530,12 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- NEW: Brand Analytics -- */}
+        {/* ── NEW: Brand Analytics ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header"><span className="de-widget-title">Brand Analytics</span></div>
           <div className="de-widget-body">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-              {metrics.map(m => (
+              {metrics.map((m) => (
                 <div key={m.id} style={{ padding: '12px 14px', borderRadius: 11, background: 'rgba(255,255,255,0.55)', border: `1px solid ${ACCENT}15` }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                     <span style={{ color: ACCENT, opacity: 0.8 }}>{m.icon}</span>
@@ -554,7 +554,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- NEW: A/B Test Manager -- */}
+        {/* ── NEW: A/B Test Manager ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span className="de-widget-title">A/B Test Manager</span>
@@ -592,14 +592,14 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
               <p style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>No tests running yet.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {abTests.map(t => (
+                {abTests.map((t) => (
                   <div key={t.id} style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}18` }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 4 }}>{t.name}</div>
                     <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 6 }}>A: {t.variantA || '—'} · B: {t.variantB || '—'}</div>
                     <div style={{ display: 'flex', gap: 6 }}>
                       <button type="button" onClick={() => {
                           const willPause = !t.paused;
-                          setAbTests(prev => prev.map(x => x.id === t.id ? { ...x, paused: willPause } : x));
+                          setAbTests((prev) => prev.map((x) => x.id === t.id ? { ...x, paused: willPause } : x));
                           (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
                             'brand', 'brand:campaign-paused', { testId: t.id, name: t.name, paused: willPause },
                           );
@@ -614,7 +614,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
                             'brand', 'brand:ab-winner-picked', { testId: t.id, name: t.name, variantA: t.variantA, variantB: t.variantB },
                           );
                           recordForgeTransfer('brand', 'create', 'ab-winner', `A/B winner picked for "${t.name}" → ContentEngin`);
-                          setAbTests(prev => prev.filter(x => x.id !== t.id));
+                          setAbTests((prev) => prev.filter((x) => x.id !== t.id));
                         }}
                         style={{ padding: '4px 10px', borderRadius: 7, fontSize: 11, fontWeight: 600, cursor: 'pointer', border: `1px solid ${ACCENT}35`, background: `${ACCENT}18`, color: ACCENT }}>
                         Pick Winner
@@ -627,7 +627,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- NEW: Campaign ROI Calculator -- */}
+        {/* ── NEW: Campaign ROI Calculator ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Campaign ROI Calculator</span>
@@ -639,7 +639,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
                 { label: 'Budget ($)', val: budget, setter: setBudget },
                 { label: 'Impressions', val: impressions, setter: setImpressions },
                 { label: 'Conversions', val: conversions, setter: setConversions },
-              ].map({ label, val: number, setter } => (
+              ].map(({ label, val: number, setter }) => (
                 <div key={label}>
                   <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
                   <input type="number" min="0" value={val} onChange={e => setter(e.target.value)} placeholder="0"
@@ -658,7 +658,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Campaigns (existing) -- */}
+        {/* ── Campaigns (existing) ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header"><span className="de-widget-title">Campaigns</span></div>
           <div className="de-widget-body">
@@ -673,7 +673,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Audience (existing) -- */}
+        {/* ── Audience (existing) ── */}
         <div className="de-widget">
           <div className="de-widget-header"><span className="de-widget-title">Audience</span></div>
           <div className="de-widget-body">
@@ -691,7 +691,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Content Calendar Link -- */}
+        {/* ── Content Calendar Link ── */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Megaphone className="w-4 h-4" style={{ color: ACCENT }} />
@@ -713,7 +713,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Audience Segments -- */}
+        {/* ── Audience Segments ── */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Users className="w-4 h-4" style={{ color: ACCENT }} />
@@ -727,7 +727,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
-              {segments.map(seg => (
+              {segments.map((seg) => (
                 <div
                   key={seg.id}
                   style={{
@@ -740,7 +740,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
                     <span style={{ fontSize: 11, fontWeight: 600, color: ACCENT }}>{seg.size.toLocaleString()}</span>
                   </div>
                   <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-                    {seg.tags.map(tag => (
+                    {seg.tags.map((tag) => (
                       <span
                         key={tag}
                         style={{
@@ -783,7 +783,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Brand Voice AI -- */}
+        {/* ── Brand Voice AI ── */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Layers className="w-4 h-4" style={{ color: ACCENT }} />
@@ -842,7 +842,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Competitor Watch -- */}
+        {/* ── Competitor Watch ── */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Eye className="w-4 h-4" style={{ color: ACCENT }} />
@@ -850,7 +850,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
-              {competitors.map(c: Record<string, unknown>, i: number => (
+              {competitors.map(c: Record<string, unknown>, (i: number ) => (
                 <div
                   key={i}
                   style={{
@@ -896,7 +896,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Asset Library -- */}
+        {/* ── Asset Library ── */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <BookOpen className="w-4 h-4" style={{ color: ACCENT }} />
@@ -909,8 +909,8 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
             </span>
           </div>
           <div className="de-widget-body">
-            {(['logo', 'color', 'font'] as const).map(type => {
-              const group = assets.filter(a => a.type === type);
+            {(['logo', 'color', 'font'] as const).map((type) => {
+              const group = assets.filter((a) => a.type === type);
               if (group.length === 0) return null;
               return (
                 <div key={type} style={{ marginBottom: 12 }}>
@@ -918,7 +918,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
                     {type}s
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                    {group.map(a => (
+                    {group.map((a) => (
                       <div
                         key={a.id}
                         style={{
@@ -977,7 +977,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Feature 13: Brand Health Score -- */}
+        {/* ── Feature 13: Brand Health Score ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>💪</span>
@@ -997,7 +997,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
                 { label: 'Post consistency',      score: 65, color: '#f59e0b' },
                 { label: 'Engagement quality',    score: 78, color: '#6366f1' },
                 { label: 'Brand voice clarity',   score: 62, color: '#ec4899' },
-              ].map(s => (
+              ].map((s) => (
                 <div key={s.label} style={{ padding: '8px 10px', borderRadius: 9, background: `${s.color}0e`, border: `1px solid ${s.color}20` }}>
                   <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginBottom: 3 }}>{s.label}</div>
                   <div style={{ fontSize: 16, fontWeight: 800, color: s.color }}>{s.score}</div>
@@ -1007,7 +1007,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Feature 14: Color Palette Generator -- */}
+        {/* ── Feature 14: Color Palette Generator ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Palette className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -1015,7 +1015,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-              {currentPalette.map(c => (
+              {currentPalette.map((c) => (
                 <div key={c} title={copiedColor === c ? 'Copied!' : c}
                   style={{ flex: 1, height: 36, borderRadius: 8, background: c, cursor: 'pointer', border: copiedColor === c ? '2px solid #22c55e' : '2px solid rgba(255,255,255,0.4)', transition: 'transform 0.1s, border 0.2s', transform: copiedColor === c ? 'scale(0.9)' : 'scale(1)' }}
                   onPointerDown={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.88)'; }}
@@ -1026,7 +1026,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>{copiedColor ? `Copied ${copiedColor}` : 'Tap swatch to copy hex.'}</span>
-              <button type="button" onClick={() => setPaletteIdx(i => i + 1)}
+              <button type="button" onClick={() => setPaletteIdx((i) => i + 1)}
                 style={{ fontSize: 10, fontWeight: 700, color: ACCENT, background: `${ACCENT}12`, border: `1px solid ${ACCENT}25`, borderRadius: 6, padding: '4px 10px', cursor: 'pointer' }}>
                 ↻ New Palette
               </button>
@@ -1034,7 +1034,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Feature 15: Typography Kit -- */}
+        {/* ── Feature 15: Typography Kit ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <BookOpen className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -1045,7 +1045,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
               { role: 'Display', font: 'Syne Mono', sample: 'DREAMengin', size: 22, weight: 800 },
               { role: 'Body',    font: 'Inter',     sample: 'Building the future of creativity.', size: 13, weight: 400 },
               { role: 'Caption', font: 'JetBrains Mono', sample: 'v2.0.0 · production', size: 11, weight: 500 },
-            ].map(t => (
+            ].map((t) => (
               <div key={t.role} style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.55)', border: `1px solid ${ACCENT}15` }}>
                 <div style={{ fontSize: 9, color: 'var(--de-text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
                   {t.role} · {t.font}
@@ -1056,7 +1056,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Feature 16: Sponsorship Pitch Generator -- */}
+        {/* ── Feature 16: Sponsorship Pitch Generator ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Megaphone className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -1087,7 +1087,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Feature 17: Press Kit Builder -- */}
+        {/* ── Feature 17: Press Kit Builder ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Layers className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -1103,7 +1103,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
               { label: 'Audience Stats',    status: '✅', detail: '14.2K followers, 5.2% eng' },
               { label: 'Media Kit PDF',     status: '📄', detail: 'Ready to export' },
               { label: 'Social Links',      status: '🔗', detail: 'Connect platforms to include' },
-            ].map(item => (
+            ].map((item) => (
               <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 10px', marginBottom: 5, borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}12` }}>
                 <div>
                   <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-heading)' }}>{item.label}</div>
@@ -1119,7 +1119,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Feature 18: Social Media Bio Optimizer -- */}
+        {/* ── Feature 18: Social Media Bio Optimizer ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Eye className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -1134,7 +1134,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
               { platform: '🐦 X / Twitter', bio: 'Building the future of creative tech @DREAMengin | shipped daily 🔥', chars: 67 },
               { platform: '🎵 TikTok', bio: 'creative tech & builds 🛠 | dreamengin.io', chars: 42 },
               { platform: '💼 LinkedIn', bio: 'Creator & Developer | DREAMengin Platform | Creative Technology Innovator', chars: 74 },
-            ].map(b => (
+            ].map((b) => (
               <div key={b.platform} style={{ marginBottom: 8, padding: '9px 11px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}15` }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>{b.platform} · {b.chars} chars</div>
                 <div style={{ fontSize: 11, color: 'var(--de-heading)', lineHeight: 1.4 }}>{b.bio}</div>
@@ -1147,7 +1147,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Feature 19: Audience Persona Builder -- */}
+        {/* ── Feature 19: Audience Persona Builder ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Users className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -1158,7 +1158,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
               { name: 'The Hustler', age: '22–28', interests: 'Tech, Startups, Side hustles', device: 'Mobile', pct: 38 },
               { name: 'The Creative', age: '18–24', interests: 'Art, Music, Content creation', device: 'Mobile', pct: 29 },
               { name: 'The Builder', age: '28–36', interests: 'Dev, Open-source, Products', device: 'Desktop', pct: 21 },
-            ].map(p => (
+            ].map((p) => (
               <div key={p.name} style={{ padding: '10px 12px', borderRadius: 10, background: `${ACCENT}08`, border: `1px solid ${ACCENT}18` }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                   <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>{p.name}</span>
@@ -1171,7 +1171,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Feature 20: Game Engine Visual Presets -- */}
+        {/* ── Feature 20: Game Engine Visual Presets ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>🎮</span>
@@ -1186,7 +1186,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
                 { name: 'Brand Pink', accent: '#ec4899' },
                 { name: 'Neon Gold',  accent: '#c8981a' },
                 { name: 'Dream Blue', accent: '#2a8ab8' },
-              ].map(preset => {
+              ].map((preset) => {
                 const active = activePreset === preset.name;
                 return (
                   <button key={preset.name} type="button"
@@ -1205,7 +1205,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Shared Dream Analytics Dashboard -- */}
+        {/* ── Shared Dream Analytics Dashboard ── */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Users className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -1223,7 +1223,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
             <button
               type="button"
               onClick={() => {
-                setSharedAnalyticsActive(v => !v);
+                setSharedAnalyticsActive((v) => !v);
                 osRef.current?.telemetry?.log('shared analytics toggled');
                 busRef.current.emit('brand:shared-analytics', { active: !sharedAnalyticsActive, sessionId: sharedAnalyticsId });
                 forgeRecord('Shared analytics session toggled');
@@ -1251,7 +1251,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
                 </div>
                 {Object.keys(sharedAnalytics.peers).length > 0 && (
                   <div style={{ marginTop: 6, fontSize: 10, color: 'var(--de-text-dim)' }}>
-                    Peers: {Object.keys(sharedAnalytics.peers).map(id => id.slice(0, 8)).join(', ')}
+                    Peers: {Object.keys(sharedAnalytics.peers).map((id) => id.slice(0, 8)).join(', ')}
                   </div>
                 )}
               </div>
@@ -1259,7 +1259,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* -- Journey Trail -- */}
+        {/* ── Journey Trail ── */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <span style={{ color: '#c8981a', fontSize: 16 }}>✦</span>

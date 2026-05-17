@@ -25,7 +25,7 @@ export const metadata = { title: 'Create – Dreamengin', description: 'Ideas, t
 
 const ACCENT = '#fb923c';
 
-export default async function CreateDaydreamPage() {
+export default async function CreateDaydreamPage( ){
   await connection();
   const supabase = await createServerClient();
   let user = null;
@@ -62,7 +62,7 @@ export default async function CreateDaydreamPage() {
           <p className="text-sm" style={{ color: 'var(--de-text-dim)', margin: 0 }}>Set up your content here on Side A. Open ContentEngin (Side B) to write, schedule, and publish.</p>
         </div>
 
-        {WIDGETS.map({ emoji, label: string, desc: string, color: Record<string, unknown>, href } => (
+        {WIDGETS.map(({ emoji, label: string, desc: string, color: Record<string, unknown>, href }) => (
           <div key={label} className="de-widget">
             <div className="de-widget-header">
               <div className="flex items-center gap-2">
@@ -81,7 +81,7 @@ export default async function CreateDaydreamPage() {
           </div>
         ))}
 
-        {/* -- Open ContentEngin CTA -- */}
+        {/* ── Open ContentEngin CTA ── */}
         <div className="de-widget" style={{ borderColor: 'rgba(245,158,11,0.3)', background: 'linear-gradient(135deg, rgba(245,158,11,0.06), rgba(251,191,36,0.04))' }}>
           <div className="de-widget-header">
             <Sparkles className="w-4 h-4" style={{ color: ACCENT }} />

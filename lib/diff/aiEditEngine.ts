@@ -23,7 +23,7 @@
 /** Production mode flag — always true in this runtime. All scopes are enabled. */
 export const CODEENGIN_PRODUCTION_MODE = true as const;
 
-// --- Types --------------------------------------------------------------------
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 /**
  * The 7 edit scopes the user can choose from.
@@ -83,7 +83,7 @@ export const SCOPE_RISK: Record<EditScope, RiskLevel> = {
 /** Risk levels that require an extra confirmation step before applying. */
 export const CONFIRMATION_REQUIRED: Set<RiskLevel> = new Set(['high', 'critical']);
 
-// --- AI Suggestion ------------------------------------------------------------
+// ─── AI Suggestion ────────────────────────────────────────────────────────────
 
 /**
  * A parsed AI suggestion.  Dr. Eams always returns one of these after
@@ -110,7 +110,7 @@ export interface AiSuggestion {
   confidence: 'high' | 'medium' | 'low';
 }
 
-// --- Match --------------------------------------------------------------------
+// ─── Match ────────────────────────────────────────────────────────────────────
 
 /** A single matched region within one code cell. */
 export interface ScopeMatch {
@@ -126,7 +126,7 @@ export interface ScopeMatch {
   lineNo: number;
 }
 
-// --- Diff line ----------------------------------------------------------------
+// ─── Diff line ────────────────────────────────────────────────────────────────
 
 export type EditDiffLineType = 'context' | 'removed' | 'added';
 
@@ -136,7 +136,7 @@ export interface EditDiffLine {
   lineNo: number;
 }
 
-// --- Edit Preview -------------------------------------------------------------
+// ─── Edit Preview ─────────────────────────────────────────────────────────────
 
 /**
  * The full preview computed by buildEditPreview().
@@ -167,7 +167,7 @@ export interface EditPreview {
   noMatches: boolean;
 }
 
-// --- Undo snapshot -----------------------------------------------------------
+// ─── Undo snapshot ───────────────────────────────────────────────────────────
 
 export interface UndoSnapshot {
   /** The cell states before the edit was applied. */
@@ -176,7 +176,7 @@ export interface UndoSnapshot {
   description: string;
 }
 
-// --- Minimal cell interface ---------------------------------------------------
+// ─── Minimal cell interface ───────────────────────────────────────────────────
 
 /** The subset of a NotebookCell this engine needs. */
 export interface EditableCell {
@@ -184,15 +184,15 @@ export interface EditableCell {
   code: string;
 }
 
-// --- Helpers -----------------------------------------------------------------
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 /** Escape a string for safe use in a RegExp pattern. */
-export function escapeRegex(s: string: string) {
+export function escapeRegex(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /** Count the 1-based line number for a character offset in a string. */
-function lineNumberAt(text: string, offset: number: number) {
+function lineNumberAt(text: string, offset: number): number {
   return text.slice(0, offset).split('\n').length;
 }
 
@@ -200,7 +200,7 @@ function lineNumberAt(text: string, offset: number: number) {
  * Find the start offset of the word that contains `cursor` in `text`.
  * A "word" is a maximal run of \w characters.
  */
-export function wordBoundsAt(text: string, cursor: number:) { start: number; end: number } {
+export function wordBoundsAt(text: string, cursor: number): { start: number; end: number } {
   let start = cursor;
   let end   = cursor;
   while (start > 0 && /\w/.test(text[start - 1])) start--;
@@ -209,7 +209,7 @@ export function wordBoundsAt(text: string, cursor: number:) { start: number; end
 }
 
 /** Find the start/end of the line containing `offset` in `text`. */
-export function lineBoundsAt(text: string, offset: number:) { start: number; end: number } {
+export function lineBoundsAt(text: string, offset: number): { start: number; end: number } {
   let start = offset;
   let end   = offset;
   while (start > 0 && text[start - 1] !== '\n') start--;
@@ -227,7 +227,7 @@ export function lineBoundsAt(text: string, offset: number:) { start: number; end
  * Does NOT handle multi-line block comments — acceptable limitation for
  * notebook cell snippets.
  */
-function buildStringCommentMask(text: string: Set<number>) {
+function buildStringCommentMask(text: string): Set<number> {
   const mask = new Set<number>();
   let i = 0;
   while (i < text.length) {
@@ -320,7 +320,7 @@ function findEnclosingPair(
  *
  * Returns null when the cursor is not enclosed by any bracket pair.
  */
-export function blockBoundsAt(text: string, cursor: number:) { start: number; end: number } | null {
+export function blockBoundsAt(text: string, cursor: number): { start: number; end: number } | null {
   const masked = buildStringCommentMask(text);
   return (
     findEnclosingPair(text, cursor, masked, '{', '}') ??
@@ -335,7 +335,7 @@ export function blockBoundsAt(text: string, cursor: number:) { start: number; en
  * Supports JS/TS `function`, arrow functions, and Python `def`.
  * Falls back to blockBoundsAt if no function keyword is found.
  */
-export function functionBoundsAt(text: string, cursor: number:) { start: number; end: number } | null {
+export function functionBoundsAt(text: string, cursor: number): { start: number; end: number } | null {
   // Find the block first
   const block = blockBoundsAt(text, cursor);
   if (!block) return null;
@@ -348,7 +348,7 @@ export function functionBoundsAt(text: string, cursor: number:) { start: number;
   return { start: fnStart, end: block.end };
 }
 
-// --- Diff generation ----------------------------------------------------------
+// ─── Diff generation ──────────────────────────────────────────────────────────
 
 /**
  * Generate a simple line-level diff between `before` and `after`.
@@ -358,7 +358,7 @@ export function functionBoundsAt(text: string, cursor: number:) { start: number;
 const CONTEXT_SIZE = 3;
 const MAX_DIFF_LINES = 60;
 
-export function generateDiffLines(before: string, after: string: EditDiffLine[]) {
+export function generateDiffLines(before: string, after: string): EditDiffLine[] {
   const beforeLines = before.split('\n');
   const afterLines  = after.split('\n');
 
@@ -411,12 +411,12 @@ export function generateDiffLines(before: string, after: string: EditDiffLine[])
   return trimContextLines(result, CONTEXT_SIZE);
 }
 
-function trimContextLines(lines: EditDiffLine[], keep: number: EditDiffLine[]) {
+function trimContextLines(lines: EditDiffLine[], keep: number): EditDiffLine[] {
   if (lines.length === 0) return lines;
   // Find indices of non-context lines
   const changed = lines
-    .map(l: Record<string, unknown>, i: number => l.type !== 'context' ? i : -1)
-    .filter(i => i >= 0);
+    .map(l: Record<string, unknown>, (i: number ) => l.type !== 'context' ? i : -1)
+    .filter((i) => i >= 0);
   if (changed.length === 0) return lines.slice(0, Math.min(keep * 2 + 1, lines.length));
 
   const first = Math.max(0, changed[0] - keep);
@@ -424,7 +424,7 @@ function trimContextLines(lines: EditDiffLine[], keep: number: EditDiffLine[]) {
   return lines.slice(first, last + 1);
 }
 
-// --- AiSuggestion parser ------------------------------------------------------
+// ─── AiSuggestion parser ──────────────────────────────────────────────────────
 
 /**
  * Parse a free-text AI instruction into a structured AiSuggestion.
@@ -443,16 +443,16 @@ function trimContextLines(lines: EditDiffLine[], keep: number: EditDiffLine[]) {
  *   - "everywhere" / "all" / "codebase" trigger the all-cells scope regardless of
  *     which root pattern matched.
  */
-export function parseAiInstruction(instruction: string: AiSuggestion) {
+export function parseAiInstruction(instruction: string): AiSuggestion {
   const lower = instruction.toLowerCase().trim();
   const isAllCells = /everywhere|all\s+cells|all\s+occurrences|codebase/.test(lower);
 
-  // -- Word in backtick/quote extractor ----------------------------------------
+  // ── Word in backtick/quote extractor ────────────────────────────────────────
   // Matches a word that may be wrapped in backticks, single-, or double-quotes.
   const Q = "[`'\"]?";  // optional opening quote
   const W = "([`'\"]?(\\w+)[`'\"]?)"; // word possibly wrapped in quotes (capture inner \w+)
 
-  // -- High-confidence: rename --------------------------------------------------
+  // ── High-confidence: rename ──────────────────────────────────────────────────
   const renameRx = new RegExp(`rename\\s+${Q}(\\w+)${Q}\\s+to\\s+${Q}(\\w+)${Q}`, 'i');
   const renameMatch = instruction.match(renameRx);
   if (renameMatch) {
@@ -469,7 +469,7 @@ export function parseAiInstruction(instruction: string: AiSuggestion) {
     };
   }
 
-  // -- High-confidence: replace X with Y ----------------------------------------
+  // ── High-confidence: replace X with Y ────────────────────────────────────────
   const replaceRx = new RegExp(`replace\\s+${Q}(\\w+)${Q}\\s+with\\s+${Q}(\\w+)${Q}`, 'i');
   const replaceMatch = instruction.match(replaceRx);
   if (replaceMatch) {
@@ -484,7 +484,7 @@ export function parseAiInstruction(instruction: string: AiSuggestion) {
     };
   }
 
-  // -- High-confidence: swap X with/for Y ---------------------------------------
+  // ── High-confidence: swap X with/for Y ───────────────────────────────────────
   const swapRx = new RegExp(`swap\\s+${Q}(\\w+)${Q}\\s+(?:with|for)\\s+${Q}(\\w+)${Q}`, 'i');
   const swapMatch = instruction.match(swapRx);
   if (swapMatch) {
@@ -499,7 +499,7 @@ export function parseAiInstruction(instruction: string: AiSuggestion) {
     };
   }
 
-  // -- Medium-confidence: change/update X to Y -----------------------------------
+  // ── Medium-confidence: change/update X to Y ───────────────────────────────────
   // Medium because "change the error handling to async" is NOT a word rename.
   const changeRx = new RegExp(`(?:change|update)\\s+${Q}(\\w+)${Q}\\s+to\\s+${Q}(\\w+)${Q}`, 'i');
   const changeMatch = instruction.match(changeRx);
@@ -515,7 +515,7 @@ export function parseAiInstruction(instruction: string: AiSuggestion) {
     };
   }
 
-  // -- High-confidence: delete/remove function -----------------------------------
+  // ── High-confidence: delete/remove function ───────────────────────────────────
   if (/delete\s+(?:this\s+)?function|remove\s+(?:this\s+)?function/.test(lower)) {
     return {
       instruction,
@@ -527,7 +527,7 @@ export function parseAiInstruction(instruction: string: AiSuggestion) {
     };
   }
 
-  // -- High-confidence: delete/remove block -------------------------------------
+  // ── High-confidence: delete/remove block ─────────────────────────────────────
   if (/delete\s+(?:this\s+)?block|remove\s+(?:this\s+)?block/.test(lower)) {
     return {
       instruction,
@@ -539,7 +539,7 @@ export function parseAiInstruction(instruction: string: AiSuggestion) {
     };
   }
 
-  // -- High-confidence: delete/remove line --------------------------------------
+  // ── High-confidence: delete/remove line ──────────────────────────────────────
   if (/delete\s+(?:this\s+)?line|remove\s+(?:this\s+)?line/.test(lower)) {
     return {
       instruction,
@@ -551,7 +551,7 @@ export function parseAiInstruction(instruction: string: AiSuggestion) {
     };
   }
 
-  // -- Low-confidence fallback ---------------------------------------------------
+  // ── Low-confidence fallback ───────────────────────────────────────────────────
   // No recognised pattern — show a warning in the UI so the user knows to
   // manually verify target and scope before applying.
   return {
@@ -564,7 +564,7 @@ export function parseAiInstruction(instruction: string: AiSuggestion) {
   };
 }
 
-// --- buildEditPreview ---------------------------------------------------------
+// ─── buildEditPreview ─────────────────────────────────────────────────────────
 
 export interface BuildPreviewOptions {
   cells: EditableCell[];
@@ -581,9 +581,9 @@ export interface BuildPreviewOptions {
  * Build a full EditPreview — what will change, where, and the diff.
  * This is the main entry point for the trust layer preview step.
  */
-export function buildEditPreview(opts: BuildPreviewOptions: EditPreview) {
+export function buildEditPreview(opts: BuildPreviewOptions): EditPreview {
   const { cells, activeCellId, cursorOffset, scope, target, replacement } = opts;
-  const activeCell = cells.find(c => c.id === activeCellId) ?? cells[0];
+  const activeCell = cells.find((c) => c.id === activeCellId) ?? cells[0];
 
   const matches: ScopeMatch[] = [];
 
@@ -691,15 +691,15 @@ export function buildEditPreview(opts: BuildPreviewOptions: EditPreview) {
   let diffLines: EditDiffLine[] = [];
 
   if (firstMatch) {
-    const cell = cells.find(c => c.id === firstMatch.cellId);
+    const cell = cells.find((c) => c.id === firstMatch.cellId);
     if (cell) {
       const before = cell.code;
-      const after  = applyMatchesForCell(cell.code, matches.filter(m => m.cellId === cell.id), replacement);
+      const after  = applyMatchesForCell(cell.code, matches.filter((m) => m.cellId === cell.id), replacement);
       diffLines = generateDiffLines(before, after);
     }
   }
 
-  const affectedCellIds = new Set(matches.map(m => m.cellId));
+  const affectedCellIds = new Set(matches.map((m) => m.cellId));
   const risk = SCOPE_RISK[scope];
 
   return {
@@ -718,7 +718,7 @@ export function buildEditPreview(opts: BuildPreviewOptions: EditPreview) {
 }
 
 /** Find the first occurrence of `target` word in `text`. */
-function findFirstOccurrence(text: string, target: string:) { start: number; end: number } | null {
+function findFirstOccurrence(text: string, target: string): { start: number; end: number } | null {
   const rx = new RegExp(`\\b${escapeRegex(target)}\\b`);
   const m  = text.match(rx);
   if (!m || m.index === undefined) return null;
@@ -735,7 +735,7 @@ export function applyMatchesForCell(
   replacement: string,
 ): string {
   if (matches.length === 0) return code;
-  const sorted = [...matches].sort(a: Record<string, unknown>, b: Record<string, unknown> => b.start - a.start); // right to left
+  const sorted = [...matches].sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.start - a.start); // right to left
   let result = code;
   for (const m of sorted) {
     result = result.slice(0, m.start) + replacement + result.slice(m.end);
@@ -743,7 +743,7 @@ export function applyMatchesForCell(
   return result;
 }
 
-// --- applyEdit ----------------------------------------------------------------
+// ─── applyEdit ────────────────────────────────────────────────────────────────
 
 /**
  * Apply an EditPreview to a list of cells.
@@ -754,7 +754,7 @@ export function applyEdit(
   preview: EditPreview,
 ): { cells: EditableCell[]; undo: UndoSnapshot } {
   const undo: UndoSnapshot = {
-    cells: cells.map(c => ({ id: c.id, code: c.code })),
+    cells: cells.map((c) => ({ id: c.id, code: c.code })),
     description: `Undo: ${preview.scopeLabel} — ${preview.target || 'edit'}`,
   };
 
@@ -765,7 +765,7 @@ export function applyEdit(
     matchesByCell.get(m.cellId)!.push(m);
   }
 
-  const updated = cells.map(cell => {
+  const updated = cells.map((cell) => {
     const cellMatches = matchesByCell.get(cell.id);
     if (!cellMatches) return cell;
     return {
@@ -777,7 +777,7 @@ export function applyEdit(
   return { cells: updated, undo };
 }
 
-// --- undoEdit -----------------------------------------------------------------
+// ─── undoEdit ─────────────────────────────────────────────────────────────────
 
 /**
  * Restore cells from an UndoSnapshot.
@@ -787,8 +787,8 @@ export function undoEdit(
   currentCells: EditableCell[],
   snapshot: UndoSnapshot,
 ): EditableCell[] {
-  const snapshotMap = new Map(snapshot.cells.map(c => [c.id, c.code]));
-  return currentCells.map(cell => ({
+  const snapshotMap = new Map(snapshot.cells.map((c) => [c.id, c.code]));
+  return currentCells.map((cell) => ({
     ...cell,
     code: snapshotMap.has(cell.id) ? snapshotMap.get(cell.id)! : cell.code,
   }));

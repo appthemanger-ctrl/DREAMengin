@@ -74,9 +74,9 @@ export interface SessionStorageBackend {
 
 const MAX_STORED_SESSIONS = 5;
 
-// --- Utilities ----------------------------------------------------------------
+// ─── Utilities ────────────────────────────────────────────────────────────────
 
-function summariseSession(s: StoredSession: SessionSummary) {
+function summariseSession(s: StoredSession): SessionSummary {
   const unique = [...new Set(s.activations)];
   const freq = new Map<string, number>();
   for (const id of s.activations) freq.set(id, (freq.get(id) ?? 0) + 1);
@@ -101,7 +101,7 @@ function summariseSession(s: StoredSession: SessionSummary) {
   };
 }
 
-function buildDiff(last: StoredSession, current: StoredSession: SessionDiff) {
+function buildDiff(last: StoredSession, current: StoredSession): SessionDiff {
   const lastSet = new Set(last.activations);
   const currentSet = new Set(current.activations);
 
@@ -130,14 +130,14 @@ function buildDiff(last: StoredSession, current: StoredSession: SessionDiff) {
   return { newSubsystems, droppedSubsystems, continueFrom, recommendation };
 }
 
-// --- IndexedDB backend --------------------------------------------------------
+// ─── IndexedDB backend ────────────────────────────────────────────────────────
 
 const DB_NAME = 'dreamengin-continuity';
 const STORE_NAME = 'sessions';
 const DB_VERSION = 1;
 
-function openDB(: Promise<IDBDatabase>) {
-  return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
+function openDB(): Promise<IDBDatabase> {
+  return new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = () => {
       const db = req.result;
@@ -150,21 +150,21 @@ function openDB(: Promise<IDBDatabase>) {
   });
 }
 
-async function createIDBBackend(: Promise<SessionStorageBackend>) {
+async function createIDBBackend(): Promise<SessionStorageBackend> {
   const db = await openDB();
   return {
     async read(): Promise<StoredSession[]> {
-      return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
+      return new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
         const tx = db.transaction(STORE_NAME, 'readonly');
         const req = tx.objectStore(STORE_NAME).getAll();
         req.onsuccess = () =>
-          resolve((req.result as StoredSession[]).sort(a: Record<string, unknown>, b: Record<string, unknown> => b.startedAt - a.startedAt));
+          resolve((req.result as StoredSession[]).sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.startedAt - a.startedAt));
         req.onerror = () => reject(req.error);
       });
     },
     async write(sessions: StoredSession[]): Promise<void> {
       const fresh = sessions.slice(0, MAX_STORED_SESSIONS);
-      return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
+      return new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
         const tx = db.transaction(STORE_NAME, 'readwrite');
         const store = tx.objectStore(STORE_NAME);
         const clearReq = store.clear();
@@ -179,11 +179,11 @@ async function createIDBBackend(: Promise<SessionStorageBackend>) {
   };
 }
 
-// --- LocalStorage backend ----------------------------------------------------
+// ─── LocalStorage backend ────────────────────────────────────────────────────
 
 const LS_KEY = 'dreamengin-continuity-sessions';
 
-function createLSBackend(: SessionStorageBackend) {
+function createLSBackend(): SessionStorageBackend {
   return {
     async read(): Promise<StoredSession[]> {
       try {
@@ -204,16 +204,16 @@ function createLSBackend(: SessionStorageBackend) {
   };
 }
 
-// --- In-memory backend (SSR / test / non-browser contexts) -------------------
+// ─── In-memory backend (SSR / test / non-browser contexts) ───────────────────
 
-function createMemoryBackend(: SessionStorageBackend) {
+function createMemoryBackend(): SessionStorageBackend {
   return {
     async read(): Promise<StoredSession[]> { return []; },
     async write(): Promise<void> { /* no-op */ },
   };
 }
 
-// --- Session Continuity -------------------------------------------------------
+// ─── Session Continuity ───────────────────────────────────────────────────────
 
 /**
  * Manages cross-session persistence for DREAMengin.
@@ -240,7 +240,7 @@ export class SessionContinuity {
     };
   }
 
-  // -- Lifecycle ------------------------------------------------------------
+  // ── Lifecycle ────────────────────────────────────────────────────────────
 
   async init(): Promise<void> {
     if (!this.backend) {
@@ -269,7 +269,7 @@ export class SessionContinuity {
     return createMemoryBackend();
   }
 
-  // -- Current session updates -----------------------------------------------
+  // ── Current session updates ───────────────────────────────────────────────
 
   /** Record a subsystem activation into the current session. */
   recordActivation(subsystemId: string): void {
@@ -283,7 +283,7 @@ export class SessionContinuity {
     this.currentSession.lastArtifactTitle = lastTitle;
   }
 
-  // -- Persistence -----------------------------------------------------------
+  // ── Persistence ───────────────────────────────────────────────────────────
 
   /**
    * Persist the current session state. Call periodically (e.g. on blur,
@@ -300,7 +300,7 @@ export class SessionContinuity {
     }
   }
 
-  // -- Query -----------------------------------------------------------------
+  // ── Query ─────────────────────────────────────────────────────────────────
 
   /** Returns the last completed session (the one before the current one). */
   getLastSession(): StoredSession | null {

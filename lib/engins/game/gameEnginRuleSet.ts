@@ -29,11 +29,11 @@ import {
 } from '@/lib/engin-runtime/EnginBaseState';
 import type { EnginCapability } from '@/lib/engin-runtime/EnginCapabilities';
 
-// --- Tile types ---------------------------------------------------------------
+// ─── Tile types ───────────────────────────────────────────────────────────────
 
 export type TileType = 'empty' | 'ground' | 'wall' | 'water' | 'spawn';
 
-// --- Gravity presets ----------------------------------------------------------
+// ─── Gravity presets ──────────────────────────────────────────────────────────
 
 export type GravityPreset = 'moon' | 'earth' | 'mars' | 'jupiter';
 export const GRAVITY_VALUES: Record<GravityPreset, number> = {
@@ -43,11 +43,11 @@ export const GRAVITY_VALUES: Record<GravityPreset, number> = {
   jupiter: 2.53,
 };
 
-// --- Script language ----------------------------------------------------------
+// ─── Script language ──────────────────────────────────────────────────────────
 
 export type ScriptLanguage = 'GameScript' | 'Lua';
 
-// --- Domain state shape -------------------------------------------------------
+// ─── Domain state shape ───────────────────────────────────────────────────────
 
 export interface GameScore {
   id: string;
@@ -85,7 +85,7 @@ export interface GameEnginDerivedState extends Record<string, unknown> {
   controlProfile: string;
 }
 
-// --- Action discriminated union -----------------------------------------------
+// ─── Action discriminated union ───────────────────────────────────────────────
 
 export type GameEnginAction =
   | EnginAction<'game:session-start',  { gameId: string }>
@@ -100,7 +100,7 @@ export type GameEnginAction =
   | EnginAction<'game:control-profile', { profile: string }>
   | EnginAction<'game:immersive-toggle', { value: boolean }>;
 
-// --- Default domain state -----------------------------------------------------
+// ─── Default domain state ─────────────────────────────────────────────────────
 
 const DEFAULT_GRID: TileType[][] = Array.from({ length: 5 }, () =>
   Array.from({ length: 5 }, (): TileType => 'empty'),
@@ -120,7 +120,7 @@ const DEFAULT_DOMAIN: Omit<GameEnginDerivedState, 'lifecycle'> = {
   controlProfile: 'couch',
 };
 
-// --- Constraints --------------------------------------------------------------
+// ─── Constraints ──────────────────────────────────────────────────────────────
 
 const sessionStartConstraint: EnginConstraint<GameEnginAction> = (
   _state,
@@ -162,9 +162,9 @@ const physicsConstraint: EnginConstraint<GameEnginAction> = (
   return { valid: true };
 };
 
-// --- Transform ----------------------------------------------------------------
+// ─── Transform ────────────────────────────────────────────────────────────────
 
-function transform(state: EnginBaseState, action: GameEnginAction: EnginBaseState) {
+function transform(state: EnginBaseState, action: GameEnginAction): EnginBaseState {
   const domain = (state.domain as Partial<typeof DEFAULT_DOMAIN>);
 
   switch (action.type) {
@@ -194,7 +194,7 @@ function transform(state: EnginBaseState, action: GameEnginAction: EnginBaseStat
       const { score } = (action as EnginAction<'game:score-add', { score: GameScore }>).payload!;
       const prev = (domain.scores ?? []) as GameScore[];
       const updated = [...prev, score]
-        .sort(a: Record<string, unknown>, b: Record<string, unknown> => b.score - a.score)
+        .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.score - a.score)
         .slice(0, 20);
       return patchBaseState(state, { domain: { ...domain, scores: updated } });
     }
@@ -245,9 +245,9 @@ function transform(state: EnginBaseState, action: GameEnginAction: EnginBaseStat
   }
 }
 
-// --- deriveState --------------------------------------------------------------
+// ─── deriveState ──────────────────────────────────────────────────────────────
 
-function deriveState(state: EnginBaseState: GameEnginDerivedState) {
+function deriveState(state: EnginBaseState): GameEnginDerivedState {
   const d = state.domain as Partial<typeof DEFAULT_DOMAIN>;
   return {
     lifecycle: state.lifecycle,
@@ -262,7 +262,7 @@ function deriveState(state: EnginBaseState: GameEnginDerivedState) {
   };
 }
 
-// --- Rule-set params ----------------------------------------------------------
+// ─── Rule-set params ──────────────────────────────────────────────────────────
 
 const PARAMS: EnginRuleSetParams = {
   enginId: 'games',
@@ -284,7 +284,7 @@ const REQUIRED_CAPABILITIES: ReadonlyArray<EnginCapability> = [
   'bridge:emit',
 ];
 
-// --- Exported rule-set --------------------------------------------------------
+// ─── Exported rule-set ────────────────────────────────────────────────────────
 
 export const GAME_ENGIN_RULE_SET: EnginRuleSetContract<GameEnginAction> = {
   params: PARAMS,

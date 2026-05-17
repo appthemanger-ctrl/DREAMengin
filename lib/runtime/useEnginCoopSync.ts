@@ -32,7 +32,7 @@ import { useSharedEnginChannel } from '@/lib/runtime/useSharedEnginChannel';
 import type { EnginName } from '@/lib/runtime/instanceManager';
 import type { RuntimeId } from '@/types/module-manifest';
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 export type CoopEvent = { type: string; [key: string]: unknown };
 
@@ -64,9 +64,9 @@ export interface UseEnginCoopSyncResult {
   isCoopActive: boolean;
 }
 
-// -- Hook ----------------------------------------------------------------------
+// ── Hook ──────────────────────────────────────────────────────────────────────
 
-export function useEnginCoopSync() {
+export function useEnginCoopSync(){
   enginName,
   instanceId,
   region = 'homedream',
@@ -81,7 +81,7 @@ export function useEnginCoopSync() {
     mode: active ? 'coop' : 'solo',
   });
 
-  // -- When collab becomes active: publish our state so late-joining peers sync -
+  // ── When collab becomes active: publish our state so late-joining peers sync ─
 
   useEffect(() => {
     if (!active) return;
@@ -91,11 +91,11 @@ export function useEnginCoopSync() {
    
   }, [active, publish]);
 
-  // -- Subscribe to peer events for the lifetime of an active session --------
+  // ── Subscribe to peer events for the lifetime of an active session ────────
 
   useEffect(() => {
     if (!active || !onPeerState) return;
-    const off = subscribe(evt: Record<string, unknown> => {
+    const off = subscribe((evt: Record<string, unknown>) => {
       onPeerState(evt);
     });
     return off;

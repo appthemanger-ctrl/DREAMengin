@@ -69,7 +69,7 @@ type DreamOSCustomEventHandler<K extends DreamOSCustomEventName> = (
 
 const MAX_ARTIFACTS = 48;
 
-function channelToSubsystem(channel: DualRuntimeChannel: string) {
+function channelToSubsystem(channel: DualRuntimeChannel): string {
   switch (channel) {
     case 'music':
       return 'StarMakerEngin';
@@ -88,7 +88,7 @@ function channelToSubsystem(channel: DualRuntimeChannel: string) {
   }
 }
 
-function relatedSubsystemsForChannel(channel: DualRuntimeChannel: readonly string[]) {
+function relatedSubsystemsForChannel(channel: DualRuntimeChannel): readonly string[] {
   switch (channel) {
     case 'music':
       return ['GameEngin', 'ContentEngin', 'BrandingEngin', AI_AGENTS.DR_EAMS];
@@ -107,7 +107,7 @@ function relatedSubsystemsForChannel(channel: DualRuntimeChannel: readonly strin
   }
 }
 
-function formatEventTitle(event: string: string) {
+function formatEventTitle(event: string): string {
   return event
     .split(':')
     .map((segment: Record<string, unknown>) => segment.replace(/-/g, ' '))
@@ -115,7 +115,7 @@ function formatEventTitle(event: string: string) {
     .join(' · ');
 }
 
-function worldToSubsystemId(world: RuntimeWorld: string) {
+function worldToSubsystemId(world: RuntimeWorld): string {
   if (typeof world === 'string') {
     if (world === 'DreamSpace') return 'dreamspace';
     if (world === 'HomeDream Surface') return 'home';
@@ -129,7 +129,7 @@ function worldToSubsystemId(world: RuntimeWorld: string) {
   return 'unknown';
 }
 
-export function deriveAIRuntimeContext(world: RuntimeWorld: RuntimeContext['aiContext']) {
+export function deriveAIRuntimeContext(world: RuntimeWorld): RuntimeContext['aiContext'] {
   const subsystemId = worldToSubsystemId(world).toLowerCase();
   if (subsystemId.includes('code')) return 'code';
   if (subsystemId.includes('lab')) return 'lab';
@@ -140,7 +140,7 @@ export function deriveAIRuntimeContext(world: RuntimeWorld: RuntimeContext['aiCo
   return 'general';
 }
 
-function buildRuntimeContext(input: PublishRuntimeContextInput: RuntimeContext) {
+function buildRuntimeContext(input: PublishRuntimeContextInput): RuntimeContext {
   return {
     ...input,
     aiContext: deriveAIRuntimeContext(input.world),
@@ -158,7 +158,7 @@ function publishRuntimeContextStrategy(
   return next;
 }
 
-function createRuntimeContextContainer(: RuntimeContainer<RuntimeContextStore, PublishRuntimeContextInput>) {
+function createRuntimeContextContainer(): RuntimeContainer<RuntimeContextStore, PublishRuntimeContextInput> {
   return new RuntimeContainer<RuntimeContextStore, PublishRuntimeContextInput>(
     new Map<RuntimeRegion, RuntimeContext>(),
     publishRuntimeContextStrategy,
@@ -175,7 +175,7 @@ class DreamOSBusImpl {
   >();
 
   constructor() {
-    bridge.subscribeEventActivity(emission: Record<string, unknown> => {
+    bridge.subscribeEventActivity((emission: Record<string, unknown>) => {
       this.recordBridgeEmission(emission);
     });
   }
@@ -193,7 +193,7 @@ class DreamOSBusImpl {
     this.notify();
   }
 
-  // -- Improvement 62: getArtifact -------------------------------------------
+  // ── Improvement 62: getArtifact ───────────────────────────────────────────
 
   /**
    * O(1) lookup of an artifact by its ID.
@@ -203,7 +203,7 @@ class DreamOSBusImpl {
     return this.artifacts.get(id) ?? null;
   }
 
-  // -- Improvement 63: removeArtifact ---------------------------------------
+  // ── Improvement 63: removeArtifact ───────────────────────────────────────
 
   /**
    * Remove a specific artifact from the bus and notify subscribers.
@@ -215,7 +215,7 @@ class DreamOSBusImpl {
     this.notify();
   }
 
-  // -- Improvement 64: clearArtifacts ---------------------------------------
+  // ── Improvement 64: clearArtifacts ───────────────────────────────────────
 
   /**
    * Remove all artifacts without touching runtime contexts.
@@ -226,7 +226,7 @@ class DreamOSBusImpl {
     this.notify();
   }
 
-  // -- Improvement 65: getArtifactsByKind -----------------------------------
+  // ── Improvement 65: getArtifactsByKind ───────────────────────────────────
 
   /**
    * Return all artifacts with the given kind, sorted newest-first.
@@ -234,11 +234,11 @@ class DreamOSBusImpl {
    */
   getArtifactsByKind(kind: DreamOSArtifactKind): DreamOSSharedArtifact[] {
     return Array.from(this.artifacts.values())
-      .filter(a: Record<string, unknown> => a.kind === kind)
-      .sort(a: Record<string, unknown>, b: Record<string, unknown> => b.updatedAt - a.updatedAt);
+      .filter((a: Record<string, unknown>) => a.kind === kind)
+      .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.updatedAt - a.updatedAt);
   }
 
-  // -- Improvement 66: getArtifactCount -------------------------------------
+  // ── Improvement 66: getArtifactCount ─────────────────────────────────────
 
   /**
    * Return the number of artifacts currently in the bus.
@@ -248,7 +248,7 @@ class DreamOSBusImpl {
     return this.artifacts.size;
   }
 
-  // -- Improvement 67: watchArtifact ----------------------------------------
+  // ── Improvement 67: watchArtifact ────────────────────────────────────────
 
   /**
    * Subscribe to changes on a single artifact by ID.
@@ -307,9 +307,9 @@ class DreamOSBusImpl {
 
   getSnapshot(): DreamOSSnapshot {
     return {
-      artifacts: Array.from(this.artifacts.values()).sort(a: Record<string, unknown>, b: Record<string, unknown> => b.updatedAt - a.updatedAt),
+      artifacts: Array.from(this.artifacts.values()).sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.updatedAt - a.updatedAt),
       runtimeContexts: Array.from(this.runtimeContexts.getState().values())
-        .sort(a: Record<string, unknown>, b: Record<string, unknown> => a.region.localeCompare(b.region)),
+        .sort((a: Record<string, unknown>, b: Record<string, unknown>) => a.region.localeCompare(b.region)),
     };
   }
 

@@ -12,7 +12,7 @@
  * Phase 8 §E:   Points 42, 43, 44
  */
 
-// -- Schema constants ----------------------------------------------------------
+// ── Schema constants ──────────────────────────────────────────────────────────
 
 /** Canonical Supabase table name for DreamMarketplace listings. */
 export const MARKETPLACE_TABLE = 'marketplace_items' as const;
@@ -39,7 +39,7 @@ export const MARKETPLACE_TAGS_MAX = 10;
 /** Maximum tag character length. */
 export const MARKETPLACE_TAG_MAX_LENGTH = 40;
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 export type MarketplaceListingInput = {
   title: string;
@@ -65,12 +65,12 @@ export type ValidationResult = {
   errors: string[];
 };
 
-// -- Validation ----------------------------------------------------------------
+// ── Validation ────────────────────────────────────────────────────────────────
 
 /**
  * Validates raw inbound body for a new marketplace listing.
  */
-export function validateMarketplaceListing(body: unknown: ValidationResult) {
+export function validateMarketplaceListing(body: unknown): ValidationResult {
   const errors: string[] = [];
 
   if (!body || typeof body !== 'object') {
@@ -112,7 +112,7 @@ export function validateMarketplaceListing(body: unknown: ValidationResult) {
   return { valid: errors.length === 0, errors };
 }
 
-// -- Normalization -------------------------------------------------------------
+// ── Normalization ─────────────────────────────────────────────────────────────
 
 /**
  * Maps validated client body to a DB-ready insert payload.
@@ -142,14 +142,14 @@ export function normalizeMarketplaceListing(
   };
 }
 
-// -- Slot detail helpers -------------------------------------------------------
+// ── Slot detail helpers ───────────────────────────────────────────────────────
 
 /**
  * Returns the canonical detail route for a marketplace listing.
  * Used in MarketplaceListingCard and marketplace/[id]/page.tsx.
  * Point 43: navigation link from listing resolves to real data.
  */
-export function marketplaceDetailRoute(itemId: string: string) {
+export function marketplaceDetailRoute(itemId: string): string {
   return `/marketplace/${itemId}`;
 }
 
@@ -157,7 +157,7 @@ export function marketplaceDetailRoute(itemId: string: string) {
  * Formats price_cents for display.
  * Returns 'Free' for zero-price items.
  */
-export function formatMarketplacePrice(priceCents: number: string) {
+export function formatMarketplacePrice(priceCents: number): string {
   if (priceCents === 0) return 'Free';
   return `$${(priceCents / 100).toFixed(2)}`;
 }

@@ -28,7 +28,7 @@ const DEFAULT_PREFS: FeedPreferences = {
   showEmptyStateGuides: true,
 };
 
-function Toggle() { value, onToggle, label }: { value: boolean; onToggle: () => void; label: string }) {
+function Toggle({ value, onToggle, label }: ) { value: boolean; onToggle: () => void; label: string }) {
   return (
     <button type="button" role="switch" aria-checked={value} aria-label={label} onClick={onToggle}
       style={{
@@ -46,7 +46,7 @@ function Toggle() { value, onToggle, label }: { value: boolean; onToggle: () => 
   );
 }
 
-export default function FeedSettingsPanel() {
+export default function FeedSettingsPanel( ){
   const [prefs, setPrefs] = useState<FeedPreferences>(DEFAULT_PREFS);
   const [activeTopics, setActiveTopics] = useState<Set<string>>(new Set(DEFAULT_TOPIC_IDS));
   const [saved, setSaved] = useState(false);
@@ -54,13 +54,13 @@ export default function FeedSettingsPanel() {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setPrefs(p: Record<string, unknown> => ({ ...p, ...JSON.parse(raw) }));
+      if (raw) setPrefs((p: Record<string, unknown>) => ({ ...p, ...JSON.parse(raw) }));
     } catch { /* ignore */ }
     setActiveTopics(new Set(loadActiveTopicIds()));
   }, []);
 
   const toggle = useCallback((key: keyof FeedPreferences) => {
-    setPrefs(prev: Record<string, unknown> => {
+    setPrefs((prev: Record<string, unknown>) => {
       const next = { ...prev, [key]: !prev[key] };
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
       return next;
@@ -70,7 +70,7 @@ export default function FeedSettingsPanel() {
   }, []);
 
   const toggleTopic = useCallback((id: string) => {
-    setActiveTopics(prev: Record<string, unknown> => {
+    setActiveTopics((prev: Record<string, unknown>) => {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
@@ -121,7 +121,7 @@ export default function FeedSettingsPanel() {
         </div>
       )}
 
-      {/* -- Feed Topics --------------------------------------------------- */}
+      {/* ── Feed Topics ─────────────────────────────────────────────────── */}
       <div className="de-widget" style={{ margin: '0 16px 16px', background: 'rgba(255,255,255,0.95)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
         <div className="de-widget-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span className="de-widget-title">Feed Topics</span>
@@ -167,11 +167,11 @@ export default function FeedSettingsPanel() {
         </div>
       </div>
 
-      {/* -- General Preferences ------------------------------------------- */}
+      {/* ── General Preferences ─────────────────────────────────────────── */}
       <div className="de-widget" style={{ margin: '0 16px', background: 'rgba(255,255,255,0.95)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
         <div className="de-widget-header"><span className="de-widget-title">Feed Preferences</span></div>
         <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-          {prefRows.map({ key, label: string, desc }, idx: number => (
+          {prefRows.map({ key, label: string, desc }, (idx: number ) => (
             <div key={key} style={{
               display: 'flex', alignItems: 'center', gap: 12,
               padding: '12px 8px',

@@ -19,7 +19,7 @@ import {
   extractAudioChunks,
 } from '../lib/audioFingerprint';
 
-// --- Types --------------------------------------------------------------------
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface AudioVisualizer3DProps {
   /** Connected AnalyserNode for real-time FFT data. */
@@ -43,9 +43,9 @@ interface Hotspot {
   y: number;
 }
 
-// --- Component ----------------------------------------------------------------
+// ─── Component ────────────────────────────────────────────────────────────────
 
-export function AudioVisualizer3D() {
+export function AudioVisualizer3D(){
   analyser,
   peakMap,
   onStemExtracted,
@@ -67,11 +67,11 @@ export function AudioVisualizer3D() {
   const [hotspots,    setHotspots]            = useState<Hotspot[]>([]);
   const animFrameRef = useRef<number>(0);
 
-  // -- Build hotspots from peak map --
+  // ── Build hotspots from peak map ──
   useEffect(() => {
     if (!peakMap) { setHotspots([]); return; }
     // Show top-20 peaks as hotspots
-    const sorted = [...peakMap.peaks].sort(a: Record<string, unknown>, b: Record<string, unknown> => b.magnitude - a.magnitude).slice(0, 20);
+    const sorted = [...peakMap.peaks].sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.magnitude - a.magnitude).slice(0, 20);
     const spots: Hotspot[] = sorted.map((p: Record<string, unknown>) => ({
       frequencyHz: p.frequencyHz,
       binIndex:    p.binIndex,
@@ -82,11 +82,11 @@ export function AudioVisualizer3D() {
     setHotspots(spots);
   }, [peakMap]);
 
-  // -- Babylon init --
+  // ── Babylon init ──
   useEffect(() => {
     let mounted = true;
 
-    async function initBabylon() {
+    async function initBabylon( ){
       const canvas = canvasRef.current;
       if (!canvas || !mounted) return;
 
@@ -151,13 +151,13 @@ export function AudioVisualizer3D() {
    
   }, [barCount]);
 
-  // -- Real-time FFT update loop --
+  // ── Real-time FFT update loop ──
   useEffect(() => {
     const bufferLength = analyser.frequencyBinCount;
     const dataArray    = new Uint8Array(bufferLength);
     const step         = Math.floor(bufferLength / barCount);
 
-    function update() {
+    function update( ){
       animFrameRef.current = requestAnimationFrame(update);
       analyser.getByteFrequencyData(dataArray);
 
@@ -176,7 +176,7 @@ export function AudioVisualizer3D() {
     return () => cancelAnimationFrame(animFrameRef.current);
   }, [analyser, barCount]);
 
-  // -- Bar tap → BiquadFilter --
+  // ── Bar tap → BiquadFilter ──
   const handleCanvasClick = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const canvas = canvasRef.current;
@@ -205,7 +205,7 @@ export function AudioVisualizer3D() {
     [analyser, barCount]
   );
 
-  // -- Recording toggle --
+  // ── Recording toggle ──
   const toggleRecording = useCallback(() => {
     const { filterNode } = babylonRef.current;
     if (!filterNode) return;
@@ -220,7 +220,7 @@ export function AudioVisualizer3D() {
     filterNode.connect(dest);
     const rec    = new MediaRecorder(dest.stream);
     const chunks: BlobPart[] = [];
-    rec.ondataavailable = e: unknown => chunks.push(e.data);
+    rec.ondataavailable = (e: unknown ) => chunks.push(e.data);
     rec.onstop = () => {
       const blob = new Blob(chunks, { type: 'audio/webm' });
       const url  = URL.createObjectURL(blob);
@@ -234,7 +234,7 @@ export function AudioVisualizer3D() {
     setIsRecording(true);
   }, [isRecording]);
 
-  // -- Hotspot tap → fingerprint match + stem extract --
+  // ── Hotspot tap → fingerprint match + stem extract ──
   const handleHotspotTap = useCallback(
     async (hotspot: Hotspot) => {
       if (!peakMap || !sourceBuffer) return;
@@ -248,7 +248,7 @@ export function AudioVisualizer3D() {
     [peakMap, sourceBuffer, onStemExtracted]
   );
 
-  // --- Render --------------------------------------------------------------
+  // ─── Render ──────────────────────────────────────────────────────────────
 
   return (
     <div className={`relative w-full h-full ${className}`} style={{ minHeight: 320 }}>
@@ -261,7 +261,7 @@ export function AudioVisualizer3D() {
       />
 
       {/* Hotspot overlay */}
-      {hotspots.map(hs: Record<string, unknown>, i: number => (
+      {hotspots.map(hs: Record<string, unknown>, (i: number ) => (
         <button
           key={i}
           onClick={() => handleHotspotTap(hs)}

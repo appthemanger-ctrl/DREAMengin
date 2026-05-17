@@ -26,7 +26,7 @@ function manifestToModule(entry: (typeof CARTRIDGE_MANIFEST)[number]): ModuleMan
   };
 }
 
-export function registerCartridges(: string[]) {
+export function registerCartridges(): string[] {
   const ids: string[] = [];
   for (const entry of CARTRIDGE_MANIFEST) {
     const manifest = manifestToModule(entry);

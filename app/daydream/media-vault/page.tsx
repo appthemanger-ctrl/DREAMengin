@@ -11,7 +11,7 @@ import { connection } from 'next/server';
  */
 export const metadata = { title: 'Media Vault – Dreamengin', description: 'Your private media library.' };
 
-export default async function MediaVaultLegacyPage() {
+export default async function MediaVaultLegacyPage( ){
   await connection();
   // Media Vault is part of ContentEngin (README §13 — media composition,
   // mixed-content authoring). Redirect to Create Daydream.

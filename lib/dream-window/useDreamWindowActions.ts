@@ -80,7 +80,7 @@ async function fetchDreamWindow<T>(
 ): Promise<{ ok: boolean; data: T | null; error: string | null }> {
   try {
     const res = await fetch(input, init);
-    const json = await res.json().catch(error: unknown => {
+    const json = await res.json().catch((error: unknown ) => {
       console.warn('[DreamWindow] failed to parse JSON response', error);
       return {};
     }) as {
@@ -100,7 +100,7 @@ async function fetchDreamWindow<T>(
   }
 }
 
-export async function createDreamWindow(body: CreateDreamWindowBody: Promise<DreamWindowRecord | null>) {
+export async function createDreamWindow(body: CreateDreamWindowBody): Promise<DreamWindowRecord | null> {
   const result = await fetchDreamWindow<DreamWindowRecord>('/api/dream-windows', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -125,12 +125,12 @@ export async function patchDreamWindow(
 // Hook implementation
 // ---------------------------------------------------------------------------
 
-export function useDreamWindowActions(: UseDreamWindowActionsReturn) {
+export function useDreamWindowActions(): UseDreamWindowActionsReturn {
   const [dreamWindows, setDreamWindows] = useState<DreamWindowRecord[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // -- Load on mount ------------------------------------------------------
+  // ── Load on mount ──────────────────────────────────────────────────────
 
   const loadWindows = useCallback(async () => {
     setIsLoading(true);
@@ -155,7 +155,7 @@ export function useDreamWindowActions(: UseDreamWindowActionsReturn) {
     loadWindows();
   }, [loadWindows]);
 
-  // -- Add ----------------------------------------------------------------
+  // ── Add ────────────────────────────────────────────────────────────────
 
   const addWindow = useCallback(async (
     body: CreateDreamWindowBody,
@@ -168,7 +168,7 @@ export function useDreamWindowActions(: UseDreamWindowActionsReturn) {
         setError('Failed to create Dream Window');
         return null;
       }
-      setDreamWindows(prev: Record<string, unknown> => [created, ...prev]);
+      setDreamWindows((prev: Record<string, unknown>) => [created, ...prev]);
       return created;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -178,7 +178,7 @@ export function useDreamWindowActions(: UseDreamWindowActionsReturn) {
     }
   }, []);
 
-  // -- Remove -------------------------------------------------------------
+  // ── Remove ─────────────────────────────────────────────────────────────
 
   const removeWindow = useCallback(async (id: string): Promise<boolean> => {
     setIsLoading(true);
@@ -190,7 +190,7 @@ export function useDreamWindowActions(: UseDreamWindowActionsReturn) {
         setError((json as { error?: string }).error ?? 'Failed to delete Dream Window');
         return false;
       }
-      setDreamWindows(prev: Record<string, unknown> => prev.filter((w: Record<string, unknown>) => w.id !== id));
+      setDreamWindows((prev: Record<string, unknown>) => prev.filter((w: Record<string, unknown>) => w.id !== id));
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -200,7 +200,7 @@ export function useDreamWindowActions(: UseDreamWindowActionsReturn) {
     }
   }, []);
 
-  // -- Generic state transition -------------------------------------------
+  // ── Generic state transition ───────────────────────────────────────────
 
   const patchState = useCallback(async (
     id: string,
@@ -220,7 +220,7 @@ export function useDreamWindowActions(: UseDreamWindowActionsReturn) {
         return null;
       }
       const updated = json.dreamWindow!;
-      setDreamWindows(prev: Record<string, unknown> =>
+      setDreamWindows((prev: Record<string, unknown>) =>
         prev.map((w: Record<string, unknown>) => (w.id === id ? updated : w)),
       );
       return updated;
@@ -244,7 +244,7 @@ export function useDreamWindowActions(: UseDreamWindowActionsReturn) {
         setError('Failed to update Dream Window');
         return null;
       }
-      setDreamWindows(prev: Record<string, unknown> => prev.map((window: Record<string, unknown>) => (window.id === id ? updated : window)));
+      setDreamWindows((prev: Record<string, unknown>) => prev.map((window: Record<string, unknown>) => (window.id === id ? updated : window)));
       return updated;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -254,7 +254,7 @@ export function useDreamWindowActions(: UseDreamWindowActionsReturn) {
     }
   }, []);
 
-  // -- Lifecycle transition methods ---------------------------------------
+  // ── Lifecycle transition methods ───────────────────────────────────────
 
   const bindWindow = useCallback(
     (id: string) => patchState(id, DREAM_WINDOW_STATES.BOUND),

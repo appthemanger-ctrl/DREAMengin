@@ -40,16 +40,16 @@ const WIDGET_SLOTS: WidgetSlot[] = [
   { id: 'site',        icon: Globe,       label: 'Website',      desc: 'Your link in bio',           color: '#0ea5e9' },
 ];
 
-function loadVisibility(: Record<string, boolean>) {
+function loadVisibility(): Record<string, boolean> {
   if (typeof window === 'undefined') return {};
   try { return JSON.parse(localStorage.getItem('de-profile-widgets') || '{}'); }
   catch { return {}; }
 }
-function saveVisibility(v: Record<string, boolean>) {
+function saveVisibility(v: Record<string, boolean> ){
   localStorage.setItem('de-profile-widgets', JSON.stringify(v));
 }
 
-export default function ProfileCanvas() { initialProfile }: { initialProfile: Profile } {
+export default function ProfileCanvas({ initialProfile }: ) { initialProfile: Profile } {
   const supabase = createClient();
   const [profile, setProfile]       = useState(initialProfile);
   const [editing, setEditing]       = useState(false);
@@ -68,7 +68,7 @@ export default function ProfileCanvas() { initialProfile }: { initialProfile: Pr
   const handle      = profile.handle;
   const displayName = profile.display_name || handle;
 
-  /* -- Save edits -- */
+  /* ── Save edits ── */
   const saveEdits = useCallback(async () => {
     setSaving(true); setSaveErr('');
     const { error } = await supabase
@@ -82,22 +82,22 @@ export default function ProfileCanvas() { initialProfile }: { initialProfile: Pr
       .eq('id', profile.id);
     setSaving(false);
     if (error) { setSaveErr(error.message); return; }
-    setProfile(p => ({ ...p, ...draft }));
+    setProfile((p) => ({ ...p, ...draft }));
     setEditing(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   }, [draft, profile.id, supabase]);
 
-  /* -- Toggle widget visibility -- */
+  /* ── Toggle widget visibility ── */
   const toggleWidget = useCallback((id: string) => {
-    setVisibility(prev => {
+    setVisibility((prev) => {
       const next = { ...prev, [id]: !(prev[id] !== false) };
       saveVisibility(next);
       return next;
     });
   }, []);
 
-  /* -- Copy share link -- */
+  /* ── Copy share link ── */
   const copyLink = useCallback(() => {
     navigator.clipboard.writeText(`https://dreamengin.app/u/${handle}`).catch(() => {});
     setCopied(true);
@@ -107,7 +107,7 @@ export default function ProfileCanvas() { initialProfile }: { initialProfile: Pr
   return (
     <div style={{ maxWidth: 640, margin: '0 auto', padding: '16px 16px 100px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
-      {/* -- Profile Card — inline editable MySpace-style -- */}
+      {/* ── Profile Card — inline editable MySpace-style ── */}
       <div className="de-widget" style={{
         background: 'linear-gradient(160deg, rgba(200,152,26,0.06) 0%, rgba(42,138,184,0.06) 100%)',
         borderColor: 'rgba(42,138,184,0.22)',
@@ -211,7 +211,7 @@ export default function ProfileCanvas() { initialProfile }: { initialProfile: Pr
                 { key: 'bio',          label: 'Bio',      placeholder: 'What do you dream about?', multiline: true  },
                 { key: 'location',     label: 'Location', placeholder: 'City, State',             multiline: false },
                 { key: 'website',      label: 'Website',  placeholder: 'https://',               multiline: false },
-              ] as const).map({ key, label: string, placeholder: Record<string, unknown>, multiline } => (
+              ] as const).map(({ key, label: string, placeholder: Record<string, unknown>, multiline }) => (
                 <div key={key}>
                   <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>
                     {label}
@@ -219,7 +219,7 @@ export default function ProfileCanvas() { initialProfile }: { initialProfile: Pr
                   {multiline ? (
                     <textarea
                       value={draft[key]}
-                      onChange={e => setDraft(d => ({ ...d, [key]: e.target.value }))}
+                      onChange={e => setDraft((d) => ({ ...d, [key]: e.target.value }))}
                       rows={3}
                       placeholder={placeholder}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.75)', border: '1.5px solid rgba(42,138,184,0.25)', color: 'var(--de-text)', fontSize: 14, outline: 'none', resize: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
@@ -228,7 +228,7 @@ export default function ProfileCanvas() { initialProfile }: { initialProfile: Pr
                     <input
                       type="text"
                       value={draft[key]}
-                      onChange={e => setDraft(d => ({ ...d, [key]: e.target.value }))}
+                      onChange={e => setDraft((d) => ({ ...d, [key]: e.target.value }))}
                       placeholder={placeholder}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.75)', border: '1.5px solid rgba(42,138,184,0.25)', color: 'var(--de-text)', fontSize: 14, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
                     />
@@ -245,7 +245,7 @@ export default function ProfileCanvas() { initialProfile }: { initialProfile: Pr
         </div>
       </div>
 
-      {/* -- Widget Canvas — pick what visitors see -- */}
+      {/* ── Widget Canvas — pick what visitors see ── */}
       <div className="de-widget">
         <div className="de-widget-header">
           <span className="de-widget-title">Profile Canvas</span>
@@ -253,7 +253,7 @@ export default function ProfileCanvas() { initialProfile }: { initialProfile: Pr
         </div>
         <div className="de-widget-body">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-            {WIDGET_SLOTS.map({ id, icon: Icon, label: string, desc: string, color } => {
+            {WIDGET_SLOTS.map(({ id, icon: Icon, label: string, desc: string, color }) => {
               const on = visibility[id] !== false;
               return (
                 <button
@@ -290,7 +290,7 @@ export default function ProfileCanvas() { initialProfile }: { initialProfile: Pr
         </div>
       </div>
 
-      {/* -- Share Profile -- */}
+      {/* ── Share Profile ── */}
       <div className="de-widget">
         <div className="de-widget-header">
           <Share2 className="w-4 h-4 mr-2" style={{ color: 'var(--de-accent)' }} />
@@ -306,7 +306,7 @@ export default function ProfileCanvas() { initialProfile }: { initialProfile: Pr
             </button>
           </div>
           <div style={{ display: 'flex', gap: 10, marginTop: 12, paddingTop: 10, borderTop: '1px solid rgba(160,195,240,0.18)', flexWrap: 'wrap' }}>
-            {PROFILE_SHARE_PLATFORMS.map(platform => (
+            {PROFILE_SHARE_PLATFORMS.map((platform) => (
               <PlatformBadge
                 key={platform.id}
                 name={platform.id}

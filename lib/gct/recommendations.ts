@@ -25,6 +25,6 @@ export async function recommendItems(
 
   const matches = await engine.search(userHistory, templates, threshold);
   return matches
-    .sort(a: Record<string, unknown>, b: Record<string, unknown> => b.correlation - a.correlation)
+    .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.correlation - a.correlation)
     .map((match: Record<string, unknown>) => match.templateId);
 }

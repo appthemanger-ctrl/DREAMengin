@@ -36,7 +36,7 @@ const TYPE_EMOJIS: Record<ContentType, string> = {
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-export default function CalendarPanel() {
+export default function CalendarPanel( ){
   const [weekOffset, setWeekOffset] = useState(0);
   const [items, setItems] = useState<CalItem[]>([
     { id: '1', type: 'Post',   title: 'New drop announcement',    dayOffset: 1, time: '09:00' },
@@ -53,9 +53,9 @@ export default function CalendarPanel() {
   weekStart.setHours(0, 0, 0, 0);
   weekStart.setDate(weekStart.getDate() - weekStart.getDay() + weekOffset * 7);
 
-  function addItem() {
+  function addItem( ){
     if (!newTitle.trim() || showAdd === null) return;
-    setItems(prev: Record<string, unknown> => [...prev, {
+    setItems((prev: Record<string, unknown>) => [...prev, {
       id: Date.now().toString(),
       type: newType,
       title: newTitle.trim(),
@@ -66,8 +66,8 @@ export default function CalendarPanel() {
     setShowAdd(null);
   }
 
-  function removeItem(id: string) {
-    setItems(prev: Record<string, unknown> => prev.filter(i: number => i.id !== id));
+  function removeItem(id: string ){
+    setItems((prev: Record<string, unknown>) => prev.filter((i: number ) => i.id !== id));
   }
 
   return (
@@ -79,13 +79,13 @@ export default function CalendarPanel() {
             <p className="text-sm text-white/50">Plan and schedule your content week</p>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setWeekOffset(w: number => w - 1)} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all">
+            <button onClick={() => setWeekOffset((w: number ) => w - 1)} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all">
               <ChevronLeft size={16} />
             </button>
             <span className="text-xs text-white/50 min-w-[80px] text-center">
               {weekOffset === 0 ? 'This week' : weekOffset > 0 ? `+${weekOffset}w` : `${weekOffset}w`}
             </span>
-            <button onClick={() => setWeekOffset(w: number => w + 1)} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all">
+            <button onClick={() => setWeekOffset((w: number ) => w + 1)} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all">
               <ChevronRight size={16} />
             </button>
           </div>
@@ -93,7 +93,7 @@ export default function CalendarPanel() {
 
         {/* Week grid */}
         <div className="grid grid-cols-7 gap-2">
-          {Array.from({ length: 7 }, _: Record<string, unknown>, di: Record<string, unknown> => {
+          {Array.from(({ length: 7 }, _: Record<string, unknown>, di: Record<string, unknown>) => {
             const date = new Date(weekStart);
             date.setDate(weekStart.getDate() + di);
             const dayItems = items.filter((item: Record<string, unknown>) => item.dayOffset === di + weekOffset * 7);

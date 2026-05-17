@@ -18,7 +18,7 @@
  * Architecture: docs/ARCHITECTURE.md §7 (Pass 7 — consent + settings + audit).
  */
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 export type ConsentDomain =
   | 'network:coop'        // participate in co-op sessions
@@ -50,7 +50,7 @@ export interface AuditEntry {
   timestamp: string;
 }
 
-// -- acceptIncoming policy (decision #7) --------------------------------------
+// ── acceptIncoming policy (decision #7) ──────────────────────────────────────
 
 /**
  * Returns the effective accept-incoming decision for a source peer.
@@ -66,7 +66,7 @@ export function resolveAcceptPolicy(
   return inSession ? 'granted' : 'prompt';
 }
 
-// -- ConsentManager ------------------------------------------------------------
+// ── ConsentManager ────────────────────────────────────────────────────────────
 
 const LS_KEY = 'dream:consent';
 const SETTINGS_LS_KEY = 'dream:settings';
@@ -112,7 +112,7 @@ export class ConsentManager {
     this._loadFromLocalStorage();
   }
 
-  // -- Session -----------------------------------------------------------------
+  // ── Session ─────────────────────────────────────────────────────────────────
 
   /** Attach the active session ID so consent entries can reference it. */
   setSessionId(id: string): void {
@@ -123,7 +123,7 @@ export class ConsentManager {
     this._sessionId = null;
   }
 
-  // -- Consent -----------------------------------------------------------------
+  // ── Consent ─────────────────────────────────────────────────────────────────
 
   /** Return the cached decision for a domain. Defaults to 'prompt'. */
   get(domain: ConsentDomain): ConsentDecision {
@@ -167,7 +167,7 @@ export class ConsentManager {
     return Array.from(this._cache.values());
   }
 
-  // -- Settings (key/value) -----------------------------------------------------
+  // ── Settings (key/value) ─────────────────────────────────────────────────────
 
   getSetting(key: string, fallback?: string): string | undefined {
     return this._settings.get(key) ?? fallback;
@@ -189,11 +189,11 @@ export class ConsentManager {
 
   getAllSettings(): Record<string, string> {
     const obj: Record<string, string> = {};
-    this._settings.forEach(v: Record<string, unknown>, k: number => { obj[k] = v; });
+    this._settings.forEach(v: Record<string, unknown>, (k: number ) => { obj[k] = v; });
     return obj;
   }
 
-  // -- Audit --------------------------------------------------------------------
+  // ── Audit ────────────────────────────────────────────────────────────────────
 
   /** Append an arbitrary audit entry (e.g. co-op transfer, module drop). */
   audit(entry: Omit<AuditEntry, 'id' | 'timestamp'>): void {
@@ -299,7 +299,7 @@ export class ConsentManager {
     }
   }
 
-  // -- Private ------------------------------------------------------------------
+  // ── Private ──────────────────────────────────────────────────────────────────
 
   private _appendAudit(entry: AuditEntry): void {
     this._auditLog.push(entry);

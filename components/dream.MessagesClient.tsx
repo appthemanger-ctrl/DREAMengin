@@ -41,20 +41,20 @@ interface MessagesClientProps {
 }
 
 /** Parse a subject line from message content formatted as "**Subject:** [subject]\n\n[body]" */
-function parseSubject(content: string:) { subject: string | null; body: string } {
+function parseSubject(content: string): { subject: string | null; body: string } {
   const match = content.match(/^\*\*Subject:\*\* (.+?)\n\n([\s\S]*)$/);
   if (match) return { subject: match[1].trim(), body: match[2].trimStart() };
   return { subject: null, body: content };
 }
 
 /** Format a message with an optional subject */
-function formatMessageContent(subject: string, body: string: string) {
+function formatMessageContent(subject: string, body: string): string {
   if (subject.trim()) return `**Subject:** ${subject.trim()}\n\n${body}`;
   return body;
 }
 
 /** Render message content with optional subject heading */
-function MessageContent() { content, isMe }: { content: string; isMe: boolean } {
+function MessageContent({ content, isMe }: ) { content: string; isMe: boolean } {
   const { subject, body } = parseSubject(content);
   return (
     <>
@@ -69,7 +69,7 @@ function MessageContent() { content, isMe }: { content: string; isMe: boolean } 
 }
 
 /** Get a preview string for a conversation list item */
-function getConversationPreview(lastMessage: string: string) {
+function getConversationPreview(lastMessage: string): string {
   const { subject, body } = parseSubject(lastMessage);
   return subject ? `Re: ${subject}` : body;
 }
@@ -78,7 +78,7 @@ function getConversationPreview(lastMessage: string: string) {
  *  Must be long enough for a mousedown on a suggestion to fire before blur hides the list. */
 const SUGGESTIONS_CLOSE_DELAY_MS = 200;
 
-export default function MessagesClient() { userId, initialConversations: Record<string, unknown>, fromDrEams = false, initialDrEamsQuery = '' }: MessagesClientProps {
+export default function MessagesClient({ userId, initialConversations: Record<string, unknown>, fromDrEams = false, initialDrEamsQuery = '' }: MessagesClientProps) {
   const [conversations, setConversations] = useState(initialConversations);
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(initialConversations[0] || null);
   const [newMessage, setNewMessage] = useState('');
@@ -97,7 +97,7 @@ export default function MessagesClient() { userId, initialConversations: Record<
   const supabase = createClient();
   const router = useRouter();
 
-  // -- Universal search + Dr. Eams toggle (shared with DreamDM Bar) ----------
+  // ── Universal search + Dr. Eams toggle (shared with DreamDM Bar) ──────────
   const { results: searchSuggestions, isSearching: isSuggesting, drEamsMode, toggleDrEams, clearResults: clearSuggestions } =
     useDreamSearch(searchQuery);
 
@@ -249,8 +249,8 @@ export default function MessagesClient() { userId, initialConversations: Record<
       if (data.message) {
         replaceOptimistic(optimisticMessage!.id, data.message);
         // Update conversation list updated_at
-        setConversations(prev =>
-          prev.map(c =>
+        setConversations((prev) =>
+          prev.map((c) =>
             c.id === selectedConv.id
               ? { ...c, lastMessage: messageContent, updatedAt: new Date().toISOString() }
               : c
@@ -267,7 +267,7 @@ export default function MessagesClient() { userId, initialConversations: Record<
     }
   };
 
-  const filteredConversations = conversations.filter(conv =>
+  const filteredConversations = conversations.filter((conv) =>
     conv.otherUser.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     conv.otherUser.handle?.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -331,7 +331,7 @@ export default function MessagesClient() { userId, initialConversations: Record<
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-0 rounded-2xl overflow-hidden min-h-[70vh]" style={{ background: 'rgba(255,255,255,0.93)', border: '1px solid rgba(160,195,240,0.3)', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
-          {/* -- Dr. Eams context banner -- shown when arriving via "Send to DreamDM" */}
+          {/* ── Dr. Eams context banner ── shown when arriving via "Send to DreamDM" */}
           {showDrEamsBanner && initialDrEamsQuery && (
             <div
               className="md:col-span-12"
@@ -746,7 +746,7 @@ export default function MessagesClient() { userId, initialConversations: Record<
                     {/* Email-compose toggle */}
                     <button
                       type="button"
-                      onClick={() => setShowSubjectField(v: number => !v)}
+                      onClick={() => setShowSubjectField((v: number ) => !v)}
                       disabled={isSending}
                       className="p-3 rounded-xl transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center disabled:opacity-50"
                       style={{ background: showSubjectField ? 'rgba(42,138,184,0.15)' : 'rgba(160,195,240,0.12)', color: showSubjectField ? 'var(--de-accent)' : 'var(--de-text-dim)' }}

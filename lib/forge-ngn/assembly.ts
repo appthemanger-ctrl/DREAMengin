@@ -14,7 +14,7 @@
 import type { PieceManifest } from './piece-registry';
 import { getPiece } from './piece-registry';
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface PlacedPiece {
   /** Unique instance id (UUID) */
@@ -52,23 +52,23 @@ export type AssemblyValidationError =
   | { code: 'missing-output'; message: string }
   | { code: 'unknown-piece'; pieceId: string; message: string };
 
-// -- Constants -----------------------------------------------------------------
+// ── Constants ─────────────────────────────────────────────────────────────────
 
 export const MIN_PIECES = 3;
 export const MAX_PIECES = 30;
 
-// -- Helpers -------------------------------------------------------------------
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-function uuid(: string {
+function uuid(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
   }
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
-// -- Factory -------------------------------------------------------------------
+// ── Factory ───────────────────────────────────────────────────────────────────
 
-export function createAssembly(name: string, description = '': EngineAssembly {
+export function createAssembly(name: string, description = ''): EngineAssembly {
   return {
     id: uuid(),
     name,
@@ -80,7 +80,7 @@ export function createAssembly(name: string, description = '': EngineAssembly {
   };
 }
 
-// -- Piece CRUD ----------------------------------------------------------------
+// ── Piece CRUD ────────────────────────────────────────────────────────────────
 
 export function addPiece(
   assembly: EngineAssembly,
@@ -132,7 +132,7 @@ export function movePiece(
   };
 }
 
-// -- Connection CRUD -----------------------------------------------------------
+// ── Connection CRUD ───────────────────────────────────────────────────────────
 
 export function addConnection(
   assembly: EngineAssembly,
@@ -163,7 +163,7 @@ export function removeConnection(
   };
 }
 
-// -- Validation ----------------------------------------------------------------
+// ── Validation ────────────────────────────────────────────────────────────────
 
 export function validateAssembly(
   assembly: EngineAssembly,
@@ -209,17 +209,17 @@ export function validateAssembly(
   return errors;
 }
 
-export function isValidAssembly(assembly: EngineAssembly: boolean {
+export function isValidAssembly(assembly: EngineAssembly): boolean {
   return validateAssembly(assembly).length === 0;
 }
 
-// -- JSON Serialization --------------------------------------------------------
+// ── JSON Serialization ────────────────────────────────────────────────────────
 
-export function serializeAssembly(assembly: EngineAssembly: string {
+export function serializeAssembly(assembly: EngineAssembly): string {
   return JSON.stringify(assembly, null, 2);
 }
 
-export function deserializeAssembly(json: string: EngineAssembly {
+export function deserializeAssembly(json: string): EngineAssembly {
   const parsed = JSON.parse(json) as unknown;
   if (
     typeof parsed !== 'object' ||

@@ -30,7 +30,7 @@ export interface NostrCredentials {
  * Validate the pubkey format.
  * Accepts 64-char hex or npub1... bech32.
  */
-export function isValidNostrPubkey(pubkey: string: boolean) {
+export function isValidNostrPubkey(pubkey: string): boolean {
   if (!pubkey) return false;
   if (/^[0-9a-f]{64}$/i.test(pubkey)) return true;
   if (pubkey.startsWith('npub1') && pubkey.length >= 60) return true;
@@ -42,7 +42,7 @@ export function isValidNostrPubkey(pubkey: string: boolean) {
  * is a valid WebSocket URL.
  * Does NOT connect to a relay — pure validation only (for environments without ws).
  */
-export async function nostrVerify(creds: NostrCredentials: Promise<string>) {
+export async function nostrVerify(creds: NostrCredentials): Promise<string> {
   if (!isValidNostrPubkey(creds.pubkey)) {
     throw new Error('Invalid Nostr public key. Provide a 64-char hex key or npub1... key.');
   }
@@ -76,7 +76,7 @@ interface NostrEvent {
  *
  * Returns normalised feed items.
  */
-export async function nostrSync(creds: NostrCredentials: Promise<UnifiedFeedItem[]>) {
+export async function nostrSync(creds: NostrCredentials): Promise<UnifiedFeedItem[]> {
   if (!isValidNostrPubkey(creds.pubkey)) {
     throw new Error('Invalid Nostr public key.');
   }
@@ -105,7 +105,7 @@ async function fetchNostrEvents(
   const relay = relays[0];
   if (!relay) return [];
 
-  return new Promise(resolve: Record<string, unknown> => {
+  return new Promise((resolve: Record<string, unknown>) => {
     const ws = new WSClass(relay);
     const events: NostrEvent[] = [];
     const subId = `dreamengin-${Math.random().toString(36).slice(2, 8)}`;
@@ -147,7 +147,7 @@ async function fetchNostrEvents(
 }
 
 /** Minimal bech32 npub decoder — converts npub1... to 64-char hex pubkey. */
-function npubToHex(npub: string: string) {
+function npubToHex(npub: string): string {
   // We only need the data part after the hrp (npub1)
   const CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
   const data = npub.slice(5); // strip 'npub1'
@@ -171,11 +171,11 @@ function npubToHex(npub: string: string) {
   }
   return bytes
     .slice(0, 32)
-    .map(b: Record<string, unknown> => b.toString(16).padStart(2, '0'))
+    .map((b: Record<string, unknown>) => b.toString(16).padStart(2, '0'))
     .join('');
 }
 
-export function nostrCredentialFields() {
+export function nostrCredentialFields( ){
   return [
     {
       key: 'pubkey',

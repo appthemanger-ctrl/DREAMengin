@@ -78,7 +78,7 @@ export interface ScanMediaUrlsInput {
 // ============================================================================
 
 /** Infer MIME type from Content-Type header or URL path extension */
-function inferMime(contentType: string | null, url: string: ImageMime | null) {
+function inferMime(contentType: string | null, url: string): ImageMime | null {
   if (contentType) {
     const base = contentType.split(';')[0].trim().toLowerCase();
     if (SUPPORTED_IMAGE_MIMES.includes(base as ImageMime)) {
@@ -99,7 +99,7 @@ function inferMime(contentType: string | null, url: string: ImageMime | null) {
 }
 
 /** Load known-bad hashes from child_safety_hash_registry. Returns empty Set on error. */
-async function loadKnownBadHashes(supabase: SupabaseLike: Promise<Set<string>>) {
+async function loadKnownBadHashes(supabase: SupabaseLike): Promise<Set<string>> {
   try {
     const { data, error } = await (supabase as SupabaseClient)
       .from('child_safety_hash_registry')
@@ -116,7 +116,7 @@ async function loadKnownBadHashes(supabase: SupabaseLike: Promise<Set<string>>) 
 /**
  * A CLEAN sentinel result — returned when no images were flagged.
  */
-function cleanResult(: ChildSafetyResult) {
+function cleanResult(): ChildSafetyResult {
   return {
     flagged: false,
     rule_code: null,
@@ -207,7 +207,7 @@ export async function scanMediaUrlsForChildSafety(
 
     const { buffer, mime } = fetched;
 
-    // -- Layer 1: Hash check ------------------------------------------------
+    // ── Layer 1: Hash check ────────────────────────────────────────────────
     const imageHash = createHash('sha256').update(buffer).digest('hex');
     const hashResult = scanContent({
       mediaHashes: [imageHash],
@@ -219,7 +219,7 @@ export async function scanMediaUrlsForChildSafety(
       return hashResult;
     }
 
-    // -- Layer 4: LLM image classification ---------------------------------
+    // ── Layer 4: LLM image classification ─────────────────────────────────
     const imageBase64 = buffer.toString('base64');
     const imgClassification = await classifyImage(imageBase64, mime ?? 'image/jpeg');
 
@@ -238,7 +238,7 @@ export async function scanMediaUrlsForChildSafety(
  * Used by callers that receive mixed-type media arrays and want to skip
  * non-image URLs without fetching them.
  */
-export function isImageUrl(url: string: boolean) {
+export function isImageUrl(url: string): boolean {
   try {
     const pathname = new URL(url).pathname.toLowerCase();
     const ext = pathname.split('.').pop() ?? '';

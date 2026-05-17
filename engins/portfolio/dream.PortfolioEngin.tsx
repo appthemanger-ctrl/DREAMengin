@@ -24,12 +24,12 @@ interface Props {
   onBack: () => void;
 }
 
-// -- design token ----------------------------------------------
+// ── design token ──────────────────────────────────────────────
 const ACCENT  = '#2a8ab8';   // DREAMengin light-blue (live / connected state)
 const GOLD    = '#c8981a';   // DREAMengin gold (action / confirm)
 const PURPLE  = '#8b5cf6';   // quantum / ansatz accent
 
-// -- option types ----------------------------------------------
+// ── option types ──────────────────────────────────────────────
 type Algorithm = 'vqe' | 'qaoa';
 type Backend   = 'local_simulator' | 'ibm_quantum';
 type Ansatz    = 'real_amplitudes' | 'efficient_su2';
@@ -43,7 +43,7 @@ interface RunResult {
   sharpeRatio: string;
 }
 
-// -- feature-flag metadata -------------------------------------
+// ── feature-flag metadata ─────────────────────────────────────
 const FEATURES = [
   { key: 'cvar_qaoa',       label: 'CVaR',  desc: 'Conditional Value-at-Risk objective',         color: PURPLE },
   { key: 'xy_mixer',        label: 'XY',    desc: 'Cardinality-preserving XY mixer',             color: '#0ea5e9' },
@@ -52,7 +52,7 @@ const FEATURES = [
   { key: 'zne_local',       label: 'ZNE',   desc: 'Zero-Noise Extrapolation (local)',            color: '#ec4899' },
 ] as const;
 
-export default function PortfolioEngin() { onBack }: Props {
+export default function PortfolioEngin({ onBack }: Props) {
   const [algorithm, setAlgorithm] = useState<Algorithm>('vqe');
   const [backend,   setBackend]   = useState<Backend>('local_simulator');
   const [ansatz,    setAnsatz]    = useState<Ansatz>('real_amplitudes');
@@ -64,7 +64,7 @@ export default function PortfolioEngin() { onBack }: Props {
   // Portfolio is its own 7th engine — pulse Forge under its own enginId
   const forge = useForgeActivity({ enginId: 'portfolio' });
 
-  async function handleRun() {
+  async function handleRun( ){
     setRunning(true);
     setResult(null);
     setError(null);
@@ -121,7 +121,7 @@ export default function PortfolioEngin() { onBack }: Props {
   return (
     <div className="de-sky-bg min-h-screen">
 
-      {/* -- Header ------------------------------------------- */}
+      {/* ── Header ─────────────────────────────────────────── */}
       <header
         className="sticky top-0 z-30 backdrop-blur-xl"
         style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}
@@ -163,7 +163,7 @@ export default function PortfolioEngin() { onBack }: Props {
         </div>
       </header>
 
-      {/* -- Body --------------------------------------------- */}
+      {/* ── Body ───────────────────────────────────────────── */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
 
         {/* Algorithm picker */}
@@ -173,7 +173,7 @@ export default function PortfolioEngin() { onBack }: Props {
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              {(['vqe', 'qaoa'] as Algorithm[]).map(alg => (
+              {(['vqe', 'qaoa'] as Algorithm[]).map((alg) => (
                 <button
                   key={alg}
                   type="button"
@@ -209,7 +209,7 @@ export default function PortfolioEngin() { onBack }: Props {
               {([
                 { value: 'local_simulator', label: 'Local', sub: 'Simulator' },
                 { value: 'ibm_quantum',     label: 'IBM',   sub: 'Quantum Hardware' },
-              ] as { value: Backend; label: string; sub: string }[]).map(opt => (
+              ] as { value: Backend; label: string; sub: string }[]).map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
@@ -245,7 +245,7 @@ export default function PortfolioEngin() { onBack }: Props {
               {([
                 { value: 'real_amplitudes', label: 'RealAmplitudes',  sub: 'Default, hardware-efficient' },
                 { value: 'efficient_su2',   label: 'EfficientSU2',    sub: 'Wider expressibility' },
-              ] as { value: Ansatz; label: string; sub: string }[]).map(opt => (
+              ] as { value: Ansatz; label: string; sub: string }[]).map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
@@ -279,7 +279,7 @@ export default function PortfolioEngin() { onBack }: Props {
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {FEATURES.map(f => (
+              {FEATURES.map((f) => (
                 <div
                   key={f.key}
                   title={f.desc}
@@ -349,7 +349,7 @@ export default function PortfolioEngin() { onBack }: Props {
             <div className="de-widget-body">
               {/* Per-asset selection */}
               <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
-                {quantumResult.selectedAssets.map(selected: Record<string, unknown>, i: number => (
+                {quantumResult.selectedAssets.map(selected: Record<string, unknown>, (i: number ) => (
                   <div key={i} style={{
                     flex: 1, padding: '8px 4px', borderRadius: 8, textAlign: 'center',
                     background:  selected ? `${ACCENT}10` : 'transparent',
@@ -383,7 +383,7 @@ export default function PortfolioEngin() { onBack }: Props {
               </div>
               {/* Probability distribution summary */}
               <div style={{ marginTop: 8, display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-                {quantumResult.probabilities.map(p: Record<string, unknown>, i: number => (
+                {quantumResult.probabilities.map(p: Record<string, unknown>, (i: number ) => (
                   p > 0.02 ? (
                     <span key={i} style={{
                       fontSize: 9, fontFamily: 'monospace', padding: '2px 5px',
@@ -452,7 +452,7 @@ export default function PortfolioEngin() { onBack }: Props {
                   { icon: Activity,    label: 'Portfolio Risk',  value: result.portfolioRisk,   unit: '%',  color: '#f59e0b'  },
                   { icon: ShieldCheck, label: 'Sharpe Ratio',   value: result.sharpeRatio,     unit: '',   color: ACCENT     },
                   { icon: Cpu,         label: 'Objective',      value: result.objectiveValue,  unit: '',   color: PURPLE    },
-                ].map({ icon: Icon, label: string, value: Record<string, unknown>, unit: Record<string, unknown>, color } => (
+                ].map(({ icon: Icon, label: string, value: Record<string, unknown>, unit: Record<string, unknown>, color }) => (
                   <div
                     key={label}
                     className="de-metric de-surface"
@@ -494,11 +494,10 @@ export default function PortfolioEngin() { onBack }: Props {
           </div>
         )}
 
-        {/* -- Journey Trail -- */}
+        {/* ── Journey Trail ── */}
         <JourneyTrail compact />
 
       </div>
     </div>
   );
 }
-

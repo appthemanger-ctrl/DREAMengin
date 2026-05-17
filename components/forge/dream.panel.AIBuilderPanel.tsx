@@ -24,7 +24,7 @@ import { useForgeBuild } from '@/lib/forge/useForgeBuild';
 import { readForgeBuilds, canBuildToday, type ForgeLogEvent, type ForgeBuildRecord } from '@/lib/forge/forgeBuild';
 import { ENGIN_REGISTRY } from '@/lib/forge/forgeRegistry';
 
-// -- Design tokens (matches ForgeEngin FORGE object) --------------------------
+// ── Design tokens (matches ForgeEngin FORGE object) ──────────────────────────
 const FORGE = {
   bg:     '#0a0a0f',
   panel:  'rgba(255,255,255,0.04)',
@@ -51,11 +51,11 @@ const AGENT_INITIALS: Record<string, string> = {
   'TheBoogieMan.Ai':   'BM',
 };
 
-// -- Phase system --------------------------------------------------------------
+// ── Phase system ──────────────────────────────────────────────────────────────
 
 const PHASES = ['Parsing', 'Dr. Eams', 'IDARi', 'Safety', 'Generating', 'Staging', 'Done'] as const;
 
-function getPhaseIndexFromStep(step: string: number) {
+function getPhaseIndexFromStep(step: string): number {
   if (step.includes('Parsing'))               return 0;
   if (step.includes('Dr. Eams'))              return 1;
   if (step.includes('IDARi is architecting')) return 2;
@@ -66,9 +66,9 @@ function getPhaseIndexFromStep(step: string: number) {
   return -1;
 }
 
-// -- Phase progress bar --------------------------------------------------------
+// ── Phase progress bar ────────────────────────────────────────────────────────
 
-function PhaseBar() { activePhase }: { activePhase: number } {
+function PhaseBar({ activePhase }: ) { activePhase: number } {
   return (
     <div style={{
       display: 'flex',
@@ -81,7 +81,7 @@ function PhaseBar() { activePhase }: { activePhase: number } {
       marginBottom: 10,
       overflowX: 'auto',
     }}>
-      {PHASES.map(phase: Record<string, unknown>, idx: number => {
+      {PHASES.map(phase: Record<string, unknown>, (idx: number ) => {
         const isDone    = idx < activePhase;
         const isActive  = idx === activePhase;
 
@@ -139,11 +139,11 @@ function PhaseBar() { activePhase }: { activePhase: number } {
   );
 }
 
-// -- Code block renderer -------------------------------------------------------
+// ── Code block renderer ───────────────────────────────────────────────────────
 
 type CodeLogEvent = Extract<ForgeLogEvent, { type: 'code' }>;
 
-function CodeBlock() { event }: { event: CodeLogEvent } {
+function CodeBlock({ event }: ) { event: CodeLogEvent } {
   const [copied, setCopied] = useState(false);
   const lines = event.content.split('\n');
   const MAX_VISIBLE = 15;
@@ -245,7 +245,7 @@ function CodeBlock() { event }: { event: CodeLogEvent } {
   );
 }
 
-// -- Example prompt chips ------------------------------------------------------
+// ── Example prompt chips ──────────────────────────────────────────────────────
 
 const EXAMPLE_CHIPS = [
   { emoji: '🎮', text: 'Desert platformer with dash ability and scoreboard' },
@@ -254,13 +254,13 @@ const EXAMPLE_CHIPS = [
   { emoji: '🔬', text: 'Monte Carlo simulation of stock price movement' },
 ] as const;
 
-function formatTimestamp(ts: number: string) {
+function formatTimestamp(ts: number): string {
   return new Date(ts).toLocaleTimeString('en-US', {
     hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
   });
 }
 
-function buildMarkdownSummary(logs: ForgeLogEvent[], prompt: string: string) {
+function buildMarkdownSummary(logs: ForgeLogEvent[], prompt: string): string {
   const lines = [
     `# ForgeEngin AI Build Log`,
     `**Prompt:** ${prompt}`,
@@ -299,9 +299,9 @@ function buildMarkdownSummary(logs: ForgeLogEvent[], prompt: string: string) {
   return lines.join('\n');
 }
 
-// -- Log entry renderer --------------------------------------------------------
+// ── Log entry renderer ────────────────────────────────────────────────────────
 
-function LogEntry() {
+function LogEntry(){
   event,
   isActive = false,
   isRunning = false,
@@ -465,7 +465,7 @@ function LogEntry() {
   }
 
   if (event.type === 'result') {
-    const enginEntry = ENGIN_REGISTRY.find(e => e.id === event.enginId);
+    const enginEntry = ENGIN_REGISTRY.find((e) => e.id === event.enginId);
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}
@@ -515,10 +515,10 @@ function LogEntry() {
   return null;
 }
 
-// -- Build history item --------------------------------------------------------
+// ── Build history item ────────────────────────────────────────────────────────
 
-function HistoryItem() { record, onLaunch }: { record: ForgeBuildRecord; onLaunch: (href: string) => void }) {
-  const enginEntry = ENGIN_REGISTRY.find(e => e.id === record.primaryEnginId);
+function HistoryItem({ record, onLaunch }: ) { record: ForgeBuildRecord; onLaunch: (href: string) => void }) {
+  const enginEntry = ENGIN_REGISTRY.find((e) => e.id === record.primaryEnginId);
   const elapsed = Date.now() - new Date(record.createdAt).getTime();
   const timeStr =
     elapsed < 60_000 ? 'just now' :
@@ -563,9 +563,9 @@ function HistoryItem() { record, onLaunch }: { record: ForgeBuildRecord; onLaunc
   );
 }
 
-// -- Main component ------------------------------------------------------------
+// ── Main component ────────────────────────────────────────────────────────────
 
-export default function AIBuilderPanel() {
+export default function AIBuilderPanel( ){
   const router = useRouter();
   const { state, logs, result, submit, reset, rateLimitError } = useForgeBuild();
 
@@ -610,17 +610,17 @@ export default function AIBuilderPanel() {
 
   // Current phase label shown in the Forge button while running
   const currentPhaseLabel = useMemo(() => {
-    const phaseSteps = logs.filter(l => l.type === 'step' && l.step.startsWith('PHASE:'));
+    const phaseSteps = logs.filter((l) => l.type === 'step' && l.step.startsWith('PHASE:'));
     if (!phaseSteps.length) return null;
     const last = phaseSteps[phaseSteps.length - 1] as Extract<ForgeLogEvent, { type: 'step' }>;
     return last.step.replace('PHASE: ', '').replace(' 🎉', '');
   }, [logs]);
 
   // Visible logs (exclude done event) + last-agent index for typing cursor
-  const visibleLogs = useMemo(() => logs.filter(e => e.type !== 'done'), [logs]);
+  const visibleLogs = useMemo(() => logs.filter((e) => e.type !== 'done'), [logs]);
   const lastAgentVisibleIdx = useMemo(() => {
     if (state !== 'running') return -1;
-    return visibleLogs.reduce(idx: number, log: Record<string, unknown>, i: number => (log.type === 'agent' ? i : idx), -1);
+    return visibleLogs.reduce(idx: number, log: Record<string, unknown>, (i: number ) => (log.type === 'agent' ? i : idx), -1);
   }, [visibleLogs, state]);
 
   const handleSubmit = useCallback(() => {
@@ -668,7 +668,7 @@ export default function AIBuilderPanel() {
       border: `1px solid ${FORGE.border}`,
       overflow: 'hidden',
     }}>
-      {/* -- Agent persona badges -- */}
+      {/* ── Agent persona badges ── */}
       <div style={{
         padding: '14px 18px',
         borderBottom: `1px solid ${FORGE.border}`,
@@ -682,7 +682,7 @@ export default function AIBuilderPanel() {
           { name: 'Dr. Eams', role: 'Creative', Icon: User, color: AGENT_COLORS['Dr. Eams'] },
           { name: 'IDARi', role: 'Systems', Icon: Settings, color: AGENT_COLORS['IDARi'] },
           { name: 'TheBoogieMan.Ai', role: 'Policy', Icon: Shield, color: AGENT_COLORS['TheBoogieMan.Ai'] },
-        ].map({ name, role: Record<string, unknown>, Icon: Record<string, unknown>, color } => (
+        ].map(({ name, role: Record<string, unknown>, Icon: Record<string, unknown>, color }) => (
           <div
             key={name}
             style={{
@@ -700,7 +700,7 @@ export default function AIBuilderPanel() {
       </div>
 
       <div style={{ padding: '18px 18px 0' }}>
-        {/* -- Rate limit banner -- */}
+        {/* ── Rate limit banner ── */}
         <AnimatePresence>
           {isLimitHit && (
             <motion.div
@@ -724,7 +724,7 @@ export default function AIBuilderPanel() {
           )}
         </AnimatePresence>
 
-        {/* -- Prompt textarea -- */}
+        {/* ── Prompt textarea ── */}
         <div style={{ marginBottom: 10 }}>
           <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: FORGE.dim, marginBottom: 6, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
             Describe what you want to build
@@ -780,10 +780,10 @@ export default function AIBuilderPanel() {
           </div>
         </div>
 
-        {/* -- Example chips -- */}
+        {/* ── Example chips ── */}
         {!isRunning && !isDone && !logs.length && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
-            {EXAMPLE_CHIPS.map(chip => (
+            {EXAMPLE_CHIPS.map((chip) => (
               <button
                 key={chip.text}
                 type="button"
@@ -810,7 +810,7 @@ export default function AIBuilderPanel() {
           </div>
         )}
 
-        {/* -- Action buttons row: [Forge It] [Reset] [Share Log] -- */}
+        {/* ── Action buttons row: [Forge It] [Reset] [Share Log] ── */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
           <motion.button
             type="button"
@@ -912,7 +912,7 @@ export default function AIBuilderPanel() {
           )}
         </div>
 
-        {/* -- Launch Result — full-width below action row -- */}
+        {/* ── Launch Result — full-width below action row ── */}
         <AnimatePresence>
           {isDone && result && (
             <motion.div
@@ -941,7 +941,7 @@ export default function AIBuilderPanel() {
                 }}
               >
                 <ExternalLink className="w-4 h-4" />
-                Launch Result in {ENGIN_REGISTRY.find(e => e.id === result.primaryEnginId)?.name ?? 'Engin'}
+                Launch Result in {ENGIN_REGISTRY.find((e) => e.id === result.primaryEnginId)?.name ?? 'Engin'}
               </motion.button>
             </motion.div>
           )}
@@ -983,7 +983,7 @@ export default function AIBuilderPanel() {
                 borderRadius: 12,
                 display: 'flex', flexDirection: 'column', gap: 1,
               }}>
-                {visibleLogs.map(event: Record<string, unknown>, i: number => (
+                {visibleLogs.map(event: Record<string, unknown>, (i: number ) => (
                   <LogEntry
                     key={`${event.type}-${event.ts}-${i}`}
                     event={event}
@@ -998,13 +998,13 @@ export default function AIBuilderPanel() {
         </AnimatePresence>
       </div>
 
-      {/* -- Build History -- */}
+      {/* ── Build History ── */}
       <div style={{
         borderTop: `1px solid ${FORGE.border}`,
       }}>
         <button
           type="button"
-          onClick={() => setShowHistory(v => !v)}
+          onClick={() => setShowHistory((v) => !v)}
           style={{
             width: '100%',
             padding: '12px 18px',
@@ -1038,7 +1038,7 @@ export default function AIBuilderPanel() {
                     No builds yet. Forge something! 🔥
                   </p>
                 ) : (
-                  buildHistory.map(rec => (
+                  buildHistory.map((rec) => (
                     <HistoryItem key={rec.id} record={rec} onLaunch={handleLaunch} />
                   ))
                 )}

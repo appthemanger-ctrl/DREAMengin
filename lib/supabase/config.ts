@@ -11,7 +11,7 @@ if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
   throw new Error("Supabase env not configured");
 }
 
-function trimTrailingSlash(value: string: string) {
+function trimTrailingSlash(value: string): string {
   return value.replace(/\/+$/, "");
 }
 
@@ -22,7 +22,7 @@ export const SUPABASE_CONFIG = {
   isConfigured: () => Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY),
 } as const;
 
-export function getServerSiteOrigin(requestOrigin?: string: string) {
+export function getServerSiteOrigin(requestOrigin?: string): string {
   const configured =
     process.env.NEXT_PUBLIC_SITE_URL ||
     process.env.NEXT_PUBLIC_APP_URL ||
@@ -40,13 +40,13 @@ export function getServerSiteOrigin(requestOrigin?: string: string) {
   return "http://localhost:3000";
 }
 
-export function buildAuthCallbackUrl(origin: string, nextPath?: string: string) {
+export function buildAuthCallbackUrl(origin: string, nextPath?: string): string {
   const callback = new URL("/auth/callback", origin);
   if (nextPath) callback.searchParams.set("next", nextPath);
   return callback.toString();
 }
 
-export function getSupabaseAuthCallbackUrl(: string | null) {
+export function getSupabaseAuthCallbackUrl(): string | null {
   if (!SUPABASE_CONFIG.url) return null;
   return new URL("/auth/v1/callback", `${SUPABASE_CONFIG.url}/`).toString();
 }

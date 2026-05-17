@@ -356,7 +356,7 @@ export class BabylonUIOptimizero extends CreativeOptimizero<BabylonUICandidate> 
     result: OptimizeroResult<BabylonUICandidate>,
     maxCost: number
   ): ScoredCandidate<BabylonUICandidate>[] {
-    return result.ranked_candidates.filter(candidate => candidate.cost <= maxCost);
+    return result.ranked_candidates.filter((candidate) => candidate.cost <= maxCost);
   }
 
   /**

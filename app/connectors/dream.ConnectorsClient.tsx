@@ -40,14 +40,14 @@ const DEFAULT_STATUSES: Record<string, ConnectorStatus> = Object.fromEntries(
 
 const TIER1_IDS = new Set(CONNECTOR_REGISTRY.filter((c: Record<string, unknown>) => c.tier === 'tier1').map((c: Record<string, unknown>) => c.id));
 
-// -- Sync button ------------------------------------------------------------
+// ── Sync button ────────────────────────────────────────────────────────────
 
-function SyncButton() { connectorId, connectorName }: { connectorId: string; connectorName: string } {
+function SyncButton({ connectorId, connectorName }: ) { connectorId: string; connectorName: string } {
   const [syncing, setSyncing] = useState(false);
   const [lastSynced, setLastSynced] = useState<string | null>(null);
   const [syncError, setSyncError] = useState<string | null>(null);
 
-  async function handleSync() {
+  async function handleSync( ){
     if (syncing) return;
     setSyncing(true);
     setSyncError(null);
@@ -97,9 +97,9 @@ function SyncButton() { connectorId, connectorName }: { connectorId: string; con
   );
 }
 
-// -- Main component ---------------------------------------------------------
+// ── Main component ─────────────────────────────────────────────────────────
 
-export default function ConnectorsClient() {
+export default function ConnectorsClient( ){
   const [menuOpen] = useState(false);
   const [slices, setSlices] = useState<FeedSlice[]>([]);
   const [installedWidgets, setInstalledWidgets] = useState<Array<{
@@ -114,10 +114,10 @@ export default function ConnectorsClient() {
   // Load real connector statuses from the DB on mount
   useEffect(() => {
     fetch('/api/connectors/status')
-      .then(r: number => r.json())
+      .then((r: number ) => r.json())
       .then((data: { ok: boolean; statuses: Record<string, { status: string }> }) => {
         if (!data.ok) return;
-        setStatuses(prev: Record<string, unknown> => {
+        setStatuses((prev: Record<string, unknown>) => {
           const next = { ...prev };
           for (const [provider, entry] of Object.entries(data.statuses)) {
             next[provider] = entry.status as ConnectorStatus;
@@ -135,7 +135,7 @@ export default function ConnectorsClient() {
       .catch(() => { /* keep registry defaults on network error */ });
   }, []);
 
-  function handleAutoLock() {
+  function handleAutoLock( ){
     // Caller is responsible for locking to LOCKED / safe mode
   }
 
@@ -145,23 +145,23 @@ export default function ConnectorsClient() {
     isMenuOpen: menuOpen,
   });
 
-  function handlePromptAdd(widgetId: string) {
+  function handlePromptAdd(widgetId: string ){
     flow.onPromptAdd(widgetId);
   }
 
-  function handlePlacementDone(slot: number) {
+  function handlePlacementDone(slot: number ){
     if (flow.placementRequest) {
-      setGrid(prev: Record<string, unknown> => ({
+      setGrid((prev: Record<string, unknown>) => ({
         ...prev,
         filledSlots: new Set([...prev.filledSlots, slot]),
       }));
-      setInstalledWidgets(prev: Record<string, unknown> => [
+      setInstalledWidgets((prev: Record<string, unknown>) => [
         ...prev,
         { widgetId: flow.placementRequest!.widgetId, dataState: 'loading' },
       ]);
       const wid = flow.placementRequest.widgetId;
       setTimeout(() => {
-        setInstalledWidgets(prev: Record<string, unknown> =>
+        setInstalledWidgets((prev: Record<string, unknown>) =>
           prev.map((w: Record<string, unknown>) => w.widgetId === wid ? { ...w, dataState: 'ready' } : w),
         );
       }, 1500);
@@ -169,10 +169,10 @@ export default function ConnectorsClient() {
     flow.onPlacementDone(slot);
   }
 
-  function handleConnectSuccess(connectorId: string, connectorName: string) {
+  function handleConnectSuccess(connectorId: string, connectorName): string {
     // Add to connected set so Sync Now button appears
     if (TIER1_IDS.has(connectorId)) {
-      setConnectedIds(prev: Record<string, unknown> => new Set([...prev, connectorId]));
+      setConnectedIds((prev: Record<string, unknown>) => new Set([...prev, connectorId]));
     }
     flow.onConnectSuccess(connectorId, connectorName);
   }
@@ -196,7 +196,7 @@ export default function ConnectorsClient() {
 
   return (
     <>
-      {/* -- Tier 1: Fully supported ------------------------------------ */}
+      {/* ── Tier 1: Fully supported ──────────────────────────────────── */}
       <div className="de-widget">
         <div className="de-widget-header">
           <span className="de-widget-title">✅ Active System Integrations</span>
@@ -217,7 +217,7 @@ export default function ConnectorsClient() {
         </div>
       </div>
 
-      {/* -- Tier 2: Gated (requires approval or admin setup) ----------- */}
+      {/* ── Tier 2: Gated (requires approval or admin setup) ─────────── */}
       <div className="de-widget">
         <div className="de-widget-header">
           <span className="de-widget-title">⚙️ Requires Approval or Admin Setup</span>
@@ -234,7 +234,7 @@ export default function ConnectorsClient() {
         </div>
       </div>
 
-      {/* -- Tier 3: Unsupported ---------------------------------------- */}
+      {/* ── Tier 3: Unsupported ──────────────────────────────────────── */}
       <div className="de-widget">
         <div className="de-widget-header">
           <span className="de-widget-title">🚫 Not Available via Official API</span>
@@ -257,7 +257,7 @@ export default function ConnectorsClient() {
         </div>
       </div>
 
-      {/* -- Installed widget shells ------------------------------------ */}
+      {/* ── Installed widget shells ──────────────────────────────────── */}
       {installedWidgets.length > 0 && (
         <div className="de-widget">
           <div className="de-widget-header"><span className="de-widget-title">Your Widgets</span></div>
@@ -273,11 +273,11 @@ export default function ConnectorsClient() {
                   icon={def.icon}
                   dataState={w.dataState}
                   onRetry={() => {
-                    setInstalledWidgets(prev: Record<string, unknown> =>
+                    setInstalledWidgets((prev: Record<string, unknown>) =>
                       prev.map((x: Record<string, unknown>) => x.widgetId === w.widgetId ? { ...x, dataState: 'loading' } : x),
                     );
                     setTimeout(() => {
-                      setInstalledWidgets(prev: Record<string, unknown> =>
+                      setInstalledWidgets((prev: Record<string, unknown>) =>
                         prev.map((x: Record<string, unknown>) => x.widgetId === w.widgetId ? { ...x, dataState: 'ready' } : x),
                       );
                     }, 1200);
@@ -293,7 +293,7 @@ export default function ConnectorsClient() {
         </div>
       )}
 
-      {/* -- Toast ------------------------------------------------------ */}
+      {/* ── Toast ────────────────────────────────────────────────────── */}
       {flow.toastMessage && (
         <div
           role="status"
@@ -315,7 +315,7 @@ export default function ConnectorsClient() {
         </div>
       )}
 
-      {/* -- Widget install prompt --------------------------------------- */}
+      {/* ── Widget install prompt ─────────────────────────────────────── */}
       {flow.prompt && (
         <ConnectWidgetPrompt
           connectorId={flow.prompt.connectorId}
@@ -328,7 +328,7 @@ export default function ConnectorsClient() {
         />
       )}
 
-      {/* -- No-slot dialog ---------------------------------------------- */}
+      {/* ── No-slot dialog ────────────────────────────────────────────── */}
       {flow.placementRequest?.noSlotAvailable && (() => {
         const def = getWidgetTypeDef(flow.placementRequest.widgetId);
         if (!def) return null;
@@ -341,7 +341,7 @@ export default function ConnectorsClient() {
         );
       })()}
 
-      {/* -- Placement mode ---------------------------------------------- */}
+      {/* ── Placement mode ────────────────────────────────────────────── */}
       {flow.placementRequest && !flow.placementRequest.noSlotAvailable && (() => {
         const def = getWidgetTypeDef(flow.placementRequest.widgetId);
         if (!def) return null;
@@ -357,7 +357,7 @@ export default function ConnectorsClient() {
         );
       })()}
 
-      {/* -- Feed slice sheet -------------------------------------------- */}
+      {/* ── Feed slice sheet ──────────────────────────────────────────── */}
       {flow.sliceSheetConnectorId && (() => {
         const connDef = getConnectorDef(flow.sliceSheetConnectorId);
         if (!connDef) return null;
@@ -366,7 +366,7 @@ export default function ConnectorsClient() {
             connector={connDef}
             existingSlices={slices}
             onAdd={(slice) =>
-              setSlices(prev: Record<string, unknown> => [...prev, { ...slice, order: prev.length }])
+              setSlices((prev: Record<string, unknown>) => [...prev, { ...slice, order: prev.length }])
             }
             onClose={() => flow.onPromptAddSlice('')}
           />

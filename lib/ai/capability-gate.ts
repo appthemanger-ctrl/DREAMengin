@@ -16,7 +16,7 @@ const ROLE_RANKS: Record<string, number> = {
   system: 20,
 };
 
-export function getRoleRank(role: string: number) {
+export function getRoleRank(role: string): number {
   return ROLE_RANKS[role] ?? 0;
 }
 
@@ -24,7 +24,7 @@ export function getRoleRank(role: string: number) {
 // BUILD ACTOR CONTEXT
 // ============================================================================
 
-export async function buildActorContext(userId: string: Promise<ActorContext>) {
+export async function buildActorContext(userId: string): Promise<ActorContext> {
   const supabase = await createServerClient();
 
   // Get authenticated user to check email for owner admin role
@@ -68,7 +68,7 @@ export async function buildActorContext(userId: string: Promise<ActorContext>) {
 // CAPABILITY CHECKS
 // ============================================================================
 
-export function hasCapability(actor: ActorContext, capability: string: boolean) {
+export function hasCapability(actor: ActorContext, capability: string): boolean {
   // System role has all capabilities
   if (actor.role === 'system') return true;
 
@@ -79,7 +79,7 @@ export function hasCapability(actor: ActorContext, capability: string: boolean) 
   return actor.caps.includes(capability);
 }
 
-export function meetsMinimumRole(actor: ActorContext, minRole: string: boolean) {
+export function meetsMinimumRole(actor: ActorContext, minRole: string): boolean {
   const actorRank = getRoleRank(actor.role);
   const minRank = getRoleRank(minRole);
   return actorRank >= minRank;

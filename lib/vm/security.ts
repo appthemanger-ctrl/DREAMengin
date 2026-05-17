@@ -7,7 +7,7 @@
  * GPUTimeSlicer                — per-VM GPU time budget allocator
  */
 
-// --- Memory Bounds Checking ---------------------------------------------------
+// ─── Memory Bounds Checking ───────────────────────────────────────────────────
 
 export class MemoryBoundsError extends Error {
   constructor(ptr: number, len: number, max: number) {
@@ -24,7 +24,7 @@ export class MemoryBoundsError extends Error {
  * Verifies that the half-open byte range [ptr, ptr+len) lies entirely
  * within [0, max).  Throws MemoryBoundsError on any violation.
  */
-export function checkBounds(ptr: number, len: number, max: number: void) {
+export function checkBounds(ptr: number, len: number, max: number): void {
   if (
     ptr < 0       ||
     len < 0       ||
@@ -35,7 +35,7 @@ export function checkBounds(ptr: number, len: number, max: number: void) {
   }
 }
 
-// --- Syscall Allow-List -------------------------------------------------------
+// ─── Syscall Allow-List ───────────────────────────────────────────────────────
 
 export const SYSCALL_ALLOWLIST = [
   'vm_buffer_create',
@@ -76,7 +76,7 @@ export function isSyscallAllowed(
   return (allowList as string[]).includes(syscall);
 }
 
-// --- GPU Time Slicer ---------------------------------------------------------
+// ─── GPU Time Slicer ─────────────────────────────────────────────────────────
 
 export interface TimeBudget {
   vmId:       string;
@@ -108,8 +108,8 @@ export class GPUTimeSlicer {
    */
   allocate(vmId: string, requestedMs: number): TimeBudget {
     const usedMs = Array.from(this.budgets.values())
-      .filter(b: Record<string, unknown> => b.active)
-      .reduce(sum: Record<string, unknown>, b: Record<string, unknown> => sum + b.budgetMs, 0);
+      .filter((b: Record<string, unknown>) => b.active)
+      .reduce((sum: Record<string, unknown>, b: Record<string, unknown>) => sum + b.budgetMs, 0);
 
     const available = Math.max(0, this.frameBudgetMs - usedMs);
     const budget: TimeBudget = {

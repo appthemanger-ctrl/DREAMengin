@@ -118,7 +118,7 @@ export function shouldApplyRecenter(
 /**
  * Update recenter state when user activity is detected
  */
-export function updateActivityTime(state: RecenterState, currentTime: number: RecenterState) {
+export function updateActivityTime(state: RecenterState, currentTime: number): RecenterState {
   return {
     lastActivityTime: currentTime,
     isIdle: false,
@@ -182,7 +182,7 @@ export function applyForceToVelocity(
   dt: number,
   mass: number = 1.0
 ): Vector3 {
-  // F = ma => a = F/m
+  // F = (ma) => a = F/m
   // v' = v + a*dt
   return {
     x: velocity.x + (force.x / mass) * dt,

@@ -36,15 +36,15 @@ const TRACKS = [
 
 const TOTAL_BARS = 32;
 
-export default function ArrangePanel() {
+export default function ArrangePanel( ){
   const [bpm, setBpm] = useState(128);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playhead, setPlayhead] = useState(1);
   const [sections, setSections] = useState<Section[]>(DEFAULT_SECTIONS);
 
-  function addSection() {
+  function addSection( ){
     const lastBar = Math.max(...sections.map((s: Record<string, unknown>) => s.startBar + s.lengthBars), 1);
-    setSections(prev: Record<string, unknown> => [
+    setSections((prev: Record<string, unknown>) => [
       ...prev,
       {
         id: Date.now().toString(),
@@ -77,18 +77,18 @@ export default function ArrangePanel() {
               <SkipBack size={16} />
             </button>
             <button
-              onClick={() => setIsPlaying(p: Record<string, unknown> => !p)}
+              onClick={() => setIsPlaying((p: Record<string, unknown>) => !p)}
               className="flex items-center justify-center w-8 h-8 rounded-full transition-colors"
               style={{ background: isPlaying ? '#a855f7' : 'rgba(255,255,255,0.1)' }}
             >
               {isPlaying ? <Pause size={14} /> : <Play size={14} />}
             </button>
             <div className="flex items-center gap-2 text-sm text-white/60">
-              <button onClick={() => setBpm(b: Record<string, unknown> => Math.max(60, b - 1))} className="hover:text-white transition-colors">
+              <button onClick={() => setBpm((b: Record<string, unknown>) => Math.max(60, b - 1))} className="hover:text-white transition-colors">
                 <Minus size={12} />
               </button>
               <span className="tabular-nums w-10 text-center font-mono text-[#a855f7]">{bpm}</span>
-              <button onClick={() => setBpm(b: Record<string, unknown> => Math.min(300, b + 1))} className="hover:text-white transition-colors">
+              <button onClick={() => setBpm((b: Record<string, unknown>) => Math.min(300, b + 1))} className="hover:text-white transition-colors">
                 <Plus size={12} />
               </button>
               <span className="text-xs text-white/30">BPM</span>
@@ -135,8 +135,8 @@ export default function ArrangePanel() {
             </div>
             {/* Bar ruler */}
             <div className="relative w-full h-5 mt-1">
-              {Array.from({ length: TOTAL_BARS + 1 }, _: Record<string, unknown>, i: number => i + 1)
-                .filter(b: Record<string, unknown> => b % 4 === 1)
+              {Array.from({ length: TOTAL_BARS + 1 }, _: Record<string, unknown>, (i: number ) => i + 1)
+                .filter((b: Record<string, unknown>) => b % 4 === 1)
                 .map((bar: Record<string, unknown>) => (
                   <span
                     key={bar}

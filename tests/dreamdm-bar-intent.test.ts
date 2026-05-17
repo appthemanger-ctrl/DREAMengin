@@ -30,7 +30,7 @@ import {
   type BarIntent,
 } from '@/lib/dreamdm/DreamSystemContext';
 
-// -- DEFAULT_BAR_INTENT --------------------------------------------------------
+// ── DEFAULT_BAR_INTENT ────────────────────────────────────────────────────────
 
 describe('DEFAULT_BAR_INTENT', () => {
   it('defaults to "default" mode', () => {
@@ -46,7 +46,7 @@ describe('DEFAULT_BAR_INTENT', () => {
   });
 });
 
-// -- resolveIntentOverride -----------------------------------------------------
+// ── resolveIntentOverride ─────────────────────────────────────────────────────
 
 describe('resolveIntentOverride', () => {
   it('returns undefined for "default" mode (no override)', () => {
@@ -108,7 +108,7 @@ describe('resolveIntentOverride', () => {
   });
 });
 
-// -- detectSurface with intent mode combinations ------------------------------
+// ── detectSurface with intent mode combinations ──────────────────────────────
 
 describe('detectSurface (baseline re-validation)', () => {
   it('detects /homedream as feed', () => {
@@ -128,7 +128,7 @@ describe('detectSurface (baseline re-validation)', () => {
   });
 });
 
-// -- BarIntent shape contract -------------------------------------------------
+// ── BarIntent shape contract ─────────────────────────────────────────────────
 
 describe('BarIntent shape contract', () => {
   it('comment intent includes targetPostId', () => {

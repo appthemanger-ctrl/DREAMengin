@@ -26,7 +26,7 @@ const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 // YouTube readonly scope — read subscriptions, history, and Watch Later
 const YOUTUBE_SCOPE = 'https://www.googleapis.com/auth/youtube.readonly';
 
-export async function GET(req: NextRequest: Promise<NextResponse>) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   const clientId = process.env.GOOGLE_CLIENT_ID ?? '';
   if (!clientId) {
     return NextResponse.json(

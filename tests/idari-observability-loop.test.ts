@@ -38,7 +38,7 @@ import type { TelemetrySnapshot } from '@/lib/observability/collector';
 import type { CorrelationResult } from '@/lib/observability/correlator';
 import type { RootCauseAnalysis } from '@/lib/observability/rootCauseAnalyzer';
 
-// -- Helpers -------------------------------------------------------------------
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function makeLog(
   level: LogEntry['level'],
@@ -103,7 +103,7 @@ function makeRootCause(area = 'none'): RootCauseAnalysis {
   };
 }
 
-// -- collector -----------------------------------------------------------------
+// ── collector ─────────────────────────────────────────────────────────────────
 
 describe('collector — collectLog', () => {
   beforeEach(() => clearBuffers());
@@ -215,7 +215,7 @@ describe('collector — clearBuffers', () => {
   });
 });
 
-// -- correlator — detectErrorSpikes -------------------------------------------
+// ── correlator — detectErrorSpikes ───────────────────────────────────────────
 
 describe('detectErrorSpikes', () => {
   it('returns empty array when fewer than 3 problematic entries', () => {
@@ -265,7 +265,7 @@ describe('detectErrorSpikes', () => {
   });
 });
 
-// -- correlator — detectLatencySpikes -----------------------------------------
+// ── correlator — detectLatencySpikes ─────────────────────────────────────────
 
 describe('detectLatencySpikes', () => {
   it('returns empty when fewer than 2 spans', () => {
@@ -299,7 +299,7 @@ describe('detectLatencySpikes', () => {
   });
 });
 
-// -- correlator — detectMetricAnomalies ---------------------------------------
+// ── correlator — detectMetricAnomalies ───────────────────────────────────────
 
 describe('detectMetricAnomalies', () => {
   it('returns empty for fewer than 4 data points', () => {
@@ -324,7 +324,7 @@ describe('detectMetricAnomalies', () => {
   });
 });
 
-// -- correlator — correlate ----------------------------------------------------
+// ── correlator — correlate ────────────────────────────────────────────────────
 
 describe('correlate', () => {
   it('returns health="healthy" for an empty snapshot', () => {
@@ -384,7 +384,7 @@ describe('correlate', () => {
   });
 });
 
-// -- rootCauseAnalyzer ---------------------------------------------------------
+// ── rootCauseAnalyzer ─────────────────────────────────────────────────────────
 
 describe('inferRootCause', () => {
   it('returns "healthy" analysis when no anomalies and no errors', () => {
@@ -487,7 +487,7 @@ describe('inferRootCause', () => {
   });
 });
 
-// -- idariLoop — buildIdariPrompt ---------------------------------------------
+// ── idariLoop — buildIdariPrompt ─────────────────────────────────────────────
 
 describe('buildIdariPrompt', () => {
   it('includes the health status in the output', () => {
@@ -530,7 +530,7 @@ describe('buildIdariPrompt', () => {
   });
 });
 
-// -- idariLoop — buildFallbackPatchPlan ---------------------------------------
+// ── idariLoop — buildFallbackPatchPlan ───────────────────────────────────────
 
 describe('buildFallbackPatchPlan', () => {
   it('returns undefined when affected_area is "none"', () => {
@@ -618,7 +618,7 @@ describe('buildImmediateRemediationAction', () => {
   });
 });
 
-// -- idariLoop — runLoopIteration ---------------------------------------------
+// ── idariLoop — runLoopIteration ─────────────────────────────────────────────
 
 describe('runLoopIteration', () => {
   beforeEach(() => clearBuffers());

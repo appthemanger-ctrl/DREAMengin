@@ -32,7 +32,7 @@ interface GhostPreviewState {
 
 const DEFAULT_WINDOW_SIZE = { width: 600, height: 400 };
 
-function clamp(value: number, min: number, max: number) {
+function clamp(value: number, min: number, max): number {
   return Math.min(Math.max(value, min), max);
 }
 
@@ -49,12 +49,12 @@ function resolveModulePosition(
   };
 }
 
-function shouldUseModuleLoader(moduleUrl?: string) {
+function shouldUseModuleLoader(moduleUrl?: string ){
   if (!moduleUrl) return true;
   return !moduleUrl.startsWith('/');
 }
 
-export default function ActiveModuleSurface() { accountId }: ActiveModuleSurfaceProps {
+export default function ActiveModuleSurface({ accountId }: ActiveModuleSurfaceProps) {
   const surfaceRef = useRef<HTMLDivElement>(null);
   const iframeRefs = useRef<Record<string, HTMLIFrameElement | null>>({});
   const dragArtifactRef = useRef<DreamArtifact | null>(null);
@@ -151,7 +151,7 @@ export default function ActiveModuleSurface() { accountId }: ActiveModuleSurface
         size: DEFAULT_WINDOW_SIZE,
       };
 
-      setActiveModules(current: Record<string, unknown> => [...current, instance]);
+      setActiveModules((current: Record<string, unknown>) => [...current, instance]);
       saveActiveModule(accountId, instance);
 
       dreamOSBus.emit('capability:add', {
@@ -223,7 +223,7 @@ export default function ActiveModuleSurface() { accountId }: ActiveModuleSurface
   const handleCloseModule = useCallback(
     async (instance: ActiveModuleInstance) => {
       if (!accountId) return;
-      setActiveModules(current: Record<string, unknown> => current.filter((entry: Record<string, unknown>) => entry.instanceId !== instance.instanceId));
+      setActiveModules((current: Record<string, unknown>) => current.filter((entry: Record<string, unknown>) => entry.instanceId !== instance.instanceId));
       removeActiveModule(accountId, instance.instanceId);
       if (instance.dreamWindowId) {
         await removeWindow(instance.dreamWindowId);
@@ -234,7 +234,7 @@ export default function ActiveModuleSurface() { accountId }: ActiveModuleSurface
 
   const startWindowDrag = useCallback((instanceId: string, originX: number, originY: number) => {
     const onMove = (event: PointerEvent) => {
-      setActiveModules(current: Record<string, unknown> =>
+      setActiveModules((current: Record<string, unknown>) =>
         current.map((entry: Record<string, unknown>) => {
           if (entry.instanceId !== instanceId || !entry.position || !entry.size || !surfaceRef.current) {
             return entry;

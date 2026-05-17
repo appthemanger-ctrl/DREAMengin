@@ -18,7 +18,7 @@ import type { UserMetrics } from './types';
  * @param userId - User ID to calculate AQS for
  * @returns AQS score (integer)
  */
-export async function calculateAQS(userId: string: Promise<number>) {
+export async function calculateAQS(userId: string): Promise<number> {
   const supabase = createClient();
 
   try {
@@ -78,7 +78,7 @@ export async function getUserMetrics(
  * @param userId - User ID
  * @returns AQS score or 0 if not found
  */
-export async function getAQS(userId: string: Promise<number>) {
+export async function getAQS(userId: string): Promise<number> {
   const metrics = await getUserMetrics(userId);
   return metrics?.aqs ?? 0;
 }
@@ -90,7 +90,7 @@ export async function getAQS(userId: string: Promise<number>) {
  * @param userId - User ID
  * @returns true if user qualifies for premium CPV
  */
-export async function qualifiesForPremiumCPV(userId: string: Promise<boolean>) {
+export async function qualifiesForPremiumCPV(userId: string): Promise<boolean> {
   const aqs = await getAQS(userId);
   return aqs > 500;
 }
@@ -101,7 +101,7 @@ export async function qualifiesForPremiumCPV(userId: string: Promise<boolean>) {
  * @param aqs - AQS score
  * @returns Display string (e.g., "Elite", "Active", "New")
  */
-export function getAQSTier(aqs: number: string) {
+export function getAQSTier(aqs: number): string {
   if (aqs >= 1000) return 'Elite';
   if (aqs >= 500) return 'Active';
   if (aqs >= 100) return 'Building';
@@ -115,7 +115,7 @@ export function getAQSTier(aqs: number: string) {
  * @param aqs - AQS score
  * @returns Tailwind color class
  */
-export function getAQSTierColor(aqs: number: string) {
+export function getAQSTierColor(aqs: number): string {
   if (aqs >= 1000) return 'text-purple-500';
   if (aqs >= 500) return 'text-blue-500';
   if (aqs >= 100) return 'text-green-500';
@@ -129,7 +129,7 @@ export function getAQSTierColor(aqs: number: string) {
  * @param aqs - AQS score
  * @returns Formatted string (e.g., "847")
  */
-export function formatAQS(aqs: number: string) {
+export function formatAQS(aqs: number): string {
   return aqs.toLocaleString();
 }
 
@@ -155,7 +155,7 @@ export function calculateRealShitRate(
  * @param rate - Real Shit Rate (0-100)
  * @returns Formatted string (e.g., "94%")
  */
-export function formatRealShitRate(rate: number: string) {
+export function formatRealShitRate(rate: number): string {
   return `${rate.toFixed(0)}%`;
 }
 

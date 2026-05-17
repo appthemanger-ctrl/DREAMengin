@@ -27,7 +27,7 @@ export interface SetupCheckSummary {
  * Reports whether required env vars are resolved — does NOT return values.
  * Uses the centralised lib/supabase/config.ts resolver.
  */
-export function getSetupChecks(env: NodeJS.ProcessEnv = process.env: SetupCheck[]) {
+export function getSetupChecks(env: NodeJS.ProcessEnv = process.env): SetupCheck[] {
   return [
     {
       key: 'NEXT_PUBLIC_SUPABASE_URL',
@@ -93,7 +93,7 @@ export function getSetupChecks(env: NodeJS.ProcessEnv = process.env: SetupCheck[
   ];
 }
 
-export function summarizeSetupChecks(checks: SetupCheck[]: SetupCheckSummary) {
+export function summarizeSetupChecks(checks: SetupCheck[]): SetupCheckSummary {
   const requiredChecks = checks.filter((check: Record<string, unknown>) => check.required !== false);
   const optionalChecks = checks.filter((check: Record<string, unknown>) => check.required === false);
   const missingRequired = requiredChecks.filter((check: Record<string, unknown>) => !check.ok);
@@ -111,6 +111,6 @@ export function summarizeSetupChecks(checks: SetupCheck[]: SetupCheckSummary) {
   };
 }
 
-export function getSetupStatus(env: NodeJS.ProcessEnv = process.env: SetupCheckSummary) {
+export function getSetupStatus(env: NodeJS.ProcessEnv = process.env): SetupCheckSummary {
   return summarizeSetupChecks(getSetupChecks(env));
 }

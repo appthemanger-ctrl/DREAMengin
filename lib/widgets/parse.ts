@@ -13,19 +13,19 @@ import type {
   SocialProvider,
 } from '@/types/widgetConfigs';
 
-function isRecord(v: unknown: v is Record<string, unknown>) {
+function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
 }
 
-function asString(v: unknown: string | undefined) {
+function asString(v: unknown): string | undefined {
   return typeof v === 'string' ? v : undefined;
 }
 
-function asNumber(v: unknown: number | undefined) {
+function asNumber(v: unknown): number | undefined {
   return typeof v === 'number' && Number.isFinite(v) ? v : undefined;
 }
 
-function asBool(v: unknown: boolean | undefined) {
+function asBool(v: unknown): boolean | undefined {
   return typeof v === 'boolean' ? v : undefined;
 }
 
@@ -33,13 +33,13 @@ const SOCIAL_PROVIDERS: SocialProvider[] = [
   'youtube','instagram','tiktok','x','threads','twitch','spotify','soundcloud','github','linkedin','website'
 ];
 
-function asProvider(v: unknown: SocialProvider | undefined) {
+function asProvider(v: unknown): SocialProvider | undefined {
   const s = asString(v);
   if (!s) return undefined;
   return (SOCIAL_PROVIDERS as string[]).includes(s) ? (s as SocialProvider) : undefined;
 }
 
-export function parseYouTubeConfig(raw: unknown: YouTubeWidgetConfig) {
+export function parseYouTubeConfig(raw: unknown): YouTubeWidgetConfig {
   if (!isRecord(raw)) throw new Error('youtube config must be an object');
 
   // accept either videoId or full url
@@ -57,7 +57,7 @@ export function parseYouTubeConfig(raw: unknown: YouTubeWidgetConfig) {
   };
 }
 
-function extractYouTubeVideoId(url?: string: string | undefined) {
+function extractYouTubeVideoId(url?: string): string | undefined {
   if (!url) return undefined;
   try {
     const u = new URL(url);
@@ -79,7 +79,7 @@ function extractYouTubeVideoId(url?: string: string | undefined) {
   return undefined;
 }
 
-export function parseTextConfig(raw: unknown: TextWidgetConfig) {
+export function parseTextConfig(raw: unknown): TextWidgetConfig {
   if (!isRecord(raw)) throw new Error('text config must be an object');
   const body = asString(raw.body) ?? asString(raw.text) ?? '';
   if (!body.trim()) throw new Error('text config requires body');
@@ -87,7 +87,7 @@ export function parseTextConfig(raw: unknown: TextWidgetConfig) {
   return { body, format: format === 'markdown' ? 'markdown' : 'plain' };
 }
 
-export function parseEmbedConfig(raw: unknown: EmbedWidgetConfig) {
+export function parseEmbedConfig(raw: unknown): EmbedWidgetConfig {
   if (!isRecord(raw)) throw new Error('embed config must be an object');
   const src = asString(raw.src) ?? asString(raw.url);
   if (!src) throw new Error('embed config requires src');
@@ -101,7 +101,7 @@ export function parseEmbedConfig(raw: unknown: EmbedWidgetConfig) {
   };
 }
 
-export function parseSocialEmbedConfig(raw: unknown: SocialEmbedWidgetConfig) {
+export function parseSocialEmbedConfig(raw: unknown): SocialEmbedWidgetConfig {
   if (!isRecord(raw)) throw new Error('social_embed config must be an object');
   const url = asString(raw.url);
   if (!url) throw new Error('social_embed config requires url');
@@ -117,7 +117,7 @@ export function parseSocialEmbedConfig(raw: unknown: SocialEmbedWidgetConfig) {
   };
 }
 
-export function parseSocialProfileConfig(raw: unknown: SocialProfileWidgetConfig) {
+export function parseSocialProfileConfig(raw: unknown): SocialProfileWidgetConfig {
   if (!isRecord(raw)) throw new Error('social_profile config must be an object');
   const layoutRaw = asString(raw.layout);
   const layout = layoutRaw === 'grid' || layoutRaw === 'chips' ? layoutRaw : 'list';
@@ -141,7 +141,7 @@ export function parseSocialProfileConfig(raw: unknown: SocialProfileWidgetConfig
   return { profiles, layout };
 }
 
-export function parseSocialFeedConfig(raw: unknown: SocialFeedWidgetConfig) {
+export function parseSocialFeedConfig(raw: unknown): SocialFeedWidgetConfig {
   if (!isRecord(raw)) throw new Error('social_feed config must be an object');
   const sourcesRaw = raw.sources;
   if (!Array.isArray(sourcesRaw) || sourcesRaw.length === 0) {
@@ -173,7 +173,7 @@ export function parseSocialFeedConfig(raw: unknown: SocialFeedWidgetConfig) {
       ? (filterRaw.includeKinds.filter((k): k is string => typeof k === 'string'))
       : undefined;
     const excludeKeywords = Array.isArray(filterRaw.excludeKeywords)
-      ? filterRaw.excludeKeywords.filter(k: number => typeof k === 'string')
+      ? filterRaw.excludeKeywords.filter((k: number ) => typeof k === 'string')
       : undefined;
     filter = { includeKinds, excludeKeywords };
   }
@@ -181,7 +181,7 @@ export function parseSocialFeedConfig(raw: unknown: SocialFeedWidgetConfig) {
   return { sources, horizon, maxItems, ranking, filter };
 }
 
-export function parseTypedWidget(input:) { id: string; type: string; config: unknown }: TypedWidget {
+export function parseTypedWidget(input: ){ id: string; type: string; config: unknown }: TypedWidget {
   const type = input.type as DreamenginWidgetType;
   switch (type) {
     case 'youtube':

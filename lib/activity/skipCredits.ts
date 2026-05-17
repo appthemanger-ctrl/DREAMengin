@@ -6,7 +6,7 @@ import { AdType, SKIP_CREDIT_REWARDS } from './types';
 export const SKIP_CREDIT_SPEND_PER_AD = 1;
 export const MIN_WATCHED_PERCENT_FOR_CREDIT = 95;
 
-export function calculateSkipCreditsEarned(params:) {
+export function calculateSkipCreditsEarned(params: ){
   adType: AdType;
   verified: boolean;
   watchedPct: number;
@@ -16,16 +16,16 @@ export function calculateSkipCreditsEarned(params:) {
   return SKIP_CREDIT_REWARDS[params.adType] ?? 0;
 }
 
-export function canSpendSkipCredit(balance: number: boolean) {
+export function canSpendSkipCredit(balance: number): boolean {
   return Number.isFinite(balance) && balance >= SKIP_CREDIT_SPEND_PER_AD;
 }
 
-export function spendSkipCredit(balance: number: number) {
+export function spendSkipCredit(balance: number): number {
   if (!canSpendSkipCredit(balance)) return Math.max(0, Math.floor(balance || 0));
   return Math.floor(balance) - SKIP_CREDIT_SPEND_PER_AD;
 }
 
-export function addSkipCredits(balance: number, creditsEarned: number: number) {
+export function addSkipCredits(balance: number, creditsEarned: number): number {
   const safeBalance = Number.isFinite(balance) && balance > 0 ? Math.floor(balance) : 0;
   const safeEarned =
     Number.isFinite(creditsEarned) && creditsEarned > 0

@@ -266,7 +266,7 @@ export const DEFAULT_MODE_RULESETS: Record<CollabMode, CollabModeRuleSet> = {
   },
 };
 
-function resolveModeRuleSet(mode: CollabMode, override?: Partial<CollabModeRuleSet>: CollabModeRuleSet) {
+function resolveModeRuleSet(mode: CollabMode, override?: Partial<CollabModeRuleSet>): CollabModeRuleSet {
   const base = DEFAULT_MODE_RULESETS[mode];
   if (!override) return base;
   return {
@@ -281,21 +281,21 @@ function resolveModeRuleSet(mode: CollabMode, override?: Partial<CollabModeRuleS
   };
 }
 
-function generatePeerId(: string) {
+function generatePeerId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
   return `${Math.random().toString(36).slice(2)}-${Date.now().toString(36)}`;
 }
 
-function generateMessageId(: string) {
+function generateMessageId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
   return `msg-${Math.random().toString(36).slice(2)}-${Date.now().toString(36)}`;
 }
 
-function nowMs(: number) {
+function nowMs(): number {
   return Date.now();
 }
 
-function normalizePayload(payload: CollabOutboundPayload | CollabPayload, context:) {
+function normalizePayload(payload: CollabOutboundPayload | CollabPayload, context): {
   channelId: string;
   peerId: string;
   role: SessionRole;
@@ -318,7 +318,7 @@ function normalizePayload(payload: CollabOutboundPayload | CollabPayload, contex
   };
 }
 
-function canSendPayload(payload: CollabPayload, role: SessionRole, peerCount: number, rules: CollabModeRuleSet:) { allowed: boolean; reason?: string } {
+function canSendPayload(payload: CollabPayload, role: SessionRole, peerCount: number, rules: CollabModeRuleSet): { allowed: boolean; reason?: string } {
   if (!rules.constraints.allowedEventTypes.includes(payload.type)) {
     return { allowed: false, reason: `event ${payload.type} is not enabled for mode ${rules.mode}` };
   }
@@ -332,7 +332,7 @@ function canSendPayload(payload: CollabPayload, role: SessionRole, peerCount: nu
   return { allowed: true };
 }
 
-function applyIncomingPeerState(peers: Map<string, PeerInfo>, payload: CollabPayload: void) {
+function applyIncomingPeerState(peers: Map<string, PeerInfo>, payload: CollabPayload): void {
   if (payload.type === 'peer_leave') {
     peers.delete(payload.peerId);
     return;
@@ -392,7 +392,7 @@ interface LocalCollabBus {
 
 const localBuses = new Map<string, LocalCollabBus>();
 
-function getLocalBus(channelId: string: LocalCollabBus) {
+function getLocalBus(channelId: string): LocalCollabBus {
   const existing = localBuses.get(channelId);
   if (existing) return existing;
   const created: LocalCollabBus = { peers: new Map(), handlers: new Map() };
@@ -711,7 +711,7 @@ export interface CollabSessionOptions {
   modeRuleSet?: Partial<CollabModeRuleSet>;
 }
 
-export function createLocalCollabSession(channelId: string, options: Required<Pick<CollabSessionOptions, 'role' | 'mode'>> &) { modeRuleSet?: Partial<CollabModeRuleSet> } = { role: 'participant', mode: 'shared_dream' }: CollabSession {
+export function createLocalCollabSession(channelId: string, options): Required<Pick<CollabSessionOptions, 'role' | 'mode'>> & { modeRuleSet?: Partial<CollabModeRuleSet> } = { role: 'participant', mode: 'shared_dream' }: CollabSession {
   return new LocalCollabSession(channelId, generatePeerId(), options.role, options.mode, options.modeRuleSet);
 }
 
@@ -725,14 +725,14 @@ export async function createSupabaseCollabSession(
   const channel = supabaseClient.channel(`dream:collab:${channelId}`, { config: { broadcast: { self: false } } });
   const session = new SupabaseCollabSession(channelId, peerId, channel, options.role, options.mode, options.modeRuleSet);
   for (const handler of handlers) session.onMessage(handler);
-  await new Promise<void>(resolve: Record<string, unknown> => {
-    channel.subscribe(status: Record<string, unknown> => { if (status === 'SUBSCRIBED') resolve(); });
+  await new Promise<void>((resolve: Record<string, unknown>) => {
+    channel.subscribe((status: Record<string, unknown>) => { if (status === 'SUBSCRIBED') resolve(); });
   });
   await session.send({ type: 'peer_join', peerId, data: { joinedAt: nowMs(), role: options.role, mode: options.mode, transport: 'supabase' }, role: options.role, mode: options.mode });
   return session;
 }
 
-export async function createCollabSession(channelId: string, options: CollabSessionOptions =) {}: Promise<CollabSession> {
+export async function createCollabSession(channelId: string, options): CollabSessionOptions = {}: Promise<CollabSession> {
   const {
     transport,
     supabaseClient,
@@ -742,7 +742,7 @@ export async function createCollabSession(channelId: string, options: CollabSess
     mode = 'shared_dream',
     modeRuleSet,
   } = options;
-  const hasSupabaseClient = supabaseClient && typeof (supabaseClient as unknown as { channel?: unknown }).channel === 'function';
+  const hasSupabaseClient = supabaseClient && typeof (supabaseClient as unknown as ){ channel?: unknown }).channel === 'function';
   if (transport === 'local') return createLocalCollabSession(channelId, { role, mode, modeRuleSet });
   if (transport === 'supabase') {
     if (hasSupabaseClient) return createSupabaseCollabSession(channelId, supabaseClient, [], { role, mode, modeRuleSet });
@@ -754,13 +754,13 @@ export async function createCollabSession(channelId: string, options: CollabSess
   return createLocalCollabSession(channelId, { role, mode, modeRuleSet });
 }
 
-export function generateInviteLink(baseUrl: string, channelId: string: string) {
+export function generateInviteLink(baseUrl: string, channelId: string): string {
   const url = new URL(baseUrl);
   url.searchParams.set('shared-dream', channelId);
   return url.toString();
 }
 
-export function parseInviteLink(url: string: string | null) {
+export function parseInviteLink(url: string): string | null {
   try {
     return new URL(url).searchParams.get('shared-dream');
   } catch {
@@ -768,23 +768,23 @@ export function parseInviteLink(url: string: string | null) {
   }
 }
 
-export function broadcastCursor(session: CollabSession, x: number, y: number: Promise<void>) {
+export function broadcastCursor(session: CollabSession, x: number, y: number): Promise<void> {
   return session.send({ type: 'cursor', peerId: session.peerId, data: { x, y } });
 }
 
-export function broadcastEdit(session: CollabSession, edit: unknown: Promise<void>) {
+export function broadcastEdit(session: CollabSession, edit: unknown): Promise<void> {
   return session.send({ type: 'edit', peerId: session.peerId, data: edit });
 }
 
-export function broadcastPlayhead(session: CollabSession, positionSec: number: Promise<void>) {
+export function broadcastPlayhead(session: CollabSession, positionSec: number): Promise<void> {
   return session.send({ type: 'playhead', peerId: session.peerId, data: { positionSec } });
 }
 
-export function broadcastStatePatch(session: CollabSession, patch: unknown: Promise<void>) {
+export function broadcastStatePatch(session: CollabSession, patch: unknown): Promise<void> {
   return session.send({ type: 'state_patch', peerId: session.peerId, data: patch });
 }
 
-export function broadcastDataPacket(session: CollabSession, packet: unknown: Promise<void>) {
+export function broadcastDataPacket(session: CollabSession, packet: unknown): Promise<void> {
   return session.send({ type: 'data_packet', peerId: session.peerId, data: packet });
 }
 
@@ -805,10 +805,10 @@ export function broadcastControlSignal(
   return session.send({ type: 'control_signal', peerId: session.peerId, data: { signal, ...(payload ?? {}) } });
 }
 
-export function broadcastModeChange(session: CollabSession, mode: CollabMode, changedByRole: SessionRole = session.role: Promise<void>) {
+export function broadcastModeChange(session: CollabSession, mode: CollabMode, changedByRole: SessionRole = session.role): Promise<void> {
   return session.setMode(mode, changedByRole);
 }
 
-export function broadcastPresenceUpdate(session: CollabSession, presence: PresenceUpdateData: Promise<void>) {
+export function broadcastPresenceUpdate(session: CollabSession, presence: PresenceUpdateData): Promise<void> {
   return session.updatePresence(presence);
 }

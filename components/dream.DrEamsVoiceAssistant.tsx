@@ -13,7 +13,7 @@ interface Message {
   isVoice?: boolean;
 }
 
-export default function DrEamsVoiceAssistant() {
+export default function DrEamsVoiceAssistant( ){
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -52,7 +52,7 @@ export default function DrEamsVoiceAssistant() {
 
   // Listen for iDari activity and surface it inside Dr. Eams chat
   useEffect(() => {
-    const unsubscribe = onIdariEvent(evt: Record<string, unknown> => {
+    const unsubscribe = onIdariEvent((evt: Record<string, unknown>) => {
       // Avoid spamming: only surface status + errors, and occasional key logs
       const shouldSurface =
         evt.type === 'idari:status' ||
@@ -61,7 +61,7 @@ export default function DrEamsVoiceAssistant() {
 
       if (!shouldSurface) return;
 
-      setMessages(prev => [...prev, {
+      setMessages((prev) => [...prev, {
         id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
         role: 'assistant',
         content: `iDari: ${evt.message}${evt.details ? `\n${evt.details}` : ''}`,
@@ -170,7 +170,7 @@ export default function DrEamsVoiceAssistant() {
   const requestMicrophonePermission = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach((track) => track.stop());
       setVoiceEnabled(true);
       setIsWakeWordListening(true);
       if (recognitionRef.current) {
@@ -236,7 +236,7 @@ export default function DrEamsVoiceAssistant() {
       isVoice: true
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
 
     // Execute navigation or action commands
@@ -250,7 +250,7 @@ export default function DrEamsVoiceAssistant() {
       isVoice: true
     };
 
-    setMessages(prev => [...prev, aiMessage]);
+    setMessages((prev) => [...prev, aiMessage]);
     speak(response);
     setIsLoading(false);
 
@@ -407,7 +407,7 @@ export default function DrEamsVoiceAssistant() {
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
@@ -420,7 +420,7 @@ export default function DrEamsVoiceAssistant() {
       timestamp: new Date()
     };
     
-    setMessages(prev => [...prev, aiMessage]);
+    setMessages((prev) => [...prev, aiMessage]);
     if (speechEnabled) {
       speak(response);
     }

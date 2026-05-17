@@ -28,7 +28,7 @@ import { writeAuditLog } from '@/lib/ai/audit';
 import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogieman';
 
 
-// -- Request schema -----------------------------------------------------------
+// ── Request schema ───────────────────────────────────────────────────────────
 
 const PrivacyEventSchema = z.object({
   event_type: z.enum([
@@ -47,9 +47,9 @@ const PrivacyEventSchema = z.object({
 
 type PrivacyEvent = z.infer<typeof PrivacyEventSchema>;
 
-// -- Route handler -------------------------------------------------------------
+// ── Route handler ─────────────────────────────────────────────────────────────
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const requestStart = Date.now();
   const request_id = uuidv4();
 

@@ -8,7 +8,7 @@
 
 import type { LogEntry, MetricPoint, TraceSpan, TelemetrySnapshot } from './collector';
 
-// -- Types ---------------------------------------------------------------------
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 export type AnomalySeverity = 'low' | 'medium' | 'high';
 export type AnomalyType =
@@ -36,16 +36,16 @@ export interface CorrelationResult {
   summary: string;
 }
 
-// -- Helpers -------------------------------------------------------------------
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 const SEVERITY_ORDER: Record<AnomalySeverity, number> = { high: 0, medium: 1, low: 2 };
 
-// -- Detector: error spikes ----------------------------------------------------
+// ── Detector: error spikes ────────────────────────────────────────────────────
 
 /**
  * Detect 30-second windows where 3 or more errors/warnings cluster together.
  */
-export function detectErrorSpikes(logs: LogEntry[]: AnomalySignal[]) {
+export function detectErrorSpikes(logs: LogEntry[]): AnomalySignal[] {
   const problematic = logs.filter((l: Record<string, unknown>) => l.level === 'error' || l.level === 'warn');
   if (problematic.length < 3) return [];
 
@@ -72,13 +72,13 @@ export function detectErrorSpikes(logs: LogEntry[]: AnomalySignal[]) {
   return signals;
 }
 
-// -- Detector: latency spikes --------------------------------------------------
+// ── Detector: latency spikes ──────────────────────────────────────────────────
 
 /**
  * Per span name: flag when p95 latency is >3× the p50 AND absolute p95 > 1 s,
  * or when any spans carry an error/timeout status.
  */
-export function detectLatencySpikes(traces: TraceSpan[]: AnomalySignal[]) {
+export function detectLatencySpikes(traces: TraceSpan[]): AnomalySignal[] {
   if (traces.length < 2) return [];
 
   const byName = new Map<string, TraceSpan[]>();
@@ -90,7 +90,7 @@ export function detectLatencySpikes(traces: TraceSpan[]: AnomalySignal[]) {
   const signals: AnomalySignal[] = [];
   for (const [name, spans] of byName) {
     if (spans.length < 2) continue;
-    const durations = spans.map((s: Record<string, unknown>) => s.duration_ms).sort(a: Record<string, unknown>, b: Record<string, unknown> => a - b);
+    const durations = spans.map((s: Record<string, unknown>) => s.duration_ms).sort((a: Record<string, unknown>, b: Record<string, unknown>) => a - b);
     const p50 = durations[Math.floor(durations.length * 0.5)];
     const p95 = durations[Math.floor(durations.length * 0.95)];
     const failedSpans = spans.filter((s: Record<string, unknown>) => s.status === 'error' || s.status === 'timeout');
@@ -122,14 +122,14 @@ export function detectLatencySpikes(traces: TraceSpan[]: AnomalySignal[]) {
   return signals;
 }
 
-// -- Detector: metric anomalies ------------------------------------------------
+// ── Detector: metric anomalies ────────────────────────────────────────────────
 
 /**
  * For each metric name, flag outliers that deviate more than 2.5 standard
  * deviations from the mean — provided the stddev is itself large relative to
  * the mean (noisy series).
  */
-export function detectMetricAnomalies(metrics: MetricPoint[]: AnomalySignal[]) {
+export function detectMetricAnomalies(metrics: MetricPoint[]): AnomalySignal[] {
   const byName = new Map<string, MetricPoint[]>();
   for (const m of metrics) {
     if (!byName.has(m.name)) byName.set(m.name, []);
@@ -140,9 +140,9 @@ export function detectMetricAnomalies(metrics: MetricPoint[]: AnomalySignal[]) {
   for (const [name, points] of byName) {
     if (points.length < 4) continue;
     const values = points.map((p: Record<string, unknown>) => p.value);
-    const mean = values.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b, 0) / values.length;
+    const mean = values.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / values.length;
     if (mean === 0) continue;
-    const variance = values.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + (b - mean) ** 2, 0) / values.length;
+    const variance = values.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + (b - mean) ** 2, 0) / values.length;
     const stddev = Math.sqrt(variance);
     if (stddev < mean * 0.3) continue; // series is too stable to trigger
 
@@ -162,9 +162,9 @@ export function detectMetricAnomalies(metrics: MetricPoint[]: AnomalySignal[]) {
   return signals;
 }
 
-// -- Main ----------------------------------------------------------------------
+// ── Main ──────────────────────────────────────────────────────────────────────
 
-// -- Improvement 26: CorrelateOptions with configurable thresholds -------------
+// ── Improvement 26: CorrelateOptions with configurable thresholds ─────────────
 
 export interface CorrelateOptions {
   /**
@@ -179,7 +179,7 @@ export interface CorrelateOptions {
   sustainedErrorRateThreshold?: number;
 }
 
-// -- Improvement 27: detectSustainedErrorRate ----------------------------------
+// ── Improvement 27: detectSustainedErrorRate ──────────────────────────────────
 
 /**
  * Fire a 'high' severity signal when the error+warn fraction across the
@@ -213,8 +213,8 @@ export function detectSustainedErrorRate(
  * Returns a CorrelationResult with ranked anomalies and an overall health verdict.
  * Pass `options` to tune detection thresholds.
  */
-// -- Improvement 28: correlate accepts options ---------------------------------
-export function correlate(snapshot: TelemetrySnapshot, options: CorrelateOptions =) {}: CorrelationResult {
+// ── Improvement 28: correlate accepts options ─────────────────────────────────
+export function correlate(snapshot: TelemetrySnapshot, options): CorrelateOptions = {}: CorrelationResult {
   const {
     errorSpikeThreshold,
     sustainedErrorRateThreshold = 0.4,
@@ -229,10 +229,10 @@ export function correlate(snapshot: TelemetrySnapshot, options: CorrelateOptions
     ...detectLatencySpikes(snapshot.traces),
     ...detectMetricAnomalies(snapshot.metrics),
     ...detectSustainedErrorRate(snapshot.logs, sustainedErrorRateThreshold),
-  ].sort(a: Record<string, unknown>, b: Record<string, unknown> => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
+  ].sort((a: Record<string, unknown>, b: Record<string, unknown>) => SEVERITY_ORDER[a.severity] - SEVERITY_ORDER[b.severity]);
 
-  const hasHigh = anomalies.some(a: Record<string, unknown> => a.severity === 'high');
-  const hasMedium = anomalies.some(a: Record<string, unknown> => a.severity === 'medium');
+  const hasHigh = anomalies.some((a: Record<string, unknown>) => a.severity === 'high');
+  const hasMedium = anomalies.some((a: Record<string, unknown>) => a.severity === 'medium');
   const health: CorrelationResult['health'] =
     hasHigh ? 'critical' : hasMedium ? 'degraded' : 'healthy';
 

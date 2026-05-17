@@ -22,7 +22,7 @@ type Profile = {
   website: string;
 };
 
-export default function ProfilePanel() {
+export default function ProfilePanel( ){
   const [profile, setProfile] = useState<Profile>({
     display_name: '', handle: '', bio: '',
     avatar_url: null, banner_url: null, location: '', website: '',
@@ -140,7 +140,7 @@ export default function ProfilePanel() {
       const file = input.files?.[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = e: unknown => setProfile(p => ({ ...p, avatar_url: e.target?.result as string }));
+      reader.onload = (e: unknown ) => setProfile((p) => ({ ...p, avatar_url: e.target?.result as string }));
       reader.readAsDataURL(file);
       input.removeEventListener('change', handler);
     };
@@ -169,7 +169,7 @@ export default function ProfilePanel() {
   return (
     <div style={{ paddingBottom: 100 }}>
 
-      {/* -- Action bar (save / publish / preview) -- */}
+      {/* ── Action bar (save / publish / preview) ── */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 8,
         padding: '10px 16px',
@@ -206,7 +206,7 @@ export default function ProfilePanel() {
         </button>
       </div>
 
-      {/* -- Tabs -- */}
+      {/* ── Tabs ── */}
       <div style={{ display: 'flex', borderBottom: '1px solid rgba(160,195,240,0.2)' }}>
         {(['widgets', 'info'] as const).map((tab: Record<string, unknown>) => (
           <button key={tab} type="button" onClick={() => setActiveTab(tab)} style={{
@@ -221,7 +221,7 @@ export default function ProfilePanel() {
         ))}
       </div>
 
-      {/* -- Errors / success -- */}
+      {/* ── Errors / success ── */}
       {saveError && (
         <div style={{ margin: '12px 16px 0', padding: '10px 14px', borderRadius: 12,
           background: 'rgba(220,60,60,0.08)', border: '1px solid rgba(220,60,60,0.2)',
@@ -235,7 +235,7 @@ export default function ProfilePanel() {
         </div>
       )}
 
-      {/* -- Widgets tab -- */}
+      {/* ── Widgets tab ── */}
       {activeTab === 'widgets' && (
         <div style={{ padding: '16px 14px' }}>
           <ProfileWidgetGrid
@@ -247,7 +247,7 @@ export default function ProfilePanel() {
         </div>
       )}
 
-      {/* -- Info tab -- */}
+      {/* ── Info tab ── */}
       {activeTab === 'info' && (
         <div style={{ padding: '16px 14px' }}>
           {/* Avatar row */}
@@ -292,19 +292,19 @@ export default function ProfilePanel() {
             <div>
               <label style={labelStyle}>Display Name</label>
               <input type="text" value={profile.display_name}
-                onChange={e => setProfile(p => ({ ...p, display_name: e.target.value }))}
+                onChange={e => setProfile((p) => ({ ...p, display_name: e.target.value }))}
                 placeholder="Your name" style={inputStyle} />
             </div>
             <div>
               <label style={labelStyle}>Handle</label>
               <input type="text" value={profile.handle}
-                onChange={e => setProfile(p => ({ ...p, handle: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') }))}
+                onChange={e => setProfile((p) => ({ ...p, handle: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') }))}
                 placeholder="@yourhandle" style={inputStyle} />
             </div>
             <div>
               <label style={labelStyle}>Bio</label>
               <textarea value={profile.bio}
-                onChange={e => setProfile(p => ({ ...p, bio: e.target.value.slice(0, 160) }))}
+                onChange={e => setProfile((p) => ({ ...p, bio: e.target.value.slice(0, 160) }))}
                 placeholder="UX Designer | Coffee Lover | Traveler" rows={3}
                 style={{ ...inputStyle, resize: 'none' }} />
               <div style={{ fontSize: 11, color: 'var(--de-text-dim)', textAlign: 'right', marginTop: 4 }}>{profile.bio.length}/160</div>
@@ -312,13 +312,13 @@ export default function ProfilePanel() {
             <div>
               <label style={labelStyle}>Location</label>
               <input type="text" value={profile.location}
-                onChange={e => setProfile(p => ({ ...p, location: e.target.value }))}
+                onChange={e => setProfile((p) => ({ ...p, location: e.target.value }))}
                 placeholder="City, Country" style={inputStyle} />
             </div>
             <div>
               <label style={labelStyle}>Website</label>
               <input type="url" value={profile.website}
-                onChange={e => setProfile(p => ({ ...p, website: e.target.value }))}
+                onChange={e => setProfile((p) => ({ ...p, website: e.target.value }))}
                 placeholder="https://yoursite.com" style={inputStyle} />
             </div>
           </div>

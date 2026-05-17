@@ -11,7 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 import type { TrackViewRequest, TrackViewResponse } from '@/lib/activity/types';
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
 
   // Auth check (optional - allow anonymous views)
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Post not found' }, { status: 404 });
     }
 
-    // -- Fraud detection via TheBoogieMan.Ai — ACTIVITY_FIRST_PROTOCOL.md §V --
+    // ── Fraud detection via TheBoogieMan.Ai — ACTIVITY_FIRST_PROTOCOL.md §V ──
     const fingerprint = {
       userAgent: req.headers.get('user-agent') ?? '',
       ip: req.headers.get('x-forwarded-for')?.split(',')[0] ?? req.headers.get('x-real-ip') ?? '',
@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
         );
       }
     }
-    // -- End fraud detection ---------------------------------------------------
+    // ── End fraud detection ───────────────────────────────────────────────────
 
     // Get client info for storage
     const viewerIp = fingerprint.ip || req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip');

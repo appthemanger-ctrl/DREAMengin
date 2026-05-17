@@ -22,7 +22,7 @@ const STORAGE_KEY = 'de-offline-queue';
 const MAX_QUEUE_SIZE = 200;
 const MAX_RETRY_ATTEMPTS = 5;
 
-// -- Types ----------------------------------------------------------------------
+// ── Types ──────────────────────────────────────────────────────────────────────
 
 export type OfflineActionType =
   | 'message:send'
@@ -57,9 +57,9 @@ export interface QueueStatus {
   oldestEnqueuedAt: number | null;
 }
 
-// -- Persistence helpers --------------------------------------------------------
+// ── Persistence helpers ────────────────────────────────────────────────────────
 
-function _load(: OfflineAction[]) {
+function _load(): OfflineAction[] {
   if (typeof localStorage === 'undefined') return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -70,7 +70,7 @@ function _load(: OfflineAction[]) {
   }
 }
 
-function _save(queue: OfflineAction[]: void) {
+function _save(queue: OfflineAction[]): void {
   if (typeof localStorage === 'undefined') return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(queue));
@@ -79,7 +79,7 @@ function _save(queue: OfflineAction[]: void) {
   }
 }
 
-// -- Improvement 88: enqueue ---------------------------------------------------
+// ── Improvement 88: enqueue ───────────────────────────────────────────────────
 
 /**
  * Add a typed action to the offline queue.
@@ -97,7 +97,7 @@ export function enqueue(
 
   if (queue.length >= MAX_QUEUE_SIZE) {
     // Evict oldest failed action
-    const failedIdx = queue.findIndex(a: Record<string, unknown> => a.status === 'failed');
+    const failedIdx = queue.findIndex((a: Record<string, unknown>) => a.status === 'failed');
     if (failedIdx >= 0) {
       queue.splice(failedIdx, 1);
     } else {
@@ -125,18 +125,18 @@ export function enqueue(
   return id;
 }
 
-// -- Improvement 89: dequeue ---------------------------------------------------
+// ── Improvement 89: dequeue ───────────────────────────────────────────────────
 
 /**
  * Remove a successfully completed action from the queue by ID.
  * No-op when the ID is not found.
  */
-export function dequeue(id: string: void) {
-  const queue = _load().filter(a: Record<string, unknown> => a.id !== id);
+export function dequeue(id: string): void {
+  const queue = _load().filter((a: Record<string, unknown>) => a.id !== id);
   _save(queue);
 }
 
-// -- Improvement 90: flushQueue ------------------------------------------------
+// ── Improvement 90: flushQueue ────────────────────────────────────────────────
 
 /**
  * Attempt to replay all pending actions in the queue.
@@ -162,7 +162,7 @@ export async function flushQueue(
     if (action.status === 'failed') { skipped++; continue; }
 
     // Locate live entry in the mutable queue
-    const liveEntry = queue.find(a: Record<string, unknown> => a.id === action.id);
+    const liveEntry = queue.find((a: Record<string, unknown>) => a.id === action.id);
     if (!liveEntry) continue; // already removed in a previous iteration
 
     liveEntry.status = 'replaying';
@@ -171,7 +171,7 @@ export async function flushQueue(
       await executor(liveEntry);
       succeeded++;
       // Remove from the live array and persist
-      const idx = queue.findIndex(a: Record<string, unknown> => a.id === liveEntry.id);
+      const idx = queue.findIndex((a: Record<string, unknown>) => a.id === liveEntry.id);
       if (idx >= 0) queue.splice(idx, 1);
       _save(queue);
     } catch (err) {
@@ -186,13 +186,13 @@ export async function flushQueue(
   return { succeeded, failed, skipped };
 }
 
-// -- Improvement 91: getQueueStatus --------------------------------------------
+// ── Improvement 91: getQueueStatus ────────────────────────────────────────────
 
 /**
  * Return a point-in-time status summary of the offline queue.
  * Safe to call server-side (returns zeroed stats).
  */
-export function getQueueStatus(: QueueStatus) {
+export function getQueueStatus(): QueueStatus {
   if (typeof localStorage === 'undefined') {
     return { pending: 0, replaying: 0, failed: 0, total: 0, oldestEnqueuedAt: null };
   }
@@ -215,7 +215,7 @@ export function getQueueStatus(: QueueStatus) {
   return { pending, replaying, failed, total: queue.length, oldestEnqueuedAt };
 }
 
-// -- Improvement 92: listenOnline ----------------------------------------------
+// ── Improvement 92: listenOnline ──────────────────────────────────────────────
 
 /**
  * Register a navigator `online` event listener that automatically calls
@@ -235,7 +235,7 @@ export function listenOnline(
   if (typeof window === 'undefined') return () => {};
 
   const handler = () => {
-    flushQueue(executor).catch(err: unknown => {
+    flushQueue(executor).catch((err: unknown ) => {
       console.error('[offlineQueue] Auto-flush failed', err);
     });
   };
@@ -248,7 +248,7 @@ export function listenOnline(
  * Convenience: return true when the browser is currently online.
  * Safe to call server-side (returns true).
  */
-export function isOnline(: boolean) {
+export function isOnline(): boolean {
   if (typeof navigator === 'undefined') return true;
   return navigator.onLine !== false;
 }

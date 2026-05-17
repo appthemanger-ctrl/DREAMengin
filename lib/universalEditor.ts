@@ -7,11 +7,11 @@
 
 import { createEventBus, type EventBus } from './eventBus';
 
-// --- Runtime IDs -------------------------------------------------------------
+// ─── Runtime IDs ─────────────────────────────────────────────────────────────
 
 export type RuntimeId = 'HomeDream' | 'DreamSpace' | 'Daydream' | 'Engin';
 
-// --- Module Manifest ---------------------------------------------------------
+// ─── Module Manifest ─────────────────────────────────────────────────────────
 
 export interface ModuleManifest {
   /** Unique module identifier. */
@@ -33,7 +33,7 @@ export interface ModuleManifest {
   };
 }
 
-// --- Assembly-Scoped Event Bus ------------------------------------------------
+// ─── Assembly-Scoped Event Bus ────────────────────────────────────────────────
 
 export type AssemblyEvents = Record<string, unknown>;
 
@@ -43,18 +43,18 @@ export type AssemblyEvents = Record<string, unknown>;
  * Returns a new scoped event bus for a single engine assembly.
  * Must NOT be shared across assemblies.
  */
-export function createLocalEventBus(: EventBus<AssemblyEvents>) {
+export function createLocalEventBus(): EventBus<AssemblyEvents> {
   return createEventBus<AssemblyEvents>();
 }
 
-// --- Transfer Validation ------------------------------------------------------
+// ─── Transfer Validation ──────────────────────────────────────────────────────
 
 /**
  * canTransfer(manifest, targetRuntime)
  *
  * Returns whether a module manifest is compatible with a target runtime.
  */
-export function canTransfer(manifest: ModuleManifest, targetRuntime: RuntimeId: boolean) {
+export function canTransfer(manifest: ModuleManifest, targetRuntime: RuntimeId): boolean {
   return manifest.compatibleRuntimes.includes(targetRuntime);
 }
 

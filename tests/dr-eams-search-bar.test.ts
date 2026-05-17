@@ -22,7 +22,7 @@ import {
   truncatePreview,
 } from '@/lib/dreamengin/drEamsSearch';
 
-// -- matchNavSuggestions --------------------------------------------------------
+// ── matchNavSuggestions ────────────────────────────────────────────────────────
 
 describe('matchNavSuggestions', () => {
   it('returns empty array for empty query', () => {
@@ -33,7 +33,7 @@ describe('matchNavSuggestions', () => {
   it('matches "music" to Music Daydream', () => {
     const results = matchNavSuggestions('music');
     expect(results.length).toBeGreaterThan(0);
-    expect(results.some(r => r.label.toLowerCase().includes('music'))).toBe(true);
+    expect(results.some((r) => r.label.toLowerCase().includes('music'))).toBe(true);
   });
 
   it('is case-insensitive', () => {
@@ -45,16 +45,16 @@ describe('matchNavSuggestions', () => {
   });
 
   it('matches canonical product names (DreamShop, DreamDM, DreamAds, DreamMarketplace)', () => {
-    expect(matchNavSuggestions('shop').some(r => r.label === 'DreamShop')).toBe(true);
-    expect(matchNavSuggestions('dm').some(r => r.label === 'DreamDM')).toBe(true);
-    expect(matchNavSuggestions('ads').some(r => r.label === 'DreamAds')).toBe(true);
-    expect(matchNavSuggestions('market').some(r => r.label === 'DreamMarketplace')).toBe(true);
+    expect(matchNavSuggestions('shop').some((r) => r.label === 'DreamShop')).toBe(true);
+    expect(matchNavSuggestions('dm').some((r) => r.label === 'DreamDM')).toBe(true);
+    expect(matchNavSuggestions('ads').some((r) => r.label === 'DreamAds')).toBe(true);
+    expect(matchNavSuggestions('market').some((r) => r.label === 'DreamMarketplace')).toBe(true);
   });
 
   it('matches "eams" to Dr. Eams (null href)', () => {
     const results = matchNavSuggestions('eams');
     expect(results.length).toBeGreaterThan(0);
-    const drEams = results.find(r => r.label === 'Dr. Eams');
+    const drEams = results.find((r) => r.label === 'Dr. Eams');
     expect(drEams).toBeDefined();
     expect(drEams?.href).toBeNull();
   });
@@ -79,7 +79,7 @@ describe('matchNavSuggestions', () => {
 
   it('EditProfileDream appears for "profile" query', () => {
     const results = matchNavSuggestions('profile');
-    expect(results.some(r => r.label === 'EditProfileDream')).toBe(true);
+    expect(results.some((r) => r.label === 'EditProfileDream')).toBe(true);
   });
 
   it('returns suggestions with href or null (never undefined)', () => {
@@ -90,7 +90,7 @@ describe('matchNavSuggestions', () => {
   });
 });
 
-// -- buildDrEamsRequest ---------------------------------------------------------
+// ── buildDrEamsRequest ─────────────────────────────────────────────────────────
 
 describe('buildDrEamsRequest', () => {
   it('trims whitespace from the message', () => {
@@ -122,7 +122,7 @@ describe('buildDrEamsRequest', () => {
   });
 });
 
-// -- parseDrEamsReply -----------------------------------------------------------
+// ── parseDrEamsReply ───────────────────────────────────────────────────────────
 
 describe('parseDrEamsReply', () => {
   it('extracts response_text from a normal reply', () => {
@@ -190,7 +190,7 @@ describe('parseDrEamsReply', () => {
   });
 });
 
-// -- buildDreamDMUrl ------------------------------------------------------------
+// ── buildDreamDMUrl ────────────────────────────────────────────────────────────
 
 describe('buildDreamDMUrl', () => {
   it('always starts with /messages', () => {
@@ -222,7 +222,7 @@ describe('buildDreamDMUrl', () => {
   });
 });
 
-// -- truncatePreview ------------------------------------------------------------
+// ── truncatePreview ────────────────────────────────────────────────────────────
 
 describe('truncatePreview', () => {
   it('returns short strings unchanged', () => {
@@ -247,11 +247,11 @@ describe('truncatePreview', () => {
   });
 });
 
-// -- NAV_SUGGESTIONS catalogue integrity ---------------------------------------
+// ── NAV_SUGGESTIONS catalogue integrity ───────────────────────────────────────
 
 describe('NAV_SUGGESTIONS catalogue', () => {
   it('contains all six Daydream pairs', () => {
-    const labels = NAV_SUGGESTIONS.map(s => s.label);
+    const labels = NAV_SUGGESTIONS.map((s) => s.label);
     expect(labels).toContain('Music Daydream');
     expect(labels).toContain('Games Daydream');
     expect(labels).toContain('Lab Daydream');
@@ -261,7 +261,7 @@ describe('NAV_SUGGESTIONS catalogue', () => {
   });
 
   it('contains canonical platform modules (docs/ARCHITECTURE.md §1)', () => {
-    const labels = NAV_SUGGESTIONS.map(s => s.label);
+    const labels = NAV_SUGGESTIONS.map((s) => s.label);
     expect(labels).toContain('DreamShop');
     expect(labels).toContain('DreamMarketplace');
     expect(labels).toContain('DreamDM');
@@ -271,7 +271,7 @@ describe('NAV_SUGGESTIONS catalogue', () => {
   });
 
   it('contains Dr. Eams with a null href', () => {
-    const drEams = NAV_SUGGESTIONS.find(s => s.label === 'Dr. Eams');
+    const drEams = NAV_SUGGESTIONS.find((s) => s.label === 'Dr. Eams');
     expect(drEams).toBeDefined();
     expect(drEams?.href).toBeNull();
   });
@@ -291,7 +291,7 @@ describe('NAV_SUGGESTIONS catalogue', () => {
   });
 
   it('has no duplicate labels', () => {
-    const labels = NAV_SUGGESTIONS.map(s => s.label);
+    const labels = NAV_SUGGESTIONS.map((s) => s.label);
     const unique = new Set(labels);
     expect(unique.size).toBe(labels.length);
   });

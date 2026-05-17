@@ -11,7 +11,7 @@ type GamePageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function GamePage() { searchParams }: GamePageProps {
+export default async function GamePage({ searchParams }: GamePageProps) {
   await connection();
   const params = new URLSearchParams();
   const resolved = await searchParams;

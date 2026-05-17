@@ -14,7 +14,7 @@
  * Architecture: docs/AXIOMS.md §4 — security by default.
  */
 
-// --- Capability identifiers ---------------------------------------------------
+// ─── Capability identifiers ───────────────────────────────────────────────────
 
 export type EnginCapability =
   // Persistence
@@ -46,7 +46,7 @@ export type EnginCapability =
   // Custom capability for rule-set extension
   | `custom:${string}`;
 
-// --- Capability map -----------------------------------------------------------
+// ─── Capability map ───────────────────────────────────────────────────────────
 
 export type EnginCapabilityMap = Readonly<Record<EnginCapability, boolean>>;
 
@@ -78,7 +78,7 @@ export const DEFAULT_USER_CAPABILITIES: EnginCapabilityMap = Object.freeze({
   'co-op:enable': false,
 } as Record<EnginCapability, boolean> as EnginCapabilityMap);
 
-// --- Runtime gate -------------------------------------------------------------
+// ─── Runtime gate ─────────────────────────────────────────────────────────────
 
 export interface CapabilityGateResult {
   granted: boolean;

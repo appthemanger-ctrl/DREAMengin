@@ -14,7 +14,7 @@
  *     Tag pills use the blue "live state" colour.
  */
 
-// --- Constants ----------------------------------------------------------------
+// ─── Constants ────────────────────────────────────────────────────────────────
 
 /** Maximum number of tags per post */
 export const MAX_TAGS_PER_POST = 10;
@@ -25,7 +25,7 @@ export const MAX_TAG_LENGTH = 32;
 /** Regex for a valid tag body (no # prefix) */
 const TAG_BODY_RE = /^[a-zA-Z0-9][a-zA-Z0-9_-]*$/;
 
-// --- Types --------------------------------------------------------------------
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface Hashtag {
   /** Tag text without the # prefix, lowercased */
@@ -42,7 +42,7 @@ export interface TrendingTag {
   momentum: number;
 }
 
-// --- Extraction ---------------------------------------------------------------
+// ─── Extraction ───────────────────────────────────────────────────────────────
 
 /**
  * Extract hashtags from a text string.
@@ -53,7 +53,7 @@ export interface TrendingTag {
  *   - Duplicates (case-insensitive) are removed; first occurrence wins display
  *   - At most MAX_TAGS_PER_POST tags returned
  */
-export function extractHashtags(text: string: Hashtag[]) {
+export function extractHashtags(text: string): Hashtag[] {
   if (!text) return [];
 
   const matches = text.match(/#[a-zA-Z0-9][a-zA-Z0-9_-]*/g);
@@ -81,7 +81,7 @@ export function extractHashtags(text: string: Hashtag[]) {
  * Validate a single tag string (without # prefix).
  * Returns the normalised (lowercased) tag or null if invalid.
  */
-export function validateTag(raw: string: string | null) {
+export function validateTag(raw: string): string | null {
   const trimmed = raw.trim().replace(/^#/, '');
   if (!trimmed) return null;
   if (trimmed.length > MAX_TAG_LENGTH) return null;
@@ -89,7 +89,7 @@ export function validateTag(raw: string: string | null) {
   return trimmed.toLowerCase();
 }
 
-// --- Trending calculation -----------------------------------------------------
+// ─── Trending calculation ─────────────────────────────────────────────────────
 
 interface TagUsage {
   tag: string;
@@ -133,17 +133,17 @@ export function calculateTrending(
   );
 
   // Sort by momentum descending
-  results.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.momentum - a.momentum);
+  results.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.momentum - a.momentum);
 
   return results.slice(0, limit);
 }
 
-// --- Formatting ---------------------------------------------------------------
+// ─── Formatting ───────────────────────────────────────────────────────────────
 
 /**
  * Format a tag for display with # prefix.
  */
-export function formatTag(tag: string: string) {
+export function formatTag(tag: string): string {
   return `#${tag}`;
 }
 

@@ -43,7 +43,7 @@ const COL = {
   perfect: '#ffe76b',
 } as const;
 
-export default function VoidlineGP() {
+export default function VoidlineGP( ){
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const shipXRef = useRef(W / 2);
@@ -127,20 +127,20 @@ export default function VoidlineGP() {
       scoreRef.current += 50 + comboRef.current * 5;
       // Perfect-fire muzzle particles
       particlesRef.current.burst(sx, sy - 10, 8, { color: COL.perfect, speed: 200, size: 1.6, maxLife: 0.35, drag: 0.85 });
-      setHud(h: number => ({ ...h, lastHit: 'PERFECT' }));
+      setHud((h: number ) => ({ ...h, lastHit: 'PERFECT' }));
     } else if (offset < HIT_WINDOW) {
       bulletsRef.current.push({ x: shipXRef.current, y: shipYRef.current, vx: shipVxRef.current * 0.4, vy: -720 });
       comboRef.current += 1;
       chainRef.current = Math.min(1, chainRef.current + 0.08);
       resoRef.current = Math.min(1, resoRef.current + 0.04);
       scoreRef.current += 25;
-      setHud(h: number => ({ ...h, lastHit: 'GOOD' }));
+      setHud((h: number ) => ({ ...h, lastHit: 'GOOD' }));
     } else {
       heatRef.current = Math.min(1, heatRef.current + 0.18);
       comboRef.current = 0;
       chainRef.current = Math.max(0, chainRef.current - 0.4);
       shakeRef.current.kick(3);
-      setHud(h: number => ({ ...h, lastHit: 'OFF' }));
+      setHud((h: number ) => ({ ...h, lastHit: 'OFF' }));
     }
   }, []);
 
@@ -224,7 +224,7 @@ export default function VoidlineGP() {
             a.y = H + 100;
           }
         }
-        asteroidsRef.current = asteroidsRef.current.filter(a: Record<string, unknown> => a.y < H + 40);
+        asteroidsRef.current = asteroidsRef.current.filter((a: Record<string, unknown>) => a.y < H + 40);
 
         // Bullets — full velocity integration
         for (const b of bulletsRef.current) { b.x += b.vx * dt; b.y += b.vy * dt; }
@@ -241,7 +241,7 @@ export default function VoidlineGP() {
             }
           }
         }
-        bulletsRef.current = bulletsRef.current.filter(b: Record<string, unknown> => b.y > -10 && b.x > -20 && b.x < W + 20);
+        bulletsRef.current = bulletsRef.current.filter((b: Record<string, unknown>) => b.y > -10 && b.x > -20 && b.x < W + 20);
 
         // Per-ship exhaust trail particle
         if (Math.random() < 0.6) {
@@ -267,7 +267,7 @@ export default function VoidlineGP() {
         if (t - startTimeRef.current > RACE_DURATION_MS && rivalsRef.current.length > 0) { setPhase('lose'); }
       }
 
-      // -- Render -----------------------------------------------------------
+      // ── Render ───────────────────────────────────────────────────────────
       // Motion-blur stamp (low-alpha previous-frame trail)
       if (!reducedMotionRef.current && phaseRef.current === 'playing') {
         motionTrail(ctx, W, H, 0.25, '#06051a');
@@ -365,7 +365,7 @@ export default function VoidlineGP() {
 
       ctx.restore();
 
-      // -- HUD: minimal — beat-window indicator + Resonance arc + lap pip --
+      // ── HUD: minimal — beat-window indicator + Resonance arc + lap pip ──
       // Beat-window indicator: closing bar around ship area shows when to fire
       const beatPhase = beatPhaseRef.current;
       // window opens near beat boundaries (offset≈0 or offset≈1)
@@ -405,7 +405,7 @@ export default function VoidlineGP() {
   // Push HUD updates once per ~100ms (cheap)
   useEffect(() => {
     if (phase !== 'playing') return;
-    const iv = setInterval(() => setHud(h: number => ({
+    const iv = setInterval(() => setHud((h: number ) => ({
       ...h,
       score: scoreRef.current, combo: comboRef.current,
       reso: resoRef.current, heat: heatRef.current,

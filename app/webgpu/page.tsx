@@ -7,6 +7,6 @@ export const metadata: Metadata = {
   description: 'Top-line GPU performance. WebGPU-accelerated games, daydreams, engines and messaging.',
 };
 
-export default function WebGPUPage() {
+export default function WebGPUPage( ){
   return <WebGPUShowcase />;
 }

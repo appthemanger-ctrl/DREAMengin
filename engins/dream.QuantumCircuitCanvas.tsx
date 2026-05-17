@@ -32,50 +32,50 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 // A complex number is a pair [real, imaginary].
 type C = [number, number];
 
-function cadd([r1, i1]: C, [r2, i2]: C: C) { return [r1 + r2, i1 + i2]; }
-function cmul([r1, i1]: C, [r2, i2]: C: C) { return [r1 * r2 - i1 * i2, r1 * i2 + i1 * r2]; }
-function cmag2([r, i]: C: number) { return r * r + i * i; }
+function cadd([r1, i1]: C, [r2, i2]: C): C { return [r1 + r2, i1 + i2]; }
+function cmul([r1, i1]: C, [r2, i2]: C): C { return [r1 * r2 - i1 * i2, r1 * i2 + i1 * r2]; }
+function cmag2([r, i]: C): number { return r * r + i * i; }
 
 const IS2 = 1 / Math.SQRT2; // 1/√2
 
-// -- Quantum gates (2×2 unitary matrices, row-major: [u00, u01, u10, u11]) ------
+// ── Quantum gates (2×2 unitary matrices, row-major: [u00, u01, u10, u11]) ──────
 type Gate = [C, C, C, C];
 
 const GATE_H: Gate = [[IS2, 0], [IS2, 0], [IS2, 0], [-IS2, 0]];
 
 /** Rotation about X axis: Rx(θ) = [[cos θ/2, -i sin θ/2], [-i sin θ/2, cos θ/2]] */
-function gateRx(theta: number: Gate) {
+function gateRx(theta: number): Gate {
   const c = Math.cos(theta / 2), s = Math.sin(theta / 2);
   return [[c, 0], [0, -s], [0, -s], [c, 0]];
 }
 /** Rotation about Y axis: Ry(θ) = [[cos θ/2, -sin θ/2], [sin θ/2, cos θ/2]] */
-function gateRy(theta: number: Gate) {
+function gateRy(theta: number): Gate {
   const c = Math.cos(theta / 2), s = Math.sin(theta / 2);
   return [[c, 0], [-s, 0], [s, 0], [c, 0]];
 }
 /** Rotation about Z axis: Rz(θ) = diag(e^{-iθ/2}, e^{iθ/2}) */
-function gateRz(theta: number: Gate) {
+function gateRz(theta: number): Gate {
   const c = Math.cos(theta / 2), s = Math.sin(theta / 2);
   return [[c, -s], [0, 0], [0, 0], [c, s]];
 }
 
-// -- State vector ---------------------------------------------------------------
+// ── State vector ───────────────────────────────────────────────────────────────
 // A pure n-qubit state is 2^n complex amplitudes. Basis ordering: qubit 0 is MSB.
 // e.g. |q0 q1 q2⟩ = |010⟩ → index 2 (binary 010).
 type SV = C[];
 
-function groundState(n: number: SV) {
+function groundState(n: number): SV {
   const sv: SV = Array.from({ length: 1 << n }, () => [0, 0] as C);
   sv[0] = [1, 0];
   return sv;
 }
 
-function measurementProbs(sv: SV: number[]) {
+function measurementProbs(sv: SV): number[] {
   return sv.map(cmag2);
 }
 
 /** Apply a single-qubit gate to qubit q (0 = MSB) in an n-qubit state vector. */
-function applyGate1(sv: SV, n: number, q: number, u: Gate: SV) {
+function applyGate1(sv: SV, n: number, q: number, u: Gate): SV {
   const next = sv.slice();
   const bit = 1 << (n - 1 - q); // bit position for qubit q (big-endian)
   for (let i = 0; i < sv.length; i++) {
@@ -89,7 +89,7 @@ function applyGate1(sv: SV, n: number, q: number, u: Gate: SV) {
 }
 
 /** Apply CNOT: flip target qubit when control qubit is |1⟩. */
-function applyCNOT(sv: SV, n: number, ctrl: number, tgt: number: SV) {
+function applyCNOT(sv: SV, n: number, ctrl: number, tgt: number): SV {
   const next = sv.slice();
   const cBit = 1 << (n - 1 - ctrl);
   const tBit = 1 << (n - 1 - tgt);
@@ -104,13 +104,13 @@ function applyCNOT(sv: SV, n: number, ctrl: number, tgt: number: SV) {
   return next;
 }
 
-// -- Gate operation types -------------------------------------------------------
+// ── Gate operation types ───────────────────────────────────────────────────────
 export type GateOp =
   | { kind: 'H';  q: number; label: string }
   | { kind: 'Rx' | 'Ry' | 'Rz'; q: number; theta: number; label: string }
   | { kind: 'CX'; ctrl: number; tgt: number; label: string };
 
-function applyOp(sv: SV, n: number, op: GateOp: SV) {
+function applyOp(sv: SV, n: number, op: GateOp): SV {
   if (op.kind === 'CX') return applyCNOT(sv, n, op.ctrl, op.tgt);
   if (op.kind === 'H')  return applyGate1(sv, n, op.q, GATE_H);
   if (op.kind === 'Rx') return applyGate1(sv, n, op.q, gateRx(op.theta));
@@ -118,13 +118,13 @@ function applyOp(sv: SV, n: number, op: GateOp: SV) {
   return applyGate1(sv, n, op.q, gateRz(op.theta)); // Rz
 }
 
-// -- Circuit builders -----------------------------------------------------------
+// ── Circuit builders ───────────────────────────────────────────────────────────
 //
 // QAOA (p=1): cost unitary U_C(γ) ∘ mixer U_B(β)
 //   U_C uses Rz(γ) on each qubit and CNOT pairs to encode the QUBO cost.
 //   U_B uses Rx(2β) on each qubit (standard QAOA mixer).
 //
-function buildQAOA(n: number, gamma: number, beta: number: GateOp[]) {
+function buildQAOA(n: number, gamma: number, beta: number): GateOp[] {
   const ops: GateOp[] = [];
   // Initial superposition
   for (let q = 0; q < n; q++) ops.push({ kind: 'H', q, label: 'H' });
@@ -140,7 +140,7 @@ function buildQAOA(n: number, gamma: number, beta: number: GateOp[]) {
 }
 
 // VQE RealAmplitudes ansatz: H → Ry layer → CNOT entanglement → Ry layer
-function buildRealAmplitudes(n: number, layer1: number[], layer2: number[]: GateOp[]) {
+function buildRealAmplitudes(n: number, layer1: number[], layer2: number[]): GateOp[] {
   const ops: GateOp[] = [];
   for (let q = 0; q < n; q++) ops.push({ kind: 'H', q, label: 'H' });
   for (let q = 0; q < n; q++) ops.push({ kind: 'Ry', q, theta: layer1[q] ?? Math.PI / 4, label: 'Ry' });
@@ -150,7 +150,7 @@ function buildRealAmplitudes(n: number, layer1: number[], layer2: number[]: Gate
 }
 
 // VQE EfficientSU2: H → (Ry + Rz) layers → CNOT entanglement → (Ry + Rz) layers
-function buildEfficientSU2(n: number, params: number[]: GateOp[]) {
+function buildEfficientSU2(n: number, params: number[]): GateOp[] {
   const ops: GateOp[] = [];
   const p = (i: number) => params[i] ?? Math.PI / 4;
   for (let q = 0; q < n; q++) ops.push({ kind: 'H', q, label: 'H' });
@@ -174,7 +174,7 @@ const ASSET_CORR     = [[1, 0.3, 0.1], [0.3, 1, 0.2], [0.1, 0.2, 1]];
 const RISK_AVERSION  = 0.5;
 
 /** QUBO cost C(x) = −Σᵢ rᵢ xᵢ + λ Σᵢⱼ σᵢσⱼρᵢⱼ xᵢxⱼ */
-function quboCost(bits: boolean[]: number) {
+function quboCost(bits: boolean[]): number {
   let cost = 0;
   const n = bits.length;
   for (let i = 0; i < n; i++) {
@@ -191,7 +191,7 @@ function quboCost(bits: boolean[]: number) {
   return cost;
 }
 
-function makeCircuit(n: number, algorithm: string, ansatz: string: GateOp[]) {
+function makeCircuit(n: number, algorithm: string, ansatz: string): GateOp[] {
   if (algorithm === 'qaoa') {
     // γ encodes the cost scale, β encodes mixer strength.
     // Derived from the dominant QUBO term magnitude.
@@ -210,7 +210,7 @@ function makeCircuit(n: number, algorithm: string, ansatz: string: GateOp[]) {
   return buildRealAmplitudes(n, t1, t2);
 }
 
-// -- Measurement result type ----------------------------------------------------
+// ── Measurement result type ────────────────────────────────────────────────────
 export interface QuantumMeasurementResult {
   /** Full probability distribution over all 2^n basis states. */
   probabilities: number[];
@@ -224,41 +224,41 @@ export interface QuantumMeasurementResult {
   expectationValue: number;
 }
 
-function buildMeasurementResult(ps: number[], n: number: QuantumMeasurementResult) {
-  const topIdx = ps.reduce(best: Record<string, unknown>, v: number, i: number => (v > ps[best] ? i : best), 0);
-  const topBits = Array.from({ length: n }, _: Record<string, unknown>, k: number => Boolean((topIdx >> (n - 1 - k)) & 1));
-  const ev = ps.reduce(sum: number, prob: Record<string, unknown>, i: number => {
-    const bits = Array.from({ length: n }, _: Record<string, unknown>, k: number => Boolean((i >> (n - 1 - k)) & 1));
+function buildMeasurementResult(ps: number[], n: number): QuantumMeasurementResult {
+  const topIdx = ps.reduce(best: Record<string, unknown>, (v: number, i: number ) => (v > ps[best] ? i : best), 0);
+  const topBits = Array.from({ length: n }, _: Record<string, unknown>, (k: number ) => Boolean((topIdx >> (n - 1 - k)) & 1));
+  const ev = ps.reduce(sum: number, prob: Record<string, unknown>, (i: number ) => {
+    const bits = Array.from({ length: n }, _: Record<string, unknown>, (k: number ) => Boolean((i >> (n - 1 - k)) & 1));
     return sum + prob * quboCost(bits);
   }, 0);
   return {
     probabilities:    ps,
-    topBitstring:     topBits.map(b => (b ? '1' : '0')).join(''),
+    topBitstring:     topBits.map((b) => (b ? '1' : '0')).join(''),
     topProbability:   ps[topIdx],
     selectedAssets:   topBits,
     expectationValue: ev,
   };
 }
 
-// -- Greedy gate-column scheduler -----------------------------------------------
+// ── Greedy gate-column scheduler ───────────────────────────────────────────────
 // Assigns each gate to the earliest column where none of its qubits are occupied.
-function scheduleColumns(ops: GateOp[], n: number: number[]) {
+function scheduleColumns(ops: GateOp[], n: number): number[] {
   const lastCol = new Array<number>(n).fill(-1);
-  return ops.map(op => {
+  return ops.map((op) => {
     const qs = op.kind === 'CX' ? [op.ctrl, op.tgt] : [op.q];
-    const col = Math.max(...qs.map(q => lastCol[q])) + 1;
-    qs.forEach(q => { lastCol[q] = col; });
+    const col = Math.max(...qs.map((q) => lastCol[q])) + 1;
+    qs.forEach((q) => { lastCol[q] = col; });
     return col;
   });
 }
 
-// -- Canvas renderer ------------------------------------------------------------
+// ── Canvas renderer ────────────────────────────────────────────────────────────
 const BG_COLOR   = 'rgba(7, 10, 17, 0.98)';
 const WIRE_COLOR = '#1a2535';
 const DIM_COLOR  = '#2d3d52';
 
 /** Parse "#rrggbb" → "r,g,b" for use in rgba(). Falls back gracefully. */
-function hexToRGB(hex: string: string) {
+function hexToRGB(hex: string): string {
   if (hex.length === 7 && hex[0] === '#') {
     const r = parseInt(hex.slice(1, 3), 16);
     const g = parseInt(hex.slice(3, 5), 16);
@@ -314,7 +314,7 @@ function drawCNOTGate(
   ctx.shadowBlur = 0;
 }
 
-function drawMeasureBox(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, color: string) {
+function drawMeasureBox(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, color): string {
   ctx.strokeStyle = color;
   ctx.lineWidth = 0.8;
   // Meter arc
@@ -345,12 +345,12 @@ function renderFrame(
   const LEFT      = 26;
   const RIGHT     = 20; // space for measure symbol
   const wireSpacing = circuitH / (n + 1);
-  const wireYs    = Array.from({ length: n }, _: Record<string, unknown>, q: Record<string, unknown> => wireSpacing * (q + 1));
+  const wireYs    = Array.from(({ length: n }, _: Record<string, unknown>, q: Record<string, unknown>) => wireSpacing * (q + 1));
   const colW      = numCols > 0 ? (W - LEFT - RIGHT) / numCols : W - LEFT - RIGHT;
   const gateH     = Math.min(13, wireSpacing * 0.58);
   const gateW     = Math.min(22, colW * 0.75);
 
-  // -- Qubit labels + wires --------------------------------------------------
+  // ── Qubit labels + wires ──────────────────────────────────────────────────
   for (let q = 0; q < n; q++) {
     const y = wireYs[q];
     ctx.fillStyle = '#5a7a9a';
@@ -363,7 +363,7 @@ function renderFrame(
     ctx.beginPath(); ctx.moveTo(LEFT - 4, y); ctx.lineTo(W - RIGHT, y); ctx.stroke();
   }
 
-  // -- Gate symbols ----------------------------------------------------------
+  // ── Gate symbols ──────────────────────────────────────────────────────────
   for (let i = 0; i < ops.length; i++) {
     const op     = ops[i];
     const col    = cols[i];
@@ -379,19 +379,19 @@ function renderFrame(
     }
   }
 
-  // -- Measure symbols at end of each wire -----------------------------------
+  // ── Measure symbols at end of each wire ───────────────────────────────────
   const mx    = W - RIGHT + 10;
   const done  = step >= ops.length;
   for (let q = 0; q < n; q++) {
     drawMeasureBox(ctx, mx, wireYs[q], 6, done ? accent : DIM_COLOR);
   }
 
-  // -- Probability histogram -------------------------------------------------
+  // ── Probability histogram ─────────────────────────────────────────────────
   const ps    = measurementProbs(sv);
   const count = 1 << n;
   const barW  = (W - 6) / count;
   const maxBH = probH - 17;
-  const topI  = ps.reduce(b: Record<string, unknown>, v: number, i: number => (v > ps[b] ? i : b), 0);
+  const topI  = ps.reduce(b: Record<string, unknown>, (v: number, i: number ) => (v > ps[b] ? i : b), 0);
 
   ctx.fillStyle = '#334155';
   ctx.font = '6px sans-serif';
@@ -427,7 +427,7 @@ function renderFrame(
   }
 }
 
-// -- Component ------------------------------------------------------------------
+// ── Component ──────────────────────────────────────────────────────────────────
 export interface QuantumCircuitCanvasProps {
   active: boolean;
   accentColor: string;
@@ -441,7 +441,7 @@ export interface QuantumCircuitCanvasProps {
 
 const STEP_MS = 140; // milliseconds per gate step during animation
 
-export default function QuantumCircuitCanvas() {
+export default function QuantumCircuitCanvas(){
   active,
   accentColor,
   secondaryColor,

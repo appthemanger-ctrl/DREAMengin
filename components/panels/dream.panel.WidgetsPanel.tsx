@@ -22,7 +22,7 @@ const DEFAULT_WIDGETS: WidgetEntry[] = [
   { name: 'Portfolio', pinned: false, visible: false },
 ];
 
-export default function WidgetsPanel() {
+export default function WidgetsPanel( ){
   const { openInSurface } = useDreamSystem();
   const [widgets, setWidgets] = useState<WidgetEntry[]>(DEFAULT_WIDGETS);
   const [loading, setLoading] = useState(true);
@@ -36,7 +36,7 @@ export default function WidgetsPanel() {
         const { data } = await sb.from('profiles').select('profile_dream_widgets').eq('id', user.id).single();
         if (data?.profile_dream_widgets && Array.isArray(data.profile_dream_widgets) && data.profile_dream_widgets.length > 0) {
           // Map stored ProfileDream format to WidgetEntry
-          const mapped: WidgetEntry[] = (data.profile_dream_widgets as Array<{ label?: string; title?: string; pinned?: boolean; visible?: boolean }>).map(w => ({
+          const mapped: WidgetEntry[] = (data.profile_dream_widgets as Array<{ label?: string; title?: string; pinned?: boolean; visible?: boolean }>).map((w) => ({
             name:    w.label ?? w.title ?? 'Dream',
             pinned:  w.pinned  ?? false,
             visible: w.visible ?? true,
@@ -49,7 +49,7 @@ export default function WidgetsPanel() {
   }, []);
 
   const toggle = (idx: number, key: 'pinned' | 'visible') => {
-    setWidgets(prev => prev.map(w: Record<string, unknown>, i: number => i === idx ? { ...w, [key]: !w[key] } : w));
+    setWidgets((prev) => prev.map(w: Record<string, unknown>, (i: number ) => i === idx ? { ...w, [key]: !w[key] } : w));
   };
 
   return (
@@ -73,7 +73,7 @@ export default function WidgetsPanel() {
               <p className="text-sm" style={{ color: 'var(--de-text-dim)', marginBottom: 12 }}>
                 Manage which Dreams appear on your HomeDream. Removing only hides — your config is preserved.
               </p>
-              {widgets.map({ name, pinned: Record<string, unknown>, visible }, idx: number => (
+              {widgets.map({ name, pinned: Record<string, unknown>, visible }, (idx: number ) => (
                 <div key={name} className="de-row">
                   <div style={{ flex: 1 }}>
                     <span className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>{name}</span>

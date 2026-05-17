@@ -15,7 +15,7 @@ interface TierBadgeProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-export function TierBadge() { tier, showDescription = false, size = 'md' }: TierBadgeProps {
+export function TierBadge({ tier, showDescription = false, size = 'md' }: TierBadgeProps) {
   const name = getTierDisplayName(tier);
   const description = getTierDescription(tier);
 

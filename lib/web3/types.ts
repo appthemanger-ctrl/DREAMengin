@@ -10,7 +10,7 @@
  * wagmi without touching callers.
  */
 
-// --- Wallet -------------------------------------------------------------------
+// ─── Wallet ───────────────────────────────────────────────────────────────────
 
 export type WalletProvider = 'metamask' | 'walletconnect' | 'coinbase' | 'injected';
 
@@ -47,7 +47,7 @@ export class Web3Error extends Error {
   }
 }
 
-// --- On-chain engagement ------------------------------------------------------
+// ─── On-chain engagement ──────────────────────────────────────────────────────
 
 /** Mirrors the backend engagementController shape */
 export interface EngagementPayload {
@@ -74,7 +74,7 @@ export interface EngagementStats {
   hasLiked: boolean;
 }
 
-// --- IPFS ---------------------------------------------------------------------
+// ─── IPFS ─────────────────────────────────────────────────────────────────────
 
 export interface IpfsUploadResult {
   /** v1 CID string */
@@ -95,7 +95,7 @@ export interface IpfsContent {
   mimeType: string | null;
 }
 
-// --- Network config -----------------------------------------------------------
+// ─── Network config ───────────────────────────────────────────────────────────
 
 export interface ChainConfig {
   chainId: number;

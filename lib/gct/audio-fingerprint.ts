@@ -9,7 +9,7 @@ export interface SongFingerprint {
  * Lightweight feature extraction placeholder.
  * Swap this with FFT/spectrogram features for production use.
  */
-export function audioToVector(audioBuffer: Float32Array, _sampleRate: number: Float32Array) {
+export function audioToVector(audioBuffer: Float32Array, _sampleRate: number): Float32Array {
   const clipLength = Math.min(audioBuffer.length, 10_000);
   return audioBuffer.slice(0, clipLength);
 }
@@ -32,6 +32,6 @@ export async function identifySong(
   }));
 
   const matches = await engine.search(query, templates, threshold);
-  matches.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.correlation - a.correlation);
+  matches.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.correlation - a.correlation);
   return matches[0] ?? null;
 }

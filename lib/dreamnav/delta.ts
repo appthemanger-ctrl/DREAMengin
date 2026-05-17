@@ -35,7 +35,7 @@ const INNER_FROM_ACTION: Record<'swipe_up' | 'swipe_down' | 'swipe_left' | 'swip
 
 const normalize = (action: Action): Action => action === 'zoom_in' ? 'depth_in' : action === 'zoom_out' ? 'depth_out' : action;
 
-function actionToHeading(action: Action: Heading) {
+function actionToHeading(action: Action): Heading {
   const n = normalize(action);
   if (n === 'swipe_left') return 'L';
   if (n === 'swipe_right') return 'R';
@@ -46,19 +46,19 @@ function actionToHeading(action: Action: Heading) {
   return null;
 }
 
-function isOuter(node: Node: node is '1b' | '2b' | '3b' | '4b' | '5b' | '6b') {
+function isOuter(node: Node): node is '1b' | '2b' | '3b' | '4b' | '5b' | '6b' {
   return typeof node === 'string';
 }
 
-function getAxis(node: Exclude<Node, 0>: 1 | 2 | 3 | 4 | 5 | 6) {
+function getAxis(node: Exclude<Node, 0>): 1 | 2 | 3 | 4 | 5 | 6 {
   return typeof node === 'number' ? node : Number(node[0]) as 1 | 2 | 3 | 4 | 5 | 6;
 }
 
-function toNode(axis: 1 | 2 | 3 | 4 | 5 | 6, outer = false: Node) {
+function toNode(axis: 1 | 2 | 3 | 4 | 5 | 6, outer = false): Node {
   return outer ? `${axis}b` as Node : axis;
 }
 
-export function tau(node: Node, action: Action: Node) {
+export function tau(node: Node, action: Action): Node {
   const nAction = normalize(action);
   if (nAction === 'home' || nAction === 'go_back') return node;
 
@@ -79,7 +79,7 @@ export function tau(node: Node, action: Action: Node) {
   return toNode(incomingAxis, outer);
 }
 
-export function transition(state: NavState, action: Action: NavState) {
+export function transition(state: NavState, action: Action): NavState {
   const nAction = normalize(action);
   const hasHistory = Object.prototype.hasOwnProperty.call(state, 'lastNode') || Object.prototype.hasOwnProperty.call(state, 'backStack');
   const backStack = state.backStack ?? [];
@@ -111,6 +111,6 @@ export function transition(state: NavState, action: Action: NavState) {
 
 export const DEFAULT_NAV_STATE: NavState = { node: 0, heading: null, lastNode: null, backStack: [] };
 
-export function reduceNav(prev: NavState, action: Action: NavState) {
+export function reduceNav(prev: NavState, action: Action): NavState {
   return transition(prev, action);
 }

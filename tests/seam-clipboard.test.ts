@@ -31,12 +31,12 @@ import {
   type SeamClipboardPayload,
 } from '@/lib/runtime/seamClipboard';
 
-// -- Shared fixtures ------------------------------------------------------------
+// ── Shared fixtures ────────────────────────────────────────────────────────────
 
 const SURFACE_REGION = 'Surface Space' as const;
 const DREAM_REGION = 'DreamSpace' as const;
 
-// -- Setup / teardown -----------------------------------------------------------
+// ── Setup / teardown ───────────────────────────────────────────────────────────
 
 beforeEach(() => {
   bridge.clearAll();
@@ -49,13 +49,13 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-// ------------------------------------------------------------------------------
+// ══════════════════════════════════════════════════════════════════════════════
 // enginWorkflowRegistry
-// ------------------------------------------------------------------------------
+// ══════════════════════════════════════════════════════════════════════════════
 
 describe('enginWorkflowRegistry', () => {
 
-  // -- ENGIN_KEYS --------------------------------------------------------------
+  // ── ENGIN_KEYS ──────────────────────────────────────────────────────────────
 
   describe('ENGIN_KEYS', () => {
     it('contains all 7 expected keys', () => {
@@ -67,7 +67,7 @@ describe('enginWorkflowRegistry', () => {
     });
   });
 
-  // -- allWorkflows -------------------------------------------------------------
+  // ── allWorkflows ─────────────────────────────────────────────────────────────
 
   describe('allWorkflows()', () => {
     it('returns a non-empty readonly array', () => {
@@ -109,14 +109,14 @@ describe('enginWorkflowRegistry', () => {
     });
   });
 
-  // -- findWorkflows ------------------------------------------------------------
+  // ── findWorkflows ────────────────────────────────────────────────────────────
 
   describe('findWorkflows(from, to)', () => {
     it('returns starmaker→lab workflows (2 in 2026: stem-analyze + audio-analysis)', () => {
       const results = findWorkflows('starmaker', 'lab');
       expect(results).toHaveLength(2);
-      expect(results.map(r => r.id)).toContain('starmaker-to-lab:stem-analyze');
-      expect(results.map(r => r.id)).toContain('starmaker-to-lab:audio-analysis');
+      expect(results.map((r) => r.id)).toContain('starmaker-to-lab:stem-analyze');
+      expect(results.map((r) => r.id)).toContain('starmaker-to-lab:audio-analysis');
     });
 
     it('returns starmaker→content workflows', () => {
@@ -192,7 +192,7 @@ describe('enginWorkflowRegistry', () => {
     });
   });
 
-  // -- findWorkflowById ---------------------------------------------------------
+  // ── findWorkflowById ─────────────────────────────────────────────────────────
 
   describe('findWorkflowById(id)', () => {
     it('returns the correct workflow for a known id', () => {
@@ -235,7 +235,7 @@ describe('enginWorkflowRegistry', () => {
     });
   });
 
-  // -- executeWorkflow ----------------------------------------------------------
+  // ── executeWorkflow ──────────────────────────────────────────────────────────
 
   describe('executeWorkflow(id, payload)', () => {
     it('returns false for an unknown workflow id', () => {
@@ -336,7 +336,7 @@ describe('enginWorkflowRegistry', () => {
     });
   });
 
-  // -- Workflow-level bridgeEvent naming convention ------------------------------
+  // ── Workflow-level bridgeEvent naming convention ──────────────────────────────
 
   describe('bridgeEvent naming convention', () => {
     it("every bridgeEvent starts with its bridgeChannel prefix", () => {
@@ -350,13 +350,13 @@ describe('enginWorkflowRegistry', () => {
   });
 });
 
-// ------------------------------------------------------------------------------
+// ══════════════════════════════════════════════════════════════════════════════
 // seamClipboard
-// ------------------------------------------------------------------------------
+// ══════════════════════════════════════════════════════════════════════════════
 
 describe('seamClipboard', () => {
 
-  // -- subscribe ----------------------------------------------------------------
+  // ── subscribe ────────────────────────────────────────────────────────────────
 
   describe('subscribe(handler)', () => {
     it('delivers the payload to the subscriber when set() is called', () => {
@@ -421,7 +421,7 @@ describe('seamClipboard', () => {
     });
   });
 
-  // -- get ----------------------------------------------------------------------
+  // ── get ──────────────────────────────────────────────────────────────────────
 
   describe('get()', () => {
     it('returns null before any set() call', () => {
@@ -458,7 +458,7 @@ describe('seamClipboard', () => {
     });
   });
 
-  // -- set() with application/x-dream-artifact ----------------------------------
+  // ── set() with application/x-dream-artifact ──────────────────────────────────
 
   describe('set() with application/x-dream-artifact MIME type', () => {
     it('routes to the correct workflow and fires bridge.emitDurable', () => {
@@ -621,7 +621,7 @@ describe('seamClipboard', () => {
     });
   });
 
-  // -- setWithEngins -------------------------------------------------------------
+  // ── setWithEngins ─────────────────────────────────────────────────────────────
 
   describe('setWithEngins(from, to, artifact)', () => {
     it('returns the workflow IDs that fired for starmaker→lab', () => {
@@ -760,7 +760,7 @@ describe('seamClipboard', () => {
     });
   });
 
-  // -- set() emits to bridge (seam:drop fallback) --------------------------------
+  // ── set() emits to bridge (seam:drop fallback) ────────────────────────────────
 
   describe('set() emits seam:drop on the bridge', () => {
     it('the bridge durable queue contains the seam:drop event after set()', () => {

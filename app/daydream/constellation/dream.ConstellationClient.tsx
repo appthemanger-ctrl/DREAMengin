@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import DreamConstellationMap from '@/components/daydream/dream.constellationmap';
 
-export default function ConstellationClient() {
+export default function ConstellationClient( ){
   return (
     <div
       style={{
@@ -16,7 +16,7 @@ export default function ConstellationClient() {
         overflow:   'hidden',
       }}
     >
-      {/* -- Top bar -- */}
+      {/* ── Top bar ── */}
       <div
         style={{
           position:       'relative',
@@ -104,7 +104,7 @@ export default function ConstellationClient() {
         </div>
       </div>
 
-      {/* -- Canvas fills remaining space -- */}
+      {/* ── Canvas fills remaining space ── */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
         <DreamConstellationMap />
       </div>

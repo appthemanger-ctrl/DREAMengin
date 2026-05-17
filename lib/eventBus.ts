@@ -12,7 +12,7 @@
  *   bus.destroy(); // clears all handlers
  */
 
-// --- Types --------------------------------------------------------------------
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export type EventHandler<T = unknown> = (payload: T) => void;
 
@@ -26,7 +26,7 @@ export interface EventBus<Events extends Record<string, unknown> = Record<string
   readonly destroyed: boolean;
 }
 
-// --- Factory -----------------------------------------------------------------
+// ─── Factory ─────────────────────────────────────────────────────────────────
 
 /**
  * createEventBus<T>()
@@ -40,7 +40,7 @@ export function createEventBus<
   const handlers = new Map<keyof Events, Set<EventHandler<unknown>>>();
   let _destroyed = false;
 
-  function assertAlive() {
+  function assertAlive( ){
     if (_destroyed) throw new Error('EventBus: cannot use a destroyed bus.');
   }
 
@@ -71,7 +71,7 @@ export function createEventBus<
   };
 }
 
-// --- Dual-Runtime Hub ---------------------------------------------------------
+// ─── Dual-Runtime Hub ─────────────────────────────────────────────────────────
 
 /**
  * createDualRuntimeHub(busA, busB)
@@ -92,7 +92,7 @@ export function createDualRuntimeHub(
 
   const bridgedKey = '__bridged';
 
-  const relayAtoB: EventHandler<unknown> = payload: Record<string, unknown> => {
+  const relayAtoB: EventHandler<unknown> = (payload: Record<string, unknown>) => {
     if (
       payload !== null &&
       typeof payload === 'object' &&
@@ -105,7 +105,7 @@ export function createDualRuntimeHub(
     });
   };
 
-  const relayBtoA: EventHandler<unknown> = payload: Record<string, unknown> => {
+  const relayBtoA: EventHandler<unknown> = (payload: Record<string, unknown>) => {
     if (
       payload !== null &&
       typeof payload === 'object' &&

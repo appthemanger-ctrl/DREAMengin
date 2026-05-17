@@ -76,7 +76,7 @@ const RULE_CONFIG: Record<string, { label: string; color: string; emoji: string 
 // HELPERS
 // ============================================================================
 
-function severityBar(severity: number) {
+function severityBar(severity: number ){
   const pct = Math.round(severity * 100);
   const color = severity >= 0.8 ? '#dc2626' : severity >= 0.5 ? '#f59e0b' : '#22c55e';
   return (
@@ -89,7 +89,7 @@ function severityBar(severity: number) {
   );
 }
 
-function relativeTime(iso: string: string) {
+function relativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60_000);
   if (mins < 1) return 'just now';
@@ -107,10 +107,10 @@ interface ChildSafetyPanelProps {
   isAdmin: boolean;
 }
 
-export default function ChildSafetyPanel() { isAdmin }: ChildSafetyPanelProps {
+export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
   const [activeTab, setActiveTab] = useState<'queue' | 'hashes'>('queue');
 
-  // -- Queue state ----------------------------------------------------------
+  // ── Queue state ──────────────────────────────────────────────────────────
   const [statusFilter, setStatusFilter] = useState<string>('PENDING_REVIEW');
   const [incidents, setIncidents] = useState<ChildSafetyIncident[]>([]);
   const [counts, setCounts] = useState<IncidentCounts>({ pending: 0, submitted: 0, failed: 0, actioned: 0, dismissed: 0 });
@@ -118,17 +118,17 @@ export default function ChildSafetyPanel() { isAdmin }: ChildSafetyPanelProps {
   const [reviewingId, setReviewingId] = useState<string | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
 
-  // -- Hash upload state ----------------------------------------------------
+  // ── Hash upload state ────────────────────────────────────────────────────
   const [hashInput, setHashInput] = useState('');
   const [hashSource, setHashSource] = useState('NCMEC');
   const [uploadingHashes, setUploadingHashes] = useState(false);
   const [hashUploadResult, setHashUploadResult] = useState<{ inserted: number; submitted: number } | null>(null);
   const [hashError, setHashError] = useState<string | null>(null);
 
-  // -- General error --------------------------------------------------------
+  // ── General error ────────────────────────────────────────────────────────
   const [error, setError] = useState<string | null>(null);
 
-  // -- Fetch incidents ------------------------------------------------------
+  // ── Fetch incidents ──────────────────────────────────────────────────────
   const fetchIncidents = useCallback(async (status = statusFilter) => {
     setLoadingQueue(true);
     setError(null);
@@ -144,7 +144,7 @@ export default function ChildSafetyPanel() { isAdmin }: ChildSafetyPanelProps {
     }
   }, [statusFilter]);
 
-  // -- Fetch counts for all statuses ----------------------------------------
+  // ── Fetch counts for all statuses ────────────────────────────────────────
   const fetchCounts = useCallback(async () => {
     const statuses: [string, keyof IncidentCounts][] = [
       ['PENDING_REVIEW', 'pending'],
@@ -156,13 +156,13 @@ export default function ChildSafetyPanel() { isAdmin }: ChildSafetyPanelProps {
     const results = await Promise.allSettled(
       statuses.map(([s]) =>
         fetch(`/api/admin/child-safety?status=${encodeURIComponent(s)}&limit=1`)
-          .then(r: number => r.json() as Promise<{ count?: number }>)
-          .then(d: Record<string, unknown> => d.count ?? 0)
+          .then((r: number ) => r.json() as Promise<{ count?: number }>)
+          .then((d: Record<string, unknown>) => d.count ?? 0)
           .catch(() => 0),
       ),
     );
     const newCounts: IncidentCounts = { pending: 0, submitted: 0, failed: 0, actioned: 0, dismissed: 0 };
-    results.forEach(r: Record<string, unknown>, i: number => {
+    results.forEach(r: Record<string, unknown>, (i: number ) => {
       const key = statuses[i][1];
       newCounts[key] = r.status === 'fulfilled' ? (r.value as number) : 0;
     });
@@ -175,7 +175,7 @@ export default function ChildSafetyPanel() { isAdmin }: ChildSafetyPanelProps {
     void fetchCounts();
   }, [isAdmin, statusFilter, fetchIncidents, fetchCounts]);
 
-  // -- Review an incident ---------------------------------------------------
+  // ── Review an incident ───────────────────────────────────────────────────
   const reviewIncident = async (incidentId: string, newStatus: string) => {
     setError(null);
     try {
@@ -200,7 +200,7 @@ export default function ChildSafetyPanel() { isAdmin }: ChildSafetyPanelProps {
     }
   };
 
-  // -- Upload known-bad hashes ----------------------------------------------
+  // ── Upload known-bad hashes ──────────────────────────────────────────────
   const uploadHashes = async () => {
     setHashError(null);
     setHashUploadResult(null);
@@ -239,7 +239,7 @@ export default function ChildSafetyPanel() { isAdmin }: ChildSafetyPanelProps {
 
   return (
     <div className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-xl border-2 border-red-200 dark:border-red-800 p-6">
-      {/* -- Header --------------------------------------------------------- */}
+      {/* ── Header ───────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-gradient-to-r from-red-600 to-orange-500 rounded-lg">
@@ -260,7 +260,7 @@ export default function ChildSafetyPanel() { isAdmin }: ChildSafetyPanelProps {
         </button>
       </div>
 
-      {/* -- Stats bar ------------------------------------------------------- */}
+      {/* ── Stats bar ─────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-5 gap-2 mb-5">
         {([
           { label: 'Pending',   value: counts.pending,   color: '#f59e0b', status: 'PENDING_REVIEW' },
@@ -268,7 +268,7 @@ export default function ChildSafetyPanel() { isAdmin }: ChildSafetyPanelProps {
           { label: 'Failed',    value: counts.failed,    color: '#ef4444', status: 'NCMEC_SUBMISSION_FAILED' },
           { label: 'Actioned',  value: counts.actioned,  color: '#3b82f6', status: 'REVIEWED_ACTIONED' },
           { label: 'Dismissed', value: counts.dismissed, color: '#6b7280', status: 'REVIEWED_DISMISSED' },
-        ] as const).map({ label, value: Record<string, unknown>, color: Record<string, unknown>, status } => (
+        ] as const).map(({ label, value: Record<string, unknown>, color: Record<string, unknown>, status }) => (
           <button
             key={label}
             onClick={() => setStatusFilter(status)}
@@ -285,12 +285,12 @@ export default function ChildSafetyPanel() { isAdmin }: ChildSafetyPanelProps {
         ))}
       </div>
 
-      {/* -- Tab bar --------------------------------------------------------- */}
+      {/* ── Tab bar ───────────────────────────────────────────────────────── */}
       <div className="flex gap-1 mb-5 bg-white/60 dark:bg-slate-800/60 rounded-lg p-1">
         {([
           { id: 'queue',  label: 'Incident Queue', icon: Activity },
           { id: 'hashes', label: 'Hash Registry',  icon: Hash },
-        ] as const).map({ id, label: string, icon: Icon } => (
+        ] as const).map(({ id, label: string, icon: Icon }) => (
           <button
             key={id}
             type="button"
@@ -307,7 +307,7 @@ export default function ChildSafetyPanel() { isAdmin }: ChildSafetyPanelProps {
         ))}
       </div>
 
-      {/* -- Global error --------------------------------------------------- */}
+      {/* ── Global error ─────────────────────────────────────────────────── */}
       {error && (
         <div className="flex items-center gap-2 mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg text-sm text-red-700 dark:text-red-400">
           <AlertTriangle className="w-4 h-4 flex-shrink-0" />
@@ -315,7 +315,7 @@ export default function ChildSafetyPanel() { isAdmin }: ChildSafetyPanelProps {
         </div>
       )}
 
-      {/* -- Tab: Queue ----------------------------------------------------- */}
+      {/* ── Tab: Queue ───────────────────────────────────────────────────── */}
       {activeTab === 'queue' && (
         <div>
           {/* Status filter pill */}
@@ -482,7 +482,7 @@ export default function ChildSafetyPanel() { isAdmin }: ChildSafetyPanelProps {
         </div>
       )}
 
-      {/* -- Tab: Hash Registry --------------------------------------------- */}
+      {/* ── Tab: Hash Registry ───────────────────────────────────────────── */}
       {activeTab === 'hashes' && (
         <div>
           <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4 mb-5">

@@ -36,11 +36,11 @@ export type ToolHandler = (ctx: HandlerContext) => Promise<ToolResult>;
 
 const handlerRegistry = new Map<IntentType, ToolHandler>();
 
-export function registerHandler(intentType: IntentType, handler: ToolHandler: void) {
+export function registerHandler(intentType: IntentType, handler: ToolHandler): void {
   handlerRegistry.set(intentType, handler);
 }
 
-export function getHandler(intentType: IntentType: ToolHandler | undefined) {
+export function getHandler(intentType: IntentType): ToolHandler | undefined {
   return handlerRegistry.get(intentType);
 }
 

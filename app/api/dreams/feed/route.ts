@@ -60,7 +60,7 @@ async function resolveFeedForInstance(
   };
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest ){
   await connection();
   try {
     const supabase = await createServerClient();
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest ){
   await connection();
   try {
     const supabase = await createServerClient();

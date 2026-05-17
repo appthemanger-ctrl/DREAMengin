@@ -7,7 +7,7 @@
  * ProfileShareButton, HomeFeed, and PlatformBadge.
  */
 
-// --- Platform definition -----------------------------------------------------
+// ─── Platform definition ─────────────────────────────────────────────────────
 
 export interface SocialPlatform {
   /** Canonical slug used as a key everywhere (e.g. "twitter") */
@@ -39,7 +39,7 @@ export interface SocialPlatform {
   profileUrlPrefix?: string;
 }
 
-// --- Platform registry -------------------------------------------------------
+// ─── Platform registry ───────────────────────────────────────────────────────
 
 export const SOCIAL_PLATFORMS: SocialPlatform[] = [
   {
@@ -239,7 +239,7 @@ export const SOCIAL_PLATFORMS: SocialPlatform[] = [
   },
 ];
 
-// --- Lookup helpers ----------------------------------------------------------
+// ─── Lookup helpers ──────────────────────────────────────────────────────────
 
 /** Map from platform id → SocialPlatform for O(1) access */
 export const PLATFORM_MAP: Record<string, SocialPlatform> = Object.fromEntries(
@@ -250,7 +250,7 @@ export const PLATFORM_MAP: Record<string, SocialPlatform> = Object.fromEntries(
  * Detect which platform a URL belongs to.
  * Returns the matching SocialPlatform or undefined.
  */
-export function detectPlatform(url: string: SocialPlatform | undefined) {
+export function detectPlatform(url: string): SocialPlatform | undefined {
   if (!url) return undefined;
   return SOCIAL_PLATFORMS.find(
     (p) => p.urlPatterns.length > 0 && p.urlPatterns.some((re: Record<string, unknown>) => re.test(url))
@@ -260,7 +260,7 @@ export function detectPlatform(url: string: SocialPlatform | undefined) {
 /**
  * Return a platform by id, falling back to the 'other' platform.
  */
-export function getPlatform(id: string: SocialPlatform) {
+export function getPlatform(id: string): SocialPlatform {
   return PLATFORM_MAP[id] ?? (PLATFORM_MAP['other'] as SocialPlatform);
 }
 

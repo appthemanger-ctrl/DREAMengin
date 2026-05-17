@@ -20,7 +20,7 @@ function mulberry32(seed: number: () => number {
   };
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface WFCTile {
   id: string;
@@ -50,7 +50,7 @@ export class WaveFunctionCollapse {
   }
 
   reset(): void {
-    const all = new Set<number>(this.tiles.map(_: Record<string, unknown>, i: number => i));
+    const all = new Set<number>(this.tiles.map(_: Record<string, unknown>, (i: number ) => i));
     this.grid = new Array(this.width * this.height).fill(null).map(() => new Set(all));
   }
 
@@ -61,7 +61,7 @@ export class WaveFunctionCollapse {
       if (next === -1) return this.snapshot();
       const choices = Array.from(this.grid[next]);
       if (choices.length === 0) return null;
-      const total = choices.reduce(s: Record<string, unknown>, i: number => s + (this.tiles[i].weight ?? 1), 0);
+      const total = choices.reduce(s: Record<string, unknown>, (i: number ) => s + (this.tiles[i].weight ?? 1), 0);
       let pick = this.rng() * total;
       let chosen = choices[0];
       for (const i of choices) {
@@ -129,7 +129,7 @@ export class WaveFunctionCollapse {
   }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export type BiomeId = 'plains' | 'forest' | 'desert' | 'tundra' | 'ocean' | 'mountain';
 
@@ -193,7 +193,7 @@ export class BiomeSynthesizer {
   }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface ChunkJob {
   id: string;
@@ -227,7 +227,7 @@ export class ChunkScheduler {
 
   enqueue(job: ChunkJob): void {
     this.queue.push(job);
-    this.queue.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.priority - a.priority);
+    this.queue.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.priority - a.priority);
   }
 
   /** Drain jobs up to the per-tick budget. */

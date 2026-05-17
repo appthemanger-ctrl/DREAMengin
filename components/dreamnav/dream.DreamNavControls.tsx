@@ -6,7 +6,7 @@ interface DreamNavControlsProps {
   onBothMenus: () => void;
 }
 
-export default function DreamNavControls() { onBothMenus }: DreamNavControlsProps {
+export default function DreamNavControls({ onBothMenus }: DreamNavControlsProps) {
   const handleTap = () => {
     onBothMenus();
   };

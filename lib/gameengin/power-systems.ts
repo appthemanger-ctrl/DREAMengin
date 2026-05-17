@@ -30,9 +30,9 @@
  * 20.  PhysicsMaterialSystem   — surface-pair material table (friction/restitution/sound)
  */
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  1. ROLLBACK NETCODE
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface NetInput {
   tick: number;
@@ -132,9 +132,9 @@ export class RollbackNetcode {
   }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  2. GPU COMPUTE PIPELINE
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface ComputeKernel {
   label: string;
@@ -207,7 +207,7 @@ export class ComputeShaderPipeline {
     const encoder = dev.createCommandEncoder();
     const pass = encoder.beginComputePass();
     pass.setPipeline(nativePipeline);
-    dispatch.bindings.forEach(buf: Record<string, unknown>, i: number => {
+    dispatch.bindings.forEach(buf: Record<string, unknown>, (i: number ) => {
       // Cast layout to bypass branded GPUBindGroupLayout type check
       const layout = nativePipeline.getBindGroupLayout(0) as unknown as GPUBindGroupLayout;
       const bg = dev.createBindGroup({
@@ -233,9 +233,9 @@ export class ComputeShaderPipeline {
   dispose(): void { (this.device as GPUDevice | null)?.destroy(); this.device = null; }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  3. ADVANCED PHYSICS WORLD
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export type PhysicsBodyType = 'dynamic' | 'static' | 'kinematic';
 export type ShapeType = 'box' | 'sphere' | 'capsule' | 'mesh' | 'convex';
@@ -499,9 +499,9 @@ export interface PhysicsConstraint {
   limits?: [number, number];
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  4. OCTREE / BVH SPATIAL PARTITIONING
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface AABB {
   min: [number, number, number];
@@ -560,7 +560,7 @@ export class OctreeBVH {
       min: [centre[0] - r, centre[1] - r, centre[2] - r],
       max: [centre[0] + r, centre[1] + r, centre[2] + r],
     };
-    return this.queryAABB(bounds).filter(e => {
+    return this.queryAABB(bounds).filter((e) => {
       const cx = (e.aabb.min[0] + e.aabb.max[0]) * 0.5;
       const cy = (e.aabb.min[1] + e.aabb.max[1]) * 0.5;
       const cz = (e.aabb.min[2] + e.aabb.max[2]) * 0.5;
@@ -610,7 +610,7 @@ export class OctreeBVH {
 
   private _remove(node: OctreeNode, id: string): boolean {
     const before = node.entries.length;
-    node.entries = node.entries.filter(e => e.id !== id);
+    node.entries = node.entries.filter((e) => e.id !== id);
     if (node.children) {
       for (const child of node.children) this._remove(child, id);
     }
@@ -634,9 +634,9 @@ export class OctreeBVH {
   }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  5. WORKER JOB SYSTEM
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export type JobPriority = 'high' | 'normal' | 'low';
 
@@ -673,9 +673,9 @@ export class WorkerJobSystem {
   }
 
   enqueue<T>(job: Job<T>): Promise<JobResult<T>> {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.queue.push({ job, resolve: resolve as (r: JobResult) => void });
-      this.queue.sort(a: Record<string, unknown>, b: Record<string, unknown> =>
+      this.queue.sort((a: Record<string, unknown>, b: Record<string, unknown>) =>
         PRIORITY_WEIGHT[a.job.priority ?? 'normal'] - PRIORITY_WEIGHT[b.job.priority ?? 'normal']
       );
       this._drain();
@@ -689,7 +689,7 @@ export class WorkerJobSystem {
       const t0 = typeof performance !== 'undefined' ? performance.now() : Date.now();
       Promise.resolve()
         .then(() => item.job.fn())
-        .then(result => {
+        .then((result) => {
           const dur = (typeof performance !== 'undefined' ? performance.now() : Date.now()) - t0;
           this.totalDurationMs += dur;
           this.completedCount++;
@@ -697,7 +697,7 @@ export class WorkerJobSystem {
           item.resolve({ id: item.job.id, result, durationMs: dur });
           this._drain();
         })
-        .catch(err => {
+        .catch((err) => {
           this.activeCount--;
           item.resolve({ id: item.job.id, result: undefined as unknown as never, durationMs: 0, error: String(err) });
           this._drain();
@@ -710,9 +710,9 @@ export class WorkerJobSystem {
   }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  6. PROCEDURAL WORLD GENERATOR
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface WorldGenConfig {
   seed: number;
@@ -779,7 +779,7 @@ export class ProceduralWorldGen {
       }
     }
 
-    const avgH = heightmap.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a + b, 0) / heightmap.length;
+    const avgH = heightmap.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / heightmap.length;
     const biome = avgH < seaLevel ? 'ocean'
                 : avgH < seaLevel + 0.1 ? 'beach'
                 : avgH < 0.6 ? 'forest'
@@ -808,7 +808,7 @@ export class ProceduralWorldGen {
   evictChunk(x: number, z: number): void { this.chunkCache.delete(`${x},${z}`); }
   get cachedChunks(): number { return this.chunkCache.size; }
 
-  // -- Simplex 2D (Roberts' grad permutation) ------------------------------
+  // ── Simplex 2D (Roberts' grad permutation) ──────────────────────────────
   private _simplex2(x: number, y: number): number {
     const F2 = 0.5 * (Math.sqrt(3) - 1);
     const G2 = (3 - Math.sqrt(3)) / 6;
@@ -862,9 +862,9 @@ export class ProceduralWorldGen {
   }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  7. SPATIAL AUDIO DSP
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface AudioSourceDef {
   id: string;
@@ -987,12 +987,12 @@ export class SpatialAudioDSP {
 
   get stats() { return { sources: this.sources.size, sampleRate: this.ctx?.sampleRate ?? 0, state: this.ctx?.state ?? 'unavailable' }; }
 
-  dispose(): void { this.sources.forEach(_: Record<string, unknown>, id: string => this.removeSource(id)); this.ctx?.close(); this.ctx = null; }
+  dispose(): void { this.sources.forEach(_: Record<string, unknown>, (id: string ) => this.removeSource(id)); this.ctx?.close(); this.ctx = null; }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  8. REPLAY BUFFER
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface InputFrame {
   tick: number;
@@ -1095,9 +1095,9 @@ export class ReplayBuffer {
   get isRecording(): boolean { return this.recording; }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  9. BEHAVIOR TREE ENGINE
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export type BTStatus = 'success' | 'failure' | 'running';
 
@@ -1202,9 +1202,9 @@ export class BehaviorTreeEngine {
   get registeredTrees(): string[] { return [...this.trees.keys()]; }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  10. GPU PROFILER
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface ProfileSpan {
   label: string;
@@ -1268,7 +1268,7 @@ export class GPUProfiler {
         const m = performance.measure('__gp_frame', '__gp_frame_start', '__gp_frame_end');
         this.currentFrame.totalMs = m.duration;
       } catch {
-        this.currentFrame.totalMs = this.currentFrame.spans.reduce(a: Record<string, unknown>, s: string => a + s.durationMs, 0);
+        this.currentFrame.totalMs = this.currentFrame.spans.reduce(a: Record<string, unknown>, (s: string ) => a + s.durationMs, 0);
       }
     }
     this.frames.push(this.currentFrame);
@@ -1282,14 +1282,14 @@ export class GPUProfiler {
   avgFrameMs(n = 60): number {
     const slice = this.frames.slice(-n);
     if (!slice.length) return 0;
-    return slice.reduce(a: Record<string, unknown>, f: Record<string, unknown> => a + f.totalMs, 0) / slice.length;
+    return slice.reduce((a: Record<string, unknown>, f: Record<string, unknown>) => a + f.totalMs, 0) / slice.length;
   }
 
   /** Slowest span label across the last frame. */
   hotSpot(): string {
     const last = this.frames[this.frames.length - 1];
     if (!last || !last.spans.length) return 'none';
-    return last.spans.reduce(a: Record<string, unknown>, b: Record<string, unknown> => a.durationMs > b.durationMs ? a : b).label;
+    return last.spans.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a.durationMs > b.durationMs ? a : b).label;
   }
 
   getFrames(n = 60): ProfileFrame[] { return this.frames.slice(-n); }
@@ -1297,9 +1297,9 @@ export class GPUProfiler {
   get stats() { return { frames: this.frames.length, avgMs: this.avgFrameMs(), hotSpot: this.hotSpot() }; }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  11. TYPED EVENT BUS
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export type EventMap = Record<string, unknown>;
 
@@ -1336,7 +1336,7 @@ export class TypedEventBus<M extends EventMap = EventMap> {
   off<K extends keyof M & string>(event: K, fn: Listener<M[K]>): void {
     const arr = this.listeners.get(event);
     if (!arr) return;
-    const idx = arr.findIndex(l => l.fn === (fn as Listener<unknown>));
+    const idx = arr.findIndex((l) => l.fn === (fn as Listener<unknown>));
     if (idx !== -1) arr.splice(idx, 1);
   }
 
@@ -1360,7 +1360,7 @@ export class TypedEventBus<M extends EventMap = EventMap> {
 
   /** Replay history to a new subscriber (max `last` events). */
   replayTo<K extends keyof M & string>(event: K, fn: Listener<M[K]>, last = 32): void {
-    this.history.filter(r => r.event === event).slice(-last).forEach(r => fn(r.data as M[K]));
+    this.history.filter((r) => r.event === event).slice(-last).forEach((r) => fn(r.data as M[K]));
   }
 
   private _add(event: string, fn: Listener<unknown>, once: boolean): void {
@@ -1368,14 +1368,14 @@ export class TypedEventBus<M extends EventMap = EventMap> {
     this.listeners.get(event)!.push({ fn, once });
   }
 
-  get stats() { return { listeners: [...this.listeners.values()].reduce(a: Record<string, unknown>, v: number => a + v.length, 0), history: this.history.length, emitCount: this.emitCount }; }
+  get stats() { return { listeners: [...this.listeners.values()].reduce(a: Record<string, unknown>, (v: number ) => a + v.length, 0), history: this.history.length, emitCount: this.emitCount }; }
 
   dispose(): void { this.listeners.clear(); this.history = []; }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  12. ANIMATION STATE MACHINE
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface AnimationClip {
   id: string;
@@ -1448,7 +1448,7 @@ export class AnimationStateMachine {
     // Blend
     if (state.targetClip) {
       const targetClip = this.clips.get(state.targetClip);
-      const blendFrames = this.transitions.find(t => t.from === state.currentClip && t.to === state.targetClip)?.blendFrames ?? 8;
+      const blendFrames = this.transitions.find((t) => t.from === state.currentClip && t.to === state.targetClip)?.blendFrames ?? 8;
       state.blendFrame++;
       state.blendAlpha = Math.min(1, state.blendFrame / blendFrames);
       if (state.blendAlpha >= 1) {
@@ -1483,9 +1483,9 @@ export class AnimationStateMachine {
   get stats() { return { clips: this.clips.size, transitions: this.transitions.length, agents: this.agentStates.size }; }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  13. LOD SYSTEM
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface LODLevel {
   minDist: number;
@@ -1542,9 +1542,9 @@ export class LODSystem {
   get stats() { return { objects: this.objects.size, updateCount: this.updateCount }; }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  14. CLIENT-SIDE PREDICTION
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface PredictionState {
   tick: number;
@@ -1583,7 +1583,7 @@ export class ClientSidePrediction {
    * Returns the base state to re-simulate from, or null if no reconciliation needed.
    */
   reconcile(snapshot: ServerSnapshot, divergenceThreshold = 0.05): PredictionState | null {
-    const predicted = this.predictedStates.find(s => s.tick === snapshot.tick);
+    const predicted = this.predictedStates.find((s) => s.tick === snapshot.tick);
     if (!predicted) return null;
 
     const dx = predicted.position[0] - snapshot.state.position[0];
@@ -1596,21 +1596,21 @@ export class ClientSidePrediction {
 
     this.reconciliationCount++;
     // Prune history after the snapshot tick
-    this.predictedStates = this.predictedStates.filter(s => s.tick <= snapshot.tick);
+    this.predictedStates = this.predictedStates.filter((s) => s.tick <= snapshot.tick);
     return snapshot.state;
   }
 
   /** All ticks after the given one that need re-simulation. */
   pendingResimTicks(afterTick: number): number[] {
-    return this.predictedStates.filter(s => s.tick > afterTick).map(s => s.tick);
+    return this.predictedStates.filter((s) => s.tick > afterTick).map((s) => s.tick);
   }
 
   get stats() { return { buffered: this.predictedStates.length, reconciliations: this.reconciliationCount, maxDivergence: this.maxDivergence }; }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  15. RESOURCE POOL
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 /**
  * Zero-allocation fixed-capacity object pool.
@@ -1651,9 +1651,9 @@ export class ResourcePool<T extends { reset?(): void }> {
   get stats() { return { pool: this.pool.length, active: this.active.size, acquireCount: this.acquireCount, missCount: this.missCount }; }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  16. WGSL SHADER MANAGER
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface ShaderVariant {
   key: string;
@@ -1714,9 +1714,9 @@ export class WGSLShaderManager {
   dispose(): void { this.cache.clear(); this.sources.clear(); this.device = null; }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  17. TERRAIN ENGINE
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface TerrainPage {
   lod: number;      // 0 = highest detail
@@ -1813,9 +1813,9 @@ export class TerrainEngine {
   dispose(): void { this.pageCache.clear(); }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  18. GLOBAL ILLUMINATION PROBES (SPHERICAL HARMONICS)
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 /** 9-coefficient L2 spherical harmonics probe (RGB). */
 export type SHCoeffs = Float32Array; // length 27 (9 × RGB)
@@ -1918,14 +1918,14 @@ export class GlobalIllumProbes {
     return [e(0), e(9), e(18)];
   }
 
-  getDirtyProbes(): GIProbe[] { return [...this.probes.values()].filter(p => p.dirty); }
+  getDirtyProbes(): GIProbe[] { return [...this.probes.values()].filter((p) => p.dirty); }
 
   get stats() { return { probes: this.probes.size, dirtyProbes: this.getDirtyProbes().length }; }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  19. ASSET STREAM MANAGER
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export type AssetType = 'mesh' | 'texture' | 'audio' | 'shader' | 'script';
 export type AssetState = 'unloaded' | 'queued' | 'loading' | 'loaded' | 'error';
@@ -1971,14 +1971,14 @@ export class AssetStreamManager {
     if (!h || h.state !== 'unloaded') return false;
     h.state = 'queued';
     this.queue.push(h);
-    this.queue.sort(a: Record<string, unknown>, b: Record<string, unknown> => b.priority - a.priority || a.lod - b.lod);
+    this.queue.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.priority - a.priority || a.lod - b.lod);
     this._drain();
     return true;
   }
 
   cancel(id: string): void {
     const h = this.assets.get(id);
-    if (h && h.state === 'queued') { h.state = 'unloaded'; this.queue = this.queue.filter(x => x.id !== id); }
+    if (h && h.state === 'queued') { h.state = 'unloaded'; this.queue = this.queue.filter((x) => x.id !== id); }
   }
 
   get(id: string): AssetHandle | undefined { return this.assets.get(id); }
@@ -1990,8 +1990,8 @@ export class AssetStreamManager {
       this.active.add(h.id);
       const t0 = typeof performance !== 'undefined' ? performance.now() : Date.now();
       fetch(h.url)
-        .then(r => r.arrayBuffer())
-        .then(buf => {
+        .then((r) => r.arrayBuffer())
+        .then((buf) => {
           h.data = buf;
           h.loadTimeMs = (typeof performance !== 'undefined' ? performance.now() : Date.now()) - t0;
           h.state = 'loaded';
@@ -2007,7 +2007,7 @@ export class AssetStreamManager {
 
   private _evictIfNeeded(): void {
     if (this.loadedBytes <= this.maxCacheBytes) return;
-    const loaded = [...this.assets.values()].filter(h => h.state === 'loaded').sort(a: Record<string, unknown>, b: Record<string, unknown> => (a.priority - b.priority));
+    const loaded = [...this.assets.values()].filter((h) => h.state === 'loaded').sort((a: Record<string, unknown>, b: Record<string, unknown>) => (a.priority - b.priority));
     for (const h of loaded) {
       if (this.loadedBytes <= this.maxCacheBytes * 0.8) break;
       this.loadedBytes -= h.data?.byteLength ?? 0;
@@ -2019,9 +2019,9 @@ export class AssetStreamManager {
   get stats() { return { assets: this.assets.size, queued: this.queue.length, active: this.active.size, loadedMB: (this.loadedBytes / 1024 / 1024).toFixed(2), loadCount: this.loadCount }; }
 }
 
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 //  20. PHYSICS MATERIAL SYSTEM
-// -----------------------------------------------------------------------------
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface PhysicsMaterial {
   id: string;

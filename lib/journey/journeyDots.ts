@@ -23,7 +23,7 @@ import type { LogJourneyDotInput } from '@/types/journey';
  * Log a new journey dot.
  * Best-effort: errors are silently discarded — user experience must never be affected.
  */
-export function logJourneyDot(dot: LogJourneyDotInput: void) {
+export function logJourneyDot(dot: LogJourneyDotInput): void {
   try {
     fetch('/api/journey', {
       method: 'POST',
@@ -50,7 +50,7 @@ export function logJourneyDot(dot: LogJourneyDotInput: void) {
  *
  * Fail-open: returns false on error so the dot is still logged rather than silently lost.
  */
-export async function hasJourneyDot(kind: string, surface?: string: Promise<boolean>) {
+export async function hasJourneyDot(kind: string, surface?: string): Promise<boolean> {
   try {
     let url = `/api/journey?kind=${encodeURIComponent(kind)}&check=1`;
     if (surface) url += `&surface=${encodeURIComponent(surface)}`;

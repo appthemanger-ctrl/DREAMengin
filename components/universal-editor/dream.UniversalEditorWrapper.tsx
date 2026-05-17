@@ -15,7 +15,7 @@ import React, { useCallback, useState } from 'react';
 import { useTapHoldMove, type Position } from './useTapHoldMove';
 import type { ModuleManifest, RuntimeId } from '@/lib/universal-editor/module-manifest';
 
-// --- Types --------------------------------------------------------------------
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface UniversalEditorWrapperProps {
   manifest:    ModuleManifest;
@@ -25,9 +25,9 @@ export interface UniversalEditorWrapperProps {
   className?:  string;
 }
 
-// --- Component ----------------------------------------------------------------
+// ─── Component ────────────────────────────────────────────────────────────────
 
-export function UniversalEditorWrapper() {
+export function UniversalEditorWrapper(){
   manifest,
   children,
   onMove,

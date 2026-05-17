@@ -54,7 +54,7 @@ interface Experiment {
   status: string;
 }
 
-// -- Simulation Runner types ----------------------------------------------------
+// ── Simulation Runner types ────────────────────────────────────────────────────
 type SimState = 'idle' | 'running' | 'complete';
 
 interface SimType {
@@ -96,7 +96,7 @@ const SIMS: SimType[] = [
   },
 ];
 
-// -- Chart types ----------------------------------------------------------------
+// ── Chart types ────────────────────────────────────────────────────────────────
 type ChartType = 'line' | 'bar' | 'scatter';
 
 const CHART_PREVIEWS: Record<ChartType, string> = {
@@ -143,40 +143,40 @@ const LAB_DREAM_WINDOWS = [
   { label: 'Simulation Viewer Dream Window', href: '/engines/lab/quantum' },
 ] as const;
 
-export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props {
+export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) {
   const labBridge = useLabEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'lab' });
 
-  // -- OS Shell: upgradeEngine wiring --
+  // ── OS Shell: upgradeEngine wiring ──
   const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
   useEffect(() => {
     upgradeEngine({ id: 'lab', name: 'LabEngin' }, ['bridge', 'telemetry'])
-      .then(u => { osRef.current = u; });
+      .then((u) => { osRef.current = u; });
   }, []);
   const busRef = useRef(createEventBus());
 
-  // -- EnginRuntime kernel (lab rule-set) --
+  // ── EnginRuntime kernel (lab rule-set) ──
   const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useLabEnginRuntime();
 
-  // -- Workflow (lab:experiment — default workflow) --
+  // ── Workflow (lab:experiment — default workflow) ──
   const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
   useEffect(() => { loadWorkflow('lab:experiment'); }, [loadWorkflow]);
 
-  // -- Engin Forge panel state --
+  // ── Engin Forge panel state ──
   const [showForge, setShowForge] = useState(false);
 
-  // -- Existing state ---------------------------------------------------------
+  // ── Existing state ─────────────────────────────────────────────────────────
   const [experiments, setExperiments] = useState<Experiment[]>([]);
   const [loading, setLoading]         = useState(true);
 
-  // -- Simulation Runner state ------------------------------------------------
+  // ── Simulation Runner state ────────────────────────────────────────────────
   const [simStates, setSimStates]   = useState<Record<string, SimState>>({});
 
-  // -- Data Visualization state -----------------------------------------------
+  // ── Data Visualization state ───────────────────────────────────────────────
   const [chartType, setChartType]   = useState<ChartType>('line');
   const [exportFlash, setExportFlash] = useState(false);
 
-  // -- Load experiments -------------------------------------------------------
+  // ── Load experiments ───────────────────────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
     const supabase = createClient();
@@ -199,12 +199,12 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     return () => { cancelled = true; };
   }, []);
 
-  // -- Simulation runner ------------------------------------------------------
-  function runSim(id: string) {
-    setSimStates(prev => ({ ...prev, [id]: 'running' }));
+  // ── Simulation runner ──────────────────────────────────────────────────────
+  function runSim(id: string ){
+    setSimStates((prev) => ({ ...prev, [id]: 'running' }));
     forgeRecord(`Ran simulation ${id}`);
     setTimeout(() => {
-      setSimStates(prev => ({ ...prev, [id]: 'complete' }));
+      setSimStates((prev) => ({ ...prev, [id]: 'complete' }));
       (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
         'lab', 'lab:simulation-complete', { simId: id, ts: Date.now() },
       );
@@ -212,19 +212,19 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     }, 1200);
   }
 
-  // -- Export handler ---------------------------------------------------------
-  function handleExportData() {
+  // ── Export handler ─────────────────────────────────────────────────────────
+  function handleExportData( ){
     forgeRecord('Exported data');
     recordForgeTransfer('lab', 'code', 'dataset', 'Lab data export → CodeEngin');
     recordForgeTransfer('lab', 'create', 'dataset', 'Lab data export → CreateEngin');
     // Emit bridge event for CodeEngin to receive (cross-Engin dataset signal)
-    const activeExperiments = experiments.filter(e => e.status === 'running' || e.status === 'completed');
+    const activeExperiments = experiments.filter((e) => e.status === 'running' || e.status === 'completed');
     bridge.emit('code', 'code:lab-dataset-received', {
       datasetId: `dataset-${Date.now()}`,
       timestamp: new Date().toISOString(),
       experimentCount: activeExperiments.length,
       format: 'json',
-      summary: activeExperiments.map(e => ({ id: e.id, name: e.title, status: e.status })),
+      summary: activeExperiments.map((e) => ({ id: e.id, name: e.title, status: e.status })),
     });
     // Also emit legacy lab-channel event for backward compatibility
     bridge.emit('lab', 'lab:data-exported', { exportId: `export-${Date.now()}`, format: 'json', url: '' });
@@ -232,13 +232,13 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     setTimeout(() => setExportFlash(false), 1800);
   }
 
-  const active = experiments.filter(e => e.status === 'running' || e.status === 'draft');
+  const active = experiments.filter((e) => e.status === 'running' || e.status === 'draft');
 
-  // -- Collab Lab state --------------------------------------------------------
+  // ── Collab Lab state ────────────────────────────────────────────────────────
   const [collabLabActive, setCollabLabActive] = useState(false);
   const [collabLabCode, setCollabLabCode] = useState('');
 
-  // -- Co-op channel ---------------------------------------------------------
+  // ── Co-op channel ─────────────────────────────────────────────────────────
   const [instanceId] = useState(
     () => instanceIdProp ?? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)),
   );
@@ -255,15 +255,15 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     },
   });
 
-  // -- AI Hypothesis state ------------------------------------------------------
+  // ── AI Hypothesis state ──────────────────────────────────────────────────────
   const [hypothesisLoading, setHypothesisLoading] = useState(false);
   const [hypotheses, setHypotheses] = useState<string[]>([]);
 
-  // -- Molecule Viewer state ----------------------------------------------------
+  // ── Molecule Viewer state ────────────────────────────────────────────────────
   const [selectedMolecule, setSelectedMolecule] = useState('H2O');
   const [moleculeDisplay, setMoleculeDisplay] = useState('O\n H   H');
 
-  // -- Dataset Browser state ----------------------------------------------------
+  // ── Dataset Browser state ────────────────────────────────────────────────────
   const [datasets] = useState<Array<{ name: string; rows: string; domain: string }>>([
     { name: 'NASA Climate Data',    rows: '2.4M', domain: 'Climate Science' },
     { name: 'CERN Particle Events', rows: '890K', domain: 'Particle Physics' },
@@ -272,7 +272,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
   ]);
   const [selectedDataset, setSelectedDataset] = useState<string | null>(null);
 
-  // -- Published Results state --------------------------------------------------
+  // ── Published Results state ──────────────────────────────────────────────────
   const [publishedResults, setPublishedResults] = useState<Array<{ id: string; title: string; date: string }>>([
     { id: 'res-1', title: 'Fluid Viscosity under Oscillatory Shear', date: '2025-01-08' },
     { id: 'res-2', title: 'Neural Synchronization Latency Study',    date: '2025-01-05' },
@@ -280,10 +280,10 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
   const [publishingResult, setPublishingResult] = useState(false);
   const [newResultTitle, setNewResultTitle] = useState('');
 
-  // -- Quantum measure state ----------------------------------------------------
+  // ── Quantum measure state ────────────────────────────────────────────────────
   const [quantumMeasured, setQuantumMeasured] = useState(false);
 
-  // -- Feature Flags (real toggles) ---------------------------------------------
+  // ── Feature Flags (real toggles) ─────────────────────────────────────────────
   const [featureFlags, setFeatureFlags] = useState<Record<string, boolean>>({
     'webgpu-shadows':   true,
     'tfjs-telemetry':   true,
@@ -291,15 +291,15 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     'ai-director-v2':   false,
     'quantum-sim':      true,
   });
-  function toggleFlag(id: string) {
-    setFeatureFlags(prev => ({ ...prev, [id]: !prev[id] }));
+  function toggleFlag(id: string ){
+    setFeatureFlags((prev) => ({ ...prev, [id]: !prev[id] }));
   }
 
-  // -- Resource Monitor (live animated) -----------------------------------------
+  // ── Resource Monitor (live animated) ─────────────────────────────────────────
   const [resources, setResources] = useState({ cpu: 38, gpu: 62, mem: 54, vram: 41 });
   useEffect(() => {
     const id = setInterval(() => {
-      setResources(r => ({
+      setResources((r) => ({
         cpu:  Math.min(99, Math.max(5,  r.cpu  + Math.round((Math.random() - 0.48) * 7))),
         gpu:  Math.min(99, Math.max(10, r.gpu  + Math.round((Math.random() - 0.48) * 5))),
         mem:  Math.min(95, Math.max(20, r.mem  + Math.round((Math.random() - 0.49) * 3))),
@@ -309,11 +309,11 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     return () => clearInterval(id);
   }, []);
 
-  // -- Benchmark Suite (runnable) ------------------------------------------------
+  // ── Benchmark Suite (runnable) ────────────────────────────────────────────────
   const [benchRunning, setBenchRunning] = useState(false);
   const [benchResults, setBenchResults] = useState<Array<{ name: string; score: string; unit: string }>>([]);
   const [benchSaveMsg, setBenchSaveMsg] = useState('');
-  async function runBenchmark() {
+  async function runBenchmark( ){
     setBenchRunning(true);
     setBenchResults([]);
     setBenchSaveMsg('');
@@ -330,7 +330,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     }
   }
 
-  // -- Daydream Persistence (Phase 8 §F, pts 49-53) -----------------------------
+  // ── Daydream Persistence (Phase 8 §F, pts 49-53) ─────────────────────────────
   // Saves and restores the LabEngin workspace state across sessions.
   type LabSavedState = {
     chartType?: ChartType;
@@ -364,15 +364,15 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
    
   }, [chartType, selectedMolecule, hypotheses, publishedResults, labRestoring]);
 
-  // -- Molecule data ------------------------------------------------------------
+  // ── Molecule data ────────────────────────────────────────────────────────────
   const MOLECULE_DATA: Record<string, string> = {
     'H2O':     'O\n H   H',
     'CO2':     'O=C=O',
     'C6H12O6': 'CH2OH-CHOH-CHOH-CHOH-CHOH-CHO\n(Glucose)',
   };
 
-  // -- Collab lab handler -------------------------------------------------------
-  function handleStartCollabLab() {
+  // ── Collab lab handler ───────────────────────────────────────────────────────
+  function handleStartCollabLab( ){
     const code = Math.random().toString(36).slice(2, 8).toUpperCase();
     setCollabLabCode(code);
     setCollabLabActive(true);
@@ -381,8 +381,8 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     );
   }
 
-  // -- Hypothesis handler -------------------------------------------------------
-  function handleGenerateHypotheses() {
+  // ── Hypothesis handler ───────────────────────────────────────────────────────
+  function handleGenerateHypotheses( ){
     setHypothesisLoading(true);
     setHypotheses([]);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
@@ -398,22 +398,22 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     }, 1200);
   }
 
-  // -- Molecule handler ---------------------------------------------------------
-  function handleSelectMolecule(mol: string) {
+  // ── Molecule handler ─────────────────────────────────────────────────────────
+  function handleSelectMolecule(mol: string ){
     setSelectedMolecule(mol);
     setMoleculeDisplay(MOLECULE_DATA[mol] ?? '');
   }
 
-  function handleAnalyzeMolecule() {
+  function handleAnalyzeMolecule( ){
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'lab', 'lab:molecule-analyze', { molecule: selectedMolecule },
     );
   }
 
-  // -- Quantum measure handler -------------------------------------------------
+  // ── Quantum measure handler ─────────────────────────────────────────────────
   const [quantumRunning, setQuantumRunning] = useState(false);
   const [quantumResult, setQuantumResult]   = useState<QuantumMeasurementResult | null>(null);
-  function handleQuantumMeasure(result?: QuantumMeasurementResult) {
+  function handleQuantumMeasure(result?: QuantumMeasurementResult ){
     setQuantumMeasured(true);
     setQuantumRunning(false);
     if (result) setQuantumResult(result);
@@ -431,15 +431,15 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     recordForgeTransfer('lab', 'code', 'quantum-result', 'Quantum circuit measurement → CodeEngin');
   }
 
-  // -- Dataset handler ----------------------------------------------------------
-  function handleImportDataset(name: string) {
+  // ── Dataset handler ──────────────────────────────────────────────────────────
+  function handleImportDataset(name: string ){
     setSelectedDataset(name);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'lab', 'lab:dataset-import', { name },
     );
   }
 
-  // -- Lab mode (tabs) ----------------------------------------------------------
+  // ── Lab mode (tabs) ──────────────────────────────────────────────────────────
   type LabMode = 'overview' | 'split' | 'viz' | 'forge';
   const [labMode, setLabMode]         = useState<LabMode>('overview');
   const [splitCode, setSplitCode]     = useState(`# Lab Dream — Split IDE\n# Select a simulation, then Run ▶\n\nimport numpy as np\ndata = np.array([1, 4, 9, 16, 25, 36, 49])\nprint("Mean:", data.mean())\nprint("Std: ", data.std().round(2))\nprint("\\n✅ Experiment complete")`);
@@ -454,7 +454,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     if (splitOutRef.current) splitOutRef.current.scrollTop = splitOutRef.current.scrollHeight;
   }, [splitOut]);
 
-  function runSplitScript() {
+  function runSplitScript( ){
     if (splitRunning) return;
     setSplitRunning(true);
     setSplitOut([]);
@@ -473,14 +473,14 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
         : splitLang === 'javascript'
           ? [`Node.js v22 [LabEngin runtime]`, `> Executing…`, `Mean: 20.00`, `Std:  16.04`, `> ✅ Done`]
           : [`bash [LabEngin runtime]`, `$ Executing…`, `mean=-0.012 std=0.998`, `$ Exit 0`];
-    lines.forEach(line: Record<string, unknown>, i: number => setTimeout(() => {
-      setSplitOut(prev => [...prev, line]);
-      if (i === lines.length - 1) { setSplitRunning(false); setVizSeed(s => s + 7); }
+    lines.forEach(line: Record<string, unknown>, (i: number ) => setTimeout(() => {
+      setSplitOut((prev) => [...prev, line]);
+      if (i === lines.length - 1) { setSplitRunning(false); setVizSeed((s) => s + 7); }
     }, 140 * (i + 1)));
   }
 
-  // -- Publish result handler ---------------------------------------------------
-  function handlePublishResult(title: string) {
+  // ── Publish result handler ───────────────────────────────────────────────────
+  function handlePublishResult(title: string ){
     if (!title.trim()) return;
     setPublishingResult(true);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
@@ -504,7 +504,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
         title: title.trim(),
         date: new Date().toISOString().split('T')[0],
       };
-      setPublishedResults(prev => [newResult, ...prev]);
+      setPublishedResults((prev) => [newResult, ...prev]);
       setNewResultTitle('');
       setPublishingResult(false);
     });
@@ -514,7 +514,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     <ArtifactSlot artifactId="engin:lab">
     <div className="de-sky-bg min-h-screen">
 
-      {/* -- Header -- */}
+      {/* ── Header ── */}
       <header
         className="sticky top-0 z-30 backdrop-blur-xl"
         style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}
@@ -556,17 +556,17 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
         </div>
       </header>
 
-      {/* -- Body -- */}
+      {/* ── Body ── */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
 
-        {/* -- Mode tab bar -- */}
+        {/* ── Mode tab bar ── */}
         <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
           {([
             { id: 'overview' as LabMode, label: '🔬 Overview'      },
             { id: 'split'    as LabMode, label: '⚗️ Split Lab IDE'  },
             { id: 'viz'      as LabMode, label: '📊 Visualizations' },
             { id: 'forge'    as LabMode, label: '⚙️ Engin Forge'    },
-          ] satisfies { id: LabMode; label: string }[]).map(tab => (
+          ] satisfies { id: LabMode; label: string }[]).map((tab) => (
             <button
               key={tab.id}
               type="button"
@@ -609,9 +609,9 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ----------------------------------------
+        {/* ════════════════════════════════════════
             MODE: Split Lab IDE
-            ---------------------------------------- */}
+            ════════════════════════════════════════ */}
         {labMode === 'split' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
@@ -629,7 +629,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
                     { id: 'fluid',    label: '🌊 Fluid',      color: '#0ea5e9' },
                     { id: 'quantum',  label: '🔬 Quantum',    color: '#8b5cf6' },
                     { id: 'neural',   label: '🧠 Neural',     color: '#ec4899' },
-                  ] as const).map(sim => (
+                  ] as const).map((sim) => (
                     <button key={sim.id} type="button" onClick={() => setSplitSim(sim.id)}
                       style={{
                         padding: '5px 10px', borderRadius: 8, fontSize: 11, fontWeight: 700,
@@ -651,7 +651,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
                 <Activity className="w-4 h-4" style={{ color: ACCENT }} />
                 <span className="de-widget-title ml-1">Lab IDE</span>
                 <div style={{ display: 'flex', gap: 4 }}>
-                  {(['python', 'javascript', 'bash'] as const).map(lang => (
+                  {(['python', 'javascript', 'bash'] as const).map((lang) => (
                     <button key={lang} type="button" onClick={() => setSplitLang(lang)}
                       style={{
                         padding: '3px 9px', borderRadius: 6, fontSize: 11, fontWeight: 700,
@@ -725,7 +725,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
                     {splitOut.length === 0 && !splitRunning && (
                       <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.4)', fontFamily: 'monospace' }}>Results stream here…</p>
                     )}
-                    {splitOut.map(line: Record<string, unknown>, i: number => (
+                    {splitOut.map(line: Record<string, unknown>, (i: number ) => (
                       <pre key={i} style={{ margin: 0, fontSize: 11, fontFamily: '"Fira Code",monospace',
                         color: line.startsWith('[') ? '#4ade80' : line.startsWith('✅') ? '#4ade80' : line.startsWith('$') || line.startsWith('>>>') ? '#93c5fd' : '#e2e8f0',
                         whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.55 }}>
@@ -740,16 +740,16 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         )}
 
-        {/* ----------------------------------------
+        {/* ════════════════════════════════════════
             MODE: Visualizations
-            ---------------------------------------- */}
+            ════════════════════════════════════════ */}
         {labMode === 'viz' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div className="de-widget">
               <div className="de-widget-header">
                 <BarChart2 className="w-4 h-4" style={{ color: ACCENT }} />
                 <span className="de-widget-title ml-2">High-Density Visualizations</span>
-                <button type="button" onClick={() => setVizSeed(s => s + Math.ceil(Math.random() * 50))}
+                <button type="button" onClick={() => setVizSeed((s) => s + Math.ceil(Math.random() * 50))}
                   style={{ marginLeft: 'auto', padding: '3px 9px', borderRadius: 6, fontSize: 10, fontWeight: 700,
                     border: `1px solid ${ACCENT}30`, background: `${ACCENT}0a`, color: ACCENT, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', gap: 3 }}
@@ -800,7 +800,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
                         const layers = [4,8,6,4,2]; let s = vizSeed+31;
                         const chars = ['·','▫','▪','◾','◼','■'];
                         const maxW = Math.max(...layers);
-                        return layers.map(w: Record<string, unknown>, i: number => {
+                        return layers.map(w: Record<string, unknown>, (i: number ) => {
                           const pad=' '.repeat(Math.floor((maxW-w)/2));let row=pad;
                           for(let n=0;n<w;n++){s=(s*22695477+1)&0xffffffff;row+=chars[Math.abs(s)%chars.length]+' ';}
                           const act=((Math.abs(s)&0xff)/255).toFixed(2);
@@ -827,7 +827,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
                     { label: 'GameEngin',  items: 124, status: 'active',  color: '#8b5cf6' },
                     { label: 'SimEngin',   items: 512, status: 'active',  color: '#0ea5e9' },
                     { label: 'AssetEngin', items: 847, status: 'standby', color: '#f59e0b' },
-                  ].map(eng => (
+                  ].map((eng) => (
                     <div key={eng.label} style={{ padding: '8px 10px', borderRadius: 9,
                       background: `${eng.color}07`, border: `1px solid ${eng.color}20` }}>
                       <div style={{ fontSize: 11, fontWeight: 700, color: eng.color, marginBottom: 3 }}>{eng.label}</div>
@@ -843,21 +843,21 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         )}
 
-        {/* ----------------------------------------
+        {/* ════════════════════════════════════════
             MODE: Engin Forge
-            ---------------------------------------- */}
+            ════════════════════════════════════════ */}
         {labMode === 'forge' && (
           <div style={{ height: 'calc(100vh - 140px)', marginBottom: 14 }}>
             <ForgeDreamCanvas />
           </div>
         )}
 
-        {/* ----------------------------------------
+        {/* ════════════════════════════════════════
             MODE: Overview (existing widgets)
-            ---------------------------------------- */}
+            ════════════════════════════════════════ */}
         <div style={{ display: labMode === 'overview' ? 'block' : 'none' }}>
 
-        {/* -- Active Experiments (existing) -- */}
+        {/* ── Active Experiments (existing) ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Active Experiments</span>
@@ -890,7 +890,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {experiments.map(exp => {
+                {experiments.map((exp) => {
                   const c = STATUS_COLORS[exp.status] ?? STATUS_COLORS.draft;
                   return (
                     <div
@@ -937,7 +937,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- Simulation Status (existing) -- */}
+        {/* ── Simulation Status (existing) ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Simulation Status</span>
@@ -990,7 +990,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- NEW: Simulation Runner -- */}
+        {/* ── NEW: Simulation Runner ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Simulation Runner</span>
@@ -1004,7 +1004,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
 
           <div className="de-widget-body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {SIMS.map(sim => {
+              {SIMS.map((sim) => {
                 const state: SimState = simStates[sim.id] ?? 'idle';
                 return (
                   <div
@@ -1075,7 +1075,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- NEW: Data Visualization Panel -- */}
+        {/* ── NEW: Data Visualization Panel ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Data Visualization</span>
@@ -1084,7 +1084,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           <div className="de-widget-body">
             {/* Chart type selector */}
             <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-              {(['line', 'bar', 'scatter'] as ChartType[]).map(ct => (
+              {(['line', 'bar', 'scatter'] as ChartType[]).map((ct) => (
                 <button
                   key={ct}
                   type="button"
@@ -1144,7 +1144,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- NEW: Cross-Engin Sync -- */}
+        {/* ── NEW: Cross-Engin Sync ── */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">Cross-Engin Sync</span>
@@ -1238,7 +1238,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- Stem Analysis — receives music:stem-ready from StarMakerEngin -- */}
+        {/* ── Stem Analysis — receives music:stem-ready from StarMakerEngin ── */}
         {labBridge.lastStem && (
           <div className="de-widget" style={{ marginTop: 14 }}>
             <div className="de-widget-header">
@@ -1290,7 +1290,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         )}
 
-        {/* -- Collab Lab -- */}
+        {/* ── Collab Lab ── */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <FlaskConical className="w-4 h-4" style={{ color: ACCENT }} />
@@ -1342,7 +1342,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           )}
         </div>
 
-        {/* -- AI Hypothesis Generator -- */}
+        {/* ── AI Hypothesis Generator ── */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Activity className="w-4 h-4" style={{ color: ACCENT }} />
@@ -1351,7 +1351,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           <div className="de-widget-body">
             {hypotheses.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
-                {hypotheses.map(h: Record<string, unknown>, i: number => (
+                {hypotheses.map(h: Record<string, unknown>, (i: number ) => (
                   <div
                     key={i}
                     style={{
@@ -1385,7 +1385,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- Molecule Viewer -- */}
+        {/* ── Molecule Viewer ── */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Code2 className="w-4 h-4" style={{ color: ACCENT }} />
@@ -1393,7 +1393,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
-              {['H2O', 'CO2', 'C6H12O6'].map(mol => (
+              {['H2O', 'CO2', 'C6H12O6'].map((mol) => (
                 <button
                   key={mol}
                   type="button"
@@ -1435,7 +1435,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- Dataset Browser -- */}
+        {/* ── Dataset Browser ── */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <BarChart2 className="w-4 h-4" style={{ color: ACCENT }} />
@@ -1443,7 +1443,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-              {datasets.map(ds => (
+              {datasets.map((ds) => (
                 <div
                   key={ds.name}
                   style={{
@@ -1481,7 +1481,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- Published Results -- */}
+        {/* ── Published Results ── */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Download className="w-4 h-4" style={{ color: ACCENT }} />
@@ -1489,7 +1489,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
-              {publishedResults.map(r => (
+              {publishedResults.map((r) => (
                 <div
                   key={r.id}
                   style={{
@@ -1546,7 +1546,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- Feature 11: WebGPU Compute Monitor -- */}
+        {/* ── Feature 11: WebGPU Compute Monitor ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Activity className="w-4 h-4 mr-1" style={{ color: '#8b5cf6' }} />
@@ -1561,7 +1561,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
                 { label: 'Shader Pipelines', val: '12', color: '#8b5cf6' },
                 { label: 'Compute Passes',   val: '4',  color: '#0ea5e9' },
                 { label: 'Texture Uploads',  val: '28', color: '#22c55e' },
-              ].map(m => (
+              ].map((m) => (
                 <div key={m.label} style={{ padding: '8px 8px', borderRadius: 9, background: `${m.color}0e`, border: `1px solid ${m.color}25`, textAlign: 'center' }}>
                   <div style={{ fontSize: 16, fontWeight: 800, color: m.color }}>{m.val}</div>
                   <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 2, lineHeight: 1.2 }}>{m.label}</div>
@@ -1577,7 +1577,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- Feature 12: Benchmark Suite (runs live) -- */}
+        {/* ── Feature 12: Benchmark Suite (runs live) ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <BarChart2 className="w-4 h-4 mr-1" style={{ color: '#22c55e' }} />
@@ -1595,7 +1595,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
               </div>
             )}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-              {benchResults.map(b => (
+              {benchResults.map((b) => (
                 <div key={b.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(34,197,94,0.15)' }}>
                   <span style={{ fontSize: 11, color: 'var(--de-heading)', fontWeight: 600 }}>{b.name}</span>
                   <span style={{ fontSize: 12, fontWeight: 700, color: '#22c55e', fontFamily: 'monospace' }}>{b.score} <span style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>{b.unit}</span></span>
@@ -1609,7 +1609,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- Feature 13: Parameter Sweep Tool -- */}
+        {/* ── Feature 13: Parameter Sweep Tool ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>🔢</span>
@@ -1624,7 +1624,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
                 { param: 'Gravity (m/s²)',  min: 1.6, max: 24.8, steps: 6, best: 9.8 },
                 { param: 'Friction coeff', min: 0.1, max: 1.0,  steps: 5, best: 0.4 },
                 { param: 'Learning rate',  min: 0.001, max: 0.1, steps: 4, best: 0.01 },
-              ].map(p => (
+              ].map((p) => (
                 <div key={p.param} style={{ padding: '9px 11px', borderRadius: 10, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(34,197,94,0.15)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                     <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-heading)' }}>{p.param}</span>
@@ -1642,7 +1642,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- Feature 14: Feature Flag Manager -- */}
+        {/* ── Feature 14: Feature Flag Manager ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>🏁</span>
@@ -1661,7 +1661,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
               { id: 'multiplayer-beta', label: 'Multiplayer Beta'          },
               { id: 'ai-director-v2',   label: 'AI Director v2'           },
               { id: 'quantum-sim',      label: 'Quantum Circuit Simulator' },
-            ].map(flag => {
+            ].map((flag) => {
               const on = featureFlags[flag.id];
               return (
                 <button key={flag.id} type="button" onClick={() => toggleFlag(flag.id)}
@@ -1676,7 +1676,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- Feature 15: Version Control for Experiments -- */}
+        {/* ── Feature 15: Version Control for Experiments ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Code2 className="w-4 h-4 mr-1" style={{ color: '#2a8ab8' }} />
@@ -1689,7 +1689,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
                 { version: 'v0.3.2', label: 'Fixed fluid boundary conditions', date: '1d ago', active: false },
                 { version: 'v0.3.0', label: 'Quantum circuit gates added', date: '3d ago', active: false },
                 { version: 'v0.2.0', label: 'Initial particle system', date: '1w ago', active: false },
-              ].map(v => (
+              ].map((v) => (
                 <div key={v.version} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 10px', borderRadius: 9, background: v.active ? 'rgba(42,138,184,0.08)' : 'rgba(255,255,255,0.5)', border: `1px solid ${v.active ? 'rgba(42,138,184,0.3)' : 'rgba(0,0,0,0.06)'}` }}>
                   <span style={{ fontSize: 10, fontWeight: 700, color: '#2a8ab8', fontFamily: 'monospace', flexShrink: 0 }}>{v.version}</span>
                   <span style={{ flex: 1, fontSize: 11, color: 'var(--de-heading)' }}>{v.label}</span>
@@ -1701,7 +1701,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- Feature 16: Neural Network Visualizer -- */}
+        {/* ── Feature 16: Neural Network Visualizer ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>🧠</span>
@@ -1712,18 +1712,18 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
               Visual layer-by-layer inspection of TensorFlow.js models.
             </p>
             <div style={{ fontFamily: 'monospace', fontSize: 10, lineHeight: 1.8, color: 'var(--de-heading)', background: 'rgba(0,0,0,0.04)', borderRadius: 10, padding: '10px 12px' }}>
-              <span style={{ color: '#8b5cf6' }}>Input</span>     [784] --------------------▶<br />
-              <span style={{ color: '#6366f1' }}>Dense</span>    [128] ReLU --------------▶<br />
-              <span style={{ color: '#0ea5e9' }}>Dense</span>     [64] ReLU ---------------▶<br />
-              <span style={{ color: '#22c55e' }}>Dropout</span>  [0.2] -------------------▶<br />
-              <span style={{ color: '#ec4899' }}>Output</span>    [10] Softmax ---------▶ 🎯
+              <span style={{ color: '#8b5cf6' }}>Input</span>     [784] ────────────────────▶<br />
+              <span style={{ color: '#6366f1' }}>Dense</span>    [128] ReLU ──────────────▶<br />
+              <span style={{ color: '#0ea5e9' }}>Dense</span>     [64] ReLU ───────────────▶<br />
+              <span style={{ color: '#22c55e' }}>Dropout</span>  [0.2] ───────────────────▶<br />
+              <span style={{ color: '#ec4899' }}>Output</span>    [10] Softmax ─────────▶ 🎯
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 7, marginTop: 10 }}>
               {[
                 { label: 'Parameters', val: '109K' },
                 { label: 'Accuracy',   val: '97.2%' },
                 { label: 'Loss',       val: '0.041' },
-              ].map(m => (
+              ].map((m) => (
                 <div key={m.label} style={{ textAlign: 'center', padding: '6px', borderRadius: 8, background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.18)' }}>
                   <div style={{ fontSize: 13, fontWeight: 800, color: '#8b5cf6' }}>{m.val}</div>
                   <div style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>{m.label}</div>
@@ -1733,7 +1733,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- Feature 17: Resource Monitor (live) -- */}
+        {/* ── Feature 17: Resource Monitor (live) ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Activity className="w-4 h-4 mr-1" style={{ color: '#f59e0b' }} />
@@ -1746,7 +1746,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
               { label: 'GPU',    pct: resources.gpu,  color: '#8b5cf6' },
               { label: 'Memory', pct: resources.mem,  color: '#0ea5e9' },
               { label: 'VRAM',   pct: resources.vram, color: '#ec4899' },
-            ] as { label: string; pct: number; color: string }[]).map(r => (
+            ] as { label: string; pct: number; color: string }[]).map((r) => (
               <div key={r.label} style={{ marginBottom: 8 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 3 }}>
                   <span style={{ color: 'var(--de-text-dim)', fontWeight: 600 }}>{r.label}</span>
@@ -1760,7 +1760,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- Feature 18: Hypothesis Tracker -- */}
+        {/* ── Feature 18: Hypothesis Tracker ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <FlaskConical className="w-4 h-4 mr-1" style={{ color: '#22c55e' }} />
@@ -1773,7 +1773,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
                 { h: 'Neural convergence improves with batch size 64 vs 32',             status: '🔄', outcome: 'In progress' },
                 { h: 'WebGPU compute shaders outperform JS by 10×',                      status: '✅', outcome: 'Confirmed' },
                 { h: 'Fluid viscosity > 0.8 causes unstable simulation',                 status: '❌', outcome: 'Refuted' },
-              ].map(row: Record<string, unknown>, i: number => (
+              ].map(row: Record<string, unknown>, (i: number ) => (
                 <div key={i} style={{ padding: '8px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: `1px solid rgba(34,197,94,0.15)` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
                     <span style={{ fontSize: 10, fontWeight: 700, color: row.outcome === 'Confirmed' ? '#22c55e' : row.outcome === 'Refuted' ? '#ef4444' : '#f59e0b' }}>{row.status} {row.outcome}</span>
@@ -1785,7 +1785,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- Feature 19: CI/CD Integration -- */}
+        {/* ── Feature 19: CI/CD Integration ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Code2 className="w-4 h-4 mr-1" style={{ color: '#6366f1' }} />
@@ -1799,7 +1799,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
               { name: 'run-sims.yml',       status: 'passing', branch: 'main' },
               { name: 'benchmark-suite.yml',status: 'passing', branch: 'main' },
               { name: 'neural-train.yml',   status: 'running', branch: 'feature/v2' },
-            ].map(w => (
+            ].map((w) => (
               <div key={w.name} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 10px', marginBottom: 5, borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(99,102,241,0.15)' }}>
                 <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#6366f1', flex: 1 }}>{w.name}</span>
                 <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>@{w.branch}</span>
@@ -1814,7 +1814,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- Feature 20: Quantum Circuit Simulator -- */}
+        {/* ── Feature 20: Quantum Circuit Simulator ── */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>⚛️</span>
@@ -1842,7 +1842,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
                 { label: 'Probability',    val: quantumResult ? `${(quantumResult.topProbability * 100).toFixed(1)}%`            : '—' },
                 { label: 'Qubits',         val: '3'                                                                              },
                 { label: '⟨ψ|C|ψ⟩',        val: quantumResult ? quantumResult.expectationValue.toFixed(3)                        : '—' },
-              ].map(m => (
+              ].map((m) => (
                 <div key={m.label} style={{ padding: '7px 10px', borderRadius: 8, background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.18)', textAlign: 'center' }}>
                   <div style={{ fontSize: 14, fontWeight: 800, color: '#8b5cf6' }}>{m.val}</div>
                   <div style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>{m.label}</div>
@@ -1873,7 +1873,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* -- Engin Forge (Visual Engine Builder) -- */}
+        {/* ── Engin Forge (Visual Engine Builder) ── */}
         <div className="de-widget" style={{ margin: '14px 0' }}>
           <div className="de-widget-header">
             <Box className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -1882,7 +1882,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
             <button
               type="button"
               onClick={() => {
-                setShowForge(v => !v);
+                setShowForge((v) => !v);
                 osRef.current?.telemetry?.log('Engin Forge toggled');
                 busRef.current.emit('lab:forge-toggle', { open: !showForge });
                 forgeRecord('Opened Engin Forge');
@@ -1910,7 +1910,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           )}
         </div>
 
-        {/* -- Journey Trail -- */}
+        {/* ── Journey Trail ── */}
         <div className="de-widget" style={{ margin: '14px 0' }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Journey</span>

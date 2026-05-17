@@ -55,7 +55,7 @@ interface NeuralSeamCanvasProps {
   splitRatio: number;
 }
 
-export default function NeuralSeamCanvas() { active, splitRatio }: NeuralSeamCanvasProps {
+export default function NeuralSeamCanvas({ active, splitRatio }: NeuralSeamCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<SeamParticle[]>([]);
   const rafRef = useRef<number | null>(null);
@@ -64,13 +64,13 @@ export default function NeuralSeamCanvas() { active, splitRatio }: NeuralSeamCan
   const screenHRef = useRef<number>(typeof window !== 'undefined' ? window.innerHeight : 812);
   const screenWRef = useRef<number>(typeof window !== 'undefined' ? window.innerWidth : 390);
 
-  // -- Compute seam Y from splitRatio and screen height ----------------------
+  // ── Compute seam Y from splitRatio and screen height ──────────────────────
 
   const getSeamTop = useCallback((): number => {
     return Math.round(splitRatio * (screenHRef.current - DIVIDER_H));
   }, [splitRatio]);
 
-  // -- Canvas resize ----------------------------------------------------------
+  // ── Canvas resize ──────────────────────────────────────────────────────────
 
   const resizeCanvas = useCallback(() => {
     const canvas = canvasRef.current;
@@ -88,7 +88,7 @@ export default function NeuralSeamCanvas() { active, splitRatio }: NeuralSeamCan
     if (ctx) ctx.scale(dpr, dpr);
   }, []);
 
-  // -- Draw one frame ---------------------------------------------------------
+  // ── Draw one frame ─────────────────────────────────────────────────────────
 
   const drawFrame = useCallback((now: number) => {
     const canvas = canvasRef.current;
@@ -106,7 +106,7 @@ export default function NeuralSeamCanvas() { active, splitRatio }: NeuralSeamCan
     // Clear
     ctx.clearRect(0, 0, W, H);
 
-    // -- Background gradient — subtle darkening at seam center --------------
+    // ── Background gradient — subtle darkening at seam center ──────────────
     const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
     bgGrad.addColorStop(0,   'rgba(0,0,0,0)');
     bgGrad.addColorStop(0.35,'rgba(8,12,28,0.10)');
@@ -116,7 +116,7 @@ export default function NeuralSeamCanvas() { active, splitRatio }: NeuralSeamCan
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, W, H);
 
-    // -- Neural grid — faint horizontal scan lines --------------------------
+    // ── Neural grid — faint horizontal scan lines ──────────────────────────
     ctx.save();
     ctx.setLineDash([2, 8]);
     ctx.lineWidth = 0.5;
@@ -135,7 +135,7 @@ export default function NeuralSeamCanvas() { active, splitRatio }: NeuralSeamCan
     ctx.setLineDash([]);
     ctx.restore();
 
-    // -- Center line — very faint gold seam indicator -----------------------
+    // ── Center line — very faint gold seam indicator ───────────────────────
     ctx.save();
     ctx.lineWidth = 1;
     ctx.strokeStyle = 'rgba(200,152,26,0.07)';
@@ -145,7 +145,7 @@ export default function NeuralSeamCanvas() { active, splitRatio }: NeuralSeamCan
     ctx.stroke();
     ctx.restore();
 
-    // -- Idle ambient heartbeat — slow sine-wave glow band -----------------
+    // ── Idle ambient heartbeat — slow sine-wave glow band ─────────────────
     const pulseAlpha = 0.04 + 0.02 * Math.sin(now * 0.0007);
     const idleGlow = ctx.createRadialGradient(W / 2, centerY, 0, W / 2, centerY, W * 0.4);
     idleGlow.addColorStop(0, `rgba(93,232,255,${pulseAlpha.toFixed(3)})`);
@@ -153,20 +153,20 @@ export default function NeuralSeamCanvas() { active, splitRatio }: NeuralSeamCan
     ctx.fillStyle = idleGlow;
     ctx.fillRect(0, centerY - 20, W, 40);
 
-    // -- Spawn idle particles when the queue is thin ------------------------
+    // ── Spawn idle particles when the queue is thin ────────────────────────
     const now2 = now;
-    const hasEnoughIdle = particlesRef.current.filter(p => p.isIdle).length >= IDLE_PARTICLE_TARGET;
+    const hasEnoughIdle = particlesRef.current.filter((p) => p.isIdle).length >= IDLE_PARTICLE_TARGET;
     if (!hasEnoughIdle && now2 - lastIdleSpawnAt.current > IDLE_SPAWN_INTERVAL_MS) {
       const startX = Math.random() * 0.3; // always start near left edge
       particlesRef.current.push(createIdleParticle(startX));
       lastIdleSpawnAt.current = now2;
     }
 
-    // -- Tick physics -------------------------------------------------------
+    // ── Tick physics ───────────────────────────────────────────────────────
     tickParticles(particlesRef.current, dt);
     particlesRef.current = evictDeadParticles(particlesRef.current);
 
-    // -- Draw particles -----------------------------------------------------
+    // ── Draw particles ─────────────────────────────────────────────────────
     for (const p of particlesRef.current) {
       const px = p.x * W;
       const py = centerY + p.y;
@@ -199,7 +199,7 @@ export default function NeuralSeamCanvas() { active, splitRatio }: NeuralSeamCan
     }
   }, []);
 
-  // -- rAF loop ---------------------------------------------------------------
+  // ── rAF loop ───────────────────────────────────────────────────────────────
 
   const startLoop = useCallback(() => {
     const tick = (now: number) => {
@@ -217,7 +217,7 @@ export default function NeuralSeamCanvas() { active, splitRatio }: NeuralSeamCan
     }
   }, []);
 
-  // -- Lifecycle --------------------------------------------------------------
+  // ── Lifecycle ──────────────────────────────────────────────────────────────
 
   useEffect(() => {
     if (!active) return;
@@ -248,19 +248,19 @@ export default function NeuralSeamCanvas() { active, splitRatio }: NeuralSeamCan
     };
   }, [active, resizeCanvas, startLoop, stopLoop]);
 
-  // -- Bridge subscription — spawn particle on every emission ----------------
+  // ── Bridge subscription — spawn particle on every emission ────────────────
 
   useEffect(() => {
     if (!active) return;
 
-    const unsub = bridge.subscribeEventActivity(emission: Record<string, unknown> => {
+    const unsub = bridge.subscribeEventActivity((emission: Record<string, unknown>) => {
       particlesRef.current.push(createSeamParticle(emission.channel));
       // Cap total live particles to prevent runaway allocations.
       if (particlesRef.current.length > 80) {
         // Remove oldest non-idle particles first.
-        const oldest = particlesRef.current.find(p => !p.isIdle);
+        const oldest = particlesRef.current.find((p) => !p.isIdle);
         if (oldest) {
-          particlesRef.current = particlesRef.current.filter(p => p.id !== oldest.id);
+          particlesRef.current = particlesRef.current.filter((p) => p.id !== oldest.id);
         }
       }
     });
@@ -268,7 +268,7 @@ export default function NeuralSeamCanvas() { active, splitRatio }: NeuralSeamCan
     return unsub;
   }, [active]);
 
-  // -- Canvas position — tracks splitRatio -----------------------------------
+  // ── Canvas position — tracks splitRatio ───────────────────────────────────
 
   const seamTop = getSeamTop();
   const canvasTop = seamTop - BLEED_PX;

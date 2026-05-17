@@ -26,7 +26,7 @@ import { GameEnginCore, GameEnginConfigError } from './core/GameEnginCore';
 import demoGameConfig from './configs/demoGameConfig';
 import type { GameConfig } from './core/GameEnginCore';
 
-// --- launch() ----------------------------------------------------------------
+// ─── launch() ────────────────────────────────────────────────────────────────
 
 /**
  * launch(canvas, config?)
@@ -71,7 +71,7 @@ export async function launch(
   return { core, stop };
 }
 
-// --- autoLaunch() ------------------------------------------------------------
+// ─── autoLaunch() ────────────────────────────────────────────────────────────
 
 /**
  * autoLaunch()
@@ -80,7 +80,7 @@ export async function launch(
  * and calls `launch()` with the demo configuration.  Called automatically
  * when this module runs in a browser context.
  */
-async function autoLaunch(: Promise<void>) {
+async function autoLaunch(): Promise<void> {
   if (typeof document === 'undefined') return; // SSR / Node — skip
 
   const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement | null;

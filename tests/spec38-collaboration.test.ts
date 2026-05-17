@@ -21,7 +21,7 @@ import {
   type CollabPayload,
 } from '@/lib/collaboration/index';
 
-// --- §38.2 Invite link -------------------------------------------------------
+// ─── §38.2 Invite link ───────────────────────────────────────────────────────
 
 describe('§38.2 Invite link helpers', () => {
   it('generateInviteLink embeds channelId as ?shared-dream=', () => {
@@ -49,7 +49,7 @@ describe('§38.2 Invite link helpers', () => {
   });
 });
 
-// --- §38.1 Transport types ---------------------------------------------------
+// ─── §38.1 Transport types ───────────────────────────────────────────────────
 
 describe('§38.1 CollabTransport types', () => {
   it('WebRTCCollabSession has transport="webrtc"', () => {
@@ -71,7 +71,7 @@ describe('§38.1 CollabTransport types', () => {
   });
 });
 
-// --- §38 onMessage / send ----------------------------------------------------
+// ─── §38 onMessage / send ────────────────────────────────────────────────────
 
 describe('§38 WebRTCCollabSession onMessage/send (mock channel)', () => {
   it('onMessage returns an unsubscribe function', () => {
@@ -92,7 +92,7 @@ describe('§38 WebRTCCollabSession onMessage/send (mock channel)', () => {
   });
 });
 
-// --- Production fallback -----------------------------------------------------
+// ─── Production fallback ─────────────────────────────────────────────────────
 
 describe('§38 production transport fallback', () => {
   it('createCollabSession falls back to a local session when Supabase is absent', async () => {
@@ -206,7 +206,7 @@ describe('§38 JAMM-N roles, modes, and event families', () => {
   });
 });
 
-// --- CollabPayload shape -----------------------------------------------------
+// ─── CollabPayload shape ─────────────────────────────────────────────────────
 
 describe('§38 CollabPayload types', () => {
   it('cursor payload has type="cursor"', () => {

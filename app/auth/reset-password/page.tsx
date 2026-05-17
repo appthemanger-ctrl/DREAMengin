@@ -17,7 +17,7 @@ const INPUT_STYLE: React.CSSProperties = {
   outline: "none",
 };
 
-export default function ResetPasswordPage() {
+export default function ResetPasswordPage( ){
   const supabase = useMemo(() => createClient(), []);
   const [email, setEmail]     = useState("");
   const [busy, setBusy]       = useState(false);

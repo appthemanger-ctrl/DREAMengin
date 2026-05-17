@@ -6,7 +6,7 @@
  *
  * Architecture:
  *   GameEngin.tsx  →  <GameRuntime cartridge={...}>
- *                        └- cartridge.mount(container, api) → cleanup
+ *                        └─ cartridge.mount(container, api) → cleanup
  *
  * Design principle: the ENGINE provides all shared services. Cartridges declare
  * what they need (capabilities) and receive it through GameEngineAPI. Cartridges
@@ -18,12 +18,12 @@
  * new cartridges from running on engines that can't serve their needs.
  */
 
-// -- Engine version -------------------------------------------------------------
+// ── Engine version ─────────────────────────────────────────────────────────────
 
 export const ENGINE_VERSION = '2.0.0';
 
 /** Compare semver strings. Returns true if engine satisfies minVersion. */
-export function engineSatisfies(minVersion: string: boolean) {
+export function engineSatisfies(minVersion: string): boolean {
   const parse = (v: string) => v.split('.').map(Number);
   const [maj, min, pat] = parse(ENGINE_VERSION);
   const [rMaj, rMin, rPat] = parse(minVersion);
@@ -32,7 +32,7 @@ export function engineSatisfies(minVersion: string: boolean) {
   return pat >= rPat;
 }
 
-// -- Gravity presets ------------------------------------------------------------
+// ── Gravity presets ────────────────────────────────────────────────────────────
 
 export type GravityPreset = 'moon' | 'earth' | 'mars' | 'jupiter';
 
@@ -43,7 +43,7 @@ export const GRAVITY_VALUES: Record<GravityPreset, number> = {
   jupiter: 24.8,
 };
 
-// -- Cartridge capabilities -----------------------------------------------------
+// ── Cartridge capabilities ─────────────────────────────────────────────────────
 
 /**
  * Every optional engine service a cartridge may declare it uses.
@@ -62,7 +62,7 @@ export type CartridgeCapability =
   | 'replay'            // deterministic input recording + playback
   | 'cloud-save';       // Supabase-backed remote save state
 
-// -- Input Event ---------------------------------------------------------------
+// ── Input Event ───────────────────────────────────────────────────────────────
 
 export interface CartridgeInputEvent {
   key: string;
@@ -73,7 +73,7 @@ export interface CartridgeInputEvent {
   touchY?: number;
 }
 
-// -- Save State ----------------------------------------------------------------
+// ── Save State ────────────────────────────────────────────────────────────────
 
 export interface CartridgeSaveSlot {
   slot: number;             // 0-based slot index
@@ -95,7 +95,7 @@ export interface CartridgeSaveAPI {
   autoSave(data: Record<string, unknown>): Promise<void>;
 }
 
-// -- Achievements --------------------------------------------------------------
+// ── Achievements ──────────────────────────────────────────────────────────────
 
 export interface AchievementDefinition {
   id: string;
@@ -123,7 +123,7 @@ export interface CartridgeAchievementsAPI {
   getAll(): Promise<AchievementState[]>;
 }
 
-// -- Audio ---------------------------------------------------------------------
+// ── Audio ─────────────────────────────────────────────────────────────────────
 
 export interface CartridgeSoundOptions {
   volume?: number;       // 0.0–1.0, defaults to 1.0
@@ -151,7 +151,7 @@ export interface CartridgeAudioAPI {
   fadeOut(durationMs?: number): void;
 }
 
-// -- Haptics -------------------------------------------------------------------
+// ── Haptics ───────────────────────────────────────────────────────────────────
 
 export interface CartridgeHapticsAPI {
   /** Rumble the primary gamepad (0.0–1.0 intensity, duration in ms). */
@@ -162,7 +162,7 @@ export interface CartridgeHapticsAPI {
   impact(): void;
 }
 
-// -- Assets --------------------------------------------------------------------
+// ── Assets ────────────────────────────────────────────────────────────────────
 
 export interface CartridgeAssetsAPI {
   /**
@@ -179,7 +179,7 @@ export interface CartridgeAssetsAPI {
   resolve(relativePath: string): string;
 }
 
-// -- Network -------------------------------------------------------------------
+// ── Network ───────────────────────────────────────────────────────────────────
 
 export interface CartridgeSessionPlayer {
   id: string;
@@ -200,7 +200,7 @@ export interface CartridgeNetworkAPI {
   getPlayers(): CartridgeSessionPlayer[];
 }
 
-// -- GameEngineAPI v2 ---------------------------------------------------------
+// ── GameEngineAPI v2 ─────────────────────────────────────────────────────────
 
 export interface GameEngineAPI {
   /** Engine version string — cartridges can inspect this for compatibility. */
@@ -259,7 +259,7 @@ export interface GameEngineAPI {
   network: CartridgeNetworkAPI;
 }
 
-// -- GameCartridge v2 ---------------------------------------------------------
+// ── GameCartridge v2 ─────────────────────────────────────────────────────────
 
 export interface GameCartridge {
   /** Unique game identifier matching the manifest id. */

@@ -26,7 +26,7 @@ import {
 } from '@/lib/engin-runtime/EnginBaseState';
 import type { EnginCapability } from '@/lib/engin-runtime/EnginCapabilities';
 
-// --- Calendar / queue types ---------------------------------------------------
+// ─── Calendar / queue types ───────────────────────────────────────────────────
 
 export type ContentType = 'Post' | 'Video' | 'Story' | 'Thread';
 
@@ -42,11 +42,11 @@ export interface ContentDraft {
   title: string;
 }
 
-// --- Platform targets ---------------------------------------------------------
+// ─── Platform targets ─────────────────────────────────────────────────────────
 
 export type Platform = 'Feed' | 'Stories' | 'DreamDM' | 'Twitter' | 'Instagram' | 'TikTok';
 
-// --- Domain state shape -------------------------------------------------------
+// ─── Domain state shape ───────────────────────────────────────────────────────
 
 export interface ContentEnginDerivedState extends Record<string, unknown> {
   lifecycle: EnginBaseState['lifecycle'];
@@ -60,7 +60,7 @@ export interface ContentEnginDerivedState extends Record<string, unknown> {
   stemPayload: Record<string, unknown> | null;
 }
 
-// --- Action discriminated union -----------------------------------------------
+// ─── Action discriminated union ───────────────────────────────────────────────
 
 export type ContentEnginAction =
   | EnginAction<'content:drafts-loaded',   { drafts: ContentDraft[] }>
@@ -73,7 +73,7 @@ export type ContentEnginAction =
   | EnginAction<'content:brand-check',     Record<string, never>>
   | EnginAction<'content:stem-received',   { payload: Record<string, unknown> }>;
 
-// --- Default domain state -----------------------------------------------------
+// ─── Default domain state ─────────────────────────────────────────────────────
 
 const DEFAULT_DOMAIN: Omit<ContentEnginDerivedState, 'lifecycle'> = {
   drafts: [],
@@ -86,7 +86,7 @@ const DEFAULT_DOMAIN: Omit<ContentEnginDerivedState, 'lifecycle'> = {
   stemPayload: null,
 };
 
-// --- Constraints --------------------------------------------------------------
+// ─── Constraints ──────────────────────────────────────────────────────────────
 
 const itemAddConstraint: EnginConstraint<ContentEnginAction> = (
   _state,
@@ -112,9 +112,9 @@ const creativityConstraint: EnginConstraint<ContentEnginAction> = (
   return { valid: true };
 };
 
-// --- Transform ----------------------------------------------------------------
+// ─── Transform ────────────────────────────────────────────────────────────────
 
-function transform(state: EnginBaseState, action: ContentEnginAction: EnginBaseState) {
+function transform(state: EnginBaseState, action: ContentEnginAction): EnginBaseState {
   const domain = (state.domain as Partial<typeof DEFAULT_DOMAIN>);
   const queue  = () => (domain.publishQueue ?? []) as CalendarItem[];
 
@@ -132,14 +132,14 @@ function transform(state: EnginBaseState, action: ContentEnginAction: EnginBaseS
     case 'content:item-remove': {
       const { itemId } = (action as EnginAction<'content:item-remove', { itemId: string }>).payload!;
       return patchBaseState(state, {
-        domain: { ...domain, publishQueue: queue().filter(i: number => i.id !== itemId) },
+        domain: { ...domain, publishQueue: queue().filter((i: number ) => i.id !== itemId) },
       });
     }
 
     case 'content:item-publish': {
       const { itemId } = (action as EnginAction<'content:item-publish', { itemId: string }>).payload!;
       return patchBaseState(state, {
-        domain: { ...domain, publishQueue: queue().filter(i: number => i.id !== itemId) },
+        domain: { ...domain, publishQueue: queue().filter((i: number ) => i.id !== itemId) },
       });
     }
 
@@ -176,9 +176,9 @@ function transform(state: EnginBaseState, action: ContentEnginAction: EnginBaseS
   }
 }
 
-// --- deriveState --------------------------------------------------------------
+// ─── deriveState ──────────────────────────────────────────────────────────────
 
-function deriveState(state: EnginBaseState: ContentEnginDerivedState) {
+function deriveState(state: EnginBaseState): ContentEnginDerivedState {
   const d = state.domain as Partial<typeof DEFAULT_DOMAIN>;
   return {
     lifecycle:       state.lifecycle,
@@ -193,7 +193,7 @@ function deriveState(state: EnginBaseState: ContentEnginDerivedState) {
   };
 }
 
-// --- Rule-set params ----------------------------------------------------------
+// ─── Rule-set params ──────────────────────────────────────────────────────────
 
 const PARAMS: EnginRuleSetParams = {
   enginId: 'create',
@@ -211,7 +211,7 @@ const REQUIRED_CAPABILITIES: ReadonlyArray<EnginCapability> = [
   'bridge:listen',
 ];
 
-// --- Exported rule-set --------------------------------------------------------
+// ─── Exported rule-set ────────────────────────────────────────────────────────
 
 export const CONTENT_ENGIN_RULE_SET: EnginRuleSetContract<ContentEnginAction> = {
   params: PARAMS,

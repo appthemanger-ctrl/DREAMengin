@@ -32,7 +32,7 @@ interface GitHubUser {
  * Verify credentials by calling GET /user.
  * Returns the authenticated user's login on success.
  */
-export async function githubVerify(creds: GitHubCredentials: Promise<string>) {
+export async function githubVerify(creds: GitHubCredentials): Promise<string> {
   const res = await fetch(`${GH_API}/user`, {
     headers: {
       Authorization: `Bearer ${creds.access_token}`,
@@ -49,7 +49,7 @@ export async function githubVerify(creds: GitHubCredentials: Promise<string>) {
  * Fetch the authenticated user's public events feed and return normalised items.
  * Calls GET /users/{login}/events?per_page=40
  */
-export async function githubSync(creds: GitHubCredentials: Promise<UnifiedFeedItem[]>) {
+export async function githubSync(creds: GitHubCredentials): Promise<UnifiedFeedItem[]> {
   // First get the login
   const login = await githubVerify(creds);
 
@@ -65,7 +65,7 @@ export async function githubSync(creds: GitHubCredentials: Promise<UnifiedFeedIt
   return (events as Parameters<typeof normaliseGitHub>[0][]).map(normaliseGitHub);
 }
 
-export function githubCredentialFields() {
+export function githubCredentialFields( ){
   return [
     {
       key: 'access_token',

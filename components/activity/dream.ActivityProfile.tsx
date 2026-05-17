@@ -16,12 +16,12 @@ interface ActivityProfileProps {
   showFullStats?: boolean;
 }
 
-export function ActivityProfile() { userId, showFullStats = true }: ActivityProfileProps {
+export function ActivityProfile({ userId, showFullStats = true }: ActivityProfileProps) {
   const [metrics, setMetrics] = useState<UserMetrics | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadMetrics() {
+    async function loadMetrics( ){
       setLoading(true);
       try {
         const res = await fetch(`/api/metrics/user/${encodeURIComponent(userId)}`);

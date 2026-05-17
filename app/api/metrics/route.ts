@@ -22,8 +22,8 @@ import { initOtelBridge } from '@/lib/observability/otelBridge';
 // Ensure the OTel bridge is active so all collector events are mirrored.
 initOtelBridge();
 
-export async function GET(req: NextRequest: Promise<NextResponse>) {
-  // -- Optional Bearer token gate -------------------------------------------
+export async function GET(req: NextRequest): Promise<NextResponse> {
+  // ── Optional Bearer token gate ───────────────────────────────────────────
   const expectedToken = process.env.METRICS_BEARER_TOKEN;
   if (expectedToken) {
     const authHeader = req.headers.get('authorization') ?? '';

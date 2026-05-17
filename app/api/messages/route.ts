@@ -5,7 +5,7 @@ import { scanMediaUrlsForChildSafety } from '@/lib/child-safety/scanMediaUrls';
 import { reportChildSafetyIncident } from '@/lib/child-safety/ncmecReporter';
 import { createHash } from 'crypto';
 
-// -- Minor-to-adult image blocking helpers ---------------------------------
+// ── Minor-to-adult image blocking helpers ─────────────────────────────────
 
 /**
  * Look up the age of a user from their profile.
@@ -36,7 +36,7 @@ async function getUserAge(
 }
 
 // GET - Fetch conversations
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
 }
 
 // POST - Send a message
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Message content is required' }, { status: 400 });
   }
 
-  // -- Look up sender and recipient ages for minor-adult enforcement ---------
+  // ── Look up sender and recipient ages for minor-adult enforcement ─────────
   const senderAge = await getUserAge(supabase, user.id);
   const recipientAge = recipient_id ? await getUserAge(supabase, recipient_id) : null;
 
@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
   const recipientIsAdult = typeof recipientAge === 'number' && recipientAge >= 18;
   const hasImage = media_url && typeof media_url === 'string' && media_type === 'image';
 
-  // -- C32_MINOR_IMAGE: any image from a minor to an adult is ALWAYS blocked -
+  // ── C32_MINOR_IMAGE: any image from a minor to an adult is ALWAYS blocked ─
   if (hasImage && senderIsMinor && recipientIsAdult) {
     const contentRef = `minor_image:${user.id.slice(0, 8)}`;
     reportChildSafetyIncident({
@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
       },
       surface: 'message',
       contentRef,
-    }).catch(err: unknown => console.error('[child-safety] minor image block report error:', err));
+    }).catch((err: unknown ) => console.error('[child-safety] minor image block report error:', err));
 
     return NextResponse.json(
       { error: 'This image was sent from a minor and has been blocked.' },
@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // -- TheBoogieMan child safety scan (zero-tolerance) ----------------------
+  // ── TheBoogieMan child safety scan (zero-tolerance) ──────────────────────
   // Also pass sender/recipient ages so scanContent can detect image solicitation
   // from adults to minors (rule C33_SOLICITING_IMAGES via grooming patterns).
   const childSafetyResult = scanContent({ text: content });
@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
       surface: 'message',
       contentRef: `draft:${contentHash.slice(0, 16)}`,
       contentHash,
-    }).catch(err: unknown => console.error('[child-safety] message report error:', err));
+    }).catch((err: unknown ) => console.error('[child-safety] message report error:', err));
 
     return NextResponse.json(
       { error: 'Message violates our child safety policy and has been blocked.' },
@@ -166,7 +166,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // -- TheBoogieMan media image scan (LLM + hash) — real-time ---------------
+  // ── TheBoogieMan media image scan (LLM + hash) — real-time ───────────────
   // Only runs when an image attachment is present in the message.
   if (media_url && typeof media_url === 'string' && media_type === 'image') {
     const mediaSafetyResult = await scanMediaUrlsForChildSafety({
@@ -180,7 +180,7 @@ export async function POST(req: NextRequest) {
         detectionResult: mediaSafetyResult,
         surface: 'message',
         contentRef: 'media:1_file',
-      }).catch(err: unknown => console.error('[child-safety] message media report error:', err));
+      }).catch((err: unknown ) => console.error('[child-safety] message media report error:', err));
 
       return NextResponse.json(
         { error: 'Attached image violates our child safety policy and has been blocked.' },
@@ -188,7 +188,7 @@ export async function POST(req: NextRequest) {
       );
     }
   }
-  // -------------------------------------------------------------------------
+  // ─────────────────────────────────────────────────────────────────────────
 
   let convId = conversation_id;
 

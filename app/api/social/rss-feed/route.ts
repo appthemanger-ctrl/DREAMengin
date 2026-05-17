@@ -66,7 +66,7 @@ import {
 } from '@/lib/social/rss-feed';
 import type { UnifiedFeedItem } from '@/types/connector';
 
-// -- SSRF guard ------------------------------------------------------------
+// ── SSRF guard ────────────────────────────────────────────────────────────
 
 const BLOCKED_HOST_PATTERNS = [
   /^localhost$/i,
@@ -83,7 +83,7 @@ const BLOCKED_HOST_PATTERNS = [
   /instance-data\.ec2\.internal/i,
 ];
 
-function isBlockedHost(urlStr: string: boolean) {
+function isBlockedHost(urlStr: string): boolean {
   try {
     const { hostname, protocol } = new URL(urlStr);
     if (protocol !== 'http:' && protocol !== 'https:') return true;
@@ -93,7 +93,7 @@ function isBlockedHost(urlStr: string: boolean) {
   }
 }
 
-// -- Feed URL resolver ------------------------------------------------------
+// ── Feed URL resolver ──────────────────────────────────────────────────────
 
 function resolveFeedUrl(
   provider: RssProvider,
@@ -203,7 +203,7 @@ function resolveFeedUrl(
   }
 }
 
-// -- Route handler ----------------------------------------------------------
+// ── Route handler ──────────────────────────────────────────────────────────
 
 const VALID_PROVIDERS: RssProvider[] = [
   'youtube', 'reddit', 'mastodon', 'github', 'nostr',
@@ -211,7 +211,7 @@ const VALID_PROVIDERS: RssProvider[] = [
   'twitter', 'facebook', 'pinterest', 'tumblr', 'tiktok',
 ];
 
-export async function GET(req: NextRequest: Promise<NextResponse>) {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   const { searchParams } = new URL(req.url);
 
   const provider = searchParams.get('provider') as RssProvider | null;

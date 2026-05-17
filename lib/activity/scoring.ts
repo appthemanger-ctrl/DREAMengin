@@ -29,21 +29,21 @@ const BASE_POINTS_BY_TIER: Record<ActivityTier, number> = {
 /**
  * Calculate activity points based on tier
  */
-export function calculateActivityPoints(tier: ActivityTier: number) {
+export function calculateActivityPoints(tier: ActivityTier): number {
   return BASE_POINTS_BY_TIER[tier] ?? 0;
 }
 
 /**
  * Get tier multiplier for visibility score calculation
  */
-export function getTierMultiplier(tier: ActivityTier: number) {
+export function getTierMultiplier(tier: ActivityTier): number {
   return TIER_MULTIPLIERS[tier] ?? 1;
 }
 
 /**
  * Get verification strength points based on method
  */
-export function getVerificationStrength(method: VerificationMethod: number) {
+export function getVerificationStrength(method: VerificationMethod): number {
   return VERIFICATION_STRENGTH[method] ?? 0;
 }
 
@@ -51,7 +51,7 @@ export function getVerificationStrength(method: VerificationMethod: number) {
  * Calculate innovation bonus
  * Only awarded for Tier 6 (Never Done Before)
  */
-export function getInnovationBonus(tier: ActivityTier: number) {
+export function getInnovationBonus(tier: ActivityTier): number {
   return tier === ActivityTier.NEVER_DONE_BEFORE ? INNOVATION_BONUS : 0;
 }
 
@@ -74,14 +74,14 @@ export function calculateVisibilityBoost(
  * Determine if activity qualifies for promotion
  * Tier 0 (Passive) content is not promoted algorithmically
  */
-export function shouldPromoteActivity(tier: ActivityTier: boolean) {
+export function shouldPromoteActivity(tier: ActivityTier): boolean {
   return tier > ActivityTier.PASSIVE;
 }
 
 /**
  * Get tier display name
  */
-export function getTierDisplayName(tier: ActivityTier: string) {
+export function getTierDisplayName(tier: ActivityTier): string {
   const names: Record<ActivityTier, string> = {
     [ActivityTier.PASSIVE]: 'Passive',
     [ActivityTier.REFLECTION]: 'Reflection',
@@ -97,7 +97,7 @@ export function getTierDisplayName(tier: ActivityTier: string) {
 /**
  * Get tier description
  */
-export function getTierDescription(tier: ActivityTier: string) {
+export function getTierDescription(tier: ActivityTier): string {
   const descriptions: Record<ActivityTier, string> = {
     [ActivityTier.PASSIVE]:
       'Posting a photo with no context, reposting, screenshot',
@@ -157,7 +157,7 @@ export function validateTierForActivityType(
 /**
  * Calculate decay date (30 days from now)
  */
-export function calculateDecayDate(: Date) {
+export function calculateDecayDate(): Date {
   const decayDate = new Date();
   decayDate.setDate(decayDate.getDate() + 30);
   return decayDate;
@@ -166,7 +166,7 @@ export function calculateDecayDate(: Date) {
 /**
  * Check if points are decayed
  */
-export function isDecayed(decayTimestamp: string | Date: boolean) {
+export function isDecayed(decayTimestamp: string | Date): boolean {
   const now = new Date();
   const decay = new Date(decayTimestamp);
   return now >= decay;

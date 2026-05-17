@@ -29,12 +29,12 @@ const STORAGE_KEY = 'de-dual-runtime-state';
 const OPFS_FILENAME = 'de-dual-runtime-state.json';
 
 /** Serialize RuntimeWorld to/from a JSON-safe form */
-function serializeWorld(world: RuntimeWorld: string) {
+function serializeWorld(world: RuntimeWorld): string {
   if (typeof world === 'string') return JSON.stringify({ kind: 'string', value: world });
   return JSON.stringify({ kind: 'object', value: world });
 }
 
-function deserializeWorld(raw: string: RuntimeWorld) {
+function deserializeWorld(raw: string): RuntimeWorld {
   try {
     const parsed = JSON.parse(raw) as { kind: 'string' | 'object'; value: RuntimeWorld };
     return parsed.value;
@@ -44,7 +44,7 @@ function deserializeWorld(raw: string: RuntimeWorld) {
 }
 
 /** Safe JSON serializer for DualRuntimeState */
-function serializeState(state: DualRuntimeState: string) {
+function serializeState(state: DualRuntimeState): string {
   return JSON.stringify({
     surfaceSpaceWorld: serializeWorld(state.surfaceSpaceWorld),
     dreamSpaceWorld:   serializeWorld(state.dreamSpaceWorld),
@@ -52,7 +52,7 @@ function serializeState(state: DualRuntimeState: string) {
   });
 }
 
-function deserializeState(raw: string: DualRuntimeState) {
+function deserializeState(raw: string): DualRuntimeState {
   try {
     const obj = JSON.parse(raw) as {
       surfaceSpaceWorld: string;
@@ -73,7 +73,7 @@ function deserializeState(raw: string: DualRuntimeState) {
 // OPFS is available in browsers that support it (Chrome 86+, Firefox 111+, Safari 15.2+)
 // Falls back to localStorage on older browsers or workers without OPFS
 
-async function writeStateOpfs(serialized: string: Promise<void>) {
+async function writeStateOpfs(serialized: string): Promise<void> {
   try {
     const root = await navigator.storage.getDirectory();
     const fileHandle = await root.getFileHandle(OPFS_FILENAME, { create: true });
@@ -88,7 +88,7 @@ async function writeStateOpfs(serialized: string: Promise<void>) {
   }
 }
 
-async function readStateOpfs(: Promise<string | null>) {
+async function readStateOpfs(): Promise<string | null> {
   try {
     const root = await navigator.storage.getDirectory();
     const fileHandle = await root.getFileHandle(OPFS_FILENAME);
@@ -123,13 +123,13 @@ export interface UseDualRuntimePersistenceReturn {
  * @example
  * const { state, setTopWorld, swapDominant, goHome } = useDualRuntimePersistence();
  */
-export function useDualRuntimePersistence(: UseDualRuntimePersistenceReturn) {
+export function useDualRuntimePersistence(): UseDualRuntimePersistenceReturn {
   // Phase 1 — synchronous default (avoids SSR mismatch)
   const [state, setState] = useState<DualRuntimeState>(DEFAULT_DUAL_RUNTIME);
 
   // Phase 2 — async load from OPFS / localStorage after mount
   useEffect(() => {
-    readStateOpfs().then(raw => {
+    readStateOpfs().then((raw) => {
       if (raw) {
         setState(deserializeState(raw));
       }
@@ -143,19 +143,19 @@ export function useDualRuntimePersistence(: UseDualRuntimePersistenceReturn) {
   }, [state]);
 
   const setTopWorld = useCallback((world: RuntimeWorld) => {
-    setState(prev => setRuntimeWorld(prev, 'top', world));
+    setState((prev) => setRuntimeWorld(prev, 'top', world));
   }, []);
 
   const setBottomWorld = useCallback((world: RuntimeWorld) => {
-    setState(prev => setRuntimeWorld(prev, 'bottom', world));
+    setState((prev) => setRuntimeWorld(prev, 'bottom', world));
   }, []);
 
   const swapDominant = useCallback(() => {
-    setState(prev => swapDominantRuntime(prev));
+    setState((prev) => swapDominantRuntime(prev));
   }, []);
 
   const goHome = useCallback(() => {
-    setState(prev => makeHomeActiveTop(prev));
+    setState((prev) => makeHomeActiveTop(prev));
   }, []);
 
   return { state, setTopWorld, setBottomWorld, swapDominant, goHome };

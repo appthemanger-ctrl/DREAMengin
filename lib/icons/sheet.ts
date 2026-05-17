@@ -24,7 +24,7 @@ export const ROWS = 9;
 export const FRAME_W = 96;
 export const FRAME_H = 96;
 
-// --- Icon name union --------------------------------------------------------
+// ─── Icon name union ────────────────────────────────────────────────────────
 
 export type IconName =
   // row 0 — major social
@@ -57,7 +57,7 @@ export type IconName =
   // fallback
   | 'dot';
 
-// --- Icon grid coordinates ---------------------------------------------------
+// ─── Icon grid coordinates ───────────────────────────────────────────────────
 
 export const ICONS: Record<IconName, { col: number; row: number }> = {
   // row 0
@@ -171,10 +171,10 @@ export const ICONS: Record<IconName, { col: number; row: number }> = {
 
 export const ICON_ENTRIES = Object.entries(ICONS) as [IconName, { col: number; row: number }][];
 
-// --- Helpers -----------------------------------------------------------------
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 /** Returns the CSS background-position offset (negative px) for a named icon. */
-export function getIconPos(name: IconName:) { x: number; y: number } {
+export function getIconPos(name: IconName): { x: number; y: number } {
   const { col, row } = ICONS[name];
   return {
     x: col === 0 ? 0 : -(col * FRAME_W),
@@ -183,7 +183,7 @@ export function getIconPos(name: IconName:) { x: number; y: number } {
 }
 
 /** Type-guard: returns true if `name` is a registered IconName. */
-export function hasIcon(name: string: name is IconName) {
+export function hasIcon(name: string): name is IconName {
   return Object.prototype.hasOwnProperty.call(ICONS, name);
 }
 
@@ -191,7 +191,7 @@ export function hasIcon(name: string: name is IconName) {
  * Dev-only: validates every entry is within grid bounds.
  * Call once on app mount behind `process.env.NODE_ENV === 'development'`.
  */
-export function validateIconMap(: void) {
+export function validateIconMap(): void {
   if (process.env.NODE_ENV !== 'development') return;
   const seen = new Map<string, IconName>();
   for (const [name, { col, row }] of ICON_ENTRIES) {

@@ -50,7 +50,7 @@ export interface AIDirectorHookResult {
  * Stable React hook for the AI Director adaptive difficulty system.
  * Safe to call in any client component.  `update` is referentially stable.
  */
-export function useAIDirector(: AIDirectorHookResult) {
+export function useAIDirector(): AIDirectorHookResult {
   const directorRef = useRef<AIDirector>(new AIDirector());
   const [ready, setReady] = useState(false);
   const [state, setState] = useState<DirectorState>(DEFAULT_STATE);
@@ -64,7 +64,7 @@ export function useAIDirector(: AIDirectorHookResult) {
     const next = directorRef.current.update(signals);
     // Only trigger a React re-render when the label or skill tier changes
     // (level changes every frame — we don't want to re-render every frame)
-    setState(prev => {
+    setState((prev) => {
       if (prev.label !== next.label || prev.skillTier !== next.skillTier) {
         return next;
       }
