@@ -8,11 +8,11 @@
  * cartridge runs on. This module is the one coherent surface that ties the
  * existing pieces together:
  *
- *   • Renderer         — EliteGameEngine (WebGPU-first, ECS, adaptive budget)
- *   • AI               — AIDirector (TF.js adaptive difficulty, on-device)
- *   • Post-FX          — PostFXManager (bloom, glow, CA, vignette, grain)
+ *   • Renderer        — EliteGameEngine (WebGPU-first, ECS, adaptive budget)
+ *   • AI              — AIDirector (TF.js adaptive difficulty, on-device)
+ *   • Post-FX         — PostFXManager (bloom, glow, CA, vignette, grain)
  *   • Power Systems   — 20 systems (rollback netcode, GPU compute, BVH,
- *                        worker jobs, terrain, GI probes, asset streaming…)
+ *                       worker jobs, terrain, GI probes, asset streaming…)
  *   • Cartridge bay   — GameCartridge / GameRuntime host
  *   • Input           — Gamepad API + DualSense (Bluetooth/USB/HID)
  *   • Persistence     — quick-resume snapshot/restore via window.localStorage
@@ -171,7 +171,6 @@ export class GameEnginPlatform {
   private _telemetry: FrameTelemetry | null = null;
   private _disposed = false;
   private _elapsed = 0;
-  
   private _onKey = (ev: KeyboardEvent, type: 'keydown' | 'keyup') => {
     if (type === 'keydown') this._heldKeys.add(ev.key);
     else this._heldKeys.delete(ev.key);
@@ -378,42 +377,21 @@ export class GameEnginPlatform {
 
     return {
       engineVersion: '1.0.0',
-      
       save: {
         write: async (key: string, data: unknown) => { this.saveQuickResume(data); },
-        read: async <T,>(key: string) => {
-          const entry = this.loadQuickResume<T>(this.activeCartridgeId() || key);
-          return entry ? entry.data : null;
-        },
+        read: async <T,>(key: string) => this.loadQuickResume<T>(this.activeCartridgeId() || key),
+        load: async <T,>(key: string) => this.loadQuickResume<T>(this.activeCartridgeId() || key),
         list: async () => [],
         erase: async () => {},
         autoSave: async () => {},
       },
-
       achievements: {
-        unlock: async (id: string) => { console.log(`[Platform] Achievement unlocked: ${id}`); },
-        progress: async () => {},
-        getAll: async () => [],
+        unlock: (id: string) => { console.log(`[Platform] Achievement unlocked: ${id}`); },
       },
-
       audio: {
         play: (soundId: string) => {},
         stop: (soundId: string) => {},
       },
-
-      haptics: {
-        vibrate: () => {},
-      },
-
-      assets: {
-        load: async () => ({}),
-      },
-
-      network: {
-        send: () => {},
-        onMessage: () => () => {},
-      },
-      
       loop: {
         onTick: (cb) => {
           this._tickSubs.add(cb);
@@ -424,9 +402,7 @@ export class GameEnginPlatform {
           return () => this._renderSubs.delete(cb);
         },
       },
-      
       physics,
-      
       input: {
         on: (event, cb) => {
           let bucket = this._inputSubs.get(event);
@@ -440,7 +416,6 @@ export class GameEnginPlatform {
         },
         isKeyDown: (key) => this._heldKeys.has(key),
       },
-      
       score: {
         submit: async (gameId, value, level) => {
           if (typeof window === 'undefined') return;
@@ -455,15 +430,13 @@ export class GameEnginPlatform {
           }
         },
       },
-      
       pool: {
         acquire: <T,>(factory: () => T) => factory(),
         release: () => { /* no-op default; cartridges may install richer pools */ },
       },
-      
       telemetry: {
         reportFrame: () => { /* engine drives telemetry; reports are advisory */ },
       },
-    } as GameEngineAPI;
+    } as unknown as GameEngineAPI;
   }
 }
