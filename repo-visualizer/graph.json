@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-17T00:05:31.695Z",
+  "generatedAt": "2026-05-17T01:23:56.061Z",
   "root": ".",
   "nodes": [
     {
@@ -39595,26 +39595,6 @@
       "tags": []
     },
     {
-      "id": "function:lib/gameengin/platform.ts#detectCapabilities",
-      "label": "detectCapabilities",
-      "type": "function",
-      "path": "lib/gameengin/platform.ts",
-      "parent": "file:lib/gameengin/platform.ts",
-      "loc": 76,
-      "isOrphan": true,
-      "exported": true
-    },
-    {
-      "id": "class:lib/gameengin/platform.ts#GameEnginPlatform",
-      "label": "GameEnginPlatform",
-      "type": "class",
-      "path": "lib/gameengin/platform.ts",
-      "parent": "file:lib/gameengin/platform.ts",
-      "loc": 155,
-      "isOrphan": true,
-      "exported": true
-    },
-    {
       "id": "file:lib/gameengin/platform.ts",
       "label": "platform.ts",
       "type": "ts",
@@ -76521,26 +76501,6 @@
       "kind": "reexport"
     },
     {
-      "source": "file:lib/gameengin/platform.ts",
-      "target": "file:lib/gameengin/core.ts",
-      "kind": "import"
-    },
-    {
-      "source": "file:lib/gameengin/platform.ts",
-      "target": "file:lib/gameengin/ai-director.ts",
-      "kind": "import"
-    },
-    {
-      "source": "file:lib/gameengin/platform.ts",
-      "target": "file:lib/gameengin/post-fx.ts",
-      "kind": "import"
-    },
-    {
-      "source": "file:lib/gameengin/platform.ts",
-      "target": "file:lib/gameengin/cartridge.ts",
-      "kind": "import"
-    },
-    {
       "source": "file:lib/gameengin/post-fx.ts",
       "target": "file:lib/gameengin/core.ts",
       "kind": "import"
@@ -90928,21 +90888,6 @@
     {
       "source": "file:lib/gameengin/dreamr-loader.ts",
       "target": "function:lib/gameengin/cartridge-manifest.ts#validateManifest",
-      "kind": "call"
-    },
-    {
-      "source": "file:lib/gameengin/platform.ts",
-      "target": "class:lib/gameengin/core.ts#EliteGameEngine",
-      "kind": "call"
-    },
-    {
-      "source": "file:lib/gameengin/platform.ts",
-      "target": "class:lib/gameengin/ai-director.ts#AIDirector",
-      "kind": "call"
-    },
-    {
-      "source": "file:lib/gameengin/platform.ts",
-      "target": "class:lib/gameengin/post-fx.ts#PostFXManager",
       "kind": "call"
     },
     {
