@@ -385,6 +385,10 @@ export class GameEnginPlatform {
           const entry = this.loadQuickResume<T>(this.activeCartridgeId() || key);
           return entry ? entry.data : null;
         },
+        load: async <T,>(key: string) => {
+          const entry = this.loadQuickResume<T>(this.activeCartridgeId() || key);
+          return entry ? entry.data : null;
+        },
         list: async () => [],
         erase: async (key: string) => {},
         autoSave: async () => {},
@@ -464,6 +468,6 @@ export class GameEnginPlatform {
       telemetry: {
         reportFrame: (dtMs: number) => { /* engine drives telemetry */ },
       },
-    } as GameEngineAPI;
+    } as unknown as GameEngineAPI;
   }
 }
