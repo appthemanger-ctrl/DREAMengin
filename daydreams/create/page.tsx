@@ -70,7 +70,7 @@ export default async function CreateDaydreamPage() {
           </div>
         ))}
 
-        {/* ── Open ContentEngin CTA ── */}
+        {/* -- Open ContentEngin CTA -- */}
         <div className="de-widget" style={{ borderColor: 'rgba(245,158,11,0.3)', background: 'linear-gradient(135deg, rgba(245,158,11,0.06), rgba(251,191,36,0.04))' }}>
           <div className="de-widget-header">
             <Sparkles className="w-4 h-4" style={{ color: ACCENT }} />
@@ -92,7 +92,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* ── Feature 7: Content Repurposer ── */}
+        {/* -- Feature 7: Content Repurposer -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <FileText className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -115,7 +115,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* ── Feature 8: SEO Title Optimizer ── */}
+        {/* -- Feature 8: SEO Title Optimizer -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <BarChart2 className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -135,7 +135,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* ── Feature 9: Multi-Platform Scheduler ── */}
+        {/* -- Feature 9: Multi-Platform Scheduler -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <Calendar className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -158,7 +158,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* ── Feature 10: Publishing Queue ── */}
+        {/* -- Feature 10: Publishing Queue -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">📤 Publishing Queue</span>
@@ -171,7 +171,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* ── Feature 11: AI Caption Generator ── */}
+        {/* -- Feature 11: AI Caption Generator -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">✨ AI Caption Generator</span>
@@ -188,7 +188,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* ── Feature 12: Hashtag Optimizer ── */}
+        {/* -- Feature 12: Hashtag Optimizer -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title"># Hashtag Optimizer</span>
@@ -202,7 +202,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* ── Feature 13: Short Video Editor ── */}
+        {/* -- Feature 13: Short Video Editor -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <Video className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -220,7 +220,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* ── Feature 14: Template Gallery ── */}
+        {/* -- Feature 14: Template Gallery -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">🎨 Template Gallery</span>
@@ -244,7 +244,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* ── Feature 15: Content Analytics Summary ── */}
+        {/* -- Feature 15: Content Analytics Summary -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <BarChart2 className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -263,7 +263,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* ── Feature 16: Ad Copy Generator ── */}
+        {/* -- Feature 16: Ad Copy Generator -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">📣 Ad Copy Generator</span>
@@ -278,7 +278,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* ── Feature 17: Newsletter Template ── */}
+        {/* -- Feature 17: Newsletter Template -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">✉ Newsletter Template</span>
@@ -295,7 +295,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* ── Feature 18: Co-authoring Draft ── */}
+        {/* -- Feature 18: Co-authoring Draft -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">👥 Co-authoring Draft</span>
@@ -312,7 +312,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* ── Feature 19: Performance Predictor ── */}
+        {/* -- Feature 19: Performance Predictor -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">📈 Performance Predictor</span>
@@ -335,7 +335,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* ── Feature 20: Game Cinematic Intro Templates ── */}
+        {/* -- Feature 20: Game Cinematic Intro Templates -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">🎮 Cinematic Intro Templates</span>
@@ -365,7 +365,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* ── Workflow Brain ── */}
+        {/* -- Workflow Brain -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <Brain className="w-4 h-4 mr-1" style={{ color: '#6366f1' }} />
@@ -396,7 +396,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* ── Auto Content Repurposer ── */}
+        {/* -- Auto Content Repurposer -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <RefreshCw className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -418,7 +418,7 @@ export default async function CreateDaydreamPage() {
           </div>
         </div>
 
-        {/* ── AI Post Intelligence ── */}
+        {/* -- AI Post Intelligence -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <Sparkles className="w-4 h-4 mr-1" style={{ color: '#6366f1' }} />

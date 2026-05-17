@@ -22,7 +22,7 @@ import {
   type CellLanguage,
 } from '@/lib/code/drEamsCodeAssist';
 
-// ── VOCAB_TERMS sanity check ───────────────────────────────────────────────────
+// -- VOCAB_TERMS sanity check ---------------------------------------------------
 
 describe('VOCAB_TERMS', () => {
   it('contains expected core terms', () => {
@@ -40,7 +40,7 @@ describe('VOCAB_TERMS', () => {
   });
 });
 
-// ── CODE_VOCABULARY shape ─────────────────────────────────────────────────────
+// -- CODE_VOCABULARY shape -----------------------------------------------------
 
 describe('CODE_VOCABULARY', () => {
   it('every entry has term, category, definition and example', () => {
@@ -70,7 +70,7 @@ describe('CODE_VOCABULARY', () => {
   });
 });
 
-// ── matchCodeVocabulary ────────────────────────────────────────────────────────
+// -- matchCodeVocabulary --------------------------------------------------------
 
 describe('matchCodeVocabulary', () => {
   it('returns empty array for empty query', () => {
@@ -108,7 +108,7 @@ describe('matchCodeVocabulary', () => {
   });
 });
 
-// ── detectLanguageFromCode ────────────────────────────────────────────────────
+// -- detectLanguageFromCode ----------------------------------------------------
 
 describe('detectLanguageFromCode', () => {
   it('returns python for blank input', () => {
@@ -144,7 +144,7 @@ describe('detectLanguageFromCode', () => {
   });
 });
 
-// ── classifyQuery ─────────────────────────────────────────────────────────────
+// -- classifyQuery -------------------------------------------------------------
 
 describe('classifyQuery', () => {
   it('returns general for empty query', () => {
@@ -181,7 +181,7 @@ describe('classifyQuery', () => {
   });
 });
 
-// ── detectNLCommand ───────────────────────────────────────────────────────────
+// -- detectNLCommand -----------------------------------------------------------
 
 describe('detectNLCommand', () => {
   it('returns null for unrecognised input', () => {
@@ -228,7 +228,7 @@ describe('detectNLCommand', () => {
   });
 });
 
-// ── generateCodeFromCommand ───────────────────────────────────────────────────
+// -- generateCodeFromCommand ---------------------------------------------------
 
 describe('generateCodeFromCommand', () => {
   it('generates Python class scaffold', () => {
@@ -278,7 +278,7 @@ describe('generateCodeFromCommand', () => {
   });
 });
 
-// ── parseCodeResponse ─────────────────────────────────────────────────────────
+// -- parseCodeResponse ---------------------------------------------------------
 
 describe('parseCodeResponse', () => {
   it('parses response with no code blocks', () => {
@@ -320,7 +320,7 @@ describe('parseCodeResponse', () => {
   });
 });
 
-// ── buildCodeSystemPrompt ─────────────────────────────────────────────────────
+// -- buildCodeSystemPrompt -----------------------------------------------------
 
 describe('buildCodeSystemPrompt', () => {
   it('includes language in prompt', () => {

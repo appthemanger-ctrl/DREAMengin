@@ -207,7 +207,7 @@ export async function scanMediaUrlsForChildSafety(
 
     const { buffer, mime } = fetched;
 
-    // ── Layer 1: Hash check ────────────────────────────────────────────────
+    // -- Layer 1: Hash check ------------------------------------------------
     const imageHash = createHash('sha256').update(buffer).digest('hex');
     const hashResult = scanContent({
       mediaHashes: [imageHash],
@@ -219,7 +219,7 @@ export async function scanMediaUrlsForChildSafety(
       return hashResult;
     }
 
-    // ── Layer 4: LLM image classification ─────────────────────────────────
+    // -- Layer 4: LLM image classification ---------------------------------
     const imageBase64 = buffer.toString('base64');
     const imgClassification = await classifyImage(imageBase64, mime ?? 'image/jpeg');
 

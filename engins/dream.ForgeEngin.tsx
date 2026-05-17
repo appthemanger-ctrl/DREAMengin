@@ -73,7 +73,7 @@ import {
   type RitualSnapshot,
 } from '@/lib/forge/forgeRituals';
 
-// ── Design tokens ─────────────────────────────────────────────────────────────
+// -- Design tokens -------------------------------------------------------------
 const FORGE = {
   bg:     '#0a0a0f',
   panel:  'rgba(255,255,255,0.04)',
@@ -85,7 +85,7 @@ const FORGE = {
   glow:   'rgba(239,68,68,0.18)',
 } as const;
 
-// ── Pulse Monitor — channel color-coding for cross-engine event feed ──────────
+// -- Pulse Monitor — channel color-coding for cross-engine event feed ----------
 const CHANNEL_COLORS: Record<string, string> = {
   music: '#ec4899', games: '#22c55e', lab: '#8b5cf6',
   code: '#38bdf8', brand: '#f59e0b', create: '#6366f1',
@@ -302,7 +302,7 @@ export default function ForgeEngin() { onBack }: Props {
   return (
     <ArtifactSlot artifactId="engin:forge">
     <div style={{ minHeight: '100vh', background: FORGE.bg, color: FORGE.text }}>
-      {/* ── Header ── */}
+      {/* -- Header -- */}
       <header
         style={{
           position: 'sticky',
@@ -363,7 +363,7 @@ export default function ForgeEngin() { onBack }: Props {
 
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '20px 16px 40px' }}>
 
-        {/* ── ⚡ AI Anything Builder Banner ── */}
+        {/* -- ⚡ AI Anything Builder Banner -- */}
         <div style={{ marginBottom: 20 }}>
           <motion.button
             type="button"
@@ -418,7 +418,7 @@ export default function ForgeEngin() { onBack }: Props {
           </AnimatePresence>
         </div>
 
-        {/* ── System Pulse Overview ── */}
+        {/* -- System Pulse Overview -- */}
         <div style={{ marginBottom: 24 }}>
           <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: FORGE.accent, marginBottom: 10 }}>
             SYSTEM PULSE
@@ -445,7 +445,7 @@ export default function ForgeEngin() { onBack }: Props {
           </div>
         </div>
 
-        {/* ── 🚀 Creative Momentum ── */}
+        {/* -- 🚀 Creative Momentum -- */}
         {momentum && (
           <div style={{ marginBottom: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -529,7 +529,7 @@ export default function ForgeEngin() { onBack }: Props {
           </div>
         )}
 
-        {/* ── Engine Status Matrix ── */}
+        {/* -- Engine Status Matrix -- */}
         <div style={{ marginBottom: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <BarChart3 className="w-4 h-4" style={{ color: FORGE.gold }} />
@@ -549,7 +549,7 @@ export default function ForgeEngin() { onBack }: Props {
           </div>
         </div>
 
-        {/* ── Selected Engine Detail ── */}
+        {/* -- Selected Engine Detail -- */}
         <AnimatePresence mode="wait">
           {selectedEngine && (
             <EngineDetailPanel
@@ -562,7 +562,7 @@ export default function ForgeEngin() { onBack }: Props {
           )}
         </AnimatePresence>
 
-        {/* ── 🕸️ Engine Nexus (Connection Graph) ── */}
+        {/* -- 🕸️ Engine Nexus (Connection Graph) -- */}
         {nexus && nexus.totalTransitions > 0 && (
           <div style={{ marginBottom: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -749,7 +749,7 @@ export default function ForgeEngin() { onBack }: Props {
           </div>
         )}
 
-        {/* ── 🧠 Predictive Suggestions (Intelligence Layer) ── */}
+        {/* -- 🧠 Predictive Suggestions (Intelligence Layer) -- */}
         {suggestions.length > 0 && (
           <div style={{ marginTop: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -773,7 +773,7 @@ export default function ForgeEngin() { onBack }: Props {
           </div>
         )}
 
-        {/* ── 🎯 Natural Language Goal Input ── */}
+        {/* -- 🎯 Natural Language Goal Input -- */}
         <div style={{ marginTop: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <Wand2 className="w-4 h-4" style={{ color: '#22d3ee' }} />
@@ -928,7 +928,7 @@ export default function ForgeEngin() { onBack }: Props {
           </div>
         </div>
 
-        {/* ── 🔄 Active Workflow Run (step tracker + failure recovery) ── */}
+        {/* -- 🔄 Active Workflow Run (step tracker + failure recovery) -- */}
         {workflowRun && (
           <ActiveWorkflowPanel
             run={workflowRun}
@@ -939,7 +939,7 @@ export default function ForgeEngin() { onBack }: Props {
           />
         )}
 
-        {/* ── Cross-Engine Linkage Map ── */}
+        {/* -- Cross-Engine Linkage Map -- */}
         <div style={{ marginTop: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <Zap className="w-4 h-4" style={{ color: '#a855f7' }} />
@@ -986,7 +986,7 @@ export default function ForgeEngin() { onBack }: Props {
           </div>
         </div>
 
-        {/* ── Workflow Launcher (built-in + custom + builder) ── */}
+        {/* -- Workflow Launcher (built-in + custom + builder) -- */}
         <div style={{ marginTop: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <Workflow className="w-4 h-4" style={{ color: FORGE.gold }} />
@@ -1175,7 +1175,7 @@ export default function ForgeEngin() { onBack }: Props {
           </AnimatePresence>
         </div>
 
-        {/* ── Transfer Log ── */}
+        {/* -- Transfer Log -- */}
         {transfers.length > 0 && (
           <div style={{ marginTop: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -1225,7 +1225,7 @@ export default function ForgeEngin() { onBack }: Props {
           </div>
         )}
 
-        {/* ── Activity Timeline (full history) ── */}
+        {/* -- Activity Timeline (full history) -- */}
         <div style={{ marginTop: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <Clock className="w-4 h-4" style={{ color: '#38bdf8' }} />
@@ -1296,7 +1296,7 @@ export default function ForgeEngin() { onBack }: Props {
           )}
         </div>
 
-        {/* ── 🔮 Forge Rituals (Auto-Detected Patterns) ── */}
+        {/* -- 🔮 Forge Rituals (Auto-Detected Patterns) -- */}
         {rituals && rituals.rituals.length > 0 && (
           <div style={{ marginTop: 24 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -1358,7 +1358,7 @@ export default function ForgeEngin() { onBack }: Props {
           </div>
         )}
 
-        {/* ── Forge Philosophy ── */}
+        {/* -- Forge Philosophy -- */}
         <div style={{
           marginTop: 24,
           padding: '16px 18px',
@@ -1376,7 +1376,7 @@ export default function ForgeEngin() { onBack }: Props {
           </div>
         </div>
 
-        {/* ── Journey Trail ── */}
+        {/* -- Journey Trail -- */}
         <div style={{ marginTop: 24 }}>
           <JourneyTrail compact />
         </div>
@@ -1386,7 +1386,7 @@ export default function ForgeEngin() { onBack }: Props {
   );
 }
 
-// ── Sub-components ────────────────────────────────────────────────────────────
+// -- Sub-components ------------------------------------------------------------
 
 function PulseCard() { icon, label, value, accent }: {
   icon: React.ReactNode;
@@ -1575,7 +1575,7 @@ function EngineDetailPanel() { engine, heat, lastActive, activity }: {
   );
 }
 
-// ── Cross-Engine Linkages ─────────────────────────────────────────────────────
+// -- Cross-Engine Linkages -----------------------------------------------------
 
 const LINKAGES = [
   {
@@ -1605,7 +1605,7 @@ const LINKAGES = [
   },
 ] as const;
 
-// ── Suggestion Card ───────────────────────────────────────────────────────────
+// -- Suggestion Card -----------------------------------------------------------
 
 function SuggestionCard() { suggestion }: { suggestion: ForgeSuggestion } {
   return (
@@ -1653,7 +1653,7 @@ function SuggestionCard() { suggestion }: { suggestion: ForgeSuggestion } {
   );
 }
 
-// ── Active Workflow Panel ─────────────────────────────────────────────────────
+// -- Active Workflow Panel -----------------------------------------------------
 
 function ActiveWorkflowPanel() { run, allWorkflows, onCompleteStep, onFailStep, onDismiss }: {
   run: WorkflowRunState;
@@ -1799,7 +1799,7 @@ function ActiveWorkflowPanel() { run, allWorkflows, onCompleteStep, onFailStep, 
   );
 }
 
-// ── Workflow Card ─────────────────────────────────────────────────────────────
+// -- Workflow Card -------------------------------------------------------------
 
 function WorkflowCard() { workflow, onStart, onDelete, isCustom }: {
   workflow: ForgeWorkflow;

@@ -22,7 +22,7 @@ import 'server-only';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 /** A single baked embed item produced by scripts/update-embed-feed.mjs. */
 export interface EmbedFeedItem {
@@ -66,7 +66,7 @@ export interface EmbedFeed {
   items: EmbedFeedItem[];
 }
 
-// ── Loader ────────────────────────────────────────────────────────────────────
+// -- Loader --------------------------------------------------------------------
 
 const FEED_PATH = join(process.cwd(), 'public', 'feeds', 'embed-feed.json');
 

@@ -46,7 +46,7 @@ import {
   type EngineAssembly,
 } from '@/lib/forge/engineForge';
 
-// ── Design tokens ─────────────────────────────────────────────────────────────
+// -- Design tokens -------------------------------------------------------------
 
 const C = {
   bg:       '#0a0a0f',
@@ -66,7 +66,7 @@ const C = {
   hub:      '#f97316',   // orange — dual runtime hub
 } as const;
 
-// ── Category colours ──────────────────────────────────────────────────────────
+// -- Category colours ----------------------------------------------------------
 
 const CATEGORY_COLORS: Record<string, string> = {
   'Audio & Music':          '#ec4899',
@@ -82,14 +82,14 @@ const CATEGORY_COLORS: Record<string, string> = {
   'Science & Simulation':   '#f43f5e',
 };
 
-// ── Canvas piece state (adds position + role override) ────────────────────────
+// -- Canvas piece state (adds position + role override) ------------------------
 
 interface CanvasPiece extends AtomicPiece {
   x: number;
   y: number;
 }
 
-// ── Wire-drawing state ────────────────────────────────────────────────────────
+// -- Wire-drawing state --------------------------------------------------------
 
 interface WireInProgress {
   fromPieceId: string;
@@ -100,7 +100,7 @@ interface WireInProgress {
   toY:         number;
 }
 
-// ── §41 DUAL RUNTIME HUB piece ────────────────────────────────────────────────
+// -- §41 DUAL RUNTIME HUB piece ------------------------------------------------
 
 const DUAL_RUNTIME_HUB: AtomicComponent = {
   id:          'forge-dual-runtime-hub',
@@ -109,7 +109,7 @@ const DUAL_RUNTIME_HUB: AtomicComponent = {
   category:    'Science & Simulation',
 };
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// -- Component -----------------------------------------------------------------
 
 export interface EngineBuilderCanvasProps {
   /** Called with the JSON-serialised assembly when the user saves. */
@@ -122,14 +122,14 @@ export default function EngineBuilderCanvas() {
   onSave,
   initialJson,
 }: EngineBuilderCanvasProps) {
-  // ── Sidebar state ──────────────────────────────────────────────────────────
+  // -- Sidebar state ----------------------------------------------------------
 
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
     new Set(['Audio & Music']),
   );
   const [searchQuery, setSearchQuery] = useState('');
 
-  // ── Canvas state ──────────────────────────────────────────────────────────
+  // -- Canvas state ----------------------------------------------------------
 
   const [pieces, setPieces] = useState<CanvasPiece[]>(() => {
     if (initialJson) {
@@ -162,7 +162,7 @@ export default function EngineBuilderCanvas() {
 
   const canvasRef = useRef<SVGSVGElement>(null);
 
-  // ── Derived ────────────────────────────────────────────────────────────────
+  // -- Derived ----------------------------------------------------------------
 
   const categories = useMemo(
     () => Array.from(new Set(COMPONENT_INVENTORY.map((c: Record<string, unknown>) => c.category))),
@@ -181,7 +181,7 @@ export default function EngineBuilderCanvas() {
 
   const validation = useMemo(() => validateAssembly(pieces, wires), [pieces, wires]);
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
+  // -- Helpers ----------------------------------------------------------------
 
   function showToast(msg: string, ok = true) {
     setToast({ msg, ok });
@@ -206,7 +206,7 @@ export default function EngineBuilderCanvas() {
     return C.hub;
   }
 
-  // ── Actions ────────────────────────────────────────────────────────────────
+  // -- Actions ----------------------------------------------------------------
 
   const addPiece = useCallback((component: AtomicComponent) => {
     if (pieces.length >= 30) {
@@ -306,7 +306,7 @@ export default function EngineBuilderCanvas() {
     }
   }, []);
 
-  // ── Drag handlers ─────────────────────────────────────────────────────────
+  // -- Drag handlers ---------------------------------------------------------
 
   const onPiecePointerDown = useCallback(
     (e: React.PointerEvent, pieceId: string) => {
@@ -351,7 +351,7 @@ export default function EngineBuilderCanvas() {
     if (wireInProgress) setWireInProgress(null);
   }, [wireInProgress]);
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  // -- Render ----------------------------------------------------------------
 
   const PIECE_W  = 160;
   const PIECE_H  = 80;
@@ -383,7 +383,7 @@ export default function EngineBuilderCanvas() {
         border: `1px solid ${C.border2}`,
       }}
     >
-      {/* ── Left Sidebar: Piece Palette ─────────────────────────────────── */}
+      {/* -- Left Sidebar: Piece Palette ----------------------------------- */}
       <div
         style={{
           width: 260,
@@ -509,7 +509,7 @@ export default function EngineBuilderCanvas() {
         })}
       </div>
 
-      {/* ── Central Canvas ─────────────────────────────────────────────── */}
+      {/* -- Central Canvas ----------------------------------------------- */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Toolbar */}
         <div
@@ -759,7 +759,7 @@ export default function EngineBuilderCanvas() {
         </svg>
       </div>
 
-      {/* ── Toast ──────────────────────────────────────────────────────── */}
+      {/* -- Toast -------------------------------------------------------- */}
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -791,7 +791,7 @@ export default function EngineBuilderCanvas() {
   );
 }
 
-// ── Toolbar button helper ─────────────────────────────────────────────────────
+// -- Toolbar button helper -----------------------------------------------------
 
 function ToolbarBtn() {
   icon, label, onClick, accent, danger,

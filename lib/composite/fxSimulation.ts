@@ -50,12 +50,12 @@ export interface FxSimulation {
   fps: number;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Preset catalogue
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 export const FX_PRESETS: FxPreset[] = [
-  // ── Fire ──────────────────────────────────────────────────────────────────
+  // -- Fire ------------------------------------------------------------------
   {
     id: 'fire_campfire',
     name: 'Campfire',
@@ -88,7 +88,7 @@ export const FX_PRESETS: FxPreset[] = [
       { name: 'intensity', label: 'Light Intensity', type: 'float', value: 1.0, min: 0, max: 2, step: 0.05, description: 'Dynamic light cast by the explosion' },
     ],
   },
-  // ── Water ─────────────────────────────────────────────────────────────────
+  // -- Water -----------------------------------------------------------------
   {
     id: 'water_ocean',
     name: 'Ocean Surface',
@@ -119,7 +119,7 @@ export const FX_PRESETS: FxPreset[] = [
       { name: 'foamRing', label: 'Foam Ring', type: 'boolean', value: true, description: 'Spawn a foam ring on impact' },
     ],
   },
-  // ── Destruction ───────────────────────────────────────────────────────────
+  // -- Destruction -----------------------------------------------------------
   {
     id: 'destruction_concrete',
     name: 'Concrete Fracture',
@@ -149,7 +149,7 @@ export const FX_PRESETS: FxPreset[] = [
       { name: 'crackPropagation', label: 'Crack Spread Speed', type: 'float', value: 0.8, min: 0, max: 1, step: 0.01, description: 'How fast cracks spread outward' },
     ],
   },
-  // ── Smoke ─────────────────────────────────────────────────────────────────
+  // -- Smoke -----------------------------------------------------------------
   {
     id: 'smoke_wisp',
     name: 'Thin Wisp',
@@ -164,7 +164,7 @@ export const FX_PRESETS: FxPreset[] = [
       { name: 'color', label: 'Smoke Color', type: 'color', value: [0.85, 0.85, 0.85], description: 'Base scattering color of smoke' },
     ],
   },
-  // ── Particles ─────────────────────────────────────────────────────────────
+  // -- Particles -------------------------------------------------------------
   {
     id: 'particles_sparkle',
     name: 'Magic Sparkle',
@@ -182,7 +182,7 @@ export const FX_PRESETS: FxPreset[] = [
       { name: 'glowIntensity', label: 'Glow', type: 'float', value: 1.5, min: 0, max: 5, step: 0.1, description: 'Additive bloom/glow multiplier' },
     ],
   },
-  // ── Fabric ────────────────────────────────────────────────────────────────
+  // -- Fabric ----------------------------------------------------------------
   {
     id: 'fabric_cloth',
     name: 'Cloth Drape',
@@ -200,9 +200,9 @@ export const FX_PRESETS: FxPreset[] = [
   },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Public API
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Get a preset by id. Returns undefined if not found.

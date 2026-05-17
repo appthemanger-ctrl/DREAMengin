@@ -21,7 +21,7 @@ import {
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 import type { UnifiedFeedItem } from '@/types/connector';
 
-// ── Design tokens ──────────────────────────────────────────────────────────────
+// -- Design tokens --------------------------------------------------------------
 
 const DR = {
   bg:          '#e8eff6',
@@ -42,7 +42,7 @@ function nmI(s = 4: string) {
   return `inset ${-s}px ${-s}px ${s*2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s*2.4}px ${DR.shadowDark}`;
 }
 
-// ── Helper: extract YouTube video ID from permalink ────────────────────────────
+// -- Helper: extract YouTube video ID from permalink ----------------------------
 
 function extractVideoId(permalink: string: string | null) {
   try {
@@ -60,7 +60,7 @@ function embedUrl(permalink: string: string | null) {
   return id ? `https://www.youtube.com/embed/${id}?autoplay=1&rel=0` : null;
 }
 
-// ── Mini video thumbnail ───────────────────────────────────────────────────────
+// -- Mini video thumbnail -------------------------------------------------------
 
 function VideoThumb() {
   item, onPlay,
@@ -108,7 +108,7 @@ function VideoThumb() {
   );
 }
 
-// ── VideoRow — compact list item ───────────────────────────────────────────────
+// -- VideoRow — compact list item -----------------------------------------------
 
 function VideoRow() { item }: { item: UnifiedFeedItem } {
   const thumb = item.media[0]?.thumbnail_url ?? null;
@@ -154,7 +154,7 @@ function VideoRow() { item }: { item: UnifiedFeedItem } {
   );
 }
 
-// ── Main component ─────────────────────────────────────────────────────────────
+// -- Main component -------------------------------------------------------------
 
 interface Props {
   /** The YouTube post card that was swiped left */

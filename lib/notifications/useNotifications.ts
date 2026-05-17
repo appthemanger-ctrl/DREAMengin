@@ -62,7 +62,7 @@ export function useNotifications(: UseNotificationsReturn) {
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // ── Fetch from API ────────────────────────────────────────────────────────
+  // -- Fetch from API --------------------------------------------------------
 
   const fetchNotifications = useCallback(async () => {
     try {
@@ -100,7 +100,7 @@ export function useNotifications(: UseNotificationsReturn) {
     }
   }, []);
 
-  // ── Initial load + polling ────────────────────────────────────────────────
+  // -- Initial load + polling ------------------------------------------------
 
   useEffect(() => {
     void fetchNotifications();
@@ -116,7 +116,7 @@ export function useNotifications(: UseNotificationsReturn) {
     };
   }, [fetchNotifications]);
 
-  // ── Mark single as read ───────────────────────────────────────────────────
+  // -- Mark single as read ---------------------------------------------------
 
   const markAsRead = useCallback(async (id: string) => {
     // Optimistic update first
@@ -135,7 +135,7 @@ export function useNotifications(: UseNotificationsReturn) {
     }
   }, [fetchNotifications]);
 
-  // ── Mark all as read ──────────────────────────────────────────────────────
+  // -- Mark all as read ------------------------------------------------------
 
   const markAllAsRead = useCallback(async () => {
     setNotifications(prev: Record<string, unknown> => applyOptimisticMarkAll(prev));
@@ -152,7 +152,7 @@ export function useNotifications(: UseNotificationsReturn) {
     }
   }, [fetchNotifications]);
 
-  // ── Delete one notification ───────────────────────────────────────────────
+  // -- Delete one notification -----------------------------------------------
 
   const deleteNotification = useCallback(async (id: string) => {
     setNotifications(prev: Record<string, unknown> => applyOptimisticDelete(prev, id));
@@ -167,7 +167,7 @@ export function useNotifications(: UseNotificationsReturn) {
     }
   }, [fetchNotifications]);
 
-  // ── Expose ────────────────────────────────────────────────────────────────
+  // -- Expose ----------------------------------------------------------------
 
   return {
     notifications,

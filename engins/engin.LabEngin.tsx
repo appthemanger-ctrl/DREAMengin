@@ -54,7 +54,7 @@ interface Experiment {
   status: string;
 }
 
-// ── Simulation Runner types ────────────────────────────────────────────────────
+// -- Simulation Runner types ----------------------------------------------------
 type SimState = 'idle' | 'running' | 'complete';
 
 interface SimType {
@@ -96,7 +96,7 @@ const SIMS: SimType[] = [
   },
 ];
 
-// ── Chart types ────────────────────────────────────────────────────────────────
+// -- Chart types ----------------------------------------------------------------
 type ChartType = 'line' | 'bar' | 'scatter';
 
 const CHART_PREVIEWS: Record<ChartType, string> = {
@@ -147,7 +147,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
   const labBridge = useLabEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'lab' });
 
-  // ── OS Shell: upgradeEngine wiring ──
+  // -- OS Shell: upgradeEngine wiring --
   const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
   useEffect(() => {
     upgradeEngine({ id: 'lab', name: 'LabEngin' }, ['bridge', 'telemetry'])
@@ -155,28 +155,28 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
   }, []);
   const busRef = useRef(createEventBus());
 
-  // ── EnginRuntime kernel (lab rule-set) ──
+  // -- EnginRuntime kernel (lab rule-set) --
   const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useLabEnginRuntime();
 
-  // ── Workflow (lab:experiment — default workflow) ──
+  // -- Workflow (lab:experiment — default workflow) --
   const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
   useEffect(() => { loadWorkflow('lab:experiment'); }, [loadWorkflow]);
 
-  // ── Engin Forge panel state ──
+  // -- Engin Forge panel state --
   const [showForge, setShowForge] = useState(false);
 
-  // ── Existing state ─────────────────────────────────────────────────────────
+  // -- Existing state ---------------------------------------------------------
   const [experiments, setExperiments] = useState<Experiment[]>([]);
   const [loading, setLoading]         = useState(true);
 
-  // ── Simulation Runner state ────────────────────────────────────────────────
+  // -- Simulation Runner state ------------------------------------------------
   const [simStates, setSimStates]   = useState<Record<string, SimState>>({});
 
-  // ── Data Visualization state ───────────────────────────────────────────────
+  // -- Data Visualization state -----------------------------------------------
   const [chartType, setChartType]   = useState<ChartType>('line');
   const [exportFlash, setExportFlash] = useState(false);
 
-  // ── Load experiments ───────────────────────────────────────────────────────
+  // -- Load experiments -------------------------------------------------------
   useEffect(() => {
     let cancelled = false;
     const supabase = createClient();
@@ -199,7 +199,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     return () => { cancelled = true; };
   }, []);
 
-  // ── Simulation runner ──────────────────────────────────────────────────────
+  // -- Simulation runner ------------------------------------------------------
   function runSim(id: string) {
     setSimStates(prev => ({ ...prev, [id]: 'running' }));
     forgeRecord(`Ran simulation ${id}`);
@@ -212,7 +212,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     }, 1200);
   }
 
-  // ── Export handler ─────────────────────────────────────────────────────────
+  // -- Export handler ---------------------------------------------------------
   function handleExportData() {
     forgeRecord('Exported data');
     recordForgeTransfer('lab', 'code', 'dataset', 'Lab data export → CodeEngin');
@@ -234,11 +234,11 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
 
   const active = experiments.filter(e => e.status === 'running' || e.status === 'draft');
 
-  // ── Collab Lab state ────────────────────────────────────────────────────────
+  // -- Collab Lab state --------------------------------------------------------
   const [collabLabActive, setCollabLabActive] = useState(false);
   const [collabLabCode, setCollabLabCode] = useState('');
 
-  // ── Co-op channel ─────────────────────────────────────────────────────────
+  // -- Co-op channel ---------------------------------------------------------
   const [instanceId] = useState(
     () => instanceIdProp ?? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)),
   );
@@ -255,15 +255,15 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     },
   });
 
-  // ── AI Hypothesis state ──────────────────────────────────────────────────────
+  // -- AI Hypothesis state ------------------------------------------------------
   const [hypothesisLoading, setHypothesisLoading] = useState(false);
   const [hypotheses, setHypotheses] = useState<string[]>([]);
 
-  // ── Molecule Viewer state ────────────────────────────────────────────────────
+  // -- Molecule Viewer state ----------------------------------------------------
   const [selectedMolecule, setSelectedMolecule] = useState('H2O');
   const [moleculeDisplay, setMoleculeDisplay] = useState('O\n H   H');
 
-  // ── Dataset Browser state ────────────────────────────────────────────────────
+  // -- Dataset Browser state ----------------------------------------------------
   const [datasets] = useState<Array<{ name: string; rows: string; domain: string }>>([
     { name: 'NASA Climate Data',    rows: '2.4M', domain: 'Climate Science' },
     { name: 'CERN Particle Events', rows: '890K', domain: 'Particle Physics' },
@@ -272,7 +272,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
   ]);
   const [selectedDataset, setSelectedDataset] = useState<string | null>(null);
 
-  // ── Published Results state ──────────────────────────────────────────────────
+  // -- Published Results state --------------------------------------------------
   const [publishedResults, setPublishedResults] = useState<Array<{ id: string; title: string; date: string }>>([
     { id: 'res-1', title: 'Fluid Viscosity under Oscillatory Shear', date: '2025-01-08' },
     { id: 'res-2', title: 'Neural Synchronization Latency Study',    date: '2025-01-05' },
@@ -280,10 +280,10 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
   const [publishingResult, setPublishingResult] = useState(false);
   const [newResultTitle, setNewResultTitle] = useState('');
 
-  // ── Quantum measure state ────────────────────────────────────────────────────
+  // -- Quantum measure state ----------------------------------------------------
   const [quantumMeasured, setQuantumMeasured] = useState(false);
 
-  // ── Feature Flags (real toggles) ─────────────────────────────────────────────
+  // -- Feature Flags (real toggles) ---------------------------------------------
   const [featureFlags, setFeatureFlags] = useState<Record<string, boolean>>({
     'webgpu-shadows':   true,
     'tfjs-telemetry':   true,
@@ -295,7 +295,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     setFeatureFlags(prev => ({ ...prev, [id]: !prev[id] }));
   }
 
-  // ── Resource Monitor (live animated) ─────────────────────────────────────────
+  // -- Resource Monitor (live animated) -----------------------------------------
   const [resources, setResources] = useState({ cpu: 38, gpu: 62, mem: 54, vram: 41 });
   useEffect(() => {
     const id = setInterval(() => {
@@ -309,7 +309,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     return () => clearInterval(id);
   }, []);
 
-  // ── Benchmark Suite (runnable) ────────────────────────────────────────────────
+  // -- Benchmark Suite (runnable) ------------------------------------------------
   const [benchRunning, setBenchRunning] = useState(false);
   const [benchResults, setBenchResults] = useState<Array<{ name: string; score: string; unit: string }>>([]);
   const [benchSaveMsg, setBenchSaveMsg] = useState('');
@@ -330,7 +330,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     }
   }
 
-  // ── Daydream Persistence (Phase 8 §F, pts 49-53) ─────────────────────────────
+  // -- Daydream Persistence (Phase 8 §F, pts 49-53) -----------------------------
   // Saves and restores the LabEngin workspace state across sessions.
   type LabSavedState = {
     chartType?: ChartType;
@@ -364,14 +364,14 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
    
   }, [chartType, selectedMolecule, hypotheses, publishedResults, labRestoring]);
 
-  // ── Molecule data ────────────────────────────────────────────────────────────
+  // -- Molecule data ------------------------------------------------------------
   const MOLECULE_DATA: Record<string, string> = {
     'H2O':     'O\n H   H',
     'CO2':     'O=C=O',
     'C6H12O6': 'CH2OH-CHOH-CHOH-CHOH-CHOH-CHO\n(Glucose)',
   };
 
-  // ── Collab lab handler ───────────────────────────────────────────────────────
+  // -- Collab lab handler -------------------------------------------------------
   function handleStartCollabLab() {
     const code = Math.random().toString(36).slice(2, 8).toUpperCase();
     setCollabLabCode(code);
@@ -381,7 +381,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     );
   }
 
-  // ── Hypothesis handler ───────────────────────────────────────────────────────
+  // -- Hypothesis handler -------------------------------------------------------
   function handleGenerateHypotheses() {
     setHypothesisLoading(true);
     setHypotheses([]);
@@ -398,7 +398,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     }, 1200);
   }
 
-  // ── Molecule handler ─────────────────────────────────────────────────────────
+  // -- Molecule handler ---------------------------------------------------------
   function handleSelectMolecule(mol: string) {
     setSelectedMolecule(mol);
     setMoleculeDisplay(MOLECULE_DATA[mol] ?? '');
@@ -410,7 +410,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     );
   }
 
-  // ── Quantum measure handler ─────────────────────────────────────────────────
+  // -- Quantum measure handler -------------------------------------------------
   const [quantumRunning, setQuantumRunning] = useState(false);
   const [quantumResult, setQuantumResult]   = useState<QuantumMeasurementResult | null>(null);
   function handleQuantumMeasure(result?: QuantumMeasurementResult) {
@@ -431,7 +431,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     recordForgeTransfer('lab', 'code', 'quantum-result', 'Quantum circuit measurement → CodeEngin');
   }
 
-  // ── Dataset handler ──────────────────────────────────────────────────────────
+  // -- Dataset handler ----------------------------------------------------------
   function handleImportDataset(name: string) {
     setSelectedDataset(name);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
@@ -439,7 +439,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     );
   }
 
-  // ── Lab mode (tabs) ──────────────────────────────────────────────────────────
+  // -- Lab mode (tabs) ----------------------------------------------------------
   type LabMode = 'overview' | 'split' | 'viz' | 'forge';
   const [labMode, setLabMode]         = useState<LabMode>('overview');
   const [splitCode, setSplitCode]     = useState(`# Lab Dream — Split IDE\n# Select a simulation, then Run ▶\n\nimport numpy as np\ndata = np.array([1, 4, 9, 16, 25, 36, 49])\nprint("Mean:", data.mean())\nprint("Std: ", data.std().round(2))\nprint("\\n✅ Experiment complete")`);
@@ -479,7 +479,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     }, 140 * (i + 1)));
   }
 
-  // ── Publish result handler ───────────────────────────────────────────────────
+  // -- Publish result handler ---------------------------------------------------
   function handlePublishResult(title: string) {
     if (!title.trim()) return;
     setPublishingResult(true);
@@ -514,7 +514,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
     <ArtifactSlot artifactId="engin:lab">
     <div className="de-sky-bg min-h-screen">
 
-      {/* ── Header ── */}
+      {/* -- Header -- */}
       <header
         className="sticky top-0 z-30 backdrop-blur-xl"
         style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}
@@ -556,10 +556,10 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
         </div>
       </header>
 
-      {/* ── Body ── */}
+      {/* -- Body -- */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
 
-        {/* ── Mode tab bar ── */}
+        {/* -- Mode tab bar -- */}
         <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
           {([
             { id: 'overview' as LabMode, label: '🔬 Overview'      },
@@ -609,9 +609,9 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ════════════════════════════════════════
+        {/* ----------------------------------------
             MODE: Split Lab IDE
-            ════════════════════════════════════════ */}
+            ---------------------------------------- */}
         {labMode === 'split' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
@@ -740,9 +740,9 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         )}
 
-        {/* ════════════════════════════════════════
+        {/* ----------------------------------------
             MODE: Visualizations
-            ════════════════════════════════════════ */}
+            ---------------------------------------- */}
         {labMode === 'viz' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div className="de-widget">
@@ -843,21 +843,21 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         )}
 
-        {/* ════════════════════════════════════════
+        {/* ----------------------------------------
             MODE: Engin Forge
-            ════════════════════════════════════════ */}
+            ---------------------------------------- */}
         {labMode === 'forge' && (
           <div style={{ height: 'calc(100vh - 140px)', marginBottom: 14 }}>
             <ForgeDreamCanvas />
           </div>
         )}
 
-        {/* ════════════════════════════════════════
+        {/* ----------------------------------------
             MODE: Overview (existing widgets)
-            ════════════════════════════════════════ */}
+            ---------------------------------------- */}
         <div style={{ display: labMode === 'overview' ? 'block' : 'none' }}>
 
-        {/* ── Active Experiments (existing) ── */}
+        {/* -- Active Experiments (existing) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Active Experiments</span>
@@ -937,7 +937,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── Simulation Status (existing) ── */}
+        {/* -- Simulation Status (existing) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Simulation Status</span>
@@ -990,7 +990,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── NEW: Simulation Runner ── */}
+        {/* -- NEW: Simulation Runner -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Simulation Runner</span>
@@ -1075,7 +1075,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── NEW: Data Visualization Panel ── */}
+        {/* -- NEW: Data Visualization Panel -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Data Visualization</span>
@@ -1144,7 +1144,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── NEW: Cross-Engin Sync ── */}
+        {/* -- NEW: Cross-Engin Sync -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">Cross-Engin Sync</span>
@@ -1238,7 +1238,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── Stem Analysis — receives music:stem-ready from StarMakerEngin ── */}
+        {/* -- Stem Analysis — receives music:stem-ready from StarMakerEngin -- */}
         {labBridge.lastStem && (
           <div className="de-widget" style={{ marginTop: 14 }}>
             <div className="de-widget-header">
@@ -1290,7 +1290,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         )}
 
-        {/* ── Collab Lab ── */}
+        {/* -- Collab Lab -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <FlaskConical className="w-4 h-4" style={{ color: ACCENT }} />
@@ -1342,7 +1342,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           )}
         </div>
 
-        {/* ── AI Hypothesis Generator ── */}
+        {/* -- AI Hypothesis Generator -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Activity className="w-4 h-4" style={{ color: ACCENT }} />
@@ -1385,7 +1385,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── Molecule Viewer ── */}
+        {/* -- Molecule Viewer -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Code2 className="w-4 h-4" style={{ color: ACCENT }} />
@@ -1435,7 +1435,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── Dataset Browser ── */}
+        {/* -- Dataset Browser -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <BarChart2 className="w-4 h-4" style={{ color: ACCENT }} />
@@ -1481,7 +1481,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── Published Results ── */}
+        {/* -- Published Results -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Download className="w-4 h-4" style={{ color: ACCENT }} />
@@ -1546,7 +1546,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── Feature 11: WebGPU Compute Monitor ── */}
+        {/* -- Feature 11: WebGPU Compute Monitor -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Activity className="w-4 h-4 mr-1" style={{ color: '#8b5cf6' }} />
@@ -1577,7 +1577,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── Feature 12: Benchmark Suite (runs live) ── */}
+        {/* -- Feature 12: Benchmark Suite (runs live) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <BarChart2 className="w-4 h-4 mr-1" style={{ color: '#22c55e' }} />
@@ -1609,7 +1609,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── Feature 13: Parameter Sweep Tool ── */}
+        {/* -- Feature 13: Parameter Sweep Tool -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>🔢</span>
@@ -1642,7 +1642,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── Feature 14: Feature Flag Manager ── */}
+        {/* -- Feature 14: Feature Flag Manager -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>🏁</span>
@@ -1676,7 +1676,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── Feature 15: Version Control for Experiments ── */}
+        {/* -- Feature 15: Version Control for Experiments -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Code2 className="w-4 h-4 mr-1" style={{ color: '#2a8ab8' }} />
@@ -1701,7 +1701,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── Feature 16: Neural Network Visualizer ── */}
+        {/* -- Feature 16: Neural Network Visualizer -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>🧠</span>
@@ -1712,11 +1712,11 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
               Visual layer-by-layer inspection of TensorFlow.js models.
             </p>
             <div style={{ fontFamily: 'monospace', fontSize: 10, lineHeight: 1.8, color: 'var(--de-heading)', background: 'rgba(0,0,0,0.04)', borderRadius: 10, padding: '10px 12px' }}>
-              <span style={{ color: '#8b5cf6' }}>Input</span>     [784] ────────────────────▶<br />
-              <span style={{ color: '#6366f1' }}>Dense</span>    [128] ReLU ──────────────▶<br />
-              <span style={{ color: '#0ea5e9' }}>Dense</span>     [64] ReLU ───────────────▶<br />
-              <span style={{ color: '#22c55e' }}>Dropout</span>  [0.2] ───────────────────▶<br />
-              <span style={{ color: '#ec4899' }}>Output</span>    [10] Softmax ─────────▶ 🎯
+              <span style={{ color: '#8b5cf6' }}>Input</span>     [784] --------------------▶<br />
+              <span style={{ color: '#6366f1' }}>Dense</span>    [128] ReLU --------------▶<br />
+              <span style={{ color: '#0ea5e9' }}>Dense</span>     [64] ReLU ---------------▶<br />
+              <span style={{ color: '#22c55e' }}>Dropout</span>  [0.2] -------------------▶<br />
+              <span style={{ color: '#ec4899' }}>Output</span>    [10] Softmax ---------▶ 🎯
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 7, marginTop: 10 }}>
               {[
@@ -1733,7 +1733,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── Feature 17: Resource Monitor (live) ── */}
+        {/* -- Feature 17: Resource Monitor (live) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Activity className="w-4 h-4 mr-1" style={{ color: '#f59e0b' }} />
@@ -1760,7 +1760,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── Feature 18: Hypothesis Tracker ── */}
+        {/* -- Feature 18: Hypothesis Tracker -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <FlaskConical className="w-4 h-4 mr-1" style={{ color: '#22c55e' }} />
@@ -1785,7 +1785,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── Feature 19: CI/CD Integration ── */}
+        {/* -- Feature 19: CI/CD Integration -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Code2 className="w-4 h-4 mr-1" style={{ color: '#6366f1' }} />
@@ -1814,7 +1814,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── Feature 20: Quantum Circuit Simulator ── */}
+        {/* -- Feature 20: Quantum Circuit Simulator -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>⚛️</span>
@@ -1873,7 +1873,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           </div>
         </div>
 
-        {/* ── Engin Forge (Visual Engine Builder) ── */}
+        {/* -- Engin Forge (Visual Engine Builder) -- */}
         <div className="de-widget" style={{ margin: '14px 0' }}>
           <div className="de-widget-header">
             <Box className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -1910,7 +1910,7 @@ export default function LabEngin() { onBack, instanceId: instanceIdProp }: Props
           )}
         </div>
 
-        {/* ── Journey Trail ── */}
+        {/* -- Journey Trail -- */}
         <div className="de-widget" style={{ margin: '14px 0' }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Journey</span>

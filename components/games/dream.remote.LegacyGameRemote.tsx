@@ -30,7 +30,7 @@ import { useGamepad } from '@/lib/games/useGamepad';
 import { buildGameLaunchHref, DEFAULT_GAME_ID } from '@/lib/games/navigation';
 import { broadcastGameInput } from '@/lib/games/useRemoteChannel';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 export type GameInputAction =
   | 'move-left' | 'move-right' | 'move-up' | 'move-down'
   | 'move-up-left' | 'move-up-right' | 'move-down-left' | 'move-down-right'
@@ -46,7 +46,7 @@ function fireAction(action: GameInputAction, active: boolean) {
   broadcastGameInput(action, active);
 }
 
-// ── Constants ─────────────────────────────────────────────────────────────────
+// -- Constants -----------------------------------------------------------------
 const LEFT_PAD_R    = 52;   // outer pad radius (px)
 const RIGHT_PAD_R   = 70;   // right analog is intentionally larger for readability
 const LEFT_KNOB_R   = 15;   // inner knob radius
@@ -79,7 +79,7 @@ const RIGHT_STICK_RING_BUTTONS = [
   { sym: '△', label: 'Duck', action: 'duck' as GameInputAction, color: '#4ade80', top: 146, left: 72 },
 ] as const;
 
-// ── Direction helpers ─────────────────────────────────────────────────────────
+// -- Direction helpers ---------------------------------------------------------
 type Dir8 = 'right' | 'down-right' | 'down' | 'down-left' | 'left' | 'up-left' | 'up' | 'up-right';
 
 function angleToDir(dx: number, dy: number: Dir8 | null) {
@@ -102,7 +102,7 @@ function clampToCircle(v:) { x: number; y: number }, maxR: number {
   return d > maxR ? { x: (v.x / d) * maxR, y: (v.y / d) * maxR } : v;
 }
 
-// ── Mapping tables ────────────────────────────────────────────────────────────
+// -- Mapping tables ------------------------------------------------------------
 const RIGHT_MAP: Record<Dir8, { action: GameInputAction; label: string; sym: string; color: string }> = {
   'up':         { action: 'jump',       label: 'JUMP',       sym: '×',  color: '#38bdf8' },
   'down':       { action: 'duck',       label: 'DUCK',       sym: '△',  color: '#4ade80' },
@@ -125,7 +125,7 @@ const LEFT_MAP: Record<Dir8, { action: GameInputAction; label: string }> = {
   'down-right': { action: 'move-down-right', label: '↘'       },
 };
 
-// ── Single thumbstick ─────────────────────────────────────────────────────────
+// -- Single thumbstick ---------------------------------------------------------
 interface StickProps {
   side: 'left' | 'right';
   accentColor: string;
@@ -362,7 +362,7 @@ function Stick() {
   );
 }
 
-// ── GameRemote ────────────────────────────────────────────────────────────────
+// -- GameRemote ----------------------------------------------------------------
 interface GameRemoteProps {
   onBack?: () => void;
   embedded?: boolean;

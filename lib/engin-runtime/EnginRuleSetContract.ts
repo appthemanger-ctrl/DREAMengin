@@ -17,7 +17,7 @@
 import type { EnginBaseState } from './EnginBaseState';
 import type { EnginCapability } from './EnginCapabilities';
 
-// ─── Actions ─────────────────────────────────────────────────────────────────
+// --- Actions -----------------------------------------------------------------
 
 /** Discriminated union describing every action a rule-set can handle. */
 export interface EnginAction<Type extends string = string, Payload = unknown> {
@@ -25,7 +25,7 @@ export interface EnginAction<Type extends string = string, Payload = unknown> {
   payload?: Payload;
 }
 
-// ─── Rule-set parameters ──────────────────────────────────────────────────────
+// --- Rule-set parameters ------------------------------------------------------
 
 export interface EnginRuleSetParams {
   /** Canonical engine identifier. Must match the shell EngineId. */
@@ -40,7 +40,7 @@ export interface EnginRuleSetParams {
   [key: string]: unknown;
 }
 
-// ─── Constraint ───────────────────────────────────────────────────────────────
+// --- Constraint ---------------------------------------------------------------
 
 export interface ConstraintResult {
   valid: boolean;
@@ -54,7 +54,7 @@ export type EnginConstraint<A extends EnginAction = EnginAction> = (
   action: A,
 ) => ConstraintResult;
 
-// ─── Transform ────────────────────────────────────────────────────────────────
+// --- Transform ----------------------------------------------------------------
 
 /**
  * A transform function: pure mapping from current state + action to next state.
@@ -65,7 +65,7 @@ export type EnginTransform<A extends EnginAction = EnginAction> = (
   action: A,
 ) => EnginBaseState;
 
-// ─── Rule-set contract ────────────────────────────────────────────────────────
+// --- Rule-set contract --------------------------------------------------------
 
 /**
  * EnginRuleSetContract<A>

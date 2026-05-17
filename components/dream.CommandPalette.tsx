@@ -142,7 +142,7 @@ export default function CommandPalette() {
       action: () => router.push('/daydream/forge'),
       category: 'Daydreams',
     },
-    // ── Engine Apps (standalone full-screen shells) ─────────────────────────
+    // -- Engine Apps (standalone full-screen shells) -------------------------
     {
       id: 'engines-hub',
       label: 'Engines Hub',
@@ -351,7 +351,7 @@ export default function CommandPalette() {
     <div className="cmd-backdrop" onClick={() => setIsOpen(false)}>
       {/* Modal — stop propagation so clicks inside don't close */}
       <div className="cmd-modal" onClick={e => e.stopPropagation()} role="dialog" aria-label="Command palette" aria-modal="true">
-        {/* ── Search row ── */}
+        {/* -- Search row -- */}
         <div className="cmd-search-row">
           <Search className="cmd-search-icon" style={{ width: 18, height: 18 }} />
           <input
@@ -367,7 +367,7 @@ export default function CommandPalette() {
           <span className="cmd-kbd">ESC</span>
         </div>
 
-        {/* ── Results ── */}
+        {/* -- Results -- */}
         <div className="cmd-results" ref={listRef}>
           {filteredCommands.length === 0 ? (
             <div className="cmd-empty">
@@ -418,7 +418,7 @@ export default function CommandPalette() {
           )}
         </div>
 
-        {/* ── Footer ── */}
+        {/* -- Footer -- */}
         <div style={{
           display: 'flex',
           alignItems: 'center',

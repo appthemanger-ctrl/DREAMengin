@@ -23,7 +23,7 @@ import {
   runJourney,
 } from '@/lib/user-sim/userSimAgent';
 
-// ── Fixture helpers ───────────────────────────────────────────────────────────
+// -- Fixture helpers -----------------------------------------------------------
 
 let _stepCounter = 0;
 

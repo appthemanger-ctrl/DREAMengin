@@ -83,7 +83,7 @@ export default function HomeFeed() {
   const [selectedImages, setSelectedImages] = useState<{ file: File; preview: string }[]>([]);
   const [viewportWidth, setViewportWidth] = useState(1280);
   const imageInputRef = useRef<HTMLInputElement>(null);
-  // ── Inline comments state ─────────────────────────────────────────────────
+  // -- Inline comments state -------------------------------------------------
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
   const [commentsMap, setCommentsMap] = useState<Record<string, Comment[]>>({});
   const [commentLoadingSet, setCommentLoadingSet] = useState<Set<string>>(new Set());
@@ -325,7 +325,7 @@ export default function HomeFeed() {
 
   const isCompactEmbedded = embedded && isCompactRuntimeViewport(viewportWidth);
 
-  // ── Merge platform posts with YouTube live items ───────────────────────────
+  // -- Merge platform posts with YouTube live items ---------------------------
   // Insert 1 YouTube card after every 3 platform posts; remaining yt items
   // append at the end. YouTube items are stable across renders — only
   // ytPosts reference changes when the sliding window updates.
@@ -396,7 +396,7 @@ export default function HomeFeed() {
           </div>
         </div>
 
-        {/* ── YouTube feed refresh button ───────────────────────── */}
+        {/* -- YouTube feed refresh button ------------------------- */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8, flexShrink: 0 }}>
           <button
             type="button"
@@ -644,7 +644,7 @@ export default function HomeFeed() {
                     </button>
                   </div>
                 )}
-                {/* ── Inline comment thread ─────────────────────────────────────── */}
+                {/* -- Inline comment thread --------------------------------------- */}
                 {expandedComments.has(post.id) && (
                   <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(180,185,200,0.15)' }}>
                     {commentLoadingSet.has(post.id) ? (

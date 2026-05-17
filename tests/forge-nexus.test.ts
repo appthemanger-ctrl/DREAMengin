@@ -7,7 +7,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-// ── Mock localStorage ────────────────────────────────────────────────────────
+// -- Mock localStorage --------------------------------------------------------
 const localStorageStore: Record<string, string> = {};
 const localStorageMock = {
   getItem: (key: string) => localStorageStore[key] ?? null,
@@ -29,7 +29,7 @@ import {
 
 import { CREATIVE_ENGINES, FORGE_HISTORY_KEY } from '@/lib/forge/forgeRegistry';
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// -- Helpers ------------------------------------------------------------------
 
 function makeEntry(enginId: string, label: string, hoursAgo: number) {
   return {
@@ -43,7 +43,7 @@ function seedHistory(entries: Array<) { enginId: string; label: string; timestam
   localStorage.setItem(FORGE_HISTORY_KEY, JSON.stringify(entries));
 }
 
-// ── Tests ────────────────────────────────────────────────────────────────────
+// -- Tests --------------------------------------------------------------------
 
 describe('Forge Nexus', () => {
   beforeEach(() => {

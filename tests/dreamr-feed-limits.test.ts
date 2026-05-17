@@ -10,7 +10,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-// ── Helpers shared with the API logic ─────────────────────────────────────────
+// -- Helpers shared with the API logic -----------------------------------------
 
 /**
  * Simulates the profile feed composition algorithm:
@@ -72,7 +72,7 @@ function filterCloseFriendsPosts(
   });
 }
 
-// ── Feed limit tests ───────────────────────────────────────────────────────────
+// -- Feed limit tests -----------------------------------------------------------
 
 describe('Main feed hard cap', () => {
   it('allows requesting up to 500 posts', () => {

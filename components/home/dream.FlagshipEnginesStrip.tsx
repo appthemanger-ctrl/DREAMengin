@@ -98,7 +98,7 @@ export default function FlagshipEnginesStrip() {
         overflow: 'hidden',
       }}
     >
-      {/* ── Header ── */}
+      {/* -- Header -- */}
       <div
         style={{
           display: 'flex',
@@ -173,7 +173,7 @@ export default function FlagshipEnginesStrip() {
         </button>
       </div>
 
-      {/* ── Flagship cards ── */}
+      {/* -- Flagship cards -- */}
       <div
         style={{
           display: 'grid',
@@ -296,7 +296,7 @@ export default function FlagshipEnginesStrip() {
         ))}
       </div>
 
-      {/* ── DREAMfield-mini momentum read-out ── */}
+      {/* -- DREAMfield-mini momentum read-out -- */}
       <div
         style={{
           margin: '0 14px 14px',

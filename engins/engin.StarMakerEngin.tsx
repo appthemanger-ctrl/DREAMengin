@@ -111,7 +111,7 @@ type PersistedLedgerAudio = {
   mimeType: string;
 };
 
-// ─── Props ─────────────────────────────────────────────────────────────────────
+// --- Props ---------------------------------------------------------------------
 
 interface Props {
   onBack: () => void;
@@ -119,7 +119,7 @@ interface Props {
   instanceId?: string;
 }
 
-// ─── Domain interfaces ─────────────────────────────────────────────────────────
+// --- Domain interfaces ---------------------------------------------------------
 
 interface MusicRelease {
   id: string;
@@ -150,7 +150,7 @@ interface StemReadyState {
 
 type StemKey = keyof StemReadyState;
 
-// ─── Constants ─────────────────────────────────────────────────────────────────
+// --- Constants -----------------------------------------------------------------
 
 const ACCENT = '#2a8ab8';
 // const ACCENT_LEGACY = '#a855f7'; // old purple — kept for reference
@@ -214,7 +214,7 @@ const STEM_LIST: { key: StemKey; label: string }[] = [
   { key: 'other',  label: 'Other'  },
 ];
 
-// ─── Pure helpers ──────────────────────────────────────────────────────────────
+// --- Pure helpers --------------------------------------------------------------
 
 function createEmptyBeatGrid(: BeatGrid) {
   return Array.from({ length: BEAT_CHANNELS.length }, () =>
@@ -250,7 +250,7 @@ function getChordRootFrequency(
   return (NOTE_FREQUENCIES[rootNote] ?? NOTE_FREQUENCIES[musicalKey] ?? 261.63) * Math.pow(2, pitch / 12);
 }
 
-// ─── Shared style object (BPM stepper buttons) ─────────────────────────────────
+// --- Shared style object (BPM stepper buttons) ---------------------------------
 
 const bpmBtnStyle: React.CSSProperties = {
   padding: '4px 8px',
@@ -265,13 +265,13 @@ const bpmBtnStyle: React.CSSProperties = {
   lineHeight: 1,
 };
 
-// ─── Root component ────────────────────────────────────────────────────────────
+// --- Root component ------------------------------------------------------------
 
 export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }: Props {
   const starBridge = useStarMakerEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'music' });
 
-  // ── Stable instance ID for the runtime channel (solo or co-op) ──
+  // -- Stable instance ID for the runtime channel (solo or co-op) --
   const [instanceId] = useState(
     () => instanceIdProp ?? (
       typeof crypto !== 'undefined' && crypto.randomUUID
@@ -280,34 +280,34 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
     ),
   );
 
-  // ── OS Shell: upgradeEngine wiring ──
+  // -- OS Shell: upgradeEngine wiring --
   const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
   useEffect(() => {
     upgradeEngine({ id: 'starmaker', name: 'StarMakerEngin' }, ['bridge', 'telemetry'])
       .then(upgraded => { osRef.current = upgraded; });
   }, []);
 
-  // ── OS Shell: local event bus for module-to-module messaging ──
+  // -- OS Shell: local event bus for module-to-module messaging --
   const busRef = useRef(createEventBus());
 
-  // ── EnginRuntime kernel (music rule-set) ──
+  // -- EnginRuntime kernel (music rule-set) --
   const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useStarMakerEnginRuntime();
 
-  // ── Workflow (music:beat-composition — default workflow) ──
+  // -- Workflow (music:beat-composition — default workflow) --
   const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
   useEffect(() => { loadWorkflow('music:beat-composition'); }, [loadWorkflow]);
 
-  // ── Part 2 additions: 3D Visualizer, Fingerprint Isolate, Shared Dream ──
+  // -- Part 2 additions: 3D Visualizer, Fingerprint Isolate, Shared Dream --
   const [show3DVisualizer, setShow3DVisualizer] = useState(false);
   const [isolateActive, setIsolateActive]       = useState(false);
   const [sharedDreamId]                         = useState(() => `music-${Date.now()}`);
   const [showSharedDream, setShowSharedDream]   = useState(false);
   const sharedDream = useSharedDream(showSharedDream ? sharedDreamId : '');
 
-  // ── Daydream state persistence (Phase 8 §F Point 51) ──
+  // -- Daydream state persistence (Phase 8 §F Point 51) --
   const { persistState } = useDaydreamState({ daydreamType: 'music', side: 'B' });
 
-  // ── Daydream DB persistence with restore (Phase 8 §F pts 49, 51) ──
+  // -- Daydream DB persistence with restore (Phase 8 §F pts 49, 51) --
   type StarMakerState = {
     bpm?: number;
     musicalKey?: MusicalKey;
@@ -324,37 +324,37 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
   const musicRestoredRef = useRef(false);
   const [persistedLedgerAudio, setPersistedLedgerAudio] = useState<PersistedLedgerAudio | null>(null);
 
-  // ── Supabase releases state ──
+  // -- Supabase releases state --
   const [releases,   setReleases]   = useState<MusicRelease[]>([]);
   const [loading,    setLoading]    = useState(true);
   const [publishing, setPublishing] = useState<string | null>(null);
 
-  // ── Beat Maker state ──
+  // -- Beat Maker state --
   const [beatGrid, setBeatGrid] = useState<BeatGrid>(createEmptyBeatGrid);
   const [bpm,      setBpm]      = useState(120);
   const [qualityMode, setQualityMode] = useState<PlaybackQualityMode>('studio');
 
-  // ── Mixing Board state ──
+  // -- Mixing Board state --
   const [mixer, setMixer] = useState<MixerState>({
     vocals: 80, instruments: 75, bass: 70, fx: 50,
   });
 
-  // ── Sound Effects state ──
+  // -- Sound Effects state --
   const [activeEffects, setActiveEffects] = useState<Set<EffectName>>(new Set());
 
-  // ── Key / Mode state ──
+  // -- Key / Mode state --
   const [musicalKey, setMusicalKey] = useState<MusicalKey>('C');
   const [keyMode,    setKeyMode]    = useState<'major' | 'minor'>('major');
 
-  // ── Pitch state ──
+  // -- Pitch state --
   const [pitch, setPitch] = useState(0);
 
-  // ── Stem Export state ──
+  // -- Stem Export state --
   const [stemReady,     setStemReady]     = useState<StemReadyState>({ vocals: false, drums: false, bass: false, other: false });
   const [exportPending, setExportPending] = useState(false);
   const [exportDone,    setExportDone]    = useState(false);
 
-  // ── Restore workspace state from DB once on mount ──
+  // -- Restore workspace state from DB once on mount --
   useEffect(() => {
     if (musicRestoring || musicRestoredRef.current || !savedMusicState) return;
     musicRestoredRef.current = true;
@@ -365,7 +365,7 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
     setPersistedLedgerAudio(savedMusicState.ledgerAudio ?? null);
   }, [musicRestoring, savedMusicState]);
 
-  // ── Persist creative workspace state to Supabase (Phase 8 §F Point 51) ──
+  // -- Persist creative workspace state to Supabase (Phase 8 §F Point 51) --
   useEffect(() => {
     if (musicRestoring) return;
     persistState({ side: 'B', bpm, musicalKey, keyMode, pitch, ledgerAudio: persistedLedgerAudio });
@@ -373,7 +373,7 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
    
   }, [bpm, musicalKey, keyMode, pitch, musicRestoring, persistedLedgerAudio]);
 
-  // ── Supabase: fetch releases (defence-in-depth owner_id filter; RLS enforced server-side) ──
+  // -- Supabase: fetch releases (defence-in-depth owner_id filter; RLS enforced server-side) --
   useEffect(() => {
     let cancelled = false;
     const supabase = createClient();
@@ -398,7 +398,7 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
     return () => { cancelled = true; };
   }, []);
 
-  // ── Supabase: publish draft ──
+  // -- Supabase: publish draft --
   async function handlePublish(releaseId: string) {
     setPublishing(releaseId);
     forgeRecord('Published release');
@@ -416,12 +416,12 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
     setPublishing(null);
   }
 
-  // ── Audio preview ref for beat-cell clicks (forward-ref pattern) ──
+  // -- Audio preview ref for beat-cell clicks (forward-ref pattern) --
   // triggerPreviewVoice is defined later in this file; we use a ref so
   // toggleBeat (which must precede it) can still invoke it at call time.
   const triggerVoiceRef = useRef<((ch: number, step: number) => void) | null>(null);
 
-  // ── Beat grid toggle ──
+  // -- Beat grid toggle --
   const toggleBeat = useCallback((chIdx: number, stepIdx: number) => {
     triggerVoiceRef.current?.(chIdx, stepIdx);
     setBeatGrid(prev => {
@@ -431,7 +431,7 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
     });
   }, []);
 
-  // ── BPM handlers ──
+  // -- BPM handlers --
   const changeBpm = useCallback((delta: number) => {
     setBpm(prev => clamp(prev + delta, 60, 180));
   }, []);
@@ -441,12 +441,12 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
     if (!isNaN(v)) setBpm(clamp(v, 60, 180));
   }, []);
 
-  // ── Mixer fader ──
+  // -- Mixer fader --
   const handleMixerChange = useCallback((ch: keyof MixerState, value: number) => {
     setMixer(prev => ({ ...prev, [ch]: value }));
   }, []);
 
-  // ── Effect toggle ──
+  // -- Effect toggle --
   const toggleEffect = useCallback((effect: EffectName) => {
     setActiveEffects(prev => {
       const next = new Set(prev);
@@ -455,13 +455,13 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
     });
   }, []);
 
-  // ── Stem toggle ──
+  // -- Stem toggle --
   const toggleStem = useCallback((key: StemKey) => {
     setStemReady(prev => ({ ...prev, [key]: !prev[key] }));
     setExportDone(false);
   }, []);
 
-  // ── Stem export — emits bridge events for each ready stem and writes to music_outputs ──
+  // -- Stem export — emits bridge events for each ready stem and writes to music_outputs --
   const handlePrepareExport = useCallback(async () => {
     const ready = STEM_LIST.filter(({ key }) => stemReady[key]);
     if (ready.length === 0) return;
@@ -529,25 +529,25 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
     recordForgeTransfer('music', 'create', 'audio-stems', 'StarMaker stems → CreateEngin');
   }, [stemReady, beatGrid, bpm, musicalKey, keyMode, mixer, activeEffects]);
 
-  // ── Waveform Visualizer state ──
+  // -- Waveform Visualizer state --
   const [waveformBars, setWaveformBars] = useState<number[]>(() =>
     Array.from({ length: 32 }, () => 0.2 + Math.random() * 0.8)
   );
   const [waveformRecording, setWaveformRecording] = useState(false);
 
-  // ── Chord Builder state ──
+  // -- Chord Builder state --
   const [chordProgression, setChordProgression] = useState<string[]>(['Cmaj', 'Amin', 'Fmaj', 'Gmaj']);
   const [chordPlaying, setChordPlaying] = useState<number | null>(null);
 
-  // ── AI Melody Suggestions state ──
+  // -- AI Melody Suggestions state --
   const [melodyLoading, setMelodyLoading] = useState(false);
   const [melodySuggestions, setMelodySuggestions] = useState<MelodySuggestion[]>([]);
 
-  // ── Collab Studio state ──
+  // -- Collab Studio state --
   const [collabActive, setCollabActive] = useState(false);
   const [collabCode, setCollabCode] = useState('');
 
-  // ── Playlist Manager state ──
+  // -- Playlist Manager state --
   const [playlist, setPlaylist] = useState<Array<{ id: string; title: string; duration: string }>>([
     { id: 'pl-1', title: 'Summer Vibes', duration: '3:24' },
     { id: 'pl-2', title: 'Night Drive', duration: '4:01' },
@@ -557,29 +557,29 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
   const [playbackStep, setPlaybackStep] = useState(0);
   const audioContextRef = useRef<AudioContext | null>(null);
 
-  // ── Preset Library state ──
+  // -- Preset Library state --
   const [presetGenreFilter, setPresetGenreFilter] = useState<string>('All');
   const [activePresetId,    setActivePresetId]    = useState<string | null>(null);
   const [activeTemplateId,  setActiveTemplateId]  = useState<string | null>(null);
   const [presetApplied,     setPresetApplied]     = useState(false);
 
-  // ── External load request: fires when SoundRecorder sends a recording here ──
+  // -- External load request: fires when SoundRecorder sends a recording here --
   const [externalLoadRequest, setExternalLoadRequest] = useState<{
     blob: Blob; name: string; mimeType: string;
   } | null>(null);
 
-  // ── Piano Roll state ──
+  // -- Piano Roll state --
   const [pianoRollState, setPianoRollState] = useState<PianoRollState>(PIANO_ROLL_DEFAULTS);
 
-  // ── Comping / Takes state ──
+  // -- Comping / Takes state --
   const [compingState, setCompingState] = useState<CompingState>(() => createInitialCompingState(3));
 
-  // ── Session View state ──
+  // -- Session View state --
   const [sessionViewState, setSessionViewState] = useState<SessionViewState>(createInitialSessionView);
 
   const effectList = useMemo(() => Array.from(activeEffects), [activeEffects]);
 
-  // ── Co-op channel — broadcasts session state; solo by default ──────────────
+  // -- Co-op channel — broadcasts session state; solo by default --------------
   const coopStateSnapshot = useCallback(() => ({
     type: 'starmaker:state' as const,
     bpm, musicalKey, keyMode, pitch, beatGrid, mixer, effectList,
@@ -786,7 +786,7 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
     }
   }, []);
 
-  // ── Waveform toggle handler ──
+  // -- Waveform toggle handler --
   function handleWaveformToggle() {
     const next = !waveformRecording;
     setWaveformRecording(next);
@@ -819,7 +819,7 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
     );
   }
 
-  // ── Chord play handler ──
+  // -- Chord play handler --
   function handleChordPlay(index: number) {
     setChordPlaying(index);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
@@ -828,7 +828,7 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
     setTimeout(() => setChordPlaying(prev => prev === index ? null : prev), 1000);
   }
 
-  // ── Melody ask handler ──
+  // -- Melody ask handler --
   function handleMelodyAsk() {
     setMelodyLoading(true);
     setMelodySuggestions([]);
@@ -848,7 +848,7 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
     }, 1200);
   }
 
-  // ── Collab toggle handler ──
+  // -- Collab toggle handler --
   function handleCollabToggle() {
     if (!collabActive) {
       const code = Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -862,7 +862,7 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
     setCollabActive(prev => !prev);
   }
 
-  // ── Playlist reorder handler ──
+  // -- Playlist reorder handler --
   function movePlaylistItem(index: number, direction: 'up' | 'down') {
     setPlaylist(prev => {
       const next = [...prev];
@@ -880,7 +880,7 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
     );
   }
 
-  // ── Preset Library handlers ──
+  // -- Preset Library handlers --
   function handleApplyPreset(preset: BeatPreset) {
     setBeatGrid(preset.grid.map(row => [...row]));
     setBpm(clamp(preset.bpm, 60, 180));
@@ -912,7 +912,7 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
     setActiveTemplateId(tmpl.id);
   }
 
-  // ── Listen for recordings sent from SoundRecorder via CustomEvent ──
+  // -- Listen for recordings sent from SoundRecorder via CustomEvent --
   useEffect(() => {
     function handleRecordingEvent(e: Event) {
       const detail = (e as CustomEvent<{ blob: Blob; name: string; mimeType: string }>).detail;
@@ -922,7 +922,7 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
     return () => window.removeEventListener('starmaker:load-recording', handleRecordingEvent);
   }, []);
 
-  // ── Project snapshot for JSON export (passed to DAWFileIOPanel) ──
+  // -- Project snapshot for JSON export (passed to DAWFileIOPanel) --
   const projectSnapshot = useMemo(() => ({
     version: '1.0',
     bpm,
@@ -938,7 +938,7 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
   }), [bpm, musicalKey, keyMode, pitch, beatGrid, mixer, activeEffects, chordProgression, qualityMode, activePresetId]);
 
 
-  // ── Render ────────────────────────────────────────────────────────────────────
+  // -- Render --------------------------------------------------------------------
 
   return (
     <ArtifactSlot artifactId="engin:music">
@@ -1004,21 +1004,21 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
           onToggleEffect={toggleEffect}
         />
 
-        {/* ── Piano Roll MIDI Editor ── */}
+        {/* -- Piano Roll MIDI Editor -- */}
         <PianoRollPanel
           state={pianoRollState}
           bpm={bpm}
           onStateChange={setPianoRollState}
         />
 
-        {/* ── Session View (Ableton-style clip launcher) ── */}
+        {/* -- Session View (Ableton-style clip launcher) -- */}
         <SessionViewPanel
           state={sessionViewState}
           bpm={bpm}
           onStateChange={setSessionViewState}
         />
 
-        {/* ── Comping / Takes Manager (Pro Tools-style) ── */}
+        {/* -- Comping / Takes Manager (Pro Tools-style) -- */}
         <CompingPanel
           state={compingState}
           onStateChange={setCompingState}
@@ -1069,7 +1069,7 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
           onPlaylistSave={handleSavePlaylist}
         />
 
-        {/* ── NEW: Preset Library ── */}
+        {/* -- NEW: Preset Library -- */}
         <DAWPresetLibraryPanel
           genreFilter={presetGenreFilter}
           activePresetId={activePresetId}
@@ -1081,7 +1081,7 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
           onApplyTemplate={handleApplyTemplate}
         />
 
-        {/* ── NEW: File Import / Export ── */}
+        {/* -- NEW: File Import / Export -- */}
         <DAWFileIOPanel
           bpm={bpm}
           externalLoad={externalLoadRequest}
@@ -1091,7 +1091,7 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
           onLedgerAudioChange={setPersistedLedgerAudio}
         />
 
-        {/* ── OS Tools: 3D Visualizer · Fingerprint Isolate · Shared Dream ── */}
+        {/* -- OS Tools: 3D Visualizer · Fingerprint Isolate · Shared Dream -- */}
         <div style={{ background: DAW.surface, borderBottom: `1px solid ${DAW.border}` }}>
           <div style={{ ...DAW_STYLES.sectionHeader }}>
             <Sparkles className="w-3 h-3" style={{ color: DAW.accent }} />
@@ -1185,7 +1185,7 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
           )}
         </div>
 
-        {/* ── Journey Trail ── */}
+        {/* -- Journey Trail -- */}
         <div style={{ background: DAW.surface, borderBottom: `1px solid ${DAW.border}` }}>
           <div style={{ ...DAW_STYLES.sectionHeader }}>
             <Sparkles className="w-3 h-3" style={{ color: DAW.accent }} />
@@ -1202,9 +1202,9 @@ export default function StarMakerEngin() { onBack, instanceId: instanceIdProp }:
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // DAW Design Tokens
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 const DAW = {
   bg:          '#0d0f17',
@@ -1298,9 +1298,9 @@ const dawDisclosureTrayStyle: React.CSSProperties = {
   boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.32)',
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Track definitions (multi-track timeline)
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 const STEM_TRACK_DEFS = [
   { key: 'original', label: 'Original Audio', color: '#00bcd4', icon: '🎵' },
@@ -1312,9 +1312,9 @@ const STEM_TRACK_DEFS = [
   { key: 'other',    label: 'Other',          color: '#7870e0', icon: '✨' },
 ] as const;
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // DAW Transport Bar
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 interface DAWTransportBarProps {
   bpm: number;
@@ -1448,9 +1448,9 @@ function DAWTransportBar() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // DAW Multi-Track Panel
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 interface DAWMultiTrackPanelProps {
   mixer: MixerState;
@@ -1585,9 +1585,9 @@ function DAWMultiTrackPanel() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // DAW Stem Splitter Panel
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 const STEM_SPLITTER_DEFS: Array<{ key: StemKey; label: string; icon: string; color: string }> = [
   { key: 'vocals', label: 'Vocals', icon: '🎤', color: '#00d0c8' },
@@ -1752,9 +1752,9 @@ function DAWStemSplitterPanel() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // DAW Pattern Sequencer
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 const ARRANGEMENT_SECTIONS = [
   { label: 'Trap Beat 1',           color: '#00bcd4', width: 2 },
@@ -1985,9 +1985,9 @@ function DAWPatternSequencer() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // DAW Mixer + Effects Panel
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 interface DAWMixerEffectsPanelProps {
   mixer: MixerState;
@@ -2104,9 +2104,9 @@ function DAWMixerEffectsPanel() { mixer, activeEffects: Record<string, unknown>,
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // DAW Key / Pitch Panel
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 interface DAWKeyPitchPanelProps {
   bpm: number;
@@ -2238,9 +2238,9 @@ function DAWKeyPitchPanel() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // DAW Chord + Melody Panel
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 const COMMON_CHORDS_DAW = [
   'Cmaj','Cmin','Dmaj','Dmin','Emaj','Emin',
@@ -2334,9 +2334,9 @@ function DAWChordMelodyPanel() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // DAW Release Panel
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 interface DAWReleasePanelProps {
   strategy: ReturnType<typeof buildReleaseStrategy>;
@@ -2431,9 +2431,9 @@ function DAWReleasePanel() { strategy, releases: Record<string, unknown>, loadin
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // DAW Collab + Playlist Panel
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 interface DAWCollabPlaylistPanelProps {
   collabActive: boolean;
@@ -2547,9 +2547,9 @@ function DAWCollabPlaylistPanel() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Sub-component: DAWPresetLibraryPanel
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 interface DAWPresetLibraryPanelProps {
   genreFilter:      string;
@@ -2767,9 +2767,9 @@ function DAWPresetLibraryPanel() {
 }
 
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // WAV encoder — convert AudioBuffer to downloadable WAV blob
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 function encodeWav(buffer: AudioBuffer: Blob) {
   const numCh = buffer.numberOfChannels;
@@ -2796,7 +2796,7 @@ function encodeWav(buffer: AudioBuffer: Blob) {
   return new Blob([ab], { type: 'audio/wav' });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Sub-component: DAWFileIOPanel — Full DAW Sample Editor
 //   • Self-contained: owns file input, AudioContext, AudioBuffer, playback
 //   • Transport: Play/Pause/Stop/Loop + Volume
@@ -2807,7 +2807,7 @@ function encodeWav(buffer: AudioBuffer: Blob) {
 //   • Hover tooltip showing time position
 //   • Sample operations: Trim, Fade In, Fade Out, Normalize, Reverse, Silence
 //   • Receives SoundRecorder recordings via `externalLoad` prop
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 interface DAWFileIOPanelProps {
   bpm: number;
@@ -2896,7 +2896,7 @@ function DAWFileIOPanel() {
   onExternalLoadConsumed,
   onLedgerAudioChange,
 }: DAWFileIOPanelProps) {
-  // ── Audio state ──
+  // -- Audio state --
   const [fileName,      setFileName]      = useState<string | null>(null);
   const [fileSize,      setFileSize]       = useState(0);
   const [duration,      setDuration]       = useState(0);
@@ -2907,24 +2907,24 @@ function DAWFileIOPanel() {
   const [isImporting,   setIsImporting]    = useState(false);
   const [importErr,     setImportErr]      = useState<string | null>(null);
 
-  // ── Playback state ──
+  // -- Playback state --
   const [isPlaying,     setIsPlaying]      = useState(false);
   const [isLooping,     setIsLooping]      = useState(false);
   const [selectionLoop, setSelectionLoop]  = useState(false);
   const [volume,        setVolume]         = useState(0.85);
   const [playPos,       setPlayPos]        = useState(0);   // 0-1
 
-  // ── Zoom ──
+  // -- Zoom --
   const [zoomLevel,     setZoomLevel]      = useState(1);
 
-  // ── Waveform interaction ──
+  // -- Waveform interaction --
   const [hoveredBar,    setHoveredBar]     = useState<number | null>(null);
   const [selStart,      setSelStart]       = useState<number | null>(null);   // bar indices
   const [selEnd,        setSelEnd]         = useState<number | null>(null);
   const [isDragging,    setIsDragging]     = useState(false);
   const [dragAnchor,    setDragAnchor]     = useState<number | null>(null);
 
-  // ── Operation feedback ──
+  // -- Operation feedback --
   const [opMsg,         setOpMsg]          = useState<string | null>(null);
   const [opPending,     setOpPending]      = useState(false);
   const [historyTick,   setHistoryTick]    = useState(0);
@@ -2938,7 +2938,7 @@ function DAWFileIOPanel() {
   const [arrLooping, setArrLooping]        = useState(true);
   const [arrPlayheadBar, setArrPlayheadBar] = useState(0);
 
-  // ── Refs ──
+  // -- Refs --
   const fileInputRef    = useRef<HTMLInputElement | null>(null);
   const waveformScrollRef = useRef<HTMLDivElement | null>(null);
   const audioRef        = useRef<HTMLAudioElement | null>(null);
@@ -2956,25 +2956,25 @@ function DAWFileIOPanel() {
   const arrangementPlayheadRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const restoringLedgerAudioRef = useRef(false);
 
-  // ── 3D Visualizer + Fingerprint isolation refs (real AudioContext wiring) ──
+  // -- 3D Visualizer + Fingerprint isolation refs (real AudioContext wiring) --
   const analyserRef    = useRef<AnalyserNode | null>(null);
   const mediaSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
   const peakMapRef     = useRef<PeakMap | null>(null);
   const isolatorRef    = useRef(createFingerprintIsolator());
   const [show3DVisualizerFIO, setShow3DVisualizerFIO] = useState(false);
 
-  // ── Helper: get/create OfflineAudioContext for processing ──
+  // -- Helper: get/create OfflineAudioContext for processing --
   function getOfflineCtx(length: number, sr: number, ch: number) {
     return new OfflineAudioContext(ch, length, sr);
   }
 
-  // ── Helper: show operation message ──
+  // -- Helper: show operation message --
   function showOpMsg(msg: string) {
     setOpMsg(msg);
     setTimeout(() => setOpMsg(null), 3500);
   }
 
-  // ── Helper: wire AnalyserNode to the current audio element ──
+  // -- Helper: wire AnalyserNode to the current audio element --
   function ensureAnalyserFIO(: AnalyserNode | null) {
     const audio = audioRef.current;
     if (!audio) return null;
@@ -3001,7 +3001,7 @@ function DAWFileIOPanel() {
     return analyserRef.current;
   }
 
-  // ── Handler: Isolate Sound — builds peak map ref and opens 3D visualizer ──
+  // -- Handler: Isolate Sound — builds peak map ref and opens 3D visualizer --
   function handleIsolateSoundFIO() {
     const pm = peakMapRef.current;
     if (!pm) { showOpMsg('⚠ Load audio first to isolate sounds'); return; }
@@ -3011,7 +3011,7 @@ function DAWFileIOPanel() {
     showOpMsg('Tap a frequency peak in the 3D visualizer to record a reference fingerprint');
   }
 
-  // ── Helper: download a blob ──
+  // -- Helper: download a blob --
   function downloadBlob(blob: Blob, name: string) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -3140,7 +3140,7 @@ function DAWFileIOPanel() {
     if (resetPlayhead) setArrPlayheadBar(0);
   }
 
-  // ── Load blob (from file input or external recording) ──
+  // -- Load blob (from file input or external recording) --
   const syncLedgerAudio = useCallback(async (blob: Blob, name: string) => {
     try {
       const supabase = createClient();
@@ -3350,7 +3350,7 @@ function DAWFileIOPanel() {
     startArrangementPlayback();
   }, [arrPlaying, startArrangementPlayback]);
 
-  // ── React to external load (from SoundRecorder "Send to Editor") ──
+  // -- React to external load (from SoundRecorder "Send to Editor") --
   useEffect(() => {
     if (!externalLoad) return;
     loadBlob(externalLoad.blob, externalLoad.name);
@@ -3381,7 +3381,7 @@ function DAWFileIOPanel() {
     return () => controller.abort();
   }, [fileName, loadBlob, persistedLedgerAudio]);
 
-  // ── Sync loop/volume to audio element ──
+  // -- Sync loop/volume to audio element --
   useEffect(() => {
     if (audioRef.current) { audioRef.current.loop = isLooping && playbackMode === 'full'; }
   }, [isLooping, playbackMode]);
@@ -3389,7 +3389,7 @@ function DAWFileIOPanel() {
     if (audioRef.current) { audioRef.current.volume = volume; }
   }, [volume]);
 
-  // ── Playback animation ──
+  // -- Playback animation --
   const animatePlayback = useCallback(() => {
     const audio = audioRef.current;
     if (!audio || audio.paused) return;
@@ -3450,7 +3450,7 @@ function DAWFileIOPanel() {
     });
   }, [animatePlayback, selEnd, selStart, waveform.length]);
 
-  // ── Keyboard shortcuts for faster DAW workflow ──
+  // -- Keyboard shortcuts for faster DAW workflow --
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       const target = e.target as HTMLElement | null;
@@ -3505,7 +3505,7 @@ function DAWFileIOPanel() {
     zoomToSelection,
   ]);
 
-  // ── Transport: Play / Pause ──
+  // -- Transport: Play / Pause --
   function togglePlay() {
     const audio = audioRef.current;
     if (!audio || !fileName) return;
@@ -3529,7 +3529,7 @@ function DAWFileIOPanel() {
     }
   }
 
-  // ── Transport: Stop ──
+  // -- Transport: Stop --
   function handleStop() {
     const audio = audioRef.current;
     if (!audio) return;
@@ -3541,7 +3541,7 @@ function DAWFileIOPanel() {
     cancelAnimationFrame(playRafRef.current);
   }
 
-  // ── Seek from progress bar click ──
+  // -- Seek from progress bar click --
   function handleSeekBar(e: React.MouseEvent<HTMLDivElement>) {
     const audio = audioRef.current;
     if (!audio || !audio.duration) return;
@@ -3551,7 +3551,7 @@ function DAWFileIOPanel() {
     setPlayPos(pct);
   }
 
-  // ── Waveform: click to seek + drag to select ──
+  // -- Waveform: click to seek + drag to select --
   function handleBarMouseDown(barIdx: number, e: React.MouseEvent) {
     e.preventDefault();
     setDragAnchor(barIdx);
@@ -3578,7 +3578,7 @@ function DAWFileIOPanel() {
     setIsDragging(false);
   }
 
-  // ── Sample operation helpers ──
+  // -- Sample operation helpers --
 
   function getSelectionBuffer(: AudioBuffer | null) {
     const buf = audioBufRef.current;
@@ -3769,7 +3769,7 @@ function DAWFileIOPanel() {
     recordForgeTransfer('music', 'games', 'beat-pattern', 'StarMaker beat pattern → GameEngin');
   }
 
-  // ── Cleanup ──
+  // -- Cleanup --
   useEffect(() => {
     return () => {
       stopArrangementPlayback();
@@ -3784,7 +3784,7 @@ function DAWFileIOPanel() {
    
   }, []);
 
-  // ── Computed display values ──
+  // -- Computed display values --
   const barWidth = Math.max(3, Math.round(4 * zoomLevel));
   const playheadBar = Math.floor(playPos * waveform.length);
 
@@ -3808,7 +3808,7 @@ function DAWFileIOPanel() {
       onMouseUp={handleBarMouseUp}
       onMouseLeave={() => { handleBarMouseUp(); setHoveredBar(null); }}>
 
-      {/* ── Header ── */}
+      {/* -- Header -- */}
       <div style={{ ...DAW_STYLES.sectionHeader, justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <FileAudio className="w-3 h-3" style={{ color: DAW.accent }} />
@@ -3821,7 +3821,7 @@ function DAWFileIOPanel() {
 
       <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 12 }}>
 
-        {/* ── Import / Export buttons ── */}
+        {/* -- Import / Export buttons -- */}
         <div style={{ display: 'flex', gap: 8 }}>
           <button type="button" onClick={() => fileInputRef.current?.click()}
             disabled={isImporting}
@@ -3871,7 +3871,7 @@ function DAWFileIOPanel() {
           }}
         />
 
-        {/* ── Error / status messages ── */}
+        {/* -- Error / status messages -- */}
         {importErr && (
           <div style={{
             padding: '8px 12px', borderRadius: 8, fontSize: 11, fontWeight: 600, lineHeight: 1.5,
@@ -3887,7 +3887,7 @@ function DAWFileIOPanel() {
           }}>{opMsg}</div>
         )}
 
-        {/* ── File metadata ── */}
+        {/* -- File metadata -- */}
         {hasAudio && (
           <div style={{
             padding: '8px 12px', borderRadius: 8,
@@ -3909,7 +3909,7 @@ function DAWFileIOPanel() {
           </div>
         )}
 
-        {/* ── Production stats ── */}
+        {/* -- Production stats -- */}
         {hasAudio && audioStats && (
           <div style={{
             padding: '8px 12px', borderRadius: 8,
@@ -3929,7 +3929,7 @@ function DAWFileIOPanel() {
           </div>
         )}
 
-        {/* ── Transport controls ── */}
+        {/* -- Transport controls -- */}
         {hasAudio && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {/* Transport row */}
@@ -4105,7 +4105,7 @@ function DAWFileIOPanel() {
           </div>
         )}
 
-        {/* ── Zoom controls ── */}
+        {/* -- Zoom controls -- */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -4134,7 +4134,7 @@ function DAWFileIOPanel() {
           />
         </div>
 
-        {/* ── Waveform / Sample Editor ── */}
+        {/* -- Waveform / Sample Editor -- */}
         <div style={{ borderRadius: 8, background: '#090b12', border: `1px solid ${DAW.border}`, overflow: 'hidden', position: 'relative', userSelect: 'none' }}>
 
           {/* Time ruler */}
@@ -4232,7 +4232,7 @@ function DAWFileIOPanel() {
           )}
         </div>
 
-        {/* ── Waveform info row (hover + selection) ── */}
+        {/* -- Waveform info row (hover + selection) -- */}
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, color: DAW.dim }}>
           <span>
             {hoveredTime !== null
@@ -4246,7 +4246,7 @@ function DAWFileIOPanel() {
           )}
         </div>
 
-        {/* ── Sample Operations Toolbar ── */}
+        {/* -- Sample Operations Toolbar -- */}
         {hasAudio && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <div style={{ fontSize: 9, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em', marginBottom: 2 }}>
@@ -4277,7 +4277,7 @@ function DAWFileIOPanel() {
                   {op.icon} {op.label}
                 </button>
               ))}
-              {/* ── Isolate Sound — fingerprint-based stem extraction via 3D visualizer ── */}
+              {/* -- Isolate Sound — fingerprint-based stem extraction via 3D visualizer -- */}
               <button type="button" onClick={handleIsolateSoundFIO}
                 disabled={opPending || !audioBufRef.current}
                 title="Open 3D Visualizer, tap a frequency peak to record a reference fingerprint, then extract matching audio chunks as an isolated stem."
@@ -4298,7 +4298,7 @@ function DAWFileIOPanel() {
           </div>
         )}
 
-        {/* ── 3D Audio Visualizer (real AnalyserNode wired to audio element) ── */}
+        {/* -- 3D Audio Visualizer (real AnalyserNode wired to audio element) -- */}
         {show3DVisualizerFIO && analyserRef.current && (
           <div style={{
             borderRadius: 10, overflow: 'hidden',

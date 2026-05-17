@@ -31,7 +31,7 @@ import { buildInstanceKey, promoteInstanceToRealtime, useInstanceManager } from 
 import type { EnginName } from '@/lib/runtime/instanceManager';
 import type { RuntimeId } from '@/types/module-manifest';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 export interface SharedEnginChannelOptions {
   enginName: EnginName;
@@ -61,7 +61,7 @@ export interface SharedEnginChannelResult<T extends RuntimeChannelEvent = Runtim
   peerCount: number;
 }
 
-// ── Hook ──────────────────────────────────────────────────────────────────────
+// -- Hook ----------------------------------------------------------------------
 
 export function useSharedEnginChannel<T extends RuntimeChannelEvent = RuntimeChannelEvent>({
   enginName,
@@ -74,7 +74,7 @@ export function useSharedEnginChannel<T extends RuntimeChannelEvent = RuntimeCha
   const [isConnected, setIsConnected] = useState(false);
   const [peerCount,   setPeerCount]   = useState(1);
 
-  // ── Spawn or retrieve instance ─────────────────────────────────────────────
+  // -- Spawn or retrieve instance ---------------------------------------------
 
   useEffect(() => {
     const instance = spawn(enginName, instanceId, region, mode);
@@ -108,7 +108,7 @@ export function useSharedEnginChannel<T extends RuntimeChannelEvent = RuntimeCha
     void promoteInstanceToRealtime(key);
   }, [enginName, instanceId, mode]);
 
-  // ── Re-sync channelRef when manager promotes an instance to co-op ─────────
+  // -- Re-sync channelRef when manager promotes an instance to co-op ---------
 
   useEffect(() => {
     const key = `${enginName}:${instanceId}`;
@@ -118,7 +118,7 @@ export function useSharedEnginChannel<T extends RuntimeChannelEvent = RuntimeCha
     }
   }, [enginName, instanceId, instances]);
 
-  // ── publish ────────────────────────────────────────────────────────────────
+  // -- publish ----------------------------------------------------------------
 
   const publish = useCallback(
     async (event: T) => {
@@ -129,7 +129,7 @@ export function useSharedEnginChannel<T extends RuntimeChannelEvent = RuntimeCha
     [],
   );
 
-  // ── subscribe ──────────────────────────────────────────────────────────────
+  // -- subscribe --------------------------------------------------------------
 
   const subscribe = useCallback(
     (listener: (event: T) => void): (() => void) => {

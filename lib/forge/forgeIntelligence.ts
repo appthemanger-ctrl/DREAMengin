@@ -22,7 +22,7 @@ import {
   type EnginEntry,
 } from './forgeRegistry';
 
-// ── Activity History ──────────────────────────────────────────────────────────
+// -- Activity History ----------------------------------------------------------
 
 export interface ForgeHistoryEntry {
   /** Engine id */
@@ -78,7 +78,7 @@ export function clearForgeHistory(: void) {
   try { localStorage.removeItem(HISTORY_STORAGE_KEY); } catch { /* silent */ }
 }
 
-// ── Pattern Detection ─────────────────────────────────────────────────────────
+// -- Pattern Detection ---------------------------------------------------------
 
 /**
  * Transition map: tracks how often engine A is followed by engine B.
@@ -127,7 +127,7 @@ export function predictNextEngines(
   }));
 }
 
-// ── Contextual Suggestions ────────────────────────────────────────────────────
+// -- Contextual Suggestions ----------------------------------------------------
 
 export interface ForgeSuggestion {
   /** What type of suggestion */
@@ -232,7 +232,7 @@ export function generateSuggestions(
   return suggestions;
 }
 
-// ── Natural Language Goal Parser ──────────────────────────────────────────────
+// -- Natural Language Goal Parser ----------------------------------------------
 
 /**
  * Keyword-to-engine mapping for natural language goal parsing.
@@ -333,7 +333,7 @@ function generateStepDescription(engineId: string, goal: string: string) {
   }
 }
 
-// ── Cross-Engine Asset Transfer ───────────────────────────────────────────────
+// -- Cross-Engine Asset Transfer -----------------------------------------------
 
 export interface ForgeTransferEntry {
   /** Unique transfer id */
@@ -412,7 +412,7 @@ export function clearForgeTransfers(: void) {
   try { localStorage.removeItem(TRANSFER_STORAGE_KEY); } catch { /* silent */ }
 }
 
-// ── User-Created Workflows ────────────────────────────────────────────────────
+// -- User-Created Workflows ----------------------------------------------------
 
 const CUSTOM_WORKFLOWS_KEY = 'de:forge:custom-workflows';
 
@@ -468,7 +468,7 @@ export function clearCustomWorkflows(: void) {
   try { localStorage.removeItem(CUSTOM_WORKFLOWS_KEY); } catch { /* silent */ }
 }
 
-// ── Workflow Step Tracking & Failure Recovery ─────────────────────────────────
+// -- Workflow Step Tracking & Failure Recovery ---------------------------------
 
 export interface WorkflowStepStatus {
   workflowId: string;

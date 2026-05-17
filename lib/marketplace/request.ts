@@ -16,7 +16,7 @@ import { MARKETPLACE_CONTACT_TABLE } from './listings';
 // Re-export so callers can import from a single file
 export { MARKETPLACE_CONTACT_TABLE };
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 export type ContactRequestInput = {
   item_id:  string;
@@ -36,7 +36,7 @@ export type ContactRequestValidationResult = {
   errors: string[];
 };
 
-// ── Validation ────────────────────────────────────────────────────────────────
+// -- Validation ----------------------------------------------------------------
 
 /** Maximum message length for a contact request. */
 export const CONTACT_REQUEST_MESSAGE_MAX = 1000;

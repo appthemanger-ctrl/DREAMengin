@@ -28,7 +28,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 
 
-// ── Validation ──────────────────────────────────────────────────────────────
+// -- Validation --------------------------------------------------------------
 
 const CONTENT_TYPES = [
   'post', 'video', 'story', 'thread',
@@ -42,7 +42,7 @@ const CreateDraftSchema = z.object({
   scheduled_at: z.string().datetime({ offset: true }).nullable().optional(),
 });
 
-// ── GET /api/drafts ──────────────────────────────────────────────────────────
+// -- GET /api/drafts ----------------------------------------------------------
 
 export async function GET(_req: NextRequest: Promise<NextResponse>) {
   const supabase = await createServerClient();
@@ -69,7 +69,7 @@ export async function GET(_req: NextRequest: Promise<NextResponse>) {
   return NextResponse.json({ drafts: drafts ?? [] });
 }
 
-// ── POST /api/drafts ─────────────────────────────────────────────────────────
+// -- POST /api/drafts ---------------------------------------------------------
 
 export async function POST(req: NextRequest: Promise<NextResponse>) {
   const supabase = await createServerClient();

@@ -22,7 +22,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'share',     emoji: '🔗',  label: 'Share Results',     desc: 'Post an optimization insight',         color: '#ec4899', href: '/daydream/create'                 },
 ];
 
-// ── accent colour for this Daydream ────────────────────────────
+// -- accent colour for this Daydream ----------------------------
 const ACCENT = '#2a8ab8';
 
 export default async function OptimizeroPage() {
@@ -45,7 +45,7 @@ export default async function OptimizeroPage() {
     >
       <div className="de-sky-bg min-h-screen">
 
-        {/* ── Sticky header ──────────────────────────────── */}
+        {/* -- Sticky header -------------------------------- */}
         <header
           className="sticky top-0 z-30 backdrop-blur-xl"
           style={{ background: 'rgba(255,255,255,0.85)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}
@@ -76,7 +76,7 @@ export default async function OptimizeroPage() {
           </div>
         </header>
 
-        {/* ── Main content ───────────────────────────────── */}
+        {/* -- Main content --------------------------------- */}
         <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
 
           {/* Hero intro card */}

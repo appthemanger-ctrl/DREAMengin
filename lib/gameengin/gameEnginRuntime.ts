@@ -9,7 +9,7 @@
 
 import { createEventBus, type EventBus } from '../eventBus';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 export interface DreamGameManifest {
   id: string;
@@ -38,7 +38,7 @@ export type InputType = 'touch' | 'mouse' | 'keyboard' | 'gamepad' | 'dualsense'
 
 export type InputHandler = (event: unknown) => void;
 
-// ─── Events emitted by the runtime ───────────────────────────────────────────
+// --- Events emitted by the runtime -------------------------------------------
 
 export interface GameEnginEvents extends Record<string, unknown> {
   gameLoaded:    { manifest: DreamGameManifest };
@@ -48,7 +48,7 @@ export interface GameEnginEvents extends Record<string, unknown> {
   error:         { message: string; cause?: unknown };
 }
 
-// ─── loadDreamGame ────────────────────────────────────────────────────────────
+// --- loadDreamGame ------------------------------------------------------------
 
 /**
  * loadDreamGame(manifest)
@@ -60,7 +60,7 @@ export interface GameEnginEvents extends Record<string, unknown> {
 export async function loadDreamGame(
   manifest: DreamGameManifest
 ): Promise<DreamGameInstance> {
-  // ── Load WASM ──
+  // -- Load WASM --
   let wasmInstance: WebAssembly.Instance;
   try {
     const response   = await fetch(manifest.wasmUrl);
@@ -79,7 +79,7 @@ export async function loadDreamGame(
     throw new Error(`Failed to load WASM from ${manifest.wasmUrl}: ${String(err)}`);
   }
 
-  // ── Load assets ──
+  // -- Load assets --
   const assets = new Map<string, ArrayBuffer>();
   await Promise.all(
     manifest.assetUrls.map(async (url) => {
@@ -89,7 +89,7 @@ export async function loadDreamGame(
     })
   );
 
-  // ── Build instance ──
+  // -- Build instance --
   let running = false;
   const exports = wasmInstance.exports as Record<string, unknown>;
   const entry   = manifest.entryPoint ?? 'start';
@@ -113,7 +113,7 @@ export async function loadDreamGame(
   };
 }
 
-// ─── GameEnginRuntime ────────────────────────────────────────────────────────
+// --- GameEnginRuntime --------------------------------------------------------
 
 /**
  * GameEnginRuntime
@@ -133,7 +133,7 @@ export class GameEnginRuntime {
     this.bus = createEventBus<GameEnginEvents>();
   }
 
-  // ── WebGPU Init ──
+  // -- WebGPU Init --
 
   async initWebGPU(canvas: HTMLCanvasElement): Promise<void> {
     this.canvas = canvas;
@@ -155,7 +155,7 @@ export class GameEnginRuntime {
     });
   }
 
-  // ── Game Loading ──
+  // -- Game Loading --
 
   async loadGame(manifest: DreamGameManifest): Promise<void> {
     const game = await loadDreamGame(manifest);
@@ -176,7 +176,7 @@ export class GameEnginRuntime {
     this.activeGame = null;
   }
 
-  // ── Input Routing ──
+  // -- Input Routing --
 
   /**
    * registerInputHandler(type, handler)

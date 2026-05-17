@@ -39,7 +39,7 @@ import JourneyTrail from '@/components/daydream/dream.JourneyTrail';
 import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
 import { createClient } from '@/lib/supabase/client';
 
-// ── Design tokens ──────────────────────────────────────────────────────────────
+// -- Design tokens --------------------------------------------------------------
 
 const DR = {
   bg:          '#e8eff6',
@@ -61,7 +61,7 @@ function nmInset(s = 4: string) {
   return `inset ${-s}px ${-s}px ${s * 2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s * 2.4}px ${DR.shadowDark}`;
 }
 
-// ── Types ──────────────────────────────────────────────────────────────────────
+// -- Types ----------------------------------------------------------------------
 
 type Tab = 'feed' | 'create' | 'platform' | 'signal' | 'journey';
 
@@ -100,7 +100,7 @@ interface DreamRSectionProps {
   onOpenUrl?: (url: string, title?: string) => void;
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
+// -- Helpers --------------------------------------------------------------------
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'feed',     label: 'Feed',     icon: <Radio     size={16} /> },
@@ -133,9 +133,9 @@ function TrendIcon() { v }: { v: number } {
   return <Minus size={12} style={{ color: DR.textDim }} />;
 }
 
-// ── Sub-views ──────────────────────────────────────────────────────────────────
+// -- Sub-views ------------------------------------------------------------------
 
-// ── Create tab ────────────────────────────────────────────────────────────────
+// -- Create tab ----------------------------------------------------------------
 
 function CreateTab() { userId, profile }: { userId: string; profile: ProfileLike | null } {
   const supabase = createClient();
@@ -349,7 +349,7 @@ function CreateTab() { userId, profile }: { userId: string; profile: ProfileLike
   );
 }
 
-// ── Platform tab ──────────────────────────────────────────────────────────────
+// -- Platform tab --------------------------------------------------------------
 
 function PlatformTab() { profile, onOpenUrl }: { profile: ProfileLike | null; onOpenUrl?: (url: string, title?: string) => void }) {
   const [connectors, setConnectors] = useState<ConnectorEntry[]>([]);
@@ -510,7 +510,7 @@ function PlatformTab() { profile, onOpenUrl }: { profile: ProfileLike | null; on
   );
 }
 
-// ── Signal tab (real analytics — creator-only) ────────────────────────────────
+// -- Signal tab (real analytics — creator-only) --------------------------------
 // Privacy model:
 //   VIEWS   = the only public metric, shown on feed cards.
 //   All other metrics (likes, comments, followers) = private to this tab only.
@@ -570,7 +570,7 @@ function SignalTab() {
         </div>
       </div>
 
-      {/* ── VIEWS — the public metric, featured full-width ── */}
+      {/* -- VIEWS — the public metric, featured full-width -- */}
       {loading ? (
         <div style={{ height: 96, borderRadius: 18, background: DR.bg, boxShadow: nmInset(4) }} />
       ) : data ? (
@@ -598,7 +598,7 @@ function SignalTab() {
         </div>
       ) : null}
 
-      {/* ── Engagement rate ── */}
+      {/* -- Engagement rate -- */}
       {engRate !== null && (
         <div style={{ background: DR.bg, borderRadius: 16, boxShadow: nmRaised(5), padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 38, height: 38, borderRadius: 12, background: DR.bg, boxShadow: nmRaised(3), display: 'flex', alignItems: 'center', justifyContent: 'center', color: DR.gold }}>
@@ -614,7 +614,7 @@ function SignalTab() {
         </div>
       )}
 
-      {/* ── Private metrics — creator-only section ── */}
+      {/* -- Private metrics — creator-only section -- */}
       <div>
         {/* Section header with lock */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
@@ -659,7 +659,7 @@ function SignalTab() {
         <RefreshCw size={13} /> Refresh Signal
       </button>
 
-      {/* ── How DreamR decides what you see ── */}
+      {/* -- How DreamR decides what you see -- */}
       <div style={{ background: DR.bg, borderRadius: 18, boxShadow: nmRaised(6), padding: 18 }}>
         <div style={{ fontWeight: 800, fontSize: 13, color: DR.text, letterSpacing: '-0.01em', marginBottom: 4 }}>
           How DreamR decides what you see
@@ -706,7 +706,7 @@ function SignalTab() {
   );
 }
 
-// ── Journey tab ────────────────────────────────────────────────────────────────
+// -- Journey tab ----------------------------------------------------------------
 
 function JourneyTab() {
   return (
@@ -748,7 +748,7 @@ function JourneyTab() {
   );
 }
 
-// ── Main DreamRSection ─────────────────────────────────────────────────────────
+// -- Main DreamRSection ---------------------------------------------------------
 
 export default function DreamRSection() { profile, initialPosts: Record<string, unknown>, onOpenUrl }: DreamRSectionProps {
   const [tab, setTab] = useState<Tab>('feed');
@@ -765,7 +765,7 @@ export default function DreamRSection() { profile, initialPosts: Record<string, 
         overflow: 'hidden',
       }}
     >
-      {/* ── DreamR brand header ──────────────────────────────────────────── */}
+      {/* -- DreamR brand header -------------------------------------------- */}
       <div
         style={{
           flexShrink: 0,
@@ -843,7 +843,7 @@ export default function DreamRSection() { profile, initialPosts: Record<string, 
 
       {userId && <DreamRCore sharerId={userId} />}
 
-      {/* ── Tab content ─────────────────────────────────────────────────── */}
+      {/* -- Tab content --------------------------------------------------- */}
       <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
 
         {/* Feed — full-height snap scroll */}

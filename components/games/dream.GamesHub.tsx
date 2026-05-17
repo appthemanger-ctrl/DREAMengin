@@ -28,11 +28,11 @@ const Loading = () => (
   </div>
 );
 
-// ── Dynamically imported games (ssr:false — all use canvas / browser APIs) ──
+// -- Dynamically imported games (ssr:false — all use canvas / browser APIs) --
 const BabylonSideScroller = dynamicImport(() => import('@/components/games/dream.BabylonSideScroller'), { ssr: false, loading: Loading });
 const NeonDrift           = dynamicImport(() => import('@/components/games/dream.NeonDrift'),           { ssr: false, loading: Loading });
 const EchoArena           = dynamicImport(() => import('@/components/games/dream.EchoArena'),           { ssr: false, loading: Loading });
-// ── Fusion cartridges — replace 25 source games ─────────────────────────────
+// -- Fusion cartridges — replace 25 source games -----------------------------
 const NullCathedral       = dynamicImport(() => import('@/components/games/dream.NullCathedral'),       { ssr: false, loading: Loading });
 const VoidlineGP          = dynamicImport(() => import('@/components/games/dream.VoidlineGP'),          { ssr: false, loading: Loading });
 const SerpentSiege        = dynamicImport(() => import('@/components/games/dream.SerpentSiege'),        { ssr: false, loading: Loading });
@@ -77,7 +77,7 @@ const ENGINE_CAPABILITY_CHIPS = [
   'Powered by DREAMengin',
 ] as const;
 
-// ── Tilt-enabled game card ────────────────────────────────────────────────────
+// -- Tilt-enabled game card ----------------------------------------------------
 // Extracted as a proper component so `useMotionTilt` (a hook) can be called
 // once per card — hooks cannot be called inside a .map() callback.
 
@@ -341,7 +341,7 @@ export default function GamesHub() {
     };
   }, []);
 
-  // ── Library — pick a game and play ────────────────────────────────────────
+  // -- Library — pick a game and play ----------------------------------------
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       <div

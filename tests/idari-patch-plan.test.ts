@@ -24,7 +24,7 @@ import {
   type SpecRequirement,
 } from '@/lib/agents/idari';
 
-// ── createPatchPlan ───────────────────────────────────────────────────────────
+// -- createPatchPlan -----------------------------------------------------------
 
 describe('createPatchPlan', () => {
   const base: Omit<PatchPlan, 'created_at'> = {
@@ -80,7 +80,7 @@ describe('createPatchPlan', () => {
   });
 });
 
-// ── createKnownIssue ─────────────────────────────────────────────────────────
+// -- createKnownIssue ---------------------------------------------------------
 
 describe('createKnownIssue', () => {
   const base: Omit<KnownIssue, 'status' | 'created_at' | 'updated_at'> = {
@@ -113,7 +113,7 @@ describe('createKnownIssue', () => {
   });
 });
 
-// ── updateKnownIssueStatus ───────────────────────────────────────────────────
+// -- updateKnownIssueStatus ---------------------------------------------------
 
 describe('updateKnownIssueStatus', () => {
   const now = new Date().toISOString();
@@ -159,7 +159,7 @@ describe('updateKnownIssueStatus', () => {
   });
 });
 
-// ── evaluateSpecRequirements ─────────────────────────────────────────────────
+// -- evaluateSpecRequirements -------------------------------------------------
 
 describe('evaluateSpecRequirements', () => {
   const makeReq = (
@@ -239,7 +239,7 @@ describe('evaluateSpecRequirements', () => {
   });
 });
 
-// ── createVercelBuildResult ───────────────────────────────────────────────────
+// -- createVercelBuildResult ---------------------------------------------------
 
 describe('createVercelBuildResult', () => {
   it('accepts a passing build meeting the 2026 runtime targets', () => {
@@ -307,7 +307,7 @@ describe('createVercelBuildResult', () => {
   });
 });
 
-// ── Generation Law scope enforcement ──────────────────────────────────────────
+// -- Generation Law scope enforcement ------------------------------------------
 
 describe('assessGenerationLawScope', () => {
   it('returns CREATE for a small single-task request', () => {

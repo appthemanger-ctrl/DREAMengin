@@ -19,7 +19,7 @@ import {
 import { COMPONENT_INVENTORY } from '@/lib/componentInventory';
 import { createEventBus, createDualRuntimeHub } from '@/lib/eventBus';
 
-// ─── §41 Atomic piece catalog ─────────────────────────────────────────────────
+// --- §41 Atomic piece catalog -------------------------------------------------
 
 describe('§41 Component Inventory', () => {
   it('has 120+ atomic pieces', () => {
@@ -43,7 +43,7 @@ describe('§41 Component Inventory', () => {
   });
 });
 
-// ─── §41 Assembly validation (min 3, max 30) ─────────────────────────────────
+// --- §41 Assembly validation (min 3, max 30) ---------------------------------
 
 describe('§41.2 Assembly validation', () => {
   function makePiece(role: AtomicPiece['role'], suffix = ''): AtomicPiece {
@@ -90,7 +90,7 @@ describe('§41.2 Assembly validation', () => {
   });
 });
 
-// ─── §41 createAssembly ──────────────────────────────────────────────────────
+// --- §41 createAssembly ------------------------------------------------------
 
 describe('§41 createAssembly', () => {
   function minimal3Pieces(): AtomicPiece[] {
@@ -113,7 +113,7 @@ describe('§41 createAssembly', () => {
   });
 });
 
-// ─── §41 Serialize/deserialize ───────────────────────────────────────────────
+// --- §41 Serialize/deserialize -----------------------------------------------
 
 describe('§41 Assembly JSON serialization', () => {
   const pieces: AtomicPiece[] = [
@@ -133,7 +133,7 @@ describe('§41 Assembly JSON serialization', () => {
   });
 });
 
-// ─── §41 atomicPieceFromComponent ────────────────────────────────────────────
+// --- §41 atomicPieceFromComponent --------------------------------------------
 
 describe('§41 atomicPieceFromComponent', () => {
   it('converts an inventory component to an AtomicPiece', () => {
@@ -146,7 +146,7 @@ describe('§41 atomicPieceFromComponent', () => {
   });
 });
 
-// ─── §42 Local Event Bus ─────────────────────────────────────────────────────
+// --- §42 Local Event Bus -----------------------------------------------------
 
 describe('§42 createEventBus', () => {
   it('creates independent buses — emitting on one does not affect the other', () => {
@@ -180,7 +180,7 @@ describe('§42 createEventBus', () => {
   });
 });
 
-// ─── §42 createDualRuntimeHub ────────────────────────────────────────────────
+// --- §42 createDualRuntimeHub ------------------------------------------------
 
 describe('§42 createDualRuntimeHub', () => {
   it('forwards __bridge messages between busA and busB', () => {
@@ -204,7 +204,7 @@ describe('§42 createDualRuntimeHub', () => {
   });
 });
 
-// ─── §41 runAssembly ────────────────────────────────────────────────────────
+// --- §41 runAssembly --------------------------------------------------------
 
 describe('§41 runAssembly', () => {
   it('executes pieces in topological order', () => {

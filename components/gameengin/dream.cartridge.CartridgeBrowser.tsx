@@ -156,7 +156,7 @@ export default function CartridgeBrowser() { initialCategory = ALL }: CartridgeB
   );
 }
 
-// ── Filter pill row ─────────────────────────────────────────────────────────
+// -- Filter pill row ---------------------------------------------------------
 
 function FilterRow() {
   label, options, value, onChange,
@@ -189,7 +189,7 @@ function FilterRow() {
   );
 }
 
-// ── Card ────────────────────────────────────────────────────────────────────
+// -- Card --------------------------------------------------------------------
 
 function CartridgeCard() { cartridge: c }: { cartridge: CartridgeManifestEntry } {
   return (

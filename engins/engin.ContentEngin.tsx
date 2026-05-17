@@ -138,7 +138,7 @@ const btnBase: React.CSSProperties = {
   fontSize: 12, padding: '5px 12px', transition: 'opacity 0.12s',
 };
 
-// ── Pre-Edit constants ────────────────────────────────────────────────────────
+// -- Pre-Edit constants --------------------------------------------------------
 const BRIEF_CONTENT_TYPES = ['Reel', 'Carousel', 'Static Post', 'YouTube Video', 'YouTube Short', 'Blog Post', 'Email', 'Podcast Episode', 'Story'] as const;
 type BriefContentType = typeof BRIEF_CONTENT_TYPES[number];
 
@@ -181,7 +181,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
   const contentBridge = useContentEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'create' });
 
-  // ── OS Shell ──
+  // -- OS Shell --
   const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
   useEffect(() => {
     upgradeEngine({ id: 'content', name: 'ContentEngin' }, ['bridge', 'telemetry'])
@@ -189,14 +189,14 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
   }, []);
   const busRef = useRef(createEventBus());
 
-  // ── EnginRuntime kernel (content rule-set) ──
+  // -- EnginRuntime kernel (content rule-set) --
   const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useContentEnginRuntime();
 
-  // ── Workflow (create:draft — default workflow) ──
+  // -- Workflow (create:draft — default workflow) --
   const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
   useEffect(() => { loadWorkflow('create:draft'); }, [loadWorkflow]);
 
-  // ── 3D Figure from Photos state ──
+  // -- 3D Figure from Photos state --
   const [figure3DPhotos, setFigure3DPhotos]         = useState<string[]>([]);
   const [figure3DStatus, setFigure3DStatus]         = useState<'idle' | 'processing' | 'done'>('idle');
   const figure3DInputRef = useRef<HTMLInputElement>(null);
@@ -213,11 +213,11 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     setTimeout(() => setFigure3DStatus('done'), 2000);
   }
 
-  // ── Existing: Recent Drafts ──
+  // -- Existing: Recent Drafts --
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // ── Multi-connection: receive stem-ready from StarMakerEngin (Phase 8 §F Point 57) ──
+  // -- Multi-connection: receive stem-ready from StarMakerEngin (Phase 8 §F Point 57) --
   // Music Daydream → ContentEngin connection path: when a stem is prepared in StarMakerEngin,
   // ContentEngin surfaces a prompt to write a track description draft.
   // Subscription is handled by useContentEnginBridge — read state from the hook.
@@ -226,19 +226,19 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     ? { stemType: contentBridge.lastStem, url: contentBridge.lastStemUrl ?? '' }
     : null;
 
-  // ── Cross-Engin: GameEngin game-clip receiver ──
+  // -- Cross-Engin: GameEngin game-clip receiver --
   const [dismissedGameClip, setDismissedGameClip] = useState<string | null>(null);
   const gameClipPrompt = contentBridge.lastGameClip !== null && contentBridge.lastGameClip !== dismissedGameClip
     ? contentBridge.lastGameClip
     : null;
 
-  // ── Cross-Engin: CodeEngin notebook publish receiver ──
+  // -- Cross-Engin: CodeEngin notebook publish receiver --
   const [dismissedNotebook, setDismissedNotebook] = useState<string | null>(null);
   const notebookPrompt = contentBridge.lastNotebookPublish !== null && contentBridge.lastNotebookPublish !== dismissedNotebook
     ? contentBridge.lastNotebookPublish
     : null;
 
-  // ── Activity Post state ──
+  // -- Activity Post state --
   const [activityPostMsg, setActivityPostMsg] = useState('');
   const activityPostTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -282,7 +282,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     return () => { cancelled = true; };
   }, []);
 
-  // ── Content Calendar ──
+  // -- Content Calendar --
   const [calendarItems, setCalendarItems] = useState<Record<string, CalendarItem[]>>(
     () => Object.fromEntries(DAYS.map(d => [d, []]))
   );
@@ -310,7 +310,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     setCalendarItems(prev => ({ ...prev, [day]: prev[day].filter(i => i.id !== id) }));
   }
 
-  // ── Publishing Queue ──
+  // -- Publishing Queue --
   const [publishedCount, setPublishedCount] = useState(0);
   const [publishMsg, setPublishMsg] = useState('');
   const publishTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -380,7 +380,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     publishTimerRef.current = setTimeout(() => setPublishMsg(''), 4000);
   }
 
-  // ── Smart Draft Generator ──
+  // -- Smart Draft Generator --
   const [draftType, setDraftType] = useState<DraftType>('Caption');
   const [draftTopic, setDraftTopic] = useState('');
   const [draft, setDraft] = useState('');
@@ -441,7 +441,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     draftSaveTimerRef.current = setTimeout(() => setDraftSaveMsg(''), 4000);
   }
 
-  // ── Cross-Platform Targets ──
+  // -- Cross-Platform Targets --
   const [selectedPlatforms, setSelectedPlatforms] = useState<Set<string>>(new Set());
   const [broadcastMsg, setBroadcastMsg] = useState('');
   const [isBroadcasting, setIsBroadcasting] = useState(false);
@@ -504,19 +504,19 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     }
   }
 
-  // ── Media Vault Link — no state needed ─────────────────────────────────────
+  // -- Media Vault Link — no state needed -------------------------------------
 
-  // ── AI Caption state ────────────────────────────────────────────────────────
+  // -- AI Caption state --------------------------------------------------------
   const [captionTopic, setCaptionTopic]     = useState('');
   const [captionResult, setCaptionResult]   = useState('');
   const [captionLoading, setCaptionLoading] = useState(false);
 
-  // ── Collab Draft state ───────────────────────────────────────────────────────
+  // -- Collab Draft state -------------------------------------------------------
   const [collabDraftActive, setCollabDraftActive]   = useState(false);
   const [collabDraftCode, setCollabDraftCode]       = useState('');
   const [collabDraftUsers] = useState<string[]>(['You', 'Co-Author']);
 
-  // ── Co-op channel ─────────────────────────────────────────────────────────
+  // -- Co-op channel ---------------------------------------------------------
   const [instanceId] = useState(
     () => instanceIdProp ?? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)),
   );
@@ -533,7 +533,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     },
   });
 
-  // ── Content Analytics state ──────────────────────────────────────────────────
+  // -- Content Analytics state --------------------------------------------------
   const [analyticsMetrics] = useState<Array<{ label: string; value: string; icon: string }>>([
     { label: 'Reach',   value: '24.3K', icon: '📡' },
     { label: 'Clicks',  value: '1,847', icon: '🖱️' },
@@ -541,7 +541,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     { label: 'Shares',  value: '89',    icon: '🔁' },
   ]);
 
-  // ── Template Gallery state ───────────────────────────────────────────────────
+  // -- Template Gallery state ---------------------------------------------------
   const [templates] = useState<Array<{ id: string; name: string; type: string; preview: string }>>([
     { id: 'tpl-1', name: 'Viral Hook',         type: 'Caption',  preview: '🔥 [Hook] + [Value] + [CTA]' },
     { id: 'tpl-2', name: 'Tutorial Thread',    type: 'Thread',   preview: '🧵 Step-by-step breakdown…' },
@@ -551,18 +551,18 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
   ]);
   const [templateSearch, setTemplateSearch] = useState('');
 
-  // ── Short Video Editor state ─────────────────────────────────────────────────
+  // -- Short Video Editor state -------------------------------------------------
   const [videoTitle, setVideoTitle]           = useState('');
   const [videoDuration, setVideoDuration]     = useState<15 | 30 | 60 | 90>(30);
   const [videoCaptions, setVideoCaptions]     = useState('');
   const [videoPublishReady, setVideoPublishReady] = useState(false);
 
-  // ── Hashtag Optimizer state ──────────────────────────────────────────────────
+  // -- Hashtag Optimizer state --------------------------------------------------
   const [hashtagTopic, setHashtagTopic]   = useState('');
   const [hashtags, setHashtags]           = useState<string[]>([]);
   const [hashtagLoading, setHashtagLoading] = useState(false);
 
-  // ── Viral Hook copy feedback ──────────────────────────────────────────────────
+  // -- Viral Hook copy feedback --------------------------------------------------
   const [copiedHook, setCopiedHook] = useState<number | null>(null);
   const [hookTopic, setHookTopic] = useState('');
   const [hookLoading, setHookLoading] = useState(false);
@@ -574,16 +574,16 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     setTimeout(() => setCopiedHook(null), 1400);
   }
 
-  // ── SEO Title Scorer (live input) ─────────────────────────────────────────────
+  // -- SEO Title Scorer (live input) ---------------------------------------------
   const [seoInput, setSeoInput] = useState('');
   const [seoLoading, setSeoLoading] = useState(false);
   const [seoResult, setSeoResult] = useState<{ score: number; reasons: string[] } | null>(null);
   const [seoSaveMsg, setSeoSaveMsg] = useState('');
 
-  // ── Multi-Platform Scheduler countdown ───────────────────────────────────────
+  // -- Multi-Platform Scheduler countdown ---------------------------------------
   const [schedulerNow] = useState(() => new Date());
 
-  // ── Transcript Editor state ───────────────────────────────────────────────────
+  // -- Transcript Editor state ---------------------------------------------------
   type TranscriptSegment = import('@/lib/content/transcriptEditor').TranscriptSegment;
   const [transcriptSegments, setTranscriptSegments] = useState<TranscriptSegment[]>([]);
   const [transcriptView, setTranscriptView] = useState<'transcript' | 'waveform'>('transcript');
@@ -675,7 +675,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     ? annotateSearchMatches(transcriptSegments, transcriptSearch)
     : transcriptSegments;
 
-  // ── Generative Fill state ─────────────────────────────────────────────────────
+  // -- Generative Fill state -----------------------------------------------------
   const [fillPrompt, setFillPrompt] = useState('');
   const [fillLoading, setFillLoading] = useState(false);
   const [fillMsg, setFillMsg] = useState('');
@@ -719,7 +719,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     }
   }
 
-  // ── Voice Clone state ─────────────────────────────────────────────────────────
+  // -- Voice Clone state ---------------------------------------------------------
   type VoiceProfile = { id: string; name: string; createdAt: string };
   const [voiceName, setVoiceName] = useState('');
   const [voiceProfileId, setVoiceProfileId] = useState('');
@@ -815,7 +815,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     }
   }
 
-  // ── Real-time SEO Scorer (advanced) state ─────────────────────────────────────
+  // -- Real-time SEO Scorer (advanced) state -------------------------------------
   const [advSeoTitle, setAdvSeoTitle] = useState('');
   const [advSeoBody, setAdvSeoBody] = useState('');
   const [advSeoKeywords, setAdvSeoKeywords] = useState('');
@@ -861,7 +861,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     setPendingReviewItems(prev => prev.filter(i => i.id !== id));
   }
 
-  // ── Brand Memory state ────────────────────────────────────────────────────────
+  // -- Brand Memory state --------------------------------------------------------
   const [brandGuidelinesText, setBrandGuidelinesText] = useState('');
   const [brandSaveMsg, setBrandSaveMsg] = useState('');
   const [brandSaving, setBrandSaving] = useState(false);
@@ -895,10 +895,10 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     }
   }
 
-  // ── Creativity Slider state ───────────────────────────────────────────────────
+  // -- Creativity Slider state ---------------------------------------------------
   const [creativityLevel, setCreativityLevel] = useState(50);
 
-  // ── Quick Compose state ───────────────────────────────────────────────────────
+  // -- Quick Compose state -------------------------------------------------------
   const [quickComposePrompt, setQuickComposePrompt] = useState('');
   const [quickComposeLoading, setQuickComposeLoading] = useState(false);
   const [quickComposeResult, setQuickComposeResult] = useState<{
@@ -976,7 +976,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     }
   }
 
-  // ── VFX Compositing state ──────────────────────────────────────────────────
+  // -- VFX Compositing state --------------------------------------------------
   // Six panels: Motion Capture, FX Simulation, 2.5D Compositor,
   //             Rotoscope, Node Compositor, Matchmover.
 
@@ -1205,7 +1205,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     setTrackMsg('✅ Track exported as CSV.');
   }
 
-  // ── Daydream Persistence (Phase 8 §F, pts 49-56) ─────────────────────────────
+  // -- Daydream Persistence (Phase 8 §F, pts 49-56) -----------------------------
   // Saves and restores the ContentEngin workspace state across sessions.
   type ContentSavedState = {
     calendarItems?: Record<string, Array<{ id: string; type: string; title: string; scheduled_at?: string }>>;
@@ -1244,7 +1244,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     
   }, [calendarItems, draftTopic, draftType, selectedPlatforms, contentRestoring]);
 
-  // ── Auto Repurposer state ─────────────────────────────────────────────────────
+  // -- Auto Repurposer state -----------------------------------------------------
   type RepurposeOutputItem = {
     platform: string;
     format: string;
@@ -1256,7 +1256,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
   const [repurposeMsg, setRepurposeMsg] = useState('');
   const [repurseCopied, setRepurseCopied] = useState<number | null>(null);
 
-  // ── Predictive Scheduling state ───────────────────────────────────────────────
+  // -- Predictive Scheduling state -----------------------------------------------
   type PredictSuggestionItem = {
     type: string;
     title: string;
@@ -1269,7 +1269,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
   const [predictGaps, setPredictGaps] = useState<string[]>([]);
   const [predictLoaded, setPredictLoaded] = useState(false);
 
-  // ── Creative Brief Builder state ──────────────────────────────────────────────
+  // -- Creative Brief Builder state ----------------------------------------------
   const [briefProject, setBriefProject] = useState('');
   const [briefType, setBriefType] = useState<BriefContentType>(BRIEF_CONTENT_TYPES[0]);
   const [briefPlatforms, setBriefPlatforms] = useState<Set<string>>(new Set());
@@ -1281,12 +1281,12 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
   const [briefSaving, setBriefSaving] = useState(false);
   const [briefSaveMsg, setBriefSaveMsg] = useState('');
 
-  // ── Asset Collector state ─────────────────────────────────────────────────────
+  // -- Asset Collector state -----------------------------------------------------
   const [assets, setAssets] = useState<CollectedAsset[]>([]);
   const [assetNewName, setAssetNewName] = useState('');
   const [assetNewCat, setAssetNewCat] = useState<AssetCategory>(ASSET_CATEGORIES[0]);
 
-  // ── Audio Prep state ──────────────────────────────────────────────────────────
+  // -- Audio Prep state ----------------------------------------------------------
   const [audioMood, setAudioMood] = useState<AudioMood>(AUDIO_MOODS[0]);
   const [audioBpm, setAudioBpm] = useState(120);
   const [audioVoBrief, setAudioVoBrief] = useState('');
@@ -1294,16 +1294,16 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
   const [audioSfxInput, setAudioSfxInput] = useState('');
   const [audioSpecPlatform, setAudioSpecPlatform] = useState('Instagram Reel');
 
-  // ── Platform Specs state ──────────────────────────────────────────────────────
+  // -- Platform Specs state ------------------------------------------------------
   const [specsFilter, setSpecsFilter] = useState('');
 
-  // ── Content Pipeline state ────────────────────────────────────────────────────
+  // -- Content Pipeline state ----------------------------------------------------
   const [pipelineItems, setPipelineItems] = useState<PipelineItem[]>([]);
   const [pipeNewTitle, setPipeNewTitle] = useState('');
   const [pipeNewType, setPipeNewType] = useState('📱');
   const [pipeNewPlatform, setPipeNewPlatform] = useState('Instagram');
 
-  // ── Storyboard Builder state ──────────────────────────────────────────────────
+  // -- Storyboard Builder state --------------------------------------------------
   type StoryboardFrame = {
     id: string;
     scene: string;
@@ -1318,7 +1318,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
   ]);
   const [sbCopied, setSbCopied] = useState(false);
 
-  // ── AI Production Plan state ──────────────────────────────────────────────────
+  // -- AI Production Plan state --------------------------------------------------
   type ProductionPlan = {
     title: string;
     preProd: string[];
@@ -1333,7 +1333,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
   const [planResult, setPlanResult] = useState<ProductionPlan | null>(null);
   const [planSaveMsg, setPlanSaveMsg] = useState('');
 
-  // ── Character Brief state ─────────────────────────────────────────────────────
+  // -- Character Brief state -----------------------------------------------------
   const CHAR_ROLES = ['Hero', 'Lead', 'Support', 'Villain', 'Comic Relief', 'Background'] as const;
   const CHAR_ANIM_TYPES = ['Maya 3D Character', 'Unreal Sequencer Character', 'Toon Boom Harmony Cut-out', 'TVPaint Frame-by-Frame', 'Motion Capture Retarget'] as const;
   const CHAR_RIG_LEVELS = ['Light', 'Standard', 'Advanced', 'Feature Film'] as const;
@@ -1349,7 +1349,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
   const [charSaving, setCharSaving] = useState(false);
   const [charSaveMsg, setCharSaveMsg] = useState('');
 
-  // ── Scene / Set Design Brief state ────────────────────────────────────────────
+  // -- Scene / Set Design Brief state --------------------------------------------
   const SCENE_TYPES = ['Unreal Virtual Production', '2D Painted Background', '2D Harmony Layout', '3D Environment', 'Live Action Set'] as const;
   const LIGHTING_TYPES = ['Day', 'Golden Hour', 'Blue Hour', 'Night', 'Studio', 'Practical Neon'] as const;
   const [sceneName, setSceneName] = useState('');
@@ -1362,7 +1362,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
   const [sceneSaving, setSceneSaving] = useState(false);
   const [sceneSaveMsg, setSceneSaveMsg] = useState('');
 
-  // ── Brand Voice Guard state ───────────────────────────────────────────────────
+  // -- Brand Voice Guard state ---------------------------------------------------
   type BrandVoiceResult = {
     score: number;
     onBrand: string[];
@@ -1374,7 +1374,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
   const [bvLoading, setBvLoading] = useState(false);
   const [bvResult, setBvResult] = useState<BrandVoiceResult | null>(null);
 
-  // ── AI Caption handler ───────────────────────────────────────────────────────
+  // -- AI Caption handler -------------------------------------------------------
   function handleGenerateCaption() {
     if (!captionTopic.trim()) return;
     setCaptionLoading(true);
@@ -1392,7 +1392,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     }, 1200);
   }
 
-  // ── Collab Draft handler ─────────────────────────────────────────────────────
+  // -- Collab Draft handler -----------------------------------------------------
   function handleCollabDraftToggle() {
     if (!collabDraftActive) {
       const code = Math.random().toString(36).slice(2, 8).toUpperCase();
@@ -1404,14 +1404,14 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     setCollabDraftActive(prev => !prev);
   }
 
-  // ── Template apply handler ───────────────────────────────────────────────────
+  // -- Template apply handler ---------------------------------------------------
   function handleTemplateApply(id: string) {
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'create', 'content:template-apply', { id },
     );
   }
 
-  // ── Video prepare handler ────────────────────────────────────────────────────
+  // -- Video prepare handler ----------------------------------------------------
   function handleVideoPrepare() {
     if (!videoTitle.trim()) return;
     setVideoPublishReady(true);
@@ -1421,7 +1421,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     recordForgeTransfer('create', 'brand', 'video-asset', `Video export → BrandEngin (${videoTitle})`);
   }
 
-  // ── Hashtag optimizer handler ────────────────────────────────────────────────
+  // -- Hashtag optimizer handler ------------------------------------------------
   function handleOptimizeHashtags() {
     if (!hashtagTopic.trim()) return;
     setHashtagLoading(true);
@@ -1445,14 +1445,14 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     }, 900);
   }
 
-  // ── Analytics refresh handler ────────────────────────────────────────────────
+  // -- Analytics refresh handler ------------------------------------------------
   function handleAnalyticsRefresh() {
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'create', 'content:analytics-refresh', {},
     );
   }
 
-  // ── Auto Repurposer handler ───────────────────────────────────────────────────
+  // -- Auto Repurposer handler ---------------------------------------------------
   async function handleRepurpose() {
     if (!repurposeInput.trim()) return;
     setRepurposeLoading(true);
@@ -1481,7 +1481,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     setTimeout(() => setRepurseCopied(null), 1400);
   }
 
-  // ── Predictive Scheduling handler ─────────────────────────────────────────────
+  // -- Predictive Scheduling handler ---------------------------------------------
   async function handlePredictSchedule() {
     setPredictLoading(true);
     try {
@@ -1502,7 +1502,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     }
   }
 
-  // ── Creative Brief: save handler ─────────────────────────────────────────────
+  // -- Creative Brief: save handler ---------------------------------------------
   async function handleSaveBrief() {
     if (!briefProject.trim()) return;
     setBriefSaving(true);
@@ -1531,7 +1531,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     setTimeout(() => setBriefSaveMsg(''), 5000);
   }
 
-  // ── Asset Collector handlers ──────────────────────────────────────────────────
+  // -- Asset Collector handlers --------------------------------------------------
   function addAsset() {
     if (!assetNewName.trim()) return;
     setAssets(prev => [...prev, { id: Date.now().toString(), name: assetNewName.trim(), category: assetNewCat, status: 'Needed' }]);
@@ -1544,7 +1544,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     setAssets(prev => prev.filter(a => a.id !== id));
   }
 
-  // ── Audio Prep handlers ───────────────────────────────────────────────────────
+  // -- Audio Prep handlers -------------------------------------------------------
   function addSfx() {
     if (!audioSfxInput.trim()) return;
     setAudioSfxList(prev => [...prev, audioSfxInput.trim()]);
@@ -1552,7 +1552,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
   }
   function removeSfx(i: number) { setAudioSfxList(prev => prev.filter(_: Record<string, unknown>, idx: number => idx !== i)); }
 
-  // ── Content Pipeline handlers ─────────────────────────────────────────────────
+  // -- Content Pipeline handlers -------------------------------------------------
   function addPipelineItem() {
     if (!pipeNewTitle.trim()) return;
     setPipelineItems(prev => [...prev, { id: Date.now().toString(), title: pipeNewTitle.trim(), type: pipeNewType, platform: pipeNewPlatform, stage: 'Concept' }]);
@@ -1567,7 +1567,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
   }
   function removePipelineItem(id: string) { setPipelineItems(prev => prev.filter(p => p.id !== id)); }
 
-  // ── Character Brief Builder handler ──────────────────────────────────────────
+  // -- Character Brief Builder handler ------------------------------------------
   const CHAR_SIM_OPTIONS = ['Cloth / Fabric Simulation', 'Hair / Fur Simulation', 'Facial Blend Shapes / Morphs', 'Muscle Simulation', 'Fluid / VFX Layer', 'Crowd / Instanced Version'];
   async function handleSaveCharBrief() {
     if (!charName.trim()) return;
@@ -1597,7 +1597,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     setTimeout(() => setCharSaveMsg(''), 4000);
   }
 
-  // ── Scene & Set Design Brief handler ─────────────────────────────────────────
+  // -- Scene & Set Design Brief handler -----------------------------------------
   async function handleSaveSceneBrief() {
     if (!sceneName.trim()) return;
     setSceneSaving(true);
@@ -1624,7 +1624,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     setTimeout(() => setSceneSaveMsg(''), 4000);
   }
 
-  // ── Storyboard Builder handlers ───────────────────────────────────────────────
+  // -- Storyboard Builder handlers -----------------------------------------------
   const SB_SHOT_TYPES = ['Wide', 'Medium', 'Close-up', 'Extreme Close-up', 'Over Shoulder', 'POV', 'Overhead', 'Low Angle', 'Drone'];
   function addSbFrame() {
     setSbFrames(prev => [...prev, { id: Date.now().toString(), scene: `Scene ${prev.length + 1}`, shot: 'Medium', action: '', audio: '', duration: 5 }]);
@@ -1644,7 +1644,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     setTimeout(() => setSbCopied(false), 2000);
   }
 
-  // ── AI Production Plan handlers ───────────────────────────────────────────────
+  // -- AI Production Plan handlers -----------------------------------------------
   function buildProductionPlan(idea: string, type: string, platform: string) {
     const t = idea.trim() || 'your content idea';
     return {
@@ -1725,7 +1725,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     setTimeout(() => setPlanSaveMsg(''), 4000);
   }
 
-  // ── Brand Voice Guard handler ─────────────────────────────────────────────────
+  // -- Brand Voice Guard handler -------------------------------------------------
   async function handleBrandVoiceCheck() {
     if (!bvContent.trim() || !bvProfile.trim()) return;
     setBvLoading(true);
@@ -1750,7 +1750,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
     <ArtifactSlot artifactId="engin:content">
     <div className="de-sky-bg min-h-screen">
 
-      {/* ── Header ── */}
+      {/* -- Header -- */}
       <header
         className="sticky top-0 z-30 backdrop-blur-xl"
         style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}
@@ -1783,10 +1783,10 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
         </div>
       </header>
 
-      {/* ── Body ── */}
+      {/* -- Body -- */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
 
-        {/* ── Music → ContentEngin connection signal (Phase 8 §F Point 57) ── */}
+        {/* -- Music → ContentEngin connection signal (Phase 8 §F Point 57) -- */}
         {stemPrompt && (
           <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(42,138,184,0.3)', background: 'rgba(42,138,184,0.04)' }}>
             <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1811,7 +1811,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         )}
 
-        {/* ── Game → ContentEngin game-clip receiver ── */}
+        {/* -- Game → ContentEngin game-clip receiver -- */}
         {gameClipPrompt && (
           <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(200,152,26,0.3)', background: 'rgba(200,152,26,0.04)' }}>
             <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1836,7 +1836,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         )}
 
-        {/* ── Code → ContentEngin notebook publish receiver ── */}
+        {/* -- Code → ContentEngin notebook publish receiver -- */}
         {notebookPrompt && (
           <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(34,211,238,0.3)', background: 'rgba(34,211,238,0.04)' }}>
             <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1861,10 +1861,10 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         )}
 
-        {/* ═══════════════════════════════════════════════════════════════
+        {/* ---------------------------------------------------------------
             PRE-EDIT — Everything before the editor opens
             Brief · Assets · Audio · Specs · Pipeline
-        ═══════════════════════════════════════════════════════════════ */}
+        --------------------------------------------------------------- */}
         <div style={{ marginBottom: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
             <div style={{ flex: 1, height: 1, background: 'rgba(160,195,240,0.25)' }} />
@@ -1872,7 +1872,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
             <div style={{ flex: 1, height: 1, background: 'rgba(160,195,240,0.25)' }} />
           </div>
 
-          {/* ── 1. Creative Brief Builder ─────────────────────────────────────── */}
+          {/* -- 1. Creative Brief Builder --------------------------------------- */}
           <div className="de-widget" style={{ marginBottom: 14 }}>
             <div className="de-widget-header">
               <span style={{ fontSize: 15 }}>📋</span>
@@ -1973,7 +1973,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
             </div>
           </div>
 
-          {/* ── 2. Asset Collector ────────────────────────────────────────────── */}
+          {/* -- 2. Asset Collector ---------------------------------------------- */}
           <div className="de-widget" style={{ marginBottom: 14 }}>
             <div className="de-widget-header">
               <span style={{ fontSize: 15 }}>🗂️</span>
@@ -2028,7 +2028,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
             </div>
           </div>
 
-          {/* ── 3. Audio Prep Station ─────────────────────────────────────────── */}
+          {/* -- 3. Audio Prep Station ------------------------------------------- */}
           <div className="de-widget" style={{ marginBottom: 14 }}>
             <div className="de-widget-header">
               <span style={{ fontSize: 15 }}>🎵</span>
@@ -2131,7 +2131,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
             </div>
           </div>
 
-          {/* ── 4. Platform Specs Master ─────────────────────────────────────── */}
+          {/* -- 4. Platform Specs Master --------------------------------------- */}
           <div className="de-widget" style={{ marginBottom: 14 }}>
             <div className="de-widget-header">
               <span style={{ fontSize: 15 }}>📐</span>
@@ -2178,7 +2178,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
             </div>
           </div>
 
-          {/* ── 5. Content Pipeline ─────────────────────────────────────────── */}
+          {/* -- 5. Content Pipeline ------------------------------------------- */}
           <div className="de-widget" style={{ marginBottom: 14 }}>
             <div className="de-widget-header">
               <span style={{ fontSize: 15 }}>🚀</span>
@@ -2250,7 +2250,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
             </div>
           </div>
 
-          {/* ── 5b. Storyboard Builder ────────────────────────────────────────── */}
+          {/* -- 5b. Storyboard Builder ------------------------------------------ */}
           <div className="de-widget" style={{ marginBottom: 14 }}>
             <div className="de-widget-header">
               <span style={{ fontSize: 15 }}>🎞️</span>
@@ -2320,7 +2320,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
             </div>
           </div>
 
-          {/* ── 5c. AI Production Plan Builder ───────────────────────────────── */}
+          {/* -- 5c. AI Production Plan Builder --------------------------------- */}
           <div className="de-widget" style={{ marginBottom: 14 }}>
             <div className="de-widget-header">
               <span style={{ fontSize: 15 }}>🤖</span>
@@ -2391,7 +2391,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
             </div>
           </div>
 
-          {/* ── 5c. Character Brief Builder ──────────────────────────────────── */}
+          {/* -- 5c. Character Brief Builder ------------------------------------ */}
           <div className="de-widget" style={{ marginBottom: 14 }}>
             <div className="de-widget-header">
               <span style={{ fontSize: 15 }}>🎭</span>
@@ -2481,7 +2481,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
             </div>
           </div>
 
-          {/* ── 5d. Scene & Set Design Brief ─────────────────────────────────── */}
+          {/* -- 5d. Scene & Set Design Brief ----------------------------------- */}
           <div className="de-widget" style={{ marginBottom: 14 }}>
             <div className="de-widget-header">
               <span style={{ fontSize: 15 }}>🏗️</span>
@@ -2567,7 +2567,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
             </div>
           </div>
 
-          {/* ── 6. Industry Tools Hub ──────────────────────────────────────────── */}
+          {/* -- 6. Industry Tools Hub -------------------------------------------- */}
           <div className="de-widget" style={{ marginBottom: 14 }}>
             <div className="de-widget-header">
               <Wrench className="w-4 h-4" style={{ color: ACCENT }} />
@@ -2662,9 +2662,9 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
             </div>
           </div>
         </div>
-        {/* ═══════════════════════════════════════════════════════════════
+        {/* ---------------------------------------------------------------
             MANAGEMENT — Calendar · Queue · Drafts · Analytics
-        ═══════════════════════════════════════════════════════════════ */}
+        --------------------------------------------------------------- */}
         <div style={{ marginBottom: 8 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <div style={{ flex: 1, height: 1, background: 'rgba(160,195,240,0.25)' }} />
@@ -2672,7 +2672,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
             <div style={{ flex: 1, height: 1, background: 'rgba(160,195,240,0.25)' }} />
           </div>
 
-        {/* ── Recent Drafts ── */}
+        {/* -- Recent Drafts -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Recent Drafts</span>
@@ -2715,7 +2715,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Content Calendar ── */}
+        {/* -- Content Calendar -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Content Calendar</span>
@@ -2806,7 +2806,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Publishing Queue ── */}
+        {/* -- Publishing Queue -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Publishing Queue</span>
@@ -2850,7 +2850,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Activity Post Form (Phase 9 Activity-First Protocol §II) ── */}
+        {/* -- Activity Post Form (Phase 9 Activity-First Protocol §II) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Post Activity</span>
@@ -2866,7 +2866,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Smart Draft Generator ── */}
+        {/* -- Smart Draft Generator -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Smart Draft Generator</span>
@@ -2944,7 +2944,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Cross-Platform Targets ── */}
+        {/* -- Cross-Platform Targets -- */}
         <div className="de-widget">
           <div className="de-widget-header">
             <span className="de-widget-title">Cross-Platform Targets</span>
@@ -2993,7 +2993,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Media Vault Link ── */}
+        {/* -- Media Vault Link -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <ImageIcon className="w-4 h-4" style={{ color: ACCENT }} />
@@ -3015,7 +3015,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── AI Caption ── */}
+        {/* -- AI Caption -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Zap className="w-4 h-4" style={{ color: ACCENT }} />
@@ -3062,7 +3062,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Collab Draft ── */}
+        {/* -- Collab Draft -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <FileText className="w-4 h-4" style={{ color: ACCENT }} />
@@ -3118,7 +3118,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Content Analytics ── */}
+        {/* -- Content Analytics -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <BarChart2 className="w-4 h-4" style={{ color: ACCENT }} />
@@ -3155,7 +3155,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Template Gallery ── */}
+        {/* -- Template Gallery -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Calendar className="w-4 h-4" style={{ color: ACCENT }} />
@@ -3211,7 +3211,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Short Video Editor ── */}
+        {/* -- Short Video Editor -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Video className="w-4 h-4" style={{ color: ACCENT }} />
@@ -3285,7 +3285,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Hashtag Optimizer ── */}
+        {/* -- Hashtag Optimizer -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Hash className="w-4 h-4" style={{ color: ACCENT }} />
@@ -3335,7 +3335,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Feature 13: Viral Hook Builder ── */}
+        {/* -- Feature 13: Viral Hook Builder -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Zap className="w-4 h-4 mr-1" style={{ color: '#ef4444' }} />
@@ -3388,7 +3388,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Feature 14: Content Repurposer ── */}
+        {/* -- Feature 14: Content Repurposer -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <FileText className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -3414,7 +3414,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Feature 15: SEO Title Optimizer (live scoring) ── */}
+        {/* -- Feature 15: SEO Title Optimizer (live scoring) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <BarChart2 className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -3478,7 +3478,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Feature 16: Newsletter Template Generator ── */}
+        {/* -- Feature 16: Newsletter Template Generator -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <ImageIcon className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -3505,7 +3505,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Feature 17: Content Performance Predictor ── */}
+        {/* -- Feature 17: Content Performance Predictor -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Video className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -3532,7 +3532,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Feature 18: Multi-Platform Scheduler ── */}
+        {/* -- Feature 18: Multi-Platform Scheduler -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Calendar className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -3561,7 +3561,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Feature 19: Ad Copy Generator ── */}
+        {/* -- Feature 19: Ad Copy Generator -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>📣</span>
@@ -3597,7 +3597,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Feature 20: Game Engine Cinematic Templates ── */}
+        {/* -- Feature 20: Game Engine Cinematic Templates -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>🎮</span>
@@ -3640,9 +3640,9 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ══ NEW INDUSTRY-STANDARD PANELS ══════════════════════════════════════ */}
+        {/* -- NEW INDUSTRY-STANDARD PANELS -------------------------------------- */}
 
-        {/* ── Quick Compose (Studio-in-a-Box) ── */}
+        {/* -- Quick Compose (Studio-in-a-Box) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Rocket className="w-4 h-4 mr-1" style={{ color: '#8b5cf6' }} />
@@ -3698,7 +3698,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Transcript Editor (Descript-style) ── */}
+        {/* -- Transcript Editor (Descript-style) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <FileText className="w-4 h-4 mr-1" style={{ color: '#06b6d4' }} />
@@ -3838,7 +3838,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Generative Fill (Adobe Firefly-style) ── */}
+        {/* -- Generative Fill (Adobe Firefly-style) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Wand2 className="w-4 h-4 mr-1" style={{ color: '#f59e0b' }} />
@@ -3902,7 +3902,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Voice Clone & AI TTS (ElevenLabs-style) ── */}
+        {/* -- Voice Clone & AI TTS (ElevenLabs-style) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Mic className="w-4 h-4 mr-1" style={{ color: '#10b981' }} />
@@ -4016,7 +4016,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Real-time SEO / Performance Scorer ── */}
+        {/* -- Real-time SEO / Performance Scorer -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <BarChart2 className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -4126,7 +4126,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Human Review Toggle ── */}
+        {/* -- Human Review Toggle -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Shield className="w-4 h-4 mr-1" style={{ color: humanReviewEnabled ? '#22c55e' : 'var(--de-text-dim)' }} />
@@ -4172,7 +4172,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Brand Memory ── */}
+        {/* -- Brand Memory -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Flag className="w-4 h-4 mr-1" style={{ color: '#f43f5e' }} />
@@ -4206,7 +4206,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Creativity / Human Touch Slider ── */}
+        {/* -- Creativity / Human Touch Slider -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Dice5 className="w-4 h-4 mr-1" style={{ color: '#8b5cf6' }} />
@@ -4242,12 +4242,12 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ══════════════════════════════════════════════════════════
+        {/* ----------------------------------------------------------
              VFX COMPOSITING DEPARTMENT
              "How 2D/3D art and filmed actors are put in the same room"
-             ══════════════════════════════════════════════════════════ */}
+             ---------------------------------------------------------- */}
 
-        {/* ── Motion Capture (Autodesk MotionBuilder) ── */}
+        {/* -- Motion Capture (Autodesk MotionBuilder) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Camera className="w-4 h-4 mr-1" style={{ color: '#a78bfa' }} />
@@ -4299,7 +4299,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── FX Simulation (Houdini-inspired) ── */}
+        {/* -- FX Simulation (Houdini-inspired) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Zap className="w-4 h-4 mr-1" style={{ color: '#f97316' }} />
@@ -4361,7 +4361,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── 2.5D Compositor (After Effects-inspired) ── */}
+        {/* -- 2.5D Compositor (After Effects-inspired) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Layers className="w-4 h-4 mr-1" style={{ color: '#06b6d4' }} />
@@ -4404,7 +4404,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Rotoscope Editor (Clip Studio Paint-inspired) ── */}
+        {/* -- Rotoscope Editor (Clip Studio Paint-inspired) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Film className="w-4 h-4 mr-1" style={{ color: '#ec4899' }} />
@@ -4465,7 +4465,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Node Compositor (Foundry Nuke-inspired) ── */}
+        {/* -- Node Compositor (Foundry Nuke-inspired) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Link2 className="w-4 h-4 mr-1" style={{ color: '#22c55e' }} />
@@ -4517,7 +4517,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Matchmover (Syntheyes / 3DEqualizer-inspired) ── */}
+        {/* -- Matchmover (Syntheyes / 3DEqualizer-inspired) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Crosshair className="w-4 h-4 mr-1" style={{ color: '#f59e0b' }} />
@@ -4567,7 +4567,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── 3D Figure from Photos ── */}
+        {/* -- 3D Figure from Photos -- */}
         <div className="de-widget" style={{ margin: '14px 0' }}>
           <div className="de-widget-header">
             <Camera className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -4619,7 +4619,7 @@ export default function ContentEngin() { onBack, instanceId: instanceIdProp }: P
           </div>
         </div>
 
-        {/* ── Journey Trail ── */}
+        {/* -- Journey Trail -- */}
         <div className="de-widget" style={{ margin: '14px 0' }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Journey</span>

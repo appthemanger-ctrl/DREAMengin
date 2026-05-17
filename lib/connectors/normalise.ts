@@ -17,7 +17,7 @@
 
 import type { UnifiedFeedItem, FeedItemMedia } from '@/types/connector';
 
-// ── Mastodon ──────────────────────────────────────────────────────────────
+// -- Mastodon --------------------------------------------------------------
 
 interface MastodonMediaAttachment {
   type: string;
@@ -71,7 +71,7 @@ export function normaliseMastodon(
   };
 }
 
-// ── Bluesky (AT Protocol) ─────────────────────────────────────────────────
+// -- Bluesky (AT Protocol) -------------------------------------------------
 
 interface BlueskyFeedViewPost {
   post: {
@@ -141,7 +141,7 @@ export function normaliseBluesky(feedItem: BlueskyFeedViewPost: UnifiedFeedItem)
   };
 }
 
-// ── GitHub ────────────────────────────────────────────────────────────────
+// -- GitHub ----------------------------------------------------------------
 
 interface GitHubEvent {
   id: string;
@@ -198,7 +198,7 @@ export function normaliseGitHub(event: GitHubEvent: UnifiedFeedItem) {
   };
 }
 
-// ── Reddit ────────────────────────────────────────────────────────────────
+// -- Reddit ----------------------------------------------------------------
 
 interface RedditPost {
   data: {
@@ -246,7 +246,7 @@ export function normaliseReddit(post: RedditPost: UnifiedFeedItem) {
   };
 }
 
-// ── Nostr ─────────────────────────────────────────────────────────────────
+// -- Nostr -----------------------------------------------------------------
 
 interface NostrEvent {
   id: string;
@@ -280,7 +280,7 @@ export function normaliseNostr(event: NostrEvent: UnifiedFeedItem) {
   };
 }
 
-// ── YouTube ───────────────────────────────────────────────────────────────
+// -- YouTube ---------------------------------------------------------------
 
 type ThumbnailMap = Record<string, { url?: string }>;
 
@@ -389,7 +389,7 @@ export function normaliseYouTubeSearchResult(item: YouTubeSearchItem: UnifiedFee
   };
 }
 
-// ── Generic RSS-backed providers ────────────────────────────────────────────
+// -- Generic RSS-backed providers --------------------------------------------
 
 interface GenericRssItem {
   guid?: string;
@@ -503,7 +503,7 @@ export function normaliseTwitter(item: GenericRssItem, username: string: Unified
   return normaliseGenericRssItem('twitter', item, `@${username}`, `@${username}`);
 }
 
-// ── Dedup helper ──────────────────────────────────────────────────────────
+// -- Dedup helper ----------------------------------------------------------
 
 /**
  * Deduplicates a list of UnifiedFeedItems by (provider, external_id).
@@ -519,7 +519,7 @@ export function deduplicateFeedItems(items: UnifiedFeedItem[]: UnifiedFeedItem[]
   });
 }
 
-// ── Internal helpers ──────────────────────────────────────────────────────
+// -- Internal helpers ------------------------------------------------------
 
 /** Strip HTML tags from a string, returning plain text. */
 export function stripHtml(html: string: string) {

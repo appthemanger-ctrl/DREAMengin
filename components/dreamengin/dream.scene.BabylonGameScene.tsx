@@ -186,7 +186,7 @@ export default function BabylonGameScene() { onGameSelect }: BabylonGameScenePro
           const perf = (engine as import('@babylonjs/core').Engine).performanceMonitor;
           const avgFrame = perf ? perf.averageFrameTime : 16.6;
 
-          // ── God Tier: hardware scaling + image processing ──────────────────
+          // -- God Tier: hardware scaling + image processing ------------------
           const gtState = godTierRef.current.update({
             device:  defaultDeviceSignals(),
             runtime: {
@@ -221,7 +221,7 @@ export default function BabylonGameScene() { onGameSelect }: BabylonGameScenePro
           });
           applyGodTierToBabylon(engine, scene as unknown as import('@/lib/god-tier/godTierEngine').BabylonSceneLike, gtState, window.devicePixelRatio ?? 1);
 
-          // ── WebGPU Director: per-object freeze / shadow / LOD ──────────────
+          // -- WebGPU Director: per-object freeze / shadow / LOD --------------
           const dirObjects = buildSceneObjects(
             scene.meshes as unknown as import('@/lib/webgpu/director').DirectorBabylonMesh[],
             (m) => ({

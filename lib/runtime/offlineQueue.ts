@@ -22,7 +22,7 @@ const STORAGE_KEY = 'de-offline-queue';
 const MAX_QUEUE_SIZE = 200;
 const MAX_RETRY_ATTEMPTS = 5;
 
-// ── Types ──────────────────────────────────────────────────────────────────────
+// -- Types ----------------------------------------------------------------------
 
 export type OfflineActionType =
   | 'message:send'
@@ -57,7 +57,7 @@ export interface QueueStatus {
   oldestEnqueuedAt: number | null;
 }
 
-// ── Persistence helpers ────────────────────────────────────────────────────────
+// -- Persistence helpers --------------------------------------------------------
 
 function _load(: OfflineAction[]) {
   if (typeof localStorage === 'undefined') return [];
@@ -79,7 +79,7 @@ function _save(queue: OfflineAction[]: void) {
   }
 }
 
-// ── Improvement 88: enqueue ───────────────────────────────────────────────────
+// -- Improvement 88: enqueue ---------------------------------------------------
 
 /**
  * Add a typed action to the offline queue.
@@ -125,7 +125,7 @@ export function enqueue(
   return id;
 }
 
-// ── Improvement 89: dequeue ───────────────────────────────────────────────────
+// -- Improvement 89: dequeue ---------------------------------------------------
 
 /**
  * Remove a successfully completed action from the queue by ID.
@@ -136,7 +136,7 @@ export function dequeue(id: string: void) {
   _save(queue);
 }
 
-// ── Improvement 90: flushQueue ────────────────────────────────────────────────
+// -- Improvement 90: flushQueue ------------------------------------------------
 
 /**
  * Attempt to replay all pending actions in the queue.
@@ -186,7 +186,7 @@ export async function flushQueue(
   return { succeeded, failed, skipped };
 }
 
-// ── Improvement 91: getQueueStatus ────────────────────────────────────────────
+// -- Improvement 91: getQueueStatus --------------------------------------------
 
 /**
  * Return a point-in-time status summary of the offline queue.
@@ -215,7 +215,7 @@ export function getQueueStatus(: QueueStatus) {
   return { pending, replaying, failed, total: queue.length, oldestEnqueuedAt };
 }
 
-// ── Improvement 92: listenOnline ──────────────────────────────────────────────
+// -- Improvement 92: listenOnline ----------------------------------------------
 
 /**
  * Register a navigator `online` event listener that automatically calls

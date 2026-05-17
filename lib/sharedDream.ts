@@ -133,7 +133,7 @@ export async function leaveSharedDreamSession(session: SharedDreamSession: Promi
   await session.leave();
 }
 
-// ── Persistent session hook ───────────────────────────────────────────────────
+// -- Persistent session hook ---------------------------------------------------
 export {
   useSharedDreamSession,
   type UseSharedDreamSessionOptions,

@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
 
   const db = supabase as SupabaseClient;
 
-  // ── Who does the user already follow? ────────────────────────────────────
+  // -- Who does the user already follow? ------------------------------------
   const { data: follows } = await supabase
     .from('follows')
     .select('following_id')
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
   const excludeIds = [...followedIds, user.id];
   const circle = await loadVisibilityCircle(user.id);
 
-  // ── Suggested CONTENT ─────────────────────────────────────────────────────
+  // -- Suggested CONTENT -----------------------------------------------------
   if (type === 'content') {
     // NOTE: DB column is `view_count` (singular); algorithm field is `views_count`.
     const { data: rows } = await db
@@ -93,7 +93,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ suggestions: ranked }, { headers: { 'Cache-Control': 'no-store' } });
   }
 
-  // ── Suggested CREATORS ────────────────────────────────────────────────────
+  // -- Suggested CREATORS ----------------------------------------------------
   if (type === 'creators') {
     // Pull a wider pool of recent public posts so we can score the body of
     // each creator's recent work, not just count them. We need content +

@@ -121,7 +121,7 @@ export default function FeedSettingsPanel() {
         </div>
       )}
 
-      {/* ── Feed Topics ─────────────────────────────────────────────────── */}
+      {/* -- Feed Topics --------------------------------------------------- */}
       <div className="de-widget" style={{ margin: '0 16px 16px', background: 'rgba(255,255,255,0.95)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
         <div className="de-widget-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span className="de-widget-title">Feed Topics</span>
@@ -167,7 +167,7 @@ export default function FeedSettingsPanel() {
         </div>
       </div>
 
-      {/* ── General Preferences ─────────────────────────────────────────── */}
+      {/* -- General Preferences ------------------------------------------- */}
       <div className="de-widget" style={{ margin: '0 16px', background: 'rgba(255,255,255,0.95)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
         <div className="de-widget-header"><span className="de-widget-title">Feed Preferences</span></div>
         <div className="de-widget-body" style={{ padding: '4px 6px' }}>

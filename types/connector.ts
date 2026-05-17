@@ -9,7 +9,7 @@
  * AXIOMS.md §5     — Privacy by Design: owner-only RLS on connector_accounts
  */
 
-// ── Connector account model ───────────────────────────────────────────────
+// -- Connector account model -----------------------------------------------
 
 /**
  * Mirrors the public.connector_accounts DB row.
@@ -49,7 +49,7 @@ export interface ConnectorAccountPublic
   last_sync_count: number;
 }
 
-// ── Unified feed item ─────────────────────────────────────────────────────
+// -- Unified feed item -----------------------------------------------------
 
 export interface FeedItemMedia {
   url: string;
@@ -101,7 +101,7 @@ export interface FeedItemRow {
   created_at: string;
 }
 
-// ── Connector API response shapes ─────────────────────────────────────────
+// -- Connector API response shapes -----------------------------------------
 
 export interface ConnectorConnectRequest {
   /** Depends on provider: access_token, username, instance_url, pubkey, etc. */

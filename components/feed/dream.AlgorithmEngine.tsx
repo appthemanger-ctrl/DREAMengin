@@ -4,9 +4,9 @@ import { useState, useCallback, useEffect, useId } from 'react';
 import Link from 'next/link';
 import { Plus, Check, Trash2, Share2, Shuffle, Zap, User, ChevronRight, X, Edit3, Shield, ShieldCheck } from 'lucide-react';
 
-/* ─────────────────────────────────────────────
+/* ---------------------------------------------
    Types
-───────────────────────────────────────────── */
+--------------------------------------------- */
 export type FeedPreset = {
   id: string;
   name: string;
@@ -20,9 +20,9 @@ export type FeedPreset = {
 
 type AlgoMode = 'mine' | 'dream';
 
-/* ─────────────────────────────────────────────
+/* ---------------------------------------------
    localStorage helpers
-───────────────────────────────────────────── */
+--------------------------------------------- */
 function loadMode(: AlgoMode) {
   if (typeof window === 'undefined') return 'mine';
   return (localStorage.getItem('de-algo-mode') as AlgoMode) || 'mine';
@@ -51,9 +51,9 @@ function loadChildSafety(: boolean) {
 }
 function saveChildSafety(v: boolean) { localStorage.setItem('de-child-safety', String(v)); }
 
-/* ─────────────────────────────────────────────
+/* ---------------------------------------------
    Follow settings reader (for display)
-───────────────────────────────────────────── */
+--------------------------------------------- */
 type FollowSetting = { handle: string; displayName: string; frequency: string };
 function loadFollows(: FollowSetting[]) {
   try {
@@ -62,9 +62,9 @@ function loadFollows(: FollowSetting[]) {
   } catch { return []; }
 }
 
-/* ─────────────────────────────────────────────
+/* ---------------------------------------------
    Preset Creator sub-component
-───────────────────────────────────────────── */
+--------------------------------------------- */
 const FREQ_OPTIONS = [
   { id: 'all',       label: '📡 Everything',   desc: 'All posts in real time'          },
   { id: 'highlights',label: '✨ Highlights',    desc: 'Best posts auto-selected'        },
@@ -229,9 +229,9 @@ function PresetCreator() { onSave, onCancel, editing }: {
   );
 }
 
-/* ─────────────────────────────────────────────
+/* ---------------------------------------------
    Main AlgorithmEngine
-───────────────────────────────────────────── */
+--------------------------------------------- */
 export default function AlgorithmEngine() {
   const [mode,        setMode]        = useState<AlgoMode>(loadMode);
   const [presets,     setPresets]     = useState<FeedPreset[]>(loadPresets);
@@ -289,7 +289,7 @@ export default function AlgorithmEngine() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
-      {/* ── Algorithm Power Level ── */}
+      {/* -- Algorithm Power Level -- */}
       <div className="de-widget" style={{ background: 'linear-gradient(135deg, rgba(42,138,184,0.10), rgba(200,152,26,0.08))' }}>
         <div className="de-widget-header">
           <Zap className="w-4 h-4 mr-2" style={{ color: 'var(--de-gold)' }} />
@@ -310,7 +310,7 @@ export default function AlgorithmEngine() {
         </div>
       </div>
 
-      {/* ── Child Safety ── */}
+      {/* -- Child Safety -- */}
       <div className="de-widget">
         <div className="de-widget-header">
           {childSafety
@@ -343,7 +343,7 @@ export default function AlgorithmEngine() {
         </div>
       </div>
 
-      {/* ── Algorithm Mode Toggle ── */}
+      {/* -- Algorithm Mode Toggle -- */}
       <div className="de-widget" style={{ background: 'linear-gradient(135deg, rgba(42,138,184,0.08), rgba(200,152,26,0.06))' }}>
         <div className="de-widget-header">
           <span className="de-widget-title">Who Controls Your Feed?</span>
@@ -388,7 +388,7 @@ export default function AlgorithmEngine() {
         </div>
       </div>
 
-      {/* ── Your Setups ── */}
+      {/* -- Your Setups -- */}
       {mode === 'mine' && (
         <div className="de-widget">
           <div className="de-widget-header">
@@ -447,7 +447,7 @@ export default function AlgorithmEngine() {
         </div>
       )}
 
-      {/* ── Mix Mode ── */}
+      {/* -- Mix Mode -- */}
       {mode === 'mine' && presets.length > 0 && (
         <div className="de-widget">
           <div className="de-widget-header">
@@ -490,7 +490,7 @@ export default function AlgorithmEngine() {
         </div>
       )}
 
-      {/* ── Who You Follow + Their Settings ── */}
+      {/* -- Who You Follow + Their Settings -- */}
       {follows.length > 0 && (
         <div className="de-widget">
           <div className="de-widget-header">
@@ -519,7 +519,7 @@ export default function AlgorithmEngine() {
         </div>
       )}
 
-      {/* ── Share Alert ── */}
+      {/* -- Share Alert -- */}
       {shareAlert && (
         <div style={{ padding: '12px 16px', borderRadius: 14, background: 'rgba(42,138,184,0.1)', border: '1px solid rgba(42,138,184,0.2)', fontSize: 13, fontWeight: 600, color: 'var(--de-accent)', display: 'flex', alignItems: 'center', gap: 8 }}>
           <Check className="w-4 h-4" /> {shareAlert}
@@ -527,7 +527,7 @@ export default function AlgorithmEngine() {
         </div>
       )}
 
-      {/* ── Discover public setups ── */}
+      {/* -- Discover public setups -- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <Zap className="w-4 h-4 mr-2" style={{ color: 'var(--de-gold)' }} />
@@ -551,9 +551,9 @@ export default function AlgorithmEngine() {
   );
 }
 
-/* ─────────────────────────────────────────────
+/* ---------------------------------------------
    Preset Row sub-component
-───────────────────────────────────────────── */
+--------------------------------------------- */
 function PresetRow() { emoji, name, desc, isActive, isMixed, mixOn, onActivate, onMixToggle, onEdit, onDelete, onShare, isPublic }: {
   emoji: string; name: string; desc: string;
   isActive: boolean; isMixed: boolean; mixOn: boolean;

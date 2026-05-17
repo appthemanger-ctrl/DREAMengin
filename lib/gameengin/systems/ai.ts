@@ -11,7 +11,7 @@
  * `BehaviorTreeSystem` is an alias for the canonical `BehaviorTreeEngine`.
  */
 
-// ─── Classes ─────────────────────────────────────────────────────────────────
+// --- Classes -----------------------------------------------------------------
 
 export {
   BehaviorTreeEngine,
@@ -21,7 +21,7 @@ export {
 /** Alias: BehaviorTreeSystem → BehaviorTreeEngine. */
 export { BehaviorTreeEngine as BehaviorTreeSystem } from '../power-systems';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// --- Types -------------------------------------------------------------------
 
 export type {
   BTStatus,

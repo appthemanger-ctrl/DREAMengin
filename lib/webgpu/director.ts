@@ -17,7 +17,7 @@
  * every renderer consults before touching the GPU.
  */
 
-// ─── Core enumerations ────────────────────────────────────────────────────────
+// --- Core enumerations --------------------------------------------------------
 
 export type CameraState =
   | "hero"
@@ -51,7 +51,7 @@ export type PassName =
   | "tonemap"
   | "ui";
 
-// ─── Input signal types ───────────────────────────────────────────────────────
+// --- Input signal types -------------------------------------------------------
 
 export type RuntimeMetrics = {
   frameMs: number;
@@ -88,7 +88,7 @@ export type SceneObject = {
   lastFrameVisible: boolean;
 };
 
-// ─── Output decision types ────────────────────────────────────────────────────
+// --- Output decision types ----------------------------------------------------
 
 export type ObjectDecision = {
   id: string;
@@ -142,7 +142,7 @@ export type DirectorFrame = {
   resolutionScale: number;
 };
 
-// ─── 1) Pressure classifier ───────────────────────────────────────────────────
+// --- 1) Pressure classifier ---------------------------------------------------
 
 /**
  * Classify the current GPU/CPU pressure into a 0–3 tier.
@@ -158,7 +158,7 @@ export function classifyPressure(metrics: RuntimeMetrics: Pressure) {
   return 0;
 }
 
-// ─── 2) Pass plan builder ─────────────────────────────────────────────────────
+// --- 2) Pass plan builder -----------------------------------------------------
 
 const FULL_RES  = 1.0;
 const HALF_RES  = 0.5;
@@ -235,7 +235,7 @@ export function buildPassPlan(
   };
 }
 
-// ─── 3) Object importance solver ─────────────────────────────────────────────
+// --- 3) Object importance solver ---------------------------------------------
 
 /**
  * Score a single scene object on a 0–100 scale.
@@ -286,7 +286,7 @@ export function scoreObject(obj: SceneObject, camera: CameraSignals: number) {
   return Math.max(0, Math.min(100, score));
 }
 
-// ─── 4) Quality class classifier ─────────────────────────────────────────────
+// --- 4) Quality class classifier ---------------------------------------------
 
 export function classifyObject(importance: number, pressure: Pressure: QualityClass) {
   if (importance === 0)                           return "culled";
@@ -297,7 +297,7 @@ export function classifyObject(importance: number, pressure: Pressure: QualityCl
   return "culled";
 }
 
-// ─── 5) Per-object decision maker ────────────────────────────────────────────
+// --- 5) Per-object decision maker --------------------------------------------
 
 function snapUpdateHz(
   importance:   number,
@@ -358,7 +358,7 @@ export function decideObject(
   };
 }
 
-// ─── 6) Frame budget resolver ─────────────────────────────────────────────────
+// --- 6) Frame budget resolver -------------------------------------------------
 
 /**
  * Resolve a per-frame budget and check whether the current metrics are on track.
@@ -382,7 +382,7 @@ export function resolveFrameBudget(
   return { gpuBudgetMs, cpuBudgetMs, uploadBudgetMs, withinBudget };
 }
 
-// ─── 7) Temporal state resolver ───────────────────────────────────────────────
+// --- 7) Temporal state resolver -----------------------------------------------
 
 /**
  * Resolve TAA and jitter settings for the current frame.
@@ -407,7 +407,7 @@ export function resolveTemporalState(
   return { taaEnabled, taaFrameCount, jitterScale, historyInvalidated };
 }
 
-// ─── 8) Resolution scale solver ──────────────────────────────────────────────
+// --- 8) Resolution scale solver ----------------------------------------------
 
 /**
  * Choose a global internal resolution scale.
@@ -451,7 +451,7 @@ export function resolveResolutionScale(
   return scale;
 }
 
-// ─── 9) Director class ────────────────────────────────────────────────────────
+// --- 9) Director class --------------------------------------------------------
 
 /**
  * WebGPU Director — the single authoritative source for all rendering decisions.
@@ -531,7 +531,7 @@ export class WebGPUDirector {
   }
 }
 
-// ─── 10) Babylon.js application layer ─────────────────────────────────────────
+// --- 10) Babylon.js application layer -----------------------------------------
 
 export type DirectorBabylonEngine = {
   setHardwareScalingLevel: (level: number) => void;
@@ -601,7 +601,7 @@ export function applyDirectorFrame(
   }
 }
 
-// ─── Singleton + convenience helpers ─────────────────────────────────────────
+// --- Singleton + convenience helpers -----------------------------------------
 
 export const webGPUDirector = new WebGPUDirector();
 
@@ -622,7 +622,7 @@ export function defaultCameraSignals(state: CameraState = "browse": CameraSignal
   return { state, velocity: 0, cutActive: false };
 }
 
-// ─── 11) Scene-object builder helpers ────────────────────────────────────────
+// --- 11) Scene-object builder helpers ----------------------------------------
 
 /**
  * Per-mesh metadata hints that callers can supply to `babylonMeshToSceneObject`.

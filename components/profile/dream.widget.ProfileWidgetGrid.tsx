@@ -6,7 +6,7 @@ import { Heart, MessageCircle, Share2, Users, X, Check, Plug, ChevronLeft, Chevr
 import ConnectorWidgetPicker, { type PickerConnector, TOP_10_CONNECTORS } from '@/components/connectors/dream.widget.ConnectorWidgetPicker';
 import EditableAvatar from '@/components/profile/dream.EditableAvatar';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 export type WidgetType =
   | 'bio' | 'activity' | 'followers' | 'photos'
@@ -60,7 +60,7 @@ export const DEFAULT_WIDGETS: Widget[] = [
   { id: 'quote',     type: 'quote',     size: 'small' },
 ];
 
-// ── Canonical aliases (preferred for new code) ────────────────────────────
+// -- Canonical aliases (preferred for new code) ----------------------------
 export type DreamType    = WidgetType;
 export type DreamSize    = WidgetSize;
 export type DreamBgStyle = WidgetBgStyle;
@@ -100,7 +100,7 @@ const BG_STYLES: { value: WidgetBgStyle; label: string }[] = [
   { value: 'dark',   label: 'Dark' },
 ];
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
+// -- Helpers --------------------------------------------------------------------
 
 function getWidgetLabel(type: WidgetType: string) {
   return {
@@ -118,7 +118,7 @@ function getDefaultSize(type: WidgetType: WidgetSize) {
   return LARGE_DEFAULT_TYPES.has(type) ? 'large' : 'small';
 }
 
-// ── Layout / content constants ─────────────────────────────────────────────────
+// -- Layout / content constants -------------------------------------------------
 const MIN_SMALL_WIDGET_HEIGHT = 120;
 const BIO_SMALL_TRUNCATE      = 35;   // chars shown in compact bio
 const BIO_LARGE_TRUNCATE      = 55;
@@ -140,7 +140,7 @@ function getDimColor(style: WidgetBgStyle: string) {
   return style === 'dark' ? 'rgba(255,255,255,0.55)' : '#999';
 }
 
-// ── Dot-grid icon (iOS-style drag/settings handle) ────────────────────────────
+// -- Dot-grid icon (iOS-style drag/settings handle) ----------------------------
 
 function DotGrid() {
   return (
@@ -179,7 +179,7 @@ function BarChart() { data, color }: { data: number[]; color: string } {
   );
 }
 
-// ── Widget Config Sheet ────────────────────────────────────────────────────────
+// -- Widget Config Sheet --------------------------------------------------------
 
 function WidgetConfigSheet() {
   widget, onClose, onSave,
@@ -252,7 +252,7 @@ function WidgetConfigSheet() {
 
         <div style={{ padding: '0 18px 8px' }}>
 
-          {/* ── Widget Size ── */}
+          {/* -- Widget Size -- */}
           <label style={sectionLabel}>Size</label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
             {(['small', 'large'] as WidgetSize[]).map(s => (
@@ -286,7 +286,7 @@ function WidgetConfigSheet() {
             ))}
           </div>
 
-          {/* ── Accent Color ── */}
+          {/* -- Accent Color -- */}
           <label style={sectionLabel}>Accent Color</label>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             {COLOR_SWATCHES.map(({ color: c, label }) => (
@@ -302,7 +302,7 @@ function WidgetConfigSheet() {
             ))}
           </div>
 
-          {/* ── Background Style ── */}
+          {/* -- Background Style -- */}
           <label style={sectionLabel}>Background</label>
           <div style={{ display: 'flex', gap: 8 }}>
             {BG_STYLES.map(({ value, label }) => (
@@ -320,7 +320,7 @@ function WidgetConfigSheet() {
             ))}
           </div>
 
-          {/* ── Visibility ── */}
+          {/* -- Visibility -- */}
           <label style={sectionLabel}>Visibility</label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
             {([
@@ -344,7 +344,7 @@ function WidgetConfigSheet() {
             ))}
           </div>
 
-          {/* ── Widget-specific options ── */}
+          {/* -- Widget-specific options -- */}
           {widget.type === 'quote' && (
             <>
               <label style={sectionLabel}>Quote Text</label>
@@ -408,7 +408,7 @@ function WidgetConfigSheet() {
             </>
           )}
 
-          {/* ── Apply ── */}
+          {/* -- Apply -- */}
           <button onClick={() => {
             onSave({
               accentColor: color, bgStyle,
@@ -432,7 +432,7 @@ function WidgetConfigSheet() {
   );
 }
 
-// ── Connector-sourced widget shell ────────────────────────────────────────────
+// -- Connector-sourced widget shell --------------------------------------------
 
 function ConnectorSourcedWidget() {
   symbol, brandColor, bgColor, name, sub,
@@ -491,7 +491,7 @@ function ConnectorSourcedWidget() {
   );
 }
 
-// ── Widget content (size-aware) ────────────────────────────────────────────────
+// -- Widget content (size-aware) ------------------------------------------------
 
 interface WidgetContentProps {
   type: WidgetType;
@@ -539,7 +539,7 @@ function WidgetContent(p: WidgetContentProps) {
 
   switch (type) {
 
-    // ── Bio ──────────────────────────────────────────────────────────────────
+    // -- Bio ------------------------------------------------------------------
     case 'bio': {
       if (!isLarge) {
         return (
@@ -613,7 +613,7 @@ function WidgetContent(p: WidgetContentProps) {
       );
     }
 
-    // ── Activity ─────────────────────────────────────────────────────────────
+    // -- Activity -------------------------------------------------------------
     case 'activity': {
       if (!isLarge) {
         return (
@@ -641,7 +641,7 @@ function WidgetContent(p: WidgetContentProps) {
       );
     }
 
-    // ── Followers ─────────────────────────────────────────────────────────────
+    // -- Followers -------------------------------------------------------------
     case 'followers': {
       const fmt = (n: number) => n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n || 0);
       if (!isLarge) {
@@ -686,7 +686,7 @@ function WidgetContent(p: WidgetContentProps) {
       );
     }
 
-    // ── Photos ────────────────────────────────────────────────────────────────
+    // -- Photos ----------------------------------------------------------------
     case 'photos': {
       const count = isLarge ? 4 : 3;
       const cols  = isLarge ? 2 : 3;
@@ -712,7 +712,7 @@ function WidgetContent(p: WidgetContentProps) {
       );
     }
 
-    // ── LinkedIn ──────────────────────────────────────────────────────────────
+    // -- LinkedIn --------------------------------------------------------------
     case 'linkedin': {
       return (
         <div>
@@ -749,7 +749,7 @@ function WidgetContent(p: WidgetContentProps) {
       );
     }
 
-    // ── Twitter ───────────────────────────────────────────────────────────────
+    // -- Twitter ---------------------------------------------------------------
     case 'twitter': {
       if (!isLarge) {
         return (
@@ -817,7 +817,7 @@ function WidgetContent(p: WidgetContentProps) {
       );
     }
 
-    // ── Quote ─────────────────────────────────────────────────────────────────
+    // -- Quote -----------------------------------------------------------------
     case 'quote': {
       return (
         <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', minHeight: isLarge ? 110 : 80 }}>
@@ -829,7 +829,7 @@ function WidgetContent(p: WidgetContentProps) {
       );
     }
 
-    // ── Connector widgets ─────────────────────────────────────────────────────
+    // -- Connector widgets -----------------------------------------------------
 
     case 'instagram': return (
       <ConnectorSourcedWidget size={size}
@@ -900,7 +900,7 @@ function WidgetContent(p: WidgetContentProps) {
   }
 }
 
-// ── Main component ─────────────────────────────────────────────────────────────
+// -- Main component -------------------------------------------------------------
 
 interface ProfileWidgetGridProps {
   displayName: string;
@@ -1024,7 +1024,7 @@ export default function ProfileWidgetGrid() {
   return (
     <div style={{ paddingBottom: isEditing ? 96 : 0 }}>
 
-      {/* ── Profile Strength bar (edit mode only) ── */}
+      {/* -- Profile Strength bar (edit mode only) -- */}
       {isEditing && (
         <div style={{
           marginBottom: 16, padding: '14px 16px',
@@ -1051,7 +1051,7 @@ export default function ProfileWidgetGrid() {
         </div>
       )}
 
-      {/* ── Unified 2-col widget grid ── */}
+      {/* -- Unified 2-col widget grid -- */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
         {widgets.map(w: Record<string, unknown>, idx: number => (
           <div
@@ -1138,7 +1138,7 @@ export default function ProfileWidgetGrid() {
         ))}
       </div>
 
-      {/* ── ∞ gold button ── */}
+      {/* -- ∞ gold button -- */}
       <div style={{ textAlign: 'center', marginTop: 28 }}>
         <div style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
@@ -1151,7 +1151,7 @@ export default function ProfileWidgetGrid() {
         </div>
       </div>
 
-      {/* ── Fixed bottom widget chip strip (edit mode only) ── */}
+      {/* -- Fixed bottom widget chip strip (edit mode only) -- */}
       {isEditing && (
         <div style={{
           position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 90,

@@ -172,7 +172,7 @@ export default function EnginFracture() {
         }
       }
 
-      // ── Render ───────────────────────────────────────────────────────────
+      // -- Render -----------------------------------------------------------
       // Saturation grid floor
       ctx.fillStyle = '#0a0d1c'; ctx.fillRect(0, 0, W, H);
       const grad = ctx.createLinearGradient(0, GROUND, 0, H);

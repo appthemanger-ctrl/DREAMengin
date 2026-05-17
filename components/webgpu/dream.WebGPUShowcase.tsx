@@ -21,7 +21,7 @@ import Link from 'next/link';
 import { isWebGPUAvailable, getRendererBackend } from '@/lib/webgpu';
 import { WebGPURenderer } from './renderer';
 
-// ── Constants ────────────────────────────────────────────────────────────────
+// -- Constants ----------------------------------------------------------------
 
 const GOLD   = '#e8c040';
 const CYAN   = '#5de8ff';
@@ -64,7 +64,7 @@ const SECTIONS = [
   },
 ];
 
-// ── GPU canvas (WebGPU-first, Canvas2D fallback) ──────────────────────────────
+// -- GPU canvas (WebGPU-first, Canvas2D fallback) ------------------------------
 
 function useGPUCanvas(
   canvasRef:    React.RefObject<HTMLCanvasElement | null>,
@@ -79,7 +79,7 @@ function useGPUCanvas(
     let raf = 0;
     let webgpuRenderer: WebGPURenderer | null = null;
 
-    // ── WebGPU path ────────────────────────────────────────────────────────
+    // -- WebGPU path --------------------------------------------------------
     const tryWebGPU = async () => {
       try {
         const r = await WebGPURenderer.create(canvas);
@@ -120,7 +120,7 @@ function useGPUCanvas(
       }
     };
 
-    // ── Canvas2D fallback ──────────────────────────────────────────────────
+    // -- Canvas2D fallback --------------------------------------------------
     const startCanvas2D = () => {
       if (destroyed) return;
       const ctx = canvas.getContext('2d');
@@ -209,7 +209,7 @@ function useGPUCanvas(
   }, [canvasRef, setFps, setGpuActive]);
 }
 
-// ── Backend badge ─────────────────────────────────────────────────────────────
+// -- Backend badge -------------------------------------------------------------
 
 function BackendBadge() { backend }: { backend: string | null } {
   if (!backend) {
@@ -245,7 +245,7 @@ function BackendBadge() { backend }: { backend: string | null } {
   );
 }
 
-// ── Section card ──────────────────────────────────────────────────────────────
+// -- Section card --------------------------------------------------------------
 
 function SectionCard() {
   emoji, label, desc, color, href,
@@ -297,7 +297,7 @@ function SectionCard() {
   );
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
+// -- Main component ------------------------------------------------------------
 
 export default function WebGPUShowcase() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -328,7 +328,7 @@ export default function WebGPUShowcase() {
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >
-      {/* ── Top bar ───────────────────────────────────────────────────────── */}
+      {/* -- Top bar --------------------------------------------------------- */}
       <div style={{
         position: 'sticky',
         top: 0,
@@ -369,7 +369,7 @@ export default function WebGPUShowcase() {
         </div>
       </div>
 
-      {/* ── Hero canvas ───────────────────────────────────────────────────── */}
+      {/* -- Hero canvas ----------------------------------------------------- */}
       <div style={{ position: 'relative', height: 'clamp(220px, 38vw, 340px)', overflow: 'hidden' }}>
         <canvas
           ref={canvasRef}
@@ -443,7 +443,7 @@ export default function WebGPUShowcase() {
         </div>
       </div>
 
-      {/* ── Section cards ─────────────────────────────────────────────────── */}
+      {/* -- Section cards --------------------------------------------------- */}
       <div style={{
         padding: '24px 16px',
         maxWidth: 600,
@@ -469,7 +469,7 @@ export default function WebGPUShowcase() {
           ))}
         </div>
 
-        {/* ── Performance specs ─────────────────────────────────────────── */}
+        {/* -- Performance specs ------------------------------------------- */}
         <div style={{
           marginTop: 8,
           background: GLASS,
@@ -502,7 +502,7 @@ export default function WebGPUShowcase() {
           ))}
         </div>
 
-        {/* ── CTA ───────────────────────────────────────────────────────── */}
+        {/* -- CTA --------------------------------------------------------- */}
         <Link href="/daydream/games" style={{ textDecoration: 'none' }}>
           <div style={{
             marginTop: 4,
@@ -526,7 +526,7 @@ export default function WebGPUShowcase() {
         </Link>
       </div>
 
-      {/* ── Global keyframes ─────────────────────────────────────────────── */}
+      {/* -- Global keyframes ----------------------------------------------- */}
       <style>{`
         @keyframes de-webgpu-fadein {
           from { opacity: 0; transform: translateY(12px); }

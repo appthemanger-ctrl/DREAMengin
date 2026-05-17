@@ -31,7 +31,7 @@ import {
   type ScoredPost,
 } from '@/app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm';
 
-// ── Helper ────────────────────────────────────────────────────────────────────
+// -- Helper --------------------------------------------------------------------
 
 function makePost(overrides: Partial<ScoredPost> =) {}): ScoredPost {
   return {
@@ -43,7 +43,7 @@ function makePost(overrides: Partial<ScoredPost> =) {}): ScoredPost {
   };
 }
 
-// ── A. scoreContentDepth ─────────────────────────────────────────────────────
+// -- A. scoreContentDepth -----------------------------------------------------
 
 describe('DreamR — scoreContentDepth', () => {
   it('returns 0 for empty string', () => {
@@ -93,7 +93,7 @@ describe('DreamR — scoreContentDepth', () => {
   });
 });
 
-// ── B. scoreOriginalMedia ────────────────────────────────────────────────────
+// -- B. scoreOriginalMedia ----------------------------------------------------
 
 describe('DreamR — scoreOriginalMedia', () => {
   it('returns 0 when no media_url', () => {
@@ -119,7 +119,7 @@ describe('DreamR — scoreOriginalMedia', () => {
   });
 });
 
-// ── C. scoreDreamenginMade ───────────────────────────────────────────────────
+// -- C. scoreDreamenginMade ---------------------------------------------------
 
 describe('DreamR — scoreDreamenginMade', () => {
   it('returns 1.0 for a native dreamengin post', () => {
@@ -149,7 +149,7 @@ describe('DreamR — scoreDreamenginMade', () => {
   });
 });
 
-// ── D. scoreTextRichness ─────────────────────────────────────────────────────
+// -- D. scoreTextRichness -----------------------------------------------------
 
 describe('DreamR — scoreTextRichness', () => {
   it('returns 0 for empty / whitespace', () => {
@@ -199,7 +199,7 @@ describe('DreamR — scoreTextRichness', () => {
   });
 });
 
-// ── E. scoreFreshness ────────────────────────────────────────────────────────
+// -- E. scoreFreshness --------------------------------------------------------
 
 describe('DreamR — scoreFreshness', () => {
   function hoursAgo(h: number): string {
@@ -248,7 +248,7 @@ describe('DreamR — scoreFreshness', () => {
   });
 });
 
-// ── F. scoreTrendImpact ──────────────────────────────────────────────────────
+// -- F. scoreTrendImpact ------------------------------------------------------
 
 describe('DreamR — scoreTrendImpact', () => {
   it('returns 0 for a post with no engagement', () => {
@@ -295,7 +295,7 @@ describe('DreamR — scoreTrendImpact', () => {
   });
 });
 
-// ── G. scoreDreamRPost ───────────────────────────────────────────────────────
+// -- G. scoreDreamRPost -------------------------------------------------------
 
 describe('DreamR — scoreDreamRPost', () => {
   it('returns a numeric score between 0 and 100', () => {
@@ -365,7 +365,7 @@ describe('DreamR — scoreDreamRPost', () => {
   });
 });
 
-// ── H. rankFeed ──────────────────────────────────────────────────────────────
+// -- H. rankFeed --------------------------------------------------------------
 
 describe('DreamR — rankFeed', () => {
   it('returns an empty array for empty input', () => {
@@ -443,7 +443,7 @@ describe('DreamR — rankFeed', () => {
   });
 });
 
-// ── I. DREAMR_WEIGHTS ────────────────────────────────────────────────────────
+// -- I. DREAMR_WEIGHTS --------------------------------------------------------
 
 describe('DreamR — DREAMR_WEIGHTS', () => {
   it('weights sum to exactly 1.0', () => {

@@ -23,14 +23,14 @@ import {
 import { getSwap, toggleSwap } from '@/lib/runtime/swapManager';
 import { bridge as dualRuntimeBridge } from '@/lib/runtime/dualRuntimeBridge';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 type Language    = 'python' | 'javascript' | 'bash';
 type SimId       = 'particle' | 'fluid' | 'quantum' | 'neural' | 'none';
 type VizType     = 'heatmap' | 'density' | 'activation';
 type RunStatus   = 'idle' | 'running' | 'done' | 'error';
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// --- Constants ----------------------------------------------------------------
 
 const ACCENT   = '#22c55e';
 const CODE_BG  = '#0d1117';
@@ -114,7 +114,7 @@ const VIZ_TYPES: Array<{ id: VizType; label: string; desc: string }> = [
   { id: 'activation', label: '🧠 Neural Activation',    desc: 'Per-layer activation strength'   },
 ];
 
-// ─── ASCII helpers ────────────────────────────────────────────────────────────
+// --- ASCII helpers ------------------------------------------------------------
 
 function asciiHeatmap(cols: number, rows: number, seed: number: string) {
   const chars = ['░', '▒', '▓', '█'];
@@ -170,7 +170,7 @@ function asciiActivation(layers: number[], seed: number: string) {
   return lines.join('\n');
 }
 
-// ─── Simulated output generation ──────────────────────────────────────────────
+// --- Simulated output generation ----------------------------------------------
 
 function getMockOutput(language: Language, simId: SimId: string[]) {
   const ts = () => new Date().toISOString().slice(11, 19);
@@ -226,7 +226,7 @@ function getMockOutput(language: Language, simId: SimId: string[]) {
   }
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// --- Component ----------------------------------------------------------------
 
 export default function LabDreamIDE() {
   const [language,  setLanguage]  = useState<Language>('python');
@@ -325,7 +325,7 @@ export default function LabDreamIDE() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
 
-      {/* ── Simulation Selector ───────────────────────────────── */}
+      {/* -- Simulation Selector --------------------------------- */}
       <div className="de-widget" style={{ marginBottom: 12 }}>
         <div className="de-widget-header">
           <FlaskConical className="w-4 h-4" style={{ color: ACCENT }} />
@@ -359,7 +359,7 @@ export default function LabDreamIDE() {
         </div>
       </div>
 
-      {/* ── IDE Split: input left + output right ──────────────── */}
+      {/* -- IDE Split: input left + output right ---------------- */}
       <div className="de-widget" style={{ marginBottom: 12 }}>
         <div className="de-widget-header" style={{ gap: 8, flexWrap: 'wrap' }}>
           <Activity className="w-4 h-4" style={{ color: ACCENT }} />
@@ -424,7 +424,7 @@ export default function LabDreamIDE() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0, minHeight: 320 }}>
 
-          {/* ── OUTPUT panel — left when swapped ── */}
+          {/* -- OUTPUT panel — left when swapped -- */}
           {swapped && (
             <div style={{ borderRight: '1px solid rgba(160,195,240,0.15)', display: 'flex', flexDirection: 'column' }}>
               <div style={{ padding: '7px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
@@ -457,7 +457,7 @@ export default function LabDreamIDE() {
             </div>
           )}
 
-          {/* ── INPUT panel (editor) — left when not swapped, right when swapped ── */}
+          {/* -- INPUT panel (editor) — left when not swapped, right when swapped -- */}
           {!swapped && (
             <div style={{ borderRight: '1px solid rgba(160,195,240,0.15)', display: 'flex', flexDirection: 'column' }}>
               <div style={{ padding: '7px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
@@ -518,7 +518,7 @@ export default function LabDreamIDE() {
             </div>
           )}
 
-          {/* ── OUTPUT panel — right when not swapped ── */}
+          {/* -- OUTPUT panel — right when not swapped -- */}
           {!swapped && (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <div style={{ padding: '7px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
@@ -561,7 +561,7 @@ export default function LabDreamIDE() {
             </div>
           )}
 
-          {/* ── INPUT panel (editor) — right when swapped ── */}
+          {/* -- INPUT panel (editor) — right when swapped -- */}
           {swapped && (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <div style={{ padding: '7px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
@@ -624,7 +624,7 @@ export default function LabDreamIDE() {
         </div>
       </div>
 
-      {/* ── Visualization Panel: 3 high-density maps ─────────── */}
+      {/* -- Visualization Panel: 3 high-density maps ----------- */}
       <div className="de-widget" style={{ marginBottom: 12 }}>
         <div className="de-widget-header">
           <BarChart2 className="w-4 h-4" style={{ color: ACCENT }} />

@@ -28,9 +28,9 @@ import { ENGIN_REGISTRY } from '@/lib/forge/forgeRegistry';
 import type { ForgeLogEvent } from '@/lib/forge/forgeBuild';
 import { createClient } from '@supabase/supabase-js';
 
-// ── Persistent rate-limit via Supabase (falls back to in-memory for local dev)
+// -- Persistent rate-limit via Supabase (falls back to in-memory for local dev)
 //    1 build per calendar day per IP/token.
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
@@ -80,7 +80,7 @@ async function checkAndRecordRateLimit(token: string): Promise<boolean> {
   return true;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// -- Helpers -------------------------------------------------------------------
 
 function safeJsonParse(text: string): Record<string, unknown> | null {
   try {
@@ -102,7 +102,7 @@ function encodeSSE(event: ForgeLogEvent): Uint8Array {
   return new TextEncoder().encode(`data: ${JSON.stringify(event)}\n\n`);
 }
 
-// ── Artifact meta helpers ─────────────────────────────────────────────────────
+// -- Artifact meta helpers -----------------------------------------------------
 
 interface ArtifactMeta {
   language: string;
@@ -165,7 +165,7 @@ function getArtifactMeta(enginId: string, prompt: string): ArtifactMeta {
   }
 }
 
-// ── Simulation content generators ─────────────────────────────────────────────
+// -- Simulation content generators ---------------------------------------------
 
 function getSimulatedArtifact(enginId: string, prompt: string): string {
   const shortPrompt = prompt.slice(0, 48);
@@ -348,7 +348,7 @@ We're just getting started. Drop a comment, share your thoughts, and let's build
   }
 }
 
-// ── Simulation mode (no GROQ_API_KEY) ────────────────────────────────────────
+// -- Simulation mode (no GROQ_API_KEY) ----------------------------------------
 
 interface SimTask {
   enginId: string;
@@ -516,7 +516,7 @@ function buildSimulation(prompt: string): SimResult {
   };
 }
 
-// ── Real AI orchestration ─────────────────────────────────────────────────────
+// -- Real AI orchestration -----------------------------------------------------
 
 async function callEams(prompt: string): Promise<string> {
   const engineList = ENGIN_REGISTRY
@@ -697,7 +697,7 @@ async function callGenerate(
   }
 }
 
-// ── Route handler ─────────────────────────────────────────────────────────────
+// -- Route handler -------------------------------------------------------------
 
 export async function POST(req: NextRequest) {
   // Validate body
@@ -746,7 +746,7 @@ export async function POST(req: NextRequest) {
 
       try {
         if (useSimulation) {
-          // ── Simulation mode ─────────────────────────────────────────────
+          // -- Simulation mode ---------------------------------------------
 
           send({ type: 'step', step: 'PHASE: Parsing your request...', ts: Date.now() });
           await new Promise(r => setTimeout(r, 150));
@@ -830,9 +830,9 @@ export async function POST(req: NextRequest) {
           send({ type: 'done', ts: Date.now() });
 
         } else {
-          // ── Real AI orchestration (4 Groq rounds) ───────────────────────
+          // -- Real AI orchestration (4 Groq rounds) -----------------------
 
-          // ─ Round 1: Dr. Eams ─────────────────────────────────────────────
+          // - Round 1: Dr. Eams ---------------------------------------------
           send({ type: 'step', step: 'PHASE: Parsing your request...', ts: Date.now() });
           await new Promise(r => setTimeout(r, 100));
 
@@ -841,13 +841,13 @@ export async function POST(req: NextRequest) {
           const eamsPlan = await callEams(prompt);
           send({ type: 'agent', agent: 'Dr. Eams', message: eamsPlan, ts: Date.now() });
 
-          // ─ Round 2: IDARi ─────────────────────────────────────────────────
+          // - Round 2: IDARi -------------------------------------------------
           send({ type: 'step', step: 'PHASE: IDARi is architecting the solution...', ts: Date.now() });
           send({ type: 'agent', agent: 'IDARi', message: '⚙️ Reviewing Dr. Eams\' plan — validating Engin compatibility, task breakdown, and architecture constraints...', ts: Date.now() });
           const idariResult = await callIdari(prompt, eamsPlan);
           send({ type: 'agent', agent: 'IDARi', message: idariResult.idariMessage, ts: Date.now() });
 
-          // ─ Round 3: BoogieMan ─────────────────────────────────────────────
+          // - Round 3: BoogieMan ---------------------------------------------
           send({ type: 'step', step: 'PHASE: TheBoogieMan.Ai is checking policy...', ts: Date.now() });
           send({ type: 'agent', agent: 'TheBoogieMan.Ai', message: '🔍 Running policy and safety scan — checking content, privacy, platform guidelines...', ts: Date.now() });
           const boogieResult = await callBoogie(prompt);
@@ -860,7 +860,7 @@ export async function POST(req: NextRequest) {
           }
           send({ type: 'agent', agent: 'TheBoogieMan.Ai', message: `✅ ${boogieResult.message}`, ts: Date.now() });
 
-          // ─ Execution steps ────────────────────────────────────────────────
+          // - Execution steps ------------------------------------------------
           send({ type: 'step', step: 'PHASE: Generating artifact...', ts: Date.now() });
           for (const task of idariResult.tasks) {
             const enginLabel = ENGIN_REGISTRY.find(e => e.id === task.enginId)?.name ?? task.enginId.toUpperCase();
@@ -868,7 +868,7 @@ export async function POST(req: NextRequest) {
             await new Promise(r => setTimeout(r, 120));
           }
 
-          // ─ Round 4: GENERATE artifact ─────────────────────────────────────
+          // - Round 4: GENERATE artifact -------------------------------------
           const meta = getArtifactMeta(idariResult.primaryEnginId, prompt);
           const generateTask = idariResult.tasks.find(t => t.action.includes('generate') || t.action.includes('Generate'))
             ?? idariResult.tasks[1]

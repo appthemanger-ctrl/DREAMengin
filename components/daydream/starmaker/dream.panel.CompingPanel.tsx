@@ -22,7 +22,7 @@ import {
   createDemoTake,
 } from '@/lib/music/starmakerDaw';
 
-// ─── Theme ────────────────────────────────────────────────────────────────────
+// --- Theme --------------------------------------------------------------------
 
 const T = {
   bg:          '#0d0f17',
@@ -51,14 +51,14 @@ const sectionHeaderStyle: CSSProperties = {
 
 const WAVEFORM_BARS = 60;
 
-// ─── Props ────────────────────────────────────────────────────────────────────
+// --- Props --------------------------------------------------------------------
 
 interface CompingPanelProps {
   state: CompingState;
   onStateChange: (next: CompingState) => void;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// --- Helpers ------------------------------------------------------------------
 
 function fmtTimestamp(ms: number: string) {
   const d = new Date(ms);
@@ -89,7 +89,7 @@ function StarRating() {
   );
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// --- Component ----------------------------------------------------------------
 
 export default function CompingPanel() { state, onStateChange }: CompingPanelProps {
   const [isOpen, setIsOpen] = useState(false);

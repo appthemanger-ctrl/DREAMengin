@@ -11,7 +11,7 @@
 
 import { TORRIDITY_N, TORRIDITY_DP } from './torridity';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 /** A single frequency peak. */
 export interface Peak {
@@ -60,7 +60,7 @@ export interface MatchResult {
   similarityScore: number;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// --- Constants ----------------------------------------------------------------
 
 const DEFAULT_FFT_SIZE        = 2048;
 const DEFAULT_SLICE_DURATION  = 0.1;   // 100 ms per slice
@@ -72,7 +72,7 @@ const DEFAULT_TOP_K           = 5;
  */
 const PEAK_THRESHOLD_FRACTION = TORRIDITY_DP * TORRIDITY_N; // 0.21
 
-// ─── buildPeakMap ─────────────────────────────────────────────────────────────
+// --- buildPeakMap -------------------------------------------------------------
 
 /**
  * buildPeakMap(audioBuffer, topK)
@@ -138,7 +138,7 @@ export function buildPeakMap(audioBuffer: AudioBuffer, topK = DEFAULT_TOP_K: Pea
   };
 }
 
-// ─── Fingerprint helpers ──────────────────────────────────────────────────────
+// --- Fingerprint helpers ------------------------------------------------------
 
 function peaksInWindow(peakMap: PeakMap, startSec: number, endSec: number: Peak[]) {
   const startSlice = Math.floor(startSec / peakMap.sliceDurationSec);
@@ -161,7 +161,7 @@ function buildSignature(peaks: Peak[], fftSize: number: number[]) {
   return norm > 0 ? vec.map((v: Record<string, unknown>) => v / norm) : vec;
 }
 
-// ─── recordReferenceFingerprint ──────────────────────────────────────────────
+// --- recordReferenceFingerprint ----------------------------------------------
 
 /**
  * recordReferenceFingerprint(peakMap, startTime, endTime)
@@ -180,7 +180,7 @@ export function recordReferenceFingerprint(
   return { id, startTime, endTime, peakMap: { ...peakMap, peaks: windowPeaks }, signature };
 }
 
-// ─── matchFingerprint ────────────────────────────────────────────────────────
+// --- matchFingerprint --------------------------------------------------------
 
 /**
  * matchFingerprint(fingerprint, candidatePeakMap, threshold)
@@ -217,7 +217,7 @@ export function matchFingerprint(
   return results;
 }
 
-// ─── createFingerprintIsolator ───────────────────────────────────────────────
+// --- createFingerprintIsolator -----------------------------------------------
 
 /**
  * createFingerprintIsolator()
@@ -272,7 +272,7 @@ export function createFingerprintIsolator() {
   };
 }
 
-// ─── extractAudioChunks ──────────────────────────────────────────────────────
+// --- extractAudioChunks ------------------------------------------------------
 
 /**
  * extractAudioChunks(audioBuffer, timeSlices)

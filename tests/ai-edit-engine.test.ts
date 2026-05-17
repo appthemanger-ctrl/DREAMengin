@@ -40,7 +40,7 @@ import {
   type EditPreview,
 } from '@/lib/diff/aiEditEngine';
 
-// ─── Fixtures ─────────────────────────────────────────────────────────────────
+// --- Fixtures -----------------------------------------------------------------
 
 const CELL_A: EditableCell = {
   id: 'cell-a',
@@ -67,7 +67,7 @@ const CELLS = [CELL_A, CELL_B];
 // "function greet(name) {" — 'n' is at index 16
 const CURSOR_ON_NAME = 18; // inside "name" in "greet(name)"
 
-// ─── escapeRegex ──────────────────────────────────────────────────────────────
+// --- escapeRegex --------------------------------------------------------------
 
 describe('escapeRegex', () => {
   it('escapes dot', () => expect(escapeRegex('a.b')).toBe('a\\.b'));
@@ -75,7 +75,7 @@ describe('escapeRegex', () => {
   it('escapes nothing for simple word', () => expect(escapeRegex('hello')).toBe('hello'));
 });
 
-// ─── parseAiInstruction ───────────────────────────────────────────────────────
+// --- parseAiInstruction -------------------------------------------------------
 
 describe('parseAiInstruction', () => {
   it('detects rename … to … → word-in-file scope', () => {
@@ -132,7 +132,7 @@ describe('parseAiInstruction', () => {
     expect(s.scopeRationale.length).toBeGreaterThan(0);
   });
 
-  // ── Fix 2: new patterns ───────────────────────────────────────────────────────
+  // -- Fix 2: new patterns -------------------------------------------------------
 
   it('detects swap X with Y → word-in-file scope, high confidence', () => {
     const s = parseAiInstruction('swap oldName with newName');
@@ -165,7 +165,7 @@ describe('parseAiInstruction', () => {
     expect(s.confidence).toBe('medium');
   });
 
-  // ── Fix 2: confidence field ───────────────────────────────────────────────────
+  // -- Fix 2: confidence field ---------------------------------------------------
 
   it('rename/replace/swap/delete give high confidence', () => {
     expect(parseAiInstruction('rename foo to bar').confidence).toBe('high');
@@ -200,7 +200,7 @@ describe('parseAiInstruction', () => {
     }
   });
 
-  // ── Fix 2: backtick-quoted targets ───────────────────────────────────────────
+  // -- Fix 2: backtick-quoted targets -------------------------------------------
 
   it('handles backtick-quoted target in rename', () => {
     const s = parseAiInstruction('rename `oldFn` to `newFn`');
@@ -214,7 +214,7 @@ describe('parseAiInstruction', () => {
     expect(s.replacement).toBe('total');
   });
 
-  // ── Fix 1: "all cells" keyword triggers all-cells scope ──────────────────────
+  // -- Fix 1: "all cells" keyword triggers all-cells scope ----------------------
 
   it('"all cells" keyword triggers word-in-codebase scope', () => {
     const s = parseAiInstruction('rename foo to bar in all cells');
@@ -227,7 +227,7 @@ describe('parseAiInstruction', () => {
   });
 });
 
-// ─── wordBoundsAt ─────────────────────────────────────────────────────────────
+// --- wordBoundsAt -------------------------------------------------------------
 
 describe('wordBoundsAt', () => {
   const code = 'const greeting = "hello";';
@@ -254,7 +254,7 @@ describe('wordBoundsAt', () => {
   });
 });
 
-// ─── lineBoundsAt ─────────────────────────────────────────────────────────────
+// --- lineBoundsAt -------------------------------------------------------------
 
 describe('lineBoundsAt', () => {
   const code = 'line one\nline two\nline three';
@@ -275,7 +275,7 @@ describe('lineBoundsAt', () => {
   });
 });
 
-// ─── blockBoundsAt ────────────────────────────────────────────────────────────
+// --- blockBoundsAt ------------------------------------------------------------
 
 describe('blockBoundsAt', () => {
   const code = 'if (x) { doSomething(); }';
@@ -293,7 +293,7 @@ describe('blockBoundsAt', () => {
     expect(blockBoundsAt(noBlock, 5)).toBeNull();
   });
 
-  // ── Fix 3: string/comment masking ────────────────────────────────────────────
+  // -- Fix 3: string/comment masking --------------------------------------------
 
   it('ignores { } inside a string literal', () => {
     // The real block is the if-body; the string "{ fake }" must not confuse it
@@ -315,7 +315,7 @@ describe('blockBoundsAt', () => {
     expect(b!.end).toBe(code3.length);
   });
 
-  // ── Fix 3: fallback to [ ] and ( ) ───────────────────────────────────────────
+  // -- Fix 3: fallback to [ ] and ( ) -------------------------------------------
 
   it('falls back to [ ] when no { } enclosing block', () => {
     const arr = 'const items = [1, 2, 3];';
@@ -334,7 +334,7 @@ describe('blockBoundsAt', () => {
   });
 });
 
-// ─── functionBoundsAt ────────────────────────────────────────────────────────
+// --- functionBoundsAt --------------------------------------------------------
 
 describe('functionBoundsAt', () => {
   const code = 'function add(a, b) { return a + b; }';
@@ -352,7 +352,7 @@ describe('functionBoundsAt', () => {
   });
 });
 
-// ─── buildEditPreview — scope: word ──────────────────────────────────────────
+// --- buildEditPreview — scope: word ------------------------------------------
 
 describe('buildEditPreview — word scope', () => {
   it('returns one match for the word under cursor', () => {
@@ -377,7 +377,7 @@ describe('buildEditPreview — word scope', () => {
   });
 });
 
-// ─── buildEditPreview — scope: line ──────────────────────────────────────────
+// --- buildEditPreview — scope: line ------------------------------------------
 
 describe('buildEditPreview — line scope', () => {
   it('matches the full line the cursor is on', () => {
@@ -391,7 +391,7 @@ describe('buildEditPreview — line scope', () => {
   });
 });
 
-// ─── buildEditPreview — scope: block ─────────────────────────────────────────
+// --- buildEditPreview — scope: block -----------------------------------------
 
 describe('buildEditPreview — block scope', () => {
   it('matches the enclosing block', () => {
@@ -406,7 +406,7 @@ describe('buildEditPreview — block scope', () => {
   });
 });
 
-// ─── buildEditPreview — scope: file ──────────────────────────────────────────
+// --- buildEditPreview — scope: file ------------------------------------------
 
 describe('buildEditPreview — file scope', () => {
   it('matches the entire cell', () => {
@@ -421,7 +421,7 @@ describe('buildEditPreview — file scope', () => {
   });
 });
 
-// ─── buildEditPreview — scope: word-in-file ──────────────────────────────────
+// --- buildEditPreview — scope: word-in-file ----------------------------------
 
 describe('buildEditPreview — word-in-file scope', () => {
   it('finds all occurrences in the active cell only', () => {
@@ -447,7 +447,7 @@ describe('buildEditPreview — word-in-file scope', () => {
   });
 });
 
-// ─── buildEditPreview — scope: word-in-codebase ──────────────────────────────
+// --- buildEditPreview — scope: word-in-codebase ------------------------------
 
 describe('buildEditPreview — word-in-codebase scope', () => {
   it('finds matches across all cells', () => {
@@ -471,7 +471,7 @@ describe('buildEditPreview — word-in-codebase scope', () => {
   });
 });
 
-// ─── buildEditPreview — risk & confirmation ───────────────────────────────────
+// --- buildEditPreview — risk & confirmation -----------------------------------
 
 describe('buildEditPreview — risk levels', () => {
   it('word scope is low risk', () => {
@@ -502,7 +502,7 @@ describe('buildEditPreview — risk levels', () => {
   });
 });
 
-// ─── applyMatchesForCell ──────────────────────────────────────────────────────
+// --- applyMatchesForCell ------------------------------------------------------
 
 describe('applyMatchesForCell', () => {
   it('replaces a single match correctly', () => {
@@ -527,7 +527,7 @@ describe('applyMatchesForCell', () => {
   });
 });
 
-// ─── applyEdit ────────────────────────────────────────────────────────────────
+// --- applyEdit ----------------------------------------------------------------
 
 describe('applyEdit', () => {
   it('updates only cells that contain matches', () => {
@@ -560,7 +560,7 @@ describe('applyEdit', () => {
   });
 });
 
-// ─── undoEdit ─────────────────────────────────────────────────────────────────
+// --- undoEdit -----------------------------------------------------------------
 
 describe('undoEdit', () => {
   it('restores cells to their pre-edit state', () => {
@@ -584,7 +584,7 @@ describe('undoEdit', () => {
   });
 });
 
-// ─── generateDiffLines ────────────────────────────────────────────────────────
+// --- generateDiffLines --------------------------------------------------------
 
 describe('generateDiffLines', () => {
   it('returns only context lines when before === after', () => {
@@ -616,7 +616,7 @@ describe('generateDiffLines', () => {
   });
 });
 
-// ─── SCOPE constants ──────────────────────────────────────────────────────────
+// --- SCOPE constants ----------------------------------------------------------
 
 describe('SCOPE_ORDER', () => {
   it('contains all 7 scopes', () => {

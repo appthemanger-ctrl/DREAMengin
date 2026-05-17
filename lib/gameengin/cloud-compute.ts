@@ -61,7 +61,7 @@ export class EdgeOffloadRouter {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 export interface RemoteRenderConfig {
   /** Target bitrate in kbps for the streamed video. */
@@ -103,7 +103,7 @@ export class RemoteRenderHandoff {
   get targetBitrateKbps(): number { return this.bitrateKbps; }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 export interface VerificationResult {
   ok: boolean;

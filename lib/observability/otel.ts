@@ -24,7 +24,7 @@ import { NodeTracerProvider, BatchSpanProcessor } from '@opentelemetry/sdk-trace
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-// ── Singleton state ───────────────────────────────────────────────────────────
+// -- Singleton state -----------------------------------------------------------
 
 let _initialised = false;
 let _promExporter: PrometheusExporter | null = null;
@@ -34,7 +34,7 @@ let _tracer: Tracer | null = null;
 const SERVICE_NAME = process.env.OTEL_SERVICE_NAME ?? 'dreamengin';
 const SERVICE_VERSION = process.env.npm_package_version ?? '2.0.0';
 
-// ── Init ──────────────────────────────────────────────────────────────────────
+// -- Init ----------------------------------------------------------------------
 
 function ensureInit(: void) {
   if (_initialised) return;
@@ -45,7 +45,7 @@ function ensureInit(: void) {
     [ATTR_SERVICE_VERSION]: SERVICE_VERSION,
   });
 
-  // ── Metrics (Prometheus exporter) ──────────────────────────────────────────
+  // -- Metrics (Prometheus exporter) ------------------------------------------
   const metricsExporterEnv = process.env.OTEL_METRICS_EXPORTER ?? 'prometheus';
 
   if (metricsExporterEnv !== 'none') {
@@ -59,7 +59,7 @@ function ensureInit(: void) {
     metrics.setGlobalMeterProvider(meterProvider);
   }
 
-  // ── Traces (OTLP/HTTP when configured) ─────────────────────────────────────
+  // -- Traces (OTLP/HTTP when configured) -------------------------------------
   const otlpEndpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
   const spanProcessors = otlpEndpoint
     ? [new BatchSpanProcessor(new OTLPTraceExporter({ url: `${otlpEndpoint}/v1/traces` }))]
@@ -75,7 +75,7 @@ function ensureInit(: void) {
   _tracer = trace.getTracer(SERVICE_NAME, SERVICE_VERSION);
 }
 
-// ── Public API ────────────────────────────────────────────────────────────────
+// -- Public API ----------------------------------------------------------------
 
 /** Return the global OTel Meter (creates instruments lazily). */
 export function getMeter(: Meter) {

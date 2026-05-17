@@ -35,9 +35,9 @@ function renderBarChart(values: number[]: string) {
     for (const v of values) {
       line += v >= threshold ? '█ ' : '  ';
     }
-    rows.push(`${String(Math.round((row / height) * max)).padStart(4)} │${line}`);
+    rows.push(`${String(Math.round((row / height) * max)).padStart(4)} |${line}`);
   }
-  rows.push(`     └${'──'.repeat(values.length)}`);
+  rows.push(`     └${'--'.repeat(values.length)}`);
   rows.push(`      ${values.map(_: Record<string, unknown>, i: number => String(i + 1).padStart(2)).join('')}`);
   return rows.join('\n');
 }
@@ -57,9 +57,9 @@ function renderLineChart(values: number[]: string) {
       const isCrossing = (v > threshold && prev < threshold) || (v < threshold && prev > threshold);
       line += isAt || isCrossing ? '◆ ' : '· ';
     }
-    rows.push(`${String(Math.round(threshold)).padStart(4)} │${line}`);
+    rows.push(`${String(Math.round(threshold)).padStart(4)} |${line}`);
   }
-  rows.push(`     └${'──'.repeat(values.length)}`);
+  rows.push(`     └${'--'.repeat(values.length)}`);
   return rows.join('\n');
 }
 
@@ -74,9 +74,9 @@ function renderScatter(values: number[]: string) {
       const y = Math.round((v / max) * height);
       line += y === row ? '○ ' : '· ';
     }
-    rows.push(`${String(Math.round((row / height) * max)).padStart(4)} │${line}`);
+    rows.push(`${String(Math.round((row / height) * max)).padStart(4)} |${line}`);
   }
-  rows.push(`     └${'──'.repeat(values.length)}`);
+  rows.push(`     └${'--'.repeat(values.length)}`);
   return rows.join('\n');
 }
 

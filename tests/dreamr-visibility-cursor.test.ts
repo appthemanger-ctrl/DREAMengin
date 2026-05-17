@@ -22,7 +22,7 @@ import {
   MAX_SEEN_IDS,
 } from '@/lib/dreamr/feedCursor';
 
-// ── filterByCloseFriends ─────────────────────────────────────────────────────
+// -- filterByCloseFriends -----------------------------------------------------
 
 describe('filterByCloseFriends', () => {
   const posts = [
@@ -90,7 +90,7 @@ describe('filterByCloseFriends', () => {
   });
 });
 
-// ── parseFeedParams ──────────────────────────────────────────────────────────
+// -- parseFeedParams ----------------------------------------------------------
 
 describe('parseFeedParams', () => {
   it('returns sensible defaults for empty input', () => {
@@ -151,7 +151,7 @@ describe('parseFeedParams', () => {
   });
 });
 
-// ── deriveNextCursor ─────────────────────────────────────────────────────────
+// -- deriveNextCursor ---------------------------------------------------------
 
 describe('deriveNextCursor', () => {
   it('returns null when fewer rows than fetchLimit (end of pool)', () => {

@@ -81,7 +81,7 @@ export default async function CreateDaydreamPage() {
           </div>
         ))}
 
-        {/* ── Open ContentEngin CTA ── */}
+        {/* -- Open ContentEngin CTA -- */}
         <div className="de-widget" style={{ borderColor: 'rgba(245,158,11,0.3)', background: 'linear-gradient(135deg, rgba(245,158,11,0.06), rgba(251,191,36,0.04))' }}>
           <div className="de-widget-header">
             <Sparkles className="w-4 h-4" style={{ color: ACCENT }} />

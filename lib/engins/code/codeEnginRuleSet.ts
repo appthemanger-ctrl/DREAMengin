@@ -26,7 +26,7 @@ import {
 } from '@/lib/engin-runtime/EnginBaseState';
 import type { EnginCapability } from '@/lib/engin-runtime/EnginCapabilities';
 
-// ─── Cell types ───────────────────────────────────────────────────────────────
+// --- Cell types ---------------------------------------------------------------
 
 export type CellLanguage = 'python' | 'javascript' | 'typescript' | 'bash';
 export type CellStatus   = 'idle' | 'running' | 'done' | 'error';
@@ -40,7 +40,7 @@ export interface NotebookCell {
   error?: string;
 }
 
-// ─── CI / security types ──────────────────────────────────────────────────────
+// --- CI / security types ------------------------------------------------------
 
 export type CiStatus = 'idle' | 'running' | 'passed' | 'failed';
 
@@ -50,7 +50,7 @@ export interface SecurityFinding {
   file?: string;
 }
 
-// ─── Domain state shape ───────────────────────────────────────────────────────
+// --- Domain state shape -------------------------------------------------------
 
 export interface CodeEnginDerivedState extends Record<string, unknown> {
   lifecycle: EnginBaseState['lifecycle'];
@@ -63,7 +63,7 @@ export interface CodeEnginDerivedState extends Record<string, unknown> {
   zoom: number;
 }
 
-// ─── Action discriminated union ───────────────────────────────────────────────
+// --- Action discriminated union -----------------------------------------------
 
 export type CodeEnginAction =
   | EnginAction<'code:cell-add',        { cell: NotebookCell }>
@@ -79,7 +79,7 @@ export type CodeEnginAction =
   | EnginAction<'code:module-inject',   Record<string, never>>
   | EnginAction<'code:zoom-set',        { zoom: number }>;
 
-// ─── Default domain state ─────────────────────────────────────────────────────
+// --- Default domain state -----------------------------------------------------
 
 const DEFAULT_CELLS: NotebookCell[] = [
   {
@@ -108,7 +108,7 @@ const DEFAULT_DOMAIN: Omit<CodeEnginDerivedState, 'lifecycle'> = {
   zoom: 1.0,
 };
 
-// ─── Constraints ──────────────────────────────────────────────────────────────
+// --- Constraints --------------------------------------------------------------
 
 const cellAddConstraint: EnginConstraint<CodeEnginAction> = (
   _state,
@@ -134,7 +134,7 @@ const zoomConstraint: EnginConstraint<CodeEnginAction> = (
   return { valid: true };
 };
 
-// ─── Transform ────────────────────────────────────────────────────────────────
+// --- Transform ----------------------------------------------------------------
 
 function transform(state: EnginBaseState, action: CodeEnginAction: EnginBaseState) {
   const domain = (state.domain as Partial<typeof DEFAULT_DOMAIN>);
@@ -215,7 +215,7 @@ function transform(state: EnginBaseState, action: CodeEnginAction: EnginBaseStat
   }
 }
 
-// ─── deriveState ──────────────────────────────────────────────────────────────
+// --- deriveState --------------------------------------------------------------
 
 function deriveState(state: EnginBaseState: CodeEnginDerivedState) {
   const d = state.domain as Partial<typeof DEFAULT_DOMAIN>;
@@ -231,7 +231,7 @@ function deriveState(state: EnginBaseState: CodeEnginDerivedState) {
   };
 }
 
-// ─── Rule-set params ──────────────────────────────────────────────────────────
+// --- Rule-set params ----------------------------------------------------------
 
 const PARAMS: EnginRuleSetParams = {
   enginId: 'code',
@@ -251,7 +251,7 @@ const REQUIRED_CAPABILITIES: ReadonlyArray<EnginCapability> = [
   'bridge:listen',
 ];
 
-// ─── Exported rule-set ────────────────────────────────────────────────────────
+// --- Exported rule-set --------------------------------------------------------
 
 export const CODE_ENGIN_RULE_SET: EnginRuleSetContract<CodeEnginAction> = {
   params: PARAMS,

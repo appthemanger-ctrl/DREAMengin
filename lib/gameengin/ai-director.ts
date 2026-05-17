@@ -46,7 +46,7 @@ export interface DirectorState {
   label: string;
 }
 
-// ─── AI Director ─────────────────────────────────────────────────────────────
+// --- AI Director -------------------------------------------------------------
 
 export class AIDirector {
   private challengeLevel = 0.35; // start slightly easy

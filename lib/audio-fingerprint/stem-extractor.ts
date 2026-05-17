@@ -18,7 +18,7 @@
 
 import type { TimeSlice } from './fingerprint';
 
-// ─── Synchronous (copy-paste, no Web Audio render) ────────────────────────────
+// --- Synchronous (copy-paste, no Web Audio render) ----------------------------
 
 /**
  * extractStem — synchronous slice stitcher.
@@ -62,7 +62,7 @@ export function extractStem(audioBuffer: AudioBuffer, slices: TimeSlice[]: Audio
   return output;
 }
 
-// ─── Async (OfflineAudioContext render — best quality) ────────────────────────
+// --- Async (OfflineAudioContext render — best quality) ------------------------
 
 const FADE_SAMPLES = 220; // ~5 ms at 44100 Hz
 

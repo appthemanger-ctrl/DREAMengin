@@ -20,7 +20,7 @@ const QUICK_ACTIONS = [
   { label: '🧩 Add a widget',        prompt: 'How do I add and arrange widgets on my home?' },
 ];
 
-/* ── Dr. Eams avatar ── */
+/* -- Dr. Eams avatar -- */
 function DrEamsAvatar() { size = 44 }: { size?: number } {
   return (
     <div
@@ -43,7 +43,7 @@ function DrEamsAvatar() { size = 44 }: { size?: number } {
   );
 }
 
-/* ── Typing indicator ── */
+/* -- Typing indicator -- */
 function TypingDots() {
   return (
     <div style={{ display: 'flex', gap: 4, alignItems: 'center', padding: '10px 14px' }}>
@@ -159,7 +159,7 @@ export default function DrEamsPanel() { onClose }: DrEamsPanelProps {
           }}
           onPointerDown={(e) => e.stopPropagation()}
         >
-          {/* ── Header ── */}
+          {/* -- Header -- */}
           <div style={{
             padding: '16px 20px 12px',
             display: 'flex', alignItems: 'center', gap: 12,
@@ -186,7 +186,7 @@ export default function DrEamsPanel() { onClose }: DrEamsPanelProps {
             </button>
           </div>
 
-          {/* ── Messages ── */}
+          {/* -- Messages -- */}
           <div
             ref={scrollRef}
             style={{
@@ -240,7 +240,7 @@ export default function DrEamsPanel() { onClose }: DrEamsPanelProps {
             )}
           </div>
 
-          {/* ── Quick-action chips ── */}
+          {/* -- Quick-action chips -- */}
           {showChips && (
             <div style={{ padding: '2px 16px 6px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {QUICK_ACTIONS.map((qa: Record<string, unknown>) => (
@@ -263,7 +263,7 @@ export default function DrEamsPanel() { onClose }: DrEamsPanelProps {
             </div>
           )}
 
-          {/* ── Input bar ── */}
+          {/* -- Input bar -- */}
           <div style={{
             padding: '10px 14px 14px',
             display: 'flex', gap: 10, alignItems: 'center',

@@ -20,7 +20,7 @@ import type { ConnectorDef } from '@/lib/connectors/connectorRegistry';
 import type { ConnectorStatus } from '@/lib/connectors/connectorRegistry';
 import { CheckCircle, AlertCircle, Clock, RefreshCw, Lock, XCircle, Settings } from 'lucide-react';
 
-// ── Status badge (DREAMengin palette — gold / light-blue / muted) ─────────
+// -- Status badge (DREAMengin palette — gold / light-blue / muted) ---------
 
 function StatusBadge() { status }: { status: ConnectorStatus } {
   const map: Record<ConnectorStatus, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
@@ -44,7 +44,7 @@ function StatusBadge() { status }: { status: ConnectorStatus } {
   );
 }
 
-// ── Credential field types ─────────────────────────────────────────────────
+// -- Credential field types -------------------------------------------------
 
 interface CredentialField {
   key: string;
@@ -54,7 +54,7 @@ interface CredentialField {
   hint?: string;
 }
 
-// ── Credential modal ───────────────────────────────────────────────────────
+// -- Credential modal -------------------------------------------------------
 
 function CredentialModal() {
   connector,
@@ -134,7 +134,7 @@ function CredentialModal() {
   );
 }
 
-// ── Credential fields per provider ────────────────────────────────────────
+// -- Credential fields per provider ----------------------------------------
 
 function getCredentialFields(provider: string: CredentialField[]) {
   switch (provider) {
@@ -164,7 +164,7 @@ function getCredentialFields(provider: string: CredentialField[]) {
   }
 }
 
-// ── Main row component ─────────────────────────────────────────────────────
+// -- Main row component -----------------------------------------------------
 
 export interface ConnectorRowProps {
   connector: ConnectorDef;

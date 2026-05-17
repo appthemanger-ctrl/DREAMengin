@@ -302,7 +302,7 @@ export default function SerpentSiege() {
       headAngVelRef.current *= Math.exp(-6 * dt);
       headAngleRef.current += headAngVelRef.current * dt;
 
-      // ── Render ───────────────────────────────────────────────────────────
+      // -- Render -----------------------------------------------------------
       ctx.save();
       shakeRef.current.apply(ctx, reducedMotionRef.current ? 0.2 : 1);
 

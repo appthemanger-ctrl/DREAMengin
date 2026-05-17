@@ -111,7 +111,7 @@ export default async function ViewProfilePage() {
 
   const profile = rawProfile as unknown as Profile;
 
-  // ── Phase 8 §B Point 21: Query dream_windows with explicit visibility filter ──
+  // -- Phase 8 §B Point 21: Query dream_windows with explicit visibility filter --
   // Only shared/public records are fetched. The query NEVER includes private records.
   // RLS policies on dream_windows enforce this at the DB layer as well.
   let dreamWindowRecords: Array<{
@@ -130,7 +130,7 @@ export default async function ViewProfilePage() {
     // dream_windows table may not exist yet
   }
 
-  // ── Phase 6 item 8: Consult visibility_mappings as authoritative source ──
+  // -- Phase 6 item 8: Consult visibility_mappings as authoritative source --
   // Per dreamengin_phase6.md point 13: the visibility_mappings table must be
   // consulted before any content is rendered on ViewProfile.
   // If the table has records for this user, they override the widget's own
@@ -186,7 +186,7 @@ export default async function ViewProfilePage() {
         paddingBottom: 100,
       }}
     >
-      {/* ── Preview mode banner ── */}
+      {/* -- Preview mode banner -- */}
       <div
         style={{
           background: 'linear-gradient(90deg, rgba(200,152,26,0.12), rgba(42,138,184,0.10))',
@@ -205,7 +205,7 @@ export default async function ViewProfilePage() {
         </span>
       </div>
 
-      {/* ── dreamengin brand header ── */}
+      {/* -- dreamengin brand header -- */}
       <div style={{ paddingTop: 18, paddingBottom: 2, textAlign: 'center' }}>
         <span
           className="de-wordmark"
@@ -215,7 +215,7 @@ export default async function ViewProfilePage() {
         </span>
       </div>
 
-      {/* ── Profile header row ── */}
+      {/* -- Profile header row -- */}
       <div
         style={{
           maxWidth: 520,
@@ -254,7 +254,7 @@ export default async function ViewProfilePage() {
         </div>
       </div>
 
-      {/* ── Widget grid (saved output only) ── */}
+      {/* -- Widget grid (saved output only) -- */}
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '0 16px' }}>
         {savedDreams.length === 0 ? (
           <div style={{
@@ -303,7 +303,7 @@ export default async function ViewProfilePage() {
         )}
       </div>
 
-      {/* ── Return to EditProfileDream CTA ── */}
+      {/* -- Return to EditProfileDream CTA -- */}
       <div style={{ textAlign: 'center', marginTop: 32, padding: '0 16px' }}>
         <Link
           href="/edit-profiledream"
@@ -326,7 +326,7 @@ export default async function ViewProfilePage() {
         </Link>
       </div>
 
-      {/* ── Gold infinity button ── */}
+      {/* -- Gold infinity button -- */}
       <div style={{ textAlign: 'center', marginTop: 24 }}>
         <Link href="/homedream" style={{ textDecoration: 'none' }}>
           <div

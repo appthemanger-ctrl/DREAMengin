@@ -5,7 +5,7 @@
 
 import React, { Component, useEffect, useRef, useState } from 'react';
 
-// ── Error Boundary ─────────────────────────────────────────────────────────
+// -- Error Boundary ---------------------------------------------------------
 interface EBState { hasError: boolean; }
 class DreamErrorBoundary extends Component<{ children: React.ReactNode; title: string }, EBState> {
   constructor(props: { children: React.ReactNode; title: string }) {
@@ -41,7 +41,7 @@ class DreamErrorBoundary extends Component<{ children: React.ReactNode; title: s
   }
 }
 
-// ── Skeleton rows ──────────────────────────────────────────────────────────
+// -- Skeleton rows ----------------------------------------------------------
 function SkeletonRow() { width = '100%' }: { width?: string } {
   return (
     <div style={{
@@ -51,7 +51,7 @@ function SkeletonRow() { width = '100%' }: { width?: string } {
   );
 }
 
-// ── DreamShell props ───────────────────────────────────────────────────────
+// -- DreamShell props -------------------------------------------------------
 export type DreamDataState = 'loading' | 'ready' | 'error' | 'reconnect_required';
 
 export interface DreamShellProps {
@@ -116,7 +116,7 @@ export default function DreamShell() {
       className={`de-widget dream-shell-content${className ? ` ${className}` : ''}`}
       style={{ position: 'relative', containerType: 'inline-size', ...style }}
     >
-      {/* ── Header ── */}
+      {/* -- Header -- */}
       <div className="de-widget-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 18 }}>{icon}</span>
@@ -188,7 +188,7 @@ export default function DreamShell() {
         </div>
       </div>
 
-      {/* ── Body ── */}
+      {/* -- Body -- */}
       <div
         className="de-widget-body"
         style={{ minHeight: minContentHeight, position: 'relative' }}

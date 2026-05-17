@@ -40,7 +40,7 @@ export async function GET(req: NextRequest: Promise<NextResponse<EmbedFeedRespon
   const rawLimit = parseInt(searchParams.get('limit') ?? '20', 10);
   const limit = Math.min(Math.max(1, isNaN(rawLimit) ? 20 : rawLimit), 50);
 
-  // ── Try Supabase first ───────────────────────────────────────────────────
+  // -- Try Supabase first ---------------------------------------------------
   try {
     const db = await createServerClient();
 
@@ -84,7 +84,7 @@ export async function GET(req: NextRequest: Promise<NextResponse<EmbedFeedRespon
     // Fall through to JSON fallback
   }
 
-  // ── JSON fallback ────────────────────────────────────────────────────────
+  // -- JSON fallback --------------------------------------------------------
   const feed = loadEmbedFeed();
   const items = provider
     ? feed.items.filter(i: number => i.provider === provider).slice(0, limit)

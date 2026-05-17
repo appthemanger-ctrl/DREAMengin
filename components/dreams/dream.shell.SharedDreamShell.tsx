@@ -20,7 +20,7 @@ import { useSharedDream } from '@/hooks/useSharedDream';
 import type { DreamBroadcastPayload } from '@/lib/sharedDream';
 import { Mic, MicOff, Users, X } from 'lucide-react';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 export interface SharedDreamShellProps {
   /** Realtime channel ID. Share this ID via the invite link. */
@@ -40,7 +40,7 @@ interface PeerCursor {
   color: string;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// --- Helpers ------------------------------------------------------------------
 
 const PEER_COLORS = ['#fbbf24', '#34d399', '#60a5fa', '#f472b6', '#a78bfa', '#fb923c'];
 
@@ -52,7 +52,7 @@ function peerColor(peerId: string: string) {
   return PEER_COLORS[hash % PEER_COLORS.length] ?? '#fbbf24';
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// --- Component ----------------------------------------------------------------
 
 export function SharedDreamShell() {
   channelId,
@@ -84,7 +84,7 @@ export function SharedDreamShell() {
   const shellRef = useRef<HTMLDivElement>(null);
   const audioStreamRef = useRef<MediaStream | null>(null);
 
-  // ── Listen for incoming events ──
+  // -- Listen for incoming events --
   useEffect(() => {
     const unsub = onEvent((payload: DreamBroadcastPayload) => {
       if (payload.type === 'cursor') {
@@ -113,7 +113,7 @@ export function SharedDreamShell() {
     return unsub;
   }, [onEvent]);
 
-  // ── Broadcast cursor position on mouse move ──
+  // -- Broadcast cursor position on mouse move --
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       const el = shellRef.current;
@@ -126,7 +126,7 @@ export function SharedDreamShell() {
     [broadcastCursor],
   );
 
-  // ── Audio call toggle ──
+  // -- Audio call toggle --
   const toggleAudio = useCallback(async () => {
     if (isAudioActive) {
       audioStreamRef.current?.getTracks().forEach((t: Record<string, unknown>) => t.stop());
@@ -146,7 +146,7 @@ export function SharedDreamShell() {
     }
   }, [isAudioActive, broadcast]);
 
-  // ── Copy invite link ──
+  // -- Copy invite link --
   const copyInvite = useCallback(async () => {
     const inviteLink = getInviteLink();
     if (!inviteLink) return;
@@ -155,7 +155,7 @@ export function SharedDreamShell() {
     setTimeout(() => setInviteCopied(false), 2000);
   }, [getInviteLink]);
 
-  // ── Cleanup ──
+  // -- Cleanup --
   useEffect(() => {
     broadcastPresenceUpdate({ status: isConnected ? 'active' : 'idle', role, mode });
   }, [broadcastPresenceUpdate, isConnected, role, mode]);
@@ -171,14 +171,14 @@ export function SharedDreamShell() {
 
   const peerList = Object.values(peers);
 
-  // ─── Render ────────────────────────────────────────────────────────────────
+  // --- Render ----------------------------------------------------------------
 
   return (
     <div
       className="shared-dream-shell flex flex-col"
       style={{ height: '100%', minHeight: 0, background: '#07080f', overflow: 'hidden' }}
     >
-      {/* ── Session banner ── */}
+      {/* -- Session banner -- */}
       <div
         style={{
           display: 'flex',
@@ -326,7 +326,7 @@ export function SharedDreamShell() {
         </div>
       )}
 
-      {/* ── Two-pane canvas ── */}
+      {/* -- Two-pane canvas -- */}
       <div
         ref={shellRef}
         className="relative flex-1 flex flex-col overflow-hidden"

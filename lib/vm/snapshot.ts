@@ -304,7 +304,7 @@ export class SnapshotManager {
     }
   }
 
-  // ─── Binary encoding helpers ──────────────────────────────────────────────
+  // --- Binary encoding helpers ----------------------------------------------
 
   private static encodeString(str: string): Uint8Array {
     return new TextEncoder().encode(str);

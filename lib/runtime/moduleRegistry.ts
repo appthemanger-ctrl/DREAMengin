@@ -21,7 +21,7 @@ import { create } from 'zustand';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 import type { ModuleManifest, RuntimeId } from '@/types/module-manifest';
 
-// ── Store shape ────────────────────────────────────────────────────────────────
+// -- Store shape ----------------------------------------------------------------
 
 interface ModuleRegistryState {
   /** Flat record of all known modules, keyed by module ID. */
@@ -40,7 +40,7 @@ interface ModuleRegistryState {
   getModulesForRuntime: (runtime: RuntimeId) => ModuleManifest[];
 }
 
-// ── Zustand store ─────────────────────────────────────────────────────────────
+// -- Zustand store -------------------------------------------------------------
 
 export const useModuleRegistry = create<ModuleRegistryState>(set: Record<string, unknown>, get: Record<string, unknown> => ({
   modules: {},
@@ -101,7 +101,7 @@ export const moduleRegistry = {
   },
 };
 
-// ── Bridge subscription — receive transfers from remote runtimes ───────────────
+// -- Bridge subscription — receive transfers from remote runtimes ---------------
 
 /**
  * Call this once (e.g. from a root provider) to wire the registry into the
@@ -119,7 +119,7 @@ export function subscribeRegistryToTransferEvents(: () => void {
   });
 }
 
-// ── Helper: build a ModuleManifest from a WidgetInstance ─────────────────────
+// -- Helper: build a ModuleManifest from a WidgetInstance ---------------------
 
 import type { WidgetInstance } from '@/types/widgets';
 import { getWidgetType } from '@/types/widgets';

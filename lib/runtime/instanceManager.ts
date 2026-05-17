@@ -27,7 +27,7 @@ import type { RuntimeChannel } from '@/lib/runtime/runtimeChannel';
 import { createLocalChannel, createRuntimeChannel } from '@/lib/runtime/runtimeChannel';
 import type { RuntimeId } from '@/types/module-manifest';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 export type EnginName =
   | 'StarMakerEngin'
@@ -59,7 +59,7 @@ export interface EnginInstance {
   createdAt: number;
 }
 
-// ── Store shape ───────────────────────────────────────────────────────────────
+// -- Store shape ---------------------------------------------------------------
 
 interface InstanceManagerState {
   /** All active instances, keyed by instance key. */
@@ -114,7 +114,7 @@ function serializeInstances(instances: Record<string, EnginInstance>: PersistedI
   }));
 }
 
-// ── Zustand store ─────────────────────────────────────────────────────────────
+// -- Zustand store -------------------------------------------------------------
 
 export const useInstanceManager = create<InstanceManagerState>(set: Record<string, unknown>, get: Record<string, unknown> => ({
   instances: {},
@@ -218,7 +218,7 @@ export const useInstanceManager = create<InstanceManagerState>(set: Record<strin
   },
 }));
 
-// ── Convenience helpers ───────────────────────────────────────────────────────
+// -- Convenience helpers -------------------------------------------------------
 
 /**
  * buildInstanceKey(enginName, instanceId)

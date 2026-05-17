@@ -412,7 +412,7 @@ export default function DreamsSpacePanel() {
 
       <AnimatePresence mode="wait" initial={false}>
         {view === 'apps' ? (
-        /* ── Permanent iOS-style app home screen ─────────────────────────────── */
+        /* -- Permanent iOS-style app home screen ------------------------------- */
         <motion.div
           key="apps"
           style={{ flex: 1, overflowY: 'auto', padding: '12px 10px 20px' }}
@@ -733,7 +733,7 @@ export default function DreamsSpacePanel() {
 
         </motion.div>
       ) : view === 'feeds' ? (
-        /* ── Feeds — connector content ── */
+        /* -- Feeds — connector content -- */
         <motion.div
           key="feeds"
           style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
@@ -808,7 +808,7 @@ export default function DreamsSpacePanel() {
           </div>
         </motion.div>
       ) : (
-        /* ── Profile — DreamSpace spatial profile surface ── */
+        /* -- Profile — DreamSpace spatial profile surface -- */
         <motion.div
           key="profile"
           style={{ flex: 1, overflow: 'hidden' }}

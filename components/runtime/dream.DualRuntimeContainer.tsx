@@ -130,7 +130,7 @@ export default function DualRuntimeContainer() { children }: DualRuntimeContaine
     return isHomeActiveTop(state);
   }, [state]);
 
-  // ── Anchor-based viewport focus (torus "camera pan") ─────────────────────
+  // -- Anchor-based viewport focus (torus "camera pan") ---------------------
 
   const registerViewportRef = useCallback((
     viewport: 'top' | 'bottom',

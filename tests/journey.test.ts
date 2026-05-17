@@ -16,7 +16,7 @@ import { describe, expect, it } from 'vitest';
 import type { JourneyDot, JourneyTimeGroup } from '@/types/journey';
 import { JOURNEY_DOMAIN_COLORS } from '@/types/journey';
 
-// ── Helpers mirrored from JourneyTrail.tsx ────────────────────────────────────
+// -- Helpers mirrored from JourneyTrail.tsx ------------------------------------
 
 function groupDotsByTime(dots: JourneyDot[]): JourneyTimeGroup[] {
   const now = Date.now();
@@ -46,7 +46,7 @@ function dotRadius(significance: number): number {
   return 4;
 }
 
-// ── API validation logic (mirrors app/api/journey/route.ts) ──────────────────
+// -- API validation logic (mirrors app/api/journey/route.ts) ------------------
 
 function validateDotInput(body: Record<string, unknown>): string | null {
   if (!body.kind || typeof body.kind !== 'string') {
@@ -62,7 +62,7 @@ function validateDotInput(body: Record<string, unknown>): string | null {
   return null;
 }
 
-// ── Fixture factories ─────────────────────────────────────────────────────────
+// -- Fixture factories ---------------------------------------------------------
 
 function makeDot(overrides: Partial<JourneyDot> =) {}): JourneyDot {
   return {
@@ -83,7 +83,7 @@ function ageMs(ms: number): string {
   return new Date(Date.now() - ms).toISOString();
 }
 
-// ── Tests: groupDotsByTime ────────────────────────────────────────────────────
+// -- Tests: groupDotsByTime ----------------------------------------------------
 
 describe('groupDotsByTime', () => {
   it('returns empty array when no dots provided', () => {
@@ -148,7 +148,7 @@ describe('groupDotsByTime', () => {
   });
 });
 
-// ── Tests: dotRadius ──────────────────────────────────────────────────────────
+// -- Tests: dotRadius ----------------------------------------------------------
 
 describe('dotRadius', () => {
   it('returns 8 for high significance (>= 0.9)', () => {
@@ -167,7 +167,7 @@ describe('dotRadius', () => {
   });
 });
 
-// ── Tests: validateDotInput ───────────────────────────────────────────────────
+// -- Tests: validateDotInput ---------------------------------------------------
 
 describe('validateDotInput', () => {
   it('returns null for a valid minimal input', () => {
@@ -215,7 +215,7 @@ describe('validateDotInput', () => {
   });
 });
 
-// ── Tests: JOURNEY_DOMAIN_COLORS ──────────────────────────────────────────────
+// -- Tests: JOURNEY_DOMAIN_COLORS ----------------------------------------------
 
 describe('JOURNEY_DOMAIN_COLORS', () => {
   it('contains all canonical surface names', () => {
@@ -252,7 +252,7 @@ describe('JOURNEY_DOMAIN_COLORS', () => {
   });
 });
 
-// ── Tests: JourneyDot privacy guarantees ─────────────────────────────────────
+// -- Tests: JourneyDot privacy guarantees -------------------------------------
 
 describe('JourneyDot privacy model', () => {
   it('a JourneyDot has no visibility field (privacy enforced at DB layer)', () => {

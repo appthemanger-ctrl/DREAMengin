@@ -22,7 +22,7 @@ async function requireUser(req: NextRequest) {
   return user;
 }
 
-// ─── Upload ───────────────────────────────────────────────────────────────────
+// --- Upload -------------------------------------------------------------------
 
 export async function POST(req: NextRequest: Promise<NextResponse>) {
   const user = await requireUser(req);
@@ -116,7 +116,7 @@ export async function POST(req: NextRequest: Promise<NextResponse>) {
   }
 }
 
-// ─── Retrieve ─────────────────────────────────────────────────────────────────
+// --- Retrieve -----------------------------------------------------------------
 
 export async function GET(req: NextRequest: Promise<NextResponse>) {
   const user = await requireUser(req);

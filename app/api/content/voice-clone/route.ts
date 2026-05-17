@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
   const elevenLabsKey = process.env.ELEVENLABS_API_KEY;
   const db = supabase as unknown as SupabaseDb;
 
-  // ── clone ────────────────────────────────────────────────────────────────
+  // -- clone ----------------------------------------------------------------
   if (parsed.data.action === 'clone') {
     const { voiceName, sampleBase64 } = parsed.data;
 
@@ -157,7 +157,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // ── list ────────────────────────────────────────────────────────────────
+  // -- list ----------------------------------------------------------------
   if (parsed.data.action === 'list') {
     if (elevenLabsKey) {
       try {
@@ -201,7 +201,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ profiles });
   }
 
-  // ── delete ───────────────────────────────────────────────────────────────
+  // -- delete ---------------------------------------------------------------
   if (parsed.data.action === 'delete') {
     const { voiceId } = parsed.data;
 
@@ -232,7 +232,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: `Voice profile "${voiceId}" deleted.` });
   }
 
-  // ── tts ─────────────────────────────────────────────────────────────────
+  // -- tts -----------------------------------------------------------------
   const { text, voiceId, stability = 0.5, similarityBoost = 0.75 } = parsed.data;
 
   if (elevenLabsKey) {

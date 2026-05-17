@@ -24,7 +24,7 @@ import { useCallback, useState, type ReactNode } from 'react';
 import { v4 as uuid } from 'uuid';
 import { cacheAsset, enqueueSyncAction } from '@/lib/offline/offlineCache';
 
-// ─── File classification ──────────────────────────────────────────────────────
+// --- File classification ------------------------------------------------------
 
 export type AssetCategory = 'image' | 'audio' | '3d' | 'unknown';
 
@@ -55,7 +55,7 @@ function getMimeType(file: File: string) {
   return map[ext] ?? 'application/octet-stream';
 }
 
-// ─── Accepted file extensions ─────────────────────────────────────────────────
+// --- Accepted file extensions -------------------------------------------------
 
 const ALL_ACCEPTED = [
   ...Array.from(IMAGE_EXTS),
@@ -68,7 +68,7 @@ export function isAcceptedFile(filename: string: boolean) {
   return ALL_ACCEPTED.includes(ext);
 }
 
-// ─── Import event ─────────────────────────────────────────────────────────────
+// --- Import event -------------------------------------------------------------
 
 export interface AssetImportPayload {
   id: string;
@@ -84,7 +84,7 @@ export interface AssetImportPayload {
  */
 export const ASSET_IMPORT_EVENT = 'dreamengin:asset-import';
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// --- Component ----------------------------------------------------------------
 
 interface CanvasDropZoneProps {
   children: ReactNode;

@@ -26,7 +26,7 @@
 import type { IRenderer, TextStyle } from './IRenderer';
 import { FrustumCuller, type Rect } from './FrustumCuller';
 
-// ─── Canvas2DRenderer ─────────────────────────────────────────────────────────
+// --- Canvas2DRenderer ---------------------------------------------------------
 
 export class Canvas2DRenderer implements IRenderer {
   /**
@@ -41,11 +41,11 @@ export class Canvas2DRenderer implements IRenderer {
   private readonly _culler = new FrustumCuller();
   private _viewport: Rect;
 
-  // ── Draw-call stats (reset on each clear()) ──────────────────────────────
+  // -- Draw-call stats (reset on each clear()) ------------------------------
   private _totalDraws = 0;
   private _skippedDraws = 0;
 
-  // ─────────────────────────────────────────────────────────────────────────
+  // -------------------------------------------------------------------------
 
   constructor(canvas: HTMLCanvasElement) {
     const ctx = canvas.getContext('2d');
@@ -57,7 +57,7 @@ export class Canvas2DRenderer implements IRenderer {
     this._viewport = { x: 0, y: 0, w: canvas.width, h: canvas.height };
   }
 
-  // ── IRenderer: Viewport ──────────────────────────────────────────────────
+  // -- IRenderer: Viewport --------------------------------------------------
 
   get width(): number { return this._canvas.width; }
   get height(): number { return this._canvas.height; }
@@ -71,7 +71,7 @@ export class Canvas2DRenderer implements IRenderer {
     this._viewport = { ...vp };
   }
 
-  // ── IRenderer: Lifecycle ─────────────────────────────────────────────────
+  // -- IRenderer: Lifecycle -------------------------------------------------
 
   /**
    * Clear the entire canvas and reset per-frame draw-call counters.
@@ -95,7 +95,7 @@ export class Canvas2DRenderer implements IRenderer {
     // Nothing to clean up for the Canvas 2D backend.
   }
 
-  // ── IRenderer: Primitives ────────────────────────────────────────────────
+  // -- IRenderer: Primitives ------------------------------------------------
 
   /**
    * Draw a filled axis-aligned rectangle.
@@ -142,7 +142,7 @@ export class Canvas2DRenderer implements IRenderer {
     this.ctx.fillText(text, x, y);
   }
 
-  // ── Diagnostics ──────────────────────────────────────────────────────────
+  // -- Diagnostics ----------------------------------------------------------
 
   /**
    * Per-frame culling statistics.

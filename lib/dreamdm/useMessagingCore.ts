@@ -24,7 +24,7 @@ import { createClient } from '@/lib/supabase/client';
 import { uploadBlobToLedgerStorage } from '@/lib/media/ledger';
 import type { DMMessage } from './useDreamDMMessages';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 export type MediaType = 'image' | 'video' | 'audio' | 'file';
 
@@ -62,7 +62,7 @@ export interface UseMessagingCoreReturn {
   clearSendError: () => void;
 }
 
-// ── Hook ──────────────────────────────────────────────────────────────────────
+// -- Hook ----------------------------------------------------------------------
 
 export function useMessagingCore(
   /** Called immediately with an optimistic message before server confirmation */
@@ -75,7 +75,7 @@ export function useMessagingCore(
   const [isSending, setIsSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
 
-  // ── File helpers ──────────────────────────────────────────────────────────
+  // -- File helpers ----------------------------------------------------------
 
   const validateFile = useCallback((file: File): string | null => {
     if (file.size > MAX_FILE_BYTES) return 'File must be smaller than 50 MB';
@@ -89,7 +89,7 @@ export function useMessagingCore(
     return 'file';
   }, []);
 
-  // ── Upload ────────────────────────────────────────────────────────────────
+  // -- Upload ----------------------------------------------------------------
 
   const uploadFile = useCallback(
     async (file: File, userId: string): Promise<{ url: string; type: MediaType }> => {
@@ -111,7 +111,7 @@ export function useMessagingCore(
     [getFileType],
   );
 
-  // ── Send ──────────────────────────────────────────────────────────────────
+  // -- Send ------------------------------------------------------------------
 
   const sendMessage = useCallback(
     async (params: SendMessageParams): Promise<DMMessage | null> => {
@@ -120,7 +120,7 @@ export function useMessagingCore(
       if (!content.trim() && !file) return null;
       if (!conversationId)            return null;
 
-      // ── Demo conversations — optimistic only, no network call ─────────────
+      // -- Demo conversations — optimistic only, no network call -------------
       if (conversationId.startsWith('demo-')) {
         const optimistic: DMMessage = {
           id:         `temp-${Date.now()}`,

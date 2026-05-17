@@ -64,7 +64,7 @@ export function emitGameEnginAgentEvent(input:) {
   });
 }
 
-// ── Legacy aliases so any code still importing old names compiles during migration ──
+// -- Legacy aliases so any code still importing old names compiles during migration --
 /** @deprecated Use IdariEventType */
 export type InnerDreamsEventType = IdariEventType;
 /** @deprecated Use IdariEventDetail */
@@ -75,7 +75,7 @@ export const emitInnerDreamsEvent = emitIdariEvent;
 export const onInnerDreamsEvent = onIdariEvent;
 
 
-// ── Server-side triad consensus gate ────────────────────────────────────────
+// -- Server-side triad consensus gate ----------------------------------------
 // Must be imported in server contexts only (Next.js API routes, server actions).
 // Phase 6 pt 9: unanimous triad approval required before any major system update.
 //

@@ -16,7 +16,7 @@ import {
   type CellLanguage,
 } from '@/lib/code/drEamsCodeAssist';
 
-// ─── Preview engine labels ────────────────────────────────────────────────────
+// --- Preview engine labels ----------------------------------------------------
 
 /** Mirrors the ENGINE_CONNECTIONS constant defined in CodeEngin's preview tab. */
 const ENGINE_CONNECTIONS = [
@@ -58,7 +58,7 @@ describe('ENGINE_CONNECTIONS', () => {
   });
 });
 
-// ─── Mock output generation (mirrors getMockOutput used in preview tab) ───────
+// --- Mock output generation (mirrors getMockOutput used in preview tab) -------
 
 /** Same logic as getMockOutput in CodeEngin (deterministic, no eval). */
 function getMockOutput(language: CellLanguage, engine?: EngineId): string {
@@ -114,7 +114,7 @@ describe('getMockOutput', () => {
   });
 });
 
-// ─── Preview mode label resolution ────────────────────────────────────────────
+// --- Preview mode label resolution --------------------------------------------
 
 type PreviewMode = 'terminal' | 'canvas' | 'data' | 'game';
 
@@ -137,7 +137,7 @@ describe('PREVIEW_MODE_LABELS', () => {
   });
 });
 
-// ─── Language detection in preview context ────────────────────────────────────
+// --- Language detection in preview context ------------------------------------
 
 describe('detectLanguageFromCode (preview context)', () => {
   it('detects Python from a DREAMengin game script', () => {
@@ -165,7 +165,7 @@ world.addComponent<TransformComponent>(entity, { x: 0, y: 0 });
   });
 });
 
-// ─── NL command detection in preview context ──────────────────────────────────
+// --- NL command detection in preview context ----------------------------------
 
 describe('detectNLCommand (preview context)', () => {
   it('detects "write a function" pattern', () => {
@@ -185,7 +185,7 @@ describe('detectNLCommand (preview context)', () => {
   });
 });
 
-// ─── Code generation for game/graphics context ────────────────────────────────
+// --- Code generation for game/graphics context --------------------------------
 
 describe('generateCodeFromCommand (graphics/game context)', () => {
   it('generates TypeScript class for a Player entity', () => {
@@ -201,7 +201,7 @@ describe('generateCodeFromCommand (graphics/game context)', () => {
   });
 });
 
-// ─── parseCodeResponse for preview output rendering ──────────────────────────
+// --- parseCodeResponse for preview output rendering --------------------------
 
 describe('parseCodeResponse (preview panel)', () => {
   it('separates explanation text from code in a Dr. Eams reply', () => {
@@ -221,7 +221,7 @@ describe('parseCodeResponse (preview panel)', () => {
   });
 });
 
-// ─── Vocabulary relevance for code dream ─────────────────────────────────────
+// --- Vocabulary relevance for code dream -------------------------------------
 
 describe('matchCodeVocabulary (preview/game context)', () => {
   it('matches "shader" for graphics queries', () => {

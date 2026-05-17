@@ -24,7 +24,7 @@ import {
   RETURN_GAP_DAYS,
 } from '@/lib/journey/journeyInsights';
 
-// ── Fixture helpers ───────────────────────────────────────────────────────────
+// -- Fixture helpers -----------------------------------------------------------
 
 let nextId = 1;
 function makeDot(overrides: Partial<JourneyDot> =) {}): JourneyDot {
@@ -52,7 +52,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-// ─── findFirstOccurrenceIds ───────────────────────────────────────────────────
+// --- findFirstOccurrenceIds ---------------------------------------------------
 
 describe('findFirstOccurrenceIds()', () => {
   it('returns empty set for empty input', () => {
@@ -86,7 +86,7 @@ describe('findFirstOccurrenceIds()', () => {
   });
 });
 
-// ─── computeCurrentStreak ─────────────────────────────────────────────────────
+// --- computeCurrentStreak -----------------------------------------------------
 
 describe('computeCurrentStreak()', () => {
   it('returns 0 for empty dot list', () => {
@@ -132,7 +132,7 @@ describe('computeCurrentStreak()', () => {
   });
 });
 
-// ─── computeWeeklyFrequency ───────────────────────────────────────────────────
+// --- computeWeeklyFrequency ---------------------------------------------------
 
 describe('computeWeeklyFrequency()', () => {
   it('returns empty map for empty input', () => {
@@ -175,7 +175,7 @@ describe('computeWeeklyFrequency()', () => {
   });
 });
 
-// ─── detectReturnGaps ─────────────────────────────────────────────────────────
+// --- detectReturnGaps ---------------------------------------------------------
 
 describe('detectReturnGaps()', () => {
   it('returns empty map for empty input', () => {
@@ -212,7 +212,7 @@ describe('detectReturnGaps()', () => {
   });
 });
 
-// ─── annotateDotsWithInsights ─────────────────────────────────────────────────
+// --- annotateDotsWithInsights -------------------------------------------------
 
 describe('annotateDotsWithInsights()', () => {
   it('returns empty array for empty input', () => {

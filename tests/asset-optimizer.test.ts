@@ -10,7 +10,7 @@
 
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
-// ── Mock IndexedDB ─────────────────────────────────────────────────────────────
+// -- Mock IndexedDB -------------------------------------------------------------
 // jsdom does not include IndexedDB; we provide a minimal stub.
 
 const idbStore = new Map<string, unknown>();
@@ -55,7 +55,7 @@ const mockIDB = {
 // Patch global indexedDB
 Object.defineProperty(globalThis, 'indexedDB', { value: mockIDB, writable: true });
 
-// ── Mock localStorage ──────────────────────────────────────────────────────────
+// -- Mock localStorage ----------------------------------------------------------
 
 const localStorageData = new Map<string, string>();
 const mockLocalStorage = {
@@ -68,11 +68,11 @@ const mockLocalStorage = {
 };
 Object.defineProperty(globalThis, 'localStorage', { value: mockLocalStorage, writable: true });
 
-// ── Import modules under test ──────────────────────────────────────────────────
+// -- Import modules under test --------------------------------------------------
 
 import { registryTagsForContext } from '@/lib/assets/assetOptimizer';
 
-// ── registryTagsForContext tests ───────────────────────────────────────────────
+// -- registryTagsForContext tests -----------------------------------------------
 
 describe('registryTagsForContext', () => {
   it('returns dreamr_feed folder/source for dreamr_feed context', () => {
@@ -100,7 +100,7 @@ describe('registryTagsForContext', () => {
   });
 });
 
-// ── Sentinel / browser-clear detection tests ──────────────────────────────────
+// -- Sentinel / browser-clear detection tests ----------------------------------
 
 describe('IndexedDB sentinel detection', () => {
   beforeEach(() => {

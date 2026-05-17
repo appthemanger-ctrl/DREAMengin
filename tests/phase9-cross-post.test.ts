@@ -12,7 +12,7 @@ import {
   type DreamSharePayload,
 } from '@/lib/social/crossPost';
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// --- Helpers ------------------------------------------------------------------
 
 function makePayload(overrides?: Partial<DreamSharePayload>): DreamSharePayload {
   return {
@@ -23,7 +23,7 @@ function makePayload(overrides?: Partial<DreamSharePayload>): DreamSharePayload 
   };
 }
 
-// ─── buildCrossPostTargets ────────────────────────────────────────────────────
+// --- buildCrossPostTargets ----------------------------------------------------
 
 describe('Cross-Post — buildCrossPostTargets', () => {
   it('returns targets for share-capable platforms', () => {
@@ -61,7 +61,7 @@ describe('Cross-Post — buildCrossPostTargets', () => {
   });
 });
 
-// ─── formatShareText ──────────────────────────────────────────────────────────
+// --- formatShareText ----------------------------------------------------------
 
 describe('Cross-Post — formatShareText', () => {
   it('includes title', () => {
@@ -99,7 +99,7 @@ describe('Cross-Post — formatShareText', () => {
   });
 });
 
-// ─── buildDreamOgMeta ─────────────────────────────────────────────────────────
+// --- buildDreamOgMeta ---------------------------------------------------------
 
 describe('Cross-Post — buildDreamOgMeta', () => {
   it('includes basic OG tags', () => {
@@ -137,7 +137,7 @@ describe('Cross-Post — buildDreamOgMeta', () => {
   });
 });
 
-// ─── Mastodon in platforms registry ───────────────────────────────────────────
+// --- Mastodon in platforms registry -------------------------------------------
 
 describe('Cross-Post — Mastodon platform', () => {
   it('mastodon is in SOCIAL_PLATFORMS', async () => {

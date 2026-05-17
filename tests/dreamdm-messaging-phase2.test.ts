@@ -14,7 +14,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 
-// ── Mock localStorage ─────────────────────────────────────────────────────────
+// -- Mock localStorage ---------------------------------------------------------
 const localStorageStore: Record<string, string> = {};
 const localStorageMock = {
   getItem:    (key: string)              => localStorageStore[key] ?? null,
@@ -24,9 +24,9 @@ const localStorageMock = {
 };
 vi.stubGlobal('localStorage', localStorageMock);
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Dr. Eams toggle — pure logic extracted from useDreamSearch for testing
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 const DR_EAMS_KEY = 'de-dreams-mode';
 
@@ -76,9 +76,9 @@ describe('Dr. Eams toggle — localStorage contract', () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // SearchResult shape contract
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 type SearchResultType = 'person' | 'conversation' | 'board' | 'topic';
 
@@ -141,9 +141,9 @@ describe('SearchResult type contract', () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // File validation — logic extracted from useMessagingCore
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 const MAX_FILE_BYTES = 50 * 1024 * 1024;
 
@@ -203,9 +203,9 @@ describe('getFileType — MIME type mapping', () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Feature parity assertion: shared hooks must cover both surfaces
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 describe('Phase 2 feature parity contract', () => {
   it('DreamDMessaging and DreamDM Bar share the same DR_EAMS_KEY', () => {

@@ -8,7 +8,7 @@
 
 import type { LogEntry, MetricPoint, TraceSpan, TelemetrySnapshot } from './collector';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 export type AnomalySeverity = 'low' | 'medium' | 'high';
 export type AnomalyType =
@@ -36,11 +36,11 @@ export interface CorrelationResult {
   summary: string;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// -- Helpers -------------------------------------------------------------------
 
 const SEVERITY_ORDER: Record<AnomalySeverity, number> = { high: 0, medium: 1, low: 2 };
 
-// ── Detector: error spikes ────────────────────────────────────────────────────
+// -- Detector: error spikes ----------------------------------------------------
 
 /**
  * Detect 30-second windows where 3 or more errors/warnings cluster together.
@@ -72,7 +72,7 @@ export function detectErrorSpikes(logs: LogEntry[]: AnomalySignal[]) {
   return signals;
 }
 
-// ── Detector: latency spikes ──────────────────────────────────────────────────
+// -- Detector: latency spikes --------------------------------------------------
 
 /**
  * Per span name: flag when p95 latency is >3× the p50 AND absolute p95 > 1 s,
@@ -122,7 +122,7 @@ export function detectLatencySpikes(traces: TraceSpan[]: AnomalySignal[]) {
   return signals;
 }
 
-// ── Detector: metric anomalies ────────────────────────────────────────────────
+// -- Detector: metric anomalies ------------------------------------------------
 
 /**
  * For each metric name, flag outliers that deviate more than 2.5 standard
@@ -162,9 +162,9 @@ export function detectMetricAnomalies(metrics: MetricPoint[]: AnomalySignal[]) {
   return signals;
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────────
+// -- Main ----------------------------------------------------------------------
 
-// ── Improvement 26: CorrelateOptions with configurable thresholds ─────────────
+// -- Improvement 26: CorrelateOptions with configurable thresholds -------------
 
 export interface CorrelateOptions {
   /**
@@ -179,7 +179,7 @@ export interface CorrelateOptions {
   sustainedErrorRateThreshold?: number;
 }
 
-// ── Improvement 27: detectSustainedErrorRate ──────────────────────────────────
+// -- Improvement 27: detectSustainedErrorRate ----------------------------------
 
 /**
  * Fire a 'high' severity signal when the error+warn fraction across the
@@ -213,7 +213,7 @@ export function detectSustainedErrorRate(
  * Returns a CorrelationResult with ranked anomalies and an overall health verdict.
  * Pass `options` to tune detection thresholds.
  */
-// ── Improvement 28: correlate accepts options ─────────────────────────────────
+// -- Improvement 28: correlate accepts options ---------------------------------
 export function correlate(snapshot: TelemetrySnapshot, options: CorrelateOptions =) {}: CorrelationResult {
   const {
     errorSpikeThreshold,

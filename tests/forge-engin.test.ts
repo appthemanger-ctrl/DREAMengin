@@ -7,7 +7,7 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 
-// ── Mock localStorage (test environment is 'node', no browser globals) ───────
+// -- Mock localStorage (test environment is 'node', no browser globals) -------
 const localStorageStore: Record<string, string> = {};
 const localStorageMock = {
   getItem: (key: string) => localStorageStore[key] ?? null,
@@ -30,7 +30,7 @@ import {
   type ForgeActivityPulse,
 } from '@/lib/forge/forgeRegistry';
 
-// ── Registry tests ────────────────────────────────────────────────────────────
+// -- Registry tests ------------------------------------------------------------
 
 describe('ENGIN_REGISTRY', () => {
   it('contains 7 entries (6 creative + forge)', () => {
@@ -88,7 +88,7 @@ describe('CREATIVE_ENGINES', () => {
   });
 });
 
-// ── Activity Pulse tests ──────────────────────────────────────────────────────
+// -- Activity Pulse tests ------------------------------------------------------
 
 describe('Forge Activity Pulse', () => {
   beforeEach(() => {
@@ -171,7 +171,7 @@ describe('getForgeHeat', () => {
   });
 });
 
-// ── formatRelativeTime tests ──────────────────────────────────────────────────
+// -- formatRelativeTime tests --------------------------------------------------
 
 describe('formatRelativeTime', () => {
   it('returns "just now" for recent timestamps', () => {
@@ -195,7 +195,7 @@ describe('formatRelativeTime', () => {
   });
 });
 
-// ── Integration wiring tests ──────────────────────────────────────────────────
+// -- Integration wiring tests --------------------------------------------------
 
 describe('ForgeEngin integration wiring', () => {
   it('ForgeEngin is listed in ENGIN_REGISTRY with correct accent', () => {
@@ -223,7 +223,7 @@ describe('ForgeEngin integration wiring', () => {
   });
 });
 
-// ── FORGE_WORKFLOWS tests ─────────────────────────────────────────────────────
+// -- FORGE_WORKFLOWS tests -----------------------------------------------------
 
 describe('FORGE_WORKFLOWS', () => {
   it('has at least 3 workflows', () => {
@@ -263,7 +263,7 @@ describe('FORGE_WORKFLOWS', () => {
   });
 });
 
-// ── useForgeActivity hook unit test (non-React) ───────────────────────────────
+// -- useForgeActivity hook unit test (non-React) -------------------------------
 
 describe('useForgeActivity integration', () => {
   beforeEach(() => {
@@ -290,7 +290,7 @@ describe('useForgeActivity integration', () => {
   });
 });
 
-// ── Forge Intelligence Tests ──────────────────────────────────────────────────
+// -- Forge Intelligence Tests --------------------------------------------------
 
 import {
   appendForgeHistory,
@@ -608,7 +608,7 @@ describe('Failure Recovery', () => {
   });
 });
 
-// ── Cross-Engine Transfer Integration Tests ──────────────────────────────────
+// -- Cross-Engine Transfer Integration Tests ----------------------------------
 
 describe('Cross-Engine Transfer System', () => {
   beforeEach(() => localStorage.clear());
@@ -692,7 +692,7 @@ describe('Cross-Engine Transfer System', () => {
   });
 });
 
-// ── Forge Activity Coverage Tests ─────────────────────────────────────────────
+// -- Forge Activity Coverage Tests ---------------------------------------------
 
 describe('Forge Activity Coverage — all engines record activity', () => {
   beforeEach(() => localStorage.clear());

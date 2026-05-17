@@ -184,7 +184,7 @@ export class WasmGpuVM {
     this.state.device.destroy();
   }
 
-  // ─── Syscall Implementation ────────────────────────────────────────────────
+  // --- Syscall Implementation ------------------------------------------------
 
   private createSyscalls(): VMSyscalls {
     return {

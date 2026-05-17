@@ -197,7 +197,7 @@ describe('SessionPatternEngine', () => {
     expect(preds[0].label).toContain('Y');
   });
 
-  // ── Cold-start blending ────────────────────────────────────────────────────
+  // -- Cold-start blending ----------------------------------------------------
 
   it('blends cold-start and learned weights in the 3–10 transition window', () => {
     // Build exactly 4 transitions: CodeEngin → GameEngin (3×), CodeEngin → ContentEngin (1×)
@@ -227,7 +227,7 @@ describe('SessionPatternEngine', () => {
     expect(gamePred!.confidence).toBeGreaterThan(labPred!.confidence);
   });
 
-  // ── Matrix export / import ─────────────────────────────────────────────────
+  // -- Matrix export / import -------------------------------------------------
 
   it('exportMatrix returns a plain JSON-serialisable representation', () => {
     engine.ingest('CodeEngin');

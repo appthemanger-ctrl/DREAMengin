@@ -12,7 +12,7 @@
  * Phase 8 §E:   Points 39, 40, 44, 45
  */
 
-// ── Schema constants ──────────────────────────────────────────────────────────
+// -- Schema constants ----------------------------------------------------------
 
 /** Canonical Supabase table name for DreamShop listings. */
 export const SHOP_TABLE = 'merch' as const;
@@ -26,7 +26,7 @@ export const SHOP_TITLE_MAX_LENGTH = 200;
 /** Minimum valid price (0 = free is allowed). */
 export const SHOP_PRICE_MIN = 0;
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 export type ShopListingInput = {
   title: string;          // inbound field name from form / client body
@@ -50,7 +50,7 @@ export type ValidationResult = {
   errors: string[];
 };
 
-// ── Validation ────────────────────────────────────────────────────────────────
+// -- Validation ----------------------------------------------------------------
 
 /**
  * Validates raw inbound body for a new shop listing.
@@ -88,7 +88,7 @@ export function validateShopListing(body: unknown: ValidationResult) {
   return { valid: errors.length === 0, errors };
 }
 
-// ── Normalization ─────────────────────────────────────────────────────────────
+// -- Normalization -------------------------------------------------------------
 
 /**
  * Maps validated client body to a DB-ready insert payload.
@@ -110,7 +110,7 @@ export function normalizeShopListing(
   };
 }
 
-// ── Order privacy helpers ──────────────────────────────────────────────────────
+// -- Order privacy helpers ------------------------------------------------------
 
 /** Canonical table name for DreamShop order history. */
 export const SHOP_ORDERS_TABLE = 'shop_orders' as const;

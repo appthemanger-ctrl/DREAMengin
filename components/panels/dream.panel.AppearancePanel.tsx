@@ -14,7 +14,7 @@ import { THEME_PRESETS as GRADIENT_PRESETS, applyTheme, type DeTheme } from '@/c
 import { useCustomizeMode }  from '@/lib/ui/CustomizeModeContext';
 import { useDreamSystem }    from '@/lib/dreamdm/DreamSystemContext';
 
-// ── Gradient theme picker (same logic as appearance page) ────────────────────
+// -- Gradient theme picker (same logic as appearance page) --------------------
 
 function GradientThemePicker() {
   const [active, setActive] = useState('default');
@@ -58,7 +58,7 @@ function GradientThemePicker() {
   );
 }
 
-// ── Slider control ────────────────────────────────────────────────────────────
+// -- Slider control ------------------------------------------------------------
 
 function Slider() { label, value, min, max, step, onChange }: { label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void }) {
   return (
@@ -74,7 +74,7 @@ function Slider() { label, value, min, max, step, onChange }: { label: string; v
   );
 }
 
-// ── Preset card ───────────────────────────────────────────────────────────────
+// -- Preset card ---------------------------------------------------------------
 
 function PresetCard() { preset, isActive, onSelect }: { preset: (typeof THEME_PRESETS)[number]; isActive: boolean; onSelect: () => void }) {
   return (
@@ -90,7 +90,7 @@ function PresetCard() { preset, isActive, onSelect }: { preset: (typeof THEME_PR
   );
 }
 
-// ── Main panel ────────────────────────────────────────────────────────────────
+// -- Main panel ----------------------------------------------------------------
 
 export default function AppearancePanel() {
   const { openInSurface }                               = useDreamSystem();

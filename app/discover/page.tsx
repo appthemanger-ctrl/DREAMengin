@@ -115,7 +115,7 @@ export default async function DiscoverPage() { searchParams }: { searchParams: P
 
       <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-6">
 
-        {/* ── Brand tagline ────────────────────────────────────────────────── */}
+        {/* -- Brand tagline -------------------------------------------------- */}
         {/* Only shown when there is no active search query */}
         {(!q || q.trim().length === 0) && (
           <div style={{ textAlign: 'center', paddingBottom: 4 }}>
@@ -129,7 +129,7 @@ export default async function DiscoverPage() { searchParams }: { searchParams: P
           </div>
         )}
 
-        {/* ── Daydream Explorer ────────────────────────────────────────────── */}
+        {/* -- Daydream Explorer ---------------------------------------------- */}
         {/* Shown when there is no active search query so users can explore the
             6 canonical Daydream surfaces directly from this surface.
             Architecture: docs/ARCHITECTURE.md §3 — Daydream Surface Network.
@@ -208,7 +208,7 @@ export default async function DiscoverPage() { searchParams }: { searchParams: P
           </div>
         )}
 
-        {/* ── DreamR direct surface ───────────────────────────────────────── */}
+        {/* -- DreamR direct surface ----------------------------------------- */}
         {(!q || q.trim().length === 0) && (
           <Link
             href="/dreamr"
@@ -258,7 +258,7 @@ export default async function DiscoverPage() { searchParams }: { searchParams: P
           </Link>
         )}
 
-        {/* ── Search form ──────────────────────────────────────────────────── */}
+        {/* -- Search form ---------------------------------------------------- */}
         <form method="GET" action="/discover">
           <div style={{ display: 'flex', gap: 8 }}>
             <div style={{ position: 'relative', flex: 1 }}>

@@ -30,7 +30,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { RefreshCw, ExternalLink, Eye, Hash } from 'lucide-react';
 import type { EmbedFeedItem } from '@/lib/feeds/embedFeedLoader';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 type Provider = 'all' | 'youtube' | 'instagram';
 
@@ -47,7 +47,7 @@ interface FeedState {
   error: string | null;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// -- Helpers -------------------------------------------------------------------
 
 function relativeTime(iso: string: string) {
   if (!iso) return '';
@@ -69,7 +69,7 @@ function formatViews(n: number: string) {
   return `${n.toLocaleString()} views`;
 }
 
-// ── Instagram embed script loader ─────────────────────────────────────────────
+// -- Instagram embed script loader ---------------------------------------------
 
 function useInstagramEmbedScript(hasInstagram: boolean) {
   useEffect(() => {
@@ -89,7 +89,7 @@ function useInstagramEmbedScript(hasInstagram: boolean) {
   }, [hasInstagram]);
 }
 
-// ── Skeleton card ─────────────────────────────────────────────────────────────
+// -- Skeleton card -------------------------------------------------------------
 
 function SkeletonCard() {
   return (
@@ -111,7 +111,7 @@ function SkeletonCard() {
   );
 }
 
-// ── Embed card ────────────────────────────────────────────────────────────────
+// -- Embed card ----------------------------------------------------------------
 
 function EmbedCard() { item }: { item: EmbedFeedItem } {
   const isYouTube   = item.provider === 'youtube';
@@ -127,7 +127,7 @@ function EmbedCard() { item }: { item: EmbedFeedItem } {
       border: '1px solid rgba(160,195,240,0.14)',
       display: 'flex', flexDirection: 'column',
     }}>
-      {/* ── Embed area ── */}
+      {/* -- Embed area -- */}
       <div style={{ position: 'relative', width: '100%' }}>
         {isYouTube && ytId ? (
           <div style={{ position: 'relative', paddingTop: '56.25%', background: '#000' }}>
@@ -176,7 +176,7 @@ function EmbedCard() { item }: { item: EmbedFeedItem } {
         ) : null}
       </div>
 
-      {/* ── Meta ── */}
+      {/* -- Meta -- */}
       <div style={{ padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: 4 }}>
         {/* Title */}
         <a
@@ -247,7 +247,7 @@ function EmbedCard() { item }: { item: EmbedFeedItem } {
   );
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
+// -- Main component ------------------------------------------------------------
 
 export default function EmbedFeedWidget() {
   defaultProvider = 'all',
@@ -300,7 +300,7 @@ export default function EmbedFeedWidget() {
   const hasInstagram = state.items.some(i: number => i.provider === 'instagram');
   useInstagramEmbedScript(hasInstagram);
 
-  // ── Provider tabs ──────────────────────────────────────────────────────────
+  // -- Provider tabs ----------------------------------------------------------
   const tabs: { id: Provider; label: string; icon: string }[] = [
     { id: 'all',       label: 'All',       icon: '✨' },
     { id: 'youtube',   label: 'YouTube',   icon: '📺' },

@@ -55,7 +55,7 @@ import {
 } from '@/lib/forge-ngn/assembly';
 import { createEventBus, bridgeBuses } from '@/lib/event-bus';
 
-// ── Design tokens ─────────────────────────────────────────────────────────────
+// -- Design tokens -------------------------------------------------------------
 
 const T = {
   bg:       '#09090f',
@@ -71,7 +71,7 @@ const T = {
   success:  '#4ade80',
 };
 
-// ── Category icons ─────────────────────────────────────────────────────────────
+// -- Category icons -------------------------------------------------------------
 
 const CAT_ICON: Record<PieceCategory, React.ReactNode> = {
   Audio:   <Music   size={13} />,
@@ -93,7 +93,7 @@ const CAT_COLOR: Record<PieceCategory, string> = {
   Runtime: '#7c6cff',
 };
 
-// ── Role badge ────────────────────────────────────────────────────────────────
+// -- Role badge ----------------------------------------------------------------
 
 const ROLE_COLOR: Record<PieceManifest['role'], string> = {
   source:    '#34d399',
@@ -101,7 +101,7 @@ const ROLE_COLOR: Record<PieceManifest['role'], string> = {
   output:    '#fb923c',
 };
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// -- Component -----------------------------------------------------------------
 
 interface Props {
   onBack?: () => void;
@@ -137,7 +137,7 @@ export default function NGNEngin() { onBack }: Props {
   const errors = validateAssembly(assembly);
   const valid  = errors.length === 0;
 
-  // ── Sidebar helpers ──────────────────────────────────────────────────────────
+  // -- Sidebar helpers ----------------------------------------------------------
 
   const filteredPieces = useCallback((cat: PieceCategory): PieceManifest[] => {
     const base = getPiecesByCategory(cat);
@@ -154,7 +154,7 @@ export default function NGNEngin() { onBack }: Props {
     });
   };
 
-  // ── Canvas drag-drop ─────────────────────────────────────────────────────────
+  // -- Canvas drag-drop ---------------------------------------------------------
 
   const handleCanvasDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -188,7 +188,7 @@ export default function NGNEngin() { onBack }: Props {
 
   const handleCanvasMouseUp = () => setDraggingId(null);
 
-  // ── Port wiring ──────────────────────────────────────────────────────────────
+  // -- Port wiring --------------------------------------------------------------
 
   const handlePortClick = (instanceId: string, portId: string, isInput: boolean) => {
     if (!isInput && !pending) {
@@ -201,7 +201,7 @@ export default function NGNEngin() { onBack }: Props {
     }
   };
 
-  // ── Actions ──────────────────────────────────────────────────────────────────
+  // -- Actions ------------------------------------------------------------------
 
   const handleSave = () => {
     const json = serializeAssembly(assembly);
@@ -221,12 +221,12 @@ export default function NGNEngin() { onBack }: Props {
     setShareUrl(`${window.location.origin}/marketplace?assembly=${encoded}`);
   };
 
-  // ── Render ────────────────────────────────────────────────────────────────────
+  // -- Render --------------------------------------------------------------------
 
   return (
     <div style={{ display: 'flex', height: '100%', background: T.bg, color: T.text, fontFamily: 'inherit', overflow: 'hidden' }}>
 
-      {/* ── Sidebar ──────────────────────────────────────────────────────────── */}
+      {/* -- Sidebar ------------------------------------------------------------ */}
       <aside style={{ width: 240, borderRight: `1px solid ${T.border}`, display: 'flex', flexDirection: 'column', background: T.sidebar, flexShrink: 0 }}>
 
         {/* Header */}
@@ -309,7 +309,7 @@ export default function NGNEngin() { onBack }: Props {
         </div>
       </aside>
 
-      {/* ── Main ─────────────────────────────────────────────────────────────── */}
+      {/* -- Main --------------------------------------------------------------- */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
 
         {/* Toolbar */}
@@ -424,7 +424,7 @@ export default function NGNEngin() { onBack }: Props {
         </div>
       </div>
 
-      {/* ── Sandbox overlay ──────────────────────────────────────────────────── */}
+      {/* -- Sandbox overlay ---------------------------------------------------- */}
       <AnimatePresence>
         {sandboxOpen && (
           <motion.div
@@ -454,7 +454,7 @@ export default function NGNEngin() { onBack }: Props {
         )}
       </AnimatePresence>
 
-      {/* ── Share URL modal ──────────────────────────────────────────────────── */}
+      {/* -- Share URL modal ---------------------------------------------------- */}
       <AnimatePresence>
         {shareUrl && (
           <motion.div
@@ -492,7 +492,7 @@ export default function NGNEngin() { onBack }: Props {
   );
 }
 
-// ── PlacedPieceCard ───────────────────────────────────────────────────────────
+// -- PlacedPieceCard -----------------------------------------------------------
 
 const T2 = {
   bg:       '#09090f',

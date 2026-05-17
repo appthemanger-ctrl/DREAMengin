@@ -68,7 +68,7 @@ export default function ProfileCanvas() { initialProfile }: { initialProfile: Pr
   const handle      = profile.handle;
   const displayName = profile.display_name || handle;
 
-  /* ── Save edits ── */
+  /* -- Save edits -- */
   const saveEdits = useCallback(async () => {
     setSaving(true); setSaveErr('');
     const { error } = await supabase
@@ -88,7 +88,7 @@ export default function ProfileCanvas() { initialProfile }: { initialProfile: Pr
     setTimeout(() => setSaved(false), 2500);
   }, [draft, profile.id, supabase]);
 
-  /* ── Toggle widget visibility ── */
+  /* -- Toggle widget visibility -- */
   const toggleWidget = useCallback((id: string) => {
     setVisibility(prev => {
       const next = { ...prev, [id]: !(prev[id] !== false) };
@@ -97,7 +97,7 @@ export default function ProfileCanvas() { initialProfile }: { initialProfile: Pr
     });
   }, []);
 
-  /* ── Copy share link ── */
+  /* -- Copy share link -- */
   const copyLink = useCallback(() => {
     navigator.clipboard.writeText(`https://dreamengin.app/u/${handle}`).catch(() => {});
     setCopied(true);
@@ -107,7 +107,7 @@ export default function ProfileCanvas() { initialProfile }: { initialProfile: Pr
   return (
     <div style={{ maxWidth: 640, margin: '0 auto', padding: '16px 16px 100px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
-      {/* ── Profile Card — inline editable MySpace-style ── */}
+      {/* -- Profile Card — inline editable MySpace-style -- */}
       <div className="de-widget" style={{
         background: 'linear-gradient(160deg, rgba(200,152,26,0.06) 0%, rgba(42,138,184,0.06) 100%)',
         borderColor: 'rgba(42,138,184,0.22)',
@@ -245,7 +245,7 @@ export default function ProfileCanvas() { initialProfile }: { initialProfile: Pr
         </div>
       </div>
 
-      {/* ── Widget Canvas — pick what visitors see ── */}
+      {/* -- Widget Canvas — pick what visitors see -- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <span className="de-widget-title">Profile Canvas</span>
@@ -290,7 +290,7 @@ export default function ProfileCanvas() { initialProfile }: { initialProfile: Pr
         </div>
       </div>
 
-      {/* ── Share Profile ── */}
+      {/* -- Share Profile -- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <Share2 className="w-4 h-4 mr-2" style={{ color: 'var(--de-accent)' }} />

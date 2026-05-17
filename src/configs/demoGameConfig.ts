@@ -11,12 +11,12 @@
 import type { GameConfig } from '../core/GameEnginCore';
 
 const demoGameConfig: GameConfig = {
-  // ── Identity ──────────────────────────────────────────────────────────────
+  // -- Identity --------------------------------------------------------------
   id: 'demo-game',
   name: 'DREAMengin Demo',
   version: '1.0.0',
 
-  // ── Graphics & Rendering ──────────────────────────────────────────────────
+  // -- Graphics & Rendering --------------------------------------------------
   graphics: {
     /** Adaptive quality tier.  Engine auto-downgrades on thermal stress. */
     qualityTier: 'high',
@@ -30,7 +30,7 @@ const demoGameConfig: GameConfig = {
     pbrEnabled: true,
   },
 
-  // ── Gameplay Simulation ───────────────────────────────────────────────────
+  // -- Gameplay Simulation ---------------------------------------------------
   simulation: {
     /** Fixed-timestep interval in milliseconds (16.6 = 60 Hz). */
     fixedTimestepMs: 16.6,
@@ -42,7 +42,7 @@ const demoGameConfig: GameConfig = {
     replayEnabled: true,
   },
 
-  // ── Input & Controls ──────────────────────────────────────────────────────
+  // -- Input & Controls ------------------------------------------------------
   input: {
     /** Accept touch events (mobile). */
     touch: true,
@@ -54,7 +54,7 @@ const demoGameConfig: GameConfig = {
     dualSense: true,
   },
 
-  // ── Audio Pipeline ────────────────────────────────────────────────────────
+  // -- Audio Pipeline --------------------------------------------------------
   audio: {
     /** Enable full spatial (HRTF + convolution reverb + Doppler) audio. */
     spatialAudio: true,
@@ -66,7 +66,7 @@ const demoGameConfig: GameConfig = {
     sfxChannels: 32,
   },
 
-  // ── Networking & Online Systems ───────────────────────────────────────────
+  // -- Networking & Online Systems -------------------------------------------
   networking: {
     /** Primary transport: 'WebSocket' | 'WebRTC' | 'WebTransport'. */
     primaryTransport: 'WebRTC',
@@ -80,7 +80,7 @@ const demoGameConfig: GameConfig = {
     tickRateHz: 60,
   },
 
-  // ── Asset Streaming & Memory ──────────────────────────────────────────────
+  // -- Asset Streaming & Memory ----------------------------------------------
   assets: {
     /** Preloaded assets required before the first frame. */
     preload: [
@@ -98,7 +98,7 @@ const demoGameConfig: GameConfig = {
     streamWorkers: 4,
   },
 
-  // ── Offline, Recovery & Session Continuity ────────────────────────────────
+  // -- Offline, Recovery & Session Continuity --------------------------------
   offline: {
     /** Queue gameplay actions while offline and flush on reconnect. */
     enableActionQueue: true,
@@ -108,7 +108,7 @@ const demoGameConfig: GameConfig = {
     maxQueuedActions: 512,
   },
 
-  // ── Security, Safety & Privacy ────────────────────────────────────────────
+  // -- Security, Safety & Privacy --------------------------------------------
   security: {
     /** Named threat model to activate (maps to docs/SECURITY.md profiles). */
     threatModel: 'default',
@@ -118,7 +118,7 @@ const demoGameConfig: GameConfig = {
     antiCheatEnabled: true,
   },
 
-  // ── Quality Engineering & Telemetry ──────────────────────────────────────
+  // -- Quality Engineering & Telemetry --------------------------------------
   telemetry: {
     /** Emit live FPS + frame-pacing metrics to the quality dashboard. */
     enabled: true,

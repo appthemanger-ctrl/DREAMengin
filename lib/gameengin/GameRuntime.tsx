@@ -42,7 +42,7 @@ import {
 } from './cartridges/apiStubs';
 import type { AchievementDefinition } from './cartridge';
 
-// ── Constants ────────────────────────────────────────────────────────────────
+// -- Constants ----------------------------------------------------------------
 
 /** Fixed timestep target: 60fps = 16.667ms per tick */
 const FIXED_DT = 1000 / 60;
@@ -52,7 +52,7 @@ const MAX_ACCUMULATOR = FIXED_DT * MAX_ACCUMULATED_FRAMES;
 /** Cap FPS display to prevent layout issues */
 const MAX_DISPLAY_FPS = 999;
 
-// ── Props ────────────────────────────────────────────────────────────────────
+// -- Props --------------------------------------------------------------------
 
 export interface GameRuntimeProps {
   cartridge: GameCartridge | null;
@@ -60,7 +60,7 @@ export interface GameRuntimeProps {
   onFrame?: (fps: number) => void;
 }
 
-// ── Component ────────────────────────────────────────────────────────────────
+// -- Component ----------------------------------------------------------------
 
 export default function GameRuntime() { cartridge, physicsConfig: Record<string, unknown>, onFrame }: GameRuntimeProps {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -88,7 +88,7 @@ export default function GameRuntime() { cartridge, physicsConfig: Record<string,
   physicsRef.current  = physicsConfig;
   onFrameRef.current  = onFrame;
 
-  // ── Build the complete GameEngineAPI ───────────────────────────────────────
+  // -- Build the complete GameEngineAPI ---------------------------------------
 
   const buildAPI = useCallback((forCartridge: GameCartridge): GameEngineAPI => {
     const cartridgeId  = forCartridge.id;
@@ -212,7 +212,7 @@ export default function GameRuntime() { cartridge, physicsConfig: Record<string,
     };
   }, []);
 
-  // ── Keyboard input wiring ──────────────────────────────────────────────────
+  // -- Keyboard input wiring --------------------------------------------------
 
   useEffect(() => {
     const keysDown       = keysDownRef.current;
@@ -247,7 +247,7 @@ export default function GameRuntime() { cartridge, physicsConfig: Record<string,
     };
   }, []);
 
-  // ── Fixed-timestep RAF loop ────────────────────────────────────────────────
+  // -- Fixed-timestep RAF loop ------------------------------------------------
 
   useEffect(() => {
     if (!cartridge) return;
@@ -312,7 +312,7 @@ export default function GameRuntime() { cartridge, physicsConfig: Record<string,
     };
   }, [cartridge]);
 
-  // ── Cartridge mount / hot-swap ─────────────────────────────────────────────
+  // -- Cartridge mount / hot-swap ---------------------------------------------
 
   useEffect(() => {
     const container = containerRef.current;
@@ -345,11 +345,11 @@ export default function GameRuntime() { cartridge, physicsConfig: Record<string,
     };
   }, [cartridge, buildAPI]);
 
-  // ── Render ─────────────────────────────────────────────────────────────────
+  // -- Render -----------------------------------------------------------------
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      {/* ── Engine chrome: FPS counter ── */}
+      {/* -- Engine chrome: FPS counter -- */}
       {cartridge && (
         <div
           style={{
@@ -372,7 +372,7 @@ export default function GameRuntime() { cartridge, physicsConfig: Record<string,
         </div>
       )}
 
-      {/* ── Game container — cartridges mount into this div ── */}
+      {/* -- Game container — cartridges mount into this div -- */}
       <div
         ref={containerRef}
         style={{ width: '100%', height: '100%', position: 'relative' }}

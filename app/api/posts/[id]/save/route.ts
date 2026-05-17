@@ -53,7 +53,7 @@ export async function POST(
     return NextResponse.json({ ok: true, already_saved: true });
   }
 
-  // ── FIFO: evict oldest if at capacity ─────────────────────────────────────
+  // -- FIFO: evict oldest if at capacity -------------------------------------
   const { count: savedCount } = await db
     .from('saved_posts')
     .select('id', { count: 'exact', head: true })
@@ -74,7 +74,7 @@ export async function POST(
     }
   }
 
-  // ── Insert the new save ───────────────────────────────────────────────────
+  // -- Insert the new save ---------------------------------------------------
   const { error: insertErr } = await db
     .from('saved_posts')
     .insert({ user_id: user.id, post_id: postId, saved_at: new Date().toISOString() });

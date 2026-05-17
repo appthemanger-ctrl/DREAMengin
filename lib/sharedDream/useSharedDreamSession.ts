@@ -118,7 +118,7 @@ export function useSharedDreamSession() {
   const userIdRef = useRef<string | null>(null);
   const sessionIdRef = useRef<string | null>(propSessionId ?? null);
 
-  // ── Bootstrap: load or create session ────────────────────────────────────
+  // -- Bootstrap: load or create session ------------------------------------
 
   useEffect(() => {
     let cancelled = false;
@@ -231,7 +231,7 @@ export function useSharedDreamSession() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propSessionId]);
 
-  // ── Flush buffer to DB (debounced) ────────────────────────────────────────
+  // -- Flush buffer to DB (debounced) ----------------------------------------
 
   const flushBuffer = useCallback(async () => {
     const sid = sessionIdRef.current;
@@ -247,7 +247,7 @@ export function useSharedDreamSession() {
       .eq('id', sid);
   }, []);
 
-  // ── saveEnginState: merge into buffer then debounce flush ─────────────────
+  // -- saveEnginState: merge into buffer then debounce flush -----------------
 
   const saveEnginState = useCallback((enginKey: string, state: Record<string, unknown>) => {
     bufferRef.current = { ...bufferRef.current, [enginKey]: state };
@@ -256,7 +256,7 @@ export function useSharedDreamSession() {
     debounceRef.current = setTimeout(() => { void flushBuffer(); }, 1000);
   }, [flushBuffer]);
 
-  // ── logActivity ───────────────────────────────────────────────────────────
+  // -- logActivity -----------------------------------------------------------
 
   const logActivity = useCallback((kind: string, label: string, meta: Record<string, unknown> = {}) => {
     const sid = sessionIdRef.current;
@@ -280,7 +280,7 @@ export function useSharedDreamSession() {
     });
   }, []);
 
-  // ── Flush on unmount (user leaving) ──────────────────────────────────────
+  // -- Flush on unmount (user leaving) --------------------------------------
 
   useEffect(() => {
     return () => {

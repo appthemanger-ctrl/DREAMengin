@@ -904,7 +904,7 @@ describe('DreamOptimizer — RuntimeContext injection', () => {
     logging: { enabled: false, level: 'info', log_optimizations: false, log_constraint_violations: false, output_path: '' },
   });
 
-  // ── Feed: sourcePreferences ──────────────────────────────────────────────
+  // -- Feed: sourcePreferences ----------------------------------------------
 
   describe('Feed — sourcePreferences', () => {
     const items: FeedItem[] = [
@@ -944,7 +944,7 @@ describe('DreamOptimizer — RuntimeContext injection', () => {
     });
   });
 
-  // ── Widget: device-context scores ────────────────────────────────────────
+  // -- Widget: device-context scores ----------------------------------------
 
   describe('Widget — device / layout context', () => {
     const widgets: WidgetPriority[] = [
@@ -989,7 +989,7 @@ describe('DreamOptimizer — RuntimeContext injection', () => {
     });
   });
 
-  // ── Notifications: senderPriorities ─────────────────────────────────────
+  // -- Notifications: senderPriorities -------------------------------------
 
   describe('Notifications — senderPriorities', () => {
     const notifications: Notification[] = [

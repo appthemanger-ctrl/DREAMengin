@@ -22,7 +22,7 @@ import { upgradeEngine } from './index';
 import type { Ledger } from '../ledger';
 import type { EventBus } from '../eventBus';
 
-// ─── OS Instance shape ────────────────────────────────────────────────────────
+// --- OS Instance shape --------------------------------------------------------
 
 export interface OSInstance {
   /** Shared asset + metadata ledger. */
@@ -36,11 +36,11 @@ export interface OSInstance {
   upgradeEngine: typeof upgradeEngine;
 }
 
-// ─── Context ──────────────────────────────────────────────────────────────────
+// --- Context ------------------------------------------------------------------
 
 const OSContext = createContext<OSInstance | null>(null);
 
-// ─── Provider ─────────────────────────────────────────────────────────────────
+// --- Provider -----------------------------------------------------------------
 
 /**
  * OSProvider
@@ -61,7 +61,7 @@ export function OSProvider() { children }: { children: React.ReactNode } {
   return <OSContext.Provider value={os}>{children}</OSContext.Provider>;
 }
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
+// --- Hook ---------------------------------------------------------------------
 
 /**
  * useOS()

@@ -15,7 +15,7 @@
 
 import { useRouter } from 'next/navigation';
 
-// ── Canonical Daydream surface definitions (docs/ARCHITECTURE.md §1) ──────────
+// -- Canonical Daydream surface definitions (docs/ARCHITECTURE.md §1) ----------
 
 const DAYDREAMS = [
   { id: 'music',     emoji: '🎵', label: 'Music',     href: '/daydream/music',     accent: '#8b5cf6' },
@@ -28,7 +28,7 @@ const DAYDREAMS = [
   { id: 'forge',     emoji: '🔥', label: 'Forge',     href: '/daydream/forge',     accent: '#ef4444' },
 ] as const;
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// -- Component -----------------------------------------------------------------
 
 interface DaydreamPulseStripProps {
   onOpenDaydream?: (href: string, label: string) => void;
@@ -58,7 +58,7 @@ export default function DaydreamPulseStrip() { onOpenDaydream }: DaydreamPulseSt
         marginBottom: 16,
       }}
     >
-      {/* ── Header ── */}
+      {/* -- Header -- */}
       <div
         style={{
           display: 'flex',
@@ -98,7 +98,7 @@ export default function DaydreamPulseStrip() { onOpenDaydream }: DaydreamPulseSt
         </div>
       </div>
 
-      {/* ── Nav grid ── */}
+      {/* -- Nav grid -- */}
       <div
         style={{
           display: 'grid',

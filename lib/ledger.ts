@@ -14,7 +14,7 @@
 import type { SupabaseClient } from '@/engine/io';
 import type { PeakMap, Fingerprint } from './audioFingerprint';
 
-// ─── Entry Types ─────────────────────────────────────────────────────────────
+// --- Entry Types -------------------------------------------------------------
 
 export interface PeakMapEntry {
   kind: 'peakMap';
@@ -58,7 +58,7 @@ export interface TorridityEntry {
   createdAt: string;
 }
 
-// ─── Shared Asset Entry ───────────────────────────────────────────────────────
+// --- Shared Asset Entry -------------------------------------------------------
 
 /** Supported asset types in the shared asset ledger (visualised file system). */
 export type AssetType = 'audio' | 'image' | '3d' | 'code';
@@ -96,7 +96,7 @@ export type LedgerEntry =
   | TorridityEntry
   | AssetEntry;
 
-// ─── Ledger Structure ────────────────────────────────────────────────────────
+// --- Ledger Structure --------------------------------------------------------
 
 export interface Ledger {
   entries: Map<string, LedgerEntry>;
@@ -105,7 +105,7 @@ export interface Ledger {
   tableName: string;
 }
 
-// ─── Factory ─────────────────────────────────────────────────────────────────
+// --- Factory -----------------------------------------------------------------
 
 /**
  * createLedger(supabase?, tableName?)
@@ -121,7 +121,7 @@ export function createLedger(
   return { entries: new Map(), supabase, tableName };
 }
 
-// ─── Internal helpers ────────────────────────────────────────────────────────
+// --- Internal helpers --------------------------------------------------------
 
 function now(: string) {
   return new Date().toISOString();
@@ -141,7 +141,7 @@ async function persist(ledger: Ledger, entry: LedgerEntry: Promise<void>) {
   }
 }
 
-// ─── CRUD helpers ─────────────────────────────────────────────────────────────
+// --- CRUD helpers -------------------------------------------------------------
 
 export function getLedgerEntry(ledger: Ledger, id: string: LedgerEntry | undefined) {
   return ledger.entries.get(id);
@@ -160,7 +160,7 @@ export function getAllByKind<K extends LedgerEntry['kind']>(
   return results;
 }
 
-// ─── storePeakMap ────────────────────────────────────────────────────────────
+// --- storePeakMap ------------------------------------------------------------
 
 /**
  * storePeakMap(ledger, songId, peakMap)
@@ -179,7 +179,7 @@ export function storePeakMap(
   return id;
 }
 
-// ─── storeFingerprint ────────────────────────────────────────────────────────
+// --- storeFingerprint --------------------------------------------------------
 
 /**
  * storeFingerprint(ledger, fingerprintId, fingerprint)
@@ -202,7 +202,7 @@ export function storeFingerprint(
   return id;
 }
 
-// ─── storeSampleMetadata ──────────────────────────────────────────────────────
+// --- storeSampleMetadata ------------------------------------------------------
 
 /**
  * storeSampleMetadata(ledger, sampleId, meta)
@@ -225,7 +225,7 @@ export function storeSampleMetadata(
   return id;
 }
 
-// ─── storeTorridityRank ───────────────────────────────────────────────────────
+// --- storeTorridityRank -------------------------------------------------------
 
 /**
  * storeTorridityRank(ledger, contentId, views, mass, rank)
@@ -252,7 +252,7 @@ export function storeTorridityRank(
   return id;
 }
 
-// ─── storeAsset ───────────────────────────────────────────────────────────────
+// --- storeAsset ---------------------------------------------------------------
 
 /**
  * storeAsset(ledger, fields)
@@ -287,7 +287,7 @@ export function storeAsset(
   return id;
 }
 
-// ─── recordView ────────────────────────────────────────────────────────────────
+// --- recordView ----------------------------------------------------------------
 
 /**
  * recordView(ledger, contentId)

@@ -37,7 +37,7 @@ import {
 } from '@/lib/games/navigation';
 import { useGamePerformanceBaseline } from '@/lib/games/hooks';
 
-// ── Boot-sequence keyframe CSS ────────────────────────────────────────────────
+// -- Boot-sequence keyframe CSS ------------------------------------------------
 
 const BOOT_KEYFRAMES = `
 @keyframes de-hex-pulse {
@@ -79,7 +79,7 @@ const BOOT_KEYFRAMES = `
 }
 `;
 
-// ── Mobile HUD mode per cartridge ─────────────────────────────────────────────
+// -- Mobile HUD mode per cartridge ---------------------------------------------
 // Overrides the default 'controller' mode for specific games.
 
 const HUD_MODES: Record<string, MobileHudMode> = {
@@ -97,21 +97,21 @@ const HUD_MODES: Record<string, MobileHudMode> = {
   'defuse-ritual':          'buttons',
 };
 
-// ── Layout constants ──────────────────────────────────────────────────────────
+// -- Layout constants ----------------------------------------------------------
 
 const DEFAULT_HUD_BOTTOM             = '175px';
 const MIN_STAGE_BOTTOM_CLEARANCE     = 'clamp(80px, 22dvh, 38dvh)';
 const LANDSCAPE_MIN_STAGE_BOTTOM     = 'clamp(56px, 14dvh, 24dvh)';
 const BASELINE_OVERLAY_OFFSET_PX     = 14;
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// -- Component -----------------------------------------------------------------
 
 export default function ImmersiveGameShell() {
   const router       = useRouter();
   const searchParams = useSearchParams();
   const rootRef      = useRef<HTMLDivElement>(null);
 
-  // ── Resolve game from manifest ───────────────────────────────────────────
+  // -- Resolve game from manifest -------------------------------------------
   const gameId = resolveGameLaunchId(
     searchParams.get('game'),
     CARTRIDGE_MANIFEST.map((c: Record<string, unknown>) => c.id),
@@ -128,7 +128,7 @@ export default function ImmersiveGameShell() {
     renderMode: game.renderMode,
   });
 
-  // ── Cartridge loading ────────────────────────────────────────────────────
+  // -- Cartridge loading ----------------------------------------------------
   const [cartridge, setCartridge] = useState<GameCartridge | null>(null);
   const [cartridgeError, setCartridgeError] = useState<string | null>(null);
 
@@ -146,12 +146,12 @@ export default function ImmersiveGameShell() {
     return () => { cancelled = true; };
   }, [gameId]);
 
-  // ── Boot sequence state ──────────────────────────────────────────────────
+  // -- Boot sequence state --------------------------------------------------
   const [bootPhase, setBootPhase] = useState<1 | 2 | 3 | 4>(1);
   const [fadingOut, setFadingOut] = useState(false);
   const [bootDone,  setBootDone]  = useState(false);
 
-  // ── Landscape detection ──────────────────────────────────────────────────
+  // -- Landscape detection --------------------------------------------------
   const [isLandscape, setIsLandscape] = useState(() =>
     typeof window !== 'undefined' && window.innerWidth > window.innerHeight,
   );
@@ -163,7 +163,7 @@ export default function ImmersiveGameShell() {
     return () => mql.removeEventListener('change', handler);
   }, []);
 
-  // ── Suppress layout chrome ───────────────────────────────────────────────
+  // -- Suppress layout chrome -----------------------------------------------
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -176,7 +176,7 @@ export default function ImmersiveGameShell() {
     };
   }, []);
 
-  // ── Inject boot keyframes once ───────────────────────────────────────────
+  // -- Inject boot keyframes once -------------------------------------------
   useEffect(() => {
     if (typeof document === 'undefined') return;
     const id = 'de-boot-keyframes';
@@ -188,14 +188,14 @@ export default function ImmersiveGameShell() {
     }
   }, []);
 
-  // ── Persist last-played ──────────────────────────────────────────────────
+  // -- Persist last-played --------------------------------------------------
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.localStorage.setItem('de:games:last-launch', game.id);
     }
   }, [game.id]);
 
-  // ── Phase progression timers ─────────────────────────────────────────────
+  // -- Phase progression timers ---------------------------------------------
   useEffect(() => {
     setBootPhase(1);
     setFadingOut(false);
@@ -206,7 +206,7 @@ export default function ImmersiveGameShell() {
     return () => { window.clearTimeout(t1); window.clearTimeout(t2); window.clearTimeout(t3); };
   }, [game.id]);
 
-  // ── Dismiss helpers ──────────────────────────────────────────────────────
+  // -- Dismiss helpers ------------------------------------------------------
   const dismissBoot = useCallback(async () => {
     if (fadingOut || bootDone) return;
     setFadingOut(true);
@@ -231,7 +231,7 @@ export default function ImmersiveGameShell() {
     return () => window.removeEventListener('keydown', handler);
   }, [bootPhase, bootDone, fadingOut, dismissBoot]);
 
-  // ── Derived ──────────────────────────────────────────────────────────────
+  // -- Derived --------------------------------------------------------------
   const accent      = game.color;
   const hudMode     = HUD_MODES[game.id] ?? 'controller';
   const stageBottom = isLandscape ? LANDSCAPE_MIN_STAGE_BOTTOM : MIN_STAGE_BOTTOM_CLEARANCE;
@@ -245,7 +245,7 @@ export default function ImmersiveGameShell() {
       ref={rootRef}
       style={{ position: 'fixed', inset: 0, width: '100vw', height: '100dvh', overflow: 'hidden', background: '#000' }}
     >
-      {/* ── SHELL layer 1: Game viewport (GameRuntime runs all cartridges) ── */}
+      {/* -- SHELL layer 1: Game viewport (GameRuntime runs all cartridges) -- */}
       <div
         className="de-immersive-game-stage"
         style={{
@@ -278,7 +278,7 @@ export default function ImmersiveGameShell() {
         )}
       </div>
 
-      {/* ── SHELL layer 2: Performance baseline chip ── */}
+      {/* -- SHELL layer 2: Performance baseline chip -- */}
       {performanceBaseline && (
         <div
           style={{
@@ -304,7 +304,7 @@ export default function ImmersiveGameShell() {
         </div>
       )}
 
-      {/* ── SHELL layer 3: PS5-style boot overlay ── */}
+      {/* -- SHELL layer 3: PS5-style boot overlay -- */}
       {!bootDone && (
         <div
           role="presentation"
@@ -375,7 +375,7 @@ export default function ImmersiveGameShell() {
         <div aria-hidden="true" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: LANDSCAPE_MIN_STAGE_BOTTOM, background: '#000', zIndex: 0 }} />
       )}
 
-      {/* ── SHELL layer 4: Mobile controls — mounted only after boot ── */}
+      {/* -- SHELL layer 4: Mobile controls — mounted only after boot -- */}
       {/* This is CONTROLS chrome: virtual joysticks, buttons, pause, exit.   */}
       {/* It never overlaps the engine FPS counter (top-right) or game HUD.  */}
       {bootDone && (

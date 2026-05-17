@@ -648,7 +648,7 @@ export default function DREAMenginOS() {
         </div>
       </div>
 
-      {/* ── Dr. Eams — session intelligence panel ─────────────────────────── */}
+      {/* -- Dr. Eams — session intelligence panel --------------------------- */}
       {predictions.length > 0 ? (
         <div
           style={{

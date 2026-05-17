@@ -8,7 +8,7 @@
 // Part of the AI-assisted observability and remediation loop described in
 // docs/ARCHITECTURE.md §13 and the IDARi system spec.
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -54,7 +54,7 @@ export interface TelemetrySnapshot {
   collected_at: string;
 }
 
-// ── Ring buffer ───────────────────────────────────────────────────────────────
+// -- Ring buffer ---------------------------------------------------------------
 
 const MAX_ENTRIES = 500;
 
@@ -77,7 +77,7 @@ function pushCapped<T>(buffer: T[], entry: T): void {
   }
 }
 
-// ── OTel bridge (lazy-loaded, server-only) ────────────────────────────────────
+// -- OTel bridge (lazy-loaded, server-only) ------------------------------------
 
 let _otelBridge: typeof import('./otelBridge') | null = null;
 
@@ -98,7 +98,7 @@ function getOtelBridge(: typeof import('./otelBridge') | null {
   return _otelBridge;
 }
 
-// ── Collection API ────────────────────────────────────────────────────────────
+// -- Collection API ------------------------------------------------------------
 
 /**
  * Record a log entry in the observability collector.
@@ -168,7 +168,7 @@ export function collectTrace(
   getOtelBridge()?.otelRecordTrace(name, duration_ms, status, tags);
 }
 
-// ── Query ─────────────────────────────────────────────────────────────────────
+// -- Query ---------------------------------------------------------------------
 
 /**
  * Return a snapshot of all telemetry within the last `windowMs` milliseconds.
@@ -201,7 +201,7 @@ export function clearBuffers(: void) {
   _counter = 0;
 }
 
-// ── Improvement 21: collectBatchLogs ─────────────────────────────────────────
+// -- Improvement 21: collectBatchLogs -----------------------------------------
 
 /**
  * Push multiple log entries in one call — useful when replaying buffered
@@ -215,7 +215,7 @@ export function collectBatchLogs(
   }
 }
 
-// ── Improvement 22: getErrorRate ──────────────────────────────────────────────
+// -- Improvement 22: getErrorRate ----------------------------------------------
 
 /**
  * Compute errors-per-minute within the given window.
@@ -230,7 +230,7 @@ export function getErrorRate(windowMs = 5 * 60 * 1000: number) {
   return windowMinutes > 0 ? errorCount / windowMinutes : 0;
 }
 
-// ── Improvement 23: getP95Latency ─────────────────────────────────────────────
+// -- Improvement 23: getP95Latency ---------------------------------------------
 
 /**
  * Return the P95 latency (ms) across all trace spans in the given window.
@@ -247,7 +247,7 @@ export function getP95Latency(windowMs = 5 * 60 * 1000: number) {
   return durations[Math.min(idx, durations.length - 1)];
 }
 
-// ── Improvement 24: groupTracesByTraceId ──────────────────────────────────────
+// -- Improvement 24: groupTracesByTraceId --------------------------------------
 
 /**
  * Group trace spans by their `trace_id` for distributed request tracing.
@@ -265,7 +265,7 @@ export function groupTracesByTraceId(windowMs = 5 * 60 * 1000: Map<string, Trace
   return result;
 }
 
-// ── Improvement 25: getLogCountsBySeverity ────────────────────────────────────
+// -- Improvement 25: getLogCountsBySeverity ------------------------------------
 
 export interface LogSeverityCounts {
   debug: number;

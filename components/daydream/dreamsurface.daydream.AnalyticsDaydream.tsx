@@ -39,7 +39,7 @@ interface Props {
 export default function AnalyticsDaydream() { userId }: Props {
   return (
     <div className="de-auth-content space-y-4">
-      {/* ── Intro ────────────────────────────────────────────────────────── */}
+      {/* -- Intro ---------------------------------------------------------- */}
       <div
         className="de-auth-hero"
         style={{
@@ -65,7 +65,7 @@ export default function AnalyticsDaydream() { userId }: Props {
         </div>
       </div>
 
-      {/* ── Live Activity Metrics ─────────────────────────────────────────── */}
+      {/* -- Live Activity Metrics ------------------------------------------- */}
       <div className="de-widget" style={{ borderColor: 'rgba(99,102,241,0.25)' }}>
         <div className="de-widget-header">
           <BarChart2 className="w-4 h-4" style={{ color: ACCENT }} />
@@ -79,7 +79,7 @@ export default function AnalyticsDaydream() { userId }: Props {
         </div>
       </div>
 
-      {/* ── Activity Tier Ladder ──────────────────────────────────────────── */}
+      {/* -- Activity Tier Ladder -------------------------------------------- */}
       <div className="de-widget" style={{ borderColor: 'rgba(99,102,241,0.18)' }}>
         <div className="de-widget-header">
           <Star className="w-4 h-4" style={{ color: '#f59e0b' }} />
@@ -119,7 +119,7 @@ export default function AnalyticsDaydream() { userId }: Props {
         </div>
       </div>
 
-      {/* ── AQS Formula Explainer ─────────────────────────────────────────── */}
+      {/* -- AQS Formula Explainer ------------------------------------------- */}
       <div className="de-widget" style={{ borderColor: 'rgba(99,102,241,0.18)' }}>
         <div className="de-widget-header">
           <TrendingUp className="w-4 h-4" style={{ color: ACCENT }} />
@@ -147,7 +147,7 @@ export default function AnalyticsDaydream() { userId }: Props {
         </div>
       </div>
 
-      {/* ── Verified Views Explainer ──────────────────────────────────────── */}
+      {/* -- Verified Views Explainer ---------------------------------------- */}
       <div className="de-widget" style={{ borderColor: 'rgba(56,189,248,0.18)' }}>
         <div className="de-widget-header">
           <Eye className="w-4 h-4" style={{ color: '#38bdf8' }} />
@@ -166,7 +166,7 @@ export default function AnalyticsDaydream() { userId }: Props {
         </div>
       </div>
 
-      {/* ── Quick Actions ─────────────────────────────────────────────────── */}
+      {/* -- Quick Actions --------------------------------------------------- */}
       <div className="de-widget" style={{ borderColor: 'rgba(99,102,241,0.18)' }}>
         <div className="de-widget-header">
           <Zap className="w-4 h-4" style={{ color: '#f59e0b' }} />
@@ -208,7 +208,7 @@ export default function AnalyticsDaydream() { userId }: Props {
         </div>
       </div>
 
-      {/* ── AnalyticsEngin info strip ─────────────────────────────────────── */}
+      {/* -- AnalyticsEngin info strip --------------------------------------- */}
       <div style={{ background: 'rgba(99,102,241,0.06)', borderRadius: 14, padding: '14px 16px', border: '1px solid rgba(99,102,241,0.15)' }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>AnalyticsEngin — Side B</div>
         <p style={{ fontSize: 11, color: 'var(--de-text-dim)', lineHeight: 1.5, margin: 0 }}>

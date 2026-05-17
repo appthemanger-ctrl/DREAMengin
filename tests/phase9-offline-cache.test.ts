@@ -18,7 +18,7 @@ import type {
   SyncQueueEntry,
 } from '@/lib/offline/offlineCache';
 
-// ─── Type contract tests ──────────────────────────────────────────────────────
+// --- Type contract tests ------------------------------------------------------
 
 describe('Offline Cache — type contracts', () => {
   it('CachedAsset has required fields', () => {
@@ -94,7 +94,7 @@ describe('Offline Cache — type contracts', () => {
   });
 });
 
-// ─── Connectivity helpers ─────────────────────────────────────────────────────
+// --- Connectivity helpers -----------------------------------------------------
 
 describe('Offline Cache — connectivity', () => {
   it('isOnline returns boolean', async () => {
@@ -111,7 +111,7 @@ describe('Offline Cache — connectivity', () => {
   });
 });
 
-// ─── DB constants ─────────────────────────────────────────────────────────────
+// --- DB constants -------------------------------------------------------------
 
 describe('Offline Cache — constants', () => {
   it('exports DB_NAME and store names', async () => {

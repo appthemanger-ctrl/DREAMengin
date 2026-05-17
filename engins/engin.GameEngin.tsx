@@ -64,7 +64,7 @@ import RecordingControls from '@/components/games/dream.RecordingControls';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import { useGameEnginRuntime } from '@/lib/engins/game/useGameEnginRuntime';
 
-// ── Interfaces ─────────────────────────────────────────────────────────────────
+// -- Interfaces -----------------------------------------------------------------
 
 interface Props {
   onBack: () => void;
@@ -112,7 +112,7 @@ interface AchievementDef {
   unlockFn: (scores: GameScore[]) => boolean;
 }
 
-// ── Constants ──────────────────────────────────────────────────────────────────
+// -- Constants ------------------------------------------------------------------
 
 const ACCENT = '#2a8ab8';
 // const ACCENT_LEGACY = '#3b82f6'; // old blue — kept for reference
@@ -236,7 +236,7 @@ const CROSS_ENGIN_CHANNELS = [
   { name: 'Brand',  label: 'BrandingEngin',   status: 'Achievement sharing ready', emoji: '📣' },
 ] as const;
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
+// -- Helpers --------------------------------------------------------------------
 
 function makeEmptyGrid(: TileType[][]) {
   return Array.from({ length: 5 }, () =>
@@ -244,7 +244,7 @@ function makeEmptyGrid(: TileType[][]) {
   );
 }
 
-// ── Component ──────────────────────────────────────────────────────────────────
+// -- Component ------------------------------------------------------------------
 
 import { ArtifactSlot } from '@/lib/enginpipe';
 
@@ -271,23 +271,23 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
   const initializedPlaySurfaceRef = useRef(false);
   const autoStartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ── World focus integration (torus navigation) ──────────────────────────────
+  // -- World focus integration (torus navigation) ------------------------------
   const { worldFocus, setFocus } = useDreamSystem();
 
-  // ── Universal Engin Runtime ───────────────────────────────────────────────────
+  // -- Universal Engin Runtime ---------------------------------------------------
   const { state: engineState, dispatch: engineDispatch } = useGameEnginRuntime();
 
-  // ── OS Shell: upgradeEngine wiring ──
+  // -- OS Shell: upgradeEngine wiring --
   const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
   useEffect(() => {
     upgradeEngine({ id: 'game', name: 'GameEngin' }, ['bridge', 'telemetry'])
       .then(upgraded => { osRef.current = upgraded; });
   }, []);
 
-  // ── OS Shell: local event bus ──
+  // -- OS Shell: local event bus --
   const busRef = useRef(createEventBus());
 
-  // ── .dreamgame file picker state ──
+  // -- .dreamgame file picker state --
   const [dreamGameFile, setDreamGameFile] = useState<{ name: string; size: number } | null>(null);
   const dreamGameInputRef = useRef<HTMLInputElement>(null);
 
@@ -303,7 +303,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
   useRemoteChannel();
   useGameInputKeyboardBridge();
 
-  // ── DualSense haptic feedback support ───────────────────────────────────────
+  // -- DualSense haptic feedback support ---------------------------------------
   // Expose rumble function globally so games can access it via window.gamepadRumble
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -321,7 +321,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     };
   }, [gpConnected, isDualSense, rumble]);
 
-  // ── Existing state ───────────────────────────────────────────────────────────
+  // -- Existing state -----------------------------------------------------------
   // Domain state is sourced from the universal EnginRuntime; UI-only state stays local.
   const scores              = engineState.scores;
   const controlProfile      = engineState.controlProfile;
@@ -338,7 +338,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
   /** Avatar image data URL — set when the user chose "Play as Yourself" */
   const [avatarDataUrl, setAvatarDataUrl] = useState<string | null>(null);
 
-  // ── Co-op channel (multiplayer lobby sync) ────────────────────────────────
+  // -- Co-op channel (multiplayer lobby sync) --------------------------------
   const [instanceId] = useState(
     () => instanceIdProp ?? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)),
   );
@@ -397,23 +397,23 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     return () => { cancelled = true; };
   }, []);
 
-  // ── World Builder state ──────────────────────────────────────────────────────
+  // -- World Builder state ------------------------------------------------------
   const [worldName,     setWorldName]     = useState('');
   const [worldGrid,     setWorldGrid]     = useState<TileType[][]>(makeEmptyGrid);
   const [selectedTile,  setSelectedTile]  = useState<TileType>('ground');
   // savedWorld is now sourced from engineState (set via game:world-save dispatch)
 
-  // ── Physics Config state ─────────────────────────────────────────────────────
+  // -- Physics Config state -----------------------------------------------------
   // physicsConfig = editing buffer (local); appliedPhysics = committed version (also dispatched to engine)
   const [physicsConfig,   setPhysicsConfig]   = useState<PhysicsConfig>({ gravity: 'earth', friction: 50 });
   const [appliedPhysics,  setAppliedPhysics]  = useState<PhysicsConfig | null>(null);
 
-  // ── Game Scripts state ───────────────────────────────────────────────────────
+  // -- Game Scripts state -------------------------------------------------------
   // scriptState = editing buffer (local); savedScript = committed version (also dispatched to engine)
   const [scriptState,  setScriptState]  = useState<ScriptState>({ code: STARTER_SCRIPT, language: 'GameScript' });
   const [savedScript,  setSavedScript]  = useState<string | null>(null);
 
-  // ── World focus: respond to games.play focus key ─────────────────────────────
+  // -- World focus: respond to games.play focus key -----------------------------
   // When the world focus moves to 'games.play' (e.g. from a DreamR feed click
   // or a torus navigation), auto-select the game specified in worldSelection.
   useEffect(() => {
@@ -425,7 +425,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     }
   }, [worldFocus.focusKey, worldFocus.worldSelection, selectedPlayableGame, engineDispatch]);
 
-  // ── World focus: announce library view when mounted ──────────────────────────
+  // -- World focus: announce library view when mounted --------------------------
   useEffect(() => {
     // Announce to the world that this engin region is the games.library.
     // Other components can read worldFocus.focusKey to know the bottom viewport
@@ -435,7 +435,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     }
   }, []); // intentionally empty — runs only on mount to announce region
 
-  // ── Supabase scores fetch ────────────────────────────────────────────────────
+  // -- Supabase scores fetch ----------------------------------------------------
   useEffect(() => {
     let cancelled = false;
     const supabase = createClient();
@@ -457,13 +457,13 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ── Personal bests (group by game, keep highest) ─────────────────────────────
+  // -- Personal bests (group by game, keep highest) -----------------------------
   const bestByGame = scores.reduce<Record<string, number>>(acc: Record<string, unknown>, s: string => {
     if (acc[s.game] === undefined || s.score > acc[s.game]) acc[s.game] = s.score;
     return acc;
   }, {});
 
-  // ── Share to Leaderboard ─────────────────────────────────────────────────────
+  // -- Share to Leaderboard -----------------------------------------------------
   async function handleShare(scoreId: string) {
     setSharing(scoreId);
     forgeRecord('Shared game score');
@@ -479,7 +479,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     setSharing(null);
   }
 
-  // ── Share Game Clip to ContentEngin ─────────────────────────────────────────
+  // -- Share Game Clip to ContentEngin -----------------------------------------
   function handleShareClip(game: string, score: number) {
     forgeRecord(`Shared ${game} clip to Content`);
     recordForgeTransfer('games', 'create', 'clip', `${game} clip → ContentEngin`);
@@ -493,7 +493,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     });
   }
 
-  // ── Share Achievement Campaign to BrandingEngin ──────────────────────────────
+  // -- Share Achievement Campaign to BrandingEngin ------------------------------
   function handleShareAchievementCampaign(achievementName: string) {
     forgeRecord(`Shared ${achievementName} achievement to Brand`);
     recordForgeTransfer('games', 'brand', 'campaign', `${achievementName} → BrandingEngin`);
@@ -519,7 +519,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     );
   }
 
-  // ── World Builder ─────────────────────────────────────────────────────────────
+  // -- World Builder -------------------------------------------------------------
   const handleTileClick = useCallback((row: number, col: number) => {
     setWorldGrid(prev => {
       const next = prev.map(r => [...r]);
@@ -542,13 +542,13 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     });
   }
 
-  // ── Physics Config ────────────────────────────────────────────────────────────
+  // -- Physics Config ------------------------------------------------------------
   function handleApplyPhysics() {
     setAppliedPhysics({ ...physicsConfig });
     engineDispatch({ type: 'game:physics-apply', payload: { config: { ...physicsConfig } } });
   }
 
-  // ── Game Scripts ──────────────────────────────────────────────────────────────
+  // -- Game Scripts --------------------------------------------------------------
   function handleSaveScript() {
     setSavedScript(scriptState.code);
     engineDispatch({ type: 'game:script-save', payload: { code: scriptState.code, language: scriptState.language } });
@@ -564,7 +564,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     recordForgeTransfer('games', 'code', 'asset', 'Game script saved → CodeEngin');
   }
 
-  // ── Multiplayer Lobby state ──────────────────────────────────────────────────
+  // -- Multiplayer Lobby state --------------------------------------------------
   const [lobbyActive, setLobbyActive] = useState(false);
   const [lobbyCode, setLobbyCode] = useState('');
   const [lobbyPlayers, setLobbyPlayers] = useState<string[]>([]);
@@ -577,7 +577,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     });
   }, [controlProfile, selectedPlayableGame, sharedChannel.publish]);
 
-  // ── Tournament Mode state ────────────────────────────────────────────────────
+  // -- Tournament Mode state ----------------------------------------------------
   const [bracket, setBracket] = useState<Array<{ player1: string; player2: string; winner: string | null }>>([
     { player1: 'Dr. Eams', player2: 'Player 2', winner: null },
     { player1: 'Player 3', player2: 'Player 4', winner: null },
@@ -585,7 +585,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     { player1: 'Player 7', player2: 'Player 8', winner: null },
   ]);
 
-  // ── Game Analytics state ─────────────────────────────────────────────────────
+  // -- Game Analytics state -----------------------------------------------------
   const [analyticsData] = useState<Array<{ label: string; value: string; trend: 'up' | 'down' | 'flat' }>>([
     { label: 'Avg Session', value: '12m 30s', trend: 'up' },
     { label: 'Win Rate',    value: '64%',     trend: 'up' },
@@ -593,7 +593,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     { label: 'Games Today', value: '7',       trend: 'down' },
   ]);
 
-  // ── Replay System state ──────────────────────────────────────────────────────
+  // -- Replay System state ------------------------------------------------------
   const [replayRecording, setReplayRecording] = useState(false);
   const [replays, setReplays] = useState<Array<{ id: string; game: string; duration: string; date: string }>>([
     { id: 'rp-1', game: 'MADMAXI',     duration: '4:12', date: '2025-01-10' },
@@ -601,14 +601,14 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     { id: 'rp-3', game: 'BLOCK STACK', duration: '2:58', date: '2025-01-08' },
   ]);
 
-  // ── Social Challenge state ───────────────────────────────────────────────────
+  // -- Social Challenge state ---------------------------------------------------
   const [challengeSent, setChallengeSent] = useState(false);
   const [activeChallenges, setActiveChallenges] = useState<Array<{ id: string; from: string; game: string; score: number }>>([
     { id: 'ch-1', from: 'StarPlayer99', game: 'MADMAXI', score: 24800 },
     { id: 'ch-2', from: 'CodeWizard42', game: 'Neon Drift', score: 11200 },
   ]);
 
-  // ── Speedrun Timer ────────────────────────────────────────────────────────────
+  // -- Speedrun Timer ------------------------------------------------------------
   const [srActive, setSrActive]   = useState(false);
   const [srMs, setSrMs]           = useState(0);
   const [srSplits, setSrSplits]   = useState<number[]>([]);
@@ -629,7 +629,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(cs).padStart(3,'0')}`;
   }
 
-  // ── Engine Power Systems ───────────────────────────────────────────────────────
+  // -- Engine Power Systems -------------------------------------------------------
   const ENGINE_POWER_SYSTEMS = [
     { id: 'netcode',    label: 'Rollback Netcode',        desc: 'Deterministic lockstep + rollback for lag-free multiplayer', icon: '🌐', status: 'online' },
     { id: 'compute',    label: 'GPU Compute Pipeline',    desc: 'WebGPU compute shaders — physics/particles on GPU',           icon: '⚡', status: 'standby' },
@@ -653,7 +653,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     { id: 'materials',  label: 'Physics Materials',       desc: '8 built-in surfaces: concrete/metal/wood/ice/rubber/sand…', icon: '🧱', status: 'online' },
   ] as const;
 
-  // ── Daily Quests ─────────────────────────────────────────────────────────────
+  // -- Daily Quests -------------------------------------------------------------
   const initialQuests = [
     { id: 'q1', quest: 'Play 3 games today', xp: 100, done: false },
     { id: 'q2', quest: 'Clear a run in MADMAXI', xp: 200, done: false },
@@ -691,7 +691,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     });
   }
 
-  // ── Dream Economy ─────────────────────────────────────────────────────────────
+  // -- Dream Economy -------------------------------------------------------------
   const [coins, setCoins] = useState(() => {
     if (typeof window === 'undefined') return 2840;
     return parseInt(localStorage.getItem('de-dream-coins') ?? '2840', 10);
@@ -700,7 +700,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     if (typeof window !== 'undefined') localStorage.setItem('de-dream-coins', String(coins));
   }, [coins]);
 
-  // ── Season Pass ───────────────────────────────────────────────────────────────
+  // -- Season Pass ---------------------------------------------------------------
   const [seasonXP, setSeasonXP] = useState(() => {
     if (typeof window === 'undefined') return 4200;
     return parseInt(localStorage.getItem('de-season-xp') ?? '4200', 10);
@@ -917,7 +917,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     }
   }, [expandedPlayableGame]);
 
-  // ── Achievement computation ───────────────────────────────────────────────────
+  // -- Achievement computation ---------------------------------------------------
   const selectedPlayable = GAMES.find((game: Record<string, unknown>) => game.id === selectedPlayableGame) ?? GAMES[0];
   const activePlayable = activePlayableGame ? GAMES.find((game: Record<string, unknown>) => game.id === activePlayableGame) ?? null : null;
   const expandedPlayable = expandedPlayableGame ? GAMES.find((game: Record<string, unknown>) => game.id === expandedPlayableGame) ?? null : null;
@@ -977,7 +977,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
   });
   const unlockedAchievements = achievements.filter(a => a.unlocked);
 
-  // ── Cross-Engin: CodeEngin script deploy receiver ──
+  // -- Cross-Engin: CodeEngin script deploy receiver --
   const [dismissedScript, setDismissedScript] = useState<string | null>(null);
   const scriptPrompt = gameBridge.lastScriptDeploy !== null && gameBridge.lastScriptDeploy !== dismissedScript
     ? gameBridge.lastScriptDeploy
@@ -995,7 +995,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           overflow: 'hidden',
         }}
       >
-        {/* ── DREAMengin "Powered by" boot splash ── */}
+        {/* -- DREAMengin "Powered by" boot splash -- */}
         {showEnginSplash && (
           <EnginBootSplash
             game={expandedPlayable}
@@ -1092,7 +1092,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           onExit={() => { setExpandedPlayableGame(null); setAvatarDataUrl(null); }}
         />
 
-        {/* ── Avatar overlay — shown when user chose "Play as Yourself" ── */}
+        {/* -- Avatar overlay — shown when user chose "Play as Yourself" -- */}
         {avatarDataUrl && (
           <div
             style={{
@@ -1141,7 +1141,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     );
   }
 
-  // ── Lobby handlers ───────────────────────────────────────────────────────────
+  // -- Lobby handlers -----------------------------------------------------------
   function handleCreateRoom() {
     const code = Math.random().toString(36).slice(2, 8).toUpperCase();
     setLobbyCode(code);
@@ -1157,7 +1157,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     );
   }
 
-  // ── Tournament handlers ──────────────────────────────────────────────────────
+  // -- Tournament handlers ------------------------------------------------------
   function handlePickWinner(matchIndex: number, winner: string) {
     setBracket(prev => prev.map(m: Record<string, unknown>, i: number => i === matchIndex ? { ...m, winner } : m));
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
@@ -1165,7 +1165,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     );
   }
 
-  // ── Replay handlers ──────────────────────────────────────────────────────────
+  // -- Replay handlers ----------------------------------------------------------
   function handleReplayToggle() {
     const next = !replayRecording;
     setReplayRecording(next);
@@ -1184,7 +1184,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     }
   }
 
-  // ── Social Challenge handlers ────────────────────────────────────────────────
+  // -- Social Challenge handlers ------------------------------------------------
   function handleSendChallenge() {
     setChallengeSent(true);
     forgeRecord('Sent game challenge');
@@ -1201,7 +1201,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
     );
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────────
+  // -- Render --------------------------------------------------------------------
   const activeControlProfile = GAME_CONTROL_PROFILES.find((profile: Record<string, unknown>) => profile.id === controlProfile) ?? GAME_CONTROL_PROFILES[0];
   const playableCategoriesCount = new Set(GAMES.map((game: Record<string, unknown>) => game.category)).size;
   const engineDeckStats = [
@@ -1228,7 +1228,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
   return (
     <div className="de-sky-bg min-h-screen">
 
-      {/* ══════════════════════════════════════════ Header */}
+      {/* ------------------------------------------ Header */}
       <header
         className="sticky top-0 z-30 backdrop-blur-xl"
         style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}
@@ -1286,10 +1286,10 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
         </div>
       </header>
 
-      {/* ══════════════════════════════════════════ Body */}
+      {/* ------------------------------------------ Body */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
 
-        {/* ── Code → GameEngin Script Deploy receiver ── */}
+        {/* -- Code → GameEngin Script Deploy receiver -- */}
         {scriptPrompt && (
           <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(34,211,238,0.3)', background: 'rgba(34,211,238,0.04)' }}>
             <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -1566,7 +1566,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ────────────────────── 1. Console Deck */}
+        {/* ---------------------- 1. Console Deck */}
         <div className="de-widget" style={{ marginBottom: 14, borderColor: `${ACCENT}30` }}>
           <div className="de-widget-header">
             <Gamepad2 className="w-4 h-4" style={{ color: ACCENT }} />
@@ -1671,7 +1671,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ────────────────────── 2. Quick Resume */}
+        {/* ---------------------- 2. Quick Resume */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Gamepad2 className="w-4 h-4" style={{ color: ACCENT }} />
@@ -1720,7 +1720,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ────────────────────── 2. Personal Bests */}
+        {/* ---------------------- 2. Personal Bests */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Trophy className="w-4 h-4" style={{ color: 'var(--de-gold)' }} />
@@ -1781,7 +1781,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ────────────────────── 3. Share to Leaderboard */}
+        {/* ---------------------- 3. Share to Leaderboard */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Share2 className="w-4 h-4" style={{ color: ACCENT }} />
@@ -1836,7 +1836,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ────────────────────── 4. Controller Deck */}
+        {/* ---------------------- 4. Controller Deck */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Gamepad2 className="w-4 h-4" style={{ color: ACCENT }} />
@@ -1859,7 +1859,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ────────────────────── 5. World Builder */}
+        {/* ---------------------- 5. World Builder */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Map className="w-4 h-4" style={{ color: ACCENT }} />
@@ -2013,7 +2013,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ────────────────────── 6. Achievement System */}
+        {/* ---------------------- 6. Achievement System */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Award className="w-4 h-4" style={{ color: 'var(--de-gold)' }} />
@@ -2078,7 +2078,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ────────────────────── 7. Physics Config */}
+        {/* ---------------------- 7. Physics Config */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Sliders className="w-4 h-4" style={{ color: ACCENT }} />
@@ -2194,7 +2194,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ────────────────────── 8. Game Scripts (premium) */}
+        {/* ---------------------- 8. Game Scripts (premium) */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <FileCode className="w-4 h-4" style={{ color: ACCENT }} />
@@ -2289,7 +2289,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ────────────────────── 9. Cross-Engin Sync Panel */}
+        {/* ---------------------- 9. Cross-Engin Sync Panel */}
         <div className="de-widget">
           <div className="de-widget-header">
             <Radio className="w-4 h-4" style={{ color: ACCENT }} />
@@ -2347,7 +2347,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ── Multiplayer Lobby ── */}
+        {/* -- Multiplayer Lobby -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Gamepad2 className="w-4 h-4" style={{ color: ACCENT }} />
@@ -2419,7 +2419,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ── Tournament Mode ── */}
+        {/* -- Tournament Mode -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Trophy className="w-4 h-4" style={{ color: ACCENT }} />
@@ -2478,7 +2478,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ── Game Analytics ── */}
+        {/* -- Game Analytics -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Award className="w-4 h-4" style={{ color: ACCENT }} />
@@ -2511,7 +2511,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ── Replay System ── */}
+        {/* -- Replay System -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Play className="w-4 h-4" style={{ color: ACCENT }} />
@@ -2572,7 +2572,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ── Social Challenge ── */}
+        {/* -- Social Challenge -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Share2 className="w-4 h-4" style={{ color: ACCENT }} />
@@ -2641,7 +2641,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ── Feature 17: Season Pass / Battle Pass Tracker ── */}
+        {/* -- Feature 17: Season Pass / Battle Pass Tracker -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>⭐</span>
@@ -2682,7 +2682,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ── Feature 18: Daily / Weekly Quests ── */}
+        {/* -- Feature 18: Daily / Weekly Quests -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>📋</span>
@@ -2704,7 +2704,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ── Feature 19: Dream Economy ── */}
+        {/* -- Feature 19: Dream Economy -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>💰</span>
@@ -2741,7 +2741,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ── Feature 20: Speedrun Timer ── */}
+        {/* -- Feature 20: Speedrun Timer -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>⏱</span>
@@ -2786,7 +2786,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ── Engine Power Systems Status — 20 Subsystems ── */}
+        {/* -- Engine Power Systems Status — 20 Subsystems -- */}
         <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(42,138,184,0.28)' }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>🚀</span>
@@ -2839,7 +2839,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ── .dreamgame File Picker ── */}
+        {/* -- .dreamgame File Picker -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <FileCode className="w-4 h-4" style={{ color: ACCENT }} />
@@ -2893,7 +2893,7 @@ function GameEnginInner() { onBack, instanceId: instanceIdProp }: Props {
           </div>
         </div>
 
-        {/* ── Journey Trail ── */}
+        {/* -- Journey Trail -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Map className="w-4 h-4" style={{ color: ACCENT }} />

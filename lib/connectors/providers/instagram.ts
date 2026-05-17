@@ -46,7 +46,7 @@ interface InstagramMediaListResponse {
   data?: InstagramMedia[];
 }
 
-// ── Internal fetch helpers ────────────────────────────────────────────────────
+// -- Internal fetch helpers ----------------------------------------------------
 
 async function fetchInstagramJson<T>(path: string, accessToken: string): Promise<T> {
   const separator = path.includes('?') ? '&' : '?';
@@ -59,7 +59,7 @@ async function fetchInstagramJson<T>(path: string, accessToken: string): Promise
   return res.json() as Promise<T>;
 }
 
-// ── Normaliser ────────────────────────────────────────────────────────────────
+// -- Normaliser ----------------------------------------------------------------
 
 function normaliseInstagramMedia(item: InstagramMedia: UnifiedFeedItem) {
   const caption = item.caption ?? '';
@@ -81,7 +81,7 @@ function normaliseInstagramMedia(item: InstagramMedia: UnifiedFeedItem) {
   };
 }
 
-// ── Public API ────────────────────────────────────────────────────────────────
+// -- Public API ----------------------------------------------------------------
 
 /**
  * Verifies Instagram credentials by calling /me.

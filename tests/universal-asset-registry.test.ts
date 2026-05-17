@@ -13,7 +13,7 @@
 
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
-// ── Mock Supabase ──────────────────────────────────────────────────────────────
+// -- Mock Supabase --------------------------------------------------------------
 const mockSubscribe = vi.fn().mockReturnValue({ unsubscribe: vi.fn() });
 const mockOn = vi.fn().mockReturnValue({ subscribe: mockSubscribe });
 const mockChannel = vi.fn().mockReturnValue({ on: mockOn });
@@ -53,7 +53,7 @@ vi.mock('@/lib/forge/useForgeActivity', () => ({
   useForgeActivity: () => ({ record: vi.fn() }),
 }));
 
-// ── Import types and module ────────────────────────────────────────────────────
+// -- Import types and module ----------------------------------------------------
 
 // Type-level import — verifies the component's exported types compile
 import type {
@@ -64,7 +64,7 @@ import type {
   UniversalAssetRegistryProps,
 } from '@/components/dream.universal_asset_registry';
 
-// ── Type validation tests ──────────────────────────────────────────────────────
+// -- Type validation tests ------------------------------------------------------
 
 describe('UniversalAssetRegistry types', () => {
   it('RegistryEntry has all required fields', () => {
@@ -201,7 +201,7 @@ describe('UniversalAssetRegistry types', () => {
   });
 });
 
-// ── Known object types ─────────────────────────────────────────────────────────
+// -- Known object types ---------------------------------------------------------
 
 describe('Known object types', () => {
   const KNOWN_TYPES = [
@@ -224,7 +224,7 @@ describe('Known object types', () => {
   });
 });
 
-// ── Component props ────────────────────────────────────────────────────────────
+// -- Component props ------------------------------------------------------------
 
 describe('UniversalAssetRegistry props interface', () => {
   it('accepts compact mode', () => {
@@ -251,7 +251,7 @@ describe('UniversalAssetRegistry props interface', () => {
   });
 });
 
-// ── Enrichment logic ───────────────────────────────────────────────────────────
+// -- Enrichment logic -----------------------------------------------------------
 
 describe('enrichment logic', () => {
   it('game_asset entries should receive gameAsset and bindings enrichment', () => {
@@ -321,7 +321,7 @@ describe('enrichment logic', () => {
   });
 });
 
-// ── GAL API route contract ─────────────────────────────────────────────────────
+// -- GAL API route contract -----------------------------------------------------
 
 describe('GAL API contract', () => {
   it('register endpoint expects type, internalId, label', () => {
@@ -352,7 +352,7 @@ describe('GAL API contract', () => {
   });
 });
 
-// ── Mesh size estimation ───────────────────────────────────────────────────────
+// -- Mesh size estimation -------------------------------------------------------
 
 describe('mesh data size estimation', () => {
   it('computes approximate KB from base64 length', () => {
@@ -375,7 +375,7 @@ describe('mesh data size estimation', () => {
   });
 });
 
-// ── Sort logic ─────────────────────────────────────────────────────────────────
+// -- Sort logic -----------------------------------------------------------------
 
 describe('sort modes', () => {
   const entries: RegistryEntry[] = [
@@ -415,7 +415,7 @@ describe('sort modes', () => {
   });
 });
 
-// ── Filter logic ───────────────────────────────────────────────────────────────
+// -- Filter logic ---------------------------------------------------------------
 
 describe('filter logic', () => {
   const entries: RegistryEntry[] = [
@@ -478,7 +478,7 @@ describe('filter logic', () => {
   });
 });
 
-// ── Stats computation ──────────────────────────────────────────────────────────
+// -- Stats computation ----------------------------------------------------------
 
 describe('stats computation', () => {
   it('counts total entries', () => {
@@ -524,7 +524,7 @@ describe('stats computation', () => {
   });
 });
 
-// ── Export surface ──────────────────────────────────────────────────────────────
+// -- Export surface --------------------------------------------------------------
 
 describe('module exports', () => {
   it('exports the default component', async () => {

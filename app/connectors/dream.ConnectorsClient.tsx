@@ -40,7 +40,7 @@ const DEFAULT_STATUSES: Record<string, ConnectorStatus> = Object.fromEntries(
 
 const TIER1_IDS = new Set(CONNECTOR_REGISTRY.filter((c: Record<string, unknown>) => c.tier === 'tier1').map((c: Record<string, unknown>) => c.id));
 
-// ── Sync button ────────────────────────────────────────────────────────────
+// -- Sync button ------------------------------------------------------------
 
 function SyncButton() { connectorId, connectorName }: { connectorId: string; connectorName: string } {
   const [syncing, setSyncing] = useState(false);
@@ -97,7 +97,7 @@ function SyncButton() { connectorId, connectorName }: { connectorId: string; con
   );
 }
 
-// ── Main component ─────────────────────────────────────────────────────────
+// -- Main component ---------------------------------------------------------
 
 export default function ConnectorsClient() {
   const [menuOpen] = useState(false);
@@ -196,7 +196,7 @@ export default function ConnectorsClient() {
 
   return (
     <>
-      {/* ── Tier 1: Fully supported ──────────────────────────────────── */}
+      {/* -- Tier 1: Fully supported ------------------------------------ */}
       <div className="de-widget">
         <div className="de-widget-header">
           <span className="de-widget-title">✅ Active System Integrations</span>
@@ -217,7 +217,7 @@ export default function ConnectorsClient() {
         </div>
       </div>
 
-      {/* ── Tier 2: Gated (requires approval or admin setup) ─────────── */}
+      {/* -- Tier 2: Gated (requires approval or admin setup) ----------- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <span className="de-widget-title">⚙️ Requires Approval or Admin Setup</span>
@@ -234,7 +234,7 @@ export default function ConnectorsClient() {
         </div>
       </div>
 
-      {/* ── Tier 3: Unsupported ──────────────────────────────────────── */}
+      {/* -- Tier 3: Unsupported ---------------------------------------- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <span className="de-widget-title">🚫 Not Available via Official API</span>
@@ -257,7 +257,7 @@ export default function ConnectorsClient() {
         </div>
       </div>
 
-      {/* ── Installed widget shells ──────────────────────────────────── */}
+      {/* -- Installed widget shells ------------------------------------ */}
       {installedWidgets.length > 0 && (
         <div className="de-widget">
           <div className="de-widget-header"><span className="de-widget-title">Your Widgets</span></div>
@@ -293,7 +293,7 @@ export default function ConnectorsClient() {
         </div>
       )}
 
-      {/* ── Toast ────────────────────────────────────────────────────── */}
+      {/* -- Toast ------------------------------------------------------ */}
       {flow.toastMessage && (
         <div
           role="status"
@@ -315,7 +315,7 @@ export default function ConnectorsClient() {
         </div>
       )}
 
-      {/* ── Widget install prompt ─────────────────────────────────────── */}
+      {/* -- Widget install prompt --------------------------------------- */}
       {flow.prompt && (
         <ConnectWidgetPrompt
           connectorId={flow.prompt.connectorId}
@@ -328,7 +328,7 @@ export default function ConnectorsClient() {
         />
       )}
 
-      {/* ── No-slot dialog ────────────────────────────────────────────── */}
+      {/* -- No-slot dialog ---------------------------------------------- */}
       {flow.placementRequest?.noSlotAvailable && (() => {
         const def = getWidgetTypeDef(flow.placementRequest.widgetId);
         if (!def) return null;
@@ -341,7 +341,7 @@ export default function ConnectorsClient() {
         );
       })()}
 
-      {/* ── Placement mode ────────────────────────────────────────────── */}
+      {/* -- Placement mode ---------------------------------------------- */}
       {flow.placementRequest && !flow.placementRequest.noSlotAvailable && (() => {
         const def = getWidgetTypeDef(flow.placementRequest.widgetId);
         if (!def) return null;
@@ -357,7 +357,7 @@ export default function ConnectorsClient() {
         );
       })()}
 
-      {/* ── Feed slice sheet ──────────────────────────────────────────── */}
+      {/* -- Feed slice sheet -------------------------------------------- */}
       {flow.sliceSheetConnectorId && (() => {
         const connDef = getConnectorDef(flow.sliceSheetConnectorId);
         if (!connDef) return null;

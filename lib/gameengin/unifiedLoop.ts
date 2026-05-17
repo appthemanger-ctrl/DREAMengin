@@ -10,14 +10,14 @@
  *   - Budget enforcement defers low-priority work when the frame is tight
  *   - Easy to pause/resume individual games without touching the RAF
  *
- * ┌─────────────────────────────────────────────────────────────────────────┐
- * │  Frame budget: 16.67 ms (60 fps target)                                 │
- * │  Priority tiers:                                                        │
- * │    CRITICAL — always runs (physics, core simulation)                    │
- * │    HIGH     — runs until 100 % of budget used                          │
- * │    NORMAL   — skipped when frame is over budget                        │
- * │    LOW      — skipped when frame is > 80 % of budget                   │
- * └─────────────────────────────────────────────────────────────────────────┘
+ * ┌-------------------------------------------------------------------------┐
+ * |  Frame budget: 16.67 ms (60 fps target)                                 |
+ * |  Priority tiers:                                                        |
+ * |    CRITICAL — always runs (physics, core simulation)                    |
+ * |    HIGH     — runs until 100 % of budget used                          |
+ * |    NORMAL   — skipped when frame is over budget                        |
+ * |    LOW      — skipped when frame is > 80 % of budget                   |
+ * └-------------------------------------------------------------------------┘
  *
  * Usage:
  *   registerGame('my-game', (dt) => tick(dt), 'HIGH');
@@ -25,12 +25,12 @@
  *   unregisterGame('my-game');
  */
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 /** Execution priority tier for a registered game. */
 export type LoopPriority = 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW';
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// --- Constants ----------------------------------------------------------------
 
 /** Target frame time in milliseconds (1000 / 60). */
 const FRAME_BUDGET_MS = 1000 / 60; // 16.67 ms
@@ -46,7 +46,7 @@ const PRIORITY_ORDER: Record<LoopPriority, number> = {
   LOW:      3,
 };
 
-// ─── Internal state ───────────────────────────────────────────────────────────
+// --- Internal state -----------------------------------------------------------
 
 interface GameEntry {
   readonly id: string;
@@ -63,7 +63,7 @@ let _lastTime = 0;
 /** Whether the unified loop RAF is currently running. */
 let _running = false;
 
-// ─── Private helpers ──────────────────────────────────────────────────────────
+// --- Private helpers ----------------------------------------------------------
 
 function _sortEntries(: void) {
   _entries.sort(a: Record<string, unknown>, b: Record<string, unknown> => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]);
@@ -116,7 +116,7 @@ function _stopLoop(: void) {
   _lastTime  = 0;
 }
 
-// ─── Public API ───────────────────────────────────────────────────────────────
+// --- Public API ---------------------------------------------------------------
 
 /**
  * Register a game with the unified loop.

@@ -97,7 +97,7 @@ export default function MessagesClient() { userId, initialConversations: Record<
   const supabase = createClient();
   const router = useRouter();
 
-  // ── Universal search + Dr. Eams toggle (shared with DreamDM Bar) ──────────
+  // -- Universal search + Dr. Eams toggle (shared with DreamDM Bar) ----------
   const { results: searchSuggestions, isSearching: isSuggesting, drEamsMode, toggleDrEams, clearResults: clearSuggestions } =
     useDreamSearch(searchQuery);
 
@@ -331,7 +331,7 @@ export default function MessagesClient() { userId, initialConversations: Record<
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-0 rounded-2xl overflow-hidden min-h-[70vh]" style={{ background: 'rgba(255,255,255,0.93)', border: '1px solid rgba(160,195,240,0.3)', boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
-          {/* ── Dr. Eams context banner ── shown when arriving via "Send to DreamDM" */}
+          {/* -- Dr. Eams context banner -- shown when arriving via "Send to DreamDM" */}
           {showDrEamsBanner && initialDrEamsQuery && (
             <div
               className="md:col-span-12"

@@ -2,17 +2,17 @@
 // Single source of truth for all widget types (req 41-50)
 // Stable IDs; no duplicated strings sprinkled across code (req 43)
 
-// ── Connector dependency declaration (req 44-48) ──────────────────────────
+// -- Connector dependency declaration (req 44-48) --------------------------
 export type ConnectorRequirement = 'none' | 'optional' | 'required';
 
-// ── Permissions ────────────────────────────────────────────────────────────
+// -- Permissions ------------------------------------------------------------
 export interface WidgetPermissions {
   requiresLocation?: boolean;
   requiresNotifications?: boolean;
   requiresCamera?: boolean;
 }
 
-// ── Widget Type Definition (req 44) ───────────────────────────────────────
+// -- Widget Type Definition (req 44) ---------------------------------------
 export interface WidgetTypeDef {
   /** Stable, never-changed ID (req 43) */
   id: string;
@@ -34,7 +34,7 @@ export interface WidgetTypeDef {
   category: 'Feed' | 'Media' | 'Social' | 'Utilities' | 'Work' | 'Shop';
 }
 
-// ── Registry ───────────────────────────────────────────────────────────────
+// -- Registry ---------------------------------------------------------------
 // All widget types with stable IDs (req 41-43)
 export const WIDGET_REGISTRY: ReadonlyArray<WidgetTypeDef> = [
   {
@@ -208,7 +208,7 @@ export const WIDGET_REGISTRY: ReadonlyArray<WidgetTypeDef> = [
   },
 ] as const;
 
-// ── Lookup helpers (req 43) ────────────────────────────────────────────────
+// -- Lookup helpers (req 43) ------------------------------------------------
 export function getWidgetTypeDef(id: string: WidgetTypeDef | undefined) {
   return WIDGET_REGISTRY.find((w: Record<string, unknown>) => w.id === id);
 }

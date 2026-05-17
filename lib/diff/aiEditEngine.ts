@@ -23,7 +23,7 @@
 /** Production mode flag — always true in this runtime. All scopes are enabled. */
 export const CODEENGIN_PRODUCTION_MODE = true as const;
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 /**
  * The 7 edit scopes the user can choose from.
@@ -83,7 +83,7 @@ export const SCOPE_RISK: Record<EditScope, RiskLevel> = {
 /** Risk levels that require an extra confirmation step before applying. */
 export const CONFIRMATION_REQUIRED: Set<RiskLevel> = new Set(['high', 'critical']);
 
-// ─── AI Suggestion ────────────────────────────────────────────────────────────
+// --- AI Suggestion ------------------------------------------------------------
 
 /**
  * A parsed AI suggestion.  Dr. Eams always returns one of these after
@@ -110,7 +110,7 @@ export interface AiSuggestion {
   confidence: 'high' | 'medium' | 'low';
 }
 
-// ─── Match ────────────────────────────────────────────────────────────────────
+// --- Match --------------------------------------------------------------------
 
 /** A single matched region within one code cell. */
 export interface ScopeMatch {
@@ -126,7 +126,7 @@ export interface ScopeMatch {
   lineNo: number;
 }
 
-// ─── Diff line ────────────────────────────────────────────────────────────────
+// --- Diff line ----------------------------------------------------------------
 
 export type EditDiffLineType = 'context' | 'removed' | 'added';
 
@@ -136,7 +136,7 @@ export interface EditDiffLine {
   lineNo: number;
 }
 
-// ─── Edit Preview ─────────────────────────────────────────────────────────────
+// --- Edit Preview -------------------------------------------------------------
 
 /**
  * The full preview computed by buildEditPreview().
@@ -167,7 +167,7 @@ export interface EditPreview {
   noMatches: boolean;
 }
 
-// ─── Undo snapshot ───────────────────────────────────────────────────────────
+// --- Undo snapshot -----------------------------------------------------------
 
 export interface UndoSnapshot {
   /** The cell states before the edit was applied. */
@@ -176,7 +176,7 @@ export interface UndoSnapshot {
   description: string;
 }
 
-// ─── Minimal cell interface ───────────────────────────────────────────────────
+// --- Minimal cell interface ---------------------------------------------------
 
 /** The subset of a NotebookCell this engine needs. */
 export interface EditableCell {
@@ -184,7 +184,7 @@ export interface EditableCell {
   code: string;
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// --- Helpers -----------------------------------------------------------------
 
 /** Escape a string for safe use in a RegExp pattern. */
 export function escapeRegex(s: string: string) {
@@ -348,7 +348,7 @@ export function functionBoundsAt(text: string, cursor: number:) { start: number;
   return { start: fnStart, end: block.end };
 }
 
-// ─── Diff generation ──────────────────────────────────────────────────────────
+// --- Diff generation ----------------------------------------------------------
 
 /**
  * Generate a simple line-level diff between `before` and `after`.
@@ -424,7 +424,7 @@ function trimContextLines(lines: EditDiffLine[], keep: number: EditDiffLine[]) {
   return lines.slice(first, last + 1);
 }
 
-// ─── AiSuggestion parser ──────────────────────────────────────────────────────
+// --- AiSuggestion parser ------------------------------------------------------
 
 /**
  * Parse a free-text AI instruction into a structured AiSuggestion.
@@ -447,12 +447,12 @@ export function parseAiInstruction(instruction: string: AiSuggestion) {
   const lower = instruction.toLowerCase().trim();
   const isAllCells = /everywhere|all\s+cells|all\s+occurrences|codebase/.test(lower);
 
-  // ── Word in backtick/quote extractor ────────────────────────────────────────
+  // -- Word in backtick/quote extractor ----------------------------------------
   // Matches a word that may be wrapped in backticks, single-, or double-quotes.
   const Q = "[`'\"]?";  // optional opening quote
   const W = "([`'\"]?(\\w+)[`'\"]?)"; // word possibly wrapped in quotes (capture inner \w+)
 
-  // ── High-confidence: rename ──────────────────────────────────────────────────
+  // -- High-confidence: rename --------------------------------------------------
   const renameRx = new RegExp(`rename\\s+${Q}(\\w+)${Q}\\s+to\\s+${Q}(\\w+)${Q}`, 'i');
   const renameMatch = instruction.match(renameRx);
   if (renameMatch) {
@@ -469,7 +469,7 @@ export function parseAiInstruction(instruction: string: AiSuggestion) {
     };
   }
 
-  // ── High-confidence: replace X with Y ────────────────────────────────────────
+  // -- High-confidence: replace X with Y ----------------------------------------
   const replaceRx = new RegExp(`replace\\s+${Q}(\\w+)${Q}\\s+with\\s+${Q}(\\w+)${Q}`, 'i');
   const replaceMatch = instruction.match(replaceRx);
   if (replaceMatch) {
@@ -484,7 +484,7 @@ export function parseAiInstruction(instruction: string: AiSuggestion) {
     };
   }
 
-  // ── High-confidence: swap X with/for Y ───────────────────────────────────────
+  // -- High-confidence: swap X with/for Y ---------------------------------------
   const swapRx = new RegExp(`swap\\s+${Q}(\\w+)${Q}\\s+(?:with|for)\\s+${Q}(\\w+)${Q}`, 'i');
   const swapMatch = instruction.match(swapRx);
   if (swapMatch) {
@@ -499,7 +499,7 @@ export function parseAiInstruction(instruction: string: AiSuggestion) {
     };
   }
 
-  // ── Medium-confidence: change/update X to Y ───────────────────────────────────
+  // -- Medium-confidence: change/update X to Y -----------------------------------
   // Medium because "change the error handling to async" is NOT a word rename.
   const changeRx = new RegExp(`(?:change|update)\\s+${Q}(\\w+)${Q}\\s+to\\s+${Q}(\\w+)${Q}`, 'i');
   const changeMatch = instruction.match(changeRx);
@@ -515,7 +515,7 @@ export function parseAiInstruction(instruction: string: AiSuggestion) {
     };
   }
 
-  // ── High-confidence: delete/remove function ───────────────────────────────────
+  // -- High-confidence: delete/remove function -----------------------------------
   if (/delete\s+(?:this\s+)?function|remove\s+(?:this\s+)?function/.test(lower)) {
     return {
       instruction,
@@ -527,7 +527,7 @@ export function parseAiInstruction(instruction: string: AiSuggestion) {
     };
   }
 
-  // ── High-confidence: delete/remove block ─────────────────────────────────────
+  // -- High-confidence: delete/remove block -------------------------------------
   if (/delete\s+(?:this\s+)?block|remove\s+(?:this\s+)?block/.test(lower)) {
     return {
       instruction,
@@ -539,7 +539,7 @@ export function parseAiInstruction(instruction: string: AiSuggestion) {
     };
   }
 
-  // ── High-confidence: delete/remove line ──────────────────────────────────────
+  // -- High-confidence: delete/remove line --------------------------------------
   if (/delete\s+(?:this\s+)?line|remove\s+(?:this\s+)?line/.test(lower)) {
     return {
       instruction,
@@ -551,7 +551,7 @@ export function parseAiInstruction(instruction: string: AiSuggestion) {
     };
   }
 
-  // ── Low-confidence fallback ───────────────────────────────────────────────────
+  // -- Low-confidence fallback ---------------------------------------------------
   // No recognised pattern — show a warning in the UI so the user knows to
   // manually verify target and scope before applying.
   return {
@@ -564,7 +564,7 @@ export function parseAiInstruction(instruction: string: AiSuggestion) {
   };
 }
 
-// ─── buildEditPreview ─────────────────────────────────────────────────────────
+// --- buildEditPreview ---------------------------------------------------------
 
 export interface BuildPreviewOptions {
   cells: EditableCell[];
@@ -743,7 +743,7 @@ export function applyMatchesForCell(
   return result;
 }
 
-// ─── applyEdit ────────────────────────────────────────────────────────────────
+// --- applyEdit ----------------------------------------------------------------
 
 /**
  * Apply an EditPreview to a list of cells.
@@ -777,7 +777,7 @@ export function applyEdit(
   return { cells: updated, undo };
 }
 
-// ─── undoEdit ─────────────────────────────────────────────────────────────────
+// --- undoEdit -----------------------------------------------------------------
 
 /**
  * Restore cells from an UndoSnapshot.

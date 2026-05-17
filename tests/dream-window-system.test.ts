@@ -17,7 +17,7 @@
 
 import { describe, it, expect } from 'vitest';
 
-// ── System under test ─────────────────────────────────────────────────────────
+// -- System under test ---------------------------------------------------------
 
 import {
   DREAM_WINDOW_STATES,
@@ -80,7 +80,7 @@ import {
   SURFACE_NAMES as CANONICAL_SURFACE_NAMES,
 } from '@/lib/identity/canonical-names';
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// -- Helpers -------------------------------------------------------------------
 
 function makeUnbound(overrides: Partial<DreamWindowInstance> =) {}): DreamWindowInstance {
   return createDreamWindowInstance({
@@ -96,12 +96,12 @@ function makeUnbound(overrides: Partial<DreamWindowInstance> =) {}): DreamWindow
   });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // 1. DreamWindowLifecycle
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 describe('DreamWindowLifecycle', () => {
-  // ── createDreamWindowInstance ──────────────────────────────────────────────
+  // -- createDreamWindowInstance ----------------------------------------------
 
   describe('createDreamWindowInstance', () => {
     it('creates an instance in Unbound state by default', () => {
@@ -128,7 +128,7 @@ describe('DreamWindowLifecycle', () => {
     });
   });
 
-  // ── bindDreamWindow ────────────────────────────────────────────────────────
+  // -- bindDreamWindow --------------------------------------------------------
 
   describe('bindDreamWindow', () => {
     it('transitions Unbound → Bound when sourceBindings is non-empty', () => {
@@ -170,7 +170,7 @@ describe('DreamWindowLifecycle', () => {
     });
   });
 
-  // ── mountDreamWindow ───────────────────────────────────────────────────────
+  // -- mountDreamWindow -------------------------------------------------------
 
   describe('mountDreamWindow', () => {
     it('transitions Bound → Mounted', () => {
@@ -196,7 +196,7 @@ describe('DreamWindowLifecycle', () => {
     });
   });
 
-  // ── collapseDreamWindow ────────────────────────────────────────────────────
+  // -- collapseDreamWindow ----------------------------------------------------
 
   describe('collapseDreamWindow', () => {
     it('transitions Mounted → Collapsed', () => {
@@ -220,7 +220,7 @@ describe('DreamWindowLifecycle', () => {
     });
   });
 
-  // ── activateDreamWindow ────────────────────────────────────────────────────
+  // -- activateDreamWindow ----------------------------------------------------
 
   describe('activateDreamWindow', () => {
     it('transitions Collapsed → Mounted', () => {
@@ -244,7 +244,7 @@ describe('DreamWindowLifecycle', () => {
     });
   });
 
-  // ── unmountDreamWindow ─────────────────────────────────────────────────────
+  // -- unmountDreamWindow -----------------------------------------------------
 
   describe('unmountDreamWindow', () => {
     it('transitions Mounted → Bound', () => {
@@ -263,7 +263,7 @@ describe('DreamWindowLifecycle', () => {
     });
   });
 
-  // ── unbindDreamWindow ──────────────────────────────────────────────────────
+  // -- unbindDreamWindow ------------------------------------------------------
 
   describe('unbindDreamWindow', () => {
     it('transitions Bound → Unbound', () => {
@@ -283,7 +283,7 @@ describe('DreamWindowLifecycle', () => {
     });
   });
 
-  // ── Full lifecycle round-trip ──────────────────────────────────────────────
+  // -- Full lifecycle round-trip ----------------------------------------------
 
   describe('full lifecycle round-trip', () => {
     it('can traverse the complete lifecycle: Unbound→Bound→Mounted→Collapsed→Mounted→Bound→Unbound', () => {
@@ -320,12 +320,12 @@ describe('DreamWindowLifecycle', () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // 2. connectionVerbs
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 describe('connectionVerbs', () => {
-  // ── Factory functions ──────────────────────────────────────────────────────
+  // -- Factory functions ------------------------------------------------------
 
   describe('action factories', () => {
     it('createBindAction produces verb: bind', () => {
@@ -370,7 +370,7 @@ describe('connectionVerbs', () => {
     });
   });
 
-  // ── dispatch — valid verbs ─────────────────────────────────────────────────
+  // -- dispatch — valid verbs -------------------------------------------------
 
   describe('dispatch — all 7 canonical verbs succeed', () => {
     const validFactories = [
@@ -403,7 +403,7 @@ describe('connectionVerbs', () => {
     });
   });
 
-  // ── dispatch — invalid/rejected verbs throw ────────────────────────────────
+  // -- dispatch — invalid/rejected verbs throw --------------------------------
 
   describe('dispatch — invalid verbs throw with helpful error', () => {
     const rejectedVerbs = ['link widget', 'open page', 'go to tab', 'launch card'] as const;
@@ -444,12 +444,12 @@ describe('connectionVerbs', () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // 3. runtimeRegion
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 describe('runtimeRegion', () => {
-  // ── Default state ──────────────────────────────────────────────────────────
+  // -- Default state ----------------------------------------------------------
 
   describe('DEFAULT_RUNTIME_REGION_STATE', () => {
     it('Surface Space is dominant by default', () => {
@@ -484,7 +484,7 @@ describe('runtimeRegion', () => {
     });
   });
 
-  // ── activateSurface ────────────────────────────────────────────────────────
+  // -- activateSurface --------------------------------------------------------
 
   describe('activateSurface', () => {
     it('updates the active surface name', () => {
@@ -512,7 +512,7 @@ describe('runtimeRegion', () => {
     });
   });
 
-  // ── mountWindowInDreamSpace ────────────────────────────────────────────────
+  // -- mountWindowInDreamSpace ------------------------------------------------
 
   describe('mountWindowInDreamSpace', () => {
     it('adds a Dream Window ref to DreamSpace', () => {
@@ -543,7 +543,7 @@ describe('runtimeRegion', () => {
     });
   });
 
-  // ── dismountWindowFromDreamSpace ───────────────────────────────────────────
+  // -- dismountWindowFromDreamSpace -------------------------------------------
 
   describe('dismountWindowFromDreamSpace', () => {
     it('removes a mounted window by ID', () => {
@@ -570,7 +570,7 @@ describe('runtimeRegion', () => {
     });
   });
 
-  // ── setSeamPosition ────────────────────────────────────────────────────────
+  // -- setSeamPosition --------------------------------------------------------
 
   describe('setSeamPosition', () => {
     it('sets seam position to provided value', () => {
@@ -610,7 +610,7 @@ describe('runtimeRegion', () => {
     });
   });
 
-  // ── isDreamSpaceDominant ───────────────────────────────────────────────────
+  // -- isDreamSpaceDominant ---------------------------------------------------
 
   describe('isDreamSpaceDominant', () => {
     it('returns false for default state', () => {
@@ -624,12 +624,12 @@ describe('runtimeRegion', () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // 4. enginConnectionNetwork
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 describe('enginConnectionNetwork', () => {
-  // ── Path count validation ──────────────────────────────────────────────────
+  // -- Path count validation --------------------------------------------------
 
   it(`has exactly ${NETWORK_COUNTS.CONNECTION_PATHS} connection paths`, () => {
     expect(ALL_CONNECTION_PATHS.length).toBe(NETWORK_COUNTS.CONNECTION_PATHS);
@@ -662,7 +662,7 @@ describe('enginConnectionNetwork', () => {
     }
   });
 
-  // ── Expected paths per domain ──────────────────────────────────────────────
+  // -- Expected paths per domain ----------------------------------------------
 
   describe('getPathsForDomain', () => {
     it('Music has 3 paths', () => {
@@ -761,7 +761,7 @@ describe('enginConnectionNetwork', () => {
     });
   });
 
-  // ── getPathsForEngin ───────────────────────────────────────────────────────
+  // -- getPathsForEngin -------------------------------------------------------
 
   describe('getPathsForEngin', () => {
     it('LabEngin receives paths from Music, Games, Brand, and Lab (4 total)', () => {
@@ -796,7 +796,7 @@ describe('enginConnectionNetwork', () => {
     });
   });
 
-  // ── hasConnectionPath ──────────────────────────────────────────────────────
+  // -- hasConnectionPath ------------------------------------------------------
 
   describe('hasConnectionPath', () => {
     it('Music → StarMakerEngin: true', () => {
@@ -877,12 +877,12 @@ describe('enginConnectionNetwork', () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // 5. dualRuntime
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 describe('dualRuntime', () => {
-  // ── DEFAULT_DUAL_RUNTIME ───────────────────────────────────────────────────
+  // -- DEFAULT_DUAL_RUNTIME ---------------------------------------------------
 
   describe('DEFAULT_DUAL_RUNTIME', () => {
     it('surfaceSpaceWorld is HomeDream Surface (canonical)', () => {
@@ -920,7 +920,7 @@ describe('dualRuntime', () => {
     });
   });
 
-  // ── setRuntimeWorld ────────────────────────────────────────────────────────
+  // -- setRuntimeWorld --------------------------------------------------------
 
   describe('setRuntimeWorld', () => {
     it('sets surfaceSpaceWorld when runtime is "top"', () => {
@@ -956,7 +956,7 @@ describe('dualRuntime', () => {
     });
   });
 
-  // ── swapDominantRuntime ────────────────────────────────────────────────────
+  // -- swapDominantRuntime ----------------------------------------------------
 
   describe('swapDominantRuntime', () => {
     it('swaps Surface Space → DreamSpace', () => {
@@ -977,7 +977,7 @@ describe('dualRuntime', () => {
     });
   });
 
-  // ── makeHomeDreamSpaceActive ───────────────────────────────────────────────
+  // -- makeHomeDreamSpaceActive -----------------------------------------------
 
   describe('makeHomeDreamSpaceActive', () => {
     it('sets dreamSpaceWorld to HomeDream Surface', () => {
@@ -1014,7 +1014,7 @@ describe('dualRuntime', () => {
     });
   });
 
-  // ── makeHomeActiveTop ──────────────────────────────────────────────────────
+  // -- makeHomeActiveTop ------------------------------------------------------
 
   describe('makeHomeActiveTop', () => {
     it('sets surfaceSpaceWorld to HomeDream Surface', () => {
@@ -1040,7 +1040,7 @@ describe('dualRuntime', () => {
     });
   });
 
-  // ── isHomeActiveTop ────────────────────────────────────────────────────────
+  // -- isHomeActiveTop --------------------------------------------------------
 
   describe('isHomeActiveTop', () => {
     it('returns true when surfaceSpaceWorld is HomeDream Surface and dominantRegion is Surface Space', () => {
@@ -1070,7 +1070,7 @@ describe('dualRuntime', () => {
     });
   });
 
-  // ── worldsEqual ────────────────────────────────────────────────────────────
+  // -- worldsEqual ------------------------------------------------------------
 
   describe('worldsEqual', () => {
     it('two identical canonical string worlds are equal', () => {

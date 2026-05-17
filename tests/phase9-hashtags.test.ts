@@ -16,7 +16,7 @@ import {
   MAX_TAG_LENGTH,
 } from '@/lib/feed/hashtags';
 
-// ─── extractHashtags ──────────────────────────────────────────────────────────
+// --- extractHashtags ----------------------------------------------------------
 
 describe('Hashtags — extractHashtags', () => {
   it('extracts simple hashtags', () => {
@@ -68,7 +68,7 @@ describe('Hashtags — extractHashtags', () => {
   });
 });
 
-// ─── validateTag ──────────────────────────────────────────────────────────────
+// --- validateTag --------------------------------------------------------------
 
 describe('Hashtags — validateTag', () => {
   it('validates simple tags', () => {
@@ -106,7 +106,7 @@ describe('Hashtags — validateTag', () => {
   });
 });
 
-// ─── calculateTrending ───────────────────────────────────────────────────────
+// --- calculateTrending -------------------------------------------------------
 
 describe('Hashtags — calculateTrending', () => {
   const NOW = Date.now();
@@ -148,7 +148,7 @@ describe('Hashtags — calculateTrending', () => {
   });
 });
 
-// ─── formatTag ────────────────────────────────────────────────────────────────
+// --- formatTag ----------------------------------------------------------------
 
 describe('Hashtags — formatTag', () => {
   it('prepends #', () => {
@@ -157,7 +157,7 @@ describe('Hashtags — formatTag', () => {
   });
 });
 
-// ─── segmentText ──────────────────────────────────────────────────────────────
+// --- segmentText --------------------------------------------------------------
 
 describe('Hashtags — segmentText', () => {
   it('splits text and hashtags into segments', () => {

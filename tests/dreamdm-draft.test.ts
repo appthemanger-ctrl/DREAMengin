@@ -7,7 +7,7 @@
 
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 
-// ── Mock localStorage (test environment is 'node', no browser globals) ───────
+// -- Mock localStorage (test environment is 'node', no browser globals) -------
 const localStorageStore: Record<string, string> = {};
 const localStorageMock = {
   getItem: (key: string) => localStorageStore[key] ?? null,
@@ -17,7 +17,7 @@ const localStorageMock = {
 };
 vi.stubGlobal('localStorage', localStorageMock);
 
-// ── Inline the pure logic from useDreamDMDraft for unit testing ──────────────
+// -- Inline the pure logic from useDreamDMDraft for unit testing --------------
 // We test the pure storage helpers, not the React hook (which requires
 // renderHook / jsdom setup). The hook's behaviour is validated via the helpers.
 
@@ -55,7 +55,7 @@ function clearDraft(conversationId: string): void {
   localStorage.removeItem(buildKey(conversationId));
 }
 
-// ── Tests ────────────────────────────────────────────────────────────────────
+// -- Tests --------------------------------------------------------------------
 
 describe('DreamDM draft helpers', () => {
   beforeEach(() => {
@@ -123,7 +123,7 @@ describe('DreamDM draft helpers', () => {
   });
 });
 
-// ── parseSubject / formatMessageContent tests ────────────────────────────────
+// -- parseSubject / formatMessageContent tests --------------------------------
 
 function parseSubject(content: string): { subject: string | null; body: string } {
   const match = content.match(/^\*\*Subject:\*\* (.+?)\n\n([\s\S]*)$/);

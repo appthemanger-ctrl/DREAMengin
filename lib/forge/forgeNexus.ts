@@ -15,7 +15,7 @@
 
 import { FORGE_HISTORY_KEY, CREATIVE_ENGINES, ENGIN_REGISTRY } from './forgeRegistry';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 export interface NexusEdge {
   /** Source engine id */
@@ -77,7 +77,7 @@ export interface NexusSnapshot {
   computedAt: string;
 }
 
-// ── History Entry type ────────────────────────────────────────────────────────
+// -- History Entry type --------------------------------------------------------
 
 interface HistoryEntry {
   enginId: string;
@@ -85,7 +85,7 @@ interface HistoryEntry {
   timestamp: string;
 }
 
-// ── Core Computation ──────────────────────────────────────────────────────────
+// -- Core Computation ----------------------------------------------------------
 
 /**
  * Read history entries from localStorage.

@@ -35,7 +35,7 @@ interface Props {
   compact?: boolean;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// -- Helpers -------------------------------------------------------------------
 
 function groupDotsByTime(dots: JourneyDot[]: JourneyTimeGroup[]) {
   const now = Date.now();
@@ -66,7 +66,7 @@ function dotRadius(significance: number: number) {
   return 4;
 }
 
-// ── Sparkline helpers ─────────────────────────────────────────────────────────
+// -- Sparkline helpers ---------------------------------------------------------
 
 /** Compute last-7-day activity bucket counts from a dots array (index 0 = oldest, 6 = today). */
 function computeSparkline(dots: JourneyDot[]: number[]) {
@@ -110,7 +110,7 @@ function SparklineBar() { dots }: { dots: JourneyDot[] } {
   );
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// -- Component -----------------------------------------------------------------
 
 export default function JourneyTrail() { limit = 50, compact = false }: Props {
   const [dots,          setDots]          = useState<JourneyDot[]>([]);
@@ -139,7 +139,7 @@ export default function JourneyTrail() { limit = 50, compact = false }: Props {
 
   useEffect(() => { void load(); }, [load]);
 
-  // ── Loading ────────────────────────────────────────────────────────────────
+  // -- Loading ----------------------------------------------------------------
   if (loading) {
     return (
       <div style={{ padding: '24px 0', textAlign: 'center', color: 'var(--de-text-dim)', fontSize: 13 }}>
@@ -148,7 +148,7 @@ export default function JourneyTrail() { limit = 50, compact = false }: Props {
     );
   }
 
-  // ── Empty state ────────────────────────────────────────────────────────────
+  // -- Empty state ------------------------------------------------------------
   if (dots.length === 0) {
     return (
       <div style={{ padding: '24px 16px', textAlign: 'center' }}>
@@ -167,7 +167,7 @@ export default function JourneyTrail() { limit = 50, compact = false }: Props {
   const threadLeft = compact ? 10 : 14;
   const paddingLeft = compact ? 24 : 32;
 
-  // ── Trail ──────────────────────────────────────────────────────────────────
+  // -- Trail ------------------------------------------------------------------
   return (
     <div style={{ position: 'relative', paddingLeft }}>
       {/* Vertical thread — gradient from gold at top to dim at bottom */}
@@ -181,7 +181,7 @@ export default function JourneyTrail() { limit = 50, compact = false }: Props {
         pointerEvents: 'none',
       }} />
 
-      {/* ── Streak banner (shown when streak ≥ 2) ── */}
+      {/* -- Streak banner (shown when streak ≥ 2) -- */}
       {streak >= 2 && (
         <div style={{
           marginBottom: 16,
@@ -303,7 +303,7 @@ export default function JourneyTrail() { limit = 50, compact = false }: Props {
                     {dot.label}
                   </div>
 
-                  {/* ── Insight badges ── */}
+                  {/* -- Insight badges -- */}
                   {(insight.isFirst || insight.weeklyFrequency || insight.returnAfterDays) && (
                     <div style={{
                       display:   'flex',

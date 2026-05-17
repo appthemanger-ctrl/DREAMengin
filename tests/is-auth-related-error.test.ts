@@ -11,7 +11,7 @@ import { isAuthRelatedError } from '@/lib/runtime/isAuthRelatedError';
  * transient render/network errors that are not auth-related.
  */
 describe('isAuthRelatedError', () => {
-  // ── Auth / session errors → should force sign-out ────────────────────────
+  // -- Auth / session errors → should force sign-out ------------------------
 
   it('returns true for "Unauthorized" errors', () => {
     expect(isAuthRelatedError(new Error('Unauthorized'))).toBe(true);
@@ -59,7 +59,7 @@ describe('isAuthRelatedError', () => {
     expect(isAuthRelatedError(new Error('sign in required'))).toBe(true);
   });
 
-  // ── Non-auth / transient errors → must NOT force sign-out ────────────────
+  // -- Non-auth / transient errors → must NOT force sign-out ----------------
 
   it('returns false for generic render errors', () => {
     expect(isAuthRelatedError(new Error('Cannot read properties of undefined'))).toBe(false);

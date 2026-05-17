@@ -3,7 +3,7 @@
 import { EventEmitter } from 'events';
 import { invokeMadMaxiSnapshotTransfer } from '@/lib/runtime/madMaxiSnapshotBridge';
 
-// ── Channel types ──────────────────────────────────────────────────────────────
+// -- Channel types --------------------------------------------------------------
 
 export type DualRuntimeChannel =
   | 'code'
@@ -17,10 +17,10 @@ export type DualRuntimeChannel =
   | 'compute'
   | 'shared_dream';
 
-// ── VM region ─────────────────────────────────────────────────────────────────
+// -- VM region -----------------------------------------------------------------
 export type VMRegion = 'top' | 'bottom';
 
-// ── Quantum compute result ────────────────────────────────────────────────────
+// -- Quantum compute result ----------------------------------------------------
 export interface QuantumComputeResult {
   algorithm: string;
   ansatz: string;
@@ -33,7 +33,7 @@ export interface QuantumComputeResult {
   computedAt: number;
 }
 
-// ── VM workload ───────────────────────────────────────────────────────────────
+// -- VM workload ---------------------------------------------------------------
 export interface VMWorkload {
   id: string;
   region: VMRegion;
@@ -42,7 +42,7 @@ export interface VMWorkload {
   priority: number;
 }
 
-// ── Quantum circuit compute engine (inline) ───────────────────────────────────
+// -- Quantum circuit compute engine (inline) -----------------------------------
 // Pure complex-number state vector simulation; no canvas, no components.
 // Dispatched automatically on bridge.emit('lab', 'quantum:run', payload).
 
@@ -149,19 +149,19 @@ function _runCircuit(numQubits: number, algo: string, ansatz: string: QuantumCom
   };
 }
 
-// ── Inter-VM ring buffer constants ────────────────────────────────────────────
+// -- Inter-VM ring buffer constants --------------------------------------------
 const VM_QUEUE_CAPACITY = 256;
 const VM_MESSAGE_SIZE   = 1024;
 const VM_QUEUE_BUF_SIZE = VM_QUEUE_CAPACITY * VM_MESSAGE_SIZE + 8; // +8 for producer/consumer indices
 
-// ── Event schema types (intentionally loose — channels define their own events) ─
+// -- Event schema types (intentionally loose — channels define their own events) -
 
 export type ChannelEventKey<_C extends DualRuntimeChannel> = string;
 export type ChannelEventPayload<_C extends DualRuntimeChannel, _K extends string> = Record<string, unknown>;
 export type BridgeEventHandler<P = Record<string, unknown>> = (payload: P) => void;
 export type UnsubscribeFn = () => void;
 
-// ── Peer state ────────────────────────────────────────────────────────────────
+// -- Peer state ----------------------------------------------------------------
 
 export interface PeerState {
   channel: string;
@@ -169,7 +169,7 @@ export interface PeerState {
   lastActivityAt: number | null;
 }
 
-// ── Emission record ───────────────────────────────────────────────────────────
+// -- Emission record -----------------------------------------------------------
 
 export interface AnyBridgeEmission {
   channel: string;
@@ -178,7 +178,7 @@ export interface AnyBridgeEmission {
   emittedAt: number;
 }
 
-// ── Durable delivery types ────────────────────────────────────────────────────
+// -- Durable delivery types ----------------------------------------------------
 
 /** Lifecycle of a durable emission. */
 export type AckStatus = 'pending' | 'acked' | 'dropped';
@@ -198,7 +198,7 @@ export interface QueuedEmission extends AnyBridgeEmission {
   ttlMs: number;
 }
 
-// ── Shared memory bus constants ───────────────────────────────────────────────
+// -- Shared memory bus constants -----------------------------------------------
 
 const ENTRY_WORDS = 4; // channel:event, payloadPtr, payloadLen, reserved
 const ENTRY_BYTES = ENTRY_WORDS * 4;
@@ -207,12 +207,12 @@ const DEFAULT_ALLOC_START = 1 * 1024 * 1024; // 1 MB offset to avoid clobbering 
 const POLL_INTERVAL_MS = 0; // as fast as possible; the timer is coalesced by the browser/event loop
 const BUS_WASM_URL = new URL('../bus.wasm', import.meta.url);
 
-// ── Improvement 31: durable queue max size ────────────────────────────────────
+// -- Improvement 31: durable queue max size ------------------------------------
 /** Maximum number of entries kept in the durable queue. Oldest dropped entries
  *  are purged first when the limit is exceeded to prevent unbounded memory growth. */
 const MAX_DURABLE_QUEUE_SIZE = 200;
 
-// ── Improvement 35: emission counter ─────────────────────────────────────────
+// -- Improvement 35: emission counter -----------------------------------------
 /** Monotonically increasing count of all emissions (emit + emitDurable). */
 let _totalEmissions = 0;
 /** Run eviction every N emissions to avoid the per-emit overhead on busy buses. */
@@ -243,7 +243,7 @@ class DualRuntimeBridge extends EventEmitter {
   private readonly encoder = new TextEncoder();
   private readonly decoder = new TextDecoder();
 
-  // ── Dual VM upgrade ───────────────────────────────────────────────────────
+  // -- Dual VM upgrade -------------------------------------------------------
   private _vmTop:    unknown = null;
   private _vmBottom: unknown = null;
   private _vmInterQueue: {
@@ -258,7 +258,7 @@ class DualRuntimeBridge extends EventEmitter {
     super();
     this.setMaxListeners(100);
     void this.initWasm();
-    // ── Quantum compute handler ───────────────────────────────────────────
+    // -- Quantum compute handler -------------------------------------------
     // bridge.emit('lab', 'quantum:run', {algorithm, ansatz, numQubits?})
     // → runs QAOA/VQE state-vector simulation inline
     // → emits 'lab:quantum:result' which dreamOSBus auto-ingests as lab-result
@@ -275,7 +275,7 @@ class DualRuntimeBridge extends EventEmitter {
     });
   }
 
-  // ── WASM bridge initialisation ─────────────────────────────────────────----
+  // -- WASM bridge initialisation ---------------------------------------------
 
   private async initWasm(): Promise<void> {
     if (this.busOnline) return;
@@ -440,7 +440,7 @@ class DualRuntimeBridge extends EventEmitter {
     return true;
   }
 
-  // ── Channel emission ───────────────────────────────────────────────────────
+  // -- Channel emission -------------------------------------------------------
 
   /** Emit an event on a named channel. Primary public API for cross-Engin events. */
   emit(channel: string, event: string, payload: Record<string, unknown>): boolean {
@@ -460,7 +460,7 @@ class DualRuntimeBridge extends EventEmitter {
     return this.channelState.get(channel) ?? null;
   }
 
-  // ── Event subscriptions ────────────────────────────────────────────────────
+  // -- Event subscriptions ----------------------------------------------------
 
   /** Subscribe to a specific channel:event. Returns an unsubscribe function. */
   subscribe(
@@ -477,7 +477,7 @@ class DualRuntimeBridge extends EventEmitter {
     };
   }
 
-  // ── Peer activity ──────────────────────────────────────────────────────────
+  // -- Peer activity ----------------------------------------------------------
 
   /** Subscribe to peer-activity changes. Returns an unsubscribe function. */
   subscribePeerActivity(callback: (peers: ReadonlyArray<PeerState>) => void): UnsubscribeFn {
@@ -491,7 +491,7 @@ class DualRuntimeBridge extends EventEmitter {
     return Array.from(this.peers.values());
   }
 
-  // ── Emission activity ──────────────────────────────────────────────────────
+  // -- Emission activity ------------------------------------------------------
 
   /** Subscribe to all bridge emissions (any channel/event). Used by dreamOSBus. */
   subscribeEventActivity(callback: (emission: AnyBridgeEmission) => void): UnsubscribeFn {
@@ -499,7 +499,7 @@ class DualRuntimeBridge extends EventEmitter {
     return () => { this.emissionListeners.delete(callback); };
   }
 
-  // ── Durable delivery ──────────────────────────────────────────────────────
+  // -- Durable delivery ------------------------------------------------------
 
   /**
    * Emit a cross-Engin event that requires delivery acknowledgement.
@@ -583,7 +583,7 @@ class DualRuntimeBridge extends EventEmitter {
     return Array.from(this.durableQueue.values());
   }
 
-  // ── Improvement 34: getStats ──────────────────────────────────────────────
+  // -- Improvement 34: getStats ----------------------------------------------
 
   /**
    * Return a point-in-time snapshot of bridge statistics.
@@ -617,7 +617,7 @@ class DualRuntimeBridge extends EventEmitter {
     };
   }
 
-  // ── Improvement 36: hasSubscribers ───────────────────────────────────────
+  // -- Improvement 36: hasSubscribers ---------------------------------------
 
   /**
    * Returns true when at least one subscriber is active on the given channel.
@@ -627,7 +627,7 @@ class DualRuntimeBridge extends EventEmitter {
     return (this.peers.get(channel)?.subscriberCount ?? 0) > 0;
   }
 
-  // ── Dual VM API ───────────────────────────────────────────────────────────
+  // -- Dual VM API -----------------------------------------------------------
 
   /**
    * Initialize the top and bottom WASM+GPU VMs plus the inter-VM
@@ -717,7 +717,7 @@ class DualRuntimeBridge extends EventEmitter {
     };
   }
 
-  // ── Test / teardown helpers ────────────────────────────────────────────────
+  // -- Test / teardown helpers ------------------------------------------------
 
   /**
    * Remove all listeners, peers, channel state, and durable queue entries.
@@ -734,7 +734,7 @@ class DualRuntimeBridge extends EventEmitter {
     if (this.wasm?.reset) this.wasm.reset();
   }
 
-  // ── Private helpers ────────────────────────────────────────────────────────
+  // -- Private helpers --------------------------------------------------------
 
   /** Remove durable queue entries that have exceeded their TTL. */
   private _evictExpired(): void {

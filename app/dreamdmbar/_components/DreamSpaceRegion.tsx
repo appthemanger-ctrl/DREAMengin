@@ -15,7 +15,7 @@ import { getAllByKind } from '@/lib/ledger';
 import type { AssetEntry, AssetType } from '@/lib/ledger';
 import DraggableDream from '@/components/dreams/dream.DraggableDream';
 
-// ─── Asset icon helpers ───────────────────────────────────────────────────────
+// --- Asset icon helpers -------------------------------------------------------
 
 function assetIcon(type: AssetType: string) {
   switch (type) {
@@ -44,7 +44,7 @@ export default function DreamSpace() { initialAccountId }: DreamSpaceProps {
   const [previewAsset, setPreviewAsset] = useState<AssetEntry | null>(null);
   const [visibleSuggestionIds, setVisibleSuggestionIds] = useState(() => new Set(SUGGESTED_DREAMS.map((dream: Record<string, unknown>) => dream.id)));
 
-  // ── Ledger asset grid ─────────────────────────────────────────────────────
+  // -- Ledger asset grid -----------------------------------------------------
   const os = useOS();
   const [assetTick, setAssetTick] = useState(0);
   useEffect(() => {
@@ -118,7 +118,7 @@ export default function DreamSpace() { initialAccountId }: DreamSpaceProps {
         boxShadow: '0 18px 40px rgba(0,0,0,0.18)',
       }}
     >
-      {/* ── Shared Asset Ledger Grid ───────────────────────────────────────── */}
+      {/* -- Shared Asset Ledger Grid ----------------------------------------- */}
       {ledgerAssets.length > 0 && (
         <div>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 8 }}>
@@ -174,7 +174,7 @@ export default function DreamSpace() { initialAccountId }: DreamSpaceProps {
         </div>
       )}
 
-      {/* ── Asset Preview Modal ────────────────────────────────────────────── */}
+      {/* -- Asset Preview Modal ---------------------------------------------- */}
       {previewAsset && (
         <div
           role="dialog"

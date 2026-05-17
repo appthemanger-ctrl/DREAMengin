@@ -27,7 +27,7 @@
  * When served from public/ as a static asset the compiled JS is used directly.
  */
 
-// ─── SAB layout constants (kept local to avoid bundler import issues) ─────────
+// --- SAB layout constants (kept local to avoid bundler import issues) ---------
 // These mirror lib/runtime/memory.ts — keep in sync.
 
 const ENTITY_COUNT      = 10_000;
@@ -49,7 +49,7 @@ const OFFSET_AXIS_STATE   = 250_524;  // Int32 — 0=Portrait/Y, 1=Landscape/X
 /** Fixed-point scale for the bar seam slots — mirrors BAR_Y_SCALE in memory.ts. */
 const BAR_Y_SCALE = 100;
 
-// ─── Worker state ─────────────────────────────────────────────────────────────
+// --- Worker state -------------------------------------------------------------
 
 interface Workgroup {
   workerIndex: number;
@@ -76,7 +76,7 @@ let lockedState: Int32Array; // 0 = unlocked, 1 = STATE_LOCKED
 let axisState: Int32Array;   // 0 = Portrait/Y, 1 = Landscape/X
 let telemetry: Float64Array;
 
-// ─── Wasm SIMD stub ───────────────────────────────────────────────────────────
+// --- Wasm SIMD stub -----------------------------------------------------------
 
 /**
  * Simulated f32x4.add — adds velocity to position for four entities at a time.
@@ -111,7 +111,7 @@ function wasmSIMDAddF32x4(
   }
 }
 
-// ─── Wasm engine (optional) ───────────────────────────────────────────────────
+// --- Wasm engine (optional) ---------------------------------------------------
 
 interface WasmExports {
   tickPhysicsSIMD: (posPtr: number, velPtr: number, count: number, deltaTime: number) => void;
@@ -160,7 +160,7 @@ async function tryLoadWasm(wasmUrl: string, memory: WebAssembly.Memory | null: P
   }
 }
 
-// ─── Bounds guard (IDARi / TheBoogieMan audit) ────────────────────────────────
+// --- Bounds guard (IDARi / TheBoogieMan audit) --------------------------------
 
 /**
  * Verify that index falls within the worker's assigned Workgroup.
@@ -179,7 +179,7 @@ function assertInBounds(index: number: boolean) {
   return false;
 }
 
-// ─── Physics tick ─────────────────────────────────────────────────────────────
+// --- Physics tick -------------------------------------------------------------
 
 function tick(: void) {
   if (!workgroup || !sab) return;
@@ -211,7 +211,7 @@ function tick(: void) {
   const count = endIndex - startIndex;
 
   if (wasmExports) {
-    // ── Wasm SIMD path: near-native physics via AssemblyScript ────────────
+    // -- Wasm SIMD path: near-native physics via AssemblyScript ------------
     // posX/velX start at their respective byte offsets inside the SAB.
     // The Wasm module operates on the same memory via its shared WebAssembly.Memory.
     wasmExports.tickPhysicsSIMD(
@@ -233,7 +233,7 @@ function tick(: void) {
       1 / 60,
     );
   } else {
-    // ── JS stub path: semantically equivalent, used as fallback ──────────
+    // -- JS stub path: semantically equivalent, used as fallback ----------
     wasmSIMDAddF32x4(posX, velX, startIndex, endIndex);
     wasmSIMDAddF32x4(posY, velY, startIndex, endIndex);
     wasmSIMDAddF32x4(posZ, velZ, startIndex, endIndex);
@@ -274,7 +274,7 @@ function tick(: void) {
   });
 }
 
-// ─── RAF loop ─────────────────────────────────────────────────────────────────
+// --- RAF loop -----------------------------------------------------------------
 
 function rafLoop(: void) {
   if (!running) return;
@@ -282,7 +282,7 @@ function rafLoop(: void) {
   rafHandle = requestAnimationFrame(rafLoop);
 }
 
-// ─── Message handler ──────────────────────────────────────────────────────────
+// --- Message handler ----------------------------------------------------------
 
 self.onmessage = (evt: MessageEvent) => {
   const msg = evt.data as {

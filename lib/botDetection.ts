@@ -12,7 +12,7 @@
 
 import { slog, slogVariance, slogEntropy } from './slog';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 export interface Point {
   x: number;
@@ -52,7 +52,7 @@ export interface BotSessionResult {
   signals: string[];
 }
 
-// ─── Internal helpers ────────────────────────────────────────────────────────
+// --- Internal helpers --------------------------------------------------------
 
 /** Fit a line y = mx + b through the first and last point. */
 function fitLine(points: Point[]:) { m: number; b: number } {
@@ -107,7 +107,7 @@ function normalisePath(deviations: number[], n = 20: number[]) {
   return result;
 }
 
-// ─── In-memory swipe history for cross-similarity ────────────────────────────
+// --- In-memory swipe history for cross-similarity ----------------------------
 
 const MAX_HISTORY = 5;
 const swipeHistory: number[][] = [];
@@ -117,12 +117,12 @@ function updateHistory(normPath: number[]) {
   if (swipeHistory.length > MAX_HISTORY) swipeHistory.shift();
 }
 
-// ─── Perfect-line trap state ──────────────────────────────────────────────────
+// --- Perfect-line trap state --------------------------------------------------
 
 let perfectLineStreak = 0;
 let frozenUntil       = 0; // timestamp (Date.now())
 
-// ─── analyzeSwipe ────────────────────────────────────────────────────────────
+// --- analyzeSwipe ------------------------------------------------------------
 
 /**
  * analyzeSwipe(points)
@@ -147,11 +147,11 @@ export function analyzeSwipe(points: Point[]: SwipeAnalysis) {
   const vertical = m === Infinity;
   const lineX    = b; // reused as lineX when vertical
 
-  // ── Perpendicular deviations ──
+  // -- Perpendicular deviations --
   const deviations = points.map((p: Record<string, unknown>) => perpDistance(p, m, b, vertical, lineX));
   const meanDev    = deviations.reduce(a: Record<string, unknown>, c: Record<string, unknown> => a + c, 0) / deviations.length;
 
-  // ── Coarse-graining invariance ──
+  // -- Coarse-graining invariance --
   const half   = Math.floor(deviations.length / 2);
   const first  = deviations.slice(0, half);
   const second = deviations.slice(half);
@@ -159,10 +159,10 @@ export function analyzeSwipe(points: Point[]: SwipeAnalysis) {
   const meanSecond = second.reduce(a: Record<string, unknown>, c: Record<string, unknown> => a + c, 0) / (second.length || 1);
   const coarseGrainDiff = Math.abs(meanFirst - meanSecond);
 
-  // ── Entropy ──
+  // -- Entropy --
   const entropy = slogEntropy(deviations);
 
-  // ── Velocity + Jerk (slog-transformed) ──
+  // -- Velocity + Jerk (slog-transformed) --
   const velocities: number[] = [];
   for (let i = 1; i < points.length; i++) {
     const dt = points[i].t - points[i - 1].t;
@@ -180,7 +180,7 @@ export function analyzeSwipe(points: Point[]: SwipeAnalysis) {
   }
   const slogJerk = jerks.length > 0 ? slog(jerks.reduce(a: Record<string, unknown>, c: Record<string, unknown> => a + c, 0) / jerks.length) : 0;
 
-  // ── Cross-path similarity ──
+  // -- Cross-path similarity --
   const normPath   = normalisePath(deviations);
   let crossSim     = 0;
   if (swipeHistory.length > 0) {
@@ -189,7 +189,7 @@ export function analyzeSwipe(points: Point[]: SwipeAnalysis) {
   }
   updateHistory(normPath);
 
-  // ── Perfect-line trap ──
+  // -- Perfect-line trap --
   const now = Date.now();
   if (now < frozenUntil) {
     return {
@@ -224,7 +224,7 @@ export function analyzeSwipe(points: Point[]: SwipeAnalysis) {
     perfectLineStreak = 0;
   }
 
-  // ── Decision ──
+  // -- Decision --
   const signals: string[] = [];
   let botScore = 0;
 
@@ -250,7 +250,7 @@ export function analyzeSwipe(points: Point[]: SwipeAnalysis) {
   };
 }
 
-// ─── tallyView ───────────────────────────────────────────────────────────────
+// --- tallyView ---------------------------------------------------------------
 
 /**
  * tallyView(durationMs)
@@ -266,7 +266,7 @@ export function tallyView(durationMs: number: ViewTally) {
   };
 }
 
-// ─── isBotSession ────────────────────────────────────────────────────────────
+// --- isBotSession ------------------------------------------------------------
 
 export interface SwipeRecord {
   analysis: SwipeAnalysis;

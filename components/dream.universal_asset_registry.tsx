@@ -41,7 +41,7 @@ import {
   Eye, Download, Settings, Zap, Grid, List,
 } from 'lucide-react';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 /** A row from the global_registry table (GAL hub). */
 export interface RegistryEntry {
@@ -91,7 +91,7 @@ type SortMode = 'newest' | 'oldest' | 'alphabetical' | 'type';
 /** View mode for the asset grid. */
 type ViewMode = 'grid' | 'list';
 
-// ── Constants ─────────────────────────────────────────────────────────────────
+// -- Constants -----------------------------------------------------------------
 
 const ACCENT = '#c8981a'; // Gold — canonical DREAMengin premium accent
 const ACCENT_BG = 'rgba(200,152,26,0.08)';
@@ -133,7 +133,7 @@ function formatTimestamp(iso: string: string) {
   }
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// -- Component -----------------------------------------------------------------
 
 export interface UniversalAssetRegistryProps {
   /** Optional compact mode — hides the header and reduces padding. */
@@ -151,39 +151,39 @@ export default function UniversalAssetRegistry() {
 }: UniversalAssetRegistryProps) {
   const { record: forgeRecord } = useForgeActivity({ enginId: 'registry' });
 
-  // ── Core state ──────────────────────────────────────────────────────────────
+  // -- Core state --------------------------------------------------------------
   const [entries, setEntries] = useState<EnrichedEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ── Search & filter ─────────────────────────────────────────────────────────
+  // -- Search & filter ---------------------------------------------------------
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<SortMode>('newest');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [showFilters, setShowFilters] = useState(false);
 
-  // ── Detail panel ────────────────────────────────────────────────────────────
+  // -- Detail panel ------------------------------------------------------------
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  // ── CRUD state ──────────────────────────────────────────────────────────────
+  // -- CRUD state --------------------------------------------------------------
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editLabel, setEditLabel] = useState('');
   const [deleting, setDeleting] = useState<string | null>(null);
 
-  // ── Register new asset ──────────────────────────────────────────────────────
+  // -- Register new asset ------------------------------------------------------
   const [showRegister, setShowRegister] = useState(false);
   const [newType, setNewType] = useState('');
   const [newInternalId, setNewInternalId] = useState('');
   const [newLabel, setNewLabel] = useState('');
   const [registering, setRegistering] = useState(false);
 
-  // ── Refs ────────────────────────────────────────────────────────────────────
+  // -- Refs --------------------------------------------------------------------
   const channelRef = useRef<ReturnType<ReturnType<typeof createClient>['channel']> | null>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
 
-  // ── Data fetching ───────────────────────────────────────────────────────────
+  // -- Data fetching -----------------------------------------------------------
 
   const fetchRegistry = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -266,12 +266,12 @@ export default function UniversalAssetRegistry() {
     }
   }, []);
 
-  // ── Initial load ────────────────────────────────────────────────────────────
+  // -- Initial load ------------------------------------------------------------
   useEffect(() => {
     fetchRegistry();
   }, [fetchRegistry]);
 
-  // ── Realtime subscription ───────────────────────────────────────────────────
+  // -- Realtime subscription ---------------------------------------------------
   useEffect(() => {
     const supabase = createClient();
     const channel = supabase
@@ -292,7 +292,7 @@ export default function UniversalAssetRegistry() {
     };
   }, [fetchRegistry]);
 
-  // ── Computed: unique categories ─────────────────────────────────────────────
+  // -- Computed: unique categories ---------------------------------------------
   const categories = useMemo(() => {
     const types = new Map<string, number>();
     for (const e of entries) {
@@ -303,7 +303,7 @@ export default function UniversalAssetRegistry() {
       .map(([type, count]) => ({ type, count, ...getTypeMeta(type) }));
   }, [entries]);
 
-  // ── Computed: filtered & sorted entries ─────────────────────────────────────
+  // -- Computed: filtered & sorted entries -------------------------------------
   const filteredEntries = useMemo(() => {
     let result = entries;
 
@@ -341,7 +341,7 @@ export default function UniversalAssetRegistry() {
     return result;
   }, [entries, activeCategory, searchQuery, sortMode]);
 
-  // ── Stats ───────────────────────────────────────────────────────────────────
+  // -- Stats -------------------------------------------------------------------
   const stats = useMemo(() => {
     const total = entries.length;
     const gameAssets = entries.filter(e => e.object_type === 'game_asset').length;
@@ -355,7 +355,7 @@ export default function UniversalAssetRegistry() {
     return { total, gameAssets, withBindings, withDna, recentCount, typeCount: categories.length };
   }, [entries, categories]);
 
-  // ── CRUD handlers ───────────────────────────────────────────────────────────
+  // -- CRUD handlers -----------------------------------------------------------
 
   const handleRegister = useCallback(async () => {
     if (!newType.trim() || !newInternalId.trim() || !newLabel.trim()) return;
@@ -446,7 +446,7 @@ export default function UniversalAssetRegistry() {
     setExpandedId(prev => prev === id ? null : id);
   }, []);
 
-  // ── Render helpers ──────────────────────────────────────────────────────────
+  // -- Render helpers ----------------------------------------------------------
 
   const renderStatCard = (label: string, value: number | string, icon: React.ReactNode, color: string) => (
     <div
@@ -878,11 +878,11 @@ export default function UniversalAssetRegistry() {
     );
   };
 
-  // ── Main render ─────────────────────────────────────────────────────────────
+  // -- Main render -------------------------------------------------------------
 
   return (
     <div style={{ padding: compact ? '8px' : '20px 16px', maxWidth: 960, margin: '0 auto' }}>
-      {/* ── Header ────────────────────────────────────────────────────────── */}
+      {/* -- Header ---------------------------------------------------------- */}
       {!compact && (
         <div style={{ marginBottom: 20 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -914,7 +914,7 @@ export default function UniversalAssetRegistry() {
         </div>
       )}
 
-      {/* ── Error banner ──────────────────────────────────────────────────── */}
+      {/* -- Error banner ---------------------------------------------------- */}
       {error && (
         <div style={{
           padding: '10px 14px',
@@ -945,7 +945,7 @@ export default function UniversalAssetRegistry() {
         </div>
       )}
 
-      {/* ── Stats dashboard ───────────────────────────────────────────────── */}
+      {/* -- Stats dashboard ------------------------------------------------- */}
       {!loading && entries.length > 0 && (
         <div style={{
           display: 'grid',
@@ -962,7 +962,7 @@ export default function UniversalAssetRegistry() {
         </div>
       )}
 
-      {/* ── Toolbar: Search + Filter + Actions ────────────────────────────── */}
+      {/* -- Toolbar: Search + Filter + Actions ------------------------------ */}
       <div style={{
         display: 'flex', flexWrap: 'wrap', gap: 8,
         marginBottom: 14, alignItems: 'center',
@@ -1103,7 +1103,7 @@ export default function UniversalAssetRegistry() {
         </button>
       </div>
 
-      {/* ── Category tabs ─────────────────────────────────────────────────── */}
+      {/* -- Category tabs --------------------------------------------------- */}
       {showFilters && categories.length > 0 && (
         <div style={{
           display: 'flex', flexWrap: 'wrap', gap: 6,
@@ -1145,7 +1145,7 @@ export default function UniversalAssetRegistry() {
         </div>
       )}
 
-      {/* ── Register new asset form ───────────────────────────────────────── */}
+      {/* -- Register new asset form ----------------------------------------- */}
       {showRegister && (
         <div style={{
           marginBottom: 16, padding: '16px',
@@ -1232,7 +1232,7 @@ export default function UniversalAssetRegistry() {
         </div>
       )}
 
-      {/* ── Loading state ─────────────────────────────────────────────────── */}
+      {/* -- Loading state --------------------------------------------------- */}
       {loading && (
         <div style={{
           display: 'flex', flexDirection: 'column',
@@ -1246,7 +1246,7 @@ export default function UniversalAssetRegistry() {
         </div>
       )}
 
-      {/* ── Empty state ───────────────────────────────────────────────────── */}
+      {/* -- Empty state ----------------------------------------------------- */}
       {!loading && filteredEntries.length === 0 && (
         <div style={{
           display: 'flex', flexDirection: 'column',
@@ -1281,7 +1281,7 @@ export default function UniversalAssetRegistry() {
         </div>
       )}
 
-      {/* ── Asset grid / list ─────────────────────────────────────────────── */}
+      {/* -- Asset grid / list ----------------------------------------------- */}
       {!loading && filteredEntries.length > 0 && (
         <>
           {/* Result count */}
@@ -1309,7 +1309,7 @@ export default function UniversalAssetRegistry() {
         </>
       )}
 
-      {/* ── Footer / live indicator ───────────────────────────────────────── */}
+      {/* -- Footer / live indicator ----------------------------------------- */}
       {!loading && (
         <div style={{
           marginTop: 20,
@@ -1330,7 +1330,7 @@ export default function UniversalAssetRegistry() {
   );
 }
 
-// ── Shared inline styles (detail panel fields) ────────────────────────────────
+// -- Shared inline styles (detail panel fields) --------------------------------
 
 const detailFieldStyle: React.CSSProperties = {
   padding: '8px 10px',

@@ -105,7 +105,7 @@ export class LLMNPCBrain {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 export interface DialogueLine {
   speaker: string;
@@ -162,7 +162,7 @@ export class EmergentDialogue {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 export interface PersonalityStoreBackend {
   load(id: string): Promise<NPCPersonality | null>;

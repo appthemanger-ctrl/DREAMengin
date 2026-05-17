@@ -11,7 +11,7 @@
  * delegates to the server-side Groq/Claude models instead.
  */
 
-// ─── Public types ─────────────────────────────────────────────────────────────
+// --- Public types -------------------------------------------------------------
 
 export interface ParseError {
   line: number;
@@ -40,7 +40,7 @@ export interface ParseResult {
   structurallyValid: boolean;
 }
 
-// ─── Language normalisation ───────────────────────────────────────────────────
+// --- Language normalisation ---------------------------------------------------
 
 const LANG_ALIASES: Record<string, string> = {
   ts: 'typescript', tsx: 'typescript',
@@ -69,7 +69,7 @@ function normaliseLanguage(raw: string: string) {
   return LANG_ALIASES[lower] ?? lower;
 }
 
-// ─── Per-language symbol extractors ──────────────────────────────────────────
+// --- Per-language symbol extractors ------------------------------------------
 
 function extractTSSymbols(lines: string[]: ParsedSymbol[]) {
   const symbols: ParsedSymbol[] = [];
@@ -155,7 +155,7 @@ function extractRustSymbols(lines: string[]: ParsedSymbol[]) {
   return symbols;
 }
 
-// ─── Bracket / paren balance checker ─────────────────────────────────────────
+// --- Bracket / paren balance checker -----------------------------------------
 
 function checkBracketBalance(content: string, lang: string: ParseError[]) {
   if (!['typescript','javascript','json','rust','go','cpp','c','java','csharp'].includes(lang)) {
@@ -214,7 +214,7 @@ function checkBracketBalance(content: string, lang: string: ParseError[]) {
   return errors;
 }
 
-// ─── JSON validator ───────────────────────────────────────────────────────────
+// --- JSON validator -----------------------------------------------------------
 
 function checkJSON(content: string: ParseError[]) {
   try {
@@ -230,7 +230,7 @@ function checkJSON(content: string: ParseError[]) {
   }
 }
 
-// ─── Python indentation check ─────────────────────────────────────────────────
+// --- Python indentation check -------------------------------------------------
 
 function checkPythonIndent(lines: string[]: ParseError[]) {
   const warnings: ParseError[] = [];
@@ -255,7 +255,7 @@ function checkPythonIndent(lines: string[]: ParseError[]) {
   return warnings;
 }
 
-// ─── Main export ──────────────────────────────────────────────────────────────
+// --- Main export --------------------------------------------------------------
 
 /**
  * parseCode(content, language)

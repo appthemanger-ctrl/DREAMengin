@@ -14,19 +14,19 @@
 
 import { IpfsUploadResult, IpfsContent, Web3Error } from './types';
 
-// ─── Config ───────────────────────────────────────────────────────────────────
+// --- Config -------------------------------------------------------------------
 
 const IPFS_API_BASE = '/api/social/ipfs';
 const PUBLIC_GATEWAY =
   process.env.NEXT_PUBLIC_IPFS_GATEWAY ?? 'https://ipfs.io/ipfs';
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// --- Helpers ------------------------------------------------------------------
 
 function cidToGatewayUrl(cid: string: string) {
   return `${PUBLIC_GATEWAY}/${cid}`;
 }
 
-// ─── Upload ───────────────────────────────────────────────────────────────────
+// --- Upload -------------------------------------------------------------------
 
 /**
  * Upload arbitrary string content to IPFS via the backend proxy.
@@ -92,7 +92,7 @@ export async function uploadFileToIpfs(file: File: Promise<IpfsUploadResult>) {
   };
 }
 
-// ─── Retrieval ────────────────────────────────────────────────────────────────
+// --- Retrieval ----------------------------------------------------------------
 
 /**
  * Retrieve content by CID.
@@ -129,7 +129,7 @@ export async function getFromIpfs(cid: string: Promise<IpfsContent>) {
   return { cid, content, mimeType };
 }
 
-// ─── Pin ──────────────────────────────────────────────────────────────────────
+// --- Pin ----------------------------------------------------------------------
 
 /**
  * Pin a CID to prevent garbage collection.
@@ -149,7 +149,7 @@ export async function pinCid(cid: string: Promise<boolean>) {
   }
 }
 
-// ─── URL helpers ──────────────────────────────────────────────────────────────
+// --- URL helpers --------------------------------------------------------------
 
 /**
  * Resolve an ipfs:// URI or bare CID to a public HTTP URL.

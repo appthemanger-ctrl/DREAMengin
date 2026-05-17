@@ -26,7 +26,7 @@ import { PostFXManager } from '@/lib/gameengin/post-fx';
 
 type Phase = 'menu' | 'playing' | 'gameover';
 
-// ─── Track constants ──────────────────────────────────────────────────────────
+// --- Track constants ----------------------------------------------------------
 const LANE_COUNT    = 5;          // five lanes
 const LANE_WIDTH    = 3.0;        // Babylon units per lane
 const TRACK_WIDTH   = LANE_COUNT * LANE_WIDTH; // 15 BU wide
@@ -131,7 +131,7 @@ export default function NeonDrift() {
     };
   }, [phase]);
 
-  // ── Elite engine initialization ──────────────────────────────────────────
+  // -- Elite engine initialization ------------------------------------------
   useEffect(() => {
     if (!canvasRef.current || phase !== 'playing') return;
 
@@ -154,7 +154,7 @@ export default function NeonDrift() {
     const init = async () => {
       if (!canvasRef.current) return;
 
-      // ── Engine (WebGPU-first) ──────────────────────────────────────────────
+      // -- Engine (WebGPU-first) ----------------------------------------------
       try {
         elite = new EliteGameEngine(canvasRef.current);
         await elite.init();
@@ -169,11 +169,11 @@ export default function NeonDrift() {
         scene.clearColor = new BABYLON.Color4(0.01, 0.01, 0.05, 1);
         setRenderInfo(elite.isUsingWebGPU ? 'WebGPU · elite engine' : 'WebGL2 · elite engine');
 
-        // ── Camera ───────────────────────────────────────────────────────────
+        // -- Camera -----------------------------------------------------------
         const camera = new BABYLON.ArcRotateCamera('cam', -Math.PI / 2, Math.PI / 3.5, 28,
           new BABYLON.Vector3(0, 0, -5), scene);
 
-        // ── Lighting — realistic multi-source neon setup ───────────────────────
+        // -- Lighting — realistic multi-source neon setup -----------------------
         const ambientLight = new BABYLON.HemisphericLight('ambient',
           new BABYLON.Vector3(0, 1, 0), scene);
         ambientLight.intensity = 0.2;
@@ -207,7 +207,7 @@ export default function NeonDrift() {
         try { scene.createDefaultEnvironment({ createGround: false, createSkybox: false }); } catch { /* graceful */ }
         scene.environmentIntensity = 0.5;
 
-        // ── Track tiles (ring buffer) — wet road PBR ──────────────────────────
+        // -- Track tiles (ring buffer) — wet road PBR --------------------------
         const trackMat = new BABYLON.PBRMaterial('track', scene);
         trackMat.albedoColor = new BABYLON.Color3(0.03, 0.08, 0.12);
         trackMat.metallic = 0.15;
@@ -260,7 +260,7 @@ export default function NeonDrift() {
         edgeR.material = edgeMat;
         edgeR.receiveShadows = true;
 
-        // ── Car — PBR metallic body with clear-coat ──────────────────────────
+        // -- Car — PBR metallic body with clear-coat --------------------------
         car = BABYLON.MeshBuilder.CreateBox('car', { width: 1.8, height: 0.7, depth: 3.2 }, scene);
         car.position.y = 0.5;
         const carMat = new BABYLON.PBRMaterial('carMat', scene);
@@ -301,7 +301,7 @@ export default function NeonDrift() {
           w.material = wheelMat;
         }
 
-        // ── Particle trail — higher-fidelity ──────────────────────────────────
+        // -- Particle trail — higher-fidelity ----------------------------------
         trailPS = new BABYLON.ParticleSystem('trail', 500, scene);
         trailPS.emitter = car;
         trailPS.minEmitBox = new BABYLON.Vector3(-0.6, -0.3, -1.6);
@@ -322,7 +322,7 @@ export default function NeonDrift() {
         trailPS.blendMode = BABYLON.ParticleSystem.BLENDMODE_ADD;
         trailPS.start();
 
-        // ── Obstacle pool — PBR neon materials ────────────────────────────────
+        // -- Obstacle pool — PBR neon materials --------------------------------
         const obsMat = [
           (() => { const m = new BABYLON.PBRMaterial('obs0', scene!);
             m.albedoColor = new BABYLON.Color3(0.85, 0.05, 0.05);
@@ -354,7 +354,7 @@ export default function NeonDrift() {
           obstacles.push({ mesh, lane: 0, type, active: false, z: 0 });
         }
 
-        // ── Boost gate pool — PBR emissive ────────────────────────────────────
+        // -- Boost gate pool — PBR emissive ------------------------------------
         const boostMat = new BABYLON.PBRMaterial('boost', scene);
         boostMat.albedoColor = new BABYLON.Color3(0.15, 0.85, 0.4);
         boostMat.metallic = 0.3;
@@ -374,7 +374,7 @@ export default function NeonDrift() {
           boostGates.push({ meshL: mL, meshR: mR, active: false, z: 0 });
         }
 
-        // ── Post-processing — full realistic pipeline ─────────────────────────
+        // -- Post-processing — full realistic pipeline -------------------------
         try {
           postFx = new PostFXManager(scene, camera as unknown as BABYLON.Camera);
           postFxRef.current = postFx;
@@ -384,10 +384,10 @@ export default function NeonDrift() {
           postFx.applyBudget(elite.budget);
         } catch { /* post-fx optional */ }
 
-        // ── AI Director ───────────────────────────────────────────────────────
+        // -- AI Director -------------------------------------------------------
         await directorRef.current.init();
 
-        // ── DualSense ─────────────────────────────────────────────────────────
+        // -- DualSense ---------------------------------------------------------
         dualSense = new DualSenseManager(scene, engine!, setStatus);
         dualSenseRef.current = dualSense;
         await dualSense.init();
@@ -427,21 +427,21 @@ export default function NeonDrift() {
           postFx?.applyBudget(budget);
         });
 
-        // ── Game loop ─────────────────────────────────────────────────────────
+        // -- Game loop ---------------------------------------------------------
         renderObserver = scene.onBeforeRenderObservable.add(() => {
           if (phaseRef.current !== 'playing' || !car || !engine) return;
           frameTick++;
 
           const input = dualSense?.getState();
 
-          // ── Speed control ─────────────────────────────────────────────────
+          // -- Speed control -------------------------------------------------
           const dirLevel = directorRef.current.level;
           const baseAccel = 0.18 + dirLevel * 0.22; // harder = faster base
           const r2 = input?.triggers.r2 ?? 0.6;
           const accel = r2 > 0.1 ? r2 * baseAccel : baseAccel * 0.4;
           speedRef.current = Math.max(0, Math.min(30 + dirLevel * 15, speedRef.current + accel - 0.12));
 
-          // ── Car position ──────────────────────────────────────────────────
+          // -- Car position --------------------------------------------------
           const targetX = laneX(carLaneRef.current);
 
           // DualSense gyro/stick lane switch
@@ -455,17 +455,17 @@ export default function NeonDrift() {
           carXRef.current += (targetX - carXRef.current) * 0.18;
           car.position.x = carXRef.current;
 
-          // ── Forward movement ──────────────────────────────────────────────
+          // -- Forward movement ----------------------------------------------
           const forwardDelta = speedRef.current * 0.06;
           distanceRef.current += forwardDelta;
 
-          // ── Camera tracks car ─────────────────────────────────────────────
+          // -- Camera tracks car ---------------------------------------------
           camera.target.x = carXRef.current * 0.6;
           camera.target.z = car.position.z - 5;
           raceLight.position.x = carXRef.current;
           raceLight.position.z = car.position.z + 5;
 
-          // ── Track ring-buffer scroll ──────────────────────────────────────
+          // -- Track ring-buffer scroll --------------------------------------
           const tileZ = distanceRef.current;
           for (const tile of trackTiles) {
             // Reset tiles behind player to ahead
@@ -474,7 +474,7 @@ export default function NeonDrift() {
             }
           }
 
-          // ── Obstacle spawning ─────────────────────────────────────────────
+          // -- Obstacle spawning ---------------------------------------------
           if (distanceRef.current > nextObstacleZ) {
             const spawnZ = distanceRef.current + 80 + Math.random() * 20;
             nextObstacleZ = distanceRef.current + 15 + (1 - dirLevel) * 20;
@@ -492,7 +492,7 @@ export default function NeonDrift() {
             }
           }
 
-          // ── Boost gate spawning ───────────────────────────────────────────
+          // -- Boost gate spawning -------------------------------------------
           if (distanceRef.current > nextBoostZ) {
             nextBoostZ = distanceRef.current + 60 + Math.random() * 40;
             const pool = boostGates.filter(b => !b.active);
@@ -510,7 +510,7 @@ export default function NeonDrift() {
             }
           }
 
-          // ── Collision detection ───────────────────────────────────────────
+          // -- Collision detection -------------------------------------------
           if (invincibleRef.current > 0) {
             invincibleRef.current--;
             // Flicker car during invincibility
@@ -571,27 +571,27 @@ export default function NeonDrift() {
             }
           }
 
-          // ── Score ─────────────────────────────────────────────────────────
+          // -- Score ---------------------------------------------------------
           if (frameTick % 4 === 0) {
             scoreRef.current += Math.floor(speedRef.current * comboRef.current);
             setScore(scoreRef.current);
           }
 
-          // ── Particle trail intensity tied to speed ────────────────────────
+          // -- Particle trail intensity tied to speed ------------------------
           if (trailPS) {
             trailPS.emitRate = Math.floor(speedRef.current * 6);
             trailPS.minEmitPower = speedRef.current * 0.2;
             trailPS.maxEmitPower = speedRef.current * 0.5;
           }
 
-          // ── High-speed haptic feedback ────────────────────────────────────
+          // -- High-speed haptic feedback ------------------------------------
           const now = Date.now();
           if (speedRef.current > 20 && now - lastRumble > 400) {
             dualSense?.rumble(speedRef.current / 50, 60);
             lastRumble = now;
           }
 
-          // ── AI Director update ────────────────────────────────────────────
+          // -- AI Director update --------------------------------------------
           if (frameTick % 30 === 0) {
             const ds = directorRef.current.update({
               deaths: deathsRef.current,
@@ -603,7 +603,7 @@ export default function NeonDrift() {
             setDirectorLabel(ds.label);
           }
 
-          // ── Car lean during lane change ───────────────────────────────────
+          // -- Car lean during lane change -----------------------------------
           const leanTarget = (targetX - carXRef.current) * 0.15;
           car.rotation.z = car.rotation.z + (leanTarget - car.rotation.z) * 0.15;
 

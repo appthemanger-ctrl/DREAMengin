@@ -27,7 +27,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-// ── Types ────────────────────────────────────────────────────────────────────
+// -- Types --------------------------------------------------------------------
 
 export interface DualSenseState {
   connected: boolean;
@@ -68,7 +68,7 @@ export interface DualSenseConfig {
   debug?: boolean;
 }
 
-// ── Hook ─────────────────────────────────────────────────────────────────────
+// -- Hook ---------------------------------------------------------------------
 
 export function useDualSense(config: DualSenseConfig =) {} {
   const {
@@ -110,7 +110,7 @@ export function useDualSense(config: DualSenseConfig =) {} {
   const rafRef = useRef<number | null>(null);
   const isMobile = useRef(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
 
-  // ── Helper: Check if gamepad is DualSense ────────────────────────────────
+  // -- Helper: Check if gamepad is DualSense --------------------------------
   const isDualSense = (gamepad: Gamepad): boolean => {
     const id = gamepad.id.toLowerCase();
     return (
@@ -121,7 +121,7 @@ export function useDualSense(config: DualSenseConfig =) {} {
     );
   };
 
-  // ── Helper: Apply dead zone to analog value ──────────────────────────────
+  // -- Helper: Apply dead zone to analog value ------------------------------
   const applyDeadZone = (value: number): number => {
     if (Math.abs(value) < deadZone) return 0;
     // Scale remaining range to 0-1
@@ -129,7 +129,7 @@ export function useDualSense(config: DualSenseConfig =) {} {
     return sign * ((Math.abs(value) - deadZone) / (1 - deadZone));
   };
 
-  // ── Helper: Read gyro data (mobile) ──────────────────────────────────────
+  // -- Helper: Read gyro data (mobile) --------------------------------------
   const readGyro = (gamepad: Gamepad): { x: number; y: number; z: number } => {
     if (!enableGyro || !isMobile.current) {
       return { x: 0, y: 0, z: 0 };
@@ -148,7 +148,7 @@ export function useDualSense(config: DualSenseConfig =) {} {
     return { x: 0, y: 0, z: 0 };
   };
 
-  // ── Helper: Read gamepad state ───────────────────────────────────────────
+  // -- Helper: Read gamepad state -------------------------------------------
   const readGamepadState = (gamepad: Gamepad): DualSenseState => {
     const axes = gamepad.axes;
     const buttons = gamepad.buttons;
@@ -191,7 +191,7 @@ export function useDualSense(config: DualSenseConfig =) {} {
     };
   };
 
-  // ── Poll loop ────────────────────────────────────────────────────────────
+  // -- Poll loop ------------------------------------------------------------
   const poll = () => {
     if (typeof navigator === 'undefined' || !navigator.getGamepads) return;
 
@@ -209,7 +209,7 @@ export function useDualSense(config: DualSenseConfig =) {} {
     rafRef.current = requestAnimationFrame(poll);
   };
 
-  // ── Rumble/Haptic feedback ───────────────────────────────────────────────
+  // -- Rumble/Haptic feedback -----------------------------------------------
   const rumble = (intensity: number, duration: number = 100) => {
     if (!enableHaptics || typeof navigator === 'undefined') return;
 
@@ -232,7 +232,7 @@ export function useDualSense(config: DualSenseConfig =) {} {
     }
   };
 
-  // ── Visual feedback (LED simulation) ─────────────────────────────────────
+  // -- Visual feedback (LED simulation) -------------------------------------
   const showFeedback = (color: string = 'neon', pattern: 'pulse' | 'flash' | 'solid' = 'pulse') => {
     if (debug) {
       console.log(`[DualSense] Visual feedback: ${color} (${pattern}) - LED control limited on mobile`);
@@ -246,7 +246,7 @@ export function useDualSense(config: DualSenseConfig =) {} {
     }
   };
 
-  // ── Connect/disconnect handlers ──────────────────────────────────────────
+  // -- Connect/disconnect handlers ------------------------------------------
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -324,7 +324,7 @@ export function useDualSense(config: DualSenseConfig =) {} {
   };
 }
 
-// ── Class-based API (for non-React contexts) ─────────────────────────────────
+// -- Class-based API (for non-React contexts) ---------------------------------
 
 export class DualSenseManager {
   private gamepadIndex = -1;

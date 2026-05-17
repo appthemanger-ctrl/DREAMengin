@@ -89,7 +89,7 @@ function labelFor(subsystemId: string: string) {
   return SUBSYSTEM_LABELS[subsystemId] ?? `⬡ ${subsystemId}`;
 }
 
-// ─── Session Pattern Engine ───────────────────────────────────────────────────
+// --- Session Pattern Engine ---------------------------------------------------
 
 export class SessionPatternEngine {
   /** Bigram counts: transitions[from][to] = count */
@@ -101,7 +101,7 @@ export class SessionPatternEngine {
 
   private tfReady = false;
 
-  // ── Lifecycle ────────────────────────────────────────────────────────────
+  // -- Lifecycle ------------------------------------------------------------
 
   async init(): Promise<void> {
     try {
@@ -123,7 +123,7 @@ export class SessionPatternEngine {
     }
   }
 
-  // ── Ingestion ────────────────────────────────────────────────────────────
+  // -- Ingestion ------------------------------------------------------------
 
   /**
    * Ingest a subsystem activation event.
@@ -147,7 +147,7 @@ export class SessionPatternEngine {
     }
   }
 
-  // ── Prediction ───────────────────────────────────────────────────────────
+  // -- Prediction -----------------------------------------------------------
 
   /**
    * Predict the top-N most likely next subsystem activations given the current
@@ -250,7 +250,7 @@ export class SessionPatternEngine {
     this.subsystemsSeen.length = 0;
   }
 
-  // ── Persistence ───────────────────────────────────────────────────────────
+  // -- Persistence -----------------------------------------------------------
 
   /**
    * Exports the learned bigram transition matrix as a plain JSON-serialisable
@@ -283,7 +283,7 @@ export class SessionPatternEngine {
     }
   }
 
-  // ── Cold-start helpers ────────────────────────────────────────────────────
+  // -- Cold-start helpers ----------------------------------------------------
 
   private coldStartDefaults(subsystemId: string): [string, number][] {
     return COLD_START_WEIGHTS[subsystemId] ?? DEFAULT_COLD_START;
@@ -299,7 +299,7 @@ export class SessionPatternEngine {
       }));
   }
 
-  // ── TF.js normalisation ───────────────────────────────────────────────────
+  // -- TF.js normalisation ---------------------------------------------------
 
   /**
    * Uses TF.js softmax-like normalisation for sharper probability separation

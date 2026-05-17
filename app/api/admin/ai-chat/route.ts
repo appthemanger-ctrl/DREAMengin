@@ -25,7 +25,7 @@ function deny(msg: string, status: number) {
   return NextResponse.json({ error: msg }, { status });
 }
 
-// ── System prompts ────────────────────────────────────────────────────────────
+// -- System prompts ------------------------------------------------------------
 
 // IDARi speaks in actionable engineering terms: cause → impact → fix → verification.
 // It outputs patch plans (file list + minimal diffs), not vague advice.
@@ -67,7 +67,7 @@ You log all decisions with timestamps and actor identity.
 You flag policy risks (privacy, abuse vectors) proactively.
 Be clear, fair, and thorough. The person you are speaking with is the owner/admin of the platform.`;
 
-// ── Route handler ─────────────────────────────────────────────────────────────
+// -- Route handler -------------------------------------------------------------
 
 export async function POST(request: Request) {
   // 1. Check permanent lockout (isAdminLocked is async)

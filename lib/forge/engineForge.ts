@@ -8,7 +8,7 @@
 import { createEventBus, type EventBus } from '../eventBus';
 import type { AtomicComponent } from '../componentInventory';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 export interface Port {
   id: string;
@@ -65,7 +65,7 @@ export interface ValidationResult {
   errors: string[];
 }
 
-// ─── Validation ───────────────────────────────────────────────────────────────
+// --- Validation ---------------------------------------------------------------
 
 /**
  * validateAssembly(pieces, wires)
@@ -107,7 +107,7 @@ export function validateAssembly(
   return { valid: errors.length === 0, errors };
 }
 
-// ─── createAssembly ───────────────────────────────────────────────────────────
+// --- createAssembly -----------------------------------------------------------
 
 /**
  * createAssembly(pieces, wires)
@@ -130,7 +130,7 @@ export function createAssembly(
   return { id, pieces: [...pieces], wires: [...wires], bus };
 }
 
-// ─── runAssembly ─────────────────────────────────────────────────────────────
+// --- runAssembly -------------------------------------------------------------
 
 /**
  * runAssembly(assembly, sandbox)
@@ -193,7 +193,7 @@ export function runAssembly(
   return result;
 }
 
-// ─── serializeAssembly ────────────────────────────────────────────────────────
+// --- serializeAssembly --------------------------------------------------------
 
 /**
  * serializeAssembly(assembly)
@@ -221,7 +221,7 @@ export function deserializeAssembly(json: string: EngineAssembly) {
   return { ...parsed, bus };
 }
 
-// ─── fromComponentInventory ───────────────────────────────────────────────────
+// --- fromComponentInventory ---------------------------------------------------
 
 /**
  * atomicPieceFromComponent(component, role?)

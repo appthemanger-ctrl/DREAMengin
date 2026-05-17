@@ -28,7 +28,7 @@
 
 import { storeOriginal } from './indexedDBStore';
 
-// ── Types ──────────────────────────────────────────────────────────────────────
+// -- Types ----------------------------------------------------------------------
 
 export type OptimisationQuality = 'high' | 'balanced' | 'performance';
 
@@ -64,7 +64,7 @@ export interface OptimisationResult {
   method: string;
 }
 
-// ── Worker singleton ───────────────────────────────────────────────────────────
+// -- Worker singleton -----------------------------------------------------------
 
 let workerInstance: Worker | null = null;
 let jobCounter = 0;
@@ -103,7 +103,7 @@ function getWorker(: Worker) {
   return workerInstance;
 }
 
-// ── Main export ────────────────────────────────────────────────────────────────
+// -- Main export ----------------------------------------------------------------
 
 /**
  * Optimises a file using a Web Worker and stores the original in IndexedDB.

@@ -20,9 +20,9 @@ import {
   type ImmediateRemediationAction,
 } from '@/lib/observability/immediateAction';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
-// ── Improvement 61: stopped_by_signal status ─────────────────────────────────
+// -- Improvement 61: stopped_by_signal status ---------------------------------
 export type LoopStatus =
   | 'idle'
   | 'collecting'
@@ -77,24 +77,24 @@ export interface RemediationLoopOptions {
    * When omitted, the loop uses the deterministic fallback patch plan.
    */
   callAi?: (message: string) => Promise<string>;
-  // ── Improvement 56: AbortSignal support ────────────────────────────────────
+  // -- Improvement 56: AbortSignal support ------------------------------------
   /** AbortSignal to stop the loop between iterations (prevents memory leaks). */
   signal?: AbortSignal;
-  // ── Improvement 57: iteration timeout ─────────────────────────────────────
+  // -- Improvement 57: iteration timeout -------------------------------------
   /** Maximum time in ms for a single iteration (including AI call). Default: 30 s. */
   iterationTimeoutMs?: number;
-  // ── Improvement 58: AI retry ──────────────────────────────────────────────
+  // -- Improvement 58: AI retry ----------------------------------------------
   /** Number of times to retry a failed AI call before using the fallback. Default: 2. */
   aiRetryAttempts?: number;
   /** Base delay in ms for AI retry backoff. Default: 500 ms. */
   aiRetryBaseDelayMs?: number;
-  // ── Improvement 59: snapshot diffing ──────────────────────────────────────
+  // -- Improvement 59: snapshot diffing --------------------------------------
   /** When true, skip AI call if the snapshot fingerprint is unchanged from the
    *  previous iteration. Default: true. */
   skipUnchangedSnapshots?: boolean;
 }
 
-// ── Prompt builder ────────────────────────────────────────────────────────────
+// -- Prompt builder ------------------------------------------------------------
 
 /**
  * Build a context-enriched IDARi prompt that injects the telemetry summary,
@@ -158,7 +158,7 @@ export function buildIdariPrompt(
   return lines.join('\n');
 }
 
-// ── Fallback patch plan ───────────────────────────────────────────────────────
+// -- Fallback patch plan -------------------------------------------------------
 
 /**
  * Build a deterministic PatchPlan from the root cause analysis.
@@ -203,16 +203,16 @@ export function buildFallbackPatchPlan(
   });
 }
 
-// ── Single iteration ──────────────────────────────────────────────────────────
+// -- Single iteration ----------------------------------------------------------
 
-// ── Improvement 59: snapshot fingerprint for diffing ─────────────────────────
+// -- Improvement 59: snapshot fingerprint for diffing -------------------------
 function _fingerprintSnapshot(snapshot: TelemetrySnapshot: string) {
   return `${snapshot.logs.length}:${snapshot.metrics.length}:${snapshot.traces.length}:${
     snapshot.logs.filter((l: Record<string, unknown>) => l.level === 'error').length
   }`;
 }
 
-// ── Improvement 58: retry AI call with exponential backoff ────────────────────
+// -- Improvement 58: retry AI call with exponential backoff --------------------
 async function _callAiWithRetry(
   callAi: (msg: string) => Promise<string>,
   prompt: string,
@@ -233,7 +233,7 @@ async function _callAiWithRetry(
   throw lastErr;
 }
 
-// ── Improvement 57: iteration timeout ────────────────────────────────────────
+// -- Improvement 57: iteration timeout ----------------------------------------
 function _withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
   return new Promise(resolve: Record<string, unknown>, reject: Record<string, unknown> => {
     const timer = setTimeout(
@@ -318,13 +318,13 @@ async function _runLoopIterationInternal(
       const immediate_action = buildImmediateRemediationAction(rootCause);
       const patch_plan: PatchPlan | undefined = buildFallbackPatchPlan(rootCause, id, immediate_action);
 
-      // ── Improvement 59: skip AI when snapshot unchanged ───────────────────
+      // -- Improvement 59: skip AI when snapshot unchanged -------------------
       const snapshotChanged = !skipUnchangedSnapshots || fingerprint !== _prevFingerprint;
 
       if (callAi && patch_plan && snapshotChanged) {
         try {
           const prompt = buildIdariPrompt(snapshot, correlation, rootCause);
-          // ── Improvement 58: retry with backoff ────────────────────────────
+          // -- Improvement 58: retry with backoff ----------------------------
           ai_response = await _callAiWithRetry(callAi, prompt, aiRetryAttempts + 1, aiRetryBaseDelayMs);
         } catch {
           // AI exhausted retries — the deterministic patch plan is still used
@@ -381,7 +381,7 @@ async function _runLoopIterationInternal(
   return _withTimeout(doIteration(), iterationTimeoutMs);
 }
 
-// ── Multi-iteration driver ────────────────────────────────────────────────────
+// -- Multi-iteration driver ----------------------------------------------------
 
 /**
  * Run the IDARi remediation loop for up to `maxIterations` iterations.
@@ -393,7 +393,7 @@ async function _runLoopIterationInternal(
  *
  * Each completed iteration is passed to `options.onIteration` if provided.
  */
-// ── Improvement 56: AbortSignal support ──────────────────────────────────────
+// -- Improvement 56: AbortSignal support --------------------------------------
 export async function runRemediationLoop(
   options: RemediationLoopOptions = {},
 ): Promise<LoopIteration[]> {
@@ -408,7 +408,7 @@ export async function runRemediationLoop(
   let prevFingerprint: string | undefined;
 
   for (let i = 0; i < maxIterations; i++) {
-    // ── Improvement 56: check abort signal ─────────────────────────────────
+    // -- Improvement 56: check abort signal ---------------------------------
     if (signal?.aborted) break;
 
     const { iteration, fingerprint } = await _runLoopIterationInternal(i + 1, options, prevFingerprint);
@@ -424,7 +424,7 @@ export async function runRemediationLoop(
   return iterations;
 }
 
-// ── Improvement 60: getLoopHealthSummary ─────────────────────────────────────
+// -- Improvement 60: getLoopHealthSummary -------------------------------------
 
 export interface LoopHealthSummary {
   total: number;

@@ -24,7 +24,7 @@ import { useForgeBuild } from '@/lib/forge/useForgeBuild';
 import { readForgeBuilds, canBuildToday, type ForgeLogEvent, type ForgeBuildRecord } from '@/lib/forge/forgeBuild';
 import { ENGIN_REGISTRY } from '@/lib/forge/forgeRegistry';
 
-// ── Design tokens (matches ForgeEngin FORGE object) ──────────────────────────
+// -- Design tokens (matches ForgeEngin FORGE object) --------------------------
 const FORGE = {
   bg:     '#0a0a0f',
   panel:  'rgba(255,255,255,0.04)',
@@ -51,7 +51,7 @@ const AGENT_INITIALS: Record<string, string> = {
   'TheBoogieMan.Ai':   'BM',
 };
 
-// ── Phase system ──────────────────────────────────────────────────────────────
+// -- Phase system --------------------------------------------------------------
 
 const PHASES = ['Parsing', 'Dr. Eams', 'IDARi', 'Safety', 'Generating', 'Staging', 'Done'] as const;
 
@@ -66,7 +66,7 @@ function getPhaseIndexFromStep(step: string: number) {
   return -1;
 }
 
-// ── Phase progress bar ────────────────────────────────────────────────────────
+// -- Phase progress bar --------------------------------------------------------
 
 function PhaseBar() { activePhase }: { activePhase: number } {
   return (
@@ -139,7 +139,7 @@ function PhaseBar() { activePhase }: { activePhase: number } {
   );
 }
 
-// ── Code block renderer ───────────────────────────────────────────────────────
+// -- Code block renderer -------------------------------------------------------
 
 type CodeLogEvent = Extract<ForgeLogEvent, { type: 'code' }>;
 
@@ -245,7 +245,7 @@ function CodeBlock() { event }: { event: CodeLogEvent } {
   );
 }
 
-// ── Example prompt chips ──────────────────────────────────────────────────────
+// -- Example prompt chips ------------------------------------------------------
 
 const EXAMPLE_CHIPS = [
   { emoji: '🎮', text: 'Desert platformer with dash ability and scoreboard' },
@@ -299,7 +299,7 @@ function buildMarkdownSummary(logs: ForgeLogEvent[], prompt: string: string) {
   return lines.join('\n');
 }
 
-// ── Log entry renderer ────────────────────────────────────────────────────────
+// -- Log entry renderer --------------------------------------------------------
 
 function LogEntry() {
   event,
@@ -515,7 +515,7 @@ function LogEntry() {
   return null;
 }
 
-// ── Build history item ────────────────────────────────────────────────────────
+// -- Build history item --------------------------------------------------------
 
 function HistoryItem() { record, onLaunch }: { record: ForgeBuildRecord; onLaunch: (href: string) => void }) {
   const enginEntry = ENGIN_REGISTRY.find(e => e.id === record.primaryEnginId);
@@ -563,7 +563,7 @@ function HistoryItem() { record, onLaunch }: { record: ForgeBuildRecord; onLaunc
   );
 }
 
-// ── Main component ────────────────────────────────────────────────────────────
+// -- Main component ------------------------------------------------------------
 
 export default function AIBuilderPanel() {
   const router = useRouter();
@@ -668,7 +668,7 @@ export default function AIBuilderPanel() {
       border: `1px solid ${FORGE.border}`,
       overflow: 'hidden',
     }}>
-      {/* ── Agent persona badges ── */}
+      {/* -- Agent persona badges -- */}
       <div style={{
         padding: '14px 18px',
         borderBottom: `1px solid ${FORGE.border}`,
@@ -700,7 +700,7 @@ export default function AIBuilderPanel() {
       </div>
 
       <div style={{ padding: '18px 18px 0' }}>
-        {/* ── Rate limit banner ── */}
+        {/* -- Rate limit banner -- */}
         <AnimatePresence>
           {isLimitHit && (
             <motion.div
@@ -724,7 +724,7 @@ export default function AIBuilderPanel() {
           )}
         </AnimatePresence>
 
-        {/* ── Prompt textarea ── */}
+        {/* -- Prompt textarea -- */}
         <div style={{ marginBottom: 10 }}>
           <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: FORGE.dim, marginBottom: 6, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
             Describe what you want to build
@@ -780,7 +780,7 @@ export default function AIBuilderPanel() {
           </div>
         </div>
 
-        {/* ── Example chips ── */}
+        {/* -- Example chips -- */}
         {!isRunning && !isDone && !logs.length && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
             {EXAMPLE_CHIPS.map(chip => (
@@ -810,7 +810,7 @@ export default function AIBuilderPanel() {
           </div>
         )}
 
-        {/* ── Action buttons row: [Forge It] [Reset] [Share Log] ── */}
+        {/* -- Action buttons row: [Forge It] [Reset] [Share Log] -- */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
           <motion.button
             type="button"
@@ -912,7 +912,7 @@ export default function AIBuilderPanel() {
           )}
         </div>
 
-        {/* ── Launch Result — full-width below action row ── */}
+        {/* -- Launch Result — full-width below action row -- */}
         <AnimatePresence>
           {isDone && result && (
             <motion.div
@@ -998,7 +998,7 @@ export default function AIBuilderPanel() {
         </AnimatePresence>
       </div>
 
-      {/* ── Build History ── */}
+      {/* -- Build History -- */}
       <div style={{
         borderTop: `1px solid ${FORGE.border}`,
       }}>

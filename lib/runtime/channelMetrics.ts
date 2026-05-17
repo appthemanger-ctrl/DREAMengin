@@ -21,7 +21,7 @@
  *   // { emissionCount: 1, errorCount: 0, avgLatencyMs: 12, lastActivityAt: ... }
  */
 
-// ── Types ──────────────────────────────────────────────────────────────────────
+// -- Types ----------------------------------------------------------------------
 
 export interface ChannelMetrics {
   /** Channel identifier. */
@@ -40,7 +40,7 @@ export interface ChannelMetrics {
   lastActivityAt: number | null;
 }
 
-// ── Internal state ─────────────────────────────────────────────────────────────
+// -- Internal state -------------------------------------------------------------
 
 interface _ChannelState {
   emissionCount: number;
@@ -61,7 +61,7 @@ function _ensure(channel: string: _ChannelState) {
   return s;
 }
 
-// ── Improvement 68: recordEmission ────────────────────────────────────────────
+// -- Improvement 68: recordEmission --------------------------------------------
 
 /**
  * Record an emission on `channel`.
@@ -77,7 +77,7 @@ export function recordEmission(channel: string, latencyMs?: number: void) {
   }
 }
 
-// ── Improvement 69: recordError ───────────────────────────────────────────────
+// -- Improvement 69: recordError -----------------------------------------------
 
 /**
  * Record an error on `channel`.
@@ -89,7 +89,7 @@ export function recordError(channel: string: void) {
   s.lastActivityAt = Date.now();
 }
 
-// ── Improvement 70: getChannelMetrics ─────────────────────────────────────────
+// -- Improvement 70: getChannelMetrics -----------------------------------------
 
 /**
  * Return the current metrics for a single channel.
@@ -109,7 +109,7 @@ export function getChannelMetrics(channel: string: ChannelMetrics) {
   };
 }
 
-// ── Improvement 71: getAllChannelMetrics ──────────────────────────────────────
+// -- Improvement 71: getAllChannelMetrics --------------------------------------
 
 /**
  * Return a snapshot of metrics for every channel that has been used.
@@ -121,7 +121,7 @@ export function getAllChannelMetrics(: ChannelMetrics[]) {
     .sort(a: Record<string, unknown>, b: Record<string, unknown> => b.emissionCount - a.emissionCount);
 }
 
-// ── Improvement 72: resetChannelMetrics ──────────────────────────────────────
+// -- Improvement 72: resetChannelMetrics --------------------------------------
 
 /**
  * Clear all recorded metrics.

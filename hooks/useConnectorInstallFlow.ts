@@ -21,7 +21,7 @@ import {
   type SlotGrid,
 } from '@/lib/connectors/installFlow';
 
-// ── Types ──────────────────────────────────────────────────────────────────
+// -- Types ------------------------------------------------------------------
 export interface ConnectorInstallFlowOptions {
   /** Live slot grid — used for slot detection (req 31-33) */
   grid: SlotGrid;
@@ -109,14 +109,14 @@ export function useConnectorInstallFlow(
 
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ── Show toast (req 11) ────────────────────────────────────────────────
+  // -- Show toast (req 11) ------------------------------------------------
   const showToast = useCallback((msg: string) => {
     setToastMessage(msg);
     if (toastTimer.current) clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToastMessage(null), 4000);
   }, []);
 
-  // ── Show prompt (req 12-20) ────────────────────────────────────────────
+  // -- Show prompt (req 12-20) --------------------------------------------
   const showPrompt = useCallback((connectorId: string, connectorName: string) => {
     const result = handleConnectSuccess(connectorId, connectorName, {
       isMenuOpen,
@@ -136,13 +136,13 @@ export function useConnectorInstallFlow(
     });
   }, [isMenuOpen, isPopupOpen, prompt]);
 
-  // ── Connect success ────────────────────────────────────────────────────
+  // -- Connect success ----------------------------------------------------
   const onConnectSuccess = useCallback((connectorId: string, connectorName: string) => {
     showToast(`Connected to ${connectorName}`); // req 11
     showPrompt(connectorId, connectorName);     // req 5
   }, [showToast, showPrompt]);
 
-  // ── Prompt: Add ────────────────────────────────────────────────────────
+  // -- Prompt: Add --------------------------------------------------------
   const onPromptAdd = useCallback((widgetId: string) => {
     if (!prompt) return;
     const def = getWidgetTypeDef(widgetId);
@@ -176,33 +176,33 @@ export function useConnectorInstallFlow(
     void def; // used by parent to render WidgetShell
   }, [prompt, grid, onAutoLock, isDragging, isMenuAnimating, isKeyboardOpen]);
 
-  // ── Prompt: Dismiss ────────────────────────────────────────────────────
+  // -- Prompt: Dismiss ----------------------------------------------------
   const onPromptDismiss = useCallback((widgetId: string) => {
     if (!prompt) return;
     handleDismissPrompt(widgetId, prompt.connectorId, prompt.connectorName);
     setPrompt(null);
   }, [prompt]);
 
-  // ── Prompt: Add as Feed Slice ──────────────────────────────────────────
+  // -- Prompt: Add as Feed Slice ------------------------------------------
   const onPromptAddSlice = useCallback((connectorId: string) => {
     setPrompt(null);
     setSliceSheetConnectorId(connectorId); // req 51
   }, []);
 
-  // ── Placement: Done ───────────────────────────────────────────────────
+  // -- Placement: Done ---------------------------------------------------
   const onPlacementDone = useCallback((slot: number) => {
     if (!placementRequest) return;
     setPlacementRequest(null);
     onAutoLock(); // req 40, 83
   }, [placementRequest, onAutoLock]);
 
-  // ── Placement: Cancel ─────────────────────────────────────────────────
+  // -- Placement: Cancel -------------------------------------------------
   const onPlacementCancel = useCallback(() => {
     setPlacementRequest(null);
     onAutoLock(); // req 40
   }, [onAutoLock]);
 
-  // ── No-slot dialog: Place now ─────────────────────────────────────────
+  // -- No-slot dialog: Place now -----------------------------------------
   const onPlaceNow = useCallback((widgetId: string) => {
     if (!placementRequest) return;
     setPlacementRequest({
@@ -213,19 +213,19 @@ export function useConnectorInstallFlow(
     });
   }, [placementRequest]);
 
-  // ── No-slot dialog: Later ─────────────────────────────────────────────
+  // -- No-slot dialog: Later ---------------------------------------------
   const onPlaceLater = useCallback((widgetId: string, connectorId: string, connectorName: string) => {
     handlePlaceLater(widgetId, connectorId, connectorName); // queued in Suggested (req 34)
     setPlacementRequest(null);
   }, []);
 
-  // ── Toast clear ───────────────────────────────────────────────────────
+  // -- Toast clear -------------------------------------------------------
   const clearToast = useCallback(() => {
     setToastMessage(null);
     if (toastTimer.current) clearTimeout(toastTimer.current);
   }, []);
 
-  // ── Deferred prompt check (req 16-17) ────────────────────────────────
+  // -- Deferred prompt check (req 16-17) --------------------------------
   const checkDeferred = useCallback(() => {
     const deferred = consumeDeferredPrompt();
     if (deferred) {

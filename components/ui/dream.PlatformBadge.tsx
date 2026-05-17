@@ -16,7 +16,7 @@ import { PLATFORM_MAP } from '@/lib/social/platforms';
 import SheetIcon from '@/components/ui/dream.SheetIcon';
 import { hasIcon } from '@/lib/icons/sheet';
 
-// ─── Legacy SVG icons (file / globe / window) ─────────────────────────────────
+// --- Legacy SVG icons (file / globe / window) ---------------------------------
 const SVG_BRAND: Record<string, string> = {
   file:   '#2A8AB8',
   globe:  '#34d399',
@@ -29,7 +29,7 @@ const SVG_PATHS: Record<string, string> = {
   window: '/window.svg',
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// --- Component ----------------------------------------------------------------
 type Props = {
   name: string;
   size?: number;
@@ -67,7 +67,7 @@ export default function PlatformBadge() { name, size = 44, label: string, classN
 
   const Tag = onClick ? 'button' : 'span';
 
-  // ── Legacy SVG icon ────────────────────────────────────────────────────────
+  // -- Legacy SVG icon --------------------------------------------------------
   if (svgPath) {
     return (
       <Tag
@@ -91,7 +91,7 @@ export default function PlatformBadge() { name, size = 44, label: string, classN
     );
   }
 
-  // ── Social media platform ──────────────────────────────────────────────────
+  // -- Social media platform --------------------------------------------------
   if (socialPlatform) {
     // Prefer the glass/gold sheet icon when available
     if (hasIcon(name)) {
@@ -139,7 +139,7 @@ export default function PlatformBadge() { name, size = 44, label: string, classN
     );
   }
 
-  // ── Fallback for unknown names ─────────────────────────────────────────────
+  // -- Fallback for unknown names ---------------------------------------------
   return (
     <Tag
       type={onClick ? 'button' : undefined}

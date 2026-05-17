@@ -14,7 +14,7 @@
  * configured tokens are compared directly against provider challenge input.
  */
 
-// ── YouTube WebSub ────────────────────────────────────────────────────────────
+// -- YouTube WebSub ------------------------------------------------------------
 
 /**
  * Extract the hub.challenge for a YouTube WebSub verification request.
@@ -39,7 +39,7 @@ export function extractYouTubeWebSubChallenge(params: URLSearchParams: string | 
   return null;
 }
 
-// ── Meta / Instagram Webhooks ─────────────────────────────────────────────────
+// -- Meta / Instagram Webhooks -------------------------------------------------
 
 /**
  * Extract the hub.challenge for a Meta webhook verification request.
@@ -75,7 +75,7 @@ export function extractMetaWebhookChallenge(
   return null;
 }
 
-// ── Cron authorisation ────────────────────────────────────────────────────────
+// -- Cron authorisation --------------------------------------------------------
 
 /**
  * Determine whether a cron request is authorised.

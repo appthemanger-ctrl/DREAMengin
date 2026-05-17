@@ -136,7 +136,7 @@ export const DELIVERY_STRATEGY_MATRIX: ReadonlyArray<ConnectorDeliveryStrategy> 
   },
 ];
 
-// ── Query helpers ─────────────────────────────────────────────────────────────
+// -- Query helpers -------------------------------------------------------------
 
 /**
  * Look up the delivery strategy for a provider.

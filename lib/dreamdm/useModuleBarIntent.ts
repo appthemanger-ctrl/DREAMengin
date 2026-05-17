@@ -36,7 +36,7 @@ import { useCallback } from 'react';
 import { useDreamSystem } from '@/lib/dreamdm/DreamSystemContext';
 import type { ModuleBarAction } from '@/lib/dreamdm/DreamSystemContext';
 
-// ── Hook ──────────────────────────────────────────────────────────────────────
+// -- Hook ----------------------------------------------------------------------
 
 export interface UseModuleBarIntentResult {
   /**

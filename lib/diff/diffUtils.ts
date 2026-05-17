@@ -10,7 +10,7 @@
  *   - Scroll-margin metadata (proportion of each hunk in the full file)
  */
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 export type DiffLineType = 'added' | 'removed' | 'context' | 'hunk-header';
 
@@ -50,7 +50,7 @@ export interface DiffFile {
   removedCount: number;
 }
 
-// ─── Parser ───────────────────────────────────────────────────────────────────
+// --- Parser -------------------------------------------------------------------
 
 const HUNK_HEADER_RE = /^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@(.*)/;
 
@@ -138,7 +138,7 @@ function finalise(file: DiffFile: DiffFile) {
   return file;
 }
 
-// ─── Full-file view helpers ───────────────────────────────────────────────────
+// --- Full-file view helpers ---------------------------------------------------
 
 export interface FullFileLine extends DiffLine {
   /** True when this line belongs to a collapsed context region */
@@ -221,7 +221,7 @@ function makePlaceholder(startLine: number, count: number: FullFileLine) {
   };
 }
 
-// ─── Navigation helpers ───────────────────────────────────────────────────────
+// --- Navigation helpers -------------------------------------------------------
 
 /**
  * Return the index of the first hunk in the file, or -1 if there are none.
@@ -248,7 +248,7 @@ export function nextHunkIndex(file: DiffFile, current: number: number) {
   return (current + 1) % file.hunks.length;
 }
 
-// ─── Scroll-margin helpers ────────────────────────────────────────────────────
+// --- Scroll-margin helpers ----------------------------------------------------
 
 export interface HunkScrollMarker {
   /** 0-based hunk index */
@@ -281,7 +281,7 @@ export function buildScrollMarkers(
   });
 }
 
-// ─── Demo diff ────────────────────────────────────────────────────────────────
+// --- Demo diff ----------------------------------------------------------------
 
 /**
  * A self-contained demo unified diff used by DiffViewer in demo mode.
@@ -305,7 +305,7 @@ export const DEMO_DIFF = `--- a/lib/diff/diffUtils.ts
    removedCount: number;
  }
  
-+// ─── Full-file helpers ────────────────────────────────────────────────────────
++// --- Full-file helpers --------------------------------------------------------
 +
 +export interface FullFileLine extends DiffLine {
 +  collapsed: boolean;
@@ -313,7 +313,7 @@ export const DEMO_DIFF = `--- a/lib/diff/diffUtils.ts
 +  hunkIndex: number;
 +}
 +
- // ─── Parser ───────────────────────────────────────────────────────────────────
+ // --- Parser -------------------------------------------------------------------
  
  const HUNK_HEADER_RE = /^@@ -(\d+)(?:,(\d+))? \\+(\d+)(?:,(\d+))? @@(.*)/;
 @@ -89,3 +101,18 @@ function finalise(file: DiffFile: DiffFile {

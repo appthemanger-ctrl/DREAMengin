@@ -16,7 +16,7 @@
 
 import { classifyPressure, type Pressure, type RuntimeMetrics } from './director';
 
-// ─── Quality tiers ────────────────────────────────────────────────────────────
+// --- Quality tiers ------------------------------------------------------------
 
 /**
  * High-level quality tier.
@@ -47,7 +47,7 @@ export interface QualityProfile {
   particleBudget: number;
 }
 
-// ─── Profiles ─────────────────────────────────────────────────────────────────
+// --- Profiles -----------------------------------------------------------------
 
 const PROFILES: Record<QualityTier, QualityProfile> = {
   ultra: {
@@ -100,7 +100,7 @@ export function getQualityProfile(tier: QualityTier: QualityProfile) {
   return { ...PROFILES[tier] };
 }
 
-// ─── Battery API ──────────────────────────────────────────────────────────────
+// --- Battery API --------------------------------------------------------------
 
 export interface BatteryState {
   /** Battery level 0..1 (1.0 = full, 0.0 = empty) */
@@ -137,7 +137,7 @@ export async function getBatteryState(: Promise<BatteryState | null>) {
   }
 }
 
-// ─── Device memory ────────────────────────────────────────────────────────────
+// --- Device memory ------------------------------------------------------------
 
 /**
  * Approximate device memory in GB (Device Memory API).
@@ -157,7 +157,7 @@ export function getCoreCount(: number) {
   return navigator.hardwareConcurrency ?? 4;
 }
 
-// ─── Tier resolver ────────────────────────────────────────────────────────────
+// --- Tier resolver ------------------------------------------------------------
 
 export interface DeviceSignals {
   /** Battery state (null if API unavailable) */
@@ -202,7 +202,7 @@ export function resolveQualityTier(signals: DeviceSignals: QualityTier) {
   return 'ultra';
 }
 
-// ─── Adaptive Quality Controller ──────────────────────────────────────────────
+// --- Adaptive Quality Controller ----------------------------------------------
 
 /**
  * Stateful controller that tracks quality tier over time with hysteresis

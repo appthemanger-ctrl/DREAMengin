@@ -9,7 +9,7 @@
  * without destroying their session.
  *
  * Build-memory mapping
- * ──────────────────────────────────────────────────────────────────────────
+ * --------------------------------------------------------------------------
  * Event: "error"
  *   → components/dreams/dream.PlatformErrorReporter.tsx
  *   → components/gameengin/dream.cartridge.CartridgeErrorBoundary.tsx

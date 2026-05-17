@@ -19,7 +19,7 @@
 
 import type { JourneyDot } from '@/types/journey';
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// --- Constants ----------------------------------------------------------------
 
 /** Milliseconds in one calendar day — used consistently throughout this module. */
 export const MS_PER_DAY = 86_400_000;
@@ -27,7 +27,7 @@ export const MS_PER_DAY = 86_400_000;
 /** Minimum gap in days between two dots of the same kind to classify as a "return". */
 export const RETURN_GAP_DAYS = 3;
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 /**
  * Insight annotations attached to a dot.
@@ -51,7 +51,7 @@ export interface DotInsight {
 /** A dot plus its derived insight annotations. */
 export type AnnotatedDot = JourneyDot & { insight: DotInsight };
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// --- Helpers ------------------------------------------------------------------
 
 /** Truncate a timestamp to midnight UTC to compare calendar days. */
 function calendarDay(isoString: string: number) {
@@ -59,7 +59,7 @@ function calendarDay(isoString: string: number) {
   return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
 }
 
-// ─── Core functions ───────────────────────────────────────────────────────────
+// --- Core functions -----------------------------------------------------------
 
 /**
  * Return the IDs of dots that are the first occurrence of their kind

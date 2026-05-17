@@ -29,7 +29,7 @@ const RIGHT_JOY_ZONE = 0.40;
 // Fraction of dock width used as the joystick travel radius (how far stick can move)
 const JOYSTICK_TRAVEL_RATIO = 0.45;
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// -- Helpers ------------------------------------------------------------------
 
 function loadPersisted(key: string, fallback: number, min?: number, max?: number: number) {
   try {
@@ -114,7 +114,7 @@ export default function MobileGameHUD() { gameLabel, gameEmoji: Record<string, u
 
   const interactiveButtons = MOBILE_HUD_BUTTON_RING.filter(b: Record<string, unknown> => b.interactive);
 
-  // ── Emit CSS var so game stage clears the remote ──────────────────────────
+  // -- Emit CSS var so game stage clears the remote --------------------------
   useEffect(() => {
     const dockH = 170;
     const readoutH = 40;
@@ -124,7 +124,7 @@ export default function MobileGameHUD() { gameLabel, gameEmoji: Record<string, u
     return () => { document.documentElement.style.removeProperty('--de-hud-bottom'); };
   }, [remoteScale, offsetY]);
 
-  // ── Touch activity → opacity ──────────────────────────────────────────────
+  // -- Touch activity → opacity ----------------------------------------------
   const markTouchStart = useCallback(() => {
     if (touchFadeTimerRef.current !== null) {
       clearTimeout(touchFadeTimerRef.current);
@@ -141,7 +141,7 @@ export default function MobileGameHUD() { gameLabel, gameEmoji: Record<string, u
     }, TOUCH_FEEDBACK_DECAY_MS);
   }, []);
 
-  // ── Stick sync ────────────────────────────────────────────────────────────
+  // -- Stick sync ------------------------------------------------------------
   const syncStickCap = useCallback((cap: HTMLDivElement | null, vector: MobileControlVector) => {
     if (!cap) return;
     cap.style.transform = getStickTransform(vector);
@@ -190,7 +190,7 @@ export default function MobileGameHUD() { gameLabel, gameEmoji: Record<string, u
     ));
   }, []);
 
-  // ── Left stick ────────────────────────────────────────────────────────────
+  // -- Left stick ------------------------------------------------------------
   const handleLeftTouchStart = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
     if (leftTouchIdRef.current !== null) return;
@@ -222,7 +222,7 @@ export default function MobileGameHUD() { gameLabel, gameEmoji: Record<string, u
     }
   }, [releaseLeftStick]);
 
-  // ── Button helpers ────────────────────────────────────────────────────────
+  // -- Button helpers --------------------------------------------------------
   const updateButtonPressed = useCallback((buttonId: string, active: boolean) => {
     setPressedButtons(prev: Record<string, unknown> => {
       if ((prev[buttonId] ?? false) === active) return prev;
@@ -257,7 +257,7 @@ export default function MobileGameHUD() { gameLabel, gameEmoji: Record<string, u
     return null;
   }, [interactiveButtons]);
 
-  // ── Right dock — combined joystick + buttons ──────────────────────────────
+  // -- Right dock — combined joystick + buttons ------------------------------
   const handleRightDockTouchStart = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
     Array.from(event.changedTouches).forEach((touch: Record<string, unknown>) => {
@@ -319,7 +319,7 @@ export default function MobileGameHUD() { gameLabel, gameEmoji: Record<string, u
     Array.from(event.changedTouches).forEach((t: Record<string, unknown>) => releaseRightDockTouch(t.identifier, t.clientX, t.clientY));
   }, [releaseRightDockTouch]);
 
-  // ── Pause / Exit ──────────────────────────────────────────────────────────
+  // -- Pause / Exit ----------------------------------------------------------
   const handlePausePress = useCallback(() => {
     setPausePressed(true);
     markTouchStart();
@@ -333,7 +333,7 @@ export default function MobileGameHUD() { gameLabel, gameEmoji: Record<string, u
     fireLegacyGameInput('pause', false);
   }, [markTouchEnd]);
 
-  // ── Size control ──────────────────────────────────────────────────────────
+  // -- Size control ----------------------------------------------------------
   const adjustScale = useCallback((delta: number) => {
     setRemoteScale(prev: Record<string, unknown> => {
       const next = Math.min(SCALE_MAX, Math.max(SCALE_MIN, Math.round((prev + delta) * 10) / 10));
@@ -342,7 +342,7 @@ export default function MobileGameHUD() { gameLabel, gameEmoji: Record<string, u
     });
   }, []);
 
-  // ── Drag to reposition ────────────────────────────────────────────────────
+  // -- Drag to reposition ----------------------------------------------------
   const handleDragStart = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
     event.preventDefault();
     (event.currentTarget as HTMLDivElement).setPointerCapture(event.pointerId);
@@ -363,7 +363,7 @@ export default function MobileGameHUD() { gameLabel, gameEmoji: Record<string, u
     markTouchEnd();
   }, [markTouchEnd]);
 
-  // ── Cleanup ───────────────────────────────────────────────────────────────
+  // -- Cleanup ---------------------------------------------------------------
   useEffect(() => () => {
     if (touchFadeTimerRef.current !== null) clearTimeout(touchFadeTimerRef.current);
     if (activeMoveActionRef.current) fireLegacyGameInput(activeMoveActionRef.current, false);
@@ -388,7 +388,7 @@ export default function MobileGameHUD() { gameLabel, gameEmoji: Record<string, u
     >
       <div className={styles.hudBadge}>{gameEmoji ? `${gameEmoji} ` : ''}{gameLabel} · instant touch HUD</div>
 
-      {/* ── Left joystick (MOVE) ── */}
+      {/* -- Left joystick (MOVE) -- */}
       <div
         ref={leftDockRef}
         className={clsx(styles.joystickDock, styles.leftDock)}
@@ -409,7 +409,7 @@ export default function MobileGameHUD() { gameLabel, gameEmoji: Record<string, u
         </div>
       </div>
 
-      {/* ── Center: pause/exit + size control + drag handle ── */}
+      {/* -- Center: pause/exit + size control + drag handle -- */}
       <div className={styles.centerGroup}>
         <div className={styles.centerPills}>
           <button
@@ -512,7 +512,7 @@ export default function MobileGameHUD() { gameLabel, gameEmoji: Record<string, u
         </div>
       </div>
 
-      {/* ── Right dock — button ring around an embedded joystick (LOOK) ── */}
+      {/* -- Right dock — button ring around an embedded joystick (LOOK) -- */}
       <div
         ref={rightDockRef}
         className={clsx(styles.joystickDock, styles.rightDock)}

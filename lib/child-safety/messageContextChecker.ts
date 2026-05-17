@@ -292,7 +292,7 @@ export function evaluateMessageContext(input: MessageContextInput: MessageContex
 
   const auditSignals: string[] = [];
 
-  // ── Immediate: adult solicited images from minor ─────────────────────────
+  // -- Immediate: adult solicited images from minor -------------------------
   if (adultSolicitedImages) {
     auditSignals.push('adult_solicited_images');
     return {
@@ -308,7 +308,7 @@ export function evaluateMessageContext(input: MessageContextInput: MessageContex
     };
   }
 
-  // ── Scan for suspicious patterns in messages ──────────────────────────────
+  // -- Scan for suspicious patterns in messages ------------------------------
   const suspiciousResult = scanMessages(recentMessages, SUSPICIOUS_PATTERNS);
   const { contextType, safeSignals, totalSafeWeight } = scanMessagesForContext(recentMessages);
 
@@ -323,7 +323,7 @@ export function evaluateMessageContext(input: MessageContextInput: MessageContex
   const priorFlagMultiplier = 1 + (adultPriorFlags * 0.5);
   const adjustedSuspiciousWeight = suspiciousWeight * priorFlagMultiplier;
 
-  // ── Decision logic ────────────────────────────────────────────────────────
+  // -- Decision logic --------------------------------------------------------
 
   // Case 1: Strong suspicious signals + no safe context → block and escalate
   if (adjustedSuspiciousWeight >= 1.5 && !hasSafeContext) {

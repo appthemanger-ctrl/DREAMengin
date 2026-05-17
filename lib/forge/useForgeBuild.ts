@@ -33,7 +33,7 @@ export interface UseForgeBuildReturn {
   rateLimitError: string | null;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// -- Helpers -------------------------------------------------------------------
 
 /** Map enginId → ForgeArtifactType */
 const ARTIFACT_TYPE_MAP: Record<string, ForgeArtifactType> = {
@@ -59,7 +59,7 @@ function buildArtifact(codeEvent: CodeEvent, enginId: string: ForgeArtifact) {
   };
 }
 
-// ── Hook ──────────────────────────────────────────────────────────────────────
+// -- Hook ----------------------------------------------------------------------
 
 export function useForgeBuild(: UseForgeBuildReturn) {
   const [state, setState] = useState<import('@/lib/forge/forgeBuild').ForgeBuildState>('idle');

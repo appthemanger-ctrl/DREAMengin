@@ -19,7 +19,7 @@
 
 import { describe, it, expect, afterEach, beforeEach } from 'vitest';
 
-// ── IDARI_PASSWORD env guard contract ─────────────────────────────────────────
+// -- IDARI_PASSWORD env guard contract -----------------------------------------
 //
 // Mirrors the guard at the top of the POST handler in route.ts.
 // If IDARI_PASSWORD is not set, the service must return 503.
@@ -56,7 +56,7 @@ describe('IDARI_PASSWORD service-availability guard', () => {
   });
 });
 
-// ── Admin role resolution ─────────────────────────────────────────────────────
+// -- Admin role resolution -----------------------------------------------------
 //
 // Mirrors resolveActorRole logic in the IDARi route handler.
 
@@ -101,7 +101,7 @@ describe('IDARi admin gate (Phase 6 spec point 5, 6)', () => {
   });
 });
 
-// ── Dev bypass must NOT exempt IDARi (Phase 6 spec point 6) ──────────────────
+// -- Dev bypass must NOT exempt IDARi (Phase 6 spec point 6) ------------------
 //
 // DEV_BYPASS_AUTH=true skips auth for user-facing surfaces.
 // IDARi must remain guarded regardless.
@@ -149,7 +149,7 @@ describe('IDARi ignores dev bypass flags (Phase 6 spec point 6)', () => {
   });
 });
 
-// ── Rate limits per role ──────────────────────────────────────────────────────
+// -- Rate limits per role ------------------------------------------------------
 
 describe('IDARi rate limits by role', () => {
   const RATE_LIMITS: Record<ActorRole, number> = {

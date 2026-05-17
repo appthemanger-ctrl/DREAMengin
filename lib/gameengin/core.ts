@@ -51,7 +51,7 @@ import {
   PhysicsMaterialSystem,
 } from './power-systems';
 
-// ─── ECS Types ────────────────────────────────────────────────────────────────
+// --- ECS Types ----------------------------------------------------------------
 
 export type EntityId = number;
 
@@ -65,7 +65,7 @@ export interface System {
   update(world: ECSWorld, dt: number): void;
 }
 
-// ─── ECS World ────────────────────────────────────────────────────────────────
+// --- ECS World ----------------------------------------------------------------
 
 export class ECSWorld {
   private _nextId = 1;
@@ -73,7 +73,7 @@ export class ECSWorld {
   private _components = new Map<EntityId, Map<string, Component>>();
   private _systems: System[] = [];
 
-  // ── Entity management ────────────────────────────────────────────────────
+  // -- Entity management ----------------------------------------------------
 
   createEntity(): EntityId {
     const id = this._nextId++;
@@ -87,7 +87,7 @@ export class ECSWorld {
     this._components.delete(id);
   }
 
-  // ── Component CRUD ───────────────────────────────────────────────────────
+  // -- Component CRUD -------------------------------------------------------
 
   addComponent<C extends Component>(entity: EntityId, component: C): void {
     this._components.get(entity)?.set(component.type, component);
@@ -105,7 +105,7 @@ export class ECSWorld {
     return this._components.get(entity)?.has(type) ?? false;
   }
 
-  // ── Query ────────────────────────────────────────────────────────────────
+  // -- Query ----------------------------------------------------------------
 
   /** Returns all entity IDs that have ALL the listed component types. */
   query(...types: string[]): EntityId[] {
@@ -116,7 +116,7 @@ export class ECSWorld {
     return result;
   }
 
-  // ── Systems ──────────────────────────────────────────────────────────────
+  // -- Systems --------------------------------------------------------------
 
   addSystem(system: System): void {
     this._systems.push(system);
@@ -136,7 +136,7 @@ export class ECSWorld {
   }
 }
 
-// ─── Performance Budget ───────────────────────────────────────────────────────
+// --- Performance Budget -------------------------------------------------------
 
 export type QualityTier = 'ultra' | 'high' | 'medium' | 'low';
 
@@ -241,7 +241,7 @@ const QUALITY_PRESETS: Record<QualityTier, PerformanceBudget> = {
   },
 };
 
-// ─── Frame Telemetry ──────────────────────────────────────────────────────────
+// --- Frame Telemetry ----------------------------------------------------------
 
 export interface FrameTelemetry {
   fps: number;
@@ -255,7 +255,7 @@ export interface FrameTelemetry {
   particleCount: number;
 }
 
-// ─── EliteGameEngine ──────────────────────────────────────────────────────────
+// --- EliteGameEngine ----------------------------------------------------------
 
 export type FrameCallback = (dt: number, telemetry: FrameTelemetry) => void;
 export type QualityChangeCallback = (budget: PerformanceBudget) => void;
@@ -263,7 +263,7 @@ export type QualityChangeCallback = (budget: PerformanceBudget) => void;
 export class EliteGameEngine {
   readonly world = new ECSWorld();
 
-  // ── 20 Power Systems ─────────────────────────────────────────────────────
+  // -- 20 Power Systems -----------------------------------------------------
   /** System 1: Deterministic rollback netcode for lag-free multiplayer. */
   readonly netcode = new RollbackNetcode({ maxRollbackFrames: 8, tickRateHz: 60 });
   /** System 2: WebGPU compute shader pipeline (physics/particles on GPU). */

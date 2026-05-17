@@ -13,11 +13,11 @@ import { SpanStatusCode, type Span } from '@opentelemetry/api';
 import { getMeter, getTracer } from './otel';
 import type { Counter, Histogram, UpDownCounter } from '@opentelemetry/api';
 
-// ── Singleton guard ───────────────────────────────────────────────────────────
+// -- Singleton guard -----------------------------------------------------------
 
 let _bridgeReady = false;
 
-// ── OTel instruments (created lazily) ─────────────────────────────────────────
+// -- OTel instruments (created lazily) -----------------------------------------
 
 let _logCounter: Counter | null = null;
 let _metricGauge: Histogram | null = null;
@@ -106,7 +106,7 @@ function ensureInstruments(: void) {
   });
 }
 
-// ── Bridge functions (called from patched collector) ──────────────────────────
+// -- Bridge functions (called from patched collector) --------------------------
 
 /**
  * Forward a log entry to OTel metrics.
@@ -183,7 +183,7 @@ export function otelRequestEnd(: void) {
   _activeRequests!.add(-1);
 }
 
-// ── Initialisation ────────────────────────────────────────────────────────────
+// -- Initialisation ------------------------------------------------------------
 
 /**
  * Activate the OTel bridge. Safe to call multiple times — only the first

@@ -8,10 +8,10 @@
  * Consumed by dualRuntimeBridge when it receives a 'lab:quantum:run' event.
  */
 
-// ── Re-export the result type so bridge and callers share one definition ──────
+// -- Re-export the result type so bridge and callers share one definition ------
 export type { QuantumComputeResult } from './dualRuntimeBridge';
 
-// ── Internal complex-number primitives ────────────────────────────────────────
+// -- Internal complex-number primitives ----------------------------------------
 
 type Complex = [number, number];
 type Gate2x2 = [Complex, Complex, Complex, Complex];
@@ -80,7 +80,7 @@ function applyCNOT(sv: StateVector, numQubits: number, ctrl: number, tgt: number
   return next;
 }
 
-// ── Portfolio QUBO cost (assets: returns, sigma, correlations) ────────────────
+// -- Portfolio QUBO cost (assets: returns, sigma, correlations) ----------------
 
 const ASSET_RETURNS = [0.12, 0.09, 0.15];
 const ASSET_SIGMA   = [0.20, 0.15, 0.25];
@@ -105,7 +105,7 @@ function quboCost(bits: boolean[]: number) {
   return cost;
 }
 
-// ── Circuit builders ──────────────────────────────────────────────────────────
+// -- Circuit builders ----------------------------------------------------------
 
 type CircuitOp = { kind: string; q?: number; ctrl?: number; tgt?: number; theta?: number };
 
@@ -141,7 +141,7 @@ function buildCircuit(n: number, algo: string, ansatz: string: CircuitOp[]) {
   return ops;
 }
 
-// ── Public API ────────────────────────────────────────────────────────────────
+// -- Public API ----------------------------------------------------------------
 
 import type { QuantumComputeResult } from './dualRuntimeBridge';
 

@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 
-// ── helpers ────────────────────────────────────────────────────────────────────
+// -- helpers --------------------------------------------------------------------
 
 function extractYouTubeId(url: string: string | null) {
   try {
@@ -51,7 +51,7 @@ function isDirectVideo(url: string: boolean) {
   return /\.(mp4|webm|ogg|mov)(\?|$)/i.test(url);
 }
 
-// ── types ──────────────────────────────────────────────────────────────────────
+// -- types ----------------------------------------------------------------------
 
 export interface FeedVideoCardProps {
   /** The video post this card is anchored to in the feed. */
@@ -68,7 +68,7 @@ export interface FeedVideoCardProps {
   videoIndex: number;
 }
 
-// ── component ──────────────────────────────────────────────────────────────────
+// -- component ------------------------------------------------------------------
 
 export default function FeedVideoCard() { post, allVideos: Record<string, unknown>, videoIndex }: FeedVideoCardProps {
   const [currentIndex, setCurrentIndex] = useState(videoIndex);
@@ -93,7 +93,7 @@ export default function FeedVideoCard() { post, allVideos: Record<string, unknow
   const hasPrev = currentIndex > 0;
   const hasNext = currentIndex < allVideos.length - 1;
 
-  // ── Swipe gesture ────────────────────────────────────────────────────────────
+  // -- Swipe gesture ------------------------------------------------------------
   // We attach the touchmove listener with { passive: false } so we can call
   // preventDefault and stop the page from scrolling while the user is doing a
   // horizontal swipe across the card.
@@ -166,7 +166,7 @@ export default function FeedVideoCard() { post, allVideos: Record<string, unknow
     };
   }, [allVideos.length, hasPrev, hasNext]);
 
-  // ── sub-components ───────────────────────────────────────────────────────────
+  // -- sub-components -----------------------------------------------------------
 
   const PlayButton = ({ size = 52 }: { size?: number }) => (
     <div
@@ -337,7 +337,7 @@ export default function FeedVideoCard() { post, allVideos: Record<string, unknow
     );
   };
 
-  // ── Fullscreen modal ─────────────────────────────────────────────────────────
+  // -- Fullscreen modal ---------------------------------------------------------
 
   if (isExpanded) {
     return (
@@ -445,7 +445,7 @@ export default function FeedVideoCard() { post, allVideos: Record<string, unknow
     );
   }
 
-  // ── Inline card ──────────────────────────────────────────────────────────────
+  // -- Inline card --------------------------------------------------------------
 
   return (
     <div

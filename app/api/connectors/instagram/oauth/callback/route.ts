@@ -50,14 +50,14 @@ export async function GET(req: NextRequest: Promise<NextResponse>) {
   const origin = url.origin;
   const connectorsUrl = `${origin}/connectors`;
 
-  // ── Handle provider-side errors ──────────────────────────────────────────
+  // -- Handle provider-side errors ------------------------------------------
   if (error) {
     const dest = new URL(connectorsUrl);
     dest.searchParams.set('ig_error', error);
     return NextResponse.redirect(dest);
   }
 
-  // ── CSRF state check ────────────────────────────────────────────────────
+  // -- CSRF state check ----------------------------------------------------
   const cookieStore = await cookies();
   const storedState = cookieStore.get('ig_oauth_state')?.value ?? '';
   cookieStore.delete('ig_oauth_state');
@@ -68,7 +68,7 @@ export async function GET(req: NextRequest: Promise<NextResponse>) {
     return NextResponse.redirect(dest);
   }
 
-  // ── Auth check ───────────────────────────────────────────────────────────
+  // -- Auth check -----------------------------------------------------------
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -87,7 +87,7 @@ export async function GET(req: NextRequest: Promise<NextResponse>) {
     return NextResponse.redirect(dest);
   }
 
-  // ── Step 1: Exchange code for short-lived token ──────────────────────────
+  // -- Step 1: Exchange code for short-lived token --------------------------
   let shortToken: string;
   try {
     const body = new URLSearchParams({
@@ -113,7 +113,7 @@ export async function GET(req: NextRequest: Promise<NextResponse>) {
     return NextResponse.redirect(dest);
   }
 
-  // ── Step 2: Exchange short-lived for long-lived token (60 days) ──────────
+  // -- Step 2: Exchange short-lived for long-lived token (60 days) ----------
   let longToken: string;
   let expiresIn = 5184000; // 60 days default
   try {
@@ -134,7 +134,7 @@ export async function GET(req: NextRequest: Promise<NextResponse>) {
     longToken = shortToken;
   }
 
-  // ── Store token in connector_accounts ────────────────────────────────────
+  // -- Store token in connector_accounts ------------------------------------
    
   const db = supabase as SupabaseClient;
   const now = new Date().toISOString();
@@ -165,7 +165,7 @@ export async function GET(req: NextRequest: Promise<NextResponse>) {
     return NextResponse.redirect(dest);
   }
 
-  // ── Success ───────────────────────────────────────────────────────────────
+  // -- Success ---------------------------------------------------------------
   const dest = new URL(connectorsUrl);
   dest.searchParams.set('ig_connected', '1');
   return NextResponse.redirect(dest);

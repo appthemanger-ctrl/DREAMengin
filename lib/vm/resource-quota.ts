@@ -5,7 +5,7 @@
  * hard-limiting GPU buffer allocation, VRAM usage, and compute time.
  */
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 export interface ResourceQuota {
   /** Maximum number of live GPU buffers. */
@@ -36,7 +36,7 @@ export interface QuotaViolation {
   message: string;
 }
 
-// ─── Errors ───────────────────────────────────────────────────────────────────
+// --- Errors -------------------------------------------------------------------
 
 export class QuotaExceededError extends Error {
   readonly violations: readonly QuotaViolation[];
@@ -50,7 +50,7 @@ export class QuotaExceededError extends Error {
   }
 }
 
-// ─── Defaults ─────────────────────────────────────────────────────────────────
+// --- Defaults -----------------------------------------------------------------
 
 export const DEFAULT_RESOURCE_QUOTA: ResourceQuota = {
   maxGpuBuffers:   2048,
@@ -59,7 +59,7 @@ export const DEFAULT_RESOURCE_QUOTA: ResourceQuota = {
   maxComputeMs:    100,
 };
 
-// ─── Enforcement ──────────────────────────────────────────────────────────────
+// --- Enforcement --------------------------------------------------------------
 
 /**
  * enforceQuota(quota, usage)

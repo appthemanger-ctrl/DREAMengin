@@ -201,7 +201,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
           data-source={source}
           style={{ position: 'relative' }}
         >
-          {/* ── Source accent left bar ── */}
+          {/* -- Source accent left bar -- */}
           <div style={{
             position: 'absolute',
             left: 0, top: 0, bottom: 0,
@@ -211,7 +211,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
           }} />
 
           <div style={{ padding: '14px 16px 14px 20px' }}>
-            {/* ── Author row ── */}
+            {/* -- Author row -- */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
               {/* Avatar with gradient ring */}
               <span className="avatar-ring" style={{ flexShrink: 0 }}>
@@ -326,7 +326,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
               </div>
             </div>
 
-            {/* ── Title ── */}
+            {/* -- Title -- */}
             {displayTitle && (
               <h3 style={{
                 fontSize: 15, fontWeight: 800, color: 'var(--de-heading)',
@@ -337,7 +337,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
               </h3>
             )}
 
-            {/* ── Content ── */}
+            {/* -- Content -- */}
             {displayContent && (
               <p style={{
                 fontSize: 13, color: 'var(--de-text-dim)',
@@ -351,7 +351,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
               </p>
             )}
 
-            {/* ── Media ── */}
+            {/* -- Media -- */}
             {(() => {
               const thumbnail =
                 (item.media_json && typeof item.media_json === 'object' && !Array.isArray(item.media_json) &&
@@ -403,7 +403,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps {
               return null;
             })()}
 
-            {/* ── Actions ── */}
+            {/* -- Actions -- */}
             <div style={{
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               paddingTop: 10, borderTop: '1px solid rgba(160,195,240,0.15)',

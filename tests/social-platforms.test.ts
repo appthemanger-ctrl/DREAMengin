@@ -8,7 +8,7 @@ import {
   getPlatform,
 } from '@/lib/social/platforms';
 
-// ─── Registry shape ──────────────────────────────────────────────────────────
+// --- Registry shape ----------------------------------------------------------
 
 describe('SOCIAL_PLATFORMS registry', () => {
   it('contains at least 10 platforms', () => {
@@ -61,7 +61,7 @@ describe('SOCIAL_PLATFORMS registry', () => {
   });
 });
 
-// ─── PLATFORM_MAP ─────────────────────────────────────────────────────────────
+// --- PLATFORM_MAP -------------------------------------------------------------
 
 describe('PLATFORM_MAP', () => {
   it('contains every platform from SOCIAL_PLATFORMS', () => {
@@ -72,7 +72,7 @@ describe('PLATFORM_MAP', () => {
   });
 });
 
-// ─── detectPlatform ──────────────────────────────────────────────────────────
+// --- detectPlatform ----------------------------------------------------------
 
 describe('detectPlatform', () => {
   it('detects twitter.com URL', () => {
@@ -140,7 +140,7 @@ describe('detectPlatform', () => {
   });
 });
 
-// ─── getPlatform ──────────────────────────────────────────────────────────────
+// --- getPlatform --------------------------------------------------------------
 
 describe('getPlatform', () => {
   it('returns the correct platform for a known id', () => {
@@ -153,7 +153,7 @@ describe('getPlatform', () => {
   });
 });
 
-// ─── buildShareUrl ───────────────────────────────────────────────────────────
+// --- buildShareUrl -----------------------------------------------------------
 
 describe('buildShareUrl', () => {
   const profileUrl = 'https://dreamengin.app/u/testuser';
@@ -205,7 +205,7 @@ describe('buildShareUrl', () => {
   });
 });
 
-// ─── PROFILE_SHARE_PLATFORMS ─────────────────────────────────────────────────
+// --- PROFILE_SHARE_PLATFORMS -------------------------------------------------
 
 describe('PROFILE_SHARE_PLATFORMS', () => {
   it('contains at least 4 platforms', () => {

@@ -16,7 +16,7 @@
 import { describe, expect, it } from 'vitest';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 
-// ── Helpers / shared fixtures ─────────────────────────────────────────────────
+// -- Helpers / shared fixtures -------------------------------------------------
 
 function makePost(id: string, overrides: Partial<FeedPost> =) {}): FeedPost {
   const offset = Math.abs(id.charCodeAt(0) - 48) * 1000; // stable non-negative offset
@@ -57,7 +57,7 @@ function makeConnectorEntry(id: string, provider: string): FeedPost {
   };
 }
 
-// ── Deduplication logic ───────────────────────────────────────────────────────
+// -- Deduplication logic -------------------------------------------------------
 
 describe('useLiveFeed — deduplication', () => {
   it('does not prepend a post that already exists in the visible feed', () => {
@@ -102,7 +102,7 @@ describe('useLiveFeed — deduplication', () => {
   });
 });
 
-// ── Queue / flush mechanics ───────────────────────────────────────────────────
+// -- Queue / flush mechanics ---------------------------------------------------
 
 describe('useLiveFeed — flush', () => {
   it('flushNew merges queued posts in front of visible posts', () => {
@@ -144,7 +144,7 @@ describe('useLiveFeed — flush', () => {
   });
 });
 
-// ── updatePost (in-place patching) ────────────────────────────────────────────
+// -- updatePost (in-place patching) --------------------------------------------
 
 describe('useLiveFeed — updatePost', () => {
   it('patches likes_count in place without touching other posts', () => {
@@ -174,7 +174,7 @@ describe('useLiveFeed — updatePost', () => {
   });
 });
 
-// ── replacePosts ──────────────────────────────────────────────────────────────
+// -- replacePosts --------------------------------------------------------------
 
 describe('useLiveFeed — replacePosts', () => {
   it('replaces visible posts with new array', () => {
@@ -192,7 +192,7 @@ describe('useLiveFeed — replacePosts', () => {
   });
 });
 
-// ── Connector items ───────────────────────────────────────────────────────────
+// -- Connector items -----------------------------------------------------------
 
 describe('useLiveFeed — connector items', () => {
   it('connector items have source=connector and a provider', () => {
@@ -237,7 +237,7 @@ describe('useLiveFeed — connector items', () => {
   });
 });
 
-// ── isLive indicator ──────────────────────────────────────────────────────────
+// -- isLive indicator ----------------------------------------------------------
 
 describe('useLiveFeed — live status', () => {
   it('isLive becomes true when status === SUBSCRIBED', () => {
@@ -254,7 +254,7 @@ describe('useLiveFeed — live status', () => {
   });
 });
 
-// ── Banner count logic ────────────────────────────────────────────────────────
+// -- Banner count logic --------------------------------------------------------
 
 describe('useLiveFeed — newCount banner', () => {
   it('newCount equals the number of queued posts', () => {
@@ -280,7 +280,7 @@ describe('useLiveFeed — newCount banner', () => {
   });
 });
 
-// ── Sort order ────────────────────────────────────────────────────────────────
+// -- Sort order ----------------------------------------------------------------
 
 describe('useLiveFeed — sort order', () => {
   it('initial posts from the server arrive newest-first', () => {

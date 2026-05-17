@@ -43,7 +43,7 @@ import {
   TORUS_HEIGHT,
 } from '@/lib/runtime/dualRuntime';
 
-// ── Home data shared by DreamBarDataBridge into PersistentDreamBar ───────────
+// -- Home data shared by DreamBarDataBridge into PersistentDreamBar -----------
 
 type ProfileLike = {
   id?: string;
@@ -59,7 +59,7 @@ export interface HomeData {
   isAdmin: boolean;
 }
 
-// ── Bar intent types ──────────────────────────────────────────────────────────
+// -- Bar intent types ----------------------------------------------------------
 
 /**
  * The DreamDM Bar operates in one of these intent modes.
@@ -96,7 +96,7 @@ export interface BarIntent {
 
 export const DEFAULT_BAR_INTENT: BarIntent = { mode: 'default' };
 
-// ── World Focus — torus navigation state ─────────────────────────────────────
+// -- World Focus — torus navigation state -------------------------------------
 
 /**
  * World focus state: where in the "one page / torus world" the user is.
@@ -124,7 +124,7 @@ export const DEFAULT_WORLD_FOCUS: WorldFocusState = {
   dominantViewport:  'top',
 };
 
-// ── Callback types ────────────────────────────────────────────────────────────
+// -- Callback types ------------------------------------------------------------
 
 type ReturnHomeFn     = () => void;
 type OpenInSurfaceFn  = (id: SystemPanelId) => void;
@@ -151,7 +151,7 @@ export interface RuntimeCallbacks {
   returnDreamSpace?: () => void;
 }
 
-// ── Context shape ─────────────────────────────────────────────────────────────
+// -- Context shape -------------------------------------------------------------
 
 interface DreamSystemContextValue {
   /** Whether the dual bottom menu is open */
@@ -207,7 +207,7 @@ interface DreamSystemContextValue {
   homeData: HomeData | null;
   setHomeData: Dispatch<SetStateAction<HomeData | null>>;
 
-  // ── World Focus / Torus Navigation ────────────────────────────────────────
+  // -- World Focus / Torus Navigation ----------------------------------------
 
   /**
    * Current world focus state (torus position + focused region key).
@@ -243,7 +243,7 @@ interface DreamSystemContextValue {
   setDominantViewport: (viewport: 'top' | 'bottom') => void;
 }
 
-// ── Context + provider ────────────────────────────────────────────────────────
+// -- Context + provider --------------------------------------------------------
 
 const DreamSystemContext = createContext<DreamSystemContextValue>({
   bothMenusOpen:              false,
@@ -283,7 +283,7 @@ export function DreamSystemProvider() { children }: { children: ReactNode } {
   const [isBarMinimized, setIsBarMinimized]      = useState(false);
   const [homeData,      setHomeData]             = useState<HomeData | null>(null);
 
-  // ── World Focus / Torus Navigation state ─────────────────────────────────
+  // -- World Focus / Torus Navigation state ---------------------------------
   const [worldFocus, setWorldFocusState] = useState<WorldFocusState>(DEFAULT_WORLD_FOCUS);
 
   // Bootstrap homeData from Supabase on any authenticated page so both
@@ -337,7 +337,7 @@ export function DreamSystemProvider() { children }: { children: ReactNode } {
   const setBarIntent   = useCallback((intent: BarIntent) => setBarIntentState(intent), []);
   const clearBarIntent = useCallback(() => setBarIntentState(DEFAULT_BAR_INTENT), []);
 
-  // ── World Focus handlers ─────────────────────────────────────────────────
+  // -- World Focus handlers -------------------------------------------------
 
   const setFocus = useCallback((
     key: string,

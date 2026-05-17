@@ -26,7 +26,7 @@ import {
   snapToGrid,
 } from '@/lib/music/starmakerDaw';
 
-// ─── Theme tokens ─────────────────────────────────────────────────────────────
+// --- Theme tokens -------------------------------------------------------------
 
 const T = {
   bg:          '#0d0f17',
@@ -48,7 +48,7 @@ const PITCH_ROW_H = 12;   // px per pitch row
 const BEAT_COL_W = 32;    // px per beat column
 const KEY_W = 52;         // px for piano keyboard strip
 
-// ─── Props ────────────────────────────────────────────────────────────────────
+// --- Props --------------------------------------------------------------------
 
 interface PianoRollPanelProps {
   state: PianoRollState;
@@ -56,7 +56,7 @@ interface PianoRollPanelProps {
   onStateChange: (next: PianoRollState) => void;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// --- Helpers ------------------------------------------------------------------
 
 function sectionHeader(label: string, extra?: React.ReactNode) {
   return (
@@ -86,7 +86,7 @@ function pill(color: string, text: string) {
   );
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// --- Component ----------------------------------------------------------------
 
 export default function PianoRollPanel() { state, bpm: Record<string, unknown>, onStateChange }: PianoRollPanelProps {
   const [isOpen, setIsOpen] = useState(false);
@@ -162,7 +162,7 @@ export default function PianoRollPanel() { state, bpm: Record<string, unknown>, 
 
       {isOpen && (
         <div style={{ padding: '12px 12px 8px' }}>
-          {/* ── Toolbar ── */}
+          {/* -- Toolbar -- */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
             {/* Quantize */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -203,7 +203,7 @@ export default function PianoRollPanel() { state, bpm: Record<string, unknown>, 
             </div>
           </div>
 
-          {/* ── Grid ── */}
+          {/* -- Grid -- */}
           <div style={{ display: 'flex', border: `1px solid ${T.border}`, borderRadius: 8, overflow: 'hidden' }}>
             {/* Piano keyboard strip */}
             <div style={{ width: KEY_W, flexShrink: 0 }}>
@@ -339,7 +339,7 @@ export default function PianoRollPanel() { state, bpm: Record<string, unknown>, 
             </div>
           </div>
 
-          {/* ── Velocity strip ── */}
+          {/* -- Velocity strip -- */}
           {notes.length > 0 && (
             <div style={{ marginTop: 8 }}>
               <div style={{ fontSize: 9, fontWeight: 700, color: T.dim, letterSpacing: '0.08em', marginBottom: 4 }}>
@@ -367,7 +367,7 @@ export default function PianoRollPanel() { state, bpm: Record<string, unknown>, 
             </div>
           )}
 
-          {/* ── Info row ── */}
+          {/* -- Info row -- */}
           <div style={{ marginTop: 8, display: 'flex', gap: 12, fontSize: 9, color: T.dim }}>
             <span>
               {notes.length > 0

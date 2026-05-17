@@ -27,7 +27,7 @@
  * Performance target: ≤ 1 ms/tick for 10,000 entities at 60 fps.
  */
 
-// ─── tickPhysicsSIMD ─────────────────────────────────────────────────────────
+// --- tickPhysicsSIMD ---------------------------------------------------------
 
 /**
  * Optimised physics tick using f32x4 SIMD.
@@ -73,7 +73,7 @@ export function tickPhysicsSIMD(
   }
 }
 
-// ─── processAudioBufferSIMD ───────────────────────────────────────────────────
+// --- processAudioBufferSIMD ---------------------------------------------------
 
 /**
  * SIMD-accelerated audio gain pass for the StarMaker daydream.

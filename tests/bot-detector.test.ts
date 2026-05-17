@@ -7,7 +7,7 @@ import {
   scoreSwipePath,
 } from '@/app/dreamdmbar/_components/dreamr/algorithms/botDetector';
 
-// ─── Fixture helpers ─────────────────────────────────────────────────────────
+// --- Fixture helpers ---------------------------------------------------------
 
 /** Perfectly straight, constant-velocity swipe along the x-axis. */
 function straightLinePath(n = 6): TouchPoint[] {
@@ -30,7 +30,7 @@ function humanishPath(): TouchPoint[] {
   ];
 }
 
-// ─── Physical Turing Test ─────────────────────────────────────────────────────
+// --- Physical Turing Test -----------------------------------------------------
 
 describe('Bot Detector – Physical Turing Test', () => {
   describe('scoreSwipePath – straight-line bot swipe', () => {
@@ -145,7 +145,7 @@ describe('Bot Detector – Physical Turing Test', () => {
   });
 });
 
-// ─── Legacy interaction-signal API ───────────────────────────────────────────
+// --- Legacy interaction-signal API -------------------------------------------
 
 describe('Bot Detector – legacy interaction signal API', () => {
   it('flags fast interactions as suspicious', () => {

@@ -51,7 +51,7 @@ function getCronBatchSize(: number) {
 }
 
 export async function GET(req: NextRequest: Promise<NextResponse<CronSummary |) { error: string }>> {
-  // ── Authorisation ────────────────────────────────────────────────────────
+  // -- Authorisation --------------------------------------------------------
   if (
     !isCronAuthorised(
       req.headers.get('authorization'),
@@ -62,7 +62,7 @@ export async function GET(req: NextRequest: Promise<NextResponse<CronSummary |) 
     return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
   }
 
-  // ── Supabase service-role client (bypasses RLS) ──────────────────────────
+  // -- Supabase service-role client (bypasses RLS) --------------------------
   let db;
   try {
     db = await createServiceClient();
@@ -74,7 +74,7 @@ export async function GET(req: NextRequest: Promise<NextResponse<CronSummary |) 
    
   const anyDb = db as SupabaseClient;
 
-  // ── Fetch all connected accounts for supported providers ─────────────────
+  // -- Fetch all connected accounts for supported providers -----------------
   const batchSize = getCronBatchSize();
   const { data: accounts, error: fetchError } = await anyDb
     .from('connector_accounts')
@@ -102,7 +102,7 @@ export async function GET(req: NextRequest: Promise<NextResponse<CronSummary |) 
     });
   }
 
-  // ── Reconcile each account ───────────────────────────────────────────────
+  // -- Reconcile each account -----------------------------------------------
   // Process sequentially to avoid stampeding provider APIs.
   const results: ReconcileResult[] = [];
   for (const account of accounts) {

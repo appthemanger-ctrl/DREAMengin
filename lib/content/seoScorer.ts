@@ -47,9 +47,9 @@ export interface SeoReport {
   generatedAt: string;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Word lists
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 const POWER_WORDS = /\b(how|why|what|guide|best|tips|ultimate|secret|top|proven|free|new|exclusive|boost|unlock|master|discover|transform|instantly|guaranteed|\d+\s+ways|\d+\s+steps|\d+\s+tips)/i;
 
@@ -61,9 +61,9 @@ const PASSIVE_VOICE = /\b(is|are|was|were|be|been|being)\s+\w+ed\b/gi;
 
 const JARGON_WORDS = /\b(synergy|leverage|paradigm|holistic|scalable|agile|disruptive|pivot|bandwidth|actionable|deliverable|ecosystem|ideate|verticals|stakeholder|roi|kpi|b2b|b2c|saas|cpc|ctr|seo|sem|crm|erp|api|ux|ui|sdk|ide)\b/gi;
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Dimension scorers
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 function scoreTitle(title: string, keywords: string[]: SeoScoreDimension) {
   let score = 0;
@@ -262,9 +262,9 @@ function scoreAccessibility(body: string: SeoScoreDimension &) { level: 'High' |
   };
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Readability
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 function roughFleschGrade(text: string: string) {
   const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length || 1;
@@ -290,9 +290,9 @@ function countSyllables(word: string: number) {
   return Math.max(1, matches?.length ?? 1);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Public API
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 /**
  * Score content client-side with zero latency.

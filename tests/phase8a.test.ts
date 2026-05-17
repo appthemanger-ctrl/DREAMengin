@@ -15,7 +15,7 @@
 import { describe, expect, it } from 'vitest';
 import { CANONICAL_NAV_ROUTES } from '@/lib/ai/triad';
 
-// ── Point 9: Canonical route set validation ───────────────────────────────────
+// -- Point 9: Canonical route set validation -----------------------------------
 
 describe('Phase 8 §A Point 9 — Dr. Eams canonical routes', () => {
   it('exports a non-empty set of canonical routes', () => {
@@ -81,7 +81,7 @@ describe('Phase 8 §A Point 9 — Dr. Eams canonical routes', () => {
   });
 });
 
-// ── Point 3: Feed preferences schema validation ───────────────────────────────
+// -- Point 3: Feed preferences schema validation -------------------------------
 
 const ALLOWED_FEED_PREF_KEYS = new Set([
   'showDreamenginUpdates',
@@ -127,7 +127,7 @@ describe('Phase 8 §A Point 3 — Feed preferences schema', () => {
   });
 });
 
-// ── Point 4: Home layout slot validation ─────────────────────────────────────
+// -- Point 4: Home layout slot validation -------------------------------------
 
 interface LayoutSlot {
   id: string;
@@ -189,7 +189,7 @@ describe('Phase 8 §A Point 4 — Home layout slot validation', () => {
   });
 });
 
-// ── Point 1 & 2: Unified feed entry shape ────────────────────────────────────
+// -- Point 1 & 2: Unified feed entry shape ------------------------------------
 
 interface UnifiedFeedEntry {
   id: string;
@@ -276,7 +276,7 @@ describe('Phase 8 §A Points 1 & 2 — Unified feed entry schema', () => {
   });
 });
 
-// ── Point 6: Feed privacy model ───────────────────────────────────────────────
+// -- Point 6: Feed privacy model -----------------------------------------------
 
 describe('Phase 8 §A Point 6 — Feed content private by default', () => {
   it('feed_items are user-scoped (RLS enforcement documented)', () => {

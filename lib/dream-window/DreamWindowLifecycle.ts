@@ -8,14 +8,14 @@
  * State graph:
  *
  *   Unbound Dream Window
- *      │ bindDreamWindow   (requires sourceBindings to be non-empty)
+ *      | bindDreamWindow   (requires sourceBindings to be non-empty)
  *      ▼
  *   Bound Dream Window
- *      │ mountDreamWindow        │ unbindDreamWindow
+ *      | mountDreamWindow        | unbindDreamWindow
  *      ▼                         ▲
  *   Mounted Dream Window
- *      │ collapseDreamWindow     │ unmountDreamWindow
- *      │ activateDreamWindow (↑) │
+ *      | collapseDreamWindow     | unmountDreamWindow
+ *      | activateDreamWindow (↑) |
  *      ▼
  *   Collapsed Dream Window
  *

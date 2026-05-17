@@ -14,11 +14,11 @@
 
 import { describe, it, expect } from 'vitest';
 
-// ── Import topic data directly ─────────────────────────────────────────────────
+// -- Import topic data directly -------------------------------------------------
 
 import { DREAMR_TOPICS } from '@/app/dreamdmbar/_components/dreamr/dream.DreamRFeed';
 
-// ── Topic structure tests ──────────────────────────────────────────────────────
+// -- Topic structure tests ------------------------------------------------------
 
 describe('DREAMR_TOPICS', () => {
   it('has at least 11 entries including "All"', () => {
@@ -85,7 +85,7 @@ describe('DREAMR_TOPICS', () => {
   });
 });
 
-// ── ytItemToFeedPost contract ─────────────────────────────────────────────────
+// -- ytItemToFeedPost contract -------------------------------------------------
 // We test the mapping logic directly — no need to import the private helper;
 // instead we inline the same transformation to verify expected output shape.
 
@@ -173,7 +173,7 @@ describe('ytItemToFeedPost mapping', () => {
   });
 });
 
-// ── Swipe-left routing logic ──────────────────────────────────────────────────
+// -- Swipe-left routing logic --------------------------------------------------
 // isYouTube(post) → true for YouTube provider or youtube permalink
 
 function isYouTubeLocal(post:) { provider?: string; source?: string; permalink?: string | null }): boolean {
@@ -206,7 +206,7 @@ describe('isYouTube routing', () => {
   });
 });
 
-// ── YouTubeChannelResponse shape ──────────────────────────────────────────────
+// -- YouTubeChannelResponse shape ----------------------------------------------
 
 describe('YouTubeChannelResponse typing', () => {
   it('has the expected shape', () => {

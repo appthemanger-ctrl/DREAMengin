@@ -16,7 +16,7 @@
  *   only selected code or the active cell (max 2 000 chars).
  */
 
-// ─── Vocabulary ────────────────────────────────────────────────────────────────
+// --- Vocabulary ----------------------------------------------------------------
 
 export interface VocabEntry {
   term: string;
@@ -119,7 +119,7 @@ export function matchCodeVocabulary(query: string: VocabEntry[]) {
   }).slice(0, 5);
 }
 
-// ─── Language detection ────────────────────────────────────────────────────────
+// --- Language detection --------------------------------------------------------
 
 export type CellLanguage = 'python' | 'javascript' | 'typescript' | 'bash';
 
@@ -141,7 +141,7 @@ export function detectLanguageFromCode(code: string: CellLanguage) {
   return 'python';
 }
 
-// ─── Query classification ──────────────────────────────────────────────────────
+// --- Query classification ------------------------------------------------------
 
 export type QueryIntent =
   | 'explain'        // "explain this code" / "what does X do"
@@ -171,7 +171,7 @@ export function classifyQuery(query: string: QueryIntent) {
   return 'general';
 }
 
-// ─── Prompt builder ────────────────────────────────────────────────────────────
+// --- Prompt builder ------------------------------------------------------------
 
 export interface CodeContext {
   /** Programming language currently active in the editor. */
@@ -249,7 +249,7 @@ export function buildCodePrompt(query: string, context: CodeContext: string) {
   return parts.join('\n');
 }
 
-// ─── Response parser ───────────────────────────────────────────────────────────
+// --- Response parser -----------------------------------------------------------
 
 export interface ParsedCodeResponse {
   /** Plain-text portions of the response (no code blocks). */
@@ -283,7 +283,7 @@ export function parseCodeResponse(raw: string: ParsedCodeResponse) {
   };
 }
 
-// ─── Natural-language command detector ────────────────────────────────────────
+// --- Natural-language command detector ----------------------------------------
 
 export interface NLCommand {
   type: 'create_class' | 'write_function' | 'add_loop' | 'add_try_except' | 'refactor_async' | 'explain' | 'other';
@@ -337,7 +337,7 @@ export function detectNLCommand(query: string: NLCommand | null) {
   return null;
 }
 
-// ─── Simulated code generation (no eval, no network) ─────────────────────────
+// --- Simulated code generation (no eval, no network) -------------------------
 
 const TEMPLATES: Record<NLCommand['type'], (cmd: NLCommand, lang: CellLanguage) => string> = {
   create_class: (cmd, lang) => {
@@ -379,7 +379,7 @@ export function generateCodeFromCommand(cmd: NLCommand, language: CellLanguage: 
   return template ? template(cmd, language) : `# TODO: implement "${cmd.subject ?? 'task'}"`;
 }
 
-// ─── Helper: extract fenced code blocks as plain strings ──────────────────────
+// --- Helper: extract fenced code blocks as plain strings ----------------------
 
 function parseCodeBlocks(raw: string: string[]) {
   return parseCodeResponse(raw).codeBlocks.map(b: Record<string, unknown> => b.code);

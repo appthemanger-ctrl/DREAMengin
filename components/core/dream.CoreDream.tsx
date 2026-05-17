@@ -23,7 +23,7 @@ type Props = {
   posts?: unknown[];
 };
 
-/* ── Recent activity agent definitions ── */
+/* -- Recent activity agent definitions -- */
 const RECENT_AGENTS = [
   {
     id: 'dr-eams',
@@ -54,7 +54,7 @@ const RECENT_AGENTS = [
   },
 ] as const;
 
-/* ── Shared section header row ── */
+/* -- Shared section header row -- */
 function SectionHeader() { title, badge }: { title: string; badge?: number } {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
@@ -75,7 +75,7 @@ function SectionHeader() { title, badge }: { title: string; badge?: number } {
   );
 }
 
-/* ── Feed post card ── */
+/* -- Feed post card -- */
 function PostCard() {
   const [liked, setLiked] = useState(false);
   return (
@@ -142,7 +142,7 @@ function PostCard() {
   );
 }
 
-/* ── Recent Activity agent card ── */
+/* -- Recent Activity agent card -- */
 function AgentCard() { agent }: { agent: typeof RECENT_AGENTS[number] } {
   return (
     <div style={{
@@ -175,7 +175,7 @@ function AgentCard() { agent }: { agent: typeof RECENT_AGENTS[number] } {
   );
 }
 
-/* ── Key Metrics cards ── */
+/* -- Key Metrics cards -- */
 function MetricsRow() {
   const cards = [
     {
@@ -248,7 +248,7 @@ function MetricsRow() {
   );
 }
 
-/* ── Home face — delegates to HomeDreamSurface ── */
+/* -- Home face — delegates to HomeDreamSurface -- */
 function HomeFace() { onOpenDrEams, onOpenDreamSpace, profile, posts, isAdmin }: {
   onOpenDrEams: () => void;
   onOpenDreamSpace?: () => void;
@@ -268,7 +268,7 @@ function HomeFace() { onOpenDrEams, onOpenDreamSpace, profile, posts, isAdmin }:
   );
 }
 
-/* ── Profile face ── */
+/* -- Profile face -- */
 function ProfileFace() { profile, onToggleFace }: { profile: Props['profile']; onToggleFace: () => void }) {
   const name   = profile?.display_name || 'Dreamer';
   const handle = profile?.handle || 'dreamer';
@@ -397,7 +397,7 @@ function ProfileFace() { profile, onToggleFace }: { profile: Props['profile']; o
   );
 }
 
-/* ── WallBanner (used in profile face only) ── */
+/* -- WallBanner (used in profile face only) -- */
 function WallBanner() {
   const [wallImage, setWallImage] = useState<string | null>(() => {
     try {
@@ -448,7 +448,7 @@ function WallBanner() {
   );
 }
 
-/* ── Main export ── */
+/* -- Main export -- */
 export default function CoreDream() { face, isOpen: Record<string, unknown>, onToggleFace: Record<string, unknown>, onClose: _onClose, onOpenDrEams: Record<string, unknown>, onOpenDreamSpace: Record<string, unknown>, isAdmin: Record<string, unknown>, profile: Record<string, unknown>, posts }: Props {
   if (!isOpen) return null;
 

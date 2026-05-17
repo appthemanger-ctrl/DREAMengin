@@ -29,7 +29,7 @@ function warn(capability: string, method: string) {
   }
 }
 
-// ── Save ──────────────────────────────────────────────────────────────────────
+// -- Save ----------------------------------------------------------------------
 
 export const stubSaveAPI: CartridgeSaveAPI = {
   async list()             { warn('save', 'list'); return []; },
@@ -39,7 +39,7 @@ export const stubSaveAPI: CartridgeSaveAPI = {
   async autoSave()         { warn('save', 'autoSave'); },
 };
 
-// ── Achievements ──────────────────────────────────────────────────────────────
+// -- Achievements --------------------------------------------------------------
 
 export const stubAchievementsAPI: CartridgeAchievementsAPI = {
   async unlock()           { warn('achievements', 'unlock'); },
@@ -47,7 +47,7 @@ export const stubAchievementsAPI: CartridgeAchievementsAPI = {
   async getAll()           { warn('achievements', 'getAll'); return []; },
 };
 
-// ── Audio ─────────────────────────────────────────────────────────────────────
+// -- Audio ---------------------------------------------------------------------
 
 export const stubAudioAPI: CartridgeAudioAPI = {
   async resume()           { warn('audio', 'resume'); },
@@ -59,7 +59,7 @@ export const stubAudioAPI: CartridgeAudioAPI = {
   fadeOut()                { warn('audio', 'fadeOut'); },
 };
 
-// ── Haptics ───────────────────────────────────────────────────────────────────
+// -- Haptics -------------------------------------------------------------------
 
 export const stubHapticsAPI: CartridgeHapticsAPI = {
   rumble()                 { warn('haptics', 'rumble'); },
@@ -67,7 +67,7 @@ export const stubHapticsAPI: CartridgeHapticsAPI = {
   impact()                 { warn('haptics', 'impact'); },
 };
 
-// ── Assets ────────────────────────────────────────────────────────────────────
+// -- Assets --------------------------------------------------------------------
 
 export const stubAssetsAPI: CartridgeAssetsAPI = {
   prefetch()               { warn('assets', 'prefetch'); },
@@ -75,7 +75,7 @@ export const stubAssetsAPI: CartridgeAssetsAPI = {
   resolve(path: string)    { warn('assets', 'resolve'); return path; },
 };
 
-// ── Network ───────────────────────────────────────────────────────────────────
+// -- Network -------------------------------------------------------------------
 
 export const stubNetworkAPI: CartridgeNetworkAPI = {
   async joinSession()      { warn('network', 'joinSession'); return ''; },

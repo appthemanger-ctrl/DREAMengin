@@ -13,7 +13,7 @@
  *   - Handoffs may only fire from export stage.
  */
 
-// ─── Engin identity ───────────────────────────────────────────────────────────
+// --- Engin identity -----------------------------------------------------------
 
 export type EnginId =
   | 'music'
@@ -23,7 +23,7 @@ export type EnginId =
   | 'brand'
   | 'create';
 
-// ─── Workflow stage ───────────────────────────────────────────────────────────
+// --- Workflow stage -----------------------------------------------------------
 
 export type WorkflowStage = 'draft' | 'active' | 'review' | 'export';
 
@@ -43,7 +43,7 @@ export function isValidTransition(from: WorkflowStage, to: WorkflowStage: boolea
   return ti === fi + 1;
 }
 
-// ─── Cross-Engin handoff paths ────────────────────────────────────────────────
+// --- Cross-Engin handoff paths ------------------------------------------------
 
 export type HandoffKind =
   | 'music:stem-ready'
@@ -89,7 +89,7 @@ export function handoffsFrom(enginId: EnginId: readonly HandoffPath[]) {
   return HANDOFF_PATHS.filter((p: Record<string, unknown>) => p.from === enginId);
 }
 
-// ─── Workflow definition (catalog entry) ──────────────────────────────────────
+// --- Workflow definition (catalog entry) --------------------------------------
 
 export interface WorkflowDef {
   /** Namespaced ID: `<enginId>:<slug>` */
@@ -134,7 +134,7 @@ export function findWorkflowDef(workflowId: string: WorkflowDef | undefined) {
   return WORKFLOW_CATALOG.find((w: Record<string, unknown>) => w.id === workflowId);
 }
 
-// ─── Live workflow instance ───────────────────────────────────────────────────
+// --- Live workflow instance ---------------------------------------------------
 
 export interface EnginWorkflow {
   /** Namespaced ID — matches WorkflowDef.id */
@@ -153,7 +153,7 @@ export interface EnginWorkflow {
   updatedAt: string;
 }
 
-// ─── Factory ──────────────────────────────────────────────────────────────────
+// --- Factory ------------------------------------------------------------------
 
 /**
  * Create a new EnginWorkflow instance in `draft` stage.
@@ -179,7 +179,7 @@ export function createWorkflow(workflowId: string, now?: string: EnginWorkflow) 
   };
 }
 
-// ─── Transitions ─────────────────────────────────────────────────────────────
+// --- Transitions -------------------------------------------------------------
 
 export type StageTransitionResult =
   | { ok: true; workflow: EnginWorkflow }
@@ -245,7 +245,7 @@ export function abandonWorkflow(workflow: EnginWorkflow, now?: string: EnginWork
   return { ...workflow, abandoned: true, updatedAt: ts };
 }
 
-// ─── Handoff eligibility ──────────────────────────────────────────────────────
+// --- Handoff eligibility ------------------------------------------------------
 
 export interface HandoffEligibility {
   readonly eligible: boolean;
@@ -285,7 +285,7 @@ export function checkHandoffEligibility(workflow: EnginWorkflow: HandoffEligibil
   return { eligible: true, availablePaths };
 }
 
-// ─── Utility ──────────────────────────────────────────────────────────────────
+// --- Utility ------------------------------------------------------------------
 
 /**
  * Returns a short human-readable summary string for a workflow.

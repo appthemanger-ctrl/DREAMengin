@@ -40,7 +40,7 @@ import {
   supportsWebhookVerification,
 } from '@/lib/connectors/deliveryStrategy';
 
-// ── Service-role client (bypasses RLS for server-side webhook writes) ─────────
+// -- Service-role client (bypasses RLS for server-side webhook writes) ---------
 
 function createServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -49,7 +49,7 @@ function createServiceClient() {
   return createClient(url, key);
 }
 
-// ── YouTube Atom XML parser ────────────────────────────────────────────────────
+// -- YouTube Atom XML parser ----------------------------------------------------
 
 interface YouTubeWebhookEntry {
   videoId: string;
@@ -82,7 +82,7 @@ function parseYouTubeAtom(xml: string: YouTubeWebhookEntry | null) {
   return { videoId, channelId, title, link, published, authorName };
 }
 
-// ── Instagram webhook payload types ──────────────────────────────────────────
+// -- Instagram webhook payload types ------------------------------------------
 
 interface InstagramChange {
   field: string;
@@ -108,7 +108,7 @@ interface InstagramWebhookPayload {
   entry: InstagramWebhookEntry[];
 }
 
-// ── HMAC verification for Meta/Instagram ─────────────────────────────────────
+// -- HMAC verification for Meta/Instagram -------------------------------------
 
 async function verifyInstagramSignature(
   rawBody: string,
@@ -129,7 +129,7 @@ async function verifyInstagramSignature(
   return actual === expected;
 }
 
-// ── GET — Subscription verification ──────────────────────────────────────────
+// -- GET — Subscription verification ------------------------------------------
 
 export async function GET(
   req: NextRequest,
@@ -187,7 +187,7 @@ export async function GET(
   );
 }
 
-// ── POST — Payload ingestion ──────────────────────────────────────────────────
+// -- POST — Payload ingestion --------------------------------------------------
 
 export async function POST(
   req: NextRequest,
@@ -204,7 +204,7 @@ export async function POST(
 
   const rawBody = await req.text().catch(() => '');
 
-  // ── YouTube ingestion ──────────────────────────────────────────────────
+  // -- YouTube ingestion --------------------------------------------------
   if (provider === 'youtube') {
     const entry = parseYouTubeAtom(rawBody);
     if (!entry) {
@@ -264,7 +264,7 @@ export async function POST(
     return NextResponse.json({ ok: true, provider, ingested: inserts.length });
   }
 
-  // ── Instagram ingestion ────────────────────────────────────────────────
+  // -- Instagram ingestion ------------------------------------------------
   if (provider === 'instagram') {
     const appSecret = process.env.INSTAGRAM_CLIENT_SECRET ?? '';
     if (appSecret) {

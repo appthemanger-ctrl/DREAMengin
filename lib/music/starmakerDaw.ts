@@ -11,7 +11,7 @@
  * Pure data types & helpers — no side effects, safe for SSR and workers.
  */
 
-// ─── MIDI / Piano Roll ────────────────────────────────────────────────────────
+// --- MIDI / Piano Roll --------------------------------------------------------
 
 /** Standard MIDI note (0 = C-2, 60 = C4, 127 = G9). */
 export interface MidiNote {
@@ -89,7 +89,7 @@ export function snapToGrid(beat: number, quantize: PianoRollQuantize: number) {
   return Math.round(beat / div) * div;
 }
 
-// ─── Comping / Takes ──────────────────────────────────────────────────────────
+// --- Comping / Takes ----------------------------------------------------------
 
 export type TakeRating = 0 | 1 | 2 | 3;
 
@@ -156,7 +156,7 @@ export function createInitialCompingState(takeCount: number = 3: CompingState) {
   return { takes, compRegions: [], totalDurationSec };
 }
 
-// ─── Session View (Ableton-style clip launcher) ────────────────────────────────
+// --- Session View (Ableton-style clip launcher) --------------------------------
 
 export interface SessionClip {
   id: string;
@@ -258,7 +258,7 @@ export function createInitialSessionView(: SessionViewState) {
   return { tracks, scenes, soloTrackId: null };
 }
 
-// ─── Automation ───────────────────────────────────────────────────────────────
+// --- Automation ---------------------------------------------------------------
 
 export interface AutomationPoint {
   /** Beat position. */
@@ -310,7 +310,7 @@ export function createInitialAutomationState(: AutomationState) {
   return { lanes: [vocalsLane], mode: 'read' };
 }
 
-// ─── Warp Markers ─────────────────────────────────────────────────────────────
+// --- Warp Markers -------------------------------------------------------------
 
 export interface WarpMarker {
   id: string;
@@ -355,7 +355,7 @@ export function computeWarpPlaybackRate(originalBpm: number, targetBpm: number: 
   return targetBpm / originalBpm;
 }
 
-// ─── High-Resolution Audio ────────────────────────────────────────────────────
+// --- High-Resolution Audio ----------------------------------------------------
 
 export type BitDepth = 16 | 24 | 32;
 export type SampleRateHz = 44100 | 48000 | 88200 | 96000 | 176400 | 192000;

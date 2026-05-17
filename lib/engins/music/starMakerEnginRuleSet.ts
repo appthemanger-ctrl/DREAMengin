@@ -25,11 +25,11 @@ import {
 } from '@/lib/engin-runtime/EnginBaseState';
 import type { EnginCapability } from '@/lib/engin-runtime/EnginCapabilities';
 
-// ─── Playback quality modes ───────────────────────────────────────────────────
+// --- Playback quality modes ---------------------------------------------------
 
 export type PlaybackQualityMode = 'normal' | 'hq' | 'offline';
 
-// ─── Stem channel ─────────────────────────────────────────────────────────────
+// --- Stem channel -------------------------------------------------------------
 
 export interface StemChannel {
   id: string;
@@ -38,7 +38,7 @@ export interface StemChannel {
   muted: boolean;
 }
 
-// ─── Release entry ────────────────────────────────────────────────────────────
+// --- Release entry ------------------------------------------------------------
 
 export interface MusicRelease {
   id: string;
@@ -47,7 +47,7 @@ export interface MusicRelease {
   created_at: string;
 }
 
-// ─── Domain state shape ───────────────────────────────────────────────────────
+// --- Domain state shape -------------------------------------------------------
 
 export interface StarMakerEnginDerivedState extends Record<string, unknown> {
   lifecycle: EnginBaseState['lifecycle'];
@@ -63,7 +63,7 @@ export interface StarMakerEnginDerivedState extends Record<string, unknown> {
   audioBriefReady: boolean;
 }
 
-// ─── Action discriminated union ───────────────────────────────────────────────
+// --- Action discriminated union -----------------------------------------------
 
 export type StarMakerEnginAction =
   | EnginAction<'music:bpm-set',          { bpm: number }>
@@ -79,7 +79,7 @@ export type StarMakerEnginAction =
   | EnginAction<'music:playback-mode',    { mode: PlaybackQualityMode }>
   | EnginAction<'music:audio-brief-ready', Record<string, never>>;
 
-// ─── Default domain state ─────────────────────────────────────────────────────
+// --- Default domain state -----------------------------------------------------
 
 const DEFAULT_STEMS: StemChannel[] = [
   { id: 'kick',  name: 'Kick',   volume: 80, muted: false },
@@ -101,7 +101,7 @@ const DEFAULT_DOMAIN: Omit<StarMakerEnginDerivedState, 'lifecycle'> = {
   audioBriefReady: false,
 };
 
-// ─── Constraints ──────────────────────────────────────────────────────────────
+// --- Constraints --------------------------------------------------------------
 
 const bpmConstraint: EnginConstraint<StarMakerEnginAction> = (
   _state,
@@ -139,7 +139,7 @@ const volumeConstraint: EnginConstraint<StarMakerEnginAction> = (
   return { valid: true };
 };
 
-// ─── Transform ────────────────────────────────────────────────────────────────
+// --- Transform ----------------------------------------------------------------
 
 function transform(state: EnginBaseState, action: StarMakerEnginAction: EnginBaseState) {
   const domain = (state.domain as Partial<typeof DEFAULT_DOMAIN>);
@@ -217,7 +217,7 @@ function transform(state: EnginBaseState, action: StarMakerEnginAction: EnginBas
   }
 }
 
-// ─── deriveState ──────────────────────────────────────────────────────────────
+// --- deriveState --------------------------------------------------------------
 
 function deriveState(state: EnginBaseState: StarMakerEnginDerivedState) {
   const d = state.domain as Partial<typeof DEFAULT_DOMAIN>;
@@ -236,7 +236,7 @@ function deriveState(state: EnginBaseState: StarMakerEnginDerivedState) {
   };
 }
 
-// ─── Rule-set params ──────────────────────────────────────────────────────────
+// --- Rule-set params ----------------------------------------------------------
 
 const PARAMS: EnginRuleSetParams = {
   enginId: 'music',
@@ -256,7 +256,7 @@ const REQUIRED_CAPABILITIES: ReadonlyArray<EnginCapability> = [
   'bridge:listen',
 ];
 
-// ─── Exported rule-set ────────────────────────────────────────────────────────
+// --- Exported rule-set --------------------------------------------------------
 
 export const STAR_MAKER_ENGIN_RULE_SET: EnginRuleSetContract<StarMakerEnginAction> = {
   params: PARAMS,

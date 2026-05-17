@@ -259,7 +259,7 @@ export default function NotificationCenter() { isOpen: controlledOpen, onClose }
           }
         `}</style>
 
-        {/* ── Header ── */}
+        {/* -- Header -- */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -314,7 +314,7 @@ export default function NotificationCenter() { isOpen: controlledOpen, onClose }
           </button>
         </div>
 
-        {/* ── Mark all as read ── */}
+        {/* -- Mark all as read -- */}
         {unreadCount > 0 && (
           <button
             type="button"
@@ -340,7 +340,7 @@ export default function NotificationCenter() { isOpen: controlledOpen, onClose }
           </button>
         )}
 
-        {/* ── List ── */}
+        {/* -- List -- */}
         <div style={{ flex: 1, overflowY: 'auto', scrollbarWidth: 'none' }}>
           {isLoading && (
             <div style={{ display: 'flex', justifyContent: 'center', padding: 24 }}>

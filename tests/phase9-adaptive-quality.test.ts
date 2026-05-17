@@ -14,7 +14,7 @@ import {
   type QualityTier,
 } from '@/lib/webgpu/adaptiveQuality';
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// --- Helpers ------------------------------------------------------------------
 
 function makeSignals(overrides?: Partial<DeviceSignals>): DeviceSignals {
   return {
@@ -26,7 +26,7 @@ function makeSignals(overrides?: Partial<DeviceSignals>): DeviceSignals {
   };
 }
 
-// ─── resolveQualityTier ───────────────────────────────────────────────────────
+// --- resolveQualityTier -------------------------------------------------------
 
 describe('Adaptive Quality — resolveQualityTier', () => {
   it('returns ultra when no pressure and no battery constraint', () => {
@@ -76,7 +76,7 @@ describe('Adaptive Quality — resolveQualityTier', () => {
   });
 });
 
-// ─── getQualityProfile ────────────────────────────────────────────────────────
+// --- getQualityProfile --------------------------------------------------------
 
 describe('Adaptive Quality — getQualityProfile', () => {
   it('returns correct profiles for each tier', () => {
@@ -106,7 +106,7 @@ describe('Adaptive Quality — getQualityProfile', () => {
   });
 });
 
-// ─── AdaptiveQualityController ────────────────────────────────────────────────
+// --- AdaptiveQualityController ------------------------------------------------
 
 describe('Adaptive Quality — AdaptiveQualityController', () => {
   it('starts at ultra tier', () => {

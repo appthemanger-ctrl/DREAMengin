@@ -33,7 +33,7 @@
  * Policy: docs/BOOGIEMAN_POLICY.md C29_PRIVACY
  */
 
-// ── Constants ─────────────────────────────────────────────────────────────────
+// -- Constants -----------------------------------------------------------------
 
 /** Total shared memory size: 16 MB */
 export const MEMORY_SIZE = 16 * 1024 * 1024; // 16,777,216 bytes
@@ -50,7 +50,7 @@ export const ENTITY_COUNT = 10_000;
 /** Bytes per Float32 element */
 const FLOAT32_BYTES = 4;
 
-// ── Control region ────────────────────────────────────────────────────────────
+// -- Control region ------------------------------------------------------------
 
 /**
  * Atomics index (Int32) for the DreamDM Bar seam y-offset.
@@ -66,7 +66,7 @@ export const BAR_SEAM_ATOMICS_INDEX = 0;
 /** Fixed-point scale factor: ratio × BAR_SEAM_SCALE = stored integer */
 export const BAR_SEAM_SCALE = 1_000;
 
-// ── SoA array byte offsets (each array is 64-byte aligned) ───────────────────
+// -- SoA array byte offsets (each array is 64-byte aligned) -------------------
 
 /** Byte offset of the PosX array (entity position X) */
 export const SOA_POSX_OFFSET = CACHE_LINE; // 64
@@ -89,7 +89,7 @@ export const SOA_VELZ_OFFSET = SOA_VELY_OFFSET + ENTITY_COUNT * FLOAT32_BYTES; /
 /** Byte offset one past the last entity byte */
 const SOA_END_OFFSET = SOA_VELZ_OFFSET + ENTITY_COUNT * FLOAT32_BYTES; // 240,064
 
-// ── Privacy boundary ──────────────────────────────────────────────────────────
+// -- Privacy boundary ----------------------------------------------------------
 
 /**
  * Byte offset where the HomeDream private memory region begins.
@@ -107,7 +107,7 @@ export const HOMEDREAM_PRIVATE_OFFSET: number =
  */
 export const PUBLIC_VIEW_LIMIT = HOMEDREAM_PRIVATE_OFFSET;
 
-// ── Conform Mode memory map ───────────────────────────────────────────────────
+// -- Conform Mode memory map ---------------------------------------------------
 
 /**
  * The DREAMengin Shared Memory Map for Conform Mode.
@@ -166,7 +166,7 @@ export function _resetConformMemoryMap(: void) {
   _memoryMap = null;
 }
 
-// ── DreamDM Bar Seam Logic ────────────────────────────────────────────────────
+// -- DreamDM Bar Seam Logic ----------------------------------------------------
 
 /**
  * Writes the current DreamDM Bar split ratio to the shared control region.
@@ -205,7 +205,7 @@ export function readBarSeam(: number) {
   return encoded / BAR_SEAM_SCALE;
 }
 
-// ── TheBoogieMan.Ai memory policy guard ───────────────────────────────────────
+// -- TheBoogieMan.Ai memory policy guard ---------------------------------------
 
 /**
  * Result of a BoogieMan memory access policy check.
@@ -266,7 +266,7 @@ export function boogieMemoryGuard(
   return { allowed: true, ruleCode: 'OK' };
 }
 
-// ── EnginSAB — Shader Worker shared memory layout ────────────────────────────
+// -- EnginSAB — Shader Worker shared memory layout ----------------------------
 //
 // Layout (SoA, 3-axis + per-entity type byte + seam control slots + telemetry + seam ext):
 //
@@ -351,7 +351,7 @@ export const OFFSET_AXIS_STATE = 250_524;
 /** Total size of the EnginSAB in bytes (250,528 — divisible by 8). */
 export const SAB_BYTES = OFFSET_AXIS_STATE + 4; // 250,528
 
-// ── Seam control logical indices (Int32 slot numbers within the seam layout) ──
+// -- Seam control logical indices (Int32 slot numbers within the seam layout) --
 //
 // These constants mirror the spec's OFFSET_DREAMDM_BAR_*_INT32 indices and map
 // the conceptual "control buffer slot" to the actual byte-offset constants above.
@@ -516,7 +516,7 @@ export function f64Telemetry(sab: SharedArrayBuffer: Float64Array) {
   return new Float64Array(sab, OFFSET_TELEMETRY, MAX_WORKERS);
 }
 
-// ── Convenience aliases (previously ENGIN_OFFSET_* names) ────────────────────
+// -- Convenience aliases (previously ENGIN_OFFSET_* names) --------------------
 // Kept for internal use; the canonical names above are the public API.
 /** @internal */ export const ENGIN_OFFSET_POS_X         = OFFSET_POS_X;
 /** @internal */ export const ENGIN_OFFSET_POS_Y         = OFFSET_POS_Y;
@@ -531,7 +531,7 @@ export function f64Telemetry(sab: SharedArrayBuffer: Float64Array) {
 /** @internal */ export const ENGIN_OFFSET_TELEMETRY     = OFFSET_TELEMETRY;
 /** @internal */ export const ENGIN_SAB_SIZE             = SAB_BYTES;
 
-// ── Improvement 48: isSABAvailable ───────────────────────────────────────────
+// -- Improvement 48: isSABAvailable -------------------------------------------
 
 /**
  * Returns true when SharedArrayBuffer is available AND the page is served with
@@ -553,7 +553,7 @@ export function isSABAvailable(: boolean) {
   }
 }
 
-// ── Improvement 49: getEntityBounds ──────────────────────────────────────────
+// -- Improvement 49: getEntityBounds ------------------------------------------
 
 /**
  * Return the byte-level extent of a workgroup across all SoA channels.
@@ -595,7 +595,7 @@ export function getEntityBounds(wg: Workgroup: EntityBounds) {
   };
 }
 
-// ── Improvement 50: validateWorkgroup ────────────────────────────────────────
+// -- Improvement 50: validateWorkgroup ----------------------------------------
 
 /**
  * Throws a `RangeError` when the workgroup has invalid indices.
@@ -617,7 +617,7 @@ export function validateWorkgroup(wg: Workgroup: void) {
   }
 }
 
-// ── Improvement 51: getWorkerCount ───────────────────────────────────────────
+// -- Improvement 51: getWorkerCount -------------------------------------------
 
 /**
  * Return the optimal number of shader workers for the current hardware.

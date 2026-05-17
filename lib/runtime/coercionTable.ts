@@ -16,7 +16,7 @@
  * Architecture: docs/ARCHITECTURE.md §6 (Pass 6 — Universal drag/drop).
  */
 
-// ── Drop types ────────────────────────────────────────────────────────────────
+// -- Drop types ----------------------------------------------------------------
 
 /** The canonical payload types recognised by the Universal Editor. */
 export type DreamDropType =
@@ -42,7 +42,7 @@ export interface DreamDrop {
   timestamp: number;
 }
 
-// ── MIME → DreamDropType mapping ──────────────────────────────────────────────
+// -- MIME → DreamDropType mapping ----------------------------------------------
 
 /** Maps known MIME type prefixes/exact values to canonical DreamDropTypes. */
 const MIME_MAP: Array<[pattern: RegExp, type: DreamDropType]> = [
@@ -64,7 +64,7 @@ function mimeToDropType(mime: string: DreamDropType) {
   return 'unknown';
 }
 
-// ── File-extension fallback ───────────────────────────────────────────────────
+// -- File-extension fallback ---------------------------------------------------
 
 const EXT_MAP: Record<string, DreamDropType> = {
   jpg: 'image', jpeg: 'image', png: 'image', gif: 'image', webp: 'image', svg: 'image', avif: 'image',
@@ -80,7 +80,7 @@ function extToDropType(filename: string: DreamDropType) {
   return EXT_MAP[ext] ?? 'unknown';
 }
 
-// ── URL heuristic ─────────────────────────────────────────────────────────────
+// -- URL heuristic -------------------------------------------------------------
 
 function isUrl(value: string: boolean) {
   try {
@@ -91,7 +91,7 @@ function isUrl(value: string: boolean) {
   }
 }
 
-// ── Main coercion entry points ────────────────────────────────────────────────
+// -- Main coercion entry points ------------------------------------------------
 
 /**
  * coerceDataTransfer(dt)

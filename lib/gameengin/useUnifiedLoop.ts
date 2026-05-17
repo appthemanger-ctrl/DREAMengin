@@ -44,7 +44,7 @@ export function useUnifiedLoop(
   priority: LoopPriority = 'NORMAL',
   active = true,
 ): void {
-  // ── Stable ref so the effect closure always calls the latest tickFn ──────
+  // -- Stable ref so the effect closure always calls the latest tickFn ------
   const tickRef = useRef<(dt: number) => void>(tickFn);
   // Update the ref on every render (not an effect — synchronous assignment).
   tickRef.current = tickFn;

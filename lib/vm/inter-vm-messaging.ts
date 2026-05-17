@@ -8,7 +8,7 @@
  * (cross-origin isolated pages not required in single-threaded mode).
  */
 
-// ─── VM Event Union ───────────────────────────────────────────────────────────
+// --- VM Event Union -----------------------------------------------------------
 
 export type VMEvent =
   | { type: 'workload-submitted'; workloadId: string; region: 'top' | 'bottom'; timestamp: number }
@@ -17,7 +17,7 @@ export type VMEvent =
   | { type: 'stats-update';       region: 'top' | 'bottom'; stats: Record<string, unknown>; timestamp: number }
   | { type: 'custom';             name: string; payload: unknown; timestamp: number };
 
-// ─── Ring-buffer layout ───────────────────────────────────────────────────────
+// --- Ring-buffer layout -------------------------------------------------------
 //
 // [0..3]    producer index (Int32, atomic)
 // [4..7]    consumer index (Int32, atomic)
@@ -29,7 +29,7 @@ const HEADER_BYTES   = 8;
 const SLOT_BYTES     = 512;  // max JSON message size
 const DEFAULT_SLOTS  = 64;
 
-// ─── InterVMChannel ───────────────────────────────────────────────────────────
+// --- InterVMChannel -----------------------------------------------------------
 
 export class InterVMChannel {
   private readonly buf:          SharedArrayBuffer | ArrayBuffer;
@@ -60,7 +60,7 @@ export class InterVMChannel {
     this.consumerIdx = new Int32Array(this.buf, 4, 1);
   }
 
-  // ── Write ──────────────────────────────────────────────────────────────────
+  // -- Write ------------------------------------------------------------------
 
   /**
    * Enqueue a VMEvent.
@@ -95,7 +95,7 @@ export class InterVMChannel {
     return true;
   }
 
-  // ── Read ───────────────────────────────────────────────────────────────────
+  // -- Read -------------------------------------------------------------------
 
   /**
    * Dequeue one VMEvent. Returns null if the queue is empty.
@@ -124,7 +124,7 @@ export class InterVMChannel {
     }
   }
 
-  // ── Subscribe ──────────────────────────────────────────────────────────────
+  // -- Subscribe --------------------------------------------------------------
 
   /**
    * Register a callback to receive VMEvents as they arrive.
@@ -139,14 +139,14 @@ export class InterVMChannel {
     };
   }
 
-  // ── Lifecycle ─────────────────────────────────────────────────────────────
+  // -- Lifecycle -------------------------------------------------------------
 
   destroy(): void {
     this._stopPoll();
     this.subscribers.clear();
   }
 
-  // ── Internal ──────────────────────────────────────────────────────────────
+  // -- Internal --------------------------------------------------------------
 
   private _startPoll(): void {
     if (this._pollHandle) return;

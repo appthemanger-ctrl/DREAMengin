@@ -36,7 +36,7 @@ import {
 } from '@/lib/connectors/normalise';
 import { isValidNostrPubkey } from '@/lib/connectors/providers/nostr';
 
-// ── A. ConnectorRegistry ──────────────────────────────────────────────────
+// -- A. ConnectorRegistry --------------------------------------------------
 
 describe('CONNECTOR_REGISTRY', () => {
   it('has at least 6 tier-1 connectors', () => {
@@ -104,7 +104,7 @@ describe('CONNECTOR_REGISTRY', () => {
   });
 });
 
-// ── B. Status truthfulness ────────────────────────────────────────────────
+// -- B. Status truthfulness ------------------------------------------------
 
 describe('Status truthfulness', () => {
   it('no connector starts as "connected" in the registry defaultStatus', () => {
@@ -122,7 +122,7 @@ describe('Status truthfulness', () => {
   });
 });
 
-// ── C. Normalisation utilities ────────────────────────────────────────────
+// -- C. Normalisation utilities --------------------------------------------
 
 describe('stripHtml', () => {
   it('strips basic tags', () => {
@@ -164,7 +164,7 @@ describe('atUriToHttps', () => {
   });
 });
 
-// ── D. Provider normalisation ─────────────────────────────────────────────
+// -- D. Provider normalisation ---------------------------------------------
 
 describe('normaliseMastodon', () => {
   it('normalises a basic status', () => {
@@ -377,7 +377,7 @@ describe('normaliseTwitter', () => {
   });
 });
 
-// ── E. Deduplication ──────────────────────────────────────────────────────
+// -- E. Deduplication ------------------------------------------------------
 
 describe('deduplicateFeedItems', () => {
   it('removes duplicate (provider, external_id) pairs', () => {
@@ -406,7 +406,7 @@ describe('deduplicateFeedItems', () => {
   });
 });
 
-// ── F. Nostr pubkey validation ────────────────────────────────────────────
+// -- F. Nostr pubkey validation --------------------------------------------
 
 describe('isValidNostrPubkey', () => {
   it('accepts 64-char hex', () => {

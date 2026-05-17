@@ -28,7 +28,7 @@ beforeEach(() => {
   Object.keys(store).forEach(k => delete store[k]);
 });
 
-// ── Improvement 96: clearSwap ─────────────────────────────────────────────────
+// -- Improvement 96: clearSwap -------------------------------------------------
 describe('clearSwap (improvement 40)', () => {
   it('resets a domain to false', () => {
     setSwap('code', true);
@@ -43,7 +43,7 @@ describe('clearSwap (improvement 40)', () => {
   });
 });
 
-// ── Improvement 97: getAllSwapStates ──────────────────────────────────────────
+// -- Improvement 97: getAllSwapStates ------------------------------------------
 describe('getAllSwapStates (improvement 41)', () => {
   it('returns false for all domains by default', () => {
     const states = getAllSwapStates();
@@ -59,7 +59,7 @@ describe('getAllSwapStates (improvement 41)', () => {
   });
 });
 
-// ── Improvement 98: resetAllSwaps ────────────────────────────────────────────
+// -- Improvement 98: resetAllSwaps --------------------------------------------
 describe('resetAllSwaps (improvement 42)', () => {
   it('clears all domains', () => {
     setSwap('code', true);
@@ -70,7 +70,7 @@ describe('resetAllSwaps (improvement 42)', () => {
   });
 });
 
-// ── Improvement 99: getAllSwapStates after toggle ─────────────────────────────
+// -- Improvement 99: getAllSwapStates after toggle -----------------------------
 describe('toggleSwap + getAllSwapStates', () => {
   it('getAllSwapStates reflects toggleSwap', () => {
     expect(getAllSwapStates().code).toBe(false);
@@ -81,7 +81,7 @@ describe('toggleSwap + getAllSwapStates', () => {
   });
 });
 
-// ── Improvement 100: storage error graceful handling ──────────────────────────
+// -- Improvement 100: storage error graceful handling --------------------------
 describe('swapManager storage resilience (improvement 43)', () => {
   it('returns false when localStorage is unavailable', () => {
     // Simulate server-side (no window) by testing return value on missing key

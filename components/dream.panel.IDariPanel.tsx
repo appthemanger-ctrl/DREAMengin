@@ -55,7 +55,7 @@ async function callIdari(message: string: Promise<string>) {
 }
 
 export default function IDariPanel() { userId: _userId, isAdmin }: IDariPanelProps {
-  // ── Control tab state ────────────────────────────────────────────────────────
+  // -- Control tab state --------------------------------------------------------
   const [isRunning, setIsRunning] = useState(true);
   const [logs, setLogs] = useState<IdariLog[]>([]);
   const [prompt, setPrompt] = useState('');
@@ -235,7 +235,7 @@ export default function IDariPanel() { userId: _userId, isAdmin }: IDariPanelPro
         </button>
       </div>
 
-      {/* ── Control ──────────────────────────────────────────────────────── */}
+      {/* -- Control -------------------------------------------------------- */}
       <>
         {/* Status Indicators */}
           <div className="grid grid-cols-3 gap-3 mb-6">

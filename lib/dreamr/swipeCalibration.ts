@@ -13,7 +13,7 @@
  * outside the device's natural operating range.
  */
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// --- Types -------------------------------------------------------------------
 
 /**
  * A single warm-up sample collected during the calibration phase.
@@ -43,7 +43,7 @@ export interface CalibrationProfile {
   calibratedAt: string;
 }
 
-// ─── Factory defaults (match TORRIDITY_LEDGER_CONFIG) ────────────────────────
+// --- Factory defaults (match TORRIDITY_LEDGER_CONFIG) ------------------------
 
 const FACTORY_DEFAULTS: Readonly<CalibrationProfile> = {
   slopeMin: 0.6,
@@ -55,7 +55,7 @@ const FACTORY_DEFAULTS: Readonly<CalibrationProfile> = {
 // Module-level active profile, starts at factory defaults.
 let activeProfile: CalibrationProfile = { ...FACTORY_DEFAULTS };
 
-// ─── Public API ───────────────────────────────────────────────────────────────
+// --- Public API ---------------------------------------------------------------
 
 /**
  * Compute a device-specific CalibrationProfile from warm-up samples and

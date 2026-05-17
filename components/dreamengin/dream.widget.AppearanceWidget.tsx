@@ -4,7 +4,7 @@ import React, { useCallback } from 'react';
 import { useTheme } from '@/components/providers/dream.ThemeProvider';
 import { THEME_PRESETS, DEFAULT_OVERRIDES } from '@/lib/ui/theme-engine';
 
-/* ── Slider ── */
+/* -- Slider -- */
 function Slider() {
   label,
   value,
@@ -52,7 +52,7 @@ function Slider() {
   );
 }
 
-/* ── Preset card ── */
+/* -- Preset card -- */
 function PresetCard() {
   preset,
   isActive,
@@ -105,7 +105,7 @@ function PresetCard() {
   );
 }
 
-/* ── Main overlay widget ── */
+/* -- Main overlay widget -- */
 export default function AppearanceWidget() { onClose }: { onClose: () => void }) {
   const { presetId, overrides, setPreset, setOverrides, resetOverrides } = useTheme();
 

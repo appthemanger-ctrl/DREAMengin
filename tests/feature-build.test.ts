@@ -43,7 +43,7 @@ import {
 const VALID_DAYDREAM_DOMAINS = Object.values(DAYDREAM_DOMAINS);
 const VALID_ENGIN_SURFACES   = Object.values(ENGIN_SURFACES);
 
-// ─── 1. featureManifest ───────────────────────────────────────────────────────
+// --- 1. featureManifest -------------------------------------------------------
 
 describe('FEATURE_MANIFESTS', () => {
   it('contains exactly 6 manifests (one per canonical Daydream+Engin pair)', () => {
@@ -156,7 +156,7 @@ describe('getManifest()', () => {
   });
 });
 
-// ─── 2. buildCycle ────────────────────────────────────────────────────────────
+// --- 2. buildCycle ------------------------------------------------------------
 
 describe('getBuildPhase()', () => {
   // getBuildPhase(featuresUsable, featuresImplemented, maxFeatures, refineThreshold)
@@ -407,7 +407,7 @@ describe('allPairsMovingForward()', () => {
   });
 });
 
-// ─── 3. uiQualityCriteria ─────────────────────────────────────────────────────
+// --- 3. uiQualityCriteria -----------------------------------------------------
 
 describe('SICC_GLOBAL_CRITERIA', () => {
   it('contains at least one criterion per SICC dimension', () => {

@@ -267,7 +267,7 @@ export default function VoidlineGP() {
         if (t - startTimeRef.current > RACE_DURATION_MS && rivalsRef.current.length > 0) { setPhase('lose'); }
       }
 
-      // ── Render ───────────────────────────────────────────────────────────
+      // -- Render -----------------------------------------------------------
       // Motion-blur stamp (low-alpha previous-frame trail)
       if (!reducedMotionRef.current && phaseRef.current === 'playing') {
         motionTrail(ctx, W, H, 0.25, '#06051a');
@@ -365,7 +365,7 @@ export default function VoidlineGP() {
 
       ctx.restore();
 
-      // ── HUD: minimal — beat-window indicator + Resonance arc + lap pip ──
+      // -- HUD: minimal — beat-window indicator + Resonance arc + lap pip --
       // Beat-window indicator: closing bar around ship area shows when to fire
       const beatPhase = beatPhaseRef.current;
       // window opens near beat boundaries (offset≈0 or offset≈1)

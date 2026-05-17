@@ -8,7 +8,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// ── Minimal Babylon.js stubs ──────────────────────────────────────────────────
+// -- Minimal Babylon.js stubs --------------------------------------------------
 
 const mockWebGLEngine = {
   setHardwareScalingLevel: vi.fn(),
@@ -41,7 +41,7 @@ vi.mock('@babylonjs/core', () => ({
   WebGPUEngine: MockWebGPUEngine,
 }));
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
+// -- Tests ---------------------------------------------------------------------
 
 describe('createBabylonEngine', () => {
   const canvas = {} as HTMLCanvasElement;

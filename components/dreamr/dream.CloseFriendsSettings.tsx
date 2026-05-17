@@ -44,7 +44,7 @@ export default function CloseFriendsSettings() {
 
   const [actionId, setActionId] = useState<string | null>(null);
 
-  // ── Load current close friends ─────────────────────────────────────────────
+  // -- Load current close friends ---------------------------------------------
   const loadFriends = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -62,7 +62,7 @@ export default function CloseFriendsSettings() {
 
   useEffect(() => { void loadFriends(); }, [loadFriends]);
 
-  // ── Search for users ───────────────────────────────────────────────────────
+  // -- Search for users -------------------------------------------------------
   const handleSearch = useCallback(async (query: string) => {
     setSearchQuery(query);
     if (query.trim().length < 2) {
@@ -82,7 +82,7 @@ export default function CloseFriendsSettings() {
     }
   }, []);
 
-  // ── Add a friend ───────────────────────────────────────────────────────────
+  // -- Add a friend -----------------------------------------------------------
   const addFriend = useCallback(async (friendId: string) => {
     setActionId(friendId);
     try {
@@ -105,7 +105,7 @@ export default function CloseFriendsSettings() {
     }
   }, [loadFriends]);
 
-  // ── Remove a friend ────────────────────────────────────────────────────────
+  // -- Remove a friend --------------------------------------------------------
   const removeFriend = useCallback(async (friendId: string) => {
     setActionId(friendId);
     try {

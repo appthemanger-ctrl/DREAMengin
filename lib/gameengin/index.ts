@@ -16,7 +16,7 @@ export type { ControlMapping } from './control-mappings';
 export { DreamEngine } from './dream-engine';
 export type { GameAsset, GlobalRegistryEntry, WasmOutput } from './dream-engine';
 
-// ── Unified game loop ─────────────────────────────────────────────────────────
+// -- Unified game loop ---------------------------------------------------------
 export {
   registerGame,
   unregisterGame,
@@ -41,7 +41,7 @@ export type { PlayerSignals, DirectorState } from './ai-director';
 
 export { PostFXManager } from './post-fx';
 
-// ── Console-class platform facade ────────────────────────────────────────────
+// -- Console-class platform facade --------------------------------------------
 export { GameEnginPlatform, detectCapabilities } from './platform';
 export type {
   PlatformCapabilities,
@@ -49,7 +49,7 @@ export type {
   QuickResumeEntry,
 } from './platform';
 
-// ── Game Cartridge Runtime ───────────────────────────────────────────────────
+// -- Game Cartridge Runtime ---------------------------------------------------
 export { default as GameRuntime } from './GameRuntime';
 export type { GameRuntimeProps } from './GameRuntime';
 export { createReactGameCartridge, defineReactCartridgeLoader } from './cartridges/reactCartridge';
@@ -61,7 +61,7 @@ export type {
   CartridgeInputEvent,
 } from './cartridge';
 
-// ── Cartridge bay — every repo game packaged as a GameCartridge ──────────────
+// -- Cartridge bay — every repo game packaged as a GameCartridge --------------
 export {
   CARTRIDGE_MANIFEST,
   getCartridgeManifest,
@@ -72,7 +72,7 @@ export type {
   CartridgeRenderMode,
 } from './cartridges/manifest';
 
-// ── Power Systems (20 state-of-the-art 2026+ engine subsystems) ──────────────
+// -- Power Systems (20 state-of-the-art 2026+ engine subsystems) --------------
 export {
   RollbackNetcode,
   ComputeShaderPipeline,

@@ -47,7 +47,7 @@ interface ProfileData {
   follower_count: number;
 }
 
-// ── Brand Analytics ────────────────────────────────────────────────────────────
+// -- Brand Analytics ------------------------------------------------------------
 interface AnalyticMetric {
   id: string;
   label: string;
@@ -56,7 +56,7 @@ interface AnalyticMetric {
   icon: React.ReactNode;
 }
 
-// ── A/B Test ───────────────────────────────────────────────────────────────────
+// -- A/B Test -------------------------------------------------------------------
 interface ABTest {
   id: string;
   name: string;
@@ -83,7 +83,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
   const brandBridge = useBrandingEnginBridge();
   const { record: forgeRecord } = useForgeActivity({ enginId: 'brand' });
 
-  // ── OS Shell ──
+  // -- OS Shell --
   const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
   useEffect(() => {
     upgradeEngine({ id: 'brand', name: 'BrandingEngin' }, ['bridge', 'telemetry'])
@@ -91,19 +91,19 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
   }, []);
   const busRef = useRef(createEventBus());
 
-  // ── EnginRuntime kernel (brand rule-set) ──
+  // -- EnginRuntime kernel (brand rule-set) --
   const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useBrandEnginRuntime();
 
-  // ── Workflow (brand:campaign — default workflow) ──
+  // -- Workflow (brand:campaign — default workflow) --
   const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
   useEffect(() => { loadWorkflow('brand:campaign'); }, [loadWorkflow]);
 
-  // ── Shared Dream Analytics state ──
+  // -- Shared Dream Analytics state --
   const [sharedAnalyticsId] = useState(() => `brand-analytics-${Date.now()}`);
   const [sharedAnalyticsActive, setSharedAnalyticsActive] = useState(false);
   const sharedAnalytics = useSharedDream(sharedAnalyticsActive ? sharedAnalyticsId : '');
 
-  // ── Co-op channel ─────────────────────────────────────────────────────────
+  // -- Co-op channel ---------------------------------------------------------
   const [instanceId] = useState(
     () => instanceIdProp ?? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)),
   );
@@ -116,10 +116,10 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     onPeerState: (_evt) => { /* brand analytics are read-only; peer sync is view-only */ },
   });
 
-  // ── Daydream state persistence (Phase 8 §F Point 55) ──
+  // -- Daydream state persistence (Phase 8 §F Point 55) --
   const { persistState } = useDaydreamState({ daydreamType: 'brand', side: 'B' });
 
-  // ── Daydream DB persistence with restore (Phase 8 §F pts 49, 55) ──
+  // -- Daydream DB persistence with restore (Phase 8 §F pts 49, 55) --
   type BrandSavedState = { abTests?: ABTest[]; assets?: Array<{ id: string; name: string; type: 'logo' | 'color' | 'font'; value: string }> };
   const {
     savedState: savedBrandState,
@@ -129,11 +129,11 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
 
   const brandRestoredRef = useRef(false);
 
-  // ── Existing state ─────────────────────────────────────────────────────────
+  // -- Existing state ---------------------------------------------------------
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // ── Brand Analytics state ──────────────────────────────────────────────────
+  // -- Brand Analytics state --------------------------------------------------
   const [metrics, setMetrics] = useState<AnalyticMetric[]>([
     { id: 'reach',    label: 'Reach',            value: '—', trend: 'flat', icon: <Users className="w-4 h-4" /> },
     { id: 'eng',      label: 'Engagement Rate',  value: '—', trend: 'flat', icon: <TrendingUp className="w-4 h-4" /> },
@@ -141,24 +141,24 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     { id: 'growth',   label: 'Follower Growth',  value: '—', trend: 'flat', icon: <Megaphone className="w-4 h-4" /> },
   ]);
 
-  // ── Cross-Engin: GameEngin achievement campaign receiver ──
+  // -- Cross-Engin: GameEngin achievement campaign receiver --
   const [dismissedAchievement, setDismissedAchievement] = useState<string | null>(null);
   const achievementPrompt = brandBridge.lastAchievement !== null && brandBridge.lastAchievement !== dismissedAchievement
     ? brandBridge.lastAchievement
     : null;
 
-  // ── A/B Test state ─────────────────────────────────────────────────────────
+  // -- A/B Test state ---------------------------------------------------------
   const [abTests, setAbTests]     = useState<ABTest[]>([]);
   const [abName, setAbName]       = useState('');
   const [abVarA, setAbVarA]       = useState('');
   const [abVarB, setAbVarB]       = useState('');
 
-  // ── ROI Calculator state ───────────────────────────────────────────────────
+  // -- ROI Calculator state ---------------------------------------------------
   const [budget, setBudget]           = useState('');
   const [impressions, setImpressions] = useState('');
   const [conversions, setConversions] = useState('');
 
-  // ── Load profile ───────────────────────────────────────────────────────────
+  // -- Load profile -----------------------------------------------------------
   useEffect(() => {
     let cancelled = false;
     const supabase = createClient();
@@ -186,7 +186,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     return () => { cancelled = true; };
   }, []);
 
-  // ── Refresh analytics ──────────────────────────────────────────────────────
+  // -- Refresh analytics ------------------------------------------------------
   function refreshAnalytics() {
     setMetrics([
       { id: 'reach',  label: 'Reach',           value: '12.4K', trend: 'up',   icon: <Users className="w-4 h-4" /> },
@@ -200,7 +200,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     recordForgeTransfer('brand', 'create', 'analytics-snapshot', 'Brand analytics snapshot → ContentEngin insights');
   }
 
-  // ── Launch A/B Test ────────────────────────────────────────────────────────
+  // -- Launch A/B Test --------------------------------------------------------
   function launchTest() {
     if (!abName.trim()) return;
     const t: ABTest = { id: crypto.randomUUID(), name: abName.trim(), variantA: abVarA.trim(), variantB: abVarB.trim(), paused: false };
@@ -212,7 +212,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     recordForgeTransfer('brand', 'create', 'campaign', `Campaign "${t.name}" launched → ContentEngin variants`);
   }
 
-  // ── ROI calculations ───────────────────────────────────────────────────────
+  // -- ROI calculations -------------------------------------------------------
   const budgetN      = parseFloat(budget)      || 0;
   const impressionsN = parseFloat(impressions) || 0;
   const conversionsN = parseFloat(conversions) || 0;
@@ -220,7 +220,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
   const cpc  = conversionsN > 0 ? (budgetN / conversionsN).toFixed(2) : '—';
   const roi  = budgetN > 0      ? (((conversionsN * 10 - budgetN) / budgetN) * 100).toFixed(1) : '—';
 
-  // ── Audience Segments state ──────────────────────────────────────────────────
+  // -- Audience Segments state --------------------------------------------------
   const [segments, setSegments] = useState<Array<{ id: string; name: string; size: number; tags: string[] }>>([
     { id: 'seg-1', name: 'Power Creators',  size: 4200, tags: ['video', 'daily-poster'] },
     { id: 'seg-2', name: 'Music Fans',      size: 1850, tags: ['music', 'stream'] },
@@ -228,14 +228,14 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
   ]);
   const [newSegName, setNewSegName] = useState('');
 
-  // ── Brand Voice AI state ─────────────────────────────────────────────────────
+  // -- Brand Voice AI state -----------------------------------------------------
   const [voicePrompt, setVoicePrompt]         = useState('');
   const [voiceSuggestion, setVoiceSuggestion] = useState('');
   const [voiceLoading, setVoiceLoading]       = useState(false);
   // multi-connection path: Brand → ContentEngin
   const [contentBridgeSending, setContentBridgeSending] = useState(false);
 
-  // ── Competitor Watch state ───────────────────────────────────────────────────
+  // -- Competitor Watch state ---------------------------------------------------
   const [competitors, setCompetitors] = useState<Array<{ handle: string; followers: string; lastPost: string }>>([
     { handle: '@creativebrand',  followers: '84.2K', lastPost: '2h ago' },
     { handle: '@designmaster',   followers: '210K',  lastPost: '5h ago' },
@@ -243,7 +243,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
   ]);
   const [watchHandle, setWatchHandle] = useState('');
 
-  // ── Asset Library state ──────────────────────────────────────────────────────
+  // -- Asset Library state ------------------------------------------------------
   const [assets, setAssets] = useState<Array<{ id: string; name: string; type: 'logo' | 'color' | 'font'; value: string }>>([
     { id: 'as-1', name: 'Primary Logo',    type: 'logo',  value: 'DREAMengin.svg' },
     { id: 'as-2', name: 'Brand Pink',      type: 'color', value: '#ec4899' },
@@ -253,7 +253,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
   const [newAssetName, setNewAssetName]   = useState('');
   const [newAssetValue, setNewAssetValue] = useState('');
 
-  // ── Color Palette Generator (regeneratable) ───────────────────────────────────
+  // -- Color Palette Generator (regeneratable) -----------------------------------
   const PALETTE_PRESETS = [
     ['#ec4899','#f9a8d4','#c026d3','#fbbf24','#1e1b4b','#f0fdf4'],
     ['#2a8ab8','#bae6fd','#0284c7','#f59e0b','#0f172a','#f8fafc'],
@@ -270,10 +270,10 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     setTimeout(() => setCopiedColor(null), 1200);
   }
 
-  // ── Game Engine Visual Preset active selection ────────────────────────────────
+  // -- Game Engine Visual Preset active selection --------------------------------
   const [activePreset, setActivePreset] = useState('Brand Pink');
 
-  // ── Load brand_kit_items from DB on mount ─────────────────────────────────────
+  // -- Load brand_kit_items from DB on mount -------------------------------------
   useEffect(() => {
     let cancelled = false;
     const supabase = createClient();
@@ -293,14 +293,14 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     return () => { cancelled = true; };
   }, []);
 
-  // ── Restore workspace state from DB once on mount ─────────────────────────────
+  // -- Restore workspace state from DB once on mount -----------------------------
   useEffect(() => {
     if (brandRestoring || brandRestoredRef.current || !savedBrandState) return;
     brandRestoredRef.current = true;
     if (savedBrandState.abTests && savedBrandState.abTests.length > 0) setAbTests(savedBrandState.abTests);
   }, [brandRestoring, savedBrandState]);
 
-  // ── Persist brand workspace state to Supabase (Phase 8 §F Point 55) ──
+  // -- Persist brand workspace state to Supabase (Phase 8 §F Point 55) --
   useEffect(() => {
     if (brandRestoring) return;
     persistState({ side: 'B', assets });
@@ -308,7 +308,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
    
   }, [assets, abTests, brandRestoring]);
 
-  // ── Segment handler ───────────────────────────────────────────────────────────
+  // -- Segment handler -----------------------------------------------------------
   function handleCreateSegment() {
     if (!newSegName.trim()) return;
     const seg = {
@@ -325,7 +325,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     recordForgeTransfer('brand', 'create', 'audience-segment', `Audience segment "${seg.name}" → ContentEngin targeting`);
   }
 
-  // ── Voice AI handler ─────────────────────────────────────────────────────────
+  // -- Voice AI handler ---------------------------------------------------------
   function handleVoiceGenerate() {
     if (!voicePrompt.trim()) return;
     setVoiceLoading(true);
@@ -344,7 +344,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     }, 1200);
   }
 
-  // ── Competitor handler ────────────────────────────────────────────────────────
+  // -- Competitor handler --------------------------------------------------------
   function handleAddCompetitor() {
     const handle = watchHandle.trim().startsWith('@') ? watchHandle.trim() : `@${watchHandle.trim()}`;
     if (!watchHandle.trim()) return;
@@ -355,7 +355,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     );
   }
 
-  // ── Asset handler — inserts to brand_kit_items with optimistic update ────────
+  // -- Asset handler — inserts to brand_kit_items with optimistic update --------
   async function handleSaveAsset() {
     if (!newAssetName.trim() || !newAssetValue.trim()) return;
     forgeRecord('Saved brand asset');
@@ -390,7 +390,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     } catch { /* non-blocking — optimistic item remains */ }
   }
 
-  // ── Send to ContentEngin (multi-connection: Brand → ContentEngin) ─────────────
+  // -- Send to ContentEngin (multi-connection: Brand → ContentEngin) -------------
   // multi-connection path: Brand → ContentEngin via /api/drafts + bridge event
   async function handleSendToContentEngin() {
     if (!voiceSuggestion.trim()) return;
@@ -422,7 +422,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
     <ArtifactSlot artifactId="engin:brand">
     <div className="de-sky-bg min-h-screen">
 
-      {/* ── Header ── */}
+      {/* -- Header -- */}
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <button type="button" onClick={onBack} className="p-2 -ml-2 rounded-full"
@@ -439,10 +439,10 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
         </div>
       </header>
 
-      {/* ── Body ── */}
+      {/* -- Body -- */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
 
-        {/* ── Game → BrandingEngin Achievement Campaign receiver ── */}
+        {/* -- Game → BrandingEngin Achievement Campaign receiver -- */}
         {achievementPrompt && (
           <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(200,152,26,0.3)', background: 'rgba(200,152,26,0.04)' }}>
             <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -467,7 +467,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         )}
 
-        {/* ── Brand Kit (existing) ── */}
+        {/* -- Brand Kit (existing) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header"><span className="de-widget-title">Brand Kit</span></div>
           <div className="de-widget-body">
@@ -508,7 +508,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Analytics link (existing) ── */}
+        {/* -- Analytics link (existing) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header"><span className="de-widget-title">Analytics</span></div>
           <div className="de-widget-body">
@@ -530,7 +530,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── NEW: Brand Analytics ── */}
+        {/* -- NEW: Brand Analytics -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header"><span className="de-widget-title">Brand Analytics</span></div>
           <div className="de-widget-body">
@@ -554,7 +554,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── NEW: A/B Test Manager ── */}
+        {/* -- NEW: A/B Test Manager -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span className="de-widget-title">A/B Test Manager</span>
@@ -627,7 +627,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── NEW: Campaign ROI Calculator ── */}
+        {/* -- NEW: Campaign ROI Calculator -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span className="de-widget-title">Campaign ROI Calculator</span>
@@ -658,7 +658,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Campaigns (existing) ── */}
+        {/* -- Campaigns (existing) -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header"><span className="de-widget-title">Campaigns</span></div>
           <div className="de-widget-body">
@@ -673,7 +673,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Audience (existing) ── */}
+        {/* -- Audience (existing) -- */}
         <div className="de-widget">
           <div className="de-widget-header"><span className="de-widget-title">Audience</span></div>
           <div className="de-widget-body">
@@ -691,7 +691,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Content Calendar Link ── */}
+        {/* -- Content Calendar Link -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Megaphone className="w-4 h-4" style={{ color: ACCENT }} />
@@ -713,7 +713,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Audience Segments ── */}
+        {/* -- Audience Segments -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Users className="w-4 h-4" style={{ color: ACCENT }} />
@@ -783,7 +783,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Brand Voice AI ── */}
+        {/* -- Brand Voice AI -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Layers className="w-4 h-4" style={{ color: ACCENT }} />
@@ -842,7 +842,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Competitor Watch ── */}
+        {/* -- Competitor Watch -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Eye className="w-4 h-4" style={{ color: ACCENT }} />
@@ -896,7 +896,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Asset Library ── */}
+        {/* -- Asset Library -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <BookOpen className="w-4 h-4" style={{ color: ACCENT }} />
@@ -977,7 +977,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Feature 13: Brand Health Score ── */}
+        {/* -- Feature 13: Brand Health Score -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>💪</span>
@@ -1007,7 +1007,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Feature 14: Color Palette Generator ── */}
+        {/* -- Feature 14: Color Palette Generator -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Palette className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -1034,7 +1034,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Feature 15: Typography Kit ── */}
+        {/* -- Feature 15: Typography Kit -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <BookOpen className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -1056,7 +1056,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Feature 16: Sponsorship Pitch Generator ── */}
+        {/* -- Feature 16: Sponsorship Pitch Generator -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Megaphone className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -1087,7 +1087,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Feature 17: Press Kit Builder ── */}
+        {/* -- Feature 17: Press Kit Builder -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Layers className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -1119,7 +1119,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Feature 18: Social Media Bio Optimizer ── */}
+        {/* -- Feature 18: Social Media Bio Optimizer -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Eye className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -1147,7 +1147,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Feature 19: Audience Persona Builder ── */}
+        {/* -- Feature 19: Audience Persona Builder -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <Users className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -1171,7 +1171,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Feature 20: Game Engine Visual Presets ── */}
+        {/* -- Feature 20: Game Engine Visual Presets -- */}
         <div className="de-widget" style={{ marginBottom: 14 }}>
           <div className="de-widget-header">
             <span style={{ fontSize: 16 }}>🎮</span>
@@ -1205,7 +1205,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Shared Dream Analytics Dashboard ── */}
+        {/* -- Shared Dream Analytics Dashboard -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <Users className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -1259,7 +1259,7 @@ export default function BrandingEngin() { onBack, instanceId: instanceIdProp }: 
           </div>
         </div>
 
-        {/* ── Journey Trail ── */}
+        {/* -- Journey Trail -- */}
         <div className="de-widget" style={{ marginTop: 14 }}>
           <div className="de-widget-header">
             <span style={{ color: '#c8981a', fontSize: 16 }}>✦</span>

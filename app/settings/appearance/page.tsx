@@ -9,7 +9,7 @@ import { THEME_PRESETS } from '@/lib/ui/theme-engine';
 import { THEME_PRESETS as GRADIENT_PRESETS, applyTheme, applyVoidTheme, isVoidThemeActive, type DeTheme } from '@/components/dream.ThemeApplicator';
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 
-/* ── VOID / OLED Dark Theme Toggle ── */
+/* -- VOID / OLED Dark Theme Toggle -- */
 function VoidThemeSection() {
   const [isVoid, setIsVoid] = useState(false);
 
@@ -97,7 +97,7 @@ function VoidThemeSection() {
   );
 }
 
-/* ── Gradient Preset Picker ── */
+/* -- Gradient Preset Picker -- */
 function GradientThemePicker() {
   const [active, setActive] = useState(() => {
     if (typeof window === 'undefined') return 'default';
@@ -169,7 +169,7 @@ function GradientThemePicker() {
 }
 
 
-/* ── Slider component (styled with Dream tokens) ── */
+/* -- Slider component (styled with Dream tokens) -- */
 function Slider() {
   label,
   value,
@@ -217,7 +217,7 @@ function Slider() {
   );
 }
 
-/* ── Preset cards ── */
+/* -- Preset cards -- */
 function PresetCard() {
   preset,
   isActive,
@@ -271,7 +271,7 @@ function PresetCard() {
   );
 }
 
-/* ── Background Image Section ── */
+/* -- Background Image Section -- */
 function BgImageSection() {
   const [bgImage, setBgImage] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
@@ -388,7 +388,7 @@ export default function AppearanceSettingsPage() {
   const { presetId, overrides, setPreset, setOverrides, resetOverrides } = useTheme();
   const { enterCustomizeMode } = useCustomizeMode();
 
-  // ── DB sync: load appearance settings on mount (Phase 8 §I Point 83) ──
+  // -- DB sync: load appearance settings on mount (Phase 8 §I Point 83) --
   useEffect(() => {
     fetch('/api/settings/appearance')
       .then(r => r.json())
@@ -402,7 +402,7 @@ export default function AppearanceSettingsPage() {
    
   }, []);
 
-  // ── DB sync: save on presetId or overrides change (Phase 8 §I Point 83) ──
+  // -- DB sync: save on presetId or overrides change (Phase 8 §I Point 83) --
   // Debounce to avoid rapid writes during slider drags
   const debounceSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
@@ -446,7 +446,7 @@ export default function AppearanceSettingsPage() {
 
       <div style={{ maxWidth: 520, margin: '0 auto', padding: '20px 16px' }}>
 
-        {/* ── Customize Mode entry points ── */}
+        {/* -- Customize Mode entry points -- */}
         <section style={{ marginBottom: 24 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 4 }}>
             Customize Your Space
@@ -484,10 +484,10 @@ export default function AppearanceSettingsPage() {
           </div>
         </section>
 
-        {/* ── VOID / OLED Dark Mode ── */}
+        {/* -- VOID / OLED Dark Mode -- */}
         <VoidThemeSection />
 
-        {/* ── Gradient Theme — user-editable sky+gold ── */}
+        {/* -- Gradient Theme — user-editable sky+gold -- */}
         <GradientThemePicker />
 
         {/* Theme Presets */}

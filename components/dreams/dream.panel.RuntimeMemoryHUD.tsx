@@ -23,11 +23,11 @@ import React, { useEffect, useState } from 'react';
 import { dreamOSBus, type DreamOSSnapshot } from '@/lib/runtime/dreamOSBus';
 import { formatArtifactKind, getArtifactAccent } from '@/lib/intelligence/continuityHelpers';
 
-// ── Layout constants ──────────────────────────────────────────────────────────
+// -- Layout constants ----------------------------------------------------------
 
 const MAX_ARTIFACTS = 5;
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// -- Helpers -------------------------------------------------------------------
 
 function relativeTime(ms: number: string) {
   const diff = Date.now() - ms;
@@ -39,7 +39,7 @@ function relativeTime(ms: number: string) {
   return `${hrs}h`;
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// -- Component -----------------------------------------------------------------
 
 export default function RuntimeMemoryHUD() {
   const [snapshot, setSnapshot] = useState<DreamOSSnapshot>({

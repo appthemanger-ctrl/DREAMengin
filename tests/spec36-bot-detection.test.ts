@@ -19,7 +19,7 @@ import {
 } from '@/lib/bot-detection/index';
 import { analyzeSwipe, tallyView } from '@/lib/botDetection';
 
-// ─── §36.2 View timer ────────────────────────────────────────────────────────
+// --- §36.2 View timer --------------------------------------------------------
 
 describe('§36.2 createViewTimer', () => {
   beforeEach(() => { vi.useFakeTimers(); });
@@ -57,7 +57,7 @@ describe('§36.2 createViewTimer', () => {
   });
 });
 
-// ─── §36.3 PerfectLineTrap ───────────────────────────────────────────────────
+// --- §36.3 PerfectLineTrap ---------------------------------------------------
 
 describe('§36.3 PerfectLineTrap', () => {
   it('returns "ok" for high-deviation swipes', () => {
@@ -93,7 +93,7 @@ describe('§36.3 PerfectLineTrap', () => {
   });
 });
 
-// ─── §36 Detection thresholds ────────────────────────────────────────────────
+// --- §36 Detection thresholds ------------------------------------------------
 
 describe('§36.1 Detection threshold constants', () => {
   it('human min deviation is 1.5 px', () => {
@@ -105,7 +105,7 @@ describe('§36.1 Detection threshold constants', () => {
   });
 });
 
-// ─── §36 BotSessionTracker ───────────────────────────────────────────────────
+// --- §36 BotSessionTracker ---------------------------------------------------
 
 describe('§36 BotSessionTracker', () => {
   function straightLinePoints(n = 6) {
@@ -139,7 +139,7 @@ describe('§36 BotSessionTracker', () => {
   });
 });
 
-// ─── §36.2 tallyView passthrough ────────────────────────────────────────────
+// --- §36.2 tallyView passthrough --------------------------------------------
 
 describe('§36.2 tallyView', () => {
   it('counts views ≥ 4 000 ms', () => {

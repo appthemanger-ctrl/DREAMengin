@@ -7,11 +7,11 @@
 
 import { createEventBus, type EventBus } from './eventBus';
 
-// ─── Runtime IDs ─────────────────────────────────────────────────────────────
+// --- Runtime IDs -------------------------------------------------------------
 
 export type RuntimeId = 'HomeDream' | 'DreamSpace' | 'Daydream' | 'Engin';
 
-// ─── Module Manifest ─────────────────────────────────────────────────────────
+// --- Module Manifest ---------------------------------------------------------
 
 export interface ModuleManifest {
   /** Unique module identifier. */
@@ -33,7 +33,7 @@ export interface ModuleManifest {
   };
 }
 
-// ─── Assembly-Scoped Event Bus ────────────────────────────────────────────────
+// --- Assembly-Scoped Event Bus ------------------------------------------------
 
 export type AssemblyEvents = Record<string, unknown>;
 
@@ -47,7 +47,7 @@ export function createLocalEventBus(: EventBus<AssemblyEvents>) {
   return createEventBus<AssemblyEvents>();
 }
 
-// ─── Transfer Validation ──────────────────────────────────────────────────────
+// --- Transfer Validation ------------------------------------------------------
 
 /**
  * canTransfer(manifest, targetRuntime)

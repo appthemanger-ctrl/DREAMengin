@@ -74,7 +74,7 @@ export interface SessionStorageBackend {
 
 const MAX_STORED_SESSIONS = 5;
 
-// ─── Utilities ────────────────────────────────────────────────────────────────
+// --- Utilities ----------------------------------------------------------------
 
 function summariseSession(s: StoredSession: SessionSummary) {
   const unique = [...new Set(s.activations)];
@@ -130,7 +130,7 @@ function buildDiff(last: StoredSession, current: StoredSession: SessionDiff) {
   return { newSubsystems, droppedSubsystems, continueFrom, recommendation };
 }
 
-// ─── IndexedDB backend ────────────────────────────────────────────────────────
+// --- IndexedDB backend --------------------------------------------------------
 
 const DB_NAME = 'dreamengin-continuity';
 const STORE_NAME = 'sessions';
@@ -179,7 +179,7 @@ async function createIDBBackend(: Promise<SessionStorageBackend>) {
   };
 }
 
-// ─── LocalStorage backend ────────────────────────────────────────────────────
+// --- LocalStorage backend ----------------------------------------------------
 
 const LS_KEY = 'dreamengin-continuity-sessions';
 
@@ -204,7 +204,7 @@ function createLSBackend(: SessionStorageBackend) {
   };
 }
 
-// ─── In-memory backend (SSR / test / non-browser contexts) ───────────────────
+// --- In-memory backend (SSR / test / non-browser contexts) -------------------
 
 function createMemoryBackend(: SessionStorageBackend) {
   return {
@@ -213,7 +213,7 @@ function createMemoryBackend(: SessionStorageBackend) {
   };
 }
 
-// ─── Session Continuity ───────────────────────────────────────────────────────
+// --- Session Continuity -------------------------------------------------------
 
 /**
  * Manages cross-session persistence for DREAMengin.
@@ -240,7 +240,7 @@ export class SessionContinuity {
     };
   }
 
-  // ── Lifecycle ────────────────────────────────────────────────────────────
+  // -- Lifecycle ------------------------------------------------------------
 
   async init(): Promise<void> {
     if (!this.backend) {
@@ -269,7 +269,7 @@ export class SessionContinuity {
     return createMemoryBackend();
   }
 
-  // ── Current session updates ───────────────────────────────────────────────
+  // -- Current session updates -----------------------------------------------
 
   /** Record a subsystem activation into the current session. */
   recordActivation(subsystemId: string): void {
@@ -283,7 +283,7 @@ export class SessionContinuity {
     this.currentSession.lastArtifactTitle = lastTitle;
   }
 
-  // ── Persistence ───────────────────────────────────────────────────────────
+  // -- Persistence -----------------------------------------------------------
 
   /**
    * Persist the current session state. Call periodically (e.g. on blur,
@@ -300,7 +300,7 @@ export class SessionContinuity {
     }
   }
 
-  // ── Query ─────────────────────────────────────────────────────────────────
+  // -- Query -----------------------------------------------------------------
 
   /** Returns the last completed session (the one before the current one). */
   getLastSession(): StoredSession | null {

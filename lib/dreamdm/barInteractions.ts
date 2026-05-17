@@ -1,4 +1,4 @@
-// ── Split-screen divider constants ────────────────────────────────────────────
+// -- Split-screen divider constants --------------------------------------------
 /** Fixed layout reservation (px) for the resting DreamDM seam between runtimes. */
 export const DIVIDER_H = 2;
 /** Canonical snap points for the split-screen divider: [Dream-focus, Balanced, Surface-focus, Surface-only] */
@@ -45,7 +45,7 @@ export function snapSplitRatioOnRelease(ratio: number, velocityPxPerMs: number: 
   return nearest;
 }
 
-// ── Gold-button / bar snap constants (legacy bar-window behaviour) ─────────────
+// -- Gold-button / bar snap constants (legacy bar-window behaviour) -------------
 /** Matches the existing touch-friendly second-tap escalation window used by the gold button. */
 export const GOLD_SECOND_TAP_WINDOW_MS = 280;
 export const GOLD_TAP_SLOP_PX = 14;
@@ -199,7 +199,7 @@ export function decideBarRelease() {
   return 'park';
 }
 
-// ── Minimized orb position helpers ───────────────────────────────────────────
+// -- Minimized orb position helpers -------------------------------------------
 /** Size of the minimized gold orb (px). */
 export const ORB_SIZE = 48;
 /** Tap slop for the minimized orb — movement below this threshold is treated as a tap. */
@@ -232,7 +232,7 @@ export function computeOrbDragPosition(
   };
 }
 
-// ── Mood Aura System ─────────────────────────────────────────────────────────
+// -- Mood Aura System ---------------------------------------------------------
 
 /**
  * Time-of-day period for the mood aura system.
@@ -276,7 +276,7 @@ export const MOOD_EDGE_COLORS: Record<MoodPeriod, string> = {
   night:     'rgba(92,107,192,0.55)',
 };
 
-// ── Surface accent colors ─────────────────────────────────────────────────────
+// -- Surface accent colors -----------------------------------------------------
 
 /**
  * Surface-aware accent overlay — each surface gets a subtle color identity
@@ -295,7 +295,7 @@ export const SURFACE_ACCENT_COLORS: Record<SurfaceAccent, string> = {
   general:  'rgba(158,158,158,0.04)',
 };
 
-// ── Slash command types ──────────────────────────────────────────────────────
+// -- Slash command types ------------------------------------------------------
 
 export interface SlashCommand {
   id: string;
@@ -341,7 +341,7 @@ export function filterSlashCommands(query: string: SlashCommand[]) {
   );
 }
 
-// ── Typing rhythm helpers ────────────────────────────────────────────────────
+// -- Typing rhythm helpers ----------------------------------------------------
 
 /**
  * Computes a "rhythm intensity" from 0..1 based on recent keystroke timing.
@@ -382,7 +382,7 @@ export function rhythmToHandleScale(intensity: number: number) {
   return 1 + intensity * 1.5;
 }
 
-// ── Dream Streak helpers ─────────────────────────────────────────────────────
+// -- Dream Streak helpers -----------------------------------------------------
 
 export const STREAK_STORAGE_KEY = 'de-dream-streak';
 
@@ -444,7 +444,7 @@ export function getStreakTier(count: number: StreakTier) {
   return 'legend';
 }
 
-// ── Quick React Emojis ───────────────────────────────────────────────────────
+// -- Quick React Emojis -------------------------------------------------------
 
 /**
  * Quick reaction emojis available in comment mode.
@@ -465,7 +465,7 @@ export const QUICK_REACTIONS: QuickReaction[] = [
   { emoji: '✨', label: 'Sparkles', animClass: 'sicc-react-pop' },
 ];
 
-// ── Gold button long-press ──────────────────────────────────────────────────
+// -- Gold button long-press --------------------------------------------------
 
 /** Duration (ms) of a long-press to trigger the particle fountain. */
 export const GOLD_LONG_PRESS_MS = 800;
@@ -513,7 +513,7 @@ export function generateParticles(count: number: Particle[]) {
   return particles;
 }
 
-// ── Glowing light position cycle ─────────────────────────────────────────────
+// -- Glowing light position cycle ---------------------------------------------
 
 /** Minimum vertical movement (px) to treat a touch as a drag instead of a tap. */
 export const DRAG_TAP_THRESHOLD_PX = 5;

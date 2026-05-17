@@ -27,7 +27,7 @@ import type {
   VMStatsPayload,
 } from './bus-events';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 export type VMId = 'TOO_VM' | 'BOTTOM_VM';
 
@@ -50,7 +50,7 @@ export interface VMRuntimeStats {
 
 type BusHandler<K extends VMBusEventName> = (payload: VMBusEventMap[K]) => void;
 
-// ─── Internal VMRuntime ───────────────────────────────────────────────────────
+// --- Internal VMRuntime -------------------------------------------------------
 
 class VMRuntime {
   readonly id:          VMId;
@@ -101,7 +101,7 @@ class VMRuntime {
   }
 }
 
-// ─── DualRuntime ─────────────────────────────────────────────────────────────
+// --- DualRuntime -------------------------------------------------------------
 
 export class DualRuntime {
   private readonly tooVm    = new VMRuntime('TOO_VM');
@@ -120,12 +120,12 @@ export class DualRuntime {
     this.channel.subscribe(msg: string => this._onInterVMMessage(msg));
   }
 
-  // ── Accessors ─────────────────────────────────────────────────────────────
+  // -- Accessors -------------------------------------------------------------
 
   get primaryVmId(): VMId        { return this._primary.id; }
   get isFailoverActive(): boolean { return this._failoverActive; }
 
-  // ── Workload submission ───────────────────────────────────────────────────
+  // -- Workload submission ---------------------------------------------------
 
   /**
    * Submit a workload to the current primary VM.
@@ -161,7 +161,7 @@ export class DualRuntime {
     return spec.id;
   }
 
-  // ── Error reporting ───────────────────────────────────────────────────────
+  // -- Error reporting -------------------------------------------------------
 
   reportError(vmId: VMId, error: string, workloadId?: string): void {
     const vm = vmId === 'TOO_VM' ? this.tooVm : this.bottomVm;
@@ -180,7 +180,7 @@ export class DualRuntime {
     }
   }
 
-  // ── Recovery ──────────────────────────────────────────────────────────────
+  // -- Recovery --------------------------------------------------------------
 
   recoverVM(vmId: VMId): void {
     const vm = vmId === 'TOO_VM' ? this.tooVm : this.bottomVm;
@@ -191,13 +191,13 @@ export class DualRuntime {
     }
   }
 
-  // ── Stats ──────────────────────────────────────────────────────────────────
+  // -- Stats ------------------------------------------------------------------
 
   getStats(): { tooVm: VMRuntimeStats; bottomVm: VMRuntimeStats } {
     return { tooVm: this.tooVm.stats, bottomVm: this.bottomVm.stats };
   }
 
-  // ── Event bus ─────────────────────────────────────────────────────────────
+  // -- Event bus -------------------------------------------------------------
 
   on<K extends VMBusEventName>(event: K, handler: BusHandler<K>): () => void {
     const set = this.busListeners.get(event) ?? new Set<BusHandler<VMBusEventName>>();
@@ -206,14 +206,14 @@ export class DualRuntime {
     return () => { set.delete(handler as BusHandler<VMBusEventName>); };
   }
 
-  // ── Lifecycle ─────────────────────────────────────────────────────────────
+  // -- Lifecycle -------------------------------------------------------------
 
   destroy(): void {
     this.channel.destroy();
     this.busListeners.clear();
   }
 
-  // ── Internal ──────────────────────────────────────────────────────────────
+  // -- Internal --------------------------------------------------------------
 
   private _activateFailover(): void {
     if (this._failoverActive) return;
@@ -255,6 +255,6 @@ export class DualRuntime {
   }
 }
 
-// ─── Singleton ────────────────────────────────────────────────────────────────
+// --- Singleton ----------------------------------------------------------------
 
 export const dualRuntime = new DualRuntime();

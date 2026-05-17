@@ -34,7 +34,7 @@
 import Parser from 'rss-parser';
 import type { UnifiedFeedItem, FeedItemMedia } from '@/types/connector';
 
-// ── Custom field map ──────────────────────────────────────────────────────
+// -- Custom field map ------------------------------------------------------
 
 /**
  * rss-parser custom fields we care about for image extraction.
@@ -50,7 +50,7 @@ const RSS_CUSTOM_FIELDS = {
   ],
 };
 
-// ── Provider types ────────────────────────────────────────────────────────
+// -- Provider types --------------------------------------------------------
 
 /**
  * Providers that expose public RSS / Atom feeds DREAMengin can parse without
@@ -73,7 +73,7 @@ export type RssProvider =
   | 'tumblr'
   | 'tiktok';
 
-// ── Feed config ───────────────────────────────────────────────────────────
+// -- Feed config -----------------------------------------------------------
 
 export interface RssFeedConfig {
   /** Provider slug — matches ConnectorDef.id */
@@ -92,7 +92,7 @@ export interface RssFeedConfig {
   authorName?: string;
 }
 
-// ── Provider URL builders ─────────────────────────────────────────────────
+// -- Provider URL builders -------------------------------------------------
 
 /**
  * Returns the public RSS feed URL for a YouTube channel.
@@ -312,7 +312,7 @@ export function podcastRssUrl(feedUrl: string: string) {
   return feedUrl;
 }
 
-// ── Core parser ───────────────────────────────────────────────────────────
+// -- Core parser -----------------------------------------------------------
 
 // Lazily-created singleton; each call shares the same Parser instance.
 let _parser: Parser | null = null;
@@ -361,7 +361,7 @@ export async function parseRssFeed(
   return items.map((item: Record<string, unknown>) => normaliseRssItem(item, config, channelTitle));
 }
 
-// ── Item normaliser ───────────────────────────────────────────────────────
+// -- Item normaliser -------------------------------------------------------
 
 /**
  * Normalises a single rss-parser output item into UnifiedFeedItem.
@@ -413,7 +413,7 @@ export function normaliseRssItem(
   };
 }
 
-// ── Image extraction ──────────────────────────────────────────────────────
+// -- Image extraction ------------------------------------------------------
 
 /**
  * Extracts the first usable image URL from an rss-parser item.
@@ -476,7 +476,7 @@ export function extractFirstImage(item: unknown: string | null) {
   return null;
 }
 
-// ── Internal helpers ──────────────────────────────────────────────────────
+// -- Internal helpers ------------------------------------------------------
 
 /**
  * Strips HTML tags and decodes common HTML entities, returning plain text.

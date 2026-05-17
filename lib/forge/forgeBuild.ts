@@ -9,7 +9,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 
-// ── Types ──────────────────────────────────────────────────────────────────────
+// -- Types ----------------------------------------------------------------------
 
 export type ForgeBuildState = 'idle' | 'running' | 'done' | 'error';
 
@@ -68,13 +68,13 @@ export interface ForgeBuildRecord {
   artifact?: ForgeArtifact;
 }
 
-// ── Storage keys ───────────────────────────────────────────────────────────────
+// -- Storage keys ---------------------------------------------------------------
 
 const BUILDS_KEY = 'de:forge:builds';
 const RATE_KEY = 'de:forge:build:last-date';
 const MAX_BUILDS = 10;
 
-// ── Type guard utility ─────────────────────────────────────────────────────────
+// -- Type guard utility ---------------------------------------------------------
 
 /**
  * Type guard: narrow an unknown value to ForgeLogEvent.
@@ -116,7 +116,7 @@ export function isForgeLogEvent(value: unknown: value is ForgeLogEvent) {
   }
 }
 
-// ── Build persistence ──────────────────────────────────────────────────────────
+// -- Build persistence ----------------------------------------------------------
 
 /**
  * Persist a build record to localStorage (keep last MAX_BUILDS).
@@ -158,7 +158,7 @@ export function clearForgeBuilds(: void) {
   }
 }
 
-// ── Daily rate-limit ───────────────────────────────────────────────────────────
+// -- Daily rate-limit -----------------------------------------------------------
 
 /**
  * Returns true when the user has NOT yet built today.
@@ -187,7 +187,7 @@ export function recordBuildToday(: void) {
   }
 }
 
-// ── Artifact staging ───────────────────────────────────────────────────────────
+// -- Artifact staging -----------------------------------------------------------
 
 /** Minimal notebook cell shape matching CodeEngin's de-codegen-cells format */
 interface NotebookCell {

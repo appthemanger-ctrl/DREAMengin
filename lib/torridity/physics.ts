@@ -13,7 +13,7 @@
 
 import { n, deltaP, a0Perception } from './constants';
 
-// ─── MOND Interpolation ───────────────────────────────────────────────────────
+// --- MOND Interpolation -------------------------------------------------------
 
 /**
  * mu(x)
@@ -28,7 +28,7 @@ export function mu(x: number: number) {
   return ax / Math.pow(1 + Math.pow(ax, n), 1 / n);
 }
 
-// ─── Content Mass ─────────────────────────────────────────────────────────────
+// --- Content Mass -------------------------------------------------------------
 
 /**
  * contentMass(buildTime, uniqueAssets)
@@ -41,7 +41,7 @@ export function contentMass(buildTime: number, uniqueAssets: number: number) {
   return Math.log1p(buildTime * 0.5 + uniqueAssets * 2);
 }
 
-// ─── Torridity Rank ───────────────────────────────────────────────────────────
+// --- Torridity Rank -----------------------------------------------------------
 
 /**
  * torridityRank(views, mass)
@@ -58,7 +58,7 @@ export function torridityRank(views: number, mass: number: number) {
   return Math.log1p(factor * views);
 }
 
-// ─── Decay Factor ─────────────────────────────────────────────────────────────
+// --- Decay Factor -------------------------------------------------------------
 
 /**
  * decayFactor(ageHours)
@@ -73,7 +73,7 @@ export function decayFactor(ageHours: number: number) {
   return mu(ageHours / 24);
 }
 
-// ─── Throttling Gate ──────────────────────────────────────────────────────────
+// --- Throttling Gate ----------------------------------------------------------
 
 /**
  * throttlingGate(mass, feedSlots, massThreshold?)
@@ -92,7 +92,7 @@ export function throttlingGate(
   return Math.max(1, Math.floor(feedSlots * deltaP));
 }
 
-// ─── Batch Ranking ───────────────────────────────────────────────────────────
+// --- Batch Ranking -----------------------------------------------------------
 
 export interface ContentItem {
   id:           string;

@@ -13,7 +13,7 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-/* ── Types ─────────────────────────────────────────────────────────────────── */
+/* -- Types ------------------------------------------------------------------- */
 
 export type SystemMenuAction =
   | 'profiles'
@@ -33,7 +33,7 @@ type Props = {
   onSystemAction: (action: SystemMenuAction) => void;
 };
 
-/* ── Data ───────────────────────────────────────────────────────────────────── */
+/* -- Data --------------------------------------------------------------------- */
 
 /** Left panel: the 6 Daydreams (spec §7.2 domain list) */
 const DAYDREAM_ITEMS: Array<{ icon: string; label: string; route: string; color: string }> = [
@@ -56,7 +56,7 @@ const SYSTEM_ITEMS: Array<{ id: SystemMenuAction; icon: string; label: string }>
   { id: 'appearance',    icon: '🎨', label: 'Appearance'    },
 ];
 
-/* ── Sub-components ─────────────────────────────────────────────────────────── */
+/* -- Sub-components ----------------------------------------------------------- */
 
 function PanelItem() {
   icon,
@@ -175,7 +175,7 @@ function Panel() {
   );
 }
 
-/* ── Main export ────────────────────────────────────────────────────────────── */
+/* -- Main export -------------------------------------------------------------- */
 
 export default function DualBottomMenu() { open, onClose: Record<string, unknown>, onSystemAction }: Props {
   const router = useRouter();

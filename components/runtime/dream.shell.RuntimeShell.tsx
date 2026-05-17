@@ -67,7 +67,7 @@ export default function RuntimeShell() {
   const pct = Math.round(zoom * 100);
   const isDefault = pct === 100;
 
-  /* ── shared button style helpers ─────────────────────────────────────────── */
+  /* -- shared button style helpers ------------------------------------------- */
   const ctrlBtn = (disabled: boolean): React.CSSProperties => ({
     width: 30, height: 30, borderRadius: '50%',
     border: 'none',
@@ -95,7 +95,7 @@ export default function RuntimeShell() {
       }}
     >
 
-      {/* ── Zoom controls — top-right of the region, never zoomed ───────── */}
+      {/* -- Zoom controls — top-right of the region, never zoomed --------- */}
       {showZoomControls && (
         <div
           className="premium-card"
@@ -164,9 +164,9 @@ export default function RuntimeShell() {
         </div>
       )}
 
-      {/* ── Content ─────────────────────────────────────────────────────── */}
+      {/* -- Content ------------------------------------------------------- */}
       {iframeUrl ? (
-        /* ── Iframe mode — a sub-page is open inside this region ── */
+        /* -- Iframe mode — a sub-page is open inside this region -- */
         <>
           {/* Chrome bar with back button */}
           <div
@@ -246,7 +246,7 @@ export default function RuntimeShell() {
         </>
       ) : (
         /*
-         * ── Normal content mode — scrollable + zoomable ──
+         * -- Normal content mode — scrollable + zoomable --
          *
          * The parent container (HomeSystem region div) is already sized to
          * exclude the DreamDMBar, so this div fills exactly the safe area.

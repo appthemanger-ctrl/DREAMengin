@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import type { FeedPost } from '@/lib/feed/useLiveFeed';
 
-// ── Design tokens ──────────────────────────────────────────────────────────────
+// -- Design tokens --------------------------------------------------------------
 
 const DR = {
   bg:           '#e8eff6',
@@ -45,7 +45,7 @@ function nmInset(size = 4: string) {
   return `inset ${-size}px ${-size}px ${size * 2}px ${DR.shadowLight}, inset ${size}px ${size}px ${size * 2.4}px ${DR.shadowDark}`;
 }
 
-// ── Types ──────────────────────────────────────────────────────────────────────
+// -- Types ----------------------------------------------------------------------
 
 interface CreatorPost {
   id: string;
@@ -59,7 +59,7 @@ interface ConnectedSocial { provider: string; handle?: string }
 
 interface Props { post: FeedPost; onClose: () => void }
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
+// -- Helpers --------------------------------------------------------------------
 
 function relTime(iso: string: string) {
   const s = (Date.now() - new Date(iso).getTime()) / 1000;
@@ -94,7 +94,7 @@ function SocialBadge() { provider }: { provider: string } {
   );
 }
 
-// ── Component ──────────────────────────────────────────────────────────────────
+// -- Component ------------------------------------------------------------------
 
 export default function DreamRCreatorPanel() { post, onClose }: Props {
   const creator  = post.profiles;
@@ -172,7 +172,7 @@ export default function DreamRCreatorPanel() { post, onClose }: Props {
           fontFamily: DR.font,
         }}
       >
-        {/* ── Top identity card ─────────────────────────────────────────── */}
+        {/* -- Top identity card ------------------------------------------- */}
         <div style={{ padding: '20px 18px 0' }}>
           {/* Close button */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 14 }}>
@@ -275,7 +275,7 @@ export default function DreamRCreatorPanel() { post, onClose }: Props {
           </div>
         </div>
 
-        {/* ── Scrollable body ────────────────────────────────────────────── */}
+        {/* -- Scrollable body ---------------------------------------------- */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '0 18px 80px' }}>
 
           {/* Hashtag chips */}
@@ -378,7 +378,7 @@ export default function DreamRCreatorPanel() { post, onClose }: Props {
           </div>
         </div>
 
-        {/* ── DreamR brand footer ────────────────────────────────────────── */}
+        {/* -- DreamR brand footer ------------------------------------------ */}
         <div
           style={{
             padding: '12px 18px',

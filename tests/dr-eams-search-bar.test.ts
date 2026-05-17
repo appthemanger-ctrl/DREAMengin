@@ -22,7 +22,7 @@ import {
   truncatePreview,
 } from '@/lib/dreamengin/drEamsSearch';
 
-// ── matchNavSuggestions ────────────────────────────────────────────────────────
+// -- matchNavSuggestions --------------------------------------------------------
 
 describe('matchNavSuggestions', () => {
   it('returns empty array for empty query', () => {
@@ -90,7 +90,7 @@ describe('matchNavSuggestions', () => {
   });
 });
 
-// ── buildDrEamsRequest ─────────────────────────────────────────────────────────
+// -- buildDrEamsRequest ---------------------------------------------------------
 
 describe('buildDrEamsRequest', () => {
   it('trims whitespace from the message', () => {
@@ -122,7 +122,7 @@ describe('buildDrEamsRequest', () => {
   });
 });
 
-// ── parseDrEamsReply ───────────────────────────────────────────────────────────
+// -- parseDrEamsReply -----------------------------------------------------------
 
 describe('parseDrEamsReply', () => {
   it('extracts response_text from a normal reply', () => {
@@ -190,7 +190,7 @@ describe('parseDrEamsReply', () => {
   });
 });
 
-// ── buildDreamDMUrl ────────────────────────────────────────────────────────────
+// -- buildDreamDMUrl ------------------------------------------------------------
 
 describe('buildDreamDMUrl', () => {
   it('always starts with /messages', () => {
@@ -222,7 +222,7 @@ describe('buildDreamDMUrl', () => {
   });
 });
 
-// ── truncatePreview ────────────────────────────────────────────────────────────
+// -- truncatePreview ------------------------------------------------------------
 
 describe('truncatePreview', () => {
   it('returns short strings unchanged', () => {
@@ -247,7 +247,7 @@ describe('truncatePreview', () => {
   });
 });
 
-// ── NAV_SUGGESTIONS catalogue integrity ───────────────────────────────────────
+// -- NAV_SUGGESTIONS catalogue integrity ---------------------------------------
 
 describe('NAV_SUGGESTIONS catalogue', () => {
   it('contains all six Daydream pairs', () => {

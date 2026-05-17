@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
 
   const data = parsed.data;
 
-  // ── Review an incident ─────────────────────────────────────────────────
+  // -- Review an incident -------------------------------------------------
   if (data.action === 'review') {
     const { error } = await (supabase as SupabaseClient)
       .from('child_safety_incidents')
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, incident_id: data.incident_id, status: data.status });
   }
 
-  // ── Add known-bad hashes ───────────────────────────────────────────────
+  // -- Add known-bad hashes -----------------------------------------------
   if (data.action === 'add_hashes') {
     const rows = data.hashes.map((h: Record<string, unknown>) => ({
       hash_sha256: h.hash_sha256.toLowerCase(),

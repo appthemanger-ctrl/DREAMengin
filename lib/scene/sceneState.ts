@@ -31,7 +31,7 @@ import {
 // Re-export types for consumers
 export type { SceneSnapshot, SceneObject, CachedScene };
 
-// ─── Scene snapshot helpers ───────────────────────────────────────────────────
+// --- Scene snapshot helpers ---------------------------------------------------
 
 /**
  * Create a minimal default scene snapshot (empty canvas, default camera).
@@ -105,7 +105,7 @@ export async function listPersistedScenes(: Promise<string[]>) {
   return scenes.map((s: Record<string, unknown>) => s.id);
 }
 
-// ─── Scene diffing (for sync optimisation) ────────────────────────────────────
+// --- Scene diffing (for sync optimisation) ------------------------------------
 
 /**
  * Compare two snapshots and return true if they differ meaningfully.
@@ -143,7 +143,7 @@ export function scenesAreDifferent(
   return false;
 }
 
-// ─── Auto-save throttle helper ────────────────────────────────────────────────
+// --- Auto-save throttle helper ------------------------------------------------
 
 /**
  * Creates a throttled auto-save function that persists the scene at most

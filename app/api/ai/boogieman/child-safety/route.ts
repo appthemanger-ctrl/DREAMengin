@@ -129,10 +129,10 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // ── Load known-bad hash set ──────────────────────────────────────────────
+  // -- Load known-bad hash set ----------------------------------------------
   const knownBadHashes = await loadKnownBadHashes(supabase);
 
-  // ── Layer 4: LLM image classification (runs before scanContent) ──────────
+  // -- Layer 4: LLM image classification (runs before scanContent) ----------
   // classifyImage is async so we run it here and pass the result into scanContent.
   let imageClassification: import('@/lib/child-safety/imageClassifier').ImageClassificationResult | undefined;
   if (request.imageBase64) {
@@ -142,7 +142,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // ── Run child safety detector ────────────────────────────────────────────
+  // -- Run child safety detector --------------------------------------------
   const detection = scanContent({
     text: request.text,
     mediaHashes: request.mediaHashes,
@@ -150,7 +150,7 @@ export async function POST(req: NextRequest) {
     imageClassification,
   });
 
-  // ── If clean, return early ───────────────────────────────────────────────
+  // -- If clean, return early -----------------------------------------------
   if (!detection.flagged) {
     return NextResponse.json(
       {
@@ -165,7 +165,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // ── Enforce via BoogieMan ─────────────────────────────────────────────────
+  // -- Enforce via BoogieMan -------------------------------------------------
   const enforcement = boogieEnforce({
     userId: request.reportedUserId,
     ruleCode: detection.rule_code!,
@@ -175,7 +175,7 @@ export async function POST(req: NextRequest) {
     blastRadius: 1,
   });
 
-  // ── Report to NCMEC + write to DB ─────────────────────────────────────────
+  // -- Report to NCMEC + write to DB -----------------------------------------
   const contentHash = request.text
     ? createHash('sha256').update(request.text).digest('hex')
     : undefined;
@@ -212,7 +212,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // ── Write audit log ───────────────────────────────────────────────────────
+  // -- Write audit log -------------------------------------------------------
   await writeAuditLog({
     request_id,
     user_id: user.id,

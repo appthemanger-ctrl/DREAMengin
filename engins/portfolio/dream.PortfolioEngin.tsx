@@ -24,12 +24,12 @@ interface Props {
   onBack: () => void;
 }
 
-// ── design token ──────────────────────────────────────────────
+// -- design token ----------------------------------------------
 const ACCENT  = '#2a8ab8';   // DREAMengin light-blue (live / connected state)
 const GOLD    = '#c8981a';   // DREAMengin gold (action / confirm)
 const PURPLE  = '#8b5cf6';   // quantum / ansatz accent
 
-// ── option types ──────────────────────────────────────────────
+// -- option types ----------------------------------------------
 type Algorithm = 'vqe' | 'qaoa';
 type Backend   = 'local_simulator' | 'ibm_quantum';
 type Ansatz    = 'real_amplitudes' | 'efficient_su2';
@@ -43,7 +43,7 @@ interface RunResult {
   sharpeRatio: string;
 }
 
-// ── feature-flag metadata ─────────────────────────────────────
+// -- feature-flag metadata -------------------------------------
 const FEATURES = [
   { key: 'cvar_qaoa',       label: 'CVaR',  desc: 'Conditional Value-at-Risk objective',         color: PURPLE },
   { key: 'xy_mixer',        label: 'XY',    desc: 'Cardinality-preserving XY mixer',             color: '#0ea5e9' },
@@ -121,7 +121,7 @@ export default function PortfolioEngin() { onBack }: Props {
   return (
     <div className="de-sky-bg min-h-screen">
 
-      {/* ── Header ─────────────────────────────────────────── */}
+      {/* -- Header ------------------------------------------- */}
       <header
         className="sticky top-0 z-30 backdrop-blur-xl"
         style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}
@@ -163,7 +163,7 @@ export default function PortfolioEngin() { onBack }: Props {
         </div>
       </header>
 
-      {/* ── Body ───────────────────────────────────────────── */}
+      {/* -- Body --------------------------------------------- */}
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
 
         {/* Algorithm picker */}
@@ -494,7 +494,7 @@ export default function PortfolioEngin() { onBack }: Props {
           </div>
         )}
 
-        {/* ── Journey Trail ── */}
+        {/* -- Journey Trail -- */}
         <JourneyTrail compact />
 
       </div>

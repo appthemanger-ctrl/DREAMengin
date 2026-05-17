@@ -214,12 +214,12 @@ function buildTreeLines(files: string[], maxLines = 120): string[] {
     children.forEach((child, index) => {
       if (lines.length >= maxLines) return;
       const isLast = index === children.length - 1;
-      const connector = isLast ? '└── ' : '├── ';
+      const connector = isLast ? '└-- ' : '├-- ';
       const childPath = parent ? `${parent}/${child}` : child;
       const isLeaf = !tree.has(childPath);
       lines.push(`${prefix}${connector}${child}`);
       if (!isLeaf) {
-        emit(childPath, `${prefix}${isLast ? '    ' : '│   '}`);
+        emit(childPath, `${prefix}${isLast ? '    ' : '|   '}`);
       }
     });
   };

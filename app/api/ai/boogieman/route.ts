@@ -3,7 +3,7 @@
 // Runs both LLM policy check (boogiePolicyCheck) and rule engine (boogieEvaluate).
 // Every audit log entry carries policy_version + rule_code (req 3, 18).
 //
-// ── ENFORCEMENT TRIGGER LOGIC ────────────────────────────────────────────────
+// -- ENFORCEMENT TRIGGER LOGIC ------------------------------------------------
 //
 // TheBoogieMan enforces policy in two complementary layers:
 //
@@ -26,7 +26,7 @@
 //   Audit log: every request — allowed or blocked — is written to ai_audit_log
 //   with policy_version, request_id, user_id, latency_ms, and block reason.
 //
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 import { NextRequest, NextResponse } from 'next/server';
 import { jsonApiError } from '@/lib/api/route';

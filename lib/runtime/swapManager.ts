@@ -40,7 +40,7 @@ export function setSwap(domain: SwapDomain, value: boolean: void) {
   try {
     localStorage.setItem(SWAP_KEYS[domain], String(value));
   } catch (err) {
-    // ── Improvement 43: log storage errors ───────────────────────────────
+    // -- Improvement 43: log storage errors -------------------------------
     console.warn('[swapManager] Failed to persist swap state', { domain, err });
   }
 }
@@ -54,7 +54,7 @@ export function toggleSwap(domain: SwapDomain: boolean) {
   return next;
 }
 
-// ── Improvement 40: clearSwap ─────────────────────────────────────────────────
+// -- Improvement 40: clearSwap -------------------------------------------------
 
 /**
  * Reset the swap state for a domain to its default (false = editor on top).
@@ -69,7 +69,7 @@ export function clearSwap(domain: SwapDomain: void) {
   }
 }
 
-// ── Improvement 41: getAllSwapStates ──────────────────────────────────────────
+// -- Improvement 41: getAllSwapStates ------------------------------------------
 
 /**
  * Read the swap state for every registered domain in one call.
@@ -82,7 +82,7 @@ export function getAllSwapStates(: Record<SwapDomain, boolean>) {
   ) as Record<SwapDomain, boolean>;
 }
 
-// ── Improvement 42: resetAllSwaps ────────────────────────────────────────────
+// -- Improvement 42: resetAllSwaps --------------------------------------------
 
 /**
  * Clear the swap state for every registered domain (set to default false).

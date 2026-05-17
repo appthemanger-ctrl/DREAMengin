@@ -41,7 +41,7 @@ import {
   type Workgroup,
 } from './memory';
 
-// ─── Message protocol ─────────────────────────────────────────────────────────
+// --- Message protocol ---------------------------------------------------------
 
 /** Sent from dispatcher → worker on startup. */
 export interface WorkerInitMessage {
@@ -103,7 +103,7 @@ export type WorkerOutboundMessage = DispatcherToWorkerMessage;
 /** @deprecated Use WorkerToDispatcherMessage */
 export type WorkerInboundMessage  = WorkerToDispatcherMessage;
 
-// ─── Wasm engine ──────────────────────────────────────────────────────────────
+// --- Wasm engine --------------------------------------------------------------
 
 /**
  * Exports provided by the compiled `engin-shader.wasm` AssemblyScript module.
@@ -195,7 +195,7 @@ export async function initWasmEngine(
   }
 }
 
-// ─── Dispatcher state ─────────────────────────────────────────────────────────
+// --- Dispatcher state ---------------------------------------------------------
 
 export interface DispatcherStats {
   /** Number of active shader workers. */
@@ -206,7 +206,7 @@ export interface DispatcherStats {
   boundsViolations: number;
 }
 
-// ─── Singleton ────────────────────────────────────────────────────────────────
+// --- Singleton ----------------------------------------------------------------
 
 let _instance: EnginDispatcher | null = null;
 
@@ -254,7 +254,7 @@ export class EnginDispatcher {
     _instance = null;
   }
 
-  // ─── Lifecycle ──────────────────────────────────────────────────────────────
+  // --- Lifecycle --------------------------------------------------------------
 
   /**
    * Allocate the SAB, spawn workers, and distribute Workgroups.
@@ -355,7 +355,7 @@ export class EnginDispatcher {
     this._wasmExports = null;
   }
 
-  // ─── Wasm Engine ────────────────────────────────────────────────────────────
+  // --- Wasm Engine ------------------------------------------------------------
 
   /**
    * Load the AssemblyScript Wasm physics engine and bind it to this dispatcher's SAB.
@@ -398,7 +398,7 @@ export class EnginDispatcher {
     return this._wasmExports !== null;
   }
 
-  // ─── Dual-Runtime Seam ──────────────────────────────────────────────────────
+  // --- Dual-Runtime Seam ------------------------------------------------------
 
   /**
    * Write the DreamDM Bar y-offset (CSS pixels) into the SAB atomically.
@@ -531,7 +531,7 @@ export class EnginDispatcher {
    */
   static readonly SNAP_THRESHOLD_RATIO = SNAP_THRESHOLD_RATIO;
 
-  // ─── Telemetry ──────────────────────────────────────────────────────────────
+  // --- Telemetry --------------------------------------------------------------
 
   /**
    * Current dispatcher statistics snapshot.
@@ -577,7 +577,7 @@ export class EnginDispatcher {
     return this._wasmExports;
   }
 
-  // ─── Private ────────────────────────────────────────────────────────────────
+  // --- Private ----------------------------------------------------------------
 
   /**
    * Notify all workers that a seam control slot has been updated.

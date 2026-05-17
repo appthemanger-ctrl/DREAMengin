@@ -33,7 +33,7 @@ import {
   type PeerState,
 } from './dualRuntimeBridge';
 
-// ─── Return type ──────────────────────────────────────────────────────────────
+// --- Return type --------------------------------------------------------------
 
 export interface UseDualRuntimeReturn {
   /**
@@ -75,7 +75,7 @@ export interface UseDualRuntimeReturn {
   channel: DualRuntimeChannel;
 }
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
+// --- Hook ---------------------------------------------------------------------
 
 /**
  * useDualRuntime
@@ -158,7 +158,7 @@ export function useDualRuntime(channel: DualRuntimeChannel: UseDualRuntimeReturn
   return { emit, on, peers, channel };
 }
 
-// ─── Convenience re-exports ───────────────────────────────────────────────────
+// --- Convenience re-exports ---------------------------------------------------
 
 export type {
   DualRuntimeChannel,

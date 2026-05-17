@@ -5,7 +5,7 @@
  * See docs/wasm_gpu_vm_spec.md for the complete specification.
  */
 
-// ─── Handle Types ─────────────────────────────────────────────────────────────
+// --- Handle Types -------------------------------------------------------------
 
 /** Opaque handle to a GPU buffer (0 = null, ≥1 = valid). */
 export type BufferHandle = number;
@@ -19,7 +19,7 @@ export type BindGroupHandle = number;
 /** Opaque handle to a bind group layout (0 = null, ≥1 = valid). */
 export type LayoutHandle = number;
 
-// ─── GPU Buffer Usage Flags (LL) ──────────────────────────────────────────────
+// --- GPU Buffer Usage Flags (LL) ----------------------------------------------
 
 export enum GPUBufferUsageFlags {
   STORAGE = 1 << 0,
@@ -33,7 +33,7 @@ export enum GPUBufferUsageFlags {
   INDEX = 1 << 8,
 }
 
-// ─── Error Codes (LL) ─────────────────────────────────────────────────────────
+// --- Error Codes (LL) ---------------------------------------------------------
 
 export enum VMErrorCode {
   SUCCESS = 0,
@@ -45,7 +45,7 @@ export enum VMErrorCode {
 }
 export const ErrorCode = VMErrorCode;
 
-// ─── Memory Model Types (ML) ──────────────────────────────────────────────────
+// --- Memory Model Types (ML) --------------------------------------------------
 
 export interface WasmLinearMemory {
   /** Memory ID (0..N-1 for multi-memory VMs). */
@@ -68,7 +68,7 @@ export interface GPUBufferDescriptor {
   mappedRange: ArrayBuffer | null;
 }
 
-// ─── Pipeline Types (ML) ──────────────────────────────────────────────────────
+// --- Pipeline Types (ML) ------------------------------------------------------
 
 export interface ComputePipelineDescriptor {
   handle: PipelineHandle;
@@ -86,7 +86,7 @@ export interface BindGroupDescriptor {
   bindings: readonly GPUBindGroupEntry[];
 }
 
-// ─── Command Buffer State (ML) ────────────────────────────────────────────────
+// --- Command Buffer State (ML) ------------------------------------------------
 
 export interface CommandBufferState {
   encoder: GPUCommandEncoder | null;
@@ -96,7 +96,7 @@ export interface CommandBufferState {
   activeBindGroups: Map<number, BindGroupHandle>;
 }
 
-// ─── Resource Quotas (ML) ─────────────────────────────────────────────────────
+// --- Resource Quotas (ML) -----------------------------------------------------
 
 export interface VMResourceQuotas {
   maxWasmMemoryPages: number;
@@ -122,7 +122,7 @@ export const DEFAULT_VM_QUOTAS: VMResourceQuotas = {
   maxCommandBufferLength: 65535,
 };
 
-// ─── VM Snapshot Types (ML) ───────────────────────────────────────────────────
+// --- VM Snapshot Types (ML) ---------------------------------------------------
 
 export interface VMSnapshot {
   version: number;
@@ -163,7 +163,7 @@ export interface HandleTableSnapshot {
   allocatedBindGroups: readonly BindGroupHandle[];
 }
 
-// ─── Performance Counter Types (LL/ML) ────────────────────────────────────────
+// --- Performance Counter Types (LL/ML) ----------------------------------------
 
 export interface VMPerformanceCounters {
   /** Total number of dispatches submitted. */
@@ -186,7 +186,7 @@ export interface VMPerformanceCounters {
   pipelineCacheMisses: number;
 }
 
-// ─── System Call ABI Types (ML) ───────────────────────────────────────────────
+// --- System Call ABI Types (ML) -----------------------------------------------
 
 export interface VMSyscalls {
   // Buffer operations
@@ -245,7 +245,7 @@ export interface VMSyscalls {
   vm_get_instruction_count: () => bigint;
 }
 
-// ─── VM Configuration (ML) ────────────────────────────────────────────────────
+// --- VM Configuration (ML) ----------------------------------------------------
 
 export interface VMConfig {
   /** Unique VM identifier. */
@@ -277,7 +277,7 @@ export const DEFAULT_VM_CONFIG: VMConfig = {
   maxMemoryPages: 1024, // 64 MiB
 };
 
-// ─── Inter-VM Communication Types (ML) ────────────────────────────────────────
+// --- Inter-VM Communication Types (ML) ----------------------------------------
 
 export interface VMMessageQueueDescriptor {
   /** Shared ring buffer (SharedArrayBuffer). */
@@ -301,7 +301,7 @@ export interface VMEventChannel {
   view: Int32Array;
 }
 
-// ─── VM State (ML) ────────────────────────────────────────────────────────────
+// --- VM State (ML) ------------------------------------------------------------
 
 export interface VMState {
   config: VMConfig;

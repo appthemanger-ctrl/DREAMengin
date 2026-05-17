@@ -15,7 +15,7 @@ import {
   DEMO_DIFF,
 } from '@/lib/diff/diffUtils';
 
-// ─── Sample diffs ─────────────────────────────────────────────────────────────
+// --- Sample diffs -------------------------------------------------------------
 
 const SIMPLE_DIFF = `--- a/src/foo.ts
 +++ b/src/foo.ts
@@ -46,7 +46,7 @@ const TWO_HUNK_DIFF = `--- a/src/bar.ts
  const z = 5;
 `;
 
-// ─── parseUnifiedDiff ─────────────────────────────────────────────────────────
+// --- parseUnifiedDiff ---------------------------------------------------------
 
 describe('parseUnifiedDiff', () => {
   it('returns an empty array for empty input', () => {
@@ -102,7 +102,7 @@ describe('parseUnifiedDiff', () => {
   });
 });
 
-// ─── buildFullFileLines ───────────────────────────────────────────────────────
+// --- buildFullFileLines -------------------------------------------------------
 
 describe('buildFullFileLines', () => {
   it('returns an empty array for a file with no hunks', () => {
@@ -144,7 +144,7 @@ describe('buildFullFileLines', () => {
   });
 });
 
-// ─── Navigation helpers ───────────────────────────────────────────────────────
+// --- Navigation helpers -------------------------------------------------------
 
 describe('firstHunkIndex', () => {
   it('returns 0 for a file with hunks', () => {
@@ -187,7 +187,7 @@ describe('prevHunkIndex', () => {
   });
 });
 
-// ─── buildScrollMarkers ───────────────────────────────────────────────────────
+// --- buildScrollMarkers -------------------------------------------------------
 
 describe('buildScrollMarkers', () => {
   it('returns an empty array for a file with no hunks', () => {

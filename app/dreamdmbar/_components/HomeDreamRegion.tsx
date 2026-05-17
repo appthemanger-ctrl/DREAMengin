@@ -143,7 +143,7 @@ export default function HomeDreamSurface() {
     >
       <ActiveModuleSurface accountId={userId ?? profile?.id} />
 
-      {/* ── Sticky header bar ──────────────────────────────────────────────── */}
+      {/* -- Sticky header bar ------------------------------------------------ */}
       <div
         className="de-surface"
         style={{
@@ -292,7 +292,7 @@ export default function HomeDreamSurface() {
         </div>
       </div>
 
-      {/* ── DreamR Station — full-height when active ───────────────────────── */}
+      {/* -- DreamR Station — full-height when active ------------------------- */}
       {showDreamR && (
         <div
           style={{
@@ -310,17 +310,17 @@ export default function HomeDreamSurface() {
         </div>
       )}
 
-      {/* ── Main content ───────────────────────────────────────────────────── */}
+      {/* -- Main content ----------------------------------------------------- */}
       <div style={{ padding: isCompactViewport ? '16px 12px 0' : '20px 16px 0' }}>
 
-        {/* ── Flagship engines + DREAMfield-mini momentum widget ─────────── */}
+        {/* -- Flagship engines + DREAMfield-mini momentum widget ----------- */}
         <DraggableDream dream={{ dream_id: 'home-flagship-engins', type: 'flagship-engins', surface: 'home', runtime: 'HOME', title: 'Flagship Engins' }}>
           <FlagshipEnginesStrip
             isCompactViewport={isCompactViewport}
           />
         </DraggableDream>
 
-        {/* ── Hero card ─────────────────────────────────────────────────────── */}
+        {/* -- Hero card ------------------------------------------------------- */}
         <DraggableDream dream={{ dream_id: 'home-hero', type: 'homedream-hero', surface: 'home', runtime: 'HOME', title: `${name}'s feed` }}>
         <div className="de-auth-hero de-surface" style={{ marginBottom: 16, padding: isCompactViewport ? 16 : 20 }}>
           <div style={{ position: 'relative', zIndex: 1 }}>
@@ -372,7 +372,7 @@ export default function HomeDreamSurface() {
         </div>
         </DraggableDream>
 
-        {/* ── Feed — the hero of the page ───────────────────────────────────── */}
+        {/* -- Feed — the hero of the page ------------------------------------- */}
         <DraggableDream dream={{ dream_id: 'home-feed', type: 'feed', surface: 'home', runtime: 'HOME', title: 'HomeDream Feed' }}>
         <div
           onMouseEnter={() => prefetchDream('/api/dreamr/feed')}
@@ -440,7 +440,7 @@ export default function HomeDreamSurface() {
         </div>
         </DraggableDream>
 
-        {/* ── Daydream navigation ──────────────────────────────────────────── */}
+        {/* -- Daydream navigation -------------------------------------------- */}
         <DraggableDream dream={{ dream_id: 'home-daydream-pulse', type: 'daydream-pulse', surface: 'home', runtime: 'HOME', title: 'Daydream Pulse' }}>
           <DaydreamPulseStrip onOpenDaydream={(href, label) => openPage(href, `${label} Daydream`)} />
         </DraggableDream>

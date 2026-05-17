@@ -130,7 +130,7 @@ export function useDreamWindowActions(: UseDreamWindowActionsReturn) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ── Load on mount ──────────────────────────────────────────────────────
+  // -- Load on mount ------------------------------------------------------
 
   const loadWindows = useCallback(async () => {
     setIsLoading(true);
@@ -155,7 +155,7 @@ export function useDreamWindowActions(: UseDreamWindowActionsReturn) {
     loadWindows();
   }, [loadWindows]);
 
-  // ── Add ────────────────────────────────────────────────────────────────
+  // -- Add ----------------------------------------------------------------
 
   const addWindow = useCallback(async (
     body: CreateDreamWindowBody,
@@ -178,7 +178,7 @@ export function useDreamWindowActions(: UseDreamWindowActionsReturn) {
     }
   }, []);
 
-  // ── Remove ─────────────────────────────────────────────────────────────
+  // -- Remove -------------------------------------------------------------
 
   const removeWindow = useCallback(async (id: string): Promise<boolean> => {
     setIsLoading(true);
@@ -200,7 +200,7 @@ export function useDreamWindowActions(: UseDreamWindowActionsReturn) {
     }
   }, []);
 
-  // ── Generic state transition ───────────────────────────────────────────
+  // -- Generic state transition -------------------------------------------
 
   const patchState = useCallback(async (
     id: string,
@@ -254,7 +254,7 @@ export function useDreamWindowActions(: UseDreamWindowActionsReturn) {
     }
   }, []);
 
-  // ── Lifecycle transition methods ───────────────────────────────────────
+  // -- Lifecycle transition methods ---------------------------------------
 
   const bindWindow = useCallback(
     (id: string) => patchState(id, DREAM_WINDOW_STATES.BOUND),

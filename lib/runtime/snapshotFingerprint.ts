@@ -12,7 +12,7 @@
 
 import type { TelemetrySnapshot } from '@/lib/observability/collector';
 
-// ── Improvement 73: fingerprintSnapshot ──────────────────────────────────────
+// -- Improvement 73: fingerprintSnapshot --------------------------------------
 
 /**
  * Produce a short stable fingerprint string from the key dimensions of a
@@ -41,7 +41,7 @@ export function fingerprintSnapshot(snapshot: TelemetrySnapshot: string) {
   }:${hash.toString(16)}`;
 }
 
-// ── Improvement 74: snapshotsAreEquivalent ────────────────────────────────────
+// -- Improvement 74: snapshotsAreEquivalent ------------------------------------
 
 /**
  * Return true when two fingerprints represent equivalent snapshots.
@@ -52,7 +52,7 @@ export function snapshotsAreEquivalent(a: string, b: string: boolean) {
   return a === b;
 }
 
-// ── Improvement 75: createFingerprintCache ────────────────────────────────────
+// -- Improvement 75: createFingerprintCache ------------------------------------
 
 export interface FingerprintCacheEntry<T> {
   fingerprint: string;

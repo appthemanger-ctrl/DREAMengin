@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
 
   const entries: UnifiedFeedEntry[] = [];
 
-  // ── Stream 1: feed_items (connector-synced content) ──────────────────────
+  // -- Stream 1: feed_items (connector-synced content) ----------------------
   {
      
     const db = supabase as SupabaseClient;
@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // ── Stream 2: app_posts (public posts from followed users + own posts) ─────
+  // -- Stream 2: app_posts (public posts from followed users + own posts) -----
   {
     // Collect followed user IDs
      
@@ -165,7 +165,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // ── Merge + sort ──────────────────────────────────────────────────────────
+  // -- Merge + sort ----------------------------------------------------------
   // Phase 9: Activity-First Protocol — sort by visibility_score when sort=activity
   if (sort === 'activity') {
     // Use visibility score algorithm (AQS-based ranking)

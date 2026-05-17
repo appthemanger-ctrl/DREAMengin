@@ -41,7 +41,7 @@ import {
   type RuntimeMetrics,
 } from './director';
 
-// ─── Minimal Babylon types needed by the hook ────────────────────────────────
+// --- Minimal Babylon types needed by the hook --------------------------------
 // We keep these as duck types so the hook does not hard-depend on @babylonjs/core.
 
 type BabylonPerformanceMonitor = {
@@ -56,7 +56,7 @@ type BabylonSceneWithMeshes = DirectorBabylonScene & {
   meshes: DirectorBabylonMesh[];
 };
 
-// ─── Options ─────────────────────────────────────────────────────────────────
+// --- Options -----------------------------------------------------------------
 
 export interface UseWebGPUDirectorOptions {
   /** Ref to the live Babylon engine (may be null until the canvas is ready). */
@@ -112,7 +112,7 @@ export interface UseWebGPUDirectorOptions {
   devicePixelRatio?: number;
 }
 
-// ─── Return value ─────────────────────────────────────────────────────────────
+// --- Return value -------------------------------------------------------------
 
 export interface UseWebGPUDirectorReturn {
   /** Latest DirectorFrame. `null` until the first tick completes. */
@@ -126,7 +126,7 @@ export interface UseWebGPUDirectorReturn {
   tick: () => void;
 }
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
+// --- Hook ---------------------------------------------------------------------
 
 export function useWebGPUDirector(
   options: UseWebGPUDirectorOptions,
@@ -213,7 +213,7 @@ export function useWebGPUDirector(
   return { frame, tick: runTick };
 }
 
-// ─── Re-exports for callers that only import from this file ───────────────────
+// --- Re-exports for callers that only import from this file -------------------
 
 export {
   applyDirectorFrame,

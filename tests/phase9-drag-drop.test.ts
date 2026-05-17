@@ -13,7 +13,7 @@ import {
   type AssetCategory,
 } from '@/components/dreamengin/dream.CanvasDropZone';
 
-// ─── classifyFile ─────────────────────────────────────────────────────────────
+// --- classifyFile -------------------------------------------------------------
 
 describe('CanvasDropZone — classifyFile', () => {
   it('classifies image files', () => {
@@ -50,7 +50,7 @@ describe('CanvasDropZone — classifyFile', () => {
   });
 });
 
-// ─── isAcceptedFile ───────────────────────────────────────────────────────────
+// --- isAcceptedFile -----------------------------------------------------------
 
 describe('CanvasDropZone — isAcceptedFile', () => {
   it('accepts supported image formats', () => {
@@ -75,7 +75,7 @@ describe('CanvasDropZone — isAcceptedFile', () => {
   });
 });
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// --- Constants ----------------------------------------------------------------
 
 describe('CanvasDropZone — constants', () => {
   it('exports the asset import event name', () => {

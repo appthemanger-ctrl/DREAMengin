@@ -29,7 +29,7 @@ import {
   type RssFeedConfig,
 } from '@/lib/social/rss-feed';
 
-// ── A. URL builders ───────────────────────────────────────────────────────
+// -- A. URL builders -------------------------------------------------------
 
 describe('youtubeChannelRssUrl', () => {
   it('builds the correct YouTube channel feed URL', () => {
@@ -123,7 +123,7 @@ describe('nostrGatewayRssUrl', () => {
   });
 });
 
-// ── B. stripHtml ──────────────────────────────────────────────────────────
+// -- B. stripHtml ----------------------------------------------------------
 
 describe('stripHtml', () => {
   it('removes HTML tags', () => {
@@ -157,7 +157,7 @@ describe('stripHtml', () => {
   });
 });
 
-// ── C. extractFirstImage ──────────────────────────────────────────────────
+// -- C. extractFirstImage --------------------------------------------------
 
 describe('extractFirstImage', () => {
   it('returns enclosure.url when present and image-like', () => {
@@ -207,7 +207,7 @@ describe('extractFirstImage', () => {
   });
 });
 
-// ── D. normaliseRssItem ───────────────────────────────────────────────────
+// -- D. normaliseRssItem ---------------------------------------------------
 
 describe('normaliseRssItem', () => {
   const config: RssFeedConfig = {
@@ -304,7 +304,7 @@ describe('normaliseRssItem', () => {
   });
 });
 
-// ── E. parseRssFeed (mocked) ──────────────────────────────────────────────
+// -- E. parseRssFeed (mocked) ----------------------------------------------
 
 describe('parseRssFeed', () => {
   beforeEach(() => {

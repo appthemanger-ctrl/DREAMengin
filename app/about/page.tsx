@@ -165,7 +165,7 @@ export default function AboutPage() {
           </p>
         </section>
 
-        {/* ── Meet Dr. Eams ── */}
+        {/* -- Meet Dr. Eams -- */}
         <section className="mb-12">
           <div style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 20, boxShadow: "0 4px 32px rgba(0,0,0,0.3)", overflow: "hidden" }}>
             <div className="de-widget-body" style={{ padding: '24px 20px' }}>
@@ -183,7 +183,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Meet Boogie ── */}
+        {/* -- Meet Boogie -- */}
         <section className="mb-12">
           <div style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 20, boxShadow: "0 4px 32px rgba(0,0,0,0.3)", overflow: "hidden" }}>
             <div className="de-widget-body" style={{ padding: '24px 20px' }}>
@@ -201,7 +201,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Meet Idari ── */}
+        {/* -- Meet Idari -- */}
         <section className="mb-12">
           <div style={{ background: "rgba(255,255,255,0.04)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: 20, boxShadow: "0 4px 32px rgba(0,0,0,0.3)", overflow: "hidden" }}>
             <div className="de-widget-body" style={{ padding: '24px 20px' }}>

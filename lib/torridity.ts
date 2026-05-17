@@ -17,14 +17,14 @@
 
 import { slog } from './slog';
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// --- Constants ----------------------------------------------------------------
 
 export const TORRIDITY_N  = 2.1;
 export const TORRIDITY_DP = TORRIDITY_N - 2;          // 0.1
 export const TORRIDITY_LAMBDA = 1.71;
 export const TORRIDITY_A0_PERCEPTION = 0.05;          // scaled for UI gravity
 
-// ─── MOND Interpolation ───────────────────────────────────────────────────────
+// --- MOND Interpolation -------------------------------------------------------
 
 /**
  * mu(x) = x / (1 + x^n)^(1/n)
@@ -37,7 +37,7 @@ export function mu(x: number: number) {
   return x / Math.pow(1 + Math.pow(Math.abs(x), TORRIDITY_N), 1 / TORRIDITY_N);
 }
 
-// ─── Content Mass ─────────────────────────────────────────────────────────────
+// --- Content Mass -------------------------------------------------------------
 
 /**
  * contentMass(buildTime, uniqueAssets)
@@ -52,7 +52,7 @@ export function contentMass(buildTime: number, uniqueAssets: number: number) {
   return Math.log1p(buildTime * 0.5 + uniqueAssets * 2);
 }
 
-// ─── Torridity Rank ───────────────────────────────────────────────────────────
+// --- Torridity Rank -----------------------------------------------------------
 
 /**
  * torridityRank(views, mass)
@@ -72,7 +72,7 @@ export function torridityRank(views: number, mass: number: number) {
   return slog(mondFactor * views);
 }
 
-// ─── Torridity Rank (spec-exact, §37) ────────────────────────────────────────
+// --- Torridity Rank (spec-exact, §37) ----------------------------------------
 
 /**
  * torridityRankSpec(views, mass)
@@ -90,7 +90,7 @@ export function torridityRankSpec(views: number, mass: number: number) {
   return mu(V * mass);
 }
 
-// ─── Content Decay (§37) ─────────────────────────────────────────────────────
+// --- Content Decay (§37) -----------------------------------------------------
 
 /**
  * contentDecayFactor(ageHours)
@@ -118,7 +118,7 @@ export function decayedRank(views: number, mass: number, ageHours: number: numbe
   return torridityRankSpec(views, mass) * (1 - contentDecayFactor(ageHours));
 }
 
-// ─── Throttling Gate ──────────────────────────────────────────────────────────
+// --- Throttling Gate ----------------------------------------------------------
 
 /**
  * Low-mass content visibility cap.
@@ -140,7 +140,7 @@ export function throttledVisibility(
   return Math.max(1, Math.floor(feedSlots * 0.1));
 }
 
-// ─── Batch Ranking ───────────────────────────────────────────────────────────
+// --- Batch Ranking -----------------------------------------------------------
 
 export interface ContentItem {
   id: string;

@@ -14,7 +14,7 @@
  *   ι ≥ 9.59         → MANIFEST  (build immediately)
  */
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// --- Constants ----------------------------------------------------------------
 
 export const DELTA_P = 0.1;
 export const LAMBDA   = 2.1;
@@ -26,7 +26,7 @@ export const IOTA_MAX = DELTA_P * (10 * (1 + LAMBDA + LAMBDA ** 2 + LAMBDA ** 3 
 export const THRESHOLD_FLOW      = IOTA_MAX * 0.15;  // ≈ 2.88
 export const THRESHOLD_SYNTHESIZE = IOTA_MAX * 0.30; // ≈ 5.76
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 export interface CreativePass {
   /** Pass identifier / name */
@@ -70,7 +70,7 @@ export interface PrePassChecklist {
   reason: string;
 }
 
-// ─── Core Functions ───────────────────────────────────────────────────────────
+// --- Core Functions -----------------------------------------------------------
 
 /**
  * calculateInventionForce(pass)
@@ -140,7 +140,7 @@ export function runPrePassChecklist(pass: CreativePass: PrePassChecklist) {
   };
 }
 
-// ─── Residual Logging ─────────────────────────────────────────────────────────
+// --- Residual Logging ---------------------------------------------------------
 
 /** In-memory residual log. Non-blocking — per law §5. */
 export const BUGS_LOG: ResidualClass[] = [];
@@ -168,7 +168,7 @@ export function auditPostPass(passId: string: ResidualClass[]) {
   return BUGS_LOG.filter((r: Record<string, unknown>) => r.passId === passId);
 }
 
-// ─── Doc Relationships ────────────────────────────────────────────────────────
+// --- Doc Relationships --------------------------------------------------------
 
 export const DOC_RELATIONSHIPS: Record<string, string> = {
   'README.md':        'Naming and vision alignment.',

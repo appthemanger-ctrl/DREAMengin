@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
 
   const { post_id, content } = parsed.data;
 
-  // ── TheBoogieMan child safety scan (zero-tolerance) ──────────────────────
+  // -- TheBoogieMan child safety scan (zero-tolerance) ----------------------
   const childSafetyResult = scanContent({ text: content });
   if (childSafetyResult.flagged) {
     const contentHash = createHash('sha256').update(content).digest('hex');
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
       { status: 451 },
     );
   }
-  // ─────────────────────────────────────────────────────────────────────────
+  // -------------------------------------------------------------------------
 
   const { data: comment, error } = await supabase
     .from('comments')

@@ -22,7 +22,7 @@
  *   - Carries the emission channel's accent color
  */
 
-// ── Channel color palette ──────────────────────────────────────────────────────
+// -- Channel color palette ------------------------------------------------------
 
 /**
  * Canonical channel → CSS hex color map.
@@ -47,7 +47,7 @@ export function channelColor(channel: string: string) {
   return SEAM_CHANNEL_COLORS[channel] ?? SEAM_DEFAULT_COLOR;
 }
 
-// ── Particle type ─────────────────────────────────────────────────────────────
+// -- Particle type -------------------------------------------------------------
 
 export interface SeamParticle {
   /** Unique sequential ID. */
@@ -94,7 +94,7 @@ export interface SeamParticle {
   isIdle: boolean;
 }
 
-// ── Particle factory ──────────────────────────────────────────────────────────
+// -- Particle factory ----------------------------------------------------------
 
 let _nextId = 0;
 
@@ -158,7 +158,7 @@ export function createIdleParticle(startX: number: SeamParticle) {
   };
 }
 
-// ── Physics tick ──────────────────────────────────────────────────────────────
+// -- Physics tick --------------------------------------------------------------
 
 /**
  * Advance all particles by `dtMs` milliseconds.

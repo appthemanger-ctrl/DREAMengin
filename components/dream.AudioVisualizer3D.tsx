@@ -19,7 +19,7 @@ import {
   extractAudioChunks,
 } from '../lib/audioFingerprint';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 export interface AudioVisualizer3DProps {
   /** Connected AnalyserNode for real-time FFT data. */
@@ -43,7 +43,7 @@ interface Hotspot {
   y: number;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// --- Component ----------------------------------------------------------------
 
 export function AudioVisualizer3D() {
   analyser,
@@ -67,7 +67,7 @@ export function AudioVisualizer3D() {
   const [hotspots,    setHotspots]            = useState<Hotspot[]>([]);
   const animFrameRef = useRef<number>(0);
 
-  // ── Build hotspots from peak map ──
+  // -- Build hotspots from peak map --
   useEffect(() => {
     if (!peakMap) { setHotspots([]); return; }
     // Show top-20 peaks as hotspots
@@ -82,7 +82,7 @@ export function AudioVisualizer3D() {
     setHotspots(spots);
   }, [peakMap]);
 
-  // ── Babylon init ──
+  // -- Babylon init --
   useEffect(() => {
     let mounted = true;
 
@@ -151,7 +151,7 @@ export function AudioVisualizer3D() {
    
   }, [barCount]);
 
-  // ── Real-time FFT update loop ──
+  // -- Real-time FFT update loop --
   useEffect(() => {
     const bufferLength = analyser.frequencyBinCount;
     const dataArray    = new Uint8Array(bufferLength);
@@ -176,7 +176,7 @@ export function AudioVisualizer3D() {
     return () => cancelAnimationFrame(animFrameRef.current);
   }, [analyser, barCount]);
 
-  // ── Bar tap → BiquadFilter ──
+  // -- Bar tap → BiquadFilter --
   const handleCanvasClick = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const canvas = canvasRef.current;
@@ -205,7 +205,7 @@ export function AudioVisualizer3D() {
     [analyser, barCount]
   );
 
-  // ── Recording toggle ──
+  // -- Recording toggle --
   const toggleRecording = useCallback(() => {
     const { filterNode } = babylonRef.current;
     if (!filterNode) return;
@@ -234,7 +234,7 @@ export function AudioVisualizer3D() {
     setIsRecording(true);
   }, [isRecording]);
 
-  // ── Hotspot tap → fingerprint match + stem extract ──
+  // -- Hotspot tap → fingerprint match + stem extract --
   const handleHotspotTap = useCallback(
     async (hotspot: Hotspot) => {
       if (!peakMap || !sourceBuffer) return;
@@ -248,7 +248,7 @@ export function AudioVisualizer3D() {
     [peakMap, sourceBuffer, onStemExtracted]
   );
 
-  // ─── Render ──────────────────────────────────────────────────────────────
+  // --- Render --------------------------------------------------------------
 
   return (
     <div className={`relative w-full h-full ${className}`} style={{ minHeight: 320 }}>

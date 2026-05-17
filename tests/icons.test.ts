@@ -12,7 +12,7 @@ import {
   type IconName,
 } from '@/lib/icons/sheet';
 
-// ─── Sheet constants ──────────────────────────────────────────────────────────
+// --- Sheet constants ----------------------------------------------------------
 
 describe('sheet constants', () => {
   it('COLS and ROWS are positive integers', () => {
@@ -30,7 +30,7 @@ describe('sheet constants', () => {
   });
 });
 
-// ─── ICONS map bounds ─────────────────────────────────────────────────────────
+// --- ICONS map bounds ---------------------------------------------------------
 
 describe('ICONS — every entry is within grid bounds', () => {
   const entries = ICON_ENTRIES;
@@ -49,7 +49,7 @@ describe('ICONS — every entry is within grid bounds', () => {
   }
 });
 
-// ─── No duplicate names ───────────────────────────────────────────────────────
+// --- No duplicate names -------------------------------------------------------
 
 describe('ICONS — no duplicate icon names', () => {
   it('all keys are unique (object guarantees this, but belt-and-braces)', () => {
@@ -58,7 +58,7 @@ describe('ICONS — no duplicate icon names', () => {
   });
 });
 
-// ─── getIconPos ───────────────────────────────────────────────────────────────
+// --- getIconPos ---------------------------------------------------------------
 
 describe('getIconPos', () => {
   it('returns negative x/y offsets for non-zero positions', () => {
@@ -81,7 +81,7 @@ describe('getIconPos', () => {
   });
 });
 
-// ─── hasIcon ─────────────────────────────────────────────────────────────────
+// --- hasIcon -----------------------------------------------------------------
 
 describe('hasIcon', () => {
   it('returns true for registered icon names', () => {
@@ -106,7 +106,7 @@ describe('hasIcon', () => {
   });
 });
 
-// ─── fallback "dot" icon ──────────────────────────────────────────────────────
+// --- fallback "dot" icon ------------------------------------------------------
 
 describe('"dot" fallback icon', () => {
   it('is registered in ICONS', () => {

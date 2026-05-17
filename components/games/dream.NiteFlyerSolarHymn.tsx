@@ -139,7 +139,7 @@ export default function NiteFlyerSolarHymn() {
         if (bossScoreRef.current >= 5) setPhase('defeat');
       }
 
-      // ── Render ───────────────────────────────────────────────────────────
+      // -- Render -----------------------------------------------------------
       // Twilight gradient
       const grad = ctx.createLinearGradient(0, 0, 0, H);
       grad.addColorStop(0, COL.skyTop); grad.addColorStop(0.55, COL.skyMid); grad.addColorStop(1, COL.skyBot);

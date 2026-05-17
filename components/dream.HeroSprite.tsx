@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-// ── Particle type ────────────────────────────────────────────────────────────
+// -- Particle type ------------------------------------------------------------
 type Particle = {
   x: number; y: number;
   vx: number; vy: number;
@@ -31,7 +31,7 @@ type Particle = {
  * After a reaction the loop returns to idle automatically.
  */
 
-// ── Natural pixel dimensions of each asset ────────────────────────────────────
+// -- Natural pixel dimensions of each asset ------------------------------------
 const NAT = {
   head:  { w: 702, h: 560 },
   coat:  { w: 68, h: 901 },
@@ -53,7 +53,7 @@ const DIM = {
   shoe2: { w: Math.round(NAT.shoe2.w * S), h: Math.round(NAT.shoe2.h * S) }, // 77 × 108
 } as const;
 
-// ── Interaction zones ─────────────────────────────────────────────────────────
+// -- Interaction zones ---------------------------------------------------------
 type Zone = 'idle' | 'head' | 'torso' | 'legs';
 
 const REACT_MS = 2300; // ms before returning to idle
@@ -105,7 +105,7 @@ export function hitZone(offsetY: number, displayH: number: Zone) {
   return 'legs';
 }
 
-// ── Image loading ─────────────────────────────────────────────────────────────
+// -- Image loading -------------------------------------------------------------
 type Images = {
   head:  HTMLImageElement | null;
   coat:  HTMLImageElement | null;
@@ -124,7 +124,7 @@ function loadImg(src: string: Promise<HTMLImageElement>) {
   });
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// -- Component -----------------------------------------------------------------
 type Props = {
   width?: number;
   height?: number;
@@ -264,14 +264,14 @@ export default function HeroSprite() {
 
       ctx.clearRect(0, 0, width, height);
 
-      // ── Idle animation base ──────────────────────────────────────────────
+      // -- Idle animation base ----------------------------------------------
       const idleBob   = Math.sin(t * 1.6) * 3;                     // gentle vertical float
       const idleArm   = 0.65 + Math.sin(t * 1.6) * 0.08;          // left arm raised outward
       const idleWave  = -0.40 + Math.sin(t * 2.0) * 0.10;         // right arm peace-sign pose, gentle sway
       const idleLeg   = Math.sin(t * 1.6) * 0.06;                  // subtle leg sway
       const idleHead  = Math.sin(t * 0.9) * 0.04;                  // gentle head tilt
 
-      // ── Per-zone reaction overrides ──────────────────────────────────────
+      // -- Per-zone reaction overrides --------------------------------------
       let headAngle  = idleHead;
       let headBounce = 0;
       let armAngle   = idleArm;       // back arm (arm1)
@@ -300,7 +300,7 @@ export default function HeroSprite() {
         }
       }
 
-      // ── Layout (bottom-up from feetY) ────────────────────────────────────
+      // -- Layout (bottom-up from feetY) ------------------------------------
       const cx        = width / 2;
       const feetY     = height - 22 + bodyBob;
       const shoeTopY  = feetY  - DIM.shoe1.h;

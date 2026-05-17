@@ -141,7 +141,7 @@ export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }:
 
       <div className="px-4 py-4 space-y-4">
 
-        {/* ── Deep Activity Metrics ─────────────────────────────────────────── */}
+        {/* -- Deep Activity Metrics ------------------------------------------- */}
         {userId && (
           <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: '16px', border: '1px solid rgba(99,102,241,0.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -152,7 +152,7 @@ export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }:
           </div>
         )}
 
-        {/* ── Skip Credit Balance ───────────────────────────────────────────── */}
+        {/* -- Skip Credit Balance --------------------------------------------- */}
         <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: '16px', border: '1px solid rgba(245,158,11,0.2)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <Zap className="w-4 h-4" style={{ color: '#f59e0b' }} />
@@ -181,7 +181,7 @@ export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }:
           </p>
         </div>
 
-        {/* ── Revenue Split ─────────────────────────────────────────────────── */}
+        {/* -- Revenue Split --------------------------------------------------- */}
         <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: '16px', border: '1px solid rgba(34,197,94,0.2)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <DollarSign className="w-4 h-4" style={{ color: '#22c55e' }} />
@@ -206,7 +206,7 @@ export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }:
           </p>
         </div>
 
-        {/* ── Verified View Summary ─────────────────────────────────────────── */}
+        {/* -- Verified View Summary ------------------------------------------- */}
         <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: '16px', border: '1px solid rgba(56,189,248,0.2)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <Eye className="w-4 h-4" style={{ color: '#38bdf8' }} />
@@ -232,7 +232,7 @@ export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }:
           </p>
         </div>
 
-        {/* ── Platform Health (Admin only) ──────────────────────────────────── */}
+        {/* -- Platform Health (Admin only) ------------------------------------ */}
         {isAdmin && (
           <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: '16px', border: '1px solid rgba(239,68,68,0.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
@@ -277,7 +277,7 @@ export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }:
           </div>
         )}
 
-        {/* ── Cross-Engin Sync ──────────────────────────────────────────────── */}
+        {/* -- Cross-Engin Sync ------------------------------------------------ */}
         <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 16, padding: '16px', border: '1px solid rgba(99,102,241,0.15)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
             <TrendingUp className="w-4 h-4" style={{ color: ACCENT }} />
@@ -286,7 +286,7 @@ export default function AnalyticsEngin() { onBack, instanceId: instanceIdProp }:
           <CrossEnginStatusPanel excludeChannel="analytics" />
         </div>
 
-        {/* ── Journey Trail ─────────────────────────────────────────────────── */}
+        {/* -- Journey Trail --------------------------------------------------- */}
         <JourneyTrail compact />
 
       </div>

@@ -39,7 +39,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'brand',       emoji: '🎨', label: 'Brand Hub',      desc: 'Your artist identity',         color: '#0ea5e9', href: '/daydream/brand' },
 ];
 
-// ── Release pipeline stages ─────────────────────────────────────────────────
+// -- Release pipeline stages -------------------------------------------------
 
 const PIPELINE_STAGES = [
   { id: 'idea',    label: 'Idea',    emoji: '💡', color: '#6366f1', desc: 'Capture concepts, voice memos, loops' },
@@ -50,7 +50,7 @@ const PIPELINE_STAGES = [
   { id: 'live',    label: 'Live',    emoji: '🚀', color: '#22c55e', desc: 'Published on all platforms' },
 ] as const;
 
-// ── Distribution platforms ───────────────────────────────────────────────────
+// -- Distribution platforms ---------------------------------------------------
 
 const DIST_PLATFORMS = [
   { name: 'Spotify',       icon: '🎧', score: 72, color: '#1ed760' },
@@ -61,7 +61,7 @@ const DIST_PLATFORMS = [
   { name: 'SoundCloud',    icon: '☁️',  score: 77, color: '#ff5500' },
 ] as const;
 
-// ── Monetization items ───────────────────────────────────────────────────────
+// -- Monetization items -------------------------------------------------------
 
 const MONETIZE_ITEMS = [
   { label: 'Streaming Royalties',  icon: <TrendingUp className="w-4 h-4" />,  status: 'active',   color: '#22c55e' },
@@ -72,7 +72,7 @@ const MONETIZE_ITEMS = [
   { label: 'Brand Placements',     icon: <Globe className="w-4 h-4" />,        status: 'pending',  color: '#f59e0b' },
 ] as const;
 
-// ── Promo schedule ───────────────────────────────────────────────────────────
+// -- Promo schedule -----------------------------------------------------------
 
 const PROMO_TIMELINE = [
   { day: '-14d', label: 'Tease clip',      platform: 'TikTok / IG Reels',  done: true  },
@@ -83,7 +83,7 @@ const PROMO_TIMELINE = [
   { day: '+7d',  label: 'Playlist pitches',platform: 'Spotify Editorial',  done: false },
 ] as const;
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 export default async function MusicArtistHubPage() {
   await connection();
@@ -113,7 +113,7 @@ export default async function MusicArtistHubPage() {
 
         <div style={{ maxWidth: 720, margin: '0 auto', padding: '20px 16px 120px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-          {/* ── Hero CTA ── */}
+          {/* -- Hero CTA -- */}
           <div style={{
             padding: '20px 24px', borderRadius: 16,
             background: 'linear-gradient(135deg, rgba(0,208,240,0.14) 0%, rgba(168,85,247,0.12) 100%)',
@@ -148,12 +148,12 @@ export default async function MusicArtistHubPage() {
             </div>
           </div>
 
-          {/* ── Sound Recorder (quick capture) ── */}
+          {/* -- Sound Recorder (quick capture) -- */}
           <Section title="Quick Capture" icon={<Sparkles className="w-3.5 h-3.5" />} badge="Live Rec" badgeColor="#ef4444">
             <SoundRecorder />
           </Section>
 
-          {/* ── Release Pipeline ── */}
+          {/* -- Release Pipeline -- */}
           <Section title="Release Pipeline" icon={<Zap className="w-3.5 h-3.5" />} badge="6 stages" badgeColor="#00bcd4">
             <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4 }}>
               {PIPELINE_STAGES.map(stage: Record<string, unknown>, i: number => (
@@ -185,7 +185,7 @@ export default async function MusicArtistHubPage() {
             </p>
           </Section>
 
-          {/* ── Distribution Readiness ── */}
+          {/* -- Distribution Readiness -- */}
           <Section title="Distribution Readiness" icon={<Globe className="w-3.5 h-3.5" />}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
               {DIST_PLATFORMS.map(p => (
@@ -226,7 +226,7 @@ export default async function MusicArtistHubPage() {
             </Link>
           </Section>
 
-          {/* ── Audience Insights ── */}
+          {/* -- Audience Insights -- */}
           <Section title="Audience Insights" icon={<BarChart3 className="w-3.5 h-3.5" />} badge="Analytics" badgeColor="#a855f7">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
               {[
@@ -258,7 +258,7 @@ export default async function MusicArtistHubPage() {
             </Link>
           </Section>
 
-          {/* ── Monetization Tracker ── */}
+          {/* -- Monetization Tracker -- */}
           <Section title="Monetization Tracker" icon={<DollarSign className="w-3.5 h-3.5" />} badge="Revenue" badgeColor="#f59e0b">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
               {MONETIZE_ITEMS.map(item => (
@@ -283,7 +283,7 @@ export default async function MusicArtistHubPage() {
             </div>
           </Section>
 
-          {/* ── Promotion Scheduler ── */}
+          {/* -- Promotion Scheduler -- */}
           <Section title="Promotion Scheduler" icon={<Clock className="w-3.5 h-3.5" />} badge="Timeline" badgeColor="#ec4899">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               {PROMO_TIMELINE.map(item => (
@@ -319,7 +319,7 @@ export default async function MusicArtistHubPage() {
             </p>
           </Section>
 
-          {/* ── My Releases quick view ── */}
+          {/* -- My Releases quick view -- */}
           <Section title="Label & Releases" icon={<DiscAlbum className="w-3.5 h-3.5" />}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
               {[
@@ -355,7 +355,7 @@ export default async function MusicArtistHubPage() {
   );
 }
 
-// ── Section wrapper component ─────────────────────────────────────────────────
+// -- Section wrapper component -------------------------------------------------
 
 function Section() {
   title, icon, badge, badgeColor, children,

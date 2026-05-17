@@ -13,7 +13,7 @@ interface DreamEnginLogoProps extends DreamLogoSceneOptions {
 
 /**
  * DreamEnginLogo
- * ──────────────
+ * --------------
  * Renders the animated DREAMengin logo inside a Babylon.js WebGL canvas.
  *
  * Usage

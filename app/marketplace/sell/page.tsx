@@ -28,7 +28,7 @@ export default function MarketplaceSellPage() {
   const supabase = createClient();
   const router   = useRouter();
 
-  // ── Auth gate ─────────────────────────────────────────────────
+  // -- Auth gate -------------------------------------------------
   useEffect(() => {
     const checkAuth = async () => {
       const { data } = await supabase.auth.getUser();
@@ -39,7 +39,7 @@ export default function MarketplaceSellPage() {
    
   }, []);
 
-  // ── Form state ────────────────────────────────────────────────
+  // -- Form state ------------------------------------------------
   const [title,       setTitle]       = useState('');
   const [description, setDescription] = useState('');
   const [category,    setCategory]    = useState('widget');
@@ -50,7 +50,7 @@ export default function MarketplaceSellPage() {
   const [error,     setError]     = useState('');
   const [success,   setSuccess]   = useState(false);
 
-  // ── Submit ────────────────────────────────────────────────────
+  // -- Submit ----------------------------------------------------
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -101,7 +101,7 @@ export default function MarketplaceSellPage() {
 
   return (
     <div className="de-sky-bg min-h-screen">
-      {/* ── Header ── */}
+      {/* -- Header -- */}
       <header className="sticky top-0 z-30 backdrop-blur-xl" style={{ background: 'rgba(220,232,248,0.88)', borderBottom: '1px solid rgba(160,195,240,0.3)' }}>
         <div className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <Link href="/marketplace" className="p-2 -ml-2 rounded-full" style={{ background: 'rgba(160,195,240,0.15)' }}>
@@ -115,7 +115,7 @@ export default function MarketplaceSellPage() {
       <div className="max-w-2xl mx-auto px-4 py-6 pb-24">
         <form onSubmit={handleSubmit} className="space-y-4">
 
-          {/* ── Listing details ── */}
+          {/* -- Listing details -- */}
           <div className="de-widget">
             <div className="de-widget-header"><span className="de-widget-title">Listing Details</span></div>
             <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -238,12 +238,12 @@ export default function MarketplaceSellPage() {
             </div>
           </div>
 
-          {/* ── Info ── */}
+          {/* -- Info -- */}
           <div className="de-notice" style={{ lineHeight: 1.6 }}>
             Items are reviewed before they go live. By submitting you confirm you own the rights to this content.
           </div>
 
-          {/* ── Tips ── */}
+          {/* -- Tips -- */}
           <div className="de-widget">
             <div className="de-widget-header"><span className="de-widget-title">Tips for a great listing</span></div>
             <div className="de-widget-body">

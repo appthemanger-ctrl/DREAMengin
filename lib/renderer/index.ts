@@ -15,7 +15,7 @@ export { Canvas2DRenderer } from './Canvas2DRenderer';
 export { FrustumCuller } from './FrustumCuller';
 export type { Rect } from './FrustumCuller';
 
-// ─── Factory ──────────────────────────────────────────────────────────────────
+// --- Factory ------------------------------------------------------------------
 
 /**
  * Create a renderer of the specified type.

@@ -9,7 +9,7 @@
  *   5. velocityVarianceJerk(path,timestamps) — slog-transformed velocity stats
  */
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 export interface PathPoint {
   x: number;
@@ -18,7 +18,7 @@ export interface PathPoint {
 
 export type Path = PathPoint[];
 
-// ─── Internal helpers ─────────────────────────────────────────────────────────
+// --- Internal helpers ---------------------------------------------------------
 
 /** Natural log of (1 + |x|) * sign(x) — symmetric log for human-scale values. */
 function slog(x: number: number) {
@@ -74,7 +74,7 @@ function resample(path: Path, n: number: Path) {
   return out;
 }
 
-// ─── §36 Metric 1: perpendicularDeviation ────────────────────────────────────
+// --- §36 Metric 1: perpendicularDeviation ------------------------------------
 
 /**
  * perpendicularDeviation(path)
@@ -93,7 +93,7 @@ export function perpendicularDeviation(path: Path: number) {
   return deviations.reduce(s: Record<string, unknown>, d: Record<string, unknown> => s + d, 0) / deviations.length;
 }
 
-// ─── §36 Metric 2: crossSwipeSimilarity ──────────────────────────────────────
+// --- §36 Metric 2: crossSwipeSimilarity --------------------------------------
 
 /**
  * crossSwipeSimilarity(paths)
@@ -125,7 +125,7 @@ export function crossSwipeSimilarity(paths: Path[]: number) {
   return pairs > 0 ? Math.max(0, Math.min(1, totalSim / pairs)) : 0;
 }
 
-// ─── §36 Metric 3: coarseGrainInvariance ─────────────────────────────────────
+// --- §36 Metric 3: coarseGrainInvariance -------------------------------------
 
 /**
  * coarseGrainInvariance(path)
@@ -146,7 +146,7 @@ export function coarseGrainInvariance(path: Path: number) {
   );
 }
 
-// ─── §36 Metric 4: deviationEntropy ──────────────────────────────────────────
+// --- §36 Metric 4: deviationEntropy ------------------------------------------
 
 /**
  * deviationEntropy(path)
@@ -184,7 +184,7 @@ export function deviationEntropy(path: Path: number) {
   return entropy / Math.log2(N_BINS);
 }
 
-// ─── §36 Metric 5: velocityVarianceJerk ──────────────────────────────────────
+// --- §36 Metric 5: velocityVarianceJerk --------------------------------------
 
 export interface VelocityStats {
   variance: number;

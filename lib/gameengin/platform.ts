@@ -36,7 +36,7 @@ import { PostFXManager } from './post-fx';
 import type { GameCartridge, GameEngineAPI } from './cartridge';
 import { GRAVITY_VALUES } from './cartridge';
 
-// ── Capability detection ─────────────────────────────────────────────────────
+// -- Capability detection -----------------------------------------------------
 
 /**
  * Snapshot of what the host browser/device can do for the platform.
@@ -117,7 +117,7 @@ export function detectCapabilities(: PlatformCapabilities) {
   };
 }
 
-// ── Quick-resume snapshot ────────────────────────────────────────────────────
+// -- Quick-resume snapshot ----------------------------------------------------
 
 const QUICK_RESUME_PREFIX = 'gameengin:quick-resume:';
 
@@ -128,7 +128,7 @@ export interface QuickResumeEntry<T = unknown> {
   data: T;
 }
 
-// ── Boot options ─────────────────────────────────────────────────────────────
+// -- Boot options -------------------------------------------------------------
 
 export interface PlatformBootOptions {
   /** Enable the AI Director (loads TF.js lazily). Default: true. */
@@ -141,7 +141,7 @@ export interface PlatformBootOptions {
   friction?: number;
 }
 
-// ── GameEnginPlatform ────────────────────────────────────────────────────────
+// -- GameEnginPlatform --------------------------------------------------------
 
 /**
  * The console-class GameEngin Platform. One instance per page.
@@ -269,7 +269,7 @@ export class GameEnginPlatform {
     this._friction = Math.max(0, Math.min(1, value01));
   }
 
-  // ── Cartridge bay ──────────────────────────────────────────────────────────
+  // -- Cartridge bay ----------------------------------------------------------
 
   /**
    * Mount a cartridge into the platform. The platform supplies a container
@@ -314,7 +314,7 @@ export class GameEnginPlatform {
     return this._activeCartridge?.id ?? null;
   }
 
-  // ── Quick resume ───────────────────────────────────────────────────────────
+  // -- Quick resume -----------------------------------------------------------
 
   /**
    * Save a quick-resume snapshot for the active (or named) cartridge. The
@@ -352,7 +352,7 @@ export class GameEnginPlatform {
     }
   }
 
-  // ── Teardown ───────────────────────────────────────────────────────────────
+  // -- Teardown ---------------------------------------------------------------
 
   dispose(): void {
     if (this._disposed) return;
@@ -367,7 +367,7 @@ export class GameEnginPlatform {
     this.postFx = null;
   }
 
-  // ── Internal: build the GameEngineAPI handed to a cartridge ────────────────
+  // -- Internal: build the GameEngineAPI handed to a cartridge ----------------
 
   private _buildCartridgeApi(): GameEngineAPI {
     const physics = {} as GameEngineAPI['physics'];

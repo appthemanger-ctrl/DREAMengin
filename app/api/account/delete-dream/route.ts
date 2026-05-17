@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
   const deleted: string[] = [];
   const errors: string[] = [];
 
-  // ── AI Triad Consensus Gate (Phase 8 §H Point 69) ────────────────────────
+  // -- AI Triad Consensus Gate (Phase 8 §H Point 69) ------------------------
   // Account deletion is a major irreversible system action. All three agents
   // must approve before any data is removed.
   const consensus = await runTriadConsensus({

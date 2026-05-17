@@ -160,7 +160,7 @@ export default function AvenueOfMirrors() {
         checkMirror();
       }
 
-      // ── Render raycast ──────────────────────────────────────────────────
+      // -- Render raycast --------------------------------------------------
       // Sky / floor
       ctx.fillStyle = COL.ceil; ctx.fillRect(0, 0, VIEW_W, VIEW_H / 2);
       ctx.fillStyle = COL.floor; ctx.fillRect(0, VIEW_H / 2, VIEW_W, VIEW_H / 2);

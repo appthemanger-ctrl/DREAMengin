@@ -396,7 +396,7 @@ export default function CodeEngin() { onBack, instanceId: instanceIdProp }: Prop
   const { savedState: savedCodeState, isRestoring: codeRestoring, persistState: persistCodeState } = useDaydreamPersistence<CodeSavedState>({ daydreamType: 'code' });
   const codeRestoredRef = useRef(false);
 
-  // ── OS Shell ──
+  // -- OS Shell --
   const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
   useEffect(() => {
     upgradeEngine({ id: 'code', name: 'CodeEngin' }, ['bridge', 'telemetry'])
@@ -404,19 +404,19 @@ export default function CodeEngin() { onBack, instanceId: instanceIdProp }: Prop
   }, []);
   const busRef = useRef(createEventBus());
 
-  // ── EnginRuntime kernel (code rule-set) ──
+  // -- EnginRuntime kernel (code rule-set) --
   const { state: enginState, dispatch: enginDispatch, ready: enginReady } = useCodeEnginRuntime();
 
-  // ── Workflow (code:sprint — default workflow) ──
+  // -- Workflow (code:sprint — default workflow) --
   const { workflow, loadWorkflow, advance: advanceWorkflow, emitHandoff, statusLabel: workflowStatus } = useEnginWorkflow();
   useEffect(() => { loadWorkflow('code:sprint'); }, [loadWorkflow]);
 
-  // ── Pair programming state ──
+  // -- Pair programming state --
   const [pairSessionId] = useState(() => `code-${Date.now()}`);
   const [pairActive, setPairActive] = useState(false);
   const pairDream = useSharedDream(pairActive ? pairSessionId : '');
 
-  // ── Co-op channel ─────────────────────────────────────────────────────────
+  // -- Co-op channel ---------------------------------------------------------
   const [instanceId] = useState(
     () => instanceIdProp ?? (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2)),
   );
@@ -436,7 +436,7 @@ export default function CodeEngin() { onBack, instanceId: instanceIdProp }: Prop
     },
   });
 
-  // ── Cross-Engin: LabEngin dataset export receiver ──
+  // -- Cross-Engin: LabEngin dataset export receiver --
   const [dismissedDataset, setDismissedDataset] = useState<string | null>(null);
   const datasetPrompt = codeBridge.lastLabDataset !== null && codeBridge.lastLabDataset !== dismissedDataset
     ? codeBridge.lastLabDataset
@@ -518,7 +518,7 @@ export default function CodeEngin() { onBack, instanceId: instanceIdProp }: Prop
   const runCell = useCallback(async (cellId: string, language: CellLanguage, code: string) => {
     setCells(prev => prev.map(c => c.id === cellId ? { ...c, status: 'running', output: null, error: undefined } : c));
     try {
-      // ── Pre-flight parse: surface structural errors before sending to runtime ──
+      // -- Pre-flight parse: surface structural errors before sending to runtime --
       if (language === 'typescript' || language === 'javascript' || language === 'python') {
         const parsed = parseCode(code, language);
         if (!parsed.structurallyValid && parsed.errors.length > 0) {
@@ -583,7 +583,7 @@ export default function CodeEngin() { onBack, instanceId: instanceIdProp }: Prop
     bridge.emit('code', 'code:cell-executed', { cellId: 'ai-assist', language: 'typescript', outputType: 'text' });
   };
 
-  // ── Publish Notebook to ContentEngin ──────────────────────────────────────────
+  // -- Publish Notebook to ContentEngin ------------------------------------------
   const publishNotebook = () => {
     forgeRecord('Published notebook to Content');
     recordForgeTransfer('code', 'create', 'notebook', 'CodeEngin notebook → ContentEngin');
@@ -601,7 +601,7 @@ export default function CodeEngin() { onBack, instanceId: instanceIdProp }: Prop
     });
   };
 
-  // ── Deploy Script to GameEngin ────────────────────────────────────────────────
+  // -- Deploy Script to GameEngin ------------------------------------------------
   const deployScriptToGame = (cellId: string) => {
     const cell = cells.find(c => c.id === cellId);
     if (!cell) return;
@@ -813,7 +813,7 @@ export default function CodeEngin() { onBack, instanceId: instanceIdProp }: Prop
 
       <div className="max-w-2xl mx-auto px-4 pb-32" style={{ paddingTop: 20 }}>
 
-        {/* ── Lab → CodeEngin Dataset Export receiver ── */}
+        {/* -- Lab → CodeEngin Dataset Export receiver -- */}
         {datasetPrompt && (
           <div className="de-widget" style={{ marginBottom: 14, borderColor: 'rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.04)' }}>
             <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

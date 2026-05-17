@@ -28,7 +28,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 export type SearchResultType =
   | 'person'
@@ -63,14 +63,14 @@ export interface UseDreamSearchReturn {
   clearResults: () => void;
 }
 
-// ── Constants ────────────────────────────────────────────────────────────────
+// -- Constants ----------------------------------------------------------------
 
 const DR_EAMS_KEY  = 'de-dreams-mode';
 const DEBOUNCE_MS  = 300;
 const MAX_RESULTS  = 8;
 const PER_TYPE     = 5;
 
-// ── Hook ──────────────────────────────────────────────────────────────────────
+// -- Hook ----------------------------------------------------------------------
 
 export function useDreamSearch(query: string: UseDreamSearchReturn) {
   const [results,     setResults]     = useState<SearchResult[]>([]);
@@ -79,7 +79,7 @@ export function useDreamSearch(query: string: UseDreamSearchReturn) {
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ── Restore Dr. Eams preference from localStorage ─────────────────────────
+  // -- Restore Dr. Eams preference from localStorage -------------------------
   useEffect(() => {
     try {
       if (localStorage.getItem(DR_EAMS_KEY) === 'true') {
@@ -88,7 +88,7 @@ export function useDreamSearch(query: string: UseDreamSearchReturn) {
     } catch { /* SSR or private-browse — ignore */ }
   }, []);
 
-  // ── Toggle Dr. Eams mode ───────────────────────────────────────────────────
+  // -- Toggle Dr. Eams mode ---------------------------------------------------
   const toggleDrEams = useCallback(() => {
     setDrEamsMode(prev: Record<string, unknown> => {
       const next = !prev;
@@ -97,10 +97,10 @@ export function useDreamSearch(query: string: UseDreamSearchReturn) {
     });
   }, []);
 
-  // ── Clear results ──────────────────────────────────────────────────────────
+  // -- Clear results ----------------------------------------------------------
   const clearResults = useCallback(() => setResults([]), []);
 
-  // ── Debounced search ───────────────────────────────────────────────────────
+  // -- Debounced search -------------------------------------------------------
   useEffect(() => {
     const trimmed = query.trim();
 
@@ -118,7 +118,7 @@ export function useDreamSearch(query: string: UseDreamSearchReturn) {
         const q        = trimmed.toLowerCase();
         const combined: SearchResult[] = [];
 
-        // ── 1. Profiles (people / pages / friends) ──────────────────────────
+        // -- 1. Profiles (people / pages / friends) --------------------------
         const { data: profiles } = await supabase
           .from('profiles')
           .select('id, display_name, handle, avatar_url')
@@ -139,7 +139,7 @@ export function useDreamSearch(query: string: UseDreamSearchReturn) {
           }
         }
 
-        // ── 2. Conversations (matched by other participant name / handle) ───
+        // -- 2. Conversations (matched by other participant name / handle) ---
         const { data: convs } = await supabase
           .from('conversations')
           .select(`
@@ -179,7 +179,7 @@ export function useDreamSearch(query: string: UseDreamSearchReturn) {
           }
         }
 
-        // ── 3. Message boards ───────────────────────────────────────────────
+        // -- 3. Message boards -----------------------------------------------
         // Query board titles if the table exists (graceful failure otherwise)
         try {
           const { data: boards } = await supabase

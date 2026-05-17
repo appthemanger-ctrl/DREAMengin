@@ -103,7 +103,7 @@ export default function DaydreamShell() { title, enginName: Record<string, unkno
    
   }, []);
 
-  // ── Journey Trail — surface_first_entry instrumentation ──────────────────
+  // -- Journey Trail — surface_first_entry instrumentation ------------------
   // Fires once the first time this surface is ever visited by the user.
   // Deduplicated by kind + surface together so each surface produces exactly one dot.
   useEffect(() => {
@@ -141,7 +141,7 @@ export default function DaydreamShell() { title, enginName: Record<string, unkno
         }
       </div>
 
-      {/* ── Side A only: corner fold tab → opens Side B (Engin) ── */}
+      {/* -- Side A only: corner fold tab → opens Side B (Engin) -- */}
       {side === 'A' && (
         <>
           <motion.button
@@ -193,7 +193,7 @@ export default function DaydreamShell() { title, enginName: Record<string, unkno
             ENGIN →
           </div>
 
-          {/* ── Mobile: prominent bottom-center ENGIN pill button ── */}
+          {/* -- Mobile: prominent bottom-center ENGIN pill button -- */}
           <motion.button
             type="button"
             onClick={flip}
@@ -235,7 +235,7 @@ export default function DaydreamShell() { title, enginName: Record<string, unkno
   );
 }
 
-/* ── Engin Surface — Side B ── */
+/* -- Engin Surface — Side B -- */
 function EnginSurface() { enginName, title, accentColor, widgets, onBack }: {
   enginName: string;
   title: string;
@@ -347,7 +347,7 @@ function EnginSurface() { enginName, title, accentColor, widgets, onBack }: {
   );
 }
 
-/* ── Engin Pill Dual-Button Controls (spec §7.1 / §14.3) ── */
+/* -- Engin Pill Dual-Button Controls (spec §7.1 / §14.3) -- */
 function EnginPillControls() { enginName, accentColor, onBack }: {
   enginName: string;
   accentColor: string;
@@ -412,7 +412,7 @@ function EnginPillControls() { enginName, accentColor, onBack }: {
   );
 }
 
-/* ── Single marble bubble widget ── */
+/* -- Single marble bubble widget -- */
 function MarbleWidget() { w }: { w: DaydreamWidget } {
   const tile = (
     <div

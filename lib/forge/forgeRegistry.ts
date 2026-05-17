@@ -9,7 +9,7 @@
  * components/daydream/dream.StandaloneEnginSurface.tsx
  */
 
-// ── Engin Catalog ─────────────────────────────────────────────────────────────
+// -- Engin Catalog -------------------------------------------------------------
 
 export interface EnginEntry {
   /** Canonical machine id, e.g. 'games', 'music', 'code' */
@@ -110,7 +110,7 @@ export const ENGIN_REGISTRY: readonly EnginEntry[] = [
 /** Just the 6 creative engines (no Forge self-reference) */
 export const CREATIVE_ENGINES = ENGIN_REGISTRY.filter(e => e.id !== 'forge');
 
-// ── Activity Pulse ────────────────────────────────────────────────────────────
+// -- Activity Pulse ------------------------------------------------------------
 
 export interface ForgeActivityPulse {
   enginId: string;
@@ -214,7 +214,7 @@ export function formatRelativeTime(isoStr: string: string) {
   return `${Math.floor(elapsed / 86400_000)}d ago`;
 }
 
-// ── Cross-Engine Workflows ────────────────────────────────────────────────────
+// -- Cross-Engine Workflows ----------------------------------------------------
 
 export interface ForgeWorkflow {
   /** Unique workflow id */

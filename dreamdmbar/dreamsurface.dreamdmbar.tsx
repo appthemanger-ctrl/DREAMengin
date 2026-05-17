@@ -113,7 +113,7 @@ import { getPreferredViewportHeight, isCompactRuntimeViewport } from '@/lib/ui/r
 import { useImmersiveGameLayout } from '@/lib/games/useImmersiveGameLayout';
 import GlowingLight from '@/dreamdmbar/dream.GlowingLight';
 
-// ── Layout constants ─────────────────────────────────────────────────────────
+// -- Layout constants ---------------------------------------------------------
 /** Thick bar height when locked at the bottom */
 export const BAR_H = 80;
 /** Panel height when locked at the top (expanded) */
@@ -167,9 +167,9 @@ function AvatarChip() { name, url: string, size = 28 }: { name: string; url?: st
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // ContextIcon — maps DreamBarContext iconHint to a Lucide icon
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 function ContextIcon() { ctx, size }: { ctx: DreamBarContext; size: number } {
   const props = { size, 'aria-hidden': true as const, style: { color: 'var(--de-blue)' } as React.CSSProperties };
   switch (ctx.iconHint) {
@@ -185,9 +185,9 @@ function ContextIcon() { ctx, size }: { ctx: DreamBarContext; size: number } {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // SlashCommandIcon — maps slash command icon hints to Lucide icons
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 function SlashCommandIcon() { icon, size }: { icon: string; size: number } {
   const props = { size, 'aria-hidden': true as const };
   switch (icon) {
@@ -207,9 +207,9 @@ function SlashCommandIcon() { icon, size }: { icon: string; size: number } {
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // StreakFlame — renders the dream streak flame icon with tier-appropriate style
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 function StreakFlame() { count, tier }: { count: number; tier: StreakTier } {
   if (tier === 'none') return null;
   const colors: Record<StreakTier, string> = {
@@ -249,9 +249,9 @@ function StreakFlame() { count, tier }: { count: number; tier: StreakTier } {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // ParticleFountain — renders animated particles from Gold Particle long-press
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 function ParticleFountain() { particles, centerX: Record<string, unknown>, centerY }: { particles: Particle[]; centerX: number; centerY: number } {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 200, pointerEvents: 'none' }} aria-hidden>
@@ -276,8 +276,8 @@ function ParticleFountain() { particles, centerX: Record<string, unknown>, cente
   );
 }
 
-// ── Props
-// ─────────────────────────────────────────────────────────────────────────────
+// -- Props
+// -----------------------------------------------------------------------------
 interface DreamDMBarProps {
   /**
    * Single-tap the Gold Particle → open both radial menus (Daydreams + System).
@@ -315,15 +315,15 @@ interface DreamDMBarProps {
   onSwapRuntimes?: () => void;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // Main component
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<string, unknown>, onRuntimeBlendChange: Record<string, unknown>, onBarInsets: Record<string, unknown>, splitRatio: Record<string, unknown>, onSplitChange: Record<string, unknown>, onMinimizedChange: Record<string, unknown>, onSwapRuntimes }: DreamDMBarProps {
   const isGameImmersive = useImmersiveGameLayout();
   /** Gold Particle diameter — shrinks when a game overlay is active so it stays out of the way */
   const goldSz = isGameImmersive ? 36 : GOLD_SZ;
   const goldR  = goldSz / 2;
-  // ── Screen geometry + keyboard tracking ───────────────────────────────────
+  // -- Screen geometry + keyboard tracking -----------------------------------
   const [screenH, setScreenH] = useState(900);
   const [screenW, setScreenW] = useState(1440);
   /** px the keyboard pushes the visual viewport up from the bottom (0 when hidden) */
@@ -365,7 +365,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
     };
   }, []);
 
-  // ── Window position state ──────────────────────────────────────────────────
+  // -- Window position state --------------------------------------------------
   /** Whether bar is snapped to top (nav-bar or panel mode) */
   const [isTop,         setIsTop]         = useState(false);
   /**
@@ -379,7 +379,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
   const [slideDown, setSlideDown] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
-  // ── Light tap state machine ───────────────────────────────────────────────
+  // -- Light tap state machine -----------------------------------------------
   // Whole-bar touch drag: startY, startTarget, didDrag, tapCount, tapTimer
   const barTouchRef = useRef<{
     active: boolean;
@@ -400,7 +400,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
     queued: false,
   });
 
-  // ── First-time discovery ─────────────────────────────────────────────────
+  // -- First-time discovery -------------------------------------------------
   const [firstTimeLight, setFirstTimeLight] = useState(false);
   const [lightTooltip, setLightTooltip] = useState<string | null>(null);
   const lightTooltipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -416,7 +416,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
     holdFired: false,
   });
 
-  // ── Minimized / collapsed state ───────────────────────────────────────────
+  // -- Minimized / collapsed state -------------------------------------------
   /**
    * When minimized, the bar disappears and a gold glowing orb appears.
    * Tap the orb to restore the bar. Drag it to reposition out of the way.
@@ -429,14 +429,14 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
     onMinimizedChange?.(isMinimized);
   }, [isMinimized, onMinimizedChange]);
 
-  // ── Minimized orb position + drag (refs/state only — callbacks after revealBar) ──
+  // -- Minimized orb position + drag (refs/state only — callbacks after revealBar) --
   /** Position of the minimized orb (CSS right/bottom offsets from viewport edges) */
   const [orbPos, setOrbPos] = useState<{ x: number; y: number }>({ x: 20, y: 20 });
   const orbDragRef = useRef({ active: false, startX: 0, startY: 0, startOrbX: 0, startOrbY: 0, moved: false });
   const ORB_SIZE = ORB_SIZE_CONST;
   const ORB_TAP_SLOP = ORB_TAP_SLOP_CONST;
 
-  // ── Touch-reveal transparency ─────────────────────────────────────────────
+  // -- Touch-reveal transparency ---------------------------------------------
   /**
    * The bar is fully transparent when not in use. It becomes opaque when the
    * user touches it and fades back after 3 seconds of inactivity.
@@ -460,7 +460,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
     barTouchTimerRef.current = setTimeout(() => { setBarTouched(false); }, 3000);
   }, []);
 
-  // ── 🌈 Mood Aura System ──────────────────────────────────────────────────
+  // -- 🌈 Mood Aura System --------------------------------------------------
   const [moodPeriod, setMoodPeriod] = useState<MoodPeriod>(() => getMoodPeriod(new Date().getHours()));
   useEffect(() => {
     const updateMood = () => setMoodPeriod(getMoodPeriod(new Date().getHours()));
@@ -469,14 +469,14 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
     return () => clearInterval(interval);
   }, []);
 
-  // ── ⌨️ Slash Command Palette ──────────────────────────────────────────────
+  // -- ⌨️ Slash Command Palette ----------------------------------------------
   const [slashOpen, setSlashOpen] = useState(false);
   const [slashQuery, setSlashQuery] = useState('');
   const [slashSelectedIdx, setSlashSelectedIdx] = useState(0);
   const slashResults = slashOpen ? filterSlashCommands(slashQuery) : [];
   const router = useRouter();
 
-  // ── 🎹 Typing Rhythm Visualizer ──────────────────────────────────────────
+  // -- 🎹 Typing Rhythm Visualizer ------------------------------------------
   const keystrokeTimesRef = useRef<number[]>([]);
   const [typingRhythm, setTypingRhythm] = useState(0);
 
@@ -502,7 +502,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
     return () => clearInterval(decay);
   }, [typingRhythm]);
 
-  // ── 🔥 Dream Streak Counter ──────────────────────────────────────────────
+  // -- 🔥 Dream Streak Counter ----------------------------------------------
   const [streakData, setStreakData] = useState<StreakData>({ count: 0, lastActiveDate: '' });
   useEffect(() => {
     try {
@@ -517,10 +517,10 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
   }, []);
   const streakTier = getStreakTier(streakData.count);
 
-  // ── ✨ Gold Particle Long-Press Fountain ───────────────────────────
+  // -- ✨ Gold Particle Long-Press Fountain ---------------------------
   const [particles, setParticles] = useState<Particle[]>([]);
 
-  // ── Minimized orb drag callbacks (must be after revealBar) ──────────────
+  // -- Minimized orb drag callbacks (must be after revealBar) --------------
   const handleOrbPointerDown = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -577,7 +577,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
     // NOTE: intentionally do NOT reset splitRatio — runtimes preserve their layout
   }, []);
 
-  // ── Drag handlers ─────────────────────────────────────────────────────────
+  // -- Drag handlers ---------------------------------------------------------
   const handleDragStart = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     e.preventDefault(); e.stopPropagation();
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -677,7 +677,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
     }
   }, [dragH, screenH, slideDown]);
 
-  // ── Divider drag — split-screen mode (splitRatio prop) ───────────────────
+  // -- Divider drag — split-screen mode (splitRatio prop) -------------------
   // When onSplitChange is provided, the bar operates as a true spatial divider.
   // Dragging the handle resizes both regions in real time; releasing snaps to
   // the closest of the three canonical split points (0.1 / 0.5 / 0.9).
@@ -782,20 +782,20 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
     }
   }, [onSplitChange, screenH, splitRatio, revealBar]);
 
-  // ── Dream bar context (route-aware + intent-aware) ──────────────────────────
+  // -- Dream bar context (route-aware + intent-aware) --------------------------
   const { barIntent, setBarIntent, clearBarIntent, openDrEams } = useDreamSystem();
   const barCtx = useDreamBarContext(barIntent.mode, barIntent.targetLabel);
   const dividerModeActive = typeof splitRatio === 'number' && typeof onSplitChange === 'function';
   const [expandTapCount, setExpandTapCount] = useState(0);
 
-  // ── Messaging state ────────────────────────────────────────────────────────
+  // -- Messaging state --------------------------------------------------------
   const [mounted,        setMounted]        = useState(false);
   const [composeFocused, setComposeFocused] = useState(false);
   // Bloom: true when the input overlay is open in seam / divider mode.
   // In non-divider (nav-rail) mode this is always false.
   const [isBloom, setIsBloom] = useState(false);
 
-  // ── First-time light discovery useEffect ─────────────────────────────────
+  // -- First-time light discovery useEffect ---------------------------------
   useEffect(() => {
     try {
       if (!localStorage.getItem('de-light-discovered')) {
@@ -821,7 +821,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
     };
   }, []);
 
-  // ── Whole-bar touch drag system ──────────────────────────────────────────
+  // -- Whole-bar touch drag system ------------------------------------------
   // The entire bar surface is draggable.
   // Exception: when textarea is focused AND touch started inside the textarea.
 
@@ -932,7 +932,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
     setTimeout(() => textareaRef.current?.focus(), 60);
   }
 
-  // ── Glowing light tap/hold ────────────────────────────────────────────────
+  // -- Glowing light tap/hold ------------------------------------------------
   // Double tap opens menus. Tap-and-hold opens the DreamDM text input.
 
   const handleLightTap = useCallback(() => {
@@ -1118,7 +1118,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
     msgsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // ── Seam canvas — animated gold particle + line in divider mode ──────────
+  // -- Seam canvas — animated gold particle + line in divider mode ----------
   // Uses Canvas 2D API (same pattern as NeuralSeamCanvas). The canvas is
   // pointer-events: none; the GlowingLight renders on top as the touch target.
   // Use props directly (splitRatio / onSplitChange) to avoid referencing the
@@ -1151,7 +1151,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
       // Subtle shimmer travelling along the line
       const shimmerX = (elapsed / 2000 % 1) * W;
 
-      // ── Seam line ────────────────────────────────────────────────────────
+      // -- Seam line --------------------------------------------------------
       const lineGrad = ctx.createLinearGradient(0, cy, W, cy);
       lineGrad.addColorStop(0,    'rgba(200,152,26,0)');
       lineGrad.addColorStop(0.15, `rgba(200,152,26,${0.35 + breathe * 0.15})`);
@@ -1166,7 +1166,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      // ── Shimmer sparkle travelling along the line ─────────────────────
+      // -- Shimmer sparkle travelling along the line ---------------------
       const shimGrad = ctx.createRadialGradient(shimmerX, cy, 0, shimmerX, cy, 18);
       shimGrad.addColorStop(0, 'rgba(255,230,120,0.55)');
       shimGrad.addColorStop(1, 'rgba(255,230,120,0)');
@@ -1175,7 +1175,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
       ctx.fillStyle = shimGrad;
       ctx.fill();
 
-      // ── Gold particle glow (outer) ────────────────────────────────────
+      // -- Gold particle glow (outer) ------------------------------------
       const outerR = 22 + breathe * 6;
       const outerGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, outerR);
       outerGrad.addColorStop(0,   `rgba(220,172,46,${0.28 + breathe * 0.12})`);
@@ -1186,7 +1186,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
       ctx.fillStyle = outerGrad;
       ctx.fill();
 
-      // ── Gold particle core ────────────────────────────────────────────
+      // -- Gold particle core --------------------------------------------
       const coreR = 7 + breathe * 2;
       const coreGrad = ctx.createRadialGradient(cx - 2, cy - 2, 0, cx, cy, coreR);
       coreGrad.addColorStop(0,   'rgba(255,240,160,0.95)');
@@ -1197,7 +1197,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
       ctx.fillStyle = coreGrad;
       ctx.fill();
 
-      // ── Blue accent flare (from the sketch) ──────────────────────────
+      // -- Blue accent flare (from the sketch) --------------------------
       const flareOp = 0.18 + breathe * 0.12;
       const flareGrad = ctx.createRadialGradient(cx + 10, cy + 6, 0, cx + 10, cy + 6, 14);
       flareGrad.addColorStop(0, `rgba(125,211,252,${flareOp})`);
@@ -1215,7 +1215,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
    
   }, [_inDividerMode]);
 
-  // ── Universal input intent ────────────────────────────────────────────────
+  // -- Universal input intent ------------------------------------------------
   // Any component in the app can dispatch:
   //   window.dispatchEvent(new CustomEvent('de:input-intent', {
   //     detail: { mode: 'comment'|'message'|'search', targetPostId?, targetLabel? }
@@ -1252,7 +1252,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
       });
   }, []);
 
-  // ── Quick file handlers ────────────────────────────────────────────────────
+  // -- Quick file handlers ----------------------------------------------------
   const handleQuickFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const newFiles = files.slice(0, 5 - quickDraftFiles.length);
@@ -1312,12 +1312,12 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
     setComposeExtraH(Math.max(0, newHeight - baseline));
   }, [quickDraft]);
 
-  // ── Send handlers ──────────────────────────────────────────────────────────
+  // -- Send handlers ----------------------------------------------------------
   const handleQuickSend = useCallback(async () => {
     const text = quickDraft.trim();
     if (!text && quickDraftFiles.length === 0) return;
 
-    // ── Intent-mode overrides take priority over surface detection ──────────
+    // -- Intent-mode overrides take priority over surface detection ----------
     if (barIntent.mode === 'comment' && barIntent.targetPostId) {
       setCommentSending(true);
       try {
@@ -1393,7 +1393,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
       return;
     }
 
-    // ── Surface-detected defaults (barIntent.mode === 'default') ───────────
+    // -- Surface-detected defaults (barIntent.mode === 'default') -----------
 
     // Messages surface: send as DM (existing behaviour)
     if (barCtx.surface === 'messages') {
@@ -1582,7 +1582,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
     onRuntimeBlendChange(blend);
   }, [dragH, isTop, isTopExpanded, onRuntimeBlendChange, screenH]);
 
-  // ── Bar insets — tell the runtime regions how much space the bar occupies ──
+  // -- Bar insets — tell the runtime regions how much space the bar occupies --
   // top:    runtime content must not start until this many px from the screen top
   // bottom: runtime content must not extend past this many px from the screen bottom
   useEffect(() => {
@@ -1601,10 +1601,10 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
 
   if (!mounted) return null;
 
-  // ── Derived layout values ─────────────────────────────────────────────────
+  // -- Derived layout values -------------------------------------------------
   const transition = isDragging ? 'none' : SPRING;
 
-  // ── Divider mode: bar is a fixed-height spatial seam driven by splitRatio ──
+  // -- Divider mode: bar is a fixed-height spatial seam driven by splitRatio --
   const isDividerMode = dividerModeActive;
   const dividerBarTop: number = isDividerMode
     ? Math.round((splitRatio as number) * (screenH - DIVIDER_H))
@@ -1643,34 +1643,34 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
   const isScreenLocked: boolean = isGoldOffScreen;
   const isCompactViewport = isCompactRuntimeViewport(screenW);
 
-  // ── Minimized-mode geometry ───────────────────────────────────────────────
+  // -- Minimized-mode geometry -----------------------------------------------
   // When minimized, the capsule is centered on the same Y axis as the full button
   // but only GOLD_MIN_H tall and GOLD_MIN_W wide (a subtle gold pill indicator).
   // The "top" for the capsule should align its center with goldTopPx + goldR.
   const goldCenterY = goldTopPx + goldR;
   const minCapsuleTop = goldCenterY - GOLD_MIN_H / 2;
 
-  // ── Resting state: bar is fully transparent until touched ────────────────
+  // -- Resting state: bar is fully transparent until touched ----------------
   // Bar is "resting" when: at bottom (not top), not dragging, not composeFocused,
   // at default height (BAR_H), not in divider mode, and no active intent,
   // and the user has not recently touched it.
   const isResting = !isDividerMode && !isTop && !isDragging && !composeFocused
     && dragH <= BAR_H && barIntent.mode === 'default' && !barTouched;
 
-  // ── Keyboard-aware bottom offset ─────────────────────────────────────────
+  // -- Keyboard-aware bottom offset -----------------------------------------
   // When the user is composing and the keyboard is visible, translate the bar
   // upward so it floats just above the keyboard instead of being hidden behind it.
   const keyboardTranslateY = !isDividerMode && composeFocused && keyboardOffsetPx > 0
     ? -keyboardOffsetPx
     : 0;
 
-  // ── Mood aura + surface accent derived values ─────────────────────────────
+  // -- Mood aura + surface accent derived values -----------------------------
   const moodAuraGradient = MOOD_AURA_GRADIENTS[moodPeriod];
   const moodEdgeColor = MOOD_EDGE_COLORS[moodPeriod];
   const surfaceAccent = SURFACE_ACCENT_COLORS[(barCtx.surface as SurfaceAccent)] ?? SURFACE_ACCENT_COLORS.general;
   const handleScale = rhythmToHandleScale(typingRhythm);
 
-  // ── Divider structural-transformation states ──────────────────────────────
+  // -- Divider structural-transformation states ------------------------------
   //
   // The DreamDMBar IS the divider line — not a separate object on top of it.
   // The element transforms its DOM geometry based on two states:
@@ -1700,9 +1700,9 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
   // Keep isSeamModeRef in sync so event callbacks can read it without staleness.
   isSeamModeRef.current = isSeamMode;
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  // -- Render ----------------------------------------------------------------
 
-  // ── Minimized state: draggable glowing light ─────────────────────────────
+  // -- Minimized state: draggable glowing light -----------------------------
   if (isMinimized) {
     const posStyle: React.CSSProperties = minOrbPos !== null
       ? { left: minOrbPos.x, top: minOrbPos.y, right: undefined, bottom: undefined }
@@ -1765,7 +1765,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
 
   return (
     <>
-      {/* ── Seam bloom overlay — divider mode only ───────────────────────────── */}
+      {/* -- Seam bloom overlay — divider mode only ----------------------------- */}
       {/* Floats above the seam line when the user taps the gold particle.       */}
       {/* In divider mode this IS the input surface — the bar body is hidden.    */}
       {isDividerMode && isBloom && (
@@ -1961,12 +1961,12 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
         </div>
       )}
 
-      {/* ── DreamDM window ───────────────────────────────────────────────────── */}
+      {/* -- DreamDM window ----------------------------------------------------- */}
       <div
         aria-label="DreamDM Bar"
         className="sicc-bar-edge"
         data-bar-state={isParticleMode ? 'particle' : isSeamMode ? 'seam' : 'normal'}
-        // ── Pointer routing ──────────────────────────────────────────────────
+        // -- Pointer routing --------------------------------------------------
         // seam mode:    whole 2px line is the drag/tap target → divider handlers
         // particle mode: bar IS the 12px circle, keep divider move/up wired
         // expanded divider: inner GlowingLight wrapper owns drag → bar just reveals
@@ -1995,7 +1995,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
         onTouchMove={handleBarTouchMove}
         onTouchEnd={handleBarTouchEnd}
         style={(() => {
-          // ── Structural geometry ─────────────────────────────────────────────
+          // -- Structural geometry ---------------------------------------------
           // Particle mode: 12px circle at pointer position, detached from layout flow
           // Seam mode:     2px full-width horizontal line (portrait)
           // Normal modes:  existing pill/panel geometry
@@ -2044,7 +2044,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
             transform: keyboardTranslateY !== 0 ? `translateY(${keyboardTranslateY}px)` : undefined,
             display: 'flex',
             flexDirection: isDividerMode ? 'column' : (isTop ? 'column-reverse' : 'column'),
-            // ── Background ───────────────────────────────────────────────────
+            // -- Background ---------------------------------------------------
             background: isParticleMode
               // Particle: gold radial glow — no hard border, just light
               ? 'radial-gradient(circle at center, rgba(255,223,64,0.98) 0%, rgba(232,184,48,0.85) 45%, rgba(200,152,26,0.55) 75%, transparent 100%)'
@@ -2062,7 +2062,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
               : (isDividerMode ? 'blur(48px) saturate(200%)' : (isResting ? 'none' : 'blur(32px) saturate(160%)')),
             opacity: isResting ? 0 : 1,
             border: isParticleMode || isSeamMode ? 'none' : (isDividerMode ? '1px solid rgba(0,0,0,0.07)' : 'none'),
-            // ── Shadow / glow ─────────────────────────────────────────────────
+            // -- Shadow / glow -------------------------------------------------
             boxShadow: isParticleMode
               ? `0 0 16px 8px rgba(255,215,64,0.72), 0 0 32px 14px rgba(200,152,26,0.48), 0 0 2px rgba(255,248,180,0.95)`
               : (isSeamMode
@@ -2091,7 +2091,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
           } as React.CSSProperties;
         })()}
       >
-        {/* ── 🌈 Mood Aura overlay — ambient glow shifts with time-of-day + surface ── */}
+        {/* -- 🌈 Mood Aura overlay — ambient glow shifts with time-of-day + surface -- */}
         {!isResting && !isSeamMode && !isParticleMode && (
           <div
             className="sicc-mood-aura"
@@ -2117,7 +2117,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
           />
         )}
 
-        {/* ── Drag handle / Glowing Light ──────────────────────────────────── */}
+        {/* -- Drag handle / Glowing Light ------------------------------------ */}
         {/* In particle mode the bar IS the 12px circle — hide the handle. */}
         {/* In seam mode the handle overflows the 2px line so the gold particle */}
         {/* remains visible and tappable (the only affordance in seam state).   */}
@@ -2197,7 +2197,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
           </>
         )}
 
-        {/* ── Legacy drag handle / Glowing Light — non-divider mode only ─── */}
+        {/* -- Legacy drag handle / Glowing Light — non-divider mode only --- */}
         {!isDividerMode && (
           <>
           <div
@@ -2269,7 +2269,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
         )}
         </div>
 
-        {/* ── Bar body ─────────────────────────────────────────────────────── */}
+        {/* -- Bar body ------------------------------------------------------- */}
         {/* Hidden in seam and particle modes — the bar is purely structural in those states */}
         <div style={{ flex: 1, minHeight: 0, display: isSeamMode || isParticleMode ? 'none' : 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {showFull ? (
@@ -2358,7 +2358,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
               paddingBottom: isDividerMode ? 6 : 'env(safe-area-inset-bottom, 0px)',
               justifyContent: 'flex-end',
             }}>
-              {/* ── Top accessory row: Bell + Comment indicator + Mode buttons ── */}
+              {/* -- Top accessory row: Bell + Comment indicator + Mode buttons -- */}
               {/* Slides out of the way when composing multi-line */}
               <div style={{
                 display: 'flex', alignItems: 'center', gap: isCompactViewport ? 5 : 4,
@@ -2614,7 +2614,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
                 </div>
               )}
 
-              {/* ── Compose row: [Camera] [Bubble textarea] [Send] ───────────── */}
+              {/* -- Compose row: [Camera] [Bubble textarea] [Send] ------------- */}
               {/* Bottom-aligned so buttons anchor to the baseline as the bubble grows */}
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: isCompactViewport ? 6 : 5 }}>
                 {/* Media picker button - hidden file input */}
@@ -2771,7 +2771,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
         </div>
       </div>
 
-      {/* ── ⌨️ Slash Command Palette ─────────────────────────────────────── */}
+      {/* -- ⌨️ Slash Command Palette --------------------------------------- */}
       {slashOpen && slashResults.length > 0 && (
         <div
           role="listbox"
@@ -2857,7 +2857,7 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
         </div>
       )}
 
-      {/* ── Media lightbox overlay ─────────────────────────────────────────── */}
+      {/* -- Media lightbox overlay ------------------------------------------- */}
       {lightboxUrl && (
         <div
           role="dialog"
@@ -2906,9 +2906,9 @@ export default function DreamDMBar() { onBothMenus, onRuntimeModeChange: Record<
     </>
   );
 }
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // ModeButton — compact pill for switching bar intent mode
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 function ModeButton() {
   mode,
@@ -2963,9 +2963,9 @@ function ModeButton() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 // DreamSpaceMessaging
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 interface DreamSpaceMessagingProps {
   conversations:       DMConversation[];
@@ -3011,7 +3011,7 @@ function DreamSpaceMessaging() {
   return (
     <div style={{ display: 'flex', height: '100%', minHeight: 0 }}>
 
-      {/* ── Compact conversation list ──────────────────────────────────────── */}
+      {/* -- Compact conversation list ---------------------------------------- */}
       <div style={{ width: 200, flexShrink: 0, borderRight: '1px solid rgba(180,185,200,0.20)', overflowY: 'auto', overscrollBehavior: 'contain', display: 'flex', flexDirection: 'column' }}>
 
         {/* Search + Dr. Eams toggle */}
@@ -3119,7 +3119,7 @@ function DreamSpaceMessaging() {
         </div>
       </div>
 
-      {/* ── Message panel ──────────────────────────────────────────────────── */}
+      {/* -- Message panel ---------------------------------------------------- */}
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
         {selectedConv ? (
           <>

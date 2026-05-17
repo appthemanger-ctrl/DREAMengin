@@ -27,7 +27,7 @@ function read(relPath: string): string {
   return readFileSync(fullPath, 'utf-8');
 }
 
-// ── Source snapshots ──────────────────────────────────────────────────────────
+// -- Source snapshots ----------------------------------------------------------
 
 const draggableModuleSrc      = read('components/draggable/dream.DraggableModule.tsx');
 const universalEditorSrc      = read('components/universal-editor/dream.UniversalEditorWrapper.tsx');
@@ -40,7 +40,7 @@ const manifestTypeSrc         = read('types/module-manifest.ts');
 const violationLogSrc         = read('docs/MODULARITY_VIOLATION_LOG.md');
 const universalEditorIndexSrc = read('components/universal-editor/index.ts');
 
-// ── 1. Drag wrapper implementations ──────────────────────────────────────────
+// -- 1. Drag wrapper implementations ------------------------------------------
 
 describe('DraggableModule — universal drag wrapper', () => {
   it('exports a default DraggableModule component', () => {
@@ -87,7 +87,7 @@ describe('DraggableModule — universal drag wrapper', () => {
   });
 });
 
-// ── 2. DreamWindowShell ───────────────────────────────────────────────────────
+// -- 2. DreamWindowShell -------------------------------------------------------
 
 describe('DreamWindowShell — tap-hold drag for Dream Windows', () => {
   it('uses useTapHoldMove to enable drag', () => {
@@ -114,7 +114,7 @@ describe('DreamWindowShell — tap-hold drag for Dream Windows', () => {
   });
 });
 
-// ── 3. UniversalEditorWrapper ─────────────────────────────────────────────────
+// -- 3. UniversalEditorWrapper -------------------------------------------------
 
 describe('UniversalEditorWrapper — always-on drag wrapper', () => {
   it('exports UniversalEditorWrapper component', () => {
@@ -140,7 +140,7 @@ describe('UniversalEditorWrapper — always-on drag wrapper', () => {
   });
 });
 
-// ── 4. useTapHoldMove ─────────────────────────────────────────────────────────
+// -- 4. useTapHoldMove ---------------------------------------------------------
 
 describe('useTapHoldMove — core tap-hold-drag hook', () => {
   it('is present in both hooks/ and components/universal-editor/', () => {
@@ -173,7 +173,7 @@ describe('useTapHoldMove — core tap-hold-drag hook', () => {
   });
 });
 
-// ── 5. ModuleManifest type ────────────────────────────────────────────────────
+// -- 5. ModuleManifest type ----------------------------------------------------
 
 describe('ModuleManifest type — complete shape for transferable modules', () => {
   it('declares all required fields', () => {
@@ -196,7 +196,7 @@ describe('ModuleManifest type — complete shape for transferable modules', () =
   });
 });
 
-// ── 6. moduleRegistry — transfer contract ────────────────────────────────────
+// -- 6. moduleRegistry — transfer contract ------------------------------------
 
 describe('moduleRegistry — cross-runtime transfer contract', () => {
   it('exports useModuleRegistry Zustand store', () => {
@@ -228,7 +228,7 @@ describe('moduleRegistry — cross-runtime transfer contract', () => {
   });
 });
 
-// ── 7. dropTargetRegistry — multi-region routing ─────────────────────────────
+// -- 7. dropTargetRegistry — multi-region routing -----------------------------
 
 describe('dropTargetRegistry — multi-runtime drop routing', () => {
   it('exports dropTargetRegistry singleton', () => {
@@ -254,7 +254,7 @@ describe('dropTargetRegistry — multi-runtime drop routing', () => {
   });
 });
 
-// ── 8. MODULARITY_VIOLATION_LOG.md — required governance document ─────────────
+// -- 8. MODULARITY_VIOLATION_LOG.md — required governance document -------------
 
 describe('MODULARITY_VIOLATION_LOG.md — governance document', () => {
   it('exists at docs/MODULARITY_VIOLATION_LOG.md', () => {
@@ -282,7 +282,7 @@ describe('MODULARITY_VIOLATION_LOG.md — governance document', () => {
   });
 });
 
-// ── 10. README — hard warning is present ─────────────────────────────────────
+// -- 10. README — hard warning is present -------------------------------------
 
 describe('README — modularity hard warning', () => {
   const readme = read('README.md');

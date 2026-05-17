@@ -201,7 +201,7 @@ export type GodTierState = {
   childContentFilter: ChildContentFilter;
 };
 
-// ─── Ring average ─────────────────────────────────────────────────────────────
+// --- Ring average -------------------------------------------------------------
 
 export class RingAverage {
   // Float32Array gives typed, cache-friendly storage for the ring buffer
@@ -703,7 +703,7 @@ export class DreamEngineGodTierSystem {
     const boot     = maxAssumptionBoot(device);
     const pressure = framePressureShield(runtime);
 
-    // ── Auto-level-boost: if we've been stuck at level 1 for 10+ frames,
+    // -- Auto-level-boost: if we've been stuck at level 1 for 10+ frames,
     //    forcibly reset the resolution scale to base maximum so the engine
     //    climbs back to level 5.
     const rawLevel = computeAlgorithmLevel(boot.globalIntensity, pressure.pressureLevel);

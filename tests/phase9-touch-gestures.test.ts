@@ -36,7 +36,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-// ─── Constructor and basic API ────────────────────────────────────────────────
+// --- Constructor and basic API ------------------------------------------------
 
 describe('Touch Gestures — GestureRecogniser', () => {
   it('can be instantiated with callbacks', () => {
@@ -85,7 +85,7 @@ describe('Touch Gestures — GestureRecogniser', () => {
   });
 });
 
-// ─── GestureEvent type contracts ──────────────────────────────────────────────
+// --- GestureEvent type contracts ----------------------------------------------
 
 describe('Touch Gestures — event types', () => {
   it('GestureEvent has correct shape for pinch', () => {

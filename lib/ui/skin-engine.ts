@@ -8,7 +8,7 @@
  * — no tier gating, no locks, no "coming soon" placeholders.
  */
 
-// ── Types ──────────────────────────────────────────────────────────────────────
+// -- Types ----------------------------------------------------------------------
 
 export type SkinPage = 'home' | 'profile' | 'dreamspace' | 'feed' | 'global';
 
@@ -49,7 +49,7 @@ export interface SkinData {
   layout: SkinLayout;
 }
 
-// ── Default skin (matches Dream Ice) ──────────────────────────────────────────
+// -- Default skin (matches Dream Ice) ------------------------------------------
 
 export const DEFAULT_SKIN: SkinData = {
   bgFrom:        '#e9ecf1',
@@ -67,7 +67,7 @@ export const DEFAULT_SKIN: SkinData = {
   layout:        'card',
 };
 
-// ── Free preset skins ─────────────────────────────────────────────────────────
+// -- Free preset skins ---------------------------------------------------------
 
 export interface SkinPreset {
   id:       string;
@@ -161,7 +161,7 @@ export const SKIN_PRESETS: SkinPreset[] = [
       accentColor: '#0aa880',
     },
   },
-  // ── All skins available — no tier gating in production ───────────────────
+  // -- All skins available — no tier gating in production -------------------
   {
     id: 'neon-grid',
     label: 'Neon Grid',
@@ -213,7 +213,7 @@ export function getSkinPreset(id: string: SkinPreset) {
   return SKIN_PRESETS.find((p: Record<string, unknown>) => p.id === id) ?? SKIN_PRESETS[0];
 }
 
-// ── CSS variable map ──────────────────────────────────────────────────────────
+// -- CSS variable map ----------------------------------------------------------
 
 const SHADOW_MAP: Record<SkinShadow, string> = {
   none:   'none',
@@ -264,7 +264,7 @@ export function applySkin(skin: SkinData: void) {
   window.dispatchEvent(new Event('de-skin-changed'));
 }
 
-// ── Per-page skin storage ─────────────────────────────────────────────────────
+// -- Per-page skin storage -----------------------------------------------------
 
 const STORAGE_KEY = 'dreamengin-skins-v1';
 

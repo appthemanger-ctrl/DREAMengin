@@ -11,7 +11,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import path from 'path';
 import fs from 'fs';
 
-// ── Mock localStorage (node environment — no browser globals) ────────────────
+// -- Mock localStorage (node environment — no browser globals) ----------------
 const store: Record<string, string> = {};
 const localStorageMock = {
   getItem: (key: string) => store[key] ?? null,
@@ -38,7 +38,7 @@ import {
   type ForgeArtifactType,
 } from '@/lib/forge/forgeBuild';
 
-// ── Helper: minimal valid ForgeBuildRecord ───────────────────────────────────
+// -- Helper: minimal valid ForgeBuildRecord -----------------------------------
 function makeBuildRecord(overrides: Partial<ForgeBuildRecord> =) {}): ForgeBuildRecord {
   return {
     id: 'test-id-123',
@@ -52,7 +52,7 @@ function makeBuildRecord(overrides: Partial<ForgeBuildRecord> =) {}): ForgeBuild
   };
 }
 
-// ── Helper: minimal valid ForgeArtifact ──────────────────────────────────────
+// -- Helper: minimal valid ForgeArtifact --------------------------------------
 function makeArtifact(overrides: Partial<ForgeArtifact> =) {}): ForgeArtifact {
   return {
     type: 'code-cells',
@@ -64,7 +64,7 @@ function makeArtifact(overrides: Partial<ForgeArtifact> =) {}): ForgeArtifact {
   };
 }
 
-// ── ForgeBuildRecord type shape ───────────────────────────────────────────────
+// -- ForgeBuildRecord type shape -----------------------------------------------
 
 describe('ForgeBuildRecord type shape', () => {
   it('has all required fields', () => {
@@ -99,7 +99,7 @@ describe('ForgeBuildRecord type shape', () => {
   });
 });
 
-// ── ForgeArtifact type shape ──────────────────────────────────────────────────
+// -- ForgeArtifact type shape --------------------------------------------------
 
 describe('ForgeArtifact type shape', () => {
   it('has all required fields', () => {
@@ -154,7 +154,7 @@ describe('ForgeArtifact type shape', () => {
   });
 });
 
-// ── stageForgeArtifact ────────────────────────────────────────────────────────
+// -- stageForgeArtifact --------------------------------------------------------
 
 describe('stageForgeArtifact', () => {
   beforeEach(() => {
@@ -235,7 +235,7 @@ describe('stageForgeArtifact', () => {
   });
 });
 
-// ── saveForgeBuild / readForgeBuilds ─────────────────────────────────────────
+// -- saveForgeBuild / readForgeBuilds -----------------------------------------
 
 describe('saveForgeBuild / readForgeBuilds', () => {
   beforeEach(() => {
@@ -286,7 +286,7 @@ describe('saveForgeBuild / readForgeBuilds', () => {
   });
 });
 
-// ── clearForgeBuilds ──────────────────────────────────────────────────────────
+// -- clearForgeBuilds ----------------------------------------------------------
 
 describe('clearForgeBuilds', () => {
   beforeEach(() => {
@@ -305,7 +305,7 @@ describe('clearForgeBuilds', () => {
   });
 });
 
-// ── canBuildToday / recordBuildToday ─────────────────────────────────────────
+// -- canBuildToday / recordBuildToday -----------------------------------------
 
 describe('canBuildToday / recordBuildToday', () => {
   beforeEach(() => {
@@ -337,7 +337,7 @@ describe('canBuildToday / recordBuildToday', () => {
   });
 });
 
-// ── isForgeLogEvent type guard ────────────────────────────────────────────────
+// -- isForgeLogEvent type guard ------------------------------------------------
 
 describe('isForgeLogEvent type guard', () => {
   it('accepts valid agent event', () => {
@@ -480,7 +480,7 @@ describe('isForgeLogEvent type guard', () => {
   });
 });
 
-// ── ForgeLogEvent discriminated union ────────────────────────────────────────
+// -- ForgeLogEvent discriminated union ----------------------------------------
 
 describe('ForgeLogEvent discriminated union exhaustiveness', () => {
   it('all 7 event types are represented', () => {
@@ -521,7 +521,7 @@ describe('ForgeLogEvent discriminated union exhaustiveness', () => {
   });
 });
 
-// ── AIBuilderPanel default export existence ───────────────────────────────────
+// -- AIBuilderPanel default export existence -----------------------------------
 
 describe('AIBuilderPanel', () => {
   it('default export exists at expected path', async () => {
@@ -568,7 +568,7 @@ describe('AIBuilderPanel', () => {
   });
 });
 
-// ── useForgeBuild hook exports ────────────────────────────────────────────────
+// -- useForgeBuild hook exports ------------------------------------------------
 
 describe('useForgeBuild hook', () => {
   it('hook file exists at expected path', () => {
@@ -598,7 +598,7 @@ describe('useForgeBuild hook', () => {
   });
 });
 
-// ── API route file existence ──────────────────────────────────────────────────
+// -- API route file existence --------------------------------------------------
 
 describe('API route /api/forge/build', () => {
   it('route file exists at app/api/forge/build/route.ts', () => {
@@ -661,7 +661,7 @@ describe('API route /api/forge/build', () => {
   });
 });
 
-// ── forgeBuild.ts lib file ────────────────────────────────────────────────────
+// -- forgeBuild.ts lib file ----------------------------------------------------
 
 describe('forgeBuild lib module', () => {
   it('lib file exists', () => {

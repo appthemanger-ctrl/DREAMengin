@@ -19,7 +19,7 @@ import { Play, StopCircle, Loader2, CheckCircle, Bot, Monitor, Database, Gamepad
 import { getSwap, toggleSwap } from '@/lib/runtime/swapManager';
 import { bridge as dualRuntimeBridge } from '@/lib/runtime/dualRuntimeBridge';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 type Language = 'python' | 'javascript' | 'typescript' | 'bash';
 type EngineId = 'game' | 'lab' | 'sim' | 'asset' | 'none';
@@ -35,7 +35,7 @@ interface EngineConn {
   icon:        React.ReactNode;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// --- Constants ----------------------------------------------------------------
 
 const ACCENT      = '#6366f1';
 const CODE_BG     = '#0d1117';
@@ -154,7 +154,7 @@ pnpm exec vitest run --reporter=verbose
 echo "✅ All systems go!"`,
 };
 
-// ─── Simulated engine outputs ─────────────────────────────────────────────────
+// --- Simulated engine outputs -------------------------------------------------
 
 function getMockOutput(language: Language, engine: EngineId, code: string: string[]) {
   const ts = () => new Date().toISOString().slice(11, 19);
@@ -230,7 +230,7 @@ function getMockOutput(language: Language, engine: EngineId, code: string: strin
   }
 }
 
-// ─── ASCII visualizations ─────────────────────────────────────────────────────
+// --- ASCII visualizations -----------------------------------------------------
 
 function AsciiHeatmap() { cols = 32, rows = 6, seed = 42 }: { cols?: number; rows?: number; seed?: number } {
   const chars = ['░', '▒', '▓', '█'];
@@ -266,7 +266,7 @@ function AsciiBarChart() { values, labels }: { values: number[]; labels: string[
   );
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// --- Component ----------------------------------------------------------------
 
 export default function CodeDreamIDE() {
   const [language,     setLanguage]    = useState<Language>('python');
@@ -397,7 +397,7 @@ export default function CodeDreamIDE() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
 
-      {/* ── Engine Connection Strip ───────────────────────────── */}
+      {/* -- Engine Connection Strip ----------------------------- */}
       <div className="de-widget" style={{ marginBottom: 12 }}>
         <div className="de-widget-header">
           <span className="de-widget-title">🔌 Engine Connection</span>
@@ -437,7 +437,7 @@ export default function CodeDreamIDE() {
         </div>
       </div>
 
-      {/* ── IDE Split: code left + preview right ─────────────── */}
+      {/* -- IDE Split: code left + preview right --------------- */}
       <div
         className="de-widget"
         style={{ marginBottom: 12 }}
@@ -535,7 +535,7 @@ export default function CodeDreamIDE() {
         >
           {/* Editor panel — rendered first when not swapped, second when swapped */}
           {swapped && (
-            /* ── SWAPPED LEFT: Preview ── */
+            /* -- SWAPPED LEFT: Preview -- */
             <div style={{ borderRight: '1px solid rgba(160,195,240,0.15)', display: 'flex', flexDirection: 'column' }}>
               <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
                 fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.06em',
@@ -585,7 +585,7 @@ export default function CodeDreamIDE() {
                       Draw calls: {outputLines.length > 0 ? '24' : '—'}<br />
                       Physics: {engine === 'game' && outputLines.length > 0 ? 'Havok ●' : 'idle'}<br /><br />
                       {outputLines.length > 0 ? (
-                        <>┌──────────────────────┐<br />│  ░░░░░░░░░░░░░░░░░░  │<br />│  ░░░░░ 👾 ░░░░░░░░  │<br />│  ░░░░░░░░░░░░░░░░░░  │<br />│  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │<br />└──────────────────────┘</>
+                        <>┌----------------------┐<br />|  ░░░░░░░░░░░░░░░░░░  |<br />|  ░░░░░ 👾 ░░░░░░░░  |<br />|  ░░░░░░░░░░░░░░░░░░  |<br />|  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  |<br />└----------------------┘</>
                       ) : '   [waiting for run…]'}
                     </div>
                   </div>
@@ -607,7 +607,7 @@ export default function CodeDreamIDE() {
             </div>
           )}
 
-          {/* ── Editor panel (left when not swapped) ── */}
+          {/* -- Editor panel (left when not swapped) -- */}
           {!swapped && (
           <div style={{ borderRight: '1px solid rgba(160,195,240,0.15)', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
@@ -700,7 +700,7 @@ export default function CodeDreamIDE() {
           </div>
           )}
 
-          {/* ── Preview panel — rendered second when not swapped, first when swapped ── */}
+          {/* -- Preview panel — rendered second when not swapped, first when swapped -- */}
           {!swapped && (
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(160,195,240,0.1)',
@@ -794,12 +794,12 @@ export default function CodeDreamIDE() {
                       <br />
                       {outputLines.length > 0 ? (
                         <>
-                          ┌──────────────────────┐<br />
-                          │  ░░░░░░░░░░░░░░░░░░  │<br />
-                          │  ░░░░░ 👾 ░░░░░░░░  │<br />
-                          │  ░░░░░░░░░░░░░░░░░░  │<br />
-                          │  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │<br />
-                          └──────────────────────┘
+                          ┌----------------------┐<br />
+                          |  ░░░░░░░░░░░░░░░░░░  |<br />
+                          |  ░░░░░ 👾 ░░░░░░░░  |<br />
+                          |  ░░░░░░░░░░░░░░░░░░  |<br />
+                          |  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  |<br />
+                          └----------------------┘
                         </>
                       ) : (
                         '   [waiting for run…]'
@@ -911,7 +911,7 @@ export default function CodeDreamIDE() {
         </div>
       </div>
 
-      {/* ── Dr. Eams Quick Assist ─────────────────────────────── */}
+      {/* -- Dr. Eams Quick Assist ------------------------------- */}
       <div className="de-widget" style={{ marginBottom: 12 }}>
         <div className="de-widget-header">
           <Bot className="w-4 h-4" style={{ color: '#a78bfa' }} />

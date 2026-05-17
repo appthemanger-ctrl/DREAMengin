@@ -92,7 +92,7 @@ export function packageCartridge(cartridgeDir: string, outFile?: string): PackRe
   return { cartridgeId: manifest.cartridge_id, outFile: out, bytes: data.length, codec, fileCount: files.length };
 }
 
-// ─── CLI ─────────────────────────────────────────────────────────────────────
+// --- CLI ---------------------------------------------------------------------
 function isMain(): boolean {
   return import.meta.url === `file://${process.argv[1]}` ||
          import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`;

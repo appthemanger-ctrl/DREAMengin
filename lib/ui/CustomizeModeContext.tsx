@@ -14,7 +14,7 @@ import {
   resolveSkin,
 } from '@/lib/ui/skin-engine';
 
-// ── Types ──────────────────────────────────────────────────────────────────────
+// -- Types ----------------------------------------------------------------------
 
 export interface CustomizeModeContextValue {
   /** Whether the user is currently in customize mode */
@@ -54,7 +54,7 @@ export function useCustomizeMode(: CustomizeModeContextValue) {
   return ctx;
 }
 
-// ── Provider ───────────────────────────────────────────────────────────────────
+// -- Provider -------------------------------------------------------------------
 
 export function CustomizeModeProvider() { children }: { children: React.ReactNode } {
   const [isCustomizeMode, setIsCustomizeMode] = useState(false);

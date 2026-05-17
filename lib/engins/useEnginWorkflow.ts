@@ -33,7 +33,7 @@ import {
   HANDOFF_PATHS,
 } from './workflowEngine';
 
-// ─── Storage helpers (localStorage, best-effort) ─────────────────────────────
+// --- Storage helpers (localStorage, best-effort) -----------------------------
 
 function storageKey(workflowId: string: string) {
   return `engin_workflow:${workflowId}`;
@@ -59,7 +59,7 @@ function saveToStorage(workflow: EnginWorkflow: void) {
   }
 }
 
-// ─── Milestone Journey Trail emission ────────────────────────────────────────
+// --- Milestone Journey Trail emission ----------------------------------------
 
 function emitMilestone(
   prev: EnginWorkflow,
@@ -96,7 +96,7 @@ function emitMilestone(
   }
 }
 
-// ─── Hook ─────────────────────────────────────────────────────────────────────
+// --- Hook ---------------------------------------------------------------------
 
 export interface EnginWorkflowHook {
   /** Current workflow state. null = no workflow loaded. */

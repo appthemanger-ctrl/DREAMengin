@@ -17,7 +17,7 @@ import {
 const NOW = '2026-04-12T08:00:00.000Z';
 const LATER = '2026-04-12T09:00:00.000Z';
 
-// ─── Catalog invariants ───────────────────────────────────────────────────────
+// --- Catalog invariants -------------------------------------------------------
 
 describe('WORKFLOW_CATALOG', () => {
   it('every entry has a unique id', () => {
@@ -59,7 +59,7 @@ describe('HANDOFF_PATHS', () => {
   });
 });
 
-// ─── Stage model ──────────────────────────────────────────────────────────────
+// --- Stage model --------------------------------------------------------------
 
 describe('isValidTransition', () => {
   it('allows draft → active', () => expect(isValidTransition('draft', 'active')).toBe(true));
@@ -79,7 +79,7 @@ describe('STAGE_LABELS', () => {
   });
 });
 
-// ─── createWorkflow ───────────────────────────────────────────────────────────
+// --- createWorkflow -----------------------------------------------------------
 
 describe('createWorkflow', () => {
   it('creates a workflow in draft stage', () => {
@@ -98,7 +98,7 @@ describe('createWorkflow', () => {
   });
 });
 
-// ─── advanceStage ─────────────────────────────────────────────────────────────
+// --- advanceStage -------------------------------------------------------------
 
 describe('advanceStage', () => {
   it('advances draft → active', () => {
@@ -183,7 +183,7 @@ describe('advanceStage', () => {
   });
 });
 
-// ─── abandonWorkflow ──────────────────────────────────────────────────────────
+// --- abandonWorkflow ----------------------------------------------------------
 
 describe('abandonWorkflow', () => {
   it('marks the workflow as abandoned', () => {
@@ -200,7 +200,7 @@ describe('abandonWorkflow', () => {
   });
 });
 
-// ─── checkHandoffEligibility ─────────────────────────────────────────────────
+// --- checkHandoffEligibility -------------------------------------------------
 
 describe('checkHandoffEligibility', () => {
   it('returns ineligible for non-export stage', () => {
@@ -238,7 +238,7 @@ describe('checkHandoffEligibility', () => {
   });
 });
 
-// ─── describeWorkflow ─────────────────────────────────────────────────────────
+// --- describeWorkflow ---------------------------------------------------------
 
 describe('describeWorkflow', () => {
   it('includes name and stage label', () => {
@@ -253,7 +253,7 @@ describe('describeWorkflow', () => {
   });
 });
 
-// ─── workflowsForEngin / handoffsFrom / findWorkflowDef ──────────────────────
+// --- workflowsForEngin / handoffsFrom / findWorkflowDef ----------------------
 
 describe('workflowsForEngin', () => {
   it('returns only workflows for the given engin', () => {

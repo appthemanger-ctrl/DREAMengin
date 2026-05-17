@@ -42,7 +42,7 @@ import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
 
 const ACCENT = '#ec4899';
 
-// ── Types ────────────────────────────────────────────────────────────────────
+// -- Types --------------------------------------------------------------------
 interface ProfileData {
   handle: string;
   display_name: string | null;
@@ -58,7 +58,7 @@ interface Metric {
   trend: Trend;
 }
 
-// ── Static data ───────────────────────────────────────────────────────────────
+// -- Static data ---------------------------------------------------------------
 const PALETTE_PRESETS = [
   ['#ec4899', '#f9a8d4', '#c026d3', '#fbbf24', '#1e1b4b', '#f0fdf4'],
   ['#2a8ab8', '#bae6fd', '#0284c7', '#f59e0b', '#0f172a', '#f8fafc'],
@@ -122,7 +122,7 @@ const PRESS_KIT_ITEMS = [
   { label: 'Social Links',   status: '🔗', detail: 'Connect platforms to include' },
 ];
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// -- Helpers -------------------------------------------------------------------
 const healthScore = Math.round(
   BRAND_HEALTH_DIMENSIONS.reduce(s: Record<string, unknown>, d: Record<string, unknown> => s + d.score, 0) / BRAND_HEALTH_DIMENSIONS.length,
 );
@@ -133,11 +133,11 @@ function TrendIcon() { trend }: { trend: Trend } {
   return <Minus className="w-3 h-3" style={{ color: 'var(--de-text-dim)' }} />;
 }
 
-// ── Component ─────────────────────────────────────────────────────────────────
+// -- Component -----------------------------------------------------------------
 export default function BrandDaydream() {
   const { record: forgeRecord } = useForgeActivity({ enginId: 'brand' });
 
-  // ── Profile ────────────────────────────────────────────────────────────────
+  // -- Profile ----------------------------------------------------------------
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
 
@@ -160,7 +160,7 @@ export default function BrandDaydream() {
     return () => { cancelled = true; };
   }, []);
 
-  // ── Analytics ──────────────────────────────────────────────────────────────
+  // -- Analytics --------------------------------------------------------------
   const [metrics, setMetrics] = useState<Metric[]>([
     { id: 'reach',  label: 'Reach',            value: '—',   trend: 'flat' },
     { id: 'eng',    label: 'Engagement Rate',   value: '—',   trend: 'flat' },
@@ -184,7 +184,7 @@ export default function BrandDaydream() {
     forgeRecord('Refreshed brand analytics');
   }
 
-  // ── Color palette ──────────────────────────────────────────────────────────
+  // -- Color palette ----------------------------------------------------------
   const [paletteIdx, setPaletteIdx] = useState(0);
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
   const currentPalette = PALETTE_PRESETS[paletteIdx % PALETTE_PRESETS.length];
@@ -195,7 +195,7 @@ export default function BrandDaydream() {
     setTimeout(() => setCopiedColor(null), 1200);
   }
 
-  // ── Bio copy ───────────────────────────────────────────────────────────────
+  // -- Bio copy ---------------------------------------------------------------
   const [copiedBio, setCopiedBio] = useState<string | null>(null);
   function copyBio(platform: string, text: string) {
     navigator.clipboard?.writeText(text).catch(() => {});
@@ -203,7 +203,7 @@ export default function BrandDaydream() {
     setTimeout(() => setCopiedBio(null), 1400);
   }
 
-  // ── Pitch copy ─────────────────────────────────────────────────────────────
+  // -- Pitch copy -------------------------------------------------------------
   const [pitchCopied, setPitchCopied] = useState(false);
   function copyPitch() {
     const text = `Hi [Sponsor], I'm ${profile?.display_name ?? 'a creator'} with ${profile?.follower_count ?? 0} followers. Engagement 5.2%. Let's collab.`;
@@ -219,7 +219,7 @@ export default function BrandDaydream() {
   return (
     <div className="de-auth-content space-y-4">
 
-      {/* ── 1. Profile Card ─────────────────────────────────────────────── */}
+      {/* -- 1. Profile Card ----------------------------------------------- */}
       <div className="de-widget">
         <div className="de-widget-header"><span className="de-widget-title">Profile Card</span></div>
         <div className="de-widget-body">
@@ -250,7 +250,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 2. Brand Health Score ───────────────────────────────────────── */}
+      {/* -- 2. Brand Health Score ----------------------------------------- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <span style={{ fontSize: 16 }}>💪</span>
@@ -281,7 +281,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 3. Quick Analytics ──────────────────────────────────────────── */}
+      {/* -- 3. Quick Analytics -------------------------------------------- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <BarChart2 className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -308,7 +308,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 4. Brand Color Palette ──────────────────────────────────────── */}
+      {/* -- 4. Brand Color Palette ---------------------------------------- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <Palette className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -340,7 +340,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 5. A/B Tests ────────────────────────────────────────────────── */}
+      {/* -- 5. A/B Tests -------------------------------------------------- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <span className="de-widget-title">Active A/B Tests</span>
@@ -356,7 +356,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 6. Campaign ROI ─────────────────────────────────────────────── */}
+      {/* -- 6. Campaign ROI ----------------------------------------------- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <DollarSign className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -381,7 +381,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 7. Audience Segments ────────────────────────────────────────── */}
+      {/* -- 7. Audience Segments ------------------------------------------ */}
       <div className="de-widget">
         <div className="de-widget-header">
           <Users className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -403,7 +403,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 8. Brand Voice ──────────────────────────────────────────────── */}
+      {/* -- 8. Brand Voice ------------------------------------------------ */}
       <div className="de-widget">
         <div className="de-widget-header">
           <span className="de-widget-title">🎯 Brand Voice</span>
@@ -422,7 +422,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 9. Competitor Watch ─────────────────────────────────────────── */}
+      {/* -- 9. Competitor Watch ------------------------------------------- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <Eye className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -446,7 +446,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 10. Typography Kit ──────────────────────────────────────────── */}
+      {/* -- 10. Typography Kit -------------------------------------------- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <BookOpen className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -468,7 +468,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 11. Mood Board ──────────────────────────────────────────────── */}
+      {/* -- 11. Mood Board ------------------------------------------------ */}
       <div className="de-widget">
         <div className="de-widget-header">
           <span className="de-widget-title">🎨 Mood Board</span>
@@ -487,7 +487,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 12. Sponsorship Pitch ───────────────────────────────────────── */}
+      {/* -- 12. Sponsorship Pitch ----------------------------------------- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <Megaphone className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -509,7 +509,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 13. Press Kit ───────────────────────────────────────────────── */}
+      {/* -- 13. Press Kit ------------------------------------------------- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <Layers className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -534,7 +534,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 14. Bio Optimizer ───────────────────────────────────────────── */}
+      {/* -- 14. Bio Optimizer --------------------------------------------- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <Share2 className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -556,7 +556,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 15. Target Persona ──────────────────────────────────────────── */}
+      {/* -- 15. Target Persona -------------------------------------------- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <Users className="w-4 h-4 mr-1" style={{ color: ACCENT }} />
@@ -577,7 +577,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 16. Brand Story Timeline ────────────────────────────────────── */}
+      {/* -- 16. Brand Story Timeline -------------------------------------- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <span className="de-widget-title">Brand Story Timeline</span>
@@ -598,7 +598,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 17. Revenue Tracker ─────────────────────────────────────────── */}
+      {/* -- 17. Revenue Tracker ------------------------------------------- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <span className="de-widget-title">💰 Revenue Tracker</span>
@@ -621,7 +621,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 18. Game Engine Visual Presets ──────────────────────────────── */}
+      {/* -- 18. Game Engine Visual Presets -------------------------------- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <span style={{ fontSize: 15 }}>🎮</span>
@@ -645,7 +645,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 19. Content Theme Planner ───────────────────────────────────── */}
+      {/* -- 19. Content Theme Planner ------------------------------------- */}
       <div className="de-widget">
         <div className="de-widget-header">
           <span className="de-widget-title">📅 Content Theme Planner</span>
@@ -660,7 +660,7 @@ export default function BrandDaydream() {
         </div>
       </div>
 
-      {/* ── 20. Shop Integration ────────────────────────────────────────── */}
+      {/* -- 20. Shop Integration ------------------------------------------ */}
       <div className="de-widget">
         <div className="de-widget-header">
           <span className="de-widget-title">🛍 Shop Integration</span>

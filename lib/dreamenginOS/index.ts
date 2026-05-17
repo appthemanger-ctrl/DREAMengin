@@ -7,7 +7,7 @@
  * The existing DREAMenginOS.tsx visual dashboard is untouched.
  */
 
-// ─── Re-exports from capability modules ──────────────────────────────────────
+// --- Re-exports from capability modules --------------------------------------
 
 // slog transform
 export {
@@ -164,7 +164,7 @@ export type {
   GameEnginEvents,
 } from '../gameengin/gameEnginRuntime';
 
-// ─── OS Feature Upgrade ───────────────────────────────────────────────────────
+// --- OS Feature Upgrade -------------------------------------------------------
 
 export type OSFeature = 'ledger' | 'bridge' | 'aiTriad' | 'telemetry';
 

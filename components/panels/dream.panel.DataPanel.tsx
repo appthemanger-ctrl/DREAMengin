@@ -59,7 +59,7 @@ export default function DataPanel() {
         </div>
       </header>
       <div className="max-w-2xl mx-auto px-4 py-6 pb-24 space-y-4">
-        {/* ── System Critical: Volatile Asset Export ── */}
+        {/* -- System Critical: Volatile Asset Export -- */}
         <div
           className="de-system-critical-modal de-ghost-volatile"
           style={{ padding: '0', overflow: 'hidden' }}

@@ -29,7 +29,7 @@ import { InviteFlow } from './dream.InviteFlow';
 import { useSharedDreamSession } from '@/lib/sharedDream/useSharedDreamSession';
 import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 
-// ── Engin slot config ────────────────────────────────────────────────────────
+// -- Engin slot config --------------------------------------------------------
 
 const ENGIN_SLOTS = [
   { key: 'engin:game',       label: 'GameEngin',       icon: '🎮', route: '/app/daydream/games' },
@@ -42,7 +42,7 @@ const ENGIN_SLOTS = [
 
 type EnginKey = (typeof ENGIN_SLOTS)[number]['key'];
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// -- Helpers ------------------------------------------------------------------
 
 function timeAgo(iso: string: string) {
   const ms = Date.now() - new Date(iso).getTime();
@@ -63,7 +63,7 @@ function summarizeEnginState(state: Record<string, unknown>: string) {
   return parts.length > 0 ? parts.join(' · ') : 'Active';
 }
 
-// ── Inner (inside SharedDreamProvider) ───────────────────────────────────────
+// -- Inner (inside SharedDreamProvider) ---------------------------------------
 
 interface InnerProps {
   savedEnginState: Record<string, Record<string, unknown>>;
@@ -255,7 +255,7 @@ function SharedDreamRuntimeInner() {
   );
 }
 
-// ── Public export ─────────────────────────────────────────────────────────────
+// -- Public export -------------------------------------------------------------
 
 export interface SharedDreamRuntimeProps {
   /** UUID of an existing shared_dream_sessions row. Omit to create a new session. */

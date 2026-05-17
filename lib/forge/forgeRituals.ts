@@ -15,7 +15,7 @@
 
 import { FORGE_HISTORY_KEY, CREATIVE_ENGINES, ENGIN_REGISTRY } from './forgeRegistry';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 export type RitualType = 'time-pattern' | 'sequence' | 'session' | 'affinity';
 
@@ -49,7 +49,7 @@ export interface RitualSnapshot {
   computedAt: string;
 }
 
-// ── History Entry type ────────────────────────────────────────────────────────
+// -- History Entry type --------------------------------------------------------
 
 interface HistoryEntry {
   enginId: string;
@@ -57,7 +57,7 @@ interface HistoryEntry {
   timestamp: string;
 }
 
-// ── Constants ─────────────────────────────────────────────────────────────────
+// -- Constants -----------------------------------------------------------------
 
 const MS_PER_HOUR = 3_600_000;
 
@@ -72,7 +72,7 @@ const TIME_BUCKETS = [
   { label: 'night',     start: 21, end: 5,  emoji: '🌙' },
 ] as const;
 
-// ── Core Detection ────────────────────────────────────────────────────────────
+// -- Core Detection ------------------------------------------------------------
 
 /**
  * Read history entries from localStorage.

@@ -62,7 +62,7 @@ export type {
   EnginRuntimeOptions,
 } from './EnginRuntime';
 
-// ─── Factory helper ───────────────────────────────────────────────────────────
+// --- Factory helper -----------------------------------------------------------
 
 import { EnginRuntime } from './EnginRuntime';
 import type { EnginAction, EnginRuleSetContract } from './EnginRuleSetContract';

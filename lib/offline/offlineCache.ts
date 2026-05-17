@@ -16,7 +16,7 @@
  * Privacy: all data stays in the user's browser. No third-party storage.
  */
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// --- Constants ----------------------------------------------------------------
 
 export const DB_NAME = 'dreamengin-offline';
 export const DB_VERSION = 1;
@@ -25,7 +25,7 @@ export const STORE_ASSETS = 'assets';
 export const STORE_SCENES = 'scenes';
 export const STORE_SYNC_QUEUE = 'sync-queue';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 export interface CachedAsset {
   /** Unique asset ID (matches server-side ID when available) */
@@ -89,7 +89,7 @@ export interface SyncQueueEntry {
   queuedAt: string;
 }
 
-// ─── Database initialisation ──────────────────────────────────────────────────
+// --- Database initialisation --------------------------------------------------
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -135,7 +135,7 @@ export function openDB(: Promise<IDBDatabase>) {
   return dbPromise;
 }
 
-// ─── Asset operations ─────────────────────────────────────────────────────────
+// --- Asset operations ---------------------------------------------------------
 
 export async function cacheAsset(asset: CachedAsset: Promise<void>) {
   const db = await openDB();
@@ -177,7 +177,7 @@ export async function listAssets(: Promise<CachedAsset[]>) {
   });
 }
 
-// ─── Scene operations ─────────────────────────────────────────────────────────
+// --- Scene operations ---------------------------------------------------------
 
 export async function saveScene(scene: CachedScene: Promise<void>) {
   const db = await openDB();
@@ -219,7 +219,7 @@ export async function listScenes(: Promise<CachedScene[]>) {
   });
 }
 
-// ─── Sync queue ───────────────────────────────────────────────────────────────
+// --- Sync queue ---------------------------------------------------------------
 
 export async function enqueueSyncAction(entry: Omit<SyncQueueEntry, 'id'>: Promise<void>) {
   const db = await openDB();
@@ -261,7 +261,7 @@ export async function removeSyncEntry(id: number: Promise<void>) {
   });
 }
 
-// ─── Online/Offline detection ─────────────────────────────────────────────────
+// --- Online/Offline detection -------------------------------------------------
 
 export function isOnline(: boolean) {
   if (typeof navigator === 'undefined') return true;
@@ -289,7 +289,7 @@ export function onConnectivityChange(
   };
 }
 
-// ─── Sync engine ──────────────────────────────────────────────────────────────
+// --- Sync engine --------------------------------------------------------------
 
 /**
  * Process the sync queue: attempt to push each pending change to the server.

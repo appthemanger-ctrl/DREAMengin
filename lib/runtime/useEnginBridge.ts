@@ -17,7 +17,7 @@ function ts() {
   return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-// ─── CodeEngin — subscribes to music, games, lab, create, brand ──────────────
+// --- CodeEngin — subscribes to music, games, lab, create, brand --------------
 
 export interface CodeEnginBridgeState {
   lastBpm: number | null;
@@ -81,7 +81,7 @@ export function useCodeEnginBridge(: CodeEnginBridgeState) {
         setLastBrandCampaign(p.title);
         setStatus(s: string => ({ ...s, brand: `Campaign: ${p.title} · ${ts()}` }));
       }),
-      // ── Seam workflow events ─────────────────────────────────────────────────
+      // -- Seam workflow events -------------------------------------------------
       bridge.subscribe('code', 'code:game-script-imported', p: Record<string, unknown> => {
         setLastGameScript(p.gameTitle);
         setStatus(s: string => ({ ...s, seam: `Game script: ${p.gameTitle} · ${ts()}` }));
@@ -111,7 +111,7 @@ export function useCodeEnginBridge(: CodeEnginBridgeState) {
   };
 }
 
-// ─── GameEngin — subscribes to music, code, lab, create, brand ───────────────
+// --- GameEngin — subscribes to music, code, lab, create, brand ---------------
 
 export interface GameEnginBridgeState {
   lastBpm: number | null;
@@ -184,7 +184,7 @@ export function useGameEnginBridge(: GameEnginBridgeState) {
         setLastBrandSegment(p.name);
         setStatus(s: string => ({ ...s, brand: `Segment: ${p.name} · ${ts()}` }));
       }),
-      // ── Seam workflow events ─────────────────────────────────────────────────
+      // -- Seam workflow events -------------------------------------------------
       bridge.subscribe('games', 'games:soundtrack-requested', p: Record<string, unknown> => {
         setLastSoundtrack(p.trackId);
         setStatus(s: string => ({ ...s, seam: `Soundtrack: ${p.trackTitle} · ${ts()}` }));
@@ -225,7 +225,7 @@ export function useGameEnginBridge(: GameEnginBridgeState) {
   };
 }
 
-// ─── StarMakerEngin — subscribes to games, code, lab, create, brand ──────────
+// --- StarMakerEngin — subscribes to games, code, lab, create, brand ----------
 
 export interface StarMakerEnginBridgeState {
   lastGameSession: string | null;
@@ -286,7 +286,7 @@ export function useStarMakerEnginBridge(: StarMakerEnginBridgeState) {
         setLastBrandAsset(p.assetType);
         setStatus(s: string => ({ ...s, brand: `Asset: ${p.assetType} · ${ts()}` }));
       }),
-      // ── Seam workflow events ─────────────────────────────────────────────────
+      // -- Seam workflow events -------------------------------------------------
       bridge.subscribe('music', 'music:visualizer-scene-requested', p: Record<string, unknown> => {
         setLastVisualizerScene(p.assetId);
         setStatus(s: string => ({ ...s, seam: `Visualizer scene: ${p.assetName} · ${ts()}` }));
@@ -311,7 +311,7 @@ export function useStarMakerEnginBridge(: StarMakerEnginBridgeState) {
   };
 }
 
-// ─── LabEngin — subscribes to music, games, code, create, brand ──────────────
+// --- LabEngin — subscribes to music, games, code, create, brand --------------
 
 export interface LabEnginBridgeState {
   lastStem: string | null;
@@ -375,7 +375,7 @@ export function useLabEnginBridge(: LabEnginBridgeState) {
         setLastBrandSnapshot(p.snapshotId);
         setStatus(s: string => ({ ...s, brand: `Snapshot ready · ${ts()}` }));
       }),
-      // ── Seam workflow events ─────────────────────────────────────────────────
+      // -- Seam workflow events -------------------------------------------------
       bridge.subscribe('lab', 'lab:stem-visualization-requested', p: Record<string, unknown> => {
         setLastStemVisualization(p.stemType);
         setStatus(s: string => ({ ...s, seam: `Stem viz: ${p.stemType} · ${ts()}` }));
@@ -405,7 +405,7 @@ export function useLabEnginBridge(: LabEnginBridgeState) {
   };
 }
 
-// ─── BrandingEngin — subscribes to music, games, code, lab, create ───────────
+// --- BrandingEngin — subscribes to music, games, code, lab, create -----------
 
 export interface BrandingEnginBridgeState {
   lastTrack: string | null;
@@ -469,7 +469,7 @@ export function useBrandingEnginBridge(: BrandingEnginBridgeState) {
         setLastPublish(p.contentId);
         setStatus(s: string => ({ ...s, create: `Published · ${ts()}` }));
       }),
-      // ── Seam workflow events ─────────────────────────────────────────────────
+      // -- Seam workflow events -------------------------------------------------
       bridge.subscribe('brand', 'brand:music-release-requested', p: Record<string, unknown> => {
         setLastMusicRelease(p.trackId);
         setStatus(s: string => ({ ...s, seam: `Release: ${p.trackTitle} · ${ts()}` }));
@@ -499,7 +499,7 @@ export function useBrandingEnginBridge(: BrandingEnginBridgeState) {
   };
 }
 
-// ─── ContentEngin — subscribes to music, games, code, lab, brand ─────────────
+// --- ContentEngin — subscribes to music, games, code, lab, brand -------------
 
 export interface ContentEnginBridgeState {
   lastStem: string | null;
@@ -572,7 +572,7 @@ export function useContentEnginBridge(: ContentEnginBridgeState) {
         setLastBrandAsset(p.assetType);
         setStatus(s: string => ({ ...s, brand: `Asset: ${p.assetType} · ${ts()}` }));
       }),
-      // ── Seam workflow events ─────────────────────────────────────────────────
+      // -- Seam workflow events -------------------------------------------------
       bridge.subscribe('create', 'create:music-attached', p: Record<string, unknown> => {
         setLastMusicAttached(p.trackId);
         setStatus(s: string => ({ ...s, seam: `Music: ${p.trackTitle} · ${ts()}` }));

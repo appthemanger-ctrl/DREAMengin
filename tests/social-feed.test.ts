@@ -17,7 +17,7 @@ import {
   type SocialFeedItem,
 } from '@/lib/social-feed';
 
-// ── A. stripHtml ──────────────────────────────────────────────────────────
+// -- A. stripHtml ----------------------------------------------------------
 
 describe('social-feed stripHtml', () => {
   it('removes HTML tags', () => {
@@ -35,7 +35,7 @@ describe('social-feed stripHtml', () => {
   });
 });
 
-// ── B. extractFirstImage ──────────────────────────────────────────────────
+// -- B. extractFirstImage --------------------------------------------------
 
 describe('social-feed extractFirstImage', () => {
   it('returns enclosure.url when present', () => {
@@ -85,7 +85,7 @@ describe('social-feed extractFirstImage', () => {
   });
 });
 
-// ── C. fetchSocialFeed (mocked) ───────────────────────────────────────────
+// -- C. fetchSocialFeed (mocked) -------------------------------------------
 
 describe('fetchSocialFeed', () => {
   beforeEach(() => {

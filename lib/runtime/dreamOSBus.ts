@@ -193,7 +193,7 @@ class DreamOSBusImpl {
     this.notify();
   }
 
-  // ── Improvement 62: getArtifact ───────────────────────────────────────────
+  // -- Improvement 62: getArtifact -------------------------------------------
 
   /**
    * O(1) lookup of an artifact by its ID.
@@ -203,7 +203,7 @@ class DreamOSBusImpl {
     return this.artifacts.get(id) ?? null;
   }
 
-  // ── Improvement 63: removeArtifact ───────────────────────────────────────
+  // -- Improvement 63: removeArtifact ---------------------------------------
 
   /**
    * Remove a specific artifact from the bus and notify subscribers.
@@ -215,7 +215,7 @@ class DreamOSBusImpl {
     this.notify();
   }
 
-  // ── Improvement 64: clearArtifacts ───────────────────────────────────────
+  // -- Improvement 64: clearArtifacts ---------------------------------------
 
   /**
    * Remove all artifacts without touching runtime contexts.
@@ -226,7 +226,7 @@ class DreamOSBusImpl {
     this.notify();
   }
 
-  // ── Improvement 65: getArtifactsByKind ───────────────────────────────────
+  // -- Improvement 65: getArtifactsByKind -----------------------------------
 
   /**
    * Return all artifacts with the given kind, sorted newest-first.
@@ -238,7 +238,7 @@ class DreamOSBusImpl {
       .sort(a: Record<string, unknown>, b: Record<string, unknown> => b.updatedAt - a.updatedAt);
   }
 
-  // ── Improvement 66: getArtifactCount ─────────────────────────────────────
+  // -- Improvement 66: getArtifactCount -------------------------------------
 
   /**
    * Return the number of artifacts currently in the bus.
@@ -248,7 +248,7 @@ class DreamOSBusImpl {
     return this.artifacts.size;
   }
 
-  // ── Improvement 67: watchArtifact ────────────────────────────────────────
+  // -- Improvement 67: watchArtifact ----------------------------------------
 
   /**
    * Subscribe to changes on a single artifact by ID.

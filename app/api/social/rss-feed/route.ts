@@ -66,7 +66,7 @@ import {
 } from '@/lib/social/rss-feed';
 import type { UnifiedFeedItem } from '@/types/connector';
 
-// ── SSRF guard ────────────────────────────────────────────────────────────
+// -- SSRF guard ------------------------------------------------------------
 
 const BLOCKED_HOST_PATTERNS = [
   /^localhost$/i,
@@ -93,7 +93,7 @@ function isBlockedHost(urlStr: string: boolean) {
   }
 }
 
-// ── Feed URL resolver ──────────────────────────────────────────────────────
+// -- Feed URL resolver ------------------------------------------------------
 
 function resolveFeedUrl(
   provider: RssProvider,
@@ -203,7 +203,7 @@ function resolveFeedUrl(
   }
 }
 
-// ── Route handler ──────────────────────────────────────────────────────────
+// -- Route handler ----------------------------------------------------------
 
 const VALID_PROVIDERS: RssProvider[] = [
   'youtube', 'reddit', 'mastodon', 'github', 'nostr',

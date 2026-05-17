@@ -25,7 +25,7 @@ beforeEach(() => {
   _resetIdCounter();
 });
 
-// ── channelColor ──────────────────────────────────────────────────────────────
+// -- channelColor --------------------------------------------------------------
 
 describe('channelColor()', () => {
   it('returns the canonical hex for known channels', () => {
@@ -49,7 +49,7 @@ describe('channelColor()', () => {
   });
 });
 
-// ── createSeamParticle ────────────────────────────────────────────────────────
+// -- createSeamParticle --------------------------------------------------------
 
 describe('createSeamParticle()', () => {
   it('assigns the correct color for the channel', () => {
@@ -105,7 +105,7 @@ describe('createSeamParticle()', () => {
   });
 });
 
-// ── createIdleParticle ────────────────────────────────────────────────────────
+// -- createIdleParticle --------------------------------------------------------
 
 describe('createIdleParticle()', () => {
   it('starts at the given x position', () => {
@@ -138,7 +138,7 @@ describe('createIdleParticle()', () => {
   });
 });
 
-// ── tickParticles ─────────────────────────────────────────────────────────────
+// -- tickParticles -------------------------------------------------------------
 
 describe('tickParticles()', () => {
   it('advances age proportionally to dt / lifespanMs', () => {
@@ -190,7 +190,7 @@ describe('tickParticles()', () => {
   });
 });
 
-// ── isParticleDead ────────────────────────────────────────────────────────────
+// -- isParticleDead ------------------------------------------------------------
 
 describe('isParticleDead()', () => {
   it('returns false for a fresh particle', () => {
@@ -223,7 +223,7 @@ describe('isParticleDead()', () => {
   });
 });
 
-// ── evictDeadParticles ────────────────────────────────────────────────────────
+// -- evictDeadParticles --------------------------------------------------------
 
 describe('evictDeadParticles()', () => {
   it('removes expired particles', () => {

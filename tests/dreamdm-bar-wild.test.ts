@@ -34,7 +34,7 @@ import {
   type StreakTier,
 } from '@/lib/dreamdm/barInteractions';
 
-// ── Mood Aura System ─────────────────────────────────────────────────────────
+// -- Mood Aura System ---------------------------------------------------------
 
 describe('getMoodPeriod', () => {
   it('returns dawn for hours 5–7', () => {
@@ -111,7 +111,7 @@ describe('Surface accent colors', () => {
   });
 });
 
-// ── Slash Commands ──────────────────────────────────────────────────────────
+// -- Slash Commands ----------------------------------------------------------
 
 describe('SLASH_COMMANDS', () => {
   it('has at least 10 commands', () => {
@@ -179,7 +179,7 @@ describe('filterSlashCommands', () => {
   });
 });
 
-// ── Typing Rhythm Visualizer ─────────────────────────────────────────────────
+// -- Typing Rhythm Visualizer -------------------------------------------------
 
 describe('computeTypingRhythm', () => {
   it('returns 0 for fewer than 2 keystrokes', () => {
@@ -227,7 +227,7 @@ describe('rhythmToHandleScale', () => {
   });
 });
 
-// ── Dream Streak Counter ────────────────────────────────────────────────────
+// -- Dream Streak Counter ----------------------------------------------------
 
 describe('todayDateString', () => {
   it('returns an ISO date string in YYYY-MM-DD format', () => {
@@ -304,7 +304,7 @@ describe('STREAK_STORAGE_KEY', () => {
   });
 });
 
-// ── Quick React Emoji Row ──────────────────────────────────────────────────
+// -- Quick React Emoji Row --------------------------------------------------
 
 describe('QUICK_REACTIONS', () => {
   it('has at least 5 reactions', () => {
@@ -326,7 +326,7 @@ describe('QUICK_REACTIONS', () => {
   });
 });
 
-// ── Gold Button Long-Press ──────────────────────────────────────────────────
+// -- Gold Button Long-Press --------------------------------------------------
 
 describe('GOLD_LONG_PRESS_MS', () => {
   it('is 800ms', () => {

@@ -79,7 +79,7 @@ export class NeuralUpscaler {
   get ratioValue(): UpscaleRatio { return this.ratio; }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 export interface NTCBlock {
   /** Latent vector (typically 8–16 floats) representing the texture block. */
@@ -140,7 +140,7 @@ export class NeuralTextureCompression {
   get tileSizePx(): number { return this.tileSize; }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// -----------------------------------------------------------------------------
 
 export interface FrameGenConfig {
   /** Target multiplier (2 = generate 1 in-between frame; 3 = generate 2). */

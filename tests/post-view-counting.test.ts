@@ -12,7 +12,7 @@
 
 import { describe, expect, it } from 'vitest';
 
-// ── Types mirrored from the route ─────────────────────────────────────────────
+// -- Types mirrored from the route ---------------------------------------------
 
 interface PostRow {
   id: string;
@@ -26,7 +26,7 @@ interface ViewRecord {
   viewer_id: string;
 }
 
-// ── Pure counting logic (extracted for testability) ───────────────────────────
+// -- Pure counting logic (extracted for testability) ---------------------------
 
 /**
  * Resolves the root post by following original_post_id chain.
@@ -103,7 +103,7 @@ function applyViewCount(
   return { counted: true, newViewCount: root.view_count + 1 };
 }
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
+// -- Tests ---------------------------------------------------------------------
 
 describe('View counting: exclusion rules', () => {
   const posts = new Map<string, PostRow>([

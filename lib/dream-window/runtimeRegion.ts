@@ -6,12 +6,12 @@
  * lib/identity/canonical-names.ts.
  *
  * Regions:
- *   ┌──────────────────────────────────────┐
- *   │          Surface Space               │  ← hosts active surfaces
- *   │  (HomeDream, Daydreams, Engins …)   │
- *   ├──────── DreamDM Bar / Seam ──────────┤  ← Runtime Seam
- *   │          DreamSpace                  │  ← hosts Dream Windows + launcher
- *   └──────────────────────────────────────┘
+ *   ┌--------------------------------------┐
+ *   |          Surface Space               |  ← hosts active surfaces
+ *   |  (HomeDream, Daydreams, Engins …)   |
+ *   ├-------- DreamDM Bar / Seam ----------┤  ← Runtime Seam
+ *   |          DreamSpace                  |  ← hosts Dream Windows + launcher
+ *   └--------------------------------------┘
  *
  * Architecture: docs/ARCHITECTURE.md §1 (Runtime regions)
  * Naming: docs/NAMING_AUTHORITY.md §6 (OS-layer naming)

@@ -44,14 +44,14 @@ export async function GET(req: NextRequest: Promise<NextResponse>) {
   const origin = url.origin;
   const connectorsUrl = `${origin}/connectors`;
 
-  // ── Handle provider-side errors ──────────────────────────────────────────
+  // -- Handle provider-side errors ------------------------------------------
   if (error) {
     const dest = new URL(connectorsUrl);
     dest.searchParams.set('yt_error', error);
     return NextResponse.redirect(dest);
   }
 
-  // ── CSRF state check ────────────────────────────────────────────────────
+  // -- CSRF state check ----------------------------------------------------
   const cookieStore = await cookies();
   const storedState = cookieStore.get('yt_oauth_state')?.value ?? '';
   cookieStore.delete('yt_oauth_state');
@@ -62,14 +62,14 @@ export async function GET(req: NextRequest: Promise<NextResponse>) {
     return NextResponse.redirect(dest);
   }
 
-  // ── Auth check — user must be signed in ─────────────────────────────────
+  // -- Auth check — user must be signed in ---------------------------------
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.redirect(`${origin}/login?next=/connectors`);
   }
 
-  // ── Exchange code for tokens ─────────────────────────────────────────────
+  // -- Exchange code for tokens ---------------------------------------------
   const clientId     = process.env.GOOGLE_CLIENT_ID     ?? '';
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET ?? '';
   const siteUrl      = process.env.NEXT_PUBLIC_SITE_URL ?? '';
@@ -108,7 +108,7 @@ export async function GET(req: NextRequest: Promise<NextResponse>) {
     return NextResponse.redirect(dest);
   }
 
-  // ── Store token in connector_accounts ────────────────────────────────────
+  // -- Store token in connector_accounts ------------------------------------
    
   const db = supabase as SupabaseClient;
   const now = new Date().toISOString();
@@ -143,7 +143,7 @@ export async function GET(req: NextRequest: Promise<NextResponse>) {
     return NextResponse.redirect(dest);
   }
 
-  // ── Success — redirect back to connectors page ────────────────────────────
+  // -- Success — redirect back to connectors page ----------------------------
   const dest = new URL(connectorsUrl);
   dest.searchParams.set('yt_connected', '1');
   return NextResponse.redirect(dest);

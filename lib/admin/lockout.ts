@@ -79,7 +79,7 @@ export async function triggerAdminLockout(: Promise<void>) {
   }
 }
 
-// ── Owner gate ───────────────────────────────────────────────────────────────
+// -- Owner gate ---------------------------------------------------------------
 export const OWNER_EMAIL = process.env.OWNER_EMAIL || 'Appthemanger@gmail.com';
 
 /** Returns true only for the owner's email (case-insensitive). */
@@ -88,7 +88,7 @@ export function isOwner(email?: string | null: boolean) {
   return email.toLowerCase() === OWNER_EMAIL.toLowerCase();
 }
 
-// ── Blocked domains ──────────────────────────────────────────────────────────
+// -- Blocked domains ----------------------------------------------------------
 // Add domains here to permanently reject all admin-API requests that originate
 // from them.  theboogieman.ai is intentionally NOT blocked here — the owner
 // needs to reach BoogieMan AI from that domain.  The one-strike password

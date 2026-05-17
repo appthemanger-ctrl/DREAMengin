@@ -40,7 +40,7 @@ function makePost(overrides: Partial<ScoredPost> =) {}): ScoredPost {
   };
 }
 
-// ── computeViewVelocity ──────────────────────────────────────────────────────
+// -- computeViewVelocity ------------------------------------------------------
 
 describe('computeViewVelocity', () => {
   it('returns 0 for zero or undefined views', () => {
@@ -70,7 +70,7 @@ describe('computeViewVelocity', () => {
   });
 });
 
-// ── scoreViewVelocity ────────────────────────────────────────────────────────
+// -- scoreViewVelocity --------------------------------------------------------
 
 describe('scoreViewVelocity', () => {
   it('returns 0 for zero / negative / non-finite velocity', () => {
@@ -105,7 +105,7 @@ describe('scoreViewVelocity', () => {
   });
 });
 
-// ── dominantSignal ───────────────────────────────────────────────────────────
+// -- dominantSignal -----------------------------------------------------------
 
 describe('dominantSignal', () => {
   function sig(overrides: Partial<DreamRSignals>): DreamRSignals {
@@ -150,7 +150,7 @@ describe('dominantSignal', () => {
   });
 });
 
-// ── DREAMR_REASONS ───────────────────────────────────────────────────────────
+// -- DREAMR_REASONS -----------------------------------------------------------
 
 describe('DREAMR_REASONS', () => {
   it('has a phrase for every signal in DREAMR_WEIGHTS', () => {
@@ -168,7 +168,7 @@ describe('DREAMR_REASONS', () => {
   });
 });
 
-// ── scoreDreamRPost — new outputs ────────────────────────────────────────────
+// -- scoreDreamRPost — new outputs --------------------------------------------
 
 describe('scoreDreamRPost — transparency outputs', () => {
   it('returns viewVelocity, dominantSignal and reason', () => {
@@ -242,7 +242,7 @@ describe('scoreDreamRPost — transparency outputs', () => {
   });
 });
 
-// ── rankFeed — attaches new fields ───────────────────────────────────────────
+// -- rankFeed — attaches new fields -------------------------------------------
 
 describe('rankFeed — attaches transparency fields', () => {
   it('every post has dominant_signal, dreamr_reason and view_velocity', () => {

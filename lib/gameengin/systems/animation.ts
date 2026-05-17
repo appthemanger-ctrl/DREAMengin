@@ -11,7 +11,7 @@
  * `AnimationFSM` and `EventBus` are canonical short-form aliases.
  */
 
-// ─── Classes ─────────────────────────────────────────────────────────────────
+// --- Classes -----------------------------------------------------------------
 
 export {
   AnimationStateMachine,
@@ -25,7 +25,7 @@ export { AnimationStateMachine as AnimationFSM } from '../power-systems';
 /** Alias: EventBus → TypedEventBus. */
 export { TypedEventBus as EventBus } from '../power-systems';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// --- Types -------------------------------------------------------------------
 
 export type {
   AnimationClip,

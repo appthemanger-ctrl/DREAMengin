@@ -120,7 +120,7 @@ export default function EditProfileDreamPage() {
       });
       localStorage.setItem('de-profile-widget-order', JSON.stringify(widgets));
 
-      // ── Phase 6 item 7: Log visibility-change events to TheBoogieMan ────────
+      // -- Phase 6 item 7: Log visibility-change events to TheBoogieMan --------
       // On a private save, detect Dream Windows whose visibility changed and log
       // VISIBILITY_CHANGE events (no update_mapping — draft not yet published).
       // Per dreamengin_phase6.md point 7: log ALL privacy-adjacent decisions.
@@ -287,7 +287,7 @@ export default function EditProfileDreamPage() {
       paddingBottom: 100,
       position: 'relative',
     }}>
-      {/* ── Inline header (not sticky — DreamDMBar is the persistent navigation) ── */}
+      {/* -- Inline header (not sticky — DreamDMBar is the persistent navigation) -- */}
       <header style={{
         background: 'rgba(7,14,28,0.85)',
         backdropFilter: 'blur(24px)',
@@ -419,7 +419,7 @@ export default function EditProfileDreamPage() {
         </div>
       )}
 
-      {/* ── Widgets tab ── */}
+      {/* -- Widgets tab -- */}
       {activeTab === 'widgets' && (
         <div style={{ padding: '16px 14px' }}>
           <ProfileWidgetGrid
@@ -435,7 +435,7 @@ export default function EditProfileDreamPage() {
         </div>
       )}
 
-      {/* ── Info tab ── */}
+      {/* -- Info tab -- */}
       {activeTab === 'info' && (
         <div style={{ padding: '16px 14px' }}>
 

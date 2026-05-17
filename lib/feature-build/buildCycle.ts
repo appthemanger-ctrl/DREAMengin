@@ -16,7 +16,7 @@
 
 import type { DaydreamEnginManifest, FeatureStatus } from './featureManifest';
 
-// ─── Phase ────────────────────────────────────────────────────────────────────
+// --- Phase --------------------------------------------------------------------
 
 /**
  * BUILD   → core feature integration; usable fraction below refineThreshold.
@@ -25,7 +25,7 @@ import type { DaydreamEnginManifest, FeatureStatus } from './featureManifest';
  */
 export type BuildPhase = 'BUILD' | 'UPGRADE' | 'REFINE';
 
-// ─── Progress snapshot ────────────────────────────────────────────────────────
+// --- Progress snapshot --------------------------------------------------------
 
 export interface BuildCycleState {
   domain: string;
@@ -43,7 +43,7 @@ export interface BuildCycleState {
   usablePct: number;
 }
 
-// ─── Core functions ───────────────────────────────────────────────────────────
+// --- Core functions -----------------------------------------------------------
 
 /**
  * Determine the phase for a Daydream+Engin pair.

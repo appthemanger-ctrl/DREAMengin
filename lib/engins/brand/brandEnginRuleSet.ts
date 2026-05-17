@@ -26,7 +26,7 @@ import {
 } from '@/lib/engin-runtime/EnginBaseState';
 import type { EnginCapability } from '@/lib/engin-runtime/EnginCapabilities';
 
-// ─── Profile ──────────────────────────────────────────────────────────────────
+// --- Profile ------------------------------------------------------------------
 
 export interface BrandProfile {
   handle: string;
@@ -34,7 +34,7 @@ export interface BrandProfile {
   followerCount: number;
 }
 
-// ─── Analytic metric ──────────────────────────────────────────────────────────
+// --- Analytic metric ----------------------------------------------------------
 
 export interface AnalyticMetric {
   id: string;
@@ -43,7 +43,7 @@ export interface AnalyticMetric {
   trend: 'up' | 'down' | 'flat';
 }
 
-// ─── A/B test ─────────────────────────────────────────────────────────────────
+// --- A/B test -----------------------------------------------------------------
 
 export interface ABTest {
   id: string;
@@ -54,7 +54,7 @@ export interface ABTest {
   winner?: 'A' | 'B';
 }
 
-// ─── Brand asset ──────────────────────────────────────────────────────────────
+// --- Brand asset --------------------------------------------------------------
 
 export interface BrandAsset {
   id: string;
@@ -63,7 +63,7 @@ export interface BrandAsset {
   value: string;
 }
 
-// ─── Domain state shape ───────────────────────────────────────────────────────
+// --- Domain state shape -------------------------------------------------------
 
 export interface BrandEnginDerivedState extends Record<string, unknown> {
   lifecycle: EnginBaseState['lifecycle'];
@@ -76,7 +76,7 @@ export interface BrandEnginDerivedState extends Record<string, unknown> {
   brandCheckPayload: Record<string, unknown> | null;
 }
 
-// ─── Action discriminated union ───────────────────────────────────────────────
+// --- Action discriminated union -----------------------------------------------
 
 export type BrandEnginAction =
   | EnginAction<'brand:profile-loaded',    { profile: BrandProfile }>
@@ -89,7 +89,7 @@ export type BrandEnginAction =
   | EnginAction<'brand:audio-brief',       Record<string, never>>
   | EnginAction<'brand:check-received',    { payload: Record<string, unknown> }>;
 
-// ─── Default domain state ─────────────────────────────────────────────────────
+// --- Default domain state -----------------------------------------------------
 
 const DEFAULT_METRICS: AnalyticMetric[] = [
   { id: 'reach',  label: 'Reach',           value: '—', trend: 'flat' },
@@ -108,7 +108,7 @@ const DEFAULT_DOMAIN: Omit<BrandEnginDerivedState, 'lifecycle'> = {
   brandCheckPayload: null,
 };
 
-// ─── Constraints ──────────────────────────────────────────────────────────────
+// --- Constraints --------------------------------------------------------------
 
 const abTestAddConstraint: EnginConstraint<BrandEnginAction> = (
   _state,
@@ -134,7 +134,7 @@ const winnerConstraint: EnginConstraint<BrandEnginAction> = (
   return { valid: true };
 };
 
-// ─── Transform ────────────────────────────────────────────────────────────────
+// --- Transform ----------------------------------------------------------------
 
 function transform(state: EnginBaseState, action: BrandEnginAction: EnginBaseState) {
   const domain = (state.domain as Partial<typeof DEFAULT_DOMAIN>);
@@ -200,7 +200,7 @@ function transform(state: EnginBaseState, action: BrandEnginAction: EnginBaseSta
   }
 }
 
-// ─── deriveState ──────────────────────────────────────────────────────────────
+// --- deriveState --------------------------------------------------------------
 
 function deriveState(state: EnginBaseState: BrandEnginDerivedState) {
   const d = state.domain as Partial<typeof DEFAULT_DOMAIN>;
@@ -216,7 +216,7 @@ function deriveState(state: EnginBaseState: BrandEnginDerivedState) {
   };
 }
 
-// ─── Rule-set params ──────────────────────────────────────────────────────────
+// --- Rule-set params ----------------------------------------------------------
 
 const PARAMS: EnginRuleSetParams = {
   enginId: 'brand',
@@ -234,7 +234,7 @@ const REQUIRED_CAPABILITIES: ReadonlyArray<EnginCapability> = [
   'bridge:listen',
 ];
 
-// ─── Exported rule-set ────────────────────────────────────────────────────────
+// --- Exported rule-set --------------------------------------------------------
 
 export const BRAND_ENGIN_RULE_SET: EnginRuleSetContract<BrandEnginAction> = {
   params: PARAMS,

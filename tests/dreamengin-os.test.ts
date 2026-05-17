@@ -9,7 +9,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// ── Stubs ─────────────────────────────────────────────────────────────────────
+// -- Stubs ---------------------------------------------------------------------
 
 const mockEngine = {
   runRenderLoop: vi.fn(),
@@ -52,7 +52,7 @@ vi.mock('@babylonjs/havok', () => ({
   default: vi.fn().mockResolvedValue({}),
 }));
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
+// -- Tests ---------------------------------------------------------------------
 
 describe('DREAMenginOS', () => {
   beforeEach(() => {

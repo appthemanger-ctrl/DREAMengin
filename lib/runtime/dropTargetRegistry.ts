@@ -16,7 +16,7 @@
 import type { DreamDrop, DreamDropType } from '@/lib/runtime/coercionTable';
 import type { RuntimeId } from '@/types/module-manifest';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 export interface DropTarget {
   /** Unique identifier for this target. */
@@ -34,7 +34,7 @@ export interface DropTarget {
   onDrop: (drop: DreamDrop) => void;
 }
 
-// ── Registry ──────────────────────────────────────────────────────────────────
+// -- Registry ------------------------------------------------------------------
 
 class DropTargetRegistry {
   private readonly _targets = new Map<string, DropTarget>();

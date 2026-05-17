@@ -22,7 +22,7 @@ import {
   type SessionClip,
 } from '@/lib/music/starmakerDaw';
 
-// ─── Theme ────────────────────────────────────────────────────────────────────
+// --- Theme --------------------------------------------------------------------
 
 const T = {
   bg:          '#0d0f17',
@@ -43,7 +43,7 @@ const CELL_W = 104;
 const CELL_H = 40;
 const HEADER_H = 68;
 
-// ─── Props ────────────────────────────────────────────────────────────────────
+// --- Props --------------------------------------------------------------------
 
 interface SessionViewPanelProps {
   state: SessionViewState;
@@ -51,7 +51,7 @@ interface SessionViewPanelProps {
   onStateChange: (next: SessionViewState) => void;
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// --- Component ----------------------------------------------------------------
 
 export default function SessionViewPanel() { state, bpm: Record<string, unknown>, onStateChange }: SessionViewPanelProps {
   const [isOpen, setIsOpen] = useState(false);
@@ -163,7 +163,7 @@ export default function SessionViewPanel() { state, bpm: Record<string, unknown>
 
   return (
     <div style={{ background: T.surface, borderBottom: `1px solid ${T.border}` }}>
-      {/* ── Header ── */}
+      {/* -- Header -- */}
       <div style={{
         display: 'flex', alignItems: 'center', gap: 8,
         padding: '8px 12px',
@@ -203,7 +203,7 @@ export default function SessionViewPanel() { state, bpm: Record<string, unknown>
           {/* Outer grid */}
           <div style={{ minWidth: (CELL_W * tracks.length) + 100, userSelect: 'none' }}>
 
-            {/* ── Track headers ── */}
+            {/* -- Track headers -- */}
             <div style={{ display: 'flex', marginLeft: 80 }}>
               {tracks.map(track => {
                 const isEffective = isSoloActive ? soloTrackId === track.id : !track.muted;
@@ -287,7 +287,7 @@ export default function SessionViewPanel() { state, bpm: Record<string, unknown>
               })}
             </div>
 
-            {/* ── Scene rows ── */}
+            {/* -- Scene rows -- */}
             {scenes.map(scene: Record<string, unknown>, sceneIndex: Record<string, unknown> => (
               <div key={scene.id} style={{ display: 'flex' }}>
                 {/* Scene launch button */}
@@ -411,7 +411,7 @@ export default function SessionViewPanel() { state, bpm: Record<string, unknown>
               </div>
             ))}
 
-            {/* ── Stop buttons row ── */}
+            {/* -- Stop buttons row -- */}
             <div style={{ display: 'flex', marginTop: 4 }}>
               {/* Stop All */}
               <div style={{ width: 80, flexShrink: 0, padding: '0 6px' }}>

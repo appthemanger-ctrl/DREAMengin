@@ -19,7 +19,7 @@
 import { createClient } from '@/lib/supabase/client';
 import { decodeLedgerStringToUint8Array, encodeUint8ArrayToLedgerString } from '@/lib/media/ledger';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+// -- Types ---------------------------------------------------------------------
 
 export interface GameAsset {
   id: string;
@@ -49,9 +49,9 @@ export interface WasmOutput {
   dna: unknown;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// -- Helpers -------------------------------------------------------------------
 
-// ── DreamEngine ───────────────────────────────────────────────────────────────
+// -- DreamEngine ---------------------------------------------------------------
 
 export const DreamEngine = {
   /**

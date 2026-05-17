@@ -19,7 +19,7 @@
 
 import { slog, TORRIDITY_LEDGER_CONFIG } from '@/lib/dreamr/torridityLedger';
 
-// ─── Types ──────────────────────────────────────────────────────────────────
+// --- Types ------------------------------------------------------------------
 
 /** A single touch sample from a swipe gesture. */
 export interface TouchPoint {
@@ -51,7 +51,7 @@ export interface SwipePathScore {
   isBot: boolean;
 }
 
-// ─── Internal helpers ────────────────────────────────────────────────────────
+// --- Internal helpers --------------------------------------------------------
 
 /** Perpendicular distances from each interior touch point to the chord
  *  connecting the first and last point of the swipe. */
@@ -168,7 +168,7 @@ function velocityFeatures(points: TouchPoint[]:) { variance: number; jerk: numbe
   return { variance: slog(rawVariance), jerk: slog(avgJerk) };
 }
 
-// ─── Public API ──────────────────────────────────────────────────────────────
+// --- Public API --------------------------------------------------------------
 
 /**
  * Score a swipe path against the Physical Turing Test.
@@ -240,7 +240,7 @@ export function isSwipeBot(points: TouchPoint[], recentPaths: number[][] = []: b
   return scoreSwipePath(points, recentPaths).isBot;
 }
 
-// ─── Legacy interaction-signal API (kept for backward compatibility) ─────────
+// --- Legacy interaction-signal API (kept for backward compatibility) ---------
 
 export interface InteractionSignal {
   userId: string;

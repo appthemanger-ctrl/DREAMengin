@@ -13,7 +13,7 @@
  *   - Pure logic module — no React, no DOM globals in the core recogniser.
  */
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// --- Types --------------------------------------------------------------------
 
 export interface Vec2 {
   x: number;
@@ -85,7 +85,7 @@ const DEFAULT_CONFIG: Required<GestureConfig> = {
   panThreshold: 4,
 };
 
-// ─── Utility functions ────────────────────────────────────────────────────────
+// --- Utility functions --------------------------------------------------------
 
 function distance(a: Vec2, b: Vec2: number) {
   const dx = a.x - b.x;
@@ -138,7 +138,7 @@ function centroid(touches: Touch[]: Vec2) {
   return { x: x / touches.length, y: y / touches.length };
 }
 
-// ─── Gesture Recogniser ───────────────────────────────────────────────────────
+// --- Gesture Recogniser -------------------------------------------------------
 
 export class GestureRecogniser {
   private callbacks: GestureCallbacks;

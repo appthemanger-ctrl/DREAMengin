@@ -5,11 +5,11 @@
  * Compatible with the existing universalEditor.ts in lib/.
  */
 
-// ─── Runtime IDs ──────────────────────────────────────────────────────────────
+// --- Runtime IDs --------------------------------------------------------------
 
 export type RuntimeId = 'HomeDream' | 'DreamSpace' | 'Daydream' | 'Engin';
 
-// ─── UI Hints ─────────────────────────────────────────────────────────────────
+// --- UI Hints -----------------------------------------------------------------
 
 export interface UIHints {
   minWidth?:     number;
@@ -19,7 +19,7 @@ export interface UIHints {
   [key: string]: unknown;
 }
 
-// ─── Module Manifest ──────────────────────────────────────────────────────────
+// --- Module Manifest ----------------------------------------------------------
 
 export interface ModuleManifest {
   /** Unique module identifier. */
@@ -36,7 +36,7 @@ export interface ModuleManifest {
   uiHints?: UIHints;
 }
 
-// ─── Factory ──────────────────────────────────────────────────────────────────
+// --- Factory ------------------------------------------------------------------
 
 /**
  * createManifest(overrides)
@@ -55,7 +55,7 @@ export function createManifest(
   };
 }
 
-// ─── Validation helpers ───────────────────────────────────────────────────────
+// --- Validation helpers -------------------------------------------------------
 
 /** Returns true when the manifest is valid (has id, type, at least one compat runtime). */
 export function isValidManifest(m: unknown: m is ModuleManifest) {
