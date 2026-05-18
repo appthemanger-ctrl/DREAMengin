@@ -35,10 +35,10 @@ const DR = {
   font:        'var(--font-dreamr,"Plus Jakarta Sans",system-ui,sans-serif)',
 } as const;
 
-function nmR(s = 5: string ){
+function nmR(s: number = 5): string {
   return `${-s}px ${-s}px ${s*2.4}px ${DR.shadowLight}, ${s}px ${s}px ${s*2.8}px ${DR.shadowDark}`;
 }
-function nmI(s = 4: string ){
+function nmI(s: number = 4): string {
   return `inset ${-s}px ${-s}px ${s*2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s*2.4}px ${DR.shadowDark}`;
 }
 

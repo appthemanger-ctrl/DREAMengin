@@ -217,7 +217,7 @@ function buildUserExplanation(params: {
 // evidence_refs = hashes/IDs only, never raw private content (req 19)
 // ============================================================================
 
-function buildAuditEvent(params: ){
+function buildAuditEvent(params: {
   userId: string;
   action: EnforcementAction;
   severity: number;

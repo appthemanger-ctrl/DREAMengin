@@ -375,7 +375,7 @@ interface GameRemoteProps {
   exitHref?: string;
 }
 
-export default function GameRemote(){
+export default function GameRemote({
   onBack,
   embedded = false,
   playHref,
