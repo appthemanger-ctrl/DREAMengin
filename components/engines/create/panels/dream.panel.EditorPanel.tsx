@@ -92,7 +92,7 @@ export default function EditorPanel( ){
 
         {/* Content type selector */}
         <div className="flex gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/10 mb-5">
-          {CONTENT_TYPES.map((type: Record<string, unknown>) => (
+          {CONTENT_TYPES.map((type) => (
             <button
               key={type}
               onClick={() => { setContentType(type); setDraft(''); setTemplateIdx(0); }}
@@ -116,7 +116,7 @@ export default function EditorPanel( ){
             { icon: Hash,    fn: () => insertFormat('#'),        title: 'Heading' },
             { icon: Link2,   fn: () => insertFormat('[', '](url)'), title: 'Link' },
             { icon: List,    fn: () => insertFormat('\n- '),     title: 'List item' },
-          ].map({ icon: Icon, fn: (...args: unknown[]) => unknown, title } => (
+          ].map(({ icon, fn, title }) => (
             <button
               key={title}
               onClick={fn}

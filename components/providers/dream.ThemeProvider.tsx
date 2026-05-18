@@ -29,7 +29,7 @@ export function useTheme(): ThemeContextValue {
   return ctx;
 }
 
-export default function ThemeProvider({ children }: ) { children: React.ReactNode } {
+export default function ThemeProvider({ children }: {children: React.ReactNode}) {
   const [presetId, setPresetIdState] = useState('dream-ice');
   const [overrides, setOverridesState] = useState<UserOverrides>(DEFAULT_OVERRIDES);
   const [mounted, setMounted] = useState(false);
@@ -45,7 +45,7 @@ export default function ThemeProvider({ children }: ) { children: React.ReactNod
 
   const setPreset = useCallback((id: string) => {
     setPresetIdState(id);
-    setOverridesState((prev: Record<string, unknown>) => {
+    setOverridesState((prev) => {
       applyTheme(id, prev);
       saveTheme(id, prev);
       return prev;
@@ -53,7 +53,7 @@ export default function ThemeProvider({ children }: ) { children: React.ReactNod
   }, []);
 
   const setOverrides = useCallback((partial: Partial<UserOverrides>) => {
-    setOverridesState((prev: Record<string, unknown>) => {
+    setOverridesState((prev) => {
       const next = { ...prev, ...partial };
       applyTheme(presetId, next);
       saveTheme(presetId, next);

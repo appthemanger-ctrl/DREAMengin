@@ -76,7 +76,7 @@ export function useGameInputKeyboardBridge( ){
     const getInputKey = (input: KeyboardInput) => `${input.code}:${input.key}`;
 
     const pressInputs = (inputs: KeyboardInput[]) => {
-      inputs.forEach((input: Record<string, unknown>) => {
+      inputs.forEach((input) => {
         const inputKey = getInputKey(input);
         const nextCount = (pressedCounts.get(inputKey) ?? 0) + 1;
         pressedCounts.set(inputKey, nextCount);
@@ -85,7 +85,7 @@ export function useGameInputKeyboardBridge( ){
     };
 
     const releaseInputs = (inputs: KeyboardInput[]) => {
-      inputs.forEach((input: Record<string, unknown>) => {
+      inputs.forEach((input) => {
         const inputKey = getInputKey(input);
         const prevCount = pressedCounts.get(inputKey) ?? 0;
         if (prevCount <= 1) {
@@ -132,7 +132,7 @@ export function useGameInputKeyboardBridge( ){
     window.addEventListener('de-game-input', handler as EventListener);
     return () => {
       window.removeEventListener('de-game-input', handler as EventListener);
-      activeInputsByAction.forEach((inputs: Record<string, unknown>) => releaseInputs(inputs));
+      activeInputsByAction.forEach((inputs) => releaseInputs(inputs));
       activeInputsByAction.clear();
       pressedCounts.clear();
     };

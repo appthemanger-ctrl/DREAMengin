@@ -29,7 +29,7 @@ export default function IconList({ items, iconSize = 32, className = '' }: Props
       className={className}
       style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 8 }}
     >
-      {items.map((item: Record<string, unknown>) => (
+      {items.map((item) => (
         <li key={item.href}>
           <Link
             href={item.href}

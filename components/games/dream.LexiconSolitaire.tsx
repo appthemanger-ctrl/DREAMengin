@@ -76,38 +76,38 @@ export default function LexiconSolitaire( ){
   const cast = useCallback(() => {
     if (picked.length === 0) return;
     const all: Card[] = [...columns.flat(), ...hand];
-    const word = picked.map((id: Record<string, unknown>) => all.find((c: Record<string, unknown>) => c.id === id)?.letter ?? '').join('');
+    const word = picked.map((id) => all.find((c) => c.id === id)?.letter ?? '').join('');
     if (!isReasonableWord(word)) {
-      setLog((l: Record<string, unknown>) => [`"${word}" — the page rejects it. -1 HP.`, ...l].slice(0, 8));
+      setLog((l) => [`"${word}" — the page rejects it. -1 HP.`, ...l].slice(0, 8));
       setPlayerHp((h: number ) => h - 1);
       setPicked([]);
       return;
     }
     const dmg = Math.floor(word.length * 4 + (word.length >= 6 ? 12 : 0));
-    setBossHp((b: Record<string, unknown>) => {
+    setBossHp((b) => {
       const nb = b - dmg;
       if (nb <= 0) {
         if (chapter >= 3) { setPhase('victory'); }
         else {
-          setChapter((c: Record<string, unknown>) => c + 1);
-          setLog((l: Record<string, unknown>) => [`The Redactor flees into chapter ${chapter + 1}.`, ...l].slice(0, 8));
+          setChapter((c) => c + 1);
+          setLog((l) => [`The Redactor flees into chapter ${chapter + 1}.`, ...l].slice(0, 8));
           return 100;
         }
       }
       return Math.max(0, nb);
     });
     setScore((s: string ) => s + dmg * 3);
-    setLog((l: Record<string, unknown>) => [`Cast "${word}" — ${dmg} dmg.`, ...l].slice(0, 8));
+    setLog((l) => [`Cast "${word}" — ${dmg} dmg.`, ...l].slice(0, 8));
     // Remove used cards; redeal from hand
     const used = new Set(picked);
-    setColumns((cols: Record<string, unknown>) => cols.map((col: Record<string, unknown>) => col.filter((c: Record<string, unknown>) => !used.has(c.id))));
-    setHand((h: number ) => h.filter((c: Record<string, unknown>) => !used.has(c.id)));
+    setColumns((cols) => cols.map((col) => col.filter((c) => !used.has(c.id))));
+    setHand((h: number ) => h.filter((c) => !used.has(c.id)));
     // Draw 2
     setHand((h: number ) => [...h, ...makeDeck().slice(0, 2)]);
     setPicked([]);
     // Boss counter-strike
-    setTimeout(() => setPlayerHp((p: Record<string, unknown>) => p - 2), 400);
-    setLog((l: Record<string, unknown>) => [`Redactor strikes — -2 HP.`, ...l.slice(0, 7)]);
+    setTimeout(() => setPlayerHp((p) => p - 2), 400);
+    setLog((l) => [`Redactor strikes — -2 HP.`, ...l.slice(0, 7)]);
   }, [picked, columns, hand, chapter, setPhase]);
 
   // Trivia
@@ -119,11 +119,11 @@ export default function LexiconSolitaire( ){
     if (!trivia) return;
     if (idx === trivia.correct) {
       setHand((h: number ) => [...h, ...makeDeck().slice(0, 3)]);
-      setLog((l: Record<string, unknown>) => [`Correct — three relic letters drawn.`, ...l.slice(0, 7)]);
+      setLog((l) => [`Correct — three relic letters drawn.`, ...l.slice(0, 7)]);
       setScore((s: string ) => s + 30);
     } else {
-      setLog((l: Record<string, unknown>) => [`Wrong. The shelf takes a year from you.`, ...l.slice(0, 7)]);
-      setPlayerHp((p: Record<string, unknown>) => p - 3);
+      setLog((l) => [`Wrong. The shelf takes a year from you.`, ...l.slice(0, 7)]);
+      setPlayerHp((p) => p - 3);
     }
     setTrivia(null);
   }, [trivia]);
@@ -131,7 +131,7 @@ export default function LexiconSolitaire( ){
   useEffect(() => { if (playerHp <= 0) setPhase('defeat'); }, [playerHp]);
 
   const togglePick = (id: string) => {
-    setPicked((p: Record<string, unknown>) => p.includes(id) ? p.filter((x: Record<string, unknown>) => x !== id) : [...p, id]);
+    setPicked((p) => p.includes(id) ? p.filter((x) => x !== id) : [...p, id]);
   };
 
   return (
@@ -157,10 +157,10 @@ export default function LexiconSolitaire( ){
         {phase === 'playing' && (
           <div className="p-4">
             <div className="grid grid-cols-6 gap-2 mb-4">
-              {columns.map((col: Record<string, unknown>, ci: Record<string, unknown>) => (
+              {columns.map((col, ci) => (
                 <div key={ci} className="flex flex-col gap-1 min-h-[160px]">
                   <div className="text-xs opacity-50 text-center">col {ci + 1}</div>
-                  {col.map((c: Record<string, unknown>) => (
+                  {col.map((c) => (
                     <button
                       key={c.id}
                       onClick={() => togglePick(c.id)}
@@ -181,7 +181,7 @@ export default function LexiconSolitaire( ){
 
             <div className="flex flex-wrap gap-2 mb-3 items-center">
               <div className="text-xs opacity-60 mr-2">HAND:</div>
-              {hand.map((c: Record<string, unknown>) => (
+              {hand.map((c) => (
                 <button
                   key={c.id}
                   onClick={() => togglePick(c.id)}
@@ -199,7 +199,7 @@ export default function LexiconSolitaire( ){
 
             <div className="flex gap-2 items-center">
               <div className="text-sm flex-1" style={{ color: '#d6b27a' }}>
-                Spell: {picked.map((id: Record<string, unknown>) => [...columns.flat(), ...hand].find((c: Record<string, unknown>) => c.id === id)?.letter).join('') || '—'}
+                Spell: {picked.map((id) => [...columns.flat(), ...hand].find((c) => c.id === id)?.letter).join('') || '—'}
               </div>
               <button onClick={cast} className="px-4 py-2 text-xs tracking-widest border rounded" style={{ borderColor: '#d6b27a', color: '#d6b27a' }}>CAST</button>
               <button onClick={() => setPicked([])} className="px-3 py-2 text-xs tracking-widest border rounded opacity-70" style={{ borderColor: '#5a3f1d' }}>CLEAR</button>
@@ -210,7 +210,7 @@ export default function LexiconSolitaire( ){
               <div className="mt-3 p-3 border rounded" style={{ borderColor: '#7a5a2a', background: 'rgba(40,28,12,0.5)' }}>
                 <div className="text-sm mb-2 italic">{trivia.q}</div>
                 <div className="grid grid-cols-2 gap-2">
-                  {trivia.a.map(opt: Record<string, unknown>, (i: number ) => (
+                  {trivia.a.map((opt, i: number) => (
                     <button key={i} onClick={() => answerTrivia(i)} className="px-2 py-1 text-xs border rounded" style={{ borderColor: '#5a3f1d' }}>{opt}</button>
                   ))}
                 </div>
@@ -218,7 +218,7 @@ export default function LexiconSolitaire( ){
             )}
 
             <div className="mt-3 text-xs opacity-60 max-h-24 overflow-auto">
-              {log.map(l: Record<string, unknown>, (i: number ) => <div key={i}>{l}</div>)}
+              {log.map((l, i: number) => <div key={i}>{l}</div>)}
             </div>
           </div>
         )}

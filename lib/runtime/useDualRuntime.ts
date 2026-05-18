@@ -92,7 +92,7 @@ export function useDualRuntime(channel: DualRuntimeChannel): UseDualRuntimeRetur
 
   // Refresh peers snapshot from bridge-driven activity updates
   useEffect(() => {
-    return bridge.subscribePeerActivity((nextPeers: Record<string, unknown>) => {
+    return bridge.subscribePeerActivity((nextPeers) => {
       setPeers(nextPeers);
     });
   }, []);

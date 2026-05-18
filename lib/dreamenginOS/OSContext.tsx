@@ -48,7 +48,7 @@ const OSContext = createContext<OSInstance | null>(null);
  * Mount once at the application root (app/layout.tsx).
  * Creates stable ledger + bus instances for the lifetime of the app.
  */
-export function OSProvider({ children }: ) { children: React.ReactNode } {
+export function OSProvider({ children }: {children: React.ReactNode}) {
   const os = useMemo<OSInstance>(
     () => ({
       ledger: createLedger(),

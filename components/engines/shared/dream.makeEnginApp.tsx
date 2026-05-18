@@ -38,7 +38,7 @@ import type { EnginRuleSet } from './dream.EnginRuleSet';
  * ruleset. The returned component has no required props — all configuration
  * lives in the ruleset.
  */
-export function makeEnginApp(ruleset: EnginRuleSet: () => React.JSX.Element {
+export function makeEnginApp(ruleset: EnginRuleSet): () => React.JSX.Element {
   function EnginApp( ){
     const router = useRouter();
     const { EnginComponent } = ruleset;

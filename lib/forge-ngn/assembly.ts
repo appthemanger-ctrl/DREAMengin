@@ -109,7 +109,7 @@ export function removePiece(
 ): EngineAssembly {
   return {
     ...assembly,
-    pieces: assembly.pieces.filter((p: Record<string, unknown>) => p.instanceId !== instanceId),
+    pieces: assembly.pieces.filter((p) => p.instanceId !== instanceId),
     connections: assembly.connections.filter(
       (c) => c.fromInstanceId !== instanceId && c.toInstanceId !== instanceId,
     ),
@@ -125,7 +125,7 @@ export function movePiece(
 ): EngineAssembly {
   return {
     ...assembly,
-    pieces: assembly.pieces.map((p: Record<string, unknown>) =>
+    pieces: assembly.pieces.map((p) =>
       p.instanceId === instanceId ? { ...p, x, y } : p,
     ),
     updatedAt: Date.now(),
@@ -158,7 +158,7 @@ export function removeConnection(
 ): EngineAssembly {
   return {
     ...assembly,
-    connections: assembly.connections.filter((c: Record<string, unknown>) => c.id !== connectionId),
+    connections: assembly.connections.filter((c) => c.id !== connectionId),
     updatedAt: Date.now(),
   };
 }
@@ -198,9 +198,9 @@ export function validateAssembly(
     }
   }
 
-  const hasSource    = manifests.some((m: Record<string, unknown>) => m.role === 'source');
-  const hasProcessor = manifests.some((m: Record<string, unknown>) => m.role === 'processor');
-  const hasOutput    = manifests.some((m: Record<string, unknown>) => m.role === 'output');
+  const hasSource    = manifests.some((m) => m.role === 'source');
+  const hasProcessor = manifests.some((m) => m.role === 'processor');
+  const hasOutput    = manifests.some((m) => m.role === 'output');
 
   if (!hasSource)    errors.push({ code: 'missing-source',    message: 'Assembly must include at least one source piece.' });
   if (!hasProcessor) errors.push({ code: 'missing-processor', message: 'Assembly must include at least one processor piece.' });

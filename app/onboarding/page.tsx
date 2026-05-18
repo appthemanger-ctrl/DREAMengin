@@ -134,7 +134,7 @@ export default async function OnboardingPage( ){
           </p>
         </div>
 
-        {TIPS.map(tip: Record<string, unknown>, (i: number ) => (
+        {TIPS.map((tip, i: number) => (
           <div
             key={i}
             className="sicc-glass-in"

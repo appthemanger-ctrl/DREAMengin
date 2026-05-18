@@ -209,7 +209,7 @@ export const THEME_PRESETS: ThemePreset[] = [
 ];
 
 export function getPreset(id: string): ThemePreset {
-  return THEME_PRESETS.find((p: Record<string, unknown>) => p.id === id) ?? THEME_PRESETS[0];
+  return THEME_PRESETS.find((p) => p.id === id) ?? THEME_PRESETS[0];
 }
 
 // ── Apply theme to DOM ──────────────────────────────────────────────────────

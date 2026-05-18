@@ -639,7 +639,7 @@ export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Pr
                 { label: 'Budget ($)', val: budget, setter: setBudget },
                 { label: 'Impressions', val: impressions, setter: setImpressions },
                 { label: 'Conversions', val: conversions, setter: setConversions },
-              ].map(({ label, val: number, setter }) => (
+              ].map(({ label, val, setter }) => (
                 <div key={label}>
                   <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</div>
                   <input type="number" min="0" value={val} onChange={e => setter(e.target.value)} placeholder="0"
@@ -850,7 +850,7 @@ export default function BrandingEngin({ onBack, instanceId: instanceIdProp }: Pr
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
-              {competitors.map(c: Record<string, unknown>, (i: number ) => (
+              {competitors.map((c, i: number) => (
                 <div
                   key={i}
                   style={{

@@ -117,7 +117,7 @@ async function loadPyodide( ){
   if (pyodidePromise) return pyodidePromise;
   const script = document.createElement('script');
   script.src = 'https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js';
-  await new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+  await new Promise((resolve, reject) => {
     script.onload = resolve;
     script.onerror = reject;
     document.head.appendChild(script);
@@ -193,7 +193,7 @@ interface CrashReport {
   timestamp: Date;
 }
 
-function CrashRecoveryPanel({ cells }: ) { cells: NotebookCell[] } {
+function CrashRecoveryPanel({ cells }: {cells: NotebookCell[]}) {
   const [crashes, setCrashes] = useState<CrashReport[]>(() => {
     try { const saved = localStorage.getItem('de_crash_logs'); return saved ? JSON.parse(saved) : []; } catch { return []; }
   });
@@ -240,7 +240,7 @@ function CrashRecoveryPanel({ cells }: ) { cells: NotebookCell[] } {
       {crashes.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 20, color: 'var(--de-text-dim)' }}>✅ No crashes captured.</div>
       ) : (
-        crashes.map(crash: Record<string, unknown>, (i: number ) => (
+        crashes.map((crash, i: number) => (
           <div key={i} style={{ marginBottom: 12, padding: 12, borderRadius: 8, background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
               <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#f87171' }}>{crash.file}:{crash.line}</span>
@@ -794,7 +794,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
   const handleSelectAll = () => { const ta = lastFocusedRef.current; if (ta) { ta.focus(); ta.setSelectionRange(0, ta.value.length); setSelectionBar({ visible: false, x: 0, y: 0, text: ta.value }); } };
   const handleSelectLine = () => { const ta = lastFocusedRef.current; if (ta) { const val = ta.value, cursor = ta.selectionStart; let s = cursor; while (s > 0 && val[s-1] !== '\n') s--; let e = cursor; while (e < val.length && val[e] !== '\n') e++; ta.setSelectionRange(s, e); setSelectionBar({ visible: false, x: 0, y: 0, text: val.slice(s, e) }); } };
   const handleSelectBlock = () => { const ta = lastFocusedRef.current; if (ta) { const val = ta.value, cursor = ta.selectionStart; let start = -1, end = -1, depth = 0; for (let i = cursor; i >= 0; i--) { if (val[i] === '}') depth++; else if (val[i] === '{') { if (depth === 0) { start = i; break; } depth--; } } depth = 0; for (let i = cursor; i < val.length; i++) { if (val[i] === '{') depth++; else if (val[i] === '}') { if (depth === 0) { end = i+1; break; } depth--; } } if (start !== -1 && end !== -1) { ta.setSelectionRange(start, end); setSelectionBar({ visible: false, x: 0, y: 0, text: val.slice(start, end) }); } } };
-  const handleSelectVariable = (scope: 'cell' | 'codebase') => { const ta = lastFocusedRef.current; const raw = selectionBar.text || (() => { if (!ta) return ''; const val = ta.value, c = ta.selectionStart; let s = c; while (s > 0 && /\w/.test(val[s-1])) s--; let e = c; while (e < val.length && /\w/.test(val[e])) e++; return val.slice(s, e); })(); if (!raw.trim()) return; setFindTarget(raw.trim()); setReplaceWith(''); if (scope === 'cell' && ta) { const rx = new RegExp(`\\b${raw.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'); setFindResults({ scope: 'cell', total: (ta.value.match(rx) || []).length }); } else { const rx = new RegExp(`\\b${raw.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'); const total = cells.reduce((acc: Record<string, unknown>, cell: Record<string, unknown>) => acc + (cell.code.match(rx) || []).length, 0); setFindResults({ scope: 'codebase', total }); } closeSelectionBar(); };
+  const handleSelectVariable = (scope: 'cell' | 'codebase') => { const ta = lastFocusedRef.current; const raw = selectionBar.text || (() => { if (!ta) return ''; const val = ta.value, c = ta.selectionStart; let s = c; while (s > 0 && /\w/.test(val[s-1])) s--; let e = c; while (e < val.length && /\w/.test(val[e])) e++; return val.slice(s, e); })(); if (!raw.trim()) return; setFindTarget(raw.trim()); setReplaceWith(''); if (scope === 'cell' && ta) { const rx = new RegExp(`\\b${raw.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'); setFindResults({ scope: 'cell', total: (ta.value.match(rx) || []).length }); } else { const rx = new RegExp(`\\b${raw.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'); const total = cells.reduce((acc, cell) => acc + (cell.code.match(rx) || []).length, 0); setFindResults({ scope: 'codebase', total }); } closeSelectionBar(); };
   const handleReplaceAll = (scope: 'cell' | 'codebase') => { if (!findTarget) return; const rx = new RegExp(`\\b${findTarget.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'); if (scope === 'cell') { const ta = lastFocusedRef.current; const targetId = ta?.getAttribute('data-cell-id') || ''; setCells((prev) => prev.map((c) => c.id === targetId ? { ...c, code: c.code.replace(rx, replaceWith) } : c)); } else { setCells((prev) => prev.map((c) => ({ ...c, code: c.code.replace(rx, replaceWith) }))); } setFindResults(null); setFindTarget(''); setReplaceWith(''); };
 
   return (
@@ -912,7 +912,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
           <div className="de-widget">
             <div className="de-widget-header"><span className="de-widget-title">Live Notebook</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: `${ACCENT}12`, color: ACCENT }}>{cells.length} cells</span></div>
             <div className="de-widget-body" style={{ padding: 0 }}>
-              {cells.map(cell: Record<string, unknown>, (idx: number ) => (
+              {cells.map((cell, idx: number) => (
                 <div key={cell.id} style={{ borderBottom: idx < cells.length-1 ? '1px solid rgba(160,195,240,0.15)' : 'none', padding: '12px 16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                     <select value={cell.language} onChange={e => updateCellLanguage(cell.id, e.target.value as CellLanguage)} style={{ fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(160,195,240,0.35)' }}>

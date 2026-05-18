@@ -22,7 +22,7 @@ type EditableAvatarProps = {
   children?: ReactNode;
 };
 
-export default function EditableAvatar(){
+export default function EditableAvatar({
   src,
   name,
   size,

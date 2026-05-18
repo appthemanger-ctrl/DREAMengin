@@ -27,7 +27,7 @@ export interface SharedDreamCanvasProps {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function SharedDreamCanvas(){
+export function SharedDreamCanvas({
   componentId,
   children,
   sharedContent,
@@ -82,7 +82,7 @@ export function SharedDreamCanvas(){
         </div>
 
         {/* Remote cursors */}
-        {cursors.map((c: Record<string, unknown>) => (
+        {cursors.map((c) => (
           <div
             key={c.peerId}
             className="absolute pointer-events-none transition-transform duration-75"

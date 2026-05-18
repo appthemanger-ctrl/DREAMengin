@@ -130,7 +130,7 @@ function GradientThemePicker( ){
         Sky-blue + gold gradients, everywhere. Pick your vibe.
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-        {Object.entries(GRADIENT_PRESETS).map(([id, { label, emoji: Record<string, unknown>, theme }]) => {
+        {Object.entries(GRADIENT_PRESETS).map(([id, { label, emoji, theme }]) => {
           const isActive = active === id;
           return (
             <button
@@ -170,7 +170,7 @@ function GradientThemePicker( ){
 
 
 /* ── Slider component (styled with Dream tokens) ── */
-function Slider(){
+function Slider({
   label,
   value,
   min,
@@ -218,7 +218,7 @@ function Slider(){
 }
 
 /* ── Preset cards ── */
-function PresetCard(){
+function PresetCard({
   preset,
   isActive,
   onSelect,
@@ -460,7 +460,7 @@ export default function AppearanceSettingsPage( ){
               { page: 'profile'    as const, label: 'Profile',    emoji: '👤' },
               { page: 'dreamspace' as const, label: 'DreamSpace', emoji: '✦' },
               { page: 'feed'       as const, label: 'Feed',       emoji: '📡' },
-            ]).map(({ page, label: string, emoji }) => (
+            ]).map(({ page, label, emoji }) => (
               <button
                 key={page}
                 type="button"
@@ -496,7 +496,7 @@ export default function AppearanceSettingsPage( ){
             Theme Presets
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-            {THEME_PRESETS.map((p: Record<string, unknown>) => (
+            {THEME_PRESETS.map((p) => (
               <PresetCard
                 key={p.id}
                 preset={p}
@@ -564,7 +564,7 @@ export default function AppearanceSettingsPage( ){
           </div>
           <div className="de-widget-tile" style={{ padding: 16 }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-              {ACCENT_SWATCHES.map((swatch: Record<string, unknown>) => {
+              {ACCENT_SWATCHES.map((swatch) => {
                 const isActive = overrides.accentHue === swatch.hue;
                 return (
                   <button
@@ -627,7 +627,7 @@ export default function AppearanceSettingsPage( ){
             Background Style
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-            {BG_STYLES.map((bg: Record<string, unknown>) => {
+            {BG_STYLES.map((bg) => {
               const isActive = presetId === bg.presetId;
               return (
                 <button

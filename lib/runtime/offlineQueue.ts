@@ -97,7 +97,7 @@ export function enqueue(
 
   if (queue.length >= MAX_QUEUE_SIZE) {
     // Evict oldest failed action
-    const failedIdx = queue.findIndex((a: Record<string, unknown>) => a.status === 'failed');
+    const failedIdx = queue.findIndex((a) => a.status === 'failed');
     if (failedIdx >= 0) {
       queue.splice(failedIdx, 1);
     } else {
@@ -132,7 +132,7 @@ export function enqueue(
  * No-op when the ID is not found.
  */
 export function dequeue(id: string): void {
-  const queue = _load().filter((a: Record<string, unknown>) => a.id !== id);
+  const queue = _load().filter((a) => a.id !== id);
   _save(queue);
 }
 
@@ -162,7 +162,7 @@ export async function flushQueue(
     if (action.status === 'failed') { skipped++; continue; }
 
     // Locate live entry in the mutable queue
-    const liveEntry = queue.find((a: Record<string, unknown>) => a.id === action.id);
+    const liveEntry = queue.find((a) => a.id === action.id);
     if (!liveEntry) continue; // already removed in a previous iteration
 
     liveEntry.status = 'replaying';
@@ -171,7 +171,7 @@ export async function flushQueue(
       await executor(liveEntry);
       succeeded++;
       // Remove from the live array and persist
-      const idx = queue.findIndex((a: Record<string, unknown>) => a.id === liveEntry.id);
+      const idx = queue.findIndex((a) => a.id === liveEntry.id);
       if (idx >= 0) queue.splice(idx, 1);
       _save(queue);
     } catch (err) {

@@ -41,7 +41,7 @@ export function PlatformHealth( ){
       <div className="space-y-4 animate-pulse">
         <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-48" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map(_: Record<string, unknown>, (i: number ) => (
+          {[...Array(6)].map((_, i: number) => (
             <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
           ))}
         </div>
@@ -121,7 +121,7 @@ export function PlatformHealth( ){
 
       {/* Health Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {healthCards.map((card: Record<string, unknown>) => {
+        {healthCards.map((card) => {
           const isHealthy =
             card.comparator === 'greater'
               ? card.value >= card.target

@@ -235,7 +235,7 @@ export function validatePrivacy(
   surfaceName: string,
   intendedVisibility: 'private' | 'public' | 'shared',
 ): Violation[] {
-  const rule = PRIVACY_RULES.find((r: Record<string, unknown>) => r.surface === surfaceName);
+  const rule = PRIVACY_RULES.find((r) => r.surface === surfaceName);
   if (!rule) return [];
   if (rule.defaultVisibility === 'private' && intendedVisibility === 'public') {
     return [{

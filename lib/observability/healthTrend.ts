@@ -62,7 +62,7 @@ export function getHealthTrend(windowSize = 20: HealthTrend ){
   const secondHalf = recent.slice(half);
 
   const unhealthyRate = (points: HealthDataPoint[]) =>
-    points.filter((p: Record<string, unknown>) => p.status !== 'healthy').length / points.length;
+    points.filter((p) => p.status !== 'healthy').length / points.length;
 
   const firstRate = unhealthyRate(firstHalf);
   const secondRate = unhealthyRate(secondHalf);
@@ -118,7 +118,7 @@ export function getMTTR(iterations: readonly LoopIteration[]): number | null {
   }
 
   if (recoveryTimes.length === 0) return null;
-  return recoveryTimes.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / recoveryTimes.length;
+  return recoveryTimes.reduce((a, b) => a + b, 0) / recoveryTimes.length;
 }
 
 // ── Improvement 80: exportHealthReport ───────────────────────────────────────

@@ -307,12 +307,12 @@ export const PIECE_REGISTRY: PieceManifest[] = [
 
 /** Look up a piece by id */
 export function getPiece(id: string): PieceManifest | undefined {
-  return PIECE_REGISTRY.find((p: Record<string, unknown>) => p.id === id);
+  return PIECE_REGISTRY.find((p) => p.id === id);
 }
 
 /** All pieces in a given category */
 export function getPiecesByCategory(category: PieceCategory): PieceManifest[] {
-  return PIECE_REGISTRY.filter((p: Record<string, unknown>) => p.category === category);
+  return PIECE_REGISTRY.filter((p) => p.category === category);
 }
 
 /** All distinct categories */

@@ -99,31 +99,31 @@ export default function DualRuntimeContainer({ children }: DualRuntimeContainerP
   const bottomViewportRef = useRef<React.RefObject<HTMLElement | null> | null>(null);
 
   const setTopRuntime = useCallback((world: RuntimeWorld) => {
-    setState((prev: Record<string, unknown>) => setRuntimeWorld(prev, 'top', world));
+    setState((prev) => setRuntimeWorld(prev, 'top', world));
   }, []);
 
   const setBottomRuntime = useCallback((world: RuntimeWorld) => {
-    setState((prev: Record<string, unknown>) => setRuntimeWorld(prev, 'bottom', world));
+    setState((prev) => setRuntimeWorld(prev, 'bottom', world));
   }, []);
 
   const swapDominance = useCallback(() => {
-    setState((prev: Record<string, unknown>) => swapDominantRuntime(prev));
+    setState((prev) => swapDominantRuntime(prev));
   }, []);
 
   const setDominantRuntime = useCallback((region: 'Surface Space' | 'DreamSpace') => {
-    setState((prev: Record<string, unknown>) => ({ ...prev, dominantRegion: region }));
+    setState((prev) => ({ ...prev, dominantRegion: region }));
   }, []);
 
   const goToHome = useCallback(() => {
-    setState((prev: Record<string, unknown>) => makeHomeActiveTop(prev));
+    setState((prev) => makeHomeActiveTop(prev));
   }, []);
 
   const goToHomeDreamSpace = useCallback(() => {
-    setState((prev: Record<string, unknown>) => makeHomeDreamSpaceActive(prev));
+    setState((prev) => makeHomeDreamSpaceActive(prev));
   }, []);
 
   const goToDreamSpace = useCallback(() => {
-    setState((prev: Record<string, unknown>) => makeDreamSpaceActiveSurface(prev));
+    setState((prev) => makeDreamSpaceActiveSurface(prev));
   }, []);
 
   const isHomeActive = useCallback(() => {

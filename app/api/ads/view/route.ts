@@ -27,7 +27,7 @@ type ActivitySupabaseClient = {
         single: () => Promise<{ data: Record<string, unknown> | null }>;
       };
     };
-    insert: (values: Record<string, unknown>) => {
+    insert: (values) => {
       select: () => {
         single: () => Promise<{
           data: Record<string, unknown> | null;
@@ -35,7 +35,7 @@ type ActivitySupabaseClient = {
         }>;
       };
     };
-    update: (values: Record<string, unknown>) => {
+    update: (values) => {
       eq: (column: string, value: unknown) => Promise<{ error?: { message?: string } | null }>;
     };
   };

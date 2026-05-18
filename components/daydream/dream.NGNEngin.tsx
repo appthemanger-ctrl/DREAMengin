@@ -127,7 +127,7 @@ export default function NGNEngin({ onBack }: Props) {
 
   // Wire dual-runtime hub if present
   useEffect(() => {
-    const hasDualHub = assembly.pieces.some((p: Record<string, unknown>) => p.pieceId === 'runtime.dual-hub');
+    const hasDualHub = assembly.pieces.some((p) => p.pieceId === 'runtime.dual-hub');
     if (!hasDualHub) return;
     const busB = createEventBus();
     const dispose = bridgeBuses(busRef.current, busB, [], []);
@@ -143,11 +143,11 @@ export default function NGNEngin({ onBack }: Props) {
     const base = getPiecesByCategory(cat);
     if (!search) return base;
     const q = search.toLowerCase();
-    return base.filter((p: Record<string, unknown>) => p.label.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
+    return base.filter((p) => p.label.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
   }, [search]);
 
   const toggleCat = (cat: PieceCategory) => {
-    setExpandedCats((prev: Record<string, unknown>) => {
+    setExpandedCats((prev) => {
       const next = new Set(prev);
       next.has(cat) ? next.delete(cat) : next.add(cat);
       return next;
@@ -171,7 +171,7 @@ export default function NGNEngin({ onBack }: Props) {
 
   const handlePieceMouseDown = (e: ReactMouseEvent, instanceId: string) => {
     e.stopPropagation();
-    const placed = assembly.pieces.find((p: Record<string, unknown>) => p.instanceId === instanceId);
+    const placed = assembly.pieces.find((p) => p.instanceId === instanceId);
     if (!placed) return;
     setDraggingId(instanceId);
     setDragOffset({ x: e.clientX - placed.x, y: e.clientY - placed.y });
@@ -183,7 +183,7 @@ export default function NGNEngin({ onBack }: Props) {
     if (!rect) return;
     const x = e.clientX - rect.left - dragOffset.x;
     const y = e.clientY - rect.top  - dragOffset.y;
-    setAssembly((a: Record<string, unknown>) => movePiece(a, draggingId, x, y));
+    setAssembly((a) => movePiece(a, draggingId, x, y));
   }, [draggingId, dragOffset]);
 
   const handleCanvasMouseUp = () => setDraggingId(null);
@@ -196,7 +196,7 @@ export default function NGNEngin({ onBack }: Props) {
       return;
     }
     if (isInput && pending) {
-      setAssembly((a: Record<string, unknown>) => addConnection(a, pending.fromInstanceId, pending.fromPortId, instanceId, portId));
+      setAssembly((a) => addConnection(a, pending.fromInstanceId, pending.fromPortId, instanceId, portId));
       setPending(null);
     }
   };
@@ -253,7 +253,7 @@ export default function NGNEngin({ onBack }: Props) {
 
         {/* Category list */}
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          {PIECE_CATEGORIES.map((cat: Record<string, unknown>) => {
+          {PIECE_CATEGORIES.map((cat) => {
             const items = filteredPieces(cat);
             if (items.length === 0) return null;
             const expanded = expandedCats.has(cat);
@@ -276,7 +276,7 @@ export default function NGNEngin({ onBack }: Props) {
                       exit={{ height: 0, opacity: 0 }}
                       style={{ overflow: 'hidden' }}
                     >
-                      {items.map((piece: Record<string, unknown>) => (
+                      {items.map((piece) => (
                         <div
                           key={piece.id}
                           draggable
@@ -300,7 +300,7 @@ export default function NGNEngin({ onBack }: Props) {
 
         {/* Legend */}
         <div style={{ padding: '10px 14px', borderTop: `1px solid ${T.border}`, fontSize: 10, color: T.muted, display: 'flex', flexDirection: 'column', gap: 3 }}>
-          {(['source', 'processor', 'output'] as const).map((role: Record<string, unknown>) => (
+          {(['source', 'processor', 'output'] as const).map((role) => (
             <div key={role} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: ROLE_COLOR[role] }} />
               {role}
@@ -317,7 +317,7 @@ export default function NGNEngin({ onBack }: Props) {
           <Zap size={16} color={T.accent} />
           <input
             value={assembly.name}
-            onChange={(e) => setAssembly((a: Record<string, unknown>) => ({ ...a, name: e.target.value }))}
+            onChange={(e) => setAssembly((a) => ({ ...a, name: e.target.value }))}
             style={{ background: 'transparent', border: 'none', color: T.text, fontSize: 14, fontWeight: 600, outline: 'none', width: 180 }}
           />
 
@@ -359,7 +359,7 @@ export default function NGNEngin({ onBack }: Props) {
           {errors.length > 0 && (
             <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} style={{ overflow: 'hidden', flexShrink: 0 }}>
               <div style={{ padding: '6px 16px', background: 'rgba(255,94,94,0.08)', borderBottom: '1px solid rgba(255,94,94,0.25)', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                {errors.map(err: Record<string, unknown>, (i: number ) => (
+                {errors.map((err, i: number) => (
                   <span key={i} style={{ fontSize: 11, color: T.error }}>{err.message}</span>
                 ))}
               </div>
@@ -379,9 +379,9 @@ export default function NGNEngin({ onBack }: Props) {
         >
           {/* SVG connection lines */}
           <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-            {assembly.connections.map((conn: Record<string, unknown>) => {
-              const from = assembly.pieces.find((p: Record<string, unknown>) => p.instanceId === conn.fromInstanceId);
-              const to   = assembly.pieces.find((p: Record<string, unknown>) => p.instanceId === conn.toInstanceId);
+            {assembly.connections.map((conn) => {
+              const from = assembly.pieces.find((p) => p.instanceId === conn.fromInstanceId);
+              const to   = assembly.pieces.find((p) => p.instanceId === conn.toInstanceId);
               if (!from || !to) return null;
               const x1 = from.x + 150; const y1 = from.y + 24;
               const x2 = to.x;         const y2 = to.y + 24;
@@ -400,13 +400,13 @@ export default function NGNEngin({ onBack }: Props) {
           </svg>
 
           {/* Placed pieces */}
-          {assembly.pieces.map((placed: Record<string, unknown>) => (
+          {assembly.pieces.map((placed) => (
             <PlacedPieceCard
               key={placed.instanceId}
               placed={placed}
               pending={pending}
               onMouseDown={(e) => handlePieceMouseDown(e, placed.instanceId)}
-              onRemove={() => setAssembly((a: Record<string, unknown>) => removePiece(a, placed.instanceId))}
+              onRemove={() => setAssembly((a) => removePiece(a, placed.instanceId))}
               onPortClick={handlePortClick}
             />
           ))}
@@ -446,7 +446,7 @@ export default function NGNEngin({ onBack }: Props) {
               </div>
               <div style={{ flex: 1, padding: 24, overflow: 'auto' }}>
                 <div style={{ background: T.card, borderRadius: 8, padding: 16, fontSize: 12, color: T.muted, fontFamily: 'monospace', whiteSpace: 'pre-wrap' }}>
-                  {`Assembly: ${assembly.name}\nPieces: ${assembly.pieces.length}\nConnections: ${assembly.connections.length}\n\nPieces:\n${assembly.pieces.map((p: Record<string, unknown>) => `  • ${p.pieceId} @ (${Math.round(p.x)}, ${Math.round(p.y)})`).join('\n')}\n\nConnections:\n${assembly.connections.map((c: Record<string, unknown>) => `  • ${c.fromInstanceId.slice(0,6)}:${c.fromPortId} → ${c.toInstanceId.slice(0,6)}:${c.toPortId}`).join('\n') || '  (none)'}`}
+                  {`Assembly: ${assembly.name}\nPieces: ${assembly.pieces.length}\nConnections: ${assembly.connections.length}\n\nPieces:\n${assembly.pieces.map((p) => `  • ${p.pieceId} @ (${Math.round(p.x)}, ${Math.round(p.y)})`).join('\n')}\n\nConnections:\n${assembly.connections.map((c) => `  • ${c.fromInstanceId.slice(0,6)}:${c.fromPortId} → ${c.toInstanceId.slice(0,6)}:${c.toPortId}`).join('\n') || '  (none)'}`}
                 </div>
               </div>
             </motion.div>
@@ -528,7 +528,7 @@ interface PlacedPieceCardProps {
   onPortClick: (instanceId: string, portId: string, isInput: boolean) => void;
 }
 
-function PlacedPieceCard({ placed, pending: Record<string, unknown>, onMouseDown: Record<string, unknown>, onRemove: Record<string, unknown>, onPortClick }: PlacedPieceCardProps) {
+function PlacedPieceCard({ placed, pending, onMouseDown, onRemove, onPortClick }: PlacedPieceCardProps) {
   const [hovered, setHovered] = useState(false);
 
   const manifest = getPiece(placed.pieceId);

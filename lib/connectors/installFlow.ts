@@ -27,7 +27,7 @@ export function findBestSlot(grid: SlotGrid): number {
 
   // "Center" is (totalSlots - 1) / 2
   const centre = (totalSlots - 1) / 2;
-  empty.sort((a: Record<string, unknown>, b: Record<string, unknown>) => Math.abs(a - centre) - Math.abs(b - centre));
+  empty.sort((a, b) => Math.abs(a - centre) - Math.abs(b - centre));
   return empty[0];
 }
 
@@ -68,7 +68,7 @@ function loadSuggested(): SuggestedWidget[] {
     const persisted: SuggestedWidget[] = JSON.parse(localStorage.getItem(suggestedKey()) ?? '[]');
     // Merge persisted into in-memory (de-dup)
     for (const p of persisted) {
-      if (!_suggestedInMemory.some((s: Record<string, unknown>) => s.widgetId === p.widgetId && s.connectorId === p.connectorId)) {
+      if (!_suggestedInMemory.some((s) => s.widgetId === p.widgetId && s.connectorId === p.connectorId)) {
         _suggestedInMemory.push(p);
       }
     }
@@ -115,7 +115,7 @@ export function queueSuggestedWidget(
   connectorName: string,
 ): void {
   const items = loadSuggested();
-  const already = items.some((s: Record<string, unknown>) => s.widgetId === widgetId && s.connectorId === connectorId);
+  const already = items.some((s) => s.widgetId === widgetId && s.connectorId === connectorId);
   if (!already) {
     items.push({ widgetId, connectorId, connectorName, addedAt: Date.now() });
     saveSuggested(items);
@@ -126,7 +126,7 @@ export function queueSuggestedWidget(
 /** Get all currently queued suggestions (req 35) */
 export function getSuggestedWidgets(): SuggestedWidget[] {
   const dismissed = loadPermanentlyDismissed();
-  return loadSuggested().filter((s: Record<string, unknown>) => !dismissed.has(s.widgetId));
+  return loadSuggested().filter((s) => !dismissed.has(s.widgetId));
 }
 
 /** Permanently dismiss a suggestion (req 9) */
@@ -136,13 +136,13 @@ export function dismissSuggestedWidget(widgetId: string): void {
   savePermanentlyDismissed(dismissed);
   SESSION_DISMISSED.add(widgetId);
 
-  const items = loadSuggested().filter((s: Record<string, unknown>) => s.widgetId !== widgetId);
+  const items = loadSuggested().filter((s) => s.widgetId !== widgetId);
   saveSuggested(items);
 }
 
 /** Remove a widget from the suggested queue (after it has been installed) */
 export function removeSuggestedWidget(widgetId: string): void {
-  const items = loadSuggested().filter((s: Record<string, unknown>) => s.widgetId !== widgetId);
+  const items = loadSuggested().filter((s) => s.widgetId !== widgetId);
   saveSuggested(items);
 }
 

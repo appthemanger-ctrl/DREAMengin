@@ -38,7 +38,7 @@ const REQUIRED_PATHS = [
 ] as const;
 
 function checkRequiredPaths(cwd: string): AdariCheck[] {
-  return REQUIRED_PATHS.map((p: Record<string, unknown>) => {
+  return REQUIRED_PATHS.map((p) => {
     const abs = resolve(cwd, p);
     const ok = existsSync(abs);
     return {
@@ -90,7 +90,7 @@ export function getBuildReport(opts?: ){ cwd?: string }: AdariReport {
     ...checkRequiredPaths(cwd),
     ...checkPackageJsonScripts(cwd),
   ];
-  const ok = checks.every((c: Record<string, unknown>) => c.ok);
+  const ok = checks.every((c) => c.ok);
   return { ok, checks };
 }
 
@@ -99,7 +99,7 @@ export function assertBuildInvariants(opts?: ){ cwd?: string }: void {
   if (report.ok) return;
 
   const lines = report.checks
-    .filter((c: Record<string, unknown>) => !c.ok)
-    .map((c: Record<string, unknown>) => `- ${c.message}`);
+    .filter((c) => !c.ok)
+    .map((c) => `- ${c.message}`);
   throw new Error(`Adari build enforcement failed:\n${lines.join("\n")}`);
 }

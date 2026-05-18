@@ -45,7 +45,7 @@ export class DreamOptimizer {
    */
   optimizeFeed(feedItems: FeedItem[]): RankedItem<FeedItem>[] {
     if (!this.config.feed_selection?.enabled) {
-      return feedItems.map(item: Record<string, unknown>, (index: number ) => ({
+      return feedItems.map((item, index: number) => ({
         item,
         score: 1,
         rank: index + 1,
@@ -87,7 +87,7 @@ export class DreamOptimizer {
     userPermissions: string[]
   ): RankedItem<SearchResult>[] {
     if (!this.config.search_ranking?.enabled) {
-      return searchResults.map(item: Record<string, unknown>, (index: number ) => ({
+      return searchResults.map((item, index: number) => ({
         item,
         score: item.relevance_score,
         rank: index + 1,
@@ -126,7 +126,7 @@ export class DreamOptimizer {
    */
   optimizeWidgets(widgets: WidgetPriority[]): RankedItem<WidgetPriority>[] {
     if (!this.config.widget_priority?.enabled) {
-      return widgets.map(item: Record<string, unknown>, (index: number ) => ({
+      return widgets.map((item, index: number) => ({
         item,
         score: 1,
         rank: index + 1,
@@ -162,7 +162,7 @@ export class DreamOptimizer {
    */
   optimizeAssetLoading(assets: Asset[]): RankedItem<Asset>[] {
     if (!this.config.asset_loading?.enabled) {
-      return assets.map(item: Record<string, unknown>, (index: number ) => ({
+      return assets.map((item, index: number) => ({
         item,
         score: 1,
         rank: index + 1,
@@ -200,7 +200,7 @@ export class DreamOptimizer {
     notifications: Notification[]
   ): RankedItem<Notification>[] {
     if (!this.config.notification_priority?.enabled) {
-      return notifications.map(item: Record<string, unknown>, (index: number ) => ({
+      return notifications.map((item, index: number) => ({
         item,
         score: 1,
         rank: index + 1,
@@ -238,7 +238,7 @@ export class DreamOptimizer {
     queuedActions: QueuedAction[]
   ): RankedItem<QueuedAction>[] {
     if (!this.config.offline_queue?.enabled) {
-      return queuedActions.map(item: Record<string, unknown>, (index: number ) => ({
+      return queuedActions.map((item, index: number) => ({
         item,
         score: 1,
         rank: index + 1,
@@ -346,10 +346,10 @@ export class DreamOptimizer {
     );
 
     // Sort by final score descending
-    rankedOptions.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.final_score - a.final_score);
+    rankedOptions.sort((a, b) => b.final_score - a.final_score);
 
     // Assign ranks
-    rankedOptions.forEach(option: Record<string, unknown>, (index: number ) => {
+    rankedOptions.forEach((option, index: number) => {
       option.rank = index + 1;
     });
 

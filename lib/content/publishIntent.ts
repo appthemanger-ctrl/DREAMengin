@@ -69,7 +69,7 @@ export function formatPublishError(
   return `Failed to publish to DreamR (${response.status || 'unknown'})`;
 }
 
-export async function publishToDreamR(){
+export async function publishToDreamR({
   content,
   platforms,
   fetchImpl = fetch,

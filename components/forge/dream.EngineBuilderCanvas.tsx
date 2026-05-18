@@ -135,7 +135,7 @@ export default function EngineBuilderCanvas(){
     if (initialJson) {
       try {
         const asm = deserializeAssembly(initialJson);
-        return asm.pieces.map(p: Record<string, unknown>, (i: number ) => ({
+        return asm.pieces.map((p, i: number) => ({
           ...p,
           x: 200 + (i % 4) * 180,
           y: 100 + Math.floor(i / 4) * 140,
@@ -165,7 +165,7 @@ export default function EngineBuilderCanvas(){
   // ── Derived ────────────────────────────────────────────────────────────────
 
   const categories = useMemo(
-    () => Array.from(new Set(COMPONENT_INVENTORY.map((c: Record<string, unknown>) => c.category))),
+    () => Array.from(new Set(COMPONENT_INVENTORY.map((c) => c.category))),
     [],
   );
 
@@ -216,7 +216,7 @@ export default function EngineBuilderCanvas(){
     const role = inferRole(component);
     const piece = atomicPieceFromComponent(component, role);
     const canvas = canvasRef.current?.getBoundingClientRect();
-    setPieces((prev: Record<string, unknown>) => [
+    setPieces((prev) => [
       ...prev,
       {
         ...piece,
@@ -228,8 +228,8 @@ export default function EngineBuilderCanvas(){
   }, [pieces.length]);
 
   const removePiece = useCallback((pieceId: string) => {
-    setPieces((prev: Record<string, unknown>) => prev.filter((p: Record<string, unknown>) => p.id !== pieceId));
-    setWires((prev: Record<string, unknown>) => prev.filter(
+    setPieces((prev) => prev.filter((p) => p.id !== pieceId));
+    setWires((prev) => prev.filter(
       (w) => w.fromPieceId !== pieceId && w.toPieceId !== pieceId,
     ));
     if (selectedPiece === pieceId) setSelectedPiece(null);
@@ -256,7 +256,7 @@ export default function EngineBuilderCanvas(){
         toPieceId,
         toPortId,
       };
-      setWires((prev: Record<string, unknown>) => [...prev, wire]);
+      setWires((prev) => [...prev, wire]);
       setWireInProgress(null);
     },
     [wireInProgress],
@@ -293,7 +293,7 @@ export default function EngineBuilderCanvas(){
   const loadAssembly = useCallback((json: string) => {
     try {
       const asm = deserializeAssembly(json);
-      setPieces(asm.pieces.map(p: Record<string, unknown>, (i: number ) => ({
+      setPieces(asm.pieces.map((p, i: number) => ({
         ...p,
         x: 200 + (i % 4) * 180,
         y: 100 + Math.floor(i / 4) * 140,
@@ -312,7 +312,7 @@ export default function EngineBuilderCanvas(){
     (e: React.PointerEvent, pieceId: string) => {
       if ((e.target as HTMLElement).dataset.port) return;
       e.currentTarget.setPointerCapture(e.pointerId);
-      const piece = pieces.find((p: Record<string, unknown>) => p.id === pieceId);
+      const piece = pieces.find((p) => p.id === pieceId);
       if (!piece) return;
       setDragPieceId(pieceId);
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -329,14 +329,14 @@ export default function EngineBuilderCanvas(){
         if (!canvas) return;
         const x = e.clientX - canvas.left - dragOffset.x;
         const y = e.clientY - canvas.top  - dragOffset.y;
-        setPieces((prev: Record<string, unknown>) =>
-          prev.map((p: Record<string, unknown>) => p.id === dragPieceId ? { ...p, x, y } : p),
+        setPieces((prev) =>
+          prev.map((p) => p.id === dragPieceId ? { ...p, x, y } : p),
         );
       }
       if (wireInProgress) {
         const canvas = canvasRef.current?.getBoundingClientRect();
         if (!canvas) return;
-        setWireInProgress((prev: Record<string, unknown>) => prev ? {
+        setWireInProgress((prev) => prev ? {
           ...prev,
           toX: e.clientX - canvas.left,
           toY: e.clientY - canvas.top,
@@ -359,7 +359,7 @@ export default function EngineBuilderCanvas(){
 
   function piecePortPos(piece: CanvasPiece, portId: string, isInput): boolean {
     const ports = isInput ? piece.inputPorts : piece.outputPorts;
-    const idx   = ports.findIndex((p: Record<string, unknown>) => p.id === portId);
+    const idx   = ports.findIndex((p) => p.id === portId);
     const count = ports.length;
     const y     = piece.y + PIECE_H / 2;
     const x     = isInput
@@ -421,17 +421,17 @@ export default function EngineBuilderCanvas(){
         </div>
 
         {/* Category groups */}
-        {(searchQuery ? ['Search Results' as ComponentCategory] : categories).map((cat: Record<string, unknown>) => {
+        {(searchQuery ? ['Search Results' as ComponentCategory] : categories).map((cat) => {
           const items = searchQuery
             ? filteredInventory
-            : filteredInventory.filter((c: Record<string, unknown>) => c.category === cat);
+            : filteredInventory.filter((c) => c.category === cat);
           if (items.length === 0) return null;
           const expanded = expandedCategories.has(cat);
           return (
             <div key={cat}>
               <button
                 onClick={() =>
-                  setExpandedCategories((prev: Record<string, unknown>) => {
+                  setExpandedCategories((prev) => {
                     const next = new Set(prev);
                     if (next.has(cat)) next.delete(cat); else next.add(cat);
                     return next;
@@ -468,7 +468,7 @@ export default function EngineBuilderCanvas(){
                     exit={{ height: 0, opacity: 0 }}
                     style={{ overflow: 'hidden' }}
                   >
-                    {items.map((comp: Record<string, unknown>) => (
+                    {items.map((comp) => (
                       <button
                         key={comp.id}
                         onClick={() => addPiece(comp)}
@@ -570,9 +570,9 @@ export default function EngineBuilderCanvas(){
           onClick={() => setSelectedPiece(null)}
         >
           {/* Wire connections */}
-          {wires.map((wire: Record<string, unknown>) => {
-            const fromPiece = pieces.find((p: Record<string, unknown>) => p.id === wire.fromPieceId);
-            const toPiece   = pieces.find((p: Record<string, unknown>) => p.id === wire.toPieceId);
+          {wires.map((wire) => {
+            const fromPiece = pieces.find((p) => p.id === wire.fromPieceId);
+            const toPiece   = pieces.find((p) => p.id === wire.toPieceId);
             if (!fromPiece || !toPiece) return null;
             const from = piecePortPos(fromPiece, wire.fromPortId, false);
             const to   = piecePortPos(toPiece,   wire.toPortId,   true);
@@ -595,7 +595,7 @@ export default function EngineBuilderCanvas(){
                   style={{ cursor: 'pointer' }}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setWires((prev: Record<string, unknown>) => prev.filter((w: Record<string, unknown>) => w.id !== wire.id));
+                    setWires((prev) => prev.filter((w) => w.id !== wire.id));
                   }}
                 />
               </g>
@@ -619,7 +619,7 @@ export default function EngineBuilderCanvas(){
           )}
 
           {/* Pieces */}
-          {pieces.map((piece: Record<string, unknown>) => {
+          {pieces.map((piece) => {
             const pc    = portColor(piece.role);
             const isDef = selectedPiece === piece.id;
 
@@ -697,7 +697,7 @@ export default function EngineBuilderCanvas(){
                 </foreignObject>
 
                 {/* Input ports (left side) */}
-                {piece.inputPorts.map(port: Record<string, unknown>, (idx: number ) => {
+                {piece.inputPorts.map((port, idx: number) => {
                   const { x, y } = piecePortPos(piece, port.id, true);
                   return (
                     <g key={`in-${port.id}`}>
@@ -719,7 +719,7 @@ export default function EngineBuilderCanvas(){
                 })}
 
                 {/* Output ports (right side) */}
-                {piece.outputPorts.map(port: Record<string, unknown>, (idx: number ) => {
+                {piece.outputPorts.map((port, idx: number) => {
                   const { x, y } = piecePortPos(piece, port.id, false);
                   return (
                     <g key={`out-${port.id}`}>

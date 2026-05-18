@@ -72,7 +72,7 @@ async function loadKnownBadHashes(supabase: Awaited<ReturnType<typeof createServ
 
     if (error || !data) return new Set();
     return new Set(
-      (data as { hash_sha256: string }[]).map((r: Record<string, unknown>) => r.hash_sha256.toLowerCase()),
+      (data as { hash_sha256: string }[]).map((r) => r.hash_sha256.toLowerCase()),
     );
   } catch {
     return new Set();

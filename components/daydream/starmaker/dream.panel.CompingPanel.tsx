@@ -65,7 +65,7 @@ function fmtTimestamp(ms: number): string {
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
-function StarRating(){
+function StarRating({
   rating,
   onChange,
 }: { rating: TakeRating; onChange: (r: TakeRating) => void }) {
@@ -283,7 +283,7 @@ export default function CompingPanel({ state, onStateChange }: CompingPanelProps
                     flex: 1, display: 'flex', alignItems: 'center',
                     gap: 1, padding: '6px 8px', background: take.active ? `${take.color}06` : 'transparent',
                   }}>
-                    {take.waveform.slice(0, WAVEFORM_BARS).map(h: Record<string, unknown>, (i: number ) => (
+                    {take.waveform.slice(0, WAVEFORM_BARS).map((h, i: number) => (
                       <div
                         key={i}
                         style={{
@@ -323,7 +323,7 @@ export default function CompingPanel({ state, onStateChange }: CompingPanelProps
                 ACTIVE COMP — {activeTakes.length} take{activeTakes.length > 1 ? 's' : ''} contributing
               </div>
               <div style={{ display: 'flex', gap: 4, height: 12, borderRadius: 4, overflow: 'hidden' }}>
-                {activeTakes.map(take: Record<string, unknown>, (i: number ) => (
+                {activeTakes.map((take, i: number) => (
                   <div
                     key={take.id}
                     title={take.name}

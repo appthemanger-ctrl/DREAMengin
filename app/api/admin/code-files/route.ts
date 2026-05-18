@@ -45,7 +45,7 @@ async function buildTree(absDir: string, root: string, depth = 0): Promise<FileN
       nodes.push({ name: e.name, type: 'file', path: rel });
     }
   }
-  return nodes.sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
+  return nodes.sort((a, b) => {
     if (a.type !== b.type) return a.type === 'dir' ? -1 : 1;
     return a.name.localeCompare(b.name);
   });
@@ -77,7 +77,7 @@ function resolveAllowedFile(relPath: string): { abs: string; rel: string } | nul
   const segments = normalized.split('/').filter(Boolean);
   const topDir = segments[0] as AllowedTopDir | undefined;
   if (!topDir || !ALLOWED_TOP_DIRS.includes(topDir)) return null;
-  if (segments.some((s: Record<string, unknown>) => s === '..' || BLOCKED_SEGMENTS.has(s))) return null;
+  if (segments.some((s) => s === '..' || BLOCKED_SEGMENTS.has(s))) return null;
   if (!ALLOWED_EXTENSIONS.has(path.extname(normalized))) return null;
 
   return {

@@ -27,7 +27,7 @@ export interface PlacementModeProps {
   onAutoLock: () => void;
 }
 
-export default function PlacementMode(){
+export default function PlacementMode({
   widget,
   totalSlots,
   filledSlots,
@@ -40,12 +40,12 @@ export default function PlacementMode(){
 
   function handleSlotTap(slot: number ){
     if (filledSlots.has(slot)) return;
-    setHistory((prev: Record<string, unknown>) => [...prev, slot]);
+    setHistory((prev) => [...prev, slot]);
     setChosen(slot);
   }
 
   const handleUndo = useCallback(() => {
-    setHistory((prev: Record<string, unknown>) => {
+    setHistory((prev) => {
       const next = [...prev];
       next.pop();
       setChosen(next.length > 0 ? next[next.length - 1] : null);
@@ -91,7 +91,7 @@ export default function PlacementMode(){
         gap: 12, padding: 16, alignContent: 'start',
         pointerEvents: 'none',
       }}>
-        {Array.from({ length: totalSlots }, _: Record<string, unknown>, (i: number ) => {
+        {Array.from({ length: totalSlots }, (_, i: number ) => {
           const filled = filledSlots.has(i);
           const selected = chosen === i;
           return (

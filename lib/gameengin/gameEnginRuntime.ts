@@ -200,7 +200,7 @@ export class GameEnginRuntime {
     if (!this.canvas) return;
 
     const dispatch = (event: unknown) => {
-      this.inputHandlers.get(type)?.forEach((h: Record<string, unknown>) => h(event));
+      this.inputHandlers.get(type)?.forEach((h) => h(event));
       this.bus.emit('inputReceived', { type, event });
     };
 

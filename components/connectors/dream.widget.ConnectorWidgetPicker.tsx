@@ -135,7 +135,7 @@ export interface ConnectorWidgetPickerProps {
   onClose: () => void;
 }
 
-export default function ConnectorWidgetPicker(){
+export default function ConnectorWidgetPicker({
   activeWidgetTypes,
   onAdd,
   onClose,
@@ -369,7 +369,7 @@ export default function ConnectorWidgetPicker(){
                   gap: 12,
                   paddingBottom: 12,
                 }}>
-                  {filtered.map((connector: Record<string, unknown>) => {
+                  {filtered.map((connector) => {
                     const isAdded = activeWidgetTypes.includes(connector.widgetType);
                     return (
                       <ConnectorCard
@@ -416,7 +416,7 @@ export default function ConnectorWidgetPicker(){
 
 // ── Connector card ────────────────────────────────────────────────────────────
 
-function ConnectorCard(){
+function ConnectorCard({
   connector, isAdded, onTap,
 }: {
   connector: PickerConnector;

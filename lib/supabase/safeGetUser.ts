@@ -19,7 +19,7 @@ export async function safeGetUser<TUser>(
   const effectiveTimeoutMs = Math.max(1, timeoutMs);
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
-  const timeoutPromise = new Promise<never>((_: Record<string, unknown>, reject: Record<string, unknown>) => {
+  const timeoutPromise = new Promise<never>((_, reject) => {
     timeoutId = setTimeout(() => {
       reject(new Error(`Supabase auth timed out after ${effectiveTimeoutMs}ms`));
     }, effectiveTimeoutMs);

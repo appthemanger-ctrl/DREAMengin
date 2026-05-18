@@ -134,7 +134,7 @@ export async function podcastSync(creds: PodcastCredentials): Promise<UnifiedFee
   const rawItems = await parseRssFeed({ provider: 'podcast', feedUrl: url }, 50);
 
   // Re-normalise with podcast-aware normaliser so enclosures (audio/video) are typed correctly
-  return rawItems.map((item: Record<string, unknown>) =>
+  return rawItems.map((item) =>
     normalisePodcast(
       item.raw as Parameters<typeof normalisePodcast>[0],
       item.author_name,

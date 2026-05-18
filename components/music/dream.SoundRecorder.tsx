@@ -120,11 +120,11 @@ export default function SoundRecorder( ){
       chunksRef.current = [];
       mr.ondataavailable = (e: unknown ) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
       mr.onstop = () => {
-        stream.getTracks().forEach((t: Record<string, unknown>) => t.stop());
+        stream.getTracks().forEach((t) => t.stop());
         const blob = new Blob(chunksRef.current, { type: usedMime });
         const url = URL.createObjectURL(blob);
         const durationMs = Date.now() - startTimeRef.current;
-        setRecordings((prev: Record<string, unknown>) => [...prev, { url, name: `Take ${prev.length + 1}`, durationMs, blob, mimeType: usedMime }]);
+        setRecordings((prev) => [...prev, { url, name: `Take ${prev.length + 1}`, durationMs, blob, mimeType: usedMime }]);
         setState('recorded');
         if (timerRef.current) clearInterval(timerRef.current);
         cancelAnimationFrame(animFrameRef.current);
@@ -191,7 +191,7 @@ export default function SoundRecorder( ){
       return;
     }
     // Pause any currently playing
-    audioElsRef.current.forEach((el: Record<string, unknown>) => el.pause());
+    audioElsRef.current.forEach((el) => el.pause());
     cancelAnimationFrame(playRafRef.current);
     setPlayingIdx(null);
 
@@ -239,7 +239,7 @@ export default function SoundRecorder( ){
 
   /* delete */
   const deleteRecording = useCallback((idx: number) => {
-    setRecordings((prev: Record<string, unknown>) => {
+    setRecordings((prev) => {
       const next = [...prev];
       URL.revokeObjectURL(next[idx].url);
       next.splice(idx, 1);
@@ -357,7 +357,7 @@ export default function SoundRecorder( ){
             </span>
           </div>
 
-          {recordings.map(rec: Record<string, unknown>, (idx: number ) => {
+          {recordings.map((rec, idx: number) => {
             const isPlaying = playingIdx === idx;
             const pos = playPosition[idx] ?? 0;
             return (

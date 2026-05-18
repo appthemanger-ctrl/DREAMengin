@@ -30,7 +30,7 @@ interface SocialShareSheetProps {
   platforms?: SocialPlatform[];
 }
 
-export default function SocialShareSheet(){
+export default function SocialShareSheet({
   open,
   onClose,
   url,
@@ -200,7 +200,7 @@ export default function SocialShareSheet(){
             gridTemplateColumns: 'repeat(auto-fill, minmax(72px, 1fr))',
             gap: 10,
           }}>
-            {platforms.map((platform: Record<string, unknown>) => (
+            {platforms.map((platform) => (
               <button
                 key={platform.id}
                 type="button"

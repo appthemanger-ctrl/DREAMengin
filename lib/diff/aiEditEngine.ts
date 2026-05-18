@@ -415,7 +415,7 @@ function trimContextLines(lines: EditDiffLine[], keep: number): EditDiffLine[] {
   if (lines.length === 0) return lines;
   // Find indices of non-context lines
   const changed = lines
-    .map(l: Record<string, unknown>, (i: number ) => l.type !== 'context' ? i : -1)
+    .map((l, i: number) => l.type !== 'context' ? i : -1)
     .filter((i) => i >= 0);
   if (changed.length === 0) return lines.slice(0, Math.min(keep * 2 + 1, lines.length));
 
@@ -735,7 +735,7 @@ export function applyMatchesForCell(
   replacement: string,
 ): string {
   if (matches.length === 0) return code;
-  const sorted = [...matches].sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.start - a.start); // right to left
+  const sorted = [...matches].sort((a, b) => b.start - a.start); // right to left
   let result = code;
   for (const m of sorted) {
     result = result.slice(0, m.start) + replacement + result.slice(m.end);

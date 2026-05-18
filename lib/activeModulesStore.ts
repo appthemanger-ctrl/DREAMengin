@@ -29,7 +29,7 @@ export function loadActiveModules(accountId?: string | null): ActiveModuleInstan
 
 export function saveActiveModule(accountId: string, instance): ActiveModuleInstance {
   const existing = loadActiveModules(accountId);
-  const map = new Map(existing.map((entry: Record<string, unknown>) => [entry.instanceId, entry]));
+  const map = new Map(existing.map((entry) => [entry.instanceId, entry]));
   map.set(instance.instanceId, instance);
   writeInstances(accountId, Array.from(map.values()));
 }
@@ -39,6 +39,6 @@ export function saveActiveModules(accountId: string, instances): ActiveModuleIns
 }
 
 export function removeActiveModule(accountId: string, instanceId): string {
-  const next = loadActiveModules(accountId).filter((instance: Record<string, unknown>) => instance.instanceId !== instanceId);
+  const next = loadActiveModules(accountId).filter((instance) => instance.instanceId !== instanceId);
   writeInstances(accountId, next);
 }

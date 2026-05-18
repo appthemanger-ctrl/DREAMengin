@@ -134,7 +134,7 @@ export const TAKE_COLORS = [
 /** Create a demo take with a synthetic waveform. */
 export function createDemoTake(index: number, durationSec: number = 6): AudioTake {
   const seed = index * 7 + 13;
-  const waveform = Array.from({ length: 48 }, _: Record<string, unknown>, (i: number ) =>
+  const waveform = Array.from({ length: 48 }, (_, i: number ) =>
     Math.min(1, Math.max(0.05, Math.abs(Math.sin((seed * 3 + i * 0.8) * 1.7)) * 0.85 + 0.1)),
   );
   return {
@@ -151,8 +151,8 @@ export function createDemoTake(index: number, durationSec: number = 6): AudioTak
 
 /** Build an initial comping state with demo takes. */
 export function createInitialCompingState(takeCount: number = 3): CompingState {
-  const takes = Array.from({ length: takeCount }, _: Record<string, unknown>, (i: number ) => createDemoTake(i));
-  const totalDurationSec = takes.reduce((max: Record<string, unknown>, t: Record<string, unknown>) => Math.max(max, t.durationSec), 0);
+  const takes = Array.from({ length: takeCount }, (_, i: number ) => createDemoTake(i));
+  const totalDurationSec = takes.reduce((max, t) => Math.max(max, t.durationSec), 0);
   return { takes, compRegions: [], totalDurationSec };
 }
 
@@ -233,7 +233,7 @@ const SESSION_DEMO_CLIPS: Record<string, Record<number, Partial<SessionClip>>> =
 
 /** Build a default Session View with demo content. */
 export function createInitialSessionView(): SessionViewState {
-  const scenes: SessionScene[] = SESSION_SCENE_DEFAULTS.map(name: Record<string, unknown>, (i: number ) => ({
+  const scenes: SessionScene[] = SESSION_SCENE_DEFAULTS.map((name, i: number) => ({
     id: `scene-${i}`,
     name,
   }));
@@ -244,7 +244,7 @@ export function createInitialSessionView(): SessionViewState {
     muted: false,
     solo: false,
     volume: 0.85,
-    clips: scenes.map((_: Record<string, unknown>, sceneIndex: Record<string, unknown>) => {
+    clips: scenes.map((_, sceneIndex) => {
       const demoPatch = SESSION_DEMO_CLIPS[def.id]?.[sceneIndex];
       const base = createEmptyClip(def.id, sceneIndex);
       base.color = def.color;

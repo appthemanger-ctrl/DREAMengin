@@ -71,7 +71,7 @@ export default function EffectsPanel( ){
 
 // ── Reusable slider row ───────────────────────────────────────────────────────
 
-function SliderRow(){
+function SliderRow({
   label, value, displaySuffix,
   min, max, step,
   rawValue,

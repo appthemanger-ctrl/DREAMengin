@@ -78,7 +78,7 @@ export default function NewProjectPage( ){
           <div className="de-widget-header"><span className="de-widget-title">Quick Start Templates</span></div>
           <div className="de-widget-body">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-              {templates.map((template: Record<string, unknown>) => (
+              {templates.map((template) => (
                 <button
                   key={template.name}
                   type="button"

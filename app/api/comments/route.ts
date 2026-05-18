@@ -51,18 +51,18 @@ export async function GET(req: NextRequest ){
   }
 
   // Fetch profile data for all comment authors in one query
-  const userIds = [...new Set(comments.map((c: Record<string, unknown>) => c.user_id))];
+  const userIds = [...new Set(comments.map((c) => c.user_id))];
   const { data: profiles } = await supabase
     .from('profiles')
     .select('id, display_name, avatar_url, handle')
     .in('id', userIds);
 
   const profilesMap = Object.fromEntries(
-    (profiles || []).map((p: Record<string, unknown>) => [p.id, p])
+    (profiles || []).map((p) => [p.id, p])
   );
 
   // Merge profile data into each comment
-  const enriched = comments.map((c: Record<string, unknown>) => ({
+  const enriched = comments.map((c) => ({
     ...c,
     profile: profilesMap[c.user_id] ?? null,
   }));

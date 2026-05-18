@@ -78,7 +78,7 @@ export async function twitterSync(creds: TwitterCredentials): Promise<UnifiedFee
   const instance = (creds.nitter_instance || DEFAULT_NITTER_INSTANCE).trim();
   const url = twitterNitterRssUrl(instance, username);
   const items = await parseRssFeed({ provider: 'twitter', feedUrl: url }, 40);
-  return items.map((item: Record<string, unknown>) => normaliseTwitter(item.raw as Parameters<typeof normaliseTwitter>[0], username));
+  return items.map((item) => normaliseTwitter(item.raw as Parameters<typeof normaliseTwitter>[0], username));
 }
 
 export function twitterCredentialFields( ){

@@ -81,7 +81,7 @@ function computeSparkline(dots: JourneyDot[]): number[] {
 }
 
 /** Mini 7-day sparkline bar chart shown beneath the streak banner. */
-function SparklineBar({ dots }: ) { dots: JourneyDot[] } {
+function SparklineBar({ dots }: {dots: JourneyDot[]}) {
   const data = computeSparkline(dots);
   const max  = Math.max(...data, 1);
   return (
@@ -89,7 +89,7 @@ function SparklineBar({ dots }: ) { dots: JourneyDot[] } {
       aria-hidden="true"
       style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 22, marginTop: 8 }}
     >
-      {data.map(val: Record<string, unknown>, (i: number ) => (
+      {data.map((val, i: number) => (
         <div
           key={i}
           title={`${val} action${val !== 1 ? 's' : ''} · ${6 - i === 0 ? 'today' : `${6 - i}d ago`}`}

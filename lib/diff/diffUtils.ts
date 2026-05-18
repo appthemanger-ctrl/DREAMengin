@@ -134,7 +134,7 @@ export function parseUnifiedDiff(diffText: string): DiffFile[] {
 
 function finalise(file: DiffFile): DiffFile {
   // Re-index hunks so .index is always correct after pushes
-  file.hunks = file.hunks.map(h: Record<string, unknown>, (i: number ) => ({ ...h, index: i }));
+  file.hunks = file.hunks.map((h, i: number) => ({ ...h, index: i }));
   return file;
 }
 
@@ -270,7 +270,7 @@ export function buildScrollMarkers(
 ): HunkScrollMarker[] {
   if (totalLines === 0 || file.hunks.length === 0) return [];
 
-  return file.hunks.map((hunk: Record<string, unknown>) => {
+  return file.hunks.map((hunk) => {
     const start    = hunk.newStart - 1;  // 0-based
     const size     = hunk.newCount;
     return {
@@ -317,7 +317,7 @@ export const DEMO_DIFF = `--- a/lib/diff/diffUtils.ts
  
  const HUNK_HEADER_RE = /^@@ -(\d+)(?:,(\d+))? \\+(\d+)(?:,(\d+))? @@(.*)/;
 @@ -89,3 +101,18 @@ function finalise(file: DiffFile): DiffFile {
-   file.hunks = file.hunks.map(h: Record<string, unknown>, (i: number ) => ({ ...h, index: i }));
+   file.hunks = file.hunks.map((h, i: number) => ({ ...h, index: i }));
    return file;
  }
 +
@@ -326,7 +326,7 @@ export const DEMO_DIFF = `--- a/lib/diff/diffUtils.ts
 +  totalLines: number,
 +): HunkScrollMarker[] {
 +  if (totalLines === 0 || file.hunks.length === 0) return [];
-+  return file.hunks.map((hunk: Record<string, unknown>) => ({
++  return file.hunks.map((hunk) => ({
 +    hunkIndex: hunk.index,
 +    position:  Math.min(1, (hunk.newStart - 1) / totalLines),
 +    size:      Math.min(1, hunk.newCount / totalLines),

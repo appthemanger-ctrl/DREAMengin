@@ -50,7 +50,7 @@ export class WaveFunctionCollapse {
   }
 
   reset(): void {
-    const all = new Set<number>(this.tiles.map(_: Record<string, unknown>, (i: number ) => i));
+    const all = new Set<number>(this.tiles.map((_, i: number) => i));
     this.grid = new Array(this.width * this.height).fill(null).map(() => new Set(all));
   }
 
@@ -61,7 +61,7 @@ export class WaveFunctionCollapse {
       if (next === -1) return this.snapshot();
       const choices = Array.from(this.grid[next]);
       if (choices.length === 0) return null;
-      const total = choices.reduce(s: Record<string, unknown>, (i: number ) => s + (this.tiles[i].weight ?? 1), 0);
+      const total = choices.reduce((s, i: number) => s + (this.tiles[i].weight ?? 1), 0);
       let pick = this.rng() * total;
       let chosen = choices[0];
       for (const i of choices) {
@@ -119,7 +119,7 @@ export class WaveFunctionCollapse {
   }
 
   private snapshot(): (string | null)[] {
-    return this.grid.map((cell: Record<string, unknown>) => {
+    return this.grid.map((cell) => {
       if (cell.size === 1) {
         const [idx] = Array.from(cell);
         return this.tiles[idx].id;
@@ -227,7 +227,7 @@ export class ChunkScheduler {
 
   enqueue(job: ChunkJob): void {
     this.queue.push(job);
-    this.queue.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.priority - a.priority);
+    this.queue.sort((a, b) => b.priority - a.priority);
   }
 
   /** Drain jobs up to the per-tick budget. */

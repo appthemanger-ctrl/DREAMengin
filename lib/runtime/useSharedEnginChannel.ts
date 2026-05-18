@@ -63,7 +63,7 @@ export interface SharedEnginChannelResult<T extends RuntimeChannelEvent = Runtim
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
-export function useSharedEnginChannel<T extends RuntimeChannelEvent = RuntimeChannelEvent>(){
+export function useSharedEnginChannel<T extends RuntimeChannelEvent = RuntimeChannelEvent>({
   enginName,
   instanceId,
   region = 'homedream',

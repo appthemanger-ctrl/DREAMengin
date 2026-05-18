@@ -91,7 +91,7 @@ export default function MarketplacePanel( ){
           </div>
           <div className="de-widget-body">
             <div className="grid grid-cols-2 gap-3">
-              {listings.map((item: Record<string, unknown>) => (
+              {listings.map((item) => (
                 <MarketplaceListingCard key={item.id} item={item} />
               ))}
             </div>
@@ -102,7 +102,7 @@ export default function MarketplacePanel( ){
           <div className="de-widget-header"><span className="de-widget-title">Explore Categories</span></div>
           <div className="de-widget-body">
             <div className="grid grid-cols-2 gap-3">
-              {FALLBACK_CATEGORIES.map(({ icon, label: string, desc }) => (
+              {FALLBACK_CATEGORIES.map(({ icon, label, desc }) => (
                 <div key={label} className="de-surface p-3 flex flex-col gap-1" style={{ borderRadius: 10 }}>
                   <span style={{ fontSize: 22 }}>{icon}</span>
                   <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>{label}</div>

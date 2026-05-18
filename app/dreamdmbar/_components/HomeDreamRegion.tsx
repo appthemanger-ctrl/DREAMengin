@@ -42,7 +42,7 @@ interface HomeDreamSurfaceProps {
   userId?: string;
 }
 
-function QuickLink(){
+function QuickLink({
   label,
   onClick,
   primary = false,
@@ -81,7 +81,7 @@ function QuickLink(){
   );
 }
 
-export default function HomeDreamSurface(){
+export default function HomeDreamSurface({
   profile,
   posts,
   onOpenDrEams,

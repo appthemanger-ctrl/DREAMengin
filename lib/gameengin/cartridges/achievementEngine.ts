@@ -66,7 +66,7 @@ export function createAchievementsAPI(
   definitions: AchievementDefinition[],
   onUnlock: AchievementUnlockListener,
 ): CartridgeAchievementsAPI {
-  const defMap = new Map(definitions.map((d: Record<string, unknown>) => [d.id, d]));
+  const defMap = new Map(definitions.map((d) => [d.id, d]));
 
   return {
     async unlock(id: string): Promise<void> {
@@ -99,7 +99,7 @@ export function createAchievementsAPI(
 
     async getAll(): Promise<AchievementState[]> {
       const state = readState(cartridgeId);
-      return definitions.map((def: Record<string, unknown>) => {
+      return definitions.map((def) => {
         const s = state[def.id];
         return {
           id: def.id,
@@ -121,5 +121,5 @@ export function purgeCartridgeAchievements(cartridgeId: string): void {
 /** Return count of unlocked achievements for a cartridge (without full API). */
 export function getUnlockedCount(cartridgeId: string): number {
   const state = readState(cartridgeId);
-  return Object.values(state).filter((s: Record<string, unknown>) => s.unlocked).length;
+  return Object.values(state).filter((s) => s.unlocked).length;
 }

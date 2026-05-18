@@ -36,7 +36,7 @@ export interface ConnectWidgetPromptProps {
  * ConnectWidgetPrompt — shows immediately after a successful connection.
  * Only one should be mounted at a time (parent is responsible for req 18).
  */
-export default function ConnectWidgetPrompt(){
+export default function ConnectWidgetPrompt({
   connectorName,
   connectorId,
   widgetTypes,

@@ -83,7 +83,7 @@ export function parseSocialProfileWidgetConfig(raw: unknown): SocialProfileWidge
   if (!Array.isArray(profilesRaw)) throw new Error('Social profile config missing profiles[]');
 
   const profiles = profilesRaw
-    .map((p: Record<string, unknown>) => {
+    .map((p) => {
       if (!isRecord(p)) return null;
       const provider = asProvider(p.provider) ?? inferProviderFromUrl(asStr(p.url));
       if (!provider) return null;
@@ -109,7 +109,7 @@ export function parseSocialFeedWidgetConfig(raw: unknown): SocialFeedWidgetConfi
   if (!Array.isArray(sourcesRaw)) throw new Error('Social feed config missing sources[]');
 
   const sources = sourcesRaw
-    .map((s: Record<string, unknown>) => {
+    .map((s) => {
       if (!isRecord(s)) return null;
       const provider = asProvider(s.provider);
       if (!provider) return null;

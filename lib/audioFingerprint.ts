@@ -117,7 +117,7 @@ export function buildPeakMap(audioBuffer: AudioBuffer, topK = DEFAULT_TOP_K): Pe
     }
 
     // Sort descending by magnitude and take topK
-    magnitudes.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.mag - a.mag);
+    magnitudes.sort((a, b) => b.mag - a.mag);
     for (let k = 0; k < Math.min(topK, magnitudes.length); k++) {
       const { bin, mag } = magnitudes[k];
       peaks.push({
@@ -157,8 +157,8 @@ function buildSignature(peaks: Peak[], fftSize: number): number[] {
     }
   }
   // Normalise to unit length
-  const norm = Math.sqrt(vec.reduce(a: Record<string, unknown>, (v: number ) => a + v * v, 0));
-  return norm > 0 ? vec.map((v: Record<string, unknown>) => v / norm) : vec;
+  const norm = Math.sqrt(vec.reduce((a, v: number) => a + v * v, 0));
+  return norm > 0 ? vec.map((v) => v / norm) : vec;
 }
 
 // ─── recordReferenceFingerprint ──────────────────────────────────────────────

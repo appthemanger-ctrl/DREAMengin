@@ -135,7 +135,7 @@ export default function SerpentSiege( ){
           const newHead: Pt = { x: headRef.current.x + dirRef.current.x, y: headRef.current.y + dirRef.current.y };
           // Boundary check + self-collision
           const oob = newHead.x < 0 || newHead.x >= COLS || newHead.y < 0 || newHead.y >= ROWS;
-          const onSelf = segmentsRef.current.some((s: Record<string, unknown>) => s.x === newHead.x && s.y === newHead.y);
+          const onSelf = segmentsRef.current.some((s) => s.x === newHead.x && s.y === newHead.y);
           if (oob || onSelf) {
             // can't move; stay still — serpent is stuck (penalty)
           } else {
@@ -268,7 +268,7 @@ export default function SerpentSiege( ){
             }
           }
         }
-        projsRef.current = projsRef.current.filter((p: Record<string, unknown>) => p.ttl > 0);
+        projsRef.current = projsRef.current.filter((p) => p.ttl > 0);
 
         // Tower terrain particles (occasional ambient flecks tinted by terrain)
         if (Math.random() < dt * 6) {
@@ -288,7 +288,7 @@ export default function SerpentSiege( ){
           scoreRef.current += e.kind === 'boss' ? 600 : e.kind === 'shielded' ? 60 : 25;
           particlesRef.current.burst(e.x * CELL + CELL / 2, e.y * CELL + CELL / 2, 14, { color: COL.enemy, speed: 130, size: 2, maxLife: 0.6, drag: 0.88 });
         }
-        enemiesRef.current = enemiesRef.current.filter((e: Record<string, unknown>) => e.hp > 0);
+        enemiesRef.current = enemiesRef.current.filter((e) => e.hp > 0);
 
         if (eggHpRef.current <= 0) setPhase('defeat');
       }

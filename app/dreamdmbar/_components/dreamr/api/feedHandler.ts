@@ -116,7 +116,7 @@ export async function dreamrFeedHandler(req: NextRequest): Promise<NextResponse>
   // ── Dedupe ids the client has already seen *before* ranking ──────────────
   const fresh =
     params.seen.size > 0
-      ? visible.filter((r: Record<string, unknown>) => !params.seen.has(r.id))
+      ? visible.filter((r) => !params.seen.has(r.id))
       : visible;
 
   const posts: ScoredPost[] = fresh.map((r: unknown) => ({

@@ -66,7 +66,7 @@ export interface UseEnginCoopSyncResult {
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
-export function useEnginCoopSync(){
+export function useEnginCoopSync({
   enginName,
   instanceId,
   region = 'homedream',
@@ -95,7 +95,7 @@ export function useEnginCoopSync(){
 
   useEffect(() => {
     if (!active || !onPeerState) return;
-    const off = subscribe((evt: Record<string, unknown>) => {
+    const off = subscribe((evt) => {
       onPeerState(evt);
     });
     return off;

@@ -38,10 +38,10 @@ const DR = {
   font:         'var(--font-dreamr,"Plus Jakarta Sans",system-ui,sans-serif)',
 } as const;
 
-function nmRaised(size = 5: string ){
+function nmRaised(size: number = 5): string {
   return `${-size}px ${-size}px ${size * 2.4}px ${DR.shadowLight}, ${size}px ${size}px ${size * 2.8}px ${DR.shadowDark}`;
 }
-function nmInset(size = 4: string ){
+function nmInset(size: number = 4): string {
   return `inset ${-size}px ${-size}px ${size * 2}px ${DR.shadowLight}, inset ${size}px ${size}px ${size * 2.4}px ${DR.shadowDark}`;
 }
 
@@ -69,7 +69,7 @@ function relTime(iso: string): string {
   return `${Math.floor(s / 86400)}d`;
 }
 
-function SocialBadge({ provider }: ) { provider: string } {
+function SocialBadge({ provider }: {provider: string}) {
   const icons: Record<string, React.ReactNode> = {
     instagram: <Instagram size={13} />,
     youtube:   <Youtube   size={13} />,

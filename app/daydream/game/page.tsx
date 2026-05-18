@@ -17,7 +17,7 @@ export default async function GamePage({ searchParams }: GamePageProps) {
   const resolved = await searchParams;
   Object.entries(resolved).forEach(([key, value]) => {
     if (Array.isArray(value)) {
-      value.forEach((entry: Record<string, unknown>) => params.append(key, entry));
+      value.forEach((entry) => params.append(key, entry));
       return;
     }
     if (typeof value === 'string') {

@@ -48,7 +48,7 @@ export function createRenderLoop(): RenderLoop {
     }
   }
 
-  function onFrame(cb: FrameCallback: () => void {
+  function onFrame(cb: FrameCallback): () => void {
     callbacks.add(cb);
     return () => {
       callbacks.delete(cb);

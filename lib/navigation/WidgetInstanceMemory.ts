@@ -70,7 +70,7 @@ export class WidgetInstanceMemory {
     this.homeIndices = [];
     this.profileIndices = [];
     
-    instances.forEach(instance: Record<string, unknown>, (index: number ) => {
+    instances.forEach((instance, index: number) => {
       if (instance.context === 'HOME') {
         this.homeIndices.push(index);
       } else if (instance.context === 'PROFILE') {
@@ -143,7 +143,7 @@ export class WidgetInstanceMemory {
     }
     
     const active = this.getActiveWidgets();
-    this.sortedCache = active.slice().sort((a: Record<string, unknown>, b: Record<string, unknown>) => a.zIndex - b.zIndex);
+    this.sortedCache = active.slice().sort((a, b) => a.zIndex - b.zIndex);
     this.sortedCacheDirty = false;
     return this.sortedCache;
   }

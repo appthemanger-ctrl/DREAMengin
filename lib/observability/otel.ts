@@ -100,7 +100,7 @@ export async function getPrometheusMetrics(): Promise<string> {
   ensureInit();
   if (!_promExporter) return '';
 
-  return new Promise<string>((resolve: Record<string, unknown>) => {
+  return new Promise<string>((resolve) => {
     const fakeReq = {} as IncomingMessage;
     const fakeRes = {
       setHeader: () => fakeRes,

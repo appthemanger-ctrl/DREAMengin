@@ -38,12 +38,12 @@ function extractFileHints(rootCause: RootCauseAnalysis): string[] {
     ...rootCause.evidence_summary,
   ].join(' ');
 
-  const matches = [...combined.matchAll(FILE_HINT_PATTERN)].map((match: Record<string, unknown>) => match[1]?.replace(/^[(/]+/, '') ?? '');
+  const matches = [...combined.matchAll(FILE_HINT_PATTERN)].map((match) => match[1]?.replace(/^[(/]+/, '') ?? '');
   return unique(matches);
 }
 
 function includesAny(source: string, patterns: RegExp[]): boolean {
-  return patterns.some((pattern: Record<string, unknown>) => pattern.test(source));
+  return patterns.some((pattern) => pattern.test(source));
 }
 
 export function buildImmediateRemediationAction(

@@ -65,7 +65,7 @@ export function useSharedDream(channelId: string): UseSharedDreamReturn {
   const externalHandlers = useRef<Set<DreamEventHandler>>(new Set());
 
   const internalHandler = useCallback((payload: DreamBroadcastPayload) => {
-    setPeers((prev: Record<string, unknown>) => {
+    setPeers((prev) => {
       const updated = { ...prev };
 
       if (payload.type === 'peer_join') {
@@ -121,7 +121,7 @@ export function useSharedDream(channelId: string): UseSharedDreamReturn {
       return updated;
     });
 
-    externalHandlers.current.forEach((handler: Record<string, unknown>) => handler(payload));
+    externalHandlers.current.forEach((handler) => handler(payload));
   }, []);
 
   useEffect(() => {
@@ -139,7 +139,7 @@ export function useSharedDream(channelId: string): UseSharedDreamReturn {
     createSharedDreamSession(channelId, supabase, [internalHandler], {
       role: 'participant',
       mode: 'shared_dream',
-    }).then((nextSession: Record<string, unknown>) => {
+    }).then((nextSession) => {
       if (!mounted) {
         void leaveSharedDreamSession(nextSession);
         return;
@@ -166,7 +166,7 @@ export function useSharedDream(channelId: string): UseSharedDreamReturn {
 
     return () => {
       mounted = false;
-      setSession((current: Record<string, unknown>) => {
+      setSession((current) => {
         if (current) void leaveSharedDreamSession(current);
         return null;
       });

@@ -78,7 +78,7 @@ export function clearSwap(domain: SwapDomain): void {
  */
 export function getAllSwapStates(): Record<SwapDomain, boolean> {
   return Object.fromEntries(
-    ALL_DOMAINS.map((domain: Record<string, unknown>) => [domain, getSwap(domain)]),
+    ALL_DOMAINS.map((domain) => [domain, getSwap(domain)]),
   ) as Record<SwapDomain, boolean>;
 }
 

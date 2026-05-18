@@ -38,7 +38,7 @@ type Props = {
   onClick?: () => void;
 };
 
-export default function PlatformBadge({ name, size = 44, label: string, className = '', onClick }: Props) {
+export default function PlatformBadge({ name, size = 44, label, className = '', onClick }: Props) {
   // Check legacy SVG icons first
   const svgPath = SVG_PATHS[name];
   const svgBg   = SVG_BRAND[name];

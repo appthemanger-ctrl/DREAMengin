@@ -63,7 +63,7 @@ const GAME_COMPONENTS: Record<string, React.ComponentType> = {
   'defuse-ritual': DefuseRitual,
 };
 
-export const GAMES: GameDef[] = GAME_CATALOG.map((game: Record<string, unknown>) => ({
+export const GAMES: GameDef[] = GAME_CATALOG.map((game) => ({
   ...game,
   component: GAME_COMPONENTS[game.id],
 }));
@@ -89,7 +89,7 @@ interface TiltGameCardProps {
   onPlayAsMe: (id: string) => void;
 }
 
-function TiltGameCard({ game, isSaved: Record<string, unknown>, onPlay: Record<string, unknown>, hasAvatar: Record<string, unknown>, onPlayAsMe }: TiltGameCardProps) {
+function TiltGameCard({ game, isSaved, onPlay, hasAvatar, onPlayAsMe }: TiltGameCardProps) {
   const { motionProps, glareStyle } = useMotionTilt({ maxTilt: 8, scale: 1.04, glare: true });
 
   const cardContent = (
@@ -250,24 +250,24 @@ export default function GamesHub( ){
 
   const categories = ['All', ...Array.from(new Set(GAMES.map((g) => g.category))).sort()];
   const normalizedQuery = query.trim().toLowerCase();
-  const filteredByCategory = filter === 'All' ? GAMES : GAMES.filter((game: Record<string, unknown>) => game.category === filter);
+  const filteredByCategory = filter === 'All' ? GAMES : GAMES.filter((game) => game.category === filter);
   const filtered = normalizedQuery
-    ? filteredByCategory.filter((game: Record<string, unknown>) => (
+    ? filteredByCategory.filter((game) => (
       `${game.label} ${game.category} ${game.desc}`.toLowerCase().includes(normalizedQuery)
     ))
     : filteredByCategory;
-  const savedGameIds = new Set(savedSessions.map((session: Record<string, unknown>) => session.gameId));
+  const savedGameIds = new Set(savedSessions.map((session) => session.gameId));
   const featuredGames = FEATURED_GAME_IDS
-    .map((id: Record<string, unknown>) => GAMES.find((game: Record<string, unknown>) => game.id === id))
+    .map((id) => GAMES.find((game) => game.id === id))
     .filter((game): game is GameDef => Boolean(game));
   const recentLaunches = savedSessions
-    .map((session: Record<string, unknown>) => GAMES.find((game: Record<string, unknown>) => game.id === session.gameId))
+    .map((session) => GAMES.find((game) => game.id === session.gameId))
     .filter((game): game is GameDef => Boolean(game))
     .slice(0, 4);
 
   const saveGameToEngin = useCallback((id: string, source: SavedGameSession['source']) => {
     if (typeof window === 'undefined') return;
-    const game = GAMES.find((entry: Record<string, unknown>) => entry.id === id);
+    const game = GAMES.find((entry) => entry.id === id);
     if (!game) return;
 
     let existing: SavedGameSession[] = [];
@@ -323,7 +323,7 @@ export default function GamesHub( ){
       ?? window.localStorage.getItem('de:games:last-launch')
       ?? GAMES[0]?.id
       ?? null;
-    const resolvedId = resolveGameLaunchId(searchParams.get('game'), GAMES.map((game: Record<string, unknown>) => game.id), storedSelection);
+    const resolvedId = resolveGameLaunchId(searchParams.get('game'), GAMES.map((game) => game.id), storedSelection);
     if (resolvedId) {
       window.localStorage.setItem(GAME_LIBRARY_SELECTION_STORAGE_KEY, resolvedId);
     }
@@ -379,7 +379,7 @@ export default function GamesHub( ){
               { label: 'Playable', value: String(GAMES.length) },
               { label: 'Categories', value: String(categories.length - 1) },
               { label: 'Saved', value: String(savedSessions.length) },
-            ].map((stat: Record<string, unknown>) => (
+            ].map((stat) => (
               <div
                 key={stat.label}
                 style={{
@@ -397,7 +397,7 @@ export default function GamesHub( ){
         </div>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {ENGINE_CAPABILITY_CHIPS.map((chip: Record<string, unknown>) => (
+          {ENGINE_CAPABILITY_CHIPS.map((chip) => (
             <span
               key={chip}
               style={{
@@ -421,7 +421,7 @@ export default function GamesHub( ){
               Featured Launch Deck
             </div>
             <div style={{ display: 'grid', gap: 8, gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))' }}>
-              {featuredGames.map((game: Record<string, unknown>) => (
+              {featuredGames.map((game) => (
                 <div key={game.id} style={{ display: 'grid', gap: 4 }}>
                   <button
                     type="button"
@@ -474,7 +474,7 @@ export default function GamesHub( ){
               Quick Resume Rack
             </div>
             <div style={{ display: 'grid', gap: 8 }}>
-              {(recentLaunches.length ? recentLaunches : featuredGames.slice(0, QUICK_RESUME_FALLBACK_COUNT)).map((game: Record<string, unknown>) => (
+              {(recentLaunches.length ? recentLaunches : featuredGames.slice(0, QUICK_RESUME_FALLBACK_COUNT)).map((game) => (
                 <button
                   key={`recent-${game.id}`}
                   type="button"
@@ -577,7 +577,7 @@ export default function GamesHub( ){
       <div ref={gridRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
         <AnimatePresence mode="popLayout">
           {filtered.map((game) => {
-            const isSaved = savedSessions.some((s: Record<string, unknown>) => s.gameId === game.id);
+            const isSaved = savedSessions.some((s) => s.gameId === game.id);
             return (
               <TiltGameCard
                 key={game.id}

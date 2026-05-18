@@ -37,7 +37,7 @@ export default function OutdreamMenu({ onClose }: OutdreamMenuProps) {
       >
         <h2 className="px-2 text-sm uppercase tracking-[0.2em] text-white/60">Daydreams</h2>
         <ul className="mt-2 space-y-1 max-h-80 overflow-y-auto">
-          {dayDreams.map((d: Record<string, unknown>) => (
+          {dayDreams.map((d) => (
             <li key={d.id}>
               <button
                 type="button"

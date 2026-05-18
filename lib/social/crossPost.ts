@@ -89,7 +89,7 @@ export function formatShareText(payload: DreamSharePayload): string {
   }
 
   if (payload.tags && payload.tags.length > 0) {
-    const tagStr = payload.tags.slice(0, 5).map((t: Record<string, unknown>) => `#${t}`).join(' ');
+    const tagStr = payload.tags.slice(0, 5).map((t) => `#${t}`).join(' ');
     parts.push(tagStr);
   }
 

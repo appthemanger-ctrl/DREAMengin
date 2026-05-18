@@ -100,7 +100,7 @@ export default function ProjectsPanel( ){
               <RefreshCw size={12} className={loading ? 'animate-spin' : ''} />
             </button>
             <button
-              onClick={() => setShowForm((f: Record<string, unknown>) => !f)}
+              onClick={() => setShowForm((f) => !f)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#22d3ee]/20 hover:bg-[#22d3ee]/30 text-[#22d3ee] text-xs font-medium transition-all"
             >
               <Plus size={13} />
@@ -133,7 +133,7 @@ export default function ProjectsPanel( ){
                 onChange={(e) => setNewLang(e.target.value)}
                 className="w-full px-3 py-2 bg-black/30 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-[#22d3ee]/50"
               >
-                {Object.keys(LANG_COLORS).filter((l: Record<string, unknown>) => l !== 'default').map((l: Record<string, unknown>) => (
+                {Object.keys(LANG_COLORS).filter((l) => l !== 'default').map((l) => (
                   <option key={l} value={l}>{l.charAt(0).toUpperCase() + l.slice(1)}</option>
                 ))}
               </select>
@@ -168,7 +168,7 @@ export default function ProjectsPanel( ){
 
         {!loading && projects.length > 0 && (
           <div className="space-y-2">
-            {projects.map((proj: Record<string, unknown>) => {
+            {projects.map((proj) => {
               const langColor = LANG_COLORS[proj.language ?? 'default'] ?? LANG_COLORS.default;
               return (
                 <div

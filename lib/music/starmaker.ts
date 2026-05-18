@@ -105,7 +105,7 @@ function getChordRoot(chord: string): string {
 }
 
 function rotateNotes(notes: string[], startIndex: number, length: number): string[] {
-  return Array.from({ length }, _: Record<string, unknown>, (index: number ) => notes[(startIndex + index) % notes.length]);
+  return Array.from({ length }, (_, index: number ) => notes[(startIndex + index) % notes.length]);
 }
 
 export function summarizePlaybackProfile(input: PlaybackProfileInput): PlaybackProfile {

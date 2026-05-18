@@ -56,7 +56,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<EmbedFeedRespo
 
     const { data, error } = await query;
     if (!error && Array.isArray(data) && data.length > 0) {
-      const items = data.map((row: Record<string, unknown>) => ({
+      const items = data.map((row) => ({
         id:            String(row.external_id ?? ''),
         provider:      String(row.provider ?? ''),
         title:         String(row.title ?? ''),

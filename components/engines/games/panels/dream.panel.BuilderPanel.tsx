@@ -48,8 +48,8 @@ export default function BuilderPanel( ){
   const [characterName, setCharacterName] = useState('Original Hero');
 
   const paintCell = useCallback((row: number, col: number) => {
-    setGrid((prev: Record<string, unknown>) => {
-      const next = prev.map((r: Record<string, unknown>) => [...r]);
+    setGrid((prev) => {
+      const next = prev.map((r) => [...r]);
       next[row][col] = activePixel;
       return next;
     });
@@ -109,7 +109,7 @@ export default function BuilderPanel( ){
     setTimeout(() => setSaved(false), 2000);
   }
 
-  const pixelDef = (type: PixelType) => PIXELS.find((pixel: Record<string, unknown>) => pixel.type === type)!;
+  const pixelDef = (type: PixelType) => PIXELS.find((pixel) => pixel.type === type)!;
 
   return (
     <div
@@ -134,7 +134,7 @@ export default function BuilderPanel( ){
         </div>
 
         <div className="flex flex-wrap gap-2 mb-5">
-          {PIXELS.map((pixel: Record<string, unknown>) => (
+          {PIXELS.map((pixel) => (
             <button
               key={pixel.type}
               onClick={() => setActivePixel(pixel.type)}
@@ -160,8 +160,8 @@ export default function BuilderPanel( ){
             role="grid"
             style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))` }}
           >
-            {grid.map((row: Record<string, unknown>, ri: Record<string, unknown>) =>
-              row.map((cell: Record<string, unknown>, ci: Record<string, unknown>) => {
+            {grid.map((row, ri) =>
+              row.map((cell, ci) => {
                 const def = pixelDef(cell);
                 return (
                   <button

@@ -51,11 +51,11 @@ export default function AIAssistant( ){
 
   // Teach-on-first-use: UI can emit teach events; Dr. Eams explains once.
   useEffect(() => {
-    const off = onTeach((evt: Record<string, unknown>) => {
+    const off = onTeach((evt) => {
       if (!fullExperience) return;
       if (hasTaught(evt.featureId)) return;
       markTaught(evt.featureId);
-      setMessages((prev: Record<string, unknown>) => [
+      setMessages((prev) => [
         ...prev,
         {
           id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
@@ -70,7 +70,7 @@ export default function AIAssistant( ){
 
   // Surface iDari activity inside this assistant as well
   useEffect(() => {
-    const unsubscribe = onIdariEvent((evt: Record<string, unknown>) => {
+    const unsubscribe = onIdariEvent((evt) => {
       const shouldSurface =
         evt.type === 'idari:status' ||
         evt.status === 'error' ||
@@ -79,7 +79,7 @@ export default function AIAssistant( ){
 
       if (!shouldSurface) return;
 
-      setMessages((prev: Record<string, unknown>) => [
+      setMessages((prev) => [
         ...prev,
         {
           id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
@@ -93,7 +93,7 @@ export default function AIAssistant( ){
   }, []);
 
   const addAssistantMessage = (content: string) => {
-    setMessages((prev: Record<string, unknown>) => [
+    setMessages((prev) => [
       ...prev,
       {
         id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
@@ -138,7 +138,7 @@ export default function AIAssistant( ){
       timestamp: new Date(),
     };
 
-    setMessages((prev: Record<string, unknown>) => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
@@ -250,7 +250,7 @@ export default function AIAssistant( ){
       {!isMinimized && (
         <>
           <div className="flex-1 overflow-y-auto p-4 space-y-4 h-[480px]">
-            {messages.map((message: Record<string, unknown>) => (
+            {messages.map((message) => (
               <div key={message.id} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 <div
                   className={`max-w-[80%] p-3 rounded-lg ${

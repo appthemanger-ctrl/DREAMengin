@@ -153,7 +153,7 @@ export default async function ViewProfilePage( ){
 
   // Build a lookup: content_id → visibility
   const mappingLookup = new Map<string, string>(
-    (mappingsData ?? []).map((m: Record<string, unknown>) => [m.content_id, m.visibility])
+    (mappingsData ?? []).map((m) => [m.content_id, m.visibility])
   );
 
   // Use server-persisted widget projection (falls back to defaults if not set)
@@ -167,7 +167,7 @@ export default async function ViewProfilePage( ){
   // Consult visibility_mappings first (authoritative); fall back to widget.visibility.
   // Widgets with no visibility set default to 'private' (nothing public by default).
   // Phase 8 §B Point 21: never include 'private' visibility Dream Windows.
-  const savedDreams = allSavedDreams.filter((w: Record<string, unknown>) => {
+  const savedDreams = allSavedDreams.filter((w) => {
     // Use visibility_mappings record if one exists for this widget
     const mappedVisibility = mappingLookup.get(w.id);
     const effectiveVisibility = mappedVisibility ?? w.visibility ?? 'private';

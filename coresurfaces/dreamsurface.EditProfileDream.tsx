@@ -125,14 +125,14 @@ export default function EditProfileDreamPage( ){
       // VISIBILITY_CHANGE events (no update_mapping — draft not yet published).
       // Per dreamengin_phase6.md point 7: log ALL privacy-adjacent decisions.
       if (initialWidgets.length > 0) {
-        const changedWidgets = widgets.filter((w: Record<string, unknown>) => {
-          const prev = initialWidgets.find((iw: Record<string, unknown>) => iw.id === w.id);
+        const changedWidgets = widgets.filter((w) => {
+          const prev = initialWidgets.find((iw) => iw.id === w.id);
           return prev && prev.visibility !== w.visibility;
         });
         if (changedWidgets.length > 0) {
           await Promise.allSettled(
-            changedWidgets.map((w: Record<string, unknown>) => {
-              const prev = initialWidgets.find((iw: Record<string, unknown>) => iw.id === w.id);
+            changedWidgets.map((w) => {
+              const prev = initialWidgets.find((iw) => iw.id === w.id);
               return fetch('/api/ai/boogieman/privacy-event', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -215,7 +215,7 @@ export default function EditProfileDreamPage( ){
 
       // Log EXPLICIT_SHARE events for each publicly visible Dream Window.
       await Promise.allSettled(
-        publicWidgets.map((w: Record<string, unknown>) =>
+        publicWidgets.map((w) =>
           fetch('/api/ai/boogieman/privacy-event', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

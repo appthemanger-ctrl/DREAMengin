@@ -173,12 +173,7 @@ function actionBtn(color: string): React.CSSProperties {
   };
 }
 
-function ClusterCard({ group, onRemove, onBind, onCollapse }: ) {
-  group: ClusterGroup;
-  onRemove: (id: string) => void;
-  onBind: (id: string) => void;
-  onCollapse: (id: string) => void;
-}) {
+function ClusterCard({ group, onRemove, onBind, onCollapse }: { group: ClusterGroup; onRemove: (id: string) => void; onBind: (id: string) => void; onCollapse: (id: string) => void }) {
   const layout = group.windows.length > 2 ? 'grid' : 'stack';
 
   return (
@@ -205,7 +200,7 @@ function ClusterCard({ group, onRemove, onBind, onCollapse }: ) {
             layout === 'grid' ? 'repeat(2, minmax(0, 1fr))' : '1fr',
         }}
       >
-        {group.windows.map((w: Record<string, unknown>) => (
+        {group.windows.map((w) => (
           <DreamWindowTile
             key={w.id}
             window={w}
@@ -251,7 +246,7 @@ export default function SuperDreamWidget(){
   const filtered = useMemo(
     () =>
       types && types.length > 0
-        ? dreamWindows.filter((w: Record<string, unknown>) => types.includes(w.type))
+        ? dreamWindows.filter((w) => types.includes(w.type))
         : dreamWindows,
     [dreamWindows, types],
   );
@@ -372,7 +367,7 @@ export default function SuperDreamWidget(){
           </div>
         )}
 
-        {clusters.map((group: Record<string, unknown>) => (
+        {clusters.map((group) => (
           <ClusterCard
             key={group.clusterKey}
             group={group}

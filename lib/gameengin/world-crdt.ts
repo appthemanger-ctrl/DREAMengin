@@ -152,7 +152,7 @@ export class EventualConsistencyBridge<T> {
 
   start(): void {
     if (this.timer) return;
-    this.unsubscribe = this.transport.onReceive((records: Record<string, unknown>) => {
+    this.unsubscribe = this.transport.onReceive((records) => {
       for (const r of records) this.crdt.merge(r);
     });
     this.timer = setInterval(() => { void this.flush(); }, this.flushIntervalMs);

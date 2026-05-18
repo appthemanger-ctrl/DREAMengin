@@ -17,7 +17,7 @@ export interface EventBus {
 export function createEventBus(): EventBus {
   const listeners = new Map<string, Set<Handler>>();
 
-  function subscribe(type: string, handler: Handler: () => void {
+  function subscribe(type: string, handler: Handler): () => void {
     if (!listeners.has(type)) {
       listeners.set(type, new Set());
     }

@@ -71,7 +71,7 @@ const DAYDREAMS = [
 
 type Profile = { id: string; handle: string; display_name: string | null; bio: string | null; avatar_url: string | null };
 
-export default async function DiscoverPage({ searchParams }: ) { searchParams: Promise<{ q?: string }> } {
+export default async function DiscoverPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -84,7 +84,7 @@ export default async function DiscoverPage({ searchParams }: ) { searchParams: P
 
   if (q && q.trim().length > 0) {
     // Escape special PostgREST/ilike characters to prevent filter injection
-    const safe = q.trim().replace((/[%_\\]/g, c: Record<string, unknown>) => `\\${c}`);
+    const safe = q.trim().replace(/[%_\\]/g, c => `\\${c}`);
     const { data } = await supabase
       .from('profiles')
       .select('id, handle, display_name, bio, avatar_url')
@@ -149,7 +149,7 @@ export default async function DiscoverPage({ searchParams }: ) { searchParams: P
                 padding: '10px 10px 14px',
               }}
             >
-              {DAYDREAMS.map((d: Record<string, unknown>) => (
+              {DAYDREAMS.map((d) => (
                 <Link
                   key={d.id}
                   href={d.route}
@@ -301,7 +301,7 @@ export default async function DiscoverPage({ searchParams }: ) { searchParams: P
                   <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Try a different name or handle</p>
                 </div>
               ) : (
-                profiles.map((p: Record<string, unknown>) => (
+                profiles.map((p) => (
                   <Link key={p.id} href={`/profile/${p.handle}`} className="de-row" style={{ borderRadius: 10 }}>
                     <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(42,138,184,0.12)', border: '1px solid rgba(42,138,184,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0, overflow: 'hidden' }}>
                       {p.avatar_url ? (
@@ -338,7 +338,7 @@ export default async function DiscoverPage({ searchParams }: ) { searchParams: P
                     <p className="text-xs" style={{ color: 'var(--de-text-dim)' }}>Be the first to join!</p>
                   </div>
                 ) : (
-                  suggestedProfiles.map((p: Record<string, unknown>) => (
+                  suggestedProfiles.map((p) => (
                     <Link key={p.id} href={`/profile/${p.handle}`} className="de-row" style={{ borderRadius: 10 }}>
                       <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'rgba(42,138,184,0.12)', border: '1px solid rgba(42,138,184,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0, overflow: 'hidden' }}>
                         {p.avatar_url ? (

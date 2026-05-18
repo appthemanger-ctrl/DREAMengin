@@ -105,8 +105,8 @@ function buildDiff(last: StoredSession, current: StoredSession): SessionDiff {
   const lastSet = new Set(last.activations);
   const currentSet = new Set(current.activations);
 
-  const newSubsystems = [...currentSet].filter((id: Record<string, unknown>) => !lastSet.has(id));
-  const droppedSubsystems = [...lastSet].filter((id: Record<string, unknown>) => !currentSet.has(id));
+  const newSubsystems = [...currentSet].filter((id) => !lastSet.has(id));
+  const droppedSubsystems = [...lastSet].filter((id) => !currentSet.has(id));
   const continueFrom = last.activations[last.activations.length - 1] ?? null;
 
   let recommendation: string;
@@ -137,7 +137,7 @@ const STORE_NAME = 'sessions';
 const DB_VERSION = 1;
 
 function openDB(): Promise<IDBDatabase> {
-  return new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+  return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = () => {
       const db = req.result;
@@ -154,17 +154,17 @@ async function createIDBBackend(): Promise<SessionStorageBackend> {
   const db = await openDB();
   return {
     async read(): Promise<StoredSession[]> {
-      return new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+      return new Promise((resolve, reject) => {
         const tx = db.transaction(STORE_NAME, 'readonly');
         const req = tx.objectStore(STORE_NAME).getAll();
         req.onsuccess = () =>
-          resolve((req.result as StoredSession[]).sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.startedAt - a.startedAt));
+          resolve((req.result as StoredSession[]).sort((a, b) => b.startedAt - a.startedAt));
         req.onerror = () => reject(req.error);
       });
     },
     async write(sessions: StoredSession[]): Promise<void> {
       const fresh = sessions.slice(0, MAX_STORED_SESSIONS);
-      return new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+      return new Promise((resolve, reject) => {
         const tx = db.transaction(STORE_NAME, 'readwrite');
         const store = tx.objectStore(STORE_NAME);
         const clearReq = store.clear();

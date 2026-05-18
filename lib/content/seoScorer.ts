@@ -148,7 +148,7 @@ function scoreBody(body: string, keywords: string[]): SeoScoreDimension {
 
   const kwDensity =
     keywords.length > 0
-      ? keywords.reduce(acc: Record<string, unknown>, (k: number ) => {
+      ? keywords.reduce((acc, k: number) => {
           const re = new RegExp(`\\b${k}\\b`, 'gi');
           return acc + (body.match(re)?.length ?? 0);
         }, 0) / Math.max(words.length, 1)
@@ -273,7 +273,7 @@ function roughFleschGrade(text: string): string {
     .toLowerCase()
     .replace(/[^a-z]/g, ' ')
     .split(/\s+/)
-    .reduce(acc: Record<string, unknown>, (w: number ) => acc + countSyllables(w), 0) || 1;
+    .reduce((acc, w: number) => acc + countSyllables(w), 0) || 1;
 
   const score = 206.835 - 1.015 * (words / sentences) - 84.6 * (syllables / words);
 
@@ -329,8 +329,8 @@ export function scoreContent(input: SeoScoreInput): SeoScoreResult {
     dimensions.push({ label: acc.label, score: acc.score, maxScore: acc.maxScore, suggestion: acc.suggestion });
   }
 
-  const rawTotal = dimensions.reduce((a: Record<string, unknown>, d: Record<string, unknown>) => a + d.score, 0);
-  const rawMax = dimensions.reduce((a: Record<string, unknown>, d: Record<string, unknown>) => a + d.maxScore, 0);
+  const rawTotal = dimensions.reduce((a, d) => a + d.score, 0);
+  const rawMax = dimensions.reduce((a, d) => a + d.maxScore, 0);
   const overall = rawMax > 0 ? Math.round((rawTotal / rawMax) * 100) : 50;
 
   const topSuggestions = dimensions

@@ -341,7 +341,7 @@ export class GameEnginCore {
 
     // 7. Enable telemetry / profiler
     if (config.telemetry?.enabled) {
-      this.eliteEngine.onFrame((_dt: Record<string, unknown>, telemetry: Record<string, unknown>) => {
+      this.eliteEngine.onFrame((_dt, telemetry) => {
         const minFps = config.telemetry?.minAcceptableFps ?? 25;
         if (telemetry.avgFps < minFps) {
           console.warn(

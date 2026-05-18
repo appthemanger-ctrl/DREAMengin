@@ -52,7 +52,7 @@ interface HomeFeedProps {
   embedded?: boolean;
 }
 
-export default function HomeFeed(){
+export default function HomeFeed({
   userId,
   userHandle,
   userAvatar,
@@ -208,13 +208,13 @@ export default function HomeFeed(){
     for (const file of files) {
       if (file.size > maxSize) continue;
       if (!file.type.startsWith('image/')) continue;
-      setSelectedImages((prev: Record<string, unknown>) => [...prev, { file, preview: URL.createObjectURL(file) }]);
+      setSelectedImages((prev) => [...prev, { file, preview: URL.createObjectURL(file) }]);
     }
     if (e.target) e.target.value = '';
   }, []);
 
   const removeImage = useCallback((idx: number) => {
-    setSelectedImages((prev: Record<string, unknown>) => {
+    setSelectedImages((prev) => {
       const next = [...prev];
       URL.revokeObjectURL(next[idx].preview);
       next.splice(idx, 1);
@@ -275,7 +275,7 @@ export default function HomeFeed(){
       };
       prependPost(createdPost);
       setNewPostContent('');
-      setSelectedImages((prev: Record<string, unknown>) => { prev.forEach((img: Record<string, unknown>) => URL.revokeObjectURL(img.preview)); return []; });
+      setSelectedImages((prev) => { prev.forEach((img) => URL.revokeObjectURL(img.preview)); return []; });
       setShowComposer(false);
     } catch (err) {
       setPostError(err instanceof Error ? err.message : 'Unable to create your post right now.');
@@ -287,7 +287,7 @@ export default function HomeFeed(){
   const toggleLike = async (postId: string) => {
     const alreadyLiked = likedPosts.has(postId);
     setLikedPosts((prev) => { const n = new Set(prev); if (alreadyLiked) n.delete(postId); else n.add(postId); return n; });
-    const cur = posts.find((p: Record<string, unknown>) => p.id === postId)?.likes_count ?? 0;
+    const cur = posts.find((p) => p.id === postId)?.likes_count ?? 0;
     updatePost(postId, { likes_count: Math.max(0, cur + (alreadyLiked ? -1 : 1)) });
     try {
       if (alreadyLiked) {
@@ -347,7 +347,7 @@ export default function HomeFeed(){
   // video sits in the context for swipe navigation.
   const ytIndexMap = useMemo<Map<string, number>>(() => {
     const m = new Map<string, number>();
-    ytPosts.forEach(p: Record<string, unknown>, (i: number ) => m.set(p.id, i));
+    ytPosts.forEach((p, i: number) => m.set(p.id, i));
     return m;
   }, [ytPosts]);
 
@@ -476,7 +476,7 @@ export default function HomeFeed(){
               {/* Image previews */}
               {selectedImages.length > 0 && (
                 <div className="flex gap-2 flex-wrap">
-                  {selectedImages.map(img: Record<string, unknown>, (idx: number ) => (
+                  {selectedImages.map((img, idx: number) => (
                     <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-border">
                       <Image src={img.preview} alt="Preview" fill unoptimized className="object-cover" />
                       <button type="button" onClick={() => removeImage(idx)} className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5" aria-label="Remove image"><X className="w-3 h-3" /></button>
@@ -495,7 +495,7 @@ export default function HomeFeed(){
                   </button>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => { setShowComposer(false); setNewPostContent(''); setSelectedImages((prev: Record<string, unknown>) => { prev.forEach((img: Record<string, unknown>) => URL.revokeObjectURL(img.preview)); return []; }); }} className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[40px]">Cancel</button>
+                  <button onClick={() => { setShowComposer(false); setNewPostContent(''); setSelectedImages((prev) => { prev.forEach((img) => URL.revokeObjectURL(img.preview)); return []; }); }} className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-[40px]">Cancel</button>
                   <button onClick={handleCreatePost} disabled={(!newPostContent.trim() && selectedImages.length === 0) || isPosting} className="flex items-center gap-2 px-5 py-2 bg-primary text-primary-foreground rounded-xl text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors min-h-[40px]">
                     {isPosting ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4" />Post</>}
                   </button>
@@ -536,7 +536,7 @@ export default function HomeFeed(){
               <button onClick={() => setShowComposer(true)} className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors min-h-[48px]">Create a Post</button>
             </div>
           ) : (
-            displayPosts.map((post: Record<string, unknown>, postIdx: Record<string, unknown>) => (
+            displayPosts.map((post, postIdx) => (
               <Fragment key={post.id}>
               <article
                 className="bg-card hover:border-primary/20 transition-colors"

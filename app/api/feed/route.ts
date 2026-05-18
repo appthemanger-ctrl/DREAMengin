@@ -179,7 +179,7 @@ export async function GET(req: NextRequest ){
   }
 
   // Legacy sorting (for backward compatibility)
-  entries.sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
+  entries.sort((a, b) => {
     if (sort === 'trending') {
       // trending: posts with most likes first, then by date
       const aLikes = a.likes_count ?? 0;

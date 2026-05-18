@@ -147,7 +147,7 @@ function transform(state: EnginBaseState, action: ContentEnginAction): EnginBase
       const { platform } = (action as EnginAction<'content:platform-toggle', { platform: Platform }>).payload!;
       const current = (domain.activePlatforms ?? DEFAULT_DOMAIN.activePlatforms) as Platform[];
       const next = current.includes(platform)
-        ? current.filter((p: Record<string, unknown>) => p !== platform)
+        ? current.filter((p) => p !== platform)
         : [...current, platform];
       return patchBaseState(state, { domain: { ...domain, activePlatforms: next } });
     }

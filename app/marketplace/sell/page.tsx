@@ -151,7 +151,7 @@ export default function MarketplaceSellPage( ){
               <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                 <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-text-dim)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Category *</span>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
-                  {CATEGORIES.map(({ value, label: string, desc }) => (
+                  {CATEGORIES.map(({ value, label, desc }) => (
                     <button
                       key={value}
                       type="button"
@@ -253,7 +253,7 @@ export default function MarketplaceSellPage( ){
                   'Add a detailed description — features, compatible versions, what&apos;s included.',
                   'Tags help buyers discover your listing — choose relevant keywords.',
                   'Set price to 0 to make it free and build reputation first.',
-                ].map(tip: Record<string, unknown>, (i: number ) => (
+                ].map((tip, i: number) => (
                   <li key={i} className="de-row" style={{ borderBottom: 'none', paddingBlock: 4 }}>
                     <span style={{ color: 'var(--de-gold)', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{i + 1}.</span>
                     <span style={{ fontSize: 13, color: 'var(--de-text)' }} dangerouslySetInnerHTML={{ __html: tip }} />

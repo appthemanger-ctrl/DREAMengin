@@ -26,12 +26,12 @@ export async function identifySong(
   await engine.init();
 
   const query = audioToVector(clip, sampleRate);
-  const templates: Template[] = songDatabase.map((song: Record<string, unknown>) => ({
+  const templates: Template[] = songDatabase.map((song) => ({
     id: song.id,
     data: song.fingerprint,
   }));
 
   const matches = await engine.search(query, templates, threshold);
-  matches.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.correlation - a.correlation);
+  matches.sort((a, b) => b.correlation - a.correlation);
   return matches[0] ?? null;
 }

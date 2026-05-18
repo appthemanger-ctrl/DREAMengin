@@ -15,6 +15,6 @@ export default function DreamFeatureLayer(){
   fallback = null,
   children,
 }: DreamFeatureLayerProps) {
-  const allowed = requires.every((capability: Record<string, unknown>) => capabilities.includes(capability));
+  const allowed = requires.every((capability) => capabilities.includes(capability));
   return <>{allowed ? children : fallback}</>;
 }

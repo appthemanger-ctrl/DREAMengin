@@ -236,7 +236,7 @@ export function normalizeDbRow(row: DbNotificationRow): UiNotification {
 
 /** Count unread notifications in a list. */
 export function getUnreadCount(notifications: UiNotification[]): number {
-  return notifications.filter((n: Record<string, unknown>) => !n.read).length;
+  return notifications.filter((n) => !n.read).length;
 }
 
 /** Sort notifications newest-first. Mutates a copy, does not mutate input. */
@@ -254,7 +254,7 @@ export function applyOptimisticRead(
   notifications: UiNotification[],
   id: string,
 ): UiNotification[] {
-  return notifications.map((n: Record<string, unknown>) => (n.id === id ? { ...n, read: true } : n));
+  return notifications.map((n) => (n.id === id ? { ...n, read: true } : n));
 }
 
 /**
@@ -263,7 +263,7 @@ export function applyOptimisticRead(
 export function applyOptimisticMarkAll(
   notifications: UiNotification[],
 ): UiNotification[] {
-  return notifications.map((n: Record<string, unknown>) => ({ ...n, read: true }));
+  return notifications.map((n) => ({ ...n, read: true }));
 }
 
 /**
@@ -273,5 +273,5 @@ export function applyOptimisticDelete(
   notifications: UiNotification[],
   id: string,
 ): UiNotification[] {
-  return notifications.filter((n: Record<string, unknown>) => n.id !== id);
+  return notifications.filter((n) => n.id !== id);
 }

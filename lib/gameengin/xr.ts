@@ -107,7 +107,7 @@ export class HandTrackingInput {
 
   onAction(cb: (side: 'left' | 'right', action: UnifiedAction) => void): () => void {
     this.subscribers.push(cb);
-    return () => { this.subscribers = this.subscribers.filter((s: Record<string, unknown>) => s !== cb); };
+    return () => { this.subscribers = this.subscribers.filter((s) => s !== cb); };
   }
 
   /** Feed a pose snapshot; emits actions on rising edges. */

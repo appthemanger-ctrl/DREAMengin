@@ -45,7 +45,7 @@ export const mapJoystickToAsset = async (
   command: string,
   inputSource = 'left_joystick',
   sensitivity = 1.5,
-): Promise<{ data: ControlMapping[(] | null; error: unknown }>) => {
+): Promise<{ data: ControlMapping[] | null; error: unknown }> => {
   const supabase = createClient();
 
   const user = (await supabase.auth.getUser()).data.user;

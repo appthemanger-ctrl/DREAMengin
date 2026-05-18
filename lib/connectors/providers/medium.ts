@@ -44,7 +44,7 @@ export async function mediumSync(creds: MediumCredentials): Promise<UnifiedFeedI
   const url = mediumUserRssUrl(username);
   const items = await parseRssFeed({ provider: 'medium', feedUrl: url }, 40);
   // Re-normalise using our custom normaliser so author_handle is the @username
-  return items.map((item: Record<string, unknown>) => normaliseMedium(item.raw as Parameters<typeof normaliseMedium>[0], `@${username}`));
+  return items.map((item) => normaliseMedium(item.raw as Parameters<typeof normaliseMedium>[0], `@${username}`));
 }
 
 export function mediumCredentialFields( ){

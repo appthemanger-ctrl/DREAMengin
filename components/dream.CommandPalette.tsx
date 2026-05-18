@@ -285,7 +285,7 @@ export default function CommandPalette( ){
       )
     : commands;
 
-  const groupedCommands = filteredCommands.reduce((acc: Record<string, unknown>, cmd: Record<string, unknown>) => {
+  const groupedCommands = filteredCommands.reduce((acc, cmd) => {
     if (!acc[cmd.category]) acc[cmd.category] = [];
     acc[cmd.category].push(cmd);
     return acc;
@@ -451,7 +451,7 @@ export default function CommandPalette( ){
  * Renders a Search icon fixed at bottom-left above the DreamDM bar.
  * Exported so CommandPalette can render it alongside the backdrop.
  */
-export function MobileCmdFab({ onClick }: ) { onClick: () => void }) {
+export function MobileCmdFab({ onClick }: {onClick: () => void}) {
   return (
     <button
       type="button"

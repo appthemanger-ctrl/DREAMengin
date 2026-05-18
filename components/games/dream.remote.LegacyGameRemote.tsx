@@ -97,7 +97,7 @@ function angleToDir(dx: number, dy: number): Dir8 | null {
   return null;
 }
 
-function clampToCircle(v: ){ x: number; y: number }, maxR: number {
+function clampToCircle(v: { x: number; y: number }, maxR: number): { x: number; y: number } {
   const d = Math.hypot(v.x, v.y);
   return d > maxR ? { x: (v.x / d) * maxR, y: (v.y / d) * maxR } : v;
 }
@@ -137,7 +137,7 @@ interface StickProps {
   clickColor?: string;
 }
 
-function Stick(){
+function Stick({
   side,
   accentColor,
   label,
@@ -281,7 +281,7 @@ function Stick(){
         }}
       >
         {/* Cardinal tick marks — subtle direction indicators for both sticks */}
-        {[0, 90, 180, 270].map(deg: Record<string, unknown>, (i: number ) => {
+        {[0, 90, 180, 270].map((deg, i: number) => {
           const rad = (deg * Math.PI) / 180;
           const r = padRadius - 8;
           const tx = Math.cos(rad) * r + padRadius;
@@ -375,7 +375,7 @@ interface GameRemoteProps {
   exitHref?: string;
 }
 
-export default function GameRemote(){
+export default function GameRemote({
   onBack,
   embedded = false,
   playHref,
@@ -552,7 +552,7 @@ export default function GameRemote(){
           padding: `10px ${outerPaddingX}px 0`,
           flexShrink: 0,
         }}>
-          {REMOTE_ACTION_PILLS.map(({ sym, label: string, color }) => (
+          {REMOTE_ACTION_PILLS.map(({ sym, label, color }) => (
             <div key={sym} style={{
               display: 'flex', alignItems: 'center', gap: 4,
               padding: '2px 7px', borderRadius: 999,
@@ -671,7 +671,7 @@ export default function GameRemote(){
               clickColor="#fef08a"
             />
 
-            {RIGHT_STICK_RING_BUTTONS.map(({ sym, label: string, action: Record<string, unknown>, color: Record<string, unknown>, top: Record<string, unknown>, left }) => (
+            {RIGHT_STICK_RING_BUTTONS.map(({ sym, label, action, color, top, left }) => (
               <button
                 key={sym}
                 type="button"

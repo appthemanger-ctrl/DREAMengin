@@ -78,7 +78,7 @@ export function computeRiskScore(
 // Given risk score and severity, return the smallest action that is warranted.
 // ============================================================================
 
-export function selectAction(params: ){
+export function selectAction(params: {
   riskScore: number;
   severityLevel: StrikeSeverityLevel;
   confidence: number;
@@ -171,7 +171,7 @@ function selectScopes(ruleCode: string, action: EnforcementAction): PolicyScope[
 // Must not reveal internal signals or thresholds (req 11, 63)
 // ============================================================================
 
-function buildUserExplanation(params: ){
+function buildUserExplanation(params: {
   action: EnforcementAction;
   ruleCode: string;
   scopes: PolicyScope[];
@@ -217,7 +217,7 @@ function buildUserExplanation(params: ){
 // evidence_refs = hashes/IDs only, never raw private content (req 19)
 // ============================================================================
 
-function buildAuditEvent(params: ){
+function buildAuditEvent(params: {
   userId: string;
   action: EnforcementAction;
   severity: number;

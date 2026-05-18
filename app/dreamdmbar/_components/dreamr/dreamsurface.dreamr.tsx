@@ -54,10 +54,10 @@ const DR = {
   shadowDark:  'rgba(163,189,218,0.45)',
 } as const;
 
-function nmRaised(s = 5: string ){
+function nmRaised(s: number = 5) {
   return `${-s}px ${-s}px ${s * 2.4}px ${DR.shadowLight}, ${s}px ${s}px ${s * 2.8}px ${DR.shadowDark}`;
 }
-function nmInset(s = 4: string ){
+function nmInset(s: number = 4) {
   return `inset ${-s}px ${-s}px ${s * 2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s * 2.4}px ${DR.shadowDark}`;
 }
 
@@ -127,7 +127,7 @@ const PLATFORM_META: Record<string, { emoji: string; label: string; color: strin
   soundcloud: { emoji: '☁️', label: 'SoundCloud', color: '#FF5500' },
 };
 
-function TrendIcon({ v }: ) { v: number } {
+function TrendIcon({ v }: {v: number}) {
   if (v > 0) return <TrendingUp size={12} style={{ color: '#22c55e' }} />;
   if (v < 0) return <TrendingDown size={12} style={{ color: '#ef4444' }} />;
   return <Minus size={12} style={{ color: DR.textDim }} />;
@@ -137,7 +137,7 @@ function TrendIcon({ v }: ) { v: number } {
 
 // ── Create tab ────────────────────────────────────────────────────────────────
 
-function CreateTab({ userId, profile }: ) { userId: string; profile: ProfileLike | null } {
+function CreateTab({ userId, profile }: {userId: string; profile: ProfileLike | null}) {
   const supabase = createClient();
   const [content,    setContent]    = useState('');
   const [vis,        setVis]        = useState<'public' | 'followers' | 'private'>('public');
@@ -289,7 +289,7 @@ function CreateTab({ userId, profile }: ) { userId: string; profile: ProfileLike
         {[
           { ref: imgRef, icon: <ImageIcon size={15} />, accept: 'image/*', type: 'image' as const, label: 'Photo' },
           { ref: videoRef, icon: <Video size={15} />, accept: 'video/*', type: 'video' as const, label: 'Video' },
-        ].map({ ref, icon: Record<string, unknown>, accept: Record<string, unknown>, (type: string, label }) => (
+        ].map(({ ref, icon, accept, type, label }) => (
           <button key={label} type="button" onClick={() => ref.current?.click()}
             style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 14px', borderRadius: 99, background: DR.bg, border: 'none', boxShadow: nmRaised(3), cursor: 'pointer', fontFamily: DR.font, fontSize: 12, fontWeight: 600, color: DR.textDim }}>
             {icon}{label}
@@ -351,7 +351,7 @@ function CreateTab({ userId, profile }: ) { userId: string; profile: ProfileLike
 
 // ── Platform tab ──────────────────────────────────────────────────────────────
 
-function PlatformTab({ profile, onOpenUrl }: ) { profile: ProfileLike | null; onOpenUrl?: (url: string, title?: string) => void }) {
+function PlatformTab({ profile, onOpenUrl }: {profile: ProfileLike | null; onOpenUrl?: (url: string, title?: string) => void}) {
   const [connectors, setConnectors] = useState<ConnectorEntry[]>([]);
   const [loading,    setLoading]    = useState(true);
 
@@ -750,7 +750,7 @@ function JourneyTab( ){
 
 // ── Main DreamRSection ─────────────────────────────────────────────────────────
 
-export default function DreamRSection({ profile, initialPosts: Record<string, unknown>, onOpenUrl }: DreamRSectionProps) {
+export default function DreamRSection({ profile, initialPosts, onOpenUrl }: DreamRSectionProps) {
   const [tab, setTab] = useState<Tab>('feed');
   const userId = profile?.id ?? '';
 

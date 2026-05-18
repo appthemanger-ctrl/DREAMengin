@@ -42,12 +42,12 @@ export default function CampaignsPanel( ){
   const [newName, setNewName] = useState('');
 
   function removeCampaign(id: string ){
-    setCampaigns((prev: Record<string, unknown>) => prev.filter((c: Record<string, unknown>) => c.id !== id));
+    setCampaigns((prev) => prev.filter((c) => c.id !== id));
   }
 
   function addCampaign( ){
     if (!newName.trim()) return;
-    setCampaigns((prev: Record<string, unknown>) => [...prev, {
+    setCampaigns((prev) => [...prev, {
       id: Date.now().toString(),
       name: newName.trim(),
       budget: calc.budget,
@@ -104,13 +104,13 @@ export default function CampaignsPanel( ){
                 { key: 'clicks', label: 'Clicks', step: 100 },
                 { key: 'conversions', label: 'Conversions', step: 5 },
                 { key: 'revenue', label: 'Revenue ($)', step: 100 },
-              ].map(({ key, label: string, step }) => (
+              ].map(({ key, label, step }) => (
                 <div key={key}>
                   <label className="block text-xs text-white/40 mb-1">{label}</label>
                   <input
                     type="number"
                     value={calc[key as keyof typeof calc]}
-                    onChange={(e) => setCalc((p: Record<string, unknown>) => ({ ...p, [key]: Number(e.target.value) }))}
+                    onChange={(e) => setCalc((p) => ({ ...p, [key]: Number(e.target.value) }))}
                     step={step}
                     min={0}
                     className="w-full px-2.5 py-1.5 bg-black/30 border border-white/10 rounded-lg text-sm text-white focus:outline-none focus:border-[#f472b6]/50"
@@ -162,7 +162,7 @@ export default function CampaignsPanel( ){
 
         {/* Campaign list */}
         <div className="space-y-3">
-          {campaigns.map((c: Record<string, unknown>) => {
+          {campaigns.map((c) => {
             const m = calcMetrics(c);
             return (
               <div key={c.id} className="rounded-xl bg-white/[0.03] border border-white/10 overflow-hidden">
@@ -183,7 +183,7 @@ export default function CampaignsPanel( ){
                     { label: 'CPC',  value: `$${fmt(m.cpc)}` },
                     { label: 'ROAS', value: `${fmt(m.roas)}×` },
                     { label: 'ROI',  value: `${fmt(m.roi, 1)}%`, isRoi: true },
-                  ].map(({ label, value: Record<string, unknown>, isRoi }) => (
+                  ].map(({ label, value, isRoi }) => (
                     <div key={label} className="py-2 bg-[#0a0a0f]">
                       <div className="text-white/30">{label}</div>
                       <div

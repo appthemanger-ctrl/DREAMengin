@@ -295,7 +295,7 @@ function nowMs(): number {
   return Date.now();
 }
 
-function normalizePayload(payload: CollabOutboundPayload | CollabPayload, context): {
+function normalizePayload(payload: CollabOutboundPayload | CollabPayload, context: {
   channelId: string;
   peerId: string;
   role: SessionRole;
@@ -711,7 +711,7 @@ export interface CollabSessionOptions {
   modeRuleSet?: Partial<CollabModeRuleSet>;
 }
 
-export function createLocalCollabSession(channelId: string, options): Required<Pick<CollabSessionOptions, 'role' | 'mode'>> & { modeRuleSet?: Partial<CollabModeRuleSet> } = { role: 'participant', mode: 'shared_dream' }: CollabSession {
+export function createLocalCollabSession(channelId: string, options: Required<Pick<CollabSessionOptions, 'role' | 'mode'>> & { modeRuleSet?: Partial<CollabModeRuleSet> } = { role: 'participant', mode: 'shared_dream' }): CollabSession {
   return new LocalCollabSession(channelId, generatePeerId(), options.role, options.mode, options.modeRuleSet);
 }
 
@@ -725,14 +725,14 @@ export async function createSupabaseCollabSession(
   const channel = supabaseClient.channel(`dream:collab:${channelId}`, { config: { broadcast: { self: false } } });
   const session = new SupabaseCollabSession(channelId, peerId, channel, options.role, options.mode, options.modeRuleSet);
   for (const handler of handlers) session.onMessage(handler);
-  await new Promise<void>((resolve: Record<string, unknown>) => {
-    channel.subscribe((status: Record<string, unknown>) => { if (status === 'SUBSCRIBED') resolve(); });
+  await new Promise<void>((resolve) => {
+    channel.subscribe((status) => { if (status === 'SUBSCRIBED') resolve(); });
   });
   await session.send({ type: 'peer_join', peerId, data: { joinedAt: nowMs(), role: options.role, mode: options.mode, transport: 'supabase' }, role: options.role, mode: options.mode });
   return session;
 }
 
-export async function createCollabSession(channelId: string, options): CollabSessionOptions = {}: Promise<CollabSession> {
+export async function createCollabSession(channelId: string, options: CollabSessionOptions = {}): Promise<CollabSession> {
   const {
     transport,
     supabaseClient,
@@ -742,7 +742,7 @@ export async function createCollabSession(channelId: string, options): CollabSes
     mode = 'shared_dream',
     modeRuleSet,
   } = options;
-  const hasSupabaseClient = supabaseClient && typeof (supabaseClient as unknown as ){ channel?: unknown }).channel === 'function';
+  const hasSupabaseClient = supabaseClient && typeof (supabaseClient as unknown as { channel?: unknown }).channel === 'function';
   if (transport === 'local') return createLocalCollabSession(channelId, { role, mode, modeRuleSet });
   if (transport === 'supabase') {
     if (hasSupabaseClient) return createSupabaseCollabSession(channelId, supabaseClient, [], { role, mode, modeRuleSet });

@@ -91,7 +91,7 @@ export default function PortfolioOptimizationScene( ){
       cy = canvas!.height / 2;
       const base = Math.min(cx, cy);
 
-      nodes = TICKERS.map(ticker: Record<string, unknown>, (i: number ) => {
+      nodes = TICKERS.map((ticker, i: number) => {
         const outer  = i < 6;
         const orbitR = base * (outer ? 0.44 : 0.26);
         const speed  = (outer ? 0.18 : 0.30) * (i % 2 === 0 ? 1 : -1);
@@ -136,7 +136,7 @@ export default function PortfolioOptimizationScene( ){
     function drawOrbitalRings( ){
       const base  = Math.min(cx, cy);
       const rings = [0.44, 0.26];
-      rings.forEach((r: Record<string, unknown>, ri: Record<string, unknown>) => {
+      rings.forEach((r, ri) => {
         const radius = base * r;
         const alpha  = 0.07 + 0.03 * Math.sin(time * 0.4 + ri);
         ctx.beginPath();

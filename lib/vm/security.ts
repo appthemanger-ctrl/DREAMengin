@@ -108,8 +108,8 @@ export class GPUTimeSlicer {
    */
   allocate(vmId: string, requestedMs: number): TimeBudget {
     const usedMs = Array.from(this.budgets.values())
-      .filter((b: Record<string, unknown>) => b.active)
-      .reduce((sum: Record<string, unknown>, b: Record<string, unknown>) => sum + b.budgetMs, 0);
+      .filter((b) => b.active)
+      .reduce((sum, b) => sum + b.budgetMs, 0);
 
     const available = Math.max(0, this.frameBudgetMs - usedMs);
     const budget: TimeBudget = {

@@ -72,7 +72,7 @@ export async function tiktokSync(creds: TikTokCredentials): Promise<UnifiedFeedI
   const rsshubBase = (creds.rsshub_instance || 'https://rsshub.app').trim();
   const url = tiktokProfileRssUrl(username, rsshubBase);
   const items = await parseRssFeed({ provider: 'tiktok', feedUrl: url }, 40);
-  return items.map((item: Record<string, unknown>) => normaliseTikTok(item.raw as Parameters<typeof normaliseTikTok>[0], username));
+  return items.map((item) => normaliseTikTok(item.raw as Parameters<typeof normaliseTikTok>[0], username));
 }
 
 export function tiktokCredentialFields( ){

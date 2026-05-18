@@ -113,7 +113,7 @@ const DEFAULT_POLICY: PolicyVersion = {
 // SIGNAL DETECTION
 // ============================================================================
 
-function detectJailbreak(message: string, payload: Record<string, unknown>): boolean {
+function detectJailbreak(message: string, payload): boolean {
   const patterns = [
     /ignore\s+(previous\s+)?instructions?/i,
     /act\s+as\s+(a\s+)?(system|admin|root)/i,
@@ -125,10 +125,10 @@ function detectJailbreak(message: string, payload: Record<string, unknown>): boo
   ];
 
   const textToCheck = message + JSON.stringify(payload);
-  return patterns.some((pattern: Record<string, unknown>) => pattern.test(textToCheck));
+  return patterns.some((pattern) => pattern.test(textToCheck));
 }
 
-function detectToolOverride(message: string, payload: Record<string, unknown>): boolean {
+function detectToolOverride(message: string, payload): boolean {
   const patterns = [
     /run\s+(sql|query|command)/i,
     /execute\s+(code|script|function)/i,
@@ -139,16 +139,16 @@ function detectToolOverride(message: string, payload: Record<string, unknown>): 
   ];
 
   const textToCheck = message + JSON.stringify(payload);
-  return patterns.some((pattern: Record<string, unknown>) => pattern.test(textToCheck));
+  return patterns.some((pattern) => pattern.test(textToCheck));
 }
 
-function detectSchemaPoisoning(payload: Record<string, unknown>): boolean {
+function detectSchemaPoisoning(payload): boolean {
   const payloadStr = JSON.stringify(payload).toLowerCase();
   const patterns = ['alter table', 'drop table', 'create table', 'grant ', 'revoke '];
-  return patterns.some((p: Record<string, unknown>) => payloadStr.includes(p));
+  return patterns.some((p) => payloadStr.includes(p));
 }
 
-function detectSecretLike(payload: Record<string, unknown>): boolean {
+function detectSecretLike(payload): boolean {
   const payloadStr = JSON.stringify(payload);
   const patterns = [
     /sk-[a-zA-Z0-9]{32,}/i, // OpenAI-style keys
@@ -159,10 +159,10 @@ function detectSecretLike(payload: Record<string, unknown>): boolean {
     /anon_key/i,
   ];
 
-  return patterns.some((pattern: Record<string, unknown>) => pattern.test(payloadStr));
+  return patterns.some((pattern) => pattern.test(payloadStr));
 }
 
-function detectPII(payload: Record<string, unknown>): boolean {
+function detectPII(payload): boolean {
   const payloadStr = JSON.stringify(payload);
   const patterns = [
     /\b\d{3}-\d{2}-\d{4}\b/, // SSN
@@ -170,7 +170,7 @@ function detectPII(payload: Record<string, unknown>): boolean {
     /\b[\w._%+-]+@[\w.-]+\.[a-z]{2,}\b/i, // Email (loose check)
   ];
 
-  return patterns.some((pattern: Record<string, unknown>) => pattern.test(payloadStr));
+  return patterns.some((pattern) => pattern.test(payloadStr));
 }
 
 function detectCrossUserTarget(
@@ -472,7 +472,7 @@ export async function verifyIntents(
 // REDACTION HELPERS
 // ============================================================================
 
-export function redactSecrets(payload: Record<string, unknown>): Record<string, unknown> {
+export function redactSecrets(payload): Record<string, unknown> {
   const redacted = { ...payload };
 
   function redactValue(val: unknown): unknown {

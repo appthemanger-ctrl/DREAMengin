@@ -175,7 +175,7 @@ export async function listMembers(
   if (error || !data) return [];
 
   const cutoff = Date.now() - 5 * 60 * 1000; // 5 min → online
-  return data.map((row: Record<string, unknown>): RealityMember => ({
+  return data.map((row): RealityMember => ({
     realityId: row.reality_id as string,
     userId: row.user_id as string,
     displayName: (row.profiles as { display_name: string } | null)?.display_name ?? null,
@@ -291,7 +291,7 @@ export async function loadActivity(
 
   if (error || !data) return [];
 
-  return data.map((row: Record<string, unknown>): RealityActivityEntry => ({
+  return data.map((row): RealityActivityEntry => ({
     id: row.id as string,
     realityId: row.reality_id as string,
     userId: row.user_id as string | null,
@@ -304,7 +304,7 @@ export async function loadActivity(
 
 // ── Row mapper ────────────────────────────────────────────────────────────────
 
-function rowToReality(row: Record<string, unknown>): Reality {
+function rowToReality(row): Reality {
   return {
     id: row['id'] as string,
     name: row['name'] as string,

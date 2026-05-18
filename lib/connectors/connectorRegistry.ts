@@ -518,5 +518,5 @@ export const CONNECTOR_REGISTRY: ReadonlyArray<ConnectorDef> = [
 
 /** Look up a connector definition by stable ID (req 43) */
 export function getConnectorDef(id: string): ConnectorDef | undefined {
-  return CONNECTOR_REGISTRY.find((c: Record<string, unknown>) => c.id === id);
+  return CONNECTOR_REGISTRY.find((c) => c.id === id);
 }

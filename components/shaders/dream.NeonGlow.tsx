@@ -55,7 +55,7 @@ export interface NeonGlowProps {
   position?: [number, number, number];
 }
 
-export function NeonGlow(){
+export function NeonGlow({
   color = '#00ffff',
   intensity = 1.5,
   pulseSpeed = 2.0,
@@ -74,7 +74,7 @@ export function NeonGlow(){
     [color, intensity, pulseSpeed],
   );
 
-  useFrame((_state: Record<string, unknown>, delta: Record<string, unknown>) => {
+  useFrame((_state, delta) => {
     if (matRef.current) {
       matRef.current.uniforms.uTime.value += delta;
     }

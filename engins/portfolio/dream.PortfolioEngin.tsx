@@ -349,7 +349,7 @@ export default function PortfolioEngin({ onBack }: Props) {
             <div className="de-widget-body">
               {/* Per-asset selection */}
               <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
-                {quantumResult.selectedAssets.map(selected: Record<string, unknown>, (i: number ) => (
+                {quantumResult.selectedAssets.map((selected, i: number) => (
                   <div key={i} style={{
                     flex: 1, padding: '8px 4px', borderRadius: 8, textAlign: 'center',
                     background:  selected ? `${ACCENT}10` : 'transparent',
@@ -383,7 +383,7 @@ export default function PortfolioEngin({ onBack }: Props) {
               </div>
               {/* Probability distribution summary */}
               <div style={{ marginTop: 8, display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-                {quantumResult.probabilities.map(p: Record<string, unknown>, (i: number ) => (
+                {quantumResult.probabilities.map((p, i: number) => (
                   p > 0.02 ? (
                     <span key={i} style={{
                       fontSize: 9, fontFamily: 'monospace', padding: '2px 5px',
@@ -452,7 +452,7 @@ export default function PortfolioEngin({ onBack }: Props) {
                   { icon: Activity,    label: 'Portfolio Risk',  value: result.portfolioRisk,   unit: '%',  color: '#f59e0b'  },
                   { icon: ShieldCheck, label: 'Sharpe Ratio',   value: result.sharpeRatio,     unit: '',   color: ACCENT     },
                   { icon: Cpu,         label: 'Objective',      value: result.objectiveValue,  unit: '',   color: PURPLE    },
-                ].map(({ icon: Icon, label: string, value: Record<string, unknown>, unit: Record<string, unknown>, color }) => (
+                ].map(({ icon, label, value, unit, color }) => (
                   <div
                     key={label}
                     className="de-metric de-surface"

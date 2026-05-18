@@ -102,7 +102,7 @@ export async function removeScene(sceneId: string): Promise<void> {
  */
 export async function listPersistedScenes(): Promise<string[]> {
   const scenes = await listScenes();
-  return scenes.map((s: Record<string, unknown>) => s.id);
+  return scenes.map((s) => s.id);
 }
 
 // ─── Scene diffing (for sync optimisation) ────────────────────────────────────

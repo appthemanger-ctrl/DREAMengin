@@ -150,7 +150,7 @@ export function perceive(frame: PerceptionFrame): BehaviorSignals {
 
   // ── friction ────────────────────────────────────────────────────────────────
   // Elevated by: no CTAs, small tap-targets, missing labels.
-  const ctaCount = elements.filter((e: Record<string, unknown>) => e.is_cta).length;
+  const ctaCount = elements.filter((e) => e.is_cta).length;
   const smallTargets = elements.filter(
     (e) => e.tap_target_px !== null && e.tap_target_px < MIN_TAP_TARGET_PX,
   ).length;
@@ -163,7 +163,7 @@ export function perceive(frame: PerceptionFrame): BehaviorSignals {
     total > 0 ? (smallTargets / total) * 0.3 : 0,
     total > 0 ? (unlabelledInteractive / total) * 0.3 : 0,
   ];
-  const friction = clamp01(frictionFactors.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0));
+  const friction = clamp01(frictionFactors.reduce((a, b) => a + b, 0));
 
   // ── confusion ───────────────────────────────────────────────────────────────
   // Elevated by: multiple competing CTAs (> 3), very high element density.
@@ -173,7 +173,7 @@ export function perceive(frame: PerceptionFrame): BehaviorSignals {
 
   // ── layout clarity ──────────────────────────────────────────────────────────
   // Inverse of confusion plus a bonus for labelled CTAs.
-  const labelledCtas = elements.filter((e: Record<string, unknown>) => e.is_cta && e.label).length;
+  const labelledCtas = elements.filter((e) => e.is_cta && e.label).length;
   const clarityBonus = ctaCount > 0 ? (labelledCtas / ctaCount) * 0.4 : 0;
   const layout_clarity = clamp01(1 - confusion + clarityBonus - friction * 0.3);
 
@@ -181,8 +181,8 @@ export function perceive(frame: PerceptionFrame): BehaviorSignals {
   // Proxy: HTTPS in URL + presence of terms/privacy/security text in element labels.
   const httpsPresent = frame.url.startsWith('https://') ? 0.4 : 0;
   const trustKeywords = ['privacy', 'secure', 'verified', 'trusted', 'policy'];
-  const trustHits = elements.filter((e: Record<string, unknown>) =>
-    trustKeywords.some((kw: Record<string, unknown>) => (e.label ?? '').toLowerCase().includes(kw)),
+  const trustHits = elements.filter((e) =>
+    trustKeywords.some((kw) => (e.label ?? '').toLowerCase().includes(kw)),
   ).length;
   const trust_signals = clamp01(httpsPresent + Math.min(trustHits * 0.15, 0.6));
 
@@ -203,11 +203,11 @@ export function perceive(frame: PerceptionFrame): BehaviorSignals {
   // ── broken / misleading heuristics ─────────────────────────────────────────
   const brokenKeywords = ['error', '404', '500', 'loading…', 'undefined'];
   const misleadingKeywords = ['free*', 'limited offer', 'act now', 'you must'];
-  const ui_appears_broken = elements.some((e: Record<string, unknown>) =>
-    brokenKeywords.some((kw: Record<string, unknown>) => (e.label ?? '').toLowerCase().includes(kw)),
+  const ui_appears_broken = elements.some((e) =>
+    brokenKeywords.some((kw) => (e.label ?? '').toLowerCase().includes(kw)),
   );
-  const ui_appears_misleading = elements.some((e: Record<string, unknown>) =>
-    misleadingKeywords.some((kw: Record<string, unknown>) => (e.label ?? '').toLowerCase().includes(kw)),
+  const ui_appears_misleading = elements.some((e) =>
+    misleadingKeywords.some((kw) => (e.label ?? '').toLowerCase().includes(kw)),
   );
 
   return {
@@ -267,7 +267,7 @@ export function decideAction(
   }
 
   // 4. Click primary CTA when layout is clear
-  const primaryCta = frame.visible_elements.find((e: Record<string, unknown>) => e.is_cta && e.label);
+  const primaryCta = frame.visible_elements.find((e) => e.is_cta && e.label);
   if (primaryCta && signals.layout_clarity > 0.5) {
     return {
       type: 'click',
@@ -365,7 +365,7 @@ export function judgeStep(
   };
 
   // ── No primary CTA ──────────────────────────────────────────────────────────
-  const ctaCount = frame.visible_elements.filter((e: Record<string, unknown>) => e.is_cta).length;
+  const ctaCount = frame.visible_elements.filter((e) => e.is_cta).length;
   if (ctaCount === 0) {
     push(
       'No primary CTA visible on screen',
@@ -384,7 +384,7 @@ export function judgeStep(
   if (smallTargets.length > 0) {
     push(
       `${smallTargets.length} interactive element(s) below minimum tap-target size`,
-      `Elements: ${smallTargets.map((e: Record<string, unknown>) => `${e.id} (${e.tap_target_px}px)`).join(', ')}.`,
+      `Elements: ${smallTargets.map((e) => `${e.id} (${e.tap_target_px}px)`).join(', ')}.`,
       'TAP_TARGET_SIZE',
       smallTargets.length > 2 ? 'high' : 'medium',
       0.95,
@@ -402,7 +402,7 @@ export function judgeStep(
     const sev: FindingSeverity = persona.accessibility_priority ? 'critical' : 'medium';
     push(
       `${unlabelled.length} interactive element(s) missing accessible label`,
-      `Elements: ${unlabelled.map((e: Record<string, unknown>) => e.id).join(', ')}.`,
+      `Elements: ${unlabelled.map((e) => e.id).join(', ')}.`,
       'ELEMENT_LABELS',
       sev,
       0.9,
@@ -480,7 +480,7 @@ export function judgeStep(
     if (nonFocusable.length > 0) {
       push(
         `${nonFocusable.length} interactive element(s) not keyboard-focusable`,
-        `Elements: ${nonFocusable.map((e: Record<string, unknown>) => e.id).join(', ')}.`,
+        `Elements: ${nonFocusable.map((e) => e.id).join(', ')}.`,
         'ACCESSIBLE_FOCUS',
         'critical',
         0.9,
@@ -537,13 +537,13 @@ export function runJourney(input: JourneyRunnerInput): SimJourneyResult {
   const summaryFindings = judgeJourney(persona, steps, allFindings);
   allFindings.push(...summaryFindings);
 
-  const frictionValues = steps.map((s: Record<string, unknown>) => s.signals.friction);
-  const confusionValues = steps.map((s: Record<string, unknown>) => s.signals.confusion);
+  const frictionValues = steps.map((s) => s.signals.friction);
+  const confusionValues = steps.map((s) => s.signals.confusion);
   const avgFriction = frictionValues.length
-    ? frictionValues.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / frictionValues.length
+    ? frictionValues.reduce((a, b) => a + b, 0) / frictionValues.length
     : 0;
   const avgConfusion = confusionValues.length
-    ? confusionValues.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / confusionValues.length
+    ? confusionValues.reduce((a, b) => a + b, 0) / confusionValues.length
     : 0;
 
   const findingsBySeverity = countBySeverity(allFindings);
@@ -667,7 +667,7 @@ function findRecurringIssues(
 
   const recurring: RecurringIssue[] = [];
   for (const [, group] of groups) {
-    const uniqueSteps = new Set(group.findings.map((f: Record<string, unknown>) => f.step));
+    const uniqueSteps = new Set(group.findings.map((f) => f.step));
     if (uniqueSteps.size >= Math.ceil(stepCount * 0.5)) {
       const first = group.findings.reduce(
         (min, f) => (f.step < min ? f.step : min),

@@ -109,7 +109,7 @@ export async function createRealtimeChannel<
     client = null;
   }
 
-  if (!client || typeof (client as ){ channel?: unknown }).channel !== 'function') {
+  if (!client || typeof (client as { channel?: unknown }).channel !== 'function') {
     // Graceful fallback. Solo-equivalent semantics.
     const local = createLocalChannel<T>(id);
     return { ...local, kind: 'realtime' };

@@ -145,7 +145,7 @@ export function useEnginWorkflow(): EnginWorkflowHook {
   }, []);
 
   const advance = useCallback((to: WorkflowStage) => {
-    setWorkflow((prev: Record<string, unknown>) => {
+    setWorkflow((prev) => {
       if (!prev) return prev;
       const result = advanceStage(prev, to);
       if (!result.ok) {
@@ -163,7 +163,7 @@ export function useEnginWorkflow(): EnginWorkflowHook {
   }, []);
 
   const abandon = useCallback(() => {
-    setWorkflow((prev: Record<string, unknown>) => {
+    setWorkflow((prev) => {
       if (!prev) return prev;
       const next = abandonWorkflow(prev);
       saveToStorage(next);
@@ -181,7 +181,7 @@ export function useEnginWorkflow(): EnginWorkflowHook {
         }
         return;
       }
-      const path = HANDOFF_PATHS.find((p: Record<string, unknown>) => p.kind === kind);
+      const path = HANDOFF_PATHS.find((p) => p.kind === kind);
       if (!path) {
         if (process.env.NODE_ENV !== 'production') {
           console.warn('[useEnginWorkflow] emitHandoff: unknown kind:', kind);

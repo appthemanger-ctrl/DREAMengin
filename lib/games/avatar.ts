@@ -43,7 +43,7 @@ export function resizeImageToDataUrl(
   file: File,
   size = 256,
 ): Promise<string> {
-  return new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+  return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {

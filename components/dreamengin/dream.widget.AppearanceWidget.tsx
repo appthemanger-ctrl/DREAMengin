@@ -106,7 +106,7 @@ function PresetCard(){
 }
 
 /* ── Main overlay widget ── */
-export default function AppearanceWidget({ onClose }: ) { onClose: () => void }) {
+export default function AppearanceWidget({ onClose }: {onClose: () => void}) {
   const { presetId, overrides, setPreset, setOverrides, resetOverrides } = useTheme();
 
   const handleBrightness = useCallback((v: number) => setOverrides({ brightness: v }), [setOverrides]);
@@ -163,7 +163,7 @@ export default function AppearanceWidget({ onClose }: ) { onClose: () => void })
           Theme Presets
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 18 }}>
-          {THEME_PRESETS.map((p: Record<string, unknown>) => (
+          {THEME_PRESETS.map((p) => (
             <PresetCard
               key={p.id}
               preset={p}

@@ -161,7 +161,7 @@ function transform(state: EnginBaseState, action: BrandEnginAction): EnginBaseSt
       return patchBaseState(state, {
         domain: {
           ...domain,
-          abTests: tests().map((t: Record<string, unknown>) => t.id === testId ? { ...t, paused } : t),
+          abTests: tests().map((t) => t.id === testId ? { ...t, paused } : t),
         },
       });
     }
@@ -171,7 +171,7 @@ function transform(state: EnginBaseState, action: BrandEnginAction): EnginBaseSt
       return patchBaseState(state, {
         domain: {
           ...domain,
-          abTests: tests().map((t: Record<string, unknown>) => t.id === testId ? { ...t, winner } : t),
+          abTests: tests().map((t) => t.id === testId ? { ...t, winner } : t),
         },
       });
     }

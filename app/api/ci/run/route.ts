@@ -2,12 +2,12 @@ import { NextResponse } from 'next/server';
 import { spawn } from 'child_process';
 
 function runCommand(command: string, cwd: string): Promise<{ stdout: string; stderr: string; code: number }> {
-  return new Promise((resolve: Record<string, unknown>) => {
+  return new Promise((resolve) => {
     const child = spawn(command, { shell: true, cwd });
     let stdout = '', stderr = '';
-    child.stdout.on(('data', d: Record<string, unknown>) => { stdout += d; });
-    child.stderr.on(('data', d: Record<string, unknown>) => { stderr += d; });
-    child.on(('close', code: Record<string, unknown>) => resolve({ stdout, stderr, code: code || 0 }));
+    child.stdout.on('data', d => { stdout += d; });
+    child.stderr.on('data', d => { stderr += d; });
+    child.on('close', code => resolve({ stdout, stderr, code: code || 0 }));
   });
 }
 

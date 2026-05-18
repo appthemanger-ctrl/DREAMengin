@@ -349,7 +349,7 @@ export default function KonamiDream( ){
             </motion.div>
 
             {/* Corner ✦ decorations */}
-            {(['tl', 'tr', 'bl', 'br'] as const).map((corner: Record<string, unknown>) => (
+            {(['tl', 'tr', 'bl', 'br'] as const).map((corner) => (
               <div
                 key={corner}
                 aria-hidden="true"

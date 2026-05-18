@@ -115,9 +115,9 @@ export function buildIdariPrompt(
     `**Anomalies Detected**: ${correlation.anomalies.length}`,
     '',
     '### Telemetry Window Summary',
-    `- Logs: ${snapshot.logs.length} entries (${snapshot.logs.filter((l: Record<string, unknown>) => l.level === 'error').length} errors, ${snapshot.logs.filter((l: Record<string, unknown>) => l.level === 'warn').length} warnings)`,
+    `- Logs: ${snapshot.logs.length} entries (${snapshot.logs.filter((l) => l.level === 'error').length} errors, ${snapshot.logs.filter((l) => l.level === 'warn').length} warnings)`,
     `- Metrics: ${snapshot.metrics.length} data points`,
-    `- Traces: ${snapshot.traces.length} spans (${snapshot.traces.filter((t: Record<string, unknown>) => t.status !== 'ok').length} failed)`,
+    `- Traces: ${snapshot.traces.length} spans (${snapshot.traces.filter((t) => t.status !== 'ok').length} failed)`,
     '',
   ];
 
@@ -186,7 +186,7 @@ export function buildFallbackPatchPlan(
     verification: immediateAction?.verification.join(' ') ??
       'Re-run the IDARi observability loop after applying the fix — health should return to "healthy".',
     steps: (immediateAction?.file_hints.length
-      ? immediateAction.file_hints.slice(0, 3).map((file: Record<string, unknown>) => ({
+      ? immediateAction.file_hints.slice(0, 3).map((file) => ({
           file,
           diff: `Apply: ${immediateAction.summary}`,
         }))
@@ -208,7 +208,7 @@ export function buildFallbackPatchPlan(
 // ── Improvement 59: snapshot fingerprint for diffing ─────────────────────────
 function _fingerprintSnapshot(snapshot: TelemetrySnapshot): string {
   return `${snapshot.logs.length}:${snapshot.metrics.length}:${snapshot.traces.length}:${
-    snapshot.logs.filter((l: Record<string, unknown>) => l.level === 'error').length
+    snapshot.logs.filter((l) => l.level === 'error').length
   }`;
 }
 
@@ -235,7 +235,7 @@ async function _callAiWithRetry(
 
 // ── Improvement 57: iteration timeout ────────────────────────────────────────
 function _withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
-  return new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+  return new Promise((resolve, reject) => {
     const timer = setTimeout(
       () => reject(new Error(`IDARi iteration timed out after ${timeoutMs}ms`)),
       timeoutMs,
@@ -293,7 +293,7 @@ async function _runLoopIterationInternal(
         log_count: snapshot.logs.length,
         metric_count: snapshot.metrics.length,
         trace_count: snapshot.traces.length,
-        error_count: snapshot.logs.filter((l: Record<string, unknown>) => l.level === 'error').length,
+        error_count: snapshot.logs.filter((l) => l.level === 'error').length,
         window_ms: windowMs,
       };
 
@@ -366,7 +366,7 @@ async function _runLoopIterationInternal(
           log_count: snapshot.logs.length,
           metric_count: snapshot.metrics.length,
           trace_count: snapshot.traces.length,
-          error_count: snapshot.logs.filter((l: Record<string, unknown>) => l.level === 'error').length,
+          error_count: snapshot.logs.filter((l) => l.level === 'error').length,
           window_ms: windowMs,
         },
         correlation,
@@ -447,7 +447,7 @@ export function getLoopHealthSummary(iterations: readonly LoopIteration[]): Loop
   const failed = iterations.filter((i: number ) => i.status === 'failed').length;
   const durations = iterations.filter((i: number ) => i.duration_ms !== undefined).map((i: number ) => i.duration_ms!);
   const avgDurationMs = durations.length > 0
-    ? durations.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / durations.length
+    ? durations.reduce((a, b) => a + b, 0) / durations.length
     : 0;
   return {
     total: iterations.length,

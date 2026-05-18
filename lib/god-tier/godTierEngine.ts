@@ -581,7 +581,7 @@ export function speculativePrefetchEngine(
     });
   }
 
-  return plan.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.priority - a.priority);
+  return plan.sort((a, b) => b.priority - a.priority);
 }
 
 /* =========================================================
@@ -637,7 +637,7 @@ export function uiPrioritySolver(
     ux.deadTapCount   > 0 ||
     ux.hesitationMs   > 1200;
 
-  const scored = elements.map((el: Record<string, unknown>) => {
+  const scored = elements.map((el) => {
     let prominence = 0;
 
     if (el.visible)        prominence += 14;
@@ -665,8 +665,8 @@ export function uiPrioritySolver(
     return { id: el.id, prominence, scale, contrast, priorityRank: 0 };
   });
 
-  scored.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.prominence - a.prominence);
-  return scored.map(item: Record<string, unknown>, (index: number ) => ({ ...item, priorityRank: index + 1 }));
+  scored.sort((a, b) => b.prominence - a.prominence);
+  return scored.map((item, index: number) => ({ ...item, priorityRank: index + 1 }));
 }
 
 /* =========================================================
@@ -734,7 +734,7 @@ export class DreamEngineGodTierSystem {
     }
     // else: keep existing scale — not enough time has elapsed to adapt
 
-    const meshDecisions = meshes.map((mesh: Record<string, unknown>) => {
+    const meshDecisions = meshes.map((mesh) => {
       const importance = heroObjectImportance(mesh, route);
       return eliteMeshPolicy(mesh, importance, pressure.pressureLevel);
     });
@@ -842,7 +842,7 @@ export function applyGodTierToBabylon(
   );
   engine.setHardwareScalingLevel(hardwareScalingLevel);
 
-  const decisionMap = new Map(state.meshDecisions.map((d: Record<string, unknown>) => [d.id, d]));
+  const decisionMap = new Map(state.meshDecisions.map((d) => [d.id, d]));
 
   for (const mesh of scene.meshes) {
     const decision = decisionMap.get(mesh.id);
@@ -906,7 +906,7 @@ export function getGodTierUiTokens(state: GodTierState ){
    ========================================================= */
 export const godTierSystem = new DreamEngineGodTierSystem();
 
-export function runDreamEngineGodTier(input: ){
+export function runDreamEngineGodTier(input: {
   device: DeviceSignals;
   runtime: RuntimeMetrics;
   ux: UXSignals;
@@ -959,7 +959,7 @@ export function defaultUXSignals(): UXSignals {
   };
 }
 
-export function defaultRouteSignals(route = '/': RouteSignals ){
+export function defaultRouteSignals(route: string = '/'): RouteSignals {
   return {
     route,
     activeTask: 'browse',

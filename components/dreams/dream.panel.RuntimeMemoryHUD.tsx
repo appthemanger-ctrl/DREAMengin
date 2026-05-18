@@ -49,7 +49,7 @@ export default function RuntimeMemoryHUD( ){
 
   // Subscribe to the bus — re-render whenever anything changes.
   useEffect(() => {
-    const unsub = dreamOSBus.subscribe((next: Record<string, unknown>) => setSnapshot(next));
+    const unsub = dreamOSBus.subscribe((next) => setSnapshot(next));
     return unsub;
   }, []);
 
@@ -102,7 +102,7 @@ export default function RuntimeMemoryHUD( ){
             marginBottom: trail.length > 0 ? 12 : 0,
           }}
         >
-          {activeContexts.map((ctx: Record<string, unknown>) => (
+          {activeContexts.map((ctx) => (
             <span
               key={ctx.region}
               style={{
@@ -140,7 +140,7 @@ export default function RuntimeMemoryHUD( ){
       {/* Artifact trail */}
       {trail.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {trail.map((artifact: Record<string, unknown>) => {
+          {trail.map((artifact) => {
             const accent = getArtifactAccent(artifact.kind);
             const badge  = formatArtifactKind(artifact.kind);
             const ago    = relativeTime(artifact.updatedAt);

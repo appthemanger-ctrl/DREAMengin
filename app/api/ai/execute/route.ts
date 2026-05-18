@@ -97,7 +97,7 @@ async function dispatchIntent(
       const order = Array.isArray(payload.order) ? payload.order as string[] : null;
       if (!order) return { executed: false, error: 'order array required for DREAM_REORDER' };
       await Promise.all(
-        order.map(id: Record<string, unknown>, (idx: number ) =>
+        order.map((id, idx: number) =>
           supabase
             .from('dream_instances')
             .update({ config: { position: idx } as Json })

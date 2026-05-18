@@ -24,9 +24,9 @@ import type { TelemetrySnapshot } from '@/lib/observability/collector';
  */
 export function fingerprintSnapshot(snapshot: TelemetrySnapshot): string {
   const errorMessages = snapshot.logs
-    .filter((l: Record<string, unknown>) => l.level === 'error')
+    .filter((l) => l.level === 'error')
     .slice(0, 5)
-    .map((l: Record<string, unknown>) => l.message)
+    .map((l) => l.message)
     .join('|');
 
   // Simple djb2-style hash of the error messages string
@@ -37,7 +37,7 @@ export function fingerprintSnapshot(snapshot: TelemetrySnapshot): string {
   }
 
   return `${snapshot.logs.length}:${snapshot.metrics.length}:${snapshot.traces.length}:${
-    snapshot.logs.filter((l: Record<string, unknown>) => l.level === 'error').length
+    snapshot.logs.filter((l) => l.level === 'error').length
   }:${hash.toString(16)}`;
 }
 

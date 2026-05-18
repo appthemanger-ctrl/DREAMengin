@@ -43,8 +43,8 @@ export default function ArrangePanel( ){
   const [sections, setSections] = useState<Section[]>(DEFAULT_SECTIONS);
 
   function addSection( ){
-    const lastBar = Math.max(...sections.map((s: Record<string, unknown>) => s.startBar + s.lengthBars), 1);
-    setSections((prev: Record<string, unknown>) => [
+    const lastBar = Math.max(...sections.map((s) => s.startBar + s.lengthBars), 1);
+    setSections((prev) => [
       ...prev,
       {
         id: Date.now().toString(),
@@ -77,18 +77,18 @@ export default function ArrangePanel( ){
               <SkipBack size={16} />
             </button>
             <button
-              onClick={() => setIsPlaying((p: Record<string, unknown>) => !p)}
+              onClick={() => setIsPlaying((p) => !p)}
               className="flex items-center justify-center w-8 h-8 rounded-full transition-colors"
               style={{ background: isPlaying ? '#a855f7' : 'rgba(255,255,255,0.1)' }}
             >
               {isPlaying ? <Pause size={14} /> : <Play size={14} />}
             </button>
             <div className="flex items-center gap-2 text-sm text-white/60">
-              <button onClick={() => setBpm((b: Record<string, unknown>) => Math.max(60, b - 1))} className="hover:text-white transition-colors">
+              <button onClick={() => setBpm((b) => Math.max(60, b - 1))} className="hover:text-white transition-colors">
                 <Minus size={12} />
               </button>
               <span className="tabular-nums w-10 text-center font-mono text-[#a855f7]">{bpm}</span>
-              <button onClick={() => setBpm((b: Record<string, unknown>) => Math.min(300, b + 1))} className="hover:text-white transition-colors">
+              <button onClick={() => setBpm((b) => Math.min(300, b + 1))} className="hover:text-white transition-colors">
                 <Plus size={12} />
               </button>
               <span className="text-xs text-white/30">BPM</span>
@@ -113,7 +113,7 @@ export default function ArrangePanel( ){
           </div>
           <div className="p-3">
             <div className="relative w-full h-10 bg-black/30 rounded-lg overflow-hidden">
-              {sections.map((sec: Record<string, unknown>) => (
+              {sections.map((sec) => (
                 <div
                   key={sec.id}
                   className="absolute top-0 h-full flex items-center justify-center text-xs font-bold text-white/90 rounded"
@@ -135,9 +135,9 @@ export default function ArrangePanel( ){
             </div>
             {/* Bar ruler */}
             <div className="relative w-full h-5 mt-1">
-              {Array.from({ length: TOTAL_BARS + 1 }, _: Record<string, unknown>, (i: number ) => i + 1)
-                .filter((b: Record<string, unknown>) => b % 4 === 1)
-                .map((bar: Record<string, unknown>) => (
+              {Array.from({ length: TOTAL_BARS + 1 }, (_, i: number ) => i + 1)
+                .filter((b) => b % 4 === 1)
+                .map((bar) => (
                   <span
                     key={bar}
                     className="absolute text-[10px] text-white/25 transform -translate-x-1/2"
@@ -152,14 +152,14 @@ export default function ArrangePanel( ){
 
         {/* Track lanes */}
         <div className="space-y-2">
-          {TRACKS.map((track: Record<string, unknown>) => (
+          {TRACKS.map((track) => (
             <div key={track.id} className="flex items-center gap-3">
               <div className="w-28 flex-shrink-0 flex items-center gap-2 px-2 py-2 rounded-lg bg-white/[0.04] border border-white/10">
                 <span className="text-base">{track.emoji}</span>
                 <span className="text-xs text-white/60 font-medium truncate">{track.label}</span>
               </div>
               <div className="flex-1 relative h-9 bg-black/20 rounded-lg border border-white/[0.06] overflow-hidden">
-                {sections.map((sec: Record<string, unknown>) => (
+                {sections.map((sec) => (
                   <div
                     key={sec.id}
                     className="absolute top-1 h-7 rounded opacity-60"

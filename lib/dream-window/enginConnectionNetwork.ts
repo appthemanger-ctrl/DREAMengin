@@ -190,7 +190,7 @@ if (ALL_CONNECTION_PATHS.length !== NETWORK_COUNTS.CONNECTION_PATHS) {
  * // → [Music→StarMakerEngin, Music→LabEngin, Music→CodeEngin]
  */
 export function getPathsForDomain(domain: DaydreamDomain): readonly EnginConnectionPath[] {
-  return ALL_CONNECTION_PATHS.filter((p: Record<string, unknown>) => p.daydreamSurface === domain);
+  return ALL_CONNECTION_PATHS.filter((p) => p.daydreamSurface === domain);
 }
 
 /**
@@ -201,7 +201,7 @@ export function getPathsForDomain(domain: DaydreamDomain): readonly EnginConnect
  * // → [Music→LabEngin, Games→LabEngin, Brand→LabEngin, Lab→LabEngin]
  */
 export function getPathsForEngin(engin: EnginSurface): readonly EnginConnectionPath[] {
-  return ALL_CONNECTION_PATHS.filter((p: Record<string, unknown>) => p.enginRuntime === engin);
+  return ALL_CONNECTION_PATHS.filter((p) => p.enginRuntime === engin);
 }
 
 /**

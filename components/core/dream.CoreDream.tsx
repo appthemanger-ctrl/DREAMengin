@@ -55,7 +55,7 @@ const RECENT_AGENTS = [
 ] as const;
 
 /* ── Shared section header row ── */
-function SectionHeader({ title, badge }: ) { title: string; badge?: number } {
+function SectionHeader({ title, badge }: {title: string; badge?: number}) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
       <span style={{ fontWeight: 700, fontSize: 18, color: 'var(--de-heading)' }}>{title}</span>
@@ -121,7 +121,7 @@ function PostCard( ){
           { icon: liked ? '♥' : '♡', label: 'Like',    action: () => setLiked((v: number ) => !v) },
           { icon: '💬',               label: 'Comment', action: undefined },
           { icon: '↗',               label: 'Share',   action: undefined },
-        ] as const).map(({ icon, label: string, action }) => (
+        ] as const).map(({ icon, label, action }) => (
           <button
             key={label}
             type="button"
@@ -143,7 +143,7 @@ function PostCard( ){
 }
 
 /* ── Recent Activity agent card ── */
-function AgentCard({ agent }: ) { agent: typeof RECENT_AGENTS[number] } {
+function AgentCard({ agent }: {agent: typeof RECENT_AGENTS[number]}) {
   return (
     <div style={{
       minWidth: 148,
@@ -198,7 +198,7 @@ function MetricsRow( ){
 
   return (
     <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' }}>
-      {cards.map((card: Record<string, unknown>) => (
+      {cards.map((card) => (
         <div key={card.id} style={{
           minWidth: card.minWidth,
           padding: '14px 16px',
@@ -207,7 +207,7 @@ function MetricsRow( ){
           boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
           flexShrink: 0,
         }}>
-          {card.rows.map((row: Record<string, unknown>) => (
+          {card.rows.map((row) => (
             <div key={row.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
               <div style={{
                 width: 28, height: 28, borderRadius: '50%',
@@ -235,7 +235,7 @@ function MetricsRow( ){
       }}>
         <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)', marginBottom: 10, display: 'block' }}>Tams</span>
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 32 }}>
-          {[0.45, 0.75, 0.5, 1, 0.65].map(h: Record<string, unknown>, (i: number ) => (
+          {[0.45, 0.75, 0.5, 1, 0.65].map((h, i: number) => (
             <div key={i} style={{
               flex: 1, borderRadius: 3,
               height: `${h * 100}%`,
@@ -249,14 +249,7 @@ function MetricsRow( ){
 }
 
 /* ── Home face — delegates to HomeDreamSurface ── */
-function HomeFace({ onOpenDrEams, onOpenDreamSpace, profile, posts, isAdmin }: ) {
-  onOpenDrEams: () => void;
-  onOpenDreamSpace?: () => void;
-  profile: Props['profile'];
-  isAdmin?: boolean;
-   
-  posts?: unknown[];
-}) {
+function HomeFace({ onOpenDrEams, onOpenDreamSpace, profile, posts, isAdmin }: { onOpenDrEams: () => void; onOpenDreamSpace?: () => void; profile: Props['profile']; isAdmin?: boolean; posts?: unknown[] }) {
   return (
     <HomeDreamSurface
       profile={profile}
@@ -269,7 +262,7 @@ function HomeFace({ onOpenDrEams, onOpenDreamSpace, profile, posts, isAdmin }: )
 }
 
 /* ── Profile face ── */
-function ProfileFace({ profile, onToggleFace }: ) { profile: Props['profile']; onToggleFace: () => void }) {
+function ProfileFace({ profile, onToggleFace }: {profile: Props['profile']; onToggleFace: () => void}) {
   const name   = profile?.display_name || 'Dreamer';
   const handle = profile?.handle || 'dreamer';
 
@@ -340,7 +333,7 @@ function ProfileFace({ profile, onToggleFace }: ) { profile: Props['profile']; o
           { label: 'Achievements', value: '23', badge: 23 },
           { label: 'Dream Goals',  value: '12', badge: 12 },
           { label: 'About Me',     value: 'Bio & Interests' },
-        ].map((item: Record<string, unknown>) => (
+        ].map((item) => (
           <div key={item.label} style={{
             background: 'rgba(255,255,255,0.88)', borderRadius: 14,
             boxShadow: '0 1px 8px rgba(0,0,0,0.05)',
@@ -382,7 +375,7 @@ function ProfileFace({ profile, onToggleFace }: ) { profile: Props['profile']; o
           { label: 'YouTube', value: '95k views'   },
           { label: 'Friends', value: '257'          },
           { label: 'Twitter', value: '#dreamingbig' },
-        ].map((item: Record<string, unknown>) => (
+        ].map((item) => (
           <div key={item.label} style={{
             background: 'rgba(255,255,255,0.88)', borderRadius: 14,
             boxShadow: '0 1px 8px rgba(0,0,0,0.05)',
@@ -449,7 +442,7 @@ function WallBanner( ){
 }
 
 /* ── Main export ── */
-export default function CoreDream({ face, isOpen: Record<string, unknown>, onToggleFace: Record<string, unknown>, onClose: _onClose, onOpenDrEams: Record<string, unknown>, onOpenDreamSpace: Record<string, unknown>, isAdmin: Record<string, unknown>, profile: Record<string, unknown>, posts }: Props) {
+export default function CoreDream({ face, isOpen, onToggleFace, onClose: _onClose, onOpenDrEams, onOpenDreamSpace, isAdmin, profile, posts }: Props) {
   if (!isOpen) return null;
 
   if (face === 'profile') {

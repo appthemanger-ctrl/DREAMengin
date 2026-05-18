@@ -94,10 +94,10 @@ export function getSetupChecks(env: NodeJS.ProcessEnv = process.env): SetupCheck
 }
 
 export function summarizeSetupChecks(checks: SetupCheck[]): SetupCheckSummary {
-  const requiredChecks = checks.filter((check: Record<string, unknown>) => check.required !== false);
-  const optionalChecks = checks.filter((check: Record<string, unknown>) => check.required === false);
-  const missingRequired = requiredChecks.filter((check: Record<string, unknown>) => !check.ok);
-  const missingOptional = optionalChecks.filter((check: Record<string, unknown>) => !check.ok);
+  const requiredChecks = checks.filter((check) => check.required !== false);
+  const optionalChecks = checks.filter((check) => check.required === false);
+  const missingRequired = requiredChecks.filter((check) => !check.ok);
+  const missingOptional = optionalChecks.filter((check) => !check.ok);
 
   return {
     ok: missingRequired.length === 0,

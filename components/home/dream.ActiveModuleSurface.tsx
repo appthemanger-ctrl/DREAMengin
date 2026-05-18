@@ -64,7 +64,7 @@ export default function ActiveModuleSurface({ accountId }: ActiveModuleSurfacePr
   const [isDragActive, setIsDragActive] = useState(false);
   const { addWindow, removeWindow, updateWindow } = useDreamWindowActions();
   const artifactMap = useMemo(
-    () => new Map(loadArtifacts(accountId).map((artifact: Record<string, unknown>) => [artifact.id, artifact])),
+    () => new Map(loadArtifacts(accountId).map((artifact) => [artifact.id, artifact])),
     [accountId],
   );
 
@@ -151,7 +151,7 @@ export default function ActiveModuleSurface({ accountId }: ActiveModuleSurfacePr
         size: DEFAULT_WINDOW_SIZE,
       };
 
-      setActiveModules((current: Record<string, unknown>) => [...current, instance]);
+      setActiveModules((current) => [...current, instance]);
       saveActiveModule(accountId, instance);
 
       dreamOSBus.emit('capability:add', {
@@ -213,7 +213,7 @@ export default function ActiveModuleSurface({ accountId }: ActiveModuleSurfacePr
 
     const artifactId = payload?.artifactId ?? dragArtifactRef.current?.id;
     const sourceAccountId = payload?.accountId ?? accountId;
-    const artifact = loadArtifacts(sourceAccountId).find((entry: Record<string, unknown>) => entry.id === artifactId);
+    const artifact = loadArtifacts(sourceAccountId).find((entry) => entry.id === artifactId);
     if (!artifact) return;
 
     await createModuleInstance(artifact, event.clientX, event.clientY);
@@ -223,7 +223,7 @@ export default function ActiveModuleSurface({ accountId }: ActiveModuleSurfacePr
   const handleCloseModule = useCallback(
     async (instance: ActiveModuleInstance) => {
       if (!accountId) return;
-      setActiveModules((current: Record<string, unknown>) => current.filter((entry: Record<string, unknown>) => entry.instanceId !== instance.instanceId));
+      setActiveModules((current) => current.filter((entry) => entry.instanceId !== instance.instanceId));
       removeActiveModule(accountId, instance.instanceId);
       if (instance.dreamWindowId) {
         await removeWindow(instance.dreamWindowId);
@@ -234,8 +234,8 @@ export default function ActiveModuleSurface({ accountId }: ActiveModuleSurfacePr
 
   const startWindowDrag = useCallback((instanceId: string, originX: number, originY: number) => {
     const onMove = (event: PointerEvent) => {
-      setActiveModules((current: Record<string, unknown>) =>
-        current.map((entry: Record<string, unknown>) => {
+      setActiveModules((current) =>
+        current.map((entry) => {
           if (entry.instanceId !== instanceId || !entry.position || !entry.size || !surfaceRef.current) {
             return entry;
           }
@@ -256,7 +256,7 @@ export default function ActiveModuleSurface({ accountId }: ActiveModuleSurfacePr
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
       if (!accountId) return;
-      const updated = activeModulesRef.current.find((entry: Record<string, unknown>) => entry.instanceId === instanceId);
+      const updated = activeModulesRef.current.find((entry) => entry.instanceId === instanceId);
       if (updated) {
         saveActiveModule(accountId, updated);
         void persistModulePosition(updated);
@@ -284,7 +284,7 @@ export default function ActiveModuleSurface({ accountId }: ActiveModuleSurfacePr
   }, [accountId]);
 
   useEffect(() => {
-    activeModules.forEach((instance: Record<string, unknown>) => {
+    activeModules.forEach((instance) => {
       const iframe = iframeRefs.current[instance.instanceId];
       if (!iframe?.contentWindow || !shouldUseModuleLoader(instance.moduleUrl)) return;
       iframe.contentWindow.postMessage(
@@ -345,7 +345,7 @@ export default function ActiveModuleSurface({ accountId }: ActiveModuleSurfacePr
           zIndex: 16,
         }}
       >
-        {activeModules.map((instance: Record<string, unknown>) => {
+        {activeModules.map((instance) => {
           const artifact = artifactMap.get(instance.artifactId);
           const size = instance.size ?? DEFAULT_WINDOW_SIZE;
           const position = instance.position ?? { x: 24, y: 140 };

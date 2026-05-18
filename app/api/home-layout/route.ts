@@ -83,7 +83,7 @@ export async function POST(req: NextRequest ){
 
   const slots: LayoutSlot[] = (b.slots as unknown[])
     .filter(isValidSlot)
-    .map((s: Record<string, unknown>) => ({
+    .map((s) => ({
       id:       s.id,
       type:     s.type,
       title:    s.title,

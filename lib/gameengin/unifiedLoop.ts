@@ -66,7 +66,7 @@ let _running = false;
 // ─── Private helpers ──────────────────────────────────────────────────────────
 
 function _sortEntries(): void {
-  _entries.sort((a: Record<string, unknown>, b: Record<string, unknown>) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]);
+  _entries.sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]);
 }
 
 function _tick(now: number): void {

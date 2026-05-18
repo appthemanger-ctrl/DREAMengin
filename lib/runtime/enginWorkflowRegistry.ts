@@ -71,7 +71,7 @@ export interface WorkflowDefinition {
    * Execute the workflow by firing bridge.emitDurable on the target channel.
    * The durable queue ensures delivery even if the target Engin is offline.
    */
-  execute(payload: Record<string, unknown>): void;
+  execute(payload): void;
 }
 
 // ── Helper: factory for workflow definitions ───────────────────────────────────
@@ -81,7 +81,7 @@ function defineWorkflow(
 ): WorkflowDefinition {
   return {
     ...spec,
-    execute(payload: Record<string, unknown>): void {
+    execute(payload): void {
       bridge.emitDurable(spec.bridgeChannel, spec.bridgeEvent, payload);
     },
   };
@@ -536,7 +536,7 @@ const WORKFLOWS: readonly WorkflowDefinition[] = [
  * Returns an empty array when no workflow is defined for that pair.
  */
 export function findWorkflows(from: EnginKey, to: EnginKey): WorkflowDefinition[] {
-  return WORKFLOWS.filter((w: Record<string, unknown>) => w.from === from && w.to === to);
+  return WORKFLOWS.filter((w) => w.from === from && w.to === to);
 }
 
 /**
@@ -544,7 +544,7 @@ export function findWorkflows(from: EnginKey, to: EnginKey): WorkflowDefinition[
  * Returns undefined if no workflow with that ID is registered.
  */
 export function findWorkflowById(id: string): WorkflowDefinition | undefined {
-  return WORKFLOWS.find((w: Record<string, unknown>) => w.id === id);
+  return WORKFLOWS.find((w) => w.id === id);
 }
 
 /**
@@ -555,7 +555,7 @@ export function findWorkflowById(id: string): WorkflowDefinition | undefined {
  *
  * @returns true if the workflow was found and executed; false if the ID is unknown.
  */
-export function executeWorkflow(id: string, payload: Record<string, unknown>): boolean {
+export function executeWorkflow(id: string, payload): boolean {
   const workflow = findWorkflowById(id);
   if (!workflow) return false;
   try {
@@ -623,5 +623,5 @@ export function getWorkflowStats(): WorkflowStats {
  * Slightly faster than findWorkflowById(id) !== undefined for boolean checks.
  */
 export function workflowExists(id: string): boolean {
-  return WORKFLOWS.some((w: Record<string, unknown>) => w.id === id);
+  return WORKFLOWS.some((w) => w.id === id);
 }

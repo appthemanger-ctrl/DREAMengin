@@ -58,7 +58,7 @@ const SYSTEM_ITEMS: Array<{ id: SystemMenuAction; icon: string; label: string }>
 
 /* ── Sub-components ─────────────────────────────────────────────────────────── */
 
-function PanelItem(){
+function PanelItem({
   icon,
   label,
   onClick,
@@ -127,7 +127,7 @@ function PanelItem(){
   );
 }
 
-function Panel(){
+function Panel({
   title,
   subtitle,
   accent,
@@ -177,7 +177,7 @@ function Panel(){
 
 /* ── Main export ────────────────────────────────────────────────────────────── */
 
-export default function DualBottomMenu({ open, onClose: Record<string, unknown>, onSystemAction }: Props) {
+export default function DualBottomMenu({ open, onClose, onSystemAction }: Props) {
   const router = useRouter();
 
   // Close on Escape
@@ -240,7 +240,7 @@ export default function DualBottomMenu({ open, onClose: Record<string, unknown>,
           subtitle="Launch the creative surfaces without leaving the system shell."
           accent="42,138,184"
         >
-          {DAYDREAM_ITEMS.map((item: Record<string, unknown>) => (
+          {DAYDREAM_ITEMS.map((item) => (
             <PanelItem
               key={item.route}
               icon={item.icon}
@@ -262,7 +262,7 @@ export default function DualBottomMenu({ open, onClose: Record<string, unknown>,
           subtitle="Profile, settings, AI, and platform controls stay one move away."
           accent="200,152,26"
         >
-          {SYSTEM_ITEMS.map((item: Record<string, unknown>) => (
+          {SYSTEM_ITEMS.map((item) => (
             <PanelItem
               key={item.id}
               icon={item.icon}

@@ -91,7 +91,7 @@ export function calculatePointerVelocity(previousY: number, nextY: number, previ
 }
 
 /** Only a downward swipe from the top-pinned state should collapse the bar. */
-export function shouldCollapseGoldSwipe(){
+export function shouldCollapseGoldSwipe({
   dy,
   isTop,
 }: {
@@ -105,7 +105,7 @@ export function shouldCollapseGoldSwipe(){
  * Snaps a bottom-origin drag to the top if it is already near the top, tall enough,
  * or thrown upward fast enough after clearing the minimum fling distance.
  */
-export function shouldSnapBottomDragToTop(){
+export function shouldSnapBottomDragToTop({
   screenH,
   dragH,
   barH,
@@ -126,7 +126,7 @@ export function shouldSnapBottomDragToTop(){
 }
 
 /** Collapses the expanded top panel when the user drags far enough down or throws it downward. */
-export function shouldCollapseTopExpandedDrag(){
+export function shouldCollapseTopExpandedDrag({
   dy,
   slideDown,
   snapDownPx,
@@ -157,7 +157,7 @@ export function shouldCollapseTopExpandedDrag(){
  */
 export type BarReleaseAction = 'snap-top' | 'snap-bottom' | 'park';
 
-export function decideBarRelease(){
+export function decideBarRelease({
   screenH,
   dragH,
   barH: _barH,
@@ -361,7 +361,7 @@ export function computeTypingRhythm(
 ): number {
   if (recentKeystrokeTimestamps.length < 2) return 0;
   // Only consider keystrokes within the window
-  const recent = recentKeystrokeTimestamps.filter((t: Record<string, unknown>) => now - t < windowMs);
+  const recent = recentKeystrokeTimestamps.filter((t) => now - t < windowMs);
   if (recent.length < 2) return 0;
   // Average interval between keystrokes
   let totalInterval = 0;

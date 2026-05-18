@@ -515,7 +515,7 @@ export class WebGPUDirector {
     this._lastPressure = pressure;
 
     const passPlan        = buildPassPlan(pressure, camera);
-    const objectDecisions = objects.map((o: Record<string, unknown>) => decideObject(o, camera, pressure));
+    const objectDecisions = objects.map((o) => decideObject(o, camera, pressure));
     const frameBudget     = resolveFrameBudget(metrics, pressure);
     const temporal        = resolveTemporalState(camera, pressure);
     const resolutionScale = resolveResolutionScale(pressure, camera, metrics);
@@ -577,7 +577,7 @@ export function applyDirectorFrame(
   engine.setHardwareScalingLevel(hwScale);
 
   // Mesh decisions
-  const decisionMap = new Map(frame.objectDecisions.map((d: Record<string, unknown>) => [d.id, d]));
+  const decisionMap = new Map(frame.objectDecisions.map((d) => [d.id, d]));
   for (const mesh of scene.meshes) {
     const d = decisionMap.get(mesh.id);
     if (!d) continue;
@@ -711,7 +711,7 @@ export function buildSceneObjects(
   hintsResolver: (mesh: DirectorBabylonMesh) => MeshHints = () => ({}),
   lastVisibleSet?: Set<string>,
 ): SceneObject[] {
-  return meshes.map((m: Record<string, unknown>) =>
+  return meshes.map((m) =>
     babylonMeshToSceneObject(
       m,
       hintsResolver(m),

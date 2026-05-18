@@ -342,7 +342,7 @@ export default function CodeSpacePage({ params }: Props) {
             overflowY: 'auto',
           }}
         >
-          {SNIPPETS[language].map((snippet: Record<string, unknown>) => (
+          {SNIPPETS[language].map((snippet) => (
             <button
               key={snippet}
               type="button"

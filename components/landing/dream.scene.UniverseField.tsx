@@ -181,7 +181,7 @@ export default function UniverseField(_props: UniverseFieldProps ){
     const color = new Array<string>(particleCount);
     const pulseTimer = new Float32Array(particleCount);
 
-    const galaxies: Galaxy[] = Array.from({ length: GALAXY_COUNT }, _: Record<string, unknown>, (i: number ) => ({
+    const galaxies: Galaxy[] = Array.from({ length: GALAXY_COUNT }, (_, i: number ) => ({
       seedAngle: -Math.PI / 2 + i * GOLDEN_ANGLE,
       seedDistance: 0.2 + hash(200 + i) * 0.24,
       orbit: hash(300 + i) * TAU,

@@ -41,7 +41,7 @@ export default function ColorPanel( ){
     <SlidePanel title="Color" onClose={closePanel}>
       {/* Tabs */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
-        {(['gradient', 'accent', 'presets'] as const).map((t: Record<string, unknown>) => (
+        {(['gradient', 'accent', 'presets'] as const).map((t) => (
           <button
             key={t}
             type="button"
@@ -61,7 +61,7 @@ export default function ColorPanel( ){
 
       {tab === 'gradient' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-          {GRADIENT_PRESETS.map(({ id, label: string, from: string, mid: number, to }) => {
+          {GRADIENT_PRESETS.map(({ id, label, from, mid, to }) => {
             const isActive = draftSkin.bgFrom === from && draftSkin.bgTo === to;
             return (
               <button
@@ -141,7 +141,7 @@ export default function ColorPanel( ){
 
       {tab === 'presets' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-          {SKIN_PRESETS.map((preset: Record<string, unknown>) => {
+          {SKIN_PRESETS.map((preset) => {
             const isActive =
               draftSkin.bgFrom === preset.skin.bgFrom &&
               draftSkin.bgTo   === preset.skin.bgTo;
@@ -182,7 +182,7 @@ export default function ColorPanel( ){
 
 // ── Reusable slide-up panel shell ─────────────────────────────────────────────
 
-export function SlidePanel(){
+export function SlidePanel({
   title, children, onClose,
 }: {
   title: string;

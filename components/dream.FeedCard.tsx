@@ -302,7 +302,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
                       { icon: <Bookmark size={13} />, label: isSaved ? 'Saved ✓' : 'Save post', action: handleSave },
                       { icon: copyDone ? <Link2 size={13} /> : <Share2 size={13} />, label: copyDone ? 'Link copied!' : 'Share / Copy link', action: handleShare },
                       { icon: <Flag size={13} />, label: 'Report post', action: handleReport, danger: true },
-                    ].map(({ icon, label: string, action: Record<string, unknown>, danger }) => (
+                    ].map(({ icon, label, action, danger }) => (
                       <button
                         key={label}
                         type="button"

@@ -95,7 +95,7 @@ export default function AIPanel( ){
     if (!text || loading) return;
     setInput('');
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content: text, timestamp: new Date() };
-    setMessages((prev: Record<string, unknown>) => [...prev, userMsg]);
+    setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
     await new Promise((r: number ) => setTimeout(r, 800 + Math.random() * 1200));
     const reply: Message = {
@@ -104,7 +104,7 @@ export default function AIPanel( ){
       content: getSimResponse(text),
       timestamp: new Date(),
     };
-    setMessages((prev: Record<string, unknown>) => [...prev, reply]);
+    setMessages((prev) => [...prev, reply]);
     setLoading(false);
   }
 
@@ -130,7 +130,7 @@ export default function AIPanel( ){
 
         {/* Quick prompts */}
         <div className="flex flex-wrap gap-1.5 mt-3">
-          {QUICK_PROMPTS.map((p: Record<string, unknown>) => (
+          {QUICK_PROMPTS.map((p) => (
             <button
               key={p}
               onClick={() => sendMessage(p)}
@@ -144,7 +144,7 @@ export default function AIPanel( ){
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-        {messages.map((msg: Record<string, unknown>) => (
+        {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             {msg.role === 'assistant' && (
               <div className="w-6 h-6 rounded-full bg-[#22d3ee]/20 flex items-center justify-center mr-2 mt-1 flex-shrink-0">

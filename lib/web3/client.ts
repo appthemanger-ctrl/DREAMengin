@@ -82,7 +82,7 @@ export class Web3Client {
   }
 
   private emit<T = unknown>(event: ClientEventType, payload: T): void {
-    this.listeners.get(event)?.forEach((cb: Record<string, unknown>) => cb(payload));
+    this.listeners.get(event)?.forEach((cb) => cb(payload));
   }
 
   // ── State accessors ──────────────────────────────────────────────────────

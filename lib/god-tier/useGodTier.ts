@@ -65,7 +65,7 @@ export interface UseGodTierReturn {
   recordCorrection: () => void;
 }
 
-export function useGodTier(opts: UseGodTierOptions = ){}: UseGodTierReturn {
+export function useGodTier(opts: UseGodTierOptions = {}): UseGodTierReturn {
   const {
     route = '/',
     activeTask = 'browse',
@@ -127,8 +127,8 @@ export function useGodTier(opts: UseGodTierOptions = ){}: UseGodTierReturn {
     const hist = frameHistoryRef.current;
     hist.push(frameMs);
     if (hist.length > MAX_FRAME_HISTORY) hist.shift();
-    const avgFrameMs = hist.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / hist.length;
-    const dropped = hist.filter((f: Record<string, unknown>) => f > 20).length / hist.length;
+    const avgFrameMs = hist.reduce((a, b) => a + b, 0) / hist.length;
+    const dropped = hist.filter((f) => f > 20).length / hist.length;
 
     runtimeRef.current = {
       frameMs,

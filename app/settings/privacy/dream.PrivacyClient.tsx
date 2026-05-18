@@ -36,7 +36,7 @@ const DEFAULT_SETTINGS: PrivacySettings = {
   hideConnectorData: true,
 };
 
-function Toggle(){
+function Toggle({
   value,
   onToggle,
   label,
@@ -134,7 +134,7 @@ export default function PrivacyClient( ){
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as Partial<PrivacySettings>;
-        setSettings((prev: Record<string, unknown>) => ({ ...prev, ...parsed }));
+        setSettings((prev) => ({ ...prev, ...parsed }));
       }
     } catch { /* ignore */ }
 
@@ -143,7 +143,7 @@ export default function PrivacyClient( ){
       .then((r: number ) => r.json())
       .then((data: { ok: boolean; privacy: Partial<PrivacySettings> | null }) => {
         if (data.ok && data.privacy) {
-          setSettings((prev: Record<string, unknown>) => ({ ...prev, ...data.privacy }));
+          setSettings((prev) => ({ ...prev, ...data.privacy }));
           // Update cache
           try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...DEFAULT_SETTINGS, ...data.privacy })); } catch { /* ignore */ }
         }
@@ -152,7 +152,7 @@ export default function PrivacyClient( ){
   }, []);
 
   const toggle = useCallback((key: keyof PrivacySettings) => {
-    setSettings((prev: Record<string, unknown>) => {
+    setSettings((prev) => {
       const next = { ...prev, [key]: !prev[key] };
       // Update localStorage cache immediately for fast re-render
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
@@ -230,7 +230,7 @@ export default function PrivacyClient( ){
         <div className="de-widget">
           <div className="de-widget-header"><span className="de-widget-title">Profile Visibility</span></div>
           <div className="de-widget-body">
-            {profileToggles.map(({ key, label: string, desc }) => (
+            {profileToggles.map(({ key, label, desc }) => (
               <div key={key} className="de-row">
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{label}</div>
@@ -248,7 +248,7 @@ export default function PrivacyClient( ){
             <span className="de-widget-title">Content Privacy</span>
           </div>
           <div className="de-widget-body">
-            {contentToggles.map(({ key, label: string, desc }) => (
+            {contentToggles.map(({ key, label, desc }) => (
               <div key={key} className="de-row">
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{label}</div>

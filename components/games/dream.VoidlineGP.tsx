@@ -224,7 +224,7 @@ export default function VoidlineGP( ){
             a.y = H + 100;
           }
         }
-        asteroidsRef.current = asteroidsRef.current.filter((a: Record<string, unknown>) => a.y < H + 40);
+        asteroidsRef.current = asteroidsRef.current.filter((a) => a.y < H + 40);
 
         // Bullets — full velocity integration
         for (const b of bulletsRef.current) { b.x += b.vx * dt; b.y += b.vy * dt; }
@@ -241,7 +241,7 @@ export default function VoidlineGP( ){
             }
           }
         }
-        bulletsRef.current = bulletsRef.current.filter((b: Record<string, unknown>) => b.y > -10 && b.x > -20 && b.x < W + 20);
+        bulletsRef.current = bulletsRef.current.filter((b) => b.y > -10 && b.x > -20 && b.x < W + 20);
 
         // Per-ship exhaust trail particle
         if (Math.random() < 0.6) {
@@ -256,7 +256,7 @@ export default function VoidlineGP( ){
           r.y += Math.sin((t / 600) + r.lane) * 12 * dt;
           r.x += Math.sin((t / 800) + r.lane * 2) * 18 * dt;
         }
-        rivalsRef.current = rivalsRef.current.filter((r: Record<string, unknown>) => r.hp > 0);
+        rivalsRef.current = rivalsRef.current.filter((r) => r.hp > 0);
 
         // Step FX
         particlesRef.current.step(dt);

@@ -43,7 +43,7 @@ import {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function DrEamsBadge({ size = 28 }: ) { size?: number } {
+function DrEamsBadge({ size = 28 }: {size?: number}) {
   return (
     <div
       aria-hidden="true"
@@ -314,7 +314,7 @@ export default function DrEamsSearchBar({ onOpenDrEams }: DrEamsSearchBarProps) 
           }}
         >
           {/* Navigation matches */}
-          {suggestions.map((s: Record<string, unknown>) => (
+          {suggestions.map((s) => (
             <button
               key={s.label}
               type="button"

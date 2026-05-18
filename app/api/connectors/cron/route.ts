@@ -115,7 +115,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | 
     results.push(result);
   }
 
-  const succeeded = results.filter((r: Record<string, unknown>) => r.ok).length;
+  const succeeded = results.filter((r) => r.ok).length;
 
   return NextResponse.json({
     ok: true,
@@ -124,7 +124,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | 
     succeeded,
     failed: results.length - succeeded,
     // Never include userId or token data in the output; only safe summary fields.
-    results: results.map((r: Record<string, unknown>) => ({
+    results: results.map((r) => ({
       provider: r.provider,
       ok: r.ok,
       fetched: r.fetched,

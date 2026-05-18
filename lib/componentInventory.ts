@@ -187,7 +187,7 @@ export const COMPONENT_INVENTORY: AtomicComponent[] = [
  * Returns all components in a given category.
  */
 export function getByCategory(category: ComponentCategory): AtomicComponent[] {
-  return COMPONENT_INVENTORY.filter((c: Record<string, unknown>) => c.category === category);
+  return COMPONENT_INVENTORY.filter((c) => c.category === category);
 }
 
 /**

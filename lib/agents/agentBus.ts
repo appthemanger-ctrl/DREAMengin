@@ -49,7 +49,7 @@ export type GameEnginAgentRole =
   | 'writer'
   | 'tech-director';
 
-export function emitGameEnginAgentEvent(input: ){
+export function emitGameEnginAgentEvent(input: {
   role: GameEnginAgentRole;
   status?: IdariEventDetail['status'];
   message: string;
@@ -108,7 +108,7 @@ export interface TriadConsensusResult {
  *
  * Phase 6 pt 9 — consensus gate for major system operations.
  */
-export async function runTriadConsensus(input: ){
+export async function runTriadConsensus(input: {
   message: string;
   actorEmail?: string | null;
   actorRole: 'user' | 'admin' | 'owner';

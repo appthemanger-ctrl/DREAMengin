@@ -172,7 +172,7 @@ export default function ForgeEngin({ onBack }: Props) {
       setWorkflowRun(getActiveWorkflowRun());
 
       // Generate suggestions from last activity
-      const sorted = [...act].sort((a: Record<string, unknown>, b: Record<string, unknown>) =>
+      const sorted = [...act].sort((a, b) =>
         new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime(),
       );
       const last = sorted[0];
@@ -199,7 +199,7 @@ export default function ForgeEngin({ onBack }: Props) {
     return pulse ? formatRelativeTime(pulse.lastActive) : 'never';
   }, [activity]);
 
-  const totalHeat = activity.reduce((sum: Record<string, unknown>, a: Record<string, unknown>) => sum + a.heat, 0);
+  const totalHeat = activity.reduce((sum, a) => sum + a.heat, 0);
   const activeCount = activity.filter((a) => a.heat > 0.1).length;
 
   // All workflows = built-in + custom
@@ -646,7 +646,7 @@ export default function ForgeEngin({ onBack }: Props) {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
                 {[...nexus.nodes]
-                  .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.centrality - a.centrality)
+                  .sort((a, b) => b.centrality - a.centrality)
                   .map((node) => (
                     <div
                       key={node.id}
@@ -689,7 +689,7 @@ export default function ForgeEngin({ onBack }: Props) {
                     DOMINANT PIPELINE
                   </div>
                   <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
-                    {nexus.dominantPipeline.map(eid: Record<string, unknown>, (i: number ) => {
+                    {nexus.dominantPipeline.map((eid, i: number) => {
                       const eng = ENGIN_REGISTRY.find((e) => e.id === eid);
                       return eng ? (
                         <span key={eid} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>
@@ -766,7 +766,7 @@ export default function ForgeEngin({ onBack }: Props) {
               </span>
             </div>
             <div style={{ display: 'grid', gap: 8 }}>
-              {suggestions.slice(0, 4).map(sug: Record<string, unknown>, (i: number ) => (
+              {suggestions.slice(0, 4).map((sug, i: number) => (
                 <SuggestionCard key={`${sug.type}-${i}`} suggestion={sug} />
               ))}
             </div>
@@ -865,7 +865,7 @@ export default function ForgeEngin({ onBack }: Props) {
                       </div>
                     </div>
                     <div style={{ display: 'grid', gap: 6 }}>
-                      {generatedWorkflow.steps.map(step: Record<string, unknown>, (i: number ) => (
+                      {generatedWorkflow.steps.map((step, i: number) => (
                         <div key={i} style={{
                           display: 'flex', alignItems: 'center', gap: 8,
                           padding: '8px 10px', borderRadius: 10,
@@ -1124,7 +1124,7 @@ export default function ForgeEngin({ onBack }: Props) {
                   </div>
                   {builderEngines.length > 0 && (
                     <div style={{ display: 'flex', gap: 4, marginBottom: 12, fontSize: 11, color: FORGE.dim }}>
-                      Flow: {builderEngines.map(eid: Record<string, unknown>, (i: number ) => {
+                      Flow: {builderEngines.map((eid, i: number) => {
                         const eng = ENGIN_REGISTRY.find((e) => e.id === eid);
                         return (
                           <span key={eid}>
@@ -1259,7 +1259,7 @@ export default function ForgeEngin({ onBack }: Props) {
               {[...history]
                 .reverse()
                 .slice(0, 15)
-                .map(entry: Record<string, unknown>, (i: number ) => {
+                .map((entry, i: number) => {
                   const eng = ENGIN_REGISTRY.find((e) => e.id === entry.enginId);
                   if (!eng) return null;
                   return (
@@ -1388,12 +1388,7 @@ export default function ForgeEngin({ onBack }: Props) {
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function PulseCard({ icon, label, value, accent }: ) {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  accent: string;
-}) {
+function PulseCard({ icon, label, value, accent }: { icon: React.ReactNode; label: string; value: string; accent: string }) {
   return (
     <div style={{
       padding: '14px 16px',
@@ -1410,13 +1405,7 @@ function PulseCard({ icon, label, value, accent }: ) {
   );
 }
 
-function EngineStatusCard({ engine, heat, lastActive, isSelected, onSelect }: ) {
-  engine: EnginEntry;
-  heat: number;
-  lastActive: string;
-  isSelected: boolean;
-  onSelect: () => void;
-}) {
+function EngineStatusCard({ engine, heat, lastActive, isSelected, onSelect }: { engine: EnginEntry; heat: number; lastActive: string; isSelected: boolean; onSelect: () => void }) {
   const glowIntensity = Math.round(heat * 40);
 
   return (
@@ -1481,12 +1470,7 @@ function EngineStatusCard({ engine, heat, lastActive, isSelected, onSelect }: ) 
   );
 }
 
-function EngineDetailPanel({ engine, heat, lastActive, activity }: ) {
-  engine: EnginEntry;
-  heat: number;
-  lastActive: string;
-  activity?: ForgeActivityPulse;
-}) {
+function EngineDetailPanel({ engine, heat, lastActive, activity }: { engine: EnginEntry; heat: number; lastActive: string; activity?: ForgeActivityPulse }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -1607,7 +1591,7 @@ const LINKAGES = [
 
 // ── Suggestion Card ───────────────────────────────────────────────────────────
 
-function SuggestionCard({ suggestion }: ) { suggestion: ForgeSuggestion } {
+function SuggestionCard({ suggestion }: {suggestion: ForgeSuggestion}) {
   return (
     <div
       style={{
@@ -1655,13 +1639,7 @@ function SuggestionCard({ suggestion }: ) { suggestion: ForgeSuggestion } {
 
 // ── Active Workflow Panel ─────────────────────────────────────────────────────
 
-function ActiveWorkflowPanel({ run, allWorkflows, onCompleteStep, onFailStep, onDismiss }: ) {
-  run: WorkflowRunState;
-  allWorkflows: readonly ForgeWorkflow[];
-  onCompleteStep: (i: number) => void;
-  onFailStep: (i: number) => void;
-  onDismiss: () => void;
-}) {
+function ActiveWorkflowPanel({ run, allWorkflows, onCompleteStep, onFailStep, onDismiss }: { run: WorkflowRunState; allWorkflows: readonly ForgeWorkflow[]; onCompleteStep: (i: number) => void; onFailStep: (i: number) => void; onDismiss: () => void }) {
   const workflow = allWorkflows.find((w) => w.id === run.workflowId);
   if (!workflow) return null;
 
@@ -1706,7 +1684,7 @@ function ActiveWorkflowPanel({ run, allWorkflows, onCompleteStep, onFailStep, on
           <span style={{ fontSize: 14, fontWeight: 800, color: workflow.accent }}>{workflow.title}</span>
         </div>
         <div style={{ display: 'grid', gap: 8 }}>
-          {run.steps.map(step: Record<string, unknown>, (i: number ) => (
+          {run.steps.map((step, i: number) => (
             <div
               key={i}
               style={{
@@ -1788,7 +1766,7 @@ function ActiveWorkflowPanel({ run, allWorkflows, onCompleteStep, onFailStep, on
               <span style={{ fontSize: 11, fontWeight: 800, color: '#f59e0b' }}>Recovery Options</span>
             </div>
             <div style={{ display: 'grid', gap: 6 }}>
-              {recoverySuggestions.map(sug: Record<string, unknown>, (i: number ) => (
+              {recoverySuggestions.map((sug, i: number) => (
                 <SuggestionCard key={i} suggestion={sug} />
               ))}
             </div>
@@ -1801,12 +1779,7 @@ function ActiveWorkflowPanel({ run, allWorkflows, onCompleteStep, onFailStep, on
 
 // ── Workflow Card ─────────────────────────────────────────────────────────────
 
-function WorkflowCard({ workflow, onStart, onDelete, isCustom }: ) {
-  workflow: ForgeWorkflow;
-  onStart?: () => void;
-  onDelete?: () => void;
-  isCustom?: boolean;
-}) {
+function WorkflowCard({ workflow, onStart, onDelete, isCustom }: { workflow: ForgeWorkflow; onStart?: () => void; onDelete?: () => void; isCustom?: boolean }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -1876,7 +1849,7 @@ function WorkflowCard({ workflow, onStart, onDelete, isCustom }: ) {
             style={{ overflow: 'hidden' }}
           >
             <div style={{ padding: '0 16px 16px', display: 'grid', gap: 8 }}>
-              {workflow.steps.map(step: Record<string, unknown>, (i: number ) => (
+              {workflow.steps.map((step, i: number) => (
                 <div
                   key={i}
                   style={{

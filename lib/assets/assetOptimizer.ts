@@ -129,7 +129,7 @@ export async function optimiseAsset(
   const worker = getWorker();
   const jobId = ++jobCounter;
 
-  return new Promise<OptimisationResult>((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+  return new Promise<OptimisationResult>((resolve, reject) => {
     pendingJobs.set(jobId, { resolve, reject, onProgress });
 
     worker.postMessage({
@@ -144,7 +144,7 @@ export async function optimiseAsset(
 
     // The worker needs the file content — transfer via a separate message
     // after the job is registered to keep the message ordering clear.
-    file.arrayBuffer().then((buf: Record<string, unknown>) => {
+    file.arrayBuffer().then((buf) => {
       worker.postMessage({ jobId, type: 'file_data', buffer: buf }, [buf]);
     }).catch(reject);
   });

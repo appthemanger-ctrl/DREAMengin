@@ -60,8 +60,8 @@ export default function StudioPanel( ){
           duration: elapsed,
           createdAt: new Date(),
         };
-        setRecordings((prev: Record<string, unknown>) => [rec, ...prev]);
-        stream.getTracks().forEach((t: Record<string, unknown>) => t.stop());
+        setRecordings((prev) => [rec, ...prev]);
+        stream.getTracks().forEach((t) => t.stop());
         clearInterval(timerRef.current!);
         setState('stopped');
       };
@@ -145,7 +145,7 @@ export default function StudioPanel( ){
           <div>
             <h2 className="text-xs font-semibold text-white/40 uppercase tracking-wider mb-3">Takes</h2>
             <div className="space-y-2">
-              {recordings.map((rec: Record<string, unknown>) => (
+              {recordings.map((rec) => (
                 <div
                   key={rec.id}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.04] border border-white/10"

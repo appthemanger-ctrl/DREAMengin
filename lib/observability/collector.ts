@@ -85,7 +85,7 @@ let _otelBridge: typeof import('./otelBridge') | null = null;
  * Lazily load the OTel bridge module. Returns null in browser or when the
  * bridge module cannot be loaded (e.g. missing OTel deps in a test env).
  */
-function getOtelBridge(: typeof import('./otelBridge') | null {
+function getOtelBridge(): typeof import('./otelBridge') | null {
   if (_otelBridge !== undefined && _otelBridge !== null) return _otelBridge;
   if (typeof window !== 'undefined') return null; // browser — skip
   try {
@@ -174,12 +174,12 @@ export function collectTrace(
  * Return a snapshot of all telemetry within the last `windowMs` milliseconds.
  * Defaults to the last 5 minutes.
  */
-export function getSnapshot(windowMs = 5 * 60 * 1000: TelemetrySnapshot ){
+export function getSnapshot(windowMs: number = 5 * 60 * 1000): TelemetrySnapshot {
   const cutoff = new Date(Date.now() - windowMs).toISOString();
   return {
-    logs: logBuffer.filter((e: Record<string, unknown>) => e.timestamp >= cutoff),
-    metrics: metricBuffer.filter((e: Record<string, unknown>) => e.timestamp >= cutoff),
-    traces: traceBuffer.filter((e: Record<string, unknown>) => e.timestamp >= cutoff),
+    logs: logBuffer.filter((e) => e.timestamp >= cutoff),
+    metrics: metricBuffer.filter((e) => e.timestamp >= cutoff),
+    traces: traceBuffer.filter((e) => e.timestamp >= cutoff),
     collected_at: new Date().toISOString(),
   };
 }
@@ -221,7 +221,7 @@ export function collectBatchLogs(
  * Compute errors-per-minute within the given window.
  * Returns 0 when the window contains no data.
  */
-export function getErrorRate(windowMs = 5 * 60 * 1000: number ){
+export function getErrorRate(windowMs: number = 5 * 60 * 1000): number {
   const cutoff = new Date(Date.now() - windowMs).toISOString();
   const errorCount = logBuffer.filter(
     (e) => e.timestamp >= cutoff && e.level === 'error',
@@ -236,12 +236,12 @@ export function getErrorRate(windowMs = 5 * 60 * 1000: number ){
  * Return the P95 latency (ms) across all trace spans in the given window.
  * Returns 0 when no traces are present.
  */
-export function getP95Latency(windowMs = 5 * 60 * 1000: number ){
+export function getP95Latency(windowMs: number = 5 * 60 * 1000): number {
   const cutoff = new Date(Date.now() - windowMs).toISOString();
   const durations = traceBuffer
-    .filter((t: Record<string, unknown>) => t.timestamp >= cutoff)
-    .map((t: Record<string, unknown>) => t.duration_ms)
-    .sort((a: Record<string, unknown>, b: Record<string, unknown>) => a - b);
+    .filter((t) => t.timestamp >= cutoff)
+    .map((t) => t.duration_ms)
+    .sort((a, b) => a - b);
   if (durations.length === 0) return 0;
   const idx = Math.floor(durations.length * 0.95);
   return durations[Math.min(idx, durations.length - 1)];
@@ -253,7 +253,7 @@ export function getP95Latency(windowMs = 5 * 60 * 1000: number ){
  * Group trace spans by their `trace_id` for distributed request tracing.
  * Returns a Map keyed by trace_id, each value being the spans in arrival order.
  */
-export function groupTracesByTraceId(windowMs = 5 * 60 * 1000: Map<string, TraceSpan[]> ){
+export function groupTracesByTraceId(windowMs: number = 5 * 60 * 1000): Map<string, TraceSpan[]> {
   const cutoff = new Date(Date.now() - windowMs).toISOString();
   const result = new Map<string, TraceSpan[]>();
   for (const span of traceBuffer) {
@@ -277,7 +277,7 @@ export interface LogSeverityCounts {
 /**
  * Return the count of log entries at each severity level within the window.
  */
-export function getLogCountsBySeverity(windowMs = 5 * 60 * 1000: LogSeverityCounts ){
+export function getLogCountsBySeverity(windowMs: number = 5 * 60 * 1000): LogSeverityCounts {
   const cutoff = new Date(Date.now() - windowMs).toISOString();
   const counts: LogSeverityCounts = { debug: 0, info: 0, warn: 0, error: 0 };
   for (const e of logBuffer) {

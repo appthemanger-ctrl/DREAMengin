@@ -11,7 +11,7 @@ interface DreamNavCtx {
 
 const DreamNavContext = createContext<DreamNavCtx | null>(null);
 
-export function DreamNavProvider({ children }: ) { children: React.ReactNode } {
+export function DreamNavProvider({ children }: {children: React.ReactNode}) {
   const [state, dispatch] = useReducer(reduceNav, DEFAULT_NAV_STATE);
 
   return (

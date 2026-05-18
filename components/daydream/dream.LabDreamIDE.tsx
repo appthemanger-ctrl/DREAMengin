@@ -75,8 +75,8 @@ print("\\n✅ Experiment complete")`,
 // Select a simulation above, then Run ▶
 
 const data = [1, 4, 9, 16, 25, 36, 49];
-const mean = data.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / data.length;
-const std  = Math.sqrt(data.map((x) => (x - mean) ** 2).reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b) / data.length);
+const mean = data.reduce((a, b) => a + b, 0) / data.length;
+const std  = Math.sqrt(data.map((x) => (x - mean) ** 2).reduce((a, b) => a + b) / data.length);
 
 console.log('Data:', data);
 console.log('Mean:', mean.toFixed(2));
@@ -157,7 +157,7 @@ function asciiActivation(layers: number[], seed: number): string {
   let s = seed;
   const lines: string[] = [];
   const maxW = Math.max(...layers);
-  layers.forEach(width: Record<string, unknown>, (i: number ) => {
+  layers.forEach((width, i: number) => {
     const pad = Math.floor((maxW - width) / 2);
     let row = ' '.repeat(pad);
     for (let n = 0; n < width; n++) {
@@ -271,7 +271,7 @@ export default function LabDreamIDE( ){
     dualRuntimeBridge.emit('lab', 'lab:run', { language, code, simId });
 
     const mockLines = getMockOutput(language, simId);
-    mockLines.forEach(line: Record<string, unknown>, (i: number ) => {
+    mockLines.forEach((line, i: number) => {
       setTimeout(() => {
         setLines((prev) => {
           const next = [...prev, line];
@@ -440,7 +440,7 @@ export default function LabDreamIDE( ){
                 {lines.length === 0 && status === 'idle' && (
                   <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.4)', fontFamily: 'monospace' }}>Results appear here after Run ▶…</p>
                 )}
-                {lines.map(line: Record<string, unknown>, (i: number ) => (
+                {lines.map((line, i: number) => (
                   <pre key={i} style={{ margin: 0, fontSize: 11, fontFamily: '"Fira Code",ui-monospace,monospace',
                     color: line.startsWith('[') ? OUT_OK : (line.startsWith('$') || line.startsWith('>>>')) ? '#93c5fd' : line.startsWith('⛔') ? OUT_ERR : line.startsWith('✅') ? OUT_OK : CODE_FG,
                     whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.55 }}>
@@ -536,7 +536,7 @@ export default function LabDreamIDE( ){
                     Results appear here after Run ▶…
                   </p>
                 )}
-                {lines.map(line: Record<string, unknown>, (i: number ) => (
+                {lines.map((line, i: number) => (
                   <pre key={i} style={{
                     margin: 0, fontSize: 11, fontFamily: '"Fira Code",ui-monospace,monospace',
                     color: line.startsWith('[') ? OUT_OK

@@ -40,7 +40,7 @@ type RequiredField = (typeof REQUIRED_FIELDS)[number];
 function validateRequiredFields(
   body: Record<string, unknown>,
 ): RequiredField[] {
-  return REQUIRED_FIELDS.filter((field: Record<string, unknown>) => {
+  return REQUIRED_FIELDS.filter((field) => {
     const value = body[field];
     return value === undefined || value === null;
   });

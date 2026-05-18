@@ -48,7 +48,7 @@ function dotRadius(significance: number): number {
 
 // ── API validation logic (mirrors app/api/journey/route.ts) ──────────────────
 
-function validateDotInput(body: Record<string, unknown>): string | null {
+function validateDotInput(body): string | null {
   if (!body.kind || typeof body.kind !== 'string') {
     return 'kind is required and must be a string';
   }

@@ -182,7 +182,7 @@ export default function SellItemPage( ){
                   'Add detailed descriptions including dimensions, materials, etc.',
                   'Price competitively by checking similar items in the shop',
                   'High-quality images help items sell faster',
-                ].map(tip: Record<string, unknown>, (i: number ) => (
+                ].map((tip, i: number) => (
                   <li key={i} className="de-row" style={{ borderBottom: 'none', paddingBlock: 4 }}>
                     <span style={{ color: 'var(--de-gold)', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{i + 1}.</span>
                     <span style={{ fontSize: 13, color: 'var(--de-text)' }}>{tip}</span>

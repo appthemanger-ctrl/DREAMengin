@@ -87,7 +87,7 @@ export interface UseSharedDreamSessionResult {
    * Save this engin's state snapshot to DB (debounced 1 s).
    * Call from inside stateSnapshot() in useEnginCoopSync.
    */
-  saveEnginState: (enginKey: string, state: Record<string, unknown>) => void;
+  saveEnginState: (enginKey: string, state) => void;
   /** Members who have joined this session at least once. */
   members: readonly SharedDreamMember[];
   /** Most recent activity entries (newest first). */
@@ -101,7 +101,7 @@ export interface UseSharedDreamSessionResult {
 // JSONB patch after the debounce settles.
 type EnginStateBuffer = Record<string, Record<string, unknown>>;
 
-export function useSharedDreamSession(){
+export function useSharedDreamSession({
   sessionId: propSessionId,
   name = 'Shared Dream',
 }: UseSharedDreamSessionOptions = {}): UseSharedDreamSessionResult {
@@ -196,7 +196,7 @@ export function useSharedDreamSession(){
           .order('joined_at', { ascending: true });
 
         if (!cancelled && mData) {
-          setMembers(mData.map((m: Record<string, unknown>) => ({
+          setMembers(mData.map((m) => ({
             userId: m.user_id as string,
             role: m.role as string,
             joinedAt: m.joined_at as string,
@@ -213,7 +213,7 @@ export function useSharedDreamSession(){
           .limit(20);
 
         if (!cancelled && aData) {
-          setActivity(aData.map((a: Record<string, unknown>) => ({
+          setActivity(aData.map((a) => ({
             id: a.id as string,
             userId: a.user_id as string | null,
             kind: a.kind as string,
@@ -249,9 +249,9 @@ export function useSharedDreamSession(){
 
   // ── saveEnginState: merge into buffer then debounce flush ─────────────────
 
-  const saveEnginState = useCallback((enginKey: string, state: Record<string, unknown>) => {
+  const saveEnginState = useCallback((enginKey: string, state) => {
     bufferRef.current = { ...bufferRef.current, [enginKey]: state };
-    setSavedEnginState((prev: Record<string, unknown>) => ({ ...prev, [enginKey]: state }));
+    setSavedEnginState((prev) => ({ ...prev, [enginKey]: state }));
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => { void flushBuffer(); }, 1000);
   }, [flushBuffer]);
@@ -270,7 +270,7 @@ export function useSharedDreamSession(){
       label,
       createdAt: new Date().toISOString(),
     };
-    setActivity((prev: Record<string, unknown>) => [entry, ...prev].slice(0, 30));
+    setActivity((prev) => [entry, ...prev].slice(0, 30));
     void supabase.from('shared_dream_activity').insert({
       session_id: sid,
       user_id: uid,

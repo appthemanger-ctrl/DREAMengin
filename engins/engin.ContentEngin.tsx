@@ -770,7 +770,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     setVoiceCloneMsg('');
     try {
       const reader = new FileReader();
-      const base64 = await new Promise<string>((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+      const base64 = await new Promise<string>((resolve, reject) => {
         reader.onload = () => resolve((reader.result as string).split(',')[1] ?? '');
         reader.onerror = () => reject(new Error('Read failed'));
         reader.readAsDataURL(file);
@@ -1550,7 +1550,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     setAudioSfxList((prev) => [...prev, audioSfxInput.trim()]);
     setAudioSfxInput('');
   }
-  function removeSfx(i: number ){ setAudioSfxList((prev) => prev.filter(_: Record<string, unknown>, (idx: number ) => idx !== i)); }
+  function removeSfx(i: number ){ setAudioSfxList((prev) => prev.filter((_, idx: number) => idx !== i)); }
 
   // ── Content Pipeline handlers ─────────────────────────────────────────────────
   function addPipelineItem( ){
@@ -1634,9 +1634,9 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   }
   function removeSbFrame(id: string ){ setSbFrames((prev) => prev.filter((f) => f.id !== id)); }
   function copySbText( ){
-    const total = sbFrames.reduce((a: Record<string, unknown>, f: Record<string, unknown>) => a + f.duration, 0);
+    const total = sbFrames.reduce((a, f) => a + f.duration, 0);
     const text = `STORYBOARD: ${sbTitle || 'Untitled'}\nTotal: ${total}s\n\n` +
-      sbFrames.map(f: Record<string, unknown>, (i: number ) =>
+      sbFrames.map((f, i: number) =>
         `[Frame ${i + 1}] ${f.scene} | ${f.shot} shot | ${f.duration}s\nACTION: ${f.action || '—'}\nAUDIO: ${f.audio || '—'}`
       ).join('\n\n');
     navigator.clipboard?.writeText(text).catch(() => {});
@@ -1709,10 +1709,10 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     if (!planResult) return;
     const text = [
       `# ${planResult.title}`,
-      '\n## Pre-Production', ...planResult.preProd.map(s: Record<string, unknown>, (i: number ) => `${i + 1}. ${s}`),
-      '\n## Production (Engine)', ...planResult.production.map(s: Record<string, unknown>, (i: number ) => `${i + 1}. ${s}`),
-      '\n## Post-Production', ...planResult.postProd.map(s: Record<string, unknown>, (i: number ) => `${i + 1}. ${s}`),
-      '\n## Distribution', ...planResult.distribution.map(s: Record<string, unknown>, (i: number ) => `${i + 1}. ${s}`),
+      '\n## Pre-Production', ...planResult.preProd.map((s, i: number) => `${i + 1}. ${s}`),
+      '\n## Production (Engine)', ...planResult.production.map((s, i: number) => `${i + 1}. ${s}`),
+      '\n## Post-Production', ...planResult.postProd.map((s, i: number) => `${i + 1}. ${s}`),
+      '\n## Distribution', ...planResult.distribution.map((s, i: number) => `${i + 1}. ${s}`),
     ].join('\n');
     try {
       const res = await fetch('/api/drafts', {
@@ -2072,7 +2072,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               <div>
                 <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 5 }}>SFX Checklist</label>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 7 }}>
-                  {audioSfxList.map(sfx: Record<string, unknown>, (i: number ) => (
+                  {audioSfxList.map((sfx, i: number) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(139,92,246,0.15)' }}>
                       <span style={{ fontSize: 12 }}>🔊</span>
                       <span style={{ flex: 1, fontSize: 12, color: 'var(--de-heading)' }}>{sfx}</span>
@@ -2193,7 +2193,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Track every piece of content from concept through to live. Tap <strong>Advance</strong> when a stage is complete.</p>
               {/* Stage legend */}
               <div style={{ display: 'flex', overflowX: 'auto', gap: 4, paddingBottom: 2 }}>
-                {PIPELINE_STAGES.map(stage: Record<string, unknown>, (i: number ) => (
+                {PIPELINE_STAGES.map((stage, i: number) => (
                   <div key={stage} style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
                     <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 10, background: `${PIPELINE_STAGE_COLOR[stage]}18`, color: PIPELINE_STAGE_COLOR[stage], border: `1px solid ${PIPELINE_STAGE_COLOR[stage]}30`, whiteSpace: 'nowrap' }}>{stage}</span>
                     {i < PIPELINE_STAGES.length - 1 && <span style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>›</span>}
@@ -2256,7 +2256,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               <span style={{ fontSize: 15 }}>🎞️</span>
               <span className="de-widget-title ml-2">Storyboard Builder</span>
               <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--de-text-dim)' }}>
-                {sbFrames.reduce((a: Record<string, unknown>, f: Record<string, unknown>) => a + f.duration, 0)}s total
+                {sbFrames.reduce((a, f) => a + f.duration, 0)}s total
               </span>
             </div>
             <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -2266,7 +2266,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                 style={{ width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 13, fontWeight: 700, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.75)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
               {/* Frame cards */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {sbFrames.map(frame: Record<string, unknown>, (i: number ) => (
+                {sbFrames.map((frame, i: number) => (
                   <div key={frame.id} style={{ borderRadius: 12, background: 'rgba(255,255,255,0.6)', border: `1px solid ${ACCENT}15`, overflow: 'hidden' }}>
                     {/* Frame header bar */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', background: `${ACCENT}08`, borderBottom: `1px solid ${ACCENT}10` }}>
@@ -2370,7 +2370,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                         <span style={{ fontSize: 11, fontWeight: 800, color: section.color }}>{section.phase}</span>
                       </div>
                       <div style={{ padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: 5 }}>
-                        {section.items.map(item: Record<string, unknown>, (i: number ) => (
+                        {section.items.map((item, i: number) => (
                           <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                             <span style={{ fontSize: 10, fontWeight: 800, color: section.color, flexShrink: 0, marginTop: 1 }}>{i + 1}.</span>
                             <span style={{ fontSize: 11, color: 'var(--de-heading)', lineHeight: 1.5 }}>{item}</span>
@@ -3126,7 +3126,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
-              {analyticsMetrics.map(m: Record<string, unknown>, (i: number ) => (
+              {analyticsMetrics.map((m, i: number) => (
                 <div
                   key={i}
                   style={{
@@ -3319,7 +3319,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             </div>
             {hashtags.length > 0 && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {hashtags.map(tag: Record<string, unknown>, (i: number ) => (
+                {hashtags.map((tag, i: number) => (
                   <span
                     key={i}
                     style={{
@@ -3375,7 +3375,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                 'Unpopular opinion: [your take] is better than [alternative]',
                 'Here\'s what I wish someone told me when I started:',
                 'POV: You just discovered the creator tool you\'ve been looking for.',
-              ]).map(hook: Record<string, unknown>, (i: number ) => (
+              ]).map((hook, i: number) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 9, background: copiedHook === i ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.06)', border: `1px solid ${copiedHook === i ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.15)'}`, transition: 'background 0.2s, border 0.2s' }}>
                   <span style={{ fontSize: 11, flex: 1, color: 'var(--de-heading)', lineHeight: 1.4 }}>{hook}</span>
                   <button type="button" onClick={() => copyHook(hook, i)}
@@ -3456,7 +3456,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             )}
             {seoResult?.reasons?.length ? (
               <div style={{ marginBottom: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {seoResult.reasons.map(reason: Record<string, unknown>, (idx: number ) => (
+                {seoResult.reasons.map((reason, idx: number) => (
                   <div key={idx} style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>• {reason}</div>
                 ))}
               </div>
@@ -3828,7 +3828,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             {pendingCuts.length > 0 && (
               <div style={{ marginTop: 8, padding: '8px 10px', borderRadius: 8, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: '#ef4444', marginBottom: 4 }}>PENDING CUTS</div>
-                {pendingCuts.map(cut: Record<string, unknown>, (i: number ) => (
+                {pendingCuts.map((cut, i: number) => (
                   <div key={i} style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>
                     ✂️ {(cut.cutStartMs / 1000).toFixed(2)}s – {(cut.cutEndMs / 1000).toFixed(2)}s
                   </div>
@@ -4108,7 +4108,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                 {advSeoResult.topSuggestions.length > 0 && (
                   <div style={{ padding: '8px 10px', borderRadius: 8, background: `${ACCENT}06`, border: `1px solid ${ACCENT}18` }}>
                     <div style={{ fontSize: 10, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>SUGGESTIONS</div>
-                    {advSeoResult.topSuggestions.map(s: Record<string, unknown>, (i: number ) => (
+                    {advSeoResult.topSuggestions.map((s, i: number) => (
                       <div key={i} style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>• {s}</div>
                     ))}
                   </div>
@@ -4384,7 +4384,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             {compMsg && <div style={{ fontSize: 11, fontWeight: 600, color: compMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>{compMsg}</div>}
             {/* Layer stack */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              {compLayers.map(layer: Record<string, unknown>, (idx: number ) => (
+              {compLayers.map((layer, idx: number) => (
                 <div key={layer.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(6,182,212,0.15)', opacity: layer.visible ? 1 : 0.4 }}>
                   <span style={{ fontSize: 10, fontFamily: 'monospace', color: 'var(--de-text-dim)', width: 16, flexShrink: 0 }}>{idx + 1}</span>
                   <button type="button" onClick={() => toggleCompLayerVisibility(layer.id)}
@@ -4537,9 +4537,9 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             {/* Track points list */}
             {cameraTrack.trackPoints.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10, maxHeight: 140, overflowY: 'auto' }}>
-                {cameraTrack.trackPoints.map(pt: Record<string, unknown>, (i: number ) => {
+                {cameraTrack.trackPoints.map((pt, i: number) => {
                   const motions = estimateCameraMotion(cameraTrack).filter((m) => m.pointId === pt.id);
-                  const avgSpeed = motions.length > 0 ? motions.reduce((s: Record<string, unknown>, m: Record<string, unknown>) => s + m.speed, 0) / motions.length : 0;
+                  const avgSpeed = motions.length > 0 ? motions.reduce((s, m) => s + m.speed, 0) / motions.length : 0;
                   return (
                     <div key={pt.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(245,158,11,0.15)' }}>
                       <Crosshair className="w-3 h-3" style={{ color: '#f59e0b', flexShrink: 0 }} />

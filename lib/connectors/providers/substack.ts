@@ -56,7 +56,7 @@ export async function substackSync(creds: SubstackCredentials): Promise<UnifiedF
   const slug = extractSlug(creds.publication.trim());
   const url = substackRssUrl(creds.publication.trim());
   const items = await parseRssFeed({ provider: 'substack', feedUrl: url }, 40);
-  return items.map((item: Record<string, unknown>) => normaliseSubstack(item.raw as Parameters<typeof normaliseSubstack>[0], slug));
+  return items.map((item) => normaliseSubstack(item.raw as Parameters<typeof normaliseSubstack>[0], slug));
 }
 
 export function substackCredentialFields( ){

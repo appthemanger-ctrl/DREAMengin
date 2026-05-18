@@ -107,8 +107,8 @@ export function ActivityPostForm({ onSubmit, onCancel }: ActivityPostFormProps) 
         </label>
         <div className="space-y-2">
           {Object.values(ActivityTier)
-            .filter((t: Record<string, unknown>) => typeof t === 'number')
-            .map((t: Record<string, unknown>) => {
+            .filter((t) => typeof t === 'number')
+            .map((t) => {
               const tierNum = t as ActivityTier;
               return (
                 <label

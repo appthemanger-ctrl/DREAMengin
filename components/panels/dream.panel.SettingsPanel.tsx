@@ -107,7 +107,7 @@ export default function SettingsPanel( ){
       )}
 
       {/* Navigation groups */}
-      {NAV_GROUPS.map((group: Record<string, unknown>) => (
+      {NAV_GROUPS.map((group) => (
         <div key={group.heading} className="de-widget" style={{
           margin: '0 16px 12px',
           background: 'rgba(255,255,255,0.95)',
@@ -117,7 +117,7 @@ export default function SettingsPanel( ){
             <span className="de-widget-title">{group.heading}</span>
           </div>
           <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-            {group.items.map({ panel, icon: Icon, label: string, desc: string, iconBg }, (idx: number ) => (
+            {group.items.map(({ panel, icon: Icon, label, desc, iconBg }, idx: number) => (
               <button
                 key={panel}
                 type="button"

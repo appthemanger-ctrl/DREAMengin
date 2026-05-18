@@ -162,7 +162,7 @@ export default function EnginFracture( ){
             if (b.from === 'p') scoreRef.current += b.dmg;
           }
         }
-        bulletsRef.current = bulletsRef.current.filter((b: Record<string, unknown>) => b.ttl > 0);
+        bulletsRef.current = bulletsRef.current.filter((b) => b.ttl > 0);
 
         // End conditions
         if (p.hp <= 0) setPhase('defeat');
@@ -269,16 +269,11 @@ export default function EnginFracture( ){
   );
 }
 
-function Picker({ label, options, value, onChange }: ) {
-  label: string;
-  options: Array<{ id: string; label: string; info: string }>;
-  value: string;
-  onChange: (v: string) => void;
-}) {
+function Picker({ label, options, value, onChange }: { label: string; options: Array<{ id: string; label: string; info: string }>; value: string; onChange: (v: string) => void }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       <div style={{ color: '#8aa9ff', fontSize: 11, letterSpacing: 3 }}>{label}</div>
-      {options.map((o: Record<string, unknown>) => (
+      {options.map((o) => (
         <button key={o.id} onClick={() => onChange(o.id)} style={{
           textAlign: 'left', padding: '6px 8px', fontSize: 12,
           background: value === o.id ? 'rgba(138,169,255,0.2)' : 'rgba(20,24,48,0.6)',

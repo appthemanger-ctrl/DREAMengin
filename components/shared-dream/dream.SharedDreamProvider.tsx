@@ -66,7 +66,7 @@ export interface SharedDreamProviderProps {
   children: React.ReactNode;
 }
 
-export function SharedDreamProvider(){
+export function SharedDreamProvider({
   channelId: propChannelId,
   sessionOptions = {},
   children,
@@ -108,7 +108,7 @@ export function SharedDreamProvider(){
     } satisfies CollabSessionOptions;
 
     createCollabSession(finalChannelId, options)
-      .then((nextSession: Record<string, unknown>) => {
+      .then((nextSession) => {
         if (!mounted) { nextSession.leave().catch(() => {}); return; }
         activeSession = nextSession;
         setSession(nextSession);
@@ -130,8 +130,8 @@ export function SharedDreamProvider(){
             setParticipants([...nextSession.peers]);
           } else if (payload.type === 'cursor') {
             const { x, y } = payload.data as { x: number; y: number };
-            setCursors((prev: Record<string, unknown>) => {
-              const filtered = prev.filter((c: Record<string, unknown>) => c.peerId !== payload.peerId);
+            setCursors((prev) => {
+              const filtered = prev.filter((c) => c.peerId !== payload.peerId);
               return [...filtered, { peerId: payload.peerId, x, y }];
             });
           } else if (payload.type === 'edit') {
@@ -139,7 +139,7 @@ export function SharedDreamProvider(){
               cb(payload.data, payload.peerId);
             }
           } else if (payload.type === 'peer_leave') {
-            setCursors((prev: Record<string, unknown>) => prev.filter((c: Record<string, unknown>) => c.peerId !== payload.peerId));
+            setCursors((prev) => prev.filter((c) => c.peerId !== payload.peerId));
           }
         }) as CollabEventHandler);
       })

@@ -90,7 +90,7 @@ export default function AnalyticsDaydream({ userId }: Props) {
             Higher tiers multiply your visibility score. Verified evidence (video &gt; audio &gt; photo &gt; text) boosts strength.
           </p>
           <div className="space-y-2">
-            {TIERS.map((t: Record<string, unknown>) => (
+            {TIERS.map((t) => (
               <div
                 key={t.tier}
                 style={{
@@ -134,7 +134,7 @@ export default function AnalyticsDaydream({ userId }: Props) {
               { icon: '⭐', label: 'Activity Points', desc: 'Earned by creating at higher tiers with verified evidence. Decay over 30 days.' },
               { icon: '👁️', label: 'Views per Post',  desc: 'Verified human views only — bots and duplicates excluded by TheBoogieMan.Ai.' },
               { icon: '📅', label: 'Days Active',      desc: 'Days in the last 30 where you posted or verified activity.' },
-            ].map((row: Record<string, unknown>) => (
+            ].map((row) => (
               <div key={row.label} style={{ display: 'flex', gap: 10, padding: '6px 0', borderBottom: '1px solid rgba(99,102,241,0.08)' }}>
                 <span style={{ fontSize: 16, flexShrink: 0 }}>{row.icon}</span>
                 <div>
@@ -180,7 +180,7 @@ export default function AnalyticsDaydream({ userId }: Props) {
               { href: '/daydream/music',     emoji: '🎵', label: 'Compose Music',        desc: 'Music creation on StarMakerEngin earns Tier 3 points' },
               { href: '/connectors',         emoji: '🔌', label: 'Connect Services',     desc: 'Surface your real-world activity in the feed' },
               { href: '/edit-profiledream',  emoji: '👤', label: 'Update Your Profile',  desc: 'Publish more of your Dream Windows publicly' },
-            ].map((action: Record<string, unknown>) => (
+            ].map((action) => (
               <Link
                 key={action.href}
                 href={action.href}

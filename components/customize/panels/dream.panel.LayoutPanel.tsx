@@ -49,7 +49,7 @@ export default function LayoutPanel( ){
           Layout Style
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-          {LAYOUTS.map(({ id, label: string, icon: Record<string, unknown>, desc }) => {
+          {LAYOUTS.map(({ id, label, icon, desc }) => {
             const isActive = draftSkin.layout === id;
             return (
               <button

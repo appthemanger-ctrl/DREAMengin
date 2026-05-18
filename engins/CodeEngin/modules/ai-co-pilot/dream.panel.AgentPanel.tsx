@@ -54,7 +54,7 @@ export function AgentPanel( ){
       </div>
 
       <div className="de-widget-body h-64 overflow-y-auto">
-        {messages.map(msg: Record<string, unknown>, (i: number ) => (
+        {messages.map((msg, i: number) => (
           <div
             key={i}
             className={`mb-2 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}

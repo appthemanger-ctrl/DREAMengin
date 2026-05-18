@@ -109,7 +109,7 @@ const CODE_VOCAB_SNAPSHOT = [
   'shader, mesh, quaternion, physics, particle system',
 ].join('; ');
 
-export async function planWithEams(input: ){
+export async function planWithEams(input: {
   message: string;
   actorEmail?: string | null;
   actorRole: 'user' | 'admin' | 'owner';
@@ -203,7 +203,7 @@ export async function planWithEams(input: ){
 
       const intents: Intent[] = intentsRaw
         .slice(0, 3)
-        .map((x: Record<string, unknown>) => {
+        .map((x) => {
           const base = {
             intent_id: typeof x?.intent_id === 'string' ? x.intent_id : uuidv4(),
             type: x?.type as IntentType,
@@ -216,7 +216,7 @@ export async function planWithEams(input: ){
           return base;
         })
         // Phase 8 §A Point 9: validate NAV_DELTA payloads contain real canonical routes
-        .filter((intent: Record<string, unknown>) => {
+        .filter((intent) => {
           if (!IntentSchema.safeParse(intent).success) return false;
           if (intent.type === 'NAV_DELTA') {
             const route = (intent.payload as Record<string, unknown>)?.route;
@@ -294,7 +294,7 @@ export function validateWithIdari(
 // Boogie: policy layer. Use existing rule engine elsewhere; this is LLM helper.
 // ---------------------------------------------------------------------------
 
-export async function boogiePolicyCheck(input: ){
+export async function boogiePolicyCheck(input: {
   actorRole: 'user' | 'admin' | 'owner';
   actorEmail?: string | null;
   message: string;

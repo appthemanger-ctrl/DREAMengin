@@ -158,7 +158,7 @@ export default function Glassfall( ){
       setTimeout(settleAndMatch, 120);
     }
     for (let c = 0; c < COLS; c++) if (g[0][c] !== 0) { setPhase('crushed'); return; }
-    if (g.slice(0, ROWS / 2).every((row: Record<string, unknown>) => row.every((v: Record<string, unknown>) => v === 0)) && scoreRef.current > floorRef.current * 200) {
+    if (g.slice(0, ROWS / 2).every((row) => row.every((v) => v === 0)) && scoreRef.current > floorRef.current * 200) {
       floorRef.current += 1;
       if (floorRef.current > 5) setPhase('cleared');
     }

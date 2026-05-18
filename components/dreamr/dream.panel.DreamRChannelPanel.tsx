@@ -35,10 +35,10 @@ const DR = {
   font:        'var(--font-dreamr,"Plus Jakarta Sans",system-ui,sans-serif)',
 } as const;
 
-function nmR(s = 5: string ){
+function nmR(s: number = 5): string {
   return `${-s}px ${-s}px ${s*2.4}px ${DR.shadowLight}, ${s}px ${s}px ${s*2.8}px ${DR.shadowDark}`;
 }
-function nmI(s = 4: string ){
+function nmI(s: number = 4): string {
   return `inset ${-s}px ${-s}px ${s*2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s*2.4}px ${DR.shadowDark}`;
 }
 
@@ -110,7 +110,7 @@ function VideoThumb(){
 
 // ── VideoRow — compact list item ───────────────────────────────────────────────
 
-function VideoRow({ item }: ) { item: UnifiedFeedItem } {
+function VideoRow({ item }: {item: UnifiedFeedItem}) {
   const thumb = item.media[0]?.thumbnail_url ?? null;
   const [playing, setPlaying] = useState(false);
   const embed = item.permalink ? embedUrl(item.permalink) : null;
@@ -164,7 +164,7 @@ interface Props {
   onClose: () => void;
 }
 
-export default function DreamRChannelPanel({ post, activeTopic: Record<string, unknown>, onClose }: Props) {
+export default function DreamRChannelPanel({ post, activeTopic, onClose }: Props) {
   const [channelVideos, setChannelVideos] = useState<UnifiedFeedItem[]>([]);
   const [similarVideos, setSimilarVideos] = useState<UnifiedFeedItem[]>([]);
   const [loading, setLoading] = useState(true);

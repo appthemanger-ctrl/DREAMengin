@@ -133,7 +133,7 @@ export function calculateTrending(
   );
 
   // Sort by momentum descending
-  results.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.momentum - a.momentum);
+  results.sort((a, b) => b.momentum - a.momentum);
 
   return results.slice(0, limit);
 }

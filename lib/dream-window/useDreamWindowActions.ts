@@ -168,7 +168,7 @@ export function useDreamWindowActions(): UseDreamWindowActionsReturn {
         setError('Failed to create Dream Window');
         return null;
       }
-      setDreamWindows((prev: Record<string, unknown>) => [created, ...prev]);
+      setDreamWindows((prev) => [created, ...prev]);
       return created;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -190,7 +190,7 @@ export function useDreamWindowActions(): UseDreamWindowActionsReturn {
         setError((json as { error?: string }).error ?? 'Failed to delete Dream Window');
         return false;
       }
-      setDreamWindows((prev: Record<string, unknown>) => prev.filter((w: Record<string, unknown>) => w.id !== id));
+      setDreamWindows((prev) => prev.filter((w) => w.id !== id));
       return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
@@ -220,8 +220,8 @@ export function useDreamWindowActions(): UseDreamWindowActionsReturn {
         return null;
       }
       const updated = json.dreamWindow!;
-      setDreamWindows((prev: Record<string, unknown>) =>
-        prev.map((w: Record<string, unknown>) => (w.id === id ? updated : w)),
+      setDreamWindows((prev) =>
+        prev.map((w) => (w.id === id ? updated : w)),
       );
       return updated;
     } catch (err) {
@@ -244,7 +244,7 @@ export function useDreamWindowActions(): UseDreamWindowActionsReturn {
         setError('Failed to update Dream Window');
         return null;
       }
-      setDreamWindows((prev: Record<string, unknown>) => prev.map((window: Record<string, unknown>) => (window.id === id ? updated : window)));
+      setDreamWindows((prev) => prev.map((window) => (window.id === id ? updated : window)));
       return updated;
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');

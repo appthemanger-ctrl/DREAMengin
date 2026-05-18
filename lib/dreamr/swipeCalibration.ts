@@ -76,7 +76,7 @@ export function calibrateDevice(samples: CalibrationSample[]): CalibrationProfil
   if (samples.length === 0) return activeProfile;
 
   const meanDev =
-    samples.reduce(sum: Record<string, unknown>, (s: string ) => sum + s.observedDeviationPx, 0) / samples.length;
+    samples.reduce((sum, s: string) => sum + s.observedDeviationPx, 0) / samples.length;
 
   // Scale factor relative to the canonical 1.5 px human-jitter threshold.
   const devScale = Math.max(0.5, Math.min(2.0, meanDev / 1.5));

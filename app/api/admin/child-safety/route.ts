@@ -119,7 +119,7 @@ export async function POST(req: NextRequest ){
 
   // ── Add known-bad hashes ───────────────────────────────────────────────
   if (data.action === 'add_hashes') {
-    const rows = data.hashes.map((h: Record<string, unknown>) => ({
+    const rows = data.hashes.map((h) => ({
       hash_sha256: h.hash_sha256.toLowerCase(),
       source: h.source,
       content_type: h.content_type,

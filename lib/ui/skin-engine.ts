@@ -210,7 +210,7 @@ export const SKIN_PRESETS: SkinPreset[] = [
 ];
 
 export function getSkinPreset(id: string): SkinPreset {
-  return SKIN_PRESETS.find((p: Record<string, unknown>) => p.id === id) ?? SKIN_PRESETS[0];
+  return SKIN_PRESETS.find((p) => p.id === id) ?? SKIN_PRESETS[0];
 }
 
 // ── CSS variable map ──────────────────────────────────────────────────────────

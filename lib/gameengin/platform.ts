@@ -225,7 +225,7 @@ export class GameEnginPlatform {
       window.addEventListener('keyup', platform._onKeyUp);
     }
 
-    platform.engine.onFrame((dt: number, telemetry: Record<string, unknown>) => {
+    platform.engine.onFrame((dt: number, telemetry) => {
       platform._telemetry = telemetry;
       platform._elapsed += dt;
       for (const cb of platform._tickSubs) cb(dt, platform._elapsed);

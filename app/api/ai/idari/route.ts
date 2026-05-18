@@ -144,7 +144,7 @@ async function idariPlanner(
     const rawIntents = Array.isArray(parsed.intents) ? parsed.intents : [];
     const intents: Intent[] = rawIntents
       .slice(0, 3)
-      .map((x: Record<string, unknown>) => ({
+      .map((x) => ({
         intent_id: typeof x?.intent_id === 'string' ? x.intent_id : uuidv4(),
         type: x?.type as Intent['type'],
         confidence: typeof x?.confidence === 'number' ? x.confidence : 0.7,
@@ -284,7 +284,7 @@ export async function POST(req: NextRequest ){
     });
   }
 
-  const allowedIntents = validatedIntents.filter(_: Record<string, unknown>, (i: number ) => {
+  const allowedIntents = validatedIntents.filter((_, i: number) => {
     const d = boogieResult.per_intent[i];
     return d && (d.decision === 'ALLOW' || d.decision === 'CONFIRM');
   });

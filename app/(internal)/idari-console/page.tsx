@@ -142,7 +142,7 @@ export default async function AdminPage( ){
                 { label: 'Optional Integrations', value: `${readiness.setup.optionalPassed}/${readiness.setup.optionalTotal}`, icon: Zap, color: '#6366f1' },
                 { label: 'Pairs in BUILD', value: `${readiness.build.buildPairs}`, icon: Users, color: '#0ea5e9' },
                 { label: 'Overall Progress', value: `${readiness.build.overallProgressPct}%`, icon: CheckCircle, color: '#f59e0b' },
-              ].map({ label, value: Record<string, unknown>, (icon: Icon, color }) => (
+              ].map(({ label, value, icon: Icon, color }) => (
                 <div key={label} className="de-surface">
                   <div className="de-metric">
                     <Icon className="w-4 h-4 mb-2" style={{ color }} />
@@ -168,7 +168,7 @@ export default async function AdminPage( ){
                   { name: 'Dr. Eams',  role: 'User Impact',        color: '#0ea5e9', icon: '🧠', desc: 'Evaluates user experience impact' },
                   { name: 'IDARi',     role: 'Optimization',       color: '#6366f1', icon: '⚡', desc: 'Analyzes performance & efficiency' },
                   { name: 'BoogieMan', role: 'Policy / Overwatch', color: '#f59e0b', icon: '🛡', desc: 'Assesses policy risk & moderation' },
-              ].map(({ name, role: Record<string, unknown>, color: Record<string, unknown>, icon: Record<string, unknown>, desc }) => (
+              ].map(({ name, role, color, icon, desc }) => (
                 <div key={name} className="de-surface p-3">
                   <div style={{ fontSize: 20, marginBottom: 4 }}>{icon}</div>
                   <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{name}</div>
@@ -179,9 +179,9 @@ export default async function AdminPage( ){
             </div>
 
             {/* Proposals */}
-            {readiness.proposals.map((p: Record<string, unknown>) => {
-              const allApproved = [p.idari, p.boogieman, p.dreams].every((s: Record<string, unknown>) => s.status === 'approved');
-              const anyRejected = [p.idari, p.boogieman, p.dreams].some((s: Record<string, unknown>) => s.status === 'rejected');
+            {readiness.proposals.map((p) => {
+              const allApproved = [p.idari, p.boogieman, p.dreams].every((s) => s.status === 'approved');
+              const anyRejected = [p.idari, p.boogieman, p.dreams].some((s) => s.status === 'rejected');
               return (
                 <div key={p.id} className="de-surface mb-3" style={{ padding: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 6 }}>
@@ -226,7 +226,7 @@ export default async function AdminPage( ){
                           {p.plan.title}
                         </div>
                         <ul style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 11, color: 'var(--de-text)', paddingLeft: 18 }}>
-                          {p.checklist.map((item: Record<string, unknown>) => (
+                          {p.checklist.map((item) => (
                             <li key={item}>{item}</li>
                           ))}
                         </ul>
@@ -252,7 +252,7 @@ export default async function AdminPage( ){
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: '4px 0' }}>
-              {readiness.blockers.map((blocker: Record<string, unknown>) => (
+              {readiness.blockers.map((blocker) => (
                 <div key={blocker} className="de-surface" style={{ padding: 12, display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                   <AlertTriangle className="w-4 h-4 mt-0.5" style={{ color: blocker.startsWith('No upgrade blockers') ? '#22c55e' : '#f59e0b', flexShrink: 0 }} />
                   <p style={{ fontSize: 12, color: 'var(--de-text)', lineHeight: 1.5 }}>

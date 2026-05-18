@@ -148,15 +148,15 @@ export function analyzeSwipe(points: Point[]): SwipeAnalysis {
   const lineX    = b; // reused as lineX when vertical
 
   // ── Perpendicular deviations ──
-  const deviations = points.map((p: Record<string, unknown>) => perpDistance(p, m, b, vertical, lineX));
-  const meanDev    = deviations.reduce((a: Record<string, unknown>, c: Record<string, unknown>) => a + c, 0) / deviations.length;
+  const deviations = points.map((p) => perpDistance(p, m, b, vertical, lineX));
+  const meanDev    = deviations.reduce((a, c) => a + c, 0) / deviations.length;
 
   // ── Coarse-graining invariance ──
   const half   = Math.floor(deviations.length / 2);
   const first  = deviations.slice(0, half);
   const second = deviations.slice(half);
-  const meanFirst  = first.reduce((a: Record<string, unknown>, c: Record<string, unknown>) => a + c, 0) / (first.length || 1);
-  const meanSecond = second.reduce((a: Record<string, unknown>, c: Record<string, unknown>) => a + c, 0) / (second.length || 1);
+  const meanFirst  = first.reduce((a, c) => a + c, 0) / (first.length || 1);
+  const meanSecond = second.reduce((a, c) => a + c, 0) / (second.length || 1);
   const coarseGrainDiff = Math.abs(meanFirst - meanSecond);
 
   // ── Entropy ──
@@ -178,14 +178,14 @@ export function analyzeSwipe(points: Point[]): SwipeAnalysis {
     const dt = points[i + 1] ? points[i + 1].t - points[i].t : 1;
     jerks.push(Math.abs(velocities[i] - velocities[i - 1]) / (dt || 1));
   }
-  const slogJerk = jerks.length > 0 ? slog(jerks.reduce((a: Record<string, unknown>, c: Record<string, unknown>) => a + c, 0) / jerks.length) : 0;
+  const slogJerk = jerks.length > 0 ? slog(jerks.reduce((a, c) => a + c, 0) / jerks.length) : 0;
 
   // ── Cross-path similarity ──
   const normPath   = normalisePath(deviations);
   let crossSim     = 0;
   if (swipeHistory.length > 0) {
-    const sims = swipeHistory.map((h: Record<string, unknown>) => cosineSimilarity(normPath, h));
-    crossSim = sims.reduce((a: Record<string, unknown>, c: Record<string, unknown>) => a + c, 0) / sims.length;
+    const sims = swipeHistory.map((h) => cosineSimilarity(normPath, h));
+    crossSim = sims.reduce((a, c) => a + c, 0) / sims.length;
   }
   updateHistory(normPath);
 
@@ -286,22 +286,22 @@ export function isBotSession(history: SwipeRecord[]): BotSessionResult {
 
   const signals: string[] = [];
 
-  const botSwipes     = history.filter((r: Record<string, unknown>) => r.analysis.likelyBot).length;
+  const botSwipes     = history.filter((r) => r.analysis.likelyBot).length;
   const botSwipeRatio = botSwipes / history.length;
 
   if (botSwipeRatio > 0.6) signals.push(`${Math.round(botSwipeRatio * 100)}% bot swipes`);
 
   const avgDeviation =
-    history.reduce(a: Record<string, unknown>, (r: number ) => a + r.analysis.meanDeviation, 0) / history.length;
+    history.reduce((a, r: number) => a + r.analysis.meanDeviation, 0) / history.length;
   if (avgDeviation < 0.8) signals.push(`avg deviation ${avgDeviation.toFixed(2)} < 0.8`);
 
   const avgCrossSim =
-    history.reduce(a: Record<string, unknown>, (r: number ) => a + r.analysis.crossSimilarity, 0) / history.length;
+    history.reduce((a, r: number) => a + r.analysis.crossSimilarity, 0) / history.length;
   if (avgCrossSim > 0.95) signals.push(`avg crossSim ${avgCrossSim.toFixed(2)} > 0.95`);
 
-  const viewedRecords = history.filter((r: Record<string, unknown>) => r.viewTally !== undefined);
+  const viewedRecords = history.filter((r) => r.viewTally !== undefined);
   if (viewedRecords.length > 0) {
-    const countedViews = viewedRecords.filter((r: Record<string, unknown>) => r.viewTally!.counted).length;
+    const countedViews = viewedRecords.filter((r) => r.viewTally!.counted).length;
     const viewRatio    = countedViews / viewedRecords.length;
     if (viewRatio < 0.2) signals.push(`only ${Math.round(viewRatio * 100)}% views ≥ 4s`);
   }

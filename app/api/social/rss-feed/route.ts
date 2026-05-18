@@ -87,7 +87,7 @@ function isBlockedHost(urlStr: string): boolean {
   try {
     const { hostname, protocol } = new URL(urlStr);
     if (protocol !== 'http:' && protocol !== 'https:') return true;
-    return BLOCKED_HOST_PATTERNS.some((re: Record<string, unknown>) => re.test(hostname));
+    return BLOCKED_HOST_PATTERNS.some((re) => re.test(hostname));
   } catch {
     return true; // unparseable → block
   }

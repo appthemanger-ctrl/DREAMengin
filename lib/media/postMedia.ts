@@ -11,11 +11,11 @@ function collectMediaUrlStrings(value: unknown): string[] {
   }
 
   if (Array.isArray(value)) {
-    return value.flatMap((entry: Record<string, unknown>) => collectMediaUrlStrings(entry));
+    return value.flatMap((entry) => collectMediaUrlStrings(entry));
   }
 
   if (value && typeof value === 'object') {
-    return Object.values(value as Record<string, unknown>).flatMap((entry: Record<string, unknown>) => collectMediaUrlStrings(entry));
+    return Object.values(value as Record<string, unknown>).flatMap((entry) => collectMediaUrlStrings(entry));
   }
 
   return [];
@@ -29,7 +29,7 @@ export function getPostMediaUrls(post: PostMediaShape): string[] {
     ...collectMediaUrlStrings(post.media_json),
   ];
 
-  return urls.filter((url: Record<string, unknown>) => {
+  return urls.filter((url) => {
     if (seen.has(url)) return false;
     seen.add(url);
     return true;

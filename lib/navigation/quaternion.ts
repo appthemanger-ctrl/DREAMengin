@@ -28,7 +28,7 @@ export function identityQuaternion(): Quaternion {
  * @param angle - rotation angle in radians
  * @returns Unit quaternion
  */
-export function fromAxisAngle(axis: ){ x: number; y: number; z: number }, angle: number: Quaternion {
+export function fromAxisAngle(axis: { x: number; y: number; z: number }, angle: number): Quaternion {
   const halfAngle = angle / 2;
   const sinHalf = Math.sin(halfAngle);
   const cosHalf = Math.cos(halfAngle);
@@ -166,7 +166,7 @@ export function toRotationMatrix(q: Quaternion): number[][] {
 /**
  * Apply quaternion rotation to a 3D vector
  */
-export function rotateVector(q: Quaternion, v): { x: number; y: number; z: number }: { x: number; y: number; z: number } {
+export function rotateVector(q: Quaternion, v: { x: number; y: number; z: number }): { x: number; y: number; z: number } {
   // Convert vector to quaternion
   const vq: Quaternion = { w: 0, x: v.x, y: v.y, z: v.z };
   

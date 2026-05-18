@@ -111,7 +111,7 @@ export default function DreamConstellationMap( ){
         a:  Math.random() * 0.45 + 0.15,
         tw: Math.random() * Math.PI * 2,
       })),
-      ringPhases: Array.from({ length: NODES.length }, _: Record<string, unknown>, (i: number ) => i * (5.5 / NODES.length)),
+      ringPhases: Array.from({ length: NODES.length }, (_, i: number) => i * (5.5 / NODES.length)),
     };
 
     function render(ts: number ){
@@ -161,8 +161,8 @@ export default function DreamConstellationMap( ){
 
       // ── Edges ────────────────────────────────────────────────────────────
       for (const [aid, bid] of EDGES) {
-        const a  = NODES.find((n: Record<string, unknown>) => n.id === aid)!;
-        const b  = NODES.find((n: Record<string, unknown>) => n.id === bid)!;
+        const a  = NODES.find((n) => n.id === aid)!;
+        const b  = NODES.find((n) => n.id === bid)!;
         const pa = getNodePos(a, W, H);
         const pb = getNodePos(b, W, H);
 
@@ -277,7 +277,7 @@ export default function DreamConstellationMap( ){
     const onClick = (e: MouseEvent) => {
       const hit = hitTest(e.clientX, e.clientY, window.innerWidth, window.innerHeight);
       if (hit) {
-        const node = NODES.find((n: Record<string, unknown>) => n.id === hit)!;
+        const node = NODES.find((n) => n.id === hit)!;
         router.push(node.href);
       }
     };
@@ -301,7 +301,7 @@ export default function DreamConstellationMap( ){
       if (touch) {
         const hit = hitTest(touch.clientX, touch.clientY, window.innerWidth, window.innerHeight);
         if (hit) {
-          const node = NODES.find((n: Record<string, unknown>) => n.id === hit)!;
+          const node = NODES.find((n) => n.id === hit)!;
           router.push(node.href);
         }
       }
@@ -336,7 +336,7 @@ export default function DreamConstellationMap( ){
 
       {/* Hover tooltip */}
       {hovered && (() => {
-        const n = NODES.find((x: Record<string, unknown>) => x.id === hovered)!;
+        const n = NODES.find((x) => x.id === hovered)!;
         return (
           <div
             style={{

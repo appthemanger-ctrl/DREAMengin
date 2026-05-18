@@ -45,7 +45,7 @@ export function NodeCluster(){
     const radius = Math.min(centerX, centerY) * 0.7;
 
     const positions = new Map<string, { x: number; y: number }>();
-    nodes.forEach(node: Record<string, unknown>, (index: number ) => {
+    nodes.forEach((node, index: number) => {
       const angle = (index / nodes.length) * 2 * Math.PI - Math.PI / 2;
       positions.set(node.id, {
         x: centerX + radius * Math.cos(angle),
@@ -58,7 +58,7 @@ export function NodeCluster(){
   if (layout === 'list') {
     return (
       <div className={cn('flex flex-col gap-2', className)}>
-        {nodes.map((node: Record<string, unknown>) => (
+        {nodes.map((node) => (
           <NodeListItem
             key={node.id}
             node={node}
@@ -79,7 +79,7 @@ export function NodeCluster(){
           className
         )}
       >
-        {nodes.map((node: Record<string, unknown>) => (
+        {nodes.map((node) => (
           <NodeGridItem
             key={node.id}
             node={node}
@@ -102,7 +102,7 @@ export function NodeCluster(){
       {/* Connection lines */}
       {showConnections && (
         <svg className="absolute inset-0 w-full h-full pointer-events-none">
-          {nodes.map(node: Record<string, unknown>, (i: number ) => {
+          {nodes.map((node, i: number) => {
             const pos = nodePositions.get(node.id);
             const centerX = containerRef.current?.clientWidth ? containerRef.current.clientWidth / 2 : 0;
             const centerY = containerRef.current?.clientHeight ? containerRef.current.clientHeight / 2 : 0;
@@ -143,7 +143,7 @@ export function NodeCluster(){
       </div>
 
       {/* Nodes */}
-      {nodes.map((node: Record<string, unknown>) => {
+      {nodes.map((node) => {
         const pos = nodePositions.get(node.id);
         if (!pos) return null;
 

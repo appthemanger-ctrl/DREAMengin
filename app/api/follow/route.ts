@@ -55,7 +55,7 @@ export async function GET(req: NextRequest ){
     }
 
     return NextResponse.json({
-      followers: ((followers as unknown as FollowersRow[]) ?? []).flatMap((r: Record<string, unknown>) =>
+      followers: ((followers as unknown as FollowersRow[]) ?? []).flatMap((r) =>
         r.follower ? [r.follower] : []
       ),
     });
@@ -75,7 +75,7 @@ export async function GET(req: NextRequest ){
     }
 
     return NextResponse.json({
-      following: ((following as unknown as FollowingRow[]) ?? []).flatMap((r: Record<string, unknown>) =>
+      following: ((following as unknown as FollowingRow[]) ?? []).flatMap((r) =>
         r.following ? [r.following] : []
       ),
     });

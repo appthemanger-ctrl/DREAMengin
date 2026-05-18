@@ -94,11 +94,7 @@ const TOPIC_OPTIONS = [
 
 const EMOJIS = ['📡','✨','☀️','🌴','🏈','🎵','🎮','🎨','💼','😌','🔔','🌙','🔥','💎','🚀','🌊','🎯','⚡'];
 
-function PresetCreator({ onSave, onCancel, editing }: ) {
-  onSave: (p: FeedPreset) => void;
-  onCancel: () => void;
-  editing?: FeedPreset;
-}) {
+function PresetCreator({ onSave, onCancel, editing }: { onSave: (p: FeedPreset) => void; onCancel: () => void; editing?: FeedPreset }) {
   const uid = useId();
   const [name,      setName]      = useState(editing?.name        || '');
   const [emoji,     setEmoji]     = useState(editing?.emoji       || '📡');
@@ -554,13 +550,7 @@ export default function AlgorithmEngine( ){
 /* ─────────────────────────────────────────────
    Preset Row sub-component
 ───────────────────────────────────────────── */
-function PresetRow({ emoji, name, desc, isActive, isMixed, mixOn, onActivate, onMixToggle, onEdit, onDelete, onShare, isPublic }: ) {
-  emoji: string; name: string; desc: string;
-  isActive: boolean; isMixed: boolean; mixOn: boolean;
-  onActivate: () => void; onMixToggle: () => void;
-  onEdit?: () => void; onDelete?: () => void; onShare?: () => void;
-  isPublic?: boolean;
-}) {
+function PresetRow({ emoji, name, desc, isActive, isMixed, mixOn, onActivate, onMixToggle, onEdit, onDelete, onShare, isPublic }: { emoji: string; name: string; desc: string; isActive: boolean; isMixed: boolean; mixOn: boolean; onActivate: () => void; onMixToggle: () => void; onEdit?: () => void; onDelete?: () => void; onShare?: () => void; isPublic?: boolean }) {
   const [open, setOpen] = useState(false);
   return (
     <div style={{ borderRadius: 12, background: (isActive || isMixed) ? 'linear-gradient(135deg, rgba(42,138,184,0.10), rgba(200,152,26,0.08))' : 'rgba(255,255,255,0.55)', border: (isActive || isMixed) ? '1.5px solid rgba(42,138,184,0.3)' : '1px solid rgba(160,195,240,0.25)', padding: '10px 12px', transition: 'all 0.15s' }}>

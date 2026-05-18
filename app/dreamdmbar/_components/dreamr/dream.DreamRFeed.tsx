@@ -5,7 +5,7 @@ import { analyzeSwipe, tallyView } from '@/lib/botDetection';
 import type { Point } from '@/lib/botDetection';
 export { DREAMR_TOPICS } from '@/lib/dreamr/dreamrfeed';
 
-export default function DreamRFeed({ videoId, sharerId: Record<string, unknown>, viewerId }: ) { videoId: string, sharerId: string, viewerId: string } {
+export default function DreamRFeed({ videoId, sharerId, viewerId }: {videoId: string, sharerId: string, viewerId: string}) {
   const [hasTallied, setHasTallied] = useState(false);
   const [dragX, setDragX] = useState(0);
   const [frozen, setFrozen] = useState(false);

@@ -404,7 +404,7 @@ export default function NeonDrift( ){
         });
 
         let lastTelemetryHud = 0;
-        elite.onFrame((_dt: Record<string, unknown>, telemetry: Record<string, unknown>) => {
+        elite.onFrame((_dt, telemetry) => {
           if (performance.now() - lastTelemetryHud < 250) return;
           lastTelemetryHud = performance.now();
           setRenderInfo(
@@ -423,7 +423,7 @@ export default function NeonDrift( ){
             source: 'runtime',
           });
         });
-        elite.onQualityChange((budget: Record<string, unknown>) => {
+        elite.onQualityChange((budget) => {
           postFx?.applyBudget(budget);
         });
 
