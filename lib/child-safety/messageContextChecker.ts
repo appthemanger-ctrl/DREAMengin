@@ -195,7 +195,7 @@ function scanMessages(
   // Combine all message texts for context evaluation
   const combined = messages
     .slice(0, 20)
-    .map((m: Record<string, unknown>) => m.text)
+    .map((m) => m.text)
     .join(' ')
     .normalize('NFKC');
 
@@ -217,7 +217,7 @@ function scanMessagesForContext(
 ): { contextType: MessageContextType; safeSignals: string[]; totalSafeWeight: number } {
   const combined = messages
     .slice(0, 20)
-    .map((m: Record<string, unknown>) => m.text)
+    .map((m) => m.text)
     .join(' ')
     .normalize('NFKC');
 
@@ -241,7 +241,7 @@ function scanMessagesForContext(
 function isDeclaredSafeRelationship(declared?: string): boolean {
   if (!declared) return false;
   const lower = declared.toLowerCase();
-  return DECLARED_SAFE_RELATIONSHIPS.some((kw: Record<string, unknown>) => lower.includes(kw));
+  return DECLARED_SAFE_RELATIONSHIPS.some((kw) => lower.includes(kw));
 }
 
 // ============================================================================

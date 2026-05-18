@@ -19,16 +19,16 @@ interface ProfileSpaceProps {
  * ProfileSpace - Freeform widget instance space for PROFILE mode
  * Widgets use continuous transform coordinates, z-order sorted
  */
-export function ProfileSpace({ widgets, onWidgetFocus: Record<string, unknown>, onWidgetClose: Record<string, unknown>, anchorRect }: ProfileSpaceProps) {
+export function ProfileSpace({ widgets, onWidgetFocus, onWidgetClose, anchorRect }: ProfileSpaceProps) {
   // Sort widgets by z-index
-  const sortedWidgets = [...widgets].sort((a: Record<string, unknown>, b: Record<string, unknown>) => a.zIndex - b.zIndex);
+  const sortedWidgets = [...widgets].sort((a, b) => a.zIndex - b.zIndex);
   
   // Default anchor rect if not provided
   const defaultAnchorRect = anchorRect || { x0: 0, y0: 0, x1: 100, y1: 100 };
   
   return (
     <div className="w-full h-full relative overflow-hidden bg-gradient-to-br from-indigo-50 to-purple-50">
-      {sortedWidgets.map((widget: Record<string, unknown>) => (
+      {sortedWidgets.map((widget) => (
         <ProfileWidget
           key={widget.instanceId}
           widget={widget}
@@ -58,7 +58,7 @@ interface ProfileWidgetProps {
   anchorRect: { x0: number; y0: number; x1: number; y1: number };
 }
 
-function ProfileWidget({ widget, onFocus: Record<string, unknown>, onClose: Record<string, unknown>, anchorRect }: ProfileWidgetProps) {
+function ProfileWidget({ widget, onFocus, onClose, anchorRect }: ProfileWidgetProps) {
   const { transformState, visibility, presentation } = widget;
   
   // Hide if not active

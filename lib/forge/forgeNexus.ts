@@ -141,7 +141,7 @@ export function computeEdges(transitions: Map<string, number>): NexusEdge[] {
     });
   }
 
-  return edges.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.weight - a.weight);
+  return edges.sort((a, b) => b.weight - a.weight);
 }
 
 /**
@@ -227,7 +227,7 @@ export function detectClusters(edges: NexusEdge[]): AffinityCluster[] {
     }
   }
 
-  return clusters.map(engineSet: Record<string, unknown>, (i: number ) => {
+  return clusters.map((engineSet, i: number) => {
     const engineIds = [...engineSet];
     // Pick accent from highest-centrality engine
     const primary = ENGIN_REGISTRY.find((e) => e.id === engineIds[0]);
@@ -304,7 +304,7 @@ export function computeNexus(historyOverride?: HistoryEntry[]): NexusSnapshot {
   const nodes = computeNodes(edges);
   const clusters = detectClusters(edges);
   const dominantPipeline = findDominantPipeline(edges);
-  const totalTransitions = edges.reduce(sum: Record<string, unknown>, (e: unknown ) => sum + e.weight, 0);
+  const totalTransitions = edges.reduce((sum, e: unknown) => sum + e.weight, 0);
 
   return {
     edges,

@@ -42,7 +42,7 @@ export async function devtoSync(creds: DevtoCredentials): Promise<UnifiedFeedIte
   const username = creds.username.trim();
   const url = devtoUserRssUrl(username);
   const items = await parseRssFeed({ provider: 'devto', feedUrl: url }, 40);
-  return items.map((item: Record<string, unknown>) => normaliseDevto(item.raw as Parameters<typeof normaliseDevto>[0], username));
+  return items.map((item) => normaliseDevto(item.raw as Parameters<typeof normaliseDevto>[0], username));
 }
 
 export function devtoCredentialFields( ){

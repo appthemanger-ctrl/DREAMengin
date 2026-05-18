@@ -177,9 +177,9 @@ export function collectTrace(
 export function getSnapshot(windowMs = 5 * 60 * 1000: TelemetrySnapshot ){
   const cutoff = new Date(Date.now() - windowMs).toISOString();
   return {
-    logs: logBuffer.filter((e: Record<string, unknown>) => e.timestamp >= cutoff),
-    metrics: metricBuffer.filter((e: Record<string, unknown>) => e.timestamp >= cutoff),
-    traces: traceBuffer.filter((e: Record<string, unknown>) => e.timestamp >= cutoff),
+    logs: logBuffer.filter((e) => e.timestamp >= cutoff),
+    metrics: metricBuffer.filter((e) => e.timestamp >= cutoff),
+    traces: traceBuffer.filter((e) => e.timestamp >= cutoff),
     collected_at: new Date().toISOString(),
   };
 }
@@ -239,9 +239,9 @@ export function getErrorRate(windowMs = 5 * 60 * 1000: number ){
 export function getP95Latency(windowMs = 5 * 60 * 1000: number ){
   const cutoff = new Date(Date.now() - windowMs).toISOString();
   const durations = traceBuffer
-    .filter((t: Record<string, unknown>) => t.timestamp >= cutoff)
-    .map((t: Record<string, unknown>) => t.duration_ms)
-    .sort((a: Record<string, unknown>, b: Record<string, unknown>) => a - b);
+    .filter((t) => t.timestamp >= cutoff)
+    .map((t) => t.duration_ms)
+    .sort((a, b) => a - b);
   if (durations.length === 0) return 0;
   const idx = Math.floor(durations.length * 0.95);
   return durations[Math.min(idx, durations.length - 1)];

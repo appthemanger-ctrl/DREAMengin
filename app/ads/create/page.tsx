@@ -78,7 +78,7 @@ export default function CreateAdSlotPage( ){
           <div className="de-widget">
             <div className="de-widget-header"><span className="de-widget-title">Placement Location</span></div>
             <div className="de-widget-body" style={{ padding: 0 }}>
-              {placements.map((p: Record<string, unknown>) => (
+              {placements.map((p) => (
                 <button
                   key={p.id}
                   type="button"

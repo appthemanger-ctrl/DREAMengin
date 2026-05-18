@@ -122,7 +122,7 @@ function touchIdentifier(touch: Touch): number {
 }
 
 function trackTouches(touches: Touch[]): TrackedTouch[] {
-  return touches.map((touch: Record<string, unknown>) => ({
+  return touches.map((touch) => ({
     id: touchIdentifier(touch),
     point: touchToVec2(touch),
   }));

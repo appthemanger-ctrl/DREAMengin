@@ -99,11 +99,11 @@ export function validateMarketplaceListing(body: unknown): ValidationResult {
   }
 
   if (typeof b.tags === 'string') {
-    const tags = b.tags.split(',').map((t: Record<string, unknown>) => t.trim()).filter(Boolean);
+    const tags = b.tags.split(',').map((t) => t.trim()).filter(Boolean);
     if (tags.length > MARKETPLACE_TAGS_MAX) {
       errors.push(`Maximum ${MARKETPLACE_TAGS_MAX} tags allowed.`);
     }
-    const longTag = tags.find((t: Record<string, unknown>) => t.length > MARKETPLACE_TAG_MAX_LENGTH);
+    const longTag = tags.find((t) => t.length > MARKETPLACE_TAG_MAX_LENGTH);
     if (longTag) {
       errors.push(`Each tag must be ${MARKETPLACE_TAG_MAX_LENGTH} characters or fewer.`);
     }
@@ -128,7 +128,7 @@ export function normalizeMarketplaceListing(
   const priceFloat   = parseFloat(String(input.price ?? 0)) || 0;
   const priceCents   = Math.round(priceFloat * 100);
   const parsedTags   = typeof input.tags === 'string'
-    ? input.tags.split(',').map((t: Record<string, unknown>) => t.trim().toLowerCase()).filter(Boolean).slice(0, MARKETPLACE_TAGS_MAX)
+    ? input.tags.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean).slice(0, MARKETPLACE_TAGS_MAX)
     : [];
 
   return {

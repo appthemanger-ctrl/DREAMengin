@@ -53,7 +53,7 @@ export function useGsapEntrance(
     // Skip if deps haven't actually changed (avoids redundant re-runs on
     // parent re-renders that don't affect the list)
     const same = deps.length === prevDepsRef.current.length
-      && deps.every(d: Record<string, unknown>, (i: number ) => d === prevDepsRef.current[i]);
+      && deps.every((d, i: number) => d === prevDepsRef.current[i]);
     prevDepsRef.current = deps;
     if (same) return;
 

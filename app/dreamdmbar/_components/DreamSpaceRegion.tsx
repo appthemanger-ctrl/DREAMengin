@@ -42,7 +42,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
   const [artifacts, setArtifacts] = useState<DreamArtifact[]>([]);
   const [showSystemModules, setShowSystemModules] = useState(false);
   const [previewAsset, setPreviewAsset] = useState<AssetEntry | null>(null);
-  const [visibleSuggestionIds, setVisibleSuggestionIds] = useState(() => new Set(SUGGESTED_DREAMS.map((dream: Record<string, unknown>) => dream.id)));
+  const [visibleSuggestionIds, setVisibleSuggestionIds] = useState(() => new Set(SUGGESTED_DREAMS.map((dream) => dream.id)));
 
   // ── Ledger asset grid ─────────────────────────────────────────────────────
   const os = useOS();
@@ -74,7 +74,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
   }, [accountId, refreshArtifacts]);
 
   const systemArtifacts = useMemo(
-    () => listSystemArtifacts(accountId).filter((artifact: Record<string, unknown>) => artifact.metadata?.hidden === true),
+    () => listSystemArtifacts(accountId).filter((artifact) => artifact.metadata?.hidden === true),
     [accountId],
   );
 
@@ -131,7 +131,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
               gap: 8,
             }}
           >
-            {ledgerAssets.map((asset: Record<string, unknown>) => (
+            {ledgerAssets.map((asset) => (
               <button
                 key={asset.id}
                 type="button"
@@ -281,7 +281,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
         </div>
         <button
           type="button"
-          onClick={() => setShowSystemModules((value: Record<string, unknown>) => !value)}
+          onClick={() => setShowSystemModules((value) => !value)}
           aria-label="Open system modules"
           style={{
             marginLeft: 'auto',
@@ -309,7 +309,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
           gap: 10,
         }}
       >
-        {artifacts.length === 0 && SUGGESTED_DREAMS.filter((dream: Record<string, unknown>) => visibleSuggestionIds.has(dream.id)).map((dream: Record<string, unknown>) => (
+        {artifacts.length === 0 && SUGGESTED_DREAMS.filter((dream) => visibleSuggestionIds.has(dream.id)).map((dream) => (
           <DraggableDream
             key={dream.id}
             dream={{ dream_id: dream.id, type: dream.id, surface: 'dreamspace', runtime: 'FACE', title: dream.name }}
@@ -341,7 +341,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
               <button
                 type="button"
                 aria-label={`Remove ${dream.name} suggestion`}
-                onClick={() => setVisibleSuggestionIds((current: Record<string, unknown>) => {
+                onClick={() => setVisibleSuggestionIds((current) => {
                   const next = new Set(current);
                   next.delete(dream.id);
                   return next;
@@ -353,7 +353,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
             </div>
           </DraggableDream>
         ))}
-        {artifacts.map((artifact: Record<string, unknown>) => (
+        {artifacts.map((artifact) => (
           <DraggableDream
             key={artifact.id}
             dream={{ dream_id: artifact.id, type: artifact.type ?? 'artifact', surface: 'dreamspace', runtime: 'FACE', title: artifact.name }}
@@ -411,7 +411,7 @@ export default function DreamSpace({ initialAccountId }: DreamSpaceProps) {
                 All system Dreams are already visible in DreamSpace.
               </div>
             ) : (
-              systemArtifacts.map((artifact: Record<string, unknown>) => (
+              systemArtifacts.map((artifact) => (
                 <div
                   key={artifact.id}
                   style={{

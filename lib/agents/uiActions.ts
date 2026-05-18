@@ -61,7 +61,7 @@ const ACTIONS: Action[] = [
         { k: /\b(connectors|imports|youtube)\b/, path: '/connectors', label: 'Connectors' },
         { k: /\b(admin)\b/, path: '/idari-console', label: 'Admin' },
       ];
-      const hit = routes.find((r: Record<string, unknown>) => r.k.test(q));
+      const hit = routes.find((r) => r.k.test(q));
       if (!hit) return { handled: false, reply: '' };
       ctx.navigate(hit.path);
       return { handled: true, reply: `Opening ${hit.label}.` };

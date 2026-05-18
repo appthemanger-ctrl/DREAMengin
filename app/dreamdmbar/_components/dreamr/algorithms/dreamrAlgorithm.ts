@@ -332,7 +332,7 @@ export function rankFeed(posts: ScoredPost[]): ScoredPost[] {
   });
 
   // Sort descending by raw score
-  scored.sort((a: Record<string, unknown>, b: Record<string, unknown>) => (b.dreamr_score ?? 0) - (a.dreamr_score ?? 0));
+  scored.sort((a, b) => (b.dreamr_score ?? 0) - (a.dreamr_score ?? 0));
 
   // Second pass — creator diversity re-ordering
   const final: ScoredPost[] = [];
@@ -351,6 +351,6 @@ export function rankFeed(posts: ScoredPost[]): ScoredPost[] {
   }
 
   // Final sort after diversity adjustment
-  final.sort((a: Record<string, unknown>, b: Record<string, unknown>) => (b.dreamr_score ?? 0) - (a.dreamr_score ?? 0));
+  final.sort((a, b) => (b.dreamr_score ?? 0) - (a.dreamr_score ?? 0));
   return final;
 }

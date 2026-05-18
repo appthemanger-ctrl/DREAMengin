@@ -149,14 +149,14 @@ function transform(state: EnginBaseState, action: CodeEnginAction): EnginBaseSta
     case 'code:cell-remove': {
       const { cellId } = (action as EnginAction<'code:cell-remove', { cellId: string }>).payload!;
       return patchBaseState(state, {
-        domain: { ...domain, cells: cells().filter((c: Record<string, unknown>) => c.id !== cellId) },
+        domain: { ...domain, cells: cells().filter((c) => c.id !== cellId) },
       });
     }
 
     case 'code:cell-update': {
       const { cellId, code } = (action as EnginAction<'code:cell-update', { cellId: string; code: string }>).payload!;
       return patchBaseState(state, {
-        domain: { ...domain, cells: cells().map((c: Record<string, unknown>) => c.id === cellId ? { ...c, code } : c) },
+        domain: { ...domain, cells: cells().map((c) => c.id === cellId ? { ...c, code } : c) },
       });
     }
 
@@ -165,7 +165,7 @@ function transform(state: EnginBaseState, action: CodeEnginAction): EnginBaseSta
       return patchBaseState(state, {
         domain: {
           ...domain,
-          cells: cells().map((c: Record<string, unknown>) =>
+          cells: cells().map((c) =>
             c.id === cellId ? { ...c, output, status, error } : c,
           ),
         },

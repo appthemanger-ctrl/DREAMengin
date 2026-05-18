@@ -118,7 +118,7 @@ export function getChannelMetrics(channel: string): ChannelMetrics {
 export function getAllChannelMetrics(): ChannelMetrics[] {
   return Array.from(_state.keys())
     .map(getChannelMetrics)
-    .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.emissionCount - a.emissionCount);
+    .sort((a, b) => b.emissionCount - a.emissionCount);
 }
 
 // ── Improvement 72: resetChannelMetrics ──────────────────────────────────────

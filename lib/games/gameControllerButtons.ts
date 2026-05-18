@@ -126,7 +126,7 @@ export class ButtonInteractionManager {
 
   private fire(button: ControllerButton, interaction: ButtonInteraction) {
     emitWindowEvent(button, interaction);
-    this.listeners.forEach((fn: Record<string, unknown>) => fn({ button, interaction }));
+    this.listeners.forEach((fn) => fn({ button, interaction }));
   }
 
   /**

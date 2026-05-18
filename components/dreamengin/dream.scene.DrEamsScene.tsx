@@ -192,7 +192,7 @@ async function buildDrEams(scene: Scene, canvas): HTMLCanvasElement {
     reaction: 0,
   };
 
-  const pointerObserver = scene.onPointerObservable.add((info: Record<string, unknown>) => {
+  const pointerObserver = scene.onPointerObservable.add((info) => {
     if (
       info.type === PointerEventTypes.POINTERMOVE &&
       info.event instanceof PointerEvent
@@ -357,7 +357,7 @@ export default function DrEamsScene( ){
             runtime: { frameMs: avgFrame, avgFrameMs: avgFrame, cpuMs: avgFrame * 0.4, gpuMs: avgFrame * 0.5, droppedFrameRatio: 0, inputLatencyMs: 20, scrollVelocity: 0, pointerVelocity: 0, interactionBurst: 0 },
             ux:      defaultUXSignals(),
             route:   defaultRouteSignals('/dr-eams'),
-            meshes:  scene.meshes.map((m: Record<string, unknown>) => ({ id: m.id, visible: m.isVisible, interactive: m.isPickable, nearPointer: false, distanceToCamera: 4, transformDelta: 0, materialChanged: false, screenCoverage: 0.25, semanticWeight: 1.0, motionWeight: 0.9, detailWeight: 1.0, heroWeight: 1.0, occluded: false })),
+            meshes:  scene.meshes.map((m) => ({ id: m.id, visible: m.isVisible, interactive: m.isPickable, nearPointer: false, distanceToCamera: 4, transformDelta: 0, materialChanged: false, screenCoverage: 0.25, semanticWeight: 1.0, motionWeight: 0.9, detailWeight: 1.0, heroWeight: 1.0, occluded: false })),
             ui: [],
           });
           applyGodTierToBabylon(engine, scene as unknown as BabylonSceneLike, gt, window.devicePixelRatio ?? 1);

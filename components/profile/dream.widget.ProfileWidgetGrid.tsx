@@ -145,17 +145,17 @@ function getDimColor(style: WidgetBgStyle): string {
 function DotGrid( ){
   return (
     <div aria-hidden="true" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 4px)', gap: '3px', opacity: 0.32 }}>
-      {Array.from({ length: 9 }).map(_: Record<string, unknown>, (i: number ) => (
+      {Array.from({ length: 9 }).map((_, i: number) => (
         <div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: '#444' }} />
       ))}
     </div>
   );
 }
 
-function SparkLine({ data, color: Record<string, unknown>, height = 56 }: ) { data: number[]; color: string; height?: number } {
+function SparkLine({ data, color, height = 56 }: {data: number[]; color: string; height?: number}) {
   const min = Math.min(...data), max = Math.max(...data), r = max - min || 1;
   const W = 200, H = height;
-  const pts = data.map(v: Record<string, unknown>, (i: number ) => `${(i / (data.length - 1)) * W},${H - ((v - min) / r) * (H - 4) - 2}`).join(' ');
+  const pts = data.map((v, i: number) => `${(i / (data.length - 1)) * W},${H - ((v - min) / r) * (H - 4) - 2}`).join(' ');
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height }} preserveAspectRatio="none">
       <polyline points={pts} fill="none" stroke={color} strokeWidth="2.2"
@@ -164,11 +164,11 @@ function SparkLine({ data, color: Record<string, unknown>, height = 56 }: ) { da
   );
 }
 
-function BarChart({ data, color }: ) { data: number[]; color: string } {
+function BarChart({ data, color }: {data: number[]; color: string}) {
   const max = Math.max(...data);
   return (
     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 38 }}>
-      {data.map(v: Record<string, unknown>, (i: number ) => (
+      {data.map((v, i: number) => (
         <div key={i} style={{
           flex: 1, height: `${(v / max) * 100}%`,
           background: i === data.length - 1 ? color : `${color}44`,
@@ -327,7 +327,7 @@ function WidgetConfigSheet(){
               { value: 'private',   icon: '🔒', label: 'Private' },
               { value: 'followers', icon: '👥', label: 'Followers' },
               { value: 'public',    icon: '🌐', label: 'Public' },
-            ] as { value: Widget['visibility']; icon: string; label: string }[]).map(({ value, icon: Record<string, unknown>, label }) => (
+            ] as { value: Widget['visibility']; icon: string; label: string }[]).map(({ value, icon, label }) => (
               <button key={value} onClick={() => setVisibility(value)} style={{
                 padding: '10px 4px', borderRadius: 12,
                 background: visibility === value ? color : 'rgba(255,255,255,0.85)',
@@ -696,7 +696,7 @@ function WidgetContent(p: WidgetContentProps ){
             Recent Photos
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 5 }}>
-            {Array.from({ length: count }).map(_: Record<string, unknown>, (i: number ) => (
+            {Array.from({ length: count }).map((_, i: number) => (
               <div key={i} style={{ aspectRatio: '1', borderRadius: 10, background: `${accent}14`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: 18, opacity: 0.4 }}>📷</span>
@@ -1053,7 +1053,7 @@ export default function ProfileWidgetGrid(){
 
       {/* ── Unified 2-col widget grid ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
-        {widgets.map(w: Record<string, unknown>, (idx: number ) => (
+        {widgets.map((w, idx: number) => (
           <div
             key={w.id}
             style={cardStyle(w, idx)}
@@ -1170,7 +1170,7 @@ export default function ProfileWidgetGrid(){
             padding: '0 14px 10px',
             scrollbarWidth: 'none',
           } as React.CSSProperties}>
-            {WIDGET_TRAY.map(({ type, label: string, icon }) => {
+            {WIDGET_TRAY.map(({ type, label, icon }) => {
               const active = widgets.some((w) => w.type === type);
               return (
                 <button

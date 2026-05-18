@@ -90,7 +90,7 @@ export async function nostrSync(creds: NostrCredentials): Promise<UnifiedFeedIte
   }
 
   const events = await fetchNostrEvents(creds, WSClass);
-  return events.map((e: Record<string, unknown>) => normaliseNostr(e));
+  return events.map((e) => normaliseNostr(e));
 }
 
 async function fetchNostrEvents(
@@ -101,11 +101,11 @@ async function fetchNostrEvents(
     ? npubToHex(creds.pubkey)
     : creds.pubkey;
 
-  const relays = creds.relays.filter((r: Record<string, unknown>) => r.startsWith('wss://') || r.startsWith('ws://'));
+  const relays = creds.relays.filter((r) => r.startsWith('wss://') || r.startsWith('ws://'));
   const relay = relays[0];
   if (!relay) return [];
 
-  return new Promise((resolve: Record<string, unknown>) => {
+  return new Promise((resolve) => {
     const ws = new WSClass(relay);
     const events: NostrEvent[] = [];
     const subId = `dreamengin-${Math.random().toString(36).slice(2, 8)}`;
@@ -171,7 +171,7 @@ function npubToHex(npub: string): string {
   }
   return bytes
     .slice(0, 32)
-    .map((b: Record<string, unknown>) => b.toString(16).padStart(2, '0'))
+    .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 }
 

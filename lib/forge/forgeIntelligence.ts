@@ -118,9 +118,9 @@ export function predictNextEngines(
   }
 
   // Sort by frequency, descending
-  candidates.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.count - a.count);
+  candidates.sort((a, b) => b.count - a.count);
 
-  const totalOutgoing = candidates.reduce((s: Record<string, unknown>, c: Record<string, unknown>) => s + c.count, 0);
+  const totalOutgoing = candidates.reduce((s, c) => s + c.count, 0);
   return candidates.slice(0, limit).map((c) => ({
     engine: c.engine,
     confidence: totalOutgoing > 0 ? c.count / totalOutgoing : 0,
@@ -271,7 +271,7 @@ export function parseGoalToWorkflow(goal: string): ForgeWorkflow | null {
   if (matched.length === 0) return null;
 
   // Sort by relevance score
-  matched.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.score - a.score);
+  matched.sort((a, b) => b.score - a.score);
   const engineIds = matched.map((m) => m.id);
 
   // Generate steps based on matched engines
@@ -496,7 +496,7 @@ export function startWorkflowRun(workflowId: string, stepCount: number): Workflo
     workflowId,
     startedAt: new Date().toISOString(),
     status: 'running',
-    steps: Array.from({ length: stepCount }, _: Record<string, unknown>, (i: number ) => ({
+    steps: Array.from({ length: stepCount }, (_, i: number ) => ({
       workflowId,
       stepIndex: i,
       status: i === 0 ? 'active' : 'pending',

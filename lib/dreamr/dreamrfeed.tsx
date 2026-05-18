@@ -217,7 +217,7 @@ interface VideoCardProps {
   onShare: (id: string) => void;
 }
 
-function VideoPostCard({ post, isActive: Record<string, unknown>, onSwipeLeft: Record<string, unknown>, onSwipeRight: Record<string, unknown>, onLike: Record<string, unknown>, liked: Record<string, unknown>, saved: Record<string, unknown>, onSave: Record<string, unknown>, onShare }: VideoCardProps) {
+function VideoPostCard({ post, isActive, onSwipeLeft, onSwipeRight, onLike, liked, saved, onSave, onShare }: VideoCardProps) {
   const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -395,7 +395,7 @@ interface CardProps {
   onComment: (id: string) => void;
 }
 
-function PostCard({ post, isActive: Record<string, unknown>, onSwipeLeft: Record<string, unknown>, onSwipeRight: Record<string, unknown>, onLike: Record<string, unknown>, liked: Record<string, unknown>, saved: Record<string, unknown>, onSave: Record<string, unknown>, onShare: Record<string, unknown>, onComment }: CardProps) {
+function PostCard({ post, isActive, onSwipeLeft, onSwipeRight, onLike, liked, saved, onSave, onShare, onComment }: CardProps) {
   const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const hasDark = isImage(post.media_url);
   const [captionExpanded, setCaptionExpanded] = useState(false);
@@ -556,7 +556,7 @@ function PostCard({ post, isActive: Record<string, unknown>, onSwipeLeft: Record
 
 // ── Suggested CONTENT card ────────────────────────────────────────────────────
 
-function SuggestedContentCard({ post, onSwipeLeft, onSwipeRight }: ) { post: FeedPost; onSwipeLeft: () => void; onSwipeRight: () => void }) {
+function SuggestedContentCard({ post, onSwipeLeft, onSwipeRight }: {post: FeedPost; onSwipeLeft: () => void; onSwipeRight: () => void}) {
   const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const caption = post.content?.slice(0, 120) ?? '';
 
@@ -633,7 +633,7 @@ function SuggestedContentCard({ post, onSwipeLeft, onSwipeRight }: ) { post: Fee
 
 // ── Suggested CREATOR card ────────────────────────────────────────────────────
 
-function SuggestedCreatorCard({ creator }: ) { creator: SuggestedCreator } {
+function SuggestedCreatorCard({ creator }: {creator: SuggestedCreator}) {
   const [following, setFollowing] = useState(false);
 
   const handleFollow = async () => {
@@ -1141,7 +1141,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
         {/* Spacer for topic strip */}
         <div style={{ height: 54, flexShrink: 0, scrollSnapAlign: 'none' }} />
 
-        {personalizedFeedItems.map(item: Record<string, unknown>, (i: number ) => (
+        {personalizedFeedItems.map((item, i: number) => (
           <div
             key={item.kind === 'creator' ? `creator-${item.creator.id}` : item.post.id}
             style={{ width: '100%', height: '100%', flexShrink: 0, scrollSnapAlign: 'start' }}

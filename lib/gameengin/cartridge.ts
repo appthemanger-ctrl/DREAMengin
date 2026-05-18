@@ -88,11 +88,11 @@ export interface CartridgeSaveAPI {
   /** Load a specific slot. Returns null if empty. */
   load(slot: number): Promise<CartridgeSaveSlot | null>;
   /** Write a save slot. Label is auto-generated if omitted. */
-  write(slot: number, data: Record<string, unknown>, label?: string): Promise<void>;
+  write(slot: number, data, label?: string): Promise<void>;
   /** Erase a slot. */
   erase(slot: number): Promise<void>;
   /** Auto-save to slot 0 (called by runtime on cartridge eject). */
-  autoSave(data: Record<string, unknown>): Promise<void>;
+  autoSave(data): Promise<void>;
 }
 
 // ── Achievements ──────────────────────────────────────────────────────────────
@@ -193,9 +193,9 @@ export interface CartridgeNetworkAPI {
   /** Leave the current session. */
   leaveSession(): Promise<void>;
   /** Broadcast a message to all players in the session. */
-  broadcast(payload: Record<string, unknown>): void;
+  broadcast(payload): void;
   /** Subscribe to messages from other players. */
-  onMessage(cb: (from: CartridgeSessionPlayer, payload: Record<string, unknown>) => void): () => void;
+  onMessage(cb: (from: CartridgeSessionPlayer, payload) => void): () => void;
   /** Current players in the session (including local). */
   getPlayers(): CartridgeSessionPlayer[];
 }
@@ -305,5 +305,5 @@ export interface GameCartridge {
    * Optional: restore game state after re-insertion.
    * Called by the runtime after mount() when a prior state snapshot exists.
    */
-  deserialize?: (state: Record<string, unknown>) => void;
+  deserialize?: (state) => void;
 }

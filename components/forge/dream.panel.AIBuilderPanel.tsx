@@ -68,7 +68,7 @@ function getPhaseIndexFromStep(step: string): number {
 
 // ── Phase progress bar ────────────────────────────────────────────────────────
 
-function PhaseBar({ activePhase }: ) { activePhase: number } {
+function PhaseBar({ activePhase }: {activePhase: number}) {
   return (
     <div style={{
       display: 'flex',
@@ -81,7 +81,7 @@ function PhaseBar({ activePhase }: ) { activePhase: number } {
       marginBottom: 10,
       overflowX: 'auto',
     }}>
-      {PHASES.map(phase: Record<string, unknown>, (idx: number ) => {
+      {PHASES.map((phase, idx: number) => {
         const isDone    = idx < activePhase;
         const isActive  = idx === activePhase;
 
@@ -143,7 +143,7 @@ function PhaseBar({ activePhase }: ) { activePhase: number } {
 
 type CodeLogEvent = Extract<ForgeLogEvent, { type: 'code' }>;
 
-function CodeBlock({ event }: ) { event: CodeLogEvent } {
+function CodeBlock({ event }: {event: CodeLogEvent}) {
   const [copied, setCopied] = useState(false);
   const lines = event.content.split('\n');
   const MAX_VISIBLE = 15;
@@ -517,7 +517,7 @@ function LogEntry(){
 
 // ── Build history item ────────────────────────────────────────────────────────
 
-function HistoryItem({ record, onLaunch }: ) { record: ForgeBuildRecord; onLaunch: (href: string) => void }) {
+function HistoryItem({ record, onLaunch }: {record: ForgeBuildRecord; onLaunch: (href: string) => void}) {
   const enginEntry = ENGIN_REGISTRY.find((e) => e.id === record.primaryEnginId);
   const elapsed = Date.now() - new Date(record.createdAt).getTime();
   const timeStr =
@@ -620,7 +620,7 @@ export default function AIBuilderPanel( ){
   const visibleLogs = useMemo(() => logs.filter((e) => e.type !== 'done'), [logs]);
   const lastAgentVisibleIdx = useMemo(() => {
     if (state !== 'running') return -1;
-    return visibleLogs.reduce(idx: number, log: Record<string, unknown>, (i: number ) => (log.type === 'agent' ? i : idx), -1);
+    return visibleLogs.reduce((idx: number, log, i: number) => (log.type === 'agent' ? i : idx), -1);
   }, [visibleLogs, state]);
 
   const handleSubmit = useCallback(() => {
@@ -682,7 +682,7 @@ export default function AIBuilderPanel( ){
           { name: 'Dr. Eams', role: 'Creative', Icon: User, color: AGENT_COLORS['Dr. Eams'] },
           { name: 'IDARi', role: 'Systems', Icon: Settings, color: AGENT_COLORS['IDARi'] },
           { name: 'TheBoogieMan.Ai', role: 'Policy', Icon: Shield, color: AGENT_COLORS['TheBoogieMan.Ai'] },
-        ].map(({ name, role: Record<string, unknown>, Icon: Record<string, unknown>, color }) => (
+        ].map(({ name, role, Icon, color }) => (
           <div
             key={name}
             style={{
@@ -983,7 +983,7 @@ export default function AIBuilderPanel( ){
                 borderRadius: 12,
                 display: 'flex', flexDirection: 'column', gap: 1,
               }}>
-                {visibleLogs.map(event: Record<string, unknown>, (i: number ) => (
+                {visibleLogs.map((event, i: number) => (
                   <LogEntry
                     key={`${event.type}-${event.ts}-${i}`}
                     event={event}

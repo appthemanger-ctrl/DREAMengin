@@ -42,7 +42,7 @@ export default function CustomizeToolbar( ){
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}
     >
-      {TABS.map(({ id, icon: Record<string, unknown>, label }) => {
+      {TABS.map(({ id, icon, label }) => {
         const isActive = activePanel === id;
         return (
           <button

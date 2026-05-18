@@ -57,9 +57,9 @@ export function summarizeBuildReadiness(
   manifests: readonly DaydreamEnginManifest[] = FEATURE_MANIFESTS,
 ): BuildReadinessSummary {
   const states = computeAllBuildCycleStates(manifests);
-  const totalImplemented = states.reduce((sum: Record<string, unknown>, state: Record<string, unknown>) => sum + state.featuresImplemented, 0);
-  const totalPlanned = states.reduce((sum: Record<string, unknown>, state: Record<string, unknown>) => sum + state.featurePlanned, 0);
-  const totalMaxFeatures = states.reduce((sum: Record<string, unknown>, state: Record<string, unknown>) => sum + state.maxFeatures, 0);
+  const totalImplemented = states.reduce((sum, state) => sum + state.featuresImplemented, 0);
+  const totalPlanned = states.reduce((sum, state) => sum + state.featurePlanned, 0);
+  const totalMaxFeatures = states.reduce((sum, state) => sum + state.maxFeatures, 0);
 
   return {
     states,
@@ -67,8 +67,8 @@ export function summarizeBuildReadiness(
     totalPlanned,
     totalMaxFeatures,
     overallProgressPct: calculateProgress(totalImplemented, totalMaxFeatures),
-    buildPairs: states.filter((state: Record<string, unknown>) => state.phase === 'BUILD').length,
-    refinePairs: states.filter((state: Record<string, unknown>) => state.phase === 'REFINE').length,
+    buildPairs: states.filter((state) => state.phase === 'BUILD').length,
+    refinePairs: states.filter((state) => state.phase === 'REFINE').length,
   };
 }
 
@@ -77,10 +77,10 @@ export function selectNextUpgradeTarget(
 ): UpgradeTarget | null {
   const states = computeAllBuildCycleStates(manifests);
   const candidates = manifests
-    .map(manifest: Record<string, unknown>, (index: number ) => ({ manifest, state: states[index] }))
+    .map((manifest, index: number) => ({ manifest, state: states[index] }))
     .filter(({ state }) => state.featurePlanned > 0)
     .map(({ manifest, state }) => {
-      const nextFeature = manifest.features.find((feature: Record<string, unknown>) => feature.status === 'planned');
+      const nextFeature = manifest.features.find((feature) => feature.status === 'planned');
       if (!nextFeature) return null;
 
       return {
@@ -92,7 +92,7 @@ export function selectNextUpgradeTarget(
       };
     })
     .filter((candidate): candidate is UpgradeTarget => candidate !== null)
-    .sort((left: Record<string, unknown>, right: Record<string, unknown>) =>
+    .sort((left, right) =>
       (right.state.progressPct - left.state.progressPct) ||
       (right.state.featuresImplemented - left.state.featuresImplemented) ||
       (left.state.featurePlanned - right.state.featurePlanned) ||
@@ -106,7 +106,7 @@ export function buildPatchPlanChecklist(plan: PatchPlan): string[] {
   return [
     `Confirm root cause: ${plan.cause}`,
     `Apply smallest safe fix: ${plan.fix}`,
-    ...plan.steps.map((step: Record<string, unknown>) => `Update ${step.file} — ${step.diff}`),
+    ...plan.steps.map((step) => `Update ${step.file} — ${step.diff}`),
     `Verify outcome: ${plan.verification}`,
     ...(plan.rollback ? [`Rollback plan: ${plan.rollback}`] : []),
   ];
@@ -117,13 +117,13 @@ export function describeUpgradeBlockers(setup: SetupCheckSummary): string[] {
 
   if (setup.missingRequired.length > 0) {
     blockers.push(
-      `Missing required setup: ${setup.missingRequired.map((check: Record<string, unknown>) => check.key).join(', ')}`,
+      `Missing required setup: ${setup.missingRequired.map((check) => check.key).join(', ')}`,
     );
   }
 
   if (setup.missingOptional.length > 0) {
     blockers.push(
-      `Optional integrations still disconnected: ${setup.missingOptional.map((check: Record<string, unknown>) => check.key).join(', ')}`,
+      `Optional integrations still disconnected: ${setup.missingOptional.map((check) => check.key).join(', ')}`,
     );
   }
 
@@ -141,7 +141,7 @@ export function createUpgradeProposal(
   const { manifest, state, nextFeature, file, projectedProgressPct } = target;
   const setupGateNote = setup.ok
     ? 'Required setup checks are passing, so this can move into a contained implementation cycle now.'
-    : `Waiting on required setup: ${setup.missingRequired.map((check: Record<string, unknown>) => check.key).join(', ')}.`;
+    : `Waiting on required setup: ${setup.missingRequired.map((check) => check.key).join(', ')}.`;
 
   const plan = createPatchPlan({
     id: `upgrade-${manifest.domain.toLowerCase()}-${nextFeature.id}`,

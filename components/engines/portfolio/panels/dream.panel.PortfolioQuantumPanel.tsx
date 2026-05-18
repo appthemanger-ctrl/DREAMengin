@@ -44,7 +44,7 @@ const QUBITS = 4; // 4 qubits → 4 assets
 const COLS   = 8;
 
 function gateDef(type: GateType ){
-  return GATE_DEFS.find((g: Record<string, unknown>) => g.type === type)!;
+  return GATE_DEFS.find((g) => g.type === type)!;
 }
 
 function simulate(gates: Gate[]): { bitstring: string; interpretation: string } {
@@ -52,16 +52,16 @@ function simulate(gates: Gate[]): { bitstring: string; interpretation: string } 
   const lines: string[] = [];
 
   for (let q = 0; q < QUBITS; q++) {
-    const qGates = gates.filter((g: Record<string, unknown>) => g.qubit === q).sort((a: Record<string, unknown>, b: Record<string, unknown>) => a.col - b.col);
-    const hasMeasure = qGates.some((g: Record<string, unknown>) => g.type === 'M');
+    const qGates = gates.filter((g) => g.qubit === q).sort((a, b) => a.col - b.col);
+    const hasMeasure = qGates.some((g) => g.type === 'M');
     if (!hasMeasure) {
       bits.push('?');
       lines.push(`|q${q}⟩ = unmeasured (no M gate)`);
       continue;
     }
-    const hasH  = qGates.some((g: Record<string, unknown>) => g.type === 'H');
-    const hasRz  = qGates.some((g: Record<string, unknown>) => g.type === 'RZ');
-    const hasX  = qGates.some((g: Record<string, unknown>) => g.type === 'X');
+    const hasH  = qGates.some((g) => g.type === 'H');
+    const hasRz  = qGates.some((g) => g.type === 'RZ');
+    const hasX  = qGates.some((g) => g.type === 'X');
     let bit: string;
     if (hasH || hasRz) {
       bit = Math.random() > 0.5 ? '1' : '0';
@@ -74,7 +74,7 @@ function simulate(gates: Gate[]): { bitstring: string; interpretation: string } 
   }
 
   const bitstring = bits.join('');
-  const selected = bits.reduce<number[]>(acc: Record<string, unknown>, b: Record<string, unknown>, (i: number ) => (b === '1' ? [...acc, i] : acc), []);
+  const selected = bits.reduce<number[]>((acc: number[], b: string, i: number) => (b === '1' ? [...acc, i] : acc), []);
   const interpretation =
     selected.length === 0
       ? 'No assets selected by quantum measurement'
@@ -89,15 +89,15 @@ export default function PortfolioQuantumPanel( ){
   const [result,       setResult]       = useState<{ bitstring: string; interpretation: string } | null>(null);
 
   const placeGate = useCallback((qubit: number, col: number) => {
-    setGates((prev: Record<string, unknown>) => {
-      const filtered = prev.filter((g: Record<string, unknown>) => !(g.qubit === qubit && g.col === col));
+    setGates((prev) => {
+      const filtered = prev.filter((g) => !(g.qubit === qubit && g.col === col));
       return [...filtered, { id: `${qubit}-${col}-${Date.now()}`, type: selectedGate, qubit, col }];
     });
     setResult(null);
   }, [selectedGate]);
 
   const removeGate = useCallback((id: string) => {
-    setGates((prev: Record<string, unknown>) => prev.filter((g: Record<string, unknown>) => g.id !== id));
+    setGates((prev) => prev.filter((g) => g.id !== id));
     setResult(null);
   }, []);
 
@@ -117,7 +117,7 @@ export default function PortfolioQuantumPanel( ){
         {/* Gate palette */}
         <div className="flex flex-wrap gap-2 mb-5 p-3 rounded-xl bg-white/[0.03] border border-white/[0.07]">
           <span className="text-xs text-white/30 self-center mr-1">Gate:</span>
-          {GATE_DEFS.map((gd: Record<string, unknown>) => (
+          {GATE_DEFS.map((gd) => (
             <button
               key={gd.type}
               onClick={() => setSelectedGate(gd.type)}
@@ -142,7 +142,7 @@ export default function PortfolioQuantumPanel( ){
 
         {/* Qubit labels */}
         <div className="flex gap-2 mb-2 px-1">
-          {Array.from(({ length: QUBITS }, _: Record<string, unknown>, q: Record<string, unknown>) => (
+          {Array.from(({ length: QUBITS }, _, q: Record<string, unknown>) => (
             <div
               key={q}
               className="flex items-center gap-1 text-[10px] font-mono"
@@ -160,19 +160,19 @@ export default function PortfolioQuantumPanel( ){
               <thead>
                 <tr>
                   <th className="w-20 py-2 text-[10px] text-white/20 font-normal">Qubit</th>
-                  {Array.from({ length: COLS }, _: Record<string, unknown>, (i: number ) => (
+                  {Array.from({ length: COLS }, (_, i: number ) => (
                     <th key={i} className="w-12 py-2 text-[10px] text-white/20 font-normal">{i + 1}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {Array.from(({ length: QUBITS }, _: Record<string, unknown>, q: Record<string, unknown>) => (
+                {Array.from(({ length: QUBITS }, _, q: Record<string, unknown>) => (
                   <tr key={q} className="border-t border-white/[0.04]">
                     <td className="py-2 px-3 text-xs font-mono" style={{ color: ACCENT + 'aa' }}>
                       |q{q}⟩
                     </td>
-                    {Array.from({ length: COLS }, _: Record<string, unknown>, (col: number ) => {
-                      const gate = gates.find((g: Record<string, unknown>) => g.qubit === q && g.col === col);
+                    {Array.from({ length: COLS }, (_, col: number ) => {
+                      const gate = gates.find((g) => g.qubit === q && g.col === col);
                       const def  = gate ? gateDef(gate.type) : null;
                       return (
                         <td

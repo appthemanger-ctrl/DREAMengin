@@ -10,7 +10,7 @@ export interface PixiPhysicsLayerProps {
   onTransform: (t: { x: number; y: number; scale: number }) => void;
 }
 
-export default function PixiPhysicsLayer({ worldWidth, worldHeight: Record<string, unknown>, onTransform }: PixiPhysicsLayerProps) {
+export default function PixiPhysicsLayer({ worldWidth, worldHeight, onTransform }: PixiPhysicsLayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<PIXI.Application | null>(null);
   const viewportRef = useRef<Viewport | null>(null);
@@ -121,7 +121,7 @@ export default function PixiPhysicsLayer({ worldWidth, worldHeight: Record<strin
 
     let cleanup: (() => void) | null = null;
 
-    init().then((c: Record<string, unknown>) => {
+    init().then((c) => {
       if (typeof c === "function") cleanup = c;
     });
 

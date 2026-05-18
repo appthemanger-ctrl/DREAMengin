@@ -21,7 +21,7 @@ interface ProfileData {
   theme: unknown;
 }
 
-export default function ProfileEditor({ profile }: ) { profile: ProfileData } {
+export default function ProfileEditor({ profile }: {profile: ProfileData}) {
   const supabase = createClient();
   const { enterCustomizeMode } = useCustomizeMode();
   const [saving, setSaving] = useState(false);
@@ -180,7 +180,7 @@ export default function ProfileEditor({ profile }: ) { profile: ProfileData } {
   };
 
   const removeLink = (index: number) => {
-    setLinks(links.filter(_: Record<string, unknown>, (i: number ) => i !== index));
+    setLinks(links.filter((_, i: number) => i !== index));
   };
 
   /** Auto-detect platform from a pasted URL; always updates when a known platform is detected. */
@@ -366,7 +366,7 @@ export default function ProfileEditor({ profile }: ) { profile: ProfileData } {
                   No links added yet. Click "Add Link" to get started.
                 </p>
               ) : (
-                links.map(link: Record<string, unknown>, (index: number ) => (
+                links.map((link, index: number) => (
                   <div key={index} className="flex gap-2">
                     <select
                       value={link.platform}
@@ -374,7 +374,7 @@ export default function ProfileEditor({ profile }: ) { profile: ProfileData } {
                       className="px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm"
                     >
                       <option value="">Platform</option>
-                      {SOCIAL_PLATFORMS.map((p: Record<string, unknown>) => (
+                      {SOCIAL_PLATFORMS.map((p) => (
                         <option key={p.id} value={p.id}>
                           {p.emoji} {p.label}
                         </option>

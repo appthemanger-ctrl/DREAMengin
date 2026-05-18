@@ -156,7 +156,7 @@ export default async function MusicArtistHubPage( ){
           {/* ── Release Pipeline ── */}
           <Section title="Release Pipeline" icon={<Zap className="w-3.5 h-3.5" />} badge="6 stages" badgeColor="#00bcd4">
             <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4 }}>
-              {PIPELINE_STAGES.map(stage: Record<string, unknown>, (i: number ) => (
+              {PIPELINE_STAGES.map((stage, i: number) => (
                 <div key={stage.id} style={{
                   flexShrink: 0, minWidth: 90,
                   padding: '12px 10px', borderRadius: 10,
@@ -326,7 +326,7 @@ export default async function MusicArtistHubPage( ){
                 { icon: DiscAlbum,  label: 'Albums',   count: '—' },
                 { icon: TrendingUp, label: 'Streams',  count: '—' },
                 { icon: Upload,     label: 'Releases', count: '—' },
-              ].map(({ icon: Icon, label: string, count }) => (
+              ].map(({ icon, label, count }) => (
                 <div key={label} style={{
                   padding: '12px', borderRadius: 9, textAlign: 'center',
                   background: 'rgba(255,255,255,0.04)',

@@ -204,7 +204,7 @@ export async function GET(req: NextRequest ){
           dreamr_reason:    c.best_reason,
         };
       })
-      .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.creator_score - a.creator_score)
+      .sort((a, b) => b.creator_score - a.creator_score)
       .slice(0, limit);
 
     return NextResponse.json({ suggestions: ranked }, { headers: { 'Cache-Control': 'no-store' } });

@@ -203,7 +203,7 @@ export async function planWithEams(input: ){
 
       const intents: Intent[] = intentsRaw
         .slice(0, 3)
-        .map((x: Record<string, unknown>) => {
+        .map((x) => {
           const base = {
             intent_id: typeof x?.intent_id === 'string' ? x.intent_id : uuidv4(),
             type: x?.type as IntentType,
@@ -216,7 +216,7 @@ export async function planWithEams(input: ){
           return base;
         })
         // Phase 8 §A Point 9: validate NAV_DELTA payloads contain real canonical routes
-        .filter((intent: Record<string, unknown>) => {
+        .filter((intent) => {
           if (!IntentSchema.safeParse(intent).success) return false;
           if (intent.type === 'NAV_DELTA') {
             const route = (intent.payload as Record<string, unknown>)?.route;

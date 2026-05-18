@@ -43,7 +43,7 @@ export class QuotaExceededError extends Error {
 
   constructor(violations: QuotaViolation[]) {
     super(
-      `VM resource quota exceeded: ${violations.map((v: Record<string, unknown>) => v.message).join('; ')}`,
+      `VM resource quota exceeded: ${violations.map((v) => v.message).join('; ')}`,
     );
     this.name = 'QuotaExceededError';
     this.violations = violations;

@@ -52,7 +52,7 @@ export async function hackernewsSync(creds: HackerNewsCredentials): Promise<Unif
     : hackerNewsRssUrl(creds.feed_type ?? 'best');
 
   const items = await parseRssFeed({ provider: 'hackernews', feedUrl: url }, 40);
-  return items.map((item: Record<string, unknown>) => normaliseHackerNews(item.raw as Parameters<typeof normaliseHackerNews>[0]));
+  return items.map((item) => normaliseHackerNews(item.raw as Parameters<typeof normaliseHackerNews>[0]));
 }
 
 export function hackernewsCredentialFields( ){

@@ -209,7 +209,7 @@ export function isParticleDead(p: SeamParticle): boolean {
  * Returns a new array (non-mutating) to make React state updates clean.
  */
 export function evictDeadParticles(particles: SeamParticle[]): SeamParticle[] {
-  return particles.filter((p: Record<string, unknown>) => !isParticleDead(p));
+  return particles.filter((p) => !isParticleDead(p));
 }
 
 /**

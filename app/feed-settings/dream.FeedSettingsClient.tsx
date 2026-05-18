@@ -29,7 +29,7 @@ const DEFAULT_PREFS: FeedPreferences = {
   showEmptyStateGuides: true,
 };
 
-function Toggle({ value, onToggle, label }: ) { value: boolean; onToggle: () => void; label: string }) {
+function Toggle({ value, onToggle, label }: {value: boolean; onToggle: () => void; label: string}) {
   return (
     <button
       type="button"
@@ -95,7 +95,7 @@ export default function FeedSettingsClient( ){
   }, []);
 
   const toggle = useCallback((key: keyof FeedPreferences) => {
-    setPrefs((prev: Record<string, unknown>) => {
+    setPrefs((prev) => {
       const next = { ...prev, [key]: !prev[key] };
       // Write-through to localStorage for instant feedback
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
@@ -153,7 +153,7 @@ export default function FeedSettingsClient( ){
           </div>
           {connectedNames.length > 0 ? (
             <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-              {connectedNames.map((name: Record<string, unknown>) => (
+              {connectedNames.map((name) => (
                 <div key={name} className="de-row">
                   <Rss className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--de-accent)' }} />
                   <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)', flex: 1 }}>{name}</span>
@@ -180,7 +180,7 @@ export default function FeedSettingsClient( ){
             <span className="de-widget-title">Feed Preferences</span>
           </div>
           <div className="de-widget-body">
-            {prefRows.map(({ key, label: string, desc }) => (
+            {prefRows.map(({ key, label, desc }) => (
               <div key={key} className="de-row">
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{label}</div>

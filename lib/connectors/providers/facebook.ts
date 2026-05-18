@@ -79,7 +79,7 @@ export async function facebookSync(creds: FacebookCredentials): Promise<UnifiedF
   const url = facebookPageRssUrl(page);
   const handle = pageHandle(page);
   const items = await parseRssFeed({ provider: 'facebook', feedUrl: url }, 40);
-  return items.map((item: Record<string, unknown>) => normaliseFacebook(item.raw as Parameters<typeof normaliseFacebook>[0], handle));
+  return items.map((item) => normaliseFacebook(item.raw as Parameters<typeof normaliseFacebook>[0], handle));
 }
 
 export function facebookCredentialFields( ){

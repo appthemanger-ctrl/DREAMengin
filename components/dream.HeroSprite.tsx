@@ -156,7 +156,7 @@ export default function HeroSprite(){
       loadImg('/arm1_transparent.png'),
       loadImg('/shoe2_transparent.png'),
       loadImg('/shoe1_transparent.png'),
-                ]).then(([head, coat: Record<string, unknown>, arm1: Record<string, unknown>, arm2: Record<string, unknown>, shoe1: Record<string, unknown>, shoe2]) => {
+                ]).then(([head, coat, arm1: Record<string, unknown>, arm2, shoe1: Record<string, unknown>, shoe2]) => {
       imgsRef.current = { head, coat, arm1, arm2, shoe1, shoe2 };
     });
   }, []);

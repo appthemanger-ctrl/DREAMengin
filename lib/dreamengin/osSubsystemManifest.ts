@@ -64,13 +64,13 @@ const FAMILY_LABELS: Record<DreamenginOSSubsystemFamily, string> = {
 };
 
 function uniquePathsForNode(predicate: (path: (typeof ALL_CONNECTION_PATHS)[number]) => boolean) {
-  return ALL_CONNECTION_PATHS.filter(predicate).map((path: Record<string, unknown>) => path.id);
+  return ALL_CONNECTION_PATHS.filter(predicate).map((path) => path.id);
 }
 
 function verbsForDaydream(label: keyof typeof DAYDREAM_ROUTES ){
   return ALL_CONNECTION_PATHS
-    .filter((path: Record<string, unknown>) => path.daydreamSurface === label)
-    .map((path: Record<string, unknown>) => path.verb);
+    .filter((path) => path.daydreamSurface === label)
+    .map((path) => path.verb);
 }
 
 export function buildDreamenginOSSubsystemManifest(): DreamenginOSSubsystemManifest {
@@ -128,7 +128,7 @@ export function buildDreamenginOSSubsystemManifest(): DreamenginOSSubsystemManif
     }),
   );
 
-  const enginNodes: DreamenginOSSubsystemNode[] = ENGIN_REGISTRY.map((engin: Record<string, unknown>) => ({
+  const enginNodes: DreamenginOSSubsystemNode[] = ENGIN_REGISTRY.map((engin) => ({
     id: `engin:${engin.id}`,
     label: engin.name,
     family: 'engins',
@@ -139,13 +139,13 @@ export function buildDreamenginOSSubsystemManifest(): DreamenginOSSubsystemManif
     connectionIds: uniquePathsForNode((path: string ) => path.enginRuntime === engin.name),
   }));
 
-  const connectorNodes: DreamenginOSSubsystemNode[] = CONNECTOR_REGISTRY.map((connector: Record<string, unknown>) => ({
+  const connectorNodes: DreamenginOSSubsystemNode[] = CONNECTOR_REGISTRY.map((connector) => ({
     id: `connector:${connector.id}`,
     label: connector.name,
     family: 'connectors',
     detail: connector.whatYouGet,
     route: '/connectors',
-    capabilities: connector.sliceTypes.map((slice: Record<string, unknown>) => slice.label),
+    capabilities: connector.sliceTypes.map((slice) => slice.label),
     runtimePresence: 'global',
   }));
 
@@ -156,7 +156,7 @@ export function buildDreamenginOSSubsystemManifest(): DreamenginOSSubsystemManif
       family: 'dream-windows',
       detail: 'Dream Window library and stable subsystem module definitions.',
       route: '/settings/widgets',
-      capabilities: WIDGET_REGISTRY.map((widget: Record<string, unknown>) => widget.title),
+      capabilities: WIDGET_REGISTRY.map((widget) => widget.title),
       runtimePresence: 'both',
     },
   ];
@@ -206,7 +206,7 @@ export function buildDreamenginOSSubsystemManifest(): DreamenginOSSubsystemManif
       label: 'Engin Connection Network',
       family: 'network',
       detail: 'Canonical cross-Daydream and cross-Engin routing graph.',
-      capabilities: ALL_CONNECTION_PATHS.map((path: Record<string, unknown>) => path.label),
+      capabilities: ALL_CONNECTION_PATHS.map((path) => path.label),
       runtimePresence: 'both',
     },
     {
@@ -231,16 +231,16 @@ export function buildDreamenginOSSubsystemManifest(): DreamenginOSSubsystemManif
     ...networkNodes,
   ];
 
-  const families = (Object.keys(FAMILY_LABELS) as DreamenginOSSubsystemFamily[]).map((family: Record<string, unknown>) => {
-    const familyNodes = nodes.filter((node: Record<string, unknown>) => node.family === family);
+  const families = (Object.keys(FAMILY_LABELS) as DreamenginOSSubsystemFamily[]).map((family) => {
+    const familyNodes = nodes.filter((node) => node.family === family);
     return {
       id: family,
       label: FAMILY_LABELS[family],
       count: familyNodes.length,
-      primaryRoute: familyNodes.find((node: Record<string, unknown>) => node.route)?.route,
+      primaryRoute: familyNodes.find((node) => node.route)?.route,
       nodes: familyNodes,
     };
-  }).filter((family: Record<string, unknown>) => family.count > 0);
+  }).filter((family) => family.count > 0);
 
   return {
     nodes,

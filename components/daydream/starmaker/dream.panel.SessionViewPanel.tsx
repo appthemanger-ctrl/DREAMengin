@@ -53,7 +53,7 @@ interface SessionViewPanelProps {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function SessionViewPanel({ state, bpm: Record<string, unknown>, onStateChange }: SessionViewPanelProps) {
+export default function SessionViewPanel({ state, bpm, onStateChange }: SessionViewPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [flash, setFlash] = useState(false);
   const flashTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -86,7 +86,7 @@ export default function SessionViewPanel({ state, bpm: Record<string, unknown>, 
       tracks: tracks.map((tr) =>
         tr.id !== trackId ? tr : {
           ...tr,
-          clips: tr.clips.map(cl: Record<string, unknown>, (i: number ) => i === clipIndex ? { ...cl, ...patch } : cl),
+          clips: tr.clips.map((cl, i: number) => i === clipIndex ? { ...cl, ...patch } : cl),
         },
       ),
     });
@@ -105,7 +105,7 @@ export default function SessionViewPanel({ state, bpm: Record<string, unknown>, 
       tracks: tracks.map((tr) =>
         tr.id !== trackId ? tr : {
           ...tr,
-          clips: tr.clips.map(cl: Record<string, unknown>, (i: number ) => ({
+          clips: tr.clips.map((cl, i: number) => ({
             ...cl,
             playing: i === clipIndex ? !isPlaying : false,
           })),
@@ -120,7 +120,7 @@ export default function SessionViewPanel({ state, bpm: Record<string, unknown>, 
       ...state,
       tracks: tracks.map((tr) => ({
         ...tr,
-        clips: tr.clips.map(cl: Record<string, unknown>, (i: number ) => ({
+        clips: tr.clips.map((cl, i: number) => ({
           ...cl,
           playing: i === sceneIndex && !cl.isEmpty,
         })),
@@ -288,7 +288,7 @@ export default function SessionViewPanel({ state, bpm: Record<string, unknown>, 
             </div>
 
             {/* ── Scene rows ── */}
-            {scenes.map((scene: Record<string, unknown>, sceneIndex: Record<string, unknown>) => (
+            {scenes.map((scene, sceneIndex) => (
               <div key={scene.id} style={{ display: 'flex' }}>
                 {/* Scene launch button */}
                 <div style={{
@@ -319,7 +319,7 @@ export default function SessionViewPanel({ state, bpm: Record<string, unknown>, 
                 </div>
 
                 {/* Clip cells */}
-                {tracks.map((track: Record<string, unknown>, trackIndex: Record<string, unknown>) => {
+                {tracks.map((track, trackIndex) => {
                   const clip = track.clips[sceneIndex];
                   if (!clip) return <div key={trackIndex} style={{ width: CELL_W, flexShrink: 0 }} />;
 

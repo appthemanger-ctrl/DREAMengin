@@ -86,7 +86,7 @@ export const HANDOFF_PATHS: readonly HandoffPath[] = [
 
 /** Returns all handoff paths available from a given Engin. */
 export function handoffsFrom(enginId: EnginId): readonly HandoffPath[] {
-  return HANDOFF_PATHS.filter((p: Record<string, unknown>) => p.from === enginId);
+  return HANDOFF_PATHS.filter((p) => p.from === enginId);
 }
 
 // ─── Workflow definition (catalog entry) ──────────────────────────────────────
@@ -126,12 +126,12 @@ export const WORKFLOW_CATALOG: readonly WorkflowDef[] = [
 
 /** Returns all workflow definitions for a given Engin. */
 export function workflowsForEngin(enginId: EnginId): readonly WorkflowDef[] {
-  return WORKFLOW_CATALOG.filter((w: Record<string, unknown>) => w.enginId === enginId);
+  return WORKFLOW_CATALOG.filter((w) => w.enginId === enginId);
 }
 
 /** Looks up a workflow definition by ID. Returns undefined if not found. */
 export function findWorkflowDef(workflowId: string): WorkflowDef | undefined {
-  return WORKFLOW_CATALOG.find((w: Record<string, unknown>) => w.id === workflowId);
+  return WORKFLOW_CATALOG.find((w) => w.id === workflowId);
 }
 
 // ─── Live workflow instance ───────────────────────────────────────────────────
@@ -276,7 +276,7 @@ export function checkHandoffEligibility(workflow: EnginWorkflow): HandoffEligibi
   if (!def || def.handoffKinds.length === 0) {
     return { eligible: false, availablePaths: [], reason: 'No handoff paths defined for this workflow.' };
   }
-  const availablePaths = HANDOFF_PATHS.filter((p: Record<string, unknown>) =>
+  const availablePaths = HANDOFF_PATHS.filter((p) =>
     (def.handoffKinds as readonly string[]).includes(p.kind),
   );
   if (availablePaths.length === 0) {

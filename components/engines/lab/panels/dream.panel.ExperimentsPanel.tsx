@@ -64,14 +64,14 @@ export default function ExperimentsPanel( ){
   const [runStates, setRunStates] = useState<RunState>({});
 
   async function runSim(sim: SimType ){
-    setRunStates((prev: Record<string, unknown>) => ({
+    setRunStates((prev) => ({
       ...prev,
       [sim.id]: { state: 'running', result: '', elapsed: 0 },
     }));
 
     const start = Date.now();
     const interval = setInterval(() => {
-      setRunStates((prev: Record<string, unknown>) => ({
+      setRunStates((prev) => ({
         ...prev,
         [sim.id]: { ...prev[sim.id], elapsed: Math.floor((Date.now() - start) / 1000) },
       }));
@@ -80,14 +80,14 @@ export default function ExperimentsPanel( ){
     await new Promise((r: number ) => setTimeout(r, sim.duration));
     clearInterval(interval);
 
-    setRunStates((prev: Record<string, unknown>) => ({
+    setRunStates((prev) => ({
       ...prev,
       [sim.id]: { state: 'complete', result: sim.result, elapsed: Math.floor(sim.duration / 1000) },
     }));
   }
 
   function reset(id: string ){
-    setRunStates((prev: Record<string, unknown>) => {
+    setRunStates((prev) => {
       const next = { ...prev };
       delete next[id];
       return next;
@@ -103,7 +103,7 @@ export default function ExperimentsPanel( ){
         </div>
 
         <div className="space-y-4">
-          {SIMS.map((sim: Record<string, unknown>) => {
+          {SIMS.map((sim) => {
             const rs = runStates[sim.id];
             return (
               <div

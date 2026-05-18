@@ -189,7 +189,7 @@ export async function POST(req: NextRequest ){
       .order('created_at', { ascending: false })
       .catch(() => ({ data: [], error: null })) as { data: unknown[]; error: unknown };
 
-    const profiles = (Array.isArray(result.data) ? result.data : []).map((row: Record<string, unknown>) => {
+    const profiles = (Array.isArray(result.data) ? result.data : []).map((row) => {
       const r = row as Record<string, unknown>;
       return {
         id: String(r.id ?? ''),

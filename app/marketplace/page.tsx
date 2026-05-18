@@ -94,7 +94,7 @@ export default async function MarketplacePage( ){
             <div className="de-widget-header"><span className="de-widget-title">Explore Categories</span></div>
             <div className="de-widget-body">
               <div className="grid grid-cols-2 gap-3">
-                {FALLBACK_CATEGORIES.map(({ icon, label: string, href: Record<string, unknown>, desc }) => (
+                {FALLBACK_CATEGORIES.map(({ icon, label, href, desc }) => (
                   <Link key={label} href={href} className="de-surface text-left p-3 flex flex-col gap-1" style={{ textDecoration: 'none' }}>
                     <span style={{ fontSize: 22 }}>{icon}</span>
                     <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--de-heading)' }}>{label}</div>

@@ -52,7 +52,7 @@ export default function DrEamsVoiceAssistant( ){
 
   // Listen for iDari activity and surface it inside Dr. Eams chat
   useEffect(() => {
-    const unsubscribe = onIdariEvent((evt: Record<string, unknown>) => {
+    const unsubscribe = onIdariEvent((evt) => {
       // Avoid spamming: only surface status + errors, and occasional key logs
       const shouldSurface =
         evt.type === 'idari:status' ||
@@ -556,7 +556,7 @@ export default function DrEamsVoiceAssistant( ){
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 h-[480px]">
-            {messages.map((message: Record<string, unknown>) => (
+            {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}

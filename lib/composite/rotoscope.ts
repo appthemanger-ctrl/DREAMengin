@@ -115,7 +115,7 @@ export function setKeyframe(
   const layers = project.layers.map((l) => {
     if (l.id !== layerId) return l;
     const kfs = l.keyframes.filter((k) => k.frame !== shape.frame);
-    return { ...l, keyframes: [...kfs, shape].sort((a: Record<string, unknown>, b: Record<string, unknown>) => a.frame - b.frame) };
+    return { ...l, keyframes: [...kfs, shape].sort((a, b) => a.frame - b.frame) };
   });
   return { ...project, layers };
 }
@@ -168,7 +168,7 @@ export function interpolateShape(layer: RotoLayer, frame: number): InterpolatedS
     return { frame, points: lo.points, opacity: layer.opacity, feather: lerp(lo.feather, hi.feather, t) };
   }
 
-  const points = lo.points.map(lp: Record<string, unknown>, (i: number ) => {
+  const points = lo.points.map((lp, i: number) => {
     const hp = hi.points[i];
     return {
       x: lerp(lp.x, hp.x, t),

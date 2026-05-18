@@ -358,7 +358,7 @@ export async function parseRssFeed(
   const channelTitle = feed.title ?? config.authorName ?? config.provider;
   const items = (feed.items ?? []).slice(0, limit);
 
-  return items.map((item: Record<string, unknown>) => normaliseRssItem(item, config, channelTitle));
+  return items.map((item) => normaliseRssItem(item, config, channelTitle));
 }
 
 // ── Item normaliser ───────────────────────────────────────────────────────

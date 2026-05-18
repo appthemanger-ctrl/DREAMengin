@@ -20,7 +20,7 @@ const PARTICIPATION_DEVIATION_SCALE = 0.01;
  * propagate through the pipeline as invalid values.
  */
 export function encodeToLedger(buffer: readonly number[]): number[] {
-  return buffer.map((value: Record<string, unknown>) => {
+  return buffer.map((value) => {
     if (!isFinite(value)) return 0;
     return Math.sign(value) * Math.log1p(Math.abs(value));
   });
@@ -28,7 +28,7 @@ export function encodeToLedger(buffer: readonly number[]): number[] {
 
 export function applyPhysicsFilter(encodedBuffer: readonly number[]): number[] {
   if (encodedBuffer.length === 0) return [];
-  return encodedBuffer.filter((dataPoint: Record<string, unknown>) => {
+  return encodedBuffer.filter((dataPoint) => {
     const x = Math.abs(dataPoint) / DATA_PHYSICS.a0;
     const expected =
       x / Math.pow(1 + Math.pow(x, DATA_PHYSICS.n), 1 / DATA_PHYSICS.n);
@@ -47,7 +47,7 @@ export function applyPhysicsFilter(encodedBuffer: readonly number[]): number[] {
  * NaN and ±Infinity inputs are clamped to 0 before decoding.
  */
 export function decodeFromLedger(buffer: readonly number[]): number[] {
-  return buffer.map((value: Record<string, unknown>) => {
+  return buffer.map((value) => {
     if (!isFinite(value)) return 0;
     return Math.sign(value) * Math.expm1(Math.abs(value));
   });
@@ -67,7 +67,7 @@ export function normalizeBuffer(buffer: readonly number[]): number[] {
   const max = Math.max(...finite);
   const range = max - min;
   if (range === 0) return buffer.map(() => 0);
-  return buffer.map((v: Record<string, unknown>) => (isFinite(v) ? (v - min) / range : 0));
+  return buffer.map((v) => (isFinite(v) ? (v - min) / range : 0));
 }
 
 // ── Improvement 4: computeBufferStats ────────────────────────────────────────
@@ -92,9 +92,9 @@ export function computeBufferStats(buffer: readonly number[]): BufferStats {
     return { count: 0, mean: 0, std: 0, min: 0, max: 0, sum: 0 };
   }
   const count = finite.length;
-  const sum = finite.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0);
+  const sum = finite.reduce((a, b) => a + b, 0);
   const mean = sum / count;
-  const variance = finite.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + (b - mean) ** 2, 0) / count;
+  const variance = finite.reduce((a, b) => a + (b - mean) ** 2, 0) / count;
   return {
     count,
     mean,
@@ -116,5 +116,5 @@ export function zscore(buffer: readonly number[]): number[] {
   if (buffer.length === 0) return [];
   const { mean, std } = computeBufferStats(buffer);
   if (std === 0) return buffer.map(() => 0);
-  return buffer.map((v: Record<string, unknown>) => (isFinite(v) ? (v - mean) / std : 0));
+  return buffer.map((v) => (isFinite(v) ? (v - mean) / std : 0));
 }

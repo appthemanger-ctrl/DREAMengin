@@ -70,7 +70,7 @@ export async function blueskySync(creds: BlueskyCredentials): Promise<UnifiedFee
   });
   if (!res.ok) throw new Error(`Bluesky sync failed: ${res.status} ${res.statusText}`);
   const data = await res.json() as { feed?: unknown[] };
-  return (data.feed ?? []).map((item: Record<string, unknown>) => normaliseBluesky(item as Parameters<typeof normaliseBluesky>[0]));
+  return (data.feed ?? []).map((item) => normaliseBluesky(item as Parameters<typeof normaliseBluesky>[0]));
 }
 
 export function blueskyCredentialFields( ){

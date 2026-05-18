@@ -101,7 +101,7 @@ export async function fetchSocialFeed(
   const feed = await parser.parseURL(feedUrl);
   const items = (feed.items ?? []).slice(0, limit);
 
-  return items.map((raw: Record<string, unknown>) => {
+  return items.map((raw) => {
     const a = raw as Record<string, unknown>;
     return {
       id: raw.guid ?? a.id ?? raw.link ?? String(Math.random()),

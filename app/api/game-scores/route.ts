@@ -56,18 +56,18 @@ export async function GET(req: NextRequest ){
   }
 
   // Fetch profile data for all score holders
-  const userIds = [...new Set(scores.map((s: Record<string, unknown>) => s.user_id))];
+  const userIds = [...new Set(scores.map((s) => s.user_id))];
   const { data: profiles } = await supabase
     .from('profiles')
     .select('id, handle, display_name, avatar_url')
     .in('id', userIds);
 
   const profilesMap = Object.fromEntries(
-    (profiles || []).map((p: Record<string, unknown>) => [p.id, p])
+    (profiles || []).map((p) => [p.id, p])
   );
 
   // Merge profile data into each score entry and add rank
-  const enriched = scores.map(s: Record<string, unknown>, (index: number ) => ({
+  const enriched = scores.map((s, index: number) => ({
     ...s,
     rank: index + 1,
     profile: profilesMap[s.user_id] ?? null,

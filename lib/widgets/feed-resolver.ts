@@ -77,7 +77,7 @@ export async function resolveFeedHost(
     }
     
     // Transform to FeedItemSummary format and fetch engagement counts
-    const items: FeedItemSummary[] = await Promise.all((feedItems || []).map(async (item: Record<string, unknown>) => {
+    const items: FeedItemSummary[] = await Promise.all((feedItems || []).map(async (item) => {
       // Fetch engagement counts for this item
        
       const { data: engagementData } = await (supabase as SupabaseClient)
@@ -240,7 +240,7 @@ export async function resolvePublicAppPosts(limit = 20: Promise<HostResolved> ){
       };
     }
 
-    const items: FeedItemSummary[] = (posts || []).map((post: Record<string, unknown>) => ({
+    const items: FeedItemSummary[] = (posts || []).map((post) => ({
       item_id: post.id as string,
       author_id: post.user_id as string,
       created_at: post.created_at as string,

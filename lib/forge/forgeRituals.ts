@@ -122,7 +122,7 @@ export function detectTimePatterns(history: HistoryEntry[]): ForgeRitual[] {
     const engine = ENGIN_REGISTRY.find((e) => e.id === enginId);
     if (!engine) continue;
 
-    const total = Object.values(bucketCounts).reduce((s: Record<string, unknown>, c: Record<string, unknown>) => s + c, 0);
+    const total = Object.values(bucketCounts).reduce((s, c) => s + c, 0);
     if (total < MIN_OCCURRENCES) continue;
 
     // Find dominant time bucket (> 60% of uses)
@@ -258,7 +258,7 @@ export function detectSessionPatterns(history: HistoryEntry[]): ForgeRitual[] {
 
   // Average engines per session
   const enginesPerSession = sessions.map((s) => new Set(s.map((e) => e.enginId)).size);
-  const avgEngines = enginesPerSession.reduce((s: Record<string, unknown>, c: Record<string, unknown>) => s + c, 0) / enginesPerSession.length;
+  const avgEngines = enginesPerSession.reduce((s, c) => s + c, 0) / enginesPerSession.length;
 
   if (avgEngines >= 2) {
     rituals.push({
@@ -285,7 +285,7 @@ export function detectSessionPatterns(history: HistoryEntry[]): ForgeRitual[] {
     .filter((d) => d > 0);
 
   if (durations.length >= MIN_OCCURRENCES) {
-    const avgMs = durations.reduce((s: Record<string, unknown>, d: Record<string, unknown>) => s + d, 0) / durations.length;
+    const avgMs = durations.reduce((s, d) => s + d, 0) / durations.length;
     const avgMin = Math.round(avgMs / 60_000);
 
     if (avgMin >= 5) {
@@ -317,7 +317,7 @@ export function detectAffinityPatterns(history: HistoryEntry[]): ForgeRitual[] {
     counts.set(entry.enginId, (counts.get(entry.enginId) ?? 0) + 1);
   }
 
-  const sorted = [...counts.entries()].sort((a: Record<string, unknown>, b: Record<string, unknown>) => b[1] - a[1]);
+  const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
   if (sorted.length === 0) return [];
 
   const rituals: ForgeRitual[] = [];
@@ -375,7 +375,7 @@ export function computeRituals(historyOverride?: HistoryEntry[]): RitualSnapshot
   ];
 
   // Sort by confidence descending
-  allRituals.sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.confidence - a.confidence);
+  allRituals.sort((a, b) => b.confidence - a.confidence);
 
   return {
     rituals: allRituals,

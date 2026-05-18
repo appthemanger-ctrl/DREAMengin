@@ -91,7 +91,7 @@ export function ForgeDreamCanvas( ){
   // ── Sidebar: add piece to canvas ──
   const addPiece = useCallback((comp: AtomicComponent) => {
     const piece: AtomicPiece = atomicPieceFromComponent(comp, 'any');
-    setPlaced((prev: Record<string, unknown>) => [
+    setPlaced((prev) => [
       ...prev,
       { piece, x: 200 + Math.random() * 300, y: 80 + Math.random() * 300 },
     ]);
@@ -104,7 +104,7 @@ export function ForgeDreamCanvas( ){
       const canvas = canvasRef.current;
       if (!canvas) return;
       const rect  = canvas.getBoundingClientRect();
-      const found = placed.find((p: Record<string, unknown>) => p.piece.id === pieceId);
+      const found = placed.find((p) => p.piece.id === pieceId);
       if (!found) return;
       dragOffset.current = {
         dx: e.clientX - rect.left - found.x,
@@ -124,15 +124,15 @@ export function ForgeDreamCanvas( ){
       if (draggingId) {
         const nx = e.clientX - rect.left - dragOffset.current.dx;
         const ny = e.clientY - rect.top  - dragOffset.current.dy;
-        setPlaced((prev: Record<string, unknown>) =>
-          prev.map((p: Record<string, unknown>) =>
+        setPlaced((prev) =>
+          prev.map((p) =>
             p.piece.id === draggingId ? { ...p, x: nx, y: ny } : p
           )
         );
       }
 
       if (pendingWire) {
-        setPendingWire((pw: Record<string, unknown>) =>
+        setPendingWire((pw) =>
           pw ? { ...pw, mx: e.clientX - rect.left, my: e.clientY - rect.top } : null
         );
       }
@@ -177,7 +177,7 @@ export function ForgeDreamCanvas( ){
         toPieceId,
         toPortId,
       };
-      setWires((prev: Record<string, unknown>) => [...prev, wire]);
+      setWires((prev) => [...prev, wire]);
       setPendingWire(null);
     },
     [pendingWire]
@@ -185,19 +185,19 @@ export function ForgeDreamCanvas( ){
 
   // ── Validate ──
   const validate = useCallback(() => {
-    const pieces = placed.map((p: Record<string, unknown>) => p.piece);
+    const pieces = placed.map((p) => p.piece);
     const result = validateAssembly(pieces, wires);
     setValidationMsg(result.valid ? '✅ Valid assembly' : result.errors.join('\n'));
   }, [placed, wires]);
 
   // ── Run ──
   const run = useCallback(() => {
-    const pieces = placed.map((p: Record<string, unknown>) => p.piece);
+    const pieces = placed.map((p) => p.piece);
     try {
       const assembly = createAssembly(pieces, wires);
       // Swap the assembly's bus events to our local bus
-      assembly.bus.on(('executed', payload: Record<string, unknown>) => busRef.current.emit('executed', payload));
-      assembly.bus.on(('error',    payload: Record<string, unknown>) => setRunResult(`Error: ${(payload as { message: string }).message}`));
+      assembly.bus.on(('executed', payload) => busRef.current.emit('executed', payload));
+      assembly.bus.on(('error', payload) => setRunResult(`Error: ${(payload as { message: string }).message}`));
       runAssembly(assembly, DEFAULT_SANDBOX);
     } catch (err) {
       setRunResult(`Assembly error: ${String(err)}`);
@@ -206,7 +206,7 @@ export function ForgeDreamCanvas( ){
 
   // ── Save ──
   const save = useCallback(() => {
-    const pieces = placed.map((p: Record<string, unknown>) => p.piece);
+    const pieces = placed.map((p) => p.piece);
     const json   = serializeAssembly({ id: `forge_${Date.now()}`, pieces, wires });
     const blob   = new Blob([json], { type: 'application/json' });
     const url    = URL.createObjectURL(blob);
@@ -219,7 +219,7 @@ export function ForgeDreamCanvas( ){
 
   // ── Save to Supabase ──
   const saveToSupabase = useCallback(async (publish = false) => {
-    const pieces = placed.map((p: Record<string, unknown>) => p.piece);
+    const pieces = placed.map((p) => p.piece);
     const json   = serializeAssembly({ id: `forge_${Date.now()}`, pieces, wires });
 
     try {
@@ -266,7 +266,7 @@ export function ForgeDreamCanvas( ){
       <aside className="w-64 flex-shrink-0 flex flex-col border-r border-white/10 overflow-hidden">
         {/* Category tabs */}
         <div className="overflow-y-auto flex-shrink-0 border-b border-white/10">
-          {ALL_CATEGORIES.map((cat: Record<string, unknown>) => (
+          {ALL_CATEGORIES.map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
@@ -283,7 +283,7 @@ export function ForgeDreamCanvas( ){
 
         {/* Piece list */}
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
-          {categoryPieces.map((comp: Record<string, unknown>) => (
+          {categoryPieces.map((comp) => (
             <button
               key={comp.id}
               onClick={() => addPiece(comp)}
@@ -328,9 +328,9 @@ export function ForgeDreamCanvas( ){
 
           {/* Wires */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none">
-            {wires.map((wire: Record<string, unknown>) => {
-              const from = placed.find((p: Record<string, unknown>) => p.piece.id === wire.fromPieceId);
-              const to   = placed.find((p: Record<string, unknown>) => p.piece.id === wire.toPieceId);
+            {wires.map((wire) => {
+              const from = placed.find((p) => p.piece.id === wire.fromPieceId);
+              const to   = placed.find((p) => p.piece.id === wire.toPieceId);
               if (!from || !to) return null;
               const x1 = from.x + 180; const y1 = from.y + 30;
               const x2 = to.x;         const y2 = to.y + 30;
@@ -346,7 +346,7 @@ export function ForgeDreamCanvas( ){
 
             {/* Pending wire */}
             {pendingWire && (() => {
-              const from = placed.find((p: Record<string, unknown>) => p.piece.id === pendingWire.fromPieceId);
+              const from = placed.find((p) => p.piece.id === pendingWire.fromPieceId);
               if (!from) return null;
               const x1 = from.x + 180; const y1 = from.y + 30;
               const { mx: x2, my: y2 } = pendingWire;
@@ -360,7 +360,7 @@ export function ForgeDreamCanvas( ){
           </svg>
 
           {/* Placed pieces */}
-          {placed.map(({ piece, x: number, y }) => (
+          {placed.map(({ piece, x, y }) => (
             <div
               key={piece.id}
               style={{ position: 'absolute', left: x, top: y, width: 180, zIndex: draggingId === piece.id ? 100 : 1 }}
@@ -381,7 +381,7 @@ export function ForgeDreamCanvas( ){
                    style={{ background: '#0f172a', border: '1px solid #1e293b', borderTop: 'none' }}>
                 {/* Input ports */}
                 <div className="flex flex-col gap-1 pl-1">
-                  {piece.inputPorts.map((port: Record<string, unknown>) => (
+                  {piece.inputPorts.map((port) => (
                     <div
                       key={port.id}
                       className="flex items-center gap-1 cursor-crosshair"
@@ -395,7 +395,7 @@ export function ForgeDreamCanvas( ){
 
                 {/* Output ports */}
                 <div className="flex flex-col gap-1 pr-1 items-end">
-                  {piece.outputPorts.map((port: Record<string, unknown>) => (
+                  {piece.outputPorts.map((port) => (
                     <div
                       key={port.id}
                       className="flex items-center gap-1 cursor-crosshair"

@@ -56,7 +56,7 @@ export default async function HelpPage( ){
             <span className="de-widget-title">How-It-Works Guides</span>
           </div>
           <div className="de-widget-body">
-            {guides.map(({ icon, title: string, desc }) => (
+            {guides.map(({ icon, title, desc }) => (
               <div key={title} className="de-row">
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(42,138,184,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0 }}>
                   {icon}

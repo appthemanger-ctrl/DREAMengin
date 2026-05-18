@@ -171,11 +171,11 @@ async function fetchPlaylistItems(
   );
 
   return (data.items ?? [])
-    .filter((item: Record<string, unknown>) => {
+    .filter((item) => {
       const title = item.snippet?.title ?? '';
       return title && title !== 'Deleted video' && title !== 'Private video';
     })
-    .map((item: Record<string, unknown>) => normaliseYouTubePlaylistItem(item, source));
+    .map((item) => normaliseYouTubePlaylistItem(item, source));
 }
 
 async function fetchSubscriptionFeed(
@@ -189,7 +189,7 @@ async function fetchSubscriptionFeed(
   );
 
   const channelIds = (subs.items ?? [])
-    .map((item: Record<string, unknown>) => item.snippet?.resourceId?.channelId ?? '')
+    .map((item) => item.snippet?.resourceId?.channelId ?? '')
     .filter(Boolean);
 
   const batches = await Promise.all(
@@ -211,7 +211,7 @@ async function fetchTrendingVideos(apiKey: string, maxResults: number): Promise<
     apiKey,
   );
 
-  return (data.items ?? []).map((item: Record<string, unknown>) => normaliseYouTubeSearchResult({
+  return (data.items ?? []).map((item) => normaliseYouTubeSearchResult({
     id: { videoId: item.id ?? '' },
     snippet: item.snippet,
   }));
@@ -295,6 +295,6 @@ export async function youtubeSync(creds: YouTubeCredentials): Promise<UnifiedFee
   ]);
 
   return [...subscriptions, ...history, ...saved]
-    .sort((a: Record<string, unknown>, b: Record<string, unknown>) => Date.parse(b.published_at) - Date.parse(a.published_at))
+    .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at))
     .slice(0, 40);
 }

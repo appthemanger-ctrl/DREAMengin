@@ -61,7 +61,7 @@ export function createEventBus<
 
     emit<K extends keyof Events>(event: K, payload: Events[K]) {
       assertAlive();
-      handlers.get(event)?.forEach((h: Record<string, unknown>) => h(payload));
+      handlers.get(event)?.forEach((h) => h(payload));
     },
 
     destroy() {
@@ -92,7 +92,7 @@ export function createDualRuntimeHub(
 
   const bridgedKey = '__bridged';
 
-  const relayAtoB: EventHandler<unknown> = (payload: Record<string, unknown>) => {
+  const relayAtoB: EventHandler<unknown> = (payload) => {
     if (
       payload !== null &&
       typeof payload === 'object' &&
@@ -105,7 +105,7 @@ export function createDualRuntimeHub(
     });
   };
 
-  const relayBtoA: EventHandler<unknown> = (payload: Record<string, unknown>) => {
+  const relayBtoA: EventHandler<unknown> = (payload) => {
     if (
       payload !== null &&
       typeof payload === 'object' &&

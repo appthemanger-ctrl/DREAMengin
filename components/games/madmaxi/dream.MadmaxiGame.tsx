@@ -178,7 +178,7 @@ export default function BabylonSideScroller( ){
     setBossName(bossEntry ? bossEntry.name : '');
     setWasABoss(false);
     setCoinCount(0);
-    setCoinTotal(levelDef.coins.filter((coin: Record<string, unknown>) => !coin.isGoal).length);
+    setCoinTotal(levelDef.coins.filter((coin) => !coin.isGoal).length);
 
     const core = new GameCore(canvas, lv, sc, li, {
       onScore:    (s)  => {
@@ -212,7 +212,7 @@ export default function BabylonSideScroller( ){
         setZoneStory(story);
         setWasABoss(isBossLevel(lv - 1));
         setLevel(lv);
-        setNoDeathStreak((prev: Record<string, unknown>) => {
+        setNoDeathStreak((prev) => {
           const next = prev + 1;
           if (next >= MADMAXI_SUPER_STREAK) setSuperSeconds(MADMAXI_SUPER_SECONDS);
           return next;
@@ -512,7 +512,7 @@ export default function BabylonSideScroller( ){
                 display: 'flex', alignItems: 'center', gap: 4,
                 background: 'rgba(0,0,0,0.42)', borderRadius: 6, padding: '3px 9px',
               }}>
-                {Array.from({ length: coinTotal }).map(_: Record<string, unknown>, (i: number ) => (
+                {Array.from({ length: coinTotal }).map((_, i: number) => (
                   <span
                     key={i}
                     style={{
@@ -996,7 +996,7 @@ class GameCore {
     };
 
     // Eye material (shared template) — bright white-yellow LED
-    const eyeMat = (rgb: [number, number: Record<string, unknown>, number]) =>
+    const eyeMat = (rgb: [number, number, number]) =>
       emissiveMat(`eye_${ei}_${rgb.join('_')}`, rgb, 1.4, 0.0, 0.25, 0.0);
 
     if (isBoss) {
@@ -1137,7 +1137,7 @@ class GameCore {
         const core = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_core`, { diameter: 0.28 * W, segments: 14 }, scene);
         attach(core, eyeMat([1.0, 0.55, 1.0]));
         const prongAngles = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
-        prongAngles.forEach(ang: Record<string, unknown>, (k: number ) => {
+        prongAngles.forEach((ang, k: number) => {
           const prong = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}_prong_${k}`, {
             diameterTop: 0.0, diameterBottom: 0.08 * W, height: 0.24 * W, tessellation: 6,
           }, scene);
@@ -1200,7 +1200,7 @@ class GameCore {
           [ 0.30,  0.30,  0.30], [-0.30,  0.30,  0.30], [ 0.30, -0.30,  0.30], [-0.30, -0.30,  0.30],
           [ 0.30,  0.30, -0.30], [-0.30,  0.30, -0.30],
         ];
-        tipDirs.forEach([x, y: number, z], (k: number ) => {
+        tipDirs.forEach(([x, y, z], k: number) => {
           const tip = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_tip_${k}`, { diameter: 0.10 * W, segments: 8 }, scene);
           tip.position.set(x * W, y * W, z * W);
           attach(tip, eyeMat([1.0, 0.30, 0.40]));
@@ -1637,8 +1637,8 @@ class GameCore {
       // Collect importer-created top-level nodes so we can parent + scale them
       // as a unit. Babylon's GLTF loader injects a "__root__" TransformNode
       // that already groups everything; reparent it under the rig root.
-      const importedRoot = (result.meshes.find((m: Record<string, unknown>) => m.name === '__root__')
-        ?? result.transformNodes.find((n: Record<string, unknown>) => n.name === '__root__')
+      const importedRoot = (result.meshes.find((m) => m.name === '__root__')
+        ?? result.transformNodes.find((n) => n.name === '__root__')
         ?? null) as import('@babylonjs/core').TransformNode | null;
 
       const meshes = result.meshes.filter(
@@ -1817,7 +1817,7 @@ class GameCore {
         const peak = (Math.sin(i * 0.6 + li * 1.2) * 0.5 + 0.5) * L.jagged + rand() * L.jagged * 0.4;
         path.push(new BJS.Vector3(x, L.baseY * WORLD_SCALE + peak * WORLD_SCALE * 1.2, 0));
       }
-      const path2 = path.map((p: Record<string, unknown>) => new BJS.Vector3(p.x, -1 * WORLD_SCALE, 0));
+      const path2 = path.map((p) => new BJS.Vector3(p.x, -1 * WORLD_SCALE, 0));
       const ribbon = BJS.MeshBuilder.CreateRibbon(`mountain_${li}`, {
         pathArray: [path, path2], closeArray: false, closePath: false, sideOrientation: BJS.Mesh.DOUBLESIDE,
       }, scene);
@@ -1990,7 +1990,7 @@ class GameCore {
       hitsLeft: e.hitsLeft ?? 1,
       state: 0,
     }));
-    this.hazards = (def.hazards ?? []).map((h: Record<string, unknown>) => ({
+    this.hazards = (def.hazards ?? []).map((h) => ({
       ...h,
       curX: h.x,
       curY: h.y,
@@ -1998,7 +1998,7 @@ class GameCore {
       active: true,
       fallVy: 0,
     }));
-    this.powerUps = (def.powerUps ?? []).map((p: Record<string, unknown>) => ({ ...p, collected: false }));
+    this.powerUps = (def.powerUps ?? []).map((p) => ({ ...p, collected: false }));
     // Count regular (non-goal) coins for HUD
     this.totalRegularCoins      = def.coins.filter((c) => !c.isGoal).length;
     this.collectedRegularCoins  = 0;
@@ -2220,7 +2220,7 @@ class GameCore {
       [0.12,  7, 0.14, 0.20, true],
       [0.16,  4, 0.10, 0.15, false],
     ];
-    skylineLayers.forEach([parallax, depth: Record<string, unknown>, sat: Record<string, unknown>, alpha: Record<string, unknown>, useAccent], (idx: number ) => {
+    skylineLayers.forEach(([parallax, depth, sat, alpha, useAccent], idx: number) => {
       const band = BJS.MeshBuilder.CreatePlane(`skyline_band_${idx}`, { width: 180 * WORLD_SCALE, height: 26 * WORLD_SCALE }, scene);
       const mat = new BJS.PBRMaterial(`skyline_mat_${idx}`, scene);
       mat.metallic = 0;
@@ -2535,7 +2535,7 @@ class GameCore {
           runtime: { frameMs: avgFrame, avgFrameMs: avgFrame, cpuMs: avgFrame * 0.4, gpuMs: avgFrame * 0.5, droppedFrameRatio: perf ? (perf.averageFrameTime > 20 ? 0.1 : 0) : 0, inputLatencyMs: 20, scrollVelocity: 0, pointerVelocity: 0, interactionBurst: 0 },
           ux:      defaultUXSignals(),
           route:   defaultRouteSignals('/game/madmaxi'),
-          meshes:  scene.meshes.map((m: Record<string, unknown>) => ({
+          meshes:  scene.meshes.map((m) => ({
             id: m.id, visible: m.isVisible, interactive: m.isPickable, nearPointer: false,
             distanceToCamera: 10, transformDelta: 0, materialChanged: false,
             screenCoverage: m.id.startsWith('player_') ? 0.15 : 0.05,
@@ -3319,7 +3319,7 @@ class GameCore {
           if (enraged && en.alive) {
             const eb = new this.bjs.Vector3(bx, by - 0.6, 0);
             this.vfx.setEmbers(eb, [1.0, 0.45, 0.1]);
-          } else if (i === this.enemies.findIndex((x: Record<string, unknown>) => x.boss)) {
+          } else if (i === this.enemies.findIndex((x) => x.boss)) {
             // Only the canonical boss controls the embers stream.
             this.vfx.setEmbers(null, [1, 1, 1]);
           }

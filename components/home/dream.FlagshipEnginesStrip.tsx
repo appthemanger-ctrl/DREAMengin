@@ -182,7 +182,7 @@ export default function FlagshipEnginesStrip(){
           padding: '14px',
         }}
       >
-        {FLAGSHIPS.map(({ id, label: string, tagline: Record<string, unknown>, href: Record<string, unknown>, Icon: Record<string, unknown>, accent }) => (
+        {FLAGSHIPS.map(({ id, label, tagline, href, Icon, accent }) => (
           <button
             key={id}
             type="button"

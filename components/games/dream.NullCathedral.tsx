@@ -156,7 +156,7 @@ function legalMoves(b: Cell[][], r: number, c: number): Array<[number, number]> 
 }
 
 function rowMineHints(mines: boolean[][]): number[] {
-  return mines.map((row: Record<string, unknown>) => row.filter(Boolean).length);
+  return mines.map((row) => row.filter(Boolean).length);
 }
 function colMineHints(mines: boolean[][]): number[] {
   const out = new Array<number>(N).fill(0);
@@ -374,7 +374,7 @@ export default function NullCathedral( ){
       let filtered = raw;
       if (p.kind === 'K') {
         filtered = raw.filter(([tr, tc]) => {
-          const trial = boardRef.current.map((row: Record<string, unknown>) => row.slice());
+          const trial = boardRef.current.map((row) => row.slice());
           trial[r][c] = null;
           trial[tr][tc] = p;
           return !squareAttacked(trial, tr, tc, 'castle');
@@ -389,7 +389,7 @@ export default function NullCathedral( ){
 
   // Move a piece, handle mine + capture, then trigger CASTLE turn.
   const movePiece = (fr: number, fc: number, tr: number, tc: number, side: Side) => {
-    const b = boardRef.current.map((row: Record<string, unknown>) => row.slice());
+    const b = boardRef.current.map((row) => row.slice());
     const moved = b[fr][fc]!; const captured = b[tr][tc];
     b[fr][fc] = null; b[tr][tc] = moved;
     animRef.current = { fr, fc, tr, tc, piece: moved, t: 0 };
@@ -406,14 +406,14 @@ export default function NullCathedral( ){
       if (captured.kind === 'K' && captured.side === 'castle') {
         boardRef.current = b;
         setScore((s: string ) => s + pts);
-        setLog((l: Record<string, unknown>) => [logEntry + ' · CASTLE collapses.', ...l].slice(0, 8));
+        setLog((l) => [logEntry + ' · CASTLE collapses.', ...l].slice(0, 8));
         setPhase('victory');
         return;
       }
       if (captured.kind === 'K' && captured.side === 'iren') {
         boardRef.current = b;
         setScore((s: string ) => s + pts);
-        setLog((l: Record<string, unknown>) => [logEntry + ' · Iren is overwritten.', ...l].slice(0, 8));
+        setLog((l) => [logEntry + ' · Iren is overwritten.', ...l].slice(0, 8));
         setPhase('defeat');
         return;
       }
@@ -453,7 +453,7 @@ export default function NullCathedral( ){
       }
       if (moved.kind === 'K') {
         boardRef.current = b;
-        setLog((l: Record<string, unknown>) => [logEntry + ` · ${side === 'iren' ? 'Iren' : 'CASTLE'} king lost.`, ...l].slice(0, 8));
+        setLog((l) => [logEntry + ` · ${side === 'iren' ? 'Iren' : 'CASTLE'} king lost.`, ...l].slice(0, 8));
         setPhase(side === 'iren' ? 'defeat' : 'victory');
         return;
       }
@@ -472,7 +472,7 @@ export default function NullCathedral( ){
         const sit = b[fuse.r][fuse.c];
         if (sit) {
           if (sit.kind === 'K') {
-            setLog((l: Record<string, unknown>) => [`Time-mine takes ${sit.side === 'iren' ? 'Iren' : 'CASTLE'} king`, ...l].slice(0, 8));
+            setLog((l) => [`Time-mine takes ${sit.side === 'iren' ? 'Iren' : 'CASTLE'} king`, ...l].slice(0, 8));
             setPhase(sit.side === 'iren' ? 'defeat' : 'victory');
             return;
           }
@@ -485,7 +485,7 @@ export default function NullCathedral( ){
     timeMineFusesRef.current = surviving;
 
     setScore((s: string ) => s + pts);
-    setLog((l: Record<string, unknown>) => [logEntry, ...l].slice(0, 8));
+    setLog((l) => [logEntry, ...l].slice(0, 8));
     setTurn(side === 'iren' ? 'castle' : 'iren');
   };
 
@@ -502,7 +502,7 @@ export default function NullCathedral( ){
         }
       }
       if (candidates.length === 0) { setPhase('victory'); return; }
-      const caps = candidates.filter((m: Record<string, unknown>) => m.cap);
+      const caps = candidates.filter((m) => m.cap);
       const pool = caps.length > 0 && Math.random() < 0.7 ? caps : candidates;
       const m = pool[Math.floor(Math.random() * pool.length)];
       movePiece(m.fr, m.fc, m.tr, m.tc, 'castle');
@@ -551,9 +551,9 @@ export default function NullCathedral( ){
           ● {turn === 'iren' ? 'IREN' : 'CASTLE'}
         </span>
         <span>
-          {boardRef.current.flat().filter((p: Record<string, unknown>) => p && p.side === 'iren').length}
+          {boardRef.current.flat().filter((p) => p && p.side === 'iren').length}
           <span style={{ color: '#3a2c1c' }}> · </span>
-          {boardRef.current.flat().filter((p: Record<string, unknown>) => p && p.side === 'castle').length}
+          {boardRef.current.flat().filter((p) => p && p.side === 'castle').length}
         </span>
         <span>{score}</span>
       </div>

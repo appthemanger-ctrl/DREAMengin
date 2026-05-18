@@ -56,10 +56,10 @@ function notify( ){
   const prev = cachedSnapshot;
   if (prev && prev.width === next.width && prev.height === next.height) return;
   cachedSnapshot = next;
-  listeners.forEach((l: Record<string, unknown>) => l());
+  listeners.forEach((l) => l());
 }
 
-function subscribe(listener: Listener: () => void {
+function subscribe(listener: Listener): () => void {
   if (typeof window === 'undefined') return () => undefined;
   listeners.add(listener);
   if (!resizeBound) {

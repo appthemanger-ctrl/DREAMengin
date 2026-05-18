@@ -89,7 +89,7 @@ export function SharedDreamShell(){
     const unsub = onEvent((payload: DreamBroadcastPayload) => {
       if (payload.type === 'cursor') {
         const d = payload.data as { x: number; y: number };
-        setPeerCursors((prev: Record<string, unknown>) => ({
+        setPeerCursors((prev) => ({
           ...prev,
           [payload.peerId]: {
             peerId: payload.peerId,
@@ -101,9 +101,9 @@ export function SharedDreamShell(){
       } else if (payload.type === 'edit') {
         const d = payload.data as { summary?: string };
         const entry = `[${payload.peerId.slice(0, 6)}] ${d.summary ?? 'edit'}`;
-        setEditLog((prev: Record<string, unknown>) => [...prev.slice(-19), entry]);
+        setEditLog((prev) => [...prev.slice(-19), entry]);
       } else if (payload.type === 'peer_leave') {
-        setPeerCursors((prev: Record<string, unknown>) => {
+        setPeerCursors((prev) => {
           const next = { ...prev };
           delete next[payload.peerId];
           return next;
@@ -129,7 +129,7 @@ export function SharedDreamShell(){
   // ── Audio call toggle ──
   const toggleAudio = useCallback(async () => {
     if (isAudioActive) {
-      audioStreamRef.current?.getTracks().forEach((t: Record<string, unknown>) => t.stop());
+      audioStreamRef.current?.getTracks().forEach((t) => t.stop());
       audioStreamRef.current = null;
       setIsAudioActive(false);
       broadcast({ type: 'audio_leave', summary: 'left audio call' });
@@ -162,7 +162,7 @@ export function SharedDreamShell(){
 
   useEffect(() => {
     return () => {
-      audioStreamRef.current?.getTracks().forEach((t: Record<string, unknown>) => t.stop());
+      audioStreamRef.current?.getTracks().forEach((t) => t.stop());
     };
   }, []);
 
@@ -219,7 +219,7 @@ export function SharedDreamShell(){
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)' }}>
             {participantCount}
           </span>
-          {peerList.slice(0, 4).map((p: Record<string, unknown>) => (
+          {peerList.slice(0, 4).map((p) => (
             <div
               key={p.peerId}
               title={`Peer ${p.peerId.slice(0, 6)}`}
@@ -334,7 +334,7 @@ export function SharedDreamShell(){
         onMouseMove={handleMouseMove}
       >
         {/* Peer cursor overlays */}
-        {Object.values(peerCursors).map((cursor: Record<string, unknown>) => (
+        {Object.values(peerCursors).map((cursor) => (
           <div
             key={cursor.peerId}
             aria-hidden
@@ -443,7 +443,7 @@ export function SharedDreamShell(){
             padding: '4px 12px',
           }}
         >
-          {editLog.slice(-3).map(entry: Record<string, unknown>, (i: number ) => (
+          {editLog.slice(-3).map((entry, i: number) => (
             <div
               key={i}
               style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', fontFamily: 'monospace' }}

@@ -153,7 +153,7 @@ export async function POST(req: NextRequest ){
   });
 
   // Filter to ALLOW and CONFIRM intents
-  const allowedIntents = validatedIntents.filter(_: Record<string, unknown>, (i: number ) => {
+  const allowedIntents = validatedIntents.filter((_, i: number) => {
     const d = boogieResult.per_intent[i];
     return d && (d.decision === 'ALLOW' || d.decision === 'CONFIRM');
   });
@@ -164,7 +164,7 @@ export async function POST(req: NextRequest ){
 
   // Generate confirm token if any intent needs confirmation
   let confirm_token: string | undefined;
-  if (allowedDecisions.some((d: Record<string, unknown>) => d.decision === 'CONFIRM')) {
+  if (allowedDecisions.some((d) => d.decision === 'CONFIRM')) {
     confirm_token = makeConfirmToken({ requestId: request_id, userId: user.id, ttlSeconds: 300 });
   }
 

@@ -138,7 +138,7 @@ export function computeCuts(
   const toDelete = allWords.filter((w) => deletedIdx.has(w.index));
   if (toDelete.length === 0) return [];
 
-  const sorted = [...toDelete].sort((a: Record<string, unknown>, b: Record<string, unknown>) => a.startMs - b.startMs);
+  const sorted = [...toDelete].sort((a, b) => a.startMs - b.startMs);
   const cuts: TimelineCut[] = [];
   let cur: TimelineCut = { cutStartMs: sorted[0].startMs, cutEndMs: sorted[0].endMs };
 
@@ -196,7 +196,7 @@ export function applyEditsToSegments(
  */
 export function exportSRT(segments: TranscriptSegment[]): string {
   return segments
-    .map(seg: Record<string, unknown>, (idx: number ) => {
+    .map((seg, idx: number) => {
       const start = msToSrtTime(seg.startMs);
       const end = msToSrtTime(seg.endMs);
       return `${idx + 1}\n${start} --> ${end}\n${seg.text}`;
@@ -320,7 +320,7 @@ function syllableProportionalWords(
   if (rawWords.length === 0) return [];
   const duration = endMs - startMs;
   const syllables = rawWords.map((w) => countSyllables(w));
-  const totalSyllables = syllables.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) || rawWords.length;
+  const totalSyllables = syllables.reduce((a, b) => a + b, 0) || rawWords.length;
 
   const result: TranscriptWord[] = [];
   let cursor = startMs;

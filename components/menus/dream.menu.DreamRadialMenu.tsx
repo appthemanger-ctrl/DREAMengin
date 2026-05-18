@@ -33,7 +33,7 @@ const DREAM_ITEMS = [
   { id: 'shop',        label: 'Shop',        icon: '🛍', route: '/shop'                 },
 ];
 
-export default function DreamRadialMenu({ open, onClose: Record<string, unknown>, onSelectNode: Record<string, unknown>, side }: Props) {
+export default function DreamRadialMenu({ open, onClose, onSelectNode, side }: Props) {
   const router = useRouter();
 
   // Stream 5.4 — Popover API support
@@ -55,7 +55,7 @@ export default function DreamRadialMenu({ open, onClose: Record<string, unknown>
     }
   }, [open, supportsPopover]);
 
-  const items: MenuItem[] = DREAM_ITEMS.map((item: Record<string, unknown>) => ({
+  const items: MenuItem[] = DREAM_ITEMS.map((item) => ({
     id: item.id,
     label: item.label,
     icon: item.icon,

@@ -244,7 +244,7 @@ export function useGamepad(): GamepadStatus {
         rafRef.current = null;
       }
       // Release any stuck buttons / axes when disconnecting
-      buttonState.current.forEach(was: Record<string, unknown>, (i: number ) => {
+      buttonState.current.forEach((was, i: number) => {
         if (was) {
           buttonState.current[i] = false;
           const action = BUTTON_MAP[i] ?? null;

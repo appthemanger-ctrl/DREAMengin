@@ -42,7 +42,7 @@ type Props = {
   onClose: () => void;
 };
 
-export default function FollowOnboarding({ handle, displayName: Record<string, unknown>, onConfirm: Record<string, unknown>, onClose }: Props) {
+export default function FollowOnboarding({ handle, displayName, onConfirm, onClose }: Props) {
   const [selected, setSelected] = useState<FollowFrequency>('highlights');
 
   const confirm = useCallback(() => {

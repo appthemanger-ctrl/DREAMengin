@@ -101,7 +101,7 @@ export default function AddSliceSheet(){
         {/* Pick step */}
         {step === 'pick' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {available.map((st: Record<string, unknown>) => {
+            {available.map((st) => {
               const alreadyAdded = existingSlices.some(
                 (s) => s.connectorId === connector.id && s.sliceTypeId === st.id,
               );
@@ -151,7 +151,7 @@ export default function AddSliceSheet(){
                 </div>
               </div>
               {/* Skeleton preview rows to show the shape of content */}
-              {[80, 100, 65].map(w: Record<string, unknown>, (i: number ) => (
+              {[80, 100, 65].map((w, i: number) => (
                 <div key={i} style={{
                   height: 10, borderRadius: 5, marginBottom: 6,
                   background: 'rgba(42,138,184,0.15)', width: `${w}%`,

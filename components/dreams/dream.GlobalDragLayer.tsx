@@ -31,7 +31,7 @@ export default function GlobalDreamDragLayer( ){
         frameRef.current = null;
         const point = lastPointerRef.current;
         if (!point) return;
-        setDrag((current: Record<string, unknown>) => current ? { ...current, x: point.x, y: point.y } : current);
+        setDrag((current) => current ? { ...current, x: point.x, y: point.y } : current);
       });
     };
     const end = () => {

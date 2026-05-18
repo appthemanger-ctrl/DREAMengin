@@ -77,7 +77,7 @@ export function createSaveAPI(cartridgeId: string): CartridgeSaveAPI {
           // Corrupted slot — skip
         }
       }
-      return slots.sort((a: Record<string, unknown>, b: Record<string, unknown>) => a.slot - b.slot);
+      return slots.sort((a, b) => a.slot - b.slot);
     },
 
     async load(slot: number): Promise<CartridgeSaveSlot | null> {
@@ -94,7 +94,7 @@ export function createSaveAPI(cartridgeId: string): CartridgeSaveAPI {
       }
     },
 
-    async write(slot: number, data: Record<string, unknown>, label?: string): Promise<void> {
+    async write(slot: number, data, label?: string): Promise<void> {
       if (slot < 0 || slot >= MAX_SLOTS) {
         throw new Error(`Save slot ${slot} out of range (0–${MAX_SLOTS - 1})`);
       }
@@ -117,7 +117,7 @@ export function createSaveAPI(cartridgeId: string): CartridgeSaveAPI {
       writeCatalog(cartridgeId, catalog);
     },
 
-    async autoSave(data: Record<string, unknown>): Promise<void> {
+    async autoSave(data): Promise<void> {
       await this.write(0, data, autoLabel(0));
     },
   };

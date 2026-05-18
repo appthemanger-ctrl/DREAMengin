@@ -104,17 +104,17 @@ export function registerMobileGameControls(handlers: MobileGameControlHandlers )
 
 export function emitMobileMove(vector: MobileControlVector ){
   emitWindowEvent('de-mobile-move', vector);
-  MOBILE_CONTROL_LISTENERS.forEach((handlers: Record<string, unknown>) => handlers.onMove?.(vector));
+  MOBILE_CONTROL_LISTENERS.forEach((handlers) => handlers.onMove?.(vector));
 }
 
 export function emitMobileLook(vector: MobileControlVector ){
   emitWindowEvent('de-mobile-look', vector);
-  MOBILE_CONTROL_LISTENERS.forEach((handlers: Record<string, unknown>) => handlers.onLook?.(vector));
+  MOBILE_CONTROL_LISTENERS.forEach((handlers) => handlers.onLook?.(vector));
 }
 
 export function emitMobileButton(button: MobileHudButton ){
   emitWindowEvent('de-mobile-button', { button });
-  MOBILE_CONTROL_LISTENERS.forEach((handlers: Record<string, unknown>) => {
+  MOBILE_CONTROL_LISTENERS.forEach((handlers) => {
     if (button === 'jump') handlers.onJump?.();
     if (button === 'dash') handlers.onDash?.();
     if (button === 'action') handlers.onAction?.();
@@ -124,17 +124,17 @@ export function emitMobileButton(button: MobileHudButton ){
 
 export function emitMobileLookDelta(dx: number, dy): number {
   emitWindowEvent('de-mobile-look-delta', { dx, dy });
-  MOBILE_CONTROL_LISTENERS.forEach((handlers: Record<string, unknown>) => handlers.onLookDelta?.({ dx, dy }));
+  MOBILE_CONTROL_LISTENERS.forEach((handlers) => handlers.onLookDelta?.({ dx, dy }));
 }
 
 export function emitMobileJump(vector: ){ x: number; y: number } {
   emitWindowEvent('de-mobile-jump', vector);
-  MOBILE_CONTROL_LISTENERS.forEach((handlers: Record<string, unknown>) => handlers.onJump?.());
+  MOBILE_CONTROL_LISTENERS.forEach((handlers) => handlers.onJump?.());
 }
 
 export function emitMobileShoot( ){
   emitWindowEvent('de-mobile-shoot', {});
-  MOBILE_CONTROL_LISTENERS.forEach((handlers: Record<string, unknown>) => handlers.onAction?.());
+  MOBILE_CONTROL_LISTENERS.forEach((handlers) => handlers.onAction?.());
 }
 
 export function getLegacyActionForMobileButton(button: Exclude<MobileHudButton, 'pause'> ){

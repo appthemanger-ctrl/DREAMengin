@@ -441,12 +441,12 @@ export class EliteGameEngine {
 
   private avgFps(): number {
     if (this.fpsHistory.length === 0) return 60;
-    return this.fpsHistory.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / this.fpsHistory.length;
+    return this.fpsHistory.reduce((a, b) => a + b, 0) / this.fpsHistory.length;
   }
 
   private avgFrameMs(): number {
     if (this.frameMsHistory.length === 0) return 16.67;
-    return this.frameMsHistory.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / this.frameMsHistory.length;
+    return this.frameMsHistory.reduce((a, b) => a + b, 0) / this.frameMsHistory.length;
   }
 
   private buildTelemetry(fps: number, frameMs: number): FrameTelemetry {

@@ -77,7 +77,7 @@ export async function redditSyncSaved(creds: RedditCredentials): Promise<Unified
   });
   if (!res.ok) throw new Error(`Reddit saved sync failed: ${res.status} ${res.statusText}`);
   const listing = await res.json() as { data?: { children?: unknown[] } };
-  return (listing.data?.children ?? []).map((post: Record<string, unknown>) => normaliseReddit(post as Parameters<typeof normaliseReddit>[0]));
+  return (listing.data?.children ?? []).map((post) => normaliseReddit(post as Parameters<typeof normaliseReddit>[0]));
 }
 
 export function redditCredentialFields( ){

@@ -211,7 +211,7 @@ function useGPUCanvas(
 
 // ── Backend badge ─────────────────────────────────────────────────────────────
 
-function BackendBadge({ backend }: ) { backend: string | null } {
+function BackendBadge({ backend }: {backend: string | null}) {
   if (!backend) {
     return (
       <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.06em' }}>
@@ -464,7 +464,7 @@ export default function WebGPUShowcase( ){
         </h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
-          {SECTIONS.map((s: Record<string, unknown>) => (
+          {SECTIONS.map((s) => (
             <SectionCard key={s.id} {...s} />
           ))}
         </div>

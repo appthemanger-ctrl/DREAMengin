@@ -120,7 +120,7 @@ export function useNotifications(): UseNotificationsReturn {
 
   const markAsRead = useCallback(async (id: string) => {
     // Optimistic update first
-    setNotifications((prev: Record<string, unknown>) => applyOptimisticRead(prev, id));
+    setNotifications((prev) => applyOptimisticRead(prev, id));
 
     try {
       await fetch('/api/notifications', {
@@ -138,7 +138,7 @@ export function useNotifications(): UseNotificationsReturn {
   // ── Mark all as read ──────────────────────────────────────────────────────
 
   const markAllAsRead = useCallback(async () => {
-    setNotifications((prev: Record<string, unknown>) => applyOptimisticMarkAll(prev));
+    setNotifications((prev) => applyOptimisticMarkAll(prev));
 
     try {
       await fetch('/api/notifications', {
@@ -155,7 +155,7 @@ export function useNotifications(): UseNotificationsReturn {
   // ── Delete one notification ───────────────────────────────────────────────
 
   const deleteNotification = useCallback(async (id: string) => {
-    setNotifications((prev: Record<string, unknown>) => applyOptimisticDelete(prev, id));
+    setNotifications((prev) => applyOptimisticDelete(prev, id));
 
     try {
       await fetch(`/api/notifications?id=${encodeURIComponent(id)}`, {

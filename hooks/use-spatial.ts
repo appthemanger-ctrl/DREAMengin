@@ -95,7 +95,7 @@ export function useSpatialNavigation(initialSpace: SpaceType = "home" ){
   });
 
   const navigateLeft = useCallback(() => {
-    setNavigation((prev: Record<string, unknown>) => ({
+    setNavigation((prev) => ({
       ...prev,
       currentIndex:
         prev.currentIndex === 0
@@ -106,7 +106,7 @@ export function useSpatialNavigation(initialSpace: SpaceType = "home" ){
   }, []);
 
   const navigateRight = useCallback(() => {
-    setNavigation((prev: Record<string, unknown>) => ({
+    setNavigation((prev) => ({
       ...prev,
       currentIndex:
         prev.currentIndex === prev.totalWidgets - 1
@@ -117,14 +117,14 @@ export function useSpatialNavigation(initialSpace: SpaceType = "home" ){
   }, []);
 
   const navigateToIndex = useCallback((index: number) => {
-    setNavigation((prev: Record<string, unknown>) => ({
+    setNavigation((prev) => ({
       ...prev,
       currentIndex: Math.max(0, Math.min(index, prev.totalWidgets - 1)),
     }));
   }, []);
 
   const switchSpace = useCallback((space: SpaceType) => {
-    setNavigation((prev: Record<string, unknown>) => ({
+    setNavigation((prev) => ({
       ...prev,
       space,
       currentIndex: 0,
@@ -132,7 +132,7 @@ export function useSpatialNavigation(initialSpace: SpaceType = "home" ){
   }, []);
 
   const setTotalWidgets = useCallback((total: number) => {
-    setNavigation((prev: Record<string, unknown>) => ({
+    setNavigation((prev) => ({
       ...prev,
       totalWidgets: total,
       currentIndex: Math.min(prev.currentIndex, Math.max(0, total - 1)),
@@ -213,7 +213,7 @@ export function useWidgets(userId: string, space?): SpaceType {
   const reorderWidgets = useCallback(
     async (widgetIds: string[]) => {
       const supabase = createClient();
-      const updates = widgetIds.map(id: Record<string, unknown>, (index: number ) => ({
+      const updates = widgetIds.map((id, index: number) => ({
         id,
         order: index,
         updated_at: new Date().toISOString(),
@@ -371,7 +371,7 @@ export function useAlbums(userId: string ){
 
       const startOrder = existing?.[0]?.order ?? -1;
 
-      const inserts = contentIds.map(contentId: Record<string, unknown>, (index: number ) => ({
+      const inserts = contentIds.map((contentId, index: number) => ({
         album_id: albumId,
         content_id: contentId,
         order: startOrder + index + 1,
@@ -498,7 +498,7 @@ export function useShareToProfile(userId: string ){
 
         // Add content references to widget
         if (widgetId && intent.content_ids?.length) {
-          const contentRefs = intent.content_ids.map(contentId: Record<string, unknown>, (index: number ) => ({
+          const contentRefs = intent.content_ids.map((contentId, index: number) => ({
             widget_id: widgetId,
             content_id: contentId,
             order: index,

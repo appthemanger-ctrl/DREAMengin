@@ -108,7 +108,7 @@ function formatRelativeTime(iso: string): string {
 }
 
 export function getAppRoute(engineId: string): string | undefined {
-  return ENGIN_REGISTRY.find((engine: Record<string, unknown>) => engine.id === engineId)?.daydreamHref;
+  return ENGIN_REGISTRY.find((engine) => engine.id === engineId)?.daydreamHref;
 }
 
 export interface RecentDestination {
@@ -124,7 +124,7 @@ export function buildRecentDestinations(
 ): RecentDestination[] {
   const uniqueDestinationHrefs = new Set<string>();
   return [
-    ...recentHistory.map((entry: Record<string, unknown>) => ({
+    ...recentHistory.map((entry) => ({
       key: `history-${entry.timestamp}-${entry.enginId}`,
       label: entry.label,
       timestamp: entry.timestamp,
@@ -132,8 +132,8 @@ export function buildRecentDestinations(
     })),
     ...activity
       .slice()
-      .sort((a: Record<string, unknown>, b: Record<string, unknown>) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime())
-      .map((entry: Record<string, unknown>) => ({
+      .sort((a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime())
+      .map((entry) => ({
         key: `activity-${entry.enginId}`,
         label: entry.label,
         timestamp: entry.lastActive,
@@ -152,12 +152,7 @@ export function buildRecentDestinations(
  * iOS-style squircle app icon.
  * Clicking navigates to the canonical surface route — no iframe dead-ends.
  */
-function AppIcon({ icon, label, color, onClick }: ) {
-  icon: string;
-  label: string;
-  color: string;
-  onClick: () => void;
-}) {
+function AppIcon({ icon, label, color, onClick }: { icon: string; label: string; color: string; onClick: () => void }) {
   const [pressed, setPressed] = useState(false);
   const press   = () => setPressed(true);
   const release = () => setPressed(false);
@@ -223,8 +218,8 @@ function AppIcon({ icon, label, color, onClick }: ) {
 }
 
 /** Mini animated horizontal bar chart for recent creative energy. */
-function EngineBarChart({ engines }: ) { engines: string[] } {
-  const counts = engines.reduce<Record<string, number>>(acc: Record<string, unknown>, (e: unknown ) => {
+function EngineBarChart({ engines }: { engines: string[] }) {
+  const counts = engines.reduce<Record<string, number>>((acc, e) => {
     acc[e] = (acc[e] ?? 0) + 1;
     return acc;
   }, {});
@@ -232,7 +227,7 @@ function EngineBarChart({ engines }: ) { engines: string[] } {
   const max = Math.max(...entries.map(([, v]) => v), 1);
   return (
     <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 5 }}>
-      {entries.map([engine, count], (i: number ) => (
+      {entries.map(([engine, count], i: number) => (
         <div key={engine} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{
             fontSize:     9,
@@ -378,7 +373,7 @@ export default function DreamsSpacePanel(){
         flexShrink: 0,
         borderBottom: '1px solid rgba(200,152,26,0.12)',
       }}>
-        {(['apps', 'feeds', 'profile'] as DreamsSpaceView[]).map((v: Record<string, unknown>) => {
+        {(['apps', 'feeds', 'profile'] as DreamsSpaceView[]).map((v) => {
           const isActive = view === v;
           const TAB_LABELS: Record<DreamsSpaceView, string> = {
             apps: '⊞ Apps',
@@ -572,7 +567,7 @@ export default function DreamsSpacePanel(){
                   Quick Return
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {recentDestinations.length > 0 ? recentDestinations.map((entry: Record<string, unknown>) => (
+                  {recentDestinations.length > 0 ? recentDestinations.map((entry) => (
                     <button
                       type="button"
                       key={entry.key}
@@ -619,9 +614,9 @@ export default function DreamsSpacePanel(){
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {activity.length > 0 ? activity
                     .slice()
-                    .sort((a: Record<string, unknown>, b: Record<string, unknown>) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime())
+                    .sort((a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime())
                     .slice(0, 3)
-                    .map((item: Record<string, unknown>) => (
+                    .map((item) => (
                       <div
                         key={item.enginId}
                         style={{
@@ -681,7 +676,7 @@ export default function DreamsSpacePanel(){
               gap: '12px 4px',
               justifyItems: 'center',
             }}>
-              {DAYDREAMS.map((dd: Record<string, unknown>) => (
+              {DAYDREAMS.map((dd) => (
                 <AppIcon
                   key={dd.id}
                   icon={dd.icon}
@@ -719,7 +714,7 @@ export default function DreamsSpacePanel(){
               gap: '12px 4px',
               justifyItems: 'center',
             }}>
-              {ENGIN_APPS.map((app: Record<string, unknown>) => (
+              {ENGIN_APPS.map((app) => (
                 <AppIcon
                   key={app.id}
                   icon={app.icon}
@@ -747,7 +742,7 @@ export default function DreamsSpacePanel(){
             display: 'flex', gap: 4, padding: '6px 10px 8px',
             overflowX: 'auto', flexShrink: 0,
           }}>
-            {SERVICE_TABS.map((tab: Record<string, unknown>) => {
+            {SERVICE_TABS.map((tab) => {
               const isActive = state.activeService === tab.id;
               return (
                 <button

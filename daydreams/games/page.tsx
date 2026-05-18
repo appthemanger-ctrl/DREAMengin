@@ -136,7 +136,7 @@ export default async function GamesDaydreamPage( ){
                     This surface is the calm overview of the game system. The library explains what each route does, while GameEngin handles fullscreen, saved sessions, controller handoff, and the universal HUD.
                   </p>
                   <div className="flex flex-wrap gap-2" style={{ marginTop: 12 }}>
-                    {GAME_QUALITY_PILLARS.slice(0, 4).map((pillar: Record<string, unknown>) => (
+                    {GAME_QUALITY_PILLARS.slice(0, 4).map((pillar) => (
                       <span key={pillar.id} style={{ fontSize: 10, fontWeight: 700, padding: '4px 10px', borderRadius: 999, background: 'rgba(255,255,255,0.56)', color: 'var(--de-accent)', border: '1px solid rgba(42,138,184,0.18)' }}>
                         {pillar.title}
                       </span>
@@ -208,7 +208,7 @@ export default async function GamesDaydreamPage( ){
                     Open GameEngin when you want the runtime view. The universal HUD, fullscreen shell, and saved-launch state all stay attached to the active session.
                   </div>
                   <div style={{ display: 'grid', gap: 10 }}>
-                    {CONSOLE_MODULES.map((module: Record<string, unknown>) => (
+                    {CONSOLE_MODULES.map((module) => (
                       <div key={module.title} style={{ borderRadius: 14, padding: '12px 14px', background: 'rgba(15,23,42,0.72)', border: '1px solid rgba(125,211,252,0.14)' }}>
                         <div style={{ fontSize: 12, fontWeight: 800, color: '#f8fbff', marginBottom: 4 }}>{module.title}</div>
                         <div style={{ fontSize: 11, lineHeight: 1.55, color: 'rgba(226,232,240,0.72)' }}>{module.detail}</div>
@@ -229,7 +229,7 @@ export default async function GamesDaydreamPage( ){
                 </div>
                 <div className="de-widget-body">
                   <div style={{ display: 'grid', gap: 8 }}>
-                    {LIBRARY_SPOTLIGHT.map((game: Record<string, unknown>) => (
+                    {LIBRARY_SPOTLIGHT.map((game) => (
                       <Link
                         key={game.label}
                         href={game.href}
@@ -264,7 +264,7 @@ export default async function GamesDaydreamPage( ){
                   <span className="de-widget-title ml-2">System Readout</span>
                 </div>
                 <div className="de-widget-body" style={{ display: 'grid', gap: 10 }}>
-                  {SYSTEM_READOUT.map((item: Record<string, unknown>) => (
+                  {SYSTEM_READOUT.map((item) => (
                     <div key={item.title} style={{ borderRadius: 14, padding: '12px 14px', background: 'rgba(255,255,255,0.44)', border: `1px solid ${item.tone}26` }}>
                       <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: item.tone, marginBottom: 6 }}>
                         {item.title}
@@ -285,7 +285,7 @@ export default async function GamesDaydreamPage( ){
                     The active control surface is tuned to react as soon as you touch it. No detached toy pad, no fake status cards — just a runtime-owned HUD that stays with the game.
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    {INPUT_CAPABILITIES.map((capability: Record<string, unknown>) => (
+                    {INPUT_CAPABILITIES.map((capability) => (
                       <span key={capability} style={{ fontSize: 10, fontWeight: 700, padding: '5px 10px', borderRadius: 999, background: 'rgba(34,197,94,0.08)', color: '#15803d', border: '1px solid rgba(34,197,94,0.2)' }}>
                         {capability}
                       </span>
@@ -300,7 +300,7 @@ export default async function GamesDaydreamPage( ){
                   <span className="de-widget-title ml-2">Launch Paths</span>
                 </div>
                 <div className="de-widget-body" style={{ display: 'grid', gap: 8 }}>
-                  {RUNTIME_PATHS.map((path: Record<string, unknown>) => (
+                  {RUNTIME_PATHS.map((path) => (
                     <Link
                       key={path.name}
                       href={path.href}
@@ -339,7 +339,7 @@ export default async function GamesDaydreamPage( ){
                   <span className="de-widget-title ml-2">Official Surface Contract</span>
                 </div>
                 <div className="de-widget-body" style={{ display: 'grid', gap: 8 }}>
-                  {OFFICIAL_SPEC_NOTES.map((note: Record<string, unknown>) => (
+                  {OFFICIAL_SPEC_NOTES.map((note) => (
                     <div key={note} style={{ borderRadius: 12, padding: '10px 12px', background: 'rgba(255,255,255,0.44)', border: '1px solid rgba(200,152,26,0.18)', fontSize: 12, lineHeight: 1.6, color: 'var(--de-text-dim)' }}>
                       {note}
                     </div>

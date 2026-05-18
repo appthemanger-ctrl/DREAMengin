@@ -473,7 +473,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
         : splitLang === 'javascript'
           ? [`Node.js v22 [LabEngin runtime]`, `> Executing…`, `Mean: 20.00`, `Std:  16.04`, `> ✅ Done`]
           : [`bash [LabEngin runtime]`, `$ Executing…`, `mean=-0.012 std=0.998`, `$ Exit 0`];
-    lines.forEach(line: Record<string, unknown>, (i: number ) => setTimeout(() => {
+    lines.forEach((line, i: number) => setTimeout(() => {
       setSplitOut((prev) => [...prev, line]);
       if (i === lines.length - 1) { setSplitRunning(false); setVizSeed((s) => s + 7); }
     }, 140 * (i + 1)));
@@ -592,7 +592,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
           <div className="de-widget-body">
             <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 8 }}>Side B functions:</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
-              {LAB_SIDE_B_FUNCTIONS.map((item: Record<string, unknown>) => (
+              {LAB_SIDE_B_FUNCTIONS.map((item) => (
                 <span key={item} style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 9999, background: 'rgba(34,197,94,0.1)', color: ACCENT, border: '1px solid rgba(34,197,94,0.2)' }}>
                   {item}
                 </span>
@@ -600,7 +600,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
             </div>
             <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 8 }}>Specialized Dream Windows:</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 6 }}>
-              {LAB_DREAM_WINDOWS.map((item: Record<string, unknown>) => (
+              {LAB_DREAM_WINDOWS.map((item) => (
                 <Link key={item.label} href={item.href} style={{ fontSize: 10, fontWeight: 700, color: ACCENT, textDecoration: 'none', padding: '6px 8px', borderRadius: 8, border: '1px solid rgba(34,197,94,0.2)', background: 'rgba(34,197,94,0.08)' }}>
                   {item.label}
                 </Link>
@@ -725,7 +725,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
                     {splitOut.length === 0 && !splitRunning && (
                       <p style={{ fontSize: 11, color: 'rgba(148,163,184,0.4)', fontFamily: 'monospace' }}>Results stream here…</p>
                     )}
-                    {splitOut.map(line: Record<string, unknown>, (i: number ) => (
+                    {splitOut.map((line, i: number) => (
                       <pre key={i} style={{ margin: 0, fontSize: 11, fontFamily: '"Fira Code",monospace',
                         color: line.startsWith('[') ? '#4ade80' : line.startsWith('✅') ? '#4ade80' : line.startsWith('$') || line.startsWith('>>>') ? '#93c5fd' : '#e2e8f0',
                         whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.55 }}>
@@ -800,7 +800,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
                         const layers = [4,8,6,4,2]; let s = vizSeed+31;
                         const chars = ['·','▫','▪','◾','◼','■'];
                         const maxW = Math.max(...layers);
-                        return layers.map(w: Record<string, unknown>, (i: number ) => {
+                        return layers.map((w, i: number) => {
                           const pad=' '.repeat(Math.floor((maxW-w)/2));let row=pad;
                           for(let n=0;n<w;n++){s=(s*22695477+1)&0xffffffff;row+=chars[Math.abs(s)%chars.length]+' ';}
                           const act=((Math.abs(s)&0xff)/255).toFixed(2);
@@ -1351,7 +1351,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
           <div className="de-widget-body">
             {hypotheses.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginBottom: 12 }}>
-                {hypotheses.map(h: Record<string, unknown>, (i: number ) => (
+                {hypotheses.map((h, i: number) => (
                   <div
                     key={i}
                     style={{
@@ -1773,7 +1773,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
                 { h: 'Neural convergence improves with batch size 64 vs 32',             status: '🔄', outcome: 'In progress' },
                 { h: 'WebGPU compute shaders outperform JS by 10×',                      status: '✅', outcome: 'Confirmed' },
                 { h: 'Fluid viscosity > 0.8 causes unstable simulation',                 status: '❌', outcome: 'Refuted' },
-              ].map(row: Record<string, unknown>, (i: number ) => (
+              ].map((row, i: number) => (
                 <div key={i} style={{ padding: '8px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: `1px solid rgba(34,197,94,0.15)` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
                     <span style={{ fontSize: 10, fontWeight: 700, color: row.outcome === 'Confirmed' ? '#22c55e' : row.outcome === 'Refuted' ? '#ef4444' : '#f59e0b' }}>{row.status} {row.outcome}</span>

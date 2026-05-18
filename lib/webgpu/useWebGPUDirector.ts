@@ -185,7 +185,7 @@ export function useWebGPUDirector(
 
     // Record which meshes are visible this tick so next tick has lastFrameVisible
     lastVisibleSetRef.current = new Set(
-      meshes.filter((m: Record<string, unknown>) => m.isVisible).map((m: Record<string, unknown>) => m.id),
+      meshes.filter((m) => m.isVisible).map((m) => m.id),
     );
 
     const newFrame = directorRef.current.update({ metrics, camera, objects });

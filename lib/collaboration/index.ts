@@ -725,8 +725,8 @@ export async function createSupabaseCollabSession(
   const channel = supabaseClient.channel(`dream:collab:${channelId}`, { config: { broadcast: { self: false } } });
   const session = new SupabaseCollabSession(channelId, peerId, channel, options.role, options.mode, options.modeRuleSet);
   for (const handler of handlers) session.onMessage(handler);
-  await new Promise<void>((resolve: Record<string, unknown>) => {
-    channel.subscribe((status: Record<string, unknown>) => { if (status === 'SUBSCRIBED') resolve(); });
+  await new Promise<void>((resolve) => {
+    channel.subscribe((status) => { if (status === 'SUBSCRIBED') resolve(); });
   });
   await session.send({ type: 'peer_join', peerId, data: { joinedAt: nowMs(), role: options.role, mode: options.mode, transport: 'supabase' }, role: options.role, mode: options.mode });
   return session;

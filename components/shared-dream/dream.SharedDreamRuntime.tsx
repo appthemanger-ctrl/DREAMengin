@@ -52,7 +52,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(ms / 86_400_000)}d ago`;
 }
 
-function summarizeEnginState(state: Record<string, unknown>): string {
+function summarizeEnginState(state): string {
   const parts: string[] = [];
   if (typeof state['selectedGame'] === 'string') parts.push(state['selectedGame']);
   if (typeof state['selectedPlayableGame'] === 'string') parts.push(state['selectedPlayableGame']);
@@ -91,9 +91,9 @@ function SharedDreamRuntimeInner(){
 
   // When an Engin publishes via the bridge, mark it active and log activity
   useEffect(() => {
-    const unsubs = ENGIN_SLOTS.map((slot: Record<string, unknown>) =>
-      bridge.subscribe(('shared_dream', `${slot.key}:state`, payload: Record<string, unknown>) => {
-        setActiveEngins((prev: Record<string, unknown>) => {
+    const unsubs = ENGIN_SLOTS.map((slot) =>
+      bridge.subscribe(('shared_dream', `${slot.key}:state`, payload) => {
+        setActiveEngins((prev) => {
           if (prev.has(slot.key)) return prev;
           const next = new Set(prev);
           next.add(slot.key);
@@ -104,7 +104,7 @@ function SharedDreamRuntimeInner(){
         void bridge.emitDurable('shared_dream', `${slot.key}:state`, payload as Record<string, unknown>);
       }),
     );
-    return () => unsubs.forEach((u: Record<string, unknown>) => u());
+    return () => unsubs.forEach((u) => u());
   }, [logActivity]);
 
   const handleOpenEngin = useCallback((route: string, label: string, enginKey: EnginKey) => {
@@ -120,7 +120,7 @@ function SharedDreamRuntimeInner(){
         Synchronized Engins
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px,1fr))', gap: 8 }}>
-        {ENGIN_SLOTS.map((slot: Record<string, unknown>) => {
+        {ENGIN_SLOTS.map((slot) => {
           const state = savedEnginState[slot.key];
           const isActive = activeEngins.has(slot.key);
           return (
@@ -192,7 +192,7 @@ function SharedDreamRuntimeInner(){
       {/* Members row */}
       {members.length > 0 && (
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {members.slice(0, 8).map((m: Record<string, unknown>) => (
+          {members.slice(0, 8).map((m) => (
             <div
               key={m.userId}
               title={`${m.role} · last seen ${timeAgo(m.lastSeenAt)}`}
@@ -218,7 +218,7 @@ function SharedDreamRuntimeInner(){
       {/* Activity timeline */}
       {activity.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxHeight: 120, overflowY: 'auto' }}>
-          {activity.slice(0, 10).map((a: Record<string, unknown>) => (
+          {activity.slice(0, 10).map((a) => (
             <div
               key={a.id}
               style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 10, color: 'rgba(255,255,255,0.35)' }}

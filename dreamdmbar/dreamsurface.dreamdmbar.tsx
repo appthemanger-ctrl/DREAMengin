@@ -141,7 +141,7 @@ const PARTICLE_D = 12;
 /** Movement slop (px) before a seam touch is treated as a drag vs a tap */
 const SEAM_DRAG_SLOP = 4;
 
-function AvatarChip({ name, url: string, size = 28 }: ) { name: string; url?: string | null; size?: number } {
+function AvatarChip({ name, url, size = 28 }: {name: string; url?: string | null; size?: number}) {
   if (url) {
     return (
       <Image
@@ -170,7 +170,7 @@ function AvatarChip({ name, url: string, size = 28 }: ) { name: string; url?: st
 // ─────────────────────────────────────────────────────────────────────────────
 // ContextIcon — maps DreamBarContext iconHint to a Lucide icon
 // ─────────────────────────────────────────────────────────────────────────────
-function ContextIcon({ ctx, size }: ) { ctx: DreamBarContext; size: number } {
+function ContextIcon({ ctx, size }: {ctx: DreamBarContext; size: number}) {
   const props = { size, 'aria-hidden': true as const, style: { color: 'var(--de-blue)' } as React.CSSProperties };
   switch (ctx.iconHint) {
     case 'send':           return <Send          {...props} />;
@@ -188,7 +188,7 @@ function ContextIcon({ ctx, size }: ) { ctx: DreamBarContext; size: number } {
 // ─────────────────────────────────────────────────────────────────────────────
 // SlashCommandIcon — maps slash command icon hints to Lucide icons
 // ─────────────────────────────────────────────────────────────────────────────
-function SlashCommandIcon({ icon, size }: ) { icon: string; size: number } {
+function SlashCommandIcon({ icon, size }: {icon: string; size: number}) {
   const props = { size, 'aria-hidden': true as const };
   switch (icon) {
     case 'home':         return <Home        {...props} />;
@@ -210,7 +210,7 @@ function SlashCommandIcon({ icon, size }: ) { icon: string; size: number } {
 // ─────────────────────────────────────────────────────────────────────────────
 // StreakFlame — renders the dream streak flame icon with tier-appropriate style
 // ─────────────────────────────────────────────────────────────────────────────
-function StreakFlame({ count, tier }: ) { count: number; tier: StreakTier } {
+function StreakFlame({ count, tier }: {count: number; tier: StreakTier}) {
   if (tier === 'none') return null;
   const colors: Record<StreakTier, string> = {
     none: 'transparent',
@@ -252,10 +252,10 @@ function StreakFlame({ count, tier }: ) { count: number; tier: StreakTier } {
 // ─────────────────────────────────────────────────────────────────────────────
 // ParticleFountain — renders animated particles from Gold Particle long-press
 // ─────────────────────────────────────────────────────────────────────────────
-function ParticleFountain({ particles, centerX: Record<string, unknown>, centerY }: ) { particles: Particle[]; centerX: number; centerY: number } {
+function ParticleFountain({ particles, centerX, centerY }: {particles: Particle[]; centerX: number; centerY: number}) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 200, pointerEvents: 'none' }} aria-hidden>
-      {particles.map((p: Record<string, unknown>) => (
+      {particles.map((p) => (
         <div
           key={p.id}
           className="sicc-particle"
@@ -318,7 +318,7 @@ interface DreamDMBarProps {
 // ─────────────────────────────────────────────────────────────────────────────
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
-export default function DreamDMBar({ onBothMenus, onRuntimeModeChange: Record<string, unknown>, onRuntimeBlendChange: Record<string, unknown>, onBarInsets: Record<string, unknown>, splitRatio: Record<string, unknown>, onSplitChange: Record<string, unknown>, onMinimizedChange: Record<string, unknown>, onSwapRuntimes }: DreamDMBarProps) {
+export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntimeBlendChange, onBarInsets, splitRatio, onSplitChange, onMinimizedChange, onSwapRuntimes }: DreamDMBarProps) {
   const isGameImmersive = useImmersiveGameLayout();
   /** Gold Particle diameter — shrinks when a game overlay is active so it stays out of the way */
   const goldSz = isGameImmersive ? 36 : GOLD_SZ;
@@ -1041,7 +1041,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange: Record<st
         return;
       }
       revealBar();
-      setDragH((current: Record<string, unknown>) => Math.min(screenH * 0.85, current + 48));
+      setDragH((current) => Math.min(screenH * 0.85, current + 48));
       return;
     }
     if (e.key === 'ArrowDown') {
@@ -1284,9 +1284,9 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange: Record<st
   }, [quickDraftFiles.length, splitRatio, onSplitChange, screenH]);
 
   const handleRemoveQuickFile = useCallback((index: number) => {
-    setQuickDraftFiles((prev) => prev.filter(_: Record<string, unknown>, (i: number ) => i !== index));
+    setQuickDraftFiles((prev) => prev.filter((_, i: number) => i !== index));
     setQuickDraftPreviews((prev) => {
-      const updated = prev.filter(_: Record<string, unknown>, (i: number ) => i !== index);
+      const updated = prev.filter((_, i: number) => i !== index);
       // Revoke the URL to free memory
       if (prev[index]) URL.revokeObjectURL(prev[index]);
       return updated;
@@ -1539,7 +1539,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange: Record<st
   const handleSearchResultSelect = useCallback((result: SearchResult) => {
     setSearchQuery(''); clearResults(); setShowSearch(false);
     if (result.type === 'conversation' && result.targetId) {
-      const conv = conversations.find((c: Record<string, unknown>) => c.id === result.targetId);
+      const conv = conversations.find((c) => c.id === result.targetId);
       if (conv) { setSelectedConv(conv); markAllRead(); }
       else window.location.href = result.href ?? '/messages';
     } else if (result.type === 'person' && result.targetId) {
@@ -2505,7 +2505,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange: Record<st
                   overflow: 'hidden',
                   maxHeight: 32,
                 }}>
-                  {QUICK_REACTIONS.map(reaction: Record<string, unknown>, (idx: number ) => (
+                  {QUICK_REACTIONS.map((reaction, idx: number) => (
                     <button
                       key={reaction.emoji}
                       type="button"
@@ -2545,7 +2545,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange: Record<st
                   display: 'flex', gap: 6, overflowX: 'auto', padding: '4px 0',
                   scrollbarWidth: 'thin',
                 }}>
-                  {quickDraftFiles.map(file: Record<string, unknown>, (idx: number ) => (
+                  {quickDraftFiles.map((file, idx: number) => (
                     <div key={idx} style={{
                       position: 'relative', minWidth: 72, height: 72,
                       borderRadius: 10, overflow: 'hidden',
@@ -2797,7 +2797,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange: Record<st
           <div style={{ padding: '4px 14px 8px', fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
             Quick Commands
           </div>
-          {slashResults.map(cmd: Record<string, unknown>, (idx: number ) => (
+          {slashResults.map((cmd, idx: number) => (
             <button
               key={cmd.id}
               type="button"
@@ -3067,7 +3067,7 @@ function DreamSpaceMessaging(){
             {!isSearching && searchResults.length === 0 && searchQuery.trim() && (
               <p style={{ padding: '8px 12px', fontSize: 11, color: 'var(--de-text-dim)' }}>No results</p>
             )}
-            {searchResults.map((result: Record<string, unknown>) => (
+            {searchResults.map((result) => (
               <button
                 key={`${result.type}-${result.id}`}
                 role="option" aria-selected={false} type="button"
@@ -3093,7 +3093,7 @@ function DreamSpaceMessaging(){
 
         {/* Conversation list */}
         <div style={{ flex: 1, overflowY: 'auto', overscrollBehavior: 'contain' }}>
-          {conversations.map((conv: Record<string, unknown>) => (
+          {conversations.map((conv) => (
             <button
               key={conv.id} type="button" onClick={() => onSelectConv(conv)}
               style={{
@@ -3141,7 +3141,7 @@ function DreamSpaceMessaging(){
               ) : messages.length === 0 ? (
                 <p style={{ fontSize: 11, color: 'var(--de-text-dim)', textAlign: 'center', marginTop: 20 }}>No messages yet — say hello!</p>
               ) : (
-                messages.map((msg: Record<string, unknown>) => {
+                messages.map((msg) => {
                   const isMe = msg.sender_id === userId;
                   return (
                     <div key={msg.id} style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start', marginBottom: 8 }}>

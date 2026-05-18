@@ -122,7 +122,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   const visibleDreams = isOwner
     ? allDreams // Owner preview: show everything
-    : allDreams.filter((w: Record<string, unknown>) => {
+    : allDreams.filter((w) => {
         const vis = (w.visibility ?? 'private') as string;
         // Strict enforcement: only shared/public/followers — never private
         // Note: new dream_windows records use 'shared'; legacy ProfileDream uses 'followers'

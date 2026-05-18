@@ -70,7 +70,7 @@ export interface FeedVideoCardProps {
 
 // ── component ──────────────────────────────────────────────────────────────────
 
-export default function FeedVideoCard({ post, allVideos: Record<string, unknown>, videoIndex }: FeedVideoCardProps) {
+export default function FeedVideoCard({ post, allVideos, videoIndex }: FeedVideoCardProps) {
   const [currentIndex, setCurrentIndex] = useState(videoIndex);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -148,10 +148,10 @@ export default function FeedVideoCard({ post, allVideos: Record<string, unknown>
 
       if (dx < 0 && hasNext) {
         // Swipe left → next video
-        setCurrentIndex((prev: Record<string, unknown>) => Math.min(prev + 1, allVideos.length - 1));
+        setCurrentIndex((prev) => Math.min(prev + 1, allVideos.length - 1));
       } else if (dx > 0 && hasPrev) {
         // Swipe right → previous video
-        setCurrentIndex((prev: Record<string, unknown>) => Math.max(prev - 1, 0));
+        setCurrentIndex((prev) => Math.max(prev - 1, 0));
       }
     };
 
@@ -271,7 +271,7 @@ export default function FeedVideoCard({ post, allVideos: Record<string, unknown>
       }}>
         <button
           type="button"
-          onClick={() => { setCurrentIndex((p: Record<string, unknown>) => Math.max(p - 1, 0)); }}
+          onClick={() => { setCurrentIndex((p) => Math.max(p - 1, 0)); }}
           disabled={!hasPrev}
           style={{
             padding: '4px 10px', borderRadius: 8,
@@ -294,7 +294,7 @@ export default function FeedVideoCard({ post, allVideos: Record<string, unknown>
           {(() => {
             const start = Math.max(0, currentIndex - 2);
             const end = Math.min(allVideos.length, start + 5);
-            return Array.from({ length: end - start }, _: Record<string, unknown>, (i: number ) => {
+            return Array.from({ length: end - start }, (_, i: number ) => {
               const abs = i + start;
               return (
                 <button
@@ -320,7 +320,7 @@ export default function FeedVideoCard({ post, allVideos: Record<string, unknown>
 
         <button
           type="button"
-          onClick={() => { setCurrentIndex((p: Record<string, unknown>) => Math.min(p + 1, allVideos.length - 1)); }}
+          onClick={() => { setCurrentIndex((p) => Math.min(p + 1, allVideos.length - 1)); }}
           disabled={!hasNext}
           style={{
             padding: '4px 10px', borderRadius: 8,

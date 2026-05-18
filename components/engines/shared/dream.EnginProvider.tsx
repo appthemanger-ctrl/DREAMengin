@@ -30,7 +30,7 @@ interface EnginProviderProps {
   children: ReactNode;
 }
 
-export function EnginProvider({ engineId, accentColor: Record<string, unknown>, children }: EnginProviderProps) {
+export function EnginProvider({ engineId, accentColor, children }: EnginProviderProps) {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {

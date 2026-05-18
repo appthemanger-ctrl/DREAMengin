@@ -37,7 +37,7 @@ function makeBoard(): { tiles: Tile[]; rowHints: number[]; colHints: number[]; s
     colHints[i % N]++;
   }
   // Safe-glyph order: pick 5 safe tiles in random order; their glyphs are the wall sigils
-  const safeIdx = tiles.map(t: Record<string, unknown>, (i: number ) => ({ t, i })).filter(({ t }) => !t.mine).map(({ i }) => i);
+  const safeIdx = tiles.map((t, i: number) => ({ t, i })).filter(({ t }) => !t.mine).map(({ i }) => i);
   for (let i = safeIdx.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [safeIdx[i], safeIdx[j]] = [safeIdx[j], safeIdx[i]]; }
   const safeOrder = safeIdx.slice(0, 5);
   const safeGlyphs = safeOrder.map((i: number ) => tiles[i].glyph);
@@ -80,15 +80,15 @@ export default function DefuseRitual( ){
 
   const tap = useCallback((i: number) => {
     if (phase !== 'playing') return;
-    setBoard((b: Record<string, unknown>) => {
-      const tiles = b.tiles.map((t: Record<string, unknown>) => ({ ...t }));
+    setBoard((b) => {
+      const tiles = b.tiles.map((t) => ({ ...t }));
       const t = tiles[i];
       if (t.revealed) return b;
       // Mine tap?
       if (t.mine) {
         t.revealed = true; t.mineHit = true;
         setEndsAt((e: unknown ) => e - 2_000);
-        setBrand((br: Record<string, unknown>) => br + 1);
+        setBrand((br) => br + 1);
         setScore((s: string ) => Math.max(0, s - 30));
         if (brand + 1 >= 3) setPhase('lost');
         return { ...b, tiles };
@@ -140,7 +140,7 @@ export default function DefuseRitual( ){
           <>
             {/* Wall sigil sequence */}
             <div className="flex justify-center gap-2 mb-3">
-              {board.safeGlyphs.map(g: Record<string, unknown>, (i: number ) => (
+              {board.safeGlyphs.map((g, i: number) => (
                 <div key={i} className="w-9 h-9 flex items-center justify-center rounded text-xl"
                   style={{
                     background: i < step ? '#3a2a14' : i === step ? '#5a3a18' : 'rgba(60,40,16,0.4)',
@@ -161,10 +161,10 @@ export default function DefuseRitual( ){
             {/* Grid with edge hints */}
             <div className="grid" style={{ gridTemplateColumns: `28px repeat(${N}, 1fr)`, gap: 6 }}>
               <div></div>
-              {board.colHints.map(h: Record<string, unknown>, (i: number ) => (
+              {board.colHints.map((h, i: number) => (
                 <div key={`ch${i}`} className="text-xs text-center opacity-60">{h}</div>
               ))}
-              {board.tiles.map(t: Record<string, unknown>, (i: number ) => {
+              {board.tiles.map((t, i: number) => {
                 const r = Math.floor(i / N); const c = i % N;
                 const cell = (
                   <button key={i} onClick={() => tap(i)} disabled={phase !== 'playing' || t.revealed}

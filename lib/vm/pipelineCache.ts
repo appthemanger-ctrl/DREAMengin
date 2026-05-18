@@ -22,7 +22,7 @@ export class PipelineCache {
       return;
     }
 
-    return new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+    return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, 1);
 
       request.onerror = () => {
@@ -93,7 +93,7 @@ export class PipelineCache {
 
     // Check for compilation errors
     const compilationInfo = await shaderModule.getCompilationInfo();
-    const errors = compilationInfo.messages.filter((m: Record<string, unknown>) => m.type === 'error');
+    const errors = compilationInfo.messages.filter((m) => m.type === 'error');
     if (errors.length > 0) {
       console.error('[PipelineCache] Shader compilation errors:', errors);
       throw new Error(`Shader compilation failed: ${errors[0].message}`);
@@ -127,7 +127,7 @@ export class PipelineCache {
     const data = encoder.encode(input);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map((b: Record<string, unknown>) => b.toString(16).padStart(2, '0')).join('');
+    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
   }
 
   /**
@@ -149,7 +149,7 @@ export class PipelineCache {
   private async loadFromDisk(hash: string): Promise<GPUComputePipeline | null> {
     if (!this.db) return null;
 
-    return new Promise((resolve: Record<string, unknown>) => {
+    return new Promise((resolve) => {
       const transaction = this.db!.transaction([this.storeName], 'readonly');
       const store = transaction.objectStore(this.storeName);
       const request = store.get(hash);
@@ -185,7 +185,7 @@ export class PipelineCache {
   private async saveToDisk(hash: string, source: string): Promise<void> {
     if (!this.db) return;
 
-    return new Promise((resolve: Record<string, unknown>) => {
+    return new Promise((resolve) => {
       const transaction = this.db!.transaction([this.storeName], 'readwrite');
       const store = transaction.objectStore(this.storeName);
 
@@ -216,7 +216,7 @@ export class PipelineCache {
 
     if (!this.db) return;
 
-    return new Promise((resolve: Record<string, unknown>) => {
+    return new Promise((resolve) => {
       const transaction = this.db!.transaction([this.storeName], 'readwrite');
       const store = transaction.objectStore(this.storeName);
       const request = store.clear();
@@ -245,7 +245,7 @@ export class PipelineCache {
       return { memoryCacheSize, diskCacheSize: 0 };
     }
 
-    const diskCacheSize = await new Promise<number>((resolve: Record<string, unknown>) => {
+    const diskCacheSize = await new Promise<number>((resolve) => {
       const transaction = this.db!.transaction([this.storeName], 'readonly');
       const store = transaction.objectStore(this.storeName);
       const request = store.count();

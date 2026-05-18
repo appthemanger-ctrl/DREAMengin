@@ -13,8 +13,8 @@ const DEFAULT_DREAMS = [
 
 function buildLayoutFromDreams(dreams: Array<){ id: string; surface: 'home' | 'dreamspace' }> {
   return {
-    home: { dreams: dreams.filter((dream: Record<string, unknown>) => dream.surface === 'home').map((dream: Record<string, unknown>) => dream.id) },
-    dreamspace: { dreams: dreams.filter((dream: Record<string, unknown>) => dream.surface === 'dreamspace').map((dream: Record<string, unknown>) => dream.id) },
+    home: { dreams: dreams.filter((dream) => dream.surface === 'home').map((dream) => dream.id) },
+    dreamspace: { dreams: dreams.filter((dream) => dream.surface === 'dreamspace').map((dream) => dream.id) },
   };
 }
 
@@ -22,11 +22,11 @@ export default function DreamsLayoutEditor( ){
   const { layout, updateDreamLayout, resetDreamLayout } = useDreamLayout();
   const hidden = new Set(layout.hidden ?? []);
   const ordered = [
-    ...layout.home.dreams.map((id: Record<string, unknown>) => ({ id, surface: 'home' as const })),
-    ...layout.dreamspace.dreams.map((id: Record<string, unknown>) => ({ id, surface: 'dreamspace' as const })),
+    ...layout.home.dreams.map((id) => ({ id, surface: 'home' as const })),
+    ...layout.dreamspace.dreams.map((id) => ({ id, surface: 'dreamspace' as const })),
   ];
   const dreams = ordered.length > 0
-    ? ordered.map((dream: Record<string, unknown>) => ({ ...dream, name: DEFAULT_DREAMS.find((item: Record<string, unknown>) => item.id === dream.id)?.name ?? dream.id }))
+    ? ordered.map((dream) => ({ ...dream, name: DEFAULT_DREAMS.find((item) => item.id === dream.id)?.name ?? dream.id }))
     : DEFAULT_DREAMS;
 
   return (
@@ -34,7 +34,7 @@ export default function DreamsLayoutEditor( ){
       <div className="de-widget-header"><span className="de-widget-title">Dream layout editor</span></div>
       <div className="de-widget-body">
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 10 }}>
-          {dreams.map((dream: Record<string, unknown>) => (
+          {dreams.map((dream) => (
             <DraggableDream
               key={`${dream.surface}-${dream.id}`}
               dream={{ dream_id: dream.id, type: dream.id, surface: dream.surface, runtime: dream.surface === 'home' ? 'HOME' : 'FACE', title: dream.name }}

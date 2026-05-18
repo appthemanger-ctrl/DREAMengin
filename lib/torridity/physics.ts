@@ -117,7 +117,7 @@ export interface RankedItem extends ContentItem {
  */
 export function rankFeed(items: ContentItem[], feedSlots = 20): RankedItem[] {
   return items
-    .map((item: Record<string, unknown>) => {
+    .map((item) => {
       const mass        = contentMass(item.buildTime, item.uniqueAssets);
       const baseRank    = torridityRank(item.views, mass);
       const decay       = item.ageHours !== undefined ? decayFactor(item.ageHours) : 0;
@@ -125,5 +125,5 @@ export function rankFeed(items: ContentItem[], feedSlots = 20): RankedItem[] {
       const visibilityCap = throttlingGate(mass, feedSlots);
       return { ...item, mass, baseRank, decayedRank, visibilityCap };
     })
-    .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.decayedRank - a.decayedRank);
+    .sort((a, b) => b.decayedRank - a.decayedRank);
 }

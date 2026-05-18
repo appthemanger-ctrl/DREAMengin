@@ -56,15 +56,15 @@ export function useDreamDMMessages(
   const channelRef = useRef<ReturnType<ReturnType<typeof createClient>['channel']> | null>(null);
 
   const addOptimistic = useCallback((msg: DMMessage) => {
-    setMessages((prev: Record<string, unknown>) => [...prev, msg]);
+    setMessages((prev) => [...prev, msg]);
   }, []);
 
   const replaceOptimistic = useCallback((tempId: string, real: DMMessage) => {
-    setMessages((prev: Record<string, unknown>) => prev.map((m: Record<string, unknown>) => (m.id === tempId ? real : m)));
+    setMessages((prev) => prev.map((m) => (m.id === tempId ? real : m)));
   }, []);
 
   const removeOptimistic = useCallback((tempId: string) => {
-    setMessages((prev: Record<string, unknown>) => prev.filter((m: Record<string, unknown>) => m.id !== tempId));
+    setMessages((prev) => prev.filter((m) => m.id !== tempId));
   }, []);
 
   useEffect(() => {
@@ -108,9 +108,9 @@ export function useDreamDMMessages(
         },
         (payload: RealtimePostgresInsertPayload<DMMessage>) => {
           const newMsg = payload.new as DMMessage;
-          setMessages((prev: Record<string, unknown>) => {
+          setMessages((prev) => {
             // Avoid duplicate if already present (e.g., from optimistic insert)
-            const exists = prev.some((m: Record<string, unknown>) => m.id === newMsg.id);
+            const exists = prev.some((m) => m.id === newMsg.id);
             if (exists) return prev;
             return [...prev, newMsg];
           });

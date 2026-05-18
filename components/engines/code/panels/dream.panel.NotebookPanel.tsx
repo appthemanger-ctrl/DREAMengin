@@ -48,7 +48,7 @@ const SIMULATED_OUTPUTS: Record<string, string> = {
 let execCounter = 0;
 
 function simulateRun(source: string): Promise<string> {
-  return new Promise((resolve: Record<string, unknown>) => {
+  return new Promise((resolve) => {
     const delay = 400 + Math.random() * 800;
     setTimeout(() => {
       if (source.includes('print(')) {
@@ -70,32 +70,32 @@ export default function NotebookPanel( ){
   const [cells, setCells] = useState<Cell[]>(STARTER_CELLS);
 
   const addCell = useCallback((type: CellType = 'code') => {
-    setCells((prev: Record<string, unknown>) => [
+    setCells((prev) => [
       ...prev,
       { id: Date.now().toString(), type, source: '', output: '', status: 'idle', executionCount: null },
     ]);
   }, []);
 
   const deleteCell = useCallback((id: string) => {
-    setCells((prev: Record<string, unknown>) => prev.filter((c: Record<string, unknown>) => c.id !== id));
+    setCells((prev) => prev.filter((c) => c.id !== id));
   }, []);
 
   const updateSource = useCallback((id: string, source: string) => {
-    setCells((prev: Record<string, unknown>) => prev.map((c: Record<string, unknown>) => c.id === id ? { ...c, source } : c));
+    setCells((prev) => prev.map((c) => c.id === id ? { ...c, source } : c));
   }, []);
 
   const runCell = useCallback(async (id: string) => {
-    setCells((prev: Record<string, unknown>) => prev.map((c: Record<string, unknown>) => c.id === id ? { ...c, status: 'running', output: '' } : c));
-    const cell = cells.find((c: Record<string, unknown>) => c.id === id);
+    setCells((prev) => prev.map((c) => c.id === id ? { ...c, status: 'running', output: '' } : c));
+    const cell = cells.find((c) => c.id === id);
     if (!cell) return;
     try {
       const output = await simulateRun(cell.source);
       execCounter++;
-      setCells((prev: Record<string, unknown>) => prev.map((c: Record<string, unknown>) =>
+      setCells((prev) => prev.map((c) =>
         c.id === id ? { ...c, status: 'done', output, executionCount: execCounter } : c
       ));
     } catch {
-      setCells((prev: Record<string, unknown>) => prev.map((c: Record<string, unknown>) => c.id === id ? { ...c, status: 'error', output: 'Error: execution failed' } : c));
+      setCells((prev) => prev.map((c) => c.id === id ? { ...c, status: 'error', output: 'Error: execution failed' } : c));
     }
   }, [cells]);
 
@@ -133,7 +133,7 @@ export default function NotebookPanel( ){
 
         {/* Cells */}
         <div className="space-y-4">
-          {cells.map(cell: Record<string, unknown>, (idx: number ) => (
+          {cells.map((cell, idx: number) => (
             <div
               key={cell.id}
               className="rounded-xl overflow-hidden border transition-all"

@@ -40,7 +40,7 @@ import type { UiNotification, UiNotificationType } from '@/lib/notifications/not
 // Icon map
 // ---------------------------------------------------------------------------
 
-function NotifIcon({ type }: ) { type: UiNotificationType } {
+function NotifIcon({ type }: {type: UiNotificationType}) {
   switch (type) {
     case 'like':     return <Heart    size={14} style={{ color: '#ef4444', flexShrink: 0 }} />;
     case 'comment':  return <MessageSquare size={14} style={{ color: '#3b82f6', flexShrink: 0 }} />;
@@ -78,7 +78,7 @@ interface NotifRowProps {
   onDelete: (id: string) => Promise<void>;
 }
 
-function NotifRow({ n, onRead: Record<string, unknown>, onDelete }: NotifRowProps) {
+function NotifRow({ n, onRead, onDelete }: NotifRowProps) {
   const router = useRouter();
 
   const handleClick = async () => {
@@ -367,7 +367,7 @@ export default function NotificationCenter({ isOpen: controlledOpen, onClose }: 
             </div>
           )}
 
-          {!isLoading && !error && notifications.map((n: Record<string, unknown>) => (
+          {!isLoading && !error && notifications.map((n) => (
             <NotifRow
               key={n.id}
               n={n}

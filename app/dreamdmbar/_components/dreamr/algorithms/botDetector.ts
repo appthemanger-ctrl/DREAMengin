@@ -64,7 +64,7 @@ function perpendicularDeviations(points: TouchPoint[]): number[] {
   const lineLen = Math.sqrt(dx * dx + dy * dy);
   if (lineLen < 1e-9) return points.slice(1, -1).map(() => 0);
 
-  return points.slice(1, -1).map((p: Record<string, unknown>) => {
+  return points.slice(1, -1).map((p) => {
     const vx = p.x - p0.x;
     const vy = p.y - p0.y;
     return Math.abs(dx * vy - dy * vx) / lineLen;
@@ -101,7 +101,7 @@ function shannonEntropy(values: number[]): number {
 function coarseGrainShift(deviations: number[]): number {
   if (deviations.length < 2) return 0;
   const half = Math.floor(deviations.length / 2);
-  const mean = (arr: number[]) => arr.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / arr.length;
+  const mean = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length;
   return Math.abs(mean(deviations.slice(0, half)) - mean(deviations.slice(half)));
 }
 
@@ -117,7 +117,7 @@ function crossSwipeSimilarity(
 
   const normalise = (path: number[]) => {
     const maxVal = Math.max(...path, 1e-9);
-    return path.map((v: Record<string, unknown>) => v / maxVal);
+    return path.map((v) => v / maxVal);
   };
 
   const normCurrent = normalise(currentPath);
@@ -154,9 +154,9 @@ function velocityFeatures(points: TouchPoint[]): { variance: number; jerk: numbe
     velocities.push(Math.sqrt(dx * dx + dy * dy) / dt);
   }
 
-  const mean = velocities.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / velocities.length;
+  const mean = velocities.reduce((a, b) => a + b, 0) / velocities.length;
   const rawVariance =
-    velocities.reduce(acc: Record<string, unknown>, (v: number ) => acc + (v - mean) ** 2, 0) / velocities.length;
+    velocities.reduce((acc, v: number) => acc + (v - mean) ** 2, 0) / velocities.length;
 
   let jerkSum = 0;
   for (let i = 0; i < velocities.length - 1; i++) {
@@ -185,7 +185,7 @@ export function scoreSwipePath(
   const deviations = perpendicularDeviations(points);
   const avgDev =
     deviations.length > 0
-      ? deviations.reduce((a: Record<string, unknown>, b: Record<string, unknown>) => a + b, 0) / deviations.length
+      ? deviations.reduce((a, b) => a + b, 0) / deviations.length
       : 0;
 
   // Straightness: bot swipes straight (avgDev < 0.8 px → score near 1)

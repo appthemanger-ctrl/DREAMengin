@@ -55,7 +55,7 @@ export default function CalendarPanel( ){
 
   function addItem( ){
     if (!newTitle.trim() || showAdd === null) return;
-    setItems((prev: Record<string, unknown>) => [...prev, {
+    setItems((prev) => [...prev, {
       id: Date.now().toString(),
       type: newType,
       title: newTitle.trim(),
@@ -67,7 +67,7 @@ export default function CalendarPanel( ){
   }
 
   function removeItem(id: string ){
-    setItems((prev: Record<string, unknown>) => prev.filter((i: number ) => i.id !== id));
+    setItems((prev) => prev.filter((i: number ) => i.id !== id));
   }
 
   return (
@@ -93,10 +93,10 @@ export default function CalendarPanel( ){
 
         {/* Week grid */}
         <div className="grid grid-cols-7 gap-2">
-          {Array.from(({ length: 7 }, _: Record<string, unknown>, di: Record<string, unknown>) => {
+          {Array.from(({ length: 7 }, _, di: Record<string, unknown>) => {
             const date = new Date(weekStart);
             date.setDate(weekStart.getDate() + di);
-            const dayItems = items.filter((item: Record<string, unknown>) => item.dayOffset === di + weekOffset * 7);
+            const dayItems = items.filter((item) => item.dayOffset === di + weekOffset * 7);
             const isToday = new Date().toDateString() === date.toDateString();
 
             return (
@@ -114,7 +114,7 @@ export default function CalendarPanel( ){
 
                 {/* Items */}
                 <div className="flex flex-col gap-1.5 min-h-[80px]">
-                  {dayItems.map((item: Record<string, unknown>) => (
+                  {dayItems.map((item) => (
                     <div
                       key={item.id}
                       className="group relative rounded-lg px-2 py-1.5"
@@ -165,7 +165,7 @@ export default function CalendarPanel( ){
                 onChange={(e) => setNewType(e.target.value as ContentType)}
                 className="px-2.5 py-1.5 bg-black/30 border border-white/10 rounded-lg text-sm text-white focus:outline-none"
               >
-                {(['Post', 'Video', 'Story', 'Thread'] as ContentType[]).map((t: Record<string, unknown>) => (
+                {(['Post', 'Video', 'Story', 'Thread'] as ContentType[]).map((t) => (
                   <option key={t} value={t}>{t}</option>
                 ))}
               </select>

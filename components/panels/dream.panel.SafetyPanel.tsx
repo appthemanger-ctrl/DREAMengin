@@ -74,7 +74,7 @@ export default function SafetyPanel( ){
             ) : log.length === 0 ? (
               <p style={{ fontSize: 13, color: 'var(--de-text-dim)', textAlign: 'center', padding: '16px 0' }}>No policy events on your account.</p>
             ) : (
-              log.map((ev: Record<string, unknown>) => (
+              log.map((ev) => (
                 <div key={ev.event_id} style={{ padding: '10px 0', borderBottom: '1px solid rgba(160,195,240,0.15)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
                     <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--de-heading)' }}>{ev.action}</span>

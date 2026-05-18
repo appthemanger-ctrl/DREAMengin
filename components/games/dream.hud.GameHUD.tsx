@@ -26,7 +26,7 @@ interface GameHUDProps {
  * The previous expandable bottom remote lives in LegacyGameHUD.tsx for
  * older Side-B / remote-browser workflows.
  */
-export default function GameHUD({ gameLabel, gameEmoji: Record<string, unknown>, playHref: Record<string, unknown>, mode = 'buttons', onExit }: GameHUDProps) {
+export default function GameHUD({ gameLabel, gameEmoji, playHref, mode = 'buttons', onExit }: GameHUDProps) {
   if (mode === 'controller') {
     return <GameController gameLabel={gameLabel} onExit={onExit} />;
   }

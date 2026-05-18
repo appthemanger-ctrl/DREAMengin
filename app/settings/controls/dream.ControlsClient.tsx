@@ -26,7 +26,7 @@ const DEFAULT: ControlsSettings = {
   hapticFeedback: false,
 };
 
-function Toggle({ value, onToggle, label }: ) { value: boolean; onToggle: () => void; label: string }) {
+function Toggle({ value, onToggle, label }: {value: boolean; onToggle: () => void; label: string}) {
   return (
     <button
       type="button"
@@ -61,7 +61,7 @@ export default function ControlsClient( ){
   const [saved, setSaved] = useState(false);
 
   const toggle = useCallback((key: keyof ControlsSettings) => {
-    setSettings((prev: Record<string, unknown>) => {
+    setSettings((prev) => {
       const next = { ...prev, [key]: !prev[key] };
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
       return next;
@@ -102,7 +102,7 @@ export default function ControlsClient( ){
             <p className="text-sm mb-4" style={{ color: 'var(--de-text-dim)' }}>
               The gold button is your system control. Single-tap to open menus, drag to adjust position.
             </p>
-            {rows.map(({ key, label: string, desc }) => (
+            {rows.map(({ key, label, desc }) => (
               <div key={key} className="de-row">
                 <div style={{ flex: 1 }}>
                   <div className="text-sm font-semibold" style={{ color: 'var(--de-heading)' }}>{label}</div>

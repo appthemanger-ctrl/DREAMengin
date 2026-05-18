@@ -63,13 +63,13 @@ export default function DreamenginApp( ){
   const toggleNexus = useCallback(() => {
     setShowOutdream(false);
     setShowDrEams(false);
-    setShowNexus((value: Record<string, unknown>) => !value);
+    setShowNexus((value) => !value);
   }, []);
 
   const toggleOutdream = useCallback(() => {
     setShowNexus(false);
     setShowDrEams(false);
-    setShowOutdream((value: Record<string, unknown>) => !value);
+    setShowOutdream((value) => !value);
   }, []);
 
   const openDrEams = useCallback(() => {

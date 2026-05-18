@@ -101,7 +101,7 @@ function writeArtifacts(accountId: string, artifacts): DreamArtifact[] {
 
 export function getDefaultSystemArtifacts(defaultOwnerId = 'system': DreamArtifact[] ){
   const createdAt = Date.now();
-  return SYSTEM_ARTIFACT_TEMPLATES.map((artifact: Record<string, unknown>) => ({
+  return SYSTEM_ARTIFACT_TEMPLATES.map((artifact) => ({
     ...artifact,
     ownerId: artifact.source === 'system' ? 'system' : defaultOwnerId,
     createdAt,
@@ -125,7 +125,7 @@ export function loadArtifacts(accountId?: string | null): DreamArtifact[] {
 
 export function saveArtifact(accountId: string, artifact): DreamArtifact {
   const existing = loadArtifacts(accountId);
-  const map = new Map(existing.map((entry: Record<string, unknown>) => [entry.id, entry]));
+  const map = new Map(existing.map((entry) => [entry.id, entry]));
   map.set(artifact.id, artifact);
   writeArtifacts(accountId, Array.from(map.values()));
 }
@@ -135,16 +135,16 @@ export function saveArtifacts(accountId: string, artifacts): DreamArtifact[] {
 }
 
 export function removeArtifact(accountId: string, artifactId): string {
-  const next = loadArtifacts(accountId).filter((artifact: Record<string, unknown>) => artifact.id !== artifactId);
+  const next = loadArtifacts(accountId).filter((artifact) => artifact.id !== artifactId);
   writeArtifacts(accountId, next);
 }
 
 export function listVisibleArtifacts(accountId?: string | null): DreamArtifact[] {
-  return loadArtifacts(accountId).filter((artifact: Record<string, unknown>) => artifact.metadata?.hidden !== true);
+  return loadArtifacts(accountId).filter((artifact) => artifact.metadata?.hidden !== true);
 }
 
 export function hideArtifact(accountId: string, artifactId): string {
-  const next = loadArtifacts(accountId).map((artifact: Record<string, unknown>) =>
+  const next = loadArtifacts(accountId).map((artifact) =>
     artifact.id === artifactId
       ? { ...artifact, metadata: { ...(artifact.metadata ?? {}), hidden: true } }
       : artifact,
@@ -153,7 +153,7 @@ export function hideArtifact(accountId: string, artifactId): string {
 }
 
 export function restoreArtifact(accountId: string, artifactId): string {
-  const next = loadArtifacts(accountId).map((artifact: Record<string, unknown>) =>
+  const next = loadArtifacts(accountId).map((artifact) =>
     artifact.id === artifactId
       ? { ...artifact, metadata: { ...(artifact.metadata ?? {}), hidden: false } }
       : artifact,
@@ -162,5 +162,5 @@ export function restoreArtifact(accountId: string, artifactId): string {
 }
 
 export function listSystemArtifacts(accountId?: string | null): DreamArtifact[] {
-  return loadArtifacts(accountId).filter((artifact: Record<string, unknown>) => artifact.isSystemModule);
+  return loadArtifacts(accountId).filter((artifact) => artifact.isSystemModule);
 }

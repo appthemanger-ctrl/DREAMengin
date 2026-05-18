@@ -50,7 +50,7 @@ export async function GET(request: Request ){
   const supabase = createServerClientWithCustomCookies(
     () => cookieStore.getAll(),
     (cookiesToSet: CookieToSet[]) => {
-      cookiesToSet.forEach(({ name, value: Record<string, unknown>, options }) => {
+      cookiesToSet.forEach(({ name, value, options }) => {
         response.cookies.set(name, value, options);
       });
     }

@@ -10,7 +10,7 @@ interface NexusMenuProps {
   onViewAllDreams: () => void;
 }
 
-export default function NexusMenu({ onClose, onOpenDrEams: Record<string, unknown>, onViewAllDreams }: NexusMenuProps) {
+export default function NexusMenu({ onClose, onOpenDrEams, onViewAllDreams }: NexusMenuProps) {
   const router = useRouter();
 
   const items = [
@@ -28,7 +28,7 @@ export default function NexusMenu({ onClose, onOpenDrEams: Record<string, unknow
       >
         <h2 className="px-2 text-sm uppercase tracking-[0.2em] text-white/60"><DreamWord />Menu</h2>
         <ul className="mt-2 space-y-1">
-          {items.map((item: Record<string, unknown>) => (
+          {items.map((item) => (
             <li key={item.label}>
               <button
                 type="button"

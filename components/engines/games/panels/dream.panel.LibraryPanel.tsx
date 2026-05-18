@@ -13,13 +13,13 @@ import { Search, Play, Star, Filter } from 'lucide-react';
 import { GAME_CATALOG } from '@/lib/games/catalog';
 import { buildGameLaunchHref } from '@/lib/games/navigation';
 
-const CATEGORIES = ['All', ...Array.from(new Set(GAME_CATALOG.map((g: Record<string, unknown>) => g.category ?? 'Other')))];
+const CATEGORIES = ['All', ...Array.from(new Set(GAME_CATALOG.map((g) => g.category ?? 'Other')))];
 
 export default function LibraryPanel( ){
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
 
-  const filtered = GAME_CATALOG.filter((g: Record<string, unknown>) => {
+  const filtered = GAME_CATALOG.filter((g) => {
     const matchCat = category === 'All' || g.category === category;
     const matchSearch =
       !search ||
@@ -51,7 +51,7 @@ export default function LibraryPanel( ){
           </div>
           <div className="flex items-center gap-1.5 flex-wrap">
             <Filter size={13} className="text-white/40" />
-            {CATEGORIES.map((cat: Record<string, unknown>) => (
+            {CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setCategory(cat)}
@@ -73,7 +73,7 @@ export default function LibraryPanel( ){
           <p className="text-center text-white/30 text-sm py-12">No games match your search.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((game: Record<string, unknown>) => (
+            {filtered.map((game) => (
               <div
                 key={game.id}
                 className="relative flex flex-col gap-3 p-4 rounded-xl bg-white/[0.04] border border-white/10 hover:border-[#c8981a]/40 hover:bg-white/[0.07] transition-all"

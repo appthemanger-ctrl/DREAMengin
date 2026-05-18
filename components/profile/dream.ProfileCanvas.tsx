@@ -49,7 +49,7 @@ function saveVisibility(v: Record<string, boolean> ){
   localStorage.setItem('de-profile-widgets', JSON.stringify(v));
 }
 
-export default function ProfileCanvas({ initialProfile }: ) { initialProfile: Profile } {
+export default function ProfileCanvas({ initialProfile }: {initialProfile: Profile}) {
   const supabase = createClient();
   const [profile, setProfile]       = useState(initialProfile);
   const [editing, setEditing]       = useState(false);
@@ -211,7 +211,7 @@ export default function ProfileCanvas({ initialProfile }: ) { initialProfile: Pr
                 { key: 'bio',          label: 'Bio',      placeholder: 'What do you dream about?', multiline: true  },
                 { key: 'location',     label: 'Location', placeholder: 'City, State',             multiline: false },
                 { key: 'website',      label: 'Website',  placeholder: 'https://',               multiline: false },
-              ] as const).map(({ key, label: string, placeholder: Record<string, unknown>, multiline }) => (
+              ] as const).map(({ key, label, placeholder, multiline }) => (
                 <div key={key}>
                   <label style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-text-dim)', letterSpacing: '0.06em', textTransform: 'uppercase', display: 'block', marginBottom: 4 }}>
                     {label}
@@ -253,7 +253,7 @@ export default function ProfileCanvas({ initialProfile }: ) { initialProfile: Pr
         </div>
         <div className="de-widget-body">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-            {WIDGET_SLOTS.map(({ id, icon: Icon, label: string, desc: string, color }) => {
+            {WIDGET_SLOTS.map(({ id, icon, label, desc, color }) => {
               const on = visibility[id] !== false;
               return (
                 <button

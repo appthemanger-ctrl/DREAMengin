@@ -106,7 +106,7 @@ export async function reconcileConnector(
 
   let stored = 0;
   if (deduped.length > 0) {
-    const rows = deduped.map((item: Record<string, unknown>) => ({
+    const rows = deduped.map((item) => ({
       user_id: userId,
       provider: item.provider,
       external_id: item.external_id,

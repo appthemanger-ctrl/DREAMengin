@@ -630,7 +630,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   }), [stemReady, releases.length, playlist.length, effectList, qualityMode, collabActive]);
 
   const buildPlaybackBars = useCallback((stepSeed: number) => (
-    Array.from({ length: 32 }, _: Record<string, unknown>, (index: number ) => {
+    Array.from({ length: 32 }, (_, index: number) => {
       const channelIndex = index % BEAT_CHANNELS.length;
       const stepIndex = (stepSeed + Math.floor(index / 4)) % BEAT_STEPS;
       const channelLevel = [
@@ -752,7 +752,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   triggerVoiceRef.current = triggerPreviewVoice;
 
   const playPreviewStep = useCallback((stepIndex: number) => {
-    beatGrid.forEach((row: Record<string, unknown>, channelIndex: Record<string, unknown>) => {
+    beatGrid.forEach((row, channelIndex) => {
       if (row[stepIndex]) triggerPreviewVoice(channelIndex, stepIndex);
     });
     setWaveformBars(buildPlaybackBars(stepIndex));
@@ -1044,7 +1044,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
           melodySuggestions={melodySuggestions}
           melodyLoading={melodyLoading}
           onChangeChord={(i, v) =>
-            setChordProgression((prev) => prev.map(c: Record<string, unknown>, (idx: number ) => (idx === i ? v : c)))
+            setChordProgression((prev) => prev.map((c, idx: number) => (idx === i ? v : c)))
           }
           onChordPlay={handleChordPlay}
           onMelodyAsk={handleMelodyAsk}
@@ -1477,8 +1477,8 @@ function DAWMultiTrackPanel(){
   };
 
   function makeWaveform(key: string, level: number, steps: number): number[] {
-    const seed = key.split('').reduce((a: Record<string, unknown>, c: Record<string, unknown>) => a + c.charCodeAt(0), 0);
-    return Array.from({ length: steps }, _: Record<string, unknown>, (i: number ) => {
+    const seed = key.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+    return Array.from({ length: steps }, (_, i: number ) => {
       const pseudo = Math.abs(Math.sin((seed * 7 + i * 1.618) * 2.399)) * level;
       return 0.08 + pseudo * 0.88;
     });
@@ -1498,7 +1498,7 @@ function DAWMultiTrackPanel(){
       </div>
 
       {/* Track lanes */}
-      {STEM_TRACK_DEFS.map((track: Record<string, unknown>) => {
+      {STEM_TRACK_DEFS.map((track) => {
         const level = channelLevels[track.key] ?? 0.5;
         const waveform = makeWaveform(track.key, level, 48);
         const stemKey = track.key as keyof StemReadyState;
@@ -1559,7 +1559,7 @@ function DAWMultiTrackPanel(){
                 }} />
               )}
 
-              {waveform.map(h: Record<string, unknown>, (i: number ) => {
+              {waveform.map((h, i: number) => {
                 const isPast = playing && i < currentSegment;
                 const isCurrent = playing && i === currentSegment;
                 return (
@@ -1665,7 +1665,7 @@ function DAWStemSplitterPanel(){
 
           {/* Stem checkboxes */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
-            {STEM_SPLITTER_DEFS.map(({ key, label: string, icon: Record<string, unknown>, color }) => {
+            {STEM_SPLITTER_DEFS.map(({ key, label, icon, color }) => {
               const checked = stemReady[key];
               return (
                 <label key={key} style={{
@@ -1697,7 +1697,7 @@ function DAWStemSplitterPanel(){
             })}
 
             {/* Extra visual stems (non-functional) */}
-            {EXTRA_STEMS.map(({ label, icon: Record<string, unknown>, color }) => (
+            {EXTRA_STEMS.map(({ label, icon, color }) => (
               <div key={label} style={{
                 display: 'flex', alignItems: 'center', gap: 12,
                 padding: '10px 14px', borderRadius: 10,
@@ -1828,7 +1828,7 @@ function DAWPatternSequencer(){
       <div style={{ padding: '12px 12px 16px' }}>
         {/* Arrangement blocks — Logic Pro-style colored strips */}
         <div style={{ display: 'flex', gap: 3, marginBottom: 10, overflowX: 'auto', paddingBottom: 4 }}>
-          {ARRANGEMENT_SECTIONS.map(sec: Record<string, unknown>, (i: number ) => (
+          {ARRANGEMENT_SECTIONS.map((sec, i: number) => (
             <div key={i} style={{
               background: sec.color,
               borderRadius: 6,
@@ -1844,7 +1844,7 @@ function DAWPatternSequencer(){
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
               }}>{sec.label}</span>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 1, height: 18 }}>
-                {Array.from({ length: 10 }, _: Record<string, unknown>, (j: number ) => (
+                {Array.from({ length: 10 }, (_, j: number ) => (
                   <div key={j} style={{
                     flex: 1, background: 'rgba(255,255,255,0.5)', borderRadius: 1,
                     height: `${20 + Math.abs(Math.sin(i * 3.1 + j * 1.4)) * 70}%`,
@@ -1857,7 +1857,7 @@ function DAWPatternSequencer(){
 
         {/* Song section labels */}
         <div style={{ display: 'flex', gap: 2, marginBottom: 10 }}>
-          {SONG_SECTIONS.map(sec: Record<string, unknown>, (i: number ) => (
+          {SONG_SECTIONS.map((sec, i: number) => (
             <div key={i} style={{
               flex: sec.width,
               background: 'rgba(255,255,255,0.08)',
@@ -1892,7 +1892,7 @@ function DAWPatternSequencer(){
               {playing ? '■' : '▶'}
             </button>
           </div>
-          {Array.from({ length: BEAT_STEPS }, _: Record<string, unknown>, (i: number ) => (
+          {Array.from({ length: BEAT_STEPS }, (_, i: number ) => (
             <div key={i} style={{
               textAlign: 'center', fontSize: 9, fontWeight: 700,
               color: playing && playbackStep === i ? DAW.accent : DAW.dim,
@@ -1904,7 +1904,7 @@ function DAWPatternSequencer(){
         </div>
 
         {/* Channel rows — large colorful pads */}
-        {BEAT_CHANNELS.map((ch: Record<string, unknown>, chIdx: Record<string, unknown>) => {
+        {BEAT_CHANNELS.map((ch, chIdx) => {
           const { on: onColor, glow } = PAD_CHANNEL_COLORS[chIdx];
           return (
             <div key={ch} style={{
@@ -1919,7 +1919,7 @@ function DAWPatternSequencer(){
                   letterSpacing: '0.04em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                 }}>{ch}</span>
               </div>
-              {beatGrid[chIdx].map((active: Record<string, unknown>, stepIdx: Record<string, unknown>) => {
+              {beatGrid[chIdx].map((active, stepIdx) => {
                 const isCurrent = playing && playbackStep === stepIdx;
                 return (
                   <button key={stepIdx} type="button"
@@ -1963,7 +1963,7 @@ function DAWPatternSequencer(){
             gap: 4, alignItems: 'flex-end', height: 28,
           }}>
             <div />
-            {Array.from({ length: BEAT_STEPS }, _: Record<string, unknown>, (i: number ) => {
+            {Array.from({ length: BEAT_STEPS }, (_, i: number ) => {
               const anyActive = beatGrid.some((row) => row[i]);
               const h = anyActive ? 40 + Math.abs(Math.sin(i * 1.7)) * 60 : 15;
               const chIdx = beatGrid.findIndex((row) => row[i]);
@@ -2003,7 +2003,7 @@ const DAW_MIXER_STRIPS: Array<{ key: keyof MixerState; label: string; color: str
   { key: 'fx',          label: 'FX',   color: '#f97316' },
 ];
 
-function DAWMixerEffectsPanel({ mixer, activeEffects: Record<string, unknown>, onMixerChange: Record<string, unknown>, onToggleEffect }: DAWMixerEffectsPanelProps) {
+function DAWMixerEffectsPanel({ mixer, activeEffects, onMixerChange, onToggleEffect }: DAWMixerEffectsPanelProps) {
   const [mixExpanded, setMixExpanded] = useState(true);
   const [fxExpanded, setFxExpanded] = useState(false);
 
@@ -2032,7 +2032,7 @@ function DAWMixerEffectsPanel({ mixer, activeEffects: Record<string, unknown>, o
           {mixExpanded && (
             <div style={dawDisclosureTrayStyle}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-                {DAW_MIXER_STRIPS.map(({ key, label: string, color }) => (
+                {DAW_MIXER_STRIPS.map(({ key, label, color }) => (
                   <div key={key} style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center',
                     padding: '10px 6px 8px',
@@ -2270,7 +2270,7 @@ function DAWChordMelodyPanel(){
 
       <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-          {progression.map(chord: Record<string, unknown>, (i: number ) => (
+          {progression.map((chord, i: number) => (
             <div key={i} style={{
               padding: '10px 12px', borderRadius: 10,
               background: chordPlaying === i ? `${DAW.accent}12` : DAW.surfaceHi,
@@ -2346,7 +2346,7 @@ interface DAWReleasePanelProps {
   onPublish: (id: string) => void;
 }
 
-function DAWReleasePanel({ strategy, releases: Record<string, unknown>, loading: Record<string, unknown>, publishing: Record<string, unknown>, onPublish }: DAWReleasePanelProps) {
+function DAWReleasePanel({ strategy, releases, loading, publishing, onPublish }: DAWReleasePanelProps) {
   return (
     <div style={{ background: DAW.surface, borderBottom: `1px solid ${DAW.border}` }}>
       <div style={{ ...DAW_STYLES.sectionHeader }}>
@@ -2504,7 +2504,7 @@ function DAWCollabPlaylistPanel(){
         {/* Playlist */}
         <div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {playlist.map(track: Record<string, unknown>, (i: number ) => (
+            {playlist.map((track, i: number) => (
               <div key={track.id} style={{
                 display: 'flex', alignItems: 'center', gap: 8,
                 padding: '8px 12px', borderRadius: 8,
@@ -2648,9 +2648,9 @@ function DAWPresetLibraryPanel(){
                       padding: '3px 4px', gap: 1,
                     }}>
                       {/* Mini grid preview */}
-                      {preset.grid.map((row: Record<string, unknown>, ri: Record<string, unknown>) => (
+                      {preset.grid.map((row, ri) => (
                         <div key={ri} style={{ display: 'flex', gap: 1 }}>
-                          {row.map((on: Record<string, unknown>, si: Record<string, unknown>) => (
+                          {row.map((on, si) => (
                             <div key={si} style={{
                               flex: 1, height: 3, borderRadius: 1,
                               background: on ? color : 'rgba(255,255,255,0.1)',
@@ -2837,7 +2837,7 @@ function fmtFileSize(bytes: number): string {
 function buildWaveform(buffer: AudioBuffer, bars: number): number[] {
   const raw = buffer.getChannelData(0);
   const chunkSize = Math.max(1, Math.floor(raw.length / bars));
-  return Array.from({ length: bars }, _: Record<string, unknown>, (i: number ) => {
+  return Array.from({ length: bars }, (_, i: number ) => {
     let sum = 0;
     for (let j = 0; j < chunkSize; j++) sum += Math.abs(raw[i * chunkSize + j] ?? 0);
     return Math.min(1, (sum / chunkSize) * 4.2);
@@ -3217,7 +3217,7 @@ function DAWFileIOPanel(){
           tmpAudio.onloadedmetadata = () => { setDuration(tmpAudio.duration); resolve(); };
           tmpAudio.onerror = () => resolve();
         });
-        setWaveform(Array.from({ length: FIO_BARS }, _: Record<string, unknown>, (i: number ) => Math.abs(Math.sin(i * 0.38)) * 0.6 + 0.12));
+        setWaveform(Array.from({ length: FIO_BARS }, (_, i: number ) => Math.abs(Math.sin(i * 0.38)) * 0.6 + 0.12));
         setSampleRate(44100); setNumChannels(1);
         setAudioStats(null);
       }
@@ -4139,7 +4139,7 @@ function DAWFileIOPanel(){
 
           {/* Time ruler */}
           <div style={{ display: 'flex', height: 14, background: '#0d0f17', borderBottom: `1px solid ${DAW.border}` }}>
-            {Array.from({ length: 8 }, _: Record<string, unknown>, (i: number ) => {
+            {Array.from({ length: 8 }, (_, i: number ) => {
               const t = duration ? fmtSec((i / 8) * duration) : `${i + 1}`;
               return (
                 <div key={i} style={{
@@ -4165,7 +4165,7 @@ function DAWFileIOPanel(){
               }}>
 
               {/* Render bars */}
-              {(waveform.length > 0 ? waveform : Array.from({ length: FIO_BARS }, _: Record<string, unknown>, (i: number ) => Math.abs(Math.sin(i * 0.42)) * 0.55 + 0.08)).map(h: Record<string, unknown>, (i: number ) => {
+              {(waveform.length > 0 ? waveform : Array.from({ length: FIO_BARS }, (_, i: number ) => Math.abs(Math.sin(i * 0.42)) * 0.55 + 0.08)).map((h, i: number) => {
                 const inSel = hasSelection && i >= selStart! && i <= selEnd!;
                 const isPlayhead = i === playheadBar && isPlaying;
                 const isHovered = i === hoveredBar;

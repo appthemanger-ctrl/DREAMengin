@@ -268,7 +268,7 @@ const FENCE_RE = /```(\w*)\n?([\s\S]*?)```/g;
  */
 export function parseCodeResponse(raw: string): ParsedCodeResponse {
   const codeBlocks: ParsedCodeResponse['codeBlocks'] = [];
-  let text = raw.replace(FENCE_RE, _: Record<string, unknown>, (lang: string, code: string ) => {
+  let text = raw.replace(FENCE_RE, _, (lang: string, code: string ) => {
     codeBlocks.push({ language: lang || 'text', code: code.trim() });
     return '';
   }).trim();
@@ -382,7 +382,7 @@ export function generateCodeFromCommand(cmd: NLCommand, language: CellLanguage):
 // ─── Helper: extract fenced code blocks as plain strings ──────────────────────
 
 function parseCodeBlocks(raw: string): string[] {
-  return parseCodeResponse(raw).codeBlocks.map((b: Record<string, unknown>) => b.code);
+  return parseCodeResponse(raw).codeBlocks.map((b) => b.code);
 }
 
 /**

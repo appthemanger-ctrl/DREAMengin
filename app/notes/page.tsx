@@ -44,7 +44,7 @@ export default async function NotesPage( ){
           </div>
           {noteList.length > 0 ? (
             <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-              {noteList.map((note: Record<string, unknown>) => (
+              {noteList.map((note) => (
                 <div key={note.id} className="de-row" style={{ borderRadius: 10 }}>
                   <div style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(42,138,184,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <FileText className="w-4 h-4" style={{ color: 'var(--de-accent)' }} />

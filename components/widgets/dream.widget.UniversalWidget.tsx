@@ -50,7 +50,7 @@ function timeLabel(iso: string ){
   return `${days}d`;
 }
 
-export default function UniversalWidget({ service = null, title: string, sliceName }: UniversalWidgetProps) {
+export default function UniversalWidget({ service = null, title, sliceName }: UniversalWidgetProps) {
   const [showAddWidgets, setShowAddWidgets] = useState(false);
   const [items, setItems] = useState<ConnectorFeedItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -129,7 +129,7 @@ export default function UniversalWidget({ service = null, title: string, sliceNa
 
           {supportsLiveFeed && items.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {items.map((item: Record<string, unknown>) => {
+              {items.map((item) => {
                 const thumb = item.media?.[0]?.thumbnail_url;
                 return (
                   <a

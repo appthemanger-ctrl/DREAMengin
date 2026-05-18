@@ -85,8 +85,8 @@ export class BotDetector {
     const totalMetrics = 5;
 
     // 1. Mean perpendicular deviation
-    const allPaths = this.history.map((r: Record<string, unknown>) => r.path);
-    const avgDev   = allPaths.reduce((s: Record<string, unknown>, p: Record<string, unknown>) => s + perpendicularDeviation(p), 0) / allPaths.length;
+    const allPaths = this.history.map((r) => r.path);
+    const avgDev   = allPaths.reduce((s, p) => s + perpendicularDeviation(p), 0) / allPaths.length;
     if (avgDev < BOT_DEVIATION_PX) {
       botSignals++;
       flags.push(`Low deviation: ${avgDev.toFixed(2)} px (bot < ${BOT_DEVIATION_PX})`);

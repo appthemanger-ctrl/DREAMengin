@@ -122,13 +122,13 @@ export default async function SettingsPage( ){
         )}
 
         {/* Navigation groups */}
-        {NAV_GROUPS.map((group: Record<string, unknown>) => (
+        {NAV_GROUPS.map((group) => (
           <div key={group.heading} className="de-widget" style={{ background: 'rgba(255,255,255,0.95)', boxShadow: '0 2px 16px rgba(0,0,0,0.06)', border: '1px solid rgba(160,195,240,0.22)' }}>
             <div className="de-widget-header">
               <span className="de-widget-title">{group.heading}</span>
             </div>
             <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-              {group.items.map({ href, icon: Icon, label: string, desc: string, iconBg }, (idx: number ) => (
+              {group.items.map(({ href, icon: Icon, label, desc, iconBg }, idx: number) => (
                 <Link key={href} href={href} className="de-row" style={{ borderRadius: 14, borderBottom: idx < group.items.length - 1 ? '1px solid rgba(160,195,240,0.13)' : 'none', minHeight: 60 }}>
                   <div style={{ width: 42, height: 42, borderRadius: 12, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: `0 3px 10px ${iconBg}44` }}>
                     <Icon className="w-4 h-4 text-white" />

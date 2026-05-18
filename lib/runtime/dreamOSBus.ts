@@ -110,8 +110,8 @@ function relatedSubsystemsForChannel(channel: DualRuntimeChannel): readonly stri
 function formatEventTitle(event: string): string {
   return event
     .split(':')
-    .map((segment: Record<string, unknown>) => segment.replace(/-/g, ' '))
-    .map((segment: Record<string, unknown>) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .map((segment) => segment.replace(/-/g, ' '))
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
     .join(' · ');
 }
 
@@ -175,7 +175,7 @@ class DreamOSBusImpl {
   >();
 
   constructor() {
-    bridge.subscribeEventActivity((emission: Record<string, unknown>) => {
+    bridge.subscribeEventActivity((emission) => {
       this.recordBridgeEmission(emission);
     });
   }
@@ -234,8 +234,8 @@ class DreamOSBusImpl {
    */
   getArtifactsByKind(kind: DreamOSArtifactKind): DreamOSSharedArtifact[] {
     return Array.from(this.artifacts.values())
-      .filter((a: Record<string, unknown>) => a.kind === kind)
-      .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.updatedAt - a.updatedAt);
+      .filter((a) => a.kind === kind)
+      .sort((a, b) => b.updatedAt - a.updatedAt);
   }
 
   // ── Improvement 66: getArtifactCount ─────────────────────────────────────
@@ -307,9 +307,9 @@ class DreamOSBusImpl {
 
   getSnapshot(): DreamOSSnapshot {
     return {
-      artifacts: Array.from(this.artifacts.values()).sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.updatedAt - a.updatedAt),
+      artifacts: Array.from(this.artifacts.values()).sort((a, b) => b.updatedAt - a.updatedAt),
       runtimeContexts: Array.from(this.runtimeContexts.getState().values())
-        .sort((a: Record<string, unknown>, b: Record<string, unknown>) => a.region.localeCompare(b.region)),
+        .sort((a, b) => a.region.localeCompare(b.region)),
     };
   }
 

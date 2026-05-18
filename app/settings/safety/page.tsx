@@ -108,7 +108,7 @@ export default async function SafetySettingsPage( ){
                   </tr>
                 </thead>
                 <tbody>
-                  {log.map((entry: Record<string, unknown>) => (
+                  {log.map((entry) => (
                     <tr key={entry.event_id} style={{ borderTop: '1px solid rgba(160,195,240,0.15)' }}>
                       <td style={{ padding: '5px 6px', color: 'var(--de-text-dim)', whiteSpace: 'nowrap' }}>
                         {new Date(entry.timestamp).toLocaleDateString()}

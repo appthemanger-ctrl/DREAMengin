@@ -27,7 +27,7 @@ interface Props {
   postId: string;
 }
 
-function Avatar({ profile, size = 32 }: ) { profile: CommentProfile | null; size?: number } {
+function Avatar({ profile, size = 32 }: {profile: CommentProfile | null; size?: number}) {
   const initials = (profile?.display_name || profile?.handle || '?')[0].toUpperCase();
 
   if (profile?.avatar_url) {
@@ -83,7 +83,7 @@ export default function CommentSection({ postId }: Props) {
     const controller = new AbortController();
 
     fetch(`/api/comments?post_id=${encodeURIComponent(postId)}`, { signal: controller.signal })
-      .then((res: Record<string, unknown>) => res.json())
+      .then((res) => res.json())
       .then(({ data, error: err }) => {
         if (err) {
           setError(err);
@@ -101,7 +101,7 @@ export default function CommentSection({ postId }: Props) {
 
   const handleDelete = async (commentId: string) => {
     // Optimistic remove
-    setComments((prev: Record<string, unknown>) => prev.filter((c: Record<string, unknown>) => c.id !== commentId));
+    setComments((prev) => prev.filter((c) => c.id !== commentId));
     try {
       const res = await fetch('/api/comments', {
         method: 'DELETE',
@@ -219,7 +219,7 @@ export default function CommentSection({ postId }: Props) {
 
         {!loading &&
           !error &&
-          comments.map((comment: Record<string, unknown>) => (
+          comments.map((comment) => (
             <div
               key={comment.id}
               className="flex gap-2.5 items-start group"

@@ -64,7 +64,7 @@ export async function pinterestSync(creds: PinterestCredentials): Promise<Unifie
   const username = (creds.username ?? '').replace(/^@/, '').trim();
   const url = pinterestRssUrl(username, creds.board);
   const items = await parseRssFeed({ provider: 'pinterest', feedUrl: url }, 40);
-  return items.map((item: Record<string, unknown>) => normalisePinterest(item.raw as Parameters<typeof normalisePinterest>[0], username));
+  return items.map((item) => normalisePinterest(item.raw as Parameters<typeof normalisePinterest>[0], username));
 }
 
 export function pinterestCredentialFields( ){

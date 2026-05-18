@@ -88,7 +88,7 @@ function pill(color: string, text): string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function PianoRollPanel({ state, bpm: Record<string, unknown>, onStateChange }: PianoRollPanelProps) {
+export default function PianoRollPanel({ state, bpm, onStateChange }: PianoRollPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredCell, setHoveredCell] = useState<{ pitch: number; beat: number } | null>(null);
 
@@ -106,7 +106,7 @@ export default function PianoRollPanel({ state, bpm: Record<string, unknown>, on
   };
   const div = quantizeDivisions[quantize];
   const totalCols = Math.round(totalBeats / div);
-  const beats: number[] = Array.from({ length: totalCols }, _: Record<string, unknown>, (i: number ) => i * div);
+  const beats: number[] = Array.from({ length: totalCols }, (_, i: number ) => i * div);
 
   // Lookup: does a note occupy (pitch, beat)?
   function noteAt(pitch: number, beat: number): MidiNote | undefined {
@@ -261,7 +261,7 @@ export default function PianoRollPanel({ state, bpm: Record<string, unknown>, on
                 borderBottom: `1px solid ${T.border}`,
                 minWidth: gridWidthPx,
               }}>
-                {beats.map(beat: Record<string, unknown>, (i: number ) => (
+                {beats.map((beat, i: number) => (
                   <div
                     key={i}
                     style={{
@@ -297,7 +297,7 @@ export default function PianoRollPanel({ state, bpm: Record<string, unknown>, on
                           ? `1px solid rgba(0,208,240,0.12)`
                           : `1px solid ${T.border}`,
                       }}>
-                      {beats.map((beat: Record<string, unknown>, bi: Record<string, unknown>) => {
+                      {beats.map((beat, bi) => {
                         const note = noteAt(pitch, beat);
                         const isHovered = hoveredCell?.pitch === pitch && hoveredCell?.beat === beat;
                         const isStartOfNote = note && note.startBeat === beat;

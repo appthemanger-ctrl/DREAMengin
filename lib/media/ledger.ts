@@ -119,11 +119,11 @@ function parseLedgerBinary(bytes: Uint8Array): { header: LedgerBinaryHeader; pay
 }
 
 export function encodeToLedger(buffer: number[]): number[] {
-  return buffer.map((val: Record<string, unknown>) => Math.sign(val) * Math.log(1 + Math.abs(val)));
+  return buffer.map((val) => Math.sign(val) * Math.log(1 + Math.abs(val)));
 }
 
 export function compressData(encodedBuffer: number[]): number[] {
-  return encodedBuffer.filter((dataPoint: Record<string, unknown>) => {
+  return encodedBuffer.filter((dataPoint) => {
     const x = Math.abs(dataPoint) / DATA_PHYSICS.a0;
     const expected = x / Math.pow(1 + Math.pow(x, DATA_PHYSICS.n), 1 / DATA_PHYSICS.n);
     // The per-point filter uses 0.1% of the participation constant, matching the
@@ -134,7 +134,7 @@ export function compressData(encodedBuffer: number[]): number[] {
 }
 
 export function decodeFromLedger(buffer: number[]): number[] {
-  return buffer.map((val: Record<string, unknown>) => Math.sign(val) * (Math.exp(Math.abs(val)) - 1));
+  return buffer.map((val) => Math.sign(val) * (Math.exp(Math.abs(val)) - 1));
 }
 
 export function analyzeLedgerDensity(encodedBuffer: number[]): LedgerDensityProfile {
@@ -160,7 +160,7 @@ async function encodeValuesWithThrottle(encodedValues: number[], profile: Ledger
   const floats = new Float32Array(encodedValues.length);
   for (let offset = 0; offset < encodedValues.length; offset += profile.throttleChunkSize) {
     floats.set(encodedValues.slice(offset, offset + profile.throttleChunkSize), offset);
-    await new Promise<void>((resolve: Record<string, unknown>) => setTimeout(resolve, 0));
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
   }
   return floats.buffer.slice(0);
 }

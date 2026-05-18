@@ -54,7 +54,7 @@ function formatMessageContent(subject: string, body: string): string {
 }
 
 /** Render message content with optional subject heading */
-function MessageContent({ content, isMe }: ) { content: string; isMe: boolean } {
+function MessageContent({ content, isMe }: {content: string; isMe: boolean}) {
   const { subject, body } = parseSubject(content);
   return (
     <>
@@ -78,7 +78,7 @@ function getConversationPreview(lastMessage: string): string {
  *  Must be long enough for a mousedown on a suggestion to fire before blur hides the list. */
 const SUGGESTIONS_CLOSE_DELAY_MS = 200;
 
-export default function MessagesClient({ userId, initialConversations: Record<string, unknown>, fromDrEams = false, initialDrEamsQuery = '' }: MessagesClientProps) {
+export default function MessagesClient({ userId, initialConversations, fromDrEams = false, initialDrEamsQuery = '' }: MessagesClientProps) {
   const [conversations, setConversations] = useState(initialConversations);
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(initialConversations[0] || null);
   const [newMessage, setNewMessage] = useState('');
@@ -447,7 +447,7 @@ export default function MessagesClient({ userId, initialConversations: Record<st
                   {!isSuggesting && searchSuggestions.length === 0 && searchQuery.trim() && (
                     <p className="px-4 py-2.5 text-xs" style={{ color: 'var(--de-text-dim)' }}>No results for &ldquo;{searchQuery}&rdquo;</p>
                   )}
-                  {searchSuggestions.map((result: Record<string, unknown>) => (
+                  {searchSuggestions.map((result) => (
                     <button
                       key={`${result.type}-${result.id}`}
                       role="option"
@@ -458,7 +458,7 @@ export default function MessagesClient({ userId, initialConversations: Record<st
                         clearSuggestions();
                         setShowSuggestions(false);
                         if (result.type === 'conversation' && result.targetId) {
-                          const conv = conversations.find((c: Record<string, unknown>) => c.id === result.targetId);
+                          const conv = conversations.find((c) => c.id === result.targetId);
                           if (conv) setSelectedConv(conv);
                           else if (result.href) router.push(result.href);
                         } else if (result.type === 'person' && result.targetId) {
@@ -502,7 +502,7 @@ export default function MessagesClient({ userId, initialConversations: Record<st
                   </Link>
                 </div>
               ) : (
-                filteredConversations.map((conv: Record<string, unknown>) => (
+                filteredConversations.map((conv) => (
                   <button
                     key={conv.id}
                     onClick={() => setSelectedConv(conv)}
@@ -596,7 +596,7 @@ export default function MessagesClient({ userId, initialConversations: Record<st
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {messages.map((msg: Record<string, unknown>) => {
+                      {messages.map((msg) => {
                         const isMe = msg.sender_id === userId;
                         return (
                           <div key={msg.id} className={`flex items-end gap-2 ${isMe ? 'justify-end' : ''}`}>

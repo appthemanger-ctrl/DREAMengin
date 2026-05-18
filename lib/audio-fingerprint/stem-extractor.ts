@@ -31,7 +31,7 @@ export function extractStem(audioBuffer: AudioBuffer, slices: TimeSlice[]): Audi
 
   const { sampleRate, numberOfChannels } = audioBuffer;
 
-  const totalSamples = slices.reduce((sum: Record<string, unknown>, sl: Record<string, unknown>) => {
+  const totalSamples = slices.reduce((sum, sl) => {
     const start = Math.max(0, Math.floor(sl.startTimeSec * sampleRate));
     const end   = Math.min(audioBuffer.length, Math.floor(sl.endTimeSec * sampleRate));
     return sum + Math.max(0, end - start);
@@ -89,7 +89,7 @@ export async function extractStemAsync(
 
   const { sampleRate, numberOfChannels } = audioBuffer;
 
-  const totalSamples = slices.reduce((sum: Record<string, unknown>, sl: Record<string, unknown>) => {
+  const totalSamples = slices.reduce((sum, sl) => {
     const start = Math.max(0, Math.floor(sl.startTimeSec * sampleRate));
     const end   = Math.min(audioBuffer.length, Math.floor(sl.endTimeSec * sampleRate));
     return sum + Math.max(0, end - start);

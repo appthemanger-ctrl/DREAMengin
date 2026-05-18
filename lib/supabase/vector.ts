@@ -144,7 +144,7 @@ export async function searchSimilar(){
       owner_id: string;
       distance: number;
     }>
-  ).map((row: Record<string, unknown>) => ({
+  ).map((row) => ({
     contentId: row.content_id,
     contentType: row.content_type,
     ownerId: row.owner_id,
@@ -241,8 +241,8 @@ export function deriveConsensus(
   boogieVote: TriadVote,
 ): ConsensusOutcome {
   const votes = [eamsVote, idariVote, boogieVote];
-  const approvals = votes.filter((v: Record<string, unknown>) => v === 'approve').length;
-  const rejections = votes.filter((v: Record<string, unknown>) => v === 'reject').length;
+  const approvals = votes.filter((v) => v === 'approve').length;
+  const rejections = votes.filter((v) => v === 'reject').length;
 
   if (approvals >= 2) return 'approved';
   if (rejections >= 2) return 'rejected';

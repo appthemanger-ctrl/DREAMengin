@@ -85,7 +85,7 @@ function isInJoystickZone(touch: TouchPoint, dock: HTMLDivElement | null): boole
 
 const INTERACTIVE_BUTTONS = new Set(['jump', 'dash', 'action']);
 
-export default function MobileGameHUD({ gameLabel, gameEmoji: Record<string, unknown>, mode: Record<string, unknown>, onExit }: MobileGameHUDProps) {
+export default function MobileGameHUD({ gameLabel, gameEmoji, mode, onExit }: MobileGameHUDProps) {
   const leftDockRef = useRef<HTMLDivElement>(null);
   const rightDockRef = useRef<HTMLDivElement>(null);
   const leftCapRef = useRef<HTMLDivElement>(null);
@@ -112,7 +112,7 @@ export default function MobileGameHUD({ gameLabel, gameEmoji: Record<string, unk
   const [isTouching, setIsTouching] = useState(false);
   const [sizeControlHidden, setSizeControlHidden] = useState(false);
 
-  const interactiveButtons = MOBILE_HUD_BUTTON_RING.filter((b: Record<string, unknown>) => b.interactive);
+  const interactiveButtons = MOBILE_HUD_BUTTON_RING.filter((b) => b.interactive);
 
   // ── Emit CSS var so game stage clears the remote ──────────────────────────
   useEffect(() => {
@@ -164,14 +164,14 @@ export default function MobileGameHUD({ gameLabel, gameEmoji: Record<string, unk
 
   const updateLeftVector = useCallback((nextVector: MobileControlVector) => {
     syncStickCap(leftCapRef.current, nextVector);
-    setLeftVector((prev: Record<string, unknown>) => keepPreviousVectorIfUnchanged(prev, nextVector));
+    setLeftVector((prev) => keepPreviousVectorIfUnchanged(prev, nextVector));
     emitMobileMove(nextVector);
     syncLegacyMove(nextVector);
   }, [syncLegacyMove, syncStickCap]);
 
   const updateRightVector = useCallback((nextVector: MobileControlVector) => {
     syncStickCap(rightCapRef.current, nextVector);
-    setRightVector((prev: Record<string, unknown>) => keepPreviousVectorIfUnchanged(prev, nextVector));
+    setRightVector((prev) => keepPreviousVectorIfUnchanged(prev, nextVector));
     emitMobileLook(nextVector);
   }, [syncStickCap]);
 
@@ -203,7 +203,7 @@ export default function MobileGameHUD({ gameLabel, gameEmoji: Record<string, unk
 
   const handleLeftTouchMove = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const touch = Array.from(event.changedTouches).find((t: Record<string, unknown>) => t.identifier === leftTouchIdRef.current);
+    const touch = Array.from(event.changedTouches).find((t) => t.identifier === leftTouchIdRef.current);
     if (!touch) return;
     updateStickFromTouch(touch, leftDockRef.current, updateLeftVector);
   }, [updateLeftVector, updateStickFromTouch]);
@@ -217,14 +217,14 @@ export default function MobileGameHUD({ gameLabel, gameEmoji: Record<string, unk
 
   const handleLeftTouchEnd = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
-    if (Array.from(event.changedTouches).some((t: Record<string, unknown>) => t.identifier === leftTouchIdRef.current)) {
+    if (Array.from(event.changedTouches).some((t) => t.identifier === leftTouchIdRef.current)) {
       releaseLeftStick();
     }
   }, [releaseLeftStick]);
 
   // ── Button helpers ────────────────────────────────────────────────────────
   const updateButtonPressed = useCallback((buttonId: string, active: boolean) => {
-    setPressedButtons((prev: Record<string, unknown>) => {
+    setPressedButtons((prev) => {
       if ((prev[buttonId] ?? false) === active) return prev;
       return { ...prev, [buttonId]: active };
     });
@@ -260,7 +260,7 @@ export default function MobileGameHUD({ gameLabel, gameEmoji: Record<string, unk
   // ── Right dock — combined joystick + buttons ──────────────────────────────
   const handleRightDockTouchStart = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
-    Array.from(event.changedTouches).forEach((touch: Record<string, unknown>) => {
+    Array.from(event.changedTouches).forEach((touch) => {
       markTouchStart();
       if (rightJoyTouchIdRef.current === null && isInJoystickZone(touch, rightDockRef.current)) {
         rightJoyTouchIdRef.current = touch.identifier;
@@ -276,7 +276,7 @@ export default function MobileGameHUD({ gameLabel, gameEmoji: Record<string, unk
 
   const handleRightDockTouchMove = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
-    Array.from(event.changedTouches).forEach((touch: Record<string, unknown>) => {
+    Array.from(event.changedTouches).forEach((touch) => {
       if (touch.identifier === rightJoyTouchIdRef.current) {
         updateStickFromTouch(touch, rightDockRef.current, updateRightVector);
       } else if (rightBtnTouchesRef.current.has(touch.identifier)) {
@@ -316,7 +316,7 @@ export default function MobileGameHUD({ gameLabel, gameEmoji: Record<string, unk
 
   const handleRightDockTouchEnd = useCallback((event: React.TouchEvent<HTMLDivElement>) => {
     event.preventDefault();
-    Array.from(event.changedTouches).forEach((t: Record<string, unknown>) => releaseRightDockTouch(t.identifier, t.clientX, t.clientY));
+    Array.from(event.changedTouches).forEach((t) => releaseRightDockTouch(t.identifier, t.clientX, t.clientY));
   }, [releaseRightDockTouch]);
 
   // ── Pause / Exit ──────────────────────────────────────────────────────────
@@ -335,7 +335,7 @@ export default function MobileGameHUD({ gameLabel, gameEmoji: Record<string, unk
 
   // ── Size control ──────────────────────────────────────────────────────────
   const adjustScale = useCallback((delta: number) => {
-    setRemoteScale((prev: Record<string, unknown>) => {
+    setRemoteScale((prev) => {
       const next = Math.min(SCALE_MAX, Math.max(SCALE_MIN, Math.round((prev + delta) * 10) / 10));
       savePersisted('de:hud:scale', next);
       return next;
@@ -532,7 +532,7 @@ export default function MobileGameHUD({ gameLabel, gameEmoji: Record<string, unk
             style={{ transform: getStickTransform(rightVector) }}
           />
           {/* Ring buttons — hidden in joystick-only mode */}
-          {mode !== 'joystick' && MOBILE_HUD_BUTTON_RING.map((button: Record<string, unknown>) => (
+          {mode !== 'joystick' && MOBILE_HUD_BUTTON_RING.map((button) => (
             <div
               key={button.id}
               ref={(node) => { ringButtonRefs.current[button.id] = node; }}

@@ -51,7 +51,7 @@ interface RuleSetDefinition {
   id: string;
   constraints: unknown[];
   transforms:
-    | ((state: Record<string, unknown>, params: Record<string, unknown>) => Record<string, unknown>)
+    | ((state, params) => Record<string, unknown>)
     | Record<string, unknown>;
   params: Record<string, unknown>;
 }
@@ -138,11 +138,11 @@ class EngineRegistry {
   }
 
   resolveBySlot(slot: RegistrySlot): RegistryEntry[] {
-    return Array.from(this.entriesById.values()).filter((entry: Record<string, unknown>) => entry.slot === slot);
+    return Array.from(this.entriesById.values()).filter((entry) => entry.slot === slot);
   }
 
   resolveByEngine(engineName: string): RegistryEntry[] {
-    return Array.from(this.entriesById.values()).filter((entry: Record<string, unknown>) => entry.engine === engineName);
+    return Array.from(this.entriesById.values()).filter((entry) => entry.engine === engineName);
   }
 
   getLoader(id: string): LoaderFactory | null {
@@ -350,7 +350,7 @@ export class UniversalEngine {
     return this.snapshots;
   }
 
-  setState(nextState: Record<string, unknown>): Readonly<Record<string, unknown>> {
+  setState(nextState): Readonly<Record<string, unknown>> {
     const immutable = deepFreeze(cloneUnknown(normalizeState(nextState)));
     this.activeState = immutable;
     this.snapshots = [...this.snapshots, immutable];
@@ -435,10 +435,10 @@ export class UniversalEngine {
 
     const byEngine = this.registry
       .resolveByEngine(requestedId)
-      .find((entry: Record<string, unknown>) => entry.slot === 'engine-ruleset');
+      .find((entry) => entry.slot === 'engine-ruleset');
     if (byEngine) return byEngine.id;
 
-    const fromGroup = Object.keys(this.registry.getGroups().rulesets).find((id: Record<string, unknown>) => id === requestedId);
+    const fromGroup = Object.keys(this.registry.getGroups().rulesets).find((id) => id === requestedId);
     if (fromGroup) return fromGroup;
 
     return requestedId;
@@ -464,7 +464,7 @@ export class UniversalEngine {
 
     const transformsRaw = ruleSet.transforms;
     const transforms = typeof transformsRaw === 'function'
-      ? transformsRaw as (state: Record<string, unknown>, params: Record<string, unknown>) => Record<string, unknown>
+      ? transformsRaw as (state, params) => Record<string, unknown>
       : normalizeState(transformsRaw);
 
     return {

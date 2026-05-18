@@ -165,7 +165,7 @@ export function logResidual(
  * Returns all residuals recorded for a given pass.
  */
 export function auditPostPass(passId: string): ResidualClass[] {
-  return BUGS_LOG.filter((r: Record<string, unknown>) => r.passId === passId);
+  return BUGS_LOG.filter((r) => r.passId === passId);
 }
 
 // ─── Doc Relationships ────────────────────────────────────────────────────────

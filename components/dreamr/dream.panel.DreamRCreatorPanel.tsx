@@ -69,7 +69,7 @@ function relTime(iso: string): string {
   return `${Math.floor(s / 86400)}d`;
 }
 
-function SocialBadge({ provider }: ) { provider: string } {
+function SocialBadge({ provider }: {provider: string}) {
   const icons: Record<string, React.ReactNode> = {
     instagram: <Instagram size={13} />,
     youtube:   <Youtube   size={13} />,

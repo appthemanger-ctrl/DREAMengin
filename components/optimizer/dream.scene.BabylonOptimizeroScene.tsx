@@ -186,7 +186,7 @@ export default function BabylonOptimizeroScene(){
 
       // Render only valid candidates from optimization result
       if (result.ranked_candidates.length > 0) {
-        result.ranked_candidates.forEach(scoredCandidate: Record<string, unknown>, (index: number ) => {
+        result.ranked_candidates.forEach((scoredCandidate, index: number) => {
           const candidate = scoredCandidate.data;
 
           if (candidate.type === 'mesh') {
@@ -256,7 +256,7 @@ export default function BabylonOptimizeroScene(){
         });
 
         // Show rejected candidates as red X marks
-        result.rejected_candidates.forEach((scoredCandidate: Record<string, unknown>) => {
+        result.rejected_candidates.forEach((scoredCandidate) => {
           const candidate = scoredCandidate.data;
           // Only show if position is valid (not NaN or too far)
           const { x, y, z } = candidate.position;
@@ -272,7 +272,7 @@ export default function BabylonOptimizeroScene(){
       }
 
       // Click handler
-      scene.onPointerObservable.add((pointerInfo: Record<string, unknown>) => {
+      scene.onPointerObservable.add((pointerInfo) => {
         if (pointerInfo.type === 4 && pointerInfo.pickInfo?.hit) {
           const mesh = pointerInfo.pickInfo.pickedMesh;
           if (mesh?.metadata?.candidateId && onElementSelect) {

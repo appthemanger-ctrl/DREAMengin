@@ -271,7 +271,7 @@ const DreamSystemContext = createContext<DreamSystemContextValue>({
   setDominantViewport:        () => {},
 });
 
-export function DreamSystemProvider({ children }: ) { children: ReactNode } {
+export function DreamSystemProvider({ children }: {children: ReactNode}) {
   const [bothMenusOpen, setBothMenusOpen]       = useState(false);
   const [drEamsOpen,    setDrEamsOpen]           = useState(false);
   const [runtimeCallbacks, setRuntimeCallbacks] = useState<RuntimeCallbacks | null>(null);
@@ -301,7 +301,7 @@ export function DreamSystemProvider({ children }: ) { children: ReactNode } {
           .eq('id', user.id)
           .single();
         // Only set if DreamBarDataBridge hasn't already pushed richer data
-        setHomeData((prev: Record<string, unknown>) => prev ?? {
+        setHomeData((prev) => prev ?? {
           userId: user.id,
           profile: profile ?? null,
           initialPosts: [],
@@ -344,7 +344,7 @@ export function DreamSystemProvider({ children }: ) { children: ReactNode } {
     payload?: unknown,
     viewport?: 'top' | 'bottom',
   ) => {
-    setWorldFocusState((prev: Record<string, unknown>) => ({
+    setWorldFocusState((prev) => ({
       ...prev,
       focusKey:         key,
       worldSelection:   payload ?? null,
@@ -353,7 +353,7 @@ export function DreamSystemProvider({ children }: ) { children: ReactNode } {
   }, []);
 
   const moveTorus = useCallback((dx: number, dy: number) => {
-    setWorldFocusState((prev: Record<string, unknown>) => {
+    setWorldFocusState((prev) => {
       const { x, y } = computeMoveTorus(prev.torusX, prev.torusY, dx, dy);
       return {
         ...prev,
@@ -366,7 +366,7 @@ export function DreamSystemProvider({ children }: ) { children: ReactNode } {
   }, []);
 
   const setDominantViewport = useCallback((viewport: 'top' | 'bottom') => {
-    setWorldFocusState((prev: Record<string, unknown>) => ({ ...prev, dominantViewport: viewport }));
+    setWorldFocusState((prev) => ({ ...prev, dominantViewport: viewport }));
   }, []);
 
   return (

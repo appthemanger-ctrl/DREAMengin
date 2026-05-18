@@ -225,10 +225,10 @@ export interface QuantumMeasurementResult {
 }
 
 function buildMeasurementResult(ps: number[], n: number): QuantumMeasurementResult {
-  const topIdx = ps.reduce(best: Record<string, unknown>, (v: number, i: number ) => (v > ps[best] ? i : best), 0);
-  const topBits = Array.from({ length: n }, _: Record<string, unknown>, (k: number ) => Boolean((topIdx >> (n - 1 - k)) & 1));
-  const ev = ps.reduce(sum: number, prob: Record<string, unknown>, (i: number ) => {
-    const bits = Array.from({ length: n }, _: Record<string, unknown>, (k: number ) => Boolean((i >> (n - 1 - k)) & 1));
+  const topIdx = ps.reduce((best, v: number, i: number) => (v > ps[best] ? i : best), 0);
+  const topBits = Array.from({ length: n }, (_, k: number ) => Boolean((topIdx >> (n - 1 - k)) & 1));
+  const ev = ps.reduce((sum: number, prob, i: number) => {
+    const bits = Array.from({ length: n }, (_, k: number ) => Boolean((i >> (n - 1 - k)) & 1));
     return sum + prob * quboCost(bits);
   }, 0);
   return {
@@ -345,7 +345,7 @@ function renderFrame(
   const LEFT      = 26;
   const RIGHT     = 20; // space for measure symbol
   const wireSpacing = circuitH / (n + 1);
-  const wireYs    = Array.from(({ length: n }, _: Record<string, unknown>, q: Record<string, unknown>) => wireSpacing * (q + 1));
+  const wireYs    = Array.from(({ length: n }, _, q: Record<string, unknown>) => wireSpacing * (q + 1));
   const colW      = numCols > 0 ? (W - LEFT - RIGHT) / numCols : W - LEFT - RIGHT;
   const gateH     = Math.min(13, wireSpacing * 0.58);
   const gateW     = Math.min(22, colW * 0.75);
@@ -391,7 +391,7 @@ function renderFrame(
   const count = 1 << n;
   const barW  = (W - 6) / count;
   const maxBH = probH - 17;
-  const topI  = ps.reduce(b: Record<string, unknown>, (v: number, i: number ) => (v > ps[b] ? i : b), 0);
+  const topI  = ps.reduce((b, v: number, i: number) => (v > ps[b] ? i : b), 0);
 
   ctx.fillStyle = '#334155';
   ctx.font = '6px sans-serif';

@@ -135,16 +135,16 @@ export function useYouTubeLiveFeed(): UseYouTubeLiveFeedReturn {
         // so they appear regardless of user topic settings; dedup later.
         const allQueries = [
           ...queries,
-          ...ENRICHMENT_QUERIES.filter((q: Record<string, unknown>) => !queries.includes(q)),
+          ...ENRICHMENT_QUERIES.filter((q) => !queries.includes(q)),
         ];
         const results = await Promise.all(
-          allQueries.map((q: Record<string, unknown>) => fetchYtQuery(q, 7, ctrl.signal)),
+          allQueries.map((q) => fetchYtQuery(q, 7, ctrl.signal)),
         );
         if (!mountedRef.current) return;
 
         // Interleave: take 1 from each batch in turn so all queries appear early
         const interleaved: UnifiedFeedItem[] = [];
-        const maxLen = Math.max(...results.map((r: Record<string, unknown>) => r.length));
+        const maxLen = Math.max(...results.map((r) => r.length));
         for (let i = 0; i < maxLen; i++) {
           for (const batch of results) {
             if (i < batch.length) interleaved.push(batch[i]!);
@@ -192,14 +192,14 @@ export function useYouTubeLiveFeed(): UseYouTubeLiveFeedReturn {
       const items = await fetchYtQuery(query, 3);
 
       // Find the first video we haven't shown yet
-      const newItem = items.find((it: Record<string, unknown>) => !seenIdsRef.current.has(it.external_id));
+      const newItem = items.find((it) => !seenIdsRef.current.has(it.external_id));
       if (!newItem) return;
 
       seenIdsRef.current.add(newItem.external_id);
       const newPost = ytItemToFeedPost(newItem);
 
       if (mountedRef.current) {
-        setYtPosts((prev: Record<string, unknown>) => {
+        setYtPosts((prev) => {
           const next = [newPost, ...prev];
           if (next.length > FEED_MAX) {
             // Drop oldest and un-mark it so it can re-appear later

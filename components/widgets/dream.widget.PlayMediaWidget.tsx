@@ -111,7 +111,7 @@ export default function PlayMediaWidget({ tracks = [], title = 'Play Media' }: P
               No tracks in queue. Connect a music service to add tracks.
             </div>
           ) : (
-            tracks.map(track: Record<string, unknown>, (i: number ) => (
+            tracks.map((track, i: number) => (
               <button
                 key={track.id}
                 type="button"

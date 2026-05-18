@@ -35,7 +35,7 @@ export default function CartridgeLauncher(){
   const [crash, setCrash] = useState<CrashContext | null>(null);
 
   const handleCrash = useCallback((e: CartridgeCrashEvent) => {
-    setCrash((prev: Record<string, unknown>) => prev ?? {
+    setCrash((prev) => prev ?? {
       cartridgeId: manifest.id,
       cartridgeLabel: manifest.label,
       error: e,
@@ -49,7 +49,7 @@ export default function CartridgeLauncher(){
     setError(null);
     setCartridge(null);
     loadCartridge(manifest.id)
-      .then((c: Record<string, unknown>) => {
+      .then((c) => {
         if (cancelled) return;
         setCartridge(c);
       })

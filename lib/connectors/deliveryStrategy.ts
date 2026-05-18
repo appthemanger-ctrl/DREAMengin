@@ -143,7 +143,7 @@ export const DELIVERY_STRATEGY_MATRIX: ReadonlyArray<ConnectorDeliveryStrategy> 
  * Returns undefined if the provider is not in the matrix.
  */
 export function getDeliveryStrategy(provider: string): ConnectorDeliveryStrategy | undefined {
-  return DELIVERY_STRATEGY_MATRIX.find((s: Record<string, unknown>) => s.provider === provider);
+  return DELIVERY_STRATEGY_MATRIX.find((s) => s.provider === provider);
 }
 
 /**
@@ -176,5 +176,5 @@ export function supportsWebhookVerification(provider: string): boolean {
  * All provider ids that appear in the delivery strategy matrix.
  */
 export function knownDeliveryProviders(): string[] {
-  return DELIVERY_STRATEGY_MATRIX.map((s: Record<string, unknown>) => s.provider);
+  return DELIVERY_STRATEGY_MATRIX.map((s) => s.provider);
 }

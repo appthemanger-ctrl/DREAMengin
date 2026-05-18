@@ -112,9 +112,9 @@ export async function POST(req: NextRequest ){
 
   // Tags: comma-separated string → trimmed string array, max 10 tags, 40 chars each
   const parsedTags = typeof tags === 'string'
-    ? tags.split(',').map((t: Record<string, unknown>) => t.trim().toLowerCase()).filter(Boolean).slice(0, 10)
+    ? tags.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean).slice(0, 10)
     : [];
-  if (parsedTags.some((t: Record<string, unknown>) => t.length > 40)) {
+  if (parsedTags.some((t) => t.length > 40)) {
     return NextResponse.json({ error: 'Each tag must be 40 characters or fewer.' }, { status: 400 });
   }
 

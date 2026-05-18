@@ -90,7 +90,7 @@ export function useDreamSearch(query: string): UseDreamSearchReturn {
 
   // ── Toggle Dr. Eams mode ───────────────────────────────────────────────────
   const toggleDrEams = useCallback(() => {
-    setDrEamsMode((prev: Record<string, unknown>) => {
+    setDrEamsMode((prev) => {
       const next = !prev;
       try { localStorage.setItem(DR_EAMS_KEY, String(next)); } catch { /* ignore */ }
       return next;

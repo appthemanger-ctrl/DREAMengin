@@ -183,7 +183,7 @@ export default function CreatePostModal({ onClose, userId }: CreatePostModalProp
           {/* Media Preview */}
           {uploadedMedia.length > 0 && (
             <div className="grid grid-cols-2 gap-2">
-              {uploadedMedia.map(media: Record<string, unknown>, (index: number ) => (
+              {uploadedMedia.map((media, index: number) => (
                 <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800">
                   {media.type === 'image' && (
                     <Image src={media.url} alt="Upload preview" fill unoptimized className="object-cover" />

@@ -155,7 +155,7 @@ export function mountWindowInDreamSpace(
   state: RuntimeRegionState,
   ref: DreamWindowRef,
 ): RuntimeRegionState {
-  const existing = state.dreamSpace.mountedWindows.filter((w: Record<string, unknown>) => w.id !== ref.id);
+  const existing = state.dreamSpace.mountedWindows.filter((w) => w.id !== ref.id);
   return {
     ...state,
     dreamSpace: {
@@ -181,7 +181,7 @@ export function dismountWindowFromDreamSpace(
     ...state,
     dreamSpace: {
       ...state.dreamSpace,
-      mountedWindows: state.dreamSpace.mountedWindows.filter((w: Record<string, unknown>) => w.id !== id),
+      mountedWindows: state.dreamSpace.mountedWindows.filter((w) => w.id !== id),
     },
   };
 }

@@ -194,7 +194,7 @@ function transform(state: EnginBaseState, action: GameEnginAction): EnginBaseSta
       const { score } = (action as EnginAction<'game:score-add', { score: GameScore }>).payload!;
       const prev = (domain.scores ?? []) as GameScore[];
       const updated = [...prev, score]
-        .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.score - a.score)
+        .sort((a, b) => b.score - a.score)
         .slice(0, 20);
       return patchBaseState(state, { domain: { ...domain, scores: updated } });
     }
@@ -205,7 +205,7 @@ function transform(state: EnginBaseState, action: GameEnginAction): EnginBaseSta
       return patchBaseState(state, {
         domain: {
           ...domain,
-          scores: prev.map((s: Record<string, unknown>) => s.id === scoreId ? { ...s, shared: true } : s),
+          scores: prev.map((s) => s.id === scoreId ? { ...s, shared: true } : s),
         },
       });
     }

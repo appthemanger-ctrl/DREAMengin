@@ -59,7 +59,7 @@ function ensureInstruments(): void {
     description: 'Process uptime in seconds',
     unit: 's',
   });
-  processUptime.addCallback((result: Record<string, unknown>) => {
+  processUptime.addCallback((result) => {
     result.observe(process.uptime());
   });
 
@@ -67,7 +67,7 @@ function ensureInstruments(): void {
     description: 'Node.js heap used in bytes',
     unit: 'By',
   });
-  heapUsed.addCallback((result: Record<string, unknown>) => {
+  heapUsed.addCallback((result) => {
     result.observe(process.memoryUsage().heapUsed);
   });
 
@@ -75,7 +75,7 @@ function ensureInstruments(): void {
     description: 'Node.js heap total in bytes',
     unit: 'By',
   });
-  heapTotal.addCallback((result: Record<string, unknown>) => {
+  heapTotal.addCallback((result) => {
     result.observe(process.memoryUsage().heapTotal);
   });
 
@@ -83,7 +83,7 @@ function ensureInstruments(): void {
     description: 'Resident set size in bytes',
     unit: 'By',
   });
-  rss.addCallback((result: Record<string, unknown>) => {
+  rss.addCallback((result) => {
     result.observe(process.memoryUsage().rss);
   });
 
@@ -100,7 +100,7 @@ function ensureInstruments(): void {
     (globalThis as Record<string, unknown>).__dreamengin_otel_event_loop_lag = Math.max(0, lag);
   }, 1000);
   if (_lagInterval.unref) _lagInterval.unref();
-  eventLoopLag.addCallback((result: Record<string, unknown>) => {
+  eventLoopLag.addCallback((result) => {
     const lag = ((globalThis as Record<string, unknown>).__dreamengin_otel_event_loop_lag as number) ?? 0;
     result.observe(lag);
   });

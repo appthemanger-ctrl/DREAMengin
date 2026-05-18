@@ -46,8 +46,8 @@ export interface ResumeDest {
 function findEntry(subsystemId: string): EnginEntry | null {
   if (!subsystemId) return null;
   return (
-    ENGIN_REGISTRY.find((e: Record<string, unknown>) => e.id === subsystemId) ??
-    ENGIN_REGISTRY.find((e: Record<string, unknown>) => e.name === subsystemId) ??
+    ENGIN_REGISTRY.find((e) => e.id === subsystemId) ??
+    ENGIN_REGISTRY.find((e) => e.name === subsystemId) ??
     null
   );
 }
@@ -89,7 +89,7 @@ export function resolveResumeDest(
 
   // 2. Hottest live activity pulse.
   if (activity.length > 0) {
-    const hottest = [...activity].sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.heat - a.heat)[0];
+    const hottest = [...activity].sort((a, b) => b.heat - a.heat)[0];
     if (hottest) {
       const entry = findEntry(hottest.enginId);
       if (entry) return entryToResumeDest(entry);

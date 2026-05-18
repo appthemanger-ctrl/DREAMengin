@@ -125,7 +125,7 @@ export function parseSocialProfileConfig(raw: unknown): SocialProfileWidgetConfi
   const profilesRaw = raw.profiles;
   if (!Array.isArray(profilesRaw)) throw new Error('social_profile config requires profiles[]');
 
-  const profiles = profilesRaw.map((p: Record<string, unknown>) => {
+  const profiles = profilesRaw.map((p) => {
     if (!isRecord(p)) throw new Error('profile entry must be object');
     const provider = asProvider(p.provider);
     if (!provider) throw new Error('profile entry requires provider');
@@ -153,7 +153,7 @@ export function parseSocialFeedConfig(raw: unknown): SocialFeedWidgetConfig {
   const rankingRaw = asString(raw.ranking);
   const ranking: 'chronological'|'source_order' = rankingRaw === 'source_order' ? 'source_order' : 'chronological';
 
-  const sources = sourcesRaw.map((s: Record<string, unknown>) => {
+  const sources = sourcesRaw.map((s) => {
     if (!isRecord(s)) throw new Error('source entry must be object');
     const provider = asProvider(s.provider);
     if (!provider || provider === 'website') throw new Error('source entry requires provider');

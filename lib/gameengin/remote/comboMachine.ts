@@ -80,13 +80,13 @@ export class ComboMachine {
    */
   press(button: FaceButton, nowMs: number): RemoteMatch | null {
     // Drop expired presses from buffer head.
-    this.buffer = this.buffer.filter((r: Record<string, unknown>) => nowMs - r.at <= this.comboWindowMs);
+    this.buffer = this.buffer.filter((r) => nowMs - r.at <= this.comboWindowMs);
     this.buffer.push({ button, at: nowMs });
 
     // 1. Multi-touch wins if ≥ 2 distinct buttons inside multi-touch window.
-    const recent = this.buffer.filter((r: Record<string, unknown>) => nowMs - r.at <= this.multiTouchWindowMs);
+    const recent = this.buffer.filter((r) => nowMs - r.at <= this.multiTouchWindowMs);
     if (recent.length >= 2) {
-      const distinct = Array.from(new Set(recent.map((r: Record<string, unknown>) => r.button)));
+      const distinct = Array.from(new Set(recent.map((r) => r.button)));
       if (distinct.length >= 2) {
         const mt = this.matchMultiTouch(distinct);
         if (mt) {
@@ -97,7 +97,7 @@ export class ComboMachine {
     }
 
     // 2. Sequential combo. Try longest suffix down to length 2.
-    const sequence = this.buffer.map((r: Record<string, unknown>) => r.button);
+    const sequence = this.buffer.map((r) => r.button);
     const sprint = this.isSprinting();
     for (let len = Math.min(sequence.length, this.maxLen); len >= 2; len--) {
       const suffix = sequence.slice(sequence.length - len);
@@ -130,15 +130,15 @@ export class ComboMachine {
       );
       if (sprintMatch) return sprintMatch;
     }
-    return this.combos.find((c: Record<string, unknown>) => !c.sprint && sequenceEquals(c.sequence, suffix)) ?? null;
+    return this.combos.find((c) => !c.sprint && sequenceEquals(c.sequence, suffix)) ?? null;
   }
 
   private matchMultiTouch(buttons: FaceButton[]): MultiTouchCombo | null {
     const sorted = [...buttons].sort();
-    return this.multiTouchCombos.find((c: Record<string, unknown>) => {
+    return this.multiTouchCombos.find((c) => {
       if (c.buttons.length !== sorted.length) return false;
       const csorted = [...c.buttons].sort();
-      return csorted.every(b: Record<string, unknown>, (i: number ) => b === sorted[i]);
+      return csorted.every((b, i: number) => b === sorted[i]);
     }) ?? null;
   }
 }

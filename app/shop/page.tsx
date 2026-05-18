@@ -55,7 +55,7 @@ export default async function ShopPage( ){
           </div>
           {myItems && myItems.length > 0 ? (
             <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-              {myItems.map((item: Record<string, unknown>) => (
+              {myItems.map((item) => (
                 <div key={item.id} className="de-row" style={{ borderRadius: 10 }}>
                   <div style={{
                     width: 44, height: 44, borderRadius: 10, flexShrink: 0,
@@ -92,7 +92,7 @@ export default async function ShopPage( ){
             </div>
             <div className="de-widget-body">
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-                {allItems.map((item: Record<string, unknown>) => (
+                {allItems.map((item) => (
                   <div key={item.id} className="de-surface" style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <div style={{
                       height: 80, borderRadius: 10,

@@ -104,7 +104,7 @@ const LS_KEY = 'dreamengin:engin-instances';
 type PersistedInstance = Omit<EnginInstance, 'channel'>;
 
 function serializeInstances(instances: Record<string, EnginInstance>): PersistedInstance[] {
-  return Object.values(instances).map((instance: Record<string, unknown>) => ({
+  return Object.values(instances).map((instance) => ({
     key: instance.key,
     enginName: instance.enginName,
     instanceId: instance.instanceId,
@@ -116,7 +116,7 @@ function serializeInstances(instances: Record<string, EnginInstance>): Persisted
 
 // ── Zustand store ─────────────────────────────────────────────────────────────
 
-export const useInstanceManager = create<InstanceManagerState>((set: Record<string, unknown>, get: Record<string, unknown>) => ({
+export const useInstanceManager = create<InstanceManagerState>((set, get) => ({
   instances: {},
 
   spawn(enginName, instanceId, region, mode = 'solo') {
@@ -135,7 +135,7 @@ export const useInstanceManager = create<InstanceManagerState>((set: Record<stri
       createdAt: Date.now(),
     };
 
-    set((state: Record<string, unknown>) => ({
+    set((state) => ({
       instances: { ...state.instances, [key]: instance },
     }));
     queueMicrotask(() => get().persistLocal());
@@ -155,7 +155,7 @@ export const useInstanceManager = create<InstanceManagerState>((set: Record<stri
     // Async close — fire and forget; no await in Zustand action.
     instance.channel.close().catch(() => {});
 
-    set((state: Record<string, unknown>) => {
+    set((state) => {
       const next = { ...state.instances };
       delete next[key];
       return { instances: next };
@@ -179,7 +179,7 @@ export const useInstanceManager = create<InstanceManagerState>((set: Record<stri
     // Close the old local channel silently.
     instance.channel.close().catch(() => {});
 
-    set((state: Record<string, unknown>) => ({
+    set((state) => ({
       instances: {
         ...state.instances,
         [key]: { ...instance, channel, mode: 'coop' },
@@ -259,7 +259,7 @@ export async function persistInstanceList(userId: string): Promise<void> {
       };
     };
     await db.from('engin_instances').upsert(
-      rows.map((row: Record<string, unknown>) => ({
+      rows.map((row) => ({
         owner_id: userId,
         instance_key: row.key,
         engin_name: row.enginName,

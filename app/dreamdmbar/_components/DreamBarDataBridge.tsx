@@ -81,7 +81,7 @@ export default function DreamBarDataBridge(){
 
   const revealSplitRuntime = useCallback((nextRatio = DEFAULT_WORKFLOW_SPLIT) => {
     setIsBarMinimized(false);
-    setSplitRatio((current: Record<string, unknown>) => {
+    setSplitRatio((current) => {
       if (current >= 0.98 || current <= 0.02) {
         return nextRatio;
       }
@@ -111,7 +111,7 @@ export default function DreamBarDataBridge(){
     dualRuntime.setBottomRuntime('DreamSpace');
     dualRuntime.setDominantRuntime('DreamSpace');
     setIsBarMinimized(false);
-    setSplitRatio((current: Record<string, unknown>) => (current >= 0.5 ? 0.25 : current));
+    setSplitRatio((current) => (current >= 0.5 ? 0.25 : current));
     closeBothMenus();
     closeDrEams();
   }, [closeBothMenus, closeDrEams, dualRuntime, setIsBarMinimized, setSplitRatio]);

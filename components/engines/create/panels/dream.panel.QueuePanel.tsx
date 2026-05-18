@@ -44,7 +44,7 @@ export default function QueuePanel( ){
 
   async function publishItem(id: string ){
     setPublishing(id);
-    setItems((prev: Record<string, unknown>) => prev.map((i: number ) => i.id === id ? { ...i, status: 'publishing' } : i));
+    setItems((prev) => prev.map((i: number ) => i.id === id ? { ...i, status: 'publishing' } : i));
     try {
       const item = items.find((i: number ) => i.id === id)!;
       const res = await fetch('/api/posts', {
@@ -53,20 +53,20 @@ export default function QueuePanel( ){
         body: JSON.stringify({ content: item.preview, content_type: item.type.toLowerCase() }),
       });
       if (!res.ok) throw new Error('Publish failed');
-      setItems((prev: Record<string, unknown>) => prev.map((i: number ) => i.id === id ? { ...i, status: 'published' } : i));
+      setItems((prev) => prev.map((i: number ) => i.id === id ? { ...i, status: 'published' } : i));
     } catch {
-      setItems((prev: Record<string, unknown>) => prev.map((i: number ) => i.id === id ? { ...i, status: 'failed' } : i));
+      setItems((prev) => prev.map((i: number ) => i.id === id ? { ...i, status: 'failed' } : i));
     }
     setPublishing(null);
   }
 
   function removeItem(id: string ){
-    setItems((prev: Record<string, unknown>) => prev.filter((i: number ) => i.id !== id));
+    setItems((prev) => prev.filter((i: number ) => i.id !== id));
   }
 
   function addItem( ){
     if (!newTitle.trim()) return;
-    setItems((prev: Record<string, unknown>) => [...prev, {
+    setItems((prev) => [...prev, {
       id: Date.now().toString(),
       type: newType,
       title: newTitle.trim(),
@@ -113,7 +113,7 @@ export default function QueuePanel( ){
               onChange={(e) => setNewType(e.target.value as ContentType)}
               className="px-2.5 py-1.5 bg-black/30 border border-white/10 rounded-lg text-sm text-white focus:outline-none"
             >
-              {(['Post', 'Video', 'Story', 'Thread'] as ContentType[]).map((t: Record<string, unknown>) => (
+              {(['Post', 'Video', 'Story', 'Thread'] as ContentType[]).map((t) => (
                 <option key={t} value={t}>{t}</option>
               ))}
             </select>
@@ -137,7 +137,7 @@ export default function QueuePanel( ){
 
         {/* Queue */}
         <div className="space-y-2">
-          {items.map((item: Record<string, unknown>) => {
+          {items.map((item) => {
             const accent = TYPE_COLORS[item.type];
             return (
               <div

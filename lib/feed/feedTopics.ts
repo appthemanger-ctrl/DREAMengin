@@ -74,6 +74,6 @@ export function loadActiveTopicIds(): string[] {
 export function topicIdsToQueries(ids: string[]): string[] {
   const idSet = new Set(ids);
   return ALL_TOPICS
-    .filter((t: Record<string, unknown>) => idSet.has(t.id))
-    .map((t: Record<string, unknown>) => t.label);
+    .filter((t) => idSet.has(t.id))
+    .map((t) => t.label);
 }

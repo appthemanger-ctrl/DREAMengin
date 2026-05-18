@@ -52,8 +52,8 @@ export async function GET(request: Request ){
 
   return NextResponse.json({
     required_config_ok: checks
-      .filter((c: Record<string, unknown>) => c.ok !== null)
-      .every((c: Record<string, unknown>) => c.ok),
+      .filter((c) => c.ok !== null)
+      .every((c) => c.ok),
     checks,
     instructions: {
       step1: {

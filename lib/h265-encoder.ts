@@ -268,7 +268,7 @@ class WebCodecsBackend implements IEncoderBackend {
     this.encoder.encode(videoFrame, { keyFrame: forceKeyframe });
     videoFrame.close();
 
-    await new Promise<void>((resolve: Record<string, unknown>) => {
+    await new Promise<void>((resolve) => {
       if (this.pendingPackets.length > 0) { resolve(); return; }
       this.resolveFlush = resolve;
     });
@@ -395,7 +395,7 @@ export class GameCapture {
       'video/webm;codecs=h264',       // H.264 in WebM — Chrome
       'video/webm',                   // Fallback
     ];
-    return candidates.find((t: Record<string, unknown>) => MediaRecorder.isTypeSupported(t)) ?? 'video/webm';
+    return candidates.find((t) => MediaRecorder.isTypeSupported(t)) ?? 'video/webm';
   }
 
   /**
@@ -426,7 +426,7 @@ export class GameCapture {
   async stop(canvas: HTMLCanvasElement): Promise<CaptureResult> {
     if (!this.recorder) throw new Error('GameCapture not recording');
     const durationMs = performance.now() - this.startTime;
-    return new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+    return new Promise((resolve, reject) => {
       this.recorder!.onstop = () => {
         const blob = new Blob(this.chunks, { type: this.mimeType });
         const codec = this.mimeType.includes('hvc1') ? 'H.265'

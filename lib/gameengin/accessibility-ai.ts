@@ -45,7 +45,7 @@ export class RealtimeCaptioner {
 
   onCaption(cb: (line: CaptionLine) => void): () => void {
     this.subscribers.push(cb);
-    return () => { this.subscribers = this.subscribers.filter((s: Record<string, unknown>) => s !== cb); };
+    return () => { this.subscribers = this.subscribers.filter((s) => s !== cb); };
   }
 
   async ingest(pcm: Float32Array, sampleRate: number, speaker?: string): Promise<CaptionLine | null> {
@@ -84,7 +84,7 @@ export class RealtimeCaptioner {
   }
 
   private withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-    return new Promise<T>((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+    return new Promise<T>((resolve, reject) => {
       const timer = setTimeout(() => reject(new Error('caption_timeout')), ms);
       promise.then(
         (v) => { clearTimeout(timer); resolve(v); },
@@ -180,7 +180,7 @@ export class ColorVisionAdapter {
     if (this.profile === 'normal') return identity;
     const m = ColorVisionAdapter.MATRICES[this.profile];
     if (this.severity >= 1) return [...m];
-    return identity.map(v: Record<string, unknown>, (i: number ) => v * (1 - this.severity) + m[i] * this.severity);
+    return identity.map((v, i: number) => v * (1 - this.severity) + m[i] * this.severity);
   }
 
   apply(rgb: [number, number, number]): [number, number, number] {

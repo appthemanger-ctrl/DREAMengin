@@ -76,7 +76,7 @@ export async function tumblrSync(creds: TumblrCredentials): Promise<UnifiedFeedI
   const slug = extractSlug(username);
   const url = tumblrRssUrl(username);
   const items = await parseRssFeed({ provider: 'tumblr', feedUrl: url }, 40);
-  return items.map((item: Record<string, unknown>) => normaliseTumblr(item.raw as Parameters<typeof normaliseTumblr>[0], slug));
+  return items.map((item) => normaliseTumblr(item.raw as Parameters<typeof normaliseTumblr>[0], slug));
 }
 
 export function tumblrCredentialFields( ){

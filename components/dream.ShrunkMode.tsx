@@ -20,7 +20,7 @@ export function ShrunkMode({ priorityWidgets, onWidgetSelect }: ShrunkModeProps)
     <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40">
       <div className="bg-white rounded-3xl shadow-2xl p-4 border border-gray-200">
         <div className="grid grid-cols-4 gap-3 max-w-md">
-          {displayWidgets.map((widget: Record<string, unknown>) => (
+          {displayWidgets.map((widget) => (
             <PriorityWidgetLauncher
               key={widget.widgetId}
               widget={widget}
@@ -29,7 +29,7 @@ export function ShrunkMode({ priorityWidgets, onWidgetSelect }: ShrunkModeProps)
           ))}
           
           {/* Fill empty slots */}
-          {Array.from({ length: Math.max(0, 12 - displayWidgets.length) }).map(_: Record<string, unknown>, (index: number ) => (
+          {Array.from({ length: Math.max(0, 12 - displayWidgets.length) }).map((_, index: number) => (
             <div
               key={`empty-${index}`}
               className="w-16 h-16 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center"

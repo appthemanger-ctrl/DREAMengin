@@ -50,5 +50,5 @@ export function isAuthRelatedError(error: unknown): boolean {
 
   const haystack = `${name} ${message}`.toLowerCase();
 
-  return AUTH_ERROR_PATTERNS.some((pattern: Record<string, unknown>) => pattern.test(haystack));
+  return AUTH_ERROR_PATTERNS.some((pattern) => pattern.test(haystack));
 }

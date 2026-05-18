@@ -57,7 +57,7 @@ export interface EngineAssembly {
 
 export interface AssemblySandbox {
   /** Called for each piece during execution — returns the piece's output. */
-  execute(piece: AtomicPiece, inputs: Record<string, unknown>): unknown;
+  execute(piece: AtomicPiece, inputs): unknown;
 }
 
 export interface ValidationResult {
@@ -82,14 +82,14 @@ export function validateAssembly(
   wires: Wire[]
 ): ValidationResult {
   const errors: string[] = [];
-  const pieceIds = new Set(pieces.map((p: Record<string, unknown>) => p.id));
+  const pieceIds = new Set(pieces.map((p) => p.id));
 
   if (pieces.length < 3)  errors.push('Assembly needs at least 3 pieces.');
   if (pieces.length > 30) errors.push('Assembly cannot exceed 30 pieces.');
 
-  const hasSource    = pieces.some((p: Record<string, unknown>) => p.role === 'source'    || p.role === 'any');
-  const hasProcessor = pieces.some((p: Record<string, unknown>) => p.role === 'processor' || p.role === 'any');
-  const hasOutput    = pieces.some((p: Record<string, unknown>) => p.role === 'output'    || p.role === 'any');
+  const hasSource    = pieces.some((p) => p.role === 'source'    || p.role === 'any');
+  const hasProcessor = pieces.some((p) => p.role === 'processor' || p.role === 'any');
+  const hasOutput    = pieces.some((p) => p.role === 'output'    || p.role === 'any');
 
   if (!hasSource)    errors.push('Assembly needs at least one source piece.');
   if (!hasProcessor) errors.push('Assembly needs at least one processor piece.');
@@ -146,7 +146,7 @@ export function runAssembly(
 
   // Build adjacency: pieceId → inputs from wires
   const pieceInputs = new Map<string, Record<string, unknown>>();
-  pieces.forEach((p: Record<string, unknown>) => pieceInputs.set(p.id, {}));
+  pieces.forEach((p) => pieceInputs.set(p.id, {}));
 
   const pieceOutputs = new Map<string, unknown>();
 
@@ -157,10 +157,10 @@ export function runAssembly(
   let iterations = 0;
   while (remaining.length > 0 && iterations < 100) {
     iterations++;
-    const readyIdx = remaining.findIndex((piece: Record<string, unknown>) => {
+    const readyIdx = remaining.findIndex((piece) => {
       // All input wires have been satisfied
-      const incomingWires = wires.filter((w: Record<string, unknown>) => w.toPieceId === piece.id);
-      return incomingWires.every((w: Record<string, unknown>) => processed.has(w.fromPieceId));
+      const incomingWires = wires.filter((w) => w.toPieceId === piece.id);
+      return incomingWires.every((w) => processed.has(w.fromPieceId));
     });
 
     if (readyIdx === -1) break; // cycle or no progress
@@ -170,8 +170,8 @@ export function runAssembly(
     // Collect inputs from wires
     const inputs: Record<string, unknown> = {};
     wires
-      .filter((w: Record<string, unknown>) => w.toPieceId === piece.id)
-      .forEach((w: Record<string, unknown>) => {
+      .filter((w) => w.toPieceId === piece.id)
+      .forEach((w) => {
         inputs[w.toPortId] = pieceOutputs.get(w.fromPieceId);
       });
 
@@ -186,7 +186,7 @@ export function runAssembly(
   }
 
   // Final output = last output piece's value
-  const outputPiece = [...pieces].reverse().find((p: Record<string, unknown>) => p.role === 'output' || p.role === 'any');
+  const outputPiece = [...pieces].reverse().find((p) => p.role === 'output' || p.role === 'any');
   const result      = outputPiece ? pieceOutputs.get(outputPiece.id) : undefined;
 
   bus.emit('executed', { result });

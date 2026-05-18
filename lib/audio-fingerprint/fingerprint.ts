@@ -10,7 +10,7 @@ export interface Fingerprint { id: string; startTime: number; endTime: number; p
 function buildSignature(peaks: FrequencyPeak[], totalBins: number): number[] {
   const sig = new Array<number>(totalBins).fill(0);
   for (const p of peaks) { if (p.binIndex < totalBins) sig[p.binIndex] += p.magnitude; }
-  const norm = Math.sqrt(sig.reduce(s: Record<string, unknown>, (v: number ) => s + v * v, 0)) || 1;
+  const norm = Math.sqrt(sig.reduce((s, v: number) => s + v * v, 0)) || 1;
   return sig.map((v) => v / norm);
 }
 

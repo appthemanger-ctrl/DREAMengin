@@ -26,7 +26,7 @@ export async function GET( ){
         isFix = true;
       } else {
         connectedConnectors = Array.isArray(data)
-          ? data.filter((row: Record<string, unknown>) => row?.status === 'connected').length
+          ? data.filter((row) => row?.status === 'connected').length
           : 0;
       }
     }

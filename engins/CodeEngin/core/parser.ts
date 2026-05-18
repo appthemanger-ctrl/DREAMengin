@@ -80,7 +80,7 @@ function extractTSSymbols(lines: string[]): ParsedSymbol[] {
   const typeRe   = /(?:export\s+)?(?:type|interface)\s+([A-Za-z_$][\w$]*)/;
   const varRe    = /(?:export\s+)?(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*[:=]/;
 
-  lines.forEach(line: Record<string, unknown>, (i: number ) => {
+  lines.forEach((line, i: number) => {
     const ln = i + 1;
     let m: RegExpMatchArray | null;
     if ((m = line.match(funcRe)))        symbols.push({ kind: 'function', name: m[1], line: ln });
@@ -99,7 +99,7 @@ function extractPythonSymbols(lines: string[]): ParsedSymbol[] {
   const classRe  = /^class\s+([A-Za-z_][\w]*)/;
   const importRe = /^(?:import|from)\s+(\S+)/;
 
-  lines.forEach(line: Record<string, unknown>, (i: number ) => {
+  lines.forEach((line, i: number) => {
     const ln = i + 1;
     const trimmed = line.trimStart();
     let m: RegExpMatchArray | null;
@@ -117,7 +117,7 @@ function extractGoSymbols(lines: string[]): ParsedSymbol[] {
   const importRe = /^\s*"([^"]+)"/;
 
   let inImportBlock = false;
-  lines.forEach(line: Record<string, unknown>, (i: number ) => {
+  lines.forEach((line, i: number) => {
     const ln = i + 1;
     if (line.trim() === 'import (') { inImportBlock = true; return; }
     if (inImportBlock && line.trim() === ')') { inImportBlock = false; return; }
@@ -142,7 +142,7 @@ function extractRustSymbols(lines: string[]): ParsedSymbol[] {
   const traitRe  = /(?:pub\s+)?trait\s+([A-Za-z_][\w]*)/;
   const useRe    = /^use\s+([^;]+)/;
 
-  lines.forEach(line: Record<string, unknown>, (i: number ) => {
+  lines.forEach((line, i: number) => {
     const ln = i + 1;
     const trimmed = line.trimStart();
     let m: RegExpMatchArray | null;
@@ -236,7 +236,7 @@ function checkPythonIndent(lines: string[]): ParseError[] {
   const warnings: ParseError[] = [];
   let expectedIndent: number | null = null;
 
-  lines.forEach(line: Record<string, unknown>, (i: number ) => {
+  lines.forEach((line, i: number) => {
     if (line.trim() === '' || line.trimStart().startsWith('#')) return;
     const indent = line.length - line.trimStart().length;
     if (line.trimEnd().endsWith(':')) {
@@ -293,15 +293,15 @@ export function parseCode(content: string, language: string): ParseResult {
     errors.push(...checkJSON(content));
   } else {
     const bracketErrs = checkBracketBalance(content, lang);
-    errors.push(...bracketErrs.filter((e: Record<string, unknown>) => e.severity === 'error'));
-    warnings.push(...bracketErrs.filter((e: Record<string, unknown>) => e.severity === 'warning'));
+    errors.push(...bracketErrs.filter((e) => e.severity === 'error'));
+    warnings.push(...bracketErrs.filter((e) => e.severity === 'warning'));
   }
 
   if (lang === 'python') {
     warnings.push(...checkPythonIndent(lines));
   }
 
-  lines.forEach(line: Record<string, unknown>, (i: number ) => {
+  lines.forEach((line, i: number) => {
     if (line !== line.trimEnd()) {
       warnings.push({
         line: i + 1, col: line.trimEnd().length + 1,

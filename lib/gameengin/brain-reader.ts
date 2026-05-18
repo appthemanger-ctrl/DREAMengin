@@ -80,9 +80,9 @@ export function listGenres(): string[] {
   const dir = path.join(BRAIN_ROOT, 'genre-dna');
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir)
-    .filter((f: Record<string, unknown>) => f.endsWith('.json'))
-    .map((f: Record<string, unknown>) => f.slice(0, -'.json'.length))
-    .filter((slug: Record<string, unknown>) => slug !== 'template')
+    .filter((f) => f.endsWith('.json'))
+    .map((f) => f.slice(0, -'.json'.length))
+    .filter((slug) => slug !== 'template')
     .sort();
 }
 
@@ -109,7 +109,7 @@ export function readMechanic(category: string, name: string): MechanicEntry {
 
 export function listMechanics(category?: string): MechanicEntry[] {
   const root = path.join(BRAIN_ROOT, 'mechanic-library');
-  const cats = category ? [category] : fs.readdirSync(root).filter((c: Record<string, unknown>) => {
+  const cats = category ? [category] : fs.readdirSync(root).filter((c) => {
     return fs.statSync(path.join(root, c)).isDirectory();
   });
   const out: MechanicEntry[] = [];
@@ -151,7 +151,7 @@ export function readPrinciple(slug: string): string {
  * `genre + sorted(mechanic ids)` joined by `+` then sha256-prefixed.
  */
 export function signatureHash(genre: string, mechanicIds: string[]): string {
-  const sorted = [...mechanicIds].map((m: Record<string, unknown>) => m.trim().toLowerCase()).sort();
+  const sorted = [...mechanicIds].map((m) => m.trim().toLowerCase()).sort();
   const payload = [genre.trim().toLowerCase(), ...sorted].join('+');
   const digest = createHash('sha256').update(payload).digest('hex');
   return `sha256:${payload}:${digest.slice(0, 16)}`;
@@ -180,7 +180,7 @@ export function readOriginalityRegistry(): OriginalityRegistry {
 /** Spec §4.4: returns true when the combo is novel enough to register. */
 export function isOriginal(hash: string, minNoveltyScore = 0.3): boolean {
   const reg = readOriginalityRegistry();
-  const existing = reg.signatures.find((s: Record<string, unknown>) => s.hash === hash);
+  const existing = reg.signatures.find((s) => s.hash === hash);
   if (!existing) return true;
   return existing.novelty_score >= minNoveltyScore;
 }
@@ -233,7 +233,7 @@ export function listCartridges(): string[] {
   if (!fs.existsSync(CARTRIDGES_ROOT)) return [];
   return fs
     .readdirSync(CARTRIDGES_ROOT)
-    .filter((name: Record<string, unknown>) => {
+    .filter((name) => {
       const manifest = path.join(CARTRIDGES_ROOT, name, 'MANIFEST.json');
       return fs.existsSync(manifest);
     })
@@ -257,7 +257,7 @@ export function listTechniques(category?: string): TechniqueEntry[] {
   if (!fs.existsSync(root)) return [];
   const cats = category
     ? [category]
-    : fs.readdirSync(root).filter((c: Record<string, unknown>) => fs.statSync(path.join(root, c)).isDirectory());
+    : fs.readdirSync(root).filter((c) => fs.statSync(path.join(root, c)).isDirectory());
   const out: TechniqueEntry[] = [];
   for (const cat of cats) {
     const dir = path.join(root, cat);
@@ -284,8 +284,8 @@ export function listMaterialRecipes(): MaterialRecipe[] {
   if (!fs.existsSync(dir)) return [];
   return fs
     .readdirSync(dir)
-    .filter((f: Record<string, unknown>) => f.endsWith('.json'))
-    .map((f: Record<string, unknown>) => readJSON<MaterialRecipe>(path.join(dir, f)));
+    .filter((f) => f.endsWith('.json'))
+    .map((f) => readJSON<MaterialRecipe>(path.join(dir, f)));
 }
 
 export function listCompositionPrinciples(): Array<Record<string, unknown>> {
@@ -293,8 +293,8 @@ export function listCompositionPrinciples(): Array<Record<string, unknown>> {
   if (!fs.existsSync(dir)) return [];
   return fs
     .readdirSync(dir)
-    .filter((f: Record<string, unknown>) => f.endsWith('.json'))
-    .map((f: Record<string, unknown>) => readJSON<Record<string, unknown>>(path.join(dir, f)));
+    .filter((f) => f.endsWith('.json'))
+    .map((f) => readJSON<Record<string, unknown>>(path.join(dir, f)));
 }
 
 export interface AssetRegistryEntry {
@@ -355,8 +355,8 @@ export function listEmotionalTones(): EmotionalTone[] {
   if (!fs.existsSync(dir)) return [];
   return fs
     .readdirSync(dir)
-    .filter((f: Record<string, unknown>) => f.endsWith('.json'))
-    .map((f: Record<string, unknown>) => readJSON<EmotionalTone>(path.join(dir, f)));
+    .filter((f) => f.endsWith('.json'))
+    .map((f) => readJSON<EmotionalTone>(path.join(dir, f)));
 }
 
 export function listDialoguePatterns(): Array<Record<string, unknown>> {
@@ -364,8 +364,8 @@ export function listDialoguePatterns(): Array<Record<string, unknown>> {
   if (!fs.existsSync(dir)) return [];
   return fs
     .readdirSync(dir)
-    .filter((f: Record<string, unknown>) => f.endsWith('.json'))
-    .map((f: Record<string, unknown>) => readJSON<Record<string, unknown>>(path.join(dir, f)));
+    .filter((f) => f.endsWith('.json'))
+    .map((f) => readJSON<Record<string, unknown>>(path.join(dir, f)));
 }
 
 export interface NarrativePacing {
@@ -441,7 +441,7 @@ export function recordAssignments(entries: AssignmentLogEntry[], cartridgesSurve
 export function getLastTouched(cartridgeId: string, agent: AgentName): string | null {
   const dir = path.join(BRAIN_ROOT, 'rd-sessions');
   if (!fs.existsSync(dir)) return null;
-  const files = fs.readdirSync(dir).filter((f: Record<string, unknown>) => f.endsWith('.json'));
+  const files = fs.readdirSync(dir).filter((f) => f.endsWith('.json'));
   let latest: string | null = null;
   for (const f of files) {
     let parsed: { agent?: string; topic?: string; timestamp?: string };
@@ -549,7 +549,7 @@ export function setActiveProjects(next: ActiveProjects): void {
 }
 
 export function isActiveCartridge(cartridgeId: string): boolean {
-  return readActiveProjects().slots.some((s: Record<string, unknown>) => s.cartridge_id === cartridgeId);
+  return readActiveProjects().slots.some((s) => s.cartridge_id === cartridgeId);
 }
 
 // --- Crash Reports (player → Maestro feedback loop) -----------------------
@@ -603,9 +603,9 @@ export function listCrashReports(cartridgeId: string): CrashReportEntry[] {
   const dir = path.join(BRAIN_ROOT, 'crash-reports', cartridgeId);
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir)
-    .filter((f: Record<string, unknown>) => f.endsWith('.json'))
+    .filter((f) => f.endsWith('.json'))
     .sort()
-    .map((f: Record<string, unknown>) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf-8')) as CrashReportEntry);
+    .map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf-8')) as CrashReportEntry);
 }
 
 // --- Game Architect (Concept Library + Concept Patterns) ------------------
@@ -717,9 +717,9 @@ export function listVisionStatements(): VisionStatement[] {
   const dir = path.join(BRAIN_ROOT, 'concept-library');
   if (!fs.existsSync(dir)) return [];
   return fs.readdirSync(dir)
-    .filter((f: Record<string, unknown>) => f.endsWith('.json'))
+    .filter((f) => f.endsWith('.json'))
     .sort()
-    .map((f: Record<string, unknown>) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf-8')) as VisionStatement);
+    .map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf-8')) as VisionStatement);
 }
 
 export function readVisionStatement(visionId: string): VisionStatement | null {
@@ -773,7 +773,7 @@ export function setCartridgeStatus(cartridgeId: string, status: CartridgeStatus)
 }
 
 export function listCartridgesByStatus(status: CartridgeStatus): string[] {
-  return listCartridges().filter((id: Record<string, unknown>) => readCartridgeStatus(id) === status);
+  return listCartridges().filter((id) => readCartridgeStatus(id) === status);
 }
 
 // --- Progression State (modern game-structure aware ledger) ---------------

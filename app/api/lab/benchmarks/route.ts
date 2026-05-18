@@ -9,7 +9,7 @@ function runServerBenchmarks( ){
   const mathMs = performance.now() - start;
 
   const jsonStart = performance.now();
-  JSON.parse(JSON.stringify({ acc, values: Array.from({ length: 200 }, _: Record<string, unknown>, (i: number ) => i) }));
+  JSON.parse(JSON.stringify({ acc, values: Array.from({ length: 200 }, (_, i: number) => i) }));
   const jsonMs = performance.now() - jsonStart;
 
   return [

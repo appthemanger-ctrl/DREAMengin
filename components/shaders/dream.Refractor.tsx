@@ -110,7 +110,7 @@ export function Refractor(){
     [color, refractionStrength, chromaticAberration, fresnelPower],
   );
 
-  useFrame((_state: Record<string, unknown>, delta: Record<string, unknown>) => {
+  useFrame((_state, delta) => {
     if (matRef.current) {
       matRef.current.uniforms.uTime.value += delta;
     }

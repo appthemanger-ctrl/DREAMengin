@@ -39,7 +39,7 @@ export default function NotificationSettingsPage( ){
     // Immediately apply localStorage cache for fast paint
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setSettings((p: Record<string, unknown>) => ({ ...p, ...(JSON.parse(raw) as Partial<NotificationSettings>) }));
+      if (raw) setSettings((p) => ({ ...p, ...(JSON.parse(raw) as Partial<NotificationSettings>) }));
     } catch { /* ignore */ }
 
     // Then fetch real stored settings from Supabase
@@ -47,7 +47,7 @@ export default function NotificationSettingsPage( ){
       .then((r: number ) => r.json())
       .then((data: { ok: boolean; notifications: Partial<NotificationSettings> | null }) => {
         if (data.ok && data.notifications) {
-          setSettings((p: Record<string, unknown>) => ({ ...p, ...data.notifications }));
+          setSettings((p) => ({ ...p, ...data.notifications }));
           try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...DEFAULT_SETTINGS, ...data.notifications })); } catch { /* ignore */ }
         }
       })
@@ -106,7 +106,7 @@ export default function NotificationSettingsPage( ){
         <div className="de-widget">
           <div className="de-widget-header"><span className="de-widget-title">Push Notifications</span></div>
           <div className="de-widget-body" style={{ padding: 0 }}>
-            {notifications.map((item: Record<string, unknown>) => (
+            {notifications.map((item) => (
               <div key={item.key} className="de-row">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(42,138,184,0.1)' }}>
                   <item.icon className="w-5 h-5" style={{ color: 'var(--de-accent)' }} />
@@ -152,7 +152,7 @@ export default function NotificationSettingsPage( ){
               </div>
             </div>
             <div className="space-y-2">
-              {['off', 'daily', 'weekly'].map((option: Record<string, unknown>) => (
+              {['off', 'daily', 'weekly'].map((option) => (
                 <button
                   key={option}
                   onClick={() => setSettings((prev) => ({ ...prev, emailDigest: option }))}

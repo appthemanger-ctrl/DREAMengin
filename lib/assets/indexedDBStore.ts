@@ -38,7 +38,7 @@ export interface SentinelEntry {
 // ── DB helpers ─────────────────────────────────────────────────────────────────
 
 function openDB(): Promise<IDBDatabase> {
-  return new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+  return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = () => {
       req.result.createObjectStore(STORE_NAME, { keyPath: 'assetId' });
@@ -66,7 +66,7 @@ export async function storeOriginal(
     fileName,
   };
 
-  await new Promise<void>((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+  await new Promise<void>((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readwrite');
     const req = tx.objectStore(STORE_NAME).put(record);
     req.onsuccess = () => resolve();
@@ -84,7 +84,7 @@ export async function storeOriginal(
  */
 export async function getOriginal(assetId: string): Promise<OriginalRecord | null> {
   const db = await openDB();
-  return new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+  return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readonly');
     const req = tx.objectStore(STORE_NAME).get(assetId);
     req.onsuccess = () => resolve((req.result as OriginalRecord) ?? null);
@@ -97,7 +97,7 @@ export async function getOriginal(assetId: string): Promise<OriginalRecord | nul
  */
 export async function deleteOriginal(assetId: string): Promise<void> {
   const db = await openDB();
-  await new Promise<void>((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+  await new Promise<void>((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readwrite');
     const req = tx.objectStore(STORE_NAME).delete(assetId);
     req.onsuccess = () => resolve();
@@ -129,7 +129,7 @@ export async function checkSentinels(): Promise<string[]> {
 
   for (const key of sentinelKeys) {
     const assetId = key.slice(SENTINEL_PREFIX.length);
-    const record = await new Promise<OriginalRecord | null>((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+    const record = await new Promise<OriginalRecord | null>((resolve, reject) => {
       const tx = db.transaction(STORE_NAME, 'readonly');
       const req = tx.objectStore(STORE_NAME).get(assetId);
       req.onsuccess = () => resolve((req.result as OriginalRecord) ?? null);
@@ -152,7 +152,7 @@ export async function checkSentinels(): Promise<string[]> {
  */
 export async function listStoredOriginals(): Promise<OriginalRecord[]> {
   const db = await openDB();
-  return new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+  return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readonly');
     const req = tx.objectStore(STORE_NAME).getAll();
     req.onsuccess = () => resolve(req.result as OriginalRecord[]);
@@ -170,11 +170,11 @@ export async function listStoredOriginals(): Promise<OriginalRecord[]> {
 export async function cleanupExpiredOriginals(maxAgeMs: number): Promise<string[]> {
   const all = await listStoredOriginals();
   const cutoff = Date.now() - maxAgeMs;
-  const expired = all.filter((r: Record<string, unknown>) => r.storedAt < cutoff);
+  const expired = all.filter((r) => r.storedAt < cutoff);
   for (const record of expired) {
     await deleteOriginal(record.assetId);
   }
-  return expired.map((r: Record<string, unknown>) => r.assetId);
+  return expired.map((r) => r.assetId);
 }
 
 // ── Improvement 54: getStorageStats ──────────────────────────────────────────
@@ -195,8 +195,8 @@ export async function getStorageStats(): Promise<StorageStats> {
   if (all.length === 0) {
     return { count: 0, totalBytes: 0, oldestStoredAt: null, newestStoredAt: null };
   }
-  const totalBytes = all.reduce(sum: Record<string, unknown>, (r: number ) => sum + r.blob.size, 0);
-  const timestamps = all.map((r: Record<string, unknown>) => r.storedAt);
+  const totalBytes = all.reduce((sum, r: number) => sum + r.blob.size, 0);
+  const timestamps = all.map((r) => r.storedAt);
   return {
     count: all.length,
     totalBytes,
@@ -213,7 +213,7 @@ export async function getStorageStats(): Promise<StorageStats> {
  */
 export async function hasOriginal(assetId: string): Promise<boolean> {
   const db = await openDB();
-  return new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+  return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, 'readonly');
     const req = tx.objectStore(STORE_NAME).count(assetId);
     req.onsuccess = () => resolve(req.result > 0);

@@ -46,7 +46,7 @@ const SIDE_MENU_HEADER_PADDING_RIGHT = '26px 72px 8px 24px';
 const SIDE_MENU_ITEMS_PADDING_LEFT = '8px 20px 52px 68px';
 const SIDE_MENU_ITEMS_PADDING_RIGHT = '8px 68px 52px 20px';
 
-export default function MenuPanel({ open, items: Record<string, unknown>, onClose: Record<string, unknown>, title: string, accent = 'blue', side = 'center' }: Props) {
+export default function MenuPanel({ open, items, onClose, title, accent = 'blue', side = 'center' }: Props) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const colors = ACCENT_STYLES[accent];
@@ -185,7 +185,7 @@ export default function MenuPanel({ open, items: Record<string, unknown>, onClos
 
          {/* Item list */}
          <div style={{ padding: sideMode ? (side === 'left' ? SIDE_MENU_ITEMS_PADDING_LEFT : SIDE_MENU_ITEMS_PADDING_RIGHT) : '6px 0 8px' }}>
-           {items.map(item: Record<string, unknown>, (idx: number ) => (
+           {items.map((item, idx: number) => (
               <button
                 key={item.id}
                 type="button"

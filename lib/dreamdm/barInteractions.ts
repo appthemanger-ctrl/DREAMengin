@@ -361,7 +361,7 @@ export function computeTypingRhythm(
 ): number {
   if (recentKeystrokeTimestamps.length < 2) return 0;
   // Only consider keystrokes within the window
-  const recent = recentKeystrokeTimestamps.filter((t: Record<string, unknown>) => now - t < windowMs);
+  const recent = recentKeystrokeTimestamps.filter((t) => now - t < windowMs);
   if (recent.length < 2) return 0;
   // Average interval between keystrokes
   let totalInterval = 0;

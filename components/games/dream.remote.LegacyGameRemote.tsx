@@ -281,7 +281,7 @@ function Stick(){
         }}
       >
         {/* Cardinal tick marks — subtle direction indicators for both sticks */}
-        {[0, 90, 180, 270].map(deg: Record<string, unknown>, (i: number ) => {
+        {[0, 90, 180, 270].map((deg, i: number) => {
           const rad = (deg * Math.PI) / 180;
           const r = padRadius - 8;
           const tx = Math.cos(rad) * r + padRadius;
@@ -552,7 +552,7 @@ export default function GameRemote(){
           padding: `10px ${outerPaddingX}px 0`,
           flexShrink: 0,
         }}>
-          {REMOTE_ACTION_PILLS.map(({ sym, label: string, color }) => (
+          {REMOTE_ACTION_PILLS.map(({ sym, label, color }) => (
             <div key={sym} style={{
               display: 'flex', alignItems: 'center', gap: 4,
               padding: '2px 7px', borderRadius: 999,
@@ -671,7 +671,7 @@ export default function GameRemote(){
               clickColor="#fef08a"
             />
 
-            {RIGHT_STICK_RING_BUTTONS.map(({ sym, label: string, action: Record<string, unknown>, color: Record<string, unknown>, top: Record<string, unknown>, left }) => (
+            {RIGHT_STICK_RING_BUTTONS.map(({ sym, label, action, color, top, left }) => (
               <button
                 key={sym}
                 type="button"

@@ -138,10 +138,10 @@ export default function EnhancedSpatialShell(){
             {navState.layer === LAYER_PROFILE ? (
               /* ── Profile layer: delegate to ProfileSpace widget canvas ── */
               <ProfileSpace
-                widgets={activeWidgets.filter((w: Record<string, unknown>) => w.context === 'PROFILE')}
+                widgets={activeWidgets.filter((w) => w.context === 'PROFILE')}
               />
             ) : activeWidgets.length > 0 ? (
-              activeWidgets.map((widget: Record<string, unknown>) => (
+              activeWidgets.map((widget) => (
                 <div
                   key={widget.instanceId}
                   className="absolute top-0 left-0"

@@ -339,7 +339,7 @@ export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps
                   No activity yet. Activate IDARi to start monitoring.
                 </p>
               ) : (
-                logs.map(log: Record<string, unknown>, (idx: number ) => (
+                logs.map((log, idx: number) => (
                   <div
                     key={idx}
                     className="flex items-start gap-2 p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"

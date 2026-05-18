@@ -113,7 +113,7 @@ function SkeletonCard( ){
 
 // ── Embed card ────────────────────────────────────────────────────────────────
 
-function EmbedCard({ item }: ) { item: EmbedFeedItem } {
+function EmbedCard({ item }: {item: EmbedFeedItem}) {
   const isYouTube   = item.provider === 'youtube';
   const isInstagram = item.provider === 'instagram';
 
@@ -227,7 +227,7 @@ function EmbedCard({ item }: ) { item: EmbedFeedItem } {
         {/* Tags */}
         {item.tags.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginTop: 2 }}>
-            {item.tags.slice(0, 4).map((tag: Record<string, unknown>) => (
+            {item.tags.slice(0, 4).map((tag) => (
               <span
                 key={tag}
                 style={{
@@ -312,7 +312,7 @@ export default function EmbedFeedWidget(){
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <div style={{ flex: 1, display: 'flex', gap: 4 }}>
-          {tabs.map((tab: Record<string, unknown>) => (
+          {tabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
@@ -382,7 +382,7 @@ export default function EmbedFeedWidget(){
           gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
           gap: 12,
         }}>
-          {Array.from({ length: 4 }).map(_: Record<string, unknown>, (i: number ) => <SkeletonCard key={i} />)}
+          {Array.from({ length: 4 }).map((_, i: number) => <SkeletonCard key={i} />)}
         </div>
       )}
 
@@ -413,7 +413,7 @@ export default function EmbedFeedWidget(){
           gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
           gap: 12,
         }}>
-          {state.items.map((item: Record<string, unknown>) => (
+          {state.items.map((item) => (
             <EmbedCard key={`${item.provider}-${item.id}`} item={item} />
           ))}
         </div>

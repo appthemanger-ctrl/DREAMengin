@@ -259,7 +259,7 @@ export class WasmGpuVM {
           const handle = this.state.nextPipelineHandle++;
 
           this.pipelineCache.getOrCreate(wgslSource)
-            .then(({ pipeline, sourceHash: Record<string, unknown>, cacheHit }) => {
+            .then(({ pipeline, sourceHash, cacheHit }) => {
               const descriptor: ComputePipelineDescriptor = {
                 handle,
                 wgslSource,

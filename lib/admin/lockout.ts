@@ -103,7 +103,7 @@ export function isDomainBlocked(req: Request): boolean {
     req.headers.get('referer') ?? '',
     req.headers.get('host') ?? '',
   ];
-  return headers.some((h: Record<string, unknown>) =>
-    BLOCKED_DOMAINS.some((d: Record<string, unknown>) => h.toLowerCase().includes(d))
+  return headers.some((h) =>
+    BLOCKED_DOMAINS.some((d) => h.toLowerCase().includes(d))
   );
 }

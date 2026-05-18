@@ -167,12 +167,12 @@ export interface RankedItem extends ContentItem {
  */
 export function rankFeed(items: ContentItem[], feedSlots = 20): RankedItem[] {
   return items
-    .map((item: Record<string, unknown>) => {
+    .map((item) => {
       const mass = contentMass(item.buildTime, item.uniqueAssets);
       const rank = torridityRank(item.views, mass);
       const visibilityCap = throttledVisibility(mass, feedSlots);
       const decayFactor = contentDecayFactor(item.ageHours ?? 0);
       return { ...item, mass, rank, visibilityCap, decayFactor };
     })
-    .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b.rank - a.rank);
+    .sort((a, b) => b.rank - a.rank);
 }

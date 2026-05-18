@@ -701,8 +701,8 @@ export const LUCID_AVENUE_DISTRICTS: Record<DistrictId, LucidDistrict> = {
   },
 };
 
-const ALL_PATROLS = Object.values(LUCID_AVENUE_DISTRICTS).flatMap((district: Record<string, unknown>) => district.patrols);
-const INITIAL_PATROL_STEPS = Object.fromEntries(ALL_PATROLS.map((patrol: Record<string, unknown>) => [patrol.id, 0])) as Record<string, number>;
+const ALL_PATROLS = Object.values(LUCID_AVENUE_DISTRICTS).flatMap((district) => district.patrols);
+const INITIAL_PATROL_STEPS = Object.fromEntries(ALL_PATROLS.map((patrol) => [patrol.id, 0])) as Record<string, number>;
 
 const LUCID_CONTRACT_DEFS: Array<{
   id: LucidContractId;
@@ -789,7 +789,7 @@ export function getLucidAvenuePatrolPositions(
   state: LucidAvenueState,
   districtId: DistrictId = state.districtId,
 ) {
-  return getLucidAvenueDistrict(districtId).patrols.map((patrol: Record<string, unknown>) => ({
+  return getLucidAvenueDistrict(districtId).patrols.map((patrol) => ({
     ...patrol,
     position: patrol.path[state.patrolSteps[patrol.id] % patrol.path.length],
   }));
@@ -829,7 +829,7 @@ export function getLucidAvenueMissionChecklist(state: LucidAvenueState ){
 }
 
 export function getLucidAvenueRouteContracts(state: LucidAvenueState ){
-  return LUCID_CONTRACT_DEFS.map((contract: Record<string, unknown>) => ({
+  return LUCID_CONTRACT_DEFS.map((contract) => ({
     id: contract.id,
     title: contract.title,
     description: contract.description,
@@ -924,7 +924,7 @@ function isAdjacent(a: Position, b): Position {
 
 function meetsRequirements(state: LucidAvenueState, requirements): Requirement[] = [] {
   if (state.mode === 'sandbox') return true;
-  return requirements.every((requirement: Record<string, unknown>) => (
+  return requirements.every((requirement) => (
     requirement === 'allShards'
       ? state.shards.length >= LUCID_AVENUE_TOTAL_SHARDS
       : state.flags[requirement]
@@ -969,7 +969,7 @@ function withMessage(state: LucidAvenueState, message): string, logText = messag
 
 function isPassable(state: LucidAvenueState, district: LucidDistrict, position): Position {
   if (tileAt(district, position) === '#') return false;
-  const lock = district.locks.find((entry: Record<string, unknown>) => isSamePosition(entry.position, position));
+  const lock = district.locks.find((entry) => isSamePosition(entry.position, position));
   if (!lock) return true;
   return meetsRequirements(state, lock.requirements);
 }
@@ -978,7 +978,7 @@ function collectAtCurrentPosition(state: LucidAvenueState ){
   const district = getLucidAvenueDistrict(state.districtId);
   let nextState = state;
 
-  const shard = district.shards.find((entry: Record<string, unknown>) => isSamePosition(entry.position, nextState.player) && !nextState.shards.includes(entry.id));
+  const shard = district.shards.find((entry) => isSamePosition(entry.position, nextState.player) && !nextState.shards.includes(entry.id));
   if (shard) {
     nextState = appendLog({
       ...nextState,
@@ -988,7 +988,7 @@ function collectAtCurrentPosition(state: LucidAvenueState ){
     }, `✨ ${shard.label} recovered.`);
   }
 
-  const cache = district.caches.find((entry: Record<string, unknown>) => isSamePosition(entry.position, nextState.player) && !nextState.caches.includes(entry.id));
+  const cache = district.caches.find((entry) => isSamePosition(entry.position, nextState.player) && !nextState.caches.includes(entry.id));
   if (cache) {
     const creditGain = cache.credits ?? 0;
     const batteryGain = cache.battery ?? 0;
@@ -1006,7 +1006,7 @@ function collectAtCurrentPosition(state: LucidAvenueState ){
 
 function warpIfStandingOnExit(state: LucidAvenueState ){
   const district = getLucidAvenueDistrict(state.districtId);
-  const exit = district.exits.find((entry: Record<string, unknown>) => isSamePosition(entry.position, state.player));
+  const exit = district.exits.find((entry) => isSamePosition(entry.position, state.player));
   if (!exit) return state;
   if (!meetsRequirements(state, exit.requirements)) {
     return withMessage(state, exit.blockedMessage ?? 'That route is still sealed.', `🚫 ${exit.blockedMessage ?? 'Route sealed.'}`);
@@ -1051,7 +1051,7 @@ function advancePatrols(state: LucidAvenueState ){
   const district = getLucidAvenueDistrict(state.districtId);
   const patrolSteps = { ...state.patrolSteps };
 
-  district.patrols.forEach((patrol: Record<string, unknown>) => {
+  district.patrols.forEach((patrol) => {
     patrolSteps[patrol.id] = (patrolSteps[patrol.id] + 1) % patrol.path.length;
   });
 
@@ -1069,7 +1069,7 @@ function advancePatrols(state: LucidAvenueState ){
     }, '🛰️ Patrol grid jam held.');
   }
 
-  const patrolContact = getLucidAvenuePatrolPositions(nextState).some((patrol: Record<string, unknown>) => isSamePosition(patrol.position, nextState.player));
+  const patrolContact = getLucidAvenuePatrolPositions(nextState).some((patrol) => isSamePosition(patrol.position, nextState.player));
   if (patrolContact) {
     return resolvePatrolContact(nextState, 'A patrol swept the lane exactly as you crossed it.');
   }
@@ -1078,11 +1078,11 @@ function advancePatrols(state: LucidAvenueState ){
 }
 
 function findNearbyNpc(state: LucidAvenueState ){
-  return getLucidAvenueDistrict(state.districtId).npcs.find((npc: Record<string, unknown>) => isAdjacent(npc.position, state.player));
+  return getLucidAvenueDistrict(state.districtId).npcs.find((npc) => isAdjacent(npc.position, state.player));
 }
 
 function findNearbyTerminal(state: LucidAvenueState ){
-  return getLucidAvenueDistrict(state.districtId).terminals.find((terminal: Record<string, unknown>) => isAdjacent(terminal.position, state.player));
+  return getLucidAvenueDistrict(state.districtId).terminals.find((terminal) => isAdjacent(terminal.position, state.player));
 }
 
 function handleNpcInteraction(state: LucidAvenueState, npc): LucidNpc {
@@ -1293,7 +1293,7 @@ export function moveLucidAvenuePlayer(state: LucidAvenueState, dx: number, dy): 
 
     if (!isPassable(nextState, district, nextPosition)) {
       if (step === 0) {
-        const lock = district.locks.find((entry: Record<string, unknown>) => isSamePosition(entry.position, nextPosition));
+        const lock = district.locks.find((entry) => isSamePosition(entry.position, nextPosition));
         return withMessage(nextState, lock?.blockedMessage ?? 'That path is walled off by towers and traffic.', `🧱 ${lock?.blockedMessage ?? 'Blocked.'}`);
       }
       break;
@@ -1308,7 +1308,7 @@ export function moveLucidAvenuePlayer(state: LucidAvenueState, dx: number, dy): 
         : `${district.name}: move carefully and keep the patrol rhythm in your head.`,
     };
 
-    const directContact = getLucidAvenuePatrolPositions(nextState).some((patrol: Record<string, unknown>) => isSamePosition(patrol.position, nextPosition));
+    const directContact = getLucidAvenuePatrolPositions(nextState).some((patrol) => isSamePosition(patrol.position, nextPosition));
     if (directContact) {
       if (nextState.vehicleBoostTurns > 0) {
         nextState = appendLog({
@@ -1507,7 +1507,7 @@ export function interactInLucidAvenue(state: LucidAvenueState ){
 
 export function getLucidAvenuePatrolPathKeys(districtId: DistrictId ){
   const district = getLucidAvenueDistrict(districtId);
-  return new Set(district.patrols.flatMap((patrol: Record<string, unknown>) => patrol.path.map(keyForPosition)));
+  return new Set(district.patrols.flatMap((patrol) => patrol.path.map(keyForPosition)));
 }
 
 export function getLucidAvenueObjectiveKeys(state: LucidAvenueState ){
@@ -1515,10 +1515,10 @@ export function getLucidAvenueObjectiveKeys(state: LucidAvenueState ){
   const keys = new Set<string>();
 
   district.shards
-    .filter((shard: Record<string, unknown>) => !state.shards.includes(shard.id))
-    .forEach((shard: Record<string, unknown>) => keys.add(keyForPosition(shard.position)));
+    .filter((shard) => !state.shards.includes(shard.id))
+    .forEach((shard) => keys.add(keyForPosition(shard.position)));
 
-  district.terminals.forEach((terminal: Record<string, unknown>) => keys.add(keyForPosition(terminal.position)));
-  district.exits.forEach((exit: Record<string, unknown>) => keys.add(keyForPosition(exit.position)));
+  district.terminals.forEach((terminal) => keys.add(keyForPosition(terminal.position)));
+  district.exits.forEach((exit) => keys.add(keyForPosition(exit.position)));
   return keys;
 }

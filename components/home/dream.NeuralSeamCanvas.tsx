@@ -253,7 +253,7 @@ export default function NeuralSeamCanvas({ active, splitRatio }: NeuralSeamCanva
   useEffect(() => {
     if (!active) return;
 
-    const unsub = bridge.subscribeEventActivity((emission: Record<string, unknown>) => {
+    const unsub = bridge.subscribeEventActivity((emission) => {
       particlesRef.current.push(createSeamParticle(emission.channel));
       // Cap total live particles to prevent runaway allocations.
       if (particlesRef.current.length > 80) {

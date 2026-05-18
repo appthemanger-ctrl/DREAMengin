@@ -45,7 +45,7 @@ function LoginPageInner( ){
         if (!r.ok) throw new Error("Unable to load OAuth provider status");
         return r.json();
       })
-      .then((data: Record<string, unknown>) => setOauthProviders(data))
+      .then((data) => setOauthProviders(data))
       .catch(() => setOauthProviders(null));
   }, []);
 

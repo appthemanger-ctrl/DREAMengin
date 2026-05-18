@@ -161,7 +161,7 @@ export default function RootStatusScreen(){
 
         {actions.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {actions.map((action: Record<string, unknown>) => (
+            {actions.map((action) => (
               <Link
                 key={`${action.href}:${action.label}`}
                 href={action.href}

@@ -80,7 +80,7 @@ export function countFeaturesByStatus(
   manifest: DaydreamEnginManifest,
   status: FeatureStatus,
 ): number {
-  return manifest.features.filter((f: Record<string, unknown>) => f.status === status).length;
+  return manifest.features.filter((f) => f.status === status).length;
 }
 
 /**
@@ -130,7 +130,7 @@ export function computeAllBuildCycleStates(
  * Used by CI to gate full-platform UI quality runs.
  */
 export function allPairsInRefinePhase(states: BuildCycleState[]): boolean {
-  return states.length > 0 && states.every((s: Record<string, unknown>) => s.phase === 'REFINE');
+  return states.length > 0 && states.every((s) => s.phase === 'REFINE');
 }
 
 /**

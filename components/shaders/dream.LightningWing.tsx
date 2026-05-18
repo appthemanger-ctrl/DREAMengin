@@ -117,7 +117,7 @@ export function LightningWing(){
     [color, intensity, branchCount],
   );
 
-  useFrame((_state: Record<string, unknown>, delta: Record<string, unknown>) => {
+  useFrame((_state, delta) => {
     if (matRef.current) {
       matRef.current.uniforms.uTime.value += delta;
     }

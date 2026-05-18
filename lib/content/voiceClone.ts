@@ -141,7 +141,7 @@ export function speakWithBrowserTTS(
   rate = 1.0,
   pitch = 1.0
 ): Promise<void> {
-  return new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+  return new Promise((resolve, reject) => {
     if (typeof window === 'undefined' || !window.speechSynthesis) {
       reject(new Error('Web Speech API is not available in this environment.'));
       return;
@@ -177,7 +177,7 @@ export function getBrowserVoices(): SpeechSynthesisVoice[] {
 
 /** Convert an audio File to base64 (browser only). */
 export function audioFileToBase64(file: File): Promise<string> {
-  return new Promise((resolve: Record<string, unknown>, reject: Record<string, unknown>) => {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;

@@ -171,7 +171,7 @@ export async function retry<T>(
 
 /** Return a Promise that resolves after `ms` milliseconds. */
 export function sleep(ms: number): Promise<void> {
-  return new Promise((resolve: Record<string, unknown>) => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 // ── Improvement 12: deepClone ─────────────────────────────────────────────────

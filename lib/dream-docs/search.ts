@@ -40,7 +40,7 @@ export async function searchDreamDocs(
     return [];
   }
 
-  return (data ?? []).map((row: Record<string, unknown>) => ({
+  return (data ?? []).map((row) => ({
     sectionId: row.section_id as number,
     docId: row.doc_id as number,
     docSlug: row.doc_slug as string | null,

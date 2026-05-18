@@ -299,7 +299,7 @@ export default function UniversalAssetRegistry(){
       types.set(e.object_type, (types.get(e.object_type) ?? 0) + 1);
     }
     return Array.from(types.entries())
-      .sort((a: Record<string, unknown>, b: Record<string, unknown>) => b[1] - a[1])
+      .sort((a, b) => b[1] - a[1])
       .map(([type, count]) => ({ type, count, ...getTypeMeta(type) }));
   }, [entries]);
 
@@ -325,16 +325,16 @@ export default function UniversalAssetRegistry(){
     // Sort
     switch (sortMode) {
       case 'newest':
-        result = [...result].sort((a: Record<string, unknown>, b: Record<string, unknown>) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        result = [...result].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         break;
       case 'oldest':
-        result = [...result].sort((a: Record<string, unknown>, b: Record<string, unknown>) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        result = [...result].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
         break;
       case 'alphabetical':
-        result = [...result].sort((a: Record<string, unknown>, b: Record<string, unknown>) => a.label.localeCompare(b.label));
+        result = [...result].sort((a, b) => a.label.localeCompare(b.label));
         break;
       case 'type':
-        result = [...result].sort((a: Record<string, unknown>, b: Record<string, unknown>) => a.object_type.localeCompare(b.object_type));
+        result = [...result].sort((a, b) => a.object_type.localeCompare(b.object_type));
         break;
     }
 

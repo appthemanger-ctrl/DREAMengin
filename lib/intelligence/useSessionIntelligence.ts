@@ -158,7 +158,7 @@ export function useSessionIntelligence(
 
   // Subscribe to dreamOSBus for artifact updates AND automatic subsystem ingest.
   useEffect(() => {
-    const unsubscribe = dreamOSBus.subscribe((snapshot: Record<string, unknown>) => {
+    const unsubscribe = dreamOSBus.subscribe((snapshot) => {
       const continuity = continuityRef.current;
 
       // Artifact snapshot → update continuity engine.
@@ -166,7 +166,7 @@ export function useSessionIntelligence(
         const lastArtifact = snapshot.artifacts[0] ?? null;
         continuity.updateArtifacts(
           snapshot.artifacts.length,
-          snapshot.artifacts.map((a: Record<string, unknown>) => a.kind),
+          snapshot.artifacts.map((a) => a.kind),
           lastArtifact?.title ?? null,
         );
         setCurrentSessionSummary(continuity.getCurrentSessionSummary());
@@ -174,7 +174,7 @@ export function useSessionIntelligence(
       }
 
       // runtimeContexts → auto-ingest the dominant subsystem.
-      const dominant = snapshot.runtimeContexts.find((ctx: Record<string, unknown>) => ctx.dominant)
+      const dominant = snapshot.runtimeContexts.find((ctx) => ctx.dominant)
         ?? snapshot.runtimeContexts[0];
       if (dominant?.subsystemId) {
         ingestSubsystem(dominant.subsystemId, prevBusSubsystemRef);

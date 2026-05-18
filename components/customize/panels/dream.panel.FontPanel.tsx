@@ -50,7 +50,7 @@ export default function FontPanel( ){
   return (
     <SlidePanel title="Font" onClose={closePanel}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {FONTS.map(({ id, label: string, preview: Record<string, unknown>, desc }) => {
+        {FONTS.map(({ id, label, preview, desc }) => {
           const isActive = draftSkin.fontFamily === id;
           return (
             <button

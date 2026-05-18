@@ -48,7 +48,7 @@ export function normaliseMastodon(
   // If this is a reblog (boost), normalise the inner status
   const s = status.reblog ?? status;
 
-  const media: FeedItemMedia[] = (s.media_attachments ?? []).map((m: Record<string, unknown>) => ({
+  const media: FeedItemMedia[] = (s.media_attachments ?? []).map((m) => ({
     url: m.url,
     type: m.type === 'video' ? 'video' : m.type === 'audio' ? 'audio' : 'image',
     alt: m.description,
@@ -511,7 +511,7 @@ export function normaliseTwitter(item: GenericRssItem, username: string): Unifie
  */
 export function deduplicateFeedItems(items: UnifiedFeedItem[]): UnifiedFeedItem[] {
   const seen = new Set<string>();
-  return items.filter((item: Record<string, unknown>) => {
+  return items.filter((item) => {
     const key = `${item.provider}:${item.external_id}`;
     if (seen.has(key)) return false;
     seen.add(key);

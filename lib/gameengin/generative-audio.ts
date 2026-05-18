@@ -40,7 +40,7 @@ export class AdaptiveMusicEngine {
   private subscribers: Array<(t: { from: string; to: string; crossfadeMs: number }) => void> = [];
 
   constructor(config: MusicConfig) {
-    this.nodes = new Map(config.nodes.map((n: Record<string, unknown>) => [n.id, n]));
+    this.nodes = new Map(config.nodes.map((n) => [n.id, n]));
     this.outgoing = new Map();
     for (const edge of config.edges) {
       const arr = this.outgoing.get(edge.from) ?? [];
@@ -60,7 +60,7 @@ export class AdaptiveMusicEngine {
 
   onTransition(cb: (t: { from: string; to: string; crossfadeMs: number }) => void): () => void {
     this.subscribers.push(cb);
-    return () => { this.subscribers = this.subscribers.filter((s: Record<string, unknown>) => s !== cb); };
+    return () => { this.subscribers = this.subscribers.filter((s) => s !== cb); };
   }
 
   private maybeTransition(): void {

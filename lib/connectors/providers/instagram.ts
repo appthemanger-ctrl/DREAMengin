@@ -63,7 +63,7 @@ async function fetchInstagramJson<T>(path: string, accessToken: string): Promise
 
 function normaliseInstagramMedia(item: InstagramMedia): UnifiedFeedItem {
   const caption = item.caption ?? '';
-  const tags = (caption.match(/#\w+/g) ?? []).map((t: Record<string, unknown>) => t.slice(1).toLowerCase());
+  const tags = (caption.match(/#\w+/g) ?? []).map((t) => t.slice(1).toLowerCase());
   const thumbnail = item.thumbnail_url ?? item.media_url ?? '';
 
   return {
@@ -107,7 +107,7 @@ export async function instagramSync(creds: InstagramCredentials): Promise<Unifie
 
   return (data.data ?? [])
     .map(normaliseInstagramMedia)
-    .sort((a: Record<string, unknown>, b: Record<string, unknown>) => Date.parse(b.published_at) - Date.parse(a.published_at));
+    .sort((a, b) => Date.parse(b.published_at) - Date.parse(a.published_at));
 }
 
 /**

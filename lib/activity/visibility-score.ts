@@ -94,10 +94,10 @@ export async function sortByVisibilityScore<T extends { id: string }>(
 ): Promise<T[]> {
   if (posts.length === 0) return posts;
 
-  const postIds = posts.map((p: Record<string, unknown>) => p.id);
+  const postIds = posts.map((p) => p.id);
   const scores = await calculateVisibilityScores(postIds);
 
-  return [...posts].sort((a: Record<string, unknown>, b: Record<string, unknown>) => {
+  return [...posts].sort((a, b) => {
     const scoreA = scores.get(a.id) ?? 0;
     const scoreB = scores.get(b.id) ?? 0;
     return scoreB - scoreA; // Descending

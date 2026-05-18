@@ -32,7 +32,7 @@ function unpackUstar(bytes: Uint8Array): DreamrFileEntry[] {
   let offset = 0;
   while (offset + TAR_BLOCK <= bytes.length) {
     const header = bytes.subarray(offset, offset + TAR_BLOCK);
-    if (header.every((b: Record<string, unknown>) => b === 0)) break;
+    if (header.every((b) => b === 0)) break;
     const name = decodeAscii(header.subarray(USTAR_NAME_START, USTAR_NAME_END_EXCLUSIVE));
     const prefix = decodeAscii(
       header.subarray(USTAR_PREFIX_START, USTAR_PREFIX_END_EXCLUSIVE),
@@ -58,7 +58,7 @@ export function parseDreamrArchive(input: Uint8Array | ArrayBuffer): DreamrCartr
 
   const tarBytes = bytes.subarray(CARTRIDGE_MAGIC.length);
   const files = unpackUstar(tarBytes);
-  const manifestFile = files.find((file: Record<string, unknown>) => file.name === 'MANIFEST.json');
+  const manifestFile = files.find((file) => file.name === 'MANIFEST.json');
   if (!manifestFile) {
     throw new Error('Invalid .dreamr cartridge: MANIFEST.json is required');
   }
@@ -70,7 +70,7 @@ export function parseDreamrArchive(input: Uint8Array | ArrayBuffer): DreamrCartr
     manifest,
     files,
     getFile(name: string) {
-      return files.find((file: Record<string, unknown>) => file.name === name)?.data ?? null;
+      return files.find((file) => file.name === name)?.data ?? null;
     },
   };
 }

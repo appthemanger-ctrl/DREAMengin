@@ -142,7 +142,7 @@ export default function CanvasDropZone(){
       setDragActive(false);
       if (disabled) return;
 
-      const files = Array.from(e.dataTransfer.files).filter((f: Record<string, unknown>) =>
+      const files = Array.from(e.dataTransfer.files).filter((f) =>
         isAcceptedFile(f.name),
       );
 
