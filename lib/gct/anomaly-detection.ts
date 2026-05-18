@@ -21,7 +21,7 @@ export async function detectAnomalies(
   const engine = new GCTEngine({ preferGPU: true, numTemplates: normalPatterns.length });
   await engine.init();
 
-  const templates: Template[] = normalPatterns.map((pattern, index) => ({
+  const templates: Template[] = normalPatterns.map((pattern, index: number) => ({
     id: `pattern-${index}`,
     data: pattern,
   }));

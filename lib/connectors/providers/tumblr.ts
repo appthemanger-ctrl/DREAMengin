@@ -79,7 +79,7 @@ export async function tumblrSync(creds: TumblrCredentials): Promise<UnifiedFeedI
   return items.map((item) => normaliseTumblr(item.raw as Parameters<typeof normaliseTumblr>[0], slug));
 }
 
-export function tumblrCredentialFields() {
+export function tumblrCredentialFields( ){
   return [
     {
       key: 'username',

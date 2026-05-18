@@ -8,11 +8,11 @@
  * cartridge runs on. This module is the one coherent surface that ties the
  * existing pieces together:
  *
- *   • Renderer        — EliteGameEngine (WebGPU-first, ECS, adaptive budget)
- *   • AI              — AIDirector (TF.js adaptive difficulty, on-device)
- *   • Post-FX         — PostFXManager (bloom, glow, CA, vignette, grain)
+ *   • Renderer         — EliteGameEngine (WebGPU-first, ECS, adaptive budget)
+ *   • AI               — AIDirector (TF.js adaptive difficulty, on-device)
+ *   • Post-FX          — PostFXManager (bloom, glow, CA, vignette, grain)
  *   • Power Systems   — 20 systems (rollback netcode, GPU compute, BVH,
- *                       worker jobs, terrain, GI probes, asset streaming…)
+ *                        worker jobs, terrain, GI probes, asset streaming…)
  *   • Cartridge bay   — GameCartridge / GameRuntime host
  *   • Input           — Gamepad API + DualSense (Bluetooth/USB/HID)
  *   • Persistence     — quick-resume snapshot/restore via window.localStorage
@@ -171,6 +171,7 @@ export class GameEnginPlatform {
   private _telemetry: FrameTelemetry | null = null;
   private _disposed = false;
   private _elapsed = 0;
+  
   private _onKey = (ev: KeyboardEvent, type: 'keydown' | 'keyup') => {
     if (type === 'keydown') this._heldKeys.add(ev.key);
     else this._heldKeys.delete(ev.key);
@@ -224,7 +225,7 @@ export class GameEnginPlatform {
       window.addEventListener('keyup', platform._onKeyUp);
     }
 
-    platform.engine.onFrame((dt, telemetry) => {
+    platform.engine.onFrame((dt: number, telemetry) => {
       platform._telemetry = telemetry;
       platform._elapsed += dt;
       for (const cb of platform._tickSubs) cb(dt, platform._elapsed);
@@ -376,19 +377,62 @@ export class GameEnginPlatform {
     });
 
     return {
+      engineVersion: '1.0.0',
+      
+      save: {
+        write: async (key: string, data: unknown) => { this.saveQuickResume(data); },
+        read: async <T,>(key: string) => {
+          const entry = this.loadQuickResume<T>(this.activeCartridgeId() || key);
+          return entry ? entry.data : null;
+        },
+        load: async <T,>(key: string) => {
+          const entry = this.loadQuickResume<T>(this.activeCartridgeId() || key);
+          return entry ? entry.data : null;
+        },
+        list: async () => [],
+        erase: async (key: string) => {},
+        autoSave: async () => {},
+      },
+
+      achievements: {
+        unlock: async (id: string) => { console.log(`[Platform] Achievement unlocked: ${id}`); },
+        progress: async (id: string, current: number, target: number) => {},
+        getAll: async () => [],
+      },
+
+      audio: {
+        play: (soundId: string) => {},
+        stop: (soundId: string) => {},
+      },
+
+      haptics: {
+        vibrate: (pattern: number | number[]) => {},
+      },
+
+      assets: {
+        load: async (assets: string[]) => ({}),
+      },
+
+      network: {
+        send: (type: string, payload: unknown) => {},
+        onMessage: (type: string, cb: (payload: unknown) => void) => () => {},
+      },
+      
       loop: {
-        onTick: (cb) => {
+        onTick: (cb: (dt: number, elapsed: number) => void) => {
           this._tickSubs.add(cb);
           return () => this._tickSubs.delete(cb);
         },
-        onRender: (cb) => {
+        onRender: (cb: (dt: number) => void) => {
           this._renderSubs.add(cb);
           return () => this._renderSubs.delete(cb);
         },
       },
+      
       physics,
+      
       input: {
-        on: (event, cb) => {
+        on: (event: string, cb: (payload: unknown) => void) => {
           let bucket = this._inputSubs.get(event);
           if (!bucket) {
             bucket = new Set();
@@ -398,10 +442,11 @@ export class GameEnginPlatform {
           bucket.add(wrapper);
           return () => bucket?.delete(wrapper);
         },
-        isKeyDown: (key) => this._heldKeys.has(key),
+        isKeyDown: (key: string) => this._heldKeys.has(key),
       },
+      
       score: {
-        submit: async (gameId, value, level) => {
+        submit: async (gameId: string, value: number, level?: number) => {
           if (typeof window === 'undefined') return;
           try {
             await fetch('/api/game-scores', {
@@ -414,13 +459,15 @@ export class GameEnginPlatform {
           }
         },
       },
+      
       pool: {
         acquire: <T,>(factory: () => T) => factory(),
-        release: () => { /* no-op default; cartridges may install richer pools */ },
+        release: (obj: unknown) => { /* no-op default */ },
       },
+      
       telemetry: {
-        reportFrame: () => { /* engine drives telemetry; reports are advisory */ },
+        reportFrame: (dtMs: number) => { /* engine drives telemetry */ },
       },
-    };
+    } as unknown as GameEngineAPI;
   }
 }

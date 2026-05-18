@@ -191,7 +191,7 @@ function FilterRow({
 
 // ── Card ────────────────────────────────────────────────────────────────────
 
-function CartridgeCard({ cartridge: c }: { cartridge: CartridgeManifestEntry }) {
+function CartridgeCard({ cartridge: c }: {cartridge: CartridgeManifestEntry}) {
   return (
     <Link
       href={`/gameengin/cartridges/${c.id}`}

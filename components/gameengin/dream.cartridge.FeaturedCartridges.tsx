@@ -22,7 +22,7 @@ export interface FeaturedCartridgesProps {
   limit?: number;
 }
 
-export default function FeaturedCartridges({
+export default function FeaturedCartridges(){
   featured,
   limit = 3,
 }: FeaturedCartridgesProps) {

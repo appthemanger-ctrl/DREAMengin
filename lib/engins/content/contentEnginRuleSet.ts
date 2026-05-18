@@ -132,14 +132,14 @@ function transform(state: EnginBaseState, action: ContentEnginAction): EnginBase
     case 'content:item-remove': {
       const { itemId } = (action as EnginAction<'content:item-remove', { itemId: string }>).payload!;
       return patchBaseState(state, {
-        domain: { ...domain, publishQueue: queue().filter((i) => i.id !== itemId) },
+        domain: { ...domain, publishQueue: queue().filter((i: number ) => i.id !== itemId) },
       });
     }
 
     case 'content:item-publish': {
       const { itemId } = (action as EnginAction<'content:item-publish', { itemId: string }>).payload!;
       return patchBaseState(state, {
-        domain: { ...domain, publishQueue: queue().filter((i) => i.id !== itemId) },
+        domain: { ...domain, publishQueue: queue().filter((i: number ) => i.id !== itemId) },
       });
     }
 

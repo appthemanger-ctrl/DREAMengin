@@ -29,7 +29,7 @@ const DEFAULT_SETTINGS: NotificationSettings = {
   emailDigest: 'weekly',
 };
 
-export default function NotificationSettingsPage() {
+export default function NotificationSettingsPage( ){
   const [settings, setSettings] = useState<NotificationSettings>(DEFAULT_SETTINGS);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -44,7 +44,7 @@ export default function NotificationSettingsPage() {
 
     // Then fetch real stored settings from Supabase
     fetch('/api/settings/notifications')
-      .then((r) => r.json())
+      .then((r: number ) => r.json())
       .then((data: { ok: boolean; notifications: Partial<NotificationSettings> | null }) => {
         if (data.ok && data.notifications) {
           setSettings((p) => ({ ...p, ...data.notifications }));
@@ -55,7 +55,7 @@ export default function NotificationSettingsPage() {
   }, []);
 
   const toggleSetting = (key: string) => {
-    setSettings(prev => ({ ...prev, [key]: !prev[key as keyof typeof prev] }));
+    setSettings((prev) => ({ ...prev, [key]: !prev[key as keyof typeof prev] }));
   };
 
   const handleSave = useCallback(async () => {
@@ -155,7 +155,7 @@ export default function NotificationSettingsPage() {
               {['off', 'daily', 'weekly'].map((option) => (
                 <button
                   key={option}
-                  onClick={() => setSettings(prev => ({ ...prev, emailDigest: option }))}
+                  onClick={() => setSettings((prev) => ({ ...prev, emailDigest: option }))}
                   className="w-full p-3 rounded-xl text-left transition-colors"
                   style={{
                     background: settings.emailDigest === option ? 'rgba(42,138,184,0.12)' : 'rgba(255,255,255,0.4)',

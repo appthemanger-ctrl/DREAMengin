@@ -82,7 +82,7 @@ export default function EnhancedSpatialShell({
     engine.getWidgetMemory().initialize(widgets);
     
     // Listen to navigation changes
-    const handleNavChange = (data: any) => {
+    const handleNavChange = (data: unknown) => {
       const snapshot = data.state as Int32Array;
       setNavState({
         layer: snapshot[0],

@@ -36,7 +36,7 @@ function walk(dir, ext = ['.ts', '.tsx']) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       results.push(...walk(full, ext));
-    } else if (ext.some(e => entry.name.endsWith(e))) {
+    } else if (ext.some((e) => entry.name.endsWith(e))) {
       results.push(full);
     }
   }
@@ -128,12 +128,12 @@ function scanActions() {
 
     // Collect all exported function names
     const fnMatches = [...src.matchAll(/export\s+(?:async\s+)?function\s+(\w+)\s*\(/g)];
-    let fns = fnMatches.map(m => m[1]);
+    let fns = fnMatches.map((m) => m[1]);
 
     // Collect named exports via export { ... }
     const namedMatches = [...src.matchAll(/export\s*\{([^}]+)\}/g)];
     for (const m of namedMatches) {
-      m[1].split(',').forEach(n => {
+      m[1].split(',').forEach((n) => {
         const trimmed = n.trim().split(/\s+as\s+/)[0].trim();
         if (trimmed && !fns.includes(trimmed)) fns.push(trimmed);
       });
@@ -145,8 +145,8 @@ function scanActions() {
       if (!fns.includes(m[1])) fns.push(m[1]);
     }
 
-    const httpHandlers = fns.filter(n => HTTP_METHODS.includes(n));
-    const serverFns    = fns.filter(n => !HTTP_METHODS.includes(n) &&
+    const httpHandlers = fns.filter((n) => HTTP_METHODS.includes(n));
+    const serverFns    = fns.filter((n) => !HTTP_METHODS.includes(n) &&
                                          n !== 'config' && n !== 'runtime');
 
     actions.push({
@@ -164,14 +164,14 @@ function scanActions() {
 
 function scanRoutes() {
   const apiDir = path.join(ROOT, 'app', 'api');
-  const files = walk(apiDir).filter(f => f.endsWith('route.ts'));
+  const files = walk(apiDir).filter((f) => f.endsWith('route.ts'));
   const routes = [];
 
   const HTTP_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'];
 
   for (const f of files) {
     const src = readFile(f);
-    const methods = HTTP_METHODS.filter(m =>
+    const methods = HTTP_METHODS.filter((m) =>
       new RegExp(`export\\s+(?:async\\s+)?function\\s+${m}\\b`).test(src) ||
       new RegExp(`export\\s+const\\s+${m}\\s*=`).test(src)
     );
@@ -264,8 +264,8 @@ function scanSchema() {
   const migrationsDir = path.join(ROOT, 'supabase', 'migrations');
   if (fs.existsSync(migrationsDir)) {
     const sqlFiles = fs.readdirSync(migrationsDir)
-      .filter(f => f.endsWith('.sql'))
-      .map(f => path.join(migrationsDir, f));
+      .filter((f) => f.endsWith('.sql'))
+      .map((f) => path.join(migrationsDir, f));
 
     for (const sqlFile of sqlFiles) {
       const sqlSrc = readFile(sqlFile);
@@ -372,7 +372,7 @@ function scanEvents() {
   }
 
   // Deduplicate files per event
-  const events = [...seen.values()].map(e => ({ ...e, files: [...new Set(e.files)] }));
+  const events = [...seen.values()].map((e) => ({ ...e, files: [...new Set(e.files)] }));
   events.sort((a, b) => a.event.localeCompare(b.event));
   return { ...META, count: events.length, events };
 }
@@ -385,7 +385,7 @@ function scanUISurfaces() {
   const surfaces  = [];
 
   // Page surfaces from app/ directory
-  const pageFiles = walk(appDir, ['.tsx']).filter(f => f.endsWith('page.tsx'));
+  const pageFiles = walk(appDir, ['.tsx']).filter((f) => f.endsWith('page.tsx'));
   for (const f of pageFiles) {
     const relPath  = rel(f);
     const urlPath  = relPath.replace(/^app/, '').replace(/\/page\.tsx$/, '') || '/';
@@ -397,8 +397,8 @@ function scanUISurfaces() {
 
     // Find major imported components
     const imports  = [...src.matchAll(/import\s+(?:\{[^}]+\}|(\w+))\s+from\s+['"`]([^'"`]+)['"`]/g)]
-      .map(m => ({ name: m[1] || m[0].match(/import\s+(?:\{([^}]+)\})/)?.[1]?.trim(), from: m[2] }))
-      .filter(i =>
+      .map((m) => ({ name: m[1] || m[0].match(/import\s+(?:\{([^}]+)\})/)?.[1]?.trim(), from: m[2] }))
+      .filter((i) =>
         i.from.startsWith('@/components') ||
         i.from.startsWith('@/dreamdmbar') ||
         i.from.startsWith('@/engins') ||
@@ -416,7 +416,7 @@ function scanUISurfaces() {
   }
 
   // Layout surfaces
-  const layoutFiles = walk(appDir, ['.tsx']).filter(f => f.endsWith('layout.tsx'));
+  const layoutFiles = walk(appDir, ['.tsx']).filter((f) => f.endsWith('layout.tsx'));
   for (const f of layoutFiles) {
     const relPath  = rel(f);
     const src      = readFile(f);

@@ -117,7 +117,7 @@ export function personalizeFeedOrder<T>(
   if (!hasPreferences) return [...items];
 
   return items
-    .map((item, index) => {
+    .map((item, index: number) => {
       const post = getPost(item);
       if (!post) return { item, index, score: 0, hidden: false };
 
@@ -136,7 +136,7 @@ export function personalizeFeedOrder<T>(
         hidden: preferences.hiddenPostIds.has(post.id),
       };
     })
-    .filter(entry => !entry.hidden)
+    .filter((entry) => !entry.hidden)
     .sort((a, b) => b.score - a.score || a.index - b.index)
-    .map(entry => entry.item);
+    .map((entry) => entry.item);
 }

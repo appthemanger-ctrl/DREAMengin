@@ -81,7 +81,7 @@ export async function twitterSync(creds: TwitterCredentials): Promise<UnifiedFee
   return items.map((item) => normaliseTwitter(item.raw as Parameters<typeof normaliseTwitter>[0], username));
 }
 
-export function twitterCredentialFields() {
+export function twitterCredentialFields( ){
   return [
     {
       key: 'username',

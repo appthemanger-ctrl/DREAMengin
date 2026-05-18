@@ -21,7 +21,7 @@ import {
 } from '@/lib/admin/lockout';
 
 
-function deny(msg: string, status: number) {
+function deny(msg: string, status): number {
   return NextResponse.json({ error: msg }, { status });
 }
 
@@ -69,7 +69,7 @@ Be clear, fair, and thorough. The person you are speaking with is the owner/admi
 
 // ── Route handler ─────────────────────────────────────────────────────────────
 
-export async function POST(request: Request) {
+export async function POST(request: Request ){
   // 1. Check permanent lockout (isAdminLocked is async)
   if (await isAdminLocked()) {
     return deny('Access permanently locked. Edit repository configuration to reset.', 403);

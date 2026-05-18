@@ -25,7 +25,7 @@ const ALL_DIRECTIONS: readonly MoveDirection[] = [
 // of the engine.
 // -------------------------------------------------------------------
 const STATE_LEDGER: ReadonlyMap<DreamNode, Readonly<DreamState>> = new Map(
-  ALL_NODES.map(node => [node, Object.freeze(getStateForNode(node))])
+  ALL_NODES.map((node) => [node, Object.freeze(getStateForNode(node))])
 );
 
 // -------------------------------------------------------------------

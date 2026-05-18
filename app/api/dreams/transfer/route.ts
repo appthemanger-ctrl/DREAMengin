@@ -6,14 +6,14 @@ const SURFACE = {
   FACE: 1,
 } as const;
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   }
 
-  let body: any;
+  let body: unknown;
   try {
     body = await req.json();
   } catch {
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   const toRuntime = body?.toRuntime === 'FACE' ? 'FACE' : 'HOME';
   const position = body?.position && typeof body.position === 'object' ? body.position : {};
   if (body?.swap === true) {
-    const { data: swappedCount, error: rpcError } = await (supabase as any)
+    const { data: swappedCount, error: rpcError } = await (supabase as SupabaseClient)
       .rpc('swap_user_dream_runtimes', { p_user_id: user.id });
     if (rpcError) {
       return NextResponse.json({ ok: false, error: rpcError.message }, { status: 500 });
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'dream_id is required' }, { status: 400 });
   }
 
-  const { error } = await (supabase as any)
+  const { error } = await (supabase as SupabaseClient)
     .from('dream_instances')
     .update({
       surface: SURFACE[toRuntime as keyof typeof SURFACE],

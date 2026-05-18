@@ -90,7 +90,7 @@ export function findFirstOccurrenceIds(dots: JourneyDot[]): Set<string> {
 export function computeCurrentStreak(dots: JourneyDot[]): number {
   if (dots.length === 0) return 0;
 
-  const activeDays = new Set(dots.map(d => calendarDay(d.created_at)));
+  const activeDays = new Set(dots.map((d) => calendarDay(d.created_at)));
   const todayDay   = calendarDay(new Date().toISOString());
 
   let streak = 0;
@@ -121,7 +121,7 @@ export function computeWeeklyFrequency(dots: JourneyDot[]): Map<string, number> 
   const windowStart   = now - SEVEN_DAYS_MS;
 
   // Only consider dots within the last 7 days
-  const recentDots = dots.filter(d => new Date(d.created_at).getTime() >= windowStart);
+  const recentDots = dots.filter((d) => new Date(d.created_at).getTime() >= windowStart);
 
   // Count per kind within recent window
   const kindCount = new Map<string, number>();
@@ -188,7 +188,7 @@ export function annotateDotsWithInsights(dots: JourneyDot[]): AnnotatedDot[] {
   const weeklyFreqs    = computeWeeklyFrequency(dots);
   const returnGaps     = detectReturnGaps(dots);
 
-  return dots.map(dot => {
+  return dots.map((dot) => {
     const insight: DotInsight = {};
 
     if (firstIds.has(dot.id))          insight.isFirst          = true;

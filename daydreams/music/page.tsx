@@ -85,7 +85,7 @@ const PROMO_TIMELINE = [
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default async function MusicArtistHubPage() {
+export default async function MusicArtistHubPage( ){
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -156,7 +156,7 @@ export default async function MusicArtistHubPage() {
           {/* ── Release Pipeline ── */}
           <Section title="Release Pipeline" icon={<Zap className="w-3.5 h-3.5" />} badge="6 stages" badgeColor="#00bcd4">
             <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4 }}>
-              {PIPELINE_STAGES.map((stage, i) => (
+              {PIPELINE_STAGES.map((stage, i: number) => (
                 <div key={stage.id} style={{
                   flexShrink: 0, minWidth: 90,
                   padding: '12px 10px', borderRadius: 10,
@@ -188,7 +188,7 @@ export default async function MusicArtistHubPage() {
           {/* ── Distribution Readiness ── */}
           <Section title="Distribution Readiness" icon={<Globe className="w-3.5 h-3.5" />}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-              {DIST_PLATFORMS.map(p => (
+              {DIST_PLATFORMS.map((p) => (
                 <div key={p.name} style={{
                   padding: '10px', borderRadius: 9,
                   background: 'rgba(255,255,255,0.04)',
@@ -236,7 +236,7 @@ export default async function MusicArtistHubPage() {
                 { label: 'Save Rate',      value: '—',    color: '#f59e0b' },
                 { label: 'Skip Rate',      value: '—',    color: '#ef4444' },
                 { label: 'Discovery %',    value: '—',    color: '#00d0f0' },
-              ].map(stat => (
+              ].map((stat) => (
                 <div key={stat.label} style={{
                   padding: '10px 12px', borderRadius: 9,
                   background: 'rgba(255,255,255,0.04)',
@@ -261,7 +261,7 @@ export default async function MusicArtistHubPage() {
           {/* ── Monetization Tracker ── */}
           <Section title="Monetization Tracker" icon={<DollarSign className="w-3.5 h-3.5" />} badge="Revenue" badgeColor="#f59e0b">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-              {MONETIZE_ITEMS.map(item => (
+              {MONETIZE_ITEMS.map((item) => (
                 <div key={item.label} style={{
                   display: 'flex', alignItems: 'center', gap: 10,
                   padding: '9px 12px', borderRadius: 9,
@@ -286,7 +286,7 @@ export default async function MusicArtistHubPage() {
           {/* ── Promotion Scheduler ── */}
           <Section title="Promotion Scheduler" icon={<Clock className="w-3.5 h-3.5" />} badge="Timeline" badgeColor="#ec4899">
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {PROMO_TIMELINE.map(item => (
+              {PROMO_TIMELINE.map((item) => (
                 <div key={item.day} style={{
                   display: 'flex', alignItems: 'center', gap: 10,
                   padding: '8px 12px', borderRadius: 9,
@@ -326,7 +326,7 @@ export default async function MusicArtistHubPage() {
                 { icon: DiscAlbum,  label: 'Albums',   count: '—' },
                 { icon: TrendingUp, label: 'Streams',  count: '—' },
                 { icon: Upload,     label: 'Releases', count: '—' },
-              ].map(({ icon: Icon, label, count }) => (
+              ].map(({ icon, label, count }) => (
                 <div key={label} style={{
                   padding: '12px', borderRadius: 9, textAlign: 'center',
                   background: 'rgba(255,255,255,0.04)',
@@ -357,7 +357,7 @@ export default async function MusicArtistHubPage() {
 
 // ── Section wrapper component ─────────────────────────────────────────────────
 
-function Section({
+function Section(){
   title, icon, badge, badgeColor, children,
 }: {
   title: string;

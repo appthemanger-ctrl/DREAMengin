@@ -26,7 +26,7 @@
  *   const firedIds = seamClipboard.setWithEngins('starmaker', 'lab', artifact);
  *
  * Usage (consumer — runs in a runtime region):
- *   const off = seamClipboard.subscribe(payload => { ... });
+ *   const off = seamClipboard.subscribe((payload) => { ... });
  *   return off; // cleanup
  *
  * Architecture: docs/ARCHITECTURE.md §1 (Runtime regions)
@@ -210,7 +210,7 @@ class SeamClipboard {
    * @param artifact Serialisable artifact data merged into each workflow payload.
    * @returns        Array of workflow IDs that were executed (may be empty).
    */
-  setWithEngins(from: EnginKey, to: EnginKey, artifact: Record<string, unknown>): string[] {
+  setWithEngins(from: EnginKey, to: EnginKey, artifact): string[] {
     const workflows = findWorkflows(from, to);
     const firedIds: string[] = [];
     for (const workflow of workflows) {

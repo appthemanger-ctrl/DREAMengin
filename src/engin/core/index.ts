@@ -51,7 +51,7 @@ interface RuleSetDefinition {
   id: string;
   constraints: unknown[];
   transforms:
-    | ((state: Record<string, unknown>, params: Record<string, unknown>) => Record<string, unknown>)
+    | ((state, params) => Record<string, unknown>)
     | Record<string, unknown>;
   params: Record<string, unknown>;
 }
@@ -350,7 +350,7 @@ export class UniversalEngine {
     return this.snapshots;
   }
 
-  setState(nextState: Record<string, unknown>): Readonly<Record<string, unknown>> {
+  setState(nextState): Readonly<Record<string, unknown>> {
     const immutable = deepFreeze(cloneUnknown(normalizeState(nextState)));
     this.activeState = immutable;
     this.snapshots = [...this.snapshots, immutable];
@@ -464,7 +464,7 @@ export class UniversalEngine {
 
     const transformsRaw = ruleSet.transforms;
     const transforms = typeof transformsRaw === 'function'
-      ? transformsRaw as (state: Record<string, unknown>, params: Record<string, unknown>) => Record<string, unknown>
+      ? transformsRaw as (state, params) => Record<string, unknown>
       : normalizeState(transformsRaw);
 
     return {

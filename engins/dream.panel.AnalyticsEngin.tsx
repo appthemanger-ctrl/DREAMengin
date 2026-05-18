@@ -73,7 +73,7 @@ export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: P
       if (data.user) {
         setUserId(data.user.id);
         // Check admin role
-        (supabase as any)
+        (supabase as SupabaseClient)
           .from('user_roles')
           .select('role')
           .eq('user_id', data.user.id)
@@ -91,7 +91,7 @@ export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: P
     if (!isAdmin) return;
     setPlatformLoading(true);
     fetch('/api/metrics/platform')
-      .then((r) => (r.ok ? r.json() : null))
+      .then((r: number ) => (r.ok ? r.json() : null))
       .then((data) => setPlatformMetrics(data))
       .catch(() => {})
       .finally(() => setPlatformLoading(false));
@@ -102,7 +102,7 @@ export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: P
     if (!userId) return;
     setCreditsLoading(true);
     fetch('/api/skip-credits/balance')
-      .then((r) => (r.ok ? r.json() : null))
+      .then((r: number ) => (r.ok ? r.json() : null))
       .then((data) => setSkipCredit(data?.skip_credit ?? null))
       .catch(() => {})
       .finally(() => setCreditsLoading(false));
@@ -112,7 +112,7 @@ export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: P
     if (!isAdmin) return;
     setPlatformLoading(true);
     fetch('/api/metrics/platform')
-      .then((r) => (r.ok ? r.json() : null))
+      .then((r: number ) => (r.ok ? r.json() : null))
       .then((data) => setPlatformMetrics(data))
       .catch(() => {})
       .finally(() => setPlatformLoading(false));

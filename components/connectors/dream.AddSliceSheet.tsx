@@ -39,12 +39,12 @@ export default function AddSliceSheet({
   // Limit to 5 slice types (req 56)
   const available = connector.sliceTypes.slice(0, 5);
 
-  function handlePick(st: SliceTypeDef) {
+  function handlePick(st: SliceTypeDef ){
     setSelected(st);
     setStep('preview');
   }
 
-  function handleAdd() {
+  function handleAdd( ){
     if (!selected) return;
     const slice: Omit<FeedSlice, 'order'> = {
       id: `${connector.id}-${selected.id}-${Date.now()}`,
@@ -151,7 +151,7 @@ export default function AddSliceSheet({
                 </div>
               </div>
               {/* Skeleton preview rows to show the shape of content */}
-              {[80, 100, 65].map((w, i) => (
+              {[80, 100, 65].map((w, i: number) => (
                 <div key={i} style={{
                   height: 10, borderRadius: 5, marginBottom: 6,
                   background: 'rgba(42,138,184,0.15)', width: `${w}%`,

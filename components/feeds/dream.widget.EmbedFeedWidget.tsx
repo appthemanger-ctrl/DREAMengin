@@ -71,7 +71,7 @@ function formatViews(n: number): string {
 
 // ── Instagram embed script loader ─────────────────────────────────────────────
 
-function useInstagramEmbedScript(hasInstagram: boolean) {
+function useInstagramEmbedScript(hasInstagram: boolean ){
   useEffect(() => {
     if (!hasInstagram) return;
     if (document.querySelector('script[src*="instagram.com/embed.js"]')) {
@@ -91,7 +91,7 @@ function useInstagramEmbedScript(hasInstagram: boolean) {
 
 // ── Skeleton card ─────────────────────────────────────────────────────────────
 
-function SkeletonCard() {
+function SkeletonCard( ){
   return (
     <div style={{
       borderRadius: 12, overflow: 'hidden',
@@ -113,7 +113,7 @@ function SkeletonCard() {
 
 // ── Embed card ────────────────────────────────────────────────────────────────
 
-function EmbedCard({ item }: { item: EmbedFeedItem }) {
+function EmbedCard({ item }: {item: EmbedFeedItem}) {
   const isYouTube   = item.provider === 'youtube';
   const isInstagram = item.provider === 'instagram';
 
@@ -249,7 +249,7 @@ function EmbedCard({ item }: { item: EmbedFeedItem }) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function EmbedFeedWidget({
+export default function EmbedFeedWidget(){
   defaultProvider = 'all',
   limit = 20,
   className = '',
@@ -269,7 +269,7 @@ export default function EmbedFeedWidget({
     const ctrl = new AbortController();
     abortRef.current = ctrl;
 
-    setState((s) => ({ ...s, loading: true, error: null }));
+    setState((s: string ) => ({ ...s, loading: true, error: null }));
 
     try {
       const params = new URLSearchParams({ limit: String(limit) });
@@ -285,7 +285,7 @@ export default function EmbedFeedWidget({
       setState({ items: data.items, generatedAt: data.generated_at, loading: false, error: null });
     } catch (err) {
       if ((err as { name?: string }).name === 'AbortError') return;
-      setState((s) => ({
+      setState((s: string ) => ({
         ...s,
         loading: false,
         error: (err instanceof Error ? err.message : 'Failed to load embed feed'),
@@ -297,7 +297,7 @@ export default function EmbedFeedWidget({
     fetchFeed(provider);
   }, [fetchFeed, provider]);
 
-  const hasInstagram = state.items.some((i) => i.provider === 'instagram');
+  const hasInstagram = state.items.some((i: number ) => i.provider === 'instagram');
   useInstagramEmbedScript(hasInstagram);
 
   // ── Provider tabs ──────────────────────────────────────────────────────────
@@ -382,7 +382,7 @@ export default function EmbedFeedWidget({
           gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
           gap: 12,
         }}>
-          {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
+          {Array.from({ length: 4 }).map((_, i: number) => <SkeletonCard key={i} />)}
         </div>
       )}
 

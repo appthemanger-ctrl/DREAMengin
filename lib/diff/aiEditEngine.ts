@@ -415,8 +415,8 @@ function trimContextLines(lines: EditDiffLine[], keep: number): EditDiffLine[] {
   if (lines.length === 0) return lines;
   // Find indices of non-context lines
   const changed = lines
-    .map((l, i) => l.type !== 'context' ? i : -1)
-    .filter(i => i >= 0);
+    .map((l, i: number) => l.type !== 'context' ? i : -1)
+    .filter((i) => i >= 0);
   if (changed.length === 0) return lines.slice(0, Math.min(keep * 2 + 1, lines.length));
 
   const first = Math.max(0, changed[0] - keep);
@@ -583,7 +583,7 @@ export interface BuildPreviewOptions {
  */
 export function buildEditPreview(opts: BuildPreviewOptions): EditPreview {
   const { cells, activeCellId, cursorOffset, scope, target, replacement } = opts;
-  const activeCell = cells.find(c => c.id === activeCellId) ?? cells[0];
+  const activeCell = cells.find((c) => c.id === activeCellId) ?? cells[0];
 
   const matches: ScopeMatch[] = [];
 
@@ -691,15 +691,15 @@ export function buildEditPreview(opts: BuildPreviewOptions): EditPreview {
   let diffLines: EditDiffLine[] = [];
 
   if (firstMatch) {
-    const cell = cells.find(c => c.id === firstMatch.cellId);
+    const cell = cells.find((c) => c.id === firstMatch.cellId);
     if (cell) {
       const before = cell.code;
-      const after  = applyMatchesForCell(cell.code, matches.filter(m => m.cellId === cell.id), replacement);
+      const after  = applyMatchesForCell(cell.code, matches.filter((m) => m.cellId === cell.id), replacement);
       diffLines = generateDiffLines(before, after);
     }
   }
 
-  const affectedCellIds = new Set(matches.map(m => m.cellId));
+  const affectedCellIds = new Set(matches.map((m) => m.cellId));
   const risk = SCOPE_RISK[scope];
 
   return {
@@ -754,7 +754,7 @@ export function applyEdit(
   preview: EditPreview,
 ): { cells: EditableCell[]; undo: UndoSnapshot } {
   const undo: UndoSnapshot = {
-    cells: cells.map(c => ({ id: c.id, code: c.code })),
+    cells: cells.map((c) => ({ id: c.id, code: c.code })),
     description: `Undo: ${preview.scopeLabel} — ${preview.target || 'edit'}`,
   };
 
@@ -765,7 +765,7 @@ export function applyEdit(
     matchesByCell.get(m.cellId)!.push(m);
   }
 
-  const updated = cells.map(cell => {
+  const updated = cells.map((cell) => {
     const cellMatches = matchesByCell.get(cell.id);
     if (!cellMatches) return cell;
     return {
@@ -787,8 +787,8 @@ export function undoEdit(
   currentCells: EditableCell[],
   snapshot: UndoSnapshot,
 ): EditableCell[] {
-  const snapshotMap = new Map(snapshot.cells.map(c => [c.id, c.code]));
-  return currentCells.map(cell => ({
+  const snapshotMap = new Map(snapshot.cells.map((c) => [c.id, c.code]));
+  return currentCells.map((cell) => ({
     ...cell,
     code: snapshotMap.has(cell.id) ? snapshotMap.get(cell.id)! : cell.code,
   }));

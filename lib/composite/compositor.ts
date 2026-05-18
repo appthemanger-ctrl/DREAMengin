@@ -151,7 +151,7 @@ export function createNode(
     type,
     label: label ?? `${type} ${_nodeIdSeq - 1}`,
     inputs,
-    params: DEFAULT_PARAMS[type].map(p => ({ ...p, value: Array.isArray(p.value) ? [...p.value] : p.value })),
+    params: DEFAULT_PARAMS[type].map((p) => ({ ...p, value: Array.isArray(p.value) ? [...p.value] : p.value })),
     position,
     enabled: true,
   };
@@ -160,7 +160,7 @@ export function createNode(
 /**
  * Create an empty CompGraph.
  */
-export function createGraph(name = 'Untitled Comp'): CompGraph {
+export function createGraph(name: string = 'Untitled Comp'): CompGraph {
   return { id: `graph_${Date.now()}`, name, nodes: [], evaluationOrder: [] };
 }
 
@@ -189,7 +189,7 @@ export function connectNodes(
   toNodeId: string,
   inputName: string
 ): CompGraph {
-  const nodes = graph.nodes.map(n => {
+  const nodes = graph.nodes.map((n) => {
     if (n.id !== toNodeId) return n;
     return { ...n, inputs: { ...n.inputs, [inputName]: fromNodeId } };
   });
@@ -204,7 +204,7 @@ export function disconnectInput(
   nodeId: string,
   inputName: string
 ): CompGraph {
-  const nodes = graph.nodes.map(n => {
+  const nodes = graph.nodes.map((n) => {
     if (n.id !== nodeId) return n;
     return { ...n, inputs: { ...n.inputs, [inputName]: null } };
   });
@@ -220,11 +220,11 @@ export function setParam(
   paramName: string,
   value: NodeParam['value']
 ): CompGraph {
-  const nodes = graph.nodes.map(n => {
+  const nodes = graph.nodes.map((n) => {
     if (n.id !== nodeId) return n;
     return {
       ...n,
-      params: n.params.map(p => p.name === paramName ? { ...p, value } : p),
+      params: n.params.map((p) => p.name === paramName ? { ...p, value } : p),
     };
   });
   return { ...graph, nodes };
@@ -234,7 +234,7 @@ export function setParam(
  * Return the node for a given id, or undefined.
  */
 export function findNode(graph: CompGraph, nodeId: string): CompNode | undefined {
-  return graph.nodes.find(n => n.id === nodeId);
+  return graph.nodes.find((n) => n.id === nodeId);
 }
 
 /**
@@ -242,7 +242,7 @@ export function findNode(graph: CompGraph, nodeId: string): CompNode | undefined
  * Cycles are broken by insertion order.
  */
 export function topologicalSort(nodes: CompNode[]): string[] {
-  const idSet = new Set(nodes.map(n => n.id));
+  const idSet = new Set(nodes.map((n) => n.id));
   const inDeg = new Map<string, number>();
   const outEdges = new Map<string, string[]>();
 
@@ -258,7 +258,7 @@ export function topologicalSort(nodes: CompNode[]): string[] {
     }
   }
 
-  const queue = nodes.filter(n => (inDeg.get(n.id) ?? 0) === 0).map(n => n.id);
+  const queue = nodes.filter((n) => (inDeg.get(n.id) ?? 0) === 0).map((n) => n.id);
   const order: string[] = [];
 
   while (queue.length > 0) {

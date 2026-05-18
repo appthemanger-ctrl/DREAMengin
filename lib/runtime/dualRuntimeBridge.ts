@@ -57,8 +57,8 @@ function _gateRx(t: number): _Gate { const c=Math.cos(t/2),s=Math.sin(t/2); retu
 function _gateRy(t: number): _Gate { const c=Math.cos(t/2),s=Math.sin(t/2); return [[c,0],[-s,0],[s,0],[c,0]]; }
 function _gateRz(t: number): _Gate { const c=Math.cos(t/2),s=Math.sin(t/2); return [[c,-s],[0,0],[0,0],[c,s]]; }
 function _groundState(n: number): _SV { const sv = Array.from({length: 1 << n}, (): _C => [0, 0]); sv[0] = [1, 0]; return sv as _SV; }
-function _cmul([r1,i1]: _C,[r2,i2]: _C): _C { return [r1*r2-i1*i2, r1*i2+i1*r2]; }
-function _cadd([r1,i1]: _C,[r2,i2]: _C): _C { return [r1+r2, i1+i2]; }
+function _cmul([r1, i1]: _C, [r2, i2]: _C): _C { return [r1*r2-i1*i2, r1*i2+i1*r2]; }
+function _cadd([r1, i1]: _C, [r2, i2]: _C): _C { return [r1+r2, i1+i2]; }
 
 function _applyGate1(sv: _SV, n: number, q: number, u: _Gate): _SV {
   const next = sv.slice();
@@ -87,7 +87,7 @@ const _CORR    = [[1, 0.3, 0.1], [0.3, 1, 0.2], [0.1, 0.2, 1]];
 
 function _quboCost(bits: boolean[]): number {
   let c = 0;
-  bits.forEach((b, i) => { if (b) c -= _RETURNS[i] ?? 0.1; });
+  bits.forEach((b, i: number) => { if (b) c -= _RETURNS[i] ?? 0.1; });
   for (let i = 0; i < bits.length; i++)
     for (let j = i + 1; j < bits.length; j++)
       if (bits[i] && bits[j])
@@ -135,15 +135,15 @@ function _runCircuit(numQubits: number, algo: string, ansatz: string): QuantumCo
     else if (op.kind === 'CX' && op.ctrl != null && op.tgt   != null) sv = _applyCNOT(sv, numQubits, op.ctrl, op.tgt);
   }
   const ps = sv.map(([r, i]) => r * r + i * i);
-  const topIdx = ps.reduce((best, v, i) => (v > ps[best] ? i : best), 0);
-  const topBits = Array.from({ length: numQubits }, (_, k) => Boolean((topIdx >> (numQubits - 1 - k)) & 1));
-  const ev = ps.reduce((sum, prob, i) => {
-    const bits = Array.from({ length: numQubits }, (_, k) => Boolean((i >> (numQubits - 1 - k)) & 1));
+  const topIdx = ps.reduce((best, v: number, i: number) => (v > ps[best] ? i : best), 0);
+  const topBits = Array.from({ length: numQubits }, (_, k: number ) => Boolean((topIdx >> (numQubits - 1 - k)) & 1));
+  const ev = ps.reduce((sum: number, prob, i: number) => {
+    const bits = Array.from({ length: numQubits }, (_, k: number ) => Boolean((i >> (numQubits - 1 - k)) & 1));
     return sum + prob * _quboCost(bits);
   }, 0);
   return {
     algorithm: algo, ansatz, numQubits, probabilities: ps,
-    topBitstring: topBits.map(b => b ? '1' : '0').join(''),
+    topBitstring: topBits.map((b) => b ? '1' : '0').join(''),
     topProbability: ps[topIdx] ?? 0, selectedAssets: topBits,
     expectationValue: ev, computedAt: Date.now(),
   };
@@ -262,7 +262,7 @@ class DualRuntimeBridge extends EventEmitter {
     // bridge.emit('lab', 'quantum:run', {algorithm, ansatz, numQubits?})
     // → runs QAOA/VQE state-vector simulation inline
     // → emits 'lab:quantum:result' which dreamOSBus auto-ingests as lab-result
-    this.subscribe('lab', 'quantum:run', (payload) => {
+    this.subscribe('lab', 'quantum:run', payload => {
       const algo      = (payload['algorithm']  as string) ?? 'vqe';
       const ansatz    = (payload['ansatz']     as string) ?? 'real_amplitudes';
       const numQubits = (payload['numQubits']  as number) ?? 3;
@@ -327,14 +327,14 @@ class DualRuntimeBridge extends EventEmitter {
       return heapBase.value;
     }
     // AssemblyScript sometimes exposes __heap_base as a number instead of a WebAssembly.Global
-    const maybeNumber = (heapBase as any) as number | undefined;
+    const maybeNumber = (heapBase as unknown) as number | undefined;
     return typeof maybeNumber === 'number' ? maybeNumber : null;
   }
 
   private async loadWasmBinary(): Promise<ArrayBuffer> {
     // Browser / worker path: fetch the emitted asset URL.
     if (typeof window !== 'undefined' && typeof fetch === 'function') {
-      return fetch(BUS_WASM_URL).then((r) => r.arrayBuffer());
+      return fetch(BUS_WASM_URL).then((r: number ) => r.arrayBuffer());
     }
 
     // Node / Vitest path: read directly from the filesystem to avoid file:// fetch limitations.
@@ -407,7 +407,7 @@ class DualRuntimeBridge extends EventEmitter {
     return aligned;
   }
 
-  private enqueueEnvelope(channel: string, event: string, payload: Record<string, unknown>): boolean {
+  private enqueueEnvelope(channel: string, event: string, payload): boolean {
     if (!this.busOnline || !this.wasm || !this.memory) {
       this.dispatchLocal(channel, event, payload);
       return true;
@@ -443,7 +443,7 @@ class DualRuntimeBridge extends EventEmitter {
   // ── Channel emission ───────────────────────────────────────────────────────
 
   /** Emit an event on a named channel. Primary public API for cross-Engin events. */
-  emit(channel: string, event: string, payload: Record<string, unknown>): boolean {
+  emit(channel: string, event: string, payload): boolean {
     this.enqueueEnvelope(channel, event, payload);
     return true;
   }
@@ -466,7 +466,7 @@ class DualRuntimeBridge extends EventEmitter {
   subscribe(
     channel: string,
     event: string,
-    handler: (payload: Record<string, any>) => void,
+    handler: (payload) => void,
   ): UnsubscribeFn {
     const key = `${channel}:${event}`;
     this.on(key, handler as BridgeEventHandler);
@@ -649,7 +649,7 @@ class DualRuntimeBridge extends EventEmitter {
         this._vmInterQueue = { buffer, producerIndex, consumerIndex };
       }
       // Workload dispatch: compute:vm:dispatch-workload → submitVMWorkload
-      this.subscribe('compute', 'vm:dispatch-workload', (p) => {
+      this.subscribe('compute', 'vm:dispatch-workload', p => {
         void this._handleVMWorkload(p);
       });
       this.emit('compute', 'vm:initialized', {
@@ -809,7 +809,7 @@ class DualRuntimeBridge extends EventEmitter {
     }
   }
 
-  private dispatchLocal(channel: string, event: string, payload: Record<string, unknown>) {
+  private dispatchLocal(channel: string, event: string, payload) {
     if (channel === 'module' && event === 'transfer') {
       const modulePayload = payload['module'] as { type?: unknown; id?: unknown } | undefined;
       const isGameCartridge = modulePayload?.type === 'game-cartridge';
@@ -853,7 +853,7 @@ class DualRuntimeBridge extends EventEmitter {
   }
 
   /** Internal handler for compute:vm:dispatch-workload bridge events. */
-  private async _handleVMWorkload(payload: Record<string, unknown>): Promise<void> {
+  private async _handleVMWorkload(payload): Promise<void> {
     const { workloadId, region, wasmBinary, channel, priority } = payload as {
       workloadId: string; region: VMRegion; wasmBinary: ArrayBuffer;
       channel: DualRuntimeChannel; priority: number;

@@ -28,7 +28,7 @@ const LAB_SIMS = [
 type SimId = (typeof LAB_SIMS)[number]['id'];
 
 function getSimResult(id: SimId): string {
-  return LAB_SIMS.find(s => s.id === id)?.result ?? '';
+  return LAB_SIMS.find((s) => s.id === id)?.result ?? '';
 }
 
 describe('LAB_SIMS', () => {
@@ -151,7 +151,7 @@ describe('VIZ_TYPES', () => {
   });
 
   it('includes heatmap, density, and activation', () => {
-    const ids = VIZ_TYPES.map(v => v.id);
+    const ids = VIZ_TYPES.map((v) => v.id);
     expect(ids).toContain('heatmap');
     expect(ids).toContain('density');
     expect(ids).toContain('activation');

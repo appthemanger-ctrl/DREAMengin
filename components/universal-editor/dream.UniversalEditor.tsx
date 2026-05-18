@@ -39,7 +39,7 @@ export function UniversalEditor({ target, onSaved }: UniversalEditorProps) {
     }
   }, [content, target.type]);
 
-  async function saveDraft() {
+  async function saveDraft( ){
     setStatus('saving');
     try {
       const res = await fetch('/api/drafts', {

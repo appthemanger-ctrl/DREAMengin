@@ -24,7 +24,7 @@ const DeleteDreamBodySchema = z.object({
 });
 
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const requestStart = Date.now();
   const request_id = uuidv4();
 
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
 
   // Run all independent table deletes in parallel (dependency-safe: none reference each other)
    
-  const supabaseAny = supabase as any;
+  const supabaseAny = supabase as SupabaseClient;
   const tableResults = await Promise.all([
     supabase.from('feed_rules').delete().eq('user_id', user.id),
     supabase.from('dream_instances').delete().eq('user_id', user.id),

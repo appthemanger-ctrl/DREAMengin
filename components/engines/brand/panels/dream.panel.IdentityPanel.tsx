@@ -31,7 +31,7 @@ interface BrandIdentity {
   accentColor: string;
 }
 
-export default function IdentityPanel() {
+export default function IdentityPanel( ){
   const [identity, setIdentity] = useState<BrandIdentity>({
     name: '',
     tagline: '',
@@ -42,7 +42,7 @@ export default function IdentityPanel() {
   });
   const [saved, setSaved] = useState(false);
 
-  function applyPalette(palette: typeof PRESET_PALETTES[0]) {
+  function applyPalette(palette: typeof PRESET_PALETTES[0] ){
     setIdentity((prev) => ({
       ...prev,
       primaryColor: palette.colors[0],
@@ -51,7 +51,7 @@ export default function IdentityPanel() {
     }));
   }
 
-  function save() {
+  function save( ){
     bridge.emit('brand', 'brand:asset-updated', { assetType: 'color-palette', assetId: identity.name || 'brand-identity' });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
@@ -90,7 +90,7 @@ export default function IdentityPanel() {
               {identity.tagline || 'Your tagline here'}
             </div>
             <div className="flex gap-2 mt-2">
-              {[identity.primaryColor, identity.secondaryColor, identity.accentColor].map((c, i) => (
+              {[identity.primaryColor, identity.secondaryColor, identity.accentColor].map((c, i: number) => (
                 <div key={i} className="w-5 h-5 rounded-full border-2 border-black/20" style={{ background: c }} />
               ))}
             </div>
@@ -162,7 +162,7 @@ export default function IdentityPanel() {
                   className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/20 transition-all"
                 >
                   <div className="flex gap-0.5">
-                    {palette.colors.map((c, i) => (
+                    {palette.colors.map((c, i: number) => (
                       <div key={i} className="w-4 h-4 rounded-full" style={{ background: c }} />
                     ))}
                   </div>

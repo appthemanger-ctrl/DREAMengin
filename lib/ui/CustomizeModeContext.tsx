@@ -56,7 +56,7 @@ export function useCustomizeMode(): CustomizeModeContextValue {
 
 // ── Provider ───────────────────────────────────────────────────────────────────
 
-export function CustomizeModeProvider({ children }: { children: React.ReactNode }) {
+export function CustomizeModeProvider({ children }: {children: React.ReactNode}) {
   const [isCustomizeMode, setIsCustomizeMode] = useState(false);
   const [activePage, setActivePage] = useState<SkinPage | null>(null);
   const [activePanel, setActivePanel] = useState<'color' | 'font' | 'layout' | 'effects' | null>(null);

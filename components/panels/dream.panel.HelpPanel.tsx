@@ -17,7 +17,7 @@ const GUIDES = [
   { icon: '∞',  title: 'Understanding Daydreams',         desc: 'Each Daydream is a dedicated space: Music, Brand, Analytics, Games, and more.' },
 ];
 
-export default function HelpPanel() {
+export default function HelpPanel( ){
   const { openInSurface } = useDreamSystem();
 
   return (

@@ -1,12 +1,12 @@
 
-type Callback = (payload: any) => void;
+type Callback = (payload: unknown) => void;
 
 class WidgetBus {
   private listeners: Record<string, Callback[]> = {};
   private memory: Record<string, unknown> = {};
   private children: Record<string, string[]> = {};
 
-  emit(channel: string, payload: any) {
+  emit(channel: string, payload: unknown) {
     if (this.listeners[channel]) {
       this.listeners[channel].forEach((cb) => cb(payload));
     }
@@ -42,7 +42,7 @@ class WidgetBus {
 
   // --- Trigger chains ---
 
-  chain(channels: string[], payload: any) {
+  chain(channels: string[], payload: unknown) {
     for (const ch of channels) {
       this.emit(ch, payload);
     }

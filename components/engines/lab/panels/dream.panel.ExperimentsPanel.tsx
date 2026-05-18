@@ -60,10 +60,10 @@ interface RunState {
   [id: string]: { state: SimState; result: string; elapsed: number };
 }
 
-export default function ExperimentsPanel() {
+export default function ExperimentsPanel( ){
   const [runStates, setRunStates] = useState<RunState>({});
 
-  async function runSim(sim: SimType) {
+  async function runSim(sim: SimType ){
     setRunStates((prev) => ({
       ...prev,
       [sim.id]: { state: 'running', result: '', elapsed: 0 },
@@ -77,7 +77,7 @@ export default function ExperimentsPanel() {
       }));
     }, 500);
 
-    await new Promise((r) => setTimeout(r, sim.duration));
+    await new Promise((r: number ) => setTimeout(r, sim.duration));
     clearInterval(interval);
 
     setRunStates((prev) => ({
@@ -86,7 +86,7 @@ export default function ExperimentsPanel() {
     }));
   }
 
-  function reset(id: string) {
+  function reset(id: string ){
     setRunStates((prev) => {
       const next = { ...prev };
       delete next[id];

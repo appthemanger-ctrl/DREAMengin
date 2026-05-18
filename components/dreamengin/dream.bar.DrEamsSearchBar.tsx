@@ -43,7 +43,7 @@ import {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function DrEamsBadge({ size = 28 }: { size?: number }) {
+function DrEamsBadge({ size = 28 }: {size?: number}) {
   return (
     <div
       aria-hidden="true"
@@ -67,7 +67,7 @@ function DrEamsBadge({ size = 28 }: { size?: number }) {
   );
 }
 
-function SpinningDot() {
+function SpinningDot( ){
   return (
     <>
       <style>{`@keyframes de-spin{to{transform:rotate(360deg)}}`}</style>

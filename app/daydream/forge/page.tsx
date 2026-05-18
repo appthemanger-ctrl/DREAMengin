@@ -25,7 +25,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'lab',           emoji: '🔬', label: 'LabEngin',      desc: 'Jump to lab',                  color: '#10b981', href: '/daydream/lab' },
 ];
 
-export default async function ForgeDaydreamPage() {
+export default async function ForgeDaydreamPage( ){
   await connection();
   const supabase = await createServerClient();
   let user = null;
@@ -96,7 +96,7 @@ export default async function ForgeDaydreamPage() {
             </div>
             <div className="de-widget-body" style={{ paddingTop: 12 }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
-                {CREATIVE_ENGINES.map(engine => (
+                {CREATIVE_ENGINES.map((engine) => (
                   <Link
                     key={engine.id}
                     href={engine.daydreamHref}
@@ -155,7 +155,7 @@ export default async function ForgeDaydreamPage() {
                 { title: 'Forge Daydream', tone: '#ef4444', detail: 'The calm overview surface. See every engine at a glance, browse cross-engine linkages.' },
                 { title: 'ForgeEngin', tone: '#c8981a', detail: 'Side B runtime. Live heat map, activity pulses, one-tap launch into any engine.' },
                 { title: 'Activity Pulse', tone: '#22c55e', detail: 'Every engine action is timestamped. Heat decays over 30 minutes, giving you a real-time feel for momentum.' },
-              ].map(item => (
+              ].map((item) => (
                 <div key={item.title} style={{ borderRadius: 14, padding: '12px 14px', background: 'rgba(255,255,255,0.44)', border: `1px solid ${item.tone}26` }}>
                   <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.16em', textTransform: 'uppercase', color: item.tone, marginBottom: 6 }}>
                     {item.title}

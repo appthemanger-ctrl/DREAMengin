@@ -122,7 +122,7 @@ export function useForgeBuild(): UseForgeBuildReturn {
             ts: Date.now(),
           };
           collectedLogs.push(errEvent);
-          setLogs(prev => [...prev, errEvent]);
+          setLogs((prev) => [...prev, errEvent]);
           setState('error');
           return;
         }
@@ -168,11 +168,11 @@ export function useForgeBuild(): UseForgeBuildReturn {
             }
 
             collectedLogs.push(event);
-            setLogs(prev => [...prev, event]);
+            setLogs((prev) => [...prev, event]);
 
             if (event.type === 'done') {
               // Find result event
-              const resultEvent = collectedLogs.find(e => e.type === 'result') as
+              const resultEvent = collectedLogs.find((e) => e.type === 'result') as
                 ResultEvent | undefined;
 
               // Build artifact if we have code content and a resolved enginId
@@ -221,7 +221,7 @@ export function useForgeBuild(): UseForgeBuildReturn {
           ts: Date.now(),
         };
         collectedLogs.push(errEvent);
-        setLogs(prev => [...prev, errEvent]);
+        setLogs((prev) => [...prev, errEvent]);
         setState('error');
       }
     })();

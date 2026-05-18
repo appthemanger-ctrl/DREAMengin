@@ -8,7 +8,7 @@ import { connection } from 'next/server';
 
 export const metadata = { title: 'DreamShop – Dreamengin', description: 'Sell and discover digital products.' };
 
-export default async function ShopPage() {
+export default async function ShopPage( ){
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

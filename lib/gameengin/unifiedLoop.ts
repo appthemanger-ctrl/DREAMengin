@@ -136,7 +136,7 @@ export function registerGame(
   priority: LoopPriority = 'NORMAL',
 ): void {
   // Remove any stale entry with the same id before adding the new one.
-  _entries = _entries.filter(e => e.id !== id);
+  _entries = _entries.filter((e) => e.id !== id);
   _entries.push({ id, tickFn, priority });
   _sortEntries();
   _startLoop();
@@ -151,7 +151,7 @@ export function registerGame(
  * @param id - the same identifier passed to `registerGame`
  */
 export function unregisterGame(id: string): void {
-  _entries = _entries.filter(e => e.id !== id);
+  _entries = _entries.filter((e) => e.id !== id);
   if (_entries.length === 0) _stopLoop();
 }
 

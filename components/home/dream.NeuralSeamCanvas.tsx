@@ -155,7 +155,7 @@ export default function NeuralSeamCanvas({ active, splitRatio }: NeuralSeamCanva
 
     // ── Spawn idle particles when the queue is thin ────────────────────────
     const now2 = now;
-    const hasEnoughIdle = particlesRef.current.filter(p => p.isIdle).length >= IDLE_PARTICLE_TARGET;
+    const hasEnoughIdle = particlesRef.current.filter((p) => p.isIdle).length >= IDLE_PARTICLE_TARGET;
     if (!hasEnoughIdle && now2 - lastIdleSpawnAt.current > IDLE_SPAWN_INTERVAL_MS) {
       const startX = Math.random() * 0.3; // always start near left edge
       particlesRef.current.push(createIdleParticle(startX));
@@ -258,9 +258,9 @@ export default function NeuralSeamCanvas({ active, splitRatio }: NeuralSeamCanva
       // Cap total live particles to prevent runaway allocations.
       if (particlesRef.current.length > 80) {
         // Remove oldest non-idle particles first.
-        const oldest = particlesRef.current.find(p => !p.isIdle);
+        const oldest = particlesRef.current.find((p) => !p.isIdle);
         if (oldest) {
-          particlesRef.current = particlesRef.current.filter(p => p.id !== oldest.id);
+          particlesRef.current = particlesRef.current.filter((p) => p.id !== oldest.id);
         }
       }
     });

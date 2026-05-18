@@ -41,7 +41,7 @@ function relativeTime(ms: number): string {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export default function RuntimeMemoryHUD() {
+export default function RuntimeMemoryHUD( ){
   const [snapshot, setSnapshot] = useState<DreamOSSnapshot>({
     artifacts: [],
     runtimeContexts: [],

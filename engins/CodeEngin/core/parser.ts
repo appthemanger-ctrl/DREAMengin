@@ -80,7 +80,7 @@ function extractTSSymbols(lines: string[]): ParsedSymbol[] {
   const typeRe   = /(?:export\s+)?(?:type|interface)\s+([A-Za-z_$][\w$]*)/;
   const varRe    = /(?:export\s+)?(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*[:=]/;
 
-  lines.forEach((line, i) => {
+  lines.forEach((line, i: number) => {
     const ln = i + 1;
     let m: RegExpMatchArray | null;
     if ((m = line.match(funcRe)))        symbols.push({ kind: 'function', name: m[1], line: ln });
@@ -99,7 +99,7 @@ function extractPythonSymbols(lines: string[]): ParsedSymbol[] {
   const classRe  = /^class\s+([A-Za-z_][\w]*)/;
   const importRe = /^(?:import|from)\s+(\S+)/;
 
-  lines.forEach((line, i) => {
+  lines.forEach((line, i: number) => {
     const ln = i + 1;
     const trimmed = line.trimStart();
     let m: RegExpMatchArray | null;
@@ -117,7 +117,7 @@ function extractGoSymbols(lines: string[]): ParsedSymbol[] {
   const importRe = /^\s*"([^"]+)"/;
 
   let inImportBlock = false;
-  lines.forEach((line, i) => {
+  lines.forEach((line, i: number) => {
     const ln = i + 1;
     if (line.trim() === 'import (') { inImportBlock = true; return; }
     if (inImportBlock && line.trim() === ')') { inImportBlock = false; return; }
@@ -142,7 +142,7 @@ function extractRustSymbols(lines: string[]): ParsedSymbol[] {
   const traitRe  = /(?:pub\s+)?trait\s+([A-Za-z_][\w]*)/;
   const useRe    = /^use\s+([^;]+)/;
 
-  lines.forEach((line, i) => {
+  lines.forEach((line, i: number) => {
     const ln = i + 1;
     const trimmed = line.trimStart();
     let m: RegExpMatchArray | null;
@@ -189,7 +189,7 @@ function checkBracketBalance(content: string, lang: string): ParseError[] {
 
     if (ch === '/' && nxt === '/') { inLineComment  = true;  col += 2; i++; continue; }
     if (ch === '/' && nxt === '*') { inBlockComment = true;  col += 2; i++; continue; }
-    if (ch === '"' || ch === "'" || ch === '`') { inStr = ch as any; col++; continue; }
+    if (ch === '"' || ch === "'" || ch === '`') { inStr = ch as string; col++; continue; }
 
     if (ch in PAIRS) {
       stack.push({ ch, line, col });
@@ -220,7 +220,7 @@ function checkJSON(content: string): ParseError[] {
   try {
     JSON.parse(content);
     return [];
-  } catch (e: any) {
+  } catch (e: unknown) {
     const msg: string = e?.message ?? 'Invalid JSON';
     const posMatch = msg.match(/line (\d+) column (\d+)/);
     if (posMatch) {
@@ -236,7 +236,7 @@ function checkPythonIndent(lines: string[]): ParseError[] {
   const warnings: ParseError[] = [];
   let expectedIndent: number | null = null;
 
-  lines.forEach((line, i) => {
+  lines.forEach((line, i: number) => {
     if (line.trim() === '' || line.trimStart().startsWith('#')) return;
     const indent = line.length - line.trimStart().length;
     if (line.trimEnd().endsWith(':')) {
@@ -301,7 +301,7 @@ export function parseCode(content: string, language: string): ParseResult {
     warnings.push(...checkPythonIndent(lines));
   }
 
-  lines.forEach((line, i) => {
+  lines.forEach((line, i: number) => {
     if (line !== line.trimEnd()) {
       warnings.push({
         line: i + 1, col: line.trimEnd().length + 1,

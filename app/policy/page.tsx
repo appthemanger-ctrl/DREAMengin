@@ -35,7 +35,7 @@ const CATEGORIES = [
   { id: 'appeals',     label: 'Appeals',                       icon: FileText },
 ];
 
-export default function PolicyPage() {
+export default function PolicyPage( ){
   return (
     <div className="de-sky-bg min-h-screen">
       <header
@@ -111,7 +111,7 @@ export default function PolicyPage() {
             <span className="de-widget-title">On this page</span>
           </div>
           <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-            {CATEGORIES.map(({ id, label, icon: Icon }) => (
+            {CATEGORIES.map(({ id, label, icon}) => (
               <a key={id} href={`#${id}`} className="de-row" style={{ borderRadius: 10 }}>
                 <div
                   style={{
@@ -346,7 +346,7 @@ export default function PolicyPage() {
 
 // ---- helpers ----------------------------------------------------------------
 
-function PolicyTable({ rows }: { rows: [string, string, string][] }) {
+function PolicyTable({ rows }: {rows: [string, string, string][]}) {
   return (
     <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
       <thead>

@@ -127,14 +127,14 @@ const healthScore = Math.round(
   BRAND_HEALTH_DIMENSIONS.reduce((s, d) => s + d.score, 0) / BRAND_HEALTH_DIMENSIONS.length,
 );
 
-function TrendIcon({ trend }: { trend: Trend }) {
+function TrendIcon({ trend }: {trend: Trend}) {
   if (trend === 'up')   return <TrendingUp  className="w-3 h-3" style={{ color: '#22c55e' }} />;
   if (trend === 'down') return <TrendingDown className="w-3 h-3" style={{ color: '#ef4444' }} />;
   return <Minus className="w-3 h-3" style={{ color: 'var(--de-text-dim)' }} />;
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
-export default function BrandDaydream() {
+export default function BrandDaydream( ){
   const { record: forgeRecord } = useForgeActivity({ enginId: 'brand' });
 
   // ── Profile ────────────────────────────────────────────────────────────────
@@ -169,7 +169,7 @@ export default function BrandDaydream() {
   ]);
   const [analyticsRefreshed, setAnalyticsRefreshed] = useState(false);
 
-  function refreshAnalytics() {
+  function refreshAnalytics( ){
     setMetrics([
       { id: 'reach',  label: 'Reach',           value: '12.4K', trend: 'up' },
       { id: 'eng',    label: 'Engagement Rate',  value: '4.7%',  trend: 'up' },
@@ -189,7 +189,7 @@ export default function BrandDaydream() {
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
   const currentPalette = PALETTE_PRESETS[paletteIdx % PALETTE_PRESETS.length];
 
-  function copyColor(c: string) {
+  function copyColor(c: string ){
     navigator.clipboard?.writeText(c).catch(() => {});
     setCopiedColor(c);
     setTimeout(() => setCopiedColor(null), 1200);
@@ -197,7 +197,7 @@ export default function BrandDaydream() {
 
   // ── Bio copy ───────────────────────────────────────────────────────────────
   const [copiedBio, setCopiedBio] = useState<string | null>(null);
-  function copyBio(platform: string, text: string) {
+  function copyBio(platform: string, text): string {
     navigator.clipboard?.writeText(text).catch(() => {});
     setCopiedBio(platform);
     setTimeout(() => setCopiedBio(null), 1400);
@@ -205,7 +205,7 @@ export default function BrandDaydream() {
 
   // ── Pitch copy ─────────────────────────────────────────────────────────────
   const [pitchCopied, setPitchCopied] = useState(false);
-  function copyPitch() {
+  function copyPitch( ){
     const text = `Hi [Sponsor], I'm ${profile?.display_name ?? 'a creator'} with ${profile?.follower_count ?? 0} followers. Engagement 5.2%. Let's collab.`;
     navigator.clipboard?.writeText(text).catch(() => {});
     setPitchCopied(true);
@@ -213,7 +213,7 @@ export default function BrandDaydream() {
     forgeRecord('Copied sponsorship pitch');
   }
 
-  const revenueMax = Math.max(...REVENUE_SOURCES.map(r => r.val));
+  const revenueMax = Math.max(...REVENUE_SOURCES.map((r) => r.val));
   const publicProfileHref = profile?.handle ? `/u/${profile.handle}` : '/view-profile';
 
   return (
@@ -268,7 +268,7 @@ export default function BrandDaydream() {
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 7 }}>
-            {BRAND_HEALTH_DIMENSIONS.map(d => (
+            {BRAND_HEALTH_DIMENSIONS.map((d) => (
               <div key={d.label} style={{ padding: '8px 10px', borderRadius: 9, background: `${d.color}0e`, border: `1px solid ${d.color}20` }}>
                 <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginBottom: 3, lineHeight: 1.3 }}>{d.label}</div>
                 <div style={{ fontSize: 16, fontWeight: 800, color: d.color }}>{d.score}</div>
@@ -290,7 +290,7 @@ export default function BrandDaydream() {
         </div>
         <div className="de-widget-body">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
-            {metrics.map(m => (
+            {metrics.map((m) => (
               <div key={m.id} style={{ padding: '11px 13px', borderRadius: 11, background: 'rgba(255,255,255,0.55)', border: `1px solid ${ACCENT}15` }}>
                 <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--de-text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 5 }}>{m.label}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -316,7 +316,7 @@ export default function BrandDaydream() {
         </div>
         <div className="de-widget-body">
           <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-            {currentPalette.map(c => (
+            {currentPalette.map((c) => (
               <div key={c} title={copiedColor === c ? 'Copied!' : c}
                 onClick={() => copyColor(c)}
                 style={{
@@ -332,7 +332,7 @@ export default function BrandDaydream() {
             <span style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>
               {copiedColor ? `✓ Copied ${copiedColor}` : 'Tap a swatch to copy hex'}
             </span>
-            <button type="button" onClick={() => setPaletteIdx(i => i + 1)}
+            <button type="button" onClick={() => setPaletteIdx((i) => i + 1)}
               style={{ fontSize: 10, fontWeight: 700, color: ACCENT, background: `${ACCENT}12`, border: `1px solid ${ACCENT}25`, borderRadius: 6, padding: '4px 10px', cursor: 'pointer' }}>
               ↻ New Palette
             </button>
@@ -368,7 +368,7 @@ export default function BrandDaydream() {
               { label: 'Budget',  val: '$—',  color: '#6366f1' },
               { label: 'CPM',     val: '$—',  color: '#ec4899' },
               { label: 'ROI',     val: '—%',  color: '#22c55e' },
-            ].map(r => (
+            ].map((r) => (
               <div key={r.label} style={{ padding: '10px 8px', borderRadius: 9, background: `${r.color}0e`, border: `1px solid ${r.color}20`, textAlign: 'center' }}>
                 <div style={{ fontSize: 14, fontWeight: 800, color: r.color }}>{r.val}</div>
                 <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 3 }}>{r.label}</div>
@@ -388,7 +388,7 @@ export default function BrandDaydream() {
           <span className="de-widget-title">Audience Segments</span>
         </div>
         <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {AUDIENCE_SEGMENTS.map(seg => (
+          {AUDIENCE_SEGMENTS.map((seg) => (
             <div key={seg.name} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ minWidth: 90, fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{seg.name}</div>
               <div style={{ flex: 1, height: 7, borderRadius: 4, background: 'rgba(0,0,0,0.06)' }}>
@@ -397,7 +397,7 @@ export default function BrandDaydream() {
               <span style={{ fontSize: 12, fontWeight: 800, color: seg.color, minWidth: 28, textAlign: 'right' }}>{seg.pct}%</span>
             </div>
           ))}
-          {AUDIENCE_SEGMENTS.map(seg => (
+          {AUDIENCE_SEGMENTS.map((seg) => (
             <div key={`${seg.name}-desc`} style={{ display: 'none' }}>{seg.desc}</div>
           ))}
         </div>
@@ -410,7 +410,7 @@ export default function BrandDaydream() {
         </div>
         <div className="de-widget-body">
           <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', marginBottom: 8 }}>
-            {['Bold', 'Creative', 'Authentic', 'Aspirational', 'Playful'].map(tone => (
+            {['Bold', 'Creative', 'Authentic', 'Aspirational', 'Playful'].map((tone) => (
               <span key={tone} style={{ padding: '5px 13px', borderRadius: 999, fontSize: 11, fontWeight: 600, background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}25` }}>
                 {tone}
               </span>
@@ -433,7 +433,7 @@ export default function BrandDaydream() {
             { handle: '@creativebrand',  followers: '84.2K', lastPost: '2h ago', trend: 'up' as Trend },
             { handle: '@designmaster',   followers: '210K',  lastPost: '5h ago', trend: 'up' as Trend },
             { handle: '@contentpro99',   followers: '41.5K', lastPost: '1d ago', trend: 'flat' as Trend },
-          ].map(c => (
+          ].map((c) => (
             <div key={c.handle} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', marginBottom: 5, borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}12` }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: ACCENT, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.handle}</div>
@@ -457,7 +457,7 @@ export default function BrandDaydream() {
             { role: 'Display', font: 'Syne Mono', sample: 'DREAMengin', size: 22, weight: 800 },
             { role: 'Body',    font: 'Inter',     sample: 'Building the future of creativity.', size: 13, weight: 400 },
             { role: 'Caption', font: 'JetBrains Mono', sample: 'v2.0.0 · production', size: 11, weight: 500 },
-          ].map(t => (
+          ].map((t) => (
             <div key={t.role} style={{ padding: '9px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.55)', border: `1px solid ${ACCENT}15` }}>
               <div style={{ fontSize: 9, color: 'var(--de-text-dim)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
                 {t.role} · {t.font}
@@ -475,7 +475,7 @@ export default function BrandDaydream() {
         </div>
         <div className="de-widget-body">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 7 }}>
-            {['#ec4899', '#8b5cf6', '#1e1b4b', '#f9a8d4', '#fbbf24', 'rgba(30,27,75,0.5)'].map((bg, i) => (
+            {['#ec4899', '#8b5cf6', '#1e1b4b', '#f9a8d4', '#fbbf24', 'rgba(30,27,75,0.5)'].map((bg, i: number) => (
               <div key={i} style={{ height: 54, borderRadius: 11, background: bg, border: '2px solid rgba(255,255,255,0.25)', transition: 'transform 0.12s' }}
                 onPointerDown={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(0.95)'; }}
                 onPointerUp={e => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; }}
@@ -516,7 +516,7 @@ export default function BrandDaydream() {
           <span className="de-widget-title">Press Kit</span>
         </div>
         <div className="de-widget-body">
-          {PRESS_KIT_ITEMS.map(item => (
+          {PRESS_KIT_ITEMS.map((item) => (
             <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 10px', marginBottom: 5, borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}10` }}>
               <div>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-heading)' }}>{item.label}</div>
@@ -541,7 +541,7 @@ export default function BrandDaydream() {
           <span className="de-widget-title">Bio Optimizer</span>
         </div>
         <div className="de-widget-body">
-          {BIO_VARIANTS.map(b => (
+          {BIO_VARIANTS.map((b) => (
             <div key={b.platform} style={{ marginBottom: 8, padding: '9px 11px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}15` }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 3 }}>
                 <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT }}>{b.platform} · {b.chars} chars</span>
@@ -566,7 +566,7 @@ export default function BrandDaydream() {
           <div style={{ padding: '12px 14px', borderRadius: 12, background: `${ACCENT}07`, border: `1px solid ${ACCENT}18` }}>
             <div style={{ fontSize: 14, fontWeight: 800, color: ACCENT, marginBottom: 6 }}>The Hustler Creator</div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
-              {['22–28', 'Mobile-first', 'Growth-driven', 'Side hustles'].map(tag => (
+              {['22–28', 'Mobile-first', 'Growth-driven', 'Side hustles'].map((tag) => (
                 <span key={tag} style={{ fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 999, background: `${ACCENT}12`, color: ACCENT, border: `1px solid ${ACCENT}22` }}>{tag}</span>
               ))}
             </div>
@@ -585,7 +585,7 @@ export default function BrandDaydream() {
         <div className="de-widget-body">
           <div style={{ position: 'relative', paddingLeft: 16 }}>
             <div style={{ position: 'absolute', left: 5, top: 6, bottom: 6, width: 2, background: `${ACCENT}20`, borderRadius: 2 }} />
-            {BRAND_STORY.map((m, i) => (
+            {BRAND_STORY.map((m, i: number) => (
               <div key={m.date} style={{ display: 'flex', gap: 14, alignItems: 'flex-start', marginBottom: i < BRAND_STORY.length - 1 ? 12 : 0, position: 'relative' }}>
                 <div style={{ position: 'absolute', left: -13, top: 4, width: 8, height: 8, borderRadius: '50%', background: ACCENT, border: '2px solid rgba(255,255,255,0.8)' }} />
                 <span style={{ fontSize: 10, fontWeight: 700, color: ACCENT, minWidth: 36 }}>{m.date}</span>
@@ -603,11 +603,11 @@ export default function BrandDaydream() {
         <div className="de-widget-header">
           <span className="de-widget-title">💰 Revenue Tracker</span>
           <span style={{ marginLeft: 'auto', fontSize: 12, fontWeight: 800, color: '#22c55e' }}>
-            ${REVENUE_SOURCES.reduce((s, r) => s + r.val, 0).toLocaleString()}
+            ${REVENUE_SOURCES.reduce((s, r: number) => s + r.val, 0).toLocaleString()}
           </span>
         </div>
         <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-          {REVENUE_SOURCES.map(r => (
+          {REVENUE_SOURCES.map((r) => (
             <div key={r.label}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 4 }}>
                 <span style={{ fontWeight: 600, color: 'var(--de-heading)' }}>{r.label}</span>
@@ -633,7 +633,7 @@ export default function BrandDaydream() {
             Apply your brand palette to Game Engine post-processing and HUD colors across all games.
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-            {GAME_PRESETS.map((preset, i) => (
+            {GAME_PRESETS.map((preset, i: number) => (
               <div key={preset.name} style={{ padding: '10px 8px', borderRadius: 10, background: `${preset.accent}14`, border: `2px solid ${preset.accent}${i === 0 ? '80' : '25'}`, textAlign: 'center' }}>
                 <div style={{ width: 22, height: 22, borderRadius: '50%', background: preset.accent, margin: '0 auto 5px', boxShadow: i === 0 ? `0 0 8px ${preset.accent}` : 'none' }} />
                 <div style={{ fontSize: 10, fontWeight: 700, color: preset.accent }}>{preset.name}</div>
@@ -651,7 +651,7 @@ export default function BrandDaydream() {
           <span className="de-widget-title">📅 Content Theme Planner</span>
         </div>
         <div className="de-widget-body">
-          {CONTENT_THEMES.map(t => (
+          {CONTENT_THEMES.map((t) => (
             <div key={t.month} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', marginBottom: 6, borderRadius: 9, background: `${t.color}09`, border: `1px solid ${t.color}20` }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: t.color, minWidth: 36 }}>{t.month}</span>
               <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--de-heading)' }}>{t.theme}</span>

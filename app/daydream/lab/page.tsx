@@ -34,7 +34,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'results',        emoji: '🔗', label: 'Share Results',  desc: 'Publish experiment outcomes',     color: '#c8981a', href: '/daydream/create'       },
 ];
 
-export default async function LabDaydreamPage() {
+export default async function LabDaydreamPage( ){
   await connection();
   const supabase = await createServerClient();
   let user = null;
@@ -92,7 +92,7 @@ export default async function LabDaydreamPage() {
                 { emoji: '⚛️', name: 'WebGPU Particle Sim',    type: 'Particle', status: 'Ready',   color: '#22c55e' },
                 { emoji: '🌊', name: 'Fluid Dynamics v3',       type: 'Fluid',    status: 'Paused',  color: '#0ea5e9' },
                 { emoji: '🧠', name: 'Neural Activation Map',   type: 'Neural',   status: 'Running', color: '#ec4899' },
-              ].map(exp => (
+              ].map((exp) => (
                 <Link key={exp.name} href={`/engines/lab/experiments?load=${encodeURIComponent(exp.name)}`} style={{ textDecoration: 'none' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', borderRadius: 12, marginBottom: 8, background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(34,197,94,0.12)', cursor: 'pointer' }}>
                     <span style={{ fontSize: 22 }}>{exp.emoji}</span>
@@ -126,7 +126,7 @@ export default async function LabDaydreamPage() {
               { emoji: '⚗️', label: 'My Projects',    href: '/engines/lab',             color: '#6366f1' },
               { emoji: '⚛️', label: 'Physics Lab',    href: '/engines/lab',             color: '#f59e0b' },
               { emoji: '💡', label: 'Quantum Circuit', href: '/engines/lab/quantum',    color: '#8b5cf6' },
-            ].map(item => (
+            ].map((item) => (
               <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
                 <div style={{ background: 'rgba(255,255,255,0.82)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: 16, padding: '18px 16px', border: `1px solid ${item.color}20`, display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
                   <span style={{ fontSize: 24 }}>{item.emoji}</span>
@@ -150,7 +150,7 @@ export default async function LabDaydreamPage() {
                   { name: 'Fluid',    emoji: '🌊', color: '#0ea5e9' },
                   { name: 'Quantum',  emoji: '🔬', color: '#8b5cf6' },
                   { name: 'Neural',   emoji: '🧠', color: '#ec4899' },
-                ].map(s => (
+                ].map((s) => (
                   <div key={s.name} style={{ padding: '8px 6px', borderRadius: 9, background: `${s.color}0e`, border: `1px solid ${s.color}25`, textAlign: 'center' }}>
                     <div style={{ fontSize: 18 }}>{s.emoji}</div>
                     <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 3 }}>{s.name}</div>
@@ -186,7 +186,7 @@ export default async function LabDaydreamPage() {
                 { label: 'CPU', pct: 38, color: '#6366f1' },
                 { label: 'GPU', pct: 62, color: '#8b5cf6' },
                 { label: 'Memory', pct: 54, color: '#0ea5e9' },
-              ].map(r => (
+              ].map((r) => (
                 <div key={r.label} style={{ marginBottom: 8 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 3 }}>
                     <span style={{ color: 'var(--de-text-dim)', fontWeight: 600 }}>{r.label}</span>
@@ -212,7 +212,7 @@ export default async function LabDaydreamPage() {
                   { label: 'Shaders', val: '12', color: '#8b5cf6' },
                   { label: 'Passes',  val: '4',  color: '#0ea5e9' },
                   { label: 'FPS',     val: '60', color: '#22c55e' },
-                ].map(m => (
+                ].map((m) => (
                   <div key={m.label} style={{ padding: '8px 6px', borderRadius: 9, background: `${m.color}0e`, border: `1px solid ${m.color}25`, textAlign: 'center' }}>
                     <div style={{ fontSize: 16, fontWeight: 800, color: m.color }}>{m.val}</div>
                     <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginTop: 2 }}>{m.label}</div>
@@ -232,7 +232,7 @@ export default async function LabDaydreamPage() {
                 { name: 'Fibonacci 40',        score: '12ms', tier: 'Excellent' },
                 { name: 'Matrix Multiply 512', score: '84ms', tier: 'Good' },
                 { name: 'WebGL Render 1K',     score: '16ms', tier: 'Excellent' },
-              ].map(b => (
+              ].map((b) => (
                 <div key={b.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 10px', marginBottom: 5, borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(34,197,94,0.12)' }}>
                   <span style={{ fontSize: 11, color: 'var(--de-heading)', fontWeight: 600 }}>{b.name}</span>
                   <div style={{ display: 'flex', gap: 8 }}>
@@ -255,7 +255,7 @@ export default async function LabDaydreamPage() {
                 { label: 'TF.js Telemetry',        on: true },
                 { label: 'Multiplayer Beta',        on: false },
                 { label: 'Quantum Simulator',       on: true },
-              ].map(f => (
+              ].map((f) => (
                 <div key={f.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 10px', marginBottom: 4, borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: `1px solid ${f.on ? 'rgba(34,197,94,0.18)' : 'rgba(0,0,0,0.06)'}` }}>
                   <span style={{ fontSize: 11, color: 'var(--de-heading)', fontWeight: 600 }}>{f.label}</span>
                   <span style={{ fontSize: 10, fontWeight: 700, color: f.on ? '#22c55e' : 'var(--de-text-dim)', background: f.on ? 'rgba(34,197,94,0.1)' : 'rgba(0,0,0,0.04)', padding: '2px 8px', borderRadius: 5 }}>{f.on ? 'ON' : 'OFF'}</span>
@@ -274,7 +274,7 @@ export default async function LabDaydreamPage() {
                 { h: 'WebGPU outperforms JS by 10×', outcome: 'Confirmed', color: '#22c55e' },
                 { h: 'Batch size 64 improves convergence', outcome: 'In Progress', color: '#f59e0b' },
                 { h: 'Fluid viscosity >0.8 causes instability', outcome: 'Refuted', color: '#ef4444' },
-              ].map((r, i) => (
+              ].map((r, i: number) => (
                 <div key={i} style={{ padding: '7px 10px', marginBottom: 5, borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: `1px solid ${r.color}18` }}>
                   <div style={{ fontSize: 9, fontWeight: 700, color: r.color, marginBottom: 3 }}>{r.outcome}</div>
                   <div style={{ fontSize: 11, color: 'var(--de-heading)' }}>{r.h}</div>
@@ -296,7 +296,7 @@ export default async function LabDaydreamPage() {
                 <span style={{ color: '#22c55e' }}>Output</span>    [10] Softmax ──▶ 🎯
               </div>
               <div className="grid grid-cols-3 gap-2 mt-3">
-                {[{ l: 'Params', v: '109K' }, { l: 'Accuracy', v: '97%' }, { l: 'Loss', v: '0.04' }].map(m => (
+                {[{ l: 'Params', v: '109K' }, { l: 'Accuracy', v: '97%' }, { l: 'Loss', v: '0.04' }].map((m) => (
                   <div key={m.l} style={{ textAlign: 'center', padding: '5px', borderRadius: 8, background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.18)' }}>
                     <div style={{ fontSize: 12, fontWeight: 800, color: '#8b5cf6' }}>{m.v}</div>
                     <div style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>{m.l}</div>
@@ -316,7 +316,7 @@ export default async function LabDaydreamPage() {
                 { name: 'user_engagement.csv', rows: '14,203', size: '2.1 MB' },
                 { name: 'game_scores.json',    rows: '28,190', size: '5.2 MB' },
                 { name: 'physics_results.csv', rows: '4,820',  size: '0.8 MB' },
-              ].map(d => (
+              ].map((d) => (
                 <div key={d.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 10px', marginBottom: 4, borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(34,197,94,0.12)' }}>
                   <span style={{ fontSize: 11, fontFamily: 'monospace', color: '#22c55e' }}>{d.name}</span>
                   <div style={{ display: 'flex', gap: 8, fontSize: 10, color: 'var(--de-text-dim)' }}>
@@ -336,7 +336,7 @@ export default async function LabDaydreamPage() {
               {[
                 { param: 'Gravity (m/s²)',  range: '1.6–24.8', best: '9.8', pct: 40 },
                 { param: 'Learning rate',   range: '0.001–0.1', best: '0.01', pct: 9  },
-              ].map(p => (
+              ].map((p) => (
                 <div key={p.param} style={{ marginBottom: 10, padding: '8px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(34,197,94,0.12)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                     <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--de-heading)' }}>{p.param}</span>
@@ -361,7 +361,7 @@ export default async function LabDaydreamPage() {
                 { v: 'v0.4.0', label: 'Neural pattern sim added', current: true },
                 { v: 'v0.3.2', label: 'Fluid boundary fix', current: false },
                 { v: 'v0.3.0', label: 'Quantum gates', current: false },
-              ].map(ver => (
+              ].map((ver) => (
                 <div key={ver.v} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 10px', marginBottom: 4, borderRadius: 8, background: ver.current ? 'rgba(42,138,184,0.07)' : 'rgba(255,255,255,0.5)', border: `1px solid ${ver.current ? 'rgba(42,138,184,0.25)' : 'rgba(0,0,0,0.05)'}` }}>
                   <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#2a8ab8', flexShrink: 0 }}>{ver.v}</span>
                   <span style={{ flex: 1, fontSize: 11, color: 'var(--de-heading)' }}>{ver.label}</span>
@@ -398,7 +398,7 @@ export default async function LabDaydreamPage() {
                 <span style={{ color: '#22c55e' }}>q[2]</span>: ──────X──M── |?⟩
               </div>
               <div className="grid grid-cols-4 gap-2 mt-3">
-                {[{ l: 'Fidelity', v: '0.94' }, { l: 'Depth', v: '12' }, { l: 'Qubits', v: '8' }, { l: 'Gates', v: '6' }].map(m => (
+                {[{ l: 'Fidelity', v: '0.94' }, { l: 'Depth', v: '12' }, { l: 'Qubits', v: '8' }, { l: 'Gates', v: '6' }].map((m) => (
                   <div key={m.l} style={{ textAlign: 'center', padding: '5px', borderRadius: 8, background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.18)' }}>
                     <div style={{ fontSize: 12, fontWeight: 800, color: '#8b5cf6' }}>{m.v}</div>
                     <div style={{ fontSize: 8, color: 'var(--de-text-dim)' }}>{m.l}</div>
@@ -418,7 +418,7 @@ export default async function LabDaydreamPage() {
                 { name: 'run-sims.yml',        status: 'passing' },
                 { name: 'benchmark-suite.yml', status: 'passing' },
                 { name: 'neural-train.yml',    status: 'running' },
-              ].map(w => (
+              ].map((w) => (
                 <div key={w.name} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 10px', marginBottom: 4, borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(99,102,241,0.1)' }}>
                   <span style={{ fontSize: 11, fontFamily: 'monospace', color: '#6366f1' }}>{w.name}</span>
                   <span style={{ fontSize: 9, fontWeight: 700, color: w.status === 'passing' ? '#22c55e' : '#f59e0b', background: w.status === 'passing' ? 'rgba(34,197,94,0.1)' : 'rgba(245,158,11,0.1)', padding: '2px 6px', borderRadius: 4 }}>{w.status}</span>

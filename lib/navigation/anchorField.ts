@@ -182,7 +182,7 @@ export function applyForceToVelocity(
   dt: number,
   mass: number = 1.0
 ): Vector3 {
-  // F = ma => a = F/m
+  // F = (ma) => a = F/m
   // v' = v + a*dt
   return {
     x: velocity.x + (force.x / mass) * dt,

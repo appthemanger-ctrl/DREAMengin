@@ -129,7 +129,7 @@ export function useDualRuntimePersistence(): UseDualRuntimePersistenceReturn {
 
   // Phase 2 — async load from OPFS / localStorage after mount
   useEffect(() => {
-    readStateOpfs().then(raw => {
+    readStateOpfs().then((raw) => {
       if (raw) {
         setState(deserializeState(raw));
       }
@@ -143,19 +143,19 @@ export function useDualRuntimePersistence(): UseDualRuntimePersistenceReturn {
   }, [state]);
 
   const setTopWorld = useCallback((world: RuntimeWorld) => {
-    setState(prev => setRuntimeWorld(prev, 'top', world));
+    setState((prev) => setRuntimeWorld(prev, 'top', world));
   }, []);
 
   const setBottomWorld = useCallback((world: RuntimeWorld) => {
-    setState(prev => setRuntimeWorld(prev, 'bottom', world));
+    setState((prev) => setRuntimeWorld(prev, 'bottom', world));
   }, []);
 
   const swapDominant = useCallback(() => {
-    setState(prev => swapDominantRuntime(prev));
+    setState((prev) => swapDominantRuntime(prev));
   }, []);
 
   const goHome = useCallback(() => {
-    setState(prev => makeHomeActiveTop(prev));
+    setState((prev) => makeHomeActiveTop(prev));
   }, []);
 
   return { state, setTopWorld, setBottomWorld, swapDominant, goHome };

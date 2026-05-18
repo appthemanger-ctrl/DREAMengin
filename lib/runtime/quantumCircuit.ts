@@ -88,7 +88,7 @@ const ASSET_CORR    = [[1, 0.3, 0.1], [0.3, 1, 0.2], [0.1, 0.2, 1]] as const;
 
 function quboCost(bits: boolean[]): number {
   let cost = 0;
-  bits.forEach((selected, i) => {
+  bits.forEach((selected, i: number) => {
     if (selected) cost -= ASSET_RETURNS[i] ?? 0.1;
   });
   for (let i = 0; i < bits.length; i++) {
@@ -174,13 +174,13 @@ export function runQuantumCircuit(
   }
 
   const probabilities = sv.map(([r, i]) => r * r + i * i);
-  const topIdx = probabilities.reduce((best, v, i) => (v > probabilities[best] ? i : best), 0);
+  const topIdx = probabilities.reduce((best, v: number, i: number) => (v > probabilities[best] ? i : best), 0);
   const topBits = Array.from(
     { length: numQubits },
     (_, k) => Boolean((topIdx >> (numQubits - 1 - k)) & 1),
   );
-  const expectationValue = probabilities.reduce((sum, prob, i) => {
-    const bits = Array.from({ length: numQubits }, (_, k) => Boolean((i >> (numQubits - 1 - k)) & 1));
+  const expectationValue = probabilities.reduce((sum: number, prob, i: number) => {
+    const bits = Array.from({ length: numQubits }, (_, k: number ) => Boolean((i >> (numQubits - 1 - k)) & 1));
     return sum + prob * quboCost(bits);
   }, 0);
 

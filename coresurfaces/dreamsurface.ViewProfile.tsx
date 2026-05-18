@@ -41,7 +41,7 @@ type Profile = {
  * visibility = 'private' records. This is enforced at both the query level
  * (explicit filter) and the RLS level (dream_windows table policies).
  */
-export default async function ViewProfilePage() {
+export default async function ViewProfilePage( ){
   await connection();
   const supabase = await createServerClient();
 
@@ -120,7 +120,7 @@ export default async function ViewProfilePage() {
     visibility: string; active_state: string;
   }> | null = null;
   try {
-    const { data } = await (supabase as any)
+    const { data } = await (supabase as SupabaseClient)
       .from('dream_windows')
       .select('id, type, config, size, position, visibility, active_state')
       .eq('owner_id', user.id)
@@ -139,7 +139,7 @@ export default async function ViewProfilePage() {
   type VisibilityMappingRow = { content_id: string; visibility: string };
   let mappingsData: VisibilityMappingRow[] | null = null;
   try {
-    const { data } = await (supabase as any)
+    const { data } = await (supabase as SupabaseClient)
       .from('visibility_mappings')
       .select('content_id, visibility')
       .eq('user_id', user.id);

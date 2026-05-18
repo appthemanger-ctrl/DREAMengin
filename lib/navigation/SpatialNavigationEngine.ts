@@ -129,7 +129,7 @@ export class SpatialNavigationEngine {
   /**
    * Handle pointer move
    */
-  private handlePointerMove(state: any): void {
+  private handlePointerMove(state: unknown): void {
     const now = performance.now();
     
     // Start gesture if not already active
@@ -344,6 +344,6 @@ export class SpatialNavigationEngine {
   }
   
   private emit(event: EngineEventType, data: unknown): void {
-    this.listeners.get(event)?.forEach(callback => callback(data));
+    this.listeners.get(event)?.forEach((callback) => callback(data));
   }
 }

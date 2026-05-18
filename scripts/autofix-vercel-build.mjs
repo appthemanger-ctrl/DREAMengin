@@ -18,7 +18,7 @@ import { resolve } from "node:path";
 const MAX_ATTEMPTS = 5;
 const PKG_PATH = resolve("package.json");
 
-function run(cmd, opts = {}) {
+function run(cmd, opts = ){}) {
   return spawnSync(cmd, { shell: true, encoding: "utf8", ...opts });
 }
 

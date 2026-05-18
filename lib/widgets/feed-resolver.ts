@@ -48,7 +48,7 @@ export async function resolveFeedHost(
     
     // Build query for feed items
      
-    let query = (supabase as any)
+    let query = (supabase as SupabaseClient)
       .from('feed_items')
       .select('id, user_id, ts, title, summary, url, media_json, tags_json, visibility, importance_score')
       .eq('user_id', targetUserId)
@@ -77,10 +77,10 @@ export async function resolveFeedHost(
     }
     
     // Transform to FeedItemSummary format and fetch engagement counts
-    const items: FeedItemSummary[] = await Promise.all((feedItems || []).map(async (item: Record<string, unknown>) => {
+    const items: FeedItemSummary[] = await Promise.all((feedItems || []).map(async (item) => {
       // Fetch engagement counts for this item
        
-      const { data: engagementData } = await (supabase as any)
+      const { data: engagementData } = await (supabase as SupabaseClient)
         .from('content_engagement')
         .select('engagement_type')
         .eq('content_id', item.id);
@@ -220,7 +220,7 @@ function generateETag(items: FeedItemSummary[]): string {
  *
  * @param limit - Maximum number of posts to return (default 20).
  */
-export async function resolvePublicAppPosts(limit = 20): Promise<HostResolved> {
+export async function resolvePublicAppPosts(limit: number = 20): Promise<HostResolved> {
   const supabase = await createServerClient();
 
   try {

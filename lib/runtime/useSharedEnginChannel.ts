@@ -87,8 +87,8 @@ export function useSharedEnginChannel<T extends RuntimeChannelEvent = RuntimeCha
     // For co-op, subscribe to peer_join/peer_leave to track peerCount.
     const off = (instance.channel as RuntimeChannel<RuntimeChannelEvent>).subscribe(
       (evt) => {
-        if (evt['type'] === 'peer_join')  setPeerCount((n) => n + 1);
-        if (evt['type'] === 'peer_leave') setPeerCount((n) => Math.max(1, n - 1));
+        if (evt['type'] === 'peer_join')  setPeerCount((n: number ) => n + 1);
+        if (evt['type'] === 'peer_leave') setPeerCount((n: number ) => Math.max(1, n - 1));
       },
     );
 

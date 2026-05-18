@@ -45,11 +45,11 @@ function loadVisibility(): Record<string, boolean> {
   try { return JSON.parse(localStorage.getItem('de-profile-widgets') || '{}'); }
   catch { return {}; }
 }
-function saveVisibility(v: Record<string, boolean>) {
+function saveVisibility(v: Record<string, boolean> ){
   localStorage.setItem('de-profile-widgets', JSON.stringify(v));
 }
 
-export default function ProfileCanvas({ initialProfile }: { initialProfile: Profile }) {
+export default function ProfileCanvas({ initialProfile }: {initialProfile: Profile}) {
   const supabase = createClient();
   const [profile, setProfile]       = useState(initialProfile);
   const [editing, setEditing]       = useState(false);
@@ -82,7 +82,7 @@ export default function ProfileCanvas({ initialProfile }: { initialProfile: Prof
       .eq('id', profile.id);
     setSaving(false);
     if (error) { setSaveErr(error.message); return; }
-    setProfile(p => ({ ...p, ...draft }));
+    setProfile((p) => ({ ...p, ...draft }));
     setEditing(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
@@ -90,7 +90,7 @@ export default function ProfileCanvas({ initialProfile }: { initialProfile: Prof
 
   /* ── Toggle widget visibility ── */
   const toggleWidget = useCallback((id: string) => {
-    setVisibility(prev => {
+    setVisibility((prev) => {
       const next = { ...prev, [id]: !(prev[id] !== false) };
       saveVisibility(next);
       return next;
@@ -219,7 +219,7 @@ export default function ProfileCanvas({ initialProfile }: { initialProfile: Prof
                   {multiline ? (
                     <textarea
                       value={draft[key]}
-                      onChange={e => setDraft(d => ({ ...d, [key]: e.target.value }))}
+                      onChange={e => setDraft((d) => ({ ...d, [key]: e.target.value }))}
                       rows={3}
                       placeholder={placeholder}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.75)', border: '1.5px solid rgba(42,138,184,0.25)', color: 'var(--de-text)', fontSize: 14, outline: 'none', resize: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
@@ -228,7 +228,7 @@ export default function ProfileCanvas({ initialProfile }: { initialProfile: Prof
                     <input
                       type="text"
                       value={draft[key]}
-                      onChange={e => setDraft(d => ({ ...d, [key]: e.target.value }))}
+                      onChange={e => setDraft((d) => ({ ...d, [key]: e.target.value }))}
                       placeholder={placeholder}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.75)', border: '1.5px solid rgba(42,138,184,0.25)', color: 'var(--de-text)', fontSize: 14, outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
                     />
@@ -253,7 +253,7 @@ export default function ProfileCanvas({ initialProfile }: { initialProfile: Prof
         </div>
         <div className="de-widget-body">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-            {WIDGET_SLOTS.map(({ id, icon: Icon, label, desc, color }) => {
+            {WIDGET_SLOTS.map(({ id, icon, label, desc, color }) => {
               const on = visibility[id] !== false;
               return (
                 <button
@@ -306,7 +306,7 @@ export default function ProfileCanvas({ initialProfile }: { initialProfile: Prof
             </button>
           </div>
           <div style={{ display: 'flex', gap: 10, marginTop: 12, paddingTop: 10, borderTop: '1px solid rgba(160,195,240,0.18)', flexWrap: 'wrap' }}>
-            {PROFILE_SHARE_PLATFORMS.map(platform => (
+            {PROFILE_SHARE_PLATFORMS.map((platform) => (
               <PlatformBadge
                 key={platform.id}
                 name={platform.id}

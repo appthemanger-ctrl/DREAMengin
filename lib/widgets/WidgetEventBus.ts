@@ -105,7 +105,7 @@ export class WidgetEventBus {
       const callbacks = this.listeners.get(msg.toWidgetId);
       
       if (callbacks) {
-        callbacks.forEach(callback => {
+        callbacks.forEach((callback) => {
           try {
             callback(msg);
           } catch (error) {

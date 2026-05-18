@@ -134,7 +134,7 @@ export function parseUnifiedDiff(diffText: string): DiffFile[] {
 
 function finalise(file: DiffFile): DiffFile {
   // Re-index hunks so .index is always correct after pushes
-  file.hunks = file.hunks.map((h, i) => ({ ...h, index: i }));
+  file.hunks = file.hunks.map((h, i: number) => ({ ...h, index: i }));
   return file;
 }
 
@@ -317,7 +317,7 @@ export const DEMO_DIFF = `--- a/lib/diff/diffUtils.ts
  
  const HUNK_HEADER_RE = /^@@ -(\d+)(?:,(\d+))? \\+(\d+)(?:,(\d+))? @@(.*)/;
 @@ -89,3 +101,18 @@ function finalise(file: DiffFile): DiffFile {
-   file.hunks = file.hunks.map((h, i) => ({ ...h, index: i }));
+   file.hunks = file.hunks.map((h, i: number) => ({ ...h, index: i }));
    return file;
  }
 +

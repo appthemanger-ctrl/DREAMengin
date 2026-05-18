@@ -44,7 +44,7 @@ function perpDist(p: PathPoint, p0: PathPoint, dx: number, dy: number, len: numb
 
 /** Normalise a vector to unit length. */
 function normalise(v: number[]): number[] {
-  const norm = Math.sqrt(v.reduce((s, x) => s + x * x, 0));
+  const norm = Math.sqrt(v.reduce((s, x: number) => s + x * x, 0));
   if (norm < 1e-12) return v.map(() => 0);
   return v.map((x) => x / norm);
 }
@@ -213,8 +213,8 @@ export function velocityVarianceJerk(path: Path, timestamps: number[]): Velocity
     speeds.push(Math.sqrt(dx * dx + dy * dy) / dt);
   }
 
-  const mean = speeds.reduce((s, v) => s + v, 0) / speeds.length;
-  const variance = speeds.reduce((s, v) => s + (v - mean) ** 2, 0) / speeds.length;
+  const mean = speeds.reduce((s, v: number) => s + v, 0) / speeds.length;
+  const variance = speeds.reduce((s, v: number) => s + (v - mean) ** 2, 0) / speeds.length;
 
   // Jerk: 3rd derivative ≈ differences of accelerations
   const accels: number[] = [];
@@ -224,7 +224,7 @@ export function velocityVarianceJerk(path: Path, timestamps: number[]): Velocity
   for (let i = 1; i < accels.length; i++) jerks.push(Math.abs(accels[i] - accels[i - 1]));
 
   const meanJerk = jerks.length > 0
-    ? jerks.reduce((s, j) => s + j, 0) / jerks.length
+    ? jerks.reduce((s, j: number) => s + j, 0) / jerks.length
     : 0;
 
   return {

@@ -84,7 +84,7 @@ function computeMagnitudes(
 
 /** Return indices of the top-K values in arr. */
 function topKIndices(arr: Float32Array, k: number): number[] {
-  const indexed = Array.from(arr).map((v, i) => ({ v, i }));
+  const indexed = Array.from(arr).map((v, i: number) => ({ v, i }));
   indexed.sort((a, b) => b.v - a.v);
   return indexed.slice(0, k).map((x) => x.i);
 }

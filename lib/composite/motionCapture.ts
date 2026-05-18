@@ -71,10 +71,10 @@ export interface ClipSummary {
  * Throws a descriptive error on malformed input.
  */
 export function parseBVH(bvhText: string): MocapClip {
-  const lines = bvhText.replace(/\r\n/g, '\n').split('\n').map(l => l.trim()).filter(Boolean);
+  const lines = bvhText.replace(/\r\n/g, '\n').split('\n').map((l) => l.trim()).filter(Boolean);
   let i = 0;
 
-  function consume(keyword: string) {
+  function consume(keyword: string ){
     if (!lines[i]?.toUpperCase().startsWith(keyword.toUpperCase())) {
       throw new Error(`BVH parse: expected "${keyword}", got "${lines[i]}" at line ${i}`);
     }
@@ -131,7 +131,7 @@ export function parseBVH(bvhText: string): MocapClip {
   // Build channel offset map (joint name → index within a single frame)
   const channelOffsets = new Map<string, number>();
   let channelCount = 0;
-  function indexJoint(j: Joint) {
+  function indexJoint(j: Joint ){
     channelOffsets.set(j.name, channelCount);
     channelCount += j.channels.length;
     for (const child of j.children) indexJoint(child);
@@ -156,7 +156,7 @@ export function getFramePose(clip: MocapClip, frame: number): FramePose {
   const frameStart = f * clip.channelCount;
   const joints: JointTransform[] = [];
 
-  function extract(j: Joint) {
+  function extract(j: Joint ){
     const off = clip.channelOffsets.get(j.name) ?? 0;
     let tx = 0, ty = 0, tz = 0, rx = 0, ry = 0, rz = 0;
     for (let c = 0; c < j.channels.length; c++) {
@@ -184,7 +184,7 @@ export function getFramePose(clip: MocapClip, frame: number): FramePose {
 export function retargetClip(clip: MocapClip, scaleFactor: number): MocapClip {
   const scaled = Float64Array.from(clip.motion);
 
-  function scaleJoint(j: Joint) {
+  function scaleJoint(j: Joint ){
     const off = clip.channelOffsets.get(j.name) ?? 0;
     for (let f = 0; f < clip.frameCount; f++) {
       const base = f * clip.channelCount + off;
@@ -207,7 +207,7 @@ export function retargetClip(clip: MocapClip, scaleFactor: number): MocapClip {
 export function exportBVH(clip: MocapClip): string {
   const out: string[] = ['HIERARCHY'];
 
-  function writeJoint(j: Joint, depth: number, isRoot: boolean) {
+  function writeJoint(j: Joint, depth: number, isRoot): boolean {
     const p = '  '.repeat(depth);
     out.push(`${p}${isRoot ? 'ROOT' : 'JOINT'} ${j.name}`);
     out.push(`${p}{`);
@@ -241,7 +241,7 @@ export function exportBVH(clip: MocapClip): string {
  */
 export function clipSummary(clip: MocapClip): ClipSummary {
   const jointNames: string[] = [];
-  function collect(j: Joint) { jointNames.push(j.name); j.children.forEach(collect); }
+  function collect(j: Joint ){ jointNames.push(j.name); j.children.forEach(collect); }
   collect(clip.root);
   return {
     frameCount: clip.frameCount,

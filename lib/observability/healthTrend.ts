@@ -53,7 +53,7 @@ export type HealthTrend = 'improving' | 'stable' | 'degrading';
  * - 'degrading': more unhealthy statuses in the second half
  * - 'stable': no significant change
  */
-export function getHealthTrend(windowSize = 20): HealthTrend {
+export function getHealthTrend(windowSize = 20: HealthTrend ){
   const recent = _trendBuffer.slice(-Math.min(windowSize, _trendBuffer.length));
   if (recent.length < 4) return 'stable';
 
@@ -141,8 +141,8 @@ export interface HealthReport {
  * Suitable for export to a monitoring dashboard or log aggregation system.
  */
 export function exportHealthReport(iterations: readonly LoopIteration[]): HealthReport {
-  const resolved = iterations.filter((i) => i.status === 'resolved').length;
-  const failed = iterations.filter((i) => i.status === 'failed').length;
+  const resolved = iterations.filter((i: number ) => i.status === 'resolved').length;
+  const failed = iterations.filter((i: number ) => i.status === 'failed').length;
   const lastStatus = iterations.length > 0 ? iterations[iterations.length - 1].status : null;
 
   // Collect the most common anomaly types across all iterations

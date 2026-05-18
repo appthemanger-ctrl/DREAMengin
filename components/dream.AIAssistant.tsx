@@ -16,7 +16,7 @@ interface Message {
   timestamp: Date;
 }
 
-export default function AIAssistant() {
+export default function AIAssistant( ){
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -45,7 +45,7 @@ export default function AIAssistant() {
   // Dr. Eams Full Experience mode (guidance + safe UI actions)
   useEffect(() => {
     setFullExperience(getDrEamsMode());
-    const off = onDrEamsModeChange((v) => setFullExperience(v));
+    const off = onDrEamsModeChange((v: number ) => setFullExperience(v));
     return () => off();
   }, []);
 

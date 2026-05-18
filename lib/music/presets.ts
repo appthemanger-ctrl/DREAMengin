@@ -408,8 +408,8 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     key: 'C#',
     keyMode: 'minor',
     qualityMode: 'streaming',
-    preset: BEAT_PRESETS.find(p => p.id === 'trap-808')!,
-    instrument: INSTRUMENT_PRESETS.find(p => p.id === 'bass-808')!,
+    preset: BEAT_PRESETS.find((p) => p.id === 'trap-808')!,
+    instrument: INSTRUMENT_PRESETS.find((p) => p.id === 'bass-808')!,
   },
   {
     id: 'house-club',
@@ -419,8 +419,8 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     key: 'F',
     keyMode: 'minor',
     qualityMode: 'studio',
-    preset: BEAT_PRESETS.find(p => p.id === 'house-4x4')!,
-    instrument: INSTRUMENT_PRESETS.find(p => p.id === 'lead-saw')!,
+    preset: BEAT_PRESETS.find((p) => p.id === 'house-4x4')!,
+    instrument: INSTRUMENT_PRESETS.find((p) => p.id === 'lead-saw')!,
   },
   {
     id: 'lofi-session',
@@ -430,8 +430,8 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     key: 'F',
     keyMode: 'major',
     qualityMode: 'streaming',
-    preset: BEAT_PRESETS.find(p => p.id === 'lofi-chill')!,
-    instrument: INSTRUMENT_PRESETS.find(p => p.id === 'keys-rhodes')!,
+    preset: BEAT_PRESETS.find((p) => p.id === 'lofi-chill')!,
+    instrument: INSTRUMENT_PRESETS.find((p) => p.id === 'keys-rhodes')!,
   },
   {
     id: 'pop-radio',
@@ -441,27 +441,27 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     key: 'G',
     keyMode: 'major',
     qualityMode: 'studio',
-    preset: BEAT_PRESETS.find(p => p.id === 'pop-anthem')!,
-    instrument: INSTRUMENT_PRESETS.find(p => p.id === 'lead-saw')!,
+    preset: BEAT_PRESETS.find((p) => p.id === 'pop-anthem')!,
+    instrument: INSTRUMENT_PRESETS.find((p) => p.id === 'lead-saw')!,
   },
 ];
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
-export const GENRE_LIST = [...new Set(BEAT_PRESETS.map(p => p.genre))];
+export const GENRE_LIST = [...new Set(BEAT_PRESETS.map((p) => p.genre))];
 
 export function getPresetsByGenre(genre: string): BeatPreset[] {
-  return BEAT_PRESETS.filter(p => p.genre === genre);
+  return BEAT_PRESETS.filter((p) => p.genre === genre);
 }
 
 export function findPreset(id: string): BeatPreset | undefined {
-  return BEAT_PRESETS.find(p => p.id === id);
+  return BEAT_PRESETS.find((p) => p.id === id);
 }
 
 export function findInstrumentPreset(id: string): InstrumentPreset | undefined {
-  return INSTRUMENT_PRESETS.find(p => p.id === id);
+  return INSTRUMENT_PRESETS.find((p) => p.id === id);
 }
 
 export function findProjectTemplate(id: string): ProjectTemplate | undefined {
-  return PROJECT_TEMPLATES.find(p => p.id === id);
+  return PROJECT_TEMPLATES.find((p) => p.id === id);
 }

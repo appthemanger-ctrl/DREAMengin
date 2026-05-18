@@ -54,7 +54,7 @@ function peerColor(peerId: string): string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function SharedDreamShell({
+export function SharedDreamShell(){
   channelId,
   children,
   title,
@@ -443,7 +443,7 @@ export function SharedDreamShell({
             padding: '4px 12px',
           }}
         >
-          {editLog.slice(-3).map((entry, i) => (
+          {editLog.slice(-3).map((entry, i: number) => (
             <div
               key={i}
               style={{ fontSize: 10, color: 'rgba(255,255,255,0.28)', fontFamily: 'monospace' }}

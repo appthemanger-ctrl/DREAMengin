@@ -79,7 +79,7 @@ const SYSTEM_ARTIFACT_TEMPLATES: readonly Omit<DreamArtifact, 'ownerId' | 'creat
   },
 ];
 
-function isBrowser() {
+function isBrowser( ){
   return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
 }
 
@@ -94,12 +94,12 @@ function mergeWithSystemArtifacts(accountId: string, artifacts: DreamArtifact[])
   return Array.from(map.values());
 }
 
-function writeArtifacts(accountId: string, artifacts: DreamArtifact[]) {
+function writeArtifacts(accountId: string, artifacts): DreamArtifact[] {
   if (!isBrowser()) return;
   window.localStorage.setItem(STORAGE_KEY(accountId), JSON.stringify(artifacts));
 }
 
-export function getDefaultSystemArtifacts(defaultOwnerId = 'system'): DreamArtifact[] {
+export function getDefaultSystemArtifacts(defaultOwnerId: string = 'system'): DreamArtifact[] {
   const createdAt = Date.now();
   return SYSTEM_ARTIFACT_TEMPLATES.map((artifact) => ({
     ...artifact,
@@ -123,18 +123,18 @@ export function loadArtifacts(accountId?: string | null): DreamArtifact[] {
   }
 }
 
-export function saveArtifact(accountId: string, artifact: DreamArtifact) {
+export function saveArtifact(accountId: string, artifact): DreamArtifact {
   const existing = loadArtifacts(accountId);
   const map = new Map(existing.map((entry) => [entry.id, entry]));
   map.set(artifact.id, artifact);
   writeArtifacts(accountId, Array.from(map.values()));
 }
 
-export function saveArtifacts(accountId: string, artifacts: DreamArtifact[]) {
+export function saveArtifacts(accountId: string, artifacts): DreamArtifact[] {
   writeArtifacts(accountId, mergeWithSystemArtifacts(accountId, artifacts));
 }
 
-export function removeArtifact(accountId: string, artifactId: string) {
+export function removeArtifact(accountId: string, artifactId): string {
   const next = loadArtifacts(accountId).filter((artifact) => artifact.id !== artifactId);
   writeArtifacts(accountId, next);
 }
@@ -143,7 +143,7 @@ export function listVisibleArtifacts(accountId?: string | null): DreamArtifact[]
   return loadArtifacts(accountId).filter((artifact) => artifact.metadata?.hidden !== true);
 }
 
-export function hideArtifact(accountId: string, artifactId: string) {
+export function hideArtifact(accountId: string, artifactId): string {
   const next = loadArtifacts(accountId).map((artifact) =>
     artifact.id === artifactId
       ? { ...artifact, metadata: { ...(artifact.metadata ?? {}), hidden: true } }
@@ -152,7 +152,7 @@ export function hideArtifact(accountId: string, artifactId: string) {
   writeArtifacts(accountId, next);
 }
 
-export function restoreArtifact(accountId: string, artifactId: string) {
+export function restoreArtifact(accountId: string, artifactId): string {
   const next = loadArtifacts(accountId).map((artifact) =>
     artifact.id === artifactId
       ? { ...artifact, metadata: { ...(artifact.metadata ?? {}), hidden: false } }

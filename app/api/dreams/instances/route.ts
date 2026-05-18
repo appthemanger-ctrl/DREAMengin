@@ -31,7 +31,7 @@ function toSurface(name: SurfaceName): Surface {
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest ){
   await connection();
   try {
     const supabase = await createServerClient();
@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
         *,
         dream_definitions!inner(*)
       `
-      ) as any)
+      ) as unknown)
       .eq('owner_id', user.id)
       .eq('surface', surface)
       .eq('surface_key', surfaceKey)

@@ -17,7 +17,7 @@ interface PolicyEvent {
   rule_code: string; category: string; expiry: string | null; policy_version: string;
 }
 
-export default function SafetyPanel() {
+export default function SafetyPanel( ){
   const { openInSurface } = useDreamSystem();
   const [log, setLog]       = useState<PolicyEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +29,7 @@ export default function SafetyPanel() {
         const { data: { user } } = await sb.auth.getUser();
         if (!user) { setLoading(false); return; }
          
-        const { data } = await (sb as any)
+        const { data } = await (sb as SupabaseClient)
           .from('policy_events')
           .select('event_id, timestamp, action, rule_code, category, expiry, policy_version')
           .eq('user_id', user.id)

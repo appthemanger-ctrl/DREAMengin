@@ -134,7 +134,7 @@ export function addSample(
   pointId: string,
   sample: TrackSample
 ): CameraTrack {
-  const points = track.trackPoints.map(p =>
+  const points = track.trackPoints.map((p) =>
     p.id === pointId
       ? { ...p, samples: [...p.samples, sample].sort((a, b) => a.frame - b.frame) }
       : p
@@ -228,7 +228,7 @@ export function exportTrackCSV(track: CameraTrack): string {
  */
 export function trackSummary(track: CameraTrack): string {
   const totalSamples = track.trackPoints.reduce((acc, p) => acc + p.samples.length, 0);
-  const solved = track.trackPoints.filter(p => p.solved).length;
+  const solved = track.trackPoints.filter((p) => p.solved).length;
   const status = track.isSolved
     ? `Solved (error: ${track.solveError.toFixed(3)} px)`
     : 'Unsolved';
@@ -312,7 +312,7 @@ function mat3Mul(A: number[][], B: number[][]): number[][] {
 function solveHomogeneousLS(A: number[][]): number[] {
   const m = A.length;      // 8
   const n = A[0].length;   // 9
-  const M = A.map(r => [...r]);
+  const M = A.map((r) => [...r]);
 
   // Gaussian elimination
   let pivotCol = 0;

@@ -336,7 +336,7 @@ describe('BabylonUIOptimizero', () => {
 
       // Should only include cheaper candidates
       expect(lowBudget.length).toBeLessThan(result.ranked_candidates.length);
-      expect(lowBudget.every(c => c.cost <= 0.3)).toBe(true);
+      expect(lowBudget.every((c) => c.cost <= 0.3)).toBe(true);
     });
 
     it('should group candidates by type', () => {

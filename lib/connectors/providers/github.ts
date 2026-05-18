@@ -65,7 +65,7 @@ export async function githubSync(creds: GitHubCredentials): Promise<UnifiedFeedI
   return (events as Parameters<typeof normaliseGitHub>[0][]).map(normaliseGitHub);
 }
 
-export function githubCredentialFields() {
+export function githubCredentialFields( ){
   return [
     {
       key: 'access_token',

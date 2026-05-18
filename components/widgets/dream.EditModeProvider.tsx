@@ -16,11 +16,11 @@ const EditModeContext = createContext<EditModeContextValue>({
   toggleEdit: () => {},
 });
 
-export function EditModeProvider({ children }: { children: React.ReactNode }) {
+export function EditModeProvider({ children }: {children: React.ReactNode}) {
   const [isEditing, setIsEditing] = useState(false);
   const enterEdit = useCallback(() => setIsEditing(true), []);
   const exitEdit = useCallback(() => setIsEditing(false), []);
-  const toggleEdit = useCallback(() => setIsEditing((v) => !v), []);
+  const toggleEdit = useCallback(() => setIsEditing((v: number ) => !v), []);
   return (
     <EditModeContext.Provider value={{ isEditing, enterEdit, exitEdit, toggleEdit }}>
       {children}
@@ -28,6 +28,6 @@ export function EditModeProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function useEditMode() {
+export function useEditMode( ){
   return useContext(EditModeContext);
 }

@@ -58,7 +58,7 @@ interface PianoRollPanelProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function sectionHeader(label: string, extra?: React.ReactNode) {
+function sectionHeader(label: string, extra?): React.ReactNode {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', gap: 8,
@@ -75,7 +75,7 @@ function sectionHeader(label: string, extra?: React.ReactNode) {
   );
 }
 
-function pill(color: string, text: string) {
+function pill(color: string, text): string {
   return (
     <span style={{
       fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 999,
@@ -106,11 +106,11 @@ export default function PianoRollPanel({ state, bpm, onStateChange }: PianoRollP
   };
   const div = quantizeDivisions[quantize];
   const totalCols = Math.round(totalBeats / div);
-  const beats: number[] = Array.from({ length: totalCols }, (_, i) => i * div);
+  const beats: number[] = Array.from({ length: totalCols }, (_, i: number ) => i * div);
 
   // Lookup: does a note occupy (pitch, beat)?
   function noteAt(pitch: number, beat: number): MidiNote | undefined {
-    return notes.find(n =>
+    return notes.find((n) =>
       n.pitch === pitch &&
       beat >= n.startBeat &&
       beat < n.startBeat + n.durationBeats,
@@ -121,7 +121,7 @@ export default function PianoRollPanel({ state, bpm, onStateChange }: PianoRollP
     const existing = noteAt(pitch, beat);
     if (existing) {
       // Remove note
-      onStateChange({ ...state, notes: notes.filter(n => n.id !== existing.id) });
+      onStateChange({ ...state, notes: notes.filter((n) => n.id !== existing.id) });
     } else {
       // Add note
       const snapped = snapToGrid(beat, quantize);
@@ -130,7 +130,7 @@ export default function PianoRollPanel({ state, bpm, onStateChange }: PianoRollP
     }
   }, [notes, state, onStateChange, quantize, div]);
 
-  function scrollOctave(delta: number) {
+  function scrollOctave(delta: number ){
     const next = viewBottomPitch + delta * 12;
     if (next < 0 || next > 103) return;
     onStateChange({ ...state, viewBottomPitch: next });
@@ -148,7 +148,7 @@ export default function PianoRollPanel({ state, bpm, onStateChange }: PianoRollP
           {pill(T.green, `${bpm} BPM`)}
           <button
             type="button"
-            onClick={() => setIsOpen(o => !o)}
+            onClick={() => setIsOpen((o) => !o)}
             style={{
               padding: '3px 10px', borderRadius: 6, cursor: 'pointer',
               background: isOpen ? `${T.accent}18` : `rgba(255,255,255,0.04)`,
@@ -167,7 +167,7 @@ export default function PianoRollPanel({ state, bpm, onStateChange }: PianoRollP
             {/* Quantize */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: T.dim, letterSpacing: '0.06em' }}>QUANTIZE</span>
-              {QUANTIZE_OPTIONS.map(q => (
+              {QUANTIZE_OPTIONS.map((q) => (
                 <button
                   key={q}
                   type="button"
@@ -186,7 +186,7 @@ export default function PianoRollPanel({ state, bpm, onStateChange }: PianoRollP
             {/* Length control */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 'auto' }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: T.dim }}>BARS</span>
-              {[4, 8, 16, 32].map(bars => (
+              {[4, 8, 16, 32].map((bars) => (
                 <button
                   key={bars}
                   type="button"
@@ -225,10 +225,10 @@ export default function PianoRollPanel({ state, bpm, onStateChange }: PianoRollP
               </div>
 
               {/* Keys */}
-              {visiblePitches.map(pitch => {
+              {visiblePitches.map((pitch) => {
                 const isBlack = isBlackKey(pitch);
                 const isC = pitch % 12 === 0;
-                const hasNote = notes.some(n => n.pitch === pitch);
+                const hasNote = notes.some((n) => n.pitch === pitch);
                 return (
                   <div
                     key={pitch}
@@ -261,7 +261,7 @@ export default function PianoRollPanel({ state, bpm, onStateChange }: PianoRollP
                 borderBottom: `1px solid ${T.border}`,
                 minWidth: gridWidthPx,
               }}>
-                {beats.map((beat, i) => (
+                {beats.map((beat, i: number) => (
                   <div
                     key={i}
                     style={{
@@ -283,7 +283,7 @@ export default function PianoRollPanel({ state, bpm, onStateChange }: PianoRollP
 
               {/* Note rows */}
               <div style={{ minWidth: gridWidthPx }}>
-                {visiblePitches.map(pitch => {
+                {visiblePitches.map((pitch) => {
                   const isBlack = isBlackKey(pitch);
                   const isC = pitch % 12 === 0;
 
@@ -351,7 +351,7 @@ export default function PianoRollPanel({ state, bpm, onStateChange }: PianoRollP
                 padding: '2px 4px', background: '#0f1118',
                 overflowX: 'auto',
               }}>
-                {notes.map(note => (
+                {notes.map((note) => (
                   <div
                     key={note.id}
                     title={`${midiPitchToName(note.pitch)} — vel ${note.velocity}`}
@@ -371,7 +371,7 @@ export default function PianoRollPanel({ state, bpm, onStateChange }: PianoRollP
           <div style={{ marginTop: 8, display: 'flex', gap: 12, fontSize: 9, color: T.dim }}>
             <span>
               {notes.length > 0
-                ? `Range: ${midiPitchToName(Math.min(...notes.map(n => n.pitch)))} → ${midiPitchToName(Math.max(...notes.map(n => n.pitch)))}`
+                ? `Range: ${midiPitchToName(Math.min(...notes.map((n) => n.pitch)))} → ${midiPitchToName(Math.max(...notes.map((n) => n.pitch)))}`
                 : 'Click a grid cell to add a note · click again to remove'}
             </span>
             <span style={{ marginLeft: 'auto' }}>

@@ -33,7 +33,7 @@ import {
 
 // ── Helper ────────────────────────────────────────────────────────────────────
 
-function makePost(overrides: Partial<ScoredPost> = {}): ScoredPost {
+function makePost(overrides: Partial<ScoredPost> = ){}): ScoredPost {
   return {
     id:         'test-id',
     content:    'A genuinely thoughtful piece of writing.',
@@ -420,7 +420,7 @@ describe('DreamR — rankFeed', () => {
     // At minimum the output has all 3 posts
     expect(ranked).toHaveLength(3);
     // dreamr_score should have been modified (may differ from original raw score)
-    const alicePosts = ranked.filter(p => p.profiles.handle === 'alice');
+    const alicePosts = ranked.filter((p) => p.profiles.handle === 'alice');
     expect(alicePosts).toHaveLength(2);
   });
 
@@ -429,9 +429,9 @@ describe('DreamR — rankFeed', () => {
       makePost({ id: 'x' }),
       makePost({ id: 'y' }),
     ];
-    const originalIds = posts.map(p => p.id);
+    const originalIds = posts.map((p) => p.id);
     rankFeed(posts);
-    expect(posts.map(p => p.id)).toEqual(originalIds);
+    expect(posts.map((p) => p.id)).toEqual(originalIds);
   });
 
   it('single post passes through unchanged in structure', () => {

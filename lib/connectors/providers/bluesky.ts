@@ -73,7 +73,7 @@ export async function blueskySync(creds: BlueskyCredentials): Promise<UnifiedFee
   return (data.feed ?? []).map((item) => normaliseBluesky(item as Parameters<typeof normaliseBluesky>[0]));
 }
 
-export function blueskyCredentialFields() {
+export function blueskyCredentialFields( ){
   return [
     {
       key: 'handle',

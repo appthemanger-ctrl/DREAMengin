@@ -34,7 +34,7 @@ import {
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
-function makeRow(overrides: Partial<DbNotificationRow> = {}): DbNotificationRow {
+function makeRow(overrides: Partial<DbNotificationRow> = ){}): DbNotificationRow {
   return {
     id: 'row-1',
     type: 'like',
@@ -45,7 +45,7 @@ function makeRow(overrides: Partial<DbNotificationRow> = {}): DbNotificationRow 
   };
 }
 
-function makeUiNotif(overrides: Partial<UiNotification> = {}): UiNotification {
+function makeUiNotif(overrides: Partial<UiNotification> = ){}): UiNotification {
   return {
     id: 'n-1',
     type: 'like',

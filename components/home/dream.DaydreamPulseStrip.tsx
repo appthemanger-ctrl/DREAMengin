@@ -107,7 +107,7 @@ export default function DaydreamPulseStrip({ onOpenDaydream }: DaydreamPulseStri
           padding: '14px 14px 16px',
         }}
       >
-        {DAYDREAMS.map(d => (
+        {DAYDREAMS.map((d) => (
           <button
             key={d.id}
             type="button"

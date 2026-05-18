@@ -28,7 +28,7 @@ const DEFAULT_PREFS: FeedPreferences = {
   showEmptyStateGuides: true,
 };
 
-function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => void; label: string }) {
+function Toggle({ value, onToggle, label }: {value: boolean; onToggle: () => void; label: string}) {
   return (
     <button type="button" role="switch" aria-checked={value} aria-label={label} onClick={onToggle}
       style={{
@@ -46,7 +46,7 @@ function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => vo
   );
 }
 
-export default function FeedSettingsPanel() {
+export default function FeedSettingsPanel( ){
   const [prefs, setPrefs] = useState<FeedPreferences>(DEFAULT_PREFS);
   const [activeTopics, setActiveTopics] = useState<Set<string>>(new Set(DEFAULT_TOPIC_IDS));
   const [saved, setSaved] = useState(false);
@@ -171,7 +171,7 @@ export default function FeedSettingsPanel() {
       <div className="de-widget" style={{ margin: '0 16px', background: 'rgba(255,255,255,0.95)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
         <div className="de-widget-header"><span className="de-widget-title">Feed Preferences</span></div>
         <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-          {prefRows.map(({ key, label, desc }, idx) => (
+          {prefRows.map(({ key, label, desc }, idx: number) => (
             <div key={key} style={{
               display: 'flex', alignItems: 'center', gap: 12,
               padding: '12px 8px',

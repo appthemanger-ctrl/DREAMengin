@@ -68,7 +68,7 @@ function getPhaseIndexFromStep(step: string): number {
 
 // ── Phase progress bar ────────────────────────────────────────────────────────
 
-function PhaseBar({ activePhase }: { activePhase: number }) {
+function PhaseBar({ activePhase }: {activePhase: number}) {
   return (
     <div style={{
       display: 'flex',
@@ -81,7 +81,7 @@ function PhaseBar({ activePhase }: { activePhase: number }) {
       marginBottom: 10,
       overflowX: 'auto',
     }}>
-      {PHASES.map((phase, idx) => {
+      {PHASES.map((phase, idx: number) => {
         const isDone    = idx < activePhase;
         const isActive  = idx === activePhase;
 
@@ -143,7 +143,7 @@ function PhaseBar({ activePhase }: { activePhase: number }) {
 
 type CodeLogEvent = Extract<ForgeLogEvent, { type: 'code' }>;
 
-function CodeBlock({ event }: { event: CodeLogEvent }) {
+function CodeBlock({ event }: {event: CodeLogEvent}) {
   const [copied, setCopied] = useState(false);
   const lines = event.content.split('\n');
   const MAX_VISIBLE = 15;
@@ -465,7 +465,7 @@ function LogEntry({
   }
 
   if (event.type === 'result') {
-    const enginEntry = ENGIN_REGISTRY.find(e => e.id === event.enginId);
+    const enginEntry = ENGIN_REGISTRY.find((e) => e.id === event.enginId);
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.97 }}
@@ -517,8 +517,8 @@ function LogEntry({
 
 // ── Build history item ────────────────────────────────────────────────────────
 
-function HistoryItem({ record, onLaunch }: { record: ForgeBuildRecord; onLaunch: (href: string) => void }) {
-  const enginEntry = ENGIN_REGISTRY.find(e => e.id === record.primaryEnginId);
+function HistoryItem({ record, onLaunch }: {record: ForgeBuildRecord; onLaunch: (href: string) => void}) {
+  const enginEntry = ENGIN_REGISTRY.find((e) => e.id === record.primaryEnginId);
   const elapsed = Date.now() - new Date(record.createdAt).getTime();
   const timeStr =
     elapsed < 60_000 ? 'just now' :
@@ -565,7 +565,7 @@ function HistoryItem({ record, onLaunch }: { record: ForgeBuildRecord; onLaunch:
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function AIBuilderPanel() {
+export default function AIBuilderPanel( ){
   const router = useRouter();
   const { state, logs, result, submit, reset, rateLimitError } = useForgeBuild();
 
@@ -610,17 +610,17 @@ export default function AIBuilderPanel() {
 
   // Current phase label shown in the Forge button while running
   const currentPhaseLabel = useMemo(() => {
-    const phaseSteps = logs.filter(l => l.type === 'step' && l.step.startsWith('PHASE:'));
+    const phaseSteps = logs.filter((l) => l.type === 'step' && l.step.startsWith('PHASE:'));
     if (!phaseSteps.length) return null;
     const last = phaseSteps[phaseSteps.length - 1] as Extract<ForgeLogEvent, { type: 'step' }>;
     return last.step.replace('PHASE: ', '').replace(' 🎉', '');
   }, [logs]);
 
   // Visible logs (exclude done event) + last-agent index for typing cursor
-  const visibleLogs = useMemo(() => logs.filter(e => e.type !== 'done'), [logs]);
+  const visibleLogs = useMemo(() => logs.filter((e) => e.type !== 'done'), [logs]);
   const lastAgentVisibleIdx = useMemo(() => {
     if (state !== 'running') return -1;
-    return visibleLogs.reduce((idx, log, i) => (log.type === 'agent' ? i : idx), -1);
+    return visibleLogs.reduce((idx: number, log, i: number) => (log.type === 'agent' ? i : idx), -1);
   }, [visibleLogs, state]);
 
   const handleSubmit = useCallback(() => {
@@ -783,7 +783,7 @@ export default function AIBuilderPanel() {
         {/* ── Example chips ── */}
         {!isRunning && !isDone && !logs.length && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
-            {EXAMPLE_CHIPS.map(chip => (
+            {EXAMPLE_CHIPS.map((chip) => (
               <button
                 key={chip.text}
                 type="button"
@@ -941,7 +941,7 @@ export default function AIBuilderPanel() {
                 }}
               >
                 <ExternalLink className="w-4 h-4" />
-                Launch Result in {ENGIN_REGISTRY.find(e => e.id === result.primaryEnginId)?.name ?? 'Engin'}
+                Launch Result in {ENGIN_REGISTRY.find((e) => e.id === result.primaryEnginId)?.name ?? 'Engin'}
               </motion.button>
             </motion.div>
           )}
@@ -983,7 +983,7 @@ export default function AIBuilderPanel() {
                 borderRadius: 12,
                 display: 'flex', flexDirection: 'column', gap: 1,
               }}>
-                {visibleLogs.map((event, i) => (
+                {visibleLogs.map((event, i: number) => (
                   <LogEntry
                     key={`${event.type}-${event.ts}-${i}`}
                     event={event}
@@ -1004,7 +1004,7 @@ export default function AIBuilderPanel() {
       }}>
         <button
           type="button"
-          onClick={() => setShowHistory(v => !v)}
+          onClick={() => setShowHistory((v) => !v)}
           style={{
             width: '100%',
             padding: '12px 18px',
@@ -1038,7 +1038,7 @@ export default function AIBuilderPanel() {
                     No builds yet. Forge something! 🔥
                   </p>
                 ) : (
-                  buildHistory.map(rec => (
+                  buildHistory.map((rec) => (
                     <HistoryItem key={rec.id} record={rec} onLaunch={handleLaunch} />
                   ))
                 )}

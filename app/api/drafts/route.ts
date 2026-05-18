@@ -53,7 +53,7 @@ export async function GET(_req: NextRequest): Promise<NextResponse> {
   }
 
    
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
 
   const { data: drafts, error } = await db
     .from('content_drafts')
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const { content, content_type, title, scheduled_at } = parseResult.data;
 
    
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
 
   const now = new Date().toISOString();
   const { data: draft, error } = await db

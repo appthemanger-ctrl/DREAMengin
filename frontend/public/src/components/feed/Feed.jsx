@@ -10,9 +10,9 @@ const Feed = () => {
   useEffect(() => {
     const handleScroll = (e) => {
       if (e.deltaY > 0) {
-        setCurrentIndex(prev => Math.min(prev + 1, posts.length - 1));
+        setCurrentIndex((prev) => Math.min(prev + 1, posts.length - 1));
       } else {
-        setCurrentIndex(prev => Math.max(prev - 1, 0));
+        setCurrentIndex((prev) => Math.max(prev - 1, 0));
       }
     };
 

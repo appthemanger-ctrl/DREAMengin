@@ -74,7 +74,7 @@ const ZERO_VEC: MobileControlVector = { x: 0, y: 0 };
 
 // ─── Left-stick legacy sync ─────────────────────────────────────────────────
 
-function useLegacyMoveSync() {
+function useLegacyMoveSync( ){
   const activeMoveRef = useRef<ReturnType<typeof getLegacyMoveAction>>(null);
 
   const sync = useCallback((vector: MobileControlVector) => {

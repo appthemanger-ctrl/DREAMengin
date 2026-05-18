@@ -42,7 +42,7 @@ export function filterByCloseFriends<T extends VisibilityCandidate>(
   viewerId: string,
   allowedPosterIds: ReadonlySet<string>,
 ): T[] {
-  return posts.filter(p => {
+  return posts.filter((p) => {
     const vis = p.post_visibility ?? 'public';
     if (vis !== 'close_friends') return true;
     if (p.user_id === viewerId) return true;
@@ -61,7 +61,7 @@ export function filterByCloseFriends<T extends VisibilityCandidate>(
  * "public + own posts", which is the strictest correct behaviour.
  */
 export async function fetchCloseFriendsCircle(
-  serviceClient: SupabaseClient<any>,
+  serviceClient: SupabaseClient<unknown>,
   viewerId: string,
 ): Promise<Set<string>> {
   if (!viewerId) return new Set();
@@ -72,7 +72,7 @@ export async function fetchCloseFriendsCircle(
   if (error || !data) return new Set();
   return new Set(
     (data as Array<{ user_id: string }>)
-      .map(r => r.user_id)
+      .map((r) => r.user_id)
       .filter(Boolean),
   );
 }

@@ -372,7 +372,7 @@ export async function parseRssFeed(
  */
 export function normaliseRssItem(
    
-  item: any,
+  item: unknown,
   config: RssFeedConfig,
   channelTitle: string,
 ): UnifiedFeedItem {
@@ -426,7 +426,7 @@ export function normaliseRssItem(
  *  5. <img src> inside content:encoded / description HTML
  */
  
-export function extractFirstImage(item: any): string | null {
+export function extractFirstImage(item: unknown): string | null {
   // 1) enclosure
   if (item.enclosure?.url && isImageLike(item.enclosure.url)) {
     return item.enclosure.url;
@@ -436,19 +436,19 @@ export function extractFirstImage(item: any): string | null {
   if (Array.isArray(item.mediaContent)) {
     const url = item.mediaContent.find(
        
-      (x: any) => x?.$?.url && isImageLike(x.$?.url),
+      (x: unknown) => x?.$?.url && isImageLike(x.$?.url),
     )?.$?.url;
     if (url) return url;
     // Fall back to any url even if it's a video (still usable as thumbnail)
      
-    const anyUrl = item.mediaContent.find((x: any) => x?.$?.url)?.$?.url;
+    const anyUrl = item.mediaContent.find((x: unknown) => x?.$?.url)?.$?.url;
     if (anyUrl) return anyUrl;
   }
 
   // 3) media:thumbnail (array)
   if (Array.isArray(item.mediaThumbnail)) {
      
-    const url = item.mediaThumbnail.find((x: any) => x?.$?.url)?.$?.url;
+    const url = item.mediaThumbnail.find((x: unknown) => x?.$?.url)?.$?.url;
     if (url) return url;
   }
 
@@ -458,7 +458,7 @@ export function extractFirstImage(item: any): string | null {
      
     const thumb = Array.isArray(group['media:thumbnail'])
        
-      ? group['media:thumbnail'].find((x: any) => x?.$?.url)?.$?.url
+      ? group['media:thumbnail'].find((x: unknown) => x?.$?.url)?.$?.url
       : group['media:thumbnail']?.$?.url;
     if (thumb) return thumb;
   }

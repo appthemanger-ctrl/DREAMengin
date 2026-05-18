@@ -130,7 +130,7 @@ interface Props {
   onSelectedClipGainChange: (gain: number) => void;
 }
 
-export default function MultitrackArrangementPanel({
+export default function MultitrackArrangementPanel(){
   hasAudio,
   sourceLibrary,
   selectedSourceId,
@@ -160,14 +160,14 @@ export default function MultitrackArrangementPanel({
 }: Props) {
   const [toolsExpanded, setToolsExpanded] = useState(false);
   const activeSourceId = selectedSourceId ?? sourceLibrary[0]?.id ?? null;
-  const selectedSource = sourceLibrary.find(source => source.id === activeSourceId) ?? null;
-  const selectedClip = arrClips.find(clip => clip.id === selectedClipId) ?? null;
-  const arrangementBarsUsed = arrClips.length ? Math.max(...arrClips.map(clip => clip.startBar + clip.barLength)) : 0;
+  const selectedSource = sourceLibrary.find((source) => source.id === activeSourceId) ?? null;
+  const selectedClip = arrClips.find((clip) => clip.id === selectedClipId) ?? null;
+  const arrangementBarsUsed = arrClips.length ? Math.max(...arrClips.map((clip) => clip.startBar + clip.barLength)) : 0;
   const [clipToolsExpanded, setClipToolsExpanded] = useState(false);
 
   useEffect(() => {
     if (sourceLibrary.length === 0) return;
-    if (!selectedSourceId || !sourceLibrary.some(source => source.id === selectedSourceId)) {
+    if (!selectedSourceId || !sourceLibrary.some((source) => source.id === selectedSourceId)) {
       onSelectSource(sourceLibrary[0].id);
     }
   }, [onSelectSource, selectedSourceId, sourceLibrary]);
@@ -272,7 +272,7 @@ export default function MultitrackArrangementPanel({
                   fontWeight: 700,
                 }}
               >
-                {sourceLibrary.length ? sourceLibrary.map(source => (
+                {sourceLibrary.length ? sourceLibrary.map((source) => (
                   <option key={source.id} value={source.id}>
                     {source.name} · {formatSeconds(source.durationSec)}
                   </option>
@@ -320,7 +320,7 @@ export default function MultitrackArrangementPanel({
                 {sourceLibrary.length === 0 ? (
                   <option value="">Capture a source first</option>
                 ) : (
-                  sourceLibrary.map(source => (
+                  sourceLibrary.map((source) => (
                     <option key={source.id} value={source.id}>
                       {source.name} · {formatSeconds(source.durationSec)}
                     </option>
@@ -336,7 +336,7 @@ export default function MultitrackArrangementPanel({
             </div>
 
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {sourceLibrary.length > 0 ? sourceLibrary.map(source => (
+            {sourceLibrary.length > 0 ? sourceLibrary.map((source) => (
               <div
                 key={source.id}
                 style={{
@@ -353,7 +353,7 @@ export default function MultitrackArrangementPanel({
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 1, height: 20 }}>
-                  {source.waveform.slice(0, 16).map((h, index) => (
+                  {source.waveform.slice(0, 16).map((h, index: number) => (
                     <div
                       key={index}
                       style={{
@@ -401,7 +401,7 @@ export default function MultitrackArrangementPanel({
               TRACKS
             </div>
             <div style={{ flex: 1, display: 'grid', gridTemplateColumns: `repeat(${ARRANGEMENT_BARS}, minmax(0, 1fr))` }}>
-              {Array.from({ length: ARRANGEMENT_BARS }, (_, bar) => (
+              {Array.from(({ length: ARRANGEMENT_BARS }, _, bar: Record<string, unknown>) => (
                 <div key={bar} style={{
                   padding: '8px 0',
                   textAlign: 'center',
@@ -417,8 +417,8 @@ export default function MultitrackArrangementPanel({
             </div>
           </div>
 
-          {arrTracks.map(track => {
-            const trackClips = arrClips.filter(clip => clip.trackId === track.id);
+          {arrTracks.map((track) => {
+            const trackClips = arrClips.filter((clip) => clip.trackId === track.id);
             return (
               <div key={track.id} style={{ display: 'flex', minHeight: 68, borderTop: `1px solid ${THEME.border}` }}>
                 <div style={{
@@ -479,7 +479,7 @@ export default function MultitrackArrangementPanel({
 
                 <div style={{ flex: 1, position: 'relative', background: '#0a0d14' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: `repeat(${ARRANGEMENT_BARS}, minmax(0, 1fr))`, height: '100%' }}>
-                    {Array.from({ length: ARRANGEMENT_BARS }, (_, bar) => (
+                    {Array.from(({ length: ARRANGEMENT_BARS }, _, bar: Record<string, unknown>) => (
                       <button
                         key={bar}
                         type="button"
@@ -498,8 +498,8 @@ export default function MultitrackArrangementPanel({
                     ))}
                   </div>
 
-                  {trackClips.map(clip => {
-                    const source = sourceLibrary.find(item => item.id === clip.sourceId);
+                  {trackClips.map((clip) => {
+                    const source = sourceLibrary.find((item) => item.id === clip.sourceId);
                     return (
                       <button
                         key={clip.id}
@@ -541,7 +541,7 @@ export default function MultitrackArrangementPanel({
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <button
             type="button"
-            onClick={() => setClipToolsExpanded(prev => !prev)}
+            onClick={() => setClipToolsExpanded((prev) => !prev)}
             aria-expanded={clipToolsExpanded}
             style={disclosureToggleStyle(clipToolsExpanded)}
           >
@@ -549,7 +549,7 @@ export default function MultitrackArrangementPanel({
               <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.08em' }}>CLIP TOOLS</span>
               <span style={{ fontSize: 10, color: THEME.dim }}>
                 {selectedClip
-                  ? `Tweaking ${selectedClip.label} on ${arrTracks.find(track => track.id === selectedClip.trackId)?.label ?? selectedClip.trackId}`
+                  ? `Tweaking ${selectedClip.label} on ${arrTracks.find((track) => track.id === selectedClip.trackId)?.label ?? selectedClip.trackId}`
                   : 'Select a clip to reveal edit parameters'}
               </span>
               {selectedClip && (
@@ -563,7 +563,7 @@ export default function MultitrackArrangementPanel({
 
           <button
             type="button"
-            onClick={() => setToolsExpanded(expanded => !expanded)}
+            onClick={() => setToolsExpanded((expanded) => !expanded)}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -626,7 +626,7 @@ export default function MultitrackArrangementPanel({
                   { label: 'Longer', action: onLengthenClip },
                   { label: 'Duplicate', action: onDuplicateClip },
                   { label: 'Remove', action: onRemoveClip },
-                ].map(control => (
+                ].map((control) => (
                   <button
                     key={control.label}
                     type="button"

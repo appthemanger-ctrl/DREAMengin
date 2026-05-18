@@ -112,7 +112,7 @@ export function computeVelocity(history: HistoryEntry[]): number {
   if (last24h.length === 0) return 0;
 
   // Calculate time span of activity (at least 1 hour to avoid division by tiny numbers)
-  const timestamps = last24h.map(e => new Date(e.timestamp).getTime());
+  const timestamps = last24h.map((e) => new Date(e.timestamp).getTime());
   const span = Math.max(now - Math.min(...timestamps), MS_PER_HOUR);
   const hoursActive = span / MS_PER_HOUR;
   const actionsPerHour = last24h.length / hoursActive;
@@ -130,10 +130,10 @@ export function computeDiversity(history: HistoryEntry[]): number {
   const last7d = history.filter(
     e => now - new Date(e.timestamp).getTime() < 7 * MS_PER_DAY,
   );
-  const uniqueEngines = new Set(last7d.map(e => e.enginId));
+  const uniqueEngines = new Set(last7d.map((e) => e.enginId));
   // Only count creative engine IDs
-  const creativeIds = new Set(CREATIVE_ENGINES.map(e => e.id));
-  const validEngines = [...uniqueEngines].filter(id => creativeIds.has(id));
+  const creativeIds = new Set(CREATIVE_ENGINES.map((e) => e.id));
+  const validEngines = [...uniqueEngines].filter((id) => creativeIds.has(id));
   return Math.round((validEngines.length / CREATIVE_ENGINES.length) * 100);
 }
 
@@ -180,8 +180,8 @@ export function computeDepth(history: HistoryEntry[]): number {
   let meaningful = 0;
   for (const entry of last7d) {
     const lower = entry.label.toLowerCase();
-    const isShallow = SHALLOW_MARKERS.some(m => lower.includes(m));
-    const isDeep = DEPTH_MARKERS.some(m => lower.includes(m));
+    const isShallow = SHALLOW_MARKERS.some((m) => lower.includes(m));
+    const isDeep = DEPTH_MARKERS.some((m) => lower.includes(m));
     if (isDeep && !isShallow) meaningful++;
   }
 
@@ -254,7 +254,7 @@ export function computeMomentum(historyOverride?: HistoryEntry[]): MomentumSnaps
   const todayEntries = history.filter(
     e => now - new Date(e.timestamp).getTime() < MS_PER_DAY,
   );
-  const enginesUsedToday = [...new Set(todayEntries.map(e => e.enginId))];
+  const enginesUsedToday = [...new Set(todayEntries.map((e) => e.enginId))];
 
   // Actions this week
   const weekEntries = history.filter(

@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-05-13T09:08:37.089Z",
+  "generated_at": "2026-05-16T18:24:50.781Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 28,
+  "count": 27,
   "events": [
     {
       "event": "beforeunload",
@@ -184,17 +184,9 @@
       ]
     },
     {
-      "event": "pointerdown",
-      "payload_type": null,
-      "files": [
-        "components/dream.LandingHero.tsx"
-      ]
-    },
-    {
       "event": "pointermove",
       "payload_type": null,
       "files": [
-        "components/dream.LandingHero.tsx",
         "components/home/dream.ActiveModuleSurface.tsx",
         "lib/god-tier/useGodTier.ts"
       ]
@@ -203,7 +195,6 @@
       "event": "pointerup",
       "payload_type": null,
       "files": [
-        "components/dream.LandingHero.tsx",
         "components/home/dream.ActiveModuleSurface.tsx"
       ]
     },

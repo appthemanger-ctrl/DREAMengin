@@ -10,7 +10,7 @@ import { connection } from 'next/server';
  * This route redirects to maintain backward compatibility.
  */
 
-export default async function ProfileLegacyPage() {
+export default async function ProfileLegacyPage( ){
   await connection();
   redirect('/edit-profiledream');
 }

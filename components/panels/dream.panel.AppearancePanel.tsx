@@ -16,7 +16,7 @@ import { useDreamSystem }    from '@/lib/dreamdm/DreamSystemContext';
 
 // ── Gradient theme picker (same logic as appearance page) ────────────────────
 
-function GradientThemePicker() {
+function GradientThemePicker( ){
   const [active, setActive] = useState('default');
   useEffect(() => {
     try {
@@ -60,7 +60,7 @@ function GradientThemePicker() {
 
 // ── Slider control ────────────────────────────────────────────────────────────
 
-function Slider({ label, value, min, max, step, onChange }: { label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void }) {
+function Slider({ label, value, min, max, step, onChange }: {label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void}) {
   return (
     <div style={{ marginBottom: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
@@ -76,7 +76,7 @@ function Slider({ label, value, min, max, step, onChange }: { label: string; val
 
 // ── Preset card ───────────────────────────────────────────────────────────────
 
-function PresetCard({ preset, isActive, onSelect }: { preset: (typeof THEME_PRESETS)[number]; isActive: boolean; onSelect: () => void }) {
+function PresetCard({ preset, isActive, onSelect }: {preset: (typeof THEME_PRESETS)[number]; isActive: boolean; onSelect: () => void}) {
   return (
     <button type="button" onClick={onSelect} style={{
       padding: '12px 10px', borderRadius: 14, cursor: 'pointer',
@@ -92,7 +92,7 @@ function PresetCard({ preset, isActive, onSelect }: { preset: (typeof THEME_PRES
 
 // ── Main panel ────────────────────────────────────────────────────────────────
 
-export default function AppearancePanel() {
+export default function AppearancePanel( ){
   const { openInSurface }                               = useDreamSystem();
   const { presetId, overrides, setPreset, setOverrides, resetOverrides } = useTheme();
   const { enterCustomizeMode }                          = useCustomizeMode();

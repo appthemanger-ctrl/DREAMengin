@@ -20,7 +20,7 @@ type UserRoleRow = {
   role: string | null;
 };
 
-export default async function AdminPage() {
+export default async function AdminPage( ){
   await connection();
   let user = null;
   let profile = null;

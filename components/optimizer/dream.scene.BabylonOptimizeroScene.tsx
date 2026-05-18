@@ -38,12 +38,12 @@ interface BabylonOptimizeroSceneProps {
   initialPreset?: WeightPreset;
 }
 
-export default function BabylonOptimizeroScene({
+export default function BabylonOptimizeroScene(){
   onElementSelect,
   initialPreset = 'default',
 }: BabylonOptimizeroSceneProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const engineRef = useRef<any>(null);
+  const engineRef = useRef<unknown>(null);
   const godTierRef = useRef(new DreamEngineGodTierSystem());
   const [weightPreset, setWeightPreset] = useState<WeightPreset>(initialPreset);
   const [customWeights, setCustomWeights] = useState<OptimizeroWeights>(DEFAULT_WEIGHTS);
@@ -186,7 +186,7 @@ export default function BabylonOptimizeroScene({
 
       // Render only valid candidates from optimization result
       if (result.ranked_candidates.length > 0) {
-        result.ranked_candidates.forEach((scoredCandidate, index) => {
+        result.ranked_candidates.forEach((scoredCandidate, index: number) => {
           const candidate = scoredCandidate.data;
 
           if (candidate.type === 'mesh') {
@@ -306,7 +306,7 @@ export default function BabylonOptimizeroScene({
             runtime: { frameMs: avgFrame, avgFrameMs: avgFrame, cpuMs: avgFrame * 0.4, gpuMs: avgFrame * 0.5, droppedFrameRatio: 0, inputLatencyMs: 20, scrollVelocity: 0, pointerVelocity: 0, interactionBurst: 0 },
             ux:      defaultUXSignals(),
             route:   defaultRouteSignals('/optimizer'),
-            meshes:  scene.meshes.map((m: any) => ({ id: m.id, visible: m.isVisible, interactive: m.isPickable, nearPointer: false, distanceToCamera: 6, transformDelta: 0, materialChanged: false, screenCoverage: 0.08, semanticWeight: 0.5, motionWeight: 0.4, detailWeight: 0.5, heroWeight: 0.3, occluded: false })),
+            meshes:  scene.meshes.map((m: unknown) => ({ id: m.id, visible: m.isVisible, interactive: m.isPickable, nearPointer: false, distanceToCamera: 6, transformDelta: 0, materialChanged: false, screenCoverage: 0.08, semanticWeight: 0.5, motionWeight: 0.4, detailWeight: 0.5, heroWeight: 0.3, occluded: false })),
             ui: [],
           });
           applyGodTierToBabylon(engine, scene as unknown as BabylonSceneLike, gt, window.devicePixelRatio ?? 1);

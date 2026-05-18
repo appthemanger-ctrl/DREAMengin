@@ -115,8 +115,8 @@ describe('enginWorkflowRegistry', () => {
     it('returns starmaker→lab workflows (2 in 2026: stem-analyze + audio-analysis)', () => {
       const results = findWorkflows('starmaker', 'lab');
       expect(results).toHaveLength(2);
-      expect(results.map(r => r.id)).toContain('starmaker-to-lab:stem-analyze');
-      expect(results.map(r => r.id)).toContain('starmaker-to-lab:audio-analysis');
+      expect(results.map((r) => r.id)).toContain('starmaker-to-lab:stem-analyze');
+      expect(results.map((r) => r.id)).toContain('starmaker-to-lab:audio-analysis');
     });
 
     it('returns starmaker→content workflows', () => {

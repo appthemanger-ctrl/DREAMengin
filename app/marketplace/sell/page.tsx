@@ -24,7 +24,7 @@ const CATEGORIES = [
   { value: 'music',     label: '🎵 Music',     desc: 'Sample pack or sound kit' },
 ];
 
-export default function MarketplaceSellPage() {
+export default function MarketplaceSellPage( ){
   const supabase = createClient();
   const router   = useRouter();
 
@@ -253,7 +253,7 @@ export default function MarketplaceSellPage() {
                   'Add a detailed description — features, compatible versions, what&apos;s included.',
                   'Tags help buyers discover your listing — choose relevant keywords.',
                   'Set price to 0 to make it free and build reputation first.',
-                ].map((tip, i) => (
+                ].map((tip, i: number) => (
                   <li key={i} className="de-row" style={{ borderBottom: 'none', paddingBlock: 4 }}>
                     <span style={{ color: 'var(--de-gold)', fontWeight: 700, fontSize: 13, flexShrink: 0 }}>{i + 1}.</span>
                     <span style={{ fontSize: 13, color: 'var(--de-text)' }} dangerouslySetInnerHTML={{ __html: tip }} />

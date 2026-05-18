@@ -82,7 +82,7 @@ export async function facebookSync(creds: FacebookCredentials): Promise<UnifiedF
   return items.map((item) => normaliseFacebook(item.raw as Parameters<typeof normaliseFacebook>[0], handle));
 }
 
-export function facebookCredentialFields() {
+export function facebookCredentialFields( ){
   return [
     {
       key: 'page',

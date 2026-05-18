@@ -128,8 +128,8 @@ export function computeEdges(transitions: Map<string, number>): NexusEdge[] {
 
   for (const [key, weight] of transitions) {
     const [from, to] = key.split('→');
-    const fromEng = ENGIN_REGISTRY.find(e => e.id === from);
-    const toEng = ENGIN_REGISTRY.find(e => e.id === to);
+    const fromEng = ENGIN_REGISTRY.find((e) => e.id === from);
+    const toEng = ENGIN_REGISTRY.find((e) => e.id === to);
     if (!fromEng || !toEng) continue;
 
     edges.push({
@@ -148,7 +148,7 @@ export function computeEdges(transitions: Map<string, number>): NexusEdge[] {
  * Compute node metrics from edges.
  */
 export function computeNodes(edges: NexusEdge[]): NexusNode[] {
-  const creativeIds = new Set(CREATIVE_ENGINES.map(e => e.id));
+  const creativeIds = new Set(CREATIVE_ENGINES.map((e) => e.id));
   const inbound = new Map<string, number>();
   const outbound = new Map<string, number>();
 
@@ -159,12 +159,12 @@ export function computeNodes(edges: NexusEdge[]): NexusNode[] {
 
   const maxDegree = Math.max(
     1,
-    ...CREATIVE_ENGINES.map(e =>
+    ...CREATIVE_ENGINES.map((e) =>
       (inbound.get(e.id) ?? 0) + (outbound.get(e.id) ?? 0),
     ),
   );
 
-  return CREATIVE_ENGINES.map(engine => {
+  return CREATIVE_ENGINES.map((engine) => {
     const ib = inbound.get(engine.id) ?? 0;
     const ob = outbound.get(engine.id) ?? 0;
     return {
@@ -227,12 +227,12 @@ export function detectClusters(edges: NexusEdge[]): AffinityCluster[] {
     }
   }
 
-  return clusters.map((engineSet, i) => {
+  return clusters.map((engineSet, i: number) => {
     const engineIds = [...engineSet];
     // Pick accent from highest-centrality engine
-    const primary = ENGIN_REGISTRY.find(e => e.id === engineIds[0]);
+    const primary = ENGIN_REGISTRY.find((e) => e.id === engineIds[0]);
     const emojis = engineIds
-      .map(id => ENGIN_REGISTRY.find(e => e.id === id)?.emoji ?? '?')
+      .map((id) => ENGIN_REGISTRY.find((e) => e.id === id)?.emoji ?? '?')
       .join(' + ');
 
     return {
@@ -304,7 +304,7 @@ export function computeNexus(historyOverride?: HistoryEntry[]): NexusSnapshot {
   const nodes = computeNodes(edges);
   const clusters = detectClusters(edges);
   const dominantPipeline = findDominantPipeline(edges);
-  const totalTransitions = edges.reduce((sum, e) => sum + e.weight, 0);
+  const totalTransitions = edges.reduce((sum, e: unknown) => sum + e.weight, 0);
 
   return {
     edges,

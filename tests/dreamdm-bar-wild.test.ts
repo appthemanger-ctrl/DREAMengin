@@ -135,7 +135,7 @@ describe('SLASH_COMMANDS', () => {
   });
 
   it('has unique ids', () => {
-    const ids = SLASH_COMMANDS.map(c => c.id);
+    const ids = SLASH_COMMANDS.map((c) => c.id);
     const unique = new Set(ids);
     expect(unique.size).toBe(ids.length);
   });
@@ -153,13 +153,13 @@ describe('filterSlashCommands', () => {
   it('filters by label', () => {
     const results = filterSlashCommands('game');
     expect(results.length).toBeGreaterThan(0);
-    expect(results.some(r => r.label.toLowerCase().includes('game'))).toBe(true);
+    expect(results.some((r) => r.label.toLowerCase().includes('game'))).toBe(true);
   });
 
   it('filters by description', () => {
     const results = filterSlashCommands('starmaker');
     expect(results.length).toBeGreaterThan(0);
-    expect(results.some(r => r.description.toLowerCase().includes('starmaker'))).toBe(true);
+    expect(results.some((r) => r.description.toLowerCase().includes('starmaker'))).toBe(true);
   });
 
   it('is case-insensitive', () => {
@@ -320,7 +320,7 @@ describe('QUICK_REACTIONS', () => {
   });
 
   it('has unique emojis', () => {
-    const emojis = QUICK_REACTIONS.map(r => r.emoji);
+    const emojis = QUICK_REACTIONS.map((r) => r.emoji);
     const unique = new Set(emojis);
     expect(unique.size).toBe(emojis.length);
   });
@@ -358,14 +358,14 @@ describe('generateParticles', () => {
 
   it('particles have unique ids', () => {
     const particles = generateParticles(24);
-    const ids = particles.map(p => p.id);
+    const ids = particles.map((p) => p.id);
     const unique = new Set(ids);
     expect(unique.size).toBe(ids.length);
   });
 
   it('particles have varied velocities (not all identical)', () => {
     const particles = generateParticles(10);
-    const vxSet = new Set(particles.map(p => p.vx));
+    const vxSet = new Set(particles.map((p) => p.vx));
     // With randomness, extremely unlikely all 10 have the same vx
     expect(vxSet.size).toBeGreaterThan(1);
   });

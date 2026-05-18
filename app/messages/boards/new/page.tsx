@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 
-export default function NewBoardPage() {
+export default function NewBoardPage( ){
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [isPublic, setIsPublic] = useState(false);
@@ -88,7 +88,7 @@ export default function NewBoardPage() {
               <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--de-heading)' }}>Make Public</div>
               <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>Anyone can read and reply</div>
             </div>
-            <button onClick={() => setIsPublic(p => !p)} style={{
+            <button onClick={() => setIsPublic((p) => !p)} style={{
               width: 46, height: 26, borderRadius: 13, border: 'none', cursor: 'pointer',
               background: isPublic ? 'linear-gradient(135deg, #c8981a, #e0b830)' : 'rgba(160,195,240,0.3)',
               position: 'relative', transition: 'background 0.2s',

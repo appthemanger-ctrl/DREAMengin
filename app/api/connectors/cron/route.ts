@@ -72,7 +72,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | 
   }
 
    
-  const anyDb = db as any;
+  const anyDb = db as SupabaseClient;
 
   // ── Fetch all connected accounts for supported providers ─────────────────
   const batchSize = getCronBatchSize();

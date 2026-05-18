@@ -84,7 +84,7 @@ interface NcmecPayload {
 async function writeIncidentToDB(input: NcmecIncidentInput): Promise<string> {
   const supabase = await createServerClient();
 
-  const { data, error } = await (supabase as any)
+  const { data, error } = await (supabase as SupabaseClient)
     .from('child_safety_incidents')
     .insert({
       reported_user_id: input.reportedUserId,
@@ -183,7 +183,7 @@ async function updateIncidentStatus(
 ): Promise<void> {
   try {
     const supabase = await createServerClient();
-    await (supabase as any)
+    await (supabase as SupabaseClient)
       .from('child_safety_incidents')
       .update({
         status,

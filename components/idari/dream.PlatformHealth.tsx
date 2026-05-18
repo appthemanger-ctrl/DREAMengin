@@ -10,12 +10,12 @@ import { useEffect, useState } from 'react';
 import type { GetPlatformMetricsResponse } from '@/lib/activity/types';
 import { PLATFORM_HEALTH_TARGETS } from '@/lib/activity/types';
 
-export function PlatformHealth() {
+export function PlatformHealth( ){
   const [metrics, setMetrics] = useState<GetPlatformMetricsResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadMetrics() {
+    async function loadMetrics( ){
       try {
         const res = await fetch('/api/metrics/platform');
         if (res.ok) {
@@ -41,7 +41,7 @@ export function PlatformHealth() {
       <div className="space-y-4 animate-pulse">
         <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-48" />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => (
+          {[...Array(6)].map((_, i: number) => (
             <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded" />
           ))}
         </div>

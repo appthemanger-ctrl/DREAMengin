@@ -16,7 +16,7 @@ const DeleteDataBodySchema = z.object({
 });
 
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const requestStart = Date.now();
   const request_id = uuidv4();
 
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
 
   // Run all independent deletes in parallel
    
-  const supabaseAny = supabase as any;
+  const supabaseAny = supabase as SupabaseClient;
   const [feedResult, widgetResult, connectorResult, pageResult] = await Promise.all([
     supabase.from('feed_rules').delete().eq('user_id', user.id),
     supabase.from('dream_instances').delete().eq('user_id', user.id),

@@ -14,7 +14,7 @@ import { createServerClient } from '@/lib/supabase/server';
 
 const BACKEND_URL = process.env.BACKEND_URL ?? 'http://localhost:4000';
 
-async function requireUser(req: NextRequest) {
+async function requireUser(req: NextRequest ){
   const supabase = await createServerClient();
   const {
     data: { user },

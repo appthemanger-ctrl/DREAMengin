@@ -51,7 +51,7 @@ type FeedItemRow = {
   created_at: string | null;
 };
 
-export default async function DreamDMBarLayout({ children }: { children: React.ReactNode }) {
+export default async function DreamDMBarLayout({ children }: {children: React.ReactNode}) {
   await connection();
 
   const supabase = await createServerClient();

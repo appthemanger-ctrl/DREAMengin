@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import PlatformBadge from '@/components/ui/dream.PlatformBadge';
 
-export default function AboutPage() {
+export default function AboutPage( ){
 
   const features = [
     {

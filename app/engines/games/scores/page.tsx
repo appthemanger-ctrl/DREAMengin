@@ -22,7 +22,7 @@ interface GamesScoresPageProps {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function GamesScoresPage(props?: GamesScoresPageProps) {
+export default async function GamesScoresPage(props?: GamesScoresPageProps ){
   await connection();
   const searchParams = props?.searchParams;
   const currentSearchParams = searchParams ? await searchParams : undefined;

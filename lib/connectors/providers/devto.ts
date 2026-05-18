@@ -45,7 +45,7 @@ export async function devtoSync(creds: DevtoCredentials): Promise<UnifiedFeedIte
   return items.map((item) => normaliseDevto(item.raw as Parameters<typeof normaliseDevto>[0], username));
 }
 
-export function devtoCredentialFields() {
+export function devtoCredentialFields( ){
   return [
     {
       key: 'username',

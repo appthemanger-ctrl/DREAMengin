@@ -33,7 +33,7 @@ const CATEGORY_EMOJI: Record<string, string> = {
 
 type Params = { id: string };
 
-export default async function MarketplaceItemPage({ params }: { params: Promise<Params> }) {
+export default async function MarketplaceItemPage({ params }: {params: Promise<Params>}) {
   await connection();
   const { id } = await params;
 
@@ -43,7 +43,7 @@ export default async function MarketplaceItemPage({ params }: { params: Promise<
 
   // Fetch the item — must be published OR owned by the current viewer
    
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
   const { data: item, error } = await db
     .from('marketplace_items')
     .select(`

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-13T13:03:08.467Z",
+  "generatedAt": "2026-05-17T05:32:08.261Z",
   "root": ".",
   "nodes": [
     {
@@ -1377,6 +1377,56 @@
       "label": "check-root-hygiene.sh",
       "type": "file",
       "path": ".github/scripts/check-root-hygiene.sh",
+      "parent": "folder:.github/scripts",
+      "loc": null,
+      "isOrphan": true,
+      "tags": []
+    },
+    {
+      "id": "function:.github/scripts/check_workflow_masking.py#leading_spaces",
+      "label": "leading_spaces",
+      "type": "function",
+      "path": ".github/scripts/check_workflow_masking.py",
+      "parent": "file:.github/scripts/check_workflow_masking.py",
+      "loc": 9,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:.github/scripts/check_workflow_masking.py#is_step_level_entry",
+      "label": "is_step_level_entry",
+      "type": "function",
+      "path": ".github/scripts/check_workflow_masking.py",
+      "parent": "file:.github/scripts/check_workflow_masking.py",
+      "loc": 13,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:.github/scripts/check_workflow_masking.py#find_job_level_continue_on_error",
+      "label": "find_job_level_continue_on_error",
+      "type": "function",
+      "path": ".github/scripts/check_workflow_masking.py",
+      "parent": "file:.github/scripts/check_workflow_masking.py",
+      "loc": 41,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:.github/scripts/check_workflow_masking.py#main",
+      "label": "main",
+      "type": "function",
+      "path": ".github/scripts/check_workflow_masking.py",
+      "parent": "file:.github/scripts/check_workflow_masking.py",
+      "loc": 59,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "file:.github/scripts/check_workflow_masking.py",
+      "label": "check_workflow_masking.py",
+      "type": "python",
+      "path": ".github/scripts/check_workflow_masking.py",
       "parent": "folder:.github/scripts",
       "loc": null,
       "isOrphan": true,
@@ -4104,12 +4154,52 @@
       "isOrphan": false
     },
     {
+      "id": "function:app/api/agent/session/route.ts#getServiceClient",
+      "label": "getServiceClient",
+      "type": "function",
+      "path": "app/api/agent/session/route.ts",
+      "parent": "file:app/api/agent/session/route.ts",
+      "loc": 14,
+      "isOrphan": false,
+      "exported": false
+    },
+    {
+      "id": "function:app/api/agent/session/route.ts#persistSession",
+      "label": "persistSession",
+      "type": "function",
+      "path": "app/api/agent/session/route.ts",
+      "parent": "file:app/api/agent/session/route.ts",
+      "loc": 25,
+      "isOrphan": false,
+      "exported": false
+    },
+    {
+      "id": "function:app/api/agent/session/route.ts#sessionExists",
+      "label": "sessionExists",
+      "type": "function",
+      "path": "app/api/agent/session/route.ts",
+      "parent": "file:app/api/agent/session/route.ts",
+      "loc": 38,
+      "isOrphan": false,
+      "exported": false
+    },
+    {
+      "id": "function:app/api/agent/session/route.ts#deleteSession",
+      "label": "deleteSession",
+      "type": "function",
+      "path": "app/api/agent/session/route.ts",
+      "parent": "file:app/api/agent/session/route.ts",
+      "loc": 62,
+      "isOrphan": false,
+      "exported": false
+    },
+    {
       "id": "function:app/api/agent/session/route.ts#POST",
       "label": "POST",
       "type": "function",
       "path": "app/api/agent/session/route.ts",
       "parent": "file:app/api/agent/session/route.ts",
-      "loc": 10,
+      "loc": 75,
       "isOrphan": false,
       "exported": true
     },
@@ -4122,7 +4212,12 @@
       "loc": null,
       "isOrphan": false,
       "tags": [
-        "api-handler"
+        "api-handler",
+        "supabase-create-client",
+        "supabase-table:agent_sessions",
+        "supabase-table:agent_sessions",
+        "supabase-table:agent_sessions",
+        "supabase-table:agent_sessions"
       ]
     },
     {
@@ -5053,12 +5148,42 @@
       "isOrphan": false
     },
     {
+      "id": "function:app/api/connectors/webhooks/[provider]/route.ts#createServiceClient",
+      "label": "createServiceClient",
+      "type": "function",
+      "path": "app/api/connectors/webhooks/[provider]/route.ts",
+      "parent": "file:app/api/connectors/webhooks/[provider]/route.ts",
+      "loc": 44,
+      "isOrphan": false,
+      "exported": false
+    },
+    {
+      "id": "function:app/api/connectors/webhooks/[provider]/route.ts#parseYouTubeAtom",
+      "label": "parseYouTubeAtom",
+      "type": "function",
+      "path": "app/api/connectors/webhooks/[provider]/route.ts",
+      "parent": "file:app/api/connectors/webhooks/[provider]/route.ts",
+      "loc": 62,
+      "isOrphan": false,
+      "exported": false
+    },
+    {
+      "id": "function:app/api/connectors/webhooks/[provider]/route.ts#verifyInstagramSignature",
+      "label": "verifyInstagramSignature",
+      "type": "function",
+      "path": "app/api/connectors/webhooks/[provider]/route.ts",
+      "parent": "file:app/api/connectors/webhooks/[provider]/route.ts",
+      "loc": 112,
+      "isOrphan": false,
+      "exported": false
+    },
+    {
       "id": "function:app/api/connectors/webhooks/[provider]/route.ts#GET",
       "label": "GET",
       "type": "function",
       "path": "app/api/connectors/webhooks/[provider]/route.ts",
       "parent": "file:app/api/connectors/webhooks/[provider]/route.ts",
-      "loc": 41,
+      "loc": 133,
       "isOrphan": false,
       "exported": true
     },
@@ -5068,7 +5193,7 @@
       "type": "function",
       "path": "app/api/connectors/webhooks/[provider]/route.ts",
       "parent": "file:app/api/connectors/webhooks/[provider]/route.ts",
-      "loc": 106,
+      "loc": 191,
       "isOrphan": false,
       "exported": true
     },
@@ -5081,7 +5206,12 @@
       "loc": null,
       "isOrphan": false,
       "tags": [
-        "api-handler"
+        "api-handler",
+        "supabase-create-client",
+        "supabase-table:connector_accounts",
+        "supabase-table:feed_items",
+        "supabase-table:connector_accounts",
+        "supabase-table:feed_items"
       ]
     },
     {
@@ -5184,12 +5314,22 @@
       "isOrphan": false
     },
     {
+      "id": "function:app/api/content/generative-fill/route.ts#pollPrediction",
+      "label": "pollPrediction",
+      "type": "function",
+      "path": "app/api/content/generative-fill/route.ts",
+      "parent": "file:app/api/content/generative-fill/route.ts",
+      "loc": 38,
+      "isOrphan": false,
+      "exported": false
+    },
+    {
       "id": "function:app/api/content/generative-fill/route.ts#POST",
       "label": "POST",
       "type": "function",
       "path": "app/api/content/generative-fill/route.ts",
       "parent": "file:app/api/content/generative-fill/route.ts",
-      "loc": 36,
+      "loc": 63,
       "isOrphan": false,
       "exported": true
     },
@@ -5345,7 +5485,7 @@
       "type": "function",
       "path": "app/api/content/voice-clone/route.ts",
       "parent": "file:app/api/content/voice-clone/route.ts",
-      "loc": 66,
+      "loc": 67,
       "isOrphan": false,
       "exported": true
     },
@@ -5359,6 +5499,7 @@
       "isOrphan": false,
       "tags": [
         "api-handler",
+        "supabase-table:voice_profiles",
         "supabase-table:voice_profiles",
         "supabase-table:voice_profiles",
         "supabase-table:voice_profiles"
@@ -5673,16 +5814,6 @@
       "isOrphan": false
     },
     {
-      "id": "function:app/api/dreamr/feed/route.ts#GET",
-      "label": "GET",
-      "type": "function",
-      "path": "app/api/dreamr/feed/route.ts",
-      "parent": "file:app/api/dreamr/feed/route.ts",
-      "loc": 48,
-      "isOrphan": false,
-      "exported": true
-    },
-    {
       "id": "file:app/api/dreamr/feed/route.ts",
       "label": "route.ts",
       "type": "route",
@@ -5691,8 +5822,7 @@
       "loc": null,
       "isOrphan": false,
       "tags": [
-        "api-handler",
-        "supabase-table:app_posts"
+        "api-handler"
       ]
     },
     {
@@ -5727,6 +5857,38 @@
         "supabase-table:follows",
         "supabase-table:app_posts",
         "supabase-table:app_posts"
+      ]
+    },
+    {
+      "id": "folder:app/api/dreamr/tally",
+      "label": "tally",
+      "type": "folder",
+      "path": "app/api/dreamr/tally",
+      "parent": "folder:app/api/dreamr",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "function:app/api/dreamr/tally/route.ts#POST",
+      "label": "POST",
+      "type": "function",
+      "path": "app/api/dreamr/tally/route.ts",
+      "parent": "file:app/api/dreamr/tally/route.ts",
+      "loc": 37,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "file:app/api/dreamr/tally/route.ts",
+      "label": "route.ts",
+      "type": "route",
+      "path": "app/api/dreamr/tally/route.ts",
+      "parent": "folder:app/api/dreamr/tally",
+      "loc": null,
+      "isOrphan": false,
+      "tags": [
+        "api-handler",
+        "supabase-table:dreamr_tally"
       ]
     },
     {
@@ -6516,7 +6678,7 @@
       "type": "function",
       "path": "app/api/metrics/route.ts",
       "parent": "file:app/api/metrics/route.ts",
-      "loc": 22,
+      "loc": 24,
       "isOrphan": false,
       "exported": true
     },
@@ -7264,6 +7426,108 @@
       ]
     },
     {
+      "id": "folder:app/api/shared-dream",
+      "label": "shared-dream",
+      "type": "folder",
+      "path": "app/api/shared-dream",
+      "parent": "folder:app/api",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "folder:app/api/shared-dream/sessions",
+      "label": "sessions",
+      "type": "folder",
+      "path": "app/api/shared-dream/sessions",
+      "parent": "folder:app/api/shared-dream",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "folder:app/api/shared-dream/sessions/[id]",
+      "label": "[id]",
+      "type": "folder",
+      "path": "app/api/shared-dream/sessions/[id]",
+      "parent": "folder:app/api/shared-dream/sessions",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "function:app/api/shared-dream/sessions/[id]/route.ts#GET",
+      "label": "GET",
+      "type": "function",
+      "path": "app/api/shared-dream/sessions/[id]/route.ts",
+      "parent": "file:app/api/shared-dream/sessions/[id]/route.ts",
+      "loc": 35,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "function:app/api/shared-dream/sessions/[id]/route.ts#PATCH",
+      "label": "PATCH",
+      "type": "function",
+      "path": "app/api/shared-dream/sessions/[id]/route.ts",
+      "parent": "file:app/api/shared-dream/sessions/[id]/route.ts",
+      "loc": 93,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "file:app/api/shared-dream/sessions/[id]/route.ts",
+      "label": "route.ts",
+      "type": "route",
+      "path": "app/api/shared-dream/sessions/[id]/route.ts",
+      "parent": "folder:app/api/shared-dream/sessions/[id]",
+      "loc": null,
+      "isOrphan": false,
+      "tags": [
+        "api-handler",
+        "supabase-table:shared_dream_members",
+        "supabase-table:shared_dream_sessions",
+        "supabase-table:shared_dream_members",
+        "supabase-table:shared_dream_activity",
+        "supabase-table:shared_dream_members",
+        "supabase-table:shared_dream_members",
+        "supabase-table:shared_dream_sessions"
+      ]
+    },
+    {
+      "id": "function:app/api/shared-dream/sessions/route.ts#GET",
+      "label": "GET",
+      "type": "function",
+      "path": "app/api/shared-dream/sessions/route.ts",
+      "parent": "file:app/api/shared-dream/sessions/route.ts",
+      "loc": 17,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "function:app/api/shared-dream/sessions/route.ts#POST",
+      "label": "POST",
+      "type": "function",
+      "path": "app/api/shared-dream/sessions/route.ts",
+      "parent": "file:app/api/shared-dream/sessions/route.ts",
+      "loc": 42,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "file:app/api/shared-dream/sessions/route.ts",
+      "label": "route.ts",
+      "type": "route",
+      "path": "app/api/shared-dream/sessions/route.ts",
+      "parent": "folder:app/api/shared-dream/sessions",
+      "loc": null,
+      "isOrphan": false,
+      "tags": [
+        "api-handler",
+        "supabase-table:shared_dream_sessions",
+        "supabase-table:shared_dream_sessions",
+        "supabase-table:shared_dream_members",
+        "supabase-table:shared_dream_activity"
+      ]
+    },
+    {
       "id": "folder:app/api/shellhub",
       "label": "shellhub",
       "type": "folder",
@@ -7447,6 +7711,128 @@
       "parent": "folder:app/api",
       "loc": null,
       "isOrphan": false
+    },
+    {
+      "id": "folder:app/api/social/ipfs",
+      "label": "ipfs",
+      "type": "folder",
+      "path": "app/api/social/ipfs",
+      "parent": "folder:app/api/social",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "function:app/api/social/ipfs/route.ts#requireUser",
+      "label": "requireUser",
+      "type": "function",
+      "path": "app/api/social/ipfs/route.ts",
+      "parent": "file:app/api/social/ipfs/route.ts",
+      "loc": 16,
+      "isOrphan": false,
+      "exported": false
+    },
+    {
+      "id": "function:app/api/social/ipfs/route.ts#POST",
+      "label": "POST",
+      "type": "function",
+      "path": "app/api/social/ipfs/route.ts",
+      "parent": "file:app/api/social/ipfs/route.ts",
+      "loc": 26,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "function:app/api/social/ipfs/route.ts#GET",
+      "label": "GET",
+      "type": "function",
+      "path": "app/api/social/ipfs/route.ts",
+      "parent": "file:app/api/social/ipfs/route.ts",
+      "loc": 120,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "file:app/api/social/ipfs/route.ts",
+      "label": "route.ts",
+      "type": "route",
+      "path": "app/api/social/ipfs/route.ts",
+      "parent": "folder:app/api/social/ipfs",
+      "loc": null,
+      "isOrphan": false,
+      "tags": [
+        "api-handler"
+      ]
+    },
+    {
+      "id": "folder:app/api/social/livekit",
+      "label": "livekit",
+      "type": "folder",
+      "path": "app/api/social/livekit",
+      "parent": "folder:app/api/social",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "folder:app/api/social/livekit/room",
+      "label": "room",
+      "type": "folder",
+      "path": "app/api/social/livekit/room",
+      "parent": "folder:app/api/social/livekit",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "function:app/api/social/livekit/room/route.ts#GET",
+      "label": "GET",
+      "type": "function",
+      "path": "app/api/social/livekit/room/route.ts",
+      "parent": "file:app/api/social/livekit/room/route.ts",
+      "loc": 12,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "file:app/api/social/livekit/room/route.ts",
+      "label": "route.ts",
+      "type": "route",
+      "path": "app/api/social/livekit/room/route.ts",
+      "parent": "folder:app/api/social/livekit/room",
+      "loc": null,
+      "isOrphan": false,
+      "tags": [
+        "api-handler"
+      ]
+    },
+    {
+      "id": "folder:app/api/social/livekit/token",
+      "label": "token",
+      "type": "folder",
+      "path": "app/api/social/livekit/token",
+      "parent": "folder:app/api/social/livekit",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "function:app/api/social/livekit/token/route.ts#POST",
+      "label": "POST",
+      "type": "function",
+      "path": "app/api/social/livekit/token/route.ts",
+      "parent": "file:app/api/social/livekit/token/route.ts",
+      "loc": 15,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "file:app/api/social/livekit/token/route.ts",
+      "label": "route.ts",
+      "type": "route",
+      "path": "app/api/social/livekit/token/route.ts",
+      "parent": "folder:app/api/social/livekit/token",
+      "loc": null,
+      "isOrphan": false,
+      "tags": [
+        "api-handler"
+      ]
     },
     {
       "id": "folder:app/api/social/rss-feed",
@@ -8315,7 +8701,7 @@
       "type": "function",
       "path": "app/daydream/game/dream.shell.ImmersiveGameShell.tsx",
       "parent": "file:app/daydream/game/dream.shell.ImmersiveGameShell.tsx",
-      "loc": 76,
+      "loc": 108,
       "isOrphan": true,
       "exported": true
     },
@@ -9071,6 +9457,28 @@
       "isOrphan": false
     },
     {
+      "id": "function:app/dreamdmbar/_components/dreamr/api/feedHandler.ts#dreamrFeedHandler",
+      "label": "dreamrFeedHandler",
+      "type": "function",
+      "path": "app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "parent": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "loc": 68,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "label": "feedHandler.ts",
+      "type": "ts",
+      "path": "app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "parent": "folder:app/dreamdmbar/_components/dreamr/api",
+      "loc": null,
+      "isOrphan": false,
+      "tags": [
+        "supabase-table:app_posts"
+      ]
+    },
+    {
       "id": "function:app/dreamdmbar/_components/dreamr/api/route.ts#GET",
       "label": "GET",
       "type": "function",
@@ -9248,7 +9656,7 @@
       "type": "function",
       "path": "app/dreamdmbar/dualruntime/page.tsx",
       "parent": "file:app/dreamdmbar/dualruntime/page.tsx",
-      "loc": 5,
+      "loc": 30,
       "isOrphan": false,
       "exported": true
     },
@@ -9323,7 +9731,7 @@
       "type": "function",
       "path": "app/dreamdmbar/page.tsx",
       "parent": "file:app/dreamdmbar/page.tsx",
-      "loc": 1,
+      "loc": 8,
       "isOrphan": false,
       "exported": true
     },
@@ -14383,26 +14791,6 @@
       "tags": []
     },
     {
-      "id": "function:components/dream.LandingHero.tsx#LandingHero",
-      "label": "LandingHero",
-      "type": "function",
-      "path": "components/dream.LandingHero.tsx",
-      "parent": "file:components/dream.LandingHero.tsx",
-      "loc": 31,
-      "isOrphan": true,
-      "exported": true
-    },
-    {
-      "id": "file:components/dream.LandingHero.tsx",
-      "label": "dream.LandingHero.tsx",
-      "type": "tsx",
-      "path": "components/dream.LandingHero.tsx",
-      "parent": "folder:components",
-      "loc": null,
-      "isOrphan": false,
-      "tags": []
-    },
-    {
       "id": "function:components/dream.LedgerChart.tsx#draw",
       "label": "draw",
       "type": "function",
@@ -19353,42 +19741,22 @@
       "tags": []
     },
     {
-      "id": "function:components/landing/dream.scene.UniverseField.tsx#clamp01",
-      "label": "clamp01",
+      "id": "function:components/landing/dream.scene.UniverseField.tsx#mu_T",
+      "label": "mu_T",
       "type": "function",
       "path": "components/landing/dream.scene.UniverseField.tsx",
       "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 16,
+      "loc": 19,
       "isOrphan": true,
       "exported": false
     },
     {
-      "id": "function:components/landing/dream.scene.UniverseField.tsx#lerp",
-      "label": "lerp",
+      "id": "function:components/landing/dream.scene.UniverseField.tsx#nu_T",
+      "label": "nu_T",
       "type": "function",
       "path": "components/landing/dream.scene.UniverseField.tsx",
       "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 20,
-      "isOrphan": true,
-      "exported": false
-    },
-    {
-      "id": "function:components/landing/dream.scene.UniverseField.tsx#smoothstep",
-      "label": "smoothstep",
-      "type": "function",
-      "path": "components/landing/dream.scene.UniverseField.tsx",
-      "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 24,
-      "isOrphan": true,
-      "exported": false
-    },
-    {
-      "id": "function:components/landing/dream.scene.UniverseField.tsx#nuT",
-      "label": "nuT",
-      "type": "function",
-      "path": "components/landing/dream.scene.UniverseField.tsx",
-      "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 29,
+      "loc": 23,
       "isOrphan": true,
       "exported": false
     },
@@ -19398,7 +19766,7 @@
       "type": "function",
       "path": "components/landing/dream.scene.UniverseField.tsx",
       "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 36,
+      "loc": 30,
       "isOrphan": true,
       "exported": false
     },
@@ -19408,17 +19776,27 @@
       "type": "function",
       "path": "components/landing/dream.scene.UniverseField.tsx",
       "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 49,
+      "loc": 48,
       "isOrphan": true,
       "exported": false
     },
     {
-      "id": "function:components/landing/dream.scene.UniverseField.tsx#omegaTotal",
-      "label": "omegaTotal",
+      "id": "function:components/landing/dream.scene.UniverseField.tsx#omega_total",
+      "label": "omega_total",
       "type": "function",
       "path": "components/landing/dream.scene.UniverseField.tsx",
       "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 55,
+      "loc": 54,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:components/landing/dream.scene.UniverseField.tsx#hubbleFromA",
+      "label": "hubbleFromA",
+      "type": "function",
+      "path": "components/landing/dream.scene.UniverseField.tsx",
+      "parent": "file:components/landing/dream.scene.UniverseField.tsx",
+      "loc": 61,
       "isOrphan": true,
       "exported": false
     },
@@ -19428,7 +19806,7 @@
       "type": "function",
       "path": "components/landing/dream.scene.UniverseField.tsx",
       "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 62,
+      "loc": 68,
       "isOrphan": true,
       "exported": false
     },
@@ -19438,7 +19816,37 @@
       "type": "function",
       "path": "components/landing/dream.scene.UniverseField.tsx",
       "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 78,
+      "loc": 88,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:components/landing/dream.scene.UniverseField.tsx#clamp",
+      "label": "clamp",
+      "type": "function",
+      "path": "components/landing/dream.scene.UniverseField.tsx",
+      "parent": "file:components/landing/dream.scene.UniverseField.tsx",
+      "loc": 122,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:components/landing/dream.scene.UniverseField.tsx#smoothstep",
+      "label": "smoothstep",
+      "type": "function",
+      "path": "components/landing/dream.scene.UniverseField.tsx",
+      "parent": "file:components/landing/dream.scene.UniverseField.tsx",
+      "loc": 126,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:components/landing/dream.scene.UniverseField.tsx#lerp",
+      "label": "lerp",
+      "type": "function",
+      "path": "components/landing/dream.scene.UniverseField.tsx",
+      "parent": "file:components/landing/dream.scene.UniverseField.tsx",
+      "loc": 131,
       "isOrphan": true,
       "exported": false
     },
@@ -19448,7 +19856,7 @@
       "type": "function",
       "path": "components/landing/dream.scene.UniverseField.tsx",
       "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 100,
+      "loc": 135,
       "isOrphan": true,
       "exported": false
     },
@@ -19458,7 +19866,7 @@
       "type": "function",
       "path": "components/landing/dream.scene.UniverseField.tsx",
       "parent": "file:components/landing/dream.scene.UniverseField.tsx",
-      "loc": 105,
+      "loc": 140,
       "isOrphan": true,
       "exported": true
     },
@@ -20730,6 +21138,56 @@
       "tags": [
         "supabase-create-client"
       ]
+    },
+    {
+      "id": "function:components/shared-dream/dream.SharedDreamRuntime.tsx#timeAgo",
+      "label": "timeAgo",
+      "type": "function",
+      "path": "components/shared-dream/dream.SharedDreamRuntime.tsx",
+      "parent": "file:components/shared-dream/dream.SharedDreamRuntime.tsx",
+      "loc": 46,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:components/shared-dream/dream.SharedDreamRuntime.tsx#summarizeEnginState",
+      "label": "summarizeEnginState",
+      "type": "function",
+      "path": "components/shared-dream/dream.SharedDreamRuntime.tsx",
+      "parent": "file:components/shared-dream/dream.SharedDreamRuntime.tsx",
+      "loc": 54,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:components/shared-dream/dream.SharedDreamRuntime.tsx#SharedDreamRuntimeInner",
+      "label": "SharedDreamRuntimeInner",
+      "type": "function",
+      "path": "components/shared-dream/dream.SharedDreamRuntime.tsx",
+      "parent": "file:components/shared-dream/dream.SharedDreamRuntime.tsx",
+      "loc": 76,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:components/shared-dream/dream.SharedDreamRuntime.tsx#SharedDreamRuntime",
+      "label": "SharedDreamRuntime",
+      "type": "function",
+      "path": "components/shared-dream/dream.SharedDreamRuntime.tsx",
+      "parent": "file:components/shared-dream/dream.SharedDreamRuntime.tsx",
+      "loc": 266,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "file:components/shared-dream/dream.SharedDreamRuntime.tsx",
+      "label": "dream.SharedDreamRuntime.tsx",
+      "type": "tsx",
+      "path": "components/shared-dream/dream.SharedDreamRuntime.tsx",
+      "parent": "folder:components/shared-dream",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
     },
     {
       "id": "file:components/shared-dream/index.ts",
@@ -23238,14 +23696,44 @@
       "isOrphan": false
     },
     {
-      "id": "function:engins/CodeEngin/core/parser.ts#parseCode",
-      "label": "parseCode",
+      "id": "function:engins/CodeEngin/core/parser.ts#normaliseLanguage",
+      "label": "normaliseLanguage",
       "type": "function",
       "path": "engins/CodeEngin/core/parser.ts",
       "parent": "file:engins/CodeEngin/core/parser.ts",
-      "loc": 20,
+      "loc": 66,
       "isOrphan": true,
-      "exported": true
+      "exported": false
+    },
+    {
+      "id": "function:engins/CodeEngin/core/parser.ts#extractTSSymbols",
+      "label": "extractTSSymbols",
+      "type": "function",
+      "path": "engins/CodeEngin/core/parser.ts",
+      "parent": "file:engins/CodeEngin/core/parser.ts",
+      "loc": 73,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:engins/CodeEngin/core/parser.ts#extractPythonSymbols",
+      "label": "extractPythonSymbols",
+      "type": "function",
+      "path": "engins/CodeEngin/core/parser.ts",
+      "parent": "file:engins/CodeEngin/core/parser.ts",
+      "loc": 95,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:engins/CodeEngin/core/parser.ts#extractGoSymbols",
+      "label": "extractGoSymbols",
+      "type": "function",
+      "path": "engins/CodeEngin/core/parser.ts",
+      "parent": "file:engins/CodeEngin/core/parser.ts",
+      "loc": 112,
+      "isOrphan": true,
+      "exported": false
     },
     {
       "id": "file:engins/CodeEngin/core/parser.ts",
@@ -23389,7 +23877,7 @@
       "type": "function",
       "path": "engins/dream.ForgeEngin.tsx",
       "parent": "file:engins/dream.ForgeEngin.tsx",
-      "loc": 114,
+      "loc": 116,
       "isOrphan": true,
       "exported": true
     },
@@ -23399,7 +23887,7 @@
       "type": "function",
       "path": "engins/dream.ForgeEngin.tsx",
       "parent": "file:engins/dream.ForgeEngin.tsx",
-      "loc": 1386,
+      "loc": 1390,
       "isOrphan": true,
       "exported": false
     },
@@ -23409,7 +23897,7 @@
       "type": "function",
       "path": "engins/dream.ForgeEngin.tsx",
       "parent": "file:engins/dream.ForgeEngin.tsx",
-      "loc": 1408,
+      "loc": 1412,
       "isOrphan": true,
       "exported": false
     },
@@ -23419,7 +23907,7 @@
       "type": "function",
       "path": "engins/dream.ForgeEngin.tsx",
       "parent": "file:engins/dream.ForgeEngin.tsx",
-      "loc": 1479,
+      "loc": 1483,
       "isOrphan": true,
       "exported": false
     },
@@ -23429,7 +23917,7 @@
       "type": "function",
       "path": "engins/dream.ForgeEngin.tsx",
       "parent": "file:engins/dream.ForgeEngin.tsx",
-      "loc": 1605,
+      "loc": 1609,
       "isOrphan": true,
       "exported": false
     },
@@ -23439,7 +23927,7 @@
       "type": "function",
       "path": "engins/dream.ForgeEngin.tsx",
       "parent": "file:engins/dream.ForgeEngin.tsx",
-      "loc": 1653,
+      "loc": 1657,
       "isOrphan": true,
       "exported": false
     },
@@ -23449,7 +23937,7 @@
       "type": "function",
       "path": "engins/dream.ForgeEngin.tsx",
       "parent": "file:engins/dream.ForgeEngin.tsx",
-      "loc": 1799,
+      "loc": 1803,
       "isOrphan": true,
       "exported": false
     },
@@ -23702,7 +24190,7 @@
       "type": "function",
       "path": "engins/engin.BrandingEngin.tsx",
       "parent": "file:engins/engin.BrandingEngin.tsx",
-      "loc": 78,
+      "loc": 81,
       "isOrphan": true,
       "exported": true
     },
@@ -23728,7 +24216,7 @@
       "type": "function",
       "path": "engins/engin.CodeEngin.tsx",
       "parent": "file:engins/engin.CodeEngin.tsx",
-      "loc": 110,
+      "loc": 114,
       "isOrphan": true,
       "exported": false
     },
@@ -23738,7 +24226,7 @@
       "type": "function",
       "path": "engins/engin.CodeEngin.tsx",
       "parent": "file:engins/engin.CodeEngin.tsx",
-      "loc": 126,
+      "loc": 130,
       "isOrphan": true,
       "exported": false
     },
@@ -23748,7 +24236,7 @@
       "type": "function",
       "path": "engins/engin.CodeEngin.tsx",
       "parent": "file:engins/engin.CodeEngin.tsx",
-      "loc": 144,
+      "loc": 148,
       "isOrphan": true,
       "exported": false
     },
@@ -23758,7 +24246,7 @@
       "type": "function",
       "path": "engins/engin.CodeEngin.tsx",
       "parent": "file:engins/engin.CodeEngin.tsx",
-      "loc": 159,
+      "loc": 163,
       "isOrphan": true,
       "exported": false
     },
@@ -23768,7 +24256,7 @@
       "type": "function",
       "path": "engins/engin.CodeEngin.tsx",
       "parent": "file:engins/engin.CodeEngin.tsx",
-      "loc": 164,
+      "loc": 168,
       "isOrphan": true,
       "exported": false
     },
@@ -23778,7 +24266,7 @@
       "type": "function",
       "path": "engins/engin.CodeEngin.tsx",
       "parent": "file:engins/engin.CodeEngin.tsx",
-      "loc": 168,
+      "loc": 172,
       "isOrphan": true,
       "exported": false
     },
@@ -23788,7 +24276,7 @@
       "type": "function",
       "path": "engins/engin.CodeEngin.tsx",
       "parent": "file:engins/engin.CodeEngin.tsx",
-      "loc": 191,
+      "loc": 195,
       "isOrphan": true,
       "exported": false
     },
@@ -23798,7 +24286,7 @@
       "type": "function",
       "path": "engins/engin.CodeEngin.tsx",
       "parent": "file:engins/engin.CodeEngin.tsx",
-      "loc": 270,
+      "loc": 274,
       "isOrphan": true,
       "exported": false
     },
@@ -23808,7 +24296,7 @@
       "type": "function",
       "path": "engins/engin.CodeEngin.tsx",
       "parent": "file:engins/engin.CodeEngin.tsx",
-      "loc": 337,
+      "loc": 341,
       "isOrphan": true,
       "exported": false
     },
@@ -23818,7 +24306,7 @@
       "type": "function",
       "path": "engins/engin.CodeEngin.tsx",
       "parent": "file:engins/engin.CodeEngin.tsx",
-      "loc": 345,
+      "loc": 349,
       "isOrphan": true,
       "exported": false
     },
@@ -23828,7 +24316,7 @@
       "type": "function",
       "path": "engins/engin.CodeEngin.tsx",
       "parent": "file:engins/engin.CodeEngin.tsx",
-      "loc": 357,
+      "loc": 361,
       "isOrphan": true,
       "exported": false
     },
@@ -23838,7 +24326,7 @@
       "type": "function",
       "path": "engins/engin.CodeEngin.tsx",
       "parent": "file:engins/engin.CodeEngin.tsx",
-      "loc": 386,
+      "loc": 390,
       "isOrphan": false,
       "exported": true
     },
@@ -23862,7 +24350,7 @@
       "type": "function",
       "path": "engins/engin.ContentEngin.tsx",
       "parent": "file:engins/engin.ContentEngin.tsx",
-      "loc": 118,
+      "loc": 121,
       "isOrphan": true,
       "exported": false
     },
@@ -23872,7 +24360,7 @@
       "type": "function",
       "path": "engins/engin.ContentEngin.tsx",
       "parent": "file:engins/engin.ContentEngin.tsx",
-      "loc": 176,
+      "loc": 179,
       "isOrphan": false,
       "exported": true
     },
@@ -23949,7 +24437,7 @@
       "type": "function",
       "path": "engins/engin.LabEngin.tsx",
       "parent": "file:engins/engin.LabEngin.tsx",
-      "loc": 142,
+      "loc": 145,
       "isOrphan": false,
       "exported": true
     },
@@ -23973,7 +24461,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 215,
+      "loc": 218,
       "isOrphan": true,
       "exported": false
     },
@@ -23983,7 +24471,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 221,
+      "loc": 224,
       "isOrphan": true,
       "exported": false
     },
@@ -23993,7 +24481,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 225,
+      "loc": 228,
       "isOrphan": true,
       "exported": false
     },
@@ -24003,7 +24491,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 229,
+      "loc": 232,
       "isOrphan": true,
       "exported": false
     },
@@ -24013,7 +24501,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 233,
+      "loc": 236,
       "isOrphan": true,
       "exported": false
     },
@@ -24023,7 +24511,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 237,
+      "loc": 240,
       "isOrphan": true,
       "exported": false
     },
@@ -24033,7 +24521,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 266,
+      "loc": 269,
       "isOrphan": false,
       "exported": true
     },
@@ -24043,7 +24531,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1236,
+      "loc": 1248,
       "isOrphan": true,
       "exported": false
     },
@@ -24053,7 +24541,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1248,
+      "loc": 1260,
       "isOrphan": true,
       "exported": false
     },
@@ -24063,7 +24551,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1263,
+      "loc": 1275,
       "isOrphan": true,
       "exported": false
     },
@@ -24073,7 +24561,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1320,
+      "loc": 1332,
       "isOrphan": true,
       "exported": false
     },
@@ -24083,7 +24571,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1453,
+      "loc": 1465,
       "isOrphan": true,
       "exported": false
     },
@@ -24093,7 +24581,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1599,
+      "loc": 1611,
       "isOrphan": true,
       "exported": false
     },
@@ -24103,7 +24591,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1786,
+      "loc": 1798,
       "isOrphan": true,
       "exported": false
     },
@@ -24113,7 +24601,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 1993,
+      "loc": 2005,
       "isOrphan": true,
       "exported": false
     },
@@ -24123,7 +24611,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2110,
+      "loc": 2122,
       "isOrphan": true,
       "exported": false
     },
@@ -24133,7 +24621,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2247,
+      "loc": 2259,
       "isOrphan": true,
       "exported": false
     },
@@ -24143,7 +24631,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2336,
+      "loc": 2348,
       "isOrphan": true,
       "exported": false
     },
@@ -24153,7 +24641,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2434,
+      "loc": 2446,
       "isOrphan": true,
       "exported": false
     },
@@ -24163,7 +24651,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2552,
+      "loc": 2564,
       "isOrphan": true,
       "exported": false
     },
@@ -24173,7 +24661,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2761,
+      "loc": 2773,
       "isOrphan": true,
       "exported": false
     },
@@ -24183,7 +24671,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2812,
+      "loc": 2824,
       "isOrphan": true,
       "exported": false
     },
@@ -24193,7 +24681,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2818,
+      "loc": 2830,
       "isOrphan": true,
       "exported": false
     },
@@ -24203,7 +24691,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2824,
+      "loc": 2836,
       "isOrphan": true,
       "exported": false
     },
@@ -24213,7 +24701,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2846,
+      "loc": 2858,
       "isOrphan": true,
       "exported": false
     },
@@ -24223,7 +24711,7 @@
       "type": "function",
       "path": "engins/engin.StarMakerEngin.tsx",
       "parent": "file:engins/engin.StarMakerEngin.tsx",
-      "loc": 2878,
+      "loc": 2890,
       "isOrphan": true,
       "exported": false
     },
@@ -27240,7 +27728,7 @@
       "type": "function",
       "path": "lib/ai/triad.ts",
       "parent": "file:lib/ai/triad.ts",
-      "loc": 25,
+      "loc": 23,
       "isOrphan": true,
       "exported": true
     },
@@ -27250,7 +27738,7 @@
       "type": "function",
       "path": "lib/ai/triad.ts",
       "parent": "file:lib/ai/triad.ts",
-      "loc": 29,
+      "loc": 27,
       "isOrphan": false,
       "exported": true
     },
@@ -27777,7 +28265,17 @@
       "type": "function",
       "path": "lib/audio-fingerprint/stem-extractor.ts",
       "parent": "file:lib/audio-fingerprint/stem-extractor.ts",
-      "loc": 5,
+      "loc": 29,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/audio-fingerprint/stem-extractor.ts#extractStemAsync",
+      "label": "extractStemAsync",
+      "type": "function",
+      "path": "lib/audio-fingerprint/stem-extractor.ts",
+      "parent": "file:lib/audio-fingerprint/stem-extractor.ts",
+      "loc": 79,
       "isOrphan": true,
       "exported": true
     },
@@ -34748,6 +35246,183 @@
       "isOrphan": false
     },
     {
+      "id": "folder:lib/engins/brand",
+      "label": "brand",
+      "type": "folder",
+      "path": "lib/engins/brand",
+      "parent": "folder:lib/engins",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "function:lib/engins/brand/brandEnginRuleSet.ts#transform",
+      "label": "transform",
+      "type": "function",
+      "path": "lib/engins/brand/brandEnginRuleSet.ts",
+      "parent": "file:lib/engins/brand/brandEnginRuleSet.ts",
+      "loc": 138,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/engins/brand/brandEnginRuleSet.ts#deriveState",
+      "label": "deriveState",
+      "type": "function",
+      "path": "lib/engins/brand/brandEnginRuleSet.ts",
+      "parent": "file:lib/engins/brand/brandEnginRuleSet.ts",
+      "loc": 204,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "file:lib/engins/brand/brandEnginRuleSet.ts",
+      "label": "brandEnginRuleSet.ts",
+      "type": "ts",
+      "path": "lib/engins/brand/brandEnginRuleSet.ts",
+      "parent": "folder:lib/engins/brand",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "function:lib/engins/brand/useBrandEnginRuntime.ts#useBrandEnginRuntime",
+      "label": "useBrandEnginRuntime",
+      "type": "function",
+      "path": "lib/engins/brand/useBrandEnginRuntime.ts",
+      "parent": "file:lib/engins/brand/useBrandEnginRuntime.ts",
+      "loc": 31,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "file:lib/engins/brand/useBrandEnginRuntime.ts",
+      "label": "useBrandEnginRuntime.ts",
+      "type": "ts",
+      "path": "lib/engins/brand/useBrandEnginRuntime.ts",
+      "parent": "folder:lib/engins/brand",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "folder:lib/engins/code",
+      "label": "code",
+      "type": "folder",
+      "path": "lib/engins/code",
+      "parent": "folder:lib/engins",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "function:lib/engins/code/codeEnginRuleSet.ts#transform",
+      "label": "transform",
+      "type": "function",
+      "path": "lib/engins/code/codeEnginRuleSet.ts",
+      "parent": "file:lib/engins/code/codeEnginRuleSet.ts",
+      "loc": 138,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/engins/code/codeEnginRuleSet.ts#deriveState",
+      "label": "deriveState",
+      "type": "function",
+      "path": "lib/engins/code/codeEnginRuleSet.ts",
+      "parent": "file:lib/engins/code/codeEnginRuleSet.ts",
+      "loc": 219,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "file:lib/engins/code/codeEnginRuleSet.ts",
+      "label": "codeEnginRuleSet.ts",
+      "type": "ts",
+      "path": "lib/engins/code/codeEnginRuleSet.ts",
+      "parent": "folder:lib/engins/code",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "function:lib/engins/code/useCodeEnginRuntime.ts#useCodeEnginRuntime",
+      "label": "useCodeEnginRuntime",
+      "type": "function",
+      "path": "lib/engins/code/useCodeEnginRuntime.ts",
+      "parent": "file:lib/engins/code/useCodeEnginRuntime.ts",
+      "loc": 31,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "file:lib/engins/code/useCodeEnginRuntime.ts",
+      "label": "useCodeEnginRuntime.ts",
+      "type": "ts",
+      "path": "lib/engins/code/useCodeEnginRuntime.ts",
+      "parent": "folder:lib/engins/code",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "folder:lib/engins/content",
+      "label": "content",
+      "type": "folder",
+      "path": "lib/engins/content",
+      "parent": "folder:lib/engins",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "function:lib/engins/content/contentEnginRuleSet.ts#transform",
+      "label": "transform",
+      "type": "function",
+      "path": "lib/engins/content/contentEnginRuleSet.ts",
+      "parent": "file:lib/engins/content/contentEnginRuleSet.ts",
+      "loc": 116,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/engins/content/contentEnginRuleSet.ts#deriveState",
+      "label": "deriveState",
+      "type": "function",
+      "path": "lib/engins/content/contentEnginRuleSet.ts",
+      "parent": "file:lib/engins/content/contentEnginRuleSet.ts",
+      "loc": 180,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "file:lib/engins/content/contentEnginRuleSet.ts",
+      "label": "contentEnginRuleSet.ts",
+      "type": "ts",
+      "path": "lib/engins/content/contentEnginRuleSet.ts",
+      "parent": "folder:lib/engins/content",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "function:lib/engins/content/useContentEnginRuntime.ts#useContentEnginRuntime",
+      "label": "useContentEnginRuntime",
+      "type": "function",
+      "path": "lib/engins/content/useContentEnginRuntime.ts",
+      "parent": "file:lib/engins/content/useContentEnginRuntime.ts",
+      "loc": 31,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "file:lib/engins/content/useContentEnginRuntime.ts",
+      "label": "useContentEnginRuntime.ts",
+      "type": "ts",
+      "path": "lib/engins/content/useContentEnginRuntime.ts",
+      "parent": "folder:lib/engins/content",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
       "id": "folder:lib/engins/game",
       "label": "game",
       "type": "folder",
@@ -34817,6 +35492,124 @@
       "tags": []
     },
     {
+      "id": "folder:lib/engins/lab",
+      "label": "lab",
+      "type": "folder",
+      "path": "lib/engins/lab",
+      "parent": "folder:lib/engins",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "function:lib/engins/lab/labEnginRuleSet.ts#transform",
+      "label": "transform",
+      "type": "function",
+      "path": "lib/engins/lab/labEnginRuleSet.ts",
+      "parent": "file:lib/engins/lab/labEnginRuleSet.ts",
+      "loc": 114,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/engins/lab/labEnginRuleSet.ts#deriveState",
+      "label": "deriveState",
+      "type": "function",
+      "path": "lib/engins/lab/labEnginRuleSet.ts",
+      "parent": "file:lib/engins/lab/labEnginRuleSet.ts",
+      "loc": 183,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "file:lib/engins/lab/labEnginRuleSet.ts",
+      "label": "labEnginRuleSet.ts",
+      "type": "ts",
+      "path": "lib/engins/lab/labEnginRuleSet.ts",
+      "parent": "folder:lib/engins/lab",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "function:lib/engins/lab/useLabEnginRuntime.ts#useLabEnginRuntime",
+      "label": "useLabEnginRuntime",
+      "type": "function",
+      "path": "lib/engins/lab/useLabEnginRuntime.ts",
+      "parent": "file:lib/engins/lab/useLabEnginRuntime.ts",
+      "loc": 31,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "file:lib/engins/lab/useLabEnginRuntime.ts",
+      "label": "useLabEnginRuntime.ts",
+      "type": "ts",
+      "path": "lib/engins/lab/useLabEnginRuntime.ts",
+      "parent": "folder:lib/engins/lab",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "folder:lib/engins/music",
+      "label": "music",
+      "type": "folder",
+      "path": "lib/engins/music",
+      "parent": "folder:lib/engins",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "function:lib/engins/music/starMakerEnginRuleSet.ts#transform",
+      "label": "transform",
+      "type": "function",
+      "path": "lib/engins/music/starMakerEnginRuleSet.ts",
+      "parent": "file:lib/engins/music/starMakerEnginRuleSet.ts",
+      "loc": 143,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/engins/music/starMakerEnginRuleSet.ts#deriveState",
+      "label": "deriveState",
+      "type": "function",
+      "path": "lib/engins/music/starMakerEnginRuleSet.ts",
+      "parent": "file:lib/engins/music/starMakerEnginRuleSet.ts",
+      "loc": 221,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "file:lib/engins/music/starMakerEnginRuleSet.ts",
+      "label": "starMakerEnginRuleSet.ts",
+      "type": "ts",
+      "path": "lib/engins/music/starMakerEnginRuleSet.ts",
+      "parent": "folder:lib/engins/music",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "function:lib/engins/music/useStarMakerEnginRuntime.ts#useStarMakerEnginRuntime",
+      "label": "useStarMakerEnginRuntime",
+      "type": "function",
+      "path": "lib/engins/music/useStarMakerEnginRuntime.ts",
+      "parent": "file:lib/engins/music/useStarMakerEnginRuntime.ts",
+      "loc": 31,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "file:lib/engins/music/useStarMakerEnginRuntime.ts",
+      "label": "useStarMakerEnginRuntime.ts",
+      "type": "ts",
+      "path": "lib/engins/music/useStarMakerEnginRuntime.ts",
+      "parent": "folder:lib/engins/music",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
       "id": "function:lib/engins/useEnginWorkflow.ts#storageKey",
       "label": "storageKey",
       "type": "function",
@@ -34863,7 +35656,7 @@
       "path": "lib/engins/useEnginWorkflow.ts",
       "parent": "file:lib/engins/useEnginWorkflow.ts",
       "loc": 123,
-      "isOrphan": true,
+      "isOrphan": false,
       "exported": true
     },
     {
@@ -36338,7 +37131,7 @@
       "type": "function",
       "path": "lib/gameengin/GameRuntime.tsx",
       "parent": "file:lib/gameengin/GameRuntime.tsx",
-      "loc": 49,
+      "loc": 64,
       "isOrphan": true,
       "exported": true
     },
@@ -38165,6 +38958,16 @@
       "tags": []
     },
     {
+      "id": "function:lib/gameengin/cartridge.ts#engineSatisfies",
+      "label": "engineSatisfies",
+      "type": "function",
+      "path": "lib/gameengin/cartridge.ts",
+      "parent": "file:lib/gameengin/cartridge.ts",
+      "loc": 26,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
       "id": "file:lib/gameengin/cartridge.ts",
       "label": "cartridge.ts",
       "type": "ts",
@@ -38192,6 +38995,96 @@
       "parent": "folder:lib/gameengin",
       "loc": null,
       "isOrphan": false
+    },
+    {
+      "id": "function:lib/gameengin/cartridges/achievementEngine.ts#storeKey",
+      "label": "storeKey",
+      "type": "function",
+      "path": "lib/gameengin/cartridges/achievementEngine.ts",
+      "parent": "file:lib/gameengin/cartridges/achievementEngine.ts",
+      "loc": 32,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/gameengin/cartridges/achievementEngine.ts#readState",
+      "label": "readState",
+      "type": "function",
+      "path": "lib/gameengin/cartridges/achievementEngine.ts",
+      "parent": "file:lib/gameengin/cartridges/achievementEngine.ts",
+      "loc": 36,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/gameengin/cartridges/achievementEngine.ts#writeState",
+      "label": "writeState",
+      "type": "function",
+      "path": "lib/gameengin/cartridges/achievementEngine.ts",
+      "parent": "file:lib/gameengin/cartridges/achievementEngine.ts",
+      "loc": 46,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/gameengin/cartridges/achievementEngine.ts#createAchievementsAPI",
+      "label": "createAchievementsAPI",
+      "type": "function",
+      "path": "lib/gameengin/cartridges/achievementEngine.ts",
+      "parent": "file:lib/gameengin/cartridges/achievementEngine.ts",
+      "loc": 64,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "function:lib/gameengin/cartridges/achievementEngine.ts#purgeCartridgeAchievements",
+      "label": "purgeCartridgeAchievements",
+      "type": "function",
+      "path": "lib/gameengin/cartridges/achievementEngine.ts",
+      "parent": "file:lib/gameengin/cartridges/achievementEngine.ts",
+      "loc": 117,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/gameengin/cartridges/achievementEngine.ts#getUnlockedCount",
+      "label": "getUnlockedCount",
+      "type": "function",
+      "path": "lib/gameengin/cartridges/achievementEngine.ts",
+      "parent": "file:lib/gameengin/cartridges/achievementEngine.ts",
+      "loc": 122,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "file:lib/gameengin/cartridges/achievementEngine.ts",
+      "label": "achievementEngine.ts",
+      "type": "ts",
+      "path": "lib/gameengin/cartridges/achievementEngine.ts",
+      "parent": "folder:lib/gameengin/cartridges",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "function:lib/gameengin/cartridges/apiStubs.ts#warn",
+      "label": "warn",
+      "type": "function",
+      "path": "lib/gameengin/cartridges/apiStubs.ts",
+      "parent": "file:lib/gameengin/cartridges/apiStubs.ts",
+      "loc": 22,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "file:lib/gameengin/cartridges/apiStubs.ts",
+      "label": "apiStubs.ts",
+      "type": "ts",
+      "path": "lib/gameengin/cartridges/apiStubs.ts",
+      "parent": "folder:lib/gameengin/cartridges",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
     },
     {
       "id": "file:lib/gameengin/cartridges/index.ts",
@@ -38264,12 +39157,22 @@
       "tags": []
     },
     {
+      "id": "function:lib/gameengin/cartridges/reactCartridge.ts#useGameEngineAPI",
+      "label": "useGameEngineAPI",
+      "type": "function",
+      "path": "lib/gameengin/cartridges/reactCartridge.ts",
+      "parent": "file:lib/gameengin/cartridges/reactCartridge.ts",
+      "loc": 45,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
       "id": "function:lib/gameengin/cartridges/reactCartridge.ts#createReactGameCartridge",
       "label": "createReactGameCartridge",
       "type": "function",
       "path": "lib/gameengin/cartridges/reactCartridge.ts",
       "parent": "file:lib/gameengin/cartridges/reactCartridge.ts",
-      "loc": 7,
+      "loc": 59,
       "isOrphan": true,
       "exported": true
     },
@@ -38279,7 +39182,7 @@
       "type": "function",
       "path": "lib/gameengin/cartridges/reactCartridge.ts",
       "parent": "file:lib/gameengin/cartridges/reactCartridge.ts",
-      "loc": 40,
+      "loc": 108,
       "isOrphan": true,
       "exported": true
     },
@@ -38288,6 +39191,96 @@
       "label": "reactCartridge.ts",
       "type": "ts",
       "path": "lib/gameengin/cartridges/reactCartridge.ts",
+      "parent": "folder:lib/gameengin/cartridges",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "function:lib/gameengin/cartridges/saveState.ts#catalogKey",
+      "label": "catalogKey",
+      "type": "function",
+      "path": "lib/gameengin/cartridges/saveState.ts",
+      "parent": "file:lib/gameengin/cartridges/saveState.ts",
+      "loc": 23,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/gameengin/cartridges/saveState.ts#slotKey",
+      "label": "slotKey",
+      "type": "function",
+      "path": "lib/gameengin/cartridges/saveState.ts",
+      "parent": "file:lib/gameengin/cartridges/saveState.ts",
+      "loc": 27,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/gameengin/cartridges/saveState.ts#readCatalog",
+      "label": "readCatalog",
+      "type": "function",
+      "path": "lib/gameengin/cartridges/saveState.ts",
+      "parent": "file:lib/gameengin/cartridges/saveState.ts",
+      "loc": 31,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/gameengin/cartridges/saveState.ts#writeCatalog",
+      "label": "writeCatalog",
+      "type": "function",
+      "path": "lib/gameengin/cartridges/saveState.ts",
+      "parent": "file:lib/gameengin/cartridges/saveState.ts",
+      "loc": 41,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/gameengin/cartridges/saveState.ts#autoLabel",
+      "label": "autoLabel",
+      "type": "function",
+      "path": "lib/gameengin/cartridges/saveState.ts",
+      "parent": "file:lib/gameengin/cartridges/saveState.ts",
+      "loc": 52,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/gameengin/cartridges/saveState.ts#createSaveAPI",
+      "label": "createSaveAPI",
+      "type": "function",
+      "path": "lib/gameengin/cartridges/saveState.ts",
+      "parent": "file:lib/gameengin/cartridges/saveState.ts",
+      "loc": 64,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "function:lib/gameengin/cartridges/saveState.ts#purgeCartridgeSaves",
+      "label": "purgeCartridgeSaves",
+      "type": "function",
+      "path": "lib/gameengin/cartridges/saveState.ts",
+      "parent": "file:lib/gameengin/cartridges/saveState.ts",
+      "loc": 127,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/gameengin/cartridges/saveState.ts#getSaveStorageBytes",
+      "label": "getSaveStorageBytes",
+      "type": "function",
+      "path": "lib/gameengin/cartridges/saveState.ts",
+      "parent": "file:lib/gameengin/cartridges/saveState.ts",
+      "loc": 135,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "file:lib/gameengin/cartridges/saveState.ts",
+      "label": "saveState.ts",
+      "type": "ts",
+      "path": "lib/gameengin/cartridges/saveState.ts",
       "parent": "folder:lib/gameengin/cartridges",
       "loc": null,
       "isOrphan": false,
@@ -45051,6 +46044,189 @@
       "tags": []
     },
     {
+      "id": "folder:lib/reality",
+      "label": "reality",
+      "type": "folder",
+      "path": "lib/reality",
+      "parent": "folder:lib",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "function:lib/reality/realityStore.ts#buildChannelId",
+      "label": "buildChannelId",
+      "type": "function",
+      "path": "lib/reality/realityStore.ts",
+      "parent": "file:lib/reality/realityStore.ts",
+      "loc": 30,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/reality/realityStore.ts#getRealityById",
+      "label": "getRealityById",
+      "type": "function",
+      "path": "lib/reality/realityStore.ts",
+      "parent": "file:lib/reality/realityStore.ts",
+      "loc": 38,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/reality/realityStore.ts#listMyRealities",
+      "label": "listMyRealities",
+      "type": "function",
+      "path": "lib/reality/realityStore.ts",
+      "parent": "file:lib/reality/realityStore.ts",
+      "loc": 54,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/reality/realityStore.ts#createReality",
+      "label": "createReality",
+      "type": "function",
+      "path": "lib/reality/realityStore.ts",
+      "parent": "file:lib/reality/realityStore.ts",
+      "loc": 70,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/reality/realityStore.ts#updateEnginSlots",
+      "label": "updateEnginSlots",
+      "type": "function",
+      "path": "lib/reality/realityStore.ts",
+      "parent": "file:lib/reality/realityStore.ts",
+      "loc": 108,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/reality/realityStore.ts#touchReality",
+      "label": "touchReality",
+      "type": "function",
+      "path": "lib/reality/realityStore.ts",
+      "parent": "file:lib/reality/realityStore.ts",
+      "loc": 120,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/reality/realityStore.ts#joinReality",
+      "label": "joinReality",
+      "type": "function",
+      "path": "lib/reality/realityStore.ts",
+      "parent": "file:lib/reality/realityStore.ts",
+      "loc": 133,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/reality/realityStore.ts#touchMembership",
+      "label": "touchMembership",
+      "type": "function",
+      "path": "lib/reality/realityStore.ts",
+      "parent": "file:lib/reality/realityStore.ts",
+      "loc": 152,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/reality/realityStore.ts#listMembers",
+      "label": "listMembers",
+      "type": "function",
+      "path": "lib/reality/realityStore.ts",
+      "parent": "file:lib/reality/realityStore.ts",
+      "loc": 165,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/reality/realityStore.ts#saveSnapshot",
+      "label": "saveSnapshot",
+      "type": "function",
+      "path": "lib/reality/realityStore.ts",
+      "parent": "file:lib/reality/realityStore.ts",
+      "loc": 196,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/reality/realityStore.ts#loadLatestSnapshot",
+      "label": "loadLatestSnapshot",
+      "type": "function",
+      "path": "lib/reality/realityStore.ts",
+      "parent": "file:lib/reality/realityStore.ts",
+      "loc": 227,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/reality/realityStore.ts#appendActivity",
+      "label": "appendActivity",
+      "type": "function",
+      "path": "lib/reality/realityStore.ts",
+      "parent": "file:lib/reality/realityStore.ts",
+      "loc": 253,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/reality/realityStore.ts#loadActivity",
+      "label": "loadActivity",
+      "type": "function",
+      "path": "lib/reality/realityStore.ts",
+      "parent": "file:lib/reality/realityStore.ts",
+      "loc": 280,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/reality/realityStore.ts#rowToReality",
+      "label": "rowToReality",
+      "type": "function",
+      "path": "lib/reality/realityStore.ts",
+      "parent": "file:lib/reality/realityStore.ts",
+      "loc": 306,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "file:lib/reality/realityStore.ts",
+      "label": "realityStore.ts",
+      "type": "ts",
+      "path": "lib/reality/realityStore.ts",
+      "parent": "folder:lib/reality",
+      "loc": null,
+      "isOrphan": true,
+      "tags": [
+        "supabase-table:collaborative_realities",
+        "supabase-table:collaborative_realities",
+        "supabase-table:collaborative_realities",
+        "supabase-table:collaborative_realities",
+        "supabase-table:collaborative_realities",
+        "supabase-table:reality_members",
+        "supabase-table:reality_members",
+        "supabase-table:reality_members",
+        "supabase-table:reality_state_snapshots",
+        "supabase-table:reality_state_snapshots",
+        "supabase-table:reality_activity_log",
+        "supabase-table:collaborative_realities",
+        "supabase-table:reality_activity_log"
+      ]
+    },
+    {
+      "id": "file:lib/reality/types.ts",
+      "label": "types.ts",
+      "type": "ts",
+      "path": "lib/reality/types.ts",
+      "parent": "folder:lib/reality",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
       "id": "folder:lib/renderer",
       "label": "renderer",
       "type": "folder",
@@ -45573,7 +46749,7 @@
       "type": "function",
       "path": "lib/runtime/dualRuntimeBridge.ts",
       "parent": "file:lib/runtime/dualRuntimeBridge.ts",
-      "loc": 54,
+      "loc": 55,
       "isOrphan": true,
       "exported": false
     },
@@ -45583,7 +46759,7 @@
       "type": "function",
       "path": "lib/runtime/dualRuntimeBridge.ts",
       "parent": "file:lib/runtime/dualRuntimeBridge.ts",
-      "loc": 56,
+      "loc": 57,
       "isOrphan": true,
       "exported": false
     },
@@ -45593,7 +46769,7 @@
       "type": "function",
       "path": "lib/runtime/dualRuntimeBridge.ts",
       "parent": "file:lib/runtime/dualRuntimeBridge.ts",
-      "loc": 57,
+      "loc": 58,
       "isOrphan": true,
       "exported": false
     },
@@ -45603,7 +46779,7 @@
       "type": "function",
       "path": "lib/runtime/dualRuntimeBridge.ts",
       "parent": "file:lib/runtime/dualRuntimeBridge.ts",
-      "loc": 58,
+      "loc": 59,
       "isOrphan": true,
       "exported": false
     },
@@ -45613,7 +46789,7 @@
       "type": "function",
       "path": "lib/runtime/dualRuntimeBridge.ts",
       "parent": "file:lib/runtime/dualRuntimeBridge.ts",
-      "loc": 59,
+      "loc": 60,
       "isOrphan": true,
       "exported": false
     },
@@ -45623,7 +46799,7 @@
       "type": "function",
       "path": "lib/runtime/dualRuntimeBridge.ts",
       "parent": "file:lib/runtime/dualRuntimeBridge.ts",
-      "loc": 60,
+      "loc": 61,
       "isOrphan": true,
       "exported": false
     },
@@ -45633,7 +46809,7 @@
       "type": "function",
       "path": "lib/runtime/dualRuntimeBridge.ts",
       "parent": "file:lib/runtime/dualRuntimeBridge.ts",
-      "loc": 61,
+      "loc": 62,
       "isOrphan": true,
       "exported": false
     },
@@ -45643,7 +46819,7 @@
       "type": "function",
       "path": "lib/runtime/dualRuntimeBridge.ts",
       "parent": "file:lib/runtime/dualRuntimeBridge.ts",
-      "loc": 74,
+      "loc": 75,
       "isOrphan": true,
       "exported": false
     },
@@ -45653,7 +46829,7 @@
       "type": "function",
       "path": "lib/runtime/dualRuntimeBridge.ts",
       "parent": "file:lib/runtime/dualRuntimeBridge.ts",
-      "loc": 86,
+      "loc": 87,
       "isOrphan": true,
       "exported": false
     },
@@ -45663,7 +46839,7 @@
       "type": "function",
       "path": "lib/runtime/dualRuntimeBridge.ts",
       "parent": "file:lib/runtime/dualRuntimeBridge.ts",
-      "loc": 98,
+      "loc": 99,
       "isOrphan": true,
       "exported": false
     },
@@ -45673,7 +46849,7 @@
       "type": "function",
       "path": "lib/runtime/dualRuntimeBridge.ts",
       "parent": "file:lib/runtime/dualRuntimeBridge.ts",
-      "loc": 126,
+      "loc": 127,
       "isOrphan": true,
       "exported": false
     },
@@ -45683,7 +46859,7 @@
       "type": "class",
       "path": "lib/runtime/dualRuntimeBridge.ts",
       "parent": "file:lib/runtime/dualRuntimeBridge.ts",
-      "loc": 226,
+      "loc": 227,
       "isOrphan": true,
       "exported": false
     },
@@ -47099,6 +48275,46 @@
       "tags": []
     },
     {
+      "id": "folder:lib/sharedDream",
+      "label": "sharedDream",
+      "type": "folder",
+      "path": "lib/sharedDream",
+      "parent": "folder:lib",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "function:lib/sharedDream/useSharedDreamSession.ts#useSharedDreamSession",
+      "label": "useSharedDreamSession",
+      "type": "function",
+      "path": "lib/sharedDream/useSharedDreamSession.ts",
+      "parent": "file:lib/sharedDream/useSharedDreamSession.ts",
+      "loc": 103,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "file:lib/sharedDream/useSharedDreamSession.ts",
+      "label": "useSharedDreamSession.ts",
+      "type": "ts",
+      "path": "lib/sharedDream/useSharedDreamSession.ts",
+      "parent": "folder:lib/sharedDream",
+      "loc": null,
+      "isOrphan": false,
+      "tags": [
+        "supabase-create-client",
+        "supabase-table:shared_dream_sessions",
+        "supabase-table:shared_dream_sessions",
+        "supabase-table:shared_dream_members",
+        "supabase-table:shared_dream_activity",
+        "supabase-table:shared_dream_members",
+        "supabase-table:shared_dream_activity",
+        "supabase-table:shared_dream_sessions",
+        "supabase-table:shared_dream_activity",
+        "supabase-table:shared_dream_activity"
+      ]
+    },
+    {
       "id": "folder:lib/shop",
       "label": "shop",
       "type": "folder",
@@ -47321,6 +48537,106 @@
       "label": "crossPost.ts",
       "type": "ts",
       "path": "lib/social/crossPost.ts",
+      "parent": "folder:lib/social",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "function:lib/social/livekit.ts#fetchLiveKitToken",
+      "label": "fetchLiveKitToken",
+      "type": "function",
+      "path": "lib/social/livekit.ts",
+      "parent": "file:lib/social/livekit.ts",
+      "loc": 71,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/social/livekit.ts#fetchRoomInfo",
+      "label": "fetchRoomInfo",
+      "type": "function",
+      "path": "lib/social/livekit.ts",
+      "parent": "file:lib/social/livekit.ts",
+      "loc": 102,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/social/livekit.ts#generateServerToken",
+      "label": "generateServerToken",
+      "type": "function",
+      "path": "lib/social/livekit.ts",
+      "parent": "file:lib/social/livekit.ts",
+      "loc": 261,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "class:lib/social/livekit.ts#LiveKitError",
+      "label": "LiveKitError",
+      "type": "class",
+      "path": "lib/social/livekit.ts",
+      "parent": "file:lib/social/livekit.ts",
+      "loc": 49,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "class:lib/social/livekit.ts#LiveKitRoomManager",
+      "label": "LiveKitRoomManager",
+      "type": "class",
+      "path": "lib/social/livekit.ts",
+      "parent": "file:lib/social/livekit.ts",
+      "loc": 145,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "file:lib/social/livekit.ts",
+      "label": "livekit.ts",
+      "type": "ts",
+      "path": "lib/social/livekit.ts",
+      "parent": "folder:lib/social",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "function:lib/social/normalizers.ts#normalizeMastodonPost",
+      "label": "normalizeMastodonPost",
+      "type": "function",
+      "path": "lib/social/normalizers.ts",
+      "parent": "file:lib/social/normalizers.ts",
+      "loc": 42,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/social/normalizers.ts#normalizeNostrEvent",
+      "label": "normalizeNostrEvent",
+      "type": "function",
+      "path": "lib/social/normalizers.ts",
+      "parent": "file:lib/social/normalizers.ts",
+      "loc": 72,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/social/normalizers.ts#normalizeBlueskyPost",
+      "label": "normalizeBlueskyPost",
+      "type": "function",
+      "path": "lib/social/normalizers.ts",
+      "parent": "file:lib/social/normalizers.ts",
+      "loc": 114,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "file:lib/social/normalizers.ts",
+      "label": "normalizers.ts",
+      "type": "ts",
+      "path": "lib/social/normalizers.ts",
       "parent": "folder:lib/social",
       "loc": null,
       "isOrphan": false,
@@ -47584,6 +48900,66 @@
       "parent": "folder:lib/social",
       "loc": null,
       "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "function:lib/social/useSocialData.ts#fetchPlatformFeed",
+      "label": "fetchPlatformFeed",
+      "type": "function",
+      "path": "lib/social/useSocialData.ts",
+      "parent": "file:lib/social/useSocialData.ts",
+      "loc": 49,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/social/useSocialData.ts#deriveSource",
+      "label": "deriveSource",
+      "type": "function",
+      "path": "lib/social/useSocialData.ts",
+      "parent": "file:lib/social/useSocialData.ts",
+      "loc": 90,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/social/useSocialData.ts#stripHtml",
+      "label": "stripHtml",
+      "type": "function",
+      "path": "lib/social/useSocialData.ts",
+      "parent": "file:lib/social/useSocialData.ts",
+      "loc": 98,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/social/useSocialData.ts#countByPlatform",
+      "label": "countByPlatform",
+      "type": "function",
+      "path": "lib/social/useSocialData.ts",
+      "parent": "file:lib/social/useSocialData.ts",
+      "loc": 110,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/social/useSocialData.ts#useSocialData",
+      "label": "useSocialData",
+      "type": "function",
+      "path": "lib/social/useSocialData.ts",
+      "parent": "file:lib/social/useSocialData.ts",
+      "loc": 137,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "file:lib/social/useSocialData.ts",
+      "label": "useSocialData.ts",
+      "type": "ts",
+      "path": "lib/social/useSocialData.ts",
+      "parent": "folder:lib/social",
+      "loc": null,
+      "isOrphan": true,
       "tags": []
     },
     {
@@ -49174,6 +50550,255 @@
       "type": "ts",
       "path": "lib/warp/warpEngine.ts",
       "parent": "folder:lib/warp",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "folder:lib/web3",
+      "label": "web3",
+      "type": "folder",
+      "path": "lib/web3",
+      "parent": "folder:lib",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "function:lib/web3/client.ts#toChecksumAddress",
+      "label": "toChecksumAddress",
+      "type": "function",
+      "path": "lib/web3/client.ts",
+      "parent": "file:lib/web3/client.ts",
+      "loc": 42,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/web3/client.ts#detectProviderType",
+      "label": "detectProviderType",
+      "type": "function",
+      "path": "lib/web3/client.ts",
+      "parent": "file:lib/web3/client.ts",
+      "loc": 47,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "class:lib/web3/client.ts#Web3Client",
+      "label": "Web3Client",
+      "type": "class",
+      "path": "lib/web3/client.ts",
+      "parent": "file:lib/web3/client.ts",
+      "loc": 64,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "file:lib/web3/client.ts",
+      "label": "client.ts",
+      "type": "ts",
+      "path": "lib/web3/client.ts",
+      "parent": "folder:lib/web3",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "function:lib/web3/engagement.ts#trackOffChain",
+      "label": "trackOffChain",
+      "type": "function",
+      "path": "lib/web3/engagement.ts",
+      "parent": "file:lib/web3/engagement.ts",
+      "loc": 31,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/web3/engagement.ts#fetchStatsOffChain",
+      "label": "fetchStatsOffChain",
+      "type": "function",
+      "path": "lib/web3/engagement.ts",
+      "parent": "file:lib/web3/engagement.ts",
+      "loc": 46,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/web3/engagement.ts#trackOnChain",
+      "label": "trackOnChain",
+      "type": "function",
+      "path": "lib/web3/engagement.ts",
+      "parent": "file:lib/web3/engagement.ts",
+      "loc": 78,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/web3/engagement.ts#trackEngagement",
+      "label": "trackEngagement",
+      "type": "function",
+      "path": "lib/web3/engagement.ts",
+      "parent": "file:lib/web3/engagement.ts",
+      "loc": 121,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/web3/engagement.ts#getEngagementStats",
+      "label": "getEngagementStats",
+      "type": "function",
+      "path": "lib/web3/engagement.ts",
+      "parent": "file:lib/web3/engagement.ts",
+      "loc": 156,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/web3/engagement.ts#applyOptimisticEngagement",
+      "label": "applyOptimisticEngagement",
+      "type": "function",
+      "path": "lib/web3/engagement.ts",
+      "parent": "file:lib/web3/engagement.ts",
+      "loc": 172,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/web3/engagement.ts#getOptimisticDelta",
+      "label": "getOptimisticDelta",
+      "type": "function",
+      "path": "lib/web3/engagement.ts",
+      "parent": "file:lib/web3/engagement.ts",
+      "loc": 188,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/web3/engagement.ts#clearOptimisticDelta",
+      "label": "clearOptimisticDelta",
+      "type": "function",
+      "path": "lib/web3/engagement.ts",
+      "parent": "file:lib/web3/engagement.ts",
+      "loc": 194,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "file:lib/web3/engagement.ts",
+      "label": "engagement.ts",
+      "type": "ts",
+      "path": "lib/web3/engagement.ts",
+      "parent": "folder:lib/web3",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "file:lib/web3/index.ts",
+      "label": "index.ts",
+      "type": "ts",
+      "path": "lib/web3/index.ts",
+      "parent": "folder:lib/web3",
+      "loc": null,
+      "isOrphan": true,
+      "tags": []
+    },
+    {
+      "id": "function:lib/web3/ipfs.ts#cidToGatewayUrl",
+      "label": "cidToGatewayUrl",
+      "type": "function",
+      "path": "lib/web3/ipfs.ts",
+      "parent": "file:lib/web3/ipfs.ts",
+      "loc": 24,
+      "isOrphan": true,
+      "exported": false
+    },
+    {
+      "id": "function:lib/web3/ipfs.ts#uploadToIpfs",
+      "label": "uploadToIpfs",
+      "type": "function",
+      "path": "lib/web3/ipfs.ts",
+      "parent": "file:lib/web3/ipfs.ts",
+      "loc": 37,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/web3/ipfs.ts#uploadFileToIpfs",
+      "label": "uploadFileToIpfs",
+      "type": "function",
+      "path": "lib/web3/ipfs.ts",
+      "parent": "file:lib/web3/ipfs.ts",
+      "loc": 67,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/web3/ipfs.ts#getFromIpfs",
+      "label": "getFromIpfs",
+      "type": "function",
+      "path": "lib/web3/ipfs.ts",
+      "parent": "file:lib/web3/ipfs.ts",
+      "loc": 101,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/web3/ipfs.ts#pinCid",
+      "label": "pinCid",
+      "type": "function",
+      "path": "lib/web3/ipfs.ts",
+      "parent": "file:lib/web3/ipfs.ts",
+      "loc": 139,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/web3/ipfs.ts#resolveIpfsUrl",
+      "label": "resolveIpfsUrl",
+      "type": "function",
+      "path": "lib/web3/ipfs.ts",
+      "parent": "file:lib/web3/ipfs.ts",
+      "loc": 158,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "function:lib/web3/ipfs.ts#isIpfsCid",
+      "label": "isIpfsCid",
+      "type": "function",
+      "path": "lib/web3/ipfs.ts",
+      "parent": "file:lib/web3/ipfs.ts",
+      "loc": 168,
+      "isOrphan": true,
+      "exported": true
+    },
+    {
+      "id": "file:lib/web3/ipfs.ts",
+      "label": "ipfs.ts",
+      "type": "ts",
+      "path": "lib/web3/ipfs.ts",
+      "parent": "folder:lib/web3",
+      "loc": null,
+      "isOrphan": false,
+      "tags": []
+    },
+    {
+      "id": "class:lib/web3/types.ts#Web3Error",
+      "label": "Web3Error",
+      "type": "class",
+      "path": "lib/web3/types.ts",
+      "parent": "file:lib/web3/types.ts",
+      "loc": 33,
+      "isOrphan": false,
+      "exported": true
+    },
+    {
+      "id": "file:lib/web3/types.ts",
+      "label": "types.ts",
+      "type": "ts",
+      "path": "lib/web3/types.ts",
+      "parent": "folder:lib/web3",
       "loc": null,
       "isOrphan": false,
       "tags": []
@@ -54999,7 +56624,7 @@
       "path": "src/engin/state/base.json",
       "parent": "folder:src/engin/state",
       "loc": null,
-      "isOrphan": false,
+      "isOrphan": true,
       "tags": []
     },
     {
@@ -59275,6 +60900,144 @@
       "label": "20260426000200_build_memory_schema_gaps.sql",
       "type": "sql",
       "path": "supabase/migrations/20260426000200_build_memory_schema_gaps.sql",
+      "parent": "folder:supabase/migrations",
+      "loc": null,
+      "isOrphan": true,
+      "tags": []
+    },
+    {
+      "id": "sql-table:supabase/migrations/20260516000000_agent_sessions_forge_rate_limits.sql#agent_sessions",
+      "label": "agent_sessions",
+      "type": "sql-table",
+      "path": "supabase/migrations/20260516000000_agent_sessions_forge_rate_limits.sql",
+      "parent": "file:supabase/migrations/20260516000000_agent_sessions_forge_rate_limits.sql",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "sql-table:supabase/migrations/20260516000000_agent_sessions_forge_rate_limits.sql#forge_rate_limits",
+      "label": "forge_rate_limits",
+      "type": "sql-table",
+      "path": "supabase/migrations/20260516000000_agent_sessions_forge_rate_limits.sql",
+      "parent": "file:supabase/migrations/20260516000000_agent_sessions_forge_rate_limits.sql",
+      "loc": null,
+      "isOrphan": true
+    },
+    {
+      "id": "sql-policy:supabase/migrations/20260516000000_agent_sessions_forge_rate_limits.sql#Users",
+      "label": "Users",
+      "type": "sql-policy",
+      "path": "supabase/migrations/20260516000000_agent_sessions_forge_rate_limits.sql",
+      "parent": "file:supabase/migrations/20260516000000_agent_sessions_forge_rate_limits.sql",
+      "loc": null,
+      "isOrphan": true
+    },
+    {
+      "id": "file:supabase/migrations/20260516000000_agent_sessions_forge_rate_limits.sql",
+      "label": "20260516000000_agent_sessions_forge_rate_limits.sql",
+      "type": "sql",
+      "path": "supabase/migrations/20260516000000_agent_sessions_forge_rate_limits.sql",
+      "parent": "folder:supabase/migrations",
+      "loc": null,
+      "isOrphan": true,
+      "tags": []
+    },
+    {
+      "id": "sql-table:supabase/migrations/20260516000100_dreamr_tally.sql#dreamr_tally",
+      "label": "dreamr_tally",
+      "type": "sql-table",
+      "path": "supabase/migrations/20260516000100_dreamr_tally.sql",
+      "parent": "file:supabase/migrations/20260516000100_dreamr_tally.sql",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "sql-policy:supabase/migrations/20260516000100_dreamr_tally.sql#dreamr_tally",
+      "label": "dreamr_tally",
+      "type": "sql-policy",
+      "path": "supabase/migrations/20260516000100_dreamr_tally.sql",
+      "parent": "file:supabase/migrations/20260516000100_dreamr_tally.sql",
+      "loc": null,
+      "isOrphan": true
+    },
+    {
+      "id": "file:supabase/migrations/20260516000100_dreamr_tally.sql",
+      "label": "20260516000100_dreamr_tally.sql",
+      "type": "sql",
+      "path": "supabase/migrations/20260516000100_dreamr_tally.sql",
+      "parent": "folder:supabase/migrations",
+      "loc": null,
+      "isOrphan": true,
+      "tags": []
+    },
+    {
+      "id": "sql-table:supabase/migrations/20260516000300_shared_dream_sessions.sql#shared_dream_sessions",
+      "label": "shared_dream_sessions",
+      "type": "sql-table",
+      "path": "supabase/migrations/20260516000300_shared_dream_sessions.sql",
+      "parent": "file:supabase/migrations/20260516000300_shared_dream_sessions.sql",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "sql-table:supabase/migrations/20260516000300_shared_dream_sessions.sql#shared_dream_members",
+      "label": "shared_dream_members",
+      "type": "sql-table",
+      "path": "supabase/migrations/20260516000300_shared_dream_sessions.sql",
+      "parent": "file:supabase/migrations/20260516000300_shared_dream_sessions.sql",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "sql-table:supabase/migrations/20260516000300_shared_dream_sessions.sql#shared_dream_activity",
+      "label": "shared_dream_activity",
+      "type": "sql-table",
+      "path": "supabase/migrations/20260516000300_shared_dream_sessions.sql",
+      "parent": "file:supabase/migrations/20260516000300_shared_dream_sessions.sql",
+      "loc": null,
+      "isOrphan": false
+    },
+    {
+      "id": "function:supabase/migrations/20260516000300_shared_dream_sessions.sql#touch_shared_dream_session",
+      "label": "touch_shared_dream_session",
+      "type": "function",
+      "path": "supabase/migrations/20260516000300_shared_dream_sessions.sql",
+      "parent": "file:supabase/migrations/20260516000300_shared_dream_sessions.sql",
+      "loc": null,
+      "isOrphan": true
+    },
+    {
+      "id": "sql-policy:supabase/migrations/20260516000300_shared_dream_sessions.sql#sds",
+      "label": "sds",
+      "type": "sql-policy",
+      "path": "supabase/migrations/20260516000300_shared_dream_sessions.sql",
+      "parent": "file:supabase/migrations/20260516000300_shared_dream_sessions.sql",
+      "loc": null,
+      "isOrphan": true
+    },
+    {
+      "id": "sql-policy:supabase/migrations/20260516000300_shared_dream_sessions.sql#sdm",
+      "label": "sdm",
+      "type": "sql-policy",
+      "path": "supabase/migrations/20260516000300_shared_dream_sessions.sql",
+      "parent": "file:supabase/migrations/20260516000300_shared_dream_sessions.sql",
+      "loc": null,
+      "isOrphan": true
+    },
+    {
+      "id": "sql-policy:supabase/migrations/20260516000300_shared_dream_sessions.sql#sda",
+      "label": "sda",
+      "type": "sql-policy",
+      "path": "supabase/migrations/20260516000300_shared_dream_sessions.sql",
+      "parent": "file:supabase/migrations/20260516000300_shared_dream_sessions.sql",
+      "loc": null,
+      "isOrphan": true
+    },
+    {
+      "id": "file:supabase/migrations/20260516000300_shared_dream_sessions.sql",
+      "label": "20260516000300_shared_dream_sessions.sql",
+      "type": "sql",
+      "path": "supabase/migrations/20260516000300_shared_dream_sessions.sql",
       "parent": "folder:supabase/migrations",
       "loc": null,
       "isOrphan": true,
@@ -64769,52 +66532,12 @@
     },
     {
       "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "file:lib/supabase/server.ts",
+      "target": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
       "kind": "import"
     },
     {
       "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "file:app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm.ts",
-      "kind": "import"
-    },
-    {
-      "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "file:lib/media/postMedia.ts",
-      "kind": "import"
-    },
-    {
-      "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "file:lib/dreamr/closeFriendsVisibility.ts",
-      "kind": "import"
-    },
-    {
-      "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "file:lib/dreamr/feedCursor.ts",
-      "kind": "import"
-    },
-    {
-      "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "file:lib/supabase/server.ts",
-      "kind": "route-uses"
-    },
-    {
-      "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "file:app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm.ts",
-      "kind": "route-uses"
-    },
-    {
-      "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "file:lib/media/postMedia.ts",
-      "kind": "route-uses"
-    },
-    {
-      "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "file:lib/dreamr/closeFriendsVisibility.ts",
-      "kind": "route-uses"
-    },
-    {
-      "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "file:lib/dreamr/feedCursor.ts",
+      "target": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
       "kind": "route-uses"
     },
     {
@@ -64855,6 +66578,16 @@
     {
       "source": "file:app/api/dreamr/suggested/route.ts",
       "target": "file:lib/dreamr/closeFriendsVisibility.ts",
+      "kind": "route-uses"
+    },
+    {
+      "source": "file:app/api/dreamr/tally/route.ts",
+      "target": "file:lib/supabase/server.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/api/dreamr/tally/route.ts",
+      "target": "file:lib/supabase/server.ts",
       "kind": "route-uses"
     },
     {
@@ -65448,6 +67181,46 @@
       "kind": "route-uses"
     },
     {
+      "source": "file:app/api/shared-dream/sessions/[id]/route.ts",
+      "target": "file:lib/supabase/server.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/api/shared-dream/sessions/[id]/route.ts",
+      "target": "file:lib/supabase/safeGetUser.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/api/shared-dream/sessions/[id]/route.ts",
+      "target": "file:lib/supabase/server.ts",
+      "kind": "route-uses"
+    },
+    {
+      "source": "file:app/api/shared-dream/sessions/[id]/route.ts",
+      "target": "file:lib/supabase/safeGetUser.ts",
+      "kind": "route-uses"
+    },
+    {
+      "source": "file:app/api/shared-dream/sessions/route.ts",
+      "target": "file:lib/supabase/server.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/api/shared-dream/sessions/route.ts",
+      "target": "file:lib/supabase/safeGetUser.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/api/shared-dream/sessions/route.ts",
+      "target": "file:lib/supabase/server.ts",
+      "kind": "route-uses"
+    },
+    {
+      "source": "file:app/api/shared-dream/sessions/route.ts",
+      "target": "file:lib/supabase/safeGetUser.ts",
+      "kind": "route-uses"
+    },
+    {
       "source": "file:app/api/shellhub/devices/route.ts",
       "target": "file:lib/supabase/server.ts",
       "kind": "import"
@@ -65535,6 +67308,56 @@
     {
       "source": "file:app/api/skip-credits/use/route.ts",
       "target": "file:lib/activity/types.ts",
+      "kind": "route-uses"
+    },
+    {
+      "source": "file:app/api/social/ipfs/route.ts",
+      "target": "file:lib/supabase/server.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/api/social/ipfs/route.ts",
+      "target": "file:lib/supabase/server.ts",
+      "kind": "route-uses"
+    },
+    {
+      "source": "file:app/api/social/livekit/room/route.ts",
+      "target": "file:lib/supabase/server.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/api/social/livekit/room/route.ts",
+      "target": "file:lib/social/livekit.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/api/social/livekit/room/route.ts",
+      "target": "file:lib/supabase/server.ts",
+      "kind": "route-uses"
+    },
+    {
+      "source": "file:app/api/social/livekit/room/route.ts",
+      "target": "file:lib/social/livekit.ts",
+      "kind": "route-uses"
+    },
+    {
+      "source": "file:app/api/social/livekit/token/route.ts",
+      "target": "file:lib/supabase/server.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/api/social/livekit/token/route.ts",
+      "target": "file:lib/social/livekit.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/api/social/livekit/token/route.ts",
+      "target": "file:lib/supabase/server.ts",
+      "kind": "route-uses"
+    },
+    {
+      "source": "file:app/api/social/livekit/token/route.ts",
+      "target": "file:lib/social/livekit.ts",
       "kind": "route-uses"
     },
     {
@@ -66154,7 +67977,27 @@
     },
     {
       "source": "file:app/daydream/game/dream.shell.ImmersiveGameShell.tsx",
-      "target": "file:components/games/dream.GamesHub.tsx",
+      "target": "file:lib/gameengin/GameRuntime.tsx",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/daydream/game/dream.shell.ImmersiveGameShell.tsx",
+      "target": "file:lib/gameengin/cartridges/loaders.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/daydream/game/dream.shell.ImmersiveGameShell.tsx",
+      "target": "file:lib/gameengin/cartridges/manifest.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/daydream/game/dream.shell.ImmersiveGameShell.tsx",
+      "target": "file:lib/gameengin/cartridge.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/daydream/game/dream.shell.ImmersiveGameShell.tsx",
+      "target": "file:lib/games/mobileControls.ts",
       "kind": "import"
     },
     {
@@ -66653,6 +68496,31 @@
       "kind": "import"
     },
     {
+      "source": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "target": "file:lib/supabase/server.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "target": "file:app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "target": "file:lib/media/postMedia.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "target": "file:lib/dreamr/closeFriendsVisibility.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "target": "file:lib/dreamr/feedCursor.ts",
+      "kind": "import"
+    },
+    {
       "source": "file:app/dreamdmbar/_components/dreamr/api/route.ts",
       "target": "file:lib/supabase/server.ts",
       "kind": "import"
@@ -66779,7 +68647,17 @@
     },
     {
       "source": "file:app/dreamdmbar/dualruntime/page.tsx",
+      "target": "file:components/shared-dream/dream.SharedDreamRuntime.tsx",
+      "kind": "import"
+    },
+    {
+      "source": "file:app/dreamdmbar/dualruntime/page.tsx",
       "target": "file:lib/dreamdm/DreamSystemContext.tsx",
+      "kind": "route-uses"
+    },
+    {
+      "source": "file:app/dreamdmbar/dualruntime/page.tsx",
+      "target": "file:components/shared-dream/dream.SharedDreamRuntime.tsx",
       "kind": "route-uses"
     },
     {
@@ -69583,26 +71461,6 @@
       "kind": "import"
     },
     {
-      "source": "file:components/dream.LandingHero.tsx",
-      "target": "file:components/landing/dream.scene.UniverseField.tsx",
-      "kind": "import"
-    },
-    {
-      "source": "file:components/dream.LandingHero.tsx",
-      "target": "file:components/landing/dream.LandingNav.tsx",
-      "kind": "import"
-    },
-    {
-      "source": "file:components/dream.LandingHero.tsx",
-      "target": "file:components/landing/dream.LandingProductStatement.tsx",
-      "kind": "import"
-    },
-    {
-      "source": "file:components/dream.LandingHero.tsx",
-      "target": "file:lib/dreamr/swipeCalibration.ts",
-      "kind": "import"
-    },
-    {
       "source": "file:components/dream.LedgerChart.tsx",
       "target": "file:lib/ledger-data.ts",
       "kind": "import"
@@ -71488,6 +73346,31 @@
       "kind": "import"
     },
     {
+      "source": "file:components/shared-dream/dream.SharedDreamRuntime.tsx",
+      "target": "file:components/shared-dream/dream.SharedDreamProvider.tsx",
+      "kind": "import"
+    },
+    {
+      "source": "file:components/shared-dream/dream.SharedDreamRuntime.tsx",
+      "target": "file:components/shared-dream/dream.SharedDreamCanvas.tsx",
+      "kind": "import"
+    },
+    {
+      "source": "file:components/shared-dream/dream.SharedDreamRuntime.tsx",
+      "target": "file:components/shared-dream/dream.InviteFlow.tsx",
+      "kind": "import"
+    },
+    {
+      "source": "file:components/shared-dream/dream.SharedDreamRuntime.tsx",
+      "target": "file:lib/sharedDream/useSharedDreamSession.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:components/shared-dream/dream.SharedDreamRuntime.tsx",
+      "target": "file:lib/runtime/dualRuntimeBridge.ts",
+      "kind": "import"
+    },
+    {
       "source": "file:components/shared-dream/index.ts",
       "target": "file:components/shared-dream/dream.SharedDreamProvider.tsx",
       "kind": "reexport"
@@ -71500,6 +73383,11 @@
     {
       "source": "file:components/shared-dream/index.ts",
       "target": "file:components/shared-dream/dream.InviteFlow.tsx",
+      "kind": "reexport"
+    },
+    {
+      "source": "file:components/shared-dream/index.ts",
+      "target": "file:components/shared-dream/dream.SharedDreamRuntime.tsx",
       "kind": "reexport"
     },
     {
@@ -72084,6 +73972,11 @@
     },
     {
       "source": "file:engins/dream.ForgeEngin.tsx",
+      "target": "file:lib/enginpipe/index.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:engins/dream.ForgeEngin.tsx",
       "target": "file:lib/forge/forgeRegistry.ts",
       "kind": "import"
     },
@@ -72208,6 +74101,21 @@
       "kind": "import"
     },
     {
+      "source": "file:engins/engin.BrandingEngin.tsx",
+      "target": "file:lib/enginpipe/index.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:engins/engin.BrandingEngin.tsx",
+      "target": "file:lib/engins/useEnginWorkflow.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:engins/engin.BrandingEngin.tsx",
+      "target": "file:lib/engins/brand/useBrandEnginRuntime.ts",
+      "kind": "import"
+    },
+    {
       "source": "file:engins/engin.CodeEngin.tsx",
       "target": "file:lib/runtime/useEnginCoopSync.ts",
       "kind": "import"
@@ -72269,6 +74177,21 @@
     },
     {
       "source": "file:engins/engin.CodeEngin.tsx",
+      "target": "file:lib/enginpipe/index.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:engins/engin.CodeEngin.tsx",
+      "target": "file:lib/engins/useEnginWorkflow.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:engins/engin.CodeEngin.tsx",
+      "target": "file:lib/engins/code/useCodeEnginRuntime.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:engins/engin.CodeEngin.tsx",
       "target": "file:components/dreamengin/dream.panel.CrossEnginStatusPanel.tsx",
       "kind": "import"
     },
@@ -72280,6 +74203,11 @@
     {
       "source": "file:engins/engin.CodeEngin.tsx",
       "target": "file:engins/CodeEngin/modules/ai-co-pilot/index.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:engins/engin.CodeEngin.tsx",
+      "target": "file:engins/CodeEngin/core/parser.ts",
       "kind": "import"
     },
     {
@@ -72330,6 +74258,21 @@
     {
       "source": "file:engins/engin.ContentEngin.tsx",
       "target": "file:components/daydream/dream.JourneyTrail.tsx",
+      "kind": "import"
+    },
+    {
+      "source": "file:engins/engin.ContentEngin.tsx",
+      "target": "file:lib/enginpipe/index.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:engins/engin.ContentEngin.tsx",
+      "target": "file:lib/engins/useEnginWorkflow.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:engins/engin.ContentEngin.tsx",
+      "target": "file:lib/engins/content/useContentEnginRuntime.ts",
       "kind": "import"
     },
     {
@@ -72569,6 +74512,21 @@
     },
     {
       "source": "file:engins/engin.LabEngin.tsx",
+      "target": "file:lib/enginpipe/index.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:engins/engin.LabEngin.tsx",
+      "target": "file:lib/engins/useEnginWorkflow.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:engins/engin.LabEngin.tsx",
+      "target": "file:lib/engins/lab/useLabEnginRuntime.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:engins/engin.LabEngin.tsx",
       "target": "file:components/dream.ForgeDreamCanvas.tsx",
       "kind": "import"
     },
@@ -72670,6 +74628,21 @@
     {
       "source": "file:engins/engin.StarMakerEngin.tsx",
       "target": "file:components/daydream/dream.JourneyTrail.tsx",
+      "kind": "import"
+    },
+    {
+      "source": "file:engins/engin.StarMakerEngin.tsx",
+      "target": "file:lib/enginpipe/index.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:engins/engin.StarMakerEngin.tsx",
+      "target": "file:lib/engins/useEnginWorkflow.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:engins/engin.StarMakerEngin.tsx",
+      "target": "file:lib/engins/music/useStarMakerEnginRuntime.ts",
       "kind": "import"
     },
     {
@@ -73993,6 +75966,96 @@
       "kind": "import"
     },
     {
+      "source": "file:lib/engins/brand/brandEnginRuleSet.ts",
+      "target": "file:lib/engin-runtime/EnginRuleSetContract.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/brand/brandEnginRuleSet.ts",
+      "target": "file:lib/engin-runtime/EnginBaseState.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/brand/brandEnginRuleSet.ts",
+      "target": "file:lib/engin-runtime/EnginCapabilities.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/brand/useBrandEnginRuntime.ts",
+      "target": "file:lib/engin-runtime/EnginRuntime.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/brand/useBrandEnginRuntime.ts",
+      "target": "file:lib/engin-runtime/EnginIOAdapter.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/brand/useBrandEnginRuntime.ts",
+      "target": "file:lib/engins/brand/brandEnginRuleSet.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/code/codeEnginRuleSet.ts",
+      "target": "file:lib/engin-runtime/EnginRuleSetContract.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/code/codeEnginRuleSet.ts",
+      "target": "file:lib/engin-runtime/EnginBaseState.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/code/codeEnginRuleSet.ts",
+      "target": "file:lib/engin-runtime/EnginCapabilities.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/code/useCodeEnginRuntime.ts",
+      "target": "file:lib/engin-runtime/EnginRuntime.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/code/useCodeEnginRuntime.ts",
+      "target": "file:lib/engin-runtime/EnginIOAdapter.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/code/useCodeEnginRuntime.ts",
+      "target": "file:lib/engins/code/codeEnginRuleSet.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/content/contentEnginRuleSet.ts",
+      "target": "file:lib/engin-runtime/EnginRuleSetContract.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/content/contentEnginRuleSet.ts",
+      "target": "file:lib/engin-runtime/EnginBaseState.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/content/contentEnginRuleSet.ts",
+      "target": "file:lib/engin-runtime/EnginCapabilities.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/content/useContentEnginRuntime.ts",
+      "target": "file:lib/engin-runtime/EnginRuntime.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/content/useContentEnginRuntime.ts",
+      "target": "file:lib/engin-runtime/EnginIOAdapter.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/content/useContentEnginRuntime.ts",
+      "target": "file:lib/engins/content/contentEnginRuleSet.ts",
+      "kind": "import"
+    },
+    {
       "source": "file:lib/engins/game/gameEnginRuleSet.ts",
       "target": "file:lib/engin-runtime/EnginRuleSetContract.ts",
       "kind": "import"
@@ -74025,6 +76088,66 @@
     {
       "source": "file:lib/engins/game/useGameEnginRuntime.ts",
       "target": "file:lib/engins/game/gameEnginRuleSet.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/lab/labEnginRuleSet.ts",
+      "target": "file:lib/engin-runtime/EnginRuleSetContract.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/lab/labEnginRuleSet.ts",
+      "target": "file:lib/engin-runtime/EnginBaseState.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/lab/labEnginRuleSet.ts",
+      "target": "file:lib/engin-runtime/EnginCapabilities.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/lab/useLabEnginRuntime.ts",
+      "target": "file:lib/engin-runtime/EnginRuntime.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/lab/useLabEnginRuntime.ts",
+      "target": "file:lib/engin-runtime/EnginIOAdapter.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/lab/useLabEnginRuntime.ts",
+      "target": "file:lib/engins/lab/labEnginRuleSet.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/music/starMakerEnginRuleSet.ts",
+      "target": "file:lib/engin-runtime/EnginRuleSetContract.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/music/starMakerEnginRuleSet.ts",
+      "target": "file:lib/engin-runtime/EnginBaseState.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/music/starMakerEnginRuleSet.ts",
+      "target": "file:lib/engin-runtime/EnginCapabilities.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/music/useStarMakerEnginRuntime.ts",
+      "target": "file:lib/engin-runtime/EnginRuntime.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/music/useStarMakerEnginRuntime.ts",
+      "target": "file:lib/engin-runtime/EnginIOAdapter.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/engins/music/useStarMakerEnginRuntime.ts",
+      "target": "file:lib/engins/music/starMakerEnginRuleSet.ts",
       "kind": "import"
     },
     {
@@ -74178,9 +76301,34 @@
       "kind": "import"
     },
     {
+      "source": "file:lib/gameengin/GameRuntime.tsx",
+      "target": "file:lib/gameengin/cartridges/saveState.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/gameengin/GameRuntime.tsx",
+      "target": "file:lib/gameengin/cartridges/achievementEngine.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/gameengin/GameRuntime.tsx",
+      "target": "file:lib/gameengin/cartridges/apiStubs.ts",
+      "kind": "import"
+    },
+    {
       "source": "file:lib/gameengin/cartridgeLoader.ts",
       "target": "file:lib/gameengin/dreamr-loader.ts",
       "kind": "reexport"
+    },
+    {
+      "source": "file:lib/gameengin/cartridges/achievementEngine.ts",
+      "target": "file:lib/gameengin/cartridge.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/gameengin/cartridges/apiStubs.ts",
+      "target": "file:lib/gameengin/cartridge.ts",
+      "kind": "import"
     },
     {
       "source": "file:lib/gameengin/cartridges/index.ts",
@@ -74264,6 +76412,11 @@
     },
     {
       "source": "file:lib/gameengin/cartridges/reactCartridge.ts",
+      "target": "file:lib/gameengin/cartridge.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/gameengin/cartridges/saveState.ts",
       "target": "file:lib/gameengin/cartridge.ts",
       "kind": "import"
     },
@@ -75013,6 +77166,16 @@
       "kind": "reexport"
     },
     {
+      "source": "file:lib/reality/realityStore.ts",
+      "target": "file:lib/reality/types.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/reality/types.ts",
+      "target": "file:lib/collaboration/index.ts",
+      "kind": "import"
+    },
+    {
       "source": "file:lib/renderer/Canvas2DRenderer.ts",
       "target": "file:lib/renderer/IRenderer.ts",
       "kind": "import"
@@ -75243,6 +77406,16 @@
       "kind": "import"
     },
     {
+      "source": "file:lib/sharedDream.ts",
+      "target": "file:lib/sharedDream/useSharedDreamSession.ts",
+      "kind": "reexport"
+    },
+    {
+      "source": "file:lib/sharedDream/useSharedDreamSession.ts",
+      "target": "file:lib/supabase/client.ts",
+      "kind": "import"
+    },
+    {
       "source": "file:lib/social/crossPost.ts",
       "target": "file:lib/social/platforms.ts",
       "kind": "import"
@@ -75250,6 +77423,11 @@
     {
       "source": "file:lib/social/rss-feed.ts",
       "target": "file:types/connector.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/social/useSocialData.ts",
+      "target": "file:lib/social/normalizers.ts",
       "kind": "import"
     },
     {
@@ -75413,6 +77591,46 @@
       "kind": "import"
     },
     {
+      "source": "file:lib/web3/client.ts",
+      "target": "file:lib/web3/types.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/web3/engagement.ts",
+      "target": "file:lib/web3/types.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/web3/engagement.ts",
+      "target": "file:lib/web3/client.ts",
+      "kind": "import"
+    },
+    {
+      "source": "file:lib/web3/index.ts",
+      "target": "file:lib/web3/types.ts",
+      "kind": "reexport"
+    },
+    {
+      "source": "file:lib/web3/index.ts",
+      "target": "file:lib/web3/client.ts",
+      "kind": "reexport"
+    },
+    {
+      "source": "file:lib/web3/index.ts",
+      "target": "file:lib/web3/engagement.ts",
+      "kind": "reexport"
+    },
+    {
+      "source": "file:lib/web3/index.ts",
+      "target": "file:lib/web3/ipfs.ts",
+      "kind": "reexport"
+    },
+    {
+      "source": "file:lib/web3/ipfs.ts",
+      "target": "file:lib/web3/types.ts",
+      "kind": "import"
+    },
+    {
       "source": "file:lib/webgpu/adaptiveQuality.ts",
       "target": "file:lib/webgpu/director.ts",
       "kind": "import"
@@ -75556,11 +77774,6 @@
       "source": "file:src/dreamsurface/index.ts",
       "target": "file:src/dreamsurface/dreamsurface.delta.ts",
       "kind": "reexport"
-    },
-    {
-      "source": "file:src/engin/core/index.ts",
-      "target": "file:src/engin/state/base.json",
-      "kind": "import"
     },
     {
       "source": "file:src/engin/core/index.ts",
@@ -77865,11 +80078,6 @@
     {
       "source": "file:src/engin/generated/surfaces.ts",
       "target": "file:components/dream.KonamiDream.tsx",
-      "kind": "import"
-    },
-    {
-      "source": "file:src/engin/generated/surfaces.ts",
-      "target": "file:components/dream.LandingHero.tsx",
       "kind": "import"
     },
     {
@@ -83124,11 +85332,6 @@
     },
     {
       "source": "file:app/api/connectors/webhooks/[provider]/route.ts",
-      "target": "function:lib/connectors/deliveryStrategy.ts#supportsWebhook",
-      "kind": "call"
-    },
-    {
-      "source": "file:app/api/connectors/webhooks/[provider]/route.ts",
       "target": "function:lib/connectors/deliveryStrategy.ts#supportsWebhookVerification",
       "kind": "call"
     },
@@ -83140,6 +85343,11 @@
     {
       "source": "file:app/api/connectors/webhooks/[provider]/route.ts",
       "target": "function:lib/connectors/webhookVerification.ts#extractMetaWebhookChallenge",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/api/connectors/webhooks/[provider]/route.ts",
+      "target": "function:lib/connectors/deliveryStrategy.ts#supportsWebhook",
       "kind": "call"
     },
     {
@@ -83218,41 +85426,6 @@
       "kind": "call"
     },
     {
-      "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "function:lib/supabase/server.ts#createServerClient",
-      "kind": "call"
-    },
-    {
-      "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "function:lib/dreamr/feedCursor.ts#parseFeedParams",
-      "kind": "call"
-    },
-    {
-      "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "function:lib/dreamr/closeFriendsVisibility.ts#loadVisibilityCircle",
-      "kind": "call"
-    },
-    {
-      "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "function:lib/dreamr/closeFriendsVisibility.ts#filterByCloseFriends",
-      "kind": "call"
-    },
-    {
-      "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "function:lib/media/postMedia.ts#getPrimaryPostMediaUrl",
-      "kind": "call"
-    },
-    {
-      "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "function:app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm.ts#rankFeed",
-      "kind": "call"
-    },
-    {
-      "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "function:lib/dreamr/feedCursor.ts#deriveNextCursor",
-      "kind": "call"
-    },
-    {
       "source": "file:app/api/dreamr/suggested/route.ts",
       "target": "function:lib/supabase/server.ts#createServerClient",
       "kind": "call"
@@ -83280,6 +85453,11 @@
     {
       "source": "file:app/api/dreamr/suggested/route.ts",
       "target": "function:app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm.ts#scoreDreamRPost",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/api/dreamr/tally/route.ts",
+      "target": "function:lib/supabase/server.ts#createServerClient",
       "kind": "call"
     },
     {
@@ -83573,6 +85751,26 @@
       "kind": "call"
     },
     {
+      "source": "file:app/api/shared-dream/sessions/[id]/route.ts",
+      "target": "function:lib/supabase/server.ts#createServerClient",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/api/shared-dream/sessions/[id]/route.ts",
+      "target": "function:lib/supabase/safeGetUser.ts#safeGetUser",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/api/shared-dream/sessions/route.ts",
+      "target": "function:lib/supabase/server.ts#createServerClient",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/api/shared-dream/sessions/route.ts",
+      "target": "function:lib/supabase/safeGetUser.ts#safeGetUser",
+      "kind": "call"
+    },
+    {
       "source": "file:app/api/shellhub/devices/route.ts",
       "target": "function:lib/supabase/server.ts#createServerClient",
       "kind": "call"
@@ -83610,6 +85808,26 @@
     {
       "source": "file:app/api/skip-credits/use/route.ts",
       "target": "function:lib/supabase/server.ts#createServerClient",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/api/social/ipfs/route.ts",
+      "target": "function:lib/supabase/server.ts#createServerClient",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/api/social/livekit/room/route.ts",
+      "target": "function:lib/supabase/server.ts#createServerClient",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/api/social/livekit/token/route.ts",
+      "target": "function:lib/supabase/server.ts#createServerClient",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/api/social/livekit/token/route.ts",
+      "target": "function:lib/social/livekit.ts#generateServerToken",
       "kind": "call"
     },
     {
@@ -83879,6 +86097,11 @@
     },
     {
       "source": "file:app/daydream/game/dream.shell.ImmersiveGameShell.tsx",
+      "target": "function:lib/gameengin/cartridges/loaders.ts#loadCartridge",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/daydream/game/dream.shell.ImmersiveGameShell.tsx",
       "target": "function:lib/games/navigation.ts#buildGameLaunchHref",
       "kind": "call"
     },
@@ -84040,6 +86263,41 @@
     {
       "source": "file:app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm.ts",
       "target": "function:lib/dreamr/torridityLedger.ts#getPostMass",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "target": "function:lib/supabase/server.ts#createServerClient",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "target": "function:lib/dreamr/feedCursor.ts#parseFeedParams",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "target": "function:lib/dreamr/closeFriendsVisibility.ts#loadVisibilityCircle",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "target": "function:lib/dreamr/closeFriendsVisibility.ts#filterByCloseFriends",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "target": "function:lib/media/postMedia.ts#getPrimaryPostMediaUrl",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "target": "function:app/dreamdmbar/_components/dreamr/algorithms/dreamrAlgorithm.ts#rankFeed",
+      "kind": "call"
+    },
+    {
+      "source": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "target": "function:lib/dreamr/feedCursor.ts#deriveNextCursor",
       "kind": "call"
     },
     {
@@ -85130,11 +87388,6 @@
     {
       "source": "file:components/dream.HomeFeed.tsx",
       "target": "function:lib/ui/runtimeViewport.ts#isCompactRuntimeViewport",
-      "kind": "call"
-    },
-    {
-      "source": "file:components/dream.LandingHero.tsx",
-      "target": "function:lib/dreamr/swipeCalibration.ts#calibrateDevice",
       "kind": "call"
     },
     {
@@ -86568,6 +88821,11 @@
       "kind": "call"
     },
     {
+      "source": "file:components/shared-dream/dream.SharedDreamRuntime.tsx",
+      "target": "function:lib/sharedDream/useSharedDreamSession.ts#useSharedDreamSession",
+      "kind": "call"
+    },
+    {
       "source": "file:components/spatial/dream.ProfileSpace.tsx",
       "target": "function:hooks/use-spatial.ts#useWidgets",
       "kind": "call"
@@ -87009,6 +89267,16 @@
     },
     {
       "source": "file:engins/engin.BrandingEngin.tsx",
+      "target": "function:lib/engins/brand/useBrandEnginRuntime.ts#useBrandEnginRuntime",
+      "kind": "call"
+    },
+    {
+      "source": "file:engins/engin.BrandingEngin.tsx",
+      "target": "function:lib/engins/useEnginWorkflow.ts#useEnginWorkflow",
+      "kind": "call"
+    },
+    {
+      "source": "file:engins/engin.BrandingEngin.tsx",
       "target": "function:hooks/useSharedDream.ts#useSharedDream",
       "kind": "call"
     },
@@ -87059,12 +89327,27 @@
     },
     {
       "source": "file:engins/engin.CodeEngin.tsx",
+      "target": "function:lib/engins/code/useCodeEnginRuntime.ts#useCodeEnginRuntime",
+      "kind": "call"
+    },
+    {
+      "source": "file:engins/engin.CodeEngin.tsx",
+      "target": "function:lib/engins/useEnginWorkflow.ts#useEnginWorkflow",
+      "kind": "call"
+    },
+    {
+      "source": "file:engins/engin.CodeEngin.tsx",
       "target": "function:hooks/useSharedDream.ts#useSharedDream",
       "kind": "call"
     },
     {
       "source": "file:engins/engin.CodeEngin.tsx",
       "target": "function:lib/runtime/useEnginCoopSync.ts#useEnginCoopSync",
+      "kind": "call"
+    },
+    {
+      "source": "file:engins/engin.CodeEngin.tsx",
+      "target": "file:engins/CodeEngin/core/parser.ts",
       "kind": "call"
     },
     {
@@ -87095,6 +89378,16 @@
     {
       "source": "file:engins/engin.ContentEngin.tsx",
       "target": "file:lib/dreamenginOS/index.ts",
+      "kind": "call"
+    },
+    {
+      "source": "file:engins/engin.ContentEngin.tsx",
+      "target": "function:lib/engins/content/useContentEnginRuntime.ts#useContentEnginRuntime",
+      "kind": "call"
+    },
+    {
+      "source": "file:engins/engin.ContentEngin.tsx",
+      "target": "function:lib/engins/useEnginWorkflow.ts#useEnginWorkflow",
       "kind": "call"
     },
     {
@@ -87414,6 +89707,16 @@
     },
     {
       "source": "file:engins/engin.LabEngin.tsx",
+      "target": "function:lib/engins/lab/useLabEnginRuntime.ts#useLabEnginRuntime",
+      "kind": "call"
+    },
+    {
+      "source": "file:engins/engin.LabEngin.tsx",
+      "target": "function:lib/engins/useEnginWorkflow.ts#useEnginWorkflow",
+      "kind": "call"
+    },
+    {
+      "source": "file:engins/engin.LabEngin.tsx",
       "target": "function:lib/supabase/client.ts#createClient",
       "kind": "call"
     },
@@ -87445,6 +89748,16 @@
     {
       "source": "file:engins/engin.StarMakerEngin.tsx",
       "target": "file:lib/dreamenginOS/index.ts",
+      "kind": "call"
+    },
+    {
+      "source": "file:engins/engin.StarMakerEngin.tsx",
+      "target": "function:lib/engins/music/useStarMakerEnginRuntime.ts#useStarMakerEnginRuntime",
+      "kind": "call"
+    },
+    {
+      "source": "file:engins/engin.StarMakerEngin.tsx",
+      "target": "function:lib/engins/useEnginWorkflow.ts#useEnginWorkflow",
       "kind": "call"
     },
     {
@@ -88288,6 +90601,51 @@
       "kind": "call"
     },
     {
+      "source": "file:lib/engins/brand/brandEnginRuleSet.ts",
+      "target": "function:lib/engin-runtime/EnginBaseState.ts#patchBaseState",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/engins/brand/useBrandEnginRuntime.ts",
+      "target": "class:lib/engin-runtime/EnginIOAdapter.ts#MemoryAdapter",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/engins/brand/useBrandEnginRuntime.ts",
+      "target": "class:lib/engin-runtime/EnginRuntime.ts#EnginRuntime",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/engins/code/codeEnginRuleSet.ts",
+      "target": "function:lib/engin-runtime/EnginBaseState.ts#patchBaseState",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/engins/code/useCodeEnginRuntime.ts",
+      "target": "class:lib/engin-runtime/EnginIOAdapter.ts#MemoryAdapter",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/engins/code/useCodeEnginRuntime.ts",
+      "target": "class:lib/engin-runtime/EnginRuntime.ts#EnginRuntime",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/engins/content/contentEnginRuleSet.ts",
+      "target": "function:lib/engin-runtime/EnginBaseState.ts#patchBaseState",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/engins/content/useContentEnginRuntime.ts",
+      "target": "class:lib/engin-runtime/EnginIOAdapter.ts#MemoryAdapter",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/engins/content/useContentEnginRuntime.ts",
+      "target": "class:lib/engin-runtime/EnginRuntime.ts#EnginRuntime",
+      "kind": "call"
+    },
+    {
       "source": "file:lib/engins/game/gameEnginRuleSet.ts",
       "target": "function:lib/engin-runtime/EnginBaseState.ts#patchBaseState",
       "kind": "call"
@@ -88299,6 +90657,36 @@
     },
     {
       "source": "file:lib/engins/game/useGameEnginRuntime.ts",
+      "target": "class:lib/engin-runtime/EnginRuntime.ts#EnginRuntime",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/engins/lab/labEnginRuleSet.ts",
+      "target": "function:lib/engin-runtime/EnginBaseState.ts#patchBaseState",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/engins/lab/useLabEnginRuntime.ts",
+      "target": "class:lib/engin-runtime/EnginIOAdapter.ts#MemoryAdapter",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/engins/lab/useLabEnginRuntime.ts",
+      "target": "class:lib/engin-runtime/EnginRuntime.ts#EnginRuntime",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/engins/music/starMakerEnginRuleSet.ts",
+      "target": "function:lib/engin-runtime/EnginBaseState.ts#patchBaseState",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/engins/music/useStarMakerEnginRuntime.ts",
+      "target": "class:lib/engin-runtime/EnginIOAdapter.ts#MemoryAdapter",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/engins/music/useStarMakerEnginRuntime.ts",
       "target": "class:lib/engin-runtime/EnginRuntime.ts#EnginRuntime",
       "kind": "call"
     },
@@ -88395,6 +90783,16 @@
     {
       "source": "file:lib/forge/useForgeBuild.ts",
       "target": "function:lib/forge/forgeBuild.ts#recordBuildToday",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/gameengin/GameRuntime.tsx",
+      "target": "function:lib/gameengin/cartridges/saveState.ts#createSaveAPI",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/gameengin/GameRuntime.tsx",
+      "target": "function:lib/gameengin/cartridges/achievementEngine.ts#createAchievementsAPI",
       "kind": "call"
     },
     {
@@ -88863,6 +91261,11 @@
       "kind": "call"
     },
     {
+      "source": "file:lib/reality/realityStore.ts",
+      "target": "file:lib/reality/types.ts",
+      "kind": "call"
+    },
+    {
       "source": "file:lib/renderer/Canvas2DRenderer.ts",
       "target": "class:lib/renderer/FrustumCuller.ts#FrustumCuller",
       "kind": "call"
@@ -89038,6 +91441,11 @@
       "kind": "call"
     },
     {
+      "source": "file:lib/sharedDream/useSharedDreamSession.ts",
+      "target": "function:lib/supabase/client.ts#createClient",
+      "kind": "call"
+    },
+    {
       "source": "file:lib/torridity.ts",
       "target": "function:lib/slog.ts#slog",
       "kind": "call"
@@ -89085,6 +91493,21 @@
     {
       "source": "file:lib/warp/useWarp.ts",
       "target": "class:lib/warp/warpEngine.ts#WarpEngine",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/web3/client.ts",
+      "target": "class:lib/web3/types.ts#Web3Error",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/web3/engagement.ts",
+      "target": "class:lib/web3/types.ts#Web3Error",
+      "kind": "call"
+    },
+    {
+      "source": "file:lib/web3/ipfs.ts",
+      "target": "class:lib/web3/types.ts#Web3Error",
       "kind": "call"
     },
     {
@@ -92933,6 +95356,11 @@
       "kind": "sql-reference"
     },
     {
+      "source": "file:app/api/agent/session/route.ts",
+      "target": "sql-table:supabase/migrations/20260516000000_agent_sessions_forge_rate_limits.sql#agent_sessions",
+      "kind": "sql-reference"
+    },
+    {
       "source": "file:app/api/ai/boogieman/child-safety/route.ts",
       "target": "sql-table:supabase/migrations/20260325100000_child_safety.sql#child_safety_hash_registry",
       "kind": "sql-reference"
@@ -93043,6 +95471,16 @@
       "kind": "sql-reference"
     },
     {
+      "source": "file:app/api/connectors/webhooks/[provider]/route.ts",
+      "target": "sql-table:supabase/migrations/20260319120000_connector_accounts_schema_reload.sql#connector_accounts",
+      "kind": "sql-reference"
+    },
+    {
+      "source": "file:app/api/connectors/webhooks/[provider]/route.ts",
+      "target": "sql-table:supabase/migrations/20260310000004_feed_items.sql#feed_items",
+      "kind": "sql-reference"
+    },
+    {
       "source": "file:app/api/connectors/youtube/oauth/callback/route.ts",
       "target": "sql-table:supabase/migrations/20260319120000_connector_accounts_schema_reload.sql#connector_accounts",
       "kind": "sql-reference"
@@ -93088,11 +95526,6 @@
       "kind": "sql-reference"
     },
     {
-      "source": "file:app/api/dreamr/feed/route.ts",
-      "target": "sql-table:supabase/migrations/20240120000000_initial_schema.sql#app_posts",
-      "kind": "sql-reference"
-    },
-    {
       "source": "file:app/api/dreamr/suggested/route.ts",
       "target": "sql-table:supabase/migrations/20240120000000_initial_schema.sql#follows",
       "kind": "sql-reference"
@@ -93100,6 +95533,11 @@
     {
       "source": "file:app/api/dreamr/suggested/route.ts",
       "target": "sql-table:supabase/migrations/20240120000000_initial_schema.sql#app_posts",
+      "kind": "sql-reference"
+    },
+    {
+      "source": "file:app/api/dreamr/tally/route.ts",
+      "target": "sql-table:supabase/migrations/20260516000100_dreamr_tally.sql#dreamr_tally",
       "kind": "sql-reference"
     },
     {
@@ -93378,6 +95816,36 @@
       "kind": "sql-reference"
     },
     {
+      "source": "file:app/api/shared-dream/sessions/[id]/route.ts",
+      "target": "sql-table:supabase/migrations/20260516000300_shared_dream_sessions.sql#shared_dream_members",
+      "kind": "sql-reference"
+    },
+    {
+      "source": "file:app/api/shared-dream/sessions/[id]/route.ts",
+      "target": "sql-table:supabase/migrations/20260516000300_shared_dream_sessions.sql#shared_dream_sessions",
+      "kind": "sql-reference"
+    },
+    {
+      "source": "file:app/api/shared-dream/sessions/[id]/route.ts",
+      "target": "sql-table:supabase/migrations/20260516000300_shared_dream_sessions.sql#shared_dream_activity",
+      "kind": "sql-reference"
+    },
+    {
+      "source": "file:app/api/shared-dream/sessions/route.ts",
+      "target": "sql-table:supabase/migrations/20260516000300_shared_dream_sessions.sql#shared_dream_sessions",
+      "kind": "sql-reference"
+    },
+    {
+      "source": "file:app/api/shared-dream/sessions/route.ts",
+      "target": "sql-table:supabase/migrations/20260516000300_shared_dream_sessions.sql#shared_dream_members",
+      "kind": "sql-reference"
+    },
+    {
+      "source": "file:app/api/shared-dream/sessions/route.ts",
+      "target": "sql-table:supabase/migrations/20260516000300_shared_dream_sessions.sql#shared_dream_activity",
+      "kind": "sql-reference"
+    },
+    {
       "source": "file:app/api/shellhub/devices/route.ts",
       "target": "sql-table:supabase/migrations/20260319120000_connector_accounts_schema_reload.sql#connector_accounts",
       "kind": "sql-reference"
@@ -93445,6 +95913,11 @@
     {
       "source": "file:app/discover/page.tsx",
       "target": "sql-table:supabase/schema-final.sql#profiles",
+      "kind": "sql-reference"
+    },
+    {
+      "source": "file:app/dreamdmbar/_components/dreamr/api/feedHandler.ts",
+      "target": "sql-table:supabase/migrations/20240120000000_initial_schema.sql#app_posts",
       "kind": "sql-reference"
     },
     {
@@ -93985,6 +96458,21 @@
     {
       "source": "file:lib/runtime/instanceManager.ts",
       "target": "sql-table:supabase/migrations/20260426000000_activity_coop_gameengin_completion.sql#engin_instances",
+      "kind": "sql-reference"
+    },
+    {
+      "source": "file:lib/sharedDream/useSharedDreamSession.ts",
+      "target": "sql-table:supabase/migrations/20260516000300_shared_dream_sessions.sql#shared_dream_sessions",
+      "kind": "sql-reference"
+    },
+    {
+      "source": "file:lib/sharedDream/useSharedDreamSession.ts",
+      "target": "sql-table:supabase/migrations/20260516000300_shared_dream_sessions.sql#shared_dream_members",
+      "kind": "sql-reference"
+    },
+    {
+      "source": "file:lib/sharedDream/useSharedDreamSession.ts",
+      "target": "sql-table:supabase/migrations/20260516000300_shared_dream_sessions.sql#shared_dream_activity",
       "kind": "sql-reference"
     },
     {

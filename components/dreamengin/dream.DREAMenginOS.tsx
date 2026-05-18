@@ -69,10 +69,10 @@ function dispatcherStatsEqual(a: DispatcherStats, b: DispatcherStats): boolean {
   if (a.microsecondsPerTick.length !== b.microsecondsPerTick.length) {
     return false;
   }
-  return a.microsecondsPerTick.every((value, index) => value === b.microsecondsPerTick[index]);
+  return a.microsecondsPerTick.every((value, index: number) => value === b.microsecondsPerTick[index]);
 }
 
-export default function DREAMenginOS({
+export default function DREAMenginOS(){
   audioSource,
   onReady,
   onSelectSubsystem,
@@ -200,7 +200,7 @@ export default function DREAMenginOS({
 
     const glow = new GlowLayer('OS_GLOW', scene);
 
-    highlightedFamilies.forEach((family, index) => {
+    highlightedFamilies.forEach((family, index: number) => {
       const angle = (index / highlightedFamilies.length) * Math.PI * 2;
       const radius = 5.5;
       const orb = MeshBuilder.CreateSphere(`dreamengin-family-${family.id}`, {
@@ -328,7 +328,7 @@ export default function DREAMenginOS({
 
   const handleImport = useCallback((payload: AssetImportPayload) => {
     setLastImportedAsset(payload);
-    setImportCount((count) => count + 1);
+    setImportCount((count: number ) => count + 1);
   }, []);
 
   const statusColor =
@@ -692,7 +692,7 @@ export default function DREAMenginOS({
           ) : null}
 
           <div style={{ display: 'grid', gap: 5 }}>
-            {predictions.map((pred, index) => (
+            {predictions.map((pred, index: number) => (
               <div
                 key={pred.subsystemId}
                 style={{

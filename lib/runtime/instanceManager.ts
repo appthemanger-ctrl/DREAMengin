@@ -164,11 +164,11 @@ export const useInstanceManager = create<InstanceManagerState>((set, get) => ({
   },
 
   getInstancesForEngin(enginName) {
-    return Object.values(get().instances).filter((i) => i.enginName === enginName);
+    return Object.values(get().instances).filter((i: number ) => i.enginName === enginName);
   },
 
   getInstancesForRegion(region) {
-    return Object.values(get().instances).filter((i) => i.region === region);
+    return Object.values(get().instances).filter((i: number ) => i.region === region);
   },
 
   promoteToCoOp(key, channel) {

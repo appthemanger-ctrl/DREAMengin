@@ -39,7 +39,7 @@ function loadPersisted(key: string, fallback: number, min?: number, max?: number
   return fallback;
 }
 
-function savePersisted(key: string, value: number) {
+function savePersisted(key: string, value): number {
   try { localStorage.setItem(key, String(value)); } catch { /* ignore */ }
 }
 
@@ -54,7 +54,7 @@ interface MobileGameHUDProps {
 const ZERO_VECTOR: MobileControlVector = { x: 0, y: 0 };
 type TouchPoint = { clientX: number; clientY: number };
 
-function getStickTransform(vector: MobileControlVector) {
+function getStickTransform(vector: MobileControlVector ){
   return `translate(calc(-50% + ${vector.x * 50}%), calc(-50% + ${vector.y * 50}%))`;
 }
 
@@ -65,7 +65,7 @@ function keepPreviousVectorIfUnchanged(
   return previous.x === next.x && previous.y === next.y ? previous : next;
 }
 
-function formatVectorLabel(vector: MobileControlVector, idleLabel: string) {
+function formatVectorLabel(vector: MobileControlVector, idleLabel): string {
   const magnitude = Math.hypot(vector.x, vector.y);
   if (magnitude < 0.08) return idleLabel;
   const x = vector.x > 0.18 ? 'R' : vector.x < -0.18 ? 'L' : '•';
@@ -503,7 +503,7 @@ export default function MobileGameHUD({ gameLabel, gameEmoji, mode, onExit }: Mo
             dragStartRef.current = null;
             markTouchEnd();
             // If pointer barely moved, treat as a tap → toggle size control
-            if (moved < 6) setSizeControlHidden((v) => !v);
+            if (moved < 6) setSizeControlHidden((v: number ) => !v);
           }}
           onPointerCancel={handleDragEnd}
           title="Drag to reposition · Tap to show/hide size controls"

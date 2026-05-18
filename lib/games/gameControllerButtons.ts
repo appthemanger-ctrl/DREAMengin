@@ -66,7 +66,7 @@ export interface ButtonInteractionEvent {
   interaction: ButtonInteraction;
 }
 
-function emitWindowEvent(button: ControllerButton, interaction: ButtonInteraction) {
+function emitWindowEvent(button: ControllerButton, interaction): ButtonInteraction {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(
     new CustomEvent<ButtonInteractionEvent>('de-ctrl-button', {

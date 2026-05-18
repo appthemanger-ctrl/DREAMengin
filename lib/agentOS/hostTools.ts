@@ -58,7 +58,7 @@ export const codeEnginHostTools = {
     const fullPath = path.resolve(getProjectRoot(), relativePath);
     try {
       const entries = await readdir(fullPath, { withFileTypes: true });
-      return entries.map(entry => ({
+      return entries.map((entry) => ({
         name: entry.name,
         type: entry.isDirectory() ? 'directory' : 'file',
         path: path.join(relativePath, entry.name),

@@ -279,7 +279,7 @@ export function buildChildContentFilter(childSafetyMode: boolean): ChildContentF
    1) MAX ASSUMPTION BOOT
    Start above normal. Downgrade late.
    ========================================================= */
-export function maxAssumptionBoot(device: DeviceSignals) {
+export function maxAssumptionBoot(device: DeviceSignals ){
   const veryHighDensity = device.dpr >= 3;
   const largeCanvas = Math.max(device.width, device.height) >= 900;
   const highRefresh = (device.refreshRate ?? 60) >= 90;
@@ -301,7 +301,7 @@ export function maxAssumptionBoot(device: DeviceSignals) {
    2) FRAME PRESSURE SHIELD
    Protects the premium feel without flattening the system.
    ========================================================= */
-export function framePressureShield(runtime: RuntimeMetrics) {
+export function framePressureShield(runtime: RuntimeMetrics ){
   const mild   = runtime.avgFrameMs > 15.8 || runtime.droppedFrameRatio > 0.05;
   const medium = runtime.avgFrameMs > 18   || runtime.droppedFrameRatio > 0.09;
   const severe = runtime.avgFrameMs > 21   || runtime.droppedFrameRatio > 0.15;
@@ -666,7 +666,7 @@ export function uiPrioritySolver(
   });
 
   scored.sort((a, b) => b.prominence - a.prominence);
-  return scored.map((item, index) => ({ ...item, priorityRank: index + 1 }));
+  return scored.map((item, index: number) => ({ ...item, priorityRank: index + 1 }));
 }
 
 /* =========================================================
@@ -868,7 +868,7 @@ export function applyGodTierToBabylon(
 /* =========================================================
    UI TOKEN OUTPUT
    ========================================================= */
-export function getGodTierUiTokens(state: GodTierState) {
+export function getGodTierUiTokens(state: GodTierState ){
   return {
     classes: [
       'god-tier-ui',
@@ -959,7 +959,7 @@ export function defaultUXSignals(): UXSignals {
   };
 }
 
-export function defaultRouteSignals(route = '/'): RouteSignals {
+export function defaultRouteSignals(route: string = '/'): RouteSignals {
   return {
     route,
     activeTask: 'browse',

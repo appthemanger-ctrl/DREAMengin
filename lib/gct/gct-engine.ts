@@ -35,7 +35,7 @@ export class GCTEngine {
   private config: Required<GCTConfig>;
   private gpuAvailable = false;
    
-  private device: any = null;
+  private device: unknown = null;
 
   constructor(config: GCTConfig = {}) {
     this.config = {

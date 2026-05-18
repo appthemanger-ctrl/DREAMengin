@@ -67,7 +67,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // Upsert is idempotent: the same (content, sharer, viewer) triple only
     // ever writes one row. Re-publishing the same content just refreshes
     // tallied_at which is acceptable and keeps the table from bloating.
-    const db = supabase as any;
+    const db = supabase as SupabaseClient;
     const { error: upsertErr } = await db
       .from('dreamr_tally')
       .upsert(

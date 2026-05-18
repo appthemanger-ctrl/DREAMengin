@@ -153,12 +153,12 @@ export function speakWithBrowserTTS(
 
     if (voiceName) {
       const voices = window.speechSynthesis.getVoices();
-      const match = voices.find(v => v.name.toLowerCase().includes(voiceName.toLowerCase()));
+      const match = voices.find((v) => v.name.toLowerCase().includes(voiceName.toLowerCase()));
       if (match) utterance.voice = match;
     }
 
     utterance.onend = () => resolve();
-    utterance.onerror = (e) => reject(new Error(`Speech synthesis error: ${e.error}`));
+    utterance.onerror = (e: unknown ) => reject(new Error(`Speech synthesis error: ${e.error}`));
 
     window.speechSynthesis.cancel(); // cancel any ongoing speech
     window.speechSynthesis.speak(utterance);

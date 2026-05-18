@@ -157,7 +157,7 @@ export function scenesAreDifferent(
  *   // On unmount:
  *   autosave.flush();
  */
-export function createAutoSave(sceneId: string, intervalMs = 2000) {
+export function createAutoSave(sceneId: string, intervalMs = 2000 ){
   let lastSnapshot: SceneSnapshot | null = null;
   let pending: SceneSnapshot | null = null;
   let timer: ReturnType<typeof setTimeout> | null = null;

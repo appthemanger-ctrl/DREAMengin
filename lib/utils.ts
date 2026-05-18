@@ -1,11 +1,11 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-export function cn(...inputs: ClassValue[]) {
+export function cn(...inputs: ClassValue[] ){
   return twMerge(clsx(inputs))
 }
 
-export function formatDate(date: string | Date) {
+export function formatDate(date: string | Date ){
   return new Date(date).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
@@ -13,7 +13,7 @@ export function formatDate(date: string | Date) {
   })
 }
 
-export function formatRelativeTime(date: string | Date, options?: { compact?: boolean }) {
+export function formatRelativeTime(date: string | Date, options?): { compact?: boolean } {
   const now = new Date()
   const target = new Date(date)
   const diffMs = now.getTime() - target.getTime()
@@ -36,14 +36,14 @@ export function formatRelativeTime(date: string | Date, options?: { compact?: bo
   return formatDate(date)
 }
 
-export function generateDedupeHash(userId: string, source: string, externalId: string) {
+export function generateDedupeHash(userId: string, source: string, externalId): string {
   return `${userId}-${source}-${externalId}`
 }
 
 // ── Improvement 6: debounce ───────────────────────────────────────────────────
 
  
-type AnyFn = (...args: any[]) => void;
+type AnyFn = (...args: unknown[]) => void;
 
 /**
  * Returns a debounced version of `fn` that fires only after `delayMs` ms of
@@ -56,9 +56,9 @@ export function debounce<T extends AnyFn>(
 ): T & { cancel: () => void; flush: (...args: Parameters<T>) => void } {
   let timer: ReturnType<typeof setTimeout> | null = null
    
-  let pendingArgs: any[] | null = null
+  let pendingArgs: unknown[] | null = null
 
-  function debounced(...args: Parameters<T>) {
+  function debounced(...args: Parameters<T> ){
     pendingArgs = args
     if (timer !== null) clearTimeout(timer)
     timer = setTimeout(() => {
@@ -96,7 +96,7 @@ export function throttle<T extends AnyFn>(
   let lastCallAt = 0
   let timer: ReturnType<typeof setTimeout> | null = null
 
-  function throttled(...args: Parameters<T>) {
+  function throttled(...args: Parameters<T> ){
     const now = Date.now()
     const remaining = intervalMs - (now - lastCallAt)
     if (timer !== null) clearTimeout(timer)

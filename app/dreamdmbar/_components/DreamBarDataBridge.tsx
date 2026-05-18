@@ -37,7 +37,7 @@ export default function DreamBarDataBridge({
 }: {
   userId: string;
   profile: ProfileLike | null;
-  initialPosts: any[];
+  initialPosts: unknown[];
   isAdmin?: boolean;
 }) {
   const dualRuntime = useDualRuntime();

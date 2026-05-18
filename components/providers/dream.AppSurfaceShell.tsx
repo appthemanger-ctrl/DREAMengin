@@ -12,7 +12,7 @@ import GlobalOverlays from '@/components/dream.GlobalOverlays';
 import { OSProvider } from '@/lib/dreamenginOS/OSContext';
 import { isPublicSurfacePath } from '@/lib/routing/surfaces';
 
-export default function AppSurfaceShell({ children }: { children: React.ReactNode }) {
+export default function AppSurfaceShell({ children }: {children: React.ReactNode}) {
   const [pathname, setPathname] = useState<string | null>(null);
 
   useEffect(() => {

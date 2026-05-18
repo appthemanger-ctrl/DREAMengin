@@ -56,7 +56,7 @@ export function hasPrintableContent(buffer) {
   return /[^\r\n]/.test(text);
 }
 
-export async function collectExportableFiles(rootDir, options = {}) {
+export async function collectExportableFiles(rootDir, options = ){}) {
   const excludedDirs = options.excludedDirs ?? DEFAULT_EXCLUDED_DIRS;
   const excludedBasenames = options.excludedBasenames ?? DEFAULT_EXCLUDED_BASENAMES;
   const files = [];
@@ -91,7 +91,7 @@ export async function collectExportableFiles(rootDir, options = {}) {
   return files;
 }
 
-export async function exportFullCodeSnapshot({
+export async function exportFullCodeSnapshot(){
   rootDir = path.resolve(__dirname, '..'),
   outputFile = path.join(path.resolve(__dirname, '..'), 'DREAMengin-full-code.txt'),
 } = {}) {

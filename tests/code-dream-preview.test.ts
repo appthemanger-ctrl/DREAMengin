@@ -29,7 +29,7 @@ const ENGINE_CONNECTIONS = [
 type EngineId = (typeof ENGINE_CONNECTIONS)[number]['id'];
 
 function getEngineById(id: EngineId) {
-  return ENGINE_CONNECTIONS.find(e => e.id === id) ?? null;
+  return ENGINE_CONNECTIONS.find((e) => e.id === id) ?? null;
 }
 
 describe('ENGINE_CONNECTIONS', () => {
@@ -226,16 +226,16 @@ describe('parseCodeResponse (preview panel)', () => {
 describe('matchCodeVocabulary (preview/game context)', () => {
   it('matches "shader" for graphics queries', () => {
     const results = matchCodeVocabulary('how do I write a shader for the game engine?');
-    expect(results.some(r => r.term === 'shader')).toBe(true);
+    expect(results.some((r) => r.term === 'shader')).toBe(true);
   });
 
   it('matches "physics" for simulation queries', () => {
     const results = matchCodeVocabulary('how does physics simulation work?');
-    expect(results.some(r => r.term === 'physics')).toBe(true);
+    expect(results.some((r) => r.term === 'physics')).toBe(true);
   });
 
   it('matches "neural network" for ML queries', () => {
     const results = matchCodeVocabulary('explain neural network architecture');
-    expect(results.some(r => r.term === 'neural network')).toBe(true);
+    expect(results.some((r) => r.term === 'neural network')).toBe(true);
   });
 });

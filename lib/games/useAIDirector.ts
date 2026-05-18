@@ -64,7 +64,7 @@ export function useAIDirector(): AIDirectorHookResult {
     const next = directorRef.current.update(signals);
     // Only trigger a React re-render when the label or skill tier changes
     // (level changes every frame — we don't want to re-render every frame)
-    setState(prev => {
+    setState((prev) => {
       if (prev.label !== next.label || prev.skillTier !== next.skillTier) {
         return next;
       }

@@ -80,8 +80,8 @@ const RIGHT_SWIPE_SCROLL_BUFFER_CARDS = 2;
 const REDISTRIBUTION_EXPLANATION =
   'this card is recycled to someone more likely to swipe up or left before it earns a real view.';
 
-function nmR(s = 5) { return `${-s}px ${-s}px ${s*2.4}px ${DR.shadowLight}, ${s}px ${s}px ${s*2.8}px ${DR.shadowDark}`; }
-function nmI(s = 4) { return `inset ${-s}px ${-s}px ${s*2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s*2.4}px ${DR.shadowDark}`; }
+function nmR(s = 5 ){ return `${-s}px ${-s}px ${s*2.4}px ${DR.shadowLight}, ${s}px ${s}px ${s*2.8}px ${DR.shadowDark}`; }
+function nmI(s = 4 ){ return `inset ${-s}px ${-s}px ${s*2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s*2.4}px ${DR.shadowDark}`; }
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -123,8 +123,8 @@ function fmtViews(n: number): string {
   return String(n);
 }
 
-function isImage(u?: string | null) { return !!u && /\.(jpe?g|png|gif|webp|avif|svg)(\?|$)/i.test(u); }
-function isYouTube(post: FeedPost) { return post.provider === 'youtube' || !!(post.permalink?.includes('youtu')); }
+function isImage(u?: string | null ){ return !!u && /\.(jpe?g|png|gif|webp|avif|svg)(\?|$)/i.test(u); }
+function isYouTube(post: FeedPost ){ return post.provider === 'youtube' || !!(post.permalink?.includes('youtu')); }
 
 function redistributionMessage(creator: string, type: string): string {
   return `Showing you less ${type} from ${creator}; ${REDISTRIBUTION_EXPLANATION}`;
@@ -528,7 +528,7 @@ function PostCard({ post, isActive, onSwipeLeft, onSwipeRight, onLike, liked, sa
             {cleanCaption.length > CAPTION_LIMIT && (
               <button
                 type="button"
-                onClick={e => { e.stopPropagation(); setCaptionExpanded(x => !x); }}
+                onClick={e => { e.stopPropagation(); setCaptionExpanded((x) => !x); }}
                 style={{ marginTop: 4, background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', gap: 3, fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.60)', fontFamily: DR.font }}
               >
                 {captionExpanded ? <><ChevronUp size={11} /> less</> : <><ChevronDown size={11} /> more</>}
@@ -556,7 +556,7 @@ function PostCard({ post, isActive, onSwipeLeft, onSwipeRight, onLike, liked, sa
 
 // ── Suggested CONTENT card ────────────────────────────────────────────────────
 
-function SuggestedContentCard({ post, onSwipeLeft, onSwipeRight }: { post: FeedPost; onSwipeLeft: () => void; onSwipeRight: () => void }) {
+function SuggestedContentCard({ post, onSwipeLeft, onSwipeRight }: {post: FeedPost; onSwipeLeft: () => void; onSwipeRight: () => void}) {
   const touchStart = useRef<{ x: number; y: number; at: number } | null>(null);
   const caption = post.content?.slice(0, 120) ?? '';
 
@@ -633,7 +633,7 @@ function SuggestedContentCard({ post, onSwipeLeft, onSwipeRight }: { post: FeedP
 
 // ── Suggested CREATOR card ────────────────────────────────────────────────────
 
-function SuggestedCreatorCard({ creator }: { creator: SuggestedCreator }) {
+function SuggestedCreatorCard({ creator }: {creator: SuggestedCreator}) {
   const [following, setFollowing] = useState(false);
 
   const handleFollow = async () => {
@@ -710,7 +710,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   // DREAMR_TOPICS is a module-level constant so it is always non-empty; the
   // non-null assertion on the fallback is safe by construction.
   const [activeTopic,   setActiveTopic] = useState<(typeof DREAMR_TOPICS)[number]>(
-    DREAMR_TOPICS.find(t => t.query) ?? DREAMR_TOPICS[0]!,
+    DREAMR_TOPICS.find((t) => t.query) ?? DREAMR_TOPICS[0]!,
   );
   const [ytTopicPosts,  setYtTopicPosts] = useState<FeedPost[]>([]);
   const [ytLoading,     setYtLoading]   = useState(false);
@@ -731,8 +731,8 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   useEffect(() => {
     if (!userId) return;
     fetch('/api/dreamr/feed?limit=20')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
         if (d?.posts?.length) { setPosts(d.posts); offsetRef.current = d.posts.length; }
       })
       .catch(() => {});
@@ -742,16 +742,16 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   useEffect(() => {
     if (!userId) return;
     fetch('/api/dreamr/suggested?type=content&limit=4')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.suggestions) setSugContent(d.suggestions); })
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d?.suggestions) setSugContent(d.suggestions); })
       .catch(() => {});
   }, [userId]);
 
   useEffect(() => {
     if (!userId) return;
     fetch('/api/dreamr/suggested?type=creators&limit=3')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => { if (d?.suggestions) setSugCreators(d.suggestions); })
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => { if (d?.suggestions) setSugCreators(d.suggestions); })
       .catch(() => {});
   }, [userId]);
 
@@ -795,11 +795,11 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
     setIsLive(true);
     const interval = setInterval(() => {
       fetch('/api/dreamr/feed?limit=5')
-        .then(r => r.ok ? r.json() : null)
-        .then(d => {
+        .then((r) => r.ok ? r.json() : null)
+        .then((d) => {
           if (!d?.posts?.length) return;
           const currentIds = new Set(posts.map((p: FeedPost) => p.id));
-          const fresh = (d.posts as FeedPost[]).filter(p => !currentIds.has(p.id));
+          const fresh = (d.posts as FeedPost[]).filter((p) => !currentIds.has(p.id));
           if (fresh.length > 0) { pendingRef.current = fresh; setNewCount(fresh.length); }
         })
         .catch(() => {});
@@ -809,7 +809,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
 
   const flushNew = useCallback(() => {
     if (pendingRef.current.length > 0) {
-      setPosts(prev => [...pendingRef.current, ...prev]);
+      setPosts((prev) => [...pendingRef.current, ...prev]);
       pendingRef.current = [];
       setNewCount(0);
       scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
@@ -821,11 +821,11 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
     if (loadingMore || !hasMore || !userId) return;
     setLoadingMore(true);
     fetch(`/api/dreamr/feed?limit=20&offset=${offsetRef.current}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
         if (d?.posts?.length) {
-          setPosts(prev => {
-            const existingIds = new Set(prev.map(p => p.id));
+          setPosts((prev) => {
+            const existingIds = new Set(prev.map((p) => p.id));
             const fresh = (d.posts as FeedPost[]).filter((p: FeedPost) => !existingIds.has(p.id));
             offsetRef.current += fresh.length;
             return [...prev, ...fresh];
@@ -877,7 +877,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   }, [posts, ytTopicPosts, sugContent, sugCreators]);
 
   const personalizedFeedItems = useMemo((): FeedItem[] => (
-    personalizeFeedOrder(feedItems, swipePrefs, item => item.kind === 'creator' ? null : item.post)
+    personalizeFeedOrder((feedItems, swipePrefs, item) => item.kind === 'creator' ? null : item.post)
   ), [feedItems, swipePrefs]);
 
   const handleScroll = useCallback(() => {
@@ -941,13 +941,13 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
 
   const handleLike = useCallback(async (id: string) => {
     const wasLiked = likedPosts.has(id);
-    setLikedPosts(prev => { const n = new Set(prev); wasLiked ? n.delete(id) : n.add(id); return n; });
+    setLikedPosts((prev) => { const n = new Set(prev); wasLiked ? n.delete(id) : n.add(id); return n; });
     try { await fetch('/api/likes', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ content_type: 'post', content_id: id }) }); }
     catch { /* non-critical */ }
   }, [likedPosts]);
 
   const handleSave = useCallback((id: string) => {
-    setSavedPosts(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
+    setSavedPosts((prev) => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n; });
   }, []);
 
   const handleShare = useCallback(async (id: string) => {
@@ -974,7 +974,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
 
   // ── Swipe-left routing ─────────────────────────────────────────────────
   const handleSwipeLeft = useCallback((post: FeedPost) => {
-    setSwipePrefs(prev => nextSwipePreferences(prev, post, 'more'));
+    setSwipePrefs((prev) => nextSwipePreferences(prev, post, 'more'));
     setRedistributionNotice(null);
     recordDreamRView(post, 'left');
     if (isYouTube(post)) {
@@ -987,7 +987,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   }, [recordDreamRView, setFocus]);
 
   const handleSwipeRight = useCallback((post: FeedPost) => {
-    setSwipePrefs(prev => nextSwipePreferences(prev, post, 'less'));
+    setSwipePrefs((prev) => nextSwipePreferences(prev, post, 'less'));
     const creator = post.profiles?.display_name ?? post.profiles?.handle ?? 'this creator';
     const type = contentTypePreferenceKey(post);
     setRedistributionNotice(redistributionMessage(creator, type));
@@ -1017,7 +1017,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
               Discover creators
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {sugCreators.slice(0, 3).map(c => (
+              {sugCreators.slice(0, 3).map((c) => (
                 <div key={c.id} style={{ background: DR.bg, borderRadius: 16, boxShadow: nmR(5), padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10 }}>
                   {c.avatar_url ? (
                     <Image src={c.avatar_url} alt="" width={45} height={45} style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
@@ -1058,7 +1058,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
             pointerEvents: 'auto',
           }}
         >
-          {DREAMR_TOPICS.map(topic => {
+          {DREAMR_TOPICS.map((topic) => {
             const active = activeTopic.id === topic.id;
             return (
               <button
@@ -1141,7 +1141,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
         {/* Spacer for topic strip */}
         <div style={{ height: 54, flexShrink: 0, scrollSnapAlign: 'none' }} />
 
-        {personalizedFeedItems.map((item, i) => (
+        {personalizedFeedItems.map((item, i: number) => (
           <div
             key={item.kind === 'creator' ? `creator-${item.creator.id}` : item.post.id}
             style={{ width: '100%', height: '100%', flexShrink: 0, scrollSnapAlign: 'start' }}

@@ -1,7 +1,7 @@
 import { createBrowserClient } from '@supabase/ssr'
 import { SUPABASE_CONFIG } from './config'
 
-export function createClient() {
+export function createClient( ){
   if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.anonKey) {
     const errorMsg = `Supabase is not configured. ${SUPABASE_CONFIG.setupHint}`
     const handler: ProxyHandler<object> = {

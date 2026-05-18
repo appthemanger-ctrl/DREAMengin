@@ -16,7 +16,7 @@ type Props = {
   initialAction?: DrEamsAction;
 };
 
-export default function DrEamsCanvas({
+export default function DrEamsCanvas(){
   width = 160,
   height = 200,
   className = '',

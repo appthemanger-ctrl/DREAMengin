@@ -129,7 +129,7 @@ export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps
 
   const addLog = (action: string, status: IdariLog['status'], details?: string) => {
     const timestamp = new Date();
-    setLogs(prev => [{ timestamp, action, status, details }, ...prev.slice(0, 49)]);
+    setLogs((prev) => [{ timestamp, action, status, details }, ...prev.slice(0, 49)]);
     emitIdariEvent({
       type: 'idari:log',
       timestamp: timestamp.toISOString(),
@@ -339,7 +339,7 @@ export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps
                   No activity yet. Activate IDARi to start monitoring.
                 </p>
               ) : (
-                logs.map((log, idx) => (
+                logs.map((log, idx: number) => (
                   <div
                     key={idx}
                     className="flex items-start gap-2 p-2 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"

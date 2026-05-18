@@ -85,7 +85,7 @@ const ENGINES = [
   },
 ] as const;
 
-export default async function EnginesHubPage() {
+export default async function EnginesHubPage( ){
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

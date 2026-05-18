@@ -97,7 +97,7 @@ async function dispatchIntent(
       const order = Array.isArray(payload.order) ? payload.order as string[] : null;
       if (!order) return { executed: false, error: 'order array required for DREAM_REORDER' };
       await Promise.all(
-        order.map((id, idx) =>
+        order.map((id, idx: number) =>
           supabase
             .from('dream_instances')
             .update({ config: { position: idx } as Json })
@@ -150,7 +150,7 @@ async function dispatchIntent(
 // Route handler
 // ---------------------------------------------------------------------------
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const requestStart = Date.now();
 
   // Parse and validate request
@@ -217,7 +217,7 @@ export async function POST(req: NextRequest) {
 
   // Resolve the intents to dispatch: client sends full intent objects back
   // (intent_ids used for cross-reference / audit; intents used for dispatch)
-  const candidateIntents = request.intents?.filter(i => request.intent_ids.includes(i.intent_id)) ?? [];
+  const candidateIntents = request.intents?.filter((i) => request.intent_ids.includes(i.intent_id)) ?? [];
 
   if (candidateIntents.length === 0) {
     return jsonApiError(400, 'NO_INTENTS', 'No resolvable intents found. Please include the full intents array.');
@@ -237,7 +237,7 @@ export async function POST(req: NextRequest) {
     }),
   );
 
-  const allOk = results.every(r => r.executed);
+  const allOk = results.every((r) => r.executed);
 
   await writeAuditLog({
     request_id: request.request_id,
@@ -247,8 +247,8 @@ export async function POST(req: NextRequest) {
     latency_ms: Date.now() - requestStart,
     payload: {
       intent_count: safeIntents.length,
-      executed_count: results.filter(r => r.executed).length,
-      intent_types: safeIntents.map(i => i.type),
+      executed_count: results.filter((r) => r.executed).length,
+      intent_types: safeIntents.map((i) => i.type),
     },
   });
 

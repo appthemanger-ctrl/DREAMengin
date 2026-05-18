@@ -56,7 +56,7 @@ describe('CODE_VOCABULARY', () => {
   });
 
   it('covers all required categories', () => {
-    const cats = new Set(CODE_VOCABULARY.map(v => v.category));
+    const cats = new Set(CODE_VOCABULARY.map((v) => v.category));
     expect(cats.has('general')).toBe(true);
     expect(cats.has('oop')).toBe(true);
     expect(cats.has('ds')).toBe(true);
@@ -81,12 +81,12 @@ describe('matchCodeVocabulary', () => {
   it('matches a single known term', () => {
     const results = matchCodeVocabulary('what is a variable?');
     expect(results.length).toBeGreaterThan(0);
-    expect(results.some(r => r.term === 'variable')).toBe(true);
+    expect(results.some((r) => r.term === 'variable')).toBe(true);
   });
 
   it('matches multiple terms in one query', () => {
     const results = matchCodeVocabulary('explain recursion and dynamic programming');
-    const terms = results.map(r => r.term);
+    const terms = results.map((r) => r.term);
     expect(terms).toContain('recursion');
     expect(terms).toContain('dynamic programming');
   });

@@ -1,7 +1,7 @@
 // SURFACE: dream.overlay.RootNotFound  (framework-mandated basename: not-found.tsx)
 import RootStatusScreen from '@/components/overlays/dream.RootStatusScreen';
 
-export default function NotFound() {
+export default function NotFound( ){
   return (
     <RootStatusScreen
       eyebrow="404"

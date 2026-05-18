@@ -226,7 +226,7 @@ async function _callAiWithRetry(
     } catch (err) {
       lastErr = err;
       if (attempt < maxAttempts) {
-        await new Promise((r) => setTimeout(r, baseDelayMs * Math.pow(2, attempt - 1)));
+        await new Promise((r: number ) => setTimeout(r, baseDelayMs * Math.pow(2, attempt - 1)));
       }
     }
   }
@@ -443,9 +443,9 @@ export function getLoopHealthSummary(iterations: readonly LoopIteration[]): Loop
   if (iterations.length === 0) {
     return { total: 0, resolved: 0, failed: 0, successRate: 0, avgDurationMs: 0, lastStatus: null };
   }
-  const resolved = iterations.filter((i) => i.status === 'resolved').length;
-  const failed = iterations.filter((i) => i.status === 'failed').length;
-  const durations = iterations.filter((i) => i.duration_ms !== undefined).map((i) => i.duration_ms!);
+  const resolved = iterations.filter((i: number ) => i.status === 'resolved').length;
+  const failed = iterations.filter((i: number ) => i.status === 'failed').length;
+  const durations = iterations.filter((i: number ) => i.duration_ms !== undefined).map((i: number ) => i.duration_ms!);
   const avgDurationMs = durations.length > 0
     ? durations.reduce((a, b) => a + b, 0) / durations.length
     : 0;

@@ -442,7 +442,7 @@ describe('buildEditPreview — word-in-file scope', () => {
       scope: 'word-in-file', target: 'name', replacement: 'username',
     });
     // Only cell-a has "name" (in the function signature)
-    const cellIds = new Set(preview.matches.map(m => m.cellId));
+    const cellIds = new Set(preview.matches.map((m) => m.cellId));
     expect(cellIds.has('cell-b')).toBe(false);
   });
 });
@@ -514,7 +514,7 @@ describe('applyMatchesForCell', () => {
   it('replaces multiple matches right-to-left without offset corruption', () => {
     const code = 'foo + foo + foo';
     // All occurrences of "foo" (word-in-file)
-    const matches = [...code.matchAll(/\bfoo\b/g)].map(m => ({
+    const matches = [...code.matchAll(/\bfoo\b/g)].map((m) => ({
       cellId: 'x', start: m.index!, end: m.index! + 3, matched: 'foo', lineNo: 1,
     }));
     const result = applyMatchesForCell(code, matches, 'bar');
@@ -536,8 +536,8 @@ describe('applyEdit', () => {
       scope: 'word-in-file', target: 'msg', replacement: 'message',
     });
     const { cells: updated } = applyEdit(CELLS, preview);
-    expect(updated.find(c => c.id === 'cell-a')!.code).toContain('message');
-    expect(updated.find(c => c.id === 'cell-b')!.code).toBe(CELL_B.code);
+    expect(updated.find((c) => c.id === 'cell-a')!.code).toContain('message');
+    expect(updated.find((c) => c.id === 'cell-b')!.code).toBe(CELL_B.code);
   });
 
   it('returns a valid undo snapshot with original code', () => {
@@ -546,7 +546,7 @@ describe('applyEdit', () => {
       scope: 'word-in-file', target: 'msg', replacement: 'message',
     });
     const { undo } = applyEdit(CELLS, preview);
-    expect(undo.cells.find(c => c.id === 'cell-a')!.code).toBe(CELL_A.code);
+    expect(undo.cells.find((c) => c.id === 'cell-a')!.code).toBe(CELL_A.code);
     expect(undo.description).toContain('Undo');
   });
 
@@ -570,17 +570,17 @@ describe('undoEdit', () => {
     });
     const { cells: updated, undo } = applyEdit(CELLS, preview);
     // Verify the change was applied
-    expect(updated.find(c => c.id === 'cell-a')!.code).toContain('message');
+    expect(updated.find((c) => c.id === 'cell-a')!.code).toContain('message');
     // Undo it
     const restored = undoEdit(updated, undo);
-    expect(restored.find(c => c.id === 'cell-a')!.code).toBe(CELL_A.code);
+    expect(restored.find((c) => c.id === 'cell-a')!.code).toBe(CELL_A.code);
   });
 
   it('does not affect cells that were not in the snapshot', () => {
     const snapshot = { cells: [{ id: 'cell-a', code: 'original' }], description: 'test' };
     // cell-b is not in the snapshot → should be unchanged
     const result = undoEdit(CELLS, snapshot);
-    expect(result.find(c => c.id === 'cell-b')!.code).toBe(CELL_B.code);
+    expect(result.find((c) => c.id === 'cell-b')!.code).toBe(CELL_B.code);
   });
 });
 
@@ -589,7 +589,7 @@ describe('undoEdit', () => {
 describe('generateDiffLines', () => {
   it('returns only context lines when before === after', () => {
     const lines = generateDiffLines('abc\ndef', 'abc\ndef');
-    const changed = lines.filter(l => l.type !== 'context');
+    const changed = lines.filter((l) => l.type !== 'context');
     expect(changed).toHaveLength(0);
   });
 
@@ -597,21 +597,21 @@ describe('generateDiffLines', () => {
     const before = 'line1\nline2\nline3';
     const after  = 'line1\nLINE2\nline3';
     const lines = generateDiffLines(before, after);
-    expect(lines.some(l => l.type === 'removed' && l.content === 'line2')).toBe(true);
-    expect(lines.some(l => l.type === 'added'   && l.content === 'LINE2')).toBe(true);
+    expect(lines.some((l) => l.type === 'removed' && l.content === 'line2')).toBe(true);
+    expect(lines.some((l) => l.type === 'added'   && l.content === 'LINE2')).toBe(true);
   });
 
   it('handles entirely different content', () => {
     const lines = generateDiffLines('foo', 'bar');
-    expect(lines.some(l => l.type === 'removed')).toBe(true);
-    expect(lines.some(l => l.type === 'added')).toBe(true);
+    expect(lines.some((l) => l.type === 'removed')).toBe(true);
+    expect(lines.some((l) => l.type === 'added')).toBe(true);
   });
 
   it('returns an empty array when both inputs are empty strings', () => {
     // empty.split('\n') = [''] — one empty context line; trimContextLines reduces to minimal context
     const lines = generateDiffLines('', '');
     // No changed lines means this is all context — may be [] or a single empty-context line
-    const changed = lines.filter(l => l.type !== 'context');
+    const changed = lines.filter((l) => l.type !== 'context');
     expect(changed).toHaveLength(0);
   });
 });

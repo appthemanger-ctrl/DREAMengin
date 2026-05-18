@@ -426,21 +426,21 @@ describe('filter logic', () => {
   ];
 
   it('category filter narrows to single type', () => {
-    const filtered = entries.filter(e => e.object_type === 'game_asset');
+    const filtered = entries.filter((e) => e.object_type === 'game_asset');
     expect(filtered).toHaveLength(2);
-    expect(filtered.every(e => e.object_type === 'game_asset')).toBe(true);
+    expect(filtered.every((e) => e.object_type === 'game_asset')).toBe(true);
   });
 
   it('search filter matches label (case-insensitive)', () => {
     const q = 'mech';
-    const filtered = entries.filter(e => e.label.toLowerCase().includes(q));
+    const filtered = entries.filter((e) => e.label.toLowerCase().includes(q));
     expect(filtered).toHaveLength(1);
     expect(filtered[0].label).toBe('Mech Bot');
   });
 
   it('search filter matches object_type', () => {
     const q = 'music';
-    const filtered = entries.filter(e =>
+    const filtered = entries.filter((e) =>
       e.label.toLowerCase().includes(q) ||
       e.object_type.toLowerCase().includes(q)
     );
@@ -450,7 +450,7 @@ describe('filter logic', () => {
 
   it('search filter matches internal_id', () => {
     const q = 'c';
-    const filtered = entries.filter(e =>
+    const filtered = entries.filter((e) =>
       e.label.toLowerCase().includes(q) ||
       e.object_type.toLowerCase().includes(q) ||
       e.internal_id.toLowerCase().includes(q)
@@ -462,7 +462,7 @@ describe('filter logic', () => {
   it('empty search returns all entries', () => {
     const q = '';
     const filtered = q.trim()
-      ? entries.filter(e => e.label.toLowerCase().includes(q))
+      ? entries.filter((e) => e.label.toLowerCase().includes(q))
       : entries;
     expect(filtered).toHaveLength(4);
   });
@@ -471,8 +471,8 @@ describe('filter logic', () => {
     const category = 'game_asset';
     const q = 'drone';
     const filtered = entries
-      .filter(e => e.object_type === category)
-      .filter(e => e.label.toLowerCase().includes(q));
+      .filter((e) => e.object_type === category)
+      .filter((e) => e.label.toLowerCase().includes(q));
     expect(filtered).toHaveLength(1);
     expect(filtered[0].label).toBe('Drone Ship');
   });
@@ -495,7 +495,7 @@ describe('stats computation', () => {
       { id: '2', object_type: 'game_asset', internal_id: 'b', label: 'B', owner_id: 'u1', created_at: '2026-04-01T00:00:00Z' },
       { id: '3', object_type: 'game_asset', internal_id: 'c', label: 'C', owner_id: 'u1', created_at: '2026-04-01T00:00:00Z' },
     ];
-    const gameAssets = entries.filter(e => e.object_type === 'game_asset');
+    const gameAssets = entries.filter((e) => e.object_type === 'game_asset');
     expect(gameAssets).toHaveLength(2);
   });
 
@@ -508,7 +508,7 @@ describe('stats computation', () => {
       },
       { id: '2', object_type: 'game_asset', internal_id: 'b', label: 'B', owner_id: 'u1', created_at: '2026-04-01T00:00:00Z', bindings: [] },
     ];
-    const withBindings = entries.filter(e => e.bindings && e.bindings.length > 0);
+    const withBindings = entries.filter((e) => e.bindings && e.bindings.length > 0);
     expect(withBindings).toHaveLength(1);
   });
 
@@ -519,7 +519,7 @@ describe('stats computation', () => {
       { id: '3', object_type: 'game_asset', internal_id: 'c', label: 'C', owner_id: 'u1', created_at: '' },
       { id: '4', object_type: 'music', internal_id: 'd', label: 'D', owner_id: 'u1', created_at: '' },
     ];
-    const types = new Set(entries.map(e => e.object_type));
+    const types = new Set(entries.map((e) => e.object_type));
     expect(types.size).toBe(3);
   });
 });

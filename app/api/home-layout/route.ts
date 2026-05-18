@@ -40,7 +40,7 @@ function isValidSlot(s: unknown): s is LayoutSlot {
   return typeof obj.id === 'string' && typeof obj.type === 'string' && typeof obj.position === 'number';
 }
 
-export async function GET() {
+export async function GET( ){
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -58,11 +58,11 @@ export async function GET() {
   }
 
    
-  const layout = ((data as any)?.home_layout as HomeLayout | null) ?? { slots: [] };
+  const layout = ((data as Record<string, unknown>)?.home_layout as HomeLayout | null) ?? { slots: [] };
   return NextResponse.json({ ok: true, layout });
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
   const layout: HomeLayout = { slots };
 
    
-  const { error: updateError } = await (supabase as any)
+  const { error: updateError } = await (supabase as SupabaseClient)
     .from('profiles')
     .update({ home_layout: layout })
     .eq('id', user.id);

@@ -81,7 +81,7 @@ function Toggle({
   );
 }
 
-export default function PrivacyClient() {
+export default function PrivacyClient( ){
   const [settings, setSettings] = useState<PrivacySettings>(DEFAULT_SETTINGS);
   const [saved, setSaved] = useState(false);
   const [appealReason, setAppealReason] = useState('');
@@ -99,7 +99,7 @@ export default function PrivacyClient() {
   // Load block list
   useEffect(() => {
     fetch('/api/blocks')
-      .then(r => r.json())
+      .then((r) => r.json())
       .then((d: { blocks?: BlockEntry[] }) => { if (d.blocks) setBlocks(d.blocks); })
       .catch(() => {});
   }, []);
@@ -117,13 +117,13 @@ export default function PrivacyClient() {
       });
       const data = await res.json() as { ok?: boolean; message?: string; block?: BlockEntry };
       if (!res.ok) { setBlockError(data.message ?? 'Failed to block user.'); }
-      else if (data.block) { setBlocks(prev => [data.block!, ...prev]); setBlockInput(''); }
+      else if (data.block) { setBlocks((prev) => [data.block!, ...prev]); setBlockInput(''); }
     } catch { setBlockError('Network error — please try again.'); }
     finally { setBlockLoading(false); }
   };
 
   const handleUnblock = async (blocked_id: string) => {
-    setBlocks(prev => prev.filter(b => b.blocked_id !== blocked_id));
+    setBlocks((prev) => prev.filter((b) => b.blocked_id !== blocked_id));
     await fetch(`/api/blocks?blocked_id=${blocked_id}`, { method: 'DELETE' }).catch(() => {});
   };
 
@@ -140,7 +140,7 @@ export default function PrivacyClient() {
 
     // Then fetch the real stored settings from Supabase
     fetch('/api/settings/privacy')
-      .then((r) => r.json())
+      .then((r: number ) => r.json())
       .then((data: { ok: boolean; privacy: Partial<PrivacySettings> | null }) => {
         if (data.ok && data.privacy) {
           setSettings((prev) => ({ ...prev, ...data.privacy }));
@@ -299,7 +299,7 @@ export default function PrivacyClient() {
                 No blocked users.
               </p>
             ) : (
-              blocks.map(b => (
+              blocks.map((b) => (
                 <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0', borderBottom: '1px solid rgba(160,195,240,0.1)' }}>
                   <UserX className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#dc4444', opacity: 0.6 }} />
                   <span style={{ flex: 1, fontSize: 11, color: 'var(--de-text-dim)', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

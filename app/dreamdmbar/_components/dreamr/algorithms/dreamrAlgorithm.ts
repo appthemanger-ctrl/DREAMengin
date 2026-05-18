@@ -91,7 +91,7 @@ export const DREAMR_WEIGHTS: Record<keyof DreamRSignals, number> = {
  * Soft-caps so novellas don't dominate over precise, spare writing.
  */
 export function scoreContentDepth(content: string): number {
-  const words = content.trim().split(/\s+/).filter(w => w.length > 1).length;
+  const words = content.trim().split(/\s+/).filter((w) => w.length > 1).length;
   if (words === 0) return 0;
   // Logarithmic growth capped at 1.0
   const raw = Math.log(words + 1) / Math.log(300);
@@ -140,7 +140,7 @@ export function scoreDreamenginMade(
 export function scoreTextRichness(content: string): number {
   if (!content.trim()) return 0;
   const tokens = content.trim().split(/\s+/);
-  const realWords = tokens.filter(t =>
+  const realWords = tokens.filter((t) =>
     t.length >= 4 &&
     !t.startsWith('#') &&
     !t.startsWith('@') &&
@@ -309,7 +309,7 @@ export function scoreDreamRPost(post: ScoredPost): {
  */
 export function rankFeed(posts: ScoredPost[]): ScoredPost[] {
   // First pass — compute raw scores
-  const scored = posts.map(p => {
+  const scored = posts.map((p) => {
     const {
       score,
       signals,
@@ -340,7 +340,7 @@ export function rankFeed(posts: ScoredPost[]): ScoredPost[] {
 
   for (const post of scored) {
     const handle = post.profiles?.handle ?? '';
-    const repetitionCount = recentHandles.filter(h => h === handle).length;
+    const repetitionCount = recentHandles.filter((h) => h === handle).length;
     // If this creator appeared in the last 2 slots, push it down with a penalty
     if (repetitionCount > 0) {
       post.dreamr_score = (post.dreamr_score ?? 0) * (1 - 0.25 * repetitionCount);

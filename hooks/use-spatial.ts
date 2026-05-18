@@ -87,7 +87,7 @@ const fetcher = async (key: string) => {
 /**
  * Hook for managing spatial navigation state
  */
-export function useSpatialNavigation(initialSpace: SpaceType = "home") {
+export function useSpatialNavigation(initialSpace: SpaceType = "home" ){
   const [navigation, setNavigation] = useState<NavigationState>({
     space: initialSpace,
     currentIndex: 0,
@@ -152,7 +152,7 @@ export function useSpatialNavigation(initialSpace: SpaceType = "home") {
 /**
  * Hook for managing widgets
  */
-export function useWidgets(userId: string, space?: SpaceType) {
+export function useWidgets(userId: string, space?): SpaceType {
   const key = space ? `widgets/${userId}/${space}` : `widgets/${userId}`;
   const { data: widgets, error, isLoading } = useSWR<Widget[]>(key, fetcher);
 
@@ -213,7 +213,7 @@ export function useWidgets(userId: string, space?: SpaceType) {
   const reorderWidgets = useCallback(
     async (widgetIds: string[]) => {
       const supabase = createClient();
-      const updates = widgetIds.map((id, index) => ({
+      const updates = widgetIds.map((id, index: number) => ({
         id,
         order: index,
         updated_at: new Date().toISOString(),
@@ -247,7 +247,7 @@ export function useWidgets(userId: string, space?: SpaceType) {
 /**
  * Hook for managing content objects (HOME content archive)
  */
-export function useContent(userId: string) {
+export function useContent(userId: string ){
   const key = `content/${userId}`;
   const { data: content, error, isLoading } = useSWR<ContentObject[]>(key, fetcher);
 
@@ -332,7 +332,7 @@ export function useContent(userId: string) {
 /**
  * Hook for managing albums
  */
-export function useAlbums(userId: string) {
+export function useAlbums(userId: string ){
   const key = `albums/${userId}`;
   const { data: albums, error, isLoading } = useSWR<Album[]>(key, fetcher);
 
@@ -371,7 +371,7 @@ export function useAlbums(userId: string) {
 
       const startOrder = existing?.[0]?.order ?? -1;
 
-      const inserts = contentIds.map((contentId, index) => ({
+      const inserts = contentIds.map((contentId, index: number) => ({
         album_id: albumId,
         content_id: contentId,
         order: startOrder + index + 1,
@@ -414,7 +414,7 @@ export function useAlbums(userId: string) {
 /**
  * Hook for sharing content from HOME to PROFILE
  */
-export function useShareToProfile(userId: string) {
+export function useShareToProfile(userId: string ){
   const [isSharing, setIsSharing] = useState(false);
 
   const shareContent = useCallback(
@@ -498,7 +498,7 @@ export function useShareToProfile(userId: string) {
 
         // Add content references to widget
         if (widgetId && intent.content_ids?.length) {
-          const contentRefs = intent.content_ids.map((contentId, index) => ({
+          const contentRefs = intent.content_ids.map((contentId, index: number) => ({
             widget_id: widgetId,
             content_id: contentId,
             order: index,

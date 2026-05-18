@@ -118,7 +118,7 @@ export interface EngineBuilderCanvasProps {
   initialJson?: string;
 }
 
-export default function EngineBuilderCanvas({
+export default function EngineBuilderCanvas(){
   onSave,
   initialJson,
 }: EngineBuilderCanvasProps) {
@@ -135,7 +135,7 @@ export default function EngineBuilderCanvas({
     if (initialJson) {
       try {
         const asm = deserializeAssembly(initialJson);
-        return asm.pieces.map((p, i) => ({
+        return asm.pieces.map((p, i: number) => ({
           ...p,
           x: 200 + (i % 4) * 180,
           y: 100 + Math.floor(i / 4) * 140,
@@ -183,7 +183,7 @@ export default function EngineBuilderCanvas({
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
-  function showToast(msg: string, ok = true) {
+  function showToast(msg: string, ok = true ){
     setToast({ msg, ok });
     setTimeout(() => setToast(null), 3000);
   }
@@ -293,7 +293,7 @@ export default function EngineBuilderCanvas({
   const loadAssembly = useCallback((json: string) => {
     try {
       const asm = deserializeAssembly(json);
-      setPieces(asm.pieces.map((p, i) => ({
+      setPieces(asm.pieces.map((p, i: number) => ({
         ...p,
         x: 200 + (i % 4) * 180,
         y: 100 + Math.floor(i / 4) * 140,
@@ -357,7 +357,7 @@ export default function EngineBuilderCanvas({
   const PIECE_H  = 80;
   const PORT_R   = 6;
 
-  function piecePortPos(piece: CanvasPiece, portId: string, isInput: boolean) {
+  function piecePortPos(piece: CanvasPiece, portId: string, isInput): boolean {
     const ports = isInput ? piece.inputPorts : piece.outputPorts;
     const idx   = ports.findIndex((p) => p.id === portId);
     const count = ports.length;
@@ -552,7 +552,7 @@ export default function EngineBuilderCanvas({
               const file = input.files?.[0];
               if (!file) return;
               const reader = new FileReader();
-              reader.onload = (e) => loadAssembly(String(e.target?.result ?? ''));
+              reader.onload = (e: unknown ) => loadAssembly(String(e.target?.result ?? ''));
               reader.readAsText(file);
             };
             input.click();
@@ -697,7 +697,7 @@ export default function EngineBuilderCanvas({
                 </foreignObject>
 
                 {/* Input ports (left side) */}
-                {piece.inputPorts.map((port, idx) => {
+                {piece.inputPorts.map((port, idx: number) => {
                   const { x, y } = piecePortPos(piece, port.id, true);
                   return (
                     <g key={`in-${port.id}`}>
@@ -719,7 +719,7 @@ export default function EngineBuilderCanvas({
                 })}
 
                 {/* Output ports (right side) */}
-                {piece.outputPorts.map((port, idx) => {
+                {piece.outputPorts.map((port, idx: number) => {
                   const { x, y } = piecePortPos(piece, port.id, false);
                   return (
                     <g key={`out-${port.id}`}>
@@ -793,7 +793,7 @@ export default function EngineBuilderCanvas({
 
 // ── Toolbar button helper ─────────────────────────────────────────────────────
 
-function ToolbarBtn({
+function ToolbarBtn(){
   icon, label, onClick, accent, danger,
 }: {
   icon: React.ReactNode;

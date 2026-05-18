@@ -13,7 +13,7 @@ import CanvasDropZone, { type AssetImportPayload } from './dream.CanvasDropZone'
 import DREAMenginOS from './dream.DREAMenginOS';
 import { DreamNavProvider } from '@/components/dreamnav/dreamsurface.dreamnav';
 
-export default function DreamenginApp() {
+export default function DreamenginApp( ){
   const pathname = usePathname();
   const mountedRef = useRef(true);
   const [showNexus, setShowNexus] = useState(false);
@@ -90,7 +90,7 @@ export default function DreamenginApp() {
 
   const handleImport = useCallback((payload: AssetImportPayload) => {
     if (!mountedRef.current) return;
-    setImportedAssets((count) => count + 1);
+    setImportedAssets((count: number ) => count + 1);
     setLastImportCategory(payload.category);
   }, []);
 

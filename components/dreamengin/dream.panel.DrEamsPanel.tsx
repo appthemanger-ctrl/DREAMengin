@@ -21,7 +21,7 @@ const QUICK_ACTIONS = [
 ];
 
 /* ── Dr. Eams avatar ── */
-function DrEamsAvatar({ size = 44 }: { size?: number }) {
+function DrEamsAvatar({ size = 44 }: {size?: number}) {
   return (
     <div
       style={{
@@ -44,10 +44,10 @@ function DrEamsAvatar({ size = 44 }: { size?: number }) {
 }
 
 /* ── Typing indicator ── */
-function TypingDots() {
+function TypingDots( ){
   return (
     <div style={{ display: 'flex', gap: 4, alignItems: 'center', padding: '10px 14px' }}>
-      {[0, 1, 2].map((i) => (
+      {[0, 1, 2].map((i: number ) => (
         <div
           key={i}
           style={{
@@ -196,7 +196,7 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
               scrollbarWidth: 'none',
             }}
           >
-            {messages.map((m, idx) => (
+            {messages.map((m, idx: number) => (
               <div
                 key={idx}
                 style={{
@@ -310,4 +310,3 @@ export default function DrEamsPanel({ onClose }: DrEamsPanelProps) {
     </>
   );
 }
-

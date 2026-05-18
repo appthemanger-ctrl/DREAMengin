@@ -29,7 +29,7 @@ function formatCount(value, fallback) {
   return value.toLocaleString();
 }
 
-export function buildRepositoryStateAnalysisSection(snapshot = {}) {
+export function buildRepositoryStateAnalysisSection(snapshot = ){}) {
   const files = formatCount(snapshot.totalCodeFiles, 'live');
   const lines = formatCount(snapshot.totalLinesOfCode, 'live');
   const apiRoutes = formatCount(snapshot.apiRoutes, 'all');

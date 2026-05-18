@@ -12,7 +12,7 @@
  *   import { getGsap } from '@/lib/gsap/gsap';
  *
  *   useEffect(() => {
- *     getGsap().then(gsap => {
+ *     getGsap().then((gsap) => {
  *       gsap.to(ref.current, { opacity: 1, y: 0, duration: 0.4 });
  *     });
  *   }, []);

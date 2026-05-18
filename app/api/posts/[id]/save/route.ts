@@ -28,7 +28,7 @@ export async function POST(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
 
   // Verify the post exists.
   const { data: post } = await db
@@ -98,7 +98,7 @@ export async function DELETE(
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { error } = await (supabase as any)
+  const { error } = await (supabase as SupabaseClient)
     .from('saved_posts')
     .delete()
     .eq('user_id', user.id)

@@ -202,7 +202,7 @@ const FEATURE_IMPLS = {
 // WaveformVisualizer
 // ─────────────────────────────────────────────────────────────────────────────
 
-function WaveformVisualizer({ bars, recording, onToggle }: {
+function WaveformVisualizer({ bars, recording, onToggle }: ) {
   bars: number[];
   recording: boolean;
   onToggle: () => void;
@@ -258,7 +258,7 @@ function WaveformVisualizer({ bars, recording, onToggle }: {
           <ChordBuilder
             progression={chordProgression}
             playing={chordPlaying}
-            onChordChange={(i, v) => setChordProgression(p => { const n = [...p]; n[i] = v; return n; })}
+            onChordChange={(i, v) => setChordProgression((p) => { const n = [...p]; n[i] = v; return n; })}
             onPlay={(i) => {
               setChordPlaying(i);
               bridge.emit('music', 'music:chord-play', { chord: chordProgression[i], index: i });
@@ -271,7 +271,7 @@ function WaveformVisualizer({ bars, recording, onToggle }: {
 
 const COMMON_CHORDS = ['Cmaj','Cmin','Dmaj','Dmin','Emaj','Emin','Fmaj','Fmin','Gmaj','Gmin','Amaj','Amin','Bmaj','Bmin'];
 
-function ChordBuilder({ progression, playing, onChordChange, onPlay }: {
+function ChordBuilder({ progression, playing, onChordChange, onPlay }: ) {
   progression: string[];
   playing: number | null;
   onChordChange: (i: number, v: string) => void;
@@ -296,7 +296,7 @@ function ChordBuilder({ progression, playing, onChordChange, onPlay }: {
                   color: 'var(--de-heading)', cursor: 'pointer',
                 }}
               >
-                {COMMON_CHORDS.map(c => <option key={c} value={c}>{c}</option>)}
+                {COMMON_CHORDS.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
               <button
                 type="button"
@@ -342,7 +342,7 @@ function ChordBuilder({ progression, playing, onChordChange, onPlay }: {
 // AiMelodySuggestions
 // ─────────────────────────────────────────────────────────────────────────────
 
-function AiMelodySuggestions({ loading, suggestions, onAsk }: {
+function AiMelodySuggestions({ loading, suggestions, onAsk }: ) {
   loading: boolean;
   suggestions: string[];
   onAsk: () => void;
@@ -409,7 +409,7 @@ function AiMelodySuggestions({ loading, suggestions, onAsk }: {
 // CollabStudio
 // ─────────────────────────────────────────────────────────────────────────────
 
-function CollabStudio({ active, code, onStart, onEnd }: {
+function CollabStudio({ active, code, onStart, onEnd }: ) {
   active: boolean;
   code: string;
   onStart: () => void;
@@ -436,7 +436,7 @@ function CollabStudio({ active, code, onStart, onEnd }: {
               }}>{code}</code>
             </div>
             <div style={{ display: 'flex', gap: 6 }}>
-              {AVATARS.map(a => (
+              {AVATARS.map((a) => (
                 <div key={a.initial} style={{
                   width: 30, height: 30, borderRadius: '50%',
                   background: a.color, color: '#fff',
@@ -481,15 +481,15 @@ function CollabStudio({ active, code, onStart, onEnd }: {
     widgetJsx: `          {/* PlaylistManager */}
           <PlaylistManager
             playlist={playlist}
-            onMoveUp={i => setPlaylist(p => { if (i === 0) return p; const n = [...p]; [n[i-1],n[i]] = [n[i],n[i-1]]; return n; })}
-            onMoveDown={i => setPlaylist(p => { if (i === p.length-1) return p; const n = [...p]; [n[i],n[i+1]] = [n[i+1],n[i]]; return n; })}
-            onSave={() => bridge.emit('music', 'music:playlist-save', { order: playlist.map(p => p.id) })}
+            onMoveUp={i => setPlaylist((p) => { if (i === 0) return p; const n = [...p]; [n[i-1],n[i]] = [n[i],n[i-1]]; return n; })}
+            onMoveDown={i => setPlaylist((p) => { if (i === p.length-1) return p; const n = [...p]; [n[i],n[i+1]] = [n[i+1],n[i]]; return n; })}
+            onSave={() => bridge.emit('music', 'music:playlist-save', { order: playlist.map((p) => p.id) })}
           />`,
     componentCode: `// ─────────────────────────────────────────────────────────────────────────────
 // PlaylistManager
 // ─────────────────────────────────────────────────────────────────────────────
 
-function PlaylistManager({ playlist, onMoveUp, onMoveDown, onSave }: {
+function PlaylistManager({ playlist, onMoveUp, onMoveDown, onSave }: ) {
   playlist: Array<{ id: string; title: string; duration: string }>;
   onMoveUp: (i: number) => void;
   onMoveDown: (i: number) => void;

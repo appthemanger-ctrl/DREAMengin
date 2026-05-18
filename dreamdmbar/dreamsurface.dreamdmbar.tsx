@@ -141,7 +141,7 @@ const PARTICLE_D = 12;
 /** Movement slop (px) before a seam touch is treated as a drag vs a tap */
 const SEAM_DRAG_SLOP = 4;
 
-function AvatarChip({ name, url, size = 28 }: { name: string; url?: string | null; size?: number }) {
+function AvatarChip({ name, url, size = 28 }: {name: string; url?: string | null; size?: number}) {
   if (url) {
     return (
       <Image
@@ -170,7 +170,7 @@ function AvatarChip({ name, url, size = 28 }: { name: string; url?: string | nul
 // ─────────────────────────────────────────────────────────────────────────────
 // ContextIcon — maps DreamBarContext iconHint to a Lucide icon
 // ─────────────────────────────────────────────────────────────────────────────
-function ContextIcon({ ctx, size }: { ctx: DreamBarContext; size: number }) {
+function ContextIcon({ ctx, size }: {ctx: DreamBarContext; size: number}) {
   const props = { size, 'aria-hidden': true as const, style: { color: 'var(--de-blue)' } as React.CSSProperties };
   switch (ctx.iconHint) {
     case 'send':           return <Send          {...props} />;
@@ -188,7 +188,7 @@ function ContextIcon({ ctx, size }: { ctx: DreamBarContext; size: number }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // SlashCommandIcon — maps slash command icon hints to Lucide icons
 // ─────────────────────────────────────────────────────────────────────────────
-function SlashCommandIcon({ icon, size }: { icon: string; size: number }) {
+function SlashCommandIcon({ icon, size }: {icon: string; size: number}) {
   const props = { size, 'aria-hidden': true as const };
   switch (icon) {
     case 'home':         return <Home        {...props} />;
@@ -210,7 +210,7 @@ function SlashCommandIcon({ icon, size }: { icon: string; size: number }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // StreakFlame — renders the dream streak flame icon with tier-appropriate style
 // ─────────────────────────────────────────────────────────────────────────────
-function StreakFlame({ count, tier }: { count: number; tier: StreakTier }) {
+function StreakFlame({ count, tier }: {count: number; tier: StreakTier}) {
   if (tier === 'none') return null;
   const colors: Record<StreakTier, string> = {
     none: 'transparent',
@@ -252,7 +252,7 @@ function StreakFlame({ count, tier }: { count: number; tier: StreakTier }) {
 // ─────────────────────────────────────────────────────────────────────────────
 // ParticleFountain — renders animated particles from Gold Particle long-press
 // ─────────────────────────────────────────────────────────────────────────────
-function ParticleFountain({ particles, centerX, centerY }: { particles: Particle[]; centerX: number; centerY: number }) {
+function ParticleFountain({ particles, centerX, centerY }: {particles: Particle[]; centerX: number; centerY: number}) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 200, pointerEvents: 'none' }} aria-hidden>
       {particles.map((p) => (
@@ -924,7 +924,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
     // It was a tap — the light's touch handlers manage the tap separately
   }, [onSplitChange, screenH, splitRatio]);
 
-  function openDreamDMInput() {
+  function openDreamDMInput( ){
     setIsMinimized(false);
     revealBar();
     setIsBloom(true);
@@ -1022,7 +1022,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
     clearBarIntent();
     setQuickDraft('');
     setQuickDraftFiles([]);
-    quickDraftPreviews.forEach(url => URL.revokeObjectURL(url));
+    quickDraftPreviews.forEach((url) => URL.revokeObjectURL(url));
     setQuickDraftPreviews([]);
     setBarTouched(false);
     setComposeFocused(false);
@@ -1073,7 +1073,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
         openDreamDMInput();
       } else {
         revealBar();
-        setDragH((h) => Math.max(h, 280));
+        setDragH((h: number ) => Math.max(h, 280));
         setIsTop(false);
         setIsTopExpanded(false);
         setSlideDown(0);
@@ -1261,14 +1261,14 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
 
     // Create previews
     const newPreviews: string[] = [];
-    newFiles.forEach(file => {
+    newFiles.forEach((file) => {
       if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
         newPreviews.push(URL.createObjectURL(file));
       }
     });
 
-    setQuickDraftFiles(prev => [...prev, ...newFiles]);
-    setQuickDraftPreviews(prev => [...prev, ...newPreviews]);
+    setQuickDraftFiles((prev) => [...prev, ...newFiles]);
+    setQuickDraftPreviews((prev) => [...prev, ...newPreviews]);
 
     // Auto-expand the bar when files are attached so user can see the thumbnail
     if (typeof splitRatio !== 'number' || typeof onSplitChange !== 'function') {
@@ -1284,9 +1284,9 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
   }, [quickDraftFiles.length, splitRatio, onSplitChange, screenH]);
 
   const handleRemoveQuickFile = useCallback((index: number) => {
-    setQuickDraftFiles(prev => prev.filter((_, i) => i !== index));
-    setQuickDraftPreviews(prev => {
-      const updated = prev.filter((_, i) => i !== index);
+    setQuickDraftFiles((prev) => prev.filter((_, i: number) => i !== index));
+    setQuickDraftPreviews((prev) => {
+      const updated = prev.filter((_, i: number) => i !== index);
       // Revoke the URL to free memory
       if (prev[index]) URL.revokeObjectURL(prev[index]);
       return updated;
@@ -1354,7 +1354,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
         });
         if (res.ok) {
           setQuickDraft('');
-          quickDraftPreviews.forEach(url => URL.revokeObjectURL(url));
+          quickDraftPreviews.forEach((url) => URL.revokeObjectURL(url));
           setQuickDraftFiles([]);
           setQuickDraftPreviews([]);
           clearBarIntent();
@@ -1451,7 +1451,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
         if (res.ok) {
           setQuickDraft('');
           // Clean up files and previews
-          quickDraftPreviews.forEach(url => URL.revokeObjectURL(url));
+          quickDraftPreviews.forEach((url) => URL.revokeObjectURL(url));
           setQuickDraftFiles([]);
           setQuickDraftPreviews([]);
         } else {
@@ -1896,8 +1896,8 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
                 }}
                 onKeyDown={(e) => {
                   if (slashOpen) {
-                    if (e.key === 'ArrowDown') { e.preventDefault(); setSlashSelectedIdx(i => Math.min(i + 1, slashResults.length - 1)); return; }
-                    if (e.key === 'ArrowUp') { e.preventDefault(); setSlashSelectedIdx(i => Math.max(i - 1, 0)); return; }
+                    if (e.key === 'ArrowDown') { e.preventDefault(); setSlashSelectedIdx((i) => Math.min(i + 1, slashResults.length - 1)); return; }
+                    if (e.key === 'ArrowUp') { e.preventDefault(); setSlashSelectedIdx((i) => Math.max(i - 1, 0)); return; }
                     if (e.key === 'Enter' && slashResults[slashSelectedIdx]) {
                       e.preventDefault();
                       const cmd = slashResults[slashSelectedIdx];
@@ -2505,7 +2505,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
                   overflow: 'hidden',
                   maxHeight: 32,
                 }}>
-                  {QUICK_REACTIONS.map((reaction, idx) => (
+                  {QUICK_REACTIONS.map((reaction, idx: number) => (
                     <button
                       key={reaction.emoji}
                       type="button"
@@ -2514,7 +2514,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
                       onPointerDown={(e) => e.stopPropagation()}
                       onClick={() => {
                         // Insert emoji into the quick draft
-                        setQuickDraft(prev => prev + reaction.emoji);
+                        setQuickDraft((prev) => prev + reaction.emoji);
                         // Haptic feedback
                         if (typeof navigator !== 'undefined' && navigator.vibrate) navigator.vibrate(3);
                       }}
@@ -2545,7 +2545,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
                   display: 'flex', gap: 6, overflowX: 'auto', padding: '4px 0',
                   scrollbarWidth: 'thin',
                 }}>
-                  {quickDraftFiles.map((file, idx) => (
+                  {quickDraftFiles.map((file, idx: number) => (
                     <div key={idx} style={{
                       position: 'relative', minWidth: 72, height: 72,
                       borderRadius: 10, overflow: 'hidden',
@@ -2685,8 +2685,8 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
                   }}
                   onKeyDown={(e) => {
                     if (slashOpen) {
-                      if (e.key === 'ArrowDown') { e.preventDefault(); setSlashSelectedIdx(i => Math.min(i + 1, slashResults.length - 1)); return; }
-                      if (e.key === 'ArrowUp') { e.preventDefault(); setSlashSelectedIdx(i => Math.max(i - 1, 0)); return; }
+                      if (e.key === 'ArrowDown') { e.preventDefault(); setSlashSelectedIdx((i) => Math.min(i + 1, slashResults.length - 1)); return; }
+                      if (e.key === 'ArrowUp') { e.preventDefault(); setSlashSelectedIdx((i) => Math.max(i - 1, 0)); return; }
                       if (e.key === 'Enter' && slashResults[slashSelectedIdx]) {
                         e.preventDefault();
                         const cmd = slashResults[slashSelectedIdx];
@@ -2797,7 +2797,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
           <div style={{ padding: '4px 14px 8px', fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
             Quick Commands
           </div>
-          {slashResults.map((cmd, idx) => (
+          {slashResults.map((cmd, idx: number) => (
             <button
               key={cmd.id}
               type="button"

@@ -25,7 +25,7 @@ export type IdariEventDetail = {
 
 const EVENT_NAME = 'dreamengin:idari';
 
-export function emitIdariEvent(detail: IdariEventDetail) {
+export function emitIdariEvent(detail: IdariEventDetail ){
   if (typeof window === 'undefined') return;
   window.dispatchEvent(new CustomEvent<IdariEventDetail>(EVENT_NAME, { detail }));
 }

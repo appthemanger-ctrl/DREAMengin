@@ -208,14 +208,14 @@ export const FX_PRESETS: FxPreset[] = [
  * Get a preset by id. Returns undefined if not found.
  */
 export function getPreset(id: string): FxPreset | undefined {
-  return FX_PRESETS.find(p => p.id === id);
+  return FX_PRESETS.find((p) => p.id === id);
 }
 
 /**
  * Filter presets by category.
  */
 export function presetsByCategory(category: FxCategory): FxPreset[] {
-  return FX_PRESETS.filter(p => p.category === category);
+  return FX_PRESETS.filter((p) => p.category === category);
 }
 
 /**
@@ -259,7 +259,7 @@ export function setSimParam(
 export function getSimParam(sim: FxSimulation, paramName: string): FxParam['value'] | undefined {
   if (paramName in sim.overrides) return sim.overrides[paramName];
   const preset = getPreset(sim.presetId);
-  return preset?.params.find(p => p.name === paramName)?.value;
+  return preset?.params.find((p) => p.name === paramName)?.value;
 }
 
 /**
@@ -273,5 +273,5 @@ export function resetSimParams(sim: FxSimulation): FxSimulation {
  * Return all unique categories present in the preset catalogue.
  */
 export function allCategories(): FxCategory[] {
-  return [...new Set(FX_PRESETS.map(p => p.category))];
+  return [...new Set(FX_PRESETS.map((p) => p.category))];
 }

@@ -8,6 +8,6 @@ export const metadata: Metadata = {
     'Every game in DREAMengin, packaged as a GameEngin cartridge running on the single console-class browser platform.',
 };
 
-export default function GameEnginCartridgesPage() {
+export default function GameEnginCartridgesPage( ){
   return <CartridgeBrowser />;
 }

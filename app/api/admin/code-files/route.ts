@@ -87,12 +87,12 @@ function resolveAllowedFile(relPath: string): { abs: string; rel: string } | nul
 }
 
 // ── Deny helper ──────────────────────────────────────────────────────────────
-function deny(msg: string, status: number) {
+function deny(msg: string, status): number {
   return NextResponse.json({ error: msg }, { status });
 }
 
 // ── Route handler ────────────────────────────────────────────────────────────
-export async function POST(request: Request) {
+export async function POST(request: Request ){
   // 1. Block blacklisted domains immediately — no information leakage
   if (isDomainBlocked(request)) {
     return deny('Access denied.', 403);

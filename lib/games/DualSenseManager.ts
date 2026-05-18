@@ -70,7 +70,7 @@ export interface DualSenseConfig {
 
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
-export function useDualSense(config: DualSenseConfig = {}) {
+export function useDualSense(config: DualSenseConfig = ){} {
   const {
     enableGyro = true,
     enableHaptics = true,
@@ -136,7 +136,7 @@ export function useDualSense(config: DualSenseConfig = {}) {
     }
 
     // Try to read angular velocity from gamepad extension
-    const gp = gamepad as any;
+    const gp = gamepad as Gamepad & { angularVelocity?: number[]; hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator };
     if (gp.angularVelocity && Array.isArray(gp.angularVelocity)) {
       return {
         x: gp.angularVelocity[0] || 0,
@@ -219,7 +219,7 @@ export function useDualSense(config: DualSenseConfig = {}) {
     if (!gamepad) return;
 
     // Haptic Actuator API (supported on Android Chrome)
-    const actuators = (gamepad as any).hapticActuators || (gamepad as any).vibrationActuator;
+    const actuators = (gamepad as Gamepad & { hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator })\.hapticActuators || (gamepad as Gamepad & { hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator })\.vibrationActuator;
     if (actuators && actuators.length > 0) {
       const clampedIntensity = Math.max(0, Math.min(1, intensity));
       actuators[0].pulse(clampedIntensity, duration / 1000);
@@ -254,7 +254,7 @@ export function useDualSense(config: DualSenseConfig = {}) {
       if (!isDualSense(e.gamepad)) return;
 
       gamepadIndexRef.current = e.gamepad.index;
-      setState(prev => ({ ...prev, connected: true }));
+      setState((prev) => ({ ...prev, connected: true }));
 
       if (debug) {
         console.log(
@@ -274,7 +274,7 @@ export function useDualSense(config: DualSenseConfig = {}) {
     const onDisconnect = (e: GamepadEvent) => {
       if (e.gamepad.index === gamepadIndexRef.current) {
         gamepadIndexRef.current = -1;
-        setState(prev => ({ ...prev, connected: false }));
+        setState((prev) => ({ ...prev, connected: false }));
 
         if (debug) {
           console.log('🎮 DualSense disconnected');
@@ -294,10 +294,10 @@ export function useDualSense(config: DualSenseConfig = {}) {
     // Check for already-connected DualSense (page reload / remount)
     if (navigator.getGamepads) {
       const gamepads = Array.from(navigator.getGamepads()).filter(Boolean) as Gamepad[];
-      const dualsense = gamepads.find(gp => isDualSense(gp));
+      const dualsense = gamepads.find((gp) => isDualSense(gp));
       if (dualsense) {
         gamepadIndexRef.current = dualsense.index;
-        setState(prev => ({ ...prev, connected: true }));
+        setState((prev) => ({ ...prev, connected: true }));
         rafRef.current = requestAnimationFrame(poll);
 
         if (debug) {
@@ -379,7 +379,7 @@ export class DualSenseManager {
     // Check for already-connected DualSense
     if (navigator.getGamepads) {
       const gamepads = Array.from(navigator.getGamepads()).filter(Boolean) as Gamepad[];
-      const dualsense = gamepads.find(gp => this.isDualSense(gp));
+      const dualsense = gamepads.find((gp) => this.isDualSense(gp));
       if (dualsense) {
         this.gamepadIndex = dualsense.index;
         this.currentState.connected = true;
@@ -413,7 +413,7 @@ export class DualSenseManager {
 
     if (!gamepad) return;
 
-    const actuators = (gamepad as any).hapticActuators || (gamepad as any).vibrationActuator;
+    const actuators = (gamepad as Gamepad & { hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator })\.hapticActuators || (gamepad as Gamepad & { hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator })\.vibrationActuator;
     if (actuators && actuators.length > 0) {
       const clampedIntensity = Math.max(0, Math.min(1, intensity));
       actuators[0].pulse(clampedIntensity, duration / 1000);
@@ -455,7 +455,7 @@ export class DualSenseManager {
       return { x: 0, y: 0, z: 0 };
     }
 
-    const gp = gamepad as any;
+    const gp = gamepad as Gamepad & { angularVelocity?: number[]; hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator };
     if (gp.angularVelocity && Array.isArray(gp.angularVelocity)) {
       return {
         x: gp.angularVelocity[0] || 0,

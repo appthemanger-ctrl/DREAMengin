@@ -98,7 +98,7 @@ export default async function AdSlotPage({ params }: { params: { id: string } })
               { icon: ToggleLeft, label: 'Status', value: slot.active ? 'Active' : 'Inactive' },
               { icon: DollarSign, label: 'Price / Day', value: `$${slot.price_day}` },
               { icon: DollarSign, label: 'Price / Week', value: `$${slot.price_week}` },
-            ].map(({ icon: Icon, label, value, mono }) => (
+            ].map(({ icon, label, value, mono }) => (
               <div key={label} className="de-row">
                 <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(200,152,26,0.1)' }}>
                   <Icon className="w-4 h-4" style={{ color: 'var(--de-gold)' }} />

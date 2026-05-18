@@ -8,7 +8,7 @@ import { connection } from 'next/server';
 
 export const metadata = { title: 'Help – Dreamengin Settings' };
 
-export default async function HelpPage() {
+export default async function HelpPage( ){
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();

@@ -9,7 +9,7 @@ type Props = {
   height?: number;
 };
 
-function draw(canvas: HTMLCanvasElement, data: LedgerData) {
+function draw(canvas: HTMLCanvasElement, data): LedgerData {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
@@ -39,7 +39,7 @@ function draw(canvas: HTMLCanvasElement, data: LedgerData) {
     { y: L_tot, stroke: 'rgba(255,255,255,0.75)' },
   ];
 
-  const allY = series.flatMap(s => s.y);
+  const allY = series.flatMap((s) => s.y);
   const ymin = Math.min(...allY);
   const ymax = Math.max(...allY);
   const xr = (k[k.length - 1] - k[0]) || 1;

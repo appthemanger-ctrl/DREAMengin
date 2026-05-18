@@ -175,7 +175,7 @@ function npubToHex(npub: string): string {
     .join('');
 }
 
-export function nostrCredentialFields() {
+export function nostrCredentialFields( ){
   return [
     {
       key: 'pubkey',

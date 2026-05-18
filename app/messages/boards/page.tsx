@@ -7,7 +7,7 @@ import { connection } from 'next/server';
 
 export const metadata = { title: 'Boards – Dreamengin' };
 
-export default async function BoardsPage() {
+export default async function BoardsPage( ){
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -97,7 +97,7 @@ export default async function BoardsPage() {
               <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--de-text-dim)', fontSize: 13 }}>
                 No boards yet. Create one to start a discussion.
               </div>
-            ) : (myBoards ?? []).map(b => renderBoard(b as Board))}
+            ) : (myBoards ?? []).map((b) => renderBoard(b as Board))}
           </div>
         </div>
 
@@ -106,7 +106,7 @@ export default async function BoardsPage() {
           <div className="de-widget">
             <div className="de-widget-header"><span className="de-widget-title">Discover Boards</span></div>
             <div className="de-widget-body" style={{ padding: '6px 8px' }}>
-              {(publicBoards ?? []).map(b => renderBoard(b as Board))}
+              {(publicBoards ?? []).map((b) => renderBoard(b as Board))}
             </div>
           </div>
         )}

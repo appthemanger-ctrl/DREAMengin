@@ -16,7 +16,7 @@ export default class BlueskyAggregator {
       const response = await this.client.get('app.bsky.feed.getPopular', {
         params: { limit }
       });
-      return response.data.feed.map(item => this.normalizePost(item.post));
+      return response.data.feed.map((item) => this.normalizePost(item.post));
     } catch (error) {
       console.error('Bluesky API error:', error);
       return [];

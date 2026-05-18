@@ -29,7 +29,7 @@ export function ShrunkMode({ priorityWidgets, onWidgetSelect }: ShrunkModeProps)
           ))}
           
           {/* Fill empty slots */}
-          {Array.from({ length: Math.max(0, 12 - displayWidgets.length) }).map((_, index) => (
+          {Array.from({ length: Math.max(0, 12 - displayWidgets.length) }).map((_, index: number) => (
             <div
               key={`empty-${index}`}
               className="w-16 h-16 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center"

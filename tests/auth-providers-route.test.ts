@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-async function importRouteWithEnv(env: { SUPABASE_URL: string; SUPABASE_PUBLISHABLE_KEY: string }) {
+async function importRouteWithEnv(env: ){ SUPABASE_URL: string; SUPABASE_PUBLISHABLE_KEY: string }) {
   vi.resetModules();
   vi.doMock("@/lib/supabase/config", () => ({
     ...env,

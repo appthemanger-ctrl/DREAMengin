@@ -54,10 +54,10 @@ const DR = {
   shadowDark:  'rgba(163,189,218,0.45)',
 } as const;
 
-function nmRaised(s = 5): string {
+function nmRaised(s: number = 5) {
   return `${-s}px ${-s}px ${s * 2.4}px ${DR.shadowLight}, ${s}px ${s}px ${s * 2.8}px ${DR.shadowDark}`;
 }
-function nmInset(s = 4): string {
+function nmInset(s: number = 4) {
   return `inset ${-s}px ${-s}px ${s * 2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s * 2.4}px ${DR.shadowDark}`;
 }
 
@@ -127,7 +127,7 @@ const PLATFORM_META: Record<string, { emoji: string; label: string; color: strin
   soundcloud: { emoji: '☁️', label: 'SoundCloud', color: '#FF5500' },
 };
 
-function TrendIcon({ v }: { v: number }) {
+function TrendIcon({ v }: {v: number}) {
   if (v > 0) return <TrendingUp size={12} style={{ color: '#22c55e' }} />;
   if (v < 0) return <TrendingDown size={12} style={{ color: '#ef4444' }} />;
   return <Minus size={12} style={{ color: DR.textDim }} />;
@@ -137,7 +137,7 @@ function TrendIcon({ v }: { v: number }) {
 
 // ── Create tab ────────────────────────────────────────────────────────────────
 
-function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike | null }) {
+function CreateTab({ userId, profile }: {userId: string; profile: ProfileLike | null}) {
   const supabase = createClient();
   const [content,    setContent]    = useState('');
   const [vis,        setVis]        = useState<'public' | 'followers' | 'private'>('public');
@@ -351,14 +351,14 @@ function CreateTab({ userId, profile }: { userId: string; profile: ProfileLike |
 
 // ── Platform tab ──────────────────────────────────────────────────────────────
 
-function PlatformTab({ profile, onOpenUrl }: { profile: ProfileLike | null; onOpenUrl?: (url: string, title?: string) => void }) {
+function PlatformTab({ profile, onOpenUrl }: {profile: ProfileLike | null; onOpenUrl?: (url: string, title?: string) => void}) {
   const [connectors, setConnectors] = useState<ConnectorEntry[]>([]);
   const [loading,    setLoading]    = useState(true);
 
   useEffect(() => {
     fetch('/api/connectors/status')
-      .then(r => r.ok ? r.json() : { statuses: {} })
-      .then(d => {
+      .then((r) => r.ok ? r.json() : { statuses: {} })
+      .then((d) => {
         const statuses: Record<string, string> = d.statuses ?? {};
         const entries: ConnectorEntry[] = Object.entries(statuses).map(([provider, status]) => ({
           provider, status: status as string,
@@ -371,8 +371,8 @@ function PlatformTab({ profile, onOpenUrl }: { profile: ProfileLike | null; onOp
       .finally(() => setLoading(false));
   }, []);
 
-  const connected    = connectors.filter(c => c.status === 'connected');
-  const notConnected = connectors.filter(c => c.status !== 'connected').slice(0, 6);
+  const connected    = connectors.filter((c) => c.status === 'connected');
+  const notConnected = connectors.filter((c) => c.status !== 'connected').slice(0, 6);
   const avatarLetter = (profile?.display_name ?? profile?.handle ?? '?')[0]?.toUpperCase() ?? '?';
 
   return (
@@ -410,7 +410,7 @@ function PlatformTab({ profile, onOpenUrl }: { profile: ProfileLike | null; onOp
             { label: 'Followers', value: profile?.followers_count ?? 0 },
             { label: 'Following', value: profile?.following_count ?? 0 },
             { label: 'Posts',     value: profile?.posts_count ?? 0 },
-          ].map(s => (
+          ].map((s) => (
             <div key={s.label} style={{ background: DR.bg, borderRadius: 12, boxShadow: nmInset(3), padding: '10px 8px', textAlign: 'center' }}>
               <div style={{ fontWeight: 800, fontSize: 18, color: DR.text, letterSpacing: '-0.02em' }}>{s.value.toLocaleString()}</div>
               <div style={{ fontSize: 10, color: DR.textDim, fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', marginTop: 2 }}>{s.label}</div>
@@ -443,7 +443,7 @@ function PlatformTab({ profile, onOpenUrl }: { profile: ProfileLike | null; onOp
 
         {loading ? (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {[1,2,3,4].map(i => <div key={i} style={{ height: 56, borderRadius: 14, background: DR.bg, boxShadow: nmInset(3) }} />)}
+            {[1,2,3,4].map((i) => <div key={i} style={{ height: 56, borderRadius: 14, background: DR.bg, boxShadow: nmInset(3) }} />)}
           </div>
         ) : connected.length === 0 ? (
           <div style={{ background: DR.bg, borderRadius: 16, boxShadow: nmRaised(4), padding: 18, textAlign: 'center' }}>
@@ -459,7 +459,7 @@ function PlatformTab({ profile, onOpenUrl }: { profile: ProfileLike | null; onOp
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {connected.map(c => {
+            {connected.map((c) => {
               const meta = PLATFORM_META[c.provider];
               return (
                 <div key={c.provider} style={{ background: DR.bg, borderRadius: 14, boxShadow: nmRaised(4), padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -484,7 +484,7 @@ function PlatformTab({ profile, onOpenUrl }: { profile: ProfileLike | null; onOp
             Add to your DreamR presence
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {notConnected.map(c => {
+            {notConnected.map((c) => {
               const meta = PLATFORM_META[c.provider];
               return (
                 <button
@@ -516,7 +516,7 @@ function PlatformTab({ profile, onOpenUrl }: { profile: ProfileLike | null; onOp
 //   All other metrics (likes, comments, followers) = private to this tab only.
 //   No setting to make them public. No count displayed anywhere else.
 
-function SignalTab() {
+function SignalTab( ){
   type Range = '7d' | '30d' | '90d';
   const [range,   setRange]   = useState<Range>('30d');
   const [data,    setData]    = useState<AnalyticsData | null>(null);
@@ -525,8 +525,8 @@ function SignalTab() {
   const load = useCallback((r: Range) => {
     setLoading(true);
     fetch(`/api/analytics?range=${r}`)
-      .then(res => res.ok ? res.json() : null)
-      .then(d => setData(d))
+      .then((res) => res.ok ? res.json() : null)
+      .then((d) => setData(d))
       .catch(() => setData(null))
       .finally(() => setLoading(false));
   }, []);
@@ -556,7 +556,7 @@ function SignalTab() {
           <div style={{ fontSize: 11, color: DR.textDim, marginTop: 2 }}>Your DreamR performance</div>
         </div>
         <div style={{ display: 'flex', gap: 4, background: DR.bg, borderRadius: 99, padding: 4, boxShadow: nmInset(3) }}>
-          {(['7d', '30d', '90d'] as Range[]).map(r => (
+          {(['7d', '30d', '90d'] as Range[]).map((r) => (
             <button key={r} type="button" onClick={() => setRange(r)}
               style={{ padding: '6px 12px', borderRadius: 99, border: 'none', cursor: 'pointer', fontFamily: DR.font, fontSize: 11, fontWeight: 700,
                 background: range === r ? `linear-gradient(135deg,${DR.sky},${DR.gold})` : 'transparent',
@@ -628,11 +628,11 @@ function SignalTab() {
 
         {loading ? (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-            {[1,2,3].map(i => <div key={i} style={{ height: 84, borderRadius: 14, background: DR.bg, boxShadow: nmInset(3) }} />)}
+            {[1,2,3].map((i) => <div key={i} style={{ height: 84, borderRadius: 14, background: DR.bg, boxShadow: nmInset(3) }} />)}
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
-            {privateMetrics.map(m => (
+            {privateMetrics.map((m) => (
               <div key={m.label} style={{ background: DR.bg, borderRadius: 14, boxShadow: nmRaised(5), padding: '12px 10px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                   <div style={{ color: m.color }}>{m.icon}</div>
@@ -681,7 +681,7 @@ function SignalTab() {
             { label: 'Genuine language, real expression',    weight: '15%' },
             { label: 'Freshness — new voices surface naturally', weight: '13%' },
             { label: 'Resonance — when something moves people', weight: '10%' },
-          ].map(s => (
+          ].map((s) => (
             <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: 10, background: DR.bg, borderRadius: 10, boxShadow: nmRaised(2), padding: '9px 12px' }}>
               <div style={{ width: 36, height: 5, borderRadius: 99, background: `linear-gradient(90deg,${DR.skyLight},${DR.sky} ${s.weight},rgba(135,180,220,0.15) ${s.weight})`, flexShrink: 0 }} />
               <span style={{ fontSize: 12, fontWeight: 500, color: DR.text, flex: 1 }}>{s.label}</span>
@@ -695,7 +695,7 @@ function SignalTab() {
           Never used to rank
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-          {['Follower count', 'Like count', 'Share velocity', 'Political content', 'Viral momentum alone'].map(label => (
+          {['Follower count', 'Like count', 'Share velocity', 'Political content', 'Viral momentum alone'].map((label) => (
             <span key={label} style={{ fontSize: 11, fontWeight: 600, color: DR.textDim, background: DR.bg, boxShadow: nmInset(2), padding: '5px 11px', borderRadius: 99 }}>
               {label}
             </span>
@@ -708,7 +708,7 @@ function SignalTab() {
 
 // ── Journey tab ────────────────────────────────────────────────────────────────
 
-function JourneyTab() {
+function JourneyTab( ){
   return (
     <div style={{ padding: '20px 18px 0', fontFamily: DR.font }}>
       {/* Intro card */}
@@ -810,7 +810,7 @@ export default function DreamRSection({ profile, initialPosts, onOpenUrl }: Drea
             padding: 4,
           }}
         >
-          {TABS.map(t => {
+          {TABS.map((t) => {
             const active = tab === t.id;
             return (
               <button

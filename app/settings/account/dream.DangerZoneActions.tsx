@@ -34,7 +34,7 @@ function ConfirmModal({
   const requiredWord = isAccount ? 'DELETE' : 'DELETE MY DATA';
   const isMatch = input.trim().toUpperCase() === requiredWord;
 
-  async function handleConfirm() {
+  async function handleConfirm( ){
     if (!isMatch) return;
     setPending(true);
     setError('');
@@ -253,7 +253,7 @@ function ConfirmModal({
   );
 }
 
-export default function DangerZoneActions() {
+export default function DangerZoneActions( ){
   const [modal, setModal] = useState<ModalType>(null);
 
   return (

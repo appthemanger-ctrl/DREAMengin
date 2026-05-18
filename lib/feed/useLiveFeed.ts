@@ -181,7 +181,7 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFe
 
           if (!data) return;
            
-          const d = data as any;
+          const d = data as Record<string, unknown>;
 
           const newPost: FeedPost = {
             id:             d.id,
@@ -257,7 +257,7 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFe
         (payload: RealtimePostgresInsertPayload<Record<string, unknown>>) => {
           const raw = payload.new as Record<string, unknown>;
            
-          const p = (raw.payload ?? {}) as Record<string, any>;
+          const p = (raw.payload ?? {}) as Record<string, unknown>;
 
           const newEntry: FeedPost = {
             id:             raw.id         as string,

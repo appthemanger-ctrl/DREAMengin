@@ -110,7 +110,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
   // ── Store token in connector_accounts ────────────────────────────────────
    
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
   const now = new Date().toISOString();
 
   const tokenBlob: Record<string, string> = {

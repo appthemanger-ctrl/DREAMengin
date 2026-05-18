@@ -25,7 +25,7 @@ const WIDGETS: DaydreamWidget[] = [
 // ── accent colour for this Daydream ────────────────────────────
 const ACCENT = '#2a8ab8';
 
-export default async function OptimizeroPage() {
+export default async function OptimizeroPage( ){
   await connection();
   const supabase = await createServerClient();
   let user = null;
@@ -105,7 +105,7 @@ export default async function OptimizeroPage() {
               { emoji: '🌊', label: 'QAOA',          sub: 'Quantum Approximate\nOptimisation Algorithm', color: '#8b5cf6'     },
               { emoji: '🌱', label: 'ESG',           sub: 'Environmental, Social\n& Governance filters', color: '#22c55e'     },
               { emoji: '📐', label: 'MIP Baseline',  sub: 'Classical Mixed-Integer\ncomparison',         color: '#f59e0b'     },
-            ].map(item => (
+            ].map((item) => (
               <div
                 key={item.label}
                 style={{
@@ -148,7 +148,7 @@ export default async function OptimizeroPage() {
                 { label: 'MIP Baseline',   color: '#f59e0b' },
                 { label: 'ZNE Local',      color: '#ec4899' },
                 { label: 'Max 25 Assets',  color: ACCENT    },
-              ].map(f => (
+              ].map((f) => (
                 <span
                   key={f.label}
                   style={{

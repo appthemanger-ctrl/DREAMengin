@@ -54,7 +54,7 @@ function formatMessageContent(subject: string, body: string): string {
 }
 
 /** Render message content with optional subject heading */
-function MessageContent({ content, isMe }: { content: string; isMe: boolean }) {
+function MessageContent({ content, isMe }: {content: string; isMe: boolean}) {
   const { subject, body } = parseSubject(content);
   return (
     <>
@@ -249,8 +249,8 @@ export default function MessagesClient({ userId, initialConversations, fromDrEam
       if (data.message) {
         replaceOptimistic(optimisticMessage!.id, data.message);
         // Update conversation list updated_at
-        setConversations(prev =>
-          prev.map(c =>
+        setConversations((prev) =>
+          prev.map((c) =>
             c.id === selectedConv.id
               ? { ...c, lastMessage: messageContent, updatedAt: new Date().toISOString() }
               : c
@@ -267,7 +267,7 @@ export default function MessagesClient({ userId, initialConversations, fromDrEam
     }
   };
 
-  const filteredConversations = conversations.filter(conv =>
+  const filteredConversations = conversations.filter((conv) =>
     conv.otherUser.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     conv.otherUser.handle?.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -746,7 +746,7 @@ export default function MessagesClient({ userId, initialConversations, fromDrEam
                     {/* Email-compose toggle */}
                     <button
                       type="button"
-                      onClick={() => setShowSubjectField((v) => !v)}
+                      onClick={() => setShowSubjectField((v: number ) => !v)}
                       disabled={isSending}
                       className="p-3 rounded-xl transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center disabled:opacity-50"
                       style={{ background: showSubjectField ? 'rgba(42,138,184,0.15)' : 'rgba(160,195,240,0.12)', color: showSubjectField ? 'var(--de-accent)' : 'var(--de-text-dim)' }}

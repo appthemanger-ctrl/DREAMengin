@@ -17,7 +17,7 @@
 export interface CreativeCandidate<T = any> {
   id: string;
   data: T;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface ScoredCandidate<T = any> extends CreativeCandidate<T> {

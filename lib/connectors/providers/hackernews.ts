@@ -55,7 +55,7 @@ export async function hackernewsSync(creds: HackerNewsCredentials): Promise<Unif
   return items.map((item) => normaliseHackerNews(item.raw as Parameters<typeof normaliseHackerNews>[0]));
 }
 
-export function hackernewsCredentialFields() {
+export function hackernewsCredentialFields( ){
   return [
     {
       key: 'feed_type',

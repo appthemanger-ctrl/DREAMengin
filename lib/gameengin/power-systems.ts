@@ -207,7 +207,7 @@ export class ComputeShaderPipeline {
     const encoder = dev.createCommandEncoder();
     const pass = encoder.beginComputePass();
     pass.setPipeline(nativePipeline);
-    dispatch.bindings.forEach((buf, i) => {
+    dispatch.bindings.forEach((buf, i: number) => {
       // Cast layout to bypass branded GPUBindGroupLayout type check
       const layout = nativePipeline.getBindGroupLayout(0) as unknown as GPUBindGroupLayout;
       const bg = dev.createBindGroup({
@@ -560,7 +560,7 @@ export class OctreeBVH {
       min: [centre[0] - r, centre[1] - r, centre[2] - r],
       max: [centre[0] + r, centre[1] + r, centre[2] + r],
     };
-    return this.queryAABB(bounds).filter(e => {
+    return this.queryAABB(bounds).filter((e) => {
       const cx = (e.aabb.min[0] + e.aabb.max[0]) * 0.5;
       const cy = (e.aabb.min[1] + e.aabb.max[1]) * 0.5;
       const cz = (e.aabb.min[2] + e.aabb.max[2]) * 0.5;
@@ -610,7 +610,7 @@ export class OctreeBVH {
 
   private _remove(node: OctreeNode, id: string): boolean {
     const before = node.entries.length;
-    node.entries = node.entries.filter(e => e.id !== id);
+    node.entries = node.entries.filter((e) => e.id !== id);
     if (node.children) {
       for (const child of node.children) this._remove(child, id);
     }
@@ -673,7 +673,7 @@ export class WorkerJobSystem {
   }
 
   enqueue<T>(job: Job<T>): Promise<JobResult<T>> {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.queue.push({ job, resolve: resolve as (r: JobResult) => void });
       this.queue.sort((a, b) =>
         PRIORITY_WEIGHT[a.job.priority ?? 'normal'] - PRIORITY_WEIGHT[b.job.priority ?? 'normal']
@@ -689,7 +689,7 @@ export class WorkerJobSystem {
       const t0 = typeof performance !== 'undefined' ? performance.now() : Date.now();
       Promise.resolve()
         .then(() => item.job.fn())
-        .then(result => {
+        .then((result) => {
           const dur = (typeof performance !== 'undefined' ? performance.now() : Date.now()) - t0;
           this.totalDurationMs += dur;
           this.completedCount++;
@@ -697,7 +697,7 @@ export class WorkerJobSystem {
           item.resolve({ id: item.job.id, result, durationMs: dur });
           this._drain();
         })
-        .catch(err => {
+        .catch((err) => {
           this.activeCount--;
           item.resolve({ id: item.job.id, result: undefined as unknown as never, durationMs: 0, error: String(err) });
           this._drain();
@@ -987,7 +987,7 @@ export class SpatialAudioDSP {
 
   get stats() { return { sources: this.sources.size, sampleRate: this.ctx?.sampleRate ?? 0, state: this.ctx?.state ?? 'unavailable' }; }
 
-  dispose(): void { this.sources.forEach((_, id) => this.removeSource(id)); this.ctx?.close(); this.ctx = null; }
+  dispose(): void { this.sources.forEach((_, id: string) => this.removeSource(id)); this.ctx?.close(); this.ctx = null; }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1268,7 +1268,7 @@ export class GPUProfiler {
         const m = performance.measure('__gp_frame', '__gp_frame_start', '__gp_frame_end');
         this.currentFrame.totalMs = m.duration;
       } catch {
-        this.currentFrame.totalMs = this.currentFrame.spans.reduce((a, s) => a + s.durationMs, 0);
+        this.currentFrame.totalMs = this.currentFrame.spans.reduce((a, s: string) => a + s.durationMs, 0);
       }
     }
     this.frames.push(this.currentFrame);
@@ -1336,7 +1336,7 @@ export class TypedEventBus<M extends EventMap = EventMap> {
   off<K extends keyof M & string>(event: K, fn: Listener<M[K]>): void {
     const arr = this.listeners.get(event);
     if (!arr) return;
-    const idx = arr.findIndex(l => l.fn === (fn as Listener<unknown>));
+    const idx = arr.findIndex((l) => l.fn === (fn as Listener<unknown>));
     if (idx !== -1) arr.splice(idx, 1);
   }
 
@@ -1360,7 +1360,7 @@ export class TypedEventBus<M extends EventMap = EventMap> {
 
   /** Replay history to a new subscriber (max `last` events). */
   replayTo<K extends keyof M & string>(event: K, fn: Listener<M[K]>, last = 32): void {
-    this.history.filter(r => r.event === event).slice(-last).forEach(r => fn(r.data as M[K]));
+    this.history.filter((r) => r.event === event).slice(-last).forEach((r) => fn(r.data as M[K]));
   }
 
   private _add(event: string, fn: Listener<unknown>, once: boolean): void {
@@ -1368,7 +1368,7 @@ export class TypedEventBus<M extends EventMap = EventMap> {
     this.listeners.get(event)!.push({ fn, once });
   }
 
-  get stats() { return { listeners: [...this.listeners.values()].reduce((a, v) => a + v.length, 0), history: this.history.length, emitCount: this.emitCount }; }
+  get stats() { return { listeners: [...this.listeners.values()].reduce((a, v: number) => a + v.length, 0), history: this.history.length, emitCount: this.emitCount }; }
 
   dispose(): void { this.listeners.clear(); this.history = []; }
 }
@@ -1448,7 +1448,7 @@ export class AnimationStateMachine {
     // Blend
     if (state.targetClip) {
       const targetClip = this.clips.get(state.targetClip);
-      const blendFrames = this.transitions.find(t => t.from === state.currentClip && t.to === state.targetClip)?.blendFrames ?? 8;
+      const blendFrames = this.transitions.find((t) => t.from === state.currentClip && t.to === state.targetClip)?.blendFrames ?? 8;
       state.blendFrame++;
       state.blendAlpha = Math.min(1, state.blendFrame / blendFrames);
       if (state.blendAlpha >= 1) {
@@ -1583,7 +1583,7 @@ export class ClientSidePrediction {
    * Returns the base state to re-simulate from, or null if no reconciliation needed.
    */
   reconcile(snapshot: ServerSnapshot, divergenceThreshold = 0.05): PredictionState | null {
-    const predicted = this.predictedStates.find(s => s.tick === snapshot.tick);
+    const predicted = this.predictedStates.find((s) => s.tick === snapshot.tick);
     if (!predicted) return null;
 
     const dx = predicted.position[0] - snapshot.state.position[0];
@@ -1596,13 +1596,13 @@ export class ClientSidePrediction {
 
     this.reconciliationCount++;
     // Prune history after the snapshot tick
-    this.predictedStates = this.predictedStates.filter(s => s.tick <= snapshot.tick);
+    this.predictedStates = this.predictedStates.filter((s) => s.tick <= snapshot.tick);
     return snapshot.state;
   }
 
   /** All ticks after the given one that need re-simulation. */
   pendingResimTicks(afterTick: number): number[] {
-    return this.predictedStates.filter(s => s.tick > afterTick).map(s => s.tick);
+    return this.predictedStates.filter((s) => s.tick > afterTick).map((s) => s.tick);
   }
 
   get stats() { return { buffered: this.predictedStates.length, reconciliations: this.reconciliationCount, maxDivergence: this.maxDivergence }; }
@@ -1918,7 +1918,7 @@ export class GlobalIllumProbes {
     return [e(0), e(9), e(18)];
   }
 
-  getDirtyProbes(): GIProbe[] { return [...this.probes.values()].filter(p => p.dirty); }
+  getDirtyProbes(): GIProbe[] { return [...this.probes.values()].filter((p) => p.dirty); }
 
   get stats() { return { probes: this.probes.size, dirtyProbes: this.getDirtyProbes().length }; }
 }
@@ -1978,7 +1978,7 @@ export class AssetStreamManager {
 
   cancel(id: string): void {
     const h = this.assets.get(id);
-    if (h && h.state === 'queued') { h.state = 'unloaded'; this.queue = this.queue.filter(x => x.id !== id); }
+    if (h && h.state === 'queued') { h.state = 'unloaded'; this.queue = this.queue.filter((x) => x.id !== id); }
   }
 
   get(id: string): AssetHandle | undefined { return this.assets.get(id); }
@@ -1990,8 +1990,8 @@ export class AssetStreamManager {
       this.active.add(h.id);
       const t0 = typeof performance !== 'undefined' ? performance.now() : Date.now();
       fetch(h.url)
-        .then(r => r.arrayBuffer())
-        .then(buf => {
+        .then((r) => r.arrayBuffer())
+        .then((buf) => {
           h.data = buf;
           h.loadTimeMs = (typeof performance !== 'undefined' ? performance.now() : Date.now()) - t0;
           h.state = 'loaded';
@@ -2007,7 +2007,7 @@ export class AssetStreamManager {
 
   private _evictIfNeeded(): void {
     if (this.loadedBytes <= this.maxCacheBytes) return;
-    const loaded = [...this.assets.values()].filter(h => h.state === 'loaded').sort((a, b) => (a.priority - b.priority));
+    const loaded = [...this.assets.values()].filter((h) => h.state === 'loaded').sort((a, b) => (a.priority - b.priority));
     for (const h of loaded) {
       if (this.loadedBytes <= this.maxCacheBytes * 0.8) break;
       this.loadedBytes -= h.data?.byteLength ?? 0;

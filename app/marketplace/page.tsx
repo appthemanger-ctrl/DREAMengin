@@ -27,7 +27,7 @@ const FALLBACK_CATEGORIES = [
   { icon: '🎵', label: 'Music',      href: '/daydream/music', desc: 'Sample packs and sound kits' },
 ];
 
-export default async function MarketplacePage() {
+export default async function MarketplacePage( ){
   await connection();
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -83,7 +83,7 @@ export default async function MarketplacePage() {
             </div>
             <div className="de-widget-body">
               <div className="grid grid-cols-2 gap-3">
-                {listings.map(item => (
+                {listings.map((item) => (
                   <MarketplaceListingCard key={item.id} item={item} />
                 ))}
               </div>

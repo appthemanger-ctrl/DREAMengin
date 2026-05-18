@@ -75,7 +75,7 @@ export async function tiktokSync(creds: TikTokCredentials): Promise<UnifiedFeedI
   return items.map((item) => normaliseTikTok(item.raw as Parameters<typeof normaliseTikTok>[0], username));
 }
 
-export function tiktokCredentialFields() {
+export function tiktokCredentialFields( ){
   return [
     {
       key: 'username',

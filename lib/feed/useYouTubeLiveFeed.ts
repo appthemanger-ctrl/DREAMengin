@@ -127,7 +127,7 @@ export function useYouTubeLiveFeed(): UseYouTubeLiveFeedReturn {
     mountedRef.current = true;
     const ctrl = new AbortController();
 
-    async function init() {
+    async function init( ){
       setIsRefreshing(true);
       try {
         const queries = getQueries();

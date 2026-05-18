@@ -47,7 +47,7 @@ const BoogieRequestSchema = z.object({
 });
 
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const requestStart = Date.now();
   const request_id = uuidv4();
 
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
   }
 
    
-  const { data: roleData } = await (supabase as any)
+  const { data: roleData } = await (supabase as SupabaseClient)
     .from('user_roles')
     .select('role')
     .eq('user_id', user.id)

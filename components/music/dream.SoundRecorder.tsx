@@ -13,13 +13,13 @@ interface Recording {
   mimeType: string;
 }
 
-function formatTime(ms: number) {
+function formatTime(ms: number ){
   const s = Math.floor(ms / 1000);
   const m = Math.floor(s / 60);
   return `${m}:${String(s % 60).padStart(2, '0')}`;
 }
 
-function formatSeconds(sec: number) {
+function formatSeconds(sec: number ){
   const m = Math.floor(sec / 60);
   const s = Math.floor(sec % 60);
   return `${m}:${String(s).padStart(2, '0')}`;
@@ -36,20 +36,20 @@ function getBestMimeType(): string {
     'audio/ogg',
   ];
   if (typeof MediaRecorder === 'undefined') return '';
-  return preferred.find(t => {
+  return preferred.find((t) => {
     try { return MediaRecorder.isTypeSupported(t); } catch { return false; }
   }) ?? '';
 }
 
 /** Guess extension from mime type */
-function extFromMime(mime: string) {
+function extFromMime(mime: string ){
   if (mime.includes('mp4')) return 'mp4';
   if (mime.includes('webm')) return 'webm';
   if (mime.includes('ogg')) return 'ogg';
   return 'webm';
 }
 
-export default function SoundRecorder() {
+export default function SoundRecorder( ){
   const [state, setState]           = useState<RecorderState>('idle');
   const [recordings, setRecordings] = useState<Recording[]>([]);
   const [elapsed, setElapsed]       = useState(0);
@@ -118,7 +118,7 @@ export default function SoundRecorder() {
       const usedMime = mr.mimeType || mimeType || 'audio/webm';
 
       chunksRef.current = [];
-      mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      mr.ondataavailable = (e: unknown ) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
       mr.onstop = () => {
         stream.getTracks().forEach((t) => t.stop());
         const blob = new Blob(chunksRef.current, { type: usedMime });
@@ -174,7 +174,7 @@ export default function SoundRecorder() {
     if (!el) return;
     const tick = () => {
       if (!el.paused && !el.ended && el.duration) {
-        setPlayPosition(prev => ({ ...prev, [idx]: el.currentTime / el.duration }));
+        setPlayPosition((prev) => ({ ...prev, [idx]: el.currentTime / el.duration }));
         playRafRef.current = requestAnimationFrame(tick);
       }
     };
@@ -201,7 +201,7 @@ export default function SoundRecorder() {
       el.preload = 'auto';
       el.onended = () => {
         setPlayingIdx(null);
-        setPlayPosition(prev => ({ ...prev, [idx]: 0 }));
+        setPlayPosition((prev) => ({ ...prev, [idx]: 0 }));
         cancelAnimationFrame(playRafRef.current);
       };
       el.onerror = () => {
@@ -212,7 +212,7 @@ export default function SoundRecorder() {
     }
     el.currentTime = 0;
     setPlayingIdx(idx);
-    setPlayPosition(prev => ({ ...prev, [idx]: 0 }));
+    setPlayPosition((prev) => ({ ...prev, [idx]: 0 }));
 
     el.play().then(() => {
       animatePlayback(idx);
@@ -234,7 +234,7 @@ export default function SoundRecorder() {
     const rect = e.currentTarget.getBoundingClientRect();
     const pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     el.currentTime = pct * el.duration;
-    setPlayPosition(prev => ({ ...prev, [idx]: pct }));
+    setPlayPosition((prev) => ({ ...prev, [idx]: pct }));
   }, []);
 
   /* delete */
@@ -248,7 +248,7 @@ export default function SoundRecorder() {
     if (playingIdx === idx) { setPlayingIdx(null); cancelAnimationFrame(playRafRef.current); }
     audioElsRef.current.get(idx)?.pause();
     audioElsRef.current.delete(idx);
-    setPlayPosition(prev => { const n = { ...prev }; delete n[idx]; return n; });
+    setPlayPosition((prev) => { const n = { ...prev }; delete n[idx]; return n; });
   }, [playingIdx]);
 
   /* download */
@@ -272,12 +272,12 @@ export default function SoundRecorder() {
   /* cleanup on unmount */
   useEffect(() => {
     // Capture current recordings in closure for cleanup
-    const urlsToRevoke = recordings.map(r => r.url);
+    const urlsToRevoke = recordings.map((r) => r.url);
     return () => {
       cancelAnimationFrame(animFrameRef.current);
       cancelAnimationFrame(playRafRef.current);
       if (timerRef.current) clearInterval(timerRef.current);
-      urlsToRevoke.forEach(url => URL.revokeObjectURL(url));
+      urlsToRevoke.forEach((url) => URL.revokeObjectURL(url));
     };
    
   }, [recordings]);
@@ -357,7 +357,7 @@ export default function SoundRecorder() {
             </span>
           </div>
 
-          {recordings.map((rec, idx) => {
+          {recordings.map((rec, idx: number) => {
             const isPlaying = playingIdx === idx;
             const pos = playPosition[idx] ?? 0;
             return (

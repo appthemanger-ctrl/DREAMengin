@@ -106,7 +106,7 @@ export default function DiffViewer({
   // ── Hunk start line indices (for scrolling) ─────────────────────────────────
   const hunkLineIndex: number[] = useMemo(() => {
     const idx: number[] = [];
-    lines.forEach((l, i) => {
+    lines.forEach((l, i: number) => {
       if (l.isHunkStart) idx.push(i);
     });
     return idx;
@@ -269,7 +269,7 @@ export default function DiffViewer({
             scrollbarWidth: 'thin',
           }}
         >
-          {lines.map((line, idx) => {
+          {lines.map((line, idx: number) => {
             const isActiveHunk = line.hunkIndex === activeHunk && !line.collapsed;
             return (
               <div

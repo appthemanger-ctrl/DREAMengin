@@ -29,7 +29,7 @@ function loadFollowSettings(): Record<string, FollowSettings> {
   catch { return {}; }
 }
 
-export function saveFollowSetting(handle: string, displayName: string, frequency: FollowFrequency) {
+export function saveFollowSetting(handle: string, displayName: string, frequency): FollowFrequency {
   const all = loadFollowSettings();
   all[handle] = { handle, displayName, frequency, savedAt: new Date().toISOString() };
   localStorage.setItem('de-follow-settings', JSON.stringify(all));
@@ -101,7 +101,7 @@ export default function FollowOnboarding({ handle, displayName, onConfirm, onClo
 
         {/* Options grid */}
         <div style={{ padding: '12px 16px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-          {FOLLOW_OPTIONS.map(opt => {
+          {FOLLOW_OPTIONS.map((opt) => {
             const active = selected === opt.id;
             return (
               <button

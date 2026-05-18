@@ -30,7 +30,7 @@ export { ResourcePool } from '../power-systems';
 export class ObjectPoolingSystem {
   // Use a mapped record keyed by name, value typed as generic pool.
    
-  private pools = new Map<string, ResourcePool<any>>();
+  private pools = new Map<string, ResourcePool<unknown>>();
 
   /**
    * Create and register a new pool.
@@ -68,6 +68,6 @@ export class ObjectPoolingSystem {
     const out: Record<string, unknown> = {};
     for (const [name, pool] of this.pools) out[name] = pool.stats;
      
-    return out as any;
+    return out as unknown;
   }
 }

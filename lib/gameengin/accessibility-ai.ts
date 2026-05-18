@@ -180,7 +180,7 @@ export class ColorVisionAdapter {
     if (this.profile === 'normal') return identity;
     const m = ColorVisionAdapter.MATRICES[this.profile];
     if (this.severity >= 1) return [...m];
-    return identity.map((v, i) => v * (1 - this.severity) + m[i] * this.severity);
+    return identity.map((v, i: number) => v * (1 - this.severity) + m[i] * this.severity);
   }
 
   apply(rgb: [number, number, number]): [number, number, number] {

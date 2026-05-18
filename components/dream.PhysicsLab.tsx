@@ -43,7 +43,7 @@ interface ExperimentRun {
   completedAt?: Date;
 }
 
-export default function PhysicsLab() {
+export default function PhysicsLab( ){
   const [activeTab, setActiveTab] = useState<'design' | 'run' | 'analyze' | 'collaborate'>('design');
   const [isRunning, setIsRunning] = useState(false);
   const [experiments, setExperiments] = useState<ExperimentRun[]>([]);
@@ -116,7 +116,7 @@ export default function PhysicsLab() {
       startedAt: new Date(),
     };
     
-    setExperiments(prev => [newRun, ...prev]);
+    setExperiments((prev) => [newRun, ...prev]);
 
     // Simulate CCC calculation
     setTimeout(() => {
@@ -143,11 +143,11 @@ export default function PhysicsLab() {
         completedAt: new Date(),
       };
 
-      setExperiments(prev => 
-        prev.map(exp => exp.id === newRun.id ? completedRun : exp)
+      setExperiments((prev) => 
+        prev.map((exp) => exp.id === newRun.id ? completedRun : exp)
       );
       setIsRunning(false);
-      setCurrentRun(prev => prev + 1);
+      setCurrentRun((prev) => prev + 1);
     }, 3000);
   };
 
@@ -186,7 +186,7 @@ export default function PhysicsLab() {
   };
 
   const generateLayerOutputs = (layers: number) => {
-    return Array.from({ length: Math.min(layers, 99) }, (_, i) => ({
+    return Array.from({ length: Math.min(layers, 99) }, (_, i: number ) => ({
       layer: i + 1,
       activation: Math.random() * 0.5 + 0.5,
       coherence: Math.random() * 0.3 + 0.7,
@@ -195,14 +195,14 @@ export default function PhysicsLab() {
   };
 
   const generateWaveform = () => {
-    return Array.from({ length: 100 }, (_, i) => ({
+    return Array.from({ length: 100 }, (_, i: number ) => ({
       x: i,
       y: Math.sin(i * 0.1) * Math.exp(-i * 0.01) + Math.random() * 0.1,
     }));
   };
 
   const generateSpectralData = () => {
-    return Array.from({ length: 50 }, (_, i) => ({
+    return Array.from({ length: 50 }, (_, i: number ) => ({
       frequency: i * 0.5,
       amplitude: Math.random() * Math.exp(-i * 0.05),
       phase: Math.random() * Math.PI * 2,
@@ -303,7 +303,7 @@ export default function PhysicsLab() {
                     min="1"
                     max="99"
                     value={cccParams.layers}
-                    onChange={(e) => setCCCParams(prev => ({ ...prev, layers: parseInt(e.target.value) }))}
+                    onChange={(e) => setCCCParams((prev) => ({ ...prev, layers: parseInt(e.target.value) }))}
                     className="w-full"
                   />
                   <div className="flex justify-between text-xs text-slate-500 mt-1">
@@ -328,7 +328,7 @@ export default function PhysicsLab() {
                     max="1"
                     step="0.01"
                     value={cccParams.coherenceThreshold}
-                    onChange={(e) => setCCCParams(prev => ({ ...prev, coherenceThreshold: parseFloat(e.target.value) }))}
+                    onChange={(e) => setCCCParams((prev) => ({ ...prev, coherenceThreshold: parseFloat(e.target.value) }))}
                     className="w-full"
                   />
                   <div className="flex justify-between text-xs text-slate-500 mt-1">
@@ -350,7 +350,7 @@ export default function PhysicsLab() {
                     max="2"
                     step="0.1"
                     value={cccParams.entropyBudget}
-                    onChange={(e) => setCCCParams(prev => ({ ...prev, entropyBudget: parseFloat(e.target.value) }))}
+                    onChange={(e) => setCCCParams((prev) => ({ ...prev, entropyBudget: parseFloat(e.target.value) }))}
                     className="w-full"
                   />
                   <div className="flex justify-between text-xs text-slate-500 mt-1">
@@ -367,7 +367,7 @@ export default function PhysicsLab() {
                   </label>
                   <select
                     value={cccParams.boundaryCondition}
-                    onChange={(e) => setCCCParams(prev => ({ ...prev, boundaryCondition: e.target.value as 'open' | 'closed' | 'periodic' }))}
+                    onChange={(e) => setCCCParams((prev) => ({ ...prev, boundaryCondition: e.target.value as 'open' | 'closed' | 'periodic' }))}
                     className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg"
                   >
                     <option value="closed">Closed (Full Ledger)</option>
@@ -391,7 +391,7 @@ export default function PhysicsLab() {
                     max="1"
                     step="0.01"
                     value={cccParams.transferCoefficient}
-                    onChange={(e) => setCCCParams(prev => ({ ...prev, transferCoefficient: parseFloat(e.target.value) }))}
+                    onChange={(e) => setCCCParams((prev) => ({ ...prev, transferCoefficient: parseFloat(e.target.value) }))}
                     className="w-full"
                   />
                   <div className="flex justify-between text-xs text-slate-500 mt-1">

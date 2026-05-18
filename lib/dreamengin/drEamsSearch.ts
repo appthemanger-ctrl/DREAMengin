@@ -46,7 +46,7 @@ export const NAV_SUGGESTIONS: NavSuggestion[] = [
 export function matchNavSuggestions(query: string, limit = 5): NavSuggestion[] {
   if (!query.trim()) return [];
   const q = query.trim().toLowerCase();
-  return NAV_SUGGESTIONS.filter(s => s.label.toLowerCase().includes(q)).slice(0, limit);
+  return NAV_SUGGESTIONS.filter((s) => s.label.toLowerCase().includes(q)).slice(0, limit);
 }
 
 // ---------------------------------------------------------------------------

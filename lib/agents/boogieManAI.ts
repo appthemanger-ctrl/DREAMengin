@@ -41,7 +41,7 @@ export function checkPolicy(check: PolicyCheck): PolicyResult {
   return { verdict: "allow" };
 }
 
-export function emitBoogieManEvent(detail: PolicyResult) {
+export function emitBoogieManEvent(detail: PolicyResult ){
   if (typeof window === "undefined") return;
   window.dispatchEvent(
     new CustomEvent<PolicyResult>(BOOGIEMAN_EVENT, { detail })

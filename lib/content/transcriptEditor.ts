@@ -72,7 +72,7 @@ export function parseSRT(srt: string): TranscriptSegment[] {
 
     const startMs = srtTimeToMs(timeMatch[1], timeMatch[2], timeMatch[3], timeMatch[4]);
     const endMs = srtTimeToMs(timeMatch[5], timeMatch[6], timeMatch[7], timeMatch[8]);
-    const wordOffset = segments.flatMap(s => s.words).length;
+    const wordOffset = segments.flatMap((s) => s.words).length;
     const words = syllableProportionalWords(text, startMs, endMs, wordOffset);
 
     segments.push({ id, startMs, endMs, text, words });
@@ -110,7 +110,7 @@ export function parseVTT(vtt: string): TranscriptSegment[] {
       i++;
     }
     const text = textLines.join(' ').replace(/<[^>]+>/g, '');
-    const wordOffset = segments.flatMap(s => s.words).length;
+    const wordOffset = segments.flatMap((s) => s.words).length;
     const words = syllableProportionalWords(text, startMs, endMs, wordOffset);
     segments.push({ id: id++, startMs, endMs, text, words });
     i++;
@@ -134,8 +134,8 @@ export function computeCuts(
   segments: TranscriptSegment[],
   deletedIdx: Set<number>
 ): TimelineCut[] {
-  const allWords = segments.flatMap(s => s.words);
-  const toDelete = allWords.filter(w => deletedIdx.has(w.index));
+  const allWords = segments.flatMap((s) => s.words);
+  const toDelete = allWords.filter((w) => deletedIdx.has(w.index));
   if (toDelete.length === 0) return [];
 
   const sorted = [...toDelete].sort((a, b) => a.startMs - b.startMs);
@@ -170,11 +170,11 @@ export function applyEditsToSegments(
 ): TranscriptSegment[] {
   const result: TranscriptSegment[] = [];
   for (const seg of segments) {
-    const kept = seg.words.filter(w => !deletedIdx.has(w.index));
+    const kept = seg.words.filter((w) => !deletedIdx.has(w.index));
     if (kept.length === 0) continue;
     result.push({
       ...seg,
-      text: kept.map(w => w.word).join(' '),
+      text: kept.map((w) => w.word).join(' '),
       words: kept,
       // Tighten segment bounds to first/last kept word
       startMs: kept[0].startMs,
@@ -196,7 +196,7 @@ export function applyEditsToSegments(
  */
 export function exportSRT(segments: TranscriptSegment[]): string {
   return segments
-    .map((seg, idx) => {
+    .map((seg, idx: number) => {
       const start = msToSrtTime(seg.startMs);
       const end = msToSrtTime(seg.endMs);
       return `${idx + 1}\n${start} --> ${end}\n${seg.text}`;
@@ -252,9 +252,9 @@ export function annotateSearchMatches(
 ): TranscriptSegment[] {
   if (!query.trim()) return segments;
   const q = query.trim().toLowerCase();
-  return segments.map(seg => ({
+  return segments.map((seg) => ({
     ...seg,
-    words: seg.words.map(w => ({
+    words: seg.words.map((w) => ({
       ...w,
       isSearchMatch: w.word.toLowerCase().includes(q),
     })),
@@ -269,7 +269,7 @@ export function annotateSearchMatches(
  * Flatten all segments back to plain text for display.
  */
 export function segmentsToPlainText(segments: TranscriptSegment[]): string {
-  return segments.map(s => s.text).join(' ');
+  return segments.map((s) => s.text).join(' ');
 }
 
 /**
@@ -319,7 +319,7 @@ function syllableProportionalWords(
   const rawWords = text.split(/\s+/).filter(Boolean);
   if (rawWords.length === 0) return [];
   const duration = endMs - startMs;
-  const syllables = rawWords.map(w => countSyllables(w));
+  const syllables = rawWords.map((w) => countSyllables(w));
   const totalSyllables = syllables.reduce((a, b) => a + b, 0) || rawWords.length;
 
   const result: TranscriptWord[] = [];

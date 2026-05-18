@@ -38,7 +38,7 @@ export function resolveRendererBackend(
   }
 }
 
-export function createPerformanceBaselineSampler(maxSamples = 90) {
+export function createPerformanceBaselineSampler(maxSamples = 90 ){
   let hasFirstFrame = false;
   let lastTimestamp = 0;
   const frameHistory: number[] = [];

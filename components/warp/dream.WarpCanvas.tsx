@@ -24,7 +24,7 @@ export interface WarpCanvasProps {
   opacity?: number;
 }
 
-export default function WarpCanvas({
+export default function WarpCanvas(){
   effect      = 'flow',
   maxParticles = 200,
   spawnRate    = 25,

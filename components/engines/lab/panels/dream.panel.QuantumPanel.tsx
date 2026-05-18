@@ -40,7 +40,7 @@ const GATE_DEFS: GateDef[] = [
 const QUBITS = 4;
 const COLS = 8;
 
-function gateDef(type: GateType) {
+function gateDef(type: GateType ){
   return GATE_DEFS.find((g) => g.type === type)!;
 }
 
@@ -61,7 +61,7 @@ function simulateMeasurements(gates: Gate[]): string {
   return results.join('\n');
 }
 
-export default function QuantumPanel() {
+export default function QuantumPanel( ){
   const [gates, setGates] = useState<Gate[]>([]);
   const [selectedGate, setSelectedGate] = useState<GateType>('H');
   const [result, setResult] = useState<string | null>(null);
@@ -80,12 +80,12 @@ export default function QuantumPanel() {
     setResult(null);
   }, []);
 
-  function clear() {
+  function clear( ){
     setGates([]);
     setResult(null);
   }
 
-  function measure() {
+  function measure( ){
     setResult(simulateMeasurements(gates));
   }
 
@@ -130,16 +130,16 @@ export default function QuantumPanel() {
               <thead>
                 <tr>
                   <th className="w-16 py-2 text-[10px] text-white/20 font-normal">Qubit</th>
-                  {Array.from({ length: COLS }, (_, i) => (
+                  {Array.from({ length: COLS }, (_, i: number ) => (
                     <th key={i} className="w-12 py-2 text-[10px] text-white/20 font-normal">{i + 1}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {Array.from({ length: QUBITS }, (_, q) => (
+                {Array.from(({ length: QUBITS }, _, q: Record<string, unknown>) => (
                   <tr key={q} className="border-t border-white/[0.04]">
                     <td className="py-2 px-3 text-xs text-white/40 font-mono">|q{q}⟩</td>
-                    {Array.from({ length: COLS }, (_, col) => {
+                    {Array.from({ length: COLS }, (_, col: number ) => {
                       const gate = gates.find((g) => g.qubit === q && g.col === col);
                       const def = gate ? gateDef(gate.type) : null;
                       return (

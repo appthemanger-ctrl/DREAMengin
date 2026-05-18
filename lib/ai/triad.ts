@@ -203,7 +203,7 @@ export async function planWithEams(input: {
 
       const intents: Intent[] = intentsRaw
         .slice(0, 3)
-        .map((x: Record<string, unknown>) => {
+        .map((x) => {
           const base = {
             intent_id: typeof x?.intent_id === 'string' ? x.intent_id : uuidv4(),
             type: x?.type as IntentType,
@@ -281,7 +281,7 @@ export function validateWithIdari(
   const notes: string[] = [];
   const allowed = context === 'admin' ? ADMIN_ALLOWED_INTENT_TYPES : USER_ALLOWED_INTENT_TYPES;
   const filtered = intents
-    .filter((i) => allowed.includes(i.type))
+    .filter((i: number ) => allowed.includes(i.type))
     .slice(0, 3);
 
   if (filtered.length !== intents.length) {

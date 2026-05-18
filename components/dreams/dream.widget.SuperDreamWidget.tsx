@@ -78,7 +78,7 @@ function groupIntoClusters(windows: DreamWindowRecord[]): ClusterGroup[] {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function DreamWindowTile({
+function DreamWindowTile(){
   window: w,
   onRemove,
   onBind,
@@ -173,12 +173,7 @@ function actionBtn(color: string): React.CSSProperties {
   };
 }
 
-function ClusterCard({ group, onRemove, onBind, onCollapse }: {
-  group: ClusterGroup;
-  onRemove: (id: string) => void;
-  onBind: (id: string) => void;
-  onCollapse: (id: string) => void;
-}) {
+function ClusterCard({ group, onRemove, onBind, onCollapse }: { group: ClusterGroup; onRemove: (id: string) => void; onBind: (id: string) => void; onCollapse: (id: string) => void }) {
   const layout = group.windows.length > 2 ? 'grid' : 'stack';
 
   return (
@@ -230,7 +225,7 @@ export interface SuperDreamWidgetProps {
   title?: string;
 }
 
-export default function SuperDreamWidget({
+export default function SuperDreamWidget(){
   types,
   title = 'Dream Windows',
 }: SuperDreamWidgetProps) {
@@ -293,7 +288,7 @@ export default function SuperDreamWidget({
         <span className="de-widget-title">{title}</span>
         <button
           type="button"
-          onClick={() => setAdding((v) => !v)}
+          onClick={() => setAdding((v: number ) => !v)}
           style={{
             fontSize: 18,
             lineHeight: 1,
@@ -385,4 +380,3 @@ export default function SuperDreamWidget({
     </section>
   );
 }
-

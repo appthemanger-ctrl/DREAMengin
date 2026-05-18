@@ -284,7 +284,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
   useEffect(() => {
     upgradeEngine({ id: 'starmaker', name: 'StarMakerEngin' }, ['bridge', 'telemetry'])
-      .then(upgraded => { osRef.current = upgraded; });
+      .then((upgraded) => { osRef.current = upgraded; });
   }, []);
 
   // ── OS Shell: local event bus for module-to-module messaging ──
@@ -399,7 +399,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   }, []);
 
   // ── Supabase: publish draft ──
-  async function handlePublish(releaseId: string) {
+  async function handlePublish(releaseId: string ){
     setPublishing(releaseId);
     forgeRecord('Published release');
     const supabase = createClient();
@@ -408,8 +408,8 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
       .update({ visibility: 'public' })
       .eq('id', releaseId);
     if (!error) {
-      setReleases(prev =>
-        prev.map(r => r.id === releaseId ? { ...r, visibility: 'public' } : r),
+      setReleases((prev) =>
+        prev.map((r) => r.id === releaseId ? { ...r, visibility: 'public' } : r),
       );
       recordForgeTransfer('music', 'brand', 'release-publish', 'StarMaker release → BrandEngin');
     }
@@ -424,8 +424,8 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   // ── Beat grid toggle ──
   const toggleBeat = useCallback((chIdx: number, stepIdx: number) => {
     triggerVoiceRef.current?.(chIdx, stepIdx);
-    setBeatGrid(prev => {
-      const next = prev.map(row => [...row]);
+    setBeatGrid((prev) => {
+      const next = prev.map((row) => [...row]);
       next[chIdx][stepIdx] = !next[chIdx][stepIdx];
       return next;
     });
@@ -433,7 +433,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
 
   // ── BPM handlers ──
   const changeBpm = useCallback((delta: number) => {
-    setBpm(prev => clamp(prev + delta, 60, 180));
+    setBpm((prev) => clamp(prev + delta, 60, 180));
   }, []);
 
   const handleBpmInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -443,12 +443,12 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
 
   // ── Mixer fader ──
   const handleMixerChange = useCallback((ch: keyof MixerState, value: number) => {
-    setMixer(prev => ({ ...prev, [ch]: value }));
+    setMixer((prev) => ({ ...prev, [ch]: value }));
   }, []);
 
   // ── Effect toggle ──
   const toggleEffect = useCallback((effect: EffectName) => {
-    setActiveEffects(prev => {
+    setActiveEffects((prev) => {
       const next = new Set(prev);
       if (next.has(effect)) { next.delete(effect); } else { next.add(effect); }
       return next;
@@ -457,7 +457,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
 
   // ── Stem toggle ──
   const toggleStem = useCallback((key: StemKey) => {
-    setStemReady(prev => ({ ...prev, [key]: !prev[key] }));
+    setStemReady((prev) => ({ ...prev, [key]: !prev[key] }));
     setExportDone(false);
   }, []);
 
@@ -486,7 +486,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
         key: `${musicalKey} ${keyMode}`,
         mixerLevel: mixer[key as keyof typeof mixer] || 0.7,
         effects: Array.from(activeEffects),
-        beatPattern: beatGrid[STEM_LIST.findIndex(s => s.key === key)] || [],
+        beatPattern: beatGrid[STEM_LIST.findIndex((s) => s.key === key)] || [],
       });
 
       // Attempt async binary upload to Supabase Storage — silent catch, never blocks export.
@@ -595,8 +595,8 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
     }
     if (evt.type === 'starmaker:beat') {
       const { chIdx, stepIdx, active: on } = evt as unknown as { chIdx: number; stepIdx: number; active: boolean };
-      setBeatGrid(prev => {
-        const next = prev.map(row => [...row]);
+      setBeatGrid((prev) => {
+        const next = prev.map((row) => [...row]);
         if (next[chIdx]) next[chIdx][stepIdx] = on;
         return next;
       });
@@ -630,7 +630,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   }), [stemReady, releases.length, playlist.length, effectList, qualityMode, collabActive]);
 
   const buildPlaybackBars = useCallback((stepSeed: number) => (
-    Array.from({ length: 32 }, (_, index) => {
+    Array.from({ length: 32 }, (_, index: number) => {
       const channelIndex = index % BEAT_CHANNELS.length;
       const stepIndex = (stepSeed + Math.floor(index / 4)) % BEAT_STEPS;
       const channelLevel = [
@@ -769,7 +769,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
 
     const stepMs = Math.max(100, (60 / bpm) * (1000 / STEP_DIVISION_PER_BEAT));
     const timer = setInterval(() => {
-      setPlaybackStep(prev => {
+      setPlaybackStep((prev) => {
         const next = (prev + 1) % BEAT_STEPS;
         playPreviewStep(next);
         return next;
@@ -787,7 +787,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   }, []);
 
   // ── Waveform toggle handler ──
-  function handleWaveformToggle() {
+  function handleWaveformToggle( ){
     const next = !waveformRecording;
     setWaveformRecording(next);
     if (next) setWaveformBars(buildPlaybackBars(playbackStep));
@@ -796,7 +796,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
     );
   }
 
-  function handleTransportToggle() {
+  function handleTransportToggle( ){
     if (playbackActive) {
       setPlaybackActive(false);
       setPlaybackStep(0);
@@ -820,16 +820,16 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   }
 
   // ── Chord play handler ──
-  function handleChordPlay(index: number) {
+  function handleChordPlay(index: number ){
     setChordPlaying(index);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'music', 'music:chord-play', { chord: chordProgression[index], index },
     );
-    setTimeout(() => setChordPlaying(prev => prev === index ? null : prev), 1000);
+    setTimeout(() => setChordPlaying((prev) => prev === index ? null : prev), 1000);
   }
 
   // ── Melody ask handler ──
-  function handleMelodyAsk() {
+  function handleMelodyAsk( ){
     setMelodyLoading(true);
     setMelodySuggestions([]);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
@@ -849,7 +849,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   }
 
   // ── Collab toggle handler ──
-  function handleCollabToggle() {
+  function handleCollabToggle( ){
     if (!collabActive) {
       const code = Math.random().toString(36).slice(2, 8).toUpperCase();
       setCollabCode(code);
@@ -859,12 +859,12 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
       // Publish initial state snapshot to the channel so joining peers sync immediately.
       void coopPublish({ type: 'starmaker:state', bpm, musicalKey, keyMode, pitch, beatGrid, mixer, effectList });
     }
-    setCollabActive(prev => !prev);
+    setCollabActive((prev) => !prev);
   }
 
   // ── Playlist reorder handler ──
-  function movePlaylistItem(index: number, direction: 'up' | 'down') {
-    setPlaylist(prev => {
+  function movePlaylistItem(index: number, direction): 'up' | 'down' {
+    setPlaylist((prev) => {
       const next = [...prev];
       const target = direction === 'up' ? index - 1 : index + 1;
       if (target < 0 || target >= next.length) return prev;
@@ -873,16 +873,16 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
     });
   }
 
-  function handleSavePlaylist() {
+  function handleSavePlaylist( ){
     forgeRecord('Saved playlist');
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
-      'music', 'music:playlist-save', { order: playlist.map(p => p.id) },
+      'music', 'music:playlist-save', { order: playlist.map((p) => p.id) },
     );
   }
 
   // ── Preset Library handlers ──
-  function handleApplyPreset(preset: BeatPreset) {
-    setBeatGrid(preset.grid.map(row => [...row]));
+  function handleApplyPreset(preset: BeatPreset ){
+    setBeatGrid(preset.grid.map((row) => [...row]));
     setBpm(clamp(preset.bpm, 60, 180));
     setMusicalKey(preset.key as MusicalKey);
     setKeyMode(preset.keyMode);
@@ -896,7 +896,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
     );
   }
 
-  function handleApplyInstrument(inst: InstrumentPreset) {
+  function handleApplyInstrument(inst: InstrumentPreset ){
     setMixer({ ...inst.mixer });
     setActiveEffects(new Set(inst.effects as EffectName[]));
     setPitch(inst.pitch);
@@ -905,7 +905,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
     );
   }
 
-  function handleApplyTemplate(tmpl: ProjectTemplate) {
+  function handleApplyTemplate(tmpl: ProjectTemplate ){
     handleApplyPreset(tmpl.preset);
     handleApplyInstrument(tmpl.instrument);
     setQualityMode(tmpl.qualityMode);
@@ -914,7 +914,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
 
   // ── Listen for recordings sent from SoundRecorder via CustomEvent ──
   useEffect(() => {
-    function handleRecordingEvent(e: Event) {
+    function handleRecordingEvent(e: Event ){
       const detail = (e as CustomEvent<{ blob: Blob; name: string; mimeType: string }>).detail;
       if (detail?.blob) setExternalLoadRequest({ ...detail });
     }
@@ -1044,7 +1044,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
           melodySuggestions={melodySuggestions}
           melodyLoading={melodyLoading}
           onChangeChord={(i, v) =>
-            setChordProgression(prev => prev.map((c, idx) => (idx === i ? v : c)))
+            setChordProgression((prev) => prev.map((c, idx: number) => (idx === i ? v : c)))
           }
           onChordPlay={handleChordPlay}
           onMelodyAsk={handleMelodyAsk}
@@ -1102,7 +1102,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
             <button
               type="button"
               onClick={() => {
-                setShow3DVisualizer(v => !v);
+                setShow3DVisualizer((v) => !v);
                 osRef.current?.telemetry?.log('3D visualizer toggled');
                 busRef.current.emit('starmaker:3d-visualizer', { open: !show3DVisualizer });
               }}
@@ -1119,7 +1119,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
             <button
               type="button"
               onClick={() => {
-                setIsolateActive(v => !v);
+                setIsolateActive((v) => !v);
                 osRef.current?.telemetry?.log('fingerprint isolator toggled');
                 busRef.current.emit('starmaker:fingerprint-isolate', { active: !isolateActive });
               }}
@@ -1137,7 +1137,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
             <button
               type="button"
               onClick={() => {
-                setShowSharedDream(v => !v);
+                setShowSharedDream((v) => !v);
                 osRef.current?.telemetry?.log('shared dream toggled');
                 busRef.current.emit('starmaker:shared-dream', { channelId: sharedDreamId });
               }}
@@ -1198,6 +1198,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
 
       </div>
     </div>
+    </ArtifactSlot>
   );
 }
 
@@ -1477,7 +1478,7 @@ function DAWMultiTrackPanel({
 
   function makeWaveform(key: string, level: number, steps: number): number[] {
     const seed = key.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-    return Array.from({ length: steps }, (_, i) => {
+    return Array.from({ length: steps }, (_, i: number ) => {
       const pseudo = Math.abs(Math.sin((seed * 7 + i * 1.618) * 2.399)) * level;
       return 0.08 + pseudo * 0.88;
     });
@@ -1558,7 +1559,7 @@ function DAWMultiTrackPanel({
                 }} />
               )}
 
-              {waveform.map((h, i) => {
+              {waveform.map((h, i: number) => {
                 const isPast = playing && i < currentSegment;
                 const isCurrent = playing && i === currentSegment;
                 return (
@@ -1615,18 +1616,18 @@ function DAWStemSplitterPanel({
   const anyChecked = Object.values(stemReady).some(Boolean);
   const allChecked = Object.values(stemReady).every(Boolean);
 
-  function toggleAll() {
+  function toggleAll( ){
     const allKeys: StemKey[] = ['vocals', 'drums', 'bass', 'other'];
     if (allChecked) {
-      allKeys.forEach(k => { if (stemReady[k]) onToggleStem(k); });
+      allKeys.forEach((k) => { if (stemReady[k]) onToggleStem(k); });
     } else {
-      allKeys.forEach(k => { if (!stemReady[k]) onToggleStem(k); });
+      allKeys.forEach((k) => { if (!stemReady[k]) onToggleStem(k); });
     }
   }
 
   return (
     <div style={{ background: DAW.surface, borderBottom: `1px solid ${DAW.border}` }}>
-      <button type="button" onClick={() => setExpanded(e => !e)}
+      <button type="button" onClick={() => setExpanded((e) => !e)}
         style={{
           width: '100%', background: '#111420',
           border: 'none', borderBottom: `1px solid ${DAW.border}`,
@@ -1719,7 +1720,7 @@ function DAWStemSplitterPanel({
             <button type="button"
               onClick={() => {
                 const allKeys: StemKey[] = ['vocals', 'drums', 'bass', 'other'];
-                allKeys.forEach(k => { if (stemReady[k]) onToggleStem(k); });
+                allKeys.forEach((k) => { if (stemReady[k]) onToggleStem(k); });
               }}
               style={{
                 flex: 1, padding: '10px', borderRadius: 8,
@@ -1809,7 +1810,7 @@ function DAWPatternSequencer({
           {profile.activeSteps} hits · {profile.loopSeconds}s loop
         </span>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: 4 }}>
-          {(['idea', 'streaming', 'studio'] as const).map(mode => (
+          {(['idea', 'streaming', 'studio'] as const).map((mode) => (
             <button key={mode} type="button" onClick={() => onQualityModeChange(mode)}
               style={{
                 fontSize: 9, fontWeight: 700, padding: '3px 7px', borderRadius: 4,
@@ -1827,7 +1828,7 @@ function DAWPatternSequencer({
       <div style={{ padding: '12px 12px 16px' }}>
         {/* Arrangement blocks — Logic Pro-style colored strips */}
         <div style={{ display: 'flex', gap: 3, marginBottom: 10, overflowX: 'auto', paddingBottom: 4 }}>
-          {ARRANGEMENT_SECTIONS.map((sec, i) => (
+          {ARRANGEMENT_SECTIONS.map((sec, i: number) => (
             <div key={i} style={{
               background: sec.color,
               borderRadius: 6,
@@ -1843,7 +1844,7 @@ function DAWPatternSequencer({
                 overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
               }}>{sec.label}</span>
               <div style={{ display: 'flex', alignItems: 'flex-end', gap: 1, height: 18 }}>
-                {Array.from({ length: 10 }, (_, j) => (
+                {Array.from({ length: 10 }, (_, j: number ) => (
                   <div key={j} style={{
                     flex: 1, background: 'rgba(255,255,255,0.5)', borderRadius: 1,
                     height: `${20 + Math.abs(Math.sin(i * 3.1 + j * 1.4)) * 70}%`,
@@ -1856,7 +1857,7 @@ function DAWPatternSequencer({
 
         {/* Song section labels */}
         <div style={{ display: 'flex', gap: 2, marginBottom: 10 }}>
-          {SONG_SECTIONS.map((sec, i) => (
+          {SONG_SECTIONS.map((sec, i: number) => (
             <div key={i} style={{
               flex: sec.width,
               background: 'rgba(255,255,255,0.08)',
@@ -1891,7 +1892,7 @@ function DAWPatternSequencer({
               {playing ? '■' : '▶'}
             </button>
           </div>
-          {Array.from({ length: BEAT_STEPS }, (_, i) => (
+          {Array.from({ length: BEAT_STEPS }, (_, i: number ) => (
             <div key={i} style={{
               textAlign: 'center', fontSize: 9, fontWeight: 700,
               color: playing && playbackStep === i ? DAW.accent : DAW.dim,
@@ -1962,10 +1963,10 @@ function DAWPatternSequencer({
             gap: 4, alignItems: 'flex-end', height: 28,
           }}>
             <div />
-            {Array.from({ length: BEAT_STEPS }, (_, i) => {
-              const anyActive = beatGrid.some(row => row[i]);
+            {Array.from({ length: BEAT_STEPS }, (_, i: number ) => {
+              const anyActive = beatGrid.some((row) => row[i]);
               const h = anyActive ? 40 + Math.abs(Math.sin(i * 1.7)) * 60 : 15;
-              const chIdx = beatGrid.findIndex(row => row[i]);
+              const chIdx = beatGrid.findIndex((row) => row[i]);
               const color = chIdx >= 0 ? PAD_CHANNEL_COLORS[chIdx]?.on : DAW.dim;
               return (
                 <div key={i} style={{
@@ -2018,7 +2019,7 @@ function DAWMixerEffectsPanel({ mixer, activeEffects, onMixerChange, onToggleEff
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <button
             type="button"
-            onClick={() => setMixExpanded(prev => !prev)}
+            onClick={() => setMixExpanded((prev) => !prev)}
             aria-expanded={mixExpanded}
             style={dawDisclosureToggleStyle(mixExpanded)}
           >
@@ -2060,7 +2061,7 @@ function DAWMixerEffectsPanel({ mixer, activeEffects, onMixerChange, onToggleEff
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <button
             type="button"
-            onClick={() => setFxExpanded(prev => !prev)}
+            onClick={() => setFxExpanded((prev) => !prev)}
             aria-expanded={fxExpanded}
             style={dawDisclosureToggleStyle(fxExpanded)}
           >
@@ -2077,7 +2078,7 @@ function DAWMixerEffectsPanel({ mixer, activeEffects, onMixerChange, onToggleEff
             <div style={dawDisclosureTrayStyle}>
               <div style={{ fontSize: 10, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em', marginBottom: 8 }}>EFFECTS</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 5 }}>
-                {EFFECT_LIST.map(effect => {
+                {EFFECT_LIST.map((effect) => {
                   const on = activeEffects.has(effect);
                   return (
                     <button key={effect} type="button" onClick={() => onToggleEffect(effect)}
@@ -2147,7 +2148,7 @@ function DAWKeyPitchPanel({
         <div>
           <div style={{ fontSize: 10, fontWeight: 700, color: DAW.dim, letterSpacing: '0.08em', marginBottom: 6 }}>TEMPO</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            {([-5, -1] as const).map(d => (
+            {([-5, -1] as const).map((d) => (
               <button key={d} type="button" onClick={() => onChangeBpm(d)}
                 style={{ padding: '4px 8px', borderRadius: 5, border: `1px solid ${DAW.border}`, background: DAW.surfaceHi, color: DAW.dim, fontWeight: 700, fontSize: 10, cursor: 'pointer' }}>
                 {d}
@@ -2162,7 +2163,7 @@ function DAWKeyPitchPanel({
                 minWidth: 0, MozAppearance: 'textfield',
               }}
             />
-            {([1, 5] as const).map(d => (
+            {([1, 5] as const).map((d) => (
               <button key={d} type="button" onClick={() => onChangeBpm(d)}
                 style={{ padding: '4px 8px', borderRadius: 5, border: `1px solid ${DAW.border}`, background: DAW.surfaceHi, color: DAW.dim, fontWeight: 700, fontSize: 10, cursor: 'pointer' }}>
                 +{d}
@@ -2189,7 +2190,7 @@ function DAWKeyPitchPanel({
                 aria-label="Musical key"
                 style={pickerStyle}
               >
-                {MUSICAL_KEYS.map(keyOption => (
+                {MUSICAL_KEYS.map((keyOption) => (
                   <option key={keyOption} value={keyOption}>
                     {keyOption}
                   </option>
@@ -2269,7 +2270,7 @@ function DAWChordMelodyPanel({
 
       <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-          {progression.map((chord, i) => (
+          {progression.map((chord, i: number) => (
             <div key={i} style={{
               padding: '10px 12px', borderRadius: 10,
               background: chordPlaying === i ? `${DAW.accent}12` : DAW.surfaceHi,
@@ -2284,7 +2285,7 @@ function DAWChordMelodyPanel({
                   border: `1px solid ${DAW.border}`,
                   background: '#0f1117', color: DAW.text, cursor: 'pointer',
                 }}>
-                {COMMON_CHORDS_DAW.map(c => <option key={c} value={c}>{c}</option>)}
+                {COMMON_CHORDS_DAW.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
               <button type="button" onClick={() => onChordPlay(i)} aria-label={`Play ${chord}`}
                 style={{
@@ -2301,7 +2302,7 @@ function DAWChordMelodyPanel({
 
         {melodySuggestions.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {melodySuggestions.map(s => (
+            {melodySuggestions.map((s) => (
               <div key={s.title} style={{
                 padding: '9px 12px', borderRadius: 10,
                 background: `${DAW.accent}08`, border: `1px solid ${DAW.accent}22`,
@@ -2367,13 +2368,13 @@ function DAWReleasePanel({ strategy, releases, loading, publishing, onPublish }:
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           <div style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.15)' }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: DAW.green, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Strengths</div>
-            {(strategy.strengths.length > 0 ? strategy.strengths : ['Build momentum with stems, mastering, and playlists.']).map(item => (
+            {(strategy.strengths.length > 0 ? strategy.strengths : ['Build momentum with stems, mastering, and playlists.']).map((item) => (
               <div key={item} style={{ fontSize: 11, color: DAW.text, marginTop: 6 }}>• {item}</div>
             ))}
           </div>
           <div style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(249,115,22,0.06)', border: '1px solid rgba(249,115,22,0.15)' }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: DAW.orange, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Next Fixes</div>
-            {(strategy.blockers.length > 0 ? strategy.blockers : ['No blockers — move into launch mode.']).map(item => (
+            {(strategy.blockers.length > 0 ? strategy.blockers : ['No blockers — move into launch mode.']).map((item) => (
               <div key={item} style={{ fontSize: 11, color: DAW.text, marginTop: 6 }}>• {item}</div>
             ))}
           </div>
@@ -2390,7 +2391,7 @@ function DAWReleasePanel({ strategy, releases, loading, publishing, onPublish }:
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {releases.map(r => (
+              {releases.map((r) => (
                 <div key={r.id} style={{
                   display: 'flex', alignItems: 'center', gap: 10,
                   padding: '8px 12px', borderRadius: 8,
@@ -2473,7 +2474,7 @@ function DAWCollabPlaylistPanel({
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
-                {['Dr. Eams', 'Guest'].map(name => (
+                {['Dr. Eams', 'Guest'].map((name) => (
                   <div key={name} style={{
                     flex: 1, padding: '8px 10px', borderRadius: 10, textAlign: 'center',
                     background: DAW.surfaceHi, border: `1px solid ${DAW.border}`,
@@ -2503,7 +2504,7 @@ function DAWCollabPlaylistPanel({
         {/* Playlist */}
         <div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {playlist.map((track, i) => (
+            {playlist.map((track, i: number) => (
               <div key={track.id} style={{
                 display: 'flex', alignItems: 'center', gap: 8,
                 padding: '8px 12px', borderRadius: 8,
@@ -2515,7 +2516,7 @@ function DAWCollabPlaylistPanel({
                 </span>
                 <span style={{ fontSize: 11, color: DAW.dim, flexShrink: 0 }}>{track.duration}</span>
                 <div style={{ display: 'flex', gap: 3, flexShrink: 0 }}>
-                  {(['up', 'down'] as const).map(dir => (
+                  {(['up', 'down'] as const).map((dir) => (
                     <button key={dir} type="button" onClick={() => onPlaylistMove(i, dir)}
                       disabled={dir === 'up' ? i === 0 : i === playlist.length - 1}
                       aria-label={`Move ${track.title} ${dir}`}
@@ -2569,7 +2570,7 @@ function DAWPresetLibraryPanel({
 
   const filteredBeats = genreFilter === 'All'
     ? BEAT_PRESETS
-    : BEAT_PRESETS.filter(p => p.genre === genreFilter);
+    : BEAT_PRESETS.filter((p) => p.genre === genreFilter);
 
   const GENRE_COLORS: Record<string, string> = {
     Trap: '#00bcd4', Drill: '#ec407a', House: '#7c4dff', 'Deep House': '#3d85c8',
@@ -2592,7 +2593,7 @@ function DAWPresetLibraryPanel({
 
       {/* Tab bar */}
       <div style={{ display: 'flex', borderBottom: `1px solid ${DAW.border}` }}>
-        {(['beats', 'instruments', 'templates'] as const).map(t => (
+        {(['beats', 'instruments', 'templates'] as const).map((t) => (
           <button key={t} type="button" onClick={() => setTab(t)}
             style={{
               flex: 1, padding: '8px', fontSize: 10, fontWeight: 700, cursor: 'pointer',
@@ -2611,7 +2612,7 @@ function DAWPresetLibraryPanel({
           <>
             {/* Genre filter chips */}
             <div style={{ display: 'flex', gap: 5, overflowX: 'auto', paddingBottom: 8, marginBottom: 10 }}>
-              {(['All', ...GENRE_LIST]).map(g => (
+              {(['All', ...GENRE_LIST]).map((g) => (
                 <button key={g} type="button" onClick={() => onGenreChange(g)}
                   style={{
                     flexShrink: 0, padding: '4px 10px', borderRadius: 999, fontSize: 10,
@@ -2629,7 +2630,7 @@ function DAWPresetLibraryPanel({
 
             {/* Beat preset cards */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {filteredBeats.map(preset => {
+              {filteredBeats.map((preset) => {
                 const active = activePresetId === preset.id;
                 const color = GENRE_COLORS[preset.genre] ?? DAW.accent;
                 return (
@@ -2688,7 +2689,7 @@ function DAWPresetLibraryPanel({
 
         {tab === 'instruments' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {INSTRUMENT_PRESETS.map(inst => {
+            {INSTRUMENT_PRESETS.map((inst) => {
               const CAT_COLORS: Record<string, string> = {
                 Synth: '#00bcd4', Drums: '#ec407a', Bass: '#7c4dff',
                 Pad: '#26c6da', Lead: '#ffca28', FX: '#ef5350',
@@ -2722,7 +2723,7 @@ function DAWPresetLibraryPanel({
 
         {tab === 'templates' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {PROJECT_TEMPLATES.map(tmpl => {
+            {PROJECT_TEMPLATES.map((tmpl) => {
               const active = activeTemplateId === tmpl.id;
               return (
                 <div key={tmpl.id} style={{
@@ -2836,7 +2837,7 @@ function fmtFileSize(bytes: number): string {
 function buildWaveform(buffer: AudioBuffer, bars: number): number[] {
   const raw = buffer.getChannelData(0);
   const chunkSize = Math.max(1, Math.floor(raw.length / bars));
-  return Array.from({ length: bars }, (_, i) => {
+  return Array.from({ length: bars }, (_, i: number ) => {
     let sum = 0;
     for (let j = 0; j < chunkSize; j++) sum += Math.abs(raw[i * chunkSize + j] ?? 0);
     return Math.min(1, (sum / chunkSize) * 4.2);
@@ -2929,7 +2930,7 @@ function DAWFileIOPanel({
   const [historyTick,   setHistoryTick]    = useState(0);
   const [playbackMode,  setPlaybackMode]   = useState<'full' | 'selection-once' | 'selection-loop'>('full');
   const [sourceLibrary, setSourceLibrary]  = useState<ArrangementSource[]>([]);
-  const [arrTracks, setArrTracks]          = useState<ArrangementTrackState[]>(() => ARRANGEMENT_TRACKS.map(track => ({ ...track })));
+  const [arrTracks, setArrTracks]          = useState<ArrangementTrackState[]>(() => ARRANGEMENT_TRACKS.map((track) => ({ ...track })));
   const [arrClips, setArrClips]            = useState<ArrangementClip[]>([]);
   const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
   const [selectedClipId, setSelectedClipId] = useState<string | null>(null);
@@ -2963,12 +2964,12 @@ function DAWFileIOPanel({
   const [show3DVisualizerFIO, setShow3DVisualizerFIO] = useState(false);
 
   // ── Helper: get/create OfflineAudioContext for processing ──
-  function getOfflineCtx(length: number, sr: number, ch: number) {
+  function getOfflineCtx(length: number, sr: number, ch): number {
     return new OfflineAudioContext(ch, length, sr);
   }
 
   // ── Helper: show operation message ──
-  function showOpMsg(msg: string) {
+  function showOpMsg(msg: string ){
     setOpMsg(msg);
     setTimeout(() => setOpMsg(null), 3500);
   }
@@ -3001,7 +3002,7 @@ function DAWFileIOPanel({
   }
 
   // ── Handler: Isolate Sound — builds peak map ref and opens 3D visualizer ──
-  function handleIsolateSoundFIO() {
+  function handleIsolateSoundFIO( ){
     const pm = peakMapRef.current;
     if (!pm) { showOpMsg('⚠ Load audio first to isolate sounds'); return; }
     const analyser = ensureAnalyserFIO();
@@ -3011,14 +3012,14 @@ function DAWFileIOPanel({
   }
 
   // ── Helper: download a blob ──
-  function downloadBlob(blob: Blob, name: string) {
+  function downloadBlob(blob: Blob, name): string {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = name; a.click();
     URL.revokeObjectURL(url);
   }
 
-  function clampZoom(next: number) {
+  function clampZoom(next: number ){
     return Math.max(0.5, Math.min(4, Math.round(next * 4) / 4));
   }
 
@@ -3027,24 +3028,24 @@ function DAWFileIOPanel({
     return { blob: audioBlobRef.current, name: fileName };
   }
 
-  function syncHistoryTick() {
-    setHistoryTick(v => v + 1);
+  function syncHistoryTick( ){
+    setHistoryTick((v) => v + 1);
   }
 
-  function pushHistory(ref: React.MutableRefObject<HistoryEntry[]>, entry: HistoryEntry) {
+  function pushHistory(ref: React.MutableRefObject<HistoryEntry[]>, entry): HistoryEntry {
     ref.current.push(entry);
     if (ref.current.length > 24) ref.current.shift();
     syncHistoryTick();
   }
 
-  function clearRedoStack() {
+  function clearRedoStack( ){
     if (redoStackRef.current.length > 0) {
       redoStackRef.current = [];
       syncHistoryTick();
     }
   }
 
-  function syncWaveformViewport(targetBar: number, explicitZoom?: number) {
+  function syncWaveformViewport(targetBar: number, explicitZoom?): number {
     const scroller = waveformScrollRef.current;
     if (!scroller || waveform.length === 0) return;
     const activeBarWidth = Math.max(3, Math.round(4 * (explicitZoom ?? zoomLevel))) + 1;
@@ -3052,11 +3053,11 @@ function DAWFileIOPanel({
     scroller.scrollTo({ left: targetLeft, behavior: 'smooth' });
   }
 
-  function getBarSeconds() {
+  function getBarSeconds( ){
     return 240 / Math.max(60, bpm);
   }
 
-  function captureCurrentToRack() {
+  function captureCurrentToRack( ){
     const currentBlob = audioBlobRef.current;
     const currentBuffer = audioBufRef.current;
     if (!fileName || !currentBlob || !currentBuffer) {
@@ -3074,18 +3075,18 @@ function DAWFileIOPanel({
       waveform: [...waveform],
       color,
     };
-    setSourceLibrary(prev => [...prev, entry]);
+    setSourceLibrary((prev) => [...prev, entry]);
     setSelectedSourceId(id);
     showOpMsg(`✓ Added ${fileName} to Source Rack`);
   }
 
-  function placeArrangementClip(trackId: ArrangementTrackId, startBar: number) {
+  function placeArrangementClip(trackId: ArrangementTrackId, startBar): number {
     const sourceId = selectedSourceId ?? sourceLibrary[0]?.id ?? null;
     if (!sourceId) {
       showOpMsg('⚠ Capture a clip into the Source Rack first');
       return;
     }
-    const source = sourceLibrary.find(item => item.id === sourceId);
+    const source = sourceLibrary.find((item) => item.id === sourceId);
     if (!source) {
       showOpMsg('⚠ Selected source is unavailable');
       return;
@@ -3101,9 +3102,9 @@ function DAWFileIOPanel({
       gain: 1,
       color: source.color,
     };
-    setArrClips(prev => [...prev, clip]);
+    setArrClips((prev) => [...prev, clip]);
     setSelectedClipId(clip.id);
-    showOpMsg(`✓ Placed ${source.name} on ${arrTracks.find(track => track.id === trackId)?.label ?? trackId}`);
+    showOpMsg(`✓ Placed ${source.name} on ${arrTracks.find((track) => track.id === trackId)?.label ?? trackId}`);
   }
 
   function updateSelectedClip(updater: (clip: ArrangementClip) => ArrangementClip | null) {
@@ -3111,19 +3112,19 @@ function DAWFileIOPanel({
       showOpMsg('⚠ Select an arrangement clip first');
       return;
     }
-    setArrClips(prev => prev.flatMap(clip => {
+    setArrClips((prev) => prev.flatMap((clip) => {
       if (clip.id !== selectedClipId) return [clip];
       const next = updater(clip);
       return next ? [next] : [];
     }));
   }
 
-  function stopArrangementPlayback(resetPlayhead = true) {
-    arrangementSourcesRef.current.forEach(node => {
+  function stopArrangementPlayback(resetPlayhead = true ){
+    arrangementSourcesRef.current.forEach((node) => {
       try { node.stop(); } catch { /* already stopped */ }
     });
     arrangementSourcesRef.current = [];
-    arrangementGainsRef.current.forEach(node => {
+    arrangementGainsRef.current.forEach((node) => {
       try { node.disconnect(); } catch { /* ignore */ }
     });
     arrangementGainsRef.current = [];
@@ -3212,11 +3213,11 @@ function DAWFileIOPanel({
         // Fallback: use HTML Audio for duration only, fake waveform
         audioBufRef.current = null;
         const tmpAudio = new Audio(blobUrlRef.current);
-        await new Promise<void>(resolve => {
+        await new Promise<void>((resolve) => {
           tmpAudio.onloadedmetadata = () => { setDuration(tmpAudio.duration); resolve(); };
           tmpAudio.onerror = () => resolve();
         });
-        setWaveform(Array.from({ length: FIO_BARS }, (_, i) => Math.abs(Math.sin(i * 0.38)) * 0.6 + 0.12));
+        setWaveform(Array.from({ length: FIO_BARS }, (_, i: number ) => Math.abs(Math.sin(i * 0.38)) * 0.6 + 0.12));
         setSampleRate(44100); setNumChannels(1);
         setAudioStats(null);
       }
@@ -3296,11 +3297,11 @@ function DAWFileIOPanel({
     }
     stopArrangementPlayback(false);
 
-    const soloTracks = new Set(arrTracks.filter(track => track.solo).map(track => track.id));
+    const soloTracks = new Set(arrTracks.filter((track) => track.solo).map((track) => track.id));
     const audibleTracks = new Set(
       arrTracks
-        .filter(track => !track.muted && (soloTracks.size === 0 || soloTracks.has(track.id)))
-        .map(track => track.id),
+        .filter((track) => !track.muted && (soloTracks.size === 0 || soloTracks.has(track.id)))
+        .map((track) => track.id),
     );
     const barSeconds = getBarSeconds();
     const cycleSeconds = ARRANGEMENT_BARS * barSeconds;
@@ -3309,7 +3310,7 @@ function DAWFileIOPanel({
     for (const clip of arrClips) {
       if (!audibleTracks.has(clip.trackId)) continue;
       const buffer = arrangementBuffersRef.current[clip.sourceId];
-      const track = arrTracks.find(item => item.id === clip.trackId);
+      const track = arrTracks.find((item) => item.id === clip.trackId);
       if (!buffer || !track) continue;
       const source = ctx.createBufferSource();
       source.buffer = buffer;
@@ -3451,7 +3452,7 @@ function DAWFileIOPanel({
 
   // ── Keyboard shortcuts for faster DAW workflow ──
   useEffect(() => {
-    function onKeyDown(e: KeyboardEvent) {
+    function onKeyDown(e: KeyboardEvent ){
       const target = e.target as HTMLElement | null;
       const tag = target?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || target?.isContentEditable) return;
@@ -3505,7 +3506,7 @@ function DAWFileIOPanel({
   ]);
 
   // ── Transport: Play / Pause ──
-  function togglePlay() {
+  function togglePlay( ){
     const audio = audioRef.current;
     if (!audio || !fileName) return;
     if (isPlaying) {
@@ -3529,7 +3530,7 @@ function DAWFileIOPanel({
   }
 
   // ── Transport: Stop ──
-  function handleStop() {
+  function handleStop( ){
     const audio = audioRef.current;
     if (!audio) return;
     audio.pause();
@@ -3541,7 +3542,7 @@ function DAWFileIOPanel({
   }
 
   // ── Seek from progress bar click ──
-  function handleSeekBar(e: React.MouseEvent<HTMLDivElement>) {
+  function handleSeekBar(e: React.MouseEvent<HTMLDivElement> ){
     const audio = audioRef.current;
     if (!audio || !audio.duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
@@ -3551,7 +3552,7 @@ function DAWFileIOPanel({
   }
 
   // ── Waveform: click to seek + drag to select ──
-  function handleBarMouseDown(barIdx: number, e: React.MouseEvent) {
+  function handleBarMouseDown(barIdx: number, e): React.MouseEvent {
     e.preventDefault();
     setDragAnchor(barIdx);
     setIsDragging(true);
@@ -3564,7 +3565,7 @@ function DAWFileIOPanel({
     }
   }
 
-  function handleBarMouseEnter(barIdx: number) {
+  function handleBarMouseEnter(barIdx: number ){
     setHoveredBar(barIdx);
     if (isDragging && dragAnchor !== null) {
       const lo = Math.min(dragAnchor, barIdx);
@@ -3573,7 +3574,7 @@ function DAWFileIOPanel({
     }
   }
 
-  function handleBarMouseUp() {
+  function handleBarMouseUp( ){
     setIsDragging(false);
   }
 
@@ -3598,7 +3599,7 @@ function DAWFileIOPanel({
     return offBuf;
   }
 
-  async function handleTrim() {
+  async function handleTrim( ){
     const trimBuf = getSelectionBuffer();
     if (!trimBuf) { showOpMsg('⚠ Load audio first'); return; }
     setOpPending(true);
@@ -3611,7 +3612,7 @@ function DAWFileIOPanel({
     setOpPending(false);
   }
 
-  async function handleFadeIn() {
+  async function handleFadeIn( ){
     const buf = audioBufRef.current;
     if (!buf) { showOpMsg('⚠ Load audio first'); return; }
     setOpPending(true);
@@ -3636,7 +3637,7 @@ function DAWFileIOPanel({
     setOpPending(false);
   }
 
-  async function handleFadeOut() {
+  async function handleFadeOut( ){
     const buf = audioBufRef.current;
     if (!buf) { showOpMsg('⚠ Load audio first'); return; }
     setOpPending(true);
@@ -3661,7 +3662,7 @@ function DAWFileIOPanel({
     setOpPending(false);
   }
 
-  async function handleNormalize() {
+  async function handleNormalize( ){
     const buf = audioBufRef.current;
     if (!buf) { showOpMsg('⚠ Load audio first'); return; }
     setOpPending(true);
@@ -3684,7 +3685,7 @@ function DAWFileIOPanel({
     setOpPending(false);
   }
 
-  async function handleReverse() {
+  async function handleReverse( ){
     const buf = audioBufRef.current;
     if (!buf) { showOpMsg('⚠ Load audio first'); return; }
     setOpPending(true);
@@ -3706,7 +3707,7 @@ function DAWFileIOPanel({
     setOpPending(false);
   }
 
-  async function handleSilence() {
+  async function handleSilence( ){
     const buf = audioBufRef.current;
     if (!buf) { showOpMsg('⚠ Load audio first'); return; }
     if (selStart === null) { showOpMsg('⚠ Select a region first (drag on waveform)'); return; }
@@ -3726,7 +3727,7 @@ function DAWFileIOPanel({
     setOpPending(false);
   }
 
-  function handleExportAudio() {
+  function handleExportAudio( ){
     const buf = audioBufRef.current;
     if (!buf) {
       // Fall back to original blob
@@ -3744,7 +3745,7 @@ function DAWFileIOPanel({
     showOpMsg(`✓ Downloaded as WAV: ${baseName}.wav`);
   }
 
-  function handleExportProject() {
+  function handleExportProject( ){
     const snapshot = {
       ...projectSnapshot,
       arrangement: {
@@ -3752,7 +3753,7 @@ function DAWFileIOPanel({
         looping: arrLooping,
         selectedSourceId,
         tracks: arrTracks,
-        sources: sourceLibrary.map(source => ({
+        sources: sourceLibrary.map((source) => ({
           id: source.id,
           name: source.name,
           durationSec: source.durationSec,
@@ -3775,7 +3776,7 @@ function DAWFileIOPanel({
       cancelAnimationFrame(playRafRef.current);
       if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
       if (audioCtxRef.current) {
-        void audioCtxRef.current.close().catch((err) => {
+        void audioCtxRef.current.close().catch((err: unknown ) => {
           console.warn('Sample editor audio context close skipped:', err);
         });
       }
@@ -3902,7 +3903,7 @@ function DAWFileIOPanel({
               `${sampleRate ? (sampleRate / 1000).toFixed(1) + 'kHz' : '—'}`,
               numChannels === 2 ? 'Stereo' : numChannels === 1 ? 'Mono' : `${numChannels}ch`,
               fmtFileSize(fileSize),
-            ].map(v => (
+            ].map((v) => (
               <span key={v} style={{ ...dawPill(DAW.dim), fontSize: 9, flexShrink: 0 }}>{v}</span>
             ))}
           </div>
@@ -3960,7 +3961,7 @@ function DAWFileIOPanel({
               </button>
 
               {/* Loop toggle */}
-              <button type="button" onClick={() => setIsLooping(p => !p)}
+              <button type="button" onClick={() => setIsLooping((p) => !p)}
                 style={{
                   width: 32, height: 32, borderRadius: 8,
                   border: `1px solid ${isLooping ? DAW.accent : DAW.border}`,
@@ -4050,7 +4051,7 @@ function DAWFileIOPanel({
                   color: DAW.red,
                   title: 'Clear selected region (Esc)',
                 },
-              ].map(control => (
+              ].map((control) => (
                 <button
                   key={control.label}
                   type="button"
@@ -4113,7 +4114,7 @@ function DAWFileIOPanel({
               <ZoomIn className="w-3 h-3" style={{ color: DAW.dim }} />
             </div>
             <div style={{ display: 'flex', gap: 3 }}>
-              {ZOOM_LEVELS.map(z => (
+              {ZOOM_LEVELS.map((z) => (
                 <button key={z} type="button" onClick={() => setZoomLevel(z)}
                   style={{
                     padding: '3px 6px', borderRadius: 5, fontSize: 9, fontWeight: 700,
@@ -4138,7 +4139,7 @@ function DAWFileIOPanel({
 
           {/* Time ruler */}
           <div style={{ display: 'flex', height: 14, background: '#0d0f17', borderBottom: `1px solid ${DAW.border}` }}>
-            {Array.from({ length: 8 }, (_, i) => {
+            {Array.from({ length: 8 }, (_, i: number ) => {
               const t = duration ? fmtSec((i / 8) * duration) : `${i + 1}`;
               return (
                 <div key={i} style={{
@@ -4164,7 +4165,7 @@ function DAWFileIOPanel({
               }}>
 
               {/* Render bars */}
-              {(waveform.length > 0 ? waveform : Array.from({ length: FIO_BARS }, (_, i) => Math.abs(Math.sin(i * 0.42)) * 0.55 + 0.08)).map((h, i) => {
+              {(waveform.length > 0 ? waveform : Array.from({ length: FIO_BARS }, (_, i: number ) => Math.abs(Math.sin(i * 0.42)) * 0.55 + 0.08)).map((h, i: number) => {
                 const inSel = hasSelection && i >= selStart! && i <= selEnd!;
                 const isPlayhead = i === playheadBar && isPlaying;
                 const isHovered = i === hoveredBar;
@@ -4259,7 +4260,7 @@ function DAWFileIOPanel({
                 { label: 'Normalize',  icon: '⇕',  action: handleNormalize, color: DAW.orange,  title: 'Normalize peak to -0.1dBFS. Downloads as WAV.' },
                 { label: 'Reverse',    icon: '⟵⟶', action: handleReverse,   color: DAW.purple,  title: 'Reverse selection (or full file). Downloads as WAV.' },
                 { label: 'Silence',    icon: '—',  action: handleSilence,   color: DAW.red,     title: 'Silence selected region. Select first.' },
-              ].map(op => (
+              ].map((op) => (
                 <button key={op.label} type="button" onClick={op.action}
                   disabled={opPending}
                   title={op.title}
@@ -4334,6 +4335,5 @@ function DAWFileIOPanel({
         )}
       </div>
     </div>
-    </ArtifactSlot>
   );
 }

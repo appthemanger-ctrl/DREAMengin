@@ -101,7 +101,7 @@ const SHELLHUB_DEFAULT_URL = 'https://cloud.shellhub.io';
 
 const DEMO_CELLS: NotebookCell[] = [
   { id: 'demo-1', language: 'python', code: '# Python (real execution)\nprint("Hello from Pyodide!")\n2 + 2', output: null, status: 'idle' },
-  { id: 'demo-2', language: 'javascript', code: '// JavaScript\nconsole.log("Hello from JS");\n[1,2,3].map(x => x*2)', output: null, status: 'idle' },
+  { id: 'demo-2', language: 'javascript', code: '// JavaScript\nconsole.log("Hello from JS");\n[1,2,3].map((x) => x*2)', output: null, status: 'idle' },
   { id: 'demo-3', language: 'typescript', code: '// TypeScript\nconst greet = (name: string): string => `Hello ${name}`;\ngreet("World")', output: null, status: 'idle' },
 ];
 
@@ -109,10 +109,10 @@ const DEMO_CELLS: NotebookCell[] = [
 // REAL CODE EXECUTION (Pyodide CDN, no install)
 // ----------------------------------------------------------------------
 
-let pyodideInstance: any = null;
-let pyodidePromise: Promise<any> | null = null;
+let pyodideInstance: unknown = null;
+let pyodidePromise: Promise<unknown> | null = null;
 
-async function loadPyodide() {
+async function loadPyodide( ){
   if (pyodideInstance) return pyodideInstance;
   if (pyodidePromise) return pyodidePromise;
   const script = document.createElement('script');
@@ -141,7 +141,7 @@ sys.stdout = StringIO()
     let lastExpr = '';
     try { lastExpr = pyodide.runPython('_') || ''; } catch {}
     return output + (lastExpr ? (output ? '\n' : '') + lastExpr : '');
-  } catch (err: any) {
+  } catch (err: unknown) {
     return `Error: ${err.message}`;
   }
 }
@@ -156,7 +156,7 @@ function executeJavaScript(code: string): string {
     let output = logs.join('\n');
     if (result !== undefined) output += (output ? '\n' : '') + String(result);
     return output || 'Executed successfully (no output)';
-  } catch (err: any) {
+  } catch (err: unknown) {
     return `Error: ${err.message}`;
   }
 }
@@ -193,7 +193,7 @@ interface CrashReport {
   timestamp: Date;
 }
 
-function CrashRecoveryPanel({ cells }: { cells: NotebookCell[] }) {
+function CrashRecoveryPanel({ cells }: {cells: NotebookCell[]}) {
   const [crashes, setCrashes] = useState<CrashReport[]>(() => {
     try { const saved = localStorage.getItem('de_crash_logs'); return saved ? JSON.parse(saved) : []; } catch { return []; }
   });
@@ -201,7 +201,7 @@ function CrashRecoveryPanel({ cells }: { cells: NotebookCell[] }) {
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
       let failedCode = `Error at ${event.filename}:${event.lineno}\n${event.message}`;
-      const matchingCell = cells.find(cell => event.message.includes(cell.code.slice(0, 100)) || event.filename?.includes('cell'));
+      const matchingCell = cells.find((cell) => event.message.includes(cell.code.slice(0, 100)) || event.filename?.includes('cell'));
       if (matchingCell) failedCode = matchingCell.code;
 
       const newCrash: CrashReport = {
@@ -212,7 +212,7 @@ function CrashRecoveryPanel({ cells }: { cells: NotebookCell[] }) {
         errorMessage: event.message,
         timestamp: new Date(),
       };
-      setCrashes(prev => {
+      setCrashes((prev) => {
         const updated = [newCrash, ...prev].slice(0, 20);
         localStorage.setItem('de_crash_logs', JSON.stringify(updated));
         return updated;
@@ -240,7 +240,7 @@ function CrashRecoveryPanel({ cells }: { cells: NotebookCell[] }) {
       {crashes.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 20, color: 'var(--de-text-dim)' }}>✅ No crashes captured.</div>
       ) : (
-        crashes.map((crash, i) => (
+        crashes.map((crash, i: number) => (
           <div key={i} style={{ marginBottom: 12, padding: 12, borderRadius: 8, background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
               <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#f87171' }}>{crash.file}:{crash.line}</span>
@@ -272,7 +272,7 @@ interface TaskItem {
   createdAt: Date;
 }
 
-function TaskJobManager() {
+function TaskJobManager( ){
   const [tasks, setTasks] = useState<TaskItem[]>(() => {
     try { const saved = localStorage.getItem('de_tasks'); return saved ? JSON.parse(saved) : []; } catch { return []; }
   });
@@ -294,20 +294,20 @@ function TaskJobManager() {
       status: 'pending',
       createdAt: new Date(),
     };
-    setTasks(prev => [newTask, ...prev]);
+    setTasks((prev) => [newTask, ...prev]);
     setNewTitle('');
   };
 
   const toggleStatus = (id: string) => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, status: t.status === 'done' ? 'pending' : t.status === 'pending' ? 'in-progress' : 'done' } : t));
+    setTasks((prev) => prev.map((t) => t.id === id ? { ...t, status: t.status === 'done' ? 'pending' : t.status === 'pending' ? 'in-progress' : 'done' } : t));
   };
 
   const deleteTask = (id: string) => {
-    setTasks(prev => prev.filter(t => t.id !== id));
+    setTasks((prev) => prev.filter((t) => t.id !== id));
   };
 
   const priorityColor = { high: '#ef4444', medium: '#f59e0b', low: '#22c55e' };
-  const filtered = filter === 'all' ? tasks : tasks.filter(t => t.status === filter);
+  const filtered = filter === 'all' ? tasks : tasks.filter((t) => t.status === filter);
 
   return (
     <div>
@@ -316,11 +316,11 @@ function TaskJobManager() {
         <button onClick={addTask} style={{ padding: '6px 12px', borderRadius: 8, background: '#22c55e', color: '#fff', border: 'none', cursor: 'pointer' }}>Add</button>
       </div>
       <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-        {(['all', 'pending', 'in-progress', 'done'] as const).map(f => (
-          <button key={f} onClick={() => setFilter(f)} style={{ padding: '3px 10px', borderRadius: 6, fontSize: 11, background: filter === f ? '#3b7dd8' : 'rgba(160,195,240,0.15)', color: filter === f ? '#fff' : 'var(--de-text)', border: 'none', cursor: 'pointer' }}>{f} ({tasks.filter(t => f === 'all' ? true : t.status === f).length})</button>
+        {(['all', 'pending', 'in-progress', 'done'] as const).map((f) => (
+          <button key={f} onClick={() => setFilter(f)} style={{ padding: '3px 10px', borderRadius: 6, fontSize: 11, background: filter === f ? '#3b7dd8' : 'rgba(160,195,240,0.15)', color: filter === f ? '#fff' : 'var(--de-text)', border: 'none', cursor: 'pointer' }}>{f} ({tasks.filter((t) => f === 'all' ? true : t.status === f).length})</button>
         ))}
       </div>
-      {filtered.map(task => (
+      {filtered.map((task) => (
         <div key={task.id} style={{ padding: '8px 10px', borderRadius: 8, marginBottom: 6, background: task.status === 'done' ? 'rgba(34,197,94,0.05)' : 'rgba(255,255,255,0.5)', border: '1px solid rgba(160,195,240,0.15)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <button onClick={() => toggleStatus(task.id)} style={{ fontSize: 16, background: 'none', border: 'none', cursor: 'pointer' }}>{task.status === 'pending' ? '⏳' : task.status === 'in-progress' ? '⚡' : '✅'}</button>
@@ -339,7 +339,7 @@ function TaskJobManager() {
 // CI & SECURITY HELPERS (REAL API CALLS)
 // ----------------------------------------------------------------------
 
-async function callCI(apiKey: string): Promise<any> {
+async function callCI(apiKey: string): Promise<unknown> {
   const res = await fetch('/api/ci/run', {
     method: 'POST',
     headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
@@ -347,7 +347,7 @@ async function callCI(apiKey: string): Promise<any> {
   return res.json();
 }
 
-async function callSecurityScan(apiKey: string): Promise<any> {
+async function callSecurityScan(apiKey: string): Promise<unknown> {
   const res = await fetch('/api/security/scan', {
     method: 'POST',
     headers: { 'x-api-key': apiKey, 'Content-Type': 'application/json' },
@@ -400,7 +400,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
   const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
   useEffect(() => {
     upgradeEngine({ id: 'code', name: 'CodeEngin' }, ['bridge', 'telemetry'])
-      .then(u => { osRef.current = u; });
+      .then((u) => { osRef.current = u; });
   }, []);
   const busRef = useRef(createEventBus());
 
@@ -425,11 +425,11 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
     instanceId,
     region: 'engin:code',
     active: pairActive,
-    stateSnapshot: () => ({ type: 'code:state', cells: cells.map(c => ({ id: c.id, language: c.language, code: c.code })) }),
+    stateSnapshot: () => ({ type: 'code:state', cells: cells.map((c) => ({ id: c.id, language: c.language, code: c.code })) }),
     onPeerState: (evt) => {
       if (evt.type === 'code:state' && Array.isArray(evt.cells)) {
-        setCells(prev => prev.map(c => {
-          const peer = (evt.cells as Array<{ id: string; code: string; language: string }>).find(p => p.id === c.id);
+        setCells((prev) => prev.map((c) => {
+          const peer = (evt.cells as Array<{ id: string; code: string; language: string }>).find((p) => p.id === c.id);
           return peer ? { ...c, code: peer.code, language: peer.language as typeof c.language } : c;
         }));
       }
@@ -445,7 +445,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
   // Notebook state
   const [cells, setCells] = useState<NotebookCell[]>(() => {
     try { const raw = localStorage.getItem(NOTEBOOK_STORAGE_KEY); if (raw) { const parsed = JSON.parse(raw); if (Array.isArray(parsed) && parsed.length > 0) return parsed; } } catch {}
-    return DEMO_CELLS.map(c => ({ ...c }));
+    return DEMO_CELLS.map((c) => ({ ...c }));
   });
 
   // Persistence
@@ -453,8 +453,8 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
     if (codeRestoring || codeRestoredRef.current || !savedCodeState) return;
     codeRestoredRef.current = true;
     if (savedCodeState.cells && savedCodeState.cells.length > 0) {
-      setCells(prev => savedCodeState.cells!.map(saved => {
-        const existing = prev.find(c => c.id === saved.id);
+      setCells((prev) => savedCodeState.cells!.map((saved) => {
+        const existing = prev.find((c) => c.id === saved.id);
         return existing ? { ...existing, code: saved.source, language: saved.language as CellLanguage } : { ...saved, code: saved.source, status: 'idle', output: null, language: saved.language as CellLanguage };
       }));
     }
@@ -462,7 +462,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
 
   useEffect(() => {
     if (codeRestoring) return;
-    const snapshot = cells.map(c => ({ id: c.id, language: c.language, source: c.code }));
+    const snapshot = cells.map((c) => ({ id: c.id, language: c.language, source: c.code }));
     persistState({ side: 'B', cells: snapshot });
     persistCodeState({ cells: snapshot });
     localStorage.setItem(NOTEBOOK_STORAGE_KEY, JSON.stringify(cells));
@@ -481,12 +481,12 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
 
   // CI state
   const [ciRunning, setCiRunning] = useState(false);
-  const [ciResults, setCiResults] = useState<any>(null);
+  const [ciResults, setCiResults] = useState<unknown>(null);
   const [ciError, setCiError] = useState<string | null>(null);
 
   // Security state
   const [secRunning, setSecRunning] = useState(false);
-  const [secResults, setSecResults] = useState<any>(null);
+  const [secResults, setSecResults] = useState<unknown>(null);
   const [secError, setSecError] = useState<string | null>(null);
 
   // Project manager state
@@ -510,22 +510,22 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
   const [shellhubDevicesError, setShellhubDevicesError] = useState<string | null>(null);
 
   // Zoom
-  const zoomIn = () => setCodeZoom(z => Math.min(ZOOM_MAX, z + ZOOM_STEP));
-  const zoomOut = () => setCodeZoom(z => Math.max(ZOOM_MIN, z - ZOOM_STEP));
+  const zoomIn = () => setCodeZoom((z) => Math.min(ZOOM_MAX, z + ZOOM_STEP));
+  const zoomOut = () => setCodeZoom((z) => Math.max(ZOOM_MIN, z - ZOOM_STEP));
   const zoomReset = () => setCodeZoom(1.0);
 
   // Run a cell (real execution)
   const runCell = useCallback(async (cellId: string, language: CellLanguage, code: string) => {
-    setCells(prev => prev.map(c => c.id === cellId ? { ...c, status: 'running', output: null, error: undefined } : c));
+    setCells((prev) => prev.map((c) => c.id === cellId ? { ...c, status: 'running', output: null, error: undefined } : c));
     try {
       // ── Pre-flight parse: surface structural errors before sending to runtime ──
       if (language === 'typescript' || language === 'javascript' || language === 'python') {
         const parsed = parseCode(code, language);
         if (!parsed.structurallyValid && parsed.errors.length > 0) {
           const errorLines = parsed.errors
-            .map(e => `  Line ${e.line}:${e.col} — ${e.message}`)
+            .map((e) => `  Line ${e.line}:${e.col} — ${e.message}`)
             .join('\n');
-          setCells(prev => prev.map(c =>
+          setCells((prev) => prev.map((c) =>
             c.id === cellId
               ? { ...c, status: 'error', output: `Parse error(s) found:\n${errorLines}`, error: errorLines }
               : c
@@ -534,25 +534,25 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
         }
       }
       const output = await runCellCode(language, code);
-      setCells(prev => prev.map(c => c.id === cellId ? { ...c, status: 'done', output } : c));
+      setCells((prev) => prev.map((c) => c.id === cellId ? { ...c, status: 'done', output } : c));
       bridge.emit('code', 'code:cell-executed', { cellId, language, outputType: 'text' });
-    } catch (err: any) {
-      setCells(prev => prev.map(c => c.id === cellId ? { ...c, status: 'error', output: err.message, error: err.message } : c));
+    } catch (err: unknown) {
+      setCells((prev) => prev.map((c) => c.id === cellId ? { ...c, status: 'error', output: err.message, error: err.message } : c));
     }
   }, []);
 
   // Add/delete cells
   const addCell = () => {
-    setCells(prev => [...prev, { id: newCellId(), language: 'python', code: '', output: null, status: 'idle' }]);
+    setCells((prev) => [...prev, { id: newCellId(), language: 'python', code: '', output: null, status: 'idle' }]);
   };
   const deleteCell = (cellId: string) => {
-    setCells(prev => prev.filter(c => c.id !== cellId));
+    setCells((prev) => prev.filter((c) => c.id !== cellId));
   };
   const updateCellCode = (cellId: string, code: string) => {
-    setCells(prev => prev.map(c => c.id === cellId ? { ...c, code } : c));
+    setCells((prev) => prev.map((c) => c.id === cellId ? { ...c, code } : c));
   };
   const updateCellLanguage = (cellId: string, language: CellLanguage) => {
-    setCells(prev => prev.map(c => c.id === cellId ? { ...c, language, output: null, status: 'idle' } : c));
+    setCells((prev) => prev.map((c) => c.id === cellId ? { ...c, language, output: null, status: 'idle' } : c));
   };
 
   // Live mode effect
@@ -560,7 +560,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
     if (!liveModeActive) return;
     if (liveModeTimerRef.current) clearTimeout(liveModeTimerRef.current);
     const activeCellId = lastFocusedRef.current?.getAttribute('data-cell-id');
-    const activeCell = cells.find(c => c.id === activeCellId) || cells[0];
+    const activeCell = cells.find((c) => c.id === activeCellId) || cells[0];
     if (activeCell && activeCell.status !== 'running') {
       liveModeTimerRef.current = setTimeout(() => {
         runCell(activeCell.id, activeCell.language, activeCell.code);
@@ -575,7 +575,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
     setAssistLoading(true);
     setAssistResponse('');
     const activeCellId = lastFocusedRef.current?.getAttribute('data-cell-id');
-    const activeCell = cells.find(c => c.id === activeCellId) || cells[0];
+    const activeCell = cells.find((c) => c.id === activeCellId) || cells[0];
     const codeContext = activeCell?.code || '';
     const response = await callEamsAssist(assistPrompt, codeContext, activeCell?.language);
     setAssistResponse(response);
@@ -587,7 +587,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
   const publishNotebook = () => {
     forgeRecord('Published notebook to Content');
     recordForgeTransfer('code', 'create', 'notebook', 'CodeEngin notebook → ContentEngin');
-    const cellSummary = cells.map(c => ({
+    const cellSummary = cells.map((c) => ({
       language: c.language,
       codeSnippet: c.code.slice(0, 100),
       hasOutput: c.output !== null,
@@ -596,14 +596,14 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
       notebookId: `notebook-${Date.now()}`,
       timestamp: new Date().toISOString(),
       cellCount: cells.length,
-      languages: Array.from(new Set(cells.map(c => c.language))),
+      languages: Array.from(new Set(cells.map((c) => c.language))),
       cells: cellSummary,
     });
   };
 
   // ── Deploy Script to GameEngin ────────────────────────────────────────────────
   const deployScriptToGame = (cellId: string) => {
-    const cell = cells.find(c => c.id === cellId);
+    const cell = cells.find((c) => c.id === cellId);
     if (!cell) return;
     forgeRecord('Deployed script to Game');
     recordForgeTransfer('code', 'games', 'script', 'CodeEngin script → GameEngin');
@@ -626,7 +626,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
       if (!apiKey) throw new Error('CI_API_KEY not set in environment');
       const data = await callCI(apiKey);
       setCiResults(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setCiError(err.message);
     } finally {
       setCiRunning(false);
@@ -643,7 +643,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
       if (!apiKey) throw new Error('CI_API_KEY not set in environment');
       const data = await callSecurityScan(apiKey);
       setSecResults(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setSecError(err.message);
     } finally {
       setSecRunning(false);
@@ -668,7 +668,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
     setCreating(true);
     const supabase = createClient();
     const { data, error } = await supabase.from('projects').insert({ title: newProjectName.trim(), visibility: 'private', owner_id: user.id }).select('id, title, visibility').single();
-    if (!error && data) setProjects(prev => [data as Project, ...prev]);
+    if (!error && data) setProjects((prev) => [data as Project, ...prev]);
     setCreating(false);
     setNewProjectName('');
   };
@@ -728,8 +728,8 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
     if (activeTab === 'connections' && shellhubStatus === 'idle') {
       setShellhubStatus('checking');
       fetch('/api/connectors/status')
-        .then(r => r.json())
-        .then(data => setShellhubStatus(data?.statuses?.shellhub === 'connected' ? 'connected' : 'not_connected'))
+        .then((r) => r.json())
+        .then((data) => setShellhubStatus(data?.statuses?.shellhub === 'connected' ? 'connected' : 'not_connected'))
         .catch(() => setShellhubStatus('not_connected'));
     }
   }, [activeTab, shellhubStatus]);
@@ -738,7 +738,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
     if (shellhubStatus === 'connected') fetchShellhubDevices();
   }, [shellhubStatus]);
 
-  function newCellId() { return `cell-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`; }
+  function newCellId( ){ return `cell-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`; }
 
   // Styles
   const tabStyle = (id: ActiveTab): CSSProperties => ({
@@ -776,17 +776,17 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
   const [replaceWith, setReplaceWith] = useState('');
   const [findResults, setFindResults] = useState<{ scope: 'cell' | 'codebase'; total: number } | null>(null);
 
-  const closeSelectionBar = () => setSelectionBar(prev => ({ ...prev, visible: false }));
+  const closeSelectionBar = () => setSelectionBar((prev) => ({ ...prev, visible: false }));
   const handleSelCopy = () => { if (selectionBar.text) navigator.clipboard?.writeText(selectionBar.text); closeSelectionBar(); };
   const handleSelCut = () => { if (selectionBar.text && lastFocusedRef.current) { navigator.clipboard?.writeText(selectionBar.text); const ta = lastFocusedRef.current; const { selectionStart: s, selectionEnd: e, value } = ta; const newVal = value.slice(0, s) + value.slice(e); Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set?.call(ta, newVal); ta.dispatchEvent(new Event('input', { bubbles: true })); ta.setSelectionRange(s, s); } closeSelectionBar(); };
   const handleSelPaste = async () => { const text = await navigator.clipboard?.readText().catch(() => ''); if (text && lastFocusedRef.current) { const ta = lastFocusedRef.current; const { selectionStart: s, selectionEnd: e, value } = ta; const newVal = value.slice(0, s) + text + value.slice(e); Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set?.call(ta, newVal); ta.dispatchEvent(new Event('input', { bubbles: true })); ta.setSelectionRange(s + text.length, s + text.length); } closeSelectionBar(); };
   const handleSelDelete = () => { if (lastFocusedRef.current) { const ta = lastFocusedRef.current; const { selectionStart: s, selectionEnd: e, value } = ta; const newVal = value.slice(0, s) + value.slice(e); Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')?.set?.call(ta, newVal); ta.dispatchEvent(new Event('input', { bubbles: true })); ta.setSelectionRange(s, s); } closeSelectionBar(); };
-  const handleSelDrEams = () => { const code = selectionBar.text; setDrEamsCheckResult(''); closeSelectionBar(); setTimeout(() => { const issues = []; if (/console\.log/.test(code)) issues.push('Remove debug console.log'); if (/var /.test(code)) issues.push('Use const/let instead of var'); if (/==(?!=)/.test(code)) issues.push('Use === instead of =='); setDrEamsCheckResult(issues.length === 0 ? '✅ Looks good!' : `⚠️ ${issues.length} suggestion(s):\n${issues.map(i => `• ${i}`).join('\n')}`); }, 400); };
+  const handleSelDrEams = () => { const code = selectionBar.text; setDrEamsCheckResult(''); closeSelectionBar(); setTimeout(() => { const issues = []; if (/console\.log/.test(code)) issues.push('Remove debug console.log'); if (/var /.test(code)) issues.push('Use const/let instead of var'); if (/==(?!=)/.test(code)) issues.push('Use === instead of =='); setDrEamsCheckResult(issues.length === 0 ? '✅ Looks good!' : `⚠️ ${issues.length} suggestion(s):\n${issues.map((i) => `• ${i}`).join('\n')}`); }, 400); };
 
-  const toggleSelectMode = () => setSelectMode(prev => { if (prev) window.getSelection()?.removeAllRanges(); return !prev; });
+  const toggleSelectMode = () => setSelectMode((prev) => { if (prev) window.getSelection()?.removeAllRanges(); return !prev; });
   useEffect(() => {
-    if (!selectMode) { setSelectionBar(prev => ({ ...prev, visible: false })); setDrEamsCheckResult(''); return; }
-    const handler = (e: MouseEvent) => { const text = window.getSelection()?.toString().trim() || ''; if (text) setSelectionBar({ visible: true, x: e.clientX, y: e.clientY - 60, text }); else setSelectionBar(prev => ({ ...prev, visible: false })); };
+    if (!selectMode) { setSelectionBar((prev) => ({ ...prev, visible: false })); setDrEamsCheckResult(''); return; }
+    const handler = (e: MouseEvent) => { const text = window.getSelection()?.toString().trim() || ''; if (text) setSelectionBar({ visible: true, x: e.clientX, y: e.clientY - 60, text }); else setSelectionBar((prev) => ({ ...prev, visible: false })); };
     document.addEventListener('mouseup', handler);
     return () => document.removeEventListener('mouseup', handler);
   }, [selectMode]);
@@ -795,7 +795,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
   const handleSelectLine = () => { const ta = lastFocusedRef.current; if (ta) { const val = ta.value, cursor = ta.selectionStart; let s = cursor; while (s > 0 && val[s-1] !== '\n') s--; let e = cursor; while (e < val.length && val[e] !== '\n') e++; ta.setSelectionRange(s, e); setSelectionBar({ visible: false, x: 0, y: 0, text: val.slice(s, e) }); } };
   const handleSelectBlock = () => { const ta = lastFocusedRef.current; if (ta) { const val = ta.value, cursor = ta.selectionStart; let start = -1, end = -1, depth = 0; for (let i = cursor; i >= 0; i--) { if (val[i] === '}') depth++; else if (val[i] === '{') { if (depth === 0) { start = i; break; } depth--; } } depth = 0; for (let i = cursor; i < val.length; i++) { if (val[i] === '{') depth++; else if (val[i] === '}') { if (depth === 0) { end = i+1; break; } depth--; } } if (start !== -1 && end !== -1) { ta.setSelectionRange(start, end); setSelectionBar({ visible: false, x: 0, y: 0, text: val.slice(start, end) }); } } };
   const handleSelectVariable = (scope: 'cell' | 'codebase') => { const ta = lastFocusedRef.current; const raw = selectionBar.text || (() => { if (!ta) return ''; const val = ta.value, c = ta.selectionStart; let s = c; while (s > 0 && /\w/.test(val[s-1])) s--; let e = c; while (e < val.length && /\w/.test(val[e])) e++; return val.slice(s, e); })(); if (!raw.trim()) return; setFindTarget(raw.trim()); setReplaceWith(''); if (scope === 'cell' && ta) { const rx = new RegExp(`\\b${raw.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'); setFindResults({ scope: 'cell', total: (ta.value.match(rx) || []).length }); } else { const rx = new RegExp(`\\b${raw.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'); const total = cells.reduce((acc, cell) => acc + (cell.code.match(rx) || []).length, 0); setFindResults({ scope: 'codebase', total }); } closeSelectionBar(); };
-  const handleReplaceAll = (scope: 'cell' | 'codebase') => { if (!findTarget) return; const rx = new RegExp(`\\b${findTarget.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'); if (scope === 'cell') { const ta = lastFocusedRef.current; const targetId = ta?.getAttribute('data-cell-id') || ''; setCells(prev => prev.map(c => c.id === targetId ? { ...c, code: c.code.replace(rx, replaceWith) } : c)); } else { setCells(prev => prev.map(c => ({ ...c, code: c.code.replace(rx, replaceWith) }))); } setFindResults(null); setFindTarget(''); setReplaceWith(''); };
+  const handleReplaceAll = (scope: 'cell' | 'codebase') => { if (!findTarget) return; const rx = new RegExp(`\\b${findTarget.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'g'); if (scope === 'cell') { const ta = lastFocusedRef.current; const targetId = ta?.getAttribute('data-cell-id') || ''; setCells((prev) => prev.map((c) => c.id === targetId ? { ...c, code: c.code.replace(rx, replaceWith) } : c)); } else { setCells((prev) => prev.map((c) => ({ ...c, code: c.code.replace(rx, replaceWith) }))); } setFindResults(null); setFindTarget(''); setReplaceWith(''); };
 
   return (
     <ArtifactSlot artifactId="engin:code">
@@ -847,7 +847,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
             { id: 'projects', label: '📁 Projects' },
             { id: 'connections', label: '🔗 Connections' },
             { id: 'diff', label: '⟦⟧ Diff Viewer' },
-          ].map(tab => (
+          ].map((tab) => (
             <button key={tab.id} onClick={() => setActiveTab(tab.id as ActiveTab)} style={tabStyle(tab.id as ActiveTab)}>{tab.label}</button>
           ))}
         </div>
@@ -859,8 +859,8 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
           <button onClick={zoomIn} disabled={codeZoom >= ZOOM_MAX} style={codeToolBtnStyle(codeZoom >= ZOOM_MAX)}><ZoomIn size={13} /></button>
           <span style={{ width: 1, height: 18, background: 'rgba(160,195,240,0.3)', margin: '0 4px' }} />
           <button onClick={toggleSelectMode} style={{ ...codeToolBtnStyle(false), gap: 6, background: selectMode ? `${ACCENT}18` : 'rgba(0,0,0,0.03)', borderColor: selectMode ? ACCENT : 'rgba(160,195,240,0.35)', color: selectMode ? ACCENT : 'var(--de-text)', fontWeight: selectMode ? 700 : 500, paddingRight: 10 }}><MousePointer2 size={13} /><span style={{ fontSize: 11 }}>{selectMode ? 'Selecting…' : 'Select'}</span>{selectMode && <span style={{ width: 6, height: 6, borderRadius: '50%', background: ACCENT, flexShrink: 0, animation: 'de-pulse 1.2s ease-in-out infinite' }} />}</button>
-          <button onClick={() => setSwappedLayout(prev => !prev)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 9px', borderRadius: 7, border: `1.5px solid ${swappedLayout ? ACCENT : 'rgba(160,195,240,0.35)'}`, background: swappedLayout ? `${ACCENT}12` : 'rgba(0,0,0,0.03)', color: swappedLayout ? ACCENT : 'var(--de-text)', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}><ArrowLeftRight className="w-3.5 h-3.5" /><span>Swap</span></button>
-          <button onClick={() => setLiveModeActive(prev => !prev)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 9px', borderRadius: 7, border: `1.5px solid ${liveModeActive ? '#f59e0b' : 'rgba(160,195,240,0.35)'}`, background: liveModeActive ? 'rgba(245,158,11,0.12)' : 'rgba(0,0,0,0.03)', color: liveModeActive ? '#f59e0b' : 'var(--de-text)', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>{liveModeActive ? <Zap className="w-3.5 h-3.5" /> : <MousePointer2 className="w-3.5 h-3.5" />}<span>{liveModeActive ? 'Live' : 'Manual'}</span>{liveModeActive && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', display: 'inline-block', animation: 'de-pulse 1s infinite', marginLeft: 2 }} />}</button>
+          <button onClick={() => setSwappedLayout((prev) => !prev)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 9px', borderRadius: 7, border: `1.5px solid ${swappedLayout ? ACCENT : 'rgba(160,195,240,0.35)'}`, background: swappedLayout ? `${ACCENT}12` : 'rgba(0,0,0,0.03)', color: swappedLayout ? ACCENT : 'var(--de-text)', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}><ArrowLeftRight className="w-3.5 h-3.5" /><span>Swap</span></button>
+          <button onClick={() => setLiveModeActive((prev) => !prev)} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 9px', borderRadius: 7, border: `1.5px solid ${liveModeActive ? '#f59e0b' : 'rgba(160,195,240,0.35)'}`, background: liveModeActive ? 'rgba(245,158,11,0.12)' : 'rgba(0,0,0,0.03)', color: liveModeActive ? '#f59e0b' : 'var(--de-text)', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>{liveModeActive ? <Zap className="w-3.5 h-3.5" /> : <MousePointer2 className="w-3.5 h-3.5" />}<span>{liveModeActive ? 'Live' : 'Manual'}</span>{liveModeActive && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', display: 'inline-block', animation: 'de-pulse 1s infinite', marginLeft: 2 }} />}</button>
           {drEamsCheckResult && <div style={{ flex: 1, padding: '4px 10px', borderRadius: 8, background: drEamsCheckResult.startsWith('✅') ? 'rgba(34,197,94,0.08)' : 'rgba(245,158,11,0.08)', border: `1px solid ${drEamsCheckResult.startsWith('✅') ? 'rgba(34,197,94,0.25)' : 'rgba(245,158,11,0.25)'}`, fontSize: 11 }}>{drEamsCheckResult}<button onClick={() => setDrEamsCheckResult('')} style={{ marginLeft: 8, background: 'none', border: 'none', cursor: 'pointer' }}>✕</button></div>}
         </div>
 
@@ -912,11 +912,11 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
           <div className="de-widget">
             <div className="de-widget-header"><span className="de-widget-title">Live Notebook</span><span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: `${ACCENT}12`, color: ACCENT }}>{cells.length} cells</span></div>
             <div className="de-widget-body" style={{ padding: 0 }}>
-              {cells.map((cell, idx) => (
+              {cells.map((cell, idx: number) => (
                 <div key={cell.id} style={{ borderBottom: idx < cells.length-1 ? '1px solid rgba(160,195,240,0.15)' : 'none', padding: '12px 16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                     <select value={cell.language} onChange={e => updateCellLanguage(cell.id, e.target.value as CellLanguage)} style={{ fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 6, background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(160,195,240,0.35)' }}>
-                      {LANGUAGE_OPTIONS.map(lang => <option key={lang} value={lang}>{LANGUAGE_LABEL[lang]}</option>)}
+                      {LANGUAGE_OPTIONS.map((lang) => <option key={lang} value={lang}>{LANGUAGE_LABEL[lang]}</option>)}
                     </select>
                     {cell.status === 'running' && <Loader2 className="w-3.5 h-3.5 animate-spin" style={{ color: '#f59e0b' }} />}
                     {cell.status === 'done' && <CheckCircle className="w-3.5 h-3.5" style={{ color: '#22c55e' }} />}
@@ -955,7 +955,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
               {ciResults && (
                 <div>
                   <div style={{ marginBottom: 8 }}>Overall status: <strong style={{ color: ciResults.status === 'passing' ? OUT_OK : OUT_ERR }}>{ciResults.status.toUpperCase()}</strong></div>
-                  {ciResults.stages.map((stage: any, i: number) => (
+                  {ciResults.stages.map((stage: unknown, i: number) => (
                     <div key={i} style={{ marginBottom: 12, padding: 8, borderRadius: 8, background: stage.passed ? 'rgba(34,197,94,0.05)' : 'rgba(248,113,113,0.05)', border: `1px solid ${stage.passed ? 'rgba(34,197,94,0.2)' : 'rgba(248,113,113,0.2)'}` }}>
                       <div style={{ fontWeight: 700, marginBottom: 4 }}>{stage.name} {stage.passed ? <CheckCircle size={12} style={{ color: OUT_OK, display: 'inline', marginLeft: 6 }} /> : <XCircle size={12} style={{ color: OUT_ERR, display: 'inline', marginLeft: 6 }} />}</div>
                       <pre style={{ fontSize: 10, whiteSpace: 'pre-wrap', wordBreak: 'break-all', margin: 0 }}>{stage.output}</pre>
@@ -980,7 +980,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
                 <div>
                   <div style={{ marginBottom: 8 }}>Total vulnerabilities: <strong>{secResults.summary?.total || 0}</strong> (High: {secResults.summary?.high || 0}, Moderate: {secResults.summary?.moderate || 0}, Low: {secResults.summary?.low || 0})</div>
                   {secResults.advisories && secResults.advisories.length > 0 ? (
-                    secResults.advisories.map((adv: any, i: number) => (
+                    secResults.advisories.map((adv: unknown, i: number) => (
                       <div key={i} style={{ marginBottom: 8, padding: 8, borderRadius: 8, background: 'rgba(248,113,113,0.05)', border: '1px solid rgba(248,113,113,0.2)' }}>
                         <div><strong>{adv.title}</strong> – {adv.severity.toUpperCase()}</div>
                         <div>Package: {adv.package}</div>
@@ -1002,14 +1002,14 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
               <div className="de-widget-header"><span className="de-widget-title">New Project</span></div>
               <div className="de-widget-body">
                 <input type="text" placeholder="Project name" value={newProjectName} onChange={e => setNewProjectName(e.target.value)} onKeyDown={e => e.key === 'Enter' && createProject()} style={{ width: '100%', padding: '8px 12px', borderRadius: 8, marginBottom: 8, background: 'rgba(255,255,255,0.65)', border: '1px solid rgba(160,195,240,0.4)' }} />
-                <select value={newProjectLang} onChange={e => setNewProjectLang(e.target.value as CellLanguage)} style={{ width: '100%', padding: '7px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.65)', border: '1px solid rgba(160,195,240,0.4)' }}>{LANGUAGE_OPTIONS.map(lang => <option key={lang} value={lang}>{LANGUAGE_LABEL[lang]}</option>)}</select>
+                <select value={newProjectLang} onChange={e => setNewProjectLang(e.target.value as CellLanguage)} style={{ width: '100%', padding: '7px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.65)', border: '1px solid rgba(160,195,240,0.4)' }}>{LANGUAGE_OPTIONS.map((lang) => <option key={lang} value={lang}>{LANGUAGE_LABEL[lang]}</option>)}</select>
               </div>
               <div className="de-widget-actions"><button onClick={createProject} disabled={!newProjectName.trim() || creating || !user} style={{ padding: '8px 16px', borderRadius: 8, background: (!newProjectName.trim() || creating || !user) ? 'rgba(59,125,216,0.08)' : ACCENT, color: (!newProjectName.trim() || creating || !user) ? 'var(--de-text-dim)' : '#fff', border: 'none', cursor: 'pointer' }}>{creating ? <Loader2 className="animate-spin" /> : 'Create Project'}</button><Link href="/codespace" className="de-btn de-btn-ghost">Open Codespace →</Link></div>
             </div>
             <div className="de-widget">
               <div className="de-widget-header"><span className="de-widget-title">Your Projects</span>{projects.length > 0 && <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: `${ACCENT}12`, color: ACCENT }}>{projects.length}</span>}</div>
               <div className="de-widget-body">
-                {loadingProjects ? <Loader2 className="animate-spin" /> : projects.length === 0 ? <div>No projects yet.</div> : projects.map(p => <div key={p.id} style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.5)', marginBottom: 8 }}><Code2 className="w-4 h-4" style={{ color: ACCENT }} /> {p.title} <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 999, background: p.visibility === 'public' ? 'rgba(34,197,94,0.12)' : 'rgba(160,195,240,0.18)' }}>{p.visibility}</span></div>)}
+                {loadingProjects ? <Loader2 className="animate-spin" /> : projects.length === 0 ? <div>No projects yet.</div> : projects.map((p) => <div key={p.id} style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.5)', marginBottom: 8 }}><Code2 className="w-4 h-4" style={{ color: ACCENT }} /> {p.title} <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 999, background: p.visibility === 'public' ? 'rgba(34,197,94,0.12)' : 'rgba(160,195,240,0.18)' }}>{p.visibility}</span></div>)}
               </div>
             </div>
           </>
@@ -1028,7 +1028,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
                 {shellhubStatus !== 'connected' ? (
                   <div><input type="url" value={shellhubServerDraft} onChange={e => setShellhubServerDraft(e.target.value)} placeholder="Server URL" style={{ width: '100%', marginBottom: 8, padding: '8px', borderRadius: 8, border: '1px solid rgba(160,195,240,0.35)' }} /><input type="password" value={shellhubApiKeyDraft} onChange={e => setShellhubApiKeyDraft(e.target.value)} placeholder="API Key" style={{ width: '100%', marginBottom: 8, padding: '8px', borderRadius: 8, border: '1px solid rgba(160,195,240,0.35)' }} /><button onClick={handleShellHubConnect} disabled={shellhubConnecting} style={{ padding: '8px 16px', background: ACCENT, color: '#fff', border: 'none', borderRadius: 8 }}>{shellhubConnecting ? 'Connecting...' : 'Connect ShellHub'}</button>{shellhubConnectError && <div style={{ color: '#f87171' }}>{shellhubConnectError}</div>}</div>
                 ) : (
-                  <div><button onClick={handleShellHubDisconnect} disabled={shellhubDisconnecting} style={{ marginBottom: 12, padding: '6px 12px', background: '#f87171', color: '#fff', border: 'none', borderRadius: 6 }}>{shellhubDisconnecting ? 'Disconnecting...' : 'Disconnect'}</button><div>{shellhubDevicesLoading ? <Loader2 className="animate-spin" /> : shellhubDevices.map(d => <div key={d.uid} style={{ padding: '8px', borderBottom: '1px solid #eee' }}><Terminal size={14} /> {d.name} {d.online ? <span style={{ color: '#22c55e' }}>● Online</span> : <span style={{ color: '#64748b' }}>○ Offline</span>}</div>)}</div></div>
+                  <div><button onClick={handleShellHubDisconnect} disabled={shellhubDisconnecting} style={{ marginBottom: 12, padding: '6px 12px', background: '#f87171', color: '#fff', border: 'none', borderRadius: 6 }}>{shellhubDisconnecting ? 'Disconnecting...' : 'Disconnect'}</button><div>{shellhubDevicesLoading ? <Loader2 className="animate-spin" /> : shellhubDevices.map((d) => <div key={d.uid} style={{ padding: '8px', borderBottom: '1px solid #eee' }}><Terminal size={14} /> {d.name} {d.online ? <span style={{ color: '#22c55e' }}>● Online</span> : <span style={{ color: '#64748b' }}>○ Offline</span>}</div>)}</div></div>
                 )}
               </div>
             </div>
@@ -1084,7 +1084,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
             <button
               type="button"
               onClick={() => {
-                setPairActive(v => !v);
+                setPairActive((v) => !v);
                 osRef.current?.telemetry?.log('pair programming toggled');
                 busRef.current.emit('code:pair-session', { active: !pairActive, sessionId: pairSessionId });
               }}

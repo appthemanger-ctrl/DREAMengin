@@ -12,7 +12,7 @@
  *   const { containerRef, flip } = useGsapFlip();
  *
  *   const handleFlip = () =>
- *     flip(() => setSide(s => s === 'A' ? 'B' : 'A'));
+ *     flip(() => setSide((s) => s === 'A' ? 'B' : 'A'));
  *
  *   <div ref={containerRef}>…</div>
  */
@@ -20,7 +20,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { getGsap } from '@/lib/gsap/gsap';
 
-export function useGsapFlip() {
+export function useGsapFlip( ){
   const containerRef = useRef<HTMLDivElement | null>(null);
   const busyRef      = useRef(false);
   const [busy, setBusy] = useState(false);
@@ -45,7 +45,7 @@ export function useGsapFlip() {
       return;
     }
 
-    getGsap().then(gsap => {
+    getGsap().then((gsap) => {
       const tl = gsap.timeline({
         onComplete: () => {
           busyRef.current = false;

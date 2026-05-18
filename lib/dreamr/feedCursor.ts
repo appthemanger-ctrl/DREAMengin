@@ -59,7 +59,7 @@ export function parseFeedParams(
   const seenRaw = searchParams.get('seen') ?? '';
   const seenIds = seenRaw
     .split(',')
-    .map(s => s.trim())
+    .map((s) => s.trim())
     .filter(Boolean)
     .slice(0, MAX_SEEN_IDS);
 

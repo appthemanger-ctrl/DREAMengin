@@ -70,7 +70,7 @@ export class WidgetInstanceMemory {
     this.homeIndices = [];
     this.profileIndices = [];
     
-    instances.forEach((instance, index) => {
+    instances.forEach((instance, index: number) => {
       if (instance.context === 'HOME') {
         this.homeIndices.push(index);
       } else if (instance.context === 'PROFILE') {
@@ -102,14 +102,14 @@ export class WidgetInstanceMemory {
    * Get active widget instances
    */
   getActiveWidgets(): WidgetInstanceRecord[] {
-    return this.activeIndicesPointer.map(index => this.instances[index]);
+    return this.activeIndicesPointer.map((index) => this.instances[index]);
   }
   
   /**
    * Get widget by instance ID
    */
   getWidget(instanceId: string): WidgetInstanceRecord | undefined {
-    return this.instances.find(w => w.instanceId === instanceId);
+    return this.instances.find((w) => w.instanceId === instanceId);
   }
   
   /**
@@ -152,7 +152,7 @@ export class WidgetInstanceMemory {
    * Remove widget from active indices (for DOCKED presentation)
    */
   removeFromActive(instanceId: string): void {
-    const widgetIndex = this.instances.findIndex(w => w.instanceId === instanceId);
+    const widgetIndex = this.instances.findIndex((w) => w.instanceId === instanceId);
     if (widgetIndex === -1) return;
     
     const activeIndex = this.activeIndicesPointer.indexOf(widgetIndex);
@@ -166,7 +166,7 @@ export class WidgetInstanceMemory {
    * Add widget to active indices
    */
   addToActive(instanceId: string): void {
-    const widgetIndex = this.instances.findIndex(w => w.instanceId === instanceId);
+    const widgetIndex = this.instances.findIndex((w) => w.instanceId === instanceId);
     if (widgetIndex === -1) return;
     
     const widget = this.instances[widgetIndex];

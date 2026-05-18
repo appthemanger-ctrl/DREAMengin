@@ -144,7 +144,7 @@ export async function youtubeVerify(creds: YouTubeCredentials): Promise<string> 
   return user.email ?? user.name ?? user.id ?? 'youtube-user';
 }
 
-async function fetchRelatedPlaylists(accessToken: string) {
+async function fetchRelatedPlaylists(accessToken: string ){
   const data = await fetchYouTubeJson<RelatedPlaylistsResponse>(
     `${YT_API}/channels?part=contentDetails&mine=true&maxResults=1`,
     accessToken,

@@ -26,12 +26,12 @@ const VALID_STATUSES = [
 // GET — fetch incident review queue
 // ============================================================================
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user }, error: userErr } = await supabase.auth.getUser();
   if (userErr || !user) return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
 
-  const { data: roleData } = await (supabase as any)
+  const { data: roleData } = await (supabase as SupabaseClient)
     .from('user_roles').select('role').eq('user_id', user.id).single();
   const isOwner = isOwnerEmail(user.email);
   const isAdmin = isOwner || (roleData as { role?: string } | null)?.role === 'admin';
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
   const limit  = Math.min(parseInt(searchParams.get('limit') ?? '50'), 100);
   const offset = parseInt(searchParams.get('offset') ?? '0');
 
-  const { data: incidents, error } = await (supabase as any)
+  const { data: incidents, error } = await (supabase as SupabaseClient)
     .from('child_safety_incidents')
     .select('id, created_at, rule_code, category, severity, confidence, signal_count, surface, status, ncmec_report_id, ncmec_error, reported_at, hash_match, reported_user_id, reporter_user_id')
     .eq('status', status)
@@ -82,12 +82,12 @@ const AddHashesBodySchema = z.object({
 
 const AdminBodySchema = z.discriminatedUnion('action', [ReviewBodySchema, AddHashesBodySchema]);
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user }, error: userErr } = await supabase.auth.getUser();
   if (userErr || !user) return jsonApiError(401, 'NOT_AUTHENTICATED', 'You must be signed in.');
 
-  const { data: roleData } = await (supabase as any)
+  const { data: roleData } = await (supabase as SupabaseClient)
     .from('user_roles').select('role').eq('user_id', user.id).single();
   const isOwner = isOwnerEmail(user.email);
   const isAdmin = isOwner || (roleData as { role?: string } | null)?.role === 'admin';
@@ -103,7 +103,7 @@ export async function POST(req: NextRequest) {
 
   // ── Review an incident ─────────────────────────────────────────────────
   if (data.action === 'review') {
-    const { error } = await (supabase as any)
+    const { error } = await (supabase as SupabaseClient)
       .from('child_safety_incidents')
       .update({
         status: data.status,
@@ -127,7 +127,7 @@ export async function POST(req: NextRequest) {
       added_by: user.id,
     }));
 
-    const { data: inserted, error } = await (supabase as any)
+    const { data: inserted, error } = await (supabase as SupabaseClient)
       .from('child_safety_hash_registry')
       .upsert(rows, { onConflict: 'hash_sha256', ignoreDuplicates: true })
       .select('id');

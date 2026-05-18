@@ -119,7 +119,7 @@ export function detectTimePatterns(history: HistoryEntry[]): ForgeRitual[] {
   const rituals: ForgeRitual[] = [];
 
   for (const [enginId, bucketCounts] of Object.entries(counts)) {
-    const engine = ENGIN_REGISTRY.find(e => e.id === enginId);
+    const engine = ENGIN_REGISTRY.find((e) => e.id === enginId);
     if (!engine) continue;
 
     const total = Object.values(bucketCounts).reduce((s, c) => s + c, 0);
@@ -129,7 +129,7 @@ export function detectTimePatterns(history: HistoryEntry[]): ForgeRitual[] {
     for (const [bucketLabel, count] of Object.entries(bucketCounts)) {
       const ratio = count / total;
       if (ratio >= 0.6 && count >= MIN_OCCURRENCES) {
-        const bucket = TIME_BUCKETS.find(b => b.label === bucketLabel);
+        const bucket = TIME_BUCKETS.find((b) => b.label === bucketLabel);
         rituals.push({
           id: `time-${enginId}-${bucketLabel}`,
           type: 'time-pattern',
@@ -176,8 +176,8 @@ export function detectSequencePatterns(history: HistoryEntry[]): ForgeRitual[] {
   for (const [key, count] of bigrams) {
     if (count < MIN_OCCURRENCES) continue;
     const [fromId, toId] = key.split('→');
-    const fromEng = ENGIN_REGISTRY.find(e => e.id === fromId);
-    const toEng = ENGIN_REGISTRY.find(e => e.id === toId);
+    const fromEng = ENGIN_REGISTRY.find((e) => e.id === fromId);
+    const toEng = ENGIN_REGISTRY.find((e) => e.id === toId);
     if (!fromEng || !toEng) continue;
 
     const totalBigrams = switches.length - 1;
@@ -207,7 +207,7 @@ export function detectSequencePatterns(history: HistoryEntry[]): ForgeRitual[] {
     if (count < MIN_OCCURRENCES) continue;
     const parts = key.split('→');
     const engines = parts
-      .map(id => ENGIN_REGISTRY.find(e => e.id === id))
+      .map((id) => ENGIN_REGISTRY.find((e) => e.id === id))
       .filter(Boolean);
     if (engines.length !== 3) continue;
 
@@ -217,8 +217,8 @@ export function detectSequencePatterns(history: HistoryEntry[]): ForgeRitual[] {
     rituals.push({
       id: `seq3-${parts.join('-')}`,
       type: 'sequence',
-      title: `${engines.map(e => e!.emoji).join(' → ')} pipeline`,
-      description: `You repeat the ${engines.map(e => e!.name).join(' → ')} sequence (${count} times)`,
+      title: `${engines.map((e) => e!.emoji).join(' → ')} pipeline`,
+      description: `You repeat the ${engines.map((e) => e!.name).join(' → ')} sequence (${count} times)`,
       confidence,
       accent: engines[0]!.accent,
       emoji: '🔗',
@@ -257,7 +257,7 @@ export function detectSessionPatterns(history: HistoryEntry[]): ForgeRitual[] {
   const rituals: ForgeRitual[] = [];
 
   // Average engines per session
-  const enginesPerSession = sessions.map(s => new Set(s.map(e => e.enginId)).size);
+  const enginesPerSession = sessions.map((s) => new Set(s.map((e) => e.enginId)).size);
   const avgEngines = enginesPerSession.reduce((s, c) => s + c, 0) / enginesPerSession.length;
 
   if (avgEngines >= 2) {
@@ -276,13 +276,13 @@ export function detectSessionPatterns(history: HistoryEntry[]): ForgeRitual[] {
 
   // Average session duration
   const durations = sessions
-    .filter(s => s.length >= 2)
-    .map(s => {
+    .filter((s) => s.length >= 2)
+    .map((s) => {
       const first = new Date(s[0].timestamp).getTime();
       const last = new Date(s[s.length - 1].timestamp).getTime();
       return last - first;
     })
-    .filter(d => d > 0);
+    .filter((d) => d > 0);
 
   if (durations.length >= MIN_OCCURRENCES) {
     const avgMs = durations.reduce((s, d) => s + d, 0) / durations.length;
@@ -325,7 +325,7 @@ export function detectAffinityPatterns(history: HistoryEntry[]): ForgeRitual[] {
 
   // Top engine
   const [topId, topCount] = sorted[0];
-  const topEngine = ENGIN_REGISTRY.find(e => e.id === topId);
+  const topEngine = ENGIN_REGISTRY.find((e) => e.id === topId);
   if (topEngine && topCount >= MIN_OCCURRENCES) {
     const ratio = topCount / total;
     rituals.push({
@@ -342,18 +342,18 @@ export function detectAffinityPatterns(history: HistoryEntry[]): ForgeRitual[] {
   }
 
   // Underused engines
-  const creativeIds = new Set(CREATIVE_ENGINES.map(e => e.id));
-  const unused = CREATIVE_ENGINES.filter(e => !counts.has(e.id));
+  const creativeIds = new Set(CREATIVE_ENGINES.map((e) => e.id));
+  const unused = CREATIVE_ENGINES.filter((e) => !counts.has(e.id));
   if (unused.length > 0 && unused.length < CREATIVE_ENGINES.length) {
     rituals.push({
       id: 'affinity-unexplored',
       type: 'affinity',
       title: 'Unexplored Territory',
-      description: `You haven't tried ${unused.map(e => e.name).join(', ')} yet — consider exploring`,
+      description: `You haven't tried ${unused.map((e) => e.name).join(', ')} yet — consider exploring`,
       confidence: 0.3,
       accent: '#64748b',
       emoji: '🗺️',
-      engines: unused.map(e => e.id),
+      engines: unused.map((e) => e.id),
       occurrences: 0,
     });
   }

@@ -235,7 +235,7 @@ export function listenOnline(
   if (typeof window === 'undefined') return () => {};
 
   const handler = () => {
-    flushQueue(executor).catch((err) => {
+    flushQueue(executor).catch((err: unknown ) => {
       console.error('[offlineQueue] Auto-flush failed', err);
     });
   };

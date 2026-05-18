@@ -142,7 +142,7 @@ export async function podcastSync(creds: PodcastCredentials): Promise<UnifiedFee
   );
 }
 
-export function podcastCredentialFields() {
+export function podcastCredentialFields( ){
   return [
     {
       key: 'feed_url',

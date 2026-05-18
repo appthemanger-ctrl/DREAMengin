@@ -108,5 +108,5 @@ export function loadEmbedFeed(): EmbedFeed {
  *   const ytItems = loadEmbedFeedByProvider('youtube');
  */
 export function loadEmbedFeedByProvider(provider: string): EmbedFeedItem[] {
-  return loadEmbedFeed().items.filter(item => item.provider === provider);
+  return loadEmbedFeed().items.filter((item) => item.provider === provider);
 }

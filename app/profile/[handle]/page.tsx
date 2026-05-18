@@ -93,7 +93,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     active_state: string;
   }> | null = null;
   try {
-    const dreamWindowQuery = (supabase as any)
+    const dreamWindowQuery = (supabase as SupabaseClient)
       .from('dream_windows')
       .select('id, type, config, size, position, visibility, active_state')
       .eq('owner_id', profile.id);

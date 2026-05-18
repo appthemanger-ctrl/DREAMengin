@@ -32,7 +32,7 @@ import { bridge } from '@/lib/runtime/dualRuntimeBridge';
 // ── Engin slot config ────────────────────────────────────────────────────────
 
 const ENGIN_SLOTS = [
-  { key: 'engin:game',       label: 'GameEngin',      icon: '🎮', route: '/app/daydream/games' },
+  { key: 'engin:game',       label: 'GameEngin',       icon: '🎮', route: '/app/daydream/games' },
   { key: 'engin:starmaker',  label: 'StarMaker',       icon: '🎵', route: '/app/daydream/music' },
   { key: 'engin:lab',        label: 'LabEngin',        icon: '🧪', route: '/app/daydream/lab' },
   { key: 'engin:code',       label: 'CodeEngin',       icon: '💻', route: '/app/daydream/code' },
@@ -52,7 +52,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(ms / 86_400_000)}d ago`;
 }
 
-function summarizeEnginState(state: Record<string, unknown>): string {
+function summarizeEnginState(state): string {
   const parts: string[] = [];
   if (typeof state['selectedGame'] === 'string') parts.push(state['selectedGame']);
   if (typeof state['selectedPlayableGame'] === 'string') parts.push(state['selectedPlayableGame']);
@@ -67,8 +67,9 @@ function summarizeEnginState(state: Record<string, unknown>): string {
 
 interface InnerProps {
   savedEnginState: Record<string, Record<string, unknown>>;
-  members: { userId: string; role: string; lastSeenAt: string }[];
-  activity: { id: string; kind: string; label: string; createdAt: string }[];
+  // FIX: Explicitly set array values to readonly to match state hooks
+  members: readonly { userId: string; role: string; lastSeenAt: string }[];
+  activity: readonly { id: string; kind: string; label: string; createdAt: string }[];
   logActivity: (kind: string, label: string, meta?: Record<string, unknown>) => void;
   sessionId: string | null;
 }
@@ -91,7 +92,7 @@ function SharedDreamRuntimeInner({
   // When an Engin publishes via the bridge, mark it active and log activity
   useEffect(() => {
     const unsubs = ENGIN_SLOTS.map((slot) =>
-      bridge.subscribe('shared_dream', `${slot.key}:state`, (payload) => {
+      bridge.subscribe('shared_dream', `${slot.key}:state`, payload => {
         setActiveEngins((prev) => {
           if (prev.has(slot.key)) return prev;
           const next = new Set(prev);

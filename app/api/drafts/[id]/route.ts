@@ -48,7 +48,7 @@ export async function DELETE(
   }
 
    
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
 
   // Verify ownership before deleting
   const { data: draft, error: fetchError } = await db
@@ -105,7 +105,7 @@ export async function PATCH(
   }
 
    
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
 
   // Verify ownership before updating
   const { data: existing, error: fetchError } = await db

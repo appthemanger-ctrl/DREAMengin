@@ -59,7 +59,7 @@ export async function substackSync(creds: SubstackCredentials): Promise<UnifiedF
   return items.map((item) => normaliseSubstack(item.raw as Parameters<typeof normaliseSubstack>[0], slug));
 }
 
-export function substackCredentialFields() {
+export function substackCredentialFields( ){
   return [
     {
       key: 'publication',

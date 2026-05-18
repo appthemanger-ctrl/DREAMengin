@@ -68,13 +68,13 @@ export default function ConnectWidgetPrompt({
      
   }, [menuOpen]);
 
-  function dismiss() {
+  function dismiss( ){
     setVisible(false);
     if (timerRef.current) clearTimeout(timerRef.current);
     if (primary) onDismiss(primary.id);
   }
 
-  function handleAdd() {
+  function handleAdd( ){
     if (timerRef.current) clearTimeout(timerRef.current);
     if (primary) onAdd(primary.id);
   }

@@ -138,7 +138,7 @@ export class ComboMachine {
     return this.multiTouchCombos.find((c) => {
       if (c.buttons.length !== sorted.length) return false;
       const csorted = [...c.buttons].sort();
-      return csorted.every((b, i) => b === sorted[i]);
+      return csorted.every((b, i: number) => b === sorted[i]);
     }) ?? null;
   }
 }

@@ -51,7 +51,7 @@ export interface UseSharedDreamReturn {
   onEvent(handler: DreamEventHandler): () => void;
 }
 
-function getSupabase() {
+function getSupabase( ){
   return createClient();
 }
 

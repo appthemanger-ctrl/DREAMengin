@@ -10,7 +10,7 @@ import { THEME_PRESETS as GRADIENT_PRESETS, applyTheme, applyVoidTheme, isVoidTh
 import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
 
 /* ── VOID / OLED Dark Theme Toggle ── */
-function VoidThemeSection() {
+function VoidThemeSection( ){
   const [isVoid, setIsVoid] = useState(false);
 
   useEffect(() => {
@@ -98,7 +98,7 @@ function VoidThemeSection() {
 }
 
 /* ── Gradient Preset Picker ── */
-function GradientThemePicker() {
+function GradientThemePicker( ){
   const [active, setActive] = useState(() => {
     if (typeof window === 'undefined') return 'default';
     try {
@@ -272,7 +272,7 @@ function PresetCard({
 }
 
 /* ── Background Image Section ── */
-function BgImageSection() {
+function BgImageSection( ){
   const [bgImage, setBgImage] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
     const stored = localStorage.getItem('dreamengin:bgImage');
@@ -288,7 +288,7 @@ function BgImageSection() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = (ev: Event ) => {
       const dataUrl = ev.target?.result as string;
       setBgImage(dataUrl);
       localStorage.setItem('dreamengin:bgImage', dataUrl);
@@ -384,14 +384,14 @@ const BG_STYLES = [
   },
 ];
 
-export default function AppearanceSettingsPage() {
+export default function AppearanceSettingsPage( ){
   const { presetId, overrides, setPreset, setOverrides, resetOverrides } = useTheme();
   const { enterCustomizeMode } = useCustomizeMode();
 
   // ── DB sync: load appearance settings on mount (Phase 8 §I Point 83) ──
   useEffect(() => {
     fetch('/api/settings/appearance')
-      .then(r => r.json())
+      .then((r) => r.json())
       .then((data: { ok: boolean; appearance: { presetId?: string; overrides?: Record<string, number> } | null }) => {
         if (data.ok && data.appearance) {
           if (data.appearance.presetId) setPreset(data.appearance.presetId);

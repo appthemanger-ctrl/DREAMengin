@@ -13,7 +13,7 @@ interface Message {
   isVoice?: boolean;
 }
 
-export default function DrEamsVoiceAssistant() {
+export default function DrEamsVoiceAssistant( ){
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
@@ -36,9 +36,9 @@ export default function DrEamsVoiceAssistant() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
    
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
    
-  const synthRef = useRef<any>(null);
+  const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -61,7 +61,7 @@ export default function DrEamsVoiceAssistant() {
 
       if (!shouldSurface) return;
 
-      setMessages(prev => [...prev, {
+      setMessages((prev) => [...prev, {
         id: `${Date.now()}_${Math.random().toString(16).slice(2)}`,
         role: 'assistant',
         content: `iDari: ${evt.message}${evt.details ? `\n${evt.details}` : ''}`,
@@ -77,7 +77,7 @@ export default function DrEamsVoiceAssistant() {
     if (typeof window === 'undefined') return;
 
      
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const SpeechRecognition = (window as Window & { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition || (window as Window & { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
     const SpeechSynthesis = window.speechSynthesis;
 
     // Detect browser support once
@@ -90,7 +90,7 @@ export default function DrEamsVoiceAssistant() {
       recognition.lang = 'en-US';
 
        
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event: unknown) => {
         let interimTranscript = '';
         let finalTranscript = '';
 
@@ -120,7 +120,7 @@ export default function DrEamsVoiceAssistant() {
       };
 
        
-      recognition.onerror = (event: any) => {
+      recognition.onerror = (event: unknown) => {
         console.error('Speech recognition error:', event.error);
         if (event.error === 'no-speech') {
           // Restart recognition if no speech detected
@@ -170,7 +170,7 @@ export default function DrEamsVoiceAssistant() {
   const requestMicrophonePermission = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach((track) => track.stop());
       setVoiceEnabled(true);
       setIsWakeWordListening(true);
       if (recognitionRef.current) {
@@ -213,7 +213,7 @@ export default function DrEamsVoiceAssistant() {
     // Try to use a male voice for Dr. Eams
     const voices = synthRef.current.getVoices();
      
-    const maleVoice = voices.find((voice: any) => 
+    const maleVoice = voices.find((voice: unknown) => 
       voice.name.includes('Male') || voice.name.includes('Daniel') || voice.name.includes('David')
     );
     if (maleVoice) {
@@ -236,7 +236,7 @@ export default function DrEamsVoiceAssistant() {
       isVoice: true
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
 
     // Execute navigation or action commands
@@ -250,7 +250,7 @@ export default function DrEamsVoiceAssistant() {
       isVoice: true
     };
 
-    setMessages(prev => [...prev, aiMessage]);
+    setMessages((prev) => [...prev, aiMessage]);
     speak(response);
     setIsLoading(false);
 
@@ -407,7 +407,7 @@ export default function DrEamsVoiceAssistant() {
       timestamp: new Date()
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
 
@@ -420,7 +420,7 @@ export default function DrEamsVoiceAssistant() {
       timestamp: new Date()
     };
     
-    setMessages(prev => [...prev, aiMessage]);
+    setMessages((prev) => [...prev, aiMessage]);
     if (speechEnabled) {
       speak(response);
     }

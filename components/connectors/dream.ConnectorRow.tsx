@@ -22,7 +22,7 @@ import { CheckCircle, AlertCircle, Clock, RefreshCw, Lock, XCircle, Settings } f
 
 // ── Status badge (DREAMengin palette — gold / light-blue / muted) ─────────
 
-function StatusBadge({ status }: { status: ConnectorStatus }) {
+function StatusBadge({ status }: {status: ConnectorStatus}) {
   const map: Record<ConnectorStatus, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
     connected:         { label: 'Connected',      color: 'var(--de-accent, #c8a84e)', bg: 'rgba(200,168,78,0.12)',  icon: <CheckCircle size={12} /> },
     not_connected:     { label: 'Not Connected',  color: 'var(--de-text-dim)',        bg: 'rgba(160,195,240,0.15)', icon: <Clock size={12} /> },
@@ -184,7 +184,7 @@ export default function ConnectorRow({ connector, status, onConnectSuccess }: Co
 
   const fields = getCredentialFields(connector.id);
 
-  async function handleConnect(creds: Record<string, string>) {
+  async function handleConnect(creds: Record<string, string> ){
     setSubmitting(true);
     setErrorMsg(null);
     try {
@@ -234,7 +234,7 @@ export default function ConnectorRow({ connector, status, onConnectSuccess }: Co
   /** Connectors with oauthStartUrl use browser redirect, not the credential modal. */
   const usesOAuth = !!connector.oauthStartUrl;
 
-  function handleConnectClick() {
+  function handleConnectClick( ){
     if (btnDisabled) return;
     if (usesOAuth && connector.oauthStartUrl) {
       window.location.href = connector.oauthStartUrl;

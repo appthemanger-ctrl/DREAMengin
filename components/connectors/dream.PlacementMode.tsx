@@ -38,7 +38,7 @@ export default function PlacementMode({
   const [chosen, setChosen] = useState<number | null>(null);
   const [history, setHistory] = useState<number[]>([]); // for Undo (req 37)
 
-  function handleSlotTap(slot: number) {
+  function handleSlotTap(slot: number ){
     if (filledSlots.has(slot)) return;
     setHistory((prev) => [...prev, slot]);
     setChosen(slot);
@@ -53,20 +53,20 @@ export default function PlacementMode({
     });
   }, [widget.id]);
 
-  function handleDone() {
+  function handleDone( ){
     if (chosen === null) return;
     handlePlacementDone(onAutoLock); // req 40: return to LOCKED
     onDone({ widgetId: widget.id, slot: chosen });
   }
 
-  function handleCancel() {
+  function handleCancel( ){
     handlePlacementCancel(onAutoLock); // req 40
     onCancel();
   }
 
   // Keyboard: Escape cancels (req 36)
   useEffect(() => {
-    function onKey(e: KeyboardEvent) {
+    function onKey(e: KeyboardEvent ){
       if (e.key === 'Escape') handleCancel();
     }
     window.addEventListener('keydown', onKey);
@@ -91,7 +91,7 @@ export default function PlacementMode({
         gap: 12, padding: 16, alignContent: 'start',
         pointerEvents: 'none',
       }}>
-        {Array.from({ length: totalSlots }, (_, i) => {
+        {Array.from({ length: totalSlots }, (_, i: number ) => {
           const filled = filledSlots.has(i);
           const selected = chosen === i;
           return (

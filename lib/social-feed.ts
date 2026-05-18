@@ -48,26 +48,26 @@ const parser = new Parser({
 
 // ── HTML helpers ──────────────────────────────────────────────────────────
 
-export function stripHtml(input?: string | null) {
+export function stripHtml(input?: string | null ){
   if (!input) return "";
   return input.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
 
 // ── Image extraction ──────────────────────────────────────────────────────
 
-export function extractFirstImage(item: any): string | null {
+export function extractFirstImage(item: unknown): string | null {
   // 1) enclosure
   if (item.enclosure?.url) return item.enclosure.url;
 
   // 2) media:content
   if (Array.isArray(item.mediaContent)) {
-    const mediaUrl = item.mediaContent.find((x: any) => x?.$?.url)?.$?.url;
+    const mediaUrl = item.mediaContent.find((x: unknown) => x?.$?.url)?.$?.url;
     if (mediaUrl) return mediaUrl;
   }
 
   // 3) media:thumbnail
   if (Array.isArray(item.mediaThumbnail)) {
-    const thumbUrl = item.mediaThumbnail.find((x: any) => x?.$?.url)?.$?.url;
+    const thumbUrl = item.mediaThumbnail.find((x: unknown) => x?.$?.url)?.$?.url;
     if (thumbUrl) return thumbUrl;
   }
 
@@ -102,7 +102,7 @@ export async function fetchSocialFeed(
   const items = (feed.items ?? []).slice(0, limit);
 
   return items.map((raw) => {
-    const a = raw as any;
+    const a = raw as Record<string, unknown>;
     return {
       id: raw.guid ?? a.id ?? raw.link ?? String(Math.random()),
       source,

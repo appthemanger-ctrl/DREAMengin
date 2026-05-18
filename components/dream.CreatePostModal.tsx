@@ -45,7 +45,7 @@ export default function CreatePostModal({ onClose, userId }: CreatePostModalProp
       // Create preview URL
       const previewUrl = URL.createObjectURL(file);
       
-      setUploadedMedia(prev => [...prev, {
+      setUploadedMedia((prev) => [...prev, {
         type,
         url: previewUrl,
         file
@@ -57,7 +57,7 @@ export default function CreatePostModal({ onClose, userId }: CreatePostModalProp
   };
 
   const removeMedia = (index: number) => {
-    setUploadedMedia(prev => {
+    setUploadedMedia((prev) => {
       const newMedia = [...prev];
       URL.revokeObjectURL(newMedia[index].url);
       newMedia.splice(index, 1);
@@ -183,7 +183,7 @@ export default function CreatePostModal({ onClose, userId }: CreatePostModalProp
           {/* Media Preview */}
           {uploadedMedia.length > 0 && (
             <div className="grid grid-cols-2 gap-2">
-              {uploadedMedia.map((media, index) => (
+              {uploadedMedia.map((media, index: number) => (
                 <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800">
                   {media.type === 'image' && (
                     <Image src={media.url} alt="Upload preview" fill unoptimized className="object-cover" />
@@ -279,7 +279,7 @@ export default function CreatePostModal({ onClose, userId }: CreatePostModalProp
               <div className="ml-2">
                 <select
                   value={visibility}
-                  onChange={(e) => setVisibility(e.target.value as any)}
+                  onChange={(e) => setVisibility(e.target.value as "everyone" | "close_friends" | "private")}
                   disabled={isSubmitting}
                   className="text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                 >

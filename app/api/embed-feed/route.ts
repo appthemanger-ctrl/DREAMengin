@@ -44,7 +44,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<EmbedFeedRespo
   try {
     const db = await createServerClient();
 
-    const query = (db as any)
+    const query = (db as SupabaseClient)
       .from('embed_feed_items')
       .select('provider,external_id,title,permalink,published_at,view_count,tags,embed_html,thumbnail_url,channel_title,generated_at')
       .order('published_at', { ascending: false })
@@ -56,7 +56,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<EmbedFeedRespo
 
     const { data, error } = await query;
     if (!error && Array.isArray(data) && data.length > 0) {
-      const items = data.map((row: Record<string, unknown>) => ({
+      const items = data.map((row) => ({
         id:            String(row.external_id ?? ''),
         provider:      String(row.provider ?? ''),
         title:         String(row.title ?? ''),
@@ -87,7 +87,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<EmbedFeedRespo
   // ── JSON fallback ────────────────────────────────────────────────────────
   const feed = loadEmbedFeed();
   const items = provider
-    ? feed.items.filter((i) => i.provider === provider).slice(0, limit)
+    ? feed.items.filter((i: number ) => i.provider === provider).slice(0, limit)
     : feed.items.slice(0, limit);
 
   return NextResponse.json({

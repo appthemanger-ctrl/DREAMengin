@@ -27,7 +27,7 @@ export interface UniversalEditorWrapperProps {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function UniversalEditorWrapper({
+export function UniversalEditorWrapper(){
   manifest,
   children,
   onMove,

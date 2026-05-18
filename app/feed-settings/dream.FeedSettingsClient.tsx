@@ -29,7 +29,7 @@ const DEFAULT_PREFS: FeedPreferences = {
   showEmptyStateGuides: true,
 };
 
-function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => void; label: string }) {
+function Toggle({ value, onToggle, label }: {value: boolean; onToggle: () => void; label: string}) {
   return (
     <button
       type="button"
@@ -53,7 +53,7 @@ function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => vo
   );
 }
 
-export default function FeedSettingsClient() {
+export default function FeedSettingsClient( ){
   // Initialize with localStorage value to avoid setState in effect
   const [prefs, setPrefs] = useState<FeedPreferences>(() => {
     try {
@@ -69,7 +69,7 @@ export default function FeedSettingsClient() {
   useEffect(() => {
     // Phase 8 §A Point 3: load preferences from DB (canonical source of truth)
     fetch('/api/settings/feed')
-      .then((r) => r.json())
+      .then((r: number ) => r.json())
       .then((data: { ok: boolean; preferences?: Partial<FeedPreferences> }) => {
         if (data.ok && data.preferences && Object.keys(data.preferences).length > 0) {
           const merged = { ...DEFAULT_PREFS, ...data.preferences };
@@ -83,7 +83,7 @@ export default function FeedSettingsClient() {
 
     // Load real connected connectors to show in Active Slices section
     fetch('/api/connectors/status')
-      .then((r) => r.json())
+      .then((r: number ) => r.json())
       .then((data: { ok: boolean; statuses: Record<string, { status: string }> }) => {
         if (!data.ok) return;
         const names = Object.entries(data.statuses)

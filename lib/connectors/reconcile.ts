@@ -76,7 +76,7 @@ export async function reconcileConnector(
 ): Promise<ReconcileResult> {
   const now = new Date().toISOString();
    
-  const anyDb = db as any;
+  const anyDb = db as SupabaseClient;
 
   // ── 1. Dispatch ────────────────────────────────────────────────────────────
 

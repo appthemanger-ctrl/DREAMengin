@@ -126,20 +126,20 @@ export default function HomeFeed({
 
   const loadComments = useCallback(async (postId: string) => {
     if (commentsMap[postId]) return; // already loaded
-    setCommentLoadingSet(prev => new Set(prev).add(postId));
+    setCommentLoadingSet((prev) => new Set(prev).add(postId));
     try {
       const res = await fetch(`/api/comments?post_id=${encodeURIComponent(postId)}&limit=20`);
       if (res.ok) {
         const data = await res.json() as { data?: Comment[] };
-        setCommentsMap(prev => ({ ...prev, [postId]: data.data ?? [] }));
+        setCommentsMap((prev) => ({ ...prev, [postId]: data.data ?? [] }));
       }
     } catch { /* silent */ } finally {
-      setCommentLoadingSet(prev => { const s = new Set(prev); s.delete(postId); return s; });
+      setCommentLoadingSet((prev) => { const s = new Set(prev); s.delete(postId); return s; });
     }
   }, [commentsMap]);
 
   const toggleComments = useCallback(async (postId: string) => {
-    setExpandedComments(prev => {
+    setExpandedComments((prev) => {
       const next = new Set(prev);
       if (next.has(postId)) {
         next.delete(postId);
@@ -185,7 +185,7 @@ export default function HomeFeed({
     if (activeTab === 'trending')  params.set('sort', 'trending');
     if (activeTab === 'following') params.set('feed', 'following');
     fetch(`/api/posts?${params.toString()}`)
-      .then((r) => r.json())
+      .then((r: number ) => r.json())
       .then((data: { posts?: FeedPost[] }) => { if (data.posts) replacePosts(data.posts); })
       .catch(() => {})
       .finally(() => setTabLoading(false));
@@ -286,7 +286,7 @@ export default function HomeFeed({
 
   const toggleLike = async (postId: string) => {
     const alreadyLiked = likedPosts.has(postId);
-    setLikedPosts(prev => { const n = new Set(prev); if (alreadyLiked) n.delete(postId); else n.add(postId); return n; });
+    setLikedPosts((prev) => { const n = new Set(prev); if (alreadyLiked) n.delete(postId); else n.add(postId); return n; });
     const cur = posts.find((p) => p.id === postId)?.likes_count ?? 0;
     updatePost(postId, { likes_count: Math.max(0, cur + (alreadyLiked ? -1 : 1)) });
     try {
@@ -296,14 +296,14 @@ export default function HomeFeed({
         await fetch('/api/likes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content_type: 'post', content_id: postId }) });
       }
     } catch {
-      setLikedPosts(prev => { const n = new Set(prev); if (alreadyLiked) n.add(postId); else n.delete(postId); return n; });
+      setLikedPosts((prev) => { const n = new Set(prev); if (alreadyLiked) n.add(postId); else n.delete(postId); return n; });
       updatePost(postId, { likes_count: cur });
     }
   };
 
   const toggleSave = async (postId: string) => {
     const alreadySaved = savedPosts.has(postId);
-    setSavedPosts(prev => { const n = new Set(prev); if (alreadySaved) n.delete(postId); else n.add(postId); return n; });
+    setSavedPosts((prev) => { const n = new Set(prev); if (alreadySaved) n.delete(postId); else n.add(postId); return n; });
     try {
       if (alreadySaved) {
         await fetch(`/api/favorites?target_type=post&target_id=${encodeURIComponent(postId)}`, { method: 'DELETE' });
@@ -311,7 +311,7 @@ export default function HomeFeed({
         await fetch('/api/favorites', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ target_type: 'post', target_id: postId }) });
       }
     } catch {
-      setSavedPosts(prev => { const n = new Set(prev); if (alreadySaved) n.add(postId); else n.delete(postId); return n; });
+      setSavedPosts((prev) => { const n = new Set(prev); if (alreadySaved) n.add(postId); else n.delete(postId); return n; });
     }
   };
 
@@ -347,7 +347,7 @@ export default function HomeFeed({
   // video sits in the context for swipe navigation.
   const ytIndexMap = useMemo<Map<string, number>>(() => {
     const m = new Map<string, number>();
-    ytPosts.forEach((p, i) => m.set(p.id, i));
+    ytPosts.forEach((p, i: number) => m.set(p.id, i));
     return m;
   }, [ytPosts]);
 
@@ -365,7 +365,7 @@ export default function HomeFeed({
             { id: 'feed'      as const, label: 'For You',   icon: Sparkles },
             { id: 'trending'  as const, label: 'Trending',  icon: TrendingUp },
             { id: 'following' as const, label: 'Following', icon: Users },
-          ].map(tab => (
+          ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -476,7 +476,7 @@ export default function HomeFeed({
               {/* Image previews */}
               {selectedImages.length > 0 && (
                 <div className="flex gap-2 flex-wrap">
-                  {selectedImages.map((img, idx) => (
+                  {selectedImages.map((img, idx: number) => (
                     <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-border">
                       <Image src={img.preview} alt="Preview" fill unoptimized className="object-cover" />
                       <button type="button" onClick={() => removeImage(idx)} className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5" aria-label="Remove image"><X className="w-3 h-3" /></button>
@@ -489,7 +489,7 @@ export default function HomeFeed({
               <div className="flex items-center justify-between pt-3 border-t border-border">
                 <div className="flex items-center gap-2">
                   <button type="button" onClick={() => imageInputRef.current?.click()} className="p-2 rounded-lg hover:bg-muted transition-colors" title="Add image"><ImageIcon className="w-5 h-5 text-primary" /></button>
-                  <button onClick={() => setNewPostVisibility(v => v === 'public' ? 'private' : 'public')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-muted transition-colors text-sm text-muted-foreground">
+                  <button onClick={() => setNewPostVisibility((v) => v === 'public' ? 'private' : 'public')} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-muted transition-colors text-sm text-muted-foreground">
                     {newPostVisibility === 'public' ? <Globe className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                     {newPostVisibility === 'public' ? 'Public' : 'Private'}
                   </button>
@@ -655,7 +655,7 @@ export default function HomeFeed({
                           {(commentsMap[post.id] ?? []).length === 0 ? (
                             <p className="text-xs text-muted-foreground text-center py-3">No comments yet — be first!</p>
                           ) : (
-                            (commentsMap[post.id] ?? []).map(c => (
+                            (commentsMap[post.id] ?? []).map((c) => (
                               <div key={c.id} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                                 <EditableAvatar
                                   src={c.profile?.avatar_url}

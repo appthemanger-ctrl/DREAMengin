@@ -84,7 +84,7 @@ function checkPackageJsonScripts(cwd: string): AdariCheck[] {
   }
 }
 
-export function getBuildReport(opts?: { cwd?: string }): AdariReport {
+export function getBuildReport(opts?: ){ cwd?: string }: AdariReport {
   const cwd = opts?.cwd ?? process.cwd();
   const checks: AdariCheck[] = [
     ...checkRequiredPaths(cwd),
@@ -94,7 +94,7 @@ export function getBuildReport(opts?: { cwd?: string }): AdariReport {
   return { ok, checks };
 }
 
-export function assertBuildInvariants(opts?: { cwd?: string }): void {
+export function assertBuildInvariants(opts?: ){ cwd?: string }: void {
   const report = getBuildReport(opts);
   if (report.ok) return;
 

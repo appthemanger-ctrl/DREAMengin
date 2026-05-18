@@ -47,7 +47,7 @@ export async function mediumSync(creds: MediumCredentials): Promise<UnifiedFeedI
   return items.map((item) => normaliseMedium(item.raw as Parameters<typeof normaliseMedium>[0], `@${username}`));
 }
 
-export function mediumCredentialFields() {
+export function mediumCredentialFields( ){
   return [
     {
       key: 'username',

@@ -102,7 +102,7 @@ const BUTTON_MAP: (GameAction | null)[] = [
 
 // ── Fire helper ───────────────────────────────────────────────────────────────
 
-function fire(action: GameAction, active: boolean) {
+function fire(action: GameAction, active): boolean {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(new CustomEvent('de-game-input', { detail: { action, active } }));
 }
@@ -158,7 +158,7 @@ export function useGamepad(): GamepadStatus {
     if (!gamepad) return;
 
     // Haptic Actuator API (supported on Android Chrome, desktop browsers)
-    const actuators = (gamepad as any).hapticActuators || (gamepad as any).vibrationActuator;
+    const actuators = (gamepad as Gamepad & { hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator }).hapticActuators || (gamepad as Gamepad & { hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator }).vibrationActuator;
     if (actuators && actuators.length > 0) {
       const clampedIntensity = Math.max(0, Math.min(1, intensity));
       actuators[0].pulse(clampedIntensity, duration / 1000);
@@ -177,7 +177,7 @@ export function useGamepad(): GamepadStatus {
     if (typeof window === 'undefined') return;
 
     // ── Poll (defined inside effect so rAF self-reference is stable) ────────
-    function poll() {
+    function poll( ){
       if (typeof navigator === 'undefined') return;
 
       const gamepads = navigator.getGamepads ? navigator.getGamepads() : [];
@@ -231,20 +231,20 @@ export function useGamepad(): GamepadStatus {
     }
 
     // ── Start / stop helpers ─────────────────────────────────────────────
-    function startPolling() {
+    function startPolling( ){
       if (polling.current) return;
       polling.current = true;
       rafRef.current  = requestAnimationFrame(poll);
     }
 
-    function stopPolling() {
+    function stopPolling( ){
       polling.current = false;
       if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current);
         rafRef.current = null;
       }
       // Release any stuck buttons / axes when disconnecting
-      buttonState.current.forEach((was, i) => {
+      buttonState.current.forEach((was, i: number) => {
         if (was) {
           buttonState.current[i] = false;
           const action = BUTTON_MAP[i] ?? null;

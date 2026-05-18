@@ -33,7 +33,7 @@ interface SearchResult {
 
 const ACCENT = '#c8981a';
 
-export default function CloseFriendsSettings() {
+export default function CloseFriendsSettings( ){
   const [friends, setFriends] = useState<Friend[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -124,7 +124,7 @@ export default function CloseFriendsSettings() {
     }
   }, [loadFriends]);
 
-  const friendIds = new Set(friends.map(f => f.friend_id));
+  const friendIds = new Set(friends.map((f) => f.friend_id));
 
   return (
     <div className="flex flex-col gap-6 p-4 rounded-xl" style={{ background: '#111', border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -165,7 +165,7 @@ export default function CloseFriendsSettings() {
 
         {searchResults.length > 0 && (
           <div className="absolute left-0 right-0 top-full mt-1 bg-zinc-900 border border-zinc-700 rounded-lg overflow-hidden z-20 shadow-xl">
-            {searchResults.map(result => {
+            {searchResults.map((result) => {
               const alreadyAdded = friendIds.has(result.id);
               return (
                 <div key={result.id} className="flex items-center gap-3 px-3 py-2.5 hover:bg-zinc-800 transition-colors">
@@ -215,7 +215,7 @@ export default function CloseFriendsSettings() {
         </div>
       ) : (
         <ul className="flex flex-col gap-2">
-          {friends.map(f => (
+          {friends.map((f) => (
             <li key={f.friend_id} className="flex items-center gap-3 rounded-lg px-3 py-2.5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
                <div className="relative w-9 h-9 rounded-full bg-zinc-700 overflow-hidden shrink-0">
                  {f.profiles?.avatar_url && (

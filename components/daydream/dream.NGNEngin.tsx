@@ -359,7 +359,7 @@ export default function NGNEngin({ onBack }: Props) {
           {errors.length > 0 && (
             <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }} style={{ overflow: 'hidden', flexShrink: 0 }}>
               <div style={{ padding: '6px 16px', background: 'rgba(255,94,94,0.08)', borderBottom: '1px solid rgba(255,94,94,0.25)', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                {errors.map((err, i) => (
+                {errors.map((err, i: number) => (
                   <span key={i} style={{ fontSize: 11, color: T.error }}>{err.message}</span>
                 ))}
               </div>

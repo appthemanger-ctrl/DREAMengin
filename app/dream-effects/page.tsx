@@ -46,7 +46,7 @@ const features = [
 /* ------------------------------------------------------------------ */
 /*  Page component                                                     */
 /* ------------------------------------------------------------------ */
-export default function DreamEffectsPage() {
+export default function DreamEffectsPage( ){
   const [backend, setBackend] = useState<string>('detecting…');
   const cardsRef = useRef<HTMLElement | null>(null);
 

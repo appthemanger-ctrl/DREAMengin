@@ -28,7 +28,7 @@ import SharedDreamRuntime from '@/components/shared-dream/dream.SharedDreamRunti
 
 const SESSION_STORAGE_KEY = 'dreamengin:dualruntime:session-id';
 
-export default function DreamDMBarDualRuntimePage() {
+export default function DreamDMBarDualRuntimePage( ){
   const { setFocus, setSplitRatio, setIsBarMinimized } = useDreamSystem();
   const [sessionId, setSessionId] = useState<string | undefined>(undefined);
   const [resolved, setResolved] = useState(false);

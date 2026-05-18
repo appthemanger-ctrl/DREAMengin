@@ -12,7 +12,7 @@ interface ProfileWidgetBlockProps {
   className?: string;
 }
 
-export default function ProfileWidgetBlock({
+export default function ProfileWidgetBlock(){
   title,
   icon,
   children,

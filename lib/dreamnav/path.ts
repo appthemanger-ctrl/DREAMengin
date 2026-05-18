@@ -58,6 +58,6 @@ export async function dispatchTauPath(
   for (const a of actions) {
     dispatch(a);
      
-    await new Promise((r) => setTimeout(r, stepMs));
+    await new Promise((r: number ) => setTimeout(r, stepMs));
   }
 }

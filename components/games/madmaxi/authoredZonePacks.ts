@@ -1035,7 +1035,7 @@ function buildPlatforms(template: StarterTemplate): { platforms: PlatDef[]; rout
 
 function buildCoins(routePlatforms: PlatDef[], goal: PlatDef): CoinDef[] {
   const regularPlatforms = routePlatforms.slice(0, 9);
-  const coins = regularPlatforms.map((platform, index) => ({
+  const coins = regularPlatforms.map((platform, index: number) => ({
     x: platform.x + Math.round(platform.w * (0.32 + (index % 3) * 0.18)),
     y: platform.y - 30 - (index % 2) * 8,
   }));
@@ -1086,7 +1086,7 @@ function buildEnemies(level: number, zoneIdx: number, template: StarterTemplate,
     enemyKinds.push(template.enemyCycle[(enemyKinds.length - template.signatureEnemies.length) % template.enemyCycle.length]);
   }
 
-  return enemyKinds.slice(0, requiredCount).map((kind, index) => {
+  return enemyKinds.slice(0, requiredCount).map((kind, index: number) => {
     const safeStart = Math.min(routePlatforms.length - 1, 1);
     const safeEnd = Math.max(safeStart, routePlatforms.length - 2);
     const span = Math.max(0, safeEnd - safeStart);

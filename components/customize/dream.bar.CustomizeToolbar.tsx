@@ -7,7 +7,7 @@ import { useCustomizeMode } from '@/lib/ui/CustomizeModeContext';
  * CustomizeToolbar — fixed bottom toolbar shown in customize mode.
  * Tabs: Color | Font | Layout | Effects | Save
  */
-export default function CustomizeToolbar() {
+export default function CustomizeToolbar( ){
   const { isCustomizeMode, activePanel, openPanel, saveSkin } = useCustomizeMode();
 
   if (!isCustomizeMode) return null;

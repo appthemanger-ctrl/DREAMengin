@@ -76,7 +76,7 @@ const RULE_CONFIG: Record<string, { label: string; color: string; emoji: string 
 // HELPERS
 // ============================================================================
 
-function severityBar(severity: number) {
+function severityBar(severity: number ){
   const pct = Math.round(severity * 100);
   const color = severity >= 0.8 ? '#dc2626' : severity >= 0.5 ? '#f59e0b' : '#22c55e';
   return (
@@ -156,13 +156,13 @@ export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
     const results = await Promise.allSettled(
       statuses.map(([s]) =>
         fetch(`/api/admin/child-safety?status=${encodeURIComponent(s)}&limit=1`)
-          .then((r) => r.json() as Promise<{ count?: number }>)
+          .then((r: number ) => r.json() as Promise<{ count?: number }>)
           .then((d) => d.count ?? 0)
           .catch(() => 0),
       ),
     );
     const newCounts: IncidentCounts = { pending: 0, submitted: 0, failed: 0, actioned: 0, dismissed: 0 };
-    results.forEach((r, i) => {
+    results.forEach((r, i: number) => {
       const key = statuses[i][1];
       newCounts[key] = r.status === 'fulfilled' ? (r.value as number) : 0;
     });
@@ -290,7 +290,7 @@ export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
         {([
           { id: 'queue',  label: 'Incident Queue', icon: Activity },
           { id: 'hashes', label: 'Hash Registry',  icon: Hash },
-        ] as const).map(({ id, label, icon: Icon }) => (
+        ] as const).map(({ id, label, icon}) => (
           <button
             key={id}
             type="button"

@@ -3,7 +3,7 @@
 import { useEffect, useState, type CSSProperties } from 'react';
 import { usePathname } from 'next/navigation';
 
-export function useImmersiveGameLayout() {
+export function useImmersiveGameLayout( ){
   const pathname = usePathname();
   const [immersive, setImmersive] = useState(() => {
     if (pathname === '/daydream/game') return true;
@@ -24,7 +24,7 @@ export function useImmersiveGameLayout() {
   return immersive;
 }
 
-export function getImmersiveCanvasStyle(border = 'none'): CSSProperties {
+export function getImmersiveCanvasStyle(border: string = 'none'): CSSProperties {
   return {
     width: '100%',
     height: '100%',

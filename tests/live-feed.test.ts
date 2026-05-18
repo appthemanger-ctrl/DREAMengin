@@ -18,7 +18,7 @@ import type { FeedPost } from '@/lib/feed/useLiveFeed';
 
 // ── Helpers / shared fixtures ─────────────────────────────────────────────────
 
-function makePost(id: string, overrides: Partial<FeedPost> = {}): FeedPost {
+function makePost(id: string, overrides): Partial<FeedPost> = {}): FeedPost {
   const offset = Math.abs(id.charCodeAt(0) - 48) * 1000; // stable non-negative offset
   return {
     id,

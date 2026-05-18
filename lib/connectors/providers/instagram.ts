@@ -114,7 +114,7 @@ export async function instagramSync(creds: InstagramCredentials): Promise<Unifie
  * Returns the configured Instagram App credentials from the environment.
  * Server-only — never exposed to the browser.
  */
-export function getInstagramOAuthConfig() {
+export function getInstagramOAuthConfig( ){
   return {
     clientId:     process.env.INSTAGRAM_CLIENT_ID     ?? '',
     clientSecret: process.env.INSTAGRAM_CLIENT_SECRET ?? '',

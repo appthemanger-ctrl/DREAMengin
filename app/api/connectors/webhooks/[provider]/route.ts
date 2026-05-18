@@ -42,7 +42,7 @@ import {
 
 // ── Service-role client (bypasses RLS for server-side webhook writes) ─────────
 
-function createServiceClient() {
+function createServiceClient( ){
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) return null;
@@ -125,7 +125,7 @@ async function verifyInstagramSignature(
     ['sign'],
   );
   const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(rawBody));
-  const actual = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+  const actual = Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, '0')).join('');
   return actual === expected;
 }
 

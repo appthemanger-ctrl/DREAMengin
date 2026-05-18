@@ -39,7 +39,7 @@ export type GameInputAction =
   | 'jump-spin' | 'jump-shoot' | 'l2' | 'r1' | 'l3' | 'r3'
   | 'pause';
 
-function fireAction(action: GameInputAction, active: boolean) {
+function fireAction(action: GameInputAction, active): boolean {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('de-game-input', { detail: { action, active } }));
   }
@@ -97,7 +97,7 @@ function angleToDir(dx: number, dy: number): Dir8 | null {
   return null;
 }
 
-function clampToCircle(v: { x: number; y: number }, maxR: number) {
+function clampToCircle(v: { x: number; y: number }, maxR: number): { x: number; y: number } {
   const d = Math.hypot(v.x, v.y);
   return d > maxR ? { x: (v.x / d) * maxR, y: (v.y / d) * maxR } : v;
 }
@@ -232,7 +232,7 @@ function Stick({
   const activeInfo = dir ? map[dir] : null;
   const dirLabel   = activeInfo ? activeInfo.label : null;
   const buttonLabel = buttonAction
-    ? (Object.values(RIGHT_MAP).find(info => info.action === buttonAction)?.label ?? buttonAction)
+    ? (Object.values(RIGHT_MAP).find((info) => info.action === buttonAction)?.label ?? buttonAction)
     : null;
   const labelColor = side === 'right' && dir
     ? RIGHT_MAP[dir].color
@@ -281,7 +281,7 @@ function Stick({
         }}
       >
         {/* Cardinal tick marks — subtle direction indicators for both sticks */}
-        {[0, 90, 180, 270].map((deg, i) => {
+        {[0, 90, 180, 270].map((deg, i: number) => {
           const rad = (deg * Math.PI) / 180;
           const r = padRadius - 8;
           const tx = Math.cos(rad) * r + padRadius;

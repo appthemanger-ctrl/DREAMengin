@@ -316,7 +316,7 @@ export class EnginDispatcher {
       const worker = new Worker(workerScriptUrl);
       worker.onmessage = (evt: MessageEvent<WorkerToDispatcherMessage>) =>
         this._handleWorkerMessage(evt.data);
-      worker.onerror = (err) => {
+      worker.onerror = (err: unknown ) => {
         console.error(`[EnginDispatcher] Worker ${wg.workerIndex} error:`, err);
       };
 

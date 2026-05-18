@@ -84,7 +84,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
 
   if (q && q.trim().length > 0) {
     // Escape special PostgREST/ilike characters to prevent filter injection
-    const safe = q.trim().replace(/[%_\\]/g, (c) => `\\${c}`);
+    const safe = q.trim().replace(/[%_\\]/g, c => `\\${c}`);
     const { data } = await supabase
       .from('profiles')
       .select('id, handle, display_name, bio, avatar_url')

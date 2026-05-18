@@ -208,22 +208,22 @@ describe('OctreeBVH', () => {
   it('point query returns intersecting entry', () => {
     tree.insert({ id: 'p1', aabb: { min: [-1, -1, -1], max: [1, 1, 1] } });
     const results = tree.queryPoint([0, 0, 0]);
-    expect(results.some(e => e.id === 'p1')).toBe(true);
+    expect(results.some((e) => e.id === 'p1')).toBe(true);
   });
 
   it('sphere query filters by radius', () => {
     tree.insert({ id: 'near', aabb: { min: [0, 0, 0], max: [1, 1, 1] } });
     tree.insert({ id: 'far',  aabb: { min: [90, 90, 90], max: [91, 91, 91] } });
     const results = tree.querySphere([0.5, 0.5, 0.5], 5);
-    expect(results.some(e => e.id === 'near')).toBe(true);
-    expect(results.some(e => e.id === 'far')).toBe(false);
+    expect(results.some((e) => e.id === 'near')).toBe(true);
+    expect(results.some((e) => e.id === 'far')).toBe(false);
   });
 
   it('remove deletes entry', () => {
     tree.insert({ id: 'rm', aabb: { min: [0, 0, 0], max: [1, 1, 1] } });
     tree.remove('rm');
     const results = tree.queryAABB({ min: [0, 0, 0], max: [2, 2, 2] });
-    expect(results.some(e => e.id === 'rm')).toBe(false);
+    expect(results.some((e) => e.id === 'rm')).toBe(false);
   });
 
   it('handles many insertions without error', () => {
@@ -233,7 +233,7 @@ describe('OctreeBVH', () => {
     const results = tree.queryAABB({ min: [-1, -1, -1], max: [200, 2, 2] });
     // Octree may return duplicate refs when entries span multiple child nodes;
     // unique IDs should equal 100.
-    const uniqueIds = new Set(results.map(r => r.id));
+    const uniqueIds = new Set(results.map((r) => r.id));
     expect(uniqueIds.size).toBe(100);
   });
 });
@@ -262,11 +262,11 @@ describe('WorkerJobSystem', () => {
     let blocker: (() => void) | null = null;
     const blockPromise = serial.enqueue({
       id: 'block',
-      fn: () => new Promise<void>(r => { blocker = r; }),
+      fn: () => new Promise<void>((r) => { blocker = r; }),
     });
 
     // Wait one microtask tick so the blocker fn is invoked and `blocker` is set.
-    await new Promise(r => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
 
     // Slot is now occupied; enqueue low first, high second.
     const order: string[] = [];
@@ -533,7 +533,7 @@ describe('TypedEventBus', () => {
 
   it('calls listener on emit', () => {
     let received = 0;
-    bus.on('score', n => { received = n; });
+    bus.on('score', (n) => { received = n; });
     bus.emit('score', 100);
     expect(received).toBe(100);
   });
@@ -567,7 +567,7 @@ describe('TypedEventBus', () => {
     bus.emit('score', 10);
     bus.emit('score', 20);
     const history: number[] = [];
-    bus.replayTo('score', n => { history.push(n); });
+    bus.replayTo('score', (n) => { history.push(n); });
     expect(history).toEqual([10, 20]);
   });
 

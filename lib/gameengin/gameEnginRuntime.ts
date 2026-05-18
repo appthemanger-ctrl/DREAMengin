@@ -124,7 +124,7 @@ export async function loadDreamGame(
 export class GameEnginRuntime {
   private canvas: HTMLCanvasElement | null = null;
    
-  private device: any = null;
+  private device: unknown = null;
   private activeGame: DreamGameInstance | null = null;
   readonly bus: EventBus<GameEnginEvents>;
   private inputHandlers = new Map<InputType, Set<InputHandler>>();

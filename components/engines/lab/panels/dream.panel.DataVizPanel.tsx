@@ -38,7 +38,7 @@ function renderBarChart(values: number[]): string {
     rows.push(`${String(Math.round((row / height) * max)).padStart(4)} │${line}`);
   }
   rows.push(`     └${'──'.repeat(values.length)}`);
-  rows.push(`      ${values.map((_, i) => String(i + 1).padStart(2)).join('')}`);
+  rows.push(`      ${values.map((_, i: number) => String(i + 1).padStart(2)).join('')}`);
   return rows.join('\n');
 }
 
@@ -80,7 +80,7 @@ function renderScatter(values: number[]): string {
   return rows.join('\n');
 }
 
-export default function DataVizPanel() {
+export default function DataVizPanel( ){
   const [chartType, setChartType] = useState<ChartType>('bar');
   const [selectedDataset, setSelectedDataset] = useState<string>(DEMO_DATASETS[0].id);
 
@@ -91,8 +91,8 @@ export default function DataVizPanel() {
     : chartType === 'line'  ? renderLineChart(dataset.values)
     : renderScatter(dataset.values);
 
-  function exportCSV() {
-    const csv = ['index,value', ...dataset.values.map((v, i) => `${i + 1},${v}`)].join('\n');
+  function exportCSV( ){
+    const csv = ['index,value', ...dataset.values.map((v, i: number) => `${i + 1},${v}`)].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -143,7 +143,7 @@ export default function DataVizPanel() {
 
         {/* Chart type */}
         <div className="flex gap-2 mb-5">
-          {CHART_TYPES.map(({ id, label, icon: Icon }) => (
+          {CHART_TYPES.map(({ id, label, icon}) => (
             <button
               key={id}
               onClick={() => setChartType(id)}

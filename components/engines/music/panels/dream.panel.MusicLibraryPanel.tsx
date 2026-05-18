@@ -51,7 +51,7 @@ const TABS: { id: Tab; label: string; icon: typeof Music2 }[] = [
   { id: 'templates',   label: 'Templates',      icon: FolderOpen },
 ];
 
-export default function MusicLibraryPanel() {
+export default function MusicLibraryPanel( ){
   const [tab, setTab] = useState<Tab>('beats');
 
   const items = tab === 'beats' ? BEAT_PRESETS : tab === 'instruments' ? INSTRUMENT_PRESETS : TEMPLATES;
@@ -66,7 +66,7 @@ export default function MusicLibraryPanel() {
 
         {/* Tabs */}
         <div className="flex gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/10 mb-6">
-          {TABS.map(({ id, label, icon: Icon }) => (
+          {TABS.map(({ id, label, icon}) => (
             <button
               key={id}
               onClick={() => setTab(id)}

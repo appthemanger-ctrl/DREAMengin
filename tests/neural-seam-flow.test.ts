@@ -182,7 +182,7 @@ describe('tickParticles()', () => {
 
   it('mutates particles in place', () => {
     const particles: SeamParticle[] = [createSeamParticle('code'), createSeamParticle('music')];
-    const refs = particles.map(p => p);
+    const refs = particles.map((p) => p);
     tickParticles(particles, 16);
     // Same object references.
     expect(particles[0]).toBe(refs[0]);

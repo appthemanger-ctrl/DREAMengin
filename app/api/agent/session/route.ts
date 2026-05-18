@@ -12,7 +12,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? '';
 const supabaseReady = Boolean(supabaseUrl && serviceRoleKey);
 
-function getServiceClient() {
+function getServiceClient( ){
   if (!supabaseReady) return null;
   return createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false },
@@ -73,7 +73,7 @@ async function deleteSession(sessionId: string): Promise<void> {
 // Route handler
 // ---------------------------------------------------------------------------
 
-export async function POST(req: Request) {
+export async function POST(req: Request ){
   const body = (await req.json()) as {
     action: string;
     sessionId?: string;

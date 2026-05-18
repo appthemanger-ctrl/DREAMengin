@@ -21,7 +21,7 @@ const DEFAULT: PrivacySettings = {
   showActivityStatus: false, privateByDefault: true, hideConnectorData: true,
 };
 
-function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => void; label: string }) {
+function Toggle({ value, onToggle, label }: {value: boolean; onToggle: () => void; label: string}) {
   return (
     <button type="button" role="switch" aria-checked={value} aria-label={label} onClick={onToggle}
       style={{ width: 44, height: 26, borderRadius: 13, background: value ? 'var(--de-accent)' : 'rgba(160,195,240,0.3)', position: 'relative', cursor: 'pointer', border: 'none', flexShrink: 0, transition: 'background 0.15s' }}>
@@ -30,7 +30,7 @@ function Toggle({ value, onToggle, label }: { value: boolean; onToggle: () => vo
   );
 }
 
-export default function PrivacyPanel() {
+export default function PrivacyPanel( ){
   const { openInSurface } = useDreamSystem();
   const [settings, setSettings]         = useState<PrivacySettings>(DEFAULT);
   const [saved, setSaved]               = useState(false);
@@ -40,11 +40,11 @@ export default function PrivacyPanel() {
   const [showAppeal, setShowAppeal]     = useState(false);
 
   useEffect(() => {
-    try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) setSettings(p => ({ ...p, ...JSON.parse(raw) })); } catch { /* ignore */ }
+    try { const raw = localStorage.getItem(STORAGE_KEY); if (raw) setSettings((p) => ({ ...p, ...JSON.parse(raw) })); } catch { /* ignore */ }
   }, []);
 
   const toggle = useCallback((key: keyof PrivacySettings) => {
-    setSettings(prev => {
+    setSettings((prev) => {
       const next = { ...prev, [key]: !prev[key] };
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
       return next;

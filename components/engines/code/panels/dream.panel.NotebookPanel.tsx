@@ -66,7 +66,7 @@ function simulateRun(source: string): Promise<string> {
   });
 }
 
-export default function NotebookPanel() {
+export default function NotebookPanel( ){
   const [cells, setCells] = useState<Cell[]>(STARTER_CELLS);
 
   const addCell = useCallback((type: CellType = 'code') => {
@@ -99,7 +99,7 @@ export default function NotebookPanel() {
     }
   }, [cells]);
 
-  async function runAll() {
+  async function runAll( ){
     for (const cell of cells) {
       await runCell(cell.id);
     }
@@ -133,7 +133,7 @@ export default function NotebookPanel() {
 
         {/* Cells */}
         <div className="space-y-4">
-          {cells.map((cell, idx) => (
+          {cells.map((cell, idx: number) => (
             <div
               key={cell.id}
               className="rounded-xl overflow-hidden border transition-all"

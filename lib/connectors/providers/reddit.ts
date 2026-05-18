@@ -80,7 +80,7 @@ export async function redditSyncSaved(creds: RedditCredentials): Promise<Unified
   return (listing.data?.children ?? []).map((post) => normaliseReddit(post as Parameters<typeof normaliseReddit>[0]));
 }
 
-export function redditCredentialFields() {
+export function redditCredentialFields( ){
   return [
     {
       key: 'access_token',

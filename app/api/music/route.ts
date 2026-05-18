@@ -2,8 +2,8 @@ import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
 // GET - Fetch music releases
-export async function GET(req: NextRequest) {
-  const supabase = (await createServerClient()) as any;
+export async function GET(req: NextRequest ){
+  const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -42,8 +42,8 @@ export async function GET(req: NextRequest) {
 }
 
 // POST - Upload/create a music release
-export async function POST(req: NextRequest) {
-  const supabase = (await createServerClient()) as any;
+export async function POST(req: NextRequest ){
+  const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
 
   // Create feed item
    
-  await (supabase as any).from('feed_items').insert({
+  await (supabase as SupabaseClient).from('feed_items').insert({
     user_id: user.id,
     type: 'music',
     content: { title: release.title, release_id: release.id },
@@ -98,8 +98,8 @@ export async function POST(req: NextRequest) {
 }
 
 // DELETE - Remove a music release
-export async function DELETE(req: NextRequest) {
-  const supabase = (await createServerClient()) as any;
+export async function DELETE(req: NextRequest ){
+  const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

@@ -121,7 +121,7 @@ export function predictNextEngines(
   candidates.sort((a, b) => b.count - a.count);
 
   const totalOutgoing = candidates.reduce((s, c) => s + c.count, 0);
-  return candidates.slice(0, limit).map(c => ({
+  return candidates.slice(0, limit).map((c) => ({
     engine: c.engine,
     confidence: totalOutgoing > 0 ? c.count / totalOutgoing : 0,
   }));
@@ -167,7 +167,7 @@ export function generateSuggestions(
   for (const wf of matchingWorkflows.slice(0, 2)) {
     const nextIdx = wf.engines.indexOf(enginId);
     const nextEngine = nextIdx >= 0 && nextIdx < wf.engines.length - 1
-      ? ENGIN_REGISTRY.find(e => e.id === wf.engines[nextIdx + 1])
+      ? ENGIN_REGISTRY.find((e) => e.id === wf.engines[nextIdx + 1])
       : null;
 
     suggestions.push({
@@ -175,7 +175,7 @@ export function generateSuggestions(
       title: wf.title,
       reason: nextEngine
         ? `Continue to ${nextEngine.name} — ${wf.steps[nextIdx + 1] ?? 'next step'}`
-        : `Start this workflow from ${ENGIN_REGISTRY.find(e => e.id === enginId)?.name ?? enginId}`,
+        : `Start this workflow from ${ENGIN_REGISTRY.find((e) => e.id === enginId)?.name ?? enginId}`,
       accent: wf.accent,
       emoji: wf.emoji,
       href: nextEngine?.daydreamHref,
@@ -190,7 +190,7 @@ export function generateSuggestions(
     suggestions.push({
       type: 'next-engine',
       title: `Open ${engine.name}`,
-      reason: `You often go to ${engine.name} after ${ENGIN_REGISTRY.find(e => e.id === enginId)?.name ?? enginId} (${Math.round(confidence * 100)}% of the time)`,
+      reason: `You often go to ${engine.name} after ${ENGIN_REGISTRY.find((e) => e.id === enginId)?.name ?? enginId} (${Math.round(confidence * 100)}% of the time)`,
       accent: engine.accent,
       emoji: engine.emoji,
       href: engine.daydreamHref,
@@ -272,11 +272,11 @@ export function parseGoalToWorkflow(goal: string): ForgeWorkflow | null {
 
   // Sort by relevance score
   matched.sort((a, b) => b.score - a.score);
-  const engineIds = matched.map(m => m.id);
+  const engineIds = matched.map((m) => m.id);
 
   // Generate steps based on matched engines
-  const steps = engineIds.map(eid => {
-    const engine = ENGIN_REGISTRY.find(e => e.id === eid);
+  const steps = engineIds.map((eid) => {
+    const engine = ENGIN_REGISTRY.find((e) => e.id === eid);
     if (!engine) return '';
     return `Open ${engine.name} → ${generateStepDescription(eid, goalLower)}`;
   }).filter(Boolean);
@@ -289,7 +289,7 @@ export function parseGoalToWorkflow(goal: string): ForgeWorkflow | null {
     }
   }
 
-  const primaryEngine = ENGIN_REGISTRY.find(e => e.id === engineIds[0]);
+  const primaryEngine = ENGIN_REGISTRY.find((e) => e.id === engineIds[0]);
 
   return {
     id: `goal-${Date.now()}`,
@@ -424,7 +424,7 @@ export function saveCustomWorkflow(workflow: ForgeWorkflow): void {
   try {
     const existing = readCustomWorkflows();
     // Replace if same id exists
-    const updated = existing.filter(w => w.id !== workflow.id);
+    const updated = existing.filter((w) => w.id !== workflow.id);
     updated.push(workflow);
     localStorage.setItem(CUSTOM_WORKFLOWS_KEY, JSON.stringify(updated));
   } catch {
@@ -453,7 +453,7 @@ export function deleteCustomWorkflow(workflowId: string): void {
   if (typeof window === 'undefined') return;
   try {
     const existing = readCustomWorkflows();
-    const filtered = existing.filter(w => w.id !== workflowId);
+    const filtered = existing.filter((w) => w.id !== workflowId);
     localStorage.setItem(CUSTOM_WORKFLOWS_KEY, JSON.stringify(filtered));
   } catch {
     // localStorage unavailable — silent
@@ -496,7 +496,7 @@ export function startWorkflowRun(workflowId: string, stepCount: number): Workflo
     workflowId,
     startedAt: new Date().toISOString(),
     status: 'running',
-    steps: Array.from({ length: stepCount }, (_, i) => ({
+    steps: Array.from({ length: stepCount }, (_, i: number ) => ({
       workflowId,
       stepIndex: i,
       status: i === 0 ? 'active' : 'pending',
@@ -537,9 +537,9 @@ export function updateWorkflowStep(
   }
 
   // Check if all steps are done
-  const allDone = run.steps.every(s => s.status === 'complete' || s.status === 'failed');
+  const allDone = run.steps.every((s) => s.status === 'complete' || s.status === 'failed');
   if (allDone) {
-    run.status = run.steps.some(s => s.status === 'failed') ? 'failed' : 'complete';
+    run.status = run.steps.some((s) => s.status === 'failed') ? 'failed' : 'complete';
   }
 
   if (typeof window !== 'undefined') {
@@ -581,7 +581,7 @@ export function getFailureRecovery(
 ): ForgeSuggestion[] {
   const suggestions: ForgeSuggestion[] = [];
   const engineId = workflow.engines[failedStep.stepIndex];
-  const engine = ENGIN_REGISTRY.find(e => e.id === engineId);
+  const engine = ENGIN_REGISTRY.find((e) => e.id === engineId);
 
   if (!engine) return suggestions;
 
@@ -597,7 +597,7 @@ export function getFailureRecovery(
 
   // Suggest skipping to next step
   if (failedStep.stepIndex < workflow.steps.length - 1) {
-    const nextEngine = ENGIN_REGISTRY.find(e => e.id === workflow.engines[failedStep.stepIndex + 1]);
+    const nextEngine = ENGIN_REGISTRY.find((e) => e.id === workflow.engines[failedStep.stepIndex + 1]);
     if (nextEngine) {
       suggestions.push({
         type: 'workflow',

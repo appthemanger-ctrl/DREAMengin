@@ -66,7 +66,7 @@ type ChildSafetyScanBody = z.infer<typeof ChildSafetyScanBodySchema>;
 
 async function loadKnownBadHashes(supabase: Awaited<ReturnType<typeof createServerClient>>): Promise<Set<string>> {
   try {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await (supabase as SupabaseClient)
       .from('child_safety_hash_registry')
       .select('hash_sha256');
 
@@ -83,7 +83,7 @@ async function loadKnownBadHashes(supabase: Awaited<ReturnType<typeof createServ
 // POST — scan handler
 // ============================================================================
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const requestStart = Date.now();
   const request_id = uuidv4();
 
@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Access control: admin or owner only
-  const { data: roleData } = await (supabase as any)
+  const { data: roleData } = await (supabase as SupabaseClient)
     .from('user_roles')
     .select('role')
     .eq('user_id', user.id)

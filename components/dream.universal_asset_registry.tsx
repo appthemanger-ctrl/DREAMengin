@@ -111,7 +111,7 @@ const TYPE_META: Record<string, { icon: React.ReactNode; color: string; label: s
 
 const DEFAULT_TYPE_META = { icon: <Box className="w-4 h-4" />, color: '#64748b', label: 'Object' };
 
-function getTypeMeta(type: string) {
+function getTypeMeta(type: string ){
   return TYPE_META[type] ?? DEFAULT_TYPE_META;
 }
 
@@ -144,7 +144,7 @@ export interface UniversalAssetRegistryProps {
   onSelectAsset?: (entry: EnrichedEntry) => void;
 }
 
-export default function UniversalAssetRegistry({
+export default function UniversalAssetRegistry(){
   compact = false,
   accentColor = ACCENT,
   onSelectAsset,
@@ -218,8 +218,8 @@ export default function UniversalAssetRegistry({
 
       // Fetch game_assets for enrichment (only for game_asset type entries)
       const gameAssetIds = raw
-        .filter(e => e.object_type === 'game_asset')
-        .map(e => e.internal_id);
+        .filter((e) => e.object_type === 'game_asset')
+        .map((e) => e.internal_id);
 
       const gameAssetsMap: Record<string, GameAssetRow> = {};
       if (gameAssetIds.length > 0) {
@@ -251,7 +251,7 @@ export default function UniversalAssetRegistry({
       }
 
       // Enrich entries
-      const enriched: EnrichedEntry[] = raw.map(entry => ({
+      const enriched: EnrichedEntry[] = raw.map((entry) => ({
         ...entry,
         gameAsset: entry.object_type === 'game_asset' ? gameAssetsMap[entry.internal_id] : undefined,
         bindings: entry.object_type === 'game_asset' ? bindingsMap[entry.internal_id] : undefined,
@@ -309,13 +309,13 @@ export default function UniversalAssetRegistry({
 
     // Category filter
     if (activeCategory) {
-      result = result.filter(e => e.object_type === activeCategory);
+      result = result.filter((e) => e.object_type === activeCategory);
     }
 
     // Search filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      result = result.filter(e =>
+      result = result.filter((e) =>
         e.label.toLowerCase().includes(q) ||
         e.object_type.toLowerCase().includes(q) ||
         e.internal_id.toLowerCase().includes(q)
@@ -344,10 +344,10 @@ export default function UniversalAssetRegistry({
   // ── Stats ───────────────────────────────────────────────────────────────────
   const stats = useMemo(() => {
     const total = entries.length;
-    const gameAssets = entries.filter(e => e.object_type === 'game_asset').length;
-    const withBindings = entries.filter(e => e.bindings && e.bindings.length > 0).length;
-    const withDna = entries.filter(e => e.gameAsset?.config_dna).length;
-    const recentCount = entries.filter(e => {
+    const gameAssets = entries.filter((e) => e.object_type === 'game_asset').length;
+    const withBindings = entries.filter((e) => e.bindings && e.bindings.length > 0).length;
+    const withDna = entries.filter((e) => e.gameAsset?.config_dna).length;
+    const recentCount = entries.filter((e) => {
       const d = new Date(e.created_at);
       const now = new Date();
       return now.getTime() - d.getTime() < 7 * 24 * 60 * 60 * 1000;
@@ -409,7 +409,7 @@ export default function UniversalAssetRegistry({
         setError(updateError.message);
       } else {
         forgeRecord(`Renamed asset: ${entry.label} → ${editLabel.trim()}`);
-        setEntries(prev => prev.map(e =>
+        setEntries((prev) => prev.map((e) =>
           e.id === entry.id ? { ...e, label: editLabel.trim() } : e
         ));
       }
@@ -432,7 +432,7 @@ export default function UniversalAssetRegistry({
         setError(deleteError.message);
       } else {
         forgeRecord(`Deleted asset: ${entry.label}`);
-        setEntries(prev => prev.filter(e => e.id !== entry.id));
+        setEntries((prev) => prev.filter((e) => e.id !== entry.id));
         if (expandedId === entry.id) setExpandedId(null);
       }
     } catch {
@@ -443,7 +443,7 @@ export default function UniversalAssetRegistry({
   }, [forgeRecord, expandedId]);
 
   const toggleExpand = useCallback((id: string) => {
-    setExpandedId(prev => prev === id ? null : id);
+    setExpandedId((prev) => prev === id ? null : id);
   }, []);
 
   // ── Render helpers ──────────────────────────────────────────────────────────
@@ -832,7 +832,7 @@ export default function UniversalAssetRegistry({
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {entry.bindings.map(binding => (
+                  {entry.bindings.map((binding) => (
                     <div
                       key={binding.id}
                       style={{
@@ -1126,7 +1126,7 @@ export default function UniversalAssetRegistry({
             All ({entries.length})
           </button>
 
-          {categories.map(cat => (
+          {categories.map((cat) => (
             <button
               key={cat.type}
               onClick={() => setActiveCategory(activeCategory === cat.type ? null : cat.type)}
@@ -1304,7 +1304,7 @@ export default function UniversalAssetRegistry({
             flexDirection: viewMode === 'list' ? 'column' : undefined,
             gap: 10,
           }}>
-            {filteredEntries.map(entry => renderAssetCard(entry))}
+            {filteredEntries.map((entry) => renderAssetCard(entry))}
           </div>
         </>
       )}

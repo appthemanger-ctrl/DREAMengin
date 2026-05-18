@@ -60,7 +60,7 @@ export const MOBILE_HUD_BUTTON_RING: readonly MobileHudRingButtonDefinition[] = 
   { id: 'square', symbol: '□', label: 'Tech', interactive: false, slotClassName: 'slotSquare' },
 ] as const;
 
-function emitWindowEvent(name: string, detail: unknown) {
+function emitWindowEvent(name: string, detail): unknown {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(new CustomEvent(name, { detail }));
 }
@@ -90,29 +90,29 @@ export function getLegacyMoveAction(vector: MobileControlVector, deadZone = 0.24
   return 'move-up-right';
 }
 
-export function fireLegacyGameInput(action: LegacyGameInputAction, active: boolean) {
+export function fireLegacyGameInput(action: LegacyGameInputAction, active): boolean {
   emitWindowEvent('de-game-input', { action, active });
   broadcastGameInput(action, active);
 }
 
-export function registerMobileGameControls(handlers: MobileGameControlHandlers) {
+export function registerMobileGameControls(handlers: MobileGameControlHandlers ){
   MOBILE_CONTROL_LISTENERS.add(handlers);
   return () => {
     MOBILE_CONTROL_LISTENERS.delete(handlers);
   };
 }
 
-export function emitMobileMove(vector: MobileControlVector) {
+export function emitMobileMove(vector: MobileControlVector ){
   emitWindowEvent('de-mobile-move', vector);
   MOBILE_CONTROL_LISTENERS.forEach((handlers) => handlers.onMove?.(vector));
 }
 
-export function emitMobileLook(vector: MobileControlVector) {
+export function emitMobileLook(vector: MobileControlVector ){
   emitWindowEvent('de-mobile-look', vector);
   MOBILE_CONTROL_LISTENERS.forEach((handlers) => handlers.onLook?.(vector));
 }
 
-export function emitMobileButton(button: MobileHudButton) {
+export function emitMobileButton(button: MobileHudButton ){
   emitWindowEvent('de-mobile-button', { button });
   MOBILE_CONTROL_LISTENERS.forEach((handlers) => {
     if (button === 'jump') handlers.onJump?.();
@@ -122,7 +122,7 @@ export function emitMobileButton(button: MobileHudButton) {
   });
 }
 
-export function emitMobileLookDelta(dx: number, dy: number) {
+export function emitMobileLookDelta(dx: number, dy): number {
   emitWindowEvent('de-mobile-look-delta', { dx, dy });
   MOBILE_CONTROL_LISTENERS.forEach((handlers) => handlers.onLookDelta?.({ dx, dy }));
 }
@@ -132,16 +132,16 @@ export function emitMobileJump(vector: { x: number; y: number }) {
   MOBILE_CONTROL_LISTENERS.forEach((handlers) => handlers.onJump?.());
 }
 
-export function emitMobileShoot() {
+export function emitMobileShoot( ){
   emitWindowEvent('de-mobile-shoot', {});
   MOBILE_CONTROL_LISTENERS.forEach((handlers) => handlers.onAction?.());
 }
 
-export function getLegacyActionForMobileButton(button: Exclude<MobileHudButton, 'pause'>) {
+export function getLegacyActionForMobileButton(button: Exclude<MobileHudButton, 'pause'> ){
   return LEGACY_BUTTON_MAP[button];
 }
 
-export function useRegisterMobileGameControls(handlers: MobileGameControlHandlers | null) {
+export function useRegisterMobileGameControls(handlers: MobileGameControlHandlers | null ){
   const handlersRef = useRef(handlers);
   handlersRef.current = handlers;
 

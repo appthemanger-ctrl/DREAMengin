@@ -18,7 +18,7 @@ const localStorageMock = {
   getItem: (key: string) => localStorageStore[key] ?? null,
   setItem: (key: string, val: string) => { localStorageStore[key] = val; },
   removeItem: (key: string) => { delete localStorageStore[key]; },
-  clear: () => { Object.keys(localStorageStore).forEach(k => delete localStorageStore[k]); },
+  clear: () => { Object.keys(localStorageStore).forEach((k) => delete localStorageStore[k]); },
   get length() { return Object.keys(localStorageStore).length; },
   key: (idx: number) => Object.keys(localStorageStore)[idx] ?? null,
 };

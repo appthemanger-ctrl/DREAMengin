@@ -63,7 +63,7 @@ const DEFAULT_SANDBOX: AssemblySandbox = {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function ForgeDreamCanvas() {
+export function ForgeDreamCanvas( ){
   const [activeCategory, setActiveCategory] = useState<ComponentCategory>('Audio & Music');
   const [placed,         setPlaced]         = useState<PlacedPiece[]>([]);
   const [wires,          setWires]          = useState<Wire[]>([]);
@@ -196,8 +196,8 @@ export function ForgeDreamCanvas() {
     try {
       const assembly = createAssembly(pieces, wires);
       // Swap the assembly's bus events to our local bus
-      assembly.bus.on('executed', (payload) => busRef.current.emit('executed', payload));
-      assembly.bus.on('error',    (payload) => setRunResult(`Error: ${(payload as { message: string }).message}`));
+      assembly.bus.on('executed', payload => busRef.current.emit('executed', payload));
+      assembly.bus.on('error', payload => setRunResult(`Error: ${(payload as { message: string }).message}`));
       runAssembly(assembly, DEFAULT_SANDBOX);
     } catch (err) {
       setRunResult(`Assembly error: ${String(err)}`);

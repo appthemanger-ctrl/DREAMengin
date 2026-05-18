@@ -142,20 +142,20 @@ function getDimColor(style: WidgetBgStyle): string {
 
 // ── Dot-grid icon (iOS-style drag/settings handle) ────────────────────────────
 
-function DotGrid() {
+function DotGrid( ){
   return (
     <div aria-hidden="true" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 4px)', gap: '3px', opacity: 0.32 }}>
-      {Array.from({ length: 9 }).map((_, i) => (
+      {Array.from({ length: 9 }).map((_, i: number) => (
         <div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: '#444' }} />
       ))}
     </div>
   );
 }
 
-function SparkLine({ data, color, height = 56 }: { data: number[]; color: string; height?: number }) {
+function SparkLine({ data, color, height = 56 }: {data: number[]; color: string; height?: number}) {
   const min = Math.min(...data), max = Math.max(...data), r = max - min || 1;
   const W = 200, H = height;
-  const pts = data.map((v, i) => `${(i / (data.length - 1)) * W},${H - ((v - min) / r) * (H - 4) - 2}`).join(' ');
+  const pts = data.map((v, i: number) => `${(i / (data.length - 1)) * W},${H - ((v - min) / r) * (H - 4) - 2}`).join(' ');
   return (
     <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height }} preserveAspectRatio="none">
       <polyline points={pts} fill="none" stroke={color} strokeWidth="2.2"
@@ -164,11 +164,11 @@ function SparkLine({ data, color, height = 56 }: { data: number[]; color: string
   );
 }
 
-function BarChart({ data, color }: { data: number[]; color: string }) {
+function BarChart({ data, color }: {data: number[]; color: string}) {
   const max = Math.max(...data);
   return (
     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 38 }}>
-      {data.map((v, i) => (
+      {data.map((v, i: number) => (
         <div key={i} style={{
           flex: 1, height: `${(v / max) * 100}%`,
           background: i === data.length - 1 ? color : `${color}44`,
@@ -255,7 +255,7 @@ function WidgetConfigSheet({
           {/* ── Widget Size ── */}
           <label style={sectionLabel}>Size</label>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-            {(['small', 'large'] as WidgetSize[]).map(s => (
+            {(['small', 'large'] as WidgetSize[]).map((s) => (
               <button key={s} onClick={() => setSize(s)} style={{
                 padding: '12px 0', borderRadius: 12,
                 background: size === s ? color : 'rgba(255,255,255,0.85)',
@@ -274,7 +274,7 @@ function WidgetConfigSheet({
                   width: s === 'small' ? 20 : 44,
                   height: 20,
                 }}>
-                  {(s === 'small' ? [1] : [1, 2]).map(n => (
+                  {(s === 'small' ? [1] : [1, 2]).map((n) => (
                     <div key={n} style={{
                       borderRadius: 4,
                       background: size === s ? 'rgba(255,255,255,0.45)' : `${color}25`,
@@ -374,7 +374,7 @@ function WidgetConfigSheet({
             <>
               <label style={sectionLabel}>Time Range</label>
               <div style={{ display: 'flex', gap: 8 }}>
-                {([7, 30, 90] as const).map(d => (
+                {([7, 30, 90] as const).map((d) => (
                   <button key={d} onClick={() => setActDays(d)} style={{
                     flex: 1, padding: '8px 0', borderRadius: 10,
                     background: actDays === d ? color : 'rgba(255,255,255,0.8)',
@@ -393,7 +393,7 @@ function WidgetConfigSheet({
             <>
               <label style={sectionLabel}>Photo Count</label>
               <div style={{ display: 'flex', gap: 8 }}>
-                {([3, 6, 9] as const).map(n => (
+                {([3, 6, 9] as const).map((n) => (
                   <button key={n} onClick={() => setPhotoCount(n)} style={{
                     flex: 1, padding: '8px 0', borderRadius: 10,
                     background: photoCount === n ? color : 'rgba(255,255,255,0.8)',
@@ -508,7 +508,7 @@ interface WidgetContentProps {
   likes: number;
 }
 
-function WidgetContent(p: WidgetContentProps) {
+function WidgetContent(p: WidgetContentProps ){
   const { type, size, config, displayName, avatarUrl, avatarEditHref, bio, coverUrl, followers, following = 0, posts, likes } = p;
   const accent    = config.accentColor;
   const textColor = getTextColor(config.bgStyle);
@@ -696,7 +696,7 @@ function WidgetContent(p: WidgetContentProps) {
             Recent Photos
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: 5 }}>
-            {Array.from({ length: count }).map((_, i) => (
+            {Array.from({ length: count }).map((_, i: number) => (
               <div key={i} style={{ aspectRatio: '1', borderRadius: 10, background: `${accent}14`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span style={{ fontSize: 18, opacity: 0.4 }}>📷</span>
@@ -944,7 +944,7 @@ export default function ProfileWidgetGrid({
   };
 
   const addWidget = (type: WidgetType) => {
-    if (widgets.some(w => w.type === type)) return;
+    if (widgets.some((w) => w.type === type)) return;
     const next = [...widgets, {
       id: `${type}-${Date.now()}`,
       type,
@@ -956,21 +956,21 @@ export default function ProfileWidgetGrid({
   };
 
   const removeWidget = (id: string) => {
-    const next = widgets.filter(w => w.id !== id);
+    const next = widgets.filter((w) => w.id !== id);
     setWidgets(next);
     onSave?.(next);
   };
 
   /** Save config, size, and visibility from the config sheet */
   const saveWidget = (widgetId: string, cfg: WidgetConfig, size: WidgetSize, vis: Widget['visibility']) => {
-    const next = widgets.map(w => w.id === widgetId ? { ...w, config: cfg, size, visibility: vis } : w);
+    const next = widgets.map((w) => w.id === widgetId ? { ...w, config: cfg, size, visibility: vis } : w);
     setWidgets(next);
     onSave?.(next);
   };
 
   /** Quick toggle between small and large directly on the card */
   const toggleSize = (widgetId: string) => {
-    const next = widgets.map(w => {
+    const next = widgets.map((w) => {
       if (w.id !== widgetId) return w;
       const current = w.size ?? getDefaultSize(w.type);
       return { ...w, size: (current === 'small' ? 'large' : 'small') as WidgetSize };
@@ -1053,7 +1053,7 @@ export default function ProfileWidgetGrid({
 
       {/* ── Unified 2-col widget grid ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, alignItems: 'start' }}>
-        {widgets.map((w, idx) => (
+        {widgets.map((w, idx: number) => (
           <div
             key={w.id}
             style={cardStyle(w, idx)}
@@ -1171,7 +1171,7 @@ export default function ProfileWidgetGrid({
             scrollbarWidth: 'none',
           } as React.CSSProperties}>
             {WIDGET_TRAY.map(({ type, label, icon }) => {
-              const active = widgets.some(w => w.type === type);
+              const active = widgets.some((w) => w.type === type);
               return (
                 <button
                   key={type}
@@ -1228,7 +1228,7 @@ export default function ProfileWidgetGrid({
       {/* Connector widget picker */}
       {isEditing && showConnectorPicker && (
         <ConnectorWidgetPicker
-          activeWidgetTypes={widgets.map(w => w.type)}
+          activeWidgetTypes={widgets.map((w) => w.type)}
           onAdd={handleConnectorAdd}
           onClose={() => setShowConnectorPicker(false)}
         />

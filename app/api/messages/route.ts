@@ -16,7 +16,7 @@ async function getUserAge(
   userId: string,
 ): Promise<number | null> {
   try {
-    const { data } = await (supabase as any)
+    const { data } = await (supabase as SupabaseClient)
       .from('profiles')
       .select('age, birth_year')
       .eq('id', userId)
@@ -36,7 +36,7 @@ async function getUserAge(
 }
 
 // GET - Fetch conversations
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
   if (conversationId) {
     // Fetch messages for a specific conversation
      
-    const { data: messages, error } = await (supabase as any)
+    const { data: messages, error } = await (supabase as SupabaseClient)
       .from('messages')
       .select(`
         *,
@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
 
   // Fetch all conversations for the user
    
-  const { data: conversations, error } = await (supabase as any)
+  const { data: conversations, error } = await (supabase as SupabaseClient)
     .from('conversations')
     .select(`
       *,
@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
 }
 
 // POST - Send a message
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
       },
       surface: 'message',
       contentRef,
-    }).catch((err) => console.error('[child-safety] minor image block report error:', err));
+    }).catch((err: unknown ) => console.error('[child-safety] minor image block report error:', err));
 
     return NextResponse.json(
       { error: 'This image was sent from a minor and has been blocked.' },
@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
       surface: 'message',
       contentRef: `draft:${contentHash.slice(0, 16)}`,
       contentHash,
-    }).catch((err) => console.error('[child-safety] message report error:', err));
+    }).catch((err: unknown ) => console.error('[child-safety] message report error:', err));
 
     return NextResponse.json(
       { error: 'Message violates our child safety policy and has been blocked.' },
@@ -180,7 +180,7 @@ export async function POST(req: NextRequest) {
         detectionResult: mediaSafetyResult,
         surface: 'message',
         contentRef: 'media:1_file',
-      }).catch((err) => console.error('[child-safety] message media report error:', err));
+      }).catch((err: unknown ) => console.error('[child-safety] message media report error:', err));
 
       return NextResponse.json(
         { error: 'Attached image violates our child safety policy and has been blocked.' },
@@ -235,10 +235,10 @@ export async function POST(req: NextRequest) {
   if (media_type) messageRow.media_type = media_type;
 
    
-  const { data: message, error } = await (supabase as any)
+  const { data: message, error } = await (supabase as SupabaseClient)
     .from('messages')
      
-    .insert(messageRow as any)
+    .insert(messageRow as Record<string, unknown>)
     .select(`
       *,
       sender:profiles!sender_id(id, handle, display_name, avatar_url)
@@ -259,7 +259,7 @@ export async function POST(req: NextRequest) {
   const recipientId = conversation_id ? null : recipient_id;
   if (recipientId) {
      
-    await (supabase as any).from('notifications').insert({
+    await (supabase as SupabaseClient).from('notifications').insert({
       user_id: recipientId,
       type: 'message',
       content: {

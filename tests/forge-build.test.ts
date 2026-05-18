@@ -17,7 +17,7 @@ const localStorageMock = {
   getItem: (key: string) => store[key] ?? null,
   setItem: (key: string, value: string) => { store[key] = value; },
   removeItem: (key: string) => { delete store[key]; },
-  clear: () => { Object.keys(store).forEach(k => delete store[k]); },
+  clear: () => { Object.keys(store).forEach((k) => delete store[k]); },
 };
 vi.stubGlobal('localStorage', localStorageMock);
 vi.stubGlobal('window', { localStorage: localStorageMock });
@@ -39,7 +39,7 @@ import {
 } from '@/lib/forge/forgeBuild';
 
 // ── Helper: minimal valid ForgeBuildRecord ───────────────────────────────────
-function makeBuildRecord(overrides: Partial<ForgeBuildRecord> = {}): ForgeBuildRecord {
+function makeBuildRecord(overrides: Partial<ForgeBuildRecord> = ){}): ForgeBuildRecord {
   return {
     id: 'test-id-123',
     prompt: 'Build me a desert platformer game',
@@ -53,7 +53,7 @@ function makeBuildRecord(overrides: Partial<ForgeBuildRecord> = {}): ForgeBuildR
 }
 
 // ── Helper: minimal valid ForgeArtifact ──────────────────────────────────────
-function makeArtifact(overrides: Partial<ForgeArtifact> = {}): ForgeArtifact {
+function makeArtifact(overrides: Partial<ForgeArtifact> = ){}): ForgeArtifact {
   return {
     type: 'code-cells',
     enginId: 'code',

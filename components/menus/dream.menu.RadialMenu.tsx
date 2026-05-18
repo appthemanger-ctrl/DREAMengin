@@ -91,7 +91,7 @@ export default function RadialMenu({ open, anchor, items, onClose, variant = 'bl
         </div>
 
         {/* Radial items */}
-        {items.map((item, index) => {
+        {items.map((item, index: number) => {
           const angle = ((Math.PI * 2) / Math.max(items.length, 1)) * index - Math.PI / 2;
           const x = Math.cos(angle) * RADIUS;
           const y = Math.sin(angle) * RADIUS;

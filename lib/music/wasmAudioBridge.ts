@@ -209,7 +209,7 @@ export async function createWasmAudioBridge(): Promise<WasmAudioBridge> {
     // Mix is not in the Wasm module — use JS with optional per-source Wasm gain.
     if (exports) {
       // Apply per-source gain via Wasm, then sum in JS.
-      const processed = sources.map((src, i) => {
+      const processed = sources.map((src, i: number) => {
         const copy = new Float32Array(src);
         wasmApplyGain(exports, copy, gains[i] ?? 1.0);
         return copy;

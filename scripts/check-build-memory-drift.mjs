@@ -52,7 +52,7 @@ function walk(dir, ext = ['.ts', '.tsx']) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       results.push(...walk(full, ext));
-    } else if (ext.some(e => entry.name.endsWith(e))) {
+    } else if (ext.some((e) => entry.name.endsWith(e))) {
       results.push(full);
     }
   }
@@ -73,10 +73,10 @@ function fail(message) {
 
 function checkRoutes(mem) {
   if (!mem) return;
-  const memPaths = new Set(mem.routes.map(r => r.path));
+  const memPaths = new Set(mem.routes.map((r) => r.path));
   const apiDir   = path.join(ROOT, 'app', 'api');
 
-  const routeFiles = walk(apiDir).filter(f => f.endsWith('route.ts'));
+  const routeFiles = walk(apiDir).filter((f) => f.endsWith('route.ts'));
   for (const f of routeFiles) {
     const relPath = rel(f);
     const urlPath = relPath
@@ -102,10 +102,10 @@ function checkRoutes(mem) {
 
 function checkActions(mem) {
   if (!mem) return;
-  const memFiles = new Set(mem.actions.map(a => a.file));
+  const memFiles = new Set(mem.actions.map((a) => a.file));
   const apiDir   = path.join(ROOT, 'app', 'api');
 
-  const routeFiles = walk(apiDir).filter(f => f.endsWith('route.ts'));
+  const routeFiles = walk(apiDir).filter((f) => f.endsWith('route.ts'));
   for (const f of routeFiles) {
     const relPath = rel(f);
     if (!memFiles.has(relPath)) {
@@ -122,7 +122,7 @@ function checkActions(mem) {
       drift('actions', `build-memory/actions.json references "${action.file}" which no longer exists`);
       continue;
     }
-    const actualMethods = HTTP_METHODS.filter(m =>
+    const actualMethods = HTTP_METHODS.filter((m) =>
       new RegExp(`export\\s+(?:async\\s+)?function\\s+${m}\\b`).test(src) ||
       new RegExp(`export\\s+const\\s+${m}\\s*=`).test(src)
     );
@@ -139,7 +139,7 @@ function checkActions(mem) {
 
 function checkSchema(mem) {
   if (!mem) return;
-  const memTables = new Set(mem.tables.map(t => t.table));
+  const memTables = new Set(mem.tables.map((t) => t.table));
 
   const supabaseTypes = path.join(ROOT, 'types', 'supabase.ts');
   const src = readFile(supabaseTypes);
@@ -169,7 +169,7 @@ function checkSchema(mem) {
   const liveTablesFromMigrations = new Set();
   const migrationsDir = path.join(ROOT, 'supabase', 'migrations');
   if (fs.existsSync(migrationsDir)) {
-    for (const f of fs.readdirSync(migrationsDir).filter(f => f.endsWith('.sql'))) {
+    for (const f of fs.readdirSync(migrationsDir).filter((f) => f.endsWith('.sql'))) {
       const sqlSrc = readFile(path.join(migrationsDir, f));
       const re = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:public\.)?([a-z][a-z0-9_]*)\s*\(/gi;
       let m;
@@ -203,7 +203,7 @@ function checkSchema(mem) {
 
 function checkEvents(mem) {
   if (!mem) return;
-  const memEvents = new Set(mem.events.map(e => e.event));
+  const memEvents = new Set(mem.events.map((e) => e.event));
   const files = walk(ROOT);
 
   for (const f of files) {
@@ -235,7 +235,7 @@ function checkEvents(mem) {
 function checkSchemaUsage(mem) {
   if (!mem) return;
 
-  const allTableNames = new Set(mem.tables.map(t => t.table));
+  const allTableNames = new Set(mem.tables.map((t) => t.table));
 
   // Scan for .from('table_name') Supabase client calls
   const files = walk(ROOT);

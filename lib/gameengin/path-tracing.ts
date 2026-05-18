@@ -57,7 +57,7 @@ export class PathTracer {
   /** Build a binary BVH over a list of primitive AABBs. O(n log n). */
   buildBVH(primitives: Array<{ min: [number, number, number]; max: [number, number, number] }>): number {
     this.bvh = [];
-    const indices = primitives.map((_, i) => i);
+    const indices = primitives.map((_, i: number) => i);
     const buildNode = (range: number[]): number => {
       if (range.length === 1) {
         const idx = range[0];

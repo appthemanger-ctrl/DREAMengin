@@ -101,7 +101,7 @@ export function useGsapScrollReveal<T extends HTMLElement = HTMLElement>(
 
       if (!targets.length) return;
 
-      getGsap().then(gsap => {
+      getGsap().then((gsap) => {
         gsap.set(targets, {
           opacity: 0,
           x,

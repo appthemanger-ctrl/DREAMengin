@@ -50,7 +50,7 @@ export interface UnifiedFeedEntry {
   raw?: Record<string, unknown>;
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest ){
   const supabase = await createServerClient();
 
   const { data: { user }, error: userErr } = await supabase.auth.getUser();
@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
   // ── Stream 1: feed_items (connector-synced content) ──────────────────────
   {
      
-    const db = supabase as any;
+    const db = supabase as SupabaseClient;
     let q = db
       .from('feed_items')
       .select('id, provider, payload, published_at, created_at')
@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
   {
     // Collect followed user IDs
      
-    const db = supabase as any;
+    const db = supabase as SupabaseClient;
     const { data: follows } = await supabase
       .from('follows')
       .select('following_id')
@@ -136,11 +136,11 @@ export async function GET(req: NextRequest) {
     if (posts) {
       for (const post of posts) {
 
-        const p = post as any;
+        const p = post as Record<string, unknown>;
         const profile = p.profiles ?? {};
 
         // Phase 9: Get view count for this post
-        const { count: viewCount } = await (supabase as any)
+        const { count: viewCount } = await (supabase as SupabaseClient)
           .from('views')
           .select('*', { count: 'exact', head: true })
           .eq('post_id', p.id)

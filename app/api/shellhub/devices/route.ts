@@ -35,7 +35,7 @@ export interface ShellHubDevicesResponse {
 export async function GET(): Promise<NextResponse<ShellHubDevicesResponse>> {
   const supabase = await createServerClient();
    
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {

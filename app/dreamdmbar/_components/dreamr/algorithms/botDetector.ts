@@ -156,7 +156,7 @@ function velocityFeatures(points: TouchPoint[]): { variance: number; jerk: numbe
 
   const mean = velocities.reduce((a, b) => a + b, 0) / velocities.length;
   const rawVariance =
-    velocities.reduce((acc, v) => acc + (v - mean) ** 2, 0) / velocities.length;
+    velocities.reduce((acc, v: number) => acc + (v - mean) ** 2, 0) / velocities.length;
 
   let jerkSum = 0;
   for (let i = 0; i < velocities.length - 1; i++) {

@@ -116,7 +116,7 @@ type Images = {
 };
 
 function loadImg(src: string): Promise<HTMLImageElement> {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const img = new Image();
     img.onload  = () => resolve(img);
     img.onerror = () => resolve(img); // guard: null-check before drawImage
@@ -131,7 +131,7 @@ type Props = {
   className?: string;
 };
 
-export default function HeroSprite({
+export default function HeroSprite(){
   width  = 480,
   height = 480,
   className = '',
@@ -156,7 +156,7 @@ export default function HeroSprite({
       loadImg('/arm1_transparent.png'),
       loadImg('/shoe2_transparent.png'),
       loadImg('/shoe1_transparent.png'),
-                ]).then(([head, coat, arm1, arm2, shoe1, shoe2]) => {
+                ]).then(([head, coat, arm1: Record<string, unknown>, arm2, shoe1: Record<string, unknown>, shoe2]) => {
       imgsRef.current = { head, coat, arm1, arm2, shoe1, shoe2 };
     });
   }, []);
@@ -242,12 +242,12 @@ export default function HeroSprite({
     }
 
     // Pause on hidden tab (ARCHITECTURE.md §17.3 — battery-aware)
-    function onVisibility() {
+    function onVisibility( ){
       if (!document.hidden) rafId = requestAnimationFrame(tick);
     }
     document.addEventListener('visibilitychange', onVisibility);
 
-    function tick(now: number) {
+    function tick(now: number ){
       if (stopped) return;
 
       // Skip draw while tab is hidden — rAF won't fire anyway, but guard is cheap

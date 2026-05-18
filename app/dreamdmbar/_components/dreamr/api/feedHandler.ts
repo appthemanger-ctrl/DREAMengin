@@ -52,7 +52,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
-import { rankFeed, type ScoredPost } from './algorithms/dreamrAlgorithm';
+import { rankFeed, type ScoredPost } from '../algorithms/dreamrAlgorithm';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import {
   filterByCloseFriends,
@@ -76,7 +76,7 @@ export async function dreamrFeedHandler(req: NextRequest): Promise<NextResponse>
   const { searchParams } = new URL(req.url);
   const params = parseFeedParams(searchParams);
 
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
 
   // ── Fetch a wider pool so the algorithm has material to work with ────────
   // NOTE: the DB column on app_posts is `view_count` (singular), maintained by
@@ -107,7 +107,7 @@ export async function dreamrFeedHandler(req: NextRequest): Promise<NextResponse>
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  const fetched = (rows ?? []) as any[];
+  const fetched = (rows ?? []) as unknown[];
 
   // ── Visibility filter: drop close-friends posts the viewer cannot see ────
   const circle = await loadVisibilityCircle(user.id);
@@ -119,7 +119,7 @@ export async function dreamrFeedHandler(req: NextRequest): Promise<NextResponse>
       ? visible.filter((r) => !params.seen.has(r.id))
       : visible;
 
-  const posts: ScoredPost[] = fresh.map((r: any) => ({
+  const posts: ScoredPost[] = fresh.map((r: unknown) => ({
     id: r.id,
     content: r.content ?? '',
     media_url: getPrimaryPostMediaUrl(r),

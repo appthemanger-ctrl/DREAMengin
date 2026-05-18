@@ -232,7 +232,7 @@ function TiltGameCard({ game, isSaved, onPlay, hasAvatar, onPlayAsMe }: TiltGame
   );
 }
 
-export default function GamesHub() {
+export default function GamesHub( ){
   const [savedSessions, setSavedSessions] = useState<SavedGameSession[]>([]);
   const [filter, setFilter] = useState<string>('All');
   const [query, setQuery] = useState('');
@@ -248,7 +248,7 @@ export default function GamesHub() {
   const featuredRef = useGsapScrollReveal<HTMLDivElement>({ direction: 'up', stagger: 0.07, duration: 0.42 });
   const categoryRef = useGsapScrollReveal<HTMLDivElement>({ direction: 'left', stagger: 0.03, duration: 0.3, threshold: 0.05 });
 
-  const categories = ['All', ...Array.from(new Set(GAMES.map(g => g.category))).sort()];
+  const categories = ['All', ...Array.from(new Set(GAMES.map((g) => g.category))).sort()];
   const normalizedQuery = query.trim().toLowerCase();
   const filteredByCategory = filter === 'All' ? GAMES : GAMES.filter((game) => game.category === filter);
   const filtered = normalizedQuery
@@ -555,7 +555,7 @@ export default function GamesHub() {
 
       {/* Category filter pills — GSAP scroll-reveal on first viewport entry */}
       <div ref={categoryRef} style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-        {categories.map(cat => (
+        {categories.map((cat) => (
           <button
             key={cat}
             type="button"
@@ -576,7 +576,7 @@ export default function GamesHub() {
       {/* Game card grid — AnimatePresence for smooth filter transitions + 3-D tilt cards */}
       <div ref={gridRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 10 }}>
         <AnimatePresence mode="popLayout">
-          {filtered.map(game => {
+          {filtered.map((game) => {
             const isSaved = savedSessions.some((s) => s.gameId === game.id);
             return (
               <TiltGameCard

@@ -32,7 +32,7 @@ interface GhostPreviewState {
 
 const DEFAULT_WINDOW_SIZE = { width: 600, height: 400 };
 
-function clamp(value: number, min: number, max: number) {
+function clamp(value: number, min: number, max): number {
   return Math.min(Math.max(value, min), max);
 }
 
@@ -49,7 +49,7 @@ function resolveModulePosition(
   };
 }
 
-function shouldUseModuleLoader(moduleUrl?: string) {
+function shouldUseModuleLoader(moduleUrl?: string ){
   if (!moduleUrl) return true;
   return !moduleUrl.startsWith('/');
 }

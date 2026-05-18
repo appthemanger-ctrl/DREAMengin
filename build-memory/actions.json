@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-05-13T09:08:37.089Z",
+  "generated_at": "2026-05-16T18:24:50.781Z",
   "generator": "scripts/sync-build-memory.mjs",
-  "count": 108,
+  "count": 114,
   "actions": [
     {
       "file": "app/actions/dream-docs.ts",
@@ -436,6 +436,14 @@
       "exports": []
     },
     {
+      "file": "app/api/dreamr/tally/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": []
+    },
+    {
       "file": "app/api/dreams/feed/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
@@ -804,6 +812,24 @@
       "exports": []
     },
     {
+      "file": "app/api/shared-dream/sessions/[id]/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET",
+        "PATCH"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/shared-dream/sessions/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET",
+        "POST"
+      ],
+      "exports": []
+    },
+    {
       "file": "app/api/shellhub/devices/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
@@ -840,6 +866,31 @@
     },
     {
       "file": "app/api/skip-credits/use/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/social/ipfs/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "POST",
+        "GET"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/social/livekit/room/route.ts",
+      "type": "api-route-handler",
+      "http_handlers": [
+        "GET"
+      ],
+      "exports": []
+    },
+    {
+      "file": "app/api/social/livekit/token/route.ts",
       "type": "api-route-handler",
       "http_handlers": [
         "POST"

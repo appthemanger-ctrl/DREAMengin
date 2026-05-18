@@ -6,6 +6,6 @@ import {
 
 export function createClient(cookieStore: SupabaseCookieStore): ReturnType<typeof createServerClientWithCookies>
 export function createClient(): ReturnType<typeof createServerClient>
-export function createClient(cookieStore?: SupabaseCookieStore) {
+export function createClient(cookieStore?: SupabaseCookieStore ){
   return cookieStore ? createServerClientWithCookies(cookieStore) : createServerClient()
 }

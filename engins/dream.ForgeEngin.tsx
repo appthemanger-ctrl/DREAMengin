@@ -103,6 +103,7 @@ const ALL_CHANNEL_EVENTS: Record<DualRuntimeChannel, string[]> = {
   create:  ['create:draft-saved', 'create:published', 'create:export-asset', 'create:queue-updated', 'create:calendar-event'],
   content: [],
   compute: ['vm:initialized', 'vm:workload-submitted', 'vm:inter-vm-message', 'vm:error', 'vm:dispatch-workload'],
+  shared_dream: [], // <-- Added missing property
 };
 
 interface BridgeEvent {
@@ -148,7 +149,7 @@ export default function ForgeEngin({ onBack }: Props) {
       for (const event of events) {
         unsubs.push(
           castSubscribe(channel, event, () => {
-            setBridgeEvents(prev => {
+            setBridgeEvents((prev) => {
               const next = [{ channel, event, timestamp: Date.now() }, ...prev];
               return next.slice(0, 20); // keep last 20
             });
@@ -157,7 +158,7 @@ export default function ForgeEngin({ onBack }: Props) {
       }
     }
 
-    return () => { unsubs.forEach(fn => fn()); };
+    return () => { unsubs.forEach((fn) => fn()); };
   }, []);
 
   // Refresh all forge data every 10s
@@ -190,16 +191,16 @@ export default function ForgeEngin({ onBack }: Props) {
   }, []);
 
   const getHeat = useCallback((enginId: string) => {
-    return activity.find(a => a.enginId === enginId)?.heat ?? 0;
+    return activity.find((a) => a.enginId === enginId)?.heat ?? 0;
   }, [activity]);
 
   const getLastActive = useCallback((enginId: string) => {
-    const pulse = activity.find(a => a.enginId === enginId);
+    const pulse = activity.find((a) => a.enginId === enginId);
     return pulse ? formatRelativeTime(pulse.lastActive) : 'never';
   }, [activity]);
 
   const totalHeat = activity.reduce((sum, a) => sum + a.heat, 0);
-  const activeCount = activity.filter(a => a.heat > 0.1).length;
+  const activeCount = activity.filter((a) => a.heat > 0.1).length;
 
   // All workflows = built-in + custom
   const allWorkflows = useMemo(() => [...FORGE_WORKFLOWS, ...customWorkflows], [customWorkflows]);
@@ -243,7 +244,7 @@ export default function ForgeEngin({ onBack }: Props) {
     // Map step index → engine id from the active workflow, then emit
     // on that channel. Uses cast because 'forge' is not a typed channel.
     if (run) {
-      const wf = allWorkflows.find(w => w.id === run.workflowId);
+      const wf = allWorkflows.find((w) => w.id === run.workflowId);
       const engineId = wf?.engines[stepIndex];
       if (engineId) {
         const validChannels: string[] = ['music', 'games', 'lab', 'code', 'brand', 'create'];
@@ -277,11 +278,11 @@ export default function ForgeEngin({ onBack }: Props) {
       id: `custom-${Date.now()}`,
       title: builderTitle,
       emoji: '⚡',
-      accent: ENGIN_REGISTRY.find(e => e.id === builderEngines[0])?.accent ?? '#ef4444',
+      accent: ENGIN_REGISTRY.find((e) => e.id === builderEngines[0])?.accent ?? '#ef4444',
       desc: 'Custom workflow created in Forge',
       engines: builderEngines,
-      steps: builderEngines.map(eid => {
-        const eng = ENGIN_REGISTRY.find(e => e.id === eid);
+      steps: builderEngines.map((eid) => {
+        const eng = ENGIN_REGISTRY.find((e) => e.id === eid);
         return `Open ${eng?.name ?? eid} → complete your work`;
       }),
     };
@@ -293,8 +294,8 @@ export default function ForgeEngin({ onBack }: Props) {
   }, [builderTitle, builderEngines]);
 
   const toggleBuilderEngine = useCallback((eid: string) => {
-    setBuilderEngines(prev =>
-      prev.includes(eid) ? prev.filter(e => e !== eid) : [...prev, eid],
+    setBuilderEngines((prev) =>
+      prev.includes(eid) ? prev.filter((e) => e !== eid) : [...prev, eid],
     );
   }, []);
 
@@ -366,7 +367,7 @@ export default function ForgeEngin({ onBack }: Props) {
         <div style={{ marginBottom: 20 }}>
           <motion.button
             type="button"
-            onClick={() => setShowAIBuilder(v => !v)}
+            onClick={() => setShowAIBuilder((v) => !v)}
             whileTap={{ scale: 0.98 }}
             style={{
               width: '100%',
@@ -503,7 +504,7 @@ export default function ForgeEngin({ onBack }: Props) {
                   {momentum.actionsToday} actions today · {momentum.actionsWeek} this week · {momentum.streakDays}d streak
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
-                  {momentum.dimensions.map(dim => (
+                  {momentum.dimensions.map((dim) => (
                     <div key={dim.name} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <span style={{ fontSize: 12 }}>{dim.emoji}</span>
                       <div style={{ flex: 1, minWidth: 0 }}>
@@ -535,7 +536,7 @@ export default function ForgeEngin({ onBack }: Props) {
             <span style={{ fontSize: 13, fontWeight: 800, color: FORGE.text }}>Engine Status Matrix</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 12 }}>
-            {CREATIVE_ENGINES.map(engine => (
+            {CREATIVE_ENGINES.map((engine) => (
               <EngineStatusCard
                 key={engine.id}
                 engine={engine}
@@ -553,10 +554,10 @@ export default function ForgeEngin({ onBack }: Props) {
           {selectedEngine && (
             <EngineDetailPanel
               key={selectedEngine}
-              engine={CREATIVE_ENGINES.find(e => e.id === selectedEngine)!}
+              engine={CREATIVE_ENGINES.find((e) => e.id === selectedEngine)!}
               heat={getHeat(selectedEngine)}
               lastActive={getLastActive(selectedEngine)}
-              activity={activity.find(a => a.enginId === selectedEngine)}
+              activity={activity.find((a) => a.enginId === selectedEngine)}
             />
           )}
         </AnimatePresence>
@@ -590,9 +591,9 @@ export default function ForgeEngin({ onBack }: Props) {
                 FLOW STRENGTHS
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                {nexus.edges.slice(0, 6).map(edge => {
-                  const fromEng = ENGIN_REGISTRY.find(e => e.id === edge.from);
-                  const toEng = ENGIN_REGISTRY.find(e => e.id === edge.to);
+                {nexus.edges.slice(0, 6).map((edge) => {
+                  const fromEng = ENGIN_REGISTRY.find((e) => e.id === edge.from);
+                  const toEng = ENGIN_REGISTRY.find((e) => e.id === edge.to);
                   if (!fromEng || !toEng) return null;
                   return (
                     <div
@@ -646,7 +647,7 @@ export default function ForgeEngin({ onBack }: Props) {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
                 {[...nexus.nodes]
                   .sort((a, b) => b.centrality - a.centrality)
-                  .map(node => (
+                  .map((node) => (
                     <div
                       key={node.id}
                       style={{
@@ -688,8 +689,8 @@ export default function ForgeEngin({ onBack }: Props) {
                     DOMINANT PIPELINE
                   </div>
                   <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
-                    {nexus.dominantPipeline.map((eid, i) => {
-                      const eng = ENGIN_REGISTRY.find(e => e.id === eid);
+                    {nexus.dominantPipeline.map((eid, i: number) => {
+                      const eng = ENGIN_REGISTRY.find((e) => e.id === eid);
                       return eng ? (
                         <span key={eid} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12 }}>
                           <span style={{
@@ -723,7 +724,7 @@ export default function ForgeEngin({ onBack }: Props) {
                   AFFINITY CLUSTERS
                 </div>
                 <div style={{ display: 'grid', gap: 6 }}>
-                  {nexus.clusters.map(cluster => (
+                  {nexus.clusters.map((cluster) => (
                     <div
                       key={cluster.id}
                       style={{
@@ -765,7 +766,7 @@ export default function ForgeEngin({ onBack }: Props) {
               </span>
             </div>
             <div style={{ display: 'grid', gap: 8 }}>
-              {suggestions.slice(0, 4).map((sug, i) => (
+              {suggestions.slice(0, 4).map((sug, i: number) => (
                 <SuggestionCard key={`${sug.type}-${i}`} suggestion={sug} />
               ))}
             </div>
@@ -849,8 +850,8 @@ export default function ForgeEngin({ onBack }: Props) {
                         <div style={{ fontSize: 11, color: FORGE.dim }}>AI-generated workflow</div>
                       </div>
                       <div style={{ display: 'flex', gap: 3 }}>
-                        {generatedWorkflow.engines.map(eid => {
-                          const eng = ENGIN_REGISTRY.find(e => e.id === eid);
+                        {generatedWorkflow.engines.map((eid) => {
+                          const eng = ENGIN_REGISTRY.find((e) => e.id === eid);
                           return eng ? (
                             <span key={eid} style={{
                               width: 22, height: 22, borderRadius: 6,
@@ -864,7 +865,7 @@ export default function ForgeEngin({ onBack }: Props) {
                       </div>
                     </div>
                     <div style={{ display: 'grid', gap: 6 }}>
-                      {generatedWorkflow.steps.map((step, i) => (
+                      {generatedWorkflow.steps.map((step, i: number) => (
                         <div key={i} style={{
                           display: 'flex', alignItems: 'center', gap: 8,
                           padding: '8px 10px', borderRadius: 10,
@@ -945,7 +946,7 @@ export default function ForgeEngin({ onBack }: Props) {
             <span style={{ fontSize: 13, fontWeight: 800, color: FORGE.text }}>Cross-Engine Linkages</span>
           </div>
           <div style={{ display: 'grid', gap: 10 }}>
-            {LINKAGES.map(linkage => (
+            {LINKAGES.map((linkage) => (
               <div
                 key={linkage.label}
                 style={{
@@ -959,8 +960,8 @@ export default function ForgeEngin({ onBack }: Props) {
                 }}
               >
                 <div style={{ display: 'flex', gap: 4 }}>
-                  {linkage.engines.map(eid => {
-                    const eng = ENGIN_REGISTRY.find(e => e.id === eid);
+                  {linkage.engines.map((eid) => {
+                    const eng = ENGIN_REGISTRY.find((e) => e.id === eid);
                     return eng ? (
                       <span
                         key={eid}
@@ -1003,7 +1004,7 @@ export default function ForgeEngin({ onBack }: Props) {
 
           {/* Built-in workflows */}
           <div style={{ display: 'grid', gap: 10 }}>
-            {FORGE_WORKFLOWS.map(wf => (
+            {FORGE_WORKFLOWS.map((wf) => (
               <WorkflowCard key={wf.id} workflow={wf} onStart={() => handleStartRun(wf)} />
             ))}
           </div>
@@ -1015,7 +1016,7 @@ export default function ForgeEngin({ onBack }: Props) {
                 YOUR CUSTOM WORKFLOWS
               </div>
               <div style={{ display: 'grid', gap: 10 }}>
-                {customWorkflows.map(wf => (
+                {customWorkflows.map((wf) => (
                   <WorkflowCard
                     key={wf.id}
                     workflow={wf}
@@ -1092,7 +1093,7 @@ export default function ForgeEngin({ onBack }: Props) {
                     Select engines in order:
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
-                    {CREATIVE_ENGINES.map(eng => {
+                    {CREATIVE_ENGINES.map((eng) => {
                       const selected = builderEngines.includes(eng.id);
                       const order = builderEngines.indexOf(eng.id) + 1;
                       return (
@@ -1123,8 +1124,8 @@ export default function ForgeEngin({ onBack }: Props) {
                   </div>
                   {builderEngines.length > 0 && (
                     <div style={{ display: 'flex', gap: 4, marginBottom: 12, fontSize: 11, color: FORGE.dim }}>
-                      Flow: {builderEngines.map((eid, i) => {
-                        const eng = ENGIN_REGISTRY.find(e => e.id === eid);
+                      Flow: {builderEngines.map((eid, i: number) => {
+                        const eng = ENGIN_REGISTRY.find((e) => e.id === eid);
                         return (
                           <span key={eid}>
                             {eng?.emoji}{i < builderEngines.length - 1 ? ' → ' : ''}
@@ -1191,9 +1192,9 @@ export default function ForgeEngin({ onBack }: Props) {
               </span>
             </div>
             <div style={{ display: 'grid', gap: 6 }}>
-              {[...transfers].reverse().slice(0, 5).map(t => {
-                const from = ENGIN_REGISTRY.find(e => e.id === t.fromEnginId);
-                const to = ENGIN_REGISTRY.find(e => e.id === t.toEnginId);
+              {[...transfers].reverse().slice(0, 5).map((t) => {
+                const from = ENGIN_REGISTRY.find((e) => e.id === t.fromEnginId);
+                const to = ENGIN_REGISTRY.find((e) => e.id === t.toEnginId);
                 return (
                   <div
                     key={t.id}
@@ -1258,8 +1259,8 @@ export default function ForgeEngin({ onBack }: Props) {
               {[...history]
                 .reverse()
                 .slice(0, 15)
-                .map((entry, i) => {
-                  const eng = ENGIN_REGISTRY.find(e => e.id === entry.enginId);
+                .map((entry, i: number) => {
+                  const eng = ENGIN_REGISTRY.find((e) => e.id === entry.enginId);
                   if (!eng) return null;
                   return (
                     <div
@@ -1312,7 +1313,7 @@ export default function ForgeEngin({ onBack }: Props) {
               </span>
             </div>
             <div style={{ display: 'grid', gap: 8 }}>
-              {rituals.rituals.slice(0, 8).map(ritual => (
+              {rituals.rituals.slice(0, 8).map((ritual) => (
                 <div
                   key={ritual.id}
                   style={{
@@ -1381,17 +1382,13 @@ export default function ForgeEngin({ onBack }: Props) {
         </div>
       </div>
     </div>
+    </ArtifactSlot>
   );
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
 
-function PulseCard({ icon, label, value, accent }: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  accent: string;
-}) {
+function PulseCard({ icon, label, value, accent }: { icon: React.ReactNode; label: string; value: string; accent: string }) {
   return (
     <div style={{
       padding: '14px 16px',
@@ -1408,13 +1405,7 @@ function PulseCard({ icon, label, value, accent }: {
   );
 }
 
-function EngineStatusCard({ engine, heat, lastActive, isSelected, onSelect }: {
-  engine: EnginEntry;
-  heat: number;
-  lastActive: string;
-  isSelected: boolean;
-  onSelect: () => void;
-}) {
+function EngineStatusCard({ engine, heat, lastActive, isSelected, onSelect }: { engine: EnginEntry; heat: number; lastActive: string; isSelected: boolean; onSelect: () => void }) {
   const glowIntensity = Math.round(heat * 40);
 
   return (
@@ -1479,12 +1470,7 @@ function EngineStatusCard({ engine, heat, lastActive, isSelected, onSelect }: {
   );
 }
 
-function EngineDetailPanel({ engine, heat, lastActive, activity }: {
-  engine: EnginEntry;
-  heat: number;
-  lastActive: string;
-  activity?: ForgeActivityPulse;
-}) {
+function EngineDetailPanel({ engine, heat, lastActive, activity }: { engine: EnginEntry; heat: number; lastActive: string; activity?: ForgeActivityPulse }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -1530,7 +1516,7 @@ function EngineDetailPanel({ engine, heat, lastActive, activity }: {
 
       {/* Capabilities */}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
-        {engine.capabilities.map(cap => (
+        {engine.capabilities.map((cap) => (
           <span
             key={cap}
             style={{
@@ -1605,7 +1591,7 @@ const LINKAGES = [
 
 // ── Suggestion Card ───────────────────────────────────────────────────────────
 
-function SuggestionCard({ suggestion }: { suggestion: ForgeSuggestion }) {
+function SuggestionCard({ suggestion }: {suggestion: ForgeSuggestion}) {
   return (
     <div
       style={{
@@ -1653,17 +1639,11 @@ function SuggestionCard({ suggestion }: { suggestion: ForgeSuggestion }) {
 
 // ── Active Workflow Panel ─────────────────────────────────────────────────────
 
-function ActiveWorkflowPanel({ run, allWorkflows, onCompleteStep, onFailStep, onDismiss }: {
-  run: WorkflowRunState;
-  allWorkflows: readonly ForgeWorkflow[];
-  onCompleteStep: (i: number) => void;
-  onFailStep: (i: number) => void;
-  onDismiss: () => void;
-}) {
-  const workflow = allWorkflows.find(w => w.id === run.workflowId);
+function ActiveWorkflowPanel({ run, allWorkflows, onCompleteStep, onFailStep, onDismiss }: { run: WorkflowRunState; allWorkflows: readonly ForgeWorkflow[]; onCompleteStep: (i: number) => void; onFailStep: (i: number) => void; onDismiss: () => void }) {
+  const workflow = allWorkflows.find((w) => w.id === run.workflowId);
   if (!workflow) return null;
 
-  const failedStep = run.steps.find(s => s.status === 'failed');
+  const failedStep = run.steps.find((s) => s.status === 'failed');
   const recoverySuggestions = failedStep ? getFailureRecovery(failedStep, workflow) : [];
 
   return (
@@ -1704,7 +1684,7 @@ function ActiveWorkflowPanel({ run, allWorkflows, onCompleteStep, onFailStep, on
           <span style={{ fontSize: 14, fontWeight: 800, color: workflow.accent }}>{workflow.title}</span>
         </div>
         <div style={{ display: 'grid', gap: 8 }}>
-          {run.steps.map((step, i) => (
+          {run.steps.map((step, i: number) => (
             <div
               key={i}
               style={{
@@ -1786,7 +1766,7 @@ function ActiveWorkflowPanel({ run, allWorkflows, onCompleteStep, onFailStep, on
               <span style={{ fontSize: 11, fontWeight: 800, color: '#f59e0b' }}>Recovery Options</span>
             </div>
             <div style={{ display: 'grid', gap: 6 }}>
-              {recoverySuggestions.map((sug, i) => (
+              {recoverySuggestions.map((sug, i: number) => (
                 <SuggestionCard key={i} suggestion={sug} />
               ))}
             </div>
@@ -1799,12 +1779,7 @@ function ActiveWorkflowPanel({ run, allWorkflows, onCompleteStep, onFailStep, on
 
 // ── Workflow Card ─────────────────────────────────────────────────────────────
 
-function WorkflowCard({ workflow, onStart, onDelete, isCustom }: {
-  workflow: ForgeWorkflow;
-  onStart?: () => void;
-  onDelete?: () => void;
-  isCustom?: boolean;
-}) {
+function WorkflowCard({ workflow, onStart, onDelete, isCustom }: { workflow: ForgeWorkflow; onStart?: () => void; onDelete?: () => void; isCustom?: boolean }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -1841,8 +1816,8 @@ function WorkflowCard({ workflow, onStart, onDelete, isCustom }: {
           <div style={{ fontSize: 11, color: FORGE.dim }}>{workflow.desc}</div>
         </div>
         <div style={{ display: 'flex', gap: 3 }}>
-          {workflow.engines.map(eid => {
-            const eng = ENGIN_REGISTRY.find(e => e.id === eid);
+          {workflow.engines.map((eid) => {
+            const eng = ENGIN_REGISTRY.find((e) => e.id === eid);
             return eng ? (
               <span key={eid} style={{
                 width: 22, height: 22, borderRadius: 6,
@@ -1874,7 +1849,7 @@ function WorkflowCard({ workflow, onStart, onDelete, isCustom }: {
             style={{ overflow: 'hidden' }}
           >
             <div style={{ padding: '0 16px 16px', display: 'grid', gap: 8 }}>
-              {workflow.steps.map((step, i) => (
+              {workflow.steps.map((step, i: number) => (
                 <div
                   key={i}
                   style={{
@@ -1902,7 +1877,7 @@ function WorkflowCard({ workflow, onStart, onDelete, isCustom }: {
               {/* Launch first engine */}
               <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
                 <Link
-                  href={ENGIN_REGISTRY.find(e => e.id === workflow.engines[0])?.daydreamHref ?? '/daydream/forge'}
+                  href={ENGIN_REGISTRY.find((e) => e.id === workflow.engines[0])?.daydreamHref ?? '/daydream/forge'}
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: 6,
                     padding: '10px 18px', borderRadius: 999,
@@ -1947,6 +1922,5 @@ function WorkflowCard({ workflow, onStart, onDelete, isCustom }: {
         )}
       </AnimatePresence>
     </div>
-    </ArtifactSlot>
   );
 }

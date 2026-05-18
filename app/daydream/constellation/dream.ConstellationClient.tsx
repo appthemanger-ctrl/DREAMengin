@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import DreamConstellationMap from '@/components/daydream/dream.constellationmap';
 
-export default function ConstellationClient() {
+export default function ConstellationClient( ){
   return (
     <div
       style={{

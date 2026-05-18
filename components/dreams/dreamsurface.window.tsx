@@ -29,7 +29,7 @@ export interface DreamWindowShellProps {
   style?: React.CSSProperties;
 }
 
-export function DreamWindowShell({
+export function DreamWindowShell(){
   manifest,
   onTransfer,
   children,

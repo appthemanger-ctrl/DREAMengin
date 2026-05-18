@@ -3,7 +3,7 @@
 import React from 'react';
 import { useEditMode } from './dream.EditModeProvider';
 
-export default function EditModeBanner() {
+export default function EditModeBanner( ){
   const { isEditing, exitEdit } = useEditMode();
   if (!isEditing) return null;
   return (

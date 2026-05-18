@@ -22,7 +22,7 @@ type Profile = {
   website: string;
 };
 
-export default function ProfilePanel() {
+export default function ProfilePanel( ){
   const [profile, setProfile] = useState<Profile>({
     display_name: '', handle: '', bio: '',
     avatar_url: null, banner_url: null, location: '', website: '',
@@ -140,7 +140,7 @@ export default function ProfilePanel() {
       const file = input.files?.[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (e) => setProfile(p => ({ ...p, avatar_url: e.target?.result as string }));
+      reader.onload = (e: unknown ) => setProfile((p) => ({ ...p, avatar_url: e.target?.result as string }));
       reader.readAsDataURL(file);
       input.removeEventListener('change', handler);
     };
@@ -292,19 +292,19 @@ export default function ProfilePanel() {
             <div>
               <label style={labelStyle}>Display Name</label>
               <input type="text" value={profile.display_name}
-                onChange={e => setProfile(p => ({ ...p, display_name: e.target.value }))}
+                onChange={e => setProfile((p) => ({ ...p, display_name: e.target.value }))}
                 placeholder="Your name" style={inputStyle} />
             </div>
             <div>
               <label style={labelStyle}>Handle</label>
               <input type="text" value={profile.handle}
-                onChange={e => setProfile(p => ({ ...p, handle: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') }))}
+                onChange={e => setProfile((p) => ({ ...p, handle: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') }))}
                 placeholder="@yourhandle" style={inputStyle} />
             </div>
             <div>
               <label style={labelStyle}>Bio</label>
               <textarea value={profile.bio}
-                onChange={e => setProfile(p => ({ ...p, bio: e.target.value.slice(0, 160) }))}
+                onChange={e => setProfile((p) => ({ ...p, bio: e.target.value.slice(0, 160) }))}
                 placeholder="UX Designer | Coffee Lover | Traveler" rows={3}
                 style={{ ...inputStyle, resize: 'none' }} />
               <div style={{ fontSize: 11, color: 'var(--de-text-dim)', textAlign: 'right', marginTop: 4 }}>{profile.bio.length}/160</div>
@@ -312,13 +312,13 @@ export default function ProfilePanel() {
             <div>
               <label style={labelStyle}>Location</label>
               <input type="text" value={profile.location}
-                onChange={e => setProfile(p => ({ ...p, location: e.target.value }))}
+                onChange={e => setProfile((p) => ({ ...p, location: e.target.value }))}
                 placeholder="City, Country" style={inputStyle} />
             </div>
             <div>
               <label style={labelStyle}>Website</label>
               <input type="url" value={profile.website}
-                onChange={e => setProfile(p => ({ ...p, website: e.target.value }))}
+                onChange={e => setProfile((p) => ({ ...p, website: e.target.value }))}
                 placeholder="https://yoursite.com" style={inputStyle} />
             </div>
           </div>

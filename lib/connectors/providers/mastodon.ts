@@ -52,7 +52,7 @@ export async function mastodonSync(creds: MastodonCredentials): Promise<UnifiedF
   );
 }
 
-export function mastodonCredentialFields() {
+export function mastodonCredentialFields( ){
   return [
     {
       key: 'instance_url',

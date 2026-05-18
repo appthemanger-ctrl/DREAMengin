@@ -64,7 +64,7 @@ async function fetchPlatformFeed(
   // Normalise the backend's raw posts (mastodon/nostr/bluesky shape) into the
   // NormalizedPost interface. The backend already returns a partially normalised
   // shape from its aggregators; we cast + fill defaults here.
-  return raw.map((item: any): NormalizedPost => ({
+  return raw.map((item: unknown): NormalizedPost => ({
     id: String(item.id ?? crypto.randomUUID()),
     source:
       (item.platform as NormalizedPost['source']) ??

@@ -101,7 +101,7 @@ function inferMime(contentType: string | null, url: string): ImageMime | null {
 /** Load known-bad hashes from child_safety_hash_registry. Returns empty Set on error. */
 async function loadKnownBadHashes(supabase: SupabaseLike): Promise<Set<string>> {
   try {
-    const { data, error } = await (supabase as any)
+    const { data, error } = await (supabase as SupabaseClient)
       .from('child_safety_hash_registry')
       .select('hash_sha256');
     if (error || !data) return new Set();

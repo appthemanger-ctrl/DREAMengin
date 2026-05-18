@@ -152,12 +152,7 @@ export function buildRecentDestinations(
  * iOS-style squircle app icon.
  * Clicking navigates to the canonical surface route — no iframe dead-ends.
  */
-function AppIcon({ icon, label, color, onClick }: {
-  icon: string;
-  label: string;
-  color: string;
-  onClick: () => void;
-}) {
+function AppIcon({ icon, label, color, onClick }: { icon: string; label: string; color: string; onClick: () => void }) {
   const [pressed, setPressed] = useState(false);
   const press   = () => setPressed(true);
   const release = () => setPressed(false);
@@ -232,7 +227,7 @@ function EngineBarChart({ engines }: { engines: string[] }) {
   const max = Math.max(...entries.map(([, v]) => v), 1);
   return (
     <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 5 }}>
-      {entries.map(([engine, count], i) => (
+      {entries.map(([engine, count], i: number) => (
         <div key={engine} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{
             fontSize:     9,

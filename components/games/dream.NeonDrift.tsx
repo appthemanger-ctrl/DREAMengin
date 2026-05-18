@@ -61,7 +61,7 @@ function laneX(lane: number): number {
   return (lane - Math.floor(LANE_COUNT / 2)) * LANE_WIDTH;
 }
 
-export default function NeonDrift() {
+export default function NeonDrift( ){
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const [score, setScore] = useState(0);
   const [multiplier, setMultiplier] = useState(1);
@@ -479,7 +479,7 @@ export default function NeonDrift() {
             const spawnZ = distanceRef.current + 80 + Math.random() * 20;
             nextObstacleZ = distanceRef.current + 15 + (1 - dirLevel) * 20;
 
-            const pool = obstacles.filter(o => !o.active);
+            const pool = obstacles.filter((o) => !o.active);
             if (pool.length > 0) {
               const obs = pool[Math.floor(Math.random() * pool.length)];
               const lane = Math.floor(Math.random() * LANE_COUNT);
@@ -495,7 +495,7 @@ export default function NeonDrift() {
           // ── Boost gate spawning ───────────────────────────────────────────
           if (distanceRef.current > nextBoostZ) {
             nextBoostZ = distanceRef.current + 60 + Math.random() * 40;
-            const pool = boostGates.filter(b => !b.active);
+            const pool = boostGates.filter((b) => !b.active);
             if (pool.length > 0) {
               const gate = pool[0];
               const gateZ = distanceRef.current + 100 + Math.random() * 30;

@@ -15,7 +15,7 @@ declare module '@rivet-dev/agent-os' {
 
   export interface HostTools {
      
-    [key: string]: (...args: any[]) => Promise<unknown>;
+    [key: string]: (...args: unknown[]) => Promise<unknown>;
   }
 
   export interface CreateSessionOptions {

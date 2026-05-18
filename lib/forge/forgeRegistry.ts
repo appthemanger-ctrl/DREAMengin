@@ -108,7 +108,7 @@ export const ENGIN_REGISTRY: readonly EnginEntry[] = [
 ] as const;
 
 /** Just the 6 creative engines (no Forge self-reference) */
-export const CREATIVE_ENGINES = ENGIN_REGISTRY.filter(e => e.id !== 'forge');
+export const CREATIVE_ENGINES = ENGIN_REGISTRY.filter((e) => e.id !== 'forge');
 
 // ── Activity Pulse ────────────────────────────────────────────────────────────
 
@@ -184,7 +184,7 @@ export function readForgeActivity(): ForgeActivityPulse[] {
     if (!raw) return [];
     const data: Record<string, ForgeActivityPulse> = JSON.parse(raw);
     const now = Date.now();
-    return Object.values(data).map(pulse => {
+    return Object.values(data).map((pulse) => {
       const elapsed = now - new Date(pulse.lastActive).getTime();
       // Heat decays to 0 over 30 minutes
       const decay = Math.max(0, 1 - elapsed / (30 * 60 * 1000));
@@ -200,7 +200,7 @@ export function readForgeActivity(): ForgeActivityPulse[] {
  */
 export function getForgeHeat(enginId: string): ForgeActivityPulse | null {
   const all = readForgeActivity();
-  return all.find(p => p.enginId === enginId) ?? null;
+  return all.find((p) => p.enginId === enginId) ?? null;
 }
 
 /**

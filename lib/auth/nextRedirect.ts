@@ -43,7 +43,7 @@ export function buildLoginRedirectPath(
   const params = new URLSearchParams();
 
   if (searchParams instanceof URLSearchParams) {
-    searchParams.forEach((value, key) => params.append(key, value));
+    searchParams.forEach((value, key: string) => params.append(key, value));
   } else if (searchParams) {
     for (const [key, value] of Object.entries(searchParams)) {
       if (Array.isArray(value)) {

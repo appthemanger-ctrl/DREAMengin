@@ -26,7 +26,7 @@ export interface ConnectorStatusEntry {
   last_synced_at: string | null;
 }
 
-export async function GET() {
+export async function GET( ){
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -35,7 +35,7 @@ export async function GET() {
   }
 
    
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
 
   const { data, error } = await db
     .from('connector_accounts')

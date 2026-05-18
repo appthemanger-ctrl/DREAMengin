@@ -307,7 +307,7 @@ describe('Phase 8 §A Point 6 — Feed content private by default', () => {
       { id: '1', user_id: userId,        provider: 'mastodon' },
       { id: '2', user_id: anotherUserId, provider: 'github'   },
     ];
-    const visible = allItems.filter(i => i.user_id === userId);
+    const visible = allItems.filter((i) => i.user_id === userId);
     expect(visible).toHaveLength(1);
     expect(visible[0].id).toBe('1');
   });

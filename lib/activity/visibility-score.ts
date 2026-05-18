@@ -120,7 +120,7 @@ export async function getVisibilityRankedFeed(
     before?: string; // ISO date cursor
     provider?: string; // Optional provider filter
   } = {},
-): Promise<any[]> {
+): Promise<unknown[]> {
   const supabase = createClient();
   const { limit = 30, before, provider } = options;
 
@@ -131,7 +131,7 @@ export async function getVisibilityRankedFeed(
       .select('following_id')
       .eq('follower_id', userId);
 
-    const followedIds = (follows ?? []).map((f: any) => f.following_id);
+    const followedIds = (follows ?? []).map((f: unknown) => f.following_id);
     const authorIds = [userId, ...followedIds];
 
     // Get posts from followed users + own posts

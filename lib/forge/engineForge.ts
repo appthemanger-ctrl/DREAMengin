@@ -57,7 +57,7 @@ export interface EngineAssembly {
 
 export interface AssemblySandbox {
   /** Called for each piece during execution — returns the piece's output. */
-  execute(piece: AtomicPiece, inputs: Record<string, unknown>): unknown;
+  execute(piece: AtomicPiece, inputs): unknown;
 }
 
 export interface ValidationResult {

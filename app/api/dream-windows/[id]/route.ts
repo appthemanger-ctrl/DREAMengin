@@ -47,7 +47,7 @@ export async function GET(
   // RLS on dream_windows table enforces visibility — this query will return
   // null/empty if the record is private and the caller is not the owner.
    
-  const { data: dreamWindow, error } = await (supabase as any)
+  const { data: dreamWindow, error } = await (supabase as SupabaseClient)
     .from('dream_windows')
     .select('*')
     .eq('id', id)
@@ -96,7 +96,7 @@ export async function PATCH(
 
   // ── Fetch existing record to verify ownership ────────────────────────────
    
-  const { data: existing, error: fetchError } = await (supabase as any)
+  const { data: existing, error: fetchError } = await (supabase as SupabaseClient)
     .from('dream_windows')
     .select('*')
     .eq('id', id)
@@ -219,7 +219,7 @@ export async function PATCH(
 
   // ── Apply update ─────────────────────────────────────────────────────────
    
-  const { data: dreamWindow, error: updateError } = await (supabase as any)
+  const { data: dreamWindow, error: updateError } = await (supabase as SupabaseClient)
     .from('dream_windows')
     .update(update)
     .eq('id', id)
@@ -270,7 +270,7 @@ export async function DELETE(
 
   // ── Fetch to verify ownership ────────────────────────────────────────────
    
-  const { data: existing, error: fetchError } = await (supabase as any)
+  const { data: existing, error: fetchError } = await (supabase as SupabaseClient)
     .from('dream_windows')
     .select('id, owner_id')
     .eq('id', id)
@@ -291,7 +291,7 @@ export async function DELETE(
   // ── Step 1: Delete the dream_windows row ────────────────────────────────
   // dream_window_projections are removed via ON DELETE CASCADE (FK: source_id).
    
-  const { error: deleteError } = await (supabase as any)
+  const { error: deleteError } = await (supabase as SupabaseClient)
     .from('dream_windows')
     .delete()
     .eq('id', id);
@@ -303,7 +303,7 @@ export async function DELETE(
   // ── Step 2: Delete from visibility_mappings WHERE content_id = id ────────
   // Best-effort cleanup — the main record is already gone.
    
-  const { error: visError } = await (supabase as any)
+  const { error: visError } = await (supabase as SupabaseClient)
     .from('visibility_mappings')
     .delete()
     .eq('content_id', id)

@@ -7,7 +7,7 @@ import { NextResponse } from 'next/server';
 import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogie-policy';
 
 
-export async function GET() {
+export async function GET( ){
   const simulationMode = process.env.BOOGIE_SIMULATION_MODE === 'true';
 
   // In production, Boogie is always "ok" unless an env flag marks it degraded.

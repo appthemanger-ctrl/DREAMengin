@@ -38,7 +38,7 @@ const FEATURES = [
   { key: 'zne_local',       label: 'ZNE',   desc: 'Zero-Noise Extrapolation (local)',           color: '#ec4899'  },
 ] as const;
 
-export default function OptimizePanel() {
+export default function OptimizePanel( ){
   const [algorithm, setAlgorithm] = useState<Algorithm>('vqe');
   const [backend,   setBackend]   = useState<Backend>('local_simulator');
   const [ansatz,    setAnsatz]    = useState<Ansatz>('real_amplitudes');
@@ -47,7 +47,7 @@ export default function OptimizePanel() {
   const [error,         setError]         = useState<string | null>(null);
   const [quantumResult, setQuantumResult] = useState<QuantumMeasurementResult | null>(null);
 
-  async function handleRun() {
+  async function handleRun( ){
     setRunning(true);
     setResult(null);
     setError(null);
@@ -258,7 +258,7 @@ export default function OptimizePanel() {
                 { icon: Activity,    label: 'Portfolio Risk',  value: result.portfolioRisk,  unit: '%', color: '#f59e0b' },
                 { icon: ShieldCheck, label: 'Sharpe Ratio',   value: result.sharpeRatio,    unit: '',  color: ACCENT    },
                 { icon: Cpu,         label: 'Objective',      value: result.objectiveValue, unit: '',  color: PURPLE    },
-              ].map(({ icon: Icon, label, value, unit, color }) => (
+              ].map(({ icon, label, value, unit, color }) => (
                 <div key={label} className="flex flex-col items-center p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
                   <Icon style={{ width: 16, height: 16, color, marginBottom: 6 }} />
                   <span className="text-xl font-black text-white">{value}{unit}</span>
@@ -281,7 +281,7 @@ export default function OptimizePanel() {
             </div>
             <div className="p-4">
               <div className="flex gap-2 mb-3">
-                {quantumResult.selectedAssets.map((selected, i) => (
+                {quantumResult.selectedAssets.map((selected, i: number) => (
                   <div
                     key={i}
                     className="flex-1 py-2 rounded-lg text-center transition-all"
@@ -299,7 +299,7 @@ export default function OptimizePanel() {
                 ))}
               </div>
               <div className="flex flex-wrap gap-1">
-                {quantumResult.probabilities.map((p, i) =>
+                {quantumResult.probabilities.map((p, i: number) =>
                   p > 0.02 ? (
                     <span
                       key={i}
@@ -307,7 +307,7 @@ export default function OptimizePanel() {
                       style={{
                         border:     `1px solid ${PURPLE}30`,
                         background: `${PURPLE}08`,
-                        color:      i === quantumResult.probabilities.reduce((b, v, j) => (v > quantumResult.probabilities[b] ? j : b), 0)
+                        color:      i === quantumResult.probabilities.reduce((b, v: number, j: number) => (v > quantumResult.probabilities[b] ? j : b), 0)
                           ? ACCENT
                           : `${PURPLE}aa`,
                       }}

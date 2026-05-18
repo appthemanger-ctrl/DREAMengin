@@ -278,7 +278,7 @@ describe('EnginRuntime', () => {
   it('persist and restore round-trips domain state', async () => {
     runtime.dispatch({ type: 'counter:increment', payload: { by: 42 } });
     // Allow the async persist to settle
-    await new Promise(r => setTimeout(r, 10));
+    await new Promise((r) => setTimeout(r, 10));
 
     // Create a new runtime with the same adapter (shared MemoryAdapter)
     const adapter = new MemoryAdapter();

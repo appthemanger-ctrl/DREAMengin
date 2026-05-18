@@ -5,13 +5,13 @@ function runCommand(command: string, cwd: string): Promise<{ stdout: string; std
   return new Promise((resolve) => {
     const child = spawn(command, { shell: true, cwd });
     let stdout = '', stderr = '';
-    child.stdout.on('data', (d) => { stdout += d; });
-    child.stderr.on('data', (d) => { stderr += d; });
-    child.on('close', (code) => resolve({ stdout, stderr, code: code || 0 }));
+    child.stdout.on('data', d => { stdout += d; });
+    child.stderr.on('data', d => { stderr += d; });
+    child.on('close', code => resolve({ stdout, stderr, code: code || 0 }));
   });
 }
 
-export async function POST(request: Request) {
+export async function POST(request: Request ){
   const apiKey = request.headers.get('x-api-key');
   if (apiKey !== process.env.CI_API_KEY) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

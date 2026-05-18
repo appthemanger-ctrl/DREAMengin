@@ -24,6 +24,6 @@ export function onDrEamsModeChange(handler: (enabled: boolean) => void): () => v
     handler(Boolean(ce.detail?.enabled))
   }
 
-  window.addEventListener(DREAMS_MODE_EVENT, listener as any)
-  return () => window.removeEventListener(DREAMS_MODE_EVENT, listener as any)
+  window.addEventListener(DREAMS_MODE_EVENT, listener as EventListener)
+  return () => window.removeEventListener(DREAMS_MODE_EVENT, listener as EventListener)
 }

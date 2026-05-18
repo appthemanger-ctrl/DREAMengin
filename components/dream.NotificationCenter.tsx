@@ -40,7 +40,7 @@ import type { UiNotification, UiNotificationType } from '@/lib/notifications/not
 // Icon map
 // ---------------------------------------------------------------------------
 
-function NotifIcon({ type }: { type: UiNotificationType }) {
+function NotifIcon({ type }: {type: UiNotificationType}) {
   switch (type) {
     case 'like':     return <Heart    size={14} style={{ color: '#ef4444', flexShrink: 0 }} />;
     case 'comment':  return <MessageSquare size={14} style={{ color: '#3b82f6', flexShrink: 0 }} />;
@@ -387,7 +387,7 @@ export default function NotificationCenter({ isOpen: controlledOpen, onClose }: 
         <button
           type="button"
           aria-label={`Notifications${unreadCount > 0 ? ` — ${unreadCount} unread` : ''}`}
-          onClick={() => setSelfOpen((v) => !v)}
+          onClick={() => setSelfOpen((v: number ) => !v)}
           style={{
             position: 'relative',
             padding: 8,

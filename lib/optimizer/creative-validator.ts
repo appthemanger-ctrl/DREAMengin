@@ -105,7 +105,7 @@ function checkBreaksBuild(option: CreativeOption): boolean {
     return true;
   }
 
-  return breakPatterns.some(pattern => pattern.test(content));
+  return breakPatterns.some((pattern) => pattern.test(content));
 }
 
 function checkBreaksVercel(option: CreativeOption): boolean {
@@ -122,7 +122,7 @@ function checkBreaksVercel(option: CreativeOption): boolean {
     return true;
   }
 
-  return vercelBreakPatterns.some(pattern => pattern.test(content));
+  return vercelBreakPatterns.some((pattern) => pattern.test(content));
 }
 
 function checkBreaksPrivacy(option: CreativeOption): boolean {
@@ -142,7 +142,7 @@ function checkBreaksPrivacy(option: CreativeOption): boolean {
     return true;
   }
 
-  return privacyViolations.some(pattern => pattern.test(content));
+  return privacyViolations.some((pattern) => pattern.test(content));
 }
 
 function checkBreaksNavigation(option: CreativeOption): boolean {
@@ -160,7 +160,7 @@ function checkBreaksNavigation(option: CreativeOption): boolean {
     return true;
   }
 
-  return navBreakPatterns.some(pattern => pattern.test(content));
+  return navBreakPatterns.some((pattern) => pattern.test(content));
 }
 
 function checkFakeAction(option: CreativeOption): boolean {
@@ -178,7 +178,7 @@ function checkFakeAction(option: CreativeOption): boolean {
     return true;
   }
 
-  return fakeActionPatterns.some(pattern => pattern.test(content));
+  return fakeActionPatterns.some((pattern) => pattern.test(content));
 }
 
 function checkInvalidTypeScript(option: CreativeOption): boolean {
@@ -202,7 +202,7 @@ function checkInvalidTypeScript(option: CreativeOption): boolean {
     return true;
   }
 
-  return invalidTsPatterns.some(pattern => pattern.test(content));
+  return invalidTsPatterns.some((pattern) => pattern.test(content));
 }
 
 function checkInvalidImports(option: CreativeOption): boolean {
@@ -219,7 +219,7 @@ function checkInvalidImports(option: CreativeOption): boolean {
     return true;
   }
 
-  return invalidImportPatterns.some(pattern => pattern.test(content));
+  return invalidImportPatterns.some((pattern) => pattern.test(content));
 }
 
 function checkInfiniteLoop(option: CreativeOption): boolean {
@@ -237,7 +237,7 @@ function checkInfiniteLoop(option: CreativeOption): boolean {
     return true;
   }
 
-  return infiniteLoopPatterns.some(pattern => pattern.test(content));
+  return infiniteLoopPatterns.some((pattern) => pattern.test(content));
 }
 
 function checkPerformanceRegression(option: CreativeOption): boolean {
@@ -260,5 +260,5 @@ function checkPerformanceRegression(option: CreativeOption): boolean {
     return true;
   }
 
-  return perfRegressionPatterns.some(pattern => pattern.test(content));
+  return perfRegressionPatterns.some((pattern) => pattern.test(content));
 }

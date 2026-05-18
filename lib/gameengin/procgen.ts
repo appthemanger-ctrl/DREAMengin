@@ -9,7 +9,7 @@
  */
 
 /** Mulberry32 — small, fast, deterministic PRNG. */
-function mulberry32(seed: number): () => number {
+function mulberry32(seed: number: () => number {
   let t = seed >>> 0;
   return () => {
     t = (t + 0x6D2B79F5) >>> 0;
@@ -50,7 +50,7 @@ export class WaveFunctionCollapse {
   }
 
   reset(): void {
-    const all = new Set<number>(this.tiles.map((_, i) => i));
+    const all = new Set<number>(this.tiles.map((_, i: number) => i));
     this.grid = new Array(this.width * this.height).fill(null).map(() => new Set(all));
   }
 
@@ -61,7 +61,7 @@ export class WaveFunctionCollapse {
       if (next === -1) return this.snapshot();
       const choices = Array.from(this.grid[next]);
       if (choices.length === 0) return null;
-      const total = choices.reduce((s, i) => s + (this.tiles[i].weight ?? 1), 0);
+      const total = choices.reduce((s, i: number) => s + (this.tiles[i].weight ?? 1), 0);
       let pick = this.rng() * total;
       let chosen = choices[0];
       for (const i of choices) {

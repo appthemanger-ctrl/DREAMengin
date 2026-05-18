@@ -31,7 +31,7 @@ const WIDGETS: DaydreamWidget[] = [
   { id: 'launch-status-window', emoji: '🚀', label: 'Sales / Launch Status Window', desc: 'Track rollout, sales, and performance',     color: '#ec4899', href: '/daydream/music/upload' },
 ];
 
-export default async function MusicArtistHubPage() {
+export default async function MusicArtistHubPage( ){
   await connection();
   const supabase = await createServerClient();
   let user = null;

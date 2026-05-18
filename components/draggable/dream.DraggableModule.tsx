@@ -50,7 +50,7 @@ interface DraggableModuleProps {
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export default function DraggableModule({
+export default function DraggableModule(){
   manifest,
   children,
   className,

@@ -8,7 +8,7 @@ interface UseHideOnScrollOptions {
   delta?: number; // Minimum scroll delta to trigger change
 }
 
-export function useHideOnScroll(options: UseHideOnScrollOptions = {}) {
+export function useHideOnScroll(options: UseHideOnScrollOptions = ){} {
   const { threshold = 80, delta = 10 } = options;
   const [isVisible, setIsVisible] = useState(true);
   

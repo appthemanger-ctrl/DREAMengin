@@ -87,7 +87,7 @@ export interface UseSharedDreamSessionResult {
    * Save this engin's state snapshot to DB (debounced 1 s).
    * Call from inside stateSnapshot() in useEnginCoopSync.
    */
-  saveEnginState: (enginKey: string, state: Record<string, unknown>) => void;
+  saveEnginState: (enginKey: string, state) => void;
   /** Members who have joined this session at least once. */
   members: readonly SharedDreamMember[];
   /** Most recent activity entries (newest first). */
@@ -124,7 +124,7 @@ export function useSharedDreamSession({
     let cancelled = false;
     const supabase = createClient();
 
-    async function bootstrap() {
+    async function bootstrap( ){
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || cancelled) { setIsLoading(false); return; }
       userIdRef.current = user.id;
@@ -249,7 +249,7 @@ export function useSharedDreamSession({
 
   // ── saveEnginState: merge into buffer then debounce flush ─────────────────
 
-  const saveEnginState = useCallback((enginKey: string, state: Record<string, unknown>) => {
+  const saveEnginState = useCallback((enginKey: string, state) => {
     bufferRef.current = { ...bufferRef.current, [enginKey]: state };
     setSavedEnginState((prev) => ({ ...prev, [enginKey]: state }));
     if (debounceRef.current) clearTimeout(debounceRef.current);

@@ -16,7 +16,7 @@ import { SUPABASE_CONFIG, getServerSiteOrigin, getSupabaseAuthCallbackUrl } from
  *
  * This endpoint does NOT return any secrets.
  */
-export async function GET(request: Request) {
+export async function GET(request: Request ){
   const origin = getServerSiteOrigin(new URL(request.url).origin);
 
   const supabaseProjectRef = SUPABASE_CONFIG.url

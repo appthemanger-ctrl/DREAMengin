@@ -146,7 +146,7 @@ export class BehaviorAnticipator {
       scores.set(link.chunkId, (scores.get(link.chunkId) ?? 0) + directional * 0.5);
     }
 
-    const totalScore = Array.from(scores.values()).reduce((s, v) => s + v, 0);
+    const totalScore = Array.from(scores.values()).reduce((s, v: number) => s + v, 0);
     const sorted = Array.from(scores.entries())
       .map(([chunkId, raw]): BehaviorPrediction => ({
         chunkId,

@@ -7,12 +7,12 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(_req: NextRequest) {
+export async function GET(_req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { data, error } = await (supabase as any)
+  const { data, error } = await (supabase as SupabaseClient)
     .from('close_friends')
     .select('friend_id, added_at, profiles!close_friends_friend_id_fkey(handle, display_name, avatar_url)')
     .eq('user_id', user.id)
@@ -22,7 +22,7 @@ export async function GET(_req: NextRequest) {
   return NextResponse.json({ close_friends: data ?? [] });
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Cannot add yourself to close friends' }, { status: 400 });
   }
 
-  const { error } = await (supabase as any)
+  const { error } = await (supabase as SupabaseClient)
     .from('close_friends')
     .upsert({ user_id: user.id, friend_id, added_at: new Date().toISOString() });
 
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ ok: true, added: true }, { status: 201 });
 }
 
-export async function DELETE(req: NextRequest) {
+export async function DELETE(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -58,7 +58,7 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'friend_id query param required' }, { status: 400 });
   }
 
-  const { error } = await (supabase as any)
+  const { error } = await (supabase as SupabaseClient)
     .from('close_friends')
     .delete()
     .eq('user_id', user.id)

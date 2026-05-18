@@ -84,7 +84,7 @@ export default async function BoardDetailPage({ params }: Props) {
               <p style={{ fontSize: 13, color: 'var(--de-text-dim)' }}>Be the first to post in this board.</p>
             </div>
           </div>
-        ) : typedPosts.map(post => {
+        ) : typedPosts.map((post) => {
           const author = post.profiles;
           const authorName = author?.display_name || author?.handle || 'Anonymous';
           return (

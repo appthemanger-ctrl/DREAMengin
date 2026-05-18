@@ -38,7 +38,7 @@ export class WidgetLinkGraph {
    */
   initialize(nodes: WidgetLinkNode[]): void {
     this.nodes.clear();
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       this.nodes.set(node.widgetId, node);
     });
   }
@@ -95,7 +95,7 @@ export class WidgetLinkGraph {
    */
   removeLink(linkId: string): boolean {
     for (const [widgetId, node] of this.nodes) {
-      const linkIndex = node.outgoingLinks.findIndex(link => link.linkId === linkId);
+      const linkIndex = node.outgoingLinks.findIndex((link) => link.linkId === linkId);
       if (linkIndex !== -1) {
         const link = node.outgoingLinks[linkIndex];
         node.outgoingLinks.splice(linkIndex, 1);

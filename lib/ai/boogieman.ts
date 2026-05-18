@@ -185,7 +185,7 @@ function buildUserExplanation(params: {
     NUDGE:        'You have received a guidance note.',
     WARN:         'You have received a formal warning.',
     THROTTLE:     'Your activity has been rate-limited temporarily.',
-    FEATURE_LOCK: `Access to ${scopes.map(s => RECOVER_STEPS[s as EnforcementScope].split('.')[0]).join(', ')} has been temporarily restricted.`,
+    FEATURE_LOCK: `Access to ${scopes.map((s) => RECOVER_STEPS[s as EnforcementScope].split('.')[0]).join(', ')} has been temporarily restricted.`,
     QUARANTINE:   'The flagged content has been hidden pending your review.',
     TEMP_SUSPEND: 'Your account has been set to read-only mode temporarily.',
     TEMP_BAN:     'Your account access has been temporarily suspended.',

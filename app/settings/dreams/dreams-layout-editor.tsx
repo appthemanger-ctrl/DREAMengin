@@ -18,7 +18,7 @@ function buildLayoutFromDreams(dreams: Array<{ id: string; surface: 'home' | 'dr
   };
 }
 
-export default function DreamsLayoutEditor() {
+export default function DreamsLayoutEditor( ){
   const { layout, updateDreamLayout, resetDreamLayout } = useDreamLayout();
   const hidden = new Set(layout.hidden ?? []);
   const ordered = [

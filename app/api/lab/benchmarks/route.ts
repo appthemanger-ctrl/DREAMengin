@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 
 
-function runServerBenchmarks() {
+function runServerBenchmarks( ){
   const start = performance.now();
   let acc = 0;
   for (let i = 0; i < 100_000; i += 1) acc += Math.sqrt(i);
   const mathMs = performance.now() - start;
 
   const jsonStart = performance.now();
-  JSON.parse(JSON.stringify({ acc, values: Array.from({ length: 200 }, (_, i) => i) }));
+  JSON.parse(JSON.stringify({ acc, values: Array.from({ length: 200 }, (_, i: number) => i) }));
   const jsonMs = performance.now() - jsonStart;
 
   return [
@@ -20,7 +20,7 @@ function runServerBenchmarks() {
   ];
 }
 
-export async function POST(_req: NextRequest) {
+export async function POST(_req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -28,7 +28,7 @@ export async function POST(_req: NextRequest) {
   }
 
   const results = runServerBenchmarks();
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
   const title = `Benchmark Run — ${new Date().toISOString()}`;
   const { data: record, error } = await db
     .from('physics_experiments')

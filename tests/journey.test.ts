@@ -37,7 +37,7 @@ function groupDotsByTime(dots: JourneyDot[]): JourneyTimeGroup[] {
     else                      groups[3].dots.push(dot);
   }
 
-  return groups.filter(g => g.dots.length > 0);
+  return groups.filter((g) => g.dots.length > 0);
 }
 
 function dotRadius(significance: number): number {
@@ -48,7 +48,7 @@ function dotRadius(significance: number): number {
 
 // ── API validation logic (mirrors app/api/journey/route.ts) ──────────────────
 
-function validateDotInput(body: Record<string, unknown>): string | null {
+function validateDotInput(body): string | null {
   if (!body.kind || typeof body.kind !== 'string') {
     return 'kind is required and must be a string';
   }
@@ -64,7 +64,7 @@ function validateDotInput(body: Record<string, unknown>): string | null {
 
 // ── Fixture factories ─────────────────────────────────────────────────────────
 
-function makeDot(overrides: Partial<JourneyDot> = {}): JourneyDot {
+function makeDot(overrides: Partial<JourneyDot> = ){}): JourneyDot {
   return {
     id:           'test-id',
     user_id:      'user-123',
@@ -120,7 +120,7 @@ describe('groupDotsByTime', () => {
     const dot = makeDot({ created_at: ageMs(1_000) });
     const groups = groupDotsByTime([dot]);
     // Only 'Today' should be returned — no empty This Week / This Month / Earlier
-    expect(groups.every(g => g.dots.length > 0)).toBe(true);
+    expect(groups.every((g) => g.dots.length > 0)).toBe(true);
   });
 
   it('distributes multiple dots into correct groups', () => {
@@ -131,7 +131,7 @@ describe('groupDotsByTime', () => {
     ];
     const groups = groupDotsByTime(dots);
     expect(groups).toHaveLength(3);
-    const labels = groups.map(g => g.label);
+    const labels = groups.map((g) => g.label);
     expect(labels).toContain('Today');
     expect(labels).toContain('This Week');
     expect(labels).toContain('Earlier');

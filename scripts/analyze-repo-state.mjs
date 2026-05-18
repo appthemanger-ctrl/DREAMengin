@@ -234,7 +234,7 @@ async function analyzeComponents() {
   const subdirs = await fs.readdir(componentDir, { withFileTypes: true });
   const categories = [];
 
-  for (const entry of subdirs.filter(e => e.isDirectory())) {
+  for (const entry of subdirs.filter((e) => e.isDirectory())) {
     const files = await walkDir(path.join(componentDir, entry.name), (name) =>
       name.endsWith('.tsx') || name.endsWith('.ts')
     );
@@ -253,9 +253,9 @@ async function analyzeDatabaseSchema() {
 
   const files = await fs.readdir(migrationsDir);
   const migrations = files
-    .filter(f => f.endsWith('.sql'))
+    .filter((f) => f.endsWith('.sql'))
     .sort()
-    .map(f => ({ file: f, path: `/supabase/migrations/${f}` }));
+    .map((f) => ({ file: f, path: `/supabase/migrations/${f}` }));
 
   const schemaFile = path.join(ROOT_DIR, 'supabase/schema-final.sql');
   const hasSchema = await fileExists(schemaFile);
@@ -281,7 +281,7 @@ async function analyzeTests() {
   const failMatch = testOutput.match(/(\d+) failed/);
 
   return {
-    testFiles: testFiles.map(f => f.replace(ROOT_DIR, '')),
+    testFiles: testFiles.map((f) => f.replace(ROOT_DIR, '')),
     testFileCount: testFiles.length,
     testsPassing: passMatch ? parseInt(passMatch[1]) : 'unknown',
     testsFailing: failMatch ? parseInt(failMatch[1]) : 0,
@@ -302,7 +302,7 @@ async function analyzeDocumentation() {
 
   if (await fileExists(docsDir)) {
     const docFiles = await walkDir(docsDir, (name) => name.endsWith('.md'));
-    docs.push(...docFiles.map(f => ({
+    docs.push(...docFiles.map((f) => ({
       name: path.basename(f),
       path: f.replace(ROOT_DIR, '')
     })));
@@ -317,8 +317,8 @@ async function analyzeGitHubActions() {
 
   const files = await fs.readdir(workflowsDir);
   const workflows = files
-    .filter(f => f.endsWith('.yml') || f.endsWith('.yaml'))
-    .map(f => ({ name: f, path: `/.github/workflows/${f}` }));
+    .filter((f) => f.endsWith('.yml') || f.endsWith('.yaml'))
+    .map((f) => ({ name: f, path: `/.github/workflows/${f}` }));
 
   return { workflows, count: workflows.length };
 }
@@ -952,8 +952,8 @@ function generateMarkdown(analysis) {
   lines.push('### High Priority');
   lines.push('');
   const highPriority = [
-    ...analysis.codeQuality.issues.map(i => `🔴 ${i}`),
-    ...analysis.dependencyHealth.issues.map(i => `🔴 ${i}`),
+    ...analysis.codeQuality.issues.map((i) => `🔴 ${i}`),
+    ...analysis.dependencyHealth.issues.map((i) => `🔴 ${i}`),
   ];
 
   if (highPriority.length > 0) {

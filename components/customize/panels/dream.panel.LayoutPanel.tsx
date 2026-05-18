@@ -36,7 +36,7 @@ const SHADOWS: { id: SkinShadow; label: string; desc: string }[] = [
 /**
  * LayoutPanel — choose the widget layout density and shadow depth.
  */
-export default function LayoutPanel() {
+export default function LayoutPanel( ){
   const { activePanel, closePanel, draftSkin, updateDraft } = useCustomizeMode();
 
   if (activePanel !== 'layout') return null;

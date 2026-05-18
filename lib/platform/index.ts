@@ -39,7 +39,7 @@ export type FeedEntry = {
  * Fetches the unified HomeDream feed from the server-side API route.
  * Returns an empty array on error.
  */
-export async function getFeed(opts?: {
+export async function getFeed(opts?: ){
   limit?: number;
   before?: string;
   provider?: string;

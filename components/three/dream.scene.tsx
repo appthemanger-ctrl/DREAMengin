@@ -11,7 +11,7 @@ import { Refractor } from '@/components/shaders/dream.Refractor';
 /* ------------------------------------------------------------------ */
 /*  Slowly rotating group used as a scene container                    */
 /* ------------------------------------------------------------------ */
-function RotatingGroup({ children }: { children: React.ReactNode }) {
+function RotatingGroup({ children }: {children: React.ReactNode}) {
   const group = useRef<THREE.Group>(null);
 
   useFrame((_state, delta) => {

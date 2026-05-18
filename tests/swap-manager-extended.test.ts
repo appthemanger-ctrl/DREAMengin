@@ -19,13 +19,13 @@ vi.stubGlobal('localStorage', {
   getItem: (key: string) => store[key] ?? null,
   setItem: (key: string, val: string) => { store[key] = val; },
   removeItem: (key: string) => { delete store[key]; },
-  clear: () => { Object.keys(store).forEach(k => delete store[k]); },
+  clear: () => { Object.keys(store).forEach((k) => delete store[k]); },
   get length() { return Object.keys(store).length; },
   key: (idx: number) => Object.keys(store)[idx] ?? null,
 });
 
 beforeEach(() => {
-  Object.keys(store).forEach(k => delete store[k]);
+  Object.keys(store).forEach((k) => delete store[k]);
 });
 
 // ── Improvement 96: clearSwap ─────────────────────────────────────────────────

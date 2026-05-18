@@ -59,13 +59,13 @@ export default function SessionViewPanel({ state, bpm, onStateChange }: SessionV
   const flashTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const { tracks, scenes, soloTrackId } = state;
-  const anyPlaying = tracks.some(tr => tr.clips.some(cl => cl.playing));
+  const anyPlaying = tracks.some((tr) => tr.clips.some((cl) => cl.playing));
 
   // Beat-flash when any clip is playing
   useEffect(() => {
     if (anyPlaying) {
       const beatMs = (60 / bpm) * 1000;
-      flashTimerRef.current = setInterval(() => setFlash(f => !f), beatMs / 2);
+      flashTimerRef.current = setInterval(() => setFlash((f) => !f), beatMs / 2);
     } else {
       if (flashTimerRef.current) clearInterval(flashTimerRef.current);
       setFlash(false);
@@ -76,24 +76,24 @@ export default function SessionViewPanel({ state, bpm, onStateChange }: SessionV
   const updateTrack = useCallback((trackId: string, patch: Partial<SessionTrack>) => {
     onStateChange({
       ...state,
-      tracks: tracks.map(tr => tr.id === trackId ? { ...tr, ...patch } : tr),
+      tracks: tracks.map((tr) => tr.id === trackId ? { ...tr, ...patch } : tr),
     });
   }, [state, tracks, onStateChange]);
 
   const updateClip = useCallback((trackId: string, clipIndex: number, patch: Partial<SessionClip>) => {
     onStateChange({
       ...state,
-      tracks: tracks.map(tr =>
+      tracks: tracks.map((tr) =>
         tr.id !== trackId ? tr : {
           ...tr,
-          clips: tr.clips.map((cl, i) => i === clipIndex ? { ...cl, ...patch } : cl),
+          clips: tr.clips.map((cl, i: number) => i === clipIndex ? { ...cl, ...patch } : cl),
         },
       ),
     });
   }, [state, tracks, onStateChange]);
 
-  function handleClipClick(trackId: string, clipIndex: number) {
-    const track = tracks.find(t => t.id === trackId);
+  function handleClipClick(trackId: string, clipIndex): number {
+    const track = tracks.find((t) => t.id === trackId);
     if (!track) return;
     const clip = track.clips[clipIndex];
     if (!clip || clip.isEmpty) return;
@@ -102,10 +102,10 @@ export default function SessionViewPanel({ state, bpm, onStateChange }: SessionV
     // Stop all clips in track first, then start this one if it was not playing
     onStateChange({
       ...state,
-      tracks: tracks.map(tr =>
+      tracks: tracks.map((tr) =>
         tr.id !== trackId ? tr : {
           ...tr,
-          clips: tr.clips.map((cl, i) => ({
+          clips: tr.clips.map((cl, i: number) => ({
             ...cl,
             playing: i === clipIndex ? !isPlaying : false,
           })),
@@ -114,13 +114,13 @@ export default function SessionViewPanel({ state, bpm, onStateChange }: SessionV
     });
   }
 
-  function handleSceneLaunch(sceneIndex: number) {
+  function handleSceneLaunch(sceneIndex: number ){
     // Launch all non-empty clips in this scene row, stop others in each track
     onStateChange({
       ...state,
-      tracks: tracks.map(tr => ({
+      tracks: tracks.map((tr) => ({
         ...tr,
-        clips: tr.clips.map((cl, i) => ({
+        clips: tr.clips.map((cl, i: number) => ({
           ...cl,
           playing: i === sceneIndex && !cl.isEmpty,
         })),
@@ -128,34 +128,34 @@ export default function SessionViewPanel({ state, bpm, onStateChange }: SessionV
     });
   }
 
-  function handleStopAll() {
+  function handleStopAll( ){
     onStateChange({
       ...state,
-      tracks: tracks.map(tr => ({
+      tracks: tracks.map((tr) => ({
         ...tr,
-        clips: tr.clips.map(cl => ({ ...cl, playing: false })),
+        clips: tr.clips.map((cl) => ({ ...cl, playing: false })),
       })),
     });
   }
 
-  function handleMuteToggle(trackId: string) {
-    const track = tracks.find(t => t.id === trackId);
+  function handleMuteToggle(trackId: string ){
+    const track = tracks.find((t) => t.id === trackId);
     if (!track) return;
     updateTrack(trackId, { muted: !track.muted });
   }
 
-  function handleSoloToggle(trackId: string) {
+  function handleSoloToggle(trackId: string ){
     const newSolo = soloTrackId === trackId ? null : trackId;
     onStateChange({ ...state, soloTrackId: newSolo });
   }
 
-  function handleArmToggle(trackId: string) {
-    const track = tracks.find(t => t.id === trackId);
+  function handleArmToggle(trackId: string ){
+    const track = tracks.find((t) => t.id === trackId);
     if (!track) return;
     updateTrack(trackId, { armed: !track.armed });
   }
 
-  function handleVolumeChange(trackId: string, volume: number) {
+  function handleVolumeChange(trackId: string, volume): number {
     updateTrack(trackId, { volume });
   }
 
@@ -186,7 +186,7 @@ export default function SessionViewPanel({ state, bpm, onStateChange }: SessionV
         )}
         <button
           type="button"
-          onClick={() => setIsOpen(o => !o)}
+          onClick={() => setIsOpen((o) => !o)}
           style={{
             marginLeft: 'auto',
             padding: '3px 10px', borderRadius: 6, cursor: 'pointer',
@@ -205,7 +205,7 @@ export default function SessionViewPanel({ state, bpm, onStateChange }: SessionV
 
             {/* ── Track headers ── */}
             <div style={{ display: 'flex', marginLeft: 80 }}>
-              {tracks.map(track => {
+              {tracks.map((track) => {
                 const isEffective = isSoloActive ? soloTrackId === track.id : !track.muted;
                 return (
                   <div
@@ -431,17 +431,17 @@ export default function SessionViewPanel({ state, bpm, onStateChange }: SessionV
               </div>
 
               {/* Per-track stop */}
-              {tracks.map(track => (
+              {tracks.map((track) => (
                 <div key={track.id} style={{ width: CELL_W, flexShrink: 0, padding: '0 5px' }}>
                   <button
                     type="button"
                     onClick={() => {
                       onStateChange({
                         ...state,
-                        tracks: tracks.map(tr =>
+                        tracks: tracks.map((tr) =>
                           tr.id !== track.id ? tr : {
                             ...tr,
-                            clips: tr.clips.map(cl => ({ ...cl, playing: false })),
+                            clips: tr.clips.map((cl) => ({ ...cl, playing: false })),
                           },
                         ),
                       });

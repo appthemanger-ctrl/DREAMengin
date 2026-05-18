@@ -31,7 +31,7 @@ export const MADMAXI_POWERUP_KINDS = [
 export const MADMAXI_SUPER_STREAK = 9;
 export const MADMAXI_SUPER_SECONDS = 30;
 
-export function seededRng(seed: number) {
+export function seededRng(seed: number ){
   let s = (seed | 0) >>> 0;
   return () => {
     s = Math.imul(s, 1664525) + 1013904223 >>> 0;

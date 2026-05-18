@@ -111,7 +111,7 @@ export class ECSWorld {
   query(...types: string[]): EntityId[] {
     const result: EntityId[] = [];
     for (const id of this._entities) {
-      if (types.every(t => this.hasComponent(id, t))) result.push(id);
+      if (types.every((t) => this.hasComponent(id, t))) result.push(id);
     }
     return result;
   }
@@ -353,12 +353,12 @@ export class EliteGameEngine {
 
   onFrame(cb: FrameCallback): () => void {
     this.frameCallbacks.push(cb);
-    return () => { this.frameCallbacks = this.frameCallbacks.filter(f => f !== cb); };
+    return () => { this.frameCallbacks = this.frameCallbacks.filter((f) => f !== cb); };
   }
 
   onQualityChange(cb: QualityChangeCallback): () => void {
     this.qualityCallbacks.push(cb);
-    return () => { this.qualityCallbacks = this.qualityCallbacks.filter(f => f !== cb); };
+    return () => { this.qualityCallbacks = this.qualityCallbacks.filter((f) => f !== cb); };
   }
 
   /** Force quality tier immediately (useful for testing or user setting). */

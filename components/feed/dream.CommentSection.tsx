@@ -27,7 +27,7 @@ interface Props {
   postId: string;
 }
 
-function Avatar({ profile, size = 32 }: { profile: CommentProfile | null; size?: number }) {
+function Avatar({ profile, size = 32 }: {profile: CommentProfile | null; size?: number}) {
   const initials = (profile?.display_name || profile?.handle || '?')[0].toUpperCase();
 
   if (profile?.avatar_url) {
@@ -91,7 +91,7 @@ export default function CommentSection({ postId }: Props) {
           setComments(data ?? []);
         }
       })
-      .catch((e) => {
+      .catch((e: unknown ) => {
         if (e.name !== 'AbortError') setError('Failed to load comments');
       })
       .finally(() => setLoading(false));
@@ -117,7 +117,7 @@ export default function CommentSection({ postId }: Props) {
     } catch {
       // Reload to restore state
       fetch(`/api/comments?post_id=${encodeURIComponent(postId)}`)
-        .then(r => r.json())
+        .then((r) => r.json())
         .then(({ data }) => { if (data) setComments(data); })
         .catch(() => {});
     }
@@ -141,7 +141,7 @@ export default function CommentSection({ postId }: Props) {
       profile: null,
       optimistic: true,
     };
-    setComments(prev => [...prev, optimistic]);
+    setComments((prev) => [...prev, optimistic]);
     setDraft('');
 
     try {
@@ -161,14 +161,14 @@ export default function CommentSection({ postId }: Props) {
       const saved = body.data;
 
       // Replace optimistic entry with the real one from the server
-      setComments(prev =>
-        prev.map(c => (c.id === optimisticId && saved ? { ...saved, optimistic: false } : c)),
+      setComments((prev) =>
+        prev.map((c) => (c.id === optimisticId && saved ? { ...saved, optimistic: false } : c)),
       );
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Something went wrong';
       setSubmitError(msg);
       // Remove the failed optimistic entry
-      setComments(prev => prev.filter(c => c.id !== optimisticId));
+      setComments((prev) => prev.filter((c) => c.id !== optimisticId));
       // Restore the draft so the user can retry
       setDraft(text);
     } finally {

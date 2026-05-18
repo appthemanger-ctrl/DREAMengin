@@ -7,7 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest ){
   const supabase = await createServerClient();
 
   // Auth required
@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 
   try {
     // Get credits
-    const { data: credits } = await (supabase as any)
+    const { data: credits } = await (supabase as SupabaseClient)
       .from('skip_credits')
       .select('*')
       .eq('user_id', user.id)

@@ -96,7 +96,7 @@ export function parseEmbedConfig(raw: unknown): EmbedWidgetConfig {
   return {
     provider,
     src,
-    aspectRatio: aspectRatio === '4:3' || aspectRatio === '1:1' ? (aspectRatio as any) : '16:9',
+    aspectRatio: aspectRatio === '4:3' || aspectRatio === '1:1' ? (aspectRatio as "4:3" | "1:1") : '16:9',
     sandbox: asBool(raw.sandbox),
   };
 }
@@ -148,7 +148,7 @@ export function parseSocialFeedConfig(raw: unknown): SocialFeedWidgetConfig {
     throw new Error('social_feed config requires sources[]');
   }
   const horizonRaw = asString(raw.horizon);
-  const horizon: '24h'|'7d'|'30d' = horizonRaw === '7d' || horizonRaw === '30d' ? (horizonRaw as any) : '24h';
+  const horizon: '24h'|'7d'|'30d' = horizonRaw === '7d' || horizonRaw === '30d' ? (horizonRaw as '7d' | '30d') : '24h';
   const maxItems = asNumber(raw.maxItems) ?? 25;
   const rankingRaw = asString(raw.ranking);
   const ranking: 'chronological'|'source_order' = rankingRaw === 'source_order' ? 'source_order' : 'chronological';
@@ -170,10 +170,10 @@ export function parseSocialFeedConfig(raw: unknown): SocialFeedWidgetConfig {
   let filter: SocialFeedWidgetConfig['filter'] | undefined;
   if (isRecord(filterRaw)) {
     const includeKinds = Array.isArray(filterRaw.includeKinds)
-      ? (filterRaw.includeKinds.filter((k) => typeof k === 'string') as any)
+      ? (filterRaw.includeKinds.filter((k): k is string => typeof k === 'string'))
       : undefined;
     const excludeKeywords = Array.isArray(filterRaw.excludeKeywords)
-      ? filterRaw.excludeKeywords.filter((k) => typeof k === 'string')
+      ? filterRaw.excludeKeywords.filter((k: number ) => typeof k === 'string')
       : undefined;
     filter = { includeKinds, excludeKeywords };
   }
@@ -181,7 +181,7 @@ export function parseSocialFeedConfig(raw: unknown): SocialFeedWidgetConfig {
   return { sources, horizon, maxItems, ranking, filter };
 }
 
-export function parseTypedWidget(input: { id: string; type: string; config: unknown }): TypedWidget {
+export function parseTypedWidget(input: ){ id: string; type: string; config: unknown }: TypedWidget {
   const type = input.type as DreamenginWidgetType;
   switch (type) {
     case 'youtube':

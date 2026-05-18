@@ -77,7 +77,7 @@ export default function ProfileSpace({
       setCurrentIndex(0);
       return;
     }
-    setCurrentIndex((i) => Math.max(0, Math.min(i, sortedWidgets.length - 1)));
+    setCurrentIndex((i: number ) => Math.max(0, Math.min(i, sortedWidgets.length - 1)));
   }, [sortedWidgets.length]);
 
   const navigateLeft = useCallback(() => {
@@ -152,7 +152,7 @@ export default function ProfileSpace({
             {isOwner && (
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setIsEditing((v) => !v)}
+                  onClick={() => setIsEditing((v: number ) => !v)}
                   className={cn(
                     "flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors",
                     isEditing ? "bg-primary text-primary-foreground" : "hover:bg-muted"
@@ -206,7 +206,7 @@ export default function ProfileSpace({
                   onUpdate={(updates) => updateWidget(currentWidget.id, updates)}
                   onDelete={async () => {
                     await deleteWidget(currentWidget.id);
-                    setCurrentIndex((i) => Math.max(0, i - 1));
+                    setCurrentIndex((i: number ) => Math.max(0, i - 1));
                   }}
                 />
               )}
@@ -233,7 +233,7 @@ export default function ProfileSpace({
 
             {sortedWidgets.length > 1 && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
-                {sortedWidgets.map((_, index) => (
+                {sortedWidgets.map((_, index: number) => (
                   <button
                     key={index}
                     onClick={() => setCurrentIndex(index)}
@@ -261,7 +261,7 @@ export default function ProfileSpace({
       {sortedWidgets.length > 1 && (
         <div className="backdrop-blur-xl" style={{ borderTop: '1px solid rgba(160,195,240,0.3)', background: 'rgba(220,232,248,0.88)' }}>
           <div className="px-4 py-3 flex items-center gap-3 overflow-x-auto scrollbar-hide">
-            {sortedWidgets.map((widget, index) => (
+            {sortedWidgets.map((widget, index: number) => (
               <button
                 key={widget.id}
                 onClick={() => setCurrentIndex(index)}
@@ -303,7 +303,7 @@ export default function ProfileSpace({
   );
 }
 
-function EmptyProfileState({ isOwner, onAddWidget }: { isOwner: boolean; onAddWidget: () => void }) {
+function EmptyProfileState({ isOwner, onAddWidget }: {isOwner: boolean; onAddWidget: () => void}) {
   return (
     <div className="flex flex-col items-center justify-center h-full p-4 text-center">
       <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
@@ -408,9 +408,9 @@ function WidgetRenderer({
   );
 }
 
-function GalleryWidget({ content, config }: { content: ContentObject[]; config: Widget["config"] }) {
-  const layout = asString((config as any).layout, "grid");
-  const columns = Math.min(Math.max(asNumber((config as any).columns, 3), 1), 4);
+function GalleryWidget({ content, config }: {content: ContentObject[]; config: Widget["config"]}) {
+  const layout = asString((config as Record<string, unknown>).layout, "grid");
+  const columns = Math.min(Math.max(asNumber((config as Record<string, unknown>).columns, 3), 1), 4);
 
   if (content.length === 0) return <div className="p-8 text-center text-muted-foreground">No content in this gallery</div>;
 
@@ -440,7 +440,7 @@ function GalleryWidget({ content, config }: { content: ContentObject[]; config: 
   );
 }
 
-function BlankWidget() {
+function BlankWidget( ){
   return (
     <div className="p-8 text-center text-muted-foreground">
       <div className="w-16 h-16 rounded-full bg-muted/60 mx-auto mb-3 flex items-center justify-center">
@@ -452,7 +452,7 @@ function BlankWidget() {
   );
 }
 
-function MediaWidget({ content }: { content?: ContentObject }) {
+function MediaWidget({ content }: {content?: ContentObject}) {
   if (!content) return <div className="p-8 text-center text-muted-foreground">No media selected</div>;
 
   return (
@@ -474,9 +474,9 @@ function MediaWidget({ content }: { content?: ContentObject }) {
   );
 }
 
-function TextWidget({ config }: { config: Widget["config"] }) {
-  const title = asString((config as any).title, "");
-  const text = asString((config as any).text, "");
+function TextWidget({ config }: {config: Widget["config"]}) {
+  const title = asString((config as Record<string, unknown>).title, "");
+  const text = asString((config as Record<string, unknown>).text, "");
   return (
     <div className="p-6">
       {title ? <h4 className="text-lg font-semibold mb-2">{title}</h4> : null}
@@ -485,9 +485,9 @@ function TextWidget({ config }: { config: Widget["config"] }) {
   );
 }
 
-function ProfileInfoWidget({ config }: { config: Widget["config"] }) {
-  const bioText = asString((config as any).bio, "");
-  const location = asString((config as any).location, "");
+function ProfileInfoWidget({ config }: {config: Widget["config"]}) {
+  const bioText = asString((config as Record<string, unknown>).bio, "");
+  const location = asString((config as Record<string, unknown>).location, "");
   return (
     <div className="p-6">
       <p className="text-foreground/80">{bioText || "No bio provided"}</p>
@@ -496,14 +496,14 @@ function ProfileInfoWidget({ config }: { config: Widget["config"] }) {
   );
 }
 
-function LinkTreeWidget({ config }: { config: Widget["config"] }) {
-  const links = asLinks((config as any).links);
+function LinkTreeWidget({ config }: {config: Widget["config"]}) {
+  const links = asLinks((config as Record<string, unknown>).links);
   return (
     <div className="p-4 space-y-2">
       {links.length === 0 ? (
         <p className="text-center text-muted-foreground py-4">No links added</p>
       ) : (
-        links.map((link, index) => (
+        links.map((link, index: number) => (
           <a
             key={index}
             href={link.url}
@@ -520,8 +520,8 @@ function LinkTreeWidget({ config }: { config: Widget["config"] }) {
   );
 }
 
-function EmbedWidget({ config }: { config: Widget["config"] }) {
-  const embedUrl = asString((config as any).embedUrl, "");
+function EmbedWidget({ config }: {config: Widget["config"]}) {
+  const embedUrl = asString((config as Record<string, unknown>).embedUrl, "");
   if (!embedUrl) return <div className="p-8 text-center text-muted-foreground">No embed URL provided</div>;
   return (
     <div className="aspect-video">
@@ -535,7 +535,7 @@ function EmbedWidget({ config }: { config: Widget["config"] }) {
   );
 }
 
-function FeedWidget({ config }: { config: Widget["config"] }) {
+function FeedWidget({ config }: {config: Widget["config"]}) {
   return (
     <div className="p-4">
       <div className="flex items-center gap-2 mb-4">
@@ -554,12 +554,12 @@ function FeedWidget({ config }: { config: Widget["config"] }) {
   );
 }
 
-function AlbumWidget({ content }: { content: ContentObject[] }) {
+function AlbumWidget({ content }: {content: ContentObject[]}) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     if (content.length === 0) setCurrentIndex(0);
-    else setCurrentIndex((i) => Math.max(0, Math.min(i, content.length - 1)));
+    else setCurrentIndex((i: number ) => Math.max(0, Math.min(i, content.length - 1)));
   }, [content.length]);
 
   if (content.length === 0) return <div className="p-8 text-center text-muted-foreground">No content in this album</div>;
@@ -603,7 +603,7 @@ function AlbumWidget({ content }: { content: ContentObject[] }) {
 
       {content.length > 1 && (
         <div className="p-2 flex gap-1 overflow-x-auto">
-          {content.map((item, index) => (
+          {content.map((item, index: number) => (
             <button
               key={item.id}
               onClick={() => setCurrentIndex(index)}
@@ -632,7 +632,7 @@ function AlbumWidget({ content }: { content: ContentObject[] }) {
   );
 }
 
-function WidgetTypeIcon({ type, className }: { type: WidgetType; className?: string }) {
+function WidgetTypeIcon({ type, className }: {type: WidgetType; className?: string}) {
   switch (type) {
     case "blank":
       return <Square className={className} />;

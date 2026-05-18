@@ -10,7 +10,7 @@ import { useAgentSession } from './useAgentSession';
  * full chat interface once a session is running.  All communication happens
  * via /api/agent/session so no agent-os imports are needed on the client.
  */
-export function AgentPanel() {
+export function AgentPanel( ){
   const {
     messages,
     isLoading,
@@ -54,7 +54,7 @@ export function AgentPanel() {
       </div>
 
       <div className="de-widget-body h-64 overflow-y-auto">
-        {messages.map((msg, i) => (
+        {messages.map((msg, i: number) => (
           <div
             key={i}
             className={`mb-2 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}

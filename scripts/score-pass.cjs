@@ -31,7 +31,7 @@ let changed = safeExec(`git diff --name-only ${base}...HEAD`);
 if (!changed) changed = safeExec(`git diff --name-only HEAD~1 HEAD`);
 const changedFiles = changed
   .split("\n")
-  .map(s => s.trim())
+  .map((s) => s.trim())
   .filter(Boolean);
 
 const T = Math.max(1, Math.ceil(changedFiles.length / 5)); // crude task proxy
@@ -48,13 +48,13 @@ const depFiles = [
   "next.config.ts",
   "vercel.json"
 ];
-const D = changedFiles.some(f => depFiles.some(d => f.endsWith(d))) ? 1 : 0;
+const D = changedFiles.some((f) => depFiles.some((d) => f.endsWith(d))) ? 1 : 0;
 
 let A = 0;
-if (changedFiles.some(f => f.includes("/app/") || f.startsWith("app/") || f.includes("/pages/") || f.startsWith("pages/"))) A += 1;
-if (changedFiles.some(f => f.includes("/components/") || f.startsWith("components/"))) A += 1;
-if (changedFiles.some(f => f.includes("/lib/") || f.startsWith("lib/") || f.includes("/src/"))) A += 1;
-if (changedFiles.some(f => f.includes("supabase") || f.includes("schema") || f.includes("migrations"))) A += 1;
+if (changedFiles.some((f) => f.includes("/app/") || f.startsWith("app/") || f.includes("/pages/") || f.startsWith("pages/"))) A += 1;
+if (changedFiles.some((f) => f.includes("/components/") || f.startsWith("components/"))) A += 1;
+if (changedFiles.some((f) => f.includes("/lib/") || f.startsWith("lib/") || f.includes("/src/"))) A += 1;
+if (changedFiles.some((f) => f.includes("supabase") || f.includes("schema") || f.includes("migrations"))) A += 1;
 
 const U = 0; // set >0 later if you add ambiguity parser
 
@@ -69,7 +69,7 @@ let allowed = "true";
 
 // hard guardrails from your Generation Law
 if (mode === "patch") {
-  const badPatch = changedFiles.some(f =>
+  const badPatch = changedFiles.some((f) =>
     f.includes("package.json") ||
     f.includes("schema") ||
     f.includes("migrations") ||

@@ -51,7 +51,7 @@ function ensureSnapshot(): ViewportSnapshot {
   return cachedSnapshot;
 }
 
-function notify() {
+function notify( ){
   const next = readSnapshot();
   const prev = cachedSnapshot;
   if (prev && prev.width === next.width && prev.height === next.height) return;

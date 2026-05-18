@@ -169,7 +169,7 @@ export class SessionPatternEngine {
     }
 
     const entries = Array.from(fromMap.entries());
-    const total = entries.reduce((sum, [, count]) => sum + count, 0);
+    const total = entries.reduce((sum: number, [, count]) => sum + count, 0);
 
     let learnedNorm: { subsystemId: string; confidence: number }[];
     if (this.tfReady) {
@@ -324,7 +324,7 @@ export class SessionPatternEngine {
       tensor.dispose();
       softmax.dispose();
 
-      return entries.map(([subsystemId], i) => ({
+      return entries.map(([subsystemId], i: number) => ({
         subsystemId,
         confidence: probsArray[i] ?? 0,
       }));

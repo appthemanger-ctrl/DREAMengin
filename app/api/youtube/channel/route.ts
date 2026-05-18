@@ -59,8 +59,8 @@ export async function GET(req: NextRequest): Promise<NextResponse<YouTubeChannel
     ]);
 
     // Deduplicate similarVideos against channelVideos
-    const channelIds = new Set(channelVideos.map(v => v.external_id));
-    const uniqueSimilar = similarVideos.filter(v => !channelIds.has(v.external_id));
+    const channelIds = new Set(channelVideos.map((v) => v.external_id));
+    const uniqueSimilar = similarVideos.filter((v) => !channelIds.has(v.external_id));
 
     return NextResponse.json(
       { ok: true, channelVideos, similarVideos: uniqueSimilar, channel, topic },

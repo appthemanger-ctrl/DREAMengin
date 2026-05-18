@@ -30,7 +30,7 @@ export default function PlayMediaWidget({ tracks = [], title = 'Play Media' }: P
   };
 
   const togglePlay = () => {
-    setPlaying((v) => !v);
+    setPlaying((v: number ) => !v);
   };
 
   const prev = () => {
@@ -51,7 +51,7 @@ export default function PlayMediaWidget({ tracks = [], title = 'Play Media' }: P
           type="button"
           className="de-btn de-btn-ghost"
           style={{ fontSize: 11 }}
-          onClick={() => setShowQueue((v) => !v)}
+          onClick={() => setShowQueue((v: number ) => !v)}
         >
           {showQueue ? 'Hide Queue' : 'Show Queue'}
         </button>
@@ -111,7 +111,7 @@ export default function PlayMediaWidget({ tracks = [], title = 'Play Media' }: P
               No tracks in queue. Connect a music service to add tracks.
             </div>
           ) : (
-            tracks.map((track, i) => (
+            tracks.map((track, i: number) => (
               <button
                 key={track.id}
                 type="button"

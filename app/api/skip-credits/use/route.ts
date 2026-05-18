@@ -11,7 +11,7 @@ import type {
   UseSkipCreditsResponse,
 } from '@/lib/activity/types';
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
 
   // Auth required
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     const { ad_id } = body;
 
     // Get current credits
-    const { data: credits } = await (supabase as any)
+    const { data: credits } = await (supabase as SupabaseClient)
       .from('skip_credits')
       .select('*')
       .eq('user_id', user.id)
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Spend 1 credit
-    const { data: updatedCredits, error: updateError } = await (supabase as any)
+    const { data: updatedCredits, error: updateError } = await (supabase as SupabaseClient)
       .from('skip_credits')
       .update({
         credits_balance: credits.credits_balance - 1,

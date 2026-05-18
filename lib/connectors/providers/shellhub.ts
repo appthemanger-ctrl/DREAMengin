@@ -134,7 +134,7 @@ export async function shellhubListDevices(
  * Returns the credential field definitions for the ShellHub connector.
  * Used by the UI to render the connection form.
  */
-export function shellhubCredentialFields() {
+export function shellhubCredentialFields( ){
   return [
     {
       key: 'server_url',

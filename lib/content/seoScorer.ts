@@ -97,7 +97,7 @@ function scoreTitle(title: string, keywords: string[]): SeoScoreDimension {
     suggestions.push('Address the reader directly ("you / your") for higher relevance.');
   }
 
-  const kwHit = keywords.some(k => title.toLowerCase().includes(k.toLowerCase()));
+  const kwHit = keywords.some((k) => title.toLowerCase().includes(k.toLowerCase()));
   if (kwHit) {
     score += 15;
   } else if (keywords.length > 0) {
@@ -148,7 +148,7 @@ function scoreBody(body: string, keywords: string[]): SeoScoreDimension {
 
   const kwDensity =
     keywords.length > 0
-      ? keywords.reduce((acc, k) => {
+      ? keywords.reduce((acc, k: number) => {
           const re = new RegExp(`\\b${k}\\b`, 'gi');
           return acc + (body.match(re)?.length ?? 0);
         }, 0) / Math.max(words.length, 1)
@@ -216,7 +216,7 @@ function scoreAccessibility(body: string): SeoScoreDimension & { level: 'High' |
   let score = 0;
   const suggestions: string[] = [];
 
-  const sentences = body.split(/[.!?]+/).filter(s => s.trim().length > 0);
+  const sentences = body.split(/[.!?]+/).filter((s) => s.trim().length > 0);
   const avgWordsPerSentence = sentences.length > 0
     ? body.trim().split(/\s+/).length / sentences.length
     : 0;
@@ -267,13 +267,13 @@ function scoreAccessibility(body: string): SeoScoreDimension & { level: 'High' |
 // ─────────────────────────────────────────────────────────────────────────────
 
 function roughFleschGrade(text: string): string {
-  const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length || 1;
+  const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0).length || 1;
   const words = text.trim().split(/\s+/).filter(Boolean).length || 1;
   const syllables = text
     .toLowerCase()
     .replace(/[^a-z]/g, ' ')
     .split(/\s+/)
-    .reduce((acc, w) => acc + countSyllables(w), 0) || 1;
+    .reduce((acc, w: number) => acc + countSyllables(w), 0) || 1;
 
   const score = 206.835 - 1.015 * (words / sentences) - 84.6 * (syllables / words);
 
@@ -334,8 +334,8 @@ export function scoreContent(input: SeoScoreInput): SeoScoreResult {
   const overall = rawMax > 0 ? Math.round((rawTotal / rawMax) * 100) : 50;
 
   const topSuggestions = dimensions
-    .map(d => d.suggestion)
-    .filter(s =>
+    .map((d) => d.suggestion)
+    .filter((s) =>
       !s.toLowerCase().includes('looks solid') &&
       !s.toLowerCase().includes('well-optimised') &&
       !s.toLowerCase().includes('looks strong') &&

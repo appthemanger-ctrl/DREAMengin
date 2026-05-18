@@ -21,7 +21,7 @@ import { inferRootCause } from '@/lib/observability/rootCauseAnalyzer';
 import { buildImmediateRemediationAction } from '@/lib/observability/immediateAction';
 
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest ){
   // Service availability guard — matches /api/ai/idari
   if (!process.env.IDARI_PASSWORD) {
     return jsonApiError(
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
 
   // Admin/owner gate
    
-  const { data: roleData } = await (supabase as any)
+  const { data: roleData } = await (supabase as SupabaseClient)
     .from('user_roles')
     .select('role')
     .eq('user_id', user.id)

@@ -21,7 +21,7 @@ export function ActivityProfile({ userId, showFullStats = true }: ActivityProfil
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadMetrics() {
+    async function loadMetrics( ){
       setLoading(true);
       try {
         const res = await fetch(`/api/metrics/user/${encodeURIComponent(userId)}`);

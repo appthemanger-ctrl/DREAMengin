@@ -42,7 +42,7 @@ const FONT_CSS: Record<SkinFont, string> = {
 /**
  * FontPanel — choose the UI typeface for the current page skin.
  */
-export default function FontPanel() {
+export default function FontPanel( ){
   const { activePanel, closePanel, draftSkin, updateDraft } = useCustomizeMode();
 
   if (activePanel !== 'font') return null;

@@ -68,7 +68,7 @@ function makeGlyphGrid(size: number): string[][] {
   return grid;
 }
 
-export default function AvenueOfMirrors() {
+export default function AvenueOfMirrors( ){
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const mazeRef = useRef<number[][]>(newMaze());
@@ -273,7 +273,7 @@ export default function AvenueOfMirrors() {
           <Overlay>
             <div style={{ color: COL.accent, fontSize: 13, letterSpacing: 4 }}>MIRROR · MEMORIZE</div>
             <div style={{ display: 'grid', gridTemplateColumns: `repeat(${memoryRef.current.gridSize}, 36px)`, gap: 6 }}>
-              {memoryRef.current.grid.flatMap((row, r) => row.map((g, c) => (
+              {memoryRef.current.grid.flatMap((row, r: number) => row.map((g, c) => (
                 <div key={`${r}-${c}`} style={{ width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', background: COL.panel, border: `1px solid ${COL.accent}`, color: COL.glyph, fontSize: 22 }}>{g}</div>
               )))}
             </div>
@@ -284,7 +284,7 @@ export default function AvenueOfMirrors() {
           <Overlay>
             <div style={{ color: COL.accent, fontSize: 13, letterSpacing: 4 }}>RECALL</div>
             <div style={{ display: 'grid', gridTemplateColumns: `repeat(${memoryRef.current.gridSize}, 40px)`, gap: 6 }}>
-              {recallGuess.flatMap((row, r) => row.map((g, c) => (
+              {recallGuess.flatMap((row, r: number) => row.map((g, c) => (
                 <select
                   key={`${r}-${c}`}
                   value={g}

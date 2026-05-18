@@ -185,7 +185,7 @@ export default function MenuPanel({ open, items, onClose, title, accent = 'blue'
 
          {/* Item list */}
          <div style={{ padding: sideMode ? (side === 'left' ? SIDE_MENU_ITEMS_PADDING_LEFT : SIDE_MENU_ITEMS_PADDING_RIGHT) : '6px 0 8px' }}>
-           {items.map((item, idx) => (
+           {items.map((item, idx: number) => (
               <button
                 key={item.id}
                 type="button"

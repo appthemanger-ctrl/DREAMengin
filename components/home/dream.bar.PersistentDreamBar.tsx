@@ -44,7 +44,7 @@ import { isPublicSurfacePath } from '@/lib/routing/surfaces';
 const DEFAULT_WORKFLOW_SPLIT = 0.5;
 const Z_INDEX_SKIP_CREDIT_BALANCE = 120;
 
-export default function PersistentDreamBar() {
+export default function PersistentDreamBar( ){
   const pathname    = usePathname();
   const dualRuntime = useDualRuntime();
   const {
@@ -162,7 +162,7 @@ export default function PersistentDreamBar() {
       .then((response) => {
         if (!response.ok) throw new Error('Runtime swap failed');
       })
-      .catch((error) => {
+      .catch((error: unknown ) => {
         updateDreamLayout(previousLayout, 0);
         os.bus.emit('dream:transfer:rollback', previousLayout);
         console.error('[Dream runtime swap]', error);

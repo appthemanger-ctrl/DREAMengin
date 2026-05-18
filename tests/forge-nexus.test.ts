@@ -13,7 +13,7 @@ const localStorageMock = {
   getItem: (key: string) => localStorageStore[key] ?? null,
   setItem: (key: string, value: string) => { localStorageStore[key] = value; },
   removeItem: (key: string) => { delete localStorageStore[key]; },
-  clear: () => { Object.keys(localStorageStore).forEach(k => delete localStorageStore[k]); },
+  clear: () => { Object.keys(localStorageStore).forEach((k) => delete localStorageStore[k]); },
 };
 vi.stubGlobal('localStorage', localStorageMock);
 vi.stubGlobal('window', { localStorage: localStorageMock });
@@ -39,7 +39,7 @@ function makeEntry(enginId: string, label: string, hoursAgo: number) {
   };
 }
 
-function seedHistory(entries: Array<{ enginId: string; label: string; timestamp: string }>) {
+function seedHistory(entries: Array<){ enginId: string; label: string; timestamp: string }>) {
   localStorage.setItem(FORGE_HISTORY_KEY, JSON.stringify(entries));
 }
 
@@ -104,7 +104,7 @@ describe('Forge Nexus', () => {
       expect(edges[0].strength).toBe(1.0);
 
       // Weakest edge
-      const weakest = edges.find(e => e.from === 'games' && e.to === 'code');
+      const weakest = edges.find((e) => e.from === 'games' && e.to === 'code');
       expect(weakest!.strength).toBe(0.25);
     });
 
@@ -143,15 +143,15 @@ describe('Forge Nexus', () => {
       ]));
       const nodes = computeNodes(edges);
 
-      const games = nodes.find(n => n.id === 'games')!;
+      const games = nodes.find((n) => n.id === 'games')!;
       expect(games.outbound).toBe(3);
       expect(games.inbound).toBe(0);
 
-      const music = nodes.find(n => n.id === 'music')!;
+      const music = nodes.find((n) => n.id === 'music')!;
       expect(music.outbound).toBe(2);
       expect(music.inbound).toBe(3);
 
-      const code = nodes.find(n => n.id === 'code')!;
+      const code = nodes.find((n) => n.id === 'code')!;
       expect(code.inbound).toBe(2);
       expect(code.outbound).toBe(0);
     });
@@ -169,8 +169,8 @@ describe('Forge Nexus', () => {
       }
 
       // games and music should both have centrality 1.0
-      const games = nodes.find(n => n.id === 'games')!;
-      const music = nodes.find(n => n.id === 'music')!;
+      const games = nodes.find((n) => n.id === 'games')!;
+      const music = nodes.find((n) => n.id === 'music')!;
       expect(games.centrality).toBe(1);
       expect(music.centrality).toBe(1);
     });
@@ -179,7 +179,7 @@ describe('Forge Nexus', () => {
       const edges = computeEdges(new Map([['games→music', 1]]));
       const nodes = computeNodes(edges);
 
-      const lab = nodes.find(n => n.id === 'lab')!;
+      const lab = nodes.find((n) => n.id === 'lab')!;
       expect(lab.isolated).toBe(true);
     });
   });
@@ -212,7 +212,7 @@ describe('Forge Nexus', () => {
       const clusters = detectClusters(edges);
       // games-music and music-code should merge into one cluster
       expect(clusters.length).toBeLessThanOrEqual(2);
-      const allEngines = clusters.flatMap(c => c.engines);
+      const allEngines = clusters.flatMap((c) => c.engines);
       expect(allEngines).toContain('games');
       expect(allEngines).toContain('music');
       expect(allEngines).toContain('code');
@@ -271,7 +271,7 @@ describe('Forge Nexus', () => {
       const snap = computeNexus(history);
       expect(snap.edges.length).toBeGreaterThan(0);
       expect(snap.totalTransitions).toBeGreaterThan(0);
-      expect(snap.nodes.some(n => !n.isolated)).toBe(true);
+      expect(snap.nodes.some((n) => !n.isolated)).toBe(true);
     });
 
     it('reads from localStorage when no override provided', () => {

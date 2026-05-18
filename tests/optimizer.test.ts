@@ -427,7 +427,7 @@ describe('Creative Validator', () => {
 
     expect(result.valid).toBe(false);
     expect(result.failures).toBeDefined();
-    expect(result.failures?.some(f => f.type === 'breaks_privacy')).toBe(true);
+    expect(result.failures?.some((f) => f.type === 'breaks_privacy')).toBe(true);
   });
 
   it('should reject options with invalid TypeScript', () => {
@@ -439,7 +439,7 @@ describe('Creative Validator', () => {
     const result = validateCreativeOption(option);
 
     expect(result.valid).toBe(false);
-    expect(result.failures?.some(f => f.type === 'invalid_typescript')).toBe(true);
+    expect(result.failures?.some((f) => f.type === 'invalid_typescript')).toBe(true);
   });
 
   it('should reject options with infinite loops', () => {
@@ -451,7 +451,7 @@ describe('Creative Validator', () => {
     const result = validateCreativeOption(option);
 
     expect(result.valid).toBe(false);
-    expect(result.failures?.some(f => f.type === 'infinite_loop')).toBe(true);
+    expect(result.failures?.some((f) => f.type === 'infinite_loop')).toBe(true);
   });
 
   it('should reject fake actions', () => {
@@ -466,7 +466,7 @@ describe('Creative Validator', () => {
     const result = validateCreativeOption(option);
 
     expect(result.valid).toBe(false);
-    expect(result.failures?.some(f => f.type === 'fake_action')).toBe(true);
+    expect(result.failures?.some((f) => f.type === 'fake_action')).toBe(true);
   });
 
   it('should reject options that break navigation', () => {
@@ -478,7 +478,7 @@ describe('Creative Validator', () => {
     const result = validateCreativeOption(option);
 
     expect(result.valid).toBe(false);
-    expect(result.failures?.some(f => f.type === 'breaks_navigation')).toBe(true);
+    expect(result.failures?.some((f) => f.type === 'breaks_navigation')).toBe(true);
   });
 });
 
@@ -625,7 +625,7 @@ describe('Creative Optimizer', () => {
       const result = optimizer.optimizeCreativeOptions(candidates);
 
       // The experimental option should score higher on novelty
-      const opt2 = result.ranked_candidates.find(c => c.id === 'opt2');
+      const opt2 = result.ranked_candidates.find((c) => c.id === 'opt2');
       expect(opt2?.scores.novelty).toBeGreaterThan(0.5);
     });
 
@@ -652,7 +652,7 @@ describe('Creative Optimizer', () => {
 
       const result = optimizer.optimizeCreativeOptions(candidates, context);
 
-      const opt2 = result.ranked_candidates.find(c => c.id === 'opt2');
+      const opt2 = result.ranked_candidates.find((c) => c.id === 'opt2');
       expect(opt2?.scores.usefulness).toBeGreaterThan(0.5);
     });
 
@@ -678,7 +678,7 @@ describe('Creative Optimizer', () => {
 
       const result = optimizer.optimizeCreativeOptions(candidates);
 
-      const opt2 = result.ranked_candidates.find(c => c.id === 'opt2');
+      const opt2 = result.ranked_candidates.find((c) => c.id === 'opt2');
       expect(opt2?.scores.delight).toBeGreaterThan(0.6);
     });
 
@@ -711,8 +711,8 @@ describe('Creative Optimizer', () => {
 
       const result = optimizer.optimizeCreativeOptions(candidates, context);
 
-      const opt2 = result.ranked_candidates.find(c => c.id === 'opt2');
-      const opt1 = result.ranked_candidates.find(c => c.id === 'opt1');
+      const opt2 = result.ranked_candidates.find((c) => c.id === 'opt2');
+      const opt1 = result.ranked_candidates.find((c) => c.id === 'opt1');
       expect(opt2?.scores.fit).toBeGreaterThan(opt1?.scores.fit || 0);
     });
 
@@ -738,8 +738,8 @@ describe('Creative Optimizer', () => {
 
       const result = optimizer.optimizeCreativeOptions(candidates);
 
-      const opt1 = result.ranked_candidates.find(c => c.id === 'opt1');
-      const opt2 = result.ranked_candidates.find(c => c.id === 'opt2');
+      const opt1 = result.ranked_candidates.find((c) => c.id === 'opt1');
+      const opt2 = result.ranked_candidates.find((c) => c.id === 'opt2');
       expect(opt1?.scores.cost).toBeLessThan(opt2?.scores.cost || 1);
     });
 
@@ -767,8 +767,8 @@ describe('Creative Optimizer', () => {
 
       const result = optimizer.optimizeCreativeOptions(candidates);
 
-      const opt1 = result.ranked_candidates.find(c => c.id === 'opt1');
-      const opt2 = result.ranked_candidates.find(c => c.id === 'opt2');
+      const opt1 = result.ranked_candidates.find((c) => c.id === 'opt1');
+      const opt2 = result.ranked_candidates.find((c) => c.id === 'opt2');
       expect(opt1?.scores.risk).toBeLessThan(opt2?.scores.risk || 1);
     });
 

@@ -13,7 +13,7 @@ const localStorageMock = {
   getItem: (key: string) => localStorageStore[key] ?? null,
   setItem: (key: string, value: string) => { localStorageStore[key] = value; },
   removeItem: (key: string) => { delete localStorageStore[key]; },
-  clear: () => { Object.keys(localStorageStore).forEach(k => delete localStorageStore[k]); },
+  clear: () => { Object.keys(localStorageStore).forEach((k) => delete localStorageStore[k]); },
 };
 vi.stubGlobal('localStorage', localStorageMock);
 vi.stubGlobal('window', { localStorage: localStorageMock });
@@ -51,7 +51,7 @@ function makeEntryAt(enginId: string, label: string, date: Date) {
   };
 }
 
-function seedHistory(entries: Array<{ enginId: string; label: string; timestamp: string }>) {
+function seedHistory(entries: Array<){ enginId: string; label: string; timestamp: string }>) {
   localStorage.setItem(FORGE_HISTORY_KEY, JSON.stringify(entries));
 }
 
@@ -239,8 +239,8 @@ describe('Forge Momentum', () => {
       expect(snap.composite).toBeGreaterThan(0);
       expect(snap.enginesUsedToday.length).toBeGreaterThanOrEqual(3);
       expect(snap.actionsToday).toBe(3);
-      expect(snap.dimensions.find(d => d.name === 'Velocity')!.score).toBeGreaterThan(0);
-      expect(snap.dimensions.find(d => d.name === 'Diversity')!.score).toBeGreaterThan(0);
+      expect(snap.dimensions.find((d) => d.name === 'Velocity')!.score).toBeGreaterThan(0);
+      expect(snap.dimensions.find((d) => d.name === 'Diversity')!.score).toBeGreaterThan(0);
     });
 
     it('reads from localStorage when no override provided', () => {

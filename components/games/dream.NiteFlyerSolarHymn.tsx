@@ -29,7 +29,7 @@ const COL = {
   bossEye: '#ff5577',
 } as const;
 
-export default function NiteFlyerSolarHymn() {
+export default function NiteFlyerSolarHymn( ){
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const birdRef = useRef({ x: 140, y: H / 2, vy: 0 });

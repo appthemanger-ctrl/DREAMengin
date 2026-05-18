@@ -56,7 +56,7 @@ class AgentSession {
       model: 'claude-3-5-haiku-20241022',
       max_tokens: 1024,
       system: systemPrompt,
-      messages: this.history.map(m => ({ role: m.role, content: m.content })),
+      messages: this.history.map((m) => ({ role: m.role, content: m.content })),
     };
 
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -80,7 +80,7 @@ class AgentSession {
       content: Array<{ type: string; text: string }>;
     };
     const text =
-      data.content.find(c => c.type === 'text')?.text ??
+      data.content.find((c) => c.type === 'text')?.text ??
       '[AI Co‑pilot] No response text returned.';
     this.history.push({ role: 'assistant', content: text });
     return text;

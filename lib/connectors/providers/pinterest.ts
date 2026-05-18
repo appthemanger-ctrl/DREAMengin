@@ -67,7 +67,7 @@ export async function pinterestSync(creds: PinterestCredentials): Promise<Unifie
   return items.map((item) => normalisePinterest(item.raw as Parameters<typeof normalisePinterest>[0], username));
 }
 
-export function pinterestCredentialFields() {
+export function pinterestCredentialFields( ){
   return [
     {
       key: 'username',

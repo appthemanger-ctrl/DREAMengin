@@ -106,12 +106,9 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
         };
 
     // Achievements — real implementation when capability is declared
-    // Games declare their achievements by exporting a static `achievements` array
-    // on their module. React cartridges get an empty registry unless they add
-    // the `achievements` field to their GameCartridge object (v2 extension point).
     const achievementDefs: AchievementDefinition[] = [];
     const achievementsAPI = capabilities.has('achievements')
-      ? createAchievementsAPI(cartridgeId, achievementDefs, (def) => {
+      ? createAchievementsAPI((cartridgeId, achievementDefs, def) => {
           // Emit to dreamOSBus so the shell can show a pop-up
           dreamOSBus.emit('game:achievement-unlocked' as Parameters<typeof dreamOSBus.emit>[0], {
             cartridgeId,
@@ -119,7 +116,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
             label: def.label,
             description: def.description,
             icon: def.icon,
-          } as Parameters<typeof dreamOSBus.emit>[1]);
+          } as unknown as Parameters<typeof dreamOSBus.emit>[1]);
         })
       : {
           async unlock()    {},
@@ -152,7 +149,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
 
       input: {
         on(event, cb) {
-          return dreamOSBus.on('game:input', (payload) => {
+          return dreamOSBus.on('game:input', payload => {
             if (payload.type === event) cb(payload as CartridgeInputEvent);
           });
         },
@@ -208,10 +205,6 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
       save:         saveAPI,
       achievements: achievementsAPI,
 
-      // Stub implementations for capabilities that need native platform support.
-      // Games that declare these capabilities get the real implementation injected
-      // by a platform extension (e.g. AudioContext, DualSense, LiveKit).
-      // For now the stubs keep the API surface consistent.
       audio:   stubAudioAPI,
       haptics: stubHapticsAPI,
       assets:  stubAssetsAPI,
@@ -226,15 +219,20 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
     const inputListeners = inputListenersRef.current;
 
     const dispatch = (type: 'keydown' | 'keyup', e: KeyboardEvent) => {
-      const payload: CartridgeInputEvent = {
+      // Create the payload without explicit type so TS infers exact keydown/keyup shape
+      const payload = {
         key: e.key,
         type,
         preventDefault: () => e.preventDefault(),
       };
+      
       const listeners = inputListeners.get(type);
       if (listeners) {
-        for (const cb of listeners) cb(payload);
+        // Cast here since the listeners expect the wider union type
+        for (const cb of listeners) cb(payload as CartridgeInputEvent);
       }
+      
+      // Successfully emits the narrower keyboard type
       dreamOSBus.emit('game:input', payload);
     };
 
@@ -348,16 +346,9 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
   }, [cartridge, buildAPI]);
 
   // ── Render ─────────────────────────────────────────────────────────────────
-  //
-  // ENGINE chrome only: FPS counter.
-  // GAME chrome (score/lives/level) is rendered by the cartridge inside the
-  // containerRef div — we do not touch it here.
-  // SHELL chrome (mobile controls) is rendered by ImmersiveGameShell outside
-  // this component entirely.
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-
       {/* ── Engine chrome: FPS counter ── */}
       {cartridge && (
         <div

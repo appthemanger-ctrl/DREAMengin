@@ -12,7 +12,7 @@ const CommentList = ({ comments }) => {
 
   return (
     <div className="comment-list">
-      {comments.map(comment => (
+      {comments.map((comment) => (
         <div key={comment.id} className="comment-item">
           <div className="comment-header">
             <span className="comment-author">{comment.author.name}</span>

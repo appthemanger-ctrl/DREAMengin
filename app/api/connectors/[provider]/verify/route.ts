@@ -32,7 +32,7 @@ export async function GET(
   const { provider } = await params;
   const supabase = await createServerClient();
    
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {

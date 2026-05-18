@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 const STORAGE_KEY = 'dreamengin:showNavIndicator';
 
-export default function PositionIndicatorToggle() {
+export default function PositionIndicatorToggle( ){
   const [enabled, setEnabled] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);

@@ -67,7 +67,7 @@ function uniquePathsForNode(predicate: (path: (typeof ALL_CONNECTION_PATHS)[numb
   return ALL_CONNECTION_PATHS.filter(predicate).map((path) => path.id);
 }
 
-function verbsForDaydream(label: keyof typeof DAYDREAM_ROUTES) {
+function verbsForDaydream(label: keyof typeof DAYDREAM_ROUTES ){
   return ALL_CONNECTION_PATHS
     .filter((path) => path.daydreamSurface === label)
     .map((path) => path.verb);
@@ -124,7 +124,7 @@ export function buildDreamenginOSSubsystemManifest(): DreamenginOSSubsystemManif
       route,
       capabilities: verbsForDaydream(label as keyof typeof DAYDREAM_ROUTES),
       runtimePresence: 'both' as const,
-      connectionIds: uniquePathsForNode((path) => path.daydreamSurface === label),
+      connectionIds: uniquePathsForNode((path: string ) => path.daydreamSurface === label),
     }),
   );
 
@@ -136,7 +136,7 @@ export function buildDreamenginOSSubsystemManifest(): DreamenginOSSubsystemManif
     route: engin.daydreamHref,
     capabilities: engin.capabilities,
     runtimePresence: 'both',
-    connectionIds: uniquePathsForNode((path) => path.enginRuntime === engin.name),
+    connectionIds: uniquePathsForNode((path: string ) => path.enginRuntime === engin.name),
   }));
 
   const connectorNodes: DreamenginOSSubsystemNode[] = CONNECTOR_REGISTRY.map((connector) => ({

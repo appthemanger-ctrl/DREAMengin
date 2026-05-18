@@ -168,7 +168,7 @@ async function generateStackOverview() {
 5. **AI Split:** Dr. Eams (user) separated from Adari/InnerDreams (admin-only) and Boogie Man (policy enforcement)`;
 }
 
-function generateDirectoryTree({ treeApp, treeComponents, treeLib, treeScripts }) {
+function generateDirectoryTree(){ treeApp, treeComponents, treeLib, treeScripts }) {
   return `## Directory Tree
 
 ### Application Routes (\`/app\`)
@@ -278,7 +278,7 @@ Key indexes (expected):
 - \`idx_conversations_p1\`, \`idx_conversations_p2\``;
 }
 
-function generateAPIRouteMap({ apiRoutes }) {
+function generateAPIRouteMap(){ apiRoutes }) {
   const sorted = [...apiRoutes].sort((a, b) => a.path.localeCompare(b.path));
 
   const tableRows = sorted
@@ -307,7 +307,7 @@ ${sorted
 **Rule:** Every route must do **Auth → Zod → Authorization (RLS)**, and must honor surface policies.`;
 }
 
-async function generateComponentInventory({ componentsScan }) {
+async function generateComponentInventory(){ componentsScan }) {
   const has = async (p) => (await fileExists(p)) ? '✅' : '❌';
 
   return `## Component Inventory
@@ -449,7 +449,7 @@ async function generateAuthenticationMap() {
 
 \`\`\`ts
 // app/(protected)/layout.tsx (example)
-export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
+export default async function ProtectedLayout({ children }: ) { children: React.ReactNode }) {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -616,7 +616,7 @@ ENABLE_ALGORITHMIC_FEED=false
 | \`.env.example\` | ${hasEnvExample ? '✅ Present' : '⚠️ Missing'} | Template for setup |`;
 }
 
-function generateDeploymentReadiness({ readiness }) {
+function generateDeploymentReadiness(){ readiness }) {
   const { percentage, statusLabel, statusEmoji, checks } = readiness;
   return `## Deployment Readiness
 
@@ -821,7 +821,7 @@ async function scanAPIRoutes() {
           const content = await fs.readFile(fullPath, 'utf-8');
           const methods = [];
           for (const m of ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']) {
-            if (content.includes(`export async function ${m}`) || content.includes(`export function ${m}`)) {
+            if (content.includes(`export async function $){m}`) || content.includes(`export function ${m}`)) {
               methods.push(m);
             }
           }

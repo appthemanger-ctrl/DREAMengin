@@ -48,7 +48,7 @@ function DreamRegistryCard({
   );
 }
 
-function QuickNoteDream(props: React.ComponentProps<typeof DreamRegistryCard>) {
+function QuickNoteDream(props: React.ComponentProps<typeof DreamRegistryCard> ){
   return (
     <div className="de-glass" style={{ borderRadius: 28, padding: 24, maxWidth: 520 }}>
       <div className="de-tag">Quick Note</div>
@@ -72,7 +72,7 @@ function QuickNoteDream(props: React.ComponentProps<typeof DreamRegistryCard>) {
   );
 }
 
-function TodayStatsDream() {
+function TodayStatsDream( ){
   return (
     <div className="de-glass" style={{ borderRadius: 28, padding: 28, maxWidth: 520, textAlign: 'center' }}>
       <div className="de-tag">Today’s Stats</div>

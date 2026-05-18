@@ -185,7 +185,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const osRef = useRef<UpgradedEngine<EngineBase> | null>(null);
   useEffect(() => {
     upgradeEngine({ id: 'content', name: 'ContentEngin' }, ['bridge', 'telemetry'])
-      .then(u => { osRef.current = u; });
+      .then((u) => { osRef.current = u; });
   }, []);
   const busRef = useRef(createEventBus());
 
@@ -201,10 +201,10 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const [figure3DStatus, setFigure3DStatus]         = useState<'idle' | 'processing' | 'done'>('idle');
   const figure3DInputRef = useRef<HTMLInputElement>(null);
 
-  function handleFigure3DPick(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleFigure3DPick(e: React.ChangeEvent<HTMLInputElement> ){
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
-    setFigure3DPhotos(files.map(f => f.name));
+    setFigure3DPhotos(files.map((f) => f.name));
     setFigure3DStatus('processing');
     osRef.current?.telemetry?.log(`3D Figure: ${files.length} photos queued`);
     busRef.current.emit('content:3d-figure', { photoCount: files.length });
@@ -242,7 +242,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const [activityPostMsg, setActivityPostMsg] = useState('');
   const activityPostTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  async function handleActivityPost(data: ActivityPostData) {
+  async function handleActivityPost(data: ActivityPostData ){
     const res = await fetch('/api/posts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -284,7 +284,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
 
   // ── Content Calendar ──
   const [calendarItems, setCalendarItems] = useState<Record<string, CalendarItem[]>>(
-    () => Object.fromEntries(DAYS.map(d => [d, []]))
+    () => Object.fromEntries(DAYS.map((d) => [d, []]))
   );
   const [openDay, setOpenDay] = useState<string | null>(null);
   const [formType, setFormType] = useState<CalendarItem['type']>('Post');
@@ -292,7 +292,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   /** ISO datetime for scheduled publish — empty string means "publish immediately" */
   const [formScheduledAt, setFormScheduledAt] = useState('');
 
-  function addCalendarItem(day: string) {
+  function addCalendarItem(day: string ){
     if (!formTitle.trim()) return;
     const item: CalendarItem = {
       id: `${Date.now()}-${Math.random()}`,
@@ -300,14 +300,14 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
       title: formTitle.trim(),
       scheduled_at: formScheduledAt || undefined,
     };
-    setCalendarItems(prev => ({ ...prev, [day]: [...prev[day], item] }));
+    setCalendarItems((prev) => ({ ...prev, [day]: [...prev[day], item] }));
     setFormTitle('');
     setFormScheduledAt('');
     setOpenDay(null);
   }
 
-  function removeCalendarItem(day: string, id: string) {
-    setCalendarItems(prev => ({ ...prev, [day]: prev[day].filter(i => i.id !== id) }));
+  function removeCalendarItem(day: string, id): string {
+    setCalendarItems((prev) => ({ ...prev, [day]: prev[day].filter((i) => i.id !== id) }));
   }
 
   // ── Publishing Queue ──
@@ -315,8 +315,8 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const [publishMsg, setPublishMsg] = useState('');
   const publishTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const allQueued: Array<CalendarItem & { day: string }> = DAYS.flatMap(day =>
-    calendarItems[day].map(item => ({ ...item, day }))
+  const allQueued: Array<CalendarItem & { day: string }> = DAYS.flatMap((day) =>
+    calendarItems[day].map((item) => ({ ...item, day }))
   );
 
   /**
@@ -329,8 +329,8 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
    *
    * LAW.md §3 — every visible action must do something real.
    */
-  async function publishItem(day: string, id: string) {
-    const item = calendarItems[day]?.find(i => i.id === id);
+  async function publishItem(day: string, id): string {
+    const item = calendarItems[day]?.find((i) => i.id === id);
     if (!item) return;
 
     try {
@@ -369,7 +369,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
       }
 
       removeCalendarItem(day, id);
-      setPublishedCount(c => c + 1);
+      setPublishedCount((c) => c + 1);
       const action = item.scheduled_at ? 'Scheduled' : 'Published';
       setPublishMsg(`✅ ${action}: ${item.title}`);
     } catch (err) {
@@ -390,7 +390,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const [draftSaveMsg, setDraftSaveMsg] = useState('');
   const draftSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  async function copyDraft() {
+  async function copyDraft( ){
     try {
       await navigator.clipboard.writeText(draft);
       setCopied(true);
@@ -414,7 +414,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     'Video Script': 'script',
   };
 
-  async function saveDraft() {
+  async function saveDraft( ){
     if (!draft.trim()) return;
     try {
       const res = await fetch('/api/drafts', {
@@ -453,15 +453,15 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     };
   }, []);
 
-  function togglePlatform(p: string) {
-    setSelectedPlatforms(prev => {
+  function togglePlatform(p: string ){
+    setSelectedPlatforms((prev) => {
       const next = new Set(prev);
       next.has(p) ? next.delete(p) : next.add(p);
       return next;
     });
   }
 
-  async function broadcast() {
+  async function broadcast( ){
     if (selectedPlatforms.size === 0) return;
 
     const publishText = resolvePublishIntent({
@@ -568,7 +568,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const [hookLoading, setHookLoading] = useState(false);
   const [hookResults, setHookResults] = useState<string[]>([]);
   const [hookSaveMsg, setHookSaveMsg] = useState('');
-  function copyHook(text: string, idx: number) {
+  function copyHook(text: string, idx): number {
     navigator.clipboard?.writeText(text).catch(() => {});
     setCopiedHook(idx);
     setTimeout(() => setCopiedHook(null), 1400);
@@ -594,7 +594,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const [transcriptSearch, setTranscriptSearch] = useState('');
   const [transcriptSearchCount, setTranscriptSearchCount] = useState(0);
 
-  function handleSubtitleUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleSubtitleUpload(e: React.ChangeEvent<HTMLInputElement> ){
     const file = e.target.files?.[0];
     if (!file) return;
     const ext = file.name.split('.').pop()?.toLowerCase();
@@ -628,34 +628,34 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     reader.readAsText(file);
   }
 
-  function toggleWordDelete(wordIdx: number) {
-    setDeletedWordIdx(prev => {
+  function toggleWordDelete(wordIdx: number ){
+    setDeletedWordIdx((prev) => {
       const next = new Set(prev);
       next.has(wordIdx) ? next.delete(wordIdx) : next.add(wordIdx);
       return next;
     });
   }
 
-  function applyTranscriptEdits() {
+  function applyTranscriptEdits( ){
     const cuts = computeCuts(transcriptSegments, deletedWordIdx);
     setPendingCuts(cuts);
     setTranscriptMsg(`✅ ${cuts.length} cut(s) computed. Export SRT to apply.`);
   }
 
-  function resetTranscriptEdits() {
+  function resetTranscriptEdits( ){
     setDeletedWordIdx(new Set());
     setPendingCuts([]);
     setTranscriptMsg('');
   }
 
-  function handleTranscriptSearch(q: string) {
+  function handleTranscriptSearch(q: string ){
     setTranscriptSearch(q);
     if (!q.trim()) { setTranscriptSearchCount(0); return; }
     const results = searchTranscript(transcriptSegments, q);
     setTranscriptSearchCount(results.length);
   }
 
-  function handleExportSRT() {
+  function handleExportSRT( ){
     const edited = deletedWordIdx.size > 0
       ? applyEditsToSegments(transcriptSegments, deletedWordIdx)
       : transcriptSegments;
@@ -683,7 +683,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const [fillImageBase64, setFillImageBase64] = useState('');
   const fillTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  function handleFillImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleFillImageUpload(e: React.ChangeEvent<HTMLInputElement> ){
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
@@ -696,7 +696,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     reader.readAsDataURL(file);
   }
 
-  async function handleGenerativeFill() {
+  async function handleGenerativeFill( ){
     if (!fillImageBase64 || !fillPrompt.trim()) return;
     setFillLoading(true);
     setFillMsg('');
@@ -732,7 +732,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const [ttsAudioBase64, setTtsAudioBase64] = useState('');
   const [ttsMsg, setTtsMsg] = useState('');
 
-  async function loadVoiceProfiles() {
+  async function loadVoiceProfiles( ){
     setVoiceProfilesLoading(true);
     try {
       const res = await fetch('/api/content/voice-clone', {
@@ -750,21 +750,21 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     }
   }
 
-  async function deleteVoiceProfile(id: string) {
+  async function deleteVoiceProfile(id: string ){
     try {
       await fetch('/api/content/voice-clone', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'delete', voiceId: id }),
       });
-      setVoiceProfiles(prev => prev.filter(p => p.id !== id));
+      setVoiceProfiles((prev) => prev.filter((p) => p.id !== id));
       if (voiceProfileId === id) setVoiceProfileId('');
     } catch {
       // Non-fatal
     }
   }
 
-  async function handleVoiceClone(file: File) {
+  async function handleVoiceClone(file: File ){
     if (!voiceName.trim()) { setVoiceCloneMsg('⚠️ Enter a voice name first.'); return; }
     setVoiceCloneLoading(true);
     setVoiceCloneMsg('');
@@ -784,7 +784,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
       if (!res.ok && res.status !== 501) throw new Error(json.error ?? 'Clone failed');
       if (json.profile?.id) {
         setVoiceProfileId(json.profile.id);
-        setVoiceProfiles(prev => [{ id: json.profile!.id, name: json.profile!.name, createdAt: json.profile!.createdAt }, ...prev]);
+        setVoiceProfiles((prev) => [{ id: json.profile!.id, name: json.profile!.name, createdAt: json.profile!.createdAt }, ...prev]);
       }
       setVoiceCloneMsg(json.message ?? '✅ Voice cloned!');
     } catch (err) {
@@ -794,7 +794,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     }
   }
 
-  async function handleTTS() {
+  async function handleTTS( ){
     if (!ttsText.trim() || !voiceProfileId) return;
     setTtsLoading(true);
     setTtsMsg('');
@@ -823,7 +823,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const [advSeoExpanded, setAdvSeoExpanded] = useState(false);
 
   const handleAdvSeoScore = useCallback(() => {
-    const keywords = advSeoKeywords.split(',').map(k => k.trim()).filter(Boolean);
+    const keywords = advSeoKeywords.split(',').map((k) => k.trim()).filter(Boolean);
     const result = scoreContent({ title: advSeoTitle, body: advSeoBody, keywords });
     setAdvSeoResult(result);
   }, [advSeoTitle, advSeoBody, advSeoKeywords]);
@@ -836,10 +836,10 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     advSeoTimerRef.current = setTimeout(handleAdvSeoScore, 400);
   }, [advSeoTitle, advSeoBody, advSeoKeywords, handleAdvSeoScore]);
 
-  function handleExportSeoReport() {
+  function handleExportSeoReport( ){
     if (!advSeoResult) return;
     const { generateReport } = require('@/lib/content/seoScorer') as typeof import('@/lib/content/seoScorer');
-    const report = generateReport({ title: advSeoTitle, body: advSeoBody, keywords: advSeoKeywords.split(',').map(k => k.trim()).filter(Boolean) });
+    const report = generateReport({ title: advSeoTitle, body: advSeoBody, keywords: advSeoKeywords.split(',').map((k) => k.trim()).filter(Boolean) });
     const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -853,12 +853,12 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const [humanReviewEnabled, setHumanReviewEnabled] = useState(false);
   const [pendingReviewItems, setPendingReviewItems] = useState<Array<{ id: string; label: string; content: string }>>([]);
 
-  function confirmReviewItem(id: string) {
-    setPendingReviewItems(prev => prev.filter(i => i.id !== id));
+  function confirmReviewItem(id: string ){
+    setPendingReviewItems((prev) => prev.filter((i) => i.id !== id));
   }
 
-  function rollbackReviewItem(id: string) {
-    setPendingReviewItems(prev => prev.filter(i => i.id !== id));
+  function rollbackReviewItem(id: string ){
+    setPendingReviewItems((prev) => prev.filter((i) => i.id !== id));
   }
 
   // ── Brand Memory state ────────────────────────────────────────────────────────
@@ -867,7 +867,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const [brandSaving, setBrandSaving] = useState(false);
   const brandTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  async function saveBrandGuidelines() {
+  async function saveBrandGuidelines( ){
     if (!brandGuidelinesText.trim()) return;
     setBrandSaving(true);
     setBrandSaveMsg('');
@@ -906,7 +906,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   } | null>(null);
   const [quickComposeMsg, setQuickComposeMsg] = useState('');
 
-  async function handleQuickCompose() {
+  async function handleQuickCompose( ){
     if (!quickComposePrompt.trim()) return;
     setQuickComposeLoading(true);
     setQuickComposeResult(null);
@@ -934,7 +934,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     }
   }
 
-  async function handleGenerateHooks() {
+  async function handleGenerateHooks( ){
     if (!hookTopic.trim()) return;
     setHookLoading(true);
     setHookSaveMsg('');
@@ -955,7 +955,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     }
   }
 
-  async function handleSeoScore() {
+  async function handleSeoScore( ){
     if (!seoInput.trim()) return;
     setSeoLoading(true);
     setSeoSaveMsg('');
@@ -987,7 +987,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const [mocapScale, setMocapScale] = useState(1.0);
   const [mocapPreviewFrame, setMocapPreviewFrame] = useState(0);
 
-  function handleBVHUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleBVHUpload(e: React.ChangeEvent<HTMLInputElement> ){
     const file = e.target.files?.[0];
     if (!file) return;
     setMocapLoading(true);
@@ -1011,7 +1011,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     reader.readAsText(file);
   }
 
-  function handleMocapExport() {
+  function handleMocapExport( ){
     if (!mocapClip) return;
     const scaled = mocapScale !== 1.0 ? retargetClip(mocapClip, mocapScale) : mocapClip;
     const bvhText = exportBVH(scaled);
@@ -1030,7 +1030,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const [fxRunning, setFxRunning] = useState(false);
   const fxTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  function selectFxPreset(presetId: string) {
+  function selectFxPreset(presetId: string ){
     try {
       const sim = createSimulation(presetId, undefined, 5, 24);
       setFxSim(sim);
@@ -1040,29 +1040,29 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     }
   }
 
-  function startFxSim() {
+  function startFxSim( ){
     if (!fxSim) return;
     setFxRunning(true);
-    setFxSim(s => s ? { ...s, state: 'running', elapsedSeconds: 0 } : s);
+    setFxSim((s) => s ? { ...s, state: 'running', elapsedSeconds: 0 } : s);
     let elapsed = 0;
     const dur = fxSim.durationSeconds;
     fxTimerRef.current = setInterval(() => {
       elapsed += 0.1;
       if (elapsed >= dur) {
         clearInterval(fxTimerRef.current!);
-        setFxSim(s => s ? { ...s, state: 'complete', elapsedSeconds: dur } : s);
+        setFxSim((s) => s ? { ...s, state: 'complete', elapsedSeconds: dur } : s);
         setFxRunning(false);
         setFxMsg(`✅ Simulation complete (${dur}s).`);
       } else {
-        setFxSim(s => s ? { ...s, elapsedSeconds: +elapsed.toFixed(1) } : s);
+        setFxSim((s) => s ? { ...s, elapsedSeconds: +elapsed.toFixed(1) } : s);
       }
     }, 100);
   }
 
-  function stopFxSim() {
+  function stopFxSim( ){
     if (fxTimerRef.current) clearInterval(fxTimerRef.current);
     setFxRunning(false);
-    setFxSim(s => s ? { ...s, state: 'paused' } : s);
+    setFxSim((s) => s ? { ...s, state: 'paused' } : s);
   }
 
   // 2.5D Compositor (After Effects-inspired)
@@ -1075,19 +1075,19 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   ]);
   const [compMsg, setCompMsg] = useState('');
 
-  function addCompLayer(type: string) {
+  function addCompLayer(type: string ){
     const id = `l${Date.now()}`;
     const labels: Record<string, string> = { video: 'Video Layer', '3d': '3D Layer', roto: 'Roto Layer', '2d': '2D Layer', adjustment: 'Adjustment Layer' };
-    setCompLayers(prev => [{ id, label: labels[type] ?? 'New Layer', type, opacity: 1, blendMode: 'over', visible: true }, ...prev]);
+    setCompLayers((prev) => [{ id, label: labels[type] ?? 'New Layer', type, opacity: 1, blendMode: 'over', visible: true }, ...prev]);
     setCompMsg(`✅ ${labels[type] ?? 'Layer'} added.`);
   }
 
-  function toggleCompLayerVisibility(id: string) {
-    setCompLayers(prev => prev.map(l => l.id === id ? { ...l, visible: !l.visible } : l));
+  function toggleCompLayerVisibility(id: string ){
+    setCompLayers((prev) => prev.map((l) => l.id === id ? { ...l, visible: !l.visible } : l));
   }
 
-  function removeCompLayer(id: string) {
-    setCompLayers(prev => prev.filter(l => l.id !== id));
+  function removeCompLayer(id: string ){
+    setCompLayers((prev) => prev.filter((l) => l.id !== id));
   }
 
   // Rotoscope Editor (Clip Studio Paint-inspired)
@@ -1098,7 +1098,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const [rotoSelectedLayer, setRotoSelectedLayer] = useState<string | null>(null);
   const [rotoMsg, setRotoMsg] = useState('');
 
-  function addRotoLayer() {
+  function addRotoLayer( ){
     const n = rotoProject.layers.length + 1;
     const updated = addLayer(rotoProject, `Character ${n}`);
     setRotoProject(updated);
@@ -1106,7 +1106,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     setRotoMsg(`✅ Layer "Character ${n}" created.`);
   }
 
-  function addRotoKeyframe() {
+  function addRotoKeyframe( ){
     if (!rotoSelectedLayer) { setRotoMsg('⚠️ Select a layer first.'); return; }
     // Add a simple diamond shape at current frame as a placeholder
     const cx = 0.5, cy = 0.5, r = 0.1;
@@ -1121,11 +1121,11 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
         { x: cx - r, y: cy, inTanX: 0, inTanY: r * 0.55, outTanX: 0, outTanY: -r * 0.55 },
       ],
     };
-    setRotoProject(prev => setKeyframe(prev, rotoSelectedLayer, shape));
+    setRotoProject((prev) => setKeyframe(prev, rotoSelectedLayer, shape));
     setRotoMsg(`✅ Keyframe set at frame ${rotoFrame}.`);
   }
 
-  function handleRotoSVGExport() {
+  function handleRotoSVGExport( ){
     const svg = exportFrameSVG(rotoProject, rotoFrame);
     const blob = new Blob([svg], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
@@ -1156,17 +1156,17 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   });
   const [nodeMsg, setNodeMsg] = useState('');
 
-  function handleAddNode(type: NodeType) {
+  function handleAddNode(type: NodeType ){
     const node = createNode(type, undefined, {
       x: 100 + Math.random() * 200,
       y: 50 + nodeGraph.nodes.length * 50,
     });
-    setNodeGraph(prev => addNode(prev, node));
+    setNodeGraph((prev) => addNode(prev, node));
     setNodeMsg(`✅ ${type} node added.`);
   }
 
-  function handleDisconnect(toId: string, inputName: string) {
-    setNodeGraph(prev => disconnectInput(prev, toId, inputName));
+  function handleDisconnect(toId: string, inputName): string {
+    setNodeGraph((prev) => disconnectInput(prev, toId, inputName));
     setNodeMsg(`✅ Input "${inputName}" disconnected.`);
   }
 
@@ -1176,7 +1176,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   );
   const [trackMsg, setTrackMsg] = useState('');
 
-  function addTrackPt() {
+  function addTrackPt( ){
     const names = ['Wall Corner', 'Doorframe', 'Window Edge', 'Floor Mark', 'Ceiling Light', 'Sign Post'];
     const name = names[cameraTrack.trackPoints.length % names.length];
     let updated = addTrackPoint(cameraTrack, name);
@@ -1195,7 +1195,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     setTrackMsg(`✅ Track point "${name}" added with 5 samples.`);
   }
 
-  function handleTrackCSVExport() {
+  function handleTrackCSVExport( ){
     const csv = exportTrackCSV(cameraTrack);
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
@@ -1375,7 +1375,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const [bvResult, setBvResult] = useState<BrandVoiceResult | null>(null);
 
   // ── AI Caption handler ───────────────────────────────────────────────────────
-  function handleGenerateCaption() {
+  function handleGenerateCaption( ){
     if (!captionTopic.trim()) return;
     setCaptionLoading(true);
     setCaptionResult('');
@@ -1393,7 +1393,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   }
 
   // ── Collab Draft handler ─────────────────────────────────────────────────────
-  function handleCollabDraftToggle() {
+  function handleCollabDraftToggle( ){
     if (!collabDraftActive) {
       const code = Math.random().toString(36).slice(2, 8).toUpperCase();
       setCollabDraftCode(code);
@@ -1401,18 +1401,18 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
         'create', 'content:collab-start', { code },
       );
     }
-    setCollabDraftActive(prev => !prev);
+    setCollabDraftActive((prev) => !prev);
   }
 
   // ── Template apply handler ───────────────────────────────────────────────────
-  function handleTemplateApply(id: string) {
+  function handleTemplateApply(id: string ){
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'create', 'content:template-apply', { id },
     );
   }
 
   // ── Video prepare handler ────────────────────────────────────────────────────
-  function handleVideoPrepare() {
+  function handleVideoPrepare( ){
     if (!videoTitle.trim()) return;
     setVideoPublishReady(true);
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
@@ -1422,7 +1422,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   }
 
   // ── Hashtag optimizer handler ────────────────────────────────────────────────
-  function handleOptimizeHashtags() {
+  function handleOptimizeHashtags( ){
     if (!hashtagTopic.trim()) return;
     setHashtagLoading(true);
     setHashtags([]);
@@ -1446,14 +1446,14 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   }
 
   // ── Analytics refresh handler ────────────────────────────────────────────────
-  function handleAnalyticsRefresh() {
+  function handleAnalyticsRefresh( ){
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'create', 'content:analytics-refresh', {},
     );
   }
 
   // ── Auto Repurposer handler ───────────────────────────────────────────────────
-  async function handleRepurpose() {
+  async function handleRepurpose( ){
     if (!repurposeInput.trim()) return;
     setRepurposeLoading(true);
     setRepurposeOutputs([]);
@@ -1475,14 +1475,14 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     }
   }
 
-  function copyRepurposeOutput(text: string, idx: number) {
+  function copyRepurposeOutput(text: string, idx): number {
     navigator.clipboard?.writeText(text).catch(() => {});
     setRepurseCopied(idx);
     setTimeout(() => setRepurseCopied(null), 1400);
   }
 
   // ── Predictive Scheduling handler ─────────────────────────────────────────────
-  async function handlePredictSchedule() {
+  async function handlePredictSchedule( ){
     setPredictLoading(true);
     try {
       const res = await fetch('/api/content/intelligence', {
@@ -1503,7 +1503,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   }
 
   // ── Creative Brief: save handler ─────────────────────────────────────────────
-  async function handleSaveBrief() {
+  async function handleSaveBrief( ){
     if (!briefProject.trim()) return;
     setBriefSaving(true);
     setBriefSaveMsg('');
@@ -1516,7 +1516,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
       briefVoice    ? `\n**Brand Voice & Tone:**\n${briefVoice}` : null,
       briefVisual   ? `\n**Visual Direction:**\n${briefVisual}` : null,
       briefDeadline ? `\n**Deadline:** ${new Date(briefDeadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : null,
-      `\n**Asset Status:** ${assets.filter(a => a.status === 'Approved').length}/${assets.length} approved`,
+      `\n**Asset Status:** ${assets.filter((a) => a.status === 'Approved').length}/${assets.length} approved`,
       `\n**Status:** Ready for Editor →`,
     ].filter(Boolean).join('\n');
     try {
@@ -1532,44 +1532,44 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   }
 
   // ── Asset Collector handlers ──────────────────────────────────────────────────
-  function addAsset() {
+  function addAsset( ){
     if (!assetNewName.trim()) return;
-    setAssets(prev => [...prev, { id: Date.now().toString(), name: assetNewName.trim(), category: assetNewCat, status: 'Needed' }]);
+    setAssets((prev) => [...prev, { id: Date.now().toString(), name: assetNewName.trim(), category: assetNewCat, status: 'Needed' }]);
     setAssetNewName('');
   }
-  function cycleAssetStatus(id: string) {
-    setAssets(prev => prev.map(a => a.id === id ? { ...a, status: ASSET_STATUS_NEXT[a.status] } : a));
+  function cycleAssetStatus(id: string ){
+    setAssets((prev) => prev.map((a) => a.id === id ? { ...a, status: ASSET_STATUS_NEXT[a.status] } : a));
   }
-  function removeAsset(id: string) {
-    setAssets(prev => prev.filter(a => a.id !== id));
+  function removeAsset(id: string ){
+    setAssets((prev) => prev.filter((a) => a.id !== id));
   }
 
   // ── Audio Prep handlers ───────────────────────────────────────────────────────
-  function addSfx() {
+  function addSfx( ){
     if (!audioSfxInput.trim()) return;
-    setAudioSfxList(prev => [...prev, audioSfxInput.trim()]);
+    setAudioSfxList((prev) => [...prev, audioSfxInput.trim()]);
     setAudioSfxInput('');
   }
-  function removeSfx(i: number) { setAudioSfxList(prev => prev.filter((_, idx) => idx !== i)); }
+  function removeSfx(i: number ){ setAudioSfxList((prev) => prev.filter((_, idx: number) => idx !== i)); }
 
   // ── Content Pipeline handlers ─────────────────────────────────────────────────
-  function addPipelineItem() {
+  function addPipelineItem( ){
     if (!pipeNewTitle.trim()) return;
-    setPipelineItems(prev => [...prev, { id: Date.now().toString(), title: pipeNewTitle.trim(), type: pipeNewType, platform: pipeNewPlatform, stage: 'Concept' }]);
+    setPipelineItems((prev) => [...prev, { id: Date.now().toString(), title: pipeNewTitle.trim(), type: pipeNewType, platform: pipeNewPlatform, stage: 'Concept' }]);
     setPipeNewTitle('');
   }
-  function advancePipeline(id: string) {
-    setPipelineItems(prev => prev.map(item => {
+  function advancePipeline(id: string ){
+    setPipelineItems((prev) => prev.map((item) => {
       if (item.id !== id) return item;
       const i = PIPELINE_STAGES.indexOf(item.stage);
       return { ...item, stage: PIPELINE_STAGES[Math.min(i + 1, PIPELINE_STAGES.length - 1)] };
     }));
   }
-  function removePipelineItem(id: string) { setPipelineItems(prev => prev.filter(p => p.id !== id)); }
+  function removePipelineItem(id: string ){ setPipelineItems((prev) => prev.filter((p) => p.id !== id)); }
 
   // ── Character Brief Builder handler ──────────────────────────────────────────
   const CHAR_SIM_OPTIONS = ['Cloth / Fabric Simulation', 'Hair / Fur Simulation', 'Facial Blend Shapes / Morphs', 'Muscle Simulation', 'Fluid / VFX Layer', 'Crowd / Instanced Version'];
-  async function handleSaveCharBrief() {
+  async function handleSaveCharBrief( ){
     if (!charName.trim()) return;
     setCharSaving(true);
     setCharSaveMsg('');
@@ -1580,7 +1580,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
       `**Rig Complexity:** ${charRigLevel}`,
       charPhysical    ? `\n**Physical Description:**\n${charPhysical}` : null,
       charPersonality ? `\n**Personality & Performance Notes:**\n${charPersonality}` : null,
-      charSims.size   ? `\n**Special Simulations Required:**\n${[...charSims].map(s => `- ${s}`).join('\n')}` : null,
+      charSims.size   ? `\n**Special Simulations Required:**\n${[...charSims].map((s) => `- ${s}`).join('\n')}` : null,
       charColorNotes  ? `\n**Colour Palette & Style Notes:**\n${charColorNotes}` : null,
       charRefs        ? `\n**Reference Materials:**\n${charRefs}` : null,
       `\n**Status:** Ready for ${charAnimType.includes('Maya') || charAnimType.includes('ZBrush') ? 'Maya / ZBrush' : charAnimType.includes('Toon Boom') ? 'Toon Boom Harmony' : charAnimType.includes('TVPaint') ? 'TVPaint Animation' : 'Engine'}`,
@@ -1598,7 +1598,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   }
 
   // ── Scene & Set Design Brief handler ─────────────────────────────────────────
-  async function handleSaveSceneBrief() {
+  async function handleSaveSceneBrief( ){
     if (!sceneName.trim()) return;
     setSceneSaving(true);
     setSceneSaveMsg('');
@@ -1626,17 +1626,17 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
 
   // ── Storyboard Builder handlers ───────────────────────────────────────────────
   const SB_SHOT_TYPES = ['Wide', 'Medium', 'Close-up', 'Extreme Close-up', 'Over Shoulder', 'POV', 'Overhead', 'Low Angle', 'Drone'];
-  function addSbFrame() {
-    setSbFrames(prev => [...prev, { id: Date.now().toString(), scene: `Scene ${prev.length + 1}`, shot: 'Medium', action: '', audio: '', duration: 5 }]);
+  function addSbFrame( ){
+    setSbFrames((prev) => [...prev, { id: Date.now().toString(), scene: `Scene ${prev.length + 1}`, shot: 'Medium', action: '', audio: '', duration: 5 }]);
   }
-  function updateSbFrame(id: string, field: string, value: string | number) {
-    setSbFrames(prev => prev.map(f => f.id === id ? { ...f, [field]: value } : f));
+  function updateSbFrame(id: string, field: string, value): string | number {
+    setSbFrames((prev) => prev.map((f) => f.id === id ? { ...f, [field]: value } : f));
   }
-  function removeSbFrame(id: string) { setSbFrames(prev => prev.filter(f => f.id !== id)); }
-  function copySbText() {
+  function removeSbFrame(id: string ){ setSbFrames((prev) => prev.filter((f) => f.id !== id)); }
+  function copySbText( ){
     const total = sbFrames.reduce((a, f) => a + f.duration, 0);
     const text = `STORYBOARD: ${sbTitle || 'Untitled'}\nTotal: ${total}s\n\n` +
-      sbFrames.map((f, i) =>
+      sbFrames.map((f, i: number) =>
         `[Frame ${i + 1}] ${f.scene} | ${f.shot} shot | ${f.duration}s\nACTION: ${f.action || '—'}\nAUDIO: ${f.audio || '—'}`
       ).join('\n\n');
     navigator.clipboard?.writeText(text).catch(() => {});
@@ -1645,7 +1645,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   }
 
   // ── AI Production Plan handlers ───────────────────────────────────────────────
-  function buildProductionPlan(idea: string, type: string, platform: string) {
+  function buildProductionPlan(idea: string, type: string, platform): string {
     const t = idea.trim() || 'your content idea';
     return {
       title: `Production Plan: ${t.slice(0, 50)}`,
@@ -1695,24 +1695,24 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     };
   }
 
-  async function handleGeneratePlan() {
+  async function handleGeneratePlan( ){
     if (!planIdea.trim()) return;
     setPlanLoading(true);
     setPlanResult(null);
     setPlanSaveMsg('');
-    await new Promise(r => setTimeout(r, 700));
+    await new Promise((r) => setTimeout(r, 700));
     setPlanResult(buildProductionPlan(planIdea, planType, planPlatform));
     setPlanLoading(false);
   }
 
-  async function handleSavePlan() {
+  async function handleSavePlan( ){
     if (!planResult) return;
     const text = [
       `# ${planResult.title}`,
-      '\n## Pre-Production', ...planResult.preProd.map((s, i) => `${i + 1}. ${s}`),
-      '\n## Production (Engine)', ...planResult.production.map((s, i) => `${i + 1}. ${s}`),
-      '\n## Post-Production', ...planResult.postProd.map((s, i) => `${i + 1}. ${s}`),
-      '\n## Distribution', ...planResult.distribution.map((s, i) => `${i + 1}. ${s}`),
+      '\n## Pre-Production', ...planResult.preProd.map((s, i: number) => `${i + 1}. ${s}`),
+      '\n## Production (Engine)', ...planResult.production.map((s, i: number) => `${i + 1}. ${s}`),
+      '\n## Post-Production', ...planResult.postProd.map((s, i: number) => `${i + 1}. ${s}`),
+      '\n## Distribution', ...planResult.distribution.map((s, i: number) => `${i + 1}. ${s}`),
     ].join('\n');
     try {
       const res = await fetch('/api/drafts', {
@@ -1726,7 +1726,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   }
 
   // ── Brand Voice Guard handler ─────────────────────────────────────────────────
-  async function handleBrandVoiceCheck() {
+  async function handleBrandVoiceCheck( ){
     if (!bvContent.trim() || !bvProfile.trim()) return;
     setBvLoading(true);
     setBvResult(null);
@@ -1877,7 +1877,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             <div className="de-widget-header">
               <span style={{ fontSize: 15 }}>📋</span>
               <span className="de-widget-title ml-2">Creative Brief Builder</span>
-              {briefProject.trim() && assets.filter(a => a.status === 'Approved').length === assets.length && (
+              {briefProject.trim() && assets.filter((a) => a.status === 'Approved').length === assets.length && (
                 <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 7px', borderRadius: 4 }}>Editor-Ready ✓</span>
               )}
             </div>
@@ -1894,7 +1894,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                   <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Content Type</label>
                   <select value={briefType} onChange={e => setBriefType(e.target.value as BriefContentType)}
                     style={{ width: '100%', fontSize: 12, borderRadius: 8, padding: '7px 10px', border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
-                    {BRIEF_CONTENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                    {BRIEF_CONTENT_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div style={{ flex: 2 }}>
@@ -1907,10 +1907,10 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               <div>
                 <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 5 }}>Target Platforms</label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                  {BRIEF_PLATFORM_LIST.map(p => {
+                  {BRIEF_PLATFORM_LIST.map((p) => {
                     const on = briefPlatforms.has(p);
                     return (
-                      <button key={p} type="button" onClick={() => setBriefPlatforms(prev => { const n = new Set(prev); on ? n.delete(p) : n.add(p); return n; })}
+                      <button key={p} type="button" onClick={() => setBriefPlatforms((prev) => { const n = new Set(prev); on ? n.delete(p) : n.add(p); return n; })}
                         style={{ padding: '4px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, cursor: 'pointer',
                           background: on ? `${ACCENT}18` : 'rgba(255,255,255,0.5)',
                           border: `1.5px solid ${on ? ACCENT : 'rgba(160,195,240,0.25)'}`,
@@ -1953,13 +1953,13 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                 <div style={{ padding: '8px 12px', borderRadius: 9, background: 'rgba(255,255,255,0.45)', border: `1px solid ${ACCENT}15` }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
                     <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)' }}>Asset Readiness</span>
-                    <span style={{ fontSize: 11, fontWeight: 800, color: assets.filter(a => a.status === 'Approved').length === assets.length ? '#22c55e' : ACCENT, marginLeft: 'auto' }}>
-                      {assets.filter(a => a.status === 'Approved').length}/{assets.length} approved
+                    <span style={{ fontSize: 11, fontWeight: 800, color: assets.filter((a) => a.status === 'Approved').length === assets.length ? '#22c55e' : ACCENT, marginLeft: 'auto' }}>
+                      {assets.filter((a) => a.status === 'Approved').length}/{assets.length} approved
                     </span>
                   </div>
                   <div style={{ height: 5, borderRadius: 4, background: 'rgba(0,0,0,0.06)' }}>
                     <div style={{ height: '100%', borderRadius: 4, transition: 'width 0.4s', background: '#22c55e',
-                      width: `${Math.round(assets.filter(a => a.status === 'Approved').length / assets.length * 100)}%` }} />
+                      width: `${Math.round(assets.filter((a) => a.status === 'Approved').length / assets.length * 100)}%` }} />
                   </div>
                 </div>
               )}
@@ -1979,17 +1979,17 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               <span style={{ fontSize: 15 }}>🗂️</span>
               <span className="de-widget-title ml-2">Asset Collector</span>
               <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700,
-                color: assets.every(a => a.status === 'Approved') ? '#22c55e' : ACCENT,
-                background: assets.every(a => a.status === 'Approved') ? 'rgba(34,197,94,0.1)' : `${ACCENT}12`,
+                color: assets.every((a) => a.status === 'Approved') ? '#22c55e' : ACCENT,
+                background: assets.every((a) => a.status === 'Approved') ? 'rgba(34,197,94,0.1)' : `${ACCENT}12`,
                 padding: '2px 8px', borderRadius: 4 }}>
-                {assets.filter(a => a.status === 'Approved').length}/{assets.length} ready
+                {assets.filter((a) => a.status === 'Approved').length}/{assets.length} ready
               </span>
             </div>
             <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Collect and confirm every raw asset before the editor opens a single file.</p>
               {/* Asset list */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {assets.map(asset => (
+                {assets.map((asset) => (
                   <div key={asset.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 10,
                     background: asset.status === 'Approved' ? 'rgba(34,197,94,0.06)' : 'rgba(255,255,255,0.55)',
                     border: `1px solid ${ASSET_STATUS_COLOR[asset.status]}25` }}>
@@ -2014,7 +2014,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               <div style={{ display: 'flex', gap: 6 }}>
                 <select value={assetNewCat} onChange={e => setAssetNewCat(e.target.value as AssetCategory)}
                   style={{ fontSize: 11, borderRadius: 8, padding: '6px 8px', border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', flexShrink: 0 }}>
-                  {ASSET_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                  {ASSET_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
                 <input value={assetNewName} onChange={e => setAssetNewName(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && addAsset()}
@@ -2041,7 +2041,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                 <div style={{ flex: 2 }}>
                   <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 4 }}>Music Mood</label>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                    {AUDIO_MOODS.map(m => (
+                    {AUDIO_MOODS.map((m) => (
                       <button key={m} type="button" onClick={() => setAudioMood(m)}
                         style={{ padding: '4px 9px', borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: 'pointer',
                           background: audioMood === m ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.55)',
@@ -2072,7 +2072,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               <div>
                 <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 5 }}>SFX Checklist</label>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginBottom: 7 }}>
-                  {audioSfxList.map((sfx, i) => (
+                  {audioSfxList.map((sfx, i: number) => (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.55)', border: '1px solid rgba(139,92,246,0.15)' }}>
                       <span style={{ fontSize: 12 }}>🔊</span>
                       <span style={{ flex: 1, fontSize: 12, color: 'var(--de-heading)' }}>{sfx}</span>
@@ -2096,7 +2096,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               <div style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.15)' }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#8b5cf6', marginBottom: 6 }}>📻 Platform Audio Standard</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 8 }}>
-                  {['Instagram Reel', 'TikTok', 'YouTube', 'Twitter/X', 'Podcast'].map(p => (
+                  {['Instagram Reel', 'TikTok', 'YouTube', 'Twitter/X', 'Podcast'].map((p) => (
                     <button key={p} type="button" onClick={() => setAudioSpecPlatform(p)}
                       style={{ padding: '3px 9px', borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: 'pointer',
                         background: audioSpecPlatform === p ? 'rgba(139,92,246,0.15)' : 'rgba(255,255,255,0.5)',
@@ -2117,7 +2117,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                   const s = specs[audioSpecPlatform] ?? specs['Instagram Reel'];
                   return (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
-                      {[{ label: 'Loudness', val: s.lufs }, { label: 'Format', val: s.format }, { label: 'Channels', val: s.channels }].map(r => (
+                      {[{ label: 'Loudness', val: s.lufs }, { label: 'Format', val: s.format }, { label: 'Channels', val: s.channels }].map((r) => (
                         <div key={r.label} style={{ padding: '7px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(139,92,246,0.12)' }}>
                           <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 2 }}>{r.label}</div>
                           <div style={{ fontSize: 13, fontWeight: 800, color: '#8b5cf6' }}>{r.val}</div>
@@ -2144,7 +2144,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                 placeholder="Filter platform…"
                 style={{ width: '100%', padding: '7px 11px', borderRadius: 8, fontSize: 12, border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {PLATFORM_SPECS.filter(p => !specsFilter || p.name.toLowerCase().includes(specsFilter.toLowerCase())).map(p => (
+                {PLATFORM_SPECS.filter((p) => !specsFilter || p.name.toLowerCase().includes(specsFilter.toLowerCase())).map((p) => (
                   <div key={p.name} style={{ borderRadius: 10, background: 'rgba(255,255,255,0.55)', border: `1px solid ${ACCENT}12`, overflow: 'hidden' }}>
                     {/* Platform header */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderBottom: `1px solid ${ACCENT}10`, background: `${ACCENT}06` }}>
@@ -2165,7 +2165,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                         { label: 'Format',   val: p.fmt     },
                         { label: 'Caption',  val: p.caption },
                         { label: 'Audio',    val: p.audio   },
-                      ].map(spec => (
+                      ].map((spec) => (
                         <div key={spec.label} style={{ padding: '7px 10px', borderRight: '1px solid rgba(160,195,240,0.1)', borderBottom: '1px solid rgba(160,195,240,0.1)' }}>
                           <div style={{ fontSize: 9, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 2 }}>{spec.label}</div>
                           <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)' }}>{spec.val}</div>
@@ -2183,9 +2183,9 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             <div className="de-widget-header">
               <span style={{ fontSize: 15 }}>🚀</span>
               <span className="de-widget-title ml-2">Content Pipeline</span>
-              {pipelineItems.filter(p => p.stage === 'Live').length > 0 && (
+              {pipelineItems.filter((p) => p.stage === 'Live').length > 0 && (
                 <span style={{ marginLeft: 'auto', fontSize: 9, fontWeight: 700, color: '#22c55e', background: 'rgba(34,197,94,0.1)', padding: '2px 8px', borderRadius: 4 }}>
-                  {pipelineItems.filter(p => p.stage === 'Live').length} Live
+                  {pipelineItems.filter((p) => p.stage === 'Live').length} Live
                 </span>
               )}
             </div>
@@ -2193,7 +2193,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               <p style={{ fontSize: 11, color: 'var(--de-text-dim)', margin: 0 }}>Track every piece of content from concept through to live. Tap <strong>Advance</strong> when a stage is complete.</p>
               {/* Stage legend */}
               <div style={{ display: 'flex', overflowX: 'auto', gap: 4, paddingBottom: 2 }}>
-                {PIPELINE_STAGES.map((stage, i) => (
+                {PIPELINE_STAGES.map((stage, i: number) => (
                   <div key={stage} style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
                     <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 10, background: `${PIPELINE_STAGE_COLOR[stage]}18`, color: PIPELINE_STAGE_COLOR[stage], border: `1px solid ${PIPELINE_STAGE_COLOR[stage]}30`, whiteSpace: 'nowrap' }}>{stage}</span>
                     {i < PIPELINE_STAGES.length - 1 && <span style={{ fontSize: 9, color: 'var(--de-text-dim)' }}>›</span>}
@@ -2202,7 +2202,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               </div>
               {/* Pipeline items */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {pipelineItems.map(item => (
+                {pipelineItems.map((item) => (
                   <div key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 12px', borderRadius: 10,
                     background: item.stage === 'Live' ? 'rgba(34,197,94,0.06)' : 'rgba(255,255,255,0.55)',
                     border: `1.5px solid ${PIPELINE_STAGE_COLOR[item.stage]}25` }}>
@@ -2232,7 +2232,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 <select value={pipeNewType} onChange={e => setPipeNewType(e.target.value)}
                   style={{ fontSize: 13, borderRadius: 8, padding: '6px 8px', border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
-                  {['📱', '🎬', '📸', '🧵', '📧', '▶️'].map(t => <option key={t} value={t}>{t}</option>)}
+                  {['📱', '🎬', '📸', '🧵', '📧', '▶️'].map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
                 <input value={pipeNewTitle} onChange={e => setPipeNewTitle(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && addPipelineItem()}
@@ -2240,7 +2240,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                   style={{ flex: 2, padding: '6px 10px', borderRadius: 8, fontSize: 12, border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)', outline: 'none', minWidth: 0 }} />
                 <select value={pipeNewPlatform} onChange={e => setPipeNewPlatform(e.target.value)}
                   style={{ fontSize: 11, borderRadius: 8, padding: '6px 8px', border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
-                  {['Instagram', 'TikTok', 'YouTube', 'Twitter/X', 'LinkedIn', 'Pinterest'].map(p => <option key={p} value={p}>{p}</option>)}
+                  {['Instagram', 'TikTok', 'YouTube', 'Twitter/X', 'LinkedIn', 'Pinterest'].map((p) => <option key={p} value={p}>{p}</option>)}
                 </select>
                 <button type="button" onClick={addPipelineItem} disabled={!pipeNewTitle.trim()}
                   style={{ ...btnBase, background: ACCENT, color: 'white', padding: '6px 16px', opacity: !pipeNewTitle.trim() ? 0.5 : 1 }}>
@@ -2266,7 +2266,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                 style={{ width: '100%', padding: '8px 12px', borderRadius: 9, fontSize: 13, fontWeight: 700, border: `1px solid ${ACCENT}25`, background: 'rgba(255,255,255,0.75)', color: 'var(--de-heading)', outline: 'none', boxSizing: 'border-box' }} />
               {/* Frame cards */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {sbFrames.map((frame, i) => (
+                {sbFrames.map((frame, i: number) => (
                   <div key={frame.id} style={{ borderRadius: 12, background: 'rgba(255,255,255,0.6)', border: `1px solid ${ACCENT}15`, overflow: 'hidden' }}>
                     {/* Frame header bar */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 10px', background: `${ACCENT}08`, borderBottom: `1px solid ${ACCENT}10` }}>
@@ -2276,7 +2276,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                         style={{ flex: 1, fontSize: 11, fontWeight: 700, background: 'none', border: 'none', outline: 'none', color: 'var(--de-heading)' }} />
                       <select value={frame.shot} onChange={e => updateSbFrame(frame.id, 'shot', e.target.value)}
                         style={{ fontSize: 10, borderRadius: 6, padding: '2px 6px', border: `1px solid ${ACCENT}20`, background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
-                        {SB_SHOT_TYPES.map(s => <option key={s} value={s}>{s}</option>)}
+                        {SB_SHOT_TYPES.map((s) => <option key={s} value={s}>{s}</option>)}
                       </select>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                         <input type="number" value={frame.duration} min={1} max={600}
@@ -2340,14 +2340,14 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                   <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Content Type</label>
                   <select value={planType} onChange={e => setPlanType(e.target.value)}
                     style={{ width: '100%', fontSize: 12, borderRadius: 8, padding: '7px 10px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
-                    {['Reel', 'YouTube Video', 'YouTube Short', '3D Animated Short', '3D Feature Film Scene', '2D Animation (Toon Boom)', '2D Animation (TVPaint)', 'Virtual Production (Unreal)', 'Feature Film Scene', 'Podcast', 'Blog Post', 'Email Campaign', 'Social Ad', 'Story'].map(t => <option key={t} value={t}>{t}</option>)}
+                    {['Reel', 'YouTube Video', 'YouTube Short', '3D Animated Short', '3D Feature Film Scene', '2D Animation (Toon Boom)', '2D Animation (TVPaint)', 'Virtual Production (Unreal)', 'Feature Film Scene', 'Podcast', 'Blog Post', 'Email Campaign', 'Social Ad', 'Story'].map((t) => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Platform</label>
                   <select value={planPlatform} onChange={e => setPlanPlatform(e.target.value)}
                     style={{ width: '100%', fontSize: 12, borderRadius: 8, padding: '7px 10px', border: '1px solid rgba(99,102,241,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
-                    {['Instagram', 'TikTok', 'YouTube', 'Twitter/X', 'LinkedIn', 'Pinterest', 'Email'].map(p => <option key={p} value={p}>{p}</option>)}
+                    {['Instagram', 'TikTok', 'YouTube', 'Twitter/X', 'LinkedIn', 'Pinterest', 'Email'].map((p) => <option key={p} value={p}>{p}</option>)}
                   </select>
                 </div>
               </div>
@@ -2364,13 +2364,13 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                     { phase: '🎬 Production (Engine)',   color: '#ec4899', items: planResult.production     },
                     { phase: '✂️ Post-Production',       color: '#8b5cf6', items: planResult.postProd       },
                     { phase: '🚀 Distribution',          color: '#22c55e', items: planResult.distribution   },
-                  ] as const).map(section => (
+                  ] as const).map((section) => (
                     <div key={section.phase} style={{ borderRadius: 10, overflow: 'hidden', border: `1px solid ${section.color}20` }}>
                       <div style={{ padding: '7px 12px', background: `${section.color}10`, borderBottom: `1px solid ${section.color}15` }}>
                         <span style={{ fontSize: 11, fontWeight: 800, color: section.color }}>{section.phase}</span>
                       </div>
                       <div style={{ padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: 5 }}>
-                        {section.items.map((item, i) => (
+                        {section.items.map((item, i: number) => (
                           <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                             <span style={{ fontSize: 10, fontWeight: 800, color: section.color, flexShrink: 0, marginTop: 1 }}>{i + 1}.</span>
                             <span style={{ fontSize: 11, color: 'var(--de-heading)', lineHeight: 1.5 }}>{item}</span>
@@ -2406,7 +2406,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                   style={{ flex: 2, padding: '8px 12px', borderRadius: 9, fontSize: 13, fontWeight: 700, border: '1px solid rgba(236,72,153,0.25)', background: 'rgba(255,255,255,0.75)', color: 'var(--de-heading)', outline: 'none' }} />
                 <select value={charRole} onChange={e => setCharRole(e.target.value as typeof charRole)}
                   style={{ flex: 1, fontSize: 11, borderRadius: 9, padding: '8px 10px', border: '1px solid rgba(236,72,153,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
-                  {CHAR_ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                  {CHAR_ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                 </select>
               </div>
               {/* Animation type + Rig level */}
@@ -2415,14 +2415,14 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                   <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Animation Pipeline</label>
                   <select value={charAnimType} onChange={e => setCharAnimType(e.target.value as typeof charAnimType)}
                     style={{ width: '100%', fontSize: 11, borderRadius: 8, padding: '7px 9px', border: '1px solid rgba(236,72,153,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
-                    {CHAR_ANIM_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                    {CHAR_ANIM_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 3 }}>Rig Complexity</label>
                   <select value={charRigLevel} onChange={e => setCharRigLevel(e.target.value as typeof charRigLevel)}
                     style={{ width: '100%', fontSize: 11, borderRadius: 8, padding: '7px 9px', border: '1px solid rgba(236,72,153,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
-                    {CHAR_RIG_LEVELS.map(r => <option key={r} value={r}>{r}</option>)}
+                    {CHAR_RIG_LEVELS.map((r) => <option key={r} value={r}>{r}</option>)}
                   </select>
                 </div>
               </div>
@@ -2443,11 +2443,11 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               <div>
                 <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 5 }}>Special Simulations Required</label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                  {CHAR_SIM_OPTIONS.map(sim => {
+                  {CHAR_SIM_OPTIONS.map((sim) => {
                     const on = charSims.has(sim);
                     return (
                       <button key={sim} type="button"
-                        onClick={() => setCharSims(prev => { const n = new Set(prev); on ? n.delete(sim) : n.add(sim); return n; })}
+                        onClick={() => setCharSims((prev) => { const n = new Set(prev); on ? n.delete(sim) : n.add(sim); return n; })}
                         style={{ padding: '4px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: 'pointer',
                           background: on ? 'rgba(236,72,153,0.14)' : 'rgba(255,255,255,0.55)',
                           border: `1.5px solid ${on ? '#ec4899' : 'rgba(160,195,240,0.25)'}`,
@@ -2496,14 +2496,14 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                   style={{ flex: 2, padding: '8px 12px', borderRadius: 9, fontSize: 13, fontWeight: 700, border: '1px solid rgba(139,92,246,0.25)', background: 'rgba(255,255,255,0.75)', color: 'var(--de-heading)', outline: 'none' }} />
                 <select value={sceneType} onChange={e => setSceneType(e.target.value as typeof sceneType)}
                   style={{ flex: 1, fontSize: 11, borderRadius: 9, padding: '8px 9px', border: '1px solid rgba(139,92,246,0.2)', background: 'rgba(255,255,255,0.7)', color: 'var(--de-heading)' }}>
-                  {SCENE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                  {SCENE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
               {/* Lighting */}
               <div>
                 <label style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', display: 'block', marginBottom: 5 }}>Lighting Condition</label>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-                  {LIGHTING_TYPES.map(l => (
+                  {LIGHTING_TYPES.map((l) => (
                     <button key={l} type="button" onClick={() => setSceneLighting(l as typeof sceneLighting)}
                       style={{ padding: '4px 10px', borderRadius: 20, fontSize: 10, fontWeight: 700, cursor: 'pointer',
                         background: sceneLighting === l ? 'rgba(139,92,246,0.14)' : 'rgba(255,255,255,0.55)',
@@ -2541,7 +2541,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                       { label: 'Frame Rate',             val: '24fps (film) / 60fps (VFX)' },
                       { label: 'Tracking System',        val: 'Define: Vicon / OptiTrack / Stype' },
                       { label: 'Asset LOD Budget',       val: 'Confirm with Tech Art'  },
-                    ].map(r => (
+                    ].map((r) => (
                       <div key={r.label} style={{ display: 'flex', gap: 8, fontSize: 10 }}>
                         <span style={{ fontWeight: 700, color: '#8b5cf6', minWidth: 110 }}>{r.label}:</span>
                         <span style={{ color: 'var(--de-text-dim)' }}>{r.val}</span>
@@ -2642,11 +2642,11 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                     { name: 'Final Draft',   desc: 'Industry-standard scriptwriting & dialogue management',             de: 'AI Production Plan → full story outline, scene structure, character arc, and dialogue direction delivered before Final Draft opens' },
                   ],
                 },
-              ]).map(group => (
+              ]).map((group) => (
                 <div key={group.category}>
                   <div style={{ fontSize: 11, fontWeight: 800, color: group.color, marginBottom: 5 }}>{group.category}</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                    {group.tools.map(tool => (
+                    {group.tools.map((tool) => (
                       <div key={tool.name} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '9px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.5)', border: `1px solid ${group.color}15` }}>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 2 }}>{tool.name}</div>
@@ -2690,7 +2690,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {notes.map(note => (
+                {notes.map((note) => (
                   <div key={note.id} style={{
                     display: 'flex', alignItems: 'center', gap: 10,
                     padding: '10px 12px', borderRadius: 10,
@@ -2722,7 +2722,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 6 }}>
-              {DAYS.map(day => (
+              {DAYS.map((day) => (
                 <div key={day} style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
                   <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-text-dim)' }}>{day}</span>
                   <div style={{
@@ -2732,7 +2732,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                     padding: '4px 3px',
                     display: 'flex', flexDirection: 'column', gap: 3, alignItems: 'center',
                   }}>
-                    {calendarItems[day].map(item => (
+                    {calendarItems[day].map((item) => (
                       <span
                         key={item.id}
                         title={item.title}
@@ -2776,7 +2776,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                         onChange={e => setFormType(e.target.value as CalendarItem['type'])}
                         style={{ fontSize: 12, borderRadius: 6, padding: '3px 6px', border: `1px solid ${ACCENT}40`, background: 'white' }}
                       >
-                        {CONTENT_TYPES.map(t => <option key={t} value={t}>{TYPE_EMOJI[t]} {t}</option>)}
+                        {CONTENT_TYPES.map((t) => <option key={t} value={t}>{TYPE_EMOJI[t]} {t}</option>)}
                       </select>
                       <input
                         value={formTitle}
@@ -2828,7 +2828,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               </p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {allQueued.map(item => (
+                {allQueued.map((item) => (
                   <div key={item.id} style={{
                     display: 'flex', alignItems: 'center', gap: 10,
                     padding: '9px 12px', borderRadius: 10,
@@ -2880,7 +2880,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                   onChange={e => setDraftType(e.target.value as DraftType)}
                   style={{ width: '100%', fontSize: 13, borderRadius: 8, padding: '6px 10px', border: `1px solid rgba(160,195,240,0.35)`, background: 'rgba(255,255,255,0.7)' }}
                 >
-                  {DRAFT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                  {DRAFT_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
               <div style={{ flex: 2 }}>
@@ -2954,7 +2954,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
           </div>
           <div className="de-widget-body" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {PLATFORMS.map(p => {
+              {PLATFORMS.map((p) => {
                 const active = selectedPlatforms.has(p);
                 return (
                   <button
@@ -3084,7 +3084,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                   <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: '0.15em', color: ACCENT, fontFamily: 'monospace' }}>{collabDraftCode}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  {collabDraftUsers.map(u => (
+                  {collabDraftUsers.map((u) => (
                     <div
                       key={u}
                       style={{
@@ -3126,7 +3126,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
           </div>
           <div className="de-widget-body">
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
-              {analyticsMetrics.map((m, i) => (
+              {analyticsMetrics.map((m, i: number) => (
                 <div
                   key={i}
                   style={{
@@ -3176,8 +3176,8 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
               {templates
-                .filter(t => t.name.toLowerCase().includes(templateSearch.toLowerCase()) || t.type.toLowerCase().includes(templateSearch.toLowerCase()))
-                .map(t => (
+                .filter((t) => t.name.toLowerCase().includes(templateSearch.toLowerCase()) || t.type.toLowerCase().includes(templateSearch.toLowerCase()))
+                .map((t) => (
                   <div
                     key={t.id}
                     style={{
@@ -3239,7 +3239,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               }}
             />
             <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-              {([15, 30, 60, 90] as const).map(d => (
+              {([15, 30, 60, 90] as const).map((d) => (
                 <button
                   key={d}
                   type="button"
@@ -3319,7 +3319,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             </div>
             {hashtags.length > 0 && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {hashtags.map((tag, i) => (
+                {hashtags.map((tag, i: number) => (
                   <span
                     key={i}
                     style={{
@@ -3375,7 +3375,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                 'Unpopular opinion: [your take] is better than [alternative]',
                 'Here\'s what I wish someone told me when I started:',
                 'POV: You just discovered the creator tool you\'ve been looking for.',
-              ]).map((hook, i) => (
+              ]).map((hook, i: number) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 9, background: copiedHook === i ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.06)', border: `1px solid ${copiedHook === i ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.15)'}`, transition: 'background 0.2s, border 0.2s' }}>
                   <span style={{ fontSize: 11, flex: 1, color: 'var(--de-heading)', lineHeight: 1.4 }}>{hook}</span>
                   <button type="button" onClick={() => copyHook(hook, i)}
@@ -3404,7 +3404,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                 { from: '🎬 Long Video', to: '📱 5 Reels', arrow: '→' },
                 { from: '🎙 Podcast', to: '📝 Newsletter', arrow: '→' },
                 { from: '🧵 Thread', to: '📸 Carousel', arrow: '→' },
-              ].map(r => (
+              ].map((r) => (
                 <div key={r.from} style={{ padding: '10px 10px', borderRadius: 10, background: `${ACCENT}08`, border: `1px solid ${ACCENT}18`, display: 'flex', flexDirection: 'column', gap: 4 }}>
                   <div style={{ fontSize: 11, color: 'var(--de-text-dim)' }}>{r.from}</div>
                   <div style={{ fontSize: 11, color: ACCENT, fontWeight: 700 }}>{r.arrow} {r.to}</div>
@@ -3456,7 +3456,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             )}
             {seoResult?.reasons?.length ? (
               <div style={{ marginBottom: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {seoResult.reasons.map((reason, idx) => (
+                {seoResult.reasons.map((reason, idx: number) => (
                   <div key={idx} style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>• {reason}</div>
                 ))}
               </div>
@@ -3466,7 +3466,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                 { title: 'How I Built [X] in [Time] (Step-by-Step)', score: 92 },
                 { title: '[Number] Things I Learned from [Experience]', score: 88 },
                 { title: 'The Ultimate Guide to [Topic] for [Audience]', score: 85 },
-              ].map(t => (
+              ].map((t) => (
                 <div key={t.title} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 9, background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}15` }}>
                   <span style={{ flex: 1, fontSize: 11, color: 'var(--de-heading)' }}>{t.title}</span>
                   <span style={{ fontSize: 10, fontWeight: 700, color: '#22c55e', flexShrink: 0 }}>{t.score}pts</span>
@@ -3521,7 +3521,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                 { type: '📝 Carousel', score: 84, label: 'Strong' },
                 { type: '🐦 Thread', score: 72, label: 'Moderate' },
                 { type: '📸 Static Post', score: 58, label: 'Average' },
-              ].map(f => (
+              ].map((f) => (
                 <div key={f.type} style={{ padding: '10px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.5)', border: `1px solid ${ACCENT}15`, textAlign: 'center' }}>
                   <div style={{ fontSize: 13, marginBottom: 4 }}>{f.type}</div>
                   <div style={{ fontSize: 20, fontWeight: 800, color: f.score >= 80 ? '#22c55e' : f.score >= 65 ? ACCENT : '#ef4444' }}>{f.score}%</div>
@@ -3548,7 +3548,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                 { platform: '🎵 TikTok',    optimal: 'Fri 7 PM', queued: 1 },
                 { platform: '🐦 X',         optimal: 'Thu 9 AM', queued: 3 },
                 { platform: '▶️ YouTube',   optimal: 'Sat 2 PM', queued: 0 },
-              ].map(p => (
+              ].map((p) => (
                 <div key={p.platform} style={{ padding: '9px 10px', borderRadius: 9, background: `${ACCENT}08`, border: `1px solid ${ACCENT}18` }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 3 }}>{p.platform}</div>
                   <div style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>Best: {p.optimal}</div>
@@ -3585,7 +3585,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                   body: 'DREAMengin gives you analytics, publishing, and brand tools creators actually use.',
                   cta: 'Start Free Today',
                 },
-              ].map(ad => (
+              ].map((ad) => (
                 <div key={ad.label} style={{ padding: '10px 12px', borderRadius: 10, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.18)' }}>
                   <div style={{ fontSize: 9, fontWeight: 700, color: ACCENT, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{ad.label}</div>
                   <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--de-heading)', marginBottom: 3 }}>{ad.headline}</div>
@@ -3616,7 +3616,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                 { name: 'Drift Intro', desc: 'Racing car speed reveal', emoji: '🏎', tier: 'Premium' },
                 { name: 'Galaxy Fly', desc: 'Space flythrough with brand text', emoji: '🌌', tier: 'Premium' },
                 { name: 'Glitch Cut', desc: 'Cyberpunk glitch screen reveal', emoji: '⚡', tier: 'Free' },
-              ].map(t => (
+              ].map((t) => (
                 <div key={t.name} style={{ padding: '10px 10px', borderRadius: 10, background: 'rgba(139,92,246,0.07)', border: '1px solid rgba(139,92,246,0.2)' }}>
                   <div style={{ fontSize: 20, marginBottom: 4 }}>{t.emoji}</div>
                   <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--de-heading)' }}>{t.name}</div>
@@ -3764,13 +3764,13 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               </div>
             ) : displayedSegments.length > 0 ? (
               <div style={{ maxHeight: 220, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {displayedSegments.map(seg => (
+                {displayedSegments.map((seg) => (
                   <div key={seg.id} style={{ padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(6,182,212,0.15)' }}>
                     <div style={{ fontSize: 9, color: 'var(--de-text-dim)', marginBottom: 3, fontFamily: 'monospace' }}>
                       {(seg.startMs / 1000).toFixed(2)}s → {(seg.endMs / 1000).toFixed(2)}s
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                      {seg.words.map(w => (
+                      {seg.words.map((w) => (
                         <button
                           key={w.index}
                           type="button"
@@ -3828,7 +3828,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             {pendingCuts.length > 0 && (
               <div style={{ marginTop: 8, padding: '8px 10px', borderRadius: 8, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: '#ef4444', marginBottom: 4 }}>PENDING CUTS</div>
-                {pendingCuts.map((cut, i) => (
+                {pendingCuts.map((cut, i: number) => (
                   <div key={i} style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>
                     ✂️ {(cut.cutStartMs / 1000).toFixed(2)}s – {(cut.cutEndMs / 1000).toFixed(2)}s
                   </div>
@@ -3934,7 +3934,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               <div style={{ marginBottom: 10 }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', marginBottom: 5 }}>SAVED VOICES</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  {voiceProfiles.map(p => (
+                  {voiceProfiles.map((p) => (
                     <div key={p.id} style={{
                       display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8,
                       background: voiceProfileId === p.id ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.5)',
@@ -4050,7 +4050,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
               />
               <button
                 type="button"
-                onClick={() => setAdvSeoExpanded(p => !p)}
+                onClick={() => setAdvSeoExpanded((p) => !p)}
                 style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--de-text-dim)', fontSize: 11, fontWeight: 600, padding: 0, alignSelf: 'flex-start' }}
               >
                 {advSeoExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -4078,7 +4078,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                 </div>
                 {/* Dimensions */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                  {advSeoResult.dimensions.map(d => (
+                  {advSeoResult.dimensions.map((d) => (
                     <div key={d.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--de-text-dim)', width: 36 }}>{d.label}</span>
                       <div style={{ flex: 1, height: 4, borderRadius: 3, background: 'rgba(0,0,0,0.07)' }}>
@@ -4108,7 +4108,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                 {advSeoResult.topSuggestions.length > 0 && (
                   <div style={{ padding: '8px 10px', borderRadius: 8, background: `${ACCENT}06`, border: `1px solid ${ACCENT}18` }}>
                     <div style={{ fontSize: 10, fontWeight: 700, color: ACCENT, marginBottom: 4 }}>SUGGESTIONS</div>
-                    {advSeoResult.topSuggestions.map((s, i) => (
+                    {advSeoResult.topSuggestions.map((s, i: number) => (
                       <div key={i} style={{ fontSize: 10, color: 'var(--de-text-dim)' }}>• {s}</div>
                     ))}
                   </div>
@@ -4133,7 +4133,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             <span className="de-widget-title ml-1">Human Review</span>
             <button
               type="button"
-              onClick={() => setHumanReviewEnabled(p => !p)}
+              onClick={() => setHumanReviewEnabled((p) => !p)}
               style={{
                 marginLeft: 'auto', padding: '3px 10px', borderRadius: 999, fontSize: 11, fontWeight: 700, border: 'none', cursor: 'pointer',
                 background: humanReviewEnabled ? 'rgba(34,197,94,0.15)' : 'rgba(160,195,240,0.2)',
@@ -4155,7 +4155,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                 <span style={{ fontSize: 11, color: '#22c55e', fontWeight: 600 }}>Human Review active — all outputs will require confirmation.</span>
               </div>
             )}
-            {pendingReviewItems.map(item => (
+            {pendingReviewItems.map((item) => (
               <div key={item.id} style={{ padding: '10px 12px', borderRadius: 9, background: `${ACCENT}06`, border: `1px solid ${ACCENT}20`, marginBottom: 8 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--de-heading)', marginBottom: 4 }}>{item.label}</div>
                 <div style={{ fontSize: 11, color: 'var(--de-text-dim)', marginBottom: 8, whiteSpace: 'pre-wrap' }}>{item.content}</div>
@@ -4316,7 +4316,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             </p>
             {/* Category filter */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 10 }}>
-              {allCategories().map(cat => (
+              {allCategories().map((cat) => (
                 <button key={cat} type="button" onClick={() => setFxCategory(cat)}
                   style={{ fontSize: 10, fontWeight: 700, padding: '3px 9px', borderRadius: 999, border: 'none', cursor: 'pointer', background: fxCategory === cat ? '#f97316' : 'rgba(249,115,22,0.1)', color: fxCategory === cat ? 'white' : '#f97316' }}>
                   {cat}
@@ -4325,7 +4325,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             </div>
             {/* Preset list */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10 }}>
-              {presetsByCategory(fxCategory).map(preset => (
+              {presetsByCategory(fxCategory).map((preset) => (
                 <button key={preset.id} type="button" onClick={() => selectFxPreset(preset.id)}
                   style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, border: `1px solid ${fxSim?.presetId === preset.id ? '#f97316' : 'rgba(249,115,22,0.15)'}`, background: fxSim?.presetId === preset.id ? 'rgba(249,115,22,0.12)' : 'rgba(255,255,255,0.5)', cursor: 'pointer', textAlign: 'left' }}>
                   <span style={{ fontSize: 16, flexShrink: 0 }}>{preset.emoji}</span>
@@ -4374,7 +4374,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             </p>
             {/* Add layer buttons */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 10 }}>
-              {['video', '3d', 'roto', '2d', 'adjustment'].map(type => (
+              {['video', '3d', 'roto', '2d', 'adjustment'].map((type) => (
                 <button key={type} type="button" onClick={() => addCompLayer(type)}
                   style={{ fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 999, border: '1px solid rgba(6,182,212,0.3)', background: 'rgba(6,182,212,0.07)', color: '#06b6d4', cursor: 'pointer' }}>
                   + {type}
@@ -4384,7 +4384,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             {compMsg && <div style={{ fontSize: 11, fontWeight: 600, color: compMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>{compMsg}</div>}
             {/* Layer stack */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              {compLayers.map((layer, idx) => (
+              {compLayers.map((layer, idx: number) => (
                 <div key={layer.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(6,182,212,0.15)', opacity: layer.visible ? 1 : 0.4 }}>
                   <span style={{ fontSize: 10, fontFamily: 'monospace', color: 'var(--de-text-dim)', width: 16, flexShrink: 0 }}>{idx + 1}</span>
                   <button type="button" onClick={() => toggleCompLayerVisibility(layer.id)}
@@ -4430,7 +4430,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             {/* Layer list */}
             {rotoProject.layers.length > 0 && (
               <div style={{ marginBottom: 10, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                {rotoProject.layers.map(layer => {
+                {rotoProject.layers.map((layer) => {
                   const kfs = keyframeList(layer);
                   const hasKF = kfs.includes(rotoFrame);
                   const interp = interpolateShape(layer, rotoFrame);
@@ -4482,10 +4482,10 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             <div style={{ overflowX: 'auto', marginBottom: 10 }}>
               <div style={{ position: 'relative', height: 180, minWidth: 400, background: 'rgba(0,0,0,0.04)', borderRadius: 10, border: '1px solid rgba(34,197,94,0.15)', overflow: 'hidden' }}>
                 <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-                  {nodeGraph.nodes.map(n =>
+                  {nodeGraph.nodes.map((n) =>
                     Object.entries(n.inputs).map(([, srcId]) => {
                       if (!srcId) return null;
-                      const src = nodeGraph.nodes.find(x => x.id === srcId);
+                      const src = nodeGraph.nodes.find((x) => x.id === srcId);
                       if (!src) return null;
                       const x1 = src.position.x + 70, y1 = src.position.y + 18;
                       const x2 = n.position.x, y2 = n.position.y + 18;
@@ -4493,7 +4493,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
                     })
                   )}
                 </svg>
-                {nodeGraph.nodes.map(n => (
+                {nodeGraph.nodes.map((n) => (
                   <div key={n.id} style={{ position: 'absolute', left: n.position.x, top: n.position.y, background: n.type === 'Output' ? '#22c55e' : n.type === 'MediaIn' ? 'rgba(6,182,212,0.8)' : 'rgba(255,255,255,0.85)', border: `1px solid ${n.type === 'Output' ? '#22c55e' : 'rgba(34,197,94,0.3)'}`, borderRadius: 6, padding: '3px 8px', fontSize: 10, fontWeight: 700, color: n.type === 'Output' ? 'white' : 'var(--de-heading)', whiteSpace: 'nowrap', cursor: 'default', zIndex: 1 }}>
                     {n.label}
                   </div>
@@ -4502,12 +4502,12 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             </div>
             {/* Eval order */}
             <div style={{ fontSize: 10, color: 'var(--de-text-dim)', marginBottom: 8, fontFamily: 'monospace', wordBreak: 'break-all' }}>
-              Eval: {topologicalSort(nodeGraph.nodes).map(id => nodeGraph.nodes.find(n => n.id === id)?.label ?? id).join(' → ')}
+              Eval: {topologicalSort(nodeGraph.nodes).map((id) => nodeGraph.nodes.find((n) => n.id === id)?.label ?? id).join(' → ')}
             </div>
             {nodeMsg && <div style={{ fontSize: 11, fontWeight: 600, color: nodeMsg.startsWith('⚠️') ? '#ef4444' : '#22c55e', marginBottom: 8 }}>{nodeMsg}</div>}
             {/* Add node */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-              {(['MediaIn', 'Over', 'Merge', 'ColorCorrect', 'Transform', 'Keyer', 'MotionBlur'] as NodeType[]).map(t => (
+              {(['MediaIn', 'Over', 'Merge', 'ColorCorrect', 'Transform', 'Keyer', 'MotionBlur'] as NodeType[]).map((t) => (
                 <button key={t} type="button" onClick={() => handleAddNode(t)}
                   style={{ fontSize: 10, fontWeight: 600, padding: '3px 9px', borderRadius: 999, border: '1px solid rgba(34,197,94,0.3)', background: 'rgba(34,197,94,0.07)', color: '#22c55e', cursor: 'pointer' }}>
                   + {t}
@@ -4537,8 +4537,8 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
             {/* Track points list */}
             {cameraTrack.trackPoints.length > 0 && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10, maxHeight: 140, overflowY: 'auto' }}>
-                {cameraTrack.trackPoints.map((pt, i) => {
-                  const motions = estimateCameraMotion(cameraTrack).filter(m => m.pointId === pt.id);
+                {cameraTrack.trackPoints.map((pt, i: number) => {
+                  const motions = estimateCameraMotion(cameraTrack).filter((m) => m.pointId === pt.id);
                   const avgSpeed = motions.length > 0 ? motions.reduce((s, m) => s + m.speed, 0) / motions.length : 0;
                   return (
                     <div key={pt.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8, background: 'rgba(255,255,255,0.5)', border: '1px solid rgba(245,158,11,0.15)' }}>

@@ -294,7 +294,7 @@ export default function FeedVideoCard({ post, allVideos, videoIndex }: FeedVideo
           {(() => {
             const start = Math.max(0, currentIndex - 2);
             const end = Math.min(allVideos.length, start + 5);
-            return Array.from({ length: end - start }, (_, i) => {
+            return Array.from({ length: end - start }, (_, i: number ) => {
               const abs = i + start;
               return (
                 <button

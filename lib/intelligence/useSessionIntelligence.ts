@@ -100,7 +100,7 @@ export function useSessionIntelligence(
 
     let cancelled = false;
 
-    async function boot() {
+    async function boot( ){
       await Promise.all([pattern.init(), continuity.init()]);
       if (cancelled) return;
 

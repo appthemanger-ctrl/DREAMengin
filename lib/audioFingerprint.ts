@@ -157,7 +157,7 @@ function buildSignature(peaks: Peak[], fftSize: number): number[] {
     }
   }
   // Normalise to unit length
-  const norm = Math.sqrt(vec.reduce((a, v) => a + v * v, 0));
+  const norm = Math.sqrt(vec.reduce((a, v: number) => a + v * v, 0));
   return norm > 0 ? vec.map((v) => v / norm) : vec;
 }
 
@@ -230,7 +230,7 @@ export function matchFingerprint(
  * Uses constellation peak-map technique described in docs/LAW.md §17.
  * No AI model required — pure signal fingerprinting.
  */
-export function createFingerprintIsolator() {
+export function createFingerprintIsolator( ){
   let _reference: Fingerprint | null = null;
 
   return {

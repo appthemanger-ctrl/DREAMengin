@@ -246,7 +246,7 @@ export function createIDARiAgent(widgetId?: string): IDARiAgent {
   };
 }
 
-export function emitIDARiEvent(detail: IDARiResult) {
+export function emitIDARiEvent(detail: IDARiResult ){
   if (typeof window === "undefined") return;
   window.dispatchEvent(
     new CustomEvent<IDARiResult>(IDARI_EVENT, { detail })

@@ -4,6 +4,6 @@ export interface DreamLogoSceneOptions {
   enginSrc?: string
 }
 
-export function useDreamLogoScene() {
+export function useDreamLogoScene( ){
   return { canvasRef: null as React.RefObject<HTMLCanvasElement> | null, pause: () => {}, resume: () => {} }
 }

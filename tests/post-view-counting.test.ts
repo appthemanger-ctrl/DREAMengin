@@ -54,7 +54,7 @@ function isFirstShareOfRoot(
 
   // Find all posts by the same sharer referencing this root.
   const sharerPosts = [...posts.values()]
-    .filter(p => p.user_id === viewedPost.user_id && p.original_post_id === rootPostId)
+    .filter((p) => p.user_id === viewedPost.user_id && p.original_post_id === rootPostId)
     .sort((a, b) => a.id.localeCompare(b.id)); // id ordering as proxy for time
 
   return sharerPosts.length > 0 && sharerPosts[0].id === viewedPost.id;

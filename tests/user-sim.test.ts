@@ -27,7 +27,7 @@ import {
 
 let _stepCounter = 0;
 
-function makeElement(overrides: Partial<VisibleElement> = {}): VisibleElement {
+function makeElement(overrides: Partial<VisibleElement> = ){}): VisibleElement {
   return {
     id: `el-${_stepCounter++}`,
     tag: 'button',
@@ -39,7 +39,7 @@ function makeElement(overrides: Partial<VisibleElement> = {}): VisibleElement {
   };
 }
 
-function makeFrame(overrides: Partial<PerceptionFrame> = {}): PerceptionFrame {
+function makeFrame(overrides: Partial<PerceptionFrame> = ){}): PerceptionFrame {
   return {
     step: _stepCounter++,
     page_title: 'DREAMengin Home',

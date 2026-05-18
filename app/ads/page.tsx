@@ -8,10 +8,10 @@ import DreamWord from '@/components/ui/dream.DreamWord';
 import { connection } from 'next/server';
 
 
-export default async function AdsPage() {
+export default async function AdsPage( ){
   await connection();
   const supabase = await createServerClient();
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {

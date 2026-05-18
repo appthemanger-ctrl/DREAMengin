@@ -165,7 +165,7 @@ function colMineHints(mines: boolean[][]): number[] {
 }
 
 // ── Component ───────────────────────────────────────────────────────────────
-export default function NullCathedral() {
+export default function NullCathedral( ){
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const boardRef = useRef<Cell[][]>(startBoard());
@@ -405,14 +405,14 @@ export default function NullCathedral() {
       shakeRef.current.kick(2);
       if (captured.kind === 'K' && captured.side === 'castle') {
         boardRef.current = b;
-        setScore((s) => s + pts);
+        setScore((s: string ) => s + pts);
         setLog((l) => [logEntry + ' · CASTLE collapses.', ...l].slice(0, 8));
         setPhase('victory');
         return;
       }
       if (captured.kind === 'K' && captured.side === 'iren') {
         boardRef.current = b;
-        setScore((s) => s + pts);
+        setScore((s: string ) => s + pts);
         setLog((l) => [logEntry + ' · Iren is overwritten.', ...l].slice(0, 8));
         setPhase('defeat');
         return;
@@ -484,7 +484,7 @@ export default function NullCathedral() {
     }
     timeMineFusesRef.current = surviving;
 
-    setScore((s) => s + pts);
+    setScore((s: string ) => s + pts);
     setLog((l) => [logEntry, ...l].slice(0, 8));
     setTurn(side === 'iren' ? 'castle' : 'iren');
   };

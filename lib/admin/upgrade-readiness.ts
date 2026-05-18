@@ -77,7 +77,7 @@ export function selectNextUpgradeTarget(
 ): UpgradeTarget | null {
   const states = computeAllBuildCycleStates(manifests);
   const candidates = manifests
-    .map((manifest, index) => ({ manifest, state: states[index] }))
+    .map((manifest, index: number) => ({ manifest, state: states[index] }))
     .filter(({ state }) => state.featurePlanned > 0)
     .map(({ manifest, state }) => {
       const nextFeature = manifest.features.find((feature) => feature.status === 'planned');

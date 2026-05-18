@@ -43,7 +43,7 @@ function buildViralHooks(topic: string): string[] {
   ];
 }
 
-function scoreSeoTitle(title: string) {
+function scoreSeoTitle(title: string ){
   let score = 40;
   const reasons: string[] = [];
   if (title.length >= 30 && title.length <= 70) {
@@ -131,58 +131,58 @@ function checkBrandVoice(content: string, voiceProfile: string): {
   flags: BrandVoiceFlag[];
   rewrite: string;
 } {
-  const tones = voiceProfile.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+  const tones = voiceProfile.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
   const words = content.toLowerCase().split(/\s+/);
   const onBrand: string[] = [];
   const flags: BrandVoiceFlag[] = [];
 
   // Detect tone-aligned signals
-  if (tones.some(t => ['bold', 'direct', 'confident'].includes(t))) {
+  if (tones.some((t) => ['bold', 'direct', 'confident'].includes(t))) {
     if (/\b(you|your|stop|now|start|get|do)\b/.test(content)) onBrand.push('Direct address detected ✓');
   }
-  if (tones.some(t => ['playful', 'fun', 'casual'].includes(t))) {
+  if (tones.some((t) => ['playful', 'fun', 'casual'].includes(t))) {
     if (/[!🔥✨💡😎🎯]/.test(content)) onBrand.push('Playful tone signals ✓');
     if (/\b(hey|love|cool|awesome)\b/i.test(content)) onBrand.push('Casual language ✓');
   }
-  if (tones.some(t => ['professional', 'expert', 'authoritative'].includes(t))) {
+  if (tones.some((t) => ['professional', 'expert', 'authoritative'].includes(t))) {
     if (/\b(research|strategy|proven|results|data)\b/i.test(content)) onBrand.push('Authority language ✓');
   }
-  if (tones.some(t => ['gen-z', 'genz', 'gen z', 'youth'].includes(t))) {
+  if (tones.some((t) => ['gen-z', 'genz', 'gen z', 'youth'].includes(t))) {
     if (/\b(pov|vibe|no cap|lowkey|fr|slay)\b/i.test(content)) onBrand.push('Gen-Z vernacular ✓');
   }
   if (onBrand.length === 0) onBrand.push('Neutral tone — see suggestions below');
 
   // Flag off-brand signals
   const corporate = ['synergy', 'leverage', 'utilize', 'paradigm', 'bandwidth', 'circle back', 'deep dive', 'touch base'];
-  corporate.forEach(w => {
+  corporate.forEach((w) => {
     if (words.includes(w)) {
       flags.push({ word: w, issue: 'Corporate jargon — conflicts with brand voice', suggestion: `Replace "${w}" with a more natural alternative` });
     }
   });
   if (tones.includes('short') || tones.includes('concise')) {
-    const sentenceCount = content.split(/[.!?]/).filter(s => s.trim()).length;
+    const sentenceCount = content.split(/[.!?]/).filter((s) => s.trim()).length;
     if (sentenceCount > 8) flags.push({ word: 'length', issue: `${sentenceCount} sentences — too long for concise brand`, suggestion: 'Trim to 4–5 punchy sentences' });
   }
-  if (tones.some(t => ['no-emoji', 'minimal', 'clean'].includes(t))) {
+  if (tones.some((t) => ['no-emoji', 'minimal', 'clean'].includes(t))) {
     const emojiCount = (content.match(/[\u{1F300}-\u{1FAFF}]/gu) ?? []).length;
     if (emojiCount > 2) flags.push({ word: 'emojis', issue: `${emojiCount} emojis detected — brand uses minimal emoji style`, suggestion: 'Reduce to 0–1 emoji max' });
   }
 
   const flagPenalty = Math.min(flags.length * 12, 40);
-  const bonusFromOnBrand = Math.min(onBrand.filter(o => o.includes('✓')).length * 15, 45);
+  const bonusFromOnBrand = Math.min(onBrand.filter((o) => o.includes('✓')).length * 15, 45);
   const score = Math.max(30, Math.min(100, 55 + bonusFromOnBrand - flagPenalty));
 
   // Light rewrite suggestion
   let rewrite = content.slice(0, 200);
   if (flags.length > 0) {
-    corporate.forEach(w => { rewrite = rewrite.replace(new RegExp(`\\b${w}\\b`, 'gi'), '[rephrase]'); });
+    corporate.forEach((w) => { rewrite = rewrite.replace(new RegExp(`\\b${w}\\b`, 'gi'), '[rephrase]'); });
   }
   if (rewrite.length < content.length) rewrite += '…';
 
   return { score, onBrand, flags, rewrite };
 }
 
-function buildSeoOutline(keyword: string) {
+function buildSeoOutline(keyword: string ){
   const clean = keyword.trim();
   const cap   = clean.charAt(0).toUpperCase() + clean.slice(1);
   return {
@@ -204,7 +204,7 @@ function buildSeoOutline(keyword: string) {
   };
 }
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -223,7 +223,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Validation error', details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const db = supabase as any;
+  const db = supabase as SupabaseClient;
   const now = new Date().toISOString();
 
   if (parsed.data.type === 'viral-hooks') {
@@ -256,7 +256,7 @@ export async function POST(req: NextRequest) {
       .insert({
         user_id: user.id,
         title: `Repurposed — ${parsed.data.content.slice(0, 50)}`,
-        content: outputs.map(o => `[${o.platform}] ${o.text}`).join('\n\n---\n\n'),
+        content: outputs.map((o) => `[${o.platform}] ${o.text}`).join('\n\n---\n\n'),
         content_type: 'caption',
         scheduled_at: null,
         created_at: now,

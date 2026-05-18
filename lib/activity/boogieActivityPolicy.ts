@@ -43,7 +43,7 @@ export function shouldExcludeFromFeed(signals: BoogieActivitySignals): boolean {
   return resolveActivityFeedTreatment(signals) !== 'feed';
 }
 
-export function detectActivityFraudSignals(params: {
+export function detectActivityFraudSignals(params: ){
   duplicateContent?: boolean;
   fakeCheckInDistanceMeters?: number | null;
   botViewRate?: number;

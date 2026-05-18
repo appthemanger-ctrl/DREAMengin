@@ -60,7 +60,7 @@ const TERRAIN_KIND: Record<Terrain, SegmentKind | null> = {
   plain: null, forest: 'arrow', ruins: 'mortar', water: 'slow',
 };
 
-export default function SerpentSiege() {
+export default function SerpentSiege( ){
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [phase, phaseRef, setPhase] = useGamePhase<Phase>('menu');
   const terrainRef = useRef<Terrain[][]>(genTerrain());

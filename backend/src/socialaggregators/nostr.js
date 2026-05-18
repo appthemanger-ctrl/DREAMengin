@@ -23,7 +23,7 @@ export default class NostrAggregator {
         }
       ]);
       
-      posts.push(...events.map(event => this.normalizePost(event)));
+      posts.push(...events.map((event) => this.normalizePost(event)));
       relay.close();
     }
 

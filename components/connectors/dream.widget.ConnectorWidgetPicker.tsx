@@ -151,13 +151,13 @@ export default function ConnectorWidgetPicker({
     );
   }, [query]);
 
-  function handleCardTap(connector: PickerConnector) {
+  function handleCardTap(connector: PickerConnector ){
     // HARD RULE: already in grid → do nothing
     if (activeWidgetTypes.includes(connector.widgetType)) return;
     setPending(connector);
   }
 
-  function handleConfirm() {
+  function handleConfirm( ){
     if (!pending) return;
     onAdd(pending);
     setPending(null);

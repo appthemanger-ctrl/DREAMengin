@@ -23,8 +23,8 @@ function buildProfileFeed(
   maxSaved = 25,
   totalLimit = 50,
 ): Array<{ id: string; is_saved: boolean }> {
-  const included = savedPosts.slice(0, maxSaved).map(p => ({ id: p.id, is_saved: true }));
-  const savedIds = new Set(included.map(p => p.id));
+  const included = savedPosts.slice(0, maxSaved).map((p) => ({ id: p.id, is_saved: true }));
+  const savedIds = new Set(included.map((p) => p.id));
   const slots = totalLimit - included.length;
   let added = 0;
   for (const p of ephemeralPosts) {
@@ -64,7 +64,7 @@ function filterCloseFriendsPosts(
   viewerId: string,
   closeFriendPosters: Set<string>,
 ): Array<{ id: string }> {
-  return posts.filter(p => {
+  return posts.filter((p) => {
     if (p.post_visibility === 'close_friends') {
       return closeFriendPosters.has(p.user_id) || p.user_id === viewerId;
     }
@@ -113,8 +113,8 @@ describe('Profile feed composition', () => {
     const saved = makePosts(25, 's');
     const ephem = makePosts(30, 'e', 100_000);
     const feed = buildProfileFeed(saved, ephem);
-    const savedCount = feed.filter(p => p.is_saved).length;
-    const ephemCount = feed.filter(p => !p.is_saved).length;
+    const savedCount = feed.filter((p) => p.is_saved).length;
+    const ephemCount = feed.filter((p) => !p.is_saved).length;
     expect(savedCount).toBe(25);
     expect(ephemCount).toBe(25);
   });
@@ -124,9 +124,9 @@ describe('Profile feed composition', () => {
     const ephem = makePosts(50, 'e', 100_000);
     const feed = buildProfileFeed(saved, ephem);
     expect(feed.length).toBe(50);
-    const savedCount = feed.filter(p => p.is_saved).length;
+    const savedCount = feed.filter((p) => p.is_saved).length;
     expect(savedCount).toBe(10);
-    const ephemCount = feed.filter(p => !p.is_saved).length;
+    const ephemCount = feed.filter((p) => !p.is_saved).length;
     expect(ephemCount).toBe(40);
   });
 
@@ -135,7 +135,7 @@ describe('Profile feed composition', () => {
     // Ephemeral list overlaps with saved IDs
     const ephem = [...makePosts(5, 'x'), ...makePosts(50, 'e', 100_000)];
     const feed = buildProfileFeed(saved, ephem);
-    const ids = feed.map(p => p.id);
+    const ids = feed.map((p) => p.id);
     const uniqueIds = new Set(ids);
     expect(ids.length).toBe(uniqueIds.size);
   });
@@ -165,8 +165,8 @@ describe('Saved posts FIFO queue', () => {
     const oldestId = queue.sort((a, b) => a.saved_at - b.saved_at)[0].id;
     queue = saveFifo(queue, 'post-new');
     expect(queue.length).toBe(25);
-    expect(queue.find(p => p.id === oldestId)).toBeUndefined();
-    expect(queue.find(p => p.id === 'post-new')).toBeDefined();
+    expect(queue.find((p) => p.id === oldestId)).toBeUndefined();
+    expect(queue.find((p) => p.id === 'post-new')).toBeDefined();
   });
 
   it('always maintains exactly max 25 after many saves', () => {
@@ -188,25 +188,25 @@ describe('Close friends visibility filter', () => {
 
   it('shows public posts to all viewers', () => {
     const visible = filterCloseFriendsPosts(posts, 'eve', new Set());
-    expect(visible.map(p => p.id)).toContain('1');
-    expect(visible.map(p => p.id)).toContain('4');
+    expect(visible.map((p) => p.id)).toContain('1');
+    expect(visible.map((p) => p.id)).toContain('4');
   });
 
   it('hides close_friends posts if viewer is not in the poster\'s CF list', () => {
     const visible = filterCloseFriendsPosts(posts, 'eve', new Set());
-    expect(visible.map(p => p.id)).not.toContain('2');
-    expect(visible.map(p => p.id)).not.toContain('3');
+    expect(visible.map((p) => p.id)).not.toContain('2');
+    expect(visible.map((p) => p.id)).not.toContain('3');
   });
 
   it('shows close_friends posts if viewer is in the poster\'s CF list', () => {
     const closeFriendPosters = new Set(['bob']); // 'eve' is in bob's CF list
     const visible = filterCloseFriendsPosts(posts, 'eve', closeFriendPosters);
-    expect(visible.map(p => p.id)).toContain('2');
-    expect(visible.map(p => p.id)).not.toContain('3');
+    expect(visible.map((p) => p.id)).toContain('2');
+    expect(visible.map((p) => p.id)).not.toContain('3');
   });
 
   it('shows own close_friends posts to the owner', () => {
     const visible = filterCloseFriendsPosts(posts, 'bob', new Set());
-    expect(visible.map(p => p.id)).toContain('2');
+    expect(visible.map((p) => p.id)).toContain('2');
   });
 });

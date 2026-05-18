@@ -143,7 +143,7 @@ export function SharedDreamProvider({
           }
         }) as CollabEventHandler);
       })
-      .catch((err) => {
+      .catch((err: unknown ) => {
         console.error('[SharedDreamProvider] Failed to connect:', err);
       });
 

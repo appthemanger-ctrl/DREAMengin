@@ -21,7 +21,7 @@ interface CommandItem {
   shortcut?: string;
 }
 
-export default function CommandPalette() {
+export default function CommandPalette( ){
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -278,10 +278,10 @@ export default function CommandPalette() {
   ];
 
   const filteredCommands = search
-    ? commands.filter(cmd =>
+    ? commands.filter((cmd) =>
         cmd.label.toLowerCase().includes(search.toLowerCase()) ||
         (cmd.description ?? '').toLowerCase().includes(search.toLowerCase()) ||
-        cmd.keywords.some(kw => kw.toLowerCase().includes(search.toLowerCase()))
+        cmd.keywords.some((kw) => kw.toLowerCase().includes(search.toLowerCase()))
       )
     : commands;
 
@@ -295,7 +295,7 @@ export default function CommandPalette() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setIsOpen(prev => !prev);
+        setIsOpen((prev) => !prev);
         setSearch('');
         setSelectedIndex(0);
       }
@@ -303,11 +303,11 @@ export default function CommandPalette() {
       if (isOpen) {
         if (e.key === 'ArrowDown') {
           e.preventDefault();
-          setSelectedIndex(prev => Math.min(prev + 1, filteredCommands.length - 1));
+          setSelectedIndex((prev) => Math.min(prev + 1, filteredCommands.length - 1));
         }
         if (e.key === 'ArrowUp') {
           e.preventDefault();
-          setSelectedIndex(prev => Math.max(prev - 1, 0));
+          setSelectedIndex((prev) => Math.max(prev - 1, 0));
         }
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -378,7 +378,7 @@ export default function CommandPalette() {
             Object.entries(groupedCommands).map(([category, cmds]) => (
               <div key={category}>
                 <div className="cmd-category">{category}</div>
-                {cmds.map(cmd => {
+                {cmds.map((cmd) => {
                   const itemIndex = globalIndex++;
                   const isSelected = itemIndex === selectedIndex;
                   const Icon = cmd.icon;
@@ -451,7 +451,7 @@ export default function CommandPalette() {
  * Renders a Search icon fixed at bottom-left above the DreamDM bar.
  * Exported so CommandPalette can render it alongside the backdrop.
  */
-export function MobileCmdFab({ onClick }: { onClick: () => void }) {
+export function MobileCmdFab({ onClick }: {onClick: () => void}) {
   return (
     <button
       type="button"

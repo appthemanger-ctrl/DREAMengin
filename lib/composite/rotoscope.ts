@@ -112,9 +112,9 @@ export function setKeyframe(
   layerId: string,
   shape: RotoShape
 ): RotoProject {
-  const layers = project.layers.map(l => {
+  const layers = project.layers.map((l) => {
     if (l.id !== layerId) return l;
-    const kfs = l.keyframes.filter(k => k.frame !== shape.frame);
+    const kfs = l.keyframes.filter((k) => k.frame !== shape.frame);
     return { ...l, keyframes: [...kfs, shape].sort((a, b) => a.frame - b.frame) };
   });
   return { ...project, layers };
@@ -128,8 +128,8 @@ export function removeKeyframe(
   layerId: string,
   frame: number
 ): RotoProject {
-  const layers = project.layers.map(l =>
-    l.id !== layerId ? l : { ...l, keyframes: l.keyframes.filter(k => k.frame !== frame) }
+  const layers = project.layers.map((l) =>
+    l.id !== layerId ? l : { ...l, keyframes: l.keyframes.filter((k) => k.frame !== frame) }
   );
   return { ...project, layers };
 }
@@ -143,7 +143,7 @@ export function interpolateShape(layer: RotoLayer, frame: number): InterpolatedS
 
   const kfs = layer.keyframes;
   // Exact match
-  const exact = kfs.find(k => k.frame === frame);
+  const exact = kfs.find((k) => k.frame === frame);
   if (exact) return { frame, points: exact.points, opacity: layer.opacity, feather: exact.feather };
 
   // Clamp to first/last keyframe
@@ -168,7 +168,7 @@ export function interpolateShape(layer: RotoLayer, frame: number): InterpolatedS
     return { frame, points: lo.points, opacity: layer.opacity, feather: lerp(lo.feather, hi.feather, t) };
   }
 
-  const points = lo.points.map((lp, i) => {
+  const points = lo.points.map((lp, i: number) => {
     const hp = hi.points[i];
     return {
       x: lerp(lp.x, hp.x, t),
@@ -262,7 +262,7 @@ export function exportFrameSVG(project: RotoProject, frame: number): string {
  * List the keyframe frames for a layer.
  */
 export function keyframeList(layer: RotoLayer): number[] {
-  return layer.keyframes.map(k => k.frame);
+  return layer.keyframes.map((k) => k.frame);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

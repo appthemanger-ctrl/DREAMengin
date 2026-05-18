@@ -78,7 +78,7 @@ export function useDaydreamPersistence<T = Record<string, unknown>>(
   useEffect(() => {
     let cancelled = false;
 
-    async function load() {
+    async function load( ){
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
 

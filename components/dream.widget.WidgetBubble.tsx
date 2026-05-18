@@ -17,7 +17,7 @@ interface WidgetBubbleProps {
     id: string;
     type: string;
      
-    config_json: any;
+    config_json: unknown;
   };
 }
 

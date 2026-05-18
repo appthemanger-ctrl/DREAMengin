@@ -13,7 +13,7 @@ const links = [
   { href: '/about',       label: 'About' },
 ]
 
-export default function Nav() {
+export default function Nav( ){
   const [open, setOpen] = useState(false)
   return (
     <nav className="de-nav">
@@ -28,7 +28,7 @@ export default function Nav() {
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
-            {links.map(l => (
+            {links.map((l) => (
               <Link key={l.href} href={l.href}
                 className="px-4 py-2 rounded-full text-sm font-medium text-slate-300
                            hover:text-de-sky hover:bg-white/5 transition-all">
@@ -44,7 +44,7 @@ export default function Nav() {
           </div>
 
           {/* Mobile toggle */}
-          <button onClick={() => setOpen(o => !o)}
+          <button onClick={() => setOpen((o) => !o)}
             className="md:hidden p-2 text-slate-300 hover:text-de-sky transition-colors">
             {open ? <X size={22} /> : <Menu size={22} />}
           </button>
@@ -55,7 +55,7 @@ export default function Nav() {
       {open && (
         <div className="md:hidden border-t border-de-border bg-de-sheet/95 backdrop-blur-lg">
           <div className="px-4 py-4 flex flex-col gap-2">
-            {links.map(l => (
+            {links.map((l) => (
               <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
                 className="py-2.5 px-4 rounded-xl text-slate-300 hover:text-de-sky hover:bg-white/5 transition-all">
                 {l.label}

@@ -9,7 +9,7 @@ export interface DreamFeatureLayerProps {
   children: ReactNode;
 }
 
-export default function DreamFeatureLayer({
+export default function DreamFeatureLayer(){
   capabilities = [],
   requires = [],
   fallback = null,

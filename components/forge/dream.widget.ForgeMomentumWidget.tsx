@@ -10,7 +10,7 @@
 import { useState, useEffect } from 'react';
 import { computeMomentum, getLevelColor, getLevelEmoji, type MomentumSnapshot } from '@/lib/forge/forgeMomentum';
 
-export default function ForgeMomentumWidget() {
+export default function ForgeMomentumWidget( ){
   const [snap, setSnap] = useState<MomentumSnapshot | null>(null);
 
   useEffect(() => {
@@ -66,7 +66,7 @@ export default function ForgeMomentumWidget() {
         </div>
         {/* Dimension bars */}
         <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
-          {snap.dimensions.map(dim => (
+          {snap.dimensions.map((dim) => (
             <div key={dim.name} style={{ flex: 1 }} title={`${dim.name}: ${dim.score}`}>
               <div style={{ width: '100%', height: 3, borderRadius: 2, background: 'rgba(0,0,0,0.06)' }}>
                 <div style={{

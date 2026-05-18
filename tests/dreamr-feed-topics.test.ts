@@ -33,30 +33,30 @@ describe('DREAMR_TOPICS', () => {
   });
 
   it('all topic IDs are unique', () => {
-    const ids = DREAMR_TOPICS.map(t => t.id);
+    const ids = DREAMR_TOPICS.map((t) => t.id);
     expect(new Set(ids).size).toBe(ids.length);
   });
 
   it('every non-All topic has a non-empty query', () => {
-    DREAMR_TOPICS.filter(t => t.id !== 'all').forEach(t => {
+    DREAMR_TOPICS.filter((t) => t.id !== 'all').forEach((t) => {
       expect(t.query.length).toBeGreaterThan(0);
     });
   });
 
   it('every topic has an emoji', () => {
-    DREAMR_TOPICS.forEach(t => {
+    DREAMR_TOPICS.forEach((t) => {
       expect(t.emoji.length).toBeGreaterThan(0);
     });
   });
 
   it('every topic has a label', () => {
-    DREAMR_TOPICS.forEach(t => {
+    DREAMR_TOPICS.forEach((t) => {
       expect(t.label.length).toBeGreaterThan(0);
     });
   });
 
   it('contains the 10 expected content topics', () => {
-    const ids = new Set(DREAMR_TOPICS.map(t => t.id));
+    const ids = new Set(DREAMR_TOPICS.map((t) => t.id));
     const required = ['world-news', 'sports', 'hip-hop', 'tech', 'stocks', 'science', 'gaming', 'music', 'business', 'space'];
     for (const id of required) {
       expect(ids.has(id), `Missing topic: ${id}`).toBe(true);
@@ -64,22 +64,22 @@ describe('DREAMR_TOPICS', () => {
   });
 
   it('world-news query includes "english" for EN-language bias', () => {
-    const wn = DREAMR_TOPICS.find(t => t.id === 'world-news')!;
+    const wn = DREAMR_TOPICS.find((t) => t.id === 'world-news')!;
     expect(wn.query.toLowerCase()).toContain('english');
   });
 
   it('hip-hop query contains "hip hop"', () => {
-    const hh = DREAMR_TOPICS.find(t => t.id === 'hip-hop')!;
+    const hh = DREAMR_TOPICS.find((t) => t.id === 'hip-hop')!;
     expect(hh.query.toLowerCase()).toContain('hip hop');
   });
 
   it('stocks query contains "stock market"', () => {
-    const sm = DREAMR_TOPICS.find(t => t.id === 'stocks')!;
+    const sm = DREAMR_TOPICS.find((t) => t.id === 'stocks')!;
     expect(sm.query.toLowerCase()).toContain('stock market');
   });
 
   it('all queries include a year (2026) for freshness signals', () => {
-    DREAMR_TOPICS.filter(t => t.id !== 'all').forEach(t => {
+    DREAMR_TOPICS.filter((t) => t.id !== 'all').forEach((t) => {
       expect(t.query).toContain('2026');
     });
   });
@@ -89,7 +89,7 @@ describe('DREAMR_TOPICS', () => {
 // We test the mapping logic directly — no need to import the private helper;
 // instead we inline the same transformation to verify expected output shape.
 
-function ytItemToFeedPostLocal(item: {
+function ytItemToFeedPostLocal(item: ){
   external_id: string;
   content_text: string;
   published_at: string;
@@ -176,7 +176,7 @@ describe('ytItemToFeedPost mapping', () => {
 // ── Swipe-left routing logic ──────────────────────────────────────────────────
 // isYouTube(post) → true for YouTube provider or youtube permalink
 
-function isYouTubeLocal(post: { provider?: string; source?: string; permalink?: string | null }): boolean {
+function isYouTubeLocal(post: ){ provider?: string; source?: string; permalink?: string | null }): boolean {
   return post.provider === 'youtube' || !!(post.permalink?.includes('youtu'));
 }
 

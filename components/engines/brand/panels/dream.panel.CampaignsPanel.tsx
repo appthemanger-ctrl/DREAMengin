@@ -25,7 +25,7 @@ const INIT_CAMPAIGNS: Campaign[] = [
   { id: '2', name: 'Collab Promo Series',  budget: 300,  impressions: 52000, clicks: 940,  conversions: 28, revenue: 1400 },
 ];
 
-function calcMetrics(c: Campaign) {
+function calcMetrics(c: Campaign ){
   const cpm    = c.impressions > 0 ? (c.budget / c.impressions) * 1000 : 0;
   const cpc    = c.clicks > 0 ? c.budget / c.clicks : 0;
   const roi    = c.budget > 0 ? ((c.revenue - c.budget) / c.budget) * 100 : 0;
@@ -34,18 +34,18 @@ function calcMetrics(c: Campaign) {
   return { cpm, cpc, roi, cvr, roas };
 }
 
-export default function CampaignsPanel() {
+export default function CampaignsPanel( ){
   const [campaigns, setCampaigns] = useState<Campaign[]>(INIT_CAMPAIGNS);
   const [showCalc, setShowCalc] = useState(false);
   const [calc, setCalc] = useState({ budget: 500, impressions: 80000, clicks: 1500, conversions: 40, revenue: 2000 });
   const [showNew, setShowNew] = useState(false);
   const [newName, setNewName] = useState('');
 
-  function removeCampaign(id: string) {
+  function removeCampaign(id: string ){
     setCampaigns((prev) => prev.filter((c) => c.id !== id));
   }
 
-  function addCampaign() {
+  function addCampaign( ){
     if (!newName.trim()) return;
     setCampaigns((prev) => [...prev, {
       id: Date.now().toString(),
@@ -74,14 +74,14 @@ export default function CampaignsPanel() {
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => setShowCalc((s) => !s)}
+              onClick={() => setShowCalc((s: string ) => !s)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white text-xs transition-all"
             >
               <Calculator size={13} />
               Calculator
             </button>
             <button
-              onClick={() => setShowNew((s) => !s)}
+              onClick={() => setShowNew((s: string ) => !s)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f472b6]/20 hover:bg-[#f472b6]/30 text-[#f472b6] text-xs font-medium transition-all"
             >
               <Plus size={13} />

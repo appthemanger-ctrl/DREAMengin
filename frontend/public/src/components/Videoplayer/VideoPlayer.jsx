@@ -12,7 +12,7 @@ const VideoPlayer = ({ post, isActive }) => {
 
   useEffect(() => {
     if (isActive && videoRef.current) {
-      videoRef.current.play().catch(e => console.log('Autoplay prevented:', e));
+      videoRef.current.play().catch((e) => console.log('Autoplay prevented:', e));
     } else if (videoRef.current) {
       videoRef.current.pause();
     }
@@ -21,7 +21,7 @@ const VideoPlayer = ({ post, isActive }) => {
   const handleLike = async () => {
     try {
       await likePost(post.id);
-      setEngagement(prev => ({ ...prev, likes: prev.likes + 1 }));
+      setEngagement((prev) => ({ ...prev, likes: prev.likes + 1 }));
     } catch (error) {
       console.error('Error liking post:', error);
     }
@@ -30,7 +30,7 @@ const VideoPlayer = ({ post, isActive }) => {
   const handleRepost = async () => {
     try {
       await repostPost(post.id);
-      setEngagement(prev => ({ ...prev, reposts: prev.reposts + 1 }));
+      setEngagement((prev) => ({ ...prev, reposts: prev.reposts + 1 }));
     } catch (error) {
       console.error('Error reposting:', error);
     }

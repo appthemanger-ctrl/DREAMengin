@@ -16,9 +16,9 @@ const useSocialData = () => {
     
     try {
       const data = await fetchFeed(page);
-      setPosts(prev => [...prev, ...data.posts]);
+      setPosts((prev) => [...prev, ...data.posts]);
       setHasMore(data.hasMore);
-      setPage(prev => prev + 1);
+      setPage((prev) => prev + 1);
     } catch (err) {
       setError(err);
     } finally {

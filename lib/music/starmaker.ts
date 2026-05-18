@@ -96,7 +96,7 @@ function getScale(musicalKey: string, keyMode: 'major' | 'minor'): string[] {
   const rootIndex = NOTE_ORDER.indexOf(musicalKey as (typeof NOTE_ORDER)[number]);
   const safeIndex = rootIndex === -1 ? 0 : rootIndex;
   const intervals = keyMode === 'minor' ? MINOR_INTERVALS : MAJOR_INTERVALS;
-  return intervals.map(interval => NOTE_ORDER[(safeIndex + interval) % NOTE_ORDER.length]);
+  return intervals.map((interval) => NOTE_ORDER[(safeIndex + interval) % NOTE_ORDER.length]);
 }
 
 function getChordRoot(chord: string): string {
@@ -105,7 +105,7 @@ function getChordRoot(chord: string): string {
 }
 
 function rotateNotes(notes: string[], startIndex: number, length: number): string[] {
-  return Array.from({ length }, (_, index) => notes[(startIndex + index) % notes.length]);
+  return Array.from({ length }, (_, index: number ) => notes[(startIndex + index) % notes.length]);
 }
 
 export function summarizePlaybackProfile(input: PlaybackProfileInput): PlaybackProfile {

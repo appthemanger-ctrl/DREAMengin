@@ -37,14 +37,14 @@ function makeBoard(): { tiles: Tile[]; rowHints: number[]; colHints: number[]; s
     colHints[i % N]++;
   }
   // Safe-glyph order: pick 5 safe tiles in random order; their glyphs are the wall sigils
-  const safeIdx = tiles.map((t, i) => ({ t, i })).filter(({ t }) => !t.mine).map(({ i }) => i);
+  const safeIdx = tiles.map((t, i: number) => ({ t, i })).filter(({ t }) => !t.mine).map(({ i }) => i);
   for (let i = safeIdx.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [safeIdx[i], safeIdx[j]] = [safeIdx[j], safeIdx[i]]; }
   const safeOrder = safeIdx.slice(0, 5);
-  const safeGlyphs = safeOrder.map((i) => tiles[i].glyph);
+  const safeGlyphs = safeOrder.map((i: number ) => tiles[i].glyph);
   return { tiles, rowHints, colHints, safeOrder, safeGlyphs };
 }
 
-export default function DefuseRitual() {
+export default function DefuseRitual( ){
   const [phase, setPhase] = useState<Phase>('menu');
   const [board, setBoard] = useState(() => makeBoard());
   const [step, setStep] = useState(0);
@@ -87,9 +87,9 @@ export default function DefuseRitual() {
       // Mine tap?
       if (t.mine) {
         t.revealed = true; t.mineHit = true;
-        setEndsAt((e) => e - 2_000);
+        setEndsAt((e: unknown ) => e - 2_000);
         setBrand((br) => br + 1);
-        setScore((s) => Math.max(0, s - 30));
+        setScore((s: string ) => Math.max(0, s - 30));
         if (brand + 1 >= 3) setPhase('lost');
         return { ...b, tiles };
       }
@@ -99,7 +99,7 @@ export default function DefuseRitual() {
         t.revealed = true;
         const newStep = step + 1;
         setStep(newStep);
-        setScore((s) => s + 50 + Math.floor((endsAt - performance.now()) / 100));
+        setScore((s: string ) => s + 50 + Math.floor((endsAt - performance.now()) / 100));
         if (newStep >= b.safeGlyphs.length) {
           // Reveal remaining safe tiles automatically
           for (let k = 0; k < tiles.length; k++) if (!tiles[k].mine) tiles[k].revealed = true;
@@ -107,8 +107,8 @@ export default function DefuseRitual() {
         }
       } else {
         // Out-of-order safe tap — small penalty
-        setEndsAt((e) => e - 600);
-        setScore((s) => Math.max(0, s - 5));
+        setEndsAt((e: unknown ) => e - 600);
+        setScore((s: string ) => Math.max(0, s - 5));
       }
       return { ...b, tiles };
     });
@@ -140,7 +140,7 @@ export default function DefuseRitual() {
           <>
             {/* Wall sigil sequence */}
             <div className="flex justify-center gap-2 mb-3">
-              {board.safeGlyphs.map((g, i) => (
+              {board.safeGlyphs.map((g, i: number) => (
                 <div key={i} className="w-9 h-9 flex items-center justify-center rounded text-xl"
                   style={{
                     background: i < step ? '#3a2a14' : i === step ? '#5a3a18' : 'rgba(60,40,16,0.4)',
@@ -161,10 +161,10 @@ export default function DefuseRitual() {
             {/* Grid with edge hints */}
             <div className="grid" style={{ gridTemplateColumns: `28px repeat(${N}, 1fr)`, gap: 6 }}>
               <div></div>
-              {board.colHints.map((h, i) => (
+              {board.colHints.map((h, i: number) => (
                 <div key={`ch${i}`} className="text-xs text-center opacity-60">{h}</div>
               ))}
-              {board.tiles.map((t, i) => {
+              {board.tiles.map((t, i: number) => {
                 const r = Math.floor(i / N); const c = i % N;
                 const cell = (
                   <button key={i} onClick={() => tap(i)} disabled={phase !== 'playing' || t.revealed}

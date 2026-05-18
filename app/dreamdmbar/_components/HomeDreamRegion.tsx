@@ -22,7 +22,7 @@ type ProfileLike = {
   avatar_url?: string | null;
 };
 
-type Post = Record<string, any>;
+type Post = Record<string, unknown>;
 
 const DREAMR_MANIFESTO = {
   badge: '⚡ DreamR: The Human Media Manifesto',
@@ -188,7 +188,7 @@ export default function HomeDreamSurface({
             <button
               type="button"
               aria-label={`Notifications${unreadCount > 0 ? ` — ${unreadCount} unread` : ''}`}
-              onClick={() => setNotifOpen((v) => !v)}
+              onClick={() => setNotifOpen((v: number ) => !v)}
               style={{
                 background: 'none',
                 border: 'none',
@@ -247,7 +247,7 @@ export default function HomeDreamSurface({
           {/* DreamR toggle pill */}
           <button
             type="button"
-            onClick={() => setShowDreamR(v => !v)}
+            onClick={() => setShowDreamR((v) => !v)}
             aria-label={showDreamR ? 'Back to HomeDream' : 'Open DreamR'}
             style={{
               display: 'flex', alignItems: 'center', gap: 5,

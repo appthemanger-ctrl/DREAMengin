@@ -70,7 +70,7 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
   const { record: recordForge } = useForgeActivity({ enginId: resolvedEnginId });
 
   const flip = useCallback(() => {
-    gsapFlip(() => setSide(s => {
+    gsapFlip(() => setSide((s) => {
       const next = s === 'A' ? 'B' : 'A';
       // Record forge pulse on Side B (Engin) activation
       if (next === 'B') recordForge(`Activated ${enginName}`);
@@ -236,13 +236,7 @@ export default function DaydreamShell({ title, enginName, accentColor, widgets, 
 }
 
 /* ── Engin Surface — Side B ── */
-function EnginSurface({ enginName, title, accentColor, widgets, onBack }: {
-  enginName: string;
-  title: string;
-  accentColor: string;
-  widgets: DaydreamWidget[];
-  onBack: () => void;
-}) {
+function EnginSurface({ enginName, title, accentColor, widgets, onBack }: { enginName: string; title: string; accentColor: string; widgets: DaydreamWidget[]; onBack: () => void }) {
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(155deg, #050508 0%, #08101e 45%, #0a0f1c 75%, #050508 100%)', position: 'relative', overflow: 'hidden' }}>
       {/* Accent glow halo */}
@@ -340,7 +334,7 @@ function EnginSurface({ enginName, title, accentColor, widgets, onBack }: {
 
         {/* Marble widget grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginTop: 20 }}>
-          {widgets.map(w => <MarbleWidget key={w.id} w={w} />)}
+          {widgets.map((w) => <MarbleWidget key={w.id} w={w} />)}
         </div>
       </div>
     </div>
@@ -348,11 +342,7 @@ function EnginSurface({ enginName, title, accentColor, widgets, onBack }: {
 }
 
 /* ── Engin Pill Dual-Button Controls (spec §7.1 / §14.3) ── */
-function EnginPillControls({ enginName, accentColor, onBack }: {
-  enginName: string;
-  accentColor: string;
-  onBack: () => void;
-}) {
+function EnginPillControls({ enginName, accentColor, onBack }: { enginName: string; accentColor: string; onBack: () => void }) {
   return (
     <div style={{
       display: 'inline-flex',
@@ -413,7 +403,7 @@ function EnginPillControls({ enginName, accentColor, onBack }: {
 }
 
 /* ── Single marble bubble widget ── */
-function MarbleWidget({ w }: { w: DaydreamWidget }) {
+function MarbleWidget({ w }: {w: DaydreamWidget}) {
   const tile = (
     <div
       className="premium-shimmer"

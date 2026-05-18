@@ -95,7 +95,7 @@ const SESSION_SEED: number =
   typeof window !== 'undefined' ? (Math.floor(Math.random() * 2147483647) || 1) : 1;
 
 // ─── Component ───────────────────────────────────────────────────────────────
-export default function BabylonSideScroller() {
+export default function BabylonSideScroller( ){
   const immersive = useImmersiveGameLayout();
   const canvasRef  = useRef<HTMLCanvasElement>(null);
   const gameRef    = useRef<GameCore | null>(null);
@@ -512,7 +512,7 @@ export default function BabylonSideScroller() {
                 display: 'flex', alignItems: 'center', gap: 4,
                 background: 'rgba(0,0,0,0.42)', borderRadius: 6, padding: '3px 9px',
               }}>
-                {Array.from({ length: coinTotal }).map((_, i) => (
+                {Array.from({ length: coinTotal }).map((_, i: number) => (
                   <span
                     key={i}
                     style={{
@@ -1137,7 +1137,7 @@ class GameCore {
         const core = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_core`, { diameter: 0.28 * W, segments: 14 }, scene);
         attach(core, eyeMat([1.0, 0.55, 1.0]));
         const prongAngles = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
-        prongAngles.forEach((ang, k) => {
+        prongAngles.forEach((ang, k: number) => {
           const prong = BJS.MeshBuilder.CreateCylinder(`enemy_${ei}_prong_${k}`, {
             diameterTop: 0.0, diameterBottom: 0.08 * W, height: 0.24 * W, tessellation: 6,
           }, scene);
@@ -1200,7 +1200,7 @@ class GameCore {
           [ 0.30,  0.30,  0.30], [-0.30,  0.30,  0.30], [ 0.30, -0.30,  0.30], [-0.30, -0.30,  0.30],
           [ 0.30,  0.30, -0.30], [-0.30,  0.30, -0.30],
         ];
-        tipDirs.forEach(([x, y, z], k) => {
+        tipDirs.forEach(([x, y, z], k: number) => {
           const tip = BJS.MeshBuilder.CreateSphere(`enemy_${ei}_tip_${k}`, { diameter: 0.10 * W, segments: 8 }, scene);
           tip.position.set(x * W, y * W, z * W);
           attach(tip, eyeMat([1.0, 0.30, 0.40]));
@@ -1983,9 +1983,9 @@ class GameCore {
     this.audio.setTheme(def.audioTheme);
     this.audio.playCue('zone-start');
     this.audio.startBGM();
-    this.platforms   = def.platforms.map(p => ({ ...p, curX: p.x, moveDir: 1 }));
-    this.coins       = def.coins.map(c => ({ ...c, collected: false }));
-    this.enemies     = def.enemies.map(e => ({
+    this.platforms   = def.platforms.map((p) => ({ ...p, curX: p.x, moveDir: 1 }));
+    this.coins       = def.coins.map((c) => ({ ...c, collected: false }));
+    this.enemies     = def.enemies.map((e) => ({
       ...e, alive: true, curX: e.x, curY: e.y,
       hitsLeft: e.hitsLeft ?? 1,
       state: 0,
@@ -2000,12 +2000,12 @@ class GameCore {
     }));
     this.powerUps = (def.powerUps ?? []).map((p) => ({ ...p, collected: false }));
     // Count regular (non-goal) coins for HUD
-    this.totalRegularCoins      = def.coins.filter(c => !c.isGoal).length;
+    this.totalRegularCoins      = def.coins.filter((c) => !c.isGoal).length;
     this.collectedRegularCoins  = 0;
     this.coinFlashFrames        = 0;
     this.camZoomOffset          = 0;
     // Track max boss HP for health-bar percentage calculations
-    const bossEnemy = def.enemies.find(e => e.boss);
+    const bossEnemy = def.enemies.find((e) => e.boss);
     this.bossHitsMax = bossEnemy?.hitsLeft ?? 0;
     this.px    = 60;
     this.py    = 350;
@@ -2220,7 +2220,7 @@ class GameCore {
       [0.12,  7, 0.14, 0.20, true],
       [0.16,  4, 0.10, 0.15, false],
     ];
-    skylineLayers.forEach(([parallax, depth, sat, alpha, useAccent], idx) => {
+    skylineLayers.forEach(([parallax, depth, sat, alpha, useAccent], idx: number) => {
       const band = BJS.MeshBuilder.CreatePlane(`skyline_band_${idx}`, { width: 180 * WORLD_SCALE, height: 26 * WORLD_SCALE }, scene);
       const mat = new BJS.PBRMaterial(`skyline_mat_${idx}`, scene);
       mat.metallic = 0;
@@ -2999,7 +2999,7 @@ class GameCore {
         }
       }
       // Reverse at world edges
-      const groundPlat = this.platforms.find(p => p.y === 400);
+      const groundPlat = this.platforms.find((p) => p.y === 400);
       const gLeft  = groundPlat ? groundPlat.x : 0;
       const gRight = gLeft + (groundPlat ? groundPlat.w : this.worldW);
       // Boss uses scaled hitbox

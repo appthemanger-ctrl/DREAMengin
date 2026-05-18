@@ -40,7 +40,7 @@ export const CODE_VOCABULARY: VocabEntry[] = [
   { term: 'closure',      category: 'general', definition: 'A function that captures variables from its enclosing scope.',           example: 'def make_adder(n): return lambda x: x + n' },
   { term: 'async/await',  category: 'general', definition: 'Keywords for writing asynchronous code without callback nesting.',       example: 'async def fetch(): data = await get_data()' },
   { term: 'callback',     category: 'general', definition: 'A function passed as an argument to be invoked later.',                  example: 'setTimeout(() => console.log("done"), 1000)' },
-  { term: 'promise',      category: 'general', definition: 'An object representing the eventual result of an async operation.',      example: 'fetch("/api").then(r => r.json())' },
+  { term: 'promise',      category: 'general', definition: 'An object representing the eventual result of an async operation.',      example: 'fetch("/api").then((r) => r.json())' },
   // OOP
   { term: 'inheritance',  category: 'oop',     definition: 'A class can inherit attributes and methods from a parent class.',        example: 'class Cat(Animal): ...' },
   { term: 'polymorphism', category: 'oop',     definition: 'Objects of different classes can be used interchangeably via a shared interface.', example: 'for animal in animals: animal.speak()' },
@@ -100,7 +100,7 @@ export const CODE_VOCABULARY: VocabEntry[] = [
 ];
 
 /** All recognised term strings (lower-cased). */
-export const VOCAB_TERMS: Set<string> = new Set(CODE_VOCABULARY.map(v => v.term.toLowerCase()));
+export const VOCAB_TERMS: Set<string> = new Set(CODE_VOCABULARY.map((v) => v.term.toLowerCase()));
 
 /**
  * Return all vocabulary entries whose term appears in the query.
@@ -109,10 +109,10 @@ export const VOCAB_TERMS: Set<string> = new Set(CODE_VOCABULARY.map(v => v.term.
 export function matchCodeVocabulary(query: string): VocabEntry[] {
   if (!query.trim()) return [];
   const lower = query.toLowerCase();
-  const matches = CODE_VOCABULARY.filter(v => lower.includes(v.term.toLowerCase()));
+  const matches = CODE_VOCABULARY.filter((v) => lower.includes(v.term.toLowerCase()));
   // Deduplicate by term, limit to 5
   const seen = new Set<string>();
-  return matches.filter(v => {
+  return matches.filter((v) => {
     if (seen.has(v.term)) return false;
     seen.add(v.term);
     return true;
@@ -192,7 +192,7 @@ export interface CodeContext {
 export function buildCodeSystemPrompt(context: CodeContext): string {
   const intent = classifyQuery('');   // baseline — caller should pass the user query too
   const vocabBlock = CODE_VOCABULARY.slice(0, 10)
-    .map(v => `  - ${v.term}: ${v.definition}`)
+    .map((v) => `  - ${v.term}: ${v.definition}`)
     .join('\n');
 
   return [
@@ -230,7 +230,7 @@ export function buildCodePrompt(query: string, context: CodeContext): string {
   const parts: string[] = [buildCodeSystemPrompt(context)];
 
   if (matched.length > 0) {
-    parts.push(`\nRELEVANT VOCABULARY TERMS DETECTED: ${matched.map(v => v.term).join(', ')}`);
+    parts.push(`\nRELEVANT VOCABULARY TERMS DETECTED: ${matched.map((v) => v.term).join(', ')}`);
     parts.push(`For each detected term, provide: definition, code example in ${context.language}, and offer to write more code using that concept.`);
   }
 
@@ -268,7 +268,7 @@ const FENCE_RE = /```(\w*)\n?([\s\S]*?)```/g;
  */
 export function parseCodeResponse(raw: string): ParsedCodeResponse {
   const codeBlocks: ParsedCodeResponse['codeBlocks'] = [];
-  let text = raw.replace(FENCE_RE, (_, lang: string, code: string) => {
+  let text = raw.replace(FENCE_RE, _, (lang: string, code: string ) => {
     codeBlocks.push({ language: lang || 'text', code: code.trim() });
     return '';
   }).trim();
@@ -364,7 +364,7 @@ const TEMPLATES: Record<NLCommand['type'], (cmd: NLCommand, lang: CellLanguage) 
   },
   refactor_async: (_cmd, lang) => {
     if (lang === 'python') return `async def fetch_data(url: str):\n    async with aiohttp.ClientSession() as session:\n        async with session.get(url) as resp:\n            return await resp.json()`;
-    return `async function fetchData(url: string) {\n  const res = await fetch(url);\n  return res.json();\n}`;
+    return `async function fetchData(url: string ){\n  const res = await fetch(url);\n  return res.json();\n}`;
   },
   explain: () => `# Select code in the editor then ask Dr. Eams to explain it.`,
   other: () => `# Dr. Eams: add your code here`,

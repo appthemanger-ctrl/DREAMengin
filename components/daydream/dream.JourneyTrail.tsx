@@ -56,7 +56,7 @@ function groupDotsByTime(dots: JourneyDot[]): JourneyTimeGroup[] {
     else                      groups[3].dots.push(dot);
   }
 
-  return groups.filter(g => g.dots.length > 0);
+  return groups.filter((g) => g.dots.length > 0);
 }
 
 /** Map significance (0–1) to dot radius in px. */
@@ -81,7 +81,7 @@ function computeSparkline(dots: JourneyDot[]): number[] {
 }
 
 /** Mini 7-day sparkline bar chart shown beneath the streak banner. */
-function SparklineBar({ dots }: { dots: JourneyDot[] }) {
+function SparklineBar({ dots }: {dots: JourneyDot[]}) {
   const data = computeSparkline(dots);
   const max  = Math.max(...data, 1);
   return (
@@ -89,7 +89,7 @@ function SparklineBar({ dots }: { dots: JourneyDot[] }) {
       aria-hidden="true"
       style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 22, marginTop: 8 }}
     >
-      {data.map((val, i) => (
+      {data.map((val, i: number) => (
         <div
           key={i}
           title={`${val} action${val !== 1 ? 's' : ''} · ${6 - i === 0 ? 'today' : `${6 - i}d ago`}`}
@@ -163,7 +163,7 @@ export default function JourneyTrail({ limit = 50, compact = false }: Props) {
   }
 
   const groups = groupDotsByTime(annotated);
-  const annotatedById = new Map(annotated.map(d => [d.id, d]));
+  const annotatedById = new Map(annotated.map((d) => [d.id, d]));
   const threadLeft = compact ? 10 : 14;
   const paddingLeft = compact ? 24 : 32;
 
@@ -206,7 +206,7 @@ export default function JourneyTrail({ limit = 50, compact = false }: Props) {
         </div>
       )}
 
-      {groups.map(group => (
+      {groups.map((group) => (
         <div key={group.label} style={{ marginBottom: 20 }}>
           {/* Time group label */}
           <div style={{
@@ -221,7 +221,7 @@ export default function JourneyTrail({ limit = 50, compact = false }: Props) {
             {group.label}
           </div>
 
-          {group.dots.map(dot => {
+          {group.dots.map((dot) => {
             const annotatedDot = annotatedById.get(dot.id);
             const insight      = annotatedDot?.insight ?? {};
             const r            = dotRadius(dot.significance);
@@ -392,4 +392,3 @@ export default function JourneyTrail({ limit = 50, compact = false }: Props) {
     </div>
   );
 }
-

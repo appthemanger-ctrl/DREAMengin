@@ -68,7 +68,7 @@ describe('motionCapture – getFramePose', () => {
     const clip = parseBVH(makeBVH(3));
     const pose = getFramePose(clip, 0);
     expect(pose.frame).toBe(0);
-    expect(pose.joints.find(j => j.jointName === 'Hips')?.translation).toEqual([0, 0, 0]);
+    expect(pose.joints.find((j) => j.jointName === 'Hips')?.translation).toEqual([0, 0, 0]);
   });
 
   it('extracts different translation for frame 2', async () => {
@@ -76,8 +76,8 @@ describe('motionCapture – getFramePose', () => {
     const clip = parseBVH(makeBVH(3));
     const p0 = getFramePose(clip, 0);
     const p2 = getFramePose(clip, 2);
-    const t0 = p0.joints.find(j => j.jointName === 'Hips')!.translation;
-    const t2 = p2.joints.find(j => j.jointName === 'Hips')!.translation;
+    const t0 = p0.joints.find((j) => j.jointName === 'Hips')!.translation;
+    const t2 = p2.joints.find((j) => j.jointName === 'Hips')!.translation;
     // Frame 0: [0,0,0], Frame 2: [4,2,-2] — at least one axis must differ
     const differs = t0.some((v, i) => v !== t2[i]);
     expect(differs).toBe(true);
@@ -105,9 +105,9 @@ describe('motionCapture – retargetClip', () => {
   it('scales positional channels proportionally', async () => {
     const { parseBVH, getFramePose, retargetClip } = await import('../lib/composite/motionCapture');
     const clip = parseBVH(makeBVH(2));
-    const orig = getFramePose(clip, 1).joints.find(j => j.jointName === 'Hips')!.translation;
+    const orig = getFramePose(clip, 1).joints.find((j) => j.jointName === 'Hips')!.translation;
     const scaled = retargetClip(clip, 2.0);
-    const res = getFramePose(scaled, 1).joints.find(j => j.jointName === 'Hips')!.translation;
+    const res = getFramePose(scaled, 1).joints.find((j) => j.jointName === 'Hips')!.translation;
     if (orig[0] !== 0) expect(res[0]).toBeCloseTo(orig[0] * 2, 3);
     if (orig[1] !== 0) expect(res[1]).toBeCloseTo(orig[1] * 2, 3);
   });
@@ -164,7 +164,7 @@ describe('compositor – node graph', () => {
     expect(n.enabled).toBe(true);
     expect(n.inputs).toHaveProperty('A');
     expect(n.inputs).toHaveProperty('B');
-    expect(n.params.find(p => p.name === 'mix')?.value).toBe(1.0);
+    expect(n.params.find((p) => p.name === 'mix')?.value).toBe(1.0);
   });
 
   it('addNode appends to nodes array', async () => {
@@ -183,7 +183,7 @@ describe('compositor – node graph', () => {
     const over = createNode('Over', 'Over');
     g = addNode(g, a); g = addNode(g, b); g = addNode(g, over);
     g = connectNodes(g, a.id, over.id, 'A');
-    expect(g.nodes.find(n => n.id === over.id)?.inputs['A']).toBe(a.id);
+    expect(g.nodes.find((n) => n.id === over.id)?.inputs['A']).toBe(a.id);
   });
 
   it('disconnectInput removes connection', async () => {
@@ -194,7 +194,7 @@ describe('compositor – node graph', () => {
     g = addNode(g, a); g = addNode(g, over);
     g = connectNodes(g, a.id, over.id, 'A');
     g = disconnectInput(g, over.id, 'A');
-    expect(g.nodes.find(n => n.id === over.id)?.inputs['A']).toBeNull();
+    expect(g.nodes.find((n) => n.id === over.id)?.inputs['A']).toBeNull();
   });
 
   it('setParam updates parameter value', async () => {
@@ -203,7 +203,7 @@ describe('compositor – node graph', () => {
     const n = createNode('ColorCorrect');
     g = addNode(g, n);
     g = setParam(g, n.id, 'saturation', 2.5);
-    expect(g.nodes.find(x => x.id === n.id)?.params.find(p => p.name === 'saturation')?.value).toBe(2.5);
+    expect(g.nodes.find((x) => x.id === n.id)?.params.find((p) => p.name === 'saturation')?.value).toBe(2.5);
   });
 
   it('topologicalSort orders source before sink', async () => {
@@ -336,7 +336,7 @@ describe('fxSimulation', () => {
   it('presetsByCategory returns only presets of that category', async () => {
     const { presetsByCategory } = await import('../lib/composite/fxSimulation');
     const fire = presetsByCategory('fire');
-    expect(fire.every(p => p.category === 'fire')).toBe(true);
+    expect(fire.every((p) => p.category === 'fire')).toBe(true);
     expect(fire.length).toBeGreaterThanOrEqual(1);
   });
 

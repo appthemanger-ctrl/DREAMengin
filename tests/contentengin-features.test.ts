@@ -124,7 +124,7 @@ describe('transcriptEditor – computeCuts', () => {
   it('merges adjacent word deletions into a single cut', async () => {
     const { parseSRT, computeCuts } = await import('../lib/content/transcriptEditor');
     const segs = parseSRT(`1\n00:00:00,000 --> 00:00:03,000\nOne two three\n`);
-    const cuts = computeCuts(segs, new Set(segs[0].words.map(w => w.index)));
+    const cuts = computeCuts(segs, new Set(segs[0].words.map((w) => w.index)));
     expect(cuts).toHaveLength(1);
   });
 
@@ -289,7 +289,7 @@ describe('seoScorer – scoreContent', () => {
   it('scores engagement dimension when title and body are provided', async () => {
     const { scoreContent } = await import('../lib/content/seoScorer');
     const result = scoreContent({ title: 'Amazing tips', body: 'Subscribe now! Love this content. Click here.' });
-    const engagement = result.dimensions.find(d => d.label === 'Engagement');
+    const engagement = result.dimensions.find((d) => d.label === 'Engagement');
     expect(engagement).toBeDefined();
     expect(engagement!.score).toBeGreaterThan(0);
   });
@@ -297,7 +297,7 @@ describe('seoScorer – scoreContent', () => {
   it('scores accessibility dimension when body is provided', async () => {
     const { scoreContent } = await import('../lib/content/seoScorer');
     const result = scoreContent({ title: 'Test', body: 'Short sentences work. Keep it simple. Make it clear.' });
-    const acc = result.dimensions.find(d => d.label === 'Accessibility');
+    const acc = result.dimensions.find((d) => d.label === 'Accessibility');
     expect(acc).toBeDefined();
     expect(['High', 'Medium', 'Low']).toContain(result.accessibilityLevel);
   });

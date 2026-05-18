@@ -142,7 +142,7 @@ export class EnginRuntime<
     // 5. Persist (fire-and-forget)
     if (this._persistenceKey !== false) {
       const enginId = this._state.enginId;
-      this._io.save(this._persistenceKey, this._state.domain).then((ok) => {
+      this._io.save(this._persistenceKey, this._state.domain).then((ok: boolean ) => {
         if (ok) {
           _emit('engin:persisted', {
             enginId,

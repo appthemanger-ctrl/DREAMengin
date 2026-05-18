@@ -23,7 +23,7 @@ interface NodeClusterProps {
   interactive?: boolean;
 }
 
-export function NodeCluster({
+export function NodeCluster(){
   nodes,
   className,
   layout = 'grid',
@@ -45,7 +45,7 @@ export function NodeCluster({
     const radius = Math.min(centerX, centerY) * 0.7;
 
     const positions = new Map<string, { x: number; y: number }>();
-    nodes.forEach((node, index) => {
+    nodes.forEach((node, index: number) => {
       const angle = (index / nodes.length) * 2 * Math.PI - Math.PI / 2;
       positions.set(node.id, {
         x: centerX + radius * Math.cos(angle),
@@ -102,7 +102,7 @@ export function NodeCluster({
       {/* Connection lines */}
       {showConnections && (
         <svg className="absolute inset-0 w-full h-full pointer-events-none">
-          {nodes.map((node, i) => {
+          {nodes.map((node, i: number) => {
             const pos = nodePositions.get(node.id);
             const centerX = containerRef.current?.clientWidth ? containerRef.current.clientWidth / 2 : 0;
             const centerY = containerRef.current?.clientHeight ? containerRef.current.clientHeight / 2 : 0;
@@ -172,7 +172,7 @@ export function NodeCluster({
 
 // Individual node components
 
-function NodeGridItem({
+function NodeGridItem(){
   node,
   isHovered,
   connectedToHovered,
@@ -257,7 +257,7 @@ function NodeGridItem({
   );
 }
 
-function NodeListItem({
+function NodeListItem(){
   node,
   isHovered,
   onHover,
@@ -326,7 +326,7 @@ function NodeListItem({
   );
 }
 
-function NodeRadialItem({
+function NodeRadialItem(){
   node,
   isHovered,
   onHover,

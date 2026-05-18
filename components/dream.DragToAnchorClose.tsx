@@ -160,7 +160,7 @@ export function DragToAnchorClose({ anchorRect, onClose, children }: DragToAncho
 /**
  * DragHandle - Component to mark draggable area
  */
-export function DragHandle({ children, className = '' }: { children?: React.ReactNode; className?: string }) {
+export function DragHandle({ children, className = '' }: {children?: React.ReactNode; className?: string}) {
   return (
     <div className={`drag-handle ${className}`}>
       {children || (

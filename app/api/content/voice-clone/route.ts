@@ -64,7 +64,7 @@ const ELEVEN_BASE = 'https://api.elevenlabs.io/v1';
  *
  * Requires ELEVENLABS_API_KEY. Falls back to graceful stubs when the key is absent.
  */
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest ){
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -168,7 +168,7 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: 'ElevenLabs list failed' }, { status: res.status });
         }
         const data = await res.json() as { voices: Array<{ voice_id: string; name: string; created_at_unix: number }> };
-        const profiles = data.voices.map(v => ({
+        const profiles = data.voices.map((v) => ({
           id: v.voice_id,
           name: v.name,
           createdAt: new Date((v.created_at_unix ?? 0) * 1000).toISOString(),
