@@ -51,7 +51,7 @@ export interface CapabilityInput {
  *   - screen pixels (0-15 pts; 1920×1080 → full marks)
  *   - GPU keyword bonus (0-15 pts)
  */
-export function scoreCapabilities(input: CapabilityInput = ){}: number {
+export function scoreCapabilities(input: CapabilityInput = {}): number {
   const nav = input.navigator ?? null;
   const screen = input.screen ?? null;
   const gpu = (input.gpuRenderer ?? '').toLowerCase();

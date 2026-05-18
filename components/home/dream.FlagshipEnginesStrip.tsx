@@ -61,7 +61,7 @@ const FLAGSHIPS = [
   },
 ] as const;
 
-export default function FlagshipEnginesStrip(){
+export default function FlagshipEnginesStrip({
   isCompactViewport = false,
 }: FlagshipEnginesStripProps) {
   const router = useRouter();

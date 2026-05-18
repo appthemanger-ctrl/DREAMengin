@@ -152,7 +152,7 @@ function createPendingBaseline(
   };
 }
 
-export function useGamePerformanceBaseline(){
+export function useGamePerformanceBaseline({
   active,
   gameId,
   renderMode,

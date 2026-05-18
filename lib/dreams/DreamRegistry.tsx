@@ -7,7 +7,7 @@ export type RegisteredDreamComponent = React.ComponentType<{
   open?: (href: string, title?: string) => void;
 }>;
 
-function DreamRegistryCard(){
+function DreamRegistryCard({
   dreamId,
   title,
   state,

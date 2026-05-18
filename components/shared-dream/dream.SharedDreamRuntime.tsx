@@ -92,7 +92,7 @@ function SharedDreamRuntimeInner({
   // When an Engin publishes via the bridge, mark it active and log activity
   useEffect(() => {
     const unsubs = ENGIN_SLOTS.map((slot) =>
-      bridge.subscribe(('shared_dream', `${slot.key}:state`, payload) => {
+      bridge.subscribe('shared_dream', `${slot.key}:state`, payload => {
         setActiveEngins((prev) => {
           if (prev.has(slot.key)) return prev;
           const next = new Set(prev);

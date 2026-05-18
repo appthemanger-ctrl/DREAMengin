@@ -93,7 +93,7 @@ export default function CalendarPanel( ){
 
         {/* Week grid */}
         <div className="grid grid-cols-7 gap-2">
-          {Array.from(({ length: 7 }, _, di: Record<string, unknown>) => {
+          {Array.from({ length: 7 }, (_, di: number) => {
             const date = new Date(weekStart);
             date.setDate(weekStart.getDate() + di);
             const dayItems = items.filter((item) => item.dayOffset === di + weekOffset * 7);

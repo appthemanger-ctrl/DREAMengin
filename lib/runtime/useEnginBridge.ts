@@ -61,36 +61,36 @@ export function useCodeEnginBridge(): CodeEnginBridgeState {
 
   useEffect(() => {
     const subs = [
-      bridge.subscribe(('music', 'music:bpm-changed', p) => {
+      bridge.subscribe('music', 'music:bpm-changed', p => {
         setLastBpm(p.bpm);
         setStatus((s: string ) => ({ ...s, music: `BPM ${p.bpm} · ${ts()}` }));
       }),
-      bridge.subscribe(('games', 'games:score-submitted', p) => {
+      bridge.subscribe('games', 'games:score-submitted', p => {
         setLastGameScore(p.score);
         setStatus((s: string ) => ({ ...s, games: `Score ${p.score} · ${ts()}` }));
       }),
-      bridge.subscribe(('lab', 'lab:result-ready', p) => {
+      bridge.subscribe('lab', 'lab:result-ready', p => {
         setLastLabResult(p.experimentId);
         setStatus((s: string ) => ({ ...s, lab: `Result: ${p.experimentId} · ${ts()}` }));
       }),
-      bridge.subscribe(('create', 'create:published', p) => {
+      bridge.subscribe('create', 'create:published', p => {
         setLastCreatePublish(p.contentId);
         setStatus((s: string ) => ({ ...s, create: `Published ${p.contentId} · ${ts()}` }));
       }),
-      bridge.subscribe(('brand', 'brand:campaign-launched', p) => {
+      bridge.subscribe('brand', 'brand:campaign-launched', p => {
         setLastBrandCampaign(p.title);
         setStatus((s: string ) => ({ ...s, brand: `Campaign: ${p.title} · ${ts()}` }));
       }),
       // ── Seam workflow events ─────────────────────────────────────────────────
-      bridge.subscribe(('code', 'code:game-script-imported', p) => {
+      bridge.subscribe('code', 'code:game-script-imported', p => {
         setLastGameScript(p.gameTitle);
         setStatus((s: string ) => ({ ...s, seam: `Game script: ${p.gameTitle} · ${ts()}` }));
       }),
-      bridge.subscribe(('code', 'code:lab-dataset-received', p) => {
+      bridge.subscribe('code', 'code:lab-dataset-received', p => {
         setLastLabDataset(p.experimentId);
         setStatus((s: string ) => ({ ...s, seam: `Lab data: ${p.experimentId} · ${ts()}` }));
       }),
-      bridge.subscribe(('code', 'code:lab-to-forge-requested', p) => {
+      bridge.subscribe('code', 'code:lab-to-forge-requested', p => {
         setLastForgeRequest(p.experimentId);
         setStatus((s: string ) => ({ ...s, seam: `Forge gen: ${p.experimentId} · ${ts()}` }));
       }),
@@ -163,45 +163,45 @@ export function useGameEnginBridge(): GameEnginBridgeState {
 
   useEffect(() => {
     const subs = [
-      bridge.subscribe(('music', 'music:bpm-changed', p) => {
+      bridge.subscribe('music', 'music:bpm-changed', p => {
         setLastBpm(p.bpm);
         setLastBpmTrackId(p.trackId);
         setStatus((s: string ) => ({ ...s, music: `BPM ${p.bpm} synced · ${ts()}` }));
       }),
-      bridge.subscribe(('code', 'code:build-success', p) => {
+      bridge.subscribe('code', 'code:build-success', p => {
         setLastCodeBuild(p.projectId);
         setStatus((s: string ) => ({ ...s, code: `Deploy: ${p.projectId} · ${ts()}` }));
       }),
-      bridge.subscribe(('lab', 'lab:result-ready', p) => {
+      bridge.subscribe('lab', 'lab:result-ready', p => {
         setLastLabResult(p.experimentId);
         setStatus((s: string ) => ({ ...s, lab: `Result: ${p.experimentId} · ${ts()}` }));
       }),
-      bridge.subscribe(('create', 'create:export-asset', p) => {
+      bridge.subscribe('create', 'create:export-asset', p => {
         setLastCreateAsset(p.assetId);
         setStatus((s: string ) => ({ ...s, create: `Asset ready · ${ts()}` }));
       }),
-      bridge.subscribe(('brand', 'brand:segment-created', p) => {
+      bridge.subscribe('brand', 'brand:segment-created', p => {
         setLastBrandSegment(p.name);
         setStatus((s: string ) => ({ ...s, brand: `Segment: ${p.name} · ${ts()}` }));
       }),
       // ── Seam workflow events ─────────────────────────────────────────────────
-      bridge.subscribe(('games', 'games:soundtrack-requested', p) => {
+      bridge.subscribe('games', 'games:soundtrack-requested', p => {
         setLastSoundtrack(p.trackId);
         setStatus((s: string ) => ({ ...s, seam: `Soundtrack: ${p.trackTitle} · ${ts()}` }));
       }),
-      bridge.subscribe(('games', 'games:script-deploy-requested', p) => {
+      bridge.subscribe('games', 'games:script-deploy-requested', p => {
         setLastScriptDeploy(p.cellId);
         setStatus((s: string ) => ({ ...s, seam: `Script deploy: ${p.cellId} · ${ts()}` }));
       }),
-      bridge.subscribe(('games', 'games:asset-import-requested', p) => {
+      bridge.subscribe('games', 'games:asset-import-requested', p => {
         setLastAssetImport(p.assetId);
         setStatus((s: string ) => ({ ...s, seam: `Asset import: ${p.assetName} · ${ts()}` }));
       }),
-      bridge.subscribe(('games', 'games:lore-content-received', p) => {
+      bridge.subscribe('games', 'games:lore-content-received', p => {
         setLastLoreContent(p.contentId);
         setStatus((s: string ) => ({ ...s, seam: `Lore: ${p.title} · ${ts()}` }));
       }),
-      bridge.subscribe(('games', 'games:brand-skin-requested', p) => {
+      bridge.subscribe('games', 'games:brand-skin-requested', p => {
         setLastBrandSkin(p.campaignId);
         setStatus((s: string ) => ({ ...s, seam: `Brand skin: ${p.campaignId} · ${ts()}` }));
       }),
@@ -266,32 +266,32 @@ export function useStarMakerEnginBridge(): StarMakerEnginBridgeState {
 
   useEffect(() => {
     const subs = [
-      bridge.subscribe(('games', 'games:session-started', p) => {
+      bridge.subscribe('games', 'games:session-started', p => {
         setLastGameSession(p.gameTitle);
         setStatus((s: string ) => ({ ...s, games: `Playing: ${p.gameTitle} · ${ts()}` }));
       }),
-      bridge.subscribe(('code', 'code:build-success', p) => {
+      bridge.subscribe('code', 'code:build-success', p => {
         setLastCodeBuild(p.projectId);
         setStatus((s: string ) => ({ ...s, code: `Build: ${p.projectId} · ${ts()}` }));
       }),
-      bridge.subscribe(('lab', 'lab:data-exported', p) => {
+      bridge.subscribe('lab', 'lab:data-exported', p => {
         setLastLabExport(p.exportId);
         setStatus((s: string ) => ({ ...s, lab: `Export ready · ${ts()}` }));
       }),
-      bridge.subscribe(('create', 'create:draft-saved', p) => {
+      bridge.subscribe('create', 'create:draft-saved', p => {
         setLastCreateDraft(p.title);
         setStatus((s: string ) => ({ ...s, create: `Draft: ${p.title} · ${ts()}` }));
       }),
-      bridge.subscribe(('brand', 'brand:asset-updated', p) => {
+      bridge.subscribe('brand', 'brand:asset-updated', p => {
         setLastBrandAsset(p.assetType);
         setStatus((s: string ) => ({ ...s, brand: `Asset: ${p.assetType} · ${ts()}` }));
       }),
       // ── Seam workflow events ─────────────────────────────────────────────────
-      bridge.subscribe(('music', 'music:visualizer-scene-requested', p) => {
+      bridge.subscribe('music', 'music:visualizer-scene-requested', p => {
         setLastVisualizerScene(p.assetId);
         setStatus((s: string ) => ({ ...s, seam: `Visualizer scene: ${p.assetName} · ${ts()}` }));
       }),
-      bridge.subscribe(('music', 'music:sonification-requested', p) => {
+      bridge.subscribe('music', 'music:sonification-requested', p => {
         setLastSonification(p.experimentId);
         setStatus((s: string ) => ({ ...s, seam: `Sonify: ${p.experimentId} · ${ts()}` }));
       }),
@@ -355,36 +355,36 @@ export function useLabEnginBridge(): LabEnginBridgeState {
 
   useEffect(() => {
     const subs = [
-      bridge.subscribe(('music', 'music:stem-ready', p) => {
+      bridge.subscribe('music', 'music:stem-ready', p => {
         setLastStem(p.stemType);
         setStatus((s: string ) => ({ ...s, music: `Stem: ${p.stemType} · ${ts()}` }));
       }),
-      bridge.subscribe(('games', 'games:score-submitted', p) => {
+      bridge.subscribe('games', 'games:score-submitted', p => {
         setLastGameScore(p.score);
         setStatus((s: string ) => ({ ...s, games: `Score ${p.score} · ${ts()}` }));
       }),
-      bridge.subscribe(('code', 'code:cell-executed', p) => {
+      bridge.subscribe('code', 'code:cell-executed', p => {
         setLastCodeCell(p.cellId);
         setStatus((s: string ) => ({ ...s, code: `Cell ${p.cellId} · ${ts()}` }));
       }),
-      bridge.subscribe(('create', 'create:published', p) => {
+      bridge.subscribe('create', 'create:published', p => {
         setLastCreatePublish(p.contentId);
         setStatus((s: string ) => ({ ...s, create: `Published · ${ts()}` }));
       }),
-      bridge.subscribe(('brand', 'brand:analytics-snapshot', p) => {
+      bridge.subscribe('brand', 'brand:analytics-snapshot', p => {
         setLastBrandSnapshot(p.snapshotId);
         setStatus((s: string ) => ({ ...s, brand: `Snapshot ready · ${ts()}` }));
       }),
       // ── Seam workflow events ─────────────────────────────────────────────────
-      bridge.subscribe(('lab', 'lab:stem-visualization-requested', p) => {
+      bridge.subscribe('lab', 'lab:stem-visualization-requested', p => {
         setLastStemVisualization(p.stemType);
         setStatus((s: string ) => ({ ...s, seam: `Stem viz: ${p.stemType} · ${ts()}` }));
       }),
-      bridge.subscribe(('lab', 'lab:code-experiment-requested', p) => {
+      bridge.subscribe('lab', 'lab:code-experiment-requested', p => {
         setLastCodeExperiment(p.cellId);
         setStatus((s: string ) => ({ ...s, seam: `Experiment: ${p.cellId} · ${ts()}` }));
       }),
-      bridge.subscribe(('lab', 'lab:asset-simulation-requested', p) => {
+      bridge.subscribe('lab', 'lab:asset-simulation-requested', p => {
         setLastAssetSimulation(p.assetId);
         setStatus((s: string ) => ({ ...s, seam: `Simulate: ${p.assetName} · ${ts()}` }));
       }),
@@ -449,36 +449,36 @@ export function useBrandingEnginBridge(): BrandingEnginBridgeState {
 
   useEffect(() => {
     const subs = [
-      bridge.subscribe(('music', 'music:track-released', p) => {
+      bridge.subscribe('music', 'music:track-released', p => {
         setLastTrack(p.title);
         setStatus((s: string ) => ({ ...s, music: `Released: ${p.title} · ${ts()}` }));
       }),
-      bridge.subscribe(('games', 'games:achievement-unlocked', p) => {
+      bridge.subscribe('games', 'games:achievement-unlocked', p => {
         setLastAchievement(p.title);
         setStatus((s: string ) => ({ ...s, games: `Achievement: ${p.title} · ${ts()}` }));
       }),
-      bridge.subscribe(('code', 'code:deploy-to-game', p) => {
+      bridge.subscribe('code', 'code:deploy-to-game', p => {
         setLastCodeDeploy(p.projectId);
         setStatus((s: string ) => ({ ...s, code: `Deploy: ${p.projectId} · ${ts()}` }));
       }),
-      bridge.subscribe(('lab', 'lab:simulation-complete', p) => {
+      bridge.subscribe('lab', 'lab:simulation-complete', p => {
         setLastLabSim(p.simulationId);
         setStatus((s: string ) => ({ ...s, lab: `Sim done · ${ts()}` }));
       }),
-      bridge.subscribe(('create', 'create:published', p) => {
+      bridge.subscribe('create', 'create:published', p => {
         setLastPublish(p.contentId);
         setStatus((s: string ) => ({ ...s, create: `Published · ${ts()}` }));
       }),
       // ── Seam workflow events ─────────────────────────────────────────────────
-      bridge.subscribe(('brand', 'brand:music-release-requested', p) => {
+      bridge.subscribe('brand', 'brand:music-release-requested', p => {
         setLastMusicRelease(p.trackId);
         setStatus((s: string ) => ({ ...s, seam: `Release: ${p.trackTitle} · ${ts()}` }));
       }),
-      bridge.subscribe(('brand', 'brand:achievement-campaign-requested', p) => {
+      bridge.subscribe('brand', 'brand:achievement-campaign-requested', p => {
         setLastAchievementCampaign(p.achievement);
         setStatus((s: string ) => ({ ...s, seam: `Achievement campaign: ${p.achievement} · ${ts()}` }));
       }),
-      bridge.subscribe(('brand', 'brand:content-campaign-requested', p) => {
+      bridge.subscribe('brand', 'brand:content-campaign-requested', p => {
         setLastContentCampaign(p.contentId);
         setStatus((s: string ) => ({ ...s, seam: `Content campaign: ${p.title} · ${ts()}` }));
       }),
@@ -551,45 +551,45 @@ export function useContentEnginBridge(): ContentEnginBridgeState {
 
   useEffect(() => {
     const subs = [
-      bridge.subscribe(('music', 'music:stem-ready', p) => {
+      bridge.subscribe('music', 'music:stem-ready', p => {
         setLastStem(p.stemType);
         setLastStemUrl(p.url);
         setStatus((s: string ) => ({ ...s, music: `Stem: ${p.stemType} · ${ts()}` }));
       }),
-      bridge.subscribe(('games', 'games:achievement-unlocked', p) => {
+      bridge.subscribe('games', 'games:achievement-unlocked', p => {
         setLastAchievement(p.title);
         setStatus((s: string ) => ({ ...s, games: `Achievement: ${p.title} · ${ts()}` }));
       }),
-      bridge.subscribe(('code', 'code:notebook-exported', p) => {
+      bridge.subscribe('code', 'code:notebook-exported', p => {
         setLastNotebook(p.notebookId);
         setStatus((s: string ) => ({ ...s, code: `Notebook: ${p.notebookId} · ${ts()}` }));
       }),
-      bridge.subscribe(('lab', 'lab:data-exported', p) => {
+      bridge.subscribe('lab', 'lab:data-exported', p => {
         setLastLabExport(p.exportId);
         setStatus((s: string ) => ({ ...s, lab: `Export ready · ${ts()}` }));
       }),
-      bridge.subscribe(('brand', 'brand:asset-updated', p) => {
+      bridge.subscribe('brand', 'brand:asset-updated', p => {
         setLastBrandAsset(p.assetType);
         setStatus((s: string ) => ({ ...s, brand: `Asset: ${p.assetType} · ${ts()}` }));
       }),
       // ── Seam workflow events ─────────────────────────────────────────────────
-      bridge.subscribe(('create', 'create:music-attached', p) => {
+      bridge.subscribe('create', 'create:music-attached', p => {
         setLastMusicAttached(p.trackId);
         setStatus((s: string ) => ({ ...s, seam: `Music: ${p.trackTitle} · ${ts()}` }));
       }),
-      bridge.subscribe(('create', 'create:notebook-publish-requested', p) => {
+      bridge.subscribe('create', 'create:notebook-publish-requested', p => {
         setLastNotebookPublish(p.notebookId);
         setStatus((s: string ) => ({ ...s, seam: `Notebook publish: ${p.title} · ${ts()}` }));
       }),
-      bridge.subscribe(('create', 'create:asset-embedded', p) => {
+      bridge.subscribe('create', 'create:asset-embedded', p => {
         setLastAssetEmbedded(p.assetId);
         setStatus((s: string ) => ({ ...s, seam: `3D embed: ${p.assetName} · ${ts()}` }));
       }),
-      bridge.subscribe(('create', 'create:game-clip-embedded', p) => {
+      bridge.subscribe('create', 'create:game-clip-embedded', p => {
         setLastGameClip(p.sessionId);
         setStatus((s: string ) => ({ ...s, seam: `Game clip: ${p.gameTitle} · ${ts()}` }));
       }),
-      bridge.subscribe(('create', 'create:brand-kit-applied', p) => {
+      bridge.subscribe('create', 'create:brand-kit-applied', p => {
         setLastBrandKitApplied(p.kitId);
         setStatus((s: string ) => ({ ...s, seam: `Brand kit: ${p.kitId} · ${ts()}` }));
       }),

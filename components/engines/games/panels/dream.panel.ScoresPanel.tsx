@@ -53,7 +53,7 @@ export default function ScoresPanel( ){
   }
 
   const formatGame = (g: string) =>
-    g.replace(/-/g, ' ').replace((/\b\w/g, c) => c.toUpperCase());
+    g.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });

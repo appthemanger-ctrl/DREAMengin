@@ -60,7 +60,7 @@ export interface ArtifactSlotProps {
  *     <MadMaxiRuntime />
  *   </ArtifactSlot>
  */
-export function ArtifactSlot(){
+export function ArtifactSlot({
   artifactId,
   bus,
   className,

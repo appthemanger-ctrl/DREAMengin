@@ -66,7 +66,7 @@ export interface UseEnginCoopSyncResult {
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
-export function useEnginCoopSync(){
+export function useEnginCoopSync({
   enginName,
   instanceId,
   region = 'homedream',

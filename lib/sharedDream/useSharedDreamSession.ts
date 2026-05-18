@@ -101,7 +101,7 @@ export interface UseSharedDreamSessionResult {
 // JSONB patch after the debounce settles.
 type EnginStateBuffer = Record<string, Record<string, unknown>>;
 
-export function useSharedDreamSession(){
+export function useSharedDreamSession({
   sessionId: propSessionId,
   name = 'Shared Dream',
 }: UseSharedDreamSessionOptions = {}): UseSharedDreamSessionResult {
