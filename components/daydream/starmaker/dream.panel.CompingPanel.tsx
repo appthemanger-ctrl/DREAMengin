@@ -65,7 +65,7 @@ function fmtTimestamp(ms: number): string {
   return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
-function StarRating(){
+function StarRating({
   rating,
   onChange,
 }: { rating: TakeRating; onChange: (r: TakeRating) => void }) {

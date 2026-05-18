@@ -66,7 +66,7 @@ export interface SharedDreamProviderProps {
   children: React.ReactNode;
 }
 
-export function SharedDreamProvider(){
+export function SharedDreamProvider({
   channelId: propChannelId,
   sessionOptions = {},
   children,

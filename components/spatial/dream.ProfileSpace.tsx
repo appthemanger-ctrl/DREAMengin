@@ -53,7 +53,7 @@ const asLinks = (v: unknown): Array<{ title: string; url: string }> => {
     .filter(Boolean) as Array<{ title: string; url: string }>;
 };
 
-export default function ProfileSpace(){
+export default function ProfileSpace({
   userId,
   handle,
   displayName,
@@ -328,7 +328,7 @@ function EmptyProfileState({ isOwner, onAddWidget }: {isOwner: boolean; onAddWid
   );
 }
 
-function WidgetRenderer(){
+function WidgetRenderer({
   widget,
   content,
   isEditing,
@@ -657,7 +657,7 @@ function WidgetTypeIcon({ type, className }: {type: WidgetType; className?: stri
   }
 }
 
-function WidgetSettingsModal(){
+function WidgetSettingsModal({
   widget,
   onClose,
   onUpdate,
@@ -748,7 +748,7 @@ function WidgetSettingsModal(){
   );
 }
 
-function AddWidgetModal(){
+function AddWidgetModal({
   userId,
   onClose,
   onCreate,

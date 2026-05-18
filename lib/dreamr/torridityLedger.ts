@@ -104,7 +104,7 @@ export function normalizeHumanViews(viewsCount: number): number {
   return TORRIDITY_LEDGER_CONFIG.a0 * (Math.log1p(safeViews + 1) / 4);
 }
 
-export function calculateRank(){
+export function calculateRank({
   humanViews,
   metadata,
 }: {

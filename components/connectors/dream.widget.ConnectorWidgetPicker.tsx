@@ -135,7 +135,7 @@ export interface ConnectorWidgetPickerProps {
   onClose: () => void;
 }
 
-export default function ConnectorWidgetPicker(){
+export default function ConnectorWidgetPicker({
   activeWidgetTypes,
   onAdd,
   onClose,
@@ -416,7 +416,7 @@ export default function ConnectorWidgetPicker(){
 
 // ── Connector card ────────────────────────────────────────────────────────────
 
-function ConnectorCard(){
+function ConnectorCard({
   connector, isAdded, onTap,
 }: {
   connector: PickerConnector;

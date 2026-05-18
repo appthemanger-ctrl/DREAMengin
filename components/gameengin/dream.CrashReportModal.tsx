@@ -46,7 +46,7 @@ type SendState =
   | { kind: 'sent' }
   | { kind: 'error'; message: string };
 
-export default function CrashReportModal(){
+export default function CrashReportModal({
   open,
   context,
   onClose,

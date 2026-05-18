@@ -711,7 +711,7 @@ export interface CollabSessionOptions {
   modeRuleSet?: Partial<CollabModeRuleSet>;
 }
 
-export function createLocalCollabSession(channelId: string, options): Required<Pick<CollabSessionOptions, 'role' | 'mode'>> & { modeRuleSet?: Partial<CollabModeRuleSet> } = { role: 'participant', mode: 'shared_dream' }: CollabSession {
+export function createLocalCollabSession(channelId: string, options: Required<Pick<CollabSessionOptions, 'role' | 'mode'>> & { modeRuleSet?: Partial<CollabModeRuleSet> } = { role: 'participant', mode: 'shared_dream' }): CollabSession {
   return new LocalCollabSession(channelId, generatePeerId(), options.role, options.mode, options.modeRuleSet);
 }
 

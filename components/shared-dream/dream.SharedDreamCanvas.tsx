@@ -27,7 +27,7 @@ export interface SharedDreamCanvasProps {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function SharedDreamCanvas(){
+export function SharedDreamCanvas({
   componentId,
   children,
   sharedContent,

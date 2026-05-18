@@ -45,7 +45,7 @@ interface Hotspot {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function AudioVisualizer3D(){
+export function AudioVisualizer3D({
   analyser,
   peakMap,
   onStemExtracted,
