@@ -185,7 +185,7 @@ function ytItemToFeedPost(item: UnifiedFeedItem): FeedPost {
 
 // ── Action button ──────────────────────────────────────────────────────────────
 
-function ActionBtn(){
+function ActionBtn({
   icon, onClick, dark, active, ariaLabel,
 }: { icon: React.ReactNode; onClick: () => void; dark: boolean; active?: boolean; ariaLabel: string }) {
   return (

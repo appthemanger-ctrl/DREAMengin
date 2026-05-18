@@ -294,7 +294,7 @@ export function validateWithIdari(
 // Boogie: policy layer. Use existing rule engine elsewhere; this is LLM helper.
 // ---------------------------------------------------------------------------
 
-export async function boogiePolicyCheck(input: ){
+export async function boogiePolicyCheck(input: {
   actorRole: 'user' | 'admin' | 'owner';
   actorEmail?: string | null;
   message: string;

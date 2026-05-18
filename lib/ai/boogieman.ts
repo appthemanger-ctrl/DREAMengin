@@ -171,7 +171,7 @@ function selectScopes(ruleCode: string, action: EnforcementAction): PolicyScope[
 // Must not reveal internal signals or thresholds (req 11, 63)
 // ============================================================================
 
-function buildUserExplanation(params: ){
+function buildUserExplanation(params: {
   action: EnforcementAction;
   ruleCode: string;
   scopes: PolicyScope[];

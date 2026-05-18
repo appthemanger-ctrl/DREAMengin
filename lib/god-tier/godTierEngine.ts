@@ -959,7 +959,7 @@ export function defaultUXSignals(): UXSignals {
   };
 }
 
-export function defaultRouteSignals(route = '/': RouteSignals ){
+export function defaultRouteSignals(route: string = '/'): RouteSignals {
   return {
     route,
     activeTask: 'browse',

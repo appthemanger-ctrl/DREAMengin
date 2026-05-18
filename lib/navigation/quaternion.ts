@@ -166,7 +166,7 @@ export function toRotationMatrix(q: Quaternion): number[][] {
 /**
  * Apply quaternion rotation to a 3D vector
  */
-export function rotateVector(q: Quaternion, v): { x: number; y: number; z: number }: { x: number; y: number; z: number } {
+export function rotateVector(q: Quaternion, v: { x: number; y: number; z: number }): { x: number; y: number; z: number } {
   // Convert vector to quaternion
   const vq: Quaternion = { w: 0, x: v.x, y: v.y, z: v.z };
   

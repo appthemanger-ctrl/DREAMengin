@@ -137,7 +137,7 @@ interface StickProps {
   clickColor?: string;
 }
 
-function Stick(){
+function Stick({
   side,
   accentColor,
   label,
