@@ -160,7 +160,7 @@ export function createNode(
 /**
  * Create an empty CompGraph.
  */
-export function createGraph(name = 'Untitled Comp': CompGraph ){
+export function createGraph(name: string = 'Untitled Comp'): CompGraph {
   return { id: `graph_${Date.now()}`, name, nodes: [], evaluationOrder: [] };
 }
 

@@ -149,7 +149,7 @@ export default function GameRuntime({ cartridge, physicsConfig, onFrame }: GameR
 
       input: {
         on(event, cb) {
-          return dreamOSBus.on(('game:input', payload) => {
+          return dreamOSBus.on('game:input', payload => {
             if (payload.type === event) cb(payload as CartridgeInputEvent);
           });
         },

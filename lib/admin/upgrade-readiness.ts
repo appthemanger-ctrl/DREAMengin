@@ -190,7 +190,7 @@ export function createUpgradeProposal(
   };
 }
 
-export function createUpgradeReadinessSnapshot(options?: ){
+export function createUpgradeReadinessSnapshot(options?: {
   manifests?: readonly DaydreamEnginManifest[];
   setup?: SetupCheckSummary;
 }): UpgradeReadinessSnapshot {

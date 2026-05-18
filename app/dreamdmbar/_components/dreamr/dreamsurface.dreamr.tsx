@@ -54,10 +54,10 @@ const DR = {
   shadowDark:  'rgba(163,189,218,0.45)',
 } as const;
 
-function nmRaised(s = 5: string ){
+function nmRaised(s: number = 5) {
   return `${-s}px ${-s}px ${s * 2.4}px ${DR.shadowLight}, ${s}px ${s}px ${s * 2.8}px ${DR.shadowDark}`;
 }
-function nmInset(s = 4: string ){
+function nmInset(s: number = 4) {
   return `inset ${-s}px ${-s}px ${s * 2}px ${DR.shadowLight}, inset ${s}px ${s}px ${s * 2.4}px ${DR.shadowDark}`;
 }
 

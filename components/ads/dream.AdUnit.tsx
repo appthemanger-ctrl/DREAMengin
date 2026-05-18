@@ -24,7 +24,7 @@ interface AdUnitProps {
   skipCreditsAvailable?: number;
 }
 
-export function AdUnit(){
+export function AdUnit({
   adId,
   adType,
   adContent,

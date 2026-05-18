@@ -262,7 +262,7 @@ class DualRuntimeBridge extends EventEmitter {
     // bridge.emit('lab', 'quantum:run', {algorithm, ansatz, numQubits?})
     // → runs QAOA/VQE state-vector simulation inline
     // → emits 'lab:quantum:result' which dreamOSBus auto-ingests as lab-result
-    this.subscribe(('lab', 'quantum:run', payload) => {
+    this.subscribe('lab', 'quantum:run', payload => {
       const algo      = (payload['algorithm']  as string) ?? 'vqe';
       const ansatz    = (payload['ansatz']     as string) ?? 'real_amplitudes';
       const numQubits = (payload['numQubits']  as number) ?? 3;
@@ -649,7 +649,7 @@ class DualRuntimeBridge extends EventEmitter {
         this._vmInterQueue = { buffer, producerIndex, consumerIndex };
       }
       // Workload dispatch: compute:vm:dispatch-workload → submitVMWorkload
-      this.subscribe(('compute', 'vm:dispatch-workload', p) => {
+      this.subscribe('compute', 'vm:dispatch-workload', p => {
         void this._handleVMWorkload(p);
       });
       this.emit('compute', 'vm:initialized', {

@@ -28,7 +28,7 @@ export function identityQuaternion(): Quaternion {
  * @param angle - rotation angle in radians
  * @returns Unit quaternion
  */
-export function fromAxisAngle(axis: ){ x: number; y: number; z: number }, angle: number: Quaternion {
+export function fromAxisAngle(axis: { x: number; y: number; z: number }, angle: number): Quaternion {
   const halfAngle = angle / 2;
   const sinHalf = Math.sin(halfAngle);
   const cosHalf = Math.cos(halfAngle);

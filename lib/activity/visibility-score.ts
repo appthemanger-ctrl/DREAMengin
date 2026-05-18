@@ -219,7 +219,7 @@ function getTierMultiplier(tier: ActivityTier): number {
  * @param params - Score parameters
  * @returns Estimated visibility score
  */
-export function estimateVisibilityScore(params: ){
+export function estimateVisibilityScore(params: {
   aqs: number;
   tier: ActivityTier;
   verificationStrength: number;

@@ -220,7 +220,7 @@ function generateETag(items: FeedItemSummary[]): string {
  *
  * @param limit - Maximum number of posts to return (default 20).
  */
-export async function resolvePublicAppPosts(limit = 20: Promise<HostResolved> ){
+export async function resolvePublicAppPosts(limit: number = 20): Promise<HostResolved> {
   const supabase = await createServerClient();
 
   try {

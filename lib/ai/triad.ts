@@ -109,7 +109,7 @@ const CODE_VOCAB_SNAPSHOT = [
   'shader, mesh, quaternion, physics, particle system',
 ].join('; ');
 
-export async function planWithEams(input: ){
+export async function planWithEams(input: {
   message: string;
   actorEmail?: string | null;
   actorRole: 'user' | 'admin' | 'owner';

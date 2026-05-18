@@ -24,7 +24,7 @@ export function useImmersiveGameLayout( ){
   return immersive;
 }
 
-export function getImmersiveCanvasStyle(border = 'none': CSSProperties ){
+export function getImmersiveCanvasStyle(border: string = 'none'): CSSProperties {
   return {
     width: '100%',
     height: '100%',

@@ -78,7 +78,7 @@ export function computeRiskScore(
 // Given risk score and severity, return the smallest action that is warranted.
 // ============================================================================
 
-export function selectAction(params: ){
+export function selectAction(params: {
   riskScore: number;
   severityLevel: StrikeSeverityLevel;
   confidence: number;

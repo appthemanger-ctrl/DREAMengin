@@ -100,7 +100,7 @@ export function tierFromScore(score: number): QualityTier {
  *
  *   detectCapabilityTier({ navigator, screen })
  */
-export function detectCapabilityTier(input: CapabilityInput = ){}: QualityTier {
+export function detectCapabilityTier(input: CapabilityInput = {}): QualityTier {
   return tierFromScore(scoreCapabilities(input));
 }
 

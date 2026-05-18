@@ -49,7 +49,7 @@ export type GameEnginAgentRole =
   | 'writer'
   | 'tech-director';
 
-export function emitGameEnginAgentEvent(input: ){
+export function emitGameEnginAgentEvent(input: {
   role: GameEnginAgentRole;
   status?: IdariEventDetail['status'];
   message: string;

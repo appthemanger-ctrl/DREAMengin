@@ -230,7 +230,7 @@ export function buildInstanceKey(enginName: EnginName, instanceId: string): stri
   return `${enginName}:${instanceId}`;
 }
 
-export function createInstance(options: ){
+export function createInstance(options: {
   enginName: EnginName;
   instanceId: string;
   region: RuntimeId;

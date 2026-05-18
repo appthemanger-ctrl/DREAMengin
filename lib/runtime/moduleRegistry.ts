@@ -109,8 +109,8 @@ export const moduleRegistry = {
  *
  * Returns the unsubscribe function.
  */
-export function subscribeRegistryToTransferEvents(: () => void {
-  return bridge.subscribe(('module', 'transfer', payload) => {
+export function subscribeRegistryToTransferEvents(): () => void {
+  return bridge.subscribe('module', 'transfer', payload => {
     const raw = payload as { module?: unknown; targetRuntime?: unknown };
     if (!raw.module || typeof raw.module !== 'object') return;
     const manifest = raw.module as ModuleManifest;

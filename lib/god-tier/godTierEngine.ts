@@ -906,7 +906,7 @@ export function getGodTierUiTokens(state: GodTierState ){
    ========================================================= */
 export const godTierSystem = new DreamEngineGodTierSystem();
 
-export function runDreamEngineGodTier(input: ){
+export function runDreamEngineGodTier(input: {
   device: DeviceSignals;
   runtime: RuntimeMetrics;
   ux: UXSignals;

@@ -11,7 +11,7 @@ const DEFAULT_DREAMS = [
   { id: 'dreamspace-game-quick-launch', name: 'Game Quick Launch', surface: 'dreamspace' as const },
 ];
 
-function buildLayoutFromDreams(dreams: Array<){ id: string; surface: 'home' | 'dreamspace' }> {
+function buildLayoutFromDreams(dreams: Array<{ id: string; surface: 'home' | 'dreamspace' }>) {
   return {
     home: { dreams: dreams.filter((dream) => dream.surface === 'home').map((dream) => dream.id) },
     dreamspace: { dreams: dreams.filter((dream) => dream.surface === 'dreamspace').map((dream) => dream.id) },

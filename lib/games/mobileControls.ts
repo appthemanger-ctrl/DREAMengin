@@ -127,7 +127,7 @@ export function emitMobileLookDelta(dx: number, dy): number {
   MOBILE_CONTROL_LISTENERS.forEach((handlers) => handlers.onLookDelta?.({ dx, dy }));
 }
 
-export function emitMobileJump(vector: ){ x: number; y: number } {
+export function emitMobileJump(vector: { x: number; y: number }) {
   emitWindowEvent('de-mobile-jump', vector);
   MOBILE_CONTROL_LISTENERS.forEach((handlers) => handlers.onJump?.());
 }

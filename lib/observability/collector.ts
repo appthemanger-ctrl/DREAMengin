@@ -85,7 +85,7 @@ let _otelBridge: typeof import('./otelBridge') | null = null;
  * Lazily load the OTel bridge module. Returns null in browser or when the
  * bridge module cannot be loaded (e.g. missing OTel deps in a test env).
  */
-function getOtelBridge(: typeof import('./otelBridge') | null {
+function getOtelBridge(): typeof import('./otelBridge') | null {
   if (_otelBridge !== undefined && _otelBridge !== null) return _otelBridge;
   if (typeof window !== 'undefined') return null; // browser — skip
   try {

@@ -6,7 +6,7 @@ import { AdType, SKIP_CREDIT_REWARDS } from './types';
 export const SKIP_CREDIT_SPEND_PER_AD = 1;
 export const MIN_WATCHED_PERCENT_FOR_CREDIT = 95;
 
-export function calculateSkipCreditsEarned(params: ){
+export function calculateSkipCreditsEarned(params: {
   adType: AdType;
   verified: boolean;
   watchedPct: number;

@@ -97,7 +97,7 @@ function angleToDir(dx: number, dy: number): Dir8 | null {
   return null;
 }
 
-function clampToCircle(v: ){ x: number; y: number }, maxR: number {
+function clampToCircle(v: { x: number; y: number }, maxR: number): { x: number; y: number } {
   const d = Math.hypot(v.x, v.y);
   return d > maxR ? { x: (v.x / d) * maxR, y: (v.y / d) * maxR } : v;
 }
