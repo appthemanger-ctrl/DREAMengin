@@ -26,7 +26,7 @@ type Props = {
  * background-position.  No <img> tag — no layout shift, no extra request
  * once the sheet is cached.
  */
-export default function SheetIcon(){
+export default function SheetIcon({
   name,
   size = FRAME_W,
   ariaLabel,

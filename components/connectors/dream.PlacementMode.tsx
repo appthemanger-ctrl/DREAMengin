@@ -27,7 +27,7 @@ export interface PlacementModeProps {
   onAutoLock: () => void;
 }
 
-export default function PlacementMode(){
+export default function PlacementMode({
   widget,
   totalSlots,
   filledSlots,

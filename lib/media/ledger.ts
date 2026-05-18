@@ -195,7 +195,7 @@ export function decodeLedgerStringToUint8Array(serialized: string): Uint8Array {
   return Uint8Array.from(decoded.slice(0, payload.originalSize).map(clampByte));
 }
 
-export async function encodeBlobToLedger(blob: Blob, options?): { fileName?: string; mimeType?: string }: Promise<Blob> {
+export async function encodeBlobToLedger(blob: Blob, options?: { fileName?: string; mimeType?: string }): Promise<Blob> {
   const source = new Uint8Array(await blob.arrayBuffer());
   const encodedValues = encodeToLedger(Array.from(source));
   const profile = analyzeLedgerDensity(encodedValues);

@@ -247,7 +247,7 @@ function BackendBadge({ backend }: {backend: string | null}) {
 
 // ── Section card ──────────────────────────────────────────────────────────────
 
-function SectionCard(){
+function SectionCard({
   emoji, label, desc, color, href,
 }: { emoji: string; label: string; desc: string; color: string; href: string }) {
   return (

@@ -2910,7 +2910,7 @@ export default function DreamDMBar({ onBothMenus, onRuntimeModeChange, onRuntime
 // ModeButton — compact pill for switching bar intent mode
 // ─────────────────────────────────────────────────────────────────────────────
 
-function ModeButton(){
+function ModeButton({
   mode,
   icon,
   activeMode,
@@ -2999,7 +2999,7 @@ interface DreamSpaceMessagingProps {
   onSearchResultSelect:(r: SearchResult) => void;
 }
 
-function DreamSpaceMessaging(){
+function DreamSpaceMessaging({
   conversations, selectedConv, onSelectConv,
   messages, msgsLoading, msgsEndRef, userId,
   messageBody, onMessageBodyChange, draftRestored,

@@ -58,7 +58,7 @@ const SYSTEM_ITEMS: Array<{ id: SystemMenuAction; icon: string; label: string }>
 
 /* ── Sub-components ─────────────────────────────────────────────────────────── */
 
-function PanelItem(){
+function PanelItem({
   icon,
   label,
   onClick,
@@ -127,7 +127,7 @@ function PanelItem(){
   );
 }
 
-function Panel(){
+function Panel({
   title,
   subtitle,
   accent,

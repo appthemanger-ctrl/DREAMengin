@@ -301,7 +301,7 @@ function buildMarkdownSummary(logs: ForgeLogEvent[], prompt: string): string {
 
 // ── Log entry renderer ────────────────────────────────────────────────────────
 
-function LogEntry(){
+function LogEntry({
   event,
   isActive = false,
   isRunning = false,

@@ -6,7 +6,7 @@ import { AlertTriangle, Trash2, X, Loader2, ShieldAlert } from 'lucide-react';
 type ModalType = 'delete-data' | 'delete-account' | null;
 
 /** Premium in-app confirmation modal — replaces browser `window.confirm/prompt` */
-function ConfirmModal(){
+function ConfirmModal({
   type,
   onClose,
 }: {

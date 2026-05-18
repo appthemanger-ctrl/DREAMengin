@@ -158,7 +158,7 @@ export default function CartridgeBrowser({ initialCategory = ALL }: CartridgeBro
 
 // ── Filter pill row ─────────────────────────────────────────────────────────
 
-function FilterRow(){
+function FilterRow({
   label, options, value, onChange,
 }: { label: string; options: readonly string[]; value: string; onChange: (v: string) => void }) {
   return (

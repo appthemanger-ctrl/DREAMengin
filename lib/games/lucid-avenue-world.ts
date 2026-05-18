@@ -963,7 +963,7 @@ function appendLog(state: LucidAvenueState, text): string {
   };
 }
 
-function withMessage(state: LucidAvenueState, message): string, logText = message {
+function withMessage(state: LucidAvenueState, message: string, logText = message) {
   return appendLog({ ...state, message }, logText);
 }
 

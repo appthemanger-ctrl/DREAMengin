@@ -181,7 +181,7 @@ function BarChart({ data, color }: {data: number[]; color: string}) {
 
 // ── Widget Config Sheet ────────────────────────────────────────────────────────
 
-function WidgetConfigSheet(){
+function WidgetConfigSheet({
   widget, onClose, onSave,
 }: {
   widget: Widget;
@@ -434,7 +434,7 @@ function WidgetConfigSheet(){
 
 // ── Connector-sourced widget shell ────────────────────────────────────────────
 
-function ConnectorSourcedWidget(){
+function ConnectorSourcedWidget({
   symbol, brandColor, bgColor, name, sub,
   textColor, dimColor, connected, accent, extra, size,
 }: {
@@ -918,7 +918,7 @@ interface ProfileWidgetGridProps {
   onSave?: (widgets: Widget[]) => void;
 }
 
-export default function ProfileWidgetGrid(){
+export default function ProfileWidgetGrid({
   displayName, handle: _handle, avatarUrl, avatarEditHref, bio, coverUrl,
   followers = 0, following = 0, posts = 12, likes = 46,
   isEditing = false,

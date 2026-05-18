@@ -73,7 +73,7 @@ function lineFg(line: FullFileLine): string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function DiffViewer(){
+export default function DiffViewer({
   diffText = DEMO_DIFF,
   defaultFullFile = true,
 }: DiffViewerProps) {

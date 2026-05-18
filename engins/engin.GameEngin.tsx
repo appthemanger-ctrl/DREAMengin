@@ -2912,7 +2912,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
  * Full-screen "DREAMengin powered by…" boot splash shown for 2.5 s when a game
  * enters fullscreen. Auto-dismisses via onDone callback.
  */
-function EnginBootSplash(){
+function EnginBootSplash({
   game,
   onDone,
 }: {

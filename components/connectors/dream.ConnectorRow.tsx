@@ -56,7 +56,7 @@ interface CredentialField {
 
 // ── Credential modal ───────────────────────────────────────────────────────
 
-function CredentialModal(){
+function CredentialModal({
   connector,
   fields,
   onSubmit,

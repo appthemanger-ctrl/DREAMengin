@@ -170,7 +170,7 @@ function GradientThemePicker( ){
 
 
 /* ── Slider component (styled with Dream tokens) ── */
-function Slider(){
+function Slider({
   label,
   value,
   min,
@@ -218,7 +218,7 @@ function Slider(){
 }
 
 /* ── Preset cards ── */
-function PresetCard(){
+function PresetCard({
   preset,
   isActive,
   onSelect,

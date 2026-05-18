@@ -138,8 +138,8 @@ export class DualSenseManager {
     // Gyro is great on mobile for natural steering/aim (phone tilt)
     const gyro = this.isMobile
       ? {
-          x: (gp as Gamepad & { angularVelocity?: number[]; hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator })\.angularVelocity?.[0] || 0,
-          y: (gp as Gamepad & { angularVelocity?: number[]; hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator })\.angularVelocity?.[1] || 0,
+          x: (gp as Gamepad & { angularVelocity?: number[]; hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator }).angularVelocity?.[0] || 0,
+          y: (gp as Gamepad & { angularVelocity?: number[]; hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator }).angularVelocity?.[1] || 0,
         }
       : { x: 0, y: 0 };
 

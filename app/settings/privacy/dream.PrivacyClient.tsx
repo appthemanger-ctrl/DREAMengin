@@ -36,7 +36,7 @@ const DEFAULT_SETTINGS: PrivacySettings = {
   hideConnectorData: true,
 };
 
-function Toggle(){
+function Toggle({
   value,
   onToggle,
   label,

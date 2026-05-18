@@ -155,7 +155,7 @@ export class HitStop {
 }
 
 /** Stamp a translucent rect of the previous frame for cheap motion blur. */
-export function motionTrail(ctx: CanvasRenderingContext2D, w: number, h): number, alpha = 0.22, color = '#000' {
+export function motionTrail(ctx: CanvasRenderingContext2D, w: number, h: number, alpha = 0.22, color = '#000') {
   ctx.fillStyle = color;
   ctx.globalAlpha = alpha;
   ctx.fillRect(0, 0, w, h);

@@ -441,7 +441,7 @@ export interface QuantumCircuitCanvasProps {
 
 const STEP_MS = 140; // milliseconds per gate step during animation
 
-export default function QuantumCircuitCanvas(){
+export default function QuantumCircuitCanvas({
   active,
   accentColor,
   secondaryColor,

@@ -256,7 +256,7 @@ function EngineBarChart({ engines }: { engines: string[] }) {
   );
 }
 
-export default function DreamsSpacePanel(){
+export default function DreamsSpacePanel({
   onOpenUrl,
   onOpenInRegion,
   accountId,

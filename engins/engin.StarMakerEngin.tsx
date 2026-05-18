@@ -1330,7 +1330,7 @@ interface DAWTransportBarProps {
   onChangeBpm: (delta: number) => void;
 }
 
-function DAWTransportBar(){
+function DAWTransportBar({
   bpm, playing, playbackStep, musicalKey, keyMode, waveformRecording,
   onBack, onTogglePlayback, onWaveformRecord, onSkipToStart, onChangeBpm,
 }: DAWTransportBarProps) {
@@ -1463,7 +1463,7 @@ interface DAWMultiTrackPanelProps {
   onWaveformToggle: () => void;
 }
 
-function DAWMultiTrackPanel(){
+function DAWMultiTrackPanel({
   mixer, stemReady, beatGrid, playbackStep, playing, waveformRecording,
 }: DAWMultiTrackPanelProps) {
   const channelLevels: Record<string, number> = {
@@ -1609,7 +1609,7 @@ interface DAWStemSplitterPanelProps {
   onPrepareExport: () => void;
 }
 
-function DAWStemSplitterPanel(){
+function DAWStemSplitterPanel({
   stemReady, exportPending, exportDone, onToggleStem, onPrepareExport,
 }: DAWStemSplitterPanelProps) {
   const [expanded, setExpanded] = useState(true);
@@ -1796,7 +1796,7 @@ interface DAWPatternSequencerProps {
   onBpmInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-function DAWPatternSequencer(){
+function DAWPatternSequencer({
   beatGrid, playbackStep, playing, qualityMode, profile,
   onToggleBeat, onTogglePlayback, onQualityModeChange,
 }: DAWPatternSequencerProps) {
@@ -2120,7 +2120,7 @@ interface DAWKeyPitchPanelProps {
   onPitchChange: (v: number) => void;
 }
 
-function DAWKeyPitchPanel(){
+function DAWKeyPitchPanel({
   bpm, musicalKey, keyMode, pitch,
   onChangeBpm, onBpmInput, onKeyChange, onModeChange, onPitchChange,
 }: DAWKeyPitchPanelProps) {
@@ -2257,7 +2257,7 @@ interface DAWChordMelodyPanelProps {
   onMelodyAsk: () => void;
 }
 
-function DAWChordMelodyPanel(){
+function DAWChordMelodyPanel({
   progression, chordPlaying, melodySuggestions, melodyLoading,
   onChangeChord, onChordPlay, onMelodyAsk,
 }: DAWChordMelodyPanelProps) {
@@ -2444,7 +2444,7 @@ interface DAWCollabPlaylistPanelProps {
   onPlaylistSave: () => void;
 }
 
-function DAWCollabPlaylistPanel(){
+function DAWCollabPlaylistPanel({
   collabActive, collabCode, playlist, onCollabToggle, onPlaylistMove, onPlaylistSave,
 }: DAWCollabPlaylistPanelProps) {
   return (
@@ -2562,7 +2562,7 @@ interface DAWPresetLibraryPanelProps {
   onApplyTemplate:  (t: ProjectTemplate) => void;
 }
 
-function DAWPresetLibraryPanel(){
+function DAWPresetLibraryPanel({
   genreFilter, activePresetId, activeTemplateId, presetApplied,
   onGenreChange, onApplyPreset, onApplyInstrument, onApplyTemplate,
 }: DAWPresetLibraryPanelProps) {
@@ -2888,7 +2888,7 @@ function computeAudioStats(buffer: AudioBuffer): AudioStats {
   };
 }
 
-function DAWFileIOPanel(){
+function DAWFileIOPanel({
   bpm,
   externalLoad,
   persistedLedgerAudio,

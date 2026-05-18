@@ -126,7 +126,7 @@ function extractGoSymbols(lines: string[]): ParsedSymbol[] {
     if (inImportBlock) {
       if ((m = line.match(importRe))) symbols.push({ kind: 'import',   name: m[1], line: ln });
     } else if ((m = line.match(funcRe))) {
-      symbols.push(){ kind: 'function', name: m[1], line: ln });
+      symbols.push({ kind: 'function', name: m[1], line: ln });
     } else if ((m = line.match(typeRe))) {
       symbols.push({ kind: 'type',     name: m[1], line: ln });
     }

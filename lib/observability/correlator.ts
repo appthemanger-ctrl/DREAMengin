@@ -214,7 +214,7 @@ export function detectSustainedErrorRate(
  * Pass `options` to tune detection thresholds.
  */
 // ── Improvement 28: correlate accepts options ─────────────────────────────────
-export function correlate(snapshot: TelemetrySnapshot, options): CorrelateOptions = {}: CorrelationResult {
+export function correlate(snapshot: TelemetrySnapshot, options: CorrelateOptions = {}): CorrelationResult {
   const {
     errorSpikeThreshold,
     sustainedErrorRateThreshold = 0.4,

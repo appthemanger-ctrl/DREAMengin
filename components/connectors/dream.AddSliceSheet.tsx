@@ -27,7 +27,7 @@ export interface AddSliceSheetProps {
   onClose: () => void;
 }
 
-export default function AddSliceSheet(){
+export default function AddSliceSheet({
   connector,
   existingSlices,
   onAdd,

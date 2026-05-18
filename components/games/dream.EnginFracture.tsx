@@ -270,7 +270,6 @@ export default function EnginFracture( ){
 }
 
 function Picker({ label, options, value, onChange }: { label: string; options: Array<{ id: string; label: string; info: string }>; value: string; onChange: (v: string) => void }) {
-}) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       <div style={{ color: '#8aa9ff', fontSize: 11, letterSpacing: 3 }}>{label}</div>

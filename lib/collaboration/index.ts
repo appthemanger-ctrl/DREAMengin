@@ -295,7 +295,7 @@ function nowMs(): number {
   return Date.now();
 }
 
-function normalizePayload(payload: CollabOutboundPayload | CollabPayload, context): {
+function normalizePayload(payload: CollabOutboundPayload | CollabPayload, context: {
   channelId: string;
   peerId: string;
   role: SessionRole;
@@ -732,7 +732,7 @@ export async function createSupabaseCollabSession(
   return session;
 }
 
-export async function createCollabSession(channelId: string, options): CollabSessionOptions = {}: Promise<CollabSession> {
+export async function createCollabSession(channelId: string, options: CollabSessionOptions = {}): Promise<CollabSession> {
   const {
     transport,
     supabaseClient,

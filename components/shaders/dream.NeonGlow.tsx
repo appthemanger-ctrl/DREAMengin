@@ -55,7 +55,7 @@ export interface NeonGlowProps {
   position?: [number, number, number];
 }
 
-export function NeonGlow(){
+export function NeonGlow({
   color = '#00ffff',
   intensity = 1.5,
   pulseSpeed = 2.0,

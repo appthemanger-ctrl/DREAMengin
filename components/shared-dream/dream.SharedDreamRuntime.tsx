@@ -74,7 +74,7 @@ interface InnerProps {
   sessionId: string | null;
 }
 
-function SharedDreamRuntimeInner(){
+function SharedDreamRuntimeInner({
   savedEnginState,
   members,
   activity,

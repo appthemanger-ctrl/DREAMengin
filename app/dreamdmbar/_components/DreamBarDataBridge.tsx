@@ -29,7 +29,7 @@ const DEFAULT_WORKFLOW_SPLIT = 0.5;
  * Per Bar Ownership Law §0 (docs/LAW.md): the DreamDM Bar IS home.
  * This component is purely a data bridge — it has no UI of its own.
  */
-export default function DreamBarDataBridge(){
+export default function DreamBarDataBridge({
   userId,
   profile,
   initialPosts,
