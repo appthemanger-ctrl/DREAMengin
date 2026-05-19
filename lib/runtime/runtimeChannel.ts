@@ -54,7 +54,7 @@ export function createLocalChannel<T extends RuntimeChannelEvent = RuntimeChanne
       for (const fn of Array.from(listeners)) {
         try {
           fn(event);
-        } catch (err) {
+        } catch (err: any) {
           // A faulty listener must not break sibling listeners.
           if (typeof console !== 'undefined') {
             console.error('[runtimeChannel] listener threw', err);
@@ -99,7 +99,7 @@ export async function createRealtimeChannel<
   let client: unknown;
   try {
     const mod: Record<string, unknown> = await import('@supabase/supabase-js').catch(
-      () => ({}) as Record<string, unknown>,
+      () => ({}) as any,
     );
     // We deliberately do not assume a project-specific factory — callers in
     // the wider app can wrap this with their own client. If nothing is
@@ -134,7 +134,7 @@ export async function createRealtimeChannel<
     for (const fn of Array.from(listeners)) {
       try {
         fn(payload);
-      } catch (err) {
+      } catch (err: any) {
         if (typeof console !== 'undefined') {
           console.error('[runtimeChannel] realtime listener threw', err);
         }

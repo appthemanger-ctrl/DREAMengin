@@ -45,13 +45,13 @@ interface RegistryDocument {
   entries: RegistryEntry[];
 }
 
-type EngineEventHandler = (payload: unknown) => void;
+type EngineEventHandler = (payload: any) => void;
 
 interface RuleSetDefinition {
   id: string;
   constraints: unknown[];
   transforms:
-    | ((state, params) => Record<string, unknown>)
+    | ((state: any, params: any) => Record<string, unknown>)
     | Record<string, unknown>;
   params: Record<string, unknown>;
 }
@@ -86,7 +86,7 @@ function cloneUnknown<T>(value: T): T {
 
 function deepFreeze<T>(value: T): T {
   if (value === null || typeof value !== 'object') return value;
-  const record = value as Record<string, unknown>;
+  const record = value as any;
   for (const key of Object.keys(record)) {
     const child = record[key];
     if (child !== null && typeof child === 'object') {
@@ -98,7 +98,7 @@ function deepFreeze<T>(value: T): T {
 
 function normalizeState(input: unknown): Record<string, unknown> {
   if (input && typeof input === 'object' && !Array.isArray(input)) {
-    return input as Record<string, unknown>;
+    return input as any;
   }
   return {};
 }
@@ -350,7 +350,7 @@ export class UniversalEngine {
     return this.snapshots;
   }
 
-  setState(nextState): Readonly<Record<string, unknown>> {
+  setState(nextState: any): Readonly<Record<string, unknown>> {
     const immutable = deepFreeze(cloneUnknown(normalizeState(nextState)));
     this.activeState = immutable;
     this.snapshots = [...this.snapshots, immutable];
@@ -446,7 +446,7 @@ export class UniversalEngine {
 
   private extractRuleSet(moduleValue: unknown, fallbackId: string): RuleSetDefinition | null {
     if (!moduleValue || typeof moduleValue !== 'object') return null;
-    const moduleRecord = moduleValue as Record<string, unknown>;
+    const moduleRecord = moduleValue as any;
     const candidate =
       (moduleRecord.default as unknown)
       ?? (moduleRecord.ruleSet as unknown)
@@ -454,17 +454,17 @@ export class UniversalEngine {
       ?? moduleRecord;
 
     if (!candidate || typeof candidate !== 'object') return null;
-    const ruleSet = candidate as Record<string, unknown>;
+    const ruleSet = candidate as any;
 
     const id = typeof ruleSet.id === 'string' ? ruleSet.id : fallbackId;
     const constraints = Array.isArray(ruleSet.constraints) ? ruleSet.constraints : [];
     const params = ruleSet.params && typeof ruleSet.params === 'object' && !Array.isArray(ruleSet.params)
-      ? (ruleSet.params as Record<string, unknown>)
+      ? (ruleSet.params as any)
       : {};
 
     const transformsRaw = ruleSet.transforms;
     const transforms = typeof transformsRaw === 'function'
-      ? transformsRaw as (state, params) => Record<string, unknown>
+      ? transformsRaw as (state: any, params: any) => Record<string, unknown>
       : normalizeState(transformsRaw);
 
     return {

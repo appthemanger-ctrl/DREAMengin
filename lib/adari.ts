@@ -79,7 +79,7 @@ function checkPackageJsonScripts(cwd: string): AdariCheck[] {
         message: okVersion ? `package.json version is ${pkg.version}` : `package.json version must be 2.0.0, got: ${pkg.version}`,
       },
     ];
-  } catch (e) {
+  } catch (e: any) {
     return [{ id: "package.json:parse", ok: false, message: `Failed to parse package.json: ${String(e)}` }];
   }
 }

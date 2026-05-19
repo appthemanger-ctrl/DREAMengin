@@ -207,7 +207,7 @@ export function retargetClip(clip: MocapClip, scaleFactor: number): MocapClip {
 export function exportBVH(clip: MocapClip): string {
   const out: string[] = ['HIERARCHY'];
 
-  function writeJoint(j: Joint, depth: number, isRoot): boolean {
+  function writeJoint(j: Joint, depth: number, isRoot: any): void {
     const p = '  '.repeat(depth);
     out.push(`${p}${isRoot ? 'ROOT' : 'JOINT'} ${j.name}`);
     out.push(`${p}{`);

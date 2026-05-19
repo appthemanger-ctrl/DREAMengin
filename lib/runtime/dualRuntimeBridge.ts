@@ -267,7 +267,7 @@ class DualRuntimeBridge extends EventEmitter {
       const ansatz    = (payload['ansatz']     as string) ?? 'real_amplitudes';
       const numQubits = (payload['numQubits']  as number) ?? 3;
       const result    = _runCircuit(numQubits, algo, ansatz);
-      this.emit('lab', 'quantum:result', result as unknown as Record<string, unknown>);
+      this.emit('lab', 'quantum:result', result as unknown as any);
       // Write result to inter-VM ring buffer if available so both VMs see it
       if (this._vmInterQueue) {
         this._writeInterVMMessage(new TextEncoder().encode(JSON.stringify(result)));
@@ -312,7 +312,7 @@ class DualRuntimeBridge extends EventEmitter {
       this.entryView = this.memory ? new Uint32Array(this.memory.buffer, this.entryPtr, ENTRY_WORDS) : null;
 
       this.startPolling();
-    } catch (err) {
+    } catch (err: any) {
       console.warn('dualRuntimeBridge: WASM bus unavailable, falling back to in-memory queue', err);
       this.memory = null;
       this.wasm = null;
@@ -334,7 +334,7 @@ class DualRuntimeBridge extends EventEmitter {
   private async loadWasmBinary(): Promise<ArrayBuffer> {
     // Browser / worker path: fetch the emitted asset URL.
     if (typeof window !== 'undefined' && typeof fetch === 'function') {
-      return fetch(BUS_WASM_URL).then((r: number ) => r.arrayBuffer());
+      return fetch(BUS_WASM_URL).then((r) => r.arrayBuffer());
     }
 
     // Node / Vitest path: read directly from the filesystem to avoid file:// fetch limitations.
@@ -407,7 +407,7 @@ class DualRuntimeBridge extends EventEmitter {
     return aligned;
   }
 
-  private enqueueEnvelope(channel: string, event: string, payload): boolean {
+  private enqueueEnvelope(channel: string, event: string, payload: any): boolean {
     if (!this.busOnline || !this.wasm || !this.memory) {
       this.dispatchLocal(channel, event, payload);
       return true;
@@ -443,7 +443,7 @@ class DualRuntimeBridge extends EventEmitter {
   // ── Channel emission ───────────────────────────────────────────────────────
 
   /** Emit an event on a named channel. Primary public API for cross-Engin events. */
-  emit(channel: string, event: string, payload): boolean {
+  emit(channel: string, event: string, payload: any): boolean {
     this.enqueueEnvelope(channel, event, payload);
     return true;
   }
@@ -466,7 +466,7 @@ class DualRuntimeBridge extends EventEmitter {
   subscribe(
     channel: string,
     event: string,
-    handler: (payload) => void,
+    handler: (payload: any) => void,
   ): UnsubscribeFn {
     const key = `${channel}:${event}`;
     this.on(key, handler as BridgeEventHandler);
@@ -657,7 +657,7 @@ class DualRuntimeBridge extends EventEmitter {
         interVMEnabled: config.enableInterVMCommunication !== false,
         timestamp: Date.now(),
       });
-    } catch (err) {
+    } catch (err: any) {
       console.warn('[DualRuntimeBridge] VM init failed (WebGPU unavailable?):', err);
     }
   }
@@ -809,7 +809,7 @@ class DualRuntimeBridge extends EventEmitter {
     }
   }
 
-  private dispatchLocal(channel: string, event: string, payload) {
+  private dispatchLocal(channel: string, event: string, payload: any) {
     if (channel === 'module' && event === 'transfer') {
       const modulePayload = payload['module'] as { type?: unknown; id?: unknown } | undefined;
       const isGameCartridge = modulePayload?.type === 'game-cartridge';
@@ -853,14 +853,14 @@ class DualRuntimeBridge extends EventEmitter {
   }
 
   /** Internal handler for compute:vm:dispatch-workload bridge events. */
-  private async _handleVMWorkload(payload): Promise<void> {
+  private async _handleVMWorkload(payload: any): Promise<void> {
     const { workloadId, region, wasmBinary, channel, priority } = payload as {
       workloadId: string; region: VMRegion; wasmBinary: ArrayBuffer;
       channel: DualRuntimeChannel; priority: number;
     };
     try {
       await this.submitVMWorkload({ id: workloadId, region, wasmBinary, channel, priority });
-    } catch (err) {
+    } catch (err: any) {
       this.emit(channel, 'vm:error', { workloadId, error: String(err) });
     }
   }

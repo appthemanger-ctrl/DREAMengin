@@ -76,7 +76,7 @@ export function AdUnit({
         setSkipped(true);
         onComplete?.(false, 0);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('[AdUnit] Skip error:', err);
     }
   };
@@ -116,7 +116,7 @@ export function AdUnit({
           onComplete?.(false, 0);
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('[AdUnit] Complete error:', err);
       onComplete?.(false, 0);
     }

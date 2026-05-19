@@ -39,7 +39,7 @@ export type GameInputAction =
   | 'jump-spin' | 'jump-shoot' | 'l2' | 'r1' | 'l3' | 'r3'
   | 'pause';
 
-function fireAction(action: GameInputAction, active): boolean {
+function fireAction(action: GameInputAction, active: any): void {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('de-game-input', { detail: { action, active } }));
   }

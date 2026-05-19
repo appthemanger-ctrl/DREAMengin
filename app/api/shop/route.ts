@@ -1,5 +1,7 @@
+import type { Database } from '@/types/supabase';
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { validateShopListing, normalizeShopListing } from '@/lib/shop/listings';
 
 // GET - Fetch merch items
@@ -142,7 +144,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
 
   const { data: item, error } = await supabase
     .from('merch')
-    .update(updatePayload)
+    .update(updatePayload as never)
     .eq('id', id)
     .eq('user_id', user.id)
     .select()

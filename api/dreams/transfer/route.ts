@@ -14,7 +14,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
     return NextResponse.json({ ok: false, error: 'Unauthorized' }, { status: 401 });
   }
 
-  let body: unknown;
+  let body: any;
   try {
     body = await req.json();
   } catch {

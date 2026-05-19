@@ -116,7 +116,7 @@ export default function CrashReportModal({
         if (j.error) msg = j.error;
       } catch { /* keep default */ }
       setSend({ kind: 'error', message: msg });
-    } catch (err) {
+    } catch (err: any) {
       setSend({
         kind: 'error',
         message: err instanceof Error ? err.message : 'Failed to send report',

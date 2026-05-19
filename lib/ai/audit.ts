@@ -45,7 +45,7 @@ export async function writeAuditLog(input: WriteAuditLogInput): Promise<void> {
       console.error('[audit] Failed to write audit log:', error);
       // Don't throw — audit failure must not break the request
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('[audit] Unexpected error writing audit log:', error);
   }
 }

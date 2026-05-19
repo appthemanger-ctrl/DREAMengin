@@ -10,6 +10,7 @@ import { Shield, AlertTriangle, Download, FileText, ChevronRight } from 'lucide-
 import { BOOGIE_POLICY_VERSION } from '@/lib/ai/boogie-policy';
 import AuthenticatedPageHeader from '@/components/ui/dream.AuthenticatedPageHeader';
 import { connection } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const metadata = { title: 'Policy & Safety – Dreamengin Settings' };
 

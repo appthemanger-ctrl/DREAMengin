@@ -6,6 +6,7 @@ import ProfileWidgetGrid, { DEFAULT_DREAMS, type ProfileDream } from '@/componen
 import ProfileShareButton from '@/components/dream.ProfileShareButton';
 import DreamWord from '@/components/ui/dream.DreamWord';
 import { connection } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 
 export const metadata = {

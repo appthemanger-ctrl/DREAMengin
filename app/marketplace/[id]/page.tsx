@@ -20,6 +20,7 @@ import { ArrowLeft, ShoppingBag, Tag, User, Calendar } from 'lucide-react';
 import DreamWord from '@/components/ui/dream.DreamWord';
 import MarketplaceRequestButton from '@/components/marketplace/dream.MarketplaceRequestButton';
 import { connection } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 
 const CATEGORY_EMOJI: Record<string, string> = {

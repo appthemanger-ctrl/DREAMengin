@@ -21,6 +21,7 @@
  * Rate limiting: client-side (localStorage) + in-memory Map TTL here.
  */
 
+import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
 import { groqChat, type GroqMessage } from '@/lib/ai/groq';
 import { AI_MODELS } from '@/lib/ai/triad';
@@ -230,7 +231,7 @@ export async function fetchWithRetry(
       if (attempt < retries - 1) {
         await sleep(backoffMs * 2 ** attempt);
       }
-    } catch (err) {
+    } catch (err: any) {
       clearTimeout(timer);
       if (attempt === retries - 1) throw err;
       await sleep(backoffMs * 2 ** attempt);
@@ -705,35 +706,23 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     body = await req.json();
   } catch {
-    return new Response(
-      JSON.stringify({ error: 'Body must be valid JSON.' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } }
-    );
+    return NextResponse.json({ error: 'Body must be valid JSON.' }, { status: 400 });
   }
 
-  if (!body || typeof body !== 'object' || typeof (body as Record<string, unknown>).prompt !== 'string') {
-    return new Response(
-      JSON.stringify({ error: 'Missing required field: prompt (string).' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } }
-    );
+  if (!body || typeof body !== 'object' || typeof (body as any).prompt !== 'string') {
+    return NextResponse.json({ error: 'Missing required field: prompt (string).' }, { status: 400 });
   }
 
-  const prompt = ((body as Record<string, unknown>).prompt as string).trim();
+  const prompt = ((body as any).prompt as string).trim();
   if (!prompt) {
-    return new Response(
-      JSON.stringify({ error: 'Prompt must not be empty.' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } }
-    );
+    return NextResponse.json({ error: 'Prompt must not be empty.' }, { status: 400 });
   }
 
   // Server-side rate limit (Supabase-persistent, in-memory fallback for local dev)
   const buildToken = req.headers.get('x-build-token') ?? req.headers.get('x-forwarded-for') ?? 'anonymous';
   const allowed = await checkAndRecordRateLimit(buildToken);
   if (!allowed) {
-    return new Response(
-      JSON.stringify({ error: 'Daily build limit reached. Try again tomorrow.' }),
-      { status: 429, headers: { 'Content-Type': 'application/json' } }
-    );
+    return NextResponse.json({ error: 'Daily build limit reached. Try again tomorrow.' }, { status: 429 });
   }
 
   const useSimulation = !process.env.GROQ_API_KEY;
@@ -914,7 +903,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           send({ type: 'step', step: 'PHASE: Build complete! 🎉', ts: Date.now() });
           send({ type: 'done', ts: Date.now() });
         }
-      } catch (err) {
+      } catch (err: any) {
         send({ type: 'error', message: String(err instanceof Error ? err.message : err), ts: Date.now() });
         send({ type: 'done', ts: Date.now() });
       } finally {
@@ -923,7 +912,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     },
   });
 
-  return new Response(stream, {
+  return new Response(stream as BodyInit, {
     headers: {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',

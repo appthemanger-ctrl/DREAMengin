@@ -25,6 +25,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 
 
@@ -47,7 +48,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Request body must be a JSON object.' }, { status: 400 });
   }
 
-  const { type, internalId, label } = body as Record<string, unknown>;
+  const { type, internalId, label } = body as any;
 
   if (!type || typeof type !== 'string') {
     return NextResponse.json({ error: 'type is required.' }, { status: 400 });

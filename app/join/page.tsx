@@ -41,7 +41,7 @@ export default function JoinPage( ){
 
   useEffect(() => {
     fetch("/api/auth/providers")
-      .then((r: number ) => {
+      .then((r) => {
         if (!r.ok) throw new Error("Unable to load OAuth provider status");
         return r.json();
       })

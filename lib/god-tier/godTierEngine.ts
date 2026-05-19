@@ -928,7 +928,7 @@ export function defaultDeviceSignals(): DeviceSignals {
     width: window.innerWidth,
     height: window.innerHeight,
     refreshRate:
-      (screen as unknown as Record<string, unknown>)['refreshRate'] as number | undefined ?? 60,
+      (screen as unknown as any)['refreshRate'] as number | undefined ?? 60,
     prefersReducedMotion:
       window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false,
   };

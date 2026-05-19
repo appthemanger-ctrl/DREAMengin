@@ -87,7 +87,7 @@ function resolveAllowedFile(relPath: string): { abs: string; rel: string } | nul
 }
 
 // ── Deny helper ──────────────────────────────────────────────────────────────
-function deny(msg: string, status): number {
+function deny(msg: string, status: number): NextResponse {
   return NextResponse.json({ error: msg }, { status });
 }
 

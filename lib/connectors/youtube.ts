@@ -1,8 +1,9 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
 import 'server-only'
 
 import { createServiceClient } from '@/lib/supabase/server'
 
-export async function pollYouTube(userId: string, accessToken): string {
+export async function pollYouTube(userId: string, accessToken: string): Promise<string> {
   try {
     const supabase = (await createServiceClient()) as SupabaseClient
     // Fetch user's subscriptions
@@ -27,7 +28,7 @@ export async function pollYouTube(userId: string, accessToken): string {
       await fetchChannelVideos(userId, accessToken, channelId)
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('YouTube polling error:', error)
   }
 }
@@ -76,7 +77,7 @@ async function fetchChannelVideos(userId: string, accessToken: string, channelId
         .upsert(feedItem, { onConflict: 'dedupe_hash', ignoreDuplicates: true })
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Fetch channel videos error:', error)
   }
 }

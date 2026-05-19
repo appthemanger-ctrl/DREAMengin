@@ -1,5 +1,6 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * /api/scheduled-posts
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
+  const body = await req.json().catch(() => ({})) as any;
   const { title = '', content, scheduled_for, platforms = [] } = body;
 
   if (!content || String(content).trim().length === 0) {
@@ -96,7 +97,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
+  const body = await req.json().catch(() => ({})) as any;
   const { id, ...rest } = body;
   if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 });
 

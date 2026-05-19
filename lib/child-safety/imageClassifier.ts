@@ -203,7 +203,7 @@ export async function classifyImage(
     const flagged = FLAGGED_RISK_LEVELS.includes(risk) && confidence >= MIN_CONFIDENCE_FOR_FLAG;
 
     return { flagged, risk, confidence, severity, skipped: false };
-  } catch (err) {
+  } catch (err: any) {
     const errorMsg = err instanceof Error ? err.message : String(err);
     // On model error, return skipped (do not false-positive block content)
     return {

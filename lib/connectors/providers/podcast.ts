@@ -88,7 +88,7 @@ export async function podcastVerify(creds: PodcastCredentials): Promise<string> 
       // Only read the first chunk — we just want to confirm the feed exists
       signal: AbortSignal.timeout(10_000),
     });
-  } catch (err) {
+  } catch (err: any) {
     const msg = err instanceof Error ? err.message : String(err);
     throw new Error(
       `Could not reach the feed URL. Check your internet connection or that the URL is correct. (${msg})`,

@@ -15,7 +15,7 @@ function collectMediaUrlStrings(value: unknown): string[] {
   }
 
   if (value && typeof value === 'object') {
-    return Object.values(value as Record<string, unknown>).flatMap((entry) => collectMediaUrlStrings(entry));
+    return Object.values(value as any).flatMap((entry) => collectMediaUrlStrings(entry));
   }
 
   return [];

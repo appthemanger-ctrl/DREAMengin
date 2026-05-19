@@ -292,11 +292,11 @@ export function isBotSession(history: SwipeRecord[]): BotSessionResult {
   if (botSwipeRatio > 0.6) signals.push(`${Math.round(botSwipeRatio * 100)}% bot swipes`);
 
   const avgDeviation =
-    history.reduce((a, r: number) => a + r.analysis.meanDeviation, 0) / history.length;
+    history.reduce((a, r) => a + r.analysis.meanDeviation, 0) / history.length;
   if (avgDeviation < 0.8) signals.push(`avg deviation ${avgDeviation.toFixed(2)} < 0.8`);
 
   const avgCrossSim =
-    history.reduce((a, r: number) => a + r.analysis.crossSimilarity, 0) / history.length;
+    history.reduce((a, r) => a + r.analysis.crossSimilarity, 0) / history.length;
   if (avgCrossSim > 0.95) signals.push(`avg crossSim ${avgCrossSim.toFixed(2)} > 0.95`);
 
   const viewedRecords = history.filter((r) => r.viewTally !== undefined);

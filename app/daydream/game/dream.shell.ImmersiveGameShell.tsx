@@ -138,7 +138,7 @@ export default function ImmersiveGameShell( ){
     setCartridgeError(null);
     loadCartridge(gameId)
       .then((c) => { if (!cancelled) setCartridge(c); })
-      .catch((err: unknown) => {
+      .catch((err: any) => {
         if (!cancelled) {
           setCartridgeError(err instanceof Error ? err.message : 'Failed to load cartridge.');
         }

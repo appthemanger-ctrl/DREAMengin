@@ -91,7 +91,7 @@ async function fetchDreamWindow<T>(
       return { ok: false, data: null, error: json.error ?? 'Dream Window request failed' };
     }
     return { ok: true, data: json.dreamWindow ?? null, error: null };
-  } catch (err) {
+  } catch (err: any) {
     return {
       ok: false,
       data: null,
@@ -144,7 +144,7 @@ export function useDreamWindowActions(): UseDreamWindowActionsReturn {
       }
       const json = await res.json() as { dreamWindows: DreamWindowRecord[] };
       setDreamWindows(json.dreamWindows ?? []);
-    } catch (err) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
       setIsLoading(false);
@@ -170,7 +170,7 @@ export function useDreamWindowActions(): UseDreamWindowActionsReturn {
       }
       setDreamWindows((prev) => [created, ...prev]);
       return created;
-    } catch (err) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : 'Unknown error');
       return null;
     } finally {
@@ -192,7 +192,7 @@ export function useDreamWindowActions(): UseDreamWindowActionsReturn {
       }
       setDreamWindows((prev) => prev.filter((w) => w.id !== id));
       return true;
-    } catch (err) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : 'Unknown error');
       return false;
     } finally {
@@ -224,7 +224,7 @@ export function useDreamWindowActions(): UseDreamWindowActionsReturn {
         prev.map((w) => (w.id === id ? updated : w)),
       );
       return updated;
-    } catch (err) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : 'Unknown error');
       return null;
     } finally {
@@ -246,7 +246,7 @@ export function useDreamWindowActions(): UseDreamWindowActionsReturn {
       }
       setDreamWindows((prev) => prev.map((window) => (window.id === id ? updated : window)));
       return updated;
-    } catch (err) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : 'Unknown error');
       return null;
     } finally {

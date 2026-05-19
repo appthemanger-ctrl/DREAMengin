@@ -71,7 +71,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<EmbedFeedRespo
       })) as EmbedFeedItem[];
 
       const generatedAt = data[0]
-        ? String((data[0] as Record<string, unknown>).generated_at ?? '')
+        ? String((data[0] as any).generated_at ?? '')
         : new Date().toISOString();
 
       return NextResponse.json({
@@ -88,7 +88,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<EmbedFeedRespo
   // ── JSON fallback ────────────────────────────────────────────────────────
   const feed = loadEmbedFeed();
   const items = provider
-    ? feed.items.filter((i: number ) => i.provider === provider).slice(0, limit)
+    ? feed.items.filter((i: EmbedFeedItem) => i.provider === provider).slice(0, limit)
     : feed.items.slice(0, limit);
 
   return NextResponse.json({

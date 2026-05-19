@@ -30,7 +30,7 @@ export function parseDreamDragData(raw: string | null | undefined): DreamDragDat
       surface: parsed.surface === 'dreamspace' ? 'dreamspace' : 'home',
       runtime: parsed.runtime === 'FACE' ? 'FACE' : 'HOME',
       title: typeof parsed.title === 'string' ? parsed.title : undefined,
-      state: parsed.state && typeof parsed.state === 'object' ? parsed.state as Record<string, unknown> : undefined,
+      state: parsed.state && typeof parsed.state === 'object' ? parsed.state as any : undefined,
       position: parsed.position,
     };
   } catch {

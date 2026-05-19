@@ -304,7 +304,7 @@ export function computeNexus(historyOverride?: HistoryEntry[]): NexusSnapshot {
   const nodes = computeNodes(edges);
   const clusters = detectClusters(edges);
   const dominantPipeline = findDominantPipeline(edges);
-  const totalTransitions = edges.reduce((sum, e: unknown) => sum + e.weight, 0);
+  const totalTransitions = edges.reduce((sum: number, e: { weight: number }) => sum + e.weight, 0);
 
   return {
     edges,

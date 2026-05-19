@@ -1,3 +1,4 @@
+import type { Database } from '@/types/supabase';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
@@ -112,7 +113,7 @@ export async function PUT(req: NextRequest ): Promise<Response> {
 
   const { data: profile, error } = await supabase
     .from('profiles')
-    .update(updateData)
+    .update(updateData as never)
     .eq('id', user.id)
     .select()
     .single();

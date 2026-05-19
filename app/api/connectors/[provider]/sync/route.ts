@@ -17,6 +17,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 import { reconcileConnector } from '@/lib/connectors/reconcile';
 import { DISPATCH_SUPPORTED_PROVIDERS } from '@/lib/connectors/syncDispatch';
@@ -75,7 +76,7 @@ export async function POST(
     db,
     user.id,
     provider,
-    account.token_blob as Record<string, unknown>,
+    account.token_blob as any,
   );
 
   if (!result.ok) {

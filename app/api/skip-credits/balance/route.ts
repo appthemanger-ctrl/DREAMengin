@@ -5,6 +5,7 @@
 // Per ACTIVITY_FIRST_PROTOCOL.md §V (Skip Reward System)
 
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
@@ -44,7 +45,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       { skip_credit: credits },
       { headers: { 'Cache-Control': 'no-store' } },
     );
-  } catch (err) {
+  } catch (err: any) {
     console.error('[GetSkipCreditsBalance] Exception:', err);
     return NextResponse.json(
       { error: 'Internal server error' },

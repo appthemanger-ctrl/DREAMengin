@@ -288,8 +288,8 @@ function BgImageSection( ){
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev: Event ) => {
-      const dataUrl = ev.target?.result as string;
+    reader.onload = (ev: ProgressEvent<FileReader>) => {
+      const dataUrl = (ev.target as FileReader).result as string;
       setBgImage(dataUrl);
       localStorage.setItem('dreamengin:bgImage', dataUrl);
       document.documentElement.style.setProperty('--de-bg-image', `url("${dataUrl}")`);

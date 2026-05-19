@@ -13,7 +13,7 @@ export function formatDate(date: string | Date ){
   })
 }
 
-export function formatRelativeTime(date: string | Date, options?): { compact?: boolean } {
+export function formatRelativeTime(date: string | Date, options?: { compact?: boolean }): string {
   const now = new Date()
   const target = new Date(date)
   const diffMs = now.getTime() - target.getTime()
@@ -36,7 +36,7 @@ export function formatRelativeTime(date: string | Date, options?): { compact?: b
   return formatDate(date)
 }
 
-export function generateDedupeHash(userId: string, source: string, externalId): string {
+export function generateDedupeHash(userId: string, source: string, externalId: any): string {
   return `${userId}-${source}-${externalId}`
 }
 
@@ -157,7 +157,7 @@ export async function retry<T>(
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       return await fn()
-    } catch (err) {
+    } catch (err: any) {
       lastError = err
       if (attempt < maxAttempts) {
         await sleep(baseDelayMs * Math.pow(2, attempt - 1))

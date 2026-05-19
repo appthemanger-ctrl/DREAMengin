@@ -22,7 +22,7 @@ export function PlatformHealth( ){
           const data = await res.json();
           setMetrics(data);
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('[PlatformHealth] Error:', err);
       } finally {
         setLoading(false);

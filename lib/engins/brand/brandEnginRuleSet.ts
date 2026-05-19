@@ -212,7 +212,7 @@ function deriveState(state: EnginBaseState): BrandEnginDerivedState {
     assets:             (d.assets             ?? DEFAULT_DOMAIN.assets)             as BrandAsset[],
     campaignDraftReady: (d.campaignDraftReady ?? DEFAULT_DOMAIN.campaignDraftReady) as boolean,
     audioBriefReady:    (d.audioBriefReady    ?? DEFAULT_DOMAIN.audioBriefReady)    as boolean,
-    brandCheckPayload:  (d.brandCheckPayload  ?? DEFAULT_DOMAIN.brandCheckPayload)  as Record<string, unknown> | null,
+    brandCheckPayload:  (d.brandCheckPayload  ?? DEFAULT_DOMAIN.brandCheckPayload)  as any | null,
   };
 }
 

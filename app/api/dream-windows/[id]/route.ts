@@ -16,6 +16,7 @@
 
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { DREAM_WINDOW_STATES } from '@/lib/dream-window/DreamWindowLifecycle';
 import { validateDreamWindowLayers } from '@/lib/dream-window/DreamWindowLifecycle';
 import type { DreamWindowInstance } from '@/lib/dream-window/DreamWindowLifecycle';
@@ -185,7 +186,7 @@ export async function PATCH(
     // Merge existing config with any config update to get the effective config
     const effectiveConfig = {
       ...(existing.config ?? {}),
-      ...(update.config ? (update.config as Record<string, unknown>) : {}),
+      ...(update.config ? (update.config as any) : {}),
     };
 
     // Build a minimal DreamWindowInstance for layer validation

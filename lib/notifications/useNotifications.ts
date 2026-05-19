@@ -80,7 +80,7 @@ export function useNotifications(): UseNotificationsReturn {
         }
         const data = await res.json().catch(() => ({}));
         throw new Error(
-          (data as Record<string, unknown>).error as string || `HTTP ${res.status}`,
+          (data as any).error as string || `HTTP ${res.status}`,
         );
       }
 
@@ -93,7 +93,7 @@ export function useNotifications(): UseNotificationsReturn {
       const normalised = rows.map(normalizeDbRow);
       setNotifications(sortByRecent(normalised));
       setError(null);
-    } catch (err) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : 'Failed to load notifications.');
     } finally {
       setIsLoading(false);

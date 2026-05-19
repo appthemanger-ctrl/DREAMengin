@@ -280,8 +280,8 @@ export function validateDreamWindowLayers(
   instance: DreamWindowInstance,
 ): DreamWindowLayerValidationResult {
   // Read the layers list from config — expects config.layers: string[]
-  const configLayers = Array.isArray((instance.config as Record<string, unknown>).layers)
-    ? ((instance.config as Record<string, unknown>).layers as string[])
+  const configLayers = Array.isArray((instance.config as any).layers)
+    ? ((instance.config as any).layers as string[])
     : [];
 
   const missingLayers = DREAM_WINDOW_REQUIRED_LAYERS.filter(

@@ -53,7 +53,7 @@ export function validateContactRequest(body: unknown): ContactRequestValidationR
     return { valid: false, errors: ['Request body must be a JSON object.'] };
   }
 
-  const b = body as Record<string, unknown>;
+  const b = body as any;
 
   const itemId = String(b.item_id ?? '').trim();
   if (!itemId) {

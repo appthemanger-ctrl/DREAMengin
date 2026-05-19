@@ -30,7 +30,7 @@ export default function PlayMediaWidget({ tracks = [], title = 'Play Media' }: P
   };
 
   const togglePlay = () => {
-    setPlaying((v: number ) => !v);
+    setPlaying((v) => !v);
   };
 
   const prev = () => {
@@ -51,7 +51,7 @@ export default function PlayMediaWidget({ tracks = [], title = 'Play Media' }: P
           type="button"
           className="de-btn de-btn-ghost"
           style={{ fontSize: 11 }}
-          onClick={() => setShowQueue((v: number ) => !v)}
+          onClick={() => setShowQueue((v) => !v)}
         >
           {showQueue ? 'Hide Queue' : 'Show Queue'}
         </button>

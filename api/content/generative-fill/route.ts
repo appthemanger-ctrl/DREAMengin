@@ -121,7 +121,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
       if (!createRes.ok) {
         const err = await createRes.json().catch(() => ({}));
         return NextResponse.json(
-          { error: 'Replicate prediction failed to start', detail: (err as Record<string, unknown>).detail ?? createRes.statusText },
+          { error: 'Replicate prediction failed to start', detail: (err as any).detail ?? createRes.statusText },
           { status: createRes.status },
         );
       }
@@ -154,7 +154,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
         { resultBase64, provider: 'replicate' },
         { headers: { 'Cache-Control': 'no-store' } },
       );
-    } catch (err) {
+    } catch (err: any) {
       return NextResponse.json(
         { error: 'Generative fill request failed', detail: err instanceof Error ? err.message : String(err) },
         { status: 502 },

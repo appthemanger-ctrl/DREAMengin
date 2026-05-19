@@ -23,6 +23,7 @@
 //   sort     — "activity" (default, Phase 9: by visibility_score) | "recent" | "trending"
 
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import { createServerClient } from '@/lib/supabase/server';
 import { sortByVisibilityScore } from '@/lib/activity/visibility-score';
@@ -84,7 +85,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     if (items) {
       for (const item of items) {
-        const p = (item.payload ?? {}) as Record<string, unknown>;
+        const p = (item.payload ?? {}) as any;
         entries.push({
           id:           item.id,
           source:       'connector',
@@ -136,8 +137,8 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     if (posts) {
       for (const post of posts) {
 
-        const p = post as Record<string, unknown>;
-        const profile = p.profiles ?? {};
+        const p = post as any;
+        const profile = (p.profiles ?? {}) as any;
 
         // Phase 9: Get view count for this post
         const { count: viewCount } = await (supabase as SupabaseClient)

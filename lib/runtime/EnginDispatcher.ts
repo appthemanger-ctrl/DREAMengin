@@ -189,7 +189,7 @@ export async function initWasmEngine(
     });
 
     return instance.exports as unknown as WasmEngineExports;
-  } catch (err) {
+  } catch (err: any) {
     console.warn('[EnginDispatcher] Wasm init failed; using JS physics stub:', err);
     return null;
   }

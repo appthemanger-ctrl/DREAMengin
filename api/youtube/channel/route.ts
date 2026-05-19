@@ -66,7 +66,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<YouTubeChannel
       { ok: true, channelVideos, similarVideos: uniqueSimilar, channel, topic },
       { headers: { 'Cache-Control': 's-maxage=120, stale-while-revalidate=60' } },
     );
-  } catch (err) {
+  } catch (err: any) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
       { ok: false, channelVideos: [], similarVideos: [], channel, topic, error: message },

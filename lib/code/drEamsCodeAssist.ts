@@ -268,7 +268,7 @@ const FENCE_RE = /```(\w*)\n?([\s\S]*?)```/g;
  */
 export function parseCodeResponse(raw: string): ParsedCodeResponse {
   const codeBlocks: ParsedCodeResponse['codeBlocks'] = [];
-  let text = raw.replace(FENCE_RE, _, (lang: string, code: string ) => {
+  let text = raw.replace(FENCE_RE, (_match: string, lang: string, code: string) => {
     codeBlocks.push({ language: lang || 'text', code: code.trim() });
     return '';
   }).trim();
@@ -360,7 +360,7 @@ const TEMPLATES: Record<NLCommand['type'], (cmd: NLCommand, lang: CellLanguage) 
   },
   add_try_except: (_cmd, lang) => {
     if (lang === 'python') return `try:\n    result = risky_operation()\nexcept Exception as e:\n    print(f"Error: {e}")`;
-    return `try {\n  const result = riskyOperation();\n} catch (err) {\n  console.error('Error:', err);\n}`;
+    return `try {\n  const result = riskyOperation();\n} catch (err: any) {\n  console.error('Error:', err);\n}`;
   },
   refactor_async: (_cmd, lang) => {
     if (lang === 'python') return `async def fetch_data(url: str):\n    async with aiohttp.ClientSession() as session:\n        async with session.get(url) as resp:\n            return await resp.json()`;

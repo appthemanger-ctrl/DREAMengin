@@ -188,7 +188,7 @@ export default function HomeDreamSurface({
             <button
               type="button"
               aria-label={`Notifications${unreadCount > 0 ? ` — ${unreadCount} unread` : ''}`}
-              onClick={() => setNotifOpen((v: number ) => !v)}
+              onClick={() => setNotifOpen((v) => !v)}
               style={{
                 background: 'none',
                 border: 'none',
@@ -305,7 +305,7 @@ export default function HomeDreamSurface({
         >
           <DreamRSection
             profile={profile}
-            initialPosts={posts as Parameters<typeof DreamRSection>[0]['initialPosts']}
+            initialPosts={posts as unknown as Parameters<typeof DreamRSection>[0]['initialPosts']}
           />
         </div>
       )}
@@ -434,7 +434,7 @@ export default function HomeDreamSurface({
             userHandle={profile?.handle ?? 'user'}
             userAvatar={profile?.avatar_url ?? null}
             userDisplayName={profile?.display_name || profile?.handle || 'Dreamer'}
-            initialPosts={posts as Parameters<typeof HomeFeed>[0]['initialPosts']}
+            initialPosts={posts as unknown as Parameters<typeof HomeFeed>[0]['initialPosts']}
             embedded
           />
         </div>

@@ -22,6 +22,7 @@
 //   });
 //   if (result.flagged) { /* block the content */ }
 
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createHash } from 'crypto';
 import { scanContent } from './childSafetyDetector';
 import { classifyImage } from './imageClassifier';

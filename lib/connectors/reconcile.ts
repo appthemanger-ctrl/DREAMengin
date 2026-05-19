@@ -83,7 +83,7 @@ export async function reconcileConnector(
   let items;
   try {
     items = await dispatchSync(provider, tokenBlob);
-  } catch (err) {
+  } catch (err: any) {
     const msg = err instanceof Error ? err.message : String(err);
     const isAuthError = isConnectorAuthError(msg);
 

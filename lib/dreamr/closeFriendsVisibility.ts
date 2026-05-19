@@ -92,7 +92,7 @@ export async function loadVisibilityCircle(viewerId: string): Promise<Set<string
   try {
     const mod = await import('@/lib/supabase/server');
     const svc = await mod.createServiceClient();
-    return await fetchCloseFriendsCircle(svc, viewerId);
+    return await fetchCloseFriendsCircle(svc as unknown as Parameters<typeof fetchCloseFriendsCircle>[0], viewerId);
   } catch {
     return new Set();
   }

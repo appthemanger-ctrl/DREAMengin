@@ -48,7 +48,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<YouTubeLiveFee
   try {
     const items = await youtubeSearchByQuery(apiKey, query, max);
     return NextResponse.json({ ok: true, items, fetched: items.length, query });
-  } catch (err) {
+  } catch (err: any) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
       { ok: false, items: [], fetched: 0, query, error: message },

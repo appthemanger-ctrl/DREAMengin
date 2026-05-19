@@ -141,7 +141,7 @@ export function SharedDreamShell({
       setIsAudioActive(true);
       setAudioError(null);
       broadcast({ type: 'audio_join', summary: 'joined audio call' });
-    } catch (err) {
+    } catch (err: any) {
       setAudioError(err instanceof Error ? err.message : 'Microphone access denied');
     }
   }, [isAudioActive, broadcast]);

@@ -146,7 +146,7 @@ export default function DraggableModule({
       cancelEdgeTimer();
 
       bridge.emit('module', 'transfer', {
-        module: manifest as unknown as Record<string, unknown>,
+        module: manifest as unknown as any,
         targetRuntime,
         sourceRuntime: manifest.sourceRuntime,
       });

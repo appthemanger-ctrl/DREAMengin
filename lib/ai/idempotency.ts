@@ -44,7 +44,7 @@ export async function checkIdempotency(
     }
     
     return { allowed: true, isReplay: false };
-  } catch (error) {
+  } catch (error: any) {
     console.error('[idempotency] Unexpected error:', error);
     // Fail-closed
     return { allowed: false, isReplay: false };

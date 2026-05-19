@@ -69,7 +69,7 @@ function writeDraft(conversationId: string, payload: DraftPayload): void {
       savedAt: Date.now(),
     };
     localStorage.setItem(buildKey(conversationId), JSON.stringify(truncated));
-  } catch (err) {
+  } catch (err: any) {
     // ── Improvement 83: log storage quota errors instead of silently swallowing ──
     console.warn('[DreamDMDraft] Failed to persist draft', { conversationId, err });
   }

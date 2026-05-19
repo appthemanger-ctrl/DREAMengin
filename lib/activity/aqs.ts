@@ -33,7 +33,7 @@ export async function calculateAQS(userId: string): Promise<number> {
     }
 
     return data ?? 0;
-  } catch (err) {
+  } catch (err: any) {
     console.error('[AQS] Exception calculating AQS:', err);
     return 0;
   }
@@ -66,7 +66,7 @@ export async function getUserMetrics(
     }
 
     return data;
-  } catch (err) {
+  } catch (err: any) {
     console.error('[AQS] Exception fetching user metrics:', err);
     return null;
   }
@@ -183,7 +183,7 @@ export async function getAQSLeaderboard(
     }
 
     return data ?? [];
-  } catch (err) {
+  } catch (err: any) {
     console.error('[AQS] Exception fetching leaderboard:', err);
     return [];
   }

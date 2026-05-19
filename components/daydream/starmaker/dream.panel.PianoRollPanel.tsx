@@ -75,7 +75,7 @@ function sectionHeader(label: string, extra?): React.ReactNode {
   );
 }
 
-function pill(color: string, text): string {
+function pill(color: string, text: any): string {
   return (
     <span style={{
       fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 999,

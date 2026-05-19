@@ -1714,7 +1714,7 @@ class GameCore {
           if (child !== glbGroup) stack.push(child);
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       // Asset missing or malformed — keep the procedural rig as the fallback.
       console.warn('[MADMAXI] GLB hero load failed; using procedural rig.', err);
     }

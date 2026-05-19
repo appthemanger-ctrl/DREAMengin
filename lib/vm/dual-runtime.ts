@@ -117,7 +117,7 @@ export class DualRuntime {
 
   constructor() {
     this._primary = this.tooVm;
-    this.channel.subscribe((msg: string ) => this._onInterVMMessage(msg));
+    this.channel.subscribe((msg: VMEvent) => this._onInterVMMessage(msg));
   }
 
   // ── Accessors ─────────────────────────────────────────────────────────────

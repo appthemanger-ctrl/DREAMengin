@@ -22,7 +22,7 @@ interface UploadedMedia {
 export default function CreatePostModal({ onClose, userId }: CreatePostModalProps) {
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [visibility, setVisibility] = useState<'public' | 'followers' | 'private'>('followers');
+  const [visibility, setVisibility] = useState<'public' | 'followers' | 'private' | 'everyone' | 'close_friends'>('followers');
   const [uploadedMedia, setUploadedMedia] = useState<UploadedMedia[]>([]);
   const [uploadProgress, setUploadProgress] = useState('');
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -85,7 +85,7 @@ export default function CreatePostModal({ onClose, userId }: CreatePostModalProp
         mimeType: media.file.type,
       });
       return upload.mediaUrl;
-    } catch (uploadError) {
+    } catch (uploadError: any) {
       console.error('Upload error:', uploadError);
       throw new Error(`Failed to upload ${media.file.name}: ${uploadError instanceof Error ? uploadError.message : String(uploadError)}`);
     }
@@ -149,7 +149,7 @@ export default function CreatePostModal({ onClose, userId }: CreatePostModalProp
       } else {
         throw error;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Post creation error:', error);
       alert(error instanceof Error ? error.message : 'Failed to create post');
     } finally {
@@ -279,7 +279,7 @@ export default function CreatePostModal({ onClose, userId }: CreatePostModalProp
               <div className="ml-2">
                 <select
                   value={visibility}
-                  onChange={(e) => setVisibility(e.target.value as "everyone" | "close_friends" | "private")}
+                  onChange={(e) => setVisibility(e.target.value as any)}
                   disabled={isSubmitting}
                   className="text-sm border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
                 >

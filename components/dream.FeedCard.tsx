@@ -48,7 +48,7 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
   const contentObj = useMemo(
     () =>
       item.content && typeof item.content === 'object' && !Array.isArray(item.content)
-        ? (item.content as Record<string, unknown>)
+        ? (item.content as any)
         : undefined,
     [item.content]
   );
@@ -355,8 +355,8 @@ export default memo(function FeedCard({ item, userId }: FeedCardProps) {
             {(() => {
               const thumbnail =
                 (item.media_json && typeof item.media_json === 'object' && !Array.isArray(item.media_json) &&
-                  typeof (item.media_json as Record<string, unknown>).thumbnail === 'string'
-                  ? ((item.media_json as Record<string, unknown>).thumbnail as string)
+                  typeof (item.media_json as any).thumbnail === 'string'
+                  ? ((item.media_json as any).thumbnail as string)
                   : undefined) ||
                 (typeof contentObj?.image === 'string' ? (contentObj.image as string) : undefined);
 

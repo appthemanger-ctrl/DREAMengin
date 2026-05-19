@@ -239,7 +239,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
   const { data: message, error } = await (supabase as SupabaseClient)
     .from('messages')
      
-    .insert(messageRow as Record<string, unknown>)
+    .insert(messageRow as any)
     .select(`
       *,
       sender:profiles!sender_id(id, handle, display_name, avatar_url)
@@ -266,7 +266,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
       content: {
         message: `New message from ${user.email}`,
         conversation_id: convId,
-        message_id: (message as Record<string, unknown>).id,
+        message_id: (message as any).id,
       },
     });
   }

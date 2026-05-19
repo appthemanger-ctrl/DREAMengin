@@ -43,7 +43,7 @@ export async function loadCartridge(id: string): Promise<GameCartridge> {
   }
   try {
     return await loader();
-  } catch (error) {
+  } catch (error: any) {
     const details = error instanceof Error ? error.message : String(error);
     throw new Error(`Cartridge failed to load: ${id}. ${details}`);
   }

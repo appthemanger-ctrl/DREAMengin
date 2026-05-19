@@ -1937,7 +1937,7 @@ Auto-synced from `backend/**`, `core/**`, `coresurfaces/**`, `system/**`, `app/a
 
 ## Agents & Workflow
 Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scripts/**` using repository introspection.
-- Files tracked: **127**
+- Files tracked: **133**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -1967,6 +1967,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 │       ├── autofixvercelbuild.yml
 │       ├── bot-pr-automerge.yml
 │       ├── bouncer.yml
+│       ├── codeql.yml
 │       ├── copilot-setup-steps.yml
 │       ├── daydream-all.yml
 │       ├── daydream-brand-engin.yml
@@ -1985,6 +1986,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 │       ├── elite-gameengin-evolution.yml
 │       ├── engin-all.yml
 │       ├── exportrepo.yml
+│       ├── full-audit.yml
 │       ├── game-engin-patrol.yml
 │       ├── game-library-research.yml
 │       ├── gameengin-ai-agent.yml
@@ -2061,14 +2063,9 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
     │   ├── prophet-run.ts
     │   ├── upgrader-run.ts
     │   └── writer-run.ts
-    ├── generate-mobile-nextgen-spec.mjs
-    ├── generate-mobile-ps5-spec.mjs
-    ├── generate-webapp-final-form.mjs
-    ├── law-check.sh
-    ├── migrate-imports.sh
-… (7 more files)
+… (13 more files)
 ```
-<details><summary>Agents & Workflow file index (127 files)</summary>
+<details><summary>Agents & Workflow file index (133 files)</summary>
 
 - `.github/scripts/DREAMENGIN_CORE_COMPLETE.md` — documentation file.
 - `.github/scripts/DREAMENGIN_CORE_USAGE.md` — documentation file.
@@ -2091,6 +2088,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 - `.github/workflows/autofixvercelbuild.yml` — project file (yml).
 - `.github/workflows/bot-pr-automerge.yml` — project file (yml).
 - `.github/workflows/bouncer.yml` — project file (yml).
+- `.github/workflows/codeql.yml` — project file (yml).
 - `.github/workflows/copilot-setup-steps.yml` — project file (yml).
 - `.github/workflows/daydream-all.yml` — project file (yml).
 - `.github/workflows/daydream-brand-engin.yml` — project file (yml).
@@ -2109,6 +2107,7 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 - `.github/workflows/elite-gameengin-evolution.yml` — project file (yml).
 - `.github/workflows/engin-all.yml` — project file (yml).
 - `.github/workflows/exportrepo.yml` — project file (yml).
+- `.github/workflows/full-audit.yml` — project file (yml).
 - `.github/workflows/game-engin-patrol.yml` — project file (yml).
 - `.github/workflows/game-library-research.yml` — project file (yml).
 - `.github/workflows/gameengin-ai-agent.yml` — project file (yml).
@@ -2286,7 +2285,7 @@ Auto-synced from `research/**`, `research-and-development/**`, `experiments/**`,
 
 ## Infra & Ops
 Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflows/**`, `vercel.json`, `docker-compose.yml` using repository introspection.
-- Files tracked: **64**
+- Files tracked: **66**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -2297,6 +2296,7 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 │       ├── autofixvercelbuild.yml
 │       ├── bot-pr-automerge.yml
 │       ├── bouncer.yml
+│       ├── codeql.yml
 │       ├── copilot-setup-steps.yml
 │       ├── daydream-all.yml
 │       ├── daydream-brand-engin.yml
@@ -2315,6 +2315,7 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 │       ├── elite-gameengin-evolution.yml
 │       ├── engin-all.yml
 │       ├── exportrepo.yml
+│       ├── full-audit.yml
 │       ├── game-engin-patrol.yml
 │       ├── game-library-research.yml
 │       ├── gameengin-ai-agent.yml
@@ -2364,11 +2365,12 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 │   └── main.tf
 └── vercel.json
 ```
-<details><summary>Infra & Ops file index (64 files)</summary>
+<details><summary>Infra & Ops file index (66 files)</summary>
 
 - `.github/workflows/autofixvercelbuild.yml` — project file (yml).
 - `.github/workflows/bot-pr-automerge.yml` — project file (yml).
 - `.github/workflows/bouncer.yml` — project file (yml).
+- `.github/workflows/codeql.yml` — project file (yml).
 - `.github/workflows/copilot-setup-steps.yml` — project file (yml).
 - `.github/workflows/daydream-all.yml` — project file (yml).
 - `.github/workflows/daydream-brand-engin.yml` — project file (yml).
@@ -2387,6 +2389,7 @@ Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflo
 - `.github/workflows/elite-gameengin-evolution.yml` — project file (yml).
 - `.github/workflows/engin-all.yml` — project file (yml).
 - `.github/workflows/exportrepo.yml` — project file (yml).
+- `.github/workflows/full-audit.yml` — project file (yml).
 - `.github/workflows/game-engin-patrol.yml` — project file (yml).
 - `.github/workflows/game-library-research.yml` — project file (yml).
 - `.github/workflows/gameengin-ai-agent.yml` — project file (yml).
@@ -3042,7 +3045,7 @@ Auto-synced from `.env.example`, `.env.local.example`, `app/api/**` using reposi
 
 ## Contributing
 Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using repository introspection.
-- Files tracked: **269**
+- Files tracked: **274**
 - API routes discovered: none
 - App pages discovered: none
 - Components/modules discovered: none
@@ -3168,9 +3171,9 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 │   │   ├── dreamengin_core.py
 │   │   ├── humanai_audit.py
 │   │   ├── issue-bot.js
-… (149 more files)
+… (154 more files)
 ```
-<details><summary>Contributing file index (269 files)</summary>
+<details><summary>Contributing file index (274 files)</summary>
 
 - `.github/PULL_REQUEST_TEMPLATE.md` — documentation file.
 - `.github/actions/resilient-engine/action.yml` — project file (yml).
@@ -3292,6 +3295,7 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 - `.github/workflows/autofixvercelbuild.yml` — project file (yml).
 - `.github/workflows/bot-pr-automerge.yml` — project file (yml).
 - `.github/workflows/bouncer.yml` — project file (yml).
+- `.github/workflows/codeql.yml` — project file (yml).
 - `.github/workflows/copilot-setup-steps.yml` — project file (yml).
 - `.github/workflows/daydream-all.yml` — project file (yml).
 - `.github/workflows/daydream-brand-engin.yml` — project file (yml).
@@ -3310,6 +3314,7 @@ Auto-synced from `CONTRIBUTING*`, `AGENTS.md`, `docs/**`, `.github/**` using rep
 - `.github/workflows/elite-gameengin-evolution.yml` — project file (yml).
 - `.github/workflows/engin-all.yml` — project file (yml).
 - `.github/workflows/exportrepo.yml` — project file (yml).
+- `.github/workflows/full-audit.yml` — project file (yml).
 - `.github/workflows/game-engin-patrol.yml` — project file (yml).
 - `.github/workflows/game-library-research.yml` — project file (yml).
 - `.github/workflows/gameengin-ai-agent.yml` — project file (yml).
@@ -3902,3 +3907,4 @@ Auto-synced from `api/**` using repository introspection.
 - `api/youtube/live-feed/route.ts` — API route handler.
 
 </details>
+

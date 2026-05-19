@@ -71,7 +71,7 @@ export function createSaveAPI(cartridgeId: string): CartridgeSaveAPI {
         const rawData = localStorage.getItem(slotKey(cartridgeId, slot));
         if (!rawData) continue;
         try {
-          const data = JSON.parse(rawData) as Record<string, unknown>;
+          const data = JSON.parse(rawData) as any;
           slots.push({ slot, timestamp: meta.timestamp, label: meta.label, data });
         } catch {
           // Corrupted slot — skip
@@ -87,7 +87,7 @@ export function createSaveAPI(cartridgeId: string): CartridgeSaveAPI {
       const rawData = localStorage.getItem(slotKey(cartridgeId, slot));
       if (!rawData) return null;
       try {
-        const data = JSON.parse(rawData) as Record<string, unknown>;
+        const data = JSON.parse(rawData) as any;
         return { slot, timestamp: meta.timestamp, label: meta.label, data };
       } catch {
         return null;

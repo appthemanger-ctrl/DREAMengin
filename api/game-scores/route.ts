@@ -97,7 +97,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
 
   const parsed = PostScoreSchema.safeParse(body);
   if (!parsed.success) {
-    const message = parsed.error.issues.map((i: number ) => i.message).join('; ');
+    const message = parsed.error.issues.map((i) => i.message).join('; ');
     return NextResponse.json({ data: null, error: message }, { status: 422 });
   }
 

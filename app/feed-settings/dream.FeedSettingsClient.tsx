@@ -69,7 +69,7 @@ export default function FeedSettingsClient( ){
   useEffect(() => {
     // Phase 8 §A Point 3: load preferences from DB (canonical source of truth)
     fetch('/api/settings/feed')
-      .then((r: number ) => r.json())
+      .then((r) => r.json())
       .then((data: { ok: boolean; preferences?: Partial<FeedPreferences> }) => {
         if (data.ok && data.preferences && Object.keys(data.preferences).length > 0) {
           const merged = { ...DEFAULT_PREFS, ...data.preferences };
@@ -83,7 +83,7 @@ export default function FeedSettingsClient( ){
 
     // Load real connected connectors to show in Active Slices section
     fetch('/api/connectors/status')
-      .then((r: number ) => r.json())
+      .then((r) => r.json())
       .then((data: { ok: boolean; statuses: Record<string, { status: string }> }) => {
         if (!data.ok) return;
         const names = Object.entries(data.statuses)

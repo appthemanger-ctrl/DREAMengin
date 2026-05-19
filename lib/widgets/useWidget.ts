@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import widgetBus from "./WidgetBus";
 
-export function useWidget(channel: string, onReceive: (payload: unknown) => void) {
+export function useWidget(channel: string, onReceive: (payload: any) => void) {
   useEffect(() => {
     widgetBus.on(channel, onReceive);
     return () => {
@@ -27,7 +27,7 @@ export function chainWidgets(channels: string[], payload: unknown): void {
   widgetBus.chain(channels, payload);
 }
 
-export function spawnSubWidget(parentId: string, childId): string {
+export function spawnSubWidget(parentId: string, childId: any): void {
   widgetBus.spawnChild(parentId, childId);
 }
 

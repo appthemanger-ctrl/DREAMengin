@@ -314,7 +314,7 @@ function drawCNOTGate(
   ctx.shadowBlur = 0;
 }
 
-function drawMeasureBox(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, color): string {
+function drawMeasureBox(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, color: any): void {
   ctx.strokeStyle = color;
   ctx.lineWidth = 0.8;
   // Meter arc
@@ -345,14 +345,14 @@ function renderFrame(
   const LEFT      = 26;
   const RIGHT     = 20; // space for measure symbol
   const wireSpacing = circuitH / (n + 1);
-  const wireYs    = Array.from(({ length: n }, _, q: Record<string, unknown>) => wireSpacing * (q + 1));
+  const wireYs    = Array.from({ length: n }, (_, q: number) => wireSpacing * (q + 1));
   const colW      = numCols > 0 ? (W - LEFT - RIGHT) / numCols : W - LEFT - RIGHT;
   const gateH     = Math.min(13, wireSpacing * 0.58);
   const gateW     = Math.min(22, colW * 0.75);
 
   // ── Qubit labels + wires ──────────────────────────────────────────────────
   for (let q = 0; q < n; q++) {
-    const y = wireYs[q];
+    const y = (wireYs[q] as number);
     ctx.fillStyle = '#5a7a9a';
     ctx.font = '9px monospace';
     ctx.textAlign = 'left';
@@ -383,7 +383,7 @@ function renderFrame(
   const mx    = W - RIGHT + 10;
   const done  = step >= ops.length;
   for (let q = 0; q < n; q++) {
-    drawMeasureBox(ctx, mx, wireYs[q], 6, done ? accent : DIM_COLOR);
+    drawMeasureBox(ctx, mx, (wireYs[q] as number), 6, done ? accent : DIM_COLOR);
   }
 
   // ── Probability histogram ─────────────────────────────────────────────────

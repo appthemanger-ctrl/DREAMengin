@@ -44,7 +44,7 @@ function getBroadcastChannel(): BroadcastChannel | null {
  * Broadcast a game input action to all same-origin tabs/windows.
  * Called alongside the existing local `fireAction` in GameRemote.
  */
-export function broadcastGameInput(action: string, active): boolean {
+export function broadcastGameInput(action: string, active: any): void {
   try {
     getBroadcastChannel()?.postMessage({ action, active });
   } catch {

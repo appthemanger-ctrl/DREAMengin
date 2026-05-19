@@ -185,7 +185,7 @@ export default function HomeFeed({
     if (activeTab === 'trending')  params.set('sort', 'trending');
     if (activeTab === 'following') params.set('feed', 'following');
     fetch(`/api/posts?${params.toString()}`)
-      .then((r: number ) => r.json())
+      .then((r) => r.json())
       .then((data: { posts?: FeedPost[] }) => { if (data.posts) replacePosts(data.posts); })
       .catch(() => {})
       .finally(() => setTabLoading(false));
@@ -277,7 +277,7 @@ export default function HomeFeed({
       setNewPostContent('');
       setSelectedImages((prev) => { prev.forEach((img) => URL.revokeObjectURL(img.preview)); return []; });
       setShowComposer(false);
-    } catch (err) {
+    } catch (err: any) {
       setPostError(err instanceof Error ? err.message : 'Unable to create your post right now.');
     } finally {
       setIsPosting(false);

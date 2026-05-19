@@ -73,7 +73,7 @@ export async function GET(
     }
   }
 
-  const creds = account.token_blob as Record<string, unknown>;
+  const creds = account.token_blob as any;
   let newStatus: ConnectorVerifyResponse['status'] = 'error';
   let lastError: string | null = null;
   let verifiedAt: string | null = null;
@@ -116,7 +116,7 @@ export async function GET(
       newStatus = 'connected';
       verifiedAt = new Date().toISOString();
     }
-  } catch (err) {
+  } catch (err: any) {
     lastError = err instanceof Error ? err.message : String(err);
     newStatus = 'needs_reauth';
   }

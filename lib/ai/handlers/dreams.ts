@@ -107,7 +107,7 @@ export const handleDreamConfigPatch: ToolHandler = async (ctx) => {
 
   // Merge config
   const newConfig = {
-    ...(existing.config_json as Record<string, unknown>),
+    ...(existing.config_json as any),
     ...payload.config_patch,
   };
 

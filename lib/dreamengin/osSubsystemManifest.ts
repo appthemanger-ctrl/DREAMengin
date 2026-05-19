@@ -124,7 +124,7 @@ export function buildDreamenginOSSubsystemManifest(): DreamenginOSSubsystemManif
       route,
       capabilities: verbsForDaydream(label as keyof typeof DAYDREAM_ROUTES),
       runtimePresence: 'both' as const,
-      connectionIds: uniquePathsForNode((path: string ) => path.daydreamSurface === label),
+      connectionIds: uniquePathsForNode((path: EnginConnectionPath) => path.daydreamSurface === label),
     }),
   );
 
@@ -136,7 +136,7 @@ export function buildDreamenginOSSubsystemManifest(): DreamenginOSSubsystemManif
     route: engin.daydreamHref,
     capabilities: engin.capabilities,
     runtimePresence: 'both',
-    connectionIds: uniquePathsForNode((path: string ) => path.enginRuntime === engin.name),
+    connectionIds: uniquePathsForNode((path: EnginConnectionPath) => path.enginRuntime === engin.name),
   }));
 
   const connectorNodes: DreamenginOSSubsystemNode[] = CONNECTOR_REGISTRY.map((connector) => ({

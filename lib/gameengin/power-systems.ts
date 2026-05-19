@@ -902,7 +902,7 @@ export class SpatialAudioDSP {
   private listenerState: ListenerState = { position: [0, 0, 0], forward: [0, 0, -1], up: [0, 1, 0] };
 
   async init(reverbIrBuffer?: ArrayBuffer): Promise<boolean> {
-    if (typeof AudioContext === 'undefined' && typeof (globalThis as Record<string, unknown>).webkitAudioContext === 'undefined') return false;
+    if (typeof AudioContext === 'undefined' && typeof (globalThis as any).webkitAudioContext === 'undefined') return false;
     try {
       const AC = (typeof AudioContext !== 'undefined'
         ? AudioContext
@@ -1268,7 +1268,7 @@ export class GPUProfiler {
         const m = performance.measure('__gp_frame', '__gp_frame_start', '__gp_frame_end');
         this.currentFrame.totalMs = m.duration;
       } catch {
-        this.currentFrame.totalMs = this.currentFrame.spans.reduce((a, s: string) => a + s.durationMs, 0);
+        this.currentFrame.totalMs = this.currentFrame.spans.reduce((a: number, s: ProfileSpan) => a + s.durationMs, 0);
       }
     }
     this.frames.push(this.currentFrame);
@@ -1368,7 +1368,7 @@ export class TypedEventBus<M extends EventMap = EventMap> {
     this.listeners.get(event)!.push({ fn, once });
   }
 
-  get stats() { return { listeners: [...this.listeners.values()].reduce((a, v: number) => a + v.length, 0), history: this.history.length, emitCount: this.emitCount }; }
+  get stats() { return { listeners: [...this.listeners.values()].reduce((a: number, v: { fn: unknown; once: boolean }[]) => a + v.length, 0), history: this.history.length, emitCount: this.emitCount }; }
 
   dispose(): void { this.listeners.clear(); this.history = []; }
 }

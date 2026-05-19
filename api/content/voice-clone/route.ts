@@ -114,7 +114,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
         if (!res.ok) {
           const err = await res.json().catch(() => ({}));
           return NextResponse.json(
-            { error: 'ElevenLabs clone failed', detail: (err as Record<string, unknown>).detail ?? res.statusText },
+            { error: 'ElevenLabs clone failed', detail: (err as any).detail ?? res.statusText },
             { status: res.status },
           );
         }
@@ -133,7 +133,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
         return NextResponse.json({
           profile: { id: profileId, name: voiceName, createdAt: now },
         });
-      } catch (err) {
+      } catch (err: any) {
         return NextResponse.json(
           { error: 'Voice clone request failed', detail: err instanceof Error ? err.message : String(err) },
           { status: 502 },
@@ -174,7 +174,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
           createdAt: new Date((v.created_at_unix ?? 0) * 1000).toISOString(),
         }));
         return NextResponse.json({ profiles });
-      } catch (err) {
+      } catch (err: any) {
         return NextResponse.json(
           { error: 'Voice list request failed', detail: err instanceof Error ? err.message : String(err) },
           { status: 502 },
@@ -190,7 +190,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
       .catch(() => ({ data: [], error: null })) as { data: unknown[]; error: unknown };
 
     const profiles = (Array.isArray(result.data) ? result.data : []).map((row) => {
-      const r = row as Record<string, unknown>;
+      const r = row as any;
       return {
         id: String(r.id ?? ''),
         name: String(r.name ?? ''),
@@ -214,7 +214,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
         if (!res.ok && res.status !== 404) {
           return NextResponse.json({ error: 'ElevenLabs delete failed' }, { status: res.status });
         }
-      } catch (err) {
+      } catch (err: any) {
         return NextResponse.json(
           { error: 'Voice delete request failed', detail: err instanceof Error ? err.message : String(err) },
           { status: 502 },
@@ -257,7 +257,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         return NextResponse.json(
-          { error: 'ElevenLabs TTS failed', detail: (err as Record<string, unknown>).detail ?? res.statusText },
+          { error: 'ElevenLabs TTS failed', detail: (err as any).detail ?? res.statusText },
           { status: res.status },
         );
       }
@@ -271,7 +271,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
         durationSeconds: +durationSeconds.toFixed(2),
         voiceId,
       });
-    } catch (err) {
+    } catch (err: any) {
       return NextResponse.json(
         { error: 'TTS request failed', detail: err instanceof Error ? err.message : String(err) },
         { status: 502 },
