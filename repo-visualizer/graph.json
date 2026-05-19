@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-19T13:13:48.744Z",
+  "generatedAt": "2026-05-19T19:36:15.230Z",
   "root": ".",
   "nodes": [
     {
@@ -3235,6 +3235,16 @@
       "label": "COOP_AND_SOLO_ROADMAP.md",
       "type": "doc",
       "path": "COOP_AND_SOLO_ROADMAP.md",
+      "parent": "folder:.",
+      "loc": null,
+      "isOrphan": true,
+      "tags": []
+    },
+    {
+      "id": "file:DREAMenginree2-completedream-patched_5.zip",
+      "label": "DREAMenginree2-completedream-patched_5.zip",
+      "type": "file",
+      "path": "DREAMenginree2-completedream-patched_5.zip",
       "parent": "folder:.",
       "loc": null,
       "isOrphan": true,
