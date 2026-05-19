@@ -8,6 +8,7 @@
  *   - Quality config presence.
  */
 
+import type { Database } from '@/types/supabase';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
 // ── Mock IndexedDB ─────────────────────────────────────────────────────────────

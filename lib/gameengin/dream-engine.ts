@@ -128,7 +128,7 @@ export const DreamEngine = {
    * const channel = DreamEngine.syncController(assetId, (payload) => { ... });
    * return () => { channel.unsubscribe(); };
    */
-  syncController(assetId: string, onUpdate: (payload: unknown) => void) {
+  syncController(assetId: string, onUpdate: (payload: any) => void) {
     const supabase = createClient();
     return supabase
       .channel(`asset_controls_${assetId}`)

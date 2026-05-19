@@ -60,8 +60,8 @@ export default function RuntimeShell({
     };
   }, []);
 
-  const zoomIn  = useCallback(() => setZoom((z: number ) => Math.min(Math.round((z + ZOOM_STEP) * 100) / 100, MAX_ZOOM)), []);
-  const zoomOut = useCallback(() => setZoom((z: number ) => Math.max(Math.round((z - ZOOM_STEP) * 100) / 100, MIN_ZOOM)), []);
+  const zoomIn  = useCallback(() => setZoom((z) => Math.min(Math.round((z + ZOOM_STEP) * 100) / 100, MAX_ZOOM)), []);
+  const zoomOut = useCallback(() => setZoom((z) => Math.max(Math.round((z - ZOOM_STEP) * 100) / 100, MIN_ZOOM)), []);
   const resetZoom = useCallback(() => setZoom(1.0), []);
 
   const pct = Math.round(zoom * 100);

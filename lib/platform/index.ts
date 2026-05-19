@@ -56,7 +56,7 @@ export async function getFeed(opts?: {
     if (!res.ok) return [];
     const json = await res.json();
     return json.feed ?? [];
-  } catch (err) {
+  } catch (err: any) {
     console.error('Feed fetch error:', err);
     return [];
   }
@@ -95,7 +95,7 @@ export async function syncToGlobalRegistry(
     const json = await res.json();
     if (!res.ok) return { data: null, error: json.error ?? 'Registry sync failed.' };
     return { data: json.data as RegistryEntry, error: null };
-  } catch (err) {
+  } catch (err: any) {
     console.error('GAL sync error:', err);
     return { data: null, error: 'Registry sync failed.' };
   }
@@ -136,7 +136,7 @@ export async function processAdOrder(
     const json = await res.json();
     if (!res.ok) return { data: null, error: json.error ?? 'Ad order failed.' };
     return { data: json.data as AdOrderResult, error: null };
-  } catch (err) {
+  } catch (err: any) {
     console.error('Ad order error:', err);
     return { data: null, error: 'Ad order failed.' };
   }

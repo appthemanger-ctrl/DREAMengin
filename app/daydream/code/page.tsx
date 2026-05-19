@@ -1,4 +1,5 @@
 // SURFACE: dreamsurface.DaydreamCode  (framework-mandated basename: page.tsx)
+import type { Database } from '@/types/supabase';
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { isDevBypassActive } from '@/lib/dev-bypass';

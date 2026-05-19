@@ -60,7 +60,7 @@ export function createManifest(
 /** Returns true when the manifest is valid (has id, type, at least one compat runtime). */
 export function isValidManifest(m: unknown): m is ModuleManifest {
   if (!m || typeof m !== 'object') return false;
-  const obj = m as Record<string, unknown>;
+  const obj = m as any;
   return (
     typeof obj['id'] === 'string' && obj['id'].length > 0 &&
     typeof obj['type'] === 'string' && obj['type'].length > 0 &&

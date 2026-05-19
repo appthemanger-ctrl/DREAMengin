@@ -104,7 +104,7 @@ export async function createDreamDoc(
     }
 
     return { id: (data as { id: number }).id, error: null };
-  } catch (err) {
+  } catch (err: any) {
     const msg = err instanceof Error ? err.message : 'UNKNOWN_ERROR';
     return { id: null, error: msg };
   }
@@ -133,7 +133,7 @@ export async function publishDreamDoc(
     }
 
     return { error: null };
-  } catch (err) {
+  } catch (err: any) {
     const msg = err instanceof Error ? err.message : 'UNKNOWN_ERROR';
     return { error: msg };
   }
@@ -180,7 +180,7 @@ export async function upsertDocSection(
     }
 
     return { id: sectionId, error: null };
-  } catch (err) {
+  } catch (err: any) {
     const msg = err instanceof Error ? err.message : 'UNKNOWN_ERROR';
     return { id: null, error: msg };
   }

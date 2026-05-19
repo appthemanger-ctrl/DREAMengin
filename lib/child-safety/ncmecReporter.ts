@@ -19,6 +19,7 @@
 //
 // See: https://www.missingkids.org/gethelpnow/cybertipline/esp
 
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 import type { ChildSafetyResult } from './childSafetyDetector';
 
@@ -166,7 +167,7 @@ async function submitToNcmec(
 
     const json = await res.json().catch(() => null) as { reportId?: string } | null;
     return { reportId: json?.reportId };
-  } catch (err) {
+  } catch (err: any) {
     return { error: `NCMEC network error: ${err instanceof Error ? err.message : String(err)}` };
   }
 }
@@ -192,7 +193,7 @@ async function updateIncidentStatus(
         reported_at: new Date().toISOString(),
       })
       .eq('id', incidentId);
-  } catch (err) {
+  } catch (err: any) {
     console.error('[ncmec] Failed to update incident status:', err);
   }
 }
@@ -218,7 +219,7 @@ export async function reportChildSafetyIncident(
   // Step 1 — Write to DB (required before any NCMEC API call)
   try {
     incidentId = await writeIncidentToDB(input);
-  } catch (err) {
+  } catch (err: any) {
     console.error('[ncmec] CRITICAL: failed to write incident to DB', err);
     return {
       incidentId: 'DB_WRITE_FAILED',

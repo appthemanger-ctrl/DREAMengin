@@ -105,7 +105,7 @@ export class PostFXManager {
       pipe.depthOfField.focalLength = 85;
       pipe.depthOfField.fStop = 2.8;
       pipe.depthOfField.focusDistance = 2000;
-    } catch (err) {
+    } catch (err: any) {
       // Babylon post-process not available (SSR or old browser) — degrade gracefully
       console.warn('[PostFX] DefaultRenderingPipeline unavailable:', err);
     }
@@ -127,7 +127,7 @@ export class PostFXManager {
       ssao.expensiveBlur = true;
       this.scene.postProcessRenderPipelineManager.attachCamerasToRenderPipeline('dreamSSAO', this.camera);
       this.ssaoPipeline = ssao;
-    } catch (err) {
+    } catch (err: any) {
       console.warn('[PostFX] SSAO2 unavailable:', err);
     }
   }
@@ -146,7 +146,7 @@ export class PostFXManager {
       ssr.roughnessFactor = 0.25;
       ssr.selfCollisionNumSkip = 2;
       this.ssrPipeline = ssr;
-    } catch (err) {
+    } catch (err: any) {
       console.warn('[PostFX] SSR unavailable:', err);
     }
   }
@@ -161,18 +161,18 @@ export class PostFXManager {
       });
       glow.intensity = intensity;
       this.glowLayer = glow;
-    } catch (err) {
+    } catch (err: any) {
       console.warn('[PostFX] GlowLayer unavailable:', err);
     }
   }
 
   setBloomWeight(weight: number): void {
-    const pipe = this.pipeline as Record<string, unknown> | null;
+    const pipe = this.pipeline as any | null;
     if (pipe && 'bloomWeight' in pipe) pipe.bloomWeight = weight;
   }
 
   setBloomEnabled(enabled: boolean): void {
-    const pipe = this.pipeline as Record<string, unknown> | null;
+    const pipe = this.pipeline as any | null;
     if (pipe && 'bloomEnabled' in pipe) pipe.bloomEnabled = enabled;
   }
 

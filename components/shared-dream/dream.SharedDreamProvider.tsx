@@ -44,9 +44,9 @@ export interface SharedDreamContextValue {
   role: SessionRole;
   mode: CollabMode;
   transport: CollabSession['transport'] | 'local';
-  sendEdit: (edit: unknown) => Promise<void>;
-  sendStatePatch: (patch: unknown) => Promise<void>;
-  sendDataPacket: (packet: unknown) => Promise<void>;
+  sendEdit: (edit: any) => Promise<void>;
+  sendStatePatch: (patch: any) => Promise<void>;
+  sendDataPacket: (packet: any) => Promise<void>;
   sendMediaSync: (command: string, timeRefSec?: number, payload?: Record<string, unknown>) => Promise<void>;
   sendControlSignal: (signal: string, payload?: Record<string, unknown>) => Promise<void>;
   sendPresenceUpdate: (presence: PresenceUpdateData) => Promise<void>;
@@ -153,17 +153,17 @@ export function SharedDreamProvider({
     };
   }, [propChannelId]);
 
-  const sendEdit = useCallback(async (edit: unknown) => {
+  const sendEdit = useCallback(async (edit: any) => {
     if (!session) return;
     await broadcastEdit(session, edit);
   }, [session]);
 
-  const sendStatePatchEvent = useCallback(async (patch: unknown) => {
+  const sendStatePatchEvent = useCallback(async (patch: any) => {
     if (!session) return;
     await broadcastStatePatch(session, patch);
   }, [session]);
 
-  const sendDataPacketEvent = useCallback(async (packet: unknown) => {
+  const sendDataPacketEvent = useCallback(async (packet: any) => {
     if (!session) return;
     await broadcastDataPacket(session, packet);
   }, [session]);

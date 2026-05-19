@@ -479,7 +479,7 @@ export default function MultitrackArrangementPanel({
 
                 <div style={{ flex: 1, position: 'relative', background: '#0a0d14' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: `repeat(${ARRANGEMENT_BARS}, minmax(0, 1fr))`, height: '100%' }}>
-                    {Array.from(({ length: ARRANGEMENT_BARS }, _, bar: Record<string, unknown>) => (
+                    {Array.from({ length: ARRANGEMENT_BARS }, (_: any, bar: number) => (
                       <button
                         key={bar}
                         type="button"
@@ -491,7 +491,7 @@ export default function MultitrackArrangementPanel({
                           borderRight: 'none',
                           borderBottom: 'none',
                           borderTop: 'none',
-                          background: arrPlayheadBar === bar && arrPlaying ? 'rgba(0,208,240,0.08)' : (bar % 4 === 0 ? 'rgba(255,255,255,0.03)' : 'transparent'),
+                          background: arrPlayheadBar === bar && arrPlaying ? 'rgba(0,208,240,0.08)' : (Number(bar) % 4 === 0 ? 'rgba(255,255,255,0.03)' : 'transparent'),
                           cursor: selectedSource ? 'copy' : 'not-allowed',
                         }}
                       />

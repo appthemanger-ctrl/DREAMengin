@@ -113,7 +113,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
     return NextResponse.json(response, {
       headers: { 'Cache-Control': 'no-store' },
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error('[TrackView] Exception:', err);
     return NextResponse.json(
       { error: 'Internal server error' },

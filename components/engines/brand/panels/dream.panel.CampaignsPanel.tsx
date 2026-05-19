@@ -74,14 +74,14 @@ export default function CampaignsPanel( ){
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => setShowCalc((s: string ) => !s)}
+              onClick={() => setShowCalc((s) => !s)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white text-xs transition-all"
             >
               <Calculator size={13} />
               Calculator
             </button>
             <button
-              onClick={() => setShowNew((s: string ) => !s)}
+              onClick={() => setShowNew((s) => !s)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#f472b6]/20 hover:bg-[#f472b6]/30 text-[#f472b6] text-xs font-medium transition-all"
             >
               <Plus size={13} />

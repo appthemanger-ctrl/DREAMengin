@@ -63,7 +63,7 @@ export function validateShopListing(body: unknown): ValidationResult {
     return { valid: false, errors: ['Request body must be a JSON object.'] };
   }
 
-  const b = body as Record<string, unknown>;
+  const b = body as any;
 
   // Title / name
   const titleRaw = (b.title ?? b.name ?? '') as string;

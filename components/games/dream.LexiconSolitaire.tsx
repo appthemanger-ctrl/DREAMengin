@@ -79,7 +79,7 @@ export default function LexiconSolitaire( ){
     const word = picked.map((id) => all.find((c) => c.id === id)?.letter ?? '').join('');
     if (!isReasonableWord(word)) {
       setLog((l) => [`"${word}" — the page rejects it. -1 HP.`, ...l].slice(0, 8));
-      setPlayerHp((h: number ) => h - 1);
+      setPlayerHp((h) => h - 1);
       setPicked([]);
       return;
     }
@@ -96,14 +96,14 @@ export default function LexiconSolitaire( ){
       }
       return Math.max(0, nb);
     });
-    setScore((s: string ) => s + dmg * 3);
+    setScore((s) => s + dmg * 3);
     setLog((l) => [`Cast "${word}" — ${dmg} dmg.`, ...l].slice(0, 8));
     // Remove used cards; redeal from hand
     const used = new Set(picked);
     setColumns((cols) => cols.map((col) => col.filter((c) => !used.has(c.id))));
-    setHand((h: number ) => h.filter((c) => !used.has(c.id)));
+    setHand((h) => h.filter((c: any) => !used.has(c.id)));
     // Draw 2
-    setHand((h: number ) => [...h, ...makeDeck().slice(0, 2)]);
+    setHand((h) => [...h, ...makeDeck().slice(0, 2)]);
     setPicked([]);
     // Boss counter-strike
     setTimeout(() => setPlayerHp((p) => p - 2), 400);
@@ -118,9 +118,9 @@ export default function LexiconSolitaire( ){
   const answerTrivia = useCallback((idx: number) => {
     if (!trivia) return;
     if (idx === trivia.correct) {
-      setHand((h: number ) => [...h, ...makeDeck().slice(0, 3)]);
+      setHand((h) => [...h, ...makeDeck().slice(0, 3)]);
       setLog((l) => [`Correct — three relic letters drawn.`, ...l.slice(0, 7)]);
-      setScore((s: string ) => s + 30);
+      setScore((s) => s + 30);
     } else {
       setLog((l) => [`Wrong. The shelf takes a year from you.`, ...l.slice(0, 7)]);
       setPlayerHp((p) => p - 3);

@@ -316,7 +316,7 @@ export default function EchoArena( ){
 
       } catch (err: unknown) {
         console.error('EchoArena init error:', err);
-        setStatus('Error: ' + err.message);
+        setStatus('Error: ' + (err as Error).message);
       }
     };
 

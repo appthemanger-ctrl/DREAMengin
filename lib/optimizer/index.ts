@@ -102,7 +102,7 @@ export class DreamOptimizer {
         user_permissions: this.checkPermissions(result, userPermissions),
         system_location: this.calculateLocationScore(result.type),
         recency: result.metadata?.timestamp
-          ? this.calculateRecency(new Date(result.metadata.timestamp))
+          ? this.calculateRecency(new Date(result.metadata.timestamp as string | number))
           : 0.5,
         content_type: this.calculateTypeScore(result.type),
       },
@@ -392,7 +392,7 @@ export class DreamOptimizer {
     for (const constraint of constraints) {
       const weight = constraint.weight;
       const priorityMultiplier = this.getWeightMultiplier(constraint.priority);
-      const scoreValue = (scores as Record<string, number>)[constraint.name] || 0;
+      const scoreValue = (scores as unknown as Record<string, number>)[constraint.name] || 0;
 
       // Negative weights for cost and risk (we want to minimize these)
       if (constraint.name === 'cost' || constraint.name === 'risk') {
@@ -423,7 +423,7 @@ export class DreamOptimizer {
     }
 
     if (option.metadata?.innovationScore) {
-      score += option.metadata.innovationScore * 0.2;
+      score += Number(option.metadata.innovationScore) * 0.2;
     }
 
     // Novel tone or style
@@ -443,7 +443,7 @@ export class DreamOptimizer {
 
     // Check for usefulness indicators in metadata
     if (option.metadata?.practicalityScore) {
-      score += option.metadata.practicalityScore * 0.3;
+      score += Number(option.metadata.practicalityScore) * 0.3;
     }
 
     // Content length can indicate thoroughness
@@ -479,7 +479,7 @@ export class DreamOptimizer {
 
     // Check for delight indicators in metadata
     if (option.metadata?.visualImpact) {
-      score += option.metadata.visualImpact * 0.3;
+      score += Number(option.metadata.visualImpact) * 0.3;
     }
 
     // Emotional language

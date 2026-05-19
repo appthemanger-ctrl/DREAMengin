@@ -1,3 +1,4 @@
+import type { Database } from '@/types/supabase';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
@@ -75,7 +76,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
       visibility,
       genre: genre?.trim() || null,
       cover_url: cover_url || null,
-    })
+    } as never)
     .select(`
       *,
       profiles!inner(id, handle, display_name, avatar_url)

@@ -4,6 +4,7 @@
 // =====================================================
 
 import { NextRequest, NextResponse, connection } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 import { resolveFeedHost } from '@/lib/widgets/feed-resolver';
 import { HostKind, type FeedHostConfig, type DreamDefinition, type DreamInstance } from '@/types/widget-system-v2';
@@ -98,7 +99,7 @@ export async function POST(request: NextRequest ): Promise<NextResponse> {
     }
     
     return NextResponse.json(result.data);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Dream feed resolver error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -145,7 +146,7 @@ export async function GET(request: NextRequest ): Promise<NextResponse> {
     }
     
     return NextResponse.json(result.data);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Dream feed resolver error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },

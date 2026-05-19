@@ -1,5 +1,7 @@
+import type { Database } from '@/types/supabase';
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 // GET - Fetch music releases
 export async function GET(req: NextRequest): Promise<NextResponse> {
@@ -74,7 +76,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       visibility,
       genre: genre?.trim() || null,
       cover_url: cover_url || null,
-    })
+    } as never)
     .select(`
       *,
       profiles!inner(id, handle, display_name, avatar_url)

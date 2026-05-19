@@ -6,6 +6,7 @@
  * records inserted rows so we don't need a live database.
  */
 
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { describe, it, expect, vi } from 'vitest';
 import {
   parseTelemetryEvent,
@@ -16,7 +17,7 @@ import {
   type TelemetrySupabaseClient,
 } from '@/lib/enginpipe/telemetry/client';
 
-function makeFakeSupabase(insertImpl?: (rows: unknown) => { error: unknown | null }) {
+function makeFakeSupabase(insertImpl?: (rows: any) => { error: unknown | null }) {
   const calls: { table: string; rows: unknown }[] = [];
   const client: TelemetrySupabaseClient = {
     from(table: string) {

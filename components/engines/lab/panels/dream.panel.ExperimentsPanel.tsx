@@ -77,7 +77,7 @@ export default function ExperimentsPanel( ){
       }));
     }, 500);
 
-    await new Promise((r: number ) => setTimeout(r, sim.duration));
+    await new Promise<void>((r) => setTimeout(r, sim.duration));
     clearInterval(interval);
 
     setRunStates((prev) => ({

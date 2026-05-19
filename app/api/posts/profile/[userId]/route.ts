@@ -14,6 +14,7 @@
 
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export async function GET(
   req: NextRequest,
@@ -53,7 +54,7 @@ export async function GET(
   const savedPosts: unknown[] = [];
 
   for (const row of savedRows ?? []) {
-    const post = row.app_posts as Record<string, unknown>;
+    const post = row.app_posts as any;
     if (!post) continue;
     // Apply visibility filter
     if (post.post_visibility === 'close_friends' && !isOwner && !isCloseFriend) continue;

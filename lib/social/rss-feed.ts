@@ -358,7 +358,7 @@ export async function parseRssFeed(
   const channelTitle = feed.title ?? config.authorName ?? config.provider;
   const items = (feed.items ?? []).slice(0, limit);
 
-  return items.map((item) => normaliseRssItem(item, config, channelTitle));
+  return items.map((item: Record<string, unknown>) => normaliseRssItem(item, config, channelTitle));
 }
 
 // ── Item normaliser ───────────────────────────────────────────────────────
@@ -376,20 +376,20 @@ export function normaliseRssItem(
   config: RssFeedConfig,
   channelTitle: string,
 ): UnifiedFeedItem {
-  const externalId = item.guid ?? item.id ?? item.link ?? String(Math.random());
+  const externalId = (item as Record<string, unknown>).guid ?? (item as Record<string, unknown>).id ?? (item as Record<string, unknown>).link ?? String(Math.random());
   const pubDate: string =
-    item.isoDate ?? item.pubDate ?? new Date().toISOString();
+    item.isoDate ?? (item as Record<string, unknown>).pubDate ?? new Date().toISOString();
 
   const rawAuthor: string =
-    item.author ?? item['dc:creator'] ?? item.creator ?? channelTitle;
+    (item as Record<string, unknown>).author ?? item['dc:creator'] ?? item.creator ?? channelTitle;
 
   const authorHandle = config.authorHandle ?? rawAuthor;
   const authorName = config.authorName ?? rawAuthor;
 
   const rawText =
-    item.contentEncoded ?? item['content:encoded'] ?? item.content ?? item.description ?? '';
+    item.contentEncoded ?? item['content:encoded'] ?? (item as Record<string, unknown>).content ?? (item as Record<string, unknown>).description ?? '';
 
-  const contentText = stripHtml(rawText) || stripHtml(item.title ?? '') || '';
+  const contentText = stripHtml(rawText) || stripHtml((item as Record<string, unknown>).title ?? '') || '';
   const contentHtml = rawText || undefined;
 
   const image = extractFirstImage(item);
@@ -397,7 +397,7 @@ export function normaliseRssItem(
     ? [{ url: image, type: guessMediaType(config.provider, image) }]
     : [];
 
-  const permalink: string = item.link ?? config.feedUrl;
+  const permalink: string = (item as Record<string, unknown>).link ?? config.feedUrl;
 
   return {
     provider: config.provider,
@@ -436,19 +436,19 @@ export function extractFirstImage(item: unknown): string | null {
   if (Array.isArray(item.mediaContent)) {
     const url = item.mediaContent.find(
        
-      (x: unknown) => x?.$?.url && isImageLike(x.$?.url),
+      (x: any) => x?.$?.url && isImageLike(x.$?.url),
     )?.$?.url;
     if (url) return url;
     // Fall back to any url even if it's a video (still usable as thumbnail)
      
-    const anyUrl = item.mediaContent.find((x: unknown) => x?.$?.url)?.$?.url;
+    const anyUrl = item.mediaContent.find((x: any) => x?.$?.url)?.$?.url;
     if (anyUrl) return anyUrl;
   }
 
   // 3) media:thumbnail (array)
   if (Array.isArray(item.mediaThumbnail)) {
      
-    const url = item.mediaThumbnail.find((x: unknown) => x?.$?.url)?.$?.url;
+    const url = item.mediaThumbnail.find((x: any) => x?.$?.url)?.$?.url;
     if (url) return url;
   }
 
@@ -458,7 +458,7 @@ export function extractFirstImage(item: unknown): string | null {
      
     const thumb = Array.isArray(group['media:thumbnail'])
        
-      ? group['media:thumbnail'].find((x: unknown) => x?.$?.url)?.$?.url
+      ? group['media:thumbnail'].find((x: any) => x?.$?.url)?.$?.url
       : group['media:thumbnail']?.$?.url;
     if (thumb) return thumb;
   }
@@ -467,8 +467,8 @@ export function extractFirstImage(item: unknown): string | null {
   const html: string =
     item.contentEncoded ??
     item['content:encoded'] ??
-    item.content ??
-    item.description ??
+    (item as Record<string, unknown>).content ??
+    (item as Record<string, unknown>).description ??
     '';
   const match = html.match(/<img[^>]+src="([^"]+)"/i);
   if (match?.[1]) return match[1];

@@ -297,14 +297,14 @@ export async function loadActivity(
     userId: row.user_id as string | null,
     kind: row.kind as RealityActivityKind,
     label: row.label as string,
-    meta: (row.meta ?? {}) as Record<string, unknown>,
+    meta: (row.meta ?? {}) as any,
     createdAt: row.created_at as string,
   }));
 }
 
 // ── Row mapper ────────────────────────────────────────────────────────────────
 
-function rowToReality(row): Reality {
+function rowToReality(row: any): Reality {
   return {
     id: row['id'] as string,
     name: row['name'] as string,

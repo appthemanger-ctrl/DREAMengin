@@ -246,7 +246,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   let items: UnifiedFeedItem[];
   try {
     items = await parseRssFeed({ provider, feedUrl }, limit);
-  } catch (err) {
+  } catch (err: any) {
     const message = err instanceof Error ? err.message : String(err);
     // Surface a clear public-vs-private message for auth failures
     const isAuthError = /401|403|unauthori|forbidden|private|login/i.test(message);

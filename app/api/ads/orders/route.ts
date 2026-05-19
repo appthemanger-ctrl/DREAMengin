@@ -25,6 +25,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 
 const PLATFORM_SHARE_PERCENT = 0.10; // 10% DREAMengin platform cut
@@ -49,7 +50,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Request body must be a JSON object.' }, { status: 400 });
   }
 
-  const { listingId, grossAmount } = body as Record<string, unknown>;
+  const { listingId, grossAmount } = body as any;
 
   if (!listingId || typeof listingId !== 'string') {
     return NextResponse.json({ error: 'listingId is required.' }, { status: 400 });

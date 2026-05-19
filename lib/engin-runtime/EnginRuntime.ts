@@ -105,7 +105,7 @@ export class EnginRuntime<
     ) => this.bus.emit(event as Parameters<typeof this.bus.emit>[0], payload as Parameters<typeof this.bus.emit>[1]);
 
     // 1. Capability gate
-    const capabilityKey = (action as Record<string, unknown>)['__capability'];
+    const capabilityKey = (action as any)['__capability'];
     if (typeof capabilityKey === 'string') {
       const gate = gateCapability(this._capabilities, capabilityKey as Parameters<typeof gateCapability>[1]);
       if (!gate.granted) {
@@ -149,7 +149,7 @@ export class EnginRuntime<
             key: this._persistenceKey as string,
           });
         }
-      }).catch((cause: unknown) => {
+      }).catch((cause: any) => {
         _emit('engin:error', {
           enginId,
           message: 'Persistence failed — state not saved.',

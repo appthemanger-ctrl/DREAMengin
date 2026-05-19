@@ -49,7 +49,7 @@ export async function launch(
   try {
     await core.start(canvas, config);
     console.log('✅ GameEngin runtime is active.');
-  } catch (err) {
+  } catch (err: any) {
     if (err instanceof GameEnginConfigError) {
       console.error('❌ Configuration error:', err.message);
     } else {

@@ -124,7 +124,7 @@ export function useDaydreamPersistence<T = Record<string, unknown>>(
               user_id: user.id,
               daydream_type: daydreamType,
               side: 'B',
-              state: payload as Record<string, unknown>,
+              state: payload as any,
               last_visited: new Date().toISOString(),
             },
             { onConflict: 'user_id,daydream_type', ignoreDuplicates: false },

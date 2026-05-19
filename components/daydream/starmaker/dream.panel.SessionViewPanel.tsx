@@ -92,7 +92,7 @@ export default function SessionViewPanel({ state, bpm, onStateChange }: SessionV
     });
   }, [state, tracks, onStateChange]);
 
-  function handleClipClick(trackId: string, clipIndex): number {
+  function handleClipClick(trackId: string, clipIndex: any): number | undefined {
     const track = tracks.find((t) => t.id === trackId);
     if (!track) return;
     const clip = track.clips[clipIndex];
@@ -155,7 +155,7 @@ export default function SessionViewPanel({ state, bpm, onStateChange }: SessionV
     updateTrack(trackId, { armed: !track.armed });
   }
 
-  function handleVolumeChange(trackId: string, volume): number {
+  function handleVolumeChange(trackId: string, volume: any): void {
     updateTrack(trackId, { volume });
   }
 

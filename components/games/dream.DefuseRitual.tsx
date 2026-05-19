@@ -89,7 +89,7 @@ export default function DefuseRitual( ){
         t.revealed = true; t.mineHit = true;
         setEndsAt((e: unknown ) => e - 2_000);
         setBrand((br) => br + 1);
-        setScore((s: string ) => Math.max(0, s - 30));
+        setScore((s) => Math.max(0, Number(s) - 30));
         if (brand + 1 >= 3) setPhase('lost');
         return { ...b, tiles };
       }
@@ -99,7 +99,7 @@ export default function DefuseRitual( ){
         t.revealed = true;
         const newStep = step + 1;
         setStep(newStep);
-        setScore((s: string ) => s + 50 + Math.floor((endsAt - performance.now()) / 100));
+        setScore((s) => s + 50 + Math.floor((endsAt - performance.now()) / 100));
         if (newStep >= b.safeGlyphs.length) {
           // Reveal remaining safe tiles automatically
           for (let k = 0; k < tiles.length; k++) if (!tiles[k].mine) tiles[k].revealed = true;
@@ -108,7 +108,7 @@ export default function DefuseRitual( ){
       } else {
         // Out-of-order safe tap — small penalty
         setEndsAt((e: unknown ) => e - 600);
-        setScore((s: string ) => Math.max(0, s - 5));
+        setScore((s) => Math.max(0, Number(s) - 5));
       }
       return { ...b, tiles };
     });

@@ -132,14 +132,14 @@ function transform(state: EnginBaseState, action: ContentEnginAction): EnginBase
     case 'content:item-remove': {
       const { itemId } = (action as EnginAction<'content:item-remove', { itemId: string }>).payload!;
       return patchBaseState(state, {
-        domain: { ...domain, publishQueue: queue().filter((i: number ) => i.id !== itemId) },
+        domain: { ...domain, publishQueue: queue().filter((i: CalendarItem) => i.id !== itemId) },
       });
     }
 
     case 'content:item-publish': {
       const { itemId } = (action as EnginAction<'content:item-publish', { itemId: string }>).payload!;
       return patchBaseState(state, {
-        domain: { ...domain, publishQueue: queue().filter((i: number ) => i.id !== itemId) },
+        domain: { ...domain, publishQueue: queue().filter((i: CalendarItem) => i.id !== itemId) },
       });
     }
 
@@ -189,7 +189,7 @@ function deriveState(state: EnginBaseState): ContentEnginDerivedState {
     wordCount:       (d.wordCount       ?? DEFAULT_DOMAIN.wordCount)       as number,
     creativityLevel: (d.creativityLevel ?? DEFAULT_DOMAIN.creativityLevel) as number,
     brandCheckReady: (d.brandCheckReady ?? DEFAULT_DOMAIN.brandCheckReady) as boolean,
-    stemPayload:     (d.stemPayload     ?? DEFAULT_DOMAIN.stemPayload)     as Record<string, unknown> | null,
+    stemPayload:     (d.stemPayload     ?? DEFAULT_DOMAIN.stemPayload)     as any | null,
   };
 }
 

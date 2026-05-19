@@ -139,7 +139,7 @@ interface LayoutSlot {
 
 function isValidSlot(s: unknown): s is LayoutSlot {
   if (!s || typeof s !== 'object') return false;
-  const obj = s as Record<string, unknown>;
+  const obj = s as any;
   return typeof obj.id === 'string' && typeof obj.type === 'string' && typeof obj.position === 'number';
 }
 
@@ -201,7 +201,7 @@ interface UnifiedFeedEntry {
 
 function isValidFeedEntry(e: unknown): e is UnifiedFeedEntry {
   if (!e || typeof e !== 'object') return false;
-  const obj = e as Record<string, unknown>;
+  const obj = e as any;
   return (
     typeof obj.id === 'string' &&
     (obj.source === 'connector' || obj.source === 'post' || obj.source === 'system') &&

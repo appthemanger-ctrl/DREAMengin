@@ -118,7 +118,7 @@ function PostCard( ){
       {/* Post actions */}
       <div style={{ padding: '2px 16px 14px', display: 'flex', gap: 22 }}>
         {([
-          { icon: liked ? '♥' : '♡', label: 'Like',    action: () => setLiked((v: number ) => !v) },
+          { icon: liked ? '♥' : '♡', label: 'Like',    action: () => setLiked((v) => !v) },
           { icon: '💬',               label: 'Comment', action: undefined },
           { icon: '↗',               label: 'Share',   action: undefined },
         ] as const).map(({ icon, label, action }) => (
@@ -406,8 +406,8 @@ function WallBanner( ){
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev: Event ) => {
-      const url = ev.target?.result as string;
+    reader.onload = (ev: ProgressEvent<FileReader>) => {
+      const url = (ev.target as FileReader).result as string;
       setWallImage(url);
       try { localStorage.setItem('dreamengin:wall:image', url); } catch { /* noop */ }
     };

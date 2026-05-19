@@ -267,7 +267,7 @@ export default function EngineBuilderCanvas({
       const asm = createAssembly(pieces, wires);
       setAssembly(asm);
       showToast(`Assembly "${asm.id.slice(0, 16)}…" built ✓`, true);
-    } catch (err) {
+    } catch (err: any) {
       showToast(String(err).replace('Error: ', ''), false);
     }
   }, [pieces, wires]);

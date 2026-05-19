@@ -24,6 +24,7 @@ import {
   RefreshCw, Upload, Trash2, Eye, Hash, ChevronRight,
   AlertCircle, ShieldCheck, Activity,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 // ============================================================================
 // TYPES (mirroring the DB schema — no raw content fields)
@@ -137,7 +138,7 @@ export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
       const json = await res.json() as { incidents?: ChildSafetyIncident[]; error?: string };
       if (!res.ok) throw new Error(json.error ?? `HTTP ${res.status}`);
       setIncidents(json.incidents ?? []);
-    } catch (err) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoadingQueue(false);
@@ -156,7 +157,7 @@ export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
     const results = await Promise.allSettled(
       statuses.map(([s]) =>
         fetch(`/api/admin/child-safety?status=${encodeURIComponent(s)}&limit=1`)
-          .then((r: number ) => r.json() as Promise<{ count?: number }>)
+          .then((r) => r.json() as Promise<{ count?: number }>)
           .then((d) => d.count ?? 0)
           .catch(() => 0),
       ),
@@ -195,7 +196,7 @@ export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
       setReviewNotes('');
       await fetchIncidents();
       await fetchCounts();
-    } catch (err) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : String(err));
     }
   };
@@ -228,7 +229,7 @@ export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
       if (!res.ok) throw new Error(json.error ?? `HTTP ${res.status}`);
       setHashUploadResult({ inserted: json.inserted_count ?? 0, submitted: json.submitted_count ?? 0 });
       setHashInput('');
-    } catch (err) {
+    } catch (err: any) {
       setHashError(err instanceof Error ? err.message : String(err));
     } finally {
       setUploadingHashes(false);

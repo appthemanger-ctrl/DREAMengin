@@ -25,7 +25,7 @@ export const codeEnginHostTools = {
     try {
       const fullPath = path.resolve(getProjectRoot(), filePath);
       return await readFile(fullPath, 'utf-8');
-    } catch (error) {
+    } catch (error: any) {
       return `Error reading file: ${(error as Error).message}`;
     }
   },
@@ -35,7 +35,7 @@ export const codeEnginHostTools = {
       const fullPath = path.resolve(getProjectRoot(), filePath);
       await writeFile(fullPath, content, 'utf-8');
       return `File ${filePath} written successfully.`;
-    } catch (error) {
+    } catch (error: any) {
       return `Error writing file: ${(error as Error).message}`;
     }
   },
@@ -46,7 +46,7 @@ export const codeEnginHostTools = {
     try {
       const { stdout, stderr } = await execAsync(cmd, { cwd: getProjectRoot() });
       return { stdout, stderr };
-    } catch (error) {
+    } catch (error: any) {
       return { stdout: '', stderr: (error as Error).message };
     }
   },

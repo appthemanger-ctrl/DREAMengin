@@ -92,7 +92,7 @@ export default function DreamenginApp( ){
 
   const handleImport = useCallback((payload: AssetImportPayload) => {
     if (!mountedRef.current) return;
-    setImportedAssets((count: number ) => count + 1);
+    setImportedAssets((count) => count + 1);
     setLastImportCategory(payload.category);
   }, []);
 

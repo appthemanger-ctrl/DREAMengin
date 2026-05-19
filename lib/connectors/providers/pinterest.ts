@@ -42,7 +42,7 @@ export async function pinterestVerify(creds: PinterestCredentials): Promise<stri
       headers: { 'User-Agent': 'DREAMengin RSS Reader (+https://dreamengin.app)' },
       signal: AbortSignal.timeout(10_000),
     });
-  } catch (err) {
+  } catch (err: any) {
     const msg = err instanceof Error ? err.message : String(err);
     throw new Error(`Could not reach Pinterest RSS. (${msg})`);
   }

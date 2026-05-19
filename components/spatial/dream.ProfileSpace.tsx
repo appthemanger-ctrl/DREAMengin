@@ -44,7 +44,7 @@ const asLinks = (v: unknown): Array<{ title: string; url: string }> => {
   return v
     .map((x) => {
       if (!x || typeof x !== "object") return null;
-      const obj = x as Record<string, unknown>;
+      const obj = x as any;
       const title = asString(obj.title);
       const url = asString(obj.url);
       if (!title || !url) return null;
@@ -77,7 +77,7 @@ export default function ProfileSpace({
       setCurrentIndex(0);
       return;
     }
-    setCurrentIndex((i: number ) => Math.max(0, Math.min(i, sortedWidgets.length - 1)));
+    setCurrentIndex((i) => Math.max(0, Math.min(i, sortedWidgets.length - 1)));
   }, [sortedWidgets.length]);
 
   const navigateLeft = useCallback(() => {
@@ -152,7 +152,7 @@ export default function ProfileSpace({
             {isOwner && (
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setIsEditing((v: number ) => !v)}
+                  onClick={() => setIsEditing((v) => !v)}
                   className={cn(
                     "flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors",
                     isEditing ? "bg-primary text-primary-foreground" : "hover:bg-muted"
@@ -206,7 +206,7 @@ export default function ProfileSpace({
                   onUpdate={(updates) => updateWidget(currentWidget.id, updates)}
                   onDelete={async () => {
                     await deleteWidget(currentWidget.id);
-                    setCurrentIndex((i: number ) => Math.max(0, i - 1));
+                    setCurrentIndex((i) => Math.max(0, i - 1));
                   }}
                 />
               )}
@@ -409,8 +409,8 @@ function WidgetRenderer({
 }
 
 function GalleryWidget({ content, config }: {content: ContentObject[]; config: Widget["config"]}) {
-  const layout = asString((config as Record<string, unknown>).layout, "grid");
-  const columns = Math.min(Math.max(asNumber((config as Record<string, unknown>).columns, 3), 1), 4);
+  const layout = asString((config as any).layout, "grid");
+  const columns = Math.min(Math.max(asNumber((config as any).columns, 3), 1), 4);
 
   if (content.length === 0) return <div className="p-8 text-center text-muted-foreground">No content in this gallery</div>;
 
@@ -475,8 +475,8 @@ function MediaWidget({ content }: {content?: ContentObject}) {
 }
 
 function TextWidget({ config }: {config: Widget["config"]}) {
-  const title = asString((config as Record<string, unknown>).title, "");
-  const text = asString((config as Record<string, unknown>).text, "");
+  const title = asString((config as any).title, "");
+  const text = asString((config as any).text, "");
   return (
     <div className="p-6">
       {title ? <h4 className="text-lg font-semibold mb-2">{title}</h4> : null}
@@ -486,8 +486,8 @@ function TextWidget({ config }: {config: Widget["config"]}) {
 }
 
 function ProfileInfoWidget({ config }: {config: Widget["config"]}) {
-  const bioText = asString((config as Record<string, unknown>).bio, "");
-  const location = asString((config as Record<string, unknown>).location, "");
+  const bioText = asString((config as any).bio, "");
+  const location = asString((config as any).location, "");
   return (
     <div className="p-6">
       <p className="text-foreground/80">{bioText || "No bio provided"}</p>
@@ -497,7 +497,7 @@ function ProfileInfoWidget({ config }: {config: Widget["config"]}) {
 }
 
 function LinkTreeWidget({ config }: {config: Widget["config"]}) {
-  const links = asLinks((config as Record<string, unknown>).links);
+  const links = asLinks((config as any).links);
   return (
     <div className="p-4 space-y-2">
       {links.length === 0 ? (
@@ -521,7 +521,7 @@ function LinkTreeWidget({ config }: {config: Widget["config"]}) {
 }
 
 function EmbedWidget({ config }: {config: Widget["config"]}) {
-  const embedUrl = asString((config as Record<string, unknown>).embedUrl, "");
+  const embedUrl = asString((config as any).embedUrl, "");
   if (!embedUrl) return <div className="p-8 text-center text-muted-foreground">No embed URL provided</div>;
   return (
     <div className="aspect-video">
@@ -559,7 +559,7 @@ function AlbumWidget({ content }: {content: ContentObject[]}) {
 
   useEffect(() => {
     if (content.length === 0) setCurrentIndex(0);
-    else setCurrentIndex((i: number ) => Math.max(0, Math.min(i, content.length - 1)));
+    else setCurrentIndex((i) => Math.max(0, Math.min(i, content.length - 1)));
   }, [content.length]);
 
   if (content.length === 0) return <div className="p-8 text-center text-muted-foreground">No content in this album</div>;

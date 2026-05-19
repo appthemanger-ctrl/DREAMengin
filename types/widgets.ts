@@ -117,7 +117,7 @@ export interface SubWidgetRef {
 
 export function getWidgetType(widget: unknown): WidgetType | undefined {
   if (!widget || typeof widget !== 'object') return undefined;
-  const w = widget as Record<string, unknown>;
+  const w = widget as any;
   const type = w['type'];
   if (typeof type === 'string') return type as WidgetType;
   const widgetType = w['widget_type'];
@@ -127,21 +127,21 @@ export function getWidgetType(widget: unknown): WidgetType | undefined {
 
 export function getWidgetConfig(widget: unknown): Record<string, unknown> {
   if (!widget || typeof widget !== 'object') return {};
-  const w = widget as Record<string, unknown>;
+  const w = widget as any;
   const configJson = w['config_json'];
   if (configJson && typeof configJson === 'object' && !Array.isArray(configJson)) {
-    return configJson as Record<string, unknown>;
+    return configJson as any;
   }
   const config = w['config'];
   if (config && typeof config === 'object' && !Array.isArray(config)) {
-    return config as Record<string, unknown>;
+    return config as any;
   }
   return {};
 }
 
 // -------- type guards (fix the “never” error) --------
 export function isWidgetInstance(widget: unknown): widget is WidgetInstance {
-  return !!widget && typeof widget === "object" && "id" in (widget as Record<string, unknown>);
+  return !!widget && typeof widget === "object" && "id" in (widget as any);
 }
 
 export function isFeedWidget(widget: unknown): widget is WidgetInstance {

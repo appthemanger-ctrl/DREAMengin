@@ -151,7 +151,7 @@ export default function SoundRecorder( ){
       setElapsed(0);
       timerRef.current = setInterval(() => setElapsed(Date.now() - startTimeRef.current), 200);
       drawWave();
-    } catch (err) {
+    } catch (err: any) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes('Permission') || msg.includes('NotAllowed') || msg.includes('denied')) {
         setError('Microphone access denied. Tap "Allow" in your browser and try again.');

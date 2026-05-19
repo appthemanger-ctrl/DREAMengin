@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { FlaskConical, Plus, Lock, Globe } from 'lucide-react';
 import { connection } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 
 // No demo projects - users see their actual projects only

@@ -51,7 +51,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
 
     // Create verification record if evidence provided
     let verificationId: string | undefined;
-    let verification: unknown = undefined;
+    let verification: ActivityVerification | undefined = undefined;
 
     if (verification_method && evidence_url) {
       const verificationStrength = VERIFICATION_STRENGTH[verification_method] ?? 0;
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
 
     // Return response
     const response: TrackActivityResponse = {
-      activity_point: activityResult.data as unknown,
+      activity_point: activityResult.data as any,
       verification,
       points_earned: points,
     };
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
     return NextResponse.json(response, {
       headers: { 'Cache-Control': 'no-store' },
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error('[TrackActivity] Exception:', err);
     return NextResponse.json(
       { error: 'Internal server error' },

@@ -250,7 +250,7 @@ export default function EditProfileDreamPage( ){
       const file = input.files?.[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (e: unknown ) => setProfile((p) => ({ ...p, avatar_url: e.target?.result as string }));
+      reader.onload = (e: ProgressEvent<FileReader>) => setProfile((p) => ({ ...p, avatar_url: (e.target as FileReader).result as string }));
       reader.readAsDataURL(file);
       input.removeEventListener('change', handler);
     };

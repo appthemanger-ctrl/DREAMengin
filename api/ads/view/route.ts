@@ -5,6 +5,7 @@
 // Per ACTIVITY_FIRST_PROTOCOL.md §V (Ad System)
 
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 import { qualifiesForPremiumCPV } from '@/lib/activity/aqs';
 import type {
@@ -27,7 +28,7 @@ type ActivitySupabaseClient = {
         single: () => Promise<{ data: Record<string, unknown> | null }>;
       };
     };
-    insert: (values) => {
+    insert: (values: any) => {
       select: () => {
         single: () => Promise<{
           data: Record<string, unknown> | null;
@@ -35,7 +36,7 @@ type ActivitySupabaseClient = {
         }>;
       };
     };
-    update: (values) => {
+    update: (values: any) => {
       eq: (column: string, value: unknown) => Promise<{ error?: { message?: string } | null }>;
     };
   };
@@ -183,7 +184,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
     return NextResponse.json(response, {
       headers: { 'Cache-Control': 'no-store' },
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error('[TrackAdView] Exception:', err);
     return NextResponse.json(
       { error: 'Internal server error' },

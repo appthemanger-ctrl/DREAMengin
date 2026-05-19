@@ -178,7 +178,7 @@ export function useMessagingCore(
         } else {
           throw new Error(data.error ?? 'Send failed');
         }
-      } catch (err) {
+      } catch (err: any) {
         const msg = err instanceof Error ? err.message : 'Failed to send message';
         setSendError(msg);
         onRemove?.(tempId);

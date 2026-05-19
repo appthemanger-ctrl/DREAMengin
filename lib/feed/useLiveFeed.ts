@@ -167,7 +167,7 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFe
           filter: 'visibility=eq.public',
         },
         async (payload: RealtimePostgresInsertPayload<Record<string, unknown>>) => {
-          const raw = payload.new as Record<string, unknown>;
+          const raw = payload.new as any;
           const postId  = raw.id       as string;
           const authorId = (raw.user_id ?? raw.author_id) as string;
 
@@ -181,7 +181,7 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFe
 
           if (!data) return;
            
-          const d = data as Record<string, unknown>;
+          const d = data as any;
 
           const newPost: FeedPost = {
             id:             d.id,
@@ -222,7 +222,7 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFe
           table: 'app_posts',
         },
         (payload: RealtimePostgresInsertPayload<Record<string, unknown>>) => {
-          const raw = payload.new as Record<string, unknown>;
+          const raw = payload.new as any;
           // Sync like/comment counts in place — zero re-fetch
           setPosts((prev) =>
             prev.map((p) =>
@@ -255,9 +255,9 @@ export function useLiveFeed(userId: string, initialPosts: FeedPost[]): UseLiveFe
           filter: `user_id=eq.${userId}`,
         },
         (payload: RealtimePostgresInsertPayload<Record<string, unknown>>) => {
-          const raw = payload.new as Record<string, unknown>;
+          const raw = payload.new as any;
            
-          const p = (raw.payload ?? {}) as Record<string, unknown>;
+          const p = (raw.payload ?? {}) as any;
 
           const newEntry: FeedPost = {
             id:             raw.id         as string,

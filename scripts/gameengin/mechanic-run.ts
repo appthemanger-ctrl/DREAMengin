@@ -34,7 +34,7 @@ function compileAS(cartridgeId: string): { compiled: boolean; outPath?: string; 
     );
     const bytes = fs.statSync(outPath).size;
     return { compiled: true, outPath, bytes };
-  } catch (err) {
+  } catch (err: any) {
     return { compiled: false, reason: `asc failed: ${(err as Error).message}` };
   }
 }

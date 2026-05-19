@@ -14,6 +14,7 @@
 
 import { useState } from 'react';
 import { ArrowLeft, TrendingUp, Activity, ShieldCheck, Cpu } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import QuantumCircuitCanvas, { type QuantumMeasurementResult } from '@/engins/dream.QuantumCircuitCanvas';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';
@@ -111,7 +112,7 @@ export default function PortfolioEngin({ onBack }: Props) {
         quantumBitstring: quantumResult?.topBitstring ?? null,
         quantumExpVal:    quantumResult?.expectationValue ?? null,
       });
-    } catch (e) {
+    } catch (e: any) {
       setError(e instanceof Error ? e.message : 'Optimization failed');
     } finally {
       setRunning(false);

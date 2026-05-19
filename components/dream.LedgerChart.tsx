@@ -9,7 +9,7 @@ type Props = {
   height?: number;
 };
 
-function draw(canvas: HTMLCanvasElement, data): LedgerData {
+function draw(canvas: HTMLCanvasElement, data: any): LedgerData | undefined {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 

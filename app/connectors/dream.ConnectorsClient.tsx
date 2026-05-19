@@ -114,7 +114,7 @@ export default function ConnectorsClient( ){
   // Load real connector statuses from the DB on mount
   useEffect(() => {
     fetch('/api/connectors/status')
-      .then((r: number ) => r.json())
+      .then((r) => r.json())
       .then((data: { ok: boolean; statuses: Record<string, { status: string }> }) => {
         if (!data.ok) return;
         setStatuses((prev) => {
@@ -169,7 +169,7 @@ export default function ConnectorsClient( ){
     flow.onPlacementDone(slot);
   }
 
-  function handleConnectSuccess(connectorId: string, connectorName): string {
+  function handleConnectSuccess(connectorId: string, connectorName: any): void {
     // Add to connected set so Sync Now button appears
     if (TIER1_IDS.has(connectorId)) {
       setConnectedIds((prev) => new Set([...prev, connectorId]));

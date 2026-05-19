@@ -52,7 +52,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(ms / 86_400_000)}d ago`;
 }
 
-function summarizeEnginState(state): string {
+function summarizeEnginState(state: any): string {
   const parts: string[] = [];
   if (typeof state['selectedGame'] === 'string') parts.push(state['selectedGame']);
   if (typeof state['selectedPlayableGame'] === 'string') parts.push(state['selectedPlayableGame']);
@@ -101,7 +101,7 @@ function SharedDreamRuntimeInner({
           return next;
         });
         // Forward to the shared_dream channel so all peers see it
-        void bridge.emitDurable('shared_dream', `${slot.key}:state`, payload as Record<string, unknown>);
+        void bridge.emitDurable('shared_dream', `${slot.key}:state`, payload as any);
       }),
     );
     return () => unsubs.forEach((u) => u());

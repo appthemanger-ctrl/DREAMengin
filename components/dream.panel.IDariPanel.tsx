@@ -79,7 +79,7 @@ export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps
         setAutoRefresh(state.autoRefresh === true); // default off
         setRefreshInterval(typeof state.refreshInterval === 'number' ? Math.max(state.refreshInterval, 30000) : 30000);
         setBugCheckEnabled(state.bugCheckEnabled !== false);
-      } catch (e) {
+      } catch (e: any) {
         console.error('Failed to load IDARi state:', e);
       }
     }
@@ -146,7 +146,7 @@ export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps
       if (bugCheckEnabled) await checkForBugs();
       await runUpdate();
       addLog('Auto-update cycle completed', 'success');
-    } catch (error) {
+    } catch (error: any) {
       addLog('Auto-update failed', 'error', error instanceof Error ? error.message : 'Unknown error');
     }
   };
@@ -164,7 +164,7 @@ export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps
         looksLikeIssues ? 'error' : 'success',
         responseText.slice(0, 300),
       );
-    } catch (error) {
+    } catch (error: any) {
       addLog('Diagnostic check failed', 'error', error instanceof Error ? error.message : 'Unknown error');
       throw error;
     }
@@ -181,7 +181,7 @@ export default function IDariPanel({ userId: _userId, isAdmin }: IDariPanelProps
       const responseText = await callIdari(prompt);
       addLog('IDARi responded', 'success', responseText.slice(0, 300));
       setPrompt('');
-    } catch (error) {
+    } catch (error: any) {
       addLog('Update failed', 'error', error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setIsProcessing(false);

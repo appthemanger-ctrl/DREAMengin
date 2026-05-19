@@ -76,7 +76,7 @@ export async function POST(
     db,
     user.id,
     provider,
-    account.token_blob as Record<string, unknown>,
+    account.token_blob as any,
   );
 
   if (!result.ok) {

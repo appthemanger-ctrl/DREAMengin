@@ -1,3 +1,4 @@
+import type { Database } from '@/types/supabase';
 import { createServerClient } from '@/lib/supabase/server';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
@@ -7,7 +8,7 @@ import { reportChildSafetyIncident } from '@/lib/child-safety/ncmecReporter';
 import { getPrimaryPostMediaUrl } from '@/lib/media/postMedia';
 import { createHash } from 'crypto';
 
-function normalizePostMedia<T extends Record<string, unknown>>(post: T): T & { media_url: string | null } {
+function normalizePostMedia<T extends Record<string, any>>(post: T): T & { media_url: string | null } {
   return {
     ...post,
     media_url: getPrimaryPostMediaUrl(post),
@@ -73,7 +74,7 @@ export async function GET(req: NextRequest ): Promise<Response> {
 
     // Filter out close_friends posts where the viewer is not in the poster's list.
     const posts = (rawPosts ?? [])
-      .filter((p: unknown) => {
+      .filter((p: any) => {
         if (p.post_visibility === 'close_friends') {
           return closeFriendPosters.has(p.user_id) || p.user_id === user.id;
         }
@@ -81,7 +82,7 @@ export async function GET(req: NextRequest ): Promise<Response> {
       })
       .slice(0, limit);
 
-    return NextResponse.json({ posts: posts.map((post: unknown) => normalizePostMedia(post)), total_cap: 500 });
+    return NextResponse.json({ posts: posts.map((post: any) => normalizePostMedia(post)), total_cap: 500 });
   }
 
   // ── Trending feed: order by likes_count DESC, then recent ─────────────────
@@ -97,7 +98,7 @@ export async function GET(req: NextRequest ): Promise<Response> {
       .range(offset, offset + limit - 1);
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-    return NextResponse.json({ posts: (posts ?? []).map((post: unknown) => normalizePostMedia(post)) });
+    return NextResponse.json({ posts: (posts ?? []).map((post: any) => normalizePostMedia(post)) });
   }
 
   // ── Default feed: public posts ordered by recency ─────────────────────────
@@ -114,7 +115,7 @@ export async function GET(req: NextRequest ): Promise<Response> {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ posts: (posts ?? []).map((post: unknown) => normalizePostMedia(post)) });
+  return NextResponse.json({ posts: (posts ?? []).map((post: any) => normalizePostMedia(post)) });
 }
 
 // POST - Create a new post

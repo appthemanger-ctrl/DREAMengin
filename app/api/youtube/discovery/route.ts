@@ -45,7 +45,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<YouTubeDiscove
   try {
     const items = await youtubeDiscovery(apiKey, max);
     return NextResponse.json({ ok: true, items, fetched: items.length });
-  } catch (err) {
+  } catch (err: any) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
       { ok: false, items: [], fetched: 0, error: message },

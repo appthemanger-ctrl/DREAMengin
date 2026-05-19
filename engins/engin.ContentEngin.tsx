@@ -306,7 +306,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     setOpenDay(null);
   }
 
-  function removeCalendarItem(day: string, id): string {
+  function removeCalendarItem(day: string, id: any): void {
     setCalendarItems((prev) => ({ ...prev, [day]: prev[day].filter((i) => i.id !== id) }));
   }
 
@@ -329,7 +329,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
    *
    * LAW.md §3 — every visible action must do something real.
    */
-  async function publishItem(day: string, id): string {
+  async function publishItem(day: string, id: any): Promise<string | undefined> {
     const item = calendarItems[day]?.find((i) => i.id === id);
     if (!item) return;
 
@@ -372,7 +372,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
       setPublishedCount((c) => c + 1);
       const action = item.scheduled_at ? 'Scheduled' : 'Published';
       setPublishMsg(`✅ ${action}: ${item.title}`);
-    } catch (err) {
+    } catch (err: any) {
       setPublishMsg(`⚠️ ${err instanceof Error ? err.message : 'Publish failed'}`);
     }
 
@@ -434,7 +434,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
       setDraftSaveMsg(draftScheduledAt ? '✅ Draft scheduled!' : '✅ Draft saved!');
       forgeRecord(draftScheduledAt ? 'Scheduled draft' : 'Saved draft');
       recordForgeTransfer('create', 'create', 'draft', draftScheduledAt ? 'Draft scheduled internally' : 'Draft saved internally');
-    } catch (err) {
+    } catch (err: any) {
       setDraftSaveMsg(`⚠️ ${err instanceof Error ? err.message : 'Save failed'}`);
     }
     if (draftSaveTimerRef.current) clearTimeout(draftSaveTimerRef.current);
@@ -495,7 +495,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
       forgeRecord('Published to DreamR');
       recordForgeTransfer('create', 'brand', 'published-content', `Content published → ${platforms.join(', ')}`);
       setBroadcastMsg(`Published to DreamR and broadcast to ${platforms.length} target${platforms.length === 1 ? '' : 's'}.`);
-    } catch (err) {
+    } catch (err: any) {
       setBroadcastMsg(`⚠️ ${err instanceof Error ? err.message : 'Broadcast failed'}`);
     } finally {
       setIsBroadcasting(false);
@@ -568,7 +568,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   const [hookLoading, setHookLoading] = useState(false);
   const [hookResults, setHookResults] = useState<string[]>([]);
   const [hookSaveMsg, setHookSaveMsg] = useState('');
-  function copyHook(text: string, idx): number {
+  function copyHook(text: string, idx: any): void {
     navigator.clipboard?.writeText(text).catch(() => {});
     setCopiedHook(idx);
     setTimeout(() => setCopiedHook(null), 1400);
@@ -710,7 +710,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
       if (!res.ok && res.status !== 501) throw new Error(json.error ?? 'Fill failed');
       setFillResultBase64(json.resultBase64 ?? '');
       setFillMsg(json.message ?? (res.status === 501 ? '⚠️ Configure REPLICATE_API_TOKEN for real fills.' : '✅ Fill applied!'));
-    } catch (err) {
+    } catch (err: any) {
       setFillMsg(`⚠️ ${err instanceof Error ? err.message : 'Fill failed'}`);
     } finally {
       setFillLoading(false);
@@ -787,7 +787,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
         setVoiceProfiles((prev) => [{ id: json.profile!.id, name: json.profile!.name, createdAt: json.profile!.createdAt }, ...prev]);
       }
       setVoiceCloneMsg(json.message ?? '✅ Voice cloned!');
-    } catch (err) {
+    } catch (err: any) {
       setVoiceCloneMsg(`⚠️ ${err instanceof Error ? err.message : 'Clone failed'}`);
     } finally {
       setVoiceCloneLoading(false);
@@ -808,7 +808,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
       if (!res.ok && res.status !== 501) throw new Error(json.error ?? 'TTS failed');
       setTtsAudioBase64(json.audioBase64 ?? '');
       setTtsMsg(json.message ?? `✅ Speech ready (~${json.durationSeconds?.toFixed(1)}s)`);
-    } catch (err) {
+    } catch (err: any) {
       setTtsMsg(`⚠️ ${err instanceof Error ? err.message : 'TTS failed'}`);
     } finally {
       setTtsLoading(false);
@@ -886,7 +886,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
         throw new Error(err.error ?? 'Save failed');
       }
       setBrandSaveMsg('✅ Brand guidelines saved!');
-    } catch (err) {
+    } catch (err: any) {
       setBrandSaveMsg(`⚠️ ${err instanceof Error ? err.message : 'Save failed'}`);
     } finally {
       setBrandSaving(false);
@@ -927,7 +927,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
       });
       (bridge.emit as (ch: string, ev: string, pl: unknown) => void)('create', 'content:quick-compose', { prompt: quickComposePrompt });
       setQuickComposeMsg('✅ Rough cut assembled!');
-    } catch (err) {
+    } catch (err: any) {
       setQuickComposeMsg(`⚠️ ${err instanceof Error ? err.message : 'Compose failed'}`);
     } finally {
       setQuickComposeLoading(false);
@@ -948,7 +948,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
       if (!res.ok) throw new Error(json.error ?? 'Unable to generate hooks');
       setHookResults(json.hooks ?? []);
       setHookSaveMsg(json.draft?.id ? 'Saved to Drafts.' : '');
-    } catch (error) {
+    } catch (error: any) {
       setHookSaveMsg(error instanceof Error ? error.message : 'Unable to generate hooks');
     } finally {
       setHookLoading(false);
@@ -969,7 +969,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
       if (!res.ok) throw new Error(json.error ?? 'Unable to score title');
       setSeoResult({ score: json.score, reasons: json.reasons ?? [] });
       setSeoSaveMsg(json.draft?.id ? 'Saved to Drafts.' : '');
-    } catch (error) {
+    } catch (error: any) {
       setSeoSaveMsg(error instanceof Error ? error.message : 'Unable to score title');
     } finally {
       setSeoLoading(false);
@@ -1001,7 +1001,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
         setMocapScale(1.0);
         const s = clipSummary(clip);
         setMocapMsg(`✅ ${s.jointCount} joints · ${s.frameCount} frames · ${s.durationSeconds}s @ ${s.fps} fps`);
-      } catch (err) {
+      } catch (err: any) {
         setMocapMsg(`⚠️ ${err instanceof Error ? err.message : 'Parse failed'}`);
       } finally {
         setMocapLoading(false);
@@ -1035,7 +1035,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
       const sim = createSimulation(presetId, undefined, 5, 24);
       setFxSim(sim);
       setFxMsg('');
-    } catch (err) {
+    } catch (err: any) {
       setFxMsg(`⚠️ ${err instanceof Error ? err.message : 'Error'}`);
     }
   }
@@ -1165,7 +1165,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     setNodeMsg(`✅ ${type} node added.`);
   }
 
-  function handleDisconnect(toId: string, inputName): string {
+  function handleDisconnect(toId: string, inputName: any): void {
     setNodeGraph((prev) => disconnectInput(prev, toId, inputName));
     setNodeMsg(`✅ Input "${inputName}" disconnected.`);
   }
@@ -1468,14 +1468,14 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
       if (!res.ok) throw new Error(json.error ?? 'Repurpose failed');
       setRepurposeOutputs(json.outputs ?? []);
       setRepurposeMsg(json.draft?.id ? '✅ All formats saved to Drafts.' : '');
-    } catch (error) {
+    } catch (error: any) {
       setRepurposeMsg(error instanceof Error ? error.message : 'Repurpose failed');
     } finally {
       setRepurposeLoading(false);
     }
   }
 
-  function copyRepurposeOutput(text: string, idx): number {
+  function copyRepurposeOutput(text: string, idx: any): void {
     navigator.clipboard?.writeText(text).catch(() => {});
     setRepurseCopied(idx);
     setTimeout(() => setRepurseCopied(null), 1400);
@@ -1629,7 +1629,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   function addSbFrame( ){
     setSbFrames((prev) => [...prev, { id: Date.now().toString(), scene: `Scene ${prev.length + 1}`, shot: 'Medium', action: '', audio: '', duration: 5 }]);
   }
-  function updateSbFrame(id: string, field: string, value): string | number {
+  function updateSbFrame(id: string, field: string, value: any) {
     setSbFrames((prev) => prev.map((f) => f.id === id ? { ...f, [field]: value } : f));
   }
   function removeSbFrame(id: string ){ setSbFrames((prev) => prev.filter((f) => f.id !== id)); }
@@ -1645,7 +1645,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   }
 
   // ── AI Production Plan handlers ───────────────────────────────────────────────
-  function buildProductionPlan(idea: string, type: string, platform): string {
+  function buildProductionPlan(idea: string, type: string, platform: any): Record<string, unknown> {
     const t = idea.trim() || 'your content idea';
     return {
       title: `Production Plan: ${t.slice(0, 50)}`,
@@ -1701,7 +1701,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     setPlanResult(null);
     setPlanSaveMsg('');
     await new Promise((r) => setTimeout(r, 700));
-    setPlanResult(buildProductionPlan(planIdea, planType, planPlatform));
+    setPlanResult(buildProductionPlan(planIdea, planType, planPlatform) as unknown as ProductionPlan);
     setPlanLoading(false);
   }
 

@@ -202,7 +202,7 @@ export function useDreamSearch(query: string): UseDreamSearchReturn {
         } catch { /* table may not exist yet — skip silently */ }
 
         setResults(combined.slice(0, MAX_RESULTS));
-      } catch (err) {
+      } catch (err: any) {
         console.error('[useDreamSearch] error:', err);
         setResults([]);
       } finally {

@@ -53,7 +53,7 @@ export default function CartridgeLauncher({
         if (cancelled) return;
         setCartridge(c);
       })
-      .catch((err: unknown) => {
+      .catch((err: any) => {
         if (cancelled) return;
         setError(err instanceof Error ? err.message : 'Failed to load cartridge.');
       });

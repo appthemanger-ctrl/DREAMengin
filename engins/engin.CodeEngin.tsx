@@ -130,7 +130,7 @@ async function loadPyodide( ){
 
 async function executePython(code: string): Promise<string> {
   try {
-    const pyodide = await loadPyodide();
+    const pyodide = await loadPyodide() as { runPython: (code: string) => unknown; runPythonAsync: (code: string) => Promise<unknown> };
     pyodide.runPython(`
 import sys
 from io import StringIO
@@ -142,7 +142,7 @@ sys.stdout = StringIO()
     try { lastExpr = pyodide.runPython('_') || ''; } catch {}
     return output + (lastExpr ? (output ? '\n' : '') + lastExpr : '');
   } catch (err: unknown) {
-    return `Error: ${err.message}`;
+    return `Error: ${(err as Error).message}`;
   }
 }
 
@@ -157,7 +157,7 @@ function executeJavaScript(code: string): string {
     if (result !== undefined) output += (output ? '\n' : '') + String(result);
     return output || 'Executed successfully (no output)';
   } catch (err: unknown) {
-    return `Error: ${err.message}`;
+    return `Error: ${(err as Error).message}`;
   }
 }
 
@@ -380,7 +380,7 @@ async function callEamsAssist(prompt: string, codeContext?: string, language?: C
     const data = await res.json() as { response_text?: string };
     return data.response_text || 'No response from AI.';
   } catch (err: unknown) {
-    return `AI assistant error: ${err instanceof Error ? err.message : String(err)}`;
+    return `AI assistant error: ${err instanceof Error ? (err as Error).message : String(err)}`;
   }
 }
 
@@ -537,7 +537,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
       setCells((prev) => prev.map((c) => c.id === cellId ? { ...c, status: 'done', output } : c));
       bridge.emit('code', 'code:cell-executed', { cellId, language, outputType: 'text' });
     } catch (err: unknown) {
-      setCells((prev) => prev.map((c) => c.id === cellId ? { ...c, status: 'error', output: err.message, error: err.message } : c));
+      setCells((prev) => prev.map((c) => c.id === cellId ? { ...c, status: 'error', output: (err as Error).message, error: (err as Error).message } : c));
     }
   }, []);
 
@@ -627,7 +627,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
       const data = await callCI(apiKey);
       setCiResults(data);
     } catch (err: unknown) {
-      setCiError(err.message);
+      setCiError((err as Error).message);
     } finally {
       setCiRunning(false);
     }
@@ -644,7 +644,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
       const data = await callSecurityScan(apiKey);
       setSecResults(data);
     } catch (err: unknown) {
-      setSecError(err.message);
+      setSecError((err as Error).message);
     } finally {
       setSecRunning(false);
     }
@@ -696,7 +696,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
       } else {
         setShellhubConnectError(data.message ?? 'Connection failed.');
       }
-    } catch (err) { setShellhubConnectError('Network error'); } finally { setShellhubConnecting(false); }
+    } catch (err: any) { setShellhubConnectError('Network error'); } finally { setShellhubConnecting(false); }
   };
 
   const handleShellHubDisconnect = async () => {
@@ -721,7 +721,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
       } else {
         setShellhubDevicesError(data.error ?? 'Failed to load devices.');
       }
-    } catch (err) { setShellhubDevicesError('Network error'); } finally { setShellhubDevicesLoading(false); }
+    } catch (err: any) { setShellhubDevicesError('Network error'); } finally { setShellhubDevicesLoading(false); }
   };
 
   useEffect(() => {
@@ -954,11 +954,11 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
               {ciError && <div style={{ color: OUT_ERR, marginBottom: 12 }}>Error: {ciError}</div>}
               {ciResults && (
                 <div>
-                  <div style={{ marginBottom: 8 }}>Overall status: <strong style={{ color: ciResults.status === 'passing' ? OUT_OK : OUT_ERR }}>{ciResults.status.toUpperCase()}</strong></div>
-                  {ciResults.stages.map((stage: unknown, i: number) => (
-                    <div key={i} style={{ marginBottom: 12, padding: 8, borderRadius: 8, background: stage.passed ? 'rgba(34,197,94,0.05)' : 'rgba(248,113,113,0.05)', border: `1px solid ${stage.passed ? 'rgba(34,197,94,0.2)' : 'rgba(248,113,113,0.2)'}` }}>
-                      <div style={{ fontWeight: 700, marginBottom: 4 }}>{stage.name} {stage.passed ? <CheckCircle size={12} style={{ color: OUT_OK, display: 'inline', marginLeft: 6 }} /> : <XCircle size={12} style={{ color: OUT_ERR, display: 'inline', marginLeft: 6 }} />}</div>
-                      <pre style={{ fontSize: 10, whiteSpace: 'pre-wrap', wordBreak: 'break-all', margin: 0 }}>{stage.output}</pre>
+                  <div style={{ marginBottom: 8 }}>Overall status: <strong style={{ color: (ciResults as Record<string, unknown>).status === 'passing' ? OUT_OK : OUT_ERR }}>{(ciResults as Record<string, unknown>).status.toUpperCase()}</strong></div>
+                  {(ciResults as Record<string, unknown>).stages.map((stage: unknown, i: number) => (
+                    <div key={i} style={{ marginBottom: 12, padding: 8, borderRadius: 8, background: (stage as Record<string, unknown>).passed ? 'rgba(34,197,94,0.05)' : 'rgba(248,113,113,0.05)', border: `1px solid ${(stage as Record<string, unknown>).passed ? 'rgba(34,197,94,0.2)' : 'rgba(248,113,113,0.2)'}` }}>
+                      <div style={{ fontWeight: 700, marginBottom: 4 }}>{(stage as Record<string, unknown>).name} {(stage as Record<string, unknown>).passed ? <CheckCircle size={12} style={{ color: OUT_OK, display: 'inline', marginLeft: 6 }} /> : <XCircle size={12} style={{ color: OUT_ERR, display: 'inline', marginLeft: 6 }} />}</div>
+                      <pre style={{ fontSize: 10, whiteSpace: 'pre-wrap', wordBreak: 'break-all', margin: 0 }}>{(stage as Record<string, unknown>).output}</pre>
                     </div>
                   ))}
                 </div>
@@ -982,7 +982,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
                   {secResults.advisories && secResults.advisories.length > 0 ? (
                     secResults.advisories.map((adv: unknown, i: number) => (
                       <div key={i} style={{ marginBottom: 8, padding: 8, borderRadius: 8, background: 'rgba(248,113,113,0.05)', border: '1px solid rgba(248,113,113,0.2)' }}>
-                        <div><strong>{adv.title}</strong> – {adv.severity.toUpperCase()}</div>
+                        <div><strong>{adv.title}</strong> – {(adv as Record<string, unknown>).severity.toUpperCase()}</div>
                         <div>Package: {adv.package}</div>
                         <div>Vulnerable versions: {adv.vulnerable_versions}</div>
                         <div>Patched versions: {adv.patched_versions}</div>

@@ -36,7 +36,7 @@ export interface DreamGameInstance {
 
 export type InputType = 'touch' | 'mouse' | 'keyboard' | 'gamepad' | 'dualsense';
 
-export type InputHandler = (event: unknown) => void;
+export type InputHandler = (event: any) => void;
 
 // ─── Events emitted by the runtime ───────────────────────────────────────────
 
@@ -75,7 +75,7 @@ export async function loadDreamGame(
       },
     });
     wasmInstance = instance;
-  } catch (err) {
+  } catch (err: any) {
     throw new Error(`Failed to load WASM from ${manifest.wasmUrl}: ${String(err)}`);
   }
 
@@ -91,7 +91,7 @@ export async function loadDreamGame(
 
   // ── Build instance ──
   let running = false;
-  const exports = wasmInstance.exports as Record<string, unknown>;
+  const exports = wasmInstance.exports as any;
   const entry   = manifest.entryPoint ?? 'start';
 
   return {
@@ -199,7 +199,7 @@ export class GameEnginRuntime {
   private _attachDomListener(type: InputType): void {
     if (!this.canvas) return;
 
-    const dispatch = (event: unknown) => {
+    const dispatch = (event: any) => {
       this.inputHandlers.get(type)?.forEach((h) => h(event));
       this.bus.emit('inputReceived', { type, event });
     };
@@ -250,6 +250,6 @@ export class GameEnginRuntime {
     this.bus.destroy();
     this.inputHandlers.clear();
     if (this._gamepadPollId !== null) cancelAnimationFrame(this._gamepadPollId);
-    this.device?.destroy();
+    (this.device as { destroy?: () => void } | null)?.destroy?.();
   }
 }

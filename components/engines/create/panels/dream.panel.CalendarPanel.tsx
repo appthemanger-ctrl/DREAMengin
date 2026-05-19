@@ -79,13 +79,13 @@ export default function CalendarPanel( ){
             <p className="text-sm text-white/50">Plan and schedule your content week</p>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => setWeekOffset((w: number ) => w - 1)} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all">
+            <button onClick={() => setWeekOffset((w) => w - 1)} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all">
               <ChevronLeft size={16} />
             </button>
             <span className="text-xs text-white/50 min-w-[80px] text-center">
               {weekOffset === 0 ? 'This week' : weekOffset > 0 ? `+${weekOffset}w` : `${weekOffset}w`}
             </span>
-            <button onClick={() => setWeekOffset((w: number ) => w + 1)} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all">
+            <button onClick={() => setWeekOffset((w) => w + 1)} className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all">
               <ChevronRight size={16} />
             </button>
           </div>

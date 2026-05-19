@@ -480,7 +480,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   }
 
   // ── Share Game Clip to ContentEngin ─────────────────────────────────────────
-  function handleShareClip(game: string, score): number {
+  function handleShareClip(game: string, score: any): void {
     forgeRecord(`Shared ${game} clip to Content`);
     recordForgeTransfer('games', 'create', 'clip', `${game} clip → ContentEngin`);
     bridge.emit('create', 'create:game-clip-embedded', {
@@ -932,7 +932,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
       GAMES.map(async (game) => {
         try {
           return [game.id, await loadCartridge(game.id), null] as const;
-        } catch (error) {
+        } catch (error: any) {
           const message = error instanceof Error ? error.message : 'Unknown cartridge loader failure.';
           console.warn(`[GameEngin] Failed to load cartridge "${game.id}"`, error);
           return [game.id, null, message] as const;
@@ -1158,7 +1158,7 @@ function GameEnginInner({ onBack, instanceId: instanceIdProp }: Props) {
   }
 
   // ── Tournament handlers ──────────────────────────────────────────────────────
-  function handlePickWinner(matchIndex: number, winner): string {
+  function handlePickWinner(matchIndex: number, winner: any): void {
     setBracket((prev) => prev.map((m, i: number) => i === matchIndex ? { ...m, winner } : m));
     (bridge.emit as (ch: string, ev: string, pl: unknown) => void)(
       'games', 'game:tournament-match', { matchIndex, winner },

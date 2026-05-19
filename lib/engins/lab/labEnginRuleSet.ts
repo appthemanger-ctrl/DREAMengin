@@ -192,7 +192,7 @@ function deriveState(state: EnginBaseState): LabEnginDerivedState {
     chartType:           (d.chartType           ?? DEFAULT_DOMAIN.chartType)           as ChartType,
     datasetExportReady:  (d.datasetExportReady  ?? DEFAULT_DOMAIN.datasetExportReady)  as boolean,
     researchExportReady: (d.researchExportReady ?? DEFAULT_DOMAIN.researchExportReady) as boolean,
-    physicsPayload:      (d.physicsPayload      ?? DEFAULT_DOMAIN.physicsPayload)      as Record<string, unknown> | null,
+    physicsPayload:      (d.physicsPayload      ?? DEFAULT_DOMAIN.physicsPayload)      as any | null,
   };
 }
 

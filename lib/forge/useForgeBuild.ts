@@ -213,7 +213,7 @@ export function useForgeBuild(): UseForgeBuildReturn {
 
         // Stream ended without 'done' event
         setState('done');
-      } catch (err) {
+      } catch (err: any) {
         if ((err as Error)?.name === 'AbortError') return; // reset() was called
         const errEvent: ForgeLogEvent = {
           type: 'error',

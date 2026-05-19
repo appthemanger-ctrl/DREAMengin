@@ -129,7 +129,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
       authDeleted = true;
       deleted.push('auth_identity');
     }
-  } catch (e) {
+  } catch (e: any) {
     const msg = e instanceof Error ? e.message : 'Service role client not available';
     errors.push(`auth_identity: ${msg} — data rows removed but auth identity was not deleted`);
   }

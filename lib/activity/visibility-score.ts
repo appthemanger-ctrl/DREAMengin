@@ -42,7 +42,7 @@ export async function calculateVisibilityScore(postId: string): Promise<number> 
     }
 
     return data ?? 0;
-  } catch (err) {
+  } catch (err: any) {
     console.error('[VisibilityScore] Exception calculating score:', err);
     return 0;
   }
@@ -77,7 +77,7 @@ export async function calculateVisibilityScores(
     results.forEach(({ postId, score }) => scores.set(postId, score));
 
     return scores;
-  } catch (err) {
+  } catch (err: any) {
     console.error('[VisibilityScore] Exception calculating batch scores:', err);
     return scores;
   }
@@ -131,7 +131,7 @@ export async function getVisibilityRankedFeed(
       .select('following_id')
       .eq('follower_id', userId);
 
-    const followedIds = (follows ?? []).map((f: unknown) => f.following_id);
+    const followedIds = (follows ?? []).map((f: any) => f.following_id);
     const authorIds = [userId, ...followedIds];
 
     // Get posts from followed users + own posts
@@ -160,7 +160,7 @@ export async function getVisibilityRankedFeed(
 
     // Return top N after ranking
     return rankedPosts.slice(0, limit);
-  } catch (err) {
+  } catch (err: any) {
     console.error('[VisibilityScore] Exception fetching ranked feed:', err);
     return [];
   }
@@ -187,7 +187,7 @@ export async function shouldPromotePost(postId: string): Promise<boolean> {
       .single();
 
     return !!data;
-  } catch (err) {
+  } catch (err: any) {
     // If no activity points, treat as Tier 0 (not promoted)
     return false;
   }

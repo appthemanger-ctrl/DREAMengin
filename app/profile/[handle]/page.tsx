@@ -1,6 +1,7 @@
 // SURFACE: dreamsurface.ProfileHandle  (framework-mandated basename: page.tsx)
 import { Suspense } from 'react';
 import { connection } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';

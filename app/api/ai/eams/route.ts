@@ -3,6 +3,7 @@
 // AI keys are server-side only (Vercel env vars, never client).
 
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
 import { v4 as uuidv4 } from 'uuid';
@@ -93,7 +94,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       if (recentPosts && recentPosts.length > 0) {
         const postsText = recentPosts
            
-          .map((p: unknown) =>
+          .map((p: any) =>
             `- "${String(p.content ?? '').slice(0, 80)}" (${p.visibility ?? 'unknown'}, ${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'unknown'})`
           )
           .join('\n');

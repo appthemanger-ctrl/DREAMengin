@@ -1,4 +1,5 @@
 // SURFACE: dreamsurface.Settings  (framework-mandated basename: page.tsx)
+import type { Database } from '@/types/supabase';
 import { createServerClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -37,7 +38,7 @@ const NAV_GROUPS = [
     heading: 'Privacy & Data',
     items: [
       { href: '/settings/privacy',      icon: Shield,     label: 'Privacy',        desc: 'Visibility, blocking, public profile settings',   iconBg: '#22c55e' },
-      { href: '/settings/data',         icon: Database,   label: 'Data',           desc: 'Export, delete data, delete account',             iconBg: '#dc4444' },
+      { href: '/settings/data',         icon: DatabaseIcon,   label: 'Data',           desc: 'Export, delete data, delete account',             iconBg: '#dc4444' },
     ],
   },
   {

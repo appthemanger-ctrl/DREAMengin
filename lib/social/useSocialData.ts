@@ -65,23 +65,23 @@ async function fetchPlatformFeed(
   // NormalizedPost interface. The backend already returns a partially normalised
   // shape from its aggregators; we cast + fill defaults here.
   return raw.map((item: unknown): NormalizedPost => ({
-    id: String(item.id ?? crypto.randomUUID()),
+    id: String((item as Record<string, unknown>).id ?? crypto.randomUUID()),
     source:
       (item.platform as NormalizedPost['source']) ??
-      deriveSource(String(item.id ?? '')),
-    provider: item.platform ?? 'unknown',
-    content: stripHtml(item.content ?? ''),
+      deriveSource(String((item as Record<string, unknown>).id ?? '')),
+    provider: (item as Record<string, unknown>).platform ?? 'unknown',
+    content: stripHtml((item as Record<string, unknown>).content ?? ''),
     author: {
-      handle: item.author?.handle ?? item.author?.acct ?? 'unknown',
-      displayName: item.author?.displayName ?? item.author?.display_name ?? null,
-      avatarUrl: item.author?.avatar ?? null,
+      handle: (item as Record<string, unknown>).author?.handle ?? (item as Record<string, unknown>).author?.acct ?? 'unknown',
+      displayName: (item as Record<string, unknown>).author?.displayName ?? (item as Record<string, unknown>).author?.display_name ?? null,
+      avatarUrl: (item as Record<string, unknown>).author?.avatar ?? null,
     },
     mediaUrl: item.mediaUrl ?? item.media_url ?? null,
-    permalink: item.originalUrl ?? item.url ?? null,
+    permalink: item.originalUrl ?? (item as Record<string, unknown>).url ?? null,
     createdAt:
-      item.timestamp instanceof Date
-        ? item.timestamp.toISOString()
-        : String(item.timestamp ?? item.created_at ?? new Date().toISOString()),
+      (item as Record<string, unknown>).timestamp instanceof Date
+        ? (item as Record<string, unknown>).timestamp.toISOString()
+        : String((item as Record<string, unknown>).timestamp ?? (item as Record<string, unknown>).created_at ?? new Date().toISOString()),
     visibility: 'public',
   }));
 }
@@ -161,7 +161,7 @@ export function useSocialData(
         setPosts(fetched);
         setBreakdown(countByPlatform(fetched));
         setLastFetchedAt(new Date().toISOString());
-      } catch (err) {
+      } catch (err: any) {
         if (!isMounted.current) return;
         setError(err instanceof Error ? err.message : 'Failed to load social feed');
       } finally {

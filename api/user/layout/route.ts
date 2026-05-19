@@ -5,11 +5,11 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 const DEFAULT_LAYOUT = { home: { dreams: [] }, dreamspace: { dreams: [] }, hidden: [] };
 
 function normalizeLayout(input: unknown ){
-  const obj = input && typeof input === 'object' ? input as Record<string, unknown> : {};
+  const obj = input && typeof input === 'object' ? input as any : {};
   return {
-    home: { dreams: Array.isArray(obj.home?.dreams) ? obj.home.dreams.filter((id: unknown) => typeof id === 'string') : [] },
-    dreamspace: { dreams: Array.isArray(obj.dreamspace?.dreams) ? obj.dreamspace.dreams.filter((id: unknown) => typeof id === 'string') : [] },
-    hidden: Array.isArray(obj.hidden) ? obj.hidden.filter((id: unknown) => typeof id === 'string') : [],
+    home: { dreams: Array.isArray(obj.home?.dreams) ? obj.home.dreams.filter((id: any) => typeof id === 'string') : [] },
+    dreamspace: { dreams: Array.isArray(obj.dreamspace?.dreams) ? obj.dreamspace.dreams.filter((id: any) => typeof id === 'string') : [] },
+    hidden: Array.isArray(obj.hidden) ? obj.hidden.filter((id: any) => typeof id === 'string') : [],
   };
 }
 
@@ -30,7 +30,7 @@ export async function GET( ): Promise<Response> {
     return NextResponse.json({ ok: false, layout: DEFAULT_LAYOUT });
   }
 
-  return NextResponse.json({ ok: true, layout: normalizeLayout((data as Record<string, unknown>)?.user_layout) });
+  return NextResponse.json({ ok: true, layout: normalizeLayout((data as any)?.user_layout) });
 }
 
 export async function POST(req: NextRequest ): Promise<Response> {
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
     return NextResponse.json({ ok: false, error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const bodyObject = body && typeof body === 'object' ? body as Record<string, unknown> : null;
+  const bodyObject = body && typeof body === 'object' ? body as any : null;
   if (!bodyObject || !('layout' in bodyObject)) {
     return NextResponse.json({ ok: false, error: 'layout is required' }, { status: 400 });
   }

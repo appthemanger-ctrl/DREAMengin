@@ -20,6 +20,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServiceClient } from '@/lib/supabase/server';
 import { reconcileConnector } from '@/lib/connectors/reconcile';
 import { DISPATCH_SUPPORTED_PROVIDERS } from '@/lib/connectors/syncDispatch';
@@ -66,7 +67,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | 
   let db;
   try {
     db = await createServiceClient();
-  } catch (err) {
+  } catch (err: any) {
     const msg = err instanceof Error ? err.message : String(err);
     return NextResponse.json({ error: `Service client unavailable: ${msg}` }, { status: 503 });
   }
@@ -110,7 +111,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<CronSummary | 
       db,
       account.user_id as string,
       account.provider as string,
-      (account.token_blob ?? {}) as Record<string, unknown>,
+      (account.token_blob ?? {}) as any,
     );
     results.push(result);
   }

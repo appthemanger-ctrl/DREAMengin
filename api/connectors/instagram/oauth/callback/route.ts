@@ -108,7 +108,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       throw new Error(data.error_message ?? 'No access_token in response');
     }
     shortToken = data.access_token;
-  } catch (err) {
+  } catch (err: any) {
     const dest = new URL(connectorsUrl);
     dest.searchParams.set('ig_error', 'short_token_failed');
     return NextResponse.redirect(dest);

@@ -20,6 +20,7 @@
 
 // ── Re-export lifecycle types from the state machine ─────────────────────────
 // Also import locally so they can be used in this file's interface definitions
+import type { Database } from '@/types/supabase';
 import type {
   DreamWindowInstance,
   DreamWindowSize,
