@@ -253,7 +253,7 @@ export default function ProfileCanvas({ initialProfile }: {initialProfile: Profi
         </div>
         <div className="de-widget-body">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10 }}>
-            {WIDGET_SLOTS.map(({ id, icon, label, desc, color }) => {
+            {WIDGET_SLOTS.map(({ id, icon: Icon, label, desc, color }) => {
               const on = visibility[id] !== false;
               return (
                 <button

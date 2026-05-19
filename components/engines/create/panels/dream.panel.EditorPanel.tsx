@@ -116,7 +116,7 @@ export default function EditorPanel( ){
             { icon: Hash,    fn: () => insertFormat('#'),        title: 'Heading' },
             { icon: Link2,   fn: () => insertFormat('[', '](url)'), title: 'Link' },
             { icon: List,    fn: () => insertFormat('\n- '),     title: 'List item' },
-          ].map(({ icon, fn, title }) => (
+          ].map(({ icon: Icon, fn, title }) => (
             <button
               key={title}
               onClick={fn}

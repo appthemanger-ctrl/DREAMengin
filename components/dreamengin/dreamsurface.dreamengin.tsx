@@ -1,3 +1,5 @@
+"use client";
+
 // components/dreamengin/dreamsurface.dreamengin.tsx
 // Top-level Dreamengin orchestration: kernel scene, home controls, and overlay menus.
 

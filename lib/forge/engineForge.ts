@@ -141,7 +141,7 @@ export function createAssembly(
 export function runAssembly(
   assembly: EngineAssembly,
   sandbox: AssemblySandbox
-): unknown {
+): Record<string, unknown> {
   const { pieces, wires, bus } = assembly;
 
   // Build adjacency: pieceId → inputs from wires

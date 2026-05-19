@@ -66,7 +66,7 @@ export default function MusicLibraryPanel( ){
 
         {/* Tabs */}
         <div className="flex gap-1 p-1 rounded-xl bg-white/[0.04] border border-white/10 mb-6">
-          {TABS.map(({ id, label, icon}) => (
+          {TABS.map(({ id, label, icon: Icon}) => (
             <button
               key={id}
               onClick={() => setTab(id)}

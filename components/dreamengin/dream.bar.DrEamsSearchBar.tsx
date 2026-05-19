@@ -1,3 +1,5 @@
+"use client";
+
 /**
  * components/dreamengin/dream.bar.DrEamsSearchBar.tsx
  *

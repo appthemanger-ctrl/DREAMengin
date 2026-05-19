@@ -1,3 +1,5 @@
+"use client";
+
 // components/dreamengin/dream.scene.BabylonGameScene.tsx
 // Babylon.js v8 real-time 3D scene for the GameEngin.
 // God Tier Engine integrated — hardware scaling, image processing, mesh policy.
