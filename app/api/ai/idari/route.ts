@@ -13,6 +13,7 @@
 //   owner → all admin + RLS inspection, infrastructure checks, DIAG_RLS_SNAPSHOT
 
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
 import { v4 as uuidv4 } from 'uuid';
@@ -151,7 +152,7 @@ async function idariPlanner(
         requires_confirmation: Boolean(x?.requires_confirmation),
         rationale: typeof x?.rationale === 'string' ? x.rationale : 'IDARi request',
         idempotency_key: typeof x?.idempotency_key === 'string' ? x.idempotency_key : `idari-${Date.now()}`,
-        payload: (x?.payload && typeof x.payload === 'object') ? x.payload as Record<string, unknown> : {},
+        payload: (x?.payload && typeof x.payload === 'object') ? x.payload as any : {},
       }));
     return {
       response_text,

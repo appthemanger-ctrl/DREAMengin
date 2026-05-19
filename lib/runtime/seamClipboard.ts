@@ -156,7 +156,7 @@ class SeamClipboard {
     // 1. Cross-engin workflow routing — only for structured artifact drops.
     if (input.mimeType === 'application/x-dream-artifact') {
       try {
-        const parsed = JSON.parse(input.content) as Record<string, unknown>;
+        const parsed = JSON.parse(input.content) as any;
         const sourceEngin = _toEnginKey(parsed['engin']);
         const targetEngin = _toEnginKey(parsed['targetEngin']);
         if (sourceEngin !== null && targetEngin !== null) {
@@ -165,19 +165,19 @@ class SeamClipboard {
             // ── Improvement 38: per-workflow try/catch ───────────────────
             try {
               workflow.execute({ ...parsed, _seamTimestamp: payload.timestamp });
-            } catch (workflowErr) {
+            } catch (workflowErr: any) {
               console.error(`[SeamClipboard] Workflow ${workflow.id} failed`, workflowErr);
             }
           }
         }
-      } catch (_err) {
+      } catch (_err: any) {
         // Non-JSON content or missing engin fields — fall through to the
         // fallback seam:drop emission below.
       }
     }
 
     // 2. Durable bridge emission — survives Engin reconnects.
-    bridge.emitDurable('seam', 'drop', payload as unknown as Record<string, unknown>);
+    bridge.emitDurable('seam', 'drop', payload as unknown as any);
 
     // 3. dreamOSBus custom event — immediate typed delivery to React subscribers.
     dreamOSBus.emit('seam:drop', payload);
@@ -210,7 +210,7 @@ class SeamClipboard {
    * @param artifact Serialisable artifact data merged into each workflow payload.
    * @returns        Array of workflow IDs that were executed (may be empty).
    */
-  setWithEngins(from: EnginKey, to: EnginKey, artifact): string[] {
+  setWithEngins(from: EnginKey, to: EnginKey, artifact: any): string[] {
     const workflows = findWorkflows(from, to);
     const firedIds: string[] = [];
     for (const workflow of workflows) {
@@ -218,7 +218,7 @@ class SeamClipboard {
       try {
         workflow.execute({ ...artifact, _seamTimestamp: Date.now() });
         firedIds.push(workflow.id);
-      } catch (err) {
+      } catch (err: any) {
         console.error(`[SeamClipboard] Workflow ${workflow.id} failed`, err);
       }
     }
@@ -245,7 +245,7 @@ class SeamClipboard {
     for (const listener of Array.from(this.listeners)) {
       try {
         listener(payload);
-      } catch (err) {
+      } catch (err: any) {
         console.error('[SeamClipboard] listener error', err);
       }
     }

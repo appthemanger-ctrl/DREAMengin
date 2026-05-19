@@ -275,7 +275,7 @@ function roughFleschGrade(text: string): string {
     .split(/\s+/)
     .reduce((acc, w: number) => acc + countSyllables(w), 0) || 1;
 
-  const score = 206.835 - 1.015 * (words / sentences) - 84.6 * (syllables / words);
+  const score = Number(206.835) - 1.015 * (words / sentences) - 84.6 * (syllables / words);
 
   if (score >= 70) return 'Easy (Grade 6)';
   if (score >= 60) return 'Standard (Grade 8–9)';

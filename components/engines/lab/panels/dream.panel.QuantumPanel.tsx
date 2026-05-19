@@ -136,7 +136,7 @@ export default function QuantumPanel( ){
                 </tr>
               </thead>
               <tbody>
-                {Array.from(({ length: QUBITS }, _, q: Record<string, unknown>) => (
+                {Array.from(({ length: QUBITS }, _: any, q: Record<string, unknown>) => (
                   <tr key={q} className="border-t border-white/[0.04]">
                     <td className="py-2 px-3 text-xs text-white/40 font-mono">|q{q}⟩</td>
                     {Array.from({ length: COLS }, (_, col: number ) => {

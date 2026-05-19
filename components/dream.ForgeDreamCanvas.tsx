@@ -80,7 +80,7 @@ export function ForgeDreamCanvas( ){
   // Listen to bus events
   useEffect(() => {
     const bus = busRef.current;
-    const handleExec = (payload: unknown) => {
+    const handleExec = (payload: any) => {
       const p = payload as { result: unknown };
       setRunResult(JSON.stringify(p.result, null, 2));
     };
@@ -199,7 +199,7 @@ export function ForgeDreamCanvas( ){
       assembly.bus.on('executed', payload => busRef.current.emit('executed', payload));
       assembly.bus.on('error', payload => setRunResult(`Error: ${(payload as { message: string }).message}`));
       runAssembly(assembly, DEFAULT_SANDBOX);
-    } catch (err) {
+    } catch (err: any) {
       setRunResult(`Assembly error: ${String(err)}`);
     }
   }, [placed, wires]);
@@ -230,7 +230,7 @@ export function ForgeDreamCanvas( ){
 
       const { error } = await supabase.from('forge_assemblies').upsert({
         user_id:    user.id,
-        assembly:   JSON.parse(json) as Record<string, unknown>,
+        assembly:   JSON.parse(json) as any,
         visibility: publish ? 'public' : 'private',
         title:      `Assembly ${new Date().toLocaleDateString()}`,
         updated_at: new Date().toISOString(),
@@ -241,7 +241,7 @@ export function ForgeDreamCanvas( ){
       } else {
         setValidationMsg(publish ? '✅ Published to Marketplace' : '✅ Saved to workspace');
       }
-    } catch (err) {
+    } catch (err: any) {
       setValidationMsg(`⚠ ${String(err)}`);
     }
   }, [placed, wires]);

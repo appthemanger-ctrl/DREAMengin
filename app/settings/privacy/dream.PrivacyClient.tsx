@@ -140,7 +140,7 @@ export default function PrivacyClient( ){
 
     // Then fetch the real stored settings from Supabase
     fetch('/api/settings/privacy')
-      .then((r: number ) => r.json())
+      .then((r) => r.json())
       .then((data: { ok: boolean; privacy: Partial<PrivacySettings> | null }) => {
         if (data.ok && data.privacy) {
           setSettings((prev) => ({ ...prev, ...data.privacy }));

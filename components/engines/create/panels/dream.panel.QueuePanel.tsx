@@ -44,24 +44,24 @@ export default function QueuePanel( ){
 
   async function publishItem(id: string ){
     setPublishing(id);
-    setItems((prev) => prev.map((i: number ) => i.id === id ? { ...i, status: 'publishing' } : i));
+    setItems((prev) => prev.map((i) => i.id === id ? { ...i, status: 'publishing' } : i));
     try {
-      const item = items.find((i: number ) => i.id === id)!;
+      const item = items.find((i) => i.id === id)!;
       const res = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: item.preview, content_type: item.type.toLowerCase() }),
       });
       if (!res.ok) throw new Error('Publish failed');
-      setItems((prev) => prev.map((i: number ) => i.id === id ? { ...i, status: 'published' } : i));
+      setItems((prev) => prev.map((i) => i.id === id ? { ...i, status: 'published' } : i));
     } catch {
-      setItems((prev) => prev.map((i: number ) => i.id === id ? { ...i, status: 'failed' } : i));
+      setItems((prev) => prev.map((i) => i.id === id ? { ...i, status: 'failed' } : i));
     }
     setPublishing(null);
   }
 
   function removeItem(id: string ){
-    setItems((prev) => prev.filter((i: number ) => i.id !== id));
+    setItems((prev) => prev.filter((i) => i.id !== id));
   }
 
   function addItem( ){
@@ -94,10 +94,10 @@ export default function QueuePanel( ){
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-white mb-1">Publishing Queue</h1>
-            <p className="text-sm text-white/50">{items.filter((i: number ) => i.status === 'scheduled').length} items scheduled</p>
+            <p className="text-sm text-white/50">{items.filter((i) => i.status === 'scheduled').length} items scheduled</p>
           </div>
           <button
-            onClick={() => setShowAdd((s: string ) => !s)}
+            onClick={() => setShowAdd((s) => !s)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#fb923c]/20 hover:bg-[#fb923c]/30 text-[#fb923c] text-xs font-medium transition-all"
           >
             <Plus size={13} />

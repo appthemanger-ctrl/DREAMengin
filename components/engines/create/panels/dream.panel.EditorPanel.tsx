@@ -48,7 +48,7 @@ export default function EditorPanel( ){
     const templates = TEMPLATES[contentType];
     const template = templates[templateIdx % templates.length];
     setDraft(template);
-    setTemplateIdx((i: number ) => i + 1);
+    setTemplateIdx((i) => i + 1);
   }
 
   function insertFormat(prefix: string, suffix = '' ){

@@ -189,7 +189,7 @@ function deriveState(state: EnginBaseState): ContentEnginDerivedState {
     wordCount:       (d.wordCount       ?? DEFAULT_DOMAIN.wordCount)       as number,
     creativityLevel: (d.creativityLevel ?? DEFAULT_DOMAIN.creativityLevel) as number,
     brandCheckReady: (d.brandCheckReady ?? DEFAULT_DOMAIN.brandCheckReady) as boolean,
-    stemPayload:     (d.stemPayload     ?? DEFAULT_DOMAIN.stemPayload)     as Record<string, unknown> | null,
+    stemPayload:     (d.stemPayload     ?? DEFAULT_DOMAIN.stemPayload)     as any | null,
   };
 }
 

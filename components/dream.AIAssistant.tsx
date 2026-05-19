@@ -45,7 +45,7 @@ export default function AIAssistant( ){
   // Dr. Eams Full Experience mode (guidance + safe UI actions)
   useEffect(() => {
     setFullExperience(getDrEamsMode());
-    const off = onDrEamsModeChange((v: number ) => setFullExperience(v));
+    const off = onDrEamsModeChange((v) => setFullExperience(v));
     return () => off();
   }, []);
 

@@ -92,7 +92,7 @@ export function meetsMinimumRole(actor: ActorContext, minRole: string): boolean 
 interface IntentRequirement {
   min_rank: number;
   capabilities?: string[];
-  resource_checks?: (actor: ActorContext, payload) => Promise<boolean>;
+  resource_checks?: (actor: ActorContext, payload: any) => Promise<boolean>;
 }
 
 // Define requirements for each intent type

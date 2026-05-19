@@ -328,7 +328,7 @@ export default function DREAMenginOS({
 
   const handleImport = useCallback((payload: AssetImportPayload) => {
     setLastImportedAsset(payload);
-    setImportCount((count: number ) => count + 1);
+    setImportCount((count) => count + 1);
   }, []);
 
   const statusColor =

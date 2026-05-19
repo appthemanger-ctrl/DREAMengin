@@ -56,7 +56,7 @@ export async function checkRateLimit(
         ? undefined
         : (data.retry_after_seconds ?? windowSeconds),
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('[rateLimit] Unexpected error:', error);
     // Fail-closed
     return {

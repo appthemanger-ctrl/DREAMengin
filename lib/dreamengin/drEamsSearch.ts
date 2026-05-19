@@ -94,7 +94,7 @@ export type DrEamsParsedReply = {
  */
 export function parseDrEamsReply(data: unknown): DrEamsParsedReply {
   if (data && typeof data === 'object') {
-    const d = data as Record<string, unknown>;
+    const d = data as any;
 
     if (typeof d.response_text === 'string' && d.response_text.trim()) {
       return { text: d.response_text.trim(), isError: false };
@@ -102,7 +102,7 @@ export function parseDrEamsReply(data: unknown): DrEamsParsedReply {
 
     const errMsg =
       d.error && typeof d.error === 'object'
-        ? (d.error as Record<string, unknown>).message
+        ? (d.error as any).message
         : undefined;
 
     if (typeof errMsg === 'string' && errMsg.trim()) {

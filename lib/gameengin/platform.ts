@@ -166,7 +166,7 @@ export class GameEnginPlatform {
   private _activeContainer: HTMLDivElement | null = null;
   private _tickSubs = new Set<(dt: number, elapsed: number) => void>();
   private _renderSubs = new Set<(dt: number) => void>();
-  private _inputSubs = new Map<string, Set<(payload: unknown) => void>>();
+  private _inputSubs = new Map<string, Set<(payload: any) => void>>();
   private _heldKeys = new Set<string>();
   private _telemetry: FrameTelemetry | null = null;
   private _disposed = false;
@@ -415,7 +415,7 @@ export class GameEnginPlatform {
 
       network: {
         send: (type: string, payload: unknown) => {},
-        onMessage: (type: string, cb: (payload: unknown) => void) => () => {},
+        onMessage: (type: string, cb: (payload: any) => void) => () => {},
       },
       
       loop: {
@@ -432,13 +432,13 @@ export class GameEnginPlatform {
       physics,
       
       input: {
-        on: (event: string, cb: (payload: unknown) => void) => {
+        on: (event: string, cb: (payload: any) => void) => {
           let bucket = this._inputSubs.get(event);
           if (!bucket) {
             bucket = new Set();
             this._inputSubs.set(event, bucket);
           }
-          const wrapper = cb as unknown as (payload: unknown) => void;
+          const wrapper = cb as unknown as (payload: any) => void;
           bucket.add(wrapper);
           return () => bucket?.delete(wrapper);
         },
@@ -462,7 +462,7 @@ export class GameEnginPlatform {
       
       pool: {
         acquire: <T,>(factory: () => T) => factory(),
-        release: (obj: unknown) => { /* no-op default */ },
+        release: (obj: any) => { /* no-op default */ },
       },
       
       telemetry: {

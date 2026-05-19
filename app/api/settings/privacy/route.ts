@@ -13,6 +13,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 
 
@@ -37,7 +38,7 @@ export async function GET( ): Promise<NextResponse> {
   }
 
    
-  const privacy = (data?.data as Record<string, unknown>)?.privacy ?? null;
+  const privacy = (data?.data as any)?.privacy ?? null;
   return NextResponse.json({ ok: true, privacy });
 }
 
@@ -70,7 +71,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     .maybeSingle();
 
    
-  const currentData = (existing?.data ?? {}) as Record<string, unknown>;
+  const currentData = (existing?.data ?? {}) as any;
   const merged = { ...currentData, privacy: body };
 
   const { error: upsertError } = await db2

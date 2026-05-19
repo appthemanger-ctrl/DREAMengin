@@ -914,7 +914,7 @@ function keyForPosition(position: Position ){
   return `${position.x},${position.y}`;
 }
 
-export function isSamePosition(a: Position, b): Position {
+export function isSamePosition(a: Position, b: any): Position {
   return a.x === b.x && a.y === b.y;
 }
 
@@ -952,11 +952,11 @@ function syncContracts(state: LucidAvenueState ){
   return nextState;
 }
 
-function tileAt(district: LucidDistrict, position): Position {
+function tileAt(district: LucidDistrict, position: any): Position {
   return district.map[position.y]?.[position.x] ?? '#';
 }
 
-function appendLog(state: LucidAvenueState, text): string {
+function appendLog(state: LucidAvenueState, text: any): string {
   return {
     ...state,
     log: [text, ...state.log].slice(0, MAX_LOG_ENTRIES),
@@ -967,7 +967,7 @@ function withMessage(state: LucidAvenueState, message: string, logText = message
   return appendLog({ ...state, message }, logText);
 }
 
-function isPassable(state: LucidAvenueState, district: LucidDistrict, position): Position {
+function isPassable(state: LucidAvenueState, district: LucidDistrict, position: any): Position {
   if (tileAt(district, position) === '#') return false;
   const lock = district.locks.find((entry) => isSamePosition(entry.position, position));
   if (!lock) return true;
@@ -1023,7 +1023,7 @@ function warpIfStandingOnExit(state: LucidAvenueState ){
   }, `➡️ ${exit.label}`);
 }
 
-function resolvePatrolContact(state: LucidAvenueState, reason): string {
+function resolvePatrolContact(state: LucidAvenueState, reason: any): string {
   const nextHeat = state.mode === 'sandbox'
     ? Math.min(MAX_HEAT - 1, state.heat + 1)
     : Math.min(MAX_HEAT, state.heat + 2);
@@ -1085,7 +1085,7 @@ function findNearbyTerminal(state: LucidAvenueState ){
   return getLucidAvenueDistrict(state.districtId).terminals.find((terminal) => isAdjacent(terminal.position, state.player));
 }
 
-function handleNpcInteraction(state: LucidAvenueState, npc): LucidNpc {
+function handleNpcInteraction(state: LucidAvenueState, npc: any): LucidNpc {
   switch (npc.id) {
     case 'rook':
       if (!state.flags.metRook) {
@@ -1213,7 +1213,7 @@ function handleNpcInteraction(state: LucidAvenueState, npc): LucidNpc {
   }
 }
 
-function handleTerminalInteraction(state: LucidAvenueState, terminal): LucidTerminal {
+function handleTerminalInteraction(state: LucidAvenueState, terminal: any): LucidTerminal {
   switch (terminal.id) {
     case 'junction-core':
       if (!state.flags.tramPass) {
@@ -1276,7 +1276,7 @@ function handleTerminalInteraction(state: LucidAvenueState, terminal): LucidTerm
   }
 }
 
-export function moveLucidAvenuePlayer(state: LucidAvenueState, dx: number, dy): number {
+export function moveLucidAvenuePlayer(state: LucidAvenueState, dx: number, dy: any): number {
   if (state.outcome !== 'playing') return state;
   const burst = state.vehicleBoostTurns > 0
     ? state.vehicleId === 'tram-runner' ? 3 : 2
@@ -1390,7 +1390,7 @@ export function jamLucidAvenueGrid(state: LucidAvenueState ){
   }, '🛰️ District patrol grid jammed.')));
 }
 
-export function deployLucidAvenueVehicle(state: LucidAvenueState, vehicleId): Exclude<LucidVehicleId, 'foot'> {
+export function deployLucidAvenueVehicle(state: LucidAvenueState, vehicleId: any): Exclude<LucidVehicleId, 'foot'> {
   if (state.outcome !== 'playing') return state;
   if (state.battery <= 0) {
     return withMessage(state, 'Battery too low to deploy a city vehicle.', '🔋 No battery left for vehicle deployment.');
@@ -1415,7 +1415,7 @@ export function deployLucidAvenueVehicle(state: LucidAvenueState, vehicleId): Ex
   }, `🏍️ ${vehicleId === 'tram-runner' ? 'Tram-runner' : 'Hoverbike'} deployed.`));
 }
 
-export function fastTravelLucidAvenue(state: LucidAvenueState, districtId): DistrictId {
+export function fastTravelLucidAvenue(state: LucidAvenueState, districtId: any): DistrictId {
   if (state.outcome !== 'playing') return state;
   if (districtId === state.districtId) {
     return withMessage(state, `${getLucidAvenueDistrict(districtId).name} already loaded.`, '🗺️ Already in that district.');

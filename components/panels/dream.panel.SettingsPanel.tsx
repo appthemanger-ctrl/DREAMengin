@@ -5,6 +5,7 @@
  * Opens sub-panels via openPanel() — no routing whatsoever.
  */
 
+import type { Database } from '@/types/supabase';
 import { useEffect, useState }  from 'react';
 import { ChevronRight, Crown, User, Rss, LayoutGrid, Palette, Plug, Sliders,
          Shield, Database, HelpCircle, LogOut, Bot, Cpu }  from 'lucide-react';

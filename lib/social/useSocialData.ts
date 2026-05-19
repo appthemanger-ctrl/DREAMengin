@@ -161,7 +161,7 @@ export function useSocialData(
         setPosts(fetched);
         setBreakdown(countByPlatform(fetched));
         setLastFetchedAt(new Date().toISOString());
-      } catch (err) {
+      } catch (err: any) {
         if (!isMounted.current) return;
         setError(err instanceof Error ? err.message : 'Failed to load social feed');
       } finally {

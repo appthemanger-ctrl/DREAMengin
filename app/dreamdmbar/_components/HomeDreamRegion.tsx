@@ -188,7 +188,7 @@ export default function HomeDreamSurface({
             <button
               type="button"
               aria-label={`Notifications${unreadCount > 0 ? ` — ${unreadCount} unread` : ''}`}
-              onClick={() => setNotifOpen((v: number ) => !v)}
+              onClick={() => setNotifOpen((v) => !v)}
               style={{
                 background: 'none',
                 border: 'none',

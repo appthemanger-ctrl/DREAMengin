@@ -52,7 +52,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       roomName,
       identity: resolvedIdentity,
     });
-  } catch (err) {
+  } catch (err: any) {
     if (err instanceof LiveKitError) {
       const status =
         err.code === 'CREDENTIALS_MISSING' ||

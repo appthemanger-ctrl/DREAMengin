@@ -1,5 +1,6 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 /**
  * /api/favorites
@@ -65,7 +66,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const body = await req.json().catch(() => ({})) as Record<string, unknown>;
+  const body = await req.json().catch(() => ({})) as any;
   const { target_type, target_id } = body;
 
   if (!target_type || !target_id) {

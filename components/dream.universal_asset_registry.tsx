@@ -31,6 +31,7 @@
  * Naming: docs/NAMING_AUTHORITY.md — uses canonical vocabulary throughout.
  */
 
+import type { Database } from '@/types/supabase';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
@@ -258,7 +259,7 @@ export default function UniversalAssetRegistry({
       }));
 
       setEntries(enriched);
-    } catch (err) {
+    } catch (err: any) {
       setError(err instanceof Error ? err.message : 'Failed to load registry');
     } finally {
       setLoading(false);

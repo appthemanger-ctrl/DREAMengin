@@ -15,6 +15,7 @@
  * server-side RLS. Follows AXIOM 4 (security by default).
  */
 
+import type { Database } from '@/types/supabase';
 import { useEffect, useRef, useState } from 'react';
 import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
 import { createClient } from '@/lib/supabase/client';
@@ -323,7 +324,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
       if (!res.ok) throw new Error(json.error ?? 'Unable to run benchmark');
       setBenchResults(json.results ?? []);
       setBenchSaveMsg(json.record?.id ? `Saved benchmark as ${json.record.title}.` : '');
-    } catch (error) {
+    } catch (error: any) {
       setBenchSaveMsg(error instanceof Error ? error.message : 'Unable to run benchmark');
     } finally {
       setBenchRunning(false);

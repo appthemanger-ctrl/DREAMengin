@@ -108,7 +108,7 @@ export class WidgetEventBus {
         callbacks.forEach((callback) => {
           try {
             callback(msg);
-          } catch (error) {
+          } catch (error: any) {
             console.error('Error processing widget message:', error);
           }
         });

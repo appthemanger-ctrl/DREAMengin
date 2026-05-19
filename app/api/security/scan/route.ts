@@ -34,7 +34,8 @@ export async function POST(request: Request ): Promise<NextResponse> {
       low: advisories.filter((a) => a.severity === 'low').length,
     };
     return NextResponse.json({ summary, advisories });
-  } catch (error: unknown) {
+  } catch (_err: any) {
+    const error = _err as any;
     if (error.stdout) {
       // pnpm audit exits with non‑zero when vulnerabilities found, but stdout still contains JSON
       const advisories = [];

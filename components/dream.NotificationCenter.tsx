@@ -387,7 +387,7 @@ export default function NotificationCenter({ isOpen: controlledOpen, onClose }: 
         <button
           type="button"
           aria-label={`Notifications${unreadCount > 0 ? ` — ${unreadCount} unread` : ''}`}
-          onClick={() => setSelfOpen((v: number ) => !v)}
+          onClick={() => setSelfOpen((v) => !v)}
           style={{
             position: 'relative',
             padding: 8,

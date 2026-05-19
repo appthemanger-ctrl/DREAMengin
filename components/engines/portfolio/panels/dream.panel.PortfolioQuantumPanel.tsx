@@ -142,7 +142,7 @@ export default function PortfolioQuantumPanel( ){
 
         {/* Qubit labels */}
         <div className="flex gap-2 mb-2 px-1">
-          {Array.from(({ length: QUBITS }, _, q: Record<string, unknown>) => (
+          {Array.from(({ length: QUBITS }, _: any, q: Record<string, unknown>) => (
             <div
               key={q}
               className="flex items-center gap-1 text-[10px] font-mono"
@@ -166,7 +166,7 @@ export default function PortfolioQuantumPanel( ){
                 </tr>
               </thead>
               <tbody>
-                {Array.from(({ length: QUBITS }, _, q: Record<string, unknown>) => (
+                {Array.from(({ length: QUBITS }, _: any, q: Record<string, unknown>) => (
                   <tr key={q} className="border-t border-white/[0.04]">
                     <td className="py-2 px-3 text-xs font-mono" style={{ color: ACCENT + 'aa' }}>
                       |q{q}⟩

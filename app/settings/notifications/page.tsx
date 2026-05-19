@@ -44,7 +44,7 @@ export default function NotificationSettingsPage( ){
 
     // Then fetch real stored settings from Supabase
     fetch('/api/settings/notifications')
-      .then((r: number ) => r.json())
+      .then((r) => r.json())
       .then((data: { ok: boolean; notifications: Partial<NotificationSettings> | null }) => {
         if (data.ok && data.notifications) {
           setSettings((p) => ({ ...p, ...data.notifications }));

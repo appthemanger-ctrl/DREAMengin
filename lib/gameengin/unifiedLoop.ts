@@ -91,7 +91,7 @@ function _tick(now: number): void {
 
     try {
       entry.tickFn(dt);
-    } catch (err) {
+    } catch (err: any) {
       // One game crashing must not stop others — log and continue.
       if (typeof console !== 'undefined') {
          

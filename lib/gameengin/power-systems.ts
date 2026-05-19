@@ -902,7 +902,7 @@ export class SpatialAudioDSP {
   private listenerState: ListenerState = { position: [0, 0, 0], forward: [0, 0, -1], up: [0, 1, 0] };
 
   async init(reverbIrBuffer?: ArrayBuffer): Promise<boolean> {
-    if (typeof AudioContext === 'undefined' && typeof (globalThis as Record<string, unknown>).webkitAudioContext === 'undefined') return false;
+    if (typeof AudioContext === 'undefined' && typeof (globalThis as any).webkitAudioContext === 'undefined') return false;
     try {
       const AC = (typeof AudioContext !== 'undefined'
         ? AudioContext

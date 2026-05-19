@@ -5,6 +5,7 @@
 // Awards activity points based on tier per ACTIVITY_FIRST_PROTOCOL.md §II
 
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 import { calculateActivityPoints, calculateDecayDate } from '@/lib/activity/scoring';
 import type {
@@ -105,7 +106,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     // Return response
     const response: TrackActivityResponse = {
-      activity_point: activityResult.data as unknown,
+      activity_point: activityResult.data as any,
       verification,
       points_earned: points,
     };
@@ -113,7 +114,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json(response, {
       headers: { 'Cache-Control': 'no-store' },
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error('[TrackActivity] Exception:', err);
     return NextResponse.json(
       { error: 'Internal server error' },

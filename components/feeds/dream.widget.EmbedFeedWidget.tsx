@@ -76,8 +76,8 @@ function useInstagramEmbedScript(hasInstagram: boolean ){
     if (!hasInstagram) return;
     if (document.querySelector('script[src*="instagram.com/embed.js"]')) {
       // Already loaded — trigger re-process for new blockquotes
-      if (typeof window !== 'undefined' && (window as unknown as Record<string, unknown>).instgrm) {
-        ((window as unknown as Record<string, unknown>).instgrm as { Embeds: { process: () => void } })
+      if (typeof window !== 'undefined' && (window as unknown as any).instgrm) {
+        ((window as unknown as any).instgrm as { Embeds: { process: () => void } })
           .Embeds.process();
       }
       return;
@@ -283,7 +283,7 @@ export default function EmbedFeedWidget({
       };
       if (!data.ok) throw new Error(data.error ?? 'Feed unavailable');
       setState({ items: data.items, generatedAt: data.generated_at, loading: false, error: null });
-    } catch (err) {
+    } catch (err: any) {
       if ((err as { name?: string }).name === 'AbortError') return;
       setState((s) => ({
         ...s,

@@ -29,7 +29,7 @@ function loadFollowSettings(): Record<string, FollowSettings> {
   catch { return {}; }
 }
 
-export function saveFollowSetting(handle: string, displayName: string, frequency): FollowFrequency {
+export function saveFollowSetting(handle: string, displayName: string, frequency: any): void {
   const all = loadFollowSettings();
   all[handle] = { handle, displayName, frequency, savedAt: new Date().toISOString() };
   localStorage.setItem('de-follow-settings', JSON.stringify(all));

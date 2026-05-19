@@ -97,7 +97,7 @@ export async function executeIntent(
 
   try {
     result = await handler(ctx);
-  } catch (error) {
+  } catch (error: any) {
     console.error(`Handler error for ${intent.type}:`, error);
 
     result = {

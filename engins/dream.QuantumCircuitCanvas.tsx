@@ -314,7 +314,7 @@ function drawCNOTGate(
   ctx.shadowBlur = 0;
 }
 
-function drawMeasureBox(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, color): string {
+function drawMeasureBox(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number, color: any): void {
   ctx.strokeStyle = color;
   ctx.lineWidth = 0.8;
   // Meter arc
@@ -345,7 +345,7 @@ function renderFrame(
   const LEFT      = 26;
   const RIGHT     = 20; // space for measure symbol
   const wireSpacing = circuitH / (n + 1);
-  const wireYs    = Array.from(({ length: n }, _, q: Record<string, unknown>) => wireSpacing * (q + 1));
+  const wireYs    = Array.from(({ length: n }, _: any, q: Record<string, unknown>) => wireSpacing * (q + 1));
   const colW      = numCols > 0 ? (W - LEFT - RIGHT) / numCols : W - LEFT - RIGHT;
   const gateH     = Math.min(13, wireSpacing * 0.58);
   const gateW     = Math.min(22, colW * 0.75);

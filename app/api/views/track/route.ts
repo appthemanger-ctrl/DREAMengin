@@ -8,6 +8,7 @@
 // Enhanced bot detection and per-user/per-post hourly rate-limit.
 
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 import type { TrackViewRequest, TrackViewResponse } from '@/lib/activity/types';
 
@@ -112,7 +113,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json(response, {
       headers: { 'Cache-Control': 'no-store' },
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error('[TrackView] Exception:', err);
     return NextResponse.json(
       { error: 'Internal server error' },

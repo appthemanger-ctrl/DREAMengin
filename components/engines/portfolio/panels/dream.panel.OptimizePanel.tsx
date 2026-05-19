@@ -74,7 +74,7 @@ export default function OptimizePanel( ){
         portfolioRisk:  data.portfolioRisk  ?? '—',
         sharpeRatio:    data.sharpeRatio    ?? '—',
       });
-    } catch (e) {
+    } catch (e: any) {
       setError(e instanceof Error ? e.message : 'Optimization failed');
     } finally {
       setRunning(false);

@@ -140,7 +140,7 @@ export default function DreamShell({
             type="button"
             aria-label="Dream options"
             aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((v: number ) => !v)}
+            onClick={() => setMenuOpen((v) => !v)}
             style={{
               width: 28, height: 28, borderRadius: 8,
               border: '1px solid var(--de-border)',

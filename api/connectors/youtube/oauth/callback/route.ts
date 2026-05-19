@@ -97,7 +97,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       }).toString(),
     });
     tokenData = await res.json() as GoogleTokenResponse;
-  } catch (err) {
+  } catch (err: any) {
     const dest = new URL(connectorsUrl);
     dest.searchParams.set('yt_error', 'token_exchange_failed');
     return NextResponse.redirect(dest);

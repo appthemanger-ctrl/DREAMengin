@@ -308,7 +308,7 @@ export default function BabylonOptimizeroScene({
             runtime: { frameMs: avgFrame, avgFrameMs: avgFrame, cpuMs: avgFrame * 0.4, gpuMs: avgFrame * 0.5, droppedFrameRatio: 0, inputLatencyMs: 20, scrollVelocity: 0, pointerVelocity: 0, interactionBurst: 0 },
             ux:      defaultUXSignals(),
             route:   defaultRouteSignals('/optimizer'),
-            meshes:  scene.meshes.map((m: unknown) => ({ id: m.id, visible: m.isVisible, interactive: m.isPickable, nearPointer: false, distanceToCamera: 6, transformDelta: 0, materialChanged: false, screenCoverage: 0.08, semanticWeight: 0.5, motionWeight: 0.4, detailWeight: 0.5, heroWeight: 0.3, occluded: false })),
+            meshes:  scene.meshes.map((m: any) => ({ id: m.id, visible: m.isVisible, interactive: m.isPickable, nearPointer: false, distanceToCamera: 6, transformDelta: 0, materialChanged: false, screenCoverage: 0.08, semanticWeight: 0.5, motionWeight: 0.4, detailWeight: 0.5, heroWeight: 0.3, occluded: false })),
             ui: [],
           });
           applyGodTierToBabylon(engine, scene as unknown as BabylonSceneLike, gt, window.devicePixelRatio ?? 1);

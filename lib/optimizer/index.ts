@@ -423,7 +423,7 @@ export class DreamOptimizer {
     }
 
     if (option.metadata?.innovationScore) {
-      score += option.metadata.innovationScore * 0.2;
+      score += Number(option.metadata.innovationScore) * 0.2;
     }
 
     // Novel tone or style
@@ -443,7 +443,7 @@ export class DreamOptimizer {
 
     // Check for usefulness indicators in metadata
     if (option.metadata?.practicalityScore) {
-      score += option.metadata.practicalityScore * 0.3;
+      score += Number(option.metadata.practicalityScore) * 0.3;
     }
 
     // Content length can indicate thoroughness
@@ -479,7 +479,7 @@ export class DreamOptimizer {
 
     // Check for delight indicators in metadata
     if (option.metadata?.visualImpact) {
-      score += option.metadata.visualImpact * 0.3;
+      score += Number(option.metadata.visualImpact) * 0.3;
     }
 
     // Emotional language

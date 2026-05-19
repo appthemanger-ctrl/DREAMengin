@@ -54,7 +54,7 @@ export async function GET(
   const savedPosts: unknown[] = [];
 
   for (const row of savedRows ?? []) {
-    const post = row.app_posts as Record<string, unknown>;
+    const post = row.app_posts as any;
     if (!post) continue;
     // Apply visibility filter
     if (post.post_visibility === 'close_friends' && !isOwner && !isCloseFriend) continue;

@@ -108,7 +108,7 @@ export default function AIPanel( ){
     setLoading(false);
   }
 
-  function copyMessage(content: string, id): string {
+  function copyMessage(content: string, id: any): void {
     navigator.clipboard.writeText(content).catch(() => {});
     setCopied(id);
     setTimeout(() => setCopied(null), 2000);

@@ -696,7 +696,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
       } else {
         setShellhubConnectError(data.message ?? 'Connection failed.');
       }
-    } catch (err) { setShellhubConnectError('Network error'); } finally { setShellhubConnecting(false); }
+    } catch (err: any) { setShellhubConnectError('Network error'); } finally { setShellhubConnecting(false); }
   };
 
   const handleShellHubDisconnect = async () => {
@@ -721,7 +721,7 @@ export default function CodeEngin({ onBack, instanceId: instanceIdProp }: Props)
       } else {
         setShellhubDevicesError(data.error ?? 'Failed to load devices.');
       }
-    } catch (err) { setShellhubDevicesError('Network error'); } finally { setShellhubDevicesLoading(false); }
+    } catch (err: any) { setShellhubDevicesError('Network error'); } finally { setShellhubDevicesLoading(false); }
   };
 
   useEffect(() => {

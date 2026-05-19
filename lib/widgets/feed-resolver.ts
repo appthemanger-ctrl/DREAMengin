@@ -3,6 +3,7 @@
 // Resolves feed data for widgets with SELF/FOLLOW scopes
 // =====================================================
 
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 import {
   FeedScope,
@@ -112,7 +113,7 @@ export async function resolveFeedHost(
       etag: generateETag(items),
       updated_at: new Date().toISOString(),
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Feed resolver unexpected error:', error);
     return {
       kind: HostKind.HOST_FEED_VIEW,
@@ -179,7 +180,7 @@ function extractMediaPreviewUrl(mediaJson: unknown): string | undefined {
     return undefined;
   }
   
-  const media = mediaJson as Record<string, unknown>;
+  const media = mediaJson as any;
   
   // Try to extract first image/video URL
   if (Array.isArray(media.images) && media.images.length > 0) {
@@ -258,7 +259,7 @@ export async function resolvePublicAppPosts(limit: number = 20): Promise<HostRes
       etag: generateETag(items),
       updated_at: new Date().toISOString(),
     };
-  } catch (err) {
+  } catch (err: any) {
     console.error('resolvePublicAppPosts unexpected error:', err);
     return {
       kind: HostKind.HOST_FEED_VIEW,

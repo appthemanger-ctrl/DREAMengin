@@ -6,6 +6,7 @@ import { ArrowLeft, DollarSign, ShoppingCart, BarChart3, Plus, LayoutGrid, Spark
 import type { AdSlot, AdListing, AdOrder } from '@/types/ads';
 import DreamWord from '@/components/ui/dream.DreamWord';
 import { connection } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 
 export default async function AdsPage( ){

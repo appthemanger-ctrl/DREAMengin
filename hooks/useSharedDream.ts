@@ -179,15 +179,15 @@ export function useSharedDream(channelId: string): UseSharedDreamReturn {
     if (session) broadcastCursorPosition(session, x, y);
   }, [session]);
 
-  const broadcast = useCallback((payload: unknown) => {
+  const broadcast = useCallback((payload: any) => {
     if (session) broadcastEdit(session, payload);
   }, [session]);
 
-  const sendStatePatch = useCallback((payload: unknown) => {
+  const sendStatePatch = useCallback((payload: any) => {
     if (session) broadcastStatePatch(session, payload);
   }, [session]);
 
-  const sendDataPacket = useCallback((payload: unknown) => {
+  const sendDataPacket = useCallback((payload: any) => {
     if (session) broadcastDataPacket(session, payload);
   }, [session]);
 

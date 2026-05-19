@@ -1,3 +1,4 @@
+import type { Database } from '@/types/supabase';
 export type Json =
   | string
   | number

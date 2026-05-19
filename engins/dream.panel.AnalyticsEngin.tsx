@@ -14,6 +14,7 @@
  * Follows AXIOM 4 (security by default) and AXIOM 3 (real actions only).
  */
 
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 import { useEnginCoopSync } from '@/lib/runtime/useEnginCoopSync';
 import { createClient } from '@/lib/supabase/client';
@@ -91,7 +92,7 @@ export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: P
     if (!isAdmin) return;
     setPlatformLoading(true);
     fetch('/api/metrics/platform')
-      .then((r: number ) => (r.ok ? r.json() : null))
+      .then((r) => (r.ok ? r.json() : null))
       .then((data) => setPlatformMetrics(data))
       .catch(() => {})
       .finally(() => setPlatformLoading(false));
@@ -102,7 +103,7 @@ export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: P
     if (!userId) return;
     setCreditsLoading(true);
     fetch('/api/skip-credits/balance')
-      .then((r: number ) => (r.ok ? r.json() : null))
+      .then((r) => (r.ok ? r.json() : null))
       .then((data) => setSkipCredit(data?.skip_credit ?? null))
       .catch(() => {})
       .finally(() => setCreditsLoading(false));
@@ -112,7 +113,7 @@ export default function AnalyticsEngin({ onBack, instanceId: instanceIdProp }: P
     if (!isAdmin) return;
     setPlatformLoading(true);
     fetch('/api/metrics/platform')
-      .then((r: number ) => (r.ok ? r.json() : null))
+      .then((r) => (r.ok ? r.json() : null))
       .then((data) => setPlatformMetrics(data))
       .catch(() => {})
       .finally(() => setPlatformLoading(false));

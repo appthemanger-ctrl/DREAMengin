@@ -863,7 +863,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   }
 
   // ── Playlist reorder handler ──
-  function movePlaylistItem(index: number, direction): 'up' | 'down' {
+  function movePlaylistItem(index: number, direction: any): 'up' | 'down' {
     setPlaylist((prev) => {
       const next = [...prev];
       const target = direction === 'up' ? index - 1 : index + 1;
@@ -2964,7 +2964,7 @@ function DAWFileIOPanel({
   const [show3DVisualizerFIO, setShow3DVisualizerFIO] = useState(false);
 
   // ── Helper: get/create OfflineAudioContext for processing ──
-  function getOfflineCtx(length: number, sr: number, ch): number {
+  function getOfflineCtx(length: number, sr: number, ch: any): number {
     return new OfflineAudioContext(ch, length, sr);
   }
 
@@ -3012,7 +3012,7 @@ function DAWFileIOPanel({
   }
 
   // ── Helper: download a blob ──
-  function downloadBlob(blob: Blob, name): string {
+  function downloadBlob(blob: Blob, name: any): void {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = name; a.click();
@@ -3032,7 +3032,7 @@ function DAWFileIOPanel({
     setHistoryTick((v) => v + 1);
   }
 
-  function pushHistory(ref: React.MutableRefObject<HistoryEntry[]>, entry): HistoryEntry {
+  function pushHistory(ref: React.MutableRefObject<HistoryEntry[]>, entry: any): void {
     ref.current.push(entry);
     if (ref.current.length > 24) ref.current.shift();
     syncHistoryTick();
@@ -3045,7 +3045,7 @@ function DAWFileIOPanel({
     }
   }
 
-  function syncWaveformViewport(targetBar: number, explicitZoom?): number {
+  function syncWaveformViewport(targetBar: number, explicitZoom?): number | undefined {
     const scroller = waveformScrollRef.current;
     if (!scroller || waveform.length === 0) return;
     const activeBarWidth = Math.max(3, Math.round(4 * (explicitZoom ?? zoomLevel))) + 1;
@@ -3080,7 +3080,7 @@ function DAWFileIOPanel({
     showOpMsg(`✓ Added ${fileName} to Source Rack`);
   }
 
-  function placeArrangementClip(trackId: ArrangementTrackId, startBar): number {
+  function placeArrangementClip(trackId: ArrangementTrackId, startBar: any): number | undefined {
     const sourceId = selectedSourceId ?? sourceLibrary[0]?.id ?? null;
     if (!sourceId) {
       showOpMsg('⚠ Capture a clip into the Source Rack first');
@@ -3162,7 +3162,7 @@ function DAWFileIOPanel({
         fileName: name,
         mimeType: blob.type || 'audio/wav',
       });
-    } catch (error) {
+    } catch (error: any) {
       console.warn('StarMaker ledger sync skipped:', error);
     }
   }, [onLedgerAudioChange]);
@@ -3238,7 +3238,7 @@ function DAWFileIOPanel({
         await syncLedgerAudio(blob, name);
       }
 
-    } catch (err) {
+    } catch (err: any) {
       setImportErr(`Import failed: ${err instanceof Error ? err.message : String(err)}`);
     }
     setIsImporting(false);
@@ -3370,7 +3370,7 @@ function DAWFileIOPanel({
         if (!res.ok) throw new Error(`Failed to restore saved audio from ledger (${res.status})`);
         const restoredBlob = await res.blob();
         await loadBlob(restoredBlob, persistedLedgerAudio.fileName, { persistToLedger: false });
-      } catch (err) {
+      } catch (err: any) {
         if (!controller.signal.aborted) {
           setImportErr(`Failed to restore saved audio from ledger: ${err instanceof Error ? err.message : String(err)}`);
         }
@@ -3552,7 +3552,7 @@ function DAWFileIOPanel({
   }
 
   // ── Waveform: click to seek + drag to select ──
-  function handleBarMouseDown(barIdx: number, e): React.MouseEvent {
+  function handleBarMouseDown(barIdx: number, e: any): React.MouseEvent {
     e.preventDefault();
     setDragAnchor(barIdx);
     setIsDragging(true);

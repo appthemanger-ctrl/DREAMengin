@@ -211,7 +211,7 @@ export async function planWithEams(input: {
             requires_confirmation: Boolean(x?.requires_confirmation),
             rationale: typeof x?.rationale === 'string' ? x.rationale : 'Requested by user',
             idempotency_key: typeof x?.idempotency_key === 'string' ? x.idempotency_key : `eams-${Date.now()}`,
-            payload: (x?.payload && typeof x.payload === 'object') ? x.payload as Record<string, unknown> : {},
+            payload: (x?.payload && typeof x.payload === 'object') ? x.payload as any : {},
           };
           return base;
         })
@@ -219,7 +219,7 @@ export async function planWithEams(input: {
         .filter((intent) => {
           if (!IntentSchema.safeParse(intent).success) return false;
           if (intent.type === 'NAV_DELTA') {
-            const route = (intent.payload as Record<string, unknown>)?.route;
+            const route = (intent.payload as any)?.route;
             if (typeof route === 'string' && route.length > 0) {
               // Accept canonical routes exactly; also accept /profile/[handle] patterns
               return CANONICAL_NAV_ROUTES.has(route) || /^\/profile\/[^/]+$/.test(route);
@@ -234,7 +234,7 @@ export async function planWithEams(input: {
         interpreted_intent,
         intents,
       };
-    } catch (e) {
+    } catch (e: any) {
       lastErr = e;
     }
   }

@@ -13,6 +13,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 import { mastodonVerify } from '@/lib/connectors/providers/mastodon';
 import { blueskyVerify } from '@/lib/connectors/providers/bluesky';
@@ -90,7 +91,7 @@ export async function POST(
     }
     status = 'connected';
     verifiedAt = new Date().toISOString();
-  } catch (err) {
+  } catch (err: any) {
     lastError = err instanceof Error ? err.message : String(err);
     status = 'error';
   }

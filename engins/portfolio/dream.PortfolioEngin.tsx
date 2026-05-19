@@ -111,7 +111,7 @@ export default function PortfolioEngin({ onBack }: Props) {
         quantumBitstring: quantumResult?.topBitstring ?? null,
         quantumExpVal:    quantumResult?.expectationValue ?? null,
       });
-    } catch (e) {
+    } catch (e: any) {
       setError(e instanceof Error ? e.message : 'Optimization failed');
     } finally {
       setRunning(false);

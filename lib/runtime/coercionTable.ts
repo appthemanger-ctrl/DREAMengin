@@ -158,7 +158,7 @@ export function coerceRawPayload(payload: unknown): DreamDrop {
     };
   }
 
-  const p = payload as Record<string, unknown>;
+  const p = payload as any;
 
   // Already a DreamDrop — pass through.
   if (typeof p['type'] === 'string' && typeof p['content'] === 'string' && p['timestamp']) {

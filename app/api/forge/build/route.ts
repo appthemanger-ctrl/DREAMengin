@@ -21,6 +21,7 @@
  * Rate limiting: client-side (localStorage) + in-memory Map TTL here.
  */
 
+import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
 import { groqChat, type GroqMessage } from '@/lib/ai/groq';
 import { AI_MODELS } from '@/lib/ai/triad';
@@ -230,7 +231,7 @@ export async function fetchWithRetry(
       if (attempt < retries - 1) {
         await sleep(backoffMs * 2 ** attempt);
       }
-    } catch (err) {
+    } catch (err: any) {
       clearTimeout(timer);
       if (attempt === retries - 1) throw err;
       await sleep(backoffMs * 2 ** attempt);
@@ -711,14 +712,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     );
   }
 
-  if (!body || typeof body !== 'object' || typeof (body as Record<string, unknown>).prompt !== 'string') {
+  if (!body || typeof body !== 'object' || typeof (body as any).prompt !== 'string') {
     return new Response(
       JSON.stringify({ error: 'Missing required field: prompt (string).' }),
       { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
 
-  const prompt = ((body as Record<string, unknown>).prompt as string).trim();
+  const prompt = ((body as any).prompt as string).trim();
   if (!prompt) {
     return new Response(
       JSON.stringify({ error: 'Prompt must not be empty.' }),
@@ -914,7 +915,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           send({ type: 'step', step: 'PHASE: Build complete! 🎉', ts: Date.now() });
           send({ type: 'done', ts: Date.now() });
         }
-      } catch (err) {
+      } catch (err: any) {
         send({ type: 'error', message: String(err instanceof Error ? err.message : err), ts: Date.now() });
         send({ type: 'done', ts: Date.now() });
       } finally {

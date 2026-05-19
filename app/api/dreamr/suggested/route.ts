@@ -24,6 +24,7 @@
 
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   rankFeed,
   scoreDreamRPost,
@@ -70,12 +71,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       .order('created_at', { ascending: false })
       .limit(60);
 
-    const visible = filterByCloseFriends((rows ?? []) as unknown[], user.id, circle);
+    const visible = filterByCloseFriends((rows ?? []) as any[] as any, user.id, circle);
 
-    const posts: ScoredPost[] = visible.map((r: unknown) => ({
+    const posts: ScoredPost[] = visible.map((r: any) => ({
       id:             r.id,
       content:        r.content ?? '',
-      media_url:      getPrimaryPostMediaUrl(r),
+      media_url:      getPrimaryPostMediaUrl(r as any),
       created_at:     r.created_at,
       views_count:    r.view_count     ?? 0,
       likes_count:    r.likes_count    ?? 0,
@@ -106,7 +107,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       .order('created_at', { ascending: false })
       .limit(200);
 
-    const visible = filterByCloseFriends((rows ?? []) as unknown[], user.id, circle);
+    const visible = filterByCloseFriends((rows ?? []) as any[] as any, user.id, circle);
 
     if (visible.length === 0) {
       return NextResponse.json({ suggestions: [] });
@@ -133,7 +134,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const SCORE_PER_CREATOR_CAP = 5;
     const scoredCount = new Map<string, number>();
 
-    for (const row of visible as unknown[]) {
+    for (const row of visible as any[]) {
       const uid = row.user_id;
       const p   = row.profiles ?? {};
 
@@ -161,7 +162,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         const scored = scoreDreamRPost({
           id:             row.id,
           content:        row.content ?? '',
-          media_url:      getPrimaryPostMediaUrl(row),
+          media_url:      getPrimaryPostMediaUrl(row as any),
           created_at:     row.created_at,
           views_count:    row.view_count     ?? 0,
           likes_count:    row.likes_count    ?? 0,

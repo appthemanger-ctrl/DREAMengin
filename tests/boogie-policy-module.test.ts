@@ -192,7 +192,7 @@ describe('emitBoogieManEvent + onBoogieManEvent (req 99)', () => {
 
   beforeEach(() => {
     // Simulate a minimal window with EventTarget in node environment
-    originalWindow = (globalThis as Record<string, unknown>).window;
+    originalWindow = (globalThis as any).window;
     const et = new EventTarget();
      
     (globalThis as any).window = {

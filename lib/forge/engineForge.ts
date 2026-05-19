@@ -57,7 +57,7 @@ export interface EngineAssembly {
 
 export interface AssemblySandbox {
   /** Called for each piece during execution — returns the piece's output. */
-  execute(piece: AtomicPiece, inputs): unknown;
+  execute(piece: AtomicPiece, inputs: any): unknown;
 }
 
 export interface ValidationResult {
@@ -178,7 +178,7 @@ export function runAssembly(
     try {
       const output = sandbox.execute(piece, inputs);
       pieceOutputs.set(piece.id, output);
-    } catch (err) {
+    } catch (err: any) {
       bus.emit('error', { message: `Piece "${piece.name}" threw: ${String(err)}` });
     }
 

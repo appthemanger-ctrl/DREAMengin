@@ -38,7 +38,7 @@ type RuntimeState = {
 
 const DR_EAMS_HEIGHT = 0.9144; // 3 feet
 
-function clamp(value: number, min: number, max): number {
+function clamp(value: number, min: number, max: any): number {
   return Math.max(min, Math.min(max, value));
 }
 
@@ -91,7 +91,7 @@ function createDarkVisor(scene: Scene ){
   return mat;
 }
 
-function createFakeVisorGlow(root: TransformNode, scene): Scene {
+function createFakeVisorGlow(root: TransformNode, scene: any): Scene {
   const glow = MeshBuilder.CreatePlane(
     'drEamsFakeGlow',
     { width: 0.22, height: 0.11 },
@@ -120,7 +120,7 @@ function maybeFixBoots(meshes: AbstractMesh[] ){
   }
 }
 
-function applyMaterials(meshes: AbstractMesh[], scene): Scene {
+function applyMaterials(meshes: AbstractMesh[], scene: any): void {
   const blackMetal = createBlackMetal(scene);
   const whiteCoat = createWhiteCoat(scene);
   const darkVisor = createDarkVisor(scene);
@@ -153,7 +153,7 @@ function applyMaterials(meshes: AbstractMesh[], scene): Scene {
   }
 }
 
-async function buildDrEams(scene: Scene, canvas): HTMLCanvasElement {
+async function buildDrEams(scene: Scene, canvas: any): HTMLCanvasElement {
   const result = await SceneLoader.ImportMeshAsync('', '/models/', 'dr-eams.glb', scene);
 
   const meshes = result.meshes.filter(

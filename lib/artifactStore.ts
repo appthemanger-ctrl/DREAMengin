@@ -94,7 +94,7 @@ function mergeWithSystemArtifacts(accountId: string, artifacts: DreamArtifact[])
   return Array.from(map.values());
 }
 
-function writeArtifacts(accountId: string, artifacts): DreamArtifact[] {
+function writeArtifacts(accountId: string, artifacts: any): DreamArtifact[] | undefined {
   if (!isBrowser()) return;
   window.localStorage.setItem(STORAGE_KEY(accountId), JSON.stringify(artifacts));
 }
@@ -123,18 +123,18 @@ export function loadArtifacts(accountId?: string | null): DreamArtifact[] {
   }
 }
 
-export function saveArtifact(accountId: string, artifact): DreamArtifact {
+export function saveArtifact(accountId: string, artifact: any): void {
   const existing = loadArtifacts(accountId);
   const map = new Map(existing.map((entry) => [entry.id, entry]));
   map.set(artifact.id, artifact);
   writeArtifacts(accountId, Array.from(map.values()));
 }
 
-export function saveArtifacts(accountId: string, artifacts): DreamArtifact[] {
+export function saveArtifacts(accountId: string, artifacts: any): DreamArtifact[] {
   writeArtifacts(accountId, mergeWithSystemArtifacts(accountId, artifacts));
 }
 
-export function removeArtifact(accountId: string, artifactId): string {
+export function removeArtifact(accountId: string, artifactId: any): void {
   const next = loadArtifacts(accountId).filter((artifact) => artifact.id !== artifactId);
   writeArtifacts(accountId, next);
 }
@@ -143,7 +143,7 @@ export function listVisibleArtifacts(accountId?: string | null): DreamArtifact[]
   return loadArtifacts(accountId).filter((artifact) => artifact.metadata?.hidden !== true);
 }
 
-export function hideArtifact(accountId: string, artifactId): string {
+export function hideArtifact(accountId: string, artifactId: any): void {
   const next = loadArtifacts(accountId).map((artifact) =>
     artifact.id === artifactId
       ? { ...artifact, metadata: { ...(artifact.metadata ?? {}), hidden: true } }
@@ -152,7 +152,7 @@ export function hideArtifact(accountId: string, artifactId): string {
   writeArtifacts(accountId, next);
 }
 
-export function restoreArtifact(accountId: string, artifactId): string {
+export function restoreArtifact(accountId: string, artifactId: any): void {
   const next = loadArtifacts(accountId).map((artifact) =>
     artifact.id === artifactId
       ? { ...artifact, metadata: { ...(artifact.metadata ?? {}), hidden: false } }

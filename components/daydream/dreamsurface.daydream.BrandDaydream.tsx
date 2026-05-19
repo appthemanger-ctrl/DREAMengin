@@ -197,7 +197,7 @@ export default function BrandDaydream( ){
 
   // ── Bio copy ───────────────────────────────────────────────────────────────
   const [copiedBio, setCopiedBio] = useState<string | null>(null);
-  function copyBio(platform: string, text): string {
+  function copyBio(platform: string, text: any): void {
     navigator.clipboard?.writeText(text).catch(() => {});
     setCopiedBio(platform);
     setTimeout(() => setCopiedBio(null), 1400);

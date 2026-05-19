@@ -10,7 +10,7 @@ export default function DrEamsModeToggle( ){
 
   useEffect(() => {
     setEnabled(getDrEamsMode())
-    const off = onDrEamsModeChange((v: number ) => setEnabled(v))
+    const off = onDrEamsModeChange((v) => setEnabled(v))
     return () => off()
   }, [])
 

@@ -60,7 +60,7 @@ export async function POST(
     while (current.original_post_id && depth < 10) {
       const { data: parent } = await db
         .from('app_posts')
-        .select('id, user_id, original_post_id')
+        .select('id, user_id, original_post_id, view_count')
         .eq('id', current.original_post_id)
         .single();
       if (!parent) break;

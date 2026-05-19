@@ -14,7 +14,7 @@ export function useTick( ){
       try {
         audioContextRef.current = new (window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext)();
         isInitializedRef.current = true;
-      } catch (e) {
+      } catch (e: any) {
         console.warn('[useTick] AudioContext not supported:', e);
       }
     }
@@ -43,7 +43,7 @@ export function useTick( ){
 
       oscillator.start(ctx.currentTime);
       oscillator.stop(ctx.currentTime + 0.03);
-    } catch (e) {
+    } catch (e: any) {
       console.warn('[useTick] tickOpen error:', e);
     }
   }, [ensureAudioContext]);
@@ -71,7 +71,7 @@ export function useTick( ){
 
       oscillator.start(ctx.currentTime);
       oscillator.stop(ctx.currentTime + 0.015);
-    } catch (e) {
+    } catch (e: any) {
       console.warn('[useTick] tickSelect error:', e);
     }
   }, [ensureAudioContext]);
@@ -107,7 +107,7 @@ export function useTick( ){
       gain2.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.05);
       osc2.start(ctx.currentTime + 0.03);
       osc2.stop(ctx.currentTime + 0.05);
-    } catch (e) {
+    } catch (e: any) {
       console.warn('[useTick] tickConfirm error:', e);
     }
   }, [ensureAudioContext]);

@@ -102,7 +102,7 @@ const BUTTON_MAP: (GameAction | null)[] = [
 
 // ── Fire helper ───────────────────────────────────────────────────────────────
 
-function fire(action: GameAction, active): boolean {
+function fire(action: GameAction, active: any): boolean | undefined {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(new CustomEvent('de-game-input', { detail: { action, active } }));
 }

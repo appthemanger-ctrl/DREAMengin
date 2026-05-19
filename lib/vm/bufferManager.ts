@@ -59,7 +59,7 @@ export class BufferManager {
 
       this.totalMemoryUsed += size;
       return handle;
-    } catch (error) {
+    } catch (error: any) {
       console.error('[BufferManager] Failed to create buffer:', error);
       return VMErrorCode.GPU_ERROR;
     }
@@ -125,7 +125,7 @@ export class BufferManager {
       this.counters.totalBufferWrites++;
       this.counters.totalBytesWritten += size;
       return 0; // SUCCESS
-    } catch (error) {
+    } catch (error: any) {
       console.error('[BufferManager] Write failed:', error);
       return 4; // GPU_ERROR
     }
@@ -185,7 +185,7 @@ export class BufferManager {
       this.counters.totalBufferReads++;
       this.counters.totalBytesRead += size;
       return 0; // SUCCESS
-    } catch (error) {
+    } catch (error: any) {
       console.error('[BufferManager] Read failed:', error);
       stagingBuffer.destroy();
       return 4; // GPU_ERROR
@@ -234,7 +234,7 @@ export class BufferManager {
       wasmView.set(new Uint8Array(mappedRange));
 
       return 0; // SUCCESS
-    } catch (error) {
+    } catch (error: any) {
       console.error('[BufferManager] Map failed:', error);
       return 4; // GPU_ERROR
     }
@@ -257,7 +257,7 @@ export class BufferManager {
       descriptor.buffer.unmap();
       descriptor.mappedRange = null;
       return 0; // SUCCESS
-    } catch (error) {
+    } catch (error: any) {
       console.error('[BufferManager] Unmap failed:', error);
       return 4; // GPU_ERROR
     }

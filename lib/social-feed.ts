@@ -61,13 +61,13 @@ export function extractFirstImage(item: unknown): string | null {
 
   // 2) media:content
   if (Array.isArray(item.mediaContent)) {
-    const mediaUrl = item.mediaContent.find((x: unknown) => x?.$?.url)?.$?.url;
+    const mediaUrl = item.mediaContent.find((x: any) => x?.$?.url)?.$?.url;
     if (mediaUrl) return mediaUrl;
   }
 
   // 3) media:thumbnail
   if (Array.isArray(item.mediaThumbnail)) {
-    const thumbUrl = item.mediaThumbnail.find((x: unknown) => x?.$?.url)?.$?.url;
+    const thumbUrl = item.mediaThumbnail.find((x: any) => x?.$?.url)?.$?.url;
     if (thumbUrl) return thumbUrl;
   }
 
@@ -102,7 +102,7 @@ export async function fetchSocialFeed(
   const items = (feed.items ?? []).slice(0, limit);
 
   return items.map((raw) => {
-    const a = raw as Record<string, unknown>;
+    const a = raw as any;
     return {
       id: raw.guid ?? a.id ?? raw.link ?? String(Math.random()),
       source,

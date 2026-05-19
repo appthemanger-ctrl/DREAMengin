@@ -41,7 +41,7 @@ function LoginPageInner( ){
   // Preflight: check which OAuth providers are configured in Supabase
   useEffect(() => {
     fetch("/api/auth/providers")
-      .then((r: number ) => {
+      .then((r) => {
         if (!r.ok) throw new Error("Unable to load OAuth provider status");
         return r.json();
       })

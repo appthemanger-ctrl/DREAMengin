@@ -82,7 +82,7 @@ export async function requestGenerativeFill(
       }
 
       return res.json() as Promise<GenerativeFillResult>;
-    } catch (err) {
+    } catch (err: any) {
       lastError = err instanceof Error ? err : new Error(String(err));
       if (attempt < retries) {
         await sleep(300 * (attempt + 1));

@@ -96,11 +96,11 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         ? (safe.error as { name?: string; message?: string; stack?: string })
         : undefined,
       context: typeof safe.context === 'object' && safe.context !== null
-        ? (safe.context as Record<string, unknown>)
+        ? (safe.context as any)
         : undefined,
     });
     return NextResponse.json({ ok: true, stored: filePath.split(/[\\/]/).slice(-3).join('/') }, { status: 201 });
-  } catch (err) {
+  } catch (err: any) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : 'failed to record crash report' },
       { status: 400 },

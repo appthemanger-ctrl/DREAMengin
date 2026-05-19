@@ -6,6 +6,7 @@
  * Back → openInSurface('settings'). No routing.
  */
 
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Shield, FileText, ChevronRight, Loader2 } from 'lucide-react';
 import { createClient }    from '@/lib/supabase/client';

@@ -257,7 +257,7 @@ export default function MessagesClient({ userId, initialConversations, fromDrEam
           )
         );
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to send message:', err);
       alert(err instanceof Error ? err.message : 'Failed to send message');
       if (optimisticMessage) removeOptimistic(optimisticMessage.id);
@@ -746,7 +746,7 @@ export default function MessagesClient({ userId, initialConversations, fromDrEam
                     {/* Email-compose toggle */}
                     <button
                       type="button"
-                      onClick={() => setShowSubjectField((v: number ) => !v)}
+                      onClick={() => setShowSubjectField((v) => !v)}
                       disabled={isSending}
                       className="p-3 rounded-xl transition-colors min-w-[48px] min-h-[48px] flex items-center justify-center disabled:opacity-50"
                       style={{ background: showSubjectField ? 'rgba(42,138,184,0.15)' : 'rgba(160,195,240,0.12)', color: showSubjectField ? 'var(--de-accent)' : 'var(--de-text-dim)' }}

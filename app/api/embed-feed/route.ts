@@ -22,6 +22,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 import { loadEmbedFeed } from '@/lib/feeds/embedFeedLoader';
 import type { EmbedFeedItem } from '@/lib/feeds/embedFeedLoader';
@@ -70,7 +71,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<EmbedFeedRespo
       })) as EmbedFeedItem[];
 
       const generatedAt = data[0]
-        ? String((data[0] as Record<string, unknown>).generated_at ?? '')
+        ? String((data[0] as any).generated_at ?? '')
         : new Date().toISOString();
 
       return NextResponse.json({

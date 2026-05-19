@@ -2,6 +2,7 @@
 // THE BOOGIE MAN - Policy Enforcement & Risk Scoring Engine
 // Deterministic verifier for all AI intents
 
+import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   Intent,
   ActorContext,
@@ -399,7 +400,7 @@ export async function verifyIntents(
     if (data) {
       policy = data as unknown as PolicyVersion;
     }
-  } catch (error) {
+  } catch (error: any) {
     console.warn('Failed to load policy from DB, using default:', error);
   }
 
@@ -489,7 +490,7 @@ export function redactSecrets(payload): Record<string, unknown> {
       if (Array.isArray(val)) {
         return val.map(redactValue);
       } else {
-        const obj = val as Record<string, unknown>;
+        const obj = val as any;
         const redactedObj: Record<string, unknown> = {};
         for (const [k, v] of Object.entries(obj)) {
           redactedObj[k] = redactValue(v);

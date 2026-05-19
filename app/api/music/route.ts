@@ -1,5 +1,7 @@
+import type { Database } from '@/types/supabase';
 import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 // GET - Fetch music releases
 export async function GET(req: NextRequest): Promise<NextResponse> {

@@ -877,7 +877,7 @@ export default function DreamRFeed({ userId, initialPosts }: DreamRFeedProps) {
   }, [posts, ytTopicPosts, sugContent, sugCreators]);
 
   const personalizedFeedItems = useMemo((): FeedItem[] => (
-    personalizeFeedOrder((feedItems, swipePrefs, item) => item.kind === 'creator' ? null : item.post)
+    personalizeFeedOrder((feedItems: any, swipePrefs: any, item: any) => item.kind === 'creator' ? null : item.post)
   ), [feedItems, swipePrefs]);
 
   const handleScroll = useCallback(() => {

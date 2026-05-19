@@ -118,7 +118,7 @@ function PostCard( ){
       {/* Post actions */}
       <div style={{ padding: '2px 16px 14px', display: 'flex', gap: 22 }}>
         {([
-          { icon: liked ? '♥' : '♡', label: 'Like',    action: () => setLiked((v: number ) => !v) },
+          { icon: liked ? '♥' : '♡', label: 'Like',    action: () => setLiked((v) => !v) },
           { icon: '💬',               label: 'Comment', action: undefined },
           { icon: '↗',               label: 'Share',   action: undefined },
         ] as const).map(({ icon, label, action }) => (

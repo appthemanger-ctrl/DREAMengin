@@ -142,7 +142,7 @@ export default function ForgeEngin({ onBack }: Props) {
   useEffect(() => {
     const unsubs: (() => void)[] = [];
     const castSubscribe = bridge.subscribe as unknown as (
-      ch: string, ev: string, handler: (payload: unknown) => void,
+      ch: string, ev: string, handler: (payload: any) => void,
     ) => () => void;
 
     for (const [channel, events] of Object.entries(ALL_CHANNEL_EVENTS)) {

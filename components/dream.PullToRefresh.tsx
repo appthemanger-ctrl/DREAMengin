@@ -55,7 +55,7 @@ export default function PullToRefresh({ onRefresh, children }: PullToRefreshProp
         
         try {
           await onRefresh();
-        } catch (error) {
+        } catch (error: any) {
           console.error('Refresh failed:', error);
         } finally {
           setTimeout(() => {

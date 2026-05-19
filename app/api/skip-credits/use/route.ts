@@ -5,6 +5,7 @@
 // Per ACTIVITY_FIRST_PROTOCOL.md §V (Skip Reward System)
 
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 import type {
   UseSkipCreditsRequest,
@@ -71,7 +72,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json(response, {
       headers: { 'Cache-Control': 'no-store' },
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error('[UseSkipCredits] Exception:', err);
     return NextResponse.json(
       { error: 'Internal server error' },

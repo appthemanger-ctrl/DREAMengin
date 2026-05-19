@@ -3,6 +3,7 @@
 // PATCH — save merged engin state (called by useSharedDreamSession.flushBuffer)
 
 import { NextRequest, NextResponse, connection } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 import { safeGetUser } from '@/lib/supabase/safeGetUser';
 import { z } from 'zod';

@@ -26,7 +26,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         'cache-control': 'public, max-age=3600',
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Failed to load media' },
       { status: 500 },

@@ -94,7 +94,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
       if (recentPosts && recentPosts.length > 0) {
         const postsText = recentPosts
            
-          .map((p: unknown) =>
+          .map((p: any) =>
             `- "${String(p.content ?? '').slice(0, 80)}" (${p.visibility ?? 'unknown'}, ${p.created_at ? new Date(p.created_at).toLocaleDateString() : 'unknown'})`
           )
           .join('\n');

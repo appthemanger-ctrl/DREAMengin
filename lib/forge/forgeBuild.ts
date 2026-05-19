@@ -82,7 +82,7 @@ const MAX_BUILDS = 10;
  */
 export function isForgeLogEvent(value: unknown): value is ForgeLogEvent {
   if (!value || typeof value !== 'object') return false;
-  const v = value as Record<string, unknown>;
+  const v = value as any;
   if (typeof v.type !== 'string') return false;
   if (typeof v.ts !== 'number') return false;
   switch (v.type) {

@@ -27,6 +27,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 
@@ -85,7 +86,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       // event callback always resolves cleanly.
       console.warn('[dreamr/tally] upsert warning:', upsertErr.message);
     }
-  } catch (err) {
+  } catch (err: any) {
     // Supabase unavailable (local dev without DB) — return ok:true so the
     // DreamRCore bridge callback doesn't surface an error to the UI.
     console.warn('[dreamr/tally] Supabase unavailable, skipping tally:', err);

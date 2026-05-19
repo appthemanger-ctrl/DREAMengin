@@ -129,7 +129,7 @@ export class CrossWidgetPostingEngine {
           error: err.error ?? `Post failed (HTTP ${res.status})`,
         });
       }
-    } catch (networkErr) {
+    } catch (networkErr: any) {
       this.sendPostResult(targetWidgetId, sourceWidgetId, {
         success: false,
         error: networkErr instanceof Error ? networkErr.message : 'Network error',

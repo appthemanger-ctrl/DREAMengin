@@ -164,7 +164,7 @@ export default function CommentSection({ postId }: Props) {
       setComments((prev) =>
         prev.map((c) => (c.id === optimisticId && saved ? { ...saved, optimistic: false } : c)),
       );
-    } catch (e) {
+    } catch (e: any) {
       const msg = e instanceof Error ? e.message : 'Something went wrong';
       setSubmitError(msg);
       // Remove the failed optimistic entry

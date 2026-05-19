@@ -76,7 +76,7 @@ export async function GET(): Promise<NextResponse<ShellHubDevicesResponse>> {
       api_key: creds.api_key ?? '',
     });
     return NextResponse.json({ ok: true, server_url: serverUrl, devices });
-  } catch (err) {
+  } catch (err: any) {
     const message = err instanceof Error ? err.message : 'Unknown error fetching devices';
     return NextResponse.json({ ok: false, error: message }, { status: 502 });
   }

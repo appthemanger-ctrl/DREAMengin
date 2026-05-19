@@ -38,7 +38,7 @@ export async function GET( ): Promise<Response> {
   }
 
    
-  const privacy = (data?.data as Record<string, unknown>)?.privacy ?? null;
+  const privacy = (data?.data as any)?.privacy ?? null;
   return NextResponse.json({ ok: true, privacy });
 }
 
@@ -71,7 +71,7 @@ export async function POST(req: NextRequest ): Promise<Response> {
     .maybeSingle();
 
    
-  const currentData = (existing?.data ?? {}) as Record<string, unknown>;
+  const currentData = (existing?.data ?? {}) as any;
   const merged = { ...currentData, privacy: body };
 
   const { error: upsertError } = await db2

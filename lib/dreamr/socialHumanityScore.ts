@@ -108,7 +108,7 @@ async function getTimeConsistency(supabase: unknown, userId: string, actionHour:
   if (!data || data.length < 5) return 0.5; // neutral
   const hours = data.map((a: { created_at: string }) => new Date(a.created_at).getHours());
   const meanHour = hours.reduce((a: number, b: number) => a+b, 0) / hours.length;
-  const std = Math.sqrt(hours.map((h: number) => Math.pow(h - meanHour, 2)).reduce((a: number, b: number) => a+b, 0) / hours.length);
+  const std = Math.sqrt(hours.map((h) => Math.pow(h - meanHour, 2)).reduce((a: number, b: number) => a+b, 0) / hours.length);
   const deviation = Math.abs(actionHour - meanHour);
   const z = deviation / (std + 0.01);
   return Math.max(0, Math.min(1, 1 - z / 2));
