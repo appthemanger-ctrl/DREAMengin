@@ -20,7 +20,7 @@ const ALL_DREAMS: Array<{ node: Node; label: string; icon: string; tag: string }
   { node: 6,    label: 'Shell',    icon: '✦',  tag: 'Depth · Out'    },
 ];
 
-export default function ViewAllDreamsOverlay(){
+export default function ViewAllDreamsOverlay({
   onClose,
   onReturnHome,
 }: {

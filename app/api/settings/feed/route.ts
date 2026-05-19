@@ -20,7 +20,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 
 
-export async function GET( ){
+export async function GET( ): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -42,7 +42,7 @@ export async function GET( ){
   return NextResponse.json({ ok: true, preferences: prefs });
 }
 
-export async function POST(req: NextRequest ){
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {

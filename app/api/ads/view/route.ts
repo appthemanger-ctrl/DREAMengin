@@ -50,7 +50,7 @@ function getInsertedAdViewId(adView: InsertedAdViewRow): string | null {
   return typeof id === 'string' && id.length > 0 ? id : null;
 }
 
-export async function POST(req: NextRequest ){
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const db = supabase as unknown as ActivitySupabaseClient;
 

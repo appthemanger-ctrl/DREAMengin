@@ -62,7 +62,7 @@ function validateRequiredFields(
  * This route only returns records the RLS policy already permits.
  * Private records from other users are never returned (Point 15).
  */
-export async function GET(_req: NextRequest ){
+export async function GET(_req: NextRequest ): Promise<NextResponse> {
   const supabase = await createServerClient();
   const {
     data: { user },
@@ -107,7 +107,7 @@ export async function GET(_req: NextRequest ){
  *
  * Persists to dream_windows table on every call (Point 11, 16).
  */
-export async function POST(req: NextRequest ){
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const {
     data: { user },

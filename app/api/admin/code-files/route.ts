@@ -92,7 +92,7 @@ function deny(msg: string, status): number {
 }
 
 // ── Route handler ────────────────────────────────────────────────────────────
-export async function POST(request: Request ){
+export async function POST(request: Request ): Promise<NextResponse> {
   // 1. Block blacklisted domains immediately — no information leakage
   if (isDomainBlocked(request)) {
     return deny('Access denied.', 403);

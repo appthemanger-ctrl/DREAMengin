@@ -73,7 +73,7 @@ async function deleteSession(sessionId: string): Promise<void> {
 // Route handler
 // ---------------------------------------------------------------------------
 
-export async function POST(req: Request ){
+export async function POST(req: Request ): Promise<NextResponse> {
   const body = (await req.json()) as {
     action: string;
     sessionId?: string;

@@ -70,7 +70,7 @@ export interface DualSenseConfig {
 
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
-export function useDualSense(config: DualSenseConfig = ){} {
+export function useDualSense(config: DualSenseConfig = {}) {
   const {
     enableGyro = true,
     enableHaptics = true,
@@ -219,7 +219,7 @@ export function useDualSense(config: DualSenseConfig = ){} {
     if (!gamepad) return;
 
     // Haptic Actuator API (supported on Android Chrome)
-    const actuators = (gamepad as Gamepad & { hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator })\.hapticActuators || (gamepad as Gamepad & { hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator })\.vibrationActuator;
+    const actuators = (gamepad as Gamepad & { hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator }).hapticActuators || (gamepad as Gamepad & { hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator }).vibrationActuator;
     if (actuators && actuators.length > 0) {
       const clampedIntensity = Math.max(0, Math.min(1, intensity));
       actuators[0].pulse(clampedIntensity, duration / 1000);
@@ -413,7 +413,7 @@ export class DualSenseManager {
 
     if (!gamepad) return;
 
-    const actuators = (gamepad as Gamepad & { hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator })\.hapticActuators || (gamepad as Gamepad & { hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator })\.vibrationActuator;
+    const actuators = (gamepad as Gamepad & { hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator }).hapticActuators || (gamepad as Gamepad & { hapticActuators?: GamepadHapticActuator[]; vibrationActuator?: GamepadHapticActuator }).vibrationActuator;
     if (actuators && actuators.length > 0) {
       const clampedIntensity = Math.max(0, Math.min(1, intensity));
       actuators[0].pulse(clampedIntensity, duration / 1000);

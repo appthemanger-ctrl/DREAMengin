@@ -2,7 +2,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
 // GET - Fetch notifications
-export async function GET(req: NextRequest ){
+export async function GET(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest ){
 }
 
 // PUT - Mark notifications as read
-export async function PUT(req: NextRequest ){
+export async function PUT(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -90,7 +90,7 @@ export async function PUT(req: NextRequest ){
 }
 
 // DELETE - Delete notifications
-export async function DELETE(req: NextRequest ){
+export async function DELETE(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 

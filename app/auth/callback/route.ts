@@ -5,7 +5,7 @@ import { createServerClientWithCustomCookies } from "@/lib/supabase/server";
 import { SUPABASE_CONFIG } from "@/lib/supabase/config";
 import { resolveSafeNextPath } from "@/lib/auth/nextRedirect";
 
-export async function GET(request: Request ){
+export async function GET(request: Request ): Promise<NextResponse> {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
   const next = url.searchParams.get("next");

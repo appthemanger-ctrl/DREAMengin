@@ -24,7 +24,7 @@ interface AnchorWidgetProps {
  * AnchorWidget - Single persistent widget controlling Home/Profile/Shrunk modes
  * Exists exactly once, never unmounted after auth
  */
-export function AnchorWidget(){
+export function AnchorWidget({
   navStateBuffer,
   returnStack,
   widgetMemory,

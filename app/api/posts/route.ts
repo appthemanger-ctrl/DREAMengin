@@ -20,7 +20,7 @@ function normalizePostMedia<T extends Record<string, unknown>>(post: T): T & { m
 //   sort   — 'trending' to order by likes_count DESC (fallback: created_at DESC)
 //   limit  — number of posts to return (default 20, max 500 for following, max 50 otherwise)
 //   offset — pagination offset
-export async function GET(req: NextRequest ){
+export async function GET(req: NextRequest): Promise<NextResponse> {
   const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -117,7 +117,7 @@ export async function GET(req: NextRequest ){
 }
 
 // POST - Create a new post
-export async function POST(req: NextRequest ){
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = (await createServerClient()) as SupabaseClient<Database>;
   const { data: { user } } = await supabase.auth.getUser();
 

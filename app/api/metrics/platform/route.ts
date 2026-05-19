@@ -31,7 +31,7 @@ function average(values: number[]): number {
   return values.reduce((sum, value) => sum + value, 0) / values.length;
 }
 
-export async function GET(_req: NextRequest ){
+export async function GET(_req: NextRequest ): Promise<NextResponse> {
   const supabase = await createServerClient();
 
   // Auth required (admin only)

@@ -249,7 +249,7 @@ function EmbedCard({ item }: {item: EmbedFeedItem}) {
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function EmbedFeedWidget(){
+export default function EmbedFeedWidget({
   defaultProvider = 'all',
   limit = 20,
   className = '',
@@ -269,7 +269,7 @@ export default function EmbedFeedWidget(){
     const ctrl = new AbortController();
     abortRef.current = ctrl;
 
-    setState((s: string ) => ({ ...s, loading: true, error: null }));
+    setState((s) => ({ ...s, loading: true, error: null }));
 
     try {
       const params = new URLSearchParams({ limit: String(limit) });
@@ -285,7 +285,7 @@ export default function EmbedFeedWidget(){
       setState({ items: data.items, generatedAt: data.generated_at, loading: false, error: null });
     } catch (err) {
       if ((err as { name?: string }).name === 'AbortError') return;
-      setState((s: string ) => ({
+      setState((s) => ({
         ...s,
         loading: false,
         error: (err instanceof Error ? err.message : 'Failed to load embed feed'),
@@ -297,7 +297,7 @@ export default function EmbedFeedWidget(){
     fetchFeed(provider);
   }, [fetchFeed, provider]);
 
-  const hasInstagram = state.items.some((i: number ) => i.provider === 'instagram');
+  const hasInstagram = state.items.some((i) => i.provider === 'instagram');
   useInstagramEmbedScript(hasInstagram);
 
   // ── Provider tabs ──────────────────────────────────────────────────────────

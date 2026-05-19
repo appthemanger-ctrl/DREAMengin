@@ -62,7 +62,7 @@ function embedUrl(permalink: string): string | null {
 
 // ── Mini video thumbnail ───────────────────────────────────────────────────────
 
-function VideoThumb(){
+function VideoThumb({
   item, onPlay,
 }: { item: UnifiedFeedItem; onPlay?: () => void }) {
   const thumb = item.media[0]?.thumbnail_url ?? item.media[0]?.url ?? null;

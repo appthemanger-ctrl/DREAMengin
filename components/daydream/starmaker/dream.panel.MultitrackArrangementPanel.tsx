@@ -130,7 +130,7 @@ interface Props {
   onSelectedClipGainChange: (gain: number) => void;
 }
 
-export default function MultitrackArrangementPanel(){
+export default function MultitrackArrangementPanel({
   hasAudio,
   sourceLibrary,
   selectedSourceId,
@@ -401,7 +401,7 @@ export default function MultitrackArrangementPanel(){
               TRACKS
             </div>
             <div style={{ flex: 1, display: 'grid', gridTemplateColumns: `repeat(${ARRANGEMENT_BARS}, minmax(0, 1fr))` }}>
-              {Array.from(({ length: ARRANGEMENT_BARS }, _, bar: Record<string, unknown>) => (
+              {Array.from({ length: ARRANGEMENT_BARS }, (_, bar) => (
                 <div key={bar} style={{
                   padding: '8px 0',
                   textAlign: 'center',
