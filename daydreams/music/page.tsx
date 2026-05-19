@@ -357,7 +357,7 @@ export default async function MusicArtistHubPage( ){
 
 // ── Section wrapper component ─────────────────────────────────────────────────
 
-function Section(){
+function Section({
   title, icon, badge, badgeColor, children,
 }: {
   title: string;

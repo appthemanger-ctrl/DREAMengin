@@ -53,7 +53,7 @@ export type HealthTrend = 'improving' | 'stable' | 'degrading';
  * - 'degrading': more unhealthy statuses in the second half
  * - 'stable': no significant change
  */
-export function getHealthTrend(windowSize = 20: HealthTrend ){
+export function getHealthTrend(windowSize = 20): HealthTrend {
   const recent = _trendBuffer.slice(-Math.min(windowSize, _trendBuffer.length));
   if (recent.length < 4) return 'stable';
 
