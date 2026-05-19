@@ -16,7 +16,7 @@ interface DreamWidgetProps {
   children?: ReactNode;
 }
 
-export default function DreamWidget(){
+export default function DreamWidget({
   title,
   subtitle,
   icon,
