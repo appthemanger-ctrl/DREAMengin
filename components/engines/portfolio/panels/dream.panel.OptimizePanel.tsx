@@ -258,7 +258,7 @@ export default function OptimizePanel( ){
                 { icon: Activity,    label: 'Portfolio Risk',  value: result.portfolioRisk,  unit: '%', color: '#f59e0b' },
                 { icon: ShieldCheck, label: 'Sharpe Ratio',   value: result.sharpeRatio,    unit: '',  color: ACCENT    },
                 { icon: Cpu,         label: 'Objective',      value: result.objectiveValue, unit: '',  color: PURPLE    },
-              ].map(({ icon, label, value, unit, color }) => (
+              ].map(({ icon: Icon, label, value, unit, color }) => (
                 <div key={label} className="flex flex-col items-center p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
                   <Icon style={{ width: 16, height: 16, color, marginBottom: 6 }} />
                   <span className="text-xl font-black text-white">{value}{unit}</span>

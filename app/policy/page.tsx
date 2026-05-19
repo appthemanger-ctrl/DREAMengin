@@ -111,7 +111,7 @@ export default function PolicyPage( ){
             <span className="de-widget-title">On this page</span>
           </div>
           <div className="de-widget-body" style={{ padding: '4px 6px' }}>
-            {CATEGORIES.map(({ id, label, icon}) => (
+            {CATEGORIES.map(({ id, label, icon: Icon}) => (
               <a key={id} href={`#${id}`} className="de-row" style={{ borderRadius: 10 }}>
                 <div
                   style={{

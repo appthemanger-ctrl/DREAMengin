@@ -143,7 +143,7 @@ export default function DataVizPanel( ){
 
         {/* Chart type */}
         <div className="flex gap-2 mb-5">
-          {CHART_TYPES.map(({ id, label, icon}) => (
+          {CHART_TYPES.map(({ id, label, icon: Icon}) => (
             <button
               key={id}
               onClick={() => setChartType(id)}
