@@ -78,7 +78,7 @@ function groupIntoClusters(windows: DreamWindowRecord[]): ClusterGroup[] {
 // Sub-components
 // ---------------------------------------------------------------------------
 
-function DreamWindowTile(){
+function DreamWindowTile({
   window: w,
   onRemove,
   onBind,
@@ -225,7 +225,7 @@ export interface SuperDreamWidgetProps {
   title?: string;
 }
 
-export default function SuperDreamWidget(){
+export default function SuperDreamWidget({
   types,
   title = 'Dream Windows',
 }: SuperDreamWidgetProps) {
@@ -288,7 +288,7 @@ export default function SuperDreamWidget(){
         <span className="de-widget-title">{title}</span>
         <button
           type="button"
-          onClick={() => setAdding((v: number ) => !v)}
+          onClick={() => setAdding((v) => !v)}
           style={{
             fontSize: 18,
             lineHeight: 1,

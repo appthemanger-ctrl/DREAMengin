@@ -20,7 +20,7 @@ export interface NavigationState {
 /**
  * useNavigation - React hook for gesture-driven navigation
  */
-export function useNavigation(options: UseNavigationOptions = ){} {
+export function useNavigation(options: UseNavigationOptions = {}) {
   const engineRef = useRef<SpatialNavigationEngine | null>(null);
   const [navState, setNavState] = useState<NavigationState>({
     layer: 0,

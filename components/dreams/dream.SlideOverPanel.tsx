@@ -3,7 +3,7 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
-export default function SlideOverPanel(){
+export default function SlideOverPanel({
   open,
   title,
   onClose,

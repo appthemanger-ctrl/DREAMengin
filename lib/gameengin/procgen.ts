@@ -9,7 +9,7 @@
  */
 
 /** Mulberry32 — small, fast, deterministic PRNG. */
-function mulberry32(seed: number: () => number {
+function mulberry32(seed: number): () => number {
   let t = seed >>> 0;
   return () => {
     t = (t + 0x6D2B79F5) >>> 0;
