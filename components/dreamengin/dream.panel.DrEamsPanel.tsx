@@ -1,3 +1,5 @@
+"use client";
+
 // DrEamsPanel.tsx — Dr. Eams user-facing AI chat panel.
 // Available to ALL authenticated users — connects to /api/ai/eams.
 // Dr. Eams is the friendly user companion in the AI triad.

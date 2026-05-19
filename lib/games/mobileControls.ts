@@ -60,7 +60,7 @@ export const MOBILE_HUD_BUTTON_RING: readonly MobileHudRingButtonDefinition[] = 
   { id: 'square', symbol: '□', label: 'Tech', interactive: false, slotClassName: 'slotSquare' },
 ] as const;
 
-function emitWindowEvent(name: string, detail): unknown {
+function emitWindowEvent(name: string, detail: unknown): void {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(new CustomEvent(name, { detail }));
 }

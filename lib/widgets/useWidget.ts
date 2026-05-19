@@ -11,19 +11,19 @@ export function useWidget(channel: string, onReceive: (payload: unknown) => void
   }, [channel, onReceive]);
 }
 
-export function emitWidget(channel: string, payload): unknown {
+export function emitWidget(channel: string, payload: unknown): void {
   widgetBus.emit(channel, payload);
 }
 
-export function setWidgetMemory(key: string, value): unknown {
+export function setWidgetMemory(key: string, value: unknown): void {
   widgetBus.setMemory(key, value);
 }
 
-export function getWidgetMemory(key: string): unknown {
+export function getWidgetMemory(key: string): unknown { // intentional - memory can be any type
   return widgetBus.getMemory(key);
 }
 
-export function chainWidgets(channels: string[], payload): unknown {
+export function chainWidgets(channels: string[], payload: unknown): void {
   widgetBus.chain(channels, payload);
 }
 

@@ -8,12 +8,12 @@ export type ApiContext = {
   user: { id: string; email?: string | null } | null;
 };
 
-export function json(data: unknown, init?): ResponseInit {
+export function json(data: unknown, init?: ResponseInit): NextResponse {
   return NextResponse.json(data, init);
 }
 
 /** Simple error response — `{ error: message }` */
-export function jsonError(message: string, status = 400, details?): unknown {
+export function jsonError(message: string, status = 400, details?: unknown): NextResponse {
   return NextResponse.json({ error: message, ...(details ? { details } : {}) }, { status });
 }
 
@@ -21,7 +21,7 @@ export function jsonError(message: string, status = 400, details?): unknown {
  * Structured AI-route error — `{ ok: false, error: { code, message } }`.
  * Used by all `/api/ai/*` and `/api/dr-eams/*` routes so the shape is uniform.
  */
-export function jsonApiError(status: number, code: string, message: string, details?): unknown {
+export function jsonApiError(status: number, code: string, message: string, details?: unknown): NextResponse {
   return NextResponse.json(
     { ok: false, error: { code, message, ...(details !== undefined ? { details } : {}) } },
     { status, headers: { 'Cache-Control': 'no-store' } }
@@ -42,7 +42,7 @@ export async function withApi(
   }
 }
 
-export function requireUser(ctx: ApiContext ){
+export function requireUser(ctx: ApiContext): NextResponse | null {
   if (!ctx.user) return jsonError('Unauthorized', 401);
   return null;
 }
