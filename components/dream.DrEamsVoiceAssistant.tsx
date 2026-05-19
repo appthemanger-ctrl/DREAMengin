@@ -5,6 +5,31 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Bot, Send, X, Minimize2, Maximize2, Mic, MicOff, Volume2, VolumeX, Radio, Sparkles } from 'lucide-react';
 import { onIdariEvent } from '@/lib/agents/agentBus';
 
+// Browser Speech API type declarations
+type SpeechRecognition = {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onend: (() => void) | null;
+  onerror: ((event: Event) => void) | null;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+};
+type SpeechRecognitionEvent = {
+  resultIndex: number;
+  results: SpeechRecognitionResultList;
+};
+type SpeechRecognitionResultList = {
+  length: number;
+  [index: number]: SpeechRecognitionResult;
+};
+type SpeechRecognitionResult = {
+  isFinal: boolean;
+  [index: number]: { transcript: string; confidence: number };
+};
+
 interface Message {
   id: string;
   role: 'user' | 'assistant';
@@ -77,13 +102,13 @@ export default function DrEamsVoiceAssistant( ){
     if (typeof window === 'undefined') return;
 
      
-    const SpeechRecognitionImpl = (window as Window & { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition || (window as Window & { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
+    const SpeechRecognitionImpl = ((window as unknown as Record<string, unknown>).SpeechRecognition || (window as unknown as Record<string, unknown>).webkitSpeechRecognition) as (new () => SpeechRecognition) | undefined;
     const SpeechSynthesis = window.speechSynthesis;
 
     // Detect browser support once
-    setSpeechSupported(!!SpeechRecognition);
+    setSpeechSupported(!!SpeechRecognitionImpl);
 
-    if (SpeechRecognition) {
+    if (SpeechRecognitionImpl) {
       const recognition = new SpeechRecognitionImpl();
       recognition.continuous = true;
       recognition.interimResults = true;

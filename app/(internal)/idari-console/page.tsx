@@ -6,7 +6,7 @@ import IDariPanel from '@/components/dream.panel.IDariPanel';
 import ChildSafetyPanel from '@/components/dream.panel.ChildSafetyPanel';
 import Link from 'next/link';
 import {
-  ArrowLeft, Bot, Shield, Activity, Users, Database,
+  ArrowLeft, Bot, Shield, Activity, Users, Database as DatabaseIcon,
   CheckCircle, XCircle, Clock, AlertTriangle, Zap
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';

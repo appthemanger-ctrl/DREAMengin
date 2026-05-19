@@ -700,7 +700,7 @@ async function callGenerate(
 
 // ── Route handler ─────────────────────────────────────────────────────────────
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
+export async function POST(req: NextRequest): Promise<NextResponse | Response> {
   // Validate body
   let body: unknown;
   try {

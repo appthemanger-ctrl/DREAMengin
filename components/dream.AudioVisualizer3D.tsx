@@ -220,7 +220,7 @@ export function AudioVisualizer3D({
     filterNode.connect(dest);
     const rec    = new MediaRecorder(dest.stream);
     const chunks: BlobPart[] = [];
-    rec.ondataavailable = (e: unknown ) => chunks.push(e.data);
+    rec.ondataavailable = (e: BlobEvent) => chunks.push(e.data);
     rec.onstop = () => {
       const blob = new Blob(chunks, { type: 'audio/webm' });
       const url  = URL.createObjectURL(blob);

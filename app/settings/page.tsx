@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft, User, Rss, LayoutGrid, Palette, Plug, Sliders,
-  Shield, Database, Bot, Crown, ChevronRight, HelpCircle, LogOut, Cpu
+  Shield, Database as DatabaseIcon, Bot, Crown, ChevronRight, HelpCircle, LogOut, Cpu
 } from 'lucide-react';
 import { connection } from 'next/server';
 import { isOwnerEmail } from '@/lib/ai/triad';

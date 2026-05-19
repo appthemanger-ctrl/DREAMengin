@@ -453,7 +453,7 @@ export default function PortfolioEngin({ onBack }: Props) {
                   { icon: Activity,    label: 'Portfolio Risk',  value: result.portfolioRisk,   unit: '%',  color: '#f59e0b'  },
                   { icon: ShieldCheck, label: 'Sharpe Ratio',   value: result.sharpeRatio,     unit: '',   color: ACCENT     },
                   { icon: Cpu,         label: 'Objective',      value: result.objectiveValue,  unit: '',   color: PURPLE    },
-                ].map(({ icon, label, value, unit, color }) => (
+                ].map(({ icon: Icon, label, value, unit, color }) => (
                   <div
                     key={label}
                     className="de-metric de-surface"

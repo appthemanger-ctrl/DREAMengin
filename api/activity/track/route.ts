@@ -13,6 +13,7 @@ import type {
   TrackActivityResponse,
   ActivityTier,
   VerificationMethod,
+  ActivityVerification,
 } from '@/lib/activity/types';
 import { VERIFICATION_STRENGTH } from '@/lib/activity/types';
 

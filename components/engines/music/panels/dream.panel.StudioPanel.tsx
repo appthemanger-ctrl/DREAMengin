@@ -49,7 +49,7 @@ export default function StudioPanel( ){
       const mimeType = getBestMimeType();
       const mr = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       chunksRef.current = [];
-      mr.ondataavailable = (e: unknown ) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      mr.ondataavailable = (e: BlobEvent) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
       mr.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: mimeType || 'audio/webm' });
         const url = URL.createObjectURL(blob);
@@ -69,7 +69,7 @@ export default function StudioPanel( ){
       mediaRef.current = mr;
       setState('recording');
       setElapsed(0);
-      timerRef.current = setInterval(() => setElapsed((e: unknown ) => e + 1), 1000);
+      timerRef.current = setInterval(() => setElapsed((e: number) => e + 1), 1000);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Microphone access denied');
     }

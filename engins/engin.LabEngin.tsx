@@ -41,7 +41,7 @@ import QuantumCircuitCanvas, {
 import Link from 'next/link';
 import {
   ArrowLeft, FlaskConical, Activity, Play, BarChart2,
-  Download, Code2, Gamepad2, Music, Loader2, RefreshCw, Terminal, Database, Box,
+  Download, Code2, Gamepad2, Music, Loader2, RefreshCw, Terminal, Database as DatabaseIcon, Box,
 } from 'lucide-react';
 
 interface Props {

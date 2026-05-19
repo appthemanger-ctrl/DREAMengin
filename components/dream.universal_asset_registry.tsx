@@ -38,7 +38,7 @@ import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import {
   Search, Filter, RefreshCw, Plus, Trash2, Edit3, ChevronDown, ChevronUp,
   Gamepad2, Music, FlaskConical, Code2, Palette, Lightbulb, FileText,
-  Box, Layers, Cpu, Link2, Database, Clock, Tag, Hash, X, Check, Loader2,
+  Box, Layers, Cpu, Link2, Database as DatabaseIcon, Clock, Tag, Hash, X, Check, Loader2,
   Eye, Download, Settings, Zap, Grid, List,
 } from 'lucide-react';
 

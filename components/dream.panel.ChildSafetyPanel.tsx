@@ -291,7 +291,7 @@ export default function ChildSafetyPanel({ isAdmin }: ChildSafetyPanelProps) {
         {([
           { id: 'queue',  label: 'Incident Queue', icon: Activity },
           { id: 'hashes', label: 'Hash Registry',  icon: Hash },
-        ] as const).map(({ id, label, icon}) => (
+        ] as const).map(({ id, label, icon: Icon}) => (
           <button
             key={id}
             type="button"

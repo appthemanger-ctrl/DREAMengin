@@ -8,7 +8,7 @@
 import type { Database } from '@/types/supabase';
 import { useEffect, useState }  from 'react';
 import { ChevronRight, Crown, User, Rss, LayoutGrid, Palette, Plug, Sliders,
-         Shield, Database, HelpCircle, LogOut, Bot, Cpu }  from 'lucide-react';
+         Shield, Database as DatabaseIcon, HelpCircle, LogOut, Bot, Cpu }  from 'lucide-react';
 import { createClient }          from '@/lib/supabase/client';
 import { useDreamSystem }        from '@/lib/dreamdm/DreamSystemContext';
 import type { SystemPanelId }    from '@/lib/panels/panelTypes';

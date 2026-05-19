@@ -1,4 +1,5 @@
 import { ALL_CONNECTION_PATHS } from '@/lib/dream-window/enginConnectionNetwork';
+import type { EnginConnectionPath } from '@/lib/dream-window/enginConnectionNetwork';
 import { ENGIN_REGISTRY } from '@/lib/forge/forgeRegistry';
 import { AI_AGENTS, AI_ROUTES } from '@/lib/identity/canonical-names';
 import { CONNECTOR_REGISTRY } from '@/lib/connectors/connectorRegistry';

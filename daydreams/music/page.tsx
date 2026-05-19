@@ -327,7 +327,7 @@ export default async function MusicArtistHubPage( ){
                 { icon: DiscAlbum,  label: 'Albums',   count: '—' },
                 { icon: TrendingUp, label: 'Streams',  count: '—' },
                 { icon: Upload,     label: 'Releases', count: '—' },
-              ].map(({ icon, label, count }) => (
+              ].map(({ icon: Icon, label, count }) => (
                 <div key={label} style={{
                   padding: '12px', borderRadius: 9, textAlign: 'center',
                   background: 'rgba(255,255,255,0.04)',
