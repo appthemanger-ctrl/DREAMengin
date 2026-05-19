@@ -1,0 +1,196 @@
+import { createServerClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from 'next/server';
+
+type Profile = {
+  id: string;
+  handle: string | null;
+  display_name: string | null;
+  avatar_url: string | null;
+};
+
+type FollowersRow = { follower: Profile | null };
+type FollowingRow = { following: Profile | null };
+
+// GET - Check follow status or get followers/following
+export async function GET(req: NextRequest ): Promise<Response> {
+  const supabase = await createServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const targetId = searchParams.get('target_id');
+  const type = searchParams.get('type'); // 'followers' | 'following' | 'check'
+
+  if (type === 'check' && targetId) {
+    // Check if current user follows target
+    const { data: follow } = await supabase
+      .from('follows')
+      .select('id')
+      .eq('follower_id', user.id)
+      .eq('following_id', targetId)
+      .single();
+
+    return NextResponse.json({ isFollowing: !!follow });
+  }
+
+  const userId = targetId || user.id;
+
+  if (type === 'followers') {
+    const { data: followers, error } = await supabase
+      .from('follows')
+      .select(`
+        follower:profiles!follower_id(id, handle, display_name, avatar_url)
+      `)
+      .eq('following_id', userId)
+      // NOTE: We avoid `.returns<T>()` here because in some build environments
+      // the Supabase client can degrade to `any`, and TypeScript will fail the
+      // build with: "Untyped function calls may not accept type arguments."
+      // The cast below preserves runtime behavior while keeping the build green.
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      followers: ((followers as unknown as FollowersRow[]) ?? []).flatMap((r) =>
+        r.follower ? [r.follower] : []
+      ),
+    });
+  }
+
+  if (type === 'following') {
+    const { data: following, error } = await supabase
+      .from('follows')
+      .select(`
+        following:profiles!following_id(id, handle, display_name, avatar_url)
+      `)
+      .eq('follower_id', userId)
+      // See NOTE above re: `.returns<T>()`.
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({
+      following: ((following as unknown as FollowingRow[]) ?? []).flatMap((r) =>
+        r.following ? [r.following] : []
+      ),
+    });
+  }
+
+  // Get counts in parallel
+  const [{ count: followersCount }, { count: followingCount }] = await Promise.all([
+    supabase
+      .from('follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('following_id', userId),
+    supabase
+      .from('follows')
+      .select('*', { count: 'exact', head: true })
+      .eq('follower_id', userId),
+  ]);
+
+  return NextResponse.json({
+    followers_count: followersCount || 0,
+    following_count: followingCount || 0,
+  });
+}
+
+// POST - Follow a user
+export async function POST(req: NextRequest ): Promise<Response> {
+  const supabase = await createServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const body = await req.json().catch(() => ({})) as { target_id?: string };
+  const { target_id } = body;
+
+  if (!target_id) {
+    return NextResponse.json({ error: 'Target user ID is required' }, { status: 400 });
+  }
+
+  if (target_id === user.id) {
+    return NextResponse.json({ error: 'Cannot follow yourself' }, { status: 400 });
+  }
+
+  // Check if already following
+  const { data: existing } = await supabase
+    .from('follows')
+    .select('id')
+    .eq('follower_id', user.id)
+    .eq('following_id', target_id)
+    .single();
+
+  if (existing) {
+    return NextResponse.json({ error: 'Already following' }, { status: 400 });
+  }
+
+  const { error } = await supabase
+    .from('follows')
+    .insert({
+      follower_id: user.id,
+      following_id: target_id,
+    });
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Create notification — content JSONB must match notificationHelpers.ts schema
+  // so that NotificationCenter can derive actor name and action URL.
+  // Cast to `any` because the generated TS types may lag behind the actual schema.
+  const { data: followerProfile } = await supabase
+    .from('profiles')
+    .select('handle, display_name')
+    .eq('id', user.id)
+    .single();
+
+   
+  await (supabase as SupabaseClient).from('notifications').insert({
+    user_id: target_id,
+    type: 'follow',
+    content: {
+      actor_handle:       followerProfile?.handle       ?? user.id,
+      actor_display_name: followerProfile?.display_name ?? followerProfile?.handle ?? 'Someone',
+      follower_id:        user.id,
+    },
+  });
+
+  return NextResponse.json({ success: true }, { status: 201 });
+}
+
+// DELETE - Unfollow a user
+export async function DELETE(req: NextRequest ): Promise<Response> {
+  const supabase = await createServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const targetId = searchParams.get('target_id');
+
+  if (!targetId) {
+    return NextResponse.json({ error: 'Target user ID is required' }, { status: 400 });
+  }
+
+  const { error } = await supabase
+    .from('follows')
+    .delete()
+    .eq('follower_id', user.id)
+    .eq('following_id', targetId);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
+}
