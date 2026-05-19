@@ -1,23 +1,23 @@
 {
-  "generatedAt": "2026-05-17T05:32:08.261Z",
-  "totalFiles": 1962,
-  "totalNodes": 6512,
-  "totalEdges": 6314,
-  "totalFunctionAndClassNodes": 3548,
-  "orphanCount": 2903,
+  "generatedAt": "2026-05-19T13:13:48.744Z",
+  "totalFiles": 2077,
+  "totalNodes": 6945,
+  "totalEdges": 6963,
+  "totalFunctionAndClassNodes": 3715,
+  "orphanCount": 3184,
   "countsByType": {
-    "folder": 608,
+    "folder": 759,
     "doc": 186,
     "file": 72,
-    "config": 227,
-    "function": 3392,
+    "config": 229,
+    "function": 3559,
     "python": 14,
     "class": 156,
     "js": 22,
     "mjs": 27,
+    "ts": 889,
     "route": 235,
-    "ts": 777,
-    "tsx": 318,
+    "tsx": 319,
     "css": 13,
     "jsx": 9,
     "cjs": 4,
@@ -34,6 +34,13 @@
       "path": "src/engin/generated/surfaces.ts"
     },
     {
+      "id": "file:lib/supabase/server.ts",
+      "degree": 439,
+      "label": "server.ts",
+      "type": "ts",
+      "path": "lib/supabase/server.ts"
+    },
+    {
       "id": "file:src/engin/generated/systems.ts",
       "degree": 393,
       "label": "systems.ts",
@@ -41,15 +48,8 @@
       "path": "src/engin/generated/systems.ts"
     },
     {
-      "id": "file:lib/supabase/server.ts",
-      "degree": 349,
-      "label": "server.ts",
-      "type": "ts",
-      "path": "lib/supabase/server.ts"
-    },
-    {
       "id": "function:lib/supabase/server.ts#createServerClient",
-      "degree": 180,
+      "degree": 269,
       "label": "createServerClient",
       "type": "function",
       "path": "lib/supabase/server.ts"
