@@ -406,8 +406,8 @@ function WallBanner( ){
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev: Event ) => {
-      const url = ev.target?.result as string;
+    reader.onload = (ev: ProgressEvent<FileReader>) => {
+      const url = (ev.target as FileReader).result as string;
       setWallImage(url);
       try { localStorage.setItem('dreamengin:wall:image', url); } catch { /* noop */ }
     };

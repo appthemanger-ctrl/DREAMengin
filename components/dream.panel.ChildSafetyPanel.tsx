@@ -24,6 +24,7 @@ import {
   RefreshCw, Upload, Trash2, Eye, Hash, ChevronRight,
   AlertCircle, ShieldCheck, Activity,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 // ============================================================================
 // TYPES (mirroring the DB schema — no raw content fields)

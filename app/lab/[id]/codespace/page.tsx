@@ -91,8 +91,8 @@ export default function CodeSpacePage({ params }: Props) {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev: Event ) => {
-      const text = ev.target?.result;
+    reader.onload = (ev: ProgressEvent<FileReader>) => {
+      const text = (ev.target as FileReader).result;
       if (typeof text === 'string') setCode(text);
     };
     reader.readAsText(file);

@@ -3,7 +3,7 @@ import 'server-only'
 
 import { createServiceClient } from '@/lib/supabase/server'
 
-export async function pollYouTube(userId: string, accessToken): string {
+export async function pollYouTube(userId: string, accessToken: string): Promise<string> {
   try {
     const supabase = (await createServiceClient()) as SupabaseClient
     // Fetch user's subscriptions

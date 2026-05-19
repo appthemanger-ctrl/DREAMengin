@@ -13,7 +13,7 @@ function writeInstances(accountId: string, instances: any): ActiveModuleInstance
   window.localStorage.setItem(STORAGE_KEY(accountId), JSON.stringify(instances));
 }
 
-export function loadActiveModules(accountId?: string | null): ActiveModuleInstance[] {
+export function loadActiveModules(accountId?: string | null) {
   if (!accountId || !isBrowser()) return [];
 
   const raw = window.localStorage.getItem(STORAGE_KEY(accountId));
@@ -34,7 +34,7 @@ export function saveActiveModule(accountId: string, instance: any): void {
   writeInstances(accountId, Array.from(map.values()));
 }
 
-export function saveActiveModules(accountId: string, instances: any): ActiveModuleInstance[] {
+export function saveActiveModules(accountId: string, instances: any) {
   writeInstances(accountId, instances);
 }
 

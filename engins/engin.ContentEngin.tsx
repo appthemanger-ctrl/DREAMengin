@@ -329,7 +329,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
    *
    * LAW.md §3 — every visible action must do something real.
    */
-  async function publishItem(day: string, id: any): string | undefined {
+  async function publishItem(day: string, id: any): Promise<string | undefined> {
     const item = calendarItems[day]?.find((i) => i.id === id);
     if (!item) return;
 
@@ -1629,7 +1629,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   function addSbFrame( ){
     setSbFrames((prev) => [...prev, { id: Date.now().toString(), scene: `Scene ${prev.length + 1}`, shot: 'Medium', action: '', audio: '', duration: 5 }]);
   }
-  function updateSbFrame(id: string, field: string, value: any): string | number {
+  function updateSbFrame(id: string, field: string, value: any) {
     setSbFrames((prev) => prev.map((f) => f.id === id ? { ...f, [field]: value } : f));
   }
   function removeSbFrame(id: string ){ setSbFrames((prev) => prev.filter((f) => f.id !== id)); }
@@ -1645,7 +1645,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
   }
 
   // ── AI Production Plan handlers ───────────────────────────────────────────────
-  function buildProductionPlan(idea: string, type: string, platform: any): string {
+  function buildProductionPlan(idea: string, type: string, platform: any): Record<string, unknown> {
     const t = idea.trim() || 'your content idea';
     return {
       title: `Production Plan: ${t.slice(0, 50)}`,
@@ -1701,7 +1701,7 @@ export default function ContentEngin({ onBack, instanceId: instanceIdProp }: Pro
     setPlanResult(null);
     setPlanSaveMsg('');
     await new Promise((r) => setTimeout(r, 700));
-    setPlanResult(buildProductionPlan(planIdea, planType, planPlatform));
+    setPlanResult(buildProductionPlan(planIdea, planType, planPlatform) as unknown as ProductionPlan);
     setPlanLoading(false);
   }
 

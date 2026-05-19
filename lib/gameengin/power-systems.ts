@@ -1268,7 +1268,7 @@ export class GPUProfiler {
         const m = performance.measure('__gp_frame', '__gp_frame_start', '__gp_frame_end');
         this.currentFrame.totalMs = m.duration;
       } catch {
-        this.currentFrame.totalMs = this.currentFrame.spans.reduce((a, s: string) => a + s.durationMs, 0);
+        this.currentFrame.totalMs = this.currentFrame.spans.reduce((a: number, s: ProfileSpan) => a + s.durationMs, 0);
       }
     }
     this.frames.push(this.currentFrame);
@@ -1368,7 +1368,7 @@ export class TypedEventBus<M extends EventMap = EventMap> {
     this.listeners.get(event)!.push({ fn, once });
   }
 
-  get stats() { return { listeners: [...this.listeners.values()].reduce((a, v: number) => a + v.length, 0), history: this.history.length, emitCount: this.emitCount }; }
+  get stats() { return { listeners: [...this.listeners.values()].reduce((a: number, v: { fn: unknown; once: boolean }[]) => a + v.length, 0), history: this.history.length, emitCount: this.emitCount }; }
 
   dispose(): void { this.listeners.clear(); this.history = []; }
 }

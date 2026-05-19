@@ -250,6 +250,6 @@ export class GameEnginRuntime {
     this.bus.destroy();
     this.inputHandlers.clear();
     if (this._gamepadPollId !== null) cancelAnimationFrame(this._gamepadPollId);
-    this.device?.destroy();
+    (this.device as { destroy?: () => void } | null)?.destroy?.();
   }
 }

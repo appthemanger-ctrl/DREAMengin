@@ -97,7 +97,7 @@ export default function AIPanel( ){
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content: text, timestamp: new Date() };
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
-    await new Promise((r: number ) => setTimeout(r, 800 + Math.random() * 1200));
+    await new Promise<void>((r) => setTimeout(r, 800 + Math.random() * 1200));
     const reply: Message = {
       id: (Date.now() + 1).toString(),
       role: 'assistant',

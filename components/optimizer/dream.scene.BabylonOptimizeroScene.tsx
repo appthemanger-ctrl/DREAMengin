@@ -162,7 +162,7 @@ export default function BabylonOptimizeroScene({
       Color4,
       Animation,
     }]) => {
-      if (disposed || !canvas) { engine.dispose(); return; }
+      if (disposed || !canvas) { (engine as { stopRenderLoop: () => void; dispose: () => void }).dispose(); return; }
 
       engineRef.current = engine;
       const scene = new Scene(engine);

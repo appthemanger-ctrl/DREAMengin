@@ -698,7 +698,7 @@ export default function UniversalAssetRegistry({
 
               {/* Internal ID */}
               <div style={detailFieldStyle}>
-                <div style={detailLabelStyle}><Database className="w-3 h-3" /> Internal ID</div>
+                <div style={detailLabelStyle}><DatabaseIcon className="w-3 h-3" /> Internal ID</div>
                 <div style={detailValueStyle} title={entry.internal_id}>
                   {entry.internal_id.slice(0, 8)}…
                 </div>
@@ -894,7 +894,7 @@ export default function UniversalAssetRegistry({
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: accentColor,
             }}>
-              <Database className="w-5 h-5" />
+              <DatabaseIcon className="w-5 h-5" />
             </div>
             <div>
               <h2 style={{
@@ -954,7 +954,7 @@ export default function UniversalAssetRegistry({
           gap: 10,
           marginBottom: 20,
         }}>
-          {renderStatCard('Total Assets', stats.total, <Database className="w-4 h-4" />, accentColor)}
+          {renderStatCard('Total Assets', stats.total, <DatabaseIcon className="w-4 h-4" />, accentColor)}
           {renderStatCard('Types', stats.typeCount, <Layers className="w-4 h-4" />, '#3b82f6')}
           {renderStatCard('Game Assets', stats.gameAssets, <Gamepad2 className="w-4 h-4" />, '#8b5cf6')}
           {renderStatCard('With Bindings', stats.withBindings, <Link2 className="w-4 h-4" />, '#f59e0b')}
@@ -1257,7 +1257,7 @@ export default function UniversalAssetRegistry({
           background: 'var(--de-surface, rgba(255,255,255,0.85))',
           border: '1px dashed var(--de-border, rgba(0,0,0,0.12))',
         }}>
-          <Database className="w-10 h-10" style={{ color: 'var(--de-text-dim)', opacity: 0.3 }} />
+          <DatabaseIcon className="w-10 h-10" style={{ color: 'var(--de-text-dim)', opacity: 0.3 }} />
           <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--de-heading)' }}>
             {entries.length === 0 ? 'No assets registered' : 'No matching assets'}
           </div>

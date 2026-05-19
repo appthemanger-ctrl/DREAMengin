@@ -38,7 +38,7 @@ export default function DrEamsVoiceAssistant( ){
    
   const recognitionRef = useRef<SpeechRecognition | null>(null);
    
-  const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const synthRef = useRef<SpeechSynthesis | null>(null);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -77,14 +77,14 @@ export default function DrEamsVoiceAssistant( ){
     if (typeof window === 'undefined') return;
 
      
-    const SpeechRecognition = (window as Window & { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition || (window as Window & { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
+    const SpeechRecognitionImpl = (window as Window & { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition || (window as Window & { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
     const SpeechSynthesis = window.speechSynthesis;
 
     // Detect browser support once
     setSpeechSupported(!!SpeechRecognition);
 
     if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
+      const recognition = new SpeechRecognitionImpl();
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = 'en-US';
@@ -146,7 +146,7 @@ export default function DrEamsVoiceAssistant( ){
       recognitionRef.current = recognition;
     }
 
-    synthRef.current = SpeechSynthesis;
+    synthRef.current = window.speechSynthesis;
 
     return () => {
       if (recognitionRef.current) {

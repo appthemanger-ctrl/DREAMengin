@@ -161,7 +161,7 @@ export async function PUT(req: NextRequest ): Promise<Response> {
 
   const { data: project, error } = await supabase
     .from('projects')
-    .update(updateData)
+    .update(updateData as never)
     .eq('id', id)
     .eq('user_id', user.id)
     .select()

@@ -113,7 +113,7 @@ export async function PUT(req: NextRequest): Promise<NextResponse> {
 
   const { data: profile, error } = await supabase
     .from('profiles')
-    .update(updateData)
+    .update(updateData as never)
     .eq('id', user.id)
     .select()
     .single();

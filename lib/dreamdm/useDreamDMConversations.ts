@@ -58,7 +58,7 @@ export function useDreamDMConversations(userId: string, initial: DMConversation[
       if (error || !data) return;
 
        
-      const formatted: DMConversation[] = (data as unknown[]).map((conv) => {
+      const formatted: DMConversation[] = (data as Record<string, unknown>[]).map((conv) => {
         const other = conv.participant1_id === userId ? conv.participant2 : conv.participant1;
         return {
           id: conv.id,

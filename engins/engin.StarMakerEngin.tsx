@@ -863,7 +863,7 @@ export default function StarMakerEngin({ onBack, instanceId: instanceIdProp }: P
   }
 
   // ── Playlist reorder handler ──
-  function movePlaylistItem(index: number, direction: any): 'up' | 'down' {
+  function movePlaylistItem(index: number, direction: any): void {
     setPlaylist((prev) => {
       const next = [...prev];
       const target = direction === 'up' ? index - 1 : index + 1;
@@ -2964,7 +2964,7 @@ function DAWFileIOPanel({
   const [show3DVisualizerFIO, setShow3DVisualizerFIO] = useState(false);
 
   // ── Helper: get/create OfflineAudioContext for processing ──
-  function getOfflineCtx(length: number, sr: number, ch: any): number {
+  function getOfflineCtx(length: number, sr: number, ch: any): OfflineAudioContext {
     return new OfflineAudioContext(ch, length, sr);
   }
 
@@ -3045,7 +3045,7 @@ function DAWFileIOPanel({
     }
   }
 
-  function syncWaveformViewport(targetBar: number, explicitZoom?): number | undefined {
+  function syncWaveformViewport(targetBar: number, explicitZoom?: number): void {
     const scroller = waveformScrollRef.current;
     if (!scroller || waveform.length === 0) return;
     const activeBarWidth = Math.max(3, Math.round(4 * (explicitZoom ?? zoomLevel))) + 1;
@@ -3552,7 +3552,7 @@ function DAWFileIOPanel({
   }
 
   // ── Waveform: click to seek + drag to select ──
-  function handleBarMouseDown(barIdx: number, e: any): React.MouseEvent {
+  function handleBarMouseDown(barIdx: number, e: any) {
     e.preventDefault();
     setDragAnchor(barIdx);
     setIsDragging(true);

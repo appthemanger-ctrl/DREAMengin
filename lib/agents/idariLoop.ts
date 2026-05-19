@@ -226,7 +226,7 @@ async function _callAiWithRetry(
     } catch (err: any) {
       lastErr = err;
       if (attempt < maxAttempts) {
-        await new Promise((r: number ) => setTimeout(r, baseDelayMs * Math.pow(2, attempt - 1)));
+        await new Promise<void>((r) => setTimeout(r, baseDelayMs * Math.pow(2, attempt - 1)));
       }
     }
   }

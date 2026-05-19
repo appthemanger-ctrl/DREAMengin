@@ -14,6 +14,7 @@
 
 import { useState } from 'react';
 import { ArrowLeft, TrendingUp, Activity, ShieldCheck, Cpu } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import QuantumCircuitCanvas, { type QuantumMeasurementResult } from '@/engins/dream.QuantumCircuitCanvas';
 import { useForgeActivity } from '@/lib/forge/useForgeActivity';
 import { recordForgeTransfer } from '@/lib/forge/forgeIntelligence';

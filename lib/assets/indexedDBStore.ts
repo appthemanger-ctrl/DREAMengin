@@ -196,7 +196,7 @@ export async function getStorageStats(): Promise<StorageStats> {
   if (all.length === 0) {
     return { count: 0, totalBytes: 0, oldestStoredAt: null, newestStoredAt: null };
   }
-  const totalBytes = all.reduce((sum, r: number) => sum + r.blob.size, 0);
+  const totalBytes = all.reduce((sum: number, r: OriginalRecord) => sum + r.blob.size, 0);
   const timestamps = all.map((r) => r.storedAt);
   return {
     count: all.length,

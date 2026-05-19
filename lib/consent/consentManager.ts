@@ -189,7 +189,7 @@ export class ConsentManager {
 
   getAllSettings(): Record<string, string> {
     const obj: Record<string, string> = {};
-    this._settings.forEach((v, k: number) => { obj[k] = v; });
+    this._settings.forEach((v: string, k: string) => { obj[k] = v; });
     return obj;
   }
 

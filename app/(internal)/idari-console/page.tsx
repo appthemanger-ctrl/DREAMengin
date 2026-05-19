@@ -139,7 +139,7 @@ export default async function AdminPage( ){
           <div className="de-widget-body">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { label: 'Required Setup', value: `${readiness.setup.requiredPassed}/${readiness.setup.requiredTotal}`, icon: Database, color: readiness.setup.ok ? '#22c55e' : '#dc4444' },
+                { label: 'Required Setup', value: `${readiness.setup.requiredPassed}/${readiness.setup.requiredTotal}`, icon: DatabaseIcon, color: readiness.setup.ok ? '#22c55e' : '#dc4444' },
                 { label: 'Optional Integrations', value: `${readiness.setup.optionalPassed}/${readiness.setup.optionalTotal}`, icon: Zap, color: '#6366f1' },
                 { label: 'Pairs in BUILD', value: `${readiness.build.buildPairs}`, icon: Users, color: '#0ea5e9' },
                 { label: 'Overall Progress', value: `${readiness.build.overallProgressPct}%`, icon: CheckCircle, color: '#f59e0b' },

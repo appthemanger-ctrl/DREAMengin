@@ -99,7 +99,7 @@ function writeArtifacts(accountId: string, artifacts: any): DreamArtifact[] | un
   window.localStorage.setItem(STORAGE_KEY(accountId), JSON.stringify(artifacts));
 }
 
-export function getDefaultSystemArtifacts(defaultOwnerId: string = 'system'): DreamArtifact[] {
+export function getDefaultSystemArtifacts(defaultOwnerId: string = 'system') {
   const createdAt = Date.now();
   return SYSTEM_ARTIFACT_TEMPLATES.map((artifact) => ({
     ...artifact,
@@ -108,7 +108,7 @@ export function getDefaultSystemArtifacts(defaultOwnerId: string = 'system'): Dr
   }));
 }
 
-export function loadArtifacts(accountId?: string | null): DreamArtifact[] {
+export function loadArtifacts(accountId?: string | null) {
   if (!accountId) return getDefaultSystemArtifacts();
   if (!isBrowser()) return getDefaultSystemArtifacts(accountId);
 
@@ -130,7 +130,7 @@ export function saveArtifact(accountId: string, artifact: any): void {
   writeArtifacts(accountId, Array.from(map.values()));
 }
 
-export function saveArtifacts(accountId: string, artifacts: any): DreamArtifact[] {
+export function saveArtifacts(accountId: string, artifacts: any) {
   writeArtifacts(accountId, mergeWithSystemArtifacts(accountId, artifacts));
 }
 
@@ -139,7 +139,7 @@ export function removeArtifact(accountId: string, artifactId: any): void {
   writeArtifacts(accountId, next);
 }
 
-export function listVisibleArtifacts(accountId?: string | null): DreamArtifact[] {
+export function listVisibleArtifacts(accountId?: string | null) {
   return loadArtifacts(accountId).filter((artifact) => artifact.metadata?.hidden !== true);
 }
 
@@ -161,6 +161,6 @@ export function restoreArtifact(accountId: string, artifactId: any): void {
   writeArtifacts(accountId, next);
 }
 
-export function listSystemArtifacts(accountId?: string | null): DreamArtifact[] {
+export function listSystemArtifacts(accountId?: string | null) {
   return loadArtifacts(accountId).filter((artifact) => artifact.isSystemModule);
 }

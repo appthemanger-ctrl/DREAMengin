@@ -16,6 +16,7 @@ import {
   CheckCircle,
   Zap,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import SoundRecorder from '@/components/music/dream.SoundRecorder';
 import DaydreamShell, { type DaydreamWidget } from '@/components/daydream/dream.shell.DaydreamShell';
 import StarMakerEngin from '@/engins/engin.StarMakerEngin';

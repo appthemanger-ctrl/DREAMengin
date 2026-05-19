@@ -92,7 +92,7 @@ export async function GET(req: NextRequest ): Promise<NextResponse> {
 
   // ── Dedupe ids the client has already seen *before* ranking ──────────────
   const fresh = params.seen.size > 0
-    ? visible.filter((r) => !params.seen.has(r.id))
+    ? visible.filter((r) => !params.seen.has((r as Record<string, unknown>).id as string))
     : visible;
 
   const posts: ScoredPost[] = fresh.map((r: any) => ({

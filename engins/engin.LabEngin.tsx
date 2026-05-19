@@ -818,7 +818,7 @@ export default function LabEngin({ onBack, instanceId: instanceIdProp }: Props) 
             {/* Engine connection metrics */}
             <div className="de-widget">
               <div className="de-widget-header">
-                <Database className="w-4 h-4" style={{ color: '#0ea5e9' }} />
+                <DatabaseIcon className="w-4 h-4" style={{ color: '#0ea5e9' }} />
                 <span className="de-widget-title ml-2">Cross-Engine Metrics</span>
               </div>
               <div className="de-widget-body">

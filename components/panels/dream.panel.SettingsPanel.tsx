@@ -38,7 +38,7 @@ const NAV_GROUPS: Array<{
     heading: 'Privacy & Data',
     items: [
       { panel: 'settings/privacy',     icon: Shield,     label: 'Privacy',              desc: 'Visibility, blocking, public profile settings',     iconBg: '#22c55e' },
-      { panel: 'settings/data',        icon: Database,   label: 'Data',                 desc: 'Export, delete data, delete account',               iconBg: '#dc4444' },
+      { panel: 'settings/data',        icon: DatabaseIcon,   label: 'Data',                 desc: 'Export, delete data, delete account',               iconBg: '#dc4444' },
     ],
   },
   {

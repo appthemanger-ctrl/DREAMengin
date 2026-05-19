@@ -148,7 +148,7 @@ function scoreBody(body: string, keywords: string[]): SeoScoreDimension {
 
   const kwDensity =
     keywords.length > 0
-      ? keywords.reduce((acc, k: number) => {
+      ? keywords.reduce((acc: number, k: string) => {
           const re = new RegExp(`\\b${k}\\b`, 'gi');
           return acc + (body.match(re)?.length ?? 0);
         }, 0) / Math.max(words.length, 1)
@@ -273,7 +273,7 @@ function roughFleschGrade(text: string): string {
     .toLowerCase()
     .replace(/[^a-z]/g, ' ')
     .split(/\s+/)
-    .reduce((acc, w: number) => acc + countSyllables(w), 0) || 1;
+    .reduce((acc: number, w: string) => acc + countSyllables(w), 0) || 1;
 
   const score = Number(206.835) - 1.015 * (words / sentences) - 84.6 * (syllables / words);
 

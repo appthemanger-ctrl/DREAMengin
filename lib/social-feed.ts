@@ -75,8 +75,8 @@ export function extractFirstImage(item: unknown): string | null {
   const html =
     item["content:encoded"] ||
     item.contentEncoded ||
-    item.content ||
-    item.description ||
+    (item as Record<string, unknown>).content ||
+    (item as Record<string, unknown>).description ||
     "";
   const match = html.match(/<img[^>]+src=["']([^"']+)["']/i);
   if (match?.[1]) return match[1];

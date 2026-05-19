@@ -190,7 +190,7 @@ export function runAssembly(
   const result      = outputPiece ? pieceOutputs.get(outputPiece.id) : undefined;
 
   bus.emit('executed', { result });
-  return result;
+  return (result ?? {}) as Record<string, unknown>;
 }
 
 // ─── serializeAssembly ────────────────────────────────────────────────────────

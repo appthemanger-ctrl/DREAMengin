@@ -92,7 +92,7 @@ export default function CommentSection({ postId }: Props) {
         }
       })
       .catch((e: unknown ) => {
-        if (e.name !== 'AbortError') setError('Failed to load comments');
+        if ((e as Error).name !== 'AbortError') setError('Failed to load comments');
       })
       .finally(() => setLoading(false));
 
@@ -165,7 +165,7 @@ export default function CommentSection({ postId }: Props) {
         prev.map((c) => (c.id === optimisticId && saved ? { ...saved, optimistic: false } : c)),
       );
     } catch (e: any) {
-      const msg = e instanceof Error ? e.message : 'Something went wrong';
+      const msg = e instanceof Error ? (e as Error).message : 'Something went wrong';
       setSubmitError(msg);
       // Remove the failed optimistic entry
       setComments((prev) => prev.filter((c) => c.id !== optimisticId));

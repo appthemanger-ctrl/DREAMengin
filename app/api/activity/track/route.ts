@@ -51,7 +51,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     // Create verification record if evidence provided
     let verificationId: string | undefined;
-    let verification: unknown = undefined;
+    let verification: ActivityVerification | undefined = undefined;
 
     if (verification_method && evidence_url) {
       const verificationStrength = VERIFICATION_STRENGTH[verification_method] ?? 0;

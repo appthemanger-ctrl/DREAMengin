@@ -3,7 +3,6 @@
 // Resolves feed data for widgets with SELF/FOLLOW scopes
 // =====================================================
 
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { createServerClient } from '@/lib/supabase/server';
 import {
   FeedScope,
@@ -50,7 +49,7 @@ export async function resolveFeedHost(
     // Build query for feed items
      
     let query = (supabase as SupabaseClient)
-      .from('feed_items')
+      .from('feed_items' as never)
       .select('id, user_id, ts, title, summary, url, media_json, tags_json, visibility, importance_score')
       .eq('user_id', targetUserId)
       .order('ts', { ascending: false })
@@ -62,7 +61,7 @@ export async function resolveFeedHost(
     }
     
     if (hostConfig.filters.project_id) {
-      query = query.eq('project_id', hostConfig.filters.project_id);
+      query = query.eq('project_id' as never, hostConfig.filters.project_id);
     }
     
     // Execute query
@@ -82,9 +81,9 @@ export async function resolveFeedHost(
       // Fetch engagement counts for this item
        
       const { data: engagementData } = await (supabase as SupabaseClient)
-        .from('content_engagement')
+        .from('content_engagement' as never)
         .select('engagement_type')
-        .eq('content_id', item.id);
+        .eq('content_id' as never, item.id);
 
        
       const engagementCounts = (engagementData || []).reduce((acc: { likes: number; comments: number; shares: number }, eng: { engagement_type: string }) => {

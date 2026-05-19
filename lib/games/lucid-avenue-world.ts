@@ -914,7 +914,7 @@ function keyForPosition(position: Position ){
   return `${position.x},${position.y}`;
 }
 
-export function isSamePosition(a: Position, b: any): Position {
+export function isSamePosition(a: Position, b: any): boolean {
   return a.x === b.x && a.y === b.y;
 }
 
@@ -952,11 +952,11 @@ function syncContracts(state: LucidAvenueState ){
   return nextState;
 }
 
-function tileAt(district: LucidDistrict, position: any): Position {
+function tileAt(district: LucidDistrict, position: Position): Position {
   return district.map[position.y]?.[position.x] ?? '#';
 }
 
-function appendLog(state: LucidAvenueState, text: any): string {
+function appendLog(state: LucidAvenueState, text: any): LucidAvenueState {
   return {
     ...state,
     log: [text, ...state.log].slice(0, MAX_LOG_ENTRIES),
