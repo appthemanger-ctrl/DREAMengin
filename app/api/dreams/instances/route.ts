@@ -31,7 +31,7 @@ function toSurface(name: SurfaceName): Surface {
   }
 }
 
-export async function GET(req: NextRequest ){
+export async function GET(req: NextRequest): Promise<NextResponse> {
   await connection();
   try {
     const supabase = await createServerClient();

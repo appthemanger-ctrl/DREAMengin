@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // The likes are stored in a generic likes table with content_type and content_id
 
 // GET - Check if user has liked content or get like count
-export async function GET(req: NextRequest ){
+export async function GET(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest ){
 }
 
 // POST - Like content
-export async function POST(req: NextRequest ){
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -116,7 +116,7 @@ export async function POST(req: NextRequest ){
 }
 
 // DELETE - Unlike content
-export async function DELETE(req: NextRequest ){
+export async function DELETE(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 

@@ -144,7 +144,7 @@ export interface UniversalAssetRegistryProps {
   onSelectAsset?: (entry: EnrichedEntry) => void;
 }
 
-export default function UniversalAssetRegistry(){
+export default function UniversalAssetRegistry({
   compact = false,
   accentColor = ACCENT,
   onSelectAsset,

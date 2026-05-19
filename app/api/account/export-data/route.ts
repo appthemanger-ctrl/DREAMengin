@@ -14,6 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jsonApiError } from '@/lib/api/route';
 import { createServerClient } from '@/lib/supabase/server';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 
 // Tables to export, each with the column name that identifies the owner.
@@ -27,7 +28,7 @@ const EXPORT_TARGETS: Array<{ table: string; ownerCol: string }> = [
   { table: 'notes',              ownerCol: 'user_id' },
 ];
 
-export async function GET(_req: NextRequest ){
+export async function GET(_req: NextRequest ): Promise<Response> {
   const supabase = await createServerClient();
 
   const {

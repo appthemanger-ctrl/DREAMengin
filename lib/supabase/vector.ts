@@ -71,7 +71,7 @@ export interface UpsertEmbeddingParams {
  *
  * @returns The upserted row ID, or an error.
  */
-export async function upsertEmbedding(){
+export async function upsertEmbedding({
   client,
   contentId,
   contentType,
@@ -121,7 +121,7 @@ export interface SimilaritySearchParams {
  *
  * Falls back to a direct query if the RPC is unavailable.
  */
-export async function searchSimilar(){
+export async function searchSimilar({
   client,
   queryEmbedding,
   contentType,
@@ -199,7 +199,7 @@ export interface LogConsensusParams {
  * Called by the server-side Triad orchestrator after Dr. Eams, IDARi, and
  * Boogie have each cast their votes on a user-initiated action.
  */
-export async function logTriadConsensus(){
+export async function logTriadConsensus({
   client,
   requestId,
   userId,

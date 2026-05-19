@@ -118,7 +118,7 @@ export interface EngineBuilderCanvasProps {
   initialJson?: string;
 }
 
-export default function EngineBuilderCanvas(){
+export default function EngineBuilderCanvas({
   onSave,
   initialJson,
 }: EngineBuilderCanvasProps) {
@@ -357,7 +357,7 @@ export default function EngineBuilderCanvas(){
   const PIECE_H  = 80;
   const PORT_R   = 6;
 
-  function piecePortPos(piece: CanvasPiece, portId: string, isInput): boolean {
+  function piecePortPos(piece: CanvasPiece, portId: string, isInput: boolean): { x: number; y: number } {
     const ports = isInput ? piece.inputPorts : piece.outputPorts;
     const idx   = ports.findIndex((p) => p.id === portId);
     const count = ports.length;
@@ -552,7 +552,7 @@ export default function EngineBuilderCanvas(){
               const file = input.files?.[0];
               if (!file) return;
               const reader = new FileReader();
-              reader.onload = (e: unknown ) => loadAssembly(String(e.target?.result ?? ''));
+              reader.onload = (e) => loadAssembly(String(e.target?.result ?? ''));
               reader.readAsText(file);
             };
             input.click();
@@ -793,7 +793,7 @@ export default function EngineBuilderCanvas(){
 
 // ── Toolbar button helper ─────────────────────────────────────────────────────
 
-function ToolbarBtn(){
+function ToolbarBtn({
   icon, label, onClick, accent, danger,
 }: {
   icon: React.ReactNode;

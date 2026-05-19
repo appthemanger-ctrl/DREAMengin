@@ -12,7 +12,7 @@ type FollowersRow = { follower: Profile | null };
 type FollowingRow = { following: Profile | null };
 
 // GET - Check follow status or get followers/following
-export async function GET(req: NextRequest ){
+export async function GET(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -100,7 +100,7 @@ export async function GET(req: NextRequest ){
 }
 
 // POST - Follow a user
-export async function POST(req: NextRequest ){
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -166,7 +166,7 @@ export async function POST(req: NextRequest ){
 }
 
 // DELETE - Unfollow a user
-export async function DELETE(req: NextRequest ){
+export async function DELETE(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
 

@@ -54,7 +54,7 @@ function detectEdgeRuntime(x: number, y: number): RuntimeId | null {
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
-export function useTapHoldMove(){
+export function useTapHoldMove({
   manifest,
   onDragStart,
   onMove,
@@ -102,7 +102,7 @@ export function useTapHoldMove(){
 
   // ── Mouse ────────────────────────────────────────────────────────────────
 
-  const onMouseDown: React.MouseEventHandler = useCallback((e: unknown ) => {
+  const onMouseDown: React.MouseEventHandler = useCallback((e) => {
     if (disabled) return;
     const { clientX: x, clientY: y } = e;
     holdTimer.current = setTimeout(() => beginDrag(x, y), TAP_HOLD_MS);
@@ -110,7 +110,7 @@ export function useTapHoldMove(){
 
   // ── Touch ─────────────────────────────────────────────────────────────────
 
-  const onTouchStart: React.TouchEventHandler = useCallback((e: unknown ) => {
+  const onTouchStart: React.TouchEventHandler = useCallback((e) => {
     if (disabled) return;
     const touch = e.touches[0];
     if (!touch) return;

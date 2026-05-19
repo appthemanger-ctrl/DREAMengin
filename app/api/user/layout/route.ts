@@ -12,7 +12,7 @@ function normalizeLayout(input: unknown ){
   };
 }
 
-export async function GET( ){
+export async function GET( ): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -32,7 +32,7 @@ export async function GET( ){
   return NextResponse.json({ ok: true, layout: normalizeLayout((data as Record<string, unknown>)?.user_layout) });
 }
 
-export async function POST(req: NextRequest ){
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {

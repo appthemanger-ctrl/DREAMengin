@@ -35,7 +35,7 @@ import {
   loadVisibilityCircle,
 } from '@/lib/dreamr/closeFriendsVisibility';
 
-export async function GET(req: NextRequest ){
+export async function GET(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

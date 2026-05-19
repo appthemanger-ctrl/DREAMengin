@@ -11,7 +11,7 @@ function runCommand(command: string, cwd: string): Promise<{ stdout: string; std
   });
 }
 
-export async function POST(request: Request ){
+export async function POST(request: Request ): Promise<NextResponse> {
   const apiKey = request.headers.get('x-api-key');
   if (apiKey !== process.env.CI_API_KEY) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
