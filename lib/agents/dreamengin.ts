@@ -251,7 +251,7 @@ export function validatePrivacy(
  * Validate that navigation between surfaces preserves context
  * (no world reset, no page-loss feeling).
  */
-export function validateNavigation(transition: ){
+export function validateNavigation(transition: {
   from: string;
   to: string;
   preservesContext: boolean;
@@ -270,7 +270,7 @@ export function validateNavigation(transition: ){
  * Validate that an action in the UI is real (not a fake button).
  * Every visible action must do something real per AXIOMS.
  */
-export function validateAction(action: ){
+export function validateAction(action: {
   label: string;
   hasHandler: boolean;
   isDisabledWithReason: boolean;
@@ -290,7 +290,7 @@ export function validateAction(action: ){
  * client-side UI. Credential input must use type="password" and
  * OAuth flows must use server-side redirects, not token paste fields.
  */
-export function validateCredentialSafety(field: ){
+export function validateCredentialSafety(field: {
   label: string;
   type: string;
   exposesToken: boolean;

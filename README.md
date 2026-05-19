@@ -1087,7 +1087,6 @@ Auto-synced from `components/**`, `styles/**`, `lib/ui/**`, `hooks/**` using rep
 │   ├── dream.IconSelector.tsx
 │   ├── dream.InnerDreamsButton.tsx
 │   ├── dream.KonamiDream.tsx
-│   ├── dream.LandingHero.tsx
 │   ├── dream.LedgerChart.tsx
 │   ├── dream.MessagesClient.tsx
 │   ├── dream.NotificationCenter.tsx
@@ -1142,6 +1141,7 @@ Auto-synced from `components/**`, `styles/**`, `lib/ui/**`, `hooks/**` using rep
 │   │   ├── dream.PlatformErrorReporter.tsx
 │   │   ├── dream.SlideOverPanel.tsx
 │   │   ├── dream.connectorlayer.tsx
+│   │   ├── dream.featurelayer.tsx
 … (197 more files)
 ```
 <details><summary>User-Facing Modularity file index (317 files)</summary>
@@ -1200,7 +1200,6 @@ Auto-synced from `components/**`, `styles/**`, `lib/ui/**`, `hooks/**` using rep
 - `components/dream.IconSelector.tsx` — React UI module for IconSelector.
 - `components/dream.InnerDreamsButton.tsx` — React UI module for InnerDreamsButton.
 - `components/dream.KonamiDream.tsx` — React UI module for KonamiDream.
-- `components/dream.LandingHero.tsx` — React UI module for LandingHero.
 - `components/dream.LedgerChart.tsx` — React UI module for LedgerChart.
 - `components/dream.MessagesClient.tsx` — React UI module for MessagesClient.
 - `components/dream.NotificationCenter.tsx` — React UI module for NotificationCenter.
@@ -1406,6 +1405,7 @@ Auto-synced from `components/**`, `styles/**`, `lib/ui/**`, `hooks/**` using rep
 - `components/shared-dream/dream.InviteFlow.tsx` — React UI module for InviteFlow.
 - `components/shared-dream/dream.SharedDreamCanvas.tsx` — React UI module for SharedDreamCanvas.
 - `components/shared-dream/dream.SharedDreamProvider.tsx` — React UI module for SharedDreamProvider.
+- `components/shared-dream/dream.SharedDreamRuntime.tsx` — React UI module for SharedDreamRuntime.
 - `components/shared-dream/index.ts` — TypeScript/JavaScript runtime module.
 - `components/spatial/dream.PixiPhysicsLayer.tsx` — React UI module for PixiPhysicsLayer.
 - `components/spatial/dream.ProfileSpace.tsx` — React UI module for ProfileSpace.
@@ -1467,63 +1467,101 @@ Auto-synced from `components/**`, `styles/**`, `lib/ui/**`, `hooks/**` using rep
 </details>
 
 ## Custom Engins
-From a user perspective, Custom Engins are assembled by selecting/authoring modules that conform to the manifest + runtime contract rather than by creating a separate engine runtime.
-
-Practical user flow today:
-1. Module manifests declare compatibility and UI constraints (`types/module-manifest.ts`).
-2. Registry/instance systems register and place those modules in a runtime (`moduleRegistry`, `instanceManager`).
-3. Channel adapters keep behavior consistent in solo or shared sessions (`runtimeChannel`, `useSharedEnginChannel`).
-4. Universal-editor wrappers expose drag/edit/swap affordances on live surfaces.
-
-This section is the user-facing counterpart to [Custom Engins capability (current state)](#custom-engins-capability-current-state): same infrastructure, different perspective (authoring/composition instead of internals).
-#### Custom Engins authoring/runtime files file structure
+Auto-synced from `engins/**`, `daydreams/**`, `components/daydream/**` using repository introspection.
+- Files tracked: **37**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: `AutoOpenGameEngin`, `BrandingEngin`, `CodeDreamIDE`, `CodeEngin`, `Constellationmap`, `ContentEngin`, `DiffViewer`, `DreamsurfaceDaydreamAnalyticsDaydream`, +21 more
+#### Custom Engins file structure
 ```text
-├── engins
-│   ├── CodeEngin
-│   │   ├── core
-│   │   │   └── parser.ts
-│   │   ├── modules
-│   │   │   └── ai-co-pilot
-│   │   │       ├── dream.panel.AgentPanel.tsx
-│   │   │       ├── index.ts
-│   │   │       └── useAgentSession.ts
-│   │   └── orchestrator
-│   │       └── dream.index.tsx
-│   ├── autoopen
-│   │   └── dream.AutoOpenGameEngin.tsx
-│   ├── dream.ForgeEngin.tsx
-│   ├── dream.QuantumCircuitCanvas.tsx
-│   ├── dream.panel.AnalyticsEngin.tsx
-│   ├── engin.BrandingEngin.tsx
-│   ├── engin.CodeEngin.tsx
-│   ├── engin.ContentEngin.tsx
-│   ├── engin.GameEngin.tsx
-│   ├── engin.LabEngin.tsx
-│   ├── engin.StarMakerEngin.tsx
-│   └── portfolio
-│       └── dream.PortfolioEngin.tsx
-├── lib
-│   ├── runtime
-│   │   ├── instanceManager.ts
-│   │   ├── moduleRegistry.ts
-│   │   ├── runtimeChannel.ts
-│   │   └── useSharedEnginChannel.ts
-│   └── universal-editor
-│       └── module-manifest.ts
-└── types
-    └── module-manifest.ts
+├── components
+│   └── daydream
+│       ├── dream.CodeDreamIDE.tsx
+│       ├── dream.DiffViewer.tsx
+│       ├── dream.JourneyTrail.tsx
+│       ├── dream.LabDreamIDE.tsx
+│       ├── dream.NGNEngin.tsx
+│       ├── dream.OpenDaydreamSideBButton.tsx
+│       ├── dream.StandaloneEnginSurface.tsx
+│       ├── dream.constellationmap.tsx
+│       ├── dream.shell.DaydreamShell.tsx
+│       ├── dreamsurface.daydream.AnalyticsDaydream.tsx
+│       ├── dreamsurface.daydream.BrandDaydream.tsx
+│       └── starmaker
+│           ├── dream.panel.CompingPanel.tsx
+│           ├── dream.panel.MultitrackArrangementPanel.tsx
+│           ├── dream.panel.PianoRollPanel.tsx
+│           └── dream.panel.SessionViewPanel.tsx
+├── daydreams
+│   ├── brand
+│   │   └── page.tsx
+│   ├── code
+│   │   └── page.tsx
+│   ├── create
+│   │   └── page.tsx
+│   ├── games
+│   │   └── page.tsx
+│   ├── lab
+│   │   └── page.tsx
+│   └── music
+│       └── page.tsx
+└── engins
+    ├── CodeEngin
+    │   ├── core
+    │   │   └── parser.ts
+    │   ├── modules
+    │   │   └── ai-co-pilot
+    │   │       ├── dream.panel.AgentPanel.tsx
+    │   │       ├── index.ts
+    │   │       └── useAgentSession.ts
+    │   └── orchestrator
+    │       └── dream.index.tsx
+    ├── autoopen
+    │   └── dream.AutoOpenGameEngin.tsx
+    ├── dream.ForgeEngin.tsx
+    ├── dream.QuantumCircuitCanvas.tsx
+    ├── dream.panel.AnalyticsEngin.tsx
+    ├── engin.BrandingEngin.tsx
+    ├── engin.CodeEngin.tsx
+    ├── engin.ContentEngin.tsx
+    ├── engin.GameEngin.tsx
+    ├── engin.LabEngin.tsx
+    ├── engin.StarMakerEngin.tsx
+    └── portfolio
+        └── dream.PortfolioEngin.tsx
 ```
-<details><summary>Custom Engins authoring/runtime files file index (22 files)</summary>
+<details><summary>Custom Engins file index (37 files)</summary>
 
-- `engins/CodeEngin/core/parser.ts` — TypeScript runtime module for parser.
-- `engins/CodeEngin/modules/ai-co-pilot/dream.panel.AgentPanel.tsx` — React UI module for panel AgentPanel.
-- `engins/CodeEngin/modules/ai-co-pilot/index.ts` — TypeScript runtime module for index.
-- `engins/CodeEngin/modules/ai-co-pilot/useAgentSession.ts` — TypeScript runtime module for useAgentSession.
-- `engins/CodeEngin/orchestrator/dream.index.tsx` — React UI module for index.
+- `components/daydream/dream.CodeDreamIDE.tsx` — React UI module for CodeDreamIDE.
+- `components/daydream/dream.DiffViewer.tsx` — React UI module for DiffViewer.
+- `components/daydream/dream.JourneyTrail.tsx` — React UI module for JourneyTrail.
+- `components/daydream/dream.LabDreamIDE.tsx` — React UI module for LabDreamIDE.
+- `components/daydream/dream.NGNEngin.tsx` — React UI module for NGNEngin.
+- `components/daydream/dream.OpenDaydreamSideBButton.tsx` — React UI module for OpenDaydreamSideBButton.
+- `components/daydream/dream.StandaloneEnginSurface.tsx` — React UI module for StandaloneEnginSurface.
+- `components/daydream/dream.constellationmap.tsx` — React UI module for Constellationmap.
+- `components/daydream/dream.shell.DaydreamShell.tsx` — React UI module for ShellDaydreamShell.
+- `components/daydream/dreamsurface.daydream.AnalyticsDaydream.tsx` — React UI module for DreamsurfaceDaydreamAnalyticsDaydream.
+- `components/daydream/dreamsurface.daydream.BrandDaydream.tsx` — React UI module for DreamsurfaceDaydreamBrandDaydream.
+- `components/daydream/starmaker/dream.panel.CompingPanel.tsx` — React UI module for PanelCompingPanel.
+- `components/daydream/starmaker/dream.panel.MultitrackArrangementPanel.tsx` — React UI module for PanelMultitrackArrangementPanel.
+- `components/daydream/starmaker/dream.panel.PianoRollPanel.tsx` — React UI module for PanelPianoRollPanel.
+- `components/daydream/starmaker/dream.panel.SessionViewPanel.tsx` — React UI module for PanelSessionViewPanel.
+- `daydreams/brand/page.tsx` — route page.
+- `daydreams/code/page.tsx` — route page.
+- `daydreams/create/page.tsx` — route page.
+- `daydreams/games/page.tsx` — route page.
+- `daydreams/lab/page.tsx` — route page.
+- `daydreams/music/page.tsx` — route page.
+- `engins/CodeEngin/core/parser.ts` — TypeScript/JavaScript runtime module.
+- `engins/CodeEngin/modules/ai-co-pilot/dream.panel.AgentPanel.tsx` — React UI module for PanelAgentPanel.
+- `engins/CodeEngin/modules/ai-co-pilot/index.ts` — TypeScript/JavaScript runtime module.
+- `engins/CodeEngin/modules/ai-co-pilot/useAgentSession.ts` — TypeScript/JavaScript runtime module.
+- `engins/CodeEngin/orchestrator/dream.index.tsx` — React UI module for Index.
 - `engins/autoopen/dream.AutoOpenGameEngin.tsx` — React UI module for AutoOpenGameEngin.
 - `engins/dream.ForgeEngin.tsx` — React UI module for ForgeEngin.
 - `engins/dream.QuantumCircuitCanvas.tsx` — React UI module for QuantumCircuitCanvas.
-- `engins/dream.panel.AnalyticsEngin.tsx` — React UI module for panel AnalyticsEngin.
+- `engins/dream.panel.AnalyticsEngin.tsx` — React UI module for PanelAnalyticsEngin.
 - `engins/engin.BrandingEngin.tsx` — React UI module for BrandingEngin.
 - `engins/engin.CodeEngin.tsx` — React UI module for CodeEngin.
 - `engins/engin.ContentEngin.tsx` — React UI module for ContentEngin.
@@ -1531,14 +1569,9 @@ This section is the user-facing counterpart to [Custom Engins capability (curren
 - `engins/engin.LabEngin.tsx` — React UI module for LabEngin.
 - `engins/engin.StarMakerEngin.tsx` — React UI module for StarMakerEngin.
 - `engins/portfolio/dream.PortfolioEngin.tsx` — React UI module for PortfolioEngin.
-- `lib/runtime/instanceManager.ts` — TypeScript runtime module for instanceManager.
-- `lib/runtime/moduleRegistry.ts` — TypeScript runtime module for moduleRegistry.
-- `lib/runtime/runtimeChannel.ts` — TypeScript runtime module for runtimeChannel.
-- `lib/runtime/useSharedEnginChannel.ts` — TypeScript runtime module for useSharedEnginChannel.
-- `lib/universal-editor/module-manifest.ts` — TypeScript runtime module for module manifest.
-- `types/module-manifest.ts` — TypeScript runtime module for module manifest.
 
 </details>
+
 ## Full Website Customizability
 Auto-synced from `app/settings/**`, `app/api/settings/**`, `lib/theme/**`, `styles/**` using repository introspection.
 - Files tracked: **29**
@@ -2172,13 +2205,12 @@ Auto-synced from `agents/**`, `.github/workflows/**`, `.github/scripts/**`, `scr
 </details>
 
 ## Research, Experiments & Daydreams
-This repository keeps research, prototypes, and shipping surfaces deliberately separated:
-- **`research/`** stores formal work (Torridity / ledger dynamics datasets, equations, papers); start with `research/README.md`.
-- **`experiments/`** holds isolated prototypes not yet merged into production runtime flows.
-- **`daydreams/`** provides standalone route surfaces for each domain (`music`, `games`, `lab`, `code`, `brand`, `create`) outside the main App Router hierarchy.
-
-This separation supports high-velocity exploration while preventing experimental drift from destabilizing the fixed runtime engine.
-#### Research/experiments/daydreams files file structure
+Auto-synced from `research/**`, `research-and-development/**`, `experiments/**`, `daydreams/**` using repository introspection.
+- Files tracked: **24**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: `Page`
+#### Research, Experiments & Daydreams file structure
 ```text
 ├── daydreams
 │   ├── brand
@@ -2223,34 +2255,35 @@ This separation supports high-velocity exploration while preventing experimental
     ├── LICENSE
     └── tech-spec-v1.md
 ```
-<details><summary>Research/experiments/daydreams files file index (24 files)</summary>
+<details><summary>Research, Experiments & Daydreams file index (24 files)</summary>
 
-- `daydreams/brand/page.tsx` — Next.js route page for `/brand`.
-- `daydreams/code/page.tsx` — Next.js route page for `/code`.
-- `daydreams/create/page.tsx` — Next.js route page for `/create`.
-- `daydreams/games/page.tsx` — Next.js route page for `/games`.
-- `daydreams/lab/page.tsx` — Next.js route page for `/lab`.
-- `daydreams/music/page.tsx` — Next.js route page for `/music`.
-- `experiments/.gitkeep` — Executable/config artifact for gitkeep.
-- `research-and-development/LICENSE` — Executable/config artifact for LICENSE.
-- `research-and-development/tech-spec-v1.md` — Documentation/spec for tech spec v1.
-- `research/DISCOVERY.md` — Documentation/spec for DISCOVERY.
-- `research/README.md` — Subsystem documentation reference.
-- `research/ccc-ada-twin-engine/README.md` — Subsystem documentation reference.
-- `research/ccc-ada-twin-engine/code/README.md` — Subsystem documentation reference.
-- `research/ccc-ada-twin-engine/data/README.md` — Subsystem documentation reference.
-- `research/ccc-ada-twin-engine/notes/sharpening_notes.txt` — Project file used by this subsystem (txt).
-- `research/ccc-ada-twin-engine/paper/ccc_ada_axioms_and_invariants.tex` — Project file used by this subsystem (tex).
-- `research/ccc-ada-twin-engine/paper/ccc_ada_black_hole_gravitational_wave_memory.tex` — Project file used by this subsystem (tex).
-- `research/ccc-ada-twin-engine/paper/ccc_ada_holography_and_information_boundary.tex` — Project file used by this subsystem (tex).
-- `research/ccc-ada-twin-engine/paper/ccc_ada_predictions_and_falsifiability.tex` — Project file used by this subsystem (tex).
-- `research/ccc-ada-twin-engine/paper/ccc_ada_twin_engine_framework.tex` — Project file used by this subsystem (tex).
-- `research/data/README.md` — Subsystem documentation reference.
-- `research/data/torr_vs_mond_lock_n11.csv` — Project file used by this subsystem (csv).
-- `research/equations/torridityequate.txt` — Project file used by this subsystem (txt).
-- `research/paper/torridity_ledger.tex` — Project file used by this subsystem (tex).
+- `daydreams/brand/page.tsx` — route page.
+- `daydreams/code/page.tsx` — route page.
+- `daydreams/create/page.tsx` — route page.
+- `daydreams/games/page.tsx` — route page.
+- `daydreams/lab/page.tsx` — route page.
+- `daydreams/music/page.tsx` — route page.
+- `experiments/.gitkeep` — project file (no extension).
+- `research-and-development/LICENSE` — project file (no extension).
+- `research-and-development/tech-spec-v1.md` — documentation file.
+- `research/DISCOVERY.md` — documentation file.
+- `research/README.md` — documentation file.
+- `research/ccc-ada-twin-engine/README.md` — documentation file.
+- `research/ccc-ada-twin-engine/code/README.md` — documentation file.
+- `research/ccc-ada-twin-engine/data/README.md` — documentation file.
+- `research/ccc-ada-twin-engine/notes/sharpening_notes.txt` — project file (txt).
+- `research/ccc-ada-twin-engine/paper/ccc_ada_axioms_and_invariants.tex` — project file (tex).
+- `research/ccc-ada-twin-engine/paper/ccc_ada_black_hole_gravitational_wave_memory.tex` — project file (tex).
+- `research/ccc-ada-twin-engine/paper/ccc_ada_holography_and_information_boundary.tex` — project file (tex).
+- `research/ccc-ada-twin-engine/paper/ccc_ada_predictions_and_falsifiability.tex` — project file (tex).
+- `research/ccc-ada-twin-engine/paper/ccc_ada_twin_engine_framework.tex` — project file (tex).
+- `research/data/README.md` — documentation file.
+- `research/data/torr_vs_mond_lock_n11.csv` — project file (csv).
+- `research/equations/torridityequate.txt` — project file (txt).
+- `research/paper/torridity_ledger.tex` — project file (tex).
 
 </details>
+
 ## Infra & Ops
 Auto-synced from `terraform/**`, `prometheus/**`, `grafana/**`, `.github/workflows/**`, `vercel.json`, `docker-compose.yml` using repository introspection.
 - Files tracked: **64**
@@ -3624,3 +3657,248 @@ Auto-synced from `src/**` using repository introspection.
 
 </details>
 
+## Api
+Auto-synced from `api/**` using repository introspection.
+- Files tracked: **112**
+- API routes discovered: none
+- App pages discovered: none
+- Components/modules discovered: none
+#### Api file structure
+```text
+└── api
+    ├── account
+    │   ├── delete-data
+    │   │   └── route.ts
+    │   ├── delete-dream
+    │   │   └── route.ts
+    │   └── export-data
+    │       └── route.ts
+    ├── activity
+    │   └── track
+    │       └── route.ts
+    ├── admin
+    │   ├── ai-chat
+    │   │   └── route.ts
+    │   ├── ai-request
+    │   │   └── route.ts
+    │   ├── child-safety
+    │   │   └── route.ts
+    │   ├── code-files
+    │   │   └── route.ts
+    │   └── observability
+    │       └── route.ts
+    ├── ads
+    │   ├── orders
+    │   │   └── route.ts
+    │   └── view
+    │       └── route.ts
+    ├── agent
+    │   └── session
+    │       └── route.ts
+    ├── ai
+    │   ├── boogieman
+    │   │   ├── child-safety
+    │   │   │   └── route.ts
+    │   │   ├── privacy-event
+    │   │   │   └── route.ts
+    │   │   ├── route.ts
+    │   │   └── status
+    │   │       └── route.ts
+    │   ├── eams
+    │   │   └── route.ts
+    │   ├── execute
+    │   │   └── route.ts
+    │   └── idari
+    │       └── route.ts
+    ├── appeal
+    │   └── route.ts
+    ├── auth
+    │   ├── logout
+    │   │   └── route.ts
+    │   └── providers
+    │       └── route.ts
+    ├── blocks
+    │   └── route.ts
+    ├── ci
+    │   └── run
+    │       └── route.ts
+    ├── close-friends
+    │   └── route.ts
+    ├── comments
+    │   └── route.ts
+    ├── connectors
+    │   ├── [provider]
+    │   │   ├── connect
+    │   │   │   └── route.ts
+    │   │   ├── disconnect
+    │   │   │   └── route.ts
+    │   │   ├── items
+    │   │   │   └── route.ts
+    │   │   ├── sync
+    │   │   │   └── route.ts
+    │   │   └── verify
+    │   │       └── route.ts
+    │   ├── cron
+    │   │   └── route.ts
+    │   ├── instagram
+    │   │   └── oauth
+    │   │       ├── callback
+    │   │       │   └── route.ts
+    │   │       └── start
+    │   │           └── route.ts
+    │   ├── status
+    │   │   └── route.ts
+    │   ├── webhooks
+    │   │   └── [provider]
+    │   │       └── route.ts
+    │   └── youtube
+    │       └── oauth
+    │           ├── callback
+    │           │   └── route.ts
+    │           └── start
+    │               └── route.ts
+    ├── content
+    │   ├── generative-fill
+    │   │   └── route.ts
+    │   ├── intelligence
+    │   │   └── route.ts
+    │   ├── transcribe
+    │   │   └── route.ts
+    │   └── voice-clone
+    │       └── route.ts
+    ├── dr-eams
+    │   ├── hf
+    │   │   └── route.ts
+    │   └── run
+    │       └── route.ts
+    ├── drafts
+    │   ├── [id]
+    │   │   └── route.ts
+    │   └── route.ts
+    ├── dream-windows
+    │   ├── [id]
+    │   │   └── route.ts
+    │   └── route.ts
+    ├── dreamengin
+    │   └── os-status
+    │       └── route.ts
+    ├── dreamr
+    │   ├── feed
+    │   │   └── route.ts
+```
+<details><summary>Api file index (112 files)</summary>
+
+- `api/account/delete-data/route.ts` — API route handler.
+- `api/account/delete-dream/route.ts` — API route handler.
+- `api/account/export-data/route.ts` — API route handler.
+- `api/activity/track/route.ts` — API route handler.
+- `api/admin/ai-chat/route.ts` — API route handler.
+- `api/admin/ai-request/route.ts` — API route handler.
+- `api/admin/child-safety/route.ts` — API route handler.
+- `api/admin/code-files/route.ts` — API route handler.
+- `api/admin/observability/route.ts` — API route handler.
+- `api/ads/orders/route.ts` — API route handler.
+- `api/ads/view/route.ts` — API route handler.
+- `api/agent/session/route.ts` — API route handler.
+- `api/ai/boogieman/child-safety/route.ts` — API route handler.
+- `api/ai/boogieman/privacy-event/route.ts` — API route handler.
+- `api/ai/boogieman/route.ts` — API route handler.
+- `api/ai/boogieman/status/route.ts` — API route handler.
+- `api/ai/eams/route.ts` — API route handler.
+- `api/ai/execute/route.ts` — API route handler.
+- `api/ai/idari/route.ts` — API route handler.
+- `api/appeal/route.ts` — API route handler.
+- `api/auth/logout/route.ts` — API route handler.
+- `api/auth/providers/route.ts` — API route handler.
+- `api/blocks/route.ts` — API route handler.
+- `api/ci/run/route.ts` — API route handler.
+- `api/close-friends/route.ts` — API route handler.
+- `api/comments/route.ts` — API route handler.
+- `api/connectors/[provider]/connect/route.ts` — API route handler.
+- `api/connectors/[provider]/disconnect/route.ts` — API route handler.
+- `api/connectors/[provider]/items/route.ts` — API route handler.
+- `api/connectors/[provider]/sync/route.ts` — API route handler.
+- `api/connectors/[provider]/verify/route.ts` — API route handler.
+- `api/connectors/cron/route.ts` — API route handler.
+- `api/connectors/instagram/oauth/callback/route.ts` — API route handler.
+- `api/connectors/instagram/oauth/start/route.ts` — API route handler.
+- `api/connectors/status/route.ts` — API route handler.
+- `api/connectors/webhooks/[provider]/route.ts` — API route handler.
+- `api/connectors/youtube/oauth/callback/route.ts` — API route handler.
+- `api/connectors/youtube/oauth/start/route.ts` — API route handler.
+- `api/content/generative-fill/route.ts` — API route handler.
+- `api/content/intelligence/route.ts` — API route handler.
+- `api/content/transcribe/route.ts` — API route handler.
+- `api/content/voice-clone/route.ts` — API route handler.
+- `api/dr-eams/hf/route.ts` — API route handler.
+- `api/dr-eams/run/route.ts` — API route handler.
+- `api/drafts/[id]/route.ts` — API route handler.
+- `api/drafts/route.ts` — API route handler.
+- `api/dream-windows/[id]/route.ts` — API route handler.
+- `api/dream-windows/route.ts` — API route handler.
+- `api/dreamengin/os-status/route.ts` — API route handler.
+- `api/dreamr/feed/route.ts` — API route handler.
+- `api/dreamr/suggested/route.ts` — API route handler.
+- `api/dreamr/tally/route.ts` — API route handler.
+- `api/dreams/feed/route.ts` — API route handler.
+- `api/dreams/instances/route.ts` — API route handler.
+- `api/dreams/transfer/route.ts` — API route handler.
+- `api/embed-feed/route.ts` — API route handler.
+- `api/favorites/route.ts` — API route handler.
+- `api/feed/route.ts` — API route handler.
+- `api/follow/route.ts` — API route handler.
+- `api/gal/route.ts` — API route handler.
+- `api/game-scores/route.ts` — API route handler.
+- `api/gameengin/crash-report/route.ts` — API route handler.
+- `api/health/route.ts` — API route handler.
+- `api/home-layout/route.ts` — API route handler.
+- `api/journey/route.ts` — API route handler.
+- `api/lab/benchmarks/route.ts` — API route handler.
+- `api/ledger-media/route.ts` — API route handler.
+- `api/likes/route.ts` — API route handler.
+- `api/marketplace/request/route.ts` — API route handler.
+- `api/marketplace/route.ts` — API route handler.
+- `api/messages/boards/route.ts` — API route handler.
+- `api/messages/route.ts` — API route handler.
+- `api/metrics/platform/route.ts` — API route handler.
+- `api/metrics/route.ts` — API route handler.
+- `api/metrics/user/[userId]/route.ts` — API route handler.
+- `api/music/route.ts` — API route handler.
+- `api/notifications/route.ts` — API route handler.
+- `api/platform/errors/route.ts` — API route handler.
+- `api/posts/[id]/route.ts` — API route handler.
+- `api/posts/[id]/save/route.ts` — API route handler.
+- `api/posts/[id]/view/route.ts` — API route handler.
+- `api/posts/profile/[userId]/route.ts` — API route handler.
+- `api/posts/route.ts` — API route handler.
+- `api/profile/route.ts` — API route handler.
+- `api/projects/route.ts` — API route handler.
+- `api/scheduled-posts/route.ts` — API route handler.
+- `api/security/scan/route.ts` — API route handler.
+- `api/settings/appearance/route.ts` — API route handler.
+- `api/settings/feed/route.ts` — API route handler.
+- `api/settings/notifications/route.ts` — API route handler.
+- `api/settings/privacy/route.ts` — API route handler.
+- `api/setup/check/route.ts` — API route handler.
+- `api/setup/google-oauth/route.ts` — API route handler.
+- `api/shared-dream/sessions/[id]/route.ts` — API route handler.
+- `api/shared-dream/sessions/route.ts` — API route handler.
+- `api/shellhub/devices/route.ts` — API route handler.
+- `api/shop/route.ts` — API route handler.
+- `api/skip-credits/balance/route.ts` — API route handler.
+- `api/skip-credits/earn/route.ts` — API route handler.
+- `api/skip-credits/use/route.ts` — API route handler.
+- `api/social/ipfs/route.ts` — API route handler.
+- `api/social/livekit/room/route.ts` — API route handler.
+- `api/social/livekit/token/route.ts` — API route handler.
+- `api/social/rss-feed/route.ts` — API route handler.
+- `api/upload/route.ts` — API route handler.
+- `api/user/layout/route.ts` — API route handler.
+- `api/views/track/route.ts` — API route handler.
+- `api/widgets/feed/route.ts` — API route handler.
+- `api/widgets/instances/route.ts` — API route handler.
+- `api/youtube/channel/route.ts` — API route handler.
+- `api/youtube/discovery/route.ts` — API route handler.
+- `api/youtube/live-feed/route.ts` — API route handler.
+
+</details>

@@ -21,7 +21,7 @@ import {
 } from '@/lib/admin/lockout';
 
 
-function deny(msg: string, status): number {
+function deny(msg: string, status: number): NextResponse {
   return NextResponse.json({ error: msg }, { status });
 }
 
