@@ -1,6 +1,6 @@
 packages:
   - '.'
-  - 'backend'
+  
 
 ignoredBuiltDependencies:
   - sharp
