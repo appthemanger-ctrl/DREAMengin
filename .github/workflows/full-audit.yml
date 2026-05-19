@@ -27,16 +27,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: latest
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: latest
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -514,7 +514,6 @@ jobs:
       # ────────────────────────────────────────────────────────────────
       - name: Build final summary report
         run: |
-          # Prepend a summary header to the report
           SUMMARY_FILE="audit-reports/summary.md"
 
           echo "# 🔍 Full Codebase Audit Report" > $SUMMARY_FILE
@@ -548,11 +547,9 @@ jobs:
           echo "---" >> $SUMMARY_FILE
           echo "" >> $SUMMARY_FILE
 
-          # Merge summary + detail
           cat audit-reports/report.md >> $SUMMARY_FILE
           cp $SUMMARY_FILE audit-reports/FULL_AUDIT_REPORT.md
 
-          # Print to Actions log too so it's visible inline
           echo "=============================="
           echo "AUDIT SUMMARY"
           echo "=============================="
