@@ -60,7 +60,7 @@ async function pollPrediction(predictionUrl: string, apiToken: string): Promise<
  * When REPLICATE_API_TOKEN is set, calls stable-diffusion-inpainting via Replicate.
  * Falls back to a graceful dev stub when no credentials are present.
  */
-export async function POST(req: NextRequest ){
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {

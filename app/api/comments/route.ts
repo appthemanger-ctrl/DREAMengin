@@ -19,7 +19,7 @@ const DeleteCommentSchema = z.object({
 
 // GET /api/comments?post_id=<uuid>
 // Returns comments for a post joined with profile display_name + avatar_url, ordered ASC
-export async function GET(req: NextRequest ){
+export async function GET(req: NextRequest): Promise<NextResponse> {
   const { searchParams } = new URL(req.url);
   const postId = searchParams.get('post_id');
 
@@ -72,7 +72,7 @@ export async function GET(req: NextRequest ){
 
 // POST /api/comments
 // Body: { post_id, content } — auth required
-export async function POST(req: NextRequest ){
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const {
     data: { user },
@@ -142,7 +142,7 @@ export async function POST(req: NextRequest ){
 
 // DELETE /api/comments
 // Body: { comment_id } — auth required; user can only delete own comments
-export async function DELETE(req: NextRequest ){
+export async function DELETE(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const {
     data: { user },

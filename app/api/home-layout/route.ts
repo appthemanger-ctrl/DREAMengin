@@ -40,7 +40,7 @@ function isValidSlot(s: unknown): s is LayoutSlot {
   return typeof obj.id === 'string' && typeof obj.type === 'string' && typeof obj.position === 'number';
 }
 
-export async function GET( ){
+export async function GET( ): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {
@@ -62,7 +62,7 @@ export async function GET( ){
   return NextResponse.json({ ok: true, layout });
 }
 
-export async function POST(req: NextRequest ){
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {

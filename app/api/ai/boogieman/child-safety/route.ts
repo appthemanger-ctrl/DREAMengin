@@ -83,7 +83,7 @@ async function loadKnownBadHashes(supabase: Awaited<ReturnType<typeof createServ
 // POST — scan handler
 // ============================================================================
 
-export async function POST(req: NextRequest ){
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const requestStart = Date.now();
   const request_id = uuidv4();
 

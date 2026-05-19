@@ -181,7 +181,7 @@ export function parseSocialFeedConfig(raw: unknown): SocialFeedWidgetConfig {
   return { sources, horizon, maxItems, ranking, filter };
 }
 
-export function parseTypedWidget(input: ){ id: string; type: string; config: unknown }: TypedWidget {
+export function parseTypedWidget(input: { id: string; type: string; config: unknown }): TypedWidget {
   const type = input.type as DreamenginWidgetType;
   switch (type) {
     case 'youtube':

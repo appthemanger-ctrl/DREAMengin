@@ -48,7 +48,7 @@ function pick(payload: RawPayload ){
   return cleaned;
 }
 
-export async function POST(req: NextRequest ){
+export async function POST(req: NextRequest): Promise<NextResponse> {
   let raw: string;
   try {
     raw = await req.text();

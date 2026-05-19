@@ -11,7 +11,7 @@ import type {
   EarnSkipCreditsResponse,
 } from '@/lib/activity/types';
 
-export async function POST(req: NextRequest ){
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
 
   // Auth required

@@ -49,7 +49,7 @@ type PrivacyEvent = z.infer<typeof PrivacyEventSchema>;
 
 // ── Route handler ─────────────────────────────────────────────────────────────
 
-export async function POST(req: NextRequest ){
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const requestStart = Date.now();
   const request_id = uuidv4();
 

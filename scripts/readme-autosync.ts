@@ -394,7 +394,7 @@ export function computeAffected(
   return affected;
 }
 
-export function runReadmeAutosync(options: ){ changedFiles: string[]; summaryFile?: string }): AutosyncSummary {
+export function runReadmeAutosync(options: { changedFiles: string[]; summaryFile?: string }): AutosyncSummary {
   if (!existsSync(README_PATH)) {
     throw new Error(`README not found at ${README_PATH}`);
   }

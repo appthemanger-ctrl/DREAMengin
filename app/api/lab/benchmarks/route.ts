@@ -20,7 +20,7 @@ function runServerBenchmarks( ){
   ];
 }
 
-export async function POST(_req: NextRequest ){
+export async function POST(_req: NextRequest ): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {

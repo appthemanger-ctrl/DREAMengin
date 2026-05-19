@@ -30,7 +30,7 @@ import { createServerClient } from '@/lib/supabase/server';
 const PLATFORM_SHARE_PERCENT = 0.10; // 10% DREAMengin platform cut
 
 
-export async function POST(req: NextRequest ){
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
 
   const { data: { user }, error: authError } = await supabase.auth.getUser();

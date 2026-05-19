@@ -64,7 +64,7 @@ const ELEVEN_BASE = 'https://api.elevenlabs.io/v1';
  *
  * Requires ELEVENLABS_API_KEY. Falls back to graceful stubs when the key is absent.
  */
-export async function POST(req: NextRequest ){
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError || !user) {

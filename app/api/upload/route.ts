@@ -22,7 +22,7 @@ function normalizeInputData(payload: UploadPayload): string {
   return JSON.stringify(payload.data);
 }
 
-export async function POST(req: NextRequest ){
+export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = await createServerClient();
   const {
     data: { user },
